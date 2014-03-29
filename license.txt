@@ -1,0 +1,367 @@
+ALUSUS PUBLIC LICENSE
+
+Version 1.0, 8 February 2014
+
+Copyright © 2014 Alusus Software Ltd. <http://alusus.org/>
+
+
+This License affects Your legal rights and obligations, and is a binding legal agreement between You
+and Alusus Software Ltd., a company incorporated and existing under the laws of British
+Columbia/Canada whose registered office is at 10052 128 Street, Surrey, BC, V3T 2Y9, Canada
+(“Licensor”).
+
+In this License, the terms “Contributor”, “Contribution”, “Core Language”, “Extension”, “License”,
+“Modification”, “Program”, and “You” shall have the meanings defined below.
+
+By clicking the ‘ACCEPT LICENSE AGREEMENT’ button or by using the Core Language or Modifications You
+acknowledge that You have read the terms contained in this License and agree with and accept all
+such terms. YOUR USE OF CORE LANGUAGE AND MODIFICATIONS IS EXPRESSLY CONDITIONED UPON YOUR ACCEPTING
+AND AGREEING TO ALL TERMS OF THIS LICENSE . If You do not understand the meaning of any of the terms
+contained in this License, DO NOT use Core Language or Modifications unless (i) You have contacted
+Licensor at info@alusus.org, (ii) received a satisfactory explanation of such meaning, and (iii)
+agree with all terms contained in this License. 
+
+If You do not agree with any of the terms contained in this License, You are not allowed to use Core
+Language or Modifications, and You must immediately cease any such use. 
+
+If You are agreeing to the terms of this License on behalf of a company or other legal entity, You
+represent that You have the legal authority to bind the legal entity to these terms. If You do not
+have such authority, or if You do not wish to be bound by the terms, then click the “DECLINE LICENSE
+AGREEMENT” button, in which case You must not use Core Language, Modifications, or any other
+derivative work based on or containing Core Language.
+
+
+1. DEFINITIONS
+
+“Contribution” means elements and parts of Core Language created by a particular Contributor.
+
+“Contributor” means each individual or legal entity that creates or contributes to the creation of
+Core Language.
+
+“Core Language” means that version of programming environment which this License accompanies,
+including all source code, binary files, and documentation,  created by or for Licensor that is at
+the relevant times approved by Licensor to be made available under the terms of this License at
+<http://alusus.net/dev>.
+
+“Extension” means any software that is not a Modification or a Program, that expands of modifies the
+existing functionality of Core Language as a programming environment. For greater clarity,
+Extensions are different from Modifications in that no modifications to existing code including any
+functions, variables, classes, or subroutines are allowed to be found in Extensions. For further
+clarity, Extensions are different from Programs in that the functionality of Extensions does not go
+beyond providing an enhanced or modified programming environment based on Core Language, while
+Programs are designed to perform any other functions.
+
+“License” means this document. For greater clarity, Licensor is only bound to the official version
+of this License as it is published at <http://alusus.net/alusus_license_1_0>, subject to any revisions and
+modifications pursuant to Section 9 of this License. If there is a discrepancy between such official
+versions and the text that may be made available in whichever form, the official version of this
+License shall govern.
+
+“Modification” means any software that modifies then existing functions, variables or subroutines in
+Core Language. For greater clarity, the term “Modification” does not include Extensions or Programs.
+The term “Modification” should be read as “Modification and any fragment or element of Core Language
+included in or reproduced as part of such Modification”.
+
+“Program” means any software created using Core Language (whether or not modified by Modifications
+or Extensions) that is designed to perform a function other than extending the functionality of Core
+Language as a programming environment.
+
+“You” (or “Your”) means an individual or a legal entity exercising rights under this License.
+
+
+2. LICENSE TO USE CORE LANGUAGE
+
+Subject to provisions of Sections 3, 4, 5, 6, 7 and 8 of this License, Licensor on its own behalf
+and on behalf of all Contributors who rightfully granted Licensor permission to sublicense their
+Contributions, hereby grants You a worldwide, royalty-free, non-exclusive license to do the
+following with unmodified versions of Core Language:
+
+  reproduce and make copies;
+  
+  distribute, including by way of selling, offering for sale, renting out, gifting, importing and
+exporting such copies of Core Language, to the extent that Licensor may only sell or offer the Core
+Language for sale as part of a package containing other hardware, software or materials;
+
+  display in public;
+
+  perform in public; 
+
+  communicate to the public;
+
+  communicate to the public by telecommunication;
+
+  make available to the public; and
+
+  subject to provisions of Sections 3, 4, 5, 6, 7 and 8 of this License, amend, modify, and create
+Modifications, Extensions, Programs, and, if applicable, other derivative works based on Core
+Language.
+
+
+3. LICENSE TO USE MODIFICATIONS
+
+(a) Licensor welcomes Contributions from Contributors and is interested in continued development of
+Core Language. However, in order to keep the development of Core Language manageable, and to prevent
+emergence of multiple independent threads of Core Language, Licensor shall keep a centralized
+depository of Modifications and decide which Modifications become an integral part of Core Language. 
+
+Unless You submit Your Modification as a Contributor, and Your Modification is approved by Licensor
+to become an integral part of Core Language, You must not publish, distribute or otherwise make the
+Modification available to the public.
+
+To become a Contributor and submit Your Modifications, please visit
+<http://alusus.net/contributor_terms> and accept Contributor Terms and Conditions.
+
+If Your Modification was not approved as a Contribution, You are encouraged to make the necessary
+changes to transform Your Modification into an Extension by ensuring that no variables, functions or
+subroutines of Core Language are modified.
+
+(b) Unless You are a Contributor, Your license to use Core Language and Modifications is expressly
+conditioned upon Your undertaking not to publish, distribute or make the Modifications available to
+the public.
+
+If You do not agree with the terms of this Section 3, You do not have Licensor’s permission to use
+Core Language (including by reproducing, making available, amending or modifying Core Language), or
+to create Modifications, Extensions, Programs or other derivative works based on Core Language. 
+
+You agree that limitations and prohibitions contained in this Section 3 apply to You even if
+applicable laws in Your jurisdiction set forth that it is not a copyright infringement for You to
+make some of these prohibited uses of Modifications. You voluntarily assume these limitations, even
+if some uses listed in this Section 3 are recognized as copyright exceptions or “user rights” in
+Your jurisdiction. You agree to waive and hereby waive any such rights You may have in exchange for
+Licensor granting You the license to use Core Language, and You hereby agree that any such
+unauthorized use by You will constitute a breach of this License.
+
+(c) Subject to Sections 3(a), 3(b) and 5 of this License, Licensor on its own behalf and on behalf
+of all Contributors who rightfully granted Licensor permission to sublicense their Contributions,
+hereby grants You a worldwide, royalty-free, non-exclusive license to create Programs using the
+Modifications You may have created by amending or modifying Core Language. No other rights are
+granted to You in connection with Your use of Modifications. 
+
+
+4. LICENSE TO USE EXTENSIONS
+
+(a) Licensor welcomes independent development of Extensions by third parties, as long as it does not
+result in emergence of multiple independent threads of Core Language. 
+
+(b) Licensor makes no claim to Your Extensions. You are free to make and authorize others to make
+any use of Your Extensions, including for commercial purposes, as long as: (i) You and Your
+licensees do not include Core Language in the same package as Your Extension; (ii) You do not
+distribute, make available, or facilitate distribution or making available of Modifications; and
+(iii) You and Your licensees do not use names or references or do anything else  that would lead a
+reasonable person to believe that Your Extension is created, offered, sponsored, granted official
+status, or endorsed by Licensor.
+
+(c) To the extent that You need or wish to distribute Core Language, provisions of Section 2 of this
+License apply.
+
+(d) You are responsible for maintaining Your own licensing policy for authorizing others to use Your
+Extensions. To the extent You choose to use software by third parties in Your Extensions, You are
+responsible for ensuring that You are in compliance with such third parties’ respective licensing
+policies.
+
+
+5. LICENSE TO USE PROGRAMS
+
+(a) Core Language is being developed to allow creation of Programs. Allowing users to create
+Programs is the reason for the existence of Core Language. 
+
+(b) Licensor makes no claim to Your Programs. You are free to make and authorize others to make any
+use of Your Programs, including for commercial purposes, as long as: (i) You and Your licensees do
+not include Core Language in the same package as Your Program; (ii) You do not distribute, make
+available, or facilitate distribution or making available of Modifications; and (iii) You and Your
+licensees do not use names or references or do anything else  that would lead a reasonable person to
+believe that Your Program is created, offered, sponsored, granted official status, or endorsed by
+Licensor.
+
+(c) To the extent that You need or wish to distribute Core Language or Extensions, provisions of
+Sections 2 and 4 of this License apply.
+
+(d) You are responsible for maintaining Your own licensing policy for authorizing others to use Your
+Programs. To the extent You choose to use software by third parties in Your Programs, You are
+responsible for ensuring that You are in compliance with such third parties’ respective licensing
+policies.
+
+
+6. NO OTHER RIGHTS
+
+(a) The rights that are not explicitly licensed under this License are reserved by Licensor. 
+
+(b) Moral rights, such as the right to be recognized as the author of the work, or the right of
+integrity, are not licensed under this License, nor are publicity, privacy or other similar
+personality rights. Licensor agrees that the attribution requirements typically associated with
+moral rights will be deemed satisfied if You comply with the terms of 7(b) of this License.
+
+(c) Without limitation, this License does not grant any rights in the trademarks, service marks,
+trade names, or logos of Licensor or any Contributor (except as may be necessary to comply with the
+notice requirements in Section 7(b) of this License). You acknowledge and agree not to seek to
+invalidate or otherwise question Licensor’s rights in and to its trademark ALUSUS.
+
+
+7. FURTHER CONDITIONS
+
+(a) When distributing or making available copies of Core Language, You must inform recipients that
+the use of such copies is subject to this License and provide a link to
+<http://alusus.net/alusus_license_1_0> as the source of the official text of this License.
+
+(b) You may not remove or alter any notices (including copyright notices, patent notices,
+disclaimers of warranty, or limitations of liability) contained within the source code or otherwise
+incorporated into Core Language.
+
+(c) You may choose to offer, and to charge a fee for, warranty, support, indemnity or liability
+obligations to one or more recipients of copies of Core Language, Your Extensions, or Your Programs.
+However, You may do so only on Your own behalf, and not on behalf of Licensor or any Contributors.
+You must make it absolutely clear that any such warranty, support, indemnity, or liability
+obligation is offered by You alone, and You hereby agree to indemnify Licensor and every Contributor
+for any liability incurred by Licensor or such Contributor as a result of warranty, support,
+indemnity or liability terms You offer. You may include additional disclaimers of warranty and
+limitations of liability specific to any jurisdictions.
+
+(d) Your ability to sublicense or assign any of the rights and licenses under this License is
+conditional upon and subject to Your licensees and assignees (and their respective licenses or
+assignees, through multiple tiers) agreeing to assume all obligations You have under this License.
+
+
+8. TERM AND TERMINATION
+
+(a) Unless terminated early under Section , This License is granted for the entire term of
+protection of rights licensed to You. 
+
+(b) Your rights under this License will terminate automatically: (i) If You fail to comply with the
+terms of this License, (ii) If You initiate litigation against Licensor, upon which You must
+immediately cease and desist from using Core Language.
+
+(c) For the avoidance of doubt, this Section 8 does not affect any right Licensor may have to seek
+remedies for Your violations of this License.
+
+
+9. FUTURE VERSIONS OF THIS LICENSE
+
+(a) Licensor has the right to modify or publish new versions of this License. Each version will be
+given a distinguishing version number.
+
+(b) You may choose whether to continue using Core Language, Modifications, Extensions, and Programs
+pursuant to the terms of this License in force when You originally became a party to this License or
+to be bound by the terms of any subsequent version of this License published by Licensor.
+
+
+10. DISCLAIMER OF WARRANTY
+
+(a) Core Language is provided under this License on an “as is” basis, without warranty of any kind,
+either expressed, implied, or statutory, including, without limitation, warranties that Core
+Language is free of defects, merchantable, fit for a particular purpose or non-infringing. 
+
+(b) You recognize and acknowledge that while each of the Contributors has offered Licensor
+guarantees and representations of non-infringement in respect of their respective Contributions,
+Licensor makes no warranties, of any kind, either expressed, implied, or statutory, in respect of
+such Contributions. 
+
+(c) The entire risk as to the quality and performance of Core Language is with You. Should any part
+of Core Language prove defective in any respect, You (not Licensor or any Contributor) assume the
+cost of any necessary servicing, repair, or correction. 
+
+(d) Licensor disclaims any liability for Modifications, Extensions, Programs or other works
+derivative of Core Language, whether authorized or not, distributed by third parties outside of
+Licensor’s control. 
+
+(e) If Licensor chooses to distribute Extensions or Programs directly, Licensor may provide specific
+license terms that apply to such Extensions and Programs, and such license terms shall have
+precedence over this License.
+
+
+11. LIMITATION OF LIABILITY
+
+Under no circumstances and under no legal theory, whether tort (including negligence), contract, or
+otherwise, shall Licensor or any Contributor, or anyone who distributes Core Language as permitted
+above, be liable to You for any direct, indirect, special, incidental, or consequential damages of
+any character including, without limitation, damages for lost profits, loss of goodwill, work
+stoppage, computer failure or malfunction, or any and all other commercial damages or losses, even
+if such party shall have been informed of the possibility of such damages. This limitation of
+liability shall not apply to liability for death or personal injury resulting from such party’s
+negligence to the extent applicable law prohibits such limitation. Some jurisdictions do not allow
+the exclusion or limitation of incidental or consequential damages, so this exclusion and limitation
+may not apply to You.
+
+
+12. INTERPRETATION
+
+In this License, unless there is something in the subject matter or context inconsistent therewith:
+
+(a) words in the singular number include the plural and such words shall be construed to include the
+plural;
+
+(b) words in the plural include the singular and such words shall be construed to include the
+singular;
+
+(c) the words “and” and “or” mean “and/or”;
+
+(d) words importing the use of any gender shall include all genders where the context or party
+referred to so requires, and the rest of the sentence shall be construed as if the necessary
+grammatical and terminological changes had been made;
+
+(e) the headings of this License are for convenience only and should not be used for its
+interpretation.
+
+
+13. SEVERABILITY
+
+If any term, clause or provision of this License is held invalid, unenforceable or unconscionable by
+a court of competent jurisdiction, such invalidity shall not affect the validity or operation of any
+other term, clause or provision and such invalid term, clause or provision shall be deemed to be
+severed from this License and reformed only to the extent necessary to make it enforceable and
+valid. Any law or regulation which provides that the language of a contract is to be construed
+against the drafted shall not be used to construe this License against Licensor or Contributors.
+
+
+14. GOVERNING LAW
+
+This License shall be governed by and construed in accordance with the laws of the Province of
+British Columbia, Canada, without giving effect to its choice of law rules. 
+
+
+15. ARBITRATION
+
+(a) Licensor is committed to providing a world-class service and customer service, and sincerely
+hopes to resolve most issues that You may have with Licensor without any intermediaries. If You have
+an issue with Licensor, please send Licensor an email at info@alusus.org.
+
+(b) In the unlikely event that a satisfactory solution cannot be found, You agree to follow the
+resolution process described below.
+
+(c) Before You initiate, join or participate in any formal proceedings against Licensor, You agree
+to first discuss the matter informally with Licensor for at least 30 days. To do that, please send
+Your full name and contact information, Your concern and Your proposed solution by registered mail
+to us at: 10052 128 Street, Surrey, BC, V3T 2Y9, Canada.
+
+(d) To the maximum extent not expressly prohibited by the laws that may apply to You in each
+specific situation, You hereby waive Your right to initiate, join or participate in any class
+actions against us or otherwise consolidate Your claim with any other claim or controversy that any
+other party may have against us. You agree to resolve any and all disputes You may have with us on
+an individual basis.
+
+(e) To the maximum extent not expressly prohibited by the laws that may apply to You in each
+specific situation, You hereby agree that any claim that You might have against us regarding this
+License, Core Language, Modifications, Extensions, or Programs must be resolved through binding
+arbitration administered by the British Columbia International Commercial Arbitration Centre,
+pursuant to its Rules. In the absence of any written agreement otherwise, the place of arbitration
+shall be Vancouver, British Columbia.
+
+(f) All information relating to or disclosed by any party in connection with the arbitration of any
+disputes hereunder shall be treated by the parties, their representatives, and the arbitrator as
+proprietary business information. Such information shall not be disclosed by any party or their
+respective representatives without the prior written authorization of the party furnishing such
+information. Such information shall not be disclosed by the arbitrator without the prior written
+authorization of all parties. Each party shall bear the burden of its own counsel fees incurred in
+connection with any arbitration proceedings.
+
+(g) Judgment upon the award returned by the arbitrator may be entered in any court having
+jurisdiction over the parties or their assets or application of enforcement, as the case may be. Any
+award by the arbitrator shall be the sole and exclusive remedy of the parties. The parties hereby
+waive all rights to judicial review of the arbitrator's decision and any award contained therein.
+
+(h) If, and only if, Your election to use arbitration to resolve any and all disputes as agreed
+above is held to be unenforceable in each specific situation, whether by operation of law or
+otherwise, You agree to submit to the exclusive jurisdiction of the courts located in Vancouver,
+British Columbia to finally adjudicate and determine any suit, action or proceeding arising out of
+or in connection with the validity, construction, subject-matter, or performance of this License, in
+accordance with the laws of British Columbia.
+
