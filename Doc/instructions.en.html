@@ -41,7 +41,7 @@
 
  <p><a href="http://alusus.net/Downloads/CATCH.tar.gz">CATCH</a></p>
 
- The release of CATCH used by Alusus' source code is old, therefore you need to download CATCH from the link above and not from their official page which includes a newer release that might not be compatible with Alusus' source code. In addition to the libraries mentioned above, you'll need GCC and CMake to be able to build the binaries from the source code. LLVM also has its own dependencies like valgrind for example.
+ The release of CATCH used by Alusus' source code is old, therefore you need to download CATCH from the link above and not from their official page which includes a newer release that might not be compatible with Alusus' source code. In addition to the libraries mentioned above, you'll need GCC (4.8) and CMake to be able to build the binaries from the source code. LLVM also has its own dependencies like valgrind for example.
 
  <!-- ********************************************************************** -->
  <h2>Building Steps</h2>
@@ -51,7 +51,8 @@
 <pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc cmake</pre>
   And for Fedora use the following:
 <pre dir=ltr class="code nohighlight">$ sudo yum install gcc gcc-c++ cmake valgrind valgrind-devel</pre>
-  Notice the need to install valgrind in Fedora in order to be able to build LLVM. We didn't need to install valgrind in Ubuntu. You might also need to install other packages if you are using distros other than the above. Visit LLVM's website for more details on how to build it.
+  Notice the need to install valgrind in Fedora in order to be able to build LLVM. We didn't need to install valgrind in Ubuntu. You might also need to install other packages if you are using distros other than the above. Visit LLVM's website for more details on how to build it.<br/>
+  <span style="color:red;">Note: You'll need GCC version 4.8 or newer. You won't be able to build Alusus code with older versions.</span>
   </li>
 
   <li>Download the source code for the versions mentioned above of LLVM, Boost, and CATCH, and extract their files.</li>
