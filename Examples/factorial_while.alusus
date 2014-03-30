@@ -1,0 +1,21 @@
+import "common.alusus";
+
+def FactorialWhileLoop : module {
+  def factorial : function(i:int) => int {
+    if i<=0 return 1;
+    def f : int;
+    f := i;
+    while (i >= 2) {
+      i := i - 1;
+      f := f*i;
+    };
+    return f;
+  };
+
+  def main : function() {
+    printf("Factorial of 5 is %d\n", factorial(5));
+    return 0 
+  }
+};
+
+run FactorialWhileLoop;

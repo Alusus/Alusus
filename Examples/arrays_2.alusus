@@ -1,0 +1,18 @@
+import "common.alusus";
+
+def Arrays2 : module {
+  def main : function() => int {
+    def testArray : arr[int, 10];
+    def i : int;
+    i := 3;
+    testArray[i+1] := i*5 + 1;
+    print("testArray[");
+    print_int(i+1);
+    print("] = ");
+    print_int(testArray[i+1]);
+    print("\n");
+    return 0;
+  }
+};
+
+run Arrays2;

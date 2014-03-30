@@ -1,0 +1,19 @@
+import "common.alusus";
+
+def Structures1 : module {
+  def point : struct
+  {
+    def x : int;
+    def y : int;
+  };
+
+  def main : function()
+  {
+    def p : point;
+    p.x := 10;
+    p.y := 5;
+    printf("x = %d, y = %d\n", p.x, p.y);
+  }
+};
+
+run Structures1;

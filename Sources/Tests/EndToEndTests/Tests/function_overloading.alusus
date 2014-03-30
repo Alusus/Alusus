@@ -1,0 +1,23 @@
+import "libalusus_scg_d.so";
+
+def FunctionOverloading : module {
+  link {
+  	printf(string, args) => int;
+  };
+  
+  def print_value : function(value : int) {
+    printf("Printing integral value: %d\n", value);
+  };
+  
+  def print_value : function(value : double) {
+    printf("Printing double value: %f\n", value);
+  };
+  
+  def main : function() {
+    print_value(5);
+    print_value(5.5);
+    return 0;
+  }
+};
+
+run FunctionOverloading;

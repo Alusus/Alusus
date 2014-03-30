@@ -1,0 +1,13 @@
+import "common.alusus";
+
+def GlobalVariable : module {
+  def i : int;
+
+  def main : function() {
+    i := 5;
+    printf("%d\n", i);
+    return 0
+  }
+};
+
+run GlobalVariable;

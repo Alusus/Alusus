@@ -1,0 +1,13 @@
+import "common.alusus";
+
+def HelloWorld : module {
+  def main : function() => int {
+    def f : ptr[int];
+    f := open_test_file();
+    write_to_file(f, "Hello World!\n");
+    close_file(f);
+    return 0;
+  };
+};
+
+run HelloWorld;

@@ -1,0 +1,14 @@
+import "common.alusus";
+
+def Arrays1 : module {
+  def main : function() => int {
+    def testArray : arr[int, 10];
+    testArray[1] := 10;
+    print("testArray[1] = ");
+    print_int(testArray[1]);
+    print("\n");
+    return 0;
+  }
+};
+
+run Arrays1;

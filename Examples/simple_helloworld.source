@@ -1,0 +1,5 @@
+import "Simple_Script_Lib/simple_script_d.so";
+
+execute {
+  println("Hello World")
+}

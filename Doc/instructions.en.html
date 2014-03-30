@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" style="height: 100%;">
+<head profile="http://gmpg.org/xfn/11">
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+ <title>Instructions - Alusus Programming Language</title>
+
+ <link rel="stylesheet" href="Resources/main.css">
+ <link rel="stylesheet" href="Resources/highlight.default.css">
+
+ <script src="Resources/jquery-1.10.2.min.js"></script>
+ <script src="Resources/highlight.pack.js"></script>
+ <script src="Resources/main.js"></script>
+ <script language="javascript">
+ $(document).ready(function() {
+   addNumbering($('#rootdiv'), ".foldable");
+ });
+ </script>
+</head>
+
+<body style="background: grey; text-align:center; height:100%; padding-left: 10px; padding-right:10px;" alink="#00FFFF" link="#FFFFFF" text="#FFFFFF" vlink="#CCCCCC">
+<div style="border-left: solid 1px; border-right: solid 1px; background: white; min-width:840px; max-width:1200px; width: 100%; min-height:100%; text-align:left; margin-left:auto; margin-right:auto;">
+ <div style="width: 100%; height: 100px; padding-top:10px; text-align:center;">
+  <div style="float:left;"><img src="Resources/logo.gif" style="border:0;"/></div>
+  <img src="Resources/title.gif" style="border:0;"/>
+  <div style="padding: 10px 15px; float:right; width:120px; text-align:right;"><a style="text-decoration:none; color:black;" href="instructions.ar.html"><b>العربية</b></a></div>
+ </div>
+ <div class="menu">
+  <span class="menuItem"><a href="http://alusus.net?lang=en">Alusus Language</a> &#x276f; <a href="http://alusus.net/documentation?lang=en">Documentation</a></span>
+ </div>
+ <div id='rootdiv' style="padding-top:5px; padding-left:20px; padding-right:20px; padding-bottom:35px;">
+ <h1>Alusus Building and Usage Instructions</h1>
+
+ <!-- ********************************************************************** -->
+ <h2>External Dependencies</h2>
+ Following is the list of dependencies you'll need to build the project from the source code.
+
+ <p><a href="http://llvm.org/releases/download.html#3.3" target="__blank">LLVM 3.3</a></p>
+
+ <p><a href="http://www.boost.org/users/history/version_1_55_0.html" target="__blank">Boost 1.55.0</a></p>
+
+ <p><a href="http://alusus.net/Downloads/CATCH.tar.gz">CATCH</a></p>
+
+ The release of CATCH used by Alusus' source code is old, therefore you need to download CATCH from the link above and not from their official page which includes a newer release that might not be compatible with Alusus' source code. In addition to the libraries mentioned above, you'll need GCC and CMake to be able to build the binaries from the source code. LLVM also has its own dependencies like valgrind for example.
+
+ <!-- ********************************************************************** -->
+ <h2>Building Steps</h2>
+ <ul>
+  <li>Install the packages for build tools like GCC and CMake using your distribution's package manager. Depending on the distribution you are using, some of these packages might already be installed for you.<br/>
+  In Ubuntu use the following command:
+<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc cmake</pre>
+  And for Fedora use the following:
+<pre dir=ltr class="code nohighlight">$ sudo yum install gcc gcc-c++ cmake valgrind valgrind-devel</pre>
+  Notice the need to install valgrind in Fedora in order to be able to build LLVM. We didn't need to install valgrind in Ubuntu. You might also need to install other packages if you are using distros other than the above. Visit LLVM's website for more details on how to build it.
+  </li>
+
+  <li>Download the source code for the versions mentioned above of LLVM, Boost, and CATCH, and extract their files.</li>
+  
+  <li>Build and install LLVM:
+   <ul>
+    <li>Create a build folder with any name. For example: llvm.build.</li>
+    <li>CD into the build folder you created and execute the following command:
+<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt;</pre>
+    You might also need to manually specify your architecture by setting a value for LLVM_TARGET_ARCH. For example, to specify the architecture under a 32 bit environment use the following command instead of the one above:
+<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DLLVM_TARGET_ARCH=i386</pre>
+    and to specify it for a 64 bit environment use the following:
+<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DLLVM_TARGET_ARCH=x86_64</pre>
+    </li>
+    <li>Complete the build and install:
+<pre dir=ltr class="code nohighlight">
+$ make
+$ sudo make install
+</pre>
+    </li>
+   </ul>
+  </li>
+
+  <li>Build Alusus:
+   <ul>
+    <li>Created a build folder and name it anything. For example, Builds.</li>
+    <li>CD into that folder and complete the build:
+<pre dir=ltr class="code nohighlight">
+$ cd &lt;path-to-Builds&gt;
+$ cmake &lt;path-to-Alusus-root&gt;/Sources -DBOOST_PATH=&lt;path-to-Boost-source&gt; -DCATCH_PATH=&lt;path-to-CATCH&gt; -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=&lt;path-to-Alusus-root&gt; -DLLVM_PATH=&lt;path-to-LLVM-build&gt;
+$ make
+$ make install
+</pre>
+    The last statement (make install) will install the build results into folders Bin, Lib, and Include under Alusus' root folder, which is mentioned above in CMAKE_INSTALL_PREFIX cmake parameter, and not to the operating system's paths. You can choose a different folder as an installation target like /opt/Alusus by changing the value for CMAKE_INSTALL_PREFIX. The above cmake command prepares for a debug build. To change to a release build replace the value of CMAKE_BUILD_TYPE with release instead of debug.
+  </li>
+ </ul>
+
+ <!-- ********************************************************************** -->
+ <h2>Executing Automated Tests</h2>
+ Executing the automated tests is simple. All you need to do is to run the following command inside the Alusus' build folder (Builds in the example above) after the build is complete:
+<pre dir=ltr class="code nohighlight">
+$ make test
+</pre>
+ This command will run three tests. You can run each of these tests individually by changing into its directory under Builds/Tests and manually running its executable. The test CoreTests can be controlled through command line arguments which you can get details on by passing the --help argument.
+
+ <!-- ********************************************************************** -->
+ <h2>Using Alusus</h2>
+ After the build is complete you'll have the executable under Bin and the libraries will go under Lib. In order to run the core you'll need to add the Lib folder to LD_LIBRARY_PATH. After that you'll be able to run the examples:
+<pre dir=ltr class="code nohighlight">
+$ export LD_LIBRARY_PATH=&lt;path-to-Alusus&gt;/Lib:$LD_LIBRARY_PATH
+$ export PATH=&lt;path-to-Alusus&gt;/Bin:PATH
+$ cd &lt;path-to-Alusus&gt;/Examples
+$ alusus_d helloworld.alusus
+</pre>
+ The Core's executalbe's name when building in debug mode will be alusus_d. If the build is in release mode the name will be alusus, i.e. without the _d extension.
+ <p>If the Core is built in debug mode logging can be enabled using the --log command line argument, which accepts a number representing the details level of the log as in the following example:
+<pre dir=ltr class="code nohighlight">
+$ alusus_d helloworld.alusus --log 16
+</pre>
+ The details level is determined through binary flags representing each different details level with the least significant bit representing the lowest level. A value of 1 for each level means details for that level will be logged to the screen. The following table explains the different levels:<br/>
+ Lexer, low level = 1<br/>
+ Lexer, mid level = 2<br/>
+ Lexer, high level = 4<br/>
+ Parser, low level = 8<br/>
+ Parser, mid level = 16<br/>
+ Parser, high level = 32<br/>
+ The flags can be combined to display more than one level at the same time. For example, a value of 7 means logging all levels for the lexer.</p>
+ <p>It's also possible to enable logging in the same way for CoreTests.</p>
+
+ </div>
+ <div style="border-top: solid 1px; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
+  <p>Copyright (C) 2014 <a href="http://sarmad-khalid.info" target="__blank">Sarmad Khalid Abdullah</a>.<br/>
+  This file is released under Alusus Public License, Version 1.0. For details on usage and copying conditions
+  read the full license in the accompanying license file or at <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>.
+  </p>
+ </div>
+</div>
+</body>
+</html>

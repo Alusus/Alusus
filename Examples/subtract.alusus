@@ -1,0 +1,10 @@
+import "common.alusus";
+
+def Subtract : module {
+  def main : function() {
+    printf("%d\n", 1-2);
+    return 0
+  }
+};
+
+run Subtract;

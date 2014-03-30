@@ -1,0 +1,58 @@
+import "libalusus_scg_d.so";
+
+def fileLinks : module {
+  link {
+  	fopen(string, string) => ptr[int];
+  	fprintf(ptr[int], string, args) => int;
+  	fclose(ptr[int]) => int;
+  	printf(string, args) => int;
+  };
+
+  def open_file : function(file_name : string) => ptr[int] {
+    return fopen(file_name, "w+");
+  };
+
+  def write_to_file : function(file : ptr[int], string : string) {
+    fprintf(file, string);
+  };
+  
+  def close_file : function(file : ptr[int]) {
+    fclose(file);
+  };
+  
+  def open_test_file : function() => ptr[int] {
+    return fopen("EndToEndTest.txt", "w+");
+  };
+  
+  def write_int_to_file : function(file : ptr[int], value : int) {
+    fprintf(file, "%d", value);
+  };
+  
+  def write_float_to_file : function(file : ptr[int], value : float) {
+    fprintf(file, "%f", value);
+  };
+  
+  def write_double_to_file : function(file : ptr[int], value : double) {
+    fprintf(file, "%f", value);
+  };
+  
+  def write_newline_to_file : function(file : ptr[int]) {
+    fprintf(file, "\n");
+  };
+
+  def print : function(string : string) {
+    printf(string);
+  };
+
+  def print_int : function (value : int) {
+    printf("%d", value);
+  };
+
+  def print_float : function (value : float) {
+    printf("%f", value);
+  };
+
+  def print_double : function (value : double) {
+    printf("%f", value);
+  }
+};

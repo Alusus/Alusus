@@ -1,0 +1,15 @@
+import "common.alusus";
+
+def FactorialRecursive : module {
+  def factorial : function(i:int) => int {
+    if i<=0 return 1;
+    return i*factorial(i-1);
+  };
+
+  def main : function() {
+    printf("Factorial of 5 is %d\n", factorial(5));
+    return 0 
+  }
+};
+
+run FactorialRecursive;

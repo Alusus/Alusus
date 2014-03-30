@@ -1,0 +1,9 @@
+Bin/*
+Lib/*
+Include/*
+Builds/*
+Examples/*.log
+Draft/*
+*~
+Sources/CMakeLists.txt.user
+

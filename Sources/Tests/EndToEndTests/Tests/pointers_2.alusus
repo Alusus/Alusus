@@ -1,0 +1,18 @@
+import "common.alusus";
+
+def Pointers2 : module {
+  def print_content : function(i : ptr[int]) {
+    printf("%d", i~cnt);
+  };
+
+  def main : function()
+  {
+    def i : int;
+    def j : ptr[int];
+    i := 5;
+    j := i~ptr;
+    print_content(j);
+  }
+};
+
+run Pointers2;

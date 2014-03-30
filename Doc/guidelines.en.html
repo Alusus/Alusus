@@ -1,0 +1,441 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" style="height: 100%;">
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+ <title>Guidelines - Alusus Programming Language</title>
+
+ <link rel="stylesheet" href="Resources/highlight.default.css">
+ <link rel="stylesheet" href="Resources/main.css">
+ <style>
+  .kwd { color:blue; }
+  .dict { border:0; }
+  .dict tr td:first-child { font-weight:bold; padding-left:20px; padding-right:20px; }
+  .dict tr th:first-child { font-weight:bold; padding-left:20px; padding-right:20px; }
+  .dict tr td+td+td { padding-right:20px; }
+  .dict tr th+th+th { padding-right:20px; }
+  .dict2 { border:0; }
+  .dict2 tr td:first-child { padding-left:20px; padding-right:20px; }
+  .dict2 tr td+td { font-weight:bold; }
+  .bilingual tr td+td { text-align:left; }
+ </style>
+
+ <script src="Resources/jquery-1.10.2.min.js"></script>
+ <script src="Resources/highlight.pack.js"></script>
+ <script src="Resources/main.js"></script>
+</head>
+<body style="background: grey; text-align:center; height:100%; padding-left: 10px; padding-right:10px;" alink="#00FFFF" link="#FFFFFF" text="#FFFFFF" vlink="#CCCCCC">
+<div style="border-left: solid 1px; border-right: solid 1px; background: white; min-width: 840px; max-width:1200px; width: 100%; min-height:100%; text-align: left; margin-left:auto; margin-right:auto;">
+ <div style="width: 100%; height: 100px; padding-top:10px; text-align:center;">
+  <div style="float:left;"><img src="Resources/logo.gif" style="border:0;"/></div>
+  <img src="Resources/title.gif" style="border:0;"/>
+  <div style="padding: 10px 15px; float:right; width:120px; text-align:right;"><a style="text-decoration:none; color:black;" href="guidelines.ar.html"><b>العربية</b></a></div>
+ </div>
+ <div class="menu">
+  <span class="menuItem"><a href="http://alusus.net?lang=en">Alusus Language</a> &#x276f; <a href="http://alusus.net/documentation?lang=en">Documentation</a></span>
+ </div>
+ <div style="padding-top:5px; padding-left:20px; padding-right:20px; padding-bottom:35px;">
+ <h1>Guidelines</h1>
+ <a href='#' onclick='openAllFolds()'>Open All</a>&nbsp;&nbsp;&nbsp;<a href='#' onclick='closeAllFolds()'>Close All</a>
+  <h2 class="foldable">Guidelines in Source Code Design</h2>
+  <div>
+   <h3>Usage of References</h3>
+   References should only be used in the following situations:
+   <ul>
+    <li>Operator overloading.</li>
+    <li>Using function arguments to return values to callers.</li>
+    <li>Improving performance by replacing value arguments or return types with const references.</li>
+    <li>The need to return a pointer to a caller without having the caller store that pointer (for example if the memory referenced by that pointer may be moved or released). In this case the name of the function that returns such references should start with `ref` instead of `get`.</li>
+   </ul>
+
+   <h3>Singleton and Static Variables</h3>
+   Singletons should be implemented as a class with a single instance rather than a static class (class containing only static members). This is because the sequence in which static variables are initialized is not guaranteed and may lead to a race condition. With single global instance, race conditions may be avoided by delaying the initialization of such instance until it's accessed.
+
+   <h3>Consistency</h3>
+   We should guarantee consistency in code design and naming. Following are some examples:
+   <ul>
+    <li>If a wrapper class contains a casting operator for the wrapped class, it's expected that a different wrapper class also contains a casting operator.</li>
+    <li>If a searching function starting with `find` can return nulls, then a different searching function also starting with `find` is expected to be able to return nulls as well.</li>
+    <li>Function names should be indicative of their functionality. For example, a function that returns a member of an array using the member's index should start with `get` and not `find`.</li>
+    <li>If class `map` contains function `remove` then class `list` is also expected to have a `remove` function.</li>
+   </ul>
+
+   <h3>Grouping Related Elements Inside The Same Scope</h3>
+   As much as possible, we should keep related elements inside the same scope. For example:
+   <ul>
+    <li>We should destroy objects in the same scope in which they were created. For example, if a member function allocated memory, then releasing that memory should be done inside a member function within the same class.</li>
+    <li>If we add a new linked list member inside some class, then removing that element from the linked list should be done inside the same class.</li>
+    <li>If a container class directly accesses variables of a contained class (and not through contained class's functions) then initializing those variables is the responsibility of the container class.</li>
+   </ul>
+      
+   <h3>Plain Pointers and Smart Pointers</h3>
+   Choosing between plain and smart (shared) pointers should be done according to the following criteria:   
+   <ul>
+    <li>Consistency between related classes should be preserved. In other words, these classes should use similar memory management model.</li>
+    <li>The following should be considered when deciding the memory management model:
+     <ul>
+      <li>Is the data dynamic or static? Smart pointers are prefered for data that is frequently created and destroyed.</li>
+      <li>Can we create and destroy the requested memory centrally? Plain pointers are preferred with memory blocks that can be created and destroyed from a central location.</li>
+      <li>To improve performance, plain pointers are preferred.</li>
+     </ul>
+    </li>
+   </ul>
+
+   <h3>`const String&` vs `const Char*`</h3>
+   `const Char*` should be used for function arguments. The reason is to avoid instantiating new String objects when we can pass simple char pointers.<br/>
+   `const String&` should be used for function return values. This is to enable the advanced functionalities of String on function return values. If using String in return values requires instantiating a new String object then we should use Char* instead of String.
+
+   <h3>Exceptions</h3>
+   Exception usage should be limited to exceptional errors and should never be used in program control. For example, if it's normal for a search function to return no results then dealing with no-result situations should be done through return values rather than exceptions. On the other hand, if the program faces syntax errors while parsing configuration files then exceptions should be used to deal with this situation because finding an error in config files is not expected.<br/>
+   Naming convention should also be respected when dealing with exceptions. For example, a search function that is expected to always find results should start with `get` while a search function that can find no results should instead start with `find`.
+
+   <h3>Miscellaneous Notes</h3>
+   <ul>
+    <li>`std::vector` should store pointers when the stored object contains a complex constructor (for example one that allocates memory) in order to avoid repeatedly calling this constructor when the objects are copied during vector resizing.</li>
+    <li>Member functions that don't modify any member variables should always be marked as const.</li>
+    <li>We should avoid global variables as much as possible.</li>
+    <li>Variables should be instantiated in the smallest scope possible.</li>
+    <li>Internal classes should not be used outside the containing class.</li>
+    <li>Structures should not be used except when it doesn't need member functions. An exception to that is constructor functions.</li>
+    <li>Initialization lists should be used during object construction instead of assignment operations.</li>
+    <li>We should follow SOLID principles for object-oriented design.</li>
+   </ul>
+  </div>
+
+  <h2 class="foldable">Naming Conventions</h2>
+  <div>
+   <h3 class="foldable">Grammar Naming Conventions</h3>
+   <div>
+    <h3>Names of Tokenizing Rules, Parsing Rules, and Character Groups</h3>
+    Written with Pascal style, i.e. with an upper case letter at the begining of each word as in: ImportCommand.
+    
+    <h3>Module Names</h3>
+    Written with Pascal style as well, like tokenizing rules. As in: ImportSubject.
+
+    <h3>Data Names</h3>
+    Data, like string or integer or list or map, is written with camel style, i.e. with an upper case letter at the beginning of each word other than the first word. As in: multipllicationOperators.
+    
+    <h3>Type Names</h3>
+    Types are written with lowe case words separated by underscores, as in: valid_subject.
+   </div>
+
+   <h3 class="foldable">Source Code Naming Conventions</h3>
+   <div>
+    <h3>Keywords</h3>
+    Written with lower case words separated by underscores, as in: my_keyword.
+    
+    <h3>Classes, Interfaces, Enumerations, and Namespaces</h3>
+    Written in Pascal style, i.e. with an upper case letter at the beginning of each word, as in: MyClass, MyNamespace.
+    
+    <h3>Variables</h3>
+    Written in camel style, as in: myVar.
+    
+    <h3>Functions</h3>
+    Written with the same style as variables, but they should start with a verb, as in: getMyVar.
+    
+    <h3>Signals</h3>
+    Written with the same style as variables, but they end with the word `signal` or `inquirer` or `notifier`. As in: tokenProcessingNotifier, tokenProcessingSignal, tokenProcessed.
+    
+    <h3>Macros and Constants</h3>
+    Written in all upper case words separated by underscores, as in: MY_CONSTANT, MY_MACRO.
+    
+    <h3>Template Arguments</h3>
+    Written similar to constants, i.e. with upper case words separated by underscores. Ex: TEMPLATE_ARG.
+    
+    <h3>Dependent Elements</h3>
+    Dependent elements are elements that should be accessed directly; instead, they should be accessed through other elements. Dependent elements should start with an underscore. For example, the function _getValue should not be called directly, instead the getValue function should be called.
+    
+    <h3>Miscellaneous Notes</h3>
+    <ul>
+     <li>Names are not prefixed with any notation. For example, pointers don't start with the letter p and global variables don't start with the letter g or g_.</li>
+     <li>Functions that enquire about a boolean value should start with `is`, as in: isVisible.</li>
+     <li>Negative names should be avoided. For example, we should use errorFound instead of errorNotFound.</li>
+     <li>Enumeration values can start with the name of the enumeration or a short version of it. As in:
+<pre dir=ltr class="samplecode">
+enum Color {
+  COLOR_RED,
+  COLOR_GREEN,
+  COLOR_BLUE
+};
+</pre>
+     </li>
+     <li>Class name is implied and should not be repeated in member elements. For example:
+<pre dir=ltr class="samplecode">
+String::getLength()        // correct
+String::getStringLength()  // wrong
+</pre>
+     </li>
+     <li>Plural form is used with elements that hold multiple objects as in arrays for example.</li>
+     <li>Abbreviations are treated like words and are not written with all upper case letters. For example, end-of-file in function names is written as Eof rather than EOF.</li>
+    </ul>
+   </div>
+
+   <h3 class="foldable">File Naming Conventions</h3>
+   <div>
+    <ul>
+     <li>Filenames are not prefixed with any notation.</li>
+     <li>Folder names start with upper case letters and their words are separated by underscores.</li>
+     <li>Filenames are written with lower case words separated by underscores.</li>
+     <li>Folder and file names that relate to source code elements match their names and in the same form. For example, the file that contains the definition of class MyClass should have the name MyClass and not my_class or My_Class.</li>
+     <li>Namespaces are represented by folders except in situations where the entire namespace can be placed inside a single file in which case the folder is dropped and the file carries the name of the namespace.</li>
+     <li>Source files have the cpp extension while header files have the h extension.</li>
+    </ul>
+   </div>
+  </div>
+  
+  <h2 class="foldable">Source Code Layout</h2>
+  <div>
+   <h3>Classes and Functions</h3>
+   Opening and closing brackets are placed on separate lines.
+<pre dir=ltr class="samplecode">
+class MyClass
+{
+  ...
+};
+void myFunction()
+{
+  ...
+}
+</pre>
+
+   <h3>Structures</h3>
+   Structures can have one of the following two forms:
+<pre dir=ltr class="samplecode">
+struct MyStruct
+{
+  ...
+};
+struct {
+  ...
+} myVar;
+</pre>
+
+   <h3>Namespaces</h3>
+   Opening and closing brackets are placed on separate lines and, unlike classes, the contents of namespaces are not shifted.
+<pre dir=ltr class="samplecode">
+namespace MyNamespace
+{
+
+class MyClass
+{
+  ...
+}; // class
+
+} // namespace
+</pre>
+To save space, we can write nested namespaces in the following form:
+<pre dir=ltr class="samplecode">
+namespace OuterNamespace { namespace InnerNamespace {
+
+class MyClass
+{
+  ...
+}; // class
+
+} } // namespace
+</pre>
+
+   <h3>Loops</h3>
+   Opening bracket is placed on the same line as the loop statement and the closing bracket is placed on a separate line. A space must be added after the loop keyword, and another space must be added before the opening bracket.
+<pre dir=ltr class="samplecode">
+for (...) {
+  ...
+}
+while (...) {
+  ...
+}
+</pre>
+   If the body of the loop consists of a single statement we can drop the brackets and put the statement on the same line as the loop command. If the body is longer than to be placed on the same line then the brackets should be added even if the body is a single statement.
+<pre dir=ltr class="samplecode">
+for (...) doSomething();
+</pre>
+
+   <h3>Conditional Statements</h3>
+   Conditional statements have the same layout as loop statements. If we have an `else` clause then it should be placed ont he same line as the closing bracket and the next opening bracket, with spaces before and after the `else` keyword.
+<pre dir=ltr class="samplecode">
+if (...) doSomething();
+if (...) {
+  ...
+}
+if (...) {
+  ...
+} else if (...) {
+  ...
+} else {
+  ...
+}
+</pre>
+
+   <h3>Switch Statements</h3>
+   Similar to loop statements. The `case` statements are shifted once, while the body of the `case` statements are shifted twice.
+<pre dir=ltr class="samplecode">
+switch (...) {
+  case ...:
+    ...
+    break;
+  case ...:
+    ...
+    break;
+}
+</pre>
+
+   <h3>Exceptions</h3>
+   Try-catch statements have the following layout:
+<pre dir=ltr class="samplecode">
+try {
+  ...
+}
+catch (...) {
+  ...
+}
+catch (...) {
+  ...
+}
+finally {
+  ...
+}
+</pre>
+
+   <h3>Blank Lines</h3>
+   <ul>
+    <li>No need to separate variable definitions with blank lines.</li>
+    <li>Inline functions are separated by a single blank line, while non-inline functions are separated by two blank lines.</li>
+    <li>Different sections of a class are separated by two blank lines that are placed before the title of the section. The title is then followed by a single blank line.</li>
+    <li>A single blank line is added before the closing bracket of a namespace.</li>
+    <li>The namespace definition statement is preceeded by a single blank line and followed by another blank line.</li>
+   </ul>
+
+   <h3>Comments</h3>
+   <ul>
+    <li>Souce code elements should be documented with doxygen comments and using javadoc style.</li>
+    <li>Different sectiosn of the same file should be separated by a series of / character that reaches up to column 80.
+<pre dir=ltr class="samplecode">
+/**
+ * @file My_Class.h
+ * .....
+ */
+//////////////////////////////////////////////////////////////////////////////
+
+class My_Class
+{
+  ////////////////////////////////////////////////////////////////////////////
+  // Member Variables
+  ...
+
+  ////////////////////////////////////////////////////////////////////////////
+  // Constructor / Destructor
+  ...
+
+  ////////////////////////////////////////////////////////////////////////////
+  // Member Functions
+  ...
+}; // class
+</pre>
+    </li>
+    <li>Sections of a doxygen comment block are separated by a single blank line. Function inputs and return value are treated as a single section. The brief line and the @ingroup statement are considered one section. Description can have multiple sections. Example:
+<pre dir=ltr class="samplecode">
+/**
+ * @brief This is the brief.
+ * @ingroup samplegroup
+ *
+ * This is the first
+ * details block.
+ *
+ * This is the second
+ * details block.
+ *
+ * @param param1 ...
+ * @param param2 ...
+ * @return ......
+ *
+ * @note .....
+ *
+ * @sa ...
+ * @sa ...
+ */
+</pre>
+    </li>
+    <li>We can drop the blank lines between different sections of a doxygen comment if each of these sections is a single line only.</li>
+    <li>The symbol &lt;br&gt; should be used if we want to start a new section in a doxygen comment.</li>
+   </ul>
+   
+   <h3>Miscellaneous Notes</h3>
+   <ul>
+    <li>Members of a class are defined in the following order: Types followed by member variables followed by constructors and destructors followed by member functions.</li>
+    <li>Keywords of commands are always followed by a single space character.</li>
+    <li>Maximum width of a line in the source code is 120 columns.</li>
+    <li>Tabs are represented by two spaces. The tab character should be avoided.</li>
+    <li>When a line is broken into multiple lines, the next line should start from the same point to which the new line belongs. For example:
+<pre dir=ltr class="samplecode">
+result = a + b + c + d + e +
+         f + g;
+void myFunction(int arg1, int arg2, int arg3,
+                int arg4, int arg5);
+for (int i = 0;
+     i < 5;
+     i++) {
+  ...
+}
+</pre>
+    </li>
+    <li>
+    <li>Pointer symbols (*) should be adjacent to the pointer's name rather than the pointer's type in order not to give the impression that its effect applies to what's after the comma (in multi variable definitions). For example:
+<pre dir=ltr class="samplecode">
+int *i, j; // correct, because i is a pointer, but not j.
+int* i, j; // wrong
+</pre>
+    The opposite applies for function return types in order not to be confused with pointer to functions.
+<pre dir=ltr class="samplecode">
+int* getSomething(); // correct
+int *getSomething(); // wrong
+</pre>
+    </li>
+    <li>Include statements should always be placed at the beginning of source files.</li>
+    <li>Global members should be referenced using :: or &lt;namespace&gt;::. We can exclude members of the Basic namespace like smart pointers or casting operations.</li>
+    <li>Members of a class are always referenced with this-&gt;.</li>
+    <li>Static members of a class are always referenced with &lt;class name&gt;::.</li>
+    <li>Function bodies should be placed in cpp files, not header files, except in the following situations:
+     <ul>
+      <li>Inline functions: always go into header files.</li>
+      <li>Very simple functions (one or two lines with no loops): No preference.</li>
+      <li>Relatively simple funciton (few statements that may include simple loops) and all other member functions are either simple or inline: No preference.</li>
+     </ul>
+    </li>
+    <li>Initializing loop variables should be done immediately before the loop.</li>
+    <li>Infinite loops should be done with: while (true).</li>
+    <li>It's not allowed for anything other than loop controlling expressions to appear inside the brackets of a loop command. For example:
+<pre dir=ltr class="samplecode">
+// Correct:
+total = 0;
+for (i = 0; i < 10; ++i) {
+  total += arr[i];
+}
+
+// Wrong:
+for (total = 0, i = 0; i < 10; ++i) {
+  total += arr[i];
+}
+</pre>
+    </li>
+    <li>We should replace do-while loops with regular while loops if possible because the latter is easier to read.</li>
+    <li>Read numbers are always written with the decimal point. For example 5 should be written as 5.0. The zero should not be dropped in fractional numbers like 0.5.</li>
+    <li>Avoid dropping function return type even if the compiler supports that.</li>
+    <li>Type casting should be explicit and not implicit.</li>
+    <li>Avoid treating non-binary values as binary values in conditional statements. For example:
+<pre dir=ltr class="samplecode">
+if (str == 0) ... // correct
+if (!str) ...     // wrong
+</pre>
+    </li>
+   </ul>
+  </div>
+ </div>
+ <div style="border-top: solid 1px; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
+  <p>Copyright (C) 2014 <a href="http://sarmad-khalid.info" target="__blank">Sarmad Khalid Abdullah</a>.<br/>
+  This file is released under Alusus Public License, Version 1.0. For details on usage and copying conditions
+  read the full license in the accompanying license file or at <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>.
+  </p>
+ </div>
+</div>
+</body>
+</html>

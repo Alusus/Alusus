@@ -1,0 +1,49 @@
+/*
+
+Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org>
+
+*/
+
+.hljs {
+  display: block;
+}
+
+.hljs,
+.hljs-subst,
+.hljs-tag .hljs-title,
+.lisp .hljs-title,
+.clojure .hljs-built_in,
+.hljs-identifier,
+.nginx .hljs-title {
+  color: black;
+}
+
+.smartquote,
+.hljs-comment,
+.hljs-annotation,
+.hljs-template_comment,
+.diff .hljs-header,
+.hljs-chunk,
+.asciidoc .hljs-blockquote,
+.markdown .hljs-blockquote {
+  font-style: italic;
+  color: #772
+}
+
+.hljs-attribute {
+  color: #800;
+}
+
+.hljs-number,
+.hljs-string {
+  color: #080;
+}
+
+.hljs-type {
+  color: #228;
+}
+
+.hljs-keyword {
+  font-weight: bold;
+}
+
