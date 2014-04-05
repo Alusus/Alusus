@@ -937,7 +937,7 @@ void StateMachine::clear()
  * @param state A pointer to the state object from which to start testing the
  *              routes.
  */
-void StateMachine::computePossibleMultiplyRoutes(const Common::Token *token, ExtendedState *state)
+void StateMachine::computePossibleMultiplyRoutes(const Common::Token *token, State *state)
 {
   // Get the multiply term.
   Data::MultiplyTerm *multiplyTerm =
@@ -1031,7 +1031,7 @@ void StateMachine::computePossibleMultiplyRoutes(const Common::Token *token, Ext
  * @param state A pointer to the state object from which to start testing the
  *              routes.
  */
-void StateMachine::computePossibleAlternativeRoutes(const Common::Token *token, ExtendedState *state)
+void StateMachine::computePossibleAlternativeRoutes(const Common::Token *token, State *state)
 {
   ASSERT(state->refTopTermLevel().getTerm()->isA<Data::AlternateTerm>());
   // Clear the possibleRoutes array.
@@ -1075,7 +1075,7 @@ void StateMachine::computePossibleAlternativeRoutes(const Common::Token *token, 
  * @param token A pointer to the token to apply on the state.
  * @param state A pointer to the state to test.
  */
-void StateMachine::testState(const Common::Token *token, ExtendedState *state)
+void StateMachine::testState(const Common::Token *token, State *state)
 {
   ASSERT(state != 0);
 
@@ -1116,7 +1116,7 @@ void StateMachine::testState(const Common::Token *token, ExtendedState *state)
  * @param token A pointer to the token to test against the state.
  * @param state A pointer to the state being tested.
  */
-void StateMachine::testStateLevel(const Common::Token *token, ExtendedState *state)
+void StateMachine::testStateLevel(const Common::Token *token, State *state)
 {
   ASSERT(state != 0);
 
@@ -1151,7 +1151,7 @@ void StateMachine::testStateLevel(const Common::Token *token, ExtendedState *sta
  * @param token A pointer to the token to test against the state.
  * @param state A pointer to the state being tested.
  */
-void StateMachine::testTokenTerm(const Common::Token *token, ExtendedState *state)
+void StateMachine::testTokenTerm(const Common::Token *token, State *state)
 {
   ASSERT(state->refTopTermLevel().getTerm()->isA<Data::TokenTerm>());
   // Are we starting with this token, or are we done with it?
@@ -1218,7 +1218,7 @@ void StateMachine::testTokenTerm(const Common::Token *token, ExtendedState *stat
  * @param token A pointer to the token to test against the state.
  * @param state A pointer to the state being tested.
  */
-void StateMachine::testMultiplyTerm(const Common::Token *token, ExtendedState *state)
+void StateMachine::testMultiplyTerm(const Common::Token *token, State *state)
 {
   Data::MultiplyTerm *multiplyTerm =
       static_cast<Data::MultiplyTerm*>(state->refTopTermLevel().getTerm());
@@ -1318,7 +1318,7 @@ void StateMachine::testMultiplyTerm(const Common::Token *token, ExtendedState *s
  * @param token A pointer to the token to test against the state.
  * @param state A pointer to the state being tested.
  */
-void StateMachine::testAlternateTerm(const Common::Token *token, ExtendedState *state)
+void StateMachine::testAlternateTerm(const Common::Token *token, State *state)
 {
   ASSERT(state->refTopTermLevel().getTerm()->isA<Data::AlternateTerm>());
   if (state->refTopTermLevel().getPosId() == 0) {
@@ -1396,7 +1396,7 @@ void StateMachine::testAlternateTerm(const Common::Token *token, ExtendedState *
  * @param token A pointer to the token to test against the state.
  * @param state A pointer to the state being tested.
  */
-void StateMachine::testConcatTerm(const Common::Token *token, ExtendedState *state)
+void StateMachine::testConcatTerm(const Common::Token *token, State *state)
 {
   ASSERT(state->refTopTermLevel().getTerm()->isA<Data::ConcatTerm>());
   Word termCount = state->getListTermChildCount();
@@ -1456,7 +1456,7 @@ void StateMachine::testConcatTerm(const Common::Token *token, ExtendedState *sta
  * @param token A pointer to the token to test against the state.
  * @param state A pointer to the state being tested.
  */
-void StateMachine::testReferenceTerm(const Common::Token *token, ExtendedState *state)
+void StateMachine::testReferenceTerm(const Common::Token *token, State *state)
 {
   // Are we starting with this term, or are we done with it?
   if (state->refTopTermLevel().getPosId() == 0) {
@@ -1507,7 +1507,7 @@ void StateMachine::testReferenceTerm(const Common::Token *token, ExtendedState *
 StateMachine::StateIterator StateMachine::createState()
 {
   Data::GrammarModule *root = this->grammarManager->getRootModule().s_cast_get<Data::GrammarModule>();
-  ExtendedState *state = new ExtendedState(RESERVED_TERM_LEVEL_COUNT, RESERVED_PRODUCTION_LEVEL_COUNT,
+  State *state = new State(RESERVED_TERM_LEVEL_COUNT, RESERVED_PRODUCTION_LEVEL_COUNT,
                                            VARIABLE_NAME_MAX_LENGTH,
                                            RESERVED_VARIABLE_COUNT, RESERVED_VARIABLE_LEVEL_COUNT, root);
   if (state == 0) {
@@ -1524,12 +1524,12 @@ StateMachine::StateIterator StateMachine::createState()
  *
  * @param si The iterator of the state to duplicate.
  * @param tokensToLive The ttl value to assign to the new token. See
- *                       ExtendedState::setBranchingInfo() for more details.
+ *                       State::setBranchingInfo() for more details.
  * @param levelCount The number of levels to copy from the source state. If
  *                    this value is -1, all levels will be copied.
  * @return Returns the iterator of the new state on the stack.
  *
- * @sa ExtendedState::setBranchingInfo()
+ * @sa State::setBranchingInfo()
  */
 StateMachine::StateIterator StateMachine::duplicateState(StateIterator si, Int tokensToLive, Int levelCount)
 {
@@ -1539,7 +1539,7 @@ StateMachine::StateIterator StateMachine::duplicateState(StateIterator si, Int t
   // Create the new state.
   StateIterator newSi = si;
   newSi++;
-  newSi = this->states.insert(newSi, new ExtendedState());
+  newSi = this->states.insert(newSi, new State());
   // Preallocate stacks to prevent frequent reallocation.
   (*newSi)->initialize((*si)->getReservedTermLevelCount(), (*si)->getReservedProdLevelCount(),
                         (*si)->getMaxVarNameLength(), (*si)->getReservedVariableCount(),
@@ -1634,7 +1634,7 @@ void StateMachine::deleteState(StateIterator si, StateTerminationCause stc)
     }
   }
   // We need to find the state favored to this one so we can pass it along with the event.
-  ExtendedState *favoredState = 0;
+  State *favoredState = 0;
   if ((*si)->getTrunkState() == 0) {
     // If this state hasn't branched from another state, then take the state immediately after this, if any.
     si2 = si;
@@ -1666,7 +1666,7 @@ void StateMachine::deleteState(StateIterator si, StateTerminationCause stc)
 }
 
 
-void StateMachine::pushStateTermLevel(ExtendedState *state, Data::Term *term, Word posId)
+void StateMachine::pushStateTermLevel(State *state, Data::Term *term, Word posId)
 {
   state->pushTermLevel(term);
   state->setTopTermPosId(posId);
@@ -1674,7 +1674,7 @@ void StateMachine::pushStateTermLevel(ExtendedState *state, Data::Term *term, Wo
 }
 
 
-void StateMachine::pushStateProdLevel(ExtendedState *state, Data::Module *module, Data::SymbolDefinition *prod)
+void StateMachine::pushStateProdLevel(State *state, Data::Module *module, Data::SymbolDefinition *prod)
 {
   state->pushProdLevel(module, prod);
   this->getTopParsingHandler(state)->onProdStart(state);
@@ -1688,7 +1688,7 @@ void StateMachine::pushStateProdLevel(ExtendedState *state, Data::Module *module
  * @param success Specifies whether parsing that level was successful (true) or
  *                whether we are exiting it due to an error.
  */
-void StateMachine::popStateLevel(ExtendedState * state, Bool success)
+void StateMachine::popStateLevel(State * state, Bool success)
 {
   // We shouldn't allow deleting the main level (level 0).
   ASSERT(state->getTermLevelCount() >= 2);
@@ -1736,7 +1736,7 @@ void StateMachine::popStateLevel(ExtendedState * state, Bool success)
  *
  * @return true if they states are equivalent (at the same spot).
  */
-bool StateMachine::compareStates(ExtendedState *s1, ExtendedState *s2)
+bool StateMachine::compareStates(State *s1, State *s2)
 {
   if (s1->getTermLevelCount() != s2->getTermLevelCount()) return false;
   if (s1->getProdLevelCount() != s2->getProdLevelCount()) return false;

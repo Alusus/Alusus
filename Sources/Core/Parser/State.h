@@ -30,6 +30,8 @@ namespace Core { namespace Parser
  */
 class State
 {
+  friend class StateMachine;
+
   //============================================================================
   // Member Variables
 
@@ -91,17 +93,49 @@ class State
   /// Count of build messages in the trunk shared by this state.
   private: Int trunkSharedBuildMsgCount;
 
+  /**
+   * @brief The current processing status of this state object.
+   * This variable holds the processing status, which will indicate whether
+   * the state is still in process (waiting for the token to be applied to
+   * it), the state has finished processing of this token, or the state has
+   * hit a syntax error.
+   */
+  private: ProcessingStatus processingStatus;
+
+  /**
+   * @brief The processing status from the previous processing cycle.
+   * This is the status from processing the previous token. This is needed to
+   * prevent multiple error messages from being raised while waiting for a
+   * sync token.
+   */
+  private: ProcessingStatus prevProcessingStatus;
+
+  /**
+   * @brief The time, in number of tokens, for this state to live.
+   * This variable is used when the trunkState is not null to identify how
+   * long this state should live if trunkState didn't die in the mean time.
+   * When a state branches into two states, the parser will wait for a number
+   * of tokens in hope that one of the two states will die by itself. If not,
+   * it'll force the one with the lower priority to die. The state with the
+   * lower priority is always the one with its trunkState variable set to
+   * the one with the higher priority, while the one with the higher priority
+   * will have its trunkState variable set to null.
+   */
+  private: Int tokensToLive;
+
+  private: Int testUppermostLevel;
+
 
   //============================================================================
   // Constructors / Destructor
 
-  public: State();
+  protected: State();
 
-  public: State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule);
+  protected: State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+                   Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule);
 
-  public: State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                Word reservedVarCount, Word reservedVarLevelCount, const Data::ParsingGrammarContext *context);
+  protected: State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+                   Word reservedVarCount, Word reservedVarLevelCount, const Data::ParsingGrammarContext *context);
 
   public: ~State()
   {
@@ -126,6 +160,66 @@ class State
 
   /// Reset the object to an empty state.
   protected: void reset();
+
+  /**
+   * @brief Set the current processing status of this state object.
+   *
+   * Set the processing status, which will indicate whether the state is
+   * still in process (waiting for the token to be applied to it), the state
+   * has finished processing of this token, or the state has hit a syntax
+   * error.
+   */
+  protected: void setProcessingStatus(ProcessingStatus ps)
+  {
+    this->processingStatus = ps;
+  }
+
+  /**
+   * @brief Get the current processing status of this state object.
+   *
+   * Returns the processing status, which will indicate whether the state is
+   * still in process (waiting for the token to be applied to it), the state
+   * has finished processing of this token, or the state has hit a syntax
+   * error.
+   */
+  public: ProcessingStatus getProcessingStatus() const
+  {
+    return this->processingStatus;
+  }
+
+  /**
+   * @brief Set the processing status from the previous processing cycle.
+   *
+   * This is the status from processing the previous token. This is needed to
+   * prevent multiple error messages from being raised while waiting for a
+   * sync token.
+   */
+  protected: void setPrevProcessingStatus(ProcessingStatus ps)
+  {
+    this->prevProcessingStatus = ps;
+  }
+
+  /**
+   * @brief Get the processing status from the previous processing cycle.
+   *
+   * This is the status from processing the previous token. This is needed to
+   * prevent multiple error messages from being raised while waiting for a
+   * sync token.
+   */
+  public: ProcessingStatus getPrevProcessingStatus() const
+  {
+    return this->prevProcessingStatus;
+  }
+
+  protected: void setTestUppermostLevel(Int l)
+  {
+    this->testUppermostLevel = l;
+  }
+
+  protected: Int getTestUppermostLevel() const
+  {
+    return this->testUppermostLevel;
+  }
 
   /// @}
 
@@ -365,12 +459,32 @@ class State
   /// @{
 
   /// Set this state as a branch of another state.
-  protected: void setBranchingInfo(State *ts, Int tsi, Int psi);
+  protected: void setBranchingInfo(State *ts, Int ttl, Int tsi, Int psi);
 
-  protected: void setBranchingInfo(State *ts)
+  protected: void setBranchingInfo(State *ts, Int ttl)
   {
-    this->setBranchingInfo(ts, ts->getTermLevelCount()-1, ts->getProdLevelCount()-1);
+    this->setBranchingInfo(ts, ttl, ts->getTermLevelCount()-1, ts->getProdLevelCount()-1);
   }
+
+  /**
+   * @brief Get the value of tokensToLive.
+   *
+   * This variable is used when the trunkState is not null to identify how
+   * long this state should live if trunkState didn't die in the mean time.
+   * When a state branches into two states, the parser will wait for a number
+   * of tokens in hope that one of the two states will die by itself. If not,
+   * it'll force the one with the lower priority to die. The state with the
+   * lower priority is always the one with its trunkState variable set to
+   * the one with the higher priority, while the one with the higher priority
+   * will have its trunkState variable set to null.
+   */
+  public: Int getTokensToLive() const
+  {
+    return this->tokensToLive;
+  }
+
+  /// Decrement the tokens to live counter.
+  public: bool decrementTokensToLive();
 
   /**
    * @brief Get the pointer to the trunk state.

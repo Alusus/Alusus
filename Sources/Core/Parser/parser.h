@@ -161,7 +161,6 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 #include "ProdLevel.h"
 
 #include "State.h"
-#include "ExtendedState.h"
 
 #include "ParsingHandler.h"
 

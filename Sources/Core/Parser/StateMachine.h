@@ -37,13 +37,13 @@ class StateMachine : public SignalReceiver
   // Types
 
   /// An iterator used to iterate through elements of a State linked list.
-  private: typedef std::list<ExtendedState*>::iterator StateIterator;
+  private: typedef std::list<State*>::iterator StateIterator;
 
   /**
    * @brief A const version of StateIterator.
    * @sa StateIterator
    */
-  private: typedef std::list<ExtendedState*>::const_iterator ConstStateIterator;
+  private: typedef std::list<State*>::const_iterator ConstStateIterator;
 
 
   //============================================================================
@@ -63,7 +63,7 @@ class StateMachine : public SignalReceiver
    * This vector contains the array of the states that are currently active
    * in the system.
    */
-  private: std::list<ExtendedState*> states;
+  private: std::list<State*> states;
 
   /**
    * @brief A temp state to use for route computation.
@@ -71,7 +71,7 @@ class StateMachine : public SignalReceiver
    * This is defined for performance improving purposes to avoid creating a
    * new state every time a route computation is to be done.
    */
-  private: ExtendedState tempState;
+  private: State tempState;
 
   /**
    * @brief The list of possible routes to take from a specific parsing point.
@@ -190,31 +190,31 @@ class StateMachine : public SignalReceiver
   /// @{
 
   /// Compute the list of possible routes to take at a duplicate term.
-  private: void computePossibleMultiplyRoutes(const Common::Token *token, ExtendedState *state);
+  private: void computePossibleMultiplyRoutes(const Common::Token *token, State *state);
 
   /// Compute the list of possible routes to take at an alternative term.
-  private: void computePossibleAlternativeRoutes(const Common::Token *token, ExtendedState *state);
+  private: void computePossibleAlternativeRoutes(const Common::Token *token, State *state);
 
   /// Test the route taken by the given state.
-  private: void testState(const Common::Token *token, ExtendedState *state);
+  private: void testState(const Common::Token *token, State *state);
 
   /// Test the given token against a single level within the test state.
-  private: void testStateLevel(const Common::Token *token, ExtendedState *state);
+  private: void testStateLevel(const Common::Token *token, State *state);
 
   /// Test the given token against a token term within the test state.
-  private: void testTokenTerm(const Common::Token *token, ExtendedState *state);
+  private: void testTokenTerm(const Common::Token *token, State *state);
 
   /// Test against a duplicate term within the test state.
-  private: void testMultiplyTerm(const Common::Token *token, ExtendedState *state);
+  private: void testMultiplyTerm(const Common::Token *token, State *state);
 
   /// Test against an alternative term within the test state.
-  private: void testAlternateTerm(const Common::Token *token, ExtendedState *state);
+  private: void testAlternateTerm(const Common::Token *token, State *state);
 
   /// Test against a concat term within the test state.
-  private: void testConcatTerm(const Common::Token *token, ExtendedState *state);
+  private: void testConcatTerm(const Common::Token *token, State *state);
 
   /// Test against a reference term within the test state.
-  private: void testReferenceTerm(const Common::Token *token, ExtendedState *state);
+  private: void testReferenceTerm(const Common::Token *token, State *state);
 
   /// @}
 
@@ -230,19 +230,19 @@ class StateMachine : public SignalReceiver
   /// Delete a state from the states stack.
   private: void deleteState(StateIterator si, StateTerminationCause stc);
 
-  private: void pushStateTermLevel(ExtendedState *state, Data::Term *term, Word posId);
+  private: void pushStateTermLevel(State *state, Data::Term *term, Word posId);
 
-  private: void pushStateProdLevel(ExtendedState *state, Data::Module *module,
+  private: void pushStateProdLevel(State *state, Data::Module *module,
                                    Data::SymbolDefinition *prod);
 
   /// Pop the top level from a specific state.
-  private: void popStateLevel(ExtendedState *state, Bool success);
+  private: void popStateLevel(State *state, Bool success);
 
   /// Compare two states to see if they are at the same spot in the grammar.
-  private: bool compareStates(ExtendedState *s1, ExtendedState *s2);
+  private: bool compareStates(State *s1, State *s2);
 
   /// Get the parsing handler for the top production level in a state.
-  private: ParsingHandler* getTopParsingHandler(ExtendedState *state)
+  private: ParsingHandler* getTopParsingHandler(State *state)
   {
     return state->refTopProdLevel().getProd()->getOperationHandler().s_cast_get<ParsingHandler>();
   }

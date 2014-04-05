@@ -25,7 +25,10 @@ State::State() :
   topTermLevelCache(0),
   topProdLevelCache(0),
   trunkSharedBuildMsgCount(0),
-  grammarHelper(static_cast<Data::Provider*>(&grammarContext))
+  grammarHelper(static_cast<Data::Provider*>(&grammarContext)),
+  processingStatus(ProcessingStatus::IN_PROGRESS),
+  prevProcessingStatus(ProcessingStatus::IN_PROGRESS),
+  tokensToLive(-1)
 {
 }
 
@@ -41,7 +44,10 @@ State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxV
   termStack(reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
-  grammarHelper(static_cast<Data::Provider*>(&grammarContext))
+  grammarHelper(static_cast<Data::Provider*>(&grammarContext)),
+  processingStatus(ProcessingStatus::IN_PROGRESS),
+  prevProcessingStatus(ProcessingStatus::IN_PROGRESS),
+  tokensToLive(-1)
 {
   this->termStack.resize(0);
   this->prodStack.resize(0);
@@ -61,7 +67,10 @@ State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxV
   termStack(reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
-  grammarHelper(static_cast<Data::Provider*>(&grammarContext))
+  grammarHelper(static_cast<Data::Provider*>(&grammarContext)),
+  processingStatus(ProcessingStatus::IN_PROGRESS),
+  prevProcessingStatus(ProcessingStatus::IN_PROGRESS),
+  tokensToLive(-1)
 {
   this->termStack.resize(0);
   this->prodStack.resize(0);
@@ -113,6 +122,8 @@ void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount,
  */
 void State::reset()
 {
+  this->processingStatus = ProcessingStatus::IN_PROGRESS;
+  this->tokensToLive = -1;
   this->termStack.clear();
   this->prodStack.clear();
   this->variableStack.clear();
@@ -459,6 +470,8 @@ Data::Integer* State::getMultiplyTermPriority(Int levelOffset) const
  * Set the branching info to make this state a branch of another state.
  *
  * @param ts Trunk state. The state from which this state branched.
+ * @param ttl Tokens to live. The number of tokens to be recieved before the
+ *            state is to be killed if branching didn't resolve by itself.
  * @param tsi Term Stack index. The term level index within the trunk state from
  *            which branching started. The trunk term level referred to by this
  *            variable is included in the list of levels shared by the two
@@ -476,10 +489,10 @@ Data::Integer* State::getMultiplyTermPriority(Int levelOffset) const
  *       state will live longer than this state. The same applies to psi and
  *       vsi.
  */
-void State::setBranchingInfo(State *ts, Int tsi, Int psi)
+void State::setBranchingInfo(State *ts, Int ttl, Int tsi, Int psi)
 {
-  ASSERT(ts != 0 || (tsi == -1 && psi == -1));
-  ASSERT(tsi >= -1 && psi >= -1);
+  ASSERT(ts != 0 || (ttl == -1 && tsi == -1 && psi == -1));
+  ASSERT(ttl >= -1 && tsi >= -1 && psi >= -1);
   this->reset();
   this->trunkState = ts;
   this->tempTrunkTermStackIndex = tsi;
@@ -498,6 +511,27 @@ void State::setBranchingInfo(State *ts, Int tsi, Int psi)
       Data::Map *vars = this->grammarHelper.getSymbolVars(this->topProdLevelCache->getProd());
       this->grammarContext.setCurrentArgumentList(vars);
     }
+  }
+  this->tokensToLive = ttl;
+}
+
+
+/**
+ * Decrement the tokens-to-live counter, if this state branched from another
+ * state.
+ *
+ * @return Returns true if the counter reaches 0, false otherwise.
+ */
+bool State::decrementTokensToLive()
+{
+  if (this->tokensToLive == -1) {
+    return false;
+  } else if (this->tokensToLive > 1) {
+    this->tokensToLive--;
+    return false;
+  } else {
+    this->tokensToLive = 0;
+    return true;
   }
 }
 
