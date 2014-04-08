@@ -43,7 +43,7 @@ class ModuleParsingHandler : public Core::Standard::GenericParsingHandler
     ////////////////////////////////////////////////////////////////////////////
     // Member Functions
 
-    public: virtual void onProdEnd(Core::Parser::State *state);
+    public: virtual void onProdEnd(Core::Parser::StateMachine *machine, Core::Parser::State *state);
 
     private: void add_definition_to_module(const SharedPtr<Core::Standard::ParsedItem> &def, Core::Data::Module *module);
 

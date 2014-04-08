@@ -23,7 +23,7 @@ using namespace Core;
 ////////////////////////////////////////////////////////////////////////////////
 // Overloaded Abstract Functions
 
-void DefParsingHandler::onProdEnd(Parser::State *state)
+void DefParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
 {
     auto expr = state->refTopTermLevel().getData().io_cast<Standard::ParsedItem>();
     assert(expr != 0);

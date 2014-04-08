@@ -252,6 +252,54 @@ class StateMachine : public SignalReceiver
 
   /// @}
 
+  /// @name Branch Management Functions
+  /// @{
+
+  public: Int getStateCount() const
+  {
+    return this->states.size();
+  }
+
+  /// Check whether there is only one state.
+  public: Bool hasSoloState() const
+  {
+    return !this->states.empty() && (this->states.front() == this->states.back());
+  }
+
+  /**
+   * @brief Check whether a given state is in a position to dominate all states.
+   * When a state dominates, it forces other states to be dropped. For a state
+   * to dominate it needs to be a successful state and it should be the highest
+   * priority among successful states.
+   */
+  public: Bool canStateDominate(State *state) const;
+
+  /**
+   * @brief Check whether the given state can be abandoned.
+   * A state can be abandoned if there is a higher priority state that is
+   * successful.
+   */
+  public: Bool canAbandonState(State *state) const;
+
+  /**
+   * @brief If possible, drop all states except the given one.
+   * @return true if the operation is successful, false if the state is not
+   *         qualified to dominate.
+   * @sa canStateDominate()
+   */
+  public: Bool dominateState(State *state);
+
+  /**
+   * @brief Abandon the given state if possible.
+   * A state can be abandoned if there is a higher priority state that is
+   * successful.
+   * @return true if successful, false if there is no successful higher
+   *         priority state.
+   */
+  public: Bool abandonState(State *state);
+
+  /// @}
+
 }; // class
 
 } } // namespace

@@ -19,7 +19,7 @@ namespace Core { namespace Standard
 //==============================================================================
 // Overloaded Abstract Functions
 
-void ImportParsingHandler::onProdEnd(Parser::State *state)
+void ImportParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
 {
   SharedPtr<ParsedItem> item = state->refTopTermLevel().getData().io_cast<ParsedItem>();
   ParsedDataBrowser browser;

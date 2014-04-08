@@ -187,7 +187,7 @@ const SharedPtr<IdentifiableObject> StateMachine::endParsing()
     do {
       // Raise error notification event, but only if state has been waiting for more tokens.
       if ((*si)->getTermLevelCount() > 1) {
-        if (!this->getTopParsingHandler(*si)->onErrorToken(*si, 0)) {
+        if (!this->getTopParsingHandler(*si)->onErrorToken(this, *si, 0)) {
           (*si)->addBuildMsg(SharedPtr<Common::BuildMsg>(new UnexpectedEofMsg()));
         }
       }
@@ -500,7 +500,7 @@ void StateMachine::processState(const Common::Token * token, StateIterator si)
       error = true;
       // Raise error notification event if we haven't already.
       if ((*si)->getPrevProcessingStatus() != ProcessingStatus::ERROR) {
-        if (!this->getTopParsingHandler(*si)->onErrorToken(*si, token)) {
+        if (!this->getTopParsingHandler(*si)->onErrorToken(this, *si, token)) {
           (*si)->addBuildMsg(
                 SharedPtr<Common::BuildMsg>(new SyntaxErrorMsg(token->getLine(), token->getColumn())));
         }
@@ -610,7 +610,7 @@ void StateMachine::processTokenTerm(const Common::Token * token, StateIterator s
     }
     if (matched) {
       // Fire parsing handler event.
-      this->getTopParsingHandler(*si)->onNewToken(*si, token);
+      this->getTopParsingHandler(*si)->onNewToken(this, *si, token);
       // Processing of this state is complete.
       (*si)->setTopTermPosId(1|THIS_PARSING_PASS);
       (*si)->setProcessingStatus(ProcessingStatus::COMPLETE);
@@ -674,7 +674,7 @@ void StateMachine::processMultiplyTerm(const Common::Token * token, StateIterato
       this->possibleRoutes[0] = priority == 0 ? 1 : priority->get();
     }
     // Fire parsing handler event.
-    this->getTopParsingHandler(*si)->onMultiplyRouteDecision(*si, this->possibleRoutes[0]);
+    this->getTopParsingHandler(*si)->onMultiplyRouteDecision(this, *si, this->possibleRoutes[0]);
     // Take the selected route.
     if (this->possibleRoutes[0] == 1) {
       // Increment the level index (iteration count).
@@ -690,7 +690,7 @@ void StateMachine::processMultiplyTerm(const Common::Token * token, StateIterato
   } else if (this->possibleRoutes.size() == 2) {
     // Fire a branching parsing handler event.
     ParsingHandler *parsingHandler = this->getTopParsingHandler(*si);
-    parsingHandler->onBranching(*si);
+    parsingHandler->onBranching(this, *si);
     // Duplicate the state.
     (*si)->addBuildMsg(
           SharedPtr<Common::BuildMsg>(new AmbiguityMsg(token->getLine(), token->getColumn())));
@@ -699,7 +699,7 @@ void StateMachine::processMultiplyTerm(const Common::Token * token, StateIterato
     StateIterator newSi = this->duplicateState(si, DEFAULT_TOKENS_TO_LIVE);
     // Fire a branched parsing handler event.
     // TODO: Should this event be raised now, or after the two states are updated?
-    parsingHandler->onBranched(*si, *newSi);
+    parsingHandler->onBranched(this, *si, *newSi);
     // Swap the states if the priority is for bypassing the optional term.
     if (priority != 0 && priority->get() == 0) {
       StateIterator tempSi = newSi;
@@ -709,11 +709,11 @@ void StateMachine::processMultiplyTerm(const Common::Token * token, StateIterato
     // Increment the level index (iteration count) of the current state.
     (*si)->setTopTermPosId(((*si)->refTopTermLevel().getPosId()+1)|THIS_PARSING_PASS);
     // Fire parsing handler event for the current state.
-    parsingHandler->onMultiplyRouteDecision(*si, 1);
+    parsingHandler->onMultiplyRouteDecision(this, *si, 1);
     // Set the current state to take the inner route.
     this->pushStateTermLevel(*si, childTerm, 0);
     // Fire parsing handler event for the duplicate state.
-    parsingHandler->onMultiplyRouteDecision(*newSi, 0);
+    parsingHandler->onMultiplyRouteDecision(this, *newSi, 0);
     // Set the duplicate state to take the up route.
     this->popStateLevel(*newSi, true);
     LOG(LogLevel::PARSER_MID, STR("Process State: Taking both inner and outer routes for multiply term."));
@@ -758,7 +758,7 @@ void StateMachine::processAlternateTerm(const Common::Token *token, StateIterato
       LOG(LogLevel::PARSER_MID, STR("Process State: No possible routes at alternate term."));
     } else if (this->possibleRoutes.size() == 1) {
       // Fire parsing handler event.
-      this->getTopParsingHandler(*si)->onAlternateRouteDecision(*si, this->possibleRoutes[0]-1);
+      this->getTopParsingHandler(*si)->onAlternateRouteDecision(this, *si, this->possibleRoutes[0]-1);
       // Take the selected route.
       (*si)->setTopTermPosId(this->possibleRoutes[0]|THIS_PARSING_PASS);
       Data::Term *childTerm = (*si)->useListTermChild(this->possibleRoutes[0]-1);
@@ -774,7 +774,7 @@ void StateMachine::processAlternateTerm(const Common::Token *token, StateIterato
       StateIterator si2 = si;
       for (Int i = 1; i < static_cast<Int>(this->possibleRoutes.size()); i++) {
         // Fire a branching parsing handler event.
-        parsingHandler->onBranching(*si2);
+        parsingHandler->onBranching(this, *si2);
         // Duplicate the state, without the top level since that one is for accessing the
         // other route.
         (*si2)->addBuildMsg(
@@ -791,9 +791,9 @@ void StateMachine::processAlternateTerm(const Common::Token *token, StateIterato
         }
         // Fire a branched parsing handler event.
         // TODO: Should this event be raised now, or after the two states are updated?
-        parsingHandler->onBranched(*si2, *newSi);
+        parsingHandler->onBranched(this, *si2, *newSi);
         // Fire parsing handler event for the new state.
-        parsingHandler->onAlternateRouteDecision(*newSi, this->possibleRoutes[i]-1);
+        parsingHandler->onAlternateRouteDecision(this, *newSi, this->possibleRoutes[i]-1);
         // Set the new state to take this route.
         (*newSi)->setTopTermPosId(this->possibleRoutes[i]|THIS_PARSING_PASS);
         Data::Term *childTerm = (*si)->useListTermChild(this->possibleRoutes[i]-1);
@@ -804,7 +804,7 @@ void StateMachine::processAlternateTerm(const Common::Token *token, StateIterato
             this->possibleRoutes[i] << STR(" )."));
       }
       // Fire parsing handler event for the current state.
-      parsingHandler->onAlternateRouteDecision(*si, this->possibleRoutes[0]-1);
+      parsingHandler->onAlternateRouteDecision(this, *si, this->possibleRoutes[0]-1);
       // Set the current state to take the first route.
       (*si)->setTopTermPosId(this->possibleRoutes[0]|THIS_PARSING_PASS);
       Data::Term *childTerm = (*si)->useListTermChild(this->possibleRoutes[0]-1);
@@ -842,7 +842,7 @@ void StateMachine::processConcatTerm(const Common::Token *token, StateIterator s
   // Did we finish all the terms in this list?
   if (static_cast<Word>(posId) < termCount) {
     // Fire parsing handler event.
-    this->getTopParsingHandler(*si)->onConcatStep(*si, posId);
+    this->getTopParsingHandler(*si)->onConcatStep(this, *si, posId);
     // Increment the position id of this level.
     (*si)->setTopTermPosId((posId+1)|THIS_PARSING_PASS);
     // Move to the term pointed by position id.
@@ -1567,9 +1567,9 @@ StateMachine::StateIterator StateMachine::duplicateState(StateIterator si, Int t
       // Switch the current parsing handler.
       parsingHandler = prodLevel->getProd()->getOperationHandler().s_cast_get<ParsingHandler>();
       // Fire parsing handler event and copy.
-      parsingHandler->onProdLevelDuplicating(*si, pi, i);
+      parsingHandler->onProdLevelDuplicating(this, *si, pi, i);
       (*newSi)->copyProdLevel(*si, pi);
-      parsingHandler->onProdLevelDuplicated(*si, *newSi, pi, i);
+      parsingHandler->onProdLevelDuplicated(this, *si, *newSi, pi, i);
       // Now change to the new anticipated production level, if any.
       ++pi;
       if (pi < (*si)->getProdLevelCount()) {
@@ -1582,10 +1582,10 @@ StateMachine::StateIterator StateMachine::duplicateState(StateIterator si, Int t
       // There shouldn't be the case where i is 0 and at the same time we have a parsing handler.
       ASSERT(!(i == 0 && parsingHandler != 0));
       // Fire parsing handler event.
-      if (parsingHandler != 0) parsingHandler->onTermLevelDuplicating(*si, pi-1, i);
+      if (parsingHandler != 0) parsingHandler->onTermLevelDuplicating(this, *si, pi-1, i);
       (*newSi)->copyTermLevel(*si, i);
       // Fire parsing handler event.
-      if (parsingHandler != 0) parsingHandler->onTermLevelDuplicated(*si, *newSi, pi-1, i);
+      if (parsingHandler != 0) parsingHandler->onTermLevelDuplicated(this, *si, *newSi, pi-1, i);
     }
   }
 
@@ -1649,7 +1649,7 @@ void StateMachine::deleteState(StateIterator si, StateTerminationCause stc)
     ParsingHandler *parsingHandler = this->getTopParsingHandler(*si);
     while ((*si)->getProdLevelCount() > 0) {
       // Fire parsing handler event.
-      parsingHandler->onStateCancelling(*si, favoredState);
+      parsingHandler->onStateCancelling(this, *si, favoredState);
       if ((*si)->isAtProdRoot()) {
         (*si)->popProdLevel();
         if ((*si)->getProdLevelCount() > 0) {
@@ -1670,14 +1670,14 @@ void StateMachine::pushStateTermLevel(State *state, Data::Term *term, Word posId
 {
   state->pushTermLevel(term);
   state->setTopTermPosId(posId);
-  this->getTopParsingHandler(state)->onTermStart(state);
+  this->getTopParsingHandler(state)->onTermStart(this, state);
 }
 
 
 void StateMachine::pushStateProdLevel(State *state, Data::Module *module, Data::SymbolDefinition *prod)
 {
   state->pushProdLevel(module, prod);
-  this->getTopParsingHandler(state)->onProdStart(state);
+  this->getTopParsingHandler(state)->onProdStart(this, state);
 }
 
 
@@ -1697,20 +1697,20 @@ void StateMachine::popStateLevel(State * state, Bool success)
       // Fire "production end" parsing handler event.
       // The top production should be already cached at this point, so we can use the cached pointer instead of
       // searching for it.
-      this->getTopParsingHandler(state)->onProdEnd(state);
+      this->getTopParsingHandler(state)->onProdEnd(this, state);
     } else {
       // Fire "cancel production" parsing handler event.
       // The top production should be already cached at this point, so we can use the cached pointer instead of
       // searching for it.
-      this->getTopParsingHandler(state)->onProdCancelling(state);
+      this->getTopParsingHandler(state)->onProdCancelling(this, state);
     }
   } else {
     if (success) {
       // Fire "level end" parsing handler event.
-      this->getTopParsingHandler(state)->onTermEnd(state);
+      this->getTopParsingHandler(state)->onTermEnd(this, state);
     } else {
       // Fire "cancel level" parsing handler event.
-      this->getTopParsingHandler(state)->onTermCancelling(state);
+      this->getTopParsingHandler(state)->onTermCancelling(this, state);
     }
   }
   // Grab the level's data before deleting it.
@@ -1724,7 +1724,7 @@ void StateMachine::popStateLevel(State * state, Bool success)
     state->refTopTermLevel().setData(data);
   } else {
     // Fire "level exit" parsing handler event.
-    this->getTopParsingHandler(state)->onLevelExit(state, data);
+    this->getTopParsingHandler(state)->onLevelExit(this, state, data);
   }
 }
 
@@ -1772,6 +1772,58 @@ Bool StateMachine::isDefinitionInUse(Data::SymbolDefinition *definition) const
     }
   }
   return false;
+}
+
+
+//==============================================================================
+// Branch Management Functions
+
+Bool StateMachine::canStateDominate(State *state) const
+{
+  for (auto s : this->states) {
+    if (s != state && s->getProcessingStatus() == ProcessingStatus::COMPLETE) {
+      return false;
+    } else if (s == state) {
+      if (s->getProcessingStatus() == ProcessingStatus::COMPLETE) return true;
+      else return false;
+    }
+  }
+  // Passed state is incorrect.
+  throw InvalidArgumentException(STR("state"), STR("Core::Parser::StateMachine::canStateDominate"),
+                                 STR("The given state was not found among the current list of states."));
+}
+
+
+Bool StateMachine::canAbandonState(State *state) const
+{
+  for (auto s : this->states) {
+    if (s != state && s->getProcessingStatus() == ProcessingStatus::COMPLETE) {
+      return true;
+    } else if (s == state) {
+      return false;
+    }
+  }
+  // Passed state is incorrect.
+  throw InvalidArgumentException(STR("state"), STR("Core::Parser::StateMachine::canAbandonState"),
+                                 STR("The given state was not found among the current list of states."));
+}
+
+
+Bool StateMachine::dominateState(State *state)
+{
+  if (!this->canStateDominate(state)) return false;
+  for (auto s : this->states) {
+    if (s != state) s->setProcessingStatus(ProcessingStatus::ERROR);
+  }
+  return true;
+}
+
+
+Bool StateMachine::abandonState(State *state)
+{
+  if (!this->canAbandonState(state)) return false;
+  state->setProcessingStatus(ProcessingStatus::ERROR);
+  return true;
 }
 
 } } // namespace

@@ -92,7 +92,7 @@ void debugPrintParsedData(const SharedPtr<IdentifiableObject> &ptr, int indents=
 ////////////////////////////////////////////////////////////////////////////////
 // Overloaded Abstract Functions
 
-void DumpParsingHandler::onProdEnd(Parser::State *state)
+void DumpParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
 {
   SharedPtr<Standard::ParsedItem> item = state->refTopTermLevel().getData().io_cast<Standard::ParsedItem>();
 

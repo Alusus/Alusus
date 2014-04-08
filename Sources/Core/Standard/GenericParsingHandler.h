@@ -51,31 +51,36 @@ class GenericParsingHandler : public Parser::ParsingHandler
   /// @{
 
   /// Called when the parsing exists a production level.
-  public: virtual void onProdEnd(Parser::State *state);
+  public: virtual void onProdEnd(Parser::StateMachine *machine, Parser::State *state);
 
   /// Called when parsing exits a term level.
-  public: virtual void onTermEnd(Parser::State *state);
+  public: virtual void onTermEnd(Parser::StateMachine *machine, Parser::State *state);
 
   /// Called after parsing exists a state level.
-  public: virtual void onLevelExit(Parser::State *state, const SharedPtr<IdentifiableObject> &data);
+  public: virtual void onLevelExit(Parser::StateMachine *machine, Parser::State *state,
+                                   const SharedPtr<IdentifiableObject> &data);
 
   /// Called when a new successful token is received.
-  public: virtual void onNewToken(Parser::State *state, const Common::Token *token);
+  public: virtual void onNewToken(Parser::StateMachine *machine, Parser::State *state,
+                                  const Common::Token *token);
 
   /// Called when a step is to be made on a concat term.
-  public: virtual void onConcatStep(Parser::State *state, Int newPos);
+  public: virtual void onConcatStep(Parser::StateMachine *machine, Parser::State *state,
+                                    Int newPos);
 
   /// Called when a route decision is made on an alternative term.
-  public: virtual void onAlternateRouteDecision(Parser::State *state, Int route);
+  public: virtual void onAlternateRouteDecision(Parser::StateMachine *machine, Parser::State *state,
+                                                Int route);
 
   /// Called when a route decision is made on a duplicate term.
-  public: virtual void onMultiplyRouteDecision(Parser::State *state, Int route);
+  public: virtual void onMultiplyRouteDecision(Parser::StateMachine *machine, Parser::State *state,
+                                               Int route);
 
   /// Wipe out any generated data from the canceled top level.
-  public: virtual void onTermCancelling(Parser::State *state);
+  public: virtual void onTermCancelling(Parser::StateMachine *machine, Parser::State *state);
 
   /// Wipe out any generated data from the canceled top level.
-  public: virtual void onProdCancelling(Parser::State *state);
+  public: virtual void onProdCancelling(Parser::StateMachine *machine, Parser::State *state);
 
   /// @}
 

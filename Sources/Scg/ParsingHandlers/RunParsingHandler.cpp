@@ -23,7 +23,7 @@ using namespace Core;
 ////////////////////////////////////////////////////////////////////////////////
 // Overloaded Abstract Functions
 
-void RunParsingHandler::onProdEnd(Parser::State *state)
+void RunParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
 {
   SharedPtr<Standard::ParsedItem> item = state->refTopTermLevel().getData().io_cast<Standard::ParsedItem>();
 

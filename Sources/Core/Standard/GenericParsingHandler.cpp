@@ -27,7 +27,7 @@ namespace Core { namespace Standard
  *
  * @sa ParsingHandler::onProdEnd()
  */
-void GenericParsingHandler::onProdEnd(Parser::State *state)
+void GenericParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
 {
   ParsedItem *item = state->refTopTermLevel().getData().io_cast_get<ParsedItem>();
   Data::SymbolDefinition *prod = state->refTopProdLevel().getProd();
@@ -95,7 +95,7 @@ void GenericParsingHandler::onProdEnd(Parser::State *state)
  * @sa setChildData()
  * @sa ParsingHandler::onTermEnd()
  */
-void GenericParsingHandler::onTermEnd(Parser::State *state)
+void GenericParsingHandler::onTermEnd(Parser::StateMachine *machine, Parser::State *state)
 {
   if (!(state->refTopTermLevel().getTerm()->getFlags() & ParsingFlags::PASS_UP)) {
     this->setChildData(state->refTopTermLevel().getData(), state, -2);
@@ -110,7 +110,8 @@ void GenericParsingHandler::onTermEnd(Parser::State *state)
  *
  * @sa ParsingHandler::onLevelExit()
  */
-void GenericParsingHandler::onLevelExit(Parser::State *state, const SharedPtr<IdentifiableObject> &data)
+void GenericParsingHandler::onLevelExit(Parser::StateMachine *machine, Parser::State *state,
+                                        const SharedPtr<IdentifiableObject> &data)
 {
   if (state->refTopTermLevel().getTerm()->isA<Data::ReferenceTerm>()) {
     ASSERT(state->refTopTermLevel().getData() == 0);
@@ -126,7 +127,8 @@ void GenericParsingHandler::onLevelExit(Parser::State *state, const SharedPtr<Id
  *
  * @sa ParsingHandler::onNewToken()
  */
-void GenericParsingHandler::onNewToken(Parser::State *state, const Common::Token *token)
+void GenericParsingHandler::onNewToken(Parser::StateMachine *machine, Parser::State *state,
+                                       const Common::Token *token)
 {
   // Get the term object.
   Data::TokenTerm *term = static_cast<Data::TokenTerm*>(state->refTopTermLevel().getTerm());
@@ -168,7 +170,8 @@ void GenericParsingHandler::onNewToken(Parser::State *state, const Common::Token
  *
  * @sa ParsingHandler::onConcatStep()
  */
-void GenericParsingHandler::onConcatStep(Parser::State *state, Int newPos)
+void GenericParsingHandler::onConcatStep(Parser::StateMachine *machine, Parser::State *state,
+                                         Int newPos)
 {
   // Get the term object.
   Data::ConcatTerm *term = static_cast<Data::ConcatTerm*>(state->refTopTermLevel().getTerm());
@@ -201,7 +204,8 @@ void GenericParsingHandler::onConcatStep(Parser::State *state, Int newPos)
  *
  * @sa ParsingHandler::onAlternateRouteDecision()
  */
-void GenericParsingHandler::onAlternateRouteDecision(Parser::State *state, Int route)
+void GenericParsingHandler::onAlternateRouteDecision(Parser::StateMachine *machine, Parser::State *state,
+                                                     Int route)
 {
   // Get the term object.
   Data::Term *term = state->refTopTermLevel().getTerm();
@@ -235,7 +239,8 @@ void GenericParsingHandler::onAlternateRouteDecision(Parser::State *state, Int r
  *
  * @sa ParsingHandler::onMultiplyRouteDecision()
  */
-void GenericParsingHandler::onMultiplyRouteDecision(Parser::State *state, Int route)
+void GenericParsingHandler::onMultiplyRouteDecision(Parser::StateMachine *machine, Parser::State *state,
+                                                    Int route)
 {
   // Get the term object.
   Data::MultiplyTerm *term = static_cast<Data::MultiplyTerm*>(state->refTopTermLevel().getTerm());
@@ -245,7 +250,7 @@ void GenericParsingHandler::onMultiplyRouteDecision(Parser::State *state, Int ro
   Data::Integer *max = state->getMultiplyTermMax();
   if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
     // This is an optional term, so we'll just treat it the same way as alternate terms.
-    this->onAlternateRouteDecision(state, route);
+    this->onAlternateRouteDecision(machine, state, route);
   } else {
     // If this term pass data up we can skip.
     if (term->getFlags() & ParsingFlags::PASS_UP) {
@@ -273,7 +278,7 @@ void GenericParsingHandler::onMultiplyRouteDecision(Parser::State *state, Int ro
  * Wipe out any generated data from the canceled term level.
  * @sa ParsingHandler::onTermCancelling()
  */
-void GenericParsingHandler::onTermCancelling(Parser::State *state)
+void GenericParsingHandler::onTermCancelling(Parser::StateMachine *machine, Parser::State *state)
 {
   state->refTopTermLevel().setData(SharedPtr<IdentifiableObject>(0));
 }
@@ -284,9 +289,9 @@ void GenericParsingHandler::onTermCancelling(Parser::State *state)
  * This function will simply call onTermCancelling.
  * @sa ParsingHandler::onProdCancelling()
  */
-void GenericParsingHandler::onProdCancelling(Parser::State *state)
+void GenericParsingHandler::onProdCancelling(Parser::StateMachine *machine, Parser::State *state)
 {
-  this->onTermCancelling(state);
+  this->onTermCancelling(machine, state);
 }
 
 

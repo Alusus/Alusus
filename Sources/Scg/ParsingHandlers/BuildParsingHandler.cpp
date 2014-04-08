@@ -25,7 +25,7 @@ static std::ostream & Cout = std::cout;
 ////////////////////////////////////////////////////////////////////////////////
 // Overloaded Abstract Functions
 
-void BuildParsingHandler::onProdEnd(Parser::State *state)
+void BuildParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
 {
   SharedPtr<Standard::ParsedItem> item = state->refTopTermLevel().getData().io_cast<Standard::ParsedItem>();
 
