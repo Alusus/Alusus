@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/SignalReceiver.h
- * Contains the header of class Basic::SignalReceiver.
+ * Contains the header of class Core::Basic::SignalReceiver.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

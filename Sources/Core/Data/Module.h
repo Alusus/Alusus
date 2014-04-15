@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/Module.h
- * Contains the header of class Data::Module.
+ * Contains the header of class Core::Data::Module.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

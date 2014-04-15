@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/ConstTerm.h
- * Contains the header of class Lexer::ConstTerm.
+ * Contains the header of class Core::Lexer::ConstTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

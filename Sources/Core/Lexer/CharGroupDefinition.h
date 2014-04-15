@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/CharGroupDefinition.h
- * Contains the header of class Lexer::CharGroupDefinition.
+ * Contains the header of class Core::Lexer::CharGroupDefinition.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

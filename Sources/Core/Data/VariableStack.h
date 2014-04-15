@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/VariableStack.h
- * Contains the header of class Data::VariableStack.
+ * Contains the header of class Core::Data::VariableStack.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

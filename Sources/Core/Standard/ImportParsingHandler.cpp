@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/ImportParsingHandler.cpp
- * Contains the implementation of class Standard::ImportParsingHandler.
+ * Contains the implementation of class Core::Standard::ImportParsingHandler.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -21,7 +21,7 @@ namespace Core { namespace Standard
 
 void ImportParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
 {
-  SharedPtr<ParsedItem> item = state->refTopTermLevel().getData().io_cast<ParsedItem>();
+  SharedPtr<ParsedItem> item = state->getData().io_cast<ParsedItem>();
   ParsedDataBrowser browser;
   // Find a literal token in the subject.
   SharedPtr<ParsedToken> token =
@@ -38,7 +38,7 @@ void ImportParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::Stat
     }
   }
   // Reset parsed data because we are done with the command.
-  state->refTopTermLevel().setData(SharedPtr<IdentifiableObject>(0));
+  state->setData(SharedPtr<IdentifiableObject>(0));
 }
 
 

@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/Map.cpp
- * Contains the implementation of class Data::Map.
+ * Contains the implementation of class Core::Data::Map.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -234,7 +234,7 @@ void Map::clear()
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Initializable Implementation
 
 void Map::initialize(Manager *manager, const SharedPtr<Module> &module)
@@ -256,7 +256,7 @@ void Map::initialize(Manager *manager, const SharedPtr<Module> &module)
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // DataOwner Implementation
 
 void Map::unsetIndexes(Int from, Int to)
@@ -273,7 +273,7 @@ void Map::unsetIndexes(Int from, Int to)
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // MapContainer Implementation
 
 void Map::set(Int index, const SharedPtr<IdentifiableObject> &val)

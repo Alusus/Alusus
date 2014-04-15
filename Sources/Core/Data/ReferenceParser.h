@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/ReferenceParser.h
- * Contains the header of class Data::ReferenceParser.
+ * Contains the header of class Core::Data::ReferenceParser.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

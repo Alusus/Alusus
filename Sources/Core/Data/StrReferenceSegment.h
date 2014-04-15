@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/StrReferenceSegment.h
- * Contains the header of class Data::StrReferenceSegment.
+ * Contains the header of class Core::Data::StrReferenceSegment.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

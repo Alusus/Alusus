@@ -164,10 +164,11 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
 #include "Reference.h"
 #include "ReferenceParser.h"
 
-// Servers and Managers
+// Servers and Data Holders
 #include "Server.h"
 #include "RawServer.h"
 #include "Manager.h"
+#include "DataStack.h"
 
 // Grammar Terms
 #include "Term.h"

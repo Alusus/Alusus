@@ -1,6 +1,6 @@
 /**
  * @file Core/Parser/UnexpectedTokenMsg.h
- * Contains the header of class Parser::UnexpectedTokenMsg.
+ * Contains the header of class Core::Parser::UnexpectedTokenMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

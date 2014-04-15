@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/AlternativeTerm.h
- * Contains the header of class Lexer::AlternativeTerm.
+ * Contains the header of class Core::Lexer::AlternativeTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

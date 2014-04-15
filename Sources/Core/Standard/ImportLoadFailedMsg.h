@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/ImportLoadFailedMsg.h
- * Contains the header of class Standard::ImportLoadFailedMsg.
+ * Contains the header of class Core::Standard::ImportLoadFailedMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

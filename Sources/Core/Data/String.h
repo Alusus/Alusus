@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/String.h
- * Contains the header of class Data::String.
+ * Contains the header of class Core::Data::String.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

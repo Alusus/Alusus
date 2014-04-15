@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/Manager.h
- * Contains the header of class Data::Manager.
+ * Contains the header of class Core::Data::Manager.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -113,7 +113,7 @@ class Manager : public IdentifiableObject, public virtual Provider
   /// @}
 
 
-  ////////////////////////////////////////////////////////////////////////////
+  //============================================================================
   // Provider Implementation
 
   public: virtual IdentifiableObject* getPlainValue(Reference *ref) const;

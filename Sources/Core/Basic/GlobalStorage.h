@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/GlobalStorage.h
- * Contains the header of class Basic::GlobalStorage.
+ * Contains the header of class Core::Basic::GlobalStorage.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

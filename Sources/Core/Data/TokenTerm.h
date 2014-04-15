@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/TokenTerm.h
- * Contains the header of class Data::TokenTerm.
+ * Contains the header of class Core::Data::TokenTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -85,7 +85,7 @@ class TokenTerm : public Term, public virtual DataOwner
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////
+  //============================================================================
   // Member Functions
 
   public: void setTokenId(const SharedPtr<IdentifiableObject> &id)

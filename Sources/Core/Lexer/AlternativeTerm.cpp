@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/AlternativeTerm.cpp
- * Contains the implementation of class Lexer::AlternativeTerm.
+ * Contains the implementation of class Core::Lexer::AlternativeTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

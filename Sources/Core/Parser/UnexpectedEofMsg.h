@@ -1,6 +1,6 @@
 /**
  * @file Core/Parser/UnexpectedEofMsg.h
- * Contains the header of class Parser::UnexpectedEofMsg.
+ * Contains the header of class Core::Parser::UnexpectedEofMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

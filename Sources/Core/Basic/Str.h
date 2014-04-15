@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/Str.h
- * Contains the header of class Basic::Str.
+ * Contains the header of class Core::Basic::Str.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

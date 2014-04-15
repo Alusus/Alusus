@@ -1,6 +1,6 @@
 /**
  * @file Core/Parser/AmbiguityMsg.h
- * Contains the header of class Parser::AmbiguityMsg.
+ * Contains the header of class Core::Parser::AmbiguityMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

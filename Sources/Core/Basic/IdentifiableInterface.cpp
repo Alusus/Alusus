@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/IdentifiableInterface.cpp
- * Contains the implementation of class Basic::IdentifiableInterface.
+ * Contains the implementation of class Core::Basic::IdentifiableInterface.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

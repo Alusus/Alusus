@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/RawIndirectReferenceSegment.cpp
- * Contains the implementation of class Data::RawIndirectReferenceSegment.
+ * Contains the implementation of class Core::Data::RawIndirectReferenceSegment.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

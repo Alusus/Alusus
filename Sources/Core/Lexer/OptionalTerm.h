@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/OptionalTerm.h
- * Contains the header of class Lexer::OptionalTerm.
+ * Contains the header of class Core::Lexer::OptionalTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

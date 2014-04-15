@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/ParsingGrammarContext.cpp
- * Contains the implementation of class Data::ParsingGrammarContext.
+ * Contains the implementation of class Core::Data::ParsingGrammarContext.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

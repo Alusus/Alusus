@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/ParsedDataBrowser.cpp
- * Contains the implementation of class Standard::ParsedDataBrowser.
+ * Contains the implementation of class Core::Standard::ParsedDataBrowser.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

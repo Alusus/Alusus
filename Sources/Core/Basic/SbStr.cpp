@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/SbStr.cpp
- * Contains the implementation of class Basic::SbStr.
+ * Contains the implementation of class Core::Basic::SbStr.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/Reference.cpp
- * Contains the implementation of class Data::Reference.
+ * Contains the implementation of class Core::Data::Reference.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

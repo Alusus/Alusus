@@ -1,6 +1,6 @@
 /**
  * @file Core/Common/BuildMsg.cpp
- * Contains the implementation of class Common::BuildMsg.
+ * Contains the implementation of class Core::Common::BuildMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

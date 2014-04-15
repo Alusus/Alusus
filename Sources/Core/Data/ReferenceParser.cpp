@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/ReferenceParser.cpp
- * Contains the implementation of class Data::ReferenceParser.
+ * Contains the implementation of class Core::Data::ReferenceParser.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

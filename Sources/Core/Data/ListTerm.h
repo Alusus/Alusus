@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/ListTerm.h
- * Contains the header of class Data::ListTerm.
+ * Contains the header of class Core::Data::ListTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

@@ -30,7 +30,7 @@ using Standard::ParsedList;
 using Standard::ParsedToken;
 using Standard::ParsedDataBrowser;
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Overloaded Abstract Functions
 
 void ModuleParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
@@ -39,7 +39,7 @@ void ModuleParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::Stat
     static Word linkId = IdGenerator::getSingleton()->getId(STR("Main.Link"));
     static ParsedDataBrowser statementListBrowser(STR("0:Main.StatementList"));
 
-    auto item = state->refTopTermLevel().getData().io_cast<ParsedItem>();
+    auto item = state->getData().io_cast<ParsedItem>();
 
     // Find the statement list in the subject.
     auto statementList = statementListBrowser.getValue<ParsedList>(item);
@@ -73,7 +73,7 @@ void ModuleParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::Stat
     }
 
     // Return the create module.
-    state->refTopTermLevel().setData(module);
+    state->setData(module);
 }
 
 

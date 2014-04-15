@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/RedefinitionMsg.h
- * Contains the header of class Parser::RedefinitionMsg.
+ * Contains the header of class Core::Parser::RedefinitionMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

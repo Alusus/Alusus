@@ -1,6 +1,6 @@
 /**
  * @file Core/Parser/State.h
- * Contains the header of class Parser::State.
+ * Contains the header of class Core::Parser::State.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -47,6 +47,8 @@ class State
   private: std::vector<ProdLevel> prodStack;
 
   private: Data::VariableStack variableStack;
+
+  private: Data::DataStack dataStack;
 
   private: Data::ParsingGrammarContext grammarContext;
 
@@ -398,6 +400,44 @@ class State
   public: Word getReservedVariableLevelCount() const
   {
     return this->variableStack.getReservedLevelCount();
+  }
+
+  /// @}
+
+  /// @name Data Stack Functions
+  /// @{
+
+  /**
+   * @brief Get the stack of parsing data.
+   * This is arbitrary data cretaed and used by parsing handlers.
+   */
+  public: Data::DataStack* getDataStack()
+  {
+    return &this->dataStack;
+  }
+
+  /**
+   * @brief Set the parsing data associated with a term level.
+   * This is an arbitrary data created and used by the parsing handler.
+   */
+  public: void setData(const SharedPtr<IdentifiableObject> &data, Int levelOffset = -1)
+  {
+    this->dataStack.set(data, levelOffset);
+  }
+
+  /**
+   * @brief Get the parsing data associated with a term level.
+   * This is an arbitrary data created and used by the parsing handler.
+   */
+  public: const SharedPtr<IdentifiableObject>& getData(Int levelOffset = -1) const
+  {
+    return this->dataStack.get(levelOffset);
+  }
+
+  /// Checks whether another SharedPtr is sharing the data at a given level.
+  public: Bool isDataShared(Int levelOffset = -1) const
+  {
+    return this->dataStack.isShared(levelOffset);
   }
 
   /// @}

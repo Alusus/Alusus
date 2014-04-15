@@ -1,6 +1,6 @@
 /**
  * @file Core/Parser/ParsingHandler.h
- * Contains the header of class Parser::ParsingHandler.
+ * Contains the header of class Core::Parser::ParsingHandler.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/GrammarPlant.h
- * Contains the header of class Data::GrammarPlant.
+ * Contains the header of class Core::Data::GrammarPlant.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

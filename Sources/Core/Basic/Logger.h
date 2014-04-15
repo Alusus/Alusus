@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/Logger.h
- * Contains the header of class Basic::Logger.
+ * Contains the header of class Core::Basic::Logger.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

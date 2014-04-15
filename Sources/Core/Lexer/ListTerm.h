@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/ListTerm.h
- * Contains the header of class Lexer::ListTerm.
+ * Contains the header of class Core::Lexer::ListTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -32,7 +32,7 @@ class ListTerm : public Term
   protected: SharedPtr<Term> childTermsHead;
 
 
-  ////////////////////////////////////////////////////////////////////////////
+  //============================================================================
   // Constructor / Destructor
 
   protected: ListTerm()

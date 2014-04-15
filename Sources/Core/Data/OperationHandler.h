@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/OperationHandler.h
- * Contains the header of class Data::OperationHandler.
+ * Contains the header of class Core::Data::OperationHandler.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

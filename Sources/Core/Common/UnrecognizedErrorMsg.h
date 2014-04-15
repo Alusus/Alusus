@@ -1,6 +1,6 @@
 /**
  * @file Core/Common/UnrecognizedErrorMsg.h
- * Contains the header of class Common::UnrecognizedErrorMsg.
+ * Contains the header of class Core::Common::UnrecognizedErrorMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

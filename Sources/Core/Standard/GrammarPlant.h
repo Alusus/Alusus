@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/GrammarPlant.h
- * Contains the header of class Standard::GrammarPlant.
+ * Contains the header of class Core::Standard::GrammarPlant.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

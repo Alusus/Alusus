@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/UnionCharGroupUnit.h
- * Contains the header of class Lexer::UnionCharGroupUnit.
+ * Contains the header of class Core::Lexer::UnionCharGroupUnit.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/GrammarPlant.cpp
- * Contains the implementation of class Data::GrammarPlant.
+ * Contains the implementation of class Core::Data::GrammarPlant.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

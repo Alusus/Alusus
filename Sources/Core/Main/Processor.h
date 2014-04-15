@@ -1,6 +1,6 @@
 /**
  * @file Core/Main/Processor.h
- * Contains the header of class Main::Processor.
+ * Contains the header of class Core::Main::Processor.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

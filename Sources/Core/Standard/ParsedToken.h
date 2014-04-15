@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/ParsedToken.h
- * Contains the header of class Standard::ParsedToken.
+ * Contains the header of class Core::Standard::ParsedToken.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/Server.h
- * Contains the header of class Data::Server.
+ * Contains the header of class Core::Data::Server.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -73,7 +73,6 @@ class Server
 
   public: Bool getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
                                      ReferenceSegment *&retSeg, IdentifiableObject *&retParent) const;
-
 
   /// @}
 

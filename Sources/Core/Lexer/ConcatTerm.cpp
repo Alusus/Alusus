@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/ConcatTerm.cpp
- * Contains the implementation of class Lexer::ConcatTerm.
+ * Contains the implementation of class Core::Lexer::ConcatTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

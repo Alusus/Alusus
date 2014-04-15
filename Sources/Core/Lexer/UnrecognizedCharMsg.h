@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/UnrecognizedCharMsg.h
- * Contains the header of class Lexer::UnrecognizedCharMsg.
+ * Contains the header of class Core::Lexer::UnrecognizedCharMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

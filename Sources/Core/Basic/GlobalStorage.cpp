@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/GlobalStorage.cpp
- * Contains the implementation of class Basic::GlobalStorage.
+ * Contains the implementation of class Core::Basic::GlobalStorage.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

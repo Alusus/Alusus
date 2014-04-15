@@ -19,31 +19,31 @@ namespace Scg
 
 class DefParsingHandler : public Core::Standard::GenericParsingHandler
 {
-    ////////////////////////////////////////////////////////////////////////////
-    // Type Info
+  //============================================================================
+  // Type Info
 
-    TYPE_INFO(DefParsingHandler, Core::Standard::GenericParsingHandler,
-              "Scg", "Scg", "alusus.net");
-
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Member Variables
-
-    Core::Standard::RootManager *rootManager;
+  TYPE_INFO(DefParsingHandler, Core::Standard::GenericParsingHandler,
+            "Scg", "Scg", "alusus.net");
 
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Constructor
+  //============================================================================
+  // Member Variables
 
-    public: DefParsingHandler(Core::Standard::RootManager *rm) : rootManager(rm)
-    {
-    }
+  Core::Standard::RootManager *rootManager;
 
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Member Functions
+  //============================================================================
+  // Constructor
 
-    public: virtual void onProdEnd(Core::Parser::StateMachine *machine, Core::Parser::State *state);
+  public: DefParsingHandler(Core::Standard::RootManager *rm) : rootManager(rm)
+  {
+  }
+
+
+  //============================================================================
+  // Member Functions
+
+  public: virtual void onProdEnd(Core::Parser::StateMachine *machine, Core::Parser::State *state);
 
 }; // class
 

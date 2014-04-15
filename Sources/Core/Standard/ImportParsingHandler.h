@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/ImportParsingHandler.h
- * Contains the header of class Standard::ImportParsingHandler.
+ * Contains the header of class Core::Standard::ImportParsingHandler.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

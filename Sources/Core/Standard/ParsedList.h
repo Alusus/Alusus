@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/ParsedList.h
- * Contains the header of class Standard::ParsedList.
+ * Contains the header of class Core::Standard::ParsedList.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

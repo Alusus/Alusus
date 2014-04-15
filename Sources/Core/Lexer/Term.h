@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/Term.h
- * Contains the header of class Lexer::Term.
+ * Contains the header of class Core::Lexer::Term.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

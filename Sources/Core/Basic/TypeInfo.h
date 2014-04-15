@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/TypeInfo.h
- * Contains the header of class Basic::TypeInfo.
+ * Contains the header of class Core::Basic::TypeInfo.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

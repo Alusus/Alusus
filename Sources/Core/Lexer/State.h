@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/State.h
- * Contains the header of class Lexer::State.
+ * Contains the header of class Core::Lexer::State.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

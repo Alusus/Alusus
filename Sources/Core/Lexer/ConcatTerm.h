@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/ConcatTerm.h
- * Contains the header of class Lexer::ConcatTerm.
+ * Contains the header of class Core::Lexer::ConcatTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

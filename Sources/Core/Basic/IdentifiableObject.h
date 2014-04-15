@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/IdentifiableObject.h
- * Contains the header of class Basic::IdentifiableObject.
+ * Contains the header of class Core::Basic::IdentifiableObject.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

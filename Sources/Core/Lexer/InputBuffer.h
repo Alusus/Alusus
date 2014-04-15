@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/InputBuffer.h
- * Contains the header of class Lexer::InputBuffer.
+ * Contains the header of class Core::Lexer::InputBuffer.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

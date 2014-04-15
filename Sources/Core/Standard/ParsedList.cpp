@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/ParsedList.cpp
- * Contains the implementation of class Standard::ParsedList.
+ * Contains the implementation of class Core::Standard::ParsedList.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

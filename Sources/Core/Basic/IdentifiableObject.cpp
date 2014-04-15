@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/IdentifiableObject.cpp
- * Contains the implementation of class Basic::IdentifiableObject.
+ * Contains the implementation of class Core::Basic::IdentifiableObject.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

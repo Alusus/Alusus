@@ -22,12 +22,12 @@ using namespace Core;
 
 static std::ostream & Cout = std::cout;
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Overloaded Abstract Functions
 
 void BuildParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
 {
-  SharedPtr<Standard::ParsedItem> item = state->refTopTermLevel().getData().io_cast<Standard::ParsedItem>();
+  SharedPtr<Standard::ParsedItem> item = state->getData().io_cast<Standard::ParsedItem>();
 
   static CodeGenerator generator;
   static Standard::ParsedDataBrowser nameBrowser;
@@ -76,7 +76,7 @@ void BuildParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State
                                                                       item->getLine(), item->getColumn()));
   }
   // Reset parsed data because we are done with the command.
-  state->refTopTermLevel().setData(SharedPtr<IdentifiableObject>(0));
+  state->setData(SharedPtr<IdentifiableObject>(0));
 }
 
 } // namespace

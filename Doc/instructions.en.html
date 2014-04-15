@@ -103,9 +103,9 @@ $ make test
  After the build is complete you'll have the executable under Bin and the libraries will go under Lib. In order to run the core you'll need to add the Lib folder to LD_LIBRARY_PATH. After that you'll be able to run the examples:
 <pre dir=ltr class="code nohighlight">
 $ export LD_LIBRARY_PATH=&lt;path-to-Alusus&gt;/Lib:$LD_LIBRARY_PATH
-$ export PATH=&lt;path-to-Alusus&gt;/Bin:PATH
+$ export PATH=&lt;path-to-Alusus&gt;/Bin:$PATH
 $ cd &lt;path-to-Alusus&gt;/Examples
-$ alusus_d helloworld.alusus
+$ alusus_d hello_world.alusus
 </pre>
  The Core's executalbe's name when building in debug mode will be alusus_d. If the build is in release mode the name will be alusus, i.e. without the _d extension.
  <p>If the Core is built in debug mode logging can be enabled using the --log command line argument, which accepts a number representing the details level of the log as in the following example:

@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/IndirectReferenceSegment.h
- * Contains the header of class Data::IndirectReferenceSegment.
+ * Contains the header of class Core::Data::IndirectReferenceSegment.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/StrReferenceSegment.cpp
- * Contains the implementation of class Data::StrReferenceSegment.
+ * Contains the implementation of class Core::Data::StrReferenceSegment.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

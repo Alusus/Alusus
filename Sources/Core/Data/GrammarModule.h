@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/GrammarModule.h
- * Contains the header of class Data::GrammarModule.
+ * Contains the header of class Core::Data::GrammarModule.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

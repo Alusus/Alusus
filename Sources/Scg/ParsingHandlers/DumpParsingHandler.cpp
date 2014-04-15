@@ -20,7 +20,7 @@ namespace Scg
 
 using namespace Core;
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Helper Functions
 
 static std::ostream & Cout = std::cout;
@@ -89,12 +89,12 @@ void debugPrintParsedData(const SharedPtr<IdentifiableObject> &ptr, int indents=
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Overloaded Abstract Functions
 
 void DumpParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
 {
-  SharedPtr<Standard::ParsedItem> item = state->refTopTermLevel().getData().io_cast<Standard::ParsedItem>();
+  SharedPtr<Standard::ParsedItem> item = state->getData().io_cast<Standard::ParsedItem>();
 
   static Standard::ParsedDataBrowser nameBrowser;
   if (!nameBrowser.isInitialized()) nameBrowser.initialize(STR("Subject.Subject1>Subject.Parameter"));
@@ -117,7 +117,7 @@ void DumpParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State 
                                                                       item->getLine(), item->getColumn()));
   }
   // Reset parsed data because we are done with the command.
-  state->refTopTermLevel().setData(SharedPtr<IdentifiableObject>(0));
+  state->setData(SharedPtr<IdentifiableObject>(0));
 }
 
 } // namespace

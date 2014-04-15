@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/GenericParsingHandler.cpp
- * Contains the implementation of class Standard::GenericParsingHandler.
+ * Contains the implementation of class Core::Standard::GenericParsingHandler.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -29,12 +29,12 @@ namespace Core { namespace Standard
  */
 void GenericParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
 {
-  ParsedItem *item = state->refTopTermLevel().getData().io_cast_get<ParsedItem>();
+  ParsedItem *item = state->getData().io_cast_get<ParsedItem>();
   Data::SymbolDefinition *prod = state->refTopProdLevel().getProd();
   if (item != 0 && item->getProdId() == UNKNOWN_ID) {
     // We need to set the production id now.
-    this->prepareToModifyData(&state->refTopTermLevel());
-    item = state->refTopTermLevel().getData().s_cast_get<ParsedItem>();
+    this->prepareToModifyData(state, -1);
+    item = state->getData().s_cast_get<ParsedItem>();
     item->setProdId(prod->getId());
   } else if (prod->getFlags() & ParsingFlags::OMISSIBLE) {
     // We don't need to set the production id since it's omissible.
@@ -45,27 +45,27 @@ void GenericParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::Sta
     Data::Term *term = state->refTopTermLevel().getTerm();
     if (term->isA<Data::AlternateTerm>()) {
       data = std::make_shared<ParsedRoute>();
-      data.s_cast_get<ParsedRoute>()->setData(state->refTopTermLevel().getData());
+      data.s_cast_get<ParsedRoute>()->setData(state->getData());
     } else if (term->isA<Data::MultiplyTerm>()) {
       Data::Integer *min = state->getMultiplyTermMin();
       Data::Integer *max = state->getMultiplyTermMax();
       if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
         // Optional term.
         data = std::make_shared<ParsedRoute>();
-        data.s_cast_get<ParsedRoute>()->setData(state->refTopTermLevel().getData());
+        data.s_cast_get<ParsedRoute>()->setData(state->getData());
       } else {
         // Duplicate term.
         data = std::make_shared<ParsedList>();
-        if (!(state->refTopTermLevel().getData() == 0 &&
+        if (!(state->getData() == 0 &&
               (state->refTopTermLevel().getTerm()->getFlags() & ParsingFlags::OMISSIBLE))) {
-          data.s_cast_get<ParsedList>()->pushElement(state->refTopTermLevel().getData());
+          data.s_cast_get<ParsedList>()->pushElement(state->getData());
         }
       }
     } else if (term->isA<Data::ConcatTerm>()) {
       data = std::make_shared<ParsedList>();
-      if (!(state->refTopTermLevel().getData() == 0 &&
+      if (!(state->getData() == 0 &&
             (state->refTopTermLevel().getTerm()->getFlags() & ParsingFlags::OMISSIBLE))) {
-        data.s_cast_get<ParsedList>()->pushElement(state->refTopTermLevel().getData());
+        data.s_cast_get<ParsedList>()->pushElement(state->getData());
       }
     } else if (term->isA<Data::TokenTerm>()) {
       // This should never be reachable.
@@ -82,7 +82,7 @@ void GenericParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::Sta
       data->setColumn(item->getColumn());
     }
     // Set the data to this production's state level.
-    state->refTopTermLevel().setData(data);
+    state->setData(data);
   }
 }
 
@@ -98,7 +98,7 @@ void GenericParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::Sta
 void GenericParsingHandler::onTermEnd(Parser::StateMachine *machine, Parser::State *state)
 {
   if (!(state->refTopTermLevel().getTerm()->getFlags() & ParsingFlags::PASS_UP)) {
-    this->setChildData(state->refTopTermLevel().getData(), state, -2);
+    this->setChildData(state->getData(), state, -2);
   }
 }
 
@@ -114,8 +114,8 @@ void GenericParsingHandler::onLevelExit(Parser::StateMachine *machine, Parser::S
                                         const SharedPtr<IdentifiableObject> &data)
 {
   if (state->refTopTermLevel().getTerm()->isA<Data::ReferenceTerm>()) {
-    ASSERT(state->refTopTermLevel().getData() == 0);
-    state->refTopTermLevel().setData(data);
+    ASSERT(state->getData() == 0);
+    state->setData(data);
   }
 }
 
@@ -138,10 +138,10 @@ void GenericParsingHandler::onNewToken(Parser::StateMachine *machine, Parser::St
   if ((term->getFlags() & ParsingFlags::OMISSIBLE) && state->getTokenTermText() != 0) return;
 
   // We shouldn't have any data on this level if we are not a production.
-  ASSERT(state->refTopTermLevel().getData() == 0);
+  ASSERT(state->getData() == 0);
   // Create a new item.
   SharedPtr<ParsedToken> tokenItem = std::make_shared<ParsedToken>();
-  state->refTopTermLevel().setData(tokenItem);
+  state->setData(tokenItem);
 
   // Now we can modify the data of the token.
   tokenItem->setId(token->getId());
@@ -192,8 +192,8 @@ void GenericParsingHandler::onConcatStep(Parser::StateMachine *machine, Parser::
   }
 
   // Should we create a list?
-  if ((term->getFlags() & ParsingFlags::FORCE_LIST) && (state->refTopTermLevel().getData() == 0)) {
-    state->refTopTermLevel().setData(std::make_shared<ParsedList>());
+  if ((term->getFlags() & ParsingFlags::FORCE_LIST) && (state->getData() == 0)) {
+    state->setData(std::make_shared<ParsedList>());
   }
 }
 
@@ -216,11 +216,11 @@ void GenericParsingHandler::onAlternateRouteDecision(Parser::StateMachine *machi
 
   if (term->getFlags() & ParsingFlags::PASS_UP) return;
 
-  ASSERT(state->refTopTermLevel().getData() == 0);
+  ASSERT(state->getData() == 0);
 
   // Create a new item.
   SharedPtr<ParsedRoute> routeItem = std::make_shared<ParsedRoute>();
-  state->refTopTermLevel().setData(routeItem);
+  state->setData(routeItem);
 
   // Now we can modify the data of the token.
   routeItem->setRoute(route);
@@ -267,8 +267,8 @@ void GenericParsingHandler::onMultiplyRouteDecision(Parser::StateMachine *machin
     }
 
     // Should we create a list?
-    if ((term->getFlags() & ParsingFlags::FORCE_LIST) && (state->refTopTermLevel().getData() == 0)) {
-      state->refTopTermLevel().setData(std::make_shared<ParsedList>());
+    if ((term->getFlags() & ParsingFlags::FORCE_LIST) && (state->getData() == 0)) {
+      state->setData(std::make_shared<ParsedList>());
     }
   }
 }
@@ -280,7 +280,7 @@ void GenericParsingHandler::onMultiplyRouteDecision(Parser::StateMachine *machin
  */
 void GenericParsingHandler::onTermCancelling(Parser::StateMachine *machine, Parser::State *state)
 {
-  state->refTopTermLevel().setData(SharedPtr<IdentifiableObject>(0));
+  state->setData(SharedPtr<IdentifiableObject>(0));
 }
 
 
@@ -321,26 +321,26 @@ void GenericParsingHandler::setChildData(const SharedPtr<IdentifiableObject> &da
       // This is a pass up route based term, so set the data to the upper level directly.
       // But only if the data is not omissible in the first place.
       if ((data == 0) && (termLevel.getTerm()->getFlags() & ParsingFlags::OMISSIBLE)) return;
-      if (termLevel.getData() != 0) {
+      if (state->getData(levelIndex) != 0) {
         throw GeneralException(STR("Trying to set data to an alternative or optional term that already has"
                                    " data. Is a concat or duplicate term trying to PASS_UP multiple data "
                                    "to an upper alternative or optional term?"),
                                STR("Core::Standard::GenericParsingHandler::setChildData"));
       }
-      ASSERT(termLevel.getData() == 0);
+      ASSERT(state->getData(levelIndex) == 0);
       if (state->isAProdRoot(levelIndex)) {
         // This is the root of the production, so we can't go up anymore.
-        termLevel.setData(data);
+        state->setData(data, levelIndex);
       } else {
         // Try the upper level.
         this->setChildData(data, state, levelIndex - 1);
       }
     } else {
       //This is not an omissible term, we'll set this as the data of this term.
-      ASSERT(termLevel.getData() != 0);
-      ASSERT(termLevel.getData().io_cast_get<ParsedRoute>() != 0);
-      this->prepareToModifyData(&termLevel);
-      ParsedRoute *route = termLevel.getData().io_cast_get<ParsedRoute>();
+      ASSERT(state->getData(levelIndex) != 0);
+      ASSERT(state->getData(levelIndex).io_cast_get<ParsedRoute>() != 0);
+      this->prepareToModifyData(state, levelIndex);
+      ParsedRoute *route = state->getData(levelIndex).io_cast_get<ParsedRoute>();
       if (route->getData() != 0) {
         throw GeneralException(STR("Trying to set data to an alternative or optional term that already has"
                                    " data. Is a concat or duplicate term trying to PASS_UP multiple data "
@@ -367,22 +367,22 @@ void GenericParsingHandler::setChildData(const SharedPtr<IdentifiableObject> &da
         throw GeneralException(STR("FORCE_LIST parsing flag cannot be used with PASS_UP"),
                                STR("Core::Standard::GenericParsingHandler::setChildData"));
       }
-      ASSERT(termLevel.getData() == 0);
+      ASSERT(state->getData(levelIndex) == 0);
       this->setChildData(data, state, levelIndex - 1);
     } else {
       // Add the given data to this list term.
-      IdentifiableObject *currentData = termLevel.getData().get();
+      IdentifiableObject *currentData = state->getData(levelIndex).get();
       if (currentData == 0) {
         // Set the given data as the level's data.
         // If this term has FORCE_LIST flag the data should never be null in the first place.
         ASSERT((termLevel.getTerm()->getFlags() & ParsingFlags::FORCE_LIST) == 0);
-        termLevel.setData(data);
+        state->setData(data, levelIndex);
       } else if (io_cast<ParsedList>(currentData) != 0 &&
                  static_cast<ParsedList*>(currentData)->getProdId() == UNKNOWN_ID) {
         // This level already has a list that belongs to this production, so we can just add the new data
         // to this list.
-        this->prepareToModifyData(&termLevel);
-        currentData = termLevel.getData().get();
+        this->prepareToModifyData(state, levelIndex);
+        currentData = state->getData(levelIndex).get();
         // The element is not created yet.
         static_cast<ParsedList*>(currentData)->pushElement(data);
       } else {
@@ -391,9 +391,9 @@ void GenericParsingHandler::setChildData(const SharedPtr<IdentifiableObject> &da
         SharedPtr<ParsedList> list = std::make_shared<ParsedList>();
         list->setLine(static_cast<ParsedItem*>(currentData)->getLine());
         list->setColumn(static_cast<ParsedItem*>(currentData)->getColumn());
-        list->pushElement(termLevel.getData());
+        list->pushElement(state->getData(levelIndex));
         list->pushElement(data);
-        termLevel.setData(list);
+        state->setData(list, levelIndex);
       }
     }
   } else if (termLevel.getTerm()->isA<Data::ReferenceTerm>() ||
@@ -438,11 +438,11 @@ void GenericParsingHandler::parseStringLiteralControlCharacters(const Str &src, 
  * If the top level is shared (the shared pointer is not unique) this function
  * will duplicate that term.
  */
-void GenericParsingHandler::prepareToModifyData(Parser::TermLevel *level)
+void GenericParsingHandler::prepareToModifyData(Parser::State *state, Int levelIndex)
 {
-  if (level->isDataShared()) {
+  if (state->isDataShared(levelIndex)) {
     // Duplicate the data.
-    SharedPtr<IdentifiableObject> data = level->getData();
+    SharedPtr<IdentifiableObject> data = state->getData(levelIndex);
     if (data->isDerivedFrom<ParsedToken>()) {
       // Duplicate token data.
       ParsedToken *sourceToken = data.s_cast_get<ParsedToken>();
@@ -452,7 +452,7 @@ void GenericParsingHandler::prepareToModifyData(Parser::TermLevel *level)
       newToken->setColumn(sourceToken->getColumn());
       newToken->setId(sourceToken->getId());
       newToken->setText(sourceToken->getText().c_str());
-      level->setData(newToken);
+      state->setData(newToken, levelIndex);
     } else if (data->isDerivedFrom<ParsedRoute>()) {
       // Duplicate route data.
       ParsedRoute *sourceRoute = data.s_cast_get<ParsedRoute>();
@@ -462,7 +462,7 @@ void GenericParsingHandler::prepareToModifyData(Parser::TermLevel *level)
       newRoute->setColumn(sourceRoute->getColumn());
       newRoute->setRoute(sourceRoute->getRoute());
       newRoute->setData(sourceRoute->getData());
-      level->setData(newRoute);
+      state->setData(newRoute, levelIndex);
     } else if (data->isDerivedFrom<ParsedList>()) {
       // Duplicate list data.
       ParsedList *sourceList = data.s_cast_get<ParsedList>();
@@ -473,7 +473,7 @@ void GenericParsingHandler::prepareToModifyData(Parser::TermLevel *level)
       for (Word i = 0; i < sourceList->getElementCount(); ++i) {
         newList->pushElement(sourceList->getElement(i));
       }
-      level->setData(newList);
+      state->setData(newList, levelIndex);
     } else {
       // This should never be reachable.
       ASSERT(false);

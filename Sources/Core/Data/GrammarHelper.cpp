@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/GrammarHelper.cpp
- * Contains the implementation of class Data::GrammarHelper.
+ * Contains the implementation of class Core::Data::GrammarHelper.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

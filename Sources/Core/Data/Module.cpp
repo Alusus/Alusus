@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/Module.cpp
- * Contains the implementation of class Data::Module.
+ * Contains the implementation of class Core::Data::Module.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

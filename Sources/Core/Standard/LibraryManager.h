@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/LibraryManager.h
- * Contains the header of class Standard::LibraryManager.
+ * Contains the header of class Core::Standard::LibraryManager.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -39,14 +39,14 @@ class LibraryManager : public IdentifiableObject
   };
 
 
-  ////////////////////////////////////////////////////////////////////////////
+  //============================================================================
   // Member Variables
 
   private: std::vector<Entry> entries;
   private: RootManager *root;
 
 
-  ////////////////////////////////////////////////////////////////////////////
+  //============================================================================
   // Constructor
 
   public: LibraryManager(RootManager *r) : root(r)
@@ -59,7 +59,7 @@ class LibraryManager : public IdentifiableObject
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////
+  //============================================================================
   // Member Functions
 
   public: void addLibrary(PtrWord id, LibraryGateway *gateway);

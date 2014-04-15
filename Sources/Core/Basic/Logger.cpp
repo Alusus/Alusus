@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/Logger.cpp
- * Contains the implementation of class Basic::Logger.
+ * Contains the implementation of class Core::Basic::Logger.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

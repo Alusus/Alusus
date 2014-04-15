@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/UnionCharGroupUnit.cpp
- * Contains the implementation of class Lexer::UnionCharGroupUnit.
+ * Contains the implementation of class Core::Lexer::UnionCharGroupUnit.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

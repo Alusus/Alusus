@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/MultiplyTerm.h
- * Contains the header of class Data::MultiplyTerm.
+ * Contains the header of class Core::Data::MultiplyTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

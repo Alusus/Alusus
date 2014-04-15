@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/MultiplyTerm.cpp
- * Contains the implementation of class Data::MultiplyTerm.
+ * Contains the implementation of class Core::Data::MultiplyTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

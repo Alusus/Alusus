@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/RandomCharGroupUnit.h
- * Contains the header of class Lexer::RandomCharGroupUnit.
+ * Contains the header of class Core::Lexer::RandomCharGroupUnit.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

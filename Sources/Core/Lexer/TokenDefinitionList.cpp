@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/TokenDefinitionList.cpp
- * Contains the implementation of class Lexer::TokenDefinitionList.
+ * Contains the implementation of class Core::Lexer::TokenDefinitionList.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

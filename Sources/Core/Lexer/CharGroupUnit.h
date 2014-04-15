@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/CharGroupUnit.h
- * Contains the header of class Lexer::CharGroupUnit.
+ * Contains the header of class Core::Lexer::CharGroupUnit.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

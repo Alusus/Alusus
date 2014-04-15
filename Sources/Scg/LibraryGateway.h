@@ -26,51 +26,51 @@ namespace Scg
 
 class LibraryGateway : public Core::Standard::LibraryGateway
 {
-    ////////////////////////////////////////////////////////////////////////////
-    // Type Info
+  //============================================================================
+  // Type Info
 
-    TYPE_INFO(LibraryGateway, Core::Standard::LibraryGateway, "Scg", "Scg", "alusus.net");
-
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Member Variables
-
-    private: SharedPtr<ModuleParsingHandler> moduleHandler;
-    private: SharedPtr<BuildParsingHandler> buildHandler;
-    private: SharedPtr<RunParsingHandler> runHandler;
-    private: SharedPtr<DumpParsingHandler> dumpHandler;
-    private: SharedPtr<DefParsingHandler> defHandler;
-    private: SharedPtr<Core::Standard::GenericParsingHandler> handler;
-
-    private: Core::Basic::Int leadingCmdListPos;
-    private: Core::Basic::Int innerCmdListPos;
-    private: Core::Basic::Int tildeCmdListPos;
+  TYPE_INFO(LibraryGateway, Core::Standard::LibraryGateway, "Scg", "Scg", "alusus.net");
 
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Constructor
+  //============================================================================
+  // Member Variables
 
-    public: LibraryGateway() : leadingCmdListPos(-1), innerCmdListPos(-1), tildeCmdListPos(-1)
-    {
-    }
+  private: SharedPtr<ModuleParsingHandler> moduleHandler;
+  private: SharedPtr<BuildParsingHandler> buildHandler;
+  private: SharedPtr<RunParsingHandler> runHandler;
+  private: SharedPtr<DumpParsingHandler> dumpHandler;
+  private: SharedPtr<DefParsingHandler> defHandler;
+  private: SharedPtr<Core::Standard::GenericParsingHandler> handler;
 
-    public: virtual ~LibraryGateway()
-    {
-    }
+  private: Core::Basic::Int leadingCmdListPos;
+  private: Core::Basic::Int innerCmdListPos;
+  private: Core::Basic::Int tildeCmdListPos;
 
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Member Functions
+  //============================================================================
+  // Constructor
 
-    public: virtual void initialize(Core::Standard::RootManager *manager);
+  public: LibraryGateway() : leadingCmdListPos(-1), innerCmdListPos(-1), tildeCmdListPos(-1)
+  {
+  }
 
-    public: virtual void uninitialize(Core::Standard::RootManager *manager);
+  public: virtual ~LibraryGateway()
+  {
+  }
 
-    private: Core::Data::List* GetLeadingCommandsList(Core::Data::Manager *grammarManager);
 
-    private: Core::Data::List* GetInnerCommandsList(Core::Data::Manager *grammarManager);
+  //============================================================================
+  // Member Functions
 
-    private: Core::Data::List* GetTildeCommandsList(Core::Data::Manager *grammarManager);
+  public: virtual void initialize(Core::Standard::RootManager *manager);
+
+  public: virtual void uninitialize(Core::Standard::RootManager *manager);
+
+  private: Core::Data::List* GetLeadingCommandsList(Core::Data::Manager *grammarManager);
+
+  private: Core::Data::List* GetInnerCommandsList(Core::Data::Manager *grammarManager);
+
+  private: Core::Data::List* GetTildeCommandsList(Core::Data::Manager *grammarManager);
 
 }; // class
 

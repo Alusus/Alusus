@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/TokenClampedMsg.h
- * Contains the header of class Lexer::TokenClampedMsg.
+ * Contains the header of class Core::Lexer::TokenClampedMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

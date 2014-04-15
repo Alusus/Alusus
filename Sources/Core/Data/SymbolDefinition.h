@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/SymbolDefinition.h
- * Contains the header of class Data::SymbolDefinition.
+ * Contains the header of class Core::Data::SymbolDefinition.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

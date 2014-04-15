@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/GrammarPlant.cpp
- * Contains the implementation of class Standard::GrammarPlant.
+ * Contains the implementation of class Core::Standard::GrammarPlant.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -60,7 +60,7 @@ GrammarPlant::GrammarPlant(RootManager *root) :
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Member Functions
 
 /**

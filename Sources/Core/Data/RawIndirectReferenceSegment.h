@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/RawIndirectReferenceSegment.h
- * Contains the header of class Data::RawIndirectReferenceSegment.
+ * Contains the header of class Core::Data::RawIndirectReferenceSegment.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

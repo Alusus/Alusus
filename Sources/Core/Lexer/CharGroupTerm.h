@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/CharGroupTerm.h
- * Contains the header of class Lexer::CharGroupTerm.
+ * Contains the header of class Core::Lexer::CharGroupTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

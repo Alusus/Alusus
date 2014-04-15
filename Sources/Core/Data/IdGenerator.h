@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/IdGenerator.h
- * Contains the header of class Data::IdGenerator.
+ * Contains the header of class Core::Data::IdGenerator.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

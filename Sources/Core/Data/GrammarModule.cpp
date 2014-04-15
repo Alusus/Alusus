@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/GrammarModule.cpp
- * Contains the implementation of class Data::GrammarModule.
+ * Contains the implementation of class Core::Data::GrammarModule.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

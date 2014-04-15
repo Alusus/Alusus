@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/Map.h
- * Contains the header of class Data::Map.
+ * Contains the header of class Core::Data::Map.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/RawServer.cpp
- * Contains the implementation of class Data::RawServer.
+ * Contains the implementation of class Core::Data::RawServer.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

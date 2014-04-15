@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/BufferFullMsg.h
- * Contains the header of class Lexer::BufferFullMsg.
+ * Contains the header of class Core::Lexer::BufferFullMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/IdGenerator.cpp
- * Contains the implementation of class Data::IdGenerator.
+ * Contains the implementation of class Core::Data::IdGenerator.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

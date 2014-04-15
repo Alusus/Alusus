@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/Reference.h
- * Contains the header of class Data::Reference.
+ * Contains the header of class Core::Data::Reference.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

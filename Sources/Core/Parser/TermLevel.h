@@ -1,6 +1,6 @@
 /**
  * @file Core/Parser/TermLevel.h
- * Contains the header of class Parser::TermLevel.
+ * Contains the header of class Core::Parser::TermLevel.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -54,9 +54,6 @@ class TermLevel
   /// @sa setParam3()
   private: IdentifiableObject *param3;
 
-  /// Holds arbitrary data needed by the parsing handler.
-  private: SharedPtr<IdentifiableObject> data;
-
 
   //============================================================================
   // Constructors / Destructor
@@ -71,8 +68,7 @@ class TermLevel
     term(level.getTerm()),
     param1(level.getParam1()),
     param2(level.getParam2()),
-    param3(level.getParam3()),
-    data(level.getData())
+    param3(level.getParam3())
   {
   }
 
@@ -167,26 +163,6 @@ class TermLevel
     return this->param3;
   }
 
-  /**
-   * @brief Set the parsing data associated with this level.
-   * This is an arbitrary data needed by the parsing handler.
-   */
-  public: void setData(const SharedPtr<IdentifiableObject> &d)
-  {
-    this->data = d;
-  }
-
-  /// Get a (smart) pointer to the data associated with this level.
-  public: const SharedPtr<IdentifiableObject>& getData() const
-  {
-    return this->data;
-  }
-
-  public: Bool isDataShared()
-  {
-    return !this->data.unique();
-  }
-
   public: void copyFrom(TermLevel *src)
   {
     this->setTerm(src->getTerm());
@@ -194,7 +170,6 @@ class TermLevel
     this->setParam1(src->getParam1());
     this->setParam2(src->getParam2());
     this->setParam3(src->getParam3());
-    this->setData(src->getData());
   }
 
 }; // class

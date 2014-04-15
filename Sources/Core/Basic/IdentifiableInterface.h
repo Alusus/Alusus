@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/IdentifiableInterface.h
- * Contains the header of class Basic::IdentifiableInterface.
+ * Contains the header of class Core::Basic::IdentifiableInterface.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

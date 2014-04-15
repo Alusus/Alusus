@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/RootManager.h
- * Contains the header of class Standard::RootManager.
+ * Contains the header of class Core::Standard::RootManager.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

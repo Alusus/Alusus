@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/UnrecognizedCharMsg.cpp
- * Contains the implementation of class Lexer::UnrecognizedCharMsg.
+ * Contains the implementation of class Core::Lexer::UnrecognizedCharMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

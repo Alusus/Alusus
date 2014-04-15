@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/ConcatTerm.h
- * Contains the header of class Data::ConcatTerm.
+ * Contains the header of class Core::Data::ConcatTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

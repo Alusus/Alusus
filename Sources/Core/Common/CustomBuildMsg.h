@@ -1,6 +1,6 @@
 /**
  * @file Core/Common/CustomBuildMsg.h
- *  Contains the header of class Common::CustomBuildMsg.
+ *  Contains the header of class Core::Common::CustomBuildMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

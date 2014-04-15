@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/ReferenceTerm.h
- * Contains the header of class Data::ReferenceTerm.
+ * Contains the header of class Core::Data::ReferenceTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

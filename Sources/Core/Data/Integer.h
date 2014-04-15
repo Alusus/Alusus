@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/Integer.h
- * Contains the header of class Data::Integer.
+ * Contains the header of class Core::Data::Integer.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

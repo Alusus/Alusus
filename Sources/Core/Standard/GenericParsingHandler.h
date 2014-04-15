@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/GenericParsingHandler.h
- * Contains the header of class Standard::GenericParsingHandler.
+ * Contains the header of class Core::Standard::GenericParsingHandler.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -96,7 +96,7 @@ class GenericParsingHandler : public Parser::ParsingHandler
   private: void parseStringLiteralControlCharacters(const Str &src, Str &dest);
 
   /// Make sure the top term level is not shared.
-  private: void prepareToModifyData(Parser::TermLevel *level);
+  private: void prepareToModifyData(Parser::State *state, Int levelIndex);
 
   /// @}
 

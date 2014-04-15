@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/IntReferenceSegment.cpp
- * Contains the implementation of class Data::IntReferenceSegment.
+ * Contains the implementation of class Core::Data::IntReferenceSegment.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

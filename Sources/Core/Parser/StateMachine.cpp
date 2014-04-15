@@ -1,6 +1,6 @@
 /**
  * @file Core/Parser/StateMachine.cpp
- * Contains the implementation of class Parser::StateMachine.
+ * Contains the implementation of class Core::Parser::StateMachine.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -221,7 +221,7 @@ const SharedPtr<IdentifiableObject> StateMachine::endParsing()
   this->flushApprovedBuildMsgs();
 
   // Return remaining parsing data after clearing the remaining state.
-  SharedPtr<IdentifiableObject> data = (*this->states.begin())->refTopTermLevel().getData();
+  SharedPtr<IdentifiableObject> data = (*this->states.begin())->getData();
   this->clear();
   return data;
 }
@@ -1714,14 +1714,14 @@ void StateMachine::popStateLevel(State * state, Bool success)
     }
   }
   // Grab the level's data before deleting it.
-  SharedPtr<IdentifiableObject> data = state->refTopTermLevel().getData();
+  SharedPtr<IdentifiableObject> data = state->getData();
   // Now we can remove that state level.
   state->popLevel();
   // Did we just pop the program root production?
   if (state->getTermLevelCount() == 1) {
     // We just popped the program root, so we'll assign the data to the pre-root level so it can later on be
     // returned to the parser's user.
-    state->refTopTermLevel().setData(data);
+    state->setData(data);
   } else {
     // Fire "level exit" parsing handler event.
     this->getTopParsingHandler(state)->onLevelExit(this, state, data);

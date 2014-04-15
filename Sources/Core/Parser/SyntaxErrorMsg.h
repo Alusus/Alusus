@@ -1,6 +1,6 @@
 /**
  * @file Core/Parser/SyntaxErrorMsg.h
- * Contains the header of class Parser::SyntaxErrorMsg.
+ * Contains the header of class Core::Parser::SyntaxErrorMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

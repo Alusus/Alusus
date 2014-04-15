@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/ParsedDataBrowser.h
- * Contains the header of class Standard::ParsedDataBrowser.
+ * Contains the header of class Core::Standard::ParsedDataBrowser.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

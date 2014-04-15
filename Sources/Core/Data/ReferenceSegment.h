@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/ReferenceSegment.h
- * Contains the header of class Data::ReferenceSegment.
+ * Contains the header of class Core::Data::ReferenceSegment.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

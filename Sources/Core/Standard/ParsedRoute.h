@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/ParsedRoute.h
- * Contains the header of class Standard::ParsedRoute.
+ * Contains the header of class Core::Standard::ParsedRoute.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

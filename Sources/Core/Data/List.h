@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/List.h
- * Contains the header of class Data::List.
+ * Contains the header of class Core::Data::List.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

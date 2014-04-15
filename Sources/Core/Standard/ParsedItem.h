@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/ParsedItem.h
- * Contains the header of class Standard::ParsedItem.
+ * Contains the header of class Core::Standard::ParsedItem.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

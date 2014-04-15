@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/StateMachine.h
- * Contains the header of class Lexer::StateMachine.
+ * Contains the header of class Core::Lexer::StateMachine.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

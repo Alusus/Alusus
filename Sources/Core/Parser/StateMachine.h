@@ -1,6 +1,6 @@
 /**
  * @file Core/Parser/StateMachine.h
- * Contains the header of class Parser::StateMachine.
+ * Contains the header of class Core::Parser::StateMachine.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

@@ -19,37 +19,37 @@ namespace Scg
 
 class ModuleParsingHandler : public Core::Standard::GenericParsingHandler
 {
-    ////////////////////////////////////////////////////////////////////////////
-    // Type Info
+  //============================================================================
+  // Type Info
 
-    TYPE_INFO(ModuleParsingHandler, Core::Standard::GenericParsingHandler,
-              "Scg", "Scg", "alusus.net");
-
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Member Variables
-
-    Core::Standard::RootManager *rootManager;
+  TYPE_INFO(ModuleParsingHandler, Core::Standard::GenericParsingHandler,
+            "Scg", "Scg", "alusus.net");
 
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Constructor
+  //============================================================================
+  // Member Variables
 
-    public: ModuleParsingHandler(Core::Standard::RootManager *rm) : rootManager(rm)
-    {
-    }
+  Core::Standard::RootManager *rootManager;
 
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Member Functions
+  //============================================================================
+  // Constructor
 
-    public: virtual void onProdEnd(Core::Parser::StateMachine *machine, Core::Parser::State *state);
+  public: ModuleParsingHandler(Core::Standard::RootManager *rm) : rootManager(rm)
+  {
+  }
 
-    private: void add_definition_to_module(const SharedPtr<Core::Standard::ParsedItem> &def, Core::Data::Module *module);
 
-    private: void add_link_to_module(const SharedPtr<Core::Standard::ParsedItem> &link, Core::Data::Module *module);
+  //============================================================================
+  // Member Functions
 
-    private: const Char* get_link_name(const SharedPtr<Core::Standard::ParsedItem> &link);
+  public: virtual void onProdEnd(Core::Parser::StateMachine *machine, Core::Parser::State *state);
+
+  private: void add_definition_to_module(const SharedPtr<Core::Standard::ParsedItem> &def, Core::Data::Module *module);
+
+  private: void add_link_to_module(const SharedPtr<Core::Standard::ParsedItem> &link, Core::Data::Module *module);
+
+  private: const Char* get_link_name(const SharedPtr<Core::Standard::ParsedItem> &link);
 
 }; // class
 

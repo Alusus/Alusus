@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/Manager.cpp
- * Contains the implementation of class Data::Manager.
+ * Contains the implementation of class Core::Data::Manager.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -169,7 +169,7 @@ void Manager::setChildIds(IdentifiableObject *obj, const Char *id)
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Provider Implementation
 
 IdentifiableObject* Manager::getPlainValue(Reference *ref) const

@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Logger.cpp
- * Contains the implementation of class Data::Logger.
+ * @file Core/Data/VariableStack.cpp
+ * Contains the implementation of class Core::Data::VariableStack.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

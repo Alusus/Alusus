@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/LibraryManager.cpp
- * Contains the implementation of class Standard::LibraryManager.
+ * Contains the implementation of class Core::Standard::LibraryManager.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

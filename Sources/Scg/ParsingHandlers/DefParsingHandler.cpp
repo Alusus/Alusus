@@ -20,12 +20,12 @@ namespace Scg
 
 using namespace Core;
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Overloaded Abstract Functions
 
 void DefParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
 {
-    auto expr = state->refTopTermLevel().getData().io_cast<Standard::ParsedItem>();
+    auto expr = state->getData().io_cast<Standard::ParsedItem>();
     assert(expr != 0);
 
     // Get the name of the definition.
@@ -58,7 +58,7 @@ void DefParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *
     Core::Standard::mergeDefinition(this->rootManager->getDefinitionsManager(), name.c_str(), def, state);
 
     // Reset parsed data because we are done with the command.
-    state->refTopTermLevel().setData(SharedPtr<IdentifiableObject>(0));
+    state->setData(SharedPtr<IdentifiableObject>(0));
 }
 
 } // namespace

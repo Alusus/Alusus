@@ -1,6 +1,6 @@
 /**
  * @file Core/Common/Token.h
- * Contains the header of class Common::Token.
+ * Contains the header of class Core::Common::Token.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

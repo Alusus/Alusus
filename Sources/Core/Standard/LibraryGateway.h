@@ -1,6 +1,6 @@
 /**
  * @file Core/Standard/LibraryGateway.h
- * Contains the header of class Standard::LibraryGateway.
+ * Contains the header of class Core::Standard::LibraryGateway.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

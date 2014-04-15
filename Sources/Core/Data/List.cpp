@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/List.cpp
- * Contains the implementation of class Data::List.
+ * Contains the implementation of class Core::Data::List.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

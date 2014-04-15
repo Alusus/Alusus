@@ -1,6 +1,6 @@
 /**
  * @file Core/Common/BuildMsg.h
- * Contains the header of class Common::BuildMsg.
+ * Contains the header of class Core::Common::BuildMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

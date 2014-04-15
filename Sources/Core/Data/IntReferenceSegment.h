@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/IntReferenceSegment.h
- * Contains the header of class Data::IntReferenceSegment.
+ * Contains the header of class Core::Data::IntReferenceSegment.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

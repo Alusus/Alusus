@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/IndirectReferenceSegment.cpp
- * Contains the implementation of class Data::IndirectReferenceSegment.
+ * Contains the implementation of class Core::Data::IndirectReferenceSegment.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

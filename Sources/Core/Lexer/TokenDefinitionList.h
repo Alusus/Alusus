@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/TokenDefinitionList.h
- * Contains the header of class Lexer::TokenDefinitionList.
+ * Contains the header of class Core::Lexer::TokenDefinitionList.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

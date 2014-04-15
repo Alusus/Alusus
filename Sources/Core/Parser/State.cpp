@@ -42,6 +42,7 @@ State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxV
   topProdLevelCache(0),
   trunkSharedBuildMsgCount(0),
   termStack(reservedTermLevelCount),
+  dataStack(reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
   grammarHelper(static_cast<Data::Provider*>(&grammarContext)),
@@ -65,6 +66,7 @@ State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxV
   topProdLevelCache(0),
   trunkSharedBuildMsgCount(0),
   termStack(reservedTermLevelCount),
+  dataStack(reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
   grammarHelper(static_cast<Data::Provider*>(&grammarContext)),
@@ -92,7 +94,11 @@ void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount,
   ASSERT(reservedVarLevelCount > 0);
 
   this->termStack.reserve(reservedTermLevelCount);
+  this->dataStack.reserveLevels(reservedTermLevelCount);
   this->prodStack.reserve(reservedProdLevelCount);
+  this->termStack.clear();
+  this->dataStack.clear();
+  this->prodStack.clear();
   this->variableStack.initialize(maxVarNameLength, reservedVarCount, reservedVarLevelCount);
   this->grammarContext.setRootModule(rootModule);
   this->grammarContext.setVariableStack(&this->variableStack);
@@ -110,7 +116,11 @@ void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount,
   ASSERT(reservedVarLevelCount > 0);
 
   this->termStack.reserve(reservedTermLevelCount);
+  this->dataStack.reserveLevels(reservedTermLevelCount);
   this->prodStack.reserve(reservedProdLevelCount);
+  this->termStack.clear();
+  this->dataStack.clear();
+  this->prodStack.clear();
   this->variableStack.initialize(maxVarNameLength, reservedVarCount, reservedVarLevelCount);
   this->grammarContext.copyFrom(context);
   this->grammarContext.setVariableStack(&this->variableStack);
@@ -125,6 +135,7 @@ void State::reset()
   this->processingStatus = ProcessingStatus::IN_PROGRESS;
   this->tokensToLive = -1;
   this->termStack.clear();
+  this->dataStack.clear();
   this->prodStack.clear();
   this->variableStack.clear();
   this->buildMsgs.clear();
@@ -208,6 +219,7 @@ Int State::getTopprodTermLevelCount() const
 void State::pushTermLevel(Data::Term *term)
 {
   this->termStack.push_back(TermLevel());
+  this->dataStack.push();
   this->topTermLevelCache = &this->refTermLevel(-1);
 
   // If we don't have any term to set, then we also won't have any related info to cache.
@@ -251,6 +263,8 @@ void State::popTermLevel()
   ASSERT(!this->isAtProdRoot());
   if (this->termStack.size() > 0) {
     this->termStack.pop_back();
+    ASSERT(this->dataStack.getCount() > 0);
+    this->dataStack.pop();
   } else {
     if (this->tempTrunkTermStackIndex >= 0) {
       this->tempTrunkTermStackIndex--;
@@ -292,7 +306,7 @@ Int State::_findProdLevel(Int termIndex, Int start, Int end) const
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Production Stack Member Functions
 
 ProdLevel& State::refProdLevel(Int i)
@@ -372,7 +386,7 @@ void State::popProdLevel()
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Term Helper Functions
 
 Word State::getListTermChildCount(Int levelOffset) const
@@ -463,7 +477,7 @@ Data::Integer* State::getMultiplyTermPriority(Int levelOffset) const
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Other Member Functions
 
 /**
@@ -499,6 +513,9 @@ void State::setBranchingInfo(State *ts, Int ttl, Int tsi, Int psi)
   this->tempTrunkProdStackIndex = psi;
   if (tsi >= 0) {
     this->topTermLevelCache = &this->refTermLevel(tsi);
+    this->dataStack.setBranchingInfo(ts->getDataStack(), tsi);
+  } else {
+    this->dataStack.setBranchingInfo(0, -1);
   }
   if (psi >= 0) {
     this->topProdLevelCache = &this->refProdLevel(psi);
@@ -511,6 +528,8 @@ void State::setBranchingInfo(State *ts, Int ttl, Int tsi, Int psi)
       Data::Map *vars = this->grammarHelper.getSymbolVars(this->topProdLevelCache->getProd());
       this->grammarContext.setCurrentArgumentList(vars);
     }
+  } else {
+    this->variableStack.setBranchingInfo(0, -1);
   }
   this->tokensToLive = ttl;
 }
@@ -542,6 +561,10 @@ void State::ownTopTermLevel()
   if (this->termStack.size() > 0) return;
   ASSERT(this->trunkState != 0);
   ASSERT(this->tempTrunkTermStackIndex >= 0);
+  if (static_cast<Int>(this->trunkState->getTermLevelCount()) <= this->tempTrunkTermStackIndex) {
+    throw GeneralException(STR("Trunk state has been modified."),
+                           STR("Core::Parser::State::ownTopTermLevel"));
+  }
   TermLevel &srcLevel = this->trunkState->refTermLevel(this->tempTrunkTermStackIndex);
   this->tempTrunkTermStackIndex--;
   this->termStack.push_back(TermLevel());
@@ -598,6 +621,7 @@ void State::copyProdLevel(State *src, Int offset)
 void State::copyTermLevel(State *src, Int offset)
 {
   this->termStack.push_back(TermLevel());
+  this->dataStack.push(src->getData(offset));
   this->topTermLevelCache = &this->refTermLevel(-1);
   this->topTermLevelCache->copyFrom(&src->refTermLevel(offset));
 }

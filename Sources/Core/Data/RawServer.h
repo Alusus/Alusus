@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/RawServer.h
- * Contains the header of class Data::RawServer.
+ * Contains the header of class Core::Data::RawServer.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

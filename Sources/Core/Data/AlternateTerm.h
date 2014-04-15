@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/AlternateTerm.h
- * Contains the header of class Data::AlternateTerm.
+ * Contains the header of class Core::Data::AlternateTerm.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

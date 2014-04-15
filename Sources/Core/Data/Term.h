@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/Term.h
- * Contains the header of class Data::Term.
+ * Contains the header of class Core::Data::Term.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

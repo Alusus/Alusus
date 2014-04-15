@@ -96,9 +96,9 @@ $ make test
  بعد الانتهاء من البناء سيكون الملف التنفيذي داخل Bin وستكون المكتبات داخل Lib. لتتمكن من تشغيل اللغة ستحتاج لإضافة مجلد Lib إلى LD_LIBRARY_PATH. بعد ذلك تستطيع تنفيذ الأمثلة داخل المجلد Examples كما يلي:
 <pre dir=ltr class="code nohighlight">
 $ export LD_LIBRARY_PATH=&lt;path-to-Alusus&gt;/Lib:$LD_LIBRARY_PATH
-$ export PATH=&lt;path-to-Alusus&gt;/Bin:PATH
+$ export PATH=&lt;path-to-Alusus&gt;/Bin:$PATH
 $ cd &lt;path-to-Alusus&gt;/Examples
-$ alusus_d helloworld.alusus
+$ alusus_d hello_world.alusus
 </pre>
  اسم الملف التنفيذي عند البناء بصيغة التنقيح (debug) يكون alusus_d. لو تم بناؤها بصيغة النشر (release) فإن اسم الملف التنفيذي يكون alusus، أي بدون الإضافة d_.
  <p>إذا تم بناء القلب بصيغة التنقيح (debug) فإن بالإمكان تدوين الأحداث (logging) وذلك بإضافة معطى log-- إلى البرنامج وإعطائه رقماً يحدد مستوى التفاصيل المرجو كما في المثال التالي: 

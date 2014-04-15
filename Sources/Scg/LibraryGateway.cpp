@@ -19,7 +19,7 @@ namespace Scg
 using namespace Core;
 using namespace Core::Data;
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Overloaded Abstract Functions
 
 void LibraryGateway::initialize(Standard::RootManager *manager)

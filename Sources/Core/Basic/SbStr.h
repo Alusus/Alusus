@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/SbStr.h
- * Contains the header of class Basic::SbStr.
+ * Contains the header of class Core::Basic::SbStr.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

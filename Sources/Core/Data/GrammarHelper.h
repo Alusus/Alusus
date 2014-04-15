@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/GrammarHelper.h
- * Contains the header of class Data::GrammarHelper.
+ * Contains the header of class Core::Data::GrammarHelper.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

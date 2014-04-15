@@ -1,6 +1,6 @@
 /**
  * @file Core/Lexer/InvertCharGroupUnit.h
- * Contains the header of class Lexer::InvertCharGroupUnit.
+ * Contains the header of class Core::Lexer::InvertCharGroupUnit.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *

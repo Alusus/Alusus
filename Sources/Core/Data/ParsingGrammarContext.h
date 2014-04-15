@@ -1,6 +1,6 @@
 /**
  * @file Core/Data/ParsingGrammarContext.h
- * Contains the header of class Data::ParsingGrammarContext.
+ * Contains the header of class Core::Data::ParsingGrammarContext.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
