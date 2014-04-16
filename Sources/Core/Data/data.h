@@ -164,9 +164,9 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
 #include "Reference.h"
 #include "ReferenceParser.h"
 
-// Servers and Data Holders
-#include "Server.h"
-#include "RawServer.h"
+// Seekers and Data Holders
+#include "Seeker.h"
+#include "RawSeeker.h"
 #include "DataStore.h"
 #include "DataStack.h"
 

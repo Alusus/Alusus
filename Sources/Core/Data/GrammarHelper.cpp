@@ -22,7 +22,7 @@ void GrammarHelper::getValue(Reference *ref, Module *module, IdentifiableObject 
 {
   if (module != 0) {
     if (ref->getScope() == ReferenceScope::MODULE) {
-      this->server.getPlain(ref->getSegment().get(), module, retVal, retModule);
+      this->seeker.getPlain(ref->getSegment().get(), module, retVal, retModule);
       return;
     } else if (ref->getScope() == ReferenceScope::PMODULE) {
       if (!module->isDerivedFrom<GrammarModule>()) {
@@ -30,18 +30,18 @@ void GrammarHelper::getValue(Reference *ref, Module *module, IdentifiableObject 
                                    "doesn't have a parent."),
                                STR("Core::Data::GrammarHelper::getValue"));
       }
-      this->server.getPlain(ref->getSegment().get(), static_cast<GrammarModule*>(module)->getParent(),
+      this->seeker.getPlain(ref->getSegment().get(), static_cast<GrammarModule*>(module)->getParent(),
                             retVal, retModule);
       return;
     }
   }
-  this->server.getDataProvider()->getPlainValue(ref, retVal, retModule);
+  this->seeker.getDataProvider()->getPlainValue(ref, retVal, retModule);
 }
 
 
 IdentifiableObject* GrammarHelper::traceValue(IdentifiableObject *val, Module *module) const
 {
-  if (this->server.getDataProvider() == 0) {
+  if (this->seeker.getDataProvider() == 0) {
     throw GeneralException(STR("Data Provider is not set."), STR("Core::Data::GrammarHelper::traceValue"));
   }
   while (val != 0 && val->isA<Reference>()) {
@@ -54,7 +54,7 @@ IdentifiableObject* GrammarHelper::traceValue(IdentifiableObject *val, Module *m
 void GrammarHelper::traceValue(IdentifiableObject *val, IdentifiableObject *&retVal, Module *&retModule,
                                Module *module) const
 {
-  if (this->server.getDataProvider() == 0) {
+  if (this->seeker.getDataProvider() == 0) {
     throw GeneralException(STR("Data Provider is not set."), STR("Core::Data::GrammarHelper::traceValue"));
   }
   while (val != 0 && val->isA<Reference>()) {

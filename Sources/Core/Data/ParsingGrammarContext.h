@@ -35,8 +35,8 @@ class ParsingGrammarContext : public IdentifiableObject, public virtual Provider
   private: VariableStack *variableStack;
   private: Map *currentArgumentList;
 
-  private: Server server;
-  private: RawServer rawServer;
+  private: Seeker seeker;
+  private: RawSeeker rawSeeker;
 
 
   //============================================================================
@@ -52,7 +52,7 @@ class ParsingGrammarContext : public IdentifiableObject, public virtual Provider
 
   public: ParsingGrammarContext(GrammarModule *r = 0) :
     rootModule(r), currentModule(0), variableStack(0), currentArgumentList(0),
-    server(static_cast<Provider*>(this)), rawServer(static_cast<Provider*>(this))
+    seeker(static_cast<Provider*>(this)), rawSeeker(static_cast<Provider*>(this))
   {
   }
 
@@ -134,22 +134,22 @@ class ParsingGrammarContext : public IdentifiableObject, public virtual Provider
 
   public: void setValue(Reference *ref, IdentifiableObject *val)
   {
-    this->server.setPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()), val);
+    this->seeker.setPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()), val);
   }
 
   public: void removeValue(Reference *ref)
   {
-    this->server.remove(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
+    this->seeker.remove(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
   }
 
   public: IdentifiableObject* getValue(Reference *ref) const
   {
-    return this->server.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
+    return this->seeker.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
   }
 
   public: void getValue(Reference *ref, IdentifiableObject *&retVal, Module *&retModule) const
   {
-    this->server.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
+    this->seeker.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
                           retVal, retModule);
   }
 
@@ -163,47 +163,47 @@ class ParsingGrammarContext : public IdentifiableObject, public virtual Provider
 
   public: virtual IdentifiableObject* getPlainValue(Reference *ref) const
   {
-    return this->server.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
+    return this->seeker.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
   }
 
   public: virtual void getPlainValue(Reference *ref, IdentifiableObject *&retVal, Module *&retModule) const
   {
-    return this->server.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
+    return this->seeker.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
                                  retVal, retModule);
   }
 
   public: virtual IdentifiableObject* getPlainValue(const Char *qualifier) const
   {
-    return this->rawServer.getPlain(qualifier, this->getStartingParent(qualifier));
+    return this->rawSeeker.getPlain(qualifier, this->getStartingParent(qualifier));
   }
 
   public: virtual void getPlainValue(const Char *qualifier, IdentifiableObject *&retVal,
                                      Module *&retModule) const
   {
-    return this->rawServer.getPlain(qualifier, this->getStartingParent(qualifier), retVal, retModule);
+    return this->rawSeeker.getPlain(qualifier, this->getStartingParent(qualifier), retVal, retModule);
   }
 
   public: virtual Bool tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal) const
   {
-    return this->server.tryGetPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
+    return this->seeker.tryGetPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
                                     retVal);
   }
 
   public: virtual Bool tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal, Module *&retModule) const
   {
-    return this->server.tryGetPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
+    return this->seeker.tryGetPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
                                     retVal, retModule);
   }
 
   public: virtual Bool tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal) const
   {
-    return this->rawServer.tryGetPlain(qualifier, this->getStartingParent(qualifier), retVal);
+    return this->rawSeeker.tryGetPlain(qualifier, this->getStartingParent(qualifier), retVal);
   }
 
   public: virtual Bool tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal,
                                         Module *&retModule) const
   {
-    return this->rawServer.tryGetPlain(qualifier, this->getStartingParent(qualifier), retVal, retModule);
+    return this->rawSeeker.tryGetPlain(qualifier, this->getStartingParent(qualifier), retVal, retModule);
   }
 
   /// @}

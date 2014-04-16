@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_MANAGER_H
-#define DATA_MANAGER_H
+#ifndef DATA_DATASTORE_H
+#define DATA_DATASTORE_H
 
 namespace Core { namespace Data
 {
@@ -47,14 +47,14 @@ class DataStore : public IdentifiableObject, public virtual Provider
 
   protected: SharedPtr<Module> root;
 
-  protected: Server server;
-  protected: RawServer rawServer;
+  protected: Seeker seeker;
+  protected: RawSeeker rawSeeker;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: DataStore() : server(static_cast<Provider*>(this)), rawServer(static_cast<Provider*>(this))
+  public: DataStore() : seeker(static_cast<Provider*>(this)), rawSeeker(static_cast<Provider*>(this))
   {
   }
 

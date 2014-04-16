@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/RawServer.cpp
- * Contains the implementation of class Core::Data::RawServer.
+ * @file Core/Data/RawSeeker.cpp
+ * Contains the implementation of class Core::Data::RawSeeker.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -18,7 +18,7 @@ namespace Core { namespace Data
 //============================================================================
 // Helper Functions
 
-Bool RawServer::getImmediateContainer(const Char *qualifier, const SharedPtr<IdentifiableObject> &parent,
+Bool RawSeeker::getImmediateContainer(const Char *qualifier, const SharedPtr<IdentifiableObject> &parent,
                                       ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
                                       SharedPtr<Module> &retModule) const
 {
@@ -45,7 +45,7 @@ Bool RawServer::getImmediateContainer(const Char *qualifier, const SharedPtr<Ide
 }
 
 
-Bool RawServer::getImmediateContainer(const Char *qualifier, IdentifiableObject *parent,
+Bool RawSeeker::getImmediateContainer(const Char *qualifier, IdentifiableObject *parent,
                                       ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
                                       SharedPtr<Module> &retModule) const
 {
@@ -69,7 +69,7 @@ Bool RawServer::getImmediateContainer(const Char *qualifier, IdentifiableObject 
 }
 
 
-Bool RawServer::getImmediateContainer(const Char *qualifier, IdentifiableObject *parent,
+Bool RawSeeker::getImmediateContainer(const Char *qualifier, IdentifiableObject *parent,
                                       ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
                                       Module *&retModule) const
 {
@@ -96,7 +96,7 @@ Bool RawServer::getImmediateContainer(const Char *qualifier, IdentifiableObject 
 }
 
 
-Bool RawServer::getImmediateContainer(const Char *qualifier, IdentifiableObject *parent,
+Bool RawSeeker::getImmediateContainer(const Char *qualifier, IdentifiableObject *parent,
                                       ReferenceSegment *&retSeg, IdentifiableObject *&retParent) const
 {
   ReferenceSegment *seg = this->parser.parseQualifierSegment(qualifier);
@@ -114,19 +114,19 @@ Bool RawServer::getImmediateContainer(const Char *qualifier, IdentifiableObject 
 //==============================================================================
 // Data Read Functions
 
-const SharedPtr<IdentifiableObject>& RawServer::get(const Char *qualifier, IdentifiableObject *parent) const
+const SharedPtr<IdentifiableObject>& RawSeeker::get(const Char *qualifier, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(qualifier, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::RawServer::get"));
+                           STR("Core::Data::RawSeeker::get"));
   }
   return immSeg->get(this->dataProvider, immParent);
 }
 
 
-Bool RawServer::tryGet(const Char *qualifier, IdentifiableObject *parent,
+Bool RawSeeker::tryGet(const Char *qualifier, IdentifiableObject *parent,
                        SharedPtr<IdentifiableObject> &result) const
 {
   ReferenceSegment *immSeg;
@@ -136,33 +136,33 @@ Bool RawServer::tryGet(const Char *qualifier, IdentifiableObject *parent,
 }
 
 
-void RawServer::get(const Char *qualifier, IdentifiableObject *parent,
+void RawSeeker::get(const Char *qualifier, IdentifiableObject *parent,
                     SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(qualifier, parent, immSeg, immParent, retModule)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::RawServer::get"));
+                           STR("Core::Data::RawSeeker::get"));
   }
   retVal = immSeg->get(this->dataProvider, immParent);
 }
 
 
-void RawServer::get(const Char *qualifier, const SharedPtr<IdentifiableObject> &parent,
+void RawSeeker::get(const Char *qualifier, const SharedPtr<IdentifiableObject> &parent,
                     SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(qualifier, parent, immSeg, immParent, retModule)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::RawServer::get"));
+                           STR("Core::Data::RawSeeker::get"));
   }
   retVal = immSeg->get(this->dataProvider, immParent);
 }
 
 
-Bool RawServer::tryGet(const Char *qualifier, IdentifiableObject *parent,
+Bool RawSeeker::tryGet(const Char *qualifier, IdentifiableObject *parent,
                        SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
@@ -172,7 +172,7 @@ Bool RawServer::tryGet(const Char *qualifier, IdentifiableObject *parent,
 }
 
 
-Bool RawServer::tryGet(const Char *qualifier, const SharedPtr<IdentifiableObject> &parent,
+Bool RawSeeker::tryGet(const Char *qualifier, const SharedPtr<IdentifiableObject> &parent,
                        SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
@@ -185,19 +185,19 @@ Bool RawServer::tryGet(const Char *qualifier, const SharedPtr<IdentifiableObject
 //==============================================================================
 // Plain Data Read Functions
 
-IdentifiableObject* RawServer::getPlain(const Char *qualifier, IdentifiableObject *parent) const
+IdentifiableObject* RawSeeker::getPlain(const Char *qualifier, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(qualifier, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::RawServer::get"));
+                           STR("Core::Data::RawSeeker::get"));
   }
   return immSeg->getPlain(this->dataProvider, immParent);
 }
 
 
-Bool RawServer::tryGetPlain(const Char *qualifier, IdentifiableObject *parent, IdentifiableObject *&result) const
+Bool RawSeeker::tryGetPlain(const Char *qualifier, IdentifiableObject *parent, IdentifiableObject *&result) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
@@ -206,20 +206,20 @@ Bool RawServer::tryGetPlain(const Char *qualifier, IdentifiableObject *parent, I
 }
 
 
-void RawServer::getPlain(const Char *qualifier, IdentifiableObject *parent,
+void RawSeeker::getPlain(const Char *qualifier, IdentifiableObject *parent,
                          IdentifiableObject *&retVal, Module *&retModule) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(qualifier, parent, immSeg, immParent, retModule)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::RawServer::get"));
+                           STR("Core::Data::RawSeeker::get"));
   }
   retVal = immSeg->getPlain(this->dataProvider, immParent);
 }
 
 
-Bool RawServer::tryGetPlain(const Char *qualifier, IdentifiableObject *parent,
+Bool RawSeeker::tryGetPlain(const Char *qualifier, IdentifiableObject *parent,
                             IdentifiableObject *&retVal, Module *&retModule) const
 {
   ReferenceSegment *immSeg;
@@ -232,19 +232,19 @@ Bool RawServer::tryGetPlain(const Char *qualifier, IdentifiableObject *parent,
 //==============================================================================
 // Data Write Functions
 
-void RawServer::set(const Char *qualifier, IdentifiableObject *parent, const SharedPtr<IdentifiableObject> &val) const
+void RawSeeker::set(const Char *qualifier, IdentifiableObject *parent, const SharedPtr<IdentifiableObject> &val) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(qualifier, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::RawServer::set"));
+                           STR("Core::Data::RawSeeker::set"));
   }
   immSeg->set(this->dataProvider, immParent, val);
 }
 
 
-Bool RawServer::trySet(const Char *qualifier, IdentifiableObject *parent,
+Bool RawSeeker::trySet(const Char *qualifier, IdentifiableObject *parent,
                        const SharedPtr<IdentifiableObject> &val) const
 {
   ReferenceSegment *immSeg;
@@ -254,19 +254,19 @@ Bool RawServer::trySet(const Char *qualifier, IdentifiableObject *parent,
 }
 
 
-void RawServer::setPlain(const Char *qualifier, IdentifiableObject *parent, IdentifiableObject *val) const
+void RawSeeker::setPlain(const Char *qualifier, IdentifiableObject *parent, IdentifiableObject *val) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(qualifier, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::RawServer::set"));
+                           STR("Core::Data::RawSeeker::set"));
   }
   immSeg->setPlain(this->dataProvider, immParent, val);
 }
 
 
-Bool RawServer::trySetPlain(const Char *qualifier, IdentifiableObject *parent, IdentifiableObject *val) const
+Bool RawSeeker::trySetPlain(const Char *qualifier, IdentifiableObject *parent, IdentifiableObject *val) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
@@ -278,19 +278,19 @@ Bool RawServer::trySetPlain(const Char *qualifier, IdentifiableObject *parent, I
 //==============================================================================
 // Data Delete Functions
 
-void RawServer::remove(const Char *qualifier, IdentifiableObject *parent) const
+void RawSeeker::remove(const Char *qualifier, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(qualifier, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::RawServer::remove"));
+                           STR("Core::Data::RawSeeker::remove"));
   }
   immSeg->remove(this->dataProvider, immParent);
 }
 
 
-Bool RawServer::tryRemove(const Char *qualifier, IdentifiableObject *parent) const
+Bool RawSeeker::tryRemove(const Char *qualifier, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;

@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Server.cpp
- * Contains the implementation of class Core::Data::Server.
+ * @file Core/Data/Seeker.cpp
+ * Contains the implementation of class Core::Data::Seeker.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -18,7 +18,7 @@ namespace Core { namespace Data
 //==============================================================================
 // Helper Functions
 
-Bool Server::getImmediateContainer(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
+Bool Seeker::getImmediateContainer(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
                                    ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
                                    SharedPtr<Module> &retModule) const
 {
@@ -44,7 +44,7 @@ Bool Server::getImmediateContainer(ReferenceSegment *seg, const SharedPtr<Identi
 }
 
 
-Bool Server::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool Seeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
                                    ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
                                    SharedPtr<Module> &retModule) const
 {
@@ -67,7 +67,7 @@ Bool Server::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *pa
 }
 
 
-Bool Server::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool Seeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
                                    ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
                                    Module *&retModule) const
 {
@@ -93,7 +93,7 @@ Bool Server::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *pa
 }
 
 
-Bool Server::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool Seeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
                                    ReferenceSegment *&retSeg, IdentifiableObject *&retParent) const
 {
   while (seg->getNext() != 0) {
@@ -109,19 +109,19 @@ Bool Server::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *pa
 //==============================================================================
 // Data Read Functions
 
-const SharedPtr<IdentifiableObject>& Server::get(ReferenceSegment *seg, IdentifiableObject *parent) const
+const SharedPtr<IdentifiableObject>& Seeker::get(ReferenceSegment *seg, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Server::get"));
+                           STR("Core::Data::Seeker::get"));
   }
   return immSeg->get(this->dataProvider, immParent);
 }
 
 
-Bool Server::tryGet(ReferenceSegment *seg, IdentifiableObject *parent, SharedPtr<IdentifiableObject> &result) const
+Bool Seeker::tryGet(ReferenceSegment *seg, IdentifiableObject *parent, SharedPtr<IdentifiableObject> &result) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
@@ -130,33 +130,33 @@ Bool Server::tryGet(ReferenceSegment *seg, IdentifiableObject *parent, SharedPtr
 }
 
 
-void Server::get(ReferenceSegment *seg, IdentifiableObject *parent,
+void Seeker::get(ReferenceSegment *seg, IdentifiableObject *parent,
                  SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent, retModule)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Server::get"));
+                           STR("Core::Data::Seeker::get"));
   }
   retVal = immSeg->get(this->dataProvider, immParent);
 }
 
 
-void Server::get(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
+void Seeker::get(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
                  SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent, retModule)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Server::get"));
+                           STR("Core::Data::Seeker::get"));
   }
   retVal = immSeg->get(this->dataProvider, immParent);
 }
 
 
-Bool Server::tryGet(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool Seeker::tryGet(ReferenceSegment *seg, IdentifiableObject *parent,
                     SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
@@ -166,7 +166,7 @@ Bool Server::tryGet(ReferenceSegment *seg, IdentifiableObject *parent,
 }
 
 
-Bool Server::tryGet(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
+Bool Seeker::tryGet(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
                     SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
@@ -179,19 +179,19 @@ Bool Server::tryGet(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &
 //==============================================================================
 // Plain Data Read Functions
 
-IdentifiableObject* Server::getPlain(ReferenceSegment *seg, IdentifiableObject *parent) const
+IdentifiableObject* Seeker::getPlain(ReferenceSegment *seg, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Server::get"));
+                           STR("Core::Data::Seeker::get"));
   }
   return immSeg->getPlain(this->dataProvider, immParent);
 }
 
 
-Bool Server::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *&result) const
+Bool Seeker::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *&result) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
@@ -200,20 +200,20 @@ Bool Server::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent, Iden
 }
 
 
-void Server::getPlain(ReferenceSegment *seg, IdentifiableObject *parent,
+void Seeker::getPlain(ReferenceSegment *seg, IdentifiableObject *parent,
                       IdentifiableObject *&retVal, Module *&retModule) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent, retModule)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Server::get"));
+                           STR("Core::Data::Seeker::get"));
   }
   retVal = immSeg->getPlain(this->dataProvider, immParent);
 }
 
 
-Bool Server::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool Seeker::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent,
                          IdentifiableObject *&retVal, Module *&retModule) const
 {
   ReferenceSegment *immSeg;
@@ -226,19 +226,19 @@ Bool Server::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent,
 //==============================================================================
 // Data Write Functions
 
-void Server::set(ReferenceSegment *seg, IdentifiableObject *parent, const SharedPtr<IdentifiableObject> &val) const
+void Seeker::set(ReferenceSegment *seg, IdentifiableObject *parent, const SharedPtr<IdentifiableObject> &val) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Server::set"));
+                           STR("Core::Data::Seeker::set"));
   }
   immSeg->set(this->dataProvider, immParent, val);
 }
 
 
-Bool Server::trySet(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool Seeker::trySet(ReferenceSegment *seg, IdentifiableObject *parent,
                     const SharedPtr<IdentifiableObject> &val) const
 {
   ReferenceSegment *immSeg;
@@ -248,19 +248,19 @@ Bool Server::trySet(ReferenceSegment *seg, IdentifiableObject *parent,
 }
 
 
-void Server::setPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *val) const
+void Seeker::setPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *val) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Server::set"));
+                           STR("Core::Data::Seeker::set"));
   }
   immSeg->setPlain(this->dataProvider, immParent, val);
 }
 
 
-Bool Server::trySetPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *val) const
+Bool Seeker::trySetPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *val) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
@@ -272,19 +272,19 @@ Bool Server::trySetPlain(ReferenceSegment *seg, IdentifiableObject *parent, Iden
 //============================================================================
 // Data Delete Functions
 
-void Server::remove(ReferenceSegment *seg, IdentifiableObject *parent) const
+void Seeker::remove(ReferenceSegment *seg, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Server::remove"));
+                           STR("Core::Data::Seeker::remove"));
   }
   immSeg->remove(this->dataProvider, immParent);
 }
 
 
-Bool Server::tryRemove(ReferenceSegment *seg, IdentifiableObject *parent) const
+Bool Seeker::tryRemove(ReferenceSegment *seg, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;

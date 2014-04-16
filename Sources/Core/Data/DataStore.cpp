@@ -25,7 +25,7 @@ void DataStore::setValue(Reference *ref, const SharedPtr<IdentifiableObject> &ob
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
-  this->server.set(ref->getSegment().get(), this->root.get(), obj);
+  this->seeker.set(ref->getSegment().get(), this->root.get(), obj);
 
   // TODO: We can remove this part if/when we start handling IDs in definition signals.
   // Set the id for the new object.
@@ -52,7 +52,7 @@ void DataStore::setValue(const Char *qualifier, const SharedPtr<IdentifiableObje
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
-  this->rawServer.set(qualifier, this->root.get(), obj);
+  this->rawSeeker.set(qualifier, this->root.get(), obj);
 
   // TODO: We can remove this part if/when we start handling IDs in definition signals.
   // Set the id for the new object.
@@ -76,7 +76,7 @@ void DataStore::removeValue(Reference *ref)
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
-  this->server.remove(ref->getSegment().get(), this->root.get());
+  this->seeker.remove(ref->getSegment().get(), this->root.get());
 }
 
 
@@ -88,7 +88,7 @@ void DataStore::removeValue(const Char *qualifier)
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
-  this->rawServer.remove(qualifier, this->root.get());
+  this->rawSeeker.remove(qualifier, this->root.get());
 }
 
 
@@ -99,7 +99,7 @@ const SharedPtr<IdentifiableObject>& DataStore::getValue(Reference *ref)
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
-  return this->server.get(ref->getSegment().get(), this->root.get());
+  return this->seeker.get(ref->getSegment().get(), this->root.get());
 }
 
 
@@ -111,7 +111,7 @@ const SharedPtr<IdentifiableObject>& DataStore::getValue(const Char *qualifier)
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
-  return this->rawServer.get(qualifier, this->root.get());
+  return this->rawSeeker.get(qualifier, this->root.get());
 }
 
 
@@ -123,7 +123,7 @@ void DataStore::getValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal,
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
-  this->server.get(ref->getSegment().get(), this->root.get(), retVal, retModule);
+  this->seeker.get(ref->getSegment().get(), this->root.get(), retVal, retModule);
 }
 
 
@@ -136,7 +136,7 @@ void DataStore::getValue(const Char *qualifier, SharedPtr<IdentifiableObject> &r
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
-  this->rawServer.get(qualifier, this->root.get(), retVal, retModule);
+  this->rawSeeker.get(qualifier, this->root.get(), retVal, retModule);
 }
 
 
@@ -179,7 +179,7 @@ IdentifiableObject* DataStore::getPlainValue(Reference *ref) const
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
-  return this->server.getPlain(ref->getSegment().get(), this->root.get());
+  return this->seeker.getPlain(ref->getSegment().get(), this->root.get());
 }
 
 
@@ -190,7 +190,7 @@ void DataStore::getPlainValue(Reference *ref, IdentifiableObject *&retVal, Modul
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
-  return this->server.getPlain(ref->getSegment().get(), this->root.get(), retVal, retModule);
+  return this->seeker.getPlain(ref->getSegment().get(), this->root.get(), retVal, retModule);
 }
 
 
@@ -202,7 +202,7 @@ IdentifiableObject* DataStore::getPlainValue(const Char *qualifier) const
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
-  return this->rawServer.getPlain(qualifier, this->root.get());
+  return this->rawSeeker.getPlain(qualifier, this->root.get());
 }
 
 
@@ -214,21 +214,21 @@ void DataStore::getPlainValue(const Char *qualifier, IdentifiableObject *&retVal
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
-  return this->rawServer.getPlain(qualifier, this->root.get(), retVal, retModule);
+  return this->rawSeeker.getPlain(qualifier, this->root.get(), retVal, retModule);
 }
 
 
 Bool DataStore::tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal) const
 {
   if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) return false;
-  return this->server.tryGetPlain(ref->getSegment().get(), this->root.get(), retVal);
+  return this->seeker.tryGetPlain(ref->getSegment().get(), this->root.get(), retVal);
 }
 
 
 Bool DataStore::tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal, Module *&retModule) const
 {
   if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) return false;
-  return this->server.tryGetPlain(ref->getSegment().get(), this->root.get(), retVal, retModule);
+  return this->seeker.tryGetPlain(ref->getSegment().get(), this->root.get(), retVal, retModule);
 }
 
 
@@ -236,7 +236,7 @@ Bool DataStore::tryGetPlainValue(const Char *qualifier, IdentifiableObject *&ret
 {
   ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
   if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) return false;
-  return this->rawServer.tryGetPlain(qualifier, this->root.get(), retVal);
+  return this->rawSeeker.tryGetPlain(qualifier, this->root.get(), retVal);
 }
 
 
@@ -244,7 +244,7 @@ Bool DataStore::tryGetPlainValue(const Char *qualifier, IdentifiableObject *&ret
 {
   ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
   if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) return false;
-  return this->rawServer.tryGetPlain(qualifier, this->root.get(), retVal, retModule);
+  return this->rawSeeker.tryGetPlain(qualifier, this->root.get(), retVal, retModule);
 }
 
 } } // namespace

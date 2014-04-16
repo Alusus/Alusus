@@ -23,13 +23,13 @@ class GrammarHelper
   //============================================================================
   // Member Variables
 
-  private: Server server;
+  private: Seeker seeker;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: GrammarHelper(const Provider *p = 0) : server(p)
+  public: GrammarHelper(const Provider *p = 0) : seeker(p)
   {
   }
 
@@ -42,12 +42,12 @@ class GrammarHelper
 
   public: void setDataProvider(const Provider *prov)
   {
-    this->server.setDataProvider(prov);
+    this->seeker.setDataProvider(prov);
   }
 
   public: const Provider* getDataProvider() const
   {
-    return this->server.getDataProvider();
+    return this->seeker.getDataProvider();
   }
 
   /// @}

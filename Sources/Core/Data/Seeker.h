@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Server.h
- * Contains the header of class Core::Data::Server.
+ * @file Core/Data/Seeker.h
+ * Contains the header of class Core::Data::Seeker.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,15 +10,15 @@
  */
 //==============================================================================
 
-#ifndef DATA_SERVER_H
-#define DATA_SERVER_H
+#ifndef DATA_SEEKER_H
+#define DATA_SEEKER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class Server
+class Seeker
 {
   //============================================================================
   // Member Variables
@@ -29,11 +29,11 @@ class Server
   //============================================================================
   // Constructor & Destructor
 
-  public: Server(const Provider *prov=0) : dataProvider(prov)
+  public: Seeker(const Provider *prov=0) : dataProvider(prov)
   {
   }
 
-  public: ~Server()
+  public: ~Seeker()
   {
   }
 

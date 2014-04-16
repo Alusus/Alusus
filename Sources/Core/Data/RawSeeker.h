@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/RawServer.h
- * Contains the header of class Core::Data::RawServer.
+ * @file Core/Data/RawSeeker.h
+ * Contains the header of class Core::Data::RawSeeker.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,15 +10,15 @@
  */
 //==============================================================================
 
-#ifndef DATA_RAW_SERVER_H
-#define DATA_RAW_SERVER_H
+#ifndef DATA_RAWSEEKER_H
+#define DATA_RAWSEEKER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class RawServer
+class RawSeeker
 {
   //============================================================================
   // Member Variables
@@ -30,11 +30,11 @@ class RawServer
   //============================================================================
   // Constructor & Destructor
 
-  public: RawServer(const Provider *prov=0) : dataProvider(prov)
+  public: RawSeeker(const Provider *prov=0) : dataProvider(prov)
   {
   }
 
-  public: ~RawServer()
+  public: ~RawSeeker()
   {
   }
 
