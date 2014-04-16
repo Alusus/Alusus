@@ -55,7 +55,7 @@ class StateMachine : public SignalReceiver
    */
   public: const Int EOF_TOKEN;
 
-  private: Data::Manager *grammarManager;
+  private: Data::DataStore *grammarStore;
 
   /**
    * @brief The array of current states.
@@ -115,7 +115,7 @@ class StateMachine : public SignalReceiver
   //============================================================================
   // Constructor / Destructor
 
-  public: StateMachine() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")), grammarManager(0)
+  public: StateMachine() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")), grammarStore(0)
   {
   }
 
@@ -130,17 +130,17 @@ class StateMachine : public SignalReceiver
   /// @name Initialization Related Functions
   /// @{
 
-  public: void initialize(Data::Manager *mgr);
+  public: void initialize(Data::DataStore *store);
 
   public: void release()
   {
     this->clear();
-    this->grammarManager = 0;
+    this->grammarStore = 0;
   }
 
-  public: Data::Manager* getGrammarManager() const
+  public: Data::DataStore* getGrammarStore() const
   {
-    return this->grammarManager;
+    return this->grammarStore;
   }
 
   /// @}

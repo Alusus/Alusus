@@ -20,7 +20,7 @@ namespace Core { namespace Parser
 //==============================================================================
 // Member Functions
 
-void StateMachine::initialize(Data::Manager *mgr)
+void StateMachine::initialize(Data::DataStore *store)
 {
   // Before we can change the production list, we need to make sure we have no outstanding
   // states.
@@ -35,14 +35,14 @@ void StateMachine::initialize(Data::Manager *mgr)
   //}
 
   // Set the new manager.
-  this->grammarManager = mgr;
+  this->grammarStore = store;
 
   // TODO: If we have a new manager, we need to set the production_in_use_inquirer signal.
   //if (this->production_definitions != 0) {
   //    this->production_definitions->production_in_use_inquirer.connect(this, &StateMachine::is_production_in_use);
   //}
 
-  Data::GrammarModule *root = this->grammarManager->getRootModule().io_cast_get<Data::GrammarModule>();
+  Data::GrammarModule *root = this->grammarStore->getRootModule().io_cast_get<Data::GrammarModule>();
   if (root == 0) {
     throw InvalidArgumentException(STR("mgr"), STR("Core::Parser::StateMachine::initialize"),
                                    STR("Provided manager doesn't contain a GrammarModule root."));
@@ -72,10 +72,10 @@ void StateMachine::initialize(Data::Manager *mgr)
 void StateMachine::beginParsing()
 {
   // Validation.
-  if (this->grammarManager == 0) {
+  if (this->grammarStore == 0) {
     throw GeneralException(STR("Grammar manager is not set."), STR("Core::Parser::StateMachine::beginParsing()"));
   }
-  Data::GrammarModule *rootModule = this->grammarManager->getRootModule().io_cast_get<Data::GrammarModule>();
+  Data::GrammarModule *rootModule = this->grammarStore->getRootModule().io_cast_get<Data::GrammarModule>();
   if (rootModule == 0) {
     throw GeneralException(STR("No root grammar module is found."),
                            STR("Core::Parser::StateMachine::beginParsing"));
@@ -1506,7 +1506,7 @@ void StateMachine::testReferenceTerm(const Common::Token *token, State *state)
  */
 StateMachine::StateIterator StateMachine::createState()
 {
-  Data::GrammarModule *root = this->grammarManager->getRootModule().s_cast_get<Data::GrammarModule>();
+  Data::GrammarModule *root = this->grammarStore->getRootModule().s_cast_get<Data::GrammarModule>();
   State *state = new State(RESERVED_TERM_LEVEL_COUNT, RESERVED_PRODUCTION_LEVEL_COUNT,
                                            VARIABLE_NAME_MAX_LENGTH,
                                            RESERVED_VARIABLE_COUNT, RESERVED_VARIABLE_LEVEL_COUNT, root);
@@ -1765,7 +1765,7 @@ Bool StateMachine::isDefinitionInUse(Data::SymbolDefinition *definition) const
     throw InvalidArgumentException(STR("definition"), STR("Core::Parser::StateMachine::isDefinitionInUse"),
                                    STR("Should not be null."));
   }
-  if (this->grammarManager == 0) return false;
+  if (this->grammarStore == 0) return false;
   for (ConstStateIterator si = this->states.begin(); si != this->states.end(); si++) {
     for (Int i = 0; i < (*si)->getProdLevelCount(); i++) {
       if ((*si)->refProdLevel(i).getProd() == definition) return true;

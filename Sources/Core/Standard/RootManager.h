@@ -33,7 +33,7 @@ class RootManager : public SignalReceiver
 
   private: LibraryManager libraryManager;
 
-  private: Data::Manager definitionsManager;
+  private: Data::DataStore definitionsStore;
 
 
   //============================================================================
@@ -48,7 +48,7 @@ class RootManager : public SignalReceiver
 
   public: RootManager() : grammarPlant(this), libraryManager(this)
   {
-    this->definitionsManager.setRootModule(Data::Module::create({}));
+    this->definitionsStore.setRootModule(Data::Module::create({}));
   }
 
   public: virtual ~RootManager()
@@ -74,9 +74,9 @@ class RootManager : public SignalReceiver
     return this->grammarPlant.getTokenDefinitions();
   }
 
-  public: virtual Data::Manager* getGrammarManager()
+  public: virtual Data::DataStore* getGrammarStore()
   {
-    return this->grammarPlant.getManager();
+    return this->grammarPlant.getStore();
   }
 
   public: virtual LibraryManager* getLibraryManager()
@@ -84,16 +84,16 @@ class RootManager : public SignalReceiver
     return &this->libraryManager;
   }
 
-  public: virtual Data::Manager* getDefinitionsManager()
+  public: virtual Data::DataStore* getDefinitionsStore()
   {
-    return &this->definitionsManager;
+    return &this->definitionsStore;
   }
 
   public: virtual const SharedPtr<IdentifiableObject> processString(const Char *str)
   {
     Main::Processor processor(this->grammarPlant.getCharGroupDefinitions(),
                               this->grammarPlant.getTokenDefinitions(),
-                              this->grammarPlant.getManager());
+                              this->grammarPlant.getStore());
     processor.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
     return processor.processString(str);
   }
@@ -102,7 +102,7 @@ class RootManager : public SignalReceiver
   {
     Main::Processor processor(this->grammarPlant.getCharGroupDefinitions(),
                               this->grammarPlant.getTokenDefinitions(),
-                              this->grammarPlant.getManager());
+                              this->grammarPlant.getStore());
     processor.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
     return processor.processFile(filename);
   }

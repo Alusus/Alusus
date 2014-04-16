@@ -237,9 +237,9 @@ void Map::clear()
 //==============================================================================
 // Initializable Implementation
 
-void Map::initialize(Manager *manager, const SharedPtr<Module> &module)
+void Map::initialize(DataStore *store, const SharedPtr<Module> &module)
 {
-  GrammarHelper helper(manager->getInterface<Provider>());
+  GrammarHelper helper(store->getInterface<Provider>());
   if (this->parentReference != 0) {
     IdentifiableObject *p = helper.traceValue(this->parentReference.get(), module.get());
     if (p == 0) {

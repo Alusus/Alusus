@@ -111,13 +111,13 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Parser::
  * Container interface, the destination will be overwritten after a build msg
  * is created.
  */
-void mergeDefinition(Data::Manager *manager, const Char *qualifier, const SharedPtr<IdentifiableObject> &obj,
+void mergeDefinition(Data::DataStore *store, const Char *qualifier, const SharedPtr<IdentifiableObject> &obj,
                      Parser::State *state)
 {
   IdentifiableObject *dest;
-  Bool ret = manager->tryGetPlainValue(qualifier, dest);
+  Bool ret = store->tryGetPlainValue(qualifier, dest);
   if (ret == false || dest == 0) {
-    manager->setValue(qualifier, obj);
+    store->setValue(qualifier, obj);
   } else {
     if (!mergeContainers(dest, obj.get(), state)) {
       // Generate a build message.
@@ -129,7 +129,7 @@ void mergeDefinition(Data::Manager *manager, const Char *qualifier, const Shared
       }
       state->addBuildMsg(std::make_shared<RedefinitionMsg>(qualifier, line, column));
       // Overwrite old data.
-      manager->setValue(qualifier, obj);
+      store->setValue(qualifier, obj);
     }
   }
 }

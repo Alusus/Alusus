@@ -20,11 +20,11 @@ using namespace Core::Data;
 // Test for a successful parsing of a simple assignment expression.
 TEST_CASE("Core::Data/search", "Successfully search an element with its containing module.")
 {
-  Manager manager;
+  DataStore store;
 
   try {
-    manager.setRootModule(std::make_shared<GrammarModule>());
-    manager.setValue(STR("mod1"),
+    store.setRootModule(std::make_shared<GrammarModule>());
+    store.setValue(STR("mod1"),
                      Module::create({
                                       {STR("var1"), 0},
                                       {STR("var2"), 0},
@@ -45,7 +45,7 @@ TEST_CASE("Core::Data/search", "Successfully search an element with its containi
 
     SECTION("s1", "Data retrieved using qualifier.")
     {
-      manager.getValue(STR("mod1.mod2.map1.var6"), str, mod);
+      store.getValue(STR("mod1.mod2.map1.var6"), str, mod);
       REQUIRE(str.get() != 0);
       REQUIRE(str->isA<String>());
       REQUIRE(str.s_cast<String>()->getStr() == STR("hello"));
@@ -54,7 +54,7 @@ TEST_CASE("Core::Data/search", "Successfully search an element with its containi
     }
     SECTION("s2", "Data retrieved using Reference.")
     {
-      manager.getValue(ReferenceParser::parseQualifier(STR("mod1.mod2.map1.var6")).get(), str, mod);
+      store.getValue(ReferenceParser::parseQualifier(STR("mod1.mod2.map1.var6")).get(), str, mod);
       REQUIRE(str.get() != 0);
       REQUIRE(str->isA<String>());
       REQUIRE(str.s_cast<String>()->getStr() == STR("hello"));
@@ -63,14 +63,14 @@ TEST_CASE("Core::Data/search", "Successfully search an element with its containi
     }
     SECTION("s3", "Plain data retrieved using qualifier.")
     {
-      plainStr = manager.getPlainValue(STR("mod1.mod2.map1.var6"));
+      plainStr = store.getPlainValue(STR("mod1.mod2.map1.var6"));
       REQUIRE(plainStr != 0);
       REQUIRE(plainStr->isA<String>());
       REQUIRE(static_cast<String*>(plainStr)->getStr() == STR("hello"));
     }
     SECTION("s4", "Data retrieved using Reference.")
     {
-      plainStr = manager.getPlainValue(ReferenceParser::parseQualifier(STR("mod1.mod2.map1.var6")).get());
+      plainStr = store.getPlainValue(ReferenceParser::parseQualifier(STR("mod1.mod2.map1.var6")).get());
       REQUIRE(plainStr != 0);
       REQUIRE(plainStr->isA<String>());
       REQUIRE(static_cast<String*>(plainStr)->getStr() == STR("hello"));

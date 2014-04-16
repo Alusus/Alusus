@@ -38,7 +38,7 @@ class TestProcessor : public Main::Processor
   public: TestProcessor()
   {
     this->initialize(this->plant.getCharGroupDefinitions(), this->plant.getTokenDefinitions(),
-                     this->plant.getManager());
+                     this->plant.getStore());
   }
 
   public: virtual ~TestProcessor()

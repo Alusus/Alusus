@@ -103,7 +103,7 @@ void DumpParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State 
   SharedPtr<Standard::ParsedToken> name = nameBrowser.getValue<Standard::ParsedToken>(item);
   SharedPtr<IdentifiableObject> def;
   if (name != 0) {
-    def = this->rootManager->getDefinitionsManager()->getValue(name->getText().c_str());
+    def = this->rootManager->getDefinitionsStore()->getValue(name->getText().c_str());
   }
   if (def!= 0) {
     Cout << STR("------------------ Parsed Data Dump ------------------\n");

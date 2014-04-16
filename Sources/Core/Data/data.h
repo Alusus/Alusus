@@ -167,7 +167,7 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
 // Servers and Data Holders
 #include "Server.h"
 #include "RawServer.h"
-#include "Manager.h"
+#include "DataStore.h"
 #include "DataStack.h"
 
 // Grammar Terms
@@ -191,6 +191,6 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
 
 // TODO: #include "ExtensionManager.h"
 // TODO: ExtensionManager manages extensions to grammar (loaded using import for example). And it automatically
-//       manages the IDs of those extension definitions (rather than the IDs remain invalid until merged with Manager).
+//       manages the IDs of those extension definitions (rather than the IDs remain invalid until merged with DataStore).
 
 #endif

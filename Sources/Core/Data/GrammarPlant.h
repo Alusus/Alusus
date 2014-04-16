@@ -23,7 +23,7 @@ class GrammarPlant
   //============================================================================
   // Member Variables
 
-  protected: Manager manager;
+  protected: DataStore store;
 
 
   //============================================================================
@@ -67,9 +67,9 @@ class GrammarPlant
   //       namespace.
   protected: virtual Word addConstToken(const Char *text) = 0;
 
-  public: Manager* getManager()
+  public: DataStore* getStore()
   {
-    return &this->manager;
+    return &this->store;
   }
 
 }; // class

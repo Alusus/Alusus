@@ -329,7 +329,7 @@ class SymbolDefinition : public IdentifiableObject,
   //============================================================================
   // Initializable Implementation
 
-  public: virtual void initialize(Manager *manager, const SharedPtr<Module> &module);
+  public: virtual void initialize(DataStore *store, const SharedPtr<Module> &module);
 
 
   //============================================================================

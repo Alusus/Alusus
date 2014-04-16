@@ -22,12 +22,12 @@ namespace Core { namespace Data
  */
 void GrammarPlant::createGrammar()
 {
-  this->manager.setRootModule(std::make_shared<GrammarModule>());
+  this->store.setRootModule(std::make_shared<GrammarModule>());
 
   this->createCharGroupDefinitions();
   this->createTokenDefinitions();
   this->createProductionDefinitions();
-  this->generateConstTokenDefinitions(this->manager.getRootModule()->getInterface<Container>());
+  this->generateConstTokenDefinitions(this->store.getRootModule()->getInterface<Container>());
 }
 
 

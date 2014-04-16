@@ -356,7 +356,7 @@ void TestGrammarPlant::createProductionDefinitions()
 
   // TODO: Replace the generic parsing handler for the root with the appropriate one.
   // Program = Statement*v1;
-  this->manager.setValue(STR("Program"), SymbolDefinition::create({
+  this->store.setValue(STR("Program"), SymbolDefinition::create({
     {SymbolDefElement::TERM, MultiplyTerm::create({
        {TermElement::PRIORITY, std::make_shared<Integer>(1)},
        {TermElement::MIN, std::make_shared<Integer>(1)},
@@ -366,7 +366,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // Statement = Command + ";" || Expression + ";";
-  this->manager.setValue(STR("Statement"), SymbolDefinition::create({
+  this->store.setValue(STR("Statement"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::ESPI, 1},
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
@@ -379,7 +379,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // Statement = Command || Expression;
-  this->manager.setValue(STR("SubStatement"), SymbolDefinition::create({
+  this->store.setValue(STR("SubStatement"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, List::create({
@@ -392,7 +392,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // Command = "do" + Expression;
-  this->manager.setValue(STR("Command"), SymbolDefinition::create({
+  this->store.setValue(STR("Command"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, List::create({
@@ -404,7 +404,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // Set = "{" + Statement*v + "}";
-  this->manager.setValue(STR("Set"), SymbolDefinition::create({
+  this->store.setValue(STR("Set"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, List::create({
@@ -421,7 +421,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // Expression = ListExp + ("?" + Expression)*o;
-  this->manager.setValue(STR("Expression"), SymbolDefinition::create({
+  this->store.setValue(STR("Expression"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, List::create({
@@ -444,7 +444,7 @@ void TestGrammarPlant::createProductionDefinitions()
    }));
 
   // ListExp = ","*v + ColonPairExp + ("," + ColonPairExp*o)*v;
-  this->manager.setValue(STR("ListExp"), SymbolDefinition::create({
+  this->store.setValue(STR("ListExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::TERM, List::create({
           MultiplyTerm::create({
@@ -476,7 +476,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // ColonPairExp = AssignmentExp + (":" + AssignmentExp)*o;
-  this->manager.setValue(STR("ColonPairExp"), SymbolDefinition::create({
+  this->store.setValue(STR("ColonPairExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, List::create({
@@ -500,7 +500,7 @@ void TestGrammarPlant::createProductionDefinitions()
    }));
 
   // AssignmentExp = LogExp + (AssignmentOp + AssignmentExp)*o;
-  this->manager.setValue(STR("AssignmentExp"), SymbolDefinition::create({
+  this->store.setValue(STR("AssignmentExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, List::create({
@@ -524,7 +524,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // LogExp = ComparisonExp + (LogOp + ComparisonExp)*v;
-  this->manager.setValue(STR("LogExp"), SymbolDefinition::create({
+  this->store.setValue(STR("LogExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, List::create({
@@ -547,7 +547,7 @@ void TestGrammarPlant::createProductionDefinitions()
    }));
 
   // ComparisonExp = AddExp + (ComparisonOp + AddExp)*v;
-  this->manager.setValue(STR("ComparisonExp"), SymbolDefinition::create({
+  this->store.setValue(STR("ComparisonExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, List::create({
@@ -570,7 +570,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // AddExp = MulExp + (AddOp + MulExp)*v;
-  this->manager.setValue(STR("AddExp"), SymbolDefinition::create({
+  this->store.setValue(STR("AddExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, List::create({
@@ -593,7 +593,7 @@ void TestGrammarPlant::createProductionDefinitions()
    }));
 
   // MulExp = BitwiseExp + (MulOp + BitwiseExp)*v;
-  this->manager.setValue(STR("MulExp"), SymbolDefinition::create({
+  this->store.setValue(STR("MulExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, List::create({
@@ -616,7 +616,7 @@ void TestGrammarPlant::createProductionDefinitions()
    }));
 
   // BitwiseExp = UnaryExp + (BitwiseOp + UnaryExp)*v;
-  this->manager.setValue(STR("BitwiseExp"), SymbolDefinition::create({
+  this->store.setValue(STR("BitwiseExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, List::create({
@@ -639,7 +639,7 @@ void TestGrammarPlant::createProductionDefinitions()
    }));
 
   // UnaryExp = PrefixOp*o + FunctionalExp + PostfixOp*o;
-  this->manager.setValue(STR("UnaryExp"), SymbolDefinition::create({
+  this->store.setValue(STR("UnaryExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, List::create({
@@ -663,7 +663,7 @@ void TestGrammarPlant::createProductionDefinitions()
    }));
 
   // FunctionalExp = Operand + (LinkExp || ParamPassExp)*v;
-  this->manager.setValue(STR("FunctionalExp"), SymbolDefinition::create({
+  this->store.setValue(STR("FunctionalExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, List::create({
@@ -686,7 +686,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // LinkExp = LinkOp + Operand;
-  this->manager.setValue(STR("LinkExp"), SymbolDefinition::create({
+  this->store.setValue(STR("LinkExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::TERM, List::create({
           ReferenceTerm::create(STR("root.LinkOp")),
@@ -697,7 +697,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // ParamPassExp = "(" + Expression*o + ")" || "[" + Expression*o + "]";
-  this->manager.setValue(STR("ParamPassExp"), SymbolDefinition::create({
+  this->store.setValue(STR("ParamPassExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::TERM, List::create({
            ConcatTerm::create({
@@ -732,7 +732,7 @@ void TestGrammarPlant::createProductionDefinitions()
    }));
 
   // Operand = Parameter || Command || Set || "(" + Expression*o + ")" || "[" + Expression*o + "]";
-  this->manager.setValue(STR("Operand"), SymbolDefinition::create({
+  this->store.setValue(STR("Operand"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::TERM, List::create({
           ReferenceTerm::create(STR("root.Parameter")),
@@ -769,7 +769,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // Parameter = identifier || Literal;
-  this->manager.setValue(STR("Parameter"), SymbolDefinition::create({
+  this->store.setValue(STR("Parameter"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, List::create({
@@ -782,7 +782,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // Literal = int_literal || float_literal || char_literal || string_literal;
-  this->manager.setValue(STR("Literal"), SymbolDefinition::create({
+  this->store.setValue(STR("Literal"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, List::create({
@@ -797,7 +797,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // AssignmentOp = ":=" || "+=" || "-=" || "*=" || "/=" || "%=" || "&=" || "|=" || "$=" || "^:=" || "<<=" || ">>=";
-  this->manager.setValue(STR("AssignmentOp"), SymbolDefinition::create({
+  this->store.setValue(STR("AssignmentOp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::FLAGS, ParsingFlags::PASS_UP},
         {TermElement::TERM, List::create({
@@ -819,7 +819,7 @@ void TestGrammarPlant::createProductionDefinitions()
    }));
 
   // ComparisonOp = "=" || "^=" || "==" || "^==" || "<" || ">" || "<=" || ">=";
-  this->manager.setValue(STR("ComparisonOp"), SymbolDefinition::create({
+  this->store.setValue(STR("ComparisonOp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::FLAGS, ParsingFlags::PASS_UP},
         {TermElement::TERM, List::create({
@@ -837,7 +837,7 @@ void TestGrammarPlant::createProductionDefinitions()
    }));
 
   // AddOp = "+" || "-";
-  this->manager.setValue(STR("AddOp"), SymbolDefinition::create({
+  this->store.setValue(STR("AddOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, List::create({
@@ -849,7 +849,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // MulOp = "*" || "/" || "%";
-  this->manager.setValue(STR("MulOp"), SymbolDefinition::create({
+  this->store.setValue(STR("MulOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, List::create({
@@ -862,7 +862,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // BitwiseOp = "|" || "^|" || "$" || "^$" || "&" || "^&" || "<<" || ">>";
-  this->manager.setValue(STR("BitwiseOp"), SymbolDefinition::create({
+  this->store.setValue(STR("BitwiseOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, List::create({
@@ -880,7 +880,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // LogOp = "||" || "^||" || "$$" || "^$$" || "&&" || "^&&";
-  this->manager.setValue(STR("LogOp"), SymbolDefinition::create({
+  this->store.setValue(STR("LogOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, List::create({
@@ -896,7 +896,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // PrefixOp = "++" || "--" || "+" || "-" || "^" || "^^";
-  this->manager.setValue(STR("PrefixOp"), SymbolDefinition::create({
+  this->store.setValue(STR("PrefixOp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::FLAGS, ParsingFlags::PASS_UP},
         {TermElement::TERM, List::create({
@@ -912,7 +912,7 @@ void TestGrammarPlant::createProductionDefinitions()
    }));
 
   // PostfixOp = "++" || "--";
-  this->manager.setValue(STR("PostfixOp"), SymbolDefinition::create({
+  this->store.setValue(STR("PostfixOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, List::create({
@@ -924,7 +924,7 @@ void TestGrammarPlant::createProductionDefinitions()
   }));
 
   // LinkOp = "." || "->" || "=>";
-  this->manager.setValue(STR("LinkOp"), SymbolDefinition::create({
+  this->store.setValue(STR("LinkOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, List::create({
@@ -936,7 +936,7 @@ void TestGrammarPlant::createProductionDefinitions()
     {SymbolDefElement::HANDLER, this->parsingHandler}
   }));
 
-  GrammarModule *root = this->manager.getRootModule().s_cast_get<GrammarModule>();
+  GrammarModule *root = this->store.getRootModule().s_cast_get<GrammarModule>();
   root->setStartRef(ReferenceParser::parseQualifier(STR("module.Program")));
 }
 

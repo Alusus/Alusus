@@ -20,7 +20,7 @@ namespace Core { namespace Main
 
 void Processor::initialize(const SharedPtr<Lexer::CharGroupDefinitionList> &charGroupDefs,
                            const SharedPtr<Lexer::TokenDefinitionList> &tokenDefs,
-                           Data::Manager *grammarManager)
+                           Data::DataStore *grammarStore)
 {
   // Prepare the lexer.
   this->lexer.setCharGroupDefinitions(charGroupDefs);
@@ -28,7 +28,7 @@ void Processor::initialize(const SharedPtr<Lexer::CharGroupDefinitionList> &char
   this->lexer.buildMsgNotifier.connect(this, &Processor::buildMsgNotifierRelay);
 
   // Prepare the parser.
-  this->parser.initialize(grammarManager);
+  this->parser.initialize(grammarStore);
   this->lexer.tokenGenerated.connect(&this->parser, &Parser::StateMachine::handleNewToken);
   this->parser.buildMsgNotifier.connect(this, &Processor::buildMsgNotifierRelay);
 }

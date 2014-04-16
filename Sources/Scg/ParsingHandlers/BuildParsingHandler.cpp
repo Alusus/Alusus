@@ -37,7 +37,7 @@ void BuildParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State
   /*SharedPtr<Standard::ParsedToken> name = nameBrowser.getValue<Standard::ParsedToken>(item);
   SharedPtr<Data::Module> statementList;
   if (name != 0) {
-    statementList = this->rootManager->getDefinitionsManager()->getValue(name->getText().c_str())
+    statementList = this->rootManager->getDefinitionsStore()->getValue(name->getText().c_str())
                     .io_cast<Data::Module>();
   }*/
   if (true /*statementList != 0*/) {
@@ -45,8 +45,8 @@ void BuildParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State
     try {
       LlvmContainer::Initialize();
       Program program;
-      for (auto i = 0; i < this->rootManager->getDefinitionsManager()->getRootModule()->getCount(); i++) {
-        auto statList = this->rootManager->getDefinitionsManager()->getRootModule()->get(i).io_cast<Data::Module>();
+      for (auto i = 0; i < this->rootManager->getDefinitionsStore()->getRootModule()->getCount(); i++) {
+        auto statList = this->rootManager->getDefinitionsStore()->getRootModule()->get(i).io_cast<Data::Module>();
         Module *module = generator.GenerateModule(statList);
         Cout << STR("---------------------- IR Code -----------------------\n");
         module->Compile();

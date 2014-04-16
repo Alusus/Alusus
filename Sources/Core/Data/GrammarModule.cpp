@@ -102,9 +102,9 @@ void GrammarModule::onParentMetaChanged(GrammarModule *obj, Word element)
 //==============================================================================
 // Initializable Implementation
 
-void GrammarModule::initialize(Manager *manager, const SharedPtr<Module> &module)
+void GrammarModule::initialize(DataStore *store, const SharedPtr<Module> &module)
 {
-  GrammarHelper helper(manager->getInterface<Provider>());
+  GrammarHelper helper(store->getInterface<Provider>());
   if (this->parentReference != 0) {
     IdentifiableObject *p = helper.traceValue(this->parentReference.get(), module.get());
     if (p == 0) {

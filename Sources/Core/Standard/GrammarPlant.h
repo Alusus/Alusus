@@ -32,7 +32,7 @@ class GrammarPlant : public Data::GrammarPlant
   // Member Variables
 
   // TODO: Once the lexer is converted to use the Grammar data structures, remove all these member variables and keep
-  //       only grammarManager.
+  //       only grammarStore.
 
   /// @name Char Groups Definition IDs
   /// @{

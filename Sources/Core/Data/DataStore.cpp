@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Manager.cpp
- * Contains the implementation of class Core::Data::Manager.
+ * @file Core/Data/DataStore.cpp
+ * Contains the implementation of class Core::Data::DataStore.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -18,10 +18,10 @@ namespace Core { namespace Data
 //==============================================================================
 // Member Functions
 
-void Manager::setValue(Reference *ref, const SharedPtr<IdentifiableObject> &obj)
+void DataStore::setValue(Reference *ref, const SharedPtr<IdentifiableObject> &obj)
 {
   if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::setValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::setValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
@@ -44,11 +44,11 @@ void Manager::setValue(Reference *ref, const SharedPtr<IdentifiableObject> &obj)
 }
 
 
-void Manager::setValue(const Char *qualifier, const SharedPtr<IdentifiableObject> &obj)
+void DataStore::setValue(const Char *qualifier, const SharedPtr<IdentifiableObject> &obj)
 {
   ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
   if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::setValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::setValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
@@ -69,10 +69,10 @@ void Manager::setValue(const Char *qualifier, const SharedPtr<IdentifiableObject
 }
 
 
-void Manager::removeValue(Reference *ref)
+void DataStore::removeValue(Reference *ref)
 {
   if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::removeValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::removeValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
@@ -80,11 +80,11 @@ void Manager::removeValue(Reference *ref)
 }
 
 
-void Manager::removeValue(const Char *qualifier)
+void DataStore::removeValue(const Char *qualifier)
 {
   ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
   if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::removeValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::removeValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
@@ -92,10 +92,10 @@ void Manager::removeValue(const Char *qualifier)
 }
 
 
-const SharedPtr<IdentifiableObject>& Manager::getValue(Reference *ref)
+const SharedPtr<IdentifiableObject>& DataStore::getValue(Reference *ref)
 {
   if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::getValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::getValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
@@ -103,11 +103,11 @@ const SharedPtr<IdentifiableObject>& Manager::getValue(Reference *ref)
 }
 
 
-const SharedPtr<IdentifiableObject>& Manager::getValue(const Char *qualifier)
+const SharedPtr<IdentifiableObject>& DataStore::getValue(const Char *qualifier)
 {
   ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
   if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::getValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::getValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
@@ -115,11 +115,11 @@ const SharedPtr<IdentifiableObject>& Manager::getValue(const Char *qualifier)
 }
 
 
-void Manager::getValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal,
+void DataStore::getValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal,
                        SharedPtr<Module> &retModule)
 {
   if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::getValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::getValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
@@ -127,12 +127,12 @@ void Manager::getValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal,
 }
 
 
-void Manager::getValue(const Char *qualifier, SharedPtr<IdentifiableObject> &retVal,
+void DataStore::getValue(const Char *qualifier, SharedPtr<IdentifiableObject> &retVal,
                        SharedPtr<Module> &retModule)
 {
   ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
   if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::getValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::getValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
@@ -140,7 +140,7 @@ void Manager::getValue(const Char *qualifier, SharedPtr<IdentifiableObject> &ret
 }
 
 
-void Manager::setId(IdentifiableObject *obj, const Char *id)
+void DataStore::setId(IdentifiableObject *obj, const Char *id)
 {
   IdOwner *ido = ii_cast<IdOwner>(obj);
   if (ido != 0) ido->setId(ID_GENERATOR->getId(id));
@@ -148,7 +148,7 @@ void Manager::setId(IdentifiableObject *obj, const Char *id)
 }
 
 
-void Manager::setChildIds(IdentifiableObject *obj, const Char *id)
+void DataStore::setChildIds(IdentifiableObject *obj, const Char *id)
 {
   MapContainer *map; Container *list;
   if ((map = ii_cast<MapContainer>(obj)) != 0) {
@@ -172,10 +172,10 @@ void Manager::setChildIds(IdentifiableObject *obj, const Char *id)
 //==============================================================================
 // Provider Implementation
 
-IdentifiableObject* Manager::getPlainValue(Reference *ref) const
+IdentifiableObject* DataStore::getPlainValue(Reference *ref) const
 {
   if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::getPlainValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::getPlainValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
@@ -183,10 +183,10 @@ IdentifiableObject* Manager::getPlainValue(Reference *ref) const
 }
 
 
-void Manager::getPlainValue(Reference *ref, IdentifiableObject *&retVal, Module *&retModule) const
+void DataStore::getPlainValue(Reference *ref, IdentifiableObject *&retVal, Module *&retModule) const
 {
   if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::getPlainValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::getPlainValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    ref->getScope().val);
   }
@@ -194,11 +194,11 @@ void Manager::getPlainValue(Reference *ref, IdentifiableObject *&retVal, Module 
 }
 
 
-IdentifiableObject* Manager::getPlainValue(const Char *qualifier) const
+IdentifiableObject* DataStore::getPlainValue(const Char *qualifier) const
 {
   ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
   if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::getPlainValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::getPlainValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
@@ -206,11 +206,11 @@ IdentifiableObject* Manager::getPlainValue(const Char *qualifier) const
 }
 
 
-void Manager::getPlainValue(const Char *qualifier, IdentifiableObject *&retVal, Module *&retModule) const
+void DataStore::getPlainValue(const Char *qualifier, IdentifiableObject *&retVal, Module *&retModule) const
 {
   ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
   if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::Manager::getPlainValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::getPlainValue"),
                                    STR("Reference must be of type ROOT or UNKNOWN."),
                                    scope.val);
   }
@@ -218,21 +218,21 @@ void Manager::getPlainValue(const Char *qualifier, IdentifiableObject *&retVal, 
 }
 
 
-Bool Manager::tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal) const
+Bool DataStore::tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal) const
 {
   if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) return false;
   return this->server.tryGetPlain(ref->getSegment().get(), this->root.get(), retVal);
 }
 
 
-Bool Manager::tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal, Module *&retModule) const
+Bool DataStore::tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal, Module *&retModule) const
 {
   if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) return false;
   return this->server.tryGetPlain(ref->getSegment().get(), this->root.get(), retVal, retModule);
 }
 
 
-Bool Manager::tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal) const
+Bool DataStore::tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal) const
 {
   ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
   if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) return false;
@@ -240,7 +240,7 @@ Bool Manager::tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVa
 }
 
 
-Bool Manager::tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal, Module *&retModule) const
+Bool DataStore::tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal, Module *&retModule) const
 {
   ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
   if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) return false;

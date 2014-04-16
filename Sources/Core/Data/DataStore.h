@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Manager.h
- * Contains the header of class Core::Data::Manager.
+ * @file Core/Data/DataStore.h
+ * Contains the header of class Core::Data::DataStore.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -18,12 +18,12 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class Manager : public IdentifiableObject, public virtual Provider
+class DataStore : public IdentifiableObject, public virtual Provider
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Manager, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(DataStore, IdentifiableObject, "Core.Data", "Core", "alusus.net");
   IMPLEMENT_INTERFACES_1(IdentifiableObject, Provider);
 
 
@@ -32,12 +32,12 @@ class Manager : public IdentifiableObject, public virtual Provider
 
   // TODO: Add a signal to notify the user of changes in definitions. This should be done by adding the signal to the
   //       Container interface and have each container link itself to any owned container and have the signals
-  //       cascade up until it reaches the Manager, which in turn cascades it again to the user.
+  //       cascade up until it reaches the DataStore, which in turn cascades it again to the user.
   //       This should be implemented by changing signals to use IdentifiableObject derived signal receivers which
   //       implements a Signal_Target interface if it needs bi-directional linking, otherwise the linking is one
   //       directional, which is gonna be the case for Containers since containers already have pointers to their
   //       children so having pointers to their signals as well is redundant.
-  // TODO: This signal should also be used to inform of Reference index changes. And the Manager should provide such
+  // TODO: This signal should also be used to inform of Reference index changes. And the DataStore should provide such
   //       signal externally so that external Reference owners can also reset their references in case of changes
   //       in the index.
 
@@ -54,11 +54,11 @@ class Manager : public IdentifiableObject, public virtual Provider
   //============================================================================
   // Constructor & Destructor
 
-  public: Manager() : server(static_cast<Provider*>(this)), rawServer(static_cast<Provider*>(this))
+  public: DataStore() : server(static_cast<Provider*>(this)), rawServer(static_cast<Provider*>(this))
   {
   }
 
-  public: virtual ~Manager()
+  public: virtual ~DataStore()
   {
   }
 

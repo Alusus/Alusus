@@ -55,7 +55,7 @@ void DefParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *
     }
 
     // Store the definition in the definitions manager.
-    Core::Standard::mergeDefinition(this->rootManager->getDefinitionsManager(), name.c_str(), def, state);
+    Core::Standard::mergeDefinition(this->rootManager->getDefinitionsStore(), name.c_str(), def, state);
 
     // Reset parsed data because we are done with the command.
     state->setData(SharedPtr<IdentifiableObject>(0));
