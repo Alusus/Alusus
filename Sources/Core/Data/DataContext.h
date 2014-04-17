@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/ParsingGrammarContext.h
- * Contains the header of class Core::Data::ParsingGrammarContext.
+ * @file Core/Data/DataContext.h
+ * Contains the header of class Core::Data::DataContext.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,27 +10,27 @@
  */
 //==============================================================================
 
-#ifndef DATA_PARSING_GRAMMAR_CONTEXT_H
-#define DATA_PARSING_GRAMMAR_CONTEXT_H
+#ifndef DATA_DATACONTEXT_H
+#define DATA_DATACONTEXT_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class ParsingGrammarContext : public IdentifiableObject, public virtual Provider
+class DataContext : public IdentifiableObject, public virtual Provider
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ParsingGrammarContext, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(DataContext, IdentifiableObject, "Core.Data", "Core", "alusus.net");
   IMPLEMENT_INTERFACES_1(IdentifiableObject, Provider);
 
 
   //============================================================================
   // Member Variables
 
-  private: GrammarModule *rootModule;
+  private: Module *rootModule;
   private: Module *currentModule;
   private: VariableStack *variableStack;
   private: Map *currentArgumentList;
@@ -42,21 +42,21 @@ class ParsingGrammarContext : public IdentifiableObject, public virtual Provider
   //============================================================================
   // Signals
 
-  // TODO: Do we need these?
-  //public: SIGNAL(lexerModuleSwitchNotifier, (Module *old_module, Module *new_module), (old_module, new_module));
-  //public: SIGNAL(parserModuleSwitchNotifier, (Module *old_module, Module *new_module), (old_module, new_module));
+  // TODO: Do we need this?
+
+  //public: SIGNAL(moduleSwitchNotifier, (Module *old_module, Module *new_module), (old_module, new_module));
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: ParsingGrammarContext(GrammarModule *r = 0) :
+  public: DataContext(Module *r = 0) :
     rootModule(r), currentModule(0), variableStack(0), currentArgumentList(0),
     seeker(static_cast<Provider*>(this)), rawSeeker(static_cast<Provider*>(this))
   {
   }
 
-  public: virtual ~ParsingGrammarContext()
+  public: virtual ~DataContext()
   {
   }
 
@@ -67,14 +67,14 @@ class ParsingGrammarContext : public IdentifiableObject, public virtual Provider
   /// @name Initialization Functions
   /// @{
 
-  public: void setRootModule(GrammarModule *r)
+  public: void setRootModule(Module *r)
   {
     this->rootModule = r;
     this->currentModule = 0;
     if (r != 0) this->switchCurrentModule(r);
   }
 
-  public: GrammarModule* getRootModule() const
+  public: Module* getRootModule() const
   {
     return this->rootModule;
   }
@@ -106,22 +106,13 @@ class ParsingGrammarContext : public IdentifiableObject, public virtual Provider
     return this->currentArgumentList;
   }
 
-  public: void copyFrom(const ParsingGrammarContext *context)
+  public: void copyFrom(const DataContext *context)
   {
     this->rootModule = context->getRootModule();
     this->variableStack = context->getVariableStack();
     this->currentModule = context->getCurrentModule();
     this->currentArgumentList = context->getCurrentArgumentList();
   }
-
-  public: Module* findCurrentLexerModule() const
-  {
-    return this->findAssociatedLexerModule(this->currentModule);
-  }
-
-  public: Module* findAssociatedLexerModule(Module *module) const;
-
-  // TODO: Find module for other dimensions.
 
   /// @}
 

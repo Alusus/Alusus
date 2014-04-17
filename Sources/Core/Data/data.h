@@ -122,10 +122,22 @@ enumeration(TermElement, FLAGS=1, REF=2, DATA=4, TERM=8, ESPI=16, PRIORITY=32, M
 
 
 //==============================================================================
+// Forward Class Definitions
+
+class Module;
+class Provider;
+
+
+//==============================================================================
 // Functions
 
 /// Reset the indexes of all references in a specific range within a tree.
 void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
+
+/// Find the lexer module associated with the given (parser) module.
+Module* findAssociatedLexerModule(Module *module, Provider *provider);
+
+// TODO: Find module for other dimensions.
 
 } } // namespace
 
@@ -164,11 +176,12 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
 #include "Reference.h"
 #include "ReferenceParser.h"
 
-// Seekers and Data Holders
+// Seekers and Data Providers
 #include "Seeker.h"
 #include "RawSeeker.h"
 #include "DataStore.h"
 #include "DataStack.h"
+#include "DataContext.h"
 
 // Grammar Terms
 #include "Term.h"
@@ -185,8 +198,6 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
 // TODO: #include "SymbolGroup.h"
 #include "GrammarModule.h"
 #include "GrammarPlant.h"
-
-#include "ParsingGrammarContext.h"
 #include "GrammarHelper.h"
 
 // TODO: #include "ExtensionManager.h"

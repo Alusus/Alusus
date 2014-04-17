@@ -71,7 +71,7 @@ class GrammarHelper
 
   public: Word getListTermChildCount(ListTerm *term, IdentifiableObject *data = 0, Module *module=0) const;
 
-  public: Term* useListTermChild(ParsingGrammarContext *context, ListTerm *term, Int index,
+  public: Term* useListTermChild(DataContext *context, ListTerm *term, Int index,
                                  IdentifiableObject *data = 0, Module *module=0) const;
 
   public: Integer* getTokenTermId(TokenTerm *term, Module *module=0) const;

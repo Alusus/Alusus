@@ -108,7 +108,7 @@ Word GrammarHelper::getListTermChildCount(ListTerm *term, IdentifiableObject *da
 }
 
 
-Term* GrammarHelper::useListTermChild(ParsingGrammarContext *context, ListTerm *term, Int index,
+Term* GrammarHelper::useListTermChild(DataContext *context, ListTerm *term, Int index,
                                       IdentifiableObject *data, Module *module) const
 {
   if (context == 0) {

@@ -50,7 +50,7 @@ class State
 
   private: Data::DataStack dataStack;
 
-  private: Data::ParsingGrammarContext grammarContext;
+  private: Data::DataContext grammarContext;
 
   private: Data::GrammarHelper grammarHelper;
 
@@ -137,7 +137,7 @@ class State
                    Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule);
 
   protected: State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                   Word reservedVarCount, Word reservedVarLevelCount, const Data::ParsingGrammarContext *context);
+                   Word reservedVarCount, Word reservedVarLevelCount, const Data::DataContext *context);
 
   public: ~State()
   {
@@ -158,7 +158,7 @@ class State
 
   protected: void initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                              Word reservedVarCount, Word reservedVarLevelCount,
-                             const Data::ParsingGrammarContext *context);
+                             const Data::DataContext *context);
 
   /// Reset the object to an empty state.
   protected: void reset();
@@ -467,12 +467,12 @@ class State
   /// @name Other Functions
   /// @{
 
-  protected: Data::ParsingGrammarContext* getGrammarContext()
+  protected: Data::DataContext* getGrammarContext()
   {
     return &this->grammarContext;
   }
 
-  public: const Data::ParsingGrammarContext* getGrammarContext() const
+  public: const Data::DataContext* getGrammarContext() const
   {
     return &this->grammarContext;
   }

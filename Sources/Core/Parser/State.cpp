@@ -58,7 +58,7 @@ State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxV
 
 
 State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-             Word reservedVarCount, Word reservedVarLevelCount, const Data::ParsingGrammarContext *context) :
+             Word reservedVarCount, Word reservedVarLevelCount, const Data::DataContext *context) :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
@@ -107,7 +107,7 @@ void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount,
 
 void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                        Word reservedVarCount, Word reservedVarLevelCount,
-                       const Data::ParsingGrammarContext *context)
+                       const Data::DataContext *context)
 {
   ASSERT(reservedTermLevelCount > 0);
   ASSERT(reservedProdLevelCount > 0);
