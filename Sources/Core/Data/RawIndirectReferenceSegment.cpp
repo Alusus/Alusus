@@ -41,8 +41,8 @@ Bool RawIndirectReferenceSegment::compare(const ReferenceSegment *r) const
 }
 
 
-void RawIndirectReferenceSegment::set(const Provider *provider, IdentifiableObject *parent,
-                                      const SharedPtr<IdentifiableObject> &obj) const
+void RawIndirectReferenceSegment::setShared(const Provider *provider, IdentifiableObject *parent,
+                                            const SharedPtr<IdentifiableObject> &obj) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReferenceSegment::set"),
@@ -59,18 +59,18 @@ void RawIndirectReferenceSegment::set(const Provider *provider, IdentifiableObje
     throw GeneralException(error.c_str(), STR("Core::Data::RawIndirectReferenceSegment::set"));
   }
   if (ref->isA<String>()) {
-    MapContainer *container = parent->getInterface<MapContainer>();
+    MapSharedContainer *container = parent->getInterface<MapSharedContainer>();
     if (container == 0) {
       throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReferenceSegment::set"),
-                                     STR("Object doesn't support the MapContainer interface."),
+                                     STR("Object doesn't support the MapSharedContainer interface."),
                                      parent->getMyTypeInfo()->getUniqueName());
     }
     container->set(static_cast<String*>(ref)->get(), obj);
   } else if (ref->isA<Integer>()) {
-    Container *container = parent->getInterface<Container>();
+    SharedContainer *container = parent->getInterface<SharedContainer>();
     if (container == 0) {
       throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReferenceSegment::set"),
-                                     STR("Object doesn't support the Container interface."),
+                                     STR("Object doesn't support the SharedContainer interface."),
                                      parent->getMyTypeInfo()->getUniqueName());
     }
     container->set(static_cast<Integer*>(ref)->get(), obj);
@@ -81,8 +81,8 @@ void RawIndirectReferenceSegment::set(const Provider *provider, IdentifiableObje
 }
 
 
-Bool RawIndirectReferenceSegment::trySet(const Provider *provider, IdentifiableObject *parent,
-                                         const SharedPtr<IdentifiableObject> &obj) const
+Bool RawIndirectReferenceSegment::trySetShared(const Provider *provider, IdentifiableObject *parent,
+                                               const SharedPtr<IdentifiableObject> &obj) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReferenceSegment::set"),
@@ -96,12 +96,12 @@ Bool RawIndirectReferenceSegment::trySet(const Provider *provider, IdentifiableO
   if (!provider->tryGetPlainValue(this->getQualifier(), ref)) return false;
   if (ref == 0) return false;
   if (ref->isA<String>()) {
-    MapContainer *container = parent->getInterface<MapContainer>();
+    MapSharedContainer *container = parent->getInterface<MapSharedContainer>();
     if (container == 0) return false;
     container->set(static_cast<String*>(ref)->get(), obj);
     return true;
   } else if (ref->isA<Integer>()) {
-    Container *container = parent->getInterface<Container>();
+    SharedContainer *container = parent->getInterface<SharedContainer>();
     if (container == 0) return false;
     container->set(static_cast<Integer*>(ref)->get(), obj);
     return true;
@@ -204,30 +204,30 @@ void RawIndirectReferenceSegment::remove(const Provider *provider, IdentifiableO
     throw GeneralException(error.c_str(), STR("Core::Data::RawIndirectReferenceSegment::remove"));
   }
   if (ref->isA<String>()) {
-    MapContainer *container;
+    MapSharedContainer *container;
     MapPlainContainer *plainContainer;
-    if ((container = parent->getInterface<MapContainer>()) != 0) {
+    if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
       container->remove(static_cast<String*>(ref)->get());
     } else if ((plainContainer = parent->getInterface<MapPlainContainer>()) != 0) {
       plainContainer->remove(static_cast<String*>(ref)->get());
     } else {
       throw InvalidArgumentException(STR("parent"),
                                      STR("Core::Data::RawIndirectReferenceSegment::remove"),
-                                     STR("Object must support MapContainer or MapPlainContainer interface "
+                                     STR("Object must support MapSharedContainer or MapPlainContainer interface "
                                          "for string based keys."),
                                      parent->getMyTypeInfo()->getUniqueName());
     }
   } else if (ref->isA<Integer>()) {
-    Container *container;
-    MapContainer *mapContainer;
-    if ((container = parent->getInterface<Container>()) != 0) {
+    SharedContainer *container;
+    MapSharedContainer *mapContainer;
+    if ((container = parent->getInterface<SharedContainer>()) != 0) {
       container->remove(static_cast<Integer*>(ref)->get());
-    } else if ((mapContainer = parent->getInterface<MapContainer>()) != 0) {
+    } else if ((mapContainer = parent->getInterface<MapSharedContainer>()) != 0) {
       mapContainer->remove(static_cast<Integer*>(ref)->get());
     } else {
       throw InvalidArgumentException(STR("parent"),
                                      STR("Core::Data::RawIndirectReferenceSegment::remove"),
-                                     STR("Object must support Container or PlainContainer interface "
+                                     STR("Object must support SharedContainer or PlainContainer interface "
                                          "for integer based keys."),
                                      parent->getMyTypeInfo()->getUniqueName());
     }
@@ -252,9 +252,9 @@ Bool RawIndirectReferenceSegment::tryRemove(const Provider *provider, Identifiab
   if (!provider->tryGetPlainValue(this->getQualifier(), ref)) return false;
   if (ref == 0) return false;
   if (ref->isA<String>()) {
-    MapContainer *container;
+    MapSharedContainer *container;
     MapPlainContainer *plainContainer;
-    if ((container = parent->getInterface<MapContainer>()) != 0) {
+    if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
       container->remove(static_cast<String*>(ref)->get());
       return true;
     } else if ((plainContainer = parent->getInterface<MapPlainContainer>()) != 0) {
@@ -264,12 +264,12 @@ Bool RawIndirectReferenceSegment::tryRemove(const Provider *provider, Identifiab
       return false;
     }
   } else if (ref->isA<Integer>()) {
-    Container *container;
-    MapContainer *mapContainer;
-    if ((container = parent->getInterface<Container>()) != 0) {
+    SharedContainer *container;
+    MapSharedContainer *mapContainer;
+    if ((container = parent->getInterface<SharedContainer>()) != 0) {
       container->remove(static_cast<Integer*>(ref)->get());
       return true;
-    } else if ((mapContainer = parent->getInterface<MapContainer>()) != 0) {
+    } else if ((mapContainer = parent->getInterface<MapSharedContainer>()) != 0) {
       mapContainer->remove(static_cast<Integer*>(ref)->get());
       return true;
     } else {
@@ -281,8 +281,8 @@ Bool RawIndirectReferenceSegment::tryRemove(const Provider *provider, Identifiab
 }
 
 
-const SharedPtr<IdentifiableObject>& RawIndirectReferenceSegment::get(const Provider *provider,
-                                                                      IdentifiableObject *parent) const
+const SharedPtr<IdentifiableObject>& RawIndirectReferenceSegment::getShared(const Provider *provider,
+                                                                            IdentifiableObject *parent) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReferenceSegment::get"),
@@ -299,18 +299,18 @@ const SharedPtr<IdentifiableObject>& RawIndirectReferenceSegment::get(const Prov
     throw GeneralException(error.c_str(), STR("Core::Data::RawIndirectReferenceSegment::get"));
   }
   if (ref->isA<String>()) {
-    MapContainer *container = parent->getInterface<MapContainer>();
+    MapSharedContainer *container = parent->getInterface<MapSharedContainer>();
     if (container == 0) {
       throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReferenceSegment::get"),
-                                     STR("Object doesn't support the MapContainer interface."),
+                                     STR("Object doesn't support the MapSharedContainer interface."),
                                      parent->getMyTypeInfo()->getUniqueName());
     }
     return container->get(static_cast<String*>(ref)->get());
   } else if (ref->isA<Integer>()) {
-    Container *container = parent->getInterface<Container>();
+    SharedContainer *container = parent->getInterface<SharedContainer>();
     if (container == 0) {
       throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReferenceSegment::get"),
-                                     STR("Object doesn't support the Container interface."),
+                                     STR("Object doesn't support the SharedContainer interface."),
                                      parent->getMyTypeInfo()->getUniqueName());
     }
     return container->get(static_cast<Integer*>(ref)->get());
@@ -321,8 +321,8 @@ const SharedPtr<IdentifiableObject>& RawIndirectReferenceSegment::get(const Prov
 }
 
 
-Bool RawIndirectReferenceSegment::tryGet(const Provider *provider, IdentifiableObject *parent,
-                                         SharedPtr<IdentifiableObject> &result) const
+Bool RawIndirectReferenceSegment::tryGetShared(const Provider *provider, IdentifiableObject *parent,
+                                               SharedPtr<IdentifiableObject> &result) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReferenceSegment::get"),
@@ -336,12 +336,12 @@ Bool RawIndirectReferenceSegment::tryGet(const Provider *provider, IdentifiableO
   if (!provider->tryGetPlainValue(this->getQualifier(), ref)) return false;
   if (ref == 0) return false;
   if (ref->isA<String>()) {
-    MapContainer *container = parent->getInterface<MapContainer>();
+    MapSharedContainer *container = parent->getInterface<MapSharedContainer>();
     if (container == 0) return false;
     result = container->get(static_cast<String*>(ref)->get());
     return true;
   } else if (ref->isA<Integer>()) {
-    Container *container = parent->getInterface<Container>();
+    SharedContainer *container = parent->getInterface<SharedContainer>();
     if (container == 0) return false;
     result = container->get(static_cast<Integer*>(ref)->get());
     return true;
@@ -369,28 +369,28 @@ IdentifiableObject* RawIndirectReferenceSegment::getPlain(const Provider *provid
     throw GeneralException(error.c_str(), STR("Core::Data::RawIndirectReferenceSegment::getPlain"));
   }
   if (ref->isA<String>()) {
-    MapContainer *container;
+    MapSharedContainer *container;
     MapPlainContainer *plainContainer;
-    if ((container = parent->getInterface<MapContainer>()) != 0) {
+    if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
       return container->get(static_cast<String*>(ref)->get()).get();
     } else if ((plainContainer = parent->getInterface<MapPlainContainer>()) != 0) {
       return plainContainer->get(static_cast<String*>(ref)->get());
     } else {
       throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReferenceSegment::getPlain"),
-                                     STR("Object must support MapContainer or MapPlainContainer interface "
+                                     STR("Object must support MapSharedContainer or MapPlainContainer interface "
                                          "for string based keys."),
                                      parent->getMyTypeInfo()->getUniqueName());
     }
   } else if (ref->isA<Integer>()) {
-    Container *container;
-    MapContainer *mapContainer;
-    if ((container = parent->getInterface<Container>()) != 0) {
+    SharedContainer *container;
+    MapSharedContainer *mapContainer;
+    if ((container = parent->getInterface<SharedContainer>()) != 0) {
       return container->get(static_cast<Integer*>(ref)->get()).get();
-    } else if ((mapContainer = parent->getInterface<MapContainer>()) != 0) {
+    } else if ((mapContainer = parent->getInterface<MapSharedContainer>()) != 0) {
       return mapContainer->get(static_cast<Integer*>(ref)->get()).get();
     } else {
       throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReferenceSegment::getPlain"),
-                                     STR("Object must support Container or PlainContainer interface "
+                                     STR("Object must support SharedContainer or PlainContainer interface "
                                          "for integer based keys."),
                                      parent->getMyTypeInfo()->getUniqueName());
     }
@@ -416,9 +416,9 @@ Bool RawIndirectReferenceSegment::tryGetPlain(const Provider *provider, Identifi
   if (!provider->tryGetPlainValue(this->getQualifier(), ref)) return false;
   if (ref == 0) return false;
   if (ref->isA<String>()) {
-    MapContainer *container;
+    MapSharedContainer *container;
     MapPlainContainer *plainContainer;
-    if ((container = parent->getInterface<MapContainer>()) != 0) {
+    if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
       result = container->get(static_cast<String*>(ref)->get()).get();
       return true;
     } else if ((plainContainer = parent->getInterface<MapPlainContainer>()) != 0) {
@@ -428,12 +428,12 @@ Bool RawIndirectReferenceSegment::tryGetPlain(const Provider *provider, Identifi
       return false;
     }
   } else if (ref->isA<Integer>()) {
-    Container *container;
-    MapContainer *mapContainer;
-    if ((container = parent->getInterface<Container>()) != 0) {
+    SharedContainer *container;
+    MapSharedContainer *mapContainer;
+    if ((container = parent->getInterface<SharedContainer>()) != 0) {
       result = container->get(static_cast<Integer*>(ref)->get()).get();
       return true;
-    } else if ((mapContainer = parent->getInterface<MapContainer>()) != 0) {
+    } else if ((mapContainer = parent->getInterface<MapSharedContainer>()) != 0) {
       result = mapContainer->get(static_cast<Integer*>(ref)->get()).get();
       return true;
     } else {

@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Container.h
- * Contains the header of interface Data::Container.
+ * @file Core/Data/SharedContainer.h
+ * Contains the header of interface Data::SharedContainer.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,20 +10,20 @@
  */
 //==============================================================================
 
-#ifndef DATA_CONTAINER_H
-#define DATA_CONTAINER_H
+#ifndef DATA_SHAREDCONTAINER_H
+#define DATA_SHAREDCONTAINER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class Container : public IdentifiableInterface
+class SharedContainer : public IdentifiableInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(Container, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(SharedContainer, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
@@ -43,7 +43,7 @@ class Container : public IdentifiableInterface
 
   public: SIGNAL(indexChangeNotifier, (Int from, Int to), (from, to));
 
-  public: SIGNAL(contentChangeNotifier, (Container *obj, ContentChangeOp op, Int index), (obj, op, index));
+  public: SIGNAL(contentChangeNotifier, (SharedContainer *obj, ContentChangeOp op, Int index), (obj, op, index));
 
 
   //============================================================================

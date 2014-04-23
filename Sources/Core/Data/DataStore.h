@@ -18,20 +18,20 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class DataStore : public IdentifiableObject, public virtual Provider
+class DataStore : public IdentifiableObject, public virtual SharedProvider
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(DataStore, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, Provider);
+  IMPLEMENT_INTERFACES_1(IdentifiableObject, SharedProvider);
 
 
   //============================================================================
   // Member Variables
 
   // TODO: Add a signal to notify the user of changes in definitions. This should be done by adding the signal to the
-  //       Container interface and have each container link itself to any owned container and have the signals
+  //       SharedContainer interface and have each container link itself to any owned container and have the signals
   //       cascade up until it reaches the DataStore, which in turn cascades it again to the user.
   //       This should be implemented by changing signals to use IdentifiableObject derived signal receivers which
   //       implements a Signal_Target interface if it needs bi-directional linking, otherwise the linking is one
@@ -47,14 +47,14 @@ class DataStore : public IdentifiableObject, public virtual Provider
 
   protected: SharedPtr<Module> root;
 
-  protected: Seeker seeker;
-  protected: RawSeeker rawSeeker;
+  protected: ReferenceSeeker referenceSeeker;
+  protected: QualifierSeeker qualifierSeeker;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: DataStore() : seeker(static_cast<Provider*>(this)), rawSeeker(static_cast<Provider*>(this))
+  public: DataStore() : referenceSeeker(static_cast<Provider*>(this)), qualifierSeeker(static_cast<Provider*>(this))
   {
   }
 
@@ -66,7 +66,7 @@ class DataStore : public IdentifiableObject, public virtual Provider
   //============================================================================
   // Member Functions
 
-  /// @name Initialization Functions
+  /// @name DataStore Functions
   /// @{
 
   public: void setRootModule(const SharedPtr<Module> &r)
@@ -83,38 +83,47 @@ class DataStore : public IdentifiableObject, public virtual Provider
     return this->root;
   }
 
-  /// @}
-
-  /// @name Definitions Functions
-  /// @{
-
-  public: void setValue(Reference *ref, const SharedPtr<IdentifiableObject> &obj);
-
-  public: void setValue(const Char *qualifier, const SharedPtr<IdentifiableObject> &obj);
-
-  public: void removeValue(Reference *ref);
-
-  public: void removeValue(const Char *qualifier);
-
-  public: const SharedPtr<IdentifiableObject>& getValue(Reference *ref);
-
-  public: const SharedPtr<IdentifiableObject>& getValue(const Char *qualifier);
-
-  public: void getValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal,
-                        SharedPtr<Module> &retModule);
-
-  public: void getValue(const Char *qualifier, SharedPtr<IdentifiableObject> &retVal,
-                        SharedPtr<Module> &retModule);
-
   protected: void setId(IdentifiableObject *obj, const Char *id);
 
   protected: void setChildIds(IdentifiableObject *obj, const Char *id);
 
   /// @}
 
+  /// @name SharedProvider Implementation
+  /// @{
 
-  //============================================================================
-  // Provider Implementation
+  public: virtual void setSharedValue(Reference *ref, const SharedPtr<IdentifiableObject> &obj);
+
+  public: virtual void setSharedValue(const Char *qualifier, const SharedPtr<IdentifiableObject> &obj);
+
+  public: virtual const SharedPtr<IdentifiableObject>& getSharedValue(Reference *ref) const;
+
+  public: virtual void getSharedValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal,
+                                      SharedPtr<Module> &retModule) const;
+
+  public: virtual const SharedPtr<IdentifiableObject>& getSharedValue(const Char *qualifier) const;
+
+  public: virtual void getSharedValue(const Char *qualifier, SharedPtr<IdentifiableObject> &retVal,
+                                      SharedPtr<Module> &retModule) const;
+
+  public: virtual Bool tryGetSharedValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal) const;
+
+  public: virtual Bool tryGetSharedValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal,
+                                         SharedPtr<Module> &retModule) const;
+
+  public: virtual Bool tryGetSharedValue(const Char *qualifier, SharedPtr<IdentifiableObject> &retVal) const;
+
+  public: virtual Bool tryGetSharedValue(const Char *qualifier, SharedPtr<IdentifiableObject> &retVal,
+                                         SharedPtr<Module> &retModule) const;
+
+  /// @}
+
+  /// @name Provider Implementation
+  /// @{
+
+  public: virtual void removeValue(Reference *ref);
+
+  public: virtual void removeValue(const Char *qualifier);
 
   public: virtual IdentifiableObject* getPlainValue(Reference *ref) const;
 
@@ -133,6 +142,8 @@ class DataStore : public IdentifiableObject, public virtual Provider
 
   public: virtual Bool tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal,
                                         Module *&retModule) const;
+
+  /// @}
 
 }; // class
 

@@ -39,7 +39,7 @@ void List::unsetIndexes(Int from, Int to)
 
 
 //==============================================================================
-// ListContainer Implementation
+// ListSharedContainer Implementation
 
 void List::set(Int index, const SharedPtr<IdentifiableObject> &val)
 {

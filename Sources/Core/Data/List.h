@@ -31,13 +31,13 @@ namespace Core { namespace Data
  * of contained objects, the user must manually delete objects that are no
  * longer needed.
  */
-class List : public IdentifiableObject, public virtual DataOwner, public virtual ListContainer
+class List : public IdentifiableObject, public virtual DataOwner, public virtual ListSharedContainer
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(List, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(IdentifiableObject, DataOwner, ListContainer);
+  IMPLEMENT_INTERFACES_2(IdentifiableObject, DataOwner, ListSharedContainer);
 
 
   //============================================================================
@@ -100,7 +100,7 @@ class List : public IdentifiableObject, public virtual DataOwner, public virtual
 
 
   //============================================================================
-  // ListContainer Implementation
+  // ListSharedContainer Implementation
 
   /// Change the element at the specified index.
   public: virtual void set(Int index, const SharedPtr<IdentifiableObject> &val);

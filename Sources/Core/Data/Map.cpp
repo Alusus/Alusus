@@ -82,7 +82,7 @@ void Map::removeInheritted()
 }
 
 
-void Map::onParentContentChanged(Container *obj, ContentChangeOp op, Int index)
+void Map::onParentContentChanged(SharedContainer *obj, ContentChangeOp op, Int index)
 {
   if (op == ContentChangeOp::ADD) this->onAdded(index);
   else if (op == ContentChangeOp::UPDATE) this->onUpdated(index);
@@ -274,7 +274,7 @@ void Map::unsetIndexes(Int from, Int to)
 
 
 //==============================================================================
-// MapContainer Implementation
+// MapSharedContainer Implementation
 
 void Map::set(Int index, const SharedPtr<IdentifiableObject> &val)
 {

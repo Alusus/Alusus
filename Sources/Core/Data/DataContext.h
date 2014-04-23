@@ -18,13 +18,13 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class DataContext : public IdentifiableObject, public virtual Provider
+class DataContext : public IdentifiableObject, public virtual PlainProvider
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(DataContext, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, Provider);
+  IMPLEMENT_INTERFACES_1(IdentifiableObject, PlainProvider);
 
 
   //============================================================================
@@ -35,8 +35,8 @@ class DataContext : public IdentifiableObject, public virtual Provider
   private: VariableStack *variableStack;
   private: Map *currentArgumentList;
 
-  private: Seeker seeker;
-  private: RawSeeker rawSeeker;
+  private: ReferenceSeeker referenceSeeker;
+  private: QualifierSeeker qualifierSeeker;
 
 
   //============================================================================
@@ -52,7 +52,7 @@ class DataContext : public IdentifiableObject, public virtual Provider
 
   public: DataContext(Module *r = 0) :
     rootModule(r), currentModule(0), variableStack(0), currentArgumentList(0),
-    seeker(static_cast<Provider*>(this)), rawSeeker(static_cast<Provider*>(this))
+    referenceSeeker(static_cast<Provider*>(this)), qualifierSeeker(static_cast<Provider*>(this))
   {
   }
 
@@ -116,85 +116,91 @@ class DataContext : public IdentifiableObject, public virtual Provider
 
   /// @}
 
-  /// @name Data Access Functions
+  /// @name Data Scope Functions
   /// @{
 
   private: IdentifiableObject* getStartingParent(ReferenceScope scope) const;
 
   private: IdentifiableObject* getStartingParent(const Char *&qualifier) const;
 
-  public: void setValue(Reference *ref, IdentifiableObject *val)
-  {
-    this->seeker.setPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()), val);
-  }
+  private: IdentifiableObject* tryGetStartingParent(ReferenceScope scope) const;
 
-  public: void removeValue(Reference *ref)
-  {
-    this->seeker.remove(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
-  }
-
-  public: IdentifiableObject* getValue(Reference *ref) const
-  {
-    return this->seeker.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
-  }
-
-  public: void getValue(Reference *ref, IdentifiableObject *&retVal, Module *&retModule) const
-  {
-    this->seeker.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
-                          retVal, retModule);
-  }
+  private: IdentifiableObject* tryGetStartingParent(const Char *&qualifier) const;
 
   /// @}
 
-  //============================================================================
-  // Provider Implementation
-
-  /// @name Provider Implementation
+  /// @name PlainProvider Implementation
   /// @{
+
+  public: virtual void setPlainValue(Reference *ref, IdentifiableObject *val)
+  {
+    this->referenceSeeker.setPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()), val);
+  }
+
+  public: virtual void setPlainValue(const Char *qualifier, IdentifiableObject *val)
+  {
+    this->qualifierSeeker.setPlain(qualifier, this->getStartingParent(qualifier), val);
+  }
+
+  public: virtual void removeValue(Reference *ref)
+  {
+    this->referenceSeeker.remove(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
+  }
+
+  public: virtual void removeValue(const Char *qualifier)
+  {
+    this->qualifierSeeker.remove(qualifier, this->getStartingParent(qualifier));
+  }
 
   public: virtual IdentifiableObject* getPlainValue(Reference *ref) const
   {
-    return this->seeker.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
+    return this->referenceSeeker.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
   }
 
   public: virtual void getPlainValue(Reference *ref, IdentifiableObject *&retVal, Module *&retModule) const
   {
-    return this->seeker.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
+    return this->referenceSeeker.getPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
                                  retVal, retModule);
   }
 
   public: virtual IdentifiableObject* getPlainValue(const Char *qualifier) const
   {
-    return this->rawSeeker.getPlain(qualifier, this->getStartingParent(qualifier));
+    return this->qualifierSeeker.getPlain(qualifier, this->getStartingParent(qualifier));
   }
 
   public: virtual void getPlainValue(const Char *qualifier, IdentifiableObject *&retVal,
                                      Module *&retModule) const
   {
-    return this->rawSeeker.getPlain(qualifier, this->getStartingParent(qualifier), retVal, retModule);
+    return this->qualifierSeeker.getPlain(qualifier, this->getStartingParent(qualifier), retVal, retModule);
   }
 
   public: virtual Bool tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal) const
   {
-    return this->seeker.tryGetPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
-                                    retVal);
+    auto parent = this->tryGetStartingParent(ref->getScope());
+    if (parent == 0) return false;
+    return this->referenceSeeker.tryGetPlain(ref->getSegment().get(), parent, retVal);
   }
 
   public: virtual Bool tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal, Module *&retModule) const
   {
-    return this->seeker.tryGetPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()),
-                                    retVal, retModule);
+    auto parent = this->tryGetStartingParent(ref->getScope());
+    if (parent == 0) return false;
+    return this->referenceSeeker.tryGetPlain(ref->getSegment().get(), parent, retVal, retModule);
   }
 
   public: virtual Bool tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal) const
   {
-    return this->rawSeeker.tryGetPlain(qualifier, this->getStartingParent(qualifier), retVal);
+    auto parent = this->tryGetStartingParent(qualifier);
+    if (parent == 0) return false;
+    return this->qualifierSeeker.tryGetPlain(qualifier, parent, retVal);
   }
 
   public: virtual Bool tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal,
                                         Module *&retModule) const
   {
-    return this->rawSeeker.tryGetPlain(qualifier, this->getStartingParent(qualifier), retVal, retModule);
+    auto parent = this->tryGetStartingParent(qualifier);
+    if (parent == 0) return false;
+    return this->qualifierSeeker.tryGetPlain(qualifier, parent, retVal, retModule);
   }
 
   /// @}

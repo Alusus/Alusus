@@ -55,7 +55,7 @@ class GrammarPlant
   protected: virtual void createProductionDefinitions() = 0;
 
   /// Generate lexer definitions for constant tokens used in a container tree.
-  protected: void generateConstTokenDefinitions(Container *container);
+  protected: void generateConstTokenDefinitions(SharedContainer *container);
 
   /// Generate lexer definitions for constant tokens used in a term tree.
   protected: void generateConstTokenDefinitions(Term *term);

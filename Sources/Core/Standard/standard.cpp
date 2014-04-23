@@ -33,12 +33,12 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Parser::
 {
   if (!dest->isA(src->getMyTypeInfo())) return false;
 
-  MapContainer *destMap, *srcMap;
+  MapSharedContainer *destMap, *srcMap;
   MapPlainContainer *destPlainMap, *srcPlainMap;
-  ListContainer *destList, *srcList;
+  ListSharedContainer *destList, *srcList;
   ListPlainContainer *destPlainList, *srcPlainList;
-  if ((destMap = dest->getInterface<MapContainer>()) != 0) {
-    srcMap = src->getInterface<MapContainer>();
+  if ((destMap = dest->getInterface<MapSharedContainer>()) != 0) {
+    srcMap = src->getInterface<MapSharedContainer>();
     for (Int i = 0; i < srcMap->getCount(); ++i) {
       // Merge if it already exists, otherwise set the new value.
       Int di = destMap->findIndex(srcMap->getKey(i).c_str());
@@ -85,8 +85,8 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Parser::
         destPlainMap->set(srcPlainMap->getKey(i).c_str(), srcPlainMap->get(i));
       }
     }
-  } else if ((destList = dest->getInterface<ListContainer>()) != 0) {
-    srcList = src->getInterface<ListContainer>();
+  } else if ((destList = dest->getInterface<ListSharedContainer>()) != 0) {
+    srcList = src->getInterface<ListSharedContainer>();
     for (Int i = 0; i < srcList->getCount(); ++i) {
       destList->add(srcList->get(i));
     }
@@ -106,9 +106,9 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Parser::
  * If no object is already defined at the given qualifier, the new object will
  * be set. If an object of different type is already defined, it will be
  * overwritten after a build message is raised. If an object of the same type
- * is already defined and it supports a Container interface, the objects will
+ * is already defined and it supports a SharedContainer interface, the objects will
  * be merged. If the objects are the same type but does not support a
- * Container interface, the destination will be overwritten after a build msg
+ * SharedContainer interface, the destination will be overwritten after a build msg
  * is created.
  */
 void mergeDefinition(Data::DataStore *store, const Char *qualifier, const SharedPtr<IdentifiableObject> &obj,
@@ -117,7 +117,7 @@ void mergeDefinition(Data::DataStore *store, const Char *qualifier, const Shared
   IdentifiableObject *dest;
   Bool ret = store->tryGetPlainValue(qualifier, dest);
   if (ret == false || dest == 0) {
-    store->setValue(qualifier, obj);
+    store->setSharedValue(qualifier, obj);
   } else {
     if (!mergeContainers(dest, obj.get(), state)) {
       // Generate a build message.
@@ -129,7 +129,7 @@ void mergeDefinition(Data::DataStore *store, const Char *qualifier, const Shared
       }
       state->addBuildMsg(std::make_shared<RedefinitionMsg>(qualifier, line, column));
       // Overwrite old data.
-      store->setValue(qualifier, obj);
+      store->setSharedValue(qualifier, obj);
     }
   }
 }

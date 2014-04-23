@@ -60,11 +60,11 @@ class IntReferenceSegment : public ReferenceSegment
   /// Compares this reference with another reference.
   public: virtual Bool compare(const ReferenceSegment *r) const;
 
-  public: virtual void set(const Provider *provider, IdentifiableObject *parent,
-                           const SharedPtr<IdentifiableObject> &obj) const;
+  public: virtual void setShared(const Provider *provider, IdentifiableObject *parent,
+                                 const SharedPtr<IdentifiableObject> &obj) const;
 
-  public: virtual Bool trySet(const Provider *provider, IdentifiableObject *parent,
-                              const SharedPtr<IdentifiableObject> &obj) const;
+  public: virtual Bool trySetShared(const Provider *provider, IdentifiableObject *parent,
+                                    const SharedPtr<IdentifiableObject> &obj) const;
 
   public: virtual void setPlain(const Provider *provider, IdentifiableObject *parent,
                                 IdentifiableObject *obj) const;
@@ -76,11 +76,11 @@ class IntReferenceSegment : public ReferenceSegment
 
   public: virtual Bool tryRemove(const Provider *provider, IdentifiableObject *parent) const;
 
-  public: virtual const SharedPtr<IdentifiableObject>& get(const Provider *provider,
-                                                           IdentifiableObject *parent) const;
+  public: virtual const SharedPtr<IdentifiableObject>& getShared(const Provider *provider,
+                                                                 IdentifiableObject *parent) const;
 
-  public: virtual Bool tryGet(const Provider *provider, IdentifiableObject *parent,
-                              SharedPtr<IdentifiableObject> &result) const;
+  public: virtual Bool tryGetShared(const Provider *provider, IdentifiableObject *parent,
+                                    SharedPtr<IdentifiableObject> &result) const;
 
   public: virtual IdentifiableObject* getPlain(const Provider *provider, IdentifiableObject *parent) const;
 

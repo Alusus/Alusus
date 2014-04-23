@@ -36,7 +36,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     // Create leading commands.
 
     //// run = "run" + Subject
-    grammarStore->setValue(STR("Main.Run"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Main.Run"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("run"))},
@@ -53,7 +53,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }));
 
     //// build = "build" + Subject
-    grammarStore->setValue(STR("Main.Build"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Main.Build"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("build"))},
@@ -70,7 +70,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }));
 
     //// dump = "dump" + Subject
-    grammarStore->setValue(STR("Main.Dump"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Main.Dump"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("dump"))},
@@ -87,7 +87,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }));
 
     //// def = "def" + Subject
-    grammarStore->setValue(STR("Main.Def"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Main.Def"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("def"))},
@@ -104,7 +104,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }));
 
     //// return = "return" + Subject
-    grammarStore->setValue(STR("Main.Return"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Main.Return"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("return"))},
@@ -121,7 +121,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }));
 
     //// if = "if" + Exp + Statement
-    grammarStore->setValue(STR("Main.If"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Main.If"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("if"))},
@@ -144,7 +144,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }));
 
     //// for = "for" + Exp + Statement
-    grammarStore->setValue(STR("Main.For"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Main.For"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("for"))},
@@ -167,7 +167,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }));
 
     //// while = "while" + Exp + Statement
-    grammarStore->setValue(STR("Main.While"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Main.While"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("while"))},
@@ -190,7 +190,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }));
 
     //// link = "link" + Set
-    grammarStore->setValue(STR("Main.Link"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Main.Link"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("link"))},
@@ -223,7 +223,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     // Create inner command.
 
     //// module = "module" + Subject + Subject
-    grammarStore->setValue(STR("Subject.Module"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Subject.Module"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("module"))},
@@ -242,7 +242,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     //// function = "function" + Exp + Statement
     // TODO: Exp and Statement need to be optional, but at least one of them is
     // given.
-    /*grammarStore->setValue(STR("Subject.Function"), SymbolDefinition::create({
+    /*grammarStore->setSharedValue(STR("Subject.Function"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("function"))},
@@ -258,7 +258,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {SymbolDefElement::HANDLER, this->handler}
         }));*/
 
-    grammarStore->setValue(STR("Subject.Function"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Subject.Function"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("function"))},
@@ -281,7 +281,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }));
 
     //// structure = "struct" + Statement
-    grammarStore->setValue(STR("Subject.Structure"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Subject.Structure"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("struct"))},
@@ -307,7 +307,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     // Create tilde commands.
 
     // ~ptr
-    grammarStore->setValue(STR("Expression.Pointer_Tilde"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Expression.Pointer_Tilde"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("ptr"))},
@@ -316,7 +316,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {SymbolDefElement::HANDLER, this->handler}
         }));
     // ~cnt
-    grammarStore->setValue(STR("Expression.Content_Tilde"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("Expression.Content_Tilde"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("kwd"), std::make_shared<String>(STR("cnt"))},
@@ -334,20 +334,20 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     // Define sub statements.
 
     // Define a SubMain module.
-    grammarStore->setValue(STR("SubMain"), GrammarModule::create({
+    grammarStore->setSharedValue(STR("SubMain"), GrammarModule::create({
         {STR("@parent"), ReferenceParser::parseQualifier(STR("root.Main"))}}));
 
     //// def = "def" + Subject
-    grammarStore->setValue(STR("SubMain.Def"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("SubMain.Def"), SymbolDefinition::create({
         {SymbolDefElement::PARENT_REF, ReferenceParser::parseQualifier(STR("pmodule.Def"))},
         {SymbolDefElement::HANDLER, this->handler}
         }));
 
     //// Overloaded subject.
-    grammarStore->setValue(STR("SubSubject"), GrammarModule::create({
+    grammarStore->setSharedValue(STR("SubSubject"), GrammarModule::create({
         {STR("@parent"), ReferenceParser::parseQualifier(STR("root.Subject"))}
         }));
-    grammarStore->setValue(STR("SubSubject.Subject1"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("SubSubject.Subject1"), SymbolDefinition::create({
         {SymbolDefElement::PARENT_REF, ReferenceParser::parseQualifier(STR("pmodule.Subject1"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("sbj1"), List::create({
@@ -363,7 +363,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }));
 
     //// Overloaded set.
-    grammarStore->setValue(STR("SubSet"), SymbolDefinition::create({
+    grammarStore->setSharedValue(STR("SubSet"), SymbolDefinition::create({
         {SymbolDefElement::PARENT_REF, ReferenceParser::parseQualifier(STR("root.Set"))},
         {SymbolDefElement::VARS, Map::create(false, {
             {STR("stmt"), ReferenceParser::parseQualifier(STR("root.SubMain.StatementList"))}

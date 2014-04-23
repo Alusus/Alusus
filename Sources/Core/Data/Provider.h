@@ -32,6 +32,18 @@ class Provider : public IdentifiableInterface
   //============================================================================
   // Abstract Functions
 
+  /// @name Data Removal Functions
+  /// @{
+
+  public: virtual void removeValue(Reference *ref) = 0;
+
+  public: virtual void removeValue(const Char *qualifier) = 0;
+
+  /// @}
+
+  /// @name Exception Based Data Retrieval Functions
+  /// @{
+
   public: virtual IdentifiableObject* getPlainValue(Reference *ref) const = 0;
 
   public: virtual void getPlainValue(Reference *ref, IdentifiableObject *&retVal,
@@ -42,6 +54,11 @@ class Provider : public IdentifiableInterface
   public: virtual void getPlainValue(const Char *qualifier, IdentifiableObject *&retVal,
                                      Module *&retModule) const = 0;
 
+  /// @}
+
+  /// @name Return-Value Based Data Retrieval Functions
+  /// @{
+
   public: virtual Bool tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal) const = 0;
 
   public: virtual Bool tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal,
@@ -51,6 +68,8 @@ class Provider : public IdentifiableInterface
 
   public: virtual Bool tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal,
                                         Module *&retModule) const = 0;
+
+  /// @}
 
 }; // class
 

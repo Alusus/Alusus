@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/ListContainer.h
- * Contains the header of interface Data::ListContainer.
+ * @file Core/Data/PlainProvider.h
+ * Contains the header of interface Data::PlainProvider.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,26 +10,35 @@
  */
 //==============================================================================
 
-#ifndef DATA_LIST_CONTAINER_H
-#define DATA_LIST_CONTAINER_H
+#ifndef DATA_PLAINPROVIDER_H
+#define DATA_PLAINPROVIDER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class ListContainer : public virtual Container
+class Reference;
+
+class PlainProvider : public Provider
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(ListContainer, Container, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(PlainProvider, Provider, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual void add(const SharedPtr<IdentifiableObject> &obj) = 0;
+  /// @name Data Setting Functions
+  /// @{
+
+  public: virtual void setPlainValue(Reference *ref, IdentifiableObject *val) = 0;
+
+  public: virtual void setPlainValue(const Char *qualifier, IdentifiableObject *val) = 0;
+
+  /// @}
 
 }; // class
 

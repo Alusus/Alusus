@@ -23,7 +23,7 @@ class GrammarHelper
   //============================================================================
   // Member Variables
 
-  private: Seeker seeker;
+  private: ReferenceSeeker seeker;
 
 
   //============================================================================

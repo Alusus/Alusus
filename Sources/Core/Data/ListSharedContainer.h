@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/ListPlainContainer.h
- * Contains the header of interface Data::ListPlainContainer.
+ * @file Core/Data/ListSharedContainer.h
+ * Contains the header of interface Data::ListSharedContainer.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,26 +10,26 @@
  */
 //==============================================================================
 
-#ifndef DATA_LISTPLAINCONTAINER_H
-#define DATA_LISTPLAINCONTAINER_H
+#ifndef DATA_LISTSHAREDCONTAINER_H
+#define DATA_LISTSHAREDCONTAINER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class ListPlainContainer : public virtual PlainContainer
+class ListSharedContainer : public virtual SharedContainer
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(ListPlainContainer, PlainContainer, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(ListSharedContainer, SharedContainer, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual void add(IdentifiableObject *obj) = 0;
+  public: virtual void add(const SharedPtr<IdentifiableObject> &obj) = 0;
 
 }; // class
 

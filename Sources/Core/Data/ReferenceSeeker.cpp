@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Seeker.cpp
- * Contains the implementation of class Core::Data::Seeker.
+ * @file Core/Data/ReferenceSeeker.cpp
+ * Contains the implementation of class Core::Data::ReferenceSeeker.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -18,7 +18,7 @@ namespace Core { namespace Data
 //==============================================================================
 // Helper Functions
 
-Bool Seeker::getImmediateContainer(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
+Bool ReferenceSeeker::getImmediateContainer(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
                                    ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
                                    SharedPtr<Module> &retModule) const
 {
@@ -33,7 +33,7 @@ Bool Seeker::getImmediateContainer(ReferenceSegment *seg, const SharedPtr<Identi
     return true;
   } else {
     SharedPtr<IdentifiableObject> nextParent;
-    if (!seg->tryGet(this->dataProvider, parent.get(), nextParent)) return false;
+    if (!seg->tryGetShared(this->dataProvider, parent.get(), nextParent)) return false;
     ReferenceSegment *nextSeg = seg->getNext().get();
     Bool ret = this->getImmediateContainer(nextSeg, nextParent, retSeg, retParent, retModule);
     if (ret == true && retModule == 0) {
@@ -44,7 +44,7 @@ Bool Seeker::getImmediateContainer(ReferenceSegment *seg, const SharedPtr<Identi
 }
 
 
-Bool Seeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool ReferenceSeeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
                                    ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
                                    SharedPtr<Module> &retModule) const
 {
@@ -56,7 +56,7 @@ Bool Seeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *pa
   } else {
     ReferenceSegment *nextSeg = seg->getNext().get();
     SharedPtr<IdentifiableObject> nextParent;
-    if (seg->tryGet(this->dataProvider, parent, nextParent)) {
+    if (seg->tryGetShared(this->dataProvider, parent, nextParent)) {
       return this->getImmediateContainer(nextSeg, nextParent, retSeg, retParent, retModule);
     } else if (seg->tryGetPlain(this->dataProvider, parent, parent)) {
       return this->getImmediateContainer(nextSeg, parent, retSeg, retParent, retModule);
@@ -67,7 +67,7 @@ Bool Seeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *pa
 }
 
 
-Bool Seeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool ReferenceSeeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
                                    ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
                                    Module *&retModule) const
 {
@@ -93,7 +93,7 @@ Bool Seeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *pa
 }
 
 
-Bool Seeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool ReferenceSeeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
                                    ReferenceSegment *&retSeg, IdentifiableObject *&retParent) const
 {
   while (seg->getNext() != 0) {
@@ -109,89 +109,89 @@ Bool Seeker::getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *pa
 //==============================================================================
 // Data Read Functions
 
-const SharedPtr<IdentifiableObject>& Seeker::get(ReferenceSegment *seg, IdentifiableObject *parent) const
+const SharedPtr<IdentifiableObject>& ReferenceSeeker::getShared(ReferenceSegment *seg, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Seeker::get"));
+                           STR("Core::Data::ReferenceSeeker::get"));
   }
-  return immSeg->get(this->dataProvider, immParent);
+  return immSeg->getShared(this->dataProvider, immParent);
 }
 
 
-Bool Seeker::tryGet(ReferenceSegment *seg, IdentifiableObject *parent, SharedPtr<IdentifiableObject> &result) const
+Bool ReferenceSeeker::tryGetShared(ReferenceSegment *seg, IdentifiableObject *parent, SharedPtr<IdentifiableObject> &result) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) return false;
-  return immSeg->tryGet(this->dataProvider, immParent, result);
+  return immSeg->tryGetShared(this->dataProvider, immParent, result);
 }
 
 
-void Seeker::get(ReferenceSegment *seg, IdentifiableObject *parent,
+void ReferenceSeeker::getShared(ReferenceSegment *seg, IdentifiableObject *parent,
                  SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent, retModule)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Seeker::get"));
+                           STR("Core::Data::ReferenceSeeker::get"));
   }
-  retVal = immSeg->get(this->dataProvider, immParent);
+  retVal = immSeg->getShared(this->dataProvider, immParent);
 }
 
 
-void Seeker::get(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
+void ReferenceSeeker::getShared(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
                  SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent, retModule)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Seeker::get"));
+                           STR("Core::Data::ReferenceSeeker::get"));
   }
-  retVal = immSeg->get(this->dataProvider, immParent);
+  retVal = immSeg->getShared(this->dataProvider, immParent);
 }
 
 
-Bool Seeker::tryGet(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool ReferenceSeeker::tryGetShared(ReferenceSegment *seg, IdentifiableObject *parent,
                     SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent, retModule)) return false;
-  return immSeg->tryGet(this->dataProvider, immParent, retVal);
+  return immSeg->tryGetShared(this->dataProvider, immParent, retVal);
 }
 
 
-Bool Seeker::tryGet(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
+Bool ReferenceSeeker::tryGetShared(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
                     SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent, retModule)) return false;
-  return immSeg->tryGet(this->dataProvider, immParent, retVal);
+  return immSeg->tryGetShared(this->dataProvider, immParent, retVal);
 }
 
 
 //==============================================================================
 // Plain Data Read Functions
 
-IdentifiableObject* Seeker::getPlain(ReferenceSegment *seg, IdentifiableObject *parent) const
+IdentifiableObject* ReferenceSeeker::getPlain(ReferenceSegment *seg, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Seeker::get"));
+                           STR("Core::Data::ReferenceSeeker::get"));
   }
   return immSeg->getPlain(this->dataProvider, immParent);
 }
 
 
-Bool Seeker::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *&result) const
+Bool ReferenceSeeker::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *&result) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
@@ -200,20 +200,20 @@ Bool Seeker::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent, Iden
 }
 
 
-void Seeker::getPlain(ReferenceSegment *seg, IdentifiableObject *parent,
+void ReferenceSeeker::getPlain(ReferenceSegment *seg, IdentifiableObject *parent,
                       IdentifiableObject *&retVal, Module *&retModule) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent, retModule)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Seeker::get"));
+                           STR("Core::Data::ReferenceSeeker::get"));
   }
   retVal = immSeg->getPlain(this->dataProvider, immParent);
 }
 
 
-Bool Seeker::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool ReferenceSeeker::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent,
                          IdentifiableObject *&retVal, Module *&retModule) const
 {
   ReferenceSegment *immSeg;
@@ -226,41 +226,41 @@ Bool Seeker::tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent,
 //==============================================================================
 // Data Write Functions
 
-void Seeker::set(ReferenceSegment *seg, IdentifiableObject *parent, const SharedPtr<IdentifiableObject> &val) const
+void ReferenceSeeker::setShared(ReferenceSegment *seg, IdentifiableObject *parent, const SharedPtr<IdentifiableObject> &val) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Seeker::set"));
+                           STR("Core::Data::ReferenceSeeker::set"));
   }
-  immSeg->set(this->dataProvider, immParent, val);
+  immSeg->setShared(this->dataProvider, immParent, val);
 }
 
 
-Bool Seeker::trySet(ReferenceSegment *seg, IdentifiableObject *parent,
+Bool ReferenceSeeker::trySetShared(ReferenceSegment *seg, IdentifiableObject *parent,
                     const SharedPtr<IdentifiableObject> &val) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) return false;
-  return immSeg->trySet(this->dataProvider, immParent, val);
+  return immSeg->trySetShared(this->dataProvider, immParent, val);
 }
 
 
-void Seeker::setPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *val) const
+void ReferenceSeeker::setPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *val) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Seeker::set"));
+                           STR("Core::Data::ReferenceSeeker::set"));
   }
   immSeg->setPlain(this->dataProvider, immParent, val);
 }
 
 
-Bool Seeker::trySetPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *val) const
+Bool ReferenceSeeker::trySetPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *val) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
@@ -272,19 +272,19 @@ Bool Seeker::trySetPlain(ReferenceSegment *seg, IdentifiableObject *parent, Iden
 //============================================================================
 // Data Delete Functions
 
-void Seeker::remove(ReferenceSegment *seg, IdentifiableObject *parent) const
+void ReferenceSeeker::remove(ReferenceSegment *seg, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;
   if (!this->getImmediateContainer(seg, parent, immSeg, immParent)) {
     throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::Seeker::remove"));
+                           STR("Core::Data::ReferenceSeeker::remove"));
   }
   immSeg->remove(this->dataProvider, immParent);
 }
 
 
-Bool Seeker::tryRemove(ReferenceSegment *seg, IdentifiableObject *parent) const
+Bool ReferenceSeeker::tryRemove(ReferenceSegment *seg, IdentifiableObject *parent) const
 {
   ReferenceSegment *immSeg;
   IdentifiableObject *immParent;

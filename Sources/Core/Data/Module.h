@@ -19,13 +19,13 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class Module : public IdentifiableObject,
-               public virtual MapContainer, public virtual IdOwner, public virtual DataOwner
+               public virtual MapSharedContainer, public virtual IdOwner, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Module, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(IdentifiableObject, MapContainer, IdOwner, DataOwner);
+  IMPLEMENT_INTERFACES_3(IdentifiableObject, MapSharedContainer, IdOwner, DataOwner);
 
 
   //============================================================================
@@ -70,7 +70,7 @@ class Module : public IdentifiableObject,
     return &this->definitions;
   }
 
-  private: void onDefinitionsContentChanged(Container *obj, ContentChangeOp op, Int index)
+  private: void onDefinitionsContentChanged(SharedContainer *obj, ContentChangeOp op, Int index)
   {
     this->contentChangeNotifier.emit(this, op, index);
   }
@@ -114,9 +114,9 @@ class Module : public IdentifiableObject,
 
 
   //============================================================================
-  // MapContainer Implementation
+  // MapSharedContainer Implementation
 
-  /// @name MapContainer Implementation
+  /// @name MapSharedContainer Implementation
   /// @{
 
   public: virtual void set(Int index, const SharedPtr<IdentifiableObject> &val)

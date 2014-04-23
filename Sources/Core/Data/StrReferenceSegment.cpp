@@ -26,17 +26,17 @@ Bool StrReferenceSegment::compare(const ReferenceSegment *r) const
 }
 
 
-void StrReferenceSegment::set(const Provider *provider, IdentifiableObject *parent,
-                              const SharedPtr<IdentifiableObject> &obj) const
+void StrReferenceSegment::setShared(const Provider *provider, IdentifiableObject *parent,
+                                    const SharedPtr<IdentifiableObject> &obj) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::set"),
                                    STR("Should not be null."));
   }
-  MapContainer *container = parent->getInterface<MapContainer>();
+  MapSharedContainer *container = parent->getInterface<MapSharedContainer>();
   if (container == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::set"),
-                                   STR("Object doesn't support the MapContainer interface."),
+                                   STR("Object doesn't support the MapSharedContainer interface."),
                                    parent->getMyTypeInfo()->getUniqueName());
   }
   if (this->index < 0 || this->index >= container->getCount()) {
@@ -50,14 +50,14 @@ void StrReferenceSegment::set(const Provider *provider, IdentifiableObject *pare
 }
 
 
-Bool StrReferenceSegment::trySet(const Provider *provider, IdentifiableObject *parent,
-                                 const SharedPtr<IdentifiableObject> &obj) const
+Bool StrReferenceSegment::trySetShared(const Provider *provider, IdentifiableObject *parent,
+                                       const SharedPtr<IdentifiableObject> &obj) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::set"),
                                    STR("Should not be null."));
   }
-  MapContainer *container = parent->getInterface<MapContainer>();
+  MapSharedContainer *container = parent->getInterface<MapSharedContainer>();
   if (container == 0) return false;
   if (this->index < 0 || this->index >= container->getCount()) {
     this->index = container->findIndex(this->key.c_str());
@@ -122,9 +122,9 @@ void StrReferenceSegment::remove(const Provider *provider, IdentifiableObject *p
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::remove"),
                                    STR("Should not be null."));
   }
-  MapContainer *container;
+  MapSharedContainer *container;
   MapPlainContainer *plainContainer;
-  if ((container = parent->getInterface<MapContainer>()) != 0) {
+  if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) {
       this->index = container->findIndex(this->key.c_str());
       if (this->index == -1) {
@@ -144,7 +144,7 @@ void StrReferenceSegment::remove(const Provider *provider, IdentifiableObject *p
     plainContainer->remove(this->index);
   } else {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::remove"),
-                                   STR("Object doesn't support the MapContainer or MapPlainContainer interface."),
+                                   STR("Object doesn't support the MapSharedContainer or MapPlainContainer interface."),
                                    parent->getMyTypeInfo()->getUniqueName());
   }
 }
@@ -156,9 +156,9 @@ Bool StrReferenceSegment::tryRemove(const Provider *provider, IdentifiableObject
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::remove"),
                                    STR("Should not be null."));
   }
-  MapContainer *container;
+  MapSharedContainer *container;
   MapPlainContainer *plainContainer;
-  if ((container = parent->getInterface<MapContainer>()) != 0) {
+  if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) {
       this->index = container->findIndex(this->key.c_str());
       if (this->index == -1) return false;
@@ -178,15 +178,15 @@ Bool StrReferenceSegment::tryRemove(const Provider *provider, IdentifiableObject
 }
 
 
-const SharedPtr<IdentifiableObject>& StrReferenceSegment::get(const Provider *provider,
-                                                              IdentifiableObject *parent) const
+const SharedPtr<IdentifiableObject>& StrReferenceSegment::getShared(const Provider *provider,
+                                                                    IdentifiableObject *parent) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::get"),
                                    STR("Should not be null."));
   }
-  MapContainer *container;
-  if ((container = parent->getInterface<MapContainer>()) != 0) {
+  MapSharedContainer *container;
+  if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) {
       this->index = container->findIndex(this->key.c_str());
       if (this->index == -1) {
@@ -197,21 +197,21 @@ const SharedPtr<IdentifiableObject>& StrReferenceSegment::get(const Provider *pr
     return container->get(this->index);
   } else {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::get"),
-                                   STR("Object doesn't support the MapContainer interface."),
+                                   STR("Object doesn't support the MapSharedContainer interface."),
                                    parent->getMyTypeInfo()->getUniqueName());
   }
 }
 
 
-Bool StrReferenceSegment::tryGet(const Provider *provider, IdentifiableObject *parent,
-                                 SharedPtr<IdentifiableObject> &result) const
+Bool StrReferenceSegment::tryGetShared(const Provider *provider, IdentifiableObject *parent,
+                                       SharedPtr<IdentifiableObject> &result) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::get"),
                                    STR("Should not be null."));
   }
-  MapContainer *container;
-  if ((container = parent->getInterface<MapContainer>()) != 0) {
+  MapSharedContainer *container;
+  if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) {
       this->index = container->findIndex(this->key.c_str());
       if (this->index == -1) return false;
@@ -230,9 +230,9 @@ IdentifiableObject* StrReferenceSegment::getPlain(const Provider *provider, Iden
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::getPlain"),
                                    STR("Should not be null."));
   }
-  MapContainer *container;
+  MapSharedContainer *container;
   MapPlainContainer *plainContainer;
-  if ((container = parent->getInterface<MapContainer>()) != 0) {
+  if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) {
       this->index = container->findIndex(this->key.c_str());
       if (this->index == -1) {
@@ -252,7 +252,7 @@ IdentifiableObject* StrReferenceSegment::getPlain(const Provider *provider, Iden
     return plainContainer->get(this->index);
   } else {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::getPlain"),
-                                   STR("Object doesn't support the MapContainer or MapPlainContainer interface."),
+                                   STR("Object doesn't support the MapSharedContainer or MapPlainContainer interface."),
                                    parent->getMyTypeInfo()->getUniqueName());
   }
 }
@@ -265,9 +265,9 @@ Bool StrReferenceSegment::tryGetPlain(const Provider *provider, IdentifiableObje
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrReferenceSegment::getPlain"),
                                    STR("Should not be null."));
   }
-  MapContainer *container;
+  MapSharedContainer *container;
   MapPlainContainer *plainContainer;
-  if ((container = parent->getInterface<MapContainer>()) != 0) {
+  if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) {
       this->index = container->findIndex(this->key.c_str());
       if (this->index == -1) return false;

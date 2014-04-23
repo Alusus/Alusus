@@ -24,7 +24,7 @@ TEST_CASE("Core::Data/search", "Successfully search an element with its containi
 
   try {
     store.setRootModule(std::make_shared<GrammarModule>());
-    store.setValue(STR("mod1"),
+    store.setSharedValue(STR("mod1"),
                      Module::create({
                                       {STR("var1"), 0},
                                       {STR("var2"), 0},
@@ -45,7 +45,7 @@ TEST_CASE("Core::Data/search", "Successfully search an element with its containi
 
     SECTION("s1", "Data retrieved using qualifier.")
     {
-      store.getValue(STR("mod1.mod2.map1.var6"), str, mod);
+      store.getSharedValue(STR("mod1.mod2.map1.var6"), str, mod);
       REQUIRE(str.get() != 0);
       REQUIRE(str->isA<String>());
       REQUIRE(str.s_cast<String>()->getStr() == STR("hello"));
@@ -54,7 +54,7 @@ TEST_CASE("Core::Data/search", "Successfully search an element with its containi
     }
     SECTION("s2", "Data retrieved using Reference.")
     {
-      store.getValue(ReferenceParser::parseQualifier(STR("mod1.mod2.map1.var6")).get(), str, mod);
+      store.getSharedValue(ReferenceParser::parseQualifier(STR("mod1.mod2.map1.var6")).get(), str, mod);
       REQUIRE(str.get() != 0);
       REQUIRE(str->isA<String>());
       REQUIRE(str.s_cast<String>()->getStr() == STR("hello"));

@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/RawSeeker.h
- * Contains the header of class Core::Data::RawSeeker.
+ * @file Core/Data/QualifierSeeker.h
+ * Contains the header of class Core::Data::QualifierSeeker.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,15 +10,15 @@
  */
 //==============================================================================
 
-#ifndef DATA_RAWSEEKER_H
-#define DATA_RAWSEEKER_H
+#ifndef DATA_QUALIFIERSEEKER_H
+#define DATA_QUALIFIERSEEKER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class RawSeeker
+class QualifierSeeker
 {
   //============================================================================
   // Member Variables
@@ -30,11 +30,11 @@ class RawSeeker
   //============================================================================
   // Constructor & Destructor
 
-  public: RawSeeker(const Provider *prov=0) : dataProvider(prov)
+  public: QualifierSeeker(const Provider *prov=0) : dataProvider(prov)
   {
   }
 
-  public: ~RawSeeker()
+  public: ~QualifierSeeker()
   {
   }
 
@@ -80,22 +80,22 @@ class RawSeeker
   /// @name Data Read Functions
   /// @{
 
-  public: const SharedPtr<IdentifiableObject>& get(const Char *qualifier, IdentifiableObject *parent) const;
+  public: const SharedPtr<IdentifiableObject>& getShared(const Char *qualifier, IdentifiableObject *parent) const;
 
-  public: Bool tryGet(const Char *qualifier, IdentifiableObject *parent,
-                      SharedPtr<IdentifiableObject> &result) const;
+  public: Bool tryGetShared(const Char *qualifier, IdentifiableObject *parent,
+                            SharedPtr<IdentifiableObject> &result) const;
 
-  public: void get(const Char *qualifier, IdentifiableObject *parent,
-                   SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
+  public: void getShared(const Char *qualifier, IdentifiableObject *parent,
+                         SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
 
-  public: void get(const Char *qualifier, const SharedPtr<IdentifiableObject> &parent,
-                   SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
+  public: void getShared(const Char *qualifier, const SharedPtr<IdentifiableObject> &parent,
+                         SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
 
-  public: Bool tryGet(const Char *qualifier, IdentifiableObject *parent,
-                      SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
+  public: Bool tryGetShared(const Char *qualifier, IdentifiableObject *parent,
+                            SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
 
-  public: Bool tryGet(const Char *qualifier, const SharedPtr<IdentifiableObject> &parent,
-                      SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
+  public: Bool tryGetShared(const Char *qualifier, const SharedPtr<IdentifiableObject> &parent,
+                            SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
 
   /// @}
 
@@ -117,11 +117,11 @@ class RawSeeker
   /// @name Data Write Functions
   /// @{
 
-  public: void set(const Char *qualifier, IdentifiableObject *parent,
-                   const SharedPtr<IdentifiableObject> &val) const;
+  public: void setShared(const Char *qualifier, IdentifiableObject *parent,
+                         const SharedPtr<IdentifiableObject> &val) const;
 
-  public: Bool trySet(const Char *qualifier, IdentifiableObject *parent,
-                      const SharedPtr<IdentifiableObject> &val) const;
+  public: Bool trySetShared(const Char *qualifier, IdentifiableObject *parent,
+                            const SharedPtr<IdentifiableObject> &val) const;
 
   public: void setPlain(const Char *qualifier, IdentifiableObject *parent, IdentifiableObject *val) const;
 

@@ -26,17 +26,17 @@ Bool IntReferenceSegment::compare(const ReferenceSegment *r) const
 }
 
 
-void IntReferenceSegment::set(const Provider *provider, IdentifiableObject *parent,
-                              const SharedPtr<IdentifiableObject> &obj) const
+void IntReferenceSegment::setShared(const Provider *provider, IdentifiableObject *parent,
+                                    const SharedPtr<IdentifiableObject> &obj) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::set"),
                                    STR("Should not be null."));
   }
-  ListContainer *container = parent->getInterface<ListContainer>();
+  ListSharedContainer *container = parent->getInterface<ListSharedContainer>();
   if (container == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::set"),
-                                   STR("Object doesn't support the ListContainer interface."),
+                                   STR("Object doesn't support the ListSharedContainer interface."),
                                    parent->getMyTypeInfo()->getUniqueName());
   }
   if (this->index >= 0 && this->index < container->getCount()) {
@@ -50,14 +50,14 @@ void IntReferenceSegment::set(const Provider *provider, IdentifiableObject *pare
 }
 
 
-Bool IntReferenceSegment::trySet(const Provider *provider, IdentifiableObject *parent,
-                                 const SharedPtr<IdentifiableObject> &obj) const
+Bool IntReferenceSegment::trySetShared(const Provider *provider, IdentifiableObject *parent,
+                                       const SharedPtr<IdentifiableObject> &obj) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::set"),
                                    STR("Should not be null."));
   }
-  ListContainer *container = parent->getInterface<ListContainer>();
+  ListSharedContainer *container = parent->getInterface<ListSharedContainer>();
   if (container == 0) return false;
   if (this->index >= 0 && this->index < container->getCount()) {
     container->set(this->index, obj);
@@ -122,9 +122,9 @@ void IntReferenceSegment::remove(const Provider *provider, IdentifiableObject *p
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::remove"),
                                    STR("Should not be null."));
   }
-  Container *container;
+  SharedContainer *container;
   PlainContainer *plainContainer;
-  if ((container = parent->getInterface<Container>()) != 0) {
+  if ((container = parent->getInterface<SharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) {
       throw GeneralException(STR("Index is out of range for the given parent."),
                              STR("Core::Data::IntReferenceSegment::remove"));
@@ -138,7 +138,7 @@ void IntReferenceSegment::remove(const Provider *provider, IdentifiableObject *p
     plainContainer->remove(this->index);
   } else {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::remove"),
-                                   STR("Object doesn't support the Container or PlainContainer interface."),
+                                   STR("Object doesn't support the SharedContainer or PlainContainer interface."),
                                    parent->getMyTypeInfo()->getUniqueName());
   }
 }
@@ -150,9 +150,9 @@ Bool IntReferenceSegment::tryRemove(const Provider *provider, IdentifiableObject
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::remove"),
                                    STR("Should not be null."));
   }
-  Container *container;
+  SharedContainer *container;
   PlainContainer *plainContainer;
-  if ((container = parent->getInterface<Container>()) != 0) {
+  if ((container = parent->getInterface<SharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) return false;
     container->remove(this->index);
     return true;
@@ -166,15 +166,15 @@ Bool IntReferenceSegment::tryRemove(const Provider *provider, IdentifiableObject
 }
 
 
-const SharedPtr<IdentifiableObject>& IntReferenceSegment::get(const Provider *provider,
-                                                              IdentifiableObject *parent) const
+const SharedPtr<IdentifiableObject>& IntReferenceSegment::getShared(const Provider *provider,
+                                                                    IdentifiableObject *parent) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::get"),
                                    STR("Should not be null."));
   }
-  Container *container;
-  if ((container = parent->getInterface<Container>()) != 0) {
+  SharedContainer *container;
+  if ((container = parent->getInterface<SharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) {
       throw GeneralException(STR("Index is out of range for the given parent."),
                              STR("Core::Data::IntReferenceSegment::get"));
@@ -182,21 +182,21 @@ const SharedPtr<IdentifiableObject>& IntReferenceSegment::get(const Provider *pr
     return container->get(this->index);
   } else {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::get"),
-                                   STR("Object doesn't support the Container interface."),
+                                   STR("Object doesn't support the SharedContainer interface."),
                                    parent->getMyTypeInfo()->getUniqueName());
   }
 }
 
 
-Bool IntReferenceSegment::tryGet(const Provider *provider, IdentifiableObject *parent,
-                                 SharedPtr<IdentifiableObject> &result) const
+Bool IntReferenceSegment::tryGetShared(const Provider *provider, IdentifiableObject *parent,
+                                       SharedPtr<IdentifiableObject> &result) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::get"),
                                    STR("Should not be null."));
   }
-  Container *container;
-  if ((container = parent->getInterface<Container>()) != 0) {
+  SharedContainer *container;
+  if ((container = parent->getInterface<SharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) return false;
     result = container->get(this->index);
     return true;
@@ -212,9 +212,9 @@ IdentifiableObject* IntReferenceSegment::getPlain(const Provider *provider, Iden
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::getPlain"),
                                    STR("Should not be null."));
   }
-  Container *container;
+  SharedContainer *container;
   PlainContainer *plainContainer;
-  if ((container = parent->getInterface<Container>()) != 0) {
+  if ((container = parent->getInterface<SharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) {
       throw GeneralException(STR("Index is out of range for the given parent."),
                              STR("Core::Data::IntReferenceSegment::getPlain"));
@@ -228,7 +228,7 @@ IdentifiableObject* IntReferenceSegment::getPlain(const Provider *provider, Iden
     return plainContainer->get(this->index);
   } else {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::getPlain"),
-                                   STR("Object doesn't support the Container or PlainContainer interface."),
+                                   STR("Object doesn't support the SharedContainer or PlainContainer interface."),
                                    parent->getMyTypeInfo()->getUniqueName());
   }
 }
@@ -241,9 +241,9 @@ Bool IntReferenceSegment::tryGetPlain(const Provider *provider, IdentifiableObje
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IntReferenceSegment::getPlain"),
                                    STR("Should not be null."));
   }
-  Container *container;
+  SharedContainer *container;
   PlainContainer *plainContainer;
-  if ((container = parent->getInterface<Container>()) != 0) {
+  if ((container = parent->getInterface<SharedContainer>()) != 0) {
     if (this->index < 0 || this->index >= container->getCount()) return false;
     result = container->get(this->index).get();
     return true;

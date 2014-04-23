@@ -52,8 +52,8 @@ void debugPrintParsedData(const SharedPtr<IdentifiableObject> &ptr, int indents=
         Cout << ptr->getMyTypeInfo()->getUniqueName() << STR(" -- ");
     }
     // Print the data itself.
-    Data::MapContainer *mapContainer;
-    Data::ListContainer *list_container;
+    Data::MapSharedContainer *mapContainer;
+    Data::ListSharedContainer *listContainer;
     if (ptr->isDerivedFrom<Standard::ParsedList>()) {
         Cout << STR("[LIST]:\n");
         for (Word i = 0; i < ptr.s_cast_get<Standard::ParsedList>()->getElementCount(); ++i) {
@@ -70,12 +70,12 @@ void debugPrintParsedData(const SharedPtr<IdentifiableObject> &ptr, int indents=
         Cout << Data::IdGenerator::getSingleton()->getDesc(id);
         // Print the token text.
         Cout << STR(" (\"") << ptr.s_cast_get<Standard::ParsedToken>()->getText() << STR("\")\n");
-    } else if ((list_container = ptr->getInterface<Data::ListContainer>()) != 0) {
+    } else if ((listContainer = ptr->getInterface<Data::ListSharedContainer>()) != 0) {
         Cout << STR("[LIST]:\n");
-        for (Word i = 0; i < list_container->getCount(); ++i) {
-            debugPrintParsedData(list_container->get(i), indents+1);
+        for (Word i = 0; i < listContainer->getCount(); ++i) {
+            debugPrintParsedData(listContainer->get(i), indents+1);
         }
-    } else if ((mapContainer = ptr->getInterface<Data::MapContainer>()) != 0) {
+    } else if ((mapContainer = ptr->getInterface<Data::MapSharedContainer>()) != 0) {
         Cout << STR("[MAP]:\n");
         for (Word i = 0; i < mapContainer->getCount(); ++i) {
             printIndents(indents+1);
@@ -103,7 +103,7 @@ void DumpParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State 
   SharedPtr<Standard::ParsedToken> name = nameBrowser.getValue<Standard::ParsedToken>(item);
   SharedPtr<IdentifiableObject> def;
   if (name != 0) {
-    def = this->rootManager->getDefinitionsStore()->getValue(name->getText().c_str());
+    def = this->rootManager->getDefinitionsStore()->getSharedValue(name->getText().c_str());
   }
   if (def!= 0) {
     Cout << STR("------------------ Parsed Data Dump ------------------\n");

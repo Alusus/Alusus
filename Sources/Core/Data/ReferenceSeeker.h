@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Seeker.h
- * Contains the header of class Core::Data::Seeker.
+ * @file Core/Data/ReferenceSeeker.h
+ * Contains the header of class Core::Data::ReferenceSeeker.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,15 +10,15 @@
  */
 //==============================================================================
 
-#ifndef DATA_SEEKER_H
-#define DATA_SEEKER_H
+#ifndef DATA_REFERENCESEEKER_H
+#define DATA_REFERENCESEEKER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class Seeker
+class ReferenceSeeker
 {
   //============================================================================
   // Member Variables
@@ -29,11 +29,11 @@ class Seeker
   //============================================================================
   // Constructor & Destructor
 
-  public: Seeker(const Provider *prov=0) : dataProvider(prov)
+  public: ReferenceSeeker(const Provider *prov=0) : dataProvider(prov)
   {
   }
 
-  public: ~Seeker()
+  public: ~ReferenceSeeker()
   {
   }
 
@@ -79,21 +79,21 @@ class Seeker
   /// @name Data Read Functions
   /// @{
 
-  public: const SharedPtr<IdentifiableObject>& get(ReferenceSegment *seg, IdentifiableObject *parent) const;
+  public: const SharedPtr<IdentifiableObject>& getShared(ReferenceSegment *seg, IdentifiableObject *parent) const;
 
-  public: Bool tryGet(ReferenceSegment *seg, IdentifiableObject *parent,
+  public: Bool tryGetShared(ReferenceSegment *seg, IdentifiableObject *parent,
                       SharedPtr<IdentifiableObject> &result) const;
 
-  public: void get(ReferenceSegment *seg, IdentifiableObject *parent,
+  public: void getShared(ReferenceSegment *seg, IdentifiableObject *parent,
                    SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
 
-  public: void get(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
+  public: void getShared(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
                    SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
 
-  public: Bool tryGet(ReferenceSegment *seg, IdentifiableObject *parent,
+  public: Bool tryGetShared(ReferenceSegment *seg, IdentifiableObject *parent,
                       SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
 
-  public: Bool tryGet(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
+  public: Bool tryGetShared(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
                       SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
 
   /// @}
@@ -116,10 +116,10 @@ class Seeker
   /// @name Data Write Functions
   /// @{
 
-  public: void set(ReferenceSegment *seg, IdentifiableObject *parent,
+  public: void setShared(ReferenceSegment *seg, IdentifiableObject *parent,
                    const SharedPtr<IdentifiableObject> &val) const;
 
-  public: Bool trySet(ReferenceSegment *seg, IdentifiableObject *parent,
+  public: Bool trySetShared(ReferenceSegment *seg, IdentifiableObject *parent,
                       const SharedPtr<IdentifiableObject> &val) const;
 
   public: void setPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *val) const;

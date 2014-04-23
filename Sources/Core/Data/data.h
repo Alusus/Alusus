@@ -74,7 +74,7 @@ enumeration(TermFlags, ERROR_SYNC_TERM=(2<<16), ONE_ROUTE_TERM=(2<<17));
  * @ingroup data
  *
  * This enumeration is used to specifiy the type of the operation happneing on
- * Containers. This is used by Container::contentChangeNotifier.
+ * Containers. This is used by containers' contentChangeNotifier.
  *
  * ADD: The operation is an addition of a new element.
  * UPDATE: The operation is an update of an existing element.
@@ -151,13 +151,17 @@ Module* findAssociatedLexerModule(Module *module, Provider *provider);
 #include "DataOwner.h"
 #include "IdOwner.h"
 #include "Initializable.h"
-#include "Container.h"
-#include "ListContainer.h"
-#include "MapContainer.h"
+// SharedContainer Interfaces
+#include "SharedContainer.h"
+#include "ListSharedContainer.h"
+#include "MapSharedContainer.h"
 #include "PlainContainer.h"
 #include "ListPlainContainer.h"
 #include "MapPlainContainer.h"
+// Provider Interfaces
 #include "Provider.h"
+#include "PlainProvider.h"
+#include "SharedProvider.h"
 
 // Data Types
 #include "Integer.h"
@@ -177,8 +181,8 @@ Module* findAssociatedLexerModule(Module *module, Provider *provider);
 #include "ReferenceParser.h"
 
 // Seekers and Data Providers
-#include "Seeker.h"
-#include "RawSeeker.h"
+#include "ReferenceSeeker.h"
+#include "QualifierSeeker.h"
 #include "DataStore.h"
 #include "DataStack.h"
 #include "DataContext.h"

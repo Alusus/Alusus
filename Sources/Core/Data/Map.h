@@ -34,13 +34,13 @@ namespace Core { namespace Data
  * the position of the elements for faster access.
  */
 class Map : public IdentifiableObject,
-            public virtual Initializable, public virtual DataOwner, public virtual MapContainer
+            public virtual Initializable, public virtual DataOwner, public virtual MapSharedContainer
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Map, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(IdentifiableObject, Initializable, DataOwner, MapContainer);
+  IMPLEMENT_INTERFACES_3(IdentifiableObject, Initializable, DataOwner, MapSharedContainer);
 
 
   //============================================================================
@@ -156,7 +156,7 @@ class Map : public IdentifiableObject,
 
   private: void removeInheritted();
 
-  private: void onParentContentChanged(Container *obj, ContentChangeOp op, Int index);
+  private: void onParentContentChanged(SharedContainer *obj, ContentChangeOp op, Int index);
 
   private: void onAdded(Int index);
 
@@ -235,9 +235,9 @@ class Map : public IdentifiableObject,
 
 
   //============================================================================
-  // MapContainer Implementation
+  // MapSharedContainer Implementation
 
-  /// @name MapContainer Implementation
+  /// @name MapSharedContainer Implementation
   /// @{
 
   /// Change the value at the specified index.

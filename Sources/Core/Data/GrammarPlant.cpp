@@ -27,11 +27,11 @@ void GrammarPlant::createGrammar()
   this->createCharGroupDefinitions();
   this->createTokenDefinitions();
   this->createProductionDefinitions();
-  this->generateConstTokenDefinitions(this->store.getRootModule()->getInterface<Container>());
+  this->generateConstTokenDefinitions(this->store.getRootModule()->getInterface<SharedContainer>());
 }
 
 
-void GrammarPlant::generateConstTokenDefinitions(Container *container)
+void GrammarPlant::generateConstTokenDefinitions(SharedContainer *container)
 {
   for (Int i = 0; static_cast<Word>(i) < container->getCount(); ++i) {
     IdentifiableObject *obj = container->get(i).get();
@@ -43,7 +43,7 @@ void GrammarPlant::generateConstTokenDefinitions(Container *container)
         this->generateConstTokenDefinitions(static_cast<Term*>(term));
       }
     }
-    Container *childContainer = obj->getInterface<Container>();
+    SharedContainer *childContainer = obj->getInterface<SharedContainer>();
     if (childContainer != 0) {
       this->generateConstTokenDefinitions(childContainer);
     }
@@ -97,7 +97,7 @@ void GrammarPlant::generateConstTokensForStrings(IdentifiableObject *obj)
       this->addConstToken(map->getKey(i).c_str());
     }
   } else {
-    Container *container = obj->getInterface<Container>();
+    SharedContainer *container = obj->getInterface<SharedContainer>();
     if (container != 0) {
       for (Word i = 0; i < container->getCount(); ++i) {
         this->generateConstTokensForStrings(container->get(i).get());

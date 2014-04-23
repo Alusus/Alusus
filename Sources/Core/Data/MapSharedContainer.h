@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/MapContainer.h
- * Contains the header of interface Data::MapContainer.
+ * @file Core/Data/MapSharedContainer.h
+ * Contains the header of interface Data::MapSharedContainer.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,34 +10,34 @@
  */
 //==============================================================================
 
-#ifndef DATA_MAP_CONTAINER_H
-#define DATA_MAP_CONTAINER_H
+#ifndef DATA_MAPSHAREDCONTAINER_H
+#define DATA_MAPSHAREDCONTAINER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class MapContainer : public Container
+class MapSharedContainer : public SharedContainer
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(MapContainer, Container, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(MapSharedContainer, SharedContainer, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: using Container::set;
+  public: using SharedContainer::set;
 
   public: virtual Int set(const Char *key, const SharedPtr<IdentifiableObject> &val) = 0;
 
-  public: using Container::remove;
+  public: using SharedContainer::remove;
 
   public: virtual void remove(const Char *key) = 0;
 
-  public: using Container::get;
+  public: using SharedContainer::get;
 
   public: virtual const SharedPtr<IdentifiableObject>& get(const Char *key) const = 0;
 

@@ -145,7 +145,7 @@ Term* GrammarHelper::useListTermChild(DataContext *context, ListTerm *term, Int 
                                STR("Core::Data::GrammarHelper::useListTermChild"));
       }
       IdentifiableObject *val = static_cast<List*>(data)->get(index).get();
-      context->setValue(term->getTargetRef().get(), val);
+      context->setPlainValue(term->getTargetRef().get(), val);
       ASSERT(term->getTerms()->isDerivedFrom<Term>());
       return static_cast<Term*>(term->getTerms().get());
     }
