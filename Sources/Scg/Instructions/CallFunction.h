@@ -86,7 +86,7 @@ public:
   const List *GetArguments() const { return reinterpret_cast<List*>(children[0]); }
   List *GetArguments() { return reinterpret_cast<List*>(children[0]); }
 
-  //! @copydoc Expression::GenerateCode()
+  //! @copydoc Expression::GetValueType()
   virtual const ValueType *GetValueType() const;
 
 private:

@@ -32,7 +32,7 @@ ValueTypeSpec *CreateArrayOfPrimitiveTypeSpec(const std::string &name, int size)
   return new ArrayValueTypeSpec(new ValueTypeSpecByName(name), size);
 }
 
-/*std::string BuildSimpleTest(const ExpressionArray &mainBody,
+std::string BuildSimpleTest(const ExpressionArray &mainBody,
     const std::vector<Expression*> &headerStatements)
 {
   LlvmContainer::Initialize();
@@ -55,7 +55,7 @@ ValueTypeSpec *CreateArrayOfPrimitiveTypeSpec(const std::string &name, int size)
   LlvmContainer::Finalize();
 
   return irCode;
-}*/
+}
 
 std::string RunSimpleTest(const ExpressionArray &mainBody,
     const std::vector<Expression*> &headerStatements)

@@ -19,6 +19,7 @@ namespace llvm
   class BasicBlock;
   class BranchInst;
   class CallInst;
+  class CastInst;
   class ConstantFolder;
   class Function;
   class GetElementPtrInst;

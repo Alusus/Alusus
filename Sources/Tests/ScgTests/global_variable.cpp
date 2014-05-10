@@ -17,9 +17,6 @@ using namespace Scg;
 
 // TODO: This was copied from StructureTests.cpp. It should be defined in
 // a separate header file instead to avoid duplication.
-#define CONTENT(expr) new Content(expr)
-#define VAR_PTR(name) new PointerToVariable(name)
-#define VAR(name) CONTENT(VAR_PTR(name))
 
 namespace Tests { namespace ScgTests
 {

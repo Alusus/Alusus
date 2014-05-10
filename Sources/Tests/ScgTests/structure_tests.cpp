@@ -18,34 +18,6 @@ using namespace Scg;
 namespace Tests { namespace ScgTests
 {
 
-#define DEFINE_STRUCT(name) new DefineStruct(name, {
-#define STRUCT_FIELD(type, name) VariableDefinition(TYPE(type), name)
-#define FUNC_ARG(type, name) VariableDefinition(TYPE(type), name)
-#define END_DEFINE_STRUCT() })
-#define DEF_VAR(type, name) new DefineVariable(TYPE(type), name)
-#define DEF_ARRAY(type, name, size) new DefineVariable(CreateArrayOfPrimitiveTypeSpec(type, size), name)
-
-#define TYPE(name) CreateTypeSpecByName(name)
-
-// Referencing variables.
-#define CONTENT(expr) new Content(expr)
-#define VAR_PTR(name) new PointerToVariable(name)
-#define VAR(name) CONTENT(VAR_PTR(name))
-#define FIELD_PTR(var, field) new PointerToMemberField(var, field)
-#define FIELD(var, field) CONTENT(FIELD_PTR(var, field))
-#define ELEM_PTR(var, index) new PointerToArrayElement(var, new IntegerConst(index))
-#define ELEM(var, index) CONTENT(ELEM_PTR(var, new IntegerConst(index)))
-#define FIELD_OF_ELEM(name, index, field) CONTENT(FIELD_PTR(ELEM_PTR(VAR_PTR(name), index), field))
-
-// Constants
-#define INT_CONST(value) new IntegerConst(value)
-#define STR_CONST(value) new StringConst(value)
-#define ASSIGN(lhs, rhs) new AssignmentOperator(lhs, rhs)
-
-// Different statements
-#define CALL(name, ...) new CallFunction(name, new List({__VA_ARGS__}))
-#define RET(expr) new Return(expr)
-#define RET_ZERO() new Return(new IntegerConst(0))
 
 bool TestDefineAndUseStructure()
 {
