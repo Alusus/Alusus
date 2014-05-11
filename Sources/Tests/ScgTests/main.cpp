@@ -23,7 +23,9 @@ bool RunAllBinaryOperatorsTests();
 bool RunHelloWorldTest();
 bool RunHelloWorldTwoModulesTest();
 bool RunAllStructureTests();
-bool RunCastIntToFloatTest();
+bool RunCastToIntTest();
+bool RunCastToDoubleTest();
+bool RunCastToFloatTest();
 
 } } // namespace
 
@@ -44,7 +46,9 @@ int main(int argc, char **argv)
   if (!RunHelloWorldTest()) result = EXIT_FAILURE;
   if (!RunHelloWorldTwoModulesTest()) result = EXIT_FAILURE;
   if (!RunAllStructureTests()) result = EXIT_FAILURE;
-  if (!RunCastIntToFloatTest()) result = EXIT_FAILURE;
+  if (!RunCastToIntTest()) result = EXIT_FAILURE;
+  if (!RunCastToDoubleTest()) result = EXIT_FAILURE;
+  if (!RunCastToFloatTest()) result = EXIT_FAILURE;
 
   return result;
 }

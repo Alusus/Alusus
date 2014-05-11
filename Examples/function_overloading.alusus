@@ -20,4 +20,4 @@ def FunctionOverloading : module {
   }
 };
 
-run FunctionOverloading;
+build FunctionOverloading;

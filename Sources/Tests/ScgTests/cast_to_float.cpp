@@ -19,14 +19,18 @@ using namespace Scg;
 namespace Tests { namespace ScgTests
 {
 
-bool RunCastIntToFloatTest()
+bool RunCastToFloatTest()
 {
   std::cout << RunSimpleTest({
     DEF_VAR("int", "intValue"),
     ASSIGN(VAR("intValue"), INT(5)),
+    DEF_VAR("float", "floatValue"),
+    ASSIGN(VAR("floatValue"), FLOAT(5.0f)),
     DEF_VAR("double", "doubleValue"),
-    ASSIGN(VAR("doubleValue"), new CastIntToDouble(VAR("intValue"))),
-    CALL("printf", STR("%f!\n"), VAR("doubleValue")),
+    ASSIGN(VAR("doubleValue"), DOUBLE(5.0)),
+    CALL("printf", STR("%f!\n"), new CastToDouble(new CastToFloat(VAR("intValue")))),
+    CALL("printf", STR("%f!\n"), new CastToDouble(new CastToFloat(VAR("floatValue")))),
+    CALL("printf", STR("%f!\n"), new CastToDouble(new CastToFloat(VAR("doubleValue")))),
     RET(INT(0))
   }, {
       new DeclareExtFunction("printf", CreateTypeSpecByName("int"),

@@ -43,8 +43,9 @@
 #include <macros.h>
 #include <Operators/AssignmentOperator.h>
 #include <Operators/BinaryOperator.h>
-#include <Operators/CastIntToDouble.h>
-#include <Operators/CastIntToFloat.h>
+#include <Operators/CastToDouble.h>
+#include <Operators/CastToFloat.h>
+#include <Operators/CastToInt.h>
 #include <Operators/Content.h>
 #include <Operators/PointerToArrayElement.h>
 #include <Operators/PointerToMemberField.h>

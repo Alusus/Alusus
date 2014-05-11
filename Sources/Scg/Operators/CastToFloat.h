@@ -1,5 +1,5 @@
 /**
- * @file Scg/Operators/CastIntToDouble.h
+ * @file Scg/Operators/CastToFloat.h
  *
  * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
  *
@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __CastIntToDouble_h__
-#define __CastIntToDouble_h__
+#ifndef __CastToFloat_h__
+#define __CastToFloat_h__
 
 // Scg header files
 #include <typedefs.h>
@@ -25,7 +25,7 @@ namespace Scg
 /**
  * Represents a binary operator.
  */
-class CastIntToDouble : public Expression
+class CastToFloat : public Expression
 {
 private:
   //! Storing the LLVM cast inst so that it can be freed after code generation.
@@ -36,7 +36,7 @@ public:
    * Construct an integer-to-float casting operator.
    * @param[in] operand The operand of the operator.
    */
-  CastIntToDouble(Expression *operand)
+  CastToFloat(Expression *operand)
   {
     children.push_back(operand);
   }
@@ -63,4 +63,4 @@ public:
 };
 }
 
-#endif // __CastIntToDouble_h__
+#endif // __CastToFloat_h__
