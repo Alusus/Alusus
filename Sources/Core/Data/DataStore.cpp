@@ -71,7 +71,7 @@ void DataStore::setSharedValue(Reference *ref, const SharedPtr<IdentifiableObjec
     SharedPtr<IdentifiableObject> dummy;
     SharedPtr<Module> module;
     this->getSharedValue(ref, dummy, module);
-    initializable->initialize(this, module);
+    initializable->initialize(this->getInterface<Provider>(), module);
   }
 }
 
@@ -96,8 +96,63 @@ void DataStore::setSharedValue(const Char *qualifier, const SharedPtr<Identifiab
     SharedPtr<IdentifiableObject> dummy;
     SharedPtr<Module> module;
     this->getSharedValue(qualifier, dummy, module);
-    initializable->initialize(this, module);
+    initializable->initialize(this->getInterface<Provider>(), module);
   }
+}
+
+
+Bool DataStore::trySetSharedValue(Reference *ref, const SharedPtr<IdentifiableObject> &obj)
+{
+  if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) {
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::setSharedValue"),
+                                   STR("Reference must be of type ROOT or UNKNOWN."),
+                                   ref->getScope().val);
+  }
+  if (!this->referenceSeeker.trySetShared(ref->getSegment().get(), this->root.get(), obj)) return false;
+
+  // TODO: We can remove this part if/when we start handling IDs in definition signals.
+  // Set the id for the new object.
+  Str qualifierStr = ReferenceParser::getQualifier(ref);
+  const Char *qualifier = qualifierStr.c_str();
+  if (compareStr(qualifier, STR("root."), 5) == 0) qualifier += 5;
+  this->setId(obj.get(), qualifier);
+
+  Initializable *initializable = obj->getInterface<Initializable>();
+  if (initializable != 0) {
+    SharedPtr<IdentifiableObject> dummy;
+    SharedPtr<Module> module;
+    this->getSharedValue(ref, dummy, module);
+    initializable->initialize(this->getInterface<Provider>(), module);
+  }
+
+  return true;
+}
+
+
+Bool DataStore::trySetSharedValue(const Char *qualifier, const SharedPtr<IdentifiableObject> &obj)
+{
+  ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
+  if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) {
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::setSharedValue"),
+                                   STR("Reference must be of type ROOT or UNKNOWN."),
+                                   scope.val);
+  }
+  if (!this->qualifierSeeker.trySetShared(qualifier, this->root.get(), obj)) return false;
+
+  // TODO: We can remove this part if/when we start handling IDs in definition signals.
+  // Set the id for the new object.
+  if (compareStr(qualifier, STR("root."), 5) == 0) qualifier += 5;
+  this->setId(obj.get(), qualifier);
+
+  Initializable *initializable = obj->getInterface<Initializable>();
+  if (initializable != 0) {
+    SharedPtr<IdentifiableObject> dummy;
+    SharedPtr<Module> module;
+    this->getSharedValue(qualifier, dummy, module);
+    initializable->initialize(this->getInterface<Provider>(), module);
+  }
+
+  return true;
 }
 
 
@@ -204,6 +259,29 @@ void DataStore::removeValue(const Char *qualifier)
                                    scope.val);
   }
   this->qualifierSeeker.remove(qualifier, this->root.get());
+}
+
+
+Bool DataStore::tryRemoveValue(Reference *ref)
+{
+  if (ref->getScope() != ReferenceScope::ROOT && ref->getScope() != ReferenceScope::UNKNOWN) {
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::removeValue"),
+                                   STR("Reference must be of type ROOT or UNKNOWN."),
+                                   ref->getScope().val);
+  }
+  return this->referenceSeeker.tryRemove(ref->getSegment().get(), this->root.get());
+}
+
+
+Bool DataStore::tryRemoveValue(const Char *qualifier)
+{
+  ReferenceScope scope = ReferenceParser::parseQualifierScope(qualifier);
+  if (scope != ReferenceScope::ROOT && scope != ReferenceScope::UNKNOWN) {
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::DataStore::removeValue"),
+                                   STR("Reference must be of type ROOT or UNKNOWN."),
+                                   scope.val);
+  }
+  return this->qualifierSeeker.tryRemove(qualifier, this->root.get());
 }
 
 

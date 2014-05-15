@@ -39,6 +39,10 @@ class Provider : public IdentifiableInterface
 
   public: virtual void removeValue(const Char *qualifier) = 0;
 
+  public: virtual Bool tryRemoveValue(Reference *ref) = 0;
+
+  public: virtual Bool tryRemoveValue(const Char *qualifier) = 0;
+
   /// @}
 
   /// @name Exception Based Data Retrieval Functions

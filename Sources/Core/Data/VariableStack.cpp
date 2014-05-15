@@ -47,16 +47,17 @@ void VariableStack::reinitialize(Word maxStrSize, Word reservedRecordCount, Word
   this->reservedRecordCount = reservedRecordCount;
   this->buffer = new Byte[this->reservedRecordCount * this->getRecordSize()];
 
-  if (this->isEmpty()) return;
-  else if (oldStrSize == this->maxStrSize) {
-    memcpy(this->buffer, oldBuf, this->getRecordSize()*this->levels.back());
-  } else {
-    for (Int i = 0; static_cast<Word>(i) < this->levels.back(); ++i) {
-      Byte *destBuf = this->buffer + i*this->getRecordSize();
-      Byte *srcBuf = oldBuf + i*VariableStack::getRecordSize(oldStrSize);
-      sbstr_cast(destBuf).assign(sbstr_cast(srcBuf), this->maxStrSize);
-      *reinterpret_cast<IdentifiableObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
-          *reinterpret_cast<IdentifiableObject**>(srcBuf+sizeof(Char)*oldStrSize);
+  if (!this->isEmpty()) {
+    if (oldStrSize == this->maxStrSize) {
+      memcpy(this->buffer, oldBuf, this->getRecordSize()*this->levels.back());
+    } else {
+      for (Int i = 0; static_cast<Word>(i) < this->levels.back(); ++i) {
+        Byte *destBuf = this->buffer + i*this->getRecordSize();
+        Byte *srcBuf = oldBuf + i*VariableStack::getRecordSize(oldStrSize);
+        sbstr_cast(destBuf).assign(sbstr_cast(srcBuf), this->maxStrSize);
+        *reinterpret_cast<IdentifiableObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
+            *reinterpret_cast<IdentifiableObject**>(srcBuf+sizeof(Char)*oldStrSize);
+      }
     }
   }
   delete[] oldBuf;

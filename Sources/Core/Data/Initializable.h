@@ -18,7 +18,7 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class DataStore;
+class Provider;
 class Module;
 
 class Initializable : public IdentifiableInterface
@@ -32,7 +32,7 @@ class Initializable : public IdentifiableInterface
   //============================================================================
   // Abstract Functions
 
-  public: virtual void initialize(DataStore *store, const SharedPtr<Module> &module) = 0;
+  public: virtual void initialize(Provider *provider, const SharedPtr<Module> &module) = 0;
 
 }; // class
 

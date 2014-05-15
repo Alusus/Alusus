@@ -143,7 +143,7 @@ class GrammarModule : public Module, public virtual Initializable
   /// @name Initializable Implementation
   /// @{
 
-  public: virtual void initialize(DataStore *store, const SharedPtr<Module> &module);
+  public: virtual void initialize(Provider *provider, const SharedPtr<Module> &module);
 
   /// @}
 

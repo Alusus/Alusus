@@ -142,6 +142,16 @@ class DataContext : public IdentifiableObject, public virtual PlainProvider
     this->qualifierSeeker.setPlain(qualifier, this->getStartingParent(qualifier), val);
   }
 
+  public: virtual Bool trySetPlainValue(Reference *ref, IdentifiableObject *val)
+  {
+    return this->referenceSeeker.trySetPlain(ref->getSegment().get(), this->getStartingParent(ref->getScope()), val);
+  }
+
+  public: virtual Bool trySetPlainValue(const Char *qualifier, IdentifiableObject *val)
+  {
+    return this->qualifierSeeker.trySetPlain(qualifier, this->getStartingParent(qualifier), val);
+  }
+
   public: virtual void removeValue(Reference *ref)
   {
     this->referenceSeeker.remove(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
@@ -150,6 +160,16 @@ class DataContext : public IdentifiableObject, public virtual PlainProvider
   public: virtual void removeValue(const Char *qualifier)
   {
     this->qualifierSeeker.remove(qualifier, this->getStartingParent(qualifier));
+  }
+
+  public: virtual Bool tryRemoveValue(Reference *ref)
+  {
+    return this->referenceSeeker.tryRemove(ref->getSegment().get(), this->getStartingParent(ref->getScope()));
+  }
+
+  public: virtual Bool tryRemoveValue(const Char *qualifier)
+  {
+    return this->qualifierSeeker.tryRemove(qualifier, this->getStartingParent(qualifier));
   }
 
   public: virtual IdentifiableObject* getPlainValue(Reference *ref) const

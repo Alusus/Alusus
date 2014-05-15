@@ -118,9 +118,9 @@ class List : public IdentifiableObject, public virtual DataOwner, public virtual
   public: virtual const SharedPtr<IdentifiableObject>& get(Int index) const;
 
   /// Add a new object to the list.
-  public: virtual void add(const SharedPtr<IdentifiableObject> &obj)
+  public: virtual void add(const SharedPtr<IdentifiableObject> &val)
   {
-    this->list.push_back(obj);
+    this->list.push_back(val);
   }
 
 }; // class

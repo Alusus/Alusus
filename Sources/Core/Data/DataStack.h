@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_DATA_STACK_H
-#define DATA_DATA_STACK_H
+#ifndef DATA_DATASTACK_H
+#define DATA_DATASTACK_H
 
 namespace Core { namespace Data
 {

@@ -38,6 +38,10 @@ class PlainProvider : public Provider
 
   public: virtual void setPlainValue(const Char *qualifier, IdentifiableObject *val) = 0;
 
+  public: virtual Bool trySetPlainValue(Reference *ref, IdentifiableObject *val) = 0;
+
+  public: virtual Bool trySetPlainValue(const Char *qualifier, IdentifiableObject *val) = 0;
+
   /// @}
 
 }; // class

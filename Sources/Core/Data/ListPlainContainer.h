@@ -29,7 +29,7 @@ class ListPlainContainer : public virtual PlainContainer
   //============================================================================
   // Abstract Functions
 
-  public: virtual void add(IdentifiableObject *obj) = 0;
+  public: virtual void add(IdentifiableObject *val) = 0;
 
 }; // class
 

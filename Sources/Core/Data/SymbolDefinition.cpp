@@ -154,9 +154,9 @@ void SymbolDefinition::onParentElementChanged(SymbolDefinition *obj, SymbolDefCh
 //==============================================================================
 // Initializable Implementation
 
-void SymbolDefinition::initialize(DataStore *store, const SharedPtr<Module> &module)
+void SymbolDefinition::initialize(Provider *provider, const SharedPtr<Module> &module)
 {
-  GrammarHelper helper(store->getInterface<Provider>());
+  GrammarHelper helper(provider);
   if (this->parentReference != 0) {
     IdentifiableObject *p = helper.traceValue(this->parentReference.get(), module.get());
     if (p == 0) {

@@ -38,6 +38,10 @@ class SharedProvider : public Provider
 
   public: virtual void setSharedValue(const Char *qualifier, const SharedPtr<IdentifiableObject> &obj) = 0;
 
+  public: virtual Bool trySetSharedValue(Reference *ref, const SharedPtr<IdentifiableObject> &obj) = 0;
+
+  public: virtual Bool trySetSharedValue(const Char *qualifier, const SharedPtr<IdentifiableObject> &obj) = 0;
+
   /// @}
 
   /// @name Exception Based Shared Data Retrieval Functions

@@ -96,6 +96,10 @@ class DataStore : public IdentifiableObject, public virtual SharedProvider
 
   public: virtual void setSharedValue(const Char *qualifier, const SharedPtr<IdentifiableObject> &obj);
 
+  public: virtual Bool trySetSharedValue(Reference *ref, const SharedPtr<IdentifiableObject> &obj);
+
+  public: virtual Bool trySetSharedValue(const Char *qualifier, const SharedPtr<IdentifiableObject> &obj);
+
   public: virtual const SharedPtr<IdentifiableObject>& getSharedValue(Reference *ref) const;
 
   public: virtual void getSharedValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal,
@@ -124,6 +128,10 @@ class DataStore : public IdentifiableObject, public virtual SharedProvider
   public: virtual void removeValue(Reference *ref);
 
   public: virtual void removeValue(const Char *qualifier);
+
+  public: virtual Bool tryRemoveValue(Reference *ref);
+
+  public: virtual Bool tryRemoveValue(const Char *qualifier);
 
   public: virtual IdentifiableObject* getPlainValue(Reference *ref) const;
 
