@@ -61,6 +61,30 @@ namespace Scg
     {
       return &typeSpec;
     }
+
+    //! @copydoc ValueType::GetImplicitCastingOperator()
+    virtual const ValueTypeArray &GetImplicitCastingTargets() const
+    {
+      THROW_EXCEPTION(NotImplementedException, "Not implemented yet for pointers.");
+    }
+
+    //! @copydoc ValueType::GetExplicitCastingTargets()
+    virtual const ValueTypeArray &GetExplicitCastingTargets() const
+    {
+      THROW_EXCEPTION(NotImplementedException, "Not implemented yet for pointers.");
+    }
+
+    //! @copydoc ValueType::GetImplicitCastingOperator()
+    virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
+    {
+      THROW_EXCEPTION(NotImplementedException, "Not implemented yet for pointers.");
+    }
+
+    //! @copydoc ValueType::GetExplicitCastingOperator()
+    virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
+    {
+      THROW_EXCEPTION(NotImplementedException, "Not implemented yet for pointers.");
+    }
   };
 }
 

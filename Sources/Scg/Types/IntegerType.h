@@ -57,6 +57,20 @@ namespace Scg
       return &typeSpec;
     }
 
+    //! @copydoc ValueType::GetImplicitCastingTargets()
+    const ValueTypeArray &GetImplicitCastingTargets() const;
+
+    //! @copydoc ValueType::GetExplicitCastingTargets()
+    const ValueTypeArray &GetExplicitCastingTargets() const;
+
+    //! @copydoc ValueType::GetImplicitCastingOperator()
+    virtual CastingOperator *GetImplicitCastingOperator(
+        const ValueType *targetType, Expression *expr) const;
+
+    //! @copydoc ValueType::GetExplicitCastingOperator()
+    virtual CastingOperator *GetExplicitCastingOperator(
+        const ValueType *targetType, Expression *expr) const;
+
     static IntegerType *GetSingleton() { return s_singleton; }
   };
 }

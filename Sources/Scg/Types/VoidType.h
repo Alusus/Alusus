@@ -57,6 +57,30 @@ namespace Scg
     {
       return &typeSpec;
     }
+
+    //! @copydoc ValueType::GetImplicitCastingOperator()
+    virtual const ValueTypeArray &GetImplicitCastingTargets() const
+    {
+      return this->implicitCastingTargets;
+    }
+
+    //! @copydoc ValueType::GetExplicitCastingTargets()
+    virtual const ValueTypeArray &GetExplicitCastingTargets() const
+    {
+      return this->explicitCastingTargets;
+    }
+
+    //! @copydoc ValueType::GetImplicitCastingOperator()
+    virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
+    {
+      THROW_EXCEPTION(InvalidOperationException, "Void type cannot be casted.");
+    };
+
+    //! @copydoc ValueType::GetExplicitCastingOperator()
+    virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
+    {
+      THROW_EXCEPTION(NotImplementedException, "Void type cannot be casted.");
+    }
   };
 }
 

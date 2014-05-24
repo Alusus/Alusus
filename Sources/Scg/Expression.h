@@ -270,7 +270,7 @@ namespace Scg
      *
      * @return The string representation.
      */
-    virtual std::string ToString() { return ""; }
+    virtual std::string ToString() const { return ""; }
 
   private:
     virtual void SetModule(Module *module);

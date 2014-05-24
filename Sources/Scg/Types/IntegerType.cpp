@@ -16,8 +16,13 @@
 #include <llvm/IR/DerivedTypes.h>
 
 // Scg header files
-#include <Types/IntegerType.h>
 #include <LlvmContainer.h>
+#include <Operators/CastToDouble.h>
+#include <Operators/CastToFloat.h>
+#include <Operators/CastToInt.h>
+#include <Types/DoubleType.h>
+#include <Types/FloatType.h>
+#include <Types/IntegerType.h>
 
 // LLVM header files
 #include <llvm/ADT/APInt.h>
@@ -41,5 +46,71 @@ namespace Scg
   {
     return llvm::ConstantInt::get(LlvmContainer::GetContext(),
       llvm::APInt(sizeof(value) * 8, value, true));
+  }
+
+  //----------------------------------------------------------------------------
+
+  const ValueTypeArray &IntegerType::GetImplicitCastingTargets() const
+  {
+    if (this->implicitCastingTargets.size() == 0)
+    {
+      this->implicitCastingTargets.push_back(DoubleType::GetSingleton());
+      this->implicitCastingTargets.push_back(FloatType::GetSingleton());
+      this->implicitCastingTargets.push_back(IntegerType::GetSingleton());
+    }
+    return this->implicitCastingTargets;
+  }
+
+  //----------------------------------------------------------------------------
+
+  const ValueTypeArray &IntegerType::GetExplicitCastingTargets() const
+  {
+    if (this->explicitCastingTargets.size() == 0)
+    {
+      this->explicitCastingTargets.push_back(DoubleType::GetSingleton());
+      this->explicitCastingTargets.push_back(FloatType::GetSingleton());
+      this->explicitCastingTargets.push_back(IntegerType::GetSingleton());
+    }
+    return this->explicitCastingTargets;
+  }
+
+  //----------------------------------------------------------------------------
+
+  CastingOperator *IntegerType::GetImplicitCastingOperator(
+      const ValueType *targetType, Expression *expr) const
+  {
+    if (targetType == DoubleType::GetSingleton()) {
+      return new CastToDouble(expr);
+    }
+    else if (targetType == FloatType::GetSingleton()) {
+      return new CastToFloat(expr);
+    }
+    else if (targetType == IntegerType::GetSingleton()) {
+      return new CastToInt(expr);
+    }
+    else {
+      THROW_EXCEPTION(InvalidCastException,
+          "Integer cannot be casted to " + targetType->ToString());
+    }
+  }
+
+  //----------------------------------------------------------------------------
+
+  CastingOperator *IntegerType::GetExplicitCastingOperator(
+      const ValueType *targetType, Expression *expr) const
+  {
+    if (targetType == DoubleType::GetSingleton()) {
+      return new CastToDouble(expr);
+    }
+    else if (targetType == FloatType::GetSingleton()) {
+      return new CastToFloat(expr);
+    }
+    else if (targetType == IntegerType::GetSingleton()) {
+      return new CastToInt(expr);
+    }
+    else {
+      THROW_EXCEPTION(InvalidCastException,
+          std::string("Integer cannot be casted to ") + targetType->ToString());
+    }
   }
 }

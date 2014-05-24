@@ -13,9 +13,11 @@
 #define __CastToDouble_h__
 
 // Scg header files
-#include <typedefs.h>
-#include <exceptions.h>
 #include <Expression.h>
+#include <Operators/CastingOperator.h>
+#include <exceptions.h>
+#include <typedefs.h>
+
 
 // LLVM forward declarations
 #include <llvm_fwd.h>
@@ -25,7 +27,7 @@ namespace Scg
 /**
  * Represents a binary operator.
  */
-class CastToDouble : public Expression
+class CastToDouble : public CastingOperator
 {
 private:
   //! Storing the LLVM cast inst so that it can be freed after code generation.

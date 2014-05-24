@@ -35,6 +35,7 @@ class Variable;
 
 typedef std::vector<Scg::Function*> FunctionArray;
 typedef std::map<std::string, Scg::Function*> FunctionMap;
+typedef std::vector<Scg::ValueType*> ValueTypeArray;
 typedef std::map<std::string, Scg::ValueType*> ValueTypeMap;
 typedef std::map<std::string, Scg::Variable*> VariableMap;
 typedef std::vector<Scg::Expression*> ExpressionArray;

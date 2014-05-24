@@ -12,8 +12,13 @@
 #include <prerequisites.h>
 
 // Scg header files
-#include <Types/DoubleType.h>
 #include <LlvmContainer.h>
+#include <Operators/CastToDouble.h>
+#include <Operators/CastToFloat.h>
+#include <Operators/CastToInt.h>
+#include <Types/DoubleType.h>
+#include <Types/FloatType.h>
+#include <Types/IntegerType.h>
 
 // LLVM header files
 #include <llvm/IR/Constants.h>
@@ -40,5 +45,62 @@ namespace Scg
   {
     return llvm::ConstantFP::get(LlvmContainer::GetContext(),
       llvm::APFloat(value));
+  }
+
+  //----------------------------------------------------------------------------
+
+  const ValueTypeArray &DoubleType::GetImplicitCastingTargets() const
+  {
+    if (this->implicitCastingTargets.size() == 0)
+    {
+      this->implicitCastingTargets.push_back(DoubleType::GetSingleton());
+    }
+    return this->implicitCastingTargets;
+  }
+
+  //----------------------------------------------------------------------------
+
+  const ValueTypeArray &DoubleType::GetExplicitCastingTargets() const
+  {
+    if (this->explicitCastingTargets.size() == 0)
+    {
+      this->explicitCastingTargets.push_back(DoubleType::GetSingleton());
+      this->explicitCastingTargets.push_back(FloatType::GetSingleton());
+      this->explicitCastingTargets.push_back(IntegerType::GetSingleton());
+    }
+    return this->explicitCastingTargets;
+  }
+
+  //----------------------------------------------------------------------------
+
+  CastingOperator *DoubleType::GetImplicitCastingOperator(
+      const ValueType *targetType, Expression *expr) const
+  {
+    if (targetType == DoubleType::GetSingleton()) {
+      return new CastToDouble(expr);
+    }
+    else {
+      THROW_EXCEPTION(InvalidCastException, "Integer cannot be casted to " + targetType->ToString());
+    }
+  }
+
+  //----------------------------------------------------------------------------
+
+  CastingOperator *DoubleType::GetExplicitCastingOperator(
+      const ValueType *targetType, Expression *expr) const
+  {
+    if (targetType == DoubleType::GetSingleton()) {
+      return new CastToDouble(expr);
+    }
+    else if (targetType == FloatType::GetSingleton()) {
+      return new CastToFloat(expr);
+    }
+    else if (targetType == IntegerType::GetSingleton()) {
+      return new CastToInt(expr);
+    }
+    else {
+      THROW_EXCEPTION(InvalidCastException,
+          "Integer cannot be casted to " + targetType->ToString());
+    }
   }
 }

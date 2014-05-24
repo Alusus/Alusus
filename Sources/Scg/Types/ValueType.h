@@ -12,8 +12,9 @@
 #ifndef __ValueType_h__
 #define __ValueType_h__
 
-// Scg header files
+// SCG header files
 #include <Expression.h>
+#include <Operators/CastingOperator.h>
 #include <typedefs.h>
 
 // LLVM forward declarations
@@ -37,6 +38,8 @@ protected:
   llvm::Type *llvmType;
   //! The number of variables of this type defined.
   mutable int varCount;
+  mutable ValueTypeArray implicitCastingTargets;
+  mutable ValueTypeArray explicitCastingTargets;
 
 protected:
   //! Default constructor
@@ -103,6 +106,44 @@ public:
    * automatically freed by the type, hence shouldn't be freed by the caller.
    */
   virtual const ValueTypeSpec *GetValueTypeSpec() const = 0;
+
+  /**
+   * Retrieves a list of the types that this type can be implicitly casted to.
+   * @return A list of the types that this type can be implicitly casted to.
+   */
+  virtual const ValueTypeArray &GetImplicitCastingTargets() const = 0;
+
+  /**
+   * Retrieves a list of the types that this type can be explicitly casted to.
+   * @return A list of the types that this type can be explicitly casted to.
+   */
+  virtual const ValueTypeArray &GetExplicitCastingTargets() const = 0;
+
+  // TODO: Consider changing the name of the function since it now receives an
+  // expression as well. Maybe ImplicitlyCastExpression?
+
+  /**
+   * Retrieves an operator that implicitly casts a variable of this type to the
+   * given type.
+   * @param[in] targetType  A pointer to the target casting type.
+   * @return A pointer to the required casting operator. This should be freed
+   * by the caller.
+   */
+  virtual CastingOperator *GetImplicitCastingOperator(
+      const ValueType *targetType, Expression *expr) const = 0;
+
+  // TODO: Consider changing the name of the function since it now receives an
+  // expression as well. Maybe ExplicitlyCastExpression?
+
+  /**
+   * Retrieves an operator that explicitly casts a variable of this type to the
+   * given type.
+   * @param[in] targetType  A pointer to the target casting type.
+   * @return A pointer to the required casting operator. This should be freed
+   * by the caller.
+   */
+  virtual CastingOperator *GetExplicitCastingOperator(
+      const ValueType *targetType, Expression *expr) const = 0;
 
   /**
    * Gets a primitive type having the given name.
