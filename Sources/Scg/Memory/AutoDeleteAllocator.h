@@ -35,8 +35,9 @@ public:
 
   ~AutoDeleteAllocator()
   {
-    for (auto it : allocatedBuffers)
+    for (auto it : allocatedBuffers) {
       free(it);
+    }
   }
 
 public:

@@ -46,7 +46,7 @@ void RunParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *
       for (auto i = 0; i < this->rootManager->getDefinitionsStore()->getRootModule()->getCount(); i++) {
         auto statList = this->rootManager->getDefinitionsStore()->getRootModule()->get(i).io_cast<Data::Module>();
         Module *module = generator.GenerateModule(statList);
-        program.GetModules().push_back(module);
+        program.AddModule(module);
       }
       program.Execute("main");
       LlvmContainer::Finalize();

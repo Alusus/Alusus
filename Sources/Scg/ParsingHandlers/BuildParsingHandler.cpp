@@ -51,7 +51,7 @@ void BuildParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State
         Cout << STR("---------------------- IR Code -----------------------\n");
         module->Compile();
         Cout << STR("------------------------------------------------------\n");
-        program.GetModules().push_back(module);
+        program.AddModule(module);
       }
       Cout << STR("---------------------- IR Code -----------------------\n");
       Cout << program.Compile();

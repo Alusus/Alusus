@@ -41,12 +41,36 @@ class Program
   ModuleArray modules;
 
 public:
+  /**
+   * Class constructor.
+   */
   Program() {}
-  ~Program() {}
+
+  /**
+   * Class destructor.
+   */
+  ~Program()
+  {
+    for (auto module : this->modules) {
+      delete module;
+    }
+    this->modules.clear();
+  }
 
 public:
   const ModuleArray &GetModules() const { return modules; }
   ModuleArray &GetModules() { return modules; }
+
+  /**
+   * Adds the given module to the program.
+   * @param[in] module  A pointer to the module to be added. Notice that this
+   *                    should be allocated in the heap and is going to be
+   *                    freed by the program so the user shouldn't free it.
+   */
+  void AddModule(Module *module)
+  {
+    this->modules.push_back(module);
+  }
 
   /**
    * Finds the DefineFunction instructions that generates functions matching

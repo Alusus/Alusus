@@ -94,8 +94,10 @@ const Variable *Block::GetVariable(const std::string &name) const
       if (!this->llvmBasicBlock->hasNUses(0))
         // Cannot free the block yet; stay in PostCodeGeneration stage.
         return CodeGenerationStage::PostCodeGeneration;
-      this->llvmBasicBlock->eraseFromParent(); this->llvmBasicBlock = 0;
-      delete this->irBuilder; this->irBuilder = 0;
+      this->llvmBasicBlock->eraseFromParent();
+      this->llvmBasicBlock = nullptr;
+      delete this->irBuilder;
+      this->irBuilder = nullptr;
     }
 
     return CodeGenerationStage::None;

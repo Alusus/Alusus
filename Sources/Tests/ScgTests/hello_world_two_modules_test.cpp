@@ -70,8 +70,8 @@ bool RunHelloWorldTwoModulesTest()
   //mainModule->Compile();
   //printModule->Compile();
   Program program;
-  program.GetModules().push_back(mainModule);
-  program.GetModules().push_back(printModule);
+  program.AddModule(mainModule);
+  program.AddModule(printModule);
   //std::cout << program.Compile();
   program.Execute("main");
 

@@ -153,6 +153,12 @@ public:
    * @return A pointer to the type.
    */
   static ValueType *GetPrimitiveType(const std::string &typeName);
+
+public:
+  static void *operator new[] (size_t size) = delete;
+  static void operator delete[] (void *ptr) = delete;
+  static void *operator new (size_t size);
+  static void operator delete (void *ptr);
 };
 }
 
