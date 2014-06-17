@@ -46,29 +46,29 @@ class TermLevel
   private: Data::Term *term;
 
   /// @sa setParam1()
-  private: IdentifiableObject *param1;
+  private: Data::PlainModulePairedPtr param1;
 
   /// @sa setParam2()
-  private: IdentifiableObject *param2;
+  private: Data::PlainModulePairedPtr param2;
 
   /// @sa setParam3()
-  private: IdentifiableObject *param3;
+  private: Data::PlainModulePairedPtr param3;
 
 
   //============================================================================
   // Constructors / Destructor
 
   /// Initialize all members to 0.
-  public: TermLevel() : posId(0), term(0), param1(0), param2(0), param3(0)
+  public: TermLevel() : posId(0), term(0)
   {
   }
 
   /// Copy the state level and increment data users count.
   public: TermLevel(const TermLevel &level) : posId(level.getPosId()),
     term(level.getTerm()),
-    param1(level.getParam1()),
-    param2(level.getParam2()),
-    param3(level.getParam3())
+    param1(*(level.getParam1())),
+    param2(*(level.getParam2())),
+    param3(*(level.getParam3()))
   {
   }
 
@@ -113,20 +113,18 @@ class TermLevel
   }
 
   /**
-   * @brief Set a first parameter for the level's term.
+   * @brief Get a first parameter for the level's term.
    * This is used for optimization purposes, to avoid tracing the term's
    * parameters everytime the level is revisited. This is needed mainly for
    * concat terms, alternate terms, as well as multiply terms.
    */
-  protected: void setParam1(IdentifiableObject *p)
+  protected: Data::PlainModulePairedPtr* getParam1()
   {
-    this->param1 = p;
+    return &this->param1;
   }
-
-  /// @sa setParam1()
-  public: IdentifiableObject* getParam1() const
+  protected: Data::PlainModulePairedPtr const* getParam1() const
   {
-    return this->param1;
+    return &this->param1;
   }
 
   /**
@@ -135,15 +133,13 @@ class TermLevel
    * parameters everytime the level is revisited. This is needed mainly for
    * concat terms, alternate terms, as well as multiply terms.
    */
-  protected: void setParam2(IdentifiableObject *p)
+  protected: Data::PlainModulePairedPtr* getParam2()
   {
-    this->param2 = p;
+    return &this->param2;
   }
-
-  /// @sa setParam2()
-  public: IdentifiableObject* getParam2() const
+  protected: Data::PlainModulePairedPtr const* getParam2() const
   {
-    return this->param2;
+    return &this->param2;
   }
 
   /**
@@ -152,24 +148,22 @@ class TermLevel
    * parameters everytime the level is revisited. This is needed mainly for
    * concat terms, alternate terms, as well as multiply terms.
    */
-  protected: void setParam3(IdentifiableObject *p)
+  protected: Data::PlainModulePairedPtr* getParam3()
   {
-    this->param3 = p;
+    return &this->param3;
   }
-
-  /// @sa setParam3()
-  public: IdentifiableObject* getParam3() const
+  protected: Data::PlainModulePairedPtr const* getParam3() const
   {
-    return this->param3;
+    return &this->param3;
   }
 
   public: void copyFrom(TermLevel *src)
   {
     this->setTerm(src->getTerm());
     this->setPosId(src->getPosId());
-    this->setParam1(src->getParam1());
-    this->setParam2(src->getParam2());
-    this->setParam3(src->getParam3());
+    this->param1 = *src->getParam1();
+    this->param2 = *src->getParam2();
+    this->param3 = *src->getParam3();
   }
 
 }; // class

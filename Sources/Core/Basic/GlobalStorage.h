@@ -52,9 +52,9 @@ class GlobalStorage
   //============================================================================
   // Member Functions
 
-  public: void* getObject(const Char *desc);
+  public: void* getObject(Char const *desc);
 
-  public: void setObject(const Char *desc, void *object);
+  public: void setObject(Char const *desc, void *object);
 
   /// Get the singleton object.
   public: static GlobalStorage* getSingleton();

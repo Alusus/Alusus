@@ -111,7 +111,7 @@ void GenericParsingHandler::onTermEnd(Parser::StateMachine *machine, Parser::Sta
  * @sa ParsingHandler::onLevelExit()
  */
 void GenericParsingHandler::onLevelExit(Parser::StateMachine *machine, Parser::State *state,
-                                        const SharedPtr<IdentifiableObject> &data)
+                                        SharedPtr<IdentifiableObject> const &data)
 {
   if (state->refTopTermLevel().getTerm()->isA<Data::ReferenceTerm>()) {
     ASSERT(state->getData() == 0);
@@ -302,7 +302,7 @@ void GenericParsingHandler::onProdCancelling(Parser::StateMachine *machine, Pars
  * the index of the upper level, and will keep doing so recursively until it
  * hits the production's root or a term that can accept the new data.
  */
-void GenericParsingHandler::setChildData(const SharedPtr<IdentifiableObject> &data, Parser::State *state,
+void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &data, Parser::State *state,
                                          Int levelIndex)
 {
   // Get the state level.

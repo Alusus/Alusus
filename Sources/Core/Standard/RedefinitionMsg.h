@@ -35,7 +35,7 @@ class RedefinitionMsg : public Common::BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: RedefinitionMsg(const Char *n, Int l, Int c) : name(n), Common::BuildMsg(l, c)
+  public: RedefinitionMsg(Char const *n, Int l, Int c) : name(n), Common::BuildMsg(l, c)
   {
   }
 

@@ -291,7 +291,7 @@ enumeration(LogLevel,
  * This wrapper is needed for future purposes. The main purpose of this is to
  * allow easy conversion of the program from ascii to unicode.
  */
-inline Int compareStr(const Char *str1, const Char *str2)
+inline Int compareStr(Char const *str1, Char const *str2)
 {
     return strcmp(str1, str2);
 }
@@ -303,7 +303,7 @@ inline Int compareStr(const Char *str1, const Char *str2)
  * This wrapper is needed for future purposes. The main purpose of this is to
  * allow easy conversion of the program from ascii to unicode.
  */
-inline Int compareStr(const Char *str1, const Char *str2, Int size)
+inline Int compareStr(Char const *str1, Char const *str2, Int size)
 {
     return strncmp(str1, str2, size);
 }
@@ -315,7 +315,7 @@ inline Int compareStr(const Char *str1, const Char *str2, Int size)
  * This wrapper is needed for future purposes. The main purpose of this is to
  * allow easy conversion of the program from ascii to unicode.
  */
-inline void copyStr(const Char *src, Char *dest, Word size)
+inline void copyStr(Char const *src, Char *dest, Word size)
 {
     strncpy(dest, src, size);
 }
@@ -327,7 +327,7 @@ inline void copyStr(const Char *src, Char *dest, Word size)
  * This wrapper is needed for future purposes. The main purpose of this is to
  * allow easy conversion of the program from ascii to unicode.
  */
-inline Word getStrLen(const Char *str)
+inline Word getStrLen(Char const *str)
 {
     return strlen(str);
 }

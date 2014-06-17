@@ -16,10 +16,12 @@
 namespace Core { namespace Data
 {
 
-// TODO: DOC
-
 /**
- * @brief A reference to a variable.
+ * @brief A reference to an object within a data tree.
+ * This class is the base class of all reference classes and it represents a
+ * single node within a reference chain. Instances of classes derived from this
+ * class can be chained together to reach objects within other objects in a
+ * hierarchical way.
  * @ingroup data
  */
 class Reference : public IdentifiableObject, public virtual DataOwner
@@ -34,20 +36,14 @@ class Reference : public IdentifiableObject, public virtual DataOwner
   //============================================================================
   // Member Variables
 
-  private: ReferenceScope scope;
-
-  private: SharedPtr<ReferenceSegment> segment;
+  /// @sa setNext()
+  private: SharedPtr<Reference> next;
 
 
   //============================================================================
   // Constructor
 
-  /**
-     * @brief Initializes the id with a given object.
-     * @sa setId()
-     */
-  public: Reference(const SharedPtr<ReferenceSegment> &seg=SharedPtr<ReferenceSegment>(),
-                    ReferenceScope t=ReferenceScope::UNKNOWN) : segment(seg), scope(t)
+  protected: Reference()
   {
   }
 
@@ -60,55 +56,164 @@ class Reference : public IdentifiableObject, public virtual DataOwner
   // Operators
 
   /// @sa compare()
-  public: Bool operator==(const Reference &r) const
+  public: Bool operator==(Reference const &r) const
   {
-    return this->compare(&r) == 0;
+    return this->compare(&r);
   }
 
-  public: Bool operator==(const SharedPtr<Reference> &r) const
+  /// @sa compare()
+  public: Bool operator==(SharedPtr<Reference> const &r) const
   {
-    return this->compare(r.get()) == 0;
+    return this->compare(r.get());
   }
 
 
   //============================================================================
   // Member Functions
 
-  public: void setSegment(const SharedPtr<ReferenceSegment> &seg)
+  /// @name Main Functions
+  /// @{
+
+  /**
+   * @brief Set the next object in the reference chain.
+   * The next object in the chain will be referencing an object within whatever
+   * is referenced by this object.
+   */
+  public: void setNext(SharedPtr<Reference> const &n)
   {
-    this->segment = seg;
+    this->next = n;
   }
 
-  public: const SharedPtr<ReferenceSegment>& getSegment() const
+  /// @sa setNext()
+  public: SharedPtr<Reference> const& getNext() const
   {
-    return this->segment;
+    return this->next;
   }
 
-  /// Return the last segment in the chain.
-  public: const SharedPtr<ReferenceSegment>& getLastSegment();
+  /**
+   * @brief Get the last Reference object in the chain.
+   * This is useful for things like getting the immediate name
+   * of a variable rather than the full path leading to it. For example, if
+   * this chain represents "module1.map1.var1" then calling this function will
+   * return the Reference object corresponding to "var1".
+   */
+  public: static Reference* getLastNode(Reference *reference);
 
-  public: void setScope(ReferenceScope s)
-  {
-    this->scope = s;
-  }
+  /**
+   * @brief A SharedPtr version of getLastNode.
+   * @sa getLastNode()
+   */
+  public: static SharedPtr<Reference> const& getLastNode(SharedPtr<Reference> const &reference);
 
-  public: ReferenceScope getScope() const
-  {
-    return this->scope;
-  }
+  /**
+   * @brief Compares this reference with another reference.
+   * Implementation should only compare properties specific to the inherited
+   * class and should call the parent implementation to compare the rest of
+   * the chain.
+   */
+  public: virtual Bool compare(Reference const *r) const;
 
-  /// Compares this reference with another reference.
-  public: Bool compare(const Reference *r) const;
+  /// @}
 
+  /// @name Abstract Functions
+  /// @{
 
-  //============================================================================
-  // DataOwner Implementation
+  /**
+   * @brief Inform the object of the intended usage for this reference.
+   * The intended use helps the object determine caching criteria.
+   * @sa ReferenceUsageCriteria
+   */
+  public: virtual void setUsageCriteria(ReferenceUsageCriteria criteria) = 0;
+
+  /**
+   * @brief Set a SharedPtr value on the given parent object.
+   * @param index A reference to a variable that will store an index value used
+   *              for multi match searches. This will allow a next call to
+   *              continue the search from where it left. If the value was set
+   *              to -1 after the call it means no more matches are there.
+   *              Single match references will always set it to -1.
+   * @return True if the operation was successful.
+   */
+  public: virtual Bool setShared(Provider const *provider, IdentifiableObject *parent,
+                                 SharedPtr<IdentifiableObject> const &obj, Int &index) const = 0;
+
+  /**
+   * @brief Set a plain value on the given parent object.
+   * @param index A reference to a variable that will store an index value used
+   *              for multi match searches. This will allow a next call to
+   *              continue the search from where it left. If the value was set
+   *              to -1 after the call it means no more matches are there.
+   *              Single match references will always set it to -1.
+   * @return True if the operation was successful.
+   */
+  public: virtual Bool setPlain(Provider const *provider, IdentifiableObject *parent,
+                                IdentifiableObject *obj, Int &index) const = 0;
+
+  /**
+   * @brief Remove the value from the given parent object.
+   * @param index A reference to a variable that will store an index value used
+   *              for multi match searches. This will allow a next call to
+   *              continue the search from where it left. If the value was set
+   *              to -1 after the call it means no more matches are there.
+   *              Single match references will always set it to -1.
+   * @return True if the operation was successful.
+   */
+  public: virtual Bool remove(Provider const *provider, IdentifiableObject *parent, Int &index) const = 0;
+
+  /**
+   * @brief Get the SharedPtr value from the given parent object.
+   * @param index A reference to a variable that will store an index value used
+   *              for multi match searches. This will allow a next call to
+   *              continue the search from where it left. If the value was set
+   *              to -1 after the call it means no more matches are there.
+   *              Single match references will always set it to -1.
+   * @return True if the operation was successful.
+   */
+  public: virtual Bool getShared(Provider const *provider, IdentifiableObject const *parent,
+                                 SharedPtr<IdentifiableObject> &result, Int &index) const = 0;
+
+  /**
+   * @brief Get the plain value from the given parent object.
+   * @param index A reference to a variable that will store an index value used
+   *              for multi match searches. This will allow a next call to
+   *              continue the search from where it left. If the value was set
+   *              to -1 after the call it means no more matches are there.
+   *              Single match references will always set it to -1.
+   * @return True if the operation was successful.
+   */
+  public: virtual Bool getPlain(Provider const *provider, IdentifiableObject const *parent,
+                                IdentifiableObject *&result, Int &index) const = 0;
+
+  /*
+   * TODO: If we need to optimize reference seeking by retruning a reference to
+   * a SharedPtr instead of copying the SharedPtr then we need to implement the
+   * following two methods and utilize them in reference seekers as well as
+   * repositories.
+   *
+   * The first of the following should work for multiple matches and return 0
+   * when no matches are found. This will be used to loop through parents in
+   * reference seekers since in that case it makes no difference whether the
+   * parent entry didn't exist, or it existed but had a value of 0.
+   *
+   * The second should work on single matches and only return the first match
+   * or raise an exception if none was found.
+  public: virtual SharedPtr<IdentifiableObject> const& getShared(Provider const *provider, IdentifiableObject *parent,
+                                                                 Int &index) const = 0;
+  public: virtual SharedPtr<IdentifiableObject> const& getShared(Provider const *provider, IdentifiableObject *parent) const = 0;
+  */
+
+  /// @}
+
+  /// @name DataOwner Implementation
+  /// @{
 
   /// @sa DataOwner::unsetIndexes()
   public: virtual void unsetIndexes(Int from, Int to)
   {
-    if (this->segment != 0) this->segment->unsetIndexes(from, to);
+    if (this->next != 0) this->next->unsetIndexes(from, to);
   }
+
+  /// @}
 
 }; // class
 

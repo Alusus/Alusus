@@ -23,7 +23,7 @@ class GrammarPlant
   //============================================================================
   // Member Variables
 
-  protected: DataStore store;
+  protected: GrammarRepository repository;
 
 
   //============================================================================
@@ -65,11 +65,11 @@ class GrammarPlant
 
   // TODO: Replace this pure function with default implementation when the lexer is modified to use the Data
   //       namespace.
-  protected: virtual Word addConstToken(const Char *text) = 0;
+  protected: virtual Word addConstToken(Char const *text) = 0;
 
-  public: DataStore* getStore()
+  public: GrammarRepository* getRepository()
   {
-    return &this->store;
+    return &this->repository;
   }
 
 }; // class

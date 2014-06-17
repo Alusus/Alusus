@@ -35,43 +35,39 @@ class Provider : public IdentifiableInterface
   /// @name Data Removal Functions
   /// @{
 
-  public: virtual void removeValue(Reference *ref) = 0;
+  public: virtual void removeValue(Reference const *ref) = 0;
 
-  public: virtual void removeValue(const Char *qualifier) = 0;
+  public: virtual void removeValue(Char const *qualifier) = 0;
 
-  public: virtual Bool tryRemoveValue(Reference *ref) = 0;
+  public: virtual Bool tryRemoveValue(Reference const *ref) = 0;
 
-  public: virtual Bool tryRemoveValue(const Char *qualifier) = 0;
+  public: virtual Bool tryRemoveValue(Char const *qualifier) = 0;
 
   /// @}
 
   /// @name Exception Based Data Retrieval Functions
   /// @{
 
-  public: virtual IdentifiableObject* getPlainValue(Reference *ref) const = 0;
+  public: virtual IdentifiableObject* getPlainValue(Reference const *ref) const = 0;
 
-  public: virtual void getPlainValue(Reference *ref, IdentifiableObject *&retVal,
-                                     Module *&retModule) const = 0;
+  public: virtual void getPlainValue(Reference const *ref, PlainModulePairedPtr &retVal) = 0;
 
-  public: virtual IdentifiableObject* getPlainValue(const Char *qualifier) const = 0;
+  public: virtual IdentifiableObject* getPlainValue(Char const *qualifier) const = 0;
 
-  public: virtual void getPlainValue(const Char *qualifier, IdentifiableObject *&retVal,
-                                     Module *&retModule) const = 0;
+  public: virtual void getPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal) = 0;
 
   /// @}
 
   /// @name Return-Value Based Data Retrieval Functions
   /// @{
 
-  public: virtual Bool tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal) const = 0;
+  public: virtual Bool tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal) const = 0;
 
-  public: virtual Bool tryGetPlainValue(Reference *ref, IdentifiableObject *&retVal,
-                                        Module *&retModule) const = 0;
+  public: virtual Bool tryGetPlainValue(Reference const *ref, PlainModulePairedPtr &retVal) = 0;
 
-  public: virtual Bool tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal) const = 0;
+  public: virtual Bool tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal) const = 0;
 
-  public: virtual Bool tryGetPlainValue(const Char *qualifier, IdentifiableObject *&retVal,
-                                        Module *&retModule) const = 0;
+  public: virtual Bool tryGetPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal) = 0;
 
   /// @}
 

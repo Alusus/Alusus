@@ -33,7 +33,7 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to)
 }
 
 
-Module* findAssociatedLexerModule(Module *module, Provider *provider)
+/*Module* findAssociatedLexerModule(Module *module, PlainProvider *provider)
 {
   GrammarModule *grammarModule = io_cast<GrammarModule>(module);
   // Check if we need to switch the lexer module.
@@ -50,9 +50,33 @@ Module* findAssociatedLexerModule(Module *module, Provider *provider)
   Module *lm = io_cast<Module>(lmo);
   if (lm == 0) {
     throw GeneralException(STR("The module has an invalid lexer module reference."),
-                           STR("Core::Data::DataContext::findAssociatedLexerModule"));
+                           STR("Core::Data::findAssociatedLexerModule"));
   }
   return lm;
+}*/
+
+
+void setTreeIds(IdentifiableObject *obj, const Char *id)
+{
+  IdOwner *ido = ii_cast<IdOwner>(obj);
+  if (ido != 0) ido->setId(ID_GENERATOR->getId(id));
+
+  MapSharedContainer *map; SharedContainer *list;
+  if ((map = ii_cast<MapSharedContainer>(obj)) != 0) {
+    Str childId;
+    for (Int i = 0; static_cast<Word>(i) < map->getCount(); ++i) {
+      childId = id;
+      childId += CHR('.');
+      childId += map->getKey(i).c_str();
+      setTreeIds(map->get(i).get(), childId.c_str());
+    }
+  } else if ((list = ii_cast<SharedContainer>(obj)) != 0) {
+    for (Int i = 0; static_cast<Word>(i) < list->getCount(); ++i) {
+      StrStream childId;
+      childId << id << CHR('.') << i;
+      setTreeIds(list->get(i).get(), childId.str().c_str());
+    }
+  }
 }
 
 } } // namespace

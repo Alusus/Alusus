@@ -78,7 +78,7 @@ class BuildMsg : public IdentifiableObject
   {
   }
 
-  public: BuildMsg(Int l, Int c, const Char *fn) : line(l), column(c), filename(fn)
+  public: BuildMsg(Int l, Int c, Char const *fn) : line(l), column(c), filename(fn)
   {
   }
 
@@ -141,7 +141,7 @@ class BuildMsg : public IdentifiableObject
    * This is the full path and filename of the source file associated with the
    * message.
    */
-  public: void setFileName(const Char *fn)
+  public: void setFileName(Char const *fn)
   {
     this->filename = fn;
   }

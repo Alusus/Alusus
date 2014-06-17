@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/List.h
- * Contains the header of class Core::Data::List.
+ * @file Core/Data/SharedList.h
+ * Contains the header of class Core::Data::SharedList.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -31,12 +31,12 @@ namespace Core { namespace Data
  * of contained objects, the user must manually delete objects that are no
  * longer needed.
  */
-class List : public IdentifiableObject, public virtual DataOwner, public virtual ListSharedContainer
+class SharedList : public IdentifiableObject, public virtual DataOwner, public virtual ListSharedContainer
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(List, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(SharedList, IdentifiableObject, "Core.Data", "Core", "alusus.net");
   IMPLEMENT_INTERFACES_2(IdentifiableObject, DataOwner, ListSharedContainer);
 
 
@@ -50,15 +50,15 @@ class List : public IdentifiableObject, public virtual DataOwner, public virtual
   //============================================================================
   // Constructors
 
-  public: List()
+  public: SharedList()
   {
   }
 
-  public: List(const std::initializer_list<SharedPtr<IdentifiableObject>> &args);
+  public: SharedList(const std::initializer_list<SharedPtr<IdentifiableObject>> &args);
 
-  public: static SharedPtr<List> create(const std::initializer_list<SharedPtr<IdentifiableObject>> &args)
+  public: static SharedPtr<SharedList> create(const std::initializer_list<SharedPtr<IdentifiableObject>> &args)
   {
-    return std::make_shared<List>(args);
+    return std::make_shared<SharedList>(args);
   }
 
 
@@ -103,7 +103,7 @@ class List : public IdentifiableObject, public virtual DataOwner, public virtual
   // ListSharedContainer Implementation
 
   /// Change the element at the specified index.
-  public: virtual void set(Int index, const SharedPtr<IdentifiableObject> &val);
+  public: virtual void set(Int index, SharedPtr<IdentifiableObject> const &val);
 
   /// Remove the element at the specified index.
   public: virtual void remove(Int index);
@@ -115,10 +115,10 @@ class List : public IdentifiableObject, public virtual DataOwner, public virtual
   }
 
   /// Get the object at the specified index.
-  public: virtual const SharedPtr<IdentifiableObject>& get(Int index) const;
+  public: virtual SharedPtr<IdentifiableObject> const& get(Int index) const;
 
   /// Add a new object to the list.
-  public: virtual void add(const SharedPtr<IdentifiableObject> &val)
+  public: virtual void add(SharedPtr<IdentifiableObject> const &val)
   {
     this->list.push_back(val);
   }

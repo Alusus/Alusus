@@ -18,7 +18,7 @@ namespace Core { namespace Basic
 //==============================================================================
 // Member Function
 
-void* GlobalStorage::getObject(const Char *desc)
+void* GlobalStorage::getObject(Char const *desc)
 {
   Int i = this->index.find(Str(desc));
   if (i == -1) {
@@ -29,7 +29,7 @@ void* GlobalStorage::getObject(const Char *desc)
 }
 
 
-void GlobalStorage::setObject(const Char *desc, void *object)
+void GlobalStorage::setObject(Char const *desc, void *object)
 {
   Int i = this->index.find(Str(desc));
   if (i == -1) {

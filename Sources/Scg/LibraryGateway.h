@@ -66,11 +66,11 @@ class LibraryGateway : public Core::Standard::LibraryGateway
 
   public: virtual void uninitialize(Core::Standard::RootManager *manager);
 
-  private: Core::Data::List* GetLeadingCommandsList(Core::Data::DataStore *grammarStore);
+  private: Core::Data::SharedList* GetLeadingCommandsList(Core::Data::GrammarRepository *grammarRepository);
 
-  private: Core::Data::List* GetInnerCommandsList(Core::Data::DataStore *grammarStore);
+  private: Core::Data::SharedList* GetInnerCommandsList(Core::Data::GrammarRepository *grammarRepository);
 
-  private: Core::Data::List* GetTildeCommandsList(Core::Data::DataStore *grammarStore);
+  private: Core::Data::SharedList* GetTildeCommandsList(Core::Data::GrammarRepository *grammarRepository);
 
 }; // class
 

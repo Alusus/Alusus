@@ -23,13 +23,13 @@ class ReferenceSeeker
   //============================================================================
   // Member Variables
 
-  private: const Provider *dataProvider;
+  private: Provider const *dataProvider;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: ReferenceSeeker(const Provider *prov=0) : dataProvider(prov)
+  public: ReferenceSeeker(Provider const *prov=0) : dataProvider(prov)
   {
   }
 
@@ -44,96 +44,76 @@ class ReferenceSeeker
   /// @name Initialization Functions
   /// @{
 
-  public: void setDataProvider(const Provider *prov)
+  public: void setDataProvider(Provider const *prov)
   {
     this->dataProvider = prov;
   }
 
-  public: const Provider* getDataProvider() const
+  public: Provider const* getDataProvider() const
   {
     return this->dataProvider;
   }
 
   /// @}
 
-  /// @name Helper Functions
+  /// @name Shared Data Read Functions
   /// @{
 
-  public: Bool getImmediateContainer(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
-                                     ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
-                                     SharedPtr<Module> &retModule) const;
+  public: SharedPtr<IdentifiableObject> getShared(Reference const *seg, IdentifiableObject const *parent) const;
 
-  public: Bool getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
-                                     ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
-                                     SharedPtr<Module> &retModule) const;
+  public: Bool tryGetShared(Reference const *seg, IdentifiableObject const *parent,
+                            SharedPtr<IdentifiableObject> &result) const;
 
-  public: Bool getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
-                                     ReferenceSegment *&retSeg, IdentifiableObject *&retParent,
-                                     Module *&retModule) const;
+  public: void getShared(Reference const *seg, IdentifiableObject const *parent,
+                         SharedModulePairedPtr &retVal) const;
 
-  public: Bool getImmediateContainer(ReferenceSegment *seg, IdentifiableObject *parent,
-                                     ReferenceSegment *&retSeg, IdentifiableObject *&retParent) const;
+  public: Bool tryGetShared(Reference const *seg, IdentifiableObject const *parent,
+                            SharedModulePairedPtr &retVal) const;
 
-  /// @}
+  public: void getShared(Reference const *seg, SharedPtr<IdentifiableObject> const &parent,
+                         SharedModulePairedPtr &retVal) const;
 
-  /// @name Data Read Functions
-  /// @{
-
-  public: const SharedPtr<IdentifiableObject>& getShared(ReferenceSegment *seg, IdentifiableObject *parent) const;
-
-  public: Bool tryGetShared(ReferenceSegment *seg, IdentifiableObject *parent,
-                      SharedPtr<IdentifiableObject> &result) const;
-
-  public: void getShared(ReferenceSegment *seg, IdentifiableObject *parent,
-                   SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
-
-  public: void getShared(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
-                   SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
-
-  public: Bool tryGetShared(ReferenceSegment *seg, IdentifiableObject *parent,
-                      SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
-
-  public: Bool tryGetShared(ReferenceSegment *seg, const SharedPtr<IdentifiableObject> &parent,
-                      SharedPtr<IdentifiableObject> &retVal, SharedPtr<Module> &retModule) const;
+  public: Bool tryGetShared(Reference const *seg, SharedPtr<IdentifiableObject> const &parent,
+                            SharedModulePairedPtr &retVal) const;
 
   /// @}
 
   /// @name Plain Data Read Functions
   /// @{
 
-  public: IdentifiableObject* getPlain(ReferenceSegment *seg, IdentifiableObject *parent) const;
+  public: IdentifiableObject* getPlain(Reference const *seg, IdentifiableObject const *parent) const;
 
-  public: Bool tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *&result) const;
+  public: Bool tryGetPlain(Reference const *seg, IdentifiableObject const *parent, IdentifiableObject *&result) const;
 
-  public: void getPlain(ReferenceSegment *seg, IdentifiableObject *parent,
-                        IdentifiableObject *&retVal, Module *&retModule) const;
+  public: void getPlain(Reference const *seg, IdentifiableObject *parent,
+                        PlainModulePairedPtr &retVal) const;
 
-  public: Bool tryGetPlain(ReferenceSegment *seg, IdentifiableObject *parent,
-                           IdentifiableObject *&retVal, Module *&retModule) const;
+  public: Bool tryGetPlain(Reference const *seg, IdentifiableObject *parent,
+                           PlainModulePairedPtr &retVal) const;
 
   /// @}
 
   /// @name Data Write Functions
   /// @{
 
-  public: void setShared(ReferenceSegment *seg, IdentifiableObject *parent,
-                   const SharedPtr<IdentifiableObject> &val) const;
+  public: void setShared(Reference const *seg, IdentifiableObject *parent,
+                         SharedPtr<IdentifiableObject> const &val) const;
 
-  public: Bool trySetShared(ReferenceSegment *seg, IdentifiableObject *parent,
-                      const SharedPtr<IdentifiableObject> &val) const;
+  public: Bool trySetShared(Reference const *seg, IdentifiableObject *parent,
+                            SharedPtr<IdentifiableObject> const &val) const;
 
-  public: void setPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *val) const;
+  public: void setPlain(Reference const *seg, IdentifiableObject *parent, IdentifiableObject *val) const;
 
-  public: Bool trySetPlain(ReferenceSegment *seg, IdentifiableObject *parent, IdentifiableObject *val) const;
+  public: Bool trySetPlain(Reference const *seg, IdentifiableObject *parent, IdentifiableObject *val) const;
 
   /// @}
 
   /// @name Data Delete Functions
   /// @{
 
-  public: void remove(ReferenceSegment *seg, IdentifiableObject *parent) const;
+  public: void remove(Reference const *seg, IdentifiableObject *parent) const;
 
-  public: Bool tryRemove(ReferenceSegment *seg, IdentifiableObject *parent) const;
+  public: Bool tryRemove(Reference const *seg, IdentifiableObject *parent) const;
 
   /// @}
 

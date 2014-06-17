@@ -138,7 +138,7 @@ void ModuleParsingHandler::add_link_to_module(const SharedPtr<ParsedItem> &link,
 }
 
 
-const Char* ModuleParsingHandler::get_link_name(const SharedPtr<ParsedItem> &link)
+Char const* ModuleParsingHandler::get_link_name(const SharedPtr<ParsedItem> &link)
 {
     static ParsedDataBrowser funcExpNoRetBrowser(
         STR("0:Expression.FunctionalExp"));

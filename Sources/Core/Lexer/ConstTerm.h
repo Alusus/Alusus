@@ -39,7 +39,7 @@ class ConstTerm : public Term
   {
   }
 
-  public: ConstTerm(const Char *str)
+  public: ConstTerm(Char const *str)
   {
     if (str == 0) {
       throw InvalidArgumentException(STR("str"), STR("Core::Lexer::ConstTerm::ConstTerm"));
@@ -68,7 +68,7 @@ class ConstTerm : public Term
      * allowed. This is to prevent accidentally modifying it while being in use
      * by some state.
      */
-  public: void setMatchString(const Char *str)
+  public: void setMatchString(Char const *str)
   {
     if (str == 0) {
       throw InvalidArgumentException(STR("str"), STR("Core::Lexer::ConstTerm::setMatchString"));

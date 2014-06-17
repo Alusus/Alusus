@@ -46,7 +46,7 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Parser::
         destMap->set(srcMap->getKey(i).c_str(), srcMap->get(i));
       } else if (!mergeContainers(destMap->get(di).get(), srcMap->get(i).get(), state)) {
         // Generate a build message.
-        const Char *name;
+        Char const *name;
         IdOwner *idOwner = srcMap->get(i)->getInterface<IdOwner>();
         if (idOwner != 0) name = ID_GENERATOR->getDesc(idOwner->getId()).c_str();
         else name = srcMap->getKey(i).c_str();
@@ -70,7 +70,7 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Parser::
         destPlainMap->set(srcPlainMap->getKey(i).c_str(), srcPlainMap->get(i));
       } else if (!mergeContainers(destPlainMap->get(di), srcPlainMap->get(i), state)) {
         // Generate a build message.
-        const Char *name;
+        Char const *name;
         IdOwner *idOwner = srcPlainMap->get(i)->getInterface<IdOwner>();
         if (idOwner != 0) name = ID_GENERATOR->getDesc(idOwner->getId()).c_str();
         else name = srcPlainMap->getKey(i).c_str();
@@ -111,13 +111,13 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Parser::
  * SharedContainer interface, the destination will be overwritten after a build msg
  * is created.
  */
-void mergeDefinition(Data::DataStore *store, const Char *qualifier, const SharedPtr<IdentifiableObject> &obj,
-                     Parser::State *state)
+void mergeDefinition(Data::SharedRepository *repository, Char const *qualifier,
+                     SharedPtr<IdentifiableObject> const &obj, Parser::State *state)
 {
   IdentifiableObject *dest;
-  Bool ret = store->tryGetPlainValue(qualifier, dest);
+  Bool ret = repository->tryGetPlainValue(qualifier, dest);
   if (ret == false || dest == 0) {
-    store->setSharedValue(qualifier, obj);
+    repository->setSharedValue(qualifier, obj);
   } else {
     if (!mergeContainers(dest, obj.get(), state)) {
       // Generate a build message.
@@ -129,7 +129,7 @@ void mergeDefinition(Data::DataStore *store, const Char *qualifier, const Shared
       }
       state->addBuildMsg(std::make_shared<RedefinitionMsg>(qualifier, line, column));
       // Overwrite old data.
-      store->setSharedValue(qualifier, obj);
+      repository->setSharedValue(qualifier, obj);
     }
   }
 }

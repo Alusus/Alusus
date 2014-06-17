@@ -15,48 +15,34 @@
 namespace Core { namespace Data
 {
 
-//==============================================================================
-// Member Functions
-
-/**
- * This is useful for things like getting the immediate name
- * of a variable rather than the full path leading to it. For example, if
- * this chain represents "module1.map1.var1" then calling this function will
- * return the Reference object corresponding to "var1".
- */
-const SharedPtr<ReferenceSegment>& Reference::getLastSegment()
+Reference* Reference::getLastNode(Reference *reference)
 {
-  if (this->segment == 0) return this->segment;
+  if (reference->getNext() == 0) return reference;
   else {
-    const SharedPtr<ReferenceSegment> *seg = &this->segment;
-    while ((*seg)->getNext() != 0) seg = &(*seg)->getNext();
-    return *seg;
+    Reference *ref = reference->getNext().get();
+    while (ref->getNext() != 0) ref = ref->getNext().get();
+    return ref;
   }
 }
 
 
-/**
- * This recursive function makes sure the entire chain is equivalent in value.
- * It makes sure that the id of this object and all child objects matches the
- * type and value of their equivalent in r. The chain also has to be of the
- * same length for the result to be true. In other words, if one chain is
- * longer than the other the result is false even if the rest of the chain
- * matches.
- */
-Bool Reference::compare(const Reference *r) const
+const SharedPtr<Reference>& Reference::getLastNode(SharedPtr<Reference> const &reference)
+{
+  if (reference->getNext() == 0) return reference;
+  else {
+    const SharedPtr<Reference> *ref = &reference->getNext();
+    while ((*ref)->getNext() != 0) ref = &(*ref)->getNext();
+    return *ref;
+  }
+}
+
+
+Bool Reference::compare(Reference const *r) const
 {
   if (r == 0) return false;
-  else {
-    ReferenceSegment *seg1 = this->getSegment().get();
-    ReferenceSegment *seg2 = r->getSegment().get();
-    while (seg1 != 0 && seg2 != 0) {
-      if (seg1->compare(seg2) == false) return false;
-      seg1 = seg1->getNext().get();
-      seg2 = seg2->getNext().get();
-    }
-    if (seg1 != 0 || seg2 != 0) return false;
-    else return true;
-  }
+  else if (r->getNext() == 0 && this->getNext() == 0) return true;
+  else if (r->getNext() != 0 && this->getNext() != 0) return this->getNext()->compare(r->getNext().get());
+  else return false;
 }
 
 } } // namespace

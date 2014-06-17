@@ -19,7 +19,7 @@ namespace Core { namespace Data
 //==============================================================================
 // Constructors
 
-Module::Module(const std::initializer_list<Argument<const Char*>> &args) : definitions(true)
+Module::Module(const std::initializer_list<Argument<Char const*>> &args) : definitions(true)
 {
   this->definitions.contentChangeNotifier.connect(this, &Module::onDefinitionsContentChanged);
 

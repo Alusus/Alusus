@@ -32,7 +32,7 @@ void printIndents(int indents)
     }
 }
 
-void debugPrintParsedData(const SharedPtr<IdentifiableObject> &ptr, int indents=0, Bool start_indent=true)
+void debugPrintParsedData(SharedPtr<IdentifiableObject> const &ptr, int indents=0, Bool start_indent=true)
 {
     if (start_indent) printIndents(indents);
     if (ptr == 0) {
@@ -79,7 +79,7 @@ void debugPrintParsedData(const SharedPtr<IdentifiableObject> &ptr, int indents=
         Cout << STR("[MAP]:\n");
         for (Word i = 0; i < mapContainer->getCount(); ++i) {
             printIndents(indents+1);
-            Cout << mapContainer->getKey(i) << STR(": ");
+            Cout << mapContainer->getKey(i).c_str() << STR(": ");
             debugPrintParsedData(mapContainer->get(i), indents+1, false);
         }
     } else {
@@ -103,7 +103,7 @@ void DumpParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State 
   SharedPtr<Standard::ParsedToken> name = nameBrowser.getValue<Standard::ParsedToken>(item);
   SharedPtr<IdentifiableObject> def;
   if (name != 0) {
-    def = this->rootManager->getDefinitionsStore()->getSharedValue(name->getText().c_str());
+    def = this->rootManager->getDefinitionsRepository()->getSharedValue(name->getText().c_str());
   }
   if (def!= 0) {
     Cout << STR("------------------ Parsed Data Dump ------------------\n");

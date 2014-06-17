@@ -58,7 +58,7 @@ class GenericParsingHandler : public Parser::ParsingHandler
 
   /// Called after parsing exists a state level.
   public: virtual void onLevelExit(Parser::StateMachine *machine, Parser::State *state,
-                                   const SharedPtr<IdentifiableObject> &data);
+                                   SharedPtr<IdentifiableObject> const &data);
 
   /// Called when a new successful token is received.
   public: virtual void onNewToken(Parser::StateMachine *machine, Parser::State *state,
@@ -90,7 +90,7 @@ class GenericParsingHandler : public Parser::ParsingHandler
   // TODO:
 
   /// Set the given data (of a child term) into the specified state level.
-  private: void setChildData(const SharedPtr<IdentifiableObject> &data, Parser::State *state, Int levelIndex);
+  private: void setChildData(SharedPtr<IdentifiableObject> const &data, Parser::State *state, Int levelIndex);
 
   /// Conver a string literal text to the actual string.
   private: void parseStringLiteralControlCharacters(const Str &src, Str &dest);

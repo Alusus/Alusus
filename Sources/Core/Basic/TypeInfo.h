@@ -84,8 +84,8 @@ class TypeInfo
    *            identify the module. It can be an empty string.
    * @param baseTypeInfo Pointer to the type info of the base type.
    */
-  public: TypeInfo(const Char *typeName, const Char *typeNamespace, const Char *moduleName,
-                   const Char *url, TypeInfo *baseTypeInfo) :
+  public: TypeInfo(Char const *typeName, Char const *typeNamespace, Char const *moduleName,
+                   Char const *url, TypeInfo *baseTypeInfo) :
     typeName(typeName),
     typeNamespace(typeNamespace),
     moduleName(moduleName),

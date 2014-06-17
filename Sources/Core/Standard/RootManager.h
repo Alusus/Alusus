@@ -33,7 +33,7 @@ class RootManager : public SignalReceiver
 
   private: LibraryManager libraryManager;
 
-  private: Data::DataStore definitionsStore;
+  private: Data::SharedRepository definitionsRepository;
 
 
   //============================================================================
@@ -46,9 +46,9 @@ class RootManager : public SignalReceiver
   //============================================================================
   // Constructors / Destructor
 
-  public: RootManager() : grammarPlant(this), libraryManager(this)
+  public: RootManager() : grammarPlant(this), libraryManager(this), definitionsRepository(10, 10)
   {
-    this->definitionsStore.setRootModule(Data::Module::create({}));
+    this->definitionsRepository.pushLevel(STR("root"), Data::Module::create({}));
   }
 
   public: virtual ~RootManager()
@@ -74,9 +74,9 @@ class RootManager : public SignalReceiver
     return this->grammarPlant.getTokenDefinitions();
   }
 
-  public: virtual Data::DataStore* getGrammarStore()
+  public: virtual Data::GrammarRepository* getGrammarRepository()
   {
-    return this->grammarPlant.getStore();
+    return this->grammarPlant.getRepository();
   }
 
   public: virtual LibraryManager* getLibraryManager()
@@ -84,25 +84,25 @@ class RootManager : public SignalReceiver
     return &this->libraryManager;
   }
 
-  public: virtual Data::DataStore* getDefinitionsStore()
+  public: virtual Data::SharedRepository* getDefinitionsRepository()
   {
-    return &this->definitionsStore;
+    return &this->definitionsRepository;
   }
 
-  public: virtual const SharedPtr<IdentifiableObject> processString(const Char *str)
+  public: virtual SharedPtr<IdentifiableObject> processString(Char const *str)
   {
     Main::Processor processor(this->grammarPlant.getCharGroupDefinitions(),
                               this->grammarPlant.getTokenDefinitions(),
-                              this->grammarPlant.getStore());
+                              this->grammarPlant.getRepository());
     processor.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
     return processor.processString(str);
   }
 
-  public: virtual const SharedPtr<IdentifiableObject> processFile(const Char *filename)
+  public: virtual SharedPtr<IdentifiableObject> processFile(Char const *filename)
   {
     Main::Processor processor(this->grammarPlant.getCharGroupDefinitions(),
                               this->grammarPlant.getTokenDefinitions(),
-                              this->grammarPlant.getStore());
+                              this->grammarPlant.getRepository());
     processor.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
     return processor.processFile(filename);
   }

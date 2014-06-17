@@ -56,7 +56,7 @@ class Exception : public std::exception
   }
 
   /// Get the error message.
-  public: virtual const Char* getErrorMessage() const throw()
+  public: virtual Char const* getErrorMessage() const throw()
   {
     return STR("Unknown Exception");
   }
@@ -94,7 +94,7 @@ class FileException : public Exception
   //============================================================================
   // Constructor
 
-  public: FileException(const Char *fname, Char op, const Char *cmt=0) :
+  public: FileException(Char const *fname, Char op, Char const *cmt=0) :
     fileName(fname), operation(op)
   {
     if (cmt != 0) this->comment = cmt;
@@ -123,7 +123,7 @@ class FileException : public Exception
     return this->comment;
   }
 
-  public: virtual const Char* getErrorMessage() const throw();
+  public: virtual Char const* getErrorMessage() const throw();
 
 }; // class
 
@@ -153,7 +153,7 @@ class MemoryException : public Exception
   //============================================================================
   // Constructor
 
-  public: MemoryException(Char op, const Char *cmt=0) : operation(op)
+  public: MemoryException(Char op, Char const *cmt=0) : operation(op)
   {
     if (cmt != 0) this->comment = cmt;
   }
@@ -176,7 +176,7 @@ class MemoryException : public Exception
     return this->comment;
   }
 
-  public: virtual const Char* getErrorMessage() const throw();
+  public: virtual Char const* getErrorMessage() const throw();
 
 }; // class
 
@@ -212,15 +212,15 @@ class InvalidArgumentException : public Exception
   //============================================================================
   // Constructor
 
-  public: InvalidArgumentException(const Char *argname, const Char *loc=0,
-                                   const Char *cmt=0) :
+  public: InvalidArgumentException(Char const *argname, Char const *loc=0,
+                                   Char const *cmt=0) :
     argumentName(argname)
   {
     if (loc != 0) this->location = loc;
     if (cmt != 0) this->comment = cmt;
   }
 
-  public: template <class T> InvalidArgumentException(const Char *argname, const Char *loc, const Char *cmt,
+  public: template <class T> InvalidArgumentException(Char const *argname, Char const *loc, Char const *cmt,
                                                       const T &argvalue) :
     argumentName(argname)
   {
@@ -259,7 +259,7 @@ class InvalidArgumentException : public Exception
     return this->comment;
   }
 
-  public: virtual const Char* getErrorMessage() const throw();
+  public: virtual Char const* getErrorMessage() const throw();
 
 }; // class
 
@@ -287,7 +287,7 @@ class GeneralException : public Exception
   //============================================================================
   // Constructor
 
-  public: GeneralException(const Char *msg, const Char *loc=0) :
+  public: GeneralException(Char const *msg, Char const *loc=0) :
     message(msg)
   {
     if (loc != 0) this->location = loc;
@@ -311,7 +311,7 @@ class GeneralException : public Exception
     return this->message;
   }
 
-  public: virtual const Char* getErrorMessage() const throw();
+  public: virtual Char const* getErrorMessage() const throw();
 
 }; // class
 

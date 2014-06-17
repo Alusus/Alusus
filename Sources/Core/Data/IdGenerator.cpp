@@ -18,7 +18,7 @@ namespace Core { namespace Data
 //==============================================================================
 // Member Function
 
-Word IdGenerator::getId(const Char *desc)
+Word IdGenerator::getId(Char const *desc)
 {
   Int id = this->index.find(Str(desc));
   if (id == -1) {

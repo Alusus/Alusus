@@ -31,7 +31,7 @@ class Module : public IdentifiableObject,
   //============================================================================
   // Member Variables
 
-  protected: Map definitions;
+  protected: SharedMap definitions;
 
 
   //============================================================================
@@ -42,13 +42,13 @@ class Module : public IdentifiableObject,
     this->definitions.contentChangeNotifier.connect(this, &Module::onDefinitionsContentChanged);
   }
 
-  public: Module(const std::initializer_list<Argument<const Char*>> &args);
+  public: Module(const std::initializer_list<Argument<Char const*>> &args);
 
   public: virtual ~Module()
   {
   }
 
-  public: static SharedPtr<Module> create(const std::initializer_list<Argument<const Char*>> &args)
+  public: static SharedPtr<Module> create(const std::initializer_list<Argument<Char const*>> &args)
   {
     return std::make_shared<Module>(args);
   }
@@ -60,12 +60,12 @@ class Module : public IdentifiableObject,
   /// @name General Functions
   /// @{
 
-  public: const Map* getDefinitions() const
+  public: const SharedMap* getDefinitions() const
   {
     return &this->definitions;
   }
 
-  public: Map* getDefinitions()
+  public: SharedMap* getDefinitions()
   {
     return &this->definitions;
   }
@@ -80,17 +80,17 @@ class Module : public IdentifiableObject,
   /// @name Definitions Access Functions
   /// @{
 
-  public: Int add(const Char *key, const SharedPtr<IdentifiableObject> &val)
+  public: Int add(Char const *key, SharedPtr<IdentifiableObject> const &val)
   {
     return this->definitions.add(key, val);
   }
 
-  public: void insert(Int index, const Char *key, const SharedPtr<IdentifiableObject> &val)
+  public: void insert(Int index, Char const *key, SharedPtr<IdentifiableObject> const &val)
   {
     this->definitions.insert(index, key, val);
   }
 
-  public: Int set(const Char *key, const SharedPtr<IdentifiableObject> &val, Bool insertIfNew)
+  public: Int set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bool insertIfNew)
   {
     return this->definitions.set(key, val, insertIfNew);
   }
@@ -105,7 +105,7 @@ class Module : public IdentifiableObject,
     return this->definitions.isInherited(idx);
   }
 
-  public: Int getIndex(const Char *key) const
+  public: Int getIndex(Char const *key) const
   {
     return this->definitions.getIndex(key);
   }
@@ -119,7 +119,7 @@ class Module : public IdentifiableObject,
   /// @name MapSharedContainer Implementation
   /// @{
 
-  public: virtual void set(Int index, const SharedPtr<IdentifiableObject> &val)
+  public: virtual void set(Int index, SharedPtr<IdentifiableObject> const &val)
   {
     this->definitions.set(index, val);
   }
@@ -134,27 +134,27 @@ class Module : public IdentifiableObject,
     return this->definitions.getCount();
   }
 
-  public: virtual const SharedPtr<IdentifiableObject>& get(Int index) const
+  public: virtual SharedPtr<IdentifiableObject> const& get(Int index) const
   {
     return this->definitions.get(index);
   }
 
-  public: virtual Int set(const Char *key, const SharedPtr<IdentifiableObject> &val)
+  public: virtual Int set(Char const *key, SharedPtr<IdentifiableObject> const &val)
   {
     return this->definitions.set(key, val);
   }
 
-  public: virtual void remove(const Char *key)
+  public: virtual void remove(Char const *key)
   {
     this->definitions.remove(key);
   }
 
-  public: virtual const SharedPtr<IdentifiableObject>& get(const Char *key) const
+  public: virtual SharedPtr<IdentifiableObject> const& get(Char const *key) const
   {
     return this->definitions.get(key);
   }
 
-  public: virtual const Str& getKey(Int index) const
+  public: virtual const SbStr& getKey(Int index) const
   {
     return this->definitions.getKey(index);
   }
@@ -163,7 +163,7 @@ class Module : public IdentifiableObject,
    * @brief Find the index of a specified key.
    * @return The index of the key, or -1 if the key doesn't exist.
    */
-  public: virtual Int findIndex(const Char *key) const
+  public: virtual Int findIndex(Char const *key) const
   {
     return this->definitions.findIndex(key);
   }

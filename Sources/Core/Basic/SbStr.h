@@ -34,12 +34,12 @@ class SbStr
   {
   }
 
-  public: SbStr(const Char *str, Word n, Word bufferSize)
+  public: SbStr(Char const *str, Word n, Word bufferSize)
   {
     this->assign(str, n, bufferSize);
   }
 
-  public: SbStr(const Char *str, Word bufferSize)
+  public: SbStr(Char const *str, Word bufferSize)
   {
     this->assign(str, bufferSize);
   }
@@ -48,7 +48,7 @@ class SbStr
   //============================================================================
   // Operators
 
-  public: Bool operator==(const Char *s) const
+  public: Bool operator==(Char const *s) const
   {
     return compareStr(this->c_str(), s) == 0;
   }
@@ -63,7 +63,7 @@ class SbStr
     return compareStr(this->c_str(), s.c_str()) == 0;
   }
 
-  public: Bool operator>(const Char *s) const
+  public: Bool operator>(Char const *s) const
   {
     return compareStr(this->c_str(), s) > 0;
   }
@@ -78,7 +78,7 @@ class SbStr
     return compareStr(this->c_str(), s.c_str()) > 0;
   }
 
-  public: Bool operator<(const Char *s) const
+  public: Bool operator<(Char const *s) const
   {
     return compareStr(this->c_str(), s) < 0;
   }
@@ -97,18 +97,18 @@ class SbStr
   //============================================================================
   // Functions
 
-  public: void assign(const Char *str, Word n, Word bufferSize);
+  public: void assign(Char const *str, Word n, Word bufferSize);
 
-  public: void assign(const Char *str, Word bufferSize);
+  public: void assign(Char const *str, Word bufferSize);
 
   public: void assign(const SbStr &str, Word bufferSize)
   {
     this->assign(str.c_str(), bufferSize);
   }
 
-  public: void append(const Char *str, Word src_size, Word bufferSize);
+  public: void append(Char const *str, Word src_size, Word bufferSize);
 
-  public: void append(const Char *str, Word bufferSize);
+  public: void append(Char const *str, Word bufferSize);
 
   public: void append(const SbStr &str, Word bufferSize)
   {
@@ -120,9 +120,9 @@ class SbStr
     return getStrLen(this->c_str());
   }
 
-  public: const Char* c_str() const
+  public: Char const* c_str() const
   {
-    return reinterpret_cast<const Char*>(this);
+    return reinterpret_cast<Char const*>(this);
   }
 
 }; // class
@@ -132,9 +132,9 @@ class SbStr
  * @brief Cast any const buffer into a const SbStr object.
  * @ingroup basic_datatypes
  */
-template <class T> const SbStr& sbstr_cast(const T *b)
+template <class T> SbStr const& sbstr_cast(T const *b)
 {
-  return *reinterpret_cast<const SbStr*>(b);
+  return *reinterpret_cast<SbStr const*>(b);
 }
 
 

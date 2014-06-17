@@ -59,17 +59,17 @@ ListTerm::ListTerm(const std::initializer_list<Argument<TermElement>> &args)
   if (this->terms == 0) {
     throw InvalidArgumentException(STR("term"), STR("Core::Data::ListTerm::ListTerm"),
                                    STR("Must not be null."));
-  } else if (this->terms->isDerivedFrom<List>()) {
-    if (this->data != 0 && !this->data->isDerivedFrom<List>() && this->data->isDerivedFrom<Integer>() &&
+  } else if (this->terms->isDerivedFrom<SharedList>()) {
+    if (this->data != 0 && !this->data->isDerivedFrom<SharedList>() && this->data->isDerivedFrom<Integer>() &&
         !this->data->isDerivedFrom<Reference>()) {
       throw InvalidArgumentException(STR("data"), STR("Core::Data::ListTerm::ListTerm"),
-                                     STR("Filters must be of type List, Integer or Reference."));
+                                     STR("Filters must be of type SharedList, Integer or Reference."));
     }
   } else if (this->terms->isDerivedFrom<Term>()) {
-    if (this->data == 0 || (!this->data->isDerivedFrom<List>() &&
+    if (this->data == 0 || (!this->data->isDerivedFrom<SharedList>() &&
                             !this->data->isDerivedFrom<Reference>())) {
       throw InvalidArgumentException(STR("data"), STR("Core::Data::ListTerm::ListTerm"),
-                                     STR("Data must be of type List or Reference."));
+                                     STR("Data must be of type SharedList or Reference."));
     }
     if (this->targetRef == 0) {
       throw InvalidArgumentException(STR("ref"), STR("Core::Data::ListTerm::ListTerm"),
@@ -87,23 +87,23 @@ ListTerm::ListTerm(const std::initializer_list<Argument<TermElement>> &args)
 // Member Functions
 
 /**
- * @param terms A List of Term objects to be used as a static list.
+ * @param terms A SharedList of Term objects to be used as a static list.
  * @param filter An optional filter object. This can either be an Integer
  *               specifying which term is to be active, a list of Integers
  *               (used as booleans) specifying which term is active and
  *               which term isn't, or a Reference to either.
  */
-void ListTerm::setStatic(const SharedPtr<List> &terms, const SharedPtr<IdentifiableObject> &filter)
+void ListTerm::setStatic(const SharedPtr<SharedList> &terms, SharedPtr<IdentifiableObject> const &filter)
 {
   if (terms == 0) {
     throw InvalidArgumentException(STR("terms"), STR("Core::Data::ListTerm::setStatic"),
                                    STR("Cannot be null."));
   }
-  if (filter != 0 && !filter->isA<List>() &&
+  if (filter != 0 && !filter->isA<SharedList>() &&
       !filter->isA<Integer>() &&
-      !filter->isA<Reference>()) {
+      !filter->isDerivedFrom<Reference>()) {
     throw InvalidArgumentException(STR("filter"), STR("Core::Data::ListTerm::setStatic"),
-                                   STR("Must be either List, Integer, or a Reference."));
+                                   STR("Must be either SharedList, Integer, or a Reference."));
   }
   this->terms = terms;
   this->data = filter;
@@ -114,19 +114,19 @@ void ListTerm::setStatic(const SharedPtr<List> &terms, const SharedPtr<Identifia
 /**
  * Dynamic lists are a list of data objects applied on a single term object.
  * @param term A single term object to receive the data list.
- * @param data A List of data objects, or a Reference to such List.
+ * @param data A SharedList of data objects, or a Reference to such SharedList.
  * @param var A reference to the stack variable to be used for the loop.
  */
-void ListTerm::setDynamic(const SharedPtr<Term> &term, const SharedPtr<IdentifiableObject> &data,
+void ListTerm::setDynamic(const SharedPtr<Term> &term, SharedPtr<IdentifiableObject> const &data,
                           const SharedPtr<Reference> &ref)
 {
   if (term == 0) {
     throw InvalidArgumentException(STR("term"), STR("Core::Data::ListTerm::setDynamic"),
                                    STR("Cannot be null."));
   }
-  if (data != 0 && !data->isA<List>() && !data->isA<Reference>()) {
+  if (data == 0 || (!data->isA<SharedList>() && !data->isDerivedFrom<Reference>())) {
     throw InvalidArgumentException(STR("data"), STR("Core::Data::ListTerm::setDynamic"),
-                                   STR("Must be of type List or Reference."));
+                                   STR("Must be of type SharedList or Reference."));
   }
   if (ref == 0) {
     throw InvalidArgumentException(STR("ref"), STR("Core::Data::ListTerm::setDynamic"),
@@ -153,7 +153,7 @@ void ListTerm::reset()
  */
 SharedPtr<Term> ListTerm::getTerm(Int index) const
 {
-  List *list = io_cast<List>(this->terms.get());
+  SharedList *list = io_cast<SharedList>(this->terms.get());
   if (list) {
     if (static_cast<Word>(index) >= list->getCount()) {
       throw InvalidArgumentException(STR("index"), STR("Core::Data::ListTerm::getTerm"),

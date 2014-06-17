@@ -33,6 +33,16 @@ class State
   friend class StateMachine;
 
   //============================================================================
+  // Data Types
+
+  /**
+   * @brief An enumeration that specifies the repository index of each scope.
+   * Each of the scopes will have a fixed index within the context repository.
+   */
+  private: enumeration(GrammarScopeIndex, ROOT=0, MODULE=1, PMODULE=2, STACK=3, ARGS=4);
+
+
+  //============================================================================
   // Member Variables
 
   /**
@@ -48,11 +58,9 @@ class State
 
   private: Data::VariableStack variableStack;
 
-  private: Data::DataStack dataStack;
+  private: Data::SharedRepository dataStack;
 
-  private: Data::DataContext grammarContext;
-
-  private: Data::GrammarHelper grammarHelper;
+  private: Data::GrammarContext grammarContext;
 
   /**
    * @brief A cached pointer to the top state level.
@@ -137,7 +145,7 @@ class State
                    Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule);
 
   protected: State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                   Word reservedVarCount, Word reservedVarLevelCount, const Data::DataContext *context);
+                   Word reservedVarCount, Word reservedVarLevelCount, const Data::GrammarContext *context);
 
   public: ~State()
   {
@@ -158,7 +166,7 @@ class State
 
   protected: void initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                              Word reservedVarCount, Word reservedVarLevelCount,
-                             const Data::DataContext *context);
+                             const Data::GrammarContext *context);
 
   /// Reset the object to an empty state.
   protected: void reset();
@@ -411,7 +419,7 @@ class State
    * @brief Get the stack of parsing data.
    * This is arbitrary data cretaed and used by parsing handlers.
    */
-  public: Data::DataStack* getDataStack()
+  public: Data::SharedRepository* getDataStack()
   {
     return &this->dataStack;
   }
@@ -420,18 +428,18 @@ class State
    * @brief Set the parsing data associated with a term level.
    * This is an arbitrary data created and used by the parsing handler.
    */
-  public: void setData(const SharedPtr<IdentifiableObject> &data, Int levelOffset = -1)
+  public: void setData(SharedPtr<IdentifiableObject> const &data, Int levelOffset = -1)
   {
-    this->dataStack.set(data, levelOffset);
+    this->dataStack.setLevel(data, levelOffset);
   }
 
   /**
    * @brief Get the parsing data associated with a term level.
    * This is an arbitrary data created and used by the parsing handler.
    */
-  public: const SharedPtr<IdentifiableObject>& getData(Int levelOffset = -1) const
+  public: SharedPtr<IdentifiableObject> const& getData(Int levelOffset = -1) const
   {
-    return this->dataStack.get(levelOffset);
+    return this->dataStack.getLevelData(levelOffset);
   }
 
   /// Checks whether another SharedPtr is sharing the data at a given level.
@@ -454,7 +462,7 @@ class State
   public: IdentifiableObject* getTokenTermText(Int levelOffset = -1) const;
 
   public: void getReferencedDefinition(Data::Module *&module, Data::SymbolDefinition *&definition,
-                                       Int levelOffset = -1) const;
+                                       Int levelOffset = -1);
 
   public: Data::Integer* getMultiplyTermMax(Int levelOffset = -1) const;
 
@@ -467,24 +475,14 @@ class State
   /// @name Other Functions
   /// @{
 
-  protected: Data::DataContext* getGrammarContext()
+  protected: Data::GrammarContext* getGrammarContext()
   {
     return &this->grammarContext;
   }
 
-  public: const Data::DataContext* getGrammarContext() const
+  public: const Data::GrammarContext* getGrammarContext() const
   {
     return &this->grammarContext;
-  }
-
-  protected: Data::GrammarHelper* getGrammarHelper()
-  {
-    return &this->grammarHelper;
-  }
-
-  public: const Data::GrammarHelper* getGrammarHelper() const
-  {
-    return &this->grammarHelper;
   }
 
   protected: void popLevel()

@@ -31,23 +31,23 @@ class MapPlainContainer : public PlainContainer
 
   public: using PlainContainer::set;
 
-  public: virtual Int set(const Char *key, IdentifiableObject *val) = 0;
+  public: virtual Int set(Char const *key, IdentifiableObject *val) = 0;
 
   public: using PlainContainer::remove;
 
-  public: virtual void remove(const Char *key) = 0;
+  public: virtual void remove(Char const *key) = 0;
 
   public: using PlainContainer::get;
 
-  public: virtual IdentifiableObject* get(const Char *key) const = 0;
+  public: virtual IdentifiableObject* get(Char const *key) const = 0;
 
-  public: virtual const Str& getKey(Int index) const = 0;
+  public: virtual const SbStr& getKey(Int index) const = 0;
 
   /**
    * @brief Find the index of a specified key.
    * @return The index of the key, or -1 if the key doesn't exist.
    */
-  public: virtual Int findIndex(const Char *key) const = 0;
+  public: virtual Int findIndex(Char const *key) const = 0;
 
 }; // class
 

@@ -25,6 +25,10 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
 
   // TODO: Replace these constructors with constructor inheritance once supported by the compiler.
 
+  public: WeakPtr()
+  {
+  }
+
   public: template <class T2> WeakPtr(const std::weak_ptr<T2> &src) : std::weak_ptr<T>(src)
   {
   }

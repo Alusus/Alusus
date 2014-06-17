@@ -25,7 +25,7 @@ void findProdData(Word prodId, SharedPtr<IdentifiableObject> ptr,
                   vector<SharedPtr<IdentifiableObject> > &result, Int index = -1);
 
 /// Search the given tree recursively for a token.
-void findToken(Word tokenId, const Char *text, SharedPtr<IdentifiableObject> ptr,
+void findToken(Word tokenId, Char const *text, SharedPtr<IdentifiableObject> ptr,
                vector<SharedPtr<IdentifiableObject> > &result, Int index = -1);
 
 /// Check whether the provided pointer has empty data.
@@ -83,7 +83,7 @@ class LexerTester : public SignalReceiver
     this->errorMsg.clear();
   }
 
-  public: void addToken(Word id, const Char *text)
+  public: void addToken(Word id, Char const *text)
   {
     SharedPtr<Common::Token> token(new Common::Token);
     token->setId(id);
@@ -91,7 +91,7 @@ class LexerTester : public SignalReceiver
     this->tokens.push_back(token);
   }
 
-  public: void test(const Char *text)
+  public: void test(Char const *text)
   {
     Int line = 1;
     Int column = 1;

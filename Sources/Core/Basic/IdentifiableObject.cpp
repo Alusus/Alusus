@@ -27,11 +27,11 @@ TypeInfo * IdentifiableObject::getTypeInfo()
 {
   static Core::Basic::TypeInfo *type_info = 0;
   if (type_info == 0) {
-    const Char *my_type = STR("IdentifiableObject");
-    const Char *typeNamespace = STR("Core.Basic");
-    const Char *moduleName = STR("Core");
-    const Char *url = STR("alusus.net");
-    const Char *uniqueName = STR("alusus.net#Core#Core.Basic.IdentifiableObject");
+    Char const *my_type = STR("IdentifiableObject");
+    Char const *typeNamespace = STR("Core.Basic");
+    Char const *moduleName = STR("Core");
+    Char const *url = STR("alusus.net");
+    Char const *uniqueName = STR("alusus.net#Core#Core.Basic.IdentifiableObject");
     type_info = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (type_info == 0) {
       type_info = new Core::Basic::TypeInfo(my_type, typeNamespace, moduleName, url, 0);

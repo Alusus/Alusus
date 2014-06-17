@@ -18,7 +18,7 @@ namespace Core { namespace Basic
 //==============================================================================
 // Member Functions
 
-void SbStr::assign(const Char *str, Word n, Word bufferSize)
+void SbStr::assign(Char const *str, Word n, Word bufferSize)
 {
   if (bufferSize < 2) {
     throw InvalidArgumentException(STR("bufferSize"), STR("Core::Basic::SbStr::assign"),
@@ -31,7 +31,7 @@ void SbStr::assign(const Char *str, Word n, Word bufferSize)
 }
 
 
-void SbStr::assign(const Char *str, Word bufferSize)
+void SbStr::assign(Char const *str, Word bufferSize)
 {
   if (bufferSize < 2) {
     throw InvalidArgumentException(STR("bufferSize"), STR("Core::Basic::SbStr::assign"),
@@ -44,7 +44,7 @@ void SbStr::assign(const Char *str, Word bufferSize)
 }
 
 
-void SbStr::append(const Char *str, Word src_size, Word bufferSize)
+void SbStr::append(Char const *str, Word src_size, Word bufferSize)
 {
   Word dest_size = this->size();
   if (dest_size >= bufferSize-1) return;
@@ -55,7 +55,7 @@ void SbStr::append(const Char *str, Word src_size, Word bufferSize)
 }
 
 
-void SbStr::append(const Char *str, Word bufferSize)
+void SbStr::append(Char const *str, Word bufferSize)
 {
   Word dest_size = this->size();
   if (dest_size >= bufferSize-1) return;

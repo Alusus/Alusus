@@ -19,7 +19,7 @@ namespace Core { namespace Data
 //==============================================================================
 // Constructors
 
-GrammarModule::GrammarModule(const std::initializer_list<Argument<const Char*>> &args) : ownership(0), parent(0)
+GrammarModule::GrammarModule(const std::initializer_list<Argument<Char const*>> &args) : ownership(0), plainParent(0)
 {
   for (auto arg : args) {
     if (sbstr_cast(arg.id) == STR("@parent")) {
@@ -54,27 +54,27 @@ GrammarModule::GrammarModule(const std::initializer_list<Argument<const Char*>> 
 
 void GrammarModule::attachToParent(GrammarModule *p)
 {
-  ASSERT(this->parent == 0);
+  ASSERT(this->plainParent == 0);
 
-  this->parent = p;
-  this->parent->destroyNotifier.connect(this, &GrammarModule::onParentDestroyed);
-  this->definitions.setParent(this->parent->getDefinitions());
+  this->plainParent = p;
+  this->plainParent->destroyNotifier.connect(this, &GrammarModule::onParentDestroyed);
+  this->definitions.setParent(this->plainParent->getDefinitions());
 
-  this->parent->metaChangeNotifier.connect(this, &GrammarModule::onParentMetaChanged);
+  this->plainParent->metaChangeNotifier.connect(this, &GrammarModule::onParentMetaChanged);
   if ((this->ownership & GrammarModuleMetaElement::START_REF) == 0) {
-    this->startRef = this->parent->getStartRef();
+    this->startRef = this->plainParent->getStartRef();
   }
   if ((this->ownership & GrammarModuleMetaElement::LEXER_MODULE_REF) == 0) {
-    this->lexerModuleRef = this->parent->getLexerModuleRef();
+    this->lexerModuleRef = this->plainParent->getLexerModuleRef();
   }
 }
 
 
 void GrammarModule::detachFromParent()
 {
-  ASSERT(this->parent != 0);
+  ASSERT(this->plainParent != 0);
 
-  this->parent->metaChangeNotifier.unconnect(this, &GrammarModule::onParentMetaChanged);
+  this->plainParent->metaChangeNotifier.unconnect(this, &GrammarModule::onParentMetaChanged);
   if ((this->ownership & GrammarModuleMetaElement::START_REF) == 0) {
     this->startRef.reset();
   }
@@ -82,9 +82,9 @@ void GrammarModule::detachFromParent()
     this->lexerModuleRef.reset();
   }
 
-  this->parent->destroyNotifier.unconnect(this, &GrammarModule::onParentDestroyed);
-  this->parent = 0;
-  this->definitions.setParent(0);
+  this->plainParent->destroyNotifier.unconnect(this, &GrammarModule::onParentDestroyed);
+  this->plainParent = 0;
+  this->definitions.setParent(SharedPtr<SharedMap>());
 }
 
 
@@ -102,19 +102,19 @@ void GrammarModule::onParentMetaChanged(GrammarModule *obj, Word element)
 //==============================================================================
 // Initializable Implementation
 
-void GrammarModule::initialize(Provider *provider, const SharedPtr<Module> &module)
+void GrammarModule::initialize(IdentifiableObject *owner)
 {
-  GrammarHelper helper(provider);
   if (this->parentReference != 0) {
-    IdentifiableObject *p = helper.traceValue(this->parentReference.get(), module.get());
+    SharedTracer *tracer = owner->getInterface<SharedTracer>();
+    SharedPtr<IdentifiableObject> p = tracer->traceSharedValue(this->parentReference);
     if (p == 0) {
       throw GeneralException(STR("Parent reference points to missing definition."),
-                             STR("Data::Module::initialize"));
+                             STR("Data::GrammarModule::initialize"));
     }
-    GrammarModule *pm = io_cast<GrammarModule>(p);
+    SharedPtr<GrammarModule> pm = p.io_cast<GrammarModule>();
     if (pm == 0) {
       throw GeneralException(STR("Parent reference points to an object of an invalid type."),
-                             STR("Data::Module::initialize"));
+                             STR("Data::GrammarModule::initialize"));
     }
     this->setParent(pm);
   }

@@ -110,7 +110,7 @@ class InputBuffer
   /// @{
 
   /// Get a pointer to the characters stored in the buffer.
-  public: const Char* getChars()
+  public: Char const* getChars()
   {
     return this->charBuffer.c_str();
   }

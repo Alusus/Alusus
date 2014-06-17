@@ -23,46 +23,37 @@ namespace Core { namespace Data
  * reference.
  * @sa parseQualifier()
  */
-void ReferenceParser::buildQualifier(Reference *ref, StrStream &qualifier)
+void ReferenceParser::buildQualifier(Reference const *ref, StrStream &qualifier)
 {
   if (ref == 0) {
     throw InvalidArgumentException(STR("ref"), STR("Core::Data::ReferenceParser::buildQualifier"),
                                    STR("Cannot be null."));
   }
-  switch (ref->getScope().val) {
-    case ReferenceScope::ARGS: qualifier << "args."; break;
-    case ReferenceScope::STACK: qualifier << "stack."; break;
-    case ReferenceScope::MODULE: qualifier << "module."; break;
-    case ReferenceScope::PMODULE: qualifier << "pmodule."; break;
-    case ReferenceScope::ROOT: qualifier << "root."; break;
-  }
 
-  ReferenceSegment *seg = ref->getSegment().get();
-  if (seg == 0) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::ReferenceParser::buildQualifier"),
-                                   STR("Reference contains no segments."));
-  }
-
-  while (seg != 0) {
-    if (seg->isA<IntReferenceSegment>()) {
-      qualifier << static_cast<IntReferenceSegment*>(seg)->getIndex();
-    } else if (seg->isA<StrReferenceSegment>()) {
-      qualifier << static_cast<StrReferenceSegment*>(seg)->getKey();
-    } else if (seg->isA<IndirectReferenceSegment>()) {
-      qualifier << CHR('(');
-      ReferenceParser::buildQualifier(static_cast<IndirectReferenceSegment*>(seg)->getKey().get(), qualifier);
-      qualifier << CHR(')');
-    } else if (seg->isA<RawIndirectReferenceSegment>()) {
-      RawIndirectReferenceSegment *iseg = static_cast<RawIndirectReferenceSegment*>(seg);
-      qualifier << CHR('(');
-      qualifier << Str(iseg->getQualifier(), iseg->getSize());
-      qualifier << CHR(')');
+  while (ref != 0) {
+    if (ref->isA<ScopeReference>()) {
+      qualifier << static_cast<ScopeReference const*>(ref)->getScope() << STR(":");
     } else {
-      throw GeneralException(STR("Provided reference contained an invalid segment type."),
-                             STR("Core::Data::ReferenceParser::buildQualifier"));
+      if (ref->isA<IndexReference>()) {
+        qualifier << static_cast<IndexReference const*>(ref)->getIndex();
+      } else if (ref->isA<StrKeyReference>()) {
+        qualifier << static_cast<StrKeyReference const*>(ref)->getKey();
+      } else if (ref->isA<IndirectReference>()) {
+        qualifier << CHR('(');
+        ReferenceParser::buildQualifier(static_cast<IndirectReference const*>(ref)->getKey().get(), qualifier);
+        qualifier << CHR(')');
+      } else if (ref->isA<RawIndirectReference>()) {
+        RawIndirectReference const *iref = static_cast<RawIndirectReference const*>(ref);
+        qualifier << CHR('(');
+        qualifier << Str(iref->getQualifier(), iref->getSize());
+        qualifier << CHR(')');
+      } else {
+        throw GeneralException(STR("Provided reference contained an invalid segment type."),
+                               STR("Core::Data::ReferenceParser::buildQualifier"));
+      }
+      if (ref->getNext() != 0) qualifier << STR(".");
     }
-    seg = seg->getNext().get();
-    if (seg != 0) qualifier << CHR('.');
+    ref = ref->getNext().get();
   }
 }
 
@@ -88,8 +79,11 @@ void ReferenceParser::buildQualifier(Reference *ref, StrStream &qualifier)
  *            the position of the closing bracket.
  *            At the end of the call this will contain the position of
  *            the character that is NOT processed during that call.
+ * @param criteria The usage criteria that will be assigned to each segment in
+ *                 the generated reference chain.
  */
-SharedPtr<Reference> ReferenceParser::_parseQualifier(const Char *qualifier, Int &pos)
+SharedPtr<Reference> ReferenceParser::_parseQualifier(Char const *qualifier, Int &pos,
+                                                      ReferenceUsageCriteria criteria)
 {
   // Validation.
   if (qualifier == 0) {
@@ -97,29 +91,11 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(const Char *qualifier, Int
                                    STR("Cannot be null."));
   }
 
-  SharedPtr<Reference> ref = std::make_shared<Reference>();
+  SharedPtr<Reference> ref;
+  SharedPtr<Reference> seg;
+  SharedPtr<Reference> lastSeg;
+
   pos=0;
-
-  // Handle reference type ("root.", "this.", and "stack.").
-  if (compareStr(qualifier, STR("root."), 5) == 0) {
-    ref->setScope(ReferenceScope::ROOT);
-    pos += 5;
-  } else if (compareStr(qualifier, STR("module."), 7) == 0) {
-    ref->setScope(ReferenceScope::MODULE);
-    pos += 7;
-  } else if (compareStr(qualifier, STR("pmodule."), 8) == 0) {
-    ref->setScope(ReferenceScope::PMODULE);
-    pos += 8;
-  } else if (compareStr(qualifier, STR("stack."), 6) == 0) {
-    ref->setScope(ReferenceScope::STACK);
-    pos += 6;
-  } else if (compareStr(qualifier, STR("args."), 5) == 0) {
-    ref->setScope(ReferenceScope::ARGS);
-    pos += 5;
-  }
-
-  SharedPtr<ReferenceSegment> seg;
-  SharedPtr<ReferenceSegment> lastSeg;
 
   while (true) {
     // Check the first character to determine the route to take.
@@ -128,7 +104,8 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(const Char *qualifier, Int
       Int i;
       // Parse a reference id.
       try {
-        seg = std::make_shared<IndirectReferenceSegment>(ReferenceParser::_parseQualifier(qualifier+pos, i));
+        seg = std::make_shared<IndirectReference>(ReferenceParser::_parseQualifier(qualifier+pos, i, criteria));
+        seg->setUsageCriteria(criteria);
       } catch (InvalidArgumentException &e) {
         if (e.getArgumentName() == STR("qualifier")) {
           throw InvalidArgumentException(e.getArgumentName().c_str(), e.getLocation().c_str(),
@@ -153,7 +130,16 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(const Char *qualifier, Int
              (qualifier[pos+i] >= CHR('A') && qualifier[pos+i] <= CHR('Z')) ||
              (qualifier[pos+i] >= CHR('0') && qualifier[pos+i] <= CHR('9')) ||
              qualifier[pos+i] == CHR('_')) i++;
-      seg = std::make_shared<StrReferenceSegment>(qualifier+pos, i);
+      if (qualifier[pos+i] == CHR(':')) {
+        if (compareStr(qualifier+pos, STR("root"), std::min(i,4)) == 0) {
+          seg = std::make_shared<ScopeReference>(qualifier+pos, i);
+        } else {
+          seg = std::make_shared<ScopeReference>(qualifier+pos, i, false);
+        }
+      } else {
+        seg = std::make_shared<StrKeyReference>(qualifier+pos, i);
+      }
+      seg->setUsageCriteria(criteria);
       pos += i;
     } else if (qualifier[pos] >= CHR('0') && qualifier[pos] <= CHR('9')) {
       // Parse an integer id.
@@ -163,21 +149,24 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(const Char *qualifier, Int
         j += static_cast<Int>(qualifier[pos] - CHR('0'));
         ++pos;
       }
-      seg = std::make_shared<IntReferenceSegment>(j);
+      seg = std::make_shared<IndexReference>(j);
+      seg->setUsageCriteria(criteria);
     } else {
       throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifier"),
                                      STR("Invalid qualifier."), qualifier);
     }
     if (lastSeg == 0) {
-      ref->setSegment(seg);
+      ref = seg;
     } else {
       lastSeg->setNext(seg);
     }
     lastSeg = seg;
 
-    if (qualifier[pos] == CHR('.')) pos++;
+    if (qualifier[pos] == CHR('.') || qualifier[pos] == CHR(':')) pos++;
     else break;
   }
+
+  ASSERT(ref != 0);
 
   // At this point we should've reached the end of the qualifier or subqualifier.
   if (qualifier[pos] != CHR('\0') && (qualifier[pos] != CHR(')') || pos == 0)) {
@@ -186,34 +175,6 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(const Char *qualifier, Int
   }
 
   return ref;
-}
-
-
-/**
- * Parse the scope part of a qualifier string and returns a ReferenceScope
- * value representing that scope. The qualifier pointer will also be
- * incremented to point to the part immediately after the scope specifier.
- */
-ReferenceScope ReferenceParser::parseQualifierScope(const Char *&qualifier)
-{
-  if (compareStr(qualifier, STR("root."), 5) == 0) {
-    qualifier += 5;
-    return ReferenceScope::ROOT;
-  } else if (compareStr(qualifier, STR("module."), 7) == 0) {
-    qualifier += 7;
-    return ReferenceScope::MODULE;
-  } else if (compareStr(qualifier, STR("pmodule."), 8) == 0) {
-    qualifier += 8;
-    return ReferenceScope::PMODULE;
-  } else if (compareStr(qualifier, STR("stack."), 6) == 0) {
-    qualifier += 6;
-    return ReferenceScope::STACK;
-  } else if (compareStr(qualifier, STR("args."), 5) == 0) {
-    qualifier += 5;
-    return ReferenceScope::ARGS;
-  } else {
-    return ReferenceScope::UNKNOWN;
-  }
 }
 
 
@@ -227,7 +188,7 @@ ReferenceScope ReferenceParser::parseQualifierScope(const Char *&qualifier)
  * segment. If the segment ends with a dot, qualifier will be moved to point to
  * the dot, not the beginning of the new segment.
  */
-ReferenceSegment* ReferenceParser::parseQualifierSegment(const Char *&qualifier)
+Reference* ReferenceParser::parseQualifierSegment(Char const *&qualifier)
 {
   Int i;
   // Validation.
@@ -245,9 +206,20 @@ ReferenceSegment* ReferenceParser::parseQualifierSegment(const Char *&qualifier)
            (qualifier[i] >= CHR('A') && qualifier[i] <= CHR('Z')) ||
            (qualifier[i] >= CHR('0') && qualifier[i] <= CHR('9')) ||
            qualifier[i] == CHR('_')) i++;
-    this->tempStrSegment.setKey(qualifier, i);
-    qualifier += i;
-    return &this->tempStrSegment;
+    if (qualifier[i] == CHR(':')) {
+      this->tempScopeReference.setScope(qualifier, i);
+      if (compareStr(qualifier, STR("root"), std::min(i,4)) == 0) {
+        this->tempScopeReference.setSearchDirection(true);
+      } else {
+        this->tempScopeReference.setSearchDirection(false);
+      }
+      qualifier += i;
+      return &this->tempScopeReference;
+    } else {
+      this->tempStrKeyReference.setKey(qualifier, i);
+      qualifier += i;
+      return &this->tempStrKeyReference;
+    }
   } else if (*qualifier >= CHR('0') && *qualifier <= CHR('9')) {
     // Parse an integer id.
     i = 0;
@@ -257,9 +229,9 @@ ReferenceSegment* ReferenceParser::parseQualifierSegment(const Char *&qualifier)
       j += static_cast<Int>(qualifier[i] - CHR('0'));
       i++;
     }
-    this->tempIntSegment.setIndex(j);
+    this->tempIndexReference.setIndex(j);
     qualifier += i;
-    return &this->tempIntSegment;
+    return &this->tempIndexReference;
   } else {
     throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifierSegment"),
                                    STR("Invalid qualifier."), qualifier);
@@ -280,7 +252,7 @@ ReferenceSegment* ReferenceParser::parseQualifierSegment(const Char *&qualifier)
  *            it's not validation a subqualifier and hence will refuse any
  *            closing brackets it may encounters.
  */
-Bool ReferenceParser::_validateQualifier(const Char *qualifier, Bool absolute, const Char **end)
+Bool ReferenceParser::_validateQualifier(Char const *qualifier, Bool absolute, Char const **end)
 {
   // Validation.
   if (qualifier == 0) {
@@ -311,7 +283,7 @@ Bool ReferenceParser::_validateQualifier(const Char *qualifier, Bool absolute, c
   }
 
   // Parse child references, if any.
-  if (*qualifier == CHR('.')) {
+  if (*qualifier == CHR('.') || *qualifier == CHR(':')) {
     if (!ReferenceParser::_validateQualifier(qualifier+1, absolute, &qualifier)) return false;
   }
 
@@ -322,6 +294,7 @@ Bool ReferenceParser::_validateQualifier(const Char *qualifier, Bool absolute, c
   return true;
 }
 
+
 /**
  * This recursive function will do the actual search for the last segment. It
  * will search the string for the end of this segment and will either return
@@ -330,7 +303,7 @@ Bool ReferenceParser::_validateQualifier(const Char *qualifier, Bool absolute, c
  * bracket it will simply return the position of that closing bracket so that
  * it can continue searching after the closing bracket.
  */
-const Char* ReferenceParser::_findLastQualifierSegment(const Char *qualifier)
+Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
 {
   // Validation.
   if (qualifier == 0) {
@@ -339,7 +312,7 @@ const Char* ReferenceParser::_findLastQualifierSegment(const Char *qualifier)
                                    STR("Cannot be null."));
   }
 
-  const Char *beginning = qualifier;
+  Char const *beginning = qualifier;
 
   // Check the first character to determine the route to take.
   if (*qualifier == CHR('(')) {
@@ -369,7 +342,7 @@ const Char* ReferenceParser::_findLastQualifierSegment(const Char *qualifier)
                                    STR("Invalid qualifier."));
   }
 
-  if (*qualifier == CHR('.')) {
+  if (*qualifier == CHR('.') || *qualifier == CHR(':')) {
     // We found a segment separator, so start again at the new segment.
     return ReferenceParser::_findLastQualifierSegment(qualifier+1);
   } else if (*qualifier == CHR(')')) {

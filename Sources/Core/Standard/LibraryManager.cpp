@@ -50,7 +50,7 @@ void LibraryManager::removeLibrary(PtrWord id)
 }
 
 
-PtrWord LibraryManager::findLibrary(const Char *libId)
+PtrWord LibraryManager::findLibrary(Char const *libId)
 {
   for (Word i = 0; i < this->entries.size(); ++i) {
     if (this->entries[i].gateway->getLibraryId() == libId) return this->entries[i].id;
@@ -69,7 +69,7 @@ LibraryGateway* LibraryManager::getGateway(PtrWord id)
 }
 
 
-LibraryGateway* LibraryManager::getGateway(const Char *libId)
+LibraryGateway* LibraryManager::getGateway(Char const *libId)
 {
   for (Word i = 0; i < this->entries.size(); ++i) {
     if (this->entries[i].gateway->getLibraryId() == libId) return this->entries[i].gateway;
@@ -79,7 +79,7 @@ LibraryGateway* LibraryManager::getGateway(const Char *libId)
 }
 
 
-PtrWord LibraryManager::load(const Char *path)
+PtrWord LibraryManager::load(Char const *path)
 {
   void *handle = dlopen(path, RTLD_NOW);
   if (handle == 0) return 0;

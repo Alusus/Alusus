@@ -32,15 +32,15 @@ class Str : public std::string
   public: Str(const std::string &str, Word pos, Word n) : std::string(str, pos, n) {}
   public: Str(const SbStr &str) : std::string(str.c_str()) {}
   public: Str(const SbStr &str, Word pos, Word n) : std::string(str.c_str() + pos, n) {}
-  public: Str(const Char *s, Word n) : std::string(s, n) {}
-  public: Str(const Char *s) : std::string(s) {}
+  public: Str(Char const *s, Word n) : std::string(s, n) {}
+  public: Str(Char const *s) : std::string(s) {}
   public: Str(Word n, Char c) : std::string(n, c) {}
 
 
   //============================================================================
   // Operators
 
-  public: Bool operator==(const Char *s) const
+  public: Bool operator==(Char const *s) const
   {
     return this->compare(s) == 0;
   }
@@ -55,7 +55,7 @@ class Str : public std::string
     return this->compare(s.c_str()) == 0;
   }
 
-  public: Bool operator>(const Char *s) const
+  public: Bool operator>(Char const *s) const
   {
     return this->compare(s) > 0;
   }
@@ -70,7 +70,7 @@ class Str : public std::string
     return this->compare(s.c_str()) > 0;
   }
 
-  public: Bool operator<(const Char *s) const
+  public: Bool operator<(Char const *s) const
   {
     return this->compare(s) < 0;
   }
@@ -85,7 +85,17 @@ class Str : public std::string
     return this->compare(s.c_str()) < 0;
   }
 
+
+  //============================================================================
+  // Functions
+
+  public: SbStr const& sbstr() const
+  {
+    return sbstr_cast(this->c_str());
+  }
+
 }; // class
+
 
 } } // namespace
 

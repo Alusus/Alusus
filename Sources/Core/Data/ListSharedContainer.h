@@ -29,7 +29,7 @@ class ListSharedContainer : public virtual SharedContainer
   //============================================================================
   // Abstract Functions
 
-  public: virtual void add(const SharedPtr<IdentifiableObject> &val) = 0;
+  public: virtual void add(SharedPtr<IdentifiableObject> const &val) = 0;
 
 }; // class
 

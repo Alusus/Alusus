@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/List.cpp
- * Contains the implementation of class Core::Data::List.
+ * @file Core/Data/SharedList.cpp
+ * Contains the implementation of class Core::Data::SharedList.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -19,7 +19,7 @@ namespace Core { namespace Data
 //==============================================================================
 // Constructors
 
-List::List(const std::initializer_list<SharedPtr<IdentifiableObject>> &args)
+SharedList::SharedList(const std::initializer_list<SharedPtr<IdentifiableObject>> &args)
 {
   this->reserve(args.size());
   for (auto arg : args) this->add(arg);
@@ -29,7 +29,7 @@ List::List(const std::initializer_list<SharedPtr<IdentifiableObject>> &args)
 //==============================================================================
 // DataOwner Implementation
 
-void List::unsetIndexes(Int from, Int to)
+void SharedList::unsetIndexes(Int from, Int to)
 {
   for (Word i = 0; i < this->getCount(); ++i) {
     IdentifiableObject *obj = this->get(i).get();
@@ -41,10 +41,10 @@ void List::unsetIndexes(Int from, Int to)
 //==============================================================================
 // ListSharedContainer Implementation
 
-void List::set(Int index, const SharedPtr<IdentifiableObject> &val)
+void SharedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::List::set"),
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedList::set"),
                                    STR("Index out of range."));
   } else {
     this->list[index] = val;
@@ -52,20 +52,20 @@ void List::set(Int index, const SharedPtr<IdentifiableObject> &val)
 }
 
 
-void List::remove(Int index)
+void SharedList::remove(Int index)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::List::remove"),
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedList::remove"),
                                    STR("Index out of range."));
   }
   this->list.erase(this->list.begin()+index);
 }
 
 
-const SharedPtr<IdentifiableObject>& List::get(Int index) const
+SharedPtr<IdentifiableObject> const& SharedList::get(Int index) const
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::List::get"),
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedList::get"),
                                    STR("Index out of range."));
   }
   return this->list[index];

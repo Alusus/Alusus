@@ -121,7 +121,7 @@ void StateMachine::handleNewChar(Char inputChar, Int line, Int column)
  * @param column The source code column at which the first character in the
  *               string appeared. This will be updated with the new location.
  */
-void StateMachine::handleNewString(const Char *inputStr, Int &line, Int &column)
+void StateMachine::handleNewString(Char const *inputStr, Int &line, Int &column)
 {
   for (Int i = 0; i < static_cast<Int>(strlen(inputStr)); i++) {
     this->handleNewChar(inputStr[i], line, column);

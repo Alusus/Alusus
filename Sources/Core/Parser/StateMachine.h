@@ -55,7 +55,7 @@ class StateMachine : public SignalReceiver
    */
   public: const Int EOF_TOKEN;
 
-  private: Data::DataStore *grammarStore;
+  private: Data::GrammarRepository *grammarRepository;
 
   /**
    * @brief The array of current states.
@@ -115,7 +115,7 @@ class StateMachine : public SignalReceiver
   //============================================================================
   // Constructor / Destructor
 
-  public: StateMachine() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")), grammarStore(0)
+  public: StateMachine() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")), grammarRepository(0)
   {
   }
 
@@ -130,17 +130,17 @@ class StateMachine : public SignalReceiver
   /// @name Initialization Related Functions
   /// @{
 
-  public: void initialize(Data::DataStore *store);
+  public: void initialize(Data::GrammarRepository *grammarRepo);
 
   public: void release()
   {
     this->clear();
-    this->grammarStore = 0;
+    this->grammarRepository = 0;
   }
 
-  public: Data::DataStore* getGrammarStore() const
+  public: Data::GrammarRepository* getGrammarRepository() const
   {
-    return this->grammarStore;
+    return this->grammarRepository;
   }
 
   /// @}
@@ -152,7 +152,7 @@ class StateMachine : public SignalReceiver
   public: void beginParsing();
 
   /// Finalize the parsing process.
-  public: const SharedPtr<IdentifiableObject> endParsing();
+  public: SharedPtr<IdentifiableObject> endParsing();
 
   /// Try to fold out of the grammar tree.
   public: void tryCompleteFoldout(StateIterator si);

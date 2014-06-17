@@ -38,27 +38,27 @@ class TokenTerm : public Term, public virtual DataOwner
   //============================================================================
   // Constructor & Destructor
 
-  public: TokenTerm(Word f=0, const SharedPtr<IdentifiableObject> &id=SharedPtr<IdentifiableObject>(),
-                    const SharedPtr<IdentifiableObject> &text=SharedPtr<IdentifiableObject>()) :
+  public: TokenTerm(Word f=0, SharedPtr<IdentifiableObject> const &id=SharedPtr<IdentifiableObject>(),
+                    SharedPtr<IdentifiableObject> const &text=SharedPtr<IdentifiableObject>()) :
     Term(f), tokenId(id), tokenText(text)
   {
-    if (id != 0 && !id->isA<Integer>() && !id->isA<Reference>()) {
+    if (id != 0 && !id->isA<Integer>() && !id->isDerivedFrom<Reference>()) {
       throw InvalidArgumentException(STR("id"), STR("Core::Data::TokenTerm::TokenTerm"),
                                      STR("Must be of type Integer or Reference."));
     }
-    if (text != 0 && !text->isA<String>() && !text->isA<Map>() && !text->isA<Reference>()) {
+    if (text != 0 && !text->isA<String>() && !text->isA<SharedMap>() && !text->isDerivedFrom<Reference>()) {
       throw InvalidArgumentException(STR("text"), STR("Core::Data::TokenTerm::TokenTerm"),
                                      STR("Must be of type String or Reference."));
     }
   }
 
-  public: TokenTerm(Word f, Int id, const Char *text=0) :
+  public: TokenTerm(Word f, Int id, Char const *text=0) :
     Term(f), tokenId(std::make_shared<Integer>(id))
   {
     if (text != 0) this->tokenText = std::make_shared<String>(text);
   }
 
-  public: TokenTerm(Word f, const Char *text) :
+  public: TokenTerm(Word f, Char const *text) :
     Term(f), tokenText(std::make_shared<String>(text))
   {
   }
@@ -68,18 +68,18 @@ class TokenTerm : public Term, public virtual DataOwner
   }
 
   public: static SharedPtr<TokenTerm> create(Word f=0,
-                                             const SharedPtr<IdentifiableObject> &id=SharedPtr<IdentifiableObject>(),
-                                             const SharedPtr<IdentifiableObject> &text=SharedPtr<IdentifiableObject>())
+                                             SharedPtr<IdentifiableObject> const &id=SharedPtr<IdentifiableObject>(),
+                                             SharedPtr<IdentifiableObject> const &text=SharedPtr<IdentifiableObject>())
   {
     return std::make_shared<TokenTerm>(f, id, text);
   }
 
-  public: static SharedPtr<TokenTerm> create(Word f, Int id, const Char *text=0)
+  public: static SharedPtr<TokenTerm> create(Word f, Int id, Char const *text=0)
   {
     return std::make_shared<TokenTerm>(f, id, text);
   }
 
-  public: static SharedPtr<TokenTerm> create(Word f, const Char *text)
+  public: static SharedPtr<TokenTerm> create(Word f, Char const *text)
   {
     return std::make_shared<TokenTerm>(f, text);
   }
@@ -88,30 +88,30 @@ class TokenTerm : public Term, public virtual DataOwner
   //============================================================================
   // Member Functions
 
-  public: void setTokenId(const SharedPtr<IdentifiableObject> &id)
+  public: void setTokenId(SharedPtr<IdentifiableObject> const &id)
   {
-    if (id != 0 && !id->isA<Integer>() && !id->isA<Reference>()) {
+    if (id != 0 && !id->isA<Integer>() && !id->isDerivedFrom<Reference>()) {
       throw InvalidArgumentException(STR("s"), STR("Core::Data::TokenTerm::setTokenId"),
                                      STR("Must be of type Integer or Reference."));
     }
     this->tokenId = id;
   }
 
-  public: const SharedPtr<IdentifiableObject>& getTokenId() const
+  public: SharedPtr<IdentifiableObject> const& getTokenId() const
   {
     return this->tokenId;
   }
 
-  public: void setTokenText(const SharedPtr<IdentifiableObject> &text)
+  public: void setTokenText(SharedPtr<IdentifiableObject> const &text)
   {
-    if (text != 0 && !text->isA<String>() && !text->isA<Map>() && !text->isA<Reference>()) {
+    if (text != 0 && !text->isA<String>() && !text->isA<SharedMap>() && !text->isDerivedFrom<Reference>()) {
       throw InvalidArgumentException(STR("text"), STR("Core::Data::TokenTerm::setTokenText"),
                                      STR("Must be of type String or Reference."));
     }
     this->tokenText = text;
   }
 
-  public: const SharedPtr<IdentifiableObject>& getTokenText() const
+  public: SharedPtr<IdentifiableObject> const& getTokenText() const
   {
     return this->tokenText;
   }

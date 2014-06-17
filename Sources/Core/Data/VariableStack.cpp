@@ -227,7 +227,7 @@ void VariableStack::popLevel()
 }
 
 
-Int VariableStack::add(const Char *key, IdentifiableObject *val)
+Int VariableStack::add(Char const *key, IdentifiableObject *val)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
@@ -251,7 +251,7 @@ Int VariableStack::add(const Char *key, IdentifiableObject *val)
 }
 
 
-Int VariableStack::set(const Char *key, IdentifiableObject *val, Bool insertIfNew)
+Int VariableStack::set(Char const *key, IdentifiableObject *val, Bool insertIfNew)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
@@ -299,7 +299,7 @@ Int VariableStack::getCount(Int levelIndex) const
 }
 
 
-IdentifiableObject* VariableStack::get(const Char *key, Int levelIndex) const
+IdentifiableObject* VariableStack::get(Char const *key, Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
     throw GeneralException(STR("No levels added yet."), STR("Core::Data::VariableStack::get"));
@@ -380,7 +380,7 @@ const SbStr& VariableStack::getKey(Int index, Int levelIndex) const
 }
 
 
-Int VariableStack::getIndex(const Char *key, Int levelIndex) const
+Int VariableStack::getIndex(Char const *key, Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
     throw GeneralException(STR("No levels added yet."), STR("Core::Data::VariableStack::getIndex"));
@@ -407,7 +407,7 @@ Int VariableStack::getIndex(const Char *key, Int levelIndex) const
 }
 
 
-Int VariableStack::findIndex(const Char *key, Int levelIndex) const
+Int VariableStack::findIndex(Char const *key, Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
     throw GeneralException(STR("No levels added yet."), STR("Core::Data::VariableStack::findIndex"));
@@ -429,7 +429,7 @@ Int VariableStack::findIndex(const Char *key, Int levelIndex) const
 }
 
 
-Int VariableStack::findIndex(const Char *key, Int start, Int end) const
+Int VariableStack::findIndex(Char const *key, Int start, Int end) const
 {
   ASSERT(this->levels.size() > 0);
   if (static_cast<Word>(start) >= this->levels.back()) return -1;
@@ -487,7 +487,7 @@ void VariableStack::remove(Int index)
 }
 
 
-void VariableStack::remove(const Char *key)
+void VariableStack::remove(Char const *key)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {

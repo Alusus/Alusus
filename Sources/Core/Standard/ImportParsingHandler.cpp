@@ -42,7 +42,7 @@ void ImportParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::Stat
 }
 
 
-Bool ImportParsingHandler::import(const Char *filename, Parser::State *state)
+Bool ImportParsingHandler::import(Char const *filename, Parser::State *state)
 {
   // Check the file type.
   static std::regex r(STR(".*\\.(source|alusus)"));

@@ -117,7 +117,7 @@ class ParsingHandler : public Data::OperationHandler
    *             pointer to this data it will end up being deleted once this
    *             call is complete.
    */
-  public: virtual void onLevelExit(StateMachine *machine, State *state, const SharedPtr<IdentifiableObject> &data)
+  public: virtual void onLevelExit(StateMachine *machine, State *state, SharedPtr<IdentifiableObject> const &data)
   {
   }
 

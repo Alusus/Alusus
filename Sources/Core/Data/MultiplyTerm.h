@@ -60,9 +60,9 @@ class MultiplyTerm : public Term, public virtual DataOwner
   // Constructors
 
   /// Initialize the object.
-  public: MultiplyTerm(const SharedPtr<IdentifiableObject> &p=SharedPtr<IdentifiableObject>(), Word f=0,
-                       const SharedPtr<IdentifiableObject> &min=SharedPtr<IdentifiableObject>(),
-                       const SharedPtr<IdentifiableObject> &max=SharedPtr<IdentifiableObject>(),
+  public: MultiplyTerm(SharedPtr<IdentifiableObject> const &p=SharedPtr<IdentifiableObject>(), Word f=0,
+                       SharedPtr<IdentifiableObject> const &min=SharedPtr<IdentifiableObject>(),
+                       SharedPtr<IdentifiableObject> const &max=SharedPtr<IdentifiableObject>(),
                        const SharedPtr<Term> &t=SharedPtr<Term>());
 
   public: MultiplyTerm(Int p, Word f, Int min, Int max, const SharedPtr<Term> &t) :
@@ -102,28 +102,28 @@ class MultiplyTerm : public Term, public virtual DataOwner
   }
 
   /// Set the minimum number of occurances.
-  public: void setMinOccurances(const SharedPtr<IdentifiableObject> &min);
+  public: void setMinOccurances(SharedPtr<IdentifiableObject> const &min);
 
   /// @sa setMinOccurances()
-  public: const SharedPtr<IdentifiableObject>& getMinOccurances() const
+  public: SharedPtr<IdentifiableObject> const& getMinOccurances() const
   {
     return this->minOccurances;
   }
 
   /// Set the maximum number of occurances.
-  public: void setMaxOccurances(const SharedPtr<IdentifiableObject> &max);
+  public: void setMaxOccurances(SharedPtr<IdentifiableObject> const &max);
 
   /// @sa setMaxOccurances()
-  public: const SharedPtr<IdentifiableObject>& getMaxOccurances() const
+  public: SharedPtr<IdentifiableObject> const& getMaxOccurances() const
   {
     return this->maxOccurances;
   }
 
   /// Set the priority of the child branches.
-  public: void setPriority(const SharedPtr<IdentifiableObject> &p);
+  public: void setPriority(SharedPtr<IdentifiableObject> const &p);
 
   /// @sa setPriority()
-  public: const SharedPtr<IdentifiableObject>& getPriority() const
+  public: SharedPtr<IdentifiableObject> const& getPriority() const
   {
     return this->priority;
   }

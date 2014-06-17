@@ -84,7 +84,7 @@ class TokenDefinitionList : public SignalReceiver
   }
 
   /// Create a new token definition for a constant token.
-  public: Word addConstToken(const Char *str);
+  public: Word addConstToken(Char const *str);
 
   /// Remove the token definition with the given index.
   public: void remove(Int index);

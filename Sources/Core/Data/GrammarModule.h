@@ -31,7 +31,8 @@ class GrammarModule : public Module, public virtual Initializable
   // Member Variables
 
   private: SharedPtr<Reference> parentReference;
-  private: GrammarModule *parent;
+  private: WeakPtr<GrammarModule> parent;
+  private: GrammarModule *plainParent;
 
   private: SharedPtr<Reference> startRef;
 
@@ -53,19 +54,19 @@ class GrammarModule : public Module, public virtual Initializable
   //============================================================================
   // Constructor & Destructor
 
-  public: GrammarModule() : ownership(0), parent(0)
+  public: GrammarModule() : ownership(0), plainParent(0)
   {
   }
 
-  public: GrammarModule(const std::initializer_list<Argument<const Char*>> &args);
+  public: GrammarModule(const std::initializer_list<Argument<Char const*>> &args);
 
   public: virtual ~GrammarModule()
   {
-    if (this->parent != 0) this->detachFromParent();
+    if (this->plainParent != 0) this->detachFromParent();
     this->destroyNotifier.emit(this);
   }
 
-  public: static SharedPtr<GrammarModule> create(const std::initializer_list<Argument<const Char*>> &args)
+  public: static SharedPtr<GrammarModule> create(const std::initializer_list<Argument<Char const*>> &args)
   {
     return std::make_shared<GrammarModule>(args);
   }
@@ -112,15 +113,26 @@ class GrammarModule : public Module, public virtual Initializable
     return this->parentReference;
   }
 
+  public: void setParent(SharedPtr<GrammarModule> const &p)
+  {
+    this->setParent(p.get());
+    this->parent = p;
+  }
+
   public: void setParent(GrammarModule *p)
   {
-    if (this->parent != 0) this->detachFromParent();
+    if (this->plainParent != 0) this->detachFromParent();
     if (p != 0) this->attachToParent(p);
   }
 
-  public: GrammarModule* getParent() const
+  public: SharedPtr<GrammarModule> getParent() const
   {
-    return this->parent;
+    return this->parent.lock();
+  }
+
+  public: GrammarModule* getPlainParent() const
+  {
+    return this->plainParent;
   }
 
   private: virtual void attachToParent(GrammarModule *p);
@@ -143,7 +155,7 @@ class GrammarModule : public Module, public virtual Initializable
   /// @name Initializable Implementation
   /// @{
 
-  public: virtual void initialize(Provider *provider, const SharedPtr<Module> &module);
+  public: virtual void initialize(IdentifiableObject *owner);
 
   /// @}
 

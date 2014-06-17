@@ -48,7 +48,7 @@ class ParsedDataBrowser
   {
   }
 
-  public: ParsedDataBrowser(const Char *qualifier)
+  public: ParsedDataBrowser(Char const *qualifier)
   {
     this->initialize(qualifier);
   }
@@ -61,7 +61,7 @@ class ParsedDataBrowser
   //============================================================================
   // Member Functions
 
-  public: void initialize(const Char *qualifier);
+  public: void initialize(Char const *qualifier);
 
   public: Bool isInitialized()
   {
@@ -102,7 +102,7 @@ class ParsedDataBrowser
 
   public: SharedPtr<IdentifiableObject> _getValue(Int index, const SharedPtr<ParsedItem> &item) const;
 
-  public: template <class T> static SharedPtr<T> getValue(const Char *qualifier,
+  public: template <class T> static SharedPtr<T> getValue(Char const *qualifier,
                                                           const SharedPtr<ParsedItem> &item)
   {
     // Validation.
@@ -118,7 +118,7 @@ class ParsedDataBrowser
     Data::Integer num;
     Data::String txt;
     IdentifiableObject *id;
-    const Char *originalQualifier = qualifier;
+    Char const *originalQualifier = qualifier;
     id = ParsedDataBrowser::parseQualifierSegment(qualifier, txt, num);
     // Now we use the id to find the right child.
     if (id->isA<Data::Integer>()) {
@@ -138,16 +138,16 @@ class ParsedDataBrowser
     }
   }
 
-  public: template <class T> static SharedPtr<T> getChildValue(const Char *qualifier,
+  public: template <class T> static SharedPtr<T> getChildValue(Char const *qualifier,
                                                                  const SharedPtr<ParsedItem> &parent)
   {
     return ParsedDataBrowser::_getValue(qualifier, parent).io_cast<T>();
   }
 
-  private: static SharedPtr<IdentifiableObject> _getValue(const Char *qualifier,
+  private: static SharedPtr<IdentifiableObject> _getValue(Char const *qualifier,
                                                           const SharedPtr<ParsedItem> &item);
 
-  private: static IdentifiableObject* parseQualifierSegment(const Char *&qualifier, Data::String &txt,
+  private: static IdentifiableObject* parseQualifierSegment(Char const *&qualifier, Data::String &txt,
                                                             Data::Integer &num);
 
   public: const Str &getQualifier() const { return qualifier; }

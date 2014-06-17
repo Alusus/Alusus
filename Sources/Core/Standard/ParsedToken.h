@@ -54,7 +54,7 @@ class ParsedToken : public ParsedItem
   //============================================================================
   // Constructor / Destructor
 
-  public: ParsedToken(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, const Char *txt=STR(""), Int l=-1, Int c=-1) :
+  public: ParsedToken(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR(""), Int l=-1, Int c=-1) :
     ParsedItem(pid, l, c), id(i), text(txt)
   {
   }
@@ -94,7 +94,7 @@ class ParsedToken : public ParsedItem
    *
    * @param t A pointer to a string containing the token text.
    */
-  public: void setText(const Char *t)
+  public: void setText(Char const *t)
   {
     this->text = t;
   }
@@ -105,7 +105,7 @@ class ParsedToken : public ParsedItem
    * @param t A pointer to a string containing the token text.
    * @param s The size of the string.
    */
-  public: void setText(const Char *t, Int s)
+  public: void setText(Char const *t, Int s)
   {
     this->text.assign(t, s);
   }

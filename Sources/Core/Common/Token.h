@@ -94,7 +94,7 @@ class Token
    *
    * @param t A pointer to a string containing the token text.
    */
-  public: void setText(const Char *t)
+  public: void setText(Char const *t)
   {
     this->text = t;
   }
@@ -105,7 +105,7 @@ class Token
    * @param t A pointer to a string containing the token text.
    * @param s The size of the string.
    */
-  public: void setText(const Char *t, Int s)
+  public: void setText(Char const *t, Int s)
   {
     this->text.assign(t, s);
   }

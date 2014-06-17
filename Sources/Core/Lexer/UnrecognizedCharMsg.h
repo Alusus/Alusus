@@ -49,7 +49,7 @@ class UnrecognizedCharMsg : public Common::BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: UnrecognizedCharMsg(const Char *t, Int l, Int c) : Common::BuildMsg(l, c), text(t)
+  public: UnrecognizedCharMsg(Char const *t, Int l, Int c) : Common::BuildMsg(l, c), text(t)
   {
   }
 
@@ -88,7 +88,7 @@ class UnrecognizedCharMsg : public Common::BuildMsg
    *
    * @param t A pointer to a string containing the error or warning text.
    */
-  public: void setText(const Char *t)
+  public: void setText(Char const *t)
   {
     this->text = t;
   }
@@ -142,7 +142,7 @@ class UnrecognizedCharMsg : public Common::BuildMsg
    *          will be consindered the column at which the source text appeared
    *          otherwise this value will be ignored.
    */
-  public: void appendText(const Char *str, Int l, Int c)
+  public: void appendText(Char const *str, Int l, Int c)
   {
     if (str == 0 || str[0] == CHR('\0')) return;
     if (this->getLine() == -1) {

@@ -34,43 +34,39 @@ class SharedProvider : public Provider
   /// @name Data Setting Functions
   /// @{
 
-  public: virtual void setSharedValue(Reference *ref, const SharedPtr<IdentifiableObject> &obj) = 0;
+  public: virtual void setSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> const &val) = 0;
 
-  public: virtual void setSharedValue(const Char *qualifier, const SharedPtr<IdentifiableObject> &obj) = 0;
+  public: virtual void setSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> const &val) = 0;
 
-  public: virtual Bool trySetSharedValue(Reference *ref, const SharedPtr<IdentifiableObject> &obj) = 0;
+  public: virtual Bool trySetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> const &val) = 0;
 
-  public: virtual Bool trySetSharedValue(const Char *qualifier, const SharedPtr<IdentifiableObject> &obj) = 0;
+  public: virtual Bool trySetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> const &val) = 0;
 
   /// @}
 
   /// @name Exception Based Shared Data Retrieval Functions
   /// @{
 
-  public: virtual const SharedPtr<IdentifiableObject>& getSharedValue(Reference *ref) const = 0;
+  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Reference const *ref) const = 0;
 
-  public: virtual void getSharedValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal,
-                                      SharedPtr<Module> &retModule) const = 0;
+  public: virtual void getSharedValue(Reference const *ref, SharedModulePairedPtr &retVal) = 0;
 
-  public: virtual const SharedPtr<IdentifiableObject>& getSharedValue(const Char *qualifier) const = 0;
+  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Char const *qualifier) const = 0;
 
-  public: virtual void getSharedValue(const Char *qualifier, SharedPtr<IdentifiableObject> &retVal,
-                                      SharedPtr<Module> &retModule) const = 0;
+  public: virtual void getSharedValue(Char const *qualifier, SharedModulePairedPtr &retVal) = 0;
 
   /// @}
 
   /// @name Return-Value Based Shared Data Retrieval Functions
   /// @{
 
-  public: virtual Bool tryGetSharedValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal) const = 0;
+  public: virtual Bool tryGetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> &retVal) const = 0;
 
-  public: virtual Bool tryGetSharedValue(Reference *ref, SharedPtr<IdentifiableObject> &retVal,
-                                         SharedPtr<Module> &retModule) const = 0;
+  public: virtual Bool tryGetSharedValue(Reference const *ref, SharedModulePairedPtr &retVal) = 0;
 
-  public: virtual Bool tryGetSharedValue(const Char *qualifier, SharedPtr<IdentifiableObject> &retVal) const = 0;
+  public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> &retVal) const = 0;
 
-  public: virtual Bool tryGetSharedValue(const Char *qualifier, SharedPtr<IdentifiableObject> &retVal,
-                                         SharedPtr<Module> &retModule) const = 0;
+  public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedModulePairedPtr &retVal) = 0;
 
   /// @}
 

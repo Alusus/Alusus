@@ -63,7 +63,7 @@ class IdGenerator
   //============================================================================
   // Member Functions
 
-  public: Word getId(const Char *desc);
+  public: Word getId(Char const *desc);
 
   public: const Str& getDesc(Word id) const;
 

@@ -32,7 +32,7 @@ class GrammarPlant : public Data::GrammarPlant
   // Member Variables
 
   // TODO: Once the lexer is converted to use the Grammar data structures, remove all these member variables and keep
-  //       only grammarStore.
+  //       only repository.
 
   /// @name Char Groups Definition IDs
   /// @{
@@ -120,7 +120,7 @@ class GrammarPlant : public Data::GrammarPlant
   /// Create the list of produciton definitions for the Core's grammar.
   protected: virtual void createProductionDefinitions();
 
-  protected: virtual Word addConstToken(const Char *text)
+  protected: virtual Word addConstToken(Char const *text)
   {
     return this->tokenDefinitions->addConstToken(text);
   }

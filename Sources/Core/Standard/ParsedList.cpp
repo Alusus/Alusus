@@ -36,7 +36,7 @@ ParsedList::ParsedList(Word pid, Int cnt, IdentifiableObject *first, ...) : Pars
 }
 
 
-ParsedList::ParsedList(Word pid, Int cnt, const SharedPtr<IdentifiableObject> *first, ...) : ParsedItem(pid)
+ParsedList::ParsedList(Word pid, Int cnt, SharedPtr<IdentifiableObject> const *first, ...) : ParsedItem(pid)
 {
   va_list objects;
   va_start(objects, first);
@@ -70,7 +70,7 @@ ParsedList::ParsedList(Word pid, Int l, Int c, Int cnt, IdentifiableObject *firs
 }
 
 
-ParsedList::ParsedList(Word pid, Int l, Int c, Int cnt, const SharedPtr<IdentifiableObject> *first, ...) :
+ParsedList::ParsedList(Word pid, Int l, Int c, Int cnt, SharedPtr<IdentifiableObject> const *first, ...) :
   ParsedItem(pid, l, c)
 {
   va_list objects;
@@ -82,7 +82,7 @@ ParsedList::ParsedList(Word pid, Int l, Int c, Int cnt, const SharedPtr<Identifi
   }
   this->pushElement(*first);
   for (Int i = 0; i < cnt-1; ++i) {
-    this->pushElement(*va_arg(objects, const SharedPtr<IdentifiableObject>*));
+    this->pushElement(*va_arg(objects, SharedPtr<IdentifiableObject> const*));
   }
   va_end(objects);
 }

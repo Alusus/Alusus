@@ -49,13 +49,13 @@ class SharedContainer : public IdentifiableInterface
   //============================================================================
   // Abstract Functions
 
-  public: virtual void set(Int index, const SharedPtr<IdentifiableObject> &val) = 0;
+  public: virtual void set(Int index, SharedPtr<IdentifiableObject> const &val) = 0;
 
   public: virtual void remove(Int index) = 0;
 
   public: virtual Word getCount() const = 0;
 
-  public: virtual const SharedPtr<IdentifiableObject>& get(Int index) const = 0;
+  public: virtual SharedPtr<IdentifiableObject> const& get(Int index) const = 0;
 
 }; // class
 

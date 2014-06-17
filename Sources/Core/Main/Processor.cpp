@@ -20,7 +20,7 @@ namespace Core { namespace Main
 
 void Processor::initialize(const SharedPtr<Lexer::CharGroupDefinitionList> &charGroupDefs,
                            const SharedPtr<Lexer::TokenDefinitionList> &tokenDefs,
-                           Data::DataStore *grammarStore)
+                           Data::GrammarRepository *grammarRepo)
 {
   // Prepare the lexer.
   this->lexer.setCharGroupDefinitions(charGroupDefs);
@@ -28,13 +28,13 @@ void Processor::initialize(const SharedPtr<Lexer::CharGroupDefinitionList> &char
   this->lexer.buildMsgNotifier.connect(this, &Processor::buildMsgNotifierRelay);
 
   // Prepare the parser.
-  this->parser.initialize(grammarStore);
+  this->parser.initialize(grammarRepo);
   this->lexer.tokenGenerated.connect(&this->parser, &Parser::StateMachine::handleNewToken);
   this->parser.buildMsgNotifier.connect(this, &Processor::buildMsgNotifierRelay);
 }
 
 
-const SharedPtr<IdentifiableObject> Processor::processString(const Char *str)
+SharedPtr<IdentifiableObject> Processor::processString(Char const *str)
 {
   if (str == 0) {
     throw InvalidArgumentException(STR("str"), STR("Core::Main::Processor::processString"),
@@ -53,7 +53,7 @@ const SharedPtr<IdentifiableObject> Processor::processString(const Char *str)
 }
 
 
-const SharedPtr<IdentifiableObject> Processor::processFile(const Char *filename)
+SharedPtr<IdentifiableObject> Processor::processFile(Char const *filename)
 {
   // Open the file.
   std::ifstream fin(filename);

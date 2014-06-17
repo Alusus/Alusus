@@ -101,7 +101,7 @@ class IdentifiableInterface
    * @brief A const version of getIdentifiableObject.
    * @sa getIdentifiableObject()
    */
-  public: virtual const IdentifiableObject* getIdentifiableObject() const = 0;
+  public: virtual IdentifiableObject const* getIdentifiableObject() const = 0;
 
 }; // class
 
@@ -131,7 +131,7 @@ class IdentifiableInterface
     static Core::Basic::TypeInfo * getInterfaceInfo() {   \
       static Core::Basic::TypeInfo *typeInfo = 0; \
       if (typeInfo == 0) { \
-        const Char* uniqueName = url "#" moduleName "#" typeNamespace "." #myType; \
+        Char const* uniqueName = url "#" moduleName "#" typeNamespace "." #myType; \
         typeInfo = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
           typeInfo = new Core::Basic::TypeInfo(#myType, typeNamespace, moduleName, url, \
@@ -249,7 +249,7 @@ template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
     } \
   public: \
     virtual IdentifiableObject* getIdentifiableObject() { return this; } \
-    virtual const IdentifiableObject* getIdentifiableObject() const { return this; }
+    virtual IdentifiableObject const* getIdentifiableObject() const { return this; }
 
 #define IMPLEMENT_INTERFACES_2(parent, interface1, interface2) \
   protected: \
@@ -261,7 +261,7 @@ template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
     } \
     public: \
       virtual IdentifiableObject* getIdentifiableObject() { return this; } \
-      virtual const IdentifiableObject* getIdentifiableObject() const { return this; }
+      virtual IdentifiableObject const* getIdentifiableObject() const { return this; }
 
 #define IMPLEMENT_INTERFACES_3(parent, interface1, interface2, interface3) \
   protected: \
@@ -274,7 +274,7 @@ template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
     } \
     public: \
       virtual IdentifiableObject* getIdentifiableObject() { return this; } \
-      virtual const IdentifiableObject* getIdentifiableObject() const { return this; }
+      virtual IdentifiableObject const* getIdentifiableObject() const { return this; }
 
 #define IMPLEMENT_INTERFACES_4(parent, interface1, interface2, interface3, interface4) \
   protected: \
@@ -288,7 +288,7 @@ template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
     } \
     public: \
       virtual IdentifiableObject* getIdentifiableObject() { return this; } \
-      virtual const IdentifiableObject* getIdentifiableObject() const { return this; }
+      virtual IdentifiableObject const* getIdentifiableObject() const { return this; }
 
 #define IMPLEMENT_INTERFACES_5(parent, interface1, interface2, interface3, interface4, interface5) \
   protected: \
@@ -303,7 +303,7 @@ template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
     } \
     public: \
       virtual IdentifiableObject* getIdentifiableObject() { return this; } \
-      virtual const IdentifiableObject* getIdentifiableObject() const { return this; }
+      virtual IdentifiableObject const* getIdentifiableObject() const { return this; }
 
 } } // namespace
 

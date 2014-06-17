@@ -74,11 +74,11 @@ class ListTerm : public Term, public virtual DataOwner
   // Member Functions
 
   /// Set a static list for this list term.
-  public: void setStatic(const SharedPtr<List> &terms,
-                         const SharedPtr<IdentifiableObject> &filter=SharedPtr<IdentifiableObject>());
+  public: void setStatic(const SharedPtr<SharedList> &terms,
+                         SharedPtr<IdentifiableObject> const &filter=SharedPtr<IdentifiableObject>());
 
   /// Set a dynamic list for this list term.
-  public: void setDynamic(const SharedPtr<Term> &term, const SharedPtr<IdentifiableObject> &data,
+  public: void setDynamic(const SharedPtr<Term> &term, SharedPtr<IdentifiableObject> const &data,
                           const SharedPtr<Reference> &ref);
 
   /// Unset the list.
@@ -90,7 +90,7 @@ class ListTerm : public Term, public virtual DataOwner
    */
   public: Bool isStatic() const
   {
-    if (this->terms != 0 && this->terms->isA<List>()) return true;
+    if (this->terms != 0 && this->terms->isA<SharedList>()) return true;
     else return false;
   }
 
@@ -106,10 +106,10 @@ class ListTerm : public Term, public virtual DataOwner
 
   /**
    * @brief Get the terms object.
-   * This can either be of type Term or List depending on whether the term is
+   * This can either be of type Term or SharedList depending on whether the term is
    * dynamic or static.
    */
-  public: const SharedPtr<IdentifiableObject>& getTerms() const
+  public: SharedPtr<IdentifiableObject> const& getTerms() const
   {
     return this->terms;
   }
@@ -122,7 +122,7 @@ class ListTerm : public Term, public virtual DataOwner
    * This can either be the filter if the list is static or the data if the
    * term is dynamic.
    */
-  public: const SharedPtr<IdentifiableObject>& getData() const
+  public: SharedPtr<IdentifiableObject> const& getData() const
   {
     return this->data;
   }

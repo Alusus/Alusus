@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Map.cpp
- * Contains the implementation of class Core::Data::Map.
+ * @file Core/Data/SharedMap.cpp
+ * Contains the implementation of class Core::Data::SharedMap.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -18,7 +18,7 @@ namespace Core { namespace Data
 //==============================================================================
 // Constructors
 
-Map::Map(Bool useIndex, const std::initializer_list<Argument<const Char*>> &args) : inherited(0), parent(0)
+SharedMap::SharedMap(Bool useIndex, const std::initializer_list<Argument<Char const*>> &args) : inherited(0), plainParent(0)
 {
   if (useIndex) this->index = new Index(&this->list);
   else this->index = 0;
@@ -28,7 +28,7 @@ Map::Map(Bool useIndex, const std::initializer_list<Argument<const Char*>> &args
       this->parentReference = arg.ioVal.io_cast<Reference>();
       if (this->parentReference == 0 && arg.ioVal != 0) {
         throw GeneralException(STR("Provided parent reference is not of type Reference."),
-                               STR("Core::Data::Map::Map"));
+                               STR("Core::Data::SharedMap::SharedMap"));
       }
     } else {
       this->add(arg.id, arg.ioVal);
@@ -40,38 +40,39 @@ Map::Map(Bool useIndex, const std::initializer_list<Argument<const Char*>> &args
 //============================================================================
 // Member Functions
 
-void Map::attachToParent(Map *p)
+void SharedMap::attachToParent(SharedMap *p)
 {
-  ASSERT(this->parent == 0);
+  ASSERT(this->plainParent == 0);
   ASSERT(this->inherited == 0);
-  this->parent = p;
-  this->parent->contentChangeNotifier.connect(this, &Map::onParentContentChanged);
-  this->parent->destroyNotifier.connect(this, &Map::onParentDestroyed);
+  this->plainParent = p;
+  this->plainParent->contentChangeNotifier.connect(this, &SharedMap::onParentContentChanged);
+  this->plainParent->destroyNotifier.connect(this, &SharedMap::onParentDestroyed);
   this->inherited = new std::vector<Bool>(this->list.size(), false);
   this->inheritFromParent();
 }
 
 
-void Map::detachFromParent()
+void SharedMap::detachFromParent()
 {
-  ASSERT(this->parent != 0);
+  ASSERT(this->plainParent != 0);
   this->removeInheritted();
-  this->parent->contentChangeNotifier.unconnect(this, &Map::onParentContentChanged);
-  this->parent->destroyNotifier.unconnect(this, &Map::onParentDestroyed);
-  this->parent = 0;
+  this->plainParent->contentChangeNotifier.unconnect(this, &SharedMap::onParentContentChanged);
+  this->plainParent->destroyNotifier.unconnect(this, &SharedMap::onParentDestroyed);
+  this->plainParent = 0;
+  this->parent.reset();
   delete this->inherited;
   this->inherited = 0;
 }
 
 
-void Map::inheritFromParent()
+void SharedMap::inheritFromParent()
 {
-  ASSERT(this->parent != 0);
+  ASSERT(this->plainParent != 0);
   for (Int i = 0; static_cast<Word>(i) < this->getParentDefCount(); ++i) this->onAdded(i);
 }
 
 
-void Map::removeInheritted()
+void SharedMap::removeInheritted()
 {
   ASSERT(this->inherited != 0);
   for (Int i = this->inherited->size()-1; i >= 0; --i) {
@@ -82,7 +83,7 @@ void Map::removeInheritted()
 }
 
 
-void Map::onParentContentChanged(SharedContainer *obj, ContentChangeOp op, Int index)
+void SharedMap::onParentContentChanged(SharedContainer *obj, ContentChangeOp op, Int index)
 {
   if (op == ContentChangeOp::ADD) this->onAdded(index);
   else if (op == ContentChangeOp::UPDATE) this->onUpdated(index);
@@ -90,12 +91,12 @@ void Map::onParentContentChanged(SharedContainer *obj, ContentChangeOp op, Int i
 }
 
 
-void Map::onAdded(Int index)
+void SharedMap::onAdded(Int index)
 {
-  ASSERT(this->parent != 0);
+  ASSERT(this->plainParent != 0);
   ASSERT(this->inherited != 0);
   ASSERT(static_cast<Word>(index) < this->getParentDefCount());
-  const Char *key = this->parent->getKey(index).c_str();
+  Char const *key = this->plainParent->getKey(index).c_str();
   Int myIndex = this->findIndex(key);
   SharedPtr<IdentifiableObject> obj;
   if (myIndex != -1 && myIndex != index) {
@@ -107,7 +108,7 @@ void Map::onAdded(Int index)
     this->list.insert(this->list.begin()+index, Entry(key, obj));
     this->inherited->insert(this->inherited->begin()+index, false);
   } else if (myIndex == -1) {
-    obj = this->parent->get(index);
+    obj = this->plainParent->get(index);
     this->list.insert(this->list.begin()+index, Entry(key, obj));
     this->inherited->insert(this->inherited->begin()+index, true);
   }
@@ -116,21 +117,21 @@ void Map::onAdded(Int index)
 }
 
 
-void Map::onUpdated(Int index)
+void SharedMap::onUpdated(Int index)
 {
-  ASSERT(this->parent != 0);
+  ASSERT(this->plainParent != 0);
   ASSERT(this->inherited != 0);
   ASSERT(static_cast<Word>(index) < this->getParentDefCount());
   if (this->inherited->at(index)) {
-    this->list[index].second = this->parent->get(index);
+    this->list[index].second = this->plainParent->get(index);
     this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, index);
   }
 }
 
 
-void Map::onRemoved(Int index)
+void SharedMap::onRemoved(Int index)
 {
-  ASSERT(this->parent != 0);
+  ASSERT(this->plainParent != 0);
   ASSERT(this->inherited != 0);
   ASSERT(static_cast<Word>(index) < this->getParentDefCount()+1);
   if (this->inherited->at(index)) {
@@ -150,7 +151,7 @@ void Map::onRemoved(Int index)
 }
 
 
-Int Map::add(const Char *key, const SharedPtr<IdentifiableObject> &val)
+Int SharedMap::add(Char const *key, SharedPtr<IdentifiableObject> const &val)
 {
   Int i = this->findIndex(key);
   if (i != -1) {
@@ -159,7 +160,7 @@ Int Map::add(const Char *key, const SharedPtr<IdentifiableObject> &val)
       this->inherited->at(i) = false;
       this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, i);
     } else {
-      throw InvalidArgumentException(STR("key"), STR("Core::Data::Map::add"),
+      throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::add"),
                                      STR("Already exists."));
     }
   } else {
@@ -173,14 +174,14 @@ Int Map::add(const Char *key, const SharedPtr<IdentifiableObject> &val)
 }
 
 
-void Map::insert(Int index, const Char *key, const SharedPtr<IdentifiableObject> &val)
+void SharedMap::insert(Int index, Char const *key, SharedPtr<IdentifiableObject> const &val)
 {
   if (this->findIndex(key) != -1) {
-    throw InvalidArgumentException(STR("key"), STR("Core::Data::Map::insert"),
+    throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::insert"),
                                    STR("Already exists."));
   }
   if (static_cast<Word>(index) < this->getParentDefCount()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::Map::insert"),
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::insert"),
                                    STR("Cannot insert at a position that breaks parent's sequence."));
   }
   this->list.insert(this->list.begin()+index, Entry(key, val));
@@ -190,7 +191,7 @@ void Map::insert(Int index, const Char *key, const SharedPtr<IdentifiableObject>
 }
 
 
-Int Map::set(const Char *key, const SharedPtr<IdentifiableObject> &val, Bool insertIfNew)
+Int SharedMap::set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bool insertIfNew)
 {
   Int idx = this->findIndex(key);
   if (idx == -1) {
@@ -201,7 +202,7 @@ Int Map::set(const Char *key, const SharedPtr<IdentifiableObject> &val, Bool ins
       this->index->add();
       this->contentChangeNotifier.emit(this, ContentChangeOp::ADD, idx);
     } else {
-      throw InvalidArgumentException(STR("key"), STR("Core::Data::Map::set"),
+      throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::set"),
                                      STR("Not found."));
     }
   } else {
@@ -213,14 +214,14 @@ Int Map::set(const Char *key, const SharedPtr<IdentifiableObject> &val, Bool ins
 }
 
 
-void Map::clear()
+void SharedMap::clear()
 {
   Int i = 0;
   while (static_cast<Word>(i) < this->getParentDefCount()) {
-    ASSERT(this->parent != 0);
+    ASSERT(this->plainParent != 0);
     ASSERT(this->inherited != 0);
     if (!this->inherited->at(i)) {
-      this->list[i].second = this->parent->get(i);
+      this->list[i].second = this->plainParent->get(i);
       this->inherited->at(i) = true;
       this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, i);
     }
@@ -237,19 +238,19 @@ void Map::clear()
 //==============================================================================
 // Initializable Implementation
 
-void Map::initialize(Provider *provider, const SharedPtr<Module> &module)
+void SharedMap::initialize(IdentifiableObject *owner)
 {
-  GrammarHelper helper(provider);
   if (this->parentReference != 0) {
-    IdentifiableObject *p = helper.traceValue(this->parentReference.get(), module.get());
+    SharedTracer *tracer = owner->getInterface<SharedTracer>();
+    SharedPtr<IdentifiableObject> p = tracer->traceSharedValue(this->parentReference);
     if (p == 0) {
       throw GeneralException(STR("Parent reference points to missing definition."),
-                             STR("Data::Map::initialize"));
+                             STR("Data::SharedMap::initialize"));
     }
-    Map *pm = io_cast<Map>(p);
+    SharedPtr<SharedMap> pm = p.io_cast<SharedMap>();
     if (pm == 0) {
       throw GeneralException(STR("Parent reference points to an object of an invalid type."),
-                             STR("Data::Map::initialize"));
+                             STR("Data::SharedMap::initialize"));
     }
     this->setParent(pm);
   }
@@ -259,7 +260,7 @@ void Map::initialize(Provider *provider, const SharedPtr<Module> &module)
 //==============================================================================
 // DataOwner Implementation
 
-void Map::unsetIndexes(Int from, Int to)
+void SharedMap::unsetIndexes(Int from, Int to)
 {
   if (this->parentReference != 0) {
     Data::unsetIndexes(this->parentReference.get(), from, to);
@@ -276,10 +277,10 @@ void Map::unsetIndexes(Int from, Int to)
 //==============================================================================
 // MapSharedContainer Implementation
 
-void Map::set(Int index, const SharedPtr<IdentifiableObject> &val)
+void SharedMap::set(Int index, SharedPtr<IdentifiableObject> const &val)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::Map::set"),
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::set"),
                                    STR("Out of range."));
   }
   this->list[index].second = val;
@@ -288,20 +289,20 @@ void Map::set(Int index, const SharedPtr<IdentifiableObject> &val)
 }
 
 
-void Map::remove(Int index)
+void SharedMap::remove(Int index)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::Map::remove"),
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::remove"),
                                    STR("Out of range."));
   }
   if (this->inherited != 0 && this->inherited->at(index)) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::Map::remove"),
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::remove"),
                                    STR("Given entry belongs to parent."));
   }
   if (static_cast<Word>(index) < this->getParentDefCount()) {
-    ASSERT(this->parent != 0);
+    ASSERT(this->plainParent != 0);
     ASSERT(this->inherited != 0);
-    this->list[index].second = this->parent->get(index);
+    this->list[index].second = this->plainParent->get(index);
     this->inherited->at(index) = true;
     this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, index);
   } else {
@@ -313,27 +314,27 @@ void Map::remove(Int index)
 }
 
 
-const SharedPtr<IdentifiableObject>& Map::get(Int index) const
+SharedPtr<IdentifiableObject> const& SharedMap::get(Int index) const
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::Map::get"),
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::get"),
                                    STR("Out of range."));
   }
   return this->list[index].second;
 }
 
 
-void Map::remove(const Char *key)
+void SharedMap::remove(Char const *key)
 {
   Int idx = this->findIndex(key);
   if (idx == -1 || (this->inherited != 0 && this->inherited->at(idx) == true)) {
-    throw InvalidArgumentException(STR("key"), STR("Core::Data::Map::remove"),
+    throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::remove"),
                                    STR("Not found."));
   }
   if (static_cast<Word>(idx) < this->getParentDefCount()) {
-    ASSERT(this->parent != 0);
+    ASSERT(this->plainParent != 0);
     ASSERT(this->inherited != 0);
-    this->list[idx].second = this->parent->get(idx);
+    this->list[idx].second = this->plainParent->get(idx);
     this->inherited->at(idx) = true;
     this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, idx);
   } else {
@@ -345,10 +346,10 @@ void Map::remove(const Char *key)
 }
 
 
-Int Map::findIndex(const Char *key) const
+Int SharedMap::findIndex(Char const *key) const
 {
   if (key == 0) {
-    throw InvalidArgumentException(STR("key"), STR("Core::Data::Map::findIndex"),
+    throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::findIndex"),
                                    STR("Cannot be null."));
   }
   // Do we have an index to speed up search?

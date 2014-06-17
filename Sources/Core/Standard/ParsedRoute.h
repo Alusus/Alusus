@@ -64,7 +64,7 @@ class ParsedRoute : public ParsedItem
   {
   }
 
-  public: ParsedRoute(Word pid, Int r, const SharedPtr<IdentifiableObject> &d) :
+  public: ParsedRoute(Word pid, Int r, SharedPtr<IdentifiableObject> const &d) :
     ParsedItem(pid), route(r), data(d)
   {
   }
@@ -74,7 +74,7 @@ class ParsedRoute : public ParsedItem
   {
   }
 
-  public: ParsedRoute(Word pid, Int r, Int l, Int c, const SharedPtr<IdentifiableObject> &d) :
+  public: ParsedRoute(Word pid, Int r, Int l, Int c, SharedPtr<IdentifiableObject> const &d) :
     ParsedItem(pid, c, l), route(r), data(d)
   {
   }
@@ -121,7 +121,7 @@ class ParsedRoute : public ParsedItem
    * This is the parsed data from the terms contained in the selected route
    * (if any) is recorded to this pointer.
    */
-  public: void setData(const SharedPtr<IdentifiableObject> &d)
+  public: void setData(SharedPtr<IdentifiableObject> const &d)
   {
     this->data = d;
   }
@@ -132,7 +132,7 @@ class ParsedRoute : public ParsedItem
    * This is the parsed data from the terms contained in the selected route
    * (if any) is recorded to this pointer.
    */
-  public: const SharedPtr<IdentifiableObject>& getData() const
+  public: SharedPtr<IdentifiableObject> const& getData() const
   {
     return this->data;
   }

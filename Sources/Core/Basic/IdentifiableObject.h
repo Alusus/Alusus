@@ -119,7 +119,7 @@ class IdentifiableObject
    */
   public: template<class T> const T* getInterface() const
   {
-    return reinterpret_cast<const T*>(this->_getInterface(T::getInterfaceInfo()));
+    return reinterpret_cast<const T*>(const_cast<IdentifiableObject*>(this)->_getInterface(T::getInterfaceInfo()));
   }
 
 }; // class
@@ -135,7 +135,7 @@ class IdentifiableObject
 #define GET_TYPE_INFO_BODY(myType, baseType, typeNamespace, moduleName, url) \
   static Core::Basic::TypeInfo *typeInfo = 0; \
   if (typeInfo == 0) { \
-    const Char* uniqueName = url "#" moduleName "#" typeNamespace "." #myType; \
+    Char const* uniqueName = url "#" moduleName "#" typeNamespace "." #myType; \
     typeInfo = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
     if (typeInfo == 0) { \
       typeInfo = new Core::Basic::TypeInfo(#myType, typeNamespace, moduleName, url, \
@@ -236,7 +236,7 @@ template <class T> inline T* io_cast(IdentifiableObject *object)
 }
 
 /// @sa io_cast()
-template <class T> inline const T* io_cast(const IdentifiableObject *object)
+template <class T> inline const T* io_cast(IdentifiableObject const *object)
 {
   return static_cast<const T*>(object==0?0:object->isDerivedFrom(T::getTypeInfo())?object:0);
 }
@@ -250,7 +250,7 @@ template <class T> inline const T* io_cast(const IdentifiableObject *object)
  * The function returns true only if the object is of that type. If the object
  * is of a type derived from the given type the function will return false.
  */
-template <class T> inline bool isA(const IdentifiableObject *object)
+template <class T> inline bool isA(IdentifiableObject const *object)
 {
   return (object==0?false:object->isA(T::getTypeInfo()));
 }

@@ -65,7 +65,7 @@ void findProdData(Word prodId, SharedPtr<IdentifiableObject> ptr,
  *              of that list to search. If this is -1 the entire list will be
  *              searched.
  */
-void findToken(Word tokenId, const Char *text, SharedPtr<IdentifiableObject> ptr,
+void findToken(Word tokenId, Char const *text, SharedPtr<IdentifiableObject> ptr,
                vector<SharedPtr<IdentifiableObject> > &result, Int index)
 {
   if (ptr == 0 || !ptr->isDerivedFrom<Standard::ParsedItem>()) return;

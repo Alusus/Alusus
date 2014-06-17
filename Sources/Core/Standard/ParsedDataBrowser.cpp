@@ -24,7 +24,7 @@ const Int ParsedDataBrowser::invalidIndex = 1000000000;
 //==============================================================================
 // Member Functions
 
-void ParsedDataBrowser::initialize(const Char *qualifier)
+void ParsedDataBrowser::initialize(Char const *qualifier)
 {
   if (qualifier == 0) {
     throw InvalidArgumentException(STR("qualifier"), STR("Core::Standard::ParsedDataBrowser::initialize"),
@@ -119,7 +119,7 @@ SharedPtr<IdentifiableObject> ParsedDataBrowser::_getValue(Int index, const Shar
 }
 
 
-SharedPtr<IdentifiableObject> ParsedDataBrowser::_getValue(const Char *qualifier,
+SharedPtr<IdentifiableObject> ParsedDataBrowser::_getValue(Char const *qualifier,
                                                            const SharedPtr<ParsedItem> &item)
 {
   // Validation.
@@ -186,7 +186,7 @@ SharedPtr<IdentifiableObject> ParsedDataBrowser::_getValue(const Char *qualifier
 }
 
 
-IdentifiableObject* ParsedDataBrowser::parseQualifierSegment(const Char *&qualifier, Data::String &txt,
+IdentifiableObject* ParsedDataBrowser::parseQualifierSegment(Char const *&qualifier, Data::String &txt,
                                                              Data::Integer &num)
 {
   Int i;

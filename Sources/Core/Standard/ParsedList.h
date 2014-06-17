@@ -53,11 +53,11 @@ class ParsedList : public ParsedItem
 
   public: ParsedList(Word pid, Int cnt, IdentifiableObject *first, ...);
 
-  public: ParsedList(Word pid, Int cnt, const SharedPtr<IdentifiableObject> *first, ...);
+  public: ParsedList(Word pid, Int cnt, SharedPtr<IdentifiableObject> const *first, ...);
 
   public: ParsedList(Word pid, Int l, Int c, Int cnt, IdentifiableObject *first, ...);
 
-  public: ParsedList(Word pid, Int l, Int c, Int cnt, const SharedPtr<IdentifiableObject> *first, ...);
+  public: ParsedList(Word pid, Int l, Int c, Int cnt, SharedPtr<IdentifiableObject> const *first, ...);
 
   public: virtual ~ParsedList()
   {
@@ -73,7 +73,7 @@ class ParsedList : public ParsedItem
    *             users count will be incremented.
    * @return The index of the created element within the list.
    */
-  public: Int pushElement(const SharedPtr<IdentifiableObject> &data)
+  public: Int pushElement(SharedPtr<IdentifiableObject> const &data)
   {
     this->elements.push_back(data);
     return this->elements.size()-1;
@@ -91,14 +91,14 @@ class ParsedList : public ParsedItem
    * This replaces any existing element with the new one. The users count will
    * be updated for both the new and the old objects.
    */
-  public: void setElement(Int index, const SharedPtr<IdentifiableObject> &data)
+  public: void setElement(Int index, SharedPtr<IdentifiableObject> const &data)
   {
     ASSERT(static_cast<Word>(index) < this->elements.size());
     this->elements[index] = data;
   }
 
   /// Get a smart pointer to a specific element in the list.
-  public: const SharedPtr<IdentifiableObject>& getElement(Int index) const
+  public: SharedPtr<IdentifiableObject> const& getElement(Int index) const
   {
     ASSERT(static_cast<Word>(index) < this->elements.size());
     return this->elements[index];

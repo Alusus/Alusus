@@ -20,7 +20,7 @@ namespace Core { namespace Parser
 //==============================================================================
 // Member Functions
 
-void StateMachine::initialize(Data::DataStore *store)
+void StateMachine::initialize(Data::GrammarRepository *grammarRepo)
 {
   // Before we can change the production list, we need to make sure we have no outstanding
   // states.
@@ -35,14 +35,14 @@ void StateMachine::initialize(Data::DataStore *store)
   //}
 
   // Set the new manager.
-  this->grammarStore = store;
+  this->grammarRepository = grammarRepo;
 
   // TODO: If we have a new manager, we need to set the production_in_use_inquirer signal.
   //if (this->production_definitions != 0) {
   //    this->production_definitions->production_in_use_inquirer.connect(this, &StateMachine::is_production_in_use);
   //}
 
-  Data::GrammarModule *root = this->grammarStore->getRootModule().io_cast_get<Data::GrammarModule>();
+  Data::GrammarModule *root = this->grammarRepository->getPlainRoot();
   if (root == 0) {
     throw InvalidArgumentException(STR("mgr"), STR("Core::Parser::StateMachine::initialize"),
                                    STR("Provided manager doesn't contain a GrammarModule root."));
@@ -72,10 +72,10 @@ void StateMachine::initialize(Data::DataStore *store)
 void StateMachine::beginParsing()
 {
   // Validation.
-  if (this->grammarStore == 0) {
-    throw GeneralException(STR("Grammar manager is not set."), STR("Core::Parser::StateMachine::beginParsing()"));
+  if (this->grammarRepository == 0) {
+    throw GeneralException(STR("Grammar repository is not set."), STR("Core::Parser::StateMachine::beginParsing()"));
   }
-  Data::GrammarModule *rootModule = this->grammarStore->getRootModule().io_cast_get<Data::GrammarModule>();
+  Data::GrammarModule *rootModule = this->grammarRepository->getPlainRoot();
   if (rootModule == 0) {
     throw GeneralException(STR("No root grammar module is found."),
                            STR("Core::Parser::StateMachine::beginParsing"));
@@ -96,7 +96,7 @@ void StateMachine::beginParsing()
   // Initialize the program root level.
   Data::Module *module;
   Data::SymbolDefinition *prod;
-  (*si)->getGrammarHelper()->getReferencedDefinition(rootModule->getStartRef().get(), module, prod);
+  (*si)->getGrammarContext()->getReferencedDefinition(rootModule->getStartRef().get(), module, prod);
   if (!prod->isA<Data::SymbolDefinition>()) {
     throw GeneralException(STR("Reference term is pointing to a target of a wrong type."),
                            STR("Core::Parser::StateMachine::beginParsing"));
@@ -136,7 +136,7 @@ void StateMachine::beginParsing()
  *         parsing is complete. This can be 0 if the parsing handlers chose
  *         to remove all parsing data upon level/production end.
  */
-const SharedPtr<IdentifiableObject> StateMachine::endParsing()
+SharedPtr<IdentifiableObject> StateMachine::endParsing()
 {
   // Validation.
   if (this->states.empty()) {
@@ -601,8 +601,8 @@ void StateMachine::processTokenTerm(const Common::Token * token, StateIterator s
       if (matchText->isA<Data::String>()) {
         matchStr = static_cast<Data::String*>(matchText);
         if (matchStr->getStr() == token->getText()) matched = true;
-      } else if (matchText->isA<Data::Map>()) {
-        if (static_cast<Data::Map*>(matchText)->findIndex(token->getText().c_str()) != -1) matched = true;
+      } else if (matchText->isA<Data::SharedMap>()) {
+        if (static_cast<Data::SharedMap*>(matchText)->findIndex(token->getText().c_str()) != -1) matched = true;
       }
     }
     else if (matchId == token->getId()) {
@@ -1169,8 +1169,8 @@ void StateMachine::testTokenTerm(const Common::Token *token, State *state)
       if (matchText->isA<Data::String>()) {
         matchStr = static_cast<Data::String*>(matchText);
         if (matchStr->getStr() == token->getText()) matched = true;
-      } else if (matchText->isA<Data::Map>()) {
-        if (static_cast<Data::Map*>(matchText)->findIndex(token->getText().c_str()) != -1) matched = true;
+      } else if (matchText->isA<Data::SharedMap>()) {
+        if (static_cast<Data::SharedMap*>(matchText)->findIndex(token->getText().c_str()) != -1) matched = true;
       }
     }
     else if (matchId == token->getId()) {
@@ -1506,7 +1506,7 @@ void StateMachine::testReferenceTerm(const Common::Token *token, State *state)
  */
 StateMachine::StateIterator StateMachine::createState()
 {
-  Data::GrammarModule *root = this->grammarStore->getRootModule().s_cast_get<Data::GrammarModule>();
+  Data::GrammarModule *root = this->grammarRepository->getPlainRoot();
   State *state = new State(RESERVED_TERM_LEVEL_COUNT, RESERVED_PRODUCTION_LEVEL_COUNT,
                                            VARIABLE_NAME_MAX_LENGTH,
                                            RESERVED_VARIABLE_COUNT, RESERVED_VARIABLE_LEVEL_COUNT, root);
@@ -1765,7 +1765,7 @@ Bool StateMachine::isDefinitionInUse(Data::SymbolDefinition *definition) const
     throw InvalidArgumentException(STR("definition"), STR("Core::Parser::StateMachine::isDefinitionInUse"),
                                    STR("Should not be null."));
   }
-  if (this->grammarStore == 0) return false;
+  if (this->grammarRepository == 0) return false;
   for (ConstStateIterator si = this->states.begin(); si != this->states.end(); si++) {
     for (Int i = 0; i < (*si)->getProdLevelCount(); i++) {
       if ((*si)->refProdLevel(i).getProd() == definition) return true;

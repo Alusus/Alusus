@@ -43,7 +43,7 @@ class RandomCharGroupUnit : public CharGroupUnit
   {
   }
 
-  public: RandomCharGroupUnit(const Char *list)
+  public: RandomCharGroupUnit(Char const *list)
   {
     if (list == 0) {
       throw InvalidArgumentException(STR("list"), STR("Core::Lexer::RandomCharGroupUnit::RandomCharGroupUnit"),
@@ -72,7 +72,7 @@ class RandomCharGroupUnit : public CharGroupUnit
    * Once set, modifying this value is not allowed. This is to prevent
    * accidentally modifying the term while being in use by some state.
    */
-  public: void setCharList(const Char *list)
+  public: void setCharList(Char const *list)
   {
     if (list == 0) {
       throw InvalidArgumentException(STR("list"), STR("Core::Lexer::RandomCharGroupUnit::setCharList"),
@@ -89,7 +89,7 @@ class RandomCharGroupUnit : public CharGroupUnit
    * @brief Get a pointer to the list of characters in the group.
    * @return Returns a pointer to an array of characters.
    */
-  public: const Char* getCharList() const
+  public: Char const* getCharList() const
   {
     return this->charList.c_str();
   }

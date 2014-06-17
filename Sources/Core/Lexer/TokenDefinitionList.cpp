@@ -100,7 +100,7 @@ Int TokenDefinitionList::add(Word id, const SharedPtr<Term> &formulaHead, Bool i
  * returned. Otherwise, a new definition is created with an ID obtained from
  * Data::IdGenerator and the new ID is returned.
  */
-Word TokenDefinitionList::addConstToken(const Char *str)
+Word TokenDefinitionList::addConstToken(Char const *str)
 {
   // First search for an already available const token.
   for (Int i = 0; i < static_cast<Int>(this->list.size()); i++) {

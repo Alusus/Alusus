@@ -25,11 +25,13 @@ State::State() :
   topTermLevelCache(0),
   topProdLevelCache(0),
   trunkSharedBuildMsgCount(0),
-  grammarHelper(static_cast<Data::Provider*>(&grammarContext)),
   processingStatus(ProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ProcessingStatus::IN_PROGRESS),
   tokensToLive(-1)
 {
+  this->grammarContext.setRoot(0);
+  this->grammarContext.setStack(&this->variableStack);
+  this->dataStack.setOwner(true);
 }
 
 
@@ -42,23 +44,23 @@ State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxV
   topProdLevelCache(0),
   trunkSharedBuildMsgCount(0),
   termStack(reservedTermLevelCount),
-  dataStack(reservedTermLevelCount),
+  dataStack(maxVarNameLength, reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
-  grammarHelper(static_cast<Data::Provider*>(&grammarContext)),
   processingStatus(ProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ProcessingStatus::IN_PROGRESS),
   tokensToLive(-1)
 {
   this->termStack.resize(0);
   this->prodStack.resize(0);
-  this->grammarContext.setRootModule(rootModule);
-  this->grammarContext.setVariableStack(&this->variableStack);
+  this->grammarContext.setRoot(rootModule);
+  this->grammarContext.setStack(&this->variableStack);
+  this->dataStack.setOwner(true);
 }
 
 
 State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-             Word reservedVarCount, Word reservedVarLevelCount, const Data::DataContext *context) :
+             Word reservedVarCount, Word reservedVarLevelCount, const Data::GrammarContext *context) :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
@@ -66,10 +68,9 @@ State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxV
   topProdLevelCache(0),
   trunkSharedBuildMsgCount(0),
   termStack(reservedTermLevelCount),
-  dataStack(reservedTermLevelCount),
+  dataStack(maxVarNameLength, reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
-  grammarHelper(static_cast<Data::Provider*>(&grammarContext)),
   processingStatus(ProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ProcessingStatus::IN_PROGRESS),
   tokensToLive(-1)
@@ -77,7 +78,8 @@ State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxV
   this->termStack.resize(0);
   this->prodStack.resize(0);
   this->grammarContext.copyFrom(context);
-  this->grammarContext.setVariableStack(&this->variableStack);
+  this->grammarContext.setStack(&this->variableStack);
+  this->dataStack.setOwner(true);
 }
 
 
@@ -94,20 +96,21 @@ void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount,
   ASSERT(reservedVarLevelCount > 0);
 
   this->termStack.reserve(reservedTermLevelCount);
-  this->dataStack.reserveLevels(reservedTermLevelCount);
   this->prodStack.reserve(reservedProdLevelCount);
+  this->dataStack.initialize(maxVarNameLength, reservedTermLevelCount);
   this->termStack.clear();
   this->dataStack.clear();
   this->prodStack.clear();
   this->variableStack.initialize(maxVarNameLength, reservedVarCount, reservedVarLevelCount);
-  this->grammarContext.setRootModule(rootModule);
-  this->grammarContext.setVariableStack(&this->variableStack);
+  this->grammarContext.setRoot(rootModule);
+  this->grammarContext.setStack(&this->variableStack);
+  this->grammarContext.setArgs(0);
 }
 
 
 void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                        Word reservedVarCount, Word reservedVarLevelCount,
-                       const Data::DataContext *context)
+                       const Data::GrammarContext *context)
 {
   ASSERT(reservedTermLevelCount > 0);
   ASSERT(reservedProdLevelCount > 0);
@@ -116,14 +119,14 @@ void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount,
   ASSERT(reservedVarLevelCount > 0);
 
   this->termStack.reserve(reservedTermLevelCount);
-  this->dataStack.reserveLevels(reservedTermLevelCount);
   this->prodStack.reserve(reservedProdLevelCount);
+  this->dataStack.initialize(maxVarNameLength, reservedTermLevelCount);
   this->termStack.clear();
   this->dataStack.clear();
   this->prodStack.clear();
   this->variableStack.initialize(maxVarNameLength, reservedVarCount, reservedVarLevelCount);
   this->grammarContext.copyFrom(context);
-  this->grammarContext.setVariableStack(&this->variableStack);
+  this->grammarContext.setStack(&this->variableStack);
 }
 
 
@@ -219,7 +222,7 @@ Int State::getTopprodTermLevelCount() const
 void State::pushTermLevel(Data::Term *term)
 {
   this->termStack.push_back(TermLevel());
-  this->dataStack.push();
+  this->dataStack.pushLevel(SharedPtr<IdentifiableObject>());
   this->topTermLevelCache = &this->refTermLevel(-1);
 
   // If we don't have any term to set, then we also won't have any related info to cache.
@@ -230,24 +233,16 @@ void State::pushTermLevel(Data::Term *term)
   // Cache term parameters for faster access later.
   if (term->isA<Data::TokenTerm>()) {
     Data::TokenTerm *tokenTerm = static_cast<Data::TokenTerm*>(term);
-    IdentifiableObject *param;
-    param = this->grammarHelper.getTokenTermId(tokenTerm);
-    this->topTermLevelCache->setParam1(param);
-    param = this->grammarHelper.getTokenTermText(tokenTerm);
-    this->topTermLevelCache->setParam2(param);
-  } else if (term->isA<Data::ListTerm>()) {
+    this->topTermLevelCache->getParam1()->object = this->grammarContext.getTokenTermId(tokenTerm);
+    this->topTermLevelCache->getParam2()->object = this->grammarContext.getTokenTermText(tokenTerm);
+  } else if (term->isDerivedFrom<Data::ListTerm>()) {
     Data::ListTerm *list_term = static_cast<Data::ListTerm*>(term);
-    IdentifiableObject *param = this->grammarHelper.getListTermData(list_term);
-    this->topTermLevelCache->setParam1(param);
+    this->grammarContext.getListTermData(list_term, *(this->topTermLevelCache->getParam1()));
   } else if (term->isA<Data::MultiplyTerm>()) {
     Data::MultiplyTerm *multiplyTerm = static_cast<Data::MultiplyTerm*>(term);
-    IdentifiableObject *param;
-    param = this->grammarHelper.getMultiplyTermMax(multiplyTerm);
-    this->topTermLevelCache->setParam1(param);
-    param = this->grammarHelper.getMultiplyTermMin(multiplyTerm);
-    this->topTermLevelCache->setParam2(param);
-    param = this->grammarHelper.getMultiplyTermPriority(multiplyTerm);
-    this->topTermLevelCache->setParam3(param);
+    this->topTermLevelCache->getParam1()->object = this->grammarContext.getMultiplyTermMax(multiplyTerm);
+    this->topTermLevelCache->getParam2()->object = this->grammarContext.getMultiplyTermMin(multiplyTerm);
+    this->topTermLevelCache->getParam3()->object = this->grammarContext.getMultiplyTermPriority(multiplyTerm);
   }
 }
 
@@ -263,8 +258,8 @@ void State::popTermLevel()
   ASSERT(!this->isAtProdRoot());
   if (this->termStack.size() > 0) {
     this->termStack.pop_back();
-    ASSERT(this->dataStack.getCount() > 0);
-    this->dataStack.pop();
+    ASSERT(this->dataStack.getLevelCount() > 0);
+    this->dataStack.popLevel();
   } else {
     if (this->tempTrunkTermStackIndex >= 0) {
       this->tempTrunkTermStackIndex--;
@@ -346,9 +341,9 @@ void State::pushProdLevel(Data::Module *module, Data::SymbolDefinition *prod)
   this->topProdLevelCache->setProd(prod);
   this->topProdLevelCache->setTermStackIndex(this->getTermLevelCount());
   this->variableStack.pushLevel();
-  this->grammarContext.switchCurrentModule(module);
-  this->grammarContext.setCurrentArgumentList(this->grammarHelper.getSymbolVars(prod));
-  this->pushTermLevel(this->grammarHelper.getSymbolTerm(prod));
+  this->grammarContext.setModule(module);
+  this->grammarContext.setArgs(this->grammarContext.getSymbolVars(prod));
+  this->pushTermLevel(this->grammarContext.getSymbolTerm(prod));
 }
 
 
@@ -374,9 +369,9 @@ void State::popProdLevel()
 
   if (this->getProdLevelCount() > 0) {
     this->topProdLevelCache = &this->refProdLevel(-1);
-    this->grammarContext.switchCurrentModule(this->topProdLevelCache->getModule());
-    Data::Map *vars = this->grammarHelper.getSymbolVars(this->topProdLevelCache->getProd());
-    this->grammarContext.setCurrentArgumentList(vars);
+    this->grammarContext.setModule(this->topProdLevelCache->getModule());
+    Data::SharedMap *vars = this->grammarContext.getSymbolVars(this->topProdLevelCache->getProd());
+    this->grammarContext.setArgs(vars);
   }
   else {
     this->topProdLevelCache = 0;
@@ -395,8 +390,8 @@ Word State::getListTermChildCount(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isDerivedFrom<Data::ListTerm>());
-  return this->grammarHelper.getListTermChildCount(static_cast<Data::ListTerm*>(level->getTerm()),
-                                                   level->getParam1());
+  return this->grammarContext.getListTermChildCount(static_cast<Data::ListTerm*>(level->getTerm()),
+                                                    *(level->getParam1()));
 }
 
 
@@ -406,9 +401,10 @@ Data::Term* State::useListTermChild(Int index, Int levelOffset)
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isDerivedFrom<Data::ListTerm>());
-  return this->grammarHelper.useListTermChild(&this->grammarContext,
-                                              static_cast<Data::ListTerm*>(level->getTerm()),
-                                              index, level->getParam1());
+  Data::Term *term;
+  this->grammarContext.useListTermChild(static_cast<Data::ListTerm*>(level->getTerm()),
+                                        index, *(level->getParam1()), term, level->getParam2());
+  return term;
 }
 
 
@@ -418,7 +414,7 @@ Data::Integer* State::getTokenTermId(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::TokenTerm>());
-  return static_cast<Data::Integer*>(level->getParam1());
+  return static_cast<Data::Integer*>(level->getParam1()->object);
 }
 
 
@@ -428,12 +424,12 @@ IdentifiableObject* State::getTokenTermText(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::TokenTerm>());
-  return level->getParam2();
+  return level->getParam2()->object;
 }
 
 
 void State::getReferencedDefinition(Data::Module *&module, Data::SymbolDefinition *&definition,
-                                    Int levelOffset) const
+                                    Int levelOffset)
 {
   Data::Reference *ref;
   if (levelOffset == -1) {
@@ -443,7 +439,7 @@ void State::getReferencedDefinition(Data::Module *&module, Data::SymbolDefinitio
     ASSERT(this->refTermLevel(levelOffset).getTerm()->isA<Data::ReferenceTerm>());
     ref = static_cast<Data::ReferenceTerm*>(this->refTermLevel(levelOffset).getTerm())->getReference().get();
   }
-  return this->grammarHelper.getReferencedDefinition(ref, module, definition);
+  this->grammarContext.getReferencedDefinition(ref, module, definition);
 }
 
 
@@ -453,7 +449,7 @@ Data::Integer* State::getMultiplyTermMax(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::MultiplyTerm>());
-  return static_cast<Data::Integer*>(level->getParam1());
+  return static_cast<Data::Integer*>(level->getParam1()->object);
 }
 
 
@@ -463,7 +459,7 @@ Data::Integer* State::getMultiplyTermMin(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::MultiplyTerm>());
-  return static_cast<Data::Integer*>(level->getParam2());
+  return static_cast<Data::Integer*>(level->getParam2()->object);
 }
 
 
@@ -473,7 +469,7 @@ Data::Integer* State::getMultiplyTermPriority(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::MultiplyTerm>());
-  return static_cast<Data::Integer*>(level->getParam3());
+  return static_cast<Data::Integer*>(level->getParam3()->object);
 }
 
 
@@ -522,11 +518,11 @@ void State::setBranchingInfo(State *ts, Int ttl, Int tsi, Int psi)
     this->variableStack.setBranchingInfo(ts->getVariableStack(), psi);
     if (ts->getProdLevelCount() == psi+1) {
       this->grammarContext.copyFrom(ts->getGrammarContext());
-      this->grammarContext.setVariableStack(&this->variableStack);
+      this->grammarContext.setStack(&this->variableStack);
     } else {
-      this->grammarContext.switchCurrentModule(this->topProdLevelCache->getModule());
-      Data::Map *vars = this->grammarHelper.getSymbolVars(this->topProdLevelCache->getProd());
-      this->grammarContext.setCurrentArgumentList(vars);
+      this->grammarContext.setModule(this->topProdLevelCache->getModule());
+      Data::SharedMap *vars = this->grammarContext.getSymbolVars(this->topProdLevelCache->getProd());
+      this->grammarContext.setArgs(vars);
     }
   } else {
     this->variableStack.setBranchingInfo(0, -1);
@@ -569,11 +565,7 @@ void State::ownTopTermLevel()
   this->tempTrunkTermStackIndex--;
   this->termStack.push_back(TermLevel());
   this->topTermLevelCache = &this->refTermLevel(-1);
-  this->refTopTermLevel().setPosId(srcLevel.getPosId());
-  this->refTopTermLevel().setTerm(srcLevel.getTerm());
-  this->refTopTermLevel().setParam1(srcLevel.getParam1());
-  this->refTopTermLevel().setParam2(srcLevel.getParam2());
-  this->refTopTermLevel().setParam3(srcLevel.getParam3());
+  this->refTopTermLevel().copyFrom(&srcLevel);
 }
 
 
@@ -611,9 +603,9 @@ void State::copyProdLevel(State *src, Int offset)
   this->topProdLevelCache->setProd(srcLevel.getProd());
   this->topProdLevelCache->setTermStackIndex(this->getTermLevelCount());
   this->variableStack.copyLevel(src->getVariableStack(), offset);
-  this->grammarContext.switchCurrentModule(srcLevel.getModule());
-  Data::Map *vars = this->grammarHelper.getSymbolVars(srcLevel.getProd());
-  this->grammarContext.setCurrentArgumentList(vars);
+  this->grammarContext.setModule(srcLevel.getModule());
+  Data::SharedMap *vars = this->grammarContext.getSymbolVars(srcLevel.getProd());
+  this->grammarContext.setArgs(vars);
   this->copyTermLevel(src, srcLevel.getTermStackIndex());
 }
 
@@ -621,7 +613,7 @@ void State::copyProdLevel(State *src, Int offset)
 void State::copyTermLevel(State *src, Int offset)
 {
   this->termStack.push_back(TermLevel());
-  this->dataStack.push(src->getData(offset));
+  this->dataStack.pushLevel(src->getData(offset));
   this->topTermLevelCache = &this->refTermLevel(-1);
   this->topTermLevelCache->copyFrom(&src->refTermLevel(offset));
 }

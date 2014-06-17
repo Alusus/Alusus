@@ -34,13 +34,13 @@ class PlainProvider : public Provider
   /// @name Data Setting Functions
   /// @{
 
-  public: virtual void setPlainValue(Reference *ref, IdentifiableObject *val) = 0;
+  public: virtual void setPlainValue(Reference const *ref, IdentifiableObject *val) = 0;
 
-  public: virtual void setPlainValue(const Char *qualifier, IdentifiableObject *val) = 0;
+  public: virtual void setPlainValue(Char const *qualifier, IdentifiableObject *val) = 0;
 
-  public: virtual Bool trySetPlainValue(Reference *ref, IdentifiableObject *val) = 0;
+  public: virtual Bool trySetPlainValue(Reference const *ref, IdentifiableObject *val) = 0;
 
-  public: virtual Bool trySetPlainValue(const Char *qualifier, IdentifiableObject *val) = 0;
+  public: virtual Bool trySetPlainValue(Char const *qualifier, IdentifiableObject *val) = 0;
 
   /// @}
 

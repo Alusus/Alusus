@@ -43,17 +43,26 @@ namespace Core { namespace Data
 // Data Types
 
 /**
- * @brief An enumeration used to define reference scopes.
- * @ingroup data
- *
- * The scope of the reference specifies whether the reference is within the
- * argument list, variable stack, current lexer module module, current parser
- * module, parent parser module, or the root module. For performance reasons,
- * this enum is used by the Reference class to set flags within the Reference's
- * index instead of using an entire Reference object to specify the scope of the
- * reference.
+ * @brief Specifies the repository index of each grammar scope.
+ * Each of the scopes will have a fixed index within the repository.
  */
-enumeration(ReferenceScope, UNKNOWN, ARGS, STACK, MODULE, PMODULE, ROOT);
+enumeration(GrammarScopeIndex, ROOT=0, MODULE=1, PMODULE=2, STACK=3, ARGS=4);
+
+/**
+ * @brief An enumeration that specifies the usage criteria of references.
+ * The usage criteria is used by references to determine caching criteria.
+ * References can cache the indexes of referenced data to avoid repeating
+ * the search. By knowing the usage criteria references will be able to
+ * determine whether the indexes can be cached.
+ *
+ * SINGLE_DATA_SINGLE_MATCH: The reference will always be used against the same
+ *                           data repository, and will only be used to match a
+ *                           single target.
+ * SINGLE_DATA_MULTI_MATCH: The reference will always be used against the same
+ *                          data repository, but can match multiple targets.
+ * MULTI_DATA: The reference can be used against different data repositories.
+ */
+enumeration(ReferenceUsageCriteria, SINGLE_DATA_SINGLE_MATCH, SINGLE_DATA_MULTI_MATCH, MULTI_DATA);
 
 /**
  * @brief An enumeration used to define term flags.
@@ -126,6 +135,7 @@ enumeration(TermElement, FLAGS=1, REF=2, DATA=4, TERM=8, ESPI=16, PRIORITY=32, M
 
 class Module;
 class Provider;
+class PlainProvider;
 
 
 //==============================================================================
@@ -134,8 +144,17 @@ class Provider;
 /// Reset the indexes of all references in a specific range within a tree.
 void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
 
+/* TODO
 /// Find the lexer module associated with the given (parser) module.
-Module* findAssociatedLexerModule(Module *module, Provider *provider);
+Module* findAssociatedLexerModule(Module *module, PlainProvider *provider);*/
+
+/**
+ * @brief Set the IDs of all elements in a given tree.
+ * Sets the ID of the given object, and the IDs of any objects contained within
+ * the given object if the given object is a container. The IDs of inner
+ * objects will have the format: <id>.<childName>
+ */
+void setTreeIds(IdentifiableObject *obj, const Char *id);
 
 // TODO: Find module for other dimensions.
 
@@ -146,6 +165,7 @@ Module* findAssociatedLexerModule(Module *module, Provider *provider);
 // Classes
 
 #include "IdGenerator.h"
+#include "module_paired_pointers.h"
 
 // Interfaces
 #include "DataOwner.h"
@@ -154,38 +174,44 @@ Module* findAssociatedLexerModule(Module *module, Provider *provider);
 // SharedContainer Interfaces
 #include "SharedContainer.h"
 #include "ListSharedContainer.h"
+#include "NamedListSharedContainer.h"
 #include "MapSharedContainer.h"
 #include "PlainContainer.h"
 #include "ListPlainContainer.h"
+#include "NamedListPlainContainer.h"
 #include "MapPlainContainer.h"
 // Provider Interfaces
 #include "Provider.h"
-#include "PlainProvider.h"
 #include "SharedProvider.h"
+#include "PlainProvider.h"
+// Tracer Interfaces
+#include "PlainTracer.h"
+#include "SharedTracer.h"
 
 // Data Types
 #include "Integer.h"
 #include "String.h"
-#include "List.h"
-#include "Map.h"
+#include "SharedMap.h"
+#include "SharedList.h"
+#include "SharedNamedList.h"
+#include "PlainNamedList.h"
 #include "Module.h"
 #include "VariableStack.h"
 
 // References
-#include "ReferenceSegment.h"
-#include "IntReferenceSegment.h"
-#include "StrReferenceSegment.h"
-#include "IndirectReferenceSegment.h"
-#include "RawIndirectReferenceSegment.h"
 #include "Reference.h"
+#include "IndexReference.h"
+#include "StrKeyReference.h"
+#include "IndirectReference.h"
+#include "RawIndirectReference.h"
+#include "ScopeReference.h"
 #include "ReferenceParser.h"
 
 // Seekers and Data Providers
 #include "ReferenceSeeker.h"
 #include "QualifierSeeker.h"
-#include "DataStore.h"
-#include "DataStack.h"
-#include "DataContext.h"
+#include "SharedRepository.h"
+#include "PlainRepository.h"
 
 // Grammar Terms
 #include "Term.h"
@@ -201,8 +227,9 @@ Module* findAssociatedLexerModule(Module *module, Provider *provider);
 #include "SymbolDefinition.h"
 // TODO: #include "SymbolGroup.h"
 #include "GrammarModule.h"
+#include "GrammarRepository.h"
+#include "GrammarContext.h"
 #include "GrammarPlant.h"
-#include "GrammarHelper.h"
 
 // TODO: #include "ExtensionManager.h"
 // TODO: ExtensionManager manages extensions to grammar (loaded using import for example). And it automatically

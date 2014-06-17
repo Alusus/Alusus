@@ -66,13 +66,13 @@ class LibraryManager : public IdentifiableObject
 
   public: void removeLibrary(PtrWord id);
 
-  public: PtrWord findLibrary(const Char *libId);
+  public: PtrWord findLibrary(Char const *libId);
 
   public: LibraryGateway* getGateway(PtrWord id);
 
-  public: LibraryGateway* getGateway(const Char *libId);
+  public: LibraryGateway* getGateway(Char const *libId);
 
-  public: PtrWord load(const Char *path);
+  public: PtrWord load(Char const *path);
 
   public: void unload(PtrWord id);
 

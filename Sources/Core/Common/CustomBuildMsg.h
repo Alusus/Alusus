@@ -37,12 +37,12 @@ class CustomBuildMsg : public BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: CustomBuildMsg(const Char *msg, Int line, Int column) :
+  public: CustomBuildMsg(Char const *msg, Int line, Int column) :
     BuildMsg(line, column), msg(msg), code(STR("G1002")), severity(1)
   {
   }
 
-  public: CustomBuildMsg(const Char *msg, const Char *code, Int severity, Int line, Int column) :
+  public: CustomBuildMsg(Char const *msg, Char const *code, Int severity, Int line, Int column) :
     BuildMsg(line, column), msg(msg), code(code), severity(severity)
   {
   }

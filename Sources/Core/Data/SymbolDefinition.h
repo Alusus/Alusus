@@ -33,7 +33,9 @@ class SymbolDefinition : public IdentifiableObject,
 
   private: SharedPtr<Reference> parentReference;
 
-  private: SymbolDefinition *parent;
+  private: WeakPtr<SymbolDefinition> parent;
+
+  private: SymbolDefinition *plainParent;
 
   private: SharedPtr<IdentifiableObject> term;
 
@@ -69,17 +71,17 @@ class SymbolDefinition : public IdentifiableObject,
   //============================================================================
   // Constructor & Destructor
 
-  public: SymbolDefinition() : priority(0), flags(0), ownership(0), parent(0)
+  public: SymbolDefinition() : priority(0), flags(0), ownership(0), plainParent(0)
   {
   }
 
   public: SymbolDefinition(const SharedPtr<Reference> &pnt,
-                           const SharedPtr<IdentifiableObject> &t,
-                           const SharedPtr<IdentifiableObject> &vd,
-                           const SharedPtr<IdentifiableObject> &v,
+                           SharedPtr<IdentifiableObject> const &t,
+                           SharedPtr<IdentifiableObject> const &vd,
+                           SharedPtr<IdentifiableObject> const &v,
                            const SharedPtr<OperationHandler> &h,
                            Int p, Word f,
-                           const SharedPtr<IdentifiableObject> &a=SharedPtr<IdentifiableObject>()) :
+                           SharedPtr<IdentifiableObject> const &a=SharedPtr<IdentifiableObject>()) :
     parentReference(pnt), term(t), varDefs(vd), vars(v), handler(h), priority(p),
     flags(f), attributes(a), ownership(SymbolDefElement::ALL)
   {
@@ -87,17 +89,17 @@ class SymbolDefinition : public IdentifiableObject,
       throw InvalidArgumentException(STR("t"), STR("Core::Data::SymbolDefinition::setTerm"),
                                      STR("Should not be null."));
     }
-    if (!t->isDerivedFrom<Term>() && !t->isA<Reference>()) {
+    if (!t->isDerivedFrom<Term>() && !t->isDerivedFrom<Reference>()) {
       throw InvalidArgumentException(STR("t"), STR("Core::Data::SymbolDefinition::Symbol_Definision"),
                                      STR("Must be of type Term or Reference."));
     }
-    if (vd != 0 && !vd->isA<Map>() && !vd->isA<Reference>()) {
+    if (vd != 0 && !vd->isA<SharedMap>() && !vd->isDerivedFrom<Reference>()) {
       throw InvalidArgumentException(STR("vd"), STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                     STR("Must be of type Map or Reference."));
+                                     STR("Must be of type SharedMap or Reference."));
     }
-    if (v != 0 && !v->isA<Map>() && !v->isA<Reference>()) {
+    if (v != 0 && !v->isA<SharedMap>() && !v->isDerivedFrom<Reference>()) {
       throw InvalidArgumentException(STR("v"), STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                     STR("Must be of type Map or Reference."));
+                                     STR("Must be of type SharedMap or Reference."));
     }
   }
 
@@ -105,7 +107,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: virtual ~SymbolDefinition()
   {
-    if (this->parent != 0) this->detachFromParent();
+    if (this->plainParent != 0) this->detachFromParent();
     this->changeNotifier.emit(this, SymbolDefChangeOp::DESTROY, 0);
   }
 
@@ -118,25 +120,36 @@ class SymbolDefinition : public IdentifiableObject,
   //============================================================================
   // Member Functions
 
-  public: void setParentReference(const SharedPtr<Reference> &p)
+  public: void setParentReference(SharedPtr<Reference> const &p)
   {
     this->parentReference = p;
   }
 
-  public: const SharedPtr<Reference>& getParentReference() const
+  public: SharedPtr<Reference> const& getParentReference() const
   {
     return this->parentReference;
   }
 
+  public: void setParent(SharedPtr<SymbolDefinition> const &p)
+  {
+    this->setParent(p.get());
+    this->parent = p;
+  }
+
   public: void setParent(SymbolDefinition *p)
   {
-    if (this->parent != 0) this->detachFromParent();
+    if (this->plainParent != 0) this->detachFromParent();
     if (p != 0) this->attachToParent(p);
   }
 
-  public: SymbolDefinition* getParent() const
+  public: SharedPtr<SymbolDefinition> getParent() const
   {
-    return this->parent;
+    return this->parent.lock();
+  }
+
+  public: SymbolDefinition* getPlainParent() const
+  {
+    return this->plainParent;
   }
 
   private: void attachToParent(SymbolDefinition *p);
@@ -149,9 +162,9 @@ class SymbolDefinition : public IdentifiableObject,
 
   private: void onParentElementChanged(SymbolDefinition *obj, SymbolDefChangeOp op, Word elmt);
 
-  public: void setTerm(const SharedPtr<IdentifiableObject> &t)
+  public: void setTerm(SharedPtr<IdentifiableObject> const &t)
   {
-    if (!t->isDerivedFrom<Term>() && !t->isA<Reference>()) {
+    if (!t->isDerivedFrom<Term>() && !t->isDerivedFrom<Reference>()) {
       throw InvalidArgumentException(STR("t"), STR("Core::Data::SymbolDefinition::setTerm"),
                                      STR("Must be of type Term or Reference."));
     }
@@ -162,22 +175,22 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetTerm()
   {
-    if (this->parent != 0) this->term = parent->getTerm();
+    if (this->plainParent != 0) this->term = this->plainParent->getTerm();
     else this->term.reset();
     this->ownership &= ~SymbolDefElement::TERM;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::TERM);
   }
 
-  public: const SharedPtr<IdentifiableObject>& getTerm() const
+  public: SharedPtr<IdentifiableObject> const& getTerm() const
   {
     return this->term;
   }
 
-  public: void setVarDefs(const SharedPtr<IdentifiableObject> &vd)
+  public: void setVarDefs(SharedPtr<IdentifiableObject> const &vd)
   {
-    if (vd != 0 && !vd->isA<Map>() && !vd->isA<Reference>()) {
+    if (vd != 0 && !vd->isA<SharedMap>() && !vd->isDerivedFrom<Reference>()) {
       throw InvalidArgumentException(STR("vd"), STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                     STR("Must be of type Map or Reference."));
+                                     STR("Must be of type SharedMap or Reference."));
     }
     this->varDefs = vd;
     this->ownership |= SymbolDefElement::VAR_DEFS;
@@ -186,22 +199,22 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetVarDefs()
   {
-    if (this->parent != 0) this->varDefs = parent->getVarDefs();
+    if (this->plainParent != 0) this->varDefs = this->plainParent->getVarDefs();
     else this->varDefs.reset();
     this->ownership &= ~SymbolDefElement::VAR_DEFS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::VAR_DEFS);
   }
 
-  public: const SharedPtr<IdentifiableObject>& getVarDefs() const
+  public: SharedPtr<IdentifiableObject> const& getVarDefs() const
   {
     return this->varDefs;
   }
 
-  public: void setVars(const SharedPtr<IdentifiableObject> &v)
+  public: void setVars(SharedPtr<IdentifiableObject> const &v)
   {
-    if (v != 0 && !v->isA<Map>() && !v->isA<Reference>()) {
+    if (v != 0 && !v->isA<SharedMap>() && !v->isDerivedFrom<Reference>()) {
       throw InvalidArgumentException(STR("v"), STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                     STR("Must be of type Map or Reference."));
+                                     STR("Must be of type SharedMap or Reference."));
     }
     this->vars = v;
     this->ownership |= SymbolDefElement::VARS;
@@ -210,13 +223,13 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetVars()
   {
-    if (this->parent != 0) this->vars = parent->getVars();
+    if (this->plainParent != 0) this->vars = this->plainParent->getVars();
     else this->vars.reset();
     this->ownership &= ~SymbolDefElement::VARS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::VARS);
   }
 
-  public: const SharedPtr<IdentifiableObject>& getVars() const
+  public: SharedPtr<IdentifiableObject> const& getVars() const
   {
     return this->vars;
   }
@@ -238,7 +251,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetOperationHandler()
   {
-    if (this->parent != 0) this->handler = parent->getOperationHandler();
+    if (this->plainParent != 0) this->handler = this->plainParent->getOperationHandler();
     else this->handler.reset();
     this->ownership &= ~SymbolDefElement::HANDLER;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::HANDLER);
@@ -264,7 +277,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetPriority()
   {
-    if (this->parent != 0) this->priority = parent->getPriority();
+    if (this->plainParent != 0) this->priority = this->plainParent->getPriority();
     else this->priority = 0;
     this->ownership &= ~SymbolDefElement::PRIORITY;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::PRIORITY);
@@ -290,7 +303,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetFlags()
   {
-    if (this->parent != 0) this->flags = parent->getFlags();
+    if (this->plainParent != 0) this->flags = this->plainParent->getFlags();
     else this->flags = 0;
     this->ownership &= ~SymbolDefElement::FLAGS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::FLAGS);
@@ -305,7 +318,7 @@ class SymbolDefinition : public IdentifiableObject,
     return this->flags;
   }
 
-  public: void setAttributes(const SharedPtr<IdentifiableObject> &a)
+  public: void setAttributes(SharedPtr<IdentifiableObject> const &a)
   {
     this->attributes = a;
     this->ownership |= SymbolDefElement::ATTRIBUTES;
@@ -314,13 +327,13 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetAttributes()
   {
-    if (this->parent != 0) this->attributes = parent->getAttributes();
+    if (this->plainParent != 0) this->attributes = this->plainParent->getAttributes();
     else this->attributes.reset();
     this->ownership &= ~SymbolDefElement::ATTRIBUTES;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::ATTRIBUTES);
   }
 
-  public: const SharedPtr<IdentifiableObject>& getAttributes() const
+  public: SharedPtr<IdentifiableObject> const& getAttributes() const
   {
     return this->attributes;
   }
@@ -329,7 +342,7 @@ class SymbolDefinition : public IdentifiableObject,
   //============================================================================
   // Initializable Implementation
 
-  public: virtual void initialize(Provider *provider, const SharedPtr<Module> &module);
+  public: virtual void initialize(IdentifiableObject *owner);
 
 
   //============================================================================

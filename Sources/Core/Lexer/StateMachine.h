@@ -226,7 +226,7 @@ class StateMachine : public SignalReceiver
   public: void handleNewChar(Char inputChar, Int line, Int column);
 
   /// Add a string of input characters to the input buffer and process them.
-  public: void handleNewString(const Char *inputStr, Int &line, Int &column);
+  public: void handleNewString(Char const *inputStr, Int &line, Int &column);
 
   /// Process all the characters currently waiting in the input buffer.
   private: void processBuffer();

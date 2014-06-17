@@ -45,11 +45,11 @@ class String : public IdentifiableObject
   {
   }
 
-  public: String(const Char *v) : value(v)
+  public: String(Char const *v) : value(v)
   {
   }
 
-  public: String(const Char *v, Word c) : value(v, c)
+  public: String(Char const *v, Word c) : value(v, c)
   {
   }
 
@@ -57,13 +57,13 @@ class String : public IdentifiableObject
   //============================================================================
   // Operators
 
-  public: String& operator=(const Char *v)
+  public: String& operator=(Char const *v)
   {
     this->value = v;
     return *this;
   }
 
-  public: operator const Char*() const
+  public: operator Char const*() const
   {
     return this->value.c_str();
   }
@@ -72,17 +72,17 @@ class String : public IdentifiableObject
   //============================================================================
   // Member Functions
 
-  public: void set(const Char *v)
+  public: void set(Char const *v)
   {
     this->value = v;
   }
 
-  public: void set(const Char *v, Word c)
+  public: void set(Char const *v, Word c)
   {
     this->value.assign(v, c);
   }
 
-  public: const Char* get() const
+  public: Char const* get() const
   {
     return this->value.c_str();
   }

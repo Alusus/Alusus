@@ -34,21 +34,21 @@ namespace Core { namespace Data
  *            be null, Integer or Reference.
  * @param t The head of the child branch.
  */
-MultiplyTerm::MultiplyTerm(const SharedPtr<IdentifiableObject> &p, Word f,
-                           const SharedPtr<IdentifiableObject> &min,
-                           const SharedPtr<IdentifiableObject> &max,
+MultiplyTerm::MultiplyTerm(SharedPtr<IdentifiableObject> const &p, Word f,
+                           SharedPtr<IdentifiableObject> const &min,
+                           SharedPtr<IdentifiableObject> const &max,
                            const SharedPtr<Term> &t) :
   priority(p), minOccurances(min), maxOccurances(max), term(t), Term(f)
 {
-  if (p != 0 && !p->isA<Integer>() && !p->isA<Reference>()) {
+  if (p != 0 && !p->isA<Integer>() && !p->isDerivedFrom<Reference>()) {
     throw InvalidArgumentException(STR("p"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
                                    STR("Must be of type Integer or Reference."));
   }
-  if (min != 0 && !min->isA<Integer>() && !min->isA<Reference>()) {
+  if (min != 0 && !min->isA<Integer>() && !min->isDerivedFrom<Reference>()) {
     throw InvalidArgumentException(STR("min"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
                                    STR("Must be of type Integer or Reference."));
   }
-  if (max != 0 && !max->isA<Integer>() && !max->isA<Reference>()) {
+  if (max != 0 && !max->isA<Integer>() && !max->isDerivedFrom<Reference>()) {
     throw InvalidArgumentException(STR("max"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
                                    STR("Must be of type Integer or Reference."));
   }
@@ -81,17 +81,17 @@ MultiplyTerm::MultiplyTerm(const std::initializer_list<Argument<TermElement>> &a
         break;
     }
   }
-  if (this->priority != 0 && !this->priority->isA<Integer>() && !this->priority->isA<Reference>()) {
+  if (this->priority != 0 && !this->priority->isA<Integer>() && !this->priority->isDerivedFrom<Reference>()) {
     throw InvalidArgumentException(STR("priority"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
                                    STR("Must be of type Integer or Reference."));
   }
   if (this->minOccurances != 0 && !this->minOccurances->isA<Integer>() &&
-      !this->minOccurances->isA<Reference>()) {
+      !this->minOccurances->isDerivedFrom<Reference>()) {
     throw InvalidArgumentException(STR("min"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
                                    STR("Must be of type Integer or Reference."));
   }
   if (this->maxOccurances != 0 && !this->maxOccurances->isA<Integer>() &&
-      !this->maxOccurances->isA<Reference>()) {
+      !this->maxOccurances->isDerivedFrom<Reference>()) {
     throw InvalidArgumentException(STR("max"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
                                    STR("Must be of type Integer or Reference."));
   }
@@ -106,9 +106,9 @@ MultiplyTerm::MultiplyTerm(const std::initializer_list<Argument<TermElement>> &a
  * This must be >= 0. If null is specified, the default value of 0 will be
  * considered. This value must be either Integer or Reference.
  */
-void MultiplyTerm::setMinOccurances(const SharedPtr<IdentifiableObject> &min)
+void MultiplyTerm::setMinOccurances(SharedPtr<IdentifiableObject> const &min)
 {
-  if (min != 0 && min->isA<Integer>() && !min->isA<Reference>()) {
+  if (min != 0 && min->isA<Integer>() && !min->isDerivedFrom<Reference>()) {
     throw InvalidArgumentException(STR("min"), STR("Core::Data::MultiplyTerm::setMinOccurances"),
                                    STR("Must be of type Integer or Reference."));
   }
@@ -121,9 +121,9 @@ void MultiplyTerm::setMinOccurances(const SharedPtr<IdentifiableObject> &min)
  * the number of occurances will be unlimited. This value must be null, Integer
  * or Reference.
  */
-void MultiplyTerm::setMaxOccurances(const SharedPtr<IdentifiableObject> &max)
+void MultiplyTerm::setMaxOccurances(SharedPtr<IdentifiableObject> const &max)
 {
-  if (max != 0 && max->isA<Integer>() && !max->isA<Reference>()) {
+  if (max != 0 && max->isA<Integer>() && !max->isDerivedFrom<Reference>()) {
     throw InvalidArgumentException(STR("max"), STR("Core::Data::MultiplyTerm::setMaxOccurances"),
                                    STR("Must be of type Integer or Reference."));
   }
@@ -137,9 +137,9 @@ void MultiplyTerm::setMaxOccurances(const SharedPtr<IdentifiableObject> &max)
  * is for taking (or staying) in the branch, or 0 which means priority is to
  * leave the branch. If null is specified the default value of 1 is considered.
  */
-void MultiplyTerm::setPriority(const SharedPtr<IdentifiableObject> &p)
+void MultiplyTerm::setPriority(SharedPtr<IdentifiableObject> const &p)
 {
-  if (p != 0 && p->isA<Integer>() && !p->isA<Reference>()) {
+  if (p != 0 && p->isA<Integer>() && !p->isDerivedFrom<Reference>()) {
     throw InvalidArgumentException(STR("p"), STR("Core::Data::MultiplyTerm::setPriority"),
                                    STR("Filters must be of type Integer or Reference."));
   }

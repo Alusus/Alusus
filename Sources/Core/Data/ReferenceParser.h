@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_REFERENCE_PARSER_H
-#define DATA_REFERENCE_PARSER_H
+#ifndef DATA_REFERENCEPARSER_H
+#define DATA_REFERENCEPARSER_H
 
 namespace Core { namespace Data
 {
@@ -23,21 +23,21 @@ class ReferenceParser
   //============================================================================
   // Member Variables
 
-  IntReferenceSegment tempIntSegment;
+  IndexReference tempIndexReference;
 
-  StrReferenceSegment tempStrSegment;
+  StrKeyReference tempStrKeyReference;
 
-  RawIndirectReferenceSegment tempIndirectSegment;
+  ScopeReference tempScopeReference;
 
 
   //============================================================================
   // Member Functions
 
   /// Build the string representation of this reference.
-  public: static void buildQualifier(Reference *ref, StrStream &qualifier);
+  public: static void buildQualifier(Reference const *ref, StrStream &qualifier);
 
   /// Build the string representation of this reference and returns it.
-  public: static const Str getQualifier(Reference *ref)
+  public: static const Str getQualifier(Reference const *ref)
   {
     StrStream stream;
     ReferenceParser::buildQualifier(ref, stream);
@@ -45,32 +45,31 @@ class ReferenceParser
   }
 
   /**
-     * @brief Builds a Reference chain that represents the given gualifier.
-     * Parses the given string based qualifier into a valid chain of Reference
-     * objects. The format is as follows: <br/>
-     * qualifier = id + ("." + id)*v; <br/>
-     * id = string | integer | "(" + qualifier + ")"; <br/>
-     * integer = ('0'..'9')*v1; </br>
-     * string = ('a'..'z'|'A'..'Z'|'_') + ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*v;
-     * <br/>
-     * Brackets are used to use a reference as the id of another reference.
-     * Strings are used to reference map items by their key, while integers are
-     * used to reference list items by their index.
-     */
-  public: static SharedPtr<Reference> parseQualifier(const Char *qualifier)
+   * @brief Builds a Reference chain that represents the given gualifier.
+   * Parses the given string based qualifier into a valid chain of Reference
+   * objects. The format is as follows: <br/>
+   * qualifier = id + ("." + id)*v; <br/>
+   * id = string | integer | "(" + qualifier + ")"; <br/>
+   * integer = ('0'..'9')*v1; </br>
+   * string = ('a'..'z'|'A'..'Z'|'_') + ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*v;
+   * <br/>
+   * Brackets are used to use a reference as the id of another reference.
+   * Strings are used to reference map items by their key, while integers are
+   * used to reference list items by their index.
+   */
+  public: static SharedPtr<Reference> parseQualifier(Char const *qualifier,
+    ReferenceUsageCriteria criteria = ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH)
   {
     Int pos;
-    return ReferenceParser::_parseQualifier(qualifier, pos);
+    return ReferenceParser::_parseQualifier(qualifier, pos, criteria);
   }
 
   /// Internal recursive function that does the actual parsing of qualifiers.
-  private: static SharedPtr<Reference> _parseQualifier(const Char *qualifier, Int &pos);
-
-  /// Parses the scope part of a qualifier string.
-  public: static ReferenceScope parseQualifierScope(const Char *&scope);
+  private: static SharedPtr<Reference> _parseQualifier(Char const *qualifier, Int &pos,
+                                                       ReferenceUsageCriteria criteria);
 
   /// Parses a single segment of the qualifier string.
-  public: ReferenceSegment* parseQualifierSegment(const Char *&qualifier);
+  public: Reference* parseQualifierSegment(Char const *&qualifier);
 
   /**
      * @brief Validate a qualifier string.
@@ -78,13 +77,13 @@ class ReferenceParser
      *                 not. An absolute qualifier is one that doesn't use a
      *                 subqualifier, i.e. doesn't have any brackets.
      */
-  public: static Bool validateQualifier(const Char *qualifier, Bool absolute)
+  public: static Bool validateQualifier(Char const *qualifier, Bool absolute)
   {
     return ReferenceParser::_validateQualifier(qualifier, absolute, 0);
   }
 
   /// Internal recursive function that does the actual validation.
-  private: static Bool _validateQualifier(const Char *qualifier, Bool absolute, const Char **end);
+  private: static Bool _validateQualifier(Char const *qualifier, Bool absolute, Char const **end);
 
   /**
      * @brief Find the beginning of the last segment within a qualifier string.
@@ -93,7 +92,7 @@ class ReferenceParser
      * not a subqualifier the return will be the beginning of the segment, not
      * the dot preceding it.
      */
-  public: static const Char* findLastQualifierSeguemt(const Char *qualifier)
+  public: static Char const* findLastQualifierSeguemt(Char const *qualifier)
   {
     qualifier = ReferenceParser::_findLastQualifierSegment(qualifier);
     if (*qualifier != CHR('\0')) {
@@ -105,7 +104,7 @@ class ReferenceParser
   }
 
   /// Internal recursive function to find the last qualifier segument.
-  private: static const Char* _findLastQualifierSegment(const Char *qualifier);
+  private: static Char const* _findLastQualifierSegment(Char const *qualifier);
 
 }; // class
 

@@ -27,7 +27,7 @@ Str Exception::_message;
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-const Char* FileException::getErrorMessage() const throw()
+Char const* FileException::getErrorMessage() const throw()
 {
   switch (this->operation) {
     case CHR('o'):
@@ -60,7 +60,7 @@ const Char* FileException::getErrorMessage() const throw()
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-const Char* MemoryException::getErrorMessage() const throw()
+Char const* MemoryException::getErrorMessage() const throw()
 {
   switch (this->operation) {
     case CHR('a'):
@@ -85,7 +85,7 @@ const Char* MemoryException::getErrorMessage() const throw()
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-const Char* InvalidArgumentException::getErrorMessage() const throw()
+Char const* InvalidArgumentException::getErrorMessage() const throw()
 {
   Exception::_message = STR("Invalid Argument (");
   Exception::_message += this->argumentName;
@@ -109,7 +109,7 @@ const Char* InvalidArgumentException::getErrorMessage() const throw()
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-const Char* GeneralException::getErrorMessage() const throw()
+Char const* GeneralException::getErrorMessage() const throw()
 {
   Exception::_message = this->message;
   if (this->location.size() > 0) {

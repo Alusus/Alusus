@@ -27,11 +27,11 @@ TypeInfo * IdentifiableInterface::getInterfaceInfo()
 {
   static Core::Basic::TypeInfo *typeInfo = 0;
   if (typeInfo == 0) {
-    const Char *myType = STR("IdentifiableInterface");
-    const Char *typeNamespace = STR("Core.Basic");
-    const Char *moduleName = STR("Core");
-    const Char *url = STR("alusus.net");
-    const Char *uniqueName = STR("alusus.net#Core#Core.Basic.IdentifiableInterface");
+    Char const *myType = STR("IdentifiableInterface");
+    Char const *typeNamespace = STR("Core.Basic");
+    Char const *moduleName = STR("Core");
+    Char const *url = STR("alusus.net");
+    Char const *uniqueName = STR("alusus.net#Core#Core.Basic.IdentifiableInterface");
     typeInfo = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (typeInfo == 0) {
       typeInfo = new Core::Basic::TypeInfo(myType, typeNamespace, moduleName, url, 0);

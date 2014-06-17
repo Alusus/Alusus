@@ -152,23 +152,23 @@ class VariableStack : public IdentifiableObject, public virtual MapPlainContaine
   /// @name Variable Access Functions
   /// @{
 
-  public: Int add(const Char *key, IdentifiableObject *val);
+  public: Int add(Char const *key, IdentifiableObject *val);
 
-  public: Int set(const Char *key, IdentifiableObject *val, Bool insertIfNew);
+  public: Int set(Char const *key, IdentifiableObject *val, Bool insertIfNew);
 
   public: Int getCount(Int levelIndex) const;
 
-  public: IdentifiableObject* get(const Char *key, Int levelIndex) const;
+  public: IdentifiableObject* get(Char const *key, Int levelIndex) const;
 
   public: IdentifiableObject* get(Int index, Int levelIndex) const;
 
   public: const SbStr& getKey(Int index, Int levelIndex) const;
 
-  public: Int getIndex(const Char *key, Int levelIndex = -1) const;
+  public: Int getIndex(Char const *key, Int levelIndex = -1) const;
 
-  public: Int findIndex(const Char *key, Int levelIndex) const;
+  public: Int findIndex(Char const *key, Int levelIndex) const;
 
-  private: Int findIndex(const Char *key, Int start, Int end) const;
+  private: Int findIndex(Char const *key, Int start, Int end) const;
 
   /// @}
 
@@ -190,30 +190,28 @@ class VariableStack : public IdentifiableObject, public virtual MapPlainContaine
     return this->get(index, -1);
   }
 
-  public: virtual Int set(const Char *key, IdentifiableObject *val)
+  public: virtual Int set(Char const *key, IdentifiableObject *val)
   {
     return this->set(key, val, true);
   }
 
-  public: virtual void remove(const Char *key);
+  public: virtual void remove(Char const *key);
 
-  public: virtual IdentifiableObject* get(const Char *key) const
+  public: virtual IdentifiableObject* get(Char const *key) const
   {
     return this->get(key, -1);
   }
 
-  public: virtual const Str& getKey(Int index) const
+  public: virtual const SbStr& getKey(Int index) const
   {
-    // TODO: Use thread_local.
-    static Str s = this->getKey(index, -1);
-    return s;
+    return this->getKey(index, -1);
   }
 
   /**
    * @brief Find the index of a specified key.
    * @return The index of the key, or -1 if the key doesn't exist.
    */
-  public: virtual Int findIndex(const Char *key) const
+  public: virtual Int findIndex(Char const *key) const
   {
     return this->findIndex(key, -1);
   }

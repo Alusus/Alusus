@@ -371,9 +371,9 @@ void GrammarPlant::createProductionDefinitions()
 
   //// TokenData module.
 
-  this->store.setSharedValue(STR("TokenData"), GrammarModule::create({}));
+  this->repository.setSharedValue(STR("root:TokenData"), GrammarModule::create({}));
   // assignmentOpList : keywords := (":=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "^:=", "<<=", ">>=");
-  this->store.setSharedValue(STR("TokenData.assignmentOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.assignmentOpList"), SharedMap::create(true, {
    {STR(":="), 0},
    {STR("+="), 0},
    {STR("-="), 0},
@@ -388,7 +388,7 @@ void GrammarPlant::createProductionDefinitions()
    {STR(">>="), 0}
   }));
   // comparisonOpList : keywords := ("=", "^=", "==", "^==", "<", ">", "<=", ">=");
-  this->store.setSharedValue(STR("TokenData.comparisonOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.comparisonOpList"), SharedMap::create(true, {
    {STR("="), 0},
    {STR("^="), 0},
    {STR("=="), 0},
@@ -399,18 +399,18 @@ void GrammarPlant::createProductionDefinitions()
    {STR(">="), 0}
   }));
   // addOpList : keywords := ("+", "-");
-  this->store.setSharedValue(STR("TokenData.addOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.addOpList"), SharedMap::create(true, {
     {STR("+"), 0},
     {STR("-"), 0}
   }));
   // mulOpList : keywords := ("*", "/", "%");
-  this->store.setSharedValue(STR("TokenData.mulOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.mulOpList"), SharedMap::create(true, {
     {STR("*"), 0},
     {STR("/"), 0},
     {STR("%"), 0}
   }));
   // bitwiseOpList : keywords := ("|", "^|", "$", "^$", "&", "^&", "<<", ">>");
-  this->store.setSharedValue(STR("TokenData.bitwiseOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.bitwiseOpList"), SharedMap::create(true, {
     {STR("|"), 0},
     {STR("^|"), 0},
     {STR("$"), 0},
@@ -421,7 +421,7 @@ void GrammarPlant::createProductionDefinitions()
     {STR(">>"), 0}
   }));
   // logOpList : keywords := ("||", "^||", "$$", "^$$", "&&", "^&&", "or", "nor", "xor", "xnor", "and", "nand");
-  this->store.setSharedValue(STR("TokenData.logOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.logOpList"), SharedMap::create(true, {
     {STR("||"), 0},
     {STR("^||"), 0},
     {STR("$$"), 0},
@@ -436,7 +436,7 @@ void GrammarPlant::createProductionDefinitions()
     {STR("nand"), 0}
   }));
   // prefixOpList : keywords := ("++", "--", "+", "-", "^", "^^", "not");
-  this->store.setSharedValue(STR("TokenData.prefixOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.prefixOpList"), SharedMap::create(true, {
    {STR("++"), 0},
    {STR("--"), 0},
    {STR("+"), 0},
@@ -446,85 +446,85 @@ void GrammarPlant::createProductionDefinitions()
    {STR("not"), 0}
   }));
   // postfixOpList : keywords := ("++", "--");
-  this->store.setSharedValue(STR("TokenData.postfixOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.postfixOpList"), SharedMap::create(true, {
     {STR("++"), 0},
     {STR("--"), 0}
   }));
   // linkOpList : keywords := ("->", ".", ".>", "<.");
-  this->store.setSharedValue(STR("TokenData.linkOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.linkOpList"), SharedMap::create(true, {
    {STR("->"), 0},
    {STR("."), 0},
    {STR(".>"), 0},
    {STR("<."), 0}
   }));
   // lowLinkOpList : keywords := ("=>", "..", "..>", "<..");
-  this->store.setSharedValue(STR("TokenData.lowLinkOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.lowLinkOpList"), SharedMap::create(true, {
    {STR("=>"), 0},
    {STR(".."), 0},
    {STR("..>"), 0},
    {STR("<.>"), 0}
   }));
   // lowerLinkOpList : keywords := (":", ":>", "<:");
-  this->store.setSharedValue(STR("TokenData.lowerLinkOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.lowerLinkOpList"), SharedMap::create(true, {
    {STR(":"), 0},
    {STR(":>"), 0},
    {STR("<:"), 0}
   }));
   // lowestLinkOpList : keywords := ("::", ::>", "<::", "in");
-  this->store.setSharedValue(STR("TokenData.lowestLinkOpList"), Map::create(true, {
+  this->repository.setSharedValue(STR("root:TokenData.lowestLinkOpList"), SharedMap::create(true, {
     {STR("::"), 0},
     {STR("::>"), 0},
     {STR("<::"), 0},
     {STR("in"), 0}
   }));
 
-  this->generateConstTokensForStrings(this->store.getPlainValue(STR("root.TokenData")));
+  this->generateConstTokensForStrings(this->repository.getPlainValue(STR("root:TokenData")));
 
 
   //// Main
 
   //// Program : StatementList.
   // Program : prod as StatementList(DefaultMain.DefaultStatement);
-  this->store.setSharedValue(STR("Program"), SymbolDefinition::create({
-    {SymbolDefElement::TERM, ReferenceTerm::create(STR("root.Main.StatementList"))},
+  this->repository.setSharedValue(STR("root:Program"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ReferenceTerm::create(STR("root:Main.StatementList"))},
     {SymbolDefElement::HANDLER, this->parsingHandler}
   }));
 
-  this->store.setSharedValue(STR("Main"), GrammarModule::create({}));
+  this->repository.setSharedValue(STR("root:Main"), GrammarModule::create({}));
 
   //// StatementList : Statement { ";" Statement }.
   // StatementList : prod (stmt:production[Statement]) as
   //     stmt*(0, 1) + (lexer.Constant(";") + stmt*(0, 1))*(0, endless);
-  this->store.setSharedValue(STR("Main.StatementList"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Main.StatementList"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::ESPI, 1},
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-       {TermElement::TERM, List::create({
+       {TermElement::TERM, SharedList::create({
           MultiplyTerm::create({
             {TermElement::PRIORITY, std::make_shared<Integer>(1)},
             {TermElement::FLAGS, ParsingFlags::PASS_UP},
             {TermElement::MAX, std::make_shared<Integer>(1)},
-            {TermElement::TERM, ReferenceTerm::create(STR("args.stmt"))}}),
+            {TermElement::TERM, ReferenceTerm::create(STR("args:stmt"))}}),
           MultiplyTerm::create({
             {TermElement::PRIORITY, std::make_shared<Integer>(1)},
             {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ERROR_SYNC_TERM},
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-               {TermElement::TERM, List::create({
+               {TermElement::TERM, SharedList::create({
                   TokenTerm::create(ParsingFlags::OMISSIBLE, STR(";")),
                   MultiplyTerm::create({
                     {TermElement::PRIORITY, std::make_shared<Integer>(1)},
                     {TermElement::FLAGS, ParsingFlags::PASS_UP},
                     {TermElement::MAX, std::make_shared<Integer>(1)},
-                    {TermElement::TERM, ReferenceTerm::create(STR("args.stmt"))}
+                    {TermElement::TERM, ReferenceTerm::create(STR("args:stmt"))}
                   })
                 })}
              })}
           })
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {
-       {STR("stmt"), ReferenceParser::parseQualifier(STR("module.Statement"))}})},
+    {SymbolDefElement::VARS, SharedMap::create(false, {
+       {STR("stmt"), ReferenceParser::parseQualifier(STR("module:Statement"))}})},
     {SymbolDefElement::HANDLER, this->parsingHandler}
   }));
 
@@ -533,24 +533,24 @@ void GrammarPlant::createProductionDefinitions()
   //             @limit[user.parent=self,child.terms=self]
   //     prod (phrases:list[hash[prd:prod[Phrase], min:integer, max:integer, pty:integer]]) as
   //         concat(phrases:phrase)->( @priority(phrase.pty,0) phrase.prd*(phrase.min, phrase.max) );
-  this->store.setSharedValue(STR("Main.Statement"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Main.Statement"), SymbolDefinition::create({
    {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::ESPI, 1000},
       {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-      {TermElement::REF, ReferenceParser::parseQualifier(STR("stack.phrase"))},
-      {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.phrases"))},
+      {TermElement::REF, ReferenceParser::parseQualifier(STR("stack:phrase"))},
+      {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:phrases"))},
       {TermElement::TERM, MultiplyTerm::create({
-         {TermElement::PRIORITY, ReferenceParser::parseQualifier(STR("stack.phrase.pty"))},
+         {TermElement::PRIORITY, ReferenceParser::parseQualifier(STR("stack:phrase.pty"))},
          {TermElement::FLAGS, ParsingFlags::PASS_UP},
-         {TermElement::MIN, ReferenceParser::parseQualifier(STR("stack.phrase.min"))},
-         {TermElement::MAX, ReferenceParser::parseQualifier(STR("stack.phrase.max"))},
-         {TermElement::TERM, ReferenceTerm::create(STR("stack.phrase.prd"))}
+         {TermElement::MIN, ReferenceParser::parseQualifier(STR("stack:phrase.min"))},
+         {TermElement::MAX, ReferenceParser::parseQualifier(STR("stack:phrase.max"))},
+         {TermElement::TERM, ReferenceTerm::create(STR("stack:phrase.prd"))}
        })}
     })},
-   {SymbolDefElement::VARS, Map::create(false, {
-      {STR("phrases"), List::create({
-         Map::create(false, {
-           {STR("prd"), ReferenceParser::parseQualifier(STR("module.Phrase"))},
+   {SymbolDefElement::VARS, SharedMap::create(false, {
+      {STR("phrases"), SharedList::create({
+         SharedMap::create(false, {
+           {STR("prd"), ReferenceParser::parseQualifier(STR("module:Phrase"))},
            {STR("min"), std::make_shared<Integer>(1)},
            {STR("max"), std::make_shared<Integer>(1)},
            {STR("pty"), std::make_shared<Integer>(1)}
@@ -565,18 +565,18 @@ void GrammarPlant::createProductionDefinitions()
   // Phrase : @prefix(heap.Modifiers.(DefaultModifierCmd|PhraseModifierCmd))
   //     prod (cmd:production[Command], expr:production[Expression], pty:integer) as
   //     @priority(pty,0) cmd || expr;
-  this->store.setSharedValue(STR("Main.Phrase"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Main.Phrase"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
-       {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.pty"))},
-       {TermElement::TERM, List::create({
-          ReferenceTerm::create(STR("args.cmd")),
-          ReferenceTerm::create(STR("args.exp"))
+       {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:pty"))},
+       {TermElement::TERM, SharedList::create({
+          ReferenceTerm::create(STR("args:cmd")),
+          ReferenceTerm::create(STR("args:exp"))
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {
-       {STR("cmd"), ReferenceParser::parseQualifier("module.LeadingCmdGrp")},
-       {STR("exp"), ReferenceParser::parseQualifier("root.Expression")},
+    {SymbolDefElement::VARS, SharedMap::create(false, {
+       {STR("cmd"), ReferenceParser::parseQualifier("module:LeadingCmdGrp")},
+       {STR("exp"), ReferenceParser::parseQualifier("root:Expression")},
        {STR("pty"), 0}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
@@ -584,17 +584,17 @@ void GrammarPlant::createProductionDefinitions()
   }));
 
   // LeadingCommandGroup
-  this->store.setSharedValue(STR("Main.LeadingCmdGrp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Main.LeadingCmdGrp"), SymbolDefinition::create({
    {SymbolDefElement::TERM, AlternateTerm::create({
       {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
-      {TermElement::REF, ReferenceParser::parseQualifier(STR("stack.cmd"))},
-      {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.cmds"))},
-      {TermElement::TERM, ReferenceTerm::create(STR("stack.cmd"))}
+      {TermElement::REF, ReferenceParser::parseQualifier(STR("stack:cmd"))},
+      {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:cmds"))},
+      {TermElement::TERM, ReferenceTerm::create(STR("stack:cmd"))}
     })},
-   {SymbolDefElement::VARS, Map::create(false, {
-      {STR("cmds"), List::create({
-         ReferenceParser::parseQualifier(STR("module.Do")),
-         ReferenceParser::parseQualifier(STR("module.Import"))
+   {SymbolDefElement::VARS, SharedMap::create(false, {
+      {STR("cmds"), SharedList::create({
+         ReferenceParser::parseQualifier(STR("module:Do")),
+         ReferenceParser::parseQualifier(STR("module:Import"))
        })}
     })},
    {SymbolDefElement::HANDLER, this->parsingHandler},
@@ -602,13 +602,13 @@ void GrammarPlant::createProductionDefinitions()
   }));
 
   //// Do = "do" + Subject
-  this->store.setSharedValue(STR("Main.Do"), SymbolDefinition::create({
-    {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
-    {SymbolDefElement::VARS, Map::create(false, {
+  this->repository.setSharedValue(STR("root:Main.Do"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
+    {SymbolDefElement::VARS, SharedMap::create(false, {
        {STR("kwd"), std::make_shared<String>(STR("do"))},
-       {STR("prms"), List::create({
-          Map::create(false, {
-            {STR("prd"), ReferenceParser::parseQualifier(STR("root.Subject"))},
+       {STR("prms"), SharedList::create({
+          SharedMap::create(false, {
+            {STR("prd"), ReferenceParser::parseQualifier(STR("root:Subject"))},
             {STR("min"), std::make_shared<Integer>(1)},
             {STR("max"), std::make_shared<Integer>(1)},
             {STR("pty"), std::make_shared<Integer>(1)}
@@ -619,13 +619,13 @@ void GrammarPlant::createProductionDefinitions()
   }));
 
   //// Import = "import" + Subject
-  this->store.setSharedValue(STR("Main.Import"), SymbolDefinition::create({
-    {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root.Cmd"))},
-    {SymbolDefElement::VARS, Map::create(false, {
+  this->repository.setSharedValue(STR("root:Main.Import"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
+    {SymbolDefElement::VARS, SharedMap::create(false, {
        {STR("kwd"), std::make_shared<String>(STR("import"))},
-       {STR("prms"), List::create({
-          Map::create(false, {
-            {STR("prd"), ReferenceParser::parseQualifier(STR("root.Subject"))},
+       {STR("prms"), SharedList::create({
+          SharedMap::create(false, {
+            {STR("prd"), ReferenceParser::parseQualifier(STR("root:Subject"))},
             {STR("min"), std::make_shared<Integer>(1)},
             {STR("max"), std::make_shared<Integer>(1)},
             {STR("pty"), std::make_shared<Integer>(1)}
@@ -639,21 +639,21 @@ void GrammarPlant::createProductionDefinitions()
   // IdentCmd : @limit[user.parent=Command] prod (kwd:keywords, args:list[hash[prd:production[Subject], min:integer,
   //                                                                           max:integer, pty:integer]]) as
   //     IdentifierKeywordGroup(kwd) + concat (args:a)->( @priority(a.pty,0) a.prd*(a.min,a.max) );
-  this->store.setSharedValue(STR("Cmd"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Cmd"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-       {TermElement::TERM, List::create({
-          TokenTerm::create(ParsingFlags::OMISSIBLE, std::make_shared<Integer>(0), ReferenceParser::parseQualifier(STR("args.kwd"))),
+       {TermElement::TERM, SharedList::create({
+          TokenTerm::create(ParsingFlags::OMISSIBLE, std::make_shared<Integer>(0), ReferenceParser::parseQualifier(STR("args:kwd"))),
           ConcatTerm::create({
             {TermElement::FLAGS, ParsingFlags::PASS_UP},
-            {TermElement::REF, ReferenceParser::parseQualifier(STR("stack.p"))},
-            {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.prms"))},
+            {TermElement::REF, ReferenceParser::parseQualifier(STR("stack:p"))},
+            {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:prms"))},
             {TermElement::TERM, MultiplyTerm::create({
-               {TermElement::PRIORITY, ReferenceParser::parseQualifier(STR("stack.p.pty"))},
+               {TermElement::PRIORITY, ReferenceParser::parseQualifier(STR("stack:p.pty"))},
                {TermElement::FLAGS, ParsingFlags::PASS_UP},
-               {TermElement::MIN, ReferenceParser::parseQualifier(STR("stack.p.min"))},
-               {TermElement::MAX, ReferenceParser::parseQualifier(STR("stack.p.max"))},
-               {TermElement::TERM, ReferenceTerm::create(STR("stack.p.prd"))}
+               {TermElement::MIN, ReferenceParser::parseQualifier(STR("stack:p.min"))},
+               {TermElement::MAX, ReferenceParser::parseQualifier(STR("stack:p.max"))},
+               {TermElement::TERM, ReferenceTerm::create(STR("stack:p.prd"))}
              })}
           })
         })}
@@ -667,14 +667,14 @@ void GrammarPlant::createProductionDefinitions()
   // [unaryOp] operand.
   // operand [unaryOp].
   // operand {FunctionalOp}.
-  this->store.setSharedValue(STR("Expression"), GrammarModule::create({{STR("@start"), ReferenceParser::parseQualifier(STR("module.Exp"))}}));
+  this->repository.setSharedValue(STR("root:Expression"), GrammarModule::create({{STR("@start"), ReferenceParser::parseQualifier(STR("module:Exp"))}}));
 
   // Exp : @single prod as LowestLinkExp + (@priority(in,0) lexer.Constant("\\")*(0,1));
-  this->store.setSharedValue(STR("Expression.Exp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.Exp"), SymbolDefinition::create({
    {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-      {TermElement::TERM, List::create({
-         ReferenceTerm::create(STR("module.LowestLinkExp")),
+      {TermElement::TERM, SharedList::create({
+         ReferenceTerm::create(STR("module:LowestLinkExp")),
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
            {TermElement::FLAGS, ParsingFlags::PASS_UP},
@@ -689,27 +689,27 @@ void GrammarPlant::createProductionDefinitions()
   // LowestLinkExp : @single @prefix(heap.Modifiers.LowestLinkModifierCmd)
   //     prod (enable:integer:=endless) as
   //     ConditionalExp + (@priority(in,0) (LowestLinkOp + ConditionalExp)*(0,enable));
-  this->store.setSharedValue(STR("Expression.LowestLinkExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.LowestLinkExp"), SymbolDefinition::create({
    {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-      {TermElement::TERM, List::create({
-         ReferenceTerm::create(STR("module.ConditionalExp")),
+      {TermElement::TERM, SharedList::create({
+         ReferenceTerm::create(STR("module:ConditionalExp")),
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
            {TermElement::FLAGS, ParsingFlags::PASS_UP},
-           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
               {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
-              {TermElement::TERM, List::create({
+              {TermElement::TERM, SharedList::create({
                  TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("lowestLinkOp"))),
-                                   ReferenceParser::parseQualifier(STR("root.TokenData.lowestLinkOpList"))),
-                 ReferenceTerm::create(STR("module.ConditionalExp"))
+                                   ReferenceParser::parseQualifier(STR("root:TokenData.lowestLinkOpList"))),
+                 ReferenceTerm::create(STR("module:ConditionalExp"))
                })}
             })}
          })
        })}
     })},
-   {SymbolDefElement::VARS, Map::create(false, {{STR("enable"), 0}})},
+   {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
    {SymbolDefElement::HANDLER, this->parsingHandler},
    {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -717,26 +717,26 @@ void GrammarPlant::createProductionDefinitions()
   // ConditionalExp : @single @prefix(heap.Modifiers.ConditionalModifierCmd)
   //     prod (enable:integer[0<=n<=1]:=1) as
   //     ListExp + (@priority(in,0) (lexer.Constant("?") + ListExp)*(0,enable));
-  this->store.setSharedValue(STR("Expression.ConditionalExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.ConditionalExp"), SymbolDefinition::create({
    {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-      {TermElement::TERM, List::create({
-         ReferenceTerm::create(STR("module.ListExp")),
+      {TermElement::TERM, SharedList::create({
+         ReferenceTerm::create(STR("module:ListExp")),
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
            {TermElement::FLAGS, ParsingFlags::PASS_UP},
-           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
               {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
-              {TermElement::TERM, List::create({
+              {TermElement::TERM, SharedList::create({
                  TokenTerm::create(ParsingFlags::OMISSIBLE, STR("?")),
-                 ReferenceTerm::create(STR("module.ListExp"))
+                 ReferenceTerm::create(STR("module:ListExp"))
                })}
             })}
          })
        })}
     })},
-   {SymbolDefElement::VARS, Map::create(false, {{STR("enable"), std::make_shared<Integer>(1)}})},
+   {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(1)}})},
    {SymbolDefElement::HANDLER, this->parsingHandler},
    {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -745,36 +745,36 @@ void GrammarPlant::createProductionDefinitions()
   //     prod (enable:integer:=endless) as
   //     (@priority(in,0) lexer.Constant(",")*(0,enable)) + LowerLinkExp +
   //     (@priority(in,0) (lexer.Constant(",") + LowerLinkExp*(0,1))*(0,enable));
-  this->store.setSharedValue(STR("Expression.ListExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.ListExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
-       {TermElement::TERM, List::create({
+       {TermElement::TERM, SharedList::create({
           MultiplyTerm::create({
             {TermElement::PRIORITY, std::make_shared<Integer>(0)},
             {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_UP},
-            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
             {TermElement::TERM, TokenTerm::create(ParsingFlags::OMISSIBLE, STR(","))}
           }),
-          ReferenceTerm::create(STR("module.LowerLinkExp")),
+          ReferenceTerm::create(STR("module:LowerLinkExp")),
           MultiplyTerm::create({
             {TermElement::PRIORITY, std::make_shared<Integer>(1)},
             {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_UP},
-            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
-               {TermElement::TERM, List::create({
+               {TermElement::TERM, SharedList::create({
                   TokenTerm::create(ParsingFlags::OMISSIBLE, STR(",")),
                   MultiplyTerm::create({
                     {TermElement::PRIORITY, std::make_shared<Integer>(1)},
                     {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_UP},
                     {TermElement::MAX, std::make_shared<Integer>(1)},
-                    {TermElement::TERM, ReferenceTerm::create(STR("module.LowerLinkExp"))}
+                    {TermElement::TERM, ReferenceTerm::create(STR("module:LowerLinkExp"))}
                   })
                 })}
              })}
           })
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {{STR("enable"), 0}})},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -782,27 +782,27 @@ void GrammarPlant::createProductionDefinitions()
   // LowerLinkExp : @single @prefix(heap.Modifiers.LowerLinkModifierCmd)
   //     prod (enable:integer:=endless) as
   //     AssignmentExp + (@priority(in,0) (LowerLinkOp + AssignmentExp)*(0,enable));
-  this->store.setSharedValue(STR("Expression.LowerLinkExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.LowerLinkExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-       {TermElement::TERM, List::create({
-          ReferenceTerm::create(STR("module.AssignmentExp")),
+       {TermElement::TERM, SharedList::create({
+          ReferenceTerm::create(STR("module:AssignmentExp")),
           MultiplyTerm::create({
             {TermElement::PRIORITY, std::make_shared<Integer>(1)},
             {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_UP},
-            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
-               {TermElement::TERM, List::create({
+               {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("lowerLinkOp"))),
-                  ReferenceParser::parseQualifier(STR("root.TokenData.lowerLinkOpList"))),
-                  ReferenceTerm::create(STR("module.AssignmentExp"))
+                  ReferenceParser::parseQualifier(STR("root:TokenData.lowerLinkOpList"))),
+                  ReferenceTerm::create(STR("module:AssignmentExp"))
                 })}
              })}
           })
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {{STR("enable"), 0}})},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -810,27 +810,27 @@ void GrammarPlant::createProductionDefinitions()
   // AssignmentExp : @single @prefix(heap.Modifiers.AssignmentModifierCmd)
   //     prod (enable:integer:=endless) as
   //     LogExp + (@priority(in,0) (AssignmentOp + LogExp)*(0,enable));
-  this->store.setSharedValue(STR("Expression.AssignmentExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.AssignmentExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-       {TermElement::TERM, List::create({
-          ReferenceTerm::create(STR("module.LogExp")),
+       {TermElement::TERM, SharedList::create({
+          ReferenceTerm::create(STR("module:LogExp")),
           MultiplyTerm::create({
             {TermElement::PRIORITY, std::make_shared<Integer>(1)},
             {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_UP},
-            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
-               {TermElement::TERM, List::create({
+               {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("assignmentOp"))),
-                  ReferenceParser::parseQualifier(STR("root.TokenData.assignmentOpList"))),
-                  ReferenceTerm::create(STR("module.LogExp"))
+                  ReferenceParser::parseQualifier(STR("root:TokenData.assignmentOpList"))),
+                  ReferenceTerm::create(STR("module:LogExp"))
                 })}
              })}
           })
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {{STR("enable"), 0}})},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -838,27 +838,27 @@ void GrammarPlant::createProductionDefinitions()
   // LogExp : @single @prefix(heap.Modifiers.LogModifierCmd)
   //     prod (enable:integer:=endless) as
   //     ComparisonExp + (@priority(in,0) (LogOp + ComparisonExp)*(0,enable));
-  this->store.setSharedValue(STR("Expression.LogExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.LogExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-        {TermElement::TERM, List::create({
-           ReferenceTerm::create(STR("module.ComparisonExp")),
+        {TermElement::TERM, SharedList::create({
+           ReferenceTerm::create(STR("module:ComparisonExp")),
            MultiplyTerm::create({
              {TermElement::PRIORITY, std::make_shared<Integer>(1)},
              {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_UP},
-             {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+             {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
              {TermElement::TERM, ConcatTerm::create({
                 {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
-                {TermElement::TERM, List::create({
+                {TermElement::TERM, SharedList::create({
                    TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("logOp"))),
-                   ReferenceParser::parseQualifier(STR("root.TokenData.logOpList"))),
-                   ReferenceTerm::create(STR("module.ComparisonExp"))
+                   ReferenceParser::parseQualifier(STR("root:TokenData.logOpList"))),
+                   ReferenceTerm::create(STR("module:ComparisonExp"))
                  })}
               })}
            })
          })}
       })},
-     {SymbolDefElement::VARS, Map::create(false, {{STR("enable"), 0}})},
+     {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
      {SymbolDefElement::HANDLER, this->parsingHandler},
      {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
    }));
@@ -866,27 +866,27 @@ void GrammarPlant::createProductionDefinitions()
   // ComparisonExp : @single @prefix(heap.Modifiers.ComparisonModifierCmd)
   //     prod (enable:integer:=endless) as
   //     LowLinkExp + (@priority(in,0) (ComparisonOp + LowLinkExp)*(0,enable));
-  this->store.setSharedValue(STR("Expression.ComparisonExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.ComparisonExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-       {TermElement::TERM, List::create({
-          ReferenceTerm::create(STR("module.LowLinkExp")),
+       {TermElement::TERM, SharedList::create({
+          ReferenceTerm::create(STR("module:LowLinkExp")),
           MultiplyTerm::create({
             {TermElement::PRIORITY, std::make_shared<Integer>(1)},
             {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_UP},
-            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
-               {TermElement::TERM, List::create({
+               {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("comparisonOp"))),
-                  ReferenceParser::parseQualifier(STR("root.TokenData.comparisonOpList"))),
-                  ReferenceTerm::create(STR("module.LowLinkExp"))
+                  ReferenceParser::parseQualifier(STR("root:TokenData.comparisonOpList"))),
+                  ReferenceTerm::create(STR("module:LowLinkExp"))
                 })}
              })}
           })
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {{STR("enable"), 0}})},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -894,27 +894,27 @@ void GrammarPlant::createProductionDefinitions()
   // LowLinkExp : @single @prefix(heap.Modifiers.LowLinkModifierCmd)
   //     prod (enable:integer:=endless) as
   //     AddExp + (@priority(in,0) (LowLinkOp + AddExp)*(0,enable));
-  this->store.setSharedValue(STR("Expression.LowLinkExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.LowLinkExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-       {TermElement::TERM, List::create({
-          ReferenceTerm::create(STR("module.AddExp")),
+       {TermElement::TERM, SharedList::create({
+          ReferenceTerm::create(STR("module:AddExp")),
           MultiplyTerm::create({
             {TermElement::PRIORITY, std::make_shared<Integer>(1)},
             {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_UP},
-            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
-               {TermElement::TERM, List::create({
+               {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("lowLinkOp"))),
-                  ReferenceParser::parseQualifier(STR("root.TokenData.lowLinkOpList"))),
-                  ReferenceTerm::create(STR("module.AddExp"))
+                  ReferenceParser::parseQualifier(STR("root:TokenData.lowLinkOpList"))),
+                  ReferenceTerm::create(STR("module:AddExp"))
                 })}
              })}
           })
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {{STR("enable"), 0}})},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -922,27 +922,27 @@ void GrammarPlant::createProductionDefinitions()
   // AddExp : @single @prefix(heap.Modifiers.AddModifierCmd)
   //     prod (enable:integer:=endless) as
   //     MulExp + (@priority(in,0) (AddOp + MulExp)*(0,enable));
-  this->store.setSharedValue(STR("Expression.AddExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.AddExp"), SymbolDefinition::create({
    {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-      {TermElement::TERM, List::create({
-         ReferenceTerm::create(STR("module.MulExp")),
+      {TermElement::TERM, SharedList::create({
+         ReferenceTerm::create(STR("module:MulExp")),
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
            {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_UP},
-           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
               {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
-              {TermElement::TERM, List::create({
+              {TermElement::TERM, SharedList::create({
                  TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("addOp"))),
-                 ReferenceParser::parseQualifier(STR("root.TokenData.addOpList"))),
-                 ReferenceTerm::create(STR("module.MulExp"))
+                 ReferenceParser::parseQualifier(STR("root:TokenData.addOpList"))),
+                 ReferenceTerm::create(STR("module:MulExp"))
                })}
             })}
          })
        })}
     })},
-   {SymbolDefElement::VARS, Map::create(false, {{STR("enable"), 0}})},
+   {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
    {SymbolDefElement::HANDLER, this->parsingHandler},
    {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -950,27 +950,27 @@ void GrammarPlant::createProductionDefinitions()
   // MulExp : @single @prefix(heap.Modifiers.MulModifierCmd)
   //     prod (enable:integer:=endless) as
   //     BitwiseExp + (@priority(in,0) (MulOp + BitwiseExp)*(0,enable));
-  this->store.setSharedValue(STR("Expression.MulExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.MulExp"), SymbolDefinition::create({
    {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-      {TermElement::TERM, List::create({
-         ReferenceTerm::create(STR("module.BitwiseExp")),
+      {TermElement::TERM, SharedList::create({
+         ReferenceTerm::create(STR("module:BitwiseExp")),
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
            {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_UP},
-           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
               {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
-              {TermElement::TERM, List::create({
+              {TermElement::TERM, SharedList::create({
                  TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("mulOp"))),
-                 ReferenceParser::parseQualifier(STR("root.TokenData.mulOpList"))),
-                 ReferenceTerm::create(STR("module.BitwiseExp"))
+                 ReferenceParser::parseQualifier(STR("root:TokenData.mulOpList"))),
+                 ReferenceTerm::create(STR("module:BitwiseExp"))
                })}
             })}
          })
        })}
     })},
-   {SymbolDefElement::VARS, Map::create(false, {{STR("enable"), 0}})},
+   {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
    {SymbolDefElement::HANDLER, this->parsingHandler},
    {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -978,27 +978,27 @@ void GrammarPlant::createProductionDefinitions()
   // BitwiseExp : @single @prefix(heap.Modifiers.BitwiseModifierCmd)
   //     prod (enable:integer:=endless) as
   //     UnaryExp + (@priority(in,0) (BitwiseOp + UnaryExp)*(0,enable));
-  this->store.setSharedValue(STR("Expression.BitwiseExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.BitwiseExp"), SymbolDefinition::create({
    {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-      {TermElement::TERM, List::create({
-         ReferenceTerm::create(STR("module.UnaryExp")),
+      {TermElement::TERM, SharedList::create({
+         ReferenceTerm::create(STR("module:UnaryExp")),
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
            {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_UP},
-           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable"))},
+           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
               {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
-              {TermElement::TERM, List::create({
+              {TermElement::TERM, SharedList::create({
                  TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("bitwiseOp"))),
-                 ReferenceParser::parseQualifier(STR("root.TokenData.bitwiseOpList"))),
-                 ReferenceTerm::create(STR("module.UnaryExp"))
+                 ReferenceParser::parseQualifier(STR("root:TokenData.bitwiseOpList"))),
+                 ReferenceTerm::create(STR("module:UnaryExp"))
                })}
             })}
          })
        })}
     })},
-   {SymbolDefElement::VARS, Map::create(false, {{STR("enable"), 0}})},
+   {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
    {SymbolDefElement::HANDLER, this->parsingHandler},
    {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -1006,26 +1006,26 @@ void GrammarPlant::createProductionDefinitions()
   // UnaryExp : @single @prefix(heap.Modifiers.UnaryModifierCmd)
   //     prod (enable1:integer[0<=n<=1]:=1, enable2:integer[0<=n<=1]:=1) as
   //     (@priority(in,0) PrefixOp*(0,enable1)) + FunctionalExp + (@priority(in,0) PostfixOp*(0,enable2));
-  this->store.setSharedValue(STR("Expression.UnaryExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.UnaryExp"), SymbolDefinition::create({
    {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-      {TermElement::TERM, List::create({
+      {TermElement::TERM, SharedList::create({
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
            {TermElement::FLAGS, ParsingFlags::PASS_UP},
-           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable1"))},
-           {TermElement::TERM, ReferenceTerm::create(STR("module.PrefixOp"))}
+           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable1"))},
+           {TermElement::TERM, ReferenceTerm::create(STR("module:PrefixOp"))}
          }),
-         ReferenceTerm::create(STR("module.FunctionalExp")),
+         ReferenceTerm::create(STR("module:FunctionalExp")),
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
            {TermElement::FLAGS, ParsingFlags::PASS_UP},
-           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.enable2"))},
-           {TermElement::TERM, ReferenceTerm::create(STR("module.PostfixOp"))}
+           {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:enable2"))},
+           {TermElement::TERM, ReferenceTerm::create(STR("module:PostfixOp"))}
          })
        })}
     })},
-   {SymbolDefElement::VARS, Map::create(false, {
+   {SymbolDefElement::VARS, SharedMap::create(false, {
       {STR("enable1"), std::make_shared<Integer>(1)},
       {STR("enable2"), std::make_shared<Integer>(1)}
     })},
@@ -1041,29 +1041,29 @@ void GrammarPlant::createProductionDefinitions()
   //                                                       PostfixTildeExp ||
   //                                                       LinkExp(operand))*(0,dup))) ||
   //         PrefixTildeExp + operand;
-  this->store.setSharedValue(STR("Expression.FunctionalExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.FunctionalExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-       {TermElement::TERM, List::create({
-          ReferenceTerm::create(STR("args.operand")),
+       {TermElement::TERM, SharedList::create({
+          ReferenceTerm::create(STR("args:operand")),
           MultiplyTerm::create({
-            {TermElement::PRIORITY, ReferenceParser::parseQualifier(STR("args.pty2"))},
+            {TermElement::PRIORITY, ReferenceParser::parseQualifier(STR("args:pty2"))},
             {TermElement::FLAGS, ParsingFlags::PASS_UP},
-            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args.dup"))},
+            {TermElement::MAX, ReferenceParser::parseQualifier(STR("args:dup"))},
             {TermElement::TERM, AlternateTerm::create({
                {TermElement::FLAGS, ParsingFlags::PASS_UP},
-               {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.fltr2"))},
-               {TermElement::TERM, List::create({
-                  ReferenceTerm::create(STR("module.LinkExp")),
-                  ReferenceTerm::create(STR("module.PostfixTildeExp")),
-                  ReferenceTerm::create(STR("module.ParamPassExp"))
+               {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:fltr2"))},
+               {TermElement::TERM, SharedList::create({
+                  ReferenceTerm::create(STR("module:LinkExp")),
+                  ReferenceTerm::create(STR("module:PostfixTildeExp")),
+                  ReferenceTerm::create(STR("module:ParamPassExp"))
                 })}
              })}
           })
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {
-       {STR("operand"), ReferenceParser::parseQualifier(STR("root.Subject"))},
+    {SymbolDefElement::VARS, SharedMap::create(false, {
+       {STR("operand"), ReferenceParser::parseQualifier(STR("root:Subject"))},
        {STR("pty2"), std::make_shared<Integer>(1)},
        {STR("dup"), 0},
        {STR("fltr2"), 0}
@@ -1073,54 +1073,54 @@ void GrammarPlant::createProductionDefinitions()
   }));
 
   // LinkExp : @single prod (operand:production[heap.Subject]:=heap.Subject) as LinkOp + operand;
-  this->store.setSharedValue(STR("Expression.LinkExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.LinkExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
-       {TermElement::TERM, List::create({
+       {TermElement::TERM, SharedList::create({
           TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("linkOp"))),
-          ReferenceParser::parseQualifier(STR("root.TokenData.linkOpList"))),
-          ReferenceTerm::create(STR("args.operand"))
+          ReferenceParser::parseQualifier(STR("root:TokenData.linkOpList"))),
+          ReferenceTerm::create(STR("args:operand"))
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {{STR("operand"), ReferenceParser::parseQualifier(STR("root.Subject"))}})},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("operand"), ReferenceParser::parseQualifier(STR("root:Subject"))}})},
     {SymbolDefElement::HANDLER, this->parsingHandler}}));
 
   //// ParamPassExp : "(" [Expression] ")" | "[" [Expression] "]".
   // ParamPassExp : @single prod (expr:production[Expression||Statement]:=heap.Expression, fltr:filter:=null) as
   //     @filter(fltr) lexer.Constant("(") + expr*(0,1) + lexer.Constant(")") ||
   //                   lexer.Constant("[") + expr*(0,1) + lexer.Constant("]");
-  this->store.setSharedValue(STR("Expression.ParamPassExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.ParamPassExp"), SymbolDefinition::create({
   {SymbolDefElement::TERM, AlternateTerm::create({
      {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM},
-     {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.fltr"))},
-     {TermElement::TERM, List::create({
+     {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:fltr"))},
+     {TermElement::TERM, SharedList::create({
         ConcatTerm::create({
           {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
-          {TermElement::TERM, List::create({
+          {TermElement::TERM, SharedList::create({
              TokenTerm::create(ParsingFlags::OMISSIBLE, STR("(")),
              MultiplyTerm::create({
                {TermElement::FLAGS, ParsingFlags::PASS_UP},
                {TermElement::MAX, std::make_shared<Integer>(1)},
-               {TermElement::TERM, ReferenceTerm::create(STR("args.expr"))}
+               {TermElement::TERM, ReferenceTerm::create(STR("args:expr"))}
              }),
              TokenTerm::create(ParsingFlags::OMISSIBLE, STR(")"))
            })}
         }),
         ConcatTerm::create({
           {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
-          {TermElement::TERM, List::create({
+          {TermElement::TERM, SharedList::create({
              TokenTerm::create(ParsingFlags::OMISSIBLE, STR("[")),
              MultiplyTerm::create({
                {TermElement::FLAGS, ParsingFlags::PASS_UP},
                {TermElement::MAX, std::make_shared<Integer>(1)},
-               {TermElement::TERM, ReferenceTerm::create(STR("args.expr"))}
+               {TermElement::TERM, ReferenceTerm::create(STR("args:expr"))}
              }),
              TokenTerm::create(ParsingFlags::OMISSIBLE, STR("]"))
            })}
         })
       })}
    })},
-  {SymbolDefElement::VARS, Map::create(false, {
-     {STR("expr"), ReferenceParser::parseQualifier(STR("root.Expression"))},
+  {SymbolDefElement::VARS, SharedMap::create(false, {
+     {STR("expr"), ReferenceParser::parseQualifier(STR("root:Expression"))},
      {STR("fltr"), 0}})},
   {SymbolDefElement::HANDLER, this->parsingHandler}}));
 
@@ -1129,16 +1129,16 @@ void GrammarPlant::createProductionDefinitions()
   //// "~(" Expression {Subject} ")".
   //PostfixTildeExp : @single prod (cmd:production[PostfixTildeCmd]:=DefaultPostfixTildeCmd) as
   //    lexer.Constant("~") + cmd;
-  this->store.setSharedValue(STR("Expression.PostfixTildeExp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.PostfixTildeExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-      {TermElement::TERM, List::create({
+      {TermElement::TERM, SharedList::create({
          TokenTerm::create(ParsingFlags::OMISSIBLE, STR("~")),
-         ReferenceTerm::create(STR("args.cmd"))
+         ReferenceTerm::create(STR("args:cmd"))
       })}
     })},
-    {SymbolDefElement::VARS, Map::create(false, {
-      {STR("cmd"), ReferenceParser::parseQualifier(STR("module.DefaultPostfixTildeCmd"))}
+    {SymbolDefElement::VARS, SharedMap::create(false, {
+      {STR("cmd"), ReferenceParser::parseQualifier(STR("module:DefaultPostfixTildeCmd"))}
     })},
     {SymbolDefElement::HANDLER, this->parsingHandler}}));
   //OpenPostfixTildeCmd : @limit[user.parent=PostfixTildeCmd]
@@ -1146,47 +1146,47 @@ void GrammarPlant::createProductionDefinitions()
   //                                                      max:integer, pty:integer]]) as
   //    lexer.Constant("(") + expr + concat (args:a)->( @priority(pty,0) a.sbj*(a.min,a.max) ) +
   //    lexer.Constant(")");
-  this->store.setSharedValue(STR("Expression.OpenPostfixTildeCmd"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.OpenPostfixTildeCmd"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-       {TermElement::TERM, List::create({
+       {TermElement::TERM, SharedList::create({
           TokenTerm::create(ParsingFlags::OMISSIBLE, STR("(")),
-          ReferenceTerm::create(STR("args.expr")),
+          ReferenceTerm::create(STR("args:expr")),
           ConcatTerm::create({
             {TermElement::FLAGS, ParsingFlags::PASS_UP},
-            {TermElement::REF, ReferenceParser::parseQualifier(STR("stack.p"))},
-            {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.prms"))},
+            {TermElement::REF, ReferenceParser::parseQualifier(STR("stack:p"))},
+            {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:prms"))},
             {TermElement::TERM, MultiplyTerm::create({
-               {TermElement::PRIORITY, ReferenceParser::parseQualifier(STR("stack.p.pty"))},
+               {TermElement::PRIORITY, ReferenceParser::parseQualifier(STR("stack:p.pty"))},
                {TermElement::FLAGS, ParsingFlags::PASS_UP},
-               {TermElement::MIN, ReferenceParser::parseQualifier(STR("stack.p.min"))},
-               {TermElement::MAX, ReferenceParser::parseQualifier(STR("stack.p.max"))},
-               {TermElement::TERM, ReferenceTerm::create(STR("stack.p.prd"))}
+               {TermElement::MIN, ReferenceParser::parseQualifier(STR("stack:p.min"))},
+               {TermElement::MAX, ReferenceParser::parseQualifier(STR("stack:p.max"))},
+               {TermElement::TERM, ReferenceTerm::create(STR("stack:p.prd"))}
              })}
           }),
           TokenTerm::create(ParsingFlags::OMISSIBLE, STR(")"))
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {
-       {STR("expr"), ReferenceParser::parseQualifier(STR("root.Expression"))},
-       {STR("prms"), List::create({Map::create(false, {
+    {SymbolDefElement::VARS, SharedMap::create(false, {
+       {STR("expr"), ReferenceParser::parseQualifier(STR("root:Expression"))},
+       {STR("prms"), SharedList::create({SharedMap::create(false, {
                                      {STR("pty"), std::make_shared<Integer>(1)},
                                      {STR("min"), 0},
                                      {STR("max"), 0},
-                                     {STR("prd"), ReferenceParser::parseQualifier(STR("root.Expression"))}
+                                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression"))}
                                    })})}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}}));
   //DefaultPostfixTildeCmd=>PostfixTildeCmd : prod_group;
-  this->store.setSharedValue(STR("Expression.DefaultPostfixTildeCmd"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.DefaultPostfixTildeCmd"), SymbolDefinition::create({
    {SymbolDefElement::TERM, AlternateTerm::create({
       {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
-      {TermElement::REF, ReferenceParser::parseQualifier(STR("stack.cmd"))},
-      {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.cmds"))},
-      {TermElement::TERM, ReferenceTerm::create(STR("stack.cmd"))}
+      {TermElement::REF, ReferenceParser::parseQualifier(STR("stack:cmd"))},
+      {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:cmds"))},
+      {TermElement::TERM, ReferenceTerm::create(STR("stack:cmd"))}
     })},
-   {SymbolDefElement::VARS, Map::create(false, {
-      {STR("cmds"), List::create({ReferenceParser::parseQualifier(STR("module.OpenPostfixTildeCmd"))})}
+   {SymbolDefElement::VARS, SharedMap::create(false, {
+      {STR("cmds"), SharedList::create({ReferenceParser::parseQualifier(STR("module:OpenPostfixTildeCmd"))})}
     })},
    {SymbolDefElement::HANDLER, this->parsingHandler},
    {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
@@ -1194,23 +1194,23 @@ void GrammarPlant::createProductionDefinitions()
 
   //// Operators :
   // PrefixOp : prod ref heap.ConstantKeywordGroup(heap.TokenData.prefixOpList);
-  this->store.setSharedValue(STR("Expression.PrefixOp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.PrefixOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("prefixOp"))),
-      ReferenceParser::parseQualifier(STR("root.TokenData.prefixOpList")))},
+      ReferenceParser::parseQualifier(STR("root:TokenData.prefixOpList")))},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
   // PostfixOp : prod ref heap.ConstantKeywordGroup(heap.TokenData.postfixOpList);
-  this->store.setSharedValue(STR("Expression.PostfixOp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Expression.PostfixOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("postfixOp"))),
-      ReferenceParser::parseQualifier(STR("root.TokenData.postfixOpList")))},
+      ReferenceParser::parseQualifier(STR("root:TokenData.postfixOpList")))},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
 
 
   // Subject : Parameter | Command | Expression | Statement | Set.
-  this->store.setSharedValue(STR("Subject"), GrammarModule::create({{STR("@start"), ReferenceParser::parseQualifier(STR("module.Subject1"))}}));
+  this->repository.setSharedValue(STR("root:Subject"), GrammarModule::create({{STR("@start"), ReferenceParser::parseQualifier(STR("module:Subject1"))}}));
 
   // Subject1 : @single prod (sbj1:list[production[Parameter||Command||Expression||Statement||Set]]
   //                              :=(Parameter, SubjectCommandGroup, heap.Default_Set),
@@ -1222,29 +1222,29 @@ void GrammarPlant::createProductionDefinitions()
   //     alternate (sbj1:s)->( s ) ||
   //     lexer.Constant("(") + (alternate (sbj2:s)->( s ))*(frc2,1) + lexer.Constant(")") ||
   //     lexer.Constant("[") + (alternate (sbj3:s)->( s ))*(frc3,1) + lexer.Constant("]");
-  this->store.setSharedValue(STR("Subject.Subject1"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Subject.Subject1"), SymbolDefinition::create({
    {SymbolDefElement::TERM, AlternateTerm::create({
       {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM},
-      {TermElement::TERM, List::create({
+      {TermElement::TERM, SharedList::create({
          AlternateTerm::create({
            {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
-           {TermElement::REF, ReferenceParser::parseQualifier(STR("stack.s"))},
-           {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.sbj1"))},
-           {TermElement::TERM, ReferenceTerm::create(STR("stack.s"))}
+           {TermElement::REF, ReferenceParser::parseQualifier(STR("stack:s"))},
+           {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:sbj1"))},
+           {TermElement::TERM, ReferenceTerm::create(STR("stack:s"))}
          }),
          ConcatTerm::create({
            {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
-           {TermElement::TERM, List::create({
+           {TermElement::TERM, SharedList::create({
               TokenTerm::create(ParsingFlags::OMISSIBLE, STR("(")),
               MultiplyTerm::create({
                 {TermElement::FLAGS, ParsingFlags::PASS_UP},
-                {TermElement::MIN, ReferenceParser::parseQualifier(STR("args.frc2"))},
+                {TermElement::MIN, ReferenceParser::parseQualifier(STR("args:frc2"))},
                 {TermElement::MAX, std::make_shared<Integer>(1)},
                 {TermElement::TERM, AlternateTerm::create({
                    {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
-                   {TermElement::REF, ReferenceParser::parseQualifier(STR("stack.s2"))},
-                   {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.sbj2"))},
-                   {TermElement::TERM, ReferenceTerm::create(STR("stack.s2"))}
+                   {TermElement::REF, ReferenceParser::parseQualifier(STR("stack:s2"))},
+                   {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:sbj2"))},
+                   {TermElement::TERM, ReferenceTerm::create(STR("stack:s2"))}
                  })}
               }),
               TokenTerm::create(ParsingFlags::OMISSIBLE, STR(")"))
@@ -1252,17 +1252,17 @@ void GrammarPlant::createProductionDefinitions()
          }),
          ConcatTerm::create({
            {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
-           {TermElement::TERM, List::create({
+           {TermElement::TERM, SharedList::create({
               TokenTerm::create(ParsingFlags::OMISSIBLE, STR("[")),
               MultiplyTerm::create({
                 {TermElement::FLAGS, ParsingFlags::PASS_UP},
-                {TermElement::MIN, ReferenceParser::parseQualifier(STR("args.frc3"))},
+                {TermElement::MIN, ReferenceParser::parseQualifier(STR("args:frc3"))},
                 {TermElement::MAX, std::make_shared<Integer>(1)},
                 {TermElement::TERM, AlternateTerm::create({
                    {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
-                   {TermElement::REF, ReferenceParser::parseQualifier(STR("stack.s3"))},
-                   {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.sbj3"))},
-                   {TermElement::TERM, ReferenceTerm::create(STR("stack.s3"))}
+                   {TermElement::REF, ReferenceParser::parseQualifier(STR("stack:s3"))},
+                   {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:sbj3"))},
+                   {TermElement::TERM, ReferenceTerm::create(STR("stack:s3"))}
                  })}
               }),
               TokenTerm::create(ParsingFlags::OMISSIBLE, STR("]"))
@@ -1270,14 +1270,14 @@ void GrammarPlant::createProductionDefinitions()
          })
        })}
     })},
-   {SymbolDefElement::VARS, Map::create(false, {
-      {STR("sbj1"), List::create({
-         ReferenceParser::parseQualifier(STR("module.SubjectCmdGrp")),
-         ReferenceParser::parseQualifier(STR("module.Parameter")),
-         ReferenceParser::parseQualifier(STR("root.Set"))
+   {SymbolDefElement::VARS, SharedMap::create(false, {
+      {STR("sbj1"), SharedList::create({
+         ReferenceParser::parseQualifier(STR("module:SubjectCmdGrp")),
+         ReferenceParser::parseQualifier(STR("module:Parameter")),
+         ReferenceParser::parseQualifier(STR("root:Set"))
        })},
-      {STR("sbj2"), List::create({ReferenceParser::parseQualifier(STR("root.Expression"))})},
-      {STR("sbj3"), List::create({ReferenceParser::parseQualifier(STR("root.Expression"))})},
+      {STR("sbj2"), SharedList::create({ReferenceParser::parseQualifier(STR("root:Expression"))})},
+      {STR("sbj3"), SharedList::create({ReferenceParser::parseQualifier(STR("root:Expression"))})},
       {STR("frc2"), 0},
       {STR("frc3"), 0}
     })},
@@ -1290,34 +1290,34 @@ void GrammarPlant::createProductionDefinitions()
   //     @filter(fltr) sbj ||
   //                   lexer.Constant("(") + sbj*(frc,1) + lexer.Constant(")") ||
   //                   lexer.Constant("[") + sbj*(frc,1) + lexer.Constant("]");
-  this->store.setSharedValue(STR("Subject.Subject2"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Subject.Subject2"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
-        {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.fltr"))},
-        {TermElement::TERM, List::create({
-           ReferenceTerm::create(STR("args.sbj")),
+        {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:fltr"))},
+        {TermElement::TERM, SharedList::create({
+           ReferenceTerm::create(STR("args:sbj")),
            ConcatTerm::create({
              {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
-             {TermElement::TERM, List::create({
+             {TermElement::TERM, SharedList::create({
                 TokenTerm::create(ParsingFlags::OMISSIBLE, STR("(")),
                 MultiplyTerm::create({
                   {TermElement::FLAGS, ParsingFlags::PASS_UP},
-                  {TermElement::MIN, ReferenceParser::parseQualifier(STR("args.frc"))},
+                  {TermElement::MIN, ReferenceParser::parseQualifier(STR("args:frc"))},
                   {TermElement::MAX, std::make_shared<Integer>(1)},
-                  {TermElement::TERM, ReferenceTerm::create(STR("args.sbj"))}
+                  {TermElement::TERM, ReferenceTerm::create(STR("args:sbj"))}
                 }),
                 TokenTerm::create(ParsingFlags::OMISSIBLE, STR(")"))
               })}
            }),
            ConcatTerm::create({
              {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
-             {TermElement::TERM, List::create({
+             {TermElement::TERM, SharedList::create({
                 TokenTerm::create(ParsingFlags::OMISSIBLE, STR("[")),
                 MultiplyTerm::create({
                   {TermElement::FLAGS, ParsingFlags::PASS_UP},
-                  {TermElement::MIN, ReferenceParser::parseQualifier(STR("args.frc"))},
+                  {TermElement::MIN, ReferenceParser::parseQualifier(STR("args:frc"))},
                   {TermElement::MAX, std::make_shared<Integer>(1)},
-                  {TermElement::TERM, ReferenceTerm::create(STR("args.sbj"))}
+                  {TermElement::TERM, ReferenceTerm::create(STR("args:sbj"))}
                 }),
                 TokenTerm::create(ParsingFlags::OMISSIBLE, STR("]"))
               })}
@@ -1328,14 +1328,14 @@ void GrammarPlant::createProductionDefinitions()
    }));
 
   // SubjectCommandGroup
-  this->store.setSharedValue(STR("Subject.SubjectCmdGrp"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Subject.SubjectCmdGrp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
-       {TermElement::REF, ReferenceParser::parseQualifier(STR("stack.cmd"))},
-       {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.cmds"))},
-       {TermElement::TERM, ReferenceTerm::create(STR("stack.cmd"))}
+       {TermElement::REF, ReferenceParser::parseQualifier(STR("stack:cmd"))},
+       {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:cmds"))},
+       {TermElement::TERM, ReferenceTerm::create(STR("stack:cmd"))}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {{ STR("cmds"), List::create({}) }} )},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{ STR("cmds"), SharedList::create({}) }} )},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -1344,16 +1344,16 @@ void GrammarPlant::createProductionDefinitions()
   // Parameter : @single @prefix(heap.Modifiers.ParameterModifierCmd)
   //     prod (fltr:filter:=null, cnsts:keywords:=null) as
   //     @filter(fltr) lexer.Identifier || Literal || heap.ConstantKeywordGroup(cnsts);
-  this->store.setSharedValue(STR("Subject.Parameter"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Subject.Parameter"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
-       {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.fltr"))},
-       {TermElement::TERM, List::create({
+       {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:fltr"))},
+       {TermElement::TERM, SharedList::create({
           TokenTerm::create(0, std::make_shared<Integer>(IDENTIFIER_TOKEN)),
-          ReferenceTerm::create(STR("module.Literal"))
+          ReferenceTerm::create(STR("module:Literal"))
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {{ STR("fltr"), 0 }} )},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{ STR("fltr"), 0 }} )},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -1362,18 +1362,18 @@ void GrammarPlant::createProductionDefinitions()
   // Literal : @single prod (fltr:filter:=null) as
   //     @filter(fltr) lexer.IntLiteral || lexer.FloatLiteral || lexer.CharLiteral || lexer.StringLiteral ||
   //                   lexer.CustomLiteral;
-  this->store.setSharedValue(STR("Subject.Literal"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Subject.Literal"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
-       {TermElement::DATA, ReferenceParser::parseQualifier(STR("args.fltr"))},
-       {TermElement::TERM, List::create({
+       {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:fltr"))},
+       {TermElement::TERM, SharedList::create({
           TokenTerm::create(0, std::make_shared<Integer>(INT_LITERAL_TOKEN)),
           TokenTerm::create(0, std::make_shared<Integer>(FLOAT_LITERAL_TOKEN)),
           TokenTerm::create(0, std::make_shared<Integer>(CHAR_LITERAL_TOKEN)),
           TokenTerm::create(0, std::make_shared<Integer>(STRING_LITERAL_TOKEN))
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {{ STR("fltr"), 0 }} )},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{ STR("fltr"), 0 }} )},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -1383,25 +1383,25 @@ void GrammarPlant::createProductionDefinitions()
   // Set : @limit[child.terms=self,user.parent=self] @prefix(heap.Modifiers.DefaultModifierCmd)
   //     prod (stmt:production[Statement], ovrd:grammar_override) as
   //     lexer.Constant("{") + @override(ovrd) StatementList(stmt) + lexer.Constant("}");
-  this->store.setSharedValue(STR("Set"), SymbolDefinition::create({
+  this->repository.setSharedValue(STR("root:Set"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
-       {TermElement::TERM, List::create({
+       {TermElement::TERM, SharedList::create({
           TokenTerm::create(ParsingFlags::OMISSIBLE, STR("{")),
-          ReferenceTerm::create(STR("args.stmt")),
+          ReferenceTerm::create(STR("args:stmt")),
           TokenTerm::create(ParsingFlags::OMISSIBLE, STR("}"))
         })}
      })},
-    {SymbolDefElement::VARS, Map::create(false, {
-       {STR("stmt"), ReferenceParser::parseQualifier(STR("root.Main.StatementList"))}
+    {SymbolDefElement::VARS, SharedMap::create(false, {
+       {STR("stmt"), ReferenceParser::parseQualifier(STR("root:Main.StatementList"))}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
 
 
-  GrammarModule *root = this->store.getRootModule().s_cast_get<GrammarModule>();
-  root->setStartRef(ReferenceParser::parseQualifier(STR("module.Program")));
+  GrammarModule *root = this->repository.getRoot().get();
+  root->setStartRef(ReferenceParser::parseQualifier(STR("module:Program")));
 }
 
 } } // namespace

@@ -50,9 +50,9 @@ class Processor : public SignalReceiver
 
   public: Processor(const SharedPtr<Lexer::CharGroupDefinitionList> &charGroupDefs,
                     const SharedPtr<Lexer::TokenDefinitionList> &tokenDefs,
-                    Data::DataStore *grammarStore)
+                    Data::GrammarRepository *grammarRepo)
   {
-    this->initialize(charGroupDefs, tokenDefs, grammarStore);
+    this->initialize(charGroupDefs, tokenDefs, grammarRepo);
   }
 
   public: virtual ~Processor()
@@ -65,13 +65,13 @@ class Processor : public SignalReceiver
 
   public: void initialize(const SharedPtr<Lexer::CharGroupDefinitionList> &charGroupDefs,
                           const SharedPtr<Lexer::TokenDefinitionList> &tokenDefs,
-                          Data::DataStore *grammarStore);
+                          Data::GrammarRepository *grammarRepo);
 
   /// Parse the given string and return any resulting parsing data.
-  public: const SharedPtr<IdentifiableObject> processString(const Char *str);
+  public: SharedPtr<IdentifiableObject> processString(Char const *str);
 
   /// Parse the given file and return any resulting parsing data.
-  public: const SharedPtr<IdentifiableObject> processFile(const Char *filename);
+  public: SharedPtr<IdentifiableObject> processFile(Char const *filename);
 
 }; // class
 

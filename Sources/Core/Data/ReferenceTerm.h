@@ -36,7 +36,7 @@ class ReferenceTerm : public Term, public virtual DataOwner
   //============================================================================
   // Constructor & Destructor
 
-  public: ReferenceTerm(const Char *ref=0, Word f=0) : Term(f)
+  public: ReferenceTerm(Char const *ref=0, Word f=0) : Term(f)
   {
     if (ref != 0) this->reference = ReferenceParser::parseQualifier(ref);
   }
@@ -49,7 +49,7 @@ class ReferenceTerm : public Term, public virtual DataOwner
   {
   }
 
-  public: static SharedPtr<ReferenceTerm> create(const Char *ref=0, Word f=0)
+  public: static SharedPtr<ReferenceTerm> create(Char const *ref=0, Word f=0)
   {
     return std::make_shared<ReferenceTerm>(ref, f);
   }
@@ -68,7 +68,7 @@ class ReferenceTerm : public Term, public virtual DataOwner
     this->reference = ref;
   }
 
-  public: void setReference(const Char *ref)
+  public: void setReference(Char const *ref)
   {
     if (ref != 0) this->reference = ReferenceParser::parseQualifier(ref);
     else this->reference.reset();

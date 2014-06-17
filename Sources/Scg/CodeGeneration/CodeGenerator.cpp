@@ -413,7 +413,7 @@ namespace Scg
       THROW_EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
   }
 
-//  Expression *CodeGenerator::GenerateMemberAccess(const SharedPtr<IdentifiableObject> &data)
+//  Expression *CodeGenerator::GenerateMemberAccess(SharedPtr<IdentifiableObject> const &data)
 //  {
 //    auto postfixType = 0; // 0: Variable reference
 //                          // 1: Variable pointer

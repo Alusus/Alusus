@@ -127,12 +127,12 @@ namespace Scg
   private:
     void InitializeIds();
     Expression *GenerateVariableRef(const SharedPtr<Core::Standard::ParsedItem> &param);
-    //Expression *GenerateMemberAccess(const SharedPtr<IdentifiableObject> &param);
+    //Expression *GenerateMemberAccess(SharedPtr<IdentifiableObject> const &param);
     Expression *GenerateConst(const SharedPtr<Core::Standard::ParsedToken> &literal);
     List *GenerateList(const SharedPtr<Core::Standard::ParsedList> &listExpr);
     Expression *GenerateBinaryOperator(const SharedPtr<Core::Standard::ParsedList> &cmpExpr);
     //CallFunction *GenerateFunctionCall(const SharedPtr<Core::Standard::ParsedList> &functionalExpr);
-    List *GenerateOperand(const SharedPtr<IdentifiableObject> &functionalExpr);
+    List *GenerateOperand(SharedPtr<IdentifiableObject> const &functionalExpr);
     IfStatement *GenerateIfStatement(const SharedPtr<Core::Standard::ParsedItem> &command);
     ForStatement *GenerateForStatement(const SharedPtr<Core::Standard::ParsedItem> &command);
     WhileStatement *GenerateWhileStatement(const SharedPtr<Core::Standard::ParsedItem> &command);

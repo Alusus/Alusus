@@ -44,7 +44,7 @@ void printIndents(int indents)
  * Default::ParsedList, or Default::ParsedToken). Anything other than the
  * default data types will be represented by [UNKNOWN TYPE].
  */
-void debugPrintParsedData(const SharedPtr<IdentifiableObject> &ptr, int indents=0)
+void debugPrintParsedData(SharedPtr<IdentifiableObject> const &ptr, int indents=0)
 {
   printIndents(indents);
   if (ptr == 0) {

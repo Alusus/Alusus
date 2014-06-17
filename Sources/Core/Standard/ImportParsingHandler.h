@@ -46,7 +46,7 @@ class ImportParsingHandler : public GenericParsingHandler
   /// Load the referenced library.
   public: virtual void onProdEnd(Parser::StateMachine *machine, Parser::State *state);
 
-  private: Bool import(const Char *filename, Parser::State *state);
+  private: Bool import(Char const *filename, Parser::State *state);
 
 }; // class
 

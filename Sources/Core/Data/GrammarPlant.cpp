@@ -22,12 +22,10 @@ namespace Core { namespace Data
  */
 void GrammarPlant::createGrammar()
 {
-  this->store.setRootModule(std::make_shared<GrammarModule>());
-
   this->createCharGroupDefinitions();
   this->createTokenDefinitions();
   this->createProductionDefinitions();
-  this->generateConstTokenDefinitions(this->store.getRootModule()->getInterface<SharedContainer>());
+  this->generateConstTokenDefinitions(this->repository.getRoot()->getInterface<SharedContainer>());
 }
 
 
@@ -72,9 +70,9 @@ void GrammarPlant::generateConstTokenDefinitions(Term *term)
     IdentifiableObject *terms = static_cast<ListTerm*>(term)->getTerms().get();
     if (terms->isDerivedFrom<Term>()) {
       this->generateConstTokenDefinitions(static_cast<Term*>(terms));
-    } else if (terms->isDerivedFrom<List>()) {
-      for (Int i = 0; static_cast<Word>(i) < static_cast<List*>(terms)->getCount(); ++i) {
-        IdentifiableObject *child = static_cast<List*>(terms)->get(i).get();
+    } else if (terms->isDerivedFrom<SharedList>()) {
+      for (Int i = 0; static_cast<Word>(i) < static_cast<SharedList*>(terms)->getCount(); ++i) {
+        IdentifiableObject *child = static_cast<SharedList*>(terms)->get(i).get();
         if (!child->isDerivedFrom<Term>()) {
           throw GeneralException(STR("ListTerm has a non-Term child."),
                                  STR("Core::Data::GrammarPlant::generateConstTokenDefinitions"));
@@ -91,8 +89,8 @@ void GrammarPlant::generateConstTokensForStrings(IdentifiableObject *obj)
   if (obj == 0) return;
   if (obj->isA<String>()) {
     this->addConstToken(static_cast<String*>(obj)->get());
-  } else if (obj->isA<Map>()) {
-    Map *map = static_cast<Map*>(obj);
+  } else if (obj->isA<SharedMap>()) {
+    SharedMap *map = static_cast<SharedMap*>(obj);
     for (Word i = 0; i < map->getCount(); ++i) {
       this->addConstToken(map->getKey(i).c_str());
     }

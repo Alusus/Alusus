@@ -49,7 +49,7 @@ class ModuleParsingHandler : public Core::Standard::GenericParsingHandler
 
   private: void add_link_to_module(const SharedPtr<Core::Standard::ParsedItem> &link, Core::Data::Module *module);
 
-  private: const Char* get_link_name(const SharedPtr<Core::Standard::ParsedItem> &link);
+  private: Char const* get_link_name(const SharedPtr<Core::Standard::ParsedItem> &link);
 
 }; // class
 
