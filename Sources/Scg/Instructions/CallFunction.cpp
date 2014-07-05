@@ -25,6 +25,7 @@
 #include <Containers/Program.h>
 #include <Instructions/CallFunction.h>
 #include <Instructions/DeclareExtFunction.h>
+#include <Instructions/DefineFunction.h>
 #include <Values/Function.h>
 
 using namespace llvm;
@@ -59,11 +60,17 @@ void CallFunction::DeclareRequiredFunction()
     THROW_EXCEPTION(UndefinedFunctionException,
         "Found multiple matches of function with name: " + this->funcName);
   } else if (defFuncMatches.size() == 1) {
-    // Found a match. Create a DeclareExtFunction instruction in this module
-    // to link to it.
-    auto declFunc = new DeclareExtFunction(defFuncMatches[0]);
-    this->module->PrependComplementaryExpression(declFunc);
-    this->module->GetAutoDeclFuncSet().insert(this->funcName);
+    auto match = defFuncMatches[0];
+    if (match->GetModule() != this->GetModule()) {
+      // Found a match. Create a DeclareExtFunction instruction in this module
+      // to link to it.
+      auto declFunc = new DeclareExtFunction(match);
+      this->module->PrependComplementaryExpression(declFunc);
+      this->module->GetAutoDeclFuncSet().insert(this->funcName);
+    } else {
+      // There is a DefineFunction instruction in this module so we just need
+      // to wait for it to define the function we need.
+    }
   } else {
     // Couldn't find a function defined in other modules. Try to find functions
     // declared in other modules, i.e. C functions.
