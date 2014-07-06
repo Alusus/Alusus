@@ -20,7 +20,7 @@
 
 // Scg files
 #include <Containers/Block.h>
-#include <Values/Function.h>
+#include <Functions/Function.h>
 #include <Containers/Module.h>
 #include <Values/Variable.h>
 

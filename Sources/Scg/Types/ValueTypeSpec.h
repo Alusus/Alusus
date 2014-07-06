@@ -21,6 +21,14 @@
 
 namespace Scg
 {
+// TODO: Re-factor into a different place.
+enum class TypeComparisonResult
+{
+  NotEquivalent = -1,
+  Equivalent = 0,
+  ImplicitlyEquivalent = 1,
+};
+
 // TODO: This class has high usage frequency and thus need to be optimised as
 // much as possible. So we need to override the "new" and "delete" operators to
 // make it use a pre-allocated memory and thus avoid the cost of frequently
@@ -65,6 +73,14 @@ public:
    * @return @c true or @false.
    */
   virtual bool IsEqualTo(const ValueTypeSpec *other) const = 0;
+
+  /**
+   * Determines whether the type specified. by this spec can be implicitly
+   * casted to the type specified by the given spec.
+   * @param[in] other The other type specification.
+   * @return @c true or @false.
+   */
+  virtual TypeComparisonResult Compare(const Module &module, const ValueTypeSpec *other) const = 0;
 
   /**
    * Gets the string representation of the type specification.
@@ -123,6 +139,9 @@ public:
     return otherCasted != nullptr && name.compare(otherCasted->name) == 0;
   }
 
+  //! @copydoc ValueTypeSpec::Compare()
+  virtual TypeComparisonResult Compare(const Module &module, const ValueTypeSpec *other) const;
+
   //! @copydoc ValueTypeSpec::ToString()
   virtual std::string ToString() const;
 };
@@ -163,6 +182,12 @@ public:
     auto otherCasted = dynamic_cast<const PointerValueTypeSpec*>(other);
     return otherCasted != nullptr &&
         contentTypeSpec->IsEqualTo(otherCasted->contentTypeSpec);
+  }
+
+  //! @copydoc ValueTypeSpec::Compare()
+  virtual TypeComparisonResult Compare(const Module &module, const ValueTypeSpec *other) const
+  {
+    THROW_NOT_IMPLEMENTED();
   }
 
   //! @copydoc ValueTypeSpec::ToString()
@@ -209,6 +234,12 @@ public:
     return otherCasted != nullptr &&
         arraySize == otherCasted->arraySize &&
         elementsTypeSpec->IsEqualTo(otherCasted->elementsTypeSpec);
+  }
+
+  //! @copydoc ValueTypeSpec::Compare()
+  virtual TypeComparisonResult Compare(const Module &module, const ValueTypeSpec *other) const
+  {
+    THROW_NOT_IMPLEMENTED();
   }
 
   //! @copydoc ValueTypeSpec::ToString()
@@ -310,6 +341,12 @@ public:
    * @return @c true or @false.
    */
   bool IsEqualTo(const ValueTypeSpecArray *other, int sizeLimit = 0) const;
+
+  //! @copydoc ValueTypeSpec::Compare()
+  virtual TypeComparisonResult Compare(const Module &module, const ValueTypeSpec *other) const
+  {
+    THROW_NOT_IMPLEMENTED();
+  }
 };
 
 /**

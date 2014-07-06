@@ -16,7 +16,7 @@
 #include <Instructions/Instruction.h>
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
-#include <Values/Function.h>
+#include <Functions/Function.h>
 
 #include <llvm_fwd.h>
 

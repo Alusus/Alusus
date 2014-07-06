@@ -26,7 +26,7 @@
 #include <Instructions/CallFunction.h>
 #include <Instructions/DeclareExtFunction.h>
 #include <Instructions/DefineFunction.h>
-#include <Values/Function.h>
+#include <Functions/Function.h>
 
 using namespace llvm;
 

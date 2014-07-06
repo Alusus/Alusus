@@ -24,20 +24,6 @@
 
 namespace Scg
 {
-ValueType *ValueTypeSpecByName::ToValueType(const Module &module) const
-{
-  return module.GetValueTypeByName(this->name);
-}
-
-//------------------------------------------------------------------------------
-
-std::string ValueTypeSpecByName::ToString() const
-{
-  return this->name;
-}
-
-//------------------------------------------------------------------------------
-
 void *ValueTypeSpec::operator new (size_t size)
 {
   return AutoDeleteAllocator::GetSingleton().Allocate(size);
@@ -50,7 +36,36 @@ void ValueTypeSpec::operator delete (void *ptr)
   AutoDeleteAllocator::GetSingleton().Free(ptr);
 }
 
+//===== ValueTypeSpecByName ====================================================
+
+TypeComparisonResult ValueTypeSpecByName::Compare(const Module &module, const ValueTypeSpec *other) const
+{
+  auto thisType = this->ToValueType(module);
+  auto otherType = other->ToValueType(module);
+  if (thisType == otherType) {
+    return TypeComparisonResult::Equivalent;
+  } else if (thisType->IsImplicitlyCastableTo(otherType)) {
+    return TypeComparisonResult::ImplicitlyEquivalent;
+  } else {
+    return TypeComparisonResult::NotEquivalent;
+  }
+}
+
 //------------------------------------------------------------------------------
+
+ValueType *ValueTypeSpecByName::ToValueType(const Module &module) const
+{
+  return module.GetValueTypeByName(this->name);
+}
+
+//------------------------------------------------------------------------------
+
+std::string ValueTypeSpecByName::ToString() const
+{
+  return this->name;
+}
+
+//===== PointerValueTypeSpec ===================================================
 
 PointerValueTypeSpec::~PointerValueTypeSpec()
 {
@@ -78,7 +93,7 @@ std::string PointerValueTypeSpec::ToString() const
   return ss.str();
 }
 
-//------------------------------------------------------------------------------
+//===== ArrayValueTypeSpec =====================================================
 
 ArrayValueTypeSpec::~ArrayValueTypeSpec()
 {
@@ -108,7 +123,7 @@ std::string ArrayValueTypeSpec::ToString() const
   return ss.str();
 }
 
-//------------------------------------------------------------------------------
+//===== ValueTypeSpecArray =====================================================
 
 bool ValueTypeSpecArray::IsEqualTo(const ValueTypeSpecArray *other,
     int sizeLimit) const
@@ -132,7 +147,7 @@ bool ValueTypeSpecArray::IsEqualTo(const ValueTypeSpecArray *other,
   return true;
 }
 
-//------------------------------------------------------------------------------
+//===== VariableDefinitionArray ================================================
 
 bool VariableDefinitionArray::AreTypesEqualTo(const ValueTypeSpecArray *other,
     int sizeLimit) const

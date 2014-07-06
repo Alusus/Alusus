@@ -44,7 +44,7 @@ using namespace llvm;
 
 namespace Scg
 {
-Module::Module(const std::string& name)
+Module::Module(const std::string& name) : functionStore(*this)
 {
   this->llvmModule = new llvm::Module(name, LlvmContainer::GetContext());
 }

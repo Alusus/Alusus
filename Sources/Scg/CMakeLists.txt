@@ -26,7 +26,7 @@ llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES core jit native linker)
 include_directories("${AlususScg_SOURCE_DIR}")
 
 # Create the list of files to be added to the project.
-set(AlususScg_SOURCE_SUBDIRS BuiltInFunctions CodeGeneration Containers DebuggingHelpers Instructions Memory Operators Types Values ParsingHandlers)
+set(AlususScg_SOURCE_SUBDIRS BuiltInFunctions CodeGeneration Containers DebuggingHelpers Functions Instructions Memory Operators Types Values ParsingHandlers)
 set(AlususScg_SOURCE_FILES
   scg.h
   exceptions.h

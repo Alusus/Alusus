@@ -5,11 +5,14 @@
 
 namespace Scg
 {
+class FunctionSignature;
+
 /**
  * Represent a block of expressions.
  */
 class FunctionStore: public Expression
 {
+  const Module &module;
   // TODO: To quickly implement this function, I just used an array and
   // implemented a function that iterates through it to find the required
   // function. This is really inefficient, but should be sufficient for now.
@@ -17,7 +20,7 @@ class FunctionStore: public Expression
   FunctionArray functions;
 
 public:
-  FunctionStore() {}
+  FunctionStore(const Module &module) : module(module) {}
   ~FunctionStore() {}
 
 public:
@@ -42,6 +45,27 @@ public:
     return const_cast<Function*>(
         static_cast<const FunctionStore*>(this)->Get(name, arguments));
   }
+  // @}
+
+  // @{
+  /**
+   * Retrieves the function having the given signature.
+   * @param[in] signature The signature of the function to retrieve.
+   * @return The requested function if found, or @c nullptr.
+   */
+  const Function *Get(const FunctionSignature &signature) const;
+  Function *Get(const FunctionSignature &signature);
+  // @}
+
+  // @{
+  /**
+   * Finds a function matching the given signature. The difference between
+   * this and Get() is that this method consider implicit casting.
+   * @param[in] signature The signature of the function to match.
+   * @return The matching function if found, or @c nullptr.
+   */
+  const Function *Match(const FunctionSignature &signature) const;
+  Function *Match(const FunctionSignature &signature);
   // @}
 };
 }

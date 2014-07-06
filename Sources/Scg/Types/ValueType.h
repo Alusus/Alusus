@@ -108,6 +108,23 @@ public:
   virtual const ValueTypeSpec *GetValueTypeSpec() const = 0;
 
   /**
+   * Determine whether this type can be implicitly casted to the given type.
+   * @param[in] type The type.
+   * @return @c true or @c false.
+   */
+  bool IsImplicitlyCastableTo(const ValueType *type)
+  {
+    // PERFORMANCE: Consider changing GetImplicitCastingTargets() to return
+    // a set instead of a vector so that we can find elements in O(1).
+    for (auto t : GetImplicitCastingTargets()) {
+      if (t == type) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Retrieves a list of the types that this type can be implicitly casted to.
    * @return A list of the types that this type can be implicitly casted to.
    */

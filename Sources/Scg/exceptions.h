@@ -85,6 +85,9 @@ namespace Scg
 
 #define THROW_EXCEPTION(exception_name, message) \
   throw exception_name(message, __FILE__, __FUNCTION__, __LINE__)
+
+#define THROW_NOT_IMPLEMENTED() \
+  THROW_EXCEPTION(NotImplementedException, "Not implemented yet.")
 }
 
 #endif // __exceptions_h__
