@@ -21,13 +21,6 @@
 
 namespace Scg
 {
-// TODO: Re-factor into a different place.
-enum class TypeComparisonResult
-{
-  NotEquivalent = -1,
-  Equivalent = 0,
-  ImplicitlyEquivalent = 1,
-};
 
 // TODO: This class has high usage frequency and thus need to be optimised as
 // much as possible. So we need to override the "new" and "delete" operators to
@@ -80,7 +73,8 @@ public:
    * @param[in] other The other type specification.
    * @return @c true or @false.
    */
-  virtual TypeComparisonResult Compare(const Module &module, const ValueTypeSpec *other) const = 0;
+  virtual TypeComparisonResult Compare(const Module &module,
+      const ValueTypeSpec *other) const;
 
   /**
    * Gets the string representation of the type specification.
@@ -184,12 +178,6 @@ public:
         contentTypeSpec->IsEqualTo(otherCasted->contentTypeSpec);
   }
 
-  //! @copydoc ValueTypeSpec::Compare()
-  virtual TypeComparisonResult Compare(const Module &module, const ValueTypeSpec *other) const
-  {
-    THROW_NOT_IMPLEMENTED();
-  }
-
   //! @copydoc ValueTypeSpec::ToString()
   virtual std::string ToString() const;
 };
@@ -234,12 +222,6 @@ public:
     return otherCasted != nullptr &&
         arraySize == otherCasted->arraySize &&
         elementsTypeSpec->IsEqualTo(otherCasted->elementsTypeSpec);
-  }
-
-  //! @copydoc ValueTypeSpec::Compare()
-  virtual TypeComparisonResult Compare(const Module &module, const ValueTypeSpec *other) const
-  {
-    THROW_NOT_IMPLEMENTED();
   }
 
   //! @copydoc ValueTypeSpec::ToString()
@@ -342,11 +324,6 @@ public:
    */
   bool IsEqualTo(const ValueTypeSpecArray *other, int sizeLimit = 0) const;
 
-  //! @copydoc ValueTypeSpec::Compare()
-  virtual TypeComparisonResult Compare(const Module &module, const ValueTypeSpec *other) const
-  {
-    THROW_NOT_IMPLEMENTED();
-  }
 };
 
 /**
@@ -365,6 +342,7 @@ public:
    */
   bool AreTypesEqualTo(const ValueTypeSpecArray *other, int sizeLimit = 0) const;
 };
+
 }
 
 #endif // __ValueTypeSpec_h__

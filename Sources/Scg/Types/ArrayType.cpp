@@ -32,4 +32,19 @@ ArrayType::ArrayType(ValueType *eType, unsigned int size) :
       "[" + boost::lexical_cast<std::string>(arraySize) + "]";
   this->llvmType = llvm::ArrayType::get(this->elementsType->GetLlvmType(), this->arraySize);
 }
+
+//------------------------------------------------------------------------------
+
+bool ArrayType::IsEqualTo(const ValueType *other) const
+{
+  auto otherAsArray = dynamic_cast<const ArrayType*>(other);
+  if (otherAsArray == nullptr) {
+    return false;
+  }
+  if (this->arraySize != otherAsArray->arraySize ||
+      !this->elementsType->IsEqualTo(otherAsArray->elementsType)) {
+    return false;
+  }
+  return true;
+}
 }

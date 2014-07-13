@@ -158,12 +158,23 @@ CodeGenerationResult CallFunction::GenerateCode()
 
   for (size_t i = 0, e = GetArguments()->GetElementCount(); i != e; ++i)
   {
-    auto arg = GetArguments()->GetElement(i)->GenerateCode().exprValue;
-    if (arg == 0)
+    auto expectedArgType = i < this->function->GetArgumentCount() ?
+        this->function->GetArgumentTypes()[i]->ToValueType(*GetModule()) :
+        nullptr;
+    auto argType = GetArguments()->GetElement(i)->GetValueType();
+    auto argValue = GetArguments()->GetElement(i)->GenerateCode().exprValue;
+    if (argValue == nullptr)
       THROW_EXCEPTION(EvaluationException,
           "Expression doesn't evaluate to a value: "
               + GetArguments()->GetElement(i)->ToString());
-    args.push_back(arg);
+
+    if (expectedArgType != nullptr &&
+        argType->Compare(expectedArgType) != TypeComparisonResult::Equivalent) {
+      // Need to cast the type before sending it to the function.
+      args.push_back(argType->CastValue(argValue));
+    } else {
+      args.push_back(argValue);
+    }
   }
 
   // Generate code for calling the function.

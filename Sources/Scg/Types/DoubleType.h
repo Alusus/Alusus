@@ -56,6 +56,12 @@ namespace Scg
       return &typeSpec;
     }
 
+    //! @copydoc ValueType::IsEqualTo()
+    virtual bool IsEqualTo(const ValueType *other) const
+    {
+      return dynamic_cast<const DoubleType*>(other) != nullptr;
+    }
+
     //! @copydoc ValueType::GetImplicitCastingTargets()
     const ValueTypeArray &GetImplicitCastingTargets() const;
 

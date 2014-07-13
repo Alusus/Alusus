@@ -30,4 +30,20 @@ PointerType::PointerType(const ValueType &cntType) :
 {
   this->llvmType = const_cast<llvm::Type*>(this->contentType.GetLlvmType())->getPointerTo(0);
 }
+
+//------------------------------------------------------------------------------
+
+bool PointerType::IsEqualTo(const ValueType *other) const
+{
+  auto otherAsPointer = dynamic_cast<const PointerType*>(other);
+  if (otherAsPointer == nullptr) {
+    return false;
+  }
+  // TODO: Why is PointerType::contentType reference while
+  // ArrayType::elementsType is pointer?
+  if (!this->contentType.IsEqualTo(&otherAsPointer->contentType)) {
+    return false;
+  }
+  return true;
+}
 }

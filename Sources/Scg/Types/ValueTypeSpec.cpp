@@ -24,6 +24,16 @@
 
 namespace Scg
 {
+TypeComparisonResult ValueTypeSpec::Compare(const Module &module,
+    const ValueTypeSpec *other) const
+{
+  auto thisType = this->ToValueType(module);
+  auto otherType = other->ToValueType(module);
+  return thisType->Compare(otherType);
+}
+
+//------------------------------------------------------------------------------
+
 void *ValueTypeSpec::operator new (size_t size)
 {
   return AutoDeleteAllocator::GetSingleton().Allocate(size);

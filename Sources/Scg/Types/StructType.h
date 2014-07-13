@@ -100,6 +100,9 @@ public:
     return &typeSpec;
   }
 
+  //! @copydoc ValueType::IsEqualTo()
+  virtual bool IsEqualTo(const ValueType *other) const;
+
   //! @copydoc ValueType::GetImplicitCastingOperator()
   virtual const ValueTypeArray &GetImplicitCastingTargets() const
   {

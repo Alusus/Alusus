@@ -39,4 +39,16 @@ void StructType::SetFields(const ValueTypeNameArray &fields)
     llvmFields.push_back(field.GetValueType()->GetLlvmType());
   static_cast<llvm::StructType*>(this->llvmType)->setBody(llvmFields);
 }
+
+//------------------------------------------------------------------------------
+
+bool StructType::IsEqualTo(const ValueType *other) const
+{
+  auto otherAsStruct = dynamic_cast<const StructType*>(other);
+  if (otherAsStruct == nullptr) {
+    return false;
+  }
+  // TODO: For now we are just comparing the name. Later
+  return otherAsStruct->GetName().compare(otherAsStruct->GetName()) == 0;
+}
 }

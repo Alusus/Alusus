@@ -47,7 +47,7 @@ namespace Scg
      * Retrieves the type of the elements of the array.
      * @return A pointer to the type of the elements of the array.
      */
-    virtual const ValueType *GetElementsType () const { return elementsType; }
+    virtual const ValueType *GetElementsType() const { return elementsType; }
 
     /**
      * Retrieves the number of the elements of the array.
@@ -66,6 +66,9 @@ namespace Scg
     {
       THROW_EXCEPTION(NotImplementedException, "Not implemented yet!");
     }
+
+    //! @copydoc ValueType::IsEqualTo()
+    virtual bool IsEqualTo(const ValueType *other) const;
 
     //! @copydoc ValueType::GetImplicitCastingOperator()
     virtual const ValueTypeArray &GetImplicitCastingTargets() const

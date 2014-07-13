@@ -93,6 +93,15 @@ typedef std::pair<std::string, std::string> StringPair;
 typedef std::vector<StringPair> StringPairArray;
 typedef std::set<std::string> StringSet;
 
+// TODO: Re-factor into a different place?
+enum class TypeComparisonResult
+{
+  NotEquivalent = -1,
+  Equivalent = 0,
+  ImplicitlyEquivalent = 1,
+  ExplicitlyEquivalent = 2,
+};
+
 }
 
 #endif // __typedefs_h__

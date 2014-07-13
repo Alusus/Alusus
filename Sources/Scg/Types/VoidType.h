@@ -58,6 +58,13 @@ namespace Scg
       return &typeSpec;
     }
 
+    //! @copydoc ValueType::IsEqualTo()
+    virtual bool IsEqualTo(const ValueType *other) const
+    {
+      // TODO: Should we throw InvalidOperationException here?
+      return dynamic_cast<const VoidType*>(other) != nullptr;
+    }
+
     //! @copydoc ValueType::GetImplicitCastingOperator()
     virtual const ValueTypeArray &GetImplicitCastingTargets() const
     {

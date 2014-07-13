@@ -107,12 +107,24 @@ public:
    */
   virtual const ValueTypeSpec *GetValueTypeSpec() const = 0;
 
+  virtual llvm::Value *CastValue(llvm::Value *value) const
+  {
+    THROW_NOT_IMPLEMENTED();
+  }
+
   /**
-   * Determine whether this type can be implicitly casted to the given type.
+   * Determines whether this type is equal to the given type.
+   * @param[in] other The type.
+   * @return @c true or @c false.
+   */
+  virtual bool IsEqualTo(const ValueType *other) const = 0;
+
+  /**
+   * Determines whether this type can be implicitly casted to the given type.
    * @param[in] type The type.
    * @return @c true or @c false.
    */
-  bool IsImplicitlyCastableTo(const ValueType *type)
+  bool IsImplicitlyCastableTo(const ValueType *type) const
   {
     // PERFORMANCE: Consider changing GetImplicitCastingTargets() to return
     // a set instead of a vector so that we can find elements in O(1).
@@ -122,6 +134,41 @@ public:
       }
     }
     return false;
+  }
+
+  /**
+   * Determines whether this type can be explicitly casted to the given type.
+   * @param[in] type The type.
+   * @return @c true or @c false.
+   */
+  bool IsExplicitlyCastableTo(const ValueType *type) const
+  {
+    // PERFORMANCE: Consider changing GetImplicitCastingTargets() to return
+    // a set instead of a vector so that we can find elements in O(1).
+    for (auto t : GetExplicitCastingTargets()) {
+      if (t == type) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Compares this type against the given type.
+   * @param[in] other The type to compare against.
+   * @return One of the results of Scg::TypeComparisonResult.
+   */
+  virtual TypeComparisonResult Compare(const ValueType *other)
+  {
+    if (IsEqualTo(other)) {
+      return TypeComparisonResult::Equivalent;
+    } else if (IsImplicitlyCastableTo(other)) {
+      return TypeComparisonResult::ImplicitlyEquivalent;
+    } else if (IsExplicitlyCastableTo(other)) {
+      return TypeComparisonResult::ExplicitlyEquivalent;
+    } else {
+      return TypeComparisonResult::NotEquivalent;
+    }
   }
 
   /**
