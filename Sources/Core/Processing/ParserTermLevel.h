@@ -1,6 +1,6 @@
 /**
- * @file Core/Parser/TermLevel.h
- * Contains the header of class Core::Parser::TermLevel.
+ * @file Core/Processing/ParserTermLevel.h
+ * Contains the header of class Core::Processing::ParserTermLevel.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,26 +10,26 @@
  */
 //==============================================================================
 
-#ifndef PARSER_TERM_LEVEL_H
-#define PARSER_TERM_LEVEL_H
+#ifndef PROCESSING_PARSERTERMLEVEL_H
+#define PROCESSING_PARSERTERMLEVEL_H
 
-namespace Core { namespace Parser
+namespace Core { namespace Processing
 {
 
 /**
  * @brief Defines one level in the state's hierarchy position stack.
- * @ingroup parser
+ * @ingroup processing
  *
  * The State object has a stack that defines the current parsing position within
  * the terms hierarchy. Each level in this stack is represented by a single
  * instance of this structure.
  */
-class TermLevel
+class ParserTermLevel
 {
   //============================================================================
   // Friend Classes
 
-  friend class State;
+  friend class ParserState;
 
 
   //============================================================================
@@ -59,12 +59,12 @@ class TermLevel
   // Constructors / Destructor
 
   /// Initialize all members to 0.
-  public: TermLevel() : posId(0), term(0)
+  public: ParserTermLevel() : posId(0), term(0)
   {
   }
 
   /// Copy the state level and increment data users count.
-  public: TermLevel(const TermLevel &level) : posId(level.getPosId()),
+  public: ParserTermLevel(const ParserTermLevel &level) : posId(level.getPosId()),
     term(level.getTerm()),
     param1(*(level.getParam1())),
     param2(*(level.getParam2())),
@@ -72,7 +72,7 @@ class TermLevel
   {
   }
 
-  public: ~TermLevel()
+  public: ~ParserTermLevel()
   {
   }
 
@@ -157,7 +157,7 @@ class TermLevel
     return &this->param3;
   }
 
-  public: void copyFrom(TermLevel *src)
+  public: void copyFrom(ParserTermLevel *src)
   {
     this->setTerm(src->getTerm());
     this->setPosId(src->getPosId());

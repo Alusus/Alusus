@@ -1,6 +1,6 @@
 /**
- * @file Core/Parser/UnexpectedTokenMsg.h
- * Contains the header of class Core::Parser::UnexpectedTokenMsg.
+ * @file Core/Processing/SyntaxErrorMsg.h
+ * Contains the header of class Core::Processing::SyntaxErrorMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,36 +10,35 @@
  */
 //==============================================================================
 
-#ifndef PARSER_UNEXPECTED_TOKEN_MSG_H
-#define PARSER_UNEXPECTED_TOKEN_MSG_H
+#ifndef PROCESSING_SYNTAXERRORMSG_H
+#define PROCESSING_SYNTAXERRORMSG_H
 
-namespace Core { namespace Parser
+namespace Core { namespace Processing
 {
 
 /**
- * @brief A build message for unexpected token error.
- * @ingroup parser
+ * @brief A build message for Syntax Error.
+ * @ingroup processing
  *
- * This message class is for error code P2001, which is raised when the parser
- * unexpectedly receives a new token when it has already folded out of the
- * grammar tree (at which point it expects and endParsing call instead).
+ * This message class is for error code P1001, which is raised when the parser
+ * is faced with a token that is not recognized by the grammar.
  */
-class UnexpectedTokenMsg : public Common::BuildMsg
+class SyntaxErrorMsg : public Common::BuildMsg
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(UnexpectedTokenMsg, Common::BuildMsg, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(SyntaxErrorMsg, Common::BuildMsg, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: UnexpectedTokenMsg(Int l, Int c) : Common::BuildMsg(l, c)
+  public: SyntaxErrorMsg(Int l, Int c) : Common::BuildMsg(l, c)
   {
   }
 
-  public: virtual ~UnexpectedTokenMsg()
+  public: virtual ~SyntaxErrorMsg()
   {
   }
 
@@ -50,7 +49,7 @@ class UnexpectedTokenMsg : public Common::BuildMsg
   /// @sa Common::BuildMsg::getCode()
   public: virtual const Str& getCode() const
   {
-    static Str code("P1003");
+    static Str code("P1001");
     return code;
   }
 
@@ -63,7 +62,7 @@ class UnexpectedTokenMsg : public Common::BuildMsg
   /// @sa Common::BuildMsg::getCode()
   public: virtual void buildDescription(Str &str) const
   {
-    str = STR("Parsing has already folded out to completion.");
+    str = STR("Parser Syntax Error.");
   }
 
 }; // class

@@ -19,7 +19,7 @@ namespace Core { namespace Standard
 //==============================================================================
 // Overloaded Abstract Functions
 
-void ImportParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
+void ImportParsingHandler::onProdEnd(Processing::Parser *machine, Processing::ParserState *state)
 {
   SharedPtr<ParsedItem> item = state->getData().io_cast<ParsedItem>();
   ParsedDataBrowser browser;
@@ -42,7 +42,7 @@ void ImportParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::Stat
 }
 
 
-Bool ImportParsingHandler::import(Char const *filename, Parser::State *state)
+Bool ImportParsingHandler::import(Char const *filename, Processing::ParserState *state)
 {
   // Check the file type.
   static std::regex r(STR(".*\\.(source|alusus)"));

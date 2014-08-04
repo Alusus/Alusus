@@ -1,6 +1,6 @@
 /**
- * @file Core/Parser/ProdLevel.h
- * Contains the header of class Core::Parser::ProdLevel.
+ * @file Core/Processing/ParserProdLevel.h
+ * Contains the header of class Core::Processing::ParserProdLevel.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,20 +10,20 @@
  */
 //==============================================================================
 
-#ifndef PARSER_PRODUCTION_LEVEL_H
-#define PARSER_PRODUCTION_LEVEL_H
+#ifndef PROCESSING_PARSERPRODLEVEL_H
+#define PROCESSING_PARSERPRODLEVEL_H
 
-namespace Core { namespace Parser
+namespace Core { namespace Processing
 {
 
 // TODO: DOC
 
-class ProdLevel
+class ParserProdLevel
 {
   //============================================================================
   // Friend Classes
 
-  friend class State;
+  friend class ParserState;
 
 
   //============================================================================
@@ -39,17 +39,17 @@ class ProdLevel
   //============================================================================
   // Constructors / Destructor
 
-  public: ProdLevel() : module(0), prod(0), termStackIndex(-1)
+  public: ParserProdLevel() : module(0), prod(0), termStackIndex(-1)
   {
   }
 
-  public: ProdLevel(const ProdLevel &level) : module(level.module),
+  public: ParserProdLevel(const ParserProdLevel &level) : module(level.module),
     prod(level.prod),
     termStackIndex(level.termStackIndex)
   {
   }
 
-  public: ~ProdLevel()
+  public: ~ParserProdLevel()
   {
   }
 

@@ -29,7 +29,7 @@ using namespace Data;
  * be appended at the end of the dest list. The function will handle plain
  * containers as well.
  */
-Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Parser::State *state)
+Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processing::ParserState *state)
 {
   if (!dest->isA(src->getMyTypeInfo())) return false;
 
@@ -112,7 +112,7 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Parser::
  * is created.
  */
 void mergeDefinition(Data::SharedRepository *repository, Char const *qualifier,
-                     SharedPtr<IdentifiableObject> const &obj, Parser::State *state)
+                     SharedPtr<IdentifiableObject> const &obj, Processing::ParserState *state)
 {
   IdentifiableObject *dest;
   Bool ret = repository->tryGetPlainValue(qualifier, dest);

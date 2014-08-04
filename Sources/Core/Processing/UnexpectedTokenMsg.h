@@ -1,6 +1,6 @@
 /**
- * @file Core/Parser/UnexpectedEofMsg.h
- * Contains the header of class Core::Parser::UnexpectedEofMsg.
+ * @file Core/Processing/UnexpectedTokenMsg.h
+ * Contains the header of class Core::Processing::UnexpectedTokenMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,35 +10,36 @@
  */
 //==============================================================================
 
-#ifndef PARSER_UNEXPECTED_EOF_MSG_H
-#define PARSER_UNEXPECTED_EOF_MSG_H
+#ifndef PROCESSING_UNEXPECTEDTOKENMSG_H
+#define PROCESSING_UNEXPECTEDTOKENMSG_H
 
-namespace Core { namespace Parser
+namespace Core { namespace Processing
 {
 
 /**
- * @brief A build message for unexpected eof error.
- * @ingroup parser
+ * @brief A build message for unexpected token error.
+ * @ingroup processing
  *
- * This message class is for error code P1002, which is raised when the parser
- * unexpectedly receives an endParsing call while still expecting more tokens.
+ * This message class is for error code P2001, which is raised when the parser
+ * unexpectedly receives a new token when it has already folded out of the
+ * grammar tree (at which point it expects and endParsing call instead).
  */
-class UnexpectedEofMsg : public Common::BuildMsg
+class UnexpectedTokenMsg : public Common::BuildMsg
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(UnexpectedEofMsg, Common::BuildMsg, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(UnexpectedTokenMsg, Common::BuildMsg, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: UnexpectedEofMsg()
+  public: UnexpectedTokenMsg(Int l, Int c) : Common::BuildMsg(l, c)
   {
   }
 
-  public: virtual ~UnexpectedEofMsg()
+  public: virtual ~UnexpectedTokenMsg()
   {
   }
 
@@ -49,7 +50,7 @@ class UnexpectedEofMsg : public Common::BuildMsg
   /// @sa Common::BuildMsg::getCode()
   public: virtual const Str& getCode() const
   {
-    static Str code("P1002");
+    static Str code("P1003");
     return code;
   }
 
@@ -62,7 +63,7 @@ class UnexpectedEofMsg : public Common::BuildMsg
   /// @sa Common::BuildMsg::getCode()
   public: virtual void buildDescription(Str &str) const
   {
-    str = STR("Parsing exited while needing more tokens.");
+    str = STR("Parsing has already folded out to completion.");
   }
 
 }; // class

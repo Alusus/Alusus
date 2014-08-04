@@ -351,7 +351,7 @@ void TestGrammarPlant::createProductionDefinitions()
 {
   using namespace Core::Data;
   using namespace Core::Common;
-  using namespace Core::Parser;
+  using namespace Core::Processing;
   using namespace Core::Standard;
 
   // TODO: Replace the generic parsing handler for the root with the appropriate one.

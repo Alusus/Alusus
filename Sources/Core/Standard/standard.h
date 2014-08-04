@@ -94,11 +94,11 @@ typedef LibraryGateway* (*LibraryGatewayGetter)();
 // Functions
 
 /// Merge the values of two container trees.
-Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Parser::State *state);
+Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processing::ParserState *state);
 
 /// Merge the given object into the provided definition manager.
 void mergeDefinition(Data::SharedRepository *repository, Char const *qualifier,
-                     SharedPtr<IdentifiableObject> const &obj, Parser::State *state);
+                     SharedPtr<IdentifiableObject> const &obj, Processing::ParserState *state);
 
 } } // namespace
 

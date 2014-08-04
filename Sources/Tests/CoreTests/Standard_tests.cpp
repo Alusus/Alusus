@@ -16,7 +16,7 @@ namespace Tests { namespace CoreTests
 {
 
 using namespace Core::Data;
-using namespace Core::Parser;
+using namespace Core::Processing;
 using namespace Core::Standard;
 
 TEST_CASE("Core::Standard::ParsedDataBrowser/static", "Successful Search Using Static Functions")

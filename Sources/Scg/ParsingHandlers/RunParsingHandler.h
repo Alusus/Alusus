@@ -43,7 +43,7 @@ class RunParsingHandler : public Core::Standard::GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  public: virtual void onProdEnd(Core::Parser::StateMachine *machine, Core::Parser::State *state);
+  public: virtual void onProdEnd(Core::Processing::Parser *machine, Core::Processing::ParserState *state);
 
 }; // class
 

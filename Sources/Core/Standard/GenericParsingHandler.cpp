@@ -27,7 +27,7 @@ namespace Core { namespace Standard
  *
  * @sa ParsingHandler::onProdEnd()
  */
-void GenericParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
+void GenericParsingHandler::onProdEnd(Processing::Parser *machine, Processing::ParserState *state)
 {
   ParsedItem *item = state->getData().io_cast_get<ParsedItem>();
   Data::SymbolDefinition *prod = state->refTopProdLevel().getProd();
@@ -95,7 +95,7 @@ void GenericParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::Sta
  * @sa setChildData()
  * @sa ParsingHandler::onTermEnd()
  */
-void GenericParsingHandler::onTermEnd(Parser::StateMachine *machine, Parser::State *state)
+void GenericParsingHandler::onTermEnd(Processing::Parser *machine, Processing::ParserState *state)
 {
   if (!(state->refTopTermLevel().getTerm()->getFlags() & ParsingFlags::PASS_UP)) {
     this->setChildData(state->getData(), state, -2);
@@ -110,7 +110,7 @@ void GenericParsingHandler::onTermEnd(Parser::StateMachine *machine, Parser::Sta
  *
  * @sa ParsingHandler::onLevelExit()
  */
-void GenericParsingHandler::onLevelExit(Parser::StateMachine *machine, Parser::State *state,
+void GenericParsingHandler::onLevelExit(Processing::Parser *machine, Processing::ParserState *state,
                                         SharedPtr<IdentifiableObject> const &data)
 {
   if (state->refTopTermLevel().getTerm()->isA<Data::ReferenceTerm>()) {
@@ -127,7 +127,7 @@ void GenericParsingHandler::onLevelExit(Parser::StateMachine *machine, Parser::S
  *
  * @sa ParsingHandler::onNewToken()
  */
-void GenericParsingHandler::onNewToken(Parser::StateMachine *machine, Parser::State *state,
+void GenericParsingHandler::onNewToken(Processing::Parser *machine, Processing::ParserState *state,
                                        const Common::Token *token)
 {
   // Get the term object.
@@ -170,7 +170,7 @@ void GenericParsingHandler::onNewToken(Parser::StateMachine *machine, Parser::St
  *
  * @sa ParsingHandler::onConcatStep()
  */
-void GenericParsingHandler::onConcatStep(Parser::StateMachine *machine, Parser::State *state,
+void GenericParsingHandler::onConcatStep(Processing::Parser *machine, Processing::ParserState *state,
                                          Int newPos)
 {
   // Get the term object.
@@ -204,7 +204,7 @@ void GenericParsingHandler::onConcatStep(Parser::StateMachine *machine, Parser::
  *
  * @sa ParsingHandler::onAlternateRouteDecision()
  */
-void GenericParsingHandler::onAlternateRouteDecision(Parser::StateMachine *machine, Parser::State *state,
+void GenericParsingHandler::onAlternateRouteDecision(Processing::Parser *machine, Processing::ParserState *state,
                                                      Int route)
 {
   // Get the term object.
@@ -239,7 +239,7 @@ void GenericParsingHandler::onAlternateRouteDecision(Parser::StateMachine *machi
  *
  * @sa ParsingHandler::onMultiplyRouteDecision()
  */
-void GenericParsingHandler::onMultiplyRouteDecision(Parser::StateMachine *machine, Parser::State *state,
+void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *machine, Processing::ParserState *state,
                                                     Int route)
 {
   // Get the term object.
@@ -278,7 +278,7 @@ void GenericParsingHandler::onMultiplyRouteDecision(Parser::StateMachine *machin
  * Wipe out any generated data from the canceled term level.
  * @sa ParsingHandler::onTermCancelling()
  */
-void GenericParsingHandler::onTermCancelling(Parser::StateMachine *machine, Parser::State *state)
+void GenericParsingHandler::onTermCancelling(Processing::Parser *machine, Processing::ParserState *state)
 {
   state->setData(SharedPtr<IdentifiableObject>(0));
 }
@@ -289,7 +289,7 @@ void GenericParsingHandler::onTermCancelling(Parser::StateMachine *machine, Pars
  * This function will simply call onTermCancelling.
  * @sa ParsingHandler::onProdCancelling()
  */
-void GenericParsingHandler::onProdCancelling(Parser::StateMachine *machine, Parser::State *state)
+void GenericParsingHandler::onProdCancelling(Processing::Parser *machine, Processing::ParserState *state)
 {
   this->onTermCancelling(machine, state);
 }
@@ -302,11 +302,11 @@ void GenericParsingHandler::onProdCancelling(Parser::StateMachine *machine, Pars
  * the index of the upper level, and will keep doing so recursively until it
  * hits the production's root or a term that can accept the new data.
  */
-void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &data, Parser::State *state,
+void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &data, Processing::ParserState *state,
                                          Int levelIndex)
 {
   // Get the state level.
-  Parser::TermLevel &termLevel = state->refTermLevel(levelIndex);
+  Processing::ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
 
   if (termLevel.getTerm()->isA<Data::AlternateTerm>() ||
       (termLevel.getTerm()->isA<Data::MultiplyTerm>() &&
@@ -438,7 +438,7 @@ void GenericParsingHandler::parseStringLiteralControlCharacters(const Str &src, 
  * If the top level is shared (the shared pointer is not unique) this function
  * will duplicate that term.
  */
-void GenericParsingHandler::prepareToModifyData(Parser::State *state, Int levelIndex)
+void GenericParsingHandler::prepareToModifyData(Processing::ParserState *state, Int levelIndex)
 {
   if (state->isDataShared(levelIndex)) {
     // Duplicate the data.

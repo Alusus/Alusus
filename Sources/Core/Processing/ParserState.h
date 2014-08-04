@@ -1,6 +1,6 @@
 /**
- * @file Core/Parser/State.h
- * Contains the header of class Core::Parser::State.
+ * @file Core/Processing/ParserState.h
+ * Contains the header of class Core::Processing::ParserState.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,17 +10,17 @@
  */
 //==============================================================================
 
-#ifndef PARSER_STATE_H
-#define PARSER_STATE_H
+#ifndef PROCESSING_PARSERSTATE_H
+#define PROCESSING_PARSERSTATE_H
 
-namespace Core { namespace Parser
+namespace Core { namespace Processing
 {
 
 // TODO: DOC
 
 /**
  * @brief Contains information describing current parsing status.
- * @ingroup general
+ * @ingroup processing
  *
  * The information contained specify where within the formula's terms
  * hierarchy the state is at. The object contains a stack of index entries,
@@ -28,9 +28,9 @@ namespace Core { namespace Parser
  * The stack also holds data buffers associated with each level within the
  * hierarchy.
  */
-class State
+class ParserState
 {
-  friend class StateMachine;
+  friend class Parser;
 
   //============================================================================
   // Data Types
@@ -52,9 +52,9 @@ class State
    * used by this index (the index within the list of token definitions
    * defined in the lexer).
    */
-  private: std::vector<TermLevel> termStack;
+  private: std::vector<ParserTermLevel> termStack;
 
-  private: std::vector<ProdLevel> prodStack;
+  private: std::vector<ParserProdLevel> prodStack;
 
   private: Data::VariableStack variableStack;
 
@@ -68,16 +68,16 @@ class State
    * refTopTermLevel() since that call is at the heart of the state machine
    * operation.
    */
-  private: TermLevel *topTermLevelCache;
+  private: ParserTermLevel *topTermLevelCache;
 
-  private: ProdLevel *topProdLevelCache;
+  private: ParserProdLevel *topProdLevelCache;
 
   /**
    * @brief The state from which this state branched.
    * If this state branchd from another state, this variable will hold the
    * pointer to the original state, otherwise, it'll hold null.
    */
-  private: State *trunkState;
+  private: ParserState *trunkState;
 
   /**
    * @brief The index of the level within the trunk state.
@@ -139,15 +139,15 @@ class State
   //============================================================================
   // Constructors / Destructor
 
-  protected: State();
+  protected: ParserState();
 
-  protected: State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+  protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                    Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule);
 
-  protected: State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+  protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                    Word reservedVarCount, Word reservedVarLevelCount, const Data::GrammarContext *context);
 
-  public: ~State()
+  public: ~ParserState()
   {
   }
 
@@ -250,12 +250,12 @@ class State
   }
 
   /// Reference an entry in the hierarchy level stack.
-  public: TermLevel& refTermLevel(Int i);
+  public: ParserTermLevel& refTermLevel(Int i);
 
   /// A const wrappar to refTermLevel().
-  public: const TermLevel& refTermLevel(Int i) const
+  public: const ParserTermLevel& refTermLevel(Int i) const
   {
-    return const_cast<State*>(this)->refTermLevel(i);
+    return const_cast<ParserState*>(this)->refTermLevel(i);
   }
 
   /**
@@ -267,39 +267,39 @@ class State
    *         keeping a pointer to this entry because the entry can be moved in
    *         memory as a result of a push or pop operation.
    */
-  public: TermLevel& refTopTermLevel()
+  public: ParserTermLevel& refTopTermLevel()
   {
     if (this->topTermLevelCache == 0) {
       throw GeneralException(STR("This state has an empty level stack."),
-                             STR("Core::Parser::State::refTopTermLevel"));
+                             STR("Core::Processing::ParserState::refTopTermLevel"));
     }
     return *(this->topTermLevelCache);
   }
 
   /// A const wrappar to refTopTermLevel().
-  public: const TermLevel& refTopTermLevel() const
+  public: const ParserTermLevel& refTopTermLevel() const
   {
-    return const_cast<State*>(this)->refTopTermLevel();
+    return const_cast<ParserState*>(this)->refTopTermLevel();
   }
 
   /// Get the number of levels in the top production of this state.
   public: Int getTopprodTermLevelCount() const;
 
   /// Get the state level of the top production in this state.
-  public: TermLevel& refTopprodRootTermLevel()
+  public: ParserTermLevel& refTopprodRootTermLevel()
   {
     // The first level does not belong to any production, so we need at least 2 levels.
     if (this->getTermLevelCount() <= 1) {
       throw GeneralException(STR("This state has an empty level stack."),
-                             STR("Core::Parser::State::refTopprodRootTermLevel"));
+                             STR("Core::Processing::ParserState::refTopprodRootTermLevel"));
     }
     return this->refTermLevel(-this->getTopprodTermLevelCount());
   }
 
   /// A const wrapper to refTopprodRootTermLevel().
-  public: const TermLevel& refTopprodRootTermLevel() const
+  public: const ParserTermLevel& refTopprodRootTermLevel() const
   {
-    return const_cast<State*>(this)->refTopprodRootTermLevel();
+    return const_cast<ParserState*>(this)->refTopprodRootTermLevel();
   }
 
   /// Push a new level into the top of the level stack.
@@ -350,25 +350,25 @@ class State
     return this->tempTrunkProdStackIndex + 1 + this->prodStack.size();
   }
 
-  public: ProdLevel& refProdLevel(Int i);
+  public: ParserProdLevel& refProdLevel(Int i);
 
-  public: const ProdLevel& refProdLevel(Int i) const
+  public: const ParserProdLevel& refProdLevel(Int i) const
   {
-    return const_cast<State*>(this)->refProdLevel(i);
+    return const_cast<ParserState*>(this)->refProdLevel(i);
   }
 
-  public: ProdLevel& refTopProdLevel()
+  public: ParserProdLevel& refTopProdLevel()
   {
     if (this->topProdLevelCache == 0) {
       throw GeneralException(STR("This state has an empty stack."),
-                             STR("Core::Parser::State::refTopProdLevel"));
+                             STR("Core::Processing::ParserState::refTopProdLevel"));
     }
     return *(this->topProdLevelCache);
   }
 
-  public: const ProdLevel& refTopProdLevel() const
+  public: const ParserProdLevel& refTopProdLevel() const
   {
-    return const_cast<State*>(this)->refTopProdLevel();
+    return const_cast<ParserState*>(this)->refTopProdLevel();
   }
 
   protected: void pushProdLevel(Data::Module *module, Data::SymbolDefinition *prod);
@@ -497,9 +497,9 @@ class State
   /// @{
 
   /// Set this state as a branch of another state.
-  protected: void setBranchingInfo(State *ts, Int ttl, Int tsi, Int psi);
+  protected: void setBranchingInfo(ParserState *ts, Int ttl, Int tsi, Int psi);
 
-  protected: void setBranchingInfo(State *ts, Int ttl)
+  protected: void setBranchingInfo(ParserState *ts, Int ttl)
   {
     this->setBranchingInfo(ts, ttl, ts->getTermLevelCount()-1, ts->getProdLevelCount()-1);
   }
@@ -530,7 +530,7 @@ class State
    * @return The pointer to the trunk state from which this state branch, or 0
    *         if this state didn't branch from anything.
    */
-  public: State* getTrunkState() const
+  public: ParserState* getTrunkState() const
   {
     return this->trunkState;
   }
@@ -546,9 +546,9 @@ class State
 
   protected: void ownTopLevel();
 
-  protected: void copyProdLevel(State *src, Int offset);
+  protected: void copyProdLevel(ParserState *src, Int offset);
 
-  protected: void copyTermLevel(State *src, Int offset);
+  protected: void copyTermLevel(ParserState *src, Int offset);
 
   /// @}
 
@@ -581,7 +581,7 @@ class State
   public: const SharedPtr<Common::BuildMsg>& getBuildMsg(Int i) const
   {
     if (static_cast<Word>(i) >= this->buildMsgs.size()) {
-      throw InvalidArgumentException(STR("i"), STR("Core::Parser::State::getBuildMsg"),
+      throw InvalidArgumentException(STR("i"), STR("Core::Processing::ParserState::getBuildMsg"),
                                      STR("Index out of range."));
     }
     return this->buildMsgs[i];
@@ -591,7 +591,7 @@ class State
   protected: void flushBuildMsgs(Int count)
   {
     if (count <= 0 || static_cast<Word>(count) > this->buildMsgs.size()) {
-      throw InvalidArgumentException(STR("count"), STR("Core::Parser::State::flushBuildMsgs"),
+      throw InvalidArgumentException(STR("count"), STR("Core::Processing::ParserState::flushBuildMsgs"),
                                      STR("Count is less than 0, or exceeds the total number of notificatoins."));
     }
     this->buildMsgs.erase(this->buildMsgs.begin(), this->buildMsgs.begin()+count);

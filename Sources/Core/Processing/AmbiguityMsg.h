@@ -1,6 +1,6 @@
 /**
- * @file Core/Parser/AmbiguityMsg.h
- * Contains the header of class Core::Parser::AmbiguityMsg.
+ * @file Core/Processing/AmbiguityMsg.h
+ * Contains the header of class Core::Processing::AmbiguityMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef PARSER_AMBIGUITY_MSG_H
-#define PARSER_AMBIGUITY_MSG_H
+#ifndef PROCESSING_AMBIGUITY_MSG_H
+#define PROCESSING_AMBIGUITY_MSG_H
 
-namespace Core { namespace Parser
+namespace Core { namespace Processing
 {
 
 // TODO: DOC

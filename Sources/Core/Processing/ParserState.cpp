@@ -1,6 +1,6 @@
 /**
- * @file Core/Parser/State.cpp
- * Contains the implementation of Parser::State.
+ * @file Core/Processing/ParserState.cpp
+ * Contains the implementation of Processing::ParserState.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -12,13 +12,13 @@
 
 #include "core.h"
 
-namespace Core { namespace Parser
+namespace Core { namespace Processing
 {
 
 //==============================================================================
 // Constructor
 
-State::State() :
+ParserState::ParserState() :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
@@ -35,7 +35,7 @@ State::State() :
 }
 
 
-State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
              Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule) :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
@@ -59,7 +59,7 @@ State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxV
 }
 
 
-State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
              Word reservedVarCount, Word reservedVarLevelCount, const Data::GrammarContext *context) :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
@@ -86,7 +86,7 @@ State::State(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxV
 //==============================================================================
 // Term Stack Member Functions
 
-void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                        Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule)
 {
   ASSERT(reservedTermLevelCount > 0);
@@ -108,7 +108,7 @@ void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount,
 }
 
 
-void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                        Word reservedVarCount, Word reservedVarLevelCount,
                        const Data::GrammarContext *context)
 {
@@ -133,7 +133,7 @@ void State::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount,
 /**
  * Delete all state levels and reset branching information.
  */
-void State::reset()
+void ParserState::reset()
 {
   this->processingStatus = ProcessingStatus::IN_PROGRESS;
   this->tokensToLive = -1;
@@ -169,18 +169,18 @@ void State::reset()
  *         keeping a pointer to this entry because the entry can be moved in
  *         memory as a result of a push or pop operation.
  */
-TermLevel& State::refTermLevel(Int i)
+ParserTermLevel& ParserState::refTermLevel(Int i)
 {
   // Validate i and convert it into positive indexing if it's currently negative.
   if (i >= 0) {
     if (i >= this->getTermLevelCount()) {
       throw GeneralException(STR("This state has an empty term stack, or i is out of range."),
-                             STR("Core::Parser::State::refTermLevel"));
+                             STR("Core::Processing::ParserState::refTermLevel"));
     }
   } else {
     if (-(i) > this->getTermLevelCount()) {
       throw GeneralException(STR("Given state has an empty term stack, or i is out of range."),
-                             STR("Core::Parser::State::refTermLevel"));
+                             STR("Core::Processing::ParserState::refTermLevel"));
     }
     i = this->getTermLevelCount() + i;
   }
@@ -202,12 +202,12 @@ TermLevel& State::refTermLevel(Int i)
  * Get the number of state levels in the top produciton in this state. The
  * level count includes the production root's level.
  */
-Int State::getTopprodTermLevelCount() const
+Int ParserState::getTopprodTermLevelCount() const
 {
   // The first level does not belong to any production, so we need at least 2 levels.
   if (this->getTermLevelCount() <= 1) {
     throw GeneralException(STR("This state has an empty term stack."),
-                           STR("Core::Parser::State::getTopprodTermLevelCount"));
+                           STR("Core::Processing::ParserState::getTopprodTermLevelCount"));
   }
   ASSERT(this->getProdLevelCount() > 0);
   // Find the production root, then get its data.
@@ -219,9 +219,9 @@ Int State::getTopprodTermLevelCount() const
  * Push a new level into the state term stack and initialize its checksum
  * values.
  */
-void State::pushTermLevel(Data::Term *term)
+void ParserState::pushTermLevel(Data::Term *term)
 {
-  this->termStack.push_back(TermLevel());
+  this->termStack.push_back(ParserTermLevel());
   this->dataStack.pushLevel(SharedPtr<IdentifiableObject>());
   this->topTermLevelCache = &this->refTermLevel(-1);
 
@@ -253,7 +253,7 @@ void State::pushTermLevel(Data::Term *term)
  * state's term stack is empty and this state has branched from another state,
  * the trunk level index will be decremented.
  */
-void State::popTermLevel()
+void ParserState::popTermLevel()
 {
   ASSERT(!this->isAtProdRoot());
   if (this->termStack.size() > 0) {
@@ -273,7 +273,7 @@ void State::popTermLevel()
 }
 
 
-Int State::findProdLevel(Int termIndex) const
+Int ParserState::findProdLevel(Int termIndex) const
 {
   if (termIndex < 0) termIndex += this->getTermLevelCount();
   if (this->prodStack.size() == 0) return -1;
@@ -285,7 +285,7 @@ Int State::findProdLevel(Int termIndex) const
 }
 
 
-Int State::_findProdLevel(Int termIndex, Int start, Int end) const
+Int ParserState::_findProdLevel(Int termIndex, Int start, Int end) const
 {
   if (this->refProdLevel(start).getTermStackIndex() == termIndex) return start;
   else if (this->refProdLevel(end).getTermStackIndex() >= termIndex) return end;
@@ -304,18 +304,18 @@ Int State::_findProdLevel(Int termIndex, Int start, Int end) const
 //==============================================================================
 // Production Stack Member Functions
 
-ProdLevel& State::refProdLevel(Int i)
+ParserProdLevel& ParserState::refProdLevel(Int i)
 {
   // Validate i and convert it into positive indexing if it's currently negative.
   if (i >= 0) {
     if (i >= this->getProdLevelCount()) {
       throw GeneralException(STR("This state has an empty production stack, or i is out of range."),
-                             STR("Core::Parser::State::refProdLevel"));
+                             STR("Core::Processing::ParserState::refProdLevel"));
     }
   } else {
     if (-(i) > this->getTermLevelCount()) {
       throw GeneralException(STR("Given state has an empty production stack, or i is out of range."),
-                             STR("Core::Parser::State::refProdLevel"));
+                             STR("Core::Processing::ParserState::refProdLevel"));
     }
     i = this->getProdLevelCount() + i;
   }
@@ -333,9 +333,9 @@ ProdLevel& State::refProdLevel(Int i)
 }
 
 
-void State::pushProdLevel(Data::Module *module, Data::SymbolDefinition *prod)
+void ParserState::pushProdLevel(Data::Module *module, Data::SymbolDefinition *prod)
 {
-  this->prodStack.push_back(ProdLevel());
+  this->prodStack.push_back(ParserProdLevel());
   this->topProdLevelCache = &this->prodStack.back();
   this->topProdLevelCache->setModule(module);
   this->topProdLevelCache->setProd(prod);
@@ -347,7 +347,7 @@ void State::pushProdLevel(Data::Module *module, Data::SymbolDefinition *prod)
 }
 
 
-void State::popProdLevel()
+void ParserState::popProdLevel()
 {
   // We only allow popping production levels when only the root term level is remaining.
   ASSERT(this->isAtProdRoot());
@@ -384,9 +384,9 @@ void State::popProdLevel()
 //==============================================================================
 // Term Helper Functions
 
-Word State::getListTermChildCount(Int levelOffset) const
+Word ParserState::getListTermChildCount(Int levelOffset) const
 {
-  const TermLevel *level;
+  const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isDerivedFrom<Data::ListTerm>());
@@ -395,9 +395,9 @@ Word State::getListTermChildCount(Int levelOffset) const
 }
 
 
-Data::Term* State::useListTermChild(Int index, Int levelOffset)
+Data::Term* ParserState::useListTermChild(Int index, Int levelOffset)
 {
-  TermLevel *level;
+  ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isDerivedFrom<Data::ListTerm>());
@@ -408,9 +408,9 @@ Data::Term* State::useListTermChild(Int index, Int levelOffset)
 }
 
 
-Data::Integer* State::getTokenTermId(Int levelOffset) const
+Data::Integer* ParserState::getTokenTermId(Int levelOffset) const
 {
-  const TermLevel *level;
+  const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::TokenTerm>());
@@ -418,9 +418,9 @@ Data::Integer* State::getTokenTermId(Int levelOffset) const
 }
 
 
-IdentifiableObject* State::getTokenTermText(Int levelOffset) const
+IdentifiableObject* ParserState::getTokenTermText(Int levelOffset) const
 {
-  const TermLevel *level;
+  const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::TokenTerm>());
@@ -428,7 +428,7 @@ IdentifiableObject* State::getTokenTermText(Int levelOffset) const
 }
 
 
-void State::getReferencedDefinition(Data::Module *&module, Data::SymbolDefinition *&definition,
+void ParserState::getReferencedDefinition(Data::Module *&module, Data::SymbolDefinition *&definition,
                                     Int levelOffset)
 {
   Data::Reference *ref;
@@ -443,9 +443,9 @@ void State::getReferencedDefinition(Data::Module *&module, Data::SymbolDefinitio
 }
 
 
-Data::Integer* State::getMultiplyTermMax(Int levelOffset) const
+Data::Integer* ParserState::getMultiplyTermMax(Int levelOffset) const
 {
-  const TermLevel *level;
+  const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::MultiplyTerm>());
@@ -453,9 +453,9 @@ Data::Integer* State::getMultiplyTermMax(Int levelOffset) const
 }
 
 
-Data::Integer* State::getMultiplyTermMin(Int levelOffset) const
+Data::Integer* ParserState::getMultiplyTermMin(Int levelOffset) const
 {
-  const TermLevel *level;
+  const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::MultiplyTerm>());
@@ -463,9 +463,9 @@ Data::Integer* State::getMultiplyTermMin(Int levelOffset) const
 }
 
 
-Data::Integer* State::getMultiplyTermPriority(Int levelOffset) const
+Data::Integer* ParserState::getMultiplyTermPriority(Int levelOffset) const
 {
-  const TermLevel *level;
+  const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::MultiplyTerm>());
@@ -499,7 +499,7 @@ Data::Integer* State::getMultiplyTermPriority(Int levelOffset) const
  *       state will live longer than this state. The same applies to psi and
  *       vsi.
  */
-void State::setBranchingInfo(State *ts, Int ttl, Int tsi, Int psi)
+void ParserState::setBranchingInfo(ParserState *ts, Int ttl, Int tsi, Int psi)
 {
   ASSERT(ts != 0 || (ttl == -1 && tsi == -1 && psi == -1));
   ASSERT(ttl >= -1 && tsi >= -1 && psi >= -1);
@@ -537,7 +537,7 @@ void State::setBranchingInfo(State *ts, Int ttl, Int tsi, Int psi)
  *
  * @return Returns true if the counter reaches 0, false otherwise.
  */
-bool State::decrementTokensToLive()
+bool ParserState::decrementTokensToLive()
 {
   if (this->tokensToLive == -1) {
     return false;
@@ -551,7 +551,7 @@ bool State::decrementTokensToLive()
 }
 
 
-void State::ownTopTermLevel()
+void ParserState::ownTopTermLevel()
 {
   ASSERT(this->getTermLevelCount() > 0);
   if (this->termStack.size() > 0) return;
@@ -559,25 +559,25 @@ void State::ownTopTermLevel()
   ASSERT(this->tempTrunkTermStackIndex >= 0);
   if (static_cast<Int>(this->trunkState->getTermLevelCount()) <= this->tempTrunkTermStackIndex) {
     throw GeneralException(STR("Trunk state has been modified."),
-                           STR("Core::Parser::State::ownTopTermLevel"));
+                           STR("Core::Processing::ParserState::ownTopTermLevel"));
   }
-  TermLevel &srcLevel = this->trunkState->refTermLevel(this->tempTrunkTermStackIndex);
+  ParserTermLevel &srcLevel = this->trunkState->refTermLevel(this->tempTrunkTermStackIndex);
   this->tempTrunkTermStackIndex--;
-  this->termStack.push_back(TermLevel());
+  this->termStack.push_back(ParserTermLevel());
   this->topTermLevelCache = &this->refTermLevel(-1);
   this->refTopTermLevel().copyFrom(&srcLevel);
 }
 
 
-void State::ownTopProdLevel()
+void ParserState::ownTopProdLevel()
 {
   ASSERT(this->getProdLevelCount() > 0);
   if (this->prodStack.size() > 0) return;
   ASSERT(this->trunkState != 0);
   ASSERT(this->tempTrunkProdStackIndex >= 0);
-  ProdLevel &srcLevel = this->trunkState->refProdLevel(this->tempTrunkProdStackIndex);
+  ParserProdLevel &srcLevel = this->trunkState->refProdLevel(this->tempTrunkProdStackIndex);
   this->tempTrunkProdStackIndex--;
-  this->prodStack.push_back(ProdLevel());
+  this->prodStack.push_back(ParserProdLevel());
   this->topProdLevelCache = &this->refProdLevel(-1);
   this->refTopProdLevel().setModule(srcLevel.getModule());
   this->refTopProdLevel().setProd(srcLevel.getProd());
@@ -585,7 +585,7 @@ void State::ownTopProdLevel()
 }
 
 
-void State::ownTopLevel()
+void ParserState::ownTopLevel()
 {
   if (this->isAtProdRoot()) {
     this->ownTopProdLevel();
@@ -594,10 +594,10 @@ void State::ownTopLevel()
 }
 
 
-void State::copyProdLevel(State *src, Int offset)
+void ParserState::copyProdLevel(ParserState *src, Int offset)
 {
-  ProdLevel &srcLevel = src->refProdLevel(offset);
-  this->prodStack.push_back(ProdLevel());
+  ParserProdLevel &srcLevel = src->refProdLevel(offset);
+  this->prodStack.push_back(ParserProdLevel());
   this->topProdLevelCache = &this->refProdLevel(-1);
   this->topProdLevelCache->setModule(srcLevel.getModule());
   this->topProdLevelCache->setProd(srcLevel.getProd());
@@ -610,9 +610,9 @@ void State::copyProdLevel(State *src, Int offset)
 }
 
 
-void State::copyTermLevel(State *src, Int offset)
+void ParserState::copyTermLevel(ParserState *src, Int offset)
 {
-  this->termStack.push_back(TermLevel());
+  this->termStack.push_back(ParserTermLevel());
   this->dataStack.pushLevel(src->getData(offset));
   this->topTermLevelCache = &this->refTermLevel(-1);
   this->topTermLevelCache->copyFrom(&src->refTermLevel(offset));
@@ -625,15 +625,15 @@ void State::copyTermLevel(State *src, Int offset)
  * useful because in many cases we might not need to copy those build msgs at
  * all (build msgs gets flushed from the trunk, or this branched state dies).
  */
-void State::setTrunkSharedBuildMsgCount(Int count)
+void ParserState::setTrunkSharedBuildMsgCount(Int count)
 {
   if (this->trunkState == 0) {
     throw GeneralException(STR("No trunk state set for this state."),
-                           STR("Core::Parser::State::setTrunkSharedBuildMsgCount"));
+                           STR("Core::Processing::ParserState::setTrunkSharedBuildMsgCount"));
   }
   if (count < 0 || count > this->trunkState->getBuildMsgCount()) {
     throw InvalidArgumentException(STR("count"),
-                                   STR("Core::Parser::State::setTrunkSharedBuildMsgCount"),
+                                   STR("Core::Processing::ParserState::setTrunkSharedBuildMsgCount"),
                                    STR("Out of range."), count);
   }
   this->trunkSharedBuildMsgCount = count;
@@ -646,11 +646,11 @@ void State::setTrunkSharedBuildMsgCount(Int count)
  *
  * @sa setTrunkSharedBuildMsgCount
  */
-void State::copyTrunkSharedBuildMsgs()
+void ParserState::copyTrunkSharedBuildMsgs()
 {
   if (this->trunkState == 0) {
     throw GeneralException(STR("No trunk state set for this state."),
-                           STR("Core::Parser::State::copyTrunkSharedBuildMsgs"));
+                           STR("Core::Processing::ParserState::copyTrunkSharedBuildMsgs"));
   }
   ASSERT(this->trunkSharedBuildMsgCount >= 0 &&
          this->trunkSharedBuildMsgCount <= this->trunkState->getTrunkSharedBuildMsgCount());

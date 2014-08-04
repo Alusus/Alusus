@@ -1,6 +1,6 @@
 /**
- * @file Core/Parser/SyntaxErrorMsg.h
- * Contains the header of class Core::Parser::SyntaxErrorMsg.
+ * @file Core/Processing/UnexpectedEofMsg.h
+ * Contains the header of class Core::Processing::UnexpectedEofMsg.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,35 +10,35 @@
  */
 //==============================================================================
 
-#ifndef PARSER_SYNTAX_ERROR_MSG_H
-#define PARSER_SYNTAX_ERROR_MSG_H
+#ifndef PROCESSING_UNEXPECTEDEOFMSG_H
+#define PROCESSING_UNEXPECTEDEOFMSG_H
 
-namespace Core { namespace Parser
+namespace Core { namespace Processing
 {
 
 /**
- * @brief A build message for Syntax Error.
- * @ingroup parser
+ * @brief A build message for unexpected eof error.
+ * @ingroup processing
  *
- * This message class is for error code P1001, which is raised when the parser
- * is faced with a token that is not recognized by the grammar.
+ * This message class is for error code P1002, which is raised when the parser
+ * unexpectedly receives an endParsing call while still expecting more tokens.
  */
-class SyntaxErrorMsg : public Common::BuildMsg
+class UnexpectedEofMsg : public Common::BuildMsg
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SyntaxErrorMsg, Common::BuildMsg, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(UnexpectedEofMsg, Common::BuildMsg, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: SyntaxErrorMsg(Int l, Int c) : Common::BuildMsg(l, c)
+  public: UnexpectedEofMsg()
   {
   }
 
-  public: virtual ~SyntaxErrorMsg()
+  public: virtual ~UnexpectedEofMsg()
   {
   }
 
@@ -49,7 +49,7 @@ class SyntaxErrorMsg : public Common::BuildMsg
   /// @sa Common::BuildMsg::getCode()
   public: virtual const Str& getCode() const
   {
-    static Str code("P1001");
+    static Str code("P1002");
     return code;
   }
 
@@ -62,7 +62,7 @@ class SyntaxErrorMsg : public Common::BuildMsg
   /// @sa Common::BuildMsg::getCode()
   public: virtual void buildDescription(Str &str) const
   {
-    str = STR("Parser Syntax Error.");
+    str = STR("Parsing exited while needing more tokens.");
   }
 
 }; // class

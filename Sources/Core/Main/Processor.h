@@ -31,7 +31,7 @@ class Processor : public SignalReceiver
 
   private: Lexer::StateMachine lexer;
 
-  private: Parser::StateMachine parser;
+  private: Processing::Parser parser;
 
 
   //============================================================================

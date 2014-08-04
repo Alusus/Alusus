@@ -29,7 +29,7 @@ void Processor::initialize(const SharedPtr<Lexer::CharGroupDefinitionList> &char
 
   // Prepare the parser.
   this->parser.initialize(grammarRepo);
-  this->lexer.tokenGenerated.connect(&this->parser, &Parser::StateMachine::handleNewToken);
+  this->lexer.tokenGenerated.connect(&this->parser, &Processing::Parser::handleNewToken);
   this->parser.buildMsgNotifier.connect(this, &Processor::buildMsgNotifierRelay);
 }
 

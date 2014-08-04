@@ -33,7 +33,7 @@ using Standard::ParsedDataBrowser;
 //==============================================================================
 // Overloaded Abstract Functions
 
-void ModuleParsingHandler::onProdEnd(Parser::StateMachine *machine, Parser::State *state)
+void ModuleParsingHandler::onProdEnd(Processing::Parser *machine, Processing::ParserState *state)
 {
     static Word defId = IdGenerator::getSingleton()->getId(STR("SubMain.Def"));
     static Word linkId = IdGenerator::getSingleton()->getId(STR("Main.Link"));

@@ -1,6 +1,6 @@
 /**
- * @file Core/Parser/StateMachine.h
- * Contains the header of class Core::Parser::StateMachine.
+ * @file Core/Processing/Parser.h
+ * Contains the header of class Core::Processing::Parser.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,40 +10,40 @@
  */
 //==============================================================================
 
-#ifndef PARSER_STATE_MACHINE_H
-#define PARSER_STATE_MACHINE_H
+#ifndef PROCESSING_PARSER_H
+#define PROCESSING_PARSER_H
 
-namespace Core { namespace Parser
+namespace Core { namespace Processing
 {
 
 // TODO: DOC
 
 /**
- * @brief Contains all the functionality of the state machine.
- * @ingroup parser
+ * @brief Contains all the functionality of the parser's state machine.
+ * @ingroup processing
  *
  * This class contains all the member variables and functions of the state
  * machine.
  */
-class StateMachine : public SignalReceiver
+class Parser : public SignalReceiver
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(StateMachine, SignalReceiver, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(Parser, SignalReceiver, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
   // Types
 
   /// An iterator used to iterate through elements of a State linked list.
-  private: typedef std::list<State*>::iterator StateIterator;
+  private: typedef std::list<ParserState*>::iterator StateIterator;
 
   /**
    * @brief A const version of StateIterator.
    * @sa StateIterator
    */
-  private: typedef std::list<State*>::const_iterator ConstStateIterator;
+  private: typedef std::list<ParserState*>::const_iterator ConstStateIterator;
 
 
   //============================================================================
@@ -63,7 +63,7 @@ class StateMachine : public SignalReceiver
    * This vector contains the array of the states that are currently active
    * in the system.
    */
-  private: std::list<State*> states;
+  private: std::list<ParserState*> states;
 
   /**
    * @brief A temp state to use for route computation.
@@ -71,7 +71,7 @@ class StateMachine : public SignalReceiver
    * This is defined for performance improving purposes to avoid creating a
    * new state every time a route computation is to be done.
    */
-  private: State tempState;
+  private: ParserState tempState;
 
   /**
    * @brief The list of possible routes to take from a specific parsing point.
@@ -115,11 +115,11 @@ class StateMachine : public SignalReceiver
   //============================================================================
   // Constructor / Destructor
 
-  public: StateMachine() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")), grammarRepository(0)
+  public: Parser() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")), grammarRepository(0)
   {
   }
 
-  public: ~StateMachine()
+  public: ~Parser()
   {
   }
 
@@ -190,31 +190,31 @@ class StateMachine : public SignalReceiver
   /// @{
 
   /// Compute the list of possible routes to take at a duplicate term.
-  private: void computePossibleMultiplyRoutes(const Common::Token *token, State *state);
+  private: void computePossibleMultiplyRoutes(const Common::Token *token, ParserState *state);
 
   /// Compute the list of possible routes to take at an alternative term.
-  private: void computePossibleAlternativeRoutes(const Common::Token *token, State *state);
+  private: void computePossibleAlternativeRoutes(const Common::Token *token, ParserState *state);
 
   /// Test the route taken by the given state.
-  private: void testState(const Common::Token *token, State *state);
+  private: void testState(const Common::Token *token, ParserState *state);
 
   /// Test the given token against a single level within the test state.
-  private: void testStateLevel(const Common::Token *token, State *state);
+  private: void testStateLevel(const Common::Token *token, ParserState *state);
 
   /// Test the given token against a token term within the test state.
-  private: void testTokenTerm(const Common::Token *token, State *state);
+  private: void testTokenTerm(const Common::Token *token, ParserState *state);
 
   /// Test against a duplicate term within the test state.
-  private: void testMultiplyTerm(const Common::Token *token, State *state);
+  private: void testMultiplyTerm(const Common::Token *token, ParserState *state);
 
   /// Test against an alternative term within the test state.
-  private: void testAlternateTerm(const Common::Token *token, State *state);
+  private: void testAlternateTerm(const Common::Token *token, ParserState *state);
 
   /// Test against a concat term within the test state.
-  private: void testConcatTerm(const Common::Token *token, State *state);
+  private: void testConcatTerm(const Common::Token *token, ParserState *state);
 
   /// Test against a reference term within the test state.
-  private: void testReferenceTerm(const Common::Token *token, State *state);
+  private: void testReferenceTerm(const Common::Token *token, ParserState *state);
 
   /// @}
 
@@ -230,19 +230,19 @@ class StateMachine : public SignalReceiver
   /// Delete a state from the states stack.
   private: void deleteState(StateIterator si, StateTerminationCause stc);
 
-  private: void pushStateTermLevel(State *state, Data::Term *term, Word posId);
+  private: void pushStateTermLevel(ParserState *state, Data::Term *term, Word posId);
 
-  private: void pushStateProdLevel(State *state, Data::Module *module,
+  private: void pushStateProdLevel(ParserState *state, Data::Module *module,
                                    Data::SymbolDefinition *prod);
 
   /// Pop the top level from a specific state.
-  private: void popStateLevel(State *state, Bool success);
+  private: void popStateLevel(ParserState *state, Bool success);
 
   /// Compare two states to see if they are at the same spot in the grammar.
-  private: bool compareStates(State *s1, State *s2);
+  private: bool compareStates(ParserState *s1, ParserState *s2);
 
   /// Get the parsing handler for the top production level in a state.
-  private: ParsingHandler* getTopParsingHandler(State *state)
+  private: ParsingHandler* getTopParsingHandler(ParserState *state)
   {
     return state->refTopProdLevel().getProd()->getOperationHandler().s_cast_get<ParsingHandler>();
   }
@@ -272,14 +272,14 @@ class StateMachine : public SignalReceiver
    * to dominate it needs to be a successful state and it should be the highest
    * priority among successful states.
    */
-  public: Bool canStateDominate(State *state) const;
+  public: Bool canStateDominate(ParserState *state) const;
 
   /**
    * @brief Check whether the given state can be abandoned.
    * A state can be abandoned if there is a higher priority state that is
    * successful.
    */
-  public: Bool canAbandonState(State *state) const;
+  public: Bool canAbandonState(ParserState *state) const;
 
   /**
    * @brief If possible, drop all states except the given one.
@@ -287,7 +287,7 @@ class StateMachine : public SignalReceiver
    *         qualified to dominate.
    * @sa canStateDominate()
    */
-  public: Bool dominateState(State *state);
+  public: Bool dominateState(ParserState *state);
 
   /**
    * @brief Abandon the given state if possible.
@@ -296,7 +296,7 @@ class StateMachine : public SignalReceiver
    * @return true if successful, false if there is no successful higher
    *         priority state.
    */
-  public: Bool abandonState(State *state);
+  public: Bool abandonState(ParserState *state);
 
   /// @}
 

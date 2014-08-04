@@ -1,7 +1,7 @@
 /**
- * @file Core/Parser/parser.h
- * Contains the definitions and include statements for all types used by the
- * parser.
+ * @file Core/Processing/processing.h
+ * Contains the definitions and include statements for all types used for
+ * processing.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -11,26 +11,26 @@
  */
 //==============================================================================
 
-#ifndef PARSER_PARSER_H
-#define PARSER_PARSER_H
+#ifndef PROCESSING_PROCESSING_H
+#define PROCESSING_PROCESSING_H
 
-namespace Core { namespace Parser
+namespace Core { namespace Processing
 {
 
 /**
- * @defgroup parser Parser
+ * @defgroup processing Processing
  * @ingroup core
  */
 
 /**
  * @brief An enumeration used to define term type identifiers.
- * @ingroup parser
+ * @ingroup processing
  */
 enumeration(TermType, TOKEN, CONCAT, ALTERNATIVE, OPTIONAL, DUPLICATE, REFERENCE);
 
 /**
  * @brief The temporary processing status of the state object.
- * @ingroup parser
+ * @ingroup processing
  *
  * Before the processing of a new token, the processing status of all current
  * states gets reset to IN_PROGRESS, which indicates that these states are
@@ -53,7 +53,7 @@ enumeration(ProcessingStatus, IN_PROGRESS = 0, COMPLETE, ERROR);
 
 /**
  * @brief The cause of termination for a given state.
- * @ingroup parser
+ * @ingroup processing
  *
  * The meaning for those values are as follows:<br>
  * SYNTAX_ERROR: Obviously, parsing couldn't find a matching path.<br>
@@ -74,7 +74,7 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 
 /**
  * @brief The state level index flag for this parsing pass.
- * @ingroup parser
+ * @ingroup processing
  *
  * This flag is set in the state level's index to specify that the route has
  * been visited during this parsing pass.
@@ -83,7 +83,7 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 
 /**
  * @brief The state level index flag for this testing pass.
- * @ingroup parser
+ * @ingroup processing
  *
  * This flag is set in the state level's index to specify that the route has
  * been visited during this testing pass, i.e. the operation that determines
@@ -93,7 +93,7 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 
 /**
  * @brief The default value for tokensToLive.
- * @ingroup parser
+ * @ingroup processing
  *
  * When parsing branches, the branch with the lower priority is given a number
  * of tokens to live before it's forced to die, if none of the two branches
@@ -105,7 +105,7 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 
 /**
  * @brief The number of preallocated state term levels.
- * @ingroup parser
+ * @ingroup processing
  *
  * These state term levels are preallocated when the state is instantiated. It's
  * done for performance purposes.
@@ -114,7 +114,7 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 
 /**
  * @brief The number of preallocated state production levels.
- * @ingroup parser
+ * @ingroup processing
  *
  * These state production levels are preallocated when the state is instantiated.
  * It's done for performance purposes.
@@ -123,7 +123,7 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 
 /**
  * @brief The number of preallocated state variable levels.
- * @ingroup parser
+ * @ingroup processing
  *
  * These state variable levels are preallocated when the state is instantiated.
  * It's done for performance purposes.
@@ -132,7 +132,7 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 
 /**
  * @brief The number of preallocated variable stack records.
- * @ingroup parser
+ * @ingroup processing
  *
  * This value is used for state variable stacks.
  */
@@ -140,7 +140,7 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 
 /**
  * @brief The maximum number of characters allowed for variable names.
- * @ingroup parser
+ * @ingroup processing
  *
  * This value is used for state variable stacks.
  */
@@ -157,13 +157,13 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 #include "UnexpectedTokenMsg.h"
 #include "AmbiguityMsg.h"
 
-#include "TermLevel.h"
-#include "ProdLevel.h"
+#include "ParserTermLevel.h"
+#include "ParserProdLevel.h"
 
-#include "State.h"
+#include "ParserState.h"
 
 #include "ParsingHandler.h"
 
-#include "StateMachine.h"
+#include "Parser.h"
 
 #endif
