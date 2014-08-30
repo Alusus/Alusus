@@ -23,12 +23,12 @@ namespace Core { namespace Processing
  * This message class is for error code P1002, which is raised when the parser
  * unexpectedly receives an endParsing call while still expecting more tokens.
  */
-class UnexpectedEofMsg : public Common::BuildMsg
+class UnexpectedEofMsg : public Processing::BuildMsg
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(UnexpectedEofMsg, Common::BuildMsg, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(UnexpectedEofMsg, Processing::BuildMsg, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
@@ -46,20 +46,20 @@ class UnexpectedEofMsg : public Common::BuildMsg
   //============================================================================
   // Member Functions
 
-  /// @sa Common::BuildMsg::getCode()
+  /// @sa Processing::BuildMsg::getCode()
   public: virtual const Str& getCode() const
   {
     static Str code("P1002");
     return code;
   }
 
-  /// @sa Common::BuildMsg::getSeverity()
+  /// @sa Processing::BuildMsg::getSeverity()
   public: virtual Int getSeverity() const
   {
     return 1;
   }
 
-  /// @sa Common::BuildMsg::getCode()
+  /// @sa Processing::BuildMsg::getCode()
   public: virtual void buildDescription(Str &str) const
   {
     str = STR("Parsing exited while needing more tokens.");

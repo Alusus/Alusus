@@ -113,7 +113,7 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *machine, Processing::Pars
       // Create a build msg.
       Str message = "Couldn't find module: ";
       message += name->getText();
-      state->addBuildMsg(std::make_shared<Common::CustomBuildMsg>(message.c_str(),
+      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
                                                                       item->getLine(), item->getColumn()));
   }
   // Reset parsed data because we are done with the command.

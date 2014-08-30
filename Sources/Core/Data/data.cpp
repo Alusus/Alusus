@@ -33,29 +33,6 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to)
 }
 
 
-/*Module* findAssociatedLexerModule(Module *module, PlainProvider *provider)
-{
-  GrammarModule *grammarModule = io_cast<GrammarModule>(module);
-  // Check if we need to switch the lexer module.
-  Reference *lmr = 0;
-  while (lmr == 0 && grammarModule != 0) {
-    lmr = grammarModule->getLexerModuleRef().get();
-    grammarModule = grammarModule->getParent();
-  }
-  if (lmr == 0) return 0;
-  GrammarHelper helper(provider);
-  Module *dummyModule;
-  IdentifiableObject *lmo;
-  helper.getValue(lmr, grammarModule, lmo, dummyModule);
-  Module *lm = io_cast<Module>(lmo);
-  if (lm == 0) {
-    throw GeneralException(STR("The module has an invalid lexer module reference."),
-                           STR("Core::Data::findAssociatedLexerModule"));
-  }
-  return lm;
-}*/
-
-
 void setTreeIds(IdentifiableObject *obj, const Char *id)
 {
   IdOwner *ido = ii_cast<IdOwner>(obj);

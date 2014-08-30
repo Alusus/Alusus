@@ -24,18 +24,18 @@ namespace Core { namespace Processing
  * unexpectedly receives a new token when it has already folded out of the
  * grammar tree (at which point it expects and endParsing call instead).
  */
-class UnexpectedTokenMsg : public Common::BuildMsg
+class UnexpectedTokenMsg : public Processing::BuildMsg
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(UnexpectedTokenMsg, Common::BuildMsg, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(UnexpectedTokenMsg, Processing::BuildMsg, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: UnexpectedTokenMsg(Int l, Int c) : Common::BuildMsg(l, c)
+  public: UnexpectedTokenMsg(Int l, Int c) : Processing::BuildMsg(l, c)
   {
   }
 
@@ -47,20 +47,20 @@ class UnexpectedTokenMsg : public Common::BuildMsg
   //============================================================================
   // Member Functions
 
-  /// @sa Common::BuildMsg::getCode()
+  /// @sa Processing::BuildMsg::getCode()
   public: virtual const Str& getCode() const
   {
     static Str code("P1003");
     return code;
   }
 
-  /// @sa Common::BuildMsg::getSeverity()
+  /// @sa Processing::BuildMsg::getSeverity()
   public: virtual Int getSeverity() const
   {
     return 1;
   }
 
-  /// @sa Common::BuildMsg::getCode()
+  /// @sa Processing::BuildMsg::getCode()
   public: virtual void buildDescription(Str &str) const
   {
     str = STR("Parsing has already folded out to completion.");

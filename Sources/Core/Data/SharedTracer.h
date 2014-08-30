@@ -18,12 +18,12 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class SharedTracer : public IdentifiableInterface
+class SharedTracer : public Tracer
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(SharedTracer, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(SharedTracer, Tracer, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

@@ -45,6 +45,11 @@ class Integer : public IdentifiableObject
   {
   }
 
+  public: static SharedPtr<Integer> create(Int v)
+  {
+    return std::make_shared<Integer>(v);
+  }
+
 
   //============================================================================
   // Operators

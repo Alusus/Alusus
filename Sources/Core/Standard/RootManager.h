@@ -40,7 +40,7 @@ class RootManager : public SignalReceiver
   // Signals
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: RESIGNAL(buildMsgNotifier, (const SharedPtr<Common::BuildMsg> &msg), (msg));
+  public: RESIGNAL(buildMsgNotifier, (const SharedPtr<Processing::BuildMsg> &msg), (msg));
 
 
   //============================================================================
@@ -64,16 +64,6 @@ class RootManager : public SignalReceiver
     return &this->grammarPlant;
   }
 
-  public: virtual const SharedPtr<Lexer::CharGroupDefinitionList>& getCharGroupDefinitions()
-  {
-    return this->grammarPlant.getCharGroupDefinitions();
-  }
-
-  public: virtual const SharedPtr<Lexer::TokenDefinitionList>& getTokenDefinitions()
-  {
-    return this->grammarPlant.getTokenDefinitions();
-  }
-
   public: virtual Data::GrammarRepository* getGrammarRepository()
   {
     return this->grammarPlant.getRepository();
@@ -91,20 +81,16 @@ class RootManager : public SignalReceiver
 
   public: virtual SharedPtr<IdentifiableObject> processString(Char const *str)
   {
-    Main::Processor processor(this->grammarPlant.getCharGroupDefinitions(),
-                              this->grammarPlant.getTokenDefinitions(),
-                              this->grammarPlant.getRepository());
-    processor.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
-    return processor.processString(str);
+    Processing::Engine engine(this->grammarPlant.getRepository());
+    engine.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
+    return engine.processString(str);
   }
 
   public: virtual SharedPtr<IdentifiableObject> processFile(Char const *filename)
   {
-    Main::Processor processor(this->grammarPlant.getCharGroupDefinitions(),
-                              this->grammarPlant.getTokenDefinitions(),
-                              this->grammarPlant.getRepository());
-    processor.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
-    return processor.processFile(filename);
+    Processing::Engine engine(this->grammarPlant.getRepository());
+    engine.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
+    return engine.processFile(filename);
   }
 
 }; // class

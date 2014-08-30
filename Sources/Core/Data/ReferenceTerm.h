@@ -63,7 +63,7 @@ class ReferenceTerm : public Term, public virtual DataOwner
   //============================================================================
   // Member Functions
 
-  public: void setReference(const SharedPtr<Reference> &ref)
+  public: void setReference(SharedPtr<Reference> const &ref)
   {
     this->reference = ref;
   }
@@ -74,7 +74,7 @@ class ReferenceTerm : public Term, public virtual DataOwner
     else this->reference.reset();
   }
 
-  public: const SharedPtr<Reference>& getReference() const
+  public: SharedPtr<Reference> const& getReference() const
   {
     return this->reference;
   }

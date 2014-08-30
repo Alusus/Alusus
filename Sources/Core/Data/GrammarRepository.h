@@ -208,6 +208,10 @@ class GrammarRepository : public IdentifiableObject,
   /// @name SharedTracer Implementation
   /// @{
 
+  public: virtual IdentifiableObject* tracePlainValue(IdentifiableObject *val);
+
+  public: virtual void tracePlainValue(IdentifiableObject *val, PlainModulePairedPtr &retVal);
+
   public: virtual SharedPtr<IdentifiableObject> traceSharedValue(const SharedPtr<IdentifiableObject> &val);
 
   public: virtual void traceSharedValue(const SharedPtr<IdentifiableObject> &val, SharedModulePairedPtr &retVal);

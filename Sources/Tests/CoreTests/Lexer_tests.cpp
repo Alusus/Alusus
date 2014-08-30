@@ -1,6 +1,6 @@
 /**
  * @file Tests/CoreTests/Lexer_tests.cpp
- * Contain's the Core::Lexer namespace's unit tests.
+ * Contain's the lexer's unit tests.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -16,14 +16,13 @@ namespace Tests { namespace CoreTests
 {
 
 // Test for a successful tokenization of a simple source.
-TEST_CASE("Core::Lexer/successful", "Successful Tokenization Test")
+TEST_CASE("Core::Processing/Lexer/successful", "Successful Tokenization Test")
 {
   // Prepare the grammar.
   TestGrammarPlant store;
   // Prepare the lexer.
-  Lexer::StateMachine lexer;
-  lexer.setCharGroupDefinitions(store.getCharGroupDefinitions());
-  lexer.setTokenDefinitions(store.getTokenDefinitions());
+  Processing::Lexer lexer;
+  lexer.setGrammarRepository(store.getRepository());
   // Prepare the tester.
   LexerTester tester(&lexer);
 
@@ -31,18 +30,18 @@ TEST_CASE("Core::Lexer/successful", "Successful Tokenization Test")
     SECTION("s1", "Simple expression / string assignment")
     {
       tester.reset();
-      tester.addToken(store.IDENTIFIER_TOKEN, STR("strVar"));
+      tester.addToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("strVar"));
       tester.addToken(UNKNOWN_ID, STR("="));
-      tester.addToken(store.STRING_LITERAL_TOKEN, STR("\"Hello World\""));
+      tester.addToken(ID_GENERATOR->getId(STR("LexerDefs.StringLiteral")), STR("\"Hello World\""));
       tester.addToken(UNKNOWN_ID, STR(";"));
       tester.test(STR("strVar = \"Hello World\";"));
     }
     SECTION("s2", "Simple expression / int assignment")
     {
       tester.reset();
-      tester.addToken(store.IDENTIFIER_TOKEN, STR("strVar"));
+      tester.addToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("strVar"));
       tester.addToken(UNKNOWN_ID, STR("="));
-      tester.addToken(store.INT_LITERAL_TOKEN, STR("123"));
+      tester.addToken(ID_GENERATOR->getId(STR("LexerDefs.IntLiteral")), STR("123"));
       tester.addToken(UNKNOWN_ID, STR(";"));
       tester.test(STR("strVar = 123;"));
     }

@@ -33,17 +33,18 @@ GrammarContext::GrammarContext() : repository(10, 5)
 
 void GrammarContext::tracePlainValue(IdentifiableObject *val, PlainModulePairedPtr &retVal, Module *module)
 {
-  Module *oldModule = this->getModule();
-  Module *curModule = oldModule;
   retVal.object = val;
   retVal.module = module;
-  while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>()) {
+  if (retVal.object == 0 || !retVal.object->isDerivedFrom<Reference>()) return;
+  Module *oldModule = this->getModule();
+  Module *curModule = oldModule;
+  do {
     if (retVal.module != 0 && retVal.module != curModule) {
       this->setModule(retVal.module);
       curModule = retVal.module;
     }
     this->repository.getPlainValue(static_cast<Reference*>(retVal.object), retVal);
-  }
+  } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
   if (curModule != oldModule) this->setModule(oldModule);
 }
 
@@ -170,8 +171,19 @@ IdentifiableObject* GrammarContext::getTokenTermText(TokenTerm *term, Module *mo
 }
 
 
-void GrammarContext::getReferencedDefinition(Reference const *ref, Module *&retModule, SymbolDefinition *&retDef,
-                                             Module *module)
+void GrammarContext::getReferencedCharGroup(Reference const *ref, CharGroupDefinition *&charGroupDef, Module *module)
+{
+  IdentifiableObject *obj = this->tracePlainValue(const_cast<Reference*>(ref), module);
+  if (obj == 0 || !obj->isA<CharGroupDefinition>()) {
+    throw GeneralException(STR("Reference does not point to a char group definition.")
+                           STR("Core::Data::GrammarContext::getReferencedCharGroup"));
+  }
+  charGroupDef = static_cast<CharGroupDefinition*>(obj);
+}
+
+
+void GrammarContext::getReferencedSymbol(Reference const *ref, Module *&retModule, SymbolDefinition *&retDef,
+                                         Module *module)
 {
   Module *oldModule = this->getModule();
   Module *curModule = oldModule;
@@ -189,8 +201,8 @@ void GrammarContext::getReferencedDefinition(Reference const *ref, Module *&retM
     }
   } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
   if (retVal.object == 0 || !retVal.object->isDerivedFrom<SymbolDefinition>()) {
-    throw GeneralException(STR("Reference does not point to a definition."),
-                           STR("Core::Data::GrammarContext::getReferencedDefinition"));
+    throw GeneralException(STR("Reference does not point to a symbol definition."),
+                           STR("Core::Data::GrammarContext::getReferencedSymbol"));
   }
   if (curModule != oldModule) this->setModule(oldModule);
   retDef = static_cast<SymbolDefinition*>(retVal.object);
@@ -287,6 +299,36 @@ SharedMap* GrammarContext::getSymbolVars(const SymbolDefinition *definition, Mod
   }
   if (curModule != oldModule) this->setModule(oldModule);
   return static_cast<SharedMap*>(retVal.object);
+}
+
+
+//==============================================================================
+// Other Helper Functions
+
+Module* GrammarContext::getAssociatedLexerModule(Module *module)
+{
+  // TODO: Modify this function so that it searches the root module if it can't
+  //       find an associated lexer module in the given module.
+
+  if (module == 0) module = this->getModule();
+  if (module == 0) module = this->getRoot();
+  GrammarModule *grammarModule = io_cast<GrammarModule>(module);
+
+  // Find the reference to the lexer module.
+  Reference *lmr = 0;
+  while (lmr == 0 && grammarModule != 0) {
+    lmr = grammarModule->getLexerModuleRef().get();
+    if (lmr == 0) grammarModule = grammarModule->getPlainParent();
+  }
+
+  // Find the module itself.
+  if (lmr == 0) return 0;
+  Module *lm = io_cast<Module>(this->tracePlainValue(lmr, grammarModule));
+  if (lm == 0) {
+    throw GeneralException(STR("The module has an invalid lexer module reference."),
+                           STR("Core::Data::GrammarContext::getAssociatedLexerModule"));
+  }
+  return lm;
 }
 
 } } // namespace

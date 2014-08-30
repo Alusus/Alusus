@@ -25,8 +25,8 @@ ParserState::ParserState() :
   topTermLevelCache(0),
   topProdLevelCache(0),
   trunkSharedBuildMsgCount(0),
-  processingStatus(ProcessingStatus::IN_PROGRESS),
-  prevProcessingStatus(ProcessingStatus::IN_PROGRESS),
+  processingStatus(ParserProcessingStatus::IN_PROGRESS),
+  prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1)
 {
   this->grammarContext.setRoot(0);
@@ -47,8 +47,8 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   dataStack(maxVarNameLength, reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
-  processingStatus(ProcessingStatus::IN_PROGRESS),
-  prevProcessingStatus(ProcessingStatus::IN_PROGRESS),
+  processingStatus(ParserProcessingStatus::IN_PROGRESS),
+  prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1)
 {
   this->termStack.resize(0);
@@ -71,8 +71,8 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   dataStack(maxVarNameLength, reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
-  processingStatus(ProcessingStatus::IN_PROGRESS),
-  prevProcessingStatus(ProcessingStatus::IN_PROGRESS),
+  processingStatus(ParserProcessingStatus::IN_PROGRESS),
+  prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1)
 {
   this->termStack.resize(0);
@@ -135,7 +135,7 @@ void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevel
  */
 void ParserState::reset()
 {
-  this->processingStatus = ProcessingStatus::IN_PROGRESS;
+  this->processingStatus = ParserProcessingStatus::IN_PROGRESS;
   this->tokensToLive = -1;
   this->termStack.clear();
   this->dataStack.clear();
@@ -428,8 +428,8 @@ IdentifiableObject* ParserState::getTokenTermText(Int levelOffset) const
 }
 
 
-void ParserState::getReferencedDefinition(Data::Module *&module, Data::SymbolDefinition *&definition,
-                                    Int levelOffset)
+void ParserState::getReferencedSymbol(Data::Module *&module, Data::SymbolDefinition *&definition,
+                                      Int levelOffset)
 {
   Data::Reference *ref;
   if (levelOffset == -1) {
@@ -439,7 +439,7 @@ void ParserState::getReferencedDefinition(Data::Module *&module, Data::SymbolDef
     ASSERT(this->refTermLevel(levelOffset).getTerm()->isA<Data::ReferenceTerm>());
     ref = static_cast<Data::ReferenceTerm*>(this->refTermLevel(levelOffset).getTerm())->getReference().get();
   }
-  this->grammarContext.getReferencedDefinition(ref, module, definition);
+  this->grammarContext.getReferencedSymbol(ref, module, definition);
 }
 
 

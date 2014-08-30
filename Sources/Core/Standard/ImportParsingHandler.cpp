@@ -22,13 +22,14 @@ namespace Core { namespace Standard
 void ImportParsingHandler::onProdEnd(Processing::Parser *machine, Processing::ParserState *state)
 {
   SharedPtr<ParsedItem> item = state->getData().io_cast<ParsedItem>();
+  static Word stringLiteralId = ID_GENERATOR->getId(STR("LexerDefs.StringLiteral"));
   ParsedDataBrowser browser;
   // Find a literal token in the subject.
   SharedPtr<ParsedToken> token =
       browser.getValue<ParsedToken>(STR("Subject.Subject1>Subject.Literal"), item);
   if (token != 0) {
     // Is it a string token?
-    if (ID_GENERATOR->getDesc(token->getId()) == STR("STRING_LITERAL_TOKEN")) {
+    if (token->getId() == stringLiteralId) {
       if (!this->import(token->getText().c_str(), state)) {
         // Create a build msg.
         state->addBuildMsg(
@@ -49,11 +50,15 @@ Bool ImportParsingHandler::import(Char const *filename, Processing::ParserState 
 
   if (std::regex_match(filename, r)) {
     try {
+      LOG(LogLevel::PARSER_MAJOR, STR("Importing source file: ") << filename);
+
       this->rootManager->processFile(filename);
     } catch (...) {
       return false;
     }
   } else {
+    LOG(LogLevel::PARSER_MAJOR, STR("Importing library: ") << filename);
+
     // If so, import library and return.
     PtrWord id = this->rootManager->getLibraryManager()->load(filename);
     // Did we fail the loading?

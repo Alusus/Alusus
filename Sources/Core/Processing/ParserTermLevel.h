@@ -20,7 +20,7 @@ namespace Core { namespace Processing
  * @brief Defines one level in the state's hierarchy position stack.
  * @ingroup processing
  *
- * The State object has a stack that defines the current parsing position within
+ * The ParserState object has a stack that defines the current parsing position within
  * the terms hierarchy. Each level in this stack is represented by a single
  * instance of this structure.
  */

@@ -45,8 +45,8 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *machine, Processing::Pa
     auto statementList = statementListBrowser.getValue<ParsedList>(item);
     if (statementList == 0) {
         // Create a build error msg.
-        state->addBuildMsg(SharedPtr<Common::UnrecognizedErrorMsg>(
-            new Common::UnrecognizedErrorMsg(item->getLine(), item->getColumn())));
+        state->addBuildMsg(std::make_shared<Processing::UnrecognizedErrorMsg>(
+            item->getLine(), item->getColumn()));
         return;
     }
 
@@ -67,7 +67,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *machine, Processing::Pa
             this->add_link_to_module(element, module.get());
         } else {
             // Raise a build error.
-            state->addBuildMsg(std::make_shared<Common::CustomBuildMsg>(STR("Invalid statement inside module body."),
+            state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(STR("Invalid statement inside module body."),
                 element->getLine(), element->getColumn()));
         }
     }
@@ -80,7 +80,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *machine, Processing::Pa
 void ModuleParsingHandler::add_definition_to_module(const SharedPtr<ParsedItem> &def,
                                                     Core::Data::Module *module)
 {
-    static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("IDENTIFIER_TOKEN"));
+    static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
     static ParsedDataBrowser nameBrowser(
         STR("0:Expression.Exp>"
             "0:Expression.LowerLinkExp>"
@@ -146,7 +146,7 @@ Char const* ModuleParsingHandler::get_link_name(const SharedPtr<ParsedItem> &lin
         STR("0:Expression.LowLinkExp>"
             "0:Expression.FunctionalExp"));
     static ParsedDataBrowser nameBrowser(STR("0:Subject.Subject1>0:Subject.Parameter"));
-    static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("IDENTIFIER_TOKEN"));
+    static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
 
     auto funcExp = funcExpNoRetBrowser.getChildValue<ParsedList>(link);
     if (funcExp == 0)

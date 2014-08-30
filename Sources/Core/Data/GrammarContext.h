@@ -18,13 +18,13 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class GrammarContext : public IdentifiableObject, public virtual PlainTracer
+class GrammarContext : public IdentifiableObject, public virtual Tracer
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(GrammarContext, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, PlainTracer);
+  IMPLEMENT_INTERFACES_1(IdentifiableObject, Tracer);
 
 
   //============================================================================
@@ -155,8 +155,10 @@ class GrammarContext : public IdentifiableObject, public virtual PlainTracer
 
   public: IdentifiableObject* getTokenTermText(TokenTerm *term, Module *module=0);
 
-  public: void getReferencedDefinition(Reference const *ref, Module *&retModule, SymbolDefinition *&retDef,
-                                       Module *module=0);
+  public: void getReferencedCharGroup(Reference const *ref, CharGroupDefinition *&charGroupDef, Module *module=0);
+
+  public: void getReferencedSymbol(Reference const *ref, Module *&retModule, SymbolDefinition *&retDef,
+                                   Module *module=0);
 
   public: Integer* getMultiplyTermMax(MultiplyTerm *term, Module *module=0);
 
@@ -172,6 +174,13 @@ class GrammarContext : public IdentifiableObject, public virtual PlainTracer
   public: Term* getSymbolTerm(const SymbolDefinition *definition, Module *module=0);
 
   public: SharedMap* getSymbolVars(const SymbolDefinition *definition, Module *module=0);
+
+  /// @}
+
+  /// @name Other Helper Functions
+  /// @{
+
+  public: Module* getAssociatedLexerModule(Module *module=0);
 
   /// @}
 

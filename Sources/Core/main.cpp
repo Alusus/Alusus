@@ -93,7 +93,7 @@ void debugPrintParsedData(SharedPtr<IdentifiableObject> const &ptr, int indents=
  * Printed message includes severity, msg code, location, as well as
  * description.
  */
-void printBuildMsg(const SharedPtr<Common::BuildMsg> &msg)
+void printBuildMsg(const SharedPtr<Processing::BuildMsg> &msg)
 {
   // Print severity.
   switch (msg->getSeverity()) {

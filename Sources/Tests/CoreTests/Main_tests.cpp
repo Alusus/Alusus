@@ -18,12 +18,12 @@ namespace Tests { namespace CoreTests
 // Test for a successful parsing of a simple assignment expression.
 TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Test")
 {
-  TestProcessor processor;
+  TestEngine engine;
   vector<SharedPtr<IdentifiableObject> > results;
   vector<SharedPtr<IdentifiableObject> > results2;
 
   try {
-    SharedPtr<IdentifiableObject> ptr = processor.processString(STR("strVar := \"Hello World\";"));
+    SharedPtr<IdentifiableObject> ptr = engine.processString(STR("strVar := \"Hello World\";"));
     SECTION("s1", "Data generated.")
     {
       REQUIRE(ptr.get() != 0);
@@ -38,7 +38,7 @@ TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Tes
     {
       results2.clear();
       if (results.size() > 0) {
-        findToken(processor.getTestGrammarStore()->IDENTIFIER_TOKEN, STR("strVar"), results[0], results2);
+        findToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("strVar"), results[0], results2);
       }
       REQUIRE(results2.size() == 1);
     }
@@ -54,7 +54,7 @@ TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Tes
     {
       results2.clear();
       if (results.size() > 0) {
-        findToken(processor.getTestGrammarStore()->STRING_LITERAL_TOKEN,
+        findToken(ID_GENERATOR->getId(STR("LexerDefs.StringLiteral")),
                   STR("Hello World"), results[0], results2);
       }
       REQUIRE(results2.size() == 1);
@@ -67,14 +67,14 @@ TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Tes
 // Test for a successful parsing of multiple statements.
 TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test")
 {
-  TestProcessor processor;
+  TestEngine engine;
   vector<SharedPtr<IdentifiableObject> > results;
   vector<SharedPtr<IdentifiableObject> > results1, results2, results3, results4;
-  BuildMsgReceiver buildMsgs(&processor);
+  BuildMsgReceiver buildMsgs(&engine);
 
   try {
     buildMsgs.clear();
-    SharedPtr<IdentifiableObject> ptr = processor.processString(
+    SharedPtr<IdentifiableObject> ptr = engine.processString(
       STR("strVar := \"Hello World\";"
           "intVar := 5;"
           "intVar++;"
@@ -102,10 +102,10 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
       results2.clear();
       results3.clear();
       if (results.size() > 0) {
-        findToken(processor.getTestGrammarStore()->IDENTIFIER_TOKEN, STR("strVar"),
+        findToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("strVar"),
                   results[0], results1, 0);
         findToken(UNKNOWN_ID, STR(":="), results[0], results2, 1);
-        findToken(processor.getTestGrammarStore()->STRING_LITERAL_TOKEN, STR("Hello World"),
+        findToken(ID_GENERATOR->getId(STR("LexerDefs.StringLiteral")), STR("Hello World"),
                   results[0], results3, 2);
       }
       REQUIRE((results1.size() == 1 && results2.size() == 1 && results3.size() == 1));
@@ -116,10 +116,10 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
       results2.clear();
       results3.clear();
       if (results.size() > 1) {
-        findToken(processor.getTestGrammarStore()->IDENTIFIER_TOKEN, STR("intVar"),
+        findToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("intVar"),
                   results[1], results1, 0);
         findToken(UNKNOWN_ID, STR(":="), results[1], results2, 1);
-        findToken(processor.getTestGrammarStore()->INT_LITERAL_TOKEN, STR("5"), results[1], results3, 2);
+        findToken(ID_GENERATOR->getId(STR("LexerDefs.IntLiteral")), STR("5"), results[1], results3, 2);
       }
       REQUIRE((results1.size() == 1 && results2.size() == 1 && results3.size() == 1));
     }
@@ -142,7 +142,7 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
       results1.clear();
       results2.clear();
       if (results.size() > 0) {
-        findToken(processor.getTestGrammarStore()->IDENTIFIER_TOKEN, STR("intVar"),
+        findToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("intVar"),
                   results[0], results1, 0);
         findToken(UNKNOWN_ID, STR("++"), results[0], results2, 1);
       }
@@ -154,7 +154,7 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
       results2.clear();
       if (results.size() > 1) {
         findToken(UNKNOWN_ID, STR("--"), results[1], results2, 0);
-        findToken(processor.getTestGrammarStore()->IDENTIFIER_TOKEN, STR("intVar"),
+        findToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("intVar"),
                   results[1], results1, 1);
       }
       REQUIRE((results1.size() == 1 && results2.size() == 1));
@@ -169,9 +169,9 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
       if (results.size() > 0) {
         findProdData(ID_GENERATOR->getId(STR("ColonPairExp")), results[0], results1);
         if (results1.size() == 1) {
-          findToken(processor.getTestGrammarStore()->IDENTIFIER_TOKEN, STR("s"),
+          findToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("s"),
                     results1[0], results2, 0);
-          findToken(processor.getTestGrammarStore()->INT_LITERAL_TOKEN, STR("10"),
+          findToken(ID_GENERATOR->getId(STR("LexerDefs.IntLiteral")), STR("10"),
                     results1[0], results3, 1);
         }
       }
@@ -187,9 +187,9 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
         if (results1.size() == 1) {
           findProdData(ID_GENERATOR->getId(STR("ComparisonExp")), results1[0], results2);
           if (results2.size() == 1) {
-            findToken(processor.getTestGrammarStore()->IDENTIFIER_TOKEN, STR("a"),
+            findToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("a"),
                       results2[0], results3);
-            findToken(processor.getTestGrammarStore()->INT_LITERAL_TOKEN, STR("5"),
+            findToken(ID_GENERATOR->getId(STR("LexerDefs.IntLiteral")), STR("5"),
                       results2[0], results4);
           }
         }
@@ -204,14 +204,14 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
 // Test for an error during parsing of multiple statements.
 TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
 {
-  TestProcessor processor;
+  TestEngine engine;
   vector<SharedPtr<IdentifiableObject> > results;
   vector<SharedPtr<IdentifiableObject> > results1, results2, results3;
-  BuildMsgReceiver buildMsgs(&processor);
+  BuildMsgReceiver buildMsgs(&engine);
 
   try {
     buildMsgs.clear();
-    SharedPtr<IdentifiableObject> ptr = processor.processString(
+    SharedPtr<IdentifiableObject> ptr = engine.processString(
       STR("strVar := \"Hello World\";\n"
           "intVar := 5;\n"
           "intVar+++;\n"
@@ -225,21 +225,21 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
     }
     SECTION("s2", "Error msgs correct.")
     {
-      SharedPtr<Common::BuildMsg> msg;
+      SharedPtr<Processing::BuildMsg> msg;
       if (buildMsgs.getMsgCount() > 0) msg = buildMsgs.getMsg(0);
       REQUIRE((msg != 0));
       REQUIRE(msg->getCode().compare("P1001") == 0);
       REQUIRE(msg->getLine() == 3);
       REQUIRE(msg->getColumn() == 10);
 
-      msg = SharedPtr<Common::BuildMsg>(0);
+      msg = SharedPtr<Processing::BuildMsg>(0);
       if (buildMsgs.getMsgCount() > 1) msg = buildMsgs.getMsg(1);
       REQUIRE((msg != 0));
       REQUIRE(msg->getCode().compare("P1001") == 0);
       REQUIRE(msg->getLine() == 5);
       REQUIRE(msg->getColumn() == 13);
 
-      msg = SharedPtr<Common::BuildMsg>(0);
+      msg = SharedPtr<Processing::BuildMsg>(0);
       if (buildMsgs.getMsgCount() > 2) msg = buildMsgs.getMsg(2);
       REQUIRE((msg != 0));
       REQUIRE(msg->getCode().compare("P1002") == 0);

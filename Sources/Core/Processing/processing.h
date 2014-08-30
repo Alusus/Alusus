@@ -23,14 +23,94 @@ namespace Core { namespace Processing
  */
 
 /**
- * @brief An enumeration used to define term type identifiers.
+ * @defgroup processing_lexer Lexer
  * @ingroup processing
  */
-enumeration(TermType, TOKEN, CONCAT, ALTERNATIVE, OPTIONAL, DUPLICATE, REFERENCE);
+
+/**
+ * @defgroup processing_parser Parser
+ * @ingroup processing
+ */
+
+/**
+ * @brief The state level index flag for this processing pass.
+ * @ingroup processing
+ *
+ * This flag is set in the state level's index to specify that the route has
+ * been visited during this parsing pass.
+ */
+#define THIS_PROCESSING_PASS 0x10000000
+
+/**
+ * @brief The state level index flag for this testing pass.
+ * @ingroup processing
+ *
+ * This flag is set in the state level's index to specify that the route has
+ * been visited during this testing pass, i.e. the operation that determines
+ * whether a specific route can be taken during this parsing pass.
+ */
+#define THIS_TESTING_PASS 0x20000000
+
+/**
+ * @brief The number of preallocated parser state variable levels.
+ * @ingroup processing
+ *
+ * These state variable levels are preallocated when the state is instantiated.
+ * It's done for performance purposes.
+ */
+#define RESERVED_VARIABLE_LEVEL_COUNT 100
+
+/**
+ * @brief The number of parser's preallocated variable stack records.
+ * @ingroup processing
+ *
+ * This value is used for state variable stacks.
+ */
+#define RESERVED_VARIABLE_COUNT 1000
+
+/**
+ * @brief The maximum number of characters allowed for variable names.
+ * @ingroup processing
+ *
+ * This value is used for state variable stacks.
+ */
+#define VARIABLE_NAME_MAX_LENGTH 256
+
+/**
+ * @brief The maximum number of characters in the input buffer.
+ * @ingroup processing_lexer
+ *
+ * The number of characters in the characters buffer of InputBuffer will not
+ * exceed this number.
+ */
+#define INPUT_BUFFER_MAX_CHARACTERS	16000
+
+/**
+ * @brief The maximum number of character groups in the input buffer.
+ * @ingroup processing_lexer
+ *
+ * The number of characters groups in InputBuffer will not exceed this number.
+ */
+#define INPUT_BUFFER_MAX_GROUPS	64
+
+/**
+ * @brief The maximum number of entries in the states array.
+ * @ingroup processing_lexer
+ */
+#define LEXER_STATES_ARRAY_MAX_SIZE	128
+
+/**
+ * @brief The maximum number of characters in the error buffer.
+ * @ingroup processing_lexer
+ *
+ * If the error text is larger than this value, it will be clipped to this
+ * number of characters.
+ */
+#define LEXER_ERROR_BUFFER_MAX_CHARACTERS 80
 
 /**
  * @brief The temporary processing status of the state object.
- * @ingroup processing
+ * @ingroup processing_parser
  *
  * Before the processing of a new token, the processing status of all current
  * states gets reset to IN_PROGRESS, which indicates that these states are
@@ -49,11 +129,11 @@ enumeration(TermType, TOKEN, CONCAT, ALTERNATIVE, OPTIONAL, DUPLICATE, REFERENCE
  *            token.<br>
  * ERROR : The given token caused the state to go into a syntax error.
  */
-enumeration(ProcessingStatus, IN_PROGRESS = 0, COMPLETE, ERROR);
+enumeration(ParserProcessingStatus, IN_PROGRESS = 0, COMPLETE, ERROR);
 
 /**
  * @brief The cause of termination for a given state.
- * @ingroup processing
+ * @ingroup processing_parser
  *
  * The meaning for those values are as follows:<br>
  * SYNTAX_ERROR: Obviously, parsing couldn't find a matching path.<br>
@@ -69,31 +149,12 @@ enumeration(ProcessingStatus, IN_PROGRESS = 0, COMPLETE, ERROR);
  *                     tree, so we'll consider parsing complete and drop this
  *                     lower priority state.
  */
-enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER_PRIORITY_STATE,
-                                   CONSUMED_TOKENS_TO_LIVE, FOLDED_OUT_TOO_SOON, NOT_NEEDED_ANYMORE);
-
-/**
- * @brief The state level index flag for this parsing pass.
- * @ingroup processing
- *
- * This flag is set in the state level's index to specify that the route has
- * been visited during this parsing pass.
- */
-#define THIS_PARSING_PASS 0x10000000
-
-/**
- * @brief The state level index flag for this testing pass.
- * @ingroup processing
- *
- * This flag is set in the state level's index to specify that the route has
- * been visited during this testing pass, i.e. the operation that determines
- * whether a specific route can be taken during this parsing pass.
- */
-#define THIS_TESTING_PASS 0x20000000
+enumeration(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER_PRIORITY_STATE,
+                                         CONSUMED_TOKENS_TO_LIVE, FOLDED_OUT_TOO_SOON, NOT_NEEDED_ANYMORE);
 
 /**
  * @brief The default value for tokensToLive.
- * @ingroup processing
+ * @ingroup processing_parser
  *
  * When parsing branches, the branch with the lower priority is given a number
  * of tokens to live before it's forced to die, if none of the two branches
@@ -104,47 +165,22 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 #define DEFAULT_TOKENS_TO_LIVE 20
 
 /**
- * @brief The number of preallocated state term levels.
- * @ingroup processing
+ * @brief The number of preallocated parser state term levels.
+ * @ingroup processing_parser
  *
  * These state term levels are preallocated when the state is instantiated. It's
  * done for performance purposes.
  */
-#define RESERVED_TERM_LEVEL_COUNT  1000
+#define RESERVED_PARSER_TERM_LEVEL_COUNT  1000
 
 /**
- * @brief The number of preallocated state production levels.
- * @ingroup processing
+ * @brief The number of preallocated parser state production levels.
+ * @ingroup processing_parser
  *
  * These state production levels are preallocated when the state is instantiated.
  * It's done for performance purposes.
  */
-#define RESERVED_PRODUCTION_LEVEL_COUNT 100
-
-/**
- * @brief The number of preallocated state variable levels.
- * @ingroup processing
- *
- * These state variable levels are preallocated when the state is instantiated.
- * It's done for performance purposes.
- */
-#define RESERVED_VARIABLE_LEVEL_COUNT 100
-
-/**
- * @brief The number of preallocated variable stack records.
- * @ingroup processing
- *
- * This value is used for state variable stacks.
- */
-#define RESERVED_VARIABLE_COUNT 1000
-
-/**
- * @brief The maximum number of characters allowed for variable names.
- * @ingroup processing
- *
- * This value is used for state variable stacks.
- */
-#define VARIABLE_NAME_MAX_LENGTH 256
+#define RESERVED_PARSER_PRODUCTION_LEVEL_COUNT 100
 
 } } // namespace
 
@@ -152,18 +188,35 @@ enumeration(StateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER
 //==============================================================================
 // Classes
 
+// Build Messages
+#include "BuildMsg.h"
+#include "CustomBuildMsg.h"
+#include "UnrecognizedErrorMsg.h"
+
+// Lexer
+// Lexer Specific Build Messages
+#include "BufferFullMsg.h"
+#include "TokenClampedMsg.h"
+#include "UnrecognizedCharMsg.h"
+// Tokenizing Classes
+#include "InputBuffer.h"
+#include "LexerState.h"
+#include "Lexer.h"
+
+// Parser
+// Parser Specific Build Messages
 #include "SyntaxErrorMsg.h"
 #include "UnexpectedEofMsg.h"
 #include "UnexpectedTokenMsg.h"
 #include "AmbiguityMsg.h"
-
+// Parsing Classes
 #include "ParserTermLevel.h"
 #include "ParserProdLevel.h"
-
 #include "ParserState.h"
-
 #include "ParsingHandler.h"
-
 #include "Parser.h"
+
+// Main Class
+#include "Engine.h"
 
 #endif

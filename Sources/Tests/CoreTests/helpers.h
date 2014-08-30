@@ -41,17 +41,17 @@ class LexerTester : public SignalReceiver
 {
   TYPE_INFO(LexerTester, SignalReceiver, "Core.Test", "Core", "alusus.net");
 
-  private: vector<SharedPtr<Common::Token> > tokens;
+  private: vector<SharedPtr<Data::Token> > tokens;
   private: Int currentIndex;
   private: Str errorMsg;
-  private: Lexer::StateMachine *lexer;
+  private: Processing::Lexer *lexer;
 
-  public: LexerTester(Lexer::StateMachine *l) : currentIndex(0), lexer(l)
+  public: LexerTester(Processing::Lexer *l) : currentIndex(0), lexer(l)
   {
     this->lexer->tokenGenerated.connect(this, &LexerTester::handleNewToken);
   }
 
-  public: void handleNewToken(const Common::Token *token)
+  public: void handleNewToken(const Data::Token *token)
   {
     if (this->errorMsg.size() != 0) return;
     if (this->currentIndex >= static_cast<Int>(this->tokens.size())) {
@@ -61,7 +61,7 @@ class LexerTester : public SignalReceiver
       this->errorMsg += token->getText();
       return;
     }
-    SharedPtr<Common::Token> expected = this->tokens[this->currentIndex];
+    SharedPtr<Data::Token> expected = this->tokens[this->currentIndex];
     if ((expected->getId() != UNKNOWN_ID && expected->getId() != token->getId()) ||
         expected->getText().compare(token->getText()) != 0) {
       this->errorMsg = STR("Unexpected token received at ");
@@ -85,7 +85,7 @@ class LexerTester : public SignalReceiver
 
   public: void addToken(Word id, Char const *text)
   {
-    SharedPtr<Common::Token> token(new Common::Token);
+    SharedPtr<Data::Token> token(new Data::Token);
     token->setId(id);
     token->setText(text);
     this->tokens.push_back(token);
@@ -118,14 +118,14 @@ class BuildMsgReceiver : public SignalReceiver
 {
   TYPE_INFO(BuildMsgReceiver, SignalReceiver, "Core.Test", "Core", "alusus.net");
 
-  private: vector<SharedPtr<Common::BuildMsg> > msgs;
+  private: vector<SharedPtr<Processing::BuildMsg> > msgs;
 
-  public: BuildMsgReceiver(Main::Processor *processor)
+  public: BuildMsgReceiver(Processing::Engine *engine)
   {
-    processor->buildMsgNotifier.connect(this, &BuildMsgReceiver::receiveBuildMsg);
+    engine->buildMsgNotifier.connect(this, &BuildMsgReceiver::receiveBuildMsg);
   }
 
-  public: void receiveBuildMsg(const SharedPtr<Common::BuildMsg> &msg)
+  public: void receiveBuildMsg(const SharedPtr<Processing::BuildMsg> &msg)
   {
     this->msgs.push_back(msg);
   }
@@ -135,7 +135,7 @@ class BuildMsgReceiver : public SignalReceiver
     return this->msgs.size();
   }
 
-  public: const SharedPtr<Common::BuildMsg>& getMsg(Int i)
+  public: const SharedPtr<Processing::BuildMsg>& getMsg(Int i)
   {
     return this->msgs[i];
   }

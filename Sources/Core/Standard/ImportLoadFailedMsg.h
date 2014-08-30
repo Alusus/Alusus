@@ -18,18 +18,18 @@ namespace Core { namespace Standard
 
 // TODO: DOC
 
-class ImportLoadFailedMsg : public Common::BuildMsg
+class ImportLoadFailedMsg : public Processing::BuildMsg
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ImportLoadFailedMsg, Common::BuildMsg, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(ImportLoadFailedMsg, Processing::BuildMsg, "Core.Standard", "Core", "alusus.net");
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: ImportLoadFailedMsg(Int l, Int c) : Common::BuildMsg(l, c)
+  public: ImportLoadFailedMsg(Int l, Int c) : Processing::BuildMsg(l, c)
   {
   }
 
@@ -41,20 +41,20 @@ class ImportLoadFailedMsg : public Common::BuildMsg
   //============================================================================
   // Member Functions
 
-  /// @sa Common::BuildMsg::getCode()
+  /// @sa Processing::BuildMsg::getCode()
   public: virtual const Str& getCode() const
   {
     static Str code("IMP1001");
     return code;
   }
 
-  /// @sa Common::BuildMsg::getSeverity()
+  /// @sa Processing::BuildMsg::getSeverity()
   public: virtual Int getSeverity() const
   {
     return 1;
   }
 
-  /// @sa Common::BuildMsg::getCode()
+  /// @sa Processing::BuildMsg::getCode()
   public: virtual void buildDescription(Str &str) const
   {
     str = STR("Importing Failed. Could not load requested file.");

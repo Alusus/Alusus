@@ -23,18 +23,18 @@ namespace Core { namespace Processing
  * This message class is for error code P1001, which is raised when the parser
  * is faced with a token that is not recognized by the grammar.
  */
-class SyntaxErrorMsg : public Common::BuildMsg
+class SyntaxErrorMsg : public Processing::BuildMsg
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SyntaxErrorMsg, Common::BuildMsg, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(SyntaxErrorMsg, Processing::BuildMsg, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: SyntaxErrorMsg(Int l, Int c) : Common::BuildMsg(l, c)
+  public: SyntaxErrorMsg(Int l, Int c) : Processing::BuildMsg(l, c)
   {
   }
 
@@ -46,20 +46,20 @@ class SyntaxErrorMsg : public Common::BuildMsg
   //============================================================================
   // Member Functions
 
-  /// @sa Common::BuildMsg::getCode()
+  /// @sa Processing::BuildMsg::getCode()
   public: virtual const Str& getCode() const
   {
     static Str code("P1001");
     return code;
   }
 
-  /// @sa Common::BuildMsg::getSeverity()
+  /// @sa Processing::BuildMsg::getSeverity()
   public: virtual Int getSeverity() const
   {
     return 1;
   }
 
-  /// @sa Common::BuildMsg::getCode()
+  /// @sa Processing::BuildMsg::getCode()
   public: virtual void buildDescription(Str &str) const
   {
     str = STR("Parser Syntax Error.");

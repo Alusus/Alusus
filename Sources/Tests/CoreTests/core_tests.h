@@ -24,6 +24,6 @@
 
 #include "helpers.h"
 #include "TestGrammarPlant.h"
-#include "TestProcessor.h"
+#include "TestEngine.h"
 
 #endif // CORE_TESTS_H

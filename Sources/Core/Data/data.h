@@ -79,6 +79,17 @@ enumeration(ReferenceUsageCriteria, SINGLE_DATA_SINGLE_MATCH, SINGLE_DATA_MULTI_
 enumeration(TermFlags, ERROR_SYNC_TERM=(2<<16), ONE_ROUTE_TERM=(2<<17));
 
 /**
+ * @brief An enumeration used to define symbol flags.
+ * @ingroup data
+ *
+ * ROOT_TOKEN: Specifies that the symbol is a root token that should be checked
+ *             by the lexer when it starts a new token. The lexer loops through
+ *             all symbols in the lexer module that has this flag set and skips
+ *             other symbol definitions.
+ */
+enumeration(SymbolFlags, ROOT_TOKEN=(2<<16), IGNORED_TOKEN=(2<<17));
+
+/**
  * @brief An enumeration for change operation of Containers' contents.
  * @ingroup data
  *
@@ -144,10 +155,6 @@ class PlainProvider;
 /// Reset the indexes of all references in a specific range within a tree.
 void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
 
-/* TODO
-/// Find the lexer module associated with the given (parser) module.
-Module* findAssociatedLexerModule(Module *module, PlainProvider *provider);*/
-
 /**
  * @brief Set the IDs of all elements in a given tree.
  * Sets the ID of the given object, and the IDs of any objects contained within
@@ -185,10 +192,10 @@ void setTreeIds(IdentifiableObject *obj, const Char *id);
 #include "SharedProvider.h"
 #include "PlainProvider.h"
 // Tracer Interfaces
-#include "PlainTracer.h"
+#include "Tracer.h"
 #include "SharedTracer.h"
 
-// Data Types
+// Data
 #include "Integer.h"
 #include "String.h"
 #include "SharedMap.h"
@@ -197,6 +204,7 @@ void setTreeIds(IdentifiableObject *obj, const Char *id);
 #include "PlainNamedList.h"
 #include "Module.h"
 #include "VariableStack.h"
+#include "Token.h"
 
 // References
 #include "Reference.h"
@@ -213,15 +221,24 @@ void setTreeIds(IdentifiableObject *obj, const Char *id);
 #include "SharedRepository.h"
 #include "PlainRepository.h"
 
-// Grammar Terms
+// Grammar Classes
+// Character Groups
+#include "CharGroupUnit.h"
+#include "SequenceCharGroupUnit.h"
+#include "RandomCharGroupUnit.h"
+#include "UnionCharGroupUnit.h"
+#include "InvertCharGroupUnit.h"
+#include "CharGroupDefinition.h"
+// Terms
 #include "Term.h"
+#include "ConstTerm.h"
+#include "CharGroupTerm.h"
 #include "ListTerm.h"
 #include "ConcatTerm.h"
 #include "AlternateTerm.h"
 #include "MultiplyTerm.h"
 #include "ReferenceTerm.h"
 #include "TokenTerm.h"
-
 // Other Grammar Classes
 #include "OperationHandler.h"
 #include "SymbolDefinition.h"

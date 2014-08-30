@@ -15,20 +15,6 @@
 namespace Core { namespace Data
 {
 
-/**
- * Creates the entire list of definitions for productions, tokens, and char
- * groups for the Core's grammar. This function will give you the complete
- * grammar definitions with all the required handlers.
- */
-void GrammarPlant::createGrammar()
-{
-  this->createCharGroupDefinitions();
-  this->createTokenDefinitions();
-  this->createProductionDefinitions();
-  this->generateConstTokenDefinitions(this->repository.getRoot()->getInterface<SharedContainer>());
-}
-
-
 void GrammarPlant::generateConstTokenDefinitions(SharedContainer *container)
 {
   for (Int i = 0; static_cast<Word>(i) < container->getCount(); ++i) {
@@ -102,6 +88,44 @@ void GrammarPlant::generateConstTokensForStrings(IdentifiableObject *obj)
       }
     }
   }
+}
+
+
+Word GrammarPlant::addConstToken(Char const *text)
+{
+  // Generate a name for the token.
+  Str key;
+  GrammarPlant::generateKey(text, key);
+  // Compute full path.
+  Str path = STR("root:");
+  path += this->constTokenPrefix;
+  path += STR(".");
+  path += key;
+  // Create the token definition.
+  this->repository.setSharedValue(path.c_str(), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConstTerm::create(0, text)},
+    {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
+  }));
+  return ID_GENERATOR->getId(path.c_str());
+}
+
+
+void GrammarPlant::generateKey(Char const *text, Str &result)
+{
+  StrStream stream;
+  stream << STR("__");
+  while (*text != CHR('\0')) {
+    if ((*text >= CHR('a') && *text <= CHR('z')) ||
+        (*text >= CHR('A') && *text <= CHR('Z')) ||
+        (*text >= CHR('0') && *text <= CHR('9')) ||
+        *text == CHR('_')) {
+      stream << *text;
+    } else {
+      stream << CHR('_') << static_cast<Int>(*text);
+    }
+    ++text;
+  }
+  result = stream.str();
 }
 
 } } // namespace

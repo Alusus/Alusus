@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_GENERIC_PARSING_HANDLER_H
-#define STANDARD_GENERIC_PARSING_HANDLER_H
+#ifndef STANDARD_GENERICPARSINGHANDLER_H
+#define STANDARD_GENERICPARSINGHANDLER_H
 
 namespace Core { namespace Standard
 {
@@ -62,7 +62,7 @@ class GenericParsingHandler : public Processing::ParsingHandler
 
   /// Called when a new successful token is received.
   public: virtual void onNewToken(Processing::Parser *machine, Processing::ParserState *state,
-                                  const Common::Token *token);
+                                  const Data::Token *token);
 
   /// Called when a step is to be made on a concat term.
   public: virtual void onConcatStep(Processing::Parser *machine, Processing::ParserState *state,

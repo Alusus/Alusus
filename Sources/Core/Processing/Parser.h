@@ -36,7 +36,7 @@ class Parser : public SignalReceiver
   //============================================================================
   // Types
 
-  /// An iterator used to iterate through elements of a State linked list.
+  /// An iterator used to iterate through elements of a ParserState linked list.
   private: typedef std::list<ParserState*>::iterator StateIterator;
 
   /**
@@ -100,7 +100,7 @@ class Parser : public SignalReceiver
   // Signals
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: SIGNAL(buildMsgNotifier, (const SharedPtr<Common::BuildMsg> &msg), (msg));
+  public: SIGNAL(buildMsgNotifier, (const SharedPtr<Processing::BuildMsg> &msg), (msg));
 
   /**
      * @brief Emitted when parsing has folded out of the grammar tree.
@@ -119,7 +119,7 @@ class Parser : public SignalReceiver
   {
   }
 
-  public: ~Parser()
+  public: virtual ~Parser()
   {
   }
 
@@ -158,28 +158,28 @@ class Parser : public SignalReceiver
   public: void tryCompleteFoldout(StateIterator si);
 
   /// Process the given token by updating the states.
-  public: void handleNewToken(const Common::Token *token);
+  public: void handleNewToken(const Data::Token *token);
 
   /// Raise build msgs that are approved and remove them from the buffer.
   private: void flushApprovedBuildMsgs();
 
   /// Apply the received token on a specific state.
-  private: void processState(const Common::Token *token, StateIterator si);
+  private: void processState(const Data::Token *token, StateIterator si);
 
   /// Apply the received token on a token term.
-  private: void processTokenTerm(const Common::Token *token, StateIterator si);
+  private: void processTokenTerm(const Data::Token *token, StateIterator si);
 
   /// Apply the received token on a duplicate term.
-  private: void processMultiplyTerm(const Common::Token *token, StateIterator si);
+  private: void processMultiplyTerm(const Data::Token *token, StateIterator si);
 
   /// Apply the received token on an alternative term.
-  private: void processAlternateTerm(const Common::Token *token, StateIterator si);
+  private: void processAlternateTerm(const Data::Token *token, StateIterator si);
 
   /// Apply the received token on a concat term.
-  private: void processConcatTerm(const Common::Token *token, StateIterator si);
+  private: void processConcatTerm(const Data::Token *token, StateIterator si);
 
   /// Apply the received token on a reference term.
-  private: void processReferenceTerm(const Common::Token *token, StateIterator si);
+  private: void processReferenceTerm(const Data::Token *token, StateIterator si);
 
   /// Release all states and their data, but not the definitions.
   public: void clear();
@@ -190,31 +190,31 @@ class Parser : public SignalReceiver
   /// @{
 
   /// Compute the list of possible routes to take at a duplicate term.
-  private: void computePossibleMultiplyRoutes(const Common::Token *token, ParserState *state);
+  private: void computePossibleMultiplyRoutes(const Data::Token *token, ParserState *state);
 
   /// Compute the list of possible routes to take at an alternative term.
-  private: void computePossibleAlternativeRoutes(const Common::Token *token, ParserState *state);
+  private: void computePossibleAlternativeRoutes(const Data::Token *token, ParserState *state);
 
   /// Test the route taken by the given state.
-  private: void testState(const Common::Token *token, ParserState *state);
+  private: void testState(const Data::Token *token, ParserState *state);
 
   /// Test the given token against a single level within the test state.
-  private: void testStateLevel(const Common::Token *token, ParserState *state);
+  private: void testStateLevel(const Data::Token *token, ParserState *state);
 
   /// Test the given token against a token term within the test state.
-  private: void testTokenTerm(const Common::Token *token, ParserState *state);
+  private: void testTokenTerm(const Data::Token *token, ParserState *state);
 
   /// Test against a duplicate term within the test state.
-  private: void testMultiplyTerm(const Common::Token *token, ParserState *state);
+  private: void testMultiplyTerm(const Data::Token *token, ParserState *state);
 
   /// Test against an alternative term within the test state.
-  private: void testAlternateTerm(const Common::Token *token, ParserState *state);
+  private: void testAlternateTerm(const Data::Token *token, ParserState *state);
 
   /// Test against a concat term within the test state.
-  private: void testConcatTerm(const Common::Token *token, ParserState *state);
+  private: void testConcatTerm(const Data::Token *token, ParserState *state);
 
   /// Test against a reference term within the test state.
-  private: void testReferenceTerm(const Common::Token *token, ParserState *state);
+  private: void testReferenceTerm(const Data::Token *token, ParserState *state);
 
   /// @}
 
@@ -228,7 +228,7 @@ class Parser : public SignalReceiver
   private: StateIterator duplicateState(StateIterator si, Int tokensToLive, Int levelCount=-1);
 
   /// Delete a state from the states stack.
-  private: void deleteState(StateIterator si, StateTerminationCause stc);
+  private: void deleteState(StateIterator si, ParserStateTerminationCause stc);
 
   private: void pushStateTermLevel(ParserState *state, Data::Term *term, Word posId);
 

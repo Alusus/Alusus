@@ -29,7 +29,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *machine, Processing::Parse
     assert(expr != 0);
 
     // Get the name of the definition.
-    static Int identifierTokenId = ID_GENERATOR->getId("IDENTIFIER_TOKEN");
+    static Int identifierTokenId = ID_GENERATOR->getId("LexerDefs.Identifier");
     static Standard::ParsedDataBrowser nameBrowser;
     if (!nameBrowser.isInitialized()) {
       nameBrowser.initialize(STR("0:Expression.LowerLinkExp>0:Subject.Subject1>0"));

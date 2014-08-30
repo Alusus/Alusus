@@ -18,12 +18,12 @@ namespace Core { namespace Standard
 
 // TODO: DOC
 
-class RedefinitionMsg : public Common::BuildMsg
+class RedefinitionMsg : public Processing::BuildMsg
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(RedefinitionMsg, Common::BuildMsg, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(RedefinitionMsg, Processing::BuildMsg, "Core.Standard", "Core", "alusus.net");
 
 
   //============================================================================
@@ -35,7 +35,7 @@ class RedefinitionMsg : public Common::BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: RedefinitionMsg(Char const *n, Int l, Int c) : name(n), Common::BuildMsg(l, c)
+  public: RedefinitionMsg(Char const *n, Int l, Int c) : name(n), Processing::BuildMsg(l, c)
   {
   }
 
@@ -47,14 +47,14 @@ class RedefinitionMsg : public Common::BuildMsg
   //============================================================================
   // Member Functions
 
-  /// @sa Common::BuildMsg::getCode()
+  /// @sa Processing::BuildMsg::getCode()
   public: virtual const Str& getCode() const
   {
     static Str code("S1001");
     return code;
   }
 
-  /// @sa Common::BuildMsg::getSeverity()
+  /// @sa Processing::BuildMsg::getSeverity()
   public: virtual Int getSeverity() const
   {
     return 1;
@@ -66,7 +66,7 @@ class RedefinitionMsg : public Common::BuildMsg
     return this->name;
   }
 
-  /// @sa Common::BuildMsg::getCode()
+  /// @sa Processing::BuildMsg::getCode()
   public: virtual void buildDescription(Str &str) const
   {
     str = STR("Duplicate definition. [");

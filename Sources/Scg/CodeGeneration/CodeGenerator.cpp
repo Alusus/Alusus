@@ -98,7 +98,7 @@ namespace Scg
     GENERATE_ID(subSubjectId, "SubSubject.Subject1");
     GENERATE_ID(parameterId, "Subject.Parameter");
     GENERATE_ID(literalId, "Subject.Literal");
-    GENERATE_ID(identifierTokenId, "IDENTIFIER_TOKEN");
+    GENERATE_ID(identifierTokenId, "LexerDefs.Identifier");
 
     GENERATE_ID(defId, "SubMain.Def");
     GENERATE_ID(returnId, "Main.Return");
@@ -486,10 +486,10 @@ namespace Scg
     auto literalText = literal->getText();
     Expression *constant;
 
-    if (literalId == ID_GENERATOR->getId("INT_LITERAL_TOKEN"))
+    if (literalId == ID_GENERATOR->getId("LexerDefs.IntLiteral"))
       // Integral constant
       constant = new IntegerConst(boost::lexical_cast<int>(literalText));
-    else if (literalId == ID_GENERATOR->getId("FLOAT_LITERAL_TOKEN"))
+    else if (literalId == ID_GENERATOR->getId("LexerDefs.FloatLiteral"))
     {
       if (literalText[literalText.size()-1] == 'f' ||
           literalText[literalText.size()-1] == 'F')
@@ -500,7 +500,7 @@ namespace Scg
         // Double floating point constant
         constant = new DoubleConst(boost::lexical_cast<float>(literalText));
     }
-    else if (literalId == ID_GENERATOR->getId("STRING_LITERAL_TOKEN"))
+    else if (literalId == ID_GENERATOR->getId("LexerDefs.StringLiteral"))
       // String constant
       constant = new StringConst(literalText);
     else

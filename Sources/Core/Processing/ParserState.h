@@ -98,7 +98,7 @@ class ParserState
   private: Int tempTrunkProdStackIndex;
 
   /// The list of error/warning build messages created for this state.
-  private: std::vector<SharedPtr<Common::BuildMsg> > buildMsgs;
+  private: std::vector<SharedPtr<Processing::BuildMsg> > buildMsgs;
 
   /// Count of build messages in the trunk shared by this state.
   private: Int trunkSharedBuildMsgCount;
@@ -110,7 +110,7 @@ class ParserState
    * it), the state has finished processing of this token, or the state has
    * hit a syntax error.
    */
-  private: ProcessingStatus processingStatus;
+  private: ParserProcessingStatus processingStatus;
 
   /**
    * @brief The processing status from the previous processing cycle.
@@ -118,7 +118,7 @@ class ParserState
    * prevent multiple error messages from being raised while waiting for a
    * sync token.
    */
-  private: ProcessingStatus prevProcessingStatus;
+  private: ParserProcessingStatus prevProcessingStatus;
 
   /**
    * @brief The time, in number of tokens, for this state to live.
@@ -179,7 +179,7 @@ class ParserState
    * has finished processing of this token, or the state has hit a syntax
    * error.
    */
-  protected: void setProcessingStatus(ProcessingStatus ps)
+  protected: void setProcessingStatus(ParserProcessingStatus ps)
   {
     this->processingStatus = ps;
   }
@@ -192,7 +192,7 @@ class ParserState
    * has finished processing of this token, or the state has hit a syntax
    * error.
    */
-  public: ProcessingStatus getProcessingStatus() const
+  public: ParserProcessingStatus getProcessingStatus() const
   {
     return this->processingStatus;
   }
@@ -204,7 +204,7 @@ class ParserState
    * prevent multiple error messages from being raised while waiting for a
    * sync token.
    */
-  protected: void setPrevProcessingStatus(ProcessingStatus ps)
+  protected: void setPrevProcessingStatus(ParserProcessingStatus ps)
   {
     this->prevProcessingStatus = ps;
   }
@@ -216,7 +216,7 @@ class ParserState
    * prevent multiple error messages from being raised while waiting for a
    * sync token.
    */
-  public: ProcessingStatus getPrevProcessingStatus() const
+  public: ParserProcessingStatus getPrevProcessingStatus() const
   {
     return this->prevProcessingStatus;
   }
@@ -461,8 +461,8 @@ class ParserState
 
   public: IdentifiableObject* getTokenTermText(Int levelOffset = -1) const;
 
-  public: void getReferencedDefinition(Data::Module *&module, Data::SymbolDefinition *&definition,
-                                       Int levelOffset = -1);
+  public: void getReferencedSymbol(Data::Module *&module, Data::SymbolDefinition *&definition,
+                                   Int levelOffset = -1);
 
   public: Data::Integer* getMultiplyTermMax(Int levelOffset = -1) const;
 
@@ -556,9 +556,9 @@ class ParserState
   /// @{
 
   /// Add a build message to the end of the list.
-  public: void addBuildMsg(const SharedPtr<Common::BuildMsg> &msg)
+  public: void addBuildMsg(const SharedPtr<Processing::BuildMsg> &msg)
   {
-    this->buildMsgs.push_back(SharedPtr<Common::BuildMsg>(msg));
+    this->buildMsgs.push_back(SharedPtr<Processing::BuildMsg>(msg));
   }
 
   /**
@@ -578,7 +578,7 @@ class ParserState
    *          contained in the trunk state (if any) that are also shared by
    *          this state are not counted by this index.
    */
-  public: const SharedPtr<Common::BuildMsg>& getBuildMsg(Int i) const
+  public: const SharedPtr<Processing::BuildMsg>& getBuildMsg(Int i) const
   {
     if (static_cast<Word>(i) >= this->buildMsgs.size()) {
       throw InvalidArgumentException(STR("i"), STR("Core::Processing::ParserState::getBuildMsg"),

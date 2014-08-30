@@ -117,6 +117,37 @@ Bool GrammarRepository::trySetSharedValue(Char const *qualifier, SharedPtr<Ident
 }
 
 
+IdentifiableObject* GrammarRepository::tracePlainValue(IdentifiableObject *val)
+{
+  PlainModulePairedPtr ptr;
+  this->tracePlainValue(val, ptr);
+  return ptr.object;
+}
+
+
+void GrammarRepository::tracePlainValue(IdentifiableObject *val, PlainModulePairedPtr &retVal)
+{
+  retVal.object = val;
+  if (val == 0 || !val->isDerivedFrom<Reference>()) {
+    retVal.module = 0;
+    return;
+  }
+  SharedPtr<Module> oldModule = this->getModule();
+  Module *curModule = oldModule.get();
+  SharedModulePairedPtr sharedRetVal;
+  do {
+    if (sharedRetVal.module != 0 && sharedRetVal.module.get() != curModule) {
+      this->setModule(sharedRetVal.module);
+      curModule = sharedRetVal.module.get();
+    }
+    this->repository.getSharedValue(static_cast<Reference*>(retVal.object), sharedRetVal);
+    retVal.object = sharedRetVal.object.get();
+  } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
+  if (curModule != oldModule.get()) this->setModule(oldModule);
+  retVal.module = sharedRetVal.module.get();
+}
+
+
 SharedPtr<IdentifiableObject> GrammarRepository::traceSharedValue(const SharedPtr<IdentifiableObject> &val)
 {
   SharedModulePairedPtr ptr;
@@ -127,17 +158,18 @@ SharedPtr<IdentifiableObject> GrammarRepository::traceSharedValue(const SharedPt
 
 void GrammarRepository::traceSharedValue(const SharedPtr<IdentifiableObject> &val, SharedModulePairedPtr &retVal)
 {
-  SharedPtr<Module> oldModule = this->getModule();
-  Module *curModule = oldModule.get();
   retVal.object = val;
   retVal.module = SharedPtr<Module>();
-  while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>()) {
+  if (retVal.object == 0 || !retVal.object->isDerivedFrom<Reference>()) return;
+  SharedPtr<Module> oldModule = this->getModule();
+  Module *curModule = oldModule.get();
+  do {
     if (retVal.module != 0 && retVal.module != curModule) {
       this->setModule(retVal.module);
       curModule = retVal.module.get();
     }
     this->repository.getSharedValue(retVal.object.s_cast_get<Reference>(), retVal);
-  }
+  } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
   if (curModule != oldModule.get()) this->setModule(oldModule);
 }
 

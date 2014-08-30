@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_GRAMMAR_PLANT_H
-#define DATA_GRAMMAR_PLANT_H
+#ifndef DATA_GRAMMARPLANT_H
+#define DATA_GRAMMARPLANT_H
 
 namespace Core { namespace Data
 {
@@ -24,14 +24,14 @@ class GrammarPlant
   // Member Variables
 
   protected: GrammarRepository repository;
+  protected: Str constTokenPrefix;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  protected: GrammarPlant(Bool create=true)
+  protected: GrammarPlant()
   {
-    if (create) this->createGrammar();
   }
 
   public: virtual ~GrammarPlant()
@@ -42,17 +42,11 @@ class GrammarPlant
   //============================================================================
   // Member Functions
 
-  /// Create the entire core grammar.
-  protected: virtual void createGrammar();
-
-  /// Create the list of char group definitions for the Core's grammar.
-  protected: virtual void createCharGroupDefinitions() = 0;
-
-  /// Create the list of token definitions for the Core's grammar.
-  protected: virtual void createTokenDefinitions() = 0;
-
-  /// Create the list of produciton definitions for the Core's grammar.
-  protected: virtual void createProductionDefinitions() = 0;
+  /// Search the entire grammar for const token to generate.
+  protected: void generateConstTokenDefinitions()
+  {
+    this->generateConstTokenDefinitions(this->repository.getRoot()->getInterface<SharedContainer>());
+  }
 
   /// Generate lexer definitions for constant tokens used in a container tree.
   protected: void generateConstTokenDefinitions(SharedContainer *container);
@@ -63,9 +57,24 @@ class GrammarPlant
   /// Generate lexer definitions for all strings found in the given hierarchy.
   protected: void generateConstTokensForStrings(IdentifiableObject *obj);
 
-  // TODO: Replace this pure function with default implementation when the lexer is modified to use the Data
-  //       namespace.
-  protected: virtual Word addConstToken(Char const *text) = 0;
+  /**
+   * @brief Add a const token definition in the lexer module.
+   * A name for the token will be automatically generated and the location
+   * at which it will be inserted is defined by constTokenPrefix. This prefix
+   * should contain the path to the containing module and it should not
+   * include the scope (the scope will be root:). The value of constTokenPrefix
+   * should be set by the derived class before calling
+   * generateConstTokenDefinitions.
+   */
+  protected: virtual Word addConstToken(Char const *text);
+
+  /**
+   * @brief Generate a string key for the given text.
+   * The key will begin with __ and will be followed by the text itself after
+   * converting any character that isn't a letter or a number into its ASCII
+   * code preceeded by a single _.
+   */
+  protected: static void generateKey(Char const *text, Str &result);
 
   public: GrammarRepository* getRepository()
   {

@@ -15,53 +15,41 @@
 namespace Core { namespace Standard
 {
 
-//==============================================================================
-// Constructor
-
-GrammarPlant::GrammarPlant(RootManager *root) :
-  Data::GrammarPlant(false),
-  BIN_DIGIT_CHAR_GROUP(Data::IdGenerator::getSingleton()->getId("BIN_DIGIT_CHAR_GROUP")),
-  OCT_DIGIT_CHAR_GROUP(Data::IdGenerator::getSingleton()->getId("OCT_DIGIT_CHAR_GROUP")),
-  DEC_DIGIT_CHAR_GROUP(Data::IdGenerator::getSingleton()->getId("DEC_DIGIT_CHAR_GROUP")),
-  HEX_DIGIT_CHAR_GROUP(Data::IdGenerator::getSingleton()->getId("HEX_DIGIT_CHAR_GROUP")),
-  LETTER_CHAR_GROUP(Data::IdGenerator::getSingleton()->getId("LETTER_CHAR_GROUP")),
-  ANY_CHAR_NO_ES_CHAR_GROUP(Data::IdGenerator::getSingleton()->getId("ANY_CHAR_NO_ES_CHAR_GROUP")),
-  ANY_CHAR_NO_ES_OR_SINGLE_QUOTE_CHAR_GROUP(Data::IdGenerator::getSingleton()->getId("ANY_CHAR_NO_ES_OR_SINGLE_QUOTE_CHAR_GROUP")),
-  ANY_CHAR_NO_ES_OR_DOUBLE_QUOTE_CHAR_GROUP(Data::IdGenerator::getSingleton()->getId("ANY_CHAR_NO_ES_OR_DOUBLE_QUOTE_CHAR_GROUP")),
-  ANY_CHAR_NO_RETURN_CHAR_GROUP(Data::IdGenerator::getSingleton()->getId("ANY_CHAR_NO_RETURN_CHAR_GROUP")),
-  SPACING_CHAR_GROUP(Data::IdGenerator::getSingleton()->getId("SPACING_CHAR_GROUP")),
-
-  IDENTIFIER_TOKEN(Data::IdGenerator::getSingleton()->getId("IDENTIFIER_TOKEN")),
-  INT_LITERAL_TOKEN(Data::IdGenerator::getSingleton()->getId("INT_LITERAL_TOKEN")),
-  _DEC_INT_LITERAL_TOKEN(Data::IdGenerator::getSingleton()->getId("_DEC_INT_LITERAL_TOKEN")),
-  _BIN_INT_LITERAL_TOKEN(Data::IdGenerator::getSingleton()->getId("_BIN_INT_LITERAL_TOKEN")),
-  _OCT_INT_LITERAL_TOKEN(Data::IdGenerator::getSingleton()->getId("_OCT_INT_LITERAL_TOKEN")),
-  _HEX_INT_LITERAL_TOKEN(Data::IdGenerator::getSingleton()->getId("_HEX_INT_LITERAL_TOKEN")),
-  FLOAT_LITERAL_TOKEN(Data::IdGenerator::getSingleton()->getId("FLOAT_LITERAL_TOKEN")),
-  _FLOAT_EXPONENT_TOKEN(Data::IdGenerator::getSingleton()->getId("_FLOAT_EXPONENT_TOKEN")),
-  _FLOAT_POSTFIX_TOKEN(Data::IdGenerator::getSingleton()->getId("_FLOAT_POSTFIX_TOKEN")),
-  CHAR_LITERAL_TOKEN(Data::IdGenerator::getSingleton()->getId("CHAR_LITERAL_TOKEN")),
-  STRING_LITERAL_TOKEN(Data::IdGenerator::getSingleton()->getId("STRING_LITERAL_TOKEN")),
-  _STRING_LITERAL_PART_TOKEN(Data::IdGenerator::getSingleton()->getId("_STRING_LITERAL_PART_TOKEN")),
-  _CHAR_CODE_POSTFIX_TOKEN(Data::IdGenerator::getSingleton()->getId("_CHAR_CODE_POSTFIX_TOKEN")),
-  _ES_CHAR_WITH_SINGLE_QUOTE_TOKEN(Data::IdGenerator::getSingleton()->getId("_ES_CHAR_WITH_SINGLE_QUOTE_TOKEN")),
-  _ES_CHAR_WITH_DOUBLE_QUOTE_TOKEN(Data::IdGenerator::getSingleton()->getId("_ES_CHAR_WITH_DOUBLE_QUOTE_TOKEN")),
-  _ES_CHAR_WITH_QUOTES_TOKEN(Data::IdGenerator::getSingleton()->getId("_ES_CHAR_WITH_QUOTES_TOKEN")),
-  _ES_SEQUENCE_TOKEN(Data::IdGenerator::getSingleton()->getId("_ES_SEQUENCE_TOKEN")),
-  CUSTOM_LITERAL_TOKEN(Data::IdGenerator::getSingleton()->getId("CUSTOM_LITERAL_TOKEN")),
-
-  SPACES_TOKEN(Data::IdGenerator::getSingleton()->getId("SPACES_TOKEN") | IGNORED_TOKEN_BASE),
-  LINE_COMMENT_TOKEN(Data::IdGenerator::getSingleton()->getId("LINE_COMMENT_TOKEN") | IGNORED_TOKEN_BASE),
-  BLOCK_COMMENT_TOKEN(Data::IdGenerator::getSingleton()->getId("BLOCK_COMMENT_TOKEN") | IGNORED_TOKEN_BASE)
-{
-  this->parsingHandler = std::make_shared<GenericParsingHandler>();
-  this->importHandler = std::make_shared<ImportParsingHandler>(root);
-  this->createGrammar();
-}
-
+using namespace Core::Data;
 
 //==============================================================================
 // Member Functions
+
+/**
+ * Creates the entire list of definitions for productions, tokens, and char
+ * groups for the Core's grammar. This function will give you the complete
+ * grammar definitions with all the required handlers.
+ */
+void GrammarPlant::createGrammar(RootManager *root)
+{
+  this->constTokenPrefix = STR("LexerDefs");
+
+  // Instantiate parsing handlers.
+  this->parsingHandler = std::make_shared<GenericParsingHandler>();
+  this->importHandler = std::make_shared<ImportParsingHandler>(root);
+
+  // Create lexer definitions.
+  this->repository.setSharedValue(STR("root:LexerDefs"), GrammarModule::create({}));
+  this->createCharGroupDefinitions();
+  this->createTokenDefinitions();
+
+  // Create parser definitions.
+  this->createProductionDefinitions();
+
+  // Set start production and lexer module.
+  GrammarModule *rootModule = this->repository.getRoot().get();
+  rootModule->setStartRef(ReferenceParser::parseQualifier(STR("module:Program")));
+  rootModule->setLexerModuleRef(ReferenceParser::parseQualifier(STR("root:LexerDefs")));
+
+  // Generate const token definitions from production definitions.
+  this->generateConstTokenDefinitions();
+}
+
 
 /**
  * Create a CharGroupDefinitionList and add all the required definitions for
@@ -69,58 +57,57 @@ GrammarPlant::GrammarPlant(RootManager *root) :
  */
 void GrammarPlant::createCharGroupDefinitions()
 {
-  using namespace Core::Lexer;
+  // BinDigit : char '0'..'1';
+  this->repository.setSharedValue(STR("root:LexerDefs.BinDigit"), CharGroupDefinition::create(
+    SequenceCharGroupUnit::create(CHR('0'), CHR('1'))));
 
-  this->charGroupDefinitions = SharedPtr<CharGroupDefinitionList>(new CharGroupDefinitionList());
+  // OctDigit : char '0'..'7';
+  this->repository.setSharedValue(STR("root:LexerDefs.OctDigit"), CharGroupDefinition::create(
+    SequenceCharGroupUnit::create(CHR('0'), CHR('7'))));
 
-  // bin_digit = "01";
-  this->charGroupDefinitions->add(BIN_DIGIT_CHAR_GROUP,
-                                  new SequenceCharGroupUnit('0', '1'));
+  // DecDigit : char '0'..'9';
+  this->repository.setSharedValue(STR("root:LexerDefs.DecDigit"), CharGroupDefinition::create(
+    SequenceCharGroupUnit::create(CHR('0'), CHR('9'))));
 
-  // oct_digit = "01234567";
-  this->charGroupDefinitions->add(OCT_DIGIT_CHAR_GROUP,
-                                  new SequenceCharGroupUnit('0', '7'));
+  // HexDigit : char '0'..'9', 'a'..'f', 'A'..'F';
+  this->repository.setSharedValue(STR("root:LexerDefs.HexDigit"), CharGroupDefinition::create(
+    UnionCharGroupUnit::create({
+      SequenceCharGroupUnit::create(CHR('0'), CHR('9')),
+      SequenceCharGroupUnit::create(CHR('a'), CHR('f')),
+      SequenceCharGroupUnit::create(CHR('A'), CHR('F'))
+    })));
 
-  // dec_digit = "0123456789";
-  this->charGroupDefinitions->add(DEC_DIGIT_CHAR_GROUP,
-                                  new SequenceCharGroupUnit('0', '9'));
+  // Letter : char 'a'..'z', 'A'..'Z', '_';
+  this->repository.setSharedValue(STR("root:LexerDefs.Letter"), CharGroupDefinition::create(
+    UnionCharGroupUnit::create({
+      SequenceCharGroupUnit::create(CHR('a'), CHR('z')),
+      SequenceCharGroupUnit::create(CHR('A'), CHR('Z')),
+      SequenceCharGroupUnit::create(CHR('_'), CHR('_'))
+    })));
 
-  // hex_digit = "0123456789abcdefABCDEF";
-  this->charGroupDefinitions->add(HEX_DIGIT_CHAR_GROUP,
-                                  new UnionCharGroupUnit(3,
-                                     new SequenceCharGroupUnit('0', '9'),
-                                     new SequenceCharGroupUnit('a', 'f'),
-                                     new SequenceCharGroupUnit('A', 'F')));
+  // AnyCharNoEs : char ^('\\');
+  this->repository.setSharedValue(STR("root:LexerDefs.AnyCharNoEs"), CharGroupDefinition::create(
+    InvertCharGroupUnit::create(
+      SequenceCharGroupUnit::create(CHR('\\'), CHR('\\')))));
 
-  // letter = 'a'-'z', 'A'-'Z', '_';
-  this->charGroupDefinitions->add(LETTER_CHAR_GROUP,
-                                  new UnionCharGroupUnit(3,
-                                     new SequenceCharGroupUnit('a', 'z'),
-                                     new SequenceCharGroupUnit('A', 'Z'),
-                                     new SequenceCharGroupUnit('_', '_')));
+  // AnyCharNoEsOrSingleQuote : char ^("\\'");
+  this->repository.setSharedValue(STR("root:LexerDefs.AnyCharNoEsOrSingleQuote"), CharGroupDefinition::create(
+    InvertCharGroupUnit::create(
+      RandomCharGroupUnit::create(STR("\\'")))));
 
-  // any_char_no_es = ^('\\');
-  this->charGroupDefinitions->add(ANY_CHAR_NO_ES_CHAR_GROUP,
-                                  new InvertCharGroupUnit(
-                                      new SequenceCharGroupUnit('\\', '\\')));
+  // AnyCharNoEsOrDoubleQuote : char ^("\\\"");
+  this->repository.setSharedValue(STR("root:LexerDefs.AnyCharNoEsOrDoubleQuote"), CharGroupDefinition::create(
+    InvertCharGroupUnit::create(
+      RandomCharGroupUnit::create(STR("\\\"")))));
 
-  // any_char_no_es_or_single_quote = ^("\\'");
-  this->charGroupDefinitions->add(ANY_CHAR_NO_ES_OR_SINGLE_QUOTE_CHAR_GROUP,
-                                  new InvertCharGroupUnit(
-                                      new RandomCharGroupUnit("\\'")));
+  // AnyCharNoReturn = ^('\\');
+  this->repository.setSharedValue(STR("root:LexerDefs.AnyCharNoReturn"), CharGroupDefinition::create(
+    InvertCharGroupUnit::create(
+      SequenceCharGroupUnit::create(CHR('\n'), CHR('\n')))));
 
-  // any_char_no_es_or_double_quote = ^('\\');
-  this->charGroupDefinitions->add(ANY_CHAR_NO_ES_OR_DOUBLE_QUOTE_CHAR_GROUP,
-                                  new InvertCharGroupUnit(
-                                      new RandomCharGroupUnit("\\\"")));
-
-  // any_char_no_return = ^('\\');
-  this->charGroupDefinitions->add(ANY_CHAR_NO_RETURN_CHAR_GROUP,
-                                  new InvertCharGroupUnit(
-                                      new SequenceCharGroupUnit('\n', '\n')));
-  // spacing = ' ', '\n', '\r', '\t';
-  this->charGroupDefinitions->add(SPACING_CHAR_GROUP,
-                                  new RandomCharGroupUnit(" \r\n\t"));
+  // Spacing : char " \n\r\t";
+  this->repository.setSharedValue(STR("root:LexerDefs.Spacing"), CharGroupDefinition::create(
+    RandomCharGroupUnit::create(STR(" \r\n\t"))));
 }
 
 
@@ -130,231 +117,397 @@ void GrammarPlant::createCharGroupDefinitions()
  */
 void GrammarPlant::createTokenDefinitions()
 {
-  using namespace Core::Lexer;
+  // Identifier : trule as { Letter + (Letter || DecDigit)*(0,endless) };
+  this->repository.setSharedValue(STR("root:LexerDefs.Identifier"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         CharGroupTerm::create(STR("module:Letter")),
+         MultiplyTerm::create({
+           {TermElement::TERM, AlternateTerm::create({
+              {TermElement::TERM, SharedList::create({
+                 CharGroupTerm::create(STR("module:Letter")),
+                 CharGroupTerm::create(STR("module:DecDigit"))
+               })}
+            })}
+         })
+       })}
+    })},
+   {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
+  }));
 
-  this->tokenDefinitions = SharedPtr<TokenDefinitionList>(new TokenDefinitionList());
+  // IntLiteral : trule as {
+  //   (DecIntLiteral || BinIntLiteral || OctIntLiteral || HexIntLiteral) +
+  //   ("u" || "U")*(0,1) + (("i" || "I") + DecIntLiteral)*(0,1)
+  // };
+  this->repository.setSharedValue(STR("root:LexerDefs.IntLiteral"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         AlternateTerm::create({
+           {TermElement::TERM, SharedList::create({
+              ReferenceTerm::create(STR("module:DecIntLiteral")),
+              ReferenceTerm::create(STR("module:BinIntLiteral")),
+              ReferenceTerm::create(STR("module:OctIntLiteral")),
+              ReferenceTerm::create(STR("module:HexIntLiteral"))
+           })}
+         }),
+         MultiplyTerm::create({
+           {TermElement::MAX, Integer::create(1)},
+           {TermElement::TERM, AlternateTerm::create({
+              {TermElement::TERM, SharedList::create({
+                 ConstTerm::create(0, STR("u")),
+                 ConstTerm::create(0, STR("U"))
+              })}
+           })}
+         }),
+         MultiplyTerm::create({
+           {TermElement::MAX, Integer::create(1)},
+           {TermElement::TERM, ConcatTerm::create({
+              {TermElement::TERM, SharedList::create({
+                AlternateTerm::create({
+                  {TermElement::TERM, SharedList::create({
+                     ConstTerm::create(0, STR("i")),
+                     ConstTerm::create(0, STR("I"))
+                  })}
+                }),
+                ReferenceTerm::create(STR("module:DecIntLiteral"))
+              })}
+           })}
+         })
+       })}
+    })},
+   {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
+  }));
 
-  // identifier = letter + (letter || dec_digit)*v;
-  this->tokenDefinitions->add(IDENTIFIER_TOKEN,
-                              new ConcatTerm(2,
-                                 new CharGroupTerm(LETTER_CHAR_GROUP),
-                                 new DuplicateTerm(
-                                     new AlternativeTerm(2,
-                                         new CharGroupTerm(LETTER_CHAR_GROUP),
-                                         new CharGroupTerm(DEC_DIGIT_CHAR_GROUP)))));
+  // @inner DecIntLiteral : trule as { DecDigit*(1,endless) };
+  this->repository.setSharedValue(STR("root:LexerDefs.DecIntLiteral"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, MultiplyTerm::create({
+      {TermElement::MIN, Integer::create(1)},
+      {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
+    })}
+  }));
 
-  // int_literal =
-  //    (dec_int_literal || bin_int_literal || oct_int_literal || hex_int_literal) +
-  //    ("u" || "U")*o + (("i" || "I") + dec_int_literal)*o;
-  this->tokenDefinitions->add(INT_LITERAL_TOKEN,
-                              new ConcatTerm(3,
-                                 new AlternativeTerm(4,
-                                     new ReferenceTerm(_DEC_INT_LITERAL_TOKEN),
-                                     new ReferenceTerm(_BIN_INT_LITERAL_TOKEN),
-                                     new ReferenceTerm(_OCT_INT_LITERAL_TOKEN),
-                                     new ReferenceTerm(_HEX_INT_LITERAL_TOKEN)),
-                                 new OptionalTerm(
-                                     new AlternativeTerm(2,
-                                       new ConstTerm("u"),
-                                       new ConstTerm("U"))),
-                                 new OptionalTerm(
-                                     new ConcatTerm(2,
-                                        new AlternativeTerm(2,
-                                            new ConstTerm("i"),
-                                            new ConstTerm("I")),
-                                        new ReferenceTerm(_DEC_INT_LITERAL_TOKEN)))));
+  // @inner BinIntLiteral : trule as { ("0b" || "0B") + BinDigit*(1,endless) };
+  this->repository.setSharedValue(STR("root:LexerDefs.BinIntLiteral"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         AlternateTerm::create({
+           {TermElement::TERM, SharedList::create({
+              ConstTerm::create(0, STR("0b")),
+              ConstTerm::create(0, STR("0B"))
+           })}
+         }),
+         MultiplyTerm::create({
+           {TermElement::MIN, Integer::create(1)},
+           {TermElement::TERM, CharGroupTerm::create(STR("module:BinDigit"))}
+         })
+       })}
+    })}
+  }));
 
-  // @inner dec_int_literal = dec_digit*v1;
-  this->tokenDefinitions->add(_DEC_INT_LITERAL_TOKEN,
-                              new DuplicateTerm(
-                                new CharGroupTerm(DEC_DIGIT_CHAR_GROUP), 1),
-                              true);
+  // @inner OctIntLiteral : trule as { ("0o" || "0O") + OctDigit*(1,endless) };
+  this->repository.setSharedValue(STR("root:LexerDefs.OctIntLiteral"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         AlternateTerm::create({
+           {TermElement::TERM, SharedList::create({
+              ConstTerm::create(0, STR("0o")),
+              ConstTerm::create(0, STR("0O"))
+           })}
+         }),
+         MultiplyTerm::create({
+           {TermElement::MIN, Integer::create(1)},
+           {TermElement::TERM, CharGroupTerm::create(STR("module:OctDigit"))}
+         })
+       })}
+    })}
+  }));
 
-  // @inner bin_int_literal = ("0b" || "0B") + bin_digit*v1;
-  this->tokenDefinitions->add(_BIN_INT_LITERAL_TOKEN,
-                              new ConcatTerm(2,
-                                 new AlternativeTerm(2,
-                                     new ConstTerm("0b"),
-                                     new ConstTerm("0B")),
-                                 new DuplicateTerm(
-                                     new CharGroupTerm(BIN_DIGIT_CHAR_GROUP), 1)),
-                              true);
+  // @inner HexIntLiteral : trule as { ("0h" || "0H") + HexDigit*(1,endless) };
+  this->repository.setSharedValue(STR("root:LexerDefs.HexIntLiteral"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         AlternateTerm::create({
+           {TermElement::TERM, SharedList::create({
+              ConstTerm::create(0, STR("0h")),
+              ConstTerm::create(0, STR("0H"))
+           })}
+         }),
+         MultiplyTerm::create({
+           {TermElement::MIN, Integer::create(1)},
+           {TermElement::TERM, CharGroupTerm::create(STR("module:HexDigit"))}
+         })
+       })}
+    })}
+  }));
 
-  // @inner oct_int_literal = ("0o" || "0O") + oct_digit*v1;
-  this->tokenDefinitions->add(_OCT_INT_LITERAL_TOKEN,
-                              new ConcatTerm(2,
-                                 new AlternativeTerm(2,
-                                     new ConstTerm("0o"),
-                                     new ConstTerm("0O")),
-                                 new DuplicateTerm(
-                                     new CharGroupTerm(OCT_DIGIT_CHAR_GROUP), 1)),
-                              true);
+  // FloatLiteral : trule as {
+  //   DecDigit*(1,endless) + FloatPostfix ||
+  //   DecDigit*(1,endless) + FloatExponent + FloatPostfix*(0,1) ||
+  //   DecDigit*(1,endless) + "." + DecDigit*(1,endless) +
+  //     FloatExponent*(0,1) + FloatPostfix*(1,1)
+  // };
+  this->repository.setSharedValue(STR("root:LexerDefs.FloatLiteral"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, AlternateTerm::create({
+      {TermElement::TERM, SharedList::create({
+         ConcatTerm::create({
+           {TermElement::TERM, SharedList::create({
+              MultiplyTerm::create({
+                {TermElement::MIN, Integer::create(1)},
+                {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
+              }),
+              ReferenceTerm::create(STR("module:FloatPostfix"))
+           })}
+         }),
+         ConcatTerm::create({
+           {TermElement::TERM, SharedList::create({
+              MultiplyTerm::create({
+                {TermElement::MIN, Integer::create(1)},
+                {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
+              }),
+              ReferenceTerm::create(STR("module:FloatExponent")),
+              MultiplyTerm::create({
+                {TermElement::MAX, Integer::create(1)},
+                {TermElement::TERM, ReferenceTerm::create(STR("module:FloatPostfix"))}
+              })
+           })}
+         }),
+         ConcatTerm::create({
+           {TermElement::TERM, SharedList::create({
+              MultiplyTerm::create({
+                {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
+              }),
+              ConstTerm::create(0, STR(".")),
+              MultiplyTerm::create({
+                {TermElement::MIN, Integer::create(1)},
+                {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
+              }),
+              MultiplyTerm::create({
+                {TermElement::MAX, Integer::create(1)},
+                {TermElement::TERM, ReferenceTerm::create(STR("module:FloatExponent"))}
+              }),
+              MultiplyTerm::create({
+                {TermElement::MAX, Integer::create(1)},
+                {TermElement::TERM, ReferenceTerm::create(STR("module:FloatPostfix"))}
+              })
+           })}
+         })
+       })}
+    })},
+   {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
+  }));
 
-  // @inner hex_int_literal = ("0h" || "0H") + hex_digit*v1;
-  this->tokenDefinitions->add(_HEX_INT_LITERAL_TOKEN,
-                              new ConcatTerm(2,
-                                 new AlternativeTerm(2,
-                                     new ConstTerm("0h"),
-                                     new ConstTerm("0H")),
-                                 new DuplicateTerm(
-                                     new CharGroupTerm(HEX_DIGIT_CHAR_GROUP), 1)),
-                              true);
+  // @inner FloatExponent : trule as { ("e" || "E") + ("+" || "-")*(0,1) + DecDigit*(1,endless) };
+  this->repository.setSharedValue(STR("root:LexerDefs.FloatExponent"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         AlternateTerm::create({
+           {TermElement::TERM, SharedList::create({
+              ConstTerm::create(0, STR("e")),
+              ConstTerm::create(0, STR("E"))
+           })}
+         }),
+         MultiplyTerm::create({
+           {TermElement::MAX, Integer::create(1)},
+           {TermElement::TERM, AlternateTerm::create({
+              {TermElement::TERM, SharedList::create({
+                 ConstTerm::create(0, STR("+")),
+                 ConstTerm::create(0, STR("-"))
+              })}
+           })}
+         }),
+         MultiplyTerm::create({
+           {TermElement::MIN, Integer::create(1)},
+           {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
+         })
+       })}
+    })}
+  }));
 
-  // float_literal =
-  //    dec_digit*v1 + float_postfix ||
-  //    dec_digit*v1 + float_exponent + float_postfix*o ||
-  //    dec_digit*v + "." + dec_digit*v1 + float_exponent*o +
-  //        float_postfix*o;
-  this->tokenDefinitions->add(FLOAT_LITERAL_TOKEN,
-                              new AlternativeTerm(3,
-                                  new ConcatTerm(2,
-                                     new DuplicateTerm(new CharGroupTerm(DEC_DIGIT_CHAR_GROUP), 1),
-                                     new ReferenceTerm(_FLOAT_POSTFIX_TOKEN)),
-                                  new ConcatTerm(3,
-                                     new DuplicateTerm(new CharGroupTerm(DEC_DIGIT_CHAR_GROUP), 1),
-                                     new ReferenceTerm(_FLOAT_EXPONENT_TOKEN),
-                                     new OptionalTerm(new ReferenceTerm(_FLOAT_POSTFIX_TOKEN))),
-                                  new ConcatTerm(5,
-                                     new DuplicateTerm(
-                                         new CharGroupTerm(DEC_DIGIT_CHAR_GROUP)),
-                                     new ConstTerm("."),
-                                     new DuplicateTerm(
-                                         new CharGroupTerm(DEC_DIGIT_CHAR_GROUP), 1),
-                                     new OptionalTerm(
-                                         new ReferenceTerm(_FLOAT_EXPONENT_TOKEN)),
-                                     new OptionalTerm(
-                                         new ReferenceTerm(_FLOAT_POSTFIX_TOKEN)))));
+  // @inner FloatPostfix : trule as { ("f" || "F") + DecDigit*(0,endless) };
+  this->repository.setSharedValue(STR("root:LexerDefs.FloatPostfix"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         AlternateTerm::create({
+           {TermElement::TERM, SharedList::create({
+              ConstTerm::create(0, STR("f")),
+              ConstTerm::create(0, STR("F"))
+           })}
+         }),
+         MultiplyTerm::create({
+           {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
+         })
+       })}
+    })}
+  }));
 
-  // @inner float_exponent = ("e" || "E") + ("+" || "-")*o + dec_digit*v1;
-  this->tokenDefinitions->add(_FLOAT_EXPONENT_TOKEN,
-                              new ConcatTerm(3,
-                                 new AlternativeTerm(2,
-                                     new ConstTerm("e"),
-                                     new ConstTerm("E")),
-                                 new OptionalTerm(
-                                     new AlternativeTerm(2,
-                                         new ConstTerm("+"),
-                                         new ConstTerm("-"))),
-                                 new DuplicateTerm(
-                                     new CharGroupTerm(DEC_DIGIT_CHAR_GROUP), 1)),
-                              true);
-
-  // @inner float_postfix = ("f" || "F") + dec_digit*v;
-  this->tokenDefinitions->add(_FLOAT_POSTFIX_TOKEN,
-                              new ConcatTerm(2,
-                                 new AlternativeTerm(2,
-                                     new ConstTerm("f"),
-                                     new ConstTerm("F")),
-                                 new DuplicateTerm(new CharGroupTerm(DEC_DIGIT_CHAR_GROUP))),
-                              true);
-
-  // char_literal = "'" + es_char_with_double_quote + "'" + char_code_postfix*o;
+  // CharLiteral : trule as { "'" + EsCharWithDoubleQuote + "'" + CharCodePostfix*(0,1) };
   // TODO: Add the char_code_postfix part
-  this->tokenDefinitions->add(CHAR_LITERAL_TOKEN,
-                              new ConcatTerm(3,
-                                 new ConstTerm("'"),
-                                 new ReferenceTerm(_ES_CHAR_WITH_DOUBLE_QUOTE_TOKEN),
-                                 new ConstTerm("'")));
+  this->repository.setSharedValue(STR("root:LexerDefs.CharLiteral"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         ConstTerm::create(0, STR("'")),
+         ReferenceTerm::create(STR("module:EsCharWithDoubleQuote")),
+         ConstTerm::create(0, STR("'"))
+       })}
+    })},
+    {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
+  }));
 
-  // string_literal =
-  //    string_literal_part + (spacing*v + string_literal_part)*v + char_code_postfix*o;
-  // TODO: Add the char_code_postfix part
-  this->tokenDefinitions->add(STRING_LITERAL_TOKEN,
-                              new ConcatTerm(2,
-                                 new ReferenceTerm(_STRING_LITERAL_PART_TOKEN),
-                                 new DuplicateTerm(
-                                   new ConcatTerm(2,
-                                      new DuplicateTerm(
-                                          new CharGroupTerm(SPACING_CHAR_GROUP)),
-                                      new ReferenceTerm(_STRING_LITERAL_PART_TOKEN)))));
+  // StringLiteral : trule as {
+  //   StringLiteralPart + (Spacing*(0,endless) + StringLiteralPart)*(0,endless) +
+  //   CharCodePostfix*(0,1)
+  // };
+  // TODO: Add the CharCodePostfix part
+  this->repository.setSharedValue(STR("root:LexerDefs.StringLiteral"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         ReferenceTerm::create(STR("module:StringLiteralPart")),
+         MultiplyTerm::create({
+           {TermElement::TERM, ConcatTerm::create({
+              {TermElement::TERM, SharedList::create({
+                 MultiplyTerm::create({
+                   {TermElement::TERM, CharGroupTerm::create(STR("module:Spacing"))}
+                 }),
+                 ReferenceTerm::create(STR("module:StringLiteralPart"))
+              })}
+           })}
+         })
+       })}
+    })},
+    {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
+  }));
 
-  // @inner string_literal_part = "\"" + es_char_with_single_quote*v + "\"";
-  this->tokenDefinitions->add(_STRING_LITERAL_PART_TOKEN,
-                              new ConcatTerm(3,
-                                 new ConstTerm("\""),
-                                 new DuplicateTerm(
-                                    new ReferenceTerm(_ES_CHAR_WITH_SINGLE_QUOTE_TOKEN)),
-                                 new ConstTerm("\"")),
-                              true);
+  // @inner StringLiteralPart : trule as { "\"" + EsCharWithSingleQuote*(0,endless) + "\"" };
+  this->repository.setSharedValue(STR("root:LexerDefs.StringLiteralPart"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         ConstTerm::create(0, STR("\"")),
+         MultiplyTerm::create({
+           {TermElement::TERM, ReferenceTerm::create(STR("module:EsCharWithSingleQuote"))}
+         }),
+         ConstTerm::create(0, STR("\""))
+       })}
+    })}
+  }));
 
-  // @inner es_char_with_single_quote =
-  //    any_char_no_es_or_double_quote || char_code_es ||
-  //    (heap.escape_sequences.kwd)~alternate[heap.escape_sequences];
+  // @inner EsCharWithSingleQuote : trule as {
+  //   AnyCharNoEsOrDoubleQuote || EsSequence ||
+  //   alternate (root.TokenData.escapeSequences:es)->( es )
+  // };
   // TODO: Add the heap.escape_sequences part
-  this->tokenDefinitions->add(_ES_CHAR_WITH_SINGLE_QUOTE_TOKEN,
-                              new AlternativeTerm(2,
-                                  new CharGroupTerm(ANY_CHAR_NO_ES_OR_DOUBLE_QUOTE_CHAR_GROUP),
-                                  new ReferenceTerm(_ES_SEQUENCE_TOKEN)),
-                              true);
+  this->repository.setSharedValue(STR("root:LexerDefs.EsCharWithSingleQuote"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, AlternateTerm::create({
+      {TermElement::TERM, SharedList::create({
+         CharGroupTerm::create(STR("module:AnyCharNoEsOrDoubleQuote")),
+         ReferenceTerm::create(STR("module:EsSequence"))
+       })}
+    })}
+  }));
 
-  // @inner es_char_with_double_quote =
-  //    any_char_no_es_or_single_quote || char_code_es ||
-  //    (heap.escape_sequences.kwd)~alternate[heap.escape_sequences];
+  // @inner EsCharWithDoubleQuote : trule as {
+  //   AnyCharNoEsOrSingleQuote || EsSequence ||
+  //   alternate (root.TokenData.escapeSequences:es)->( es )
+  // };
+  // TODO: Add the root.TokenData.escapeSequences part
+  this->repository.setSharedValue(STR("root:LexerDefs.EsCharWithDoubleQuote"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, AlternateTerm::create({
+      {TermElement::TERM, SharedList::create({
+         CharGroupTerm::create(STR("module:AnyCharNoEsOrSingleQuote")),
+         ReferenceTerm::create(STR("module:EsSequence"))
+       })}
+    })}
+  }));
+
+  // @inner EsCharWithQuotes : trule as {
+  //   AnyCharNoEs || EsSequence || alternate (root.TokenData.escapeSequences:es)->( es )
+  // };
   // TODO: Add the heap.escape_sequences part
-  this->tokenDefinitions->add(_ES_CHAR_WITH_DOUBLE_QUOTE_TOKEN,
-                              new AlternativeTerm(2,
-                                  new CharGroupTerm(ANY_CHAR_NO_ES_OR_SINGLE_QUOTE_CHAR_GROUP),
-                                  new ReferenceTerm(_ES_SEQUENCE_TOKEN)),
-                              true);
+  this->repository.setSharedValue(STR("root:LexerDefs.EsCharWithQuotes"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, AlternateTerm::create({
+      {TermElement::TERM, SharedList::create({
+         CharGroupTerm::create(STR("module:AnyCharNoEs")),
+         ReferenceTerm::create(STR("module:EsSequence"))
+       })}
+    })}
+  }));
 
-  // @inner es_char_with_quotes =
-  //    any_char_no_es || char_code_es ||
-  //    (heap.escape_sequences.kwd)~alternate[heap.escape_sequences];
-  // TODO: Add the heap.escape_sequences part
-  this->tokenDefinitions->add(_ES_CHAR_WITH_QUOTES_TOKEN,
-                              new AlternativeTerm(2,
-                                  new CharGroupTerm(ANY_CHAR_NO_ES_CHAR_GROUP),
-                                  new ReferenceTerm(_ES_SEQUENCE_TOKEN)),
-                              true);
-
-  // @inner char_code_es =
-  //    "\\c" + hex_digit*2 ||
-  //    "\\u" + hex_digit*4 ||
-  //    "\\w" + hex_digit*8;
-  this->tokenDefinitions->add(_ES_SEQUENCE_TOKEN,
-                              new ConcatTerm(2,
-                                 new ConstTerm("\\"),
-                                 new AlternativeTerm(6,
-                                     new ConstTerm("n"),
-                                     new ConstTerm("t"),
-                                     new ConstTerm("r"),
-                                     new ConcatTerm(3,
-                                        new ConstTerm("c"),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP)),
-                                     new ConcatTerm(5,
-                                        new ConstTerm("u"),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP)),
-                                     new ConcatTerm(9,
-                                        new ConstTerm("w"),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP),
-                                        new CharGroupTerm(HEX_DIGIT_CHAR_GROUP))),
-                              true));
-
+  // @inner EsSequence : trule as {
+  //   '\\' + ('c' + HexDigit*(2,2) ||
+  //           'u' + HexDigit*(4,4) ||
+  //           'w' + HexDigit*(8,8) ||
+  //           'n' || 't' || 'r')
+  // };
+  this->repository.setSharedValue(STR("root:LexerDefs.EsSequence"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         ConstTerm::create(0, STR("\\")),
+         AlternateTerm::create({
+           {TermElement::TERM, SharedList::create({
+              ConstTerm::create(0, STR("n")),
+              ConstTerm::create(0, STR("t")),
+              ConstTerm::create(0, STR("r")),
+              ConcatTerm::create({
+                {TermElement::TERM, SharedList::create({
+                   ConstTerm::create(0, STR("c")),
+                   CharGroupTerm::create(STR("module:HexDigit")),
+                   CharGroupTerm::create(STR("module:HexDigit"))
+                })}
+              }),
+              ConcatTerm::create({
+                {TermElement::TERM, SharedList::create({
+                   ConstTerm::create(0, STR("u")),
+                   CharGroupTerm::create(STR("module:HexDigit")),
+                   CharGroupTerm::create(STR("module:HexDigit")),
+                   CharGroupTerm::create(STR("module:HexDigit")),
+                   CharGroupTerm::create(STR("module:HexDigit"))
+                })}
+              }),
+              ConcatTerm::create({
+                {TermElement::TERM, SharedList::create({
+                   ConstTerm::create(0, STR("w")),
+                   CharGroupTerm::create(STR("module:HexDigit")),
+                   CharGroupTerm::create(STR("module:HexDigit")),
+                   CharGroupTerm::create(STR("module:HexDigit")),
+                   CharGroupTerm::create(STR("module:HexDigit")),
+                   CharGroupTerm::create(STR("module:HexDigit")),
+                   CharGroupTerm::create(STR("module:HexDigit")),
+                   CharGroupTerm::create(STR("module:HexDigit")),
+                   CharGroupTerm::create(STR("module:HexDigit"))
+                })}
+              })
+           })}
+         })
+       })}
+    })}
+  }));
 
   //// IGNORED TOKENS
 
-  // spacing * v1;
-  this->tokenDefinitions->add(SPACES_TOKEN,
-                              new DuplicateTerm(
-                                  new CharGroupTerm(SPACING_CHAR_GROUP), 1));
+  // ignore { Spacing*(1,endless) };
+  this->repository.setSharedValue(STR("root:LexerDefs.IgnoredSpaces"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, MultiplyTerm::create({
+      {TermElement::MIN, Integer::create(1)},
+      {TermElement::TERM, CharGroupTerm::create(STR("module:Spacing"))}
+    })},
+    {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN|SymbolFlags::IGNORED_TOKEN}
+  }));
 
-  // "//" + any_char_no_return * v1 + "\n";
-  this->tokenDefinitions->add(LINE_COMMENT_TOKEN,
-                              new ConcatTerm(3,
-                                 new ConstTerm("//"),
-                                 new DuplicateTerm(
-                                     new CharGroupTerm(ANY_CHAR_NO_RETURN_CHAR_GROUP)),
-                                 new ConstTerm("\n")));
+  // @minimum ignore { "//" + any*(0,endless) + "\n" }
+  // For now this is implemented as:
+  // ignore { "//" + AnyCharNoReturn*(0,endless) + "\n" }
+  // because the lexer still doesn't support the @minimum modifier.
+  this->repository.setSharedValue(STR("root:LexerDefs.LineComment"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+         ConstTerm::create(0, STR("//")),
+         MultiplyTerm::create({
+           {TermElement::TERM, CharGroupTerm::create(STR("module:AnyCharNoReturn"))}
+         }),
+         ConstTerm::create(0, STR("\n"))
+       })}
+    })},
+    {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN|SymbolFlags::IGNORED_TOKEN}
+  }));
 }
 
 
@@ -364,9 +517,6 @@ void GrammarPlant::createTokenDefinitions()
  */
 void GrammarPlant::createProductionDefinitions()
 {
-  using namespace Core::Data;
-  using namespace Core::Common;
-
   // TODO: Replace the generic parsing handler for the root with the appropriate one.
 
   //// TokenData module.
@@ -795,7 +945,7 @@ void GrammarPlant::createProductionDefinitions()
                {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
                {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("lowerLinkOp"))),
-                  ReferenceParser::parseQualifier(STR("root:TokenData.lowerLinkOpList"))),
+                                    ReferenceParser::parseQualifier(STR("root:TokenData.lowerLinkOpList"))),
                   ReferenceTerm::create(STR("module:AssignmentExp"))
                 })}
              })}
@@ -823,7 +973,7 @@ void GrammarPlant::createProductionDefinitions()
                {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
                {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("assignmentOp"))),
-                  ReferenceParser::parseQualifier(STR("root:TokenData.assignmentOpList"))),
+                                    ReferenceParser::parseQualifier(STR("root:TokenData.assignmentOpList"))),
                   ReferenceTerm::create(STR("module:LogExp"))
                 })}
              })}
@@ -851,7 +1001,7 @@ void GrammarPlant::createProductionDefinitions()
                 {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
                 {TermElement::TERM, SharedList::create({
                    TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("logOp"))),
-                   ReferenceParser::parseQualifier(STR("root:TokenData.logOpList"))),
+                                     ReferenceParser::parseQualifier(STR("root:TokenData.logOpList"))),
                    ReferenceTerm::create(STR("module:ComparisonExp"))
                  })}
               })}
@@ -879,7 +1029,7 @@ void GrammarPlant::createProductionDefinitions()
                {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
                {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("comparisonOp"))),
-                  ReferenceParser::parseQualifier(STR("root:TokenData.comparisonOpList"))),
+                                    ReferenceParser::parseQualifier(STR("root:TokenData.comparisonOpList"))),
                   ReferenceTerm::create(STR("module:LowLinkExp"))
                 })}
              })}
@@ -907,7 +1057,7 @@ void GrammarPlant::createProductionDefinitions()
                {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
                {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("lowLinkOp"))),
-                  ReferenceParser::parseQualifier(STR("root:TokenData.lowLinkOpList"))),
+                                    ReferenceParser::parseQualifier(STR("root:TokenData.lowLinkOpList"))),
                   ReferenceTerm::create(STR("module:AddExp"))
                 })}
              })}
@@ -935,7 +1085,7 @@ void GrammarPlant::createProductionDefinitions()
               {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
               {TermElement::TERM, SharedList::create({
                  TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("addOp"))),
-                 ReferenceParser::parseQualifier(STR("root:TokenData.addOpList"))),
+                                   ReferenceParser::parseQualifier(STR("root:TokenData.addOpList"))),
                  ReferenceTerm::create(STR("module:MulExp"))
                })}
             })}
@@ -963,7 +1113,7 @@ void GrammarPlant::createProductionDefinitions()
               {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
               {TermElement::TERM, SharedList::create({
                  TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("mulOp"))),
-                 ReferenceParser::parseQualifier(STR("root:TokenData.mulOpList"))),
+                                   ReferenceParser::parseQualifier(STR("root:TokenData.mulOpList"))),
                  ReferenceTerm::create(STR("module:BitwiseExp"))
                })}
             })}
@@ -991,7 +1141,7 @@ void GrammarPlant::createProductionDefinitions()
               {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
               {TermElement::TERM, SharedList::create({
                  TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("bitwiseOp"))),
-                 ReferenceParser::parseQualifier(STR("root:TokenData.bitwiseOpList"))),
+                                   ReferenceParser::parseQualifier(STR("root:TokenData.bitwiseOpList"))),
                  ReferenceTerm::create(STR("module:UnaryExp"))
                })}
             })}
@@ -1077,7 +1227,7 @@ void GrammarPlant::createProductionDefinitions()
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::TERM, SharedList::create({
           TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("linkOp"))),
-          ReferenceParser::parseQualifier(STR("root:TokenData.linkOpList"))),
+                            ReferenceParser::parseQualifier(STR("root:TokenData.linkOpList"))),
           ReferenceTerm::create(STR("args:operand"))
         })}
      })},
@@ -1196,14 +1346,14 @@ void GrammarPlant::createProductionDefinitions()
   // PrefixOp : prod ref heap.ConstantKeywordGroup(heap.TokenData.prefixOpList);
   this->repository.setSharedValue(STR("root:Expression.PrefixOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("prefixOp"))),
-      ReferenceParser::parseQualifier(STR("root:TokenData.prefixOpList")))},
+                                               ReferenceParser::parseQualifier(STR("root:TokenData.prefixOpList")))},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
   // PostfixOp : prod ref heap.ConstantKeywordGroup(heap.TokenData.postfixOpList);
   this->repository.setSharedValue(STR("root:Expression.PostfixOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("postfixOp"))),
-      ReferenceParser::parseQualifier(STR("root:TokenData.postfixOpList")))},
+                                               ReferenceParser::parseQualifier(STR("root:TokenData.postfixOpList")))},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
@@ -1349,7 +1499,7 @@ void GrammarPlant::createProductionDefinitions()
        {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
        {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:fltr"))},
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, std::make_shared<Integer>(IDENTIFIER_TOKEN)),
+          TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("LexerDefs.Identifier")))),
           ReferenceTerm::create(STR("module:Literal"))
         })}
      })},
@@ -1367,10 +1517,10 @@ void GrammarPlant::createProductionDefinitions()
        {TermElement::FLAGS, ParsingFlags::PASS_UP|TermFlags::ONE_ROUTE_TERM},
        {TermElement::DATA, ReferenceParser::parseQualifier(STR("args:fltr"))},
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, std::make_shared<Integer>(INT_LITERAL_TOKEN)),
-          TokenTerm::create(0, std::make_shared<Integer>(FLOAT_LITERAL_TOKEN)),
-          TokenTerm::create(0, std::make_shared<Integer>(CHAR_LITERAL_TOKEN)),
-          TokenTerm::create(0, std::make_shared<Integer>(STRING_LITERAL_TOKEN))
+          TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("LexerDefs.IntLiteral")))),
+          TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("LexerDefs.FloatLiteral")))),
+          TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("LexerDefs.CharLiteral")))),
+          TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("LexerDefs.StringLiteral"))))
         })}
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {{ STR("fltr"), 0 }} )},
@@ -1398,10 +1548,6 @@ void GrammarPlant::createProductionDefinitions()
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
   }));
-
-
-  GrammarModule *root = this->repository.getRoot().get();
-  root->setStartRef(ReferenceParser::parseQualifier(STR("module:Program")));
 }
 
 } } // namespace

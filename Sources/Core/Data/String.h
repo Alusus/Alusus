@@ -53,6 +53,16 @@ class String : public IdentifiableObject
   {
   }
 
+  public: static SharedPtr<String> create(Char const *v)
+  {
+    return std::make_shared<String>(v);
+  }
+
+  public: static SharedPtr<String> create(Char const *v, Word c)
+  {
+    return std::make_shared<String>(v, c);
+  }
+
 
   //============================================================================
   // Operators

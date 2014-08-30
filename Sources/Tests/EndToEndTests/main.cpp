@@ -20,7 +20,7 @@
 // Boost header files
 #include <boost/algorithm/string/predicate.hpp>
 
-using Core::Common::BuildMsg;
+using Core::Processing::BuildMsg;
 using Core::Standard::ParsedItem;
 using Core::Standard::ParsedList;
 using Core::Standard::RootManager;

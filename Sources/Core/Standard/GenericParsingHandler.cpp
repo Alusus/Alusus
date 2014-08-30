@@ -128,7 +128,7 @@ void GenericParsingHandler::onLevelExit(Processing::Parser *machine, Processing:
  * @sa ParsingHandler::onNewToken()
  */
 void GenericParsingHandler::onNewToken(Processing::Parser *machine, Processing::ParserState *state,
-                                       const Common::Token *token)
+                                       const Data::Token *token)
 {
   // Get the term object.
   Data::TokenTerm *term = static_cast<Data::TokenTerm*>(state->refTopTermLevel().getTerm());
@@ -150,7 +150,7 @@ void GenericParsingHandler::onNewToken(Processing::Parser *machine, Processing::
   // If we have a string literal then we should parse escape sequences.
   static Word stringLiteralId = 0;
   if (stringLiteralId == 0) {
-    stringLiteralId = ID_GENERATOR->getId(STR("STRING_LITERAL_TOKEN"));
+    stringLiteralId = ID_GENERATOR->getId(STR("LexerDefs.StringLiteral"));
   }
   if (token->getId() == stringLiteralId) {
     Str txt;

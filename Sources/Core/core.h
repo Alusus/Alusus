@@ -43,8 +43,5 @@ namespace Core
 using namespace Core::Basic;
 
 #include "Data/data.h"
-#include "Common/common.h"
-#include "Lexer/lexer.h"
 #include "Processing/processing.h"
-#include "Main/main.h"
 #include "Standard/standard.h"

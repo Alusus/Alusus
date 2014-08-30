@@ -60,20 +60,20 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *machine, Processing::Par
       LlvmContainer::Finalize();
     } catch (const Scg::Exception &e) {
       // TODO: Use the source code position once they are added to the module definition.
-      //state->addBuildMsg(SharedPtr<Common::BuildMsg>(new Common::CustomBuildMsg(e.GetMessage().c_str(),
+      //state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.GetMessage().c_str(),
       //  statementList->getLine(), statementList->getColumn())));
-      state->addBuildMsg(SharedPtr<Common::BuildMsg>(new Common::CustomBuildMsg(e.GetMessage().c_str(), 0, 0)));
+      state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.GetMessage().c_str(), 0, 0)));
     } catch (Core::Basic::Exception &e) {
       // TODO: Use the source code position once they are added to the module definition.
-      //state->addBuildMsg(SharedPtr<Common::BuildMsg>(new Common::CustomBuildMsg(e.getErrorMessage(),
+      //state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.getErrorMessage(),
       //  statementList->getLine(), statementList->getColumn())));
-      state->addBuildMsg(SharedPtr<Common::BuildMsg>(new Common::CustomBuildMsg(e.getErrorMessage(), 0, 0)));
+      state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.getErrorMessage(), 0, 0)));
     }
   } else {
       // Create a build message.
       Str message = "Couldn't find module: ";
       message += "Rafid"; //name->getText();
-      state->addBuildMsg(std::make_shared<Common::CustomBuildMsg>(message.c_str(),
+      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
                                                                       item->getLine(), item->getColumn()));
   }
   // Reset parsed data because we are done with the command.
