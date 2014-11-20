@@ -28,8 +28,8 @@
 
 namespace Scg
 {
-using namespace Core::Standard;
 using namespace Core::Basic;
+using namespace Core::Data;
 
 FunctionalExpression::FunctionalExpression(CodeGenerator *gen,
     const SharedPtr<ParsedList> &item) : gen(gen)
@@ -38,8 +38,8 @@ FunctionalExpression::FunctionalExpression(CodeGenerator *gen,
     THROW_EXCEPTION(InvalidArgumentException,
         "Functional expressions can be constructed from Expression.FunctionalExp only.");
 
-  for (auto i = 0; i < item->getElementCount(); i++)
-    this->subExprs.push_back(item->getElement(i).s_cast<ParsedItem>());
+  for (auto i = 0; i < item->getCount(); i++)
+    this->subExprs.push_back(item->get(i));
 }
 
 //------------------------------------------------------------------------------
@@ -65,8 +65,11 @@ DeclareExtFunction *FunctionalExpression::ToDeclareExtFunction(
   }
 
   auto declFunc = new DeclareExtFunction(name, retType, args, isVarArgs);
-  declFunc->SetLineInCode(this->subExprs[0]->getLine());
-  declFunc->SetColumnInCode(this->subExprs[0]->getColumn());
+  auto metadata = this->subExprs[0]->getInterface<ParsingMetadataHolder>();
+  if (metadata != 0) {
+    declFunc->SetLineInCode(metadata->getLine());
+    declFunc->SetColumnInCode(metadata->getColumn());
+  }
   return declFunc;
 }
 
@@ -74,7 +77,8 @@ DeclareExtFunction *FunctionalExpression::ToDeclareExtFunction(
 
 Expression *FunctionalExpression::ToExpression()
 {
-  if (this->subExprs[0]->getProdId() != this->gen->GetSubjectId())
+  auto metadata = this->subExprs[0]->getInterface<ParsingMetadataHolder>();
+  if (metadata == nullptr || metadata->getProdId() != this->gen->GetSubjectId())
     THROW_EXCEPTION(SyntaxErrorException, "Invalid expression. Expressions "
         "should start with a token representing a variable or a function.");
 
@@ -83,51 +87,53 @@ Expression *FunctionalExpression::ToExpression()
   for (auto i = 0; i < this->subExprs.size(); i++)
   {
     auto thisExprAst = this->subExprs[i];
+    auto thisExprAstMeta = thisExprAst->getInterface<ParsingMetadataHolder>();
     if (i < (this->subExprs.size() - 1))
     {
       auto nextExprAst = this->subExprs[i+1];
-      if (thisExprAst->getProdId() == this->gen->GetSubjectId() &&
-          nextExprAst->getProdId() == this->gen->GetParamPassId() &&
+      auto nextExprAstMeta = nextExprAst->getInterface<ParsingMetadataHolder>();
+      if (thisExprAstMeta->getProdId() == this->gen->GetSubjectId() &&
+          nextExprAstMeta->getProdId() == this->gen->GetParamPassId() &&
           nextExprAst.s_cast<ParsedRoute>()->getRoute() == ParamPassExp::Parenthesis)
       {
         // A token followed by parentheses. This is a function call.
         ParamPassExp params(this->gen, nextExprAst.s_cast<ParsedRoute>());
         expr = new CallFunction(this->gen->ParseToken(thisExprAst),
             new List(params.ParseExpressionList()));
-        expr->SetLineInCode(thisExprAst->getLine());
-        expr->SetColumnInCode(thisExprAst->getColumn());
+        expr->SetLineInCode(thisExprAstMeta->getLine());
+        expr->SetColumnInCode(thisExprAstMeta->getColumn());
         i++;
         cancelNextContentOp = true;
         continue;
       }
     }
-    if (thisExprAst->getProdId() == this->gen->GetSubjectId())
+    if (thisExprAstMeta->getProdId() == this->gen->GetSubjectId())
     {
       auto varName = this->gen->ParseToken(thisExprAst);
       expr = new PointerToVariable(varName);
-      expr->SetLineInCode(thisExprAst->getLine());
-      expr->SetColumnInCode(thisExprAst->getColumn());
+      expr->SetLineInCode(thisExprAstMeta->getLine());
+      expr->SetColumnInCode(thisExprAstMeta->getColumn());
     }
-    else if (thisExprAst->getProdId() == this->gen->GetParamPassId() &&
+    else if (thisExprAstMeta->getProdId() == this->gen->GetParamPassId() &&
         thisExprAst.s_cast<ParsedRoute>()->getRoute() == ParamPassExp::Square)
     {
       // Square brackets. This is array element access.
-      auto index = ParseElementIndex(thisExprAst.s_cast<ParsedList>());
+      auto index = ParseElementIndex(thisExprAst.s_cast<ParsedRoute>());
       expr = new PointerToArrayElement(expr, index);
-      expr->SetLineInCode(thisExprAst->getLine());
-      expr->SetColumnInCode(thisExprAst->getColumn());
+      expr->SetLineInCode(thisExprAstMeta->getLine());
+      expr->SetColumnInCode(thisExprAstMeta->getColumn());
     }
-    else if (thisExprAst->getProdId() == this->gen->GetLinkExpId())
+    else if (thisExprAstMeta->getProdId() == this->gen->GetLinkExpId())
     {
       // Dot followed by a token. This is a field access.
       auto fieldName = ParseFieldName(thisExprAst.s_cast<ParsedList>());
       expr = new PointerToMemberField(expr, fieldName);
-      expr->SetLineInCode(thisExprAst->getLine());
-      expr->SetColumnInCode(thisExprAst->getColumn());
+      expr->SetLineInCode(thisExprAstMeta->getLine());
+      expr->SetColumnInCode(thisExprAstMeta->getColumn());
     }
-    else if (thisExprAst->getProdId() == this->gen->GetPostfixTildeExpId())
+    else if (thisExprAstMeta->getProdId() == this->gen->GetPostfixTildeExpId())
     {
-      auto child = thisExprAst.s_cast<ParsedList>()->getElement(0).s_cast<ParsedItem>();
+      auto child = ii_cast<ParsingMetadataHolder>(thisExprAst.s_cast<ParsedList>()->get(0).get());
       if (child->getProdId() == this->gen->GetContentTildeId())
       {
         // ~cnt
@@ -135,8 +141,8 @@ Expression *FunctionalExpression::ToExpression()
           cancelNextContentOp = false;
         } else {
           expr = new Content(expr);
-          expr->SetLineInCode(thisExprAst->getLine());
-          expr->SetColumnInCode(thisExprAst->getColumn());
+          expr->SetLineInCode(thisExprAstMeta->getLine());
+          expr->SetColumnInCode(thisExprAstMeta->getColumn());
         }
       }
       else if (child->getProdId() == this->gen->GetPointerTildeId())
@@ -167,8 +173,11 @@ std::string FunctionalExpression::ParseFieldName(
     THROW_EXCEPTION(SystemException,
         "Unexpected error while trying to parse a field name.");
 
-  static ParsedDataBrowser fieldNameBrowser(STR("1:Subject.Subject1"));
-  auto fieldName = fieldNameBrowser.getChildValue<ParsedItem>(astBlockRoot);
+  static ReferenceSeeker seeker;
+  static SharedPtr<Reference> fieldNameReference = ReferenceParser::parseQualifier(
+    STR("1~where(prodId=Subject.Subject1)"),
+    ReferenceUsageCriteria::MULTI_DATA);
+  auto fieldName = seeker.tryGetShared(fieldNameReference.get(), astBlockRoot.get());
   if (fieldName == nullptr)
     THROW_EXCEPTION(SystemException,
         "Unexpected error while trying to parse a field name.");
@@ -178,17 +187,21 @@ std::string FunctionalExpression::ParseFieldName(
 //------------------------------------------------------------------------------
 
 Expression *FunctionalExpression::ParseElementIndex(
-    const SharedPtr<ParsedList> &astBlockRoot)
+    const SharedPtr<ParsedRoute> &astBlockRoot)
 {
   if (astBlockRoot->getProdId() != this->gen->GetParamPassId())
     THROW_EXCEPTION(SystemException,
         "Unexpected error while trying to parse an array index.");
 
-  static ParsedDataBrowser indexBrowser(STR("0:Expression.Exp"));
-  auto index = indexBrowser.getChildValue<ParsedItem>(astBlockRoot);
+  static ReferenceSeeker seeker;
+  static SharedPtr<Reference> indexReference = ReferenceParser::parseQualifier(
+    STR("0~where(prodId=Expression.Exp)"),
+    ReferenceUsageCriteria::MULTI_DATA);
+  auto index = seeker.tryGetShared(indexReference.get(), astBlockRoot.get());
   if (index == nullptr)
     THROW_EXCEPTION(SystemException,
         "Unexpected error while trying to parse an array index.");
   return this->gen->GenerateExpression(index);
 }
+
 }

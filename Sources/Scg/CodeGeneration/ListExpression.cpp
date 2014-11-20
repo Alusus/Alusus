@@ -15,22 +15,23 @@
 
 namespace Scg
 {
-  using namespace Core::Standard;
   using namespace Core::Basic;
+  using namespace Core::Data;
 
   ListExpression::ListExpression(CodeGenerator *gen,
-      const SharedPtr<ParsedItem> &item)
+      const SharedPtr<IdentifiableObject> &item)
   {
     // TODO: Why is the statement list considered a list expression? It is
     // currently used by Function class to parse the body of the function, but I don't
     // think this is correct. Instead, we should have a separate class to
     // parse a list of statements.
-    if (item->getProdId() == gen->GetListExpId() ||
-        item->getProdId() == gen->GetStatementListId())
+    auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
+    if (metadata != nullptr && (metadata->getProdId() == gen->GetListExpId() ||
+                                metadata->getProdId() == gen->GetStatementListId()))
     {
-      auto listExp = item.s_cast<Core::Standard::ParsedList>();
-      for (auto i = 0; i < listExp->getElementCount(); i++)
-        this->items.push_back(listExp->getElement(i).s_cast<ParsedItem>());
+      auto listExp = item.s_cast<Core::Data::ParsedList>();
+      for (auto i = 0; i < listExp->getCount(); i++)
+        this->items.push_back(listExp->get(i));
     }
     else
       this->items.push_back(item);
@@ -40,13 +41,15 @@ namespace Scg
 
   StringArray ListExpression::ParseTokenList() const
   {
-    static ParsedDataBrowser tokenBrowser(STR(
-        "Subject.Subject1>0:Subject.Parameter"));
+    static ReferenceSeeker seeker;
+    static SharedPtr<Reference> tokenReference = ReferenceParser::parseQualifier(
+      STR("self~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
+      ReferenceUsageCriteria::MULTI_DATA);
     StringArray tokens;
     for (auto i = 0; i < GetItemCount(); i++)
     {
       auto item = GetItem(i);
-      auto token = tokenBrowser.getValue<ParsedToken>(item);
+      auto token = seeker.tryGetShared<ParsedToken>(tokenReference.get(), item.get());
       if (token == 0)
         // TODO: Add the index of the non-token to the exception message.
         THROW_EXCEPTION(InvalidArgumentException,

@@ -43,7 +43,7 @@ class LibraryGateway : public IdentifiableObject
 
   // TODO: get_dependencies.
 
-  public: const Str& getLibraryId()
+  public: Str const& getLibraryId()
   {
     return this->getMyTypeInfo()->getUniqueName();
   }

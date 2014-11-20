@@ -23,14 +23,14 @@ class QualifierSeeker
   //============================================================================
   // Member Variables
 
-  private: Provider const *dataProvider;
+  private: Provider *dataProvider;
   private: mutable ReferenceParser parser;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: QualifierSeeker(Provider const *prov=0) : dataProvider(prov)
+  public: QualifierSeeker(Provider *prov=0) : dataProvider(prov)
   {
   }
 
@@ -45,12 +45,12 @@ class QualifierSeeker
   /// @name Initialization Functions
   /// @{
 
-  public: void setDataProvider(Provider const *prov)
+  public: void setDataProvider(Provider *prov)
   {
     this->dataProvider = prov;
   }
 
-  public: Provider const* getDataProvider() const
+  public: Provider* getDataProvider() const
   {
     return this->dataProvider;
   }
@@ -60,15 +60,36 @@ class QualifierSeeker
   /// @name Data Read Functions
   /// @{
 
-  public: SharedPtr<IdentifiableObject> getShared(Char const *qualifier, IdentifiableObject const *parent) const;
+  public: SharedPtr<IdentifiableObject> getShared(Char const *qualifier, IdentifiableObject *parent) const;
 
-  public: Bool tryGetShared(Char const *qualifier, IdentifiableObject const *parent,
+  public: template<class T> SharedPtr<T> getShared(Char const *qualifier, IdentifiableObject *parent) const
+  {
+    return this->getShared(qualifier, parent).io_cast<T>();
+  }
+
+  public: SharedPtr<IdentifiableObject> tryGetShared(Char const *qualifier, IdentifiableObject *parent) const;
+
+  public: template<class T> SharedPtr<T> tryGetShared(Char const *qualifier, IdentifiableObject *parent) const
+  {
+    return this->tryGetShared(qualifier, parent).io_cast<T>();
+  }
+
+  public: Bool tryGetShared(Char const *qualifier, IdentifiableObject *parent,
                             SharedPtr<IdentifiableObject> &result) const;
 
-  public: void getShared(Char const *qualifier, IdentifiableObject const *parent,
+  public: template<class T> Bool tryGetShared(Char const *qualifier, IdentifiableObject *parent,
+                                              SharedPtr<T> &result) const
+  {
+    SharedPtr<IdentifiableObject> res;
+    if (!this->tryGetShared(qualifier, parent, res)) return false;
+    result = res.io_cast<T>();
+    return true;
+  }
+
+  public: void getShared(Char const *qualifier, IdentifiableObject *parent,
                          SharedModulePairedPtr &retVal) const;
 
-  public: Bool tryGetShared(Char const *qualifier, IdentifiableObject const *parent,
+  public: Bool tryGetShared(Char const *qualifier, IdentifiableObject *parent,
                             SharedModulePairedPtr &retVal) const;
 
   public: void getShared(Char const *qualifier, SharedPtr<IdentifiableObject> const &parent,
@@ -82,9 +103,29 @@ class QualifierSeeker
   /// @name Plain Data Read Functions
   /// @{
 
-  public: IdentifiableObject* getPlain(Char const *qualifier, IdentifiableObject const *parent) const;
+  public: IdentifiableObject* getPlain(Char const *qualifier, IdentifiableObject *parent) const;
 
-  public: Bool tryGetPlain(Char const *qualifier, IdentifiableObject const *parent, IdentifiableObject *&result) const;
+  public: template<class T> T* getPlain(Char const *qualifier, IdentifiableObject *parent) const
+  {
+    return io_cast<T>(this->getPlain(qualifier, parent));
+  }
+
+  public: IdentifiableObject* tryGetPlain(Char const *qualifier, IdentifiableObject *parent) const;
+
+  public: template<class T> T* tryGetPlain(Char const *qualifier, IdentifiableObject *parent) const
+  {
+    return io_cast<T>(this->tryGetPlain(qualifier, parent));
+  }
+
+  public: Bool tryGetPlain(Char const *qualifier, IdentifiableObject *parent, IdentifiableObject *&result) const;
+
+  public: template<class T> Bool tryGetPlain(Char const *qualifier, IdentifiableObject *parent, T *&result) const
+  {
+    IdentifiableObject *res = 0;
+    if (!this->tryGetPlain(qualifier, parent, res)) return false;
+    result = io_cast<T>(res);
+    return true;
+  }
 
   public: void getPlain(Char const *qualifier, IdentifiableObject *parent,
                         PlainModulePairedPtr &retVal) const;

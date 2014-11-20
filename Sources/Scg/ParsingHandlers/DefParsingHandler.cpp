@@ -19,22 +19,23 @@ namespace Scg
 {
 
 using namespace Core;
+using namespace Core::Data;
 
 //==============================================================================
 // Overloaded Abstract Functions
 
-void DefParsingHandler::onProdEnd(Processing::Parser *machine, Processing::ParserState *state)
+void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-    auto expr = state->getData().io_cast<Standard::ParsedItem>();
+    auto expr = state->getData();
     assert(expr != 0);
 
     // Get the name of the definition.
     static Int identifierTokenId = ID_GENERATOR->getId("LexerDefs.Identifier");
-    static Standard::ParsedDataBrowser nameBrowser;
-    if (!nameBrowser.isInitialized()) {
-      nameBrowser.initialize(STR("0:Expression.LowerLinkExp>0:Subject.Subject1>0"));
-    }
-    auto nameToken = nameBrowser.getChildValue<Standard::ParsedToken>(expr);
+    static ReferenceSeeker seeker;
+    static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
+      STR("0~where(prodId=Expression.LowerLinkExp).0~where(prodId=Subject.Subject1).0"),
+      ReferenceUsageCriteria::MULTI_DATA);
+    auto nameToken = seeker.tryGetShared<Data::ParsedToken>(nameReference.get(), expr.get());
     if (nameToken == 0 || nameToken->getId() != identifierTokenId) {
       // TODO: Generate a build message instead of throwing an exception.
       THROW_EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
@@ -42,11 +43,10 @@ void DefParsingHandler::onProdEnd(Processing::Parser *machine, Processing::Parse
     auto name = nameToken->getText();
 
     // Get the definee (after the colon).
-    static Standard::ParsedDataBrowser defBrowser;
-    if (!defBrowser.isInitialized()) {
-      defBrowser.initialize(STR("0:Expression.LowerLinkExp>2:Subject.Subject1>0"));
-    }
-    auto def = defBrowser.getChildValue<IdentifiableObject>(expr);
+    static SharedPtr<Reference> defReference = ReferenceParser::parseQualifier(
+      STR("0~where(prodId=Expression.LowerLinkExp).2~where(prodId=Subject.Subject1).0"),
+      ReferenceUsageCriteria::MULTI_DATA);
+    auto def = seeker.tryGetShared(defReference.get(), expr.get());
     if (def == 0) {
       // TODO: Generate a build message instead of throwing an exception.
       // TODO: We need to choose terms for the parts of a define command, e.g.
@@ -55,7 +55,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *machine, Processing::Parse
     }
 
     // Store the definition in the definitions manager.
-    Core::Standard::mergeDefinition(this->rootManager->getDefinitionsRepository(), name.c_str(), def, state);
+    Core::Standard::mergeDefinition(name.c_str(), def, state);
 
     // Reset parsed data because we are done with the command.
     state->setData(SharedPtr<IdentifiableObject>(0));

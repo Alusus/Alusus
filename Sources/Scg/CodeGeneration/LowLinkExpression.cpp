@@ -15,20 +15,21 @@
 
 namespace Scg
 {
-  using namespace Core::Standard;
   using namespace Core::Basic;
+  using namespace Core::Data;
 
   LowLinkExpression::LowLinkExpression(CodeGenerator *gen,
-      const SharedPtr<ParsedItem> &item)
+      const SharedPtr<IdentifiableObject> &item)
   {
-    if (item->getProdId() != gen->GetLowLinkExpId())
+    auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
+    if (metadata == nullptr || metadata->getProdId() != gen->GetLowLinkExpId())
       THROW_EXCEPTION(InvalidArgumentException,
           "Low link expressions can be constructed from "
           "Expression.LowLinkExp only.");
 
     auto list = item.s_cast<ParsedList>();
-    this->lhs = list->getElement(0).s_cast<ParsedItem>();
-    this->separator = list->getElement(1).s_cast<ParsedToken>()->getText();
-    this->rhs = list->getElement(2).s_cast<ParsedItem>();
+    this->lhs = list->get(0);
+    this->separator = list->get(1).s_cast<ParsedToken>()->getText();
+    this->rhs = list->get(2);
   }
 }

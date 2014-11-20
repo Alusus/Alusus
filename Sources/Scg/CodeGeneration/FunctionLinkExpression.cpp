@@ -17,27 +17,31 @@
 
 namespace Scg
 {
-  using namespace Core::Standard;
   using namespace Core::Basic;
+  using namespace Core::Data;
 
   FunctionLinkExpression::FunctionLinkExpression(CodeGenerator *gen,
-      const SharedPtr<ParsedItem> &astRoot)
+      const SharedPtr<IdentifiableObject> &astRoot)
   {
-    if (astRoot->getProdId() != gen->GetLinkId())
+    auto astRootMeta = astRoot->getInterface<ParsingMetadataHolder>();
+    if (astRootMeta == nullptr || astRootMeta->getProdId() != gen->GetLinkId())
       THROW_EXCEPTION(SystemException,
           "Function link expressions can be constructed from Main.Link only.");
 
     // Initialise tree browsers.
-    static ParsedDataBrowser funcExpNoRetBrowser(
-        STR("0:Expression.Exp>"
-            "0:Expression.FunctionalExp"));
-    static ParsedDataBrowser funcExpBrowser(
-        STR("0:Expression.Exp>"
-            "0:Expression.LowLinkExp"));
+    static ReferenceSeeker seeker;
+    static SharedPtr<Reference> funcExpNoRetReference = ReferenceParser::parseQualifier(
+      STR("0~where(prodId=Expression.Exp)."
+          "0~where(prodId=Expression.FunctionalExp)"),
+      ReferenceUsageCriteria::MULTI_DATA);
+    static SharedPtr<Reference> funcExpReference = ReferenceParser::parseQualifier(
+      STR("0~where(prodId=Expression.Exp)."
+          "0~where(prodId=Expression.LowLinkExp)"),
+      ReferenceUsageCriteria::MULTI_DATA);
 
     // Try to parse a function link with no return value.
-    auto item = funcExpBrowser.getChildValue<ParsedList>(astRoot);
-    if ((item = funcExpBrowser.getChildValue<ParsedList>(astRoot)) != nullptr)
+    SharedPtr<ParsedList> item;
+    if ((item = seeker.tryGetShared<ParsedList>(funcExpReference.get(), astRoot.get())) != nullptr)
     {
       auto argsAndRet = LowLinkExpression(gen, item);
       if (argsAndRet.GetSeparator().compare("=>") != 0)
@@ -45,10 +49,10 @@ namespace Scg
             "argument types and return value of a function link. Must use '=>'.");
       this->arguments = new FunctionalExpression(
             gen, argsAndRet.GetLHS().s_cast<ParsedList>());
-      this->retType = gen->ParseVariableType(argsAndRet.GetRHS().s_cast<ParsedItem>());
+      this->retType = gen->ParseVariableType(argsAndRet.GetRHS());
     }
-    else if ((item = funcExpNoRetBrowser.getChildValue<ParsedList>(astRoot)) != nullptr)
-      this->arguments = new FunctionalExpression(gen, item.s_cast<ParsedList>());
+    else if ((item = seeker.tryGetShared<ParsedList>(funcExpNoRetReference.get(), astRoot.get())) != nullptr)
+      this->arguments = new FunctionalExpression(gen, item);
 
     // Stores the line and column numbers.
     this->lineInCode = item->getLine();

@@ -171,33 +171,31 @@ void setTreeIds(IdentifiableObject *obj, const Char *id);
 //==============================================================================
 // Classes
 
-#include "IdGenerator.h"
+// Helpers
 #include "module_paired_pointers.h"
+#include "IdGenerator.h"
 
-// Interfaces
+// Data Classes
+//-------------
+// Simple Data
+#include "Integer.h"
+#include "String.h"
+// Generic Data Interfaces
 #include "DataOwner.h"
-#include "IdOwner.h"
+#include "AttributesHolder.h"
+#include "IdHolder.h"
 #include "Initializable.h"
-// SharedContainer Interfaces
+// Shared Container Interfaces
 #include "SharedContainer.h"
 #include "ListSharedContainer.h"
 #include "NamedListSharedContainer.h"
 #include "MapSharedContainer.h"
+// Plain Container Interfaces
 #include "PlainContainer.h"
 #include "ListPlainContainer.h"
 #include "NamedListPlainContainer.h"
 #include "MapPlainContainer.h"
-// Provider Interfaces
-#include "Provider.h"
-#include "SharedProvider.h"
-#include "PlainProvider.h"
-// Tracer Interfaces
-#include "Tracer.h"
-#include "SharedTracer.h"
-
-// Data
-#include "Integer.h"
-#include "String.h"
+// Complex Data
 #include "SharedMap.h"
 #include "SharedList.h"
 #include "SharedNamedList.h"
@@ -206,6 +204,17 @@ void setTreeIds(IdentifiableObject *obj, const Char *id);
 #include "VariableStack.h"
 #include "Token.h"
 
+// Data Provider Classes
+//----------------------
+// Interfaces
+#include "Provider.h"
+#include "SharedProvider.h"
+#include "PlainProvider.h"
+#include "Tracer.h"
+#include "SharedTracer.h"
+// Validators
+#include "Validator.h"
+#include "StrAttributeValidator.h"
 // References
 #include "Reference.h"
 #include "IndexReference.h"
@@ -213,8 +222,9 @@ void setTreeIds(IdentifiableObject *obj, const Char *id);
 #include "IndirectReference.h"
 #include "RawIndirectReference.h"
 #include "ScopeReference.h"
+#include "SearchReference.h"
+#include "SelfReference.h"
 #include "ReferenceParser.h"
-
 // Seekers and Data Providers
 #include "ReferenceSeeker.h"
 #include "QualifierSeeker.h"
@@ -222,6 +232,7 @@ void setTreeIds(IdentifiableObject *obj, const Char *id);
 #include "PlainRepository.h"
 
 // Grammar Classes
+//----------------
 // Character Groups
 #include "CharGroupUnit.h"
 #include "SequenceCharGroupUnit.h"
@@ -247,9 +258,16 @@ void setTreeIds(IdentifiableObject *obj, const Char *id);
 #include "GrammarRepository.h"
 #include "GrammarContext.h"
 #include "GrammarPlant.h"
-
 // TODO: #include "ExtensionManager.h"
 // TODO: ExtensionManager manages extensions to grammar (loaded using import for example). And it automatically
 //       manages the IDs of those extension definitions (rather than the IDs remain invalid until merged with DataStore).
+
+// Parsed Data Classes
+//--------------------
+#include "ParsingMetadataHolder.h"
+#include "ParsedToken.h"
+#include "ParsedRoute.h"
+#include "ParsedList.h"
+#include "ParsedModule.h"
 
 #endif

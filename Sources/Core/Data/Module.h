@@ -19,13 +19,13 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class Module : public IdentifiableObject,
-               public virtual MapSharedContainer, public virtual IdOwner, public virtual DataOwner
+               public virtual MapSharedContainer, public virtual IdHolder, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Module, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(IdentifiableObject, MapSharedContainer, IdOwner, DataOwner);
+  IMPLEMENT_INTERFACES_3(IdentifiableObject, MapSharedContainer, IdHolder, DataOwner);
 
 
   //============================================================================

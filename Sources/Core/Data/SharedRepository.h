@@ -166,19 +166,19 @@ class SharedRepository : public IdentifiableObject, public virtual SharedProvide
 
   public: virtual Bool trySetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> const &val);
 
-  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Reference const *ref) const;
+  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Reference const *ref);
 
   public: virtual void getSharedValue(Reference const *ref, SharedModulePairedPtr &retVal);
 
-  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Char const *qualifier) const;
+  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Char const *qualifier);
 
   public: virtual void getSharedValue(Char const *qualifier, SharedModulePairedPtr &retVal);
 
-  public: virtual Bool tryGetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> &retVal) const;
+  public: virtual Bool tryGetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> &retVal);
 
   public: virtual Bool tryGetSharedValue(Reference const *ref, SharedModulePairedPtr &retVal);
 
-  public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> &retVal) const;
+  public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> &retVal);
 
   public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedModulePairedPtr &retVal);
 
@@ -195,19 +195,19 @@ class SharedRepository : public IdentifiableObject, public virtual SharedProvide
 
   public: virtual Bool tryRemoveValue(Char const *qualifier);
 
-  public: virtual IdentifiableObject* getPlainValue(Reference const *ref) const;
+  public: virtual IdentifiableObject* getPlainValue(Reference const *ref);
 
   public: virtual void getPlainValue(Reference const *ref, PlainModulePairedPtr &retVal);
 
-  public: virtual IdentifiableObject* getPlainValue(Char const *qualifier) const;
+  public: virtual IdentifiableObject* getPlainValue(Char const *qualifier);
 
   public: virtual void getPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal);
 
-  public: virtual Bool tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal) const;
+  public: virtual Bool tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal);
 
   public: virtual Bool tryGetPlainValue(Reference const *ref, PlainModulePairedPtr &retVal);
 
-  public: virtual Bool tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal) const;
+  public: virtual Bool tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal);
 
   public: virtual Bool tryGetPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal);
 

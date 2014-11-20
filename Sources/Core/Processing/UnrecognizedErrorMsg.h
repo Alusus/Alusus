@@ -42,7 +42,7 @@ class UnrecognizedErrorMsg : public BuildMsg
   // Member Functions
 
   /// @sa BuildMsg::getCode()
-  public: virtual const Str& getCode() const
+  public: virtual Str const& getCode() const
   {
     static Str code("G1001");
     return code;

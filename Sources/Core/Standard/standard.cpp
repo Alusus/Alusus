@@ -47,14 +47,14 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processi
       } else if (!mergeContainers(destMap->get(di).get(), srcMap->get(i).get(), state)) {
         // Generate a build message.
         Char const *name;
-        IdOwner *idOwner = srcMap->get(i)->getInterface<IdOwner>();
-        if (idOwner != 0) name = ID_GENERATOR->getDesc(idOwner->getId()).c_str();
+        IdHolder *idHolder = srcMap->get(i)->getInterface<IdHolder>();
+        if (idHolder != 0) name = ID_GENERATOR->getDesc(idHolder->getId()).c_str();
         else name = srcMap->getKey(i).c_str();
-        ParsedItem *item = srcMap->get(i).io_cast_get<ParsedItem>();
+        ParsingMetadataHolder *itemMeta = srcMap->get(i).ii_cast_get<ParsingMetadataHolder>();
         Int line=0, column=0;
-        if (item != 0) {
-          line = item->getLine();
-          column = item->getColumn();
+        if (itemMeta != 0) {
+          line = itemMeta->getLine();
+          column = itemMeta->getColumn();
         }
         state->addBuildMsg(std::make_shared<RedefinitionMsg>(name, line, column));
         // Overwrite old data.
@@ -71,14 +71,14 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processi
       } else if (!mergeContainers(destPlainMap->get(di), srcPlainMap->get(i), state)) {
         // Generate a build message.
         Char const *name;
-        IdOwner *idOwner = srcPlainMap->get(i)->getInterface<IdOwner>();
-        if (idOwner != 0) name = ID_GENERATOR->getDesc(idOwner->getId()).c_str();
+        IdHolder *idHolder = srcPlainMap->get(i)->getInterface<IdHolder>();
+        if (idHolder != 0) name = ID_GENERATOR->getDesc(idHolder->getId()).c_str();
         else name = srcPlainMap->getKey(i).c_str();
-        ParsedItem *item = io_cast<ParsedItem>(srcPlainMap->get(i));
+        ParsingMetadataHolder *itemMeta = ii_cast<ParsingMetadataHolder>(srcPlainMap->get(i));
         Int line=0, column=0;
-        if (item != 0) {
-          line = item->getLine();
-          column = item->getColumn();
+        if (itemMeta != 0) {
+          line = itemMeta->getLine();
+          column = itemMeta->getColumn();
         }
         state->addBuildMsg(std::make_shared<RedefinitionMsg>(name, line, column));
         // Overwrite old data.
@@ -111,9 +111,10 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processi
  * SharedContainer interface, the destination will be overwritten after a build msg
  * is created.
  */
-void mergeDefinition(Data::SharedRepository *repository, Char const *qualifier,
-                     SharedPtr<IdentifiableObject> const &obj, Processing::ParserState *state)
+void mergeDefinition(Char const *qualifier, SharedPtr<IdentifiableObject> const &obj,
+                     Processing::ParserState *state)
 {
+  auto repository = state->getDataStack();
   IdentifiableObject *dest;
   Bool ret = repository->tryGetPlainValue(qualifier, dest);
   if (ret == false || dest == 0) {
@@ -121,11 +122,11 @@ void mergeDefinition(Data::SharedRepository *repository, Char const *qualifier,
   } else {
     if (!mergeContainers(dest, obj.get(), state)) {
       // Generate a build message.
-      ParsedItem *item = obj.io_cast_get<ParsedItem>();
+      ParsingMetadataHolder *itemMeta = obj.ii_cast_get<ParsingMetadataHolder>();
       Int line=0, column=0;
-      if (item != 0) {
-        line = item->getLine();
-        column = item->getColumn();
+      if (itemMeta != 0) {
+        line = itemMeta->getLine();
+        column = itemMeta->getColumn();
       }
       state->addBuildMsg(std::make_shared<RedefinitionMsg>(qualifier, line, column));
       // Overwrite old data.

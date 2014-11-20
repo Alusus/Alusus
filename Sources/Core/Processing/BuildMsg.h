@@ -100,7 +100,7 @@ class BuildMsg : public IdentifiableObject
    * within that unit. For example, a parsing error code can have a value of
    * P23.
    */
-  public: virtual const Str& getCode() const = 0;
+  public: virtual Str const& getCode() const = 0;
 
   /**
    * @brief Get the severity of the message.
@@ -133,7 +133,7 @@ class BuildMsg : public IdentifiableObject
   public: virtual void buildDescription(Str &str) const = 0;
 
   /// Get a human readable description of the message.
-  public: const Str& getDescription() const;
+  public: Str const& getDescription() const;
 
   /**
    * @brief Set the source file for which the message is generated.
@@ -152,7 +152,7 @@ class BuildMsg : public IdentifiableObject
    * This is the full path and filename of the source file associated with the
    * message.
    */
-  public: const Str& getFileName()
+  public: Str const& getFileName()
   {
     return this->filename;
   }

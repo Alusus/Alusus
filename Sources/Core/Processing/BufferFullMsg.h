@@ -48,7 +48,7 @@ class BufferFullMsg : public Processing::BuildMsg
   // Member Functions
 
   /// @sa Processing::BuildMsg::getCode()
-  public: virtual const Str& getCode() const
+  public: virtual Str const& getCode() const
   {
     static Str code("L1002");
     return code;

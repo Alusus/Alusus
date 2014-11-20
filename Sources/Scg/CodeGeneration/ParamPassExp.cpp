@@ -16,8 +16,8 @@
 
 namespace Scg
 {
-using namespace Core::Standard;
 using namespace Core::Basic;
+using namespace Core::Data;
 
 ParamPassExp::ParamPassExp(CodeGenerator *gen,
     const SharedPtr<ParsedRoute> &astBlockRoot) : gen(gen)
@@ -27,20 +27,23 @@ ParamPassExp::ParamPassExp(CodeGenerator *gen,
         "Parameter pass expressions can be constructed from Expression.ParamPassExp only.");
   this->route = astBlockRoot->getRoute();
 
-  static ParsedDataBrowser singleParamBrowser(STR("Expression.Exp>0"));
-  static ParsedDataBrowser multiParamBrowser(
-      STR("Expression.Exp>0:Expression.ListExp"));
+  static ReferenceSeeker seeker;
+  static SharedPtr<Reference> singleParamReference = ReferenceParser::parseQualifier(
+    STR("{find prodId=Expression.Exp, 0}.0"),
+    ReferenceUsageCriteria::MULTI_DATA);
+  static SharedPtr<Reference> multiParamReference = ReferenceParser::parseQualifier(
+    STR("{find prodId=Expression.Exp, 0}.0~where(prodId=Expression.ListExp)"),
+    ReferenceUsageCriteria::MULTI_DATA);
 
-  SharedPtr<ParsedItem> exp;
+  SharedPtr<IdentifiableObject> exp;
   SharedPtr<ParsedList> listExprItem;
-  if ((listExprItem = multiParamBrowser.getChildValue<ParsedList>(astBlockRoot))
-      != 0)
+  if ((listExprItem = seeker.tryGetShared<ParsedList>(multiParamReference.get(), astBlockRoot.get())) != 0)
   {
     auto listExpr = ListExpression(gen, listExprItem);
     for (auto i = 0; i < listExpr.GetItemCount(); i++)
       this->params.push_back(listExpr.GetItem(i));
   }
-  else if ((exp = singleParamBrowser.getChildValue<ParsedItem>(astBlockRoot)) != 0)
+  else if ((exp = seeker.tryGetShared(singleParamReference.get(), astBlockRoot.get())) != 0)
   {
     this->params.push_back(exp);
   }

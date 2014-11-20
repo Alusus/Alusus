@@ -56,7 +56,7 @@ class CustomBuildMsg : public BuildMsg
   // Member Functions
 
   /// @sa BuildMsg::getCode()
-  public: virtual const Str& getCode() const
+  public: virtual Str const& getCode() const
   {
     return this->code;
   }

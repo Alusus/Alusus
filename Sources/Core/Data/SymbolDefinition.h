@@ -19,13 +19,13 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class SymbolDefinition : public IdentifiableObject,
-                         public virtual Initializable, public virtual IdOwner, public virtual DataOwner
+                         public virtual Initializable, public virtual IdHolder, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SymbolDefinition, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(IdentifiableObject, Initializable, IdOwner, DataOwner);
+  IMPLEMENT_INTERFACES_3(IdentifiableObject, Initializable, IdHolder, DataOwner);
 
 
   //============================================================================

@@ -40,7 +40,7 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   private: SharedPtr<RunParsingHandler> runHandler;
   private: SharedPtr<DumpParsingHandler> dumpHandler;
   private: SharedPtr<DefParsingHandler> defHandler;
-  private: SharedPtr<Core::Standard::GenericParsingHandler> handler;
+  private: SharedPtr<Core::Processing::GenericParsingHandler> handler;
 
   private: Core::Basic::Int leadingCmdListPos;
   private: Core::Basic::Int innerCmdListPos;

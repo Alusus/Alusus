@@ -21,13 +21,43 @@ namespace Core { namespace Data
 class ReferenceParser
 {
   //============================================================================
+  // Constants
+
+  private: static constexpr Char const *ROOT_KEYWORD = STR("root");
+  private: static constexpr Int ROOT_KEYWORD_LEN = 4;
+
+  private: static constexpr Char const *SELF_KEYWORD = STR("self");
+  private: static constexpr Int SELF_KEYWORD_LEN = 4;
+
+  private: static constexpr Char const *FIND_KEYWORD = STR("{find ");
+  private: static constexpr Int FIND_KEYWORD_LEN = 6;
+
+  private: static constexpr Char const *EVAL_KEYWORD = STR("{eval ");
+  private: static constexpr Int EVAL_KEYWORD_LEN = 6;
+
+  private: static constexpr Char const *BACKWARDS_KEYWORD = STR("backwards");
+  private: static constexpr Int BACKWARDS_KEYWORD_LEN = 9;
+
+  private: static constexpr Char const *WHERE_KEYWORD = STR("~where(");
+  private: static constexpr Int WHERE_KEYWORD_LEN = 7;
+
+
+  //============================================================================
   // Member Variables
 
-  IndexReference tempIndexReference;
+  private: IndexReference tempIndexReference;
 
-  StrKeyReference tempStrKeyReference;
+  private: StrKeyReference tempStrKeyReference;
 
-  ScopeReference tempScopeReference;
+  private: ScopeReference tempScopeReference;
+
+  private: SearchReference tempSearchReference;
+
+  private: SelfReference tempSelfReference;
+
+  private: SharedPtr<StrAttributeValidator> tempSearchValidator;
+
+  private: SharedPtr<StrAttributeValidator> tempResultValidator;
 
 
   //============================================================================
@@ -69,7 +99,9 @@ class ReferenceParser
                                                        ReferenceUsageCriteria criteria);
 
   /// Parses a single segment of the qualifier string.
-  public: Reference* parseQualifierSegment(Char const *&qualifier);
+  public: Reference const& parseQualifierSegment(Char const *&qualifier);
+
+  private: void setQualifierSegmentResultValidator(Char const *&qualifier, Reference *seg);
 
   /**
      * @brief Validate a qualifier string.
@@ -92,7 +124,7 @@ class ReferenceParser
      * not a subqualifier the return will be the beginning of the segment, not
      * the dot preceding it.
      */
-  public: static Char const* findLastQualifierSeguemt(Char const *qualifier)
+  public: static Char const* findLastQualifierSegment(Char const *qualifier)
   {
     qualifier = ReferenceParser::_findLastQualifierSegment(qualifier);
     if (*qualifier != CHR('\0')) {
@@ -105,6 +137,17 @@ class ReferenceParser
 
   /// Internal recursive function to find the last qualifier segument.
   private: static Char const* _findLastQualifierSegment(Char const *qualifier);
+
+  private: static Int parseInt(Char const *qualifier, Int &result);
+
+  private: static Int parseStrAttributeValidator(Char const *qualifier, StrAttributeValidator *targetValidator);
+
+  private: static Int skipSpaces(Char const *qualifier)
+  {
+    Int i = 0;
+    while (qualifier[i] == CHR(' ') || qualifier[i] == CHR('\t')) ++i;
+    return i;
+  }
 
 }; // class
 

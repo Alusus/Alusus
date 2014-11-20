@@ -16,25 +16,29 @@
 namespace Core { namespace Standard
 {
 
+using namespace Data;
+
 //==============================================================================
 // Overloaded Abstract Functions
 
-void ImportParsingHandler::onProdEnd(Processing::Parser *machine, Processing::ParserState *state)
+void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  SharedPtr<ParsedItem> item = state->getData().io_cast<ParsedItem>();
+  IdentifiableObject *item = state->getData().get();
   static Word stringLiteralId = ID_GENERATOR->getId(STR("LexerDefs.StringLiteral"));
-  ParsedDataBrowser browser;
+  QualifierSeeker browser;
   // Find a literal token in the subject.
-  SharedPtr<ParsedToken> token =
-      browser.getValue<ParsedToken>(STR("Subject.Subject1>Subject.Literal"), item);
-  if (token != 0) {
+  IdentifiableObject *token;
+  if (browser.tryGetPlain(STR("self~where(prodId=Subject.Subject1).{find prodId=Subject.Literal}"), item, token)) {
+    ParsedToken *parsedToken = io_cast<ParsedToken>(token);
     // Is it a string token?
-    if (token->getId() == stringLiteralId) {
-      if (!this->import(token->getText().c_str(), state)) {
+    if (parsedToken != 0 && parsedToken->getId() == stringLiteralId) {
+      if (!this->import(parsedToken->getText().c_str(), state)) {
         // Create a build msg.
+        ParsingMetadataHolder *itemMeta = item->getInterface<ParsingMetadataHolder>();
+        ASSERT(itemMeta != 0);
         state->addBuildMsg(
               SharedPtr<ImportLoadFailedMsg>(
-                new ImportLoadFailedMsg(item->getLine(), item->getColumn())));
+                new ImportLoadFailedMsg(itemMeta->getLine(), itemMeta->getColumn())));
       }
     }
   }

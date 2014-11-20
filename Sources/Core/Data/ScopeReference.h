@@ -73,7 +73,7 @@ class ScopeReference : public Reference
     this->cachedIndex = -1;
   }
 
-  public: const Str& getScope() const
+  public: Str const& getScope() const
   {
     return this->scope;
   }
@@ -97,18 +97,18 @@ class ScopeReference : public Reference
     this->cachedIndex = -1;
   }
 
-  public: virtual Bool setShared(Provider const *provider, IdentifiableObject *parent,
+  public: virtual Bool setShared(Provider *provider, IdentifiableObject *parent,
                                  SharedPtr<IdentifiableObject> const &obj, Int &index) const;
 
-  public: virtual Bool setPlain(Provider const *provider, IdentifiableObject *parent,
+  public: virtual Bool setPlain(Provider *provider, IdentifiableObject *parent,
                                 IdentifiableObject *obj, Int &index) const;
 
-  public: virtual Bool remove(Provider const *provider, IdentifiableObject *parent, Int &index) const;
+  public: virtual Bool remove(Provider *provider, IdentifiableObject *parent, Int &index) const;
 
-  public: virtual Bool getShared(Provider const *provider, IdentifiableObject const *parent,
+  public: virtual Bool getShared(Provider *provider, IdentifiableObject *parent,
                                  SharedPtr<IdentifiableObject> &result, Int &index) const;
 
-  public: virtual Bool getPlain(Provider const *provider, IdentifiableObject const *parent,
+  public: virtual Bool getPlain(Provider *provider, IdentifiableObject *parent,
                                 IdentifiableObject *&result, Int &index) const;
 
   private: Int getListIndex(NamedListSharedContainer const *container, Int i) const

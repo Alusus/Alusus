@@ -121,7 +121,7 @@ class Token : public IdentifiableObject
    *
    * @return Returns a pointer to the token text string.
    */
-  public: const Str& getText() const
+  public: Str const& getText() const
   {
     return this->text;
   }

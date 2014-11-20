@@ -97,7 +97,7 @@ class String : public IdentifiableObject
     return this->value.c_str();
   }
 
-  public: const Str& getStr() const
+  public: Str const& getStr() const
   {
     return this->value;
   }

@@ -16,6 +16,7 @@ namespace Tests { namespace CoreTests
 {
 
 using namespace Core::Data;
+using namespace Core::Processing;
 using namespace Core::Standard;
 
 //==============================================================================
@@ -24,7 +25,7 @@ using namespace Core::Standard;
 void TestGrammarPlant::createGrammar()
 {
   // Instantiate parsing handlers.
-  this->parsingHandler = std::make_shared<Core::Standard::GenericParsingHandler>();
+  this->parsingHandler = std::make_shared<GenericParsingHandler>();
 
   // Create lexer definitions.
   this->repository.setSharedValue(STR("root:LexerDefs"), GrammarModule::create({}));

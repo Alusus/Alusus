@@ -16,6 +16,7 @@ namespace Core { namespace Standard
 {
 
 using namespace Core::Data;
+using namespace Core::Processing;
 
 //==============================================================================
 // Member Functions
@@ -30,6 +31,7 @@ void GrammarPlant::createGrammar(RootManager *root)
   this->constTokenPrefix = STR("LexerDefs");
 
   // Instantiate parsing handlers.
+  this->rootHandler = std::make_shared<RootParsingHandler>();
   this->parsingHandler = std::make_shared<GenericParsingHandler>();
   this->importHandler = std::make_shared<ImportParsingHandler>(root);
 
@@ -637,7 +639,7 @@ void GrammarPlant::createProductionDefinitions()
   // Program : prod as StatementList(DefaultMain.DefaultStatement);
   this->repository.setSharedValue(STR("root:Program"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ReferenceTerm::create(STR("root:Main.StatementList"))},
-    {SymbolDefElement::HANDLER, this->parsingHandler}
+    {SymbolDefElement::HANDLER, this->rootHandler}
   }));
 
   this->repository.setSharedValue(STR("root:Main"), GrammarModule::create({}));

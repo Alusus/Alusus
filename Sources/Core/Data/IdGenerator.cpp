@@ -32,7 +32,7 @@ Word IdGenerator::getId(Char const *desc)
   }
 }
 
-const Str& IdGenerator::getDesc(Word id) const
+Str const& IdGenerator::getDesc(Word id) const
 {
   if (id >= this->ids.size()) {
     throw InvalidArgumentException(STR("id"), STR("Core::Data::IdGenerator::getDesc"));

@@ -434,6 +434,16 @@ class ParserState
   }
 
   /**
+   * @brief Set the parsing data associated with a term level.
+   * This is an arbitrary data created and used by the parsing handler. This
+   * function also sets the scope for this level.
+   */
+  public: void setData(Char const *scope, SharedPtr<IdentifiableObject> const &data, Int levelOffset = -1)
+  {
+    this->dataStack.setLevel(scope, data, levelOffset);
+  }
+
+  /**
    * @brief Get the parsing data associated with a term level.
    * This is an arbitrary data created and used by the parsing handler.
    */

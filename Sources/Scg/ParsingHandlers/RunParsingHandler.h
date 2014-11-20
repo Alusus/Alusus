@@ -17,12 +17,12 @@
 namespace Scg
 {
 
-class RunParsingHandler : public Core::Standard::GenericParsingHandler
+class RunParsingHandler : public Core::Processing::GenericParsingHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(RunParsingHandler, Core::Standard::GenericParsingHandler,
+  TYPE_INFO(RunParsingHandler, Core::Processing::GenericParsingHandler,
             "Scg", "Scg", "alusus.net");
 
 
@@ -43,7 +43,7 @@ class RunParsingHandler : public Core::Standard::GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  public: virtual void onProdEnd(Core::Processing::Parser *machine, Core::Processing::ParserState *state);
+  public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
 }; // class
 

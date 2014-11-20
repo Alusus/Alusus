@@ -153,6 +153,32 @@ enumeration(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_
                                          CONSUMED_TOKENS_TO_LIVE, FOLDED_OUT_TOO_SOON, NOT_NEEDED_ANYMORE);
 
 /**
+ * @brief A set of parsing flags to use with grammar terms.
+ * @ingroup processing_parser
+ *
+ * OMISSIBLE: Specifies that the parsed data for this term can be omitted if the
+ *            data has no info to provide. For token terms, this is true if the
+ *            token is constants. For other terms, it's true if the child term
+ *            returned null contents. For route terms this will only be
+ *            effective if the PASS_UP flag is also provided. For list terms
+ *            (duplicate and concat) omission happens to individual items of the
+ *            list if no data were received from the parent. Productions can be
+ *            omitted if it has only one item which is a data of a referenced
+ *            production.<br>
+ * PASS_UP: This flag specifies that this term is to pass its data up to the
+ *          parent. Typically, the parent's element will be a list type element
+ *          so the data will be added to that list. This flag applies to route
+ *          as well as list term types.<br>
+ * FORCE_LIST: For list items (concat and duplicate). This flag will force the
+ *             creation of a list item even if there is only one item in the
+ *             list. This flag conflicts with PASS_UP.
+ */
+enumeration(ParsingFlags,
+            OMISSIBLE = 1,
+            FORCE_LIST = 2,
+            PASS_UP = 4);
+
+/**
  * @brief The default value for tokensToLive.
  * @ingroup processing_parser
  *
@@ -215,6 +241,9 @@ enumeration(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_
 #include "ParserState.h"
 #include "ParsingHandler.h"
 #include "Parser.h"
+// Parsing Handlers
+#include "GenericParsingHandler.h"
+#include "RootParsingHandler.h"
 
 // Main Class
 #include "Engine.h"

@@ -18,7 +18,7 @@ namespace Core { namespace Data
 //==============================================================================
 // Data Read Functions
 
-SharedPtr<IdentifiableObject> QualifierSeeker::getShared(Char const *qualifier, IdentifiableObject const *parent) const
+SharedPtr<IdentifiableObject> QualifierSeeker::getShared(Char const *qualifier, IdentifiableObject *parent) const
 {
   SharedPtr<IdentifiableObject> result;
   if (!this->tryGetShared(qualifier, parent, result)) {
@@ -29,7 +29,15 @@ SharedPtr<IdentifiableObject> QualifierSeeker::getShared(Char const *qualifier, 
 }
 
 
-Bool QualifierSeeker::tryGetShared(Char const *qualifier, IdentifiableObject const *parent,
+SharedPtr<IdentifiableObject> QualifierSeeker::tryGetShared(Char const *qualifier, IdentifiableObject *parent) const
+{
+  SharedPtr<IdentifiableObject> result;
+  this->tryGetShared(qualifier, parent, result);
+  return result;
+}
+
+
+Bool QualifierSeeker::tryGetShared(Char const *qualifier, IdentifiableObject *parent,
                                    SharedPtr<IdentifiableObject> &result) const
 {
   if (qualifier == 0) {
@@ -40,11 +48,18 @@ Bool QualifierSeeker::tryGetShared(Char const *qualifier, IdentifiableObject con
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::tryGetShared"),
                                    STR("Cannot be null."));
   }
-  Reference *seg = this->parser.parseQualifierSegment(qualifier);
+  Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     Int index = 0;
-    if (seg->getShared(this->dataProvider, parent, result, index)) return true;
-    else return false;
+    SharedPtr<IdentifiableObject> tempResult;
+    if (seg->getShared(this->dataProvider, parent, tempResult, index)) {
+      // Validate the result if a validator exists.
+      if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult.get()) == false) return false;
+      result = tempResult;
+      return true;
+    } else {
+      return false;
+    }
   } else {
     ++qualifier;
     Int index = 0;
@@ -56,7 +71,10 @@ Bool QualifierSeeker::tryGetShared(Char const *qualifier, IdentifiableObject con
         } else if (innerParent->isA<SharedModulePairedPtr>()) {
           innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
         }
-        if (this->tryGetShared(qualifier, innerParent, result)) return true;
+        // Validate the parent if the reference has a validator.
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+          if (this->tryGetShared(qualifier, innerParent, result)) return true;
+        }
       }
     }
     return false;
@@ -64,7 +82,7 @@ Bool QualifierSeeker::tryGetShared(Char const *qualifier, IdentifiableObject con
 }
 
 
-void QualifierSeeker::getShared(Char const *qualifier, IdentifiableObject const *parent,
+void QualifierSeeker::getShared(Char const *qualifier, IdentifiableObject *parent,
                                 SharedModulePairedPtr &retVal) const
 {
   if (!this->tryGetShared(qualifier, parent, retVal)) {
@@ -74,7 +92,7 @@ void QualifierSeeker::getShared(Char const *qualifier, IdentifiableObject const 
 }
 
 
-Bool QualifierSeeker::tryGetShared(Char const *qualifier, IdentifiableObject const *parent,
+Bool QualifierSeeker::tryGetShared(Char const *qualifier, IdentifiableObject *parent,
                                    SharedModulePairedPtr &retVal) const
 {
   if (qualifier == 0) {
@@ -85,10 +103,16 @@ Bool QualifierSeeker::tryGetShared(Char const *qualifier, IdentifiableObject con
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::tryGetShared"),
                                    STR("Cannot be null."));
   }
-  Reference *seg = this->parser.parseQualifierSegment(qualifier);
+  Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     Int index = 0;
-    if (seg->getShared(this->dataProvider, parent, retVal.object, index)) {
+    SharedPtr<IdentifiableObject> tempResult;
+    if (seg->getShared(this->dataProvider, parent, tempResult, index)) {
+      // Validate the result if the reference has a validator.
+      if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult.get()) == false) {
+        return false;
+      }
+      retVal.object = tempResult;
       retVal.module.reset();
       return true;
     } else {
@@ -102,16 +126,24 @@ Bool QualifierSeeker::tryGetShared(Char const *qualifier, IdentifiableObject con
     while (index != -1) {
       if (seg->getShared(this->dataProvider, parent, innerSharedParent, index)) {
         if (innerSharedParent->isA<SharedModulePairedPtr>()) {
-          if (this->tryGetShared(qualifier, innerSharedParent.s_cast_get<SharedModulePairedPtr>()->object, retVal)) {
-            if (retVal.module == 0) retVal.module = innerSharedParent.s_cast_get<SharedModulePairedPtr>()->module;
-            return true;
+          SharedModulePairedPtr *pairedPtr = innerSharedParent.s_cast_get<SharedModulePairedPtr>();
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object.get()) == true) {
+            if (this->tryGetShared(qualifier, pairedPtr->object, retVal)) {
+              if (retVal.module == 0) retVal.module = pairedPtr->module;
+              return true;
+            }
           }
         } else if (innerSharedParent->isA<PlainModulePairedPtr>()) {
-          if (this->tryGetShared(qualifier, innerSharedParent.s_cast_get<PlainModulePairedPtr>()->object, retVal)) {
-            return true;
+          PlainModulePairedPtr *pairedPtr = innerSharedParent.s_cast_get<PlainModulePairedPtr>();
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object) == true) {
+            if (this->tryGetShared(qualifier, pairedPtr->object, retVal)) {
+              return true;
+            }
           }
         } else {
-          if (this->tryGetShared(qualifier, innerSharedParent, retVal)) return true;
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerSharedParent.get()) == true) {
+            if (this->tryGetShared(qualifier, innerSharedParent, retVal)) return true;
+          }
         }
       }
     }
@@ -119,16 +151,24 @@ Bool QualifierSeeker::tryGetShared(Char const *qualifier, IdentifiableObject con
     while (index != -1) {
       if (seg->getPlain(this->dataProvider, parent, innerPlainParent, index)) {
         if (innerPlainParent->isA<SharedModulePairedPtr>()) {
-          if (this->tryGetShared(qualifier, static_cast<SharedModulePairedPtr*>(innerPlainParent)->object, retVal)) {
-            if (retVal.module == 0) retVal.module = static_cast<SharedModulePairedPtr*>(innerPlainParent)->module;
-            return true;
+          SharedModulePairedPtr *pairedPtr = static_cast<SharedModulePairedPtr*>(innerPlainParent);
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object.get()) == true) {
+            if (this->tryGetShared(qualifier, pairedPtr->object, retVal)) {
+              if (retVal.module == 0) retVal.module = pairedPtr->module;
+              return true;
+            }
           }
         } else if (innerPlainParent->isA<PlainModulePairedPtr>()) {
-          if (this->tryGetShared(qualifier, static_cast<PlainModulePairedPtr*>(innerPlainParent)->object, retVal)) {
-            return true;
+          PlainModulePairedPtr *pairedPtr = static_cast<PlainModulePairedPtr*>(innerPlainParent);
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object) == true) {
+            if (this->tryGetShared(qualifier, pairedPtr->object, retVal)) {
+              return true;
+            }
           }
         } else {
-          if (this->tryGetShared(qualifier, innerPlainParent, retVal)) return true;
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerPlainParent) == true) {
+            if (this->tryGetShared(qualifier, innerPlainParent, retVal)) return true;
+          }
         }
       }
     }
@@ -158,10 +198,15 @@ Bool QualifierSeeker::tryGetShared(Char const *qualifier, SharedPtr<Identifiable
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::tryGetShared"),
                                    STR("Cannot be null."));
   }
-  Reference *seg = this->parser.parseQualifierSegment(qualifier);
+  Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     Int index = 0;
-    if (seg->getShared(this->dataProvider, parent.get(), retVal.object, index)) {
+    SharedPtr<IdentifiableObject> tempResult;
+    if (seg->getShared(this->dataProvider, parent.get(), tempResult, index)) {
+      if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult.get()) == false) {
+        return false;
+      }
+      retVal.object = tempResult;
       if (parent->isDerivedFrom<Module>()) {
         retVal.module = parent.s_cast<Module>();
       } else {
@@ -180,17 +225,25 @@ Bool QualifierSeeker::tryGetShared(Char const *qualifier, SharedPtr<Identifiable
     while (index != -1) {
       if (seg->getShared(this->dataProvider, parent.get(), innerSharedParent, index)) {
         if (innerSharedParent->isA<SharedModulePairedPtr>()) {
-          ret = this->tryGetShared(qualifier, innerSharedParent.s_cast_get<SharedModulePairedPtr>()->object, retVal);
-          if (ret) {
-            if (retVal.module == 0) retVal.module = innerSharedParent.s_cast_get<SharedModulePairedPtr>()->module;
-            break;
+          SharedModulePairedPtr *pairedPtr = innerSharedParent.s_cast_get<SharedModulePairedPtr>();
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object.get()) == true) {
+            ret = this->tryGetShared(qualifier, pairedPtr->object, retVal);
+            if (ret) {
+              if (retVal.module == 0) retVal.module = pairedPtr->module;
+              break;
+            }
           }
         } else if (innerSharedParent->isA<PlainModulePairedPtr>()) {
-          ret = this->tryGetShared(qualifier, innerSharedParent.s_cast_get<PlainModulePairedPtr>()->object, retVal);
-          if (ret) break;
+          PlainModulePairedPtr *pairedPtr = innerSharedParent.s_cast_get<PlainModulePairedPtr>();
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object) == true) {
+            ret = this->tryGetShared(qualifier, pairedPtr->object, retVal);
+            if (ret) break;
+          }
         } else {
-          ret = this->tryGetShared(qualifier, innerSharedParent, retVal);
-          if (ret) break;
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerSharedParent.get()) == true) {
+            ret = this->tryGetShared(qualifier, innerSharedParent, retVal);
+            if (ret) break;
+          }
         }
       }
     }
@@ -199,17 +252,25 @@ Bool QualifierSeeker::tryGetShared(Char const *qualifier, SharedPtr<Identifiable
       while (index != -1) {
         if (seg->getPlain(this->dataProvider, parent.get(), innerPlainParent, index)) {
           if (innerPlainParent->isA<SharedModulePairedPtr>()) {
-            ret = this->tryGetShared(qualifier, static_cast<SharedModulePairedPtr*>(innerPlainParent)->object, retVal);
-            if (ret) {
-              if (retVal.module == 0) retVal.module = static_cast<SharedModulePairedPtr*>(innerPlainParent)->module;
-              break;
+            SharedModulePairedPtr *pairedPtr = static_cast<SharedModulePairedPtr*>(innerPlainParent);
+            if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object.get()) == true) {
+              ret = this->tryGetShared(qualifier, pairedPtr->object, retVal);
+              if (ret) {
+                if (retVal.module == 0) retVal.module = pairedPtr->module;
+                break;
+              }
             }
           } else if (innerPlainParent->isA<PlainModulePairedPtr>()) {
-            ret = this->tryGetShared(qualifier, static_cast<PlainModulePairedPtr*>(innerPlainParent)->object, retVal);
-            if (ret) break;
+            PlainModulePairedPtr *pairedPtr = static_cast<PlainModulePairedPtr*>(innerPlainParent);
+            if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object) == true) {
+              ret = this->tryGetShared(qualifier, pairedPtr->object, retVal);
+              if (ret) break;
+            }
           } else {
-            ret = this->tryGetShared(qualifier, innerPlainParent, retVal);
-            if (ret) break;
+            if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerPlainParent) == true) {
+              ret = this->tryGetShared(qualifier, innerPlainParent, retVal);
+              if (ret) break;
+            }
           }
         }
       }
@@ -225,7 +286,8 @@ Bool QualifierSeeker::tryGetShared(Char const *qualifier, SharedPtr<Identifiable
 //==============================================================================
 // Plain Data Read Functions
 
-IdentifiableObject* QualifierSeeker::getPlain(Char const *qualifier, IdentifiableObject const *parent) const
+
+IdentifiableObject* QualifierSeeker::getPlain(Char const *qualifier, IdentifiableObject *parent) const
 {
   IdentifiableObject *result;
   if (!this->tryGetPlain(qualifier, parent, result)) {
@@ -236,7 +298,16 @@ IdentifiableObject* QualifierSeeker::getPlain(Char const *qualifier, Identifiabl
 }
 
 
-Bool QualifierSeeker::tryGetPlain(Char const *qualifier, IdentifiableObject const *parent, IdentifiableObject *&result) const
+IdentifiableObject* QualifierSeeker::tryGetPlain(Char const *qualifier, IdentifiableObject *parent) const
+{
+  IdentifiableObject *result = 0;
+  this->tryGetPlain(qualifier, parent, result);
+  return result;
+}
+
+
+Bool QualifierSeeker::tryGetPlain(Char const *qualifier, IdentifiableObject *parent,
+                                  IdentifiableObject *&result) const
 {
   if (qualifier == 0) {
     throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::QualifierSeeker::tryGetPlain"),
@@ -246,10 +317,15 @@ Bool QualifierSeeker::tryGetPlain(Char const *qualifier, IdentifiableObject cons
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::tryGetPlain"),
                                    STR("Cannot be null."));
   }
-  Reference *seg = this->parser.parseQualifierSegment(qualifier);
+  Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     Int index = 0;
-    if (seg->getPlain(this->dataProvider, parent, result, index)) return true;
+    IdentifiableObject *tempResult;
+    if (seg->getPlain(this->dataProvider, parent, tempResult, index)) {
+      if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult) == false) return false;
+      result = tempResult;
+      return true;
+    }
     else return false;
   } else {
     ++qualifier;
@@ -262,7 +338,9 @@ Bool QualifierSeeker::tryGetPlain(Char const *qualifier, IdentifiableObject cons
         } else if (innerParent->isA<SharedModulePairedPtr>()) {
           innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
         }
-        if (this->tryGetPlain(qualifier, innerParent, result)) return true;
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+          if (this->tryGetPlain(qualifier, innerParent, result)) return true;
+        }
       }
     }
     return false;
@@ -291,10 +369,15 @@ Bool QualifierSeeker::tryGetPlain(Char const *qualifier, IdentifiableObject *par
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::tryGetPlain"),
                                    STR("Cannot be null."));
   }
-  Reference *seg = this->parser.parseQualifierSegment(qualifier);
+  Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     Int index = 0;
-    if (seg->getPlain(this->dataProvider, parent, retVal.object, index)) {
+    IdentifiableObject *tempResult;
+    if (seg->getPlain(this->dataProvider, parent, tempResult, index)) {
+      if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult) == false) {
+        return false;
+      }
+      retVal.object = tempResult;
       if (parent->isDerivedFrom<Module>()) {
         retVal.module = static_cast<Module*>(parent);
       } else {
@@ -313,20 +396,28 @@ Bool QualifierSeeker::tryGetPlain(Char const *qualifier, IdentifiableObject *par
     while (index != -1) {
       if (seg->getPlain(this->dataProvider, parent, innerParent, index)) {
         if (innerParent->isA<SharedModulePairedPtr>()) {
-          ret = this->tryGetPlain(qualifier, static_cast<SharedModulePairedPtr*>(innerParent)->object.get(), retVal);
-          if (ret) {
-            if (retVal.module == 0) retVal.module = static_cast<SharedModulePairedPtr*>(innerParent)->module.get();
-            break;
+          SharedModulePairedPtr *pairedPtr = static_cast<SharedModulePairedPtr*>(innerParent);
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object.get()) == true) {
+            ret = this->tryGetPlain(qualifier, pairedPtr->object.get(), retVal);
+            if (ret) {
+              if (retVal.module == 0) retVal.module = pairedPtr->module.get();
+              break;
+            }
           }
         } else if (innerParent->isA<PlainModulePairedPtr>()) {
-          ret = this->tryGetPlain(qualifier, static_cast<PlainModulePairedPtr*>(innerParent)->object, retVal);
-          if (ret) {
-            if (retVal.module == 0) retVal.module = static_cast<PlainModulePairedPtr*>(innerParent)->module;
-            break;
+          PlainModulePairedPtr *pairedPtr = static_cast<PlainModulePairedPtr*>(innerParent);
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object) == true) {
+            ret = this->tryGetPlain(qualifier, pairedPtr->object, retVal);
+            if (ret) {
+              if (retVal.module == 0) retVal.module = pairedPtr->module;
+              break;
+            }
           }
         } else {
-          ret = this->tryGetPlain(qualifier, innerParent, retVal);
-          if (ret) break;
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+            ret = this->tryGetPlain(qualifier, innerParent, retVal);
+            if (ret) break;
+          }
         }
       }
     }
@@ -361,9 +452,10 @@ Bool QualifierSeeker::trySetShared(Char const *qualifier, IdentifiableObject *pa
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::trySetShared"),
                                    STR("Cannot be null."));
   }
-  Reference *seg = this->parser.parseQualifierSegment(qualifier);
+  Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     Int index = 0;
+    if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(val.get()) == false) return false;
     if (seg->setShared(this->dataProvider, parent, val, index)) return true;
     else return false;
   } else {
@@ -379,8 +471,10 @@ Bool QualifierSeeker::trySetShared(Char const *qualifier, IdentifiableObject *pa
         } else if (innerParent->isA<SharedModulePairedPtr>()) {
           innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
         }
-        ret = this->trySetShared(qualifier, innerParent, val);
-        if (ret) break;
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+          ret = this->trySetShared(qualifier, innerParent, val);
+          if (ret) break;
+        }
       }
     }
     return ret;
@@ -407,9 +501,10 @@ Bool QualifierSeeker::trySetPlain(Char const *qualifier, IdentifiableObject *par
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::trySetPlain"),
                                    STR("Cannot be null."));
   }
-  Reference *seg = this->parser.parseQualifierSegment(qualifier);
+  Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     Int index = 0;
+    if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(val) == false) return false;
     if (seg->setPlain(this->dataProvider, parent, val, index)) return true;
     else return false;
   } else {
@@ -425,8 +520,10 @@ Bool QualifierSeeker::trySetPlain(Char const *qualifier, IdentifiableObject *par
         } else if (innerParent->isA<SharedModulePairedPtr>()) {
           innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
         }
-        ret = this->trySetPlain(qualifier, innerParent, val);
-        if (ret) break;
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+          ret = this->trySetPlain(qualifier, innerParent, val);
+          if (ret) break;
+        }
       }
     }
     return ret;
@@ -456,9 +553,17 @@ Bool QualifierSeeker::tryRemove(Char const *qualifier, IdentifiableObject *paren
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::trySetPlain"),
                                    STR("Cannot be null."));
   }
-  Reference *seg = this->parser.parseQualifierSegment(qualifier);
+  Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     Int index = 0;
+    if (seg->getResultValidator() != 0) {
+      // Validate the object before removing it.
+      IdentifiableObject *obj;
+      if (seg->getPlain(this->dataProvider, parent, obj, index)) {
+        if (seg->getResultValidator()->validate(obj) == false) return false;
+      }
+      index = 0;
+    }
     if (seg->remove(this->dataProvider, parent, index)) return true;
     else return false;
   } else {
@@ -474,8 +579,10 @@ Bool QualifierSeeker::tryRemove(Char const *qualifier, IdentifiableObject *paren
         } else if (innerParent->isA<SharedModulePairedPtr>()) {
           innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
         }
-        ret = this->tryRemove(qualifier, innerParent);
-        if (ret) break;
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+          ret = this->tryRemove(qualifier, innerParent);
+          if (ret) break;
+        }
       }
     }
     return ret;

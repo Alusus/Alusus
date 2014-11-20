@@ -98,7 +98,7 @@ class GrammarRepository : public IdentifiableObject,
 
   public: virtual Bool trySetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> const &val);
 
-  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Reference const *ref) const
+  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Reference const *ref)
   {
     return this->repository.getSharedValue(ref);
   }
@@ -108,7 +108,7 @@ class GrammarRepository : public IdentifiableObject,
     this->repository.getSharedValue(ref, retVal);
   }
 
-  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Char const *qualifier) const
+  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Char const *qualifier)
   {
     return this->repository.getSharedValue(qualifier);
   }
@@ -118,7 +118,7 @@ class GrammarRepository : public IdentifiableObject,
     this->repository.getSharedValue(qualifier, retVal);
   }
 
-  public: virtual Bool tryGetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> &retVal) const
+  public: virtual Bool tryGetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> &retVal)
   {
     return this->repository.tryGetSharedValue(ref, retVal);
   }
@@ -128,7 +128,7 @@ class GrammarRepository : public IdentifiableObject,
     return this->repository.tryGetSharedValue(ref, retVal);
   }
 
-  public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> &retVal) const
+  public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> &retVal)
   {
     return this->repository.tryGetSharedValue(qualifier, retVal);
   }
@@ -163,7 +163,7 @@ class GrammarRepository : public IdentifiableObject,
     return this->repository.tryRemoveValue(qualifier);
   }
 
-  public: virtual IdentifiableObject* getPlainValue(Reference const *ref) const
+  public: virtual IdentifiableObject* getPlainValue(Reference const *ref)
   {
     return this->repository.getPlainValue(ref);
   }
@@ -173,7 +173,7 @@ class GrammarRepository : public IdentifiableObject,
     this->repository.getPlainValue(ref, retVal);
   }
 
-  public: virtual IdentifiableObject* getPlainValue(Char const *qualifier) const
+  public: virtual IdentifiableObject* getPlainValue(Char const *qualifier)
   {
     return this->repository.getPlainValue(qualifier);
   }
@@ -183,7 +183,7 @@ class GrammarRepository : public IdentifiableObject,
     this->repository.getPlainValue(qualifier, retVal);
   }
 
-  public: virtual Bool tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal) const
+  public: virtual Bool tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal)
   {
     return this->repository.tryGetPlainValue(ref, retVal);
   }
@@ -193,7 +193,7 @@ class GrammarRepository : public IdentifiableObject,
     return this->repository.tryGetPlainValue(ref, retVal);
   }
 
-  public: virtual Bool tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal) const
+  public: virtual Bool tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal)
   {
     return this->repository.tryGetPlainValue(qualifier, retVal);
   }

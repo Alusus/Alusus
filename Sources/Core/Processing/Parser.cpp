@@ -20,7 +20,7 @@ namespace Core { namespace Processing
 //==============================================================================
 // Member Functions
 
-void Parser::initialize(Data::GrammarRepository *grammarRepo)
+void Parser::initialize(Data::GrammarRepository *grammarRepo, Data::SharedRepository *definitionsRepo)
 {
   // Before we can change the production list, we need to make sure we have no outstanding
   // states.
@@ -34,8 +34,9 @@ void Parser::initialize(Data::GrammarRepository *grammarRepo)
   //    this->production_definitions->production_in_use_inquirer.unconnect(this, &Parser::is_production_in_use);
   //}
 
-  // Set the new manager.
+  // Set the repositories.
   this->grammarRepository = grammarRepo;
+  this->definitionsRepository = definitionsRepo;
 
   // TODO: If we have a new manager, we need to set the production_in_use_inquirer signal.
   //if (this->production_definitions != 0) {
@@ -105,7 +106,7 @@ void Parser::beginParsing()
     throw GeneralException(STR("Formula of root production isn't set yet."),
                            STR("Core::Processing::Parser::beginParsing"));
   }
-  (*si)->pushProdLevel(module, static_cast<Data::SymbolDefinition*>(prod));
+  this->pushStateProdLevel(*si, module, static_cast<Data::SymbolDefinition*>(prod));
 
   this->unexpectedTokenMsgRaised = false;
 }

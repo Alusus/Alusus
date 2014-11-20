@@ -94,7 +94,7 @@ namespace Scg
      * @param[in] astRoot A pointer to the AST block root.
      */
     FunctionAstBlock(CodeGenerator *gen,
-        const std::shared_ptr<Core::Standard::ParsedList> &astRoot);
+        const std::shared_ptr<Core::Data::ParsedList> &astRoot);
 
     //! Class destructor.
     ~FunctionAstBlock();

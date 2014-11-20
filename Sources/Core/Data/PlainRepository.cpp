@@ -246,7 +246,7 @@ void PlainRepository::setPlainValue(Char const *qualifier, IdentifiableObject *v
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   // Set the value first.
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
@@ -325,7 +325,7 @@ Bool PlainRepository::trySetPlainValue(Char const *qualifier, IdentifiableObject
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   // Set the value first.
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
@@ -386,7 +386,7 @@ void PlainRepository::removeValue(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -433,7 +433,7 @@ Bool PlainRepository::tryRemoveValue(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -456,7 +456,7 @@ Bool PlainRepository::tryRemoveValue(Char const *qualifier)
 }
 
 
-IdentifiableObject* PlainRepository::getPlainValue(Reference const *ref) const
+IdentifiableObject* PlainRepository::getPlainValue(Reference const *ref)
 {
   if (ref->isA<ScopeReference>()) {
     return this->referenceSeeker.getPlain(ref, &this->stack);
@@ -491,12 +491,12 @@ void PlainRepository::getPlainValue(Reference const *ref, PlainModulePairedPtr &
 }
 
 
-IdentifiableObject* PlainRepository::getPlainValue(Char const *qualifier) const
+IdentifiableObject* PlainRepository::getPlainValue(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   IdentifiableObject *obj;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -527,7 +527,7 @@ void PlainRepository::getPlainValue(Char const *qualifier, PlainModulePairedPtr 
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -554,7 +554,7 @@ void PlainRepository::getPlainValue(Char const *qualifier, PlainModulePairedPtr 
 }
 
 
-Bool PlainRepository::tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal) const
+Bool PlainRepository::tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal)
 {
   if (ref->isA<ScopeReference>()) {
     return this->referenceSeeker.tryGetPlain(ref, &this->stack, retVal);
@@ -586,11 +586,11 @@ Bool PlainRepository::tryGetPlainValue(Reference const *ref, PlainModulePairedPt
 }
 
 
-Bool PlainRepository::tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal) const
+Bool PlainRepository::tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -617,7 +617,7 @@ Bool PlainRepository::tryGetPlainValue(Char const *qualifier, PlainModulePairedP
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;

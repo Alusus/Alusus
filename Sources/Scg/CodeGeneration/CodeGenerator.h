@@ -112,31 +112,31 @@ namespace Scg
 
   public:
     Module *GenerateModule(const SharedPtr<Core::Data::Module> &srcModule);
-    Block *GenerateSet(const Core::Basic::SharedPtr<Core::Standard::ParsedList> &list);
-    Block *GenerateInnerSet(const Core::Basic::SharedPtr<Core::Standard::ParsedItem> &item);
-    Expression *GenerateStatement(const Core::Basic::SharedPtr<Core::Standard::ParsedItem> &item);
-    Expression *GenerateDefine(const Core::Basic::SharedPtr<Core::Standard::ParsedItem> &item);
-    DefineVariable *GenerateDefineVariable(const std::string &name, const SharedPtr<Core::Standard::ParsedItem> &item);
-    DefineFunction *GenerateDefineFunction(const std::string &name, const SharedPtr<Core::Standard::ParsedItem> &expr);
-    DefineStruct *GenerateDefineStructure(const std::string &name, const SharedPtr<Core::Standard::ParsedItem> &expr);
+    Block *GenerateSet(const SharedPtr<Core::Data::ParsedList> &list);
+    Block *GenerateInnerSet(const SharedPtr<IdentifiableObject> &item);
+    Expression *GenerateStatement(const SharedPtr<IdentifiableObject> &item);
+    Expression *GenerateDefine(const SharedPtr<IdentifiableObject> &item);
+    DefineVariable *GenerateDefineVariable(const std::string &name, const SharedPtr<IdentifiableObject> &item);
+    DefineFunction *GenerateDefineFunction(const std::string &name, const SharedPtr<IdentifiableObject> &expr);
+    DefineStruct *GenerateDefineStructure(const std::string &name, const SharedPtr<IdentifiableObject> &expr);
 
-    Expression *GenerateExpression(const SharedPtr<Core::Standard::ParsedItem> &item);
-    CallFunction *GeneratePrint(const Core::Basic::SharedPtr<IdentifiableObject> &ptr);
-    Return *GenerateReturn(const Core::Basic::SharedPtr<Core::Standard::ParsedItem> &ptr);
+    Expression *GenerateExpression(const SharedPtr<IdentifiableObject> &item);
+    CallFunction *GeneratePrint(const SharedPtr<IdentifiableObject> &ptr);
+    Return *GenerateReturn(const SharedPtr<IdentifiableObject> &ptr);
 
   private:
     void InitializeIds();
-    Expression *GenerateVariableRef(const SharedPtr<Core::Standard::ParsedItem> &param);
+    Expression *GenerateVariableRef(const SharedPtr<IdentifiableObject> &param);
     //Expression *GenerateMemberAccess(SharedPtr<IdentifiableObject> const &param);
-    Expression *GenerateConst(const SharedPtr<Core::Standard::ParsedToken> &literal);
-    List *GenerateList(const SharedPtr<Core::Standard::ParsedList> &listExpr);
-    Expression *GenerateBinaryOperator(const SharedPtr<Core::Standard::ParsedList> &cmpExpr);
-    //CallFunction *GenerateFunctionCall(const SharedPtr<Core::Standard::ParsedList> &functionalExpr);
+    Expression *GenerateConst(const SharedPtr<Core::Data::ParsedToken> &literal);
+    List *GenerateList(const SharedPtr<Core::Data::ParsedList> &listExpr);
+    Expression *GenerateBinaryOperator(const SharedPtr<Core::Data::ParsedList> &cmpExpr);
+    //CallFunction *GenerateFunctionCall(const SharedPtr<Core::Data::ParsedList> &functionalExpr);
     List *GenerateOperand(SharedPtr<IdentifiableObject> const &functionalExpr);
-    IfStatement *GenerateIfStatement(const SharedPtr<Core::Standard::ParsedItem> &command);
-    ForStatement *GenerateForStatement(const SharedPtr<Core::Standard::ParsedItem> &command);
-    WhileStatement *GenerateWhileStatement(const SharedPtr<Core::Standard::ParsedItem> &command);
-    Expression *GenerateLinkStatement(const SharedPtr<Core::Standard::ParsedItem> &command);
+    IfStatement *GenerateIfStatement(const SharedPtr<IdentifiableObject> &command);
+    ForStatement *GenerateForStatement(const SharedPtr<IdentifiableObject> &command);
+    WhileStatement *GenerateWhileStatement(const SharedPtr<IdentifiableObject> &command);
+    Expression *GenerateLinkStatement(const SharedPtr<IdentifiableObject> &command);
 
   public:
     /**
@@ -145,7 +145,7 @@ namespace Scg
      *
      * @param[in] item  A pointer to the root of the AST block.
      */
-    std::string ParseToken(const Core::Basic::SharedPtr<Core::Standard::ParsedItem> &item);
+    std::string ParseToken(const SharedPtr<IdentifiableObject> &item);
 
     /**
      * Parses an AST block that is generated for a variable type, e.g. int,
@@ -157,8 +157,7 @@ namespace Scg
      * content of the pointer is allocated in the heap and should be freed by
      * the caller.
      */
-    ValueTypeSpec *ParseVariableType(
-        const Core::Basic::SharedPtr<Core::Standard::ParsedItem> &item);
+    ValueTypeSpec *ParseVariableType(const SharedPtr<IdentifiableObject> &item);
 
     /**
      * Parses a colon-separated variable definition where the name of the
@@ -170,8 +169,7 @@ namespace Scg
      * @return A VariableDefinition value specifying the name and type of the
      * variable.
      */
-    VariableDefinition ParseVariableDefinition(
-        const SharedPtr<Core::Standard::ParsedItem> &astBlockRoot);
+    VariableDefinition ParseVariableDefinition(const SharedPtr<IdentifiableObject> &astBlockRoot);
 
     /**
      * Parses a comma-separated list of variable definitions which is used
@@ -182,8 +180,7 @@ namespace Scg
      *
      * @return A VariableDefinitionArray containing the variable definitions.
      */
-    VariableDefinitionArray ParseFunctionArguments(
-        const SharedPtr<Core::Standard::ParsedItem> &astBlockRoot);
+    VariableDefinitionArray ParseFunctionArguments(const SharedPtr<IdentifiableObject> &astBlockRoot);
 
   }; // CodeGenerator
 } // Scg

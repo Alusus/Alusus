@@ -26,7 +26,7 @@ Bool IndexReference::compare(Reference const *r) const
 }
 
 
-Bool IndexReference::setShared(Provider const *provider, IdentifiableObject *parent,
+Bool IndexReference::setShared(Provider *provider, IdentifiableObject *parent,
                                SharedPtr<IdentifiableObject> const &obj, Int &index) const
 {
   if (parent == 0) {
@@ -35,13 +35,18 @@ Bool IndexReference::setShared(Provider const *provider, IdentifiableObject *par
   }
   if (index == -1) return false;
   index = -1;
-  ListSharedContainer *container = parent->getInterface<ListSharedContainer>();
+  SharedContainer *container = parent->getInterface<SharedContainer>();
   if (container == 0) return false;
   if (this->index >= 0 && this->index < container->getCount()) {
     container->set(this->index, obj);
     return true;
   } else if (this->index == container->getCount()) {
-    container->add(obj);
+    ListSharedContainer *listContainer = parent->getInterface<ListSharedContainer>();
+    if (listContainer == 0) return false;
+    listContainer->add(obj);
+    return true;
+  } else if (this->index < 0 && this->index >= -container->getCount()) {
+    container->set(container->getCount() + this->index, obj);
     return true;
   } else {
     return false;
@@ -49,7 +54,7 @@ Bool IndexReference::setShared(Provider const *provider, IdentifiableObject *par
 }
 
 
-Bool IndexReference::setPlain(Provider const *provider, IdentifiableObject *parent,
+Bool IndexReference::setPlain(Provider *provider, IdentifiableObject *parent,
                               IdentifiableObject *obj, Int &index) const
 {
   if (parent == 0) {
@@ -58,13 +63,18 @@ Bool IndexReference::setPlain(Provider const *provider, IdentifiableObject *pare
   }
   if (index == -1) return false;
   index = -1;
-  ListPlainContainer *container = parent->getInterface<ListPlainContainer>();
+  PlainContainer *container = parent->getInterface<PlainContainer>();
   if (container == 0) return false;
   if (this->index >= 0 && this->index < container->getCount()) {
     container->set(this->index, obj);
     return true;
   } else if (this->index == container->getCount()) {
-    container->add(obj);
+    ListPlainContainer *listContainer = parent->getInterface<ListPlainContainer>();
+    if (listContainer == 0) return false;
+    listContainer->add(obj);
+    return true;
+  } else if (this->index < 0 && this->index >= -container->getCount()) {
+    container->set(container->getCount() + this->index, obj);
     return true;
   } else {
     return false;
@@ -72,7 +82,7 @@ Bool IndexReference::setPlain(Provider const *provider, IdentifiableObject *pare
 }
 
 
-Bool IndexReference::remove(Provider const *provider, IdentifiableObject *parent, Int &index) const
+Bool IndexReference::remove(Provider *provider, IdentifiableObject *parent, Int &index) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndexReference::remove"),
@@ -83,20 +93,32 @@ Bool IndexReference::remove(Provider const *provider, IdentifiableObject *parent
   SharedContainer *container;
   PlainContainer *plainContainer;
   if ((container = parent->getInterface<SharedContainer>()) != 0) {
-    if (this->index < 0 || this->index >= container->getCount()) return false;
-    container->remove(this->index);
-    return true;
+    if (this->index >= 0 && this->index < container->getCount()) {
+      container->remove(this->index);
+      return true;
+    } else if (this->index < 0 && this->index >= -container->getCount()) {
+      container->remove(container->getCount() + this->index);
+      return true;
+    } else {
+      return false;
+    }
   } else if ((plainContainer = parent->getInterface<PlainContainer>()) != 0) {
-    if (this->index < 0 || this->index >= plainContainer->getCount()) return false;
-    plainContainer->remove(this->index);
-    return true;
+    if (this->index >= 0 && this->index < plainContainer->getCount()) {
+      plainContainer->remove(this->index);
+      return true;
+    } else if (this->index < 0 && this->index >= -plainContainer->getCount()) {
+      plainContainer->remove(plainContainer->getCount() + this->index);
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return false;
   }
 }
 
 
-Bool IndexReference::getShared(Provider const *provider, IdentifiableObject const *parent,
+Bool IndexReference::getShared(Provider *provider, IdentifiableObject *parent,
                                SharedPtr<IdentifiableObject> &result, Int &index) const
 {
   if (parent == 0) {
@@ -107,16 +129,22 @@ Bool IndexReference::getShared(Provider const *provider, IdentifiableObject cons
   index = -1;
   SharedContainer const *container;
   if ((container = parent->getInterface<SharedContainer>()) != 0) {
-    if (this->index < 0 || this->index >= container->getCount()) return false;
-    result = container->get(this->index);
-    return true;
+    if (this->index >= 0 && this->index < container->getCount()) {
+      result = container->get(this->index);
+      return true;
+    } else if (this->index < 0 && this->index >= -container->getCount()) {
+      result = container->get(container->getCount() + this->index);
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return false;
   }
 }
 
 
-Bool IndexReference::getPlain(Provider const *provider, IdentifiableObject const *parent,
+Bool IndexReference::getPlain(Provider *provider, IdentifiableObject *parent,
                               IdentifiableObject *&result, Int &index) const
 {
   if (parent == 0) {
@@ -128,13 +156,25 @@ Bool IndexReference::getPlain(Provider const *provider, IdentifiableObject const
   SharedContainer const *container;
   PlainContainer const *plainContainer;
   if ((container = parent->getInterface<SharedContainer>()) != 0) {
-    if (this->index < 0 || this->index >= container->getCount()) return false;
-    result = container->get(this->index).get();
-    return true;
+    if (this->index >= 0 && this->index < container->getCount()) {
+      result = container->get(this->index).get();
+      return true;
+    } else if (this->index < 0 && this->index >= -container->getCount()) {
+      result = container->get(container->getCount() + this->index).get();
+      return true;
+    } else {
+      return false;
+    }
   } else if ((plainContainer = parent->getInterface<PlainContainer>()) != 0) {
-    if (this->index < 0 || this->index >= plainContainer->getCount()) return false;
-    result = plainContainer->get(this->index);
-    return true;
+    if (this->index >= 0 && this->index < plainContainer->getCount()) {
+      result = plainContainer->get(this->index);
+      return true;
+    } else if (this->index < 0 && this->index >= -plainContainer->getCount()) {
+      result = plainContainer->get(plainContainer->getCount() + this->index);
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return false;
   }

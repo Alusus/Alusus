@@ -35,8 +35,8 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to)
 
 void setTreeIds(IdentifiableObject *obj, const Char *id)
 {
-  IdOwner *ido = ii_cast<IdOwner>(obj);
-  if (ido != 0) ido->setId(ID_GENERATOR->getId(id));
+  IdHolder *idh = ii_cast<IdHolder>(obj);
+  if (idh != 0) idh->setId(ID_GENERATOR->getId(id));
 
   MapSharedContainer *map; SharedContainer *list;
   if ((map = ii_cast<MapSharedContainer>(obj)) != 0) {

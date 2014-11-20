@@ -30,20 +30,20 @@ namespace Scg
   class LowestLinkExpression
   {
   private:
-    Core::Basic::SharedPtr<Core::Standard::ParsedItem> lhs;
-    Core::Basic::SharedPtr<Core::Standard::ParsedItem> rhs;
+    Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> lhs;
+    Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> rhs;
     std::string separator;
 
   public:
     LowestLinkExpression(CodeGenerator *gen,
-        const Core::Basic::SharedPtr<Core::Standard::ParsedItem> &item);
+        const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
 
     /**
      * Retrieves the parsed item to the left of the token.
      *
      * @return The parsed item.
      */
-    Core::Basic::SharedPtr<Core::Standard::ParsedItem> GetLHS()
+    Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> GetLHS()
     {
       return lhs;
     }
@@ -53,7 +53,7 @@ namespace Scg
      *
      * @return The parsed item.
      */
-    Core::Basic::SharedPtr<Core::Standard::ParsedItem> GetRHS()
+    Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> GetRHS()
     {
       return rhs;
     }

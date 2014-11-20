@@ -21,8 +21,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 using Core::Processing::BuildMsg;
-using Core::Standard::ParsedItem;
-using Core::Standard::ParsedList;
+using Core::Data::ParsedList;
 using Core::Standard::RootManager;
 
 namespace Tests { namespace EndToEndTests
@@ -81,7 +80,7 @@ bool RunSourceFile(const std::string &fileName)
     root.buildMsgNotifier.connect(&printBuildMsg);
 
     // Parse the provided filename.
-    auto ptr = root.processFile(fileName.c_str()).io_cast<ParsedItem>();
+    auto ptr = root.processFile(fileName.c_str());
 
     // Restore stdout.
     fflush(stdout);
@@ -91,7 +90,7 @@ bool RunSourceFile(const std::string &fileName)
     fsetpos(stdout, &pos);
 
     if (ptr == 0)
-      return 0;
+      return false;
 
     return true;
   }

@@ -10,20 +10,20 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_IMPORT_PARSING_HANDLER_H
-#define STANDARD_IMPORT_PARSING_HANDLER_H
+#ifndef STANDARD_IMPORTPARSINGHANDLER_H
+#define STANDARD_IMPORTPARSINGHANDLER_H
 
 namespace Core { namespace Standard
 {
 
 // TODO: DOC
 
-class ImportParsingHandler : public GenericParsingHandler
+class ImportParsingHandler : public Processing::GenericParsingHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ImportParsingHandler, GenericParsingHandler, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(ImportParsingHandler, Processing::GenericParsingHandler, "Core.Standard", "Core", "alusus.net");
 
 
   //============================================================================
@@ -44,7 +44,7 @@ class ImportParsingHandler : public GenericParsingHandler
   // Member Functions
 
   /// Load the referenced library.
-  public: virtual void onProdEnd(Processing::Parser *machine, Processing::ParserState *state);
+  public: virtual void onProdEnd(Processing::Parser *parser, Processing::ParserState *state);
 
   private: Bool import(Char const *filename, Processing::ParserState *state);
 

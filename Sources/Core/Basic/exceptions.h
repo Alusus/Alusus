@@ -108,7 +108,7 @@ class FileException : public Exception
   //============================================================================
   // Member Functions
 
-  public: const Str& getFileName() const
+  public: Str const& getFileName() const
   {
     return this->fileName;
   }
@@ -118,7 +118,7 @@ class FileException : public Exception
     return this->operation;
   }
 
-  public: const Str& getComment() const
+  public: Str const& getComment() const
   {
     return this->comment;
   }
@@ -171,7 +171,7 @@ class MemoryException : public Exception
     return this->operation;
   }
 
-  public: const Str& getComment() const
+  public: Str const& getComment() const
   {
     return this->comment;
   }
@@ -239,22 +239,22 @@ class InvalidArgumentException : public Exception
   //============================================================================
   // Member Functions
 
-  public: const Str& getArgumentName() const
+  public: Str const& getArgumentName() const
   {
     return this->argumentName;
   }
 
-  public: const Str& getArgumentValue() const
+  public: Str const& getArgumentValue() const
   {
     return this->argumentValue;
   }
 
-  public: const Str& getLocation() const
+  public: Str const& getLocation() const
   {
     return this->location;
   }
 
-  public: const Str& getComment() const
+  public: Str const& getComment() const
   {
     return this->comment;
   }
@@ -301,12 +301,12 @@ class GeneralException : public Exception
   //============================================================================
   // Member Functions
 
-  public: const Str& getLocation() const
+  public: Str const& getLocation() const
   {
     return this->location;
   }
 
-  public: const Str& get_message() const
+  public: Str const& get_message() const
   {
     return this->message;
   }

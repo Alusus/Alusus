@@ -60,11 +60,21 @@ class Integer : public IdentifiableObject
     return *this;
   }
 
+  public: Integer& operator=(Word v)
+  {
+    this->value = static_cast<Int>(v);
+    return *this;
+  }
+
   public: operator Int() const
   {
     return this->value;
   }
 
+  public: operator Word() const
+  {
+    return static_cast<Word>(this->value);
+  }
 
   //============================================================================
   // Member Functions
@@ -74,9 +84,19 @@ class Integer : public IdentifiableObject
     this->value = v;
   }
 
+  public: void setUnsigned(Word v)
+  {
+    this->value = static_cast<Int>(v);
+  }
+
   public: Int get() const
   {
     return this->value;
+  }
+
+  public: Word getUnsigned() const
+  {
+    return static_cast<Word>(this->value);
   }
 
 }; // class

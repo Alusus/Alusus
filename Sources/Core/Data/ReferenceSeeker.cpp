@@ -18,7 +18,7 @@ namespace Core { namespace Data
 //==============================================================================
 // Data Read Functions
 
-SharedPtr<IdentifiableObject> ReferenceSeeker::getShared(Reference const *seg, IdentifiableObject const *parent) const
+SharedPtr<IdentifiableObject> ReferenceSeeker::getShared(Reference const *seg, IdentifiableObject *parent) const
 {
   SharedPtr<IdentifiableObject> result;
   if (!this->tryGetShared(seg, parent, result)) {
@@ -29,7 +29,15 @@ SharedPtr<IdentifiableObject> ReferenceSeeker::getShared(Reference const *seg, I
 }
 
 
-Bool ReferenceSeeker::tryGetShared(Reference const *seg, IdentifiableObject const *parent, SharedPtr<IdentifiableObject> &result) const
+SharedPtr<IdentifiableObject> ReferenceSeeker::tryGetShared(Reference const *seg, IdentifiableObject *parent) const
+{
+  SharedPtr<IdentifiableObject> result;
+  this->tryGetShared(seg, parent, result);
+  return result;
+}
+
+
+Bool ReferenceSeeker::tryGetShared(Reference const *seg, IdentifiableObject *parent, SharedPtr<IdentifiableObject> &result) const
 {
   if (seg == 0) {
     throw InvalidArgumentException(STR("seg"), STR("Core::Data::ReferenceSeeker::tryGetShared"),
@@ -41,8 +49,14 @@ Bool ReferenceSeeker::tryGetShared(Reference const *seg, IdentifiableObject cons
   }
   if (seg->getNext() == 0) {
     Int index = 0;
-    if (seg->getShared(this->dataProvider, parent, result, index)) return true;
-    else return false;
+    SharedPtr<IdentifiableObject> tempResult;
+    if (seg->getShared(this->dataProvider, parent, tempResult, index)) {
+      if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult.get()) == false) return false;
+      result = tempResult;
+      return true;
+    } else {
+      return false;
+    }
   } else {
     Int index = 0;
     IdentifiableObject *innerParent;
@@ -53,7 +67,9 @@ Bool ReferenceSeeker::tryGetShared(Reference const *seg, IdentifiableObject cons
         } else if (innerParent->isA<SharedModulePairedPtr>()) {
           innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
         }
-        if (this->tryGetShared(seg->getNext().get(), innerParent, result)) return true;
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+          if (this->tryGetShared(seg->getNext().get(), innerParent, result)) return true;
+        }
       }
     }
     return false;
@@ -61,7 +77,7 @@ Bool ReferenceSeeker::tryGetShared(Reference const *seg, IdentifiableObject cons
 }
 
 
-void ReferenceSeeker::getShared(Reference const *seg, IdentifiableObject const *parent,
+void ReferenceSeeker::getShared(Reference const *seg, IdentifiableObject *parent,
                                 SharedModulePairedPtr &retVal) const
 {
   if (!this->tryGetShared(seg, parent, retVal)) {
@@ -71,7 +87,7 @@ void ReferenceSeeker::getShared(Reference const *seg, IdentifiableObject const *
 }
 
 
-Bool ReferenceSeeker::tryGetShared(Reference const *seg, IdentifiableObject const *parent,
+Bool ReferenceSeeker::tryGetShared(Reference const *seg, IdentifiableObject *parent,
                                    SharedModulePairedPtr &retVal) const
 {
   if (seg == 0) {
@@ -84,7 +100,12 @@ Bool ReferenceSeeker::tryGetShared(Reference const *seg, IdentifiableObject cons
   }
   if (seg->getNext() == 0) {
     Int index = 0;
-    if (seg->getShared(this->dataProvider, parent, retVal.object, index)) {
+    SharedPtr<IdentifiableObject> tempResult;
+    if (seg->getShared(this->dataProvider, parent, tempResult, index)) {
+      if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult.get()) == false) {
+        return false;
+      }
+      retVal.object = tempResult;
       retVal.module.reset();
       return true;
     } else {
@@ -97,16 +118,24 @@ Bool ReferenceSeeker::tryGetShared(Reference const *seg, IdentifiableObject cons
     while (index != -1) {
       if (seg->getShared(this->dataProvider, parent, innerSharedParent, index)) {
         if (innerSharedParent->isA<SharedModulePairedPtr>()) {
-          if (this->tryGetShared(seg->getNext().get(), innerSharedParent.s_cast_get<SharedModulePairedPtr>()->object, retVal)) {
-            if (retVal.module == 0) retVal.module = innerSharedParent.s_cast_get<SharedModulePairedPtr>()->module;
-            return true;
+          SharedModulePairedPtr *pairedPtr = innerSharedParent.s_cast_get<SharedModulePairedPtr>();
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object.get()) == true) {
+            if (this->tryGetShared(seg->getNext().get(), pairedPtr->object, retVal)) {
+              if (retVal.module == 0) retVal.module = pairedPtr->module;
+              return true;
+            }
           }
         } else if (innerSharedParent->isA<PlainModulePairedPtr>()) {
-          if (this->tryGetShared(seg->getNext().get(), innerSharedParent.s_cast_get<PlainModulePairedPtr>()->object, retVal)) {
-            return true;
+          PlainModulePairedPtr *pairedPtr = innerSharedParent.s_cast_get<PlainModulePairedPtr>();
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object) == true) {
+            if (this->tryGetShared(seg->getNext().get(), pairedPtr->object, retVal)) {
+              return true;
+            }
           }
         } else {
-          if (this->tryGetShared(seg->getNext().get(), innerSharedParent, retVal)) return true;
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerSharedParent.get()) == true) {
+            if (this->tryGetShared(seg->getNext().get(), innerSharedParent, retVal)) return true;
+          }
         }
       }
     }
@@ -114,16 +143,24 @@ Bool ReferenceSeeker::tryGetShared(Reference const *seg, IdentifiableObject cons
     while (index != -1) {
       if (seg->getPlain(this->dataProvider, parent, innerPlainParent, index)) {
         if (innerPlainParent->isA<SharedModulePairedPtr>()) {
-          if (this->tryGetShared(seg->getNext().get(), static_cast<SharedModulePairedPtr*>(innerPlainParent)->object, retVal)) {
-            if (retVal.module == 0) retVal.module = static_cast<SharedModulePairedPtr*>(innerPlainParent)->module;
-            return true;
+          SharedModulePairedPtr *pairedPtr = static_cast<SharedModulePairedPtr*>(innerPlainParent);
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object.get()) == true) {
+            if (this->tryGetShared(seg->getNext().get(), pairedPtr->object, retVal)) {
+              if (retVal.module == 0) retVal.module = pairedPtr->module;
+              return true;
+            }
           }
         } else if (innerPlainParent->isA<PlainModulePairedPtr>()) {
-          if (this->tryGetShared(seg->getNext().get(), static_cast<PlainModulePairedPtr*>(innerPlainParent)->object, retVal)) {
-            return true;
+          PlainModulePairedPtr *pairedPtr = static_cast<PlainModulePairedPtr*>(innerPlainParent);
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object) == true) {
+            if (this->tryGetShared(seg->getNext().get(), pairedPtr->object, retVal)) {
+              return true;
+            }
           }
         } else {
-          if (this->tryGetShared(seg->getNext().get(), innerPlainParent, retVal)) return true;
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerPlainParent) == true) {
+            if (this->tryGetShared(seg->getNext().get(), innerPlainParent, retVal)) return true;
+          }
         }
       }
     }
@@ -155,7 +192,12 @@ Bool ReferenceSeeker::tryGetShared(Reference const *seg, SharedPtr<IdentifiableO
   }
   if (seg->getNext() == 0) {
     Int index = 0;
-    if (seg->getShared(this->dataProvider, parent.get(), retVal.object, index)) {
+    SharedPtr<IdentifiableObject> tempResult;
+    if (seg->getShared(this->dataProvider, parent.get(), tempResult, index)) {
+      if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult.get()) == false) {
+        return false;
+      }
+      retVal.object = tempResult;
       if (parent->isDerivedFrom<Module>()) {
         retVal.module = parent.s_cast<Module>();
       } else {
@@ -173,17 +215,25 @@ Bool ReferenceSeeker::tryGetShared(Reference const *seg, SharedPtr<IdentifiableO
     while (index != -1) {
       if (seg->getShared(this->dataProvider, parent.get(), innerSharedParent, index)) {
         if (innerSharedParent->isA<SharedModulePairedPtr>()) {
-          ret = this->tryGetShared(seg->getNext().get(), innerSharedParent.s_cast_get<SharedModulePairedPtr>()->object, retVal);
-          if (ret) {
-            if (retVal.module == 0) retVal.module = innerSharedParent.s_cast_get<SharedModulePairedPtr>()->module;
-            break;
+          SharedModulePairedPtr *pairedPtr = innerSharedParent.s_cast_get<SharedModulePairedPtr>();
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object.get()) == true) {
+            ret = this->tryGetShared(seg->getNext().get(), pairedPtr->object, retVal);
+            if (ret) {
+              if (retVal.module == 0) retVal.module = pairedPtr->module;
+              break;
+            }
           }
         } else if (innerSharedParent->isA<PlainModulePairedPtr>()) {
-          ret = this->tryGetShared(seg->getNext().get(), innerSharedParent.s_cast_get<PlainModulePairedPtr>()->object, retVal);
-          if (ret) break;
+          PlainModulePairedPtr *pairedPtr = innerSharedParent.s_cast_get<PlainModulePairedPtr>();
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object) == true) {
+            ret = this->tryGetShared(seg->getNext().get(), pairedPtr->object, retVal);
+            if (ret) break;
+          }
         } else {
-          ret = this->tryGetShared(seg->getNext().get(), innerSharedParent, retVal);
-          if (ret) break;
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerSharedParent.get()) == true) {
+            ret = this->tryGetShared(seg->getNext().get(), innerSharedParent, retVal);
+            if (ret) break;
+          }
         }
       }
     }
@@ -192,17 +242,25 @@ Bool ReferenceSeeker::tryGetShared(Reference const *seg, SharedPtr<IdentifiableO
       while (index != -1) {
         if (seg->getPlain(this->dataProvider, parent.get(), innerPlainParent, index)) {
           if (innerPlainParent->isA<SharedModulePairedPtr>()) {
-            ret = this->tryGetShared(seg->getNext().get(), static_cast<SharedModulePairedPtr*>(innerPlainParent)->object, retVal);
-            if (ret) {
-              if (retVal.module == 0) retVal.module = static_cast<SharedModulePairedPtr*>(innerPlainParent)->module;
-              break;
+            SharedModulePairedPtr *pairedPtr = static_cast<SharedModulePairedPtr*>(innerPlainParent);
+            if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object.get()) == true) {
+              ret = this->tryGetShared(seg->getNext().get(), pairedPtr->object, retVal);
+              if (ret) {
+                if (retVal.module == 0) retVal.module = pairedPtr->module;
+                break;
+              }
             }
           } else if (innerPlainParent->isA<PlainModulePairedPtr>()) {
-            ret = this->tryGetShared(seg->getNext().get(), static_cast<PlainModulePairedPtr*>(innerPlainParent)->object, retVal);
-            if (ret) break;
+            PlainModulePairedPtr *pairedPtr = static_cast<PlainModulePairedPtr*>(innerPlainParent);
+            if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object) == true) {
+              ret = this->tryGetShared(seg->getNext().get(), pairedPtr->object, retVal);
+              if (ret) break;
+            }
           } else {
-            ret = this->tryGetShared(seg->getNext().get(), innerPlainParent, retVal);
-            if (ret) break;
+            if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerPlainParent) == true) {
+              ret = this->tryGetShared(seg->getNext().get(), innerPlainParent, retVal);
+              if (ret) break;
+            }
           }
         }
       }
@@ -218,7 +276,7 @@ Bool ReferenceSeeker::tryGetShared(Reference const *seg, SharedPtr<IdentifiableO
 //==============================================================================
 // Plain Data Read Functions
 
-IdentifiableObject* ReferenceSeeker::getPlain(Reference const *seg, IdentifiableObject const *parent) const
+IdentifiableObject* ReferenceSeeker::getPlain(Reference const *seg, IdentifiableObject *parent) const
 {
   IdentifiableObject *result;
   if (!this->tryGetPlain(seg, parent, result)) {
@@ -229,7 +287,15 @@ IdentifiableObject* ReferenceSeeker::getPlain(Reference const *seg, Identifiable
 }
 
 
-Bool ReferenceSeeker::tryGetPlain(Reference const *seg, IdentifiableObject const *parent, IdentifiableObject *&result) const
+IdentifiableObject* ReferenceSeeker::tryGetPlain(Reference const *seg, IdentifiableObject *parent) const
+{
+  IdentifiableObject *result = 0;
+  this->tryGetPlain(seg, parent, result);
+  return result;
+}
+
+
+Bool ReferenceSeeker::tryGetPlain(Reference const *seg, IdentifiableObject *parent, IdentifiableObject *&result) const
 {
   if (seg == 0) {
     throw InvalidArgumentException(STR("seg"), STR("Core::Data::ReferenceSeeker::tryGetPlain"),
@@ -241,8 +307,14 @@ Bool ReferenceSeeker::tryGetPlain(Reference const *seg, IdentifiableObject const
   }
   if (seg->getNext() == 0) {
     Int index = 0;
-    if (seg->getPlain(this->dataProvider, parent, result, index)) return true;
-    else return false;
+    IdentifiableObject *tempResult;
+    if (seg->getPlain(this->dataProvider, parent, tempResult, index)) {
+      if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult) == false) return false;
+      result = tempResult;
+      return true;
+    } else {
+      return false;
+    }
   } else {
     Int index = 0;
     IdentifiableObject *innerParent;
@@ -253,7 +325,9 @@ Bool ReferenceSeeker::tryGetPlain(Reference const *seg, IdentifiableObject const
         } else if (innerParent->isA<SharedModulePairedPtr>()) {
           innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
         }
-        if (this->tryGetPlain(seg->getNext().get(), innerParent, result)) return true;
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+          if (this->tryGetPlain(seg->getNext().get(), innerParent, result)) return true;
+        }
       }
     }
     return false;
@@ -284,7 +358,12 @@ Bool ReferenceSeeker::tryGetPlain(Reference const *seg, IdentifiableObject *pare
   }
   if (seg->getNext() == 0) {
     Int index = 0;
-    if (seg->getPlain(this->dataProvider, parent, retVal.object, index)) {
+    IdentifiableObject *tempResult;
+    if (seg->getPlain(this->dataProvider, parent, tempResult, index)) {
+      if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult) == false) {
+        return false;
+      }
+      retVal.object = tempResult;
       if (parent->isDerivedFrom<Module>()) {
         retVal.module = static_cast<Module*>(parent);
       } else {
@@ -302,20 +381,28 @@ Bool ReferenceSeeker::tryGetPlain(Reference const *seg, IdentifiableObject *pare
     while (index != -1) {
       if (seg->getPlain(this->dataProvider, parent, innerParent, index)) {
         if (innerParent->isA<SharedModulePairedPtr>()) {
-          ret = this->tryGetPlain(seg->getNext().get(), static_cast<SharedModulePairedPtr*>(innerParent)->object.get(), retVal);
-          if (ret) {
-            if (retVal.module == 0) retVal.module = static_cast<SharedModulePairedPtr*>(innerParent)->module.get();
-            break;
+          SharedModulePairedPtr *pairedPtr = static_cast<SharedModulePairedPtr*>(innerParent);
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object.get()) == true) {
+            ret = this->tryGetPlain(seg->getNext().get(), pairedPtr->object.get(), retVal);
+            if (ret) {
+              if (retVal.module == 0) retVal.module = pairedPtr->module.get();
+              break;
+            }
           }
         } else if (innerParent->isA<PlainModulePairedPtr>()) {
-          ret = this->tryGetPlain(seg->getNext().get(), static_cast<PlainModulePairedPtr*>(innerParent)->object, retVal);
-          if (ret) {
-            if (retVal.module == 0) retVal.module = static_cast<PlainModulePairedPtr*>(innerParent)->module;
-            break;
+          PlainModulePairedPtr *pairedPtr = static_cast<PlainModulePairedPtr*>(innerParent);
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object) == true) {
+            ret = this->tryGetPlain(seg->getNext().get(), pairedPtr->object, retVal);
+            if (ret) {
+              if (retVal.module == 0) retVal.module = pairedPtr->module;
+              break;
+            }
           }
         } else {
-          ret = this->tryGetPlain(seg->getNext().get(), innerParent, retVal);
-          if (ret) break;
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+            ret = this->tryGetPlain(seg->getNext().get(), innerParent, retVal);
+            if (ret) break;
+          }
         }
       }
     }
@@ -353,6 +440,7 @@ Bool ReferenceSeeker::trySetShared(Reference const *seg, IdentifiableObject *par
   }
   if (seg->getNext() == 0) {
     Int index = 0;
+    if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(val.get()) == false) return false;
     if (seg->setShared(this->dataProvider, parent, val, index)) return true;
     else return false;
   } else {
@@ -367,8 +455,10 @@ Bool ReferenceSeeker::trySetShared(Reference const *seg, IdentifiableObject *par
         } else if (innerParent->isA<SharedModulePairedPtr>()) {
           innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
         }
-        ret = this->trySetShared(seg->getNext().get(), innerParent, val);
-        if (ret) break;
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+          ret = this->trySetShared(seg->getNext().get(), innerParent, val);
+          if (ret) break;
+        }
       }
     }
     return ret;
@@ -397,6 +487,7 @@ Bool ReferenceSeeker::trySetPlain(Reference const *seg, IdentifiableObject *pare
   }
   if (seg->getNext() == 0) {
     Int index = 0;
+    if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(val) == false) return false;
     if (seg->setPlain(this->dataProvider, parent, val, index)) return true;
     else return false;
   } else {
@@ -411,8 +502,10 @@ Bool ReferenceSeeker::trySetPlain(Reference const *seg, IdentifiableObject *pare
         } else if (innerParent->isA<SharedModulePairedPtr>()) {
           innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
         }
-        ret = this->trySetPlain(seg->getNext().get(), innerParent, val);
-        if (ret) break;
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+          ret = this->trySetPlain(seg->getNext().get(), innerParent, val);
+          if (ret) break;
+        }
       }
     }
     return ret;
@@ -444,6 +537,14 @@ Bool ReferenceSeeker::tryRemove(Reference const *seg, IdentifiableObject *parent
   }
   if (seg->getNext() == 0) {
     Int index = 0;
+    if (seg->getResultValidator() != 0) {
+      // Validate the object before removing it.
+      IdentifiableObject *obj;
+      if (seg->getPlain(this->dataProvider, parent, obj, index)) {
+        if (seg->getResultValidator()->validate(obj) == false) return false;
+      }
+      index = 0;
+    }
     if (seg->remove(this->dataProvider, parent, index)) return true;
     else return false;
   } else {
@@ -458,8 +559,10 @@ Bool ReferenceSeeker::tryRemove(Reference const *seg, IdentifiableObject *parent
         } else if (innerParent->isA<SharedModulePairedPtr>()) {
           innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
         }
-        ret = this->tryRemove(seg->getNext().get(), innerParent);
-        if (ret) break;
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
+          ret = this->tryRemove(seg->getNext().get(), innerParent);
+          if (ret) break;
+        }
       }
     }
     return ret;

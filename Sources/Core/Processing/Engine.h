@@ -48,9 +48,9 @@ class Engine : public SignalReceiver
   {
   }
 
-  public: Engine(Data::GrammarRepository *grammarRepo)
+  public: Engine(Data::GrammarRepository *grammarRepo, Data::SharedRepository *definitionsRepo)
   {
-    this->initialize(grammarRepo);
+    this->initialize(grammarRepo, definitionsRepo);
   }
 
   public: virtual ~Engine()
@@ -61,7 +61,7 @@ class Engine : public SignalReceiver
   //============================================================================
   // Member Functions
 
-  public: void initialize(Data::GrammarRepository *grammarRepo);
+  public: void initialize(Data::GrammarRepository *grammarRepo, Data::SharedRepository *definitionsRepo);
 
   /// Parse the given string and return any resulting parsing data.
   public: SharedPtr<IdentifiableObject> processString(Char const *str);

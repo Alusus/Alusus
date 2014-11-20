@@ -16,6 +16,8 @@
 namespace Core { namespace Data
 {
 
+class Reference;
+
 // TODO: DOC
 
 // TODO: Should we change this into a template class?
@@ -34,7 +36,7 @@ namespace Core { namespace Data
  * the position of the elements for faster access.
  */
 class SharedMap : public IdentifiableObject,
-            public virtual Initializable, public virtual DataOwner, public virtual MapSharedContainer
+                  public virtual Initializable, public virtual DataOwner, public virtual MapSharedContainer
 {
   //============================================================================
   // Type Info

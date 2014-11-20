@@ -1,6 +1,6 @@
 /**
- * @file Core/Standard/ParsedRoute.h
- * Contains the header of class Core::Standard::ParsedRoute.
+ * @file Core/Data/ParsedRoute.h
+ * Contains the header of class Core::Data::ParsedRoute.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,27 +10,31 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_PARSED_ROUTE_H
-#define STANDARD_PARSED_ROUTE_H
+#ifndef DATA_PARSEDROUTE_H
+#define DATA_PARSEDROUTE_H
 
-namespace Core { namespace Standard
+namespace Core { namespace Data
 {
+
+// TODO: DOC
 
 /**
  * @brief Contains parsed information of a single route.
- * @ingroup standard
+ * @ingroup data
  *
  * A decision made at an alternative or optional term is recorded in this object
  * by the GenericParsingHandler along with the child data resulting from
  * taking that route. This object is created by the GenericParsingHandler to
  * compose the parsed tree.
  */
-class ParsedRoute : public ParsedItem
+class ParsedRoute : public IdentifiableObject,
+                    public virtual ParsingMetadataHolder, public virtual SharedContainer
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ParsedRoute, ParsedItem, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(ParsedRoute, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_2(IdentifiableObject, ParsingMetadataHolder, SharedContainer);
 
 
   //============================================================================
@@ -60,27 +64,47 @@ class ParsedRoute : public ParsedItem
   // Constructor / Destructor
 
   public: ParsedRoute(Word pid=UNKNOWN_ID, Int r=-1, IdentifiableObject *d=0) :
-    ParsedItem(pid), route(r), data(d)
+    ParsingMetadataHolder(pid, -1, -1), route(r), data(d)
   {
   }
 
   public: ParsedRoute(Word pid, Int r, SharedPtr<IdentifiableObject> const &d) :
-    ParsedItem(pid), route(r), data(d)
+    ParsingMetadataHolder(pid, -1, -1), route(r), data(d)
   {
   }
 
   public: ParsedRoute(Word pid, Int r, Int l, Int c, IdentifiableObject *d=0) :
-    ParsedItem(pid, c, l), route(r), data(d)
+    ParsingMetadataHolder(pid, l, c), route(r), data(d)
   {
   }
 
   public: ParsedRoute(Word pid, Int r, Int l, Int c, SharedPtr<IdentifiableObject> const &d) :
-    ParsedItem(pid, c, l), route(r), data(d)
+    ParsingMetadataHolder(pid, l, c), route(r), data(d)
   {
   }
 
   public: virtual ~ParsedRoute()
   {
+  }
+
+  public: static SharedPtr<ParsedRoute> create(Word pid=UNKNOWN_ID, Int r=-1, IdentifiableObject *d=0)
+  {
+    return std::make_shared<ParsedRoute>(pid, r, d);
+  }
+
+  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, SharedPtr<IdentifiableObject> const &d)
+  {
+    return std::make_shared<ParsedRoute>(pid, r, d);
+  }
+
+  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, Int l, Int c, IdentifiableObject *d=0)
+  {
+    return std::make_shared<ParsedRoute>(pid, r, l, c, d);
+  }
+
+  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, Int l, Int c, SharedPtr<IdentifiableObject> const &d)
+  {
+    return std::make_shared<ParsedRoute>(pid, r, l, c, d);
   }
 
 
@@ -137,6 +161,10 @@ class ParsedRoute : public ParsedItem
     return this->data;
   }
 
+
+  //============================================================================
+  // ParsingMetadataHolder Overrides
+
   /**
    * @brief Override the original implementation to search the tree if needed.
    * If the value is not yet set for this object and it has children, it will
@@ -144,14 +172,14 @@ class ParsedRoute : public ParsedItem
    */
   public: virtual Int getLine() const
   {
-    if (ParsedItem::getLine() == -1) {
-      SharedPtr<ParsedItem> ptr = this->getData().io_cast<ParsedItem>();
+    if (ParsingMetadataHolder::getLine() == -1) {
+      ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->getData().get());
       if (ptr != 0) {
         Int l = ptr->getLine();
         if (l != -1) return l;
       }
     }
-    return ParsedItem::getLine();
+    return ParsingMetadataHolder::getLine();
   }
 
   /**
@@ -161,14 +189,75 @@ class ParsedRoute : public ParsedItem
    */
   public: virtual Int getColumn() const
   {
-    if (ParsedItem::getColumn() == -1) {
-      SharedPtr<ParsedItem> ptr = this->getData().io_cast<ParsedItem>();
+    if (ParsingMetadataHolder::getColumn() == -1) {
+      ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->getData().get());
       if (ptr != 0) {
         Int l = ptr->getColumn();
         if (l != -1) return l;
       }
     }
-    return ParsedItem::getColumn();
+    return ParsingMetadataHolder::getColumn();
+  }
+
+  public: virtual IdentifiableObject* getAttribute(Char const *name)
+  {
+    if (SBSTR(name) == STR("line")) {
+      if (ParsingMetadataHolder::getLine() == -1) {
+        ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->getData().get());
+        if (ptr != 0) {
+          return ptr->getAttribute(name);
+        }
+      }
+    } else if (SBSTR(name) == STR("column")) {
+      if (ParsingMetadataHolder::getColumn() == -1) {
+        ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->getData().get());
+        if (ptr != 0) {
+          return ptr->getAttribute(name);
+        }
+      }
+    }
+    return ParsingMetadataHolder::getAttribute(name);
+  }
+
+
+  //============================================================================
+  // SharedContainer Implementation
+
+  /// Change the element at the specified index.
+  public: virtual void set(Int index, SharedPtr<IdentifiableObject> const &val)
+  {
+    if (index == 0) {
+      this->data = val;
+    } else {
+      throw InvalidArgumentException(STR("index"), STR("Core::Data::ParsedRoute::set"),
+                                     STR("index must be 0."));
+    }
+  }
+
+  /// Remove the element at the specified index.
+  public: virtual void remove(Int index)
+  {
+    if (index != 0) {
+      throw InvalidArgumentException(STR("index"), STR("Core::Data::ParsedRoute::remove"),
+                                     STR("index must be 0."));
+    }
+    this->data.reset();
+  }
+
+  /// Get the count of elements in the list.
+  public: virtual Word getCount() const
+  {
+    return 1;
+  }
+
+  /// Get the object at the specified index.
+  public: virtual SharedPtr<IdentifiableObject> const& get(Int index) const
+  {
+    if (index != 0) {
+      throw InvalidArgumentException(STR("index"), STR("Core::Data::ParsedRoute::get"),
+                                     STR("index must be 0."));
+    }
+    return this->data;
   }
 
 }; // class

@@ -57,6 +57,8 @@ class Parser : public SignalReceiver
 
   private: Data::GrammarRepository *grammarRepository;
 
+  private: Data::SharedRepository *definitionsRepository;
+
   /**
    * @brief The array of current states.
    *
@@ -115,7 +117,9 @@ class Parser : public SignalReceiver
   //============================================================================
   // Constructor / Destructor
 
-  public: Parser() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")), grammarRepository(0)
+  public: Parser() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")),
+                     grammarRepository(0),
+                     definitionsRepository(0)
   {
   }
 
@@ -130,17 +134,23 @@ class Parser : public SignalReceiver
   /// @name Initialization Related Functions
   /// @{
 
-  public: void initialize(Data::GrammarRepository *grammarRepo);
+  public: void initialize(Data::GrammarRepository *grammarRepo, Data::SharedRepository *definitionsRepo);
 
   public: void release()
   {
     this->clear();
     this->grammarRepository = 0;
+    this->definitionsRepository = 0;
   }
 
   public: Data::GrammarRepository* getGrammarRepository() const
   {
     return this->grammarRepository;
+  }
+
+  public: Data::SharedRepository* getDefinitionsRepository() const
+  {
+    return this->definitionsRepository;
   }
 
   /// @}

@@ -18,8 +18,8 @@
 
 namespace Scg
 {
-using namespace Core::Standard;
 using namespace Core::Basic;
+using namespace Core::Data;
 using std::shared_ptr;
 
 FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
@@ -30,14 +30,18 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
         "Functions can be constructed from Function parsed items only.");
 
   // Initialises tree browsers.
-  static ParsedDataBrowser sigWithRetBrowser( // Signature having return value
-      STR("0:Expression.Exp>"
-          "0:Expression.LowLinkExp"));
-  static ParsedDataBrowser bodyBrowser(
-      STR("-1:Main.StatementList"));
+  static ReferenceSeeker seeker;
+  // Signature having return value
+  static SharedPtr<Reference> sigWithRetReference = ReferenceParser::parseQualifier(
+    STR("0~where(prodId=Expression.Exp)."
+        "0~where(prodId=Expression.LowLinkExp)"),
+    ReferenceUsageCriteria::MULTI_DATA);
+  static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
+    STR("(-1)~where(prodId=Main.StatementList)"),
+    ReferenceUsageCriteria::MULTI_DATA);
 
   // Parses the arguments and return types of the function.
-  auto sigWithRet = sigWithRetBrowser.getChildValue<ParsedList>(astRoot);
+  auto sigWithRet = seeker.tryGetShared<ParsedList>(sigWithRetReference.get(), astRoot.get());
   if (sigWithRet != nullptr) {
     // The function has return value.
     auto sigRet = LowLinkExpression(gen, sigWithRet);
@@ -49,11 +53,11 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
   } else {
     // The function doesn't have a return value.
     this->arguments = gen->ParseFunctionArguments(
-        astRoot->getElement(0).s_cast<ParsedItem>());
+        astRoot->get(0));
   }
 
   // Parses the body of the function.
-  auto bodyRoot = bodyBrowser.getChildValue<ParsedList>(astRoot);
+  auto bodyRoot = seeker.tryGetShared<ParsedList>(bodyReference.get(), astRoot.get());
   if (bodyRoot != nullptr)
   {
     auto bodyAstBlock = ListExpression(gen, bodyRoot);

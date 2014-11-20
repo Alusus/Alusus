@@ -19,33 +19,38 @@ namespace Scg
 {
 
 using namespace Core;
+using namespace Core::Data;
 
 //==============================================================================
 // Overloaded Abstract Functions
 
-void RunParsingHandler::onProdEnd(Processing::Parser *machine, Processing::ParserState *state)
+void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  SharedPtr<Standard::ParsedItem> item = state->getData().io_cast<Standard::ParsedItem>();
+  SharedPtr<IdentifiableObject> item = state->getData();
 
   static CodeGenerator generator;
-  static Standard::ParsedDataBrowser nameBrowser;
-  if (!nameBrowser.isInitialized()) nameBrowser.initialize(STR("Subject.Subject1>Subject.Parameter"));
+  static ReferenceSeeker seeker;
+  static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
+    STR("self~where(prodId=Subject.Subject1)."
+        "{find prodId=Subject.Parameter, 0}"),
+    ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
-  /*SharedPtr<Standard::ParsedToken> name = nameBrowser.getValue<Standard::ParsedToken>(item);
-  SharedPtr<Data::Module> statementList;
+  /*SharedPtr<ParsedToken> name = seeker.tryGetShared<ParsedToken>(nameReference.get(), item.get());
+  SharedPtr<Module> statementList;
   if (name != 0) {
     statementList = this->rootManager->getDefinitionsStore()->getValue(name->getText().c_str())
-                    .io_cast<Data::Module>();
+                    .io_cast<Module>();
   }*/
   if (true /*statementList != 0*/) {
     // Execute a list of statements.
     try {
       LlvmContainer::Initialize();
       Program program;
-      Data::Module *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).io_cast_get<Data::Module>();
+      auto *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).io_cast_get<Data::Module>();
       for (auto i = 0; i < rootModule->getCount(); i++) {
         auto statList = rootModule->get(i).io_cast<Data::Module>();
+        if (statList == 0) continue;
         Module *module = generator.GenerateModule(statList);
         program.AddModule(module);
       }
@@ -66,8 +71,13 @@ void RunParsingHandler::onProdEnd(Processing::Parser *machine, Processing::Parse
       // Create a build message.
       Str message = "Couldn't find module: ";
       message += "Rafid"; //name->getText();
-      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
-                                                                      item->getLine(), item->getColumn()));
+      auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
+      if (metadata != nullptr) {
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
+          metadata->getLine(), metadata->getColumn()));
+      } else {
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), -1, -1));
+      }
   }
   // Reset parsed data because we are done with the command.
   state->setData(SharedPtr<IdentifiableObject>(0));

@@ -24,13 +24,13 @@ namespace Core { namespace Data
  * definition includes the CharGroupUnit tree and the identifier of the char
  * group.
  */
-class CharGroupDefinition : public IdentifiableObject, public virtual IdOwner
+class CharGroupDefinition : public IdentifiableObject, public virtual IdHolder
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(CharGroupDefinition, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, IdOwner);
+  IMPLEMENT_INTERFACES_1(IdentifiableObject, IdHolder);
 
 
   //============================================================================

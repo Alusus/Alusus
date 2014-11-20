@@ -78,7 +78,7 @@ class ConstTerm : public Term
   }
 
   /// Get the match string.
-  public: const Str& getMatchString() const
+  public: Str const& getMatchString() const
   {
     return this->matchString;
   }

@@ -204,6 +204,20 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
   }
 
   /**
+   * @brief Cast this shared pointer to a shared pointer of another data type.
+   *
+   * Casting is done using ii2io_cast.
+   *
+   * @tparam TO The requested type of the subject, not the pointer. In other
+   *            words, if you want to cast the pointer to SharedPtr<My_Type>,
+   *            TO must be My_Type, not SharedPtr<My_Type>.
+   */
+  public: template <class TO> inline SharedPtr<TO> ii2io_cast() const
+  {
+    return SharedPtr<TO>(*this, Core::Basic::ii2io_cast<TO>(this->get()));
+  }
+
+  /**
    * @brief Cast and return the subject of this shared pointer.
    *
    * Casting is done using static_cast.
@@ -259,6 +273,34 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
     return Core::Basic::io_cast<TO>(this->get());
   }
 
+  /**
+   * @brief Cast and return the subject of this shared pointer.
+   *
+   * Casting is done using ii_cast.
+   *
+   * @tparam TO The requested type of the subject, not the pointer. In other
+   *            words, if you want to cast the pointer to My_Type,
+   *            TO must be My_Type, not My_Type*.
+   */
+  public: template <class TO> inline TO* ii_cast_get() const
+  {
+    return Core::Basic::ii_cast<TO>(this->get());
+  }
+
+  /**
+   * @brief Cast and return the subject of this shared pointer.
+   *
+   * Casting is done using ii2io_cast.
+   *
+   * @tparam TO The requested type of the subject, not the pointer. In other
+   *            words, if you want to cast the pointer to My_Type,
+   *            TO must be My_Type, not My_Type*.
+   */
+  public: template <class TO> inline TO* ii2io_cast_get() const
+  {
+    return Core::Basic::ii2io_cast<TO>(this->get());
+  }
+
   /// @}
 
 }; // class
@@ -291,6 +333,11 @@ template <class T, class T2> SharedPtr<T>& io_cast(const std::shared_ptr<T2> &sr
 template <class T, class T2> SharedPtr<T>& ii_cast(const std::shared_ptr<T2> &src)
 {
   return SharedPtr<T>(src, Core::Basic::ii_cast<T*>(src.get()));
+}
+
+template <class T, class T2> SharedPtr<T>& ii2io_cast(const std::shared_ptr<T2> &src)
+{
+  return SharedPtr<T>(src, Core::Basic::ii2io_cast<T*>(src.get()));
 }
 
 } } // namespace

@@ -280,7 +280,7 @@ void SharedRepository::setSharedValue(Char const *qualifier, SharedPtr<Identifia
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   // Set the value first.
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
@@ -359,7 +359,7 @@ Bool SharedRepository::trySetSharedValue(Char const *qualifier, SharedPtr<Identi
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   // Set the value first.
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
@@ -396,7 +396,7 @@ Bool SharedRepository::trySetSharedValue(Char const *qualifier, SharedPtr<Identi
 }
 
 
-SharedPtr<IdentifiableObject> SharedRepository::getSharedValue(Reference const *ref) const
+SharedPtr<IdentifiableObject> SharedRepository::getSharedValue(Reference const *ref)
 {
   if (ref->isA<ScopeReference>()) {
     return this->referenceSeeker.getShared(ref, &this->stack);
@@ -431,12 +431,12 @@ void SharedRepository::getSharedValue(Reference const *ref, SharedModulePairedPt
 }
 
 
-SharedPtr<IdentifiableObject> SharedRepository::getSharedValue(Char const *qualifier) const
+SharedPtr<IdentifiableObject> SharedRepository::getSharedValue(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   SharedPtr<IdentifiableObject> obj;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -467,7 +467,7 @@ void SharedRepository::getSharedValue(Char const *qualifier, SharedModulePairedP
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -494,7 +494,7 @@ void SharedRepository::getSharedValue(Char const *qualifier, SharedModulePairedP
 }
 
 
-Bool SharedRepository::tryGetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> &retVal) const
+Bool SharedRepository::tryGetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> &retVal)
 {
   if (ref->isA<ScopeReference>()) {
     return this->referenceSeeker.tryGetShared(ref, &this->stack, retVal);
@@ -526,11 +526,11 @@ Bool SharedRepository::tryGetSharedValue(Reference const *ref, SharedModulePaire
 }
 
 
-Bool SharedRepository::tryGetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> &retVal) const
+Bool SharedRepository::tryGetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> &retVal)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -557,7 +557,7 @@ Bool SharedRepository::tryGetSharedValue(Char const *qualifier, SharedModulePair
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -604,7 +604,7 @@ void SharedRepository::removeValue(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -651,7 +651,7 @@ Bool SharedRepository::tryRemoveValue(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -674,7 +674,7 @@ Bool SharedRepository::tryRemoveValue(Char const *qualifier)
 }
 
 
-IdentifiableObject* SharedRepository::getPlainValue(Reference const *ref) const
+IdentifiableObject* SharedRepository::getPlainValue(Reference const *ref)
 {
   if (ref->isA<ScopeReference>()) {
     return this->referenceSeeker.getPlain(ref, &this->stack);
@@ -709,12 +709,12 @@ void SharedRepository::getPlainValue(Reference const *ref, PlainModulePairedPtr 
 }
 
 
-IdentifiableObject* SharedRepository::getPlainValue(Char const *qualifier) const
+IdentifiableObject* SharedRepository::getPlainValue(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   IdentifiableObject *obj;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -745,7 +745,7 @@ void SharedRepository::getPlainValue(Char const *qualifier, PlainModulePairedPtr
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -772,7 +772,7 @@ void SharedRepository::getPlainValue(Char const *qualifier, PlainModulePairedPtr
 }
 
 
-Bool SharedRepository::tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal) const
+Bool SharedRepository::tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal)
 {
   if (ref->isA<ScopeReference>()) {
     return this->referenceSeeker.tryGetPlain(ref, &this->stack, retVal);
@@ -804,11 +804,11 @@ Bool SharedRepository::tryGetPlainValue(Reference const *ref, PlainModulePairedP
 }
 
 
-Bool SharedRepository::tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal) const
+Bool SharedRepository::tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
@@ -835,7 +835,7 @@ Bool SharedRepository::tryGetPlainValue(Char const *qualifier, PlainModulePaired
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference *ref = parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;

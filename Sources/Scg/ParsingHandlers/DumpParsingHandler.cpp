@@ -19,6 +19,7 @@ namespace Scg
 {
 
 using namespace Core;
+using namespace Core::Data;
 
 //==============================================================================
 // Helper Functions
@@ -41,41 +42,42 @@ void debugPrintParsedData(SharedPtr<IdentifiableObject> const &ptr, int indents=
     }
 
     // Is this a default data type?
-    if (ptr->isDerivedFrom<Standard::ParsedItem>()) {
+    ParsingMetadataHolder *metadata;
+    if ((metadata = ptr->getInterface<ParsingMetadataHolder>()) != 0) {
         // Print the production name.
-        Word id = ptr.io_cast_get<Standard::ParsedItem>()->getProdId();
+        Word id = metadata->getProdId();
         if (id != UNKNOWN_ID) {
-            Cout << Data::IdGenerator::getSingleton()->getDesc(id) << STR(" -- ");
+            Cout << IdGenerator::getSingleton()->getDesc(id) << STR(" -- ");
         }
     } else {
-        // Unkown datat type not even derived form ParsedItem.
+        // Unkown data type not even implementing ParsingMetadataHolder.
         Cout << ptr->getMyTypeInfo()->getUniqueName() << STR(" -- ");
     }
     // Print the data itself.
-    Data::MapSharedContainer *mapContainer;
-    Data::ListSharedContainer *listContainer;
-    if (ptr->isDerivedFrom<Standard::ParsedList>()) {
+    MapSharedContainer *mapContainer;
+    ListSharedContainer *listContainer;
+    if (ptr->isDerivedFrom<ParsedList>()) {
         Cout << STR("[LIST]:\n");
-        for (Word i = 0; i < ptr.s_cast_get<Standard::ParsedList>()->getElementCount(); ++i) {
-            debugPrintParsedData(ptr.s_cast_get<Standard::ParsedList>()->getElement(i), indents+1);
+        for (Word i = 0; i < ptr.s_cast_get<ParsedList>()->getCount(); ++i) {
+            debugPrintParsedData(ptr.s_cast_get<ParsedList>()->get(i), indents+1);
         }
-    } else if (ptr->isDerivedFrom<Standard::ParsedRoute>()) {
+    } else if (ptr->isDerivedFrom<ParsedRoute>()) {
         Cout << STR("[ROUTE]: ");
-        Cout << ptr.s_cast_get<Standard::ParsedRoute>()->getRoute() << STR("\n");
-        debugPrintParsedData(ptr.s_cast_get<Standard::ParsedRoute>()->getData(), indents+1);
-    } else if (ptr->isDerivedFrom<Standard::ParsedToken>()) {
+        Cout << ptr.s_cast_get<ParsedRoute>()->getRoute() << STR("\n");
+        debugPrintParsedData(ptr.s_cast_get<ParsedRoute>()->getData(), indents+1);
+    } else if (ptr->isDerivedFrom<ParsedToken>()) {
         Cout << STR("[TOKEN]: ");
         // Print the token type.
-        Int id = ptr.s_cast_get<Standard::ParsedToken>()->getId();
-        Cout << Data::IdGenerator::getSingleton()->getDesc(id);
+        Int id = ptr.s_cast_get<ParsedToken>()->getId();
+        Cout << IdGenerator::getSingleton()->getDesc(id);
         // Print the token text.
-        Cout << STR(" (\"") << ptr.s_cast_get<Standard::ParsedToken>()->getText() << STR("\")\n");
-    } else if ((listContainer = ptr->getInterface<Data::ListSharedContainer>()) != 0) {
+        Cout << STR(" (\"") << ptr.s_cast_get<ParsedToken>()->getText() << STR("\")\n");
+    } else if ((listContainer = ptr->getInterface<ListSharedContainer>()) != 0) {
         Cout << STR("[LIST]:\n");
         for (Word i = 0; i < listContainer->getCount(); ++i) {
             debugPrintParsedData(listContainer->get(i), indents+1);
         }
-    } else if ((mapContainer = ptr->getInterface<Data::MapSharedContainer>()) != 0) {
+    } else if ((mapContainer = ptr->getInterface<MapSharedContainer>()) != 0) {
         Cout << STR("[MAP]:\n");
         for (Word i = 0; i < mapContainer->getCount(); ++i) {
             printIndents(indents+1);
@@ -92,15 +94,17 @@ void debugPrintParsedData(SharedPtr<IdentifiableObject> const &ptr, int indents=
 //==============================================================================
 // Overloaded Abstract Functions
 
-void DumpParsingHandler::onProdEnd(Processing::Parser *machine, Processing::ParserState *state)
+void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  SharedPtr<Standard::ParsedItem> item = state->getData().io_cast<Standard::ParsedItem>();
+  SharedPtr<IdentifiableObject> item = state->getData();
 
-  static Standard::ParsedDataBrowser nameBrowser;
-  if (!nameBrowser.isInitialized()) nameBrowser.initialize(STR("Subject.Subject1>Subject.Parameter"));
+  static ReferenceSeeker seeker;
+  static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
+    STR("self~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
+    ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
-  SharedPtr<Standard::ParsedToken> name = nameBrowser.getValue<Standard::ParsedToken>(item);
+  auto name = seeker.tryGetShared<ParsedToken>(nameReference.get(), item.get());
   SharedPtr<IdentifiableObject> def;
   if (name != 0) {
     def = this->rootManager->getDefinitionsRepository()->getSharedValue(name->getText().c_str());
@@ -113,8 +117,14 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *machine, Processing::Pars
       // Create a build msg.
       Str message = "Couldn't find module: ";
       message += name->getText();
-      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
-                                                                      item->getLine(), item->getColumn()));
+      ParsingMetadataHolder *metadata = item->getInterface<ParsingMetadataHolder>();
+      if (metadata != 0) {
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
+          metadata->getLine(), metadata->getColumn()));
+      } else {
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
+          -1, -1));
+      }
   }
   // Reset parsed data because we are done with the command.
   state->setData(SharedPtr<IdentifiableObject>(0));

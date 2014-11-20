@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/IdOwner.h
- * Contains the header of interface Data::IdOwner.
+ * @file Core/Data/AttributesHolder.h
+ * Contains the header of interface Data::AttributesHolder.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,40 +10,26 @@
  */
 //==============================================================================
 
-#ifndef DATA_ID_OWNER_H
-#define DATA_ID_OWNER_H
+#ifndef DATA_ATTRIBUTESHOLDER_H
+#define DATA_ATTRIBUTESHOLDER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class IdOwner : public IdentifiableInterface
+class AttributesHolder : public IdentifiableInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(IdOwner, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
-
-
-  //============================================================================
-  // Member Variables
-
-  private: Word id;
+  INTERFACE_INFO(AttributesHolder, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual void setId(Word id)
-  {
-    this->id = id;
-  }
-
-  public: virtual Word getId() const
-  {
-    return this->id;
-  }
+  public: virtual IdentifiableObject* getAttribute(Char const *name) = 0;
 
 }; // class
 

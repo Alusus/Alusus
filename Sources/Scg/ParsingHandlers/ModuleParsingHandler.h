@@ -17,12 +17,12 @@
 namespace Scg
 {
 
-class ModuleParsingHandler : public Core::Standard::GenericParsingHandler
+class ModuleParsingHandler : public Core::Processing::GenericParsingHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ModuleParsingHandler, Core::Standard::GenericParsingHandler,
+  TYPE_INFO(ModuleParsingHandler, Core::Processing::GenericParsingHandler,
             "Scg", "Scg", "alusus.net");
 
 
@@ -43,13 +43,13 @@ class ModuleParsingHandler : public Core::Standard::GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  public: virtual void onProdEnd(Core::Processing::Parser *machine, Core::Processing::ParserState *state);
+  public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
-  private: void add_definition_to_module(const SharedPtr<Core::Standard::ParsedItem> &def, Core::Data::Module *module);
+  private: void add_definition_to_module(const SharedPtr<IdentifiableObject> &def, Core::Data::Module *module);
 
-  private: void add_link_to_module(const SharedPtr<Core::Standard::ParsedItem> &link, Core::Data::Module *module);
+  private: void add_link_to_module(const SharedPtr<IdentifiableObject> &link, Core::Data::Module *module);
 
-  private: Char const* get_link_name(const SharedPtr<Core::Standard::ParsedItem> &link);
+  private: Char const* get_link_name(const SharedPtr<IdentifiableObject> &link);
 
 }; // class
 

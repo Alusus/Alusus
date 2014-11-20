@@ -37,7 +37,7 @@ class TestEngine : public Processing::Engine
 
   public: TestEngine()
   {
-    this->initialize(this->plant.getRepository());
+    this->initialize(this->plant.getRepository(), nullptr);
   }
 
   public: virtual ~TestEngine()

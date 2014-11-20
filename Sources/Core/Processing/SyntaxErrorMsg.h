@@ -47,7 +47,7 @@ class SyntaxErrorMsg : public Processing::BuildMsg
   // Member Functions
 
   /// @sa Processing::BuildMsg::getCode()
-  public: virtual const Str& getCode() const
+  public: virtual Str const& getCode() const
   {
     static Str code("P1001");
     return code;

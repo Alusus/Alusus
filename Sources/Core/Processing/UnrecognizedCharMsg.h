@@ -62,7 +62,7 @@ class UnrecognizedCharMsg : public Processing::BuildMsg
   // Member Functions
 
   /// @sa Processing::BuildMsg::getCode()
-  public: virtual const Str& getCode() const
+  public: virtual Str const& getCode() const
   {
     static Str code("L1001");
     return code;
@@ -162,7 +162,7 @@ class UnrecognizedCharMsg : public Processing::BuildMsg
    *
    * @return A pointer to the source text string.
    */
-  public: const Str& getText() const
+  public: Str const& getText() const
   {
     return this->text;
   }

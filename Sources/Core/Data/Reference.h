@@ -39,6 +39,9 @@ class Reference : public IdentifiableObject, public virtual DataOwner
   /// @sa setNext()
   private: SharedPtr<Reference> next;
 
+  /// @sa setResultValidator()
+  private: SharedPtr<Validator> resultValidator;
+
 
   //============================================================================
   // Constructor
@@ -91,6 +94,22 @@ class Reference : public IdentifiableObject, public virtual DataOwner
   }
 
   /**
+   * @brief Set a validator object to be used for result validation.
+   * This validator will be used by seekers to validate the data. The reference
+   * doesn't have to validate the data itself.
+   */
+  public: void setResultValidator(SharedPtr<Validator> const &v)
+  {
+    this->resultValidator = v;
+  }
+
+  /// @sa setResultValidator()
+  public: SharedPtr<Validator> const& getResultValidator() const
+  {
+    return this->resultValidator;
+  }
+
+  /**
    * @brief Get the last Reference object in the chain.
    * This is useful for things like getting the immediate name
    * of a variable rather than the full path leading to it. For example, if
@@ -134,7 +153,7 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    *              Single match references will always set it to -1.
    * @return True if the operation was successful.
    */
-  public: virtual Bool setShared(Provider const *provider, IdentifiableObject *parent,
+  public: virtual Bool setShared(Provider *provider, IdentifiableObject *parent,
                                  SharedPtr<IdentifiableObject> const &obj, Int &index) const = 0;
 
   /**
@@ -146,7 +165,7 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    *              Single match references will always set it to -1.
    * @return True if the operation was successful.
    */
-  public: virtual Bool setPlain(Provider const *provider, IdentifiableObject *parent,
+  public: virtual Bool setPlain(Provider *provider, IdentifiableObject *parent,
                                 IdentifiableObject *obj, Int &index) const = 0;
 
   /**
@@ -158,7 +177,7 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    *              Single match references will always set it to -1.
    * @return True if the operation was successful.
    */
-  public: virtual Bool remove(Provider const *provider, IdentifiableObject *parent, Int &index) const = 0;
+  public: virtual Bool remove(Provider *provider, IdentifiableObject *parent, Int &index) const = 0;
 
   /**
    * @brief Get the SharedPtr value from the given parent object.
@@ -169,7 +188,7 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    *              Single match references will always set it to -1.
    * @return True if the operation was successful.
    */
-  public: virtual Bool getShared(Provider const *provider, IdentifiableObject const *parent,
+  public: virtual Bool getShared(Provider *provider, IdentifiableObject *parent,
                                  SharedPtr<IdentifiableObject> &result, Int &index) const = 0;
 
   /**
@@ -181,7 +200,7 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    *              Single match references will always set it to -1.
    * @return True if the operation was successful.
    */
-  public: virtual Bool getPlain(Provider const *provider, IdentifiableObject const *parent,
+  public: virtual Bool getPlain(Provider *provider, IdentifiableObject *parent,
                                 IdentifiableObject *&result, Int &index) const = 0;
 
   /*

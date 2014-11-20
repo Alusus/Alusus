@@ -47,11 +47,11 @@ class SharedProvider : public Provider
   /// @name Exception Based Shared Data Retrieval Functions
   /// @{
 
-  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Reference const *ref) const = 0;
+  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Reference const *ref) = 0;
 
   public: virtual void getSharedValue(Reference const *ref, SharedModulePairedPtr &retVal) = 0;
 
-  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Char const *qualifier) const = 0;
+  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Char const *qualifier) = 0;
 
   public: virtual void getSharedValue(Char const *qualifier, SharedModulePairedPtr &retVal) = 0;
 
@@ -60,11 +60,11 @@ class SharedProvider : public Provider
   /// @name Return-Value Based Shared Data Retrieval Functions
   /// @{
 
-  public: virtual Bool tryGetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> &retVal) const = 0;
+  public: virtual Bool tryGetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> &retVal) = 0;
 
   public: virtual Bool tryGetSharedValue(Reference const *ref, SharedModulePairedPtr &retVal) = 0;
 
-  public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> &retVal) const = 0;
+  public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> &retVal) = 0;
 
   public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedModulePairedPtr &retVal) = 0;
 

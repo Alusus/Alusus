@@ -31,7 +31,9 @@ class GrammarPlant : public Data::GrammarPlant
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<GenericParsingHandler> parsingHandler;
+  private: SharedPtr<Processing::RootParsingHandler> rootHandler;
+
+  private: SharedPtr<Processing::GenericParsingHandler> parsingHandler;
 
   private: SharedPtr<ImportParsingHandler> importHandler;
 

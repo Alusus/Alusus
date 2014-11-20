@@ -18,14 +18,14 @@ namespace Core { namespace Processing
 //==============================================================================
 // Member Functions
 
-void Engine::initialize(Data::GrammarRepository *grammarRepo)
+void Engine::initialize(Data::GrammarRepository *grammarRepo, Data::SharedRepository *definitionsRepo)
 {
   // Prepare the lexer.
   this->lexer.setGrammarRepository(grammarRepo);
   this->lexer.buildMsgNotifier.connect(this, &Engine::buildMsgNotifierRelay);
 
   // Prepare the parser.
-  this->parser.initialize(grammarRepo);
+  this->parser.initialize(grammarRepo, definitionsRepo);
   this->lexer.tokenGenerated.connect(&this->parser, &Processing::Parser::handleNewToken);
   this->parser.buildMsgNotifier.connect(this, &Engine::buildMsgNotifierRelay);
 }

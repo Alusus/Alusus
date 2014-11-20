@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_ID_GENERATOR_H
-#define DATA_ID_GENERATOR_H
+#ifndef DATA_IDGENERATOR_H
+#define DATA_IDGENERATOR_H
 
 namespace Core { namespace Data
 {
@@ -63,9 +63,14 @@ class IdGenerator
   //============================================================================
   // Member Functions
 
+  public: Bool isDefined(Word id) const
+  {
+    return id < this->ids.size();
+  }
+
   public: Word getId(Char const *desc);
 
-  public: const Str& getDesc(Word id) const;
+  public: Str const& getDesc(Word id) const;
 
   /// Get the singleton object.
   public: static IdGenerator* getSingleton();

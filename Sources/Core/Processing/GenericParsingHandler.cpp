@@ -1,6 +1,6 @@
 /**
- * @file Core/Standard/GenericParsingHandler.cpp
- * Contains the implementation of class Core::Standard::GenericParsingHandler.
+ * @file Core/Processing/GenericParsingHandler.cpp
+ * Contains the implementation of class Core::Processing::GenericParsingHandler.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -12,8 +12,10 @@
 
 #include "core.h"
 
-namespace Core { namespace Standard
+namespace Core { namespace Processing
 {
+
+using namespace Data;
 
 //==============================================================================
 // Overloaded Abstract Functions
@@ -27,28 +29,28 @@ namespace Core { namespace Standard
  *
  * @sa ParsingHandler::onProdEnd()
  */
-void GenericParsingHandler::onProdEnd(Processing::Parser *machine, Processing::ParserState *state)
+void GenericParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  ParsedItem *item = state->getData().io_cast_get<ParsedItem>();
-  Data::SymbolDefinition *prod = state->refTopProdLevel().getProd();
+  ParsingMetadataHolder *item = state->getData().ii_cast_get<ParsingMetadataHolder>();
+  SymbolDefinition *prod = state->refTopProdLevel().getProd();
   if (item != 0 && item->getProdId() == UNKNOWN_ID) {
     // We need to set the production id now.
     this->prepareToModifyData(state, -1);
-    item = state->getData().s_cast_get<ParsedItem>();
+    item = state->getData().ii_cast_get<ParsingMetadataHolder>();
     item->setProdId(prod->getId());
   } else if (prod->getFlags() & ParsingFlags::OMISSIBLE) {
     // We don't need to set the production id since it's omissible.
     return;
   } else {
     // We need to create a container data object for this production root.
-    SharedPtr<ParsedItem> data;
-    Data::Term *term = state->refTopTermLevel().getTerm();
-    if (term->isA<Data::AlternateTerm>()) {
+    SharedPtr<IdentifiableObject> data;
+    Term *term = state->refTopTermLevel().getTerm();
+    if (term->isA<AlternateTerm>()) {
       data = std::make_shared<ParsedRoute>();
       data.s_cast_get<ParsedRoute>()->setData(state->getData());
-    } else if (term->isA<Data::MultiplyTerm>()) {
-      Data::Integer *min = state->getMultiplyTermMin();
-      Data::Integer *max = state->getMultiplyTermMax();
+    } else if (term->isA<MultiplyTerm>()) {
+      Integer *min = state->getMultiplyTermMin();
+      Integer *max = state->getMultiplyTermMax();
       if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
         // Optional term.
         data = std::make_shared<ParsedRoute>();
@@ -58,28 +60,29 @@ void GenericParsingHandler::onProdEnd(Processing::Parser *machine, Processing::P
         data = std::make_shared<ParsedList>();
         if (!(state->getData() == 0 &&
               (state->refTopTermLevel().getTerm()->getFlags() & ParsingFlags::OMISSIBLE))) {
-          data.s_cast_get<ParsedList>()->pushElement(state->getData());
+          data.s_cast_get<ParsedList>()->add(state->getData());
         }
       }
-    } else if (term->isA<Data::ConcatTerm>()) {
+    } else if (term->isA<ConcatTerm>()) {
       data = std::make_shared<ParsedList>();
       if (!(state->getData() == 0 &&
             (state->refTopTermLevel().getTerm()->getFlags() & ParsingFlags::OMISSIBLE))) {
-        data.s_cast_get<ParsedList>()->pushElement(state->getData());
+        data.s_cast_get<ParsedList>()->add(state->getData());
       }
-    } else if (term->isA<Data::TokenTerm>()) {
+    } else if (term->isA<TokenTerm>()) {
       // This should never be reachable.
       ASSERT(false);
-    } else if (term->isA<Data::ReferenceTerm>()) {
+    } else if (term->isA<ReferenceTerm>()) {
       // Reference production are just aliases and will always be considered omissible.
       return;
     }
     // Set the production id for this data item.
-    data->setProdId(prod->getId());
+    ParsingMetadataHolder *dataMeta = data.ii_cast_get<ParsingMetadataHolder>();
+    dataMeta->setProdId(prod->getId());
     // Set the line and column, if any.
     if (item != 0) {
-      data->setLine(item->getLine());
-      data->setColumn(item->getColumn());
+      dataMeta->setLine(item->getLine());
+      dataMeta->setColumn(item->getColumn());
     }
     // Set the data to this production's state level.
     state->setData(data);
@@ -95,7 +98,7 @@ void GenericParsingHandler::onProdEnd(Processing::Parser *machine, Processing::P
  * @sa setChildData()
  * @sa ParsingHandler::onTermEnd()
  */
-void GenericParsingHandler::onTermEnd(Processing::Parser *machine, Processing::ParserState *state)
+void GenericParsingHandler::onTermEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
   if (!(state->refTopTermLevel().getTerm()->getFlags() & ParsingFlags::PASS_UP)) {
     this->setChildData(state->getData(), state, -2);
@@ -110,10 +113,10 @@ void GenericParsingHandler::onTermEnd(Processing::Parser *machine, Processing::P
  *
  * @sa ParsingHandler::onLevelExit()
  */
-void GenericParsingHandler::onLevelExit(Processing::Parser *machine, Processing::ParserState *state,
+void GenericParsingHandler::onLevelExit(Processing::Parser *parser, Processing::ParserState *state,
                                         SharedPtr<IdentifiableObject> const &data)
 {
-  if (state->refTopTermLevel().getTerm()->isA<Data::ReferenceTerm>()) {
+  if (state->refTopTermLevel().getTerm()->isA<ReferenceTerm>()) {
     ASSERT(state->getData() == 0);
     state->setData(data);
   }
@@ -127,12 +130,12 @@ void GenericParsingHandler::onLevelExit(Processing::Parser *machine, Processing:
  *
  * @sa ParsingHandler::onNewToken()
  */
-void GenericParsingHandler::onNewToken(Processing::Parser *machine, Processing::ParserState *state,
-                                       const Data::Token *token)
+void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::ParserState *state,
+                                       const Token *token)
 {
   // Get the term object.
-  Data::TokenTerm *term = static_cast<Data::TokenTerm*>(state->refTopTermLevel().getTerm());
-  ASSERT(term->isA<Data::TokenTerm>());
+  TokenTerm *term = static_cast<TokenTerm*>(state->refTopTermLevel().getTerm());
+  ASSERT(term->isA<TokenTerm>());
 
   // Skip if the term is omissible.
   if ((term->getFlags() & ParsingFlags::OMISSIBLE) && state->getTokenTermText() != 0) return;
@@ -170,12 +173,12 @@ void GenericParsingHandler::onNewToken(Processing::Parser *machine, Processing::
  *
  * @sa ParsingHandler::onConcatStep()
  */
-void GenericParsingHandler::onConcatStep(Processing::Parser *machine, Processing::ParserState *state,
+void GenericParsingHandler::onConcatStep(Processing::Parser *parser, Processing::ParserState *state,
                                          Int newPos)
 {
   // Get the term object.
-  Data::ConcatTerm *term = static_cast<Data::ConcatTerm*>(state->refTopTermLevel().getTerm());
-  ASSERT(term->isA<Data::ConcatTerm>());
+  ConcatTerm *term = static_cast<ConcatTerm*>(state->refTopTermLevel().getTerm());
+  ASSERT(term->isA<ConcatTerm>());
 
   // If this term pass data up we can skip.
   if (term->getFlags() & ParsingFlags::PASS_UP) {
@@ -204,13 +207,13 @@ void GenericParsingHandler::onConcatStep(Processing::Parser *machine, Processing
  *
  * @sa ParsingHandler::onAlternateRouteDecision()
  */
-void GenericParsingHandler::onAlternateRouteDecision(Processing::Parser *machine, Processing::ParserState *state,
+void GenericParsingHandler::onAlternateRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
                                                      Int route)
 {
   // Get the term object.
-  Data::Term *term = state->refTopTermLevel().getTerm();
-  ASSERT(term->isA<Data::AlternateTerm>() ||
-         (term->isA<Data::MultiplyTerm>() &&
+  Term *term = state->refTopTermLevel().getTerm();
+  ASSERT(term->isA<AlternateTerm>() ||
+         (term->isA<MultiplyTerm>() &&
           (state->getMultiplyTermMin()==0 || state->getMultiplyTermMin()->get() == 0) &&
           (state->getMultiplyTermMax()!=0 && state->getMultiplyTermMax()->get() == 1)));
 
@@ -239,18 +242,18 @@ void GenericParsingHandler::onAlternateRouteDecision(Processing::Parser *machine
  *
  * @sa ParsingHandler::onMultiplyRouteDecision()
  */
-void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *machine, Processing::ParserState *state,
+void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
                                                     Int route)
 {
   // Get the term object.
-  Data::MultiplyTerm *term = static_cast<Data::MultiplyTerm*>(state->refTopTermLevel().getTerm());
-  ASSERT(term->isA<Data::MultiplyTerm>());
+  MultiplyTerm *term = static_cast<MultiplyTerm*>(state->refTopTermLevel().getTerm());
+  ASSERT(term->isA<MultiplyTerm>());
 
-  Data::Integer *min = state->getMultiplyTermMin();
-  Data::Integer *max = state->getMultiplyTermMax();
+  Integer *min = state->getMultiplyTermMin();
+  Integer *max = state->getMultiplyTermMax();
   if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
     // This is an optional term, so we'll just treat it the same way as alternate terms.
-    this->onAlternateRouteDecision(machine, state, route);
+    this->onAlternateRouteDecision(parser, state, route);
   } else {
     // If this term pass data up we can skip.
     if (term->getFlags() & ParsingFlags::PASS_UP) {
@@ -278,7 +281,7 @@ void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *machine,
  * Wipe out any generated data from the canceled term level.
  * @sa ParsingHandler::onTermCancelling()
  */
-void GenericParsingHandler::onTermCancelling(Processing::Parser *machine, Processing::ParserState *state)
+void GenericParsingHandler::onTermCancelling(Processing::Parser *parser, Processing::ParserState *state)
 {
   state->setData(SharedPtr<IdentifiableObject>(0));
 }
@@ -289,9 +292,9 @@ void GenericParsingHandler::onTermCancelling(Processing::Parser *machine, Proces
  * This function will simply call onTermCancelling.
  * @sa ParsingHandler::onProdCancelling()
  */
-void GenericParsingHandler::onProdCancelling(Processing::Parser *machine, Processing::ParserState *state)
+void GenericParsingHandler::onProdCancelling(Processing::Parser *parser, Processing::ParserState *state)
 {
-  this->onTermCancelling(machine, state);
+  this->onTermCancelling(parser, state);
 }
 
 
@@ -308,8 +311,8 @@ void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &da
   // Get the state level.
   Processing::ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
 
-  if (termLevel.getTerm()->isA<Data::AlternateTerm>() ||
-      (termLevel.getTerm()->isA<Data::MultiplyTerm>() &&
+  if (termLevel.getTerm()->isA<AlternateTerm>() ||
+      (termLevel.getTerm()->isA<MultiplyTerm>() &&
        (state->getMultiplyTermMin(levelIndex) == 0 || state->getMultiplyTermMin(levelIndex)->get() == 0) &&
        (state->getMultiplyTermMax(levelIndex) != 0 && state->getMultiplyTermMax(levelIndex)->get() == 1))) {
     if ((termLevel.getTerm()->getFlags() & ParsingFlags::FORCE_LIST)) {
@@ -349,8 +352,8 @@ void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &da
       }
       route->setData(data);
     }
-  } else if (termLevel.getTerm()->isA<Data::MultiplyTerm>() ||
-             termLevel.getTerm()->isA<Data::ConcatTerm>()) {
+  } else if (termLevel.getTerm()->isA<MultiplyTerm>() ||
+             termLevel.getTerm()->isA<ConcatTerm>()) {
     if ((termLevel.getTerm()->getFlags() & ParsingFlags::OMISSIBLE) &&
         (data == 0)) {
       // This is an omissible list based term and the data is null, so we can skip.
@@ -384,20 +387,21 @@ void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &da
         this->prepareToModifyData(state, levelIndex);
         currentData = state->getData(levelIndex).get();
         // The element is not created yet.
-        static_cast<ParsedList*>(currentData)->pushElement(data);
+        static_cast<ParsedList*>(currentData)->add(data);
       } else {
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
         ASSERT((termLevel.getTerm()->getFlags() & ParsingFlags::FORCE_LIST) == 0);
         SharedPtr<ParsedList> list = std::make_shared<ParsedList>();
-        list->setLine(static_cast<ParsedItem*>(currentData)->getLine());
-        list->setColumn(static_cast<ParsedItem*>(currentData)->getColumn());
-        list->pushElement(state->getData(levelIndex));
-        list->pushElement(data);
+        ParsingMetadataHolder *currentDataMeta = currentData->getInterface<ParsingMetadataHolder>();
+        list->setLine(currentDataMeta->getLine());
+        list->setColumn(currentDataMeta->getColumn());
+        list->add(state->getData(levelIndex));
+        list->add(data);
         state->setData(list, levelIndex);
       }
     }
-  } else if (termLevel.getTerm()->isA<Data::ReferenceTerm>() ||
-             termLevel.getTerm()->isA<Data::TokenTerm>()) {
+  } else if (termLevel.getTerm()->isA<ReferenceTerm>() ||
+             termLevel.getTerm()->isA<TokenTerm>()) {
     // This should never be reachable.
     ASSERT(false);
   }
@@ -470,8 +474,8 @@ void GenericParsingHandler::prepareToModifyData(Processing::ParserState *state, 
       newList->setProdId(sourceList->getProdId());
       newList->setLine(sourceList->getLine());
       newList->setColumn(sourceList->getColumn());
-      for (Word i = 0; i < sourceList->getElementCount(); ++i) {
-        newList->pushElement(sourceList->getElement(i));
+      for (Word i = 0; i < sourceList->getCount(); ++i) {
+        newList->add(sourceList->get(i));
       }
       state->setData(newList, levelIndex);
     } else {

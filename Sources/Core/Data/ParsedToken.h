@@ -1,6 +1,6 @@
 /**
- * @file Core/Standard/ParsedToken.h
- * Contains the header of class Core::Standard::ParsedToken.
+ * @file Core/Data/ParsedToken.h
+ * Contains the header of class Core::Data::ParsedToken.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,26 +10,27 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_PARSED_TOKEN_H
-#define STANDARD_PARSED_TOKEN_H
+#ifndef DATA_PARSEDTOKEN_H
+#define DATA_PARSEDTOKEN_H
 
-namespace Core { namespace Standard
+namespace Core { namespace Data
 {
 
 /**
  * @brief Contains information about a single token.
- * @ingroup standard
+ * @ingroup data
  *
  * Contains the information that defines a single token. This information is
  * composed of the token definition and the token text. This object is created
  * by the GenericParsingHandler to compose the parsed tree.
  */
-class ParsedToken : public ParsedItem
+class ParsedToken : public IdentifiableObject, public virtual ParsingMetadataHolder
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ParsedToken, ParsedItem, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(ParsedToken, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_1(IdentifiableObject, ParsingMetadataHolder);
 
 
   //============================================================================
@@ -55,12 +56,18 @@ class ParsedToken : public ParsedItem
   // Constructor / Destructor
 
   public: ParsedToken(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR(""), Int l=-1, Int c=-1) :
-    ParsedItem(pid, l, c), id(i), text(txt)
+    ParsingMetadataHolder(pid, l, c), id(i), text(txt)
   {
   }
 
   public: virtual ~ParsedToken()
   {
+  }
+
+  public: static SharedPtr<ParsedToken> create(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR(""),
+                                               Int l=-1, Int c=-1)
+  {
+    return std::make_shared<ParsedToken>(pid, i, txt, l, c);
   }
 
 

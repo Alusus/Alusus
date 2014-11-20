@@ -18,7 +18,7 @@ namespace Tests { namespace CoreTests
 using namespace Core::Data;
 
 // Test for a successful parsing of a simple assignment expression.
-TEST_CASE("Core::Data/search", "Successfully search an element with its containing module.")
+TEST_CASE("Core::Data/simple_seek", "Successfully seek an element with its containing module.")
 {
   GrammarRepository repository;
 
@@ -72,6 +72,176 @@ TEST_CASE("Core::Data/search", "Successfully search an element with its containi
       REQUIRE(plainStr != 0);
       REQUIRE(plainStr->isA<String>());
       REQUIRE(static_cast<String*>(plainStr)->getStr() == STR("hello"));
+    }
+  } catch (Exception &e) {
+    FAIL(e.getErrorMessage());
+  }
+}
+
+
+TEST_CASE("Core::Data/advanced_qualifier_seek", "Seek elements with advanced qualifiers.")
+{
+  // Prepare a data tree.
+  SharedPtr<IdentifiableObject> data =
+    ParsedList::create(ID_GENERATOR->getId(STR("root")), {
+                       ParsedRoute::create(ID_GENERATOR->getId(STR("parent.1")), 1,
+                                           ParsedToken::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")),
+                                                               STR("text"))),
+                       ParsedList::create(ID_GENERATOR->getId(STR("parent.2")), {
+                                          ParsedRoute::create(ID_GENERATOR->getId(STR("child.1")), 0),
+                                          ParsedToken::create(ID_GENERATOR->getId(STR("child.2")),
+                                                              ID_GENERATOR->getId(STR("token2")))}),
+                       ParsedToken::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
+
+  SharedPtr<IdentifiableObject> result;
+  IdentifiableObject *plainResult = 0;
+  IdentifiableObject *null = 0;
+  QualifierSeeker seeker;
+
+  try {
+    SECTION("s1", "Successful one level search.")
+    {
+      plainResult = seeker.tryGetPlain(STR("self~where(prodId=root)"), data.get());
+      REQUIRE(plainResult != null);
+    }
+    SECTION("s2", "Unseccessful one level search.")
+    {
+      plainResult = seeker.tryGetPlain(STR("self~where(prodId=noroot)"), data.get());
+      REQUIRE(plainResult == null);
+    }
+    SECTION("s3", "Successful deep search by id only.")
+    {
+      result = seeker.tryGetShared(STR("self~where(prodId=root).{find prodId=parent.2, 0}.{find prodId=child.2, 0}"), data.get());
+      REQUIRE(result != null);
+    }
+    SECTION("s4", "Unsuccessful deep search by id only.")
+    {
+      result = seeker.tryGetShared(STR("self~where(prodId=root).{find prodId=parent.2, 0}.{find prodId=child.3, 0}"), data.get());
+      REQUIRE(result == null);
+    }
+    SECTION("s5", "Successful deep search by id and index.")
+    {
+      result = seeker.tryGetShared(STR("self~where(prodId=root).(1).(0)"), data.get());
+      REQUIRE(result != null);
+    }
+    SECTION("s6", "Unsuccessful deep search by id and index.")
+    {
+      result = seeker.tryGetShared(STR("self~where(prodId=root).(1).(3)"), data.get());
+      REQUIRE(result == null);
+    }
+    SECTION("s7", "Successful deep search by id and index:id.")
+    {
+      result = seeker.tryGetShared(STR("self~where(prodId=root).(1).0~where(prodId=child.1)"), data.get());
+      REQUIRE(result != null);
+    }
+    SECTION("s8", "Unsuccessful deep search by id and index:id.")
+    {
+      result = seeker.tryGetShared(STR("self~where(prodId=root).(1).0~where(prodId=child.2)"), data.get());
+      REQUIRE(result == null);
+    }
+    SECTION("s9", "Unsuccessful extra deep search.")
+    {
+      result = seeker.tryGetShared(STR("self~where(prodId=root).{find prodId=parent.3, 0}.(0)"), data.get());
+      REQUIRE(result == null);
+    }
+    SECTION("s10", "Successful negative index.")
+    {
+      result = seeker.tryGetShared(STR("(-1)~where(prodId=parent.3)"), data.get());
+      REQUIRE(result != null);
+    }
+  } catch (Exception &e) {
+    FAIL(e.getErrorMessage());
+  }
+}
+
+
+TEST_CASE("Core::Data/advanced_reference_seek", "Seek elements with advanced references.")
+{
+  // Prepare a data tree.
+  SharedPtr<IdentifiableObject> data =
+    ParsedList::create(ID_GENERATOR->getId(STR("root")), {
+                       ParsedRoute::create(ID_GENERATOR->getId(STR("parent.1")), 1,
+                                           ParsedToken::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")), STR("text"))),
+                       ParsedList::create(ID_GENERATOR->getId(STR("parent.2")), {
+                                          ParsedRoute::create(ID_GENERATOR->getId(STR("child.1")), 0),
+                                          ParsedToken::create(ID_GENERATOR->getId(STR("child.2")),
+                                                              ID_GENERATOR->getId(STR("token2")))}),
+                       ParsedToken::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
+
+  ReferenceSeeker seeker;
+  SharedPtr<Reference> reference;
+  SharedPtr<IdentifiableObject> result;
+  IdentifiableObject *plainResult = 0;
+  IdentifiableObject *null = 0;
+
+  try {
+    SECTION("s1", "Successful one level search.")
+    {
+      reference = ReferenceParser::parseQualifier(STR("self~where(prodId=root)"));
+      plainResult = seeker.tryGetPlain(reference.get(), data.get());
+      REQUIRE(plainResult != null);
+    }
+    SECTION("s2", "Unseccessful one level search.")
+    {
+      reference = ReferenceParser::parseQualifier(STR("self~where(prodId=noroot)"));
+      plainResult = seeker.tryGetPlain(reference.get(), data.get());
+      REQUIRE(plainResult == null);
+    }
+    SECTION("s3", "Successful deep search by id only.")
+    {
+      reference = ReferenceParser::parseQualifier(
+        STR("self~where(prodId=root).{find prodId=parent.2, 0}.{find prodId=child.2, 0}"));
+      result = seeker.tryGetShared(reference.get(), data.get());
+      REQUIRE(result != null);
+    }
+    SECTION("s4", "Unsuccessful deep search by id only.")
+    {
+      reference = ReferenceParser::parseQualifier(
+        STR("self~where(prodId=root).{find prodId=parent.2, 0}.{find prodId=child.3, 0}"));
+      result = seeker.tryGetShared(reference.get(), data.get());
+      REQUIRE(result == null);
+    }
+    SECTION("s5", "Successful deep search by id and index.")
+    {
+      reference = ReferenceParser::parseQualifier(
+        STR("self~where(prodId=root).(1).(0)"));
+      result = seeker.tryGetShared(reference.get(), data.get());
+      REQUIRE(result != null);
+    }
+    SECTION("s6", "Unsuccessful deep search by id and index.")
+    {
+      reference = ReferenceParser::parseQualifier(
+        STR("self~where(prodId=root).(1).(3)"));
+      result = seeker.tryGetShared(reference.get(), data.get());
+      REQUIRE(result == null);
+    }
+    SECTION("s7", "Successful deep search by id and index:id.")
+    {
+      reference = ReferenceParser::parseQualifier(
+        STR("self~where(prodId=root).(1).(0)~where(prodId=child.1)"));
+      result = seeker.tryGetShared(reference.get(), data.get());
+      REQUIRE(result != null);
+    }
+    SECTION("s8", "Unsuccessful deep search by id and index:id.")
+    {
+      reference = ReferenceParser::parseQualifier(
+        STR("self~where(prodId=root).(1).(0)~where(prodId=child.2)"));
+      result = seeker.tryGetShared(reference.get(), data.get());
+      REQUIRE(result == null);
+    }
+    SECTION("s9", "Unsuccessful extra deep search.")
+    {
+      reference = ReferenceParser::parseQualifier(
+        STR("self~where(prodId=root).{find prodId=parent.3, 0}.(0)"));
+      result = seeker.tryGetShared(reference.get(), data.get());
+      REQUIRE(result == null);
+    }
+    SECTION("s10", "Successful negative index.")
+    {
+      reference = ReferenceParser::parseQualifier(
+        STR("(-1)~where(prodId=parent.3)"));
+      result = seeker.tryGetShared(reference.get(), data.get());
+      REQUIRE(result != null);
     }
   } catch (Exception &e) {
     FAIL(e.getErrorMessage());

@@ -48,7 +48,7 @@ class RedefinitionMsg : public Processing::BuildMsg
   // Member Functions
 
   /// @sa Processing::BuildMsg::getCode()
-  public: virtual const Str& getCode() const
+  public: virtual Str const& getCode() const
   {
     static Str code("S1001");
     return code;
@@ -61,7 +61,7 @@ class RedefinitionMsg : public Processing::BuildMsg
   }
 
   /// Get the name of the duplicate definition.
-  public: const Str& getDefinitionName() const
+  public: Str const& getDefinitionName() const
   {
     return this->name;
   }

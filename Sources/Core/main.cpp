@@ -40,8 +40,8 @@ void printIndents(int indents)
  * @brief Recursive function to print a tree of parsed data.
  * @ingroup main
  *
- * The given tree should have default parsing data (Default::ParsedItem,
- * Default::ParsedList, or Default::ParsedToken). Anything other than the
+ * The given tree should have default parsing data (ParsedRoute,
+ * ParsedList, or ParsedToken). Anything other than the
  * default data types will be represented by [UNKNOWN TYPE].
  */
 void debugPrintParsedData(SharedPtr<IdentifiableObject> const &ptr, int indents=0)
@@ -52,36 +52,36 @@ void debugPrintParsedData(SharedPtr<IdentifiableObject> const &ptr, int indents=
     return;
   }
 
-  // Is this a default data type?
-  if (ptr->isDerivedFrom<Standard::ParsedItem>()) {
+  // Does this object support the ParsingMetadataHolder interface?
+  if (ptr->getInterface<Data::ParsingMetadataHolder>() != 0) {
     // Print the production name.
-    Word id = ptr.io_cast_get<Standard::ParsedItem>()->getProdId();
+    Word id = ptr.ii_cast_get<Data::ParsingMetadataHolder>()->getProdId();
     if (id != UNKNOWN_ID) {
       Cout << Data::IdGenerator::getSingleton()->getDesc(id) << STR(" -- ");
     }
     // Print the data itself.
-    if (ptr->isDerivedFrom<Standard::ParsedList>()) {
+    if (ptr->isDerivedFrom<Data::ParsedList>()) {
       Cout << STR("[LIST]:\n");
-      for (Word i = 0; i < ptr.s_cast_get<Standard::ParsedList>()->getElementCount(); ++i) {
-        debugPrintParsedData(ptr.s_cast_get<Standard::ParsedList>()->getElement(i), indents+1);
+      for (Word i = 0; i < ptr.s_cast_get<Data::ParsedList>()->getCount(); ++i) {
+        debugPrintParsedData(ptr.s_cast_get<Data::ParsedList>()->get(i), indents+1);
       }
-    } else if (ptr->isDerivedFrom<Standard::ParsedRoute>()) {
+    } else if (ptr->isDerivedFrom<Data::ParsedRoute>()) {
       Cout << STR("[ROUTE]: ");
-      Cout << ptr.s_cast_get<Standard::ParsedRoute>()->getRoute() << STR("\n");
-      debugPrintParsedData(ptr.s_cast_get<Standard::ParsedRoute>()->getData(), indents+1);
-    } else if (ptr->isDerivedFrom<Standard::ParsedToken>()) {
+      Cout << ptr.s_cast_get<Data::ParsedRoute>()->getRoute() << STR("\n");
+      debugPrintParsedData(ptr.s_cast_get<Data::ParsedRoute>()->getData(), indents+1);
+    } else if (ptr->isDerivedFrom<Data::ParsedToken>()) {
       Cout << STR("[TOKEN]: ");
       // Print the token type.
-      Int id = ptr.s_cast_get<Standard::ParsedToken>()->getId();
+      Int id = ptr.s_cast_get<Data::ParsedToken>()->getId();
       Cout << Data::IdGenerator::getSingleton()->getDesc(id);
       // Print the token text.
-      Cout << STR(" (\"") << ptr.s_cast_get<Standard::ParsedToken>()->getText() << STR("\")\n");
+      Cout << STR(" (\"") << ptr.s_cast_get<Data::ParsedToken>()->getText() << STR("\")\n");
     } else {
-      // A default parsed item but not one of the three known types.
-      Cout << STR("[UNKNOWN ParsedItem]\n");
+      // An item implementing ParsingMetadataHolder but not one of the three known types.
+      Cout << STR("[UNKNOWN Parsed Item]\n");
     }
   } else {
-    // Unkown datat type not even derived form ParsedItem.
+    // Unkown data type not even implementing ParsingMetadataHolder.
     Cout << STR("[UNKNOWN TYPE]\n");
   }
 }
@@ -167,14 +167,25 @@ int main(int argCount, char * const args[])
     root.buildMsgNotifier.connect(&printBuildMsg);
 
     // Parse the provided filename.
-    SharedPtr<Standard::ParsedItem> ptr = root.processFile(args[1]).io_cast<Standard::ParsedItem>();
+    SharedPtr<IdentifiableObject> ptr = root.processFile(args[1]);
     if (ptr == 0) return EXIT_SUCCESS;
-    if (ptr.s_cast_get<Standard::ParsedList>()->getElementCount() == 0) return 0;
+
+    // Check if we have orphan data to print.
+    SharedPtr<Data::ParsedList> orphan;
+    if (ptr->isDerivedFrom<Data::Module>()) {
+      Int orphanIndex = ptr.s_cast<Data::Module>()->findIndex(STR("_ORPHAN_"));
+      if (orphanIndex != -1) {
+        orphan = ptr.s_cast<Data::Module>()->get(orphanIndex).io_cast<Data::ParsedList>();
+      }
+    } else if (ptr->isDerivedFrom<Data::ParsedList>()) {
+      orphan = ptr.s_cast<Data::ParsedList>();
+    }
+    if (orphan == 0 || orphan->getCount() == 0) return 0;
 
     // Print the parsed data.
     Cout << NEW_LINE << STR("-- BUILD COMPLETE --") << NEW_LINE << NEW_LINE <<
             STR("Build Results:") << NEW_LINE << NEW_LINE;
-    debugPrintParsedData(ptr);
+    debugPrintParsedData(orphan);
   } catch (Exception &e) {
     Cout << e.getErrorMessage() << NEW_LINE;
     return EXIT_FAILURE;

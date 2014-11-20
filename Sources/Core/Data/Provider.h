@@ -48,11 +48,11 @@ class Provider : public IdentifiableInterface
   /// @name Exception Based Data Retrieval Functions
   /// @{
 
-  public: virtual IdentifiableObject* getPlainValue(Reference const *ref) const = 0;
+  public: virtual IdentifiableObject* getPlainValue(Reference const *ref) = 0;
 
   public: virtual void getPlainValue(Reference const *ref, PlainModulePairedPtr &retVal) = 0;
 
-  public: virtual IdentifiableObject* getPlainValue(Char const *qualifier) const = 0;
+  public: virtual IdentifiableObject* getPlainValue(Char const *qualifier) = 0;
 
   public: virtual void getPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal) = 0;
 
@@ -61,11 +61,11 @@ class Provider : public IdentifiableInterface
   /// @name Return-Value Based Data Retrieval Functions
   /// @{
 
-  public: virtual Bool tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal) const = 0;
+  public: virtual Bool tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal) = 0;
 
   public: virtual Bool tryGetPlainValue(Reference const *ref, PlainModulePairedPtr &retVal) = 0;
 
-  public: virtual Bool tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal) const = 0;
+  public: virtual Bool tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal) = 0;
 
   public: virtual Bool tryGetPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal) = 0;
 

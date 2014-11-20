@@ -31,7 +31,7 @@ Str BuildMsg::tempBuf;
  *
  * @sa buildDescription()
  */
-const Str& BuildMsg::getDescription() const
+Str const& BuildMsg::getDescription() const
 {
   this->buildDescription(BuildMsg::tempBuf);
   return BuildMsg::tempBuf;

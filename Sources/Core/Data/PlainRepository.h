@@ -176,19 +176,19 @@ class PlainRepository : public IdentifiableObject, public virtual PlainProvider
 
   public: virtual Bool tryRemoveValue(Char const *qualifier);
 
-  public: virtual IdentifiableObject* getPlainValue(Reference const *ref) const;
+  public: virtual IdentifiableObject* getPlainValue(Reference const *ref);
 
   public: virtual void getPlainValue(Reference const *ref, PlainModulePairedPtr &retVal);
 
-  public: virtual IdentifiableObject* getPlainValue(Char const *qualifier) const;
+  public: virtual IdentifiableObject* getPlainValue(Char const *qualifier);
 
   public: virtual void getPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal);
 
-  public: virtual Bool tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal) const;
+  public: virtual Bool tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal);
 
   public: virtual Bool tryGetPlainValue(Reference const *ref, PlainModulePairedPtr &retVal);
 
-  public: virtual Bool tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal) const;
+  public: virtual Bool tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal);
 
   public: virtual Bool tryGetPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal);
 

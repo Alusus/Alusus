@@ -26,7 +26,7 @@ Bool StrKeyReference::compare(Reference const *r) const
 }
 
 
-Bool StrKeyReference::setShared(Provider const *provider, IdentifiableObject *parent,
+Bool StrKeyReference::setShared(Provider *provider, IdentifiableObject *parent,
                                 SharedPtr<IdentifiableObject> const &obj, Int &index) const
 {
   if (parent == 0) {
@@ -50,7 +50,7 @@ Bool StrKeyReference::setShared(Provider const *provider, IdentifiableObject *pa
 }
 
 
-Bool StrKeyReference::setPlain(Provider const *provider, IdentifiableObject *parent,
+Bool StrKeyReference::setPlain(Provider *provider, IdentifiableObject *parent,
                                IdentifiableObject *obj, Int &index) const
 {
   if (parent == 0) {
@@ -74,7 +74,7 @@ Bool StrKeyReference::setPlain(Provider const *provider, IdentifiableObject *par
 }
 
 
-Bool StrKeyReference::remove(Provider const *provider, IdentifiableObject *parent, Int &index) const
+Bool StrKeyReference::remove(Provider *provider, IdentifiableObject *parent, Int &index) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::remove"),
@@ -118,7 +118,7 @@ Bool StrKeyReference::remove(Provider const *provider, IdentifiableObject *paren
 }
 
 
-Bool StrKeyReference::getShared(Provider const *provider, IdentifiableObject const *parent,
+Bool StrKeyReference::getShared(Provider *provider, IdentifiableObject *parent,
                                 SharedPtr<IdentifiableObject> &result, Int &index) const
 {
   if (parent == 0) {
@@ -148,7 +148,7 @@ Bool StrKeyReference::getShared(Provider const *provider, IdentifiableObject con
 }
 
 
-Bool StrKeyReference::getPlain(Provider const *provider, IdentifiableObject const *parent,
+Bool StrKeyReference::getPlain(Provider *provider, IdentifiableObject *parent,
                                IdentifiableObject *&result, Int &index) const
 {
   if (parent == 0) {
