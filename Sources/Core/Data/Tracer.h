@@ -29,9 +29,9 @@ class Tracer : public IdentifiableInterface
   //============================================================================
   // Abstract Functions
 
-  public: virtual IdentifiableObject* tracePlainValue(IdentifiableObject *val) = 0;
+  public: virtual IdentifiableObject* traceValue(IdentifiableObject *val) = 0;
 
-  public: virtual void tracePlainValue(IdentifiableObject *val, PlainModulePairedPtr &retVal) = 0;
+  public: virtual void traceValue(IdentifiableObject *val, PlainModulePairedPtr &retVal) = 0;
 
 }; // class
 

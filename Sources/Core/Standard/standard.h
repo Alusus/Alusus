@@ -71,8 +71,7 @@ typedef LibraryGateway* (*LibraryGatewayGetter)();
 Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processing::ParserState *state);
 
 /// Merge the given object into the provided definition manager.
-void mergeDefinition(Char const *qualifier, SharedPtr<IdentifiableObject> const &obj,
-                     Processing::ParserState *state);
+void mergeDefinition(Char const *qualifier, IdentifiableObject *obj, Processing::ParserState *state);
 
 } } // namespace
 

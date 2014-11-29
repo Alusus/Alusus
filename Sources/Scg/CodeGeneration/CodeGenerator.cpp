@@ -115,7 +115,7 @@ namespace Scg
     Module *module = new Module("main");
     for (auto i = 0; i < srcModule->getCount(); i++)
     {
-        auto item = srcModule->get(i);
+        auto item = srcModule->getShared(i);
         if (item == 0) {
             THROW_EXCEPTION(SyntaxErrorException, "Invalid object type in def command.");
         }
@@ -163,7 +163,7 @@ namespace Scg
     ExpressionArray blockExprs;
     for (auto i = 0; i < list->getCount(); i++)
     {
-      auto element = list->get(i);
+      auto element = list->getShared(i);
       blockExprs.push_back(GenerateStatement(element));
     }
 
@@ -180,8 +180,7 @@ namespace Scg
           "0~where(prodId=Main.StatementList)"),
       ReferenceUsageCriteria::MULTI_DATA);
     static ReferenceSeeker seeker;
-    SharedPtr<IdentifiableObject> set;
-    seeker.tryGetShared(setReference.get(), item.get(), set);
+    IdentifiableObject *set = seeker.tryGet(setReference.get(), item.get());
     if (set == 0) {
       ExpressionArray blockExprs;
       blockExprs.push_back(GenerateStatement(item));
@@ -195,7 +194,7 @@ namespace Scg
       }
       return block;
     } else {
-      return GenerateSet(set.s_cast<ParsedList>());
+      return GenerateSet(s_cast<ParsedList>(getSharedPtr(set)));
     }
   }
 
@@ -223,7 +222,7 @@ namespace Scg
           "0~where(prodId=Subject.Subject1)."
           "0~where(prodId=Subject.Parameter)"),
       ReferenceUsageCriteria::MULTI_DATA);
-    auto nameToken = seeker.tryGetPlain<ParsedToken>(nameReference.get(), item.get());
+    auto nameToken = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), item.get()));
     if (nameToken == nullptr || nameToken->getId() != identifierTokenId)
       // TODO: Generate a build message instead of throwing an exception.
       THROW_EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
@@ -234,7 +233,7 @@ namespace Scg
       STR("0~where(prodId=Expression.Exp)."
           "0~where(prodId=Expression.LowerLinkExp)."
           "2"), ReferenceUsageCriteria::MULTI_DATA);
-    auto def = seeker.tryGetShared(defReference.get(), item.get());
+    auto def = seeker.tryGet(defReference.get(), item.get());
     ParsingMetadataHolder *defMetadata = def==0 ? 0 : def->getInterface<ParsingMetadataHolder>();
     if (defMetadata == nullptr)
       // TODO: Generate a build message instead of throwing an exception.
@@ -244,10 +243,10 @@ namespace Scg
 
     if (defMetadata->getProdId() == functionalExpId)
       // Defining a variable
-      return GenerateDefineVariable(name, def);
+      return GenerateDefineVariable(name, getSharedPtr(def));
     else if (defMetadata->getProdId() == subjectId)
     {
-      auto routeData = def.s_cast_get<ParsedRoute>()->getData();
+      auto routeData = static_cast<ParsedRoute*>(def)->getData();
       auto routeMetadata = routeData->getInterface<ParsingMetadataHolder>();
       if (routeMetadata->getProdId() == parameterId)
         // Defining a variable
@@ -292,13 +291,14 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  DefineStruct *CodeGenerator::GenerateDefineStructure(const std::string &name, SharedPtr<IdentifiableObject> const &item)
+  DefineStruct *CodeGenerator::GenerateDefineStructure(const std::string &name,
+                                                       SharedPtr<IdentifiableObject> const &item)
   {
     static ReferenceSeeker seeker;
     // Generate function body.
     static SharedPtr<Reference> structBodyReference = ReferenceParser::parseQualifier(
       STR("0~where(prodId=Main.StatementList)"), ReferenceUsageCriteria::MULTI_DATA);
-    auto bodyStmtList = seeker.tryGetShared<ParsedList>(structBodyReference.get(), item.get());
+    auto bodyStmtList = getSharedPtr(seeker.tryGet(structBodyReference.get(), item.get())).io_cast<ParsedList>();
     if (bodyStmtList == 0)
       // TODO: Generate a build message instead of throwing an exception.
       THROW_EXCEPTION(SyntaxErrorException, "A structure definition expects a body.");
@@ -306,10 +306,10 @@ namespace Scg
 
     // Extract members names and types.
     VariableDefinitionArray fields;
-    for (auto item : structBody->GetChildren())
+    for (auto child : structBody->GetChildren())
     {
       // TODO: Don't use dynamic_cast.
-      auto field = dynamic_cast<DefineVariable*>(item);
+      auto field = dynamic_cast<DefineVariable*>(child);
       if (field == nullptr)
         THROW_EXCEPTION(SyntaxErrorException,
             "A structure body can only contain variable definitions.");
@@ -338,7 +338,7 @@ namespace Scg
     static ReferenceSeeker seeker;
     static SharedPtr<Reference> expReference = ReferenceParser::parseQualifier(
       STR("{find prodId=Expression.Exp, 0}"), ReferenceUsageCriteria::MULTI_DATA);
-    auto exp = seeker.tryGetShared(expReference.get(), item.get());
+    auto exp = getSharedPtr(seeker.tryGet(expReference.get(), item.get()));
     if (exp == nullptr)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid return argument.");
 
@@ -363,7 +363,7 @@ namespace Scg
 
     Expression *expr;
     if (id == expressionId)
-      expr = GenerateExpression(item.s_cast_get<ParsedList>()->get(0));
+      expr = GenerateExpression(item.s_cast_get<ParsedList>()->getShared(0));
     else if (id == subjectId)
       expr = GenerateExpression(item.s_cast_get<ParsedRoute>()->getData());
     else if (id == parameterId)
@@ -374,7 +374,7 @@ namespace Scg
       expr = GenerateConst(item.s_cast<ParsedToken>());
     else if (id == functionalExpId) {
       /*auto list = item.s_cast<ParsedList>();
-      auto id2 = list->getElement(1)->getInterface<ParsingMetadataHolder>()->getProdId();
+      auto id2 = list->get(1)->getInterface<ParsingMetadataHolder>()->getProdId();
       if (id2 == paramPassId)
         expr = GenerateFunctionCall(item.s_cast<ParsedList>());
       else if (id2 == postfixTildeExpId)
@@ -415,12 +415,12 @@ namespace Scg
 //          ->getElement(0).s_cast<ParsedRoute>()
 //          ->getData().s_cast<ParsedToken>()
 //          ->getText();
-//      auto postfix = parsedList->getElement(1);
+//      auto postfix = parsedList->get(1);
 //      auto postfixId = postfix->getInterface<ParsingMetadataHolder>()->getProdId();
 //      if (postfixId != postfixTildeExpId)
 //        THROW_EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
 //      auto postfixType = postfix.s_cast<ParsedList>()
-//          ->getElement(0)->getInterface<ParsingMetadataHolder>()->getProdId();
+//          ->get(0)->getInterface<ParsingMetadataHolder>()->getProdId();
 //      if (postfixType == pointerTildeId)
 //        return new PointerToVariable(varName);
 //      else if (postfixType == contentTildeId)
@@ -458,7 +458,7 @@ namespace Scg
 //    std::vector<Expression*> subVarRefs;
 //    for (auto i = 1; i < parsedList->getElementCount(); i++)
 //    {
-//      auto fieldExp = parsedList->getElement(i);
+//      auto fieldExp = parsedList->get(i);
 //      if (fieldExp->getInterface<ParsingMetadataHolder>()->getProdId() == linkExpId)
 //      {
 //        auto fieldName = fieldExp.s_cast<ParsedList>()
@@ -470,7 +470,7 @@ namespace Scg
 //      else if (fieldExp->getProdId() == postfixTildeExpId)
 //      {
 //        auto postfixTypeId = fieldExp.s_cast<ParsedList>()
-//            ->getElement(0)->getInterface<ParsingMetadataHolder>()->getProdId();
+//            ->get(0)->getInterface<ParsingMetadataHolder>()->getProdId();
 //        if (postfixTypeId == pointerTildeId)
 //        {
 //          postfixType = 1;
@@ -554,7 +554,7 @@ namespace Scg
     // the list.
     ExpressionArray elements;
     for (auto i = 0; i < listExpr->getCount(); i++)
-      elements.push_back(GenerateExpression(listExpr->get(i)));
+      elements.push_back(GenerateExpression(listExpr->getShared(i)));
 
     auto list = new List(elements);
 
@@ -570,9 +570,9 @@ namespace Scg
 
   Expression *CodeGenerator::GenerateBinaryOperator(const SharedPtr<ParsedList> &cmpExpr)
   {
-    auto lhs = GenerateExpression(cmpExpr->get(0));
-    auto rhs = GenerateExpression(cmpExpr->get(2));
-    auto opText = cmpExpr->get(1).s_cast_get<ParsedToken>()->getText();
+    auto lhs = GenerateExpression(cmpExpr->getShared(0));
+    auto rhs = GenerateExpression(cmpExpr->getShared(2));
+    auto opText = static_cast<ParsedToken*>(cmpExpr->get(1))->getText();
     Expression *expr;
     // Arithmetic operators
     if (opText.compare("+") == 0)
@@ -624,7 +624,7 @@ namespace Scg
 //    static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
 //      STR("0~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
 //      ReferenceUsageCriteria::MULTI_DATA);
-//    auto name = seeker.tryGetShared<ParsedToken>(nameReference.get(), functionalExpr.get());
+//    auto name = seeker.tryGet<ParsedToken>(nameReference.get(), functionalExpr.get());
 //    if (name == 0) {
 //      THROW_EXCEPTION(SyntaxErrorException, "A function call should have a name and parameter list.");
 //    }
@@ -636,7 +636,7 @@ namespace Scg
 //    // Get the parameter.
 //    static SharedPtr<Reference> paramsReference = ReferenceParser::parseQualifier(
 //      STR("1~where(prodId=Expression.ParamPassExp).0"), ReferenceUsageCriteria::MULTI_DATA);
-//    auto params = seeker.tryGetShared(paramsReference.get(), functionalExpr.get());
+//    auto params = seeker.tryGet(paramsReference.get(), functionalExpr.get());
 //    Expression *functionArgs = 0;
 //    if (params != 0) {
 //      functionArgs = GenerateExpression(params);
@@ -677,7 +677,7 @@ namespace Scg
     static SharedPtr<Reference> expReference = ReferenceParser::parseQualifier(
       STR("0~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
 
-    auto exp = seeker.tryGetShared<ParsedList>(expReference.get(), command.get());
+    auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
     if (exp == 0)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid if command's condition.");
     auto condition = GenerateExpression(exp);
@@ -685,7 +685,7 @@ namespace Scg
     // The body of the if statement.
     static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
       STR("1"), ReferenceUsageCriteria::MULTI_DATA);
-    auto body = seeker.tryGetShared(bodyReference.get(), command.get());
+    auto body = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
     if (body == 0)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid if command's body.");
     auto thenBody = GenerateInnerSet(body);
@@ -709,7 +709,7 @@ namespace Scg
     // The condition of the for statement.
     static SharedPtr<Reference> expReference = ReferenceParser::parseQualifier(
       STR("0~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
-    auto exp = seeker.tryGetShared<ParsedList>(expReference.get(), command.get());
+    auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
     if (exp == 0)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid for command's condition.");
     auto initCondLoop = GenerateExpression(exp);
@@ -729,7 +729,7 @@ namespace Scg
     // The body of the for statement.
     static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
       STR("1"), ReferenceUsageCriteria::MULTI_DATA);
-    auto body = seeker.tryGetShared(bodyReference.get(), command.get());
+    auto body = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
     if (body == 0)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid if command's body.");
     auto thenBody = GenerateInnerSet(body);
@@ -753,7 +753,7 @@ namespace Scg
     // The condition of the while statement.
     static SharedPtr<Reference> condReference = ReferenceParser::parseQualifier(
       STR("0~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
-    auto condAST = seeker.tryGetShared<ParsedList>(condReference.get(), command.get());
+    auto condAST = getSharedPtr(seeker.tryGet(condReference.get(), command.get())).io_cast<ParsedList>();
     if (exp == nullptr)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid 'while' command's condition.");
     auto cond = GenerateExpression(condAST);
@@ -761,7 +761,7 @@ namespace Scg
     // The body of the 'while' statement.
     static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
       STR("1"), ReferenceUsageCriteria::MULTI_DATA);
-    auto bodyAST = seeker.tryGetShared(bodyReference.get(), command.get());
+    auto bodyAST = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
     if (bodyAST == nullptr)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid 'while' command's body.");
     auto body = GenerateInnerSet(bodyAST);
@@ -789,13 +789,13 @@ namespace Scg
     static SharedPtr<Reference> exprReference = ReferenceParser::parseQualifier(
       STR("0~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
 
-    auto list = seeker.tryGetShared<ParsedList>(listReference.get(), command.get());
+    auto list = io_cast<ParsedList>(seeker.tryGet(listReference.get(), command.get()));
     if (list != 0)
     {
       auto exprList = new ExpressionList();
       for (auto i = 0; i < list->getCount(); i++)
       {
-        FunctionLinkExpression funcLink(this, list->get(i));
+        FunctionLinkExpression funcLink(this, list->getShared(i));
         exprList->AppendExpression(funcLink.ToDeclareExtFunction());
       }
       auto commandMetadata = command->getInterface<ParsingMetadataHolder>();
@@ -807,7 +807,7 @@ namespace Scg
     }
     else
     {
-      auto expr = seeker.tryGetShared<ParsedList>(exprReference.get(), command.get());
+      auto expr = getSharedPtr(seeker.tryGet(exprReference.get(), command.get())).io_cast<ParsedList>();
       if (expr != 0)
       {
         FunctionLinkExpression funcLink(this, expr);
@@ -828,7 +828,7 @@ namespace Scg
     static SharedPtr<Reference> tokenReference = ReferenceParser::parseQualifier(
       STR("self~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
       ReferenceUsageCriteria::MULTI_DATA);
-    auto token = seeker.tryGetPlain<ParsedToken>(tokenReference.get(), item.get());
+    auto token = io_cast<ParsedToken>(seeker.tryGet(tokenReference.get(), item.get()));
     if (token == nullptr)
       // TODO: Add the index of the non-token to the exception message.
       THROW_EXCEPTION(InvalidArgumentException,
@@ -864,7 +864,7 @@ namespace Scg
       static SharedPtr<Reference> modifierReference = ReferenceParser::parseQualifier(
         STR("0~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
-      auto funcName = seeker.tryGetShared<ParsedToken>(modifierReference.get(), item.get());
+      auto funcName = io_cast<ParsedToken>(seeker.tryGet(modifierReference.get(), item.get()));
       if (funcName == nullptr)
         THROW_EXCEPTION(SyntaxErrorException, "Invalid variable type.");
 
@@ -875,7 +875,7 @@ namespace Scg
         static SharedPtr<Reference> contentTypeReference = ReferenceParser::parseQualifier(
           STR("1~where(prodId=Expression.ParamPassExp).0~where(prodId=Expression.Exp).0"),
           ReferenceUsageCriteria::MULTI_DATA);
-        auto typeAstRoot = seeker.tryGetShared(contentTypeReference.get(), item.get());
+        auto typeAstRoot = getSharedPtr(seeker.tryGet(contentTypeReference.get(), item.get()));
         if (typeAstRoot == nullptr)
           THROW_EXCEPTION(SyntaxErrorException, "Invalid pointer type.");
         auto contentTypeSpec = ParseVariableType(typeAstRoot);
@@ -897,10 +897,10 @@ namespace Scg
               "1~where(prodId=Subject.Subject1)."
               "0~where(prodId=Subject.Literal)"),
           ReferenceUsageCriteria::MULTI_DATA);
-        auto elementTypeAst = seeker.tryGetShared(elementTypeReference.get(), item.get());
+        auto elementTypeAst = getSharedPtr(seeker.tryGet(elementTypeReference.get(), item.get()));
         if (elementTypeAst == nullptr)
           THROW_EXCEPTION(SyntaxErrorException, "Invalid array type.");
-        auto arraySizeAst = seeker.tryGetPlain<ParsedToken>(arraySizeReference.get(), item.get());
+        auto arraySizeAst = io_cast<ParsedToken>(seeker.tryGet(arraySizeReference.get(), item.get()));
         if (arraySizeAst == nullptr)
           THROW_EXCEPTION(SyntaxErrorException, "Invalid array type.");
         auto elementTypeSpec = ParseVariableType(elementTypeAst);
@@ -934,7 +934,7 @@ namespace Scg
     static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
       STR("self~where(prodId=Expression.LowerLinkExp).0~where(prodId=Subject.Subject1)"),
       ReferenceUsageCriteria::MULTI_DATA);
-    auto nameToken = seeker.tryGetShared(nameReference.get(), astBlockRoot.get());
+    auto nameToken = getSharedPtr(seeker.tryGet(nameReference.get(), astBlockRoot.get()));
     if (nameToken == nullptr) {
       // TODO: Replace the exception with a build message.
       THROW_EXCEPTION(SyntaxErrorException, "Invalid variable definition.");
@@ -944,7 +944,7 @@ namespace Scg
     static SharedPtr<Reference> typeReference = ReferenceParser::parseQualifier(
       STR("self~where(prodId=Expression.LowerLinkExp).2"),
       ReferenceUsageCriteria::MULTI_DATA);
-    auto typeAst = seeker.tryGetShared(typeReference.get(), astBlockRoot.get());
+    auto typeAst = getSharedPtr(seeker.tryGet(typeReference.get(), astBlockRoot.get()));
     if (typeAst == nullptr) {
       // TODO: Replace the exception with a build message.
       THROW_EXCEPTION(SyntaxErrorException, "Invalid variable definition.");
@@ -983,8 +983,8 @@ namespace Scg
 
     VariableDefinitionArray args;
     if (id == expressionId) {
-      return ParseFunctionArguments(astBlockRoot.s_cast<ParsedList>()
-          ->get(0));
+      return ParseFunctionArguments(astBlockRoot.s_cast_get<ParsedList>()
+          ->getShared(0));
     } if (id == subjectId) {
       auto route = astBlockRoot.s_cast<ParsedRoute>();
       if (route->getData() == nullptr)
@@ -993,7 +993,7 @@ namespace Scg
     } else if (id == listExpId) {
       auto list = astBlockRoot.s_cast<ParsedList>();
       for (int i = 0, e = (int)list->getCount(); i < e; ++i) {
-        args.push_back(ParseVariableDefinition(list->get(i)));
+        args.push_back(ParseVariableDefinition(list->getShared(i)));
       }
     } else if (id == lowerLinkExpId) {
       args.push_back(ParseVariableDefinition(astBlockRoot));

@@ -19,13 +19,13 @@ namespace Core { namespace Data
 /**
  * @brief A stack of IdentifiableObject derived data objects.
  */
-class PlainRepository : public IdentifiableObject, public virtual PlainProvider
+class PlainRepository : public IdentifiableObject, public virtual Provider
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(PlainRepository, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, PlainProvider);
+  IMPLEMENT_INTERFACES_1(IdentifiableObject, Provider);
 
 
   //============================================================================
@@ -152,45 +152,40 @@ class PlainRepository : public IdentifiableObject, public virtual PlainProvider
 
   /// @}
 
-  /// @name PlainProvider Implementation
-  /// @{
-
-  public: virtual void setPlainValue(Reference const *ref, IdentifiableObject *val);
-
-  public: virtual void setPlainValue(Char const *qualifier, IdentifiableObject *val);
-
-  public: virtual Bool trySetPlainValue(Reference const *ref, IdentifiableObject *val);
-
-  public: virtual Bool trySetPlainValue(Char const *qualifier, IdentifiableObject *val);
-
-  /// @}
-
   /// @name Provider Implementation
   /// @{
 
-  public: virtual void removeValue(Reference const *ref);
+  public: virtual void set(Reference const *ref, IdentifiableObject *val);
 
-  public: virtual void removeValue(Char const *qualifier);
+  public: virtual void set(Char const *qualifier, IdentifiableObject *val);
 
-  public: virtual Bool tryRemoveValue(Reference const *ref);
+  public: virtual Bool trySet(Reference const *ref, IdentifiableObject *val);
 
-  public: virtual Bool tryRemoveValue(Char const *qualifier);
+  public: virtual Bool trySet(Char const *qualifier, IdentifiableObject *val);
 
-  public: virtual IdentifiableObject* getPlainValue(Reference const *ref);
+  public: virtual void remove(Reference const *ref);
 
-  public: virtual void getPlainValue(Reference const *ref, PlainModulePairedPtr &retVal);
+  public: virtual void remove(Char const *qualifier);
 
-  public: virtual IdentifiableObject* getPlainValue(Char const *qualifier);
+  public: virtual Bool tryRemove(Reference const *ref);
 
-  public: virtual void getPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal);
+  public: virtual Bool tryRemove(Char const *qualifier);
 
-  public: virtual Bool tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal);
+  public: virtual IdentifiableObject* get(Reference const *ref);
 
-  public: virtual Bool tryGetPlainValue(Reference const *ref, PlainModulePairedPtr &retVal);
+  public: virtual void get(Reference const *ref, PlainModulePairedPtr &retVal);
 
-  public: virtual Bool tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal);
+  public: virtual IdentifiableObject* get(Char const *qualifier);
 
-  public: virtual Bool tryGetPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal);
+  public: virtual void get(Char const *qualifier, PlainModulePairedPtr &retVal);
+
+  public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal);
+
+  public: virtual Bool tryGet(Reference const *ref, PlainModulePairedPtr &retVal);
+
+  public: virtual Bool tryGet(Char const *qualifier, IdentifiableObject *&retVal);
+
+  public: virtual Bool tryGet(Char const *qualifier, PlainModulePairedPtr &retVal);
 
   /// @}
 

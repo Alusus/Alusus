@@ -34,7 +34,8 @@ void GrammarRepository::setModule(SharedPtr<Module> const &module)
 {
   this->repository.setLevel(module, GrammarScopeIndex::MODULE);
   if (module != 0 && module->isA<Data::GrammarModule>()) {
-    this->repository.setLevel(module.s_cast_get<GrammarModule>()->getParent(), GrammarScopeIndex::PMODULE);
+    auto pmodule = getSharedPtr(module.s_cast_get<GrammarModule>()->getParent());
+    this->repository.setLevel(pmodule, GrammarScopeIndex::PMODULE);
   } else {
     this->repository.setLevel(SharedPtr<IdentifiableObject>(), GrammarScopeIndex::PMODULE);
   }
@@ -49,66 +50,48 @@ void GrammarRepository::clear()
 }
 
 
-void GrammarRepository::setSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> const &val)
+void GrammarRepository::set(Reference const *ref, IdentifiableObject *val)
 {
-  this->repository.setSharedValue(ref, val);
+  this->repository.set(ref, val);
 
   Initializable *initializable = val->getInterface<Initializable>();
   if (initializable != 0) {
     SharedPtr<Module> oldModule = this->getModule();
-    SharedModulePairedPtr ptr;
-    this->repository.getSharedValue(ref, ptr);
-    this->setModule(ptr.module);
+    PlainModulePairedPtr ptr;
+    this->repository.get(ref, ptr);
+    this->setModule(getSharedPtr(ptr.module));
     initializable->initialize(this);
     this->setModule(oldModule);
   }
 }
 
 
-void GrammarRepository::setSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> const &val)
+void GrammarRepository::set(Char const *qualifier, IdentifiableObject *val)
 {
-  this->repository.setSharedValue(qualifier, val);
+  this->repository.set(qualifier, val);
 
   Initializable *initializable = val->getInterface<Initializable>();
   if (initializable != 0) {
     SharedPtr<Module> oldModule = this->getModule();
-    SharedModulePairedPtr ptr;
-    this->repository.getSharedValue(qualifier, ptr);
-    this->setModule(ptr.module);
+    PlainModulePairedPtr ptr;
+    this->repository.get(qualifier, ptr);
+    this->setModule(getSharedPtr(ptr.module));
     initializable->initialize(this);
     this->setModule(oldModule);
   }
 }
 
 
-Bool GrammarRepository::trySetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> const &val)
+Bool GrammarRepository::trySet(Reference const *ref, IdentifiableObject *val)
 {
-  if (!this->repository.trySetSharedValue(ref, val)) return false;
+  if (!this->repository.trySet(ref, val)) return false;
 
   Initializable *initializable = val->getInterface<Initializable>();
   if (initializable != 0) {
     SharedPtr<Module> oldModule = this->getModule();
-    SharedModulePairedPtr ptr;
-    this->repository.getSharedValue(ref, ptr);
-    this->setModule(ptr.module);
-    initializable->initialize(this);
-    this->setModule(oldModule);
-  }
-
-  return true;
-}
-
-
-Bool GrammarRepository::trySetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> const &val)
-{
-  if (!this->repository.trySetSharedValue(qualifier, val)) return false;
-
-  Initializable *initializable = val->getInterface<Initializable>();
-  if (initializable != 0) {
-    SharedPtr<Module> oldModule = this->getModule();
-    SharedModulePairedPtr ptr;
-    this->repository.getSharedValue(qualifier, ptr);
-    this->setModule(ptr.module);
+    PlainModulePairedPtr ptr;
+    this->repository.get(ref, ptr);
+    this->setModule(getSharedPtr(ptr.module));
     initializable->initialize(this);
     this->setModule(oldModule);
   }
@@ -117,58 +100,45 @@ Bool GrammarRepository::trySetSharedValue(Char const *qualifier, SharedPtr<Ident
 }
 
 
-IdentifiableObject* GrammarRepository::tracePlainValue(IdentifiableObject *val)
+Bool GrammarRepository::trySet(Char const *qualifier, IdentifiableObject *val)
+{
+  if (!this->repository.trySet(qualifier, val)) return false;
+
+  Initializable *initializable = val->getInterface<Initializable>();
+  if (initializable != 0) {
+    SharedPtr<Module> oldModule = this->getModule();
+    PlainModulePairedPtr ptr;
+    this->repository.get(qualifier, ptr);
+    this->setModule(getSharedPtr(ptr.module));
+    initializable->initialize(this);
+    this->setModule(oldModule);
+  }
+
+  return true;
+}
+
+
+IdentifiableObject* GrammarRepository::traceValue(IdentifiableObject *val)
 {
   PlainModulePairedPtr ptr;
-  this->tracePlainValue(val, ptr);
+  this->traceValue(val, ptr);
   return ptr.object;
 }
 
 
-void GrammarRepository::tracePlainValue(IdentifiableObject *val, PlainModulePairedPtr &retVal)
+void GrammarRepository::traceValue(IdentifiableObject *val, PlainModulePairedPtr &retVal)
 {
   retVal.object = val;
-  if (val == 0 || !val->isDerivedFrom<Reference>()) {
-    retVal.module = 0;
-    return;
-  }
-  SharedPtr<Module> oldModule = this->getModule();
-  Module *curModule = oldModule.get();
-  SharedModulePairedPtr sharedRetVal;
-  do {
-    if (sharedRetVal.module != 0 && sharedRetVal.module.get() != curModule) {
-      this->setModule(sharedRetVal.module);
-      curModule = sharedRetVal.module.get();
-    }
-    this->repository.getSharedValue(static_cast<Reference*>(retVal.object), sharedRetVal);
-    retVal.object = sharedRetVal.object.get();
-  } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
-  if (curModule != oldModule.get()) this->setModule(oldModule);
-  retVal.module = sharedRetVal.module.get();
-}
-
-
-SharedPtr<IdentifiableObject> GrammarRepository::traceSharedValue(const SharedPtr<IdentifiableObject> &val)
-{
-  SharedModulePairedPtr ptr;
-  this->traceSharedValue(val, ptr);
-  return ptr.object;
-}
-
-
-void GrammarRepository::traceSharedValue(const SharedPtr<IdentifiableObject> &val, SharedModulePairedPtr &retVal)
-{
-  retVal.object = val;
-  retVal.module = SharedPtr<Module>();
-  if (retVal.object == 0 || !retVal.object->isDerivedFrom<Reference>()) return;
+  retVal.module = 0;
+  if (val == 0 || !val->isDerivedFrom<Reference>()) return;
   SharedPtr<Module> oldModule = this->getModule();
   Module *curModule = oldModule.get();
   do {
     if (retVal.module != 0 && retVal.module != curModule) {
-      this->setModule(retVal.module);
-      curModule = retVal.module.get();
+      this->setModule(getSharedPtr(retVal.module));
+      curModule = retVal.module;
     }
-    this->repository.getSharedValue(retVal.object.s_cast_get<Reference>(), retVal);
+    this->repository.get(static_cast<Reference*>(retVal.object), retVal);
   } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
   if (curModule != oldModule.get()) this->setModule(oldModule);
 }

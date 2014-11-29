@@ -19,13 +19,13 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class SharedNamedList : public IdentifiableObject,
-                        public virtual DataOwner, public virtual NamedListSharedContainer
+                        public virtual DataOwner, public virtual NamedListContainer
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SharedNamedList, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(IdentifiableObject, DataOwner, NamedListSharedContainer);
+  IMPLEMENT_INTERFACES_2(IdentifiableObject, DataOwner, NamedListContainer);
 
 
   //============================================================================
@@ -91,6 +91,27 @@ class SharedNamedList : public IdentifiableObject,
 
   /// @}
 
+  /// @name Data Access Functions
+  /// @{
+
+  public: Int add(Char const *name, SharedPtr<IdentifiableObject> const &val);
+
+  /// Add a new object to the list.
+  public: Int add(SharedPtr<IdentifiableObject> const &val)
+  {
+    return this->add(0, val);
+  }
+
+  public: void set(Int index, Char const *name, SharedPtr<IdentifiableObject> const &val);
+
+  /// Change the element at the specified index.
+  public: void set(Int index, SharedPtr<IdentifiableObject> const &val);
+
+  /// Get the object at the specified index.
+  public: SharedPtr<IdentifiableObject> const& getShared(Int index) const;
+
+  /// @}
+
   /// @name Helper Functions
   /// @{
 
@@ -114,11 +135,14 @@ class SharedNamedList : public IdentifiableObject,
 
   /// @}
 
-  /// @name NamedListSharedContainer Implementation
+  /// @name NamedListContainer Implementation
   /// @{
 
   /// Change the element at the specified index.
-  public: virtual void set(Int index, SharedPtr<IdentifiableObject> const &val);
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+    this->set(index, getSharedPtr(val, true));
+  }
 
   /// Remove the element at the specified index.
   public: virtual void remove(Int index);
@@ -130,17 +154,26 @@ class SharedNamedList : public IdentifiableObject,
   }
 
   /// Get the object at the specified index.
-  public: virtual SharedPtr<IdentifiableObject> const& get(Int index) const;
-
-  /// Add a new object to the list.
-  public: virtual void add(SharedPtr<IdentifiableObject> const &val)
+  public: virtual IdentifiableObject* get(Int index) const
   {
-    this->add(0, val);
+    return this->getShared(index).get();
   }
 
-  public: virtual Int add(Char const *name, SharedPtr<IdentifiableObject> const &val);
+  /// Add a new object to the list.
+  public: virtual Int add(IdentifiableObject *val)
+  {
+    return this->add(0, getSharedPtr(val, true));
+  }
 
-  public: virtual void set(Int index, Char const *name, SharedPtr<IdentifiableObject> const &val);
+  public: virtual Int add(Char const *name, IdentifiableObject *val)
+  {
+    return this->add(name, getSharedPtr(val, true));
+  }
+
+  public: virtual void set(Int index, Char const *name, IdentifiableObject *val)
+  {
+    this->set(index, name, getSharedPtr(val, true));
+  }
 
   public: virtual const SbStr& getName(Int index) const;
 

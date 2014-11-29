@@ -38,20 +38,20 @@ void setTreeIds(IdentifiableObject *obj, const Char *id)
   IdHolder *idh = ii_cast<IdHolder>(obj);
   if (idh != 0) idh->setId(ID_GENERATOR->getId(id));
 
-  MapSharedContainer *map; SharedContainer *list;
-  if ((map = ii_cast<MapSharedContainer>(obj)) != 0) {
+  MapContainer *map; Container *list;
+  if ((map = ii_cast<MapContainer>(obj)) != 0) {
     Str childId;
     for (Int i = 0; static_cast<Word>(i) < map->getCount(); ++i) {
       childId = id;
       childId += CHR('.');
       childId += map->getKey(i).c_str();
-      setTreeIds(map->get(i).get(), childId.c_str());
+      setTreeIds(map->get(i), childId.c_str());
     }
-  } else if ((list = ii_cast<SharedContainer>(obj)) != 0) {
+  } else if ((list = ii_cast<Container>(obj)) != 0) {
     for (Int i = 0; static_cast<Word>(i) < list->getCount(); ++i) {
       StrStream childId;
       childId << id << CHR('.') << i;
-      setTreeIds(list->get(i).get(), childId.str().c_str());
+      setTreeIds(list->get(i), childId.str().c_str());
     }
   }
 }

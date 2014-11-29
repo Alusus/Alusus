@@ -25,7 +25,7 @@ class IdentifiableInterface;
  * Identifiable classes are classes that have run-time type information. This
  * abstract class uses polymorphism to provide RTTI.
  */
-class IdentifiableObject
+class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObject>
 {
   //============================================================================
   // Virtual Destructor
@@ -120,6 +120,39 @@ class IdentifiableObject
   public: template<class T> const T* getInterface() const
   {
     return reinterpret_cast<const T*>(const_cast<IdentifiableObject*>(this)->_getInterface(T::getInterfaceInfo()));
+  }
+
+  /**
+   * @brief Gets a shared pointer to this.
+   * This function returns a shared pointer that shares ownership of this object
+   * with existing shared pointer.
+   */
+  public: std::shared_ptr<IdentifiableObject> getSharedThis()
+  {
+    try
+    {
+      return enable_shared_from_this::shared_from_this();
+    }
+    catch(const std::bad_weak_ptr &e)
+    {
+      return std::shared_ptr<IdentifiableObject>();
+    }
+  }
+
+  /**
+   * @brief A const version of getSharedThis.
+   * @sa getSharedThis()
+   */
+  public: std::shared_ptr<IdentifiableObject const> getSharedThis() const
+  {
+    try
+    {
+      return enable_shared_from_this::shared_from_this();
+    }
+    catch(const std::bad_weak_ptr &e)
+    {
+      return std::shared_ptr<IdentifiableObject>();
+    }
   }
 
 }; // class

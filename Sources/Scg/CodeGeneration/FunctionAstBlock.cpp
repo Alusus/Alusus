@@ -41,7 +41,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
     ReferenceUsageCriteria::MULTI_DATA);
 
   // Parses the arguments and return types of the function.
-  auto sigWithRet = seeker.tryGetShared<ParsedList>(sigWithRetReference.get(), astRoot.get());
+  auto sigWithRet = getSharedPtr(seeker.tryGet(sigWithRetReference.get(), astRoot.get())).io_cast<ParsedList>();
   if (sigWithRet != nullptr) {
     // The function has return value.
     auto sigRet = LowLinkExpression(gen, sigWithRet);
@@ -53,11 +53,11 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
   } else {
     // The function doesn't have a return value.
     this->arguments = gen->ParseFunctionArguments(
-        astRoot->get(0));
+        astRoot->getShared(0));
   }
 
   // Parses the body of the function.
-  auto bodyRoot = seeker.tryGetShared<ParsedList>(bodyReference.get(), astRoot.get());
+  auto bodyRoot = getSharedPtr(seeker.tryGet(bodyReference.get(), astRoot.get())).io_cast<ParsedList>();
   if (bodyRoot != nullptr)
   {
     auto bodyAstBlock = ListExpression(gen, bodyRoot);

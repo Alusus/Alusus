@@ -41,7 +41,7 @@ namespace Scg
 
     // Try to parse a function link with no return value.
     SharedPtr<ParsedList> item;
-    if ((item = seeker.tryGetShared<ParsedList>(funcExpReference.get(), astRoot.get())) != nullptr)
+    if ((item = getSharedPtr(seeker.tryGet(funcExpReference.get(), astRoot.get())).io_cast<ParsedList>()) != nullptr)
     {
       auto argsAndRet = LowLinkExpression(gen, item);
       if (argsAndRet.GetSeparator().compare("=>") != 0)
@@ -51,7 +51,7 @@ namespace Scg
             gen, argsAndRet.GetLHS().s_cast<ParsedList>());
       this->retType = gen->ParseVariableType(argsAndRet.GetRHS());
     }
-    else if ((item = seeker.tryGetShared<ParsedList>(funcExpNoRetReference.get(), astRoot.get())) != nullptr)
+    else if ((item = getSharedPtr(seeker.tryGet(funcExpNoRetReference.get(), astRoot.get())).io_cast<ParsedList>()) != nullptr)
       this->arguments = new FunctionalExpression(gen, item);
 
     // Stores the line and column numbers.

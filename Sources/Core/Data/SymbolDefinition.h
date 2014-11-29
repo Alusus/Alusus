@@ -33,9 +33,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   private: SharedPtr<Reference> parentReference;
 
-  private: WeakPtr<SymbolDefinition> parent;
-
-  private: SymbolDefinition *plainParent;
+  private: SymbolDefinition *parent;
 
   private: SharedPtr<IdentifiableObject> term;
 
@@ -71,7 +69,7 @@ class SymbolDefinition : public IdentifiableObject,
   //============================================================================
   // Constructor & Destructor
 
-  public: SymbolDefinition() : priority(0), flags(0), ownership(0), plainParent(0)
+  public: SymbolDefinition() : priority(0), flags(0), ownership(0), parent(0)
   {
   }
 
@@ -107,7 +105,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: virtual ~SymbolDefinition()
   {
-    if (this->plainParent != 0) this->detachFromParent();
+    if (this->parent != 0) this->detachFromParent();
     this->changeNotifier.emit(this, SymbolDefChangeOp::DESTROY, 0);
   }
 
@@ -130,26 +128,15 @@ class SymbolDefinition : public IdentifiableObject,
     return this->parentReference;
   }
 
-  public: void setParent(SharedPtr<SymbolDefinition> const &p)
-  {
-    this->setParent(p.get());
-    this->parent = p;
-  }
-
   public: void setParent(SymbolDefinition *p)
   {
-    if (this->plainParent != 0) this->detachFromParent();
+    if (this->parent != 0) this->detachFromParent();
     if (p != 0) this->attachToParent(p);
   }
 
-  public: SharedPtr<SymbolDefinition> getParent() const
+  public: SymbolDefinition* getParent() const
   {
-    return this->parent.lock();
-  }
-
-  public: SymbolDefinition* getPlainParent() const
-  {
-    return this->plainParent;
+    return this->parent;
   }
 
   private: void attachToParent(SymbolDefinition *p);
@@ -175,7 +162,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetTerm()
   {
-    if (this->plainParent != 0) this->term = this->plainParent->getTerm();
+    if (this->parent != 0) this->term = this->parent->getTerm();
     else this->term.reset();
     this->ownership &= ~SymbolDefElement::TERM;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::TERM);
@@ -199,7 +186,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetVarDefs()
   {
-    if (this->plainParent != 0) this->varDefs = this->plainParent->getVarDefs();
+    if (this->parent != 0) this->varDefs = this->parent->getVarDefs();
     else this->varDefs.reset();
     this->ownership &= ~SymbolDefElement::VAR_DEFS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::VAR_DEFS);
@@ -223,7 +210,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetVars()
   {
-    if (this->plainParent != 0) this->vars = this->plainParent->getVars();
+    if (this->parent != 0) this->vars = this->parent->getVars();
     else this->vars.reset();
     this->ownership &= ~SymbolDefElement::VARS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::VARS);
@@ -251,7 +238,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetOperationHandler()
   {
-    if (this->plainParent != 0) this->handler = this->plainParent->getOperationHandler();
+    if (this->parent != 0) this->handler = this->parent->getOperationHandler();
     else this->handler.reset();
     this->ownership &= ~SymbolDefElement::HANDLER;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::HANDLER);
@@ -277,7 +264,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetPriority()
   {
-    if (this->plainParent != 0) this->priority = this->plainParent->getPriority();
+    if (this->parent != 0) this->priority = this->parent->getPriority();
     else this->priority = 0;
     this->ownership &= ~SymbolDefElement::PRIORITY;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::PRIORITY);
@@ -303,7 +290,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetFlags()
   {
-    if (this->plainParent != 0) this->flags = this->plainParent->getFlags();
+    if (this->parent != 0) this->flags = this->parent->getFlags();
     else this->flags = 0;
     this->ownership &= ~SymbolDefElement::FLAGS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::FLAGS);
@@ -327,7 +314,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void resetAttributes()
   {
-    if (this->plainParent != 0) this->attributes = this->plainParent->getAttributes();
+    if (this->parent != 0) this->attributes = this->parent->getAttributes();
     else this->attributes.reset();
     this->ownership &= ~SymbolDefElement::ATTRIBUTES;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::ATTRIBUTES);

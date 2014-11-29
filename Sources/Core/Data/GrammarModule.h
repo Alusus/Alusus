@@ -31,8 +31,7 @@ class GrammarModule : public Module, public virtual Initializable
   // Member Variables
 
   private: SharedPtr<Reference> parentReference;
-  private: WeakPtr<GrammarModule> parent;
-  private: GrammarModule *plainParent;
+  private: GrammarModule *parent;
 
   private: SharedPtr<Reference> startRef;
 
@@ -54,7 +53,7 @@ class GrammarModule : public Module, public virtual Initializable
   //============================================================================
   // Constructor & Destructor
 
-  public: GrammarModule() : ownership(0), plainParent(0)
+  public: GrammarModule() : ownership(0), parent(0)
   {
   }
 
@@ -62,7 +61,7 @@ class GrammarModule : public Module, public virtual Initializable
 
   public: virtual ~GrammarModule()
   {
-    if (this->plainParent != 0) this->detachFromParent();
+    if (this->parent != 0) this->detachFromParent();
     this->destroyNotifier.emit(this);
   }
 
@@ -113,26 +112,15 @@ class GrammarModule : public Module, public virtual Initializable
     return this->parentReference;
   }
 
-  public: void setParent(SharedPtr<GrammarModule> const &p)
-  {
-    this->setParent(p.get());
-    this->parent = p;
-  }
-
   public: void setParent(GrammarModule *p)
   {
-    if (this->plainParent != 0) this->detachFromParent();
+    if (this->parent != 0) this->detachFromParent();
     if (p != 0) this->attachToParent(p);
   }
 
-  public: SharedPtr<GrammarModule> getParent() const
+  public: GrammarModule* getParent() const
   {
-    return this->parent.lock();
-  }
-
-  public: GrammarModule* getPlainParent() const
-  {
-    return this->plainParent;
+    return this->parent;
   }
 
   private: virtual void attachToParent(GrammarModule *p);

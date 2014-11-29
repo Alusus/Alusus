@@ -15,10 +15,10 @@
 namespace Core { namespace Data
 {
 
-void GrammarPlant::generateConstTokenDefinitions(SharedContainer *container)
+void GrammarPlant::generateConstTokenDefinitions(Container *container)
 {
   for (Int i = 0; static_cast<Word>(i) < container->getCount(); ++i) {
-    IdentifiableObject *obj = container->get(i).get();
+    IdentifiableObject *obj = container->get(i);
     if (obj == 0) continue;
     SymbolDefinition *def = io_cast<SymbolDefinition>(obj);
     if (def != 0) {
@@ -27,7 +27,7 @@ void GrammarPlant::generateConstTokenDefinitions(SharedContainer *container)
         this->generateConstTokenDefinitions(static_cast<Term*>(term));
       }
     }
-    SharedContainer *childContainer = obj->getInterface<SharedContainer>();
+    Container *childContainer = obj->getInterface<Container>();
     if (childContainer != 0) {
       this->generateConstTokenDefinitions(childContainer);
     }
@@ -58,7 +58,7 @@ void GrammarPlant::generateConstTokenDefinitions(Term *term)
       this->generateConstTokenDefinitions(static_cast<Term*>(terms));
     } else if (terms->isDerivedFrom<SharedList>()) {
       for (Int i = 0; static_cast<Word>(i) < static_cast<SharedList*>(terms)->getCount(); ++i) {
-        IdentifiableObject *child = static_cast<SharedList*>(terms)->get(i).get();
+        IdentifiableObject *child = static_cast<SharedList*>(terms)->get(i);
         if (!child->isDerivedFrom<Term>()) {
           throw GeneralException(STR("ListTerm has a non-Term child."),
                                  STR("Core::Data::GrammarPlant::generateConstTokenDefinitions"));
@@ -81,10 +81,10 @@ void GrammarPlant::generateConstTokensForStrings(IdentifiableObject *obj)
       this->addConstToken(map->getKey(i).c_str());
     }
   } else {
-    SharedContainer *container = obj->getInterface<SharedContainer>();
+    Container *container = obj->getInterface<Container>();
     if (container != 0) {
       for (Word i = 0; i < container->getCount(); ++i) {
-        this->generateConstTokensForStrings(container->get(i).get());
+        this->generateConstTokensForStrings(container->get(i));
       }
     }
   }
@@ -102,10 +102,10 @@ Word GrammarPlant::addConstToken(Char const *text)
   path += STR(".");
   path += key;
   // Create the token definition.
-  this->repository.setSharedValue(path.c_str(), SymbolDefinition::create({
+  this->repository.set(path.c_str(), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConstTerm::create(0, text)},
     {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
-  }));
+  }).get());
   return ID_GENERATOR->getId(path.c_str());
 }
 

@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/ListPlainContainer.h
- * Contains the header of interface Data::ListPlainContainer.
+ * @file Core/Data/NamedListContainer.h
+ * Contains the header of interface Data::NamedListContainer.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,26 +10,34 @@
  */
 //==============================================================================
 
-#ifndef DATA_LISTPLAINCONTAINER_H
-#define DATA_LISTPLAINCONTAINER_H
+#ifndef DATA_NAMEDLISTCONTAINER_H
+#define DATA_NAMEDLISTCONTAINER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class ListPlainContainer : public virtual PlainContainer
+class NamedListContainer : public virtual ListContainer
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(ListPlainContainer, PlainContainer, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(NamedListContainer, ListContainer, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual void add(IdentifiableObject *val) = 0;
+  public: using ListContainer::add;
+
+  public: virtual Int add(Char const *name, IdentifiableObject *val) = 0;
+
+  public: using Container::set;
+
+  public: virtual void set(Int index, Char const *name, IdentifiableObject *val) = 0;
+
+  public: virtual const SbStr& getName(Int index) const = 0;
 
 }; // class
 

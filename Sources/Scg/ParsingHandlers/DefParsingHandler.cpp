@@ -35,7 +35,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
       STR("0~where(prodId=Expression.LowerLinkExp).0~where(prodId=Subject.Subject1).0"),
       ReferenceUsageCriteria::MULTI_DATA);
-    auto nameToken = seeker.tryGetShared<Data::ParsedToken>(nameReference.get(), expr.get());
+    auto nameToken = io_cast<Data::ParsedToken>(seeker.tryGet(nameReference.get(), expr.get()));
     if (nameToken == 0 || nameToken->getId() != identifierTokenId) {
       // TODO: Generate a build message instead of throwing an exception.
       THROW_EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
@@ -46,7 +46,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     static SharedPtr<Reference> defReference = ReferenceParser::parseQualifier(
       STR("0~where(prodId=Expression.LowerLinkExp).2~where(prodId=Subject.Subject1).0"),
       ReferenceUsageCriteria::MULTI_DATA);
-    auto def = seeker.tryGetShared(defReference.get(), expr.get());
+    auto def = seeker.tryGet(defReference.get(), expr.get());
     if (def == 0) {
       // TODO: Generate a build message instead of throwing an exception.
       // TODO: We need to choose terms for the parts of a define command, e.g.

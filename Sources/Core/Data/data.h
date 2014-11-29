@@ -185,16 +185,11 @@ void setTreeIds(IdentifiableObject *obj, const Char *id);
 #include "AttributesHolder.h"
 #include "IdHolder.h"
 #include "Initializable.h"
-// Shared Container Interfaces
-#include "SharedContainer.h"
-#include "ListSharedContainer.h"
-#include "NamedListSharedContainer.h"
-#include "MapSharedContainer.h"
-// Plain Container Interfaces
-#include "PlainContainer.h"
-#include "ListPlainContainer.h"
-#include "NamedListPlainContainer.h"
-#include "MapPlainContainer.h"
+// Container Interfaces
+#include "Container.h"
+#include "ListContainer.h"
+#include "NamedListContainer.h"
+#include "MapContainer.h"
 // Complex Data
 #include "SharedMap.h"
 #include "SharedList.h"
@@ -208,10 +203,7 @@ void setTreeIds(IdentifiableObject *obj, const Char *id);
 //----------------------
 // Interfaces
 #include "Provider.h"
-#include "SharedProvider.h"
-#include "PlainProvider.h"
 #include "Tracer.h"
-#include "SharedTracer.h"
 // Validators
 #include "Validator.h"
 #include "StrAttributeValidator.h"

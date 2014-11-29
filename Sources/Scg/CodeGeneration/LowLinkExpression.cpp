@@ -28,8 +28,8 @@ namespace Scg
           "Expression.LowLinkExp only.");
 
     auto list = item.s_cast<ParsedList>();
-    this->lhs = list->get(0);
-    this->separator = list->get(1).s_cast<ParsedToken>()->getText();
-    this->rhs = list->get(2);
+    this->lhs = list->getShared(0);
+    this->separator = static_cast<ParsedToken*>(list->get(1))->getText();
+    this->rhs = list->getShared(2);
   }
 }

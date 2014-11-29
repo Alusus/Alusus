@@ -19,13 +19,13 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class Module : public IdentifiableObject,
-               public virtual MapSharedContainer, public virtual IdHolder, public virtual DataOwner
+               public virtual MapContainer, public virtual IdHolder, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Module, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(IdentifiableObject, MapSharedContainer, IdHolder, DataOwner);
+  IMPLEMENT_INTERFACES_3(IdentifiableObject, MapContainer, IdHolder, DataOwner);
 
 
   //============================================================================
@@ -42,7 +42,14 @@ class Module : public IdentifiableObject,
     this->definitions.contentChangeNotifier.connect(this, &Module::onDefinitionsContentChanged);
   }
 
-  public: Module(const std::initializer_list<Argument<Char const*>> &args);
+  public: Module(const std::initializer_list<Argument<Char const*>> &args) : definitions(true)
+  {
+    this->definitions.contentChangeNotifier.connect(this, &Module::onDefinitionsContentChanged);
+
+    for (auto arg : args) {
+      this->add(arg.id, arg.ioVal);
+    }
+  }
 
   public: virtual ~Module()
   {
@@ -70,7 +77,7 @@ class Module : public IdentifiableObject,
     return &this->definitions;
   }
 
-  private: void onDefinitionsContentChanged(SharedContainer *obj, ContentChangeOp op, Int index)
+  private: void onDefinitionsContentChanged(Container *obj, ContentChangeOp op, Int index)
   {
     this->contentChangeNotifier.emit(this, op, index);
   }
@@ -95,6 +102,21 @@ class Module : public IdentifiableObject,
     return this->definitions.set(key, val, insertIfNew);
   }
 
+  public: Int set(Char const *key, SharedPtr<IdentifiableObject> const &val)
+  {
+    return this->definitions.set(key, val, true);
+  }
+
+  public: void set(Int index, SharedPtr<IdentifiableObject> const &val)
+  {
+    this->definitions.set(index, val);
+  }
+
+  public: virtual SharedPtr<IdentifiableObject> const& getShared(Int index) const
+  {
+    return this->definitions.getShared(index);
+  }
+
   public: void clear()
   {
     this->definitions.clear();
@@ -114,12 +136,12 @@ class Module : public IdentifiableObject,
 
 
   //============================================================================
-  // MapSharedContainer Implementation
+  // MapContainer Implementation
 
-  /// @name MapSharedContainer Implementation
+  /// @name MapContainer Implementation
   /// @{
 
-  public: virtual void set(Int index, SharedPtr<IdentifiableObject> const &val)
+  public: virtual void set(Int index, IdentifiableObject *val)
   {
     this->definitions.set(index, val);
   }
@@ -134,12 +156,12 @@ class Module : public IdentifiableObject,
     return this->definitions.getCount();
   }
 
-  public: virtual SharedPtr<IdentifiableObject> const& get(Int index) const
+  public: virtual IdentifiableObject* get(Int index) const
   {
     return this->definitions.get(index);
   }
 
-  public: virtual Int set(Char const *key, SharedPtr<IdentifiableObject> const &val)
+  public: virtual Int set(Char const *key, IdentifiableObject *val)
   {
     return this->definitions.set(key, val);
   }
@@ -149,7 +171,7 @@ class Module : public IdentifiableObject,
     this->definitions.remove(key);
   }
 
-  public: virtual SharedPtr<IdentifiableObject> const& get(Char const *key) const
+  public: virtual IdentifiableObject* get(Char const *key) const
   {
     return this->definitions.get(key);
   }
@@ -178,7 +200,10 @@ class Module : public IdentifiableObject,
   /// @{
 
   /// @sa DataOwner::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to);
+  public: virtual void unsetIndexes(Int from, Int to)
+  {
+    this->definitions.unsetIndexes(from, to);
+  }
 
   /// @}
 

@@ -115,67 +115,7 @@ void SharedNamedList::clear()
 
 
 //==============================================================================
-// DataOwner Implementation
-
-void SharedNamedList::unsetIndexes(Int from, Int to)
-{
-  if (this->buffer == 0) return;
-  for (Word i = 0; i < this->count; ++i) {
-    IdentifiableObject *obj = this->get(i).get();
-    if (obj != 0) Data::unsetIndexes(obj, from, to);
-  }
-}
-
-
-//==============================================================================
-// ListSharedContainer Implementation
-
-void SharedNamedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
-{
-  if (this->buffer == 0) {
-    throw GeneralException(STR("List not initialized."), STR("Core::Data::SharedNamedList::set"));
-  }
-  if (index < 0 || index >= this->count) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedNamedList::set"),
-                                   STR("Out of range."), index);
-  }
-  Byte *buf = this->buffer + index*this->getRecordSize();
-  *reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize) = val;
-}
-
-
-void SharedNamedList::remove(Int index)
-{
-  if (this->buffer == 0) {
-    throw GeneralException(STR("List not initialized."), STR("Core::Data::SharedNamedList::remove"));
-  }
-  ASSERT(this->count >= 0);
-  if (index < 0 || index >= this->count) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedNamedList::remove"),
-                                   STR("Out of range."), index);
-  }
-  for (Int i = index; i < this->count-1; ++i) {
-    this->set(i, this->getName(i+1).c_str(), this->get(i+1));
-  }
-  Byte *buf = this->buffer + (this->count-1)*this->getRecordSize();
-  reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize)->reset();
-  this->count--;
-}
-
-
-SharedPtr<IdentifiableObject> const& SharedNamedList::get(Int index) const
-{
-  if (this->buffer == 0) {
-    throw GeneralException(STR("List not initialized."), STR("Core::Data::SharedNamedList::get"));
-  }
-  if (index < 0 || index >= this->count) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedNamedList::get"),
-                                   STR("Out of range."), index);
-  }
-  Byte *buf = this->buffer + index*this->getRecordSize();
-  return *reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize);
-}
-
+// Data Access Functions
 
 Int SharedNamedList::add(Char const *name, SharedPtr<IdentifiableObject> const &val)
 {
@@ -205,6 +145,69 @@ void SharedNamedList::set(Int index, Char const *name, SharedPtr<IdentifiableObj
   Byte *buf = this->buffer + index*this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
   *reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize) = val;
+}
+
+
+void SharedNamedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
+{
+  if (this->buffer == 0) {
+    throw GeneralException(STR("List not initialized."), STR("Core::Data::SharedNamedList::set"));
+  }
+  if (index < 0 || index >= this->count) {
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedNamedList::set"),
+                                   STR("Out of range."), index);
+  }
+  Byte *buf = this->buffer + index*this->getRecordSize();
+  *reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize) = val;
+}
+
+
+SharedPtr<IdentifiableObject> const& SharedNamedList::getShared(Int index) const
+{
+  if (this->buffer == 0) {
+    throw GeneralException(STR("List not initialized."), STR("Core::Data::SharedNamedList::getShared"));
+  }
+  if (index < 0 || index >= this->count) {
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedNamedList::getShared"),
+                                   STR("Out of range."), index);
+  }
+  Byte *buf = this->buffer + index*this->getRecordSize();
+  return *reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize);
+}
+
+
+//==============================================================================
+// DataOwner Implementation
+
+void SharedNamedList::unsetIndexes(Int from, Int to)
+{
+  if (this->buffer == 0) return;
+  for (Word i = 0; i < this->count; ++i) {
+    IdentifiableObject *obj = this->get(i);
+    if (obj != 0) Data::unsetIndexes(obj, from, to);
+  }
+}
+
+
+//==============================================================================
+// ListContainer Implementation
+
+void SharedNamedList::remove(Int index)
+{
+  if (this->buffer == 0) {
+    throw GeneralException(STR("List not initialized."), STR("Core::Data::SharedNamedList::remove"));
+  }
+  ASSERT(this->count >= 0);
+  if (index < 0 || index >= this->count) {
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedNamedList::remove"),
+                                   STR("Out of range."), index);
+  }
+  for (Int i = index; i < this->count-1; ++i) {
+    this->set(i, this->getName(i+1).c_str(), this->get(i+1));
+  }
+  Byte *buf = this->buffer + (this->count-1)*this->getRecordSize();
+  reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize)->reset();
+  this->count--;
 }
 
 

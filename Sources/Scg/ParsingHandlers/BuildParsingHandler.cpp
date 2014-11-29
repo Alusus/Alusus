@@ -37,7 +37,7 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
     ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
-  /*SharedPtr<ParsedToken> name = seeker.tryGetShared<ParsedToken>(nameReference.get(), item.get());
+  /*SharedPtr<ParsedToken> name = seeker.tryGet<ParsedToken>(nameReference.get(), item.get());
   SharedPtr<Module> statementList;
   if (name != 0) {
     statementList = this->rootManager->getDefinitionsStore()->getValue(name->getText().c_str())
@@ -50,7 +50,7 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
       Program program;
       auto *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).io_cast_get<Data::Module>();
       for (auto i = 0; i < rootModule->getCount(); i++) {
-        auto statList = rootModule->get(i).io_cast<Data::Module>();
+        auto statList = rootModule->getShared(i).io_cast<Data::Module>();
         if (statList == 0) continue;
         Module *module = generator.GenerateModule(statList);
         Cout << STR("---------------------- IR Code -----------------------\n");

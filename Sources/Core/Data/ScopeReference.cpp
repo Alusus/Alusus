@@ -26,42 +26,19 @@ Bool ScopeReference::compare(Reference const *r) const
 }
 
 
-Bool ScopeReference::setShared(Provider *provider, IdentifiableObject *parent,
-                               SharedPtr<IdentifiableObject> const &obj, Int &index) const
-{
-  if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::set"),
-                                   STR("Should not be null."));
-  }
-  if (index < 0) return false;
-  NamedListSharedContainer *container = parent->getInterface<NamedListSharedContainer>();
-  if (container == 0) return false;
-
-  if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH &&
-      this->cachedIndex >= index && this->cachedIndex < container->getCount()) {
-    container->set(this->getListIndex(container, this->cachedIndex), obj);
-    index = this->cachedIndex+1;
-  } else {
-    index = this->findScope(container, index);
-    if (index == -1) return false;
-    container->set(this->getListIndex(container, index), obj);
-    if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH) this->cachedIndex = index;
-    ++index;
-  }
-  return true;
-}
-
-
-Bool ScopeReference::setPlain(Provider *provider, IdentifiableObject *parent,
+Bool ScopeReference::setValue(Provider *provider, IdentifiableObject *parent,
                               IdentifiableObject *obj, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::setPlain"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::setValue"),
                                    STR("Should not be null."));
   }
   if (index < 0) return false;
-  NamedListPlainContainer *container = parent->getInterface<NamedListPlainContainer>();
-  if (container == 0) return false;
+  NamedListContainer *container = parent->getInterface<NamedListContainer>();
+  if (container == 0) {
+    index = -1;
+    return false;
+  }
 
   if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH &&
       this->cachedIndex >= index && this->cachedIndex < container->getCount()) {
@@ -78,55 +55,43 @@ Bool ScopeReference::setPlain(Provider *provider, IdentifiableObject *parent,
 }
 
 
-Bool ScopeReference::remove(Provider *provider, IdentifiableObject *parent, Int &index) const
+Bool ScopeReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::tryRemove"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::removeValue"),
                                    STR("Should not be null."));
   }
   if (index < 0) return false;
-  NamedListSharedContainer *sharedContainer;
-  NamedListPlainContainer *plainContainer;
-  if ((sharedContainer = parent->getInterface<NamedListSharedContainer>()) != 0) {
+  NamedListContainer *container;
+  if ((container = parent->getInterface<NamedListContainer>()) != 0) {
     if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH &&
-        this->cachedIndex >= index && this->cachedIndex < sharedContainer->getCount()) {
-      sharedContainer->remove(this->getListIndex(sharedContainer, this->cachedIndex));
+        this->cachedIndex >= index && this->cachedIndex < container->getCount()) {
+      container->remove(this->getListIndex(container, this->cachedIndex));
       index = this->cachedIndex;
     } else {
-      index = this->findScope(sharedContainer, index);
+      index = this->findScope(container, index);
       if (index == -1) return false;
-      sharedContainer->remove(this->getListIndex(sharedContainer, index));
-      if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH) this->cachedIndex = index;
-    }
-    return true;
-  } else if ((plainContainer = parent->getInterface<NamedListPlainContainer>()) != 0) {
-    if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH &&
-        this->cachedIndex >= index && this->cachedIndex < plainContainer->getCount()) {
-      plainContainer->remove(this->getListIndex(plainContainer, this->cachedIndex));
-      index = this->cachedIndex;
-    } else {
-      index = this->findScope(plainContainer, index);
-      if (index == -1) return false;
-      plainContainer->remove(this->getListIndex(plainContainer, index));
+      container->remove(this->getListIndex(container, index));
       if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH) this->cachedIndex = index;
     }
     return true;
   } else {
+    index = -1;
     return false;
   }
 }
 
 
-Bool ScopeReference::getShared(Provider *provider, IdentifiableObject *parent,
-                               SharedPtr<IdentifiableObject> &result, Int &index) const
+Bool ScopeReference::getValue(Provider *provider, IdentifiableObject *parent,
+                              IdentifiableObject *&result, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::get"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::getValue"),
                                    STR("Should not be null."));
   }
   if (index < 0) return false;
-  NamedListSharedContainer const *container;
-  if ((container = parent->getInterface<NamedListSharedContainer>()) != 0) {
+  NamedListContainer const *container;
+  if ((container = parent->getInterface<NamedListContainer>()) != 0) {
     if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH &&
         this->cachedIndex >= index && this->cachedIndex < container->getCount()) {
       result = container->get(this->getListIndex(container, this->cachedIndex));
@@ -140,48 +105,7 @@ Bool ScopeReference::getShared(Provider *provider, IdentifiableObject *parent,
     }
     return true;
   } else {
-    return false;
-  }
-}
-
-
-Bool ScopeReference::getPlain(Provider *provider, IdentifiableObject *parent,
-                              IdentifiableObject *&result, Int &index) const
-{
-  if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::getPlain"),
-                                   STR("Should not be null."));
-  }
-  if (index < 0) return false;
-  NamedListSharedContainer const *sharedContainer;
-  NamedListPlainContainer const *plainContainer;
-  if ((sharedContainer = parent->getInterface<NamedListSharedContainer>()) != 0) {
-    if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH &&
-        this->cachedIndex >= index && this->cachedIndex < sharedContainer->getCount()) {
-      result = sharedContainer->get(this->getListIndex(sharedContainer, this->cachedIndex)).get();
-      index = this->cachedIndex+1;
-    } else {
-      index = this->findScope(sharedContainer, index);
-      if (index == -1) return false;
-      result = sharedContainer->get(this->getListIndex(sharedContainer, index)).get();
-      if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH) this->cachedIndex = index;
-      ++index;
-    }
-    return true;
-  } else if ((plainContainer = parent->getInterface<NamedListPlainContainer>()) != 0) {
-    if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH &&
-        this->cachedIndex >= index && this->cachedIndex < plainContainer->getCount()) {
-      result = plainContainer->get(this->getListIndex(plainContainer, this->cachedIndex));
-      index = this->cachedIndex+1;
-    } else {
-      index = this->findScope(plainContainer, index);
-      if (index == -1) return false;
-      result = plainContainer->get(this->getListIndex(plainContainer, index));
-      if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH) this->cachedIndex = index;
-      ++index;
-    }
-    return true;
-  } else {
+    index = -1;
     return false;
   }
 }

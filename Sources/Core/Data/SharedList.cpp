@@ -27,19 +27,7 @@ SharedList::SharedList(const std::initializer_list<SharedPtr<IdentifiableObject>
 
 
 //==============================================================================
-// DataOwner Implementation
-
-void SharedList::unsetIndexes(Int from, Int to)
-{
-  for (Word i = 0; i < this->getCount(); ++i) {
-    IdentifiableObject *obj = this->get(i).get();
-    if (obj != 0) Data::unsetIndexes(obj, from, to);
-  }
-}
-
-
-//==============================================================================
-// ListSharedContainer Implementation
+// Member Functions
 
 void SharedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
 {
@@ -52,6 +40,31 @@ void SharedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
 }
 
 
+SharedPtr<IdentifiableObject> const& SharedList::getShared(Int index) const
+{
+  if (static_cast<Word>(index) >= this->list.size()) {
+    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedList::getShared"),
+                                   STR("Index out of range."));
+  }
+  return this->list[index];
+}
+
+
+//==============================================================================
+// DataOwner Implementation
+
+void SharedList::unsetIndexes(Int from, Int to)
+{
+  for (Word i = 0; i < this->getCount(); ++i) {
+    IdentifiableObject *obj = this->get(i);
+    if (obj != 0) Data::unsetIndexes(obj, from, to);
+  }
+}
+
+
+//==============================================================================
+// ListContainer Implementation
+
 void SharedList::remove(Int index)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
@@ -59,16 +72,6 @@ void SharedList::remove(Int index)
                                    STR("Index out of range."));
   }
   this->list.erase(this->list.begin()+index);
-}
-
-
-SharedPtr<IdentifiableObject> const& SharedList::get(Int index) const
-{
-  if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedList::get"),
-                                   STR("Index out of range."));
-  }
-  return this->list[index];
 }
 
 } } // namespace

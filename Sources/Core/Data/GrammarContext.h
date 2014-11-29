@@ -71,7 +71,7 @@ class GrammarContext : public IdentifiableObject, public virtual Tracer
   {
     this->repository.setLevel(module, GrammarScopeIndex::MODULE);
     if (module != 0 && module->isA<Data::GrammarModule>()) {
-      this->repository.setLevel(static_cast<GrammarModule*>(module)->getPlainParent(), GrammarScopeIndex::PMODULE);
+      this->repository.setLevel(static_cast<GrammarModule*>(module)->getParent(), GrammarScopeIndex::PMODULE);
     } else {
       this->repository.setLevel(0, GrammarScopeIndex::PMODULE);
     }
@@ -112,28 +112,28 @@ class GrammarContext : public IdentifiableObject, public virtual Tracer
   /// @name Misc Functions
   /// @{
 
-  public: IdentifiableObject* tracePlainValue(IdentifiableObject *val, Module *module)
+  public: IdentifiableObject* traceValue(IdentifiableObject *val, Module *module)
   {
     PlainModulePairedPtr retVal;
-    this->tracePlainValue(val, retVal, module);
+    this->traceValue(val, retVal, module);
     return retVal.object;
   }
 
-  public: void tracePlainValue(IdentifiableObject *val, PlainModulePairedPtr &retVal, Module *module);
+  public: void traceValue(IdentifiableObject *val, PlainModulePairedPtr &retVal, Module *module);
 
   /// @}
 
   /// @name Tracer Implementation
   /// @{
 
-  public: virtual IdentifiableObject* tracePlainValue(IdentifiableObject *val)
+  public: virtual IdentifiableObject* traceValue(IdentifiableObject *val)
   {
-    return this->tracePlainValue(val, 0);
+    return this->traceValue(val, 0);
   }
 
-  public: virtual void tracePlainValue(IdentifiableObject *val, PlainModulePairedPtr &retVal)
+  public: virtual void traceValue(IdentifiableObject *val, PlainModulePairedPtr &retVal)
   {
-    this->tracePlainValue(val, retVal, 0);
+    this->traceValue(val, retVal, 0);
   }
 
   /// @}

@@ -29,72 +29,20 @@ Bool IndirectReference::compare(Reference const *r) const
 }
 
 
-Bool IndirectReference::setShared(Provider *provider, IdentifiableObject *parent,
-                                  SharedPtr<IdentifiableObject> const &obj, Int &index) const
-{
-  if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndirectReference::set"),
-                                   STR("Should not be null."));
-  }
-  if (provider == 0) {
-    throw InvalidArgumentException(STR("provider"), STR("Core::Data::IndirectReference::set"),
-                                   STR("Should not be null."));
-  }
-  if (index == -1) return false;
-  IdentifiableObject *ref;
-  if (!provider->tryGetPlainValue(this->key.get(), ref)) {
-    index = -1;
-    return false;
-  }
-  if (ref == 0) {
-    index = -1;
-    return false;
-  }
-  if (ref->isA<String>()) {
-    index = -1;
-    MapSharedContainer *container = parent->getInterface<MapSharedContainer>();
-    if (container == 0) return false;
-    container->set(static_cast<String*>(ref)->get(), obj);
-    return true;
-  } else if (ref->isA<Integer>()) {
-    index = -1;
-    Int i = static_cast<Integer*>(ref)->get();
-    SharedContainer *container = parent->getInterface<SharedContainer>();
-    if (container == 0) return false;
-    if (i >= 0 && i < container->getCount()) {
-      container->set(i, obj);
-      return true;
-    } else if (i == container->getCount()) {
-      ListSharedContainer *listContainer = parent->getInterface<ListSharedContainer>();
-      if (listContainer == 0) return false;
-      listContainer->add(obj);
-      return true;
-    } else {
-      return false;
-    }
-  } else if (ref->isA<Reference>()) {
-    return static_cast<Reference*>(ref)->setShared(provider, parent, obj, index);
-  } else {
-    index = -1;
-    return false;
-  }
-}
-
-
-Bool IndirectReference::setPlain(Provider *provider, IdentifiableObject *parent,
+Bool IndirectReference::setValue(Provider *provider, IdentifiableObject *parent,
                                  IdentifiableObject *obj, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndirectReference::setPlain"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndirectReference::setValue"),
                                    STR("Should not be null."));
   }
   if (provider == 0) {
-    throw InvalidArgumentException(STR("provider"), STR("Core::Data::IndirectReference::setPlain"),
+    throw InvalidArgumentException(STR("provider"), STR("Core::Data::IndirectReference::setValue"),
                                    STR("Should not be null."));
   }
   if (index == -1) return false;
   IdentifiableObject *ref;
-  if (!provider->tryGetPlainValue(this->key.get(), ref)) {
+  if (!provider->tryGet(this->key.get(), ref)) {
     index = -1;
     return false;
   }
@@ -104,20 +52,20 @@ Bool IndirectReference::setPlain(Provider *provider, IdentifiableObject *parent,
   }
   if (ref->isA<String>()) {
     index = -1;
-    MapPlainContainer *container = parent->getInterface<MapPlainContainer>();
+    MapContainer *container = parent->getInterface<MapContainer>();
     if (container == 0) return false;
     container->set(static_cast<String*>(ref)->get(), obj);
     return true;
   } else if (ref->isA<Integer>()) {
     index = -1;
     Int i = static_cast<Integer*>(ref)->get();
-    PlainContainer *container = parent->getInterface<PlainContainer>();
+    Container *container = parent->getInterface<Container>();
     if (container == 0) return false;
     if (i >= 0 && i < container->getCount()) {
       container->set(i, obj);
       return true;
     } else if (i == container->getCount()) {
-      ListPlainContainer *listContainer = parent->getInterface<ListPlainContainer>();
+      ListContainer *listContainer = parent->getInterface<ListContainer>();
       if (listContainer == 0) return false;
       listContainer->add(obj);
       return true;
@@ -125,7 +73,7 @@ Bool IndirectReference::setPlain(Provider *provider, IdentifiableObject *parent,
       return false;
     }
   } else if (ref->isA<Reference>()) {
-    return static_cast<Reference*>(ref)->setPlain(provider, parent, obj, index);
+    return static_cast<Reference*>(ref)->setValue(provider, parent, obj, index);
   } else {
     index = -1;
     return false;
@@ -133,19 +81,19 @@ Bool IndirectReference::setPlain(Provider *provider, IdentifiableObject *parent,
 }
 
 
-Bool IndirectReference::remove(Provider *provider, IdentifiableObject *parent, Int &index) const
+Bool IndirectReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndirectReference::remove"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndirectReference::removeValue"),
                                    STR("Should not be null."));
   }
   if (provider == 0) {
-    throw InvalidArgumentException(STR("provider"), STR("Core::Data::IndirectReference::remove"),
+    throw InvalidArgumentException(STR("provider"), STR("Core::Data::IndirectReference::removeValue"),
                                    STR("Should not be null."));
   }
   if (index == -1) return false;
   IdentifiableObject *ref;
-  if (!provider->tryGetPlainValue(this->key.get(), ref)) {
+  if (!provider->tryGet(this->key.get(), ref)) {
     index = -1;
     return false;
   }
@@ -155,39 +103,28 @@ Bool IndirectReference::remove(Provider *provider, IdentifiableObject *parent, I
   }
   if (ref->isA<String>()) {
     index = -1;
-    MapSharedContainer *container;
-    MapPlainContainer *plainContainer;
-    if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
+    MapContainer *container;
+    if ((container = parent->getInterface<MapContainer>()) != 0) {
       Int i = container->findIndex(static_cast<String*>(ref)->get());
       if (i == -1) return false;
       container->remove(i);
       return true;
-    } else if ((plainContainer = parent->getInterface<MapPlainContainer>()) != 0) {
-      Int i = plainContainer->findIndex(static_cast<String*>(ref)->get());
-      if (i == -1) return false;
-      plainContainer->remove(i);
-      return true;
     } else {
       return false;
     }
   } else if (ref->isA<Integer>()) {
     index = -1;
     Int i = static_cast<Integer*>(ref)->get();
-    SharedContainer *container;
-    PlainContainer *plainContainer;
-    if ((container = parent->getInterface<SharedContainer>()) != 0) {
+    Container *container;
+    if ((container = parent->getInterface<Container>()) != 0) {
       if (i < 0 || i >= container->getCount()) return false;
       container->remove(i);
       return true;
-    } else if ((plainContainer = parent->getInterface<PlainContainer>()) != 0) {
-      if (i < 0 || i >= plainContainer->getCount()) return false;
-      plainContainer->remove(i);
-      return true;
     } else {
       return false;
     }
   } else if (ref->isA<Reference>()) {
-    return static_cast<Reference*>(ref)->remove(provider, parent, index);
+    return static_cast<Reference*>(ref)->removeValue(provider, parent, index);
   } else {
     index = -1;
     return false;
@@ -195,66 +132,20 @@ Bool IndirectReference::remove(Provider *provider, IdentifiableObject *parent, I
 }
 
 
-Bool IndirectReference::getShared(Provider *provider, IdentifiableObject *parent,
-                                  SharedPtr<IdentifiableObject> &result, Int &index) const
-{
-  if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndirectReference::get"),
-                                   STR("Should not be null."));
-  }
-  if (provider == 0) {
-    throw InvalidArgumentException(STR("provider"), STR("Core::Data::IndirectReference::get"),
-                                   STR("Should not be null."));
-  }
-  if (index == -1) return false;
-  IdentifiableObject *ref;
-  if (!provider->tryGetPlainValue(this->key.get(), ref)) {
-    index = -1;
-    return false;
-  }
-  if (ref == 0) {
-    index = -1;
-    return false;
-  }
-  if (ref->isA<String>()) {
-    index = -1;
-    MapSharedContainer const *container = parent->getInterface<MapSharedContainer>();
-    if (container == 0) return false;
-    Int i = container->findIndex(static_cast<String*>(ref)->get());
-    if (i == -1) return false;
-    result = container->get(i);
-    return true;
-  } else if (ref->isA<Integer>()) {
-    index = -1;
-    SharedContainer const *container = parent->getInterface<SharedContainer>();
-    if (container == 0) return false;
-    Int i = static_cast<Integer*>(ref)->get();
-    if (i < 0 || i >= container->getCount()) return false;
-    result = container->get(i);
-    return true;
-  } else if (ref->isA<Reference>()) {
-    return static_cast<Reference*>(ref)->getShared(provider, parent, result, index);
-  } else {
-    index = -1;
-    return false;
-  }
-}
-
-
-Bool IndirectReference::getPlain(Provider *provider, IdentifiableObject *parent,
+Bool IndirectReference::getValue(Provider *provider, IdentifiableObject *parent,
                                  IdentifiableObject *&result, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndirectReference::getPlain"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndirectReference::getValue"),
                                    STR("Should not be null."));
   }
   if (provider == 0) {
-    throw InvalidArgumentException(STR("provider"), STR("Core::Data::IndirectReference::getPlain"),
+    throw InvalidArgumentException(STR("provider"), STR("Core::Data::IndirectReference::getValue"),
                                    STR("Should not be null."));
   }
   if (index == -1) return false;
   IdentifiableObject *ref;
-  if (!provider->tryGetPlainValue(this->key.get(), ref)) {
+  if (!provider->tryGet(this->key.get(), ref)) {
     index = -1;
     return false;
   }
@@ -264,17 +155,11 @@ Bool IndirectReference::getPlain(Provider *provider, IdentifiableObject *parent,
   }
   if (ref->isA<String>()) {
     index = -1;
-    MapSharedContainer const *container;
-    MapPlainContainer const *plainContainer;
-    if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
+    MapContainer const *container;
+    if ((container = parent->getInterface<MapContainer>()) != 0) {
       Int i = container->findIndex(static_cast<String*>(ref)->get());
       if (i == -1) return false;
-      result = container->get(i).get();
-      return true;
-    } else if ((plainContainer = parent->getInterface<MapPlainContainer>()) != 0) {
-      Int i = plainContainer->findIndex(static_cast<String*>(ref)->get());
-      if (i == -1) return false;
-      result = plainContainer->get(i);
+      result = container->get(i);
       return true;
     } else {
       return false;
@@ -282,21 +167,16 @@ Bool IndirectReference::getPlain(Provider *provider, IdentifiableObject *parent,
   } else if (ref->isA<Integer>()) {
     index = -1;
     Int i = static_cast<Integer*>(ref)->get();
-    SharedContainer const *container;
-    PlainContainer const *plainContainer;
-    if ((container = parent->getInterface<SharedContainer>()) != 0) {
+    Container const *container;
+    if ((container = parent->getInterface<Container>()) != 0) {
       if (i < 0 || i >= container->getCount()) return false;
-      result = container->get(i).get();
-      return true;
-    } else if ((plainContainer = parent->getInterface<PlainContainer>()) != 0) {
-      if (i < 0 || i >= plainContainer->getCount()) return false;
-      result = plainContainer->get(i);
+      result = container->get(i);
       return true;
     } else {
       return false;
     }
   } else if (ref->isA<Reference>()) {
-    return static_cast<Reference*>(ref)->getPlain(provider, parent, result, index);
+    return static_cast<Reference*>(ref)->getValue(provider, parent, result, index);
   } else {
     index = -1;
     return false;

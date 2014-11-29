@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/MapPlainContainer.h
- * Contains the header of interface Data::MapPlainContainer.
+ * @file Core/Data/MapContainer.h
+ * Contains the header of interface Data::MapContainer.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,34 +10,34 @@
  */
 //==============================================================================
 
-#ifndef DATA_MAPPLAINCONTAINER_H
-#define DATA_MAPPLAINCONTAINER_H
+#ifndef DATA_MAPCONTAINER_H
+#define DATA_MAPCONTAINER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class MapPlainContainer : public PlainContainer
+class MapContainer : public Container
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(MapPlainContainer, PlainContainer, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(MapContainer, Container, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: using PlainContainer::set;
+  public: using Container::set;
 
   public: virtual Int set(Char const *key, IdentifiableObject *val) = 0;
 
-  public: using PlainContainer::remove;
+  public: using Container::remove;
 
   public: virtual void remove(Char const *key) = 0;
 
-  public: using PlainContainer::get;
+  public: using Container::get;
 
   public: virtual IdentifiableObject* get(Char const *key) const = 0;
 

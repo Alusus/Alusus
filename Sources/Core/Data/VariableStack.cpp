@@ -441,7 +441,7 @@ Int VariableStack::findIndex(Char const *key, Int start, Int end) const
 
 
 //==============================================================================
-// MapPlainContainer Implementation
+// MapContainer Implementation
 
 void VariableStack::set(Int index, IdentifiableObject *val)
 {

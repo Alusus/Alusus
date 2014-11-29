@@ -124,7 +124,7 @@ void PlainNamedList::unsetIndexes(Int from, Int to)
 
 
 //==============================================================================
-// NamedListSharedContainer Implementation
+// NamedListContainer Implementation
 
 void PlainNamedList::set(Int index, IdentifiableObject *val)
 {

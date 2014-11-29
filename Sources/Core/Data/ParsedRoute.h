@@ -28,13 +28,13 @@ namespace Core { namespace Data
  * compose the parsed tree.
  */
 class ParsedRoute : public IdentifiableObject,
-                    public virtual ParsingMetadataHolder, public virtual SharedContainer
+                    public virtual ParsingMetadataHolder, public virtual Container
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ParsedRoute, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(IdentifiableObject, ParsingMetadataHolder, SharedContainer);
+  IMPLEMENT_INTERFACES_2(IdentifiableObject, ParsingMetadataHolder, Container);
 
 
   //============================================================================
@@ -221,13 +221,13 @@ class ParsedRoute : public IdentifiableObject,
 
 
   //============================================================================
-  // SharedContainer Implementation
+  // Container Implementation
 
   /// Change the element at the specified index.
-  public: virtual void set(Int index, SharedPtr<IdentifiableObject> const &val)
+  public: virtual void set(Int index, IdentifiableObject *val)
   {
     if (index == 0) {
-      this->data = val;
+      this->data = getSharedPtr(val, true);
     } else {
       throw InvalidArgumentException(STR("index"), STR("Core::Data::ParsedRoute::set"),
                                      STR("index must be 0."));
@@ -251,13 +251,13 @@ class ParsedRoute : public IdentifiableObject,
   }
 
   /// Get the object at the specified index.
-  public: virtual SharedPtr<IdentifiableObject> const& get(Int index) const
+  public: virtual IdentifiableObject* get(Int index) const
   {
     if (index != 0) {
       throw InvalidArgumentException(STR("index"), STR("Core::Data::ParsedRoute::get"),
                                      STR("index must be 0."));
     }
-    return this->data;
+    return this->data.get();
   }
 
 }; // class

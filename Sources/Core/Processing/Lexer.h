@@ -256,7 +256,7 @@ class Lexer : public SignalReceiver
   /// Get the symbol definition at the specified index.
   public: Data::SymbolDefinition* getSymbolDefinition(Int index)
   {
-    Data::SymbolDefinition *def = this->grammarContext.getModule()->get(index).s_cast_get<Data::SymbolDefinition>();
+    Data::SymbolDefinition *def = static_cast<Data::SymbolDefinition*>(this->grammarContext.getModule()->get(index));
     ASSERT(def->isA<Data::SymbolDefinition>());
     return def;
   }

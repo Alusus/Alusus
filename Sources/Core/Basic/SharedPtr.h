@@ -20,55 +20,12 @@ namespace Core { namespace Basic
 
 template <class T> class SharedPtr : public std::shared_ptr<T>
 {
-  //============================================================================
-  // Constructors / Destructor
-
-  // TODO: Replace these constructors with constructor inheritance once supported by the compiler.
-
-  public: explicit SharedPtr(T *s = 0) : std::shared_ptr<T>(s)
-  {
-  }
-
-  public: template <class T2> explicit SharedPtr(T2 *s) : std::shared_ptr<T>(s)
-  {
-  }
-
-  public: template <class T2> explicit SharedPtr(const std::weak_ptr<T2> &src) : std::shared_ptr<T>(src)
-  {
-  }
-
-  public: template <class T2> SharedPtr(const std::shared_ptr<T2> &src) : std::shared_ptr<T>(src)
-  {
-  }
-
-  public: template <class T2> SharedPtr(const std::shared_ptr<T2> &&src) : std::shared_ptr<T>(src)
-  {
-  }
-
-  public: template <class T2> SharedPtr(const std::shared_ptr<T2> &src, T *p) : std::shared_ptr<T>(src, p)
-  {
-  }
+  // Inherit constructors.
+  using std::shared_ptr<T>::shared_ptr;
 
 
   //============================================================================
   // Overloaded Operators
-
-  /// @name Copy Operators
-  /// @{
-
-  public: template <class T2> SharedPtr<T>& operator=(const std::shared_ptr<T2> &src)
-  {
-    std::shared_ptr<T>::operator=(src);
-    return *this;
-  }
-
-  public: template <class T2> SharedPtr<T>& operator=(const std::shared_ptr<T2> &&src)
-  {
-    std::shared_ptr<T>::operator=(src);
-    return *this;
-  }
-
-  /// @}
 
   /// @name Comparison Operators
   /// @{
@@ -111,21 +68,6 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
 
   /// @}
 
-  /// @name Dereferencing Operators
-  /// @{
-
-  public: T& operator*() const
-  {
-    return std::shared_ptr<T>::operator*();
-  }
-
-  public: T* operator->() const
-  {
-    return std::shared_ptr<T>::operator->();
-  }
-
-  /// @}
-
 
   //==============================================================================
   // Member Functions
@@ -142,9 +84,20 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
    *            words, if you want to cast the pointer to SharedPtr<My_Type>,
    *            TO must be My_Type, not SharedPtr<My_Type>.
    */
-  public: template <class TO> inline SharedPtr<TO> s_cast() const
+  public: template <class TO> inline SharedPtr<TO> s_cast() const &
   {
     return SharedPtr<TO>(*this, static_cast<TO*>(this->get()));
+  }
+
+  /// @sa s_cast()
+  public: template <class TO> inline SharedPtr<TO> s_cast() &&
+  {
+    TO *p = static_cast<TO*>(this->get());
+    if (reinterpret_cast<PtrInt>(p) == reinterpret_cast<PtrInt>(this->get())) {
+      return std::move(*(reinterpret_cast<SharedPtr<TO>*>(this)));
+    } else {
+      return SharedPtr<TO>(*this, p);
+    }
   }
 
   /**
@@ -156,9 +109,15 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
    *            words, if you want to cast the pointer to SharedPtr<My_Type>,
    *            TO must be My_Type, not SharedPtr<My_Type>.
    */
-  public: template <class TO> inline SharedPtr<TO> r_cast() const
+  public: template <class TO> inline SharedPtr<TO> r_cast() const &
   {
     return SharedPtr<TO>(*this, reinterpret_cast<TO*>(this->get()));
+  }
+
+  /// @sa r_cast()
+  public: template <class TO> inline SharedPtr<TO> r_cast() &&
+  {
+    return std::move(*(reinterpret_cast<SharedPtr<TO>*>(this)));
   }
 
   /**
@@ -170,9 +129,15 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
    *            words, if you want to cast the pointer to SharedPtr<My_Type>,
    *            TO must be My_Type, not SharedPtr<My_Type>.
    */
-  public: template <class TO> inline SharedPtr<TO> c_cast() const
+  public: template <class TO> inline SharedPtr<TO> c_cast() const &
   {
     return SharedPtr<TO>(*this, const_cast<TO*>(this->get()));
+  }
+
+  /// @sa c_cast()
+  public: template <class TO> inline SharedPtr<TO> c_cast() &&
+  {
+    return std::move(*(reinterpret_cast<SharedPtr<TO>*>(this)));
   }
 
   /**
@@ -184,9 +149,19 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
    *            words, if you want to cast the pointer to SharedPtr<My_Type>,
    *            TO must be My_Type, not SharedPtr<My_Type>.
    */
-  public: template <class TO> inline SharedPtr<TO> io_cast() const
+  public: template <class TO> inline SharedPtr<TO> io_cast() const &
   {
     return SharedPtr<TO>(*this, Core::Basic::io_cast<TO>(this->get()));
+  }
+
+  /// @sa io_cast()
+  public: template <class TO> inline SharedPtr<TO> io_cast() &&
+  {
+    if (this->get() != 0 && this->get()->isDerivedFrom(TO::getTypeInfo())) {
+      return std::move(*(reinterpret_cast<SharedPtr<TO>*>(this)));
+    } else {
+      return SharedPtr<TO>();
+    }
   }
 
   /**
@@ -306,38 +281,95 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
 }; // class
 
 
-template <class T, class T2> SharedPtr<T> s_cast(const std::shared_ptr<T2> &src)
+template <class T, class T2> inline SharedPtr<T> s_cast(std::shared_ptr<T2> const &src)
 {
   return SharedPtr<T>(src, static_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> SharedPtr<T>& r_cast(const std::shared_ptr<T2> &src)
+template <class T, class T2> inline SharedPtr<T> s_cast(std::shared_ptr<T2> &&src)
+{
+  T *p = static_cast<T*>(src.get());
+  if (reinterpret_cast<PtrInt>(p) == reinterpret_cast<PtrInt>(src.get())) {
+    return std::move(*(reinterpret_cast<SharedPtr<T>*>(&src)));
+  } else {
+    return SharedPtr<T>(src, p);
+  }
+}
+
+
+template <class T, class T2> inline SharedPtr<T> r_cast(std::shared_ptr<T2> const &src)
 {
   return SharedPtr<T>(src, reinterpret_cast<T*>(src.get()));
 }
 
 
-template <class T> SharedPtr<T>& c_cast(const std::shared_ptr<const T> &src)
+template <class T, class T2> inline SharedPtr<T> r_cast(std::shared_ptr<T2> &&src)
+{
+  return std::move(*(reinterpret_cast<SharedPtr<T>*>(&src)));
+}
+
+
+template <class T> inline SharedPtr<T> c_cast(std::shared_ptr<const T> const &src)
 {
   return SharedPtr<T>(src, const_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> SharedPtr<T>& io_cast(const std::shared_ptr<T2> &src)
+template <class T> inline SharedPtr<T> c_cast(std::shared_ptr<const T> &&src)
 {
-  return SharedPtr<T>(src, Core::Basic::io_cast<T*>(src.get()));
+  return std::move(*(reinterpret_cast<SharedPtr<T>*>(&src)));
 }
 
 
-template <class T, class T2> SharedPtr<T>& ii_cast(const std::shared_ptr<T2> &src)
+template <class T, class T2> inline SharedPtr<T> io_cast(std::shared_ptr<T2> const &src)
+{
+  return SharedPtr<T>(src, Core::Basic::io_cast<T>(src.get()));
+}
+
+
+template <class T, class T2> inline SharedPtr<T> io_cast(std::shared_ptr<T2> &&src)
+{
+  if (src.get() != 0 && src.get()->isDerivedFrom(T::getTypeInfo())) {
+    return std::move(*(reinterpret_cast<SharedPtr<T>*>(&src)));
+  } else {
+    return SharedPtr<T>();
+  }
+}
+
+
+template <class T, class T2> SharedPtr<T> ii_cast(std::shared_ptr<T2> const &src)
 {
   return SharedPtr<T>(src, Core::Basic::ii_cast<T*>(src.get()));
 }
 
-template <class T, class T2> SharedPtr<T>& ii2io_cast(const std::shared_ptr<T2> &src)
+template <class T, class T2> SharedPtr<T> ii2io_cast(std::shared_ptr<T2> const &src)
 {
   return SharedPtr<T>(src, Core::Basic::ii2io_cast<T*>(src.get()));
+}
+
+/**
+ * @brief Get a shared pointer to the given IdentifiableObject based pointer.
+ * The function will get a shared pointer that shares ownership with existing
+ * shared pointers to this object. It will automatically cast it to the type of
+ * the passed pointer.
+ * @param obj A pointer to an object derived from IdentifiableObject.
+ * @param ownIfUnowned Specify whether to own this object if it's not already
+ *                     owned. If true and no shared pointer owns this object,
+ *                     the function will create a new shared pointer to own
+ *                     this, otherwise it will return an empty pointer.
+ */
+template <class T> SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
+{
+  if (obj == 0) {
+    if (ownIfUnowned) return SharedPtr<T>(obj);
+    else return SharedPtr<T>();
+  }
+  SharedPtr<IdentifiableObject> sp = obj->getSharedThis();
+  // Since T is derived from IdentifiableObject, casting will result in the same
+  // pointer value, so a reinterpret cast should be enough; creating a new
+  // temporary shared pointer is not necessary.
+  return std::move(*(reinterpret_cast<SharedPtr<T>*>(&sp)));
 }
 
 } } // namespace

@@ -26,40 +26,16 @@ Bool StrKeyReference::compare(Reference const *r) const
 }
 
 
-Bool StrKeyReference::setShared(Provider *provider, IdentifiableObject *parent,
-                                SharedPtr<IdentifiableObject> const &obj, Int &index) const
-{
-  if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::set"),
-                                   STR("Should not be null."));
-  }
-  if (index == -1) return false;
-  index = -1;
-  MapSharedContainer *container = parent->getInterface<MapSharedContainer>();
-  if (container == 0) return false;
-  if (this->usageCriteria == ReferenceUsageCriteria::MULTI_DATA) {
-    container->set(this->key.c_str(), obj);
-  } else {
-    if (this->cachedIndex < 0 || this->cachedIndex >= container->getCount()) {
-      this->cachedIndex = container->set(this->key.c_str(), obj);
-    } else {
-      container->set(this->cachedIndex, obj);
-    }
-  }
-  return true;
-}
-
-
-Bool StrKeyReference::setPlain(Provider *provider, IdentifiableObject *parent,
+Bool StrKeyReference::setValue(Provider *provider, IdentifiableObject *parent,
                                IdentifiableObject *obj, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::setPlain"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::setValue"),
                                    STR("Should not be null."));
   }
   if (index == -1) return false;
   index = -1;
-  MapPlainContainer *container = parent->getInterface<MapPlainContainer>();
+  MapContainer *container = parent->getInterface<MapContainer>();
   if (container == 0) return false;
   if (this->usageCriteria == ReferenceUsageCriteria::MULTI_DATA) {
     container->set(this->key.c_str(), obj);
@@ -74,17 +50,16 @@ Bool StrKeyReference::setPlain(Provider *provider, IdentifiableObject *parent,
 }
 
 
-Bool StrKeyReference::remove(Provider *provider, IdentifiableObject *parent, Int &index) const
+Bool StrKeyReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::remove"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::removeValue"),
                                    STR("Should not be null."));
   }
   if (index == -1) return false;
   index = -1;
-  MapSharedContainer *container;
-  MapPlainContainer *plainContainer;
-  if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
+  MapContainer *container;
+  if ((container = parent->getInterface<MapContainer>()) != 0) {
     if (this->usageCriteria == ReferenceUsageCriteria::MULTI_DATA) {
       Int i = container->findIndex(this->key.c_str());
       if (i == -1) return false;
@@ -98,37 +73,23 @@ Bool StrKeyReference::remove(Provider *provider, IdentifiableObject *parent, Int
       container->remove(this->cachedIndex);
       return true;
     }
-  } else if ((plainContainer = parent->getInterface<MapPlainContainer>()) != 0) {
-    if (this->usageCriteria == ReferenceUsageCriteria::MULTI_DATA) {
-      Int i = plainContainer->findIndex(this->key.c_str());
-      if (i == -1) return false;
-      plainContainer->remove(i);
-      return true;
-    } else {
-      if (this->cachedIndex < 0 || this->cachedIndex >= plainContainer->getCount()) {
-        this->cachedIndex = plainContainer->findIndex(this->key.c_str());
-        if (this->cachedIndex == -1) return false;
-      }
-      plainContainer->remove(this->cachedIndex);
-      return true;
-    }
   } else {
     return false;
   }
 }
 
 
-Bool StrKeyReference::getShared(Provider *provider, IdentifiableObject *parent,
-                                SharedPtr<IdentifiableObject> &result, Int &index) const
+Bool StrKeyReference::getValue(Provider *provider, IdentifiableObject *parent,
+                               IdentifiableObject *&result, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::get"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::getValue"),
                                    STR("Should not be null."));
   }
   if (index == -1) return false;
   index = -1;
-  MapSharedContainer const *container;
-  if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
+  MapContainer const *container;
+  if ((container = parent->getInterface<MapContainer>()) != 0) {
     if (this->usageCriteria == ReferenceUsageCriteria::MULTI_DATA) {
       Int i = container->findIndex(this->key.c_str());
       if (i == -1) return false;
@@ -140,51 +101,6 @@ Bool StrKeyReference::getShared(Provider *provider, IdentifiableObject *parent,
         if (this->cachedIndex == -1) return false;
       }
       result = container->get(this->cachedIndex);
-      return true;
-    }
-  } else {
-    return false;
-  }
-}
-
-
-Bool StrKeyReference::getPlain(Provider *provider, IdentifiableObject *parent,
-                               IdentifiableObject *&result, Int &index) const
-{
-  if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::getPlain"),
-                                   STR("Should not be null."));
-  }
-  if (index == -1) return false;
-  index = -1;
-  MapSharedContainer const *container;
-  MapPlainContainer const *plainContainer;
-  if ((container = parent->getInterface<MapSharedContainer>()) != 0) {
-    if (this->usageCriteria == ReferenceUsageCriteria::MULTI_DATA) {
-      Int i = container->findIndex(this->key.c_str());
-      if (i == -1) return false;
-      result = container->get(i).get();
-      return true;
-    } else {
-      if (this->cachedIndex < 0 || this->cachedIndex >= container->getCount()) {
-        this->cachedIndex = container->findIndex(this->key.c_str());
-        if (this->cachedIndex == -1) return false;
-      }
-      result = container->get(this->cachedIndex).get();
-      return true;
-    }
-  } else if ((plainContainer = parent->getInterface<MapPlainContainer>()) != 0) {
-    if (this->usageCriteria == ReferenceUsageCriteria::MULTI_DATA) {
-      Int i = plainContainer->findIndex(this->key.c_str());
-      if (i == -1) return false;
-      result = plainContainer->get(i);
-      return true;
-    } else {
-      if (this->cachedIndex < 0 || this->cachedIndex >= plainContainer->getCount()) {
-        this->cachedIndex = plainContainer->findIndex(this->key.c_str());
-        if (this->cachedIndex == -1) return false;
-      }
-      result = plainContainer->get(this->cachedIndex);
       return true;
     }
   } else {

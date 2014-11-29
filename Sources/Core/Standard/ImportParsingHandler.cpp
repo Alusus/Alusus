@@ -25,10 +25,10 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 {
   IdentifiableObject *item = state->getData().get();
   static Word stringLiteralId = ID_GENERATOR->getId(STR("LexerDefs.StringLiteral"));
-  QualifierSeeker browser;
+  QualifierSeeker seeker;
   // Find a literal token in the subject.
   IdentifiableObject *token;
-  if (browser.tryGetPlain(STR("self~where(prodId=Subject.Subject1).{find prodId=Subject.Literal}"), item, token)) {
+  if (seeker.tryGet(STR("self~where(prodId=Subject.Subject1).{find prodId=Subject.Literal}"), item, token)) {
     ParsedToken *parsedToken = io_cast<ParsedToken>(token);
     // Is it a string token?
     if (parsedToken != 0 && parsedToken->getId() == stringLiteralId) {

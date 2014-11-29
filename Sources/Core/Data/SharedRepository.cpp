@@ -118,13 +118,13 @@ SharedPtr<IdentifiableObject> const& SharedRepository::getLevelData(Int index) c
     if (index <= this->trunkIndex) {
       return this->trunkRepo->getLevelData(index);
     } else {
-      return this->stack.get(index-(this->trunkIndex+1));
+      return this->stack.getShared(index-(this->trunkIndex+1));
     }
   } else {
-    return this->stack.get(index);
+    return this->stack.getShared(index);
   }
   // Dummy return statement to avoid compilation error. This won't be reached.
-  return this->stack.get(index);
+  return this->stack.getShared(index);
 }
 
 
@@ -198,13 +198,13 @@ Bool SharedRepository::isShared(Int index) const
       // This level is shared with the trunk state.
       return true;
     } else {
-      return !this->stack.get(index-(this->trunkIndex+1)).unique();
+      return !this->stack.getShared(index-(this->trunkIndex+1)).unique();
     }
   } else {
-    return !this->stack.get(index).unique();
+    return !this->stack.getShared(index).unique();
   }
   // Dummy return statement to avoid compilation error. This won't be reached.
-  return !this->stack.get(index).unique();
+  return !this->stack.getShared(index).unique();
 }
 
 
@@ -242,25 +242,25 @@ void SharedRepository::ownTopLevel()
 
 
 //==============================================================================
-// SharedProvider Implementation
+// Provider Implementation
 
-void SharedRepository::setSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> const &val)
+void SharedRepository::set(Reference const *ref, IdentifiableObject *val)
 {
   // Set the value first.
   if (ref->isA<ScopeReference>()) {
-    this->referenceSeeker.setShared(ref, &this->stack, val);
+    this->referenceSeeker.set(ref, &this->stack, val);
   } else {
     Bool ret = false;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      ret = this->referenceSeeker.trySetShared(ref, parent, val);
+      ret = this->referenceSeeker.trySet(ref, parent, val);
       if (ret) break;
     }
     if (!ret) {
       throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                             STR("Core::Data::SharedRepository::setSharedValue"));
+                             STR("Core::Data::SharedRepository::set"));
     }
   }
 
@@ -271,12 +271,12 @@ void SharedRepository::setSharedValue(Reference const *ref, SharedPtr<Identifiab
     if (ref->isA<ScopeReference>()) qualifierStr = ReferenceParser::getQualifier(ref->getNext().get());
     else qualifierStr = ReferenceParser::getQualifier(ref);
     Char const *qualifier = qualifierStr.c_str();
-    setTreeIds(val.get(), qualifier);
+    setTreeIds(val, qualifier);
   }
 }
 
 
-void SharedRepository::setSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> const &val)
+void SharedRepository::set(Char const *qualifier, IdentifiableObject *val)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -289,15 +289,15 @@ void SharedRepository::setSharedValue(Char const *qualifier, SharedPtr<Identifia
     Int index = 0;
     Bool ret = false;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::setSharedValue"),
+      if (!ref->getValue(0, &this->stack, parent, index)) {
+        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::set"),
                                        STR("Invalid scope value."), qualifier);
       }
-      ret = this->qualifierSeeker.trySetShared(qualifier2, parent, val);
+      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
       if (ret) break;
     }
     if (!ret) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::setSharedValue"),
+      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::set"),
                                      STR("Qualifier doesn't point to an existing element."), qualifier);
     }
   } else {
@@ -305,13 +305,13 @@ void SharedRepository::setSharedValue(Char const *qualifier, SharedPtr<Identifia
     Bool ret = false;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      ret = this->qualifierSeeker.trySetShared(qualifier2, parent, val);
+      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
       if (ret) break;
     }
     if (!ret) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::setSharedValue"),
+      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::set"),
                                      STR("Qualifier doesn't point to an existing element."), qualifier);
     }
   }
@@ -319,23 +319,23 @@ void SharedRepository::setSharedValue(Char const *qualifier, SharedPtr<Identifia
   // TODO: We can remove this part if/when we start handling IDs in definition signals.
   // Set the id for the new object.
   if (this->owner) {
-    setTreeIds(val.get(), qualifier2);
+    setTreeIds(val, qualifier2);
   }
 }
 
 
-Bool SharedRepository::trySetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> const &val)
+Bool SharedRepository::trySet(Reference const *ref, IdentifiableObject *val)
 {
   // Set the value first.
   if (ref->isA<ScopeReference>()) {
-    if (!this->referenceSeeker.trySetShared(ref, &this->stack, val)) return false;
+    if (!this->referenceSeeker.trySet(ref, &this->stack, val)) return false;
   } else {
     Bool ret = false;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      ret = this->referenceSeeker.trySetShared(ref, parent, val);
+      ret = this->referenceSeeker.trySet(ref, parent, val);
       if (ret) break;
     }
     if (!ret) return false;
@@ -348,14 +348,14 @@ Bool SharedRepository::trySetSharedValue(Reference const *ref, SharedPtr<Identif
     if (ref->isA<ScopeReference>()) qualifierStr = ReferenceParser::getQualifier(ref->getNext().get());
     else qualifierStr = ReferenceParser::getQualifier(ref);
     Char const *qualifier = qualifierStr.c_str();
-    setTreeIds(val.get(), qualifier);
+    setTreeIds(val, qualifier);
   }
 
   return true;
 }
 
 
-Bool SharedRepository::trySetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> const &val)
+Bool SharedRepository::trySet(Char const *qualifier, IdentifiableObject *val)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -368,8 +368,8 @@ Bool SharedRepository::trySetSharedValue(Char const *qualifier, SharedPtr<Identi
     Int index = 0;
     Bool ret = false;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) return false;
-      ret = this->qualifierSeeker.trySetShared(qualifier2, parent, val);
+      if (!ref->getValue(0, &this->stack, parent, index)) return false;
+      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
       if (ret) break;
     }
     if (!ret) return false;
@@ -378,9 +378,9 @@ Bool SharedRepository::trySetSharedValue(Char const *qualifier, SharedPtr<Identi
     Bool ret = false;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      ret = this->qualifierSeeker.trySetShared(qualifier2, parent, val);
+      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
       if (ret) break;
     }
     if (!ret) return false;
@@ -389,218 +389,31 @@ Bool SharedRepository::trySetSharedValue(Char const *qualifier, SharedPtr<Identi
   // TODO: We can remove this part if/when we start handling IDs in definition signals.
   // Set the id for the new object.
   if (this->owner) {
-    setTreeIds(val.get(), qualifier2);
+    setTreeIds(val, qualifier2);
   }
 
   return true;
 }
 
 
-SharedPtr<IdentifiableObject> SharedRepository::getSharedValue(Reference const *ref)
-{
-  if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.getShared(ref, &this->stack);
-  } else {
-    // The default is to go downward through the stack.
-    SharedPtr<IdentifiableObject> obj;
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
-      if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetShared(ref, parent, obj)) return obj;
-    }
-    throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                           STR("Core::Data::SharedRepository::getSharedValue"));
-  }
-}
-
-
-void SharedRepository::getSharedValue(Reference const *ref, SharedModulePairedPtr &retVal)
-{
-  if (ref->isA<ScopeReference>()) {
-    this->referenceSeeker.getShared(ref, &this->stack, retVal);
-  } else {
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      SharedPtr<IdentifiableObject> const &parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetShared(ref, parent, retVal)) return;
-    }
-    throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                           STR("Core::Data::SharedRepository::getSharedValue"));
-  }
-}
-
-
-SharedPtr<IdentifiableObject> SharedRepository::getSharedValue(Char const *qualifier)
-{
-  Char const *qualifier2 = qualifier;
-  SharedPtr<IdentifiableObject> obj;
-  ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
-  if (ref->isA<ScopeReference>()) {
-    ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *parent;
-    Int index = 0;
-    while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::getSharedValue"),
-                                       STR("Invalid scope value."), qualifier);
-      }
-      if (this->qualifierSeeker.tryGetShared(qualifier2, parent, obj)) return obj;
-    }
-  } else {
-    qualifier2 = qualifier;
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
-      if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetShared(qualifier2, parent, obj)) return obj;
-    }
-  }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::getSharedValue"),
-                                 STR("Qualifier doesn't point to an existing element."), qualifier);
-}
-
-
-void SharedRepository::getSharedValue(Char const *qualifier, SharedModulePairedPtr &retVal)
-{
-  Char const *qualifier2 = qualifier;
-  ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
-  if (ref->isA<ScopeReference>()) {
-    ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *parent;
-    Int index = 0;
-    while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::getSharedValue"),
-                                       STR("Invalid scope value."), qualifier);
-      }
-      if (this->qualifierSeeker.tryGetShared(qualifier2, parent, retVal)) return;
-    }
-  } else {
-    qualifier2 = qualifier;
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      SharedPtr<IdentifiableObject> const &parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetShared(qualifier2, parent, retVal)) return;
-    }
-  }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::getSharedValue"),
-                                 STR("Qualifier doesn't point to an existing element."), qualifier);
-}
-
-
-Bool SharedRepository::tryGetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> &retVal)
-{
-  if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.tryGetShared(ref, &this->stack, retVal);
-  } else {
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
-      if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetShared(ref, parent, retVal)) return true;
-    }
-    return false;
-  }
-}
-
-
-Bool SharedRepository::tryGetSharedValue(Reference const *ref, SharedModulePairedPtr &retVal)
-{
-  if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.tryGetShared(ref, &this->stack, retVal);
-  } else {
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      SharedPtr<IdentifiableObject> const &parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetShared(ref, parent, retVal)) return true;
-    }
-    return false;
-  }
-}
-
-
-Bool SharedRepository::tryGetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> &retVal)
-{
-  Char const *qualifier2 = qualifier;
-  ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
-  if (ref->isA<ScopeReference>()) {
-    ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *parent;
-    Int index = 0;
-    while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) return false;
-      if (this->qualifierSeeker.tryGetShared(qualifier2, parent, retVal)) return true;
-    }
-  } else {
-    qualifier2 = qualifier;
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
-      if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetShared(qualifier2, parent, retVal)) return true;
-    }
-  }
-  return false;
-}
-
-
-Bool SharedRepository::tryGetSharedValue(Char const *qualifier, SharedModulePairedPtr &retVal)
-{
-  Char const *qualifier2 = qualifier;
-  ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
-  if (ref->isA<ScopeReference>()) {
-    ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *parent;
-    Int index = 0;
-    while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) return false;
-      if (this->qualifierSeeker.tryGetShared(qualifier2, parent, retVal)) return true;
-    }
-  } else {
-    qualifier2 = qualifier;
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      SharedPtr<IdentifiableObject> const &parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetShared(qualifier2, parent, retVal)) return true;
-    }
-  }
-  return false;
-}
-
-
-//==============================================================================
-// Provider Implementation
-
-void SharedRepository::removeValue(Reference const *ref)
+void SharedRepository::remove(Reference const *ref)
 {
   if (ref->isA<ScopeReference>()) {
     this->referenceSeeker.remove(ref, &this->stack);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       if (this->referenceSeeker.tryRemove(ref, parent)) return;
     }
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::SharedRepository::removeValue")
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::SharedRepository::remove")
                                    STR("Doesn't refer to an existing element."), ReferenceParser::getQualifier(ref).c_str());
   }
 }
 
 
-void SharedRepository::removeValue(Char const *qualifier)
+void SharedRepository::remove(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -611,8 +424,8 @@ void SharedRepository::removeValue(Char const *qualifier)
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::getSharedValue"),
+      if (!ref->getValue(0, &this->stack, parent, index)) {
+        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::remove"),
                                        STR("Invalid scope value."), qualifier);
       }
       if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return;
@@ -621,24 +434,24 @@ void SharedRepository::removeValue(Char const *qualifier)
     qualifier2 = qualifier;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return;
     }
   }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::removeValue"),
+  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::remove"),
                                  STR("Qualifier doesn't refer to an existing element."), qualifier);
 }
 
 
-Bool SharedRepository::tryRemoveValue(Reference const *ref)
+Bool SharedRepository::tryRemove(Reference const *ref)
 {
   if (ref->isA<ScopeReference>()) {
     return this->referenceSeeker.tryRemove(ref, &this->stack);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       if (this->referenceSeeker.tryRemove(ref, parent)) return true;
     }
@@ -647,7 +460,7 @@ Bool SharedRepository::tryRemoveValue(Reference const *ref)
 }
 
 
-Bool SharedRepository::tryRemoveValue(Char const *qualifier)
+Bool SharedRepository::tryRemove(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -658,14 +471,14 @@ Bool SharedRepository::tryRemoveValue(Char const *qualifier)
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) break;
+      if (!ref->getValue(0, &this->stack, parent, index)) break;
       if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return true;
     }
   } else {
     qualifier2 = qualifier;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return true;
     }
@@ -674,42 +487,42 @@ Bool SharedRepository::tryRemoveValue(Char const *qualifier)
 }
 
 
-IdentifiableObject* SharedRepository::getPlainValue(Reference const *ref)
+IdentifiableObject* SharedRepository::get(Reference const *ref)
 {
   if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.getPlain(ref, &this->stack);
+    return this->referenceSeeker.get(ref, &this->stack);
   } else {
     // The default is to go downward through the stack.
     IdentifiableObject *obj;
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetPlain(ref, parent, obj)) return obj;
+      if (this->referenceSeeker.tryGet(ref, parent, obj)) return obj;
     }
     throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                           STR("Core::Data::SharedRepository::getPlainValue"));
+                           STR("Core::Data::SharedRepository::get"));
   }
 }
 
 
-void SharedRepository::getPlainValue(Reference const *ref, PlainModulePairedPtr &retVal)
+void SharedRepository::get(Reference const *ref, PlainModulePairedPtr &retVal)
 {
   if (ref->isA<ScopeReference>()) {
-    this->referenceSeeker.getPlain(ref, &this->stack, retVal);
+    this->referenceSeeker.get(ref, &this->stack, retVal);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetPlain(ref, parent, retVal)) return;
+      if (this->referenceSeeker.tryGet(ref, parent, retVal)) return;
     }
     throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                           STR("Core::Data::SharedRepository::getPlainValue"));
+                           STR("Core::Data::SharedRepository::get"));
   }
 }
 
 
-IdentifiableObject* SharedRepository::getPlainValue(Char const *qualifier)
+IdentifiableObject* SharedRepository::get(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   IdentifiableObject *obj;
@@ -721,27 +534,27 @@ IdentifiableObject* SharedRepository::getPlainValue(Char const *qualifier)
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::getPlainValue"),
+      if (!ref->getValue(0, &this->stack, parent, index)) {
+        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::get"),
                                        STR("Invalid scope value."), qualifier);
       }
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, obj)) return obj;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, obj)) return obj;
     }
   } else {
     qualifier2 = qualifier;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, obj)) return obj;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, obj)) return obj;
     }
   }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::getPlainValue"),
+  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::get"),
                                  STR("Qualifier doesn't point to an existing element."), qualifier);
 }
 
 
-void SharedRepository::getPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal)
+void SharedRepository::get(Char const *qualifier, PlainModulePairedPtr &retVal)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -752,59 +565,59 @@ void SharedRepository::getPlainValue(Char const *qualifier, PlainModulePairedPtr
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::getPlainValue"),
+      if (!ref->getValue(0, &this->stack, parent, index)) {
+        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::get"),
                                        STR("Invalid scope value."), qualifier);
       }
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return;
     }
   } else {
     qualifier2 = qualifier;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return;
     }
   }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::getPlainValue"),
+  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::get"),
                                  STR("Qualifier doesn't point to an existing element."), qualifier);
 }
 
 
-Bool SharedRepository::tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal)
+Bool SharedRepository::tryGet(Reference const *ref, IdentifiableObject *&retVal)
 {
   if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.tryGetPlain(ref, &this->stack, retVal);
+    return this->referenceSeeker.tryGet(ref, &this->stack, retVal);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetPlain(ref, parent, retVal)) return true;
+      if (this->referenceSeeker.tryGet(ref, parent, retVal)) return true;
     }
     return false;
   }
 }
 
 
-Bool SharedRepository::tryGetPlainValue(Reference const *ref, PlainModulePairedPtr &retVal)
+Bool SharedRepository::tryGet(Reference const *ref, PlainModulePairedPtr &retVal)
 {
   if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.tryGetPlain(ref, &this->stack, retVal);
+    return this->referenceSeeker.tryGet(ref, &this->stack, retVal);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetPlain(ref, parent, retVal)) return true;
+      if (this->referenceSeeker.tryGet(ref, parent, retVal)) return true;
     }
     return false;
   }
 }
 
 
-Bool SharedRepository::tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal)
+Bool SharedRepository::tryGet(Char const *qualifier, IdentifiableObject *&retVal)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -815,23 +628,23 @@ Bool SharedRepository::tryGetPlainValue(Char const *qualifier, IdentifiableObjec
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) break;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return true;
+      if (!ref->getValue(0, &this->stack, parent, index)) break;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
     }
   } else {
     qualifier2 = qualifier;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return true;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
     }
   }
   return false;
 }
 
 
-Bool SharedRepository::tryGetPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal)
+Bool SharedRepository::tryGet(Char const *qualifier, PlainModulePairedPtr &retVal)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -842,16 +655,16 @@ Bool SharedRepository::tryGetPlainValue(Char const *qualifier, PlainModulePaired
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) break;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return true;
+      if (!ref->getValue(0, &this->stack, parent, index)) break;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
     }
   } else {
     qualifier2 = qualifier;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i).get();
+      IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return true;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
     }
   }
   return false;

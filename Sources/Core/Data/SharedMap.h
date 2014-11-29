@@ -36,13 +36,13 @@ class Reference;
  * the position of the elements for faster access.
  */
 class SharedMap : public IdentifiableObject,
-                  public virtual Initializable, public virtual DataOwner, public virtual MapSharedContainer
+                  public virtual Initializable, public virtual DataOwner, public virtual MapContainer
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SharedMap, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(IdentifiableObject, Initializable, DataOwner, MapSharedContainer);
+  IMPLEMENT_INTERFACES_3(IdentifiableObject, Initializable, DataOwner, MapContainer);
 
 
   //============================================================================
@@ -63,8 +63,7 @@ class SharedMap : public IdentifiableObject,
   // Member Variables
 
   private: SharedPtr<Reference> parentReference;
-  private: WeakPtr<SharedMap> parent;
-  private: SharedMap *plainParent;
+  private: SharedMap *parent;
 
   /// The vector in which the list of key/value pairs are stored.
   private: std::vector<Entry> list;
@@ -95,7 +94,7 @@ class SharedMap : public IdentifiableObject,
    * searching, otherwise the object will use sequential searching instead of
    * binary search.
    */
-  public: SharedMap(Bool useIndex=false) : inherited(0), plainParent(0)
+  public: SharedMap(Bool useIndex=false) : inherited(0), parent(0)
   {
     if (useIndex) this->index = new Index(&this->list);
     else this->index = 0;
@@ -108,7 +107,7 @@ class SharedMap : public IdentifiableObject,
   public: virtual ~SharedMap()
   {
     if (this->index != 0) delete this->index;
-    if (this->plainParent != 0) this->detachFromParent();
+    if (this->parent != 0) this->detachFromParent();
     this->destroyNotifier.emit(this);
   }
 
@@ -134,31 +133,20 @@ class SharedMap : public IdentifiableObject,
     return this->parentReference;
   }
 
-  public: void setParent(SharedPtr<SharedMap> const &p)
-  {
-    this->setParent(p.get());
-    this->parent = p;
-  }
-
   public: void setParent(SharedMap *p)
   {
-    if (this->plainParent != 0) this->detachFromParent();
+    if (this->parent != 0) this->detachFromParent();
     if (p != 0) this->attachToParent(p);
   }
 
-  public: SharedPtr<SharedMap> getParent() const
+  public: SharedMap* getParent() const
   {
-    return this->parent.lock();
-  }
-
-  public: SharedMap* getPlainParent() const
-  {
-    return this->plainParent;
+    return this->parent;
   }
 
   private: Word getParentDefCount() const
   {
-    if (this->plainParent != 0) return this->plainParent->getCount();
+    if (this->parent != 0) return this->parent->getCount();
     else return 0;
   }
 
@@ -170,7 +158,7 @@ class SharedMap : public IdentifiableObject,
 
   private: void removeInheritted();
 
-  private: void onParentContentChanged(SharedContainer *obj, ContentChangeOp op, Int index);
+  private: void onParentContentChanged(Container *obj, ContentChangeOp op, Int index);
 
   private: void onAdded(Int index);
 
@@ -194,17 +182,15 @@ class SharedMap : public IdentifiableObject,
 
   public: Int set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bool insertIfNew);
 
+  public: void set(Int index, SharedPtr<IdentifiableObject> const &val);
+
+  public: SharedPtr<IdentifiableObject> const& getShared(Char const *key) const;
+
+  public: SharedPtr<IdentifiableObject> const& getShared(Int index) const;
+
   public: void clear();
 
-  public: Bool isInherited(Int index) const
-  {
-    if (static_cast<Word>(index) >= this->list.size()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::isInherited"),
-                                     STR("Out of range."));
-    }
-    if (this->inherited == 0) return false;
-    else return this->inherited->at(index);
-  }
+  public: Bool isInherited(Int index) const;
 
   /**
    * @brief Get the index of a specified key.
@@ -212,15 +198,7 @@ class SharedMap : public IdentifiableObject,
    * for the existance of a key use findIndex instead.
    * @sa findIndex()
    */
-  public: Int getIndex(Char const *key) const
-  {
-    Int idx = this->findIndex(key);
-    if (idx == -1) {
-      throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::getIndex"),
-                                     STR("Not found in the map."), key);
-    }
-    return idx;
-  }
+  public: Int getIndex(Char const *key) const;
 
   /// @}
 
@@ -249,13 +227,13 @@ class SharedMap : public IdentifiableObject,
 
 
   //============================================================================
-  // MapSharedContainer Implementation
+  // MapContainer Implementation
 
-  /// @name MapSharedContainer Implementation
+  /// @name MapContainer Implementation
   /// @{
 
   /// Change the value at the specified index.
-  public: virtual void set(Int index, SharedPtr<IdentifiableObject> const &val);
+  public: virtual void set(Int index, IdentifiableObject *val);
 
   /// Remove the element at the specified index.
   public: virtual void remove(Int index);
@@ -267,33 +245,18 @@ class SharedMap : public IdentifiableObject,
   }
 
   /// Get the value (object) at a specified index.
-  public: virtual SharedPtr<IdentifiableObject> const& get(Int index) const;
+  public: virtual IdentifiableObject* get(Int index) const;
 
-  public: virtual Int set(Char const *key, SharedPtr<IdentifiableObject> const &val)
+  public: virtual Int set(Char const *key, IdentifiableObject *val)
   {
-    return this->set(key, val, true);
+    return this->set(key, getSharedPtr(val, true), true);
   }
 
   public: virtual void remove(Char const *key);
 
-  public: virtual SharedPtr<IdentifiableObject> const& get(Char const *key) const
-  {
-    Int idx = this->findIndex(key);
-    if (idx == -1) {
-      throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::get"),
-                                     STR("Not found in the map."));
-    }
-    return this->list[idx].second;
-  }
+  public: virtual IdentifiableObject* get(Char const *key) const;
 
-  public: virtual const SbStr& getKey(Int index) const
-  {
-    if (static_cast<Word>(index) >= this->list.size()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::getKey"),
-                                     STR("Out of range."), index);
-    }
-    return this->list[index].first.sbstr();
-  }
+  public: virtual const SbStr& getKey(Int index) const;
 
   public: virtual Int findIndex(Char const *key) const;
 

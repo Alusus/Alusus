@@ -29,46 +29,15 @@ Bool SearchReference::compare(Reference const *r) const
 }
 
 
-Bool SearchReference::setShared(Provider *provider, IdentifiableObject *parent,
-                               SharedPtr<IdentifiableObject> const &obj, Int &index) const
-{
-  if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::set"),
-                                   STR("Should not be null."));
-  }
-  if (index < 0) return false;
-  SharedContainer *container = parent->getInterface<SharedContainer>();
-  if (container == 0) return false;
-
-  if (this->isCacheUsable() && this->cachedIndex >= index && this->cachedIndex < container->getCount()) {
-    container->set(this->getListIndex(container, this->cachedIndex), obj);
-    if (this->matchLimitationIndex == -1) index = this->cachedIndex+1;
-    else index = -1;
-  } else {
-    if (this->matchLimitationIndex == -1) {
-      index = this->findMatch(container, index);
-    } else {
-      index = this->findMatch(container, 0, this->matchLimitationIndex);
-    }
-    if (index == -1) return false;
-    container->set(this->getListIndex(container, index), obj);
-    this->cachedIndex = index;
-    if (this->matchLimitationIndex == -1) ++index;
-    else index = -1;
-  }
-  return true;
-}
-
-
-Bool SearchReference::setPlain(Provider *provider, IdentifiableObject *parent,
+Bool SearchReference::setValue(Provider *provider, IdentifiableObject *parent,
                               IdentifiableObject *obj, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::SearchReference::setPlain"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::SearchReference::setValue"),
                                    STR("Should not be null."));
   }
   if (index < 0) return false;
-  PlainContainer *container = parent->getInterface<PlainContainer>();
+  Container *container = parent->getInterface<Container>();
   if (container == 0) return false;
 
   if (this->isCacheUsable() && this->cachedIndex >= index && this->cachedIndex < container->getCount()) {
@@ -91,65 +60,48 @@ Bool SearchReference::setPlain(Provider *provider, IdentifiableObject *parent,
 }
 
 
-Bool SearchReference::remove(Provider *provider, IdentifiableObject *parent, Int &index) const
+Bool SearchReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::SearchReference::tryRemove"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::SearchReference::removeValue"),
                                    STR("Should not be null."));
   }
   if (index < 0) return false;
-  SharedContainer *sharedContainer;
-  PlainContainer *plainContainer;
-  if ((sharedContainer = parent->getInterface<SharedContainer>()) != 0) {
-    if (this->isCacheUsable() && this->cachedIndex >= index && this->cachedIndex < sharedContainer->getCount()) {
-      sharedContainer->remove(this->getListIndex(sharedContainer, this->cachedIndex));
+  Container *container;
+  if ((container = parent->getInterface<Container>()) != 0) {
+    if (this->isCacheUsable() && this->cachedIndex >= index && this->cachedIndex < container->getCount()) {
+      container->remove(this->getListIndex(container, this->cachedIndex));
       if (this->matchLimitationIndex == -1) index = this->cachedIndex;
       else index = -1;
     } else {
       if (this->matchLimitationIndex == -1) {
-        index = this->findMatch(sharedContainer, index);
+        index = this->findMatch(container, index);
       } else {
-        index = this->findMatch(sharedContainer, 0, this->matchLimitationIndex);
+        index = this->findMatch(container, 0, this->matchLimitationIndex);
       }
       if (index == -1) return false;
-      sharedContainer->remove(this->getListIndex(sharedContainer, index));
-      this->cachedIndex = index;
-      if (this->matchLimitationIndex != -1) index = -1;
-    }
-    return true;
-  } else if ((plainContainer = parent->getInterface<PlainContainer>()) != 0) {
-    if (this->isCacheUsable() && this->cachedIndex >= index && this->cachedIndex < plainContainer->getCount()) {
-      plainContainer->remove(this->getListIndex(plainContainer, this->cachedIndex));
-      if (this->matchLimitationIndex == -1) index = this->cachedIndex;
-      else index = -1;
-    } else {
-      if (this->matchLimitationIndex == -1) {
-        index = this->findMatch(plainContainer, index);
-      } else {
-        index = this->findMatch(plainContainer, 0, this->matchLimitationIndex);
-      }
-      if (index == -1) return false;
-      plainContainer->remove(this->getListIndex(plainContainer, index));
+      container->remove(this->getListIndex(container, index));
       this->cachedIndex = index;
       if (this->matchLimitationIndex != -1) index = -1;
     }
     return true;
   } else {
+    index = -1;
     return false;
   }
 }
 
 
-Bool SearchReference::getShared(Provider *provider, IdentifiableObject *parent,
-                               SharedPtr<IdentifiableObject> &result, Int &index) const
+Bool SearchReference::getValue(Provider *provider, IdentifiableObject *parent,
+                              IdentifiableObject *&result, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::SearchReference::get"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::SearchReference::getValue"),
                                    STR("Should not be null."));
   }
   if (index < 0) return false;
-  SharedContainer const *container;
-  if ((container = parent->getInterface<SharedContainer>()) != 0) {
+  Container const *container;
+  if ((container = parent->getInterface<Container>()) != 0) {
     if (this->isCacheUsable() && this->cachedIndex >= index && this->cachedIndex < container->getCount()) {
       result = container->get(this->getListIndex(container, this->cachedIndex));
       if (this->matchLimitationIndex == -1) index = this->cachedIndex+1;
@@ -168,78 +120,13 @@ Bool SearchReference::getShared(Provider *provider, IdentifiableObject *parent,
     }
     return true;
   } else {
+    index = -1;
     return false;
   }
 }
 
 
-Bool SearchReference::getPlain(Provider *provider, IdentifiableObject *parent,
-                              IdentifiableObject *&result, Int &index) const
-{
-  if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::SearchReference::getPlain"),
-                                   STR("Should not be null."));
-  }
-  if (index < 0) return false;
-  SharedContainer const *sharedContainer;
-  PlainContainer const *plainContainer;
-  if ((sharedContainer = parent->getInterface<SharedContainer>()) != 0) {
-    if (this->isCacheUsable() && this->cachedIndex >= index && this->cachedIndex < sharedContainer->getCount()) {
-      result = sharedContainer->get(this->getListIndex(sharedContainer, this->cachedIndex)).get();
-      if (this->matchLimitationIndex == -1) index = this->cachedIndex+1;
-      else index = -1;
-    } else {
-      if (this->matchLimitationIndex == -1) {
-        index = this->findMatch(sharedContainer, index);
-      } else {
-        index = this->findMatch(sharedContainer, 0, this->matchLimitationIndex);
-      }
-      if (index == -1) return false;
-      result = sharedContainer->get(this->getListIndex(sharedContainer, index)).get();
-      this->cachedIndex = index;
-      if (this->matchLimitationIndex == -1) ++index;
-      else index = -1;
-    }
-    return true;
-  } else if ((plainContainer = parent->getInterface<NamedListPlainContainer>()) != 0) {
-    if (this->isCacheUsable() && this->cachedIndex >= index && this->cachedIndex < plainContainer->getCount()) {
-      result = plainContainer->get(this->getListIndex(plainContainer, this->cachedIndex));
-      if (this->matchLimitationIndex == -1) index = this->cachedIndex+1;
-      else index = -1;
-    } else {
-      if (this->matchLimitationIndex == -1) {
-        index = this->findMatch(sharedContainer, index);
-      } else {
-        index = this->findMatch(sharedContainer, 0, this->matchLimitationIndex);
-      }
-      if (index == -1) return false;
-      result = plainContainer->get(this->getListIndex(plainContainer, index));
-      this->cachedIndex = index;
-      if (this->matchLimitationIndex == -1) ++index;
-      else index = -1;
-    }
-    return true;
-  } else {
-    return false;
-  }
-}
-
-
-Int SearchReference::findMatch(SharedContainer const *container, Int index, Int skips) const
-{
-  ASSERT(container != 0);
-  if (index >= container->getCount()) return -1;
-  for (Int i = std::max(0, index); i < container->getCount(); ++i) {
-    if (this->searchValidator->validate(container->get(this->getListIndex(container,i)).get())) {
-      if (skips > 0) --skips;
-      else return i;
-    }
-  }
-  return -1;
-}
-
-
-Int SearchReference::findMatch(PlainContainer const *container, Int index, Int skips) const
+Int SearchReference::findMatch(Container const *container, Int index, Int skips) const
 {
   ASSERT(container != 0);
   if (index >= container->getCount()) return -1;

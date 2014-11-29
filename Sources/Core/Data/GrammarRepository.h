@@ -20,13 +20,13 @@ namespace Core { namespace Data
  * @brief A stack of IdentifiableObject derived data objects.
  */
 class GrammarRepository : public IdentifiableObject,
-                          public virtual SharedProvider, public virtual SharedTracer
+                          public virtual Provider, public virtual Tracer
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(GrammarRepository, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(IdentifiableObject, SharedProvider, SharedTracer);
+  IMPLEMENT_INTERFACES_2(IdentifiableObject, Provider, Tracer);
 
 
   //============================================================================
@@ -87,134 +87,85 @@ class GrammarRepository : public IdentifiableObject,
 
   /// @}
 
-  /// @name SharedProvider Implementation
-  /// @{
-
-  public: virtual void setSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> const &val);
-
-  public: virtual void setSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> const &val);
-
-  public: virtual Bool trySetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> const &val);
-
-  public: virtual Bool trySetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> const &val);
-
-  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Reference const *ref)
-  {
-    return this->repository.getSharedValue(ref);
-  }
-
-  public: virtual void getSharedValue(Reference const *ref, SharedModulePairedPtr &retVal)
-  {
-    this->repository.getSharedValue(ref, retVal);
-  }
-
-  public: virtual SharedPtr<IdentifiableObject> getSharedValue(Char const *qualifier)
-  {
-    return this->repository.getSharedValue(qualifier);
-  }
-
-  public: virtual void getSharedValue(Char const *qualifier, SharedModulePairedPtr &retVal)
-  {
-    this->repository.getSharedValue(qualifier, retVal);
-  }
-
-  public: virtual Bool tryGetSharedValue(Reference const *ref, SharedPtr<IdentifiableObject> &retVal)
-  {
-    return this->repository.tryGetSharedValue(ref, retVal);
-  }
-
-  public: virtual Bool tryGetSharedValue(Reference const *ref, SharedModulePairedPtr &retVal)
-  {
-    return this->repository.tryGetSharedValue(ref, retVal);
-  }
-
-  public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedPtr<IdentifiableObject> &retVal)
-  {
-    return this->repository.tryGetSharedValue(qualifier, retVal);
-  }
-
-  public: virtual Bool tryGetSharedValue(Char const *qualifier, SharedModulePairedPtr &retVal)
-  {
-    return this->repository.tryGetSharedValue(qualifier, retVal);
-  }
-
-  /// @}
-
   /// @name Provider Implementation
   /// @{
 
-  public: virtual void removeValue(Reference const *ref)
+  public: virtual void set(Reference const *ref, IdentifiableObject *val);
+
+  public: virtual void set(Char const *qualifier, IdentifiableObject *val);
+
+  public: virtual Bool trySet(Reference const *ref, IdentifiableObject *val);
+
+  public: virtual Bool trySet(Char const *qualifier, IdentifiableObject *val);
+
+  public: virtual void remove(Reference const *ref)
   {
-    this->repository.removeValue(ref);
+    this->repository.remove(ref);
   }
 
-  public: virtual void removeValue(Char const *qualifier)
+  public: virtual void remove(Char const *qualifier)
   {
-    this->repository.removeValue(qualifier);
+    this->repository.remove(qualifier);
   }
 
-  public: virtual Bool tryRemoveValue(Reference const *ref)
+  public: virtual Bool tryRemove(Reference const *ref)
   {
-    return this->repository.tryRemoveValue(ref);
+    return this->repository.tryRemove(ref);
   }
 
-  public: virtual Bool tryRemoveValue(Char const *qualifier)
+  public: virtual Bool tryRemove(Char const *qualifier)
   {
-    return this->repository.tryRemoveValue(qualifier);
+    return this->repository.tryRemove(qualifier);
   }
 
-  public: virtual IdentifiableObject* getPlainValue(Reference const *ref)
+  public: virtual IdentifiableObject* get(Reference const *ref)
   {
-    return this->repository.getPlainValue(ref);
+    return this->repository.get(ref);
   }
 
-  public: virtual void getPlainValue(Reference const *ref, PlainModulePairedPtr &retVal)
+  public: virtual void get(Reference const *ref, PlainModulePairedPtr &retVal)
   {
-    this->repository.getPlainValue(ref, retVal);
+    this->repository.get(ref, retVal);
   }
 
-  public: virtual IdentifiableObject* getPlainValue(Char const *qualifier)
+  public: virtual IdentifiableObject* get(Char const *qualifier)
   {
-    return this->repository.getPlainValue(qualifier);
+    return this->repository.get(qualifier);
   }
 
-  public: virtual void getPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal)
+  public: virtual void get(Char const *qualifier, PlainModulePairedPtr &retVal)
   {
-    this->repository.getPlainValue(qualifier, retVal);
+    this->repository.get(qualifier, retVal);
   }
 
-  public: virtual Bool tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal)
+  public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal)
   {
-    return this->repository.tryGetPlainValue(ref, retVal);
+    return this->repository.tryGet(ref, retVal);
   }
 
-  public: virtual Bool tryGetPlainValue(Reference const *ref, PlainModulePairedPtr &retVal)
+  public: virtual Bool tryGet(Reference const *ref, PlainModulePairedPtr &retVal)
   {
-    return this->repository.tryGetPlainValue(ref, retVal);
+    return this->repository.tryGet(ref, retVal);
   }
 
-  public: virtual Bool tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal)
+  public: virtual Bool tryGet(Char const *qualifier, IdentifiableObject *&retVal)
   {
-    return this->repository.tryGetPlainValue(qualifier, retVal);
+    return this->repository.tryGet(qualifier, retVal);
   }
 
-  public: virtual Bool tryGetPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal)
+  public: virtual Bool tryGet(Char const *qualifier, PlainModulePairedPtr &retVal)
   {
-    return this->repository.tryGetPlainValue(qualifier, retVal);
+    return this->repository.tryGet(qualifier, retVal);
   }
 
   /// @}
 
-  /// @name SharedTracer Implementation
+  /// @name Tracer Implementation
   /// @{
 
-  public: virtual IdentifiableObject* tracePlainValue(IdentifiableObject *val);
+  public: virtual IdentifiableObject* traceValue(IdentifiableObject *val);
 
-  public: virtual void tracePlainValue(IdentifiableObject *val, PlainModulePairedPtr &retVal);
-
-  public: virtual SharedPtr<IdentifiableObject> traceSharedValue(const SharedPtr<IdentifiableObject> &val);
-
-  public: virtual void traceSharedValue(const SharedPtr<IdentifiableObject> &val, SharedModulePairedPtr &retVal);
+  public: virtual void traceValue(IdentifiableObject *val, PlainModulePairedPtr &retVal);
 
   /// @}
 

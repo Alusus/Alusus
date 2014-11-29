@@ -44,7 +44,7 @@ void printIndents(int indents)
  * ParsedList, or ParsedToken). Anything other than the
  * default data types will be represented by [UNKNOWN TYPE].
  */
-void debugPrintParsedData(SharedPtr<IdentifiableObject> const &ptr, int indents=0)
+void debugPrintParsedData(IdentifiableObject *ptr, int indents=0)
 {
   printIndents(indents);
   if (ptr == 0) {
@@ -55,27 +55,27 @@ void debugPrintParsedData(SharedPtr<IdentifiableObject> const &ptr, int indents=
   // Does this object support the ParsingMetadataHolder interface?
   if (ptr->getInterface<Data::ParsingMetadataHolder>() != 0) {
     // Print the production name.
-    Word id = ptr.ii_cast_get<Data::ParsingMetadataHolder>()->getProdId();
+    Word id = ii_cast<Data::ParsingMetadataHolder>(ptr)->getProdId();
     if (id != UNKNOWN_ID) {
       Cout << Data::IdGenerator::getSingleton()->getDesc(id) << STR(" -- ");
     }
     // Print the data itself.
     if (ptr->isDerivedFrom<Data::ParsedList>()) {
       Cout << STR("[LIST]:\n");
-      for (Word i = 0; i < ptr.s_cast_get<Data::ParsedList>()->getCount(); ++i) {
-        debugPrintParsedData(ptr.s_cast_get<Data::ParsedList>()->get(i), indents+1);
+      for (Word i = 0; i < static_cast<Data::ParsedList*>(ptr)->getCount(); ++i) {
+        debugPrintParsedData(static_cast<Data::ParsedList*>(ptr)->get(i), indents+1);
       }
     } else if (ptr->isDerivedFrom<Data::ParsedRoute>()) {
       Cout << STR("[ROUTE]: ");
-      Cout << ptr.s_cast_get<Data::ParsedRoute>()->getRoute() << STR("\n");
-      debugPrintParsedData(ptr.s_cast_get<Data::ParsedRoute>()->getData(), indents+1);
+      Cout << static_cast<Data::ParsedRoute*>(ptr)->getRoute() << STR("\n");
+      debugPrintParsedData(static_cast<Data::ParsedRoute*>(ptr)->getData().get(), indents+1);
     } else if (ptr->isDerivedFrom<Data::ParsedToken>()) {
       Cout << STR("[TOKEN]: ");
       // Print the token type.
-      Int id = ptr.s_cast_get<Data::ParsedToken>()->getId();
+      Int id = static_cast<Data::ParsedToken*>(ptr)->getId();
       Cout << Data::IdGenerator::getSingleton()->getDesc(id);
       // Print the token text.
-      Cout << STR(" (\"") << ptr.s_cast_get<Data::ParsedToken>()->getText() << STR("\")\n");
+      Cout << STR(" (\"") << static_cast<Data::ParsedToken*>(ptr)->getText() << STR("\")\n");
     } else {
       // An item implementing ParsingMetadataHolder but not one of the three known types.
       Cout << STR("[UNKNOWN Parsed Item]\n");
@@ -175,7 +175,7 @@ int main(int argCount, char * const args[])
     if (ptr->isDerivedFrom<Data::Module>()) {
       Int orphanIndex = ptr.s_cast<Data::Module>()->findIndex(STR("_ORPHAN_"));
       if (orphanIndex != -1) {
-        orphan = ptr.s_cast<Data::Module>()->get(orphanIndex).io_cast<Data::ParsedList>();
+        orphan = ptr.s_cast<Data::Module>()->getShared(orphanIndex).io_cast<Data::ParsedList>();
       }
     } else if (ptr->isDerivedFrom<Data::ParsedList>()) {
       orphan = ptr.s_cast<Data::ParsedList>();
@@ -185,7 +185,7 @@ int main(int argCount, char * const args[])
     // Print the parsed data.
     Cout << NEW_LINE << STR("-- BUILD COMPLETE --") << NEW_LINE << NEW_LINE <<
             STR("Build Results:") << NEW_LINE << NEW_LINE;
-    debugPrintParsedData(orphan);
+    debugPrintParsedData(orphan.get());
   } catch (Exception &e) {
     Cout << e.getErrorMessage() << NEW_LINE;
     return EXIT_FAILURE;

@@ -208,25 +208,25 @@ void PlainRepository::ownTopLevel()
 
 
 //==============================================================================
-// SharedProvider Implementation
+// Provider Implementation
 
-void PlainRepository::setPlainValue(Reference const *ref, IdentifiableObject *val)
+void PlainRepository::set(Reference const *ref, IdentifiableObject *val)
 {
   // Set the value first.
   if (ref->isA<ScopeReference>()) {
-    this->referenceSeeker.setPlain(ref, &this->stack, val);
+    this->referenceSeeker.set(ref, &this->stack, val);
   } else {
     Bool ret = false;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      ret = this->referenceSeeker.trySetPlain(ref, parent, val);
+      ret = this->referenceSeeker.trySet(ref, parent, val);
       if (ret) break;
     }
     if (!ret) {
       throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                             STR("Core::Data::PlainRepository::setPlainValue"));
+                             STR("Core::Data::PlainRepository::set"));
     }
   }
 
@@ -242,7 +242,7 @@ void PlainRepository::setPlainValue(Reference const *ref, IdentifiableObject *va
 }
 
 
-void PlainRepository::setPlainValue(Char const *qualifier, IdentifiableObject *val)
+void PlainRepository::set(Char const *qualifier, IdentifiableObject *val)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -255,15 +255,15 @@ void PlainRepository::setPlainValue(Char const *qualifier, IdentifiableObject *v
     Int index = 0;
     Bool ret = false;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::setPlainValue"),
+      if (!ref->getValue(0, &this->stack, parent, index)) {
+        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::set"),
                                        STR("Invalid scope value."), qualifier);
       }
-      ret = this->qualifierSeeker.trySetPlain(qualifier2, parent, val);
+      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
       if (ret) break;
     }
     if (!ret) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::setPlainValue"),
+      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::set"),
                                      STR("Qualifier doesn't point to an existing element."), qualifier);
     }
   } else {
@@ -273,11 +273,11 @@ void PlainRepository::setPlainValue(Char const *qualifier, IdentifiableObject *v
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      ret = this->qualifierSeeker.trySetPlain(qualifier2, parent, val);
+      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
       if (ret) break;
     }
     if (!ret) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::setPlainValue"),
+      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::set"),
                                      STR("Qualifier doesn't point to an existing element."), qualifier);
     }
   }
@@ -290,18 +290,18 @@ void PlainRepository::setPlainValue(Char const *qualifier, IdentifiableObject *v
 }
 
 
-Bool PlainRepository::trySetPlainValue(Reference const *ref, IdentifiableObject *val)
+Bool PlainRepository::trySet(Reference const *ref, IdentifiableObject *val)
 {
   // Set the value first.
   if (ref->isA<ScopeReference>()) {
-    if (!this->referenceSeeker.trySetPlain(ref, &this->stack, val)) return false;
+    if (!this->referenceSeeker.trySet(ref, &this->stack, val)) return false;
   } else {
     Bool ret = false;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      ret = this->referenceSeeker.trySetPlain(ref, parent, val);
+      ret = this->referenceSeeker.trySet(ref, parent, val);
       if (ret) break;
     }
     if (!ret) return false;
@@ -321,7 +321,7 @@ Bool PlainRepository::trySetPlainValue(Reference const *ref, IdentifiableObject 
 }
 
 
-Bool PlainRepository::trySetPlainValue(Char const *qualifier, IdentifiableObject *val)
+Bool PlainRepository::trySet(Char const *qualifier, IdentifiableObject *val)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -334,8 +334,8 @@ Bool PlainRepository::trySetPlainValue(Char const *qualifier, IdentifiableObject
     Int index = 0;
     Bool ret = false;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) return false;
-      ret = this->qualifierSeeker.trySetPlain(qualifier2, parent, val);
+      if (!ref->getValue(0, &this->stack, parent, index)) return false;
+      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
       if (ret) break;
     }
     if (!ret) return false;
@@ -346,7 +346,7 @@ Bool PlainRepository::trySetPlainValue(Char const *qualifier, IdentifiableObject
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      ret = this->qualifierSeeker.trySetPlain(qualifier2, parent, val);
+      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
       if (ret) break;
     }
     if (!ret) return false;
@@ -362,10 +362,7 @@ Bool PlainRepository::trySetPlainValue(Char const *qualifier, IdentifiableObject
 }
 
 
-//==============================================================================
-// Provider Implementation
-
-void PlainRepository::removeValue(Reference const *ref)
+void PlainRepository::remove(Reference const *ref)
 {
   if (ref->isA<ScopeReference>()) {
     this->referenceSeeker.remove(ref, &this->stack);
@@ -376,13 +373,13 @@ void PlainRepository::removeValue(Reference const *ref)
       if (parent == 0) continue;
       if (this->referenceSeeker.tryRemove(ref, parent)) return;
     }
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::PlainRepository::removeValue"),
+    throw InvalidArgumentException(STR("ref"), STR("Core::Data::PlainRepository::remove"),
                                    STR("Doesn't refer to an existing element."), ReferenceParser::getQualifier(ref));
   }
 }
 
 
-void PlainRepository::removeValue(Char const *qualifier)
+void PlainRepository::remove(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -393,8 +390,8 @@ void PlainRepository::removeValue(Char const *qualifier)
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::getSharedValue"),
+      if (!ref->getValue(0, &this->stack, parent, index)) {
+        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::remove"),
                                        STR("Invalid scope value."), qualifier);
       }
       if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return;
@@ -408,12 +405,12 @@ void PlainRepository::removeValue(Char const *qualifier)
       if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return;
     }
   }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::removeValue"),
+  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::remove"),
                                  STR("Qualifier doesn't refer to an existing element."), qualifier);
 }
 
 
-Bool PlainRepository::tryRemoveValue(Reference const *ref)
+Bool PlainRepository::tryRemove(Reference const *ref)
 {
   if (ref->isA<ScopeReference>()) {
     return this->referenceSeeker.tryRemove(ref, &this->stack);
@@ -429,7 +426,7 @@ Bool PlainRepository::tryRemoveValue(Reference const *ref)
 }
 
 
-Bool PlainRepository::tryRemoveValue(Char const *qualifier)
+Bool PlainRepository::tryRemove(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -440,7 +437,7 @@ Bool PlainRepository::tryRemoveValue(Char const *qualifier)
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) break;
+      if (!ref->getValue(0, &this->stack, parent, index)) break;
       if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return true;
     }
   } else {
@@ -456,42 +453,42 @@ Bool PlainRepository::tryRemoveValue(Char const *qualifier)
 }
 
 
-IdentifiableObject* PlainRepository::getPlainValue(Reference const *ref)
+IdentifiableObject* PlainRepository::get(Reference const *ref)
 {
   if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.getPlain(ref, &this->stack);
+    return this->referenceSeeker.get(ref, &this->stack);
   } else {
     // The default is to go downward through the stack.
     IdentifiableObject *obj;
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetPlain(ref, parent, obj)) return obj;
+      if (this->referenceSeeker.tryGet(ref, parent, obj)) return obj;
     }
     throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                           STR("Core::Data::PlainRepository::getPlainValue"));
+                           STR("Core::Data::PlainRepository::get"));
   }
 }
 
 
-void PlainRepository::getPlainValue(Reference const *ref, PlainModulePairedPtr &retVal)
+void PlainRepository::get(Reference const *ref, PlainModulePairedPtr &retVal)
 {
   if (ref->isA<ScopeReference>()) {
-    this->referenceSeeker.getPlain(ref, &this->stack, retVal);
+    this->referenceSeeker.get(ref, &this->stack, retVal);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetPlain(ref, parent, retVal)) return;
+      if (this->referenceSeeker.tryGet(ref, parent, retVal)) return;
     }
     throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                           STR("Core::Data::PlainRepository::getPlainValue"));
+                           STR("Core::Data::PlainRepository::get"));
   }
 }
 
 
-IdentifiableObject* PlainRepository::getPlainValue(Char const *qualifier)
+IdentifiableObject* PlainRepository::get(Char const *qualifier)
 {
   Char const *qualifier2 = qualifier;
   IdentifiableObject *obj;
@@ -503,11 +500,11 @@ IdentifiableObject* PlainRepository::getPlainValue(Char const *qualifier)
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::getPlainValue"),
+      if (!ref->getValue(0, &this->stack, parent, index)) {
+        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::get"),
                                        STR("Invalid scope value."), qualifier);
       }
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, obj)) return obj;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, obj)) return obj;
     }
   } else {
     qualifier2 = qualifier;
@@ -515,7 +512,7 @@ IdentifiableObject* PlainRepository::getPlainValue(Char const *qualifier)
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, obj)) return obj;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, obj)) return obj;
     }
   }
   throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::getPlainValue"),
@@ -523,7 +520,7 @@ IdentifiableObject* PlainRepository::getPlainValue(Char const *qualifier)
 }
 
 
-void PlainRepository::getPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal)
+void PlainRepository::get(Char const *qualifier, PlainModulePairedPtr &retVal)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -534,11 +531,11 @@ void PlainRepository::getPlainValue(Char const *qualifier, PlainModulePairedPtr 
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::getPlainValue"),
+      if (!ref->getValue(0, &this->stack, parent, index)) {
+        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::get"),
                                        STR("Invalid scope value."), qualifier);
       }
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return;
     }
   } else {
     qualifier2 = qualifier;
@@ -546,47 +543,47 @@ void PlainRepository::getPlainValue(Char const *qualifier, PlainModulePairedPtr 
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return;
     }
   }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::getPlainValue"),
+  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::get"),
                                  STR("Qualifier doesn't point to an existing element."), qualifier);
 }
 
 
-Bool PlainRepository::tryGetPlainValue(Reference const *ref, IdentifiableObject *&retVal)
+Bool PlainRepository::tryGet(Reference const *ref, IdentifiableObject *&retVal)
 {
   if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.tryGetPlain(ref, &this->stack, retVal);
+    return this->referenceSeeker.tryGet(ref, &this->stack, retVal);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetPlain(ref, parent, retVal)) return true;
+      if (this->referenceSeeker.tryGet(ref, parent, retVal)) return true;
     }
     return false;
   }
 }
 
 
-Bool PlainRepository::tryGetPlainValue(Reference const *ref, PlainModulePairedPtr &retVal)
+Bool PlainRepository::tryGet(Reference const *ref, PlainModulePairedPtr &retVal)
 {
   if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.tryGetPlain(ref, &this->stack, retVal);
+    return this->referenceSeeker.tryGet(ref, &this->stack, retVal);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->referenceSeeker.tryGetPlain(ref, parent, retVal)) return true;
+      if (this->referenceSeeker.tryGet(ref, parent, retVal)) return true;
     }
     return false;
   }
 }
 
 
-Bool PlainRepository::tryGetPlainValue(Char const *qualifier, IdentifiableObject *&retVal)
+Bool PlainRepository::tryGet(Char const *qualifier, IdentifiableObject *&retVal)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -597,8 +594,8 @@ Bool PlainRepository::tryGetPlainValue(Char const *qualifier, IdentifiableObject
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) break;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return true;
+      if (!ref->getValue(0, &this->stack, parent, index)) break;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
     }
   } else {
     qualifier2 = qualifier;
@@ -606,14 +603,14 @@ Bool PlainRepository::tryGetPlainValue(Char const *qualifier, IdentifiableObject
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return true;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
     }
   }
   return false;
 }
 
 
-Bool PlainRepository::tryGetPlainValue(Char const *qualifier, PlainModulePairedPtr &retVal)
+Bool PlainRepository::tryGet(Char const *qualifier, PlainModulePairedPtr &retVal)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -624,8 +621,8 @@ Bool PlainRepository::tryGetPlainValue(Char const *qualifier, PlainModulePairedP
     IdentifiableObject *parent;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getPlain(0, &this->stack, parent, index)) break;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return true;
+      if (!ref->getValue(0, &this->stack, parent, index)) break;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
     }
   } else {
     qualifier2 = qualifier;
@@ -633,7 +630,7 @@ Bool PlainRepository::tryGetPlainValue(Char const *qualifier, PlainModulePairedP
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGetPlain(qualifier2, parent, retVal)) return true;
+      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
     }
   }
   return false;

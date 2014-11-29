@@ -19,13 +19,13 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class PlainNamedList : public IdentifiableObject,
-                       public virtual DataOwner, public virtual NamedListPlainContainer
+                       public virtual DataOwner, public virtual NamedListContainer
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(PlainNamedList, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(IdentifiableObject, DataOwner, NamedListPlainContainer);
+  IMPLEMENT_INTERFACES_2(IdentifiableObject, DataOwner, NamedListContainer);
 
 
   //============================================================================
@@ -114,7 +114,7 @@ class PlainNamedList : public IdentifiableObject,
 
   /// @}
 
-  /// @name NamedListSharedContainer Implementation
+  /// @name NamedListContainer Implementation
   /// @{
 
   /// Change the element at the specified index.
@@ -133,9 +133,9 @@ class PlainNamedList : public IdentifiableObject,
   public: virtual IdentifiableObject* get(Int index) const;
 
   /// Add a new object to the list.
-  public: virtual void add(IdentifiableObject *val)
+  public: virtual Int add(IdentifiableObject *val)
   {
-    this->add(0, val);
+    return this->add(0, val);
   }
 
   public: virtual Int add(Char const *name, IdentifiableObject *val);

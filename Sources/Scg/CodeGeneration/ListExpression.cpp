@@ -31,7 +31,7 @@ namespace Scg
     {
       auto listExp = item.s_cast<Core::Data::ParsedList>();
       for (auto i = 0; i < listExp->getCount(); i++)
-        this->items.push_back(listExp->get(i));
+        this->items.push_back(listExp->getShared(i));
     }
     else
       this->items.push_back(item);
@@ -49,7 +49,7 @@ namespace Scg
     for (auto i = 0; i < GetItemCount(); i++)
     {
       auto item = GetItem(i);
-      auto token = seeker.tryGetShared<ParsedToken>(tokenReference.get(), item.get());
+      auto token = io_cast<ParsedToken>(seeker.tryGet(tokenReference.get(), item.get()));
       if (token == 0)
         // TODO: Add the index of the non-token to the exception message.
         THROW_EXCEPTION(InvalidArgumentException,

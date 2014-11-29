@@ -45,11 +45,11 @@ class GrammarPlant
   /// Search the entire grammar for const token to generate.
   protected: void generateConstTokenDefinitions()
   {
-    this->generateConstTokenDefinitions(this->repository.getRoot()->getInterface<SharedContainer>());
+    this->generateConstTokenDefinitions(this->repository.getRoot()->getInterface<Container>());
   }
 
   /// Generate lexer definitions for constant tokens used in a container tree.
-  protected: void generateConstTokenDefinitions(SharedContainer *container);
+  protected: void generateConstTokenDefinitions(Container *container);
 
   /// Generate lexer definitions for constant tokens used in a term tree.
   protected: void generateConstTokenDefinitions(Term *term);

@@ -74,18 +74,12 @@ class RawIndirectReference : public Reference
   {
   }
 
-  public: virtual Bool setShared(Provider *provider, IdentifiableObject *parent,
-                                 SharedPtr<IdentifiableObject> const &obj, Int &index) const;
-
-  public: virtual Bool setPlain(Provider *provider, IdentifiableObject *parent,
+  public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
                                 IdentifiableObject *obj, Int &index) const;
 
-  public: virtual Bool remove(Provider *provider, IdentifiableObject *parent, Int &index) const;
+  public: virtual Bool removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const;
 
-  public: virtual Bool getShared(Provider *provider, IdentifiableObject *parent,
-                                 SharedPtr<IdentifiableObject> &result, Int &index) const;
-
-  public: virtual Bool getPlain(Provider *provider, IdentifiableObject *parent,
+  public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
                                 IdentifiableObject *&result, Int &index) const;
 
 }; // class

@@ -41,7 +41,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
     auto item = state->getData();
 
     // Find the statement list in the subject.
-    auto statementList = seeker.tryGetPlain<ParsedList>(statementListReference.get(), item.get());
+    auto statementList = io_cast<ParsedList>(seeker.tryGet(statementListReference.get(), item.get()));
     if (statementList == 0) {
       // Create a build error msg.
       auto metadata = item->getInterface<ParsingMetadataHolder>();
@@ -57,8 +57,8 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 
     // Create a Module out of the given statement list.
     auto module = Core::Data::Module::create({});
-    for (auto i = 0; i < static_cast<ParsedList*>(statementList)->getCount(); i++) {
-        auto element = static_cast<ParsedList*>(statementList)->get(i);
+    for (auto i = 0; i < statementList->getCount(); i++) {
+        auto element = statementList->getShared(i);
         auto elementMetadata = element->getInterface<ParsingMetadataHolder>();
         if (element == 0 || elementMetadata == 0) {
             // TODO: Generate a build message instead of throwing an exception.
@@ -94,7 +94,7 @@ void ModuleParsingHandler::add_definition_to_module(const SharedPtr<Identifiable
         "0~where(prodId=Subject.Subject1)."
         "0~where(prodId=Subject.Parameter)"),
     ReferenceUsageCriteria::MULTI_DATA);
-  auto nameToken = seeker.tryGetShared<ParsedToken>(nameReference.get(), def.get());
+  auto nameToken = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), def.get()));
   if (nameToken == nullptr || nameToken->getId() != identifierTokenId) {
       // TODO: Generate a build message instead of throwing an exception.
       THROW_EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
@@ -123,7 +123,7 @@ void ModuleParsingHandler::add_link_to_module(const SharedPtr<IdentifiableObject
     STR("0~where(prodId=Expression.Exp)"),
     ReferenceUsageCriteria::MULTI_DATA);
 
-  auto list = seeker.tryGetShared<ParsedList>(listReference.get(), link.get());
+  auto list = io_cast<ParsedList>(seeker.tryGet(listReference.get(), link.get()));
   if (list != 0)
   {
     for (auto i = 0; i < list->getCount(); i++)
@@ -138,7 +138,7 @@ void ModuleParsingHandler::add_link_to_module(const SharedPtr<IdentifiableObject
   }
   else
   {
-    auto expr = seeker.tryGetShared<ParsedList>(exprReference.get(), link.get());
+    auto expr = io_cast<ParsedList>(seeker.tryGet(exprReference.get(), link.get()));
     if (expr != 0)
     {
       auto name = this->get_link_name(expr);
@@ -151,7 +151,7 @@ void ModuleParsingHandler::add_link_to_module(const SharedPtr<IdentifiableObject
 }
 
 
-Char const* ModuleParsingHandler::get_link_name(const SharedPtr<IdentifiableObject> &link)
+Char const* ModuleParsingHandler::get_link_name(IdentifiableObject *link)
 {
   static ReferenceSeeker seeker;
   static SharedPtr<Reference> funcExpNoRetReference = ReferenceParser::parseQualifier(
@@ -167,14 +167,14 @@ Char const* ModuleParsingHandler::get_link_name(const SharedPtr<IdentifiableObje
     ReferenceUsageCriteria::MULTI_DATA);
   static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
 
-  auto funcExp = seeker.tryGetShared<ParsedList>(funcExpNoRetReference.get(), link.get());
+  auto funcExp = io_cast<ParsedList>(seeker.tryGet(funcExpNoRetReference.get(), link));
   if (funcExp == 0)
   {
-    funcExp = seeker.tryGetShared<ParsedList>(funcExpReference.get(), link.get());
+    funcExp = io_cast<ParsedList>(seeker.tryGet(funcExpReference.get(), link));
     if (funcExp == 0)
       THROW_EXCEPTION(InvalidArgumentException, "Invalid function link expression.");
   }
-  auto nameToken = seeker.tryGetShared<ParsedToken>(nameReference.get(), funcExp.get());
+  auto nameToken = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), funcExp));
   if (nameToken == 0 || nameToken->getId() != identifierTokenId)
     THROW_EXCEPTION(InvalidArgumentException,
         "Functional expressions should have the name of the function "

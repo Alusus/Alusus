@@ -33,7 +33,7 @@ void printIndents(int indents)
     }
 }
 
-void debugPrintParsedData(SharedPtr<IdentifiableObject> const &ptr, int indents=0, Bool start_indent=true)
+void debugPrintParsedData(IdentifiableObject *ptr, int indents=0, Bool start_indent=true)
 {
     if (start_indent) printIndents(indents);
     if (ptr == 0) {
@@ -54,30 +54,30 @@ void debugPrintParsedData(SharedPtr<IdentifiableObject> const &ptr, int indents=
         Cout << ptr->getMyTypeInfo()->getUniqueName() << STR(" -- ");
     }
     // Print the data itself.
-    MapSharedContainer *mapContainer;
-    ListSharedContainer *listContainer;
+    MapContainer *mapContainer;
+    ListContainer *listContainer;
     if (ptr->isDerivedFrom<ParsedList>()) {
         Cout << STR("[LIST]:\n");
-        for (Word i = 0; i < ptr.s_cast_get<ParsedList>()->getCount(); ++i) {
-            debugPrintParsedData(ptr.s_cast_get<ParsedList>()->get(i), indents+1);
+        for (Word i = 0; i < static_cast<ParsedList*>(ptr)->getCount(); ++i) {
+            debugPrintParsedData(static_cast<ParsedList*>(ptr)->get(i), indents+1);
         }
     } else if (ptr->isDerivedFrom<ParsedRoute>()) {
         Cout << STR("[ROUTE]: ");
-        Cout << ptr.s_cast_get<ParsedRoute>()->getRoute() << STR("\n");
-        debugPrintParsedData(ptr.s_cast_get<ParsedRoute>()->getData(), indents+1);
+        Cout << static_cast<ParsedRoute*>(ptr)->getRoute() << STR("\n");
+        debugPrintParsedData(static_cast<ParsedRoute*>(ptr)->getData().get(), indents+1);
     } else if (ptr->isDerivedFrom<ParsedToken>()) {
         Cout << STR("[TOKEN]: ");
         // Print the token type.
-        Int id = ptr.s_cast_get<ParsedToken>()->getId();
+        Int id = static_cast<ParsedToken*>(ptr)->getId();
         Cout << IdGenerator::getSingleton()->getDesc(id);
         // Print the token text.
-        Cout << STR(" (\"") << ptr.s_cast_get<ParsedToken>()->getText() << STR("\")\n");
-    } else if ((listContainer = ptr->getInterface<ListSharedContainer>()) != 0) {
+        Cout << STR(" (\"") << static_cast<ParsedToken*>(ptr)->getText() << STR("\")\n");
+    } else if ((listContainer = ptr->getInterface<ListContainer>()) != 0) {
         Cout << STR("[LIST]:\n");
         for (Word i = 0; i < listContainer->getCount(); ++i) {
             debugPrintParsedData(listContainer->get(i), indents+1);
         }
-    } else if ((mapContainer = ptr->getInterface<MapSharedContainer>()) != 0) {
+    } else if ((mapContainer = ptr->getInterface<MapContainer>()) != 0) {
         Cout << STR("[MAP]:\n");
         for (Word i = 0; i < mapContainer->getCount(); ++i) {
             printIndents(indents+1);
@@ -104,10 +104,10 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
     ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
-  auto name = seeker.tryGetShared<ParsedToken>(nameReference.get(), item.get());
-  SharedPtr<IdentifiableObject> def;
+  auto name = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), item.get()));
+  IdentifiableObject *def = 0;
   if (name != 0) {
-    def = this->rootManager->getDefinitionsRepository()->getSharedValue(name->getText().c_str());
+    def = this->rootManager->getDefinitionsRepository()->get(name->getText().c_str());
   }
   if (def!= 0) {
     Cout << STR("------------------ Parsed Data Dump ------------------\n");

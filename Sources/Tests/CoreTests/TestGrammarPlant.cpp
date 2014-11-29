@@ -28,7 +28,7 @@ void TestGrammarPlant::createGrammar()
   this->parsingHandler = std::make_shared<GenericParsingHandler>();
 
   // Create lexer definitions.
-  this->repository.setSharedValue(STR("root:LexerDefs"), GrammarModule::create({}));
+  this->repository.set(STR("root:LexerDefs"), GrammarModule::create({}).get());
   this->createCharGroupDefinitions();
   this->createTokenDefinitions();
 
@@ -53,56 +53,56 @@ void TestGrammarPlant::createGrammar()
 void TestGrammarPlant::createCharGroupDefinitions()
 {
   // BinDigit : char '0'..'1';
-  this->repository.setSharedValue(STR("root:LexerDefs.BinDigit"), CharGroupDefinition::create(
-    SequenceCharGroupUnit::create(CHR('0'), CHR('1'))));
+  this->repository.set(STR("root:LexerDefs.BinDigit"), CharGroupDefinition::create(
+    SequenceCharGroupUnit::create(CHR('0'), CHR('1'))).get());
 
   // OctDigit : char '0'..'7';
-  this->repository.setSharedValue(STR("root:LexerDefs.OctDigit"), CharGroupDefinition::create(
-    SequenceCharGroupUnit::create(CHR('0'), CHR('7'))));
+  this->repository.set(STR("root:LexerDefs.OctDigit"), CharGroupDefinition::create(
+    SequenceCharGroupUnit::create(CHR('0'), CHR('7'))).get());
 
   // DecDigit : char '0'..'9';
-  this->repository.setSharedValue(STR("root:LexerDefs.DecDigit"), CharGroupDefinition::create(
-    SequenceCharGroupUnit::create(CHR('0'), CHR('9'))));
+  this->repository.set(STR("root:LexerDefs.DecDigit"), CharGroupDefinition::create(
+    SequenceCharGroupUnit::create(CHR('0'), CHR('9'))).get());
 
   // HexDigit : char '0'..'9', 'a'..'f', 'A'..'F';
-  this->repository.setSharedValue(STR("root:LexerDefs.HexDigit"), CharGroupDefinition::create(
+  this->repository.set(STR("root:LexerDefs.HexDigit"), CharGroupDefinition::create(
     UnionCharGroupUnit::create({
       SequenceCharGroupUnit::create(CHR('0'), CHR('9')),
       SequenceCharGroupUnit::create(CHR('a'), CHR('f')),
       SequenceCharGroupUnit::create(CHR('A'), CHR('F'))
-    })));
+    })).get());
 
   // Letter : char 'a'..'z', 'A'..'Z', '_';
-  this->repository.setSharedValue(STR("root:LexerDefs.Letter"), CharGroupDefinition::create(
+  this->repository.set(STR("root:LexerDefs.Letter"), CharGroupDefinition::create(
     UnionCharGroupUnit::create({
       SequenceCharGroupUnit::create(CHR('a'), CHR('z')),
       SequenceCharGroupUnit::create(CHR('A'), CHR('Z')),
       SequenceCharGroupUnit::create(CHR('_'), CHR('_'))
-    })));
+    })).get());
 
   // AnyCharNoEs : char ^('\\');
-  this->repository.setSharedValue(STR("root:LexerDefs.AnyCharNoEs"), CharGroupDefinition::create(
+  this->repository.set(STR("root:LexerDefs.AnyCharNoEs"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
-      SequenceCharGroupUnit::create(CHR('\\'), CHR('\\')))));
+      SequenceCharGroupUnit::create(CHR('\\'), CHR('\\')))).get());
 
   // AnyCharNoEsOrSingleQuote : char ^("\\'");
-  this->repository.setSharedValue(STR("root:LexerDefs.AnyCharNoEsOrSingleQuote"), CharGroupDefinition::create(
+  this->repository.set(STR("root:LexerDefs.AnyCharNoEsOrSingleQuote"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
-      RandomCharGroupUnit::create(STR("\\'")))));
+      RandomCharGroupUnit::create(STR("\\'")))).get());
 
   // AnyCharNoEsOrDoubleQuote : char ^("\\\"");
-  this->repository.setSharedValue(STR("root:LexerDefs.AnyCharNoEsOrDoubleQuote"), CharGroupDefinition::create(
+  this->repository.set(STR("root:LexerDefs.AnyCharNoEsOrDoubleQuote"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
-      RandomCharGroupUnit::create(STR("\\\"")))));
+      RandomCharGroupUnit::create(STR("\\\"")))).get());
 
   // AnyCharNoReturn = ^('\\');
-  this->repository.setSharedValue(STR("root:LexerDefs.AnyCharNoReturn"), CharGroupDefinition::create(
+  this->repository.set(STR("root:LexerDefs.AnyCharNoReturn"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
-      SequenceCharGroupUnit::create(CHR('\n'), CHR('\n')))));
+      SequenceCharGroupUnit::create(CHR('\n'), CHR('\n')))).get());
 
   // Spacing : char " \n\r\t";
-  this->repository.setSharedValue(STR("root:LexerDefs.Spacing"), CharGroupDefinition::create(
-    RandomCharGroupUnit::create(STR(" \r\n\t"))));
+  this->repository.set(STR("root:LexerDefs.Spacing"), CharGroupDefinition::create(
+    RandomCharGroupUnit::create(STR(" \r\n\t"))).get());
 }
 
 
@@ -113,7 +113,7 @@ void TestGrammarPlant::createCharGroupDefinitions()
 void TestGrammarPlant::createTokenDefinitions()
 {
   // Identifier : trule as { Letter + (Letter || DecDigit)*(0,endless) };
-  this->repository.setSharedValue(STR("root:LexerDefs.Identifier"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.Identifier"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          CharGroupTerm::create(STR("module:Letter")),
@@ -128,13 +128,13 @@ void TestGrammarPlant::createTokenDefinitions()
        })}
     })},
    {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
-  }));
+  }).get());
 
   // IntLiteral : trule as {
   //   (DecIntLiteral || BinIntLiteral || OctIntLiteral || HexIntLiteral) +
   //   ("u" || "U")*(0,1) + (("i" || "I") + DecIntLiteral)*(0,1)
   // };
-  this->repository.setSharedValue(STR("root:LexerDefs.IntLiteral"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.IntLiteral"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          AlternateTerm::create({
@@ -171,18 +171,18 @@ void TestGrammarPlant::createTokenDefinitions()
        })}
     })},
     {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
-  }));
+  }).get());
 
   // @inner DecIntLiteral : trule as { DecDigit*(1,endless) };
-  this->repository.setSharedValue(STR("root:LexerDefs.DecIntLiteral"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.DecIntLiteral"), SymbolDefinition::create({
     {SymbolDefElement::TERM, MultiplyTerm::create({
       {TermElement::MIN, Integer::create(1)},
       {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
     })}
-  }));
+  }).get());
 
   // @inner BinIntLiteral : trule as { ("0b" || "0B") + BinDigit*(1,endless) };
-  this->repository.setSharedValue(STR("root:LexerDefs.BinIntLiteral"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.BinIntLiteral"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          AlternateTerm::create({
@@ -197,10 +197,10 @@ void TestGrammarPlant::createTokenDefinitions()
          })
        })}
     })}
-  }));
+  }).get());
 
   // @inner OctIntLiteral : trule as { ("0o" || "0O") + OctDigit*(1,endless) };
-  this->repository.setSharedValue(STR("root:LexerDefs.OctIntLiteral"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.OctIntLiteral"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          AlternateTerm::create({
@@ -215,10 +215,10 @@ void TestGrammarPlant::createTokenDefinitions()
          })
        })}
     })}
-  }));
+  }).get());
 
   // @inner HexIntLiteral : trule as { ("0h" || "0H") + HexDigit*(1,endless) };
-  this->repository.setSharedValue(STR("root:LexerDefs.HexIntLiteral"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.HexIntLiteral"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          AlternateTerm::create({
@@ -233,7 +233,7 @@ void TestGrammarPlant::createTokenDefinitions()
          })
        })}
     })}
-  }));
+  }).get());
 
   // FloatLiteral : trule as {
   //   DecDigit*(1,endless) + FloatPostfix ||
@@ -241,7 +241,7 @@ void TestGrammarPlant::createTokenDefinitions()
   //   DecDigit*(1,endless) + "." + DecDigit*(1,endless) +
   //     FloatExponent*(0,1) + FloatPostfix*(1,1)
   // };
-  this->repository.setSharedValue(STR("root:LexerDefs.FloatLiteral"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.FloatLiteral"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
       {TermElement::TERM, SharedList::create({
          ConcatTerm::create({
@@ -289,10 +289,10 @@ void TestGrammarPlant::createTokenDefinitions()
        })}
     })},
    {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
-  }));
+  }).get());
 
   // @inner FloatExponent : trule as { ("e" || "E") + ("+" || "-")*(0,1) + DecDigit*(1,endless) };
-  this->repository.setSharedValue(STR("root:LexerDefs.FloatExponent"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.FloatExponent"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          AlternateTerm::create({
@@ -316,10 +316,10 @@ void TestGrammarPlant::createTokenDefinitions()
          })
        })}
     })}
-  }));
+  }).get());
 
   // @inner FloatPostfix : trule as { ("f" || "F") + DecDigit*(0,endless) };
-  this->repository.setSharedValue(STR("root:LexerDefs.FloatPostfix"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.FloatPostfix"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          AlternateTerm::create({
@@ -333,11 +333,11 @@ void TestGrammarPlant::createTokenDefinitions()
          })
        })}
     })}
-  }));
+  }).get());
 
   // CharLiteral : trule as { "'" + EsCharWithDoubleQuote + "'" + CharCodePostfix*(0,1) };
   // TODO: Add the char_code_postfix part
-  this->repository.setSharedValue(STR("root:LexerDefs.CharLiteral"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.CharLiteral"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          ConstTerm::create(0, STR("'")),
@@ -346,14 +346,14 @@ void TestGrammarPlant::createTokenDefinitions()
        })}
     })},
     {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
-  }));
+  }).get());
 
   // StringLiteral : trule as {
   //   StringLiteralPart + (Spacing*(0,endless) + StringLiteralPart)*(0,endless) +
   //   CharCodePostfix*(0,1)
   // };
   // TODO: Add the CharCodePostfix part
-  this->repository.setSharedValue(STR("root:LexerDefs.StringLiteral"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.StringLiteral"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          ReferenceTerm::create(STR("module:StringLiteralPart")),
@@ -370,10 +370,10 @@ void TestGrammarPlant::createTokenDefinitions()
        })}
     })},
     {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
-  }));
+  }).get());
 
   // @inner StringLiteralPart : trule as { "\"" + EsCharWithSingleQuote*(0,endless) + "\"" };
-  this->repository.setSharedValue(STR("root:LexerDefs.StringLiteralPart"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.StringLiteralPart"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          ConstTerm::create(0, STR("\"")),
@@ -383,48 +383,48 @@ void TestGrammarPlant::createTokenDefinitions()
          ConstTerm::create(0, STR("\""))
        })}
     })}
-  }));
+  }).get());
 
   // @inner EsCharWithSingleQuote : trule as {
   //   AnyCharNoEsOrDoubleQuote || EsSequence ||
   //   alternate (root.TokenData.escapeSequences:es)->( es )
   // };
   // TODO: Add the heap.escape_sequences part
-  this->repository.setSharedValue(STR("root:LexerDefs.EsCharWithSingleQuote"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.EsCharWithSingleQuote"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
       {TermElement::TERM, SharedList::create({
          CharGroupTerm::create(STR("module:AnyCharNoEsOrDoubleQuote")),
          ReferenceTerm::create(STR("module:EsSequence"))
        })}
     })}
-  }));
+  }).get());
 
   // @inner EsCharWithDoubleQuote : trule as {
   //   AnyCharNoEsOrSingleQuote || EsSequence ||
   //   alternate (root.TokenData.escapeSequences:es)->( es )
   // };
   // TODO: Add the root.TokenData.escapeSequences part
-  this->repository.setSharedValue(STR("root:LexerDefs.EsCharWithDoubleQuote"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.EsCharWithDoubleQuote"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
       {TermElement::TERM, SharedList::create({
          CharGroupTerm::create(STR("module:AnyCharNoEsOrSingleQuote")),
          ReferenceTerm::create(STR("module:EsSequence"))
        })}
     })}
-  }));
+  }).get());
 
   // @inner EsCharWithQuotes : trule as {
   //   AnyCharNoEs || EsSequence || alternate (root.TokenData.escapeSequences:es)->( es )
   // };
   // TODO: Add the heap.escape_sequences part
-  this->repository.setSharedValue(STR("root:LexerDefs.EsCharWithQuotes"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.EsCharWithQuotes"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
       {TermElement::TERM, SharedList::create({
          CharGroupTerm::create(STR("module:AnyCharNoEs")),
          ReferenceTerm::create(STR("module:EsSequence"))
        })}
     })}
-  }));
+  }).get());
 
   // @inner EsSequence : trule as {
   //   '\\' + ('c' + HexDigit*(2,2) ||
@@ -432,7 +432,7 @@ void TestGrammarPlant::createTokenDefinitions()
   //           'w' + HexDigit*(8,8) ||
   //           'n' || 't' || 'r')
   // };
-  this->repository.setSharedValue(STR("root:LexerDefs.EsSequence"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.EsSequence"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          ConstTerm::create(0, STR("\\")),
@@ -474,24 +474,24 @@ void TestGrammarPlant::createTokenDefinitions()
          })
        })}
     })}
-  }));
+  }).get());
 
   //// IGNORED TOKENS
 
   // ignore { Spacing*(1,endless) };
-  this->repository.setSharedValue(STR("root:LexerDefs.IgnoredSpaces"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.IgnoredSpaces"), SymbolDefinition::create({
     {SymbolDefElement::TERM, MultiplyTerm::create({
       {TermElement::MIN, Integer::create(1)},
       {TermElement::TERM, CharGroupTerm::create(STR("module:Spacing"))}
     })},
     {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN|SymbolFlags::IGNORED_TOKEN}
-  }));
+  }).get());
 
   // @minimum ignore { "//" + any*(0,endless) + "\n" }
   // For now this is implemented as:
   // ignore { "//" + AnyCharNoReturn*(0,endless) + "\n" }
   // because the lexer still doesn't support the @minimum modifier.
-  this->repository.setSharedValue(STR("root:LexerDefs.LineComment"), SymbolDefinition::create({
+  this->repository.set(STR("root:LexerDefs.LineComment"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
          ConstTerm::create(0, STR("//")),
@@ -502,7 +502,7 @@ void TestGrammarPlant::createTokenDefinitions()
        })}
     })},
     {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN|SymbolFlags::IGNORED_TOKEN}
-  }));
+  }).get());
 }
 
 
@@ -514,17 +514,17 @@ void TestGrammarPlant::createProductionDefinitions()
 {
   // TODO: Replace the generic parsing handler for the root with the appropriate one.
   // Program = Statement*v1;
-  this->repository.setSharedValue(STR("Program"), SymbolDefinition::create({
+  this->repository.set(STR("Program"), SymbolDefinition::create({
     {SymbolDefElement::TERM, MultiplyTerm::create({
        {TermElement::PRIORITY, std::make_shared<Integer>(1)},
        {TermElement::MIN, std::make_shared<Integer>(1)},
        {TermElement::TERM, ReferenceTerm::create(STR("root:Statement"))}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
-  }));
+  }).get());
 
   // Statement = Command + ";" || Expression + ";";
-  this->repository.setSharedValue(STR("Statement"), SymbolDefinition::create({
+  this->repository.set(STR("Statement"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::ESPI, 1},
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
@@ -534,10 +534,10 @@ void TestGrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
-  }));
+  }).get());
 
   // Statement = Command || Expression;
-  this->repository.setSharedValue(STR("SubStatement"), SymbolDefinition::create({
+  this->repository.set(STR("SubStatement"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
@@ -547,10 +547,10 @@ void TestGrammarPlant::createProductionDefinitions()
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-  }));
+  }).get());
 
   // Command = "do" + Expression;
-  this->repository.setSharedValue(STR("Command"), SymbolDefinition::create({
+  this->repository.set(STR("Command"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, SharedList::create({
@@ -559,10 +559,10 @@ void TestGrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
-  }));
+  }).get());
 
   // Set = "{" + Statement*v + "}";
-  this->repository.setSharedValue(STR("Set"), SymbolDefinition::create({
+  this->repository.set(STR("Set"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, SharedList::create({
@@ -576,10 +576,10 @@ void TestGrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
-  }));
+  }).get());
 
   // Expression = ListExp + ("?" + Expression)*o;
-  this->repository.setSharedValue(STR("Expression"), SymbolDefinition::create({
+  this->repository.set(STR("Expression"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, SharedList::create({
@@ -599,10 +599,10 @@ void TestGrammarPlant::createProductionDefinitions()
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler},
-   }));
+   }).get());
 
   // ListExp = ","*v + ColonPairExp + ("," + ColonPairExp*o)*v;
-  this->repository.setSharedValue(STR("ListExp"), SymbolDefinition::create({
+  this->repository.set(STR("ListExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::TERM, SharedList::create({
           MultiplyTerm::create({
@@ -631,10 +631,10 @@ void TestGrammarPlant::createProductionDefinitions()
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-  }));
+  }).get());
 
   // ColonPairExp = AssignmentExp + (":" + AssignmentExp)*o;
-  this->repository.setSharedValue(STR("ColonPairExp"), SymbolDefinition::create({
+  this->repository.set(STR("ColonPairExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, SharedList::create({
@@ -655,10 +655,10 @@ void TestGrammarPlant::createProductionDefinitions()
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler},
      {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-   }));
+   }).get());
 
   // AssignmentExp = LogExp + (AssignmentOp + AssignmentExp)*o;
-  this->repository.setSharedValue(STR("AssignmentExp"), SymbolDefinition::create({
+  this->repository.set(STR("AssignmentExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, SharedList::create({
@@ -679,10 +679,10 @@ void TestGrammarPlant::createProductionDefinitions()
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-  }));
+  }).get());
 
   // LogExp = ComparisonExp + (LogOp + ComparisonExp)*v;
-  this->repository.setSharedValue(STR("LogExp"), SymbolDefinition::create({
+  this->repository.set(STR("LogExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, SharedList::create({
@@ -702,10 +702,10 @@ void TestGrammarPlant::createProductionDefinitions()
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler},
      {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-   }));
+   }).get());
 
   // ComparisonExp = AddExp + (ComparisonOp + AddExp)*v;
-  this->repository.setSharedValue(STR("ComparisonExp"), SymbolDefinition::create({
+  this->repository.set(STR("ComparisonExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, SharedList::create({
@@ -725,10 +725,10 @@ void TestGrammarPlant::createProductionDefinitions()
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-  }));
+  }).get());
 
   // AddExp = MulExp + (AddOp + MulExp)*v;
-  this->repository.setSharedValue(STR("AddExp"), SymbolDefinition::create({
+  this->repository.set(STR("AddExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, SharedList::create({
@@ -748,10 +748,10 @@ void TestGrammarPlant::createProductionDefinitions()
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler},
      {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-   }));
+   }).get());
 
   // MulExp = BitwiseExp + (MulOp + BitwiseExp)*v;
-  this->repository.setSharedValue(STR("MulExp"), SymbolDefinition::create({
+  this->repository.set(STR("MulExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, SharedList::create({
@@ -771,10 +771,10 @@ void TestGrammarPlant::createProductionDefinitions()
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler},
      {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-   }));
+   }).get());
 
   // BitwiseExp = UnaryExp + (BitwiseOp + UnaryExp)*v;
-  this->repository.setSharedValue(STR("BitwiseExp"), SymbolDefinition::create({
+  this->repository.set(STR("BitwiseExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, SharedList::create({
@@ -794,10 +794,10 @@ void TestGrammarPlant::createProductionDefinitions()
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler},
      {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-   }));
+   }).get());
 
   // UnaryExp = PrefixOp*o + FunctionalExp + PostfixOp*o;
-  this->repository.setSharedValue(STR("UnaryExp"), SymbolDefinition::create({
+  this->repository.set(STR("UnaryExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, ConcatTerm::create({
         {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
         {TermElement::TERM, SharedList::create({
@@ -818,10 +818,10 @@ void TestGrammarPlant::createProductionDefinitions()
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler},
      {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-   }));
+   }).get());
 
   // FunctionalExp = Operand + (LinkExp || ParamPassExp)*v;
-  this->repository.setSharedValue(STR("FunctionalExp"), SymbolDefinition::create({
+  this->repository.set(STR("FunctionalExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, SharedList::create({
@@ -841,10 +841,10 @@ void TestGrammarPlant::createProductionDefinitions()
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-  }));
+  }).get());
 
   // LinkExp = LinkOp + Operand;
-  this->repository.setSharedValue(STR("LinkExp"), SymbolDefinition::create({
+  this->repository.set(STR("LinkExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::TERM, SharedList::create({
           ReferenceTerm::create(STR("root:LinkOp")),
@@ -852,10 +852,10 @@ void TestGrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
-  }));
+  }).get());
 
   // ParamPassExp = "(" + Expression*o + ")" || "[" + Expression*o + "]";
-  this->repository.setSharedValue(STR("ParamPassExp"), SymbolDefinition::create({
+  this->repository.set(STR("ParamPassExp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::TERM, SharedList::create({
            ConcatTerm::create({
@@ -887,10 +887,10 @@ void TestGrammarPlant::createProductionDefinitions()
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler},
-   }));
+   }).get());
 
   // Operand = Parameter || Command || Set || "(" + Expression*o + ")" || "[" + Expression*o + "]";
-  this->repository.setSharedValue(STR("Operand"), SymbolDefinition::create({
+  this->repository.set(STR("Operand"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::TERM, SharedList::create({
           ReferenceTerm::create(STR("root:Parameter")),
@@ -924,10 +924,10 @@ void TestGrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
-  }));
+  }).get());
 
   // Parameter = identifier || Literal;
-  this->repository.setSharedValue(STR("Parameter"), SymbolDefinition::create({
+  this->repository.set(STR("Parameter"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
@@ -937,10 +937,10 @@ void TestGrammarPlant::createProductionDefinitions()
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-  }));
+  }).get());
 
   // Literal = int_literal || float_literal || char_literal || string_literal;
-  this->repository.setSharedValue(STR("Literal"), SymbolDefinition::create({
+  this->repository.set(STR("Literal"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
@@ -952,10 +952,10 @@ void TestGrammarPlant::createProductionDefinitions()
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, ParsingFlags::OMISSIBLE}
-  }));
+  }).get());
 
   // AssignmentOp = ":=" || "+=" || "-=" || "*=" || "/=" || "%=" || "&=" || "|=" || "$=" || "^:=" || "<<=" || ">>=";
-  this->repository.setSharedValue(STR("AssignmentOp"), SymbolDefinition::create({
+  this->repository.set(STR("AssignmentOp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::FLAGS, ParsingFlags::PASS_UP},
         {TermElement::TERM, SharedList::create({
@@ -974,10 +974,10 @@ void TestGrammarPlant::createProductionDefinitions()
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler}
-   }));
+   }).get());
 
   // ComparisonOp = "=" || "^=" || "==" || "^==" || "<" || ">" || "<=" || ">=";
-  this->repository.setSharedValue(STR("ComparisonOp"), SymbolDefinition::create({
+  this->repository.set(STR("ComparisonOp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::FLAGS, ParsingFlags::PASS_UP},
         {TermElement::TERM, SharedList::create({
@@ -992,10 +992,10 @@ void TestGrammarPlant::createProductionDefinitions()
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler}
-   }));
+   }).get());
 
   // AddOp = "+" || "-";
-  this->repository.setSharedValue(STR("AddOp"), SymbolDefinition::create({
+  this->repository.set(STR("AddOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
@@ -1004,10 +1004,10 @@ void TestGrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
-  }));
+  }).get());
 
   // MulOp = "*" || "/" || "%";
-  this->repository.setSharedValue(STR("MulOp"), SymbolDefinition::create({
+  this->repository.set(STR("MulOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
@@ -1017,10 +1017,10 @@ void TestGrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
-  }));
+  }).get());
 
   // BitwiseOp = "|" || "^|" || "$" || "^$" || "&" || "^&" || "<<" || ">>";
-  this->repository.setSharedValue(STR("BitwiseOp"), SymbolDefinition::create({
+  this->repository.set(STR("BitwiseOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
@@ -1035,10 +1035,10 @@ void TestGrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
-  }));
+  }).get());
 
   // LogOp = "||" || "^||" || "$$" || "^$$" || "&&" || "^&&";
-  this->repository.setSharedValue(STR("LogOp"), SymbolDefinition::create({
+  this->repository.set(STR("LogOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
@@ -1051,10 +1051,10 @@ void TestGrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
-  }));
+  }).get());
 
   // PrefixOp = "++" || "--" || "+" || "-" || "^" || "^^";
-  this->repository.setSharedValue(STR("PrefixOp"), SymbolDefinition::create({
+  this->repository.set(STR("PrefixOp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::FLAGS, ParsingFlags::PASS_UP},
         {TermElement::TERM, SharedList::create({
@@ -1067,10 +1067,10 @@ void TestGrammarPlant::createProductionDefinitions()
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler}
-   }));
+   }).get());
 
   // PostfixOp = "++" || "--";
-  this->repository.setSharedValue(STR("PostfixOp"), SymbolDefinition::create({
+  this->repository.set(STR("PostfixOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
@@ -1079,10 +1079,10 @@ void TestGrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
-  }));
+  }).get());
 
   // LinkOp = "." || "->" || "=>";
-  this->repository.setSharedValue(STR("LinkOp"), SymbolDefinition::create({
+  this->repository.set(STR("LinkOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
@@ -1092,7 +1092,7 @@ void TestGrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
-  }));
+  }).get());
 }
 
 } } // namespace

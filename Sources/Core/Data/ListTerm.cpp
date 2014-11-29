@@ -159,7 +159,7 @@ SharedPtr<Term> ListTerm::getTerm(Int index) const
       throw InvalidArgumentException(STR("index"), STR("Core::Data::ListTerm::getTerm"),
                                      STR("Out of range."));
     }
-    SharedPtr<Term> term = list->get(index).s_cast<Term>();
+    SharedPtr<Term> term = list->getShared(index).s_cast<Term>();
     if (!term->isDerivedFrom<Term>()) {
       throw GeneralException(STR("List contains a non-Term object."), STR("Core::Data::ListTerm::getTerm"));
     }

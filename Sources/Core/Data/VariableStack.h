@@ -18,13 +18,13 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class VariableStack : public IdentifiableObject, public virtual MapPlainContainer
+class VariableStack : public IdentifiableObject, public virtual MapContainer
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(VariableStack, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, MapPlainContainer);
+  IMPLEMENT_INTERFACES_1(IdentifiableObject, MapContainer);
 
 
   //============================================================================
@@ -174,7 +174,7 @@ class VariableStack : public IdentifiableObject, public virtual MapPlainContaine
 
 
   //============================================================================
-  // MapPlainContainer Implementation
+  // MapContainer Implementation
 
   public: virtual void set(Int index, IdentifiableObject *val);
 

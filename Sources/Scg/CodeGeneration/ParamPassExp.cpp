@@ -37,13 +37,14 @@ ParamPassExp::ParamPassExp(CodeGenerator *gen,
 
   SharedPtr<IdentifiableObject> exp;
   SharedPtr<ParsedList> listExprItem;
-  if ((listExprItem = seeker.tryGetShared<ParsedList>(multiParamReference.get(), astBlockRoot.get())) != 0)
+  if ((listExprItem = getSharedPtr(seeker.tryGet(multiParamReference.get(), astBlockRoot.get()))
+                      .io_cast<ParsedList>()) != 0)
   {
     auto listExpr = ListExpression(gen, listExprItem);
     for (auto i = 0; i < listExpr.GetItemCount(); i++)
       this->params.push_back(listExpr.GetItem(i));
   }
-  else if ((exp = seeker.tryGetShared(singleParamReference.get(), astBlockRoot.get())) != 0)
+  else if ((exp = getSharedPtr(seeker.tryGet(singleParamReference.get(), astBlockRoot.get()))) != 0)
   {
     this->params.push_back(exp);
   }

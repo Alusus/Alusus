@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/SharedTracer.h
- * Contains the header of interface Data::SharedTracer.
+ * @file Core/Data/ListContainer.h
+ * Contains the header of interface Data::ListContainer.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,28 +10,26 @@
  */
 //==============================================================================
 
-#ifndef DATA_SHAREDTRACER_H
-#define DATA_SHAREDTRACER_H
+#ifndef DATA_LISTCONTAINER_H
+#define DATA_LISTCONTAINER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class SharedTracer : public Tracer
+class ListContainer : public virtual Container
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(SharedTracer, Tracer, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(ListContainer, Container, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual SharedPtr<IdentifiableObject> traceSharedValue(const SharedPtr<IdentifiableObject> &val) = 0;
-
-  public: virtual void traceSharedValue(const SharedPtr<IdentifiableObject> &val, SharedModulePairedPtr &retVal) = 0;
+  public: virtual Int add(IdentifiableObject *val) = 0;
 
 }; // class
 

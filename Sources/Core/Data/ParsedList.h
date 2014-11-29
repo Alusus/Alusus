@@ -91,7 +91,7 @@ class ParsedList : public SharedList,
   {
     if (ParsingMetadataHolder::getLine() == -1) {
       for (Int i = 0; i < this->getCount(); ++i) {
-        ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i).get());
+        ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i));
         if (ptr != 0) {
           Int l = ptr->getLine();
           if (l != -1) return l;
@@ -110,7 +110,7 @@ class ParsedList : public SharedList,
   {
     if (ParsingMetadataHolder::getColumn() == -1) {
       for (Int i = 0; i < this->getCount(); ++i) {
-        ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i).get());
+        ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i));
         if (ptr != 0) {
           Int l = ptr->getColumn();
           if (l != -1) return l;
@@ -125,7 +125,7 @@ class ParsedList : public SharedList,
     if (SBSTR(name) == STR("line")) {
       if (ParsingMetadataHolder::getLine() == -1) {
         for (Int i = 0; i < this->getCount(); ++i) {
-          ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i).get());
+          ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i));
           if (ptr != 0) {
             if (ptr->getLine() != -1) return ptr->getAttribute(name);
           }
@@ -134,7 +134,7 @@ class ParsedList : public SharedList,
     } else if (SBSTR(name) == STR("column")) {
       if (ParsingMetadataHolder::getColumn() == -1) {
         for (Int i = 0; i < this->getCount(); ++i) {
-          ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i).get());
+          ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i));
           if (ptr != 0) {
             if (ptr->getColumn() != -1) return ptr->getAttribute(name);
           }

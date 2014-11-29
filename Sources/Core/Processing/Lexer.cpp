@@ -386,7 +386,7 @@ void Lexer::processStartChar(Char inputChar)
 
   for (Word i = 0; i < this->grammarContext.getModule()->getCount(); i++) {
     // Skip non tokens and non-root tokens.
-    IdentifiableObject *obj = this->grammarContext.getModule()->get(i).get();
+    IdentifiableObject *obj = this->grammarContext.getModule()->get(i);
     if (obj == 0 || !obj->isA<Data::SymbolDefinition>()) continue;
     Data::SymbolDefinition *def = static_cast<Data::SymbolDefinition*>(obj);
     if (!(def->getFlags() & Data::SymbolFlags::ROOT_TOKEN)) continue;
@@ -767,7 +767,7 @@ Lexer::NextAction Lexer::processTempState(Char inputChar, Data::Term *currentTer
       Bool delayedStateCreated = false;
       termIndex = 0;
       for (Int i = 0; i < alternateList->getCount(); ++i) {
-        Data::Term *term = alternateList->get(i).io_cast_get<Data::Term>();
+        Data::Term *term = io_cast<Data::Term>(alternateList->get(i));
         if (term == 0) {
           Str excMsg = STR("Null term found in an alternate branch. Token def: ");
           excMsg += ID_GENERATOR->getDesc(this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId());
@@ -819,7 +819,7 @@ Lexer::NextAction Lexer::processTempState(Char inputChar, Data::Term *currentTer
       } else {
         // Get up to the next term object.
         termIndex = this->tempState.getIndexStack()->at(currentLevel);
-        Data::Term *term = alternateList->get(termIndex).s_cast_get<Data::Term>();
+        Data::Term *term = static_cast<Data::Term*>(alternateList->get(termIndex));
         // Call the inner branch.
         NextAction ret = this->processTempState(inputChar, term, currentLevel+1);
         if (ret == CONTINUE_NEW_CHAR || ret == CONTINUE_SAME_CHAR) {
@@ -853,7 +853,7 @@ Lexer::NextAction Lexer::processTempState(Char inputChar, Data::Term *currentTer
       termIndex = this->tempState.getIndexStack()->at(currentLevel);
     }
     // get the next term object
-    Data::Term *term = concatList->get(termIndex).io_cast_get<Data::Term>();
+    Data::Term *term = io_cast<Data::Term>(concatList->get(termIndex));
     if (term == 0) {
       Str excMsg = STR("Concat term's child term is null. Token def: ");
       excMsg += ID_GENERATOR->getDesc(this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId());
@@ -888,7 +888,7 @@ Lexer::NextAction Lexer::processTempState(Char inputChar, Data::Term *currentTer
             // update the term index on the stack
             termIndex++;
             this->tempState.getIndexStack()->at(currentLevel) = termIndex;
-            term = concatList->get(termIndex).io_cast_get<Data::Term>();
+            term = io_cast<Data::Term>(concatList->get(termIndex));
             if (term == 0) {
               Str excMsg = STR("Concat term's child term is null. Token def: ");
               excMsg += ID_GENERATOR->getDesc(this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId());

@@ -131,33 +131,20 @@ class SearchReference : public Reference
     this->cachedIndex = -1;
   }
 
-  public: virtual Bool setShared(Provider *provider, IdentifiableObject *parent,
-                                 SharedPtr<IdentifiableObject> const &obj, Int &index) const;
-
-  public: virtual Bool setPlain(Provider *provider, IdentifiableObject *parent,
+  public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
                                 IdentifiableObject *obj, Int &index) const;
 
-  public: virtual Bool remove(Provider *provider, IdentifiableObject *parent, Int &index) const;
+  public: virtual Bool removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const;
 
-  public: virtual Bool getShared(Provider *provider, IdentifiableObject *parent,
-                                 SharedPtr<IdentifiableObject> &result, Int &index) const;
-
-  public: virtual Bool getPlain(Provider *provider, IdentifiableObject *parent,
+  public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
                                 IdentifiableObject *&result, Int &index) const;
 
-  private: Int getListIndex(SharedContainer const *container, Int i) const
+  private: Int getListIndex(Container const *container, Int i) const
   {
     return this->forward==true ? i : container->getCount()-1-i;
   }
 
-  private: Int getListIndex(PlainContainer const *container, Int i) const
-  {
-    return this->forward==true ? i : container->getCount()-1-i;
-  }
-
-  private: Int findMatch(SharedContainer const *container, Int index, Int skips=0) const;
-
-  private: Int findMatch(PlainContainer const *container, Int index, Int skips=0) const;
+  private: Int findMatch(Container const *container, Int index, Int skips=0) const;
 
 
   //============================================================================

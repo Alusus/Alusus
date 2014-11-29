@@ -31,7 +31,7 @@ GrammarContext::GrammarContext() : repository(10, 5)
 //==============================================================================
 // Misc Functions
 
-void GrammarContext::tracePlainValue(IdentifiableObject *val, PlainModulePairedPtr &retVal, Module *module)
+void GrammarContext::traceValue(IdentifiableObject *val, PlainModulePairedPtr &retVal, Module *module)
 {
   retVal.object = val;
   retVal.module = module;
@@ -43,7 +43,7 @@ void GrammarContext::tracePlainValue(IdentifiableObject *val, PlainModulePairedP
       this->setModule(retVal.module);
       curModule = retVal.module;
     }
-    this->repository.getPlainValue(static_cast<Reference*>(retVal.object), retVal);
+    this->repository.get(static_cast<Reference*>(retVal.object), retVal);
   } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
   if (curModule != oldModule) this->setModule(oldModule);
 }
@@ -54,7 +54,7 @@ void GrammarContext::tracePlainValue(IdentifiableObject *val, PlainModulePairedP
 
 void GrammarContext::getListTermData(ListTerm *term, PlainModulePairedPtr &retVal, Module *module)
 {
-  this->tracePlainValue(term->getData().get(), retVal, module);
+  this->traceValue(term->getData().get(), retVal, module);
   if (retVal.object != 0 && !retVal.object->isA<SharedList>() && !retVal.object->isA<Integer>()) {
     throw GeneralException(STR("Type of list term data is invalid"),
                            STR("Core::Data::GrammarContext::getListTermData"));
@@ -100,7 +100,7 @@ void GrammarContext::getListTermChild(ListTerm *term, Int index, PlainModulePair
       retTerm = term->getTerm(static_cast<Integer*>(listData.object)->get()).get();
       retData.reset();
     } else if (listData.object->isA<SharedList>()) {
-      Integer *index2 = io_cast<Integer>(static_cast<SharedList*>(listData.object)->get(index).get());
+      Integer *index2 = io_cast<Integer>(static_cast<SharedList*>(listData.object)->get(index));
       if (index2 == 0) {
         throw InvalidArgumentException(STR("listData"),
                                        STR("Core::Data::GrammarContext::getListTermChild"),
@@ -126,7 +126,7 @@ void GrammarContext::getListTermChild(ListTerm *term, Int index, PlainModulePair
       }
       ASSERT(term->getTerms()->isDerivedFrom<Term>());
       retTerm = static_cast<Term*>(term->getTerms().get());
-      retData.object = static_cast<SharedList*>(listData.object)->get(index).get();
+      retData.object = static_cast<SharedList*>(listData.object)->get(index);
       retData.module = listData.module;
     }
   }
@@ -143,15 +143,15 @@ void GrammarContext::useListTermChild(ListTerm *term, Int index, PlainModulePair
   this->getListTermChild(term, index, listData, retTerm, *retData);
 
   if (term->getTargetRef() != 0) {
-    if (retData->module == 0) this->repository.setPlainValue(term->getTargetRef().get(), retData->object);
-    else this->repository.setPlainValue(term->getTargetRef().get(), retData);
+    if (retData->module == 0) this->repository.set(term->getTargetRef().get(), retData->object);
+    else this->repository.set(term->getTargetRef().get(), retData);
   }
 }
 
 
 Integer* GrammarContext::getTokenTermId(TokenTerm *term, Module *module)
 {
-  IdentifiableObject *id = this->tracePlainValue(term->getTokenId().get(), module);
+  IdentifiableObject *id = this->traceValue(term->getTokenId().get(), module);
   if (id == 0 || !id->isA<Integer>()) {
     throw GeneralException(STR("Token term's ID is invalid."),
                            STR("Core::Data::GrammarContext::getTokenTermId"));
@@ -162,7 +162,7 @@ Integer* GrammarContext::getTokenTermId(TokenTerm *term, Module *module)
 
 IdentifiableObject* GrammarContext::getTokenTermText(TokenTerm *term, Module *module)
 {
-  IdentifiableObject *text = this->tracePlainValue(term->getTokenText().get(), module);
+  IdentifiableObject *text = this->traceValue(term->getTokenText().get(), module);
   if (text != 0 && !text->isA<String>() && !text->isA<SharedMap>()) {
     throw GeneralException(STR("Token term's text is of invalid type."),
                            STR("Core::Data::GrammarContext::getTokenTermText"));
@@ -173,7 +173,7 @@ IdentifiableObject* GrammarContext::getTokenTermText(TokenTerm *term, Module *mo
 
 void GrammarContext::getReferencedCharGroup(Reference const *ref, CharGroupDefinition *&charGroupDef, Module *module)
 {
-  IdentifiableObject *obj = this->tracePlainValue(const_cast<Reference*>(ref), module);
+  IdentifiableObject *obj = this->traceValue(const_cast<Reference*>(ref), module);
   if (obj == 0 || !obj->isA<CharGroupDefinition>()) {
     throw GeneralException(STR("Reference does not point to a char group definition.")
                            STR("Core::Data::GrammarContext::getReferencedCharGroup"));
@@ -193,7 +193,7 @@ void GrammarContext::getReferencedSymbol(Reference const *ref, Module *&retModul
       this->setModule(retVal.module);
       curModule = retVal.module;
     }
-    this->repository.getPlainValue(static_cast<Reference*>(retVal.object), retVal);
+    this->repository.get(static_cast<Reference*>(retVal.object), retVal);
     // If the reference points to a grammar module, then the reference wants the module's start (default) definition.
     if (retVal.object != 0 && retVal.object->isA<GrammarModule>()) {
       retVal.module = static_cast<GrammarModule*>(retVal.object);
@@ -212,7 +212,7 @@ void GrammarContext::getReferencedSymbol(Reference const *ref, Module *&retModul
 
 Integer* GrammarContext::getMultiplyTermMax(MultiplyTerm *term, Module *module)
 {
-  IdentifiableObject *max = this->tracePlainValue(term->getMaxOccurances().get(), module);
+  IdentifiableObject *max = this->traceValue(term->getMaxOccurances().get(), module);
   if (max != 0 && !max->isA<Integer>()) {
     throw GeneralException(STR("Multiply term's max occurances is of invalid type."),
                            STR("Core::Data::GrammarContext::getMultiplyTermMax"));
@@ -223,7 +223,7 @@ Integer* GrammarContext::getMultiplyTermMax(MultiplyTerm *term, Module *module)
 
 Integer* GrammarContext::getMultiplyTermMin(MultiplyTerm *term, Module *module)
 {
-  IdentifiableObject *min = this->tracePlainValue(term->getMinOccurances().get(), module);
+  IdentifiableObject *min = this->traceValue(term->getMinOccurances().get(), module);
   if (min != 0 && !min->isA<Integer>()) {
     throw GeneralException(STR("Multiply term's min occurances is of invalid type."),
                            STR("Core::Data::GrammarContext::getMultiplyTermMin"));
@@ -234,7 +234,7 @@ Integer* GrammarContext::getMultiplyTermMin(MultiplyTerm *term, Module *module)
 
 Integer* GrammarContext::getMultiplyTermPriority(MultiplyTerm *term, Module *module)
 {
-  IdentifiableObject *priority = this->tracePlainValue(term->getPriority().get(), module);
+  IdentifiableObject *priority = this->traceValue(term->getPriority().get(), module);
   if (priority != 0 && !priority->isA<Integer>()) {
     throw GeneralException(STR("Multiply term's priority occurances is of invalid type."),
                            STR("Core::Data::GrammarContext::getMultiplyTermPriority"));
@@ -257,7 +257,7 @@ Term* GrammarContext::getSymbolTerm(const SymbolDefinition *definition, Module *
         this->setModule(retVal.module);
         curModule = retVal.module;
       }
-      this->repository.getPlainValue(static_cast<Reference*>(retVal.object), retVal);
+      this->repository.get(static_cast<Reference*>(retVal.object), retVal);
       // A definition could have a term reference to another definition which means it wants the terms of that
       // other definition. This is used in cases where a definition is inheriting from another definition.
       if (retVal.object != 0 && retVal.object->isA<SymbolDefinition>()) {
@@ -285,7 +285,7 @@ SharedMap* GrammarContext::getSymbolVars(const SymbolDefinition *definition, Mod
         this->setModule(retVal.module);
         curModule = retVal.module;
       }
-      this->repository.getPlainValue(static_cast<Reference*>(retVal.object), retVal);
+      this->repository.get(static_cast<Reference*>(retVal.object), retVal);
       // A definition could have a vars reference to another definition which means it wants the vars of that
       // other definition. This is used in cases where a definition is inheriting from another definition.
       if (retVal.object != 0 && retVal.object->isA<SymbolDefinition>()) {
@@ -318,12 +318,12 @@ Module* GrammarContext::getAssociatedLexerModule(Module *module)
   Reference *lmr = 0;
   while (lmr == 0 && grammarModule != 0) {
     lmr = grammarModule->getLexerModuleRef().get();
-    if (lmr == 0) grammarModule = grammarModule->getPlainParent();
+    if (lmr == 0) grammarModule = grammarModule->getParent();
   }
 
   // Find the module itself.
   if (lmr == 0) return 0;
-  Module *lm = io_cast<Module>(this->tracePlainValue(lmr, grammarModule));
+  Module *lm = io_cast<Module>(this->traceValue(lmr, grammarModule));
   if (lm == 0) {
     throw GeneralException(STR("The module has an invalid lexer module reference."),
                            STR("Core::Data::GrammarContext::getAssociatedLexerModule"));

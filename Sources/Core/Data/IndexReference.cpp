@@ -26,50 +26,22 @@ Bool IndexReference::compare(Reference const *r) const
 }
 
 
-Bool IndexReference::setShared(Provider *provider, IdentifiableObject *parent,
-                               SharedPtr<IdentifiableObject> const &obj, Int &index) const
-{
-  if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndexReference::set"),
-                                   STR("Should not be null."));
-  }
-  if (index == -1) return false;
-  index = -1;
-  SharedContainer *container = parent->getInterface<SharedContainer>();
-  if (container == 0) return false;
-  if (this->index >= 0 && this->index < container->getCount()) {
-    container->set(this->index, obj);
-    return true;
-  } else if (this->index == container->getCount()) {
-    ListSharedContainer *listContainer = parent->getInterface<ListSharedContainer>();
-    if (listContainer == 0) return false;
-    listContainer->add(obj);
-    return true;
-  } else if (this->index < 0 && this->index >= -container->getCount()) {
-    container->set(container->getCount() + this->index, obj);
-    return true;
-  } else {
-    return false;
-  }
-}
-
-
-Bool IndexReference::setPlain(Provider *provider, IdentifiableObject *parent,
+Bool IndexReference::setValue(Provider *provider, IdentifiableObject *parent,
                               IdentifiableObject *obj, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndexReference::setPlain"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndexReference::setValue"),
                                    STR("Should not be null."));
   }
   if (index == -1) return false;
   index = -1;
-  PlainContainer *container = parent->getInterface<PlainContainer>();
+  Container *container = parent->getInterface<Container>();
   if (container == 0) return false;
   if (this->index >= 0 && this->index < container->getCount()) {
     container->set(this->index, obj);
     return true;
   } else if (this->index == container->getCount()) {
-    ListPlainContainer *listContainer = parent->getInterface<ListPlainContainer>();
+    ListContainer *listContainer = parent->getInterface<ListContainer>();
     if (listContainer == 0) return false;
     listContainer->add(obj);
     return true;
@@ -82,7 +54,7 @@ Bool IndexReference::setPlain(Provider *provider, IdentifiableObject *parent,
 }
 
 
-Bool IndexReference::remove(Provider *provider, IdentifiableObject *parent, Int &index) const
+Bool IndexReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
 {
   if (parent == 0) {
     throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndexReference::remove"),
@@ -90,9 +62,8 @@ Bool IndexReference::remove(Provider *provider, IdentifiableObject *parent, Int 
   }
   if (index == -1) return false;
   index = -1;
-  SharedContainer *container;
-  PlainContainer *plainContainer;
-  if ((container = parent->getInterface<SharedContainer>()) != 0) {
+  Container *container;
+  if ((container = parent->getInterface<Container>()) != 0) {
     if (this->index >= 0 && this->index < container->getCount()) {
       container->remove(this->index);
       return true;
@@ -102,75 +73,28 @@ Bool IndexReference::remove(Provider *provider, IdentifiableObject *parent, Int 
     } else {
       return false;
     }
-  } else if ((plainContainer = parent->getInterface<PlainContainer>()) != 0) {
-    if (this->index >= 0 && this->index < plainContainer->getCount()) {
-      plainContainer->remove(this->index);
-      return true;
-    } else if (this->index < 0 && this->index >= -plainContainer->getCount()) {
-      plainContainer->remove(plainContainer->getCount() + this->index);
-      return true;
-    } else {
-      return false;
-    }
   } else {
     return false;
   }
 }
 
 
-Bool IndexReference::getShared(Provider *provider, IdentifiableObject *parent,
-                               SharedPtr<IdentifiableObject> &result, Int &index) const
+Bool IndexReference::getValue(Provider *provider, IdentifiableObject *parent,
+                              IdentifiableObject *&result, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndexReference::get"),
+    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndexReference::getValue"),
                                    STR("Should not be null."));
   }
   if (index == -1) return false;
   index = -1;
-  SharedContainer const *container;
-  if ((container = parent->getInterface<SharedContainer>()) != 0) {
+  Container const *container;
+  if ((container = parent->getInterface<Container>()) != 0) {
     if (this->index >= 0 && this->index < container->getCount()) {
       result = container->get(this->index);
       return true;
     } else if (this->index < 0 && this->index >= -container->getCount()) {
       result = container->get(container->getCount() + this->index);
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-}
-
-
-Bool IndexReference::getPlain(Provider *provider, IdentifiableObject *parent,
-                              IdentifiableObject *&result, Int &index) const
-{
-  if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::IndexReference::getPlain"),
-                                   STR("Should not be null."));
-  }
-  if (index == -1) return false;
-  index = -1;
-  SharedContainer const *container;
-  PlainContainer const *plainContainer;
-  if ((container = parent->getInterface<SharedContainer>()) != 0) {
-    if (this->index >= 0 && this->index < container->getCount()) {
-      result = container->get(this->index).get();
-      return true;
-    } else if (this->index < 0 && this->index >= -container->getCount()) {
-      result = container->get(container->getCount() + this->index).get();
-      return true;
-    } else {
-      return false;
-    }
-  } else if ((plainContainer = parent->getInterface<PlainContainer>()) != 0) {
-    if (this->index >= 0 && this->index < plainContainer->getCount()) {
-      result = plainContainer->get(this->index);
-      return true;
-    } else if (this->index < 0 && this->index >= -plainContainer->getCount()) {
-      result = plainContainer->get(plainContainer->getCount() + this->index);
       return true;
     } else {
       return false;

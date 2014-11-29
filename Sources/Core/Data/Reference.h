@@ -145,7 +145,7 @@ class Reference : public IdentifiableObject, public virtual DataOwner
   public: virtual void setUsageCriteria(ReferenceUsageCriteria criteria) = 0;
 
   /**
-   * @brief Set a SharedPtr value on the given parent object.
+   * @brief Set a value on the given parent object.
    * @param index A reference to a variable that will store an index value used
    *              for multi match searches. This will allow a next call to
    *              continue the search from where it left. If the value was set
@@ -153,19 +153,7 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    *              Single match references will always set it to -1.
    * @return True if the operation was successful.
    */
-  public: virtual Bool setShared(Provider *provider, IdentifiableObject *parent,
-                                 SharedPtr<IdentifiableObject> const &obj, Int &index) const = 0;
-
-  /**
-   * @brief Set a plain value on the given parent object.
-   * @param index A reference to a variable that will store an index value used
-   *              for multi match searches. This will allow a next call to
-   *              continue the search from where it left. If the value was set
-   *              to -1 after the call it means no more matches are there.
-   *              Single match references will always set it to -1.
-   * @return True if the operation was successful.
-   */
-  public: virtual Bool setPlain(Provider *provider, IdentifiableObject *parent,
+  public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
                                 IdentifiableObject *obj, Int &index) const = 0;
 
   /**
@@ -177,10 +165,10 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    *              Single match references will always set it to -1.
    * @return True if the operation was successful.
    */
-  public: virtual Bool remove(Provider *provider, IdentifiableObject *parent, Int &index) const = 0;
+  public: virtual Bool removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const = 0;
 
   /**
-   * @brief Get the SharedPtr value from the given parent object.
+   * @brief Get the value from the given parent object.
    * @param index A reference to a variable that will store an index value used
    *              for multi match searches. This will allow a next call to
    *              continue the search from where it left. If the value was set
@@ -188,38 +176,8 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    *              Single match references will always set it to -1.
    * @return True if the operation was successful.
    */
-  public: virtual Bool getShared(Provider *provider, IdentifiableObject *parent,
-                                 SharedPtr<IdentifiableObject> &result, Int &index) const = 0;
-
-  /**
-   * @brief Get the plain value from the given parent object.
-   * @param index A reference to a variable that will store an index value used
-   *              for multi match searches. This will allow a next call to
-   *              continue the search from where it left. If the value was set
-   *              to -1 after the call it means no more matches are there.
-   *              Single match references will always set it to -1.
-   * @return True if the operation was successful.
-   */
-  public: virtual Bool getPlain(Provider *provider, IdentifiableObject *parent,
+  public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
                                 IdentifiableObject *&result, Int &index) const = 0;
-
-  /*
-   * TODO: If we need to optimize reference seeking by retruning a reference to
-   * a SharedPtr instead of copying the SharedPtr then we need to implement the
-   * following two methods and utilize them in reference seekers as well as
-   * repositories.
-   *
-   * The first of the following should work for multiple matches and return 0
-   * when no matches are found. This will be used to loop through parents in
-   * reference seekers since in that case it makes no difference whether the
-   * parent entry didn't exist, or it existed but had a value of 0.
-   *
-   * The second should work on single matches and only return the first match
-   * or raise an exception if none was found.
-  public: virtual SharedPtr<IdentifiableObject> const& getShared(Provider const *provider, IdentifiableObject *parent,
-                                                                 Int &index) const = 0;
-  public: virtual SharedPtr<IdentifiableObject> const& getShared(Provider const *provider, IdentifiableObject *parent) const = 0;
-  */
 
   /// @}
 

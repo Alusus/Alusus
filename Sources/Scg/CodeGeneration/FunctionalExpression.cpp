@@ -39,7 +39,7 @@ FunctionalExpression::FunctionalExpression(CodeGenerator *gen,
         "Functional expressions can be constructed from Expression.FunctionalExp only.");
 
   for (auto i = 0; i < item->getCount(); i++)
-    this->subExprs.push_back(item->get(i));
+    this->subExprs.push_back(item->getShared(i));
 }
 
 //------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ Expression *FunctionalExpression::ToExpression()
     }
     else if (thisExprAstMeta->getProdId() == this->gen->GetPostfixTildeExpId())
     {
-      auto child = ii_cast<ParsingMetadataHolder>(thisExprAst.s_cast<ParsedList>()->get(0).get());
+      auto child = ii_cast<ParsingMetadataHolder>(thisExprAst.s_cast<ParsedList>()->get(0));
       if (child->getProdId() == this->gen->GetContentTildeId())
       {
         // ~cnt
@@ -177,7 +177,7 @@ std::string FunctionalExpression::ParseFieldName(
   static SharedPtr<Reference> fieldNameReference = ReferenceParser::parseQualifier(
     STR("1~where(prodId=Subject.Subject1)"),
     ReferenceUsageCriteria::MULTI_DATA);
-  auto fieldName = seeker.tryGetShared(fieldNameReference.get(), astBlockRoot.get());
+  auto fieldName = getSharedPtr(seeker.tryGet(fieldNameReference.get(), astBlockRoot.get()));
   if (fieldName == nullptr)
     THROW_EXCEPTION(SystemException,
         "Unexpected error while trying to parse a field name.");
@@ -197,7 +197,7 @@ Expression *FunctionalExpression::ParseElementIndex(
   static SharedPtr<Reference> indexReference = ReferenceParser::parseQualifier(
     STR("0~where(prodId=Expression.Exp)"),
     ReferenceUsageCriteria::MULTI_DATA);
-  auto index = seeker.tryGetShared(indexReference.get(), astBlockRoot.get());
+  auto index = getSharedPtr(seeker.tryGet(indexReference.get(), astBlockRoot.get()));
   if (index == nullptr)
     THROW_EXCEPTION(SystemException,
         "Unexpected error while trying to parse an array index.");
