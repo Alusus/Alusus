@@ -43,14 +43,19 @@ std::string BuildSimpleTest(const ExpressionArray &mainBody,
       VariableDefinitionArray(), new Block(mainBody));
 
   // Create the module.
-  Module module("MainModule");
+  auto *module = new Module("MainModule");
   for (auto link : headerStatements)
-    module.AppendExpression(link);
-  module.AppendExpression(main);
+    module->AppendExpression(link);
+  module->AppendExpression(main);
+
+  auto *program = new Program();
+  program->AddModule(module);
 
   // Generate the IR Code and assert that it matches what we expect.
   std::string irCode;
-  module.Compile(irCode);
+  irCode = program->Compile();
+
+  delete program;
 
   LlvmContainer::Finalize();
 
@@ -68,14 +73,18 @@ std::string RunSimpleTest(const ExpressionArray &mainBody,
       VariableDefinitionArray(), new Block(mainBody));
 
   // Create the module.
-  Module module("MainModule");
+  auto module = new Module("MainModule");
   for (auto link : headerStatements)
-    module.AppendExpression(link);
-  module.AppendExpression(main);
+    module->AppendExpression(link);
+  module->AppendExpression(main);
+
+  auto *program = new Program();
+  program->AddModule(module);
 
   // Generate the IR Code and assert that it matches what we expect.
   std::string irCode;
-  module.Execute("main");
+  program->Execute("MainModule_main");
+  delete program;
 
   LlvmContainer::Finalize();
 

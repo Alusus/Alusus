@@ -95,6 +95,15 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
+  const Program *Expression::GetProgram() const
+  {
+    if (module == nullptr)
+      return nullptr;
+    return module->GetProgram();
+  }
+
+  //----------------------------------------------------------------------------
+
   void Expression::SetModule(Module *module)
   {
     this->module = module;

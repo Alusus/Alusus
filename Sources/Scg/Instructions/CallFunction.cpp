@@ -48,61 +48,8 @@ const ValueType *CallFunction::GetValueType() const
 
 //------------------------------------------------------------------------------
 
-void CallFunction::DeclareRequiredFunction()
-{
-  auto program = this->module->GetProgram();
-  if (program == nullptr) {
-    THROW_EXCEPTION(UndefinedFunctionException,
-        "Calling undefined function: " + this->funcName);
-  }
-  auto defFuncMatches = program->FindDefineFunction(this->funcName, this->argTypes);
-  if (defFuncMatches.size() > 1) {
-    THROW_EXCEPTION(UndefinedFunctionException,
-        "Found multiple matches of function with name: " + this->funcName);
-  } else if (defFuncMatches.size() == 1) {
-    auto match = defFuncMatches[0];
-    if (match->GetModule() != this->GetModule()) {
-      // Found a match. Create a DeclareExtFunction instruction in this module
-      // to link to it.
-      auto declFunc = new DeclareExtFunction(match);
-      this->module->PrependComplementaryExpression(declFunc);
-      this->module->GetAutoDeclFuncSet().insert(this->funcName);
-    } else {
-      // There is a DefineFunction instruction in this module so we just need
-      // to wait for it to define the function we need.
-    }
-  } else {
-    // Couldn't find a function defined in other modules. Try to find functions
-    // declared in other modules, i.e. C functions.
-    auto declFuncMatches = program->FindDeclareFunction(this->funcName, this->argTypes);
-    if (declFuncMatches.size() > 1) {
-      THROW_EXCEPTION(UndefinedFunctionException,
-          "Found multiple matches of function with name: " + this->funcName);
-    } else if (declFuncMatches.size() == 1) {
-      // Found a match. Create a DeclareExtFunction instruction in this module
-      // to link to it.
-      auto declFunc = new DeclareExtFunction(declFuncMatches[0]);
-      this->module->PrependComplementaryExpression(declFunc);
-      this->module->GetAutoDeclFuncSet().insert(this->funcName);
-    } else {
-      THROW_EXCEPTION(UndefinedFunctionException,
-          "Calling undefined function: " + this->funcName);
-    }
-  }
-
-}
-
-//------------------------------------------------------------------------------
-
 Expression::CodeGenerationStage CallFunction::PreGenerateCode()
 {
-  if (GetModule()->GetAutoDeclFuncSet().find(this->funcName) !=
-      GetModule()->GetAutoDeclFuncSet().end()) {
-    // A link to the function is already being added by another CallFunction
-    // instruction. Wait till it is generated.
-    return CodeGenerationStage::PreCodeGeneration;
-  }
-
   // Ensures that all children have finished pre-code generation step so that
   // we can grab their types.
   for (auto i = 0; i < this->args->GetElementCount(); i++) {
@@ -120,14 +67,36 @@ Expression::CodeGenerationStage CallFunction::PreGenerateCode()
         const_cast<ValueTypeSpec*>(this->args->GetElement(i)->GetValueType()->GetValueTypeSpec());
   }
 
+  // Try to find the function in the same module.
   this->function = GetModule()->GetFunction(this->funcName, argTypes);
   if (this->function == nullptr) {
-    // The function is not available in this module, so we assume it is defined
-    // in another module and automatically declare it in this module.
-    DeclareRequiredFunction();
-    // Asks the module to stay in pre-code generation stage until the newly
-    // added declaration is processed by the module.
-    return CodeGenerationStage::PreCodeGeneration;
+  	// We couldn't find it in the current module, search the whole program.
+  	auto matches = GetModule()->GetProgram()->GetFunction(
+  			this->funcName, argTypes);
+  	switch (matches.size()) {
+  		case 0:
+  			// We couldn't find the function in the whole program, but it might
+  			// not have been generated yet.
+  			if (GetModule()->HasFunction(this->funcName, argTypes) ||
+  					GetProgram()->HasFunction(this->funcName, argTypes)) {
+  				// Yes, wait until it is generated.
+          return CodeGenerationStage::PreCodeGeneration;
+  			} else {
+  				// No match, throw a CompilationErrorException.
+          THROW_EXCEPTION(CompilationErrorException,
+          		"Calling undefined function " + this->funcName);
+  			}
+  			break;
+
+  		case 1:
+  			// Found the function, use it.
+  			this->function = matches[0];
+  			break;
+
+  		default:
+  			// Found more than one match, throw a CompilationErrorException.
+  			THROW_EXCEPTION(CompilationErrorException, "Found multiple matches for " + this->funcName);
+  	}
   }
   return CodeGenerationStage::CodeGeneration;
 }

@@ -48,7 +48,8 @@ const Variable *Block::GetVariable(const std::string &name) const
     return GetBlock()->GetVariable(name);
   } else if (GetModule() != nullptr) {
     auto var = GetModule()->GetVariableMap().find(name);
-    if (var != GetModule()->GetVariableMap().end()) return var->second;
+    if (var != GetModule()->GetVariableMap().end())
+    	return var->second;
   }
   return nullptr;
 }

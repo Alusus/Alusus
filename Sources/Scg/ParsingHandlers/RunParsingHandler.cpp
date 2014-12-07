@@ -36,8 +36,8 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
-  /*SharedPtr<ParsedToken> name = seeker.tryGet<ParsedToken>(nameReference.get(), item.get());
-  SharedPtr<Module> statementList;
+  auto name = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), item.get()));
+  /*SharedPtr<Module> statementList;
   if (name != 0) {
     statementList = this->rootManager->getDefinitionsStore()->getValue(name->getText().c_str())
                     .io_cast<Module>();
@@ -51,10 +51,11 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
       for (auto i = 0; i < rootModule->getCount(); i++) {
         auto statList = rootModule->getShared(i).io_cast<Data::Module>();
         if (statList == 0) continue;
-        Module *module = generator.GenerateModule(statList);
+        Module *module = generator.GenerateModule(name->getText(), statList);
         program.AddModule(module);
       }
-      program.Execute("main");
+      auto str = name->getText() + "_main";
+      program.Execute(str.c_str());
       LlvmContainer::Finalize();
     } catch (const Scg::Exception &e) {
       // TODO: Use the source code position once they are added to the module definition.
@@ -70,7 +71,7 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   } else {
       // Create a build message.
       Str message = "Couldn't find module: ";
-      message += "Rafid"; //name->getText();
+      message += name->getText();
       auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
       if (metadata != nullptr) {
         state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),

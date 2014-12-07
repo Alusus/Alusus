@@ -65,15 +65,12 @@ bool RunHelloWorldTwoModulesTest()
 {
   LlvmContainer::Initialize();
 
-  auto mainModule = CreateMainModule();
-  auto printModule = CreatePrintModule();
-  //mainModule->Compile();
-  //printModule->Compile();
-  Program program;
-  program.AddModule(mainModule);
-  program.AddModule(printModule);
-  //std::cout << program.Compile();
-  program.Execute("main");
+  Program *program = new Program();;
+  program->AddModule(CreateMainModule());
+  program->AddModule(CreatePrintModule());
+  //std::cout << program->Compile();
+  program->Execute("MainModule_main");
+  delete program;
 
   LlvmContainer::Finalize();
 

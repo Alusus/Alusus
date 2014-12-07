@@ -110,9 +110,10 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  Module *CodeGenerator::GenerateModule(const SharedPtr<Core::Data::Module> &srcModule)
+  Module *CodeGenerator::GenerateModule(const std::string &name,
+  		const SharedPtr<Core::Data::Module> &srcModule)
   {
-    Module *module = new Module("main");
+    Module *module = new Module(name);
     for (auto i = 0; i < srcModule->getCount(); i++)
     {
         auto item = srcModule->getShared(i);

@@ -111,7 +111,7 @@ namespace Scg
     ~CodeGenerator() {}
 
   public:
-    Module *GenerateModule(const SharedPtr<Core::Data::Module> &srcModule);
+    Module *GenerateModule(const std::string &name, const SharedPtr<Core::Data::Module> &srcModule);
     Block *GenerateSet(const SharedPtr<Core::Data::ParsedList> &list);
     Block *GenerateInnerSet(const SharedPtr<IdentifiableObject> &item);
     Expression *GenerateStatement(const SharedPtr<IdentifiableObject> &item);

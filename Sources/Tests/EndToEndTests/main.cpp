@@ -179,10 +179,7 @@ bool RunEndToEndTests()
           boost::algorithm::ends_with(fileName, ".alusus"))
       {
         if (!RunAndCheckSourceFile("./" + fileName))
-        //if (!RunAndCheckSourceFile("./function_overloading.alusus"))
-        //if (!RunAndCheckSourceFile("./functions_return_value.alusus"))
           ret = false;
-        //break;
       }
     }
     closedir (dir);

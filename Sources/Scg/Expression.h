@@ -34,6 +34,7 @@ namespace Scg
   class FloatConst;
   class FunctionLinkExpression;
   class Module;
+  class Program;
   class Return;
   class Struct;
 }
@@ -137,6 +138,19 @@ namespace Scg
      * Destructor.
      */
     virtual ~Expression();
+
+    //@{
+    /**
+     * Returns a pointer to the program containing this expression.
+     * @return A pointer to the module or @c nullptr.
+     */
+    const Program *GetProgram() const;
+    Program *GetProgram()
+    {
+    	return const_cast<Program*>(
+    			const_cast<const Expression*>(this)->GetProgram());
+    }
+    //@}
 
     /**
      * Returns a pointer to the module containing this expression.

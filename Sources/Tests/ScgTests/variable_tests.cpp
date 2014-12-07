@@ -35,16 +35,14 @@ bool TestDefinePrimitiveTypes()
       VariableDefinitionArray(), mainBody);
 
   // Create the module.
-  Module module("TestDefinePrimitiveTypes");
-  module.AppendExpression(main);
-
-  // Generate the IR Code and assert that it matches what we expect.
-  std::string irCode;
-  module.Compile(irCode);
-
-  std::cout << irCode << std::endl;
-
+  auto module = new Module("TestDefinePrimitiveTypes");
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
   std::cout << "TestDefinePrimitiveTypes succeeded." << std::endl;
+  delete program;
+
 
   LlvmContainer::Finalize();
 
@@ -68,16 +66,13 @@ bool TestDefinePointersOfPrimitiveTypes()
       VariableDefinitionArray(), mainBody);
 
   // Create the module.
-  Module module("TestDefinePointerOfPrimitiveTypes");
-  module.AppendExpression(main);
-
-  // Generate the IR Code and assert that it matches what we expect.
-  std::string irCode;
-  module.Compile(irCode);
-
-  std::cout << irCode << std::endl;
-
+  auto module = new Module("TestDefinePointerOfPrimitiveTypes");
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
   std::cout << "TestDefinePointerOfPrimitiveTypes succeeded." << std::endl;
+  delete program;
 
   LlvmContainer::Finalize();
 
@@ -101,16 +96,13 @@ bool TestDefineArraysOfPrimitiveTypes()
       VariableDefinitionArray(), mainBody);
 
   // Create the module.
-  Module module("TestDefineArraysOfPrimitiveTypes");
-  module.AppendExpression(main);
-
-  // Generate the IR Code and assert that it matches what we expect.
-  std::string irCode;
-  module.Compile(irCode);
-
-  std::cout << irCode << std::endl;
-
+  auto module = new Module("TestDefineArraysOfPrimitiveTypes");
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
   std::cout << "TestDefineArraysOfPrimitiveTypes succeeded." << std::endl;
+  delete program;
 
   LlvmContainer::Finalize();
 
@@ -135,16 +127,13 @@ bool TestDefineStructure()
       VariableDefinitionArray(), mainBody);
 
   // Create the module.
-  Module module("TestDefineStructure");
-  module.AppendExpression(main);
-
-  // Generate the IR Code and assert that it matches what we expect.
-  std::string irCode;
-  module.Compile(irCode);
-
-  std::cout << irCode << std::endl;
-
+  auto module = new Module("TestDefineStructure");
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
   std::cout << "TestDefineStructure succeeded." << std::endl;
+  delete program;
 
   LlvmContainer::Finalize();
 
@@ -169,16 +158,13 @@ bool TestDefineArrayOfStructure()
       VariableDefinitionArray(), mainBody);
 
   // Create the module.
-  Module module("TestDefineArrayOfStructure");
-  module.AppendExpression(main);
-
-  // Generate the IR Code and assert that it matches what we expect.
-  std::string irCode;
-  module.Compile(irCode);
-
-  std::cout << irCode << std::endl;
-
+  auto module = new Module("TestDefineArrayOfStructure");
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
   std::cout << "TestDefineArrayOfStructure succeeded." << std::endl;
+  delete program;
 
   LlvmContainer::Finalize();
 
@@ -204,16 +190,13 @@ bool TestDefineLinkListNodeStructure()
       VariableDefinitionArray(), mainBody);
 
   // Create the module.
-  Module module("TestDefineLinkListNodeStructure");
-  module.AppendExpression(main);
-
-  // Generate the IR Code and assert that it matches what we expect.
-  std::string irCode;
-  module.Compile(irCode);
-
-  std::cout << irCode << std::endl;
-
+  auto module = new Module("TestDefineLinkListNodeStructure");
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
   std::cout << "TestDefineLinkListNodeStructure succeeded." << std::endl;
+  delete program;
 
   LlvmContainer::Finalize();
 
@@ -237,16 +220,13 @@ bool TestDefinePointerToArray()
       VariableDefinitionArray(), mainBody);
 
   // Create the module.
-  Module module("TestDefinePointerToArray");
-  module.AppendExpression(main);
-
-  // Generate the IR Code and assert that it matches what we expect.
-  std::string irCode;
-  module.Compile(irCode);
-
-  std::cout << irCode << std::endl;
-
+  auto module = new Module("TestDefinePointerToArray");
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
   std::cout << "TestDefinePointerToArray succeeded." << std::endl;
+  delete program;
 
   LlvmContainer::Finalize();
 
@@ -270,16 +250,13 @@ bool TestDefineArrayOfPointers()
       VariableDefinitionArray(), mainBody);
 
   // Create the module.
-  Module module("TestDefineArrayOfPointers");
-  module.AppendExpression(main);
-
-  // Generate the IR Code and assert that it matches what we expect.
-  std::string irCode;
-  module.Compile(irCode);
-
-  std::cout << irCode << std::endl;
-
+  auto module = new Module("TestDefineArrayOfPointers");
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
   std::cout << "TestDefineArrayOfPointers succeeded." << std::endl;
+  delete program;
 
   LlvmContainer::Finalize();
 

@@ -40,16 +40,13 @@ bool TestIncrementOperator()
       VariableDefinitionArray(), mainBody);
 
   // Create the module.
-  Module module("TestIncrementOperator");
-  module.AppendExpression(main);
-
-  // Generate the IR Code and assert that it matches what we expect.
-  std::string irCode;
-  module.Compile(irCode);
-
-  std::cout << irCode << std::endl;
-
+  auto module = new Module("TestIncrementOperator");
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
   std::cout << "TestIncrementOperator succeeded." << std::endl;
+  delete program;
 
   LlvmContainer::Finalize();
 

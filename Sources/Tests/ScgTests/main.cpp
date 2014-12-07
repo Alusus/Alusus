@@ -16,7 +16,7 @@ namespace Tests { namespace ScgTests
 {
 
 bool TestDefineAndUseArray();
-bool TestGlobalvariable();
+bool TestGlobalVariable();
 bool RunAllVariableTests();
 bool RunAllUnaryOperatorsTests();
 bool RunAllBinaryOperatorsTests();
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
   int result = EXIT_SUCCESS;
   if (!TestDefineAndUseArray()) result = EXIT_FAILURE;
-  if (!TestGlobalvariable()) result = EXIT_FAILURE;
+  if (!TestGlobalVariable()) result = EXIT_FAILURE;
   if (!RunAllVariableTests()) result = EXIT_FAILURE;
   if (!RunAllUnaryOperatorsTests()) result = EXIT_FAILURE;
   if (!RunAllBinaryOperatorsTests()) result = EXIT_FAILURE;

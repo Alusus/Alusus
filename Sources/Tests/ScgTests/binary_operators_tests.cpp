@@ -36,16 +36,13 @@ bool TestAssignmentOperator()
       VariableDefinitionArray(), mainBody);
 
   // Create the module.
-  Module module("TestAssignmentOperator");
-  module.AppendExpression(main);
-
-  // Generate the IR Code and assert that it matches what we expect.
-  std::string irCode;
-  module.Compile(irCode);
-
-  std::cout << irCode << std::endl;
-
+  auto module = new Module("TestAssignmentOperator");
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
   std::cout << "TestAssignmentOperator succeeded." << std::endl;
+  delete program;
 
   LlvmContainer::Finalize();
 
@@ -98,16 +95,13 @@ bool TestBinaryOperators()
       VariableDefinitionArray(), mainBody);
 
   // Create the module.
-  Module module("TestBinaryOperators");
-  module.AppendExpression(main);
-
-  // Generate the IR Code and assert that it matches what we expect.
-  std::string irCode;
-  module.Compile(irCode);
-
-  std::cout << irCode << std::endl;
-
+  auto module = new Module("TestBinaryOperators");
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
   std::cout << "TestBinaryOperators succeeded." << std::endl;
+  delete program;
 
   LlvmContainer::Finalize();
 

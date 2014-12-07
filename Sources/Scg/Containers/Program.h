@@ -37,8 +37,10 @@ namespace Scg
 {
 class Program
 {
-  /*! A list of the modules making up this program. */
+  //! A list of the modules making up this program.
   ModuleArray modules;
+  //! The LLVM module representing this program.
+  llvm::Module *llvmModule = nullptr;
 
 public:
   /**
@@ -61,6 +63,22 @@ public:
   const ModuleArray &GetModules() const { return modules; }
   ModuleArray &GetModules() { return modules; }
 
+  //@{
+  /**
+   * Retrieves the LLVM module this program generates. This only gets created
+   * during compilation.
+   * @return The LLVM Module.
+   */
+  const llvm::Module *GetLlvmModule() const
+  {
+  	return llvmModule;
+  }
+  llvm::Module *GetLlvmModule()
+  {
+  	return llvmModule;
+  }
+  //@}
+
   /**
    * Adds the given module to the program.
    * @param[in] module  A pointer to the module to be added. Notice that this
@@ -71,6 +89,33 @@ public:
   {
     this->modules.push_back(module);
   }
+
+  /**
+   * Determine whether this program has a function with the given signature,
+   * whether it is a function defined in the program or just a declaration.
+   *
+   * @note While this function might return true indicating that there is a
+   * DefineFunction or DeclareExtFunction instructions, the function
+   * GetFunction() might still return @c nullptr until the function has
+   * actually been generated during code generation.
+   *
+   * @param[in] name      The name of the function.
+   * @param[in] arguments The types of the arguments of the required function.
+   *
+   * @return True or false.
+   */
+  bool HasFunction(const std::string &name,
+  		const ValueTypeSpecArray &arguments) const;
+
+  /**
+   * Gets all function matches for the given name and argument types.
+   * @param[in] name      The name of the function.
+   * @param[in] arguments The types of the arguments of the required function.
+   * @return A pointer to the function, or nullptr if there is no matching
+   * function.
+   */
+  std::vector<Function*> GetFunction(const std::string &funcName,
+  		const ValueTypeSpecArray &arguments);
 
   /**
    * Finds the DefineFunction instructions that generates functions matching

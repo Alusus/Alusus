@@ -40,24 +40,36 @@
 #include <Types/ValueType.h>
 #include <LlvmContainer.h>
 
-using namespace llvm;
-
 namespace Scg
 {
-Module::Module(const std::string& name) : functionStore(*this)
+Module::Module(const std::string& name) : functionStore(*this), name(name)
 {
-  this->llvmModule = new llvm::Module(name, LlvmContainer::GetContext());
+  //this->llvmModule = new llvm::Module(name, LlvmContainer::GetContext());
 }
 
 //------------------------------------------------------------------------------
 
 Module::~Module()
 {
-  for(auto expr : this->expressions)
-    delete expr;
+  /*for(auto expr : this->expressions)
+    delete expr;*/
   for (auto type : this->allocatedTypes)
     delete type;
-  delete this->llvmModule;
+  //delete this->llvmModule;
+}
+
+//------------------------------------------------------------------------------
+
+const llvm::Module *Module::GetLlvmModule() const
+{
+	return this->program->GetLlvmModule();
+}
+
+//------------------------------------------------------------------------------
+
+llvm::Module *Module::GetLlvmModule()
+{
+	return this->program->GetLlvmModule();
 }
 
 //------------------------------------------------------------------------------
@@ -104,12 +116,22 @@ PointerType *Module::GetPointerValueType(ValueType &contentType) const
 
 //------------------------------------------------------------------------------
 
+bool Module::HasFunction(const std::string &name,
+		const ValueTypeSpecArray &arguments) const
+{
+	auto nonConstThis = const_cast<Module*>(this);
+	return nonConstThis->FindDefineFunction(name, arguments) != nullptr ||
+			nonConstThis->FindDeclareFunction(name, arguments) != nullptr;
+}
+
+//------------------------------------------------------------------------------
+
 DefineFunction *Module::FindDefineFunction(const std::string &name,
     const ValueTypeSpecArray &arguments)
 {
   // TODO: We need to create a map for faster retrieval.
   // TODO: We need to raise an error if there is more than one match.
-  for (auto expr : this->expressions)
+  for (auto expr : this->children)
   {
     // TODO: Don't use dynamic_cast.
     auto defFunc = dynamic_cast<DefineFunction*>(expr);
@@ -129,7 +151,7 @@ DeclareExtFunction *Module::FindDeclareFunction(const std::string &name,
 {
   // TODO: We need to create a map for faster retrieval.
   // TODO: We need to raise an error if there is more than one match.
-  for (auto expr : this->expressions)
+  for (auto expr : this->children)
   {
     // TODO: Don't use dynamic_cast.
     auto declFunc = dynamic_cast<DeclareExtFunction*>(expr);
@@ -156,7 +178,7 @@ std::string Module::GetTempVarName()
 
 void Module::PrependExpression(Expression *expr)
 {
-  this->expressions.insert(this->expressions.begin(), expr);
+  this->children.insert(this->children.begin(), expr);
   expr->SetModule(this);
   expr->SetBlock(nullptr);
 }
@@ -165,7 +187,7 @@ void Module::PrependExpression(Expression *expr)
 
 void Module::PrependExpressions(ExpressionArray &expr)
 {
-  this->expressions.insert(this->expressions.begin(), expr.begin(), expr.end());
+  this->children.insert(this->children.begin(), expr.begin(), expr.end());
   for (auto e : expr)
   {
     e->SetModule(this);
@@ -177,7 +199,7 @@ void Module::PrependExpressions(ExpressionArray &expr)
 
 void Module::AppendExpression(Expression *expr)
 {
-  this->expressions.push_back(expr);
+  this->children.push_back(expr);
   expr->SetModule(this);
   expr->SetBlock(nullptr);
 }
@@ -186,7 +208,7 @@ void Module::AppendExpression(Expression *expr)
 
 void Module::AppendExpressions(ExpressionArray &expr)
 {
-  this->expressions.insert(this->expressions.end(), expr.begin(), expr.end());
+  this->children.insert(this->children.end(), expr.begin(), expr.end());
   for (auto e : expr)
   {
     e->SetModule(this);
@@ -196,148 +218,111 @@ void Module::AppendExpressions(ExpressionArray &expr)
 
 //------------------------------------------------------------------------------
 
-void Module::Compile()
-{
-  PreGenerateCode();
-  GenerateCode();
-
-  // TODO: This is only put here for testing purposes. Remove!
-  PassManager passManager;
-  passManager.add(createPrintModulePass(&outs()));
-  passManager.run(*this->llvmModule);
-
-  PostGenerateCode();
-}
-
-//------------------------------------------------------------------------------
-
-void Module::Compile(std::string &out)
-{
-  PreGenerateCode();
-  GenerateCode();
-
-  // TODO: This is only put here for testing purposes. Remove!
-  raw_string_ostream ostream(out);
-  PassManager passManager;
-  passManager.add(createPrintModulePass(&ostream));
-  passManager.run(*this->llvmModule);
-
-  PostGenerateCode();
-}
+// void Module::Compile()
+// {
+//   PreGenerateCode();
+//   GenerateCode();
+//
+//   /*// TODO: This is only put here for testing purposes. Remove!
+//   PassManager passManager;
+//   passManager.add(createPrintModulePass(&outs()));
+//   passManager.run(*this->llvmModule);*/
+//
+//   PostGenerateCode();
+// }
 
 //------------------------------------------------------------------------------
 
-void Module::Execute(const char *functionName)
-{
-  PreGenerateCode();
-  GenerateCode();
-
-  // Execute the generated IR code.
-  llvm::InitializeNativeTarget();
-  llvm::ExecutionEngine *ee = llvm::ExecutionEngine::createJIT(this->llvmModule);
-  llvm::Function* func = ee->FindFunctionNamed(functionName);
-  std::vector<llvm::GenericValue> args(0);
-  ee->runFunction(func, args);
-
-  PostGenerateCode();
-}
-
-//------------------------------------------------------------------------------
-
-void Module::PreGenerateCode()
-{
-  // It is required to call this multiple times because code dependencies might
-  // some time prevent freeing memory.
-  bool repeat = true;
-  int repeatCount = 0;
-  while (repeat && repeatCount < MAX_PRE_CODE_GEN_REPEAT)
-  {
-    // Inserts complementary expressions awaiting addition to the main
-    // expression list.
-    PrependExpressions(this->headerComplExprs);
-    this->headerComplExprs.clear();
-    AppendExpressions(this->footerComplExprs);
-    this->footerComplExprs.clear();
-    this->autoLinkFuncSet.clear();
-
-    repeat = false; repeatCount++;
-    for (auto expr : this->expressions)
-      if (expr->CallPreGenerateCode() != Expression::CodeGenerationStage::CodeGeneration)
-        repeat = true;
-  }
-  if (repeat) {
-    // We repeated a maximum of MAX_PRE_CODE_GEN_REPEAT and failed to finish
-    // code generation. This indicates a problem in our code that need to be
-    // solved.
-    THROW_EXCEPTION(SystemException, "Couldn't finish pre-code generation!");
-  }
-}
+// void Module::Compile(std::string &out)
+// {
+//   PreGenerateCode();
+//   GenerateCode();
+//
+//   /*// TODO: This is only put here for testing purposes. Remove!
+//   raw_string_ostream ostream(out);
+//   PassManager passManager;
+//   passManager.add(createPrintModulePass(&ostream));
+//   passManager.run(*this->llvmModule);*/
+//
+//   PostGenerateCode();
+// }
 
 //------------------------------------------------------------------------------
 
-void Module::GenerateCode()
-{
-  for (auto expr : this->expressions)
-    expr->GenerateCode();
-
-}
-
-//------------------------------------------------------------------------------
-
-void Module::PostGenerateCode()
-{
-  // It is required to call this multiple times because code dependencies might
-  // some time prevent freeing memory.
-  bool repeat = true;
-  int repeatCount = 0;
-  while (repeat && repeatCount < MAX_POST_CODE_GEN_REPEAT)
-  {
-    repeat = false; repeatCount++;
-    for (auto expr : this->expressions)
-      if (expr->CallPostGenerateCode() != Expression::CodeGenerationStage::None)
-        repeat = true;
-  }
-  /*if (repeat) {
-    // We repeated a maximum of MAX_POST_CODE_GEN_REPEAT and failed to finish
-    // code generation. This indicates a problem in our code that need to be
-    // solved.
-    THROW_EXCEPTION(SystemException, "Couldn't finish post-code generation!");
-  }*/
-}
+// void Module::Execute(const char *functionName)
+// {
+//   PreGenerateCode();
+//   GenerateCode();
+//
+//   /*// Execute the generated IR code.
+//   llvm::InitializeNativeTarget();
+//   llvm::ExecutionEngine *ee = llvm::ExecutionEngine::createJIT(this->llvmModule);
+//   llvm::Function* func = ee->FindFunctionNamed(functionName);
+//   std::vector<llvm::GenericValue> args(0);
+//   ee->runFunction(func, args);*/
+//
+//   PostGenerateCode();
+// }
 
 //------------------------------------------------------------------------------
 
-void Module::GenerateRequiredDeclExtFunctions()
-{
-  for (auto expr : this->expressions)
-  {
-    //
-    auto callFunc = dynamic_cast<CallFunction*>(expr);
-    if (callFunc == nullptr)
-      continue;
+// void Module::PreGenerateCode()
+// {
+//   // It is required to call this multiple times because code dependencies might
+//   // some time prevent freeing memory.
+//   bool repeat = true;
+//   int repeatCount = 0;
+//   while (repeat && repeatCount < MAX_PRE_CODE_GEN_REPEAT)
+//   {
+//     // Inserts complementary expressions awaiting addition to the main
+//     // expression list.
+//     PrependExpressions(this->headerComplExprs);
+//     this->headerComplExprs.clear();
+//     AppendExpressions(this->footerComplExprs);
+//     this->footerComplExprs.clear();
+//
+//     repeat = false; repeatCount++;
+//     for (auto expr : this->expressions)
+//       if (expr->CallPreGenerateCode() != Expression::CodeGenerationStage::CodeGeneration)
+//         repeat = true;
+//   }
+//   if (repeat) {
+//     // We repeated a maximum of MAX_PRE_CODE_GEN_REPEAT and failed to finish
+//     // code generation. This indicates a problem in our code that need to be
+//     // solved.
+//     THROW_EXCEPTION(SystemException, "Couldn't finish pre-code generation!");
+//   }
+// }
 
-    // Finds where this function is defined.
-    // TODO: Modify FindDefineFunction() function such that we are able to pass
-    // function arguments.
-    auto allDefFuncs = this->program->FindDefineFunction(
-        callFunc->GetFunctionName(), callFunc->GetArgumentTypes());
-    if (allDefFuncs.size() == 0)
-      THROW_EXCEPTION(UndefinedFunctionException,
-          "Calling undefined function: " + callFunc->GetFunctionName());
-    else if (allDefFuncs.size() > 1)
-      // TODO: Should we ignore other matches if there is a match within the
-      // same module?
-      THROW_EXCEPTION(MultipleMatchesException,
-          "Found multiple of the function: " + callFunc->GetFunctionName());
+//------------------------------------------------------------------------------
 
-    auto defFunc = allDefFuncs[0];
-    if (defFunc->GetModule() == this)
-      // The required function is defined within the same module, so we don't
-      // need to declare.
-      continue;
+// void Module::GenerateCode()
+// {
+//   for (auto expr : this->expressions)
+//     expr->GenerateCode();
+//
+// }
 
-    auto declFunc = new DeclareExtFunction(defFunc);
-    this->expressions.insert(this->expressions.begin(), declFunc);
-  }
-}
+//------------------------------------------------------------------------------
+
+// void Module::PostGenerateCode()
+// {
+//   // It is required to call this multiple times because code dependencies might
+//   // some time prevent freeing memory.
+//   bool repeat = true;
+//   int repeatCount = 0;
+//   while (repeat && repeatCount < MAX_POST_CODE_GEN_REPEAT)
+//   {
+//     repeat = false; repeatCount++;
+//     for (auto expr : this->expressions)
+//       if (expr->CallPostGenerateCode() != Expression::CodeGenerationStage::None)
+//         repeat = true;
+//   }
+//   /*if (repeat) {
+//     // We repeated a maximum of MAX_POST_CODE_GEN_REPEAT and failed to finish
+//     // code generation. This indicates a problem in our code that need to be
+//     // solved.
+//     THROW_EXCEPTION(SystemException, "Couldn't finish post-code generation!");
+//   }*/
+// }
 }

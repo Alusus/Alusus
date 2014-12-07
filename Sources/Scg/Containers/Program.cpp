@@ -24,6 +24,31 @@
 
 namespace Scg
 {
+bool Program::HasFunction(const std::string &name,
+		const ValueTypeSpecArray &arguments) const
+{
+	auto nonConstThis = const_cast<Program*>(this);
+	return nonConstThis->FindDefineFunction(name, arguments).size() > 0 ||
+			nonConstThis->FindDeclareFunction(name, arguments).size() > 0;
+}
+
+//------------------------------------------------------------------------------
+
+std::vector<Function*> Program::GetFunction(
+    const std::string &funcName, const ValueTypeSpecArray &arguments)
+{
+  std::vector<Function*> matches;
+  for (auto module : this->modules)
+  {
+    auto defFunc = module->GetFunction(funcName, arguments);
+    if (defFunc != nullptr)
+      matches.push_back(defFunc);
+  }
+  return matches;
+}
+
+//------------------------------------------------------------------------------
+
 std::vector<DefineFunction*> Program::FindDefineFunction(
     const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
@@ -60,33 +85,46 @@ std::string Program::Compile()
     THROW_EXCEPTION(InvalidObjectException, "The program doesn't contain any "
         "module and cannot be executed.");
 
-  // Generates the code for the modules making up the program.
-  for (auto module : this->modules)
-  {
+  this->llvmModule = new llvm::Module("AlususProgram", LlvmContainer::GetContext());
+
+  for (auto module : this->modules) {
     module->SetProgram(this);
-    module->PreGenerateCode();
-    module->GenerateCode();
   }
 
-  // Links the modules together.
-  auto module = this->modules[0];
-  llvm::Linker linker(module->GetLlvmModule());
-  for (auto i = 1; i < this->modules.size(); i++)
-    linker.linkInModule(this->modules[i]->GetLlvmModule(),
-        llvm::Linker::PreserveSource, nullptr);
+  // Repeatedly call pre-code generation until all modules are ready for code generation.
+  bool repeat = true;
+  int repeatCount = 0;
+  while (repeat && repeatCount < MAX_PRE_CODE_GEN_REPEAT) {
+    repeat = false; repeatCount++;
+    for (auto module : this->modules) {
+      if (module->CallPreGenerateCode() != Expression::CodeGenerationStage::CodeGeneration) {
+      	repeat = true;
+      }
+    }
+  }
+  if (repeat == true) {
+  	THROW_EXCEPTION(SystemException,
+  			"Couldn't finish the pre-code generation step of compilation.");
+  }
+
+  // Generates code for all modules.
+  for (auto module : this->modules) {
+  	module->GenerateCode();
+  }
 
   std::string out;
   llvm::raw_string_ostream ostream(out);
   llvm::PassManager passManager;
   passManager.add(llvm::createPrintModulePass(&ostream));
-  passManager.run(*linker.getModule());
+  passManager.run(*this->llvmModule);
 
-  // Finalises the modules making up the program.
-  for (auto module : this->modules)
-  {
-    module->PostGenerateCode();
+  // Call post-code generation for all modules.
+  for (auto module : this->modules) {
+    module->CallPostGenerateCode();
     module->SetProgram(nullptr);
   }
+
+  delete llvmModule;
 
   return out;
 }
@@ -94,35 +132,50 @@ std::string Program::Compile()
 //------------------------------------------------------------------------------
 
 void Program::Execute(const char *functionName)
-{
-  if (this->modules.empty())
+{  if (this->modules.empty())
     THROW_EXCEPTION(InvalidObjectException, "The program doesn't contain any "
         "module and cannot be executed.");
 
-  // Generates the code for the modules making up the program.
-  for (auto module : this->modules)
-  {
+  this->llvmModule = new llvm::Module("AlususProgram", LlvmContainer::GetContext());
+
+  for (auto module : this->modules) {
     module->SetProgram(this);
-    module->PreGenerateCode();
-    module->GenerateCode();
   }
 
-  // Links the modules together.
-  auto module = this->modules[0];
-  llvm::Linker linker(module->GetLlvmModule());
-  for (auto i = 1; i < this->modules.size(); i++)
-    linker.linkInModule(this->modules[i]->GetLlvmModule(),
-        llvm::Linker::PreserveSource, nullptr);
+  // Repeatedly call pre-code generation until all modules are ready for code generation.
+  bool repeat = true;
+  int repeatCount = 0;
+  while (repeat && repeatCount < MAX_PRE_CODE_GEN_REPEAT) {
+    repeat = false; repeatCount++;
+    for (auto module : this->modules) {
+      if (module->CallPreGenerateCode() != Expression::CodeGenerationStage::CodeGeneration) {
+      	repeat = true;
+      }
+    }
+  }
+  if (repeat == true) {
+  	THROW_EXCEPTION(SystemException,
+  			"Couldn't finish the pre-code generation step of compilation.");
+  }
+
+  // Generates code for all modules.
+  for (auto module : this->modules) {
+  	module->GenerateCode();
+  }
 
   // Execute the generated IR code.
   llvm::InitializeNativeTarget();
-  auto ee = llvm::ExecutionEngine::createJIT(linker.getModule());
+  auto ee = llvm::ExecutionEngine::createJIT(this->llvmModule);
   auto func = ee->FindFunctionNamed(functionName);
   std::vector<llvm::GenericValue> args(0);
   ee->runFunction(func, args);
 
-  // Finalises the modules making up the program.
-  for (auto module : this->modules)
-    module->PostGenerateCode();
+  // Call post-code generation for all modules.
+  for (auto module : this->modules) {
+    module->CallPostGenerateCode();
+    module->SetProgram(nullptr);
+  }
+
+  delete llvmModule;
 }
 }

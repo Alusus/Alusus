@@ -2,8 +2,12 @@ import "common.alusus";
 
 def HelloWorld : module {
   def main : function() => int {
-    print("Hello World!\n");
+    print_helloworld();
     return 0;
+  };
+
+  def print_helloworld : function() {
+    print("Hello World!\n");
   };
 };
 

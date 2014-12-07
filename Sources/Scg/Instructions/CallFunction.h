@@ -89,13 +89,6 @@ public:
   //! @copydoc Expression::GetValueType()
   virtual const ValueType *GetValueType() const;
 
-private:
-  /**
-   * If this function being called is defined in a different module, this
-   * function declare it in this module for LLVM to recognise a call to it.
-   */
-  void DeclareRequiredFunction();
-
 public:
   //! @copydoc Expression::PreGenerateCode()
   virtual CodeGenerationStage PreGenerateCode();

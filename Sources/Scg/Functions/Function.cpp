@@ -92,8 +92,9 @@ void Function::CreateFunction()
       false);
 
   // Creates the LLVM function representing this function.
+  std::string fullName = GetModule()->GetName() + std::string("_") + this->name;
   this->llvmFunction = llvm::Function::Create(funcType,
-      llvm::Function::ExternalLinkage, this->name, GetModule()->GetLlvmModule());
+      llvm::Function::ExternalLinkage, fullName, GetModule()->GetLlvmModule());
 
   // Creates the Alusus variables wrapping the LLVM the arguments of the function.
   auto i = 0;

@@ -20,7 +20,7 @@ using namespace Scg;
 
 namespace Tests { namespace ScgTests
 {
-bool TestGlobalvariable()
+bool TestGlobalVariable()
 {
   LlvmContainer::Initialize();
 
@@ -43,13 +43,15 @@ bool TestGlobalvariable()
   }));
 
   // Creates the module.
-  Module module("MainModule");
-  module.AppendExpression(defGlobInt);
-  module.AppendExpression(defGlobDouble);
-  module.AppendExpression(printfLink);
-  module.AppendExpression(main);
-  module.Execute("main");
-  //module.Compile();
+  auto *module = new Module("MainModule");
+  module->AppendExpression(defGlobInt);
+  module->AppendExpression(defGlobDouble);
+  module->AppendExpression(printfLink);
+  module->AppendExpression(main);
+  auto program = new Program();
+  program->AddModule(module);
+  std::cout << program->Compile() << std::endl;
+  delete program;
 
   LlvmContainer::Finalize();
 
