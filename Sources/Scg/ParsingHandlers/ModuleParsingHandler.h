@@ -45,11 +45,11 @@ class ModuleParsingHandler : public Core::Processing::GenericParsingHandler
 
   public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
-  private: void add_definition_to_module(const SharedPtr<IdentifiableObject> &def, Core::Data::Module *module);
+  private: void addDefinitionToModule(const SharedPtr<IdentifiableObject> &def, Core::Data::Module *module);
 
-  private: void add_link_to_module(const SharedPtr<IdentifiableObject> &link, Core::Data::Module *module);
+  private: void addLinkToModule(const SharedPtr<IdentifiableObject> &link, Core::Data::Module *module);
 
-  private: Char const* get_link_name(IdentifiableObject *link);
+  private: Char const* getLinkName(IdentifiableObject *link);
 
 }; // class
 

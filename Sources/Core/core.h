@@ -13,6 +13,7 @@
 
 // System header files
 #include <memory>
+#include <array>
 #include <vector>
 #include <list>
 #include <utility>

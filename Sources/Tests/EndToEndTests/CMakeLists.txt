@@ -61,11 +61,12 @@ target_link_libraries(AlususE2ETests AlususCoreLib AlususStorage "dl")
 file(COPY ${AlususE2ETests_Test_Files} DESTINATION "${AlususE2ETests_BINARY_DIR}")
 file(COPY ${AlususE2ETests_Test_Files_Output} DESTINATION "${AlususE2ETests_BINARY_DIR}")
 
-# Copy libary header files to installation directory.
+# Copy example files to installation directory.
 install_files("/Examples" FILES ${AlususE2ETests_Test_Files})
 
 add_test(NAME AlususE2ETests
   COMMAND AlususE2ETests
   WORKING_DIRECTORY "${AlususE2ETests_BINARY_DIR}")
 set_tests_properties(AlususE2ETests PROPERTIES
-  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususScg_BINARY_DIR}")
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususScg_BINARY_DIR}"
+  ENVIRONMENT "ALUSUS_LIBS=${AlususSrt_SOURCE_DIR}")

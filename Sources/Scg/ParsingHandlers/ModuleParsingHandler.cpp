@@ -67,10 +67,10 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
         auto id = elementMetadata->getProdId();
         if (id == defId) {
             // Add the definition to the module.
-            this->add_definition_to_module(element, module.get());
+            this->addDefinitionToModule(element, module.get());
         } else if (id == linkId) {
             // Add the link expression to the module.
-            this->add_link_to_module(element, module.get());
+            this->addLinkToModule(element, module.get());
         } else {
             // Raise a build error.
             state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(STR("Invalid statement inside module body."),
@@ -83,7 +83,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 }
 
 
-void ModuleParsingHandler::add_definition_to_module(const SharedPtr<IdentifiableObject> &def,
+void ModuleParsingHandler::addDefinitionToModule(const SharedPtr<IdentifiableObject> &def,
                                                     Core::Data::Module *module)
 {
   static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
@@ -108,7 +108,7 @@ void ModuleParsingHandler::add_definition_to_module(const SharedPtr<Identifiable
 }
 
 
-void ModuleParsingHandler::add_link_to_module(const SharedPtr<IdentifiableObject> &link,
+void ModuleParsingHandler::addLinkToModule(const SharedPtr<IdentifiableObject> &link,
                                               Core::Data::Module *module)
 {
   auto linkMetadata = link->getInterface<ParsingMetadataHolder>();
@@ -128,7 +128,7 @@ void ModuleParsingHandler::add_link_to_module(const SharedPtr<IdentifiableObject
   {
     for (auto i = 0; i < list->getCount(); i++)
     {
-      auto name = this->get_link_name(list->get(i));
+      auto name = this->getLinkName(list->get(i));
       auto l = std::make_shared<ParsedList>(linkMetadata->getProdId());
       l->setLine(linkMetadata->getLine());
       l->setColumn(linkMetadata->getColumn());
@@ -141,7 +141,7 @@ void ModuleParsingHandler::add_link_to_module(const SharedPtr<IdentifiableObject
     auto expr = io_cast<ParsedList>(seeker.tryGet(exprReference.get(), link.get()));
     if (expr != 0)
     {
-      auto name = this->get_link_name(expr);
+      auto name = this->getLinkName(expr);
       module->add(name, link);
     }
     else
@@ -151,7 +151,7 @@ void ModuleParsingHandler::add_link_to_module(const SharedPtr<IdentifiableObject
 }
 
 
-Char const* ModuleParsingHandler::get_link_name(IdentifiableObject *link)
+Char const* ModuleParsingHandler::getLinkName(IdentifiableObject *link)
 {
   static ReferenceSeeker seeker;
   static SharedPtr<Reference> funcExpNoRetReference = ReferenceParser::parseQualifier(

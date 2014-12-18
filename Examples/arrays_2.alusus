@@ -7,9 +7,9 @@ def Arrays2 : module {
     i := 3;
     testArray[i+1] := i*5 + 1;
     print("testArray[");
-    print_int(i+1);
+    printInt(i+1);
     print("] = ");
-    print_int(testArray[i+1]);
+    printInt(testArray[i+1]);
     print("\n");
     return 0;
   }

@@ -332,6 +332,26 @@ inline Word getStrLen(Char const *str)
     return strlen(str);
 }
 
+/**
+ * @brief Gets the currently set working directory.
+ * @ingroup basic_functions
+ *
+ * This method is used to wrap the platform-specific implementation inside a
+ * platform independent function.
+ */
+std::string getWorkingDirectory();
+
+/**
+ * @brief Gets the directory of the executable.
+ * @ingroup basic_functions
+ *
+ * This can be different from the working directory if the user launches the
+ * executable from a path other than the exe's path.
+ * This method is used to wrap the platform-specific implementation inside a
+ * platform independent function.
+ */
+std::string getModuleDirectory();
+
 
 //==============================================================================
 // Other Group Definitions

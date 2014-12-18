@@ -1,11 +1,15 @@
 import "common.alusus";
 
 def HelloWorld : module {
+  def openTestFile : function() => ptr[int] {
+    return fopen("EndToEndTest.txt", "w+");
+  };
+
   def main : function() => int {
     def f : ptr[int];
-    f := open_test_file();
-    write_to_file(f, "Hello World!\n");
-    close_file(f);
+    f := openTestFile();
+    writeToFile(f, "Hello World!\n");
+    closeFile(f);
     return 0;
   };
 };

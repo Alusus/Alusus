@@ -5,7 +5,7 @@ def Arrays1 : module {
     def testArray : arr[int, 10];
     testArray[1] := 10;
     print("testArray[1] = ");
-    print_int(testArray[1]);
+    printInt(testArray[1]);
     print("\n");
     return 0;
   }

@@ -1,0 +1,54 @@
+import "libalusus_scg_d.so";
+
+def SystemLinks : module {
+  link {
+  	fopen(string, string) => ptr[int];
+  	fprintf(ptr[int], string, args) => int;
+  	fclose(ptr[int]) => int;
+  	printf(string, args) => int;
+  };
+
+  def openFile : function(file_name : string) => ptr[int] {
+    return fopen(file_name, "w+");
+  };
+
+  def closeFile : function(file : ptr[int]) {
+    fclose(file);
+  };
+
+  def writeToFile : function(file : ptr[int], string : string) {
+    fprintf(file, string);
+  };
+  
+  def writeIntToFile : function(file : ptr[int], value : int) {
+    fprintf(file, "%d", value);
+  };
+  
+  def writeFloatToFile : function(file : ptr[int], value : float) {
+    fprintf(file, "%f", value);
+  };
+  
+  def writeDoubleToFile : function(file : ptr[int], value : double) {
+    fprintf(file, "%f", value);
+  };
+  
+  def writeNewlineToFile : function(file : ptr[int]) {
+    fprintf(file, "\n");
+  };
+
+  def print : function(string : string) {
+    printf(string);
+  };
+
+  def printInt : function (value : int) {
+    printf("%d", value);
+  };
+
+  def printFloat : function (value : float) {
+    printf("%f", value);
+  };
+
+  def printDouble : function (value : double) {
+    printf("%f", value);
+  }
+};

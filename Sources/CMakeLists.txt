@@ -61,6 +61,7 @@ enable_testing()
 add_subdirectory(Core)
 add_subdirectory(Tests/CoreTests)
 add_subdirectory(Scg)
+add_subdirectory(Srt)
 add_subdirectory(Tests/ScgTests)
 add_subdirectory(Tests/EndToEndTests)
 

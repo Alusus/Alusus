@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_ROOT_MANAGER_H
-#define STANDARD_ROOT_MANAGER_H
+#ifndef STANDARD_ROOTMANAGER_H
+#define STANDARD_ROOTMANAGER_H
 
 namespace Core { namespace Standard
 {
@@ -35,6 +35,9 @@ class RootManager : public SignalReceiver
 
   private: Data::SharedRepository definitionsRepository;
 
+  private: std::vector<Str> searchPaths;
+  private: std::vector<Int> searchPathCounts;
+
 
   //============================================================================
   // Signals
@@ -46,10 +49,7 @@ class RootManager : public SignalReceiver
   //============================================================================
   // Constructors / Destructor
 
-  public: RootManager() : grammarPlant(this), libraryManager(this), definitionsRepository(10, 10)
-  {
-    this->definitionsRepository.pushLevel(STR("root"), Data::Module::create({}));
-  }
+  public: RootManager();
 
   public: virtual ~RootManager()
   {
@@ -86,12 +86,13 @@ class RootManager : public SignalReceiver
     return engine.processString(str);
   }
 
-  public: virtual SharedPtr<IdentifiableObject> processFile(Char const *filename)
-  {
-    Processing::Engine engine(this->grammarPlant.getRepository(), &this->definitionsRepository);
-    engine.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
-    return engine.processFile(filename);
-  }
+  public: virtual SharedPtr<IdentifiableObject> processFile(Char const *filename);
+
+  public: virtual void pushSearchPath(Char const *path);
+
+  public: virtual void popSearchPath(Char const *path);
+
+  public: virtual Str findAbsolutePath(Char const *filename);
 
 }; // class
 

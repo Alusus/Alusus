@@ -81,7 +81,10 @@ LibraryGateway* LibraryManager::getGateway(Char const *libId)
 
 PtrWord LibraryManager::load(Char const *path)
 {
-  void *handle = dlopen(path, RTLD_NOW);
+  Str fullPath = this->root->findAbsolutePath(path);
+  if (fullPath.empty()) fullPath = path;
+
+  void *handle = dlopen(fullPath.c_str(), RTLD_NOW);
   if (handle == 0) return 0;
 
   LibraryGatewayGetter fn = reinterpret_cast<LibraryGatewayGetter>(dlsym(handle, LIBRARY_GATEWAY_GETTER_NAME));

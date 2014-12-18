@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_IDENTIFIABLE_OBJECT_H
-#define BASIC_IDENTIFIABLE_OBJECT_H
+#ifndef BASIC_IDENTIFIABLEOBJECT_H
+#define BASIC_IDENTIFIABLEOBJECT_H
 
 namespace Core { namespace Basic
 {
