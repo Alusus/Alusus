@@ -20,6 +20,9 @@ class FunctionStore: public Expression
   FunctionArray functions;
 
 public:
+  /**
+   * Constructs a function store for the given module.
+   */
   FunctionStore(const Module &module) : module(module) {}
   ~FunctionStore() {}
 
@@ -54,7 +57,11 @@ public:
    * @return The requested function if found, or @c nullptr.
    */
   const Function *Get(const FunctionSignature &signature) const;
-  Function *Get(const FunctionSignature &signature);
+  Function *Get(const FunctionSignature &signature)
+  {
+    return const_cast<Function*>(
+        static_cast<const FunctionStore*>(this)->Get(signature));
+  }
   // @}
 
   // @{
@@ -64,8 +71,12 @@ public:
    * @param[in] signature The signature of the function to match.
    * @return The matching function if found, or @c nullptr.
    */
-  const Function *Match(const FunctionSignature &signature) const;
-  Function *Match(const FunctionSignature &signature);
+  const Function *Match(const std::string &name, const ValueTypeSpecArray &argTypes) const;
+  Function *Match(const std::string &name, const ValueTypeSpecArray &argTypes)
+  {
+    return const_cast<Function*>(
+        static_cast<const FunctionStore*>(this)->Match(name, argTypes));
+  }
   // @}
 };
 }

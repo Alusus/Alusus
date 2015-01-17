@@ -117,6 +117,9 @@ public:
   std::vector<Function*> GetFunction(const std::string &funcName,
   		const ValueTypeSpecArray &arguments);
 
+  std::vector<Function*> MatchFunction(const std::string &funcName,
+  		const ValueTypeSpecArray &arguments);
+
   /**
    * Finds the DefineFunction instructions that generates functions matching
    * the given name.

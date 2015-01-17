@@ -51,6 +51,8 @@ class Function: public Value
   ValueTypeSpec *returnType;
   //! An array containing the types of the arguments of the function being linked to.
   ValueTypeSpecArray argTypes;
+  //! The signature of the function, which consists of the name and argument types.
+  FunctionSignature signature;
   /*! An array containing the definitions (types and names) of the arguments of
       the function being defined. */
   VariableDefinitionArray argDefs;
@@ -105,12 +107,9 @@ public:
   /**
    * Retrieves the signature of the function.
    */
-  FunctionSignature GetSignature()
+  const FunctionSignature &GetSignature() const
   {
-    // PERFORMANCE: This method is frequently called so we need to avoid
-    // repeatedly constructing the signature object which copies the name
-    // and all argument types.
-    return FunctionSignature(this->name, this->argTypes);
+    return signature;
   }
 
   // @{

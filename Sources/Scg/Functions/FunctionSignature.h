@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __FunctionMatcher_h__
-#define __FunctionMatcher_h__
+#ifndef __FunctionSignature_h__
+#define __FunctionSignature_h__
 
 #include <Types/ValueTypeSpec.h>
 
@@ -29,25 +29,28 @@ class FunctionSignature
 {
 public:
   //! The name of the function.
-  std::string name;
+  const std::string &name;
   //! The arguments of the functions.
-  ValueTypeSpecArray arguments;
+  const ValueTypeSpecArray &arguments;
+  bool isVarArgs;
 
   /**
    * Constructs a signature with the given name and arguments.
    */
-  FunctionSignature(const std::string &name, const ValueTypeSpecArray &args) :
-    name(name), arguments(args) {}
+  FunctionSignature(const std::string &name, const ValueTypeSpecArray &args,
+  		bool isVarArgs) : name(name), arguments(args), isVarArgs(isVarArgs) {}
 
   // TODO: Replace the return type with an enum.
   /**
-   * Compares this function signature with the given signature.
-   * @param[in] signature Another signature to compare against.
-   * @return Returns -1 if the two signatures don't match, otherwise return
-   * the number of implicit conversion required to match the signatures.
+   * Tries to match the given function name and argument types against this signature.
+   * @param[in] name The name of the function to match against.
+   * @param[in] argTypes The types of the arguments.
+   * @return Returns -1 if there is no match, otherwise return the number of
+   * implicit conversion required to match the signatures.
    */
-  int Compare(const Module &module, const FunctionSignature &signature);
+  int Match(const Module &module, const std::string &name,
+      const ValueTypeSpecArray &argTypes) const;
 };
 }
 
-#endif // __FunctionMatcher_h__
+#endif // __FunctionSignature_h__

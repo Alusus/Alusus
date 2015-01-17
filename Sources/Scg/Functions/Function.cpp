@@ -33,7 +33,8 @@ Function::Function(const std::string &name, ValueTypeSpec *returnType,
         funcType(FunctionDefinitionSource::Internal),
         name(name),
         returnType(returnType),
-        argDefs(argDefs)
+        argDefs(argDefs),
+				signature(this->name, this->argTypes, false)
 {
   this->children.push_back(body);
   for (auto def : this->argDefs) {
@@ -54,7 +55,8 @@ Function::Function(const std::string &name, ValueTypeSpec *returnType,
         name(name),
         returnType(returnType),
         argTypes(argTypes),
-        isVarArgs(isVarArgs)
+        isVarArgs(isVarArgs),
+				signature(this->name, this->argTypes, isVarArgs)
 {
 }
 

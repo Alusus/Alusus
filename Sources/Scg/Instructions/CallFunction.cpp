@@ -68,10 +68,10 @@ Expression::CodeGenerationStage CallFunction::PreGenerateCode()
   }
 
   // Try to find the function in the same module.
-  this->function = GetModule()->GetFunction(this->funcName, argTypes);
+  this->function = GetModule()->MatchFunction(this->funcName, argTypes);
   if (this->function == nullptr) {
   	// We couldn't find it in the current module, search the whole program.
-  	auto matches = GetModule()->GetProgram()->GetFunction(
+  	auto matches = GetModule()->GetProgram()->MatchFunction(
   			this->funcName, argTypes);
   	switch (matches.size()) {
   		case 0:
@@ -95,7 +95,9 @@ Expression::CodeGenerationStage CallFunction::PreGenerateCode()
 
   		default:
   			// Found more than one match, throw a CompilationErrorException.
-  			THROW_EXCEPTION(CompilationErrorException, "Found multiple matches for " + this->funcName);
+  			// TODO: Improve the exception so that it shows the candidate functions.
+  			THROW_EXCEPTION(CompilationErrorException,
+  					"Found multiple matches for " + this->funcName);
   	}
   }
   return CodeGenerationStage::CodeGeneration;

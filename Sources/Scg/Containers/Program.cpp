@@ -49,6 +49,21 @@ std::vector<Function*> Program::GetFunction(
 
 //------------------------------------------------------------------------------
 
+std::vector<Function*> Program::MatchFunction(
+    const std::string &funcName, const ValueTypeSpecArray &arguments)
+{
+  std::vector<Function*> matches;
+  for (auto module : this->modules)
+  {
+    auto defFunc = module->MatchFunction(funcName, arguments);
+    if (defFunc != nullptr)
+      matches.push_back(defFunc);
+  }
+  return matches;
+}
+
+//------------------------------------------------------------------------------
+
 std::vector<DefineFunction*> Program::FindDefineFunction(
     const std::string &funcName, const ValueTypeSpecArray &arguments)
 {

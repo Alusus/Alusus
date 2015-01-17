@@ -45,16 +45,29 @@ const Function *FunctionStore::Get(const std::string &name,
 
 //------------------------------------------------------------------------------
 
-const Function *FunctionStore::Match(const FunctionSignature &signature) const
+const Function *FunctionStore::Get(const FunctionSignature &signature) const
+{
+	return Get(signature.name, signature.arguments);
+}
+
+//------------------------------------------------------------------------------
+
+const Function *FunctionStore::Match(const std::string &name, const ValueTypeSpecArray &argTypes) const
 {
   // Find all the matching functions and sort them by the number of required
   // implicit casting.
-  std::vector<std::pair<int, Function*>> matches;
+	typedef std::pair<int, Function*> FunctionMatch;
+  std::vector<FunctionMatch> matches;
   for (auto function : this->functions) {
-    auto matchability = function->GetSignature().Compare(module, signature);
-    matches.push_back(std::make_pair(matchability, function));
+    auto matchability = function->GetSignature().Match(module, name, argTypes);
+    if (matchability != -1) {
+      matches.push_back(std::make_pair(matchability, function));
+    }
   }
-  std::sort(matches.begin(), matches.end());
+  auto compFunc = [](const FunctionMatch &a, const FunctionMatch &b) {
+  	return a.first < b.first;
+  };
+  std::sort(matches.begin(), matches.end(), compFunc);
 
   switch (matches.size()) {
   case 0:

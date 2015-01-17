@@ -168,7 +168,7 @@ public:
   Function *MatchFunction(const std::string &name,
       const ValueTypeSpecArray &arguments)
   {
-    return this->functionStore.Match(FunctionSignature(name, arguments));
+    return this->functionStore.Match(name, arguments);
   }
 
   //@{
