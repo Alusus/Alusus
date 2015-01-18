@@ -136,7 +136,6 @@ namespace Scg
     IfStatement *GenerateIfStatement(const SharedPtr<IdentifiableObject> &command);
     ForStatement *GenerateForStatement(const SharedPtr<IdentifiableObject> &command);
     WhileStatement *GenerateWhileStatement(const SharedPtr<IdentifiableObject> &command);
-    Expression *GenerateLinkStatement(const SharedPtr<IdentifiableObject> &command);
 
   public:
     /**

@@ -18,6 +18,8 @@
 
 namespace Scg
 {
+  // TODO: Why is List derived from Expression?
+  // TODO: Why do we need ExpressionArray if we already have this class?
   /**
    * Represent a return statement.
    */
@@ -49,7 +51,7 @@ namespace Scg
      *
      * @return The number of elements in the list.
      */
-    ExpressionArray::size_type GetElementCount() { return children.size(); }
+    ExpressionArray::size_type GetElementCount() const { return children.size(); }
 
     //! @copydoc Expression::GenerateCode()
     virtual CodeGenerationResult GenerateCode();

@@ -17,10 +17,6 @@
 // Scg header files
 #include <Containers/Block.h>
 #include <Expression.h>
-#include <BuiltInFunctions/AddDoubles.h>
-#include <BuiltInFunctions/AddFloats.h>
-#include <BuiltInFunctions/AddIntegers.h>
-#include <Containers/ExpressionList.h>
 #include <Containers/List.h>
 #include <Containers/Module.h>
 #include <CodeGeneration/CodeGenerator.h>
@@ -775,49 +771,6 @@ namespace Scg
       whileState->SetColumnInCode(commandMetadata->getColumn());
     }
     return whileState;
-  }
-
-  //----------------------------------------------------------------------------
-
-  Expression *CodeGenerator::GenerateLinkStatement(SharedPtr<IdentifiableObject> const &command)
-  {
-    static ReferenceSeeker seeker;
-    static SharedPtr<Reference> listReference = ReferenceParser::parseQualifier(
-      STR("0~where(prodId=Expression.Exp)."
-          "0~where(prodId=Subject.Subject1)."
-          "0~where(prodId=Main.StatementList)"),
-      ReferenceUsageCriteria::MULTI_DATA);
-    static SharedPtr<Reference> exprReference = ReferenceParser::parseQualifier(
-      STR("0~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
-
-    auto list = io_cast<ParsedList>(seeker.tryGet(listReference.get(), command.get()));
-    if (list != 0)
-    {
-      auto exprList = new ExpressionList();
-      for (auto i = 0; i < list->getCount(); i++)
-      {
-        FunctionLinkExpression funcLink(this, list->getShared(i));
-        exprList->AppendExpression(funcLink.ToDeclareExtFunction());
-      }
-      auto commandMetadata = command->getInterface<ParsingMetadataHolder>();
-      if (commandMetadata != 0) {
-        exprList->SetLineInCode(commandMetadata->getLine());
-        exprList->SetColumnInCode(commandMetadata->getColumn());
-      }
-      return exprList;
-    }
-    else
-    {
-      auto expr = getSharedPtr(seeker.tryGet(exprReference.get(), command.get())).io_cast<ParsedList>();
-      if (expr != 0)
-      {
-        FunctionLinkExpression funcLink(this, expr);
-        return funcLink.ToDeclareExtFunction();
-      }
-      else
-        // TODO: Improve exception message.
-        THROW_EXCEPTION(SyntaxErrorException, "Invalid link statement.");
-    }
   }
 
   //----------------------------------------------------------------------------
