@@ -54,7 +54,7 @@ void VariableStack::reinitialize(Word maxStrSize, Word reservedRecordCount, Word
       for (Int i = 0; static_cast<Word>(i) < this->levels.back(); ++i) {
         Byte *destBuf = this->buffer + i*this->getRecordSize();
         Byte *srcBuf = oldBuf + i*VariableStack::getRecordSize(oldStrSize);
-        sbstr_cast(destBuf).assign(sbstr_cast(srcBuf), this->maxStrSize);
+        sbstr_cast(destBuf).assign(sbstr_cast(srcBuf).c_str(), this->maxStrSize);
         *reinterpret_cast<IdentifiableObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
             *reinterpret_cast<IdentifiableObject**>(srcBuf+sizeof(Char)*oldStrSize);
       }
@@ -197,7 +197,7 @@ void VariableStack::ownTopLevel()
     for (Int i = 0; static_cast<Word>(i) < srcCount; ++i) {
       Byte *destBuf = this->buffer + i*this->getRecordSize();
       Byte *srcBuf = this->trunkStack->buffer + (srcStart+i)*this->trunkStack->getRecordSize();
-      sbstr_cast(destBuf).assign(sbstr_cast(srcBuf), this->maxStrSize);
+      sbstr_cast(destBuf).assign(sbstr_cast(srcBuf).c_str(), this->maxStrSize);
       *reinterpret_cast<IdentifiableObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
           *reinterpret_cast<IdentifiableObject**>(srcBuf+sizeof(Char)*this->trunkStack->maxStrSize);
     }

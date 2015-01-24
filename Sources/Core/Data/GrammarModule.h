@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_GRAMMAR_MODULE_H
-#define DATA_GRAMMAR_MODULE_H
+#ifndef DATA_GRAMMARMODULE_H
+#define DATA_GRAMMARMODULE_H
 
 namespace Core { namespace Data
 {

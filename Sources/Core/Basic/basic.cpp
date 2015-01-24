@@ -12,6 +12,7 @@
 
 #include "core.h"
 #include <stdio.h>  /* defines FILENAME_MAX */
+#include <locale>
 
 #ifdef WINDOWS
   #include <direct.h>
@@ -32,7 +33,63 @@ namespace Core { namespace Basic
 
 
 //============================================================================
+// Variables and Types
+
+typedef std::codecvt<WChar,Char,std::mbstate_t> FacetType;
+
+static std::locale utf8Locale("en_US.UTF8");
+
+static const FacetType& utf8Facet = std::use_facet<FacetType>(utf8Locale);
+
+
+//============================================================================
 // Global Functions
+
+void convertStr(Char const *input, int inputLength, WChar *output, int outputSize, int &processedInputLength, int &resultedOutputLength)
+{
+  std::mbstate_t mystate = std::mbstate_t();
+  const char* fromNext;
+  wchar_t* toNext;
+
+  // translate characters:
+  utf8Facet.in(mystate, input, input+inputLength, fromNext, output, output+outputSize, toNext);
+
+  processedInputLength = fromNext-input;
+  resultedOutputLength = toNext-output;
+}
+
+
+void convertStr(WChar const *input, int inputLength, Char *output, int outputSize, int &processedInputLength, int &resultedOutputLength)
+{
+  std::mbstate_t mystate = std::mbstate_t();
+  const wchar_t *fromNext;
+  char *toNext;
+
+  // translate characters:
+  utf8Facet.out(mystate, input, input+inputLength, fromNext, output, output+outputSize, toNext);
+
+  processedInputLength = fromNext-input;
+  resultedOutputLength = toNext-output;
+}
+
+
+void* allocateOnStack(Word size)
+{
+  #ifdef WINDOWS
+    return _malloca(size);
+  #else
+    return alloca(size);
+  #endif
+}
+
+
+void freeFromStack(void *p)
+{
+  #ifdef WINDOWS
+    return _freea(p);
+  #endif
+}
+
 
 std::string getWorkingDirectory()
 {

@@ -44,6 +44,16 @@ class SbStr
     this->assign(str, bufferSize);
   }
 
+  public: SbStr(WChar const *str, Word n, Word bufferSize)
+  {
+    this->assign(str, n, bufferSize);
+  }
+
+  public: SbStr(WChar const *str, Word bufferSize)
+  {
+    this->assign(str, bufferSize);
+  }
+
 
   //============================================================================
   // Operators
@@ -97,23 +107,46 @@ class SbStr
   //============================================================================
   // Functions
 
+  /// @name Byte Character Assigning Functions
+  /// @{
+
   public: void assign(Char const *str, Word n, Word bufferSize);
 
-  public: void assign(Char const *str, Word bufferSize);
-
-  public: void assign(const SbStr &str, Word bufferSize)
+  public: void assign(Char const *str, Word bufferSize)
   {
-    this->assign(str.c_str(), bufferSize);
+    this->assign(str, 0, bufferSize);
   }
 
   public: void append(Char const *str, Word src_size, Word bufferSize);
 
-  public: void append(Char const *str, Word bufferSize);
-
-  public: void append(const SbStr &str, Word bufferSize)
+  public: void append(Char const *str, Word bufferSize)
   {
-    this->append(str.c_str(), bufferSize);
+    this->append(str, 0, bufferSize);
   }
+
+  /// @}
+
+  /// @name Wide Character Assigning Functions
+  /// @{
+
+  public: void assign(WChar const *str, Word n, Word bufferSize);
+
+  public: void assign(WChar const *str, Word bufferSize)
+  {
+    this->assign(str, getStrLen(str), bufferSize);
+  }
+
+  public: void append(WChar const *str, Word src_size, Word bufferSize);
+
+  public: void append(WChar const *str, Word bufferSize)
+  {
+    this->append(str, getStrLen(str), bufferSize);
+  }
+
+  /// @}
+
+  /// @name Other Functions
+  /// @{
 
   public: Word size() const
   {
@@ -124,6 +157,8 @@ class SbStr
   {
     return reinterpret_cast<Char const*>(this);
   }
+
+  /// @}
 
 }; // class
 

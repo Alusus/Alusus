@@ -53,7 +53,7 @@ void SharedNamedList::reinitialize(Word maxStrSize, Word reservedCount)
       for (Int i = 0; static_cast<Word>(i) < this->count; ++i) {
         Byte *destBuf = this->buffer + i*this->getRecordSize();
         Byte *srcBuf = oldBuf + i*SharedNamedList::getRecordSize(oldStrSize);
-        sbstr_cast(destBuf).assign(sbstr_cast(srcBuf), this->maxStrSize);
+        sbstr_cast(destBuf).assign(sbstr_cast(srcBuf).c_str(), this->maxStrSize);
         SharedPtr<IdentifiableObject> *destPtr = new(destBuf+sizeof(Char)*this->maxStrSize) SharedPtr<IdentifiableObject>();
         *destPtr = *reinterpret_cast<SharedPtr<IdentifiableObject>*>(srcBuf+sizeof(Char)*oldStrSize);
       }

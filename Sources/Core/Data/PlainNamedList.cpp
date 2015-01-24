@@ -53,7 +53,7 @@ void PlainNamedList::reinitialize(Word maxStrSize, Word reservedCount)
       for (Int i = 0; static_cast<Word>(i) < this->count; ++i) {
         Byte *destBuf = this->buffer + i*this->getRecordSize();
         Byte *srcBuf = oldBuf + i*PlainNamedList::getRecordSize(oldStrSize);
-        sbstr_cast(destBuf).assign(sbstr_cast(srcBuf), this->maxStrSize);
+        sbstr_cast(destBuf).assign(sbstr_cast(srcBuf).c_str(), this->maxStrSize);
         *reinterpret_cast<IdentifiableObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
             *reinterpret_cast<IdentifiableObject**>(srcBuf+sizeof(Char)*oldStrSize);
       }

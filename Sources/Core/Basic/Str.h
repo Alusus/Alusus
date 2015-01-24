@@ -27,14 +27,39 @@ class Str : public std::string
   //============================================================================
   // Constructors
 
+  /// @name Main and Byte Character Constructors
+  /// @{
+
   public: Str() {}
-  public: Str(const std::string &str) : std::string(str) {}
-  public: Str(const std::string &str, Word pos, Word n) : std::string(str, pos, n) {}
-  public: Str(const SbStr &str) : std::string(str.c_str()) {}
-  public: Str(const SbStr &str, Word pos, Word n) : std::string(str.c_str() + pos, n) {}
+  public: Str(std::string const &str) : std::string(str) {}
+  public: Str(std::string const &str, Word pos, Word n) : std::string(str, pos, n) {}
+  public: Str(SbStr const &str) : std::string(str.c_str()) {}
+  public: Str(SbStr const &str, Word pos, Word n) : std::string(str.c_str() + pos, n) {}
   public: Str(Char const *s, Word n) : std::string(s, n) {}
   public: Str(Char const *s) : std::string(s) {}
   public: Str(Word n, Char c) : std::string(n, c) {}
+
+  /// @}
+
+  /// @name Wide Character Constructors
+  /// @{
+
+  public: Str(std::wstring const &str, Word pos=0, Word n=0)
+  {
+    this->assign(str, pos, n);
+  }
+
+  public: Str(SbWStr const &str, Word pos=0, Word n=0)
+  {
+    this->assign(str, pos, n);
+  }
+
+  public: Str(WChar const *s, Word n=0)
+  {
+    this->assign(s, n);
+  }
+
+  /// @}
 
 
   //============================================================================
@@ -89,13 +114,40 @@ class Str : public std::string
   //============================================================================
   // Functions
 
+  using std::string::assign;
+
+  public: void assign(SbStr const &str, Word pos=0, Word n=0)
+  {
+    if (n == 0) n = str.size()-pos;
+    this->assign(str.c_str()+pos, n);
+  }
+
+  public: void assign(std::wstring const &str, Word pos=0, Word n=0)
+  {
+    this->assign(str.c_str()+pos, n);
+  }
+
+  public: void assign(SbWStr const &str, Word pos = 0, Word n=0)
+  {
+    this->assign(str.c_str()+pos, n);
+  }
+
+  public: void assign(WChar const *s, Word n=0)
+  {
+    if (n == 0) n = getStrLen(s);
+    Char *buffer = reinterpret_cast<Char*>(allocateOnStack(n*4));
+    Int inLength, outLength;
+    convertStr(s, n, buffer, n*4, inLength, outLength);
+    this->assign(buffer, outLength);
+    freeFromStack(buffer);
+  }
+
   public: SbStr const& sbstr() const
   {
     return sbstr_cast(this->c_str());
   }
 
 }; // class
-
 
 } } // namespace
 

@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/SbStr.cpp
- * Contains the implementation of class Core::Basic::SbStr.
+ * @file Core/Basic/SbWStr.cpp
+ * Contains the implementation of class Core::Basic::SbWStr.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -18,49 +18,49 @@ namespace Core { namespace Basic
 //==============================================================================
 // Member Functions
 
-void SbStr::assign(Char const *str, Word n, Word bufferSize)
+void SbWStr::assign(WChar const *str, Word n, Word bufferSize)
 {
   if (bufferSize < 2) {
-    throw InvalidArgumentException(STR("bufferSize"), STR("Core::Basic::SbStr::assign"),
+    throw InvalidArgumentException(STR("bufferSize"), STR("Core::Basic::SbWStr::assign"),
                                    STR("Buffer size too small."));
   }
   if (n == 0) n = getStrLen(str);
   Word size = std::min(n, bufferSize-1);
-  Char *buf = reinterpret_cast<Char*>(this);
+  WChar *buf = reinterpret_cast<WChar*>(this);
   copyStr(str, buf, size);
   buf[size] = STRING_TERMINATOR;
 }
 
 
-void SbStr::append(Char const *str, Word strSize, Word bufferSize)
+void SbWStr::append(WChar const *str, Word strSize, Word bufferSize)
 {
   if (strSize == 0) strSize = getStrLen(str);
   Word destSize = this->size();
   if (destSize >= bufferSize-1) return;
   if (strSize+destSize > bufferSize-1) strSize = bufferSize - 1 - destSize;
-  Char *buf = reinterpret_cast<Char*>(this);
+  WChar *buf = reinterpret_cast<WChar*>(this);
   copyStr(str, buf+destSize, strSize);
   buf[destSize+strSize] = STRING_TERMINATOR;
 }
 
 
-void SbStr::assign(WChar const *str, Word n, Word bufferSize)
+void SbWStr::assign(Char const *str, Word n, Word bufferSize)
 {
   if (n == 0) n = getStrLen(str);
-  Char *buffer = reinterpret_cast<Char*>(allocateOnStack(n*4));
+  WChar *buffer = reinterpret_cast<WChar*>(allocateOnStack(n));
   Int inLength, outLength;
-  convertStr(str, n, buffer, n*4, inLength, outLength);
+  convertStr(str, n, buffer, n, inLength, outLength);
   this->assign(buffer, outLength, bufferSize);
   freeFromStack(buffer);
 }
 
 
-void SbStr::append(WChar const *str, Word srcSize, Word bufferSize)
+void SbWStr::append(Char const *str, Word srcSize, Word bufferSize)
 {
   if (srcSize == 0) srcSize = getStrLen(str);
-  Char *buffer = reinterpret_cast<Char*>(allocateOnStack(srcSize*4));
+  WChar *buffer = reinterpret_cast<WChar*>(allocateOnStack(srcSize));
   Int inLength, outLength;
-  convertStr(str, srcSize, buffer, srcSize*4, inLength, outLength);
+  convertStr(str, srcSize, buffer, srcSize, inLength, outLength);
   this->append(buffer, outLength, bufferSize);
   freeFromStack(buffer);
 }

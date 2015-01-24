@@ -42,6 +42,9 @@ typedef unsigned char Byte;
 typedef char Char;
 
 /// @ingroup basic_datatypes
+typedef wchar_t WChar;
+
+/// @ingroup basic_datatypes
 typedef int Int;
 
 /// @ingroup basic_datatypes
@@ -160,7 +163,7 @@ typedef std::stringstream StrStream;
  * allow easy conversion of the program from ascii to unicode. Every string
  * literal in the source code should be wrapped by this macro.
  */
-#define STR(x)	x
+#define STR(x)	u8##x
 
 /**
  * @brief Wrapper for character literals.
@@ -171,6 +174,12 @@ typedef std::stringstream StrStream;
  * literal in the source code should be wrapped by this macro.
  */
 #define CHR(x)	x
+
+/**
+ * @brief Wrapper for wide character literals.
+ * @ingroup basic_macros
+ */
+#define WCHR(x) U##x
 
 /**
  * @brief Maps to the standard C++ assert function.
@@ -288,8 +297,7 @@ enumeration(LogLevel,
  * @brief Wrapper for string comparison function.
  * @ingroup basic_functions
  *
- * This wrapper is needed for future purposes. The main purpose of this is to
- * allow easy conversion of the program from ascii to unicode.
+ * The main purpose of this is to support both regular and wide character types.
  */
 inline Int compareStr(Char const *str1, Char const *str2)
 {
@@ -297,11 +305,21 @@ inline Int compareStr(Char const *str1, Char const *str2)
 }
 
 /**
+ * @brief Wrapper for wide string comparison function.
+ * @ingroup basic_functions.
+ *
+ * The main purpose of this is to support both regular and wide character types.
+ */
+inline Int compareStr(WChar const *str1, WChar const *str2)
+{
+  return wcscmp(str1, str2);
+}
+
+/**
  * @brief Wrapper for string comparison function.
  * @ingroup basic_functions
  *
- * This wrapper is needed for future purposes. The main purpose of this is to
- * allow easy conversion of the program from ascii to unicode.
+ * The main purpose of this is to support both regular and wide character types.
  */
 inline Int compareStr(Char const *str1, Char const *str2, Int size)
 {
@@ -309,11 +327,21 @@ inline Int compareStr(Char const *str1, Char const *str2, Int size)
 }
 
 /**
+ * @brief Wrapper for wide string comparison function.
+ * @ingroup basic_functions
+ *
+ * The main purpose of this is to support both regular and wide character types.
+ */
+inline Int compareStr(WChar const *str1, WChar const *str2, Int size)
+{
+  return wcsncmp(str1, str2, size);
+}
+
+/**
  * @brief Wrapper for string copy function.
  * @ingroup basic_functions
  *
- * This wrapper is needed for future purposes. The main purpose of this is to
- * allow easy conversion of the program from ascii to unicode.
+ * The main purpose of this is to support both regular and wide character types.
  */
 inline void copyStr(Char const *src, Char *dest, Word size)
 {
@@ -321,16 +349,76 @@ inline void copyStr(Char const *src, Char *dest, Word size)
 }
 
 /**
+ * @brief Wrapper for wide string copy function.
+ * @ingroup basic_functions
+ *
+ * The main purpose of this is to support both regular and wide character types.
+ */
+inline void copyStr(WChar const *src, WChar *dest, Word size)
+{
+    wcsncpy(dest, src, size);
+}
+
+/**
  * @brief Wrapper for string length function.
  * @ingroup basic_functions
  *
- * This wrapper is needed for future purposes. The main purpose of this is to
- * allow easy conversion of the program from ascii to unicode.
+ * The main purpose of this is to support both regular and wide character types.
  */
 inline Word getStrLen(Char const *str)
 {
     return strlen(str);
 }
+
+/**
+ * @brief Wrapper for wide string length function.
+ * @ingroup basic_functions
+ *
+ * The main purpose of this is to support both regular and wide character types.
+ */
+inline Word getStrLen(WChar const *str)
+{
+    return wcslen(str);
+}
+
+/**
+ * @brief Convert string from utf8 to wide characters.
+ * @ingroup basic_functions
+ *
+ * @param input Input utf8 string.
+ * @param inputLength Length of input string.
+ * @param output Pointer to array to hold the output.
+ * @param outputSize Size of output array.
+ * @param processedInputLength Number of input characters processed.
+ * @param resultedOutputLength Number of resulting output characters.
+ */
+void convertStr(Char const *input, int inputLength, WChar *output, int outputSize, int &processedInputLength, int &resultedOutputLength);
+
+/**
+ * @brief Convert string from wide characters to utf8.
+ * @ingroup basic_functions
+ *
+ * @param input Input wide characters string.
+ * @param inputLength Length of input string.
+ * @param output Pointer to array to hold the output utf8 results.
+ * @param outputSize Size of output array.
+ * @param processedInputLength Number of input characters processed.
+ * @param resultedOutputLength Number of resulting output characters.
+ */
+void convertStr(WChar const *input, int inputLength, Char *output, int outputSize, int &processedInputLength, int &resultedOutputLength);
+
+/**
+ * @brief Allocate memory on the stack.
+ * @ingroup basic_functions
+ * @param size Size of memory to allocate, in bytes.
+ */
+void* allocateOnStack(Word size);
+
+/**
+ * @brief Free memory allocated on stack.
+ * @ingroup basic_functions
+ */
+void freeFromStack(void *p);
 
 /**
  * @brief Gets the currently set working directory.
@@ -375,7 +463,9 @@ std::string getModuleDirectory();
 // Headers
 
 #include "SbStr.h"
+#include "SbWStr.h"
 #include "Str.h"
+#include "WStr.h"
 #include "Logger.h"
 #include "exceptions.h"
 #include "SortedIndex.h"
