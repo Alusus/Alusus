@@ -50,5 +50,12 @@ const ValueType *AddFloats::GetArgumentType(int n) const
 				"AddFloats built-in function accepts only two arguments.");
   return FloatType::GetSingleton();
 }
+
+//----------------------------------------------------------------------------------------
+
+const ValueType *AddFloats::GetValueType() const
+{
+	return FloatType::GetSingleton();
+}
 }
 

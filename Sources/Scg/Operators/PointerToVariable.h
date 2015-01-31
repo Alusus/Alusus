@@ -52,7 +52,7 @@ public:
   virtual const ValueType *GetValueType() const;
 
   //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationResult GenerateCode();
+  virtual CodeGenerationStage GenerateCode();
 
   //! @copydoc Expression::ToString()
   virtual std::string ToString();

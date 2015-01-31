@@ -31,7 +31,7 @@ const ValueType *CastToDouble::GetValueType() const
 
 //------------------------------------------------------------------------------
 
-CodeGenerationResult CastToDouble::GenerateCode()
+Expression::CodeGenerationStage CastToDouble::GenerateCode()
 {
   BLOCK_CHECK;
 
@@ -41,22 +41,24 @@ CodeGenerationResult CastToDouble::GenerateCode()
   if (this->GetOperand()->GetValueType() == IntegerType::GetSingleton()) {
     // The operand is an integer, so we need to add SItoFP instruction.
     this->llvmCastInst = static_cast<llvm::CastInst*>(irb->CreateSIToFP(
-        GetOperand()->GenerateCode().exprValue,
+        GetOperand()->GetGeneratedLlvmValue(),
         DoubleType::GetSingleton()->GetSingleton()->GetLlvmType()));
-    return CodeGenerationResult(this->llvmCastInst);
+    this->generatedLlvmValue = this->llvmCastInst;
   } else if (this->GetOperand()->GetValueType() == FloatType::GetSingleton()) {
     // The operand is a float, so we need to add FPExt instruction.
     this->llvmCastInst = static_cast<llvm::CastInst*>(irb->CreateFPExt(
-        GetOperand()->GenerateCode().exprValue,
+        GetOperand()->GetGeneratedLlvmValue(),
         DoubleType::GetSingleton()->GetSingleton()->GetLlvmType()));
-    return CodeGenerationResult(this->llvmCastInst);
+    this->generatedLlvmValue = this->llvmCastInst;
   } else if (this->GetOperand()->GetValueType() == DoubleType::GetSingleton()) {
     // The operand is already a double, no need to cast.
-    return CodeGenerationResult(GetOperand()->GenerateCode().exprValue);
+    this->generatedLlvmValue = GetOperand()->GetGeneratedLlvmValue();
   } else {
     THROW_EXCEPTION(ArgumentOutOfRangeException,
         "The operand of CastToDouble operator should be integer, float, or double.");
   }
+
+  return Expression::GenerateCode();
 }
 
 //------------------------------------------------------------------------------

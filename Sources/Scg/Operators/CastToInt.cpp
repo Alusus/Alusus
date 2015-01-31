@@ -31,7 +31,7 @@ const ValueType *CastToInt::GetValueType() const
 
 //------------------------------------------------------------------------------
 
-CodeGenerationResult CastToInt::GenerateCode()
+Expression::CodeGenerationStage CastToInt::GenerateCode()
 {
   BLOCK_CHECK;
 
@@ -40,18 +40,20 @@ CodeGenerationResult CastToInt::GenerateCode()
   // TODO: This need to be updated when other standard data types are supported.
   if (this->GetOperand()->GetValueType() == IntegerType::GetSingleton()) {
     // The operand is already an integer, no need to cast.
-    return CodeGenerationResult(GetOperand()->GenerateCode().exprValue);
+    this->generatedLlvmValue = GetOperand()->GetGeneratedLlvmValue();
   } else if (this->GetOperand()->GetValueType() == FloatType::GetSingleton() ||
       this->GetOperand()->GetValueType() == DoubleType::GetSingleton()) {
     // The operand is integer or float, so we need to add FPToSI instruction.
     this->llvmCastInst = static_cast<llvm::CastInst*>(irb->CreateFPToSI(
-        GetOperand()->GenerateCode().exprValue,
+        GetOperand()->GetGeneratedLlvmValue(),
         IntegerType::GetSingleton()->GetSingleton()->GetLlvmType()));
-    return CodeGenerationResult(this->llvmCastInst);
+    this->generatedLlvmValue = this->llvmCastInst;
   } else {
     THROW_EXCEPTION(ArgumentOutOfRangeException,
         "The operand of CastToInt operator should be integer, float, or double.");
   }
+
+  return Expression::GenerateCode();
 }
 
 //------------------------------------------------------------------------------

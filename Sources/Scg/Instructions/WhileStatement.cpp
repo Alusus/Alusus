@@ -57,20 +57,40 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  CodeGenerationResult WhileStatement::GenerateCode()
+  Expression::CodeGenerationStage WhileStatement::GenerateCode()
   {
     MODULE_CHECK;
 
     auto irBuilder = GetBlock()->GetIRBuilder();
 
     this->brInst = irBuilder->CreateBr(this->condBlock->GetLlvmBB());
-    this->condBlock->GenerateCode();
-    this->loopBlock->GenerateCode();
-    this->exitBlock->GenerateCode();
+    // Generate the code of the condition of the for condition.
+    if (this->condBlock->GetCodeGenerationStage() ==
+        Expression::CodeGenerationStage::CodeGeneration) {
+      if (this->condBlock->CallGenerateCode() ==
+        Expression::CodeGenerationStage::CodeGeneration) {
+        return Expression::CodeGenerationStage::CodeGeneration;
+      }
+    }
+    // Generate the code of the loop code.
+    if (this->loopBlock->GetCodeGenerationStage() ==
+        Expression::CodeGenerationStage::CodeGeneration) {
+      if (this->loopBlock->CallGenerateCode() ==
+        Expression::CodeGenerationStage::CodeGeneration) {
+        return Expression::CodeGenerationStage::CodeGeneration;
+      }
+    }
+    // Generate the code of the exit block.
+    if (this->exitBlock->GetCodeGenerationStage() ==
+        Expression::CodeGenerationStage::CodeGeneration) {
+      if (this->exitBlock->CallGenerateCode() ==
+        Expression::CodeGenerationStage::CodeGeneration) {
+        return Expression::CodeGenerationStage::CodeGeneration;
+      }
+    }
     irBuilder->SetInsertPoint(this->exitBlock->GetLlvmBB());
 
-    // A for statement doesn't evaluate to a value.
-    return CodeGenerationResult();
+    return Expression::GenerateCode();
   }
 
   //----------------------------------------------------------------------------

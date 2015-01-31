@@ -23,6 +23,11 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
+  // TODO: CallPreGenerateCode(), CallGenerateCode(), and CallPostGenerateCode() now
+  // do the same functionality. Combine them into one function that accepts a
+  // a parameter specifying the stage of code generation so that we remove duplication
+  // and we make it easier to increase the number of stages if we need to.
+
   Expression::CodeGenerationStage Expression::CallPreGenerateCode()
   {
     // Marks the beginning of code generation if we haven't started yet.
@@ -60,6 +65,50 @@ namespace Scg
       for (auto expr : this->children)
         this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
             expr->CallPreGenerateCode());
+    }
+
+    return std::min(this->codeGenStage, this->childrenCodeGenStage);
+  }
+
+  //----------------------------------------------------------------------------
+
+  Expression::CodeGenerationStage Expression::CallGenerateCode()
+  {
+    // Have we already finished code generation for this expression and its
+    // children?
+    if (this->codeGenStage == CodeGenerationStage::PostCodeGeneration &&
+        this->childrenCodeGenStage == CodeGenerationStage::PostCodeGeneration) {
+      return CodeGenerationStage::PostCodeGeneration;
+    }
+
+    // Unlike CallPreGenerateCode() and CallPostGenerateCode(), we require here
+    // that we generate the code for the children before generating the code of
+    // the parent, e.g. you can't generate the addition before generating the
+    // operands.
+    // This is not always the case and sometimes we want to manually generate the
+    // code for the children like in the IfStatement and ForStatement instructions.
+    // In those instructions, we override CallGenerateCode() and make it call
+    // GenerateCode() only, and then we do what we want in GenerateCode().
+    if (this->childrenCodeGenStage == CodeGenerationStage::CodeGeneration) {
+      // The expression finished code generation but the children didn't.
+      this->childrenCodeGenStage = CodeGenerationStage::PostCodeGeneration;
+      for (auto expr : this->children) {
+        this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
+            expr->CallGenerateCode());
+        if (expr->IsTermInstGenerated())
+        	// If an instruction that terminates execution of a block of code, e.g.
+        	// return statement, is generated, then we don't try to generate the
+        	// code for more children, as LLVM seems to object that.
+        	break;
+      }
+    }
+    if (this->childrenCodeGenStage != CodeGenerationStage::PostCodeGeneration) {
+    	return CodeGenerationStage::CodeGeneration;
+    }
+
+    if (this->codeGenStage == CodeGenerationStage::CodeGeneration) {
+      // The expression didn't yet finish code generation.
+      this->codeGenStage = GenerateCode();
     }
 
     return std::min(this->codeGenStage, this->childrenCodeGenStage);

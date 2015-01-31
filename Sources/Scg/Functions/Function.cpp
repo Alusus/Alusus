@@ -173,7 +173,7 @@ Expression::CodeGenerationStage Function::PreGenerateCode()
 
 //------------------------------------------------------------------------------
 
-CodeGenerationResult Function::GenerateCode()
+Expression::CodeGenerationStage Function::GenerateCode()
 {
   MODULE_CHECK;
 
@@ -191,7 +191,7 @@ CodeGenerationResult Function::GenerateCode()
   }
 
   // A function definition doesn't evaluate to a value.
-  return CodeGenerationResult();
+  return Expression::GenerateCode();
 }
 
 // TODO: Do we not need to define post code generation code?

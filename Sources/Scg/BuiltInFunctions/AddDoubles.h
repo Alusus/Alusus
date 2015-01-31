@@ -37,11 +37,14 @@ public:
   virtual const ValueType *GetArgumentType(int n) const;
 
   //! @copydoc Callable::GetArgumentCount()
-  ExpressionArray::size_type GetArgumentCount() const { return 2; }
+  virtual ExpressionArray::size_type GetArgumentCount() const { return 2; }
 
   //! @copydoc Callable::CreateLLVMInstruction()
   virtual llvm::Value *CreateLLVMInstruction(llvm::IRBuilder<> *irb,
   		const List &args) const;
+
+  //! @copydoc Expression::GetValueType()
+  virtual const ValueType *GetValueType() const;
 };
 }
 

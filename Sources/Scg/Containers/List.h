@@ -54,7 +54,7 @@ namespace Scg
     ExpressionArray::size_type GetElementCount() const { return children.size(); }
 
     //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationResult GenerateCode();
+    virtual Expression::CodeGenerationStage GenerateCode();
 
     //! @copydoc Expression::ToString()
     virtual std::string ToString();

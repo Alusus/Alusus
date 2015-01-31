@@ -124,7 +124,7 @@ std::string Program::Compile()
 
   // Generates code for all modules.
   for (auto module : this->modules) {
-  	module->GenerateCode();
+  	module->CallGenerateCode();
   }
 
   std::string out;
@@ -147,7 +147,8 @@ std::string Program::Compile()
 //------------------------------------------------------------------------------
 
 void Program::Execute(const char *functionName)
-{  if (this->modules.empty())
+{
+	if (this->modules.empty())
     THROW_EXCEPTION(InvalidObjectException, "The program doesn't contain any "
         "module and cannot be executed.");
 
@@ -174,8 +175,19 @@ void Program::Execute(const char *functionName)
   }
 
   // Generates code for all modules.
-  for (auto module : this->modules) {
-  	module->GenerateCode();
+  repeat = true;
+  repeatCount = 0;
+  while (repeat && repeatCount < MAX_PRE_CODE_GEN_REPEAT) {
+    repeat = false; repeatCount++;
+    for (auto module : this->modules) {
+      if (module->CallGenerateCode() != Expression::CodeGenerationStage::PostCodeGeneration) {
+      	repeat = true;
+      }
+    }
+  }
+  if (repeat == true) {
+  	THROW_EXCEPTION(SystemException,
+  			"Couldn't finish the code generation step of compilation.");
   }
 
   // Execute the generated IR code.
@@ -186,8 +198,24 @@ void Program::Execute(const char *functionName)
   ee->runFunction(func, args);
 
   // Call post-code generation for all modules.
+  repeat = true;
+  repeatCount = 0;
+  while (repeat && repeatCount < MAX_PRE_CODE_GEN_REPEAT) {
+    repeat = false; repeatCount++;
+    for (auto module : this->modules) {
+      if (module->CallPostGenerateCode() != Expression::CodeGenerationStage::None) {
+      	repeat = true;
+      }
+    }
+  }
+  // FIXME: There is a problem with post-code generation at the moment and we end up
+  // getting the exception below. We need to fix that.
+  /*if (repeat == true) {
+  	// TODO: Should we just log this and report that there is a possible memory leak?
+  	THROW_EXCEPTION(SystemException,
+  			"Couldn't finish the post-code generation step of compilation.");
+  }*/
   for (auto module : this->modules) {
-    module->CallPostGenerateCode();
     module->SetProgram(nullptr);
   }
 

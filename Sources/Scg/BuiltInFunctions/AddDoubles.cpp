@@ -50,5 +50,12 @@ const ValueType *AddDoubles::GetArgumentType(int n) const
 				"AddDoubles built-in function accepts only two arguments.");
   return DoubleType::GetSingleton();
 }
+
+//----------------------------------------------------------------------------------------
+
+const ValueType *AddDoubles::GetValueType() const
+{
+	return DoubleType::GetSingleton();
+}
 }
 

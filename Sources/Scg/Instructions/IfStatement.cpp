@@ -61,7 +61,7 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  CodeGenerationResult IfStatement::GenerateCode()
+  Expression::CodeGenerationStage IfStatement::GenerateCode()
   {
     MODULE_CHECK;
 
@@ -69,8 +69,15 @@ namespace Scg
 
     // Evaluate the condition to a boolean.
     // TODO: 'condition' should be freed in PostGenerateCode().
-    auto condition = this->condition->GenerateCode().exprValue;
-    if (condition == 0)
+    if (this->condition->GetCodeGenerationStage() ==
+    		Expression::CodeGenerationStage::CodeGeneration) {
+      if (this->condition->CallGenerateCode() ==
+      		Expression::CodeGenerationStage::CodeGeneration) {
+  		  return Expression::CodeGenerationStage::CodeGeneration;
+      }
+    }
+    auto condition = this->condition->GetGeneratedLlvmValue();
+    if (condition == nullptr)
       // TODO: This exception is being frequently used, with a similar statement each time. A macro
       // should be created for it to avoid duplication.
       THROW_EXCEPTION(InvalidValueException, "The condition of the if statement "
@@ -82,19 +89,39 @@ namespace Scg
       this->elseBlock != 0 ? this->elseBlock->GetLlvmBB() : this->mergeBlock->GetLlvmBB());
 
     // Generate the code of the 'then', 'else', and merge parts.
-    CodeGenerationResult thenResult = this->thenBlock->GenerateCode(), elseResult;
-    if (this->elseBlock != 0) elseResult = this->elseBlock->GenerateCode();
-    this->mergeBlock->GenerateCode();
+    if (this->thenBlock->GetCodeGenerationStage() ==
+        Expression::CodeGenerationStage::CodeGeneration) {
+      if (this->thenBlock->CallGenerateCode() ==
+          Expression::CodeGenerationStage::CodeGeneration) {
+        return Expression::CodeGenerationStage::CodeGeneration;
+      }
+    }
+    if (this->elseBlock != nullptr)
+    {
+      if (this->elseBlock->GetCodeGenerationStage() ==
+          Expression::CodeGenerationStage::CodeGeneration) {
+        if (this->elseBlock->CallGenerateCode() ==
+            Expression::CodeGenerationStage::CodeGeneration) {
+          return Expression::CodeGenerationStage::CodeGeneration;
+        }
+      }
+    }
+    if (this->mergeBlock->GetCodeGenerationStage() ==
+        Expression::CodeGenerationStage::CodeGeneration) {
+      if (this->mergeBlock->CallGenerateCode() ==
+          Expression::CodeGenerationStage::CodeGeneration) {
+        return Expression::CodeGenerationStage::CodeGeneration;
+      }
+    }
 
     // Add branch instructions to the end of the 'then' and 'else' parts.
-    if (!thenResult.termInstGenerated)
+    if (!this->thenBlock->IsTermInstGenerated())
       this->thenBranch = this->thenBlock->GetIRBuilder()->CreateBr(this->mergeBlock->GetLlvmBB());
-    if (this->elseBlock != 0 && !elseResult.termInstGenerated)
+    if (this->elseBlock != nullptr && !this->elseBlock->IsTermInstGenerated())
       this->elseBranch = this->elseBlock->GetIRBuilder()->CreateBr(this->mergeBlock->GetLlvmBB());
     irBuilder->SetInsertPoint(this->mergeBlock->GetLlvmBB());
 
-    // An if statement doesn't evaluate to a value.
-    return CodeGenerationResult();
+    return Expression::GenerateCode();
   }
 
   //----------------------------------------------------------------------------

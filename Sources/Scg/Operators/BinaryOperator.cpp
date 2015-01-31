@@ -31,55 +31,64 @@ const ValueType *BinaryOperator::GetValueType() const
 
 //------------------------------------------------------------------------------
 
-CodeGenerationResult BinaryOperator::GenerateCode()
+Expression::CodeGenerationStage BinaryOperator::GenerateCode()
 {
   BLOCK_CHECK;
 
+  auto lhs = GetLHS()->GetGeneratedLlvmValue();
+  auto rhs = GetRHS()->GetGeneratedLlvmValue();
+  if (lhs == nullptr) {
+    THROW_EXCEPTION(InvalidValueException,
+        "Right-hand side of '=' doesn't evaluate to a value: "
+            + GetLHS()->ToString());
+  }
+  if (rhs == nullptr) {
+    THROW_EXCEPTION(InvalidValueException,
+        "Right-hand side of '=' doesn't evaluate to a value: "
+            + GetRHS()->ToString());
+  }
+
   auto irb = GetBlock()->GetIRBuilder();
-
-  auto leftValue = GetLHS()->GenerateCode().exprValue;
-  auto rightValue = GetRHS()->GenerateCode().exprValue;
-  if (leftValue == nullptr || rightValue == nullptr)
-    // TODO: Shouldn't we throw an exception here?
-    return CodeGenerationResult();
-
   switch (this->opType)
   {
   case ADD:
-    this->llvmValue = irb->CreateAdd(leftValue, rightValue);
+    this->llvmValue = irb->CreateAdd(lhs, rhs);
     break;
   case SUBTRACT:
-    this->llvmValue = irb->CreateSub(leftValue, rightValue);
+    this->llvmValue = irb->CreateSub(lhs, rhs);
     break;
   case MULTIPLY:
-    this->llvmValue = irb->CreateMul(leftValue, rightValue);
+    this->llvmValue = irb->CreateMul(lhs, rhs);
     break;
   case DIVISION:
-    this->llvmValue = irb->CreateSDiv(leftValue, rightValue);
+    this->llvmValue = irb->CreateSDiv(lhs, rhs);
     break;
   case GREATERTHAN:
-    this->llvmValue = irb->CreateICmpSGT(leftValue, rightValue);
+    this->llvmValue = irb->CreateICmpSGT(lhs, rhs);
     break;
   case GREATERTHAN_EQUAL:
-    this->llvmValue = irb->CreateICmpSGE(leftValue, rightValue);
+    this->llvmValue = irb->CreateICmpSGE(lhs, rhs);
     break;
   case LESSTHAN:
-    this->llvmValue = irb->CreateICmpSLT(leftValue, rightValue);
+    this->llvmValue = irb->CreateICmpSLT(lhs, rhs);
     break;
   case LESSTHAN_EQUAL:
-    this->llvmValue = irb->CreateICmpSLE(leftValue, rightValue);
+    this->llvmValue = irb->CreateICmpSLE(lhs, rhs);
     break;
   case EQUAL:
-    this->llvmValue = irb->CreateICmpEQ(leftValue, rightValue);
+    this->llvmValue = irb->CreateICmpEQ(lhs, rhs);
     break;
   case NOTEQUAL:
-    this->llvmValue = irb->CreateICmpNE(leftValue, rightValue);
+    this->llvmValue = irb->CreateICmpNE(lhs, rhs);
     break;
   default:
     THROW_EXCEPTION(UnreachableCodeException, "This code shouldn't be reached.");
   }
 
-  return CodeGenerationResult(this->llvmValue);
+  // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
+  // generatedLlvmValue?
+  this->generatedLlvmValue = llvmValue;
+  return Expression::GenerateCode();
 }
 
 //------------------------------------------------------------------------------

@@ -61,7 +61,7 @@ namespace Scg
     }
 
     //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationResult GenerateCode();
+    virtual CodeGenerationStage GenerateCode();
 
     //! @copydoc Expression::PostGenerateCode()
     virtual CodeGenerationStage PostGenerateCode();

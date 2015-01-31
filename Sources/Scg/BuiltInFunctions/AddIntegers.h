@@ -42,6 +42,9 @@ public:
   //! @copydoc Callable::CreateLLVMInstruction()
   virtual llvm::Value *CreateLLVMInstruction(llvm::IRBuilder<> *irb,
   		const List &args) const;
+
+  //! @copydoc Expression::GetValueType()
+  virtual const ValueType *GetValueType() const;
 };
 }
 

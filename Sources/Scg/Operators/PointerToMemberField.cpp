@@ -51,7 +51,7 @@ const ValueType *PointerToMemberField::GetValueType() const
 
 //----------------------------------------------------------------------------
 
-CodeGenerationResult PointerToMemberField::GenerateCode()
+Expression::CodeGenerationStage PointerToMemberField::GenerateCode()
 {
   BLOCK_CHECK;
 
@@ -74,15 +74,17 @@ CodeGenerationResult PointerToMemberField::GenerateCode()
 
   // Generates the code of the structure which will return a pointer to the
   // structure, which we will use to generate a pointer to the required field.
-  auto llvmPtr = this->expression->GenerateCode().exprValue;
+  auto llvmPtr = this->expression->GetGeneratedLlvmValue();
 
   // Generates a pointer to the required field.
   auto irb = GetBlock()->GetIRBuilder();
   // TODO: We need to delete this pointer in the PostGenerateCode() function.
-  this->llvmPointer = irb->CreateGEP(llvmPtr,
+  // TODO: generatedLlvmValue is a duplicate of llvmPointer. Should we just use
+  // generatedLlvmValue?
+  this->generatedLlvmValue = this->llvmPointer = irb->CreateGEP(llvmPtr,
       llvm::makeArrayRef(std::vector<llvm::Value*>({zero, index})), "");
 
-  return CodeGenerationResult(this->llvmPointer);
+  return Expression::GenerateCode();
 }
 
 //----------------------------------------------------------------------------

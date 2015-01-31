@@ -67,28 +67,26 @@ const Variable *Block::GetVariable(const std::string &name) const
     this->llvmBasicBlock = BasicBlock::Create(LlvmContainer::GetContext(),
       GetNewBlockName(), GetFunction()->GetLlvmFunction());
     this->irBuilder = new IRBuilder<>(this->llvmBasicBlock);
-    return CodeGenerationStage::CodeGeneration;
+    return Expression::PreGenerateCode();
   }
 
   //----------------------------------------------------------------------------
 
-  CodeGenerationResult Block::GenerateCode()
+  Expression::CodeGenerationStage Block::GenerateCode()
   {
     // Iteratively generate the code of all contained expressions.
     for (auto expr : this->children)
     {
-      auto result = expr->GenerateCode();
-      if (result.termInstGenerated)
-        return CodeGenerationResult(0, true);
+      if (expr->IsTermInstGenerated())
+        termInstGenerated = true;
     }
 
-    // A block doesn't evaluate to a value.
-    return CodeGenerationResult();
+    return Expression::GenerateCode();
   }
 
   //----------------------------------------------------------------------------
 
-  Expression::CodeGenerationStage  Block::PostGenerateCode()
+  Expression::CodeGenerationStage Block::PostGenerateCode()
   {
     if (this->llvmBasicBlock != nullptr)
     {
@@ -101,7 +99,7 @@ const Variable *Block::GetVariable(const std::string &name) const
       this->irBuilder = nullptr;
     }
 
-    return CodeGenerationStage::None;
+    return Expression::PostGenerateCode();
   }
 
   //----------------------------------------------------------------------------

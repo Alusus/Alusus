@@ -81,12 +81,11 @@ public:
   const ExpressionArray::value_type GetRHS() const { return children[1]; }
   ExpressionArray::value_type GetRHS() { return children[1]; }
 
+  //! @copydoc Expression::GetValueType()
   virtual const ValueType *GetValueType() const;
 
   //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationResult GenerateCode();
-
-  CodeGenerationResult GenerateCodeForAssignment();
+  virtual CodeGenerationStage GenerateCode();
 
   //! @copydoc Expression::PostGenerateCode()
   virtual CodeGenerationStage PostGenerateCode();

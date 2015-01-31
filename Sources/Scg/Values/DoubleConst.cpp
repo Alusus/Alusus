@@ -32,10 +32,13 @@ ValueType *DoubleConst::GetValueType() const
 
 //----------------------------------------------------------------------------
 
-CodeGenerationResult DoubleConst::GenerateCode()
+Expression::CodeGenerationStage DoubleConst::GenerateCode()
 {
-  this->llvmValue = DoubleType::GetSingleton()->GetLlvmConstant(this->value);
-  return CodeGenerationResult(this->llvmValue);
+  // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
+  // generatedLlvmValue?
+  this->generatedLlvmValue = this->llvmValue =
+  		DoubleType::GetSingleton()->GetLlvmConstant(this->value);
+  return Expression::GenerateCode();
 }
 
 //----------------------------------------------------------------------------

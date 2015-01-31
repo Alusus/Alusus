@@ -23,10 +23,10 @@ using namespace llvm;
 
 namespace Scg
 {
-  CodeGenerationResult CondGotoStatement::GenerateCode()
+  Expression::CodeGenerationStage CondGotoStatement::GenerateCode()
   {
-    auto condition = GetCondition()->GenerateCode().exprValue;
-    if (condition == 0)
+    auto condition = GetCondition()->GetGeneratedLlvmValue();
+    if (condition == nullptr)
       // TODO: This exception is being frequently used, with a similar statement
       // each time. A macro should be created for it to avoid duplication.
       THROW_EXCEPTION(InvalidValueException, "The condition of the conditional "
@@ -36,8 +36,7 @@ namespace Scg
     this->branchInst = irBuilder->CreateCondBr(
           condition, GetTrueBlock()->GetLlvmBB(), GetFalseBlock()->GetLlvmBB());
 
-    // Goto statement keyword doesn't evaluate to a value.
-    return CodeGenerationResult();
+    return Expression::GenerateCode();
   }
 
   //----------------------------------------------------------------------------
@@ -45,6 +44,6 @@ namespace Scg
   Expression::CodeGenerationStage  CondGotoStatement::PostGenerateCode()
   {
     SAFE_DELETE_LLVM_INST(this->branchInst);
-    return CodeGenerationStage::None;
+    return Expression::PostGenerateCode();
   }
 }

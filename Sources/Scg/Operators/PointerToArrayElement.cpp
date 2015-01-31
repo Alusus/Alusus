@@ -55,7 +55,7 @@ const ValueType *PointerToArrayElement::GetValueType() const
 
 //----------------------------------------------------------------------------
 
-CodeGenerationResult PointerToArrayElement::GenerateCode()
+Expression::CodeGenerationStage PointerToArrayElement::GenerateCode()
 {
   BLOCK_CHECK;
 
@@ -72,17 +72,19 @@ CodeGenerationResult PointerToArrayElement::GenerateCode()
 
   // Generates the code of the structure which will return a pointer to the
   // structure, which we will use to generate a pointer to the required field.
-  auto llvmPtr = this->expression->GenerateCode().exprValue;
+  auto llvmPtr = this->expression->GetGeneratedLlvmValue();
   auto zero = IntegerType::GetSingleton()->GetLlvmConstant(0);
-  auto index = this->elementIndexExpr->GenerateCode().exprValue;
+  auto index = this->elementIndexExpr->GetGeneratedLlvmValue();
 
   // Generates a pointer to the required field.
   auto irb = GetBlock()->GetIRBuilder();
   // TODO: We need to delete this pointer in the PostGenerateCode() function.
-  this->llvmPointer = irb->CreateGEP(llvmPtr,
+  // TODO: generatedLlvmValue is a duplicate of llvmPointer. Should we just use
+  // generatedLlvmValue?
+  this->generatedLlvmValue = this->llvmPointer = irb->CreateGEP(llvmPtr,
       llvm::makeArrayRef(std::vector<llvm::Value*>({zero, index})), "");
 
-  return CodeGenerationResult(this->llvmPointer);
+  return Expression::GenerateCode();
 }
 
 //----------------------------------------------------------------------------

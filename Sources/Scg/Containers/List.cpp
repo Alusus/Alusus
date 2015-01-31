@@ -26,12 +26,12 @@ using namespace llvm;
 
 namespace Scg
 {
-  CodeGenerationResult List::GenerateCode()
+  Expression::CodeGenerationStage List::GenerateCode()
   {
     // List doesn't evaluate to a value.
     // TODO: Later, a list built-in type should be added to the language making list
     // evaluate to a value!
-    return CodeGenerationResult();
+    return Expression::GenerateCode();
   }
 
   //----------------------------------------------------------------------------

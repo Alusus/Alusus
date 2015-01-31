@@ -26,17 +26,16 @@ using namespace llvm;
 
 namespace Scg
 {
-  CodeGenerationResult Return::GenerateCode()
+  Expression::CodeGenerationStage Return::GenerateCode()
   {
-    auto result = GetExpression()->GenerateCode();
-    if (result.exprValue == 0)
+    if (GetExpression()->GetGeneratedLlvmValue() == nullptr)
       THROW_EXCEPTION(EvaluationException,
           "Expression doesn't evaluate to a value: " + GetExpression()->ToString());
 
     IRBuilder<> *irBuilder = GetBlock()->GetIRBuilder();
-    irBuilder->CreateRet(result.exprValue);
-    // Return keyword doesn't evaluate to a value.
-    return CodeGenerationResult(0, true);
+    irBuilder->CreateRet(GetExpression()->GetGeneratedLlvmValue());
+    this->termInstGenerated = true;
+    return Expression::GenerateCode();
   }
 
   //----------------------------------------------------------------------------

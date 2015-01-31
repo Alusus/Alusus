@@ -67,7 +67,7 @@ public:
   Expression *GetOperand() { return children[0]; }
 
   //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationResult GenerateCode();
+  virtual CodeGenerationStage GenerateCode();
 
   //! @copydoc Expression::PostGenerateCode()
   virtual CodeGenerationStage PostGenerateCode();

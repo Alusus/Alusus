@@ -154,7 +154,7 @@ public:
   virtual CodeGenerationStage PreGenerateCode();
 
   //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationResult GenerateCode();
+  virtual CodeGenerationStage GenerateCode();
 
   //! @copydoc Expression::ToString()
   virtual std::string ToString();

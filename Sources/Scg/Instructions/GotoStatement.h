@@ -54,7 +54,7 @@ namespace Scg
     Block *GetTargetBlock() { return block; }
 
     //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationResult GenerateCode();
+    virtual CodeGenerationStage GenerateCode();
 
     //! @copydoc Expression::PostGenerateCode()
     virtual CodeGenerationStage PostGenerateCode();

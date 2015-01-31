@@ -23,15 +23,14 @@ using namespace llvm;
 
 namespace Scg
 {
-  CodeGenerationResult GotoStatement::GenerateCode()
+  Expression::CodeGenerationStage GotoStatement::GenerateCode()
   {
     auto targetBlock = GetTargetBlock();
 
     auto irBuilder = GetBlock()->GetIRBuilder();
     this->branchInst = irBuilder->CreateBr(targetBlock->GetLlvmBB());
 
-    // Goto statement keyword doesn't evaluate to a value.
-    return CodeGenerationResult(0, false);
+    return Expression::GenerateCode();
   }
 
   //------------------------------------------------------------------------------------------------

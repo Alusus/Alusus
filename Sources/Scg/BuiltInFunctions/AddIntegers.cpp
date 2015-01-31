@@ -50,5 +50,12 @@ const ValueType *AddIntegers::GetArgumentType(int n) const
 				"AddIntegers built-in function accepts only two arguments.");
   return IntegerType::GetSingleton();
 }
+
+//----------------------------------------------------------------------------------------
+
+const ValueType *AddIntegers::GetValueType() const
+{
+	return IntegerType::GetSingleton();
+}
 }
 

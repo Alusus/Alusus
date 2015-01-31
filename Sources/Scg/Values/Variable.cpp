@@ -64,7 +64,7 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  CodeGenerationResult Variable::GenerateCode()
+  Expression::CodeGenerationStage Variable::GenerateCode()
   {
     MODULE_OR_BLOCK_CHECK;
 
@@ -91,7 +91,7 @@ namespace Scg
     }
 
     // Defining a variable doesn't evaluate to a value.
-    return CodeGenerationResult();
+    return Expression::GenerateCode();
   }
 
   //----------------------------------------------------------------------------

@@ -32,10 +32,13 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  CodeGenerationResult IntegerConst::GenerateCode()
+  Expression::CodeGenerationStage IntegerConst::GenerateCode()
   {
-    this->llvmValue = IntegerType::GetSingleton()->GetLlvmConstant(this->value);
-    return CodeGenerationResult(this->llvmValue);
+  // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
+  // generatedLlvmValue?
+    this->generatedLlvmValue = this->llvmValue =
+    		IntegerType::GetSingleton()->GetLlvmConstant(this->value);
+    return Expression::GenerateCode();
   }
 
   //----------------------------------------------------------------------------

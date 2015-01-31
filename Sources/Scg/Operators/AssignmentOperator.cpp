@@ -23,7 +23,7 @@ using namespace llvm;
 
 namespace Scg
 {
-CodeGenerationResult AssignmentOperator::GenerateCode()
+Expression::CodeGenerationStage AssignmentOperator::GenerateCode()
 {
   BLOCK_CHECK;
 
@@ -34,21 +34,28 @@ CodeGenerationResult AssignmentOperator::GenerateCode()
   if (lhs == nullptr)
   THROW_EXCEPTION(InvalidOperationException, "The left-hand side of an "
       "assignment must be the content of a pointer.");
+  if (lhs->GetCodeGenerationStage() == Expression::CodeGenerationStage::CodeGeneration)
+  	if (lhs->CallGenerateCode() == Expression::CodeGenerationStage::CodeGeneration)
+  		return Expression::CodeGenerationStage::CodeGeneration;
 
   // Find the value of the right-hand side expression.
-  // TODO: Shouldn't the value be deleted?
-  lhs->GenerateCode();
-  auto value = GetRHS()->GenerateCode().exprValue;
-  if (value == 0)
+  if (GetRHS()->GetCodeGenerationStage() == Expression::CodeGenerationStage::CodeGeneration)
+  	if (GetRHS()->CallGenerateCode() == Expression::CodeGenerationStage::CodeGeneration)
+  		return Expression::CodeGenerationStage::CodeGeneration;
+  auto rhs = GetRHS()->GetGeneratedLlvmValue();
+  if (rhs == 0)
     THROW_EXCEPTION(InvalidValueException,
         "Right-hand side of '=' doesn't evaluate to a value: "
             + GetRHS()->ToString());
 
   // Add a store instruction to set the value of the variable.
-  this->llvmStoreInst = irb->CreateStore(value, lhs->GetLlvmPointer());
+  this->llvmStoreInst = irb->CreateStore(rhs, lhs->GetLlvmPointer());
 
-  // Return right-hand side.
-  return CodeGenerationResult(value);
+  // The generated value for an assignment is the right-hand side of the
+  // assignment itself.
+  generatedLlvmValue = rhs;
+
+  return Expression::GenerateCode();
 }
 
 //------------------------------------------------------------------------------
@@ -62,7 +69,7 @@ Expression::CodeGenerationStage AssignmentOperator::PostGenerateCode()
   this->llvmStoreInst->eraseFromParent();
   this->llvmStoreInst = nullptr;
 
-  return CodeGenerationStage::None;
+  return Expression::PostGenerateCode();
 }
 
 //------------------------------------------------------------------------------

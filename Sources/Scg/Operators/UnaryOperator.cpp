@@ -27,7 +27,7 @@ using namespace llvm;
 
 namespace Scg
 {
-CodeGenerationResult UnaryOperator::GenerateCode()
+Expression::CodeGenerationStage UnaryOperator::GenerateCode()
 {
   BLOCK_CHECK;
 
@@ -49,7 +49,7 @@ CodeGenerationResult UnaryOperator::GenerateCode()
 
     // Evaluates the expression of the operand, which should result in a
     // variable.
-    auto variable = GetOperand()->GenerateCode().exprValue;
+    auto variable = GetOperand()->GetGeneratedLlvmValue();
     if (this->operatorType == INCREMENT)
     {
       if (operandType == IntegerType::GetSingleton())
@@ -71,7 +71,9 @@ CodeGenerationResult UnaryOperator::GenerateCode()
 
     this->llvmStoreInst = irb->CreateStore(this->llvmValue, operand->GetLlvmPointer());
 
-    return CodeGenerationResult(this->llvmValue);
+    this->generatedLlvmValue = this->llvmValue;
+
+    return Expression::GenerateCode();
   }
 
   THROW_EXCEPTION(UnreachableCodeException, "This code shouldn't be reached.");

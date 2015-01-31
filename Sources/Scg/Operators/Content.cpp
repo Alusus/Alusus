@@ -32,13 +32,17 @@ const ValueType *Content::GetValueType() const
 
 //------------------------------------------------------------------------------
 
-CodeGenerationResult Content::GenerateCode()
+Expression::CodeGenerationStage Content::GenerateCode()
 {
   BLOCK_CHECK;
 
-  this->pointer = this->expression->GenerateCode().exprValue;
-  this->loadInst = GetBlock()->GetIRBuilder()->CreateLoad(this->pointer);
-  return CodeGenerationResult(this->loadInst);
+  this->pointer = this->expression->GetGeneratedLlvmValue();
+  // TODO: generatedLlvmValue is a duplicate of llvmPointer. Should we just use
+  // generatedLlvmValue?
+  this->generatedLlvmValue = this->loadInst =
+  		GetBlock()->GetIRBuilder()->CreateLoad(this->pointer);
+
+  return Expression::GenerateCode();
 }
 
 //----------------------------------------------------------------------------

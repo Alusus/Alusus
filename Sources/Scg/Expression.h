@@ -114,8 +114,6 @@ namespace Scg
     Function *function = nullptr;
     //! A pointer to the block containing this expression.
     Block *block = nullptr;
-    //! Whether code generation has been finalised or not.
-    bool codeGenFinalised = true;
     //! The code generation stage of this expression.
     CodeGenerationStage codeGenStage = CodeGenerationStage::None;
     //! The code generation stage of the children of this expression.
@@ -124,6 +122,12 @@ namespace Scg
     int lineInCode = 0;
     //! The number of the column in code that produced this expression.
     int columnInCode = 0;
+
+  protected:
+    //! The LLVM Value object generated during code generation, or @c nullptr.
+    llvm::Value *generatedLlvmValue = nullptr;
+    //! Whether this expression generated a terminate instruction, e.g. Return instruction.
+    bool termInstGenerated = false;
 
   protected:
     //! An array containing the children expressions.
@@ -207,11 +211,6 @@ namespace Scg
     }
 
     /**
-     *
-     */
-    bool IsCodeGenFinalised() const { return codeGenFinalised; }
-
-    /**
      * Returns the number of the line in code that produced this expression.
      * @return The number of the line in code that produced this expression.
      */
@@ -238,6 +237,7 @@ namespace Scg
     }
 
     virtual CodeGenerationStage CallPreGenerateCode();
+    virtual CodeGenerationStage CallGenerateCode();
     virtual CodeGenerationStage CallPostGenerateCode();
 
     /**
@@ -257,11 +257,9 @@ namespace Scg
      *
      * @return The value of this expression, or 0 if it doesn't evaluate to a value.
      */
-    virtual CodeGenerationResult GenerateCode()
+    virtual CodeGenerationStage GenerateCode()
     {
-      for (auto expr : children)
-        expr->GenerateCode();
-      return CodeGenerationResult();
+    	return CodeGenerationStage::PostCodeGeneration;
     }
 
     // TODO: This is not implemented yet, but I just added the declaration so that
@@ -284,7 +282,24 @@ namespace Scg
     {
     	// TODO: Probably we should throw an exception if this method is being called
     	// before the code-generation stage.
-    	THROW_NOT_IMPLEMENTED();
+    	return generatedLlvmValue;
+    }
+
+    /**
+     * Retrieves a value determining whether a terminate instruction was generated
+     * during the course of the code generation of this expression.
+     *
+     * @note This function should only be called after GenerateCode() member function
+     * finishes execution successfully, i.e. with
+     * CodeGenerationStage::PostCodeGeneration value.
+     *
+     * @return True or false.
+     */
+    virtual bool IsTermInstGenerated() const
+    {
+    	// TODO: Probably we should throw an exception if this method is being called
+    	// before the code-generation stage.
+    	return termInstGenerated;
     }
 
     /**

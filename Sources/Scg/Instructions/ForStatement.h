@@ -83,8 +83,16 @@ namespace Scg
     const Block *GetBody() const { return loopBlock; }
     Block *GetBody() { return loopBlock; }
 
+    //! @copydoc Expression::CallGenerateCode()
+    virtual CodeGenerationStage CallGenerateCode()
+    {
+    	// We want to manually call the GenerateCode() member function of children
+    	// so we override the default behaviour of CallGenerateCode();
+    	return GenerateCode();
+    }
+
     //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationResult GenerateCode();
+    virtual CodeGenerationStage GenerateCode();
 
     //! @copydoc Expression::PostGenerateCode()
     virtual CodeGenerationStage PostGenerateCode();

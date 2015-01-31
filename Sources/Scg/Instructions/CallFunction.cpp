@@ -61,10 +61,12 @@ Expression::CodeGenerationStage CallFunction::PreGenerateCode()
   }
 
   // Finds the types of the arguments.
-  argTypes.resize(this->args->GetElementCount());
-  for (auto i = 0; i < this->args->GetElementCount(); i++) {
-    argTypes[i] =
-        const_cast<ValueTypeSpec*>(this->args->GetElement(i)->GetValueType()->GetValueTypeSpec());
+  if (argTypes.size() != this->args->GetElementCount()) {
+    argTypes.resize(this->args->GetElementCount());
+    for (auto i = 0; i < this->args->GetElementCount(); i++) {
+      argTypes[i] = const_cast<ValueTypeSpec*>(
+      		this->args->GetElement(i)->GetValueType()->GetValueTypeSpec());
+    }
   }
 
   // Try to find the function in the same module.
@@ -100,12 +102,13 @@ Expression::CodeGenerationStage CallFunction::PreGenerateCode()
   					"Found multiple matches for " + this->funcName);
   	}
   }
+
   return CodeGenerationStage::CodeGeneration;
 }
 
 //------------------------------------------------------------------------------
 
-CodeGenerationResult CallFunction::GenerateCode()
+Expression::CodeGenerationStage CallFunction::GenerateCode()
 {
   MODULE_CHECK;
   BLOCK_CHECK;
@@ -133,7 +136,7 @@ CodeGenerationResult CallFunction::GenerateCode()
         this->function->GetArgumentTypes()[i]->ToValueType(*GetModule()) :
         nullptr;
     auto argType = GetArguments()->GetElement(i)->GetValueType();
-    auto argValue = GetArguments()->GetElement(i)->GenerateCode().exprValue;
+    auto argValue = GetArguments()->GetElement(i)->GetGeneratedLlvmValue();
     if (argValue == nullptr)
       THROW_EXCEPTION(EvaluationException,
           "Expression doesn't evaluate to a value: "
@@ -149,8 +152,10 @@ CodeGenerationResult CallFunction::GenerateCode()
   }
 
   // Generate code for calling the function.
-  return CodeGenerationResult(
-      this->callInst = GetBlock()->GetIRBuilder()->CreateCall(this->function->GetLlvmFunction(), args));
+  this->generatedLlvmValue = this->callInst =
+  		GetBlock()->GetIRBuilder()->CreateCall(this->function->GetLlvmFunction(), args);
+
+  return Expression::GenerateCode();
 }
 
 //------------------------------------------------------------------------------
