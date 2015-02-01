@@ -25,7 +25,8 @@
 namespace Scg
 {
 /**
- * A built-in function to add two double values.
+ * Base class for all expressions that can be called and return a value.
+ * Such expressions include built-in functions and user-defined functions.
  */
 class Callable : public Value
 {

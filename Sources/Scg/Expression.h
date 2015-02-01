@@ -41,31 +41,6 @@ namespace Scg
 
 namespace Scg
 {
-  // TODO: Document this structure.
-  struct CodeGenerationResult
-  {
-    llvm::Value *exprValue;
-    bool termInstGenerated;
-
-    CodeGenerationResult()
-    {
-      exprValue = 0;
-      termInstGenerated = false;
-    }
-
-    CodeGenerationResult(llvm::Value *_exprValue)
-      : exprValue(_exprValue)
-      , termInstGenerated(false)
-    {
-    }
-
-    CodeGenerationResult(llvm::Value *_exprValue, bool _termInstGenerated)
-      : exprValue(_exprValue)
-      , termInstGenerated(_termInstGenerated)
-    {
-    }
-  };
-
   /**
    * Base class for all expression classes.
    */
