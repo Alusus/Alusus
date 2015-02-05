@@ -2,7 +2,7 @@
  * @file Core/Basic/SbStr.cpp
  * Contains the implementation of class Core::Basic::SbStr.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -47,22 +47,22 @@ void SbStr::append(Char const *str, Word strSize, Word bufferSize)
 void SbStr::assign(WChar const *str, Word n, Word bufferSize)
 {
   if (n == 0) n = getStrLen(str);
-  Char *buffer = reinterpret_cast<Char*>(allocateOnStack(n*4));
+  Char *buffer = reinterpret_cast<Char*>(SALLOC(n*4)); // A UTF8 character may take up to 4 bytes.
   Int inLength, outLength;
   convertStr(str, n, buffer, n*4, inLength, outLength);
   this->assign(buffer, outLength, bufferSize);
-  freeFromStack(buffer);
+  SFREE(buffer);
 }
 
 
 void SbStr::append(WChar const *str, Word srcSize, Word bufferSize)
 {
   if (srcSize == 0) srcSize = getStrLen(str);
-  Char *buffer = reinterpret_cast<Char*>(allocateOnStack(srcSize*4));
+  Char *buffer = reinterpret_cast<Char*>(SALLOC(srcSize*4)); // A UTF8 character may take up to 4 bytes.
   Int inLength, outLength;
   convertStr(str, srcSize, buffer, srcSize*4, inLength, outLength);
   this->append(buffer, outLength, bufferSize);
-  freeFromStack(buffer);
+  SFREE(buffer);
 }
 
 } } // namespace

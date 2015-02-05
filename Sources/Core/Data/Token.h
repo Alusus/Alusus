@@ -2,7 +2,7 @@
  * @file Core/Data/Token.h
  * Contains the header of class Core::Data::Token.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -106,12 +106,33 @@ class Token : public IdentifiableObject
   }
 
   /**
+   * Set the token text from a wide character string.
+   *
+   * @param t A pointer to a string containing the token text.
+   */
+  public: void setText(WChar const *t)
+  {
+    this->text.assign(t);
+  }
+
+  /**
    * Set the token text.
    *
    * @param t A pointer to a string containing the token text.
    * @param s The size of the string.
    */
   public: void setText(Char const *t, Int s)
+  {
+    this->text.assign(t, s);
+  }
+
+  /**
+   * Set the token text from a wide character string.
+   *
+   * @param t A pointer to a string containing the token text.
+   * @param s The size of the string.
+   */
+  public: void setText(WChar const *t, Int s)
   {
     this->text.assign(t, s);
   }

@@ -90,9 +90,6 @@ class GenericParsingHandler : public ParsingHandler
   /// Set the given data (of a child term) into the specified state level.
   private: void setChildData(SharedPtr<IdentifiableObject> const &data, Processing::ParserState *state, Int levelIndex);
 
-  /// Conver a string literal text to the actual string.
-  private: void parseStringLiteralControlCharacters(const Str &src, Str &dest);
-
   /// Make sure the top term level is not shared.
   private: void prepareToModifyData(Processing::ParserState *state, Int levelIndex);
 

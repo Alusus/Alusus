@@ -2,7 +2,7 @@
  * @file Core/Basic/WStr.h
  * Contains the header of class Core::Basic::WStr.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -135,11 +135,11 @@ class WStr : public std::wstring
   public: void assign(Char const *s, Word n=0)
   {
     if (n == 0) n = getStrLen(s);
-    WChar *buffer = reinterpret_cast<WChar*>(allocateOnStack(n));
+    WChar *buffer = reinterpret_cast<WChar*>(SALLOC(n*sizeof(WChar)));
     Int inLength, outLength;
     convertStr(s, n, buffer, n, inLength, outLength);
     this->assign(buffer, outLength);
-    freeFromStack(buffer);
+    SFREE(buffer);
   }
 
   public: SbWStr const& sbwstr() const

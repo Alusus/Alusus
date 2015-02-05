@@ -2,7 +2,7 @@
  * @file Core/Data/SequenceCharGroupUnit.h
  * Contains the header of class Core::Data::SequenceCharGroupUnit.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -35,10 +35,10 @@ class SequenceCharGroupUnit : public CharGroupUnit
   // Member Variables
 
   /// The character code of the start character in the sequence.
-  private: Char startCode;
+  private: WChar startCode;
 
   /// The character code of the end character in the sequence.
-  private: Char endCode;
+  private: WChar endCode;
 
 
   //============================================================================
@@ -48,9 +48,11 @@ class SequenceCharGroupUnit : public CharGroupUnit
   {
   }
 
-  public: SequenceCharGroupUnit(Char s=0, Char e=0) : startCode(s), endCode(e)
+  public: SequenceCharGroupUnit(Char const *s, Char const *e)
   {
-    if (e < s) {
+    this->setStartCode(s);
+    this->setEndCode(e);
+    if (this->endCode < this->startCode) {
       throw InvalidArgumentException(STR("s,e"), STR("Core::Data::SequenceCharGroupUnit::SequenceCharGroupUnit"),
                                      STR("e should be >= s."));
     }
@@ -60,7 +62,7 @@ class SequenceCharGroupUnit : public CharGroupUnit
   {
   }
 
-  public: static SharedPtr<SequenceCharGroupUnit> create(Char s=0, Char e=0)
+  public: static SharedPtr<SequenceCharGroupUnit> create(Char const *s, Char const *e)
   {
     return std::make_shared<SequenceCharGroupUnit>(s, e);
   }
@@ -70,25 +72,25 @@ class SequenceCharGroupUnit : public CharGroupUnit
   // Member Functions
 
   /// Set the code of the start of the sequence.
-  public: void setStartCode(Char s)
+  public: void setStartCode(Char const *s)
   {
-    this->startCode = s;
+    this->startCode = getWideCharFromUtf8(s);
   }
 
   /// Get the code of the start of the sequence.
-  public: Char getStartCode()
+  public: WChar getStartCode()
   {
     return this->startCode;
   }
 
   /// Set the code of the end of the sequence.
-  public: void setEndCode(Char e)
+  public: void setEndCode(Char const *e)
   {
-    this->endCode = e;
+    this->endCode = getWideCharFromUtf8(e);
   }
 
   /// Get the code of the end of the sequence.
-  public: Char getEndCode()
+  public: WChar getEndCode()
   {
     return this->endCode;
   }

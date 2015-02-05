@@ -137,8 +137,9 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
   TokenTerm *term = static_cast<TokenTerm*>(state->refTopTermLevel().getTerm());
   ASSERT(term->isA<TokenTerm>());
 
+  IdentifiableObject *matchText = state->getTokenTermText();
   // Skip if the term is omissible.
-  if ((term->getFlags() & ParsingFlags::OMISSIBLE) && state->getTokenTermText() != 0) return;
+  if ((term->getFlags() & ParsingFlags::OMISSIBLE) && matchText != 0 && matchText->isA<Data::String>()) return;
 
   // We shouldn't have any data on this level if we are not a production.
   ASSERT(state->getData() == 0);
@@ -150,15 +151,16 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
   tokenItem->setId(token->getId());
   tokenItem->setLine(token->getLine());
   tokenItem->setColumn(token->getColumn());
-  // If we have a string literal then we should parse escape sequences.
-  static Word stringLiteralId = 0;
-  if (stringLiteralId == 0) {
-    stringLiteralId = ID_GENERATOR->getId(STR("LexerDefs.StringLiteral"));
-  }
-  if (token->getId() == stringLiteralId) {
-    Str txt;
-    this->parseStringLiteralControlCharacters(token->getText(), txt);
-    tokenItem->setText(txt.c_str());
+  // If the token term defines a map as its match criteria then we'll use the value of the matched
+  // entry as the value of our ParsedToken text, otherwise we'll just use the actual token text
+  // captured by the lexer.
+  if (matchText != 0 && matchText->isA<Data::SharedMap>()) {
+    IdentifiableObject *mappedText = static_cast<Data::SharedMap*>(matchText)->get(token->getText().c_str());
+    if (mappedText != 0 && mappedText->isA<Data::String>()) {
+      tokenItem->setText(static_cast<Data::String*>(mappedText)->get());
+    } else {
+      tokenItem->setText(token->getText().c_str());
+    }
   } else {
     tokenItem->setText(token->getText().c_str());
   }
@@ -404,36 +406,6 @@ void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &da
              termLevel.getTerm()->isA<TokenTerm>()) {
     // This should never be reachable.
     ASSERT(false);
-  }
-}
-
-
-/**
- * Conver a string literal text to the actual string by converting all control
- * characters liked escaped sequences to the actual characters they represent.
- * Also merges separate string literal segments together.
- */
-void GenericParsingHandler::parseStringLiteralControlCharacters(const Str &src, Str &dest)
-{
-  Word i = 0;
-  Bool inStr = false;
-  dest.reserve(src.size());
-  while (i < src.size()) {
-    if (inStr) {
-      if (src[i] == '"') inStr = false;
-      else if (src[i] == '\\') {
-        ++i;
-        if (src[i] == 'n') dest.push_back('\n');
-        else if (src[i] == 'r') dest.push_back('\r');
-        else if (src[i] == 't') dest.push_back('\t');
-        // TODO: Parse other escape sequences.
-      } else {
-        dest.push_back(src[i]);
-      }
-    } else {
-      if (src[i] == '"') inStr = true;
-    }
-    ++i;
   }
 }
 

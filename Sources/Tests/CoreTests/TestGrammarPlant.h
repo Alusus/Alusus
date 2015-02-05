@@ -31,6 +31,8 @@ class TestGrammarPlant : public Data::GrammarPlant
   //============================================================================
   // Member Variables
 
+  private: SharedPtr<Standard::StringLiteralTokenizingHandler> stringLiteralHandler;
+
   private: SharedPtr<Processing::GenericParsingHandler> parsingHandler;
 
 

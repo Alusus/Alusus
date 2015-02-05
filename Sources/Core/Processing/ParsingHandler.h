@@ -2,7 +2,7 @@
  * @file Core/Processing/ParsingHandler.h
  * Contains the header of class Core::Processing::ParsingHandler.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_PARSING_HANDLER_H
-#define PROCESSING_PARSING_HANDLER_H
+#ifndef PROCESSING_PARSINGHANDLER_H
+#define PROCESSING_PARSINGHANDLER_H
 
 namespace Core { namespace Processing
 {

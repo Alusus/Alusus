@@ -2,7 +2,7 @@
  * @file Core/Processing/InputBuffer.cpp
  * Contains the implementation of Processing::InputBuffer.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -33,7 +33,7 @@ namespace Core { namespace Processing
  *         call will fail if the buffer is full and the value of 'force' is
  *         false.
  */
-Bool InputBuffer::push(Char ch, Int line, Int column, Bool force)
+Bool InputBuffer::push(WChar ch, Int line, Int column, Bool force)
 {
   // Check if the buffer is full.
   if (this->isFull() == true) {
@@ -64,7 +64,7 @@ Bool InputBuffer::push(Char ch, Int line, Int column, Bool force)
         endCg.line = line;
         endCg.column = column;
         endCg.length = 0;
-        InputBuffer::updateCharPosition(ch, endCg.line, endCg.column);
+        computeNextCharPosition(ch, endCg.line, endCg.column);
         this->charGroups.push_back(endCg);
       } else {
         // Replace the last character group.
@@ -72,7 +72,7 @@ Bool InputBuffer::push(Char ch, Int line, Int column, Bool force)
         CharacterGroup * endCg = &this->charGroups.at(this->charGroups.size()-1);
         endCg->line = newCg->line = line;
         endCg->column = newCg->column = column;
-        InputBuffer::updateCharPosition(ch, endCg->line, endCg->column);
+        computeNextCharPosition(ch, endCg->line, endCg->column);
       }
     } else {
       // The operation failed.
@@ -94,7 +94,7 @@ Bool InputBuffer::push(Char ch, Int line, Int column, Bool force)
       this->charGroups.push_back(cg);
       // Define the ending character group, which only contains the expected
       // position of the next character.
-      InputBuffer::updateCharPosition(ch, cg.line, cg.column);
+      computeNextCharPosition(ch, cg.line, cg.column);
       cg.length = 0;
       this->charGroups.push_back(cg);
     } else {
@@ -109,7 +109,7 @@ Bool InputBuffer::push(Char ch, Int line, Int column, Bool force)
         this->charGroups.at(this->charGroups.size()-2).length++;
         // Update the ending character group to have the new expected
         // position of the next character.
-        InputBuffer::updateCharPosition(ch, lastCg->line, lastCg->column);
+        computeNextCharPosition(ch, lastCg->line, lastCg->column);
       } else {
         // Create a new group to contain the current character.
         lastCg->line = line;
@@ -121,7 +121,7 @@ Bool InputBuffer::push(Char ch, Int line, Int column, Bool force)
         cg.line = line;
         cg.column = column;
         cg.length = 0;
-        InputBuffer::updateCharPosition(ch, cg.line, cg.column);
+        computeNextCharPosition(ch, cg.line, cg.column);
         this->charGroups.push_back(cg);
       }
     }
@@ -171,7 +171,7 @@ void InputBuffer::remove(Int count)
     CharacterGroup * cg = &this->charGroups.at(0);
     Int i = count - cc;
     while (cc > 0) {
-      InputBuffer::updateCharPosition(this->charBuffer.at(i), cg->line, cg->column);
+      computeNextCharPosition(this->charBuffer.at(i), cg->line, cg->column);
       cg->length--;
       i++;
       cc--;
@@ -200,33 +200,6 @@ Bool InputBuffer::isFull()
     return true;
   } else {
     return false;
-  }
-}
-
-
-/**
- * Update a given line number and column values based on the value of the given
- * char. The character is checked for a new line or carriage return values to
- * determine whether the next position is at the beginning of a new line or
- * at the beginning of the same line respectively. If the character value is
- * anything other than new line or carriage return, the next position is simply
- * the following column on the same line.
- *
- * @param ch The character used to determine the next position.
- * @param line A reference to the value of the current line number. This
- *             value will be replaced with the new line number value.
- * @param column A reference to the value of the current column. This value
- *               will be replaced with the new column value.
- */
-void InputBuffer::updateCharPosition(Char ch, Int & line, Int & column)
-{
-  if (ch == '\r') {
-    column = 1;
-  } else if (ch == '\n') {
-    column = 1;
-    line++;
-  } else {
-    column++;
   }
 }
 

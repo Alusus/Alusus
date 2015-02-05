@@ -2,7 +2,7 @@
  * @file Core/Data/RandomCharGroupUnit.h
  * Contains the header of class Core::Data::RandomCharGroupUnit.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -39,7 +39,7 @@ class RandomCharGroupUnit : public CharGroupUnit
    * The string is only used as an array of characters and do not actually
    * represent a string.
    */
-  private: Str charList;
+  private: WStr charList;
 
 
   //============================================================================
@@ -85,7 +85,7 @@ class RandomCharGroupUnit : public CharGroupUnit
    * @brief Get a pointer to the list of characters in the group.
    * @return Returns a pointer to an array of characters.
    */
-  public: Char const* getCharList() const
+  public: WChar const* getCharList() const
   {
     return this->charList.c_str();
   }

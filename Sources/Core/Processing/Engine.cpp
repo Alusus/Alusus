@@ -2,7 +2,7 @@
  * @file Core/Processing/Engine.cpp
  * Contains the implementation of class Core::Processing::Engine.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -68,14 +68,6 @@ SharedPtr<IdentifiableObject> Engine::processFile(Char const *filename)
   while (!fin.eof()) {
     fin.get(c);
     lexer.handleNewChar(c, line, column);
-    if (c == CHR('\n')) {
-      line++;
-      column = 1;
-    } else if (c == CHR('\r')) {
-      column = 1;
-    } else {
-      column++;
-    }
   }
   lexer.handleNewChar(FILE_TERMINATOR, line, column);
 

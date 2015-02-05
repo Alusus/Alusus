@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Basic
  * namespace.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -213,14 +213,42 @@ typedef std::stringstream StrStream;
   }
 
 /**
+ * @def SALLOC
+ * @brief Allocate memory on the stack.
+ * @ingroup basic_macros
+ * @param s Size of memory to allocate, in bytes.
+ *
+ * Allocation and deallocation on the stack is faster than on the heap, but
+ * should only be used in cases where the allocated memory is relatively
+ * small.
+ */
+#ifdef WINDOWS
+  #define SALLOC(s) alloca(s)
+#else
+  #define SALLOC(s) alloca(s)
+#endif
+
+/**
+ * @def SFREE
+ * @brief Free memory allocated on stack.
+ * @ingroup basic_macros
+ * @sa SALLOC
+ */
+#ifdef WINDOWS
+  #define SFREE(p) _freea(p);
+#else
+  #define SFREE(p)
+#endif
+
+/**
  * @def DL_EXPORTED
  * @brief Macro for marking dynamic library's exported symbols.
  * @ingroup basic_macros
  */
 #ifdef _MSC_VER
-#define DL_EXPORTED extern "C" __declspec(dllexport)
+  #define DL_EXPORTED extern "C" __declspec(dllexport)
 #else
-#define DL_EXPORTED extern "C" __attribute__((__visibility__("default")))
+  #define DL_EXPORTED extern "C" __attribute__((__visibility__("default")))
 #endif
 
 
@@ -408,37 +436,10 @@ void convertStr(Char const *input, int inputLength, WChar *output, int outputSiz
 void convertStr(WChar const *input, int inputLength, Char *output, int outputSize, int &processedInputLength, int &resultedOutputLength);
 
 /**
- * @brief Allocate memory on the stack.
- * @ingroup basic_functions
- * @param size Size of memory to allocate, in bytes.
- */
-void* allocateOnStack(Word size);
-
-/**
- * @brief Free memory allocated on stack.
+ * @brief Get the wide character for a given UTF8 sequence.
  * @ingroup basic_functions
  */
-void freeFromStack(void *p);
-
-/**
- * @brief Gets the currently set working directory.
- * @ingroup basic_functions
- *
- * This method is used to wrap the platform-specific implementation inside a
- * platform independent function.
- */
-std::string getWorkingDirectory();
-
-/**
- * @brief Gets the directory of the executable.
- * @ingroup basic_functions
- *
- * This can be different from the working directory if the user launches the
- * executable from a path other than the exe's path.
- * This method is used to wrap the platform-specific implementation inside a
- * platform independent function.
- */
-std::string getModuleDirectory();
+WChar getWideCharFromUtf8(Char const *s);
 
 
 //==============================================================================

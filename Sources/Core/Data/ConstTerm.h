@@ -2,7 +2,7 @@
  * @file Core/Data/ConstTerm.h
  * Contains the header of class Core::Data::ConstTerm.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -35,7 +35,7 @@ class ConstTerm : public Term
   // Member Variables
 
   /// A pointer to the string constant to be matched with input characters.
-  private: Str matchString;
+  private: WStr matchString;
 
 
   //============================================================================
@@ -78,7 +78,7 @@ class ConstTerm : public Term
   }
 
   /// Get the match string.
-  public: Str const& getMatchString() const
+  public: WStr const& getMatchString() const
   {
     return this->matchString;
   }

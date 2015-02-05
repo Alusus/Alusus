@@ -2,7 +2,7 @@
  * @file Core/Processing/Lexer.cpp
  * Contains the implementation of Processing::Lexer.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -63,10 +63,25 @@ void Lexer::setGrammarRepository(Data::GrammarRepository *grammarRepo)
  * @param line The source code line at which the character appeared.
  * @param column The source code column at which the character appeared.
  */
-void Lexer::handleNewChar(Char inputChar, Int line, Int column)
+void Lexer::handleNewChar(Char inputChar, Int &line, Int &column)
 {
-  this->pushChar(inputChar, line, column);
-  this->processBuffer();
+  // Buffer the input sequence until it can be converted to wide characters.
+  this->tempByteCharBuffer[this->tempByteCharCount] = inputChar;
+  ++this->tempByteCharCount;
+  WChar wideCharBuffer[1];
+  // Try converting to wide characters.
+  Int processedIn, processedOut;
+  convertStr(this->tempByteCharBuffer, this->tempByteCharCount, wideCharBuffer, 1, processedIn, processedOut);
+  if (processedOut != 0) {
+    // Conversion was successful. Send converted character to the buffer.
+    this->pushChar(wideCharBuffer[0], line, column);
+    this->processBuffer();
+    computeNextCharPosition(wideCharBuffer[0], line, column);
+    this->tempByteCharCount = 0;
+  } else if (this->tempByteCharCount == 4) {
+    throw GeneralException(STR("Invalid input character sequence. Sequence could not be converted to wide characters."),
+                           STR("Core::Processing::Lexer::handleNewChar"));
+  }
 }
 
 
@@ -84,14 +99,6 @@ void Lexer::handleNewString(Char const *inputStr, Int &line, Int &column)
 {
   for (Int i = 0; i < static_cast<Int>(strlen(inputStr)); i++) {
     this->handleNewChar(inputStr[i], line, column);
-    if (inputStr[i] == CHR('\n')) {
-      line++;
-      column = 1;
-    } else if (inputStr[i] == CHR('\r')) {
-      column = 1;
-    } else {
-      column++;
-    }
   }
 }
 
@@ -132,7 +139,7 @@ void Lexer::processBuffer()
  * @param column The column at which the character appeared in the source code.
  * @return Returns true if the character was inserted, false otherwise.
  */
-Bool Lexer::pushChar(Char ch, Int line, Int column)
+Bool Lexer::pushChar(WChar ch, Int line, Int column)
 {
   // Is the input buffer full?
   if (this->inputBuffer.isFull()) {
@@ -212,7 +219,7 @@ Int Lexer::process()
   if (this->currentProcessingIndex >= this->inputBuffer.getCharCount()) return 2;
 
   // Get the processing character.
-  Char inputChar = this->inputBuffer.getChars()[this->currentProcessingIndex];
+  WChar inputChar = this->inputBuffer.getChars()[this->currentProcessingIndex];
 
   // Check if this is the first character.
   if (this->currentProcessingIndex == 0) {
@@ -259,10 +266,17 @@ Int Lexer::process()
           this->currentTokenClamped = false;
         }
         // Set token properties.
-        this->lastToken.setId(def->getId());
-        this->lastToken.setLine(this->inputBuffer.getStartLine());
-        this->lastToken.setColumn(this->inputBuffer.getStartColumn());
-        this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
+        TokenizingHandler *handler = io_cast<TokenizingHandler>(def->getOperationHandler().get());
+        if (handler == 0) {
+          this->lastToken.setId(def->getId());
+          this->lastToken.setLine(this->inputBuffer.getStartLine());
+          this->lastToken.setColumn(this->inputBuffer.getStartColumn());
+          this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
+        } else {
+          handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getStartLine(),
+                                this->inputBuffer.getStartColumn(), this->inputBuffer.getChars(),
+                                this->states[i].getTokenLength());
+        }
         // Inform the caller that there is a new token.
         r |= 1;
       }
@@ -303,10 +317,17 @@ Int Lexer::process()
         this->currentTokenClamped = false;
       }
       // Set token properties.
-      this->lastToken.setId(def->getId());
-      this->lastToken.setLine(this->inputBuffer.getStartLine());
-      this->lastToken.setColumn(this->inputBuffer.getStartColumn());
-      this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
+      TokenizingHandler *handler = io_cast<TokenizingHandler>(def->getOperationHandler().get());
+      if (handler == 0) {
+        this->lastToken.setId(def->getId());
+        this->lastToken.setLine(this->inputBuffer.getStartLine());
+        this->lastToken.setColumn(this->inputBuffer.getStartColumn());
+        this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
+      } else {
+        handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getStartLine(),
+                              this->inputBuffer.getStartColumn(), this->inputBuffer.getChars(),
+                              this->states[i].getTokenLength());
+      }
       // Inform the caller that there is a new token.
       r |= 1;
     }
@@ -377,7 +398,7 @@ Int Lexer::process()
  *
  * @param inputChar The input character to search against.
  */
-void Lexer::processStartChar(Char inputChar)
+void Lexer::processStartChar(WChar inputChar)
 {
   // There must not be any state currently in the stack.
   ASSERT(this->states.size() == 0);
@@ -440,7 +461,7 @@ void Lexer::processStartChar(Char inputChar)
  *                     Receiving the value of '\0' indicates that there are no
  *                     more characters in the input stream.
  */
-void Lexer::processNextChar(Char inputChar)
+void Lexer::processNextChar(WChar inputChar)
 {
   // There must be some states currently in the stack.
   ASSERT(this->states.size() != 0);
@@ -512,7 +533,7 @@ void Lexer::processNextChar(Char inputChar)
  *                        stack that is associated with the current term object.
  * @return Returns a NextAction value telling the caller what to do next.
  */
-Lexer::NextAction Lexer::processTempState(Char inputChar, Data::Term *currentTerm,
+Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Term *currentTerm,
                                           Int currentLevel)
 {
   // make sure the current level isn't out of range
@@ -1020,7 +1041,7 @@ Int Lexer::selectBestToken()
  *             object can be a the head of a tree of CharGroupUnit objects.
  * @return Returns true if the character matches, false otherwise.
  */
-Bool Lexer::matchCharGroup(Char ch, Data::CharGroupUnit *unit)
+Bool Lexer::matchCharGroup(WChar ch, Data::CharGroupUnit *unit)
 {
   ASSERT(unit);
 

@@ -2,7 +2,7 @@
  * @file Core/Standard/standard.cpp
  * Contains the global implementations of Standard namespace's declarations.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -11,24 +11,62 @@
 //==============================================================================
 
 #include "core.h"
+#include <stdio.h>  /* defines FILENAME_MAX */
+#ifdef WINDOWS
+  #include <direct.h>
+  #include <windows.h>
+#else
+  #include <unistd.h>
+  #include <limits.h>
+#endif
 
 namespace Core { namespace Standard
 {
 
 using namespace Data;
 
+#ifdef WINDOWS
+  #define _getWorkingDirectory _getcwd
+#else
+  #define _getWorkingDirectory getcwd
+#endif
+
+
 //==============================================================================
 // Global Functions
 
-/**
- * Merge a given container tree into another container tree. Merging is done by
- * setting all values in a source countainer into the destination container. If
- * the value being set is a container itself, the function will recursively call
- * itself. For map containers, the value will override any value with the same
- * key in the destination container. For list containers, the source values will
- * be appended at the end of the dest list. The function will handle plain
- * containers as well.
- */
+std::string getWorkingDirectory()
+{
+  thread_local static std::array<Char,FILENAME_MAX> currentPath;
+
+  if (!_getWorkingDirectory(currentPath.data(), currentPath.size()))
+  {
+    throw GeneralException(STR("Couldn't obtain the current working directory."),
+                           STR("Core::Basic::getWorkingDirectory"));
+  }
+
+  std::string path(currentPath.data());
+  if (path.back() != CHR('/')) path += CHR('/');
+  return path;
+}
+
+
+std::string getModuleDirectory()
+{
+  thread_local static std::array<Char,FILENAME_MAX> currentPath;
+
+  #ifdef WINDOWS
+    std::string path(currentPath.data(), GetModuleFileName(NULL, currentPath.data(), currentPath.size()));
+  #else
+    ssize_t count = readlink("/proc/self/exe", currentPath.data(), currentPath.size());
+    std::string path(currentPath.data(), (count > 0) ? count : 0);
+  #endif
+
+  Int pos = path.rfind(CHR('/'));
+  return std::string(path, 0, pos+1);
+}
+
+
 Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processing::ParserState *state)
 {
   if (!dest->isA(src->getMyTypeInfo())) return false;
@@ -71,15 +109,6 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processi
 }
 
 
-/**
- * If no object is already defined at the given qualifier, the new object will
- * be set. If an object of different type is already defined, it will be
- * overwritten after a build message is raised. If an object of the same type
- * is already defined and it supports a Container interface, the objects will
- * be merged. If the objects are the same type but does not support a
- * Container interface, the destination will be overwritten after a build msg
- * is created.
- */
 void mergeDefinition(Char const *qualifier, IdentifiableObject *obj, Processing::ParserState *state)
 {
   auto repository = state->getDataStack();

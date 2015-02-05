@@ -2,7 +2,7 @@
  * @file Core/Processing/Lexer.h
  * Contains the header of class Core::Processing::Lexer.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -96,6 +96,19 @@ class Lexer : public SignalReceiver
   private: Int disabledStateIndex;
 
   /**
+   * @brief A temporary buffer used to buffer byte characters for conversion.
+   * This buffer is used to buffer the received byte characters when multi
+   * byte sequences are received.
+   */
+  private: Char tempByteCharBuffer[4];
+
+  /**
+   * @brief Current count of bytes in tempByteCharBuffer.
+   * @sa tempByteCharBuffer
+   */
+  private: Word tempByteCharCount;
+
+  /**
    * @brief The buffer of input characters.
    *
    * This buffer contains the list of input characters that will be part of
@@ -167,6 +180,7 @@ class Lexer : public SignalReceiver
     grammarRepository(0),
     errorBuffer(STR(""),0,0),
     disabledStateIndex(-1),
+    tempByteCharCount(0),
     currentProcessingIndex(0),
     currentTokenClamped(false)
   {
@@ -200,13 +214,11 @@ class Lexer : public SignalReceiver
 
   /// @}
 
-  // TODO:
-
   /// @name Parsing Operations
   /// @{
 
   /// Add a single input character to the input buffer and process it.
-  public: void handleNewChar(Char inputChar, Int line, Int column);
+  public: void handleNewChar(Char inputChar, Int &line, Int &column);
 
   /// Add a string of input characters to the input buffer and process them.
   public: void handleNewString(Char const *inputStr, Int &line, Int &column);
@@ -215,26 +227,26 @@ class Lexer : public SignalReceiver
   private: void processBuffer();
 
   /// Push a character into the input buffer.
-  private: Bool pushChar(Char ch, Int line, Int column);
+  private: Bool pushChar(WChar ch, Int line, Int column);
 
   /// Process the given input character by updating the states.
   private: Int process();
 
   /// Process the first character in the token.
-  private: void processStartChar(Char inputChar);
+  private: void processStartChar(WChar inputChar);
 
   /// Process the next character in the token.
-  private: void processNextChar(Char inputChar);
+  private: void processNextChar(WChar inputChar);
 
   /// Recursively apply the given character on the temp state.
-  private: NextAction processTempState(Char inputChar, Data::Term *currentTerm,
+  private: NextAction processTempState(WChar inputChar, Data::Term *currentTerm,
                                        Int currentLevel);
 
   /// Select the best token among the detected tokens.
   private: Int selectBestToken();
 
   /// Match a given character to a character group hierarchy.
-  private: static Bool matchCharGroup(Char ch, Data::CharGroupUnit *unit);
+  private: static Bool matchCharGroup(WChar ch, Data::CharGroupUnit *unit);
 
   /// Release all states and related data, but not definitions.
   public: void clear();

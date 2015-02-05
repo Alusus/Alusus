@@ -2,7 +2,7 @@
  * @file Core/Processing/InputBuffer.h
  * Contains the header of class Core::Processing::InputBuffer.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -57,7 +57,7 @@ class InputBuffer
    *
    * This string contains the list of characters in the buffer.
    */
-  private: Str charBuffer;
+  private: WStr charBuffer;
 
   /**
    * @brief Manages the positions of characters in the source code.
@@ -93,7 +93,7 @@ class InputBuffer
   /// @{
 
   /// Push a new character to the end of the buffer.
-  public: Bool push(Char ch, Int line, Int column, Bool force=false);
+  public: Bool push(WChar ch, Int line, Int column, Bool force=false);
 
   /// Remove a group of characters from the beginning of the buffer.
   public: void remove(Int count);
@@ -110,7 +110,7 @@ class InputBuffer
   /// @{
 
   /// Get a pointer to the characters stored in the buffer.
-  public: Char const* getChars()
+  public: WChar const* getChars()
   {
     return this->charBuffer.c_str();
   }
@@ -137,14 +137,6 @@ class InputBuffer
 
   /// Get whether the buffer is full or not.
   public: Bool isFull();
-
-  /// @}
-
-  /// @name Utility Functions
-  /// @{
-
-  /// Compute the next position based on the given character.
-  private: static void updateCharPosition(Char ch, Int & line, Int & column);
 
   /// @}
 

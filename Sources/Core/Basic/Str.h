@@ -2,7 +2,7 @@
  * @file Core/Basic/Str.h
  * Contains the header of class Core::Basic::Str.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -135,11 +135,11 @@ class Str : public std::string
   public: void assign(WChar const *s, Word n=0)
   {
     if (n == 0) n = getStrLen(s);
-    Char *buffer = reinterpret_cast<Char*>(allocateOnStack(n*4));
+    Char *buffer = reinterpret_cast<Char*>(SALLOC(n*4)); // A UTF8 char may take up to 4 bytes.
     Int inLength, outLength;
     convertStr(s, n, buffer, n*4, inLength, outLength);
     this->assign(buffer, outLength);
-    freeFromStack(buffer);
+    SFREE(buffer);
   }
 
   public: SbStr const& sbstr() const

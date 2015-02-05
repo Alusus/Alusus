@@ -2,7 +2,7 @@
  * @file Core/Basic/SbWStr.cpp
  * Contains the implementation of class Core::Basic::SbWStr.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -47,22 +47,22 @@ void SbWStr::append(WChar const *str, Word strSize, Word bufferSize)
 void SbWStr::assign(Char const *str, Word n, Word bufferSize)
 {
   if (n == 0) n = getStrLen(str);
-  WChar *buffer = reinterpret_cast<WChar*>(allocateOnStack(n));
+  WChar *buffer = reinterpret_cast<WChar*>(SALLOC(n*sizeof(WChar)));
   Int inLength, outLength;
   convertStr(str, n, buffer, n, inLength, outLength);
   this->assign(buffer, outLength, bufferSize);
-  freeFromStack(buffer);
+  SFREE(buffer);
 }
 
 
 void SbWStr::append(Char const *str, Word srcSize, Word bufferSize)
 {
   if (srcSize == 0) srcSize = getStrLen(str);
-  WChar *buffer = reinterpret_cast<WChar*>(allocateOnStack(srcSize));
+  WChar *buffer = reinterpret_cast<WChar*>(SALLOC(srcSize*sizeof(WChar)));
   Int inLength, outLength;
   convertStr(str, srcSize, buffer, srcSize, inLength, outLength);
   this->append(buffer, outLength, bufferSize);
-  freeFromStack(buffer);
+  SFREE(buffer);
 }
 
 } } // namespace

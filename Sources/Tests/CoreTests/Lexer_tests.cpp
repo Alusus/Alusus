@@ -2,7 +2,7 @@
  * @file Tests/CoreTests/Lexer_tests.cpp
  * Contain's the lexer's unit tests.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -32,7 +32,7 @@ TEST_CASE("Core::Processing/Lexer/successful", "Successful Tokenization Test")
       tester.reset();
       tester.addToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("strVar"));
       tester.addToken(UNKNOWN_ID, STR("="));
-      tester.addToken(ID_GENERATOR->getId(STR("LexerDefs.StringLiteral")), STR("\"Hello World\""));
+      tester.addToken(ID_GENERATOR->getId(STR("LexerDefs.StringLiteral")), STR("Hello World"));
       tester.addToken(UNKNOWN_ID, STR(";"));
       tester.test(STR("strVar = \"Hello World\";"));
     }

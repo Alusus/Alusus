@@ -3,7 +3,7 @@
  * Contains the definitions and include statements for all types used for
  * processing.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -76,6 +76,10 @@ namespace Core { namespace Processing
  */
 #define VARIABLE_NAME_MAX_LENGTH 256
 
+
+//==============================================================================
+// Lexer Definitions
+
 /**
  * @brief The maximum number of characters in the input buffer.
  * @ingroup processing_lexer
@@ -107,6 +111,59 @@ namespace Core { namespace Processing
  * number of characters.
  */
 #define LEXER_ERROR_BUFFER_MAX_CHARACTERS 80
+
+/**
+ * @brief Compute the next position based on the given character.
+ * @ingroup processing_lexer
+ *
+ * Update a given line number and column values based on the value of the given
+ * char. The character is checked for a new line or carriage return values to
+ * determine whether the next position is at the beginning of a new line or
+ * at the beginning of the same line respectively. If the character value is
+ * anything other than new line or carriage return, the next position is simply
+ * the following column on the same line.
+ *
+ * @param ch The character used to determine the next position.
+ * @param line A reference to the value of the current line number. This
+ *             value will be replaced with the new line number value.
+ * @param column A reference to the value of the current column. This value
+ *               will be replaced with the new column value.
+ */
+void computeNextCharPosition(WChar ch, Int &line, Int &column);
+
+
+//==============================================================================
+// Parser Definitions
+
+/**
+ * @brief The default value for tokensToLive.
+ * @ingroup processing_parser
+ *
+ * When parsing branches, the branch with the lower priority is given a number
+ * of tokens to live before it's forced to die, if none of the two branches
+ * died naturally before the end of the end of tokensToLive. The value of
+ * tokensToLive should come from the grammar, but if it's not provided by
+ * the grammar, this default value will be considered instead.
+ */
+#define DEFAULT_TOKENS_TO_LIVE 20
+
+/**
+ * @brief The number of preallocated parser state term levels.
+ * @ingroup processing_parser
+ *
+ * These state term levels are preallocated when the state is instantiated. It's
+ * done for performance purposes.
+ */
+#define RESERVED_PARSER_TERM_LEVEL_COUNT  1000
+
+/**
+ * @brief The number of preallocated parser state production levels.
+ * @ingroup processing_parser
+ *
+ * These state production levels are preallocated when the state is instantiated.
+ * It's done for performance purposes.
+ */
+#define RESERVED_PARSER_PRODUCTION_LEVEL_COUNT 100
 
 /**
  * @brief The temporary processing status of the state object.
@@ -178,36 +235,6 @@ enumeration(ParsingFlags,
             FORCE_LIST = 2,
             PASS_UP = 4);
 
-/**
- * @brief The default value for tokensToLive.
- * @ingroup processing_parser
- *
- * When parsing branches, the branch with the lower priority is given a number
- * of tokens to live before it's forced to die, if none of the two branches
- * died naturally before the end of the end of tokensToLive. The value of
- * tokensToLive should come from the grammar, but if it's not provided by
- * the grammar, this default value will be considered instead.
- */
-#define DEFAULT_TOKENS_TO_LIVE 20
-
-/**
- * @brief The number of preallocated parser state term levels.
- * @ingroup processing_parser
- *
- * These state term levels are preallocated when the state is instantiated. It's
- * done for performance purposes.
- */
-#define RESERVED_PARSER_TERM_LEVEL_COUNT  1000
-
-/**
- * @brief The number of preallocated parser state production levels.
- * @ingroup processing_parser
- *
- * These state production levels are preallocated when the state is instantiated.
- * It's done for performance purposes.
- */
-#define RESERVED_PARSER_PRODUCTION_LEVEL_COUNT 100
-
 } } // namespace
 
 
@@ -227,6 +254,7 @@ enumeration(ParsingFlags,
 // Tokenizing Classes
 #include "InputBuffer.h"
 #include "LexerState.h"
+#include "TokenizingHandler.h"
 #include "Lexer.h"
 
 // Parser

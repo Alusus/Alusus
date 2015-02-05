@@ -2,7 +2,7 @@
  * @file Tests/CoreTests/TestGrammarPlant.cpp
  * Contains the implementation of class CoreTests::TestGrammarPlant.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,7 +24,8 @@ using namespace Core::Standard;
 
 void TestGrammarPlant::createGrammar()
 {
-  // Instantiate parsing handlers.
+  // Instantiate handlers.
+  this->stringLiteralHandler = std::make_shared<StringLiteralTokenizingHandler>();
   this->parsingHandler = std::make_shared<GenericParsingHandler>();
 
   // Create lexer definitions.
@@ -54,36 +55,36 @@ void TestGrammarPlant::createCharGroupDefinitions()
 {
   // BinDigit : char '0'..'1';
   this->repository.set(STR("root:LexerDefs.BinDigit"), CharGroupDefinition::create(
-    SequenceCharGroupUnit::create(CHR('0'), CHR('1'))).get());
+    SequenceCharGroupUnit::create(STR("0"), STR("1"))).get());
 
   // OctDigit : char '0'..'7';
   this->repository.set(STR("root:LexerDefs.OctDigit"), CharGroupDefinition::create(
-    SequenceCharGroupUnit::create(CHR('0'), CHR('7'))).get());
+    SequenceCharGroupUnit::create(STR("0"), STR("7"))).get());
 
   // DecDigit : char '0'..'9';
   this->repository.set(STR("root:LexerDefs.DecDigit"), CharGroupDefinition::create(
-    SequenceCharGroupUnit::create(CHR('0'), CHR('9'))).get());
+    SequenceCharGroupUnit::create(STR("0"), STR("9"))).get());
 
   // HexDigit : char '0'..'9', 'a'..'f', 'A'..'F';
   this->repository.set(STR("root:LexerDefs.HexDigit"), CharGroupDefinition::create(
     UnionCharGroupUnit::create({
-      SequenceCharGroupUnit::create(CHR('0'), CHR('9')),
-      SequenceCharGroupUnit::create(CHR('a'), CHR('f')),
-      SequenceCharGroupUnit::create(CHR('A'), CHR('F'))
+      SequenceCharGroupUnit::create(STR("0"), STR("9")),
+      SequenceCharGroupUnit::create(STR("a"), STR("f")),
+      SequenceCharGroupUnit::create(STR("A"), STR("F"))
     })).get());
 
   // Letter : char 'a'..'z', 'A'..'Z', '_';
   this->repository.set(STR("root:LexerDefs.Letter"), CharGroupDefinition::create(
     UnionCharGroupUnit::create({
-      SequenceCharGroupUnit::create(CHR('a'), CHR('z')),
-      SequenceCharGroupUnit::create(CHR('A'), CHR('Z')),
-      SequenceCharGroupUnit::create(CHR('_'), CHR('_'))
+      SequenceCharGroupUnit::create(STR("a"), STR("z")),
+      SequenceCharGroupUnit::create(STR("A"), STR("Z")),
+      SequenceCharGroupUnit::create(STR("_"), STR("_"))
     })).get());
 
   // AnyCharNoEs : char ^('\\');
   this->repository.set(STR("root:LexerDefs.AnyCharNoEs"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
-      SequenceCharGroupUnit::create(CHR('\\'), CHR('\\')))).get());
+      SequenceCharGroupUnit::create(STR("\\"), STR("\\")))).get());
 
   // AnyCharNoEsOrSingleQuote : char ^("\\'");
   this->repository.set(STR("root:LexerDefs.AnyCharNoEsOrSingleQuote"), CharGroupDefinition::create(
@@ -98,7 +99,7 @@ void TestGrammarPlant::createCharGroupDefinitions()
   // AnyCharNoReturn = ^('\\');
   this->repository.set(STR("root:LexerDefs.AnyCharNoReturn"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
-      SequenceCharGroupUnit::create(CHR('\n'), CHR('\n')))).get());
+      SequenceCharGroupUnit::create(STR("\n"), STR("\n")))).get());
 
   // Spacing : char " \n\r\t";
   this->repository.set(STR("root:LexerDefs.Spacing"), CharGroupDefinition::create(
@@ -369,6 +370,7 @@ void TestGrammarPlant::createTokenDefinitions()
          })
        })}
     })},
+    {SymbolDefElement::HANDLER, this->stringLiteralHandler},
     {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
   }).get());
 
