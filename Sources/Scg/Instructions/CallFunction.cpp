@@ -145,7 +145,8 @@ Expression::CodeGenerationStage CallFunction::GenerateCode()
     if (expectedArgType != nullptr &&
         argType->Compare(expectedArgType) != TypeComparisonResult::Equivalent) {
       // Need to cast the type before sending it to the function.
-      args.push_back(argType->CastValue(argValue));
+      args.push_back(argType->CreateCastInst(GetBlock()->GetIRBuilder(),
+          argValue, expectedArgType));
     } else {
       args.push_back(argValue);
     }

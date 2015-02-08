@@ -50,6 +50,21 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
+  llvm::Value *IntegerType::CreateCastInst(llvm::IRBuilder<> *irb,
+    llvm::Value *value, const ValueType *targetType) const
+  {
+    if (targetType == DoubleType::GetSingleton()) {
+      // The operand is an integer, so we need to add SItoFP instruction.
+      return irb->CreateSIToFP(value,
+          DoubleType::GetSingleton()->GetSingleton()->GetLlvmType());
+    } else {
+      throw;
+    }
+
+  }
+
+  //----------------------------------------------------------------------------
+
   const ValueTypeArray &IntegerType::GetImplicitCastingTargets() const
   {
     if (this->implicitCastingTargets.size() == 0)

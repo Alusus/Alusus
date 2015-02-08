@@ -70,8 +70,6 @@ public:
   //! @copydoc Expression::GenerateCode()
   virtual CodeGenerationStage GenerateCode();
 
-  CodeGenerationResult GenerateCodeForAssignment();
-
   //! @copydoc Expression::PostGenerateCode()
   virtual CodeGenerationStage PostGenerateCode();
 

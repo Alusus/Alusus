@@ -63,6 +63,10 @@ namespace Scg
       return dynamic_cast<const IntegerType*>(other) != nullptr;
     }
 
+    //! @copydoc ValueType::CreateCastInst()
+    virtual llvm::Value *CreateCastInst(llvm::IRBuilder<> *irb,
+      llvm::Value *value, const ValueType *targetType) const;
+
     //! @copydoc ValueType::GetImplicitCastingTargets()
     const ValueTypeArray &GetImplicitCastingTargets() const;
 

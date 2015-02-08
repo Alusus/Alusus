@@ -1,0 +1,10 @@
+import "common.alusus";
+
+def HelloWorld : module {
+  def main : function() => int {
+    printDouble(5);
+    return 0;
+  };
+};
+
+run HelloWorld;

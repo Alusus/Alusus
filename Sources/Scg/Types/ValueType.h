@@ -17,8 +17,10 @@
 #include <Operators/CastingOperator.h>
 #include <typedefs.h>
 
-// LLVM forward declarations
-#include <llvm_fwd.h>
+// LLVM header files
+#pragma warning(disable: 4146 4800 4355 4996)
+#include <llvm/IR/IRBuilder.h>
+#pragma warning(default: 4146 4800 4355 4996)
 
 namespace Scg
 {
@@ -107,7 +109,16 @@ public:
    */
   virtual const ValueTypeSpec *GetValueTypeSpec() const = 0;
 
-  virtual llvm::Value *CastValue(llvm::Value *value) const
+  /**
+   * Casts the given LLVM value to the given target type.
+   * @param[in] irb         The IRBuilder object used to create the instruction.
+   * @param[in] value       The LLVM value to be casted.
+   * @param[in] targetType  The target type.
+   * @return The casted LLVM value. This is usually an instruction that does
+   * the casting having the given LLVM value as its argument.
+   */
+  virtual llvm::Value *CreateCastInst(llvm::IRBuilder<> *irb,
+      llvm::Value *value, const ValueType *targetType) const
   {
     THROW_NOT_IMPLEMENTED();
   }
