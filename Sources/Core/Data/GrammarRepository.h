@@ -138,6 +138,8 @@ class GrammarRepository : public IdentifiableObject,
     this->repository.get(qualifier, retVal);
   }
 
+  using Provider::tryGet;
+
   public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal)
   {
     return this->repository.tryGet(ref, retVal);

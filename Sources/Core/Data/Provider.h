@@ -82,6 +82,20 @@ class Provider : public IdentifiableInterface
 
   public: virtual Bool tryGet(Char const *qualifier, PlainModulePairedPtr &retVal) = 0;
 
+  public: virtual IdentifiableObject* tryGet(Reference const *ref)
+  {
+    IdentifiableObject *result = 0;
+    this->tryGet(ref, result);
+    return result;
+  }
+
+  public: virtual IdentifiableObject* tryGet(Char const *qualifier)
+  {
+    IdentifiableObject *result = 0;
+    this->tryGet(qualifier, result);
+    return result;
+  }
+
   /// @}
 
 }; // class

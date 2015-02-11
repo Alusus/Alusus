@@ -24,7 +24,7 @@ using namespace llvm;
 
 namespace Scg
 {
-DefineFunction::DefineFunction(const std::string &name, ValueTypeSpec *returnType,
+DefineFunction::DefineFunction(Char const *name, ValueTypeSpec *returnType,
     const VariableDefinitionArray &arguments, Block *body) :
         name(name),
         returnType(returnType),

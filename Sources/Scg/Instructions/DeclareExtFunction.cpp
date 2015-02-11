@@ -24,7 +24,7 @@
 
 namespace Scg
 {
-DeclareExtFunction::DeclareExtFunction(const std::string &name,
+DeclareExtFunction::DeclareExtFunction(Char const *name,
     ValueTypeSpec *returnType, const ValueTypeSpecArray &argTypes,
     bool isVarArgs) :
         name(name),

@@ -53,7 +53,7 @@ public:
    * @param[in] args          An list of the arguments to be passed to the
    *                          function.
    */
-  CallFunction(const std::string &functionName, List *args)
+  CallFunction(Char const *functionName, List *args)
     : funcName(functionName), callInst(0), args(args)
   {
     // Add the arguments to the children so that they are called during

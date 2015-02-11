@@ -20,6 +20,8 @@
 
 #include <llvm_fwd.h>
 
+using namespace Core;
+
 namespace Scg
 {
   class Block;
@@ -50,7 +52,7 @@ public:
    * @param[in] arguments   The arguments of the function.
    * @param[in] body        The body of the function.
    */
-  DefineFunction(const std::string &name, ValueTypeSpec *returnType,
+  DefineFunction(Char const *name, ValueTypeSpec *returnType,
     const VariableDefinitionArray &arguments, Block *body);
 
   //! Class destructor.

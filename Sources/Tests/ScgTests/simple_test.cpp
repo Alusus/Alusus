@@ -19,17 +19,17 @@ namespace Tests { namespace ScgTests
 
 ValueTypeSpec *CreateTypeSpecByName(const std::string &name)
 {
-  return new ValueTypeSpecByName(name);
+  return new ValueTypeSpecByName(name.c_str());
 }
 
 ValueTypeSpec *CreatePointerToPrimitiveTypeSpec(const std::string &name)
 {
-  return new PointerValueTypeSpec(new ValueTypeSpecByName(name));
+  return new PointerValueTypeSpec(new ValueTypeSpecByName(name.c_str()));
 }
 
 ValueTypeSpec *CreateArrayOfPrimitiveTypeSpec(const std::string &name, int size)
 {
-  return new ArrayValueTypeSpec(new ValueTypeSpecByName(name), size);
+  return new ArrayValueTypeSpec(new ValueTypeSpecByName(name.c_str()), size);
 }
 
 std::string BuildSimpleTest(const ExpressionArray &mainBody,

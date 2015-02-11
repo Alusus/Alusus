@@ -20,6 +20,8 @@
 
 #include <llvm_fwd.h>
 
+using namespace Core;
+
 namespace Scg
 {
 class DefineFunction;
@@ -48,7 +50,7 @@ public:
    * @param[in] isVarArgs   Whether the function has a variable number of
    * arguments.
    */
-  DeclareExtFunction(const std::string &name, ValueTypeSpec *returnType,
+  DeclareExtFunction(Char const *name, ValueTypeSpec *returnType,
       const ValueTypeSpecArray &argTypes, bool isVarArgs = false);
 
   /**

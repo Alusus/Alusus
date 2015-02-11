@@ -19,6 +19,8 @@
 // LLVM forward declarations
 #include <llvm_fwd.h>
 
+using namespace Core;
+
 namespace Scg
 {
 
@@ -90,7 +92,6 @@ public:
 };
 
 
-
 /**
  * Specifies a type by name.
  */
@@ -103,7 +104,7 @@ class ValueTypeSpecByName : public ValueTypeSpec
   std::string name;
 
 public:
-  ValueTypeSpecByName(const std::string &name) : name(name) {}
+  ValueTypeSpecByName(Char const *name) : name(name) {}
 
   //! @copydoc ValueTypeSpec::IsVoid()
   virtual bool IsVoid() const
@@ -114,7 +115,7 @@ public:
   //! @copydoc ValueTypeSpec::Clone()
   virtual ValueTypeSpec *Clone() const
   {
-    return new ValueTypeSpecByName(name);
+    return new ValueTypeSpecByName(name.c_str());
   }
 
   /**
@@ -255,7 +256,7 @@ public:
    * @param[in] name      The name of the variable.
    */
   VariableDefinition(const std::string &typeName, const std::string &name)
-      : std::pair<const ValueTypeSpec*, std::string>(new ValueTypeSpecByName(typeName), name) {}
+      : std::pair<const ValueTypeSpec*, std::string>(new ValueTypeSpecByName(typeName.c_str()), name) {}
 
   /**
    * Construct a variable definition from the given type specification and name.

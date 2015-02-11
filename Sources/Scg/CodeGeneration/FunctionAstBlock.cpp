@@ -85,7 +85,7 @@ FunctionAstBlock::~FunctionAstBlock()
 
 //------------------------------------------------------------------------------
 
-DefineFunction *FunctionAstBlock::ToDefineFunction(const std::string &name)
+DefineFunction *FunctionAstBlock::ToDefineFunction(Char const *name)
 {
   // We don't own the body anymore, the new DefineFunction instruction does,
   // so we don't delete the body when this object is destroyed.

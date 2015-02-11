@@ -223,7 +223,7 @@ namespace Scg
     if (nameToken == nullptr || nameToken->getId() != identifierTokenId)
       // TODO: Generate a build message instead of throwing an exception.
       THROW_EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
-    auto name = nameToken->getText();
+    auto name = this->TranslateAliasedName(nameToken->getText().c_str());
 
     // Get the definee (after the colon).
     static SharedPtr<Reference> defReference = ReferenceParser::parseQualifier(
@@ -263,7 +263,7 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  DefineVariable *CodeGenerator::GenerateDefineVariable(const std::string &name,
+  DefineVariable *CodeGenerator::GenerateDefineVariable(Char const *name,
       SharedPtr<IdentifiableObject> const &expr)
   {
     // Parses the variable type.
@@ -280,7 +280,7 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  DefineFunction *CodeGenerator::GenerateDefineFunction(const std::string &name,
+  DefineFunction *CodeGenerator::GenerateDefineFunction(Char const *name,
       const SharedPtr<IdentifiableObject> &item)
   {
     return FunctionAstBlock(this, item.s_cast<ParsedList>()).ToDefineFunction(name);
@@ -288,7 +288,7 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  DefineStruct *CodeGenerator::GenerateDefineStructure(const std::string &name,
+  DefineStruct *CodeGenerator::GenerateDefineStructure(Char const *name,
                                                        SharedPtr<IdentifiableObject> const &item)
   {
     static ReferenceSeeker seeker;
@@ -435,7 +435,7 @@ namespace Scg
     // This shouldn't be needed anymore.
     else if (id == parameterId)
     {
-      auto varName = parsedItem.s_cast_get<ParsedToken>()->getText();
+      auto varName = this->TranslateAliasedName(parsedItem.s_cast_get<ParsedToken>()->getText().c_str());
       return new Content(new PointerToVariable(varName));
     }
     else
@@ -776,7 +776,7 @@ namespace Scg
   //----------------------------------------------------------------------------
 
   // TODO: Change the parameter type to ParsedRoute to instead.
-  std::string CodeGenerator::ParseToken(SharedPtr<IdentifiableObject> const &item)
+  Char const* CodeGenerator::ParseToken(SharedPtr<IdentifiableObject> const &item)
   {
     static ReferenceSeeker seeker;
     static SharedPtr<Reference> tokenReference = ReferenceParser::parseQualifier(
@@ -787,7 +787,8 @@ namespace Scg
       // TODO: Add the index of the non-token to the exception message.
       THROW_EXCEPTION(InvalidArgumentException,
           "This parsed item doesn't contain a token.");
-    return token->getText();
+
+    return this->TranslateAliasedName(token->getText().c_str());
   }
 
   //----------------------------------------------------------------------------
@@ -799,16 +800,15 @@ namespace Scg
     if (itemMetadata == 0) {
       THROW_EXCEPTION(InvalidArgumentException, "Invalid variable type.");
     }
-    std::string typeName;
     if (itemMetadata->getProdId() == parameterId)
     {
-      auto typeName = item.s_cast<ParsedToken>()->getText();
+      auto typeName = this->TranslateAliasedName(item.s_cast<ParsedToken>()->getText().c_str());
       return new ValueTypeSpecByName(typeName);
     }
     if (itemMetadata->getProdId() == subjectId)
     {
       // TODO: Handle the exception potentially thrown by ParseToken.
-      typeName = ParseToken(item);
+      auto typeName = ParseToken(item);
       return new ValueTypeSpecByName(typeName);
     }
     else if (itemMetadata->getProdId() == functionalExpId)
@@ -822,7 +822,7 @@ namespace Scg
       if (funcName == nullptr)
         THROW_EXCEPTION(SyntaxErrorException, "Invalid variable type.");
 
-      else if (funcName->getText() == "ptr")
+      else if (SBSTR(this->TranslateAliasedName(funcName->getText().c_str())) == "ptr")
       {
         // TODO: Re-factor this if block into a separate function.
         // Pointer to a type.
@@ -835,7 +835,7 @@ namespace Scg
         auto contentTypeSpec = ParseVariableType(typeAstRoot);
         return new PointerValueTypeSpec(contentTypeSpec);
       }
-      else if (funcName->getText() == "arr")
+      else if (SBSTR(this->TranslateAliasedName(funcName->getText().c_str())) == "arr")
       {
         // TODO: Re-factor this if block into a separate function.
         // Array of types
@@ -956,6 +956,17 @@ namespace Scg
       THROW_EXCEPTION(SyntaxErrorException, "Invalid function argument list.");
 
     return args;
+  }
+
+  //----------------------------------------------------------------------------
+
+  Char const* CodeGenerator::TranslateAliasedName(Char const *name)
+  {
+    if (this->aliasDictionary != 0) {
+      Int index = this->aliasDictionary->findIndex(name);
+      if (index != -1) return static_cast<String*>(this->aliasDictionary->get(index))->get();
+    }
+    return name;
   }
 
 } // Scg

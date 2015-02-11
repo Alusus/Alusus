@@ -17,6 +17,8 @@
 #include <Instructions/Instruction.h>
 #include <llvm_fwd.h>
 
+using namespace Core;
+
 namespace Scg
 {
 class ValueTypeSpec;
@@ -44,7 +46,7 @@ public:
    *                      in the heap, and will be freed by this object.
    * @param[in] name      The name of the variable to define.
    */
-  DefineVariable(const ValueTypeSpec *typeSpec , const std::string &name)
+  DefineVariable(const ValueTypeSpec *typeSpec , Char const *name)
     : typeSpec(typeSpec)
     , name(name)
   {

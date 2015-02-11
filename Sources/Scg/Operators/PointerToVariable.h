@@ -14,6 +14,8 @@
 #ifndef __PointerToVariable_h__
 #define __PointerToVariable_h__
 
+using namespace Core;
+
 namespace Scg
 {
 class Block;
@@ -37,7 +39,7 @@ public:
    * this expression is defined.
    * @param[in] name  The name of the variable to point to.
    */
-  PointerToVariable(const std::string &name) : name(name) {}
+  PointerToVariable(Char const *name) : name(name) {}
 
   //! Class destructor.
   ~PointerToVariable();

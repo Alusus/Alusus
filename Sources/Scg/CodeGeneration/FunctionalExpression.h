@@ -125,7 +125,7 @@ public:
   Expression *ToExpression();
 
 private:
-  std::string ParseFieldName(
+  Char const *ParseFieldName(
       const Core::Basic::SharedPtr<Core::Data::ParsedList> &astBlockRoot);
   Expression *ParseElementIndex(
       const Core::Basic::SharedPtr<Core::Data::ParsedRoute> &astBlockRoot);

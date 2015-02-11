@@ -58,11 +58,11 @@ llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES core jit native)
 target_link_libraries(AlususE2ETests AlususCoreLib AlususStorage "dl")
 
 # Copy end-to-end test files to the build directory
-file(COPY ${AlususE2ETests_Test_Files} DESTINATION "${AlususE2ETests_BINARY_DIR}")
-file(COPY ${AlususE2ETests_Test_Files_Output} DESTINATION "${AlususE2ETests_BINARY_DIR}")
+install(FILES ${AlususE2ETests_Test_Files} DESTINATION "${AlususE2ETests_BINARY_DIR}")
+install(FILES ${AlususE2ETests_Test_Files_Output} DESTINATION "${AlususE2ETests_BINARY_DIR}")
 
 # Copy example files to installation directory.
-install_files("/Examples" FILES ${AlususE2ETests_Test_Files})
+install(FILES ${AlususE2ETests_Test_Files} DESTINATION "Examples")
 
 add_test(NAME AlususE2ETests
   COMMAND AlususE2ETests

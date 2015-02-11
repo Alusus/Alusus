@@ -17,11 +17,9 @@ def Structures2 : module {
     p.x := x~ptr;
     p.y := y~ptr;
     printf("x = %d, y = %d\n", p.x~cnt, p.y~cnt);
-    // TODO: We need to support having a dereferenc on the left-hand side of an
-    // assignment and then uncomment the following lines.
-    //p.x~cnt := 6;
-    //p.y~cnt := 3;
-    //printf("x = %d, y = %d\n", x, y);
+    p.x~cnt := 6;
+    p.y~cnt := 3;
+    printf("x = %d, y = %d\n", x, y);
   }
 };
 

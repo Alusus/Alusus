@@ -30,6 +30,10 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
 
   static CodeGenerator generator;
   static ReferenceSeeker seeker;
+
+  // Set the aliases dictionary.
+  generator.SetAliasDictionary(static_cast<SharedMap*>(state->getDataStack()->tryGet(this->aliasDictionaryRef.get())));
+
   static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
     STR("self~where(prodId=Subject.Subject1)."
         "{find prodId=Subject.Parameter, 0}"),

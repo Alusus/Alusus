@@ -17,7 +17,6 @@
 
 // SCG header files
 #include <scg.h>
-#include <CodeGeneration/CodeGenerator.h>
 #include <ParsingHandlers/ModuleParsingHandler.h>
 
 namespace Scg

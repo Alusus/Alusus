@@ -49,7 +49,7 @@ public:
    *                        in a structure.
    * @param[in] fieldName   The name of the field to create a pointer to.
    */
-  PointerToMemberField(Expression *exp, const std::string &fName) :
+  PointerToMemberField(Expression *exp, Char const *fName) :
     expression(exp), fieldName(fName)
   {
     children.push_back(expression);

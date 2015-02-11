@@ -19,6 +19,8 @@
 
 #include <llvm_fwd.h>
 
+using namespace Core;
+
 namespace Scg
 {
   class StructType;
@@ -41,7 +43,7 @@ namespace Scg
      * @param[in] name    The name of the structure.
      * @param[in] fields  The fields in the structure.
      */
-    DefineStruct(const std::string &name, const VariableDefinitionArray &fields)
+    DefineStruct(Char const *name, const VariableDefinitionArray &fields)
       : name(name), fields(fields), structType(0) { }
 
     /**

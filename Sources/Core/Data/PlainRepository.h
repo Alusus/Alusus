@@ -179,6 +179,8 @@ class PlainRepository : public IdentifiableObject, public virtual Provider
 
   public: virtual void get(Char const *qualifier, PlainModulePairedPtr &retVal);
 
+  using Provider::tryGet;
+
   public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal);
 
   public: virtual Bool tryGet(Reference const *ref, PlainModulePairedPtr &retVal);

@@ -12,7 +12,6 @@
 #include <core.h>   // Alusus core header files.
 #include <llvm/IR/IRBuilder.h>
 #include <scg.h>
-#include <CodeGeneration/CodeGenerator.h>
 #include <ParsingHandlers/DumpParsingHandler.h>
 
 namespace Scg

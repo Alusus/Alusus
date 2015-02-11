@@ -105,7 +105,7 @@ namespace Scg
      * @return A pointer to the DefineFunction instruction. The caller has to
      * delete the memory allocated for this object.
      */
-    DefineFunction *ToDefineFunction(const std::string &name);
+    DefineFunction *ToDefineFunction(Char const *name);
   };
 }
 

@@ -19,6 +19,8 @@
 #include <typedefs.h>
 #include <Types/ValueTypeSpec.h>
 
+using namespace Core;
+
 namespace Scg
 {
   class BinaryOperator;
@@ -71,6 +73,8 @@ namespace Scg
     Word GetPointerTildeId() { return pointerTildeId; }
     Word GetContentTildeId() { return contentTildeId; }
 
+    void SetAliasDictionary(Core::Data::SharedMap *dictionary) { this->aliasDictionary = dictionary; }
+
   private:
     Word statementListId;
     Word expressionId;
@@ -103,6 +107,9 @@ namespace Scg
     Word pointerTildeId;
     Word contentTildeId;
 
+    // TODO: Remove this when proper alias implementation is done.
+    Core::Data::SharedMap *aliasDictionary = 0;
+
   public:
     CodeGenerator()
     {
@@ -116,9 +123,9 @@ namespace Scg
     Block *GenerateInnerSet(const SharedPtr<IdentifiableObject> &item);
     Expression *GenerateStatement(const SharedPtr<IdentifiableObject> &item);
     Expression *GenerateDefine(const SharedPtr<IdentifiableObject> &item);
-    DefineVariable *GenerateDefineVariable(const std::string &name, const SharedPtr<IdentifiableObject> &item);
-    DefineFunction *GenerateDefineFunction(const std::string &name, const SharedPtr<IdentifiableObject> &expr);
-    DefineStruct *GenerateDefineStructure(const std::string &name, const SharedPtr<IdentifiableObject> &expr);
+    DefineVariable *GenerateDefineVariable(Char const *name, const SharedPtr<IdentifiableObject> &item);
+    DefineFunction *GenerateDefineFunction(Char const *name, const SharedPtr<IdentifiableObject> &expr);
+    DefineStruct *GenerateDefineStructure(Char const *name, const SharedPtr<IdentifiableObject> &expr);
 
     Expression *GenerateExpression(const SharedPtr<IdentifiableObject> &item);
     CallFunction *GeneratePrint(const SharedPtr<IdentifiableObject> &ptr);
@@ -144,7 +151,7 @@ namespace Scg
      *
      * @param[in] item  A pointer to the root of the AST block.
      */
-    std::string ParseToken(const SharedPtr<IdentifiableObject> &item);
+    Char const* ParseToken(const SharedPtr<IdentifiableObject> &item);
 
     /**
      * Parses an AST block that is generated for a variable type, e.g. int,
@@ -180,6 +187,14 @@ namespace Scg
      * @return A VariableDefinitionArray containing the variable definitions.
      */
     VariableDefinitionArray ParseFunctionArguments(const SharedPtr<IdentifiableObject> &astBlockRoot);
+
+    // TODO: Remove this when proper alias implementation is done.
+    /**
+     * @brief Translate the given name if it's found in the alias dictionary.
+     * @return Returns the translated string. If no dictionary is found or the
+     *         given name is not found the function will return the input as is.
+     */
+    Char const* TranslateAliasedName(Char const *name);
 
   }; // CodeGenerator
 } // Scg

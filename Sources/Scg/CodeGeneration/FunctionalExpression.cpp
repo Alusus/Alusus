@@ -166,7 +166,7 @@ Expression *FunctionalExpression::ToExpression()
 
 //------------------------------------------------------------------------------
 
-std::string FunctionalExpression::ParseFieldName(
+Char const* FunctionalExpression::ParseFieldName(
     const SharedPtr<ParsedList> &astBlockRoot)
 {
   if (astBlockRoot->getProdId() != this->gen->GetLinkExpId())

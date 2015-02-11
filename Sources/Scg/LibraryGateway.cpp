@@ -257,7 +257,6 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
             })},
         {SymbolDefElement::HANDLER, this->handler}
         }));*/
-
     grammarRepository->set(STR("root:Subject.Function"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
@@ -297,12 +296,30 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {SymbolDefElement::HANDLER, this->handler}
         }).get());
 
+    //// alias = "alias" + Subject
+    grammarRepository->set(STR("root:Subject.Alias"), SymbolDefinition::create({
+        {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
+        {SymbolDefElement::VARS, SharedMap::create(false, {
+            {STR("kwd"), std::make_shared<String>(STR("alias"))},
+            {STR("prms"), SharedList::create({
+                SharedMap::create(false, {
+                    {STR("prd"), ReferenceParser::parseQualifier(STR("root:Subject"))},
+                    {STR("min"), std::make_shared<Integer>(1)},
+                    {STR("max"), std::make_shared<Integer>(1)},
+                    {STR("pty"), std::make_shared<Integer>(1)}
+                    })
+                })}
+            })},
+        {SymbolDefElement::HANDLER, this->handler}
+        }).get());
+
     //// Add command to inner commands list.
     cmd_list = this->GetInnerCommandsList(grammarRepository);
     this->innerCmdListPos = static_cast<Int>(cmd_list->getCount());
     cmd_list->add(ReferenceParser::parseQualifier(STR("module:Module")));
     cmd_list->add(ReferenceParser::parseQualifier(STR("module:Function")));
     cmd_list->add(ReferenceParser::parseQualifier(STR("module:Structure")));
+    cmd_list->add(ReferenceParser::parseQualifier(STR("module:Alias")));
 
     // Create tilde commands.
 
@@ -344,7 +361,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }).get());
 
     //// Overloaded subject.
-    grammarRepository->set(STR("root:SubSubject"), GrammarModule::create({
+    /*grammarRepository->set(STR("root:SubSubject"), GrammarModule::create({
         {STR("@parent"), ReferenceParser::parseQualifier(STR("root:Subject"))}
         }).get());
     grammarRepository->set(STR("root:SubSubject.Subject1"), SymbolDefinition::create({
@@ -360,7 +377,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
             {STR("frc2"), 0},
             {STR("frc3"), 0}
             })}
-        }).get());
+        }).get());*/
 
     //// Overloaded set.
     grammarRepository->set(STR("root:SubSet"), SymbolDefinition::create({
@@ -378,13 +395,13 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
 
     // Remove commands from leading commands list.
     SharedList *cmdList = this->GetLeadingCommandsList(grammarRepository);
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 9; ++i) {
       cmdList->remove(this->leadingCmdListPos);
     }
 
     // Remove command from inner commands list.
     cmdList = this->GetInnerCommandsList(grammarRepository);
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 4; ++i) {
         cmdList->remove(this->innerCmdListPos);
     }
 
@@ -407,10 +424,11 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
     grammarRepository->remove(STR("root:Subject.Module"));
     grammarRepository->remove(STR("root:Subject.Function"));
     grammarRepository->remove(STR("root:Subject.Structure"));
+    grammarRepository->remove(STR("root:Subject.Alias"));
     grammarRepository->remove(STR("root:Expression.Pointer_Tilde"));
     grammarRepository->remove(STR("root:Expression.Content_Tilde"));
     grammarRepository->remove(STR("root:SubMain"));
-    grammarRepository->remove(STR("root:SubSubject"));
+    //grammarRepository->remove(STR("root:SubSubject"));
     grammarRepository->remove(STR("root:SubSet"));
 }
 

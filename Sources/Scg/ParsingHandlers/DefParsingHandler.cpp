@@ -54,8 +54,31 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
       THROW_EXCEPTION(SyntaxErrorException, "A 'def' has an invalid definition.");
     }
 
-    // Store the definition in the definitions manager.
-    Core::Standard::mergeDefinition(name.c_str(), def, state);
+    // Check if the definee is an alias.
+    // TODO: Replace the following hack with a proper alias structure after the reference
+    //       system is utilized in the SCG.
+    // The proper way to implement the alias is by defining an alias, which is a reference to the
+    // actual element. But since the references are not utilized in SCG we'll replace that with
+    // a dictionary that will be looked up later on by the Variable and FunctionCall structures.
+    static SharedPtr<Reference> aliasReference = ReferenceParser::parseQualifier(
+      STR("self~where(prodId=Subject.Alias).0~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
+      ReferenceUsageCriteria::MULTI_DATA);
+    auto alias = io_cast<ParsedToken>(seeker.tryGet(aliasReference.get(), def));
+    if (alias != 0) {
+      // Add the alias to the dictionary.
+      SharedMap *aliasDictionary =
+          static_cast<SharedMap*>(state->getDataStack()->tryGet(this->aliasDictionaryRef.get()));
+      // Create the dictionary if it's not created yet.
+      if (aliasDictionary == 0) {
+        SharedPtr<SharedMap> _aliasDictionary = SharedMap::create(true, {});
+        state->getDataStack()->set(this->aliasDictionaryRef.get(), _aliasDictionary.get());
+        aliasDictionary = _aliasDictionary.get();
+      }
+      aliasDictionary->set(name.c_str(), String::create(alias->getText().c_str()), true);
+    } else {
+      // Store the definition in the definitions manager.
+      Core::Standard::mergeDefinition(name.c_str(), def, state);
+    }
 
     // Reset parsed data because we are done with the command.
     state->setData(SharedPtr<IdentifiableObject>(0));
