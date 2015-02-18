@@ -22,71 +22,6 @@
 namespace Core
 {
 
-// These references are declared to enable easily converting between unicode and ascii.
-static std::ostream & Cout = std::cout;
-static std::istream & Cin = std::cin;
-
-
-/// Print 'indents' number of spaces.
-void printIndents(int indents)
-{
-  for (Int i=0; i < indents; ++i) {
-    Cout << STR(" ");
-  }
-}
-
-
-/**
- * @brief Recursive function to print a tree of parsed data.
- * @ingroup main
- *
- * The given tree should have default parsing data (ParsedRoute,
- * ParsedList, or ParsedToken). Anything other than the
- * default data types will be represented by [UNKNOWN TYPE].
- */
-void debugPrintParsedData(IdentifiableObject *ptr, int indents=0)
-{
-  printIndents(indents);
-  if (ptr == 0) {
-    Cout << STR("NULL:\n");
-    return;
-  }
-
-  // Does this object support the ParsingMetadataHolder interface?
-  if (ptr->getInterface<Data::ParsingMetadataHolder>() != 0) {
-    // Print the production name.
-    Word id = ii_cast<Data::ParsingMetadataHolder>(ptr)->getProdId();
-    if (id != UNKNOWN_ID) {
-      Cout << Data::IdGenerator::getSingleton()->getDesc(id) << STR(" -- ");
-    }
-    // Print the data itself.
-    if (ptr->isDerivedFrom<Data::ParsedList>()) {
-      Cout << STR("[LIST]:\n");
-      for (Word i = 0; i < static_cast<Data::ParsedList*>(ptr)->getCount(); ++i) {
-        debugPrintParsedData(static_cast<Data::ParsedList*>(ptr)->get(i), indents+1);
-      }
-    } else if (ptr->isDerivedFrom<Data::ParsedRoute>()) {
-      Cout << STR("[ROUTE]: ");
-      Cout << static_cast<Data::ParsedRoute*>(ptr)->getRoute() << STR("\n");
-      debugPrintParsedData(static_cast<Data::ParsedRoute*>(ptr)->getData().get(), indents+1);
-    } else if (ptr->isDerivedFrom<Data::ParsedToken>()) {
-      Cout << STR("[TOKEN]: ");
-      // Print the token type.
-      Int id = static_cast<Data::ParsedToken*>(ptr)->getId();
-      Cout << Data::IdGenerator::getSingleton()->getDesc(id);
-      // Print the token text.
-      Cout << STR(" (\"") << static_cast<Data::ParsedToken*>(ptr)->getText() << STR("\")\n");
-    } else {
-      // An item implementing ParsingMetadataHolder but not one of the three known types.
-      Cout << STR("[UNKNOWN Parsed Item]\n");
-    }
-  } else {
-    // Unkown data type not even implementing ParsingMetadataHolder.
-    Cout << STR("[UNKNOWN TYPE]\n");
-  }
-}
-
-
 /**
  * @brief Print the provided build message to the console.
  *
@@ -97,17 +32,17 @@ void printBuildMsg(const SharedPtr<Processing::BuildMsg> &msg)
 {
   // Print severity.
   switch (msg->getSeverity()) {
-    case 0: Cout << STR("BLOCKER "); break;
-    case 1: Cout << STR("ERROR "); break;
-    case 2: case 3: Cout << STR("WARNING "); break;
-    case 4: Cout << STR("ATTN "); break;
+    case 0: outStream << STR("BLOCKER "); break;
+    case 1: outStream << STR("ERROR "); break;
+    case 2: case 3: outStream << STR("WARNING "); break;
+    case 4: outStream << STR("ATTN "); break;
   }
   // Print msg code.
-  Cout << msg->getCode() << " @ ";
+  outStream << msg->getCode() << " @ ";
   // Print location.
-  Cout << msg->getFileName() << " (" << msg->getLine() << "," << msg->getColumn() << "): ";
+  outStream << msg->getFileName() << " (" << msg->getLine() << "," << msg->getColumn() << "): ";
   // Print description.
-  Cout << msg->getDescription() << NEW_LINE;
+  outStream << msg->getDescription() << NEW_LINE;
 }
 
 } // namespace
@@ -139,23 +74,23 @@ int main(int argCount, char * const args[])
   }
 
   if (help) {
-    Cout << STR("Alusus Core\n"
+    outStream << STR("Alusus Core\n"
                 "Version " ALUSUS_VERSION "\n"
                 "Copyright (C) " ALUSUS_RELEASE_YEAR " Sarmad Khalid Abdullah\n\n");
-    Cout << STR("This software is released under Alusus Public License, Version 1.0.\n"
+    outStream << STR("This software is released under Alusus Public License, Version 1.0.\n"
                 "For details on usage and copying conditions read the full license at\n"
                 "<http://alusus.net/alusus_license_1_0>. By using this software you acknowledge\n"
                 "that you have read the terms in the license and agree with and accept all such\n"
                 "terms.\n\n");
 #if defined(USE_LOGS)
-    Cout << STR("Usage: alusus <source> [<options>]\n");
+    outStream << STR("Usage: alusus <source> [<options>]\n");
 #else
-    Cout << STR("Usage: alusus <source>\n");
+    outStream << STR("Usage: alusus <source>\n");
 #endif
-    Cout << STR("source = filename.\n");
+    outStream << STR("source = filename.\n");
 #if defined(USE_LOGS)
-    Cout << STR("\nOptions:\n");
-    Cout << STR("\t--log  A 3 bit value to control the level of details of the log.\n");
+    outStream << STR("\nOptions:\n");
+    outStream << STR("\t--log  A 3 bit value to control the level of details of the log.\n");
 #endif
     return EXIT_SUCCESS;
   }
@@ -183,11 +118,11 @@ int main(int argCount, char * const args[])
     if (orphan == 0 || orphan->getCount() == 0) return 0;
 
     // Print the parsed data.
-    Cout << NEW_LINE << STR("-- BUILD COMPLETE --") << NEW_LINE << NEW_LINE <<
+    outStream << NEW_LINE << STR("-- BUILD COMPLETE --") << NEW_LINE << NEW_LINE <<
             STR("Build Results:") << NEW_LINE << NEW_LINE;
-    debugPrintParsedData(orphan.get());
+    dumpParsedData(orphan.get());
   } catch (Exception &e) {
-    Cout << e.getErrorMessage() << NEW_LINE;
+    outStream << e.getErrorMessage() << NEW_LINE;
     return EXIT_FAILURE;
   }
 

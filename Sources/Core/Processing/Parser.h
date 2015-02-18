@@ -20,7 +20,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief Contains all the functionality of the parser's state machine.
- * @ingroup processing
+ * @ingroup processing_parser
  *
  * This class contains all the member variables and functions of the state
  * machine.

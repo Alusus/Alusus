@@ -23,7 +23,7 @@ class StringLiteralTokenizingHandler : public Processing::TokenizingHandler
   //============================================================================
   // Type Info
 
-  TYPE_INFO(StringLiteralTokenizingHandler, TokenizingHandler, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(StringLiteralTokenizingHandler, Processing::TokenizingHandler, "Core.Standard", "Core", "alusus.net");
 
 
   //============================================================================

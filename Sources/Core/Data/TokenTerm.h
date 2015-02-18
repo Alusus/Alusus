@@ -52,7 +52,7 @@ class TokenTerm : public Term, public virtual DataOwner
     }
   }
 
-  public: TokenTerm(Word f, Int id, Char const *text=0) :
+  public: TokenTerm(Word f, Word id, Char const *text=0) :
     Term(f), tokenId(std::make_shared<Integer>(id))
   {
     if (text != 0) this->tokenText = std::make_shared<String>(text);
@@ -74,7 +74,7 @@ class TokenTerm : public Term, public virtual DataOwner
     return std::make_shared<TokenTerm>(f, id, text);
   }
 
-  public: static SharedPtr<TokenTerm> create(Word f, Int id, Char const *text=0)
+  public: static SharedPtr<TokenTerm> create(Word f, Word id, Char const *text=0)
   {
     return std::make_shared<TokenTerm>(f, id, text);
   }

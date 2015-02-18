@@ -604,7 +604,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Term *currentTe
       excMsg += STR("). The definition formula is not set yet.");
       throw GeneralException(excMsg.c_str(), STR("Core::Processing::Lexer::processTempState"));
     }
-    if (Lexer::matchCharGroup(inputChar, def->getCharGroupUnit().get())) {
+    if (Data::matchCharGroup(inputChar, def->getCharGroupUnit().get())) {
       return CONTINUE_NEW_CHAR;
     } else {
       return STOP;
@@ -1028,69 +1028,6 @@ Int Lexer::selectBestToken()
   }
 
   return index;
-}
-
-
-/**
- * Recursively matches the given character to the given character group. This
- * recursive function will descend into the entire character group tree to
- * match the given character.
- *
- * @param ch The character to match.
- * @param unit A pointer to the character group unit object to match. This
- *             object can be a the head of a tree of CharGroupUnit objects.
- * @return Returns true if the character matches, false otherwise.
- */
-Bool Lexer::matchCharGroup(WChar ch, Data::CharGroupUnit *unit)
-{
-  ASSERT(unit);
-
-  if (unit->isA<Data::SequenceCharGroupUnit>()) {
-    Data::SequenceCharGroupUnit *u = static_cast<Data::SequenceCharGroupUnit*>(unit);
-    if (u->getStartCode() == 0 && u->getEndCode() == 0) {
-      throw GeneralException(STR("Sequence char group unit is not configured yet."),
-                             STR("Core::Processing::Lexer::matchCharGroup"));
-    }
-    if (ch >= u->getStartCode() && ch <= u->getEndCode()) return true;
-    else return false;
-  } else if (unit->isA<Data::RandomCharGroupUnit>()) {
-    Data::RandomCharGroupUnit *u = static_cast<Data::RandomCharGroupUnit*>(unit);
-    if (u->getCharList() == 0) {
-      throw GeneralException(STR("Random char group unit is not configured yet."),
-                             STR("Core::Processing::Lexer::matchCharGroup"));
-    }
-    for (Int i = 0; i < u->getCharListSize(); i++) {
-      if (u->getCharList()[i] == ch) return true;
-    }
-    return false;
-  } else if (unit->isA<Data::UnionCharGroupUnit>()) {
-    Data::UnionCharGroupUnit *u = static_cast<Data::UnionCharGroupUnit*>(unit);
-    if (u->getCharGroupUnits()->size() == 0) {
-      throw GeneralException(STR("Union char group unit is not configured yet."),
-                             STR("Core::Processing::Lexer::matchCharGroup"));
-    }
-    for (Int i = 0; i < static_cast<Int>(u->getCharGroupUnits()->size()); i++) {
-      if (Lexer::matchCharGroup(ch, u->getCharGroupUnits()->at(i).get()) == true) {
-        return true;
-      }
-    }
-    return false;
-  } else if (unit->isA<Data::InvertCharGroupUnit>()) {
-    Data::InvertCharGroupUnit *u = static_cast<Data::InvertCharGroupUnit*>(unit);
-    if (u->getChildCharGroupUnit() == 0) {
-      throw GeneralException(STR("Invert char group unit is not configured yet."),
-                             STR("Core::Processing::Lexer::matchCharGroup"));
-    }
-    if (Lexer::matchCharGroup(ch, u->getChildCharGroupUnit().get()) == true) {
-      return false;
-    } else {
-      return true;
-    }
-  } else {
-    throw GeneralException(STR("Invalid char group type."),
-                           STR("Core::Processing::Lexer::matchCharGroup"));
-  }
-  return false; // just to prevent warnings
 }
 
 

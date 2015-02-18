@@ -18,7 +18,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief A build message for unexpected eof error.
- * @ingroup processing
+ * @ingroup processing_parser
  *
  * This message class is for error code P1002, which is raised when the parser
  * unexpectedly receives an endParsing call while still expecting more tokens.

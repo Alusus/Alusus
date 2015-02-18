@@ -147,6 +147,7 @@ enumeration(TermElement, FLAGS=1, REF=2, DATA=4, TERM=8, ESPI=16, PRIORITY=32, M
 class Module;
 class Provider;
 class PlainProvider;
+class CharGroupUnit;
 
 
 //==============================================================================
@@ -162,6 +163,29 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
  * objects will have the format: <id>.<childName>
  */
 void setTreeIds(IdentifiableObject *obj, const Char *id);
+
+/**
+ * @brief Match a given character to a character group hierarchy.
+ * Recursively matches the given character to the given character group. This
+ * recursive function will descend into the entire character group tree to
+ * match the given character.
+ *
+ * @param ch The character to match.
+ * @param unit A pointer to the character group unit object to match. This
+ *             object can be a the head of a tree of CharGroupUnit objects.
+ * @return Returns true if the character matches, false otherwise.
+ */
+Bool matchCharGroup(WChar ch, CharGroupUnit *unit);
+
+/**
+ * @brief Recursive function to print a tree of parsed data.
+ * @ingroup main
+ *
+ * The given tree should have default parsing data (ParsedRoute,
+ * ParsedList, or ParsedToken). Anything other than the
+ * default data types will be represented by [UNKNOWN TYPE].
+ */
+void dumpParsedData(IdentifiableObject *ptr, int indents=0, Bool start_indent=true);
 
 // TODO: Find module for other dimensions.
 

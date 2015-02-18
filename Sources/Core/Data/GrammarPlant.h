@@ -25,6 +25,7 @@ class GrammarPlant
 
   protected: GrammarRepository repository;
   protected: Str constTokenPrefix;
+  protected: Word constTokenId;
 
 
   //============================================================================
@@ -67,6 +68,9 @@ class GrammarPlant
    * generateConstTokenDefinitions.
    */
   protected: virtual Word addConstToken(Char const *text);
+
+  /// Create the token definition with the given const text.
+  protected: virtual SharedPtr<SymbolDefinition> createConstTokenDef(Char const *text);
 
   /**
    * @brief Generate a string key for the given text.

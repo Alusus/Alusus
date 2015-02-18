@@ -20,7 +20,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief Contains information describing current parsing status.
- * @ingroup processing
+ * @ingroup processing_parser
  *
  * The information contained specify where within the formula's terms
  * hierarchy the state is at. The object contains a stack of index entries,

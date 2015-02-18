@@ -20,7 +20,7 @@ class Parser;
 
 /**
  * @brief The root class of all tokenizing handlers.
- * @ingroup processing
+ * @ingroup processing_lexer
  *
  * Tokenizing handlers are associated with token definitions to receive lexer
  * events that can be used for custom operations on the generated tokens.

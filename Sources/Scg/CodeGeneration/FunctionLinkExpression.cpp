@@ -27,7 +27,6 @@ namespace Scg
     if (astRootMeta == nullptr || astRootMeta->getProdId() != gen->GetLinkId())
       THROW_EXCEPTION(SystemException,
           "Function link expressions can be constructed from Main.Link only.");
-
     // Initialise tree browsers.
     static ReferenceSeeker seeker;
     static SharedPtr<Reference> funcExpNoRetReference = ReferenceParser::parseQualifier(

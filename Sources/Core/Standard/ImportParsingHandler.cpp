@@ -28,7 +28,7 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
   QualifierSeeker seeker;
   // Find a literal token in the subject.
   IdentifiableObject *token;
-  if (seeker.tryGet(STR("self~where(prodId=Subject.Subject1).{find prodId=Subject.Literal}"), item, token)) {
+  if (seeker.tryGet(STR("1~where(prodId=Subject.Subject1).{find prodId=Subject.Literal}"), item, token)) {
     ParsedToken *parsedToken = io_cast<ParsedToken>(token);
     // Is it a string token?
     if (parsedToken != 0 && parsedToken->getId() == stringLiteralId) {
@@ -41,6 +41,9 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
                 new ImportLoadFailedMsg(itemMeta->getLine(), itemMeta->getColumn())));
       }
     }
+  } else {
+    throw GeneralException(STR("Invalid data format."),
+                           STR("Core::Standard::ImportParsingHandler::onProdEnd"));
   }
   // Reset parsed data because we are done with the command.
   state->setData(SharedPtr<IdentifiableObject>(0));

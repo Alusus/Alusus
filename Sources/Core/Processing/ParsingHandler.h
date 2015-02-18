@@ -20,7 +20,7 @@ class Parser;
 
 /**
  * @brief The root class of all parsing handlers.
- * @ingroup processing
+ * @ingroup processing_parser
  *
  * Parsing handlers are the classes responsible for handling different parsing
  * events. Each production can be associated with its own parsing handler that

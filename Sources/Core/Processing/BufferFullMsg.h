@@ -18,7 +18,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief A build message for the "Buffer Full" error.
- * @ingroup processing
+ * @ingroup processing_lexer
  *
  * This message class is for error code L1002, which is raised when the
  * lexer's internal buffer gets full. This may cause a token to be broken into

@@ -18,7 +18,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief A build message for Syntax Error.
- * @ingroup processing
+ * @ingroup processing_parser
  *
  * This message class is for error code P1001, which is raised when the parser
  * is faced with a token that is not recognized by the grammar.

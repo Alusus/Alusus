@@ -18,7 +18,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief A buffer for input characters with character positions.
- * @ingroup processing
+ * @ingroup processing_lexer
  *
  * This class contains a buffer for input characters and manages the positions
  * of the characters within the source code. The class doesn't store the

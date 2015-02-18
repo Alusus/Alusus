@@ -39,7 +39,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Main.Run"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("run"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("run"), 0}, {STR("نفّذ"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:Subject"))},
@@ -56,7 +56,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Main.Build"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("build"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("build"), 0}, {STR("ترجم"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:Subject"))},
@@ -90,7 +90,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Main.Def"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("def"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("def"), 0}, {STR("عرّف"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression"))},
@@ -107,7 +107,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Main.Return"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("return"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("return"), 0}, {STR("ارجع"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression"))},
@@ -124,7 +124,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Main.If"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("if"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("if"), 0}, {STR("إذا"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression"))},
@@ -147,7 +147,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Main.For"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("for"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("for"), 0}, {STR("لكل"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression"))},
@@ -170,7 +170,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Main.While"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("while"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("while"), 0}, {STR("بينما"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression"))},
@@ -193,7 +193,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Main.Link"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("link"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("link"), 0}, {STR("ربط"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("module:Statement"))},
@@ -226,7 +226,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Subject.Module"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("module"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("module"), 0}, {STR("حزمة"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:SubSet"))},
@@ -260,7 +260,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Subject.Function"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("function"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("function"), 0}, {STR("دالّة"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression"))},
@@ -283,7 +283,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Subject.Structure"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("struct"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("struct"), 0}, {STR("هيكل"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:SubSet"))},
@@ -300,7 +300,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Subject.Alias"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("alias"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("alias"), 0}, {STR("لقب"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:Subject"))},
@@ -327,7 +327,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Expression.Pointer_Tilde"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("ptr"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("ptr"), 0}, {STR("مؤشر"), 0}})},
             {STR("prms"), SharedList::create({})}
             })},
         {SymbolDefElement::HANDLER, this->handler}
@@ -336,7 +336,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Expression.Content_Tilde"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), std::make_shared<String>(STR("cnt"))},
+            {STR("kwd"), SharedMap::create(false, {{STR("cnt"), 0}, {STR("محتوى"), 0}})},
             {STR("prms"), SharedList::create({})}
             })},
         {SymbolDefElement::HANDLER, this->handler}

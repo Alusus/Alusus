@@ -18,7 +18,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief A build message for the "Token Clamped" warning.
- * @ingroup processing
+ * @ingroup processing_lexer
  *
  * This message class is for warning code L2001, which is raised when the
  * lexer clamps a very long token to fit into the input buffer.

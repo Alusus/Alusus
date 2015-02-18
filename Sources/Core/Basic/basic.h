@@ -443,6 +443,20 @@ WChar getWideCharFromUtf8(Char const *s);
 
 
 //==============================================================================
+// Global Variable Definitions
+
+/**
+ * @brief A reference to std::cout to use to output to the console.
+ * @ingroup basic
+ *
+ * This should be used to output to the console instead of directly using
+ * std::cout, in order to minimize the needed changes in case we needed to
+ * support wide characters in the output stream.
+ */
+extern std::ostream &outStream;
+
+
+//==============================================================================
 // Other Group Definitions
 
 /**

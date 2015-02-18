@@ -31,6 +31,8 @@ class TestGrammarPlant : public Data::GrammarPlant
   //============================================================================
   // Member Variables
 
+  private: SharedPtr<Processing::ConstTokenizingHandler> constTokenHandler;
+
   private: SharedPtr<Standard::StringLiteralTokenizingHandler> stringLiteralHandler;
 
   private: SharedPtr<Processing::GenericParsingHandler> parsingHandler;
@@ -63,6 +65,9 @@ class TestGrammarPlant : public Data::GrammarPlant
 
   /// Create the list of produciton definitions for the Core's grammar.
   private: void createProductionDefinitions();
+
+  /// Create a const token that uses the ConstTokenizingHandler.
+  protected: virtual SharedPtr<Data::SymbolDefinition> createConstTokenDef(Char const *text);
 
 }; // class
 

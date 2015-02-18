@@ -45,9 +45,18 @@ class Integer : public IdentifiableObject
   {
   }
 
+  public: Integer(Word v) : value(static_cast<Int>(v))
+  {
+  }
+
   public: static SharedPtr<Integer> create(Int v)
   {
     return std::make_shared<Integer>(v);
+  }
+
+  public: static SharedPtr<Integer> create(Word v)
+  {
+    return std::make_shared<Integer>(static_cast<Int>(v));
   }
 
 

@@ -21,8 +21,6 @@ namespace Scg
 using namespace Core;
 using namespace Core::Data;
 
-static std::ostream & Cout = std::cout;
-
 //==============================================================================
 // Overloaded Abstract Functions
 
@@ -37,7 +35,7 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
   generator.SetAliasDictionary(static_cast<SharedMap*>(state->getDataStack()->tryGet(this->aliasDictionaryRef.get())));
 
   static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
-    STR("self~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
+    STR("1~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
     ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
@@ -59,9 +57,9 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
         Module *module = generator.GenerateModule(name->getText(), statList);
         program.AddModule(module);
       }
-      Cout << STR("---------------------- IR Code -----------------------\n");
-      Cout << program.Compile();
-      Cout << STR("------------------------------------------------------\n");
+      outStream << STR("---------------------- IR Code -----------------------\n");
+      outStream << program.Compile();
+      outStream << STR("------------------------------------------------------\n");
       LlvmContainer::Finalize();
     } catch (const Scg::Exception &e) {
       // TODO: Use the source code position once they are added to the module definition.

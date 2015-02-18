@@ -20,7 +20,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief Contains all the functionality of the state machine.
- * @ingroup processing
+ * @ingroup processing_lexer
  *
  * This class contains all the member variables and functions of the state
  * machine.
@@ -244,9 +244,6 @@ class Lexer : public SignalReceiver
 
   /// Select the best token among the detected tokens.
   private: Int selectBestToken();
-
-  /// Match a given character to a character group hierarchy.
-  private: static Bool matchCharGroup(WChar ch, Data::CharGroupUnit *unit);
 
   /// Release all states and related data, but not definitions.
   public: void clear();

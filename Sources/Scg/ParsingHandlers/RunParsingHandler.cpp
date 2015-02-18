@@ -35,7 +35,7 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   generator.SetAliasDictionary(static_cast<SharedMap*>(state->getDataStack()->tryGet(this->aliasDictionaryRef.get())));
 
   static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
-    STR("self~where(prodId=Subject.Subject1)."
+    STR("1~where(prodId=Subject.Subject1)."
         "{find prodId=Subject.Parameter, 0}"),
     ReferenceUsageCriteria::MULTI_DATA);
 

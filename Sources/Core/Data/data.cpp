@@ -56,4 +56,124 @@ void setTreeIds(IdentifiableObject *obj, const Char *id)
   }
 }
 
+
+Bool matchCharGroup(WChar ch, CharGroupUnit *unit)
+{
+  ASSERT(unit);
+
+  if (unit->isA<SequenceCharGroupUnit>()) {
+    SequenceCharGroupUnit *u = static_cast<SequenceCharGroupUnit*>(unit);
+    if (u->getStartCode() == 0 && u->getEndCode() == 0) {
+      throw GeneralException(STR("Sequence char group unit is not configured yet."),
+                             STR("Core::Data::matchCharGroup"));
+    }
+    if (ch >= u->getStartCode() && ch <= u->getEndCode()) return true;
+    else return false;
+  } else if (unit->isA<RandomCharGroupUnit>()) {
+    RandomCharGroupUnit *u = static_cast<RandomCharGroupUnit*>(unit);
+    if (u->getCharList() == 0) {
+      throw GeneralException(STR("Random char group unit is not configured yet."),
+                             STR("Core::Data::matchCharGroup"));
+    }
+    for (Int i = 0; i < u->getCharListSize(); i++) {
+      if (u->getCharList()[i] == ch) return true;
+    }
+    return false;
+  } else if (unit->isA<UnionCharGroupUnit>()) {
+    UnionCharGroupUnit *u = static_cast<UnionCharGroupUnit*>(unit);
+    if (u->getCharGroupUnits()->size() == 0) {
+      throw GeneralException(STR("Union char group unit is not configured yet."),
+                             STR("Core::Data::matchCharGroup"));
+    }
+    for (Int i = 0; i < static_cast<Int>(u->getCharGroupUnits()->size()); i++) {
+      if (matchCharGroup(ch, u->getCharGroupUnits()->at(i).get()) == true) {
+        return true;
+      }
+    }
+    return false;
+  } else if (unit->isA<InvertCharGroupUnit>()) {
+    InvertCharGroupUnit *u = static_cast<InvertCharGroupUnit*>(unit);
+    if (u->getChildCharGroupUnit() == 0) {
+      throw GeneralException(STR("Invert char group unit is not configured yet."),
+                             STR("Core::Data::matchCharGroup"));
+    }
+    if (matchCharGroup(ch, u->getChildCharGroupUnit().get()) == true) {
+      return false;
+    } else {
+      return true;
+    }
+  } else {
+    throw GeneralException(STR("Invalid char group type."),
+                           STR("Core::Data::matchCharGroup"));
+  }
+  return false; // just to prevent warnings
+}
+
+
+/// Print 'indents' number of spaces.
+void printIndents(int indents)
+{
+  for (Int i=0; i < indents; ++i) {
+    outStream << STR(" ");
+  }
+}
+
+
+void dumpParsedData(IdentifiableObject *ptr, int indents, Bool start_indent)
+{
+  if (start_indent) printIndents(indents);
+  if (ptr == 0) {
+    outStream << STR("NULL:\n");
+    return;
+  }
+
+  // Is this a default data type?
+  ParsingMetadataHolder *metadata;
+  if ((metadata = ptr->getInterface<ParsingMetadataHolder>()) != 0) {
+    // Print the production name.
+    Word id = metadata->getProdId();
+    if (id != UNKNOWN_ID) {
+      outStream << IdGenerator::getSingleton()->getDesc(id) << STR(" -- ");
+    }
+  } else {
+    // Unkown data type not even implementing ParsingMetadataHolder.
+    outStream << ptr->getMyTypeInfo()->getUniqueName() << STR(" -- ");
+  }
+  // Print the data itself.
+  MapContainer *mapContainer;
+  ListContainer *listContainer;
+  if (ptr->isDerivedFrom<ParsedList>()) {
+    outStream << STR("[LIST]:\n");
+    for (Word i = 0; i < static_cast<ParsedList*>(ptr)->getCount(); ++i) {
+      dumpParsedData(static_cast<ParsedList*>(ptr)->get(i), indents+1);
+    }
+  } else if (ptr->isDerivedFrom<ParsedRoute>()) {
+    outStream << STR("[ROUTE]: ");
+    outStream << static_cast<ParsedRoute*>(ptr)->getRoute() << STR("\n");
+    dumpParsedData(static_cast<ParsedRoute*>(ptr)->getData().get(), indents+1);
+  } else if (ptr->isDerivedFrom<ParsedToken>()) {
+    outStream << STR("[TOKEN]: ");
+    // Print the token type.
+    Int id = static_cast<ParsedToken*>(ptr)->getId();
+    outStream << IdGenerator::getSingleton()->getDesc(id);
+    // Print the token text.
+    outStream << STR(" (\"") << static_cast<ParsedToken*>(ptr)->getText() << STR("\")\n");
+  } else if ((listContainer = ptr->getInterface<ListContainer>()) != 0) {
+    outStream << STR("[LIST]:\n");
+    for (Word i = 0; i < listContainer->getCount(); ++i) {
+      dumpParsedData(listContainer->get(i), indents+1);
+    }
+  } else if ((mapContainer = ptr->getInterface<MapContainer>()) != 0) {
+    outStream << STR("[MAP]:\n");
+    for (Word i = 0; i < mapContainer->getCount(); ++i) {
+      printIndents(indents+1);
+      outStream << mapContainer->getKey(i).c_str() << STR(": ");
+      dumpParsedData(mapContainer->get(i), indents+1, false);
+    }
+  } else {
+    // A default parsed item but not one of the three known types.
+    outStream << STR("[UNKNOWN TYPE]\n");
+  }
+}
+
 } } // namespace

@@ -41,6 +41,9 @@ class ReferenceParser
   private: static constexpr Char const *WHERE_KEYWORD = STR("~where(");
   private: static constexpr Int WHERE_KEYWORD_LEN = 7;
 
+  private: static SharedPtr<CharGroupUnit> letterCharGroup;
+  private: static SharedPtr<CharGroupUnit> numberCharGroup;
+
 
   //============================================================================
   // Member Variables
@@ -62,6 +65,18 @@ class ReferenceParser
 
   //============================================================================
   // Member Functions
+
+  protected: static void initDefaultCharGroups();
+
+  public: static void setLetterCharGroup(SharedPtr<CharGroupUnit> const group)
+  {
+    ReferenceParser::letterCharGroup = group;
+  }
+
+  public: static void setNumberCharGroup(SharedPtr<CharGroupUnit> const group)
+  {
+    ReferenceParser::numberCharGroup = group;
+  }
 
   /// Build the string representation of this reference.
   public: static void buildQualifier(Reference const *ref, StrStream &qualifier);

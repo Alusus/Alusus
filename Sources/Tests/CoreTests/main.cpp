@@ -20,10 +20,6 @@ using namespace Core;
  * @brief Contains elements related to Core tests.
  */
 
-// These references are declared to enable easily converting between unicode and ascii.
-static std::ostream & Cout = std::cout;
-static std::istream & Cin = std::cin;
-
 
 /**
  * @brief The entry point of the program.
@@ -36,22 +32,22 @@ int main(int argCount, char * const args[])
   // Validate arguments.
   for (int i = 0; i < argCount; ++i) {
     if (strcmp(args[i], STR("--help")) == 0) {
-      Cout << STR("Alusus Core Tests\n"
+      outStream << STR("Alusus Core Tests\n"
                   "Version " ALUSUS_VERSION "\n"
                   "Copyright (C) " ALUSUS_RELEASE_YEAR " Sarmad Khalid Abdullah\n\n");
-      Cout << STR("Usage: alusus_tests [<options>]\n");
-      Cout << STR("\nOptions:\n");
+      outStream << STR("Usage: alusus_tests [<options>]\n");
+      outStream << STR("\nOptions:\n");
 #if defined(USE_LOGS)
-      Cout << STR("\t--log  A 3 bit value to control the level of details of the log.\n");
+      outStream << STR("\t--log  A 3 bit value to control the level of details of the log.\n");
 #endif
-      Cout << STR("\nUnit Test Specific Options:\n");
-      Cout << STR("\t-l, --list  <tests | reporters> [xml]\n");
-      Cout << STR("\t-t, --test  <testspec> [<testspec>...]\n");
-      Cout << STR("\t-r, --reporter  <reporter name>\n");
-      Cout << STR("\t-o, --out  <file name>|<%stream name>\n");
-      Cout << STR("\t-s, --success\n");
-      Cout << STR("\t-b, --break\n\n");
-      Cout << STR("For more detail usage please see: https://github.com/philsquared/Catch/wiki/Command-line\n");
+      outStream << STR("\nUnit Test Specific Options:\n");
+      outStream << STR("\t-l, --list  <tests | reporters> [xml]\n");
+      outStream << STR("\t-t, --test  <testspec> [<testspec>...]\n");
+      outStream << STR("\t-r, --reporter  <reporter name>\n");
+      outStream << STR("\t-o, --out  <file name>|<%stream name>\n");
+      outStream << STR("\t-s, --success\n");
+      outStream << STR("\t-b, --break\n\n");
+      outStream << STR("For more detail usage please see: https://github.com/philsquared/Catch/wiki/Command-line\n");
       return 0;
     }
   }

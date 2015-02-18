@@ -18,7 +18,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief Contains state information used by the state machine.
- * @ingroup processing
+ * @ingroup processing_lexer
  *
  * This class contains information that defines a single state in the state
  * machine. The information contained specify where within the formula's terms

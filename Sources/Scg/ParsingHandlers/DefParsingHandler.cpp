@@ -33,7 +33,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     static Int identifierTokenId = ID_GENERATOR->getId("LexerDefs.Identifier");
     static ReferenceSeeker seeker;
     static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
-      STR("0~where(prodId=Expression.LowerLinkExp).0~where(prodId=Subject.Subject1).0"),
+      STR("1.0~where(prodId=Expression.LowerLinkExp).0~where(prodId=Subject.Subject1).0"),
       ReferenceUsageCriteria::MULTI_DATA);
     auto nameToken = io_cast<Data::ParsedToken>(seeker.tryGet(nameReference.get(), expr.get()));
     if (nameToken == 0 || nameToken->getId() != identifierTokenId) {
@@ -44,7 +44,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
 
     // Get the definee (after the colon).
     static SharedPtr<Reference> defReference = ReferenceParser::parseQualifier(
-      STR("0~where(prodId=Expression.LowerLinkExp).2~where(prodId=Subject.Subject1).0"),
+      STR("1.0~where(prodId=Expression.LowerLinkExp).2~where(prodId=Subject.Subject1).0"),
       ReferenceUsageCriteria::MULTI_DATA);
     auto def = seeker.tryGet(defReference.get(), expr.get());
     if (def == 0) {
@@ -61,7 +61,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     // actual element. But since the references are not utilized in SCG we'll replace that with
     // a dictionary that will be looked up later on by the Variable and FunctionCall structures.
     static SharedPtr<Reference> aliasReference = ReferenceParser::parseQualifier(
-      STR("self~where(prodId=Subject.Alias).0~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
+      STR("self~where(prodId=Subject.Alias).1~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
       ReferenceUsageCriteria::MULTI_DATA);
     auto alias = io_cast<ParsedToken>(seeker.tryGet(aliasReference.get(), def));
     if (alias != 0) {

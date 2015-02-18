@@ -18,7 +18,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief A build message for the "Unrecognized Char" error.
- * @ingroup processing
+ * @ingroup processing_lexer
  *
  * This message class is for error code L1001, which is raised when the
  * lexer faces characters that are not recognized by any token.

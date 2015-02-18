@@ -29,6 +29,9 @@ void StringLiteralTokenizingHandler::prepareToken(Data::Token *token, Word id, I
   static WChar nLetterChar = getWideCharFromUtf8(STR("n"));
   static WChar rLetterChar = getWideCharFromUtf8(STR("r"));
   static WChar tLetterChar = getWideCharFromUtf8(STR("t"));
+  static WChar jeemLetterChar = getWideCharFromUtf8(STR("ج"));
+  static WChar raaLetterChar = getWideCharFromUtf8(STR("ر"));
+  static WChar taaLetterChar = getWideCharFromUtf8(STR("ت"));
   static WChar doubleQuoteChar = getWideCharFromUtf8(STR("\""));
   // Set the token text after parsing control sequences and removing quotes.
   Word i = 0;
@@ -40,13 +43,13 @@ void StringLiteralTokenizingHandler::prepareToken(Data::Token *token, Word id, I
       if (tokenText[i] == doubleQuoteChar) inStr = false;
       else if (tokenText[i] == backSlashChar) {
         ++i;
-        if (tokenText[i] == nLetterChar) {
+        if (tokenText[i] == nLetterChar || tokenText[i] == jeemLetterChar) {
           buffer[bufferLength] = newLineChar;
           ++bufferLength;
-        } else if (tokenText[i] == rLetterChar) {
+        } else if (tokenText[i] == rLetterChar || tokenText[i] == raaLetterChar) {
           buffer[bufferLength] = carriageReturnChar;
           ++bufferLength;
-        } else if (tokenText[i] == tLetterChar) {
+        } else if (tokenText[i] == tLetterChar || tokenText[i] == taaLetterChar) {
           buffer[bufferLength] = tabChar;
           ++bufferLength;
         }

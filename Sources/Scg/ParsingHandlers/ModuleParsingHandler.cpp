@@ -34,7 +34,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
     static Word linkId = IdGenerator::getSingleton()->getId(STR("Main.Link"));
     static ReferenceSeeker seeker;
     static SharedPtr<Reference> statementListReference = ReferenceParser::parseQualifier(
-      STR("self~where(prodId=Main.StatementList)"),
+      STR("1~where(prodId=Main.StatementList)"),
       ReferenceUsageCriteria::MULTI_DATA);
 
     auto item = state->getData();
@@ -88,7 +88,7 @@ void ModuleParsingHandler::addDefinitionToModule(const SharedPtr<IdentifiableObj
   static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
   static ReferenceSeeker seeker;
   static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
-    STR("0~where(prodId=Expression.Exp)."
+    STR("1~where(prodId=Expression.Exp)."
         "0~where(prodId=Expression.LowerLinkExp)."
         "0~where(prodId=Subject.Subject1)."
         "0~where(prodId=Subject.Parameter)"),
@@ -114,7 +114,7 @@ void ModuleParsingHandler::addLinkToModule(const SharedPtr<IdentifiableObject> &
 
   static ReferenceSeeker seeker;
   static SharedPtr<Reference> listReference = ReferenceParser::parseQualifier(
-    STR("0~where(prodId=Expression.Exp)."
+    STR("1~where(prodId=Expression.Exp)."
         "0~where(prodId=Subject.Subject1)."
         "0~where(prodId=Main.StatementList)"),
     ReferenceUsageCriteria::MULTI_DATA);

@@ -138,8 +138,9 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
   ASSERT(term->isA<TokenTerm>());
 
   IdentifiableObject *matchText = state->getTokenTermText();
-  // Skip if the term is omissible.
-  if ((term->getFlags() & ParsingFlags::OMISSIBLE) && matchText != 0 && matchText->isA<Data::String>()) return;
+  // Skip if the term should be omitted.
+  if (term->getFlags() & ParsingFlags::FORCE_OMIT) return;
+  else if ((term->getFlags() & ParsingFlags::OMISSIBLE) && matchText != 0 && matchText->isA<Data::String>()) return;
 
   // We shouldn't have any data on this level if we are not a production.
   ASSERT(state->getData() == 0);

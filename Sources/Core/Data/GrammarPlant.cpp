@@ -39,16 +39,14 @@ void GrammarPlant::generateConstTokenDefinitions(Term *term)
 {
   if (term->isDerivedFrom<TokenTerm>()) {
     TokenTerm *tokenTerm = static_cast<TokenTerm*>(term);
-    if (tokenTerm->getTokenId() == 0) {
+    Integer *pid = tokenTerm->getTokenId().io_cast_get<Integer>();
+    if (pid != 0 && pid->get() == this->constTokenId) {
       IdentifiableObject *text = tokenTerm->getTokenText().get();
       if (text == 0) {
         throw GeneralException(STR("Token term has null id and text."),
                                STR("Core::Data::GrammarPlant::generateConstTokenDefinitions"));
       }
-      if (text->isDerivedFrom<String>()) {
-        Word id = this->addConstToken(static_cast<String*>(text)->get());
-        tokenTerm->setTokenId(std::make_shared<Integer>(id));
-      }
+      this->generateConstTokensForStrings(text);
     }
   } else if (term->isDerivedFrom<MultiplyTerm>()) {
     this->generateConstTokenDefinitions(static_cast<MultiplyTerm*>(term)->getTerm().get());
@@ -79,6 +77,7 @@ void GrammarPlant::generateConstTokensForStrings(IdentifiableObject *obj)
     SharedMap *map = static_cast<SharedMap*>(obj);
     for (Word i = 0; i < map->getCount(); ++i) {
       this->addConstToken(map->getKey(i).c_str());
+      this->generateConstTokensForStrings(map->get(i));
     }
   } else {
     Container *container = obj->getInterface<Container>();
@@ -101,12 +100,21 @@ Word GrammarPlant::addConstToken(Char const *text)
   path += this->constTokenPrefix;
   path += STR(".");
   path += key;
-  // Create the token definition.
-  this->repository.set(path.c_str(), SymbolDefinition::create({
-    {SymbolDefElement::TERM, ConstTerm::create(0, text)},
-    {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}
-  }).get());
+  // If the same constant is already created, skip.
+  IdentifiableObject *dummyObj;
+  if (this->repository.tryGet(path.c_str(), dummyObj) == false) {
+    // Create the token definition.
+    this->repository.set(path.c_str(), this->createConstTokenDef(text).get());
+  }
   return ID_GENERATOR->getId(path.c_str());
+}
+
+
+SharedPtr<SymbolDefinition> GrammarPlant::createConstTokenDef(Char const *text)
+{
+  return SymbolDefinition::create({
+        {SymbolDefElement::TERM, ConstTerm::create(0, text)},
+        {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}});
 }
 
 
@@ -121,7 +129,7 @@ void GrammarPlant::generateKey(Char const *text, Str &result)
         *text == CHR('_')) {
       stream << *text;
     } else {
-      stream << CHR('_') << static_cast<Int>(*text);
+      stream << CHR('_') << std::hex << static_cast<Int>(static_cast<Byte>(*text));
     }
     ++text;
   }

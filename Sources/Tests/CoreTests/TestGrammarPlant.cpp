@@ -24,8 +24,11 @@ using namespace Core::Standard;
 
 void TestGrammarPlant::createGrammar()
 {
+  this->constTokenId = ID_GENERATOR->getId(STR("CONSTTOKEN"));
+
   // Instantiate handlers.
   this->stringLiteralHandler = std::make_shared<StringLiteralTokenizingHandler>();
+  this->constTokenHandler = std::make_shared<ConstTokenizingHandler>(this->constTokenId);
   this->parsingHandler = std::make_shared<GenericParsingHandler>();
 
   // Create lexer definitions.
@@ -532,7 +535,7 @@ void TestGrammarPlant::createProductionDefinitions()
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, SharedList::create({
           ReferenceTerm::create(STR("root:SubStatement")),
-          TokenTerm::create(ParsingFlags::OMISSIBLE, STR(";"))
+          TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR(";"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
@@ -556,7 +559,7 @@ void TestGrammarPlant::createProductionDefinitions()
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(ParsingFlags::OMISSIBLE, STR("do")),
+          TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR("do")),
           ReferenceTerm::create(STR("root:Expression"))
         })}
      })},
@@ -568,13 +571,13 @@ void TestGrammarPlant::createProductionDefinitions()
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(ParsingFlags::OMISSIBLE, STR("{")),
+          TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR("{")),
           MultiplyTerm::create({
             {TermElement::PRIORITY, std::make_shared<Integer>(1)},
             {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
             {TermElement::TERM, ReferenceTerm::create(STR("root:Statement"))}
           }),
-          TokenTerm::create(ParsingFlags::OMISSIBLE, STR("}"))
+          TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR("}"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
@@ -593,7 +596,7 @@ void TestGrammarPlant::createProductionDefinitions()
              {TermElement::TERM, ConcatTerm::create({
                 {TermElement::FLAGS, ParsingFlags::OMISSIBLE},
                 {TermElement::TERM, SharedList::create({
-                   TokenTerm::create(ParsingFlags::OMISSIBLE, STR("?")),
+                   TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR("?")),
                    ReferenceTerm::create(STR("root:Expression"))
                  })}
               })}
@@ -610,7 +613,7 @@ void TestGrammarPlant::createProductionDefinitions()
           MultiplyTerm::create({
             {TermElement::PRIORITY, std::make_shared<Integer>(1)},
             {TermElement::FLAGS, ParsingFlags::PASS_UP},
-            {TermElement::TERM, TokenTerm::create(ParsingFlags::OMISSIBLE, STR(","))}
+            {TermElement::TERM, TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR(","))}
           }),
           ReferenceTerm::create(STR("root:ColonPairExp")),
           MultiplyTerm::create({
@@ -619,7 +622,7 @@ void TestGrammarPlant::createProductionDefinitions()
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::FLAGS, ParsingFlags::PASS_UP|ParsingFlags::OMISSIBLE},
                {TermElement::TERM, SharedList::create({
-                  TokenTerm::create(ParsingFlags::OMISSIBLE, STR(",")),
+                  TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR(",")),
                   MultiplyTerm::create({
                     {TermElement::PRIORITY, std::make_shared<Integer>(1)},
                     {TermElement::FLAGS, ParsingFlags::PASS_UP},
@@ -648,7 +651,7 @@ void TestGrammarPlant::createProductionDefinitions()
              {TermElement::TERM, ConcatTerm::create({
                 {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
                 {TermElement::TERM, SharedList::create({
-                   TokenTerm::create(ParsingFlags::OMISSIBLE, STR(":")),
+                   TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR(":")),
                    ReferenceTerm::create(STR("root:AssignmentExp"))
                  })}
               })}
@@ -863,27 +866,27 @@ void TestGrammarPlant::createProductionDefinitions()
            ConcatTerm::create({
              {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
              {TermElement::TERM, SharedList::create({
-                TokenTerm::create(ParsingFlags::OMISSIBLE, STR("(")),
+                TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR("(")),
                 MultiplyTerm::create({
                   {TermElement::PRIORITY, std::make_shared<Integer>(1)},
                   {TermElement::FLAGS, ParsingFlags::PASS_UP},
                   {TermElement::MAX, std::make_shared<Integer>(1)},
                   {TermElement::TERM, ReferenceTerm::create(STR("root:Expression"))}
                 }),
-                TokenTerm::create(ParsingFlags::OMISSIBLE, STR(")"))
+                TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR(")"))
               })}
            }),
            ConcatTerm::create({
              {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
              {TermElement::TERM, SharedList::create({
-                TokenTerm::create(ParsingFlags::OMISSIBLE, STR("[")),
+                TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR("[")),
                 MultiplyTerm::create({
                   {TermElement::PRIORITY, std::make_shared<Integer>(1)},
                   {TermElement::FLAGS, ParsingFlags::PASS_UP},
                   {TermElement::MAX, std::make_shared<Integer>(1)},
                   {TermElement::TERM, ReferenceTerm::create(STR("root:Expression"))}
                 }),
-                TokenTerm::create(ParsingFlags::OMISSIBLE, STR("]"))
+                TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR("]"))
               })}
            })
          })}
@@ -900,27 +903,27 @@ void TestGrammarPlant::createProductionDefinitions()
           ConcatTerm::create({
             {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
             {TermElement::TERM, SharedList::create({
-               TokenTerm::create(ParsingFlags::OMISSIBLE, STR("(")),
+               TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR("(")),
                MultiplyTerm::create({
                  {TermElement::PRIORITY, std::make_shared<Integer>(1)},
                  {TermElement::FLAGS, ParsingFlags::PASS_UP},
                  {TermElement::MAX, std::make_shared<Integer>(1)},
                  {TermElement::TERM, ReferenceTerm::create(STR("root:SubStatement"))}
                }),
-               TokenTerm::create(ParsingFlags::OMISSIBLE, STR(")"))
+               TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR(")"))
              })}
           }),
           ConcatTerm::create({
             {TermElement::FLAGS, ParsingFlags::OMISSIBLE|ParsingFlags::PASS_UP},
             {TermElement::TERM, SharedList::create({
-               TokenTerm::create(ParsingFlags::OMISSIBLE, STR("[")),
+               TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR("[")),
                MultiplyTerm::create({
                  {TermElement::PRIORITY, std::make_shared<Integer>(1)},
                  {TermElement::FLAGS, ParsingFlags::PASS_UP},
                  {TermElement::MAX, std::make_shared<Integer>(1)},
                  {TermElement::TERM, ReferenceTerm::create(STR("root:SubStatement"))}
                }),
-               TokenTerm::create(ParsingFlags::OMISSIBLE, STR("]"))
+               TokenTerm::create(ParsingFlags::OMISSIBLE, this->constTokenId, STR("]"))
              })}
           })
         })}
@@ -961,18 +964,18 @@ void TestGrammarPlant::createProductionDefinitions()
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::FLAGS, ParsingFlags::PASS_UP},
         {TermElement::TERM, SharedList::create({
-           TokenTerm::create(0, STR(":=")),
-           TokenTerm::create(0, STR("+=")),
-           TokenTerm::create(0, STR("-=")),
-           TokenTerm::create(0, STR("*=")),
-           TokenTerm::create(0, STR("/=")),
-           TokenTerm::create(0, STR("%=")),
-           TokenTerm::create(0, STR("&=")),
-           TokenTerm::create(0, STR("|=")),
-           TokenTerm::create(0, STR("$=")),
-           TokenTerm::create(0, STR("^:=")),
-           TokenTerm::create(0, STR("<<=")),
-           TokenTerm::create(0, STR(">>="))
+           TokenTerm::create(0, this->constTokenId, STR(":=")),
+           TokenTerm::create(0, this->constTokenId, STR("+=")),
+           TokenTerm::create(0, this->constTokenId, STR("-=")),
+           TokenTerm::create(0, this->constTokenId, STR("*=")),
+           TokenTerm::create(0, this->constTokenId, STR("/=")),
+           TokenTerm::create(0, this->constTokenId, STR("%=")),
+           TokenTerm::create(0, this->constTokenId, STR("&=")),
+           TokenTerm::create(0, this->constTokenId, STR("|=")),
+           TokenTerm::create(0, this->constTokenId, STR("$=")),
+           TokenTerm::create(0, this->constTokenId, STR("^:=")),
+           TokenTerm::create(0, this->constTokenId, STR("<<=")),
+           TokenTerm::create(0, this->constTokenId, STR(">>="))
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -983,14 +986,14 @@ void TestGrammarPlant::createProductionDefinitions()
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::FLAGS, ParsingFlags::PASS_UP},
         {TermElement::TERM, SharedList::create({
-           TokenTerm::create(0, STR("=")),
-           TokenTerm::create(0, STR("^=")),
-           TokenTerm::create(0, STR("==")),
-           TokenTerm::create(0, STR("^==")),
-           TokenTerm::create(0, STR("<")),
-           TokenTerm::create(0, STR(">")),
-           TokenTerm::create(0, STR("<=")),
-           TokenTerm::create(0, STR(">="))
+           TokenTerm::create(0, this->constTokenId, STR("=")),
+           TokenTerm::create(0, this->constTokenId, STR("^=")),
+           TokenTerm::create(0, this->constTokenId, STR("==")),
+           TokenTerm::create(0, this->constTokenId, STR("^==")),
+           TokenTerm::create(0, this->constTokenId, STR("<")),
+           TokenTerm::create(0, this->constTokenId, STR(">")),
+           TokenTerm::create(0, this->constTokenId, STR("<=")),
+           TokenTerm::create(0, this->constTokenId, STR(">="))
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -1001,8 +1004,8 @@ void TestGrammarPlant::createProductionDefinitions()
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, STR("+")),
-          TokenTerm::create(0, STR("-"))
+          TokenTerm::create(0, this->constTokenId, STR("+")),
+          TokenTerm::create(0, this->constTokenId, STR("-"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -1013,9 +1016,9 @@ void TestGrammarPlant::createProductionDefinitions()
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, STR("*")),
-          TokenTerm::create(0, STR("/")),
-          TokenTerm::create(0, STR("%"))
+          TokenTerm::create(0, this->constTokenId, STR("*")),
+          TokenTerm::create(0, this->constTokenId, STR("/")),
+          TokenTerm::create(0, this->constTokenId, STR("%"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -1026,14 +1029,14 @@ void TestGrammarPlant::createProductionDefinitions()
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, STR("|")),
-          TokenTerm::create(0, STR("^|")),
-          TokenTerm::create(0, STR("$")),
-          TokenTerm::create(0, STR("^$")),
-          TokenTerm::create(0, STR("&")),
-          TokenTerm::create(0, STR("^&")),
-          TokenTerm::create(0, STR("<<")),
-          TokenTerm::create(0, STR(">>"))
+          TokenTerm::create(0, this->constTokenId, STR("|")),
+          TokenTerm::create(0, this->constTokenId, STR("^|")),
+          TokenTerm::create(0, this->constTokenId, STR("$")),
+          TokenTerm::create(0, this->constTokenId, STR("^$")),
+          TokenTerm::create(0, this->constTokenId, STR("&")),
+          TokenTerm::create(0, this->constTokenId, STR("^&")),
+          TokenTerm::create(0, this->constTokenId, STR("<<")),
+          TokenTerm::create(0, this->constTokenId, STR(">>"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -1044,12 +1047,12 @@ void TestGrammarPlant::createProductionDefinitions()
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, STR("||")),
-          TokenTerm::create(0, STR("^||")),
-          TokenTerm::create(0, STR("$$")),
-          TokenTerm::create(0, STR("^$$")),
-          TokenTerm::create(0, STR("&&")),
-          TokenTerm::create(0, STR("^&&"))
+          TokenTerm::create(0, this->constTokenId, STR("||")),
+          TokenTerm::create(0, this->constTokenId, STR("^||")),
+          TokenTerm::create(0, this->constTokenId, STR("$$")),
+          TokenTerm::create(0, this->constTokenId, STR("^$$")),
+          TokenTerm::create(0, this->constTokenId, STR("&&")),
+          TokenTerm::create(0, this->constTokenId, STR("^&&"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -1060,12 +1063,12 @@ void TestGrammarPlant::createProductionDefinitions()
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::FLAGS, ParsingFlags::PASS_UP},
         {TermElement::TERM, SharedList::create({
-           TokenTerm::create(0, STR("++")),
-           TokenTerm::create(0, STR("--")),
-           TokenTerm::create(0, STR("+")),
-           TokenTerm::create(0, STR("-")),
-           TokenTerm::create(0, STR("^")),
-           TokenTerm::create(0, STR("^^"))
+           TokenTerm::create(0, this->constTokenId, STR("++")),
+           TokenTerm::create(0, this->constTokenId, STR("--")),
+           TokenTerm::create(0, this->constTokenId, STR("+")),
+           TokenTerm::create(0, this->constTokenId, STR("-")),
+           TokenTerm::create(0, this->constTokenId, STR("^")),
+           TokenTerm::create(0, this->constTokenId, STR("^^"))
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -1076,8 +1079,8 @@ void TestGrammarPlant::createProductionDefinitions()
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, STR("++")),
-          TokenTerm::create(0, STR("--"))
+          TokenTerm::create(0, this->constTokenId, STR("++")),
+          TokenTerm::create(0, this->constTokenId, STR("--"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -1088,13 +1091,22 @@ void TestGrammarPlant::createProductionDefinitions()
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::FLAGS, ParsingFlags::PASS_UP},
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, STR(".")),
-          TokenTerm::create(0, STR("->")),
-          TokenTerm::create(0, STR("=>"))
+          TokenTerm::create(0, this->constTokenId, STR(".")),
+          TokenTerm::create(0, this->constTokenId, STR("->")),
+          TokenTerm::create(0, this->constTokenId, STR("=>"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
   }).get());
+}
+
+
+SharedPtr<Data::SymbolDefinition> TestGrammarPlant::createConstTokenDef(Char const *text)
+{
+  return SymbolDefinition::create({
+        {SymbolDefElement::TERM, ConstTerm::create(0, text)},
+        {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN},
+        {SymbolDefElement::HANDLER, this->constTokenHandler}});
 }
 
 } } // namespace

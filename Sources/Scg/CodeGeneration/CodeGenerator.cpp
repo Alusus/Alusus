@@ -49,13 +49,6 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Type.h>
 
-// TODO: Used for debugging purposes for now; should be removed later.
-/*namespace Scg
-{
-void debugPrintParsedData(
-    const Core::Basic::SharedPtr<IdentifiableObject> &ptr, int indents=0);
-}*/
-
 // TODO: Optimise this by returning structures by reference rather than by value.
 
 namespace Scg
@@ -214,7 +207,7 @@ namespace Scg
 
     // Get the name of the definition.
     static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
-      STR("0~where(prodId=Expression.Exp)."
+      STR("1~where(prodId=Expression.Exp)."
           "0~where(prodId=Expression.LowerLinkExp)."
           "0~where(prodId=Subject.Subject1)."
           "0~where(prodId=Subject.Parameter)"),
@@ -227,7 +220,7 @@ namespace Scg
 
     // Get the definee (after the colon).
     static SharedPtr<Reference> defReference = ReferenceParser::parseQualifier(
-      STR("0~where(prodId=Expression.Exp)."
+      STR("1~where(prodId=Expression.Exp)."
           "0~where(prodId=Expression.LowerLinkExp)."
           "2"), ReferenceUsageCriteria::MULTI_DATA);
     auto def = seeker.tryGet(defReference.get(), item.get());
@@ -294,7 +287,7 @@ namespace Scg
     static ReferenceSeeker seeker;
     // Generate function body.
     static SharedPtr<Reference> structBodyReference = ReferenceParser::parseQualifier(
-      STR("0~where(prodId=Main.StatementList)"), ReferenceUsageCriteria::MULTI_DATA);
+      STR("1~where(prodId=Main.StatementList)"), ReferenceUsageCriteria::MULTI_DATA);
     auto bodyStmtList = getSharedPtr(seeker.tryGet(structBodyReference.get(), item.get())).io_cast<ParsedList>();
     if (bodyStmtList == 0)
       // TODO: Generate a build message instead of throwing an exception.
@@ -672,7 +665,7 @@ namespace Scg
     static ReferenceSeeker seeker;
     // The condition of the if statement.
     static SharedPtr<Reference> expReference = ReferenceParser::parseQualifier(
-      STR("0~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
+      STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
 
     auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
     if (exp == 0)
@@ -681,7 +674,7 @@ namespace Scg
 
     // The body of the if statement.
     static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
-      STR("1"), ReferenceUsageCriteria::MULTI_DATA);
+      STR("2"), ReferenceUsageCriteria::MULTI_DATA);
     auto body = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
     if (body == 0)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid if command's body.");
@@ -705,7 +698,7 @@ namespace Scg
 
     // The condition of the for statement.
     static SharedPtr<Reference> expReference = ReferenceParser::parseQualifier(
-      STR("0~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
+      STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
     auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
     if (exp == 0)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid for command's condition.");
@@ -725,7 +718,7 @@ namespace Scg
 
     // The body of the for statement.
     static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
-      STR("1"), ReferenceUsageCriteria::MULTI_DATA);
+      STR("2"), ReferenceUsageCriteria::MULTI_DATA);
     auto body = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
     if (body == 0)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid if command's body.");
@@ -749,7 +742,7 @@ namespace Scg
 
     // The condition of the while statement.
     static SharedPtr<Reference> condReference = ReferenceParser::parseQualifier(
-      STR("0~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
+      STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
     auto condAST = getSharedPtr(seeker.tryGet(condReference.get(), command.get())).io_cast<ParsedList>();
     if (exp == nullptr)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid 'while' command's condition.");
@@ -757,7 +750,7 @@ namespace Scg
 
     // The body of the 'while' statement.
     static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
-      STR("1"), ReferenceUsageCriteria::MULTI_DATA);
+      STR("2"), ReferenceUsageCriteria::MULTI_DATA);
     auto bodyAST = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
     if (bodyAST == nullptr)
       THROW_EXCEPTION(SyntaxErrorException, "Invalid 'while' command's body.");

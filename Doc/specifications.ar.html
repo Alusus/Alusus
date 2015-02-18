@@ -523,20 +523,20 @@ Main : module {
 
   Statement : @limit[user.parent=self,child.terms=self] prule
     prefix self.id, DefaultModifier
-    as (phrases:list[prule[Phrase]]:=(ExpPhrase, CmdPhrase, SoloCmdPhrase)=>{
+    as (phrases:list[prule[Phrase]]:=(CmdPhrase, SoloCmdPhrase, ExpPhrase)=>{
       alternate (phrases:phrase)->( phrase )
   };
 
-  Phrase : prule as (sections:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
-      concat (sections:s)->( @priority(s.pty,0) s.prd*(s.min,s.max) )
+  Phrase : prule as (subjects:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
+      concat (subjects:s)->( @priority(s.pty,0) s.prd*(s.min,s.max) )
   };
 
   // Default phrases.
-  ExpPhrase : prule ref Phrase(sections:=((prd:=root.Expression,min:=1,max:=1),
-		                                       (prd:=TrailingCmdGroup,min:=0,max:=endless)));
-  CmdPhrase : prule ref Phrase(sections:=((prd:=LeadingCmdGroup,min:=1,max:=1),
+  CmdPhrase : prule ref Phrase(subjects:=((prd:=LeadingCmdGroup,min:=1,max:=1),
 		                                       (prd:=TrailingCmdGroup,min:=0,max:=endless)));
   SoloCmdPhrase : prule ref Phrase(sections:=((prd:=SoloCmdGroup,min:=1,max:=1)));
+  ExpPhrase : prule ref Phrase(subjects:=((prd:=root.Expression,min:=1,max:=1),
+		                                       (prd:=TrailingCmdGroup,min:=0,max:=endless)));
 }
 </pre>
    </div>
@@ -1439,21 +1439,21 @@ Main : module {
   // Statement : (Phrase | Phrase | ...).
   Statement : @limit[user.parent=self,child.terms=self] prule
     prefix self.id, DefaultModifier
-    as (phrases:list[prule[Phrase]]:=(ExpPhrase, CmdPhrase, SoloCmdPhrase)=>{
+    as (phrases:list[prule[Phrase]]:=(CmdPhrase, SoloCmdPhrase, ExpPhrase)=>{
       alternate (phrases:phrase)->( phrase )
     };
 
   // Phrase : { Subject }.
-  Phrase : prule as (sections:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
-    concat (sections:s)->( @priority(s.pty,0) s.prd*(s.min,s.max) )
+  Phrase : prule as (subjects:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
+    concat (subjects:s)->( @priority(s.pty,0) s.prd*(s.min,s.max) )
   };
 
   // Default phrases.
-  ExpPhrase : prule ref Phrase(sections:=((prd:=root.Expression,min:=1,max:=1),
+  CmdPhrase : prule ref Phrase(subjects:=((prd:=LeadingCmdGroup,min:=1,max:=1),
                                           (prd:=TrailingCmdGroup,min:=0,max:=endless)));
-  CmdPhrase : prule ref Phrase(sections:=((prd:=LeadingCmdGroup,min:=1,max:=1),
+  SoloCmdPhrase : prule ref Phrase(subjects:=((prd:=SoloCmdGroup,min:=1,max:=1)));
+  ExpPhrase : prule ref Phrase(subjects:=((prd:=root.Expression,min:=1,max:=1),
                                           (prd:=TrailingCmdGroup,min:=0,max:=endless)));
-  SoloCmdPhrase : prule ref Phrase(sections:=((prd:=SoloCmdGroup,min:=1,max:=1)));
 
   // Default Command Types
   LeadingCommand : prule inherits root.Command prefix self.id;

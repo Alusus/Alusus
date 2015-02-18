@@ -601,18 +601,18 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
                              STR("Core::Processing::Parser::processTokenTerm"));
     }
     // We are checking this token.
-    Bool matched = false;
+    Bool matched = true;
     Data::String *matchStr = 0;
-    if (matchText != 0) {
+    if (matchId != 0 && matchId != token->getId()) {
+      matched = false;
+    }
+    if (matched == true && matchText != 0) {
       if (matchText->isA<Data::String>()) {
         matchStr = static_cast<Data::String*>(matchText);
-        if (matchStr->getStr() == token->getText()) matched = true;
+        if (matchStr->getStr() != token->getText()) matched = false;
       } else if (matchText->isA<Data::SharedMap>()) {
-        if (static_cast<Data::SharedMap*>(matchText)->findIndex(token->getText().c_str()) != -1) matched = true;
+        if (static_cast<Data::SharedMap*>(matchText)->findIndex(token->getText().c_str()) == -1) matched = false;
       }
-    }
-    else if (matchId == token->getId()) {
-      matched = true;
     }
     if (matched) {
       // Fire parsing handler event.
@@ -1174,18 +1174,18 @@ void Parser::testTokenTerm(const Data::Token *token, ParserState *state)
       throw GeneralException(STR("Token term's match id isn't assigned yet."),
                              STR("Core::Processing::Parser::testTokenTerm"));
     }
-    Bool matched = false;
+    Bool matched = true;
     Data::String *matchStr = 0;
-    if (matchText != 0) {
+    if (matchId != 0 && matchId != token->getId()) {
+      matched = false;
+    }
+    if (matched == true && matchText != 0) {
       if (matchText->isA<Data::String>()) {
         matchStr = static_cast<Data::String*>(matchText);
-        if (matchStr->getStr() == token->getText()) matched = true;
+        if (matchStr->getStr() != token->getText()) matched = false;
       } else if (matchText->isA<Data::SharedMap>()) {
-        if (static_cast<Data::SharedMap*>(matchText)->findIndex(token->getText().c_str()) != -1) matched = true;
+        if (static_cast<Data::SharedMap*>(matchText)->findIndex(token->getText().c_str()) == -1) matched = false;
       }
-    }
-    else if (matchId == token->getId()) {
-      matched = true;
     }
     if (matched) {
       // Processing of this state is complete.

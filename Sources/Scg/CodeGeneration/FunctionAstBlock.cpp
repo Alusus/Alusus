@@ -33,7 +33,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
   static ReferenceSeeker seeker;
   // Signature having return value
   static SharedPtr<Reference> sigWithRetReference = ReferenceParser::parseQualifier(
-    STR("0~where(prodId=Expression.Exp)."
+    STR("1~where(prodId=Expression.Exp)."
         "0~where(prodId=Expression.LowLinkExp)"),
     ReferenceUsageCriteria::MULTI_DATA);
   static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
@@ -53,7 +53,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
   } else {
     // The function doesn't have a return value.
     this->arguments = gen->ParseFunctionArguments(
-        astRoot->getShared(0));
+        astRoot->getShared(1));
   }
 
   // Parses the body of the function.

@@ -19,6 +19,8 @@ namespace Core { namespace Basic
 //============================================================================
 // Variables and Types
 
+std::ostream & outStream = std::cout;
+
 typedef std::codecvt<WChar,Char,std::mbstate_t> FacetType;
 
 static std::locale utf8Locale("en_US.UTF8");

@@ -210,7 +210,7 @@ enumeration(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_
                                          CONSUMED_TOKENS_TO_LIVE, FOLDED_OUT_TOO_SOON, NOT_NEEDED_ANYMORE);
 
 /**
- * @brief A set of parsing flags to use with grammar terms.
+ * @brief A set of parsing flags to use with grammar terms by parsing handlers.
  * @ingroup processing_parser
  *
  * OMISSIBLE: Specifies that the parsed data for this term can be omitted if the
@@ -222,6 +222,13 @@ enumeration(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_
  *            list if no data were received from the parent. Productions can be
  *            omitted if it has only one item which is a data of a referenced
  *            production.<br>
+ * FORCE_OMIT: Used with token terms to specify that the term should be omitted
+ *             even if the omission will lead to loss of info. For example, if
+ *             a token term accepts one of multiple constant tokens then
+ *             omitting the data will lead to loss of knowledge about which one
+ *             of the constant tokens was received. With this flag the parsing
+ *             handler should omit the data even if such loss of knowledge
+ *             happens.
  * PASS_UP: This flag specifies that this term is to pass its data up to the
  *          parent. Typically, the parent's element will be a list type element
  *          so the data will be added to that list. This flag applies to route
@@ -232,8 +239,9 @@ enumeration(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_
  */
 enumeration(ParsingFlags,
             OMISSIBLE = 1,
-            FORCE_LIST = 2,
-            PASS_UP = 4);
+            FORCE_OMIT = 2,
+            FORCE_LIST = 4,
+            PASS_UP = 8);
 
 } } // namespace
 
@@ -255,6 +263,7 @@ enumeration(ParsingFlags,
 #include "InputBuffer.h"
 #include "LexerState.h"
 #include "TokenizingHandler.h"
+#include "ConstTokenizingHandler.h"
 #include "Lexer.h"
 
 // Parser
