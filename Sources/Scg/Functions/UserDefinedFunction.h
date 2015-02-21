@@ -31,10 +31,10 @@ namespace Scg
 /**
  * Represents a function definition, i.e. a prototype and body.
  */
-class Function: public Value
+class UserDefinedFunction : public Value
 {
   /**
-   * Specifies what an instance of the Function class represents: a function
+   * Specifies what an instance of the UserDefinedFunction class represents: a function
    * or a link to an external function.
    */
   enum FunctionDefinitionSource
@@ -72,7 +72,7 @@ public:
    * @param[in] arguments   The arguments of the function.
    * @param[in] body        The body of the function.
    */
-  Function(const std::string &name, ValueTypeSpec *returnType,
+  UserDefinedFunction(const std::string &name, ValueTypeSpec *returnType,
       const VariableDefinitionArray &argDefs, Block *body);
 
   /**
@@ -82,11 +82,11 @@ public:
    * @param[in] returnType  The return value type of the function.
    * @param[in] argTypes    The types of the function arguments.
    */
-  Function(const std::string &name, ValueTypeSpec *returnType,
+  UserDefinedFunction(const std::string &name, ValueTypeSpec *returnType,
       const ValueTypeSpecArray &argTypes, bool isVarArgs = false);
 
   //! Class destructor.
-  ~Function();
+  ~UserDefinedFunction();
 
   // TODO: Document these functions.
 
@@ -160,7 +160,7 @@ public:
   virtual std::string ToString();
 
 private:
-  virtual void SetFunction(Function *function);
+  virtual void SetFunction(UserDefinedFunction *function);
 };
 }
 

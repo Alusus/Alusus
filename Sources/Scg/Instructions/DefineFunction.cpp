@@ -52,7 +52,7 @@ Expression::CodeGenerationStage DefineFunction::PreGenerateCode()
   BLOCK_CHECK;
   FUNCTION_CHECK;
 
-  auto function = new Function(this->name, this->returnType, this->arguments, this->body);
+  auto function = new UserDefinedFunction(this->name, this->returnType, this->arguments, this->body);
   ((Expression*)function)->SetModule(GetModule());
   ((Expression*)function)->SetFunction(GetFunction());
   ((Expression*)function)->SetBlock(GetBlock());

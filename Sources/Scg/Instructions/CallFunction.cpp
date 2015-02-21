@@ -23,10 +23,10 @@
 #include <Containers/List.h>
 #include <Containers/Module.h>
 #include <Containers/Program.h>
+#include <Functions/UserDefinedFunction.h>
 #include <Instructions/CallFunction.h>
 #include <Instructions/DeclareExtFunction.h>
 #include <Instructions/DefineFunction.h>
-#include <Functions/Function.h>
 
 using namespace llvm;
 

@@ -26,7 +26,7 @@ namespace Scg
   class BinaryOperator;
   class Block;
   class CallFunction;
-  class Function;
+  class UserDefinedFunction;
   class FunctionAstBlock;
   class FunctionExpression;
   class DefineStruct;
@@ -59,7 +59,7 @@ namespace Scg
     friend class DefineStruct;
     friend class DefineVariable;
     friend class FloatConst;
-    friend class Function;
+    friend class UserDefinedFunction;
     friend class FunctionAstBlock;
     friend class FunctionalExpression;
     friend class FunctionLinkExpression;
@@ -86,7 +86,7 @@ namespace Scg
     //! A pointer to the module containing this expression.
     Module *module = nullptr;
     //! A pointer to the block containing this expression.
-    Function *function = nullptr;
+    UserDefinedFunction *function = nullptr;
     //! A pointer to the block containing this expression.
     Block *block = nullptr;
     //! The code generation stage of this expression.
@@ -144,8 +144,8 @@ namespace Scg
      *
      * @return A pointer to the function, or 0.
      */
-    const Function *GetFunction() const { return function; }
-    Function *GetFunction() { return function; }
+    const UserDefinedFunction *GetFunction() const { return function; }
+    UserDefinedFunction *GetFunction() { return function; }
 
     /**
      * Returns a pointer to the module containing this expression, or 0 if this is the top expression.
@@ -245,7 +245,7 @@ namespace Scg
     // user-defined functions to their classes, rather than the CallFunction instruction.
     // This way the CallFunction can be used in a generic way whether it is calling a
     // built-in function or a user-defined one. So I added a function called
-    // CreateLLVMInstruction() in the Callable class. But this function shouldn't be
+    // CreateLLVMInstruction() in the Function class. But this function shouldn't be
     // intervening in the process of generating the code for the arguments to be passed,
     // thus it needs to call the method
     /**
@@ -301,7 +301,7 @@ namespace Scg
 
   private:
     virtual void SetModule(Module *module);
-    virtual void SetFunction(Function *function);
+    virtual void SetFunction(UserDefinedFunction *function);
     virtual void SetBlock(Block *block);
 
     /**

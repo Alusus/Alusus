@@ -119,7 +119,7 @@ public:
    * Adds the given function to the function store of the module.
    * @param[in] function  A pointer to the function to be added.
    */
-  void AddFunction(Function *function) {
+  void AddFunction(UserDefinedFunction *function) {
     this->functionStore.Add(function);
   }
 
@@ -145,7 +145,7 @@ public:
    * Get the function having the given name and argument types.
    *
    * @note This function might return null even if HasFunction() returns false,
-   * as this function only retrieves the Function object if it has been
+   * as this function only retrieves the UserDefinedFunction object if it has been
    * generated.
    *
    * @param[in] name      The name of the function.
@@ -153,19 +153,19 @@ public:
    * @return A pointer to the function, or nullptr if there is no matching
    * function.
    */
-  const Function *GetFunction(const std::string &name,
+  const UserDefinedFunction *GetFunction(const std::string &name,
       const ValueTypeSpecArray &arguments) const
   {
     return this->functionStore.Get(name, arguments);
   }
-  Function *GetFunction(const std::string &name,
+  UserDefinedFunction *GetFunction(const std::string &name,
       const ValueTypeSpecArray &arguments)
   {
     return this->functionStore.Get(name, arguments);
   }
   //@}
 
-  Function *MatchFunction(const std::string &name,
+  UserDefinedFunction *MatchFunction(const std::string &name,
       const ValueTypeSpecArray &arguments)
   {
     return this->functionStore.Match(name, arguments);

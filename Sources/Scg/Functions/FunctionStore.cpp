@@ -5,23 +5,23 @@
 #include <vector>
 
 // Scg files
-#include <Functions/Function.h>
 #include <Functions/FunctionSignature.h>
 #include <Functions/FunctionStore.h>
+#include <Functions/UserDefinedFunction.h>
 #include <Types/ValueTypeSpec.h>
 
 using namespace llvm;
 
 namespace Scg
 {
-void FunctionStore::Add(Function *function)
+void FunctionStore::Add(UserDefinedFunction *function)
 {
   this->functions.push_back(function);
 }
 
 //------------------------------------------------------------------------------
 
-const Function *FunctionStore::Get(const std::string &name,
+const UserDefinedFunction *FunctionStore::Get(const std::string &name,
       const ValueTypeSpecArray &arguments) const
 {
   for (auto func : this->functions) {
@@ -45,18 +45,18 @@ const Function *FunctionStore::Get(const std::string &name,
 
 //------------------------------------------------------------------------------
 
-const Function *FunctionStore::Get(const FunctionSignature &signature) const
+const UserDefinedFunction *FunctionStore::Get(const FunctionSignature &signature) const
 {
 	return Get(signature.name, signature.arguments);
 }
 
 //------------------------------------------------------------------------------
 
-const Function *FunctionStore::Match(const std::string &name, const ValueTypeSpecArray &argTypes) const
+const UserDefinedFunction *FunctionStore::Match(const std::string &name, const ValueTypeSpecArray &argTypes) const
 {
   // Find all the matching functions and sort them by the number of required
   // implicit casting.
-	typedef std::pair<int, Function*> FunctionMatch;
+	typedef std::pair<int, UserDefinedFunction *> FunctionMatch;
   std::vector<FunctionMatch> matches;
   for (auto function : this->functions) {
     auto matchability = function->GetSignature().Match(module, name, argTypes);

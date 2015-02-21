@@ -88,7 +88,7 @@ Expression::CodeGenerationStage DeclareExtFunction::PreGenerateCode()
   BLOCK_CHECK;
   FUNCTION_CHECK;
 
-  auto function = new Function(
+  auto function = new UserDefinedFunction(
         this->name, this->returnType, this->argTypes, this->isVarArgs);
   ((Expression*)function)->SetModule(GetModule());
   ((Expression*)function)->SetFunction(GetFunction());

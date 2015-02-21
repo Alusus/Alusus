@@ -13,10 +13,10 @@
 #define __DefineFunction_h__
 
 // Scg header files
+#include <Functions/UserDefinedFunction.h>
 #include <Instructions/Instruction.h>
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
-#include <Functions/Function.h>
 
 #include <llvm_fwd.h>
 
@@ -83,8 +83,8 @@ public:
    *
    * @return A pointer to the Alusus function defined by this instruction.
    */
-  const Function *GetDefinedFunction() const { return (Function*)(children[0]); }
-  Function *GetDefinedFunction() { return (Function*)(children[0]); }
+  const UserDefinedFunction *GetDefinedFunction() const { return (UserDefinedFunction *)(children[0]); }
+  UserDefinedFunction *GetDefinedFunction() { return (UserDefinedFunction *)(children[0]); }
 
   //! @copydoc Expression::PreGenerateCode()
   virtual CodeGenerationStage PreGenerateCode();

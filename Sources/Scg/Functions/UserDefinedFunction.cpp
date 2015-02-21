@@ -20,15 +20,15 @@
 
 // Scg files
 #include <Containers/Block.h>
-#include <Functions/Function.h>
 #include <Containers/Module.h>
+#include <Functions/UserDefinedFunction.h>
 #include <Values/Variable.h>
 
 using namespace llvm;
 
 namespace Scg
 {
-Function::Function(const std::string &name, ValueTypeSpec *returnType,
+UserDefinedFunction::UserDefinedFunction(const std::string &name, ValueTypeSpec *returnType,
     const VariableDefinitionArray &argDefs, Block *body) :
         funcType(FunctionDefinitionSource::Internal),
         name(name),
@@ -49,7 +49,7 @@ Function::Function(const std::string &name, ValueTypeSpec *returnType,
 
 //------------------------------------------------------------------------------
 
-Function::Function(const std::string &name, ValueTypeSpec *returnType,
+UserDefinedFunction::UserDefinedFunction(const std::string &name, ValueTypeSpec *returnType,
     const ValueTypeSpecArray &argTypes, bool isVarArgs) :
         funcType(FunctionDefinitionSource::External),
         name(name),
@@ -62,20 +62,20 @@ Function::Function(const std::string &name, ValueTypeSpec *returnType,
 
 //------------------------------------------------------------------------------
 
-Function::~Function()
+UserDefinedFunction::~UserDefinedFunction()
 {
   // We don't delete this->returnType, etc., because they should be deleted by
   // the defining instruction.
   // TODO: This goes against the convention I have been following that the
   // class should delete the pointers it receives, but I have to do this way
   // because otherwise the pointers will be deleted more than once if the
-  // code is compiled twice, because DefineFunction defines a new Function
+  // code is compiled twice, because DefineFunction defines a new UserDefinedFunction
   // instance each time its PreCodeGeneration() function called.
 }
 
 //------------------------------------------------------------------------------
 
-void Function::CreateFunction()
+void UserDefinedFunction::CreateFunction()
 {
   // Constructs the LLVM types representing the argument and return value types.
   std::vector<Type*> argTypes(this->argDefs.size());
@@ -118,7 +118,7 @@ void Function::CreateFunction()
 
 //------------------------------------------------------------------------------
 
-void Function::CreateLinkToExternalFunction()
+void UserDefinedFunction::CreateLinkToExternalFunction()
 {
   // Constructs the LLVM types representing the argument and return value types.
   std::vector<Type*> argTypes(this->argTypes.size());
@@ -145,7 +145,7 @@ void Function::CreateLinkToExternalFunction()
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Function::PreGenerateCode()
+Expression::CodeGenerationStage UserDefinedFunction::PreGenerateCode()
 {
   MODULE_CHECK;
 
@@ -173,7 +173,7 @@ Expression::CodeGenerationStage Function::PreGenerateCode()
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Function::GenerateCode()
+Expression::CodeGenerationStage UserDefinedFunction::GenerateCode()
 {
   MODULE_CHECK;
 
@@ -198,7 +198,7 @@ Expression::CodeGenerationStage Function::GenerateCode()
 
 //------------------------------------------------------------------------------
 
-void Function::SetFunction(Function *function)
+void UserDefinedFunction::SetFunction(UserDefinedFunction *function)
 {
   this->function = function;
   for (auto expr : this->children)
@@ -207,7 +207,7 @@ void Function::SetFunction(Function *function)
 
 //------------------------------------------------------------------------------
 
-std::string Function::ToString()
+std::string UserDefinedFunction::ToString()
 {
   // TODO: Implement External as well.
   if (this->funcType == FunctionDefinitionSource::External)

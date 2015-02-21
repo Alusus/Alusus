@@ -15,7 +15,7 @@
 #include <llvm/IR/IRBuilder.h>
 
 // Scg files
-#include <BuiltInFunctions/Callable.h>
+#include <BuiltInFunctions/Function.h>
 #include <Containers/Block.h>
 #include <Types/DoubleType.h>
 

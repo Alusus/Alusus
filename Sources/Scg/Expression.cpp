@@ -162,7 +162,7 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  void Expression::SetFunction(Function *function)
+  void Expression::SetFunction(UserDefinedFunction *function)
   {
     this->function = function;
     for (auto expr : this->children)

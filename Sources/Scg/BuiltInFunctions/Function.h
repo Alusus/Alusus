@@ -28,7 +28,7 @@ namespace Scg
  * Base class for all expressions that can be called and return a value.
  * Such expressions include built-in functions and user-defined functions.
  */
-class Callable : public Value
+class Function : public Value
 {
 public:
   /**

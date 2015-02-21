@@ -22,9 +22,9 @@
 
 // Scg files
 #include <Containers/Block.h>
+#include <Functions/UserDefinedFunction.h>
 #include <Instructions/Return.h>
 #include <LlvmContainer.h>
-#include <Functions/Function.h>
 
 using namespace llvm;
 

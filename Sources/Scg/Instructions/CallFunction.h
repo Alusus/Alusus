@@ -21,7 +21,7 @@
 namespace Scg
 {
 class List;
-class Function;
+class UserDefinedFunction;
 
 // TODO: Modify CallFunction class such that it accepts an expression in
 // addition to a name, where the expression should be a pointer to a function.
@@ -39,7 +39,7 @@ class CallFunction : public Instruction
   List *args;
   /*! A pointer to the function this CallFunction instruction is calling.
       This is found during the code generation process. */
-  Function *function = nullptr;
+  UserDefinedFunction *function = nullptr;
   /*! An array containing the types of the arguments. This is filled in
       during the code generation process. */
   ValueTypeSpecArray argTypes;

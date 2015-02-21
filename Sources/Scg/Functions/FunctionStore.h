@@ -31,7 +31,7 @@ public:
    * Adds the given function to the store.
    * @param[in] function  A pointer to the function to be added.
    */
-  void Add(Function *function);
+  void Add(UserDefinedFunction *function);
 
   // @{
   /**
@@ -40,12 +40,12 @@ public:
    * @param[in] arguments An array containing the arguments of the function.
    * @return The required function if found, or @c nullptr.
    */
-  const Function *Get(const std::string &name,
+  const UserDefinedFunction *Get(const std::string &name,
       const ValueTypeSpecArray &arguments) const;
-  Function *Get(const std::string &name,
+  UserDefinedFunction *Get(const std::string &name,
       const ValueTypeSpecArray &arguments)
   {
-    return const_cast<Function*>(
+    return const_cast<UserDefinedFunction *>(
         static_cast<const FunctionStore*>(this)->Get(name, arguments));
   }
   // @}
@@ -56,10 +56,10 @@ public:
    * @param[in] signature The signature of the function to retrieve.
    * @return The requested function if found, or @c nullptr.
    */
-  const Function *Get(const FunctionSignature &signature) const;
-  Function *Get(const FunctionSignature &signature)
+  const UserDefinedFunction *Get(const FunctionSignature &signature) const;
+  UserDefinedFunction *Get(const FunctionSignature &signature)
   {
-    return const_cast<Function*>(
+    return const_cast<UserDefinedFunction *>(
         static_cast<const FunctionStore*>(this)->Get(signature));
   }
   // @}
@@ -71,10 +71,10 @@ public:
    * @param[in] signature The signature of the function to match.
    * @return The matching function if found, or @c nullptr.
    */
-  const Function *Match(const std::string &name, const ValueTypeSpecArray &argTypes) const;
-  Function *Match(const std::string &name, const ValueTypeSpecArray &argTypes)
+  const UserDefinedFunction *Match(const std::string &name, const ValueTypeSpecArray &argTypes) const;
+  UserDefinedFunction *Match(const std::string &name, const ValueTypeSpecArray &argTypes)
   {
-    return const_cast<Function*>(
+    return const_cast<UserDefinedFunction *>(
         static_cast<const FunctionStore*>(this)->Match(name, argTypes));
   }
   // @}

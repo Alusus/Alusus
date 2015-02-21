@@ -14,34 +14,34 @@
 
 // SCG header files
 #include <exceptions.h>
-#include <BuiltInFunctions/Callable.h>
+#include <BuiltInFunctions/Function.h>
 
 namespace Scg
 {
 /**
  * A built-in function to add two integer values.
  */
-class AddDoubles : public Callable
+class AddDoubles : public Function
 {
 private:
   //! Storing the binary operator so that it can be freed after code generation.
   llvm::Value *llvmValue = nullptr;
   //! Storing the name of the function.
-  std::string name { "__op_add" };
+  std::string name { "__add" };
 
 public:
-  //! @copydoc Callable::GetName()
+  //! @copydoc Function::GetName()
   virtual const std::string &GetName() const { return name; }
 
-  //! @copydoc Callable::GetArgumentType()
+  //! @copydoc Function::GetArgumentType()
   virtual const ValueType *GetArgumentType(int n) const;
 
-  //! @copydoc Callable::GetArgumentCount()
+  //! @copydoc Function::GetArgumentCount()
   virtual ExpressionArray::size_type GetArgumentCount() const { return 2; }
 
-  //! @copydoc Callable::CreateLLVMInstruction()
+  //! @copydoc Function::CreateLLVMInstruction()
   virtual llvm::Value *CreateLLVMInstruction(llvm::IRBuilder<> *irb,
-  		const List &args) const;
+      const List &args) const;
 
   //! @copydoc Expression::GetValueType()
   virtual const ValueType *GetValueType() const;

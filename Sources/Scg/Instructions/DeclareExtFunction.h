@@ -16,7 +16,7 @@
 #include <Instructions/Instruction.h>
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
-#include <Functions/Function.h>
+#include <Functions/UserDefinedFunction.h>
 
 #include <llvm_fwd.h>
 
@@ -103,8 +103,8 @@ public:
    *
    * @return A pointer to the Alusus function declared by this instruction.
    */
-  const Function *GetDeclaredFunction() const { return (Function*)(children[0]); }
-  Function *GetDeclaredFunction() { return (Function*)(children[0]); }
+  const UserDefinedFunction *GetDeclaredFunction() const { return (UserDefinedFunction *)(children[0]); }
+  UserDefinedFunction *GetDeclaredFunction() { return (UserDefinedFunction *)(children[0]); }
 
   //! @copydoc Expression::PreGenerateCode()
   virtual CodeGenerationStage PreGenerateCode();

@@ -25,7 +25,7 @@
 namespace Scg
 {
 class Expression;
-class Function;
+class UserDefinedFunction;
 class Module;
 class StructType;
 class ValueType;
@@ -33,8 +33,8 @@ class ValueTypeSpec;
 class ValueTypeSpecArray;
 class Variable;
 
-typedef std::vector<Scg::Function*> FunctionArray;
-typedef std::map<std::string, Scg::Function*> FunctionMap;
+typedef std::vector<Scg::UserDefinedFunction *> FunctionArray;
+typedef std::map<std::string, Scg::UserDefinedFunction *> FunctionMap;
 typedef std::vector<Scg::ValueType*> ValueTypeArray;
 typedef std::map<std::string, Scg::ValueType*> ValueTypeMap;
 typedef std::map<std::string, Scg::Variable*> VariableMap;

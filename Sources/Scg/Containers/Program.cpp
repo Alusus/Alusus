@@ -34,10 +34,10 @@ bool Program::HasFunction(const std::string &name,
 
 //------------------------------------------------------------------------------
 
-std::vector<Function*> Program::GetFunction(
+std::vector<UserDefinedFunction *> Program::GetFunction(
     const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
-  std::vector<Function*> matches;
+  std::vector<UserDefinedFunction *> matches;
   for (auto module : this->modules)
   {
     auto defFunc = module->GetFunction(funcName, arguments);
@@ -49,10 +49,10 @@ std::vector<Function*> Program::GetFunction(
 
 //------------------------------------------------------------------------------
 
-std::vector<Function*> Program::MatchFunction(
+std::vector<UserDefinedFunction *> Program::MatchFunction(
     const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
-  std::vector<Function*> matches;
+  std::vector<UserDefinedFunction *> matches;
   for (auto module : this->modules)
   {
     auto defFunc = module->MatchFunction(funcName, arguments);
