@@ -8,8 +8,11 @@ cmake_minimum_required(VERSION 2.8)
 set(AlususVersion "0.1.1")
 set(AlususSoVersion "0.1")
 set(AlususReleaseYear "2015")
+set(AlususHijriReleaseYear "1436")
 
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${AlususVersion}" ALUSUS_RELEASE_YEAR="${AlususReleaseYear}")
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${AlususVersion}"
+                                                           ALUSUS_RELEASE_YEAR="${AlususReleaseYear}"
+                                                           ALUSUS_HIJRI_RELEASE_YEAR="${AlususHijriReleaseYear}")
 
 # Boost path
 set (BOOST_PATH "" CACHE PATH "Path to Boost libraries root folder.")

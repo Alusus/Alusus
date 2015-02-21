@@ -22,12 +22,12 @@ void LibraryManager::addLibrary(PtrWord id, LibraryGateway *gateway)
     if (this->entries[i].id == id) {
       ASSERT(gateway == this->entries[i].gateway);
       ++this->entries[i].refCount;
-      gateway->initializeDuplicate(this->root);
+      if (gateway != 0) gateway->initializeDuplicate(this->root);
       return;
     }
   }
   this->entries.push_back(Entry(id, gateway));
-  gateway->initialize(this->root);
+  if (gateway != 0) gateway->initialize(this->root);
 }
 
 
@@ -36,11 +36,15 @@ void LibraryManager::removeLibrary(PtrWord id)
   for (Word i = 0; i < this->entries.size(); ++i) {
     if (this->entries[i].id == id) {
       if (this->entries[i].refCount == 1) {
-        this->entries[i].gateway->uninitialize(this->root);
+        if (this->entries[i].gateway != 0) {
+          this->entries[i].gateway->uninitialize(this->root);
+        }
         this->entries.erase(this->entries.begin() + i);
       } else {
         --this->entries[i].refCount;
-        this->entries[i].gateway->uninitializeDuplicate(this->root);
+        if (this->entries[i].gateway != 0) {
+          this->entries[i].gateway->uninitializeDuplicate(this->root);
+        }
       }
       return;
     }
@@ -53,7 +57,9 @@ void LibraryManager::removeLibrary(PtrWord id)
 PtrWord LibraryManager::findLibrary(Char const *libId)
 {
   for (Word i = 0; i < this->entries.size(); ++i) {
-    if (this->entries[i].gateway->getLibraryId() == libId) return this->entries[i].id;
+    if (this->entries[i].gateway != 0) {
+      if (this->entries[i].gateway->getLibraryId() == libId) return this->entries[i].id;
+    }
   }
   return 0;
 }
@@ -72,7 +78,9 @@ LibraryGateway* LibraryManager::getGateway(PtrWord id)
 LibraryGateway* LibraryManager::getGateway(Char const *libId)
 {
   for (Word i = 0; i < this->entries.size(); ++i) {
-    if (this->entries[i].gateway->getLibraryId() == libId) return this->entries[i].gateway;
+    if (this->entries[i].gateway != 0) {
+      if (this->entries[i].gateway->getLibraryId() == libId) return this->entries[i].gateway;
+    }
   }
   throw InvalidArgumentException(STR("libId"), STR("Core::Standard::LibraryManager::getGateway"),
                                  STR("ID not found among loaded libraries."), libId);
@@ -87,16 +95,15 @@ PtrWord LibraryManager::load(Char const *path)
   void *handle = dlopen(fullPath.c_str(), RTLD_NOW|RTLD_GLOBAL);
   if (handle == 0) return 0;
 
+  // Get the library gateway if this library supports it, otherwise we'll just load the library.
+  LibraryGateway *gateway = 0;
   LibraryGatewayGetter fn = reinterpret_cast<LibraryGatewayGetter>(dlsym(handle, LIBRARY_GATEWAY_GETTER_NAME));
-  if (fn == 0) {
-    dlclose(handle);
-    return 0;
-  }
-
-  LibraryGateway *gateway = fn();
-  if (gateway == 0) {
-    dlclose(handle);
-    return 0;
+  if (fn != 0) {
+    gateway = fn();
+    if (gateway == 0) {
+      dlclose(handle);
+      return 0;
+    }
   }
 
   PtrWord id = reinterpret_cast<PtrWord>(handle);

@@ -73,3 +73,14 @@ install(TARGETS AlususStorage AlususCoreLib AlususCore
   ARCHIVE DESTINATION Lib
 )
 
+# Add an install command to create the Arabic symbolic link.
+if ("${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "RELEASE")
+  set(AlususArabicLink ${CMAKE_INSTALL_PREFIX}/Bin/الأسس)
+  set(AlususArabicLinkTarget ${CMAKE_INSTALL_PREFIX}/Bin/alusus)
+else()
+  set(AlususArabicLink ${CMAKE_INSTALL_PREFIX}/Bin/الأسس_ت)
+  set(AlususArabicLinkTarget ${CMAKE_INSTALL_PREFIX}/Bin/alusus_d)
+endif()
+string(REPLACE "//" "/" AlususArabicLink ${AlususArabicLink})
+string(REPLACE "//" "/" AlususArabicLinkTarget ${AlususArabicLinkTarget})
+install(CODE "execute_process(COMMAND \"ln\" \"-sf\" ${AlususArabicLinkTarget} ${AlususArabicLink})")

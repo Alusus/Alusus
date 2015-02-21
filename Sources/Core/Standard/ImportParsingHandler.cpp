@@ -51,12 +51,20 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 }
 
 
+Bool compareStringEnd(Str const &str, Char const *end)
+{
+  Int len = getStrLen(end);
+  if (len >= str.size()) return false;
+  return compareStr(str.c_str()+str.size()-len, end) == 0;
+}
+
+
 Bool ImportParsingHandler::import(Char const *filename, Processing::ParserState *state)
 {
   // Check the file type.
-  static std::regex r(STR(".*\\.(source|alusus)"));
-
-  if (std::regex_match(filename, r)) {
+  if (compareStringEnd(filename, STR(".source")) || compareStringEnd(filename, STR(".alusus")) ||
+      compareStringEnd(filename, STR(".مصدر")) || compareStringEnd(filename, STR(".الأسس")) ||
+      compareStringEnd(filename, STR(".أسس"))) {
     try {
       LOG(LogLevel::PARSER_MAJOR, STR("Importing source file: ") << filename);
 

@@ -107,7 +107,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Main.Return"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), SharedMap::create(false, {{STR("return"), 0}, {STR("ارجع"), 0}})},
+            {STR("kwd"), SharedMap::create(false, {{STR("return"), 0}, {STR("أرجع"), 0}})},
             {STR("prms"), SharedList::create({
                 SharedMap::create(false, {
                     {STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression"))},

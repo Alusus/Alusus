@@ -8,7 +8,7 @@ source code.
 COPYRIGHT
 =========
 
-Copyright (C) 2014
+Copyright (C) 2015
 The copyright for this project is owned by the following persons:
 
 Sarmad Khalid Abdullah owns the copyright to the files under:
