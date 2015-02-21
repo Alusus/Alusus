@@ -55,11 +55,16 @@ set_target_properties(AlususE2ETests PROPERTIES VERSION ${AlususVersion})
 llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES core jit native)
 
 # Finally, we link Alusus libraries to our UnitTests project.
-target_link_libraries(AlususE2ETests AlususCoreLib AlususStorage "dl")
+target_link_libraries(AlususE2ETests AlususCoreLib AlususScg AlususStorage "dl")
 
 # Copy end-to-end test files to the build directory
 install(FILES ${AlususE2ETests_Test_Files} DESTINATION "${AlususE2ETests_BINARY_DIR}")
 install(FILES ${AlususE2ETests_Test_Files_Output} DESTINATION "${AlususE2ETests_BINARY_DIR}")
+if (NOT CUSTOM_OUTPUT_PATH STREQUAL "")
+  message(STATUS "A custom path was provided so copying end-to-end test files to it: " ${CUSTOM_OUTPUT_PATH} ".")
+  file(COPY ${AlususE2ETests_Test_Files} DESTINATION "${CUSTOM_OUTPUT_PATH}")
+  file(COPY ${AlususE2ETests_Test_Files_Output} DESTINATION "${CUSTOM_OUTPUT_PATH}")
+endif()
 
 # Copy example files to installation directory.
 install(FILES ${AlususE2ETests_Test_Files} DESTINATION "Examples")

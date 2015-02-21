@@ -15,18 +15,24 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${Alu
 set (BOOST_PATH "" CACHE PATH "Path to Boost libraries root folder.")
 if (NOT EXISTS "${BOOST_PATH}/boost")
   message(SEND_ERROR "Please specify the path to boost libraries in BOOST_PATH.")
+else()
+  message(STATUS "The following Boost path was provided: " ${BOOST_PATH} ".")
 endif()
 
 # CATCH path
 set (CATCH_PATH "" CACHE PATH "Path to CATCH library root folder.")
 if (NOT EXISTS "${CATCH_PATH}")
   message(SEND_ERROR "Please specify the path to CATCH Library in CATCH_PATH.")
+else()
+  message(STATUS "The following CATCH path was provided: " ${CATCH_PATH} ".")
 endif()
 
 # LLVM path
 set(LLVM_PATH "" CACHE PATH "Path to LLVM root folder.")
 if (NOT EXISTS "${LLVM_PATH}/include/llvm")
   message(SEND_ERROR "Please specify the path to LLVM root folder in LLVM_PATH.")
+else()
+  message(STATUS "The following LLVM path was provided: " ${LLVM_PATH} ".")
 endif()
 
 # Prepare compile and link flags.
@@ -57,6 +63,17 @@ include(precompiled_headers.cmake)
 # Enable testing
 enable_testing()
 
+set (CUSTOM_OUTPUT_PATH "" CACHE PATH "Custom path to output all executable and library files. Useful during development.")
+if (NOT CUSTOM_OUTPUT_PATH STREQUAL "")
+  if (NOT EXISTS "${CUSTOM_OUTPUT_PATH}")
+    message(SEND_ERROR "Invalid custom output path was provided: " ${CUSTOM_OUTPUT_PATH} ".")
+  else()
+    message(STATUS "The following custom output path was provided: " ${CUSTOM_OUTPUT_PATH} ".")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CUSTOM_OUTPUT_PATH}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CUSTOM_OUTPUT_PATH}")
+  endif()
+endif()
+
 # Add projects
 add_subdirectory(Core)
 add_subdirectory(Tests/CoreTests)
@@ -64,4 +81,3 @@ add_subdirectory(Scg)
 add_subdirectory(Srt)
 add_subdirectory(Tests/ScgTests)
 add_subdirectory(Tests/EndToEndTests)
-
