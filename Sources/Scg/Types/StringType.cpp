@@ -17,10 +17,7 @@
 #include <Types/StringType.h>
 
 // LLVM header files
-#include <llvm/IR/Constants.h>
-#include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/GlobalVariable.h>
-#include <llvm/IR/Type.h>
 
 namespace Scg
 {

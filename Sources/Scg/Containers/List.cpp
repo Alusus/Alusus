@@ -11,8 +11,6 @@
 
 #include <prerequisites.h>
 
-#include <stdarg.h>
-
 // Boost header files
 #include <boost/algorithm/string/join.hpp>
 

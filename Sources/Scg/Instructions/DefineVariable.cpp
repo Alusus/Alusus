@@ -12,18 +12,15 @@
 #include <prerequisites.h>
 
 // STL header files
-#include <iostream>
 
 // Scg files
 #include <Containers/Block.h>
 #include <Containers/Module.h>
 #include <Instructions/DefineVariable.h>
 #include <Types/ValueType.h>
-#include <Types/ValueTypeSpec.h>
 #include <Values/Variable.h>
 
 // LLVM header files
-#include <llvm/IR/IRBuilder.h>
 
 using namespace llvm;
 

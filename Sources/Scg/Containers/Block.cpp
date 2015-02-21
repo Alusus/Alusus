@@ -11,8 +11,6 @@
 
 #include <prerequisites.h>
 
-#include <stdarg.h>
-
 // Boost header files
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -23,7 +21,6 @@
 // Scg files
 #include <Containers/Block.h>
 #include <Functions/UserDefinedFunction.h>
-#include <Instructions/Return.h>
 #include <LlvmContainer.h>
 
 using namespace llvm;

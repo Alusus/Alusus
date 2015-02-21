@@ -16,11 +16,8 @@
 #include <Memory/AutoDeleteAllocator.h>
 #include <Types/ArrayType.h>
 #include <Types/PointerType.h>
-#include <Types/ValueType.h>
-#include <Types/ValueTypeSpec.h>
 
 // STL header files
-#include <algorithm>
 
 namespace Scg
 {

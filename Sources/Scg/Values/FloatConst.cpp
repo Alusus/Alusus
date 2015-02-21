@@ -12,16 +12,12 @@
 #include <prerequisites.h>
 
 #include <llvm/IR/Constants.h>
-#include <llvm/ADT/ArrayRef.h>
-#include <llvm/IR/Type.h>
-#include <llvm/IR/DerivedTypes.h>
 
 // Scg files
 #include <Values/FloatConst.h>
 #include <Types/FloatType.h>
 
 // LLVM header files
-#include <llvm/IR/Value.h>
 
 namespace Scg
 {

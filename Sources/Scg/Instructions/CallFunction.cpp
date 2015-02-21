@@ -12,7 +12,6 @@
 #include <prerequisites.h>
 
 // STL header files
-#include <sstream>
 
 // LLVM header files
 #include <llvm/IR/Module.h>
@@ -25,7 +24,6 @@
 #include <Containers/Program.h>
 #include <Functions/UserDefinedFunction.h>
 #include <Instructions/CallFunction.h>
-#include <Instructions/DeclareExtFunction.h>
 #include <Instructions/DefineFunction.h>
 
 using namespace llvm;

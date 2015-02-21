@@ -15,20 +15,15 @@
 #include <Containers/Block.h>
 #include <Containers/Module.h>
 #include <Types/IntegerType.h>
-#include <Types/ValueType.h>
 #include <Values/Variable.h>
 
 // LLVM header files
 #include <llvm/IR/Argument.h>
 #include <llvm/IR/GlobalVariable.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/Instructions.h>
 
 // STL header files
-#include <iostream>
 
 // Boost header files
-#include <boost/foreach.hpp>
 
 namespace Scg
 {

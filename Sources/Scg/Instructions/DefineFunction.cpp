@@ -12,13 +12,11 @@
 #include <prerequisites.h>
 
 // STL header files
-#include <iostream>
 
 // Scg files
 #include <Containers/Block.h>
 #include <Instructions/DefineFunction.h>
 #include <Containers/Module.h>
-#include <Values/Variable.h>
 
 using namespace llvm;
 

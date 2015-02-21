@@ -21,10 +21,6 @@
 #include <Types/IntegerType.h>
 
 // LLVM header files
-#include <llvm/IR/Constants.h>
-#include <llvm/IR/Type.h>
-#include <llvm/IR/DerivedTypes.h>
-#include <llvm/ADT/APFloat.h>
 
 namespace Scg
 {

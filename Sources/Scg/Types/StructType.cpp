@@ -15,9 +15,6 @@
 #include <Types/StructType.h>
 
 // LLVM header files
-#include <llvm/ADT/ArrayRef.h>
-#include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/Type.h>
 
 namespace Scg
 {

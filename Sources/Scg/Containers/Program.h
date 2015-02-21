@@ -23,11 +23,13 @@
 // TODO: Maybe this should be moved to an fwd file?
 namespace Scg
 {
+
 class ArrayType;
 class BinaryOperator;
 class Block;
 class FloatConst;
 class CallFunction;
+class DeclareExtFunction;
 class DefineFunction;
 class PointerType;
 class Return;

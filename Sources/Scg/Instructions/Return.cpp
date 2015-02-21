@@ -12,7 +12,6 @@
 #include <prerequisites.h>
 
 // STL header files
-#include <iostream>
 
 // LLVM header files
 #include <llvm/IR/IRBuilder.h>
@@ -20,7 +19,6 @@
 // Scg files
 #include <Containers/Block.h>
 #include <Instructions/Return.h>
-#include <LlvmContainer.h>
 
 using namespace llvm;
 

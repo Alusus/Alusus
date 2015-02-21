@@ -12,32 +12,26 @@
 #include <prerequisites.h>
 
 // STL header files
-#include <sstream>
 
 // LLVM include files
 #include <llvm/IR/Attributes.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Assembly/PrintModulePass.h>
 #include <llvm/PassManager.h>
-#include <llvm/IR/Type.h>
-#include <llvm/IR/DerivedTypes.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm/ExecutionEngine/JIT.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/Support/TargetSelect.h>
 
 // Scg include files
 #include <Containers/Module.h>
 #include <Containers/Program.h>
-#include <Expression.h>
 #include <Instructions/CallFunction.h>
 #include <Instructions/DeclareExtFunction.h>
 #include <Instructions/DefineFunction.h>
 #include <Types/ArrayType.h>
 #include <Types/PointerType.h>
 #include <Types/StringType.h>
-#include <Types/ValueType.h>
 #include <LlvmContainer.h>
 
 namespace Scg

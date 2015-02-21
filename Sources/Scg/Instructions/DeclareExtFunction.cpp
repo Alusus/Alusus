@@ -12,7 +12,6 @@
 #include <prerequisites.h>
 
 // STL header files
-#include <iostream>
 
 // Boost header files
 #include <boost/foreach.hpp>

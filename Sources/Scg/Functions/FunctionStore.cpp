@@ -2,13 +2,11 @@
 
 // STL header files
 #include <algorithm>
-#include <vector>
 
 // Scg files
 #include <Functions/FunctionSignature.h>
 #include <Functions/FunctionStore.h>
 #include <Functions/UserDefinedFunction.h>
-#include <Types/ValueTypeSpec.h>
 
 using namespace llvm;
 

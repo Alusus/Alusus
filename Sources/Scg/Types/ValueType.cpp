@@ -12,7 +12,6 @@
 
 // LLVM header files
 #include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/Type.h>
 
 // Scg files
 #include <LlvmContainer.h>
@@ -20,7 +19,6 @@
 #include <Types/FloatType.h>
 #include <Types/IntegerType.h>
 #include <Types/StringType.h>
-#include <Types/ValueType.h>
 #include <Types/VoidType.h>
 #include <Values/Variable.h>
 #include <Memory/AutoDeleteAllocator.h>

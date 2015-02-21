@@ -12,7 +12,6 @@
 #include <CodeGeneration/CodeGenerator.h>
 #include <CodeGeneration/ListExpression.h>
 #include <CodeGeneration/ParamPassExp.h>
-#include <exceptions.h>
 
 namespace Scg
 {

@@ -11,9 +11,7 @@
 
 // Scg include files
 #include <core.h>   // Alusus core header files.
-#include <llvm/IR/IRBuilder.h>
 #include <scg.h>
-#include <LibraryGateway.h>
 
 using namespace Scg;
 using namespace Core;

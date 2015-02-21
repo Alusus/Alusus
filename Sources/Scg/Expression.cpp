@@ -1,12 +1,12 @@
 /**
- * @file Scg/Expression.cpp
- *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
- *
- * @license This file is released under Alusus Public License, Version 1.0.
- * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
- */
+* @file Scg/Expression.cpp
+*
+* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+*
+* @license This file is released under Alusus Public License, Version 1.0.
+* For details on usage and copying conditions read the full license in the
+* accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+*/
 //==============================================================================
 
 // Scg header files
@@ -96,14 +96,14 @@ namespace Scg
         this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
             expr->CallGenerateCode());
         if (expr->IsTermInstGenerated())
-        	// If an instruction that terminates execution of a block of code, e.g.
-        	// return statement, is generated, then we don't try to generate the
-        	// code for more children, as LLVM seems to object that.
-        	break;
+          // If an instruction that terminates execution of a block of code, e.g.
+          // return statement, is generated, then we don't try to generate the
+          // code for more children, as LLVM seems to object that.
+          break;
       }
     }
     if (this->childrenCodeGenStage != CodeGenerationStage::PostCodeGeneration) {
-    	return CodeGenerationStage::CodeGeneration;
+      return CodeGenerationStage::CodeGeneration;
     }
 
     if (this->codeGenStage == CodeGenerationStage::CodeGeneration) {
@@ -124,8 +124,7 @@ namespace Scg
         this->childrenCodeGenStage == CodeGenerationStage::None)
       return CodeGenerationStage::None;
 
-    if (this->childrenCodeGenStage == CodeGenerationStage::PostCodeGeneration)
-    {
+    if (this->childrenCodeGenStage == CodeGenerationStage::PostCodeGeneration) {
       // The children didn't yet finish post-code generation.
       this->childrenCodeGenStage = CodeGenerationStage::None;
       for (auto expr : this->children)
@@ -133,8 +132,7 @@ namespace Scg
             expr->CallPostGenerateCode());
     }
     if (this->childrenCodeGenStage == CodeGenerationStage::None &&
-        this->codeGenStage == CodeGenerationStage::PreCodeGeneration)
-    {
+        this->codeGenStage == CodeGenerationStage::PreCodeGeneration) {
       // The children finished post-code generation but the expression didn't.
       this->codeGenStage = PostGenerateCode();
     }

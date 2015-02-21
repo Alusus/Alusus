@@ -12,12 +12,10 @@
 #include <prerequisites.h>
 
 // Scg files
-#include <LlvmContainer.h>
 #include <Values/StringConst.h>
 #include <Types/StringType.h>
 
 // LLVM header files
-#include <llvm/IR/Value.h>
 
 namespace Scg
 {

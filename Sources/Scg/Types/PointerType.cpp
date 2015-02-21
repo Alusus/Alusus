@@ -15,10 +15,8 @@
 
 // Scg header files
 #include <Types/PointerType.h>
-#include <Types/ValueType.h>
 
 // LLVM header files
-#include <llvm/IR/Type.h>
 
 namespace Scg
 {

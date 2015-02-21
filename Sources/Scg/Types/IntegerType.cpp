@@ -12,8 +12,6 @@
 #include <prerequisites.h>
 
 #include <llvm/IR/Constants.h>
-#include <llvm/IR/Type.h>
-#include <llvm/IR/DerivedTypes.h>
 
 // Scg header files
 #include <LlvmContainer.h>
@@ -25,7 +23,6 @@
 #include <Types/IntegerType.h>
 
 // LLVM header files
-#include <llvm/ADT/APInt.h>
 
 namespace Scg
 {

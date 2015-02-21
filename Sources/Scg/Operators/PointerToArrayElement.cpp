@@ -22,7 +22,6 @@
 #include <Types/ArrayType.h>
 #include <Types/IntegerType.h>
 #include <Types/PointerType.h>
-#include <Types/StructType.h>
 
 namespace Scg
 {

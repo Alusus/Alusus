@@ -12,10 +12,7 @@
 #include <prerequisites.h>
 
 // LLVM header files
-#include <llvm/ADT/APInt.h>
 #include <llvm/IR/Constants.h>
-#include <llvm/IR/Type.h>
-#include <llvm/IR/DerivedTypes.h>
 
 // Scg header files
 #include <Types/VoidType.h>

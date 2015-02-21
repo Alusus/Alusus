@@ -12,7 +12,6 @@
 #include <prerequisites.h>
 
 // STL header files
-#include <iostream>
 
 // LLVM header files
 #include <llvm/IR/Module.h>
@@ -24,7 +23,6 @@
 #include <Instructions/CondGotoStatement.h>
 #include <Instructions/ForStatement.h>
 #include <Instructions/GotoStatement.h>
-#include <LlvmContainer.h>
 
 using namespace llvm;
 

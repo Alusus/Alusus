@@ -16,14 +16,11 @@
 
 // Scg header files
 #include <Containers/Block.h>
-#include <Expression.h>
 #include <Containers/List.h>
 #include <Containers/Module.h>
 #include <CodeGeneration/CodeGenerator.h>
 #include <CodeGeneration/FunctionAstBlock.h>
 #include <CodeGeneration/FunctionLinkExpression.h>
-#include <CodeGeneration/FunctionalExpression.h>
-#include <CodeGeneration/ParamPassExp.h>
 #include <Instructions/CallFunction.h>
 #include <Instructions/DeclareExtFunction.h>
 #include <Instructions/DefineFunction.h>
@@ -37,17 +34,12 @@
 #include <Operators/BinaryOperator.h>
 #include <Operators/Content.h>
 #include <Operators/PointerToVariable.h>
-#include <Operators/UnaryOperator.h>
-#include <Types/ValueTypeSpec.h>
 #include <Values/DoubleConst.h>
 #include <Values/FloatConst.h>
 #include <Values/IntegerConst.h>
 #include <Values/StringConst.h>
 
 // LLVM header files
-#include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/Type.h>
 
 // TODO: Optimise this by returning structures by reference rather than by value.
 

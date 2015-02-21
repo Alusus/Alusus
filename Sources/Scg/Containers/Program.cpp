@@ -13,7 +13,6 @@
 
 // Scg include files
 #include <Containers/Program.h>
-#include <exceptions.h>
 
 // LLVM header files
 #include <llvm/Assembly/PrintModulePass.h>

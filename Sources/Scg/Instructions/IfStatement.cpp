@@ -12,7 +12,6 @@
 #include <prerequisites.h>
 
 // STL header files
-#include <iostream>
 
 // LLVM header files
 #include <llvm/IR/Module.h>

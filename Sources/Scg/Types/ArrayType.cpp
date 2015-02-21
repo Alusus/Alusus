@@ -14,7 +14,6 @@
 // LLVM header files
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/Type.h>
 
 // Scg header files
 #include <Types/ArrayType.h>
