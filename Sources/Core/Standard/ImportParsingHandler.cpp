@@ -32,13 +32,14 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
     ParsedToken *parsedToken = io_cast<ParsedToken>(token);
     // Is it a string token?
     if (parsedToken != 0 && parsedToken->getId() == stringLiteralId) {
+      auto fileName = parsedToken->getText();
       if (!this->import(parsedToken->getText().c_str(), state)) {
         // Create a build msg.
         ParsingMetadataHolder *itemMeta = item->getInterface<ParsingMetadataHolder>();
         ASSERT(itemMeta != 0);
         state->addBuildMsg(
               SharedPtr<ImportLoadFailedMsg>(
-                new ImportLoadFailedMsg(itemMeta->getLine(), itemMeta->getColumn())));
+                new ImportLoadFailedMsg(fileName.c_str(), itemMeta->getLine(), itemMeta->getColumn())));
       }
     }
   } else {

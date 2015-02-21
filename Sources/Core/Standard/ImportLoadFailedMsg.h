@@ -29,7 +29,9 @@ class ImportLoadFailedMsg : public Processing::BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: ImportLoadFailedMsg(Int l, Int c) : Processing::BuildMsg(l, c)
+  Str fileName;
+
+  public: ImportLoadFailedMsg(Char const * fileName, Int l, Int c) : Processing::BuildMsg(l, c), fileName(fileName)
   {
   }
 
@@ -57,7 +59,7 @@ class ImportLoadFailedMsg : public Processing::BuildMsg
   /// @sa Processing::BuildMsg::getCode()
   public: virtual void buildDescription(Str &str) const
   {
-    str = STR("Importing Failed. Could not load requested file.");
+    str = STR("Importing Failed. Could not load requested file: " + fileName + ".");
   }
 
 }; // class
