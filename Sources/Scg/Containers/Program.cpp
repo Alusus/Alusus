@@ -12,13 +12,17 @@
 #include <prerequisites.h>
 
 // Scg include files
+#include <Containers/Module.h>
 #include <Containers/Program.h>
+#include <LlvmContainer.h>
 
 // LLVM header files
 #include <llvm/Assembly/PrintModulePass.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Linker.h>
 #include <llvm/PassManager.h>
+#include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_ostream.h>
 
 namespace Scg
@@ -33,10 +37,10 @@ bool Program::HasFunction(const std::string &name,
 
 //------------------------------------------------------------------------------
 
-std::vector<UserDefinedFunction *> Program::GetFunction(
+std::vector<Function *> Program::GetFunction(
     const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
-  std::vector<UserDefinedFunction *> matches;
+  std::vector<Function *> matches;
   for (auto module : this->modules)
   {
     auto defFunc = module->GetFunction(funcName, arguments);
@@ -48,10 +52,10 @@ std::vector<UserDefinedFunction *> Program::GetFunction(
 
 //------------------------------------------------------------------------------
 
-std::vector<UserDefinedFunction *> Program::MatchFunction(
+std::vector<Function *> Program::MatchFunction(
     const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
-  std::vector<UserDefinedFunction *> matches;
+  std::vector<Function *> matches;
   for (auto module : this->modules)
   {
     auto defFunc = module->MatchFunction(funcName, arguments);

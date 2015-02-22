@@ -24,9 +24,9 @@
 
 namespace Scg
 {
-const ValueType *CastToDouble::GetValueType() const
+const ValueTypeSpec * CastToDouble::GetValueTypeSpec() const
 {
-  return FloatType::GetSingleton();
+  return DoubleType::GetSingleton()->GetValueTypeSpec();
 }
 
 //------------------------------------------------------------------------------
@@ -35,22 +35,30 @@ Expression::CodeGenerationStage CastToDouble::GenerateCode()
 {
   BLOCK_CHECK;
 
+  auto module = GetModule();
   auto irb = GetBlock()->GetIRBuilder();
 
   // TODO: This need to be updated when other standard data types are supported.
-  if (this->GetOperand()->GetValueType() == IntegerType::GetSingleton()) {
+  // TODO: Add the following helper methods in ValueTypeSpec (and ValueType?)
+  // IsInteger
+  // IsFloat
+  // IsDouble
+  // IsString
+  // IsVoid
+  // Anything else?
+  if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == IntegerType::GetSingleton()) {
     // The operand is an integer, so we need to add SItoFP instruction.
     this->llvmCastInst = static_cast<llvm::CastInst*>(irb->CreateSIToFP(
         GetOperand()->GetGeneratedLlvmValue(),
         DoubleType::GetSingleton()->GetSingleton()->GetLlvmType()));
     this->generatedLlvmValue = this->llvmCastInst;
-  } else if (this->GetOperand()->GetValueType() == FloatType::GetSingleton()) {
+  } else if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == FloatType::GetSingleton()) {
     // The operand is a float, so we need to add FPExt instruction.
     this->llvmCastInst = static_cast<llvm::CastInst*>(irb->CreateFPExt(
         GetOperand()->GetGeneratedLlvmValue(),
         DoubleType::GetSingleton()->GetSingleton()->GetLlvmType()));
     this->generatedLlvmValue = this->llvmCastInst;
-  } else if (this->GetOperand()->GetValueType() == DoubleType::GetSingleton()) {
+  } else if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == DoubleType::GetSingleton()) {
     // The operand is already a double, no need to cast.
     this->generatedLlvmValue = GetOperand()->GetGeneratedLlvmValue();
   } else {

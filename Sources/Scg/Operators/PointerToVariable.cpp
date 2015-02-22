@@ -27,20 +27,20 @@ PointerToVariable::~PointerToVariable()
 
 //------------------------------------------------------------------------------
 
-const ValueType *PointerToVariable::GetValueType() const
+const ValueTypeSpec *PointerToVariable::GetValueTypeSpec() const
 {
   BLOCK_CHECK;
 
   if (this->valueType)
-    return this->valueType;
+    return this->valueType->GetValueTypeSpec();
 
   auto var = GetBlock()->GetVariable(this->name);
   if (var == 0)
     THROW_EXCEPTION(UndefinedVariableException,
         "Referencing undefined variable: " + this->name);
 
-  this->valueType = new PointerType(*var->GetValueType());
-  return this->valueType;
+  this->valueType = new PointerType(*var->GetValueTypeSpec()->ToValueType(*GetModule()));
+  return this->valueType->GetValueTypeSpec();
 }
 
 //------------------------------------------------------------------------------

@@ -40,7 +40,7 @@ Expression::CodeGenerationStage UnaryOperator::GenerateCode()
     if (operand == nullptr)
       THROW_EXCEPTION(InvalidOperationException, "The operand of a unary "
           "operator must be the content of a pointer.");
-    auto operandType = operand->GetValueType();
+    auto operandType = operand->GetValueTypeSpec()->ToValueType(*GetModule());
     if (operandType != IntegerType::GetSingleton() &&
       operandType != FloatType::GetSingleton() &&
       operandType != DoubleType::GetSingleton())

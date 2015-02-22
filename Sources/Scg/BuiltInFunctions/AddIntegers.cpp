@@ -16,29 +16,36 @@
 
 // SCG files
 #include <BuiltInFunctions/AddIntegers.h>
-#include <Containers/Block.h>
 #include <Types/IntegerType.h>
+#include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
-llvm::Value *AddIntegers::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
-		const List &args) const
+AddIntegers::AddIntegers()
 {
-	if (args.GetElementCount() != 2)
+  this->argTypeSpecs.push_back(new ValueTypeSpecByName("int"));
+  this->argTypeSpecs.push_back(new ValueTypeSpecByName("int"));
+}
+
+AddIntegers::~AddIntegers()
+{
+  delete this->argTypeSpecs[0];
+  delete this->argTypeSpecs[1];
+  this->argTypeSpecs.clear();
+}
+
+llvm::Value *AddIntegers::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
+		const std::vector<llvm::Value*> &args) const
+{
+	if (args.size() != 2)
 		// TODO: The exception message shouldn't use AddIntegers as this is the class name.
 		// Instead, it should use a user friendly name, e.g. operator +.
 		// TODO: Should we use CompilationErrorException? Should we derive from that an
 		// exception specific for the invalid number of arguments.
 		THROW_EXCEPTION(CompilationErrorException,
 				"AddIntegers built-in function requires two arguments.");
-	auto arg1 = args.GetElement(0);
-	auto arg2 = args.GetElement(1);
-	if (arg1->GetValueType() != IntegerType::GetSingleton() ||
-			arg1->GetValueType() != IntegerType::GetSingleton())
-		THROW_EXCEPTION(CompilationErrorException,
-				"AddIntegers built-in function requires arguments of integer type.");
 
-  return irb->CreateAdd(arg1->GetGeneratedLlvmValue(), arg2->GetGeneratedLlvmValue());
+  return irb->CreateAdd(args[0], args[1]);
 }
 
 //----------------------------------------------------------------------------------------
@@ -53,9 +60,9 @@ const ValueType *AddIntegers::GetArgumentType(int n) const
 
 //----------------------------------------------------------------------------------------
 
-const ValueType *AddIntegers::GetValueType() const
+const ValueTypeSpec *AddIntegers::GetValueTypeSpec() const
 {
-	return IntegerType::GetSingleton();
+	return IntegerType::GetSingleton()->GetValueTypeSpec();
 }
 }
 

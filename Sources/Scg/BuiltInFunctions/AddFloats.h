@@ -30,6 +30,9 @@ private:
   std::string name { "__add" };
 
 public:
+  AddFloats();
+  ~AddFloats();
+
   //! @copydoc Function::GetName()
   virtual const std::string &GetName() const { return name; }
 
@@ -41,10 +44,10 @@ public:
 
   //! @copydoc Function::CreateLLVMInstruction()
   virtual llvm::Value *CreateLLVMInstruction(llvm::IRBuilder<> *irb,
-  		const List &args) const;
+      const std::vector<llvm::Value*> &args) const override;
 
-  //! @copydoc Expression::GetValueType()
-  virtual const ValueType *GetValueType() const;
+  //! @copydoc Expression::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
 };
 }
 

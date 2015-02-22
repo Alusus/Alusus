@@ -1,5 +1,5 @@
 /**
- * @file Scg/BuiltInFunctions/Callable.h
+ * @file Scg/BuiltInFunctions/Function.h
  *
  * @copyright Copyright (C) 2015 Rafid Khalid Abdullah
  *
@@ -9,18 +9,23 @@
  */
 //==============================================================================
 
-#ifndef __Callable_h__
-#define __Callable_h__
+#ifndef __Function_h__
+#define __Function_h__
+
+// STL header files
+#include <vector>
 
 // SCG header files
 #include <Containers/List.h>
+#include <Functions/FunctionSignature.h>
 #include <Values/Value.h>
 
 // LLVM header files
 #pragma warning(disable: 4146 4800 4355 4996)
 #include <llvm/IR/IRBuilder.h>
+#include <Types/ValueType.h>
+
 #pragma warning(default: 4146 4800 4355 4996)
-//#include <llvm_fwd.h>
 
 namespace Scg
 {
@@ -30,26 +35,73 @@ namespace Scg
  */
 class Function : public Value
 {
+protected:
+  // Defining as protected to allow inheritors to specify them. See for example UserDefinedFunction.
+  //! The types of the arguments of this function.
+  // mutable ValueTypeArray argTypes;
+  //! The type specifications of the arguments of this function. This has to
+  //! be set by the overriding function.
+  mutable ValueTypeSpecArray argTypeSpecs;
+private:
+  //! The signature of this function.
+  mutable FunctionSignature *sig = nullptr;
+
 public:
+  /**
+  * Class destructor.
+  */
+  virtual ~Function()
+  {
+    if (sig != nullptr) {
+      delete sig;
+    }
+  }
+
   /**
    * Retrieves the name of this callable.
    * @return The name of the callable.
    */
   virtual const std::string &GetName() const = 0;
 
-	//@{
   /**
-   * Retrieves the type of the nth argument of this callable.
-   * @return The type of the nth argument.
-   */
-  virtual const ValueType *GetArgumentType(int n) const = 0;
-	//@}
+  * Retrieves the type specifications of the arguments of this function.
+  * @return An array containing the type specifications of the arguments.
+  */
+  virtual const ValueTypeSpecArray &GetArgumentTypeSpecs() const
+  {
+    return argTypeSpecs;
+  }
 
   /**
-   * Retrieves the number of arguments passed to this callable.
-   * @return The number of arguments passed to this callable.
-   */
-  virtual ExpressionArray::size_type GetArgumentCount() const = 0;
+  * Returns a value determining whether this function has a variable number of
+  * arguments.
+  * @return True or false.
+  */
+  virtual bool IsVarArgs() const
+  {
+    // Most functions have a fixed number of arguments, so we return false by
+    // default.
+    return false;
+  }
+
+  //@{
+  /**
+  * Retrieves the signature of this function.
+  * @return The signature of the function.
+  */
+  virtual const FunctionSignature &GetSignature() const
+  {
+    if (sig == nullptr) {
+      sig = new FunctionSignature(GetName(), GetArgumentTypeSpecs(), IsVarArgs());
+    }
+    return *sig;
+  }
+  virtual FunctionSignature &GetSignature()
+  {
+    return const_cast<FunctionSignature&>(
+        static_cast<const Function*>(this)->GetSignature());
+  }
+  //@}
 
   // TODO: Can we convert the return type to llvm::Instruction.
   /**
@@ -59,8 +111,8 @@ public:
    * caller.
    */
   virtual llvm::Value *CreateLLVMInstruction(llvm::IRBuilder<> *irb,
-  		const List &args) const = 0;
+  		const std::vector<llvm::Value*> &args) const = 0;
 };
 }
 
-#endif // __Callable_h__
+#endif // __Function_h__

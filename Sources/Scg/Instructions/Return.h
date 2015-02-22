@@ -16,6 +16,7 @@
 #include <typedefs.h>
 #include <Expression.h>
 #include <llvm_fwd.h>
+#include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
@@ -54,10 +55,10 @@ namespace Scg
     const ExpressionArray::value_type GetExpression() const { return children[0]; }
     ExpressionArray::value_type GetExpression() { return children[0]; }
 
-    //! @copydoc Expression::GetValueType()
-    virtual const ValueType *GetValueType() const
+    //! @copydoc Expression::GetValueTypeSpec()
+    virtual const ValueTypeSpec *GetValueTypeSpec() const override
     {
-      return GetExpression()->GetValueType();
+      return GetExpression()->GetValueTypeSpec();
     }
 
     //! @copydoc Expression::GenerateCode()

@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __UserDefinedFunction_h__
-#define __UserDefinedFunction_h__
+#ifndef __ExternalFunction_h__
+#define __ExternalFunction_h__
 
 // Scg header files
 #include <BuiltInFunctions/Function.h>
@@ -32,15 +32,12 @@ namespace Scg
 /**
  * Represents a function definition, i.e. a prototype and body.
  */
-class UserDefinedFunction : public Function
+class ExternalFunction : public Function
 {
-  //! A string containing the name of the function being defined or linked to.
+  //! A string containing the name of the function being linked to.
   std::string name;
-  //! The return value type of the function being defined or linked to.
+  //! The return value type of the function being linked to.
   ValueTypeSpec *returnTypeSpec;
-  /*! An array containing the definitions (types and names) of the arguments of
-      the function being defined. */
-  VariableDefinitionArray argDefs;
   //! Whether the function being linked to has a variable number of arguments.
   bool isVarArgs = false;
   //! A pointer to the LLVM function representing this function.
@@ -51,41 +48,30 @@ class UserDefinedFunction : public Function
 
 public:
   /**
-   * Construct a function with the given name, arguments, and body.
-   * @param[in] name            The name of the function.
-   * @param[in] returnTypeSpec  The type specification of the return value.
-   * @param[in] arguments       The arguments of the function.
-   * @param[in] body            The body of the function.
-   */
-  UserDefinedFunction(const std::string &name, ValueTypeSpec *returnTypeSpec,
-      const VariableDefinitionArray &argDefs, Block *body);
+  * Constructs a link to an external function with the given name, return type
+  * specification, argument type specification.
+  * @param[in] name           The name of the function.
+  * @param[in] returnTypeSpec The type specification of the function.
+  * @param[in] argTypeSpecs   The type specifications of the arguments of the
+  *                           function being linked to.
+  */
+  ExternalFunction(const std::string &name, ValueTypeSpec *returnTypeSpec,
+      const ValueTypeSpecArray &argTypeSpecs, bool isVarArgs = false);
 
   //! Class destructor.
-  ~UserDefinedFunction();
-
-  // TODO: Document these functions.
+  ~ExternalFunction();
 
   //! @copydoc Function::GetName().
   virtual const std::string &GetName() const { return name; }
 
-  // FIXME: Implement the functions below.
-
   //! @copydoc Expression::GetValueTypeSpec().
   virtual const ValueTypeSpec *GetValueTypeSpec() const override { return returnTypeSpec; }
 
-  const VariableDefinitionArray &GetArgumentDefinitions() const { return argDefs; }
-
-//  //! @copydoc Expression::GetArgumentType().
-//  virtual const ValueType *GetArgumentType(int n) const
-//  {
-//    return argTypes[n];
-//  }
-//
-//  //! @copydoc Function::GetArgumentCount()
-//  virtual ExpressionArray::size_type GetArgumentCount() const override
-//  {
-//    return GetArgumentDefinitions().size();
-//  }
+//   //! @copydoc Function::GetArgumentCount()
+//   virtual ExpressionArray::size_type GetArgumentCount() const override
+//   {
+//     return GetArgumentTypes().size();
+//   }
 
   //! @copydoc Function::IsVarArgs()
   virtual bool IsVarArgs() const { return isVarArgs; }
@@ -105,39 +91,20 @@ public:
   llvm::Function *GetLlvmFunction() { return llvmFunction; }
   // @}
 
-  /**
-   * Get the expression representing the left-hand side of the binary operator.
-   *
-   * @return A pointer to the left-hand side expression.
-   */
-  const Block *GetBody() const
-  {
-    return (Block*) children[0];
-  }
-  Block *GetBody()
-  {
-    return (Block*) children[0];
-  }
-
 private:
   /**
-   * Called by PreGenerateCode() if this object represents a function.
+   * Called by PreGenerateCode() if this object represents a link to an
+   * external function.
    */
-  void CreateFunction();
+  void CreateLinkToExternalFunction();
 
 public:
   //! @copydoc Expression::PreGenerateCode()
   virtual CodeGenerationStage PreGenerateCode();
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
-
   //! @copydoc Expression::ToString()
   virtual std::string ToString();
-
-private:
-  virtual void SetFunction(UserDefinedFunction *function);
 };
 }
 
-#endif // __UserDefinedFunction_h__
+#endif // __ExternalFunction_h__

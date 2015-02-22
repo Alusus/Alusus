@@ -116,10 +116,10 @@ public:
    * @return A pointer to the function, or nullptr if there is no matching
    * function.
    */
-  std::vector<UserDefinedFunction *> GetFunction(const std::string &funcName,
+  std::vector<Function *> GetFunction(const std::string &funcName,
   		const ValueTypeSpecArray &arguments);
 
-  std::vector<UserDefinedFunction *> MatchFunction(const std::string &funcName,
+  std::vector<Function *> MatchFunction(const std::string &funcName,
   		const ValueTypeSpecArray &arguments);
 
   /**

@@ -38,8 +38,8 @@ namespace Scg
      */
     const float &GetValue() const { return value; }
 
-    //! @copydoc Value::GetValueType()
-    virtual ValueType *GetValueType() const;
+    //! @copydoc Value::GetValueTypeSpec()
+    virtual const ValueTypeSpec *GetValueTypeSpec() const override;
 
     //! @copydoc Expression::GenerateCode()
     virtual CodeGenerationStage GenerateCode();

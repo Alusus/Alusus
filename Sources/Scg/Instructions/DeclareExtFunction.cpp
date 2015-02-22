@@ -20,6 +20,7 @@
 #include <Instructions/DeclareExtFunction.h>
 #include <Instructions/DefineFunction.h>
 #include <Containers/Module.h>
+#include <Functions/ExternalFunction.h>
 
 namespace Scg
 {
@@ -87,7 +88,7 @@ Expression::CodeGenerationStage DeclareExtFunction::PreGenerateCode()
   BLOCK_CHECK;
   FUNCTION_CHECK;
 
-  auto function = new UserDefinedFunction(
+  auto function = new ExternalFunction(
         this->name, this->returnType, this->argTypes, this->isVarArgs);
   ((Expression*)function)->SetModule(GetModule());
   ((Expression*)function)->SetFunction(GetFunction());

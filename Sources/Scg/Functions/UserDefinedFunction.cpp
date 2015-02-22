@@ -27,39 +27,23 @@ using namespace llvm;
 
 namespace Scg
 {
-UserDefinedFunction::UserDefinedFunction(const std::string &name, ValueTypeSpec *returnType,
-    const VariableDefinitionArray &argDefs, Block *body) :
-        funcType(FunctionDefinitionSource::Internal),
-        name(name),
-        returnType(returnType),
-        argDefs(argDefs),
-				signature(this->name, this->argTypes, false)
+UserDefinedFunction::UserDefinedFunction(const std::string &name,
+    ValueTypeSpec *returnTypeSpec, const VariableDefinitionArray &argDefs,
+    Block *body)
+    : name(name)
+    , returnTypeSpec(returnTypeSpec)
+    , argDefs(argDefs)
 {
   this->children.push_back(body);
   for (auto def : this->argDefs) {
     // TODO: Is there anyway to avoid casting away the constness?
-    this->argTypes.push_back(const_cast<ValueTypeSpec*>(def.GetTypeSpec()));
+    this->argTypeSpecs.push_back(const_cast<ValueTypeSpec*>(def.GetTypeSpec()));
   }
   // Instances of this class are defined during code generation time by
   // DefineFunction and DeclareExtFunction, and they take the responsibility
   // of deleting the body, so we shouldn't allow Expression class to delete it.
   this->autoDeleteChildren = false;
 }
-
-//------------------------------------------------------------------------------
-
-UserDefinedFunction::UserDefinedFunction(const std::string &name, ValueTypeSpec *returnType,
-    const ValueTypeSpecArray &argTypes, bool isVarArgs) :
-        funcType(FunctionDefinitionSource::External),
-        name(name),
-        returnType(returnType),
-        argTypes(argTypes),
-        isVarArgs(isVarArgs),
-				signature(this->name, this->argTypes, isVarArgs)
-{
-}
-
-//------------------------------------------------------------------------------
 
 UserDefinedFunction::~UserDefinedFunction()
 {
@@ -72,7 +56,11 @@ UserDefinedFunction::~UserDefinedFunction()
   // instance each time its PreCodeGeneration() function called.
 }
 
-//------------------------------------------------------------------------------
+llvm::Value *UserDefinedFunction::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
+    const std::vector<llvm::Value*> &args) const
+{
+  return irb->CreateCall(this->llvmFunction, args);
+}
 
 void UserDefinedFunction::CreateFunction()
 {
@@ -84,8 +72,8 @@ void UserDefinedFunction::CreateFunction()
     argTypes[i] = type->GetLlvmType();
   }
   auto retType =
-      (this->returnType != nullptr ?
-          this->returnType->ToValueType(*GetModule()) :
+      (this->returnTypeSpec != nullptr ?
+          this->returnTypeSpec->ToValueType(*GetModule()) :
           GetModule()->GetValueTypeByName(""))->GetLlvmType();
 
   // Constructs the LLVM function type.
@@ -115,35 +103,6 @@ void UserDefinedFunction::CreateFunction()
   ((Expression*) GetBody())->SetBlock(this->block);
 }
 
-//------------------------------------------------------------------------------
-
-void UserDefinedFunction::CreateLinkToExternalFunction()
-{
-  // Constructs the LLVM types representing the argument and return value types.
-  std::vector<Type*> argTypes(this->argTypes.size());
-  for (auto i = 0; i < argTypes.size(); i++)
-  {
-    auto type = this->argTypes[i]->ToValueType(*GetModule());
-    argTypes[i] = type->GetLlvmType();
-  }
-  auto retType =
-      (this->returnType != nullptr ?
-          this->returnType->ToValueType(*GetModule()) :
-          GetModule()->GetValueTypeByName(""))->GetLlvmType();
-
-  // Creates the LLVM function.
-  auto funcType = llvm::FunctionType::get(retType, argTypes, this->isVarArgs);
-  this->llvmFunction = llvm::Function::Create(funcType,
-      llvm::Function::ExternalLinkage, this->name, GetModule()->GetLlvmModule());
-
-  // TODO: Not sure whether these are required, but I just copied them from the code
-  // that generates printf in Module.cpp
-  this->llvmFunction->addFnAttr(Attribute::NoCapture);
-  this->llvmFunction->addFnAttr(Attribute::NoUnwind);
-}
-
-//------------------------------------------------------------------------------
-
 Expression::CodeGenerationStage UserDefinedFunction::PreGenerateCode()
 {
   MODULE_CHECK;
@@ -154,7 +113,7 @@ Expression::CodeGenerationStage UserDefinedFunction::PreGenerateCode()
   // define functions inside blocks?
 
   // Is the function already defined?
-  if (GetModule()->GetFunction(this->name, this->argTypes) != nullptr) {
+  if (GetModule()->GetFunction(this->name, this->GetArgumentTypeSpecs()) != nullptr) {
     THROW_EXCEPTION(RedefinitionException,
         "Function already defined: " + this->name);
   }
@@ -162,40 +121,29 @@ Expression::CodeGenerationStage UserDefinedFunction::PreGenerateCode()
   // Stores this function in the function store of the module.
   GetModule()->AddFunction(this);
 
-  if (this->funcType == FunctionDefinitionSource::Internal)
-    CreateFunction();
-  else
-    CreateLinkToExternalFunction();
+  CreateFunction();
 
   return CodeGenerationStage::CodeGeneration;
 }
-
-//------------------------------------------------------------------------------
 
 Expression::CodeGenerationStage UserDefinedFunction::GenerateCode()
 {
   MODULE_CHECK;
 
-  // If this is a function with a body, generate the code of the body.
-  if (this->funcType == FunctionDefinitionSource::Internal)
-  {
-    GetBody()->GenerateCode();
+  GetBody()->GenerateCode();
 
-    // If this function is of type void, we need to make sure there is a
-    // return statement at the end in case the user doesn't add one.
-    // TODO: What if the function is non-void and the user forgets to return
-    // a value?
-    if (this->returnType == nullptr || this->returnType->IsVoid())
-      GetBody()->GetIRBuilder()->CreateRetVoid();
-  }
+  // If this function is of type void, we need to make sure there is a
+  // return statement at the end in case the user doesn't add one.
+  // TODO: What if the function is non-void and the user forgets to return
+  // a value?
+  if (this->returnTypeSpec == nullptr || this->returnTypeSpec->IsVoid())
+    GetBody()->GetIRBuilder()->CreateRetVoid();
 
   // A function definition doesn't evaluate to a value.
   return Expression::GenerateCode();
 }
 
 // TODO: Do we not need to define post code generation code?
-
-//------------------------------------------------------------------------------
 
 void UserDefinedFunction::SetFunction(UserDefinedFunction *function)
 {
@@ -204,14 +152,8 @@ void UserDefinedFunction::SetFunction(UserDefinedFunction *function)
     expr->SetFunction(this);
 }
 
-//------------------------------------------------------------------------------
-
 std::string UserDefinedFunction::ToString()
 {
-  // TODO: Implement External as well.
-  if (this->funcType == FunctionDefinitionSource::External)
-    return "";
-
   std::stringstream str;
   str << "def " << this->name << " : function" << std::endl;
   if (this->argDefs.size() > 0)

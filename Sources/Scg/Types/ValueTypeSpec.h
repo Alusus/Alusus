@@ -12,7 +12,7 @@
 #ifndef __ValueTypeSpec_h__
 #define __ValueTypeSpec_h__
 
-// Scg header files
+// SCG header files
 #include <Expression.h>
 #include <typedefs.h>
 

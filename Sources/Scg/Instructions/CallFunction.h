@@ -39,12 +39,12 @@ class CallFunction : public Instruction
   List *args;
   /*! A pointer to the function this CallFunction instruction is calling.
       This is found during the code generation process. */
-  UserDefinedFunction *function = nullptr;
+  Function *function = nullptr;
   /*! An array containing the types of the arguments. This is filled in
       during the code generation process. */
   ValueTypeSpecArray argTypes;
   //! The LLVM call instruction representing this function call.
-  llvm::CallInst *callInst;
+  llvm::Value *callInst;
 
 public:
   /**
@@ -54,7 +54,7 @@ public:
    *                          function.
    */
   CallFunction(Char const *functionName, List *args)
-    : funcName(functionName), callInst(0), args(args)
+    : funcName(functionName), callInst(nullptr), args(args)
   {
     // Add the arguments to the children so that they are called during
     // the code generation process.
@@ -86,8 +86,8 @@ public:
   const List *GetArguments() const { return reinterpret_cast<List*>(children[0]); }
   List *GetArguments() { return reinterpret_cast<List*>(children[0]); }
 
-  //! @copydoc Expression::GetValueType()
-  virtual const ValueType *GetValueType() const;
+  //! @copydoc Expression::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
 
 public:
   //! @copydoc Expression::PreGenerateCode()

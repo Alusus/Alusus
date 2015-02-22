@@ -24,9 +24,9 @@
 
 namespace Scg
 {
-const ValueType *CastToInt::GetValueType() const
+const ValueTypeSpec * CastToInt::GetValueTypeSpec() const
 {
-  return IntegerType::GetSingleton();
+  return IntegerType::GetSingleton()->GetValueTypeSpec();
 }
 
 //------------------------------------------------------------------------------
@@ -35,14 +35,22 @@ Expression::CodeGenerationStage CastToInt::GenerateCode()
 {
   BLOCK_CHECK;
 
+  auto module = GetModule();
   auto irb = GetBlock()->GetIRBuilder();
 
   // TODO: This need to be updated when other standard data types are supported.
-  if (this->GetOperand()->GetValueType() == IntegerType::GetSingleton()) {
+  // TODO: Add the following helper methods in ValueTypeSpec (and ValueType?)
+  // IsInteger
+  // IsFloat
+  // IsDouble
+  // IsString
+  // IsVoid
+  // Anything else?
+  if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == IntegerType::GetSingleton()) {
     // The operand is already an integer, no need to cast.
     this->generatedLlvmValue = GetOperand()->GetGeneratedLlvmValue();
-  } else if (this->GetOperand()->GetValueType() == FloatType::GetSingleton() ||
-      this->GetOperand()->GetValueType() == DoubleType::GetSingleton()) {
+  } else if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == FloatType::GetSingleton() ||
+      this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == DoubleType::GetSingleton()) {
     // The operand is integer or float, so we need to add FPToSI instruction.
     this->llvmCastInst = static_cast<llvm::CastInst*>(irb->CreateFPToSI(
         GetOperand()->GetGeneratedLlvmValue(),

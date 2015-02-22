@@ -14,6 +14,8 @@
 #ifndef __PointerToVariable_h__
 #define __PointerToVariable_h__
 
+#include <Types/ValueTypeSpec.h>
+
 using namespace Core;
 
 namespace Scg
@@ -50,8 +52,8 @@ public:
    */
   const std::string &GetName() const { return name; }
 
-  //! @copydoc Pointer::GetValueType()
-  virtual const ValueType *GetValueType() const;
+  //! @copydoc Pointer::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
 
   //! @copydoc Expression::GenerateCode()
   virtual CodeGenerationStage GenerateCode();

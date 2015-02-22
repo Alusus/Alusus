@@ -1,6 +1,8 @@
 #ifndef __FunctionStore_h__
 #define __FunctionStore_h__
 
+// SCG header files
+#include <BuiltInFunctions/Function.h>
 #include <typedefs.h>
 
 namespace Scg
@@ -12,7 +14,6 @@ class FunctionSignature;
  */
 class FunctionStore: public Expression
 {
-  const Module &module;
   // TODO: To quickly implement this function, I just used an array and
   // implemented a function that iterates through it to find the required
   // function. This is really inefficient, but should be sufficient for now.
@@ -23,7 +24,7 @@ public:
   /**
    * Constructs a function store for the given module.
    */
-  FunctionStore(const Module &module) : module(module) {}
+  FunctionStore() {}
   ~FunctionStore() {}
 
 public:
@@ -31,7 +32,7 @@ public:
    * Adds the given function to the store.
    * @param[in] function  A pointer to the function to be added.
    */
-  void Add(UserDefinedFunction *function);
+  void Add(Function *function);
 
   // @{
   /**
@@ -40,12 +41,12 @@ public:
    * @param[in] arguments An array containing the arguments of the function.
    * @return The required function if found, or @c nullptr.
    */
-  const UserDefinedFunction *Get(const std::string &name,
+  const Function *Get(const std::string &name,
       const ValueTypeSpecArray &arguments) const;
-  UserDefinedFunction *Get(const std::string &name,
+  Function *Get(const std::string &name,
       const ValueTypeSpecArray &arguments)
   {
-    return const_cast<UserDefinedFunction *>(
+    return const_cast<Function *>(
         static_cast<const FunctionStore*>(this)->Get(name, arguments));
   }
   // @}
@@ -56,10 +57,10 @@ public:
    * @param[in] signature The signature of the function to retrieve.
    * @return The requested function if found, or @c nullptr.
    */
-  const UserDefinedFunction *Get(const FunctionSignature &signature) const;
-  UserDefinedFunction *Get(const FunctionSignature &signature)
+  const Function *Get(const FunctionSignature &signature) const;
+  Function *Get(const FunctionSignature &signature)
   {
-    return const_cast<UserDefinedFunction *>(
+    return const_cast<Function *>(
         static_cast<const FunctionStore*>(this)->Get(signature));
   }
   // @}
@@ -71,11 +72,12 @@ public:
    * @param[in] signature The signature of the function to match.
    * @return The matching function if found, or @c nullptr.
    */
-  const UserDefinedFunction *Match(const std::string &name, const ValueTypeSpecArray &argTypes) const;
-  UserDefinedFunction *Match(const std::string &name, const ValueTypeSpecArray &argTypes)
+  const Function *Match(const Module &module,
+      const std::string &name, const ValueTypeSpecArray &argTypes) const;
+  Function *Match(const Module &module, const std::string &name, const ValueTypeSpecArray &argTypes)
   {
-    return const_cast<UserDefinedFunction *>(
-        static_cast<const FunctionStore*>(this)->Match(name, argTypes));
+    return const_cast<Function*>(static_cast<const FunctionStore*>(this)->Match(
+        module, name, argTypes));
   }
   // @}
 };

@@ -38,8 +38,8 @@ namespace Scg
      */
     const std::string &GetValue() const { return value; }
 
-    //! @copydoc Value::GetValueType()
-    virtual ValueType *GetValueType() const;
+    //! @copydoc Value::GetValueTypeSpec()
+    virtual const ValueTypeSpec *GetValueTypeSpec() const;
 
     //! @copydoc Expression::GenerateCode()
     virtual CodeGenerationStage GenerateCode();

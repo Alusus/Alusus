@@ -30,23 +30,27 @@ PointerToMemberField::~PointerToMemberField()
 
 //------------------------------------------------------------------------------
 
-const ValueType *PointerToMemberField::GetValueType() const
+const ValueTypeSpec * PointerToMemberField::GetValueTypeSpec() const
 {
   if (this->valueType)
-    return this->valueType;
+    return this->valueType->GetValueTypeSpec();
 
   // TODO: Don't use dynamic_cast.
-  auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueType());
+  auto module = GetModule();
+  auto typeSpec = this->expression->GetValueTypeSpec();
+  auto pointerType = dynamic_cast<PointerType*>(typeSpec->ToValueType(*module));
   if (pointerType == nullptr)
     THROW_EXCEPTION(InvalidArgumentException, "The expression passed to "
         "PointerToMemberField should be a pointer to a structure.");
-  auto structType = dynamic_cast<StructType*>(const_cast<ValueType*>(pointerType->GetContentType()));
-  if (structType == nullptr)
+  auto contType = pointerType->GetContentType();
+  auto structType = dynamic_cast<StructType*>(const_cast<ValueType*>(contType));
+  if (structType == nullptr) {
     THROW_EXCEPTION(InvalidArgumentException, "Non-structure variable types "
         "doesn't have fields to access.");
+  }
 
   this->valueType = new PointerType(*structType->GetFieldByName(this->fieldName).GetValueType());
-  return this->valueType;
+  return this->valueType->GetValueTypeSpec();
 }
 
 //----------------------------------------------------------------------------
@@ -60,14 +64,17 @@ Expression::CodeGenerationStage PointerToMemberField::GenerateCode()
   // TODO: Finding the index by name is an O(n) operation, so consider it
   // saving the index here or in GetPointedToType() to speed up compilation
   // time.
-  auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueType());
-  if (pointerType == nullptr)
+  auto module = GetModule();
+  auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueTypeSpec()->ToValueType(*module));
+  if (pointerType == nullptr) {
     THROW_EXCEPTION(InvalidArgumentException, "The expression passed to "
         "PointerToMemberField should be a pointer to a structure.");
+  }
   auto structType = dynamic_cast<StructType*>(const_cast<ValueType*>(pointerType->GetContentType()));
-  if (structType == nullptr)
+  if (structType == nullptr) {
     THROW_EXCEPTION(InvalidArgumentException, "Non-structure variable types "
         "doesn't have fields to access.");
+  }
   auto zero = IntegerType::GetSingleton()->GetLlvmConstant(0);
   auto index = IntegerType::GetSingleton()->GetLlvmConstant(
       structType->GetFieldIndex(this->fieldName));

@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __Function_h__
-#define __Function_h__
+#ifndef __FunctionAstBlock_h__
+#define __FunctionAstBlock_h__
 
 // STL header files
 #include <vector>
@@ -109,4 +109,4 @@ namespace Scg
   };
 }
 
-#endif // __Function_h__
+#endif // __FunctionAstBlock_h__

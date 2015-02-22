@@ -16,7 +16,7 @@
 
 namespace Scg
 {
-// TODO: GetValueType() was moved to Expression class, so this class can be
+// TODO: GetValueTypeSpec() was moved to Expression class, so this class can be
 // deleted.
 /**
  * Base class for any class representing values in the language, including

@@ -56,7 +56,7 @@ namespace Scg
     unsigned int GetArraySize() const { return arraySize; }
 
     //! @copydoc ValueType::GetValueTypeSpec()
-    virtual const ValueTypeSpec *GetValueTypeSpec() const
+    virtual const ValueTypeSpec *GetValueTypeSpec() const override
     {
       return &typeSpec;
     }

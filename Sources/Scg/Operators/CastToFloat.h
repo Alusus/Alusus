@@ -20,6 +20,7 @@
 
 // LLVM forward declarations
 #include <llvm_fwd.h>
+#include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
@@ -50,8 +51,8 @@ public:
   const ExpressionArray::value_type GetOperand() const { return children[0]; }
   ExpressionArray::value_type GetOperand() { return children[0]; }
 
-  //! @copydoc Expression::GetValueType()
-  virtual const ValueType *GetValueType() const;
+  //! @copydoc Expression::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
 
   //! @copydoc Expression::GenerateCode()
   virtual CodeGenerationStage GenerateCode();

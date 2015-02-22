@@ -12,27 +12,27 @@ using namespace llvm;
 
 namespace Scg
 {
-void FunctionStore::Add(UserDefinedFunction *function)
+void FunctionStore::Add(Function *function)
 {
   this->functions.push_back(function);
 }
 
 //------------------------------------------------------------------------------
 
-const UserDefinedFunction *FunctionStore::Get(const std::string &name,
+const Function *FunctionStore::Get(const std::string &name,
       const ValueTypeSpecArray &arguments) const
 {
   for (auto func : this->functions) {
-    if (func->GetFunctionName().compare(name) == 0) {
+    if (func->GetName().compare(name) == 0) {
       if (func->IsVarArgs()) {
         // The function has a variable number of arguments, so we only check
         // the fixed ones.
-        if (func->GetArgumentTypes().IsEqualTo(&arguments,
-            func->GetArgumentTypes().size() /* limit the comparison */)) {
+        if (func->GetArgumentTypeSpecs().IsEqualTo(&arguments,
+            func->GetArgumentTypeSpecs().size() /* limit the comparison */)) {
           return func;
         }
       } else {
-        if (func->GetArgumentTypes().IsEqualTo(&arguments)) {
+        if (func->GetArgumentTypeSpecs().IsEqualTo(&arguments)) {
           return func;
         }
       }
@@ -43,18 +43,19 @@ const UserDefinedFunction *FunctionStore::Get(const std::string &name,
 
 //------------------------------------------------------------------------------
 
-const UserDefinedFunction *FunctionStore::Get(const FunctionSignature &signature) const
+const Function *FunctionStore::Get(const FunctionSignature &signature) const
 {
 	return Get(signature.name, signature.arguments);
 }
 
 //------------------------------------------------------------------------------
 
-const UserDefinedFunction *FunctionStore::Match(const std::string &name, const ValueTypeSpecArray &argTypes) const
+const Function *FunctionStore::Match(const Module &module,
+    const std::string &name, const ValueTypeSpecArray &argTypes) const
 {
   // Find all the matching functions and sort them by the number of required
   // implicit casting.
-	typedef std::pair<int, UserDefinedFunction *> FunctionMatch;
+	typedef std::pair<int, Function *> FunctionMatch;
   std::vector<FunctionMatch> matches;
   for (auto function : this->functions) {
     auto matchability = function->GetSignature().Match(module, name, argTypes);

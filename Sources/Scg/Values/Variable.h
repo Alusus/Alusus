@@ -27,7 +27,7 @@ protected:
   //! The name of the variable.
   std::string name;
   // TODO: We should change this variable type to const ValueType & after we
-  // change the return type of the function Value::GetValueType().
+  // change the return type of the function Value::GetValueTypeSpec().
   //! The type of the variable.
   ValueType *variableType;
   //! The LLVM Alloca instruction used to define the variable, if it is local.
@@ -139,9 +139,8 @@ public:
   // const ValueType &.
 
   //@{
-  //! @copydoc Value::GetValueType()
-  virtual const ValueType *GetValueType() const { return variableType; }
-  virtual ValueType *GetValueType() { return variableType; }
+  //! @copydoc Value::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override { return variableType->GetValueTypeSpec(); }
   //@}
 
   //! @copydoc Expression::PreGenerateCode()

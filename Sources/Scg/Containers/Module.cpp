@@ -36,7 +36,7 @@
 
 namespace Scg
 {
-Module::Module(const std::string& name) : functionStore(*this), name(name)
+Module::Module(const std::string& name) : functionStore(), name(name)
 {
   //this->llvmModule = new llvm::Module(name, LlvmContainer::GetContext());
 }

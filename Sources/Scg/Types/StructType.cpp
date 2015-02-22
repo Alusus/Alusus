@@ -19,7 +19,7 @@
 namespace Scg
 {
 StructType::StructType(const std::string &name)
-  : name(name), typeSpec("string")
+  : name(name), typeSpec(name.c_str())
 {
   // We don't delete a structure type we create as it is defined using
   // LLVM's BumpPtrAllocator.

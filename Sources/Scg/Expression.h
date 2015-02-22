@@ -20,6 +20,7 @@
 
 // LLVM forward declarations
 #include <llvm_fwd.h>
+#include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
@@ -164,17 +165,17 @@ namespace Scg
      * @throw InvalidValueException If the expression doesn't evaluate to a
      * value.
      */
-    virtual const ValueType *GetValueType() const
+    virtual const ValueTypeSpec *GetValueTypeSpec() const
     {
       // TODO: This exception is being frequently used, with a similar statement
       // each time. A macro should be created for it to avoid duplication.
       THROW_EXCEPTION(InvalidValueException,
           "Expression doesn't evaluate to a value.");
     }
-    virtual ValueType *GetValueType()
+    virtual ValueTypeSpec *GetValueTypeSpec()
     {
-      return const_cast<ValueType*>(
-          static_cast<const Expression*>(this)->GetValueType());
+      return const_cast<ValueTypeSpec*>(
+          static_cast<const Expression *>(this)->GetValueTypeSpec());
     }
 
     /**

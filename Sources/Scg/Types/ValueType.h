@@ -81,7 +81,7 @@ public:
    * Return the number of variables of this type defined.
    * @return The number of variables of this type defined.
    */
-  int GetVarCount() { return varCount; }
+  int GetVarCount() const { return varCount; }
 
   /**
    * Get the LLVM Type object representing this type. This is used to define
@@ -108,6 +108,11 @@ public:
    * automatically freed by the type, hence shouldn't be freed by the caller.
    */
   virtual const ValueTypeSpec *GetValueTypeSpec() const = 0;
+  virtual ValueTypeSpec *GetValueTypeSpec()
+  {
+    return const_cast<ValueTypeSpec*>(
+        static_cast<const ValueType*>(this)->GetValueTypeSpec());
+  }
 
   /**
    * Casts the given LLVM value to the given target type.

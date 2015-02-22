@@ -24,9 +24,10 @@ using namespace llvm;
 
 namespace Scg
 {
-const ValueType *BinaryOperator::GetValueType() const
+const ValueTypeSpec * BinaryOperator::GetValueTypeSpec() const
 {
-  return IntegerType::GetSingleton();
+  // FIXME: Fix this!
+  return IntegerType::GetSingleton()->GetValueTypeSpec();
 }
 
 //------------------------------------------------------------------------------

@@ -18,6 +18,7 @@
 // Alusus header files
 #include <Functions/FunctionSignature.h>
 #include <Functions/FunctionStore.h>
+#include <Functions/UserDefinedFunction.h>
 #include <llvm_fwd.h>
 #include <typedefs.h>
 
@@ -119,7 +120,7 @@ public:
    * Adds the given function to the function store of the module.
    * @param[in] function  A pointer to the function to be added.
    */
-  void AddFunction(UserDefinedFunction *function) {
+  void AddFunction(Function *function) {
     this->functionStore.Add(function);
   }
 
@@ -153,22 +154,22 @@ public:
    * @return A pointer to the function, or nullptr if there is no matching
    * function.
    */
-  const UserDefinedFunction *GetFunction(const std::string &name,
+  const Function *GetFunction(const std::string &name,
       const ValueTypeSpecArray &arguments) const
   {
     return this->functionStore.Get(name, arguments);
   }
-  UserDefinedFunction *GetFunction(const std::string &name,
+  Function *GetFunction(const std::string &name,
       const ValueTypeSpecArray &arguments)
   {
     return this->functionStore.Get(name, arguments);
   }
   //@}
 
-  UserDefinedFunction *MatchFunction(const std::string &name,
+  Function *MatchFunction(const std::string &name,
       const ValueTypeSpecArray &arguments)
   {
-    return this->functionStore.Match(name, arguments);
+    return this->functionStore.Match(*this, name, arguments);
   }
 
   //@{

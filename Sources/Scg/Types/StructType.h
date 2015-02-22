@@ -95,7 +95,7 @@ public:
   }
 
   //! @copydoc ValueType::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override
   {
     return &typeSpec;
   }

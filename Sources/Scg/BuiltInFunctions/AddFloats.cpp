@@ -16,29 +16,36 @@
 
 // SCG files
 #include <BuiltInFunctions/AddFloats.h>
-#include <Containers/Block.h>
 #include <Types/FloatType.h>
+#include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
-llvm::Value *AddFloats::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
-		const List &args) const
+AddFloats::AddFloats()
 {
-	if (args.GetElementCount() != 2)
+  this->argTypeSpecs.push_back(new ValueTypeSpecByName("int"));
+  this->argTypeSpecs.push_back(new ValueTypeSpecByName("int"));
+}
+
+AddFloats::~AddFloats()
+{
+  delete this->argTypeSpecs[0];
+  delete this->argTypeSpecs[1];
+  this->argTypeSpecs.clear();
+}
+
+llvm::Value *AddFloats::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
+		const std::vector<llvm::Value*> &args) const
+{
+	if (args.size() != 2)
 		// TODO: The exception message shouldn't use AddFloats as this is the class name.
 		// Instead, it should use a user friendly name, e.g. operator +.
 		// TODO: Should we use CompilationErrorException? Should we derive from that an
 		// exception specific for the invalid number of arguments.
 		THROW_EXCEPTION(CompilationErrorException,
 				"AddFloats built-in function requires two arguments.");
-	auto arg1 = args.GetElement(0);
-	auto arg2 = args.GetElement(1);
-	if (arg1->GetValueType() != FloatType::GetSingleton() ||
-			arg1->GetValueType() != FloatType::GetSingleton())
-		THROW_EXCEPTION(CompilationErrorException,
-				"AddFloats built-in function requires arguments of integer type.");
 
-  return irb->CreateFAdd(arg1->GetGeneratedLlvmValue(), arg2->GetGeneratedLlvmValue());
+  return irb->CreateFAdd(args[0], args[1]);
 }
 
 //----------------------------------------------------------------------------------------
@@ -53,9 +60,9 @@ const ValueType *AddFloats::GetArgumentType(int n) const
 
 //----------------------------------------------------------------------------------------
 
-const ValueType *AddFloats::GetValueType() const
+const ValueTypeSpec *AddFloats::GetValueTypeSpec() const
 {
-	return FloatType::GetSingleton();
+	return FloatType::GetSingleton()->GetValueTypeSpec();
 }
 }
 

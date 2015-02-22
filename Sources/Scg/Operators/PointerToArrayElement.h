@@ -15,6 +15,7 @@
 // Alusus header files
 #include <typedefs.h>
 #include <llvm_fwd.h>
+#include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
@@ -56,8 +57,8 @@ public:
   //! Class destructor.
   ~PointerToArrayElement();
 
-  //! @copydoc Expression::GetValueType()
-  virtual const ValueType *GetValueType() const;
+  //! @copydoc Expression::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
 
   //! @copydoc Expression::GenerateCode()
   virtual CodeGenerationStage GenerateCode();

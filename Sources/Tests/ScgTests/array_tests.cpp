@@ -10,6 +10,7 @@
 //==============================================================================
 
 // Alusus header files
+#include <core.h>
 #include <scg.h>
 #include <simple_test.h>
 

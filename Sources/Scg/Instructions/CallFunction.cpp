@@ -25,23 +25,24 @@
 #include <Functions/UserDefinedFunction.h>
 #include <Instructions/CallFunction.h>
 #include <Instructions/DefineFunction.h>
+#include <Types/VoidType.h>
 
 using namespace llvm;
 
 namespace Scg
 {
-const ValueType *CallFunction::GetValueType() const
+const ValueTypeSpec * CallFunction::GetValueTypeSpec() const
 {
   if (this->function == nullptr) {
     THROW_EXCEPTION(InvalidOperationException, "This function should only "
         "be called after the pre-code generation step has finished, because "
         "we don't have a reference to the function before that.");
   }
-  auto funcRetType = this->function->GetReturnType();
+  auto funcRetType = this->function->GetValueTypeSpec();
   if (funcRetType == nullptr) {
-    return GetModule()->GetValueTypeByName("void");
+    return VoidType::GetSingleton()->GetValueTypeSpec();
   }
-  return funcRetType->ToValueType(*GetModule());
+  return funcRetType;
 }
 
 //------------------------------------------------------------------------------
@@ -63,7 +64,7 @@ Expression::CodeGenerationStage CallFunction::PreGenerateCode()
     argTypes.resize(this->args->GetElementCount());
     for (auto i = 0; i < this->args->GetElementCount(); i++) {
       argTypes[i] = const_cast<ValueTypeSpec*>(
-      		this->args->GetElement(i)->GetValueType()->GetValueTypeSpec());
+      		this->args->GetElement(i)->GetValueTypeSpec());
     }
   }
 
@@ -117,23 +118,23 @@ Expression::CodeGenerationStage CallFunction::GenerateCode()
   // If argument mismatch error.
   // TODO: Check the types of arguments as well.
   if ((this->function->IsVarArgs() &&
-          this->function->GetArgumentCount() > GetArguments()->GetElementCount()) ||
+          this->function->GetArgumentTypeSpecs().size() > GetArguments()->GetElementCount()) ||
       (!this->function->IsVarArgs() &&
-          this->function->GetArgumentCount() != GetArguments()->GetElementCount()))
+          this->function->GetArgumentTypeSpecs().size() != GetArguments()->GetElementCount()))
   {
     std::stringstream str;
     str << "Function " << this->funcName << " expects "
-        << this->function->GetArgumentCount() << " arguments, but got "
+        << this->function->GetArgumentTypeSpecs().size() << " arguments, but got "
         << GetArguments()->GetElementCount();
     THROW_EXCEPTION(ArgumentMismatchException, str.str());
   }
 
   for (size_t i = 0, e = GetArguments()->GetElementCount(); i != e; ++i)
   {
-    auto expectedArgType = i < this->function->GetArgumentCount() ?
-        this->function->GetArgumentTypes()[i]->ToValueType(*GetModule()) :
+    auto expectedArgType = i < this->function->GetArgumentTypeSpecs().size() ?
+        this->function->GetArgumentTypeSpecs()[i]->ToValueType(*GetModule()) :
         nullptr;
-    auto argType = GetArguments()->GetElement(i)->GetValueType();
+    auto argType = GetArguments()->GetElement(i)->GetValueTypeSpec()->ToValueType(*GetModule());
     auto argValue = GetArguments()->GetElement(i)->GetGeneratedLlvmValue();
     if (argValue == nullptr)
       THROW_EXCEPTION(EvaluationException,
@@ -152,7 +153,7 @@ Expression::CodeGenerationStage CallFunction::GenerateCode()
 
   // Generate code for calling the function.
   this->generatedLlvmValue = this->callInst =
-  		GetBlock()->GetIRBuilder()->CreateCall(this->function->GetLlvmFunction(), args);
+      this->function->CreateLLVMInstruction(GetBlock()->GetIRBuilder(), args);
 
   return Expression::GenerateCode();
 }
@@ -162,7 +163,11 @@ Expression::CodeGenerationStage CallFunction::GenerateCode()
 Expression::CodeGenerationStage CallFunction::PostGenerateCode()
 {
   this->function = nullptr;
-  SAFE_DELETE_LLVM_INST(this->callInst);
+  // TODO: Do something about deleting callInst. I commented it out because
+  // its type was converted to llvm::Value object following the change of
+  // the code generation to call Function::CreateLLVMInstruction which
+  // returns a generic llvm::Value object.
+  //SAFE_DELETE_LLVM_INST(this->callInst);
   return CodeGenerationStage::None;
 }
 

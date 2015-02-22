@@ -19,9 +19,9 @@
 
 namespace Scg
 {
-  ValueType *StringConst::GetValueType() const
+  const ValueTypeSpec *StringConst::GetValueTypeSpec() const
   {
-    return StringType::GetSingleton();
+    return StringType::GetSingleton()->GetValueTypeSpec();
   }
 
   //----------------------------------------------------------------------------

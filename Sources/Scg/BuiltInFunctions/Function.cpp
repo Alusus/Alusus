@@ -1,5 +1,5 @@
 /**
- * @file Scg/BuiltInFunctions/Callable.cpp
+ * @file Scg/BuiltInFunctions/Function.cpp
  *
  * @copyright Copyright (C) 2015 Rafid Khalid Abdullah
  *

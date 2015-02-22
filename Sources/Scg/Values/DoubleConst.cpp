@@ -21,9 +21,9 @@
 
 namespace Scg
 {
-ValueType *DoubleConst::GetValueType() const
+const ValueTypeSpec *DoubleConst::GetValueTypeSpec() const
 {
-  return DoubleType::GetSingleton();
+  return DoubleType::GetSingleton()->GetValueTypeSpec();
 }
 
 //----------------------------------------------------------------------------

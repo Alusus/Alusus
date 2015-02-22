@@ -33,13 +33,14 @@ PointerToArrayElement::~PointerToArrayElement()
 
 //------------------------------------------------------------------------------
 
-const ValueType *PointerToArrayElement::GetValueType() const
+const ValueTypeSpec * PointerToArrayElement::GetValueTypeSpec() const
 {
   if (this->valueType)
-    return this->valueType;
+    return this->valueType->GetValueTypeSpec();
 
+  auto module = GetModule();
   // TODO: Don't use dynamic_cast.
-  auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueType());
+  auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueTypeSpec()->ToValueType(*module));
   if (pointerType == nullptr)
     THROW_EXCEPTION(InvalidArgumentException, "The expression passed to "
         "PointerToArrayElement should be a pointer to an array.");
@@ -49,7 +50,7 @@ const ValueType *PointerToArrayElement::GetValueType() const
         "doesn't have elements to access.");
 
   this->valueType = new PointerType(*arrayType->GetElementsType());
-  return this->valueType;
+  return this->valueType->GetValueTypeSpec();
 }
 
 //----------------------------------------------------------------------------
@@ -60,7 +61,8 @@ Expression::CodeGenerationStage PointerToArrayElement::GenerateCode()
 
   // Finds the index of the field in the structure.
   // TODO: Don't use dynamic_cast.
-  auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueType());
+  auto module = GetModule();
+  auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueTypeSpec()->ToValueType(*module));
   if (pointerType == nullptr)
     THROW_EXCEPTION(InvalidArgumentException, "The expression passed to "
         "PointerToArrayElement should be a pointer to an array.");

@@ -34,12 +34,6 @@ namespace Scg
   protected:
     //! The LLVM Value object representing the constant.
     llvm::Value *llvmValue;
-
-  public:
-    /**
-     * Get the LLVM type representing that is used to represent values of this type.
-     */
-    virtual ValueType *GetValueType() const = 0;
   };
 }
 

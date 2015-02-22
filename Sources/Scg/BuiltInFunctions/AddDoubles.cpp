@@ -16,46 +16,53 @@
 
 // SCG files
 #include <BuiltInFunctions/AddDoubles.h>
-#include <Containers/Block.h>
 #include <Types/DoubleType.h>
+#include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
-llvm::Value *AddDoubles::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
-		const List &args) const
+AddDoubles::AddDoubles()
 {
-	if (args.GetElementCount() != 2)
+  this->argTypeSpecs.push_back(new ValueTypeSpecByName("double"));
+  this->argTypeSpecs.push_back(new ValueTypeSpecByName("double"));
+}
+
+AddDoubles::~AddDoubles()
+{
+  delete this->argTypeSpecs[0];
+  delete this->argTypeSpecs[1];
+  this->argTypeSpecs.clear();
+}
+
+llvm::Value *AddDoubles::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
+    const std::vector<llvm::Value*> &args) const
+{
+	if (args.size() != 2)
 		// TODO: The exception message shouldn't use AddDoubles as this is the class name.
 		// Instead, it should use a user friendly name, e.g. operator +.
 		// TODO: Should we use CompilationErrorException? Should we derive from that an
 		// exception specific for the invalid number of arguments.
 		THROW_EXCEPTION(CompilationErrorException,
 				"AddDoubles built-in function requires two arguments.");
-	auto arg1 = args.GetElement(0);
-	auto arg2 = args.GetElement(1);
-	if (arg1->GetValueType() != DoubleType::GetSingleton() ||
-			arg1->GetValueType() != DoubleType::GetSingleton())
-		THROW_EXCEPTION(CompilationErrorException,
-				"AddDoubles built-in function requires arguments of integer type.");
 
-  return irb->CreateFAdd(arg1->GetGeneratedLlvmValue(), arg2->GetGeneratedLlvmValue());
+  return irb->CreateFAdd(args[0], args[1]);
 }
 
 //----------------------------------------------------------------------------------------
 
-const ValueType *AddDoubles::GetArgumentType(int n) const
+/*const ValueType *AddDoubles::GetArgumentType(int n) const
 {
 	if (n < 0 || n > 1)
 		THROW_EXCEPTION(ArgumentOutOfRangeException,
 				"AddDoubles built-in function accepts only two arguments.");
   return DoubleType::GetSingleton();
-}
+}*/
 
 //----------------------------------------------------------------------------------------
 
-const ValueType *AddDoubles::GetValueType() const
+const ValueTypeSpec *AddDoubles::GetValueTypeSpec() const
 {
-	return DoubleType::GetSingleton();
+	return DoubleType::GetSingleton()->GetValueTypeSpec();
 }
 }
 

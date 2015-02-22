@@ -30,21 +30,24 @@ private:
   std::string name { "__add" };
 
 public:
+  AddDoubles();
+  ~AddDoubles();
+
   //! @copydoc Function::GetName()
   virtual const std::string &GetName() const { return name; }
 
   //! @copydoc Function::GetArgumentType()
-  virtual const ValueType *GetArgumentType(int n) const;
+  //virtual const ValueType *GetArgumentType(int n) const;
 
   //! @copydoc Function::GetArgumentCount()
-  virtual ExpressionArray::size_type GetArgumentCount() const { return 2; }
+  //virtual ExpressionArray::size_type GetArgumentCount() const { return 2; }
 
   //! @copydoc Function::CreateLLVMInstruction()
   virtual llvm::Value *CreateLLVMInstruction(llvm::IRBuilder<> *irb,
-      const List &args) const;
+      const std::vector<llvm::Value*> &args) const override;
 
-  //! @copydoc Expression::GetValueType()
-  virtual const ValueType *GetValueType() const;
+  //! @copydoc Expression::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
 };
 }
 
