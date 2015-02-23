@@ -557,8 +557,10 @@ namespace Scg
     auto opText = static_cast<ParsedToken*>(cmpExpr->get(1))->getText();
     Expression *expr;
     // Arithmetic operators
-    if (opText.compare("+") == 0)
-      expr = new BinaryOperator(BinaryOperator::ADD, lhs, rhs);
+    if (opText.compare("+") == 0) {
+      //expr = new BinaryOperator(BinaryOperator::ADD, lhs, rhs);
+      expr = new CallFunction("__op_add", new List({lhs, rhs}));
+    }
     else if (opText.compare("-") == 0)
       expr = new BinaryOperator(BinaryOperator::SUBTRACT, lhs, rhs);
     else if (opText.compare("*") == 0)

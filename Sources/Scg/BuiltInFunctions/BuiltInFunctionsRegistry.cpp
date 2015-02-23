@@ -18,13 +18,14 @@
 
 namespace Scg
 {
-BuiltInFunctionsRegistry BuiltInFunctionsRegistry::_theRegistry;
+/*BuiltInFunctionsRegistry *BuiltInFunctionsRegistry::_theRegistry = nullptr;
+bool BuiltInFunctionsRegistry::_theRegistryInitialised = false;
 
 BuiltInFunctionsRegistry::BuiltInFunctionsRegistry()
 {
-  //this->registeredFunctions.Add(new AddIntegers());
-  //this->registeredFunctions.Add(new AddFloats());
-  //this->registeredFunctions.Add(new AddDoubles());
-}
+  this->registeredFunctions.Add(new AddIntegers());
+  this->registeredFunctions.Add(new AddFloats());
+  this->registeredFunctions.Add(new AddDoubles());
+}*/
 }
 

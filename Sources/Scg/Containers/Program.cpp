@@ -12,6 +12,9 @@
 #include <prerequisites.h>
 
 // Scg include files
+#include <BuiltInFunctions/AddDoubles.h>
+#include <BuiltInFunctions/AddFloats.h>
+#include <BuiltInFunctions/AddIntegers.h>
 #include <Containers/Module.h>
 #include <Containers/Program.h>
 #include <LlvmContainer.h>
@@ -27,6 +30,13 @@
 
 namespace Scg
 {
+void Program::InitialiseBuiltInFunctions()
+{
+  this->builtInFunctions.Add(new AddIntegers());
+  this->builtInFunctions.Add(new AddFloats());
+  this->builtInFunctions.Add(new AddDoubles());
+}
+
 bool Program::HasFunction(const std::string &name,
 		const ValueTypeSpecArray &arguments) const
 {
@@ -34,8 +44,6 @@ bool Program::HasFunction(const std::string &name,
 	return nonConstThis->FindDefineFunction(name, arguments).size() > 0 ||
 			nonConstThis->FindDeclareFunction(name, arguments).size() > 0;
 }
-
-//------------------------------------------------------------------------------
 
 std::vector<Function *> Program::GetFunction(
     const std::string &funcName, const ValueTypeSpecArray &arguments)
@@ -50,22 +58,29 @@ std::vector<Function *> Program::GetFunction(
   return matches;
 }
 
-//------------------------------------------------------------------------------
-
 std::vector<Function *> Program::MatchFunction(
     const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
   std::vector<Function *> matches;
-  for (auto module : this->modules)
-  {
+  for (auto module : this->modules) {
     auto defFunc = module->MatchFunction(funcName, arguments);
-    if (defFunc != nullptr)
+    if (defFunc != nullptr) {
       matches.push_back(defFunc);
+    }
   }
+
+  if (matches.empty()) {
+    // The module is not needed, so we pass the first one.
+    // TODO: Remove the need to pass a module when it is not needed.
+    auto match = this->builtInFunctions.Match(*this->modules[0], funcName,
+        arguments);
+    if (match != nullptr) {
+      matches.push_back(match);
+    }
+  }
+
   return matches;
 }
-
-//------------------------------------------------------------------------------
 
 std::vector<DefineFunction*> Program::FindDefineFunction(
     const std::string &funcName, const ValueTypeSpecArray &arguments)
@@ -80,8 +95,6 @@ std::vector<DefineFunction*> Program::FindDefineFunction(
   return matches;
 }
 
-//------------------------------------------------------------------------------
-
 std::vector<DeclareExtFunction*> Program::FindDeclareFunction(const std::string &funcName,
     const ValueTypeSpecArray &arguments)
 {
@@ -94,8 +107,6 @@ std::vector<DeclareExtFunction*> Program::FindDeclareFunction(const std::string 
   }
   return matches;
 }
-
-//------------------------------------------------------------------------------
 
 std::string Program::Compile()
 {
@@ -146,8 +157,6 @@ std::string Program::Compile()
 
   return out;
 }
-
-//------------------------------------------------------------------------------
 
 void Program::Execute(const char *functionName)
 {

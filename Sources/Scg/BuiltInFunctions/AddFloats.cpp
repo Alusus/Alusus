@@ -23,8 +23,8 @@ namespace Scg
 {
 AddFloats::AddFloats()
 {
-  this->argTypeSpecs.push_back(new ValueTypeSpecByName("int"));
-  this->argTypeSpecs.push_back(new ValueTypeSpecByName("int"));
+  this->argTypeSpecs.push_back(new ValueTypeSpecByName("float"));
+  this->argTypeSpecs.push_back(new ValueTypeSpecByName("float"));
 }
 
 AddFloats::~AddFloats()

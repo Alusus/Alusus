@@ -27,7 +27,7 @@ private:
   //! Storing the binary operator so that it can be freed after code generation.
   llvm::Value *llvmValue = nullptr;
   //! Storing the name of the function.
-  std::string name { "__add" };
+  std::string name { "__op_add" };
 
 public:
   AddIntegers();

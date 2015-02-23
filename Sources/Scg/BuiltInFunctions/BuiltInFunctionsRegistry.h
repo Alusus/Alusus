@@ -17,43 +17,48 @@
 
 namespace Scg
 {
-/**
-* A singleton class containing all registered built-in functions which are
-* available to any Alusus program.
-*/
-class BuiltInFunctionsRegistry
-{
-private:
-  //! A function store containing all registered functions.
-  FunctionStore registeredFunctions;
-
-private:
-  /**
-  * Default class constructor. This cannot be instantiated by the user because
-  * it is a singleton.
-  */
-  BuiltInFunctionsRegistry();
-
-  /**
-  * Default class destructor.
-  */
-  ~BuiltInFunctionsRegistry()
-  {
-  }
-
-private:
-  static BuiltInFunctionsRegistry _theRegistry;
-
-public:
-  /**
-  * Retrieves the single instance of this class.
-  * @return A reference to the single instance of this class.
-  */
-  BuiltInFunctionsRegistry &getSingleton()
-  {
-    return _theRegistry;
-  }
-};
+// /**
+// * A singleton class containing all registered built-in functions which are
+// * available to any Alusus program.
+// */
+// class BuiltInFunctionsRegistry
+// {
+// private:
+//   //! A function store containing all registered functions.
+//   FunctionStore registeredFunctions;
+//
+// private:
+//   /**
+//   * Default class constructor. This cannot be instantiated by the user because
+//   * it is a singleton.
+//   */
+//   BuiltInFunctionsRegistry();
+//
+//   /**
+//   * Default class destructor.
+//   */
+//   ~BuiltInFunctionsRegistry()
+//   {
+//   }
+//
+// private:
+//   static BuiltInFunctionsRegistry _theRegistry;
+//   static bool _theRegistryInitialised;
+//
+// public:
+//   /**
+//   * Retrieves the single instance of this class.
+//   * @return A reference to the single instance of this class.
+//   */
+//   BuiltInFunctionsRegistry &getSingleton()
+//   {
+//     if (_theRegistry) {
+//       _theRegistry = new
+//     }
+//
+//     return _theRegistry;
+//   }
+// };
 }
 
 #endif // __Callable_h__

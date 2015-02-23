@@ -43,12 +43,17 @@ class Program
   ModuleArray modules;
   //! The LLVM module representing this program.
   llvm::Module *llvmModule = nullptr;
+  //! A store containing built-in functions.
+  FunctionStore builtInFunctions;
 
 public:
   /**
    * Class constructor.
    */
-  Program() {}
+  Program()
+  {
+    InitialiseBuiltInFunctions();
+  }
 
   /**
    * Class destructor.
@@ -60,6 +65,9 @@ public:
     }
     this->modules.clear();
   }
+
+private:
+  void InitialiseBuiltInFunctions();
 
 public:
   const ModuleArray &GetModules() const { return modules; }
