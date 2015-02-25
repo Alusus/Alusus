@@ -48,8 +48,14 @@ ADD_PRECOMPILED_HEADER(AlususCore "core.h")
 target_link_libraries(AlususCore AlususCoreLib AlususStorage "dl")
 
 # Set library and executable output names.
+# NOTE: For alusus_storage, we'll use the same filename for both debug and
+#       release versions. This is important in cases where the user is running
+#       the debug version of the core and is including a release version of a
+#       library that also need to link to alusus_storage. We should only have
+#       one alusus_storage loaded so that there is only one global storage.
+#       Having two separate global storages may result in undefined behavior.
 set_target_properties(AlususStorage PROPERTIES OUTPUT_NAME alusus_storage)
-set_target_properties(AlususStorage PROPERTIES DEBUG_OUTPUT_NAME alusus_storage_d)
+set_target_properties(AlususStorage PROPERTIES DEBUG_OUTPUT_NAME alusus_storage)
 set_target_properties(AlususStorage PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususStorage PROPERTIES SOVERSION ${AlususSoVersion})
 set_target_properties(AlususCoreLib PROPERTIES OUTPUT_NAME alusus)
@@ -58,6 +64,7 @@ set_target_properties(AlususCoreLib PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususCore PROPERTIES OUTPUT_NAME alusus)
 set_target_properties(AlususCore PROPERTIES DEBUG_OUTPUT_NAME alusus_d)
 set_target_properties(AlususCore PROPERTIES VERSION ${AlususVersion})
+set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../Lib/")
 
 # Copy libary header files to installation directory.
 install_files("/Include/Core" FILES core.h core_global_storage.h)

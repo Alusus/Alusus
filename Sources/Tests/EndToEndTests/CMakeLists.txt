@@ -55,7 +55,7 @@ set_target_properties(AlususE2ETests PROPERTIES VERSION ${AlususVersion})
 llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES core jit native)
 
 # Finally, we link Alusus libraries to our UnitTests project.
-target_link_libraries(AlususE2ETests AlususCoreLib AlususScg AlususStorage "dl")
+target_link_libraries(AlususE2ETests AlususCoreLib AlususStorage "dl")
 
 # Copy end-to-end test files to the build directory
 install(FILES ${AlususE2ETests_Test_Files} DESTINATION "${AlususE2ETests_BINARY_DIR}")
@@ -73,5 +73,4 @@ add_test(NAME AlususE2ETests
   COMMAND AlususE2ETests
   WORKING_DIRECTORY "${AlususE2ETests_BINARY_DIR}")
 set_tests_properties(AlususE2ETests PROPERTIES
-  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususScg_BINARY_DIR}"
-  ENVIRONMENT "ALUSUS_LIBS=${AlususSrt_SOURCE_DIR}")
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususScg_BINARY_DIR};ALUSUS_LIBS=${AlususSrt_SOURCE_DIR}")
