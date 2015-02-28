@@ -1,0 +1,17 @@
+import "common.alusus";
+
+def Add : module {
+  def main : function() {
+    def i : int;
+    def d : double;
+    i := 1;
+    d := 2.0;
+    printDouble(i-d);
+    print("\n");
+    printInt(1234-5678);
+    print("\n");
+    return 0;
+  }
+};
+
+run Add;

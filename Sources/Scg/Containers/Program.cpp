@@ -12,9 +12,7 @@
 #include <prerequisites.h>
 
 // Scg include files
-#include <BuiltInFunctions/AddDoubles.h>
-#include <BuiltInFunctions/AddFloats.h>
-#include <BuiltInFunctions/AddIntegers.h>
+#include <BuiltInFunctions/BasicBuiltInFunction.h>
 #include <Containers/Module.h>
 #include <Containers/Program.h>
 #include <LlvmContainer.h>
@@ -32,9 +30,27 @@ namespace Scg
 {
 void Program::InitialiseBuiltInFunctions()
 {
-  this->builtInFunctions.Add(new AddIntegers());
-  this->builtInFunctions.Add(new AddFloats());
-  this->builtInFunctions.Add(new AddDoubles());
+  // Add functions
+  this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
+      "int", "int", "int",
+      [](auto irb, auto a, auto b) { return irb->CreateAdd(a, b); }));
+  this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
+      "float", "float", "float",
+      [](auto irb, auto a, auto b) { return irb->CreateFAdd(a, b); }));
+  this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
+      "double", "double", "double",
+      [](auto irb, auto a, auto b) { return irb->CreateFAdd(a, b); }));
+
+  // Subtract function
+  this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
+      "int", "int", "int",
+      [](auto irb, auto a, auto b) { return irb->CreateSub(a, b); }));
+  this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
+      "float", "float", "float",
+      [](auto irb, auto a, auto b) { return irb->CreateFSub(a, b); }));
+  this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
+      "double", "double", "double",
+      [](auto irb, auto a, auto b) { return irb->CreateFSub(a, b); }));
 }
 
 bool Program::HasFunction(const std::string &name,

@@ -559,10 +559,12 @@ namespace Scg
     // Arithmetic operators
     if (opText.compare("+") == 0) {
       //expr = new BinaryOperator(BinaryOperator::ADD, lhs, rhs);
-      expr = new CallFunction("__op_add", new List({lhs, rhs}));
+      expr = new CallFunction("__add", new List({lhs, rhs}));
     }
-    else if (opText.compare("-") == 0)
-      expr = new BinaryOperator(BinaryOperator::SUBTRACT, lhs, rhs);
+    else if (opText.compare("-") == 0) {
+      //expr = new BinaryOperator(BinaryOperator::SUBTRACT, lhs, rhs);
+      expr = new CallFunction("__sub", new List({lhs, rhs}));
+    }
     else if (opText.compare("*") == 0)
       expr = new BinaryOperator(BinaryOperator::MULTIPLY, lhs, rhs);
     else if (opText.compare("/") == 0)

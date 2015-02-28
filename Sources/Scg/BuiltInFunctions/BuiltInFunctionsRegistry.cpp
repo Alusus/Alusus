@@ -12,9 +12,6 @@
 #include <prerequisites.h>
 
 #include <BuiltInFunctions/BuiltInFunctionsRegistry.h>
-#include <BuiltInFunctions/AddIntegers.h>
-#include <BuiltInFunctions/AddFloats.h>
-#include <BuiltInFunctions/AddDoubles.h>
 
 namespace Scg
 {

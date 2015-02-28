@@ -14,9 +14,6 @@
 
 #include <prerequisites.h>
 
-#include <BuiltInFunctions/AddDoubles.h>
-#include <BuiltInFunctions/AddFloats.h>
-#include <BuiltInFunctions/AddIntegers.h>
 #include <CodeGeneration/CodeGenerator.h>
 #include <Containers/Block.h>
 #include <Containers/List.h>
