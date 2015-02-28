@@ -42,7 +42,7 @@ llvm::Value *AddIntegers::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
 		// Instead, it should use a user friendly name, e.g. operator +.
 		// TODO: Should we use CompilationErrorException? Should we derive from that an
 		// exception specific for the invalid number of arguments.
-		THROW_EXCEPTION(CompilationErrorException,
+		throw EXCEPTION(CompilationErrorException,
 				"AddIntegers built-in function requires two arguments.");
 
   return irb->CreateAdd(args[0], args[1]);
@@ -53,7 +53,7 @@ llvm::Value *AddIntegers::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
 const ValueType *AddIntegers::GetArgumentType(int n) const
 {
 	if (n < 0 || n > 1)
-		THROW_EXCEPTION(ArgumentOutOfRangeException,
+		throw EXCEPTION(ArgumentOutOfRangeException,
 				"AddIntegers built-in function accepts only two arguments.");
   return IntegerType::GetSingleton();
 }

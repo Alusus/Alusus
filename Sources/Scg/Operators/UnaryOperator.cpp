@@ -38,13 +38,13 @@ Expression::CodeGenerationStage UnaryOperator::GenerateCode()
   {
     auto operand = dynamic_cast<Content*>(GetOperand());
     if (operand == nullptr)
-      THROW_EXCEPTION(InvalidOperationException, "The operand of a unary "
+      throw EXCEPTION(InvalidOperationException, "The operand of a unary "
           "operator must be the content of a pointer.");
     auto operandType = operand->GetValueTypeSpec()->ToValueType(*GetModule());
     if (operandType != IntegerType::GetSingleton() &&
       operandType != FloatType::GetSingleton() &&
       operandType != DoubleType::GetSingleton())
-      THROW_EXCEPTION(InvalidLhsException, "Left-hand side of increment/decrement "
+      throw EXCEPTION(InvalidLhsException, "Left-hand side of increment/decrement "
       "operator must be numeric.");
 
     // Evaluates the expression of the operand, which should result in a
@@ -76,7 +76,7 @@ Expression::CodeGenerationStage UnaryOperator::GenerateCode()
     return Expression::GenerateCode();
   }
 
-  THROW_EXCEPTION(UnreachableCodeException, "This code shouldn't be reached.");
+  throw EXCEPTION(UnreachableCodeException, "This code shouldn't be reached.");
 }
 
 //------------------------------------------------------------------------------

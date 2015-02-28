@@ -71,12 +71,10 @@ class RandomCharGroupUnit : public CharGroupUnit
   public: void setCharList(Char const *list)
   {
     if (list == 0) {
-      throw InvalidArgumentException(STR("list"), STR("Core::Data::RandomCharGroupUnit::setCharList"),
-                                     STR("list is null."));
+      throw EXCEPTION(InvalidArgumentException, STR("list"), STR("list is null."));
     }
     if (this->charList.size() != 0) {
-      throw GeneralException(STR("Modifying an already set char list is not allowed."),
-                             STR("Core::Data::InvertCharGroupUnit::setCharList"));
+      throw EXCEPTION(GenericException, STR("Modifying an already set char list is not allowed."));
     }
     this->charList = list;
   }

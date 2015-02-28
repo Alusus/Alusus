@@ -49,8 +49,8 @@ void LibraryManager::removeLibrary(PtrWord id)
       return;
     }
   }
-  throw InvalidArgumentException(STR("id"), STR("Core::Standard::LibraryManager::removeLibrary"),
-                                 STR("ID not found among loaded libraries."));
+  throw EXCEPTION(InvalidArgumentException, STR("id"),
+                  STR("ID not found among loaded libraries."));
 }
 
 
@@ -70,8 +70,8 @@ LibraryGateway* LibraryManager::getGateway(PtrWord id)
   for (Word i = 0; i < this->entries.size(); ++i) {
     if (this->entries[i].id == id) return this->entries[i].gateway;
   }
-  throw InvalidArgumentException(STR("id"), STR("Core::Standard::LibraryManager::getGateway"),
-                                 STR("ID not found among loaded libraries."));
+  throw EXCEPTION(InvalidArgumentException, STR("id"),
+                  STR("ID not found among loaded libraries."));
 }
 
 
@@ -82,8 +82,8 @@ LibraryGateway* LibraryManager::getGateway(Char const *libId)
       if (this->entries[i].gateway->getLibraryId() == libId) return this->entries[i].gateway;
     }
   }
-  throw InvalidArgumentException(STR("libId"), STR("Core::Standard::LibraryManager::getGateway"),
-                                 STR("ID not found among loaded libraries."), libId);
+  throw EXCEPTION(InvalidArgumentException, STR("libId"),
+                  STR("ID not found among loaded libraries."), libId);
 }
 
 

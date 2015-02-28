@@ -439,16 +439,14 @@ SharedList* LibraryGateway::GetLeadingCommandsList(GrammarRepository *grammarRep
   grammarRepository->get(STR("root:Main.LeadingCmdGrp"), retVal);
   SymbolDefinition *def = io_cast<SymbolDefinition>(retVal.object);
   if (def == 0) {
-      throw GeneralException(STR("Could not find leading command group."),
-                              STR("Scg::LibraryGateway::GetLeadingCommandsList"));
+    throw EXCEPTION(GenericException, STR("Could not find leading command group."));
   }
   GrammarContext context;
   context.setRoot(grammarRepository->getRoot().get());
   SharedMap *vars = context.getSymbolVars(def, retVal.module);
   SharedList *cmd_list = io_cast<SharedList>(vars->get(STR("cmds")));
   if (cmd_list == 0) {
-      throw GeneralException(STR("Could not find leading command group's command list."),
-                              STR("Scg::LibraryGateway::GetLeadingCommandsList"));
+    throw EXCEPTION(GenericException, STR("Could not find leading command group's command list."));
   }
   return cmd_list;
 }
@@ -460,16 +458,14 @@ SharedList* LibraryGateway::GetInnerCommandsList(GrammarRepository *grammarRepos
   grammarRepository->get(STR("root:Subject.SubjectCmdGrp"), retVal);
   SymbolDefinition *def = io_cast<SymbolDefinition>(retVal.object);
   if (def == 0) {
-      throw GeneralException(STR("Could not find inner command group."),
-                              STR("Scg::LibraryGateway::GetInnerCommandsList"));
+    throw EXCEPTION(GenericException, STR("Could not find inner command group."));
   }
   GrammarContext context;
   context.setRoot(grammarRepository->getRoot().get());
   SharedMap *vars = context.getSymbolVars(def, retVal.module);
   SharedList *cmd_list = io_cast<SharedList>(vars->get(STR("cmds")));
   if (cmd_list == 0) {
-      throw GeneralException(STR("Could not find inner command group's command list."),
-                              STR("Scg::LibraryGateway::GetInnerCommandsList"));
+    throw EXCEPTION(GenericException, STR("Could not find inner command group's command list."));
   }
   return cmd_list;
 }
@@ -481,16 +477,14 @@ SharedList* LibraryGateway::GetTildeCommandsList(GrammarRepository *grammarRepos
   grammarRepository->get(STR("root:Expression.DefaultPostfixTildeCmd"), retVal);
   SymbolDefinition *def = io_cast<SymbolDefinition>(retVal.object);
   if (def == 0) {
-      throw GeneralException(STR("Could not find tilde command group."),
-                              STR("Scg::LibraryGateway::GetTildeCommandsList"));
+    throw EXCEPTION(GenericException, STR("Could not find tilde command group."));
   }
   GrammarContext context;
   context.setRoot(grammarRepository->getRoot().get());
   SharedMap *vars = context.getSymbolVars(def, retVal.module);
   SharedList *cmd_list = io_cast<SharedList>(vars->get(STR("cmds")));
   if (cmd_list == 0) {
-      throw GeneralException(STR("Could not find inner command group's command list."),
-                              STR("Scg::LibraryGateway::GetTildeCommandsList"));
+    throw EXCEPTION(GenericException, STR("Could not find inner command group's command list."));
   }
   return cmd_list;
 }

@@ -52,8 +52,7 @@ SharedPtr<IdentifiableObject> RootManager::processFile(Char const *filename)
   // Find the absolute path of the file.
   Str fullPath = this->findAbsolutePath(filename);
   if (fullPath.empty()) {
-    throw InvalidArgumentException(STR("filename"), STR("Core::Standard::RootManager::processFile"),
-                                   STR("File not found."), filename);
+    throw EXCEPTION(InvalidArgumentException, STR("filename"), STR("File not found."), filename);
   }
   // Extract the directory part and add it to the current paths.
   Int pos;
@@ -78,13 +77,11 @@ SharedPtr<IdentifiableObject> RootManager::processFile(Char const *filename)
 void RootManager::pushSearchPath(Char const *path)
 {
   if (path == 0 || *path == CHR('\0')) {
-    throw InvalidArgumentException(STR("path"), STR("Core::Standard::RootManager::pushSearchPath"),
-                                   STR("Argument is null or empty string."));
+    throw EXCEPTION(InvalidArgumentException, STR("path"), STR("Argument is null or empty string."));
   }
   // Only accept absolute paths.
   if (*path != CHR('/')) {
-    throw InvalidArgumentException(STR("path"), STR("Core::Standard::RootManager::pushSearchPath"),
-                                   STR("Path must be an absolute path."));
+    throw EXCEPTION(InvalidArgumentException, STR("path"), STR("Path must be an absolute path."));
   }
   Str fullPath(path);
   if (fullPath.back() != CHR('/')) fullPath += CHR('/');
@@ -104,13 +101,11 @@ void RootManager::pushSearchPath(Char const *path)
 void RootManager::popSearchPath(Char const *path)
 {
   if (path == 0 || *path == CHR('\0')) {
-    throw InvalidArgumentException(STR("path"), STR("Core::Standard::RootManager::popSearchPath"),
-                                   STR("Argument is null or empty string."));
+    throw EXCEPTION(InvalidArgumentException, STR("path"), STR("Argument is null or empty string."));
   }
   // Only accept absolute paths.
   if (*path != CHR('/')) {
-    throw InvalidArgumentException(STR("path"), STR("Core::Standard::RootManager::popSearchPath"),
-                                   STR("Path must be an absolute path."));
+    throw EXCEPTION(InvalidArgumentException, STR("path"), STR("Path must be an absolute path."), path);
   }
   Str fullPath(path);
   if (fullPath.back() != CHR('/')) fullPath += CHR('/');
@@ -126,16 +121,14 @@ void RootManager::popSearchPath(Char const *path)
       return;
     }
   }
-  throw InvalidArgumentException(STR("path"), STR("Core::Standard::RootManager::popSearchPath"),
-                                 STR("Path was not found in the stack."));
+  throw EXCEPTION(InvalidArgumentException, STR("path"), STR("Path was not found in the stack."), path);
 }
 
 
 Str RootManager::findAbsolutePath(Char const *filename)
 {
   if (filename == 0 || *filename == CHR('\0')) {
-    throw InvalidArgumentException(STR("filename"), STR("Core::Standard::RootManager::findAbsolutePath"),
-                                   STR("Argument is null or empty string."));
+    throw EXCEPTION(InvalidArgumentException, STR("filename"), STR("Argument is null or empty string."));
   }
 
   // Is the filename an absolute path already?

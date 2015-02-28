@@ -98,7 +98,7 @@ bool RunSourceFile(const std::string &fileName)
   {
     std::cout << "Failed to run source file " << fileName << "." << std::endl;
     std::cout << "The following error were thrown: " << std::endl;
-    std::cout << e.getErrorMessage() << std::endl;
+    std::cout << e.getVerboseErrorMessage() << std::endl;
     return false;
   }
   catch (...)

@@ -49,7 +49,7 @@ namespace Scg
     //! @copydoc ValueType::GetDefaultLLVMValue()
     virtual llvm::Constant *GetDefaultLLVMValue() const
     {
-      THROW_EXCEPTION(NotImplementedException, "Not implemented yet!");
+      throw EXCEPTION(NotImplementedException, "Not implemented yet!");
     }
 
     //! @copydoc ValueType::GetValueTypeSpec()
@@ -80,13 +80,13 @@ namespace Scg
     //! @copydoc ValueType::GetImplicitCastingOperator()
     virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
     {
-      THROW_EXCEPTION(InvalidOperationException, "Void type cannot be casted.");
+      throw EXCEPTION(InvalidOperationException, "Void type cannot be casted.");
     };
 
     //! @copydoc ValueType::GetExplicitCastingOperator()
     virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
     {
-      THROW_EXCEPTION(NotImplementedException, "Void type cannot be casted.");
+      throw EXCEPTION(NotImplementedException, "Void type cannot be casted.");
     }
   };
 }

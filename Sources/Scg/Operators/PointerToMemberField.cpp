@@ -40,12 +40,12 @@ const ValueTypeSpec * PointerToMemberField::GetValueTypeSpec() const
   auto typeSpec = this->expression->GetValueTypeSpec();
   auto pointerType = dynamic_cast<PointerType*>(typeSpec->ToValueType(*module));
   if (pointerType == nullptr)
-    THROW_EXCEPTION(InvalidArgumentException, "The expression passed to "
+    throw EXCEPTION(InvalidArgumentException, "The expression passed to "
         "PointerToMemberField should be a pointer to a structure.");
   auto contType = pointerType->GetContentType();
   auto structType = dynamic_cast<StructType*>(const_cast<ValueType*>(contType));
   if (structType == nullptr) {
-    THROW_EXCEPTION(InvalidArgumentException, "Non-structure variable types "
+    throw EXCEPTION(InvalidArgumentException, "Non-structure variable types "
         "doesn't have fields to access.");
   }
 
@@ -67,12 +67,12 @@ Expression::CodeGenerationStage PointerToMemberField::GenerateCode()
   auto module = GetModule();
   auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueTypeSpec()->ToValueType(*module));
   if (pointerType == nullptr) {
-    THROW_EXCEPTION(InvalidArgumentException, "The expression passed to "
+    throw EXCEPTION(InvalidArgumentException, "The expression passed to "
         "PointerToMemberField should be a pointer to a structure.");
   }
   auto structType = dynamic_cast<StructType*>(const_cast<ValueType*>(pointerType->GetContentType()));
   if (structType == nullptr) {
-    THROW_EXCEPTION(InvalidArgumentException, "Non-structure variable types "
+    throw EXCEPTION(InvalidArgumentException, "Non-structure variable types "
         "doesn't have fields to access.");
   }
   auto zero = IntegerType::GetSingleton()->GetLlvmConstant(0);

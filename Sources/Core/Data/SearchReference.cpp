@@ -33,8 +33,7 @@ Bool SearchReference::setValue(Provider *provider, IdentifiableObject *parent,
                               IdentifiableObject *obj, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::SearchReference::setValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (index < 0) return false;
   Container *container = parent->getInterface<Container>();
@@ -63,8 +62,7 @@ Bool SearchReference::setValue(Provider *provider, IdentifiableObject *parent,
 Bool SearchReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::SearchReference::removeValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (index < 0) return false;
   Container *container;
@@ -96,8 +94,7 @@ Bool SearchReference::getValue(Provider *provider, IdentifiableObject *parent,
                               IdentifiableObject *&result, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::SearchReference::getValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (index < 0) return false;
   Container const *container;

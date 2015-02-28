@@ -187,12 +187,10 @@ void GenericParsingHandler::onConcatStep(Processing::Parser *parser, Processing:
   if (term->getFlags() & ParsingFlags::PASS_UP) {
     // We shouldn't be at the root level.
     if (state->isAtProdRoot()) {
-      throw GeneralException(STR("PASS_UP parsing flag is not allowed for produciton root list terms."),
-                             STR("Core::Standard::GenericParsingHandler::onConcatStep"));
+      throw EXCEPTION(GenericException, STR("PASS_UP parsing flag is not allowed for produciton root list terms."));
     }
     if (term->getFlags() & ParsingFlags::FORCE_LIST) {
-      throw GeneralException(STR("FORCE_LIST parsing flag cannot be used with PASS_UP"),
-                             STR("Core::Standard::GenericParsingHandler::onConcatStep"));
+      throw EXCEPTION(GenericException, STR("FORCE_LIST parsing flag cannot be used with PASS_UP"));
     }
     return;
   }
@@ -262,12 +260,10 @@ void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *parser, 
     if (term->getFlags() & ParsingFlags::PASS_UP) {
       // We shouldn't be at the root level.
       if (state->isAtProdRoot()) {
-        throw GeneralException(STR("PASS_UP parsing flag is not allowed for produciton root list terms."),
-                               STR("Core::Standard::GenericParsingHandler::onMultiplyRouteDecision"));
+        throw EXCEPTION(GenericException, STR("PASS_UP parsing flag is not allowed for produciton root list terms."));
       }
       if (term->getFlags() & ParsingFlags::FORCE_LIST) {
-        throw GeneralException(STR("FORCE_LIST parsing flag cannot be used with PASS_UP"),
-                               STR("Core::Standard::GenericParsingHandler::onMultiplyRouteDecision"));
+        throw EXCEPTION(GenericException, STR("FORCE_LIST parsing flag cannot be used with PASS_UP"));
       }
       return;
     }
@@ -319,19 +315,18 @@ void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &da
        (state->getMultiplyTermMin(levelIndex) == 0 || state->getMultiplyTermMin(levelIndex)->get() == 0) &&
        (state->getMultiplyTermMax(levelIndex) != 0 && state->getMultiplyTermMax(levelIndex)->get() == 1))) {
     if ((termLevel.getTerm()->getFlags() & ParsingFlags::FORCE_LIST)) {
-      throw GeneralException(STR("FORCE_LIST parsing flag is not allowed for optional or "
-                                 "alternative terms."),
-                             STR("Core::Standard::GenericParsingHandler::setChildData"));
+      throw EXCEPTION(GenericException,
+                      STR("FORCE_LIST parsing flag is not allowed for optional or alternative terms."));
     }
     if (termLevel.getTerm()->getFlags() & ParsingFlags::PASS_UP) {
       // This is a pass up route based term, so set the data to the upper level directly.
       // But only if the data is not omissible in the first place.
       if ((data == 0) && (termLevel.getTerm()->getFlags() & ParsingFlags::OMISSIBLE)) return;
       if (state->getData(levelIndex) != 0) {
-        throw GeneralException(STR("Trying to set data to an alternative or optional term that already has"
-                                   " data. Is a concat or duplicate term trying to PASS_UP multiple data "
-                                   "to an upper alternative or optional term?"),
-                               STR("Core::Standard::GenericParsingHandler::setChildData"));
+        throw EXCEPTION(GenericException,
+                        STR("Trying to set data to an alternative or optional term that already has"
+                            " data. Is a concat or duplicate term trying to PASS_UP multiple data "
+                            "to an upper alternative or optional term?"));
       }
       ASSERT(state->getData(levelIndex) == 0);
       if (state->isAProdRoot(levelIndex)) {
@@ -348,10 +343,10 @@ void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &da
       this->prepareToModifyData(state, levelIndex);
       ParsedRoute *route = state->getData(levelIndex).io_cast_get<ParsedRoute>();
       if (route->getData() != 0) {
-        throw GeneralException(STR("Trying to set data to an alternative or optional term that already has"
-                                   " data. Is a concat or duplicate term trying to PASS_UP multiple data "
-                                   "to an upper alternative or optional term?"),
-                               STR("Core::Standard::GenericParsingHandler::setChildData"));
+        throw EXCEPTION(GenericException,
+                        STR("Trying to set data to an alternative or optional term that already has"
+                            " data. Is a concat or duplicate term trying to PASS_UP multiple data "
+                            "to an upper alternative or optional term?"));
       }
       route->setData(data);
     }
@@ -366,12 +361,10 @@ void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &da
       // This data should be passed up.
       // But we shouldn't be at the root level already.
       if (state->isAProdRoot(levelIndex)) {
-        throw GeneralException(STR("PASS_UP parsing flag is not allowed for produciton root list terms."),
-                               STR("Core::Standard::GenericParsingHandler::setChildData"));
+        throw EXCEPTION(GenericException, STR("PASS_UP parsing flag is not allowed for produciton root list terms."));
       }
       if (termLevel.getTerm()->getFlags() & ParsingFlags::FORCE_LIST) {
-        throw GeneralException(STR("FORCE_LIST parsing flag cannot be used with PASS_UP"),
-                               STR("Core::Standard::GenericParsingHandler::setChildData"));
+        throw EXCEPTION(GenericException, STR("FORCE_LIST parsing flag cannot be used with PASS_UP"));
       }
       ASSERT(state->getData(levelIndex) == 0);
       this->setChildData(data, state, levelIndex - 1);

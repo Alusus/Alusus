@@ -25,8 +25,7 @@ namespace Core { namespace Data
 void unsetIndexes(IdentifiableObject *obj, Int from, Int to)
 {
   if (obj == 0) {
-    throw InvalidArgumentException(STR("obj"), STR("Core::Data::unsetIndexes"),
-                                   STR("Obj is null."));
+    throw EXCEPTION(InvalidArgumentException, STR("obj"), STR("Obj is null."));
   }
   DataOwner *mt = obj->getInterface<DataOwner>();
   if (mt != 0) mt->unsetIndexes(from, to);
@@ -64,16 +63,14 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit)
   if (unit->isA<SequenceCharGroupUnit>()) {
     SequenceCharGroupUnit *u = static_cast<SequenceCharGroupUnit*>(unit);
     if (u->getStartCode() == 0 && u->getEndCode() == 0) {
-      throw GeneralException(STR("Sequence char group unit is not configured yet."),
-                             STR("Core::Data::matchCharGroup"));
+      throw EXCEPTION(GenericException, STR("Sequence char group unit is not configured yet."));
     }
     if (ch >= u->getStartCode() && ch <= u->getEndCode()) return true;
     else return false;
   } else if (unit->isA<RandomCharGroupUnit>()) {
     RandomCharGroupUnit *u = static_cast<RandomCharGroupUnit*>(unit);
     if (u->getCharList() == 0) {
-      throw GeneralException(STR("Random char group unit is not configured yet."),
-                             STR("Core::Data::matchCharGroup"));
+      throw EXCEPTION(GenericException, STR("Random char group unit is not configured yet."));
     }
     for (Int i = 0; i < u->getCharListSize(); i++) {
       if (u->getCharList()[i] == ch) return true;
@@ -82,8 +79,7 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit)
   } else if (unit->isA<UnionCharGroupUnit>()) {
     UnionCharGroupUnit *u = static_cast<UnionCharGroupUnit*>(unit);
     if (u->getCharGroupUnits()->size() == 0) {
-      throw GeneralException(STR("Union char group unit is not configured yet."),
-                             STR("Core::Data::matchCharGroup"));
+      throw EXCEPTION(GenericException, STR("Union char group unit is not configured yet."));
     }
     for (Int i = 0; i < static_cast<Int>(u->getCharGroupUnits()->size()); i++) {
       if (matchCharGroup(ch, u->getCharGroupUnits()->at(i).get()) == true) {
@@ -94,8 +90,7 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit)
   } else if (unit->isA<InvertCharGroupUnit>()) {
     InvertCharGroupUnit *u = static_cast<InvertCharGroupUnit*>(unit);
     if (u->getChildCharGroupUnit() == 0) {
-      throw GeneralException(STR("Invert char group unit is not configured yet."),
-                             STR("Core::Data::matchCharGroup"));
+      throw EXCEPTION(GenericException, STR("Invert char group unit is not configured yet."));
     }
     if (matchCharGroup(ch, u->getChildCharGroupUnit().get()) == true) {
       return false;
@@ -103,8 +98,7 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit)
       return true;
     }
   } else {
-    throw GeneralException(STR("Invalid char group type."),
-                           STR("Core::Data::matchCharGroup"));
+    throw EXCEPTION(GenericException, STR("Invalid char group type."));
   }
   return false; // just to prevent warnings
 }

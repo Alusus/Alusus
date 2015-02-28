@@ -62,7 +62,7 @@ Expression::CodeGenerationStage CastToFloat::GenerateCode()
         FloatType::GetSingleton()->GetSingleton()->GetLlvmType()));
     this->generatedLlvmValue = this->llvmCastInst;
   } else {
-    THROW_EXCEPTION(ArgumentOutOfRangeException,
+    throw EXCEPTION(ArgumentOutOfRangeException,
         "The operand of CastToFloat operator should be integer, float, or double.");
   }
 

@@ -43,9 +43,8 @@ ListTerm::ListTerm(const std::initializer_list<Argument<TermElement>> &args)
       case TermElement::REF:
         this->targetRef = arg.ioVal.io_cast<Reference>();
         if (this->targetRef == 0 && arg.ioVal != 0) {
-          throw InvalidArgumentException(STR("ref"), STR("Core::Data::ListTerm::ListTerm"),
-                                         STR("Object must be of type Reference."),
-                                         arg.ioVal->getMyTypeInfo()->getUniqueName());
+          throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Object must be of type Reference."),
+                          arg.ioVal->getMyTypeInfo()->getUniqueName());
         }
         break;
       case TermElement::DATA:
@@ -57,28 +56,23 @@ ListTerm::ListTerm(const std::initializer_list<Argument<TermElement>> &args)
     }
   }
   if (this->terms == 0) {
-    throw InvalidArgumentException(STR("term"), STR("Core::Data::ListTerm::ListTerm"),
-                                   STR("Must not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("term"), STR("Must not be null."));
   } else if (this->terms->isDerivedFrom<SharedList>()) {
     if (this->data != 0 && !this->data->isDerivedFrom<SharedList>() && this->data->isDerivedFrom<Integer>() &&
         !this->data->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("data"), STR("Core::Data::ListTerm::ListTerm"),
-                                     STR("Filters must be of type SharedList, Integer or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Filters must be of type SharedList, Integer or Reference."));
     }
   } else if (this->terms->isDerivedFrom<Term>()) {
     if (this->data == 0 || (!this->data->isDerivedFrom<SharedList>() &&
                             !this->data->isDerivedFrom<Reference>())) {
-      throw InvalidArgumentException(STR("data"), STR("Core::Data::ListTerm::ListTerm"),
-                                     STR("Data must be of type SharedList or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Data must be of type SharedList or Reference."));
     }
     if (this->targetRef == 0) {
-      throw InvalidArgumentException(STR("ref"), STR("Core::Data::ListTerm::ListTerm"),
-                                     STR("Target variable must be provided with data lists."));
+      throw EXCEPTION(InvalidArgumentException, STR("ref"),  STR("Target variable must be provided with data lists."));
     }
   } else {
-    throw InvalidArgumentException(STR("term"), STR("Core::Data::ListTerm::ListTerm"),
-                                   STR("Provided object is of an invalid type."),
-                                   this->terms->getMyTypeInfo()->getUniqueName());
+    throw EXCEPTION(InvalidArgumentException, STR("term"), STR("Provided object is of an invalid type."),
+                    this->terms->getMyTypeInfo()->getUniqueName());
   }
 }
 
@@ -96,14 +90,13 @@ ListTerm::ListTerm(const std::initializer_list<Argument<TermElement>> &args)
 void ListTerm::setStatic(const SharedPtr<SharedList> &terms, SharedPtr<IdentifiableObject> const &filter)
 {
   if (terms == 0) {
-    throw InvalidArgumentException(STR("terms"), STR("Core::Data::ListTerm::setStatic"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("terms"), STR("Cannot be null."));
   }
   if (filter != 0 && !filter->isA<SharedList>() &&
       !filter->isA<Integer>() &&
       !filter->isDerivedFrom<Reference>()) {
-    throw InvalidArgumentException(STR("filter"), STR("Core::Data::ListTerm::setStatic"),
-                                   STR("Must be either SharedList, Integer, or a Reference."));
+    throw EXCEPTION(InvalidArgumentException, STR("filter"),
+                    STR("Must be either SharedList, Integer, or a Reference."));
   }
   this->terms = terms;
   this->data = filter;
@@ -121,16 +114,13 @@ void ListTerm::setDynamic(const SharedPtr<Term> &term, SharedPtr<IdentifiableObj
                           const SharedPtr<Reference> &ref)
 {
   if (term == 0) {
-    throw InvalidArgumentException(STR("term"), STR("Core::Data::ListTerm::setDynamic"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("term"), STR("Cannot be null."));
   }
   if (data == 0 || (!data->isA<SharedList>() && !data->isDerivedFrom<Reference>())) {
-    throw InvalidArgumentException(STR("data"), STR("Core::Data::ListTerm::setDynamic"),
-                                   STR("Must be of type SharedList or Reference."));
+    throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Must be of type SharedList or Reference."));
   }
   if (ref == 0) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::ListTerm::setDynamic"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
   }
   this->terms = term;
   this->data = data;
@@ -156,12 +146,11 @@ SharedPtr<Term> ListTerm::getTerm(Int index) const
   SharedList *list = io_cast<SharedList>(this->terms.get());
   if (list) {
     if (static_cast<Word>(index) >= list->getCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::ListTerm::getTerm"),
-                                     STR("Out of range."));
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
     }
     SharedPtr<Term> term = list->getShared(index).s_cast<Term>();
     if (!term->isDerivedFrom<Term>()) {
-      throw GeneralException(STR("List contains a non-Term object."), STR("Core::Data::ListTerm::getTerm"));
+      throw EXCEPTION(GenericException, STR("List contains a non-Term object."));
     }
     return term;
   } else {
@@ -177,8 +166,7 @@ SharedPtr<Term> ListTerm::getTerm(Int index) const
 void ListTerm::setTargetRef(const SharedPtr<Reference> &ref)
 {
   if (!this->isDynamic()) {
-    throw GeneralException(STR("Can set target var only for dynamic lists."),
-                           STR("Core::Data::ListTerm::setTargetRef"));
+    throw EXCEPTION(GenericException, STR("Can set target var only for dynamic lists."));
   }
   this->targetRef = ref;
 }

@@ -61,8 +61,9 @@ public:
   {
     auto it = allocatedBuffers.find(ptr);
     if (it == allocatedBuffers.end()) {
-      THROW_EXCEPTION(MemoryException, "The given pointer doesn't exist "
-          "in this AutoDeleteAllocater.");
+      throw EXCEPTION(MemoryException, CHR('f'),
+                      STR("The given pointer doesn't exist "
+                          "in this AutoDeleteAllocater."));
     }
     free(ptr);
     allocatedBuffers.erase(it);

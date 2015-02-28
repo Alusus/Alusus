@@ -229,8 +229,7 @@ class ParsedRoute : public IdentifiableObject,
     if (index == 0) {
       this->data = getSharedPtr(val, true);
     } else {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::ParsedRoute::set"),
-                                     STR("index must be 0."));
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Must be 0 for this class."));
     }
   }
 
@@ -238,8 +237,7 @@ class ParsedRoute : public IdentifiableObject,
   public: virtual void remove(Int index)
   {
     if (index != 0) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::ParsedRoute::remove"),
-                                     STR("index must be 0."));
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Must be 0 for this class."));
     }
     this->data.reset();
   }
@@ -254,8 +252,7 @@ class ParsedRoute : public IdentifiableObject,
   public: virtual IdentifiableObject* get(Int index) const
   {
     if (index != 0) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::ParsedRoute::get"),
-                                     STR("index must be 0."));
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Must be 0 for this class."));
     }
     return this->data.get();
   }

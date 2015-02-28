@@ -174,13 +174,11 @@ ParserTermLevel& ParserState::refTermLevel(Int i)
   // Validate i and convert it into positive indexing if it's currently negative.
   if (i >= 0) {
     if (i >= this->getTermLevelCount()) {
-      throw GeneralException(STR("This state has an empty term stack, or i is out of range."),
-                             STR("Core::Processing::ParserState::refTermLevel"));
+      throw EXCEPTION(GenericException, STR("This state has an empty term stack, or i is out of range."));
     }
   } else {
     if (-(i) > this->getTermLevelCount()) {
-      throw GeneralException(STR("Given state has an empty term stack, or i is out of range."),
-                             STR("Core::Processing::ParserState::refTermLevel"));
+      throw EXCEPTION(GenericException, STR("Given state has an empty term stack, or i is out of range."));
     }
     i = this->getTermLevelCount() + i;
   }
@@ -206,8 +204,7 @@ Int ParserState::getTopprodTermLevelCount() const
 {
   // The first level does not belong to any production, so we need at least 2 levels.
   if (this->getTermLevelCount() <= 1) {
-    throw GeneralException(STR("This state has an empty term stack."),
-                           STR("Core::Processing::ParserState::getTopprodTermLevelCount"));
+    throw EXCEPTION(GenericException, STR("This state has an empty term stack."));
   }
   ASSERT(this->getProdLevelCount() > 0);
   // Find the production root, then get its data.
@@ -309,13 +306,11 @@ ParserProdLevel& ParserState::refProdLevel(Int i)
   // Validate i and convert it into positive indexing if it's currently negative.
   if (i >= 0) {
     if (i >= this->getProdLevelCount()) {
-      throw GeneralException(STR("This state has an empty production stack, or i is out of range."),
-                             STR("Core::Processing::ParserState::refProdLevel"));
+      throw EXCEPTION(GenericException, STR("This state has an empty production stack, or i is out of range."));
     }
   } else {
     if (-(i) > this->getTermLevelCount()) {
-      throw GeneralException(STR("Given state has an empty production stack, or i is out of range."),
-                             STR("Core::Processing::ParserState::refProdLevel"));
+      throw EXCEPTION(GenericException, STR("Given state has an empty production stack, or i is out of range."));
     }
     i = this->getProdLevelCount() + i;
   }
@@ -558,8 +553,7 @@ void ParserState::ownTopTermLevel()
   ASSERT(this->trunkState != 0);
   ASSERT(this->tempTrunkTermStackIndex >= 0);
   if (static_cast<Int>(this->trunkState->getTermLevelCount()) <= this->tempTrunkTermStackIndex) {
-    throw GeneralException(STR("Trunk state has been modified."),
-                           STR("Core::Processing::ParserState::ownTopTermLevel"));
+    throw EXCEPTION(GenericException, STR("Trunk state has been modified."));
   }
   ParserTermLevel &srcLevel = this->trunkState->refTermLevel(this->tempTrunkTermStackIndex);
   this->tempTrunkTermStackIndex--;
@@ -628,13 +622,10 @@ void ParserState::copyTermLevel(ParserState *src, Int offset)
 void ParserState::setTrunkSharedBuildMsgCount(Int count)
 {
   if (this->trunkState == 0) {
-    throw GeneralException(STR("No trunk state set for this state."),
-                           STR("Core::Processing::ParserState::setTrunkSharedBuildMsgCount"));
+    throw EXCEPTION(GenericException, STR("No trunk state set for this state."));
   }
   if (count < 0 || count > this->trunkState->getBuildMsgCount()) {
-    throw InvalidArgumentException(STR("count"),
-                                   STR("Core::Processing::ParserState::setTrunkSharedBuildMsgCount"),
-                                   STR("Out of range."), count);
+    throw EXCEPTION(InvalidArgumentException, STR("count"), STR("Out of range."), count);
   }
   this->trunkSharedBuildMsgCount = count;
 }
@@ -649,8 +640,7 @@ void ParserState::setTrunkSharedBuildMsgCount(Int count)
 void ParserState::copyTrunkSharedBuildMsgs()
 {
   if (this->trunkState == 0) {
-    throw GeneralException(STR("No trunk state set for this state."),
-                           STR("Core::Processing::ParserState::copyTrunkSharedBuildMsgs"));
+    throw EXCEPTION(GenericException, STR("No trunk state set for this state."));
   }
   ASSERT(this->trunkSharedBuildMsgCount >= 0 &&
          this->trunkSharedBuildMsgCount <= this->trunkState->getTrunkSharedBuildMsgCount());

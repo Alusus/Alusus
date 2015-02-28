@@ -26,7 +26,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
     const shared_ptr<ParsedList> &astRoot) : autoDelete(false)
 {
   if (astRoot->getProdId() != gen->GetFunctionId())
-    THROW_EXCEPTION(InvalidArgumentException,
+    throw EXCEPTION(InvalidArgumentException,
         "Functions can be constructed from Function parsed items only.");
 
   // Initialises tree browsers.
@@ -46,7 +46,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
     // The function has return value.
     auto sigRet = LowLinkExpression(gen, sigWithRet);
     if (sigRet.GetSeparator().compare("=>") != 0)
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid separator between the "
+      throw EXCEPTION(SyntaxErrorException, "Invalid separator between the "
           "arguments of the function and its return type. Must use '=>'.");
     this->arguments = gen->ParseFunctionArguments(sigRet.GetLHS());
     this->returnType = gen->ParseVariableType(sigRet.GetRHS());
@@ -67,7 +67,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
     this->body = new Block(bodyStats);
   }
   else
-    THROW_EXCEPTION(InvalidArgumentException,
+    throw EXCEPTION(InvalidArgumentException,
         "Function should have a statement list under the path -1:SubSubject.Subject1.");
 
   // Stores the line and column numbers.

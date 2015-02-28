@@ -30,7 +30,7 @@ TEST_CASE("Core::Basic/getSharedPtr", "Test of getSharedPtr function.")
       REQUIRE(pl2.use_count() == 2);
     }
   } catch (Exception &e) {
-    FAIL(e.getErrorMessage());
+    FAIL(e.getVerboseErrorMessage());
   }
 }
 
@@ -105,7 +105,7 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
       REQUIRE(testToken2.use_count() > 1);
     }
   } catch (Exception &e) {
-    FAIL(e.getErrorMessage());
+    FAIL(e.getVerboseErrorMessage());
   }
 }
 

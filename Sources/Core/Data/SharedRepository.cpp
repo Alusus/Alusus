@@ -27,7 +27,7 @@ void SharedRepository::popLevel()
       this->trunkIndex--;
     } else {
       // This should never be reached.
-      throw GeneralException(STR("Stack is empty."), STR("Core::Data::SharedRepository::pop"));
+      throw EXCEPTION(GenericException, STR("Stack is empty."));
     }
   }
 }
@@ -36,17 +36,15 @@ void SharedRepository::popLevel()
 void SharedRepository::setLevel(SharedPtr<IdentifiableObject> const &obj, Int index)
 {
   if (this->getLevelCount() == 0) {
-    throw GeneralException(STR("Stack is empty."), STR("Core::Data::SharedRepository::set"));
+    throw EXCEPTION(GenericException, STR("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedRepository::set"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedRepository::set"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
     index = this->getLevelCount() + index;
   }
@@ -67,17 +65,15 @@ void SharedRepository::setLevel(SharedPtr<IdentifiableObject> const &obj, Int in
 void SharedRepository::setLevel(Char const *scope, SharedPtr<IdentifiableObject> const &obj, Int index)
 {
   if (this->getLevelCount() == 0) {
-    throw GeneralException(STR("Stack is empty."), STR("Core::Data::SharedRepository::set"));
+    throw EXCEPTION(GenericException, STR("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedRepository::set"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedRepository::set"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
     index = this->getLevelCount() + index;
   }
@@ -98,17 +94,15 @@ void SharedRepository::setLevel(Char const *scope, SharedPtr<IdentifiableObject>
 SharedPtr<IdentifiableObject> const& SharedRepository::getLevelData(Int index) const
 {
   if (this->getLevelCount() == 0) {
-    throw GeneralException(STR("Stack is empty."), STR("Core::Data::SharedRepository::get"));
+    throw EXCEPTION(GenericException, STR("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedRepository::get"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedRepository::get"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
     index = this->getLevelCount() + index;
   }
@@ -131,17 +125,15 @@ SharedPtr<IdentifiableObject> const& SharedRepository::getLevelData(Int index) c
 const SbStr& SharedRepository::getLevelScope(Int index) const
 {
   if (this->getLevelCount() == 0) {
-    throw GeneralException(STR("Stack is empty."), STR("Core::Data::SharedRepository::get"));
+    throw EXCEPTION(GenericException, STR("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedRepository::get"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedRepository::get"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
     index = this->getLevelCount() + index;
   }
@@ -164,8 +156,7 @@ const SbStr& SharedRepository::getLevelScope(Int index) const
 void SharedRepository::copyFrom(SharedRepository const *src)
 {
   if (src == 0) {
-    throw InvalidArgumentException(STR("src"), STR("Core::Data::SharedRepository::copyFrom"),
-                                   STR("Argument cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("src"), STR("Argument cannot be null."));
   }
   this->clear();
   for (Int i = 0; i < src->getLevelCount(); ++i) {
@@ -177,17 +168,15 @@ void SharedRepository::copyFrom(SharedRepository const *src)
 Bool SharedRepository::isShared(Int index) const
 {
   if (this->getLevelCount() == 0) {
-    throw GeneralException(STR("Stack is empty."), STR("Core::Data::SharedRepository::isShared"));
+    throw EXCEPTION(GenericException, STR("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedRepository::isShared"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedRepository::isShared"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
     index = this->getLevelCount() + index;
   }
@@ -215,8 +204,8 @@ void SharedRepository::setBranchingInfo(SharedRepository *ds, Int ti)
 {
   if (ds == 0) ti = -1;
   else if (ti < -1 || ti >= static_cast<Int>(ds->getLevelCount())) {
-    throw InvalidArgumentException(STR("ti"), STR("Core::Data::SharedRepository::setBranchingInfo"),
-                                   STR("Must be between -1 and ds->getLevelCount()-1 when ds is not null."));
+    throw EXCEPTION(InvalidArgumentException, STR("ti"),
+                    STR("Must be between -1 and ds->getLevelCount()-1 when ds is not null."), ti);
   }
   this->clear();
   this->trunkRepo = ds;
@@ -231,8 +220,7 @@ void SharedRepository::ownTopLevel()
   ASSERT(this->trunkRepo != 0);
   ASSERT(this->trunkIndex > -1);
   if (static_cast<Int>(this->trunkRepo->getLevelCount()) <= this->trunkIndex) {
-    throw GeneralException(STR("Trunk stack has been modified."),
-                           STR("Core::Data::SharedRepository::ownTopLevel"));
+    throw EXCEPTION(GenericException, STR("Trunk stack has been modified."));
   }
   auto srcData = this->trunkRepo->getLevelData(this->trunkIndex);
   Str scope = this->trunkRepo->getLevelScope(this->trunkIndex);
@@ -259,8 +247,7 @@ void SharedRepository::set(Reference const *ref, IdentifiableObject *val)
       if (ret) break;
     }
     if (!ret) {
-      throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                             STR("Core::Data::SharedRepository::set"));
+      throw EXCEPTION(GenericException, STR("Couldn't set value. Reference doesn't point to an existing element."));
     }
   }
 
@@ -290,15 +277,14 @@ void SharedRepository::set(Char const *qualifier, IdentifiableObject *val)
     Bool ret = false;
     while (index != -1) {
       if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::set"),
-                                       STR("Invalid scope value."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid scope value."), qualifier);
       }
       ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
       if (ret) break;
     }
     if (!ret) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::set"),
-                                     STR("Qualifier doesn't point to an existing element."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                      STR("Qualifier doesn't point to an existing element."), qualifier);
     }
   } else {
     qualifier2 = qualifier;
@@ -311,8 +297,8 @@ void SharedRepository::set(Char const *qualifier, IdentifiableObject *val)
       if (ret) break;
     }
     if (!ret) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::set"),
-                                     STR("Qualifier doesn't point to an existing element."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                      STR("Qualifier doesn't point to an existing element."), qualifier);
     }
   }
 
@@ -407,8 +393,8 @@ void SharedRepository::remove(Reference const *ref)
       if (parent == 0) continue;
       if (this->referenceSeeker.tryRemove(ref, parent)) return;
     }
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::SharedRepository::remove")
-                                   STR("Doesn't refer to an existing element."), ReferenceParser::getQualifier(ref).c_str());
+    throw EXCEPTION(InvalidArgumentException, STR("ref"),
+                    STR("Doesn't refer to an existing element."), ReferenceParser::getQualifier(ref).c_str());
   }
 }
 
@@ -425,8 +411,8 @@ void SharedRepository::remove(Char const *qualifier)
     Int index = 0;
     while (index != -1) {
       if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::remove"),
-                                       STR("Invalid scope value."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                        STR("Invalid scope value."), qualifier);
       }
       if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return;
     }
@@ -439,8 +425,8 @@ void SharedRepository::remove(Char const *qualifier)
       if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return;
     }
   }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::remove"),
-                                 STR("Qualifier doesn't refer to an existing element."), qualifier);
+  throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                  STR("Qualifier doesn't refer to an existing element."), qualifier);
 }
 
 
@@ -499,8 +485,7 @@ IdentifiableObject* SharedRepository::get(Reference const *ref)
       if (parent == 0) continue;
       if (this->referenceSeeker.tryGet(ref, parent, obj)) return obj;
     }
-    throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                           STR("Core::Data::SharedRepository::get"));
+    throw EXCEPTION(GenericException, STR("Couldn't set value. Reference doesn't point to an existing element."));
   }
 }
 
@@ -516,8 +501,7 @@ void SharedRepository::get(Reference const *ref, PlainModulePairedPtr &retVal)
       if (parent == 0) continue;
       if (this->referenceSeeker.tryGet(ref, parent, retVal)) return;
     }
-    throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                           STR("Core::Data::SharedRepository::get"));
+    throw EXCEPTION(GenericException, STR("Couldn't set value. Reference doesn't point to an existing element."));
   }
 }
 
@@ -535,8 +519,8 @@ IdentifiableObject* SharedRepository::get(Char const *qualifier)
     Int index = 0;
     while (index != -1) {
       if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::get"),
-                                       STR("Invalid scope value."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                        STR("Invalid scope value."), qualifier);
       }
       if (this->qualifierSeeker.tryGet(qualifier2, parent, obj)) return obj;
     }
@@ -549,8 +533,8 @@ IdentifiableObject* SharedRepository::get(Char const *qualifier)
       if (this->qualifierSeeker.tryGet(qualifier2, parent, obj)) return obj;
     }
   }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::get"),
-                                 STR("Qualifier doesn't point to an existing element."), qualifier);
+  throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                  STR("Qualifier doesn't point to an existing element."), qualifier);
 }
 
 
@@ -566,8 +550,8 @@ void SharedRepository::get(Char const *qualifier, PlainModulePairedPtr &retVal)
     Int index = 0;
     while (index != -1) {
       if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::get"),
-                                       STR("Invalid scope value."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                        STR("Invalid scope value."), qualifier);
       }
       if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return;
     }
@@ -580,8 +564,8 @@ void SharedRepository::get(Char const *qualifier, PlainModulePairedPtr &retVal)
       if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return;
     }
   }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::SharedRepository::get"),
-                                 STR("Qualifier doesn't point to an existing element."), qualifier);
+  throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                  STR("Qualifier doesn't point to an existing element."), qualifier);
 }
 
 

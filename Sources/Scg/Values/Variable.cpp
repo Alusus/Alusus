@@ -41,14 +41,14 @@ namespace Scg
     if (GetBlock() != nullptr) {
       // This is a local variable.
       if (GetBlock()->GetVariableMap().find(this->name) != GetBlock()->GetVariableMap().end())
-        THROW_EXCEPTION(RedefinitionException, "Local variable already defined: " + this->name);
+        throw EXCEPTION(RedefinitionException, ("Local variable already defined: " + this->name).c_str());
 
       // Store this variable in the variable map of the container block.
       GetBlock()->GetVariableMap()[this->name] = this;
     } else {
       // This is a global variable.
       if (GetModule()->GetVariableMap().find(this->name) != GetModule()->GetVariableMap().end())
-        THROW_EXCEPTION(RedefinitionException, "Global variable already defined: " + this->name);
+        throw EXCEPTION(RedefinitionException, ("Global variable already defined: " + this->name).c_str());
 
       // Store this variable in the variable map of the container block.
       GetModule()->GetVariableMap()[this->name] = this;

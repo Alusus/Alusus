@@ -43,12 +43,10 @@ class TokenTerm : public Term, public virtual DataOwner
     Term(f), tokenId(id), tokenText(text)
   {
     if (id != 0 && !id->isA<Integer>() && !id->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("id"), STR("Core::Data::TokenTerm::TokenTerm"),
-                                     STR("Must be of type Integer or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("id"), STR("Must be of type Integer or Reference."));
     }
     if (text != 0 && !text->isA<String>() && !text->isA<SharedMap>() && !text->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("text"), STR("Core::Data::TokenTerm::TokenTerm"),
-                                     STR("Must be of type String or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("text"), STR("Must be of type String or Reference."));
     }
   }
 
@@ -91,8 +89,7 @@ class TokenTerm : public Term, public virtual DataOwner
   public: void setTokenId(SharedPtr<IdentifiableObject> const &id)
   {
     if (id != 0 && !id->isA<Integer>() && !id->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("s"), STR("Core::Data::TokenTerm::setTokenId"),
-                                     STR("Must be of type Integer or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("s"), STR("Must be of type Integer or Reference."));
     }
     this->tokenId = id;
   }
@@ -105,8 +102,7 @@ class TokenTerm : public Term, public virtual DataOwner
   public: void setTokenText(SharedPtr<IdentifiableObject> const &text)
   {
     if (text != 0 && !text->isA<String>() && !text->isA<SharedMap>() && !text->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("text"), STR("Core::Data::TokenTerm::setTokenText"),
-                                     STR("Must be of type String or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("text"), STR("Must be of type String or Reference."));
     }
     this->tokenText = text;
   }

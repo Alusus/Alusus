@@ -35,7 +35,7 @@ ForStatement::ForStatement(Expression *init, Expression *cond, Expression *loop,
   , brInst(nullptr)
 {
   if (init == 0 && cond == 0 && loop == 0 && body == 0)
-    THROW_EXCEPTION(InfiniteLoopException, "This loop is infinite.");
+    throw EXCEPTION(InfiniteLoopException, "This loop is infinite.");
 
   // Prepare the blocks of the for loop.
   this->initBlock = this->init != 0 ? new Block({this->init}) : new Block();

@@ -32,7 +32,7 @@ Expression::CodeGenerationStage AssignmentOperator::GenerateCode()
   // TODO: Don't use dynamic_cast.
   auto lhs = dynamic_cast<Content*>(GetLHS());
   if (lhs == nullptr)
-  THROW_EXCEPTION(InvalidOperationException, "The left-hand side of an "
+  throw EXCEPTION(InvalidOperationException, "The left-hand side of an "
       "assignment must be the content of a pointer.");
   if (lhs->GetCodeGenerationStage() == Expression::CodeGenerationStage::CodeGeneration)
   	if (lhs->CallGenerateCode() == Expression::CodeGenerationStage::CodeGeneration)
@@ -44,9 +44,9 @@ Expression::CodeGenerationStage AssignmentOperator::GenerateCode()
   		return Expression::CodeGenerationStage::CodeGeneration;
   auto rhs = GetRHS()->GetGeneratedLlvmValue();
   if (rhs == 0)
-    THROW_EXCEPTION(InvalidValueException,
-        "Right-hand side of '=' doesn't evaluate to a value: "
-            + GetRHS()->ToString());
+    throw EXCEPTION(InvalidValueException,
+        ("Right-hand side of '=' doesn't evaluate to a value: "
+            + GetRHS()->ToString()).c_str());
 
   // Add a store instruction to set the value of the variable.
   this->llvmStoreInst = irb->CreateStore(rhs, lhs->GetLlvmPointer());

@@ -42,7 +42,7 @@ namespace Scg
     this->mergeBlock = new Block();
 
     if (thenBlock == 0)
-      THROW_EXCEPTION(ArgumentOutOfRangeException, "If statements must "
+      throw EXCEPTION(ArgumentOutOfRangeException, "If statements must "
       "have a 'then' block.");
 
     this->children.push_back(this->condition);
@@ -79,8 +79,8 @@ namespace Scg
     if (condition == nullptr)
       // TODO: This exception is being frequently used, with a similar statement each time. A macro
       // should be created for it to avoid duplication.
-      THROW_EXCEPTION(InvalidValueException, "The condition of the if statement "
-          "doesn't evaluate to a value: " + this->condition->ToString());
+      throw EXCEPTION(InvalidValueException, ("The condition of the if statement "
+          "doesn't evaluate to a value: " + this->condition->ToString()).c_str());
     this->cmpInst = static_cast<llvm::ICmpInst*>(irBuilder->CreateICmpNE(condition,
       ConstantInt::get(condition->getType(), 0), "ifcond"));
 

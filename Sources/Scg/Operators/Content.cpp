@@ -25,7 +25,7 @@ const ValueTypeSpec *Content::GetValueTypeSpec() const
   auto pointerType = dynamic_cast<PointerType*>(
       this->expression->GetValueTypeSpec()->ToValueType(*GetModule()));
   if (pointerType == nullptr)
-    THROW_EXCEPTION(InvalidOperationException, "Trying to find the content "
+    throw EXCEPTION(InvalidOperationException, "Trying to find the content "
         "of a non-pointer type.");
   // TODO: Change the return type to a reference or change GetContentType().
   return pointerType->GetContentType()->GetValueTypeSpec();

@@ -80,7 +80,7 @@ ValueType *Module::GetValueTypeByName(const std::string &typeName) const
   if (type == nullptr)
     // TODO: String concatenation might allocate memory which will reduce
     // compilation speed. We should use pre-allocated memory instead.
-    THROW_EXCEPTION(InvalidTypeException, "Use of undefined type: " + typeName);
+    throw EXCEPTION(InvalidTypeException, ("Use of undefined type: " + typeName).c_str());
   return type;
 }
 

@@ -83,8 +83,8 @@ Expression::CodeGenerationStage ExternalFunction::PreGenerateCode()
 
   // Is the function already defined?
   if (GetModule()->GetFunction(this->name, this->GetArgumentTypeSpecs()) != nullptr) {
-    THROW_EXCEPTION(RedefinitionException,
-        "Function already defined: " + this->name);
+    throw EXCEPTION(RedefinitionException,
+        ("Function already defined: " + this->name).c_str());
   }
 
   // Stores this function in the function store of the module.

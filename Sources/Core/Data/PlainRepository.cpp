@@ -27,7 +27,7 @@ void PlainRepository::popLevel()
       this->trunkIndex--;
     } else {
       // This should never be reached.
-      throw GeneralException(STR("Stack is empty."), STR("Core::Data::PlainRepository::pop"));
+      throw EXCEPTION(GenericException, STR("Stack is empty."));
     }
   }
 }
@@ -36,17 +36,15 @@ void PlainRepository::popLevel()
 void PlainRepository::setLevel(IdentifiableObject *obj, Int index)
 {
   if (this->getLevelCount() == 0) {
-    throw GeneralException(STR("Stack is empty."), STR("Core::Data::PlainRepository::set"));
+    throw EXCEPTION(GenericException, STR("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainRepository::set"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainRepository::set"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
     index = this->getLevelCount() + index;
   }
@@ -67,17 +65,15 @@ void PlainRepository::setLevel(IdentifiableObject *obj, Int index)
 void PlainRepository::setLevel(Char const *scope, IdentifiableObject *obj, Int index)
 {
   if (this->getLevelCount() == 0) {
-    throw GeneralException(STR("Stack is empty."), STR("Core::Data::PlainRepository::set"));
+    throw EXCEPTION(GenericException, STR("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainRepository::set"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainRepository::set"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
     index = this->getLevelCount() + index;
   }
@@ -98,17 +94,15 @@ void PlainRepository::setLevel(Char const *scope, IdentifiableObject *obj, Int i
 IdentifiableObject* PlainRepository::getLevelData(Int index) const
 {
   if (this->getLevelCount() == 0) {
-    throw GeneralException(STR("Stack is empty."), STR("Core::Data::PlainRepository::get"));
+    throw EXCEPTION(GenericException, STR("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainRepository::get"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainRepository::get"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
     index = this->getLevelCount() + index;
   }
@@ -131,17 +125,15 @@ IdentifiableObject* PlainRepository::getLevelData(Int index) const
 const SbStr& PlainRepository::getLevelScope(Int index) const
 {
   if (this->getLevelCount() == 0) {
-    throw GeneralException(STR("Stack is empty."), STR("Core::Data::PlainRepository::get"));
+    throw EXCEPTION(GenericException, STR("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainRepository::get"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getLevelCount()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainRepository::get"),
-                                     STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
     }
     index = this->getLevelCount() + index;
   }
@@ -164,8 +156,7 @@ const SbStr& PlainRepository::getLevelScope(Int index) const
 void PlainRepository::copyFrom(PlainRepository const *src)
 {
   if (src == 0) {
-    throw InvalidArgumentException(STR("src"), STR("Core::Data::PlainRepository::copyFrom"),
-                                   STR("Argument cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("src"), STR("Argument cannot be null."));
   }
   this->clear();
   for (Int i = 0; i < src->getLevelCount(); ++i) {
@@ -181,8 +172,8 @@ void PlainRepository::setBranchingInfo(PlainRepository *ds, Int ti)
 {
   if (ds == 0) ti = -1;
   else if (ti < -1 || ti >= static_cast<Int>(ds->getLevelCount())) {
-    throw InvalidArgumentException(STR("ti"), STR("Core::Data::PlainRepository::setBranchingInfo"),
-                                   STR("Must be between -1 and ds->getLevelCount()-1 when ds is not null."));
+    throw EXCEPTION(InvalidArgumentException, STR("ti"),
+                    STR("Must be between -1 and ds->getLevelCount()-1 when ds is not null."));
   }
   this->clear();
   this->trunkRepo = ds;
@@ -197,8 +188,7 @@ void PlainRepository::ownTopLevel()
   ASSERT(this->trunkRepo != 0);
   ASSERT(this->trunkIndex > -1);
   if (static_cast<Int>(this->trunkRepo->getLevelCount()) <= this->trunkIndex) {
-    throw GeneralException(STR("Trunk stack has been modified."),
-                           STR("Core::Data::PlainRepository::ownTopLevel"));
+    throw EXCEPTION(GenericException, STR("Trunk stack has been modified."));
   }
   auto srcData = this->trunkRepo->getLevelData(this->trunkIndex);
   Str scope = this->trunkRepo->getLevelScope(this->trunkIndex);
@@ -225,8 +215,8 @@ void PlainRepository::set(Reference const *ref, IdentifiableObject *val)
       if (ret) break;
     }
     if (!ret) {
-      throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                             STR("Core::Data::PlainRepository::set"));
+      throw EXCEPTION(GenericException,
+                      STR("Couldn't set value. Reference doesn't point to an existing element."));
     }
   }
 
@@ -256,15 +246,14 @@ void PlainRepository::set(Char const *qualifier, IdentifiableObject *val)
     Bool ret = false;
     while (index != -1) {
       if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::set"),
-                                       STR("Invalid scope value."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid scope value."), qualifier);
       }
       ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
       if (ret) break;
     }
     if (!ret) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::set"),
-                                     STR("Qualifier doesn't point to an existing element."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                      STR("Qualifier doesn't point to an existing element."), qualifier);
     }
   } else {
     qualifier2 = qualifier;
@@ -277,8 +266,8 @@ void PlainRepository::set(Char const *qualifier, IdentifiableObject *val)
       if (ret) break;
     }
     if (!ret) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::set"),
-                                     STR("Qualifier doesn't point to an existing element."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                      STR("Qualifier doesn't point to an existing element."), qualifier);
     }
   }
 
@@ -373,8 +362,8 @@ void PlainRepository::remove(Reference const *ref)
       if (parent == 0) continue;
       if (this->referenceSeeker.tryRemove(ref, parent)) return;
     }
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::PlainRepository::remove"),
-                                   STR("Doesn't refer to an existing element."), ReferenceParser::getQualifier(ref));
+    throw EXCEPTION(InvalidArgumentException, STR("ref"),
+                    STR("Doesn't refer to an existing element."), ReferenceParser::getQualifier(ref));
   }
 }
 
@@ -391,8 +380,8 @@ void PlainRepository::remove(Char const *qualifier)
     Int index = 0;
     while (index != -1) {
       if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::remove"),
-                                       STR("Invalid scope value."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                        STR("Invalid scope value."), qualifier);
       }
       if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return;
     }
@@ -405,8 +394,8 @@ void PlainRepository::remove(Char const *qualifier)
       if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return;
     }
   }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::remove"),
-                                 STR("Qualifier doesn't refer to an existing element."), qualifier);
+  throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                  STR("Qualifier doesn't refer to an existing element."), qualifier);
 }
 
 
@@ -465,8 +454,8 @@ IdentifiableObject* PlainRepository::get(Reference const *ref)
       if (parent == 0) continue;
       if (this->referenceSeeker.tryGet(ref, parent, obj)) return obj;
     }
-    throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                           STR("Core::Data::PlainRepository::get"));
+    throw EXCEPTION(GenericException,
+                    STR("Couldn't set value. Reference doesn't point to an existing element."));
   }
 }
 
@@ -482,8 +471,8 @@ void PlainRepository::get(Reference const *ref, PlainModulePairedPtr &retVal)
       if (parent == 0) continue;
       if (this->referenceSeeker.tryGet(ref, parent, retVal)) return;
     }
-    throw GeneralException(STR("Couldn't set value. Reference doesn't point to an existing element."),
-                           STR("Core::Data::PlainRepository::get"));
+    throw EXCEPTION(GenericException,
+                    STR("Couldn't set value. Reference doesn't point to an existing element."));
   }
 }
 
@@ -501,8 +490,7 @@ IdentifiableObject* PlainRepository::get(Char const *qualifier)
     Int index = 0;
     while (index != -1) {
       if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::get"),
-                                       STR("Invalid scope value."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid scope value."), qualifier);
       }
       if (this->qualifierSeeker.tryGet(qualifier2, parent, obj)) return obj;
     }
@@ -515,8 +503,8 @@ IdentifiableObject* PlainRepository::get(Char const *qualifier)
       if (this->qualifierSeeker.tryGet(qualifier2, parent, obj)) return obj;
     }
   }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::getPlainValue"),
-                                 STR("Qualifier doesn't point to an existing element."), qualifier);
+  throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                  STR("Qualifier doesn't point to an existing element."), qualifier);
 }
 
 
@@ -532,8 +520,8 @@ void PlainRepository::get(Char const *qualifier, PlainModulePairedPtr &retVal)
     Int index = 0;
     while (index != -1) {
       if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::get"),
-                                       STR("Invalid scope value."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                        STR("Invalid scope value."), qualifier);
       }
       if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return;
     }
@@ -546,8 +534,8 @@ void PlainRepository::get(Char const *qualifier, PlainModulePairedPtr &retVal)
       if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return;
     }
   }
-  throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::PlainRepository::get"),
-                                 STR("Qualifier doesn't point to an existing element."), qualifier);
+  throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                  STR("Qualifier doesn't point to an existing element."), qualifier);
 }
 
 

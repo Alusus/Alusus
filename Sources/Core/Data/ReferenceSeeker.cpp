@@ -22,8 +22,7 @@ IdentifiableObject* ReferenceSeeker::get(Reference const *seg, IdentifiableObjec
 {
   IdentifiableObject *result;
   if (!this->tryGet(seg, parent, result)) {
-    throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::ReferenceSeeker::get"));
+    throw EXCEPTION(GenericException, STR("Core::Data::ReferenceSeeker::get"));
   }
   return result;
 }
@@ -40,12 +39,10 @@ IdentifiableObject* ReferenceSeeker::tryGet(Reference const *seg, IdentifiableOb
 Bool ReferenceSeeker::tryGet(Reference const *seg, IdentifiableObject *parent, IdentifiableObject *&result) const
 {
   if (seg == 0) {
-    throw InvalidArgumentException(STR("seg"), STR("Core::Data::ReferenceSeeker::tryGet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("seg"), STR("Cannot be null."));
   }
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ReferenceSeeker::tryGet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
   }
   if (seg->getNext() == 0) {
     Int index = 0;
@@ -80,8 +77,7 @@ Bool ReferenceSeeker::tryGet(Reference const *seg, IdentifiableObject *parent, I
 void ReferenceSeeker::get(Reference const *seg, IdentifiableObject *parent, PlainModulePairedPtr &retVal) const
 {
   if (!this->tryGet(seg, parent, retVal)) {
-    throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::ReferenceSeeker::get"));
+    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
   }
 }
 
@@ -89,12 +85,11 @@ void ReferenceSeeker::get(Reference const *seg, IdentifiableObject *parent, Plai
 Bool ReferenceSeeker::tryGet(Reference const *seg, IdentifiableObject *parent, PlainModulePairedPtr &retVal) const
 {
   if (seg == 0) {
-    throw InvalidArgumentException(STR("seg"), STR("Core::Data::ReferenceSeeker::tryGet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("seg"), STR("Cannot be null."));
   }
+
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ReferenceSeeker::tryGet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
   }
   if (seg->getNext() == 0) {
     Int index = 0;
@@ -160,8 +155,7 @@ Bool ReferenceSeeker::tryGet(Reference const *seg, IdentifiableObject *parent, P
 void ReferenceSeeker::set(Reference const *seg, IdentifiableObject *parent, IdentifiableObject *val) const
 {
   if (!this->trySet(seg, parent, val)) {
-    throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::ReferenceSeeker::set"));
+    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
   }
 }
 
@@ -169,12 +163,10 @@ void ReferenceSeeker::set(Reference const *seg, IdentifiableObject *parent, Iden
 Bool ReferenceSeeker::trySet(Reference const *seg, IdentifiableObject *parent, IdentifiableObject *val) const
 {
   if (seg == 0) {
-    throw InvalidArgumentException(STR("seg"), STR("Core::Data::ReferenceSeeker::trySet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("seg"), STR("Cannot be null."));
   }
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ReferenceSeeker::trySet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
   }
   if (seg->getNext() == 0) {
     Int index = 0;
@@ -210,8 +202,7 @@ Bool ReferenceSeeker::trySet(Reference const *seg, IdentifiableObject *parent, I
 void ReferenceSeeker::remove(Reference const *seg, IdentifiableObject *parent) const
 {
   if (!this->tryRemove(seg, parent)) {
-    throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::ReferenceSeeker::remove"));
+    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
   }
 }
 
@@ -219,12 +210,10 @@ void ReferenceSeeker::remove(Reference const *seg, IdentifiableObject *parent) c
 Bool ReferenceSeeker::tryRemove(Reference const *seg, IdentifiableObject *parent) const
 {
   if (seg == 0) {
-    throw InvalidArgumentException(STR("seg"), STR("Core::Data::ReferenceSeeker::trySet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("seg"), STR("Cannot be null."));
   }
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ReferenceSeeker::trySet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
   }
   if (seg->getNext() == 0) {
     Int index = 0;

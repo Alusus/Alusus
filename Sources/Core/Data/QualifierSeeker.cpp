@@ -22,8 +22,7 @@ IdentifiableObject* QualifierSeeker::get(Char const *qualifier, IdentifiableObje
 {
   IdentifiableObject *result;
   if (!this->tryGet(qualifier, parent, result)) {
-    throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::QualifierSeeker::get"));
+    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
   }
   return result;
 }
@@ -40,12 +39,10 @@ IdentifiableObject* QualifierSeeker::tryGet(Char const *qualifier, IdentifiableO
 Bool QualifierSeeker::tryGet(Char const *qualifier, IdentifiableObject *parent, IdentifiableObject *&result) const
 {
   if (qualifier == 0) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::QualifierSeeker::tryGet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
   }
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::tryGet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
   }
   Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
@@ -81,8 +78,7 @@ Bool QualifierSeeker::tryGet(Char const *qualifier, IdentifiableObject *parent, 
 void QualifierSeeker::get(Char const *qualifier, IdentifiableObject *parent, PlainModulePairedPtr &retVal) const
 {
   if (!this->tryGet(qualifier, parent, retVal)) {
-    throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::QualifierSeeker::get"));
+    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
   }
 }
 
@@ -90,12 +86,10 @@ void QualifierSeeker::get(Char const *qualifier, IdentifiableObject *parent, Pla
 Bool QualifierSeeker::tryGet(Char const *qualifier, IdentifiableObject *parent, PlainModulePairedPtr &retVal) const
 {
   if (qualifier == 0) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::QualifierSeeker::tryGet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
   }
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::tryGet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
   }
   Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
@@ -163,8 +157,7 @@ Bool QualifierSeeker::tryGet(Char const *qualifier, IdentifiableObject *parent, 
 void QualifierSeeker::set(Char const *qualifier, IdentifiableObject *parent, IdentifiableObject *val) const
 {
   if (!this->trySet(qualifier, parent, val)) {
-    throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::QualifierSeeker::set"));
+    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
   }
 }
 
@@ -172,12 +165,10 @@ void QualifierSeeker::set(Char const *qualifier, IdentifiableObject *parent, Ide
 Bool QualifierSeeker::trySet(Char const *qualifier, IdentifiableObject *parent, IdentifiableObject *val) const
 {
   if (qualifier == 0) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::QualifierSeeker::trySet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
   }
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::trySet"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
   }
   Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
@@ -215,8 +206,7 @@ Bool QualifierSeeker::trySet(Char const *qualifier, IdentifiableObject *parent, 
 void QualifierSeeker::remove(Char const *qualifier, IdentifiableObject *parent) const
 {
   if (!this->tryRemove(qualifier, parent)) {
-    throw GeneralException(STR("Reference pointing to a missing element/tree."),
-                           STR("Core::Data::QualifierSeeker::remove"));
+    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
   }
 }
 
@@ -224,12 +214,10 @@ void QualifierSeeker::remove(Char const *qualifier, IdentifiableObject *parent) 
 Bool QualifierSeeker::tryRemove(Char const *qualifier, IdentifiableObject *parent) const
 {
   if (qualifier == 0) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::QualifierSeeker::tryRemove"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
   }
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::QualifierSeeker::tryRemove"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
   }
   Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {

@@ -56,8 +56,7 @@ void GrammarContext::getListTermData(ListTerm *term, PlainModulePairedPtr &retVa
 {
   this->traceValue(term->getData().get(), retVal, module);
   if (retVal.object != 0 && !retVal.object->isA<SharedList>() && !retVal.object->isA<Integer>()) {
-    throw GeneralException(STR("Type of list term data is invalid"),
-                           STR("Core::Data::GrammarContext::getListTermData"));
+    throw EXCEPTION(GenericException, STR("Type of list term data is invalid"));
   }
 }
 
@@ -69,19 +68,16 @@ Word GrammarContext::getListTermChildCount(ListTerm *term, PlainModulePairedPtr 
     else if (listData.object->isA<Integer>()) return 1;
     else if (listData.object->isA<SharedList>()) return static_cast<SharedList*>(listData.object)->getCount();
     else {
-      throw InvalidArgumentException(STR("data"),
-                                     STR("Core::Data::GrammarContext::getListTermChildCount"),
-                                     STR("Must be Integer or SharedList for static list terms."));
+      throw EXCEPTION(InvalidArgumentException, STR("listData"),
+                      STR("Must be Integer or SharedList for static list terms."));
     }
   } else {
     if (listData.object == 0) {
-      throw InvalidArgumentException(STR("data"),
-                                     STR("Core::Data::GrammarContext::getListTermChildCount"),
-                                     STR("Must not be null for dynamic list terms."));
+      throw EXCEPTION(InvalidArgumentException, STR("listData"),
+                      STR("Must not be null for dynamic list terms."));
     } else if (!listData.object->isA<SharedList>()) {
-      throw InvalidArgumentException(STR("data"),
-                                     STR("Core::Data::GrammarContext::getListTermChildCount"),
-                                     STR("Must be of type SharedList for dynamic list terms."));
+      throw EXCEPTION(InvalidArgumentException, STR("listData"),
+                      STR("Must be of type SharedList for dynamic list terms."));
     } else {
       return static_cast<SharedList*>(listData.object)->getCount();
     }
@@ -102,27 +98,25 @@ void GrammarContext::getListTermChild(ListTerm *term, Int index, PlainModulePair
     } else if (listData.object->isA<SharedList>()) {
       Integer *index2 = io_cast<Integer>(static_cast<SharedList*>(listData.object)->get(index));
       if (index2 == 0) {
-        throw InvalidArgumentException(STR("listData"),
-                                       STR("Core::Data::GrammarContext::getListTermChild"),
-                                       STR("List must contain Integers for static list terms."));
+        throw EXCEPTION(InvalidArgumentException, STR("listData"),
+                        STR("List must contain Integers for static list terms."));
       }
       retTerm = term->getTerm(index2->get()).get();
       retData.reset();
     } else {
-      throw InvalidArgumentException(STR("listData"), STR("Core::Data::GrammarContext::getListTermChild"),
-                                     STR("Must be Integer or SharedList for static list terms."));
+      throw EXCEPTION(InvalidArgumentException, STR("listData"),
+                      STR("Must be Integer or SharedList for static list terms."));
     }
   } else {
     if (listData.object == 0) {
-      throw InvalidArgumentException(STR("listData"), STR("Core::Data::GrammarContext::getListTermChild"),
-                                     STR("Must not be null for dynamic list terms."));
+      throw EXCEPTION(InvalidArgumentException, STR("listData"),
+                      STR("Must not be null for dynamic list terms."));
     } else if (!listData.object->isA<SharedList>()) {
-      throw InvalidArgumentException(STR("listData"), STR("Core::Data::GrammarContext::getListTermChild"),
-                                     STR("Must be of type SharedList for dynamic list terms."));
+      throw EXCEPTION(InvalidArgumentException, STR("listData"),
+                      STR("Must be of type SharedList for dynamic list terms."));
     } else {
       if (term->getTargetRef() == 0) {
-        throw GeneralException(STR("Dynamic term doesn't have a target ref."),
-                               STR("Core::Data::GrammarContext::getListTermChild"));
+        throw EXCEPTION(GenericException, STR("Dynamic term doesn't have a target ref."));
       }
       ASSERT(term->getTerms()->isDerivedFrom<Term>());
       retTerm = static_cast<Term*>(term->getTerms().get());
@@ -137,8 +131,7 @@ void GrammarContext::useListTermChild(ListTerm *term, Int index, PlainModulePair
                                       Term *&retTerm, PlainModulePairedPtr *retData)
 {
   if (retData == 0) {
-    throw InvalidArgumentException(STR("retData"), STR("Core::Data::GrammarContext::useListTermChild"),
-                                   STR("Must not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("retData"), STR("Must not be null."));
   }
   this->getListTermChild(term, index, listData, retTerm, *retData);
 
@@ -153,8 +146,7 @@ Integer* GrammarContext::getTokenTermId(TokenTerm *term, Module *module)
 {
   IdentifiableObject *id = this->traceValue(term->getTokenId().get(), module);
   if (id == 0 || !id->isA<Integer>()) {
-    throw GeneralException(STR("Token term's ID is invalid."),
-                           STR("Core::Data::GrammarContext::getTokenTermId"));
+    throw EXCEPTION(GenericException, STR("Token term's ID is invalid."));
   }
   return static_cast<Integer*>(id);
 }
@@ -164,8 +156,7 @@ IdentifiableObject* GrammarContext::getTokenTermText(TokenTerm *term, Module *mo
 {
   IdentifiableObject *text = this->traceValue(term->getTokenText().get(), module);
   if (text != 0 && !text->isA<String>() && !text->isA<SharedMap>()) {
-    throw GeneralException(STR("Token term's text is of invalid type."),
-                           STR("Core::Data::GrammarContext::getTokenTermText"));
+    throw EXCEPTION(GenericException, STR("Token term's text is of invalid type."));
   }
   return text;
 }
@@ -175,8 +166,7 @@ void GrammarContext::getReferencedCharGroup(Reference const *ref, CharGroupDefin
 {
   IdentifiableObject *obj = this->traceValue(const_cast<Reference*>(ref), module);
   if (obj == 0 || !obj->isA<CharGroupDefinition>()) {
-    throw GeneralException(STR("Reference does not point to a char group definition.")
-                           STR("Core::Data::GrammarContext::getReferencedCharGroup"));
+    throw EXCEPTION(GenericException, STR("Reference does not point to a char group definition."));
   }
   charGroupDef = static_cast<CharGroupDefinition*>(obj);
 }
@@ -201,8 +191,7 @@ void GrammarContext::getReferencedSymbol(Reference const *ref, Module *&retModul
     }
   } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
   if (retVal.object == 0 || !retVal.object->isDerivedFrom<SymbolDefinition>()) {
-    throw GeneralException(STR("Reference does not point to a symbol definition."),
-                           STR("Core::Data::GrammarContext::getReferencedSymbol"));
+    throw EXCEPTION(GenericException, STR("Reference does not point to a symbol definition."));
   }
   if (curModule != oldModule) this->setModule(oldModule);
   retDef = static_cast<SymbolDefinition*>(retVal.object);
@@ -214,8 +203,7 @@ Integer* GrammarContext::getMultiplyTermMax(MultiplyTerm *term, Module *module)
 {
   IdentifiableObject *max = this->traceValue(term->getMaxOccurances().get(), module);
   if (max != 0 && !max->isA<Integer>()) {
-    throw GeneralException(STR("Multiply term's max occurances is of invalid type."),
-                           STR("Core::Data::GrammarContext::getMultiplyTermMax"));
+    throw EXCEPTION(GenericException, STR("Multiply term's max occurances is of invalid type."));
   }
   return static_cast<Integer*>(max);
 }
@@ -225,8 +213,7 @@ Integer* GrammarContext::getMultiplyTermMin(MultiplyTerm *term, Module *module)
 {
   IdentifiableObject *min = this->traceValue(term->getMinOccurances().get(), module);
   if (min != 0 && !min->isA<Integer>()) {
-    throw GeneralException(STR("Multiply term's min occurances is of invalid type."),
-                           STR("Core::Data::GrammarContext::getMultiplyTermMin"));
+    throw EXCEPTION(GenericException, STR("Multiply term's min occurances is of invalid type."));
   }
   return static_cast<Integer*>(min);
 }
@@ -236,8 +223,7 @@ Integer* GrammarContext::getMultiplyTermPriority(MultiplyTerm *term, Module *mod
 {
   IdentifiableObject *priority = this->traceValue(term->getPriority().get(), module);
   if (priority != 0 && !priority->isA<Integer>()) {
-    throw GeneralException(STR("Multiply term's priority occurances is of invalid type."),
-                           STR("Core::Data::GrammarContext::getMultiplyTermPriority"));
+    throw EXCEPTION(GenericException, STR("Multiply term's priority occurances is of invalid type."));
   }
   return static_cast<Integer*>(priority);
 }
@@ -266,8 +252,8 @@ Term* GrammarContext::getSymbolTerm(const SymbolDefinition *definition, Module *
     } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
   }
   if (retVal.object == 0 || !retVal.object->isDerivedFrom<Term>()) {
-    throw InvalidArgumentException(STR("definition"), STR("Core::Data::GrammarContext::getSymbolTerm"),
-                                   STR("Symbol's term should be of type Term or Reference to it."));
+    throw EXCEPTION(InvalidArgumentException, STR("definition"),
+                    STR("Symbol's term should be of type Term or Reference to it."));
   }
   if (curModule != oldModule) this->setModule(oldModule);
   return static_cast<Term*>(retVal.object);
@@ -294,8 +280,8 @@ SharedMap* GrammarContext::getSymbolVars(const SymbolDefinition *definition, Mod
     } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
   }
   if (retVal.object != 0 && !retVal.object->isA<SharedMap>()) {
-    throw InvalidArgumentException(STR("definition"), STR("Core::Data::GrammarContext::getSymbolVars"),
-                                   STR("Symbol's vars should be of type SharedMap or Reference to it."));
+    throw EXCEPTION(InvalidArgumentException, STR("definition"),
+                    STR("Symbol's vars should be of type SharedMap or Reference to it."));
   }
   if (curModule != oldModule) this->setModule(oldModule);
   return static_cast<SharedMap*>(retVal.object);
@@ -325,8 +311,7 @@ Module* GrammarContext::getAssociatedLexerModule(Module *module)
   if (lmr == 0) return 0;
   Module *lm = io_cast<Module>(this->traceValue(lmr, grammarModule));
   if (lm == 0) {
-    throw GeneralException(STR("The module has an invalid lexer module reference."),
-                           STR("Core::Data::GrammarContext::getAssociatedLexerModule"));
+    throw EXCEPTION(GenericException, STR("The module has an invalid lexer module reference."));
   }
   return lm;
 }

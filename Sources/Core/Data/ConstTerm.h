@@ -68,11 +68,10 @@ class ConstTerm : public Term
   public: void setMatchString(Char const *str)
   {
     if (str == 0) {
-      throw InvalidArgumentException(STR("str"), STR("Core::Data::ConstTerm::setMatchString"));
+      throw EXCEPTION(InvalidArgumentException, STR("str"), STR("Argument should not be null."), str);
     }
     if (this->matchString.size() > 0) {
-      throw GeneralException(STR("Modifying an already set match string is not allowed."),
-                             STR("Core::Data::ConstTerm::setMatchString"));
+      throw EXCEPTION(GenericException, STR("Modifying an already set match string is not allowed."));
     }
     this->matchString= str;
   }

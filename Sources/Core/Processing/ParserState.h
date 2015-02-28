@@ -270,8 +270,7 @@ class ParserState
   public: ParserTermLevel& refTopTermLevel()
   {
     if (this->topTermLevelCache == 0) {
-      throw GeneralException(STR("This state has an empty level stack."),
-                             STR("Core::Processing::ParserState::refTopTermLevel"));
+      throw EXCEPTION(GenericException, STR("This state has an empty level stack."));
     }
     return *(this->topTermLevelCache);
   }
@@ -290,8 +289,7 @@ class ParserState
   {
     // The first level does not belong to any production, so we need at least 2 levels.
     if (this->getTermLevelCount() <= 1) {
-      throw GeneralException(STR("This state has an empty level stack."),
-                             STR("Core::Processing::ParserState::refTopprodRootTermLevel"));
+      throw EXCEPTION(GenericException, STR("This state has an empty level stack."));
     }
     return this->refTermLevel(-this->getTopprodTermLevelCount());
   }
@@ -360,8 +358,7 @@ class ParserState
   public: ParserProdLevel& refTopProdLevel()
   {
     if (this->topProdLevelCache == 0) {
-      throw GeneralException(STR("This state has an empty stack."),
-                             STR("Core::Processing::ParserState::refTopProdLevel"));
+      throw EXCEPTION(GenericException, STR("This state has an empty stack."));
     }
     return *(this->topProdLevelCache);
   }
@@ -591,8 +588,7 @@ class ParserState
   public: const SharedPtr<Processing::BuildMsg>& getBuildMsg(Int i) const
   {
     if (static_cast<Word>(i) >= this->buildMsgs.size()) {
-      throw InvalidArgumentException(STR("i"), STR("Core::Processing::ParserState::getBuildMsg"),
-                                     STR("Index out of range."));
+      throw EXCEPTION(InvalidArgumentException, STR("i"), STR("Index out of range."), i);
     }
     return this->buildMsgs[i];
   }
@@ -601,8 +597,8 @@ class ParserState
   protected: void flushBuildMsgs(Int count)
   {
     if (count <= 0 || static_cast<Word>(count) > this->buildMsgs.size()) {
-      throw InvalidArgumentException(STR("count"), STR("Core::Processing::ParserState::flushBuildMsgs"),
-                                     STR("Count is less than 0, or exceeds the total number of notificatoins."));
+      throw EXCEPTION(InvalidArgumentException, STR("count"),
+                      STR("Count is less than 0, or exceeds the total number of notificatoins."), count);
     }
     this->buildMsgs.erase(this->buildMsgs.begin(), this->buildMsgs.begin()+count);
   }

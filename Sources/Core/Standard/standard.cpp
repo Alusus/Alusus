@@ -41,8 +41,7 @@ std::string getWorkingDirectory()
 
   if (!_getWorkingDirectory(currentPath.data(), currentPath.size()))
   {
-    throw GeneralException(STR("Couldn't obtain the current working directory."),
-                           STR("Core::Basic::getWorkingDirectory"));
+    throw EXCEPTION(GenericException, STR("Couldn't obtain the current working directory."));
   }
 
   std::string path(currentPath.data());

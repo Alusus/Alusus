@@ -49,10 +49,10 @@ namespace Scg
       , falseBlock(falseBlock)
     {
       if (this->cond == 0)
-        THROW_EXCEPTION(ArgumentOutOfRangeException, "Conditional goto statement "
+        throw EXCEPTION(ArgumentOutOfRangeException, "Conditional goto statement "
         "expects a condition!");
       if (this->trueBlock == 0 || this->falseBlock == 0)
-        THROW_EXCEPTION(ArgumentOutOfRangeException, "Conditional goto statement "
+        throw EXCEPTION(ArgumentOutOfRangeException, "Conditional goto statement "
         "expects two blocks!");
 
       this->children.push_back(this->cond);

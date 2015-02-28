@@ -32,8 +32,7 @@ SharedList::SharedList(const std::initializer_list<SharedPtr<IdentifiableObject>
 void SharedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedList::set"),
-                                   STR("Index out of range."));
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
   } else {
     this->list[index] = val;
   }
@@ -43,8 +42,7 @@ void SharedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
 SharedPtr<IdentifiableObject> const& SharedList::getShared(Int index) const
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedList::getShared"),
-                                   STR("Index out of range."));
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
   }
   return this->list[index];
 }
@@ -68,8 +66,7 @@ void SharedList::unsetIndexes(Int from, Int to)
 void SharedList::remove(Int index)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedList::remove"),
-                                   STR("Index out of range."));
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
   }
   this->list.erase(this->list.begin()+index);
 }

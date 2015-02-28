@@ -143,9 +143,7 @@ class ReferenceParser
   {
     qualifier = ReferenceParser::_findLastQualifierSegment(qualifier);
     if (*qualifier != CHR('\0')) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::find_last_qualifier_segment"),
-                                     STR("Invalid qualifier."));
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     return qualifier;
   }

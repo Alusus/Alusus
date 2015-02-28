@@ -27,8 +27,8 @@ namespace Scg
   Expression::CodeGenerationStage Return::GenerateCode()
   {
     if (GetExpression()->GetGeneratedLlvmValue() == nullptr)
-      THROW_EXCEPTION(EvaluationException,
-          "Expression doesn't evaluate to a value: " + GetExpression()->ToString());
+      throw EXCEPTION(EvaluationException,
+          ("Expression doesn't evaluate to a value: " + GetExpression()->ToString()).c_str());
 
     IRBuilder<> *irBuilder = GetBlock()->GetIRBuilder();
     irBuilder->CreateRet(GetExpression()->GetGeneratedLlvmValue());

@@ -61,7 +61,7 @@ public:
     : opType(op)
   {
     if (opType < ADD || opType > NOTEQUAL)
-      THROW_EXCEPTION(ArgumentOutOfRangeException, "Invalid binary operator.");
+      throw EXCEPTION(ArgumentOutOfRangeException, "Invalid binary operator.");
     children.push_back(lhs);
     children.push_back(rhs);
   }

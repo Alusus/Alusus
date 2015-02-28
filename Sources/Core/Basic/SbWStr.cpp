@@ -21,8 +21,7 @@ namespace Core { namespace Basic
 void SbWStr::assign(WChar const *str, Word n, Word bufferSize)
 {
   if (bufferSize < 2) {
-    throw InvalidArgumentException(STR("bufferSize"), STR("Core::Basic::SbWStr::assign"),
-                                   STR("Buffer size too small."));
+    throw EXCEPTION(InvalidArgumentException, STR("bufferSize"), STR("Buffer size too small."), bufferSize);
   }
   if (n == 0) n = getStrLen(str);
   Word size = std::min(n, bufferSize-1);

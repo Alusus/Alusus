@@ -23,7 +23,7 @@ namespace Scg
   {
     auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
     if (metadata == nullptr || metadata->getProdId() != gen->GetLowerLinkExpId())
-      THROW_EXCEPTION(InvalidArgumentException,
+      throw EXCEPTION(InvalidArgumentException,
           "Lower link expressions can be constructed from "
           "Expression.LowerLinkExp only.");
 

@@ -25,7 +25,7 @@ namespace Scg
   {
     auto astRootMeta = astRoot->getInterface<ParsingMetadataHolder>();
     if (astRootMeta == nullptr || astRootMeta->getProdId() != gen->GetLinkId())
-      THROW_EXCEPTION(SystemException,
+      throw EXCEPTION(SystemException,
           "Function link expressions can be constructed from Main.Link only.");
     // Initialise tree browsers.
     static ReferenceSeeker seeker;
@@ -44,7 +44,7 @@ namespace Scg
     {
       auto argsAndRet = LowLinkExpression(gen, item);
       if (argsAndRet.GetSeparator().compare("=>") != 0)
-        THROW_EXCEPTION(SyntaxErrorException, "Invalid separator between the "
+        throw EXCEPTION(SyntaxErrorException, "Invalid separator between the "
             "argument types and return value of a function link. Must use '=>'.");
       this->arguments = new FunctionalExpression(
             gen, argsAndRet.GetLHS().s_cast<ParsedList>());

@@ -80,7 +80,7 @@ namespace Scg
       return new CastToFloat(expr);
     }
     else {
-      THROW_EXCEPTION(InvalidCastException, "Integer cannot be casted to " + targetType->ToString());
+      throw EXCEPTION(InvalidCastException, ("Integer cannot be casted to " + targetType->ToString()).c_str());
     }
   }
 
@@ -99,7 +99,7 @@ namespace Scg
       return new CastToInt(expr);
     }
     else {
-      THROW_EXCEPTION(InvalidCastException, "Integer cannot be casted to " + targetType->ToString());
+      throw EXCEPTION(InvalidCastException, ("Integer cannot be casted to " + targetType->ToString()).c_str());
     }
   }
 }

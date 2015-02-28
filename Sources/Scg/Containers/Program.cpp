@@ -111,7 +111,7 @@ std::vector<DeclareExtFunction*> Program::FindDeclareFunction(const std::string 
 std::string Program::Compile()
 {
   if (this->modules.empty())
-    THROW_EXCEPTION(InvalidObjectException, "The program doesn't contain any "
+    throw EXCEPTION(InvalidObjectException, "The program doesn't contain any "
         "module and cannot be executed.");
 
   this->llvmModule = new llvm::Module("AlususProgram", LlvmContainer::GetContext());
@@ -132,7 +132,7 @@ std::string Program::Compile()
     }
   }
   if (repeat == true) {
-  	THROW_EXCEPTION(SystemException,
+    throw EXCEPTION(SystemException,
   			"Couldn't finish the pre-code generation step of compilation.");
   }
 
@@ -161,7 +161,7 @@ std::string Program::Compile()
 void Program::Execute(const char *functionName)
 {
 	if (this->modules.empty())
-    THROW_EXCEPTION(InvalidObjectException, "The program doesn't contain any "
+    throw EXCEPTION(InvalidObjectException, "The program doesn't contain any "
         "module and cannot be executed.");
 
   this->llvmModule = new llvm::Module("AlususProgram", LlvmContainer::GetContext());
@@ -182,7 +182,7 @@ void Program::Execute(const char *functionName)
     }
   }
   if (repeat == true) {
-  	THROW_EXCEPTION(SystemException,
+    throw EXCEPTION(SystemException,
   			"Couldn't finish the pre-code generation step of compilation.");
   }
 
@@ -198,7 +198,7 @@ void Program::Execute(const char *functionName)
     }
   }
   if (repeat == true) {
-  	THROW_EXCEPTION(SystemException,
+    throw EXCEPTION(SystemException,
   			"Couldn't finish the code generation step of compilation.");
   }
 
@@ -224,7 +224,7 @@ void Program::Execute(const char *functionName)
   // getting the exception below. We need to fix that.
   /*if (repeat == true) {
   	// TODO: Should we just log this and report that there is a possible memory leak?
-  	THROW_EXCEPTION(SystemException,
+    throw EXCEPTION(SystemException,
   			"Couldn't finish the post-code generation step of compilation.");
   }*/
   for (auto module : this->modules) {

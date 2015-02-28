@@ -54,7 +54,7 @@ class CharGroupDefinition : public IdentifiableObject, public virtual IdHolder
   public: CharGroupDefinition(SharedPtr<CharGroupUnit> const &u) : charGroupUnit(u)
   {
     if (u == 0) {
-      throw InvalidArgumentException(STR("u"), STR("Core::Data::CharGroupDefinition::CharGroupDefinition"));
+      throw EXCEPTION(InvalidArgumentException, STR("u"), STR("Argument is null"));
     }
   }
 
@@ -81,11 +81,10 @@ class CharGroupDefinition : public IdentifiableObject, public virtual IdHolder
   public: void setCharGroupUnit(SharedPtr<CharGroupUnit> const &u)
   {
     if (u == 0) {
-      throw InvalidArgumentException(STR("h"), STR("Core::Data::CharGroupDefinition::setCharGroupUnit"));
+      throw EXCEPTION(InvalidArgumentException, STR("u"), STR("Argument is null."));
     }
     if (this->charGroupUnit != 0) {
-      throw GeneralException(STR("Modifying an already set char group unit is not allowed."),
-                             STR("Core::Data::CharGroupDefinition::setCharGroupUnit"));
+      throw EXCEPTION(GenericException, STR("Modifying an already set char group unit is not allowed."));
     }
     this->charGroupUnit = u;
   }

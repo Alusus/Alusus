@@ -102,8 +102,7 @@ template<class RECORD, class FIELD, const FIELD& (*ACCESSOR)(RECORD const *r)> c
       this->findPos(v, pos);
       this->indices.insert(this->indices.begin()+pos, index);
     } else {
-      throw InvalidArgumentException(STR("index"), STR("Core::Basic::SortedIndex[]::add"),
-                                     STR("Out of range."));
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
     }
   }
 
@@ -116,8 +115,7 @@ template<class RECORD, class FIELD, const FIELD& (*ACCESSOR)(RECORD const *r)> c
   public: void remove(Int index)
   {
     if (static_cast<Word>(index) >= this->indices.size()) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Basic::SortedIndex[]::remove"),
-                                     STR("Out of range."));
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
     }
     for (Word i = 0; i < this->indices.size(); ++i) {
       if (this->indices[i] == index) {

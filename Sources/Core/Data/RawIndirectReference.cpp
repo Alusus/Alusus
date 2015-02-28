@@ -49,14 +49,10 @@ Bool RawIndirectReference::setValue(Provider *provider, IdentifiableObject *pare
                                     IdentifiableObject *obj, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"),
-                                   STR("Core::Data::RawIndirectReference::setValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (provider == 0) {
-    throw InvalidArgumentException(STR("provider"),
-                                   STR("Core::Data::RawIndirectReference::setValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("provider"), STR("Should not be null."));
   }
   if (index == -1) return false;
   IdentifiableObject *ref;
@@ -102,12 +98,10 @@ Bool RawIndirectReference::setValue(Provider *provider, IdentifiableObject *pare
 Bool RawIndirectReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReference::removeValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (provider == 0) {
-    throw InvalidArgumentException(STR("provider"), STR("Core::Data::RawIndirectReference::removeValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("provider"), STR("Should not be null."));
   }
   if (index == -1) return false;
   IdentifiableObject *ref;
@@ -154,12 +148,10 @@ Bool RawIndirectReference::getValue(Provider *provider, IdentifiableObject *pare
                                     IdentifiableObject *&result, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::RawIndirectReference::getValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (provider == 0) {
-    throw InvalidArgumentException(STR("provider"), STR("Core::Data::RawIndirectReference::getValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("provider"), STR("Should not be null."));
   }
   if (index == -1) return false;
   IdentifiableObject *ref;

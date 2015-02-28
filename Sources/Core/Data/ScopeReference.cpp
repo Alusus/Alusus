@@ -30,8 +30,7 @@ Bool ScopeReference::setValue(Provider *provider, IdentifiableObject *parent,
                               IdentifiableObject *obj, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::setValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (index < 0) return false;
   NamedListContainer *container = parent->getInterface<NamedListContainer>();
@@ -58,8 +57,7 @@ Bool ScopeReference::setValue(Provider *provider, IdentifiableObject *parent,
 Bool ScopeReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::removeValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (index < 0) return false;
   NamedListContainer *container;
@@ -86,8 +84,7 @@ Bool ScopeReference::getValue(Provider *provider, IdentifiableObject *parent,
                               IdentifiableObject *&result, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::ScopeReference::getValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (index < 0) return false;
   NamedListContainer const *container;

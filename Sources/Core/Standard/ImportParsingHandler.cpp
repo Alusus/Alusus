@@ -43,8 +43,7 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
       }
     }
   } else {
-    throw GeneralException(STR("Invalid data format."),
-                           STR("Core::Standard::ImportParsingHandler::onProdEnd"));
+    throw EXCEPTION(GenericException, STR("Invalid data format."));
   }
   // Reset parsed data because we are done with the command.
   state->setData(SharedPtr<IdentifiableObject>(0));

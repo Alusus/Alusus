@@ -99,7 +99,7 @@ namespace Scg
     {
         auto item = srcModule->getShared(i);
         if (item == 0) {
-            THROW_EXCEPTION(SyntaxErrorException, "Invalid object type in def command.");
+            throw EXCEPTION(SyntaxErrorException, "Invalid object type in def command.");
         }
         module->AppendExpression(GenerateStatement(item));
     }
@@ -113,7 +113,7 @@ namespace Scg
   {
     auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
     if (metadata == 0) {
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid object type in def command.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid object type in def command.");
     }
     auto id = metadata->getProdId();
     if (id == defId)
@@ -207,7 +207,7 @@ namespace Scg
     auto nameToken = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), item.get()));
     if (nameToken == nullptr || nameToken->getId() != identifierTokenId)
       // TODO: Generate a build message instead of throwing an exception.
-      THROW_EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
+      throw EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
     auto name = this->TranslateAliasedName(nameToken->getText().c_str());
 
     // Get the definee (after the colon).
@@ -221,7 +221,7 @@ namespace Scg
       // TODO: Generate a build message instead of throwing an exception.
       // TODO: We need to choose terms for the parts of a define command, e.g.
       // definition name, definition, etc.
-      THROW_EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition.");
+      throw EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition.");
 
     if (defMetadata->getProdId() == functionalExpId)
       // Defining a variable
@@ -240,10 +240,10 @@ namespace Scg
         // Defining a structure
         return GenerateDefineStructure(name, routeData);
       else
-        THROW_EXCEPTION(SyntaxErrorException, "Invalid define command.");
+        throw EXCEPTION(SyntaxErrorException, "Invalid define command.");
     }
     else
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid define command.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid define command.");
   }
 
   //----------------------------------------------------------------------------
@@ -283,7 +283,7 @@ namespace Scg
     auto bodyStmtList = getSharedPtr(seeker.tryGet(structBodyReference.get(), item.get())).io_cast<ParsedList>();
     if (bodyStmtList == 0)
       // TODO: Generate a build message instead of throwing an exception.
-      THROW_EXCEPTION(SyntaxErrorException, "A structure definition expects a body.");
+      throw EXCEPTION(SyntaxErrorException, "A structure definition expects a body.");
     auto structBody = GenerateSet(bodyStmtList);
 
     // Extract members names and types.
@@ -293,7 +293,7 @@ namespace Scg
       // TODO: Don't use dynamic_cast.
       auto field = dynamic_cast<DefineVariable*>(child);
       if (field == nullptr)
-        THROW_EXCEPTION(SyntaxErrorException,
+        throw EXCEPTION(SyntaxErrorException,
             "A structure body can only contain variable definitions.");
       auto typeSpec = field->GetVarTypeSpec()->Clone();
       auto name = field->GetVarName();
@@ -322,7 +322,7 @@ namespace Scg
       STR("{find prodId=Expression.Exp, 0}"), ReferenceUsageCriteria::MULTI_DATA);
     auto exp = getSharedPtr(seeker.tryGet(expReference.get(), item.get()));
     if (exp == nullptr)
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid return argument.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid return argument.");
 
     // Creates the Return instruction and sets the line and column numbers.
     auto ret = new Return(GenerateExpression(exp));
@@ -340,7 +340,7 @@ namespace Scg
   {
     auto itemMetadata = item->getInterface<ParsingMetadataHolder>();
     if (itemMetadata == nullptr)
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid expression data structure.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid expression data structure.");
     auto id = itemMetadata->getProdId();
 
     Expression *expr;
@@ -364,7 +364,7 @@ namespace Scg
       else if (id2 == linkExpId)
         expr = GenerateMemberAccess(item);
       else
-        THROW_EXCEPTION(ArgumentOutOfRangeException, "The given parsing data doesn't evaluate to an expression.");*/
+        throw EXCEPTION(ArgumentOutOfRangeException, "The given parsing data doesn't evaluate to an expression.");*/
       expr = FunctionalExpression(this, item.s_cast<ParsedList>()).ToExpression();
     } else if (id == listExpId)
       expr = GenerateList(item.s_cast<ParsedList>());
@@ -373,7 +373,7 @@ namespace Scg
     else if (id == statementListId)
       expr = GenerateSet(item.s_cast<ParsedList>());
     else
-      THROW_EXCEPTION(ArgumentOutOfRangeException, "The given parsing data doesn't evaluate to an expression.");
+      throw EXCEPTION(ArgumentOutOfRangeException, "The given parsing data doesn't evaluate to an expression.");
 
     return expr;
   }
@@ -384,7 +384,7 @@ namespace Scg
   {
     auto parsedItemMetadata = parsedItem->getInterface<ParsingMetadataHolder>();
     if (parsedItemMetadata == nullptr) {
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid variable ref data structure.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid variable ref data structure.");
     }
     auto id = parsedItemMetadata->getProdId();
 
@@ -392,7 +392,7 @@ namespace Scg
 //    {
 //      auto parsedList = parsedItem.s_cast<ParsedList>();
 //      if (parsedList->getElementCount() != 2)
-//        THROW_EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
+//        throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
 //      auto varName = parsedList
 //          ->getElement(0).s_cast<ParsedRoute>()
 //          ->getData().s_cast<ParsedToken>()
@@ -400,7 +400,7 @@ namespace Scg
 //      auto postfix = parsedList->get(1);
 //      auto postfixId = postfix->getInterface<ParsingMetadataHolder>()->getProdId();
 //      if (postfixId != postfixTildeExpId)
-//        THROW_EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
+//        throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
 //      auto postfixType = postfix.s_cast<ParsedList>()
 //          ->get(0)->getInterface<ParsingMetadataHolder>()->getProdId();
 //      if (postfixType == pointerTildeId)
@@ -409,7 +409,7 @@ namespace Scg
 //        // TODO: Implement this.
 //        return nullptr; //new VariableDeref(varName);
 //      else
-//        THROW_EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
+//        throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
 //    }
 //    else
     if (id == subjectId)
@@ -424,7 +424,7 @@ namespace Scg
       return new Content(new PointerToVariable(varName));
     }
     else
-      THROW_EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
+      throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
   }
 
 //  Expression *CodeGenerator::GenerateMemberAccess(SharedPtr<IdentifiableObject> const &data)
@@ -470,10 +470,10 @@ namespace Scg
 //          break;
 //        }
 //        else
-//          THROW_EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
+//          throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
 //      }
 //      else
-//        THROW_EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
+//        throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
 //    }
 
 //    // Creates the expression for accessing a member and sets line and column numbers.
@@ -485,7 +485,7 @@ namespace Scg
 //    //case 1: memberAccess = new VariablePointer(varName, subVarRefs); break;
 //    //case 2: memberAccess = new VariableDeref(varName, subVarRefs); break;
 //    default:
-//        THROW_EXCEPTION(UnreachableCodeException, "Unexpected value for postfixType");
+//        throw EXCEPTION(UnreachableCodeException, "Unexpected value for postfixType");
 //    }
 //    memberAccess->SetLineInCode(parsedList->getLine());
 //    memberAccess->SetColumnInCode(parsedList->getColumn());
@@ -518,7 +518,7 @@ namespace Scg
       // String constant
       constant = new StringConst(literalText);
     else
-      THROW_EXCEPTION(NotImplementedException, "Not implemented yet.");
+      throw EXCEPTION(NotImplementedException, "Not implemented yet.");
 
     // Sets the line and the column of the source code that generated this
     // expression.
@@ -585,7 +585,7 @@ namespace Scg
       expr = new AssignmentOperator(lhs, rhs);
     // Invalid operator
     else
-      THROW_EXCEPTION(InvalidOperationException, "Unrecognized binary operator.");
+      throw EXCEPTION(InvalidOperationException, "Unrecognized binary operator.");
 
     // Sets the line and the column of the source code that generated this
     // expression.
@@ -600,7 +600,7 @@ namespace Scg
 //  CallFunction *CodeGenerator::GenerateFunctionCall(const SharedPtr<ParsedList> &functionalExpr)
 //  {
 //    if (functionalExpr->getElementCount() != 2) {
-//      THROW_EXCEPTION(SyntaxErrorException, "A function call should have a name and parameter list.");
+//      throw EXCEPTION(SyntaxErrorException, "A function call should have a name and parameter list.");
 //    }
 
 //    // Get the name.
@@ -610,10 +610,10 @@ namespace Scg
 //      ReferenceUsageCriteria::MULTI_DATA);
 //    auto name = seeker.tryGet<ParsedToken>(nameReference.get(), functionalExpr.get());
 //    if (name == 0) {
-//      THROW_EXCEPTION(SyntaxErrorException, "A function call should have a name and parameter list.");
+//      throw EXCEPTION(SyntaxErrorException, "A function call should have a name and parameter list.");
 //    }
 //    if (name->getId() != identifierTokenId) {
-//      THROW_EXCEPTION(SyntaxErrorException, "A function call should have a name and parameter list.");
+//      throw EXCEPTION(SyntaxErrorException, "A function call should have a name and parameter list.");
 //    }
 //    auto functionName = name->getText();
 
@@ -663,7 +663,7 @@ namespace Scg
 
     auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
     if (exp == 0)
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid if command's condition.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid if command's condition.");
     auto condition = GenerateExpression(exp);
 
     // The body of the if statement.
@@ -671,7 +671,7 @@ namespace Scg
       STR("2"), ReferenceUsageCriteria::MULTI_DATA);
     auto body = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
     if (body == 0)
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid if command's body.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid if command's body.");
     auto thenBody = GenerateInnerSet(body);
 
     // Creates the IfStatement instruction and sets the line and column numbers.
@@ -695,15 +695,15 @@ namespace Scg
       STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
     auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
     if (exp == 0)
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid for command's condition.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid for command's condition.");
     auto initCondLoop = GenerateExpression(exp);
     if (dynamic_cast<List*>(initCondLoop) == 0)
-      THROW_EXCEPTION(SyntaxErrorException, "A 'for' keyword should be followed "
+      throw EXCEPTION(SyntaxErrorException, "A 'for' keyword should be followed "
       "by a list of three expressions specifying the initial, condition, and "
       "and loop expressions.");
     auto initCondLoopAsList = dynamic_cast<List*>(initCondLoop);
     if (initCondLoopAsList->GetElementCount() != 3)
-      THROW_EXCEPTION(SyntaxErrorException, "A 'for' keyword should be followed "
+      throw EXCEPTION(SyntaxErrorException, "A 'for' keyword should be followed "
       "by a list of three expressions specifying the initial, condition, and "
       "loop expressions.");
     auto init = initCondLoopAsList->GetElement(0);
@@ -715,7 +715,7 @@ namespace Scg
       STR("2"), ReferenceUsageCriteria::MULTI_DATA);
     auto body = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
     if (body == 0)
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid if command's body.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid if command's body.");
     auto thenBody = GenerateInnerSet(body);
 
     // Creates the IfStatement instruction and sets the line and column numbers.
@@ -739,7 +739,7 @@ namespace Scg
       STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
     auto condAST = getSharedPtr(seeker.tryGet(condReference.get(), command.get())).io_cast<ParsedList>();
     if (exp == nullptr)
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid 'while' command's condition.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid 'while' command's condition.");
     auto cond = GenerateExpression(condAST);
 
     // The body of the 'while' statement.
@@ -747,7 +747,7 @@ namespace Scg
       STR("2"), ReferenceUsageCriteria::MULTI_DATA);
     auto bodyAST = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
     if (bodyAST == nullptr)
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid 'while' command's body.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid 'while' command's body.");
     auto body = GenerateInnerSet(bodyAST);
 
     // Creates the IfStatement instruction and sets the line and column numbers.
@@ -772,7 +772,7 @@ namespace Scg
     auto token = io_cast<ParsedToken>(seeker.tryGet(tokenReference.get(), item.get()));
     if (token == nullptr)
       // TODO: Add the index of the non-token to the exception message.
-      THROW_EXCEPTION(InvalidArgumentException,
+      throw EXCEPTION(InvalidArgumentException,
           "This parsed item doesn't contain a token.");
 
     return this->TranslateAliasedName(token->getText().c_str());
@@ -785,7 +785,7 @@ namespace Scg
   {
     auto itemMetadata = item->getInterface<ParsingMetadataHolder>();
     if (itemMetadata == 0) {
-      THROW_EXCEPTION(InvalidArgumentException, "Invalid variable type.");
+      throw EXCEPTION(InvalidArgumentException, "Invalid variable type.");
     }
     if (itemMetadata->getProdId() == parameterId)
     {
@@ -807,7 +807,7 @@ namespace Scg
         ReferenceUsageCriteria::MULTI_DATA);
       auto funcName = io_cast<ParsedToken>(seeker.tryGet(modifierReference.get(), item.get()));
       if (funcName == nullptr)
-        THROW_EXCEPTION(SyntaxErrorException, "Invalid variable type.");
+        throw EXCEPTION(SyntaxErrorException, "Invalid variable type.");
 
       else if (SBSTR(this->TranslateAliasedName(funcName->getText().c_str())) == "ptr")
       {
@@ -818,7 +818,7 @@ namespace Scg
           ReferenceUsageCriteria::MULTI_DATA);
         auto typeAstRoot = getSharedPtr(seeker.tryGet(contentTypeReference.get(), item.get()));
         if (typeAstRoot == nullptr)
-          THROW_EXCEPTION(SyntaxErrorException, "Invalid pointer type.");
+          throw EXCEPTION(SyntaxErrorException, "Invalid pointer type.");
         auto contentTypeSpec = ParseVariableType(typeAstRoot);
         return new PointerValueTypeSpec(contentTypeSpec);
       }
@@ -840,19 +840,19 @@ namespace Scg
           ReferenceUsageCriteria::MULTI_DATA);
         auto elementTypeAst = getSharedPtr(seeker.tryGet(elementTypeReference.get(), item.get()));
         if (elementTypeAst == nullptr)
-          THROW_EXCEPTION(SyntaxErrorException, "Invalid array type.");
+          throw EXCEPTION(SyntaxErrorException, "Invalid array type.");
         auto arraySizeAst = io_cast<ParsedToken>(seeker.tryGet(arraySizeReference.get(), item.get()));
         if (arraySizeAst == nullptr)
-          THROW_EXCEPTION(SyntaxErrorException, "Invalid array type.");
+          throw EXCEPTION(SyntaxErrorException, "Invalid array type.");
         auto elementTypeSpec = ParseVariableType(elementTypeAst);
         auto arraySize = boost::lexical_cast<int>(arraySizeAst->getText());
         return new ArrayValueTypeSpec(elementTypeSpec, arraySize);
       }
       else
-        THROW_EXCEPTION(SyntaxErrorException, "Invalid variable type.");
+        throw EXCEPTION(SyntaxErrorException, "Invalid variable type.");
     }
     else
-      THROW_EXCEPTION(InvalidArgumentException, "Invalid variable type.");
+      throw EXCEPTION(InvalidArgumentException, "Invalid variable type.");
   }
 
   //----------------------------------------------------------------------------
@@ -878,7 +878,7 @@ namespace Scg
     auto nameToken = getSharedPtr(seeker.tryGet(nameReference.get(), astBlockRoot.get()));
     if (nameToken == nullptr) {
       // TODO: Replace the exception with a build message.
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid variable definition.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid variable definition.");
     }
 
     // Finds the type of the variable.
@@ -888,7 +888,7 @@ namespace Scg
     auto typeAst = getSharedPtr(seeker.tryGet(typeReference.get(), astBlockRoot.get()));
     if (typeAst == nullptr) {
       // TODO: Replace the exception with a build message.
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid variable definition.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid variable definition.");
     }
 
     return VariableDefinition(ParseVariableType(typeAst), ParseToken(nameToken));
@@ -918,7 +918,7 @@ namespace Scg
 
     auto astBlockRootMetadata = astBlockRoot->getInterface<ParsingMetadataHolder>();
     if (astBlockRootMetadata == 0) {
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid function argument list.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid function argument list.");
     }
     auto id = astBlockRootMetadata->getProdId();
 
@@ -940,7 +940,7 @@ namespace Scg
       args.push_back(ParseVariableDefinition(astBlockRoot));
     }
     else
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid function argument list.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid function argument list.");
 
     return args;
   }

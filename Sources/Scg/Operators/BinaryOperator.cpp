@@ -39,14 +39,14 @@ Expression::CodeGenerationStage BinaryOperator::GenerateCode()
   auto lhs = GetLHS()->GetGeneratedLlvmValue();
   auto rhs = GetRHS()->GetGeneratedLlvmValue();
   if (lhs == nullptr) {
-    THROW_EXCEPTION(InvalidValueException,
-        "Right-hand side of '=' doesn't evaluate to a value: "
-            + GetLHS()->ToString());
+    throw EXCEPTION(InvalidValueException,
+        ("Right-hand side of '=' doesn't evaluate to a value: "
+            + GetLHS()->ToString()).c_str());
   }
   if (rhs == nullptr) {
-    THROW_EXCEPTION(InvalidValueException,
-        "Right-hand side of '=' doesn't evaluate to a value: "
-            + GetRHS()->ToString());
+    throw EXCEPTION(InvalidValueException,
+        ("Right-hand side of '=' doesn't evaluate to a value: "
+            + GetRHS()->ToString()).c_str());
   }
 
   auto irb = GetBlock()->GetIRBuilder();
@@ -83,7 +83,7 @@ Expression::CodeGenerationStage BinaryOperator::GenerateCode()
     this->llvmValue = irb->CreateICmpNE(lhs, rhs);
     break;
   default:
-    THROW_EXCEPTION(UnreachableCodeException, "This code shouldn't be reached.");
+    throw EXCEPTION(UnreachableCodeException, "This code shouldn't be reached.");
   }
 
   // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use

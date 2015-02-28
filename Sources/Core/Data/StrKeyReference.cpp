@@ -30,8 +30,7 @@ Bool StrKeyReference::setValue(Provider *provider, IdentifiableObject *parent,
                                IdentifiableObject *obj, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::setValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (index == -1) return false;
   index = -1;
@@ -53,8 +52,7 @@ Bool StrKeyReference::setValue(Provider *provider, IdentifiableObject *parent,
 Bool StrKeyReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::removeValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (index == -1) return false;
   index = -1;
@@ -83,8 +81,7 @@ Bool StrKeyReference::getValue(Provider *provider, IdentifiableObject *parent,
                                IdentifiableObject *&result, Int &index) const
 {
   if (parent == 0) {
-    throw InvalidArgumentException(STR("parent"), STR("Core::Data::StrKeyReference::getValue"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   if (index == -1) return false;
   index = -1;

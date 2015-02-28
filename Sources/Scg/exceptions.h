@@ -15,42 +15,10 @@
 // Scg include files
 #include <typedefs.h>
 
+using namespace Core::Basic;
+
 namespace Scg
 {
-  class Exception
-  {
-  public:
-      Exception(const std::string &message, const std::string &filename,
-        const std::string &functionName, int lineNumber)
-        : message(message)
-        , filename(filename)
-        , functionName(functionName)
-        , lineNumber(lineNumber)
-      { }
-
-  public:
-      const std::string &GetMessage() const { return message; }
-      const std::string &GetFileName() const { return filename; }
-      const std::string &GetFunctionName() const { return functionName; }
-      const int GetLineNumber() const { return lineNumber; }
-
-  public:
-      std::string message;
-      std::string filename;
-      std::string functionName;
-      int         lineNumber;
-  };
-
-#define DEFINE_EXCEPTION(exception_name, base)                                \
-  class exception_name : public base                                          \
-  {                                                                           \
-  public:                                                                     \
-      exception_name(const std::string &message, const std::string &filename, \
-          const std::string &function, int lineNumber) :                      \
-          base(message, filename, function, lineNumber)                       \
-      {                                                                       \
-      }                                                                       \
-  }
 
   // TODO: Divide exceptions into compilation exceptions and logic exceptions.
   // For example, SyntaxErrorException is a compilation exception which is
@@ -58,36 +26,32 @@ namespace Scg
   // ArgumentOutOfRangeException is a logic exception that is raised when
   // an SCG's function's is passed an argument having value out of the
   // expected range.
-  DEFINE_EXCEPTION(ArgumentException,             Exception);
-  DEFINE_EXCEPTION(ArgumentMismatchException,     ArgumentException);
-  DEFINE_EXCEPTION(ArgumentOutOfRangeException,   ArgumentException);
-  DEFINE_EXCEPTION(CompilationErrorException,     Exception);
-  DEFINE_EXCEPTION(EvaluationException,           Exception);
-  DEFINE_EXCEPTION(InfiniteLoopException,         Exception);
-  DEFINE_EXCEPTION(InvalidArgumentException,      ArgumentException);
-  DEFINE_EXCEPTION(InvalidCastException,          Exception);
-  DEFINE_EXCEPTION(InvalidLhsException,           Exception);
-  DEFINE_EXCEPTION(InvalidObjectException,        Exception);
-  DEFINE_EXCEPTION(InvalidOperationException,     Exception);
-  DEFINE_EXCEPTION(InvalidTypeException,          Exception);
-  DEFINE_EXCEPTION(InvalidValueException,         Exception);
-  DEFINE_EXCEPTION(MemoryException,               Exception);
-  DEFINE_EXCEPTION(MultipleMatchesException,      CompilationErrorException);
-  DEFINE_EXCEPTION(NotImplementedException,       Exception);
-  DEFINE_EXCEPTION(RedefinitionException,         Exception);
-  DEFINE_EXCEPTION(SyntaxErrorException,          Exception);
-  DEFINE_EXCEPTION(SystemException,               Exception);
-  DEFINE_EXCEPTION(UnattachedExpressionException, Exception);
-  DEFINE_EXCEPTION(UndefinedFunctionException,    CompilationErrorException);
-  DEFINE_EXCEPTION(UndefinedTypeException,        Exception);
-  DEFINE_EXCEPTION(UndefinedVariableException,    Exception);
-  DEFINE_EXCEPTION(UnreachableCodeException,      Exception);
-
-#define THROW_EXCEPTION(exception_name, message) \
-  throw exception_name(message, __FILE__, __FUNCTION__, __LINE__)
+  DEFINE_EXCEPTION(ArgumentException, GenericException, STR("Argument Exception"));
+  DEFINE_EXCEPTION(ArgumentMismatchException, ArgumentException, STR("Argument Mismatc Exception"));
+  DEFINE_EXCEPTION(ArgumentOutOfRangeException, ArgumentException, STR("Argument Out of Range Exception"));
+  DEFINE_EXCEPTION(CompilationErrorException, GenericException, STR("Compilation Error Exception"));
+  DEFINE_EXCEPTION(EvaluationException, GenericException, STR("Evaluation Exception"));
+  DEFINE_EXCEPTION(InfiniteLoopException, GenericException, STR("Infinite Loop Exception"));
+  DEFINE_EXCEPTION(InvalidArgumentException, ArgumentException, STR("Invalid Argument Exception"));
+  DEFINE_EXCEPTION(InvalidCastException, GenericException, STR("Invalid Cast Exception"));
+  DEFINE_EXCEPTION(InvalidLhsException, GenericException, STR("Invalid Lhs Exception"));
+  DEFINE_EXCEPTION(InvalidObjectException, GenericException, STR("Invalid Object Exception"));
+  DEFINE_EXCEPTION(InvalidOperationException, GenericException, STR("Invalid Operation Exception"));
+  DEFINE_EXCEPTION(InvalidTypeException, GenericException, STR("Invalid Type Exception"));
+  DEFINE_EXCEPTION(InvalidValueException, GenericException, STR("Invalid Value Exception"));
+  DEFINE_EXCEPTION(MultipleMatchesException,CompilationErrorException, STR("Multiple Matches Exception"));
+  DEFINE_EXCEPTION(NotImplementedException, GenericException, STR("Not Implemented Exception"));
+  DEFINE_EXCEPTION(RedefinitionException, GenericException, STR("Redefinition Exception"));
+  DEFINE_EXCEPTION(SyntaxErrorException, GenericException, STR("Syntax Error Exception"));
+  DEFINE_EXCEPTION(SystemException, GenericException, STR("System Exception"));
+  DEFINE_EXCEPTION(UnattachedExpressionException, GenericException, STR("Unattached Expression Exception"));
+  DEFINE_EXCEPTION(UndefinedFunctionException, CompilationErrorException, STR("Undefined Function Exception"));
+  DEFINE_EXCEPTION(UndefinedTypeException, GenericException, STR("Undefined Type Exception"));
+  DEFINE_EXCEPTION(UndefinedVariableException, GenericException, STR("Undefined Variable Exception"));
+  DEFINE_EXCEPTION(UnreachableCodeException, GenericException, STR("Unreachable Code Exception"));
 
 #define THROW_NOT_IMPLEMENTED() \
-  THROW_EXCEPTION(NotImplementedException, "Not implemented yet.")
+  throw EXCEPTION(NotImplementedException, "The function is not implemented yet.")
 }
 
 #endif // __exceptions_h__

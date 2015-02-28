@@ -73,7 +73,7 @@ TEST_CASE("Core::Data/simple_seek", "Successfully seek an element with its conta
       REQUIRE(static_cast<String*>(plainStr)->getStr() == STR("hello"));
     }
   } catch (Exception &e) {
-    FAIL(e.getErrorMessage());
+    FAIL(e.getVerboseErrorMessage());
   }
 }
 
@@ -149,7 +149,7 @@ TEST_CASE("Core::Data/advanced_qualifier_seek", "Seek elements with advanced qua
       REQUIRE(result != null);
     }
   } catch (Exception &e) {
-    FAIL(e.getErrorMessage());
+    FAIL(e.getVerboseErrorMessage());
   }
 }
 
@@ -243,7 +243,7 @@ TEST_CASE("Core::Data/advanced_reference_seek", "Seek elements with advanced ref
       REQUIRE(result != null);
     }
   } catch (Exception &e) {
-    FAIL(e.getErrorMessage());
+    FAIL(e.getVerboseErrorMessage());
   }
 }
 

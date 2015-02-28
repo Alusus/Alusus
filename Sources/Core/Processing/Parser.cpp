@@ -25,8 +25,7 @@ void Parser::initialize(Data::GrammarRepository *grammarRepo, Data::SharedReposi
   // Before we can change the production list, we need to make sure we have no outstanding
   // states.
   if (!this->states.empty()) {
-    throw GeneralException(STR("Grammar manager can't be changed while being in use."),
-                           STR("Core::Processing::Parser::initialize"));
+    throw EXCEPTION(GenericException, STR("Grammar manager can't be changed while being in use."));
   }
 
   // TODO: If we currently have a grammar manager, we need to unset it first.
@@ -45,8 +44,8 @@ void Parser::initialize(Data::GrammarRepository *grammarRepo, Data::SharedReposi
 
   Data::GrammarModule *root = this->grammarRepository->getPlainRoot();
   if (root == 0) {
-    throw InvalidArgumentException(STR("mgr"), STR("Core::Processing::Parser::initialize"),
-                                   STR("Provided manager doesn't contain a GrammarModule root."));
+    throw EXCEPTION(InvalidArgumentException, STR("mgr"),
+                    STR("Provided manager doesn't contain a GrammarModule root."));
   }
 
   this->tempState.initialize(RESERVED_PARSER_TERM_LEVEL_COUNT, RESERVED_PARSER_PRODUCTION_LEVEL_COUNT,
@@ -74,16 +73,14 @@ void Parser::beginParsing()
 {
   // Validation.
   if (this->grammarRepository == 0) {
-    throw GeneralException(STR("Grammar repository is not set."), STR("Core::Processing::Parser::beginParsing()"));
+    throw EXCEPTION(GenericException, STR("Grammar repository is not set."));
   }
   Data::GrammarModule *rootModule = this->grammarRepository->getPlainRoot();
   if (rootModule == 0) {
-    throw GeneralException(STR("No root grammar module is found."),
-                           STR("Core::Processing::Parser::beginParsing"));
+    throw EXCEPTION(GenericException, STR("No root grammar module is found."));
   }
   if (rootModule->getStartRef() == 0) {
-    throw GeneralException(STR("Grammar root production is not set."),
-                           STR("Core::Processing::Parser::being_parsing"));
+    throw EXCEPTION(GenericException, STR("Grammar root production is not set."));
   }
 
   // Delete all states, if any.
@@ -99,12 +96,10 @@ void Parser::beginParsing()
   Data::SymbolDefinition *prod;
   (*si)->getGrammarContext()->getReferencedSymbol(rootModule->getStartRef().get(), module, prod);
   if (!prod->isA<Data::SymbolDefinition>()) {
-    throw GeneralException(STR("Reference term is pointing to a target of a wrong type."),
-                           STR("Core::Processing::Parser::beginParsing"));
+    throw EXCEPTION(GenericException, STR("Reference term is pointing to a target of a wrong type."));
   }
   if (prod->getTerm() == 0) {
-    throw GeneralException(STR("Formula of root production isn't set yet."),
-                           STR("Core::Processing::Parser::beginParsing"));
+    throw EXCEPTION(GenericException, STR("Formula of root production isn't set yet."));
   }
   this->pushStateProdLevel(*si, module, static_cast<Data::SymbolDefinition*>(prod));
 
@@ -141,8 +136,7 @@ SharedPtr<IdentifiableObject> Parser::endParsing()
 {
   // Validation.
   if (this->states.empty()) {
-    throw GeneralException(STR("There isn't any state currently."),
-                           STR("Core::Processing::Parser::endParsing"));
+    throw EXCEPTION(GenericException, STR("There isn't any state currently."));
   }
 
   // Fold out the levels stack of existing states.
@@ -278,15 +272,13 @@ void Parser::handleNewToken(const Data::Token *token)
 {
   // Validation.
   if (token == 0) {
-    throw InvalidArgumentException(STR("token"), STR("Core::Processing::Parser::handleNewToken"),
-                                   STR("token is null."));
+    throw EXCEPTION(InvalidArgumentException, STR("token"), STR("token is null."));
   }
 
   // The caller should call beginParsing before calling handleNewToken, and should not call handleNewToken
   // after parsing folds out of the production tree.
   if (this->states.empty() || this->states.front()->getTermLevelCount() == 0)
-    throw GeneralException(STR("Parser::beginParsing should be called before calling handleNewToken"),
-                           STR("Core::Processing::Parser::handleNewToken"));
+    throw EXCEPTION(GenericException, STR("Parser::beginParsing should be called before calling handleNewToken"));
   else if (this->states.front()->getTermLevelCount() == 1) {
     // Raise an unexpected token error.
     if (!this->unexpectedTokenMsgRaised) {
@@ -495,7 +487,7 @@ void Parser::processState(const Data::Token * token, StateIterator si)
              << ID_GENERATOR->getDesc((*si)->refTopProdLevel().getProd()->getId())
              << STR(". Found Term Type: ")
              << term->getTypeInfo()->getTypeName();
-      throw GeneralException(stream.str().c_str(), STR("Core::Processing::Parser::processState"));
+      throw EXCEPTION(GenericException, stream.str().c_str());
     }
     if ((*si)->getTermLevelCount()-1 <= (*si)->getTestUppermostLevel()) {
       // If we are moving deeper then any previously calculated uppermost level is no longer valid.
@@ -597,8 +589,7 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
     Word matchId = (*si)->getTokenTermId()->get();
     IdentifiableObject *matchText = (*si)->getTokenTermText();
     if (matchId == UNKNOWN_ID && matchText == 0) {
-      throw GeneralException(STR("Token term's match id isn't assigned yet."),
-                             STR("Core::Processing::Parser::processTokenTerm"));
+      throw EXCEPTION(GenericException, STR("Token term's match id isn't assigned yet."));
     }
     // We are checking this token.
     Bool matched = true;
@@ -664,8 +655,7 @@ void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
   // Make sure we have a child term.
   Data::Term *childTerm = multiplyTerm->getTerm().get();
   if (childTerm == 0) {
-    throw GeneralException(STR("Multiply term's child term isn't set yet."),
-                           STR("Core::Processing::Parser::processMultiplyTerm"));
+    throw EXCEPTION(GenericException, STR("Multiply term's child term isn't set yet."));
   }
   // Compute the possible routes to take from here.
   this->computePossibleMultiplyRoutes(token, *si);
@@ -752,8 +742,7 @@ void Parser::processAlternateTerm(const Data::Token *token, StateIterator si)
   ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::AlternateTerm>());
   // Make sure we have some child terms attached.
   if ((*si)->getListTermChildCount() < 1) {
-    throw GeneralException(STR("Alternate term doesn't have any branches yet (zero children)."),
-                           STR("Core::Processing::Parser::processAlternateTerm"));
+    throw EXCEPTION(GenericException, STR("Alternate term doesn't have any branches yet (zero children)."));
   }
   if ((*si)->refTopTermLevel().getPosId() == 0) {
     // We are entering the term for the first time.
@@ -841,9 +830,8 @@ void Parser::processConcatTerm(const Data::Token *token, StateIterator si)
   // Make sure we have a child term.
   Word termCount = (*si)->getListTermChildCount();
   /*if (termCount == 0) {
-        throw GeneralException(STR("Concat term's child terms aren't set yet."),
-                                STR("Core::Processing::Parser::processConcatTerm"));
-    }*/
+    throw EXCEPTION(GenericException, STR("Concat term's child terms aren't set yet."));
+  }*/
   Int posId = (*si)->refTopTermLevel().getPosId() & (~THIS_PROCESSING_PASS);
   // Did we finish all the terms in this list?
   if (static_cast<Word>(posId) < termCount) {
@@ -890,8 +878,7 @@ void Parser::processReferenceTerm(const Data::Token * token, StateIterator si)
     Data::SymbolDefinition *definition;
     (*si)->getReferencedSymbol(module, definition);
     if (!definition->isA<Data::SymbolDefinition>()) {
-      throw GeneralException(STR("Reference term is pointing to a target of a wrong type."),
-                             STR("Core::Processing::Parser::processReferenceTerm"));
+      throw EXCEPTION(GenericException, STR("Reference term is pointing to a target of a wrong type."));
     }
     if (definition->getTerm() != 0) {
       // Update the current level's position id.
@@ -1145,7 +1132,7 @@ void Parser::testStateLevel(const Data::Token *token, ParserState *state)
            << ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId())
            << STR(". Found Term Type: ")
            << term->getTypeInfo()->getTypeName();
-    throw GeneralException(stream.str().c_str(), STR("Core::Processing::Parser::testStateLevel"));
+    throw EXCEPTION(GenericException, stream.str().c_str());
   }
 }
 
@@ -1171,8 +1158,7 @@ void Parser::testTokenTerm(const Data::Token *token, ParserState *state)
     Word matchId = state->getTokenTermId()->get();
     IdentifiableObject *matchText = state->getTokenTermText();
     if (matchId == UNKNOWN_ID && matchText == 0) {
-      throw GeneralException(STR("Token term's match id isn't assigned yet."),
-                             STR("Core::Processing::Parser::testTokenTerm"));
+      throw EXCEPTION(GenericException, STR("Token term's match id isn't assigned yet."));
     }
     Bool matched = true;
     Data::String *matchStr = 0;
@@ -1477,8 +1463,7 @@ void Parser::testReferenceTerm(const Data::Token *token, ParserState *state)
     Data::SymbolDefinition *definition;
     state->getReferencedSymbol(module, definition);
     if (!definition->isA<Data::SymbolDefinition>()) {
-      throw GeneralException(STR("Reference term is pointing to a target of a wrong type."),
-                             STR("Core::Processing::Parser::testReferenceTerm"));
+      throw EXCEPTION(GenericException, STR("Reference term is pointing to a target of a wrong type."));
     }
     if (definition->getTerm() != 0) {
       // Update the current level's position id.
@@ -1519,10 +1504,10 @@ Parser::StateIterator Parser::createState()
 {
   Data::GrammarModule *root = this->grammarRepository->getPlainRoot();
   ParserState *state = new ParserState(RESERVED_PARSER_TERM_LEVEL_COUNT, RESERVED_PARSER_PRODUCTION_LEVEL_COUNT,
-                                           VARIABLE_NAME_MAX_LENGTH,
-                                           RESERVED_VARIABLE_COUNT, RESERVED_VARIABLE_LEVEL_COUNT, root);
+                                       VARIABLE_NAME_MAX_LENGTH,
+                                       RESERVED_VARIABLE_COUNT, RESERVED_VARIABLE_LEVEL_COUNT, root);
   if (state == 0) {
-    throw GeneralException(STR("Out of memory."), STR("Core::Processing::Parser::createState"));
+    throw EXCEPTION(GenericException, STR("Out of memory."));
   }
   StateIterator si = this->states.insert(this->states.end(), state);
   return si;
@@ -1773,8 +1758,7 @@ bool Parser::compareStates(ParserState *s1, ParserState *s2)
 Bool Parser::isDefinitionInUse(Data::SymbolDefinition *definition) const
 {
   if (definition == 0) {
-    throw InvalidArgumentException(STR("definition"), STR("Core::Processing::Parser::isDefinitionInUse"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("definition"), STR("Should not be null."));
   }
   if (this->grammarRepository == 0) return false;
   for (ConstStateIterator si = this->states.begin(); si != this->states.end(); si++) {
@@ -1800,8 +1784,8 @@ Bool Parser::canStateDominate(ParserState *state) const
     }
   }
   // Passed state is incorrect.
-  throw InvalidArgumentException(STR("state"), STR("Core::Processing::Parser::canStateDominate"),
-                                 STR("The given state was not found among the current list of states."));
+  throw EXCEPTION(InvalidArgumentException, STR("state"),
+                  STR("The given state was not found among the current list of states."));
 }
 
 
@@ -1815,8 +1799,8 @@ Bool Parser::canAbandonState(ParserState *state) const
     }
   }
   // Passed state is incorrect.
-  throw InvalidArgumentException(STR("state"), STR("Core::Processing::Parser::canAbandonState"),
-                                 STR("The given state was not found among the current list of states."));
+  throw EXCEPTION(InvalidArgumentException, STR("state"),
+                  STR("The given state was not found among the current list of states."));
 }
 
 

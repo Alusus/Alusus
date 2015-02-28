@@ -41,16 +41,19 @@ MultiplyTerm::MultiplyTerm(SharedPtr<IdentifiableObject> const &p, Word f,
   priority(p), minOccurances(min), maxOccurances(max), term(t), Term(f)
 {
   if (p != 0 && !p->isA<Integer>() && !p->isDerivedFrom<Reference>()) {
-    throw InvalidArgumentException(STR("p"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
-                                   STR("Must be of type Integer or Reference."));
+    throw EXCEPTION(InvalidArgumentException, STR("p"),
+                    STR("Must be of type Integer or Reference."),
+                    p->getMyTypeInfo()->getUniqueName());
   }
   if (min != 0 && !min->isA<Integer>() && !min->isDerivedFrom<Reference>()) {
-    throw InvalidArgumentException(STR("min"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
-                                   STR("Must be of type Integer or Reference."));
+    throw EXCEPTION(InvalidArgumentException, STR("min"),
+                    STR("Must be of type Integer or Reference."),
+                    min->getMyTypeInfo()->getUniqueName());
   }
   if (max != 0 && !max->isA<Integer>() && !max->isDerivedFrom<Reference>()) {
-    throw InvalidArgumentException(STR("max"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
-                                   STR("Must be of type Integer or Reference."));
+    throw EXCEPTION(InvalidArgumentException, STR("max"),
+                    STR("Must be of type Integer or Reference."),
+                    max->getMyTypeInfo()->getUniqueName());
   }
 }
 
@@ -74,26 +77,29 @@ MultiplyTerm::MultiplyTerm(const std::initializer_list<Argument<TermElement>> &a
       case TermElement::TERM:
         this->term = arg.ioVal.io_cast<Term>();
         if (this->term == 0 && arg.ioVal != 0) {
-          InvalidArgumentException(STR("term"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
-                                   STR("Term value must be of type Term."),
-                                   arg.ioVal->getMyTypeInfo()->getUniqueName());
+          throw EXCEPTION(InvalidArgumentException, STR("term"),
+                          STR("Term value must be of type Term."),
+                          arg.ioVal->getMyTypeInfo()->getUniqueName());
         }
         break;
     }
   }
   if (this->priority != 0 && !this->priority->isA<Integer>() && !this->priority->isDerivedFrom<Reference>()) {
-    throw InvalidArgumentException(STR("priority"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
-                                   STR("Must be of type Integer or Reference."));
+    throw EXCEPTION(InvalidArgumentException, STR("priority"),
+                    STR("Must be of type Integer or Reference."),
+                    this->priority->getMyTypeInfo()->getUniqueName());
   }
   if (this->minOccurances != 0 && !this->minOccurances->isA<Integer>() &&
       !this->minOccurances->isDerivedFrom<Reference>()) {
-    throw InvalidArgumentException(STR("min"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
-                                   STR("Must be of type Integer or Reference."));
+    throw EXCEPTION(InvalidArgumentException, STR("min"),
+                    STR("Must be of type Integer or Reference."),
+                    this->minOccurances->getMyTypeInfo()->getUniqueName());
   }
   if (this->maxOccurances != 0 && !this->maxOccurances->isA<Integer>() &&
       !this->maxOccurances->isDerivedFrom<Reference>()) {
-    throw InvalidArgumentException(STR("max"), STR("Core::Data::MultiplyTerm::MultiplyTerm"),
-                                   STR("Must be of type Integer or Reference."));
+    throw EXCEPTION(InvalidArgumentException, STR("max"),
+                    STR("Must be of type Integer or Reference."),
+                    this->maxOccurances->getMyTypeInfo()->getUniqueName());
   }
 }
 
@@ -109,8 +115,9 @@ MultiplyTerm::MultiplyTerm(const std::initializer_list<Argument<TermElement>> &a
 void MultiplyTerm::setMinOccurances(SharedPtr<IdentifiableObject> const &min)
 {
   if (min != 0 && min->isA<Integer>() && !min->isDerivedFrom<Reference>()) {
-    throw InvalidArgumentException(STR("min"), STR("Core::Data::MultiplyTerm::setMinOccurances"),
-                                   STR("Must be of type Integer or Reference."));
+    throw EXCEPTION(InvalidArgumentException, STR("min"),
+                    STR("Must be of type Integer or Reference."),
+                    min->getMyTypeInfo()->getUniqueName());
   }
   this->minOccurances = min;
 }
@@ -124,8 +131,9 @@ void MultiplyTerm::setMinOccurances(SharedPtr<IdentifiableObject> const &min)
 void MultiplyTerm::setMaxOccurances(SharedPtr<IdentifiableObject> const &max)
 {
   if (max != 0 && max->isA<Integer>() && !max->isDerivedFrom<Reference>()) {
-    throw InvalidArgumentException(STR("max"), STR("Core::Data::MultiplyTerm::setMaxOccurances"),
-                                   STR("Must be of type Integer or Reference."));
+    throw EXCEPTION(InvalidArgumentException, STR("max"),
+                    STR("Must be of type Integer or Reference."),
+                    max->getMyTypeInfo()->getUniqueName());
   }
   this->maxOccurances = max;
 }
@@ -140,8 +148,9 @@ void MultiplyTerm::setMaxOccurances(SharedPtr<IdentifiableObject> const &max)
 void MultiplyTerm::setPriority(SharedPtr<IdentifiableObject> const &p)
 {
   if (p != 0 && p->isA<Integer>() && !p->isDerivedFrom<Reference>()) {
-    throw InvalidArgumentException(STR("p"), STR("Core::Data::MultiplyTerm::setPriority"),
-                                   STR("Filters must be of type Integer or Reference."));
+    throw EXCEPTION(InvalidArgumentException, STR("p"),
+                    STR("Must be of type Integer or Reference."),
+                    p->getMyTypeInfo()->getUniqueName());
   }
   this->priority = p;
 }

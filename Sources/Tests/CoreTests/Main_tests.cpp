@@ -60,7 +60,7 @@ TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Tes
       REQUIRE(results2.size() == 1);
     }
   } catch (Exception &e) {
-    FAIL(e.getErrorMessage());
+    FAIL(e.getVerboseErrorMessage());
   }
 }
 
@@ -197,7 +197,7 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
       REQUIRE((results3.size() == 1 && results4.size() == 1));
     }
   } catch (Exception &e) {
-    FAIL(e.getErrorMessage());
+    FAIL(e.getVerboseErrorMessage());
   }
 }
 
@@ -294,7 +294,7 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
       REQUIRE(empty == true);
     }
   } catch (Exception &e) {
-    FAIL(e.getErrorMessage());
+    FAIL(e.getVerboseErrorMessage());
   }
 }
 

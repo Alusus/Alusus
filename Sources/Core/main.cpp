@@ -146,7 +146,7 @@ int main(int argCount, char * const args[])
             STR("Build Results:") << NEW_LINE << NEW_LINE;
     dumpParsedData(orphan.get());
   } catch (Exception &e) {
-    outStream << e.getErrorMessage() << NEW_LINE;
+    outStream << e.getVerboseErrorMessage() << NEW_LINE;
     return EXIT_FAILURE;
   }
 

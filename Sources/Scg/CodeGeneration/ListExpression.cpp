@@ -52,7 +52,7 @@ namespace Scg
       auto token = io_cast<ParsedToken>(seeker.tryGet(tokenReference.get(), item.get()));
       if (token == 0)
         // TODO: Add the index of the non-token to the exception message.
-        THROW_EXCEPTION(InvalidArgumentException,
+        throw EXCEPTION(InvalidArgumentException,
             "This list expression has one or more non-token item(s).");
       tokens.push_back(token->getText());
     }

@@ -34,8 +34,7 @@ void Engine::initialize(Data::GrammarRepository *grammarRepo, Data::SharedReposi
 SharedPtr<IdentifiableObject> Engine::processString(Char const *str)
 {
   if (str == 0) {
-    throw InvalidArgumentException(STR("str"), STR("Core::Processing::Engine::processString"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("str"), STR("Cannot be null."), str);
   }
 
   parser.beginParsing();
@@ -55,8 +54,7 @@ SharedPtr<IdentifiableObject> Engine::processFile(Char const *filename)
   // Open the file.
   std::ifstream fin(filename);
   if (fin.fail()) {
-    throw InvalidArgumentException(STR("filename"), STR("Core::Processing::Engine::processFile"),
-                                   STR("Could not open file."), filename);
+    throw EXCEPTION(InvalidArgumentException, STR("filename"), STR("Could not open file."), filename);
   }
 
   parser.beginParsing();

@@ -34,7 +34,7 @@ namespace Scg
 const ValueTypeSpec * CallFunction::GetValueTypeSpec() const
 {
   if (this->function == nullptr) {
-    THROW_EXCEPTION(InvalidOperationException, "This function should only "
+    throw EXCEPTION(InvalidOperationException, "This function should only "
         "be called after the pre-code generation step has finished, because "
         "we don't have a reference to the function before that.");
   }
@@ -84,8 +84,8 @@ Expression::CodeGenerationStage CallFunction::PreGenerateCode()
           return CodeGenerationStage::PreCodeGeneration;
   			} else {
   				// No match, throw a CompilationErrorException.
-          THROW_EXCEPTION(CompilationErrorException,
-          		"Calling undefined function " + this->funcName);
+          throw EXCEPTION(CompilationErrorException,
+                ("Calling undefined function " + this->funcName).c_str());
   			}
   			break;
 
@@ -97,8 +97,8 @@ Expression::CodeGenerationStage CallFunction::PreGenerateCode()
   		default:
   			// Found more than one match, throw a CompilationErrorException.
   			// TODO: Improve the exception so that it shows the candidate functions.
-  			THROW_EXCEPTION(CompilationErrorException,
-  					"Found multiple matches for " + this->funcName);
+  			throw EXCEPTION(CompilationErrorException,
+                    ("Found multiple matches for " + this->funcName).c_str());
   	}
   }
 
@@ -126,7 +126,7 @@ Expression::CodeGenerationStage CallFunction::GenerateCode()
     str << "Function " << this->funcName << " expects "
         << this->function->GetArgumentTypeSpecs().size() << " arguments, but got "
         << GetArguments()->GetElementCount();
-    THROW_EXCEPTION(ArgumentMismatchException, str.str());
+    throw EXCEPTION(ArgumentMismatchException, str.str().c_str());
   }
 
   for (size_t i = 0, e = GetArguments()->GetElementCount(); i != e; ++i)
@@ -137,9 +137,9 @@ Expression::CodeGenerationStage CallFunction::GenerateCode()
     auto argType = GetArguments()->GetElement(i)->GetValueTypeSpec()->ToValueType(*GetModule());
     auto argValue = GetArguments()->GetElement(i)->GetGeneratedLlvmValue();
     if (argValue == nullptr)
-      THROW_EXCEPTION(EvaluationException,
-          "Expression doesn't evaluate to a value: "
-              + GetArguments()->GetElement(i)->ToString());
+      throw EXCEPTION(EvaluationException,
+          ("Expression doesn't evaluate to a value: "
+              + GetArguments()->GetElement(i)->ToString()).c_str());
 
     if (expectedArgType != nullptr &&
         argType->Compare(expectedArgType) != TypeComparisonResult::Equivalent) {

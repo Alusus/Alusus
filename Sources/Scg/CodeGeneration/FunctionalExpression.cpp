@@ -35,7 +35,7 @@ FunctionalExpression::FunctionalExpression(CodeGenerator *gen,
     const SharedPtr<ParsedList> &item) : gen(gen)
 {
   if (item->getProdId() != gen->GetFunctionalExpId())
-    THROW_EXCEPTION(InvalidArgumentException,
+    throw EXCEPTION(InvalidArgumentException,
         "Functional expressions can be constructed from Expression.FunctionalExp only.");
 
   for (auto i = 0; i < item->getCount(); i++)
@@ -48,7 +48,7 @@ DeclareExtFunction *FunctionalExpression::ToDeclareExtFunction(
     ValueTypeSpec *retType)
 {
   if (this->subExprs.size() != 2)
-    THROW_EXCEPTION(SystemException, "Invalid function link.");
+    throw EXCEPTION(SystemException, "Invalid function link.");
   auto name = this->gen->ParseToken(this->subExprs[0]);
   auto args = ParamPassExp(
         this->gen, this->subExprs[1].s_cast<ParsedRoute>()).ParseValueTypes();
@@ -79,7 +79,7 @@ Expression *FunctionalExpression::ToExpression()
 {
   auto metadata = this->subExprs[0]->getInterface<ParsingMetadataHolder>();
   if (metadata == nullptr || metadata->getProdId() != this->gen->GetSubjectId())
-    THROW_EXCEPTION(SyntaxErrorException, "Invalid expression. Expressions "
+    throw EXCEPTION(SyntaxErrorException, "Invalid expression. Expressions "
         "should start with a token representing a variable or a function.");
 
   Expression *expr = nullptr;
@@ -152,7 +152,7 @@ Expression *FunctionalExpression::ToExpression()
       }
       else
       {
-        THROW_EXCEPTION(SyntaxErrorException, "Invalid post-fix tilde"
+        throw EXCEPTION(SyntaxErrorException, "Invalid post-fix tilde"
             "an expression.");
       }
     }
@@ -170,7 +170,7 @@ Char const* FunctionalExpression::ParseFieldName(
     const SharedPtr<ParsedList> &astBlockRoot)
 {
   if (astBlockRoot->getProdId() != this->gen->GetLinkExpId())
-    THROW_EXCEPTION(SystemException,
+    throw EXCEPTION(SystemException,
         "Unexpected error while trying to parse a field name.");
 
   static ReferenceSeeker seeker;
@@ -179,7 +179,7 @@ Char const* FunctionalExpression::ParseFieldName(
     ReferenceUsageCriteria::MULTI_DATA);
   auto fieldName = getSharedPtr(seeker.tryGet(fieldNameReference.get(), astBlockRoot.get()));
   if (fieldName == nullptr)
-    THROW_EXCEPTION(SystemException,
+    throw EXCEPTION(SystemException,
         "Unexpected error while trying to parse a field name.");
   return this->gen->ParseToken(fieldName);
 }
@@ -190,7 +190,7 @@ Expression *FunctionalExpression::ParseElementIndex(
     const SharedPtr<ParsedRoute> &astBlockRoot)
 {
   if (astBlockRoot->getProdId() != this->gen->GetParamPassId())
-    THROW_EXCEPTION(SystemException,
+    throw EXCEPTION(SystemException,
         "Unexpected error while trying to parse an array index.");
 
   static ReferenceSeeker seeker;
@@ -199,7 +199,7 @@ Expression *FunctionalExpression::ParseElementIndex(
     ReferenceUsageCriteria::MULTI_DATA);
   auto index = getSharedPtr(seeker.tryGet(indexReference.get(), astBlockRoot.get()));
   if (index == nullptr)
-    THROW_EXCEPTION(SystemException,
+    throw EXCEPTION(SystemException,
         "Unexpected error while trying to parse an array index.");
   return this->gen->GenerateExpression(index);
 }

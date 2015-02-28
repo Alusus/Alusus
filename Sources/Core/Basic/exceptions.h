@@ -2,7 +2,7 @@
  * @file Core/Basic/exceptions.h
  * Contains the declarations of all exception classes used by the core.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,6 +18,9 @@ namespace Core { namespace Basic
 
 // TODO: Add member functions to retrieve exception detailed information.
 
+//==============================================================================
+// Exception Classes
+
 /**
  * @brief The root of all exception classes used by the core.
  * @ingroup basic_exceptions
@@ -28,17 +31,40 @@ class Exception : public std::exception
   //============================================================================
   // Static Variables
 
-  /**
-   * @brief A buffer to hold error message text temporarily.
-   *
-   * This variable is used by getErrorMessage to host the message text
-   * returned by the function.
-   */
-  protected: static Str _message;
+  protected: Str functionName;
+  protected: Str sourceFile;
+  protected: Int lineNumber;
+
+
+  //============================================================================
+  // Constructors
+
+  protected: Exception(Char const *function, Char const *source, Int line) :
+    functionName(function), sourceFile(source), lineNumber(line)
+  {
+  }
 
 
   //============================================================================
   // Member Functions
+
+  /// Get name of function where exception originated.
+  public: Str const& getFunctionName() const
+  {
+    return this->functionName;
+  }
+
+  /// Get name of source file where exception originated.
+  public: Str const& getSourceFile() const
+  {
+    return this->sourceFile;
+  }
+
+  /// Get line number at which exception was thrown.
+  public: Int getLineNumber() const
+  {
+    return this->lineNumber;
+  }
 
   /**
    * @brief Get the error message.
@@ -52,13 +78,62 @@ class Exception : public std::exception
    */
   public: virtual const char* what() const throw()
   {
-    return this->getErrorMessage();
+    static thread_local Str msg;
+    msg = this->getVerboseErrorMessage();
+    return msg.c_str();
   }
 
   /// Get the error message.
-  public: virtual Char const* getErrorMessage() const throw()
+  public: virtual Str getErrorMessage() const throw()
   {
     return STR("Unknown Exception");
+  }
+
+  /// Get an error message that includes error location details.
+  public: virtual Str getVerboseErrorMessage() const throw();
+
+}; // class
+
+
+/**
+ * @brief Generic exception.
+ * @ingroup basic_exceptions
+ * @details This exception can hold any message.
+ */
+class GenericException : public Exception
+{
+  //============================================================================
+  // Member Variables
+
+  /// The error message associated with this exception.
+  private: Str comment;
+
+
+  //============================================================================
+  // Constructor
+
+  public: GenericException(Char const *cmt,
+                           Char const *function, Char const *source, Int line) :
+    comment(cmt), Exception(function, source, line)
+  {
+  }
+
+  public: virtual ~GenericException() throw()
+  {
+  }
+
+
+  //============================================================================
+  // Member Functions
+
+  public: Str const& getComment() const
+  {
+    return this->comment;
+  }
+
+  public: virtual Str getErrorMessage() const throw()
+  {
+    return STR("Generic Exception: ") + this->comment;
   }
 
 }; // class
@@ -94,10 +169,16 @@ class FileException : public Exception
   //============================================================================
   // Constructor
 
-  public: FileException(Char const *fname, Char op, Char const *cmt=0) :
-    fileName(fname), operation(op)
+  public: FileException(Char const *fname, Char op, Char const *cmt,
+                        Char const *function, Char const *source, Int line) :
+    fileName(fname), operation(op), comment(cmt), Exception(function, source, line)
   {
-    if (cmt != 0) this->comment = cmt;
+  }
+
+  public: FileException(Char const *fname, Char op,
+                        Char const *function, Char const *source, Int line) :
+    fileName(fname), operation(op), Exception(function, source, line)
+  {
   }
 
   public: virtual ~FileException() throw()
@@ -123,7 +204,7 @@ class FileException : public Exception
     return this->comment;
   }
 
-  public: virtual Char const* getErrorMessage() const throw();
+  public: virtual Str getErrorMessage() const throw();
 
 }; // class
 
@@ -153,9 +234,16 @@ class MemoryException : public Exception
   //============================================================================
   // Constructor
 
-  public: MemoryException(Char op, Char const *cmt=0) : operation(op)
+  public: MemoryException(Char op, Char const *cmt,
+                          Char const *function, Char const *source, Int line) :
+    operation(op), comment(cmt), Exception(function, source, line)
   {
-    if (cmt != 0) this->comment = cmt;
+  }
+
+  public: MemoryException(Char op,
+                          Char const *function, Char const *source, Int line) :
+    operation(op), Exception(function, source, line)
+  {
   }
 
   public: virtual ~MemoryException() throw()
@@ -176,7 +264,7 @@ class MemoryException : public Exception
     return this->comment;
   }
 
-  public: virtual Char const* getErrorMessage() const throw();
+  public: virtual Str getErrorMessage() const throw();
 
 }; // class
 
@@ -199,12 +287,6 @@ class InvalidArgumentException : public Exception
   /// The value of the argument that carried invalid data.
   Str argumentValue;
 
-  /**
-   * @brief The location where the exception happened.
-   * This can be a file name, a function name, etc.
-   */
-  Str location;
-
   /// An additional comment to include in the error message.
   Str comment;
 
@@ -212,20 +294,16 @@ class InvalidArgumentException : public Exception
   //============================================================================
   // Constructor
 
-  public: InvalidArgumentException(Char const *argname, Char const *loc=0,
-                                   Char const *cmt=0) :
-    argumentName(argname)
+  public: InvalidArgumentException(Char const *argname, Char const *cmt,
+                                   Char const *function, Char const *source, Int line) :
+    argumentName(argname), comment(cmt), Exception(function, source, line)
   {
-    if (loc != 0) this->location = loc;
-    if (cmt != 0) this->comment = cmt;
   }
 
-  public: template <class T> InvalidArgumentException(Char const *argname, Char const *loc, Char const *cmt,
-                                                      const T &argvalue) :
-    argumentName(argname)
+  public: template <class T> InvalidArgumentException(Char const *argname, Char const *cmt, const T &argvalue,
+                                                      Char const *function, Char const *source, Int line) :
+    argumentName(argname), comment(cmt), Exception(function, source, line)
   {
-    if (loc != 0) this->location = loc;
-    if (cmt != 0) this->comment = cmt;
     StrStream stream;
     stream << argvalue;
     this->argumentValue = stream.str();
@@ -249,71 +327,52 @@ class InvalidArgumentException : public Exception
     return this->argumentValue;
   }
 
-  public: Str const& getLocation() const
-  {
-    return this->location;
-  }
-
   public: Str const& getComment() const
   {
     return this->comment;
   }
 
-  public: virtual Char const* getErrorMessage() const throw();
+  public: virtual Str getErrorMessage() const throw();
 
 }; // class
 
 
-/**
- * @brief General exception.
- * @ingroup basic_exceptions
- * @details This exception can hold any message.
- */
-class GeneralException : public Exception
-{
-  //============================================================================
-  // Member Variables
+//==============================================================================
+// Exception Macros
 
-  /**
-   * @brief The location where the exception happened.
-   * @details This can be a file name, a function name, etc.
-   */
-  Str location;
+#if defined(__GNUC__) || (defined(__MWERKS__) && (__MWERKS__ >= 0x3000)) || (defined(__ICC) && (__ICC >= 600))
+  #define __THIS_FUNCTION__ __PRETTY_FUNCTION__
+#elif defined(__DMC__) && (__DMC__ >= 0x810)
+  #define __THIS_FUNCTION__ __PRETTY_FUNCTION__
+#elif defined(__FUNCSIG__)
+  #define __THIS_FUNCTION__ __FUNCSIG__
+#elif (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 600)) || (defined(__IBMCPP__) && (__IBMCPP__ >= 500))
+  #define __THIS_FUNCTION__ __FUNCTION__
+#elif defined(__BORLANDC__) && (__BORLANDC__ >= 0x550)
+  #define __THIS_FUNCTION__ __FUNC__
+#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901)
+  #define __THIS_FUNCTION__ __func__
+#else
+  #define __THIS_FUNCTION__ "(unknown)"
+#endif
 
-  /// The error message associated with this exception.
-  Str message;
-
-
-  //============================================================================
-  // Constructor
-
-  public: GeneralException(Char const *msg, Char const *loc=0) :
-    message(msg)
-  {
-    if (loc != 0) this->location = loc;
+#define DEFINE_EXCEPTION(exceptionName, base, title) \
+  class exceptionName : public base \
+  { \
+  public: \
+    exceptionName(Char const *cmt, \
+                   Char const *function, Char const *source, Int line) : \
+      base(cmt, function, source, line) \
+    { \
+    } \
+    virtual Str getErrorMessage() const throw() \
+    { \
+      return Str(title) + STR(": ") + this->getComment(); \
+    } \
   }
 
-  public: virtual ~GeneralException() throw()
-  {
-  }
-
-
-  //============================================================================
-  // Member Functions
-
-  public: Str const& getLocation() const
-  {
-    return this->location;
-  }
-
-  public: Str const& get_message() const
-  {
-    return this->message;
-  }
-
-  public: virtual Char const* getErrorMessage() const throw();
-
-}; // class
+#define EXCEPTION(exceptionName, ...) \
+  exceptionName(__VA_ARGS__, __THIS_FUNCTION__, __FILE__, __LINE__)
 
 } } // namespace
 

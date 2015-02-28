@@ -26,10 +26,8 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
       case SymbolDefElement::PARENT_REF:
         this->parentReference = arg.ioVal.io_cast<Reference>();
         if (this->parentReference == 0 && arg.ioVal != 0) {
-          throw InvalidArgumentException(STR("parent_ref"),
-                                         STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                         STR("Must be of type Reference."),
-                                         arg.ioVal->getMyTypeInfo()->getUniqueName());
+          throw EXCEPTION(InvalidArgumentException, STR("parent_ref"),
+                          STR("Must be of type Reference."), arg.ioVal->getMyTypeInfo()->getUniqueName());
         }
         this->ownership |= SymbolDefElement::PARENT_REF;
         break;
@@ -40,26 +38,24 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
       case SymbolDefElement::VAR_DEFS:
         this->varDefs = arg.ioVal;
         if (this->varDefs != 0 && !this->varDefs->isA<SharedMap>() && !this->varDefs->isDerivedFrom<Reference>()) {
-          throw InvalidArgumentException(STR("varDefs"), STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                         STR("Must be of type SharedMap or Reference."));
+          throw EXCEPTION(InvalidArgumentException, STR("varDefs"),
+                          STR("Must be of type SharedMap or Reference."));
         }
         this->ownership |= SymbolDefElement::VAR_DEFS;
         break;
       case SymbolDefElement::VARS:
         this->vars = arg.ioVal;
         if (this->vars != 0 && !this->vars->isA<SharedMap>() && !this->vars->isDerivedFrom<Reference>()) {
-          throw InvalidArgumentException(STR("vars"), STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                         STR("Must be of type SharedMap or Reference."));
+          throw EXCEPTION(InvalidArgumentException, STR("vars"),
+                          STR("Must be of type SharedMap or Reference."));
         }
         this->ownership |= SymbolDefElement::VARS;
         break;
       case SymbolDefElement::HANDLER:
         this->handler = arg.ioVal.io_cast<OperationHandler>();
         if (this->handler == 0 && arg.ioVal != 0) {
-          throw InvalidArgumentException(STR("handler"),
-                                         STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                         STR("Must be of type OperationHandler."),
-                                         arg.ioVal->getMyTypeInfo()->getUniqueName());
+          throw EXCEPTION(InvalidArgumentException, STR("handler"), STR("Must be of type OperationHandler."),
+                          arg.ioVal->getMyTypeInfo()->getUniqueName());
         }
         this->ownership |= SymbolDefElement::HANDLER;
         break;
@@ -78,12 +74,12 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
     }
   }
   if (this->term == 0 && this->parentReference == 0) {
-    throw InvalidArgumentException(STR("term"), STR("Core::Data::SymbolDefinition::setTerm"),
-                                   STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("term"),
+                    STR("Should not be null."));
   } else if (this->term != 0) {
     if (!this->term->isDerivedFrom<Term>() && !this->term->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("term"), STR("Core::Data::SymbolDefinition::Symbol_Definision"),
-                                     STR("Must be of type Term or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("term"),
+                      STR("Must be of type Term or Reference."));
     }
   }
 }
@@ -161,13 +157,11 @@ void SymbolDefinition::initialize(IdentifiableObject *owner)
     if (tracer != 0) {
       IdentifiableObject *p = tracer->traceValue(this->parentReference.get());
       if (p == 0) {
-        throw GeneralException(STR("Parent reference points to missing definition."),
-                               STR("Data::SymbolDefinition::initialize"));
+        throw EXCEPTION(GenericException, STR("Parent reference points to missing definition."));
       }
       SymbolDefinition *psd = io_cast<SymbolDefinition>(p);
       if (psd == 0) {
-        throw GeneralException(STR("Parent reference points to an object of an invalid type."),
-                               STR("Data::SymbolDefinition::initialize"));
+        throw EXCEPTION(GenericException, STR("Parent reference points to an object of an invalid type."));
       }
       this->setParent(psd);
     }

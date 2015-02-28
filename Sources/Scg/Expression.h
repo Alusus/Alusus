@@ -169,7 +169,7 @@ namespace Scg
     {
       // TODO: This exception is being frequently used, with a similar statement
       // each time. A macro should be created for it to avoid duplication.
-      THROW_EXCEPTION(InvalidValueException,
+      throw EXCEPTION(InvalidValueException,
           "Expression doesn't evaluate to a value.");
     }
     virtual ValueTypeSpec *GetValueTypeSpec()

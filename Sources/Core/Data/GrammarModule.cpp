@@ -25,22 +25,19 @@ GrammarModule::GrammarModule(const std::initializer_list<Argument<Char const*>> 
     if (sbstr_cast(arg.id) == STR("@parent")) {
       this->parentReference = arg.ioVal.io_cast<Reference>();
       if (this->parentReference == 0 && arg.ioVal != 0) {
-        throw GeneralException(STR("Provided parent reference is not of type Reference."),
-                               STR("Core::Data::GrammarModule::GrammarModule"));
+        throw EXCEPTION(GenericException, STR("Provided parent reference is not of type Reference."));
       }
     } else if (sbstr_cast(arg.id) == STR("@start")) {
       this->startRef = arg.ioVal.io_cast<Reference>();
       this->ownership |= GrammarModuleMetaElement::START_REF;
       if (this->startRef == 0 && arg.ioVal != 0) {
-        throw GeneralException(STR("Provided start reference is not of type Reference."),
-                               STR("Core::Data::GrammarModule::GrammarModule"));
+        throw EXCEPTION(GenericException, STR("Provided start reference is not of type Reference."));
       }
     } else if (sbstr_cast(arg.id) == STR("@lexer_module")) {
       this->lexerModuleRef = arg.ioVal.io_cast<Reference>();
       this->ownership |= GrammarModuleMetaElement::LEXER_MODULE_REF;
       if (this->lexerModuleRef == 0 && arg.ioVal != 0) {
-        throw GeneralException(STR("Provided lexer module reference is not of type Reference."),
-                               STR("Core::Data::GrammarModule::GrammarModule"));
+        throw EXCEPTION(GenericException, STR("Provided lexer module reference is not of type Reference."));
       }
     } else {
       this->add(arg.id, arg.ioVal);
@@ -108,13 +105,11 @@ void GrammarModule::initialize(IdentifiableObject *owner)
     Tracer *tracer = owner->getInterface<Tracer>();
     IdentifiableObject *p = tracer->traceValue(this->parentReference.get());
     if (p == 0) {
-      throw GeneralException(STR("Parent reference points to missing definition."),
-                             STR("Data::GrammarModule::initialize"));
+      throw EXCEPTION(GenericException, STR("Parent reference points to missing definition."));
     }
     GrammarModule *pm = io_cast<GrammarModule>(p);
     if (pm == 0) {
-      throw GeneralException(STR("Parent reference points to an object of an invalid type."),
-                             STR("Data::GrammarModule::initialize"));
+      throw EXCEPTION(GenericException, STR("Parent reference points to an object of an invalid type."));
     }
     this->setParent(pm);
   }

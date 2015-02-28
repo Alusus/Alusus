@@ -84,20 +84,16 @@ class SymbolDefinition : public IdentifiableObject,
     flags(f), attributes(a), ownership(SymbolDefElement::ALL)
   {
     if (t == 0) {
-      throw InvalidArgumentException(STR("t"), STR("Core::Data::SymbolDefinition::setTerm"),
-                                     STR("Should not be null."));
+      throw EXCEPTION(InvalidArgumentException, STR("t"), STR("Should not be null."));
     }
     if (!t->isDerivedFrom<Term>() && !t->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("t"), STR("Core::Data::SymbolDefinition::Symbol_Definision"),
-                                     STR("Must be of type Term or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("t"), STR("Must be of type Term or Reference."));
     }
     if (vd != 0 && !vd->isA<SharedMap>() && !vd->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("vd"), STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                     STR("Must be of type SharedMap or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("vd"), STR("Must be of type SharedMap or Reference."));
     }
     if (v != 0 && !v->isA<SharedMap>() && !v->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("v"), STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                     STR("Must be of type SharedMap or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("v"), STR("Must be of type SharedMap or Reference."));
     }
   }
 
@@ -152,8 +148,7 @@ class SymbolDefinition : public IdentifiableObject,
   public: void setTerm(SharedPtr<IdentifiableObject> const &t)
   {
     if (!t->isDerivedFrom<Term>() && !t->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("t"), STR("Core::Data::SymbolDefinition::setTerm"),
-                                     STR("Must be of type Term or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("t"), STR("Must be of type Term or Reference."));
     }
     this->term = t;
     this->ownership |= SymbolDefElement::TERM;
@@ -176,8 +171,7 @@ class SymbolDefinition : public IdentifiableObject,
   public: void setVarDefs(SharedPtr<IdentifiableObject> const &vd)
   {
     if (vd != 0 && !vd->isA<SharedMap>() && !vd->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("vd"), STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                     STR("Must be of type SharedMap or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("vd"), STR("Must be of type SharedMap or Reference."));
     }
     this->varDefs = vd;
     this->ownership |= SymbolDefElement::VAR_DEFS;
@@ -200,8 +194,7 @@ class SymbolDefinition : public IdentifiableObject,
   public: void setVars(SharedPtr<IdentifiableObject> const &v)
   {
     if (v != 0 && !v->isA<SharedMap>() && !v->isDerivedFrom<Reference>()) {
-      throw InvalidArgumentException(STR("v"), STR("Core::Data::SymbolDefinition::SymbolDefinition"),
-                                     STR("Must be of type SharedMap or Reference."));
+      throw EXCEPTION(InvalidArgumentException, STR("v"), STR("Must be of type SharedMap or Reference."));
     }
     this->vars = v;
     this->ownership |= SymbolDefElement::VARS;

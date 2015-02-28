@@ -38,7 +38,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     auto nameToken = io_cast<Data::ParsedToken>(seeker.tryGet(nameReference.get(), expr.get()));
     if (nameToken == 0 || nameToken->getId() != identifierTokenId) {
       // TODO: Generate a build message instead of throwing an exception.
-      THROW_EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
+      throw EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
     }
     auto name = nameToken->getText();
 
@@ -51,7 +51,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
       // TODO: Generate a build message instead of throwing an exception.
       // TODO: We need to choose terms for the parts of a define command, e.g.
       // definition name, definition, etc.
-      THROW_EXCEPTION(SyntaxErrorException, "A 'def' has an invalid definition.");
+      throw EXCEPTION(SyntaxErrorException, "A 'def' has an invalid definition.");
     }
 
     // Check if the definee is an alias.

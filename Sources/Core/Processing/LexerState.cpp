@@ -28,7 +28,7 @@ void LexerState::copyFrom(const LexerState *src)
 {
   // Validation.
   if (src == 0) {
-    throw InvalidArgumentException(STR("src"), STR("Core::Processing::LexerState::copyFrom"));
+    throw EXCEPTION(InvalidArgumentException, STR("src"), STR("Cannot be null."));
   }
   // Copy from the given state.
   this->tokenLength = src->getTokenLength();

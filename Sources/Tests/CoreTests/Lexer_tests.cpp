@@ -46,7 +46,7 @@ TEST_CASE("Core::Processing/Lexer/successful", "Successful Tokenization Test")
       tester.test(STR("strVar = 123;"));
     }
   } catch (Exception &e) {
-    FAIL(e.getErrorMessage());
+    FAIL(e.getVerboseErrorMessage());
   }
 }
 

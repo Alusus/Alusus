@@ -15,7 +15,7 @@
 #ifdef _DEBUG
 #define MODULE_CHECK                                                           \
   if (GetModule() == 0)                                                        \
-    THROW_EXCEPTION(UnattachedExpressionException,                             \
+    throw EXCEPTION(UnattachedExpressionException,                             \
     "This expression must be contained in a module!");
 #else
 #define MODULE_CHECK
@@ -24,7 +24,7 @@
 #ifdef _DEBUG
 #define FUNCTION_CHECK                                                         \
   if (GetFunction() == 0)                                                      \
-    THROW_EXCEPTION(UnattachedExpressionException,                             \
+    throw EXCEPTION(UnattachedExpressionException,                             \
     "This expression must be contained in a function!");
 #else
 #define FUNCTION_CHECK
@@ -33,7 +33,7 @@
 #ifdef _DEBUG
 #define BLOCK_CHECK                                                            \
   if (GetBlock() == 0)                                                         \
-    THROW_EXCEPTION(UnattachedExpressionException,                             \
+    throw EXCEPTION(UnattachedExpressionException,                             \
     "This expression must be contained in a block!");
 #else
 #define BLOCK_CHECK
@@ -42,7 +42,7 @@
 #ifdef _DEBUG
 #define MODULE_OR_BLOCK_CHECK                                                  \
   if (GetModule() == nullptr && GetBlock() == nullptr)                         \
-    THROW_EXCEPTION(UnattachedExpressionException,                             \
+    throw EXCEPTION(UnattachedExpressionException,                             \
     "This expression must be contained in a module or a block!");
 #else
 #define MODULE_OR_BLOCK_CHECK

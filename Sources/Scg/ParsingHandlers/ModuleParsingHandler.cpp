@@ -61,7 +61,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
         auto elementMetadata = element->getInterface<ParsingMetadataHolder>();
         if (element == 0 || elementMetadata == 0) {
             // TODO: Generate a build message instead of throwing an exception.
-            THROW_EXCEPTION(SyntaxErrorException, "Invalid statement received in module body.");
+            throw EXCEPTION(SyntaxErrorException, "Invalid statement received in module body.");
         }
         auto id = elementMetadata->getProdId();
         if (id == defId) {
@@ -96,7 +96,7 @@ void ModuleParsingHandler::addDefinitionToModule(const SharedPtr<IdentifiableObj
   auto nameToken = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), def.get()));
   if (nameToken == nullptr || nameToken->getId() != identifierTokenId) {
       // TODO: Generate a build message instead of throwing an exception.
-      THROW_EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
+      throw EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
   }
   auto name = nameToken->getText();
 
@@ -145,7 +145,7 @@ void ModuleParsingHandler::addLinkToModule(const SharedPtr<IdentifiableObject> &
     }
     else
       // TODO: Improve exception message.
-      THROW_EXCEPTION(SyntaxErrorException, "Invalid link statement.");
+      throw EXCEPTION(SyntaxErrorException, "Invalid link statement.");
   }
 }
 
@@ -171,11 +171,11 @@ Char const* ModuleParsingHandler::getLinkName(IdentifiableObject *link)
   {
     funcExp = io_cast<ParsedList>(seeker.tryGet(funcExpReference.get(), link));
     if (funcExp == 0)
-      THROW_EXCEPTION(InvalidArgumentException, "Invalid function link expression.");
+      throw EXCEPTION(InvalidArgumentException, "Invalid function link expression.");
   }
   auto nameToken = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), funcExp));
   if (nameToken == 0 || nameToken->getId() != identifierTokenId)
-    THROW_EXCEPTION(InvalidArgumentException,
+    throw EXCEPTION(InvalidArgumentException,
         "Functional expressions should have the name of the function "
         "under the path 0:Subject.Subject1>0:Subject.Parameter.");
   return nameToken->getText().c_str();

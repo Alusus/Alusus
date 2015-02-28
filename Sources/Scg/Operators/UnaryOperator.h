@@ -54,7 +54,7 @@ public:
   UnaryOperator(Operator op, Expression *operand) : operatorType(op)
   {
     if (operatorType < INCREMENT || operatorType > DECREMENT)
-      THROW_EXCEPTION(ArgumentOutOfRangeException, "Invalid unary operator.");
+      throw EXCEPTION(ArgumentOutOfRangeException, "Invalid unary operator.");
     children.push_back(operand);
   }
 

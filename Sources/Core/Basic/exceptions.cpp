@@ -2,7 +2,7 @@
  * @file Core/Basic/exceptions.cpp
  * Contains the implementation of exception classes.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,58 +16,62 @@ namespace Core { namespace Basic
 {
 
 //==============================================================================
-// Static Variables
-
-Str Exception::_message;
-
-
-//==============================================================================
 // Member Functions
 
+Str Exception::getVerboseErrorMessage() const throw()
+{
+  return this->getErrorMessage() + STR("\nLocation:\n") + this->functionName + STR("\n") +
+      this->sourceFile += STR(" : ") + this->lineNumber;
+}
+
+
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-Char const* FileException::getErrorMessage() const throw()
+Str FileException::getErrorMessage() const throw()
 {
+  StrStream msg;
+  msg << STR("File Exception: ");
   switch (this->operation) {
     case CHR('o'):
-      Exception::_message = STR("Couldn't open file: ");
+      msg << STR("Couldn't open file: ");
       break;
     case CHR('c'):
-      Exception::_message = STR("Couldn't close file: ");
+      msg << STR("Couldn't close file: ");
       break;
     case CHR('r'):
-      Exception::_message = STR("Couldn't read from file: ");
+      msg << STR("Couldn't read from file: ");
       break;
     case CHR('w'):
-      Exception::_message = STR("Couldn't write to file: ");
+      msg << STR("Couldn't write to file: ");
       break;
     default:
       // this should never be reached
       ASSERT(false);
       break;
   }
-  Exception::_message += this->fileName;
-  Exception::_message += STR(".");
+  msg << this->fileName;
+  msg << STR(".");
   if (this->comment.size() > 0) {
-    Exception::_message += STR(".\n");
-    Exception::_message += this->comment;
+    msg << STR(".\n");
+    msg << this->comment;
   }
-  return Exception::_message.c_str();
+  return msg.str();
 }
 
 
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-Char const* MemoryException::getErrorMessage() const throw()
+Str MemoryException::getErrorMessage() const throw()
 {
+  Str msg = STR("Memory Exception: ");
   switch (this->operation) {
     case CHR('a'):
-      Exception::_message = STR("Couldn't allocate memory block.");
+      msg += STR("Couldn't allocate memory block.");
       break;
     case CHR('f'):
-      Exception::_message = STR("Couldn't free memory block.");
+      msg += STR("Couldn't free memory block.");
       break;
     default:
       // this should never be reached
@@ -75,48 +79,29 @@ Char const* MemoryException::getErrorMessage() const throw()
       break;
   }
   if (this->comment.size() > 0) {
-    Exception::_message += STR("\n");
-    Exception::_message += this->comment;
+    msg += STR("\n");
+    msg += this->comment;
   }
-  return Exception::_message.c_str();
+  return msg;
 }
 
 
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-Char const* InvalidArgumentException::getErrorMessage() const throw()
+Str InvalidArgumentException::getErrorMessage() const throw()
 {
-  Exception::_message = STR("Invalid Argument (");
-  Exception::_message += this->argumentName;
+  Str msg = STR("Invalid Argument Exception (") + this->argumentName;
   if (this->argumentValue.size() > 0) {
-    Exception::_message += STR(" = ");
-    Exception::_message += this->argumentValue;
+    msg += STR(" = ");
+    msg += this->argumentValue;
   }
-  Exception::_message += STR(")");
-  if (this->location.size() > 0) {
-    Exception::_message += STR("\nLocation: ");
-    Exception::_message += this->location;
-  }
+  msg += STR(")");
   if (this->comment.size() > 0) {
-    Exception::_message += STR("\n");
-    Exception::_message += this->comment;
+    msg += STR("\n");
+    msg += this->comment;
   }
-  return Exception::_message.c_str();
-}
-
-
-/**
- * @return Returns a pointer to a string containing the error message.
- */
-Char const* GeneralException::getErrorMessage() const throw()
-{
-  Exception::_message = this->message;
-  if (this->location.size() > 0) {
-    Exception::_message += STR("\nLocation: ");
-    Exception::_message += this->location;
-  }
-  return Exception::_message.c_str();
+  return msg;
 }
 
 } } // namespace

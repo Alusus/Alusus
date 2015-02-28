@@ -52,8 +52,7 @@ void ReferenceParser::initDefaultCharGroups()
 void ReferenceParser::buildQualifier(Reference const *ref, StrStream &qualifier)
 {
   if (ref == 0) {
-    throw InvalidArgumentException(STR("ref"), STR("Core::Data::ReferenceParser::buildQualifier"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
   }
 
   while (ref != 0) {
@@ -76,8 +75,7 @@ void ReferenceParser::buildQualifier(Reference const *ref, StrStream &qualifier)
         qualifier << ReferenceParser::FIND_KEYWORD;
         StrAttributeValidator *validator = iref->getSearchValidator().io_cast_get<StrAttributeValidator>();
         if (validator == 0) {
-          throw GeneralException(STR("Provided reference contains a search segment with an invalid validator."),
-                                 STR("Core::Data::ReferenceParser::buildQualifier"));
+          throw EXCEPTION(GenericException, STR("Provided reference contains a search segment with an invalid validator."));
         }
         qualifier << validator->getName() << CHR('=') << validator->getValue();
         if (iref->getMatchLimitation() != -1) {
@@ -88,14 +86,13 @@ void ReferenceParser::buildQualifier(Reference const *ref, StrStream &qualifier)
       } else if (ref->isA<SelfReference>()) {
         qualifier << ReferenceParser::SELF_KEYWORD;
       } else {
-        throw GeneralException(STR("Provided reference contains an invalid segment type."),
-                               STR("Core::Data::ReferenceParser::buildQualifier"));
+        throw EXCEPTION(GenericException, STR("Provided reference contains an invalid segment type."));
       }
       if (ref->getResultValidator() != 0) {
         StrAttributeValidator *validator = ref->getResultValidator().io_cast_get<StrAttributeValidator>();
         if (validator == 0) {
-          throw GeneralException(STR("Provided reference contains a segment with an invalid result validator."),
-                                 STR("Core::Data::ReferenceParser::buildQualifier"));
+          throw EXCEPTION(GenericException,
+                          STR("Provided reference contains a segment with an invalid result validator."));
         }
         qualifier << ReferenceParser::WHERE_KEYWORD;
         qualifier << validator->getName() << CHR('=') << validator->getValue();
@@ -139,8 +136,7 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(Char const *qualifier, Int
 {
   // Validation.
   if (qualifier == 0) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifier"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
   }
 
   ReferenceParser::initDefaultCharGroups();
@@ -157,8 +153,7 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(Char const *qualifier, Int
   while (true) {
     convertStr(qualifier+pos, 4, &wc, 1, processedIn, processedOut);
     if (processedOut == 0) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifier"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     // Check the first character to determine the route to take.
     if (qualifier[pos] == CHR('(')) {
@@ -172,8 +167,7 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(Char const *qualifier, Int
       seg->setUsageCriteria(criteria);
       // Now we need to skip the closing bracket, after making sure it exists.
       if (qualifier[pos] != CHR(')')) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::Reference::parseQualifier"),
-                                       STR("Invalid qualifier."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
       }
       ++pos;
     } else if (qualifier[pos] >= CHR('0') && qualifier[pos] <= CHR('9')) {
@@ -193,8 +187,7 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(Char const *qualifier, Int
         i += processedIn;
         convertStr(qualifier+pos+i, 4, &wc, 1, processedIn, processedOut);
         if (processedOut == 0) {
-          throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifier"),
-                                         STR("Invalid qualifier."), qualifier);
+          throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
         }
       } while (matchCharGroup(wc, ReferenceParser::letterCharGroup.get()) ||
                matchCharGroup(wc, ReferenceParser::numberCharGroup.get()));
@@ -222,8 +215,8 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(Char const *qualifier, Int
       pos += ReferenceParser::parseStrAttributeValidator(qualifier+pos, searchValidator.get());
       seg = std::make_shared<SearchReference>(searchValidator);
       if (qualifier[pos] == CHR('&') || qualifier[pos] == CHR('|')) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::Reference::parseQualifier"),
-                                       STR("Logical operations in validators are not supported yet."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                        STR("Logical operations in validators are not supported yet."), qualifier);
       }
       // Check for a match limitation parameter.
       if (qualifier[pos] == CHR(',')) {
@@ -245,8 +238,7 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(Char const *qualifier, Int
         pos += ReferenceParser::skipSpaces(qualifier+pos);
       }
       if (qualifier[pos] != CHR('}')) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::Reference::parseQualifier"),
-                                       STR("Invalid qualifier."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
       }
       ++pos;
     } else if (compareStr(qualifier+pos, ReferenceParser::EVAL_KEYWORD, ReferenceParser::EVAL_KEYWORD_LEN) == 0) {
@@ -261,8 +253,8 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(Char const *qualifier, Int
         seg->setUsageCriteria(criteria);
       } catch (InvalidArgumentException &e) {
         if (e.getArgumentName() == STR("qualifier")) {
-          throw InvalidArgumentException(e.getArgumentName().c_str(), e.getLocation().c_str(),
-                                         e.getComment().c_str(), e.getArgumentValue());
+          throw InvalidArgumentException(STR("qualifier"), e.getComment().c_str(), qualifier,
+                                         e.getFunctionName().c_str(), e.getSourceFile().c_str(), e.getLineNumber());
         } else {
           throw e;
         }
@@ -270,13 +262,11 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(Char const *qualifier, Int
       pos += i;
       // Now we need to skip the closing bracket, after making sure it exists.
       if (qualifier[pos] != CHR('}')) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::Reference::parseQualifier"),
-                                       STR("Invalid qualifier."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
       }
       ++pos;
     } else {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifier"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
 
     // Check if a result validator is attached to the segment.
@@ -285,13 +275,12 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(Char const *qualifier, Int
       auto resultValidator = StrAttributeValidator::create();
       pos += ReferenceParser::parseStrAttributeValidator(qualifier+pos, resultValidator.get());
       if (qualifier[pos] == CHR('&') || qualifier[pos] == CHR('|')) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::Reference::parseQualifier"),
-                                       STR("Logical operations in validators are not supported yet."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                        STR("Logical operations in validators are not supported yet."), qualifier);
       }
       seg->setResultValidator(resultValidator);
       if (qualifier[pos] != CHR(')')) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::Reference::parseQualifier"),
-                                       STR("Invalid qualifier."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
       }
       ++pos;
     }
@@ -311,8 +300,7 @@ SharedPtr<Reference> ReferenceParser::_parseQualifier(Char const *qualifier, Int
 
   // At this point we should've reached the end of the qualifier or subqualifier.
   if (qualifier[pos] != CHR('\0') && (qualifier[pos] != CHR('}') || pos == 0)) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifier"),
-                                   STR("Invalid qualifier."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
   }
 
   return ref;
@@ -334,8 +322,7 @@ Reference const& ReferenceParser::parseQualifierSegment(Char const *&qualifier)
   Int i;
   // Validation.
   if (qualifier == 0) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifierSegment"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
   }
 
   ReferenceParser::initDefaultCharGroups();
@@ -345,8 +332,7 @@ Reference const& ReferenceParser::parseQualifierSegment(Char const *&qualifier)
 
   convertStr(qualifier, 4, &wc, 1, processedIn, processedOut);
   if (processedOut == 0) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifierSegment"),
-                                   STR("Invalid qualifier."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
   }
 
   if (matchCharGroup(wc, ReferenceParser::letterCharGroup.get())) {
@@ -358,8 +344,7 @@ Reference const& ReferenceParser::parseQualifierSegment(Char const *&qualifier)
       i += processedIn;
       convertStr(qualifier+i, 4, &wc, 1, processedIn, processedOut);
       if (processedOut == 0) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifierSegment"),
-                                       STR("Invalid qualifier."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
       }
     } while (matchCharGroup(wc, ReferenceParser::letterCharGroup.get()) ||
              matchCharGroup(wc, ReferenceParser::numberCharGroup.get()));
@@ -394,8 +379,7 @@ Reference const& ReferenceParser::parseQualifierSegment(Char const *&qualifier)
     qualifier += ReferenceParser::parseInt(qualifier, j);
     this->tempIndexReference.setIndex(j);
     if (*qualifier != CHR(')')) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::Reference::parseQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     ++qualifier;
     this->setQualifierSegmentResultValidator(qualifier, &this->tempSearchReference);
@@ -418,8 +402,8 @@ Reference const& ReferenceParser::parseQualifierSegment(Char const *&qualifier)
     qualifier += ReferenceParser::parseStrAttributeValidator(qualifier, this->tempSearchValidator.get());
     this->tempSearchReference.setSearchValidator(this->tempSearchValidator);
     if (*qualifier == CHR('&') || *qualifier == CHR('|')) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::Reference::parseQualifierSegment"),
-                                     STR("Logical operations in validators are not supported yet."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                      STR("Logical operations in validators are not supported yet."), qualifier);
     }
     // Check for a match limitation parameter.
     if (*qualifier == CHR(',')) {
@@ -441,18 +425,16 @@ Reference const& ReferenceParser::parseQualifierSegment(Char const *&qualifier)
       qualifier += ReferenceParser::skipSpaces(qualifier);
     }
     if (*qualifier != CHR('}')) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::Reference::parseQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     ++qualifier;
     this->setQualifierSegmentResultValidator(qualifier, &this->tempSearchReference);
     return this->tempSearchReference;
   } else if (compareStr(qualifier, ReferenceParser::EVAL_KEYWORD, ReferenceParser::EVAL_KEYWORD_LEN) == 0) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifierSegment"),
-                                   STR("Indirect references are not supported by this function."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                    STR("Indirect references are not supported by this function."), qualifier);
   } else {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseQualifierSegment"),
-                                   STR("Invalid qualifier."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
   }
 }
 
@@ -465,13 +447,12 @@ void ReferenceParser::setQualifierSegmentResultValidator(Char const *&qualifier,
     if (this->tempResultValidator == 0) this->tempResultValidator = StrAttributeValidator::create();
     qualifier += ReferenceParser::parseStrAttributeValidator(qualifier, this->tempResultValidator.get());
     if (*qualifier == CHR('&') || *qualifier == CHR('|')) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::Reference::setQualifierSegmentResultValidator"),
-                                     STR("Logical operations in validators are not supported yet."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                      STR("Logical operations in validators are not supported yet."), qualifier);
     }
     seg->setResultValidator(this->tempResultValidator);
     if (*qualifier != CHR(')')) {
-      throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::Reference::setQualifierSegmentResultValidator"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     ++qualifier;
   } else {
@@ -497,8 +478,7 @@ Bool ReferenceParser::_validateQualifier(Char const *qualifier, Bool absolute, C
 {
   // Validation.
   if (qualifier == 0) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::validateQualifier"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
   }
 
   ReferenceParser::initDefaultCharGroups();
@@ -507,8 +487,7 @@ Bool ReferenceParser::_validateQualifier(Char const *qualifier, Bool absolute, C
   Int processedIn, processedOut;
   convertStr(qualifier, 4, &wc, 1, processedIn, processedOut);
   if (processedOut == 0) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::_validateQualifier"),
-                                   STR("Invalid qualifier."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
   }
 
   // Check the first character to determine the route to take.
@@ -529,8 +508,7 @@ Bool ReferenceParser::_validateQualifier(Char const *qualifier, Bool absolute, C
       qualifier += processedIn;
       convertStr(qualifier, 4, &wc, 1, processedIn, processedOut);
       if (processedOut == 0) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::_validateQualifier"),
-                                       STR("Invalid qualifier."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
       }
     } while (matchCharGroup(wc, ReferenceParser::letterCharGroup.get()) ||
              matchCharGroup(wc, ReferenceParser::numberCharGroup.get()));
@@ -648,9 +626,7 @@ Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
 {
   // Validation.
   if (qualifier == 0) {
-    throw InvalidArgumentException(STR("qualifier"),
-                                   STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
   }
 
   ReferenceParser::initDefaultCharGroups();
@@ -661,8 +637,7 @@ Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
   Int processedIn, processedOut;
   convertStr(qualifier, 4, &wc, 1, processedIn, processedOut);
   if (processedOut == 0) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::_validateQualifier"),
-                                   STR("Invalid qualifier."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
   }
 
   // Check the first character to determine the route to take.
@@ -673,9 +648,7 @@ Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
     qualifier += ReferenceParser::parseInt(qualifier, j);
     // Now we need to skip the closing bracket, after making sure it exists.
     if (*qualifier != CHR(')')) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     ++qualifier;
   } else if (*qualifier >= CHR('0') && *qualifier <= CHR('9')) {
@@ -687,8 +660,7 @@ Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
       qualifier += processedIn;
       convertStr(qualifier, 4, &wc, 1, processedIn, processedOut);
       if (processedOut == 0) {
-        throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::_validateQualifier"),
-                                       STR("Invalid qualifier."), qualifier);
+        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
       }
     } while (matchCharGroup(wc, ReferenceParser::letterCharGroup.get()) ||
              matchCharGroup(wc, ReferenceParser::numberCharGroup.get()));
@@ -706,16 +678,12 @@ Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
       i += processedIn;
     }
     if (i == 0) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     qualifier += i;
     qualifier += ReferenceParser::skipSpaces(qualifier);
     if (*qualifier != CHR('=')) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     ++qualifier;
     qualifier += ReferenceParser::skipSpaces(qualifier);
@@ -728,16 +696,13 @@ Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
       i += processedIn;
     }
     if (i == 0) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     qualifier += i;
     qualifier += ReferenceParser::skipSpaces(qualifier);
     if (*qualifier == CHR('&') || *qualifier == CHR('|')) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                     STR("Logical operations in validators are not supported yet."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                      STR("Logical operations in validators are not supported yet."), qualifier);
     }
     // Skip match limitation parameter.
     if (*qualifier == CHR(',')) {
@@ -752,9 +717,7 @@ Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
       qualifier += ReferenceParser::skipSpaces(qualifier);
     }
     if (*qualifier != CHR('}')) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     ++qualifier;
   } else if (compareStr(qualifier, ReferenceParser::EVAL_KEYWORD, ReferenceParser::EVAL_KEYWORD_LEN) == 0) {
@@ -763,15 +726,11 @@ Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
     qualifier = ReferenceParser::_findLastQualifierSegment(qualifier);
     // Now we need to skip the closing bracket, after making sure it exists.
     if (*qualifier != CHR('}')) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     ++qualifier;
   } else {
-    throw InvalidArgumentException(STR("qualifier"),
-                                   STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                   STR("Invalid qualifier."));
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
   }
 
   // Skip result validation.
@@ -787,16 +746,12 @@ Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
       i += processedIn;
     }
     if (i == 0) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     qualifier += i;
     qualifier += ReferenceParser::skipSpaces(qualifier);
     if (*qualifier != CHR('=')) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     ++qualifier;
     qualifier += ReferenceParser::skipSpaces(qualifier);
@@ -809,16 +764,12 @@ Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
       i += processedIn;
     }
     if (i == 0) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     qualifier += i;
     qualifier += ReferenceParser::skipSpaces(qualifier);
     if (*qualifier != CHR(')')) {
-      throw InvalidArgumentException(STR("qualifier"),
-                                     STR("Core::Data::ReferenceParser::_findLastQualifierSegment"),
-                                     STR("Invalid qualifier."), qualifier);
+      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
     }
     ++qualifier;
   }
@@ -835,9 +786,7 @@ Char const* ReferenceParser::_findLastQualifierSegment(Char const *qualifier)
     // beginning of the last segment.
     return beginning;
   } else {
-    throw InvalidArgumentException(STR("qualifier"),
-                                   STR("Core::Data::ReferenceParser::find_last_qualifier_segment"),
-                                   STR("Invalid qualifier."));
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
   }
 }
 
@@ -880,14 +829,14 @@ Int ReferenceParser::parseStrAttributeValidator(Char const *qualifier, StrAttrib
     i += processedIn;
   }
   if (i == pos) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseStrAttributeValidator"),
-                                   STR("Invalid validator expression."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                    STR("Invalid validator expression."), qualifier);
   }
   targetValidator->setName(qualifier+pos, i-pos);
   pos = i + ReferenceParser::skipSpaces(qualifier+i);
   if (qualifier[pos] != CHR('=')) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseStrAttributeValidator"),
-                                   STR("Invalid validator expression."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                    STR("Invalid validator expression."), qualifier);
   }
   // skip the = sign.
   ++pos;
@@ -902,8 +851,8 @@ Int ReferenceParser::parseStrAttributeValidator(Char const *qualifier, StrAttrib
     i += processedIn;
   }
   if (i == pos) {
-    throw InvalidArgumentException(STR("qualifier"), STR("Core::Data::ReferenceParser::parseStrAttributeValidator"),
-                                   STR("Invalid validator expression."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
+                    STR("Invalid validator expression."), qualifier);
   }
   targetValidator->setValue(qualifier+pos, i-pos);
   pos = i + ReferenceParser::skipSpaces(qualifier+i);

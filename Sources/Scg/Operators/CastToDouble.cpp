@@ -62,7 +62,7 @@ Expression::CodeGenerationStage CastToDouble::GenerateCode()
     // The operand is already a double, no need to cast.
     this->generatedLlvmValue = GetOperand()->GetGeneratedLlvmValue();
   } else {
-    THROW_EXCEPTION(ArgumentOutOfRangeException,
+    throw EXCEPTION(ArgumentOutOfRangeException,
         "The operand of CastToDouble operator should be integer, float, or double.");
   }
 

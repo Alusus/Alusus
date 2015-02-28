@@ -22,7 +22,7 @@ ParamPassExp::ParamPassExp(CodeGenerator *gen,
     const SharedPtr<ParsedRoute> &astBlockRoot) : gen(gen)
 {
   if (astBlockRoot->getProdId() != gen->GetParamPassId())
-    THROW_EXCEPTION(InvalidArgumentException,
+    throw EXCEPTION(InvalidArgumentException,
         "Parameter pass expressions can be constructed from Expression.ParamPassExp only.");
   this->route = astBlockRoot->getRoute();
 

@@ -37,7 +37,7 @@ void PlainNamedList::initialize(Word maxStrSize, Word reservedCount)
 void PlainNamedList::reinitialize(Word maxStrSize, Word reservedCount)
 {
   if (this->buffer == 0) {
-    throw GeneralException(STR("Buffer is not initialized."), STR("Core::Data::PlainNamedList::reinitialize"));
+    throw EXCEPTION(GenericException, STR("Buffer is not initialized."));
   }
   if (this->maxStrSize == maxStrSize && this->reservedCount == reservedCount) return;
   Byte *oldBuf = this->buffer;
@@ -66,8 +66,7 @@ void PlainNamedList::reinitialize(Word maxStrSize, Word reservedCount)
 void PlainNamedList::copy(const PlainNamedList *src)
 {
   if (src->buffer == 0) {
-    throw InvalidArgumentException(STR("src"), STR("Core::Data::PlainNamedList::copy"),
-                                   STR("Stack is not initialized."));
+    throw EXCEPTION(InvalidArgumentException, STR("src"), STR("Stack is not initialized."));
   }
 
   // If we have a small buffer, we can drop it.
@@ -103,7 +102,7 @@ void PlainNamedList::release()
 void PlainNamedList::clear()
 {
   if (this->buffer == 0) {
-    throw GeneralException(STR("List not initialized."), STR("Core::Data::PlainNamedList::clear"));
+    throw EXCEPTION(GenericException, STR("List not initialized."));
   }
   ASSERT(this->count >= 0);
   this->count = 0;
@@ -129,11 +128,10 @@ void PlainNamedList::unsetIndexes(Int from, Int to)
 void PlainNamedList::set(Int index, IdentifiableObject *val)
 {
   if (this->buffer == 0) {
-    throw GeneralException(STR("List not initialized."), STR("Core::Data::PlainNamedList::set"));
+    throw EXCEPTION(GenericException, STR("List not initialized."));
   }
   if (index < 0 || index >= this->count) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainNamedList::set"),
-                                   STR("Out of range."), index);
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
   *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
@@ -143,12 +141,11 @@ void PlainNamedList::set(Int index, IdentifiableObject *val)
 void PlainNamedList::remove(Int index)
 {
   if (this->buffer == 0) {
-    throw GeneralException(STR("List not initialized."), STR("Core::Data::PlainNamedList::remove"));
+    throw EXCEPTION(GenericException, STR("List not initialized."));
   }
   ASSERT(this->count >= 0);
   if (index < 0 || index >= this->count) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainNamedList::remove"),
-                                   STR("Out of range."), index);
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   if (this->count > index+1) {
     memcpy(this->buffer+this->getRecordSize()*index,
@@ -162,11 +159,10 @@ void PlainNamedList::remove(Int index)
 IdentifiableObject* PlainNamedList::get(Int index) const
 {
   if (this->buffer == 0) {
-    throw GeneralException(STR("List not initialized."), STR("Core::Data::PlainNamedList::get"));
+    throw EXCEPTION(GenericException, STR("List not initialized."));
   }
   if (index < 0 || index >= this->count) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainNamedList::get"),
-                                   STR("Out of range."), index);
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
   return *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize);
@@ -176,7 +172,7 @@ IdentifiableObject* PlainNamedList::get(Int index) const
 Int PlainNamedList::add(Char const *name, IdentifiableObject *val)
 {
   if (this->buffer == 0) {
-    throw GeneralException(STR("List not initialized."), STR("Core::Data::PlainNamedList::add"));
+    throw EXCEPTION(GenericException, STR("List not initialized."));
   }
   if (this->count >= this->reservedCount) {
     this->reinitialize(this->maxStrSize, this->reservedCount+PlainNamedList::recordCountIncrement);
@@ -192,11 +188,10 @@ Int PlainNamedList::add(Char const *name, IdentifiableObject *val)
 void PlainNamedList::set(Int index, Char const *name, IdentifiableObject *val)
 {
   if (this->buffer == 0) {
-    throw GeneralException(STR("List not initialized."), STR("Core::Data::PlainNamedList::set"));
+    throw EXCEPTION(GenericException, STR("List not initialized."));
   }
   if (index < 0 || index >= this->count) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainNamedList::set"),
-                                   STR("Out of range."), index);
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
@@ -207,11 +202,10 @@ void PlainNamedList::set(Int index, Char const *name, IdentifiableObject *val)
 const SbStr& PlainNamedList::getName(Int index) const
 {
   if (this->buffer == 0) {
-    throw GeneralException(STR("List not initialized."), STR("Core::Data::PlainNamedList::getName"));
+    throw EXCEPTION(GenericException, STR("List not initialized."));
   }
   if (index < 0 || index >= this->count) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::PlainNamedList::getName"),
-                                   STR("Out of range."), index);
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
   return sbstr_cast(buf);

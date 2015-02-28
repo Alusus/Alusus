@@ -61,16 +61,11 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
       auto str = name->getText() + "_main";
       program.Execute(str.c_str());
       LlvmContainer::Finalize();
-    } catch (const Scg::Exception &e) {
-      // TODO: Use the source code position once they are added to the module definition.
-      //state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.GetMessage().c_str(),
-      //  statementList->getLine(), statementList->getColumn())));
-      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(e.GetMessage().c_str(), 0, 0));
     } catch (Core::Basic::Exception &e) {
       // TODO: Use the source code position once they are added to the module definition.
       //state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.getErrorMessage(),
       //  statementList->getLine(), statementList->getColumn())));
-      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(e.getErrorMessage(), 0, 0));
+      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(e.getErrorMessage().c_str(), 0, 0));
     }
   } else {
       // Create a build message.

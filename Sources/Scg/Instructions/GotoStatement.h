@@ -41,7 +41,7 @@ namespace Scg
     GotoStatement(Block *block) : branchInst(0), block(block)
     {
       if (block == 0)
-        THROW_EXCEPTION(ArgumentOutOfRangeException, "Goto statement needs a "
+        throw EXCEPTION(ArgumentOutOfRangeException, "Goto statement needs a "
         "target block to jump to.");
     }
 

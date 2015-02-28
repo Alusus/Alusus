@@ -27,8 +27,7 @@ SharedMap::SharedMap(Bool useIndex, const std::initializer_list<Argument<Char co
     if (sbstr_cast(arg.id) == STR("@parent")) {
       this->parentReference = arg.ioVal.io_cast<Reference>();
       if (this->parentReference == 0 && arg.ioVal != 0) {
-        throw GeneralException(STR("Provided parent reference is not of type Reference."),
-                               STR("Core::Data::SharedMap::SharedMap"));
+        throw EXCEPTION(GenericException, STR("Provided parent reference is not of type Reference."));
       }
     } else {
       this->add(arg.id, arg.ioVal);
@@ -159,8 +158,7 @@ Int SharedMap::add(Char const *key, SharedPtr<IdentifiableObject> const &val)
       this->inherited->at(i) = false;
       this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, i);
     } else {
-      throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::add"),
-                                     STR("Already exists."));
+      throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Already exists."), key);
     }
   } else {
     i = this->list.size();
@@ -176,12 +174,11 @@ Int SharedMap::add(Char const *key, SharedPtr<IdentifiableObject> const &val)
 void SharedMap::insert(Int index, Char const *key, SharedPtr<IdentifiableObject> const &val)
 {
   if (this->findIndex(key) != -1) {
-    throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::insert"),
-                                   STR("Already exists."));
+    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Already exists."), key);
   }
   if (static_cast<Word>(index) < this->getParentDefCount()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::insert"),
-                                   STR("Cannot insert at a position that breaks parent's sequence."));
+    throw EXCEPTION(InvalidArgumentException, STR("index"),
+                    STR("Cannot insert at a position that breaks parent's sequence."), index);
   }
   this->list.insert(this->list.begin()+index, Entry(key, val));
   if (this->inherited != 0) this->inherited->insert(this->inherited->begin()+index, false);
@@ -201,8 +198,7 @@ Int SharedMap::set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bo
       if (this->index != 0) this->index->add();
       this->contentChangeNotifier.emit(this, ContentChangeOp::ADD, idx);
     } else {
-      throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::set"),
-                                     STR("Not found."));
+      throw EXCEPTION(InvalidArgumentException, STR("key"),STR("Not found."), key);
     }
   } else {
     this->list[idx].second = val;
@@ -216,8 +212,7 @@ Int SharedMap::set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bo
 void SharedMap::set(Int index, SharedPtr<IdentifiableObject> const &val)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::set"),
-                                   STR("Out of range."));
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   this->list[index].second = val;
   if (this->inherited != 0) this->inherited->at(index) = false;
@@ -229,8 +224,7 @@ SharedPtr<IdentifiableObject> const& SharedMap::getShared(Char const *key) const
 {
   Int idx = this->findIndex(key);
   if (idx == -1) {
-    throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::getShared"),
-                                   STR("Not found in the map."));
+    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Not found in the map."), key);
   }
   return this->list[idx].second;
 }
@@ -239,8 +233,7 @@ SharedPtr<IdentifiableObject> const& SharedMap::getShared(Char const *key) const
 SharedPtr<IdentifiableObject> const& SharedMap::getShared(Int index) const
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::getShared"),
-                                   STR("Out of range."));
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   return this->list[index].second;
 }
@@ -270,8 +263,7 @@ void SharedMap::clear()
 Bool SharedMap::isInherited(Int index) const
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::isInherited"),
-                                   STR("Out of range."));
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   if (this->inherited == 0) return false;
   else return this->inherited->at(index);
@@ -282,8 +274,7 @@ Int SharedMap::getIndex(Char const *key) const
 {
   Int idx = this->findIndex(key);
   if (idx == -1) {
-    throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::getIndex"),
-                                   STR("Not found in the map."), key);
+    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Not found in the map."), key);
   }
   return idx;
 }
@@ -298,13 +289,11 @@ void SharedMap::initialize(IdentifiableObject *owner)
     Tracer *tracer = owner->getInterface<Tracer>();
     IdentifiableObject *p = tracer->traceValue(this->parentReference.get());
     if (p == 0) {
-      throw GeneralException(STR("Parent reference points to missing definition."),
-                             STR("Data::SharedMap::initialize"));
+      throw EXCEPTION(GenericException, STR("Parent reference points to missing definition."));
     }
     SharedMap *pm = io_cast<SharedMap>(p);
     if (pm == 0) {
-      throw GeneralException(STR("Parent reference points to an object of an invalid type."),
-                             STR("Data::SharedMap::initialize"));
+      throw EXCEPTION(GenericException, STR("Parent reference points to an object of an invalid type."));
     }
     this->setParent(pm);
   }
@@ -334,8 +323,7 @@ void SharedMap::unsetIndexes(Int from, Int to)
 void SharedMap::set(Int index, IdentifiableObject *val)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::set"),
-                                   STR("Out of range."));
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   this->list[index].second = getSharedPtr(val, true);
   if (this->inherited != 0) this->inherited->at(index) = false;
@@ -346,12 +334,10 @@ void SharedMap::set(Int index, IdentifiableObject *val)
 void SharedMap::remove(Int index)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::remove"),
-                                   STR("Out of range."));
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   if (this->inherited != 0 && this->inherited->at(index)) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::remove"),
-                                   STR("Given entry belongs to parent."));
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Given entry belongs to parent."), index);
   }
   if (static_cast<Word>(index) < this->getParentDefCount()) {
     ASSERT(this->parent != 0);
@@ -371,8 +357,7 @@ void SharedMap::remove(Int index)
 IdentifiableObject* SharedMap::get(Int index) const
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::get"),
-                                   STR("Out of range."));
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   return this->list[index].second.get();
 }
@@ -382,8 +367,7 @@ void SharedMap::remove(Char const *key)
 {
   Int idx = this->findIndex(key);
   if (idx == -1 || (this->inherited != 0 && this->inherited->at(idx) == true)) {
-    throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::remove"),
-                                   STR("Not found."));
+    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Not found."), key);
   }
   if (static_cast<Word>(idx) < this->getParentDefCount()) {
     ASSERT(this->parent != 0);
@@ -404,8 +388,7 @@ IdentifiableObject* SharedMap::get(Char const *key) const
 {
   Int idx = this->findIndex(key);
   if (idx == -1) {
-    throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::get"),
-                                   STR("Not found in the map."));
+    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Not found in the map."), key);
   }
   return this->list[idx].second.get();
 }
@@ -414,8 +397,7 @@ IdentifiableObject* SharedMap::get(Char const *key) const
 SbStr const& SharedMap::getKey(Int index) const
 {
   if (static_cast<Word>(index) >= this->list.size()) {
-    throw InvalidArgumentException(STR("index"), STR("Core::Data::SharedMap::getKey"),
-                                   STR("Out of range."), index);
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   return this->list[index].first.sbstr();
 }
@@ -424,8 +406,7 @@ SbStr const& SharedMap::getKey(Int index) const
 Int SharedMap::findIndex(Char const *key) const
 {
   if (key == 0) {
-    throw InvalidArgumentException(STR("key"), STR("Core::Data::SharedMap::findIndex"),
-                                   STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Cannot be null."));
   }
   // Do we have an index to speed up search?
   if (this->index != 0) {

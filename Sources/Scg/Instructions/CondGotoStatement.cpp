@@ -28,8 +28,8 @@ namespace Scg
     if (condition == nullptr)
       // TODO: This exception is being frequently used, with a similar statement
       // each time. A macro should be created for it to avoid duplication.
-      THROW_EXCEPTION(InvalidValueException, "The condition of the conditional "
-      "goto statement doesn't evaluate to a value: " + GetCondition()->ToString());
+      throw EXCEPTION(InvalidValueException, ("The condition of the conditional "
+      "goto statement doesn't evaluate to a value: " + GetCondition()->ToString()).c_str());
 
     auto irBuilder = GetBlock()->GetIRBuilder();
     this->branchInst = irBuilder->CreateCondBr(

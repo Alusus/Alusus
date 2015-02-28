@@ -512,7 +512,12 @@ void GrammarPlant::createTokenDefinitions()
   this->repository.set(STR("root:LexerDefs.LineComment"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
-         ConstTerm::create(0, STR("//")),
+         AlternateTerm::create({
+           {TermElement::TERM, SharedList::create({
+              ConstTerm::create(0, STR("//")),
+              ConstTerm::create(0, STR("#")),
+           })}
+         }),
          MultiplyTerm::create({
            {TermElement::TERM, CharGroupTerm::create(STR("module:AnyCharNoReturn"))}
          }),
@@ -542,6 +547,7 @@ void GrammarPlant::createProductionDefinitions()
    {STR("-="), 0},
    {STR("*="), 0},
    {STR("/="), 0},
+   {STR("÷="), String::create(("/="))},
    {STR("%="), 0},
    {STR("&="), 0},
    {STR("|="), 0},
@@ -570,6 +576,7 @@ void GrammarPlant::createProductionDefinitions()
   this->repository.set(STR("root:TokenData.mulOpList"), SharedMap::create(true, {
     {STR("*"), 0},
     {STR("/"), 0},
+    {STR("÷"), String::create(STR("/"))},
     {STR("%"), 0}
   }).get());
   // bitwiseOpList : keywords := ("|", "^|", "$", "^$", "&", "^&", "<<", ">>");

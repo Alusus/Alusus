@@ -91,7 +91,7 @@ public:
   //! @copydoc ValueType::GetDefaultLLVMValue()
   virtual llvm::Constant *GetDefaultLLVMValue() const
   {
-    THROW_EXCEPTION(NotImplementedException, "Not implemented yet!");
+    throw EXCEPTION(NotImplementedException, "Not implemented yet!");
   }
 
   //! @copydoc ValueType::GetValueTypeSpec()
@@ -106,25 +106,25 @@ public:
   //! @copydoc ValueType::GetImplicitCastingTargets()
   virtual const ValueTypeArray &GetImplicitCastingTargets() const
   {
-    THROW_EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
+    throw EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
   }
 
   //! @copydoc ValueType::GetExplicitCastingTargets()
   virtual const ValueTypeArray &GetExplicitCastingTargets() const
   {
-    THROW_EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
+    throw EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
   }
 
   //! @copydoc ValueType::GetImplicitCastingOperator()
   virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
   {
-    THROW_EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
+    throw EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
   }
 
   //! @copydoc ValueType::GetExplicitCastingOperator()
   virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
   {
-    THROW_EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
+    throw EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
   }
 };
 }

@@ -35,7 +35,7 @@ Word IdGenerator::getId(Char const *desc)
 Str const& IdGenerator::getDesc(Word id) const
 {
   if (id >= this->ids.size()) {
-    throw InvalidArgumentException(STR("id"), STR("Core::Data::IdGenerator::getDesc"));
+    throw EXCEPTION(InvalidArgumentException, STR("id"), STR("No desc available for this id."), id);
   }
   return this->ids[id].str;
 }

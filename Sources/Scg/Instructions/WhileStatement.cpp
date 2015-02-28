@@ -33,7 +33,7 @@ namespace Scg
     , brInst(0)
   {
     if (cond == nullptr && body == nullptr)
-      THROW_EXCEPTION(InfiniteLoopException, "This loop is infinite.");
+      throw EXCEPTION(InfiniteLoopException, "This loop is infinite.");
 
     this->loopBlock = body;
 

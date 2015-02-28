@@ -52,8 +52,7 @@ class SearchReference : public Reference
     usageCriteria(ReferenceUsageCriteria::MULTI_DATA), cachedIndex(-1)
   {
     if (matchLimitation < -1) {
-      throw InvalidArgumentException(STR("matchLimitation"), STR("Core::Data::SearchReference::SearchReference"),
-                                     STR("Must be >= -1"));
+      throw EXCEPTION(InvalidArgumentException, STR("matchLimitation"), STR("Must be >= -1"));
     }
   }
 
@@ -100,8 +99,7 @@ class SearchReference : public Reference
   public: void setMatchLimitation(Int index)
   {
     if (index < -1) {
-      throw InvalidArgumentException(STR("index"), STR("Core::Data::SearchReference::setMatchLimitation"),
-                                     STR("Must be >= -1"));
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Must be >= -1"));
     }
     this->matchLimitationIndex = index;
     this->cachedIndex = -1;

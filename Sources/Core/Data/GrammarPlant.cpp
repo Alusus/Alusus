@@ -43,8 +43,7 @@ void GrammarPlant::generateConstTokenDefinitions(Term *term)
     if (pid != 0 && pid->get() == this->constTokenId) {
       IdentifiableObject *text = tokenTerm->getTokenText().get();
       if (text == 0) {
-        throw GeneralException(STR("Token term has null id and text."),
-                               STR("Core::Data::GrammarPlant::generateConstTokenDefinitions"));
+        throw EXCEPTION(GenericException, STR("Token term has null id and text."));
       }
       this->generateConstTokensForStrings(text);
     }
@@ -58,8 +57,7 @@ void GrammarPlant::generateConstTokenDefinitions(Term *term)
       for (Int i = 0; static_cast<Word>(i) < static_cast<SharedList*>(terms)->getCount(); ++i) {
         IdentifiableObject *child = static_cast<SharedList*>(terms)->get(i);
         if (!child->isDerivedFrom<Term>()) {
-          throw GeneralException(STR("ListTerm has a non-Term child."),
-                                 STR("Core::Data::GrammarPlant::generateConstTokenDefinitions"));
+          throw EXCEPTION(GenericException, STR("ListTerm has a non-Term child."));
         }
         this->generateConstTokenDefinitions(static_cast<Term*>(child));
       }
