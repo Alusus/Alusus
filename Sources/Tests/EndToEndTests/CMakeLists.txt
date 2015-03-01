@@ -29,11 +29,8 @@ include_directories("${CATCH_PATH}")
 # Place files in folders for IDEs (though I only tried Visual Studio at the moment.)
 file(GLOB AlususE2ETests_Source_Files *.cpp)
 file(GLOB AlususE2ETests_Header_Files *.h)
-file(GLOB AlususE2ETests_Test_Files Tests/*.alusus Tests/*.أسس)
-file(GLOB AlususE2ETests_Test_Files_Output Tests/*.output)
 source_group("SourceFiles\\General" FILES ${AlususE2ETests_Source_Files})
 source_group("HeaderFiles\\General" FILES ${AlususE2ETests_Header_Files})
-source_group("TestFiles\\General" FILES ${AlususE2ETests_Test_Files} ${AlususE2ETests_Test_Files_Output})
 
 if(MSVC)
   add_definitions("/wd4005 /wd4146 /wd4355 /wd4800 /wd4996")
@@ -44,7 +41,7 @@ set(AlususE2ETestsSourceFiles
   ${AlususE2ETests_Header_Files}
   )
 
-add_executable(AlususE2ETests ${AlususE2ETestsSourceFiles} ${AlususE2ETests_Header_Files} ${AlususE2ETests_Test_Files} ${AlususE2ETests_Test_Files_Output})
+add_executable(AlususE2ETests ${AlususE2ETestsSourceFiles} ${AlususE2ETests_Header_Files})
 set_target_properties(AlususE2ETests PROPERTIES COMPILE_FLAGS "${AlususE2ETests_COMPILE_FLAGS}")
 
 # Set output names.
@@ -58,19 +55,16 @@ llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES core jit native)
 target_link_libraries(AlususE2ETests AlususCoreLib AlususStorage "dl")
 
 # Copy end-to-end test files to the build directory
-install(FILES ${AlususE2ETests_Test_Files} DESTINATION "${AlususE2ETests_BINARY_DIR}")
-install(FILES ${AlususE2ETests_Test_Files_Output} DESTINATION "${AlususE2ETests_BINARY_DIR}")
 if (NOT CUSTOM_OUTPUT_PATH STREQUAL "")
   message(STATUS "A custom path was provided so copying end-to-end test files to it: " ${CUSTOM_OUTPUT_PATH} ".")
-  file(COPY ${AlususE2ETests_Test_Files} DESTINATION "${CUSTOM_OUTPUT_PATH}")
-  file(COPY ${AlususE2ETests_Test_Files_Output} DESTINATION "${CUSTOM_OUTPUT_PATH}")
+  file(COPY "Tests/" DESTINATION "${CUSTOM_OUTPUT_PATH}/Tests")
 endif()
 
-# Copy example files to installation directory.
-install(FILES ${AlususE2ETests_Test_Files} DESTINATION "Examples")
+# Copy test files to the Examples directory.
+install(DIRECTORY "Tests/" DESTINATION "Examples")
 
 add_test(NAME AlususE2ETests
   COMMAND AlususE2ETests
-  WORKING_DIRECTORY "${AlususE2ETests_BINARY_DIR}")
+  WORKING_DIRECTORY "${AlususE2ETests_SOURCE_DIR}")
 set_tests_properties(AlususE2ETests PROPERTIES
   ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususScg_BINARY_DIR};ALUSUS_LIBS=${AlususSrt_SOURCE_DIR}")

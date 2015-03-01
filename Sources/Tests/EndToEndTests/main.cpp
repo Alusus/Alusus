@@ -165,11 +165,11 @@ bool RunAndCheckSourceFile(const std::string &fileName)
  *
  * @return Returns @c true if all test succeeds, otherwise @c false.
  */
-bool RunEndToEndTests()
+bool RunEndToEndTests(const std::string &dirPath)
 {
   DIR *dir;
   dirent *ent;
-  if ((dir = opendir ("./")) != nullptr)
+  if ((dir = opendir (dirPath.c_str())) != nullptr)
   {
     auto ret = true;
     while ((ent = readdir (dir)) != nullptr)
@@ -178,7 +178,7 @@ bool RunEndToEndTests()
       if (fileName.compare("common.alusus") != 0 &&
           (boost::algorithm::ends_with(fileName, ".alusus") || boost::algorithm::ends_with(fileName, ".أسس")))
       {
-        if (!RunAndCheckSourceFile("./" + fileName))
+        if (!RunAndCheckSourceFile(dirPath + "/" + fileName))
           ret = false;
       }
     }
@@ -187,7 +187,7 @@ bool RunEndToEndTests()
   }
   else
   {
-    std::cout << "Could not open end-to-end tests directory!";
+    std::cout << "Could not open end-to-end tests directory: " << dirPath << " !" << std::endl;
     return false;
   }
 }
@@ -202,6 +202,12 @@ int main(int argc, char **argv)
                "Version " << ALUSUS_VERSION << "\n"
                "Copyright (C) " << ALUSUS_RELEASE_YEAR << " Rafid Khalid Abdullah\n\n";
 
-  if (RunEndToEndTests()) return EXIT_SUCCESS;
-  else return EXIT_FAILURE;
+  auto ret = EXIT_SUCCESS;
+  if (!RunEndToEndTests("./Tests/General"))
+    ret = EXIT_FAILURE;
+  if (!RunEndToEndTests("./Tests/Arabic"))
+    ret = EXIT_FAILURE;
+  if (!RunEndToEndTests("./Tests/TheCProgrammingLanguage"))
+    ret = EXIT_FAILURE;
+  return ret;
 }
