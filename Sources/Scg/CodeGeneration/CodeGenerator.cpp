@@ -552,47 +552,60 @@ namespace Scg
 
   Expression *CodeGenerator::GenerateBinaryOperator(const SharedPtr<ParsedList> &cmpExpr)
   {
-    auto lhs = GenerateExpression(cmpExpr->getShared(0));
-    auto rhs = GenerateExpression(cmpExpr->getShared(2));
-    auto opText = static_cast<ParsedToken*>(cmpExpr->get(1))->getText();
-    Expression *expr;
-    // Arithmetic operators
-    if (opText.compare("+") == 0) {
-      //expr = new BinaryOperator(BinaryOperator::ADD, lhs, rhs);
-      expr = new CallFunction("__add", new List({lhs, rhs}));
-    }
-    else if (opText.compare("-") == 0) {
-      //expr = new BinaryOperator(BinaryOperator::SUBTRACT, lhs, rhs);
-      expr = new CallFunction("__sub", new List({lhs, rhs}));
-    }
-    else if (opText.compare("*") == 0)
-      expr = new BinaryOperator(BinaryOperator::MULTIPLY, lhs, rhs);
-    else if (opText.compare("/") == 0)
-      expr = new BinaryOperator(BinaryOperator::DIVISION, lhs, rhs);
-    // Comparison operators
-    else if (opText.compare("=") == 0)
-      expr = new BinaryOperator(BinaryOperator::EQUAL, lhs, rhs);
-    else if (opText.compare("^=") == 0)
-      expr = new BinaryOperator(BinaryOperator::NOTEQUAL, lhs, rhs);
-    else if (opText.compare(">") == 0)
-      expr = new BinaryOperator(BinaryOperator::GREATERTHAN, lhs, rhs);
-    else if (opText.compare(">=") == 0)
-      expr = new BinaryOperator(BinaryOperator::GREATERTHAN_EQUAL, lhs, rhs);
-    else if (opText.compare("<") == 0)
-      expr = new BinaryOperator(BinaryOperator::LESSTHAN, lhs, rhs);
-    else if (opText.compare("<=") == 0)
-      expr = new BinaryOperator(BinaryOperator::LESSTHAN_EQUAL, lhs, rhs);
-    // Assignment operators
-    else if (opText.compare(":=") == 0)
-      expr = new AssignmentOperator(lhs, rhs);
-    // Invalid operator
-    else
-      throw EXCEPTION(InvalidOperationException, "Unrecognized binary operator.");
+    auto createOperator = [](const std::string &opText, Expression *lhs, Expression *rhs) {
+      Expression *expr;
+      // Arithmetic operators
+      if (opText.compare("+") == 0) {
+        expr = new CallFunction("__add", new List({lhs, rhs}));
+      }
+      else if (opText.compare("-") == 0) {
+        expr = new CallFunction("__sub", new List({lhs, rhs}));
+      }
+      else if (opText.compare("*") == 0)
+        expr = new BinaryOperator(BinaryOperator::MULTIPLY, lhs, rhs);
+      else if (opText.compare("/") == 0)
+        expr = new BinaryOperator(BinaryOperator::DIVISION, lhs, rhs);
+      // Comparison operators
+      else if (opText.compare("=") == 0)
+        expr = new BinaryOperator(BinaryOperator::EQUAL, lhs, rhs);
+      else if (opText.compare("^=") == 0)
+        expr = new BinaryOperator(BinaryOperator::NOTEQUAL, lhs, rhs);
+      else if (opText.compare(">") == 0)
+        expr = new BinaryOperator(BinaryOperator::GREATERTHAN, lhs, rhs);
+      else if (opText.compare(">=") == 0)
+        expr = new BinaryOperator(BinaryOperator::GREATERTHAN_EQUAL, lhs, rhs);
+      else if (opText.compare("<") == 0)
+        expr = new BinaryOperator(BinaryOperator::LESSTHAN, lhs, rhs);
+      else if (opText.compare("<=") == 0)
+        expr = new BinaryOperator(BinaryOperator::LESSTHAN_EQUAL, lhs, rhs);
+      // Assignment operators
+      else if (opText.compare(":=") == 0)
+        expr = new AssignmentOperator(lhs, rhs);
+      // Invalid operator
+      else
+        throw EXCEPTION(InvalidOperationException, "Unrecognized binary operator.");
+      return expr;
+    };
 
-    // Sets the line and the column of the source code that generated this
-    // expression.
-    expr->SetLineInCode(cmpExpr->getLine());
-    expr->SetColumnInCode(cmpExpr->getColumn());
+    Expression *expr = nullptr;
+    for (auto i = 0; i < cmpExpr->getCount();) {
+      if (i == 0) {
+        auto lhs = GenerateExpression(cmpExpr->getShared(0));
+        auto opText = static_cast<ParsedToken*>(cmpExpr->get(1))->getText();
+        auto rhs = GenerateExpression(cmpExpr->getShared(2));
+        expr = createOperator(opText, lhs, rhs);
+        i+=3;
+      } else {
+        auto opText = static_cast<ParsedToken*>(cmpExpr->get(i))->getText();
+        auto rhs = GenerateExpression(cmpExpr->getShared(i+1));
+        expr = createOperator(opText, expr, rhs);
+        i+=2;
+      }
+      // Sets the line and the column of the source code that generated this
+      // expression.
+      expr->SetLineInCode(cmpExpr->getLine());
+      expr->SetColumnInCode(cmpExpr->getColumn());
+    }
 
     return expr;
   }
