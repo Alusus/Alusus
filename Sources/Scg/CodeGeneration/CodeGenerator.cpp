@@ -557,16 +557,14 @@ namespace Scg
       // Arithmetic operators
       if (opText.compare("+") == 0) {
         expr = new CallFunction("__add", new List({lhs, rhs}));
-      }
-      else if (opText.compare("-") == 0) {
+      } else if (opText.compare("-") == 0) {
         expr = new CallFunction("__sub", new List({lhs, rhs}));
-      }
-      else if (opText.compare("*") == 0)
-        expr = new BinaryOperator(BinaryOperator::MULTIPLY, lhs, rhs);
-      else if (opText.compare("/") == 0)
-        expr = new BinaryOperator(BinaryOperator::DIVISION, lhs, rhs);
+      } else if (opText.compare("*") == 0) {
+        expr = new CallFunction("__mul", new List({lhs, rhs}));
+      } else if (opText.compare("/") == 0) {
+        expr = new CallFunction("__div", new List({lhs, rhs}));
       // Comparison operators
-      else if (opText.compare("=") == 0)
+      } else if (opText.compare("=") == 0)
         expr = new BinaryOperator(BinaryOperator::EQUAL, lhs, rhs);
       else if (opText.compare("^=") == 0)
         expr = new BinaryOperator(BinaryOperator::NOTEQUAL, lhs, rhs);
