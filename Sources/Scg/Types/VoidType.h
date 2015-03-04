@@ -41,10 +41,15 @@ namespace Scg
      */
     virtual ~VoidType() {}
 
+  protected:
+    //! @copydoc ValueType::InitCastingTargets()
+    virtual void InitCastingTargets() const override;
+
+  public:
     //! @copydoc ValueType::GetName()
     virtual const std::string GetName() const { return "void"; }
 
-    static VoidType *GetSingleton() { return s_singleton; }
+    static VoidType *Get() { return s_singleton; }
 
     //! @copydoc ValueType::GetDefaultLLVMValue()
     virtual llvm::Constant *GetDefaultLLVMValue() const

@@ -28,15 +28,15 @@ namespace Scg
 ValueType *ValueType::GetPrimitiveType(const std::string &typeName)
 {
   if (typeName == "int") {
-    return IntegerType::GetSingleton();
+    return IntegerType::Get();
   } else if (typeName == "float") {
-    return FloatType::GetSingleton();
+    return FloatType::Get();
   } else if (typeName == "double") {
-    return DoubleType::GetSingleton();
+    return DoubleType::Get();
   } else if (typeName == "string") {
-    return StringType::GetSingleton();
+    return StringType::Get();
   } else if (typeName == "void" || typeName == "") {
-    return VoidType::GetSingleton();
+    return VoidType::Get();
   }
   return nullptr;
 }

@@ -74,7 +74,7 @@ Expression::CodeGenerationStage PointerToArrayElement::GenerateCode()
   // Generates the code of the structure which will return a pointer to the
   // structure, which we will use to generate a pointer to the required field.
   auto llvmPtr = this->expression->GetGeneratedLlvmValue();
-  auto zero = IntegerType::GetSingleton()->GetLlvmConstant(0);
+  auto zero = IntegerType::Get()->GetLlvmConstant(0);
   auto index = this->elementIndexExpr->GetGeneratedLlvmValue();
 
   // Generates a pointer to the required field.

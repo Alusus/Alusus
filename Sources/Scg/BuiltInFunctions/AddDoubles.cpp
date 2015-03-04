@@ -62,7 +62,7 @@ llvm::Value *AddDoubles::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
 
 const ValueTypeSpec *AddDoubles::GetValueTypeSpec() const
 {
-	return DoubleType::GetSingleton()->GetValueTypeSpec();
+	return DoubleType::Get()->GetValueTypeSpec();
 }
 }
 

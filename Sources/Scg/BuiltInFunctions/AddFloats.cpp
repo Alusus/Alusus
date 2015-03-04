@@ -55,14 +55,14 @@ const ValueType *AddFloats::GetArgumentType(int n) const
 	if (n < 0 || n > 1)
 		throw EXCEPTION(ArgumentOutOfRangeException,
 				"AddFloats built-in function accepts only two arguments.");
-  return FloatType::GetSingleton();
+  return FloatType::Get();
 }
 
 //----------------------------------------------------------------------------------------
 
 const ValueTypeSpec *AddFloats::GetValueTypeSpec() const
 {
-	return FloatType::GetSingleton()->GetValueTypeSpec();
+	return FloatType::Get()->GetValueTypeSpec();
 }
 }
 

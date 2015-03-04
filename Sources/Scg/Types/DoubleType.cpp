@@ -31,12 +31,15 @@ namespace Scg
     this->llvmType = llvm::Type::getDoubleTy(LlvmContainer::GetContext());
     if (s_singleton == nullptr)
       s_singleton = this;
+  }
 
-    this->implicitCastingTargets.push_back(DoubleType::GetSingleton());
+  void DoubleType::InitCastingTargets() const
+  {
+    this->implicitCastingTargets.push_back(DoubleType::Get());
 
-    this->explicitCastingTargets.push_back(DoubleType::GetSingleton());
-    this->explicitCastingTargets.push_back(FloatType::GetSingleton());
-    this->explicitCastingTargets.push_back(IntegerType::GetSingleton());
+    this->explicitCastingTargets.push_back(DoubleType::Get());
+    this->explicitCastingTargets.push_back(FloatType::Get());
+    this->explicitCastingTargets.push_back(IntegerType::Get());
   }
 
   llvm::Constant *DoubleType::GetLlvmConstant(double value) const
@@ -48,7 +51,7 @@ namespace Scg
   CastingOperator *DoubleType::GetImplicitCastingOperator(
       const ValueType *targetType, Expression *expr) const
   {
-    if (targetType == DoubleType::GetSingleton()) {
+    if (targetType == DoubleType::Get()) {
       return new CastToDouble(expr);
     }
     else {
@@ -59,13 +62,13 @@ namespace Scg
   CastingOperator *DoubleType::GetExplicitCastingOperator(
       const ValueType *targetType, Expression *expr) const
   {
-    if (targetType == DoubleType::GetSingleton()) {
+    if (targetType == DoubleType::Get()) {
       return new CastToDouble(expr);
     }
-    else if (targetType == FloatType::GetSingleton()) {
+    else if (targetType == FloatType::Get()) {
       return new CastToFloat(expr);
     }
-    else if (targetType == IntegerType::GetSingleton()) {
+    else if (targetType == IntegerType::Get()) {
       return new CastToInt(expr);
     }
     else {

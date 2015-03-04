@@ -35,6 +35,11 @@ namespace Scg
     //! Class destructor.
     virtual ~FloatType() {}
 
+  protected:
+    //! @copydoc ValueType::InitCastingTargets()
+    virtual void InitCastingTargets() const override;
+
+  public:
     /**
      * Gets a constant value of float type.
      * @param[in] value The value of the constant.
@@ -70,7 +75,7 @@ namespace Scg
     virtual CastingOperator *GetExplicitCastingOperator(
         const ValueType *targetType, Expression *expr) const;
 
-    static FloatType *GetSingleton() { return s_singleton; }
+    static FloatType *Get() { return s_singleton; }
   };
 }
 

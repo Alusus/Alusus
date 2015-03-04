@@ -28,4 +28,8 @@ namespace Scg
     if (s_singleton == nullptr)
       s_singleton = this;
   }
+
+  void VoidType::InitCastingTargets() const
+  {
+  }
 }

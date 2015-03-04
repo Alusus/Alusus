@@ -23,7 +23,7 @@ namespace Scg
 {
   const ValueTypeSpec *IntegerConst::GetValueTypeSpec() const
   {
-    return IntegerType::GetSingleton()->GetValueTypeSpec();
+    return IntegerType::Get()->GetValueTypeSpec();
   }
 
   //----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ namespace Scg
   // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
   // generatedLlvmValue?
     this->generatedLlvmValue = this->llvmValue =
-    		IntegerType::GetSingleton()->GetLlvmConstant(this->value);
+    		IntegerType::Get()->GetLlvmConstant(this->value);
     return Expression::GenerateCode();
   }
 

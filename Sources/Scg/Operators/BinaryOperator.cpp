@@ -27,7 +27,7 @@ namespace Scg
 const ValueTypeSpec * BinaryOperator::GetValueTypeSpec() const
 {
   // FIXME: Fix this!
-  return IntegerType::GetSingleton()->GetValueTypeSpec();
+  return IntegerType::Get()->GetValueTypeSpec();
 }
 
 //------------------------------------------------------------------------------

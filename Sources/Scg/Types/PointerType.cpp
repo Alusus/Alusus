@@ -27,7 +27,10 @@ PointerType::PointerType(const ValueType &cntType) :
     typeSpec(const_cast<ValueTypeSpec*>(cntType.GetValueTypeSpec()->Clone()))
 {
   this->llvmType = const_cast<llvm::Type*>(this->contentType.GetLlvmType())->getPointerTo(0);
+}
 
+void PointerType::InitCastingTargets() const
+{
   this->implicitCastingTargets.push_back(this);
 
   this->explicitCastingTargets.push_back(this);

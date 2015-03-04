@@ -39,6 +39,11 @@ namespace Scg
     //! Class destructor.
     virtual ~StringType() {}
 
+  protected:
+    //! @copydoc ValueType::InitCastingTargets()
+    virtual void InitCastingTargets() const override;
+
+  public:
     //! @copydoc ValueType::GetName()
     virtual const std::string GetName() const { return "string"; }
 
@@ -80,7 +85,7 @@ namespace Scg
       throw EXCEPTION(NotImplementedException, "Not implemented yet for strings.");
     }
 
-    static StringType *GetSingleton() { return s_singleton; }
+    static StringType *Get() { return s_singleton; }
   };
 }
 

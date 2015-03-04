@@ -35,6 +35,11 @@ namespace Scg
     //! Class destructor.
     virtual ~IntegerType() {}
 
+  protected:
+    //! @copydoc ValueType::InitCastingTargets()
+    virtual void InitCastingTargets() const override;
+
+  public:
     //! @copydoc ValueType::GetName()
     virtual const std::string GetName() const { return "int"; }
 
@@ -75,7 +80,7 @@ namespace Scg
     virtual CastingOperator *GetExplicitCastingOperator(
         const ValueType *targetType, Expression *expr) const;
 
-    static IntegerType *GetSingleton() { return s_singleton; }
+    static IntegerType *Get() { return s_singleton; }
   };
 }
 

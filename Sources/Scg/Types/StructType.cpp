@@ -24,10 +24,6 @@ StructType::StructType(const std::string &name)
   // We don't delete a structure type we create as it is defined using
   // LLVM's BumpPtrAllocator.
   this->llvmType = llvm::StructType::create(LlvmContainer::GetContext(), this->name.c_str());
-
-  this->implicitCastingTargets.push_back(this);
-
-  this->explicitCastingTargets.push_back(this);
 }
 
 //------------------------------------------------------------------------------
@@ -39,6 +35,13 @@ void StructType::SetFields(const ValueTypeNameArray &fields)
   for (auto field : this->fields)
     llvmFields.push_back(field.GetValueType()->GetLlvmType());
   static_cast<llvm::StructType*>(this->llvmType)->setBody(llvmFields);
+}
+
+void StructType::InitCastingTargets() const
+{
+  this->implicitCastingTargets.push_back(this);
+
+  this->explicitCastingTargets.push_back(this);
 }
 
 //------------------------------------------------------------------------------

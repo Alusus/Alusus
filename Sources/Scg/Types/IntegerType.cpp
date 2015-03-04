@@ -35,14 +35,18 @@ namespace Scg
     this->llvmType = llvm::Type::getInt32Ty(LlvmContainer::GetContext());
     if (s_singleton == nullptr)
       s_singleton = this;
+  }
 
-    this->implicitCastingTargets.push_back(DoubleType::GetSingleton());
-    this->implicitCastingTargets.push_back(FloatType::GetSingleton());
-    this->implicitCastingTargets.push_back(IntegerType::GetSingleton());
+  void IntegerType::InitCastingTargets() const
+  {
 
-    this->explicitCastingTargets.push_back(DoubleType::GetSingleton());
-    this->explicitCastingTargets.push_back(FloatType::GetSingleton());
-    this->explicitCastingTargets.push_back(IntegerType::GetSingleton());
+    this->implicitCastingTargets.push_back(DoubleType::Get());
+    this->implicitCastingTargets.push_back(FloatType::Get());
+    this->implicitCastingTargets.push_back(IntegerType::Get());
+
+    this->explicitCastingTargets.push_back(DoubleType::Get());
+    this->explicitCastingTargets.push_back(FloatType::Get());
+    this->explicitCastingTargets.push_back(IntegerType::Get());
   }
 
   //----------------------------------------------------------------------------
@@ -58,17 +62,17 @@ namespace Scg
   llvm::Value *IntegerType::CreateCastInst(llvm::IRBuilder<> *irb,
     llvm::Value *value, const ValueType *targetType) const
   {
-    if (targetType == IntegerType::GetSingleton()) {
+    if (targetType == IntegerType::Get()) {
       // Target type is the same type, just return the input.
       return value;
-    } else if (targetType == FloatType::GetSingleton()) {
+    } else if (targetType == FloatType::Get()) {
       // The operand is an integer, so we need to add SItoFP instruction.
       return irb->CreateSIToFP(value,
-          FloatType::GetSingleton()->GetSingleton()->GetLlvmType());
-    } else if (targetType == DoubleType::GetSingleton()) {
+          FloatType::Get()->Get()->GetLlvmType());
+    } else if (targetType == DoubleType::Get()) {
       // The operand is an integer, so we need to add SItoFP instruction.
       return irb->CreateSIToFP(value,
-          DoubleType::GetSingleton()->GetSingleton()->GetLlvmType());
+          DoubleType::Get()->Get()->GetLlvmType());
     } else {
       // TODO: Improve the message.
       throw EXCEPTION(InvalidCastException, "Invalid cast.");
@@ -80,13 +84,13 @@ namespace Scg
   CastingOperator *IntegerType::GetImplicitCastingOperator(
       const ValueType *targetType, Expression *expr) const
   {
-    if (targetType == DoubleType::GetSingleton()) {
+    if (targetType == DoubleType::Get()) {
       return new CastToDouble(expr);
     }
-    else if (targetType == FloatType::GetSingleton()) {
+    else if (targetType == FloatType::Get()) {
       return new CastToFloat(expr);
     }
-    else if (targetType == IntegerType::GetSingleton()) {
+    else if (targetType == IntegerType::Get()) {
       return new CastToInt(expr);
     }
     else {
@@ -100,13 +104,13 @@ namespace Scg
   CastingOperator *IntegerType::GetExplicitCastingOperator(
       const ValueType *targetType, Expression *expr) const
   {
-    if (targetType == DoubleType::GetSingleton()) {
+    if (targetType == DoubleType::Get()) {
       return new CastToDouble(expr);
     }
-    else if (targetType == FloatType::GetSingleton()) {
+    else if (targetType == FloatType::Get()) {
       return new CastToFloat(expr);
     }
-    else if (targetType == IntegerType::GetSingleton()) {
+    else if (targetType == IntegerType::Get()) {
       return new CastToInt(expr);
     }
     else {

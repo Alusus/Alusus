@@ -33,13 +33,17 @@ namespace Scg
     this->llvmType = llvm::Type::getFloatTy(LlvmContainer::GetContext());
     if (s_singleton == nullptr)
       s_singleton = this;
+  }
 
-    this->implicitCastingTargets.push_back(DoubleType::GetSingleton());
-    this->implicitCastingTargets.push_back(FloatType::GetSingleton());
+  void FloatType::InitCastingTargets() const
+  {
 
-    this->explicitCastingTargets.push_back(DoubleType::GetSingleton());
-    this->explicitCastingTargets.push_back(FloatType::GetSingleton());
-    this->explicitCastingTargets.push_back(IntegerType::GetSingleton());
+    this->implicitCastingTargets.push_back(DoubleType::Get());
+    this->implicitCastingTargets.push_back(FloatType::Get());
+
+    this->explicitCastingTargets.push_back(DoubleType::Get());
+    this->explicitCastingTargets.push_back(FloatType::Get());
+    this->explicitCastingTargets.push_back(IntegerType::Get());
   }
 
   //----------------------------------------------------------------------------
@@ -55,10 +59,10 @@ namespace Scg
   CastingOperator *FloatType::GetImplicitCastingOperator(
       const ValueType *targetType, Expression *expr) const
   {
-    if (targetType == DoubleType::GetSingleton()) {
+    if (targetType == DoubleType::Get()) {
       return new CastToDouble(expr);
     }
-    else if (targetType == FloatType::GetSingleton()) {
+    else if (targetType == FloatType::Get()) {
       return new CastToFloat(expr);
     }
     else {
@@ -71,13 +75,13 @@ namespace Scg
   CastingOperator *FloatType::GetExplicitCastingOperator(
       const ValueType *targetType, Expression *expr) const
   {
-    if (targetType == DoubleType::GetSingleton()) {
+    if (targetType == DoubleType::Get()) {
       return new CastToDouble(expr);
     }
-    else if (targetType == FloatType::GetSingleton()) {
+    else if (targetType == FloatType::Get()) {
       return new CastToFloat(expr);
     }
-    else if (targetType == IntegerType::GetSingleton()) {
+    else if (targetType == IntegerType::Get()) {
       return new CastToInt(expr);
     }
     else {

@@ -26,7 +26,7 @@ namespace Scg
 {
 const ValueTypeSpec * CastToInt::GetValueTypeSpec() const
 {
-  return IntegerType::GetSingleton()->GetValueTypeSpec();
+  return IntegerType::Get()->GetValueTypeSpec();
 }
 
 //------------------------------------------------------------------------------
@@ -46,15 +46,15 @@ Expression::CodeGenerationStage CastToInt::GenerateCode()
   // IsString
   // IsVoid
   // Anything else?
-  if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == IntegerType::GetSingleton()) {
+  if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == IntegerType::Get()) {
     // The operand is already an integer, no need to cast.
     this->generatedLlvmValue = GetOperand()->GetGeneratedLlvmValue();
-  } else if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == FloatType::GetSingleton() ||
-      this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == DoubleType::GetSingleton()) {
+  } else if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == FloatType::Get() ||
+      this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == DoubleType::Get()) {
     // The operand is integer or float, so we need to add FPToSI instruction.
     this->llvmCastInst = static_cast<llvm::CastInst*>(irb->CreateFPToSI(
         GetOperand()->GetGeneratedLlvmValue(),
-        IntegerType::GetSingleton()->GetSingleton()->GetLlvmType()));
+        IntegerType::Get()->Get()->GetLlvmType()));
     this->generatedLlvmValue = this->llvmCastInst;
   } else {
     throw EXCEPTION(ArgumentOutOfRangeException,

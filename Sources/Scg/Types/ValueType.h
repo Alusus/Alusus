@@ -40,8 +40,9 @@ protected:
   llvm::Type *llvmType;
   //! The number of variables of this type defined.
   mutable int varCount;
-  mutable ValueTypeArray implicitCastingTargets;
-  mutable ValueTypeArray explicitCastingTargets;
+  mutable std::vector<const ValueType*> implicitCastingTargets;
+  mutable std::vector<const ValueType*> explicitCastingTargets;
+  mutable bool castingTargetsInitialized = false;
 
 protected:
   //! Default constructor
@@ -54,6 +55,14 @@ public:
   // Disables copy constructor and assignment.
   ValueType & operator = (const ValueType &source) = delete;
   ValueType(const ValueType &source) = delete;
+
+protected:
+  /**
+   * Called by GetImplicitCastingTargets() GetExplicitCastingTargets() to
+   * allow the type to initialize implicitCastingTargets and
+   * explicitCastingTargets .
+   */
+  virtual void InitCastingTargets() const = 0;
 
 public:
   /**
@@ -191,8 +200,12 @@ public:
    * Retrieves a list of the types that this type can be implicitly casted to.
    * @return A list of the types that this type can be implicitly casted to.
    */
-  virtual const ValueTypeArray &GetImplicitCastingTargets() const
+  virtual const std::vector<const ValueType*> &GetImplicitCastingTargets() const
   {
+    if (!this->castingTargetsInitialized) {
+      this->castingTargetsInitialized = true;
+      this->InitCastingTargets();
+    }
     return this->implicitCastingTargets;
   }
 
@@ -200,8 +213,12 @@ public:
    * Retrieves a list of the types that this type can be explicitly casted to.
    * @return A list of the types that this type can be explicitly casted to.
    */
-  virtual const ValueTypeArray &GetExplicitCastingTargets() const
+  virtual const std::vector<const ValueType*> &GetExplicitCastingTargets() const
   {
+    if (!this->castingTargetsInitialized) {
+      this->castingTargetsInitialized = true;
+      this->InitCastingTargets();
+    }
     return this->explicitCastingTargets;
   }
 

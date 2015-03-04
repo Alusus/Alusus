@@ -75,8 +75,8 @@ Expression::CodeGenerationStage PointerToMemberField::GenerateCode()
     throw EXCEPTION(InvalidArgumentException, "Non-structure variable types "
         "doesn't have fields to access.");
   }
-  auto zero = IntegerType::GetSingleton()->GetLlvmConstant(0);
-  auto index = IntegerType::GetSingleton()->GetLlvmConstant(
+  auto zero = IntegerType::Get()->GetLlvmConstant(0);
+  auto index = IntegerType::Get()->GetLlvmConstant(
       structType->GetFieldIndex(this->fieldName));
 
   // Generates the code of the structure which will return a pointer to the

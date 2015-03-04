@@ -32,6 +32,11 @@ ArrayType::ArrayType(ValueType *eType, unsigned int size) :
   this->llvmType = llvm::ArrayType::get(this->elementsType->GetLlvmType(), this->arraySize);
 }
 
+void ArrayType::InitCastingTargets() const
+{
+  // TODO: Implement this.
+}
+
 //------------------------------------------------------------------------------
 
 bool ArrayType::IsEqualTo(const ValueType *other) const

@@ -41,9 +41,9 @@ Expression::CodeGenerationStage UnaryOperator::GenerateCode()
       throw EXCEPTION(InvalidOperationException, "The operand of a unary "
           "operator must be the content of a pointer.");
     auto operandType = operand->GetValueTypeSpec()->ToValueType(*GetModule());
-    if (operandType != IntegerType::GetSingleton() &&
-      operandType != FloatType::GetSingleton() &&
-      operandType != DoubleType::GetSingleton())
+    if (operandType != IntegerType::Get() &&
+      operandType != FloatType::Get() &&
+      operandType != DoubleType::Get())
       throw EXCEPTION(InvalidLhsException, "Left-hand side of increment/decrement "
       "operator must be numeric.");
 
@@ -52,21 +52,21 @@ Expression::CodeGenerationStage UnaryOperator::GenerateCode()
     auto variable = GetOperand()->GetGeneratedLlvmValue();
     if (this->operatorType == INCREMENT)
     {
-      if (operandType == IntegerType::GetSingleton())
-        this->llvmValue = irb->CreateAdd(variable, IntegerType::GetSingleton()->GetLlvmConstant(1));
-      else if (operandType == FloatType::GetSingleton())
-        this->llvmValue = irb->CreateFAdd(variable, FloatType::GetSingleton()->GetLlvmConstant(1));
-      else if (operandType == DoubleType::GetSingleton())
-        this->llvmValue = irb->CreateFAdd(variable, DoubleType::GetSingleton()->GetLlvmConstant(1));
+      if (operandType == IntegerType::Get())
+        this->llvmValue = irb->CreateAdd(variable, IntegerType::Get()->GetLlvmConstant(1));
+      else if (operandType == FloatType::Get())
+        this->llvmValue = irb->CreateFAdd(variable, FloatType::Get()->GetLlvmConstant(1));
+      else if (operandType == DoubleType::Get())
+        this->llvmValue = irb->CreateFAdd(variable, DoubleType::Get()->GetLlvmConstant(1));
     }
     else
     {
-      if (operandType == IntegerType::GetSingleton())
-        this->llvmValue = irb->CreateSub(variable, IntegerType::GetSingleton()->GetLlvmConstant(1));
-      else if (operandType == FloatType::GetSingleton())
-        this->llvmValue = irb->CreateFSub(variable, FloatType::GetSingleton()->GetLlvmConstant(1));
-      else if (operandType == DoubleType::GetSingleton())
-        this->llvmValue = irb->CreateFSub(variable, DoubleType::GetSingleton()->GetLlvmConstant(1));
+      if (operandType == IntegerType::Get())
+        this->llvmValue = irb->CreateSub(variable, IntegerType::Get()->GetLlvmConstant(1));
+      else if (operandType == FloatType::Get())
+        this->llvmValue = irb->CreateFSub(variable, FloatType::Get()->GetLlvmConstant(1));
+      else if (operandType == DoubleType::Get())
+        this->llvmValue = irb->CreateFSub(variable, DoubleType::Get()->GetLlvmConstant(1));
     }
 
     this->llvmStoreInst = irb->CreateStore(this->llvmValue, operand->GetLlvmPointer());

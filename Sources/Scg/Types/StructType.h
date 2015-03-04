@@ -47,6 +47,10 @@ protected:
    */
   void SetFields(const ValueTypeNameArray &fields);
 
+protected:
+  //! @copydoc ValueType::InitCastingTargets()
+  virtual void InitCastingTargets() const override;
+
 public:
   //! @copydoc ValueType::GetName()
   virtual const std::string GetName() const { return name; }

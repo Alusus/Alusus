@@ -35,6 +35,11 @@ namespace Scg
     //! Destructor.
     virtual ~DoubleType() {}
 
+  protected:
+    //! @copydoc ValueType::InitCastingTargets()
+    virtual void InitCastingTargets() const override;
+
+  public:
     /**
      * Gets a constant value of double type.
      * @param[in] value The value of the constant.
@@ -70,7 +75,7 @@ namespace Scg
     virtual CastingOperator *GetExplicitCastingOperator(
         const ValueType *targetType, Expression *expr) const;
 
-    static DoubleType *GetSingleton() { return s_singleton; }
+    static DoubleType *Get() { return s_singleton; }
   };
 }
 

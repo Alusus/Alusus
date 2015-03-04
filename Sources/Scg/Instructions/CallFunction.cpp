@@ -40,7 +40,7 @@ const ValueTypeSpec * CallFunction::GetValueTypeSpec() const
   }
   auto funcRetType = this->function->GetValueTypeSpec();
   if (funcRetType == nullptr) {
-    return VoidType::GetSingleton()->GetValueTypeSpec();
+    return VoidType::Get()->GetValueTypeSpec();
   }
   return funcRetType;
 }

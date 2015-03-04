@@ -40,6 +40,11 @@ namespace Scg
      */
     ArrayType(ValueType *elementsType, unsigned int arraySize);
 
+  protected:
+    //! @copydoc ValueType::InitCastingTargets()
+    virtual void InitCastingTargets() const override;
+
+  public:
     //! @copydoc ValueType::GetName()
     virtual const std::string GetName() const { return name; }
 
@@ -69,18 +74,6 @@ namespace Scg
 
     //! @copydoc ValueType::IsEqualTo()
     virtual bool IsEqualTo(const ValueType *other) const;
-
-    //! @copydoc ValueType::GetImplicitCastingOperator()
-    virtual const ValueTypeArray &GetImplicitCastingTargets() const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet for arrays.");
-    }
-
-    //! @copydoc ValueType::GetExplicitCastingTargets()
-    virtual const ValueTypeArray &GetExplicitCastingTargets() const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet for arrays.");
-    }
 
     //! @copydoc ValueType::GetImplicitCastingOperator()
     virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const

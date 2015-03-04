@@ -30,10 +30,13 @@ namespace Scg
     this->llvmType = llvm::Type::getInt8PtrTy(LlvmContainer::GetContext());
     if (s_singleton == nullptr)
       s_singleton = this;
+  }
 
-    this->implicitCastingTargets.push_back(StringType::GetSingleton());
+  void StringType::InitCastingTargets() const
+  {
+    this->implicitCastingTargets.push_back(StringType::Get());
 
-    this->explicitCastingTargets.push_back(StringType::GetSingleton());
+    this->explicitCastingTargets.push_back(StringType::Get());
   }
 
   //----------------------------------------------------------------------------

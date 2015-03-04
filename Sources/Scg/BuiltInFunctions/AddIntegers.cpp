@@ -55,14 +55,14 @@ const ValueType *AddIntegers::GetArgumentType(int n) const
 	if (n < 0 || n > 1)
 		throw EXCEPTION(ArgumentOutOfRangeException,
 				"AddIntegers built-in function accepts only two arguments.");
-  return IntegerType::GetSingleton();
+  return IntegerType::Get();
 }
 
 //----------------------------------------------------------------------------------------
 
 const ValueTypeSpec *AddIntegers::GetValueTypeSpec() const
 {
-	return IntegerType::GetSingleton()->GetValueTypeSpec();
+	return IntegerType::Get()->GetValueTypeSpec();
 }
 }
 
