@@ -27,9 +27,11 @@ PointerType::PointerType(const ValueType &cntType) :
     typeSpec(const_cast<ValueTypeSpec*>(cntType.GetValueTypeSpec()->Clone()))
 {
   this->llvmType = const_cast<llvm::Type*>(this->contentType.GetLlvmType())->getPointerTo(0);
-}
 
-//------------------------------------------------------------------------------
+  this->implicitCastingTargets.push_back(this);
+
+  this->explicitCastingTargets.push_back(this);
+}
 
 bool PointerType::IsEqualTo(const ValueType *other) const
 {

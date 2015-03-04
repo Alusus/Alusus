@@ -69,18 +69,6 @@ namespace Scg
     }
 
     //! @copydoc ValueType::GetImplicitCastingOperator()
-    virtual const ValueTypeArray &GetImplicitCastingTargets() const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet for strings.");
-    }
-
-    //! @copydoc ValueType::GetExplicitCastingTargets()
-    virtual const ValueTypeArray &GetExplicitCastingTargets() const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet for strings.");
-    }
-
-    //! @copydoc ValueType::GetImplicitCastingOperator()
     virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
     {
       throw EXCEPTION(NotImplementedException, "Not implemented yet for strings.");

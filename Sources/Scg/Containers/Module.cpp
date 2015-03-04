@@ -88,12 +88,17 @@ ValueType *Module::GetValueTypeByName(const std::string &typeName) const
 
 ArrayType *Module::GetArrayValueType(ValueType &elementsType, int arraySize) const
 {
+  auto it = this->usedArrayTypes.find(&elementsType);
+  if (it != this->usedArrayTypes.end()) {
+    return it->second;
+  }
   // TODO: We need to create a map of all the so-far allocated value types to
   // avoid creating a value type twice.
   // TODO: Change ValueType& to ValueType* or change the constructor of
   // ArrayType.
   auto arrayType = new ArrayType(&elementsType, arraySize);
   this->allocatedTypes.push_back(arrayType);
+  this->usedArrayTypes.insert(std::make_pair(&elementsType, arrayType));
   return arrayType;
 }
 
@@ -101,10 +106,15 @@ ArrayType *Module::GetArrayValueType(ValueType &elementsType, int arraySize) con
 
 PointerType *Module::GetPointerValueType(ValueType &contentType) const
 {
+  auto it = this->usedPointerTypes.find(&contentType);
+  if (it != this->usedPointerTypes.end()) {
+    return it->second;
+  }
   // TODO: We need to create a map of all the so-far allocated value types to
   // avoid creating a value type twice.
   auto type = new PointerType(contentType);
   this->allocatedTypes.push_back(type);
+  this->usedPointerTypes.insert(std::make_pair(&contentType, type));
   return type;
 }
 

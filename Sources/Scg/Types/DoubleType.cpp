@@ -26,48 +26,24 @@ namespace Scg
 {
   DoubleType *DoubleType::s_singleton = nullptr;
 
-  //----------------------------------------------------------------------------
-
   DoubleType::DoubleType() : typeSpec("double")
   {
     this->llvmType = llvm::Type::getDoubleTy(LlvmContainer::GetContext());
     if (s_singleton == nullptr)
       s_singleton = this;
-  }
 
-  //----------------------------------------------------------------------------
+    this->implicitCastingTargets.push_back(DoubleType::GetSingleton());
+
+    this->explicitCastingTargets.push_back(DoubleType::GetSingleton());
+    this->explicitCastingTargets.push_back(FloatType::GetSingleton());
+    this->explicitCastingTargets.push_back(IntegerType::GetSingleton());
+  }
 
   llvm::Constant *DoubleType::GetLlvmConstant(double value) const
   {
     return llvm::ConstantFP::get(LlvmContainer::GetContext(),
       llvm::APFloat(value));
   }
-
-  //----------------------------------------------------------------------------
-
-  const ValueTypeArray &DoubleType::GetImplicitCastingTargets() const
-  {
-    if (this->implicitCastingTargets.size() == 0)
-    {
-      this->implicitCastingTargets.push_back(DoubleType::GetSingleton());
-    }
-    return this->implicitCastingTargets;
-  }
-
-  //----------------------------------------------------------------------------
-
-  const ValueTypeArray &DoubleType::GetExplicitCastingTargets() const
-  {
-    if (this->explicitCastingTargets.size() == 0)
-    {
-      this->explicitCastingTargets.push_back(DoubleType::GetSingleton());
-      this->explicitCastingTargets.push_back(FloatType::GetSingleton());
-      this->explicitCastingTargets.push_back(IntegerType::GetSingleton());
-    }
-    return this->explicitCastingTargets;
-  }
-
-  //----------------------------------------------------------------------------
 
   CastingOperator *DoubleType::GetImplicitCastingOperator(
       const ValueType *targetType, Expression *expr) const
@@ -79,8 +55,6 @@ namespace Scg
       throw EXCEPTION(InvalidCastException, ("Integer cannot be casted to " + targetType->ToString()).c_str());
     }
   }
-
-  //----------------------------------------------------------------------------
 
   CastingOperator *DoubleType::GetExplicitCastingOperator(
       const ValueType *targetType, Expression *expr) const

@@ -19,6 +19,7 @@
 #include <typedefs.h>
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
+#include <unordered_map>
 
 namespace Scg
 {
@@ -32,6 +33,8 @@ namespace Scg
     //! The type of the content of this pointer.
     const ValueType &contentType;
     PointerValueTypeSpec typeSpec;
+    //!
+    std::unordered_map<ValueType*, PointerType*> definedPointerTypes;
 
   public:
     // TODO: We should
@@ -64,18 +67,6 @@ namespace Scg
 
     //! @copydoc ValueType::IsEqualTo()
     virtual bool IsEqualTo(const ValueType *other) const;
-
-    //! @copydoc ValueType::GetImplicitCastingOperator()
-    virtual const ValueTypeArray &GetImplicitCastingTargets() const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet for pointers.");
-    }
-
-    //! @copydoc ValueType::GetExplicitCastingTargets()
-    virtual const ValueTypeArray &GetExplicitCastingTargets() const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet for pointers.");
-    }
 
     //! @copydoc ValueType::GetImplicitCastingOperator()
     virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const

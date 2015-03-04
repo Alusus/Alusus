@@ -1,0 +1,14 @@
+import "common.alusus";
+
+def AssignmentWithImplicitCasting : module {
+  def main : function() {
+    def i : int;
+    def d : double;
+    i := 1;
+    d := i;
+    printDouble(d);
+    return 0;
+  }
+};
+
+run AssignmentWithImplicitCasting;

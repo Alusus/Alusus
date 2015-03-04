@@ -103,18 +103,6 @@ public:
   //! @copydoc ValueType::IsEqualTo()
   virtual bool IsEqualTo(const ValueType *other) const;
 
-  //! @copydoc ValueType::GetImplicitCastingTargets()
-  virtual const ValueTypeArray &GetImplicitCastingTargets() const
-  {
-    throw EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
-  }
-
-  //! @copydoc ValueType::GetExplicitCastingTargets()
-  virtual const ValueTypeArray &GetExplicitCastingTargets() const
-  {
-    throw EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
-  }
-
   //! @copydoc ValueType::GetImplicitCastingOperator()
   virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
   {

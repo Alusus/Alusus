@@ -33,6 +33,13 @@ namespace Scg
     this->llvmType = llvm::Type::getFloatTy(LlvmContainer::GetContext());
     if (s_singleton == nullptr)
       s_singleton = this;
+
+    this->implicitCastingTargets.push_back(DoubleType::GetSingleton());
+    this->implicitCastingTargets.push_back(FloatType::GetSingleton());
+
+    this->explicitCastingTargets.push_back(DoubleType::GetSingleton());
+    this->explicitCastingTargets.push_back(FloatType::GetSingleton());
+    this->explicitCastingTargets.push_back(IntegerType::GetSingleton());
   }
 
   //----------------------------------------------------------------------------
@@ -41,31 +48,6 @@ namespace Scg
   {
     return llvm::ConstantFP::get(LlvmContainer::GetContext(),
       llvm::APFloat(value));
-  }
-
-  //----------------------------------------------------------------------------
-
-  const ValueTypeArray &FloatType::GetImplicitCastingTargets() const
-  {
-    if (this->implicitCastingTargets.size() == 0)
-    {
-      this->implicitCastingTargets.push_back(DoubleType::GetSingleton());
-      this->implicitCastingTargets.push_back(FloatType::GetSingleton());
-    }
-    return this->implicitCastingTargets;
-  }
-
-  //----------------------------------------------------------------------------
-
-  const ValueTypeArray &FloatType::GetExplicitCastingTargets() const
-  {
-    if (this->explicitCastingTargets.size() == 0)
-    {
-      this->explicitCastingTargets.push_back(DoubleType::GetSingleton());
-      this->explicitCastingTargets.push_back(FloatType::GetSingleton());
-      this->explicitCastingTargets.push_back(IntegerType::GetSingleton());
-    }
-    return this->explicitCastingTargets;
   }
 
   //----------------------------------------------------------------------------

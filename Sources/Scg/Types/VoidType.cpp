@@ -22,9 +22,7 @@ namespace Scg
 {
   VoidType *VoidType::s_singleton = nullptr;
 
-  //----------------------------------------------------------------------------
-
-  VoidType::VoidType() : typeSpec("string")
+  VoidType::VoidType() : typeSpec("void")
   {
     this->llvmType = llvm::Type::getVoidTy(LlvmContainer::GetContext());
     if (s_singleton == nullptr)

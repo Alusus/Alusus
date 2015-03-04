@@ -14,6 +14,7 @@
 
 // STL header files
 #include <list>
+#include <unordered_map>
 
 // Alusus header files
 #include <Functions/FunctionSignature.h>
@@ -62,6 +63,9 @@ class Module : public Expression
   /*! A list of the types allocated by this module to be deallocated at
       destruction time. */
   mutable std::list<ValueType*> allocatedTypes;
+  mutable std::unordered_map<ValueType*, PointerType*> usedPointerTypes;
+  mutable std::unordered_map<ValueType*, ArrayType*> usedArrayTypes;
+
 
 public:
   Module(const std::string &name);

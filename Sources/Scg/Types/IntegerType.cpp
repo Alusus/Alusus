@@ -35,6 +35,14 @@ namespace Scg
     this->llvmType = llvm::Type::getInt32Ty(LlvmContainer::GetContext());
     if (s_singleton == nullptr)
       s_singleton = this;
+
+    this->implicitCastingTargets.push_back(DoubleType::GetSingleton());
+    this->implicitCastingTargets.push_back(FloatType::GetSingleton());
+    this->implicitCastingTargets.push_back(IntegerType::GetSingleton());
+
+    this->explicitCastingTargets.push_back(DoubleType::GetSingleton());
+    this->explicitCastingTargets.push_back(FloatType::GetSingleton());
+    this->explicitCastingTargets.push_back(IntegerType::GetSingleton());
   }
 
   //----------------------------------------------------------------------------
@@ -50,40 +58,21 @@ namespace Scg
   llvm::Value *IntegerType::CreateCastInst(llvm::IRBuilder<> *irb,
     llvm::Value *value, const ValueType *targetType) const
   {
-    if (targetType == DoubleType::GetSingleton()) {
+    if (targetType == IntegerType::GetSingleton()) {
+      // Target type is the same type, just return the input.
+      return value;
+    } else if (targetType == FloatType::GetSingleton()) {
+      // The operand is an integer, so we need to add SItoFP instruction.
+      return irb->CreateSIToFP(value,
+          FloatType::GetSingleton()->GetSingleton()->GetLlvmType());
+    } else if (targetType == DoubleType::GetSingleton()) {
       // The operand is an integer, so we need to add SItoFP instruction.
       return irb->CreateSIToFP(value,
           DoubleType::GetSingleton()->GetSingleton()->GetLlvmType());
     } else {
-      throw;
+      // TODO: Improve the message.
+      throw EXCEPTION(InvalidCastException, "Invalid cast.");
     }
-
-  }
-
-  //----------------------------------------------------------------------------
-
-  const ValueTypeArray &IntegerType::GetImplicitCastingTargets() const
-  {
-    if (this->implicitCastingTargets.size() == 0)
-    {
-      this->implicitCastingTargets.push_back(DoubleType::GetSingleton());
-      this->implicitCastingTargets.push_back(FloatType::GetSingleton());
-      this->implicitCastingTargets.push_back(IntegerType::GetSingleton());
-    }
-    return this->implicitCastingTargets;
-  }
-
-  //----------------------------------------------------------------------------
-
-  const ValueTypeArray &IntegerType::GetExplicitCastingTargets() const
-  {
-    if (this->explicitCastingTargets.size() == 0)
-    {
-      this->explicitCastingTargets.push_back(DoubleType::GetSingleton());
-      this->explicitCastingTargets.push_back(FloatType::GetSingleton());
-      this->explicitCastingTargets.push_back(IntegerType::GetSingleton());
-    }
-    return this->explicitCastingTargets;
   }
 
   //----------------------------------------------------------------------------

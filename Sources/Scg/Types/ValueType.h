@@ -191,13 +191,19 @@ public:
    * Retrieves a list of the types that this type can be implicitly casted to.
    * @return A list of the types that this type can be implicitly casted to.
    */
-  virtual const ValueTypeArray &GetImplicitCastingTargets() const = 0;
+  virtual const ValueTypeArray &GetImplicitCastingTargets() const
+  {
+    return this->implicitCastingTargets;
+  }
 
   /**
    * Retrieves a list of the types that this type can be explicitly casted to.
    * @return A list of the types that this type can be explicitly casted to.
    */
-  virtual const ValueTypeArray &GetExplicitCastingTargets() const = 0;
+  virtual const ValueTypeArray &GetExplicitCastingTargets() const
+  {
+    return this->explicitCastingTargets;
+  }
 
   // TODO: Consider changing the name of the function since it now receives an
   // expression as well. Maybe ImplicitlyCastExpression?

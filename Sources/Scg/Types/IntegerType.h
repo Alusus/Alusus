@@ -67,12 +67,6 @@ namespace Scg
     virtual llvm::Value *CreateCastInst(llvm::IRBuilder<> *irb,
       llvm::Value *value, const ValueType *targetType) const;
 
-    //! @copydoc ValueType::GetImplicitCastingTargets()
-    const ValueTypeArray &GetImplicitCastingTargets() const;
-
-    //! @copydoc ValueType::GetExplicitCastingTargets()
-    const ValueTypeArray &GetExplicitCastingTargets() const;
-
     //! @copydoc ValueType::GetImplicitCastingOperator()
     virtual CastingOperator *GetImplicitCastingOperator(
         const ValueType *targetType, Expression *expr) const;

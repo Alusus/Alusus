@@ -12,10 +12,12 @@
 #ifndef __exceptions_h__
 #define __exceptions_h__
 
+// Core header files.
+#include <Basic/exceptions.h>
+
 // Scg include files
 #include <typedefs.h>
 
-using namespace Core::Basic;
 
 namespace Scg
 {

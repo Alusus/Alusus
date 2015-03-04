@@ -48,8 +48,21 @@ Expression::CodeGenerationStage AssignmentOperator::GenerateCode()
         ("Right-hand side of '=' doesn't evaluate to a value: "
             + GetRHS()->ToString()).c_str());
 
+  auto targetType = GetLHS()->GetValueTypeSpec()->ToValueType(*GetModule());
+  auto sourceType = GetRHS()->GetValueTypeSpec()->ToValueType(*GetModule());
+  if (!sourceType->IsImplicitlyCastableTo(targetType)) {
+    throw EXCEPTION(CompilationErrorException,
+        "The right-hand side cannot be assigned to the left-hand side because "
+        "it has a different type.");
+  }
+
   // Add a store instruction to set the value of the variable.
-  this->llvmStoreInst = irb->CreateStore(rhs, lhs->GetLlvmPointer());
+  if (sourceType != targetType) {
+    this->llvmStoreInst = irb->CreateStore(
+        sourceType->CreateCastInst(irb, rhs, targetType), lhs->GetLlvmPointer());
+  } else {
+    this->llvmStoreInst = irb->CreateStore(rhs, lhs->GetLlvmPointer());
+  }
 
   // The generated value for an assignment is the right-hand side of the
   // assignment itself.
