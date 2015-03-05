@@ -88,4 +88,14 @@ namespace Scg
       throw EXCEPTION(InvalidCastException, ("Integer cannot be casted to " + targetType->ToString()).c_str());
     }
   }
+
+  FloatType *FloatType::Get()
+  {
+    // PERFORMANCE: What is the impact of running an unnecessary if statement
+    // thousands of times?
+    if (s_singleton == nullptr) {
+      s_singleton = new FloatType();
+    }
+    return s_singleton;
+  }
 }

@@ -18,18 +18,27 @@
 // Scg header files
 #include <Types/ArrayType.h>
 
+// Boost header files
+#include <boost/lexical_cast.hpp>
+
 namespace Scg
 {
+std::unordered_map<const ValueType*, ArrayType*> ArrayType::usedArrayTypes;
+
 // TODO: We are calling Clone() because the passed type spec gets automatically
 // freed. Is there a better way to avoid extra memory allocation and free?
-ArrayType::ArrayType(ValueType *eType, unsigned int size) :
-    typeSpec(const_cast<ValueTypeSpec*>(eType->GetValueTypeSpec()->Clone()), size),
-    elementsType(eType),
+ArrayType::ArrayType(const ValueType *elemsType, unsigned int size) :
+    typeSpec(const_cast<ValueTypeSpec*>(elemsType->GetValueTypeSpec()->Clone()), size),
+    elementsType(elemsType),
     arraySize(size)
 {
+  if (elemsType == nullptr) {
+    throw EXCEPTION(InvalidArgumentException, "elemslementsType argument cannot be nullptr.");
+  }
   this->name = elementsType->GetName() +
       "[" + boost::lexical_cast<std::string>(arraySize) + "]";
-  this->llvmType = llvm::ArrayType::get(this->elementsType->GetLlvmType(), this->arraySize);
+  this->llvmType = llvm::ArrayType::get(
+      const_cast<llvm::Type*>(this->elementsType->GetLlvmType()), this->arraySize);
 }
 
 void ArrayType::InitCastingTargets() const
@@ -50,5 +59,20 @@ bool ArrayType::IsEqualTo(const ValueType *other) const
     return false;
   }
   return true;
+}
+
+ArrayType *ArrayType::Get(const ValueType *elementsType, int arraySize)
+{
+  auto it = ArrayType::usedArrayTypes.find(elementsType);
+  if (it != ArrayType::usedArrayTypes.end()) {
+    return it->second;
+  }
+  // TODO: We need to create a map of all the so-far allocated value types to
+  // avoid creating a value type twice.
+  // TODO: Change ValueType& to ValueType* or change the constructor of
+  // ArrayType.
+  auto arrayType = new ArrayType(elementsType, arraySize);
+  ArrayType::usedArrayTypes.insert(std::make_pair(elementsType, arrayType));
+  return arrayType;
 }
 }

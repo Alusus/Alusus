@@ -28,7 +28,7 @@ namespace Scg
     static FloatType *s_singleton;
     ValueTypeSpecByName typeSpec;
 
-  public:
+  private:
     //! Constructs a float type.
     FloatType();
 
@@ -75,7 +75,7 @@ namespace Scg
     virtual CastingOperator *GetExplicitCastingOperator(
         const ValueType *targetType, Expression *expr) const;
 
-    static FloatType *Get() { return s_singleton; }
+    static FloatType *Get();
   };
 }
 

@@ -22,14 +22,6 @@
 
 namespace Scg
 {
-PointerToMemberField::~PointerToMemberField()
-{
-  if (this->valueType != nullptr)
-    delete this->valueType;
-}
-
-//------------------------------------------------------------------------------
-
 const ValueTypeSpec * PointerToMemberField::GetValueTypeSpec() const
 {
   if (this->valueType)
@@ -49,7 +41,7 @@ const ValueTypeSpec * PointerToMemberField::GetValueTypeSpec() const
         "doesn't have fields to access.");
   }
 
-  this->valueType = new PointerType(*structType->GetFieldByName(this->fieldName).GetValueType());
+  this->valueType = PointerType::Get(structType->GetFieldByName(this->fieldName).GetValueType());
   return this->valueType->GetValueTypeSpec();
 }
 

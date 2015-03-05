@@ -28,7 +28,7 @@ namespace Scg
     static DoubleType *s_singleton;
     ValueTypeSpecByName typeSpec;
 
-  public:
+  private:
     //! Constructs a double type.
     DoubleType();
 
@@ -75,7 +75,7 @@ namespace Scg
     virtual CastingOperator *GetExplicitCastingOperator(
         const ValueType *targetType, Expression *expr) const;
 
-    static DoubleType *Get() { return s_singleton; }
+    static DoubleType *Get();
   };
 }
 

@@ -60,12 +60,6 @@ class Module : public Expression
   std::string name;
   //! A map of the user defined types.
   mutable ValueTypeMap typeMap;
-  /*! A list of the types allocated by this module to be deallocated at
-      destruction time. */
-  mutable std::list<ValueType*> allocatedTypes;
-  mutable std::unordered_map<ValueType*, PointerType*> usedPointerTypes;
-  mutable std::unordered_map<ValueType*, ArrayType*> usedArrayTypes;
-
 
 public:
   Module(const std::string &name);
@@ -96,29 +90,6 @@ public:
    * @param[in] typeName  The name of the value type to retrieve.
    */
   ValueType *GetValueTypeByName(const std::string &typeName) const;
-
-  /**
-   * Creates a new array type.
-   *
-   * @param[in] elementsType  The type of the elements of the array.
-   * @param[in] arraySize     The number of elements in the array.
-   *
-   * @return A pointer to the newly created array type. This shouldn't be
-   * deallocated by the caller as it gets automatically deallocated by the
-   * module.
-   */
-  ArrayType *GetArrayValueType(ValueType &elementsType, int arraySize) const;
-
-  /**
-   * Creates a new pointer type.
-   *
-   * @param[in] contentType   The type of the content of this pointer.
-   *
-   * @return A pointer to the newly created pointer type. This shouldn't be
-   * deallocated by the caller as it gets automatically deallocated by the
-   * module.
-   */
-  PointerType *GetPointerValueType(ValueType &contentType) const;
 
   /**
    * Adds the given function to the function store of the module.

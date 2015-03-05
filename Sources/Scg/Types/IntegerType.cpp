@@ -118,4 +118,14 @@ namespace Scg
           (std::string("Integer cannot be casted to ") + targetType->ToString()).c_str());
     }
   }
+
+  IntegerType *IntegerType::Get()
+  {
+    // PERFORMANCE: What is the impact of running an unnecessary if statement
+    // thousands of times?
+    if (s_singleton == nullptr) {
+      s_singleton = new IntegerType();
+    }
+    return s_singleton;
+  }
 }

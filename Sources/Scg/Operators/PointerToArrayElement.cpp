@@ -25,14 +25,6 @@
 
 namespace Scg
 {
-PointerToArrayElement::~PointerToArrayElement()
-{
-  if (this->valueType != nullptr)
-    delete this->valueType;
-}
-
-//------------------------------------------------------------------------------
-
 const ValueTypeSpec * PointerToArrayElement::GetValueTypeSpec() const
 {
   if (this->valueType)
@@ -49,7 +41,7 @@ const ValueTypeSpec * PointerToArrayElement::GetValueTypeSpec() const
     throw EXCEPTION(InvalidArgumentException, "Non-array variable types "
         "doesn't have elements to access.");
 
-  this->valueType = new PointerType(*arrayType->GetElementsType());
+  this->valueType = PointerType::Get(arrayType->GetElementsType());
   return this->valueType->GetValueTypeSpec();
 }
 

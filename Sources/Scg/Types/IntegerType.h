@@ -28,7 +28,7 @@ namespace Scg
     static IntegerType *s_singleton;
     ValueTypeSpecByName typeSpec;
 
-  public:
+  private:
     //! Constructs an integer type.
     IntegerType();
 
@@ -80,7 +80,7 @@ namespace Scg
     virtual CastingOperator *GetExplicitCastingOperator(
         const ValueType *targetType, Expression *expr) const;
 
-    static IntegerType *Get() { return s_singleton; }
+    static IntegerType *Get();
   };
 }
 

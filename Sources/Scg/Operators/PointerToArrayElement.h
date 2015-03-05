@@ -54,9 +54,6 @@ public:
     children.push_back(elementIndexExpr);
   }
 
-  //! Class destructor.
-  ~PointerToArrayElement();
-
   //! @copydoc Expression::GetValueTypeSpec()
   virtual const ValueTypeSpec *GetValueTypeSpec() const override;
 

@@ -32,4 +32,14 @@ namespace Scg
   void VoidType::InitCastingTargets() const
   {
   }
+
+  VoidType *VoidType::Get()
+  {
+    // PERFORMANCE: What is the impact of running an unnecessary if statement
+    // thousands of times?
+    if (s_singleton == nullptr) {
+      s_singleton = new VoidType();
+    }
+    return s_singleton;
+  }
 }

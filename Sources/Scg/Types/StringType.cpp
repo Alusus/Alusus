@@ -69,4 +69,14 @@ namespace Scg
     indices.push_back(zero);
     return llvm::ConstantExpr::getGetElementPtr(var, indices);
   }
+
+  StringType *StringType::Get()
+  {
+    // PERFORMANCE: What is the impact of running an unnecessary if statement
+    // thousands of times?
+    if (s_singleton == nullptr) {
+      s_singleton = new StringType();
+    }
+    return s_singleton;
+  }
 }

@@ -29,8 +29,6 @@ namespace Scg
   DoubleType::DoubleType() : typeSpec("double")
   {
     this->llvmType = llvm::Type::getDoubleTy(LlvmContainer::GetContext());
-    if (s_singleton == nullptr)
-      s_singleton = this;
   }
 
   void DoubleType::InitCastingTargets() const
@@ -75,5 +73,15 @@ namespace Scg
       throw EXCEPTION(InvalidCastException,
           ("Integer cannot be casted to " + targetType->ToString()).c_str());
     }
+  }
+
+  DoubleType *DoubleType::Get()
+  {
+    // PERFORMANCE: What is the impact of running an unnecessary if statement
+    // thousands of times?
+    if (s_singleton == nullptr) {
+      s_singleton = new DoubleType();
+    }
+    return s_singleton;
   }
 }

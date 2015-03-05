@@ -41,32 +41,22 @@ Module::Module(const std::string& name) : functionStore(), name(name)
   //this->llvmModule = new llvm::Module(name, LlvmContainer::GetContext());
 }
 
-//------------------------------------------------------------------------------
-
 Module::~Module()
 {
   /*for(auto expr : this->expressions)
     delete expr;*/
-  for (auto type : this->allocatedTypes)
-    delete type;
   //delete this->llvmModule;
 }
-
-//------------------------------------------------------------------------------
 
 const llvm::Module *Module::GetLlvmModule() const
 {
 	return this->program->GetLlvmModule();
 }
 
-//------------------------------------------------------------------------------
-
 llvm::Module *Module::GetLlvmModule()
 {
 	return this->program->GetLlvmModule();
 }
-
-//------------------------------------------------------------------------------
 
 ValueType *Module::GetValueTypeByName(const std::string &typeName) const
 {
@@ -84,42 +74,6 @@ ValueType *Module::GetValueTypeByName(const std::string &typeName) const
   return type;
 }
 
-//------------------------------------------------------------------------------
-
-ArrayType *Module::GetArrayValueType(ValueType &elementsType, int arraySize) const
-{
-  auto it = this->usedArrayTypes.find(&elementsType);
-  if (it != this->usedArrayTypes.end()) {
-    return it->second;
-  }
-  // TODO: We need to create a map of all the so-far allocated value types to
-  // avoid creating a value type twice.
-  // TODO: Change ValueType& to ValueType* or change the constructor of
-  // ArrayType.
-  auto arrayType = new ArrayType(&elementsType, arraySize);
-  this->allocatedTypes.push_back(arrayType);
-  this->usedArrayTypes.insert(std::make_pair(&elementsType, arrayType));
-  return arrayType;
-}
-
-//------------------------------------------------------------------------------
-
-PointerType *Module::GetPointerValueType(ValueType &contentType) const
-{
-  auto it = this->usedPointerTypes.find(&contentType);
-  if (it != this->usedPointerTypes.end()) {
-    return it->second;
-  }
-  // TODO: We need to create a map of all the so-far allocated value types to
-  // avoid creating a value type twice.
-  auto type = new PointerType(contentType);
-  this->allocatedTypes.push_back(type);
-  this->usedPointerTypes.insert(std::make_pair(&contentType, type));
-  return type;
-}
-
-//------------------------------------------------------------------------------
-
 bool Module::HasFunction(const std::string &name,
 		const ValueTypeSpecArray &arguments) const
 {
@@ -127,8 +81,6 @@ bool Module::HasFunction(const std::string &name,
 	return nonConstThis->FindDefineFunction(name, arguments) != nullptr ||
 			nonConstThis->FindDeclareFunction(name, arguments) != nullptr;
 }
-
-//------------------------------------------------------------------------------
 
 DefineFunction *Module::FindDefineFunction(const std::string &name,
     const ValueTypeSpecArray &arguments)
@@ -147,8 +99,6 @@ DefineFunction *Module::FindDefineFunction(const std::string &name,
   }
   return nullptr;
 }
-
-//------------------------------------------------------------------------------
 
 DeclareExtFunction *Module::FindDeclareFunction(const std::string &name,
     const ValueTypeSpecArray &arguments)
@@ -169,8 +119,6 @@ DeclareExtFunction *Module::FindDeclareFunction(const std::string &name,
   return nullptr;
 }
 
-//------------------------------------------------------------------------------
-
 std::string Module::GetTempVarName()
 {
   std::stringstream str;
@@ -178,16 +126,12 @@ std::string Module::GetTempVarName()
   return str.str();
 }
 
-//------------------------------------------------------------------------------
-
 void Module::PrependExpression(Expression *expr)
 {
   this->children.insert(this->children.begin(), expr);
   expr->SetModule(this);
   expr->SetBlock(nullptr);
 }
-
-//------------------------------------------------------------------------------
 
 void Module::PrependExpressions(ExpressionArray &expr)
 {
@@ -199,16 +143,12 @@ void Module::PrependExpressions(ExpressionArray &expr)
   }
 }
 
-//------------------------------------------------------------------------------
-
 void Module::AppendExpression(Expression *expr)
 {
   this->children.push_back(expr);
   expr->SetModule(this);
   expr->SetBlock(nullptr);
 }
-
-//------------------------------------------------------------------------------
 
 void Module::AppendExpressions(ExpressionArray &expr)
 {

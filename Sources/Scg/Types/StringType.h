@@ -32,7 +32,7 @@ namespace Scg
     static StringType *s_singleton;
     ValueTypeSpecByName typeSpec;
 
-  public:
+  private:
     //! Constructs a string type.
     StringType();
 
@@ -85,7 +85,7 @@ namespace Scg
       throw EXCEPTION(NotImplementedException, "Not implemented yet for strings.");
     }
 
-    static StringType *Get() { return s_singleton; }
+    static StringType *Get();
   };
 }
 

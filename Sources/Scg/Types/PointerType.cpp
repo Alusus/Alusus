@@ -20,13 +20,15 @@
 
 namespace Scg
 {
+std::unordered_map<const ValueType*, PointerType*> PointerType::usedPointerTypes;
+
 // TODO: We are calling Clone() because the passed type spec gets automatically
 // freed. Is there a better way to avoid extra memory allocation and free?
-PointerType::PointerType(const ValueType &cntType) :
+PointerType::PointerType(const ValueType *cntType) :
     contentType(cntType),
-    typeSpec(const_cast<ValueTypeSpec*>(cntType.GetValueTypeSpec()->Clone()))
+    typeSpec(const_cast<ValueTypeSpec*>(cntType->GetValueTypeSpec()->Clone()))
 {
-  this->llvmType = const_cast<llvm::Type*>(this->contentType.GetLlvmType())->getPointerTo(0);
+  this->llvmType = const_cast<llvm::Type*>(this->contentType->GetLlvmType())->getPointerTo(0);
 }
 
 void PointerType::InitCastingTargets() const
@@ -44,9 +46,23 @@ bool PointerType::IsEqualTo(const ValueType *other) const
   }
   // TODO: Why is PointerType::contentType reference while
   // ArrayType::elementsType is pointer?
-  if (!this->contentType.IsEqualTo(&otherAsPointer->contentType)) {
+  if (!this->contentType->IsEqualTo(otherAsPointer->contentType)) {
     return false;
   }
   return true;
+}
+
+
+PointerType *PointerType::Get(const ValueType *contentType)
+{
+  auto it = PointerType::usedPointerTypes.find(contentType);
+  if (it != PointerType::usedPointerTypes.end()) {
+    return it->second;
+  }
+  // TODO: We need to create a map of all the so-far allocated value types to
+  // avoid creating a value type twice.
+  auto type = new PointerType(contentType);
+  PointerType::usedPointerTypes.insert(std::make_pair(contentType, type));
+  return type;
 }
 }

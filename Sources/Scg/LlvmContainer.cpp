@@ -31,15 +31,13 @@ namespace Scg
   void LlvmContainer::Initialize()
   {
     llvm::InitializeNativeTarget();
-    DoubleType::s_singleton = new DoubleType();
-    FloatType::s_singleton = new FloatType();
-    IntegerType::s_singleton = new IntegerType();
-    StringType::s_singleton = new StringType();
-    VoidType::s_singleton = new VoidType();
   }
 
   void LlvmContainer::Finalize()
   {
+    // TODO: Ensure that we don't need to delete these manually, and
+    // AutoDeleteAllocator is doing the job.
+    /*
     delete DoubleType::s_singleton;
     delete FloatType::s_singleton;
     delete IntegerType::s_singleton;
@@ -51,6 +49,7 @@ namespace Scg
     IntegerType::s_singleton= nullptr;
     StringType::s_singleton= nullptr;
     VoidType::s_singleton= nullptr;
+    */
   }
 
   llvm::LLVMContext &LlvmContainer::GetContext()

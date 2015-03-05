@@ -12,7 +12,10 @@
 #ifndef __ArrayType_h__
 #define __ArrayType_h__
 
-// Scg header files
+// STL header files
+#include <unordered_map>
+
+// SCG header files
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
 
@@ -29,16 +32,16 @@ namespace Scg
     //! The name of the type, for example arr[int, 10].
     std::string name;
     ArrayValueTypeSpec typeSpec;
-    ValueType *elementsType;
+    const ValueType *elementsType;
     unsigned int arraySize;
 
-  public:
+  private:
     /**
      * Constructs a new array type.
      * @param[in] elementsType  The type of the elements of the array.
      * @param[in] arraySize     The number of elements in the array.
      */
-    ArrayType(ValueType *elementsType, unsigned int arraySize);
+    ArrayType(const ValueType *elementsType, unsigned int arraySize);
 
   protected:
     //! @copydoc ValueType::InitCastingTargets()
@@ -86,6 +89,20 @@ namespace Scg
     {
       throw EXCEPTION(NotImplementedException, "Not implemented yet for arrays.");
     }
+
+    //! Stores all array types used so far, so that we can reuse them.
+    static std::unordered_map<const ValueType*, ArrayType*> usedArrayTypes;
+
+    /**
+    * Retrieves an array type whose elements type is the given value type.
+    * @note This function is guaranteed to retrieve the same object for the same
+    * elements type and array size so that we can easily compare types by
+    * comparing their memory location.
+    * @param[in] elementsType The type of the elements of this array type.
+    * @param[in] arraySize The number of elements in this array type.
+    * @return The array type.
+    */
+    static ArrayType *Get(const ValueType *elementsType, int arraySize);
   };
 }
 

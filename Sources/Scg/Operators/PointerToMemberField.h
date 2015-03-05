@@ -56,9 +56,6 @@ public:
     children.push_back(expression);
   }
 
-  //! Class destructor.
-  ~PointerToMemberField();
-
   //! @copydoc Expression::GetValueTypeSpec()
   virtual const ValueTypeSpec *GetValueTypeSpec() const override;
 

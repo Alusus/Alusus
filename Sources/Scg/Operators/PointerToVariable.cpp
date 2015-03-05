@@ -19,14 +19,6 @@
 
 namespace Scg
 {
-PointerToVariable::~PointerToVariable()
-{
-  if (this->valueType != nullptr)
-    delete this->valueType;
-}
-
-//------------------------------------------------------------------------------
-
 const ValueTypeSpec *PointerToVariable::GetValueTypeSpec() const
 {
   BLOCK_CHECK;
@@ -39,7 +31,7 @@ const ValueTypeSpec *PointerToVariable::GetValueTypeSpec() const
     throw EXCEPTION(UndefinedVariableException,
         ("Referencing undefined variable: " + this->name).c_str());
 
-  this->valueType = new PointerType(*var->GetValueTypeSpec()->ToValueType(*GetModule()));
+  this->valueType = PointerType::Get(var->GetValueTypeSpec()->ToValueType(*GetModule()));
   return this->valueType->GetValueTypeSpec();
 }
 

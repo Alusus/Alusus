@@ -86,7 +86,7 @@ ValueType *PointerValueTypeSpec::ToValueType(const Module &module) const
   auto contentType = this->contentTypeSpec->ToValueType(module);
   if (contentType == nullptr)
     return nullptr;
-  return module.GetPointerValueType(*contentType);
+  return PointerType::Get(contentType);
 }
 
 //------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ ValueType *ArrayValueTypeSpec::ToValueType(const Module &module) const
   auto elementsType = this->elementsTypeSpec->ToValueType(module);
   if (elementsType == nullptr)
     return nullptr;
-  return module.GetArrayValueType(*elementsType, this->arraySize);
+  return ArrayType::Get(elementsType, this->arraySize);
 }
 
 //------------------------------------------------------------------------------

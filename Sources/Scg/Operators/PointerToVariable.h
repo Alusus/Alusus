@@ -43,9 +43,6 @@ public:
    */
   PointerToVariable(Char const *name) : name(name) {}
 
-  //! Class destructor.
-  ~PointerToVariable();
-
   /**
    * Gets the name of the variable pointed to by this instance.
    * @return The name of the variable.

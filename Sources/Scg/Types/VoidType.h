@@ -30,7 +30,7 @@ namespace Scg
     static VoidType *s_singleton;
     ValueTypeSpecByName typeSpec;
 
-  public:
+  private:
     /**
      * Constructs a void type.
      */
@@ -48,8 +48,6 @@ namespace Scg
   public:
     //! @copydoc ValueType::GetName()
     virtual const std::string GetName() const { return "void"; }
-
-    static VoidType *Get() { return s_singleton; }
 
     //! @copydoc ValueType::GetDefaultLLVMValue()
     virtual llvm::Constant *GetDefaultLLVMValue() const
@@ -81,6 +79,8 @@ namespace Scg
     {
       throw EXCEPTION(NotImplementedException, "Void type cannot be casted.");
     }
+
+    static VoidType *Get();
   };
 }
 
