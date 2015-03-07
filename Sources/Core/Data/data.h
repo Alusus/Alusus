@@ -198,6 +198,7 @@ void dumpParsedData(IdentifiableObject *ptr, int indents=0, Bool start_indent=tr
 // Helpers
 #include "module_paired_pointers.h"
 #include "IdGenerator.h"
+#include "SourceLocation.h"
 
 // Data Classes
 //-------------

@@ -52,7 +52,8 @@ void printBuildMsg(const SharedPtr<BuildMsg> &msg)
   // Print msg code.
   std::cout << msg->getCode() << " @ ";
   // Print location.
-  std::cout << msg->getFileName() << " (" << msg->getLine() << "," << msg->getColumn() << "): ";
+  std::cout << msg->getSourceLocation().filename->c_str()
+            << " (" << msg->getSourceLocation().line << "," << msg->getSourceLocation().column << "): ";
   // Print description.
   std::cout << msg->getDescription() << NEW_LINE;
 }

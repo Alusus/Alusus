@@ -2,7 +2,7 @@
  * @file Core/Processing/BuildMsg.h
  * Contains the header of class Core::Processing::BuildMsg.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_BUILD_MSG_H
-#define PROCESSING_BUILD_MSG_H
+#ifndef PROCESSING_BUILDMSG_H
+#define PROCESSING_BUILDMSG_H
 
 namespace Core { namespace Processing
 {
@@ -37,28 +37,8 @@ class BuildMsg : public IdentifiableObject
   //============================================================================
   // Member Variables
 
-  /**
-   * @brief The source file for which the message is generated.
-   * This is the full path and filename of the source file related to this
-   * message.
-   */
-  private: Str filename;
-
-  /**
-   * @brief The number of the line at which the message was raised.
-   * This line number refers to the line within the source file at which the
-   * first character in the text appeared. The lines should be numbered from
-   * 1, not 0.
-   */
-  private: Int line;
-
-  /**
-   * @brief The number of the column at which the message was raised.
-   * This column number refers to the column within the source code at which
-   * the first character in the text appeared. The columns should be numbered
-   * from 1, not 0.
-   */
-  private: Int column;
+  /// The source location at which the message was generated.
+  private: Data::SourceLocation sourceLocation;
 
   /**
    * @brief A temporary buffer to hold the generated message description.
@@ -70,15 +50,11 @@ class BuildMsg : public IdentifiableObject
   //============================================================================
   // Constructor / Destructor
 
-  public: BuildMsg() : line(0), column(0)
+  public: BuildMsg()
   {
   }
 
-  public: BuildMsg(Int l, Int c) : line(l), column(c)
-  {
-  }
-
-  public: BuildMsg(Int l, Int c, Char const *fn) : line(l), column(c), filename(fn)
+  public: BuildMsg(Data::SourceLocation const &l) : sourceLocation(l)
   {
   }
 
@@ -135,82 +111,16 @@ class BuildMsg : public IdentifiableObject
   /// Get a human readable description of the message.
   public: Str const& getDescription() const;
 
-  /**
-   * @brief Set the source file for which the message is generated.
-   *
-   * This is the full path and filename of the source file associated with the
-   * message.
-   */
-  public: void setFileName(Char const *fn)
+  /// Set the source location at which the message was generated.
+  public: void setSourceLocation(Data::SourceLocation const &l)
   {
-    this->filename = fn;
+    this->sourceLocation = l;
   }
 
-  /**
-   * @brief Get the source file for which the message is generated.
-   *
-   * This is the full path and filename of the source file associated with the
-   * message.
-   */
-  public: Str const& getFileName()
+  /// Get the source location at which the message was generated.
+  public: Data::SourceLocation const& getSourceLocation() const
   {
-    return this->filename;
-  }
-
-  /**
-   * @brief Set the source code line number associated with the message.
-   *
-   * This number is the line number of the first character in the source code
-   * text related to the message.
-   *
-   * @param l The line number of the first character in the source text. Line
-   *          numbering starts from 1, not 0.
-   */
-  public: void setLine(Int l)
-  {
-    this->line = l;
-  }
-
-  /**
-   * @brief Get the source code line number associated with the message.
-   *
-   * This number is the line number of the first character in the source code
-   * text related to the message.
-   *
-   * @return The line number of the first character in the source text. Line
-   *         numbering starts from 1, not 0.
-   */
-  public: Int getLine() const
-  {
-    return this->line;
-  }
-
-  /**
-   * @brief Set the source code column number associated with the message.
-   *
-   * This number is the column number of the first character in the source
-   * code text related to the message.
-   *
-   * @param c The column number of the first character in the source text.
-   *          Column numbering starts from 1, not 0.
-   */
-  public: void setColumn(Int c)
-  {
-    this->column = c;
-  }
-
-  /**
-   * @brief Get the source code column number associated with the message.
-   *
-   * This number is the column number of the first character in the source
-   * code text related to the message.
-   *
-   * @return The column number of the first character in the source text.
-   *         Column numbering starts from 1, not 0.
-   */
-  public: Int getColumn() const
-  {
-    return this->column;
+    return this->sourceLocation;
   }
 
 }; // class

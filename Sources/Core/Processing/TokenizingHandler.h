@@ -54,13 +54,12 @@ class TokenizingHandler : public Data::OperationHandler
    *
    * @param token The token whose properties should be set by the handler.
    * @param id The id of the token definition associated with the found token.
-   * @param line The line number at which the token is found.
-   * @param column The column number at which the token is found.
    * @param tokenText The full text of the token.
    * @param tokenTextLength The length of the token text.
+   * @param sourceLocation The source location at which the token is found.
    */
-  public: virtual void prepareToken(Data::Token *token, Word id, Int line, Int column,
-                                    WChar const *tokenText, Word tokenTextLength)
+  public: virtual void prepareToken(Data::Token *token, Word id, WChar const *tokenText, Word tokenTextLength,
+                                    Data::SourceLocation const &sourceLocation)
   {
   }
 

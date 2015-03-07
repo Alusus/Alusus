@@ -2,7 +2,7 @@
  * @file Core/Processing/UnrecognizedCharMsg.h
  * Contains the header of class Core::Processing::UnrecognizedCharMsg.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -23,7 +23,7 @@ namespace Core { namespace Processing
  * This message class is for error code L1001, which is raised when the
  * lexer faces characters that are not recognized by any token.
  */
-class UnrecognizedCharMsg : public Processing::BuildMsg
+class UnrecognizedCharMsg : public BuildMsg
 {
   //============================================================================
   // Type Info
@@ -49,7 +49,7 @@ class UnrecognizedCharMsg : public Processing::BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: UnrecognizedCharMsg(Char const *t, Int l, Int c) : Processing::BuildMsg(l, c), text(t)
+  public: UnrecognizedCharMsg(Char const *t, Data::SourceLocation const &sl) : BuildMsg(sl), text(t)
   {
   }
 
@@ -103,22 +103,14 @@ class UnrecognizedCharMsg : public Processing::BuildMsg
    * be clipped.
    *
    * @param ch The character to append to the source text.
-   * @param l The line within the source code at which the character
-   *          appeared. If this character is the first character in the
-   *          buffer, the line number will be considered the line at which
-   *          the source text appeared, otherwise this value will be
-   *          ignored.
-   * @param c The column within the source code at which the character
-   *          appeared. If this character is the first character in the
-   *          buffer, the column number will be considered the column at
-   *          which the source text appeared, otherwise this value will be
-   *          ignored.
+   * @param sl The source location at which the character appeared. This value
+   *           will only be considered if this character is the first in the
+   *           buffer.
    */
-  public: void appendText(Char ch, Int l, Int c)
+  public: void appendText(Char ch, Data::SourceLocation const &sl)
   {
-    if (this->getLine() == -1) {
-      this->setLine(l);
-      this->setColumn(c);
+    if (this->getSourceLocation().line == 0) {
+      this->setSourceLocation(sl);
     }
     this->text.append(1, ch);
   }
@@ -133,21 +125,15 @@ class UnrecognizedCharMsg : public Processing::BuildMsg
    * be clipped.
    *
    * @param str The string to append to the source text.
-   * @param l The line within the source code at which the string appeared. If
-   *          the position hasn't been set yet, this line number will be
-   *          considered the line at which the source text appeared, otherwise
-   *          this value will be ignored.
-   * @param c The column within the source code at which the string appeared.
-   *          If the position hasn't been set yet, this column number
-   *          will be consindered the column at which the source text appeared
-   *          otherwise this value will be ignored.
+   * @param sl The source location at which the character appeared. This value
+   *           will only be considered if this character is the first in the
+   *           buffer.
    */
-  public: void appendText(Char const *str, Int l, Int c)
+  public: void appendText(Char const *str, Data::SourceLocation const &sl)
   {
     if (str == 0 || str[0] == CHR('\0')) return;
-    if (this->getLine() == -1) {
-      this->setLine(l);
-      this->setColumn(c);
+    if (this->getSourceLocation().line == 0) {
+      this->setSourceLocation(sl);
     }
     this->text.append(str);
   }
@@ -189,8 +175,7 @@ class UnrecognizedCharMsg : public Processing::BuildMsg
   public: void clear()
   {
     this->text.clear();
-    this->setLine(0);
-    this->setColumn(0);
+    this->setSourceLocation(Data::SourceLocation());
   }
 
 }; // class

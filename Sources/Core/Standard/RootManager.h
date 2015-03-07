@@ -79,11 +79,11 @@ class RootManager : public SignalReceiver
     return &this->definitionsRepository;
   }
 
-  public: virtual SharedPtr<IdentifiableObject> processString(Char const *str)
+  public: virtual SharedPtr<IdentifiableObject> processString(Char const *str, Char const *name)
   {
     Processing::Engine engine(this->grammarPlant.getRepository(), &this->definitionsRepository);
     engine.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
-    return engine.processString(str);
+    return engine.processString(str, name);
   }
 
   public: virtual SharedPtr<IdentifiableObject> processFile(Char const *filename);

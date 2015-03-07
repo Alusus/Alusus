@@ -54,8 +54,7 @@ namespace Scg
       this->arguments = new FunctionalExpression(gen, item);
 
     // Stores the line and column numbers.
-    this->lineInCode = item->getLine();
-    this->columnInCode = item->getColumn();
+    this->sourceLocation = item->getSourceLocation();
   }
 
   //----------------------------------------------------------------------------
@@ -70,8 +69,7 @@ namespace Scg
   DeclareExtFunction *FunctionLinkExpression::ToDeclareExtFunction()
   {
     auto declExtFunc = this->arguments->ToDeclareExtFunction(this->retType);
-    declExtFunc->SetLineInCode(this->lineInCode);
-    declExtFunc->SetColumnInCode(this->columnInCode);
+    declExtFunc->setSourceLocation(this->sourceLocation);
     return declExtFunc;
   }
 }

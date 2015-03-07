@@ -61,7 +61,7 @@ if (NOT CUSTOM_OUTPUT_PATH STREQUAL "")
 endif()
 
 # Copy test files to the Examples directory.
-install(DIRECTORY "Tests/" DESTINATION "Examples")
+install(DIRECTORY "Tests/" DESTINATION "Examples" FILES_MATCHING PATTERN "*.alusus" PATTERN "*.أسس")
 
 add_test(NAME AlususE2ETests
   COMMAND AlususE2ETests

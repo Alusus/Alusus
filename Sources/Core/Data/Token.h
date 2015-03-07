@@ -51,11 +51,8 @@ class Token : public IdentifiableObject
    */
   private: Str text;
 
-  /// The number of the line at which the token appeared in the source code.
-  private: Int line;
-
-  /// The number of the column at which the token appeared in the source code.
-  private: Int column;
+  /// The location of the token in the source code.
+  private: SourceLocation sourceLocation;
 
 
   //============================================================================
@@ -147,56 +144,16 @@ class Token : public IdentifiableObject
     return this->text;
   }
 
-  /**
-   * @brief Set the token's line number.
-   *
-   * Set the line number at which the token appeared in the source code. This
-   * value refers to the line number of the first character in the token.
-   *
-   * @param l The value to set as the token's line number.
-   */
-  public: void setLine(Int l)
+  /// Set the location of the token within the source code.
+  public: void setSourceLocation(SourceLocation const &loc)
   {
-    this->line = l;
+    this->sourceLocation = loc;
   }
 
-  /**
-   * @brief Get the token's line number.
-   *
-   * Get the line number at which the token appeared in the source code. This
-   * value refers to the line number of the first character in the token.
-   *
-   * @return The line number of the first character in the token.
-   */
-  public: Int getLine() const
+  /// Get the location of the token within the source code.
+  public: SourceLocation const& getSourceLocation() const
   {
-    return this->line;
-  }
-
-  /**
-   * @brief Set the token's column number.
-   *
-   * Set the column number at which the token appeared in the source code.
-   * This value refers to the column number of the first character in the token.
-   *
-   * @param c The value to set as the token's column number.
-   */
-  public: void setColumn(Int c)
-  {
-    this->column = c;
-  }
-
-  /**
-   * @brief Get the token's column number.
-   *
-   * Get the column number at which the token appeared in the source code.
-   * This value refers to the column number of the first character in the token.
-   *
-   * @return The column number of the first character in the token.
-   */
-  public: Int getColumn() const
-  {
-    return this->column;
+    return this->sourceLocation;
   }
 
 }; // class

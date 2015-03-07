@@ -39,7 +39,7 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
         ASSERT(itemMeta != 0);
         state->addBuildMsg(
               SharedPtr<ImportLoadFailedMsg>(
-                new ImportLoadFailedMsg(fileName.c_str(), itemMeta->getLine(), itemMeta->getColumn())));
+                new ImportLoadFailedMsg(fileName.c_str(), itemMeta->getSourceLocation())));
       }
     }
   } else {

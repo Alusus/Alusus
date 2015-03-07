@@ -2,7 +2,7 @@
  * @file Core/Processing/UnrecognizedErrorMsg.h
  * Contains the header of class Core::Processing::UnrecognizedErrorMsg.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_UNRECOGNIZED_ERROR_MSG_H
-#define PROCESSING_UNRECOGNIZED_ERROR_MSG_H
+#ifndef PROCESSING_UNRECOGNIZEDERRORMSG_H
+#define PROCESSING_UNRECOGNIZEDERRORMSG_H
 
 namespace Core { namespace Processing
 {
@@ -29,7 +29,7 @@ class UnrecognizedErrorMsg : public BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: UnrecognizedErrorMsg(Int l, Int c) : BuildMsg(l, c)
+  public: UnrecognizedErrorMsg(Data::SourceLocation const &sl) : BuildMsg(sl)
   {
   }
 

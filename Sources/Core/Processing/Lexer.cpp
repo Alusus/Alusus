@@ -58,10 +58,11 @@ void Lexer::setGrammarRepository(Data::GrammarRepository *grammarRepo)
  * characters are in the input buffer.
  *
  * @param inputChar The character to add to the input buffer.
- * @param line The source code line at which the character appeared.
- * @param column The source code column at which the character appeared.
+ * @param sourceLocaiton The source location at which the character appeared.
+ *                       This will be updated with the location immediately
+ *                       following this character.
  */
-void Lexer::handleNewChar(Char inputChar, Int &line, Int &column)
+void Lexer::handleNewChar(Char inputChar, Data::SourceLocation &sourceLocation)
 {
   // Buffer the input sequence until it can be converted to wide characters.
   this->tempByteCharBuffer[this->tempByteCharCount] = inputChar;
@@ -72,9 +73,9 @@ void Lexer::handleNewChar(Char inputChar, Int &line, Int &column)
   convertStr(this->tempByteCharBuffer, this->tempByteCharCount, wideCharBuffer, 1, processedIn, processedOut);
   if (processedOut != 0) {
     // Conversion was successful. Send converted character to the buffer.
-    this->pushChar(wideCharBuffer[0], line, column);
+    this->pushChar(wideCharBuffer[0], sourceLocation);
     this->processBuffer();
-    computeNextCharPosition(wideCharBuffer[0], line, column);
+    computeNextCharPosition(wideCharBuffer[0], sourceLocation.line, sourceLocation.column);
     this->tempByteCharCount = 0;
   } else if (this->tempByteCharCount == 4) {
     throw EXCEPTION(GenericException,
@@ -88,15 +89,13 @@ void Lexer::handleNewChar(Char inputChar, Int &line, Int &column)
  * are in the input buffer.
  *
  * @param inputStr The string to add to the input buffer.
- * @param line The source code line at which the first character in the string
- *             appeared. This will be updated with the new location.
- * @param column The source code column at which the first character in the
- *               string appeared. This will be updated with the new location.
+ * @param sourceLocation The source location of the first character in the
+ *                       string. This will be updated with the new location.
  */
-void Lexer::handleNewString(Char const *inputStr, Int &line, Int &column)
+void Lexer::handleNewString(Char const *inputStr, Data::SourceLocation &sourceLocation)
 {
   for (Int i = 0; i < static_cast<Int>(strlen(inputStr)); i++) {
-    this->handleNewChar(inputStr[i], line, column);
+    this->handleNewChar(inputStr[i], sourceLocation);
   }
 }
 
@@ -133,11 +132,10 @@ void Lexer::processBuffer()
  * stack.
  *
  * @param ch The character to add to the input buffer.
- * @param line The line at which the character appeared in the source code.
- * @param column The column at which the character appeared in the source code.
+ * @param sl The source location of the given character.
  * @return Returns true if the character was inserted, false otherwise.
  */
-Bool Lexer::pushChar(WChar ch, Int line, Int column)
+Bool Lexer::pushChar(WChar ch, Data::SourceLocation const &sl)
 {
   // Is the input buffer full?
   if (this->inputBuffer.isFull()) {
@@ -150,7 +148,7 @@ Bool Lexer::pushChar(WChar ch, Int line, Int column)
       }
       if (closedStateCount == 0) {
         // There are no closed states, so replace the last character.
-        this->inputBuffer.push(ch, line, column, true);
+        this->inputBuffer.push(ch, sl, true);
         this->currentProcessingIndex--;
         this->currentTokenClamped = true;
         return true;
@@ -162,7 +160,7 @@ Bool Lexer::pushChar(WChar ch, Int line, Int column)
     }
   } else {
     // The buffer is not full, so push the new character.
-    this->inputBuffer.push(ch, line, column, false);
+    this->inputBuffer.push(ch, sl, false);
     return true;
   }
 }
@@ -248,8 +246,7 @@ Int Lexer::process()
         this->currentProcessingIndex >= this->inputBuffer.getCharCount()-1) {
       // Raise a warning.
       this->buildMsgNotifier.emit(
-            SharedPtr<Processing::BuildMsg>(new BufferFullMsg(this->inputBuffer.getStartLine(),
-                                                          this->inputBuffer.getStartColumn())));
+            SharedPtr<Processing::BuildMsg>(new BufferFullMsg(this->inputBuffer.getSourceLocation())));
       // Choose one of the closed states.
       Int i = this->selectBestToken();
       Data::SymbolDefinition *def = this->getSymbolDefinition(this->states[i].getIndexStack()->at(0));
@@ -259,21 +256,18 @@ Int Lexer::process()
         if (this->currentTokenClamped) {
           // Raise a warning.
           this->buildMsgNotifier.emit(
-                SharedPtr<Processing::BuildMsg>(new TokenClampedMsg(this->inputBuffer.getStartLine(),
-                                                                this->inputBuffer.getStartColumn())));
+                SharedPtr<Processing::BuildMsg>(new TokenClampedMsg(this->inputBuffer.getSourceLocation())));
           this->currentTokenClamped = false;
         }
         // Set token properties.
         TokenizingHandler *handler = io_cast<TokenizingHandler>(def->getOperationHandler().get());
         if (handler == 0) {
           this->lastToken.setId(def->getId());
-          this->lastToken.setLine(this->inputBuffer.getStartLine());
-          this->lastToken.setColumn(this->inputBuffer.getStartColumn());
           this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
+          this->lastToken.setSourceLocation(this->inputBuffer.getSourceLocation());
         } else {
-          handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getStartLine(),
-                                this->inputBuffer.getStartColumn(), this->inputBuffer.getChars(),
-                                this->states[i].getTokenLength());
+          handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getChars(),
+                                this->states[i].getTokenLength(), this->inputBuffer.getSourceLocation());
         }
         // Inform the caller that there is a new token.
         r |= 1;
@@ -310,21 +304,18 @@ Int Lexer::process()
       if (this->currentTokenClamped) {
         // Raise a warning.
         this->buildMsgNotifier.emit(
-              SharedPtr<Processing::BuildMsg>(new TokenClampedMsg(this->inputBuffer.getStartLine(),
-                                                              this->inputBuffer.getStartColumn())));
+              SharedPtr<Processing::BuildMsg>(new TokenClampedMsg(this->inputBuffer.getSourceLocation())));
         this->currentTokenClamped = false;
       }
       // Set token properties.
       TokenizingHandler *handler = io_cast<TokenizingHandler>(def->getOperationHandler().get());
       if (handler == 0) {
         this->lastToken.setId(def->getId());
-        this->lastToken.setLine(this->inputBuffer.getStartLine());
-        this->lastToken.setColumn(this->inputBuffer.getStartColumn());
         this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
+        this->lastToken.setSourceLocation(this->inputBuffer.getSourceLocation());
       } else {
-        handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getStartLine(),
-                              this->inputBuffer.getStartColumn(), this->inputBuffer.getChars(),
-                              this->states[i].getTokenLength());
+        handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getChars(),
+                              this->states[i].getTokenLength(), this->inputBuffer.getSourceLocation());
       }
       // Inform the caller that there is a new token.
       r |= 1;
@@ -340,17 +331,15 @@ Int Lexer::process()
     // No states are still alive, so move the first character in the input buffer to the error
     // buffer and try again.
     Str err;
-    Int line = -1;
-    Int column = -1;
+    Data::SourceLocation sl;
     if (this->inputBuffer.getChars()[0] != FILE_TERMINATOR) {
       err.assign(this->inputBuffer.getChars(), 1);
-      line = this->inputBuffer.getStartLine();
-      column = this->inputBuffer.getStartColumn();
+      sl = this->inputBuffer.getSourceLocation();
       this->inputBuffer.remove(1);
     }
     // limit the error text to LEXER_ERROR_BUFFER_MAX_CHARACTERS
     if (this->errorBuffer.getTextLength() < LEXER_ERROR_BUFFER_MAX_CHARACTERS) {
-      this->errorBuffer.appendText(err.c_str(), line, column);
+      this->errorBuffer.appendText(err.c_str(), sl);
     }
     // Set the processing index to -1 since the character we are currently processing is shifted
     // out of the buffer.
@@ -365,8 +354,7 @@ Int Lexer::process()
     if (this->errorBuffer.getTextLength() > 0) {
       this->buildMsgNotifier.emit(
             SharedPtr<Processing::BuildMsg>(new UnrecognizedCharMsg(this->errorBuffer.getText().c_str(),
-                                                                this->errorBuffer.getLine(),
-                                                                this->errorBuffer.getColumn())));
+                                                                this->errorBuffer.getSourceLocation())));
       this->errorBuffer.clear();
     }
   }

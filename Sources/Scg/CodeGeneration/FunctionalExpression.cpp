@@ -67,8 +67,7 @@ DeclareExtFunction *FunctionalExpression::ToDeclareExtFunction(
   auto declFunc = new DeclareExtFunction(name, retType, args, isVarArgs);
   auto metadata = this->subExprs[0]->getInterface<ParsingMetadataHolder>();
   if (metadata != 0) {
-    declFunc->SetLineInCode(metadata->getLine());
-    declFunc->SetColumnInCode(metadata->getColumn());
+    declFunc->setSourceLocation(metadata->getSourceLocation());
   }
   return declFunc;
 }
@@ -100,8 +99,7 @@ Expression *FunctionalExpression::ToExpression()
         ParamPassExp params(this->gen, nextExprAst.s_cast<ParsedRoute>());
         expr = new CallFunction(this->gen->ParseToken(thisExprAst),
             new List(params.ParseExpressionList()));
-        expr->SetLineInCode(thisExprAstMeta->getLine());
-        expr->SetColumnInCode(thisExprAstMeta->getColumn());
+        expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
         i++;
         cancelNextContentOp = true;
         continue;
@@ -111,8 +109,7 @@ Expression *FunctionalExpression::ToExpression()
     {
       auto varName = this->gen->ParseToken(thisExprAst);
       expr = new PointerToVariable(varName);
-      expr->SetLineInCode(thisExprAstMeta->getLine());
-      expr->SetColumnInCode(thisExprAstMeta->getColumn());
+      expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     }
     else if (thisExprAstMeta->getProdId() == this->gen->GetParamPassId() &&
         thisExprAst.s_cast<ParsedRoute>()->getRoute() == ParamPassExp::Square)
@@ -120,16 +117,14 @@ Expression *FunctionalExpression::ToExpression()
       // Square brackets. This is array element access.
       auto index = ParseElementIndex(thisExprAst.s_cast<ParsedRoute>());
       expr = new PointerToArrayElement(expr, index);
-      expr->SetLineInCode(thisExprAstMeta->getLine());
-      expr->SetColumnInCode(thisExprAstMeta->getColumn());
+      expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     }
     else if (thisExprAstMeta->getProdId() == this->gen->GetLinkExpId())
     {
       // Dot followed by a token. This is a field access.
       auto fieldName = ParseFieldName(thisExprAst.s_cast<ParsedList>());
       expr = new PointerToMemberField(expr, fieldName);
-      expr->SetLineInCode(thisExprAstMeta->getLine());
-      expr->SetColumnInCode(thisExprAstMeta->getColumn());
+      expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     }
     else if (thisExprAstMeta->getProdId() == this->gen->GetPostfixTildeExpId())
     {
@@ -141,8 +136,7 @@ Expression *FunctionalExpression::ToExpression()
           cancelNextContentOp = false;
         } else {
           expr = new Content(expr);
-          expr->SetLineInCode(thisExprAstMeta->getLine());
-          expr->SetColumnInCode(thisExprAstMeta->getColumn());
+          expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
         }
       }
       else if (child->getProdId() == this->gen->GetPointerTildeId())

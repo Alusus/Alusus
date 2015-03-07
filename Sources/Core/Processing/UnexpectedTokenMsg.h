@@ -2,7 +2,7 @@
  * @file Core/Processing/UnexpectedTokenMsg.h
  * Contains the header of class Core::Processing::UnexpectedTokenMsg.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,18 +24,18 @@ namespace Core { namespace Processing
  * unexpectedly receives a new token when it has already folded out of the
  * grammar tree (at which point it expects and endParsing call instead).
  */
-class UnexpectedTokenMsg : public Processing::BuildMsg
+class UnexpectedTokenMsg : public BuildMsg
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(UnexpectedTokenMsg, Processing::BuildMsg, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(UnexpectedTokenMsg, BuildMsg, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: UnexpectedTokenMsg(Int l, Int c) : Processing::BuildMsg(l, c)
+  public: UnexpectedTokenMsg(Data::SourceLocation const &sl) : BuildMsg(sl)
   {
   }
 

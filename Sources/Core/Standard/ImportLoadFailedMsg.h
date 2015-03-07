@@ -2,7 +2,7 @@
  * @file Core/Standard/ImportLoadFailedMsg.h
  * Contains the header of class Core::Standard::ImportLoadFailedMsg.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_IMPORT_LOAD_FAILED_MSG_H
-#define STANDARD_IMPORT_LOAD_FAILED_MSG_H
+#ifndef STANDARD_IMPORTLOADFAILEDMSG_H
+#define STANDARD_IMPORTLOADFAILEDMSG_H
 
 namespace Core { namespace Standard
 {
@@ -31,7 +31,8 @@ class ImportLoadFailedMsg : public Processing::BuildMsg
 
   Str fileName;
 
-  public: ImportLoadFailedMsg(Char const * fileName, Int l, Int c) : Processing::BuildMsg(l, c), fileName(fileName)
+  public: ImportLoadFailedMsg(Char const * fileName, Data::SourceLocation const &sl) :
+    Processing::BuildMsg(sl), fileName(fileName)
   {
   }
 

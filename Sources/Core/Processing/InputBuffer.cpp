@@ -22,9 +22,7 @@ namespace Core { namespace Processing
  * Push a new character into the buffer.
  *
  * @param ch The new character to push into the buffer.
- * @param line The line number at which the character appeared in the src
- *             file.
- * @param column The column at which the character appeared in the src file.
+ * @param sl The source location of the given character.
  * @param force Specifies whether to force the push of the character even if
  *              the buffer is full. When the buffer is full and this value
  *              is true, the last character in the buffer will be replaced
@@ -33,7 +31,7 @@ namespace Core { namespace Processing
  *         call will fail if the buffer is full and the value of 'force' is
  *         false.
  */
-Bool InputBuffer::push(WChar ch, Int line, Int column, Bool force)
+Bool InputBuffer::push(WChar ch, Data::SourceLocation const &sl, Bool force)
 {
   // Check if the buffer is full.
   if (this->isFull() == true) {
@@ -55,24 +53,21 @@ Bool InputBuffer::push(WChar ch, Int line, Int column, Bool force)
         lastCg->length--;
         // Create a new character group.
         CharacterGroup * newCg = &this->charGroups.at(this->charGroups.size()-1);
-        newCg->line = line;
-        newCg->column = column;
+        newCg->sourceLocation = sl;
         newCg->length = 1;
         // Define the ending character group, which only contains the expected
         // position of the next character.
         CharacterGroup endCg;
-        endCg.line = line;
-        endCg.column = column;
+        endCg.sourceLocation = sl;
         endCg.length = 0;
-        computeNextCharPosition(ch, endCg.line, endCg.column);
+        computeNextCharPosition(ch, endCg.sourceLocation.line, endCg.sourceLocation.column);
         this->charGroups.push_back(endCg);
       } else {
         // Replace the last character group.
         CharacterGroup * newCg = &this->charGroups.at(this->charGroups.size()-2);
         CharacterGroup * endCg = &this->charGroups.at(this->charGroups.size()-1);
-        endCg->line = newCg->line = line;
-        endCg->column = newCg->column = column;
-        computeNextCharPosition(ch, endCg->line, endCg->column);
+        endCg->sourceLocation = newCg->sourceLocation = sl;
+        computeNextCharPosition(ch, endCg->sourceLocation.line, endCg->sourceLocation.column);
       }
     } else {
       // The operation failed.
@@ -88,13 +83,12 @@ Bool InputBuffer::push(WChar ch, Int line, Int column, Bool force)
       ASSERT(this->charBuffer.size() == 1);
       // Define a new char group.
       CharacterGroup cg;
-      cg.line = line;
-      cg.column = column;
+      cg.sourceLocation = sl;
       cg.length = 1;
       this->charGroups.push_back(cg);
       // Define the ending character group, which only contains the expected
       // position of the next character.
-      computeNextCharPosition(ch, cg.line, cg.column);
+      computeNextCharPosition(ch, cg.sourceLocation.line, cg.sourceLocation.column);
       cg.length = 0;
       this->charGroups.push_back(cg);
     } else {
@@ -103,25 +97,23 @@ Bool InputBuffer::push(WChar ch, Int line, Int column, Bool force)
       // check if the character's position is equivalent to the expected
       // next position.
       CharacterGroup * lastCg = &this->charGroups.at(this->charGroups.size()-1);
-      if (line == lastCg->line && column == lastCg->column) {
+      if (sl == lastCg->sourceLocation) {
         // We don't need to create a new group because the current character
         // fits in the last group.
         this->charGroups.at(this->charGroups.size()-2).length++;
         // Update the ending character group to have the new expected
         // position of the next character.
-        computeNextCharPosition(ch, lastCg->line, lastCg->column);
+        computeNextCharPosition(ch, lastCg->sourceLocation.line, lastCg->sourceLocation.column);
       } else {
         // Create a new group to contain the current character.
-        lastCg->line = line;
-        lastCg->column = column;
+        lastCg->sourceLocation = sl;
         lastCg->length = 1;
         // Define the ending character group, which only contains the expected
         // position of the next character.
         CharacterGroup cg;
-        cg.line = line;
-        cg.column = column;
+        cg.sourceLocation = sl;
         cg.length = 0;
-        computeNextCharPosition(ch, cg.line, cg.column);
+        computeNextCharPosition(ch, cg.sourceLocation.line, cg.sourceLocation.column);
         this->charGroups.push_back(cg);
       }
     }
@@ -171,7 +163,7 @@ void InputBuffer::remove(Int count)
     CharacterGroup * cg = &this->charGroups.at(0);
     Int i = count - cc;
     while (cc > 0) {
-      computeNextCharPosition(this->charBuffer.at(i), cg->line, cg->column);
+      computeNextCharPosition(this->charBuffer.at(i), cg->sourceLocation.line, cg->sourceLocation.column);
       cg->length--;
       i++;
       cc--;

@@ -64,22 +64,22 @@ class ParsedRoute : public IdentifiableObject,
   // Constructor / Destructor
 
   public: ParsedRoute(Word pid=UNKNOWN_ID, Int r=-1, IdentifiableObject *d=0) :
-    ParsingMetadataHolder(pid, -1, -1), route(r), data(d)
+    ParsingMetadataHolder(pid), route(r), data(d)
   {
   }
 
   public: ParsedRoute(Word pid, Int r, SharedPtr<IdentifiableObject> const &d) :
-    ParsingMetadataHolder(pid, -1, -1), route(r), data(d)
+    ParsingMetadataHolder(pid), route(r), data(d)
   {
   }
 
-  public: ParsedRoute(Word pid, Int r, Int l, Int c, IdentifiableObject *d=0) :
-    ParsingMetadataHolder(pid, l, c), route(r), data(d)
+  public: ParsedRoute(Word pid, Int r, SourceLocation const &sl, IdentifiableObject *d=0) :
+    ParsingMetadataHolder(pid, sl), route(r), data(d)
   {
   }
 
-  public: ParsedRoute(Word pid, Int r, Int l, Int c, SharedPtr<IdentifiableObject> const &d) :
-    ParsingMetadataHolder(pid, l, c), route(r), data(d)
+  public: ParsedRoute(Word pid, Int r, SourceLocation const &sl, SharedPtr<IdentifiableObject> const &d) :
+    ParsingMetadataHolder(pid, sl), route(r), data(d)
   {
   }
 
@@ -97,14 +97,14 @@ class ParsedRoute : public IdentifiableObject,
     return std::make_shared<ParsedRoute>(pid, r, d);
   }
 
-  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, Int l, Int c, IdentifiableObject *d=0)
+  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, SourceLocation const &sl, IdentifiableObject *d=0)
   {
-    return std::make_shared<ParsedRoute>(pid, r, l, c, d);
+    return std::make_shared<ParsedRoute>(pid, r, sl, d);
   }
 
-  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, Int l, Int c, SharedPtr<IdentifiableObject> const &d)
+  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, SourceLocation const &sl, SharedPtr<IdentifiableObject> const &d)
   {
-    return std::make_shared<ParsedRoute>(pid, r, l, c, d);
+    return std::make_shared<ParsedRoute>(pid, r, sl, d);
   }
 
 
@@ -168,48 +168,24 @@ class ParsedRoute : public IdentifiableObject,
   /**
    * @brief Override the original implementation to search the tree if needed.
    * If the value is not yet set for this object and it has children, it will
-   * call getLine on the children.
+   * call getSourceLocation on the children.
    */
-  public: virtual Int getLine() const
+  public: virtual SourceLocation const& getSourceLocation() const
   {
-    if (ParsingMetadataHolder::getLine() == -1) {
+    if (ParsingMetadataHolder::getSourceLocation().line == 0) {
       ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->getData().get());
       if (ptr != 0) {
-        Int l = ptr->getLine();
-        if (l != -1) return l;
+        SourceLocation const &sl = ptr->getSourceLocation();
+        if (sl.line != 0) return sl;
       }
     }
-    return ParsingMetadataHolder::getLine();
-  }
-
-  /**
-   * @brief Override the original implementation to search the tree if needed.
-   * If the value is not yet set for this object and it has children, it will
-   * call getColumn on the children.
-   */
-  public: virtual Int getColumn() const
-  {
-    if (ParsingMetadataHolder::getColumn() == -1) {
-      ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->getData().get());
-      if (ptr != 0) {
-        Int l = ptr->getColumn();
-        if (l != -1) return l;
-      }
-    }
-    return ParsingMetadataHolder::getColumn();
+    return ParsingMetadataHolder::getSourceLocation();
   }
 
   public: virtual IdentifiableObject* getAttribute(Char const *name)
   {
-    if (SBSTR(name) == STR("line")) {
-      if (ParsingMetadataHolder::getLine() == -1) {
-        ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->getData().get());
-        if (ptr != 0) {
-          return ptr->getAttribute(name);
-        }
-      }
-    } else if (SBSTR(name) == STR("column")) {
-      if (ParsingMetadataHolder::getColumn() == -1) {
+    if (SBSTR(name) == STR("sourceLocation")) {
+      if (ParsingMetadataHolder::getSourceLocation().line == 0) {
         ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->getData().get());
         if (ptr != 0) {
           return ptr->getAttribute(name);

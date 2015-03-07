@@ -45,11 +45,10 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
       // Create a build error msg.
       auto metadata = item->getInterface<ParsingMetadataHolder>();
       if (metadata != 0) {
-        state->addBuildMsg(std::make_shared<Processing::UnrecognizedErrorMsg>(
-          metadata->getLine(), metadata->getColumn()));
+        state->addBuildMsg(std::make_shared<Processing::UnrecognizedErrorMsg>(metadata->getSourceLocation()));
       } else {
-        state->addBuildMsg(std::make_shared<Processing::UnrecognizedErrorMsg>(
-          -1, -1));
+        SourceLocation sl;
+        state->addBuildMsg(std::make_shared<Processing::UnrecognizedErrorMsg>(sl));
       }
       return;
     }
@@ -73,7 +72,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
         } else {
             // Raise a build error.
             state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(STR("Invalid statement inside module body."),
-                elementMetadata->getLine(), elementMetadata->getColumn()));
+                elementMetadata->getSourceLocation()));
         }
     }
 
@@ -128,9 +127,7 @@ void ModuleParsingHandler::addLinkToModule(const SharedPtr<IdentifiableObject> &
     for (auto i = 0; i < list->getCount(); i++)
     {
       auto name = this->getLinkName(list->get(i));
-      auto l = std::make_shared<ParsedList>(linkMetadata->getProdId());
-      l->setLine(linkMetadata->getLine());
-      l->setColumn(linkMetadata->getColumn());
+      auto l = std::make_shared<ParsedList>(linkMetadata->getProdId(), linkMetadata->getSourceLocation());
       l->add(list->get(i));
       module->add(name, l);
     }

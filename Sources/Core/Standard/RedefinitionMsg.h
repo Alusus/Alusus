@@ -2,7 +2,7 @@
  * @file Core/Standard/RedefinitionMsg.h
  * Contains the header of class Core::Processing::RedefinitionMsg.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PARSER_REDEFINITION_MSG_H
-#define PARSER_REDEFINITION_MSG_H
+#ifndef STANDARD_REDEFINITIONMSG_H
+#define STANDARD_REDEFINITIONMSG_H
 
 namespace Core { namespace Standard
 {
@@ -35,7 +35,8 @@ class RedefinitionMsg : public Processing::BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: RedefinitionMsg(Char const *n, Int l, Int c) : name(n), Processing::BuildMsg(l, c)
+  public: RedefinitionMsg(Char const *n, Data::SourceLocation const &sl) :
+    name(n), Processing::BuildMsg(sl)
   {
   }
 

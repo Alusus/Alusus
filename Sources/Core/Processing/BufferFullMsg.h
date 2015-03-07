@@ -2,7 +2,7 @@
  * @file Core/Processing/BufferFullMsg.h
  * Contains the header of class Core::Processing::BufferFullMsg.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -35,7 +35,7 @@ class BufferFullMsg : public Processing::BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: BufferFullMsg(Int l, Int c) : Processing::BuildMsg(l, c)
+  public: BufferFullMsg(Data::SourceLocation const &sl) : Processing::BuildMsg(sl)
   {
   }
 

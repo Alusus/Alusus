@@ -71,8 +71,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
         "Function should have a statement list under the path -1:SubSubject.Subject1.");
 
   // Stores the line and column numbers.
-  this->lineInCode = astRoot->getLine();
-  this->columnInCode = astRoot->getColumn();
+  this->sourceLocation = astRoot->getSourceLocation();
 }
 
 //------------------------------------------------------------------------------
@@ -93,8 +92,7 @@ DefineFunction *FunctionAstBlock::ToDefineFunction(Char const *name)
   // Creates the DefineFunction instruction and sets the line and column numbers.
   auto defFunc = new DefineFunction(name, this->returnType, this->arguments,
                                     this->body);
-  defFunc->SetLineInCode(this->lineInCode);
-  defFunc->SetColumnInCode(this->columnInCode);
+  defFunc->setSourceLocation(this->sourceLocation);
   return defFunc;
 }
 }

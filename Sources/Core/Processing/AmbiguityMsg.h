@@ -2,7 +2,7 @@
  * @file Core/Processing/AmbiguityMsg.h
  * Contains the header of class Core::Processing::AmbiguityMsg.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,26 +10,26 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_AMBIGUITY_MSG_H
-#define PROCESSING_AMBIGUITY_MSG_H
+#ifndef PROCESSINGAMBIGUITYMSG_H
+#define PROCESSINGAMBIGUITYMSG_H
 
 namespace Core { namespace Processing
 {
 
 // TODO: DOC
 
-class AmbiguityMsg : public Processing::BuildMsg
+class AmbiguityMsg : public BuildMsg
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(AmbiguityMsg, Processing::BuildMsg, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(AmbiguityMsg, BuildMsg, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: AmbiguityMsg(Int l, Int c) : Processing::BuildMsg(l, c)
+  public: AmbiguityMsg(Data::SourceLocation const &sl) : BuildMsg(sl)
   {
   }
 

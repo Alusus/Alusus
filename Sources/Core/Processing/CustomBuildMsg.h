@@ -37,13 +37,13 @@ class CustomBuildMsg : public BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: CustomBuildMsg(Char const *msg, Int line, Int column) :
-    BuildMsg(line, column), msg(msg), code(STR("G1002")), severity(1)
+  public: CustomBuildMsg(Char const *msg, Data::SourceLocation const &sl) :
+    BuildMsg(sl), msg(msg), code(STR("G1002")), severity(1)
   {
   }
 
-  public: CustomBuildMsg(Char const *msg, Char const *code, Int severity, Int line, Int column) :
-    BuildMsg(line, column), msg(msg), code(code), severity(severity)
+  public: CustomBuildMsg(Char const *msg, Char const *code, Int severity, Data::SourceLocation &sl) :
+    BuildMsg(sl), msg(msg), code(code), severity(severity)
   {
   }
 

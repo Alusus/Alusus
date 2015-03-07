@@ -23,7 +23,7 @@ TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Tes
   vector<SharedPtr<IdentifiableObject> > results2;
 
   try {
-    SharedPtr<IdentifiableObject> ptr = engine.processString(STR("strVar := \"Hello World\";"));
+    SharedPtr<IdentifiableObject> ptr = engine.processString(STR("strVar := \"Hello World\";"), STR("testcode"));
     SECTION("s1", "Data generated.")
     {
       REQUIRE(ptr.get() != 0);
@@ -81,7 +81,8 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
           "--intVar;"
           "hashVar := (a:1, b:2, c:3);"
           "do s:10;"
-          "do { a = 5; };"));
+          "do { a = 5; };"),
+      STR("testcode"));
     SECTION("s1", "No error msgs received.")
     {
       REQUIRE(buildMsgs.getMsgCount() == 0);
@@ -218,7 +219,8 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
           "--intVar;\n"
           "opVar := i +;\n"
           "opVar := i + j;\n"
-          "opVar := "));
+          "opVar := "),
+      STR("testcode"));
     SECTION("s1", "Error msgs received.")
     {
       REQUIRE(buildMsgs.getMsgCount() == 3);
@@ -229,15 +231,15 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
       if (buildMsgs.getMsgCount() > 0) msg = buildMsgs.getMsg(0);
       REQUIRE((msg != 0));
       REQUIRE(msg->getCode().compare("P1001") == 0);
-      REQUIRE(msg->getLine() == 3);
-      REQUIRE(msg->getColumn() == 10);
+      REQUIRE(msg->getSourceLocation().line == 3);
+      REQUIRE(msg->getSourceLocation().column == 10);
 
       msg = SharedPtr<Processing::BuildMsg>(0);
       if (buildMsgs.getMsgCount() > 1) msg = buildMsgs.getMsg(1);
       REQUIRE((msg != 0));
       REQUIRE(msg->getCode().compare("P1001") == 0);
-      REQUIRE(msg->getLine() == 5);
-      REQUIRE(msg->getColumn() == 13);
+      REQUIRE(msg->getSourceLocation().line == 5);
+      REQUIRE(msg->getSourceLocation().column == 13);
 
       msg = SharedPtr<Processing::BuildMsg>(0);
       if (buildMsgs.getMsgCount() > 2) msg = buildMsgs.getMsg(2);

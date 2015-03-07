@@ -33,46 +33,46 @@ void Program::InitialiseBuiltInFunctions()
   // Add functions
   this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
       "int", "int", "int",
-      [](auto irb, auto a, auto b) { return irb->CreateAdd(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateAdd(a, b); }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
       "float", "float", "float",
-      [](auto irb, auto a, auto b) { return irb->CreateFAdd(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFAdd(a, b); }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
       "double", "double", "double",
-      [](auto irb, auto a, auto b) { return irb->CreateFAdd(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFAdd(a, b); }));
 
   // Subtract functions
   this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
       "int", "int", "int",
-      [](auto irb, auto a, auto b) { return irb->CreateSub(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateSub(a, b); }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
       "float", "float", "float",
-      [](auto irb, auto a, auto b) { return irb->CreateFSub(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFSub(a, b); }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
       "double", "double", "double",
-      [](auto irb, auto a, auto b) { return irb->CreateFSub(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFSub(a, b); }));
 
   // Multiplication functions
   this->builtInFunctions.Add(new BasicBuiltInFunction("__mul",
       "int", "int", "int",
-      [](auto irb, auto a, auto b) { return irb->CreateMul(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateMul(a, b); }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__mul",
       "float", "float", "float",
-      [](auto irb, auto a, auto b) { return irb->CreateFMul(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFMul(a, b); }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__mul",
       "double", "double", "double",
-      [](auto irb, auto a, auto b) { return irb->CreateFMul(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFMul(a, b); }));
 
   // Division functions
   this->builtInFunctions.Add(new BasicBuiltInFunction("__div",
       "int", "int", "int",
-      [](auto irb, auto a, auto b) { return irb->CreateSDiv(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateSDiv(a, b); }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__div",
       "float", "float", "float",
-      [](auto irb, auto a, auto b) { return irb->CreateFDiv(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFDiv(a, b); }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__div",
       "double", "double", "double",
-      [](auto irb, auto a, auto b) { return irb->CreateFDiv(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFDiv(a, b); }));
 }
 
 bool Program::HasFunction(const std::string &name,

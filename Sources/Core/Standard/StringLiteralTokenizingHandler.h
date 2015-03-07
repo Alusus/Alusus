@@ -37,8 +37,8 @@ class StringLiteralTokenizingHandler : public Processing::TokenizingHandler
   //============================================================================
   // Member Functions
 
-  public: virtual void prepareToken(Data::Token *token, Word id, Int line, Int column,
-                                    WChar const *tokenText, Word tokenTextLength);
+  public: virtual void prepareToken(Data::Token *token, Word id, WChar const *tokenText, Word tokenTextLength,
+                                    Data::SourceLocation const &sourceLocation);
 
 }; // class
 

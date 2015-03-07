@@ -55,8 +55,13 @@ class ParsedToken : public IdentifiableObject, public virtual ParsingMetadataHol
   //============================================================================
   // Constructor / Destructor
 
-  public: ParsedToken(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR(""), Int l=-1, Int c=-1) :
-    ParsingMetadataHolder(pid, l, c), id(i), text(txt)
+  public: ParsedToken(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR("")) :
+    ParsingMetadataHolder(pid), id(i), text(txt)
+  {
+  }
+
+  public: ParsedToken(Word pid, Word i, Char const *txt, SourceLocation const &sl) :
+    ParsingMetadataHolder(pid, sl), id(i), text(txt)
   {
   }
 
@@ -64,10 +69,14 @@ class ParsedToken : public IdentifiableObject, public virtual ParsingMetadataHol
   {
   }
 
-  public: static SharedPtr<ParsedToken> create(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR(""),
-                                               Int l=-1, Int c=-1)
+  public: static SharedPtr<ParsedToken> create(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR(""))
   {
-    return std::make_shared<ParsedToken>(pid, i, txt, l, c);
+    return std::make_shared<ParsedToken>(pid, i, txt);
+  }
+
+  public: static SharedPtr<ParsedToken> create(Word pid, Word i, Char const *txt, SourceLocation const &sl)
+  {
+    return std::make_shared<ParsedToken>(pid, i, txt, sl);
   }
 
 

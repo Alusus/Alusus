@@ -2,7 +2,7 @@
  * @file Core/Processing/TokenClampedMsg.h
  * Contains the header of class Core::Processing::TokenClampedMsg.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -23,7 +23,7 @@ namespace Core { namespace Processing
  * This message class is for warning code L2001, which is raised when the
  * lexer clamps a very long token to fit into the input buffer.
  */
-class TokenClampedMsg : public Processing::BuildMsg
+class TokenClampedMsg : public BuildMsg
 {
   //============================================================================
   // Type Info
@@ -34,7 +34,7 @@ class TokenClampedMsg : public Processing::BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: TokenClampedMsg(Int l, Int c) : Processing::BuildMsg(l, c)
+  public: TokenClampedMsg(Data::SourceLocation const &sl) : BuildMsg(sl)
   {
   }
 

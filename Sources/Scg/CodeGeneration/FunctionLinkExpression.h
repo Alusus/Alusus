@@ -70,8 +70,7 @@ namespace Scg
   {
   private:
     ValueTypeSpec *retType = nullptr;
-    int lineInCode;
-    int columnInCode;
+    Core::Data::SourceLocation sourceLocation;
     FunctionalExpression *arguments;
 
   public:

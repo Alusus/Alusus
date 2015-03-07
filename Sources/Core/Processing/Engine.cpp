@@ -31,7 +31,7 @@ void Engine::initialize(Data::GrammarRepository *grammarRepo, Data::SharedReposi
 }
 
 
-SharedPtr<IdentifiableObject> Engine::processString(Char const *str)
+SharedPtr<IdentifiableObject> Engine::processString(Char const *str, Char const *name)
 {
   if (str == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("str"), STR("Cannot be null."), str);
@@ -40,10 +40,13 @@ SharedPtr<IdentifiableObject> Engine::processString(Char const *str)
   parser.beginParsing();
 
   // Start passing characters to the lexer.
-  Int line = 1;
-  Int column = 1;
-  lexer.handleNewString(str, line, column);
-  lexer.handleNewChar(FILE_TERMINATOR, line, column);
+
+  Data::SourceLocation sourceLocation;
+  sourceLocation.filename = std::make_shared<Str>(name);
+  sourceLocation.line = 1;
+  sourceLocation.column = 1;
+  lexer.handleNewString(str, sourceLocation);
+  lexer.handleNewChar(FILE_TERMINATOR, sourceLocation);
 
   return parser.endParsing();
 }
@@ -60,14 +63,16 @@ SharedPtr<IdentifiableObject> Engine::processFile(Char const *filename)
   parser.beginParsing();
 
   // Start passing characters to the lexer.
-  Int line = 1;
-  Int column = 1;
+  Data::SourceLocation sourceLocation;
+  sourceLocation.filename = std::make_shared<Str>(filename);
+  sourceLocation.line = 1;
+  sourceLocation.column = 1;
   Char c;
   while (!fin.eof()) {
     fin.get(c);
-    lexer.handleNewChar(c, line, column);
+    lexer.handleNewChar(c, sourceLocation);
   }
-  lexer.handleNewChar(FILE_TERMINATOR, line, column);
+  lexer.handleNewChar(FILE_TERMINATOR, sourceLocation);
 
   return parser.endParsing();
 }

@@ -39,34 +39,28 @@ class ParsingMetadataHolder : public AttributesHolder
   private: Integer prodId;
 
   /**
-   * @brief The number of the line at which the token appeared in the source.
+   * @brief The location at which the token appeared in the source.
    *
    * Although this refers to the token, it actually applies to all item types
    * since an error reporter needs to report a source code location no matter
    * at which item the error was detected. In the case of non-token items,
    * this refers to the location of the first token detected inside that term.
    */
-  private: Integer line;
-
-  /**
-   * @brief The number of the column at which the token appeared in the source.
-   *
-   * Although this refers to the token, it actually applies to all item types
-   * since an error reporter needs to report a source code location no matter
-   * at which item the error was detected. In the case of non-token items,
-   * this refers to the location of the first token detected inside that term.
-   */
-  private: Integer column;
+  private: SourceLocation sourceLocation;
 
 
   //============================================================================
   // Constructors
 
-  public: ParsingMetadataHolder()
+  public: ParsingMetadataHolder() : prodId(UNKNOWN_ID)
   {
   }
 
-  public: ParsingMetadataHolder(Int pid, Int l, Int c) : prodId(pid), line(l), column(c)
+  public: ParsingMetadataHolder(Int pid) : prodId(pid)
+  {
+  }
+
+  public: ParsingMetadataHolder(Int pid, SourceLocation const &loc) : prodId(pid), sourceLocation(loc)
   {
   }
 
@@ -99,27 +93,25 @@ class ParsingMetadataHolder : public AttributesHolder
   }
 
   /**
-   * @brief Set the token's line number.
+   * @brief Set the token's location within the source code.
    *
-   * Set the line number at which the token appeared in the source code. This
-   * value refers to the line number of the first character in the token.
+   * Set the location at which the token appeared in the source code. This
+   * value refers to the location of the first character in the token.
    * Although this refers to the token, it actually applies to all item types
    * since an error reporter needs to report a source code location no matter
    * at which item the error was detected. In the case of non-token items,
    * this refers to the location of the first token detected inside that term.
-   *
-   * @param l The value to set as the token's line number.
    */
-  public: virtual void setLine(Int l)
+  public: virtual void setSourceLocation(SourceLocation const &loc)
   {
-    this->line = l;
+    this->sourceLocation = loc;
   }
 
   /**
-   * @brief Get the token's line number.
+   * @brief Get the token's locaiton within the source code.
    *
-   * Get the line number at which the token appeared in the source code. This
-   * value refers to the line number of the first character in the token.
+   * Get the location at which the token appeared in the source code. This
+   * value refers to the location of the first character in the token.
    * Although this refers to the token, it actually applies to all item types
    * since an error reporter needs to report a source code location no matter
    * at which item the error was detected. In the case of non-token items,
@@ -127,53 +119,17 @@ class ParsingMetadataHolder : public AttributesHolder
    *
    * @return The line number of the first character in the token.
    */
-  public: virtual Int getLine() const
+  public: virtual SourceLocation const& getSourceLocation() const
   {
-    return this->line;
-  }
-
-  /**
-   * @brief Set the token's column number.
-   *
-   * Set the column number at which the token appeared in the source code.
-   * This value refers to the column number of the first character in the token.
-   * Although this refers to the token, it actually applies to all item types
-   * since an error reporter needs to report a source code location no matter
-   * at which item the error was detected. In the case of non-token items,
-   * this refers to the location of the first token detected inside that term.
-   *
-   * @param c The value to set as the token's column number.
-   */
-  public: virtual void setColumn(Int c)
-  {
-    this->column = c;
-  }
-
-  /**
-   * @brief Get the token's column number.
-   *
-   * Get the column number at which the token appeared in the source code.
-   * This value refers to the column number of the first character in the token.
-   * Although this refers to the token, it actually applies to all item types
-   * since an error reporter needs to report a source code location no matter
-   * at which item the error was detected. In the case of non-token items,
-   * this refers to the location of the first token detected inside that term.
-   *
-   * @return The column number of the first character in the token.
-   */
-  public: virtual Int getColumn() const
-  {
-    return this->column;
+    return this->sourceLocation;
   }
 
   public: virtual IdentifiableObject* getAttribute(Char const *name)
   {
     if (SBSTR(name) == STR("prodId")) {
       return &this->prodId;
-    } else if (SBSTR(name) == STR("line")) {
-      return &this->line;
-    } else if (SBSTR(name) == STR("column")) {
-      return &this->column;
+    } else if (SBSTR(name) == STR("sourceLocation")) {
+      return &this->sourceLocation;
     } else {
       return 0;
     }

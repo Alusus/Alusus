@@ -56,13 +56,12 @@ class ConstTokenizingHandler : public TokenizingHandler
     return this->id;
   }
 
-  public: virtual void prepareToken(Data::Token *token, Word id, Int line, Int column,
-                                    WChar const *tokenText, Word tokenTextLength)
+  public: virtual void prepareToken(Data::Token *token, Word id, WChar const *tokenText, Word tokenTextLength,
+                                    Data::SourceLocation const &sourceLocation)
   {
     token->setText(tokenText, tokenTextLength);
     token->setId(this->id);
-    token->setLine(line);
-    token->setColumn(column);
+    token->setSourceLocation(sourceLocation);
   }
 
 }; // class

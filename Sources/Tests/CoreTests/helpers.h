@@ -93,10 +93,9 @@ class LexerTester : public SignalReceiver
 
   public: void test(Char const *text)
   {
-    Int line = 1;
-    Int column = 1;
-    this->lexer->handleNewString(text, line, column);
-    this->lexer->handleNewChar(FILE_TERMINATOR, line, column);
+    Data::SourceLocation sl(std::make_shared<Str>(STR("unittest")), 1, 1);
+    this->lexer->handleNewString(text, sl);
+    this->lexer->handleNewChar(FILE_TERMINATOR, sl);
     if (this->errorMsg.size() == 0) {
       if (this->currentIndex == static_cast<Int>(this->tokens.size())) {
         REQUIRE(true);

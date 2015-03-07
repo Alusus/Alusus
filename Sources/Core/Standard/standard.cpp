@@ -86,12 +86,9 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processi
         if (idHolder != 0) name = ID_GENERATOR->getDesc(idHolder->getId()).c_str();
         else name = srcMap->getKey(i).c_str();
         ParsingMetadataHolder *itemMeta = ii_cast<ParsingMetadataHolder>(srcMap->get(i));
-        Int line=0, column=0;
-        if (itemMeta != 0) {
-          line = itemMeta->getLine();
-          column = itemMeta->getColumn();
-        }
-        state->addBuildMsg(std::make_shared<RedefinitionMsg>(name, line, column));
+        Data::SourceLocation sl;
+        if (itemMeta != 0) sl = itemMeta->getSourceLocation();
+        state->addBuildMsg(std::make_shared<RedefinitionMsg>(name, sl));
         // Overwrite old data.
         destMap->set(srcMap->getKey(i).c_str(), srcMap->get(i));
       }
@@ -119,12 +116,9 @@ void mergeDefinition(Char const *qualifier, IdentifiableObject *obj, Processing:
     if (!mergeContainers(dest, obj, state)) {
       // Generate a build message.
       ParsingMetadataHolder *itemMeta = ii_cast<ParsingMetadataHolder>(obj);
-      Int line=0, column=0;
-      if (itemMeta != 0) {
-        line = itemMeta->getLine();
-        column = itemMeta->getColumn();
-      }
-      state->addBuildMsg(std::make_shared<RedefinitionMsg>(qualifier, line, column));
+      Data::SourceLocation sl;
+      if (itemMeta != 0) sl = itemMeta->getSourceLocation();
+      state->addBuildMsg(std::make_shared<RedefinitionMsg>(qualifier, sl));
       // Overwrite old data.
       repository->set(qualifier, obj);
     }

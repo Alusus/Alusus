@@ -40,10 +40,9 @@ class InputBuffer
    */
   private: struct CharacterGroup
   {
-    /// The line number of the first character in the group.
-    Int line;
-    /// The column number of the first character in the group.
-    Int column;
+    /// The location of the first character in the group.
+    Data::SourceLocation sourceLocation;
+
     /// The number of characters in the group.
     Int length;
   };
@@ -93,7 +92,7 @@ class InputBuffer
   /// @{
 
   /// Push a new character to the end of the buffer.
-  public: Bool push(WChar ch, Int line, Int column, Bool force=false);
+  public: Bool push(WChar ch, Data::SourceLocation const &sl, Bool force=false);
 
   /// Remove a group of characters from the beginning of the buffer.
   public: void remove(Int count);
@@ -121,18 +120,12 @@ class InputBuffer
     return this->charBuffer.size();
   }
 
-  /// Get the line number of the first character in the buffer.
-  public: Int getStartLine()
+  /// Get the source location of the first character in the buffer.
+  public: Data::SourceLocation const& getSourceLocation() const
   {
-    if (this->charGroups.size() == 0) return 0;
-    else return this->charGroups.at(0).line;
-  }
-
-  /// Get the column of the first character in the buffer.
-  public: Int getStartColumn()
-  {
-    if (this->charGroups.size() == 0) return 0;
-    else return this->charGroups.at(0).column;
+    static Data::SourceLocation nullSL;
+    if (this->charGroups.size() == 0) return nullSL;
+    else return this->charGroups.at(0).sourceLocation;
   }
 
   /// Get whether the buffer is full or not.

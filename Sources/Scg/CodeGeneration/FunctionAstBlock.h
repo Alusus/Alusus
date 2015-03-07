@@ -83,8 +83,7 @@ namespace Scg
     ValueTypeSpec *returnType = nullptr;
     Block *body;
     bool autoDelete;
-    int lineInCode;
-    int columnInCode;
+    Core::Data::SourceLocation sourceLocation;
 
   public:
     /**

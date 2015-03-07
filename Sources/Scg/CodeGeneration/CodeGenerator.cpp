@@ -130,8 +130,7 @@ namespace Scg
     {
       FunctionLinkExpression funcLink(this, item);
       auto declExtFunc = funcLink.ToDeclareExtFunction();
-      declExtFunc->SetLineInCode(metadata->getLine());
-      declExtFunc->SetColumnInCode(metadata->getColumn());
+      declExtFunc->setSourceLocation(metadata->getSourceLocation());
       return declExtFunc;
     }
     else
@@ -171,8 +170,7 @@ namespace Scg
       auto block = new Block(blockExprs);
       auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
       if (metadata != nullptr) {
-        block->SetLineInCode(metadata->getLine());
-        block->SetColumnInCode(metadata->getColumn());
+        block->setSourceLocation(metadata->getSourceLocation());
       }
       return block;
     } else {
@@ -257,8 +255,7 @@ namespace Scg
     auto defVar = new DefineVariable(type, name);
     auto exprMetadata = expr->getInterface<ParsingMetadataHolder>();
     if (exprMetadata != 0) {
-      defVar->SetLineInCode(exprMetadata->getLine());
-      defVar->SetColumnInCode(exprMetadata->getColumn());
+      defVar->setSourceLocation(exprMetadata->getSourceLocation());
     }
     return defVar;
   }
@@ -307,8 +304,7 @@ namespace Scg
     auto defStruct = new DefineStruct(name, fields);
     ParsingMetadataHolder *itemMetadata = item->getInterface<ParsingMetadataHolder>();
     if (itemMetadata != 0) {
-      defStruct->SetLineInCode(itemMetadata->getLine());
-      defStruct->SetColumnInCode(itemMetadata->getColumn());
+      defStruct->setSourceLocation(itemMetadata->getSourceLocation());
     }
     return defStruct;
   }
@@ -328,8 +324,7 @@ namespace Scg
     auto ret = new Return(GenerateExpression(exp));
     ParsingMetadataHolder *itemMetadata = item->getInterface<ParsingMetadataHolder>();
     if (itemMetadata != 0) {
-      ret->SetLineInCode(itemMetadata->getLine());
-      ret->SetColumnInCode(itemMetadata->getColumn());
+      ret->setSourceLocation(itemMetadata->getSourceLocation());
     }
     return ret;
   }
@@ -487,8 +482,7 @@ namespace Scg
 //    default:
 //        throw EXCEPTION(UnreachableCodeException, "Unexpected value for postfixType");
 //    }
-//    memberAccess->SetLineInCode(parsedList->getLine());
-//    memberAccess->SetColumnInCode(parsedList->getColumn());
+//    memberAccess->setSourceLocation(parsedList->getSourceLocation());
 //    return memberAccess;
 //  }
 
@@ -522,8 +516,7 @@ namespace Scg
 
     // Sets the line and the column of the source code that generated this
     // expression.
-    constant->SetLineInCode(literal->getLine());
-    constant->SetColumnInCode(literal->getColumn());
+    constant->setSourceLocation(literal->getSourceLocation());
 
     return constant;
   }
@@ -542,8 +535,7 @@ namespace Scg
 
     // Sets the line and the column of the source code that generated this
     // expression.
-    list->SetLineInCode(listExpr->getLine());
-    list->SetColumnInCode(listExpr->getColumn());
+    list->setSourceLocation(listExpr->getSourceLocation());
 
     return list;
   }
@@ -601,8 +593,7 @@ namespace Scg
       }
       // Sets the line and the column of the source code that generated this
       // expression.
-      expr->SetLineInCode(cmpExpr->getLine());
-      expr->SetColumnInCode(cmpExpr->getColumn());
+      expr->setSourceLocation(cmpExpr->getSourceLocation());
     }
 
     return expr;
@@ -648,8 +639,7 @@ namespace Scg
 
 //    // Creates the CallFunction instruction and sets the line and column numbers.
 //    auto callFunc = new CallFunction(functionName, static_cast<List*>(functionArgs));
-//    callFunc->SetLineInCode(functionalExpr->getLine());
-//    callFunc->SetColumnInCode(functionalExpr->getColumn());
+//    callFunc->setSourceLocation(functionalExpr->getSourceLocation());
 //    return callFunc;
 //  }
 
@@ -691,8 +681,7 @@ namespace Scg
     auto ifStat = new IfStatement(condition, thenBody, 0);
     auto commandMetadata = command->getInterface<ParsingMetadataHolder>();
     if (commandMetadata != 0) {
-      ifStat->SetLineInCode(commandMetadata->getLine());
-      ifStat->SetColumnInCode(commandMetadata->getColumn());
+      ifStat->setSourceLocation(commandMetadata->getSourceLocation());
     }
     return ifStat;
   }
@@ -735,8 +724,7 @@ namespace Scg
     auto forStat = new ForStatement(init, cond, loop, thenBody);
     auto commandMetadata = command->getInterface<ParsingMetadataHolder>();
     if (commandMetadata != 0) {
-      forStat->SetLineInCode(commandMetadata->getLine());
-      forStat->SetColumnInCode(commandMetadata->getColumn());
+      forStat->setSourceLocation(commandMetadata->getSourceLocation());
     }
     return forStat;
   }
@@ -767,8 +755,7 @@ namespace Scg
     auto whileState = new WhileStatement(cond, body);
     auto commandMetadata = command->getInterface<ParsingMetadataHolder>();
     if (commandMetadata != 0) {
-      whileState->SetLineInCode(commandMetadata->getLine());
-      whileState->SetColumnInCode(commandMetadata->getColumn());
+      whileState->setSourceLocation(commandMetadata->getSourceLocation());
     }
     return whileState;
   }

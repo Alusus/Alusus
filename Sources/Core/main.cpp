@@ -40,7 +40,8 @@ void printBuildMsg(const SharedPtr<Processing::BuildMsg> &msg)
   // Print msg code.
   outStream << msg->getCode() << " @ ";
   // Print location.
-  outStream << msg->getFileName() << " (" << msg->getLine() << "," << msg->getColumn() << "): ";
+  outStream << msg->getSourceLocation().filename->c_str()
+            << " (" << msg->getSourceLocation().line << "," << msg->getSourceLocation().column << "): ";
   // Print description.
   outStream << msg->getDescription() << NEW_LINE;
 }

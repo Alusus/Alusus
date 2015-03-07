@@ -18,8 +18,8 @@ namespace Core { namespace Standard
 //==============================================================================
 // Overloaded Abstract Functions
 
-void StringLiteralTokenizingHandler::prepareToken(Data::Token *token, Word id, Int line, Int column,
-                                                  WChar const *tokenText, Word tokenTextLength)
+void StringLiteralTokenizingHandler::prepareToken(Data::Token *token, Word id, WChar const *tokenText,
+                                                  Word tokenTextLength, Data::SourceLocation const &sourceLocation)
 {
   // Precomputed wide characters values.
   static WChar backSlashChar = getWideCharFromUtf8(STR("\\"));
@@ -67,9 +67,7 @@ void StringLiteralTokenizingHandler::prepareToken(Data::Token *token, Word id, I
   SFREE(buffer);
   // Set other token info.
   token->setId(id);
-  token->setLine(line);
-  token->setColumn(column);
+  token->setSourceLocation(sourceLocation);
 }
 
 } } // namespace
-

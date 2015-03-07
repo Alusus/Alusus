@@ -81,8 +81,7 @@ void GenericParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
     dataMeta->setProdId(prod->getId());
     // Set the line and column, if any.
     if (item != 0) {
-      dataMeta->setLine(item->getLine());
-      dataMeta->setColumn(item->getColumn());
+      dataMeta->setSourceLocation(item->getSourceLocation());
     }
     // Set the data to this production's state level.
     state->setData(data);
@@ -150,8 +149,7 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
 
   // Now we can modify the data of the token.
   tokenItem->setId(token->getId());
-  tokenItem->setLine(token->getLine());
-  tokenItem->setColumn(token->getColumn());
+  tokenItem->setSourceLocation(token->getSourceLocation());
   // If the token term defines a map as its match criteria then we'll use the value of the matched
   // entry as the value of our ParsedToken text, otherwise we'll just use the actual token text
   // captured by the lexer.
@@ -389,8 +387,7 @@ void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &da
         ASSERT((termLevel.getTerm()->getFlags() & ParsingFlags::FORCE_LIST) == 0);
         SharedPtr<ParsedList> list = std::make_shared<ParsedList>();
         ParsingMetadataHolder *currentDataMeta = currentData->getInterface<ParsingMetadataHolder>();
-        list->setLine(currentDataMeta->getLine());
-        list->setColumn(currentDataMeta->getColumn());
+        list->setSourceLocation(currentDataMeta->getSourceLocation());
         list->add(state->getData(levelIndex));
         list->add(data);
         state->setData(list, levelIndex);
@@ -418,31 +415,28 @@ void GenericParsingHandler::prepareToModifyData(Processing::ParserState *state, 
       ParsedToken *sourceToken = data.s_cast_get<ParsedToken>();
       SharedPtr<ParsedToken> newToken = std::make_shared<ParsedToken>();
       newToken->setProdId(sourceToken->getProdId());
-      newToken->setLine(sourceToken->getLine());
-      newToken->setColumn(sourceToken->getColumn());
       newToken->setId(sourceToken->getId());
       newToken->setText(sourceToken->getText().c_str());
+      newToken->setSourceLocation(sourceToken->getSourceLocation());
       state->setData(newToken, levelIndex);
     } else if (data->isDerivedFrom<ParsedRoute>()) {
       // Duplicate route data.
       ParsedRoute *sourceRoute = data.s_cast_get<ParsedRoute>();
       SharedPtr<ParsedRoute> newRoute = std::make_shared<ParsedRoute>();
       newRoute->setProdId(sourceRoute->getProdId());
-      newRoute->setLine(sourceRoute->getLine());
-      newRoute->setColumn(sourceRoute->getColumn());
       newRoute->setRoute(sourceRoute->getRoute());
       newRoute->setData(sourceRoute->getData());
+      newRoute->setSourceLocation(sourceRoute->getSourceLocation());
       state->setData(newRoute, levelIndex);
     } else if (data->isDerivedFrom<ParsedList>()) {
       // Duplicate list data.
       ParsedList *sourceList = data.s_cast_get<ParsedList>();
       SharedPtr<ParsedList> newList = std::make_shared<ParsedList>();
       newList->setProdId(sourceList->getProdId());
-      newList->setLine(sourceList->getLine());
-      newList->setColumn(sourceList->getColumn());
       for (Word i = 0; i < sourceList->getCount(); ++i) {
         newList->add(sourceList->get(i));
       }
+      newList->setSourceLocation(sourceList->getSourceLocation());
       state->setData(newList, levelIndex);
     } else {
       // This should never be reachable.

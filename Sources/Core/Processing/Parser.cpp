@@ -283,7 +283,7 @@ void Parser::handleNewToken(const Data::Token *token)
     // Raise an unexpected token error.
     if (!this->unexpectedTokenMsgRaised) {
       this->states.front()->addBuildMsg(
-            SharedPtr<Processing::BuildMsg>(new UnexpectedTokenMsg(token->getLine(), token->getColumn())));
+            SharedPtr<Processing::BuildMsg>(new UnexpectedTokenMsg(token->getSourceLocation())));
       this->unexpectedTokenMsgRaised = true;
     }
     return;
@@ -500,7 +500,7 @@ void Parser::processState(const Data::Token * token, StateIterator si)
       if ((*si)->getPrevProcessingStatus() != ParserProcessingStatus::ERROR) {
         if (!this->getTopParsingHandler(*si)->onErrorToken(this, *si, token)) {
           (*si)->addBuildMsg(
-                SharedPtr<Processing::BuildMsg>(new SyntaxErrorMsg(token->getLine(), token->getColumn())));
+                SharedPtr<Processing::BuildMsg>(new SyntaxErrorMsg(token->getSourceLocation())));
         }
         // Move the state to an error sync position.
         while ((*si)->getTermLevelCount() > 1) {
@@ -689,7 +689,7 @@ void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
     parsingHandler->onBranching(this, *si);
     // Duplicate the state.
     (*si)->addBuildMsg(
-          SharedPtr<Processing::BuildMsg>(new AmbiguityMsg(token->getLine(), token->getColumn())));
+          SharedPtr<Processing::BuildMsg>(new AmbiguityMsg(token->getSourceLocation())));
     // TODO: Grab the value of tokensToLive from the grammer instead of always using the
     //       default value.
     StateIterator newSi = this->duplicateState(si, DEFAULT_TOKENS_TO_LIVE);
@@ -773,7 +773,7 @@ void Parser::processAlternateTerm(const Data::Token *token, StateIterator si)
         // Duplicate the state, without the top level since that one is for accessing the
         // other route.
         (*si2)->addBuildMsg(
-              SharedPtr<Processing::BuildMsg>(new AmbiguityMsg(token->getLine(), token->getColumn())));
+              SharedPtr<Processing::BuildMsg>(new AmbiguityMsg(token->getSourceLocation())));
         // TODO: Grab the value of tokensToLive from the grammer instead of always using the
         //       default value.
         StateIterator newSi = this->duplicateState(si2, DEFAULT_TOKENS_TO_LIVE,

@@ -42,18 +42,23 @@ class ParsedList : public SharedList,
   //============================================================================
   // Constructor / Destructor
 
-  public: ParsedList(Word pid=UNKNOWN_ID, Int l=-1, Int c=-1) :
-    ParsingMetadataHolder(pid, l, c)
+  public: ParsedList()
+  {
+  }
+
+  public: ParsedList(Word pid, SourceLocation const &sl) :
+    ParsingMetadataHolder(pid, sl)
   {
   }
 
   public: ParsedList(Word pid, const std::initializer_list<SharedPtr<IdentifiableObject>> &args) :
-    ParsingMetadataHolder(pid, -1, -1), SharedList(args)
+    ParsingMetadataHolder(pid), SharedList(args)
   {
   }
 
-  public: ParsedList(Word pid, Int l, Int c, const std::initializer_list<SharedPtr<IdentifiableObject>> &args) :
-    ParsingMetadataHolder(pid, l, c), SharedList(args)
+  public: ParsedList(Word pid, SourceLocation const &sl,
+                     const std::initializer_list<SharedPtr<IdentifiableObject>> &args) :
+    ParsingMetadataHolder(pid, sl), SharedList(args)
   {
   }
 
@@ -61,9 +66,14 @@ class ParsedList : public SharedList,
   {
   }
 
-  public: static SharedPtr<ParsedList> create(Word pid=UNKNOWN_ID, Int l=-1, Int c=-1)
+  public: static SharedPtr<ParsedList> create()
   {
-    return std::make_shared<ParsedList>(pid, l, c);
+    return std::make_shared<ParsedList>();
+  }
+
+  public: static SharedPtr<ParsedList> create(Word pid, SourceLocation const &sl)
+  {
+    return std::make_shared<ParsedList>(pid, sl);
   }
 
   public: static SharedPtr<ParsedList> create(Word pid,
@@ -72,10 +82,10 @@ class ParsedList : public SharedList,
     return std::make_shared<ParsedList>(pid, args);
   }
 
-  public: static SharedPtr<ParsedList> create(Word pid, Int l, Int c,
+  public: static SharedPtr<ParsedList> create(Word pid, SourceLocation const &sl,
                                               const std::initializer_list<SharedPtr<IdentifiableObject>> &args)
   {
-    return std::make_shared<ParsedList>(pid, l, c, args);
+    return std::make_shared<ParsedList>(pid, sl, args);
   }
 
 
@@ -85,58 +95,30 @@ class ParsedList : public SharedList,
   /**
    * @brief Override the original implementation to search the tree if needed.
    * If the value is not yet set for this object and it has children, it will
-   * call getLine on the children.
+   * call getSourceLocation on the children.
    */
-  public: virtual Int getLine() const
+  public: virtual SourceLocation const& getSourceLocation() const
   {
-    if (ParsingMetadataHolder::getLine() == -1) {
+    if (ParsingMetadataHolder::getSourceLocation().line == 0) {
       for (Int i = 0; i < this->getCount(); ++i) {
         ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i));
         if (ptr != 0) {
-          Int l = ptr->getLine();
-          if (l != -1) return l;
+          SourceLocation const &sl = ptr->getSourceLocation();
+          if (sl.line != 0) return sl;
         }
       }
     }
-    return ParsingMetadataHolder::getLine();
-  }
-
-  /**
-   * @brief Override the original implementation to search the tree if needed.
-   * If the value is not yet set for this object and it has children, it will
-   * call getColumn on the children.
-   */
-  public: virtual Int getColumn() const
-  {
-    if (ParsingMetadataHolder::getColumn() == -1) {
-      for (Int i = 0; i < this->getCount(); ++i) {
-        ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i));
-        if (ptr != 0) {
-          Int l = ptr->getColumn();
-          if (l != -1) return l;
-        }
-      }
-    }
-    return ParsingMetadataHolder::getColumn();
+    return ParsingMetadataHolder::getSourceLocation();
   }
 
   public: virtual IdentifiableObject* getAttribute(Char const *name)
   {
-    if (SBSTR(name) == STR("line")) {
-      if (ParsingMetadataHolder::getLine() == -1) {
+    if (SBSTR(name) == STR("sourceLocation")) {
+      if (ParsingMetadataHolder::getSourceLocation().line == 0) {
         for (Int i = 0; i < this->getCount(); ++i) {
           ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i));
           if (ptr != 0) {
-            if (ptr->getLine() != -1) return ptr->getAttribute(name);
-          }
-        }
-      }
-    } else if (SBSTR(name) == STR("column")) {
-      if (ParsingMetadataHolder::getColumn() == -1) {
-        for (Int i = 0; i < this->getCount(); ++i) {
-          ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->get(i));
-          if (ptr != 0) {
-            if (ptr->getColumn() != -1) return ptr->getAttribute(name);
+            if (ptr->getSourceLocation().line != 0) return ptr->getAttribute(name);
           }
         }
       }

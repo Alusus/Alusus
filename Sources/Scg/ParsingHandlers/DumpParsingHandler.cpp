@@ -49,11 +49,10 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
       message += name->getText();
       ParsingMetadataHolder *metadata = item->getInterface<ParsingMetadataHolder>();
       if (metadata != 0) {
-        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
-          metadata->getLine(), metadata->getColumn()));
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), metadata->getSourceLocation()));
       } else {
-        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
-          -1, -1));
+        SourceLocation sl;
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), sl));
       }
   }
   // Reset parsed data because we are done with the command.

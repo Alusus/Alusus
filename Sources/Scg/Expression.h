@@ -94,10 +94,8 @@ namespace Scg
     CodeGenerationStage codeGenStage = CodeGenerationStage::None;
     //! The code generation stage of the children of this expression.
     CodeGenerationStage childrenCodeGenStage = CodeGenerationStage::None;
-    //! The number of the line in code that produced this expression.
-    int lineInCode = 0;
-    //! The number of the column in code that produced this expression.
-    int columnInCode = 0;
+    //! The source location at which this expression was produced.
+    Core::Data::SourceLocation sourceLocation;
 
   protected:
     //! The LLVM Value object generated during code generation, or @c nullptr.
@@ -185,18 +183,6 @@ namespace Scg
     {
       return children;
     }
-
-    /**
-     * Returns the number of the line in code that produced this expression.
-     * @return The number of the line in code that produced this expression.
-     */
-    int GetLineInCode() const { return lineInCode; }
-
-    /**
-     * Returns the number of the column in code that produced this expression.
-     * @return The number of the column in code that produced this expression.
-     */
-    int GetColumnInCode() const { return columnInCode; }
 
     /**
      * Retrieves the code generation stage of this expression and its children.
@@ -305,17 +291,16 @@ namespace Scg
     virtual void SetFunction(UserDefinedFunction *function);
     virtual void SetBlock(Block *block);
 
-    /**
-     * Sets the number of the line in code that produced this expression.
-     * @param[in] lineInCode  The line in code.
-     */
-    void SetLineInCode(int line) { this->lineInCode = line; }
+    /// Sets the source location at which this expression was produced.
+    void setSourceLocation(Core::Data::SourceLocation const &sl)
+    {
+      this->sourceLocation = sl;
+    }
 
-    /**
-     * Sets the number of the column in code that produced this expression.
-     * @param[in] columnInCode  The column in code.
-     */
-    void SetColumnInCode(int column) { this->columnInCode = column; }
+    Core::Data::SourceLocation const& getSourceLocation() const
+    {
+      return this->sourceLocation;
+    }
   };
 }
 

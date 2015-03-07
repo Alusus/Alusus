@@ -65,7 +65,8 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
       // TODO: Use the source code position once they are added to the module definition.
       //state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.getErrorMessage(),
       //  statementList->getLine(), statementList->getColumn())));
-      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(e.getErrorMessage().c_str(), 0, 0));
+      SourceLocation sl;
+      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(e.getErrorMessage().c_str(), sl));
     }
   } else {
       // Create a build message.
@@ -74,9 +75,10 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
       auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
       if (metadata != nullptr) {
         state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
-          metadata->getLine(), metadata->getColumn()));
+                                                                        metadata->getSourceLocation()));
       } else {
-        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), -1, -1));
+        SourceLocation sl;
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), sl));
       }
   }
   // Reset parsed data because we are done with the command.

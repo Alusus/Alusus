@@ -2,7 +2,7 @@
  * @file Core/Processing/SyntaxErrorMsg.h
  * Contains the header of class Core::Processing::SyntaxErrorMsg.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -23,18 +23,18 @@ namespace Core { namespace Processing
  * This message class is for error code P1001, which is raised when the parser
  * is faced with a token that is not recognized by the grammar.
  */
-class SyntaxErrorMsg : public Processing::BuildMsg
+class SyntaxErrorMsg : public BuildMsg
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SyntaxErrorMsg, Processing::BuildMsg, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(SyntaxErrorMsg, BuildMsg, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: SyntaxErrorMsg(Int l, Int c) : Processing::BuildMsg(l, c)
+  public: SyntaxErrorMsg(Data::SourceLocation const &sl) : BuildMsg(sl)
   {
   }
 
