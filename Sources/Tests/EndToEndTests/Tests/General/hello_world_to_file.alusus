@@ -2,7 +2,7 @@ import "common.alusus";
 
 def HelloWorld : module {
   def openTestFile : function() => ptr[int] {
-    return fopen("EndToEndTest.txt", "w+");
+    return fopen("/tmp/AlususEndToEndTest.txt", "w+");
   };
 
   def main : function() => int {

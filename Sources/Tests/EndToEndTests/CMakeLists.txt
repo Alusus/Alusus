@@ -29,8 +29,11 @@ include_directories("${CATCH_PATH}")
 # Place files in folders for IDEs (though I only tried Visual Studio at the moment.)
 file(GLOB AlususE2ETests_Source_Files *.cpp)
 file(GLOB AlususE2ETests_Header_Files *.h)
+file(GLOB AlususE2ETests_Test_Files Tests/General/*.alusus Tests/TheCProgrammingLanguage/*.alusus Tests/Arabic/*.أسس)
+file(GLOB AlususE2ETests_Test_Files_Output Tests/General/*.output Tests/TheCProgrammingLanguage/*.output Tests/Arabic/*.output)
 source_group("SourceFiles\\General" FILES ${AlususE2ETests_Source_Files})
 source_group("HeaderFiles\\General" FILES ${AlususE2ETests_Header_Files})
+source_group("TestFiles\\General" FILES ${AlususE2ETests_Test_Files} ${AlususE2ETests_Test_Files_Output})
 
 if(MSVC)
   add_definitions("/wd4005 /wd4146 /wd4355 /wd4800 /wd4996")
@@ -39,6 +42,8 @@ endif(MSVC)
 set(AlususE2ETestsSourceFiles
   ${AlususE2ETests_Source_Files}
   ${AlususE2ETests_Header_Files}
+  ${AlususE2ETests_Test_Files}
+  ${AlususE2ETests_Test_Files_Output}
   )
 
 add_executable(AlususE2ETests ${AlususE2ETestsSourceFiles} ${AlususE2ETests_Header_Files})

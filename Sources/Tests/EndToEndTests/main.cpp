@@ -27,7 +27,7 @@ using Core::Standard::RootManager;
 namespace Tests { namespace EndToEndTests
 {
 
-const char *resultFilename = "EndToEndTest.txt";
+Str resultFilename;
 
 /**
  * @brief Print the provided build message to the console.
@@ -74,7 +74,7 @@ bool RunSourceFile(const std::string &fileName)
     fpos_t pos;
     fgetpos(stdout, &pos);
     int fd = dup(fileno(stdout));
-    freopen(resultFilename,"w", stdout);
+    freopen(resultFilename.c_str(),"w", stdout);
 
     // Prepare the root object;
     RootManager root;
@@ -120,7 +120,7 @@ bool RunSourceFile(const std::string &fileName)
  */
 bool CheckRunResult(const std::string &fileName)
 {
-  std::ifstream runResult("EndToEndTest.txt");
+  std::ifstream runResult(resultFilename);
   std::string runResultContent((std::istreambuf_iterator<char>(runResult)),
       std::istreambuf_iterator<char>());
 
@@ -203,6 +203,16 @@ int main(int argc, char **argv)
                "Version " << ALUSUS_VERSION << "\n"
                "Copyright (C) " << ALUSUS_RELEASE_YEAR << " Rafid Khalid Abdullah\n\n";
 
+  // Prepare a temporary filename.
+  Char const * tempPath = getenv("TMPDIR");
+  if (tempPath == 0) tempPath = getenv("TMP");
+  if (tempPath == 0) tempPath = getenv("TEMP");
+  if (tempPath == 0) tempPath = getenv("TEMPDIR");
+  if (tempPath == 0) tempPath = "/tmp/";
+  resultFilename = tempPath;
+  if (resultFilename.back() != '/') resultFilename += "/";
+  resultFilename += "AlususEndToEndTest.txt";
+
   auto ret = EXIT_SUCCESS;
   if (!RunEndToEndTests("./Tests/General"))
     ret = EXIT_FAILURE;
@@ -210,5 +220,8 @@ int main(int argc, char **argv)
     ret = EXIT_FAILURE;
   if (!RunEndToEndTests("./Tests/TheCProgrammingLanguage"))
     ret = EXIT_FAILURE;
+
+  std::remove(resultFilename.c_str());
+
   return ret;
 }
