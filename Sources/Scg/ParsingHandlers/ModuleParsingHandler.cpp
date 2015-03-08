@@ -38,18 +38,14 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
       ReferenceUsageCriteria::MULTI_DATA);
 
     auto item = state->getData();
+    auto metadata = item->getInterface<ParsingMetadataHolder>();
+    ASSERT(metadata != 0);
 
     // Find the statement list in the subject.
     auto statementList = io_cast<ParsedList>(seeker.tryGet(statementListReference.get(), item.get()));
     if (statementList == 0) {
       // Create a build error msg.
-      auto metadata = item->getInterface<ParsingMetadataHolder>();
-      if (metadata != 0) {
-        state->addBuildMsg(std::make_shared<Processing::UnrecognizedErrorMsg>(metadata->getSourceLocation()));
-      } else {
-        SourceLocation sl;
-        state->addBuildMsg(std::make_shared<Processing::UnrecognizedErrorMsg>(sl));
-      }
+      state->addBuildMsg(std::make_shared<Processing::UnrecognizedErrorMsg>(metadata->getSourceLocation()));
       return;
     }
 
@@ -59,16 +55,17 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
         auto element = statementList->getShared(i);
         auto elementMetadata = element->getInterface<ParsingMetadataHolder>();
         if (element == 0 || elementMetadata == 0) {
-            // TODO: Generate a build message instead of throwing an exception.
-            throw EXCEPTION(SyntaxErrorException, "Invalid statement received in module body.");
+          state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
+                                         STR("Invalid statement received in module body."),
+                                         STR("SCG1025"), 1, metadata->getSourceLocation()));
         }
         auto id = elementMetadata->getProdId();
         if (id == defId) {
             // Add the definition to the module.
-            this->addDefinitionToModule(element, module.get());
+            this->addDefinitionToModule(state, element, module.get());
         } else if (id == linkId) {
             // Add the link expression to the module.
-            this->addLinkToModule(element, module.get());
+            this->addLinkToModule(state, element, module.get());
         } else {
             // Raise a build error.
             state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(STR("Invalid statement inside module body."),
@@ -81,8 +78,9 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 }
 
 
-void ModuleParsingHandler::addDefinitionToModule(const SharedPtr<IdentifiableObject> &def,
-                                                    Core::Data::Module *module)
+void ModuleParsingHandler::addDefinitionToModule(Processing::ParserState *state,
+                                                 const SharedPtr<IdentifiableObject> &def,
+                                                 Core::Data::Module *module)
 {
   static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
   static ReferenceSeeker seeker;
@@ -92,10 +90,14 @@ void ModuleParsingHandler::addDefinitionToModule(const SharedPtr<IdentifiableObj
         "0~where(prodId=Subject.Subject1)."
         "0~where(prodId=Subject.Parameter)"),
     ReferenceUsageCriteria::MULTI_DATA);
+  auto metadata = def.ii_cast_get<ParsingMetadataHolder>();
+  ASSERT(metadata != 0);
   auto nameToken = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), def.get()));
   if (nameToken == nullptr || nameToken->getId() != identifierTokenId) {
-      // TODO: Generate a build message instead of throwing an exception.
-      throw EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
+    state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
+                               STR("A 'def' command needs a definition name."),
+                               STR("SCG1002"), 1, metadata->getSourceLocation()));
+    return;
   }
   auto name = nameToken->getText();
 
@@ -106,8 +108,9 @@ void ModuleParsingHandler::addDefinitionToModule(const SharedPtr<IdentifiableObj
 }
 
 
-void ModuleParsingHandler::addLinkToModule(const SharedPtr<IdentifiableObject> &link,
-                                              Core::Data::Module *module)
+void ModuleParsingHandler::addLinkToModule(Processing::ParserState *state,
+                                           const SharedPtr<IdentifiableObject> &link,
+                                           Core::Data::Module *module)
 {
   auto linkMetadata = link->getInterface<ParsingMetadataHolder>();
 
@@ -140,9 +143,11 @@ void ModuleParsingHandler::addLinkToModule(const SharedPtr<IdentifiableObject> &
       auto name = this->getLinkName(expr);
       module->add(name, link);
     }
-    else
-      // TODO: Improve exception message.
-      throw EXCEPTION(SyntaxErrorException, "Invalid link statement.");
+    else {
+      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
+                                     STR("Invalid link statement."),
+                                     STR("SCG1026"), 1, linkMetadata->getSourceLocation()));
+    }
   }
 }
 

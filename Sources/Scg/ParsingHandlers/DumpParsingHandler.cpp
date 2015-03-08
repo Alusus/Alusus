@@ -51,8 +51,7 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
       if (metadata != 0) {
         state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), metadata->getSourceLocation()));
       } else {
-        SourceLocation sl;
-        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), sl));
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), name->getSourceLocation()));
       }
   }
   // Reset parsed data because we are done with the command.

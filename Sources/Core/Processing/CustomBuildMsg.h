@@ -31,20 +31,23 @@ class CustomBuildMsg : public BuildMsg
 
   private: Str code;
   private: Str msg;
+  private: Str param;
   private: Int severity;
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: CustomBuildMsg(Char const *msg, Data::SourceLocation const &sl) :
+  public: CustomBuildMsg(Char const *msg, Data::SourceLocation const &sl, Char const *p=0) :
     BuildMsg(sl), msg(msg), code(STR("G1002")), severity(1)
   {
+    if (p) this->param = p;
   }
 
-  public: CustomBuildMsg(Char const *msg, Char const *code, Int severity, Data::SourceLocation &sl) :
+  public: CustomBuildMsg(Char const *msg, Char const *code, Int severity, Data::SourceLocation const &sl, Char const *p=0) :
     BuildMsg(sl), msg(msg), code(code), severity(severity)
   {
+    if (p) this->param = p;
   }
 
   public: virtual ~CustomBuildMsg()
@@ -71,6 +74,10 @@ class CustomBuildMsg : public BuildMsg
   public: virtual void buildDescription(Str &str) const
   {
     str = this->msg;
+    if (this->param.size() > 0) {
+      str += STR(": ");
+      str += param;
+    }
   }
 
 }; // class

@@ -45,9 +45,13 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
   if (sigWithRet != nullptr) {
     // The function has return value.
     auto sigRet = LowLinkExpression(gen, sigWithRet);
-    if (sigRet.GetSeparator().compare("=>") != 0)
-      throw EXCEPTION(SyntaxErrorException, "Invalid separator between the "
-          "arguments of the function and its return type. Must use '=>'.");
+    if (sigRet.GetSeparator().compare("=>") != 0) {
+      gen->GetBuildMsgStore()->add(std::make_shared<Processing::CustomBuildMsg>(
+                                     STR("Invalid separator between the arguments of the function"
+                                         " and its return type. Must use '=>'"),
+                                     STR("SCG1022"), 1, astRoot->getSourceLocation(),
+                                     sigRet.GetSeparator().c_str()));
+    }
     this->arguments = gen->ParseFunctionArguments(sigRet.GetLHS());
     this->returnType = gen->ParseVariableType(sigRet.GetRHS());
   } else {

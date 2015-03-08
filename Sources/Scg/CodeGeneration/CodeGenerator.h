@@ -73,6 +73,9 @@ namespace Scg
     Word GetPointerTildeId() { return pointerTildeId; }
     Word GetContentTildeId() { return contentTildeId; }
 
+    void SetBuildMsgStore(Core::Processing::BuildMsgStore *store) { this->buildMsgStore = store; }
+    Core::Processing::BuildMsgStore* GetBuildMsgStore() { return this->buildMsgStore; }
+
     void SetAliasDictionary(Core::Data::SharedMap *dictionary) { this->aliasDictionary = dictionary; }
 
   private:
@@ -106,6 +109,8 @@ namespace Scg
     Word linkId;
     Word pointerTildeId;
     Word contentTildeId;
+
+    Core::Processing::BuildMsgStore *buildMsgStore = 0;
 
     // TODO: Remove this when proper alias implementation is done.
     Core::Data::SharedMap *aliasDictionary = 0;

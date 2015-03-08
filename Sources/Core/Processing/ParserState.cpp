@@ -24,7 +24,6 @@ ParserState::ParserState() :
   tempTrunkProdStackIndex(-1),
   topTermLevelCache(0),
   topProdLevelCache(0),
-  trunkSharedBuildMsgCount(0),
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1)
@@ -42,7 +41,6 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   tempTrunkProdStackIndex(-1),
   topTermLevelCache(0),
   topProdLevelCache(0),
-  trunkSharedBuildMsgCount(0),
   termStack(reservedTermLevelCount),
   dataStack(maxVarNameLength, reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
@@ -66,7 +64,6 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   tempTrunkProdStackIndex(-1),
   topTermLevelCache(0),
   topProdLevelCache(0),
-  trunkSharedBuildMsgCount(0),
   termStack(reservedTermLevelCount),
   dataStack(maxVarNameLength, reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
@@ -141,11 +138,10 @@ void ParserState::reset()
   this->dataStack.clear();
   this->prodStack.clear();
   this->variableStack.clear();
-  this->buildMsgs.clear();
+  this->buildMsgStore.clear();
   this->trunkState = 0;
   this->tempTrunkTermStackIndex = -1;
   this->tempTrunkProdStackIndex = -1;
-  this->trunkSharedBuildMsgCount = 0;
   this->topTermLevelCache = 0;
   this->topProdLevelCache = 0;
 }
@@ -522,6 +518,7 @@ void ParserState::setBranchingInfo(ParserState *ts, Int ttl, Int tsi, Int psi)
   } else {
     this->variableStack.setBranchingInfo(0, -1);
   }
+  this->buildMsgStore.setTrunkStore(ts->getBuildMsgStore());
   this->tokensToLive = ttl;
 }
 
@@ -610,44 +607,6 @@ void ParserState::copyTermLevel(ParserState *src, Int offset)
   this->dataStack.pushLevel(src->getData(offset));
   this->topTermLevelCache = &this->refTermLevel(-1);
   this->topTermLevelCache->copyFrom(&src->refTermLevel(offset));
-}
-
-
-/**
- * This value is used for optimization purposes. It's used to delay the copying
- * of build msg objects as much as possible after a state branch. This can be
- * useful because in many cases we might not need to copy those build msgs at
- * all (build msgs gets flushed from the trunk, or this branched state dies).
- */
-void ParserState::setTrunkSharedBuildMsgCount(Int count)
-{
-  if (this->trunkState == 0) {
-    throw EXCEPTION(GenericException, STR("No trunk state set for this state."));
-  }
-  if (count < 0 || count > this->trunkState->getBuildMsgCount()) {
-    throw EXCEPTION(InvalidArgumentException, STR("count"), STR("Out of range."), count);
-  }
-  this->trunkSharedBuildMsgCount = count;
-}
-
-
-/**
- * Copy the shared build msgs from the trunk state into this object then
- * reset the trunk shared build msg count.
- *
- * @sa setTrunkSharedBuildMsgCount
- */
-void ParserState::copyTrunkSharedBuildMsgs()
-{
-  if (this->trunkState == 0) {
-    throw EXCEPTION(GenericException, STR("No trunk state set for this state."));
-  }
-  ASSERT(this->trunkSharedBuildMsgCount >= 0 &&
-         this->trunkSharedBuildMsgCount <= this->trunkState->getTrunkSharedBuildMsgCount());
-  this->buildMsgs.insert(this->buildMsgs.begin(),
-                          this->trunkState->buildMsgs.begin(),
-                          this->trunkState->buildMsgs.begin()+this->trunkSharedBuildMsgCount);
-  this->trunkSharedBuildMsgCount = 0;
 }
 
 } } // namespace

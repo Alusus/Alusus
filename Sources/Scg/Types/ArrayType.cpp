@@ -33,7 +33,7 @@ ArrayType::ArrayType(const ValueType *elemsType, unsigned int size) :
     arraySize(size)
 {
   if (elemsType == nullptr) {
-    throw EXCEPTION(InvalidArgumentException, "elemslementsType argument cannot be nullptr.");
+    throw EXCEPTION(InvalidArgumentException, "elemsType argument cannot be nullptr.");
   }
   this->name = elementsType->GetName() +
       "[" + boost::lexical_cast<std::string>(arraySize) + "]";

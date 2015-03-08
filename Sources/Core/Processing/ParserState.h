@@ -62,6 +62,8 @@ class ParserState
 
   private: Data::GrammarContext grammarContext;
 
+  private: BuildMsgStore buildMsgStore;
+
   /**
    * @brief A cached pointer to the top state level.
    * This pointer is used for optimization purposes to speed up the call to
@@ -96,12 +98,6 @@ class ParserState
   private: Int tempTrunkTermStackIndex;
 
   private: Int tempTrunkProdStackIndex;
-
-  /// The list of error/warning build messages created for this state.
-  private: std::vector<SharedPtr<Processing::BuildMsg> > buildMsgs;
-
-  /// Count of build messages in the trunk shared by this state.
-  private: Int trunkSharedBuildMsgCount;
 
   /**
    * @brief The current processing status of this state object.
@@ -142,10 +138,10 @@ class ParserState
   protected: ParserState();
 
   protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                   Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule);
+                         Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule);
 
   protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                   Word reservedVarCount, Word reservedVarLevelCount, const Data::GrammarContext *context);
+                         Word reservedVarCount, Word reservedVarLevelCount, const Data::GrammarContext *context);
 
   public: ~ParserState()
   {
@@ -563,60 +559,15 @@ class ParserState
   /// @{
 
   /// Add a build message to the end of the list.
-  public: void addBuildMsg(const SharedPtr<Processing::BuildMsg> &msg)
+  public: void addBuildMsg(SharedPtr<Processing::BuildMsg> const &msg)
   {
-    this->buildMsgs.push_back(SharedPtr<Processing::BuildMsg>(msg));
+    this->buildMsgStore.add(msg);
   }
 
-  /**
-   * @brief Get the count of build messages in this state.
-   *
-   * This does not include shared messages in the trunk state.
-   */
-  public: Int getBuildMsgCount() const
+  public: BuildMsgStore* getBuildMsgStore()
   {
-    return this->buildMsgs.size();
+    return &this->buildMsgStore;
   }
-
-  /**
-   * @brief Get the build message with the given index.
-   *
-   * @param i The index of the requested message within this state. Messages
-   *          contained in the trunk state (if any) that are also shared by
-   *          this state are not counted by this index.
-   */
-  public: const SharedPtr<Processing::BuildMsg>& getBuildMsg(Int i) const
-  {
-    if (static_cast<Word>(i) >= this->buildMsgs.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("i"), STR("Index out of range."), i);
-    }
-    return this->buildMsgs[i];
-  }
-
-  /// Remove a number of build messages from the beginning of the array.
-  protected: void flushBuildMsgs(Int count)
-  {
-    if (count <= 0 || static_cast<Word>(count) > this->buildMsgs.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("count"),
-                      STR("Count is less than 0, or exceeds the total number of notificatoins."), count);
-    }
-    this->buildMsgs.erase(this->buildMsgs.begin(), this->buildMsgs.begin()+count);
-  }
-
-  /// Set the count of trunk build messages shared by this state.
-  protected: void setTrunkSharedBuildMsgCount(Int count);
-
-  /**
-     * @brief Get the count of trunk build messages shared by this state.
-     * @sa setTrunkSharedBuildMsgCount
-     */
-  public: Int getTrunkSharedBuildMsgCount() const
-  {
-    return this->trunkSharedBuildMsgCount;
-  }
-
-  /// Copy the shared build messages from the trunk into this state's list.
-  protected: void copyTrunkSharedBuildMsgs();
 
   /// @}
 

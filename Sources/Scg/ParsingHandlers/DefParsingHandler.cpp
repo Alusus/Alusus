@@ -27,7 +27,9 @@ using namespace Core::Data;
 void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
     auto expr = state->getData();
-    assert(expr != 0);
+    ASSERT(expr != 0);
+    auto exprMetadata = expr.ii_cast_get<ParsingMetadataHolder>();
+    ASSERT(exprMetadata != 0);
 
     // Get the name of the definition.
     static Int identifierTokenId = ID_GENERATOR->getId("LexerDefs.Identifier");
@@ -37,8 +39,11 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
       ReferenceUsageCriteria::MULTI_DATA);
     auto nameToken = io_cast<Data::ParsedToken>(seeker.tryGet(nameReference.get(), expr.get()));
     if (nameToken == 0 || nameToken->getId() != identifierTokenId) {
-      // TODO: Generate a build message instead of throwing an exception.
-      throw EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
+      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("A 'def' command needs a definition name."),
+                                 STR("SCG1002"), 1, exprMetadata->getSourceLocation()));
+      state->setData(SharedPtr<IdentifiableObject>(0));
+      return;
     }
     auto name = nameToken->getText();
 
@@ -48,10 +53,13 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
       ReferenceUsageCriteria::MULTI_DATA);
     auto def = seeker.tryGet(defReference.get(), expr.get());
     if (def == 0) {
-      // TODO: Generate a build message instead of throwing an exception.
       // TODO: We need to choose terms for the parts of a define command, e.g.
       // definition name, definition, etc.
-      throw EXCEPTION(SyntaxErrorException, "A 'def' has an invalid definition.");
+      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid def command."),
+                                 STR("SCG1004"), 1, exprMetadata->getSourceLocation()));
+      state->setData(SharedPtr<IdentifiableObject>(0));
+      return;
     }
 
     // Check if the definee is an alias.

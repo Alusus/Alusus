@@ -43,9 +43,13 @@ namespace Scg
     if ((item = getSharedPtr(seeker.tryGet(funcExpReference.get(), astRoot.get())).io_cast<ParsedList>()) != nullptr)
     {
       auto argsAndRet = LowLinkExpression(gen, item);
-      if (argsAndRet.GetSeparator().compare("=>") != 0)
-        throw EXCEPTION(SyntaxErrorException, "Invalid separator between the "
-            "argument types and return value of a function link. Must use '=>'.");
+      if (argsAndRet.GetSeparator().compare("=>") != 0) {
+        gen->GetBuildMsgStore()->add(std::make_shared<Processing::CustomBuildMsg>(
+                                       STR("Invalid separator between the arguments of the function"
+                                           " and its return type. Must use '=>'"),
+                                       STR("SCG1022"), 1, astRootMeta->getSourceLocation(),
+                                       argsAndRet.GetSeparator().c_str()));
+      }
       this->arguments = new FunctionalExpression(
             gen, argsAndRet.GetLHS().s_cast<ParsedList>());
       this->retType = gen->ParseVariableType(argsAndRet.GetRHS());

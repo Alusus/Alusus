@@ -410,25 +410,27 @@ void Parser::flushApprovedBuildMsgs()
 
   // Find the number of approved messages.
   StateIterator si = this->states.begin();
-  Int count = (*si)->getBuildMsgCount();
+  Int count = (*si)->getBuildMsgStore()->getCount();
   for (++si; si != this->states.end() && count > 0; ++si) {
     if ((*si)->getTrunkState() == this->states.front()) {
-      if ((*si)->getTrunkSharedBuildMsgCount() < count) count = (*si)->getTrunkSharedBuildMsgCount();
+      if ((*si)->getBuildMsgStore()->getTrunkSharedCount() < count) {
+        count = (*si)->getBuildMsgStore()->getTrunkSharedCount();
+      }
     }
   }
   if (count == 0) return;
 
   // Now emit the messages.
   for (Int i = 0; i < count; ++i) {
-    this->buildMsgNotifier.emit(this->states.front()->getBuildMsg(i));
+    this->buildMsgNotifier.emit(this->states.front()->getBuildMsgStore()->get(i));
   }
-  this->states.front()->flushBuildMsgs(count);
+  this->states.front()->getBuildMsgStore()->flush(count);
 
   // Update the shared message count.
   si = this->states.begin();
   for (++si; si != this->states.end(); ++si) {
     if ((*si)->getTrunkState() == this->states.front()) {
-      (*si)->setTrunkSharedBuildMsgCount((*si)->getTrunkSharedBuildMsgCount()-count);
+      (*si)->getBuildMsgStore()->setTrunkSharedCount((*si)->getBuildMsgStore()->getTrunkSharedCount()-count);
     }
   }
 }
@@ -1543,7 +1545,7 @@ Parser::StateIterator Parser::duplicateState(StateIterator si, Int tokensToLive,
   // Set the branching info for the new token.
   (*newSi)->setBranchingInfo(*si, tokensToLive, -1, -1);
   // Set build msg info.
-  (*newSi)->setTrunkSharedBuildMsgCount((*si)->getBuildMsgCount());
+  (*newSi)->getBuildMsgStore()->setTrunkSharedCount((*si)->getBuildMsgStore()->getCount());
   // Copy the processing status.
   (*newSi)->setProcessingStatus((*si)->getProcessingStatus());
   (*newSi)->setPrevProcessingStatus((*si)->getPrevProcessingStatus());
@@ -1622,9 +1624,9 @@ void Parser::deleteState(StateIterator si, ParserStateTerminationCause stc)
         } else {
           // The state being deleted is not the root, or this state is not the second
           // state (so it can copy the root's data coz it'll be the root anyway).
-          (*siLoop)->copyTrunkSharedBuildMsgs();
+          (*siLoop)->getBuildMsgStore()->copyTrunkSharedMsgs();
           (*siLoop)->setBranchingInfo((*si)->getTrunkState(), (*si)->getTokensToLive(), -1, -1);
-          (*siLoop)->setTrunkSharedBuildMsgCount((*si)->getTrunkSharedBuildMsgCount());
+          (*siLoop)->getBuildMsgStore()->setTrunkSharedCount((*si)->getBuildMsgStore()->getTrunkSharedCount());
         }
       }
     }

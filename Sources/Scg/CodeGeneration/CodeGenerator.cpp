@@ -101,7 +101,8 @@ namespace Scg
         if (item == 0) {
             throw EXCEPTION(SyntaxErrorException, "Invalid object type in def command.");
         }
-        module->AppendExpression(GenerateStatement(item));
+        auto statement = GenerateStatement(item);
+        if (statement != 0) module->AppendExpression(statement);
     }
 
     return module;
@@ -195,6 +196,11 @@ namespace Scg
 
     static ReferenceSeeker seeker;
 
+    ParsingMetadataHolder *itemMetadata = item->getInterface<ParsingMetadataHolder>();
+    if (itemMetadata == 0) {
+      throw EXCEPTION(SyntaxErrorException, "Invalid 'def' command data.");
+    }
+
     // Get the name of the definition.
     static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
       STR("1~where(prodId=Expression.Exp)."
@@ -203,9 +209,12 @@ namespace Scg
           "0~where(prodId=Subject.Parameter)"),
       ReferenceUsageCriteria::MULTI_DATA);
     auto nameToken = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), item.get()));
-    if (nameToken == nullptr || nameToken->getId() != identifierTokenId)
-      // TODO: Generate a build message instead of throwing an exception.
-      throw EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition name.");
+    if (nameToken == nullptr || nameToken->getId() != identifierTokenId) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("A 'def' command needs a definition name."),
+                                 STR("SCG1002"), 1, itemMetadata->getSourceLocation()));
+      return 0;
+    }
     auto name = this->TranslateAliasedName(nameToken->getText().c_str());
 
     // Get the definee (after the colon).
@@ -215,11 +224,15 @@ namespace Scg
           "2"), ReferenceUsageCriteria::MULTI_DATA);
     auto def = seeker.tryGet(defReference.get(), item.get());
     ParsingMetadataHolder *defMetadata = def==0 ? 0 : def->getInterface<ParsingMetadataHolder>();
-    if (defMetadata == nullptr)
-      // TODO: Generate a build message instead of throwing an exception.
+    if (defMetadata == nullptr) {
       // TODO: We need to choose terms for the parts of a define command, e.g.
       // definition name, definition, etc.
-      throw EXCEPTION(SyntaxErrorException, "A 'def' command needs a definition.");
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("A 'def' command needs a definition body"),
+                                 STR("SCG1003"), 1, itemMetadata->getSourceLocation(),
+                                 nameToken->getText().c_str()));
+      return 0;
+    }
 
     if (defMetadata->getProdId() == functionalExpId)
       // Defining a variable
@@ -237,11 +250,21 @@ namespace Scg
       else if (routeMetadata->getProdId() == structureId)
         // Defining a structure
         return GenerateDefineStructure(name, routeData);
-      else
-        throw EXCEPTION(SyntaxErrorException, "Invalid define command.");
+      else {
+        this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                   STR("Invalid def command."),
+                                   STR("SCG1004"), 1, itemMetadata->getSourceLocation(),
+                                   nameToken->getText().c_str()));
+        return 0;
+      }
     }
-    else
-      throw EXCEPTION(SyntaxErrorException, "Invalid define command.");
+    else {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid def command."),
+                                 STR("SCG1004"), 1, itemMetadata->getSourceLocation(),
+                                 nameToken->getText().c_str()));
+      return 0;
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -274,13 +297,20 @@ namespace Scg
                                                        SharedPtr<IdentifiableObject> const &item)
   {
     static ReferenceSeeker seeker;
+    auto itemMetadata = item->getInterface<ParsingMetadataHolder>();
+    if (itemMetadata == 0) {
+      throw EXCEPTION(SyntaxErrorException, "Invalid struct definition data.");
+    }
     // Generate function body.
     static SharedPtr<Reference> structBodyReference = ReferenceParser::parseQualifier(
       STR("1~where(prodId=Main.StatementList)"), ReferenceUsageCriteria::MULTI_DATA);
     auto bodyStmtList = getSharedPtr(seeker.tryGet(structBodyReference.get(), item.get())).io_cast<ParsedList>();
-    if (bodyStmtList == 0)
-      // TODO: Generate a build message instead of throwing an exception.
-      throw EXCEPTION(SyntaxErrorException, "A structure definition expects a body.");
+    if (bodyStmtList == 0) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("A struct definition expects a body."),
+                                 STR("SCG1005"), 1, itemMetadata->getSourceLocation()));
+      return 0;
+    }
     auto structBody = GenerateSet(bodyStmtList);
 
     // Extract members names and types.
@@ -289,9 +319,12 @@ namespace Scg
     {
       // TODO: Don't use dynamic_cast.
       auto field = dynamic_cast<DefineVariable*>(child);
-      if (field == nullptr)
-        throw EXCEPTION(SyntaxErrorException,
-            "A structure body can only contain variable definitions.");
+      if (field == nullptr) {
+        this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                   STR("A struct body can only contain variable definitions."),
+                                   STR("SCG1006"), 1, child->getSourceLocation()));
+        return 0;
+      }
       auto typeSpec = field->GetVarTypeSpec()->Clone();
       auto name = field->GetVarName();
       fields.push_back(VariableDefinition(typeSpec, name));
@@ -302,10 +335,8 @@ namespace Scg
 
     // Creates the DefineStruct instruction and sets its line and column numbers.
     auto defStruct = new DefineStruct(name, fields);
-    ParsingMetadataHolder *itemMetadata = item->getInterface<ParsingMetadataHolder>();
-    if (itemMetadata != 0) {
-      defStruct->setSourceLocation(itemMetadata->getSourceLocation());
-    }
+    defStruct->setSourceLocation(itemMetadata->getSourceLocation());
+
     return defStruct;
   }
 
@@ -314,18 +345,23 @@ namespace Scg
   Return *CodeGenerator::GenerateReturn(SharedPtr<IdentifiableObject> const &item)
   {
     static ReferenceSeeker seeker;
+    auto itemMetadata = item.ii_cast_get<ParsingMetadataHolder>();
+    if (itemMetadata == 0) {
+      throw EXCEPTION(SyntaxErrorException, "Invalid return argument.");
+    }
     static SharedPtr<Reference> expReference = ReferenceParser::parseQualifier(
       STR("{find prodId=Expression.Exp, 0}"), ReferenceUsageCriteria::MULTI_DATA);
     auto exp = getSharedPtr(seeker.tryGet(expReference.get(), item.get()));
-    if (exp == nullptr)
-      throw EXCEPTION(SyntaxErrorException, "Invalid return argument.");
+    if (exp == nullptr) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid return argument."),
+                                 STR("SCG1007"), 1, itemMetadata->getSourceLocation()));
+      return 0;
+    }
 
     // Creates the Return instruction and sets the line and column numbers.
     auto ret = new Return(GenerateExpression(exp));
-    ParsingMetadataHolder *itemMetadata = item->getInterface<ParsingMetadataHolder>();
-    if (itemMetadata != 0) {
-      ret->setSourceLocation(itemMetadata->getSourceLocation());
-    }
+    ret->setSourceLocation(itemMetadata->getSourceLocation());
     return ret;
   }
 
@@ -369,6 +405,13 @@ namespace Scg
       expr = GenerateSet(item.s_cast<ParsedList>());
     else
       throw EXCEPTION(ArgumentOutOfRangeException, "The given parsing data doesn't evaluate to an expression.");
+
+    if (expr == 0) {
+      // In case of errors we'll end up with a null expr. To avoid exceptions we'll
+      // return a dummy expression.
+      expr = new StringConst(STR("__DUMMY__"));
+      expr->setSourceLocation(itemMetadata->getSourceLocation());
+    }
 
     return expr;
   }
@@ -418,8 +461,12 @@ namespace Scg
       auto varName = this->TranslateAliasedName(parsedItem.s_cast_get<ParsedToken>()->getText().c_str());
       return new Content(new PointerToVariable(varName));
     }
-    else
-      throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
+    else {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Expression doesn't evaluate to a variable reference."),
+                                 STR("SCG1008"), 1, parsedItemMetadata->getSourceLocation()));
+      return 0;
+    }
   }
 
 //  Expression *CodeGenerator::GenerateMemberAccess(SharedPtr<IdentifiableObject> const &data)
@@ -660,29 +707,39 @@ namespace Scg
   IfStatement *CodeGenerator::GenerateIfStatement(SharedPtr<IdentifiableObject> const &command)
   {
     static ReferenceSeeker seeker;
+    auto commandMetadata = command.ii_cast_get<ParsingMetadataHolder>();
+    if (commandMetadata == 0) {
+      throw EXCEPTION(SyntaxErrorException, "Invalid if command data.");
+    }
     // The condition of the if statement.
     static SharedPtr<Reference> expReference = ReferenceParser::parseQualifier(
       STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
 
     auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
-    if (exp == 0)
-      throw EXCEPTION(SyntaxErrorException, "Invalid if command's condition.");
+    if (exp == 0) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid if command's condition."),
+                                 STR("SCG1009"), 1, commandMetadata->getSourceLocation()));
+      return 0;
+    }
     auto condition = GenerateExpression(exp);
 
     // The body of the if statement.
     static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
       STR("2"), ReferenceUsageCriteria::MULTI_DATA);
     auto body = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
-    if (body == 0)
-      throw EXCEPTION(SyntaxErrorException, "Invalid if command's body.");
+    if (body == 0) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid if command's body."),
+                                 STR("SCG1010"), 1, commandMetadata->getSourceLocation()));
+      return 0;
+    }
     auto thenBody = GenerateInnerSet(body);
 
     // Creates the IfStatement instruction and sets the line and column numbers.
     auto ifStat = new IfStatement(condition, thenBody, 0);
-    auto commandMetadata = command->getInterface<ParsingMetadataHolder>();
-    if (commandMetadata != 0) {
-      ifStat->setSourceLocation(commandMetadata->getSourceLocation());
-    }
+    ifStat->setSourceLocation(commandMetadata->getSourceLocation());
+
     return ifStat;
   }
 
@@ -692,22 +749,38 @@ namespace Scg
   {
     static ReferenceSeeker seeker;
 
+    auto commandMetadata = command.ii_cast_get<ParsingMetadataHolder>();
+    if (commandMetadata == 0) {
+      throw EXCEPTION(SyntaxErrorException, "Invalid for command data.");
+    }
     // The condition of the for statement.
     static SharedPtr<Reference> expReference = ReferenceParser::parseQualifier(
       STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
     auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
-    if (exp == 0)
-      throw EXCEPTION(SyntaxErrorException, "Invalid for command's condition.");
+    if (exp == 0) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid for command condition."),
+                                 STR("SCG1011"), 1, commandMetadata->getSourceLocation()));
+      return 0;
+    }
     auto initCondLoop = GenerateExpression(exp);
-    if (dynamic_cast<List*>(initCondLoop) == 0)
-      throw EXCEPTION(SyntaxErrorException, "A 'for' keyword should be followed "
-      "by a list of three expressions specifying the initial, condition, and "
-      "and loop expressions.");
+    if (dynamic_cast<List*>(initCondLoop) == 0) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("A 'for' keyword should be followed by a list of three "
+                                     "expressions specifying the initial, condition, and loop "
+                                     "expressions."),
+                                 STR("SCG1012"), 1, commandMetadata->getSourceLocation()));
+      return 0;
+    }
     auto initCondLoopAsList = dynamic_cast<List*>(initCondLoop);
-    if (initCondLoopAsList->GetElementCount() != 3)
-      throw EXCEPTION(SyntaxErrorException, "A 'for' keyword should be followed "
-      "by a list of three expressions specifying the initial, condition, and "
-      "loop expressions.");
+    if (initCondLoopAsList->GetElementCount() != 3) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("A 'for' keyword should be followed by a list of three "
+                                     "expressions specifying the initial, condition, and loop "
+                                     "expressions."),
+                                 STR("SCG1012"), 1, commandMetadata->getSourceLocation()));
+      return 0;
+    }
     auto init = initCondLoopAsList->GetElement(0);
     auto cond = initCondLoopAsList->GetElement(1);
     auto loop = initCondLoopAsList->GetElement(2);
@@ -716,16 +789,18 @@ namespace Scg
     static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
       STR("2"), ReferenceUsageCriteria::MULTI_DATA);
     auto body = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
-    if (body == 0)
-      throw EXCEPTION(SyntaxErrorException, "Invalid if command's body.");
+    if (body == 0) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid for command body."),
+                                 STR("SCG1013"), 1, commandMetadata->getSourceLocation()));
+      return 0;
+    }
     auto thenBody = GenerateInnerSet(body);
 
     // Creates the IfStatement instruction and sets the line and column numbers.
     auto forStat = new ForStatement(init, cond, loop, thenBody);
-    auto commandMetadata = command->getInterface<ParsingMetadataHolder>();
-    if (commandMetadata != 0) {
-      forStat->setSourceLocation(commandMetadata->getSourceLocation());
-    }
+    forStat->setSourceLocation(commandMetadata->getSourceLocation());
+
     return forStat;
   }
 
@@ -735,28 +810,38 @@ namespace Scg
   {
     static ReferenceSeeker seeker;
 
+    auto commandMetadata = command.ii_cast_get<ParsingMetadataHolder>();
+    if (commandMetadata == 0) {
+      throw EXCEPTION(SyntaxErrorException, "Invalid 'while' command data.");
+    }
     // The condition of the while statement.
     static SharedPtr<Reference> condReference = ReferenceParser::parseQualifier(
       STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
     auto condAST = getSharedPtr(seeker.tryGet(condReference.get(), command.get())).io_cast<ParsedList>();
-    if (exp == nullptr)
-      throw EXCEPTION(SyntaxErrorException, "Invalid 'while' command's condition.");
+    if (exp == nullptr) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid while command condition."),
+                                 STR("SCG1014"), 1, commandMetadata->getSourceLocation()));
+      return 0;
+    }
     auto cond = GenerateExpression(condAST);
 
     // The body of the 'while' statement.
     static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
       STR("2"), ReferenceUsageCriteria::MULTI_DATA);
     auto bodyAST = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
-    if (bodyAST == nullptr)
-      throw EXCEPTION(SyntaxErrorException, "Invalid 'while' command's body.");
+    if (bodyAST == nullptr) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid while command body."),
+                                 STR("SCG1015"), 1, commandMetadata->getSourceLocation()));
+      return 0;
+    }
     auto body = GenerateInnerSet(bodyAST);
 
     // Creates the IfStatement instruction and sets the line and column numbers.
     auto whileState = new WhileStatement(cond, body);
-    auto commandMetadata = command->getInterface<ParsingMetadataHolder>();
-    if (commandMetadata != 0) {
-      whileState->setSourceLocation(commandMetadata->getSourceLocation());
-    }
+    whileState->setSourceLocation(commandMetadata->getSourceLocation());
+
     return whileState;
   }
 
@@ -806,8 +891,12 @@ namespace Scg
         STR("0~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
       auto funcName = io_cast<ParsedToken>(seeker.tryGet(modifierReference.get(), item.get()));
-      if (funcName == nullptr)
-        throw EXCEPTION(SyntaxErrorException, "Invalid variable type.");
+      if (funcName == nullptr) {
+        this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                   STR("Invalid variable type."),
+                                   STR("SCG1016"), 1, itemMetadata->getSourceLocation()));
+        return new ValueTypeSpecByName(STR("__INVALID__"));
+      }
 
       else if (SBSTR(this->TranslateAliasedName(funcName->getText().c_str())) == "ptr")
       {
@@ -817,8 +906,12 @@ namespace Scg
           STR("1~where(prodId=Expression.ParamPassExp).0~where(prodId=Expression.Exp).0"),
           ReferenceUsageCriteria::MULTI_DATA);
         auto typeAstRoot = getSharedPtr(seeker.tryGet(contentTypeReference.get(), item.get()));
-        if (typeAstRoot == nullptr)
-          throw EXCEPTION(SyntaxErrorException, "Invalid pointer type.");
+        if (typeAstRoot == nullptr) {
+          this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                     STR("Invalid pointer type."),
+                                     STR("SCG1017"), 1, funcName->getSourceLocation()));
+          return new ValueTypeSpecByName(STR("__INVALID__"));
+        }
         auto contentTypeSpec = ParseVariableType(typeAstRoot);
         return new PointerValueTypeSpec(contentTypeSpec);
       }
@@ -839,20 +932,37 @@ namespace Scg
               "0~where(prodId=Subject.Literal)"),
           ReferenceUsageCriteria::MULTI_DATA);
         auto elementTypeAst = getSharedPtr(seeker.tryGet(elementTypeReference.get(), item.get()));
-        if (elementTypeAst == nullptr)
-          throw EXCEPTION(SyntaxErrorException, "Invalid array type.");
+        if (elementTypeAst == nullptr) {
+          this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                     STR("Invalid array type."),
+                                     STR("SCG1018"), 1, funcName->getSourceLocation()));
+          return new ValueTypeSpecByName(STR("__INVALID__"));
+        }
         auto arraySizeAst = io_cast<ParsedToken>(seeker.tryGet(arraySizeReference.get(), item.get()));
-        if (arraySizeAst == nullptr)
-          throw EXCEPTION(SyntaxErrorException, "Invalid array type.");
+        if (arraySizeAst == nullptr) {
+          this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                     STR("Invalid array type."),
+                                     STR("SCG1018"), 1, funcName->getSourceLocation()));
+          return new ValueTypeSpecByName(STR("__INVALID__"));
+        }
         auto elementTypeSpec = ParseVariableType(elementTypeAst);
         auto arraySize = boost::lexical_cast<int>(arraySizeAst->getText());
         return new ArrayValueTypeSpec(elementTypeSpec, arraySize);
       }
-      else
-        throw EXCEPTION(SyntaxErrorException, "Invalid variable type.");
+      else {
+        this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                   STR("Invalid variable type."),
+                                   STR("SCG1019"), 1, funcName->getSourceLocation(),
+                                   funcName->getText().c_str()));
+        return new ValueTypeSpecByName(STR("__INVALID__"));
+      }
     }
-    else
-      throw EXCEPTION(InvalidArgumentException, "Invalid variable type.");
+    else {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid variable type."),
+                                 STR("SCG1019"), 1, itemMetadata->getSourceLocation()));
+      return new ValueTypeSpecByName(STR("__INVALID__"));
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -871,14 +981,20 @@ namespace Scg
 
     static ReferenceSeeker seeker;
 
+    auto metadata = astBlockRoot.ii_cast_get<ParsingMetadataHolder>();
+    if (metadata == 0) {
+      throw EXCEPTION(SyntaxErrorException, "Invalid variable definition data.");
+    }
     // Finds the name of the variable.
     static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
       STR("self~where(prodId=Expression.LowerLinkExp).0~where(prodId=Subject.Subject1)"),
       ReferenceUsageCriteria::MULTI_DATA);
     auto nameToken = getSharedPtr(seeker.tryGet(nameReference.get(), astBlockRoot.get()));
     if (nameToken == nullptr) {
-      // TODO: Replace the exception with a build message.
-      throw EXCEPTION(SyntaxErrorException, "Invalid variable definition.");
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid variable definition."),
+                                 STR("SCG1020"), 1, metadata->getSourceLocation()));
+      return VariableDefinition(STR("__INVALID_TYPE__"), STR("__DUMMY_NAME__"));
     }
 
     // Finds the type of the variable.
@@ -887,8 +1003,10 @@ namespace Scg
       ReferenceUsageCriteria::MULTI_DATA);
     auto typeAst = getSharedPtr(seeker.tryGet(typeReference.get(), astBlockRoot.get()));
     if (typeAst == nullptr) {
-      // TODO: Replace the exception with a build message.
-      throw EXCEPTION(SyntaxErrorException, "Invalid variable definition.");
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid variable definition."),
+                                 STR("SCG1020"), 1, metadata->getSourceLocation()));
+      return VariableDefinition(STR("__INVALID_TYPE__"), STR("__DUMMY_NAME__"));
     }
 
     return VariableDefinition(ParseVariableType(typeAst), ParseToken(nameToken));
@@ -938,9 +1056,11 @@ namespace Scg
       }
     } else if (id == lowerLinkExpId) {
       args.push_back(ParseVariableDefinition(astBlockRoot));
+    } else {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+                                 STR("Invalid function argument list."),
+                                 STR("SCG1021"), 1, astBlockRootMetadata->getSourceLocation()));
     }
-    else
-      throw EXCEPTION(SyntaxErrorException, "Invalid function argument list.");
 
     return args;
   }

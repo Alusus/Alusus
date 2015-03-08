@@ -77,9 +77,16 @@ DeclareExtFunction *FunctionalExpression::ToDeclareExtFunction(
 Expression *FunctionalExpression::ToExpression()
 {
   auto metadata = this->subExprs[0]->getInterface<ParsingMetadataHolder>();
-  if (metadata == nullptr || metadata->getProdId() != this->gen->GetSubjectId())
+  if (metadata == nullptr) {
     throw EXCEPTION(SyntaxErrorException, "Invalid expression. Expressions "
         "should start with a token representing a variable or a function.");
+  }
+  if (metadata->getProdId() != this->gen->GetSubjectId()) {
+    this->gen->GetBuildMsgStore()->add(std::make_shared<Processing::CustomBuildMsg>(
+                                   STR("Invalid expression. Expressions should start with "
+                                       "a token representing a variable or a function."),
+                                   STR("SCG1023"), 1, metadata->getSourceLocation()));
+  }
 
   Expression *expr = nullptr;
   auto cancelNextContentOp = false;
@@ -146,8 +153,9 @@ Expression *FunctionalExpression::ToExpression()
       }
       else
       {
-        throw EXCEPTION(SyntaxErrorException, "Invalid post-fix tilde"
-            "an expression.");
+        this->gen->GetBuildMsgStore()->add(std::make_shared<Processing::CustomBuildMsg>(
+                                       STR("Invalid postfix tilde expression."),
+                                       STR("SCG1024"), 1, metadata->getSourceLocation()));
       }
     }
   }

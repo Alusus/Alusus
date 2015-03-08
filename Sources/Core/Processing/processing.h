@@ -253,6 +253,7 @@ enumeration(ParsingFlags,
 #include "BuildMsg.h"
 #include "CustomBuildMsg.h"
 #include "UnrecognizedErrorMsg.h"
+#include "BuildMsgStore.h"
 
 // Lexer
 // Lexer Specific Build Messages

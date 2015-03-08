@@ -31,6 +31,9 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
   static CodeGenerator generator;
   static ReferenceSeeker seeker;
 
+  // Set the build msg store.
+  generator.SetBuildMsgStore(state->getBuildMsgStore());
+
   // Set the aliases dictionary.
   generator.SetAliasDictionary(static_cast<SharedMap*>(state->getDataStack()->tryGet(this->aliasDictionaryRef.get())));
 
@@ -65,8 +68,8 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
       // TODO: Use the source code position once they are added to the module definition.
       //state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.getErrorMessage(),
       //  statementList->getLine(), statementList->getColumn())));
-      SourceLocation sl;
-      state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.getErrorMessage().c_str(), sl)));
+      state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.getErrorMessage().c_str(),
+                                                                                        name->getSourceLocation())));
     }
   } else {
       // Create a build message.
@@ -76,8 +79,7 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
       if (metadata != nullptr) {
         state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), metadata->getSourceLocation()));
       } else {
-        SourceLocation sl;
-        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), sl));
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), name->getSourceLocation()));
       }
   }
   // Reset parsed data because we are done with the command.

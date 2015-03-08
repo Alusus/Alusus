@@ -31,6 +31,9 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   static CodeGenerator generator;
   static ReferenceSeeker seeker;
 
+  // Set the build msg store.
+  generator.SetBuildMsgStore(state->getBuildMsgStore());
+
   // Set the aliases dictionary.
   generator.SetAliasDictionary(static_cast<SharedMap*>(state->getDataStack()->tryGet(this->aliasDictionaryRef.get())));
 
@@ -49,6 +52,7 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   if (true /*statementList != 0*/) {
     // Execute a list of statements.
     try {
+      Word prevBuildMsgCount = state->getBuildMsgStore()->getCount();
       LlvmContainer::Initialize();
       Program program;
       auto *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).io_cast_get<Data::Module>();
@@ -59,14 +63,22 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
         program.AddModule(module);
       }
       auto str = name->getText() + "_main";
-      program.Execute(str.c_str());
+      if (state->getBuildMsgStore()->getCount() == prevBuildMsgCount) {
+        // No errors were found, so proceed to execute.
+        program.Execute(str.c_str());
+      } else {
+        // Some errors were found, so we'll not execute.
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(STR("Couldn't execute module due to build errors"),
+                                                                        STR("SCG1001"), 1, name->getSourceLocation(),
+                                                                        name->getText().c_str()));
+      }
       LlvmContainer::Finalize();
     } catch (Core::Basic::Exception &e) {
       // TODO: Use the source code position once they are added to the module definition.
       //state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.getErrorMessage(),
       //  statementList->getLine(), statementList->getColumn())));
-      SourceLocation sl;
-      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(e.getErrorMessage().c_str(), sl));
+      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(e.getErrorMessage().c_str(),
+                                                                      name->getSourceLocation()));
     }
   } else {
       // Create a build message.
@@ -77,8 +89,7 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
         state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
                                                                         metadata->getSourceLocation()));
       } else {
-        SourceLocation sl;
-        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), sl));
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), name->getSourceLocation()));
       }
   }
   // Reset parsed data because we are done with the command.
