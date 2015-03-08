@@ -15,14 +15,14 @@
 #include <llvm/IR/IRBuilder.h>
 
 // SCG files
-#include <BuiltInFunctions/BasicBuiltInFunction.h>
+#include "BasicBinaryBuiltInFunction.h"
 #include <Types/DoubleType.h>
 #include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
-BasicBuiltInFunction::BasicBuiltInFunction(const Char *name, const Char *retType,
-      const Char *arg1Type, const Char *arg2Type, BasicBuiltInFunction::Callback function)
+BasicBinaryBuiltInFunction::BasicBinaryBuiltInFunction(const Char *name, const Char *retType,
+      const Char *arg1Type, const Char *arg2Type, BasicBinaryBuiltInFunction::Callback function)
 : name(name)
 , function(function)
 {
@@ -31,7 +31,7 @@ BasicBuiltInFunction::BasicBuiltInFunction(const Char *name, const Char *retType
   this->retTypeSpec = new ValueTypeSpecByName(retType);
 }
 
-BasicBuiltInFunction::~BasicBuiltInFunction()
+BasicBinaryBuiltInFunction::~BasicBinaryBuiltInFunction()
 {
   delete this->argTypeSpecs[0];
   delete this->argTypeSpecs[1];
@@ -39,20 +39,20 @@ BasicBuiltInFunction::~BasicBuiltInFunction()
   this->argTypeSpecs.clear();
 }
 
-llvm::Value *BasicBuiltInFunction::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
+llvm::Value *BasicBinaryBuiltInFunction::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
     const std::vector<llvm::Value*> &args) const
 {
 	if (args.size() != 2)
-		// TODO: The exception message shouldn't use BasicBuiltInFunction as this is the class name.
+		// TODO: The exception message shouldn't use BasicBinaryBuiltInFunction as this is the class name.
 		// Instead, it should use a user friendly name, e.g. operator +.
 		// TODO: Should we use CompilationErrorException? Should we derive from that an
 		// exception specific for the invalid number of arguments.
 		throw EXCEPTION(CompilationErrorException,
-				"BasicBuiltInFunction built-in function requires two arguments.");
+				"BasicBinaryBuiltInFunction built-in function requires two arguments.");
   return this->function(irb, args[0], args[1]);
 }
 
-const ValueTypeSpec *BasicBuiltInFunction::GetValueTypeSpec() const
+const ValueTypeSpec *BasicBinaryBuiltInFunction::GetValueTypeSpec() const
 {
 	return this->retTypeSpec;
 }

@@ -12,7 +12,7 @@
 #include <prerequisites.h>
 
 // Scg include files
-#include <BuiltInFunctions/BasicBuiltInFunction.h>
+#include <BuiltInFunctions/BasicBinaryBuiltInFunction.h>
 #include <BuiltInFunctions/BasicUnaryBuiltInFunction.h>
 #include <Containers/Module.h>
 #include <Containers/Program.h>
@@ -35,68 +35,68 @@ namespace Scg
 void Program::InitialiseBuiltInFunctions()
 {
   // Add functions
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__add",
       "int", "int", "int",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateAdd(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__add",
       "float", "float", "float",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFAdd(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__add",
       "double", "double", "double",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFAdd(a, b);
   }));
 
   // Subtract functions
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__sub",
       "int", "int", "int",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateSub(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__sub",
       "float", "float", "float",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFSub(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__sub",
       "double", "double", "double",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFSub(a, b);
   }));
 
   // Multiplication functions
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__mul",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__mul",
       "int", "int", "int",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateMul(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__mul",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__mul",
       "float", "float", "float",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFMul(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__mul",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__mul",
       "double", "double", "double",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFMul(a, b);
   }));
 
   // Division functions
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__div",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__div",
       "int", "int", "int",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateSDiv(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__div",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__div",
       "float", "float", "float",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFDiv(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBuiltInFunction("__div",
+  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__div",
       "double", "double", "double",
       [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFDiv(a, b);

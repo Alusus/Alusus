@@ -1,5 +1,5 @@
 /**
- * @file Scg/BuiltInFunctions/AddDoubles.h
+ * @file Scg/BuiltInFunctions/BasicBuiltInFunction.h
  *
  * @copyright Copyright (C) 2015 Rafid Khalid Abdullah
  *
@@ -9,8 +9,11 @@
  */
 //==============================================================================
 
-#ifndef __AddDoubles_h__
-#define __AddDoubles_h__
+#ifndef __BasicBuiltInFunction_h__
+#define __BasicBuiltInFunction_h__
+
+// STL header files
+#include <functional>
 
 // SCG header files
 #include <exceptions.h>
@@ -21,17 +24,33 @@ namespace Scg
 /**
  * A built-in function to add two integer values.
  */
-class AddDoubles : public Function
+class BasicBinaryBuiltInFunction : public Function
 {
+public:
+  using Callback = std::function<llvm::Value*(llvm::IRBuilder<> *irb, llvm::Value*, llvm::Value*)>;
+
 private:
   //! Storing the binary operator so that it can be freed after code generation.
   llvm::Value *llvmValue = nullptr;
   //! Storing the name of the function.
-  std::string name { "__op_add" };
+  std::string name;
+  Callback function;
+  ValueTypeSpec *retTypeSpec;
 
 public:
-  AddDoubles();
-  ~AddDoubles();
+  /**
+  * @param[in] name     The name of the function.
+  * @param[in] retType  The return type of the function, e.g. "double", "int".
+  * @param[in] arg1Type The type of the function's first argument, e.g.
+  *                     double", "int".
+  * @param[in] arg2Type The type of the function's second argument, e.g.
+  *                     "double", "int".
+  * @param[in] function The function to be called to create the LLVM
+  *                     instruction to execute this function.
+  */
+  BasicBinaryBuiltInFunction(const Char *name, const Char *retType,
+      const Char *arg1Type, const Char *arg2Type, Callback function);
+  ~BasicBinaryBuiltInFunction();
 
   //! @copydoc Function::GetName()
   virtual const std::string &GetName() const { return name; }
@@ -51,4 +70,4 @@ public:
 };
 }
 
-#endif // __AddDoubles_h__
+#endif // __BasicBuiltInFunction_h__
