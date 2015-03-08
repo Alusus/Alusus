@@ -24,6 +24,8 @@
 
 namespace Scg
 {
+using namespace Core::Basic;
+
 DeclareExtFunction::DeclareExtFunction(Char const *name,
     ValueTypeSpec *returnType, const ValueTypeSpecArray &argTypes,
     bool isVarArgs) :

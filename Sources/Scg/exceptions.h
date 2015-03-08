@@ -14,6 +14,7 @@
 
 // Core header files.
 #include <Basic/exceptions.h>
+#include <Basic/basic.h>
 
 // Scg include files
 #include <typedefs.h>

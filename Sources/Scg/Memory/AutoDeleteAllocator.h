@@ -16,6 +16,7 @@
 #include <set>
 
 // Scg header files
+#include <Basic/exceptions.h>
 #include <exceptions.h>
 
 namespace Scg
@@ -61,7 +62,7 @@ public:
   {
     auto it = allocatedBuffers.find(ptr);
     if (it == allocatedBuffers.end()) {
-      throw EXCEPTION(MemoryException, CHR('f'),
+      throw EXCEPTION(Core::Basic::MemoryException, CHR('f'),
                       STR("The given pointer doesn't exist "
                           "in this AutoDeleteAllocater."));
     }

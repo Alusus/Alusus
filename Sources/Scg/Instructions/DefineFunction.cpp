@@ -22,6 +22,8 @@ using namespace llvm;
 
 namespace Scg
 {
+using namespace Core::Basic;
+
 DefineFunction::DefineFunction(Char const *name, ValueTypeSpec *returnType,
     const VariableDefinitionArray &arguments, Block *body) :
         name(name),

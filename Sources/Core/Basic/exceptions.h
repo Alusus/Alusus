@@ -337,6 +337,9 @@ class InvalidArgumentException : public Exception
 }; // class
 
 
+
+} } // namespace
+
 //==============================================================================
 // Exception Macros
 
@@ -365,15 +368,13 @@ class InvalidArgumentException : public Exception
       base(cmt, function, source, line) \
     { \
     } \
-    virtual Str getErrorMessage() const throw() \
+    virtual Core::Basic::Str getErrorMessage() const throw() \
     { \
-      return Str(title) + STR(": ") + this->getComment(); \
+      return Core::Basic::Str(title) + STR(": ") + this->getComment(); \
     } \
   }
 
 #define EXCEPTION(exceptionName, ...) \
   exceptionName(__VA_ARGS__, __THIS_FUNCTION__, __FILE__, __LINE__)
-
-} } // namespace
 
 #endif

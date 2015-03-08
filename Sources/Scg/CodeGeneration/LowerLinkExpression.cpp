@@ -10,6 +10,11 @@
 //==============================================================================
 
 #include <prerequisites.h>
+
+// Core header files
+#include <Basic/SharedPtr.h>
+
+// SCG header files
 #include <CodeGeneration/CodeGenerator.h>
 #include <CodeGeneration/LowerLinkExpression.h>
 

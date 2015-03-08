@@ -19,8 +19,6 @@
 // LLVM forward declarations
 #include <llvm_fwd.h>
 
-using namespace Core;
-
 namespace Scg
 {
 
@@ -112,7 +110,7 @@ class ValueTypeSpecByName : public ValueTypeSpec
   std::string name;
 
 public:
-  ValueTypeSpecByName(Char const *name) : name(name)
+  ValueTypeSpecByName(Core::Basic::Char const *name) : name(name)
   {
   }
 

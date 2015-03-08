@@ -14,6 +14,9 @@
 // Boost header files
 #include <boost/lexical_cast.hpp>
 
+// Core header files.
+#include <Processing/BuildMsgStore.h>
+
 // Scg header files
 #include <CodeGeneration/CodeGenerator.h>
 #include <CodeGeneration/FunctionAstBlock.h>
@@ -218,7 +221,7 @@ namespace Scg
     }
     auto name = this->TranslateAliasedName(nameToken->getText().c_str());
 
-    // Get the definee (after the colon).
+    // Get the defined (after the colon).
     static SharedPtr<Reference> defReference = ReferenceParser::parseQualifier(
       STR("1~where(prodId=Expression.Exp)."
           "0~where(prodId=Expression.LowerLinkExp)."

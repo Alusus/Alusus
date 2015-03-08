@@ -13,6 +13,8 @@
 #ifndef BASIC_SHARED_PTR_H
 #define BASIC_SHARED_PTR_H
 
+#include <memory>
+
 namespace Core { namespace Basic
 {
 

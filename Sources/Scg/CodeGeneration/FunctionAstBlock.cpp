@@ -46,7 +46,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
     // The function has return value.
     auto sigRet = LowLinkExpression(gen, sigWithRet);
     if (sigRet.GetSeparator().compare("=>") != 0) {
-      gen->GetBuildMsgStore()->add(std::make_shared<Processing::CustomBuildMsg>(
+      gen->GetBuildMsgStore()->add(std::make_shared<Core::Processing::CustomBuildMsg>(
                                      STR("Invalid separator between the arguments of the function"
                                          " and its return type. Must use '=>'"),
                                      STR("SCG1022"), 1, astRoot->getSourceLocation(),

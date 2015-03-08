@@ -44,7 +44,7 @@ namespace Scg
     {
       auto argsAndRet = LowLinkExpression(gen, item);
       if (argsAndRet.GetSeparator().compare("=>") != 0) {
-        gen->GetBuildMsgStore()->add(std::make_shared<Processing::CustomBuildMsg>(
+        gen->GetBuildMsgStore()->add(std::make_shared<Core::Processing::CustomBuildMsg>(
                                        STR("Invalid separator between the arguments of the function"
                                            " and its return type. Must use '=>'"),
                                        STR("SCG1022"), 1, astRootMeta->getSourceLocation(),
