@@ -15,12 +15,12 @@
 #include <boost/lexical_cast.hpp>
 
 // Scg header files
-#include <Containers/Block.h>
-#include <Containers/List.h>
-#include <Containers/Module.h>
 #include <CodeGeneration/CodeGenerator.h>
 #include <CodeGeneration/FunctionAstBlock.h>
 #include <CodeGeneration/FunctionLinkExpression.h>
+#include <Containers/Block.h>
+#include <Containers/List.h>
+#include <Containers/Module.h>
 #include <Instructions/CallFunction.h>
 #include <Instructions/DeclareExtFunction.h>
 #include <Instructions/DefineFunction.h>
@@ -71,6 +71,7 @@ namespace Scg
     GENERATE_ID(paramPassId, "Expression.ParamPassExp");
     GENERATE_ID(linkExpId, "Expression.LinkExp");
     GENERATE_ID(postfixTildeExpId, "Expression.PostfixTildeExp");
+    GENERATE_ID(unaryExpId, "Expression.UnaryExp");
     GENERATE_ID(subjectId, "Subject.Subject1");
     GENERATE_ID(subSubjectId, "SubSubject.Subject1");
     GENERATE_ID(parameterId, "Subject.Parameter");
@@ -403,6 +404,8 @@ namespace Scg
       expr = GenerateBinaryOperator(item.s_cast<ParsedList>());
     else if (id == statementListId)
       expr = GenerateSet(item.s_cast<ParsedList>());
+    else if (id == unaryExpId)
+      expr = GenerateUnaryOperator(item.s_cast<ParsedList>());
     else
       throw EXCEPTION(ArgumentOutOfRangeException, "The given parsing data doesn't evaluate to an expression.");
 
@@ -468,72 +471,6 @@ namespace Scg
       return 0;
     }
   }
-
-//  Expression *CodeGenerator::GenerateMemberAccess(SharedPtr<IdentifiableObject> const &data)
-//  {
-//    auto postfixType = 0; // 0: Variable reference
-//                          // 1: Variable pointer
-//                          // 2: Variable dereference
-//    auto parsedList = data.s_cast<ParsedList>();
-//    auto varName = parsedList
-//        ->getElement(0).s_cast<ParsedRoute>()
-//        ->getData().s_cast<ParsedToken>()
-//        ->getText();
-//    std::vector<Expression*> subVarRefs;
-//    for (auto i = 1; i < parsedList->getElementCount(); i++)
-//    {
-//      auto fieldExp = parsedList->get(i);
-//      if (fieldExp->getInterface<ParsingMetadataHolder>()->getProdId() == linkExpId)
-//      {
-//        auto fieldName = fieldExp.s_cast<ParsedList>()
-//            ->getElement(1).s_cast<ParsedRoute>()
-//            ->getData().s_cast<ParsedToken>()
-//            ->getText();
-//        subVarRefs.push_back(new StringConst(fieldName));
-//      }
-//      else if (fieldExp->getProdId() == postfixTildeExpId)
-//      {
-//        auto postfixTypeId = fieldExp.s_cast<ParsedList>()
-//            ->get(0)->getInterface<ParsingMetadataHolder>()->getProdId();
-//        if (postfixTypeId == pointerTildeId)
-//        {
-//          postfixType = 1;
-//          // TODO: We should throw an exception if there are more elements
-//          // in the parsed list, as this mean that something is being added
-//          // after the post-fix expression, which is a syntax error.
-//          break;
-//        }
-//        else if (postfixTypeId == contentTildeId)
-//        {
-//          postfixType = 2;
-//          // TODO: We should throw an exception if there are more elements
-//          // in the parsed list, as this mean that something is being added
-//          // after the post-fix expression, which is a syntax error.
-//          break;
-//        }
-//        else
-//          throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
-//      }
-//      else
-//        throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
-//    }
-
-//    // Creates the expression for accessing a member and sets line and column numbers.
-//    Expression *memberAccess;
-//    switch (postfixType)
-//    {
-//    // TODO: Implement this.
-//    //case 0: memberAccess = new VariableRef(varName, subVarRefs); break;
-//    //case 1: memberAccess = new VariablePointer(varName, subVarRefs); break;
-//    //case 2: memberAccess = new VariableDeref(varName, subVarRefs); break;
-//    default:
-//        throw EXCEPTION(UnreachableCodeException, "Unexpected value for postfixType");
-//    }
-//    memberAccess->setSourceLocation(parsedList->getSourceLocation());
-//    return memberAccess;
-//  }
-
-  //----------------------------------------------------------------------------
 
   Expression *CodeGenerator::GenerateConst(const SharedPtr<ParsedToken> &literal)
   {
@@ -646,63 +583,41 @@ namespace Scg
     return expr;
   }
 
-  //----------------------------------------------------------------------------
-
-//  CallFunction *CodeGenerator::GenerateFunctionCall(const SharedPtr<ParsedList> &functionalExpr)
-//  {
-//    if (functionalExpr->getElementCount() != 2) {
-//      throw EXCEPTION(SyntaxErrorException, "A function call should have a name and parameter list.");
-//    }
-
-//    // Get the name.
-//    static ReferenceSeeker seeker;
-//    static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
-//      STR("0~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
-//      ReferenceUsageCriteria::MULTI_DATA);
-//    auto name = seeker.tryGet<ParsedToken>(nameReference.get(), functionalExpr.get());
-//    if (name == 0) {
-//      throw EXCEPTION(SyntaxErrorException, "A function call should have a name and parameter list.");
-//    }
-//    if (name->getId() != identifierTokenId) {
-//      throw EXCEPTION(SyntaxErrorException, "A function call should have a name and parameter list.");
-//    }
-//    auto functionName = name->getText();
-
-//    // Get the parameter.
-//    static SharedPtr<Reference> paramsReference = ReferenceParser::parseQualifier(
-//      STR("1~where(prodId=Expression.ParamPassExp).0"), ReferenceUsageCriteria::MULTI_DATA);
-//    auto params = seeker.tryGet(paramsReference.get(), functionalExpr.get());
-//    Expression *functionArgs = 0;
-//    if (params != 0) {
-//      functionArgs = GenerateExpression(params);
-//    }
-
-//    // Force arguments to be a list.
-//    if (dynamic_cast<List*>(functionArgs) == 0) {
-//      ExpressionArray ar;
-//      if (functionArgs != 0) ar.push_back(functionArgs);
-//      functionArgs = new List(ar);
-//    }
-
-//    // Creates the CallFunction instruction and sets the line and column numbers.
-//    auto callFunc = new CallFunction(functionName, static_cast<List*>(functionArgs));
-//    callFunc->setSourceLocation(functionalExpr->getSourceLocation());
-//    return callFunc;
-//  }
-
-  //----------------------------------------------------------------------------
-
-  /*List *CodeGenerator::GenerateOperand(const SharedPtr< > &functionalExpr)
+  Expression *CodeGenerator::GenerateUnaryOperator(const SharedPtr<ParsedList> &unaryExpr)
   {
-    auto expr = GenerateExpression(functionalExpr.s_cast_get<ParsedRoute>()->getData());
-    if (dynamic_cast<List*>(expr) != 0)
-      return static_cast<List*>(expr);
-    ExpressionArray exprs;
-    exprs.push_back(expr);
-    return new List(exprs);
-  }*/
-
-  //----------------------------------------------------------------------------
+    auto opText = static_cast<ParsedToken*>(unaryExpr->get(0))->getText();
+    auto expr = GenerateExpression(unaryExpr->getShared(1));
+    if (opText.compare("+") == 0) {
+      // Return the expression as it is.
+      return expr;
+    } else if (opText.compare("-") == 0) {
+      expr = new CallFunction("__neg", new List({expr}));
+    } else if (opText.compare("--") == 0) {
+      // TODO: We are regenerating the operand to avoid memory exception
+      // because we are using the same expression in the CallFunction
+      // and the AssignmentOperator expressions. Find a better way to avoid
+      // this. The best way is to a create a memory allocator (or possible use
+      // the AutoDeleteAllocator) for expressions that automatically deallocate
+      // expressions later.
+      auto expr2 = GenerateExpression(unaryExpr->getShared(1));
+      expr = new AssignmentOperator(expr2,
+          new CallFunction("__sub", new List({expr, new IntegerConst(1)})));
+    } else if (opText.compare("++") == 0) {
+      // TODO: We are regenerating the operand to avoid memory exception
+      // because we are using the same expression in the CallFunction
+      // and the AssignmentOperator expressions. Find a better way to avoid
+      // this. The best way is to a create a memory allocator (or possible use
+      // the AutoDeleteAllocator) for expressions that automatically deallocate
+      // expressions later.
+      auto expr2 = GenerateExpression(unaryExpr->getShared(1));
+      expr = new AssignmentOperator(expr2,
+          new CallFunction("__add", new List({expr, new IntegerConst(1)})));
+    } else {
+      throw EXCEPTION(InvalidOperationException, "Unrecognized unary operator.");
+    }
+    expr->setSourceLocation(unaryExpr->getSourceLocation());
+    return expr;
+  }
 
   IfStatement *CodeGenerator::GenerateIfStatement(SharedPtr<IdentifiableObject> const &command)
   {

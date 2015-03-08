@@ -13,9 +13,13 @@
 
 // Scg include files
 #include <BuiltInFunctions/BasicBuiltInFunction.h>
+#include <BuiltInFunctions/BasicUnaryBuiltInFunction.h>
 #include <Containers/Module.h>
 #include <Containers/Program.h>
 #include <LlvmContainer.h>
+#include <Types/DoubleType.h>
+#include <Types/FloatType.h>
+#include <Types/IntegerType.h>
 
 // LLVM header files
 #include <llvm/Assembly/PrintModulePass.h>
@@ -33,46 +37,87 @@ void Program::InitialiseBuiltInFunctions()
   // Add functions
   this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
       "int", "int", "int",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateAdd(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateAdd(a, b);
+  }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
       "float", "float", "float",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFAdd(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateFAdd(a, b);
+  }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__add",
       "double", "double", "double",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFAdd(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateFAdd(a, b);
+  }));
 
   // Subtract functions
   this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
       "int", "int", "int",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateSub(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateSub(a, b);
+  }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
       "float", "float", "float",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFSub(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateFSub(a, b);
+  }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__sub",
       "double", "double", "double",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFSub(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateFSub(a, b);
+  }));
 
   // Multiplication functions
   this->builtInFunctions.Add(new BasicBuiltInFunction("__mul",
       "int", "int", "int",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateMul(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateMul(a, b);
+  }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__mul",
       "float", "float", "float",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFMul(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateFMul(a, b);
+  }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__mul",
       "double", "double", "double",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFMul(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateFMul(a, b);
+  }));
 
   // Division functions
   this->builtInFunctions.Add(new BasicBuiltInFunction("__div",
       "int", "int", "int",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateSDiv(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateSDiv(a, b);
+  }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__div",
       "float", "float", "float",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFDiv(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateFDiv(a, b);
+  }));
   this->builtInFunctions.Add(new BasicBuiltInFunction("__div",
       "double", "double", "double",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) { return irb->CreateFDiv(a, b); }));
+      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+    return irb->CreateFDiv(a, b);
+  }));
+
+  // Negative functions
+  this->builtInFunctions.Add(new BasicUnaryBuiltInFunction("__neg",
+      "int", "int",
+      [](llvm::IRBuilder<> *irb, llvm::Value *a) {
+      return irb->CreateNeg(a);
+  }));
+  this->builtInFunctions.Add(new BasicUnaryBuiltInFunction("__neg",
+      "float", "float",
+      [](llvm::IRBuilder<> *irb, llvm::Value *a) {
+    return irb->CreateFNeg(a);
+  }));
+  this->builtInFunctions.Add(new BasicUnaryBuiltInFunction("__neg",
+      "double", "double",
+      [](llvm::IRBuilder<> *irb, llvm::Value *a) {
+    return irb->CreateFNeg(a);
+  }));
 }
 
 bool Program::HasFunction(const std::string &name,

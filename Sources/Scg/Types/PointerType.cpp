@@ -1,12 +1,12 @@
 /**
- * @file Scg/Types/PointerType.cpp
- *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
- *
- * @license This file is released under Alusus Public License, Version 1.0.
- * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
- */
+* @file Scg/Types/PointerType.cpp
+*
+* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+*
+* @license This file is released under Alusus Public License, Version 1.0.
+* For details on usage and copying conditions read the full license in the
+* accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+*/
 //==============================================================================
 
 // Class not needed at the moment.
@@ -20,15 +20,15 @@
 
 namespace Scg
 {
-std::unordered_map<const ValueType*, PointerType*> PointerType::usedPointerTypes;
+std::unordered_map<const ValueType *, PointerType *> PointerType::usedPointerTypes;
 
 // TODO: We are calling Clone() because the passed type spec gets automatically
 // freed. Is there a better way to avoid extra memory allocation and free?
 PointerType::PointerType(const ValueType *cntType) :
     contentType(cntType),
-    typeSpec(const_cast<ValueTypeSpec*>(cntType->GetValueTypeSpec()->Clone()))
+    typeSpec(const_cast<ValueTypeSpec *>(cntType->GetValueTypeSpec()->Clone()))
 {
-  this->llvmType = const_cast<llvm::Type*>(this->contentType->GetLlvmType())->getPointerTo(0);
+  this->llvmType = const_cast<llvm::Type *>(this->contentType->GetLlvmType())->getPointerTo(0);
 }
 
 void PointerType::InitCastingTargets() const
@@ -40,7 +40,7 @@ void PointerType::InitCastingTargets() const
 
 bool PointerType::IsEqualTo(const ValueType *other) const
 {
-  auto otherAsPointer = dynamic_cast<const PointerType*>(other);
+  auto otherAsPointer = dynamic_cast<const PointerType *>(other);
   if (otherAsPointer == nullptr) {
     return false;
   }

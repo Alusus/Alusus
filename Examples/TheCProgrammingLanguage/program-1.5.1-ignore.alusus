@@ -1,0 +1,17 @@
+import "common.alusus";
+
+def Program1_5_1 : module {
+  def main : function() {
+    def EOF : int;
+    EOF := -1;
+
+    def c : int;
+    c := getchar();
+    while (c ^= EOF) {
+      putchar(c);
+      c := getchar();
+    };
+  }
+};
+
+build Program1_5_1;

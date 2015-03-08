@@ -1,12 +1,12 @@
 /**
- * @file Scg/Types/StringType.h
- *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
- *
- * @license This file is released under Alusus Public License, Version 1.0.
- * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
- */
+* @file Scg/Types/StringType.h
+*
+* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+*
+* @license This file is released under Alusus Public License, Version 1.0.
+* For details on usage and copying conditions read the full license in the
+* accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+*/
 //==============================================================================
 
 #ifndef __StringType_h__
@@ -21,72 +21,78 @@
 
 namespace Scg
 {
-  class Module;
+class Module;
+
+/**
+* Represent a variable type.
+*/
+class StringType : public ValueType
+{
+  friend class LlvmContainer;
+
+  static StringType *s_singleton;
+  ValueTypeSpecByName typeSpec;
+
+private:
+  //! Constructs a string type.
+  StringType();
+
+  //! Class destructor.
+  virtual ~StringType()
+  {
+  }
+
+protected:
+  //! @copydoc ValueType::InitCastingTargets()
+  virtual void InitCastingTargets() const override;
+
+public:
+  //! @copydoc ValueType::GetName()
+  virtual const std::string GetName() const
+  {
+    return "string";
+  }
 
   /**
-   * Represent a variable type.
-   */
-  class StringType : public ValueType
+  * Get an constant value of string type.
+  * @param[in] value The value of the constant.
+  * @param[in] value The value of the constant.
+  */
+  // TODO: Can we find some way to remove module?
+  llvm::Constant *GetLlvmConstant(Module *module, const std::string &value) const;
+
+  //! @copydoc ValueType::GetDefaultLLVMValue()
+  virtual llvm::Constant *GetDefaultLLVMValue() const
   {
-    friend class LlvmContainer;
-    static StringType *s_singleton;
-    ValueTypeSpecByName typeSpec;
+    throw EXCEPTION(NotImplementedException, "Not implemented yet!");
+  }
 
-  private:
-    //! Constructs a string type.
-    StringType();
+  //! @copydoc ValueType::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override
+  {
+    return &typeSpec;
+  }
 
-    //! Class destructor.
-    virtual ~StringType() {}
+  //! @copydoc ValueType::IsEqualTo()
+  virtual bool IsEqualTo(const ValueType *other) const
+  {
+    return dynamic_cast<const StringType *>(other) != nullptr;
+  }
 
-  protected:
-    //! @copydoc ValueType::InitCastingTargets()
-    virtual void InitCastingTargets() const override;
+  //! @copydoc ValueType::GetImplicitCastingOperator()
+  virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
+  {
+    throw EXCEPTION(NotImplementedException, "Not implemented yet for strings.");
+  }
 
-  public:
-    //! @copydoc ValueType::GetName()
-    virtual const std::string GetName() const { return "string"; }
+  //! @copydoc ValueType::GetExplicitCastingOperator()
+  virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
+  {
+    throw EXCEPTION(NotImplementedException, "Not implemented yet for strings.");
+  }
 
-    /**
-     * Get an constant value of string type.
-     * @param[in] value The value of the constant.
-     * @param[in] value The value of the constant.
-     */
-    // TODO: Can we find some way to remove module?
-    llvm::Constant *GetLlvmConstant(Module *module, const std::string &value) const;
-
-    //! @copydoc ValueType::GetDefaultLLVMValue()
-    virtual llvm::Constant *GetDefaultLLVMValue() const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet!");
-    }
-
-    //! @copydoc ValueType::GetValueTypeSpec()
-    virtual const ValueTypeSpec *GetValueTypeSpec() const override
-    {
-      return &typeSpec;
-    }
-
-    //! @copydoc ValueType::IsEqualTo()
-    virtual bool IsEqualTo(const ValueType *other) const
-    {
-      return dynamic_cast<const StringType*>(other) != nullptr;
-    }
-
-    //! @copydoc ValueType::GetImplicitCastingOperator()
-    virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet for strings.");
-    }
-
-    //! @copydoc ValueType::GetExplicitCastingOperator()
-    virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet for strings.");
-    }
-
-    static StringType *Get();
-  };
+  static StringType *Get();
+};
 }
 
 #endif // __StringType_h__

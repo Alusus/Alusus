@@ -31,7 +31,8 @@ public:
   enum Operator
   {
     INCREMENT,
-    DECREMENT
+    DECREMENT,
+    NEGATIVE,
   };
 
 private:
@@ -53,7 +54,7 @@ public:
    */
   UnaryOperator(Operator op, Expression *operand) : operatorType(op)
   {
-    if (operatorType < INCREMENT || operatorType > DECREMENT)
+    if (operatorType < INCREMENT || operatorType > NEGATIVE)
       throw EXCEPTION(ArgumentOutOfRangeException, "Invalid unary operator.");
     children.push_back(operand);
   }

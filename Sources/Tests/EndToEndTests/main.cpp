@@ -177,6 +177,7 @@ bool RunEndToEndTests(const std::string &dirPath)
     {
       std::string fileName(ent->d_name);
       if (fileName.compare("common.alusus") != 0 &&
+          fileName.find("ignore.alusus") == std::string::npos &&
           (boost::algorithm::ends_with(fileName, ".alusus") || boost::algorithm::ends_with(fileName, ".أسس")))
       {
         if (!RunAndCheckSourceFile(dirPath + "/" + fileName))

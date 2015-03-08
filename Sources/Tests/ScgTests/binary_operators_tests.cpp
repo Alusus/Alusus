@@ -59,19 +59,22 @@ bool TestBinaryOperators()
   auto mainBody = new Block({
       new DefineVariable(CreateTypeSpecByName("int"), "a"),
       new DefineVariable(CreateTypeSpecByName("int"), "b"),
-      new BinaryOperator(BinaryOperator::ADD,
-          new Content(new PointerToVariable("a")),
-          new Content(new PointerToVariable("b"))),
-      new BinaryOperator(BinaryOperator::SUBTRACT,
-          new Content(new PointerToVariable("a")),
-          new Content(new PointerToVariable("b"))),
-      new BinaryOperator(BinaryOperator::MULTIPLY,
-          new Content(new PointerToVariable("a")),
-          new Content(new PointerToVariable("b"))),
-      // TODO: Add this test when division is implemented.
-      //new BinaryOperator(BinaryOperator::DIVISION,
-      //    new Content(new PointerToVariable("a")),
-      //    new Content(new PointerToVariable("b"))),
+      new CallFunction("__add", new List({
+        new Content(new PointerToVariable("a")),
+        new Content(new PointerToVariable("b"))
+      })),
+      new CallFunction("__sub", new List({
+        new Content(new PointerToVariable("a")),
+        new Content(new PointerToVariable("b"))
+      })),
+      new CallFunction("__mul", new List({
+        new Content(new PointerToVariable("a")),
+        new Content(new PointerToVariable("b"))
+      })),
+      new CallFunction("__div", new List({
+        new Content(new PointerToVariable("a")),
+        new Content(new PointerToVariable("b"))
+      })),
       new BinaryOperator(BinaryOperator::GREATERTHAN,
           new Content(new PointerToVariable("a")),
           new Content(new PointerToVariable("b"))),

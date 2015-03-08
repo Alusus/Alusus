@@ -72,6 +72,7 @@ namespace Scg
     Word GetLinkId() { return linkId; }
     Word GetPointerTildeId() { return pointerTildeId; }
     Word GetContentTildeId() { return contentTildeId; }
+    Word GetUnaryExpId() { return unaryExpId; }
 
     void SetBuildMsgStore(Core::Processing::BuildMsgStore *store) { this->buildMsgStore = store; }
     Core::Processing::BuildMsgStore* GetBuildMsgStore() { return this->buildMsgStore; }
@@ -97,6 +98,7 @@ namespace Scg
     Word paramPassId;
     Word linkExpId;
     Word postfixTildeExpId;
+    Word unaryExpId;
     Word identifierTokenId;
 
     Word defId;
@@ -133,18 +135,15 @@ namespace Scg
     DefineStruct *GenerateDefineStructure(Char const *name, const SharedPtr<IdentifiableObject> &expr);
 
     Expression *GenerateExpression(const SharedPtr<IdentifiableObject> &item);
-    CallFunction *GeneratePrint(const SharedPtr<IdentifiableObject> &ptr);
     Return *GenerateReturn(const SharedPtr<IdentifiableObject> &ptr);
 
   private:
     void InitializeIds();
     Expression *GenerateVariableRef(const SharedPtr<IdentifiableObject> &param);
-    //Expression *GenerateMemberAccess(SharedPtr<IdentifiableObject> const &param);
     Expression *GenerateConst(const SharedPtr<Core::Data::ParsedToken> &literal);
     List *GenerateList(const SharedPtr<Core::Data::ParsedList> &listExpr);
     Expression *GenerateBinaryOperator(const SharedPtr<Core::Data::ParsedList> &cmpExpr);
-    //CallFunction *GenerateFunctionCall(const SharedPtr<Core::Data::ParsedList> &functionalExpr);
-    List *GenerateOperand(SharedPtr<IdentifiableObject> const &functionalExpr);
+    Expression *GenerateUnaryOperator(const SharedPtr<Core::Data::ParsedList> &cmpExpr);
     IfStatement *GenerateIfStatement(const SharedPtr<IdentifiableObject> &command);
     ForStatement *GenerateForStatement(const SharedPtr<IdentifiableObject> &command);
     WhileStatement *GenerateWhileStatement(const SharedPtr<IdentifiableObject> &command);

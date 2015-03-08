@@ -57,11 +57,13 @@ DeclareExtFunction *FunctionalExpression::ToDeclareExtFunction(
   // arguments or not, e.g. printf.
   // TODO: Remove dynamic_cast.
   auto isVarArgs = false;
-  auto typeByName = dynamic_cast<ValueTypeSpecByName*>(args[args.size()-1]);
-  if (typeByName != nullptr && typeByName->GetName().compare("args") == 0)
-  {
-    isVarArgs = true;
-    args.pop_back();
+  if (args.size() > 0) {
+    auto typeByName = dynamic_cast<ValueTypeSpecByName*>(args[args.size()-1]);
+    if (typeByName != nullptr && typeByName->GetName().compare("args") == 0)
+    {
+      isVarArgs = true;
+      args.pop_back();
+    }
   }
 
   auto declFunc = new DeclareExtFunction(name, retType, args, isVarArgs);

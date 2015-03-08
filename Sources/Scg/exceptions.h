@@ -51,9 +51,10 @@ namespace Scg
   DEFINE_EXCEPTION(UndefinedTypeException, GenericException, STR("Undefined Type Exception"));
   DEFINE_EXCEPTION(UndefinedVariableException, GenericException, STR("Undefined Variable Exception"));
   DEFINE_EXCEPTION(UnreachableCodeException, GenericException, STR("Unreachable Code Exception"));
+  DEFINE_EXCEPTION(RetiredCodeException, GenericException, STR("Retired Code Exception"));
 
 #define THROW_NOT_IMPLEMENTED() \
-  throw EXCEPTION(NotImplementedException, "The function is not implemented yet.")
+  throw EXCEPTION(NotImplementedException, "Not implemented yet.")
 }
 
 #endif // __exceptions_h__

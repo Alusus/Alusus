@@ -34,49 +34,52 @@ Expression::CodeGenerationStage UnaryOperator::GenerateCode()
   // Special case '=' because we don't want to emit the LHS as an expression.
   auto irb = GetBlock()->GetIRBuilder();
 
-  if (this->operatorType == INCREMENT || this->operatorType == DECREMENT)
-  {
-    auto operand = dynamic_cast<Content*>(GetOperand());
-    if (operand == nullptr)
-      throw EXCEPTION(InvalidOperationException, "The operand of a unary "
-          "operator must be the content of a pointer.");
-    auto operandType = operand->GetValueTypeSpec()->ToValueType(*GetModule());
-    if (operandType != IntegerType::Get() &&
-      operandType != FloatType::Get() &&
-      operandType != DoubleType::Get())
-      throw EXCEPTION(InvalidLhsException, "Left-hand side of increment/decrement "
-      "operator must be numeric.");
+  auto operand = dynamic_cast<Content*>(GetOperand());
+  if (operand == nullptr)
+    throw EXCEPTION(InvalidOperationException, "The operand of a unary "
+        "operator must be the content of a pointer.");
+  auto operandType = operand->GetValueTypeSpec()->ToValueType(*GetModule());
+  if (operandType != IntegerType::Get() &&
+    operandType != FloatType::Get() &&
+    operandType != DoubleType::Get())
+    throw EXCEPTION(InvalidLhsException, "Left-hand side of increment/decrement "
+    "operator must be numeric.");
 
-    // Evaluates the expression of the operand, which should result in a
-    // variable.
-    auto variable = GetOperand()->GetGeneratedLlvmValue();
-    if (this->operatorType == INCREMENT)
-    {
-      if (operandType == IntegerType::Get())
-        this->llvmValue = irb->CreateAdd(variable, IntegerType::Get()->GetLlvmConstant(1));
-      else if (operandType == FloatType::Get())
-        this->llvmValue = irb->CreateFAdd(variable, FloatType::Get()->GetLlvmConstant(1));
-      else if (operandType == DoubleType::Get())
-        this->llvmValue = irb->CreateFAdd(variable, DoubleType::Get()->GetLlvmConstant(1));
-    }
-    else
-    {
-      if (operandType == IntegerType::Get())
-        this->llvmValue = irb->CreateSub(variable, IntegerType::Get()->GetLlvmConstant(1));
-      else if (operandType == FloatType::Get())
-        this->llvmValue = irb->CreateFSub(variable, FloatType::Get()->GetLlvmConstant(1));
-      else if (operandType == DoubleType::Get())
-        this->llvmValue = irb->CreateFSub(variable, DoubleType::Get()->GetLlvmConstant(1));
-    }
-
-    this->llvmStoreInst = irb->CreateStore(this->llvmValue, operand->GetLlvmPointer());
-
-    this->generatedLlvmValue = this->llvmValue;
-
-    return Expression::GenerateCode();
+  // Evaluates the expression of the operand, which should result in a
+  // variable.
+  auto variable = GetOperand()->GetGeneratedLlvmValue();
+  if (this->operatorType == INCREMENT) {
+    if (operandType == IntegerType::Get())
+      this->llvmValue = irb->CreateAdd(variable, IntegerType::Get()->GetLlvmConstant(1));
+    else if (operandType == FloatType::Get())
+      this->llvmValue = irb->CreateFAdd(variable, FloatType::Get()->GetLlvmConstant(1));
+    else if (operandType == DoubleType::Get())
+      this->llvmValue = irb->CreateFAdd(variable, DoubleType::Get()->GetLlvmConstant(1));
+  }
+  else if (this->operatorType == DECREMENT) {
+    if (operandType == IntegerType::Get())
+      this->llvmValue = irb->CreateSub(variable, IntegerType::Get()->GetLlvmConstant(1));
+    else if (operandType == FloatType::Get())
+      this->llvmValue = irb->CreateFSub(variable, FloatType::Get()->GetLlvmConstant(1));
+    else if (operandType == DoubleType::Get())
+      this->llvmValue = irb->CreateFSub(variable, DoubleType::Get()->GetLlvmConstant(1));
+  } else if (this->operatorType == NEGATIVE) {
+    if (operandType == IntegerType::Get())
+      this->llvmValue = irb->CreateNeg(variable);
+    else if (operandType == FloatType::Get())
+      this->llvmValue = irb->CreateFNeg(variable);
+    else if (operandType == DoubleType::Get())
+      this->llvmValue = irb->CreateFNeg(variable);
+  } else {
+    throw EXCEPTION(InvalidOperationException,
+        "Unary operator must be INCREMENT, DECREMENT, or NEGATIVE.");
   }
 
-  throw EXCEPTION(UnreachableCodeException, "This code shouldn't be reached.");
+  this->llvmStoreInst = irb->CreateStore(this->llvmValue, operand->GetLlvmPointer());
+
+  this->generatedLlvmValue = this->llvmValue;
+
+  return Expression::GenerateCode();
 }
 
 //------------------------------------------------------------------------------

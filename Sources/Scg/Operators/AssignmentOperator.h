@@ -67,6 +67,9 @@ public:
   	return GenerateCode();
   }
 
+  //! @copydoc Value::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+
   //! @copydoc Expression::GenerateCode()
   virtual CodeGenerationStage GenerateCode();
 

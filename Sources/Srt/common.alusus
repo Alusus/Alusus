@@ -6,8 +6,10 @@ def SystemLinks : module {
   	fprintf(ptr[int], string, args) => int;
   	fclose(ptr[int]) => int;
   	printf(string, args) => int;
+  	getchar() => int;
+  	putchar(int) => int;
   };
-
+  
   def openFile : function(file_name : string) => ptr[int] {
     return fopen(file_name, "w+");
   };

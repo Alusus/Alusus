@@ -1,12 +1,12 @@
 /**
- * @file Scg/Types/ArrayType.h
- *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
- *
- * @license This file is released under Alusus Public License, Version 1.0.
- * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
- */
+* @file Scg/Types/ArrayType.h
+*
+* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+*
+* @license This file is released under Alusus Public License, Version 1.0.
+* For details on usage and copying conditions read the full license in the
+* accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+*/
 //==============================================================================
 
 #ifndef __ArrayType_h__
@@ -24,86 +24,95 @@
 
 namespace Scg
 {
+/**
+* Represents a structure type with custom fields.
+*/
+class ArrayType : public ValueType
+{
+  //! The name of the type, for example arr[int, 10].
+  std::string name;
+  ArrayValueTypeSpec typeSpec;
+  const ValueType *elementsType;
+  unsigned int arraySize;
+
+private:
   /**
-   * Represents a structure type with custom fields.
-   */
-  class ArrayType : public ValueType
+  * Constructs a new array type.
+  * @param[in] elementsType  The type of the elements of the array.
+  * @param[in] arraySize     The number of elements in the array.
+  */
+  ArrayType(const ValueType *elementsType, unsigned int arraySize);
+
+protected:
+  //! @copydoc ValueType::InitCastingTargets()
+  virtual void InitCastingTargets() const override;
+
+public:
+  //! @copydoc ValueType::GetName()
+  virtual const std::string GetName() const
   {
-    //! The name of the type, for example arr[int, 10].
-    std::string name;
-    ArrayValueTypeSpec typeSpec;
-    const ValueType *elementsType;
-    unsigned int arraySize;
+    return name;
+  }
 
-  private:
-    /**
-     * Constructs a new array type.
-     * @param[in] elementsType  The type of the elements of the array.
-     * @param[in] arraySize     The number of elements in the array.
-     */
-    ArrayType(const ValueType *elementsType, unsigned int arraySize);
+  /**
+  * Retrieves the type of the elements of the array.
+  * @return A pointer to the type of the elements of the array.
+  */
+  virtual const ValueType *GetElementsType() const
+  {
+    return elementsType;
+  }
 
-  protected:
-    //! @copydoc ValueType::InitCastingTargets()
-    virtual void InitCastingTargets() const override;
+  /**
+  * Retrieves the number of the elements of the array.
+  * @return The number of the elements of the array.
+  */
+  unsigned int GetArraySize() const
+  {
+    return arraySize;
+  }
 
-  public:
-    //! @copydoc ValueType::GetName()
-    virtual const std::string GetName() const { return name; }
+  //! @copydoc ValueType::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override
+  {
+    return &typeSpec;
+  }
 
-    /**
-     * Retrieves the type of the elements of the array.
-     * @return A pointer to the type of the elements of the array.
-     */
-    virtual const ValueType *GetElementsType() const { return elementsType; }
+  //! @copydoc ValueType::GetDefaultLLVMValue()
+  virtual llvm::Constant *GetDefaultLLVMValue() const
+  {
+    throw EXCEPTION(NotImplementedException, "Not implemented yet!");
+  }
 
-    /**
-     * Retrieves the number of the elements of the array.
-     * @return The number of the elements of the array.
-     */
-    unsigned int GetArraySize() const { return arraySize; }
+  //! @copydoc ValueType::IsEqualTo()
+  virtual bool IsEqualTo(const ValueType *other) const;
 
-    //! @copydoc ValueType::GetValueTypeSpec()
-    virtual const ValueTypeSpec *GetValueTypeSpec() const override
-    {
-      return &typeSpec;
-    }
+  //! @copydoc ValueType::GetImplicitCastingOperator()
+  virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
+  {
+    throw EXCEPTION(NotImplementedException, "Not implemented yet for arrays.");
+  }
 
-    //! @copydoc ValueType::GetDefaultLLVMValue()
-    virtual llvm::Constant *GetDefaultLLVMValue() const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet!");
-    }
+  //! @copydoc ValueType::GetExplicitCastingOperator()
+  virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
+  {
+    throw EXCEPTION(NotImplementedException, "Not implemented yet for arrays.");
+  }
 
-    //! @copydoc ValueType::IsEqualTo()
-    virtual bool IsEqualTo(const ValueType *other) const;
+  //! Stores all array types used so far, so that we can reuse them.
+  static std::unordered_map<const ValueType *, ArrayType *> usedArrayTypes;
 
-    //! @copydoc ValueType::GetImplicitCastingOperator()
-    virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet for arrays.");
-    }
-
-    //! @copydoc ValueType::GetExplicitCastingOperator()
-    virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-    {
-      throw EXCEPTION(NotImplementedException, "Not implemented yet for arrays.");
-    }
-
-    //! Stores all array types used so far, so that we can reuse them.
-    static std::unordered_map<const ValueType*, ArrayType*> usedArrayTypes;
-
-    /**
-    * Retrieves an array type whose elements type is the given value type.
-    * @note This function is guaranteed to retrieve the same object for the same
-    * elements type and array size so that we can easily compare types by
-    * comparing their memory location.
-    * @param[in] elementsType The type of the elements of this array type.
-    * @param[in] arraySize The number of elements in this array type.
-    * @return The array type.
-    */
-    static ArrayType *Get(const ValueType *elementsType, int arraySize);
-  };
+  /**
+  * Retrieves an array type whose elements type is the given value type.
+  * @note This function is guaranteed to retrieve the same object for the same
+  * elements type and array size so that we can easily compare types by
+  * comparing their memory location.
+  * @param[in] elementsType The type of the elements of this array type.
+  * @param[in] arraySize The number of elements in this array type.
+  * @return The array type.
+  */
+  static ArrayType *Get(const ValueType *elementsType, int arraySize);
+};
 }
 
 #endif // __ArrayType_h__

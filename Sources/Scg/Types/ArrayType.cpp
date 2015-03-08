@@ -1,12 +1,12 @@
 /**
- * @file Scg/Types/ArrayType.cpp
- *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
- *
- * @license This file is released under Alusus Public License, Version 1.0.
- * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
- */
+* @file Scg/Types/ArrayType.cpp
+*
+* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+*
+* @license This file is released under Alusus Public License, Version 1.0.
+* For details on usage and copying conditions read the full license in the
+* accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+*/
 //==============================================================================
 
 #include <prerequisites.h>
@@ -23,12 +23,12 @@
 
 namespace Scg
 {
-std::unordered_map<const ValueType*, ArrayType*> ArrayType::usedArrayTypes;
+std::unordered_map<const ValueType *, ArrayType *> ArrayType::usedArrayTypes;
 
 // TODO: We are calling Clone() because the passed type spec gets automatically
 // freed. Is there a better way to avoid extra memory allocation and free?
 ArrayType::ArrayType(const ValueType *elemsType, unsigned int size) :
-    typeSpec(const_cast<ValueTypeSpec*>(elemsType->GetValueTypeSpec()->Clone()), size),
+    typeSpec(const_cast<ValueTypeSpec *>(elemsType->GetValueTypeSpec()->Clone()), size),
     elementsType(elemsType),
     arraySize(size)
 {
@@ -38,7 +38,7 @@ ArrayType::ArrayType(const ValueType *elemsType, unsigned int size) :
   this->name = elementsType->GetName() +
       "[" + boost::lexical_cast<std::string>(arraySize) + "]";
   this->llvmType = llvm::ArrayType::get(
-      const_cast<llvm::Type*>(this->elementsType->GetLlvmType()), this->arraySize);
+      const_cast<llvm::Type *>(this->elementsType->GetLlvmType()), this->arraySize);
 }
 
 void ArrayType::InitCastingTargets() const
@@ -50,7 +50,7 @@ void ArrayType::InitCastingTargets() const
 
 bool ArrayType::IsEqualTo(const ValueType *other) const
 {
-  auto otherAsArray = dynamic_cast<const ArrayType*>(other);
+  auto otherAsArray = dynamic_cast<const ArrayType *>(other);
   if (otherAsArray == nullptr) {
     return false;
   }

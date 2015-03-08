@@ -1,12 +1,12 @@
 /**
- * @file Scg/Types/StructType.h
- *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
- *
- * @license This file is released under Alusus Public License, Version 1.0.
- * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
- */
+* @file Scg/Types/StructType.h
+*
+* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+*
+* @license This file is released under Alusus Public License, Version 1.0.
+* For details on usage and copying conditions read the full license in the
+* accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+*/
 //==============================================================================
 
 #ifndef __StructureType_h__
@@ -24,27 +24,28 @@ namespace Scg
 class DefineStruct;
 
 /**
- * Represents a structure type with custom fields.
- */
+* Represents a structure type with custom fields.
+*/
 class StructType : public ValueType
 {
   friend class DefineStruct;
+
   std::string name;
   ValueTypeNameArray fields;
   ValueTypeSpecByName typeSpec;
 
 protected:
   /**
-   * Constructs a new structure type.
-   * @param[in] name    The name of the structure.
-   */
+  * Constructs a new structure type.
+  * @param[in] name    The name of the structure.
+  */
   StructType(const std::string &name);
 
   /**
-   * Sets the fields of the structure.
-   * @param[in] fields  An array of (type ID, name) pairs specifying the
-   *                    fields of the structure.
-   */
+  * Sets the fields of the structure.
+  * @param[in] fields  An array of (type ID, name) pairs specifying the
+  *                    fields of the structure.
+  */
   void SetFields(const ValueTypeNameArray &fields);
 
 protected:
@@ -53,42 +54,50 @@ protected:
 
 public:
   //! @copydoc ValueType::GetName()
-  virtual const std::string GetName() const { return name; }
+  virtual const std::string GetName() const
+  {
+    return name;
+  }
 
   /**
-   * Retrieves the fields of the structure as an array of type-name pairs.
-   * @return The array of type-name pairs defining the fields of the structure.
-   */
-  const ValueTypeNameArray &GetFields() const { return fields; }
+  * Retrieves the fields of the structure as an array of type-name pairs.
+  * @return The array of type-name pairs defining the fields of the structure.
+  */
+  const ValueTypeNameArray &GetFields() const
+  {
+    return fields;
+  }
 
   /**
-   * Retrieves the type-name pair of the field having the giver index.
-   * @param[in] name  The index of the field.
-   * @return Type-name pair.
-   */
+  * Retrieves the type-name pair of the field having the giver index.
+  * @param[in] name  The index of the field.
+  * @return Type-name pair.
+  */
   const ValueTypeNamePair GetFieldByIndex(int index) const
-  { return fields[index]; }
+  {
+    return fields[index];
+  }
 
   /**
-   * Retrieves the type-name pair of the field having the giver name.
-   * @param[in] name  The name of the field.
-   * @return Type-name pair.
-   */
+  * Retrieves the type-name pair of the field having the giver name.
+  * @param[in] name  The name of the field.
+  * @return Type-name pair.
+  */
   const ValueTypeNamePair GetFieldByName(const std::string &name)
   {
     return GetFieldByIndex(GetFieldIndex(name));
   }
 
   /**
-   * Finds the index of the field having the given name.
-   * @param[in] name  The name of the field.
-   * @return The index of the field in the structure.
-   */
+  * Finds the index of the field having the given name.
+  * @param[in] name  The name of the field.
+  * @return The index of the field in the structure.
+  */
   int GetFieldIndex(const std::string &name)
   {
     for (auto nameType = fields.begin(); nameType != fields.end(); nameType++)
       if ((*nameType).second == name)
-        return (int)(nameType - fields.begin());
+        return (int) (nameType - fields.begin());
     return -1;
   }
 

@@ -53,17 +53,11 @@ Expression::CodeGenerationStage BinaryOperator::GenerateCode()
   switch (this->opType)
   {
   case ADD:
-    this->llvmValue = irb->CreateAdd(lhs, rhs);
-    break;
   case SUBTRACT:
-    this->llvmValue = irb->CreateSub(lhs, rhs);
-    break;
   case MULTIPLY:
-    this->llvmValue = irb->CreateMul(lhs, rhs);
-    break;
   case DIVISION:
-    this->llvmValue = irb->CreateSDiv(lhs, rhs);
-    break;
+    throw EXCEPTION(RetiredCodeException, "Use __add, __sub, __mul, __div instead.");
+
   case GREATERTHAN:
     this->llvmValue = irb->CreateICmpSGT(lhs, rhs);
     break;

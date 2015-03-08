@@ -23,6 +23,11 @@ using namespace llvm;
 
 namespace Scg
 {
+const ValueTypeSpec *AssignmentOperator::GetValueTypeSpec() const
+{
+  return GetRHS()->GetValueTypeSpec();
+}
+
 Expression::CodeGenerationStage AssignmentOperator::GenerateCode()
 {
   BLOCK_CHECK;

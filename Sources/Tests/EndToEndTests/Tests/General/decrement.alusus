@@ -1,0 +1,21 @@
+import "common.alusus";
+
+def Increment : module {
+  def main : function() {
+    def i : int;
+    i := 0;
+    def j : int;
+    j := --i;
+    def k : int;
+    k := --i;
+    printInt(i);
+    print("\n");
+    printInt(j);
+    print("\n");
+    printInt(k);
+    print("\n");
+    return 0;
+  }
+};
+
+run Increment;
