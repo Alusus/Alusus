@@ -46,6 +46,26 @@ llvm::Constant *DoubleType::GetLlvmConstant(double value) const
       llvm::APFloat(value));
 }
 
+llvm::Value *DoubleType::CreateCastInst(llvm::IRBuilder<> *irb,
+    llvm::Value *value, const ValueType *targetType) const
+{
+  if (targetType == IntegerType::Get()) {
+    // The operand is a float, so we need to use FPTrunc instruction.
+    return irb->CreateFPToSI(value,
+        IntegerType::Get()->Get()->GetLlvmType());
+  } else if (targetType == FloatType::Get()) {
+    // The operand is a float, so we need to use FPTrunc instruction.
+    return irb->CreateFPTrunc(value,
+        FloatType::Get()->Get()->GetLlvmType());
+  } else if (targetType == DoubleType::Get()) {
+    // Target type is the same type, just return the input.
+    return value;
+  } else {
+    // TODO: Improve the message.
+    throw EXCEPTION(InvalidCastException, "Invalid cast.");
+  }
+}
+
 CastingOperator *DoubleType::GetImplicitCastingOperator(
     const ValueType *targetType, Expression *expr) const
 {

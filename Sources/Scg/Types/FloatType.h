@@ -92,19 +92,17 @@ public:
         nullptr;
   }
 
+  //! @copydoc ValueType::CreateCastInst()
+  virtual llvm::Value *CreateCastInst(llvm::IRBuilder<> *irb,
+      llvm::Value *value, const ValueType *targetType) const override;
+
   //! @copydoc ValueType::GetImplicitCastingOperator()
-  virtual CastingOperator *
-      GetImplicitCastingOperator(
+  virtual CastingOperator *GetImplicitCastingOperator(
       const ValueType *targetType, Expression *expr) const;
 
   //! @copydoc ValueType::GetExplicitCastingOperator()
-  virtual CastingOperator
-      *
-      GetExplicitCastingOperator(
-      const
-
-      ValueType *
-      targetType, Expression *expr) const;
+  virtual CastingOperator *GetExplicitCastingOperator(
+      const ValueType * targetType, Expression *expr) const;
 
   static FloatType *Get();
 };

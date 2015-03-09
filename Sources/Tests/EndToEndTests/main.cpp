@@ -215,6 +215,8 @@ int main(int argc, char **argv)
   resultFilename += "AlususEndToEndTest.txt";
 
   auto ret = EXIT_SUCCESS;
+  if (!RunEndToEndTests("./Tests/Development"))
+    ret = EXIT_FAILURE;
   if (!RunEndToEndTests("./Tests/General"))
     ret = EXIT_FAILURE;
   if (!RunEndToEndTests("./Tests/Arabic"))

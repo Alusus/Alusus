@@ -73,6 +73,10 @@ public:
     return dynamic_cast<const DoubleType *>(other) != nullptr;
   }
 
+  //! @copydoc ValueType::CreateCastInst()
+  virtual llvm::Value *CreateCastInst(llvm::IRBuilder<> *irb,
+      llvm::Value *value, const ValueType *targetType) const override;
+
   //! @copydoc ValueType::GetImplicitCastingOperator()
   virtual CastingOperator *GetImplicitCastingOperator(
       const ValueType *targetType, Expression *expr) const;

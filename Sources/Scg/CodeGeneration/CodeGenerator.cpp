@@ -105,8 +105,9 @@ namespace Scg
         if (item == 0) {
             throw EXCEPTION(SyntaxErrorException, "Invalid object type in def command.");
         }
-        auto statement = GenerateStatement(item);
-        if (statement != 0) module->AppendExpression(statement);
+        for (auto stat : GenerateStatement(item)) {
+          module->AppendExpression(stat);
+        }
     }
 
     return module;
@@ -114,7 +115,7 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  Expression *CodeGenerator::GenerateStatement(SharedPtr<IdentifiableObject> const &item)
+  ExpressionArray CodeGenerator::GenerateStatement(SharedPtr<IdentifiableObject> const &item)
   {
     auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
     if (metadata == 0) {
@@ -124,22 +125,22 @@ namespace Scg
     if (id == defId)
       return GenerateDefine(item);
     else if (id == returnId)
-      return GenerateReturn(item);
+      return {GenerateReturn(item)};
     else if (id == ifId)
-      return GenerateIfStatement(item);
+      return {GenerateIfStatement(item)};
     else if (id == forId)
-      return GenerateForStatement(item);
+      return {GenerateForStatement(item)};
     else if (id == whileId)
-      return GenerateWhileStatement(item);
+      return {GenerateWhileStatement(item)};
     else if (id == linkId)
     {
       FunctionLinkExpression funcLink(this, item);
       auto declExtFunc = funcLink.ToDeclareExtFunction();
       declExtFunc->setSourceLocation(metadata->getSourceLocation());
-      return declExtFunc;
+      return {declExtFunc};
     }
     else
-      return GenerateExpression(item);
+      return {GenerateExpression(item)};
   }
 
   //----------------------------------------------------------------------------
@@ -150,7 +151,9 @@ namespace Scg
     for (auto i = 0; i < list->getCount(); i++)
     {
       auto element = list->getShared(i);
-      blockExprs.push_back(GenerateStatement(element));
+      for (auto stat : GenerateStatement(element)) {
+        blockExprs.push_back(stat);
+      }
     }
 
     return new Block(blockExprs);
@@ -169,7 +172,9 @@ namespace Scg
     IdentifiableObject *set = seeker.tryGet(setReference.get(), item.get());
     if (set == 0) {
       ExpressionArray blockExprs;
-      blockExprs.push_back(GenerateStatement(item));
+      for (auto stat : GenerateStatement(item)) {
+        blockExprs.push_back(stat);
+      }
       // Creates the block representing the inner set and sets its line and
       // column number.
       auto block = new Block(blockExprs);
@@ -185,7 +190,7 @@ namespace Scg
 
   //----------------------------------------------------------------------------
 
-  Expression *CodeGenerator::GenerateDefine(SharedPtr<IdentifiableObject> const &item)
+  ExpressionArray CodeGenerator::GenerateDefine(SharedPtr<IdentifiableObject> const &item)
   {
     // Def -- [LIST]:
     //  Expression.Exp -- [LIST]:
@@ -208,7 +213,7 @@ namespace Scg
     // Get the name of the definition.
     static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
       STR("1~where(prodId=Expression.Exp)."
-          "0~where(prodId=Expression.LowerLinkExp)."
+          "0." //~where(prodId=Expression.LowerLinkExp | prodId=Expression.AssignmentExp)."
           "0~where(prodId=Subject.Subject1)."
           "0~where(prodId=Subject.Parameter)"),
       ReferenceUsageCriteria::MULTI_DATA);
@@ -217,14 +222,41 @@ namespace Scg
       this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                  STR("A 'def' command needs a definition name."),
                                  STR("SCG1002"), 1, itemMetadata->getSourceLocation()));
-      return 0;
+      return {};
     }
     auto name = this->TranslateAliasedName(nameToken->getText().c_str());
 
     // Get the defined (after the colon).
+
+    static SharedPtr<Reference> defOrAssignReference = ReferenceParser::parseQualifier(
+      STR("1~where(prodId=Expression.Exp)."
+          "0"), ReferenceUsageCriteria::MULTI_DATA);
+    auto defOrAssign = seeker.tryGet(defOrAssignReference.get(), item.get());
+    auto defOrAssignMetadata = defOrAssign != nullptr ?
+        defOrAssign->getInterface<ParsingMetadataHolder>() :
+        nullptr;
+    if (defOrAssignMetadata == nullptr) {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+          STR("Invalid 'def' command."),
+          STR("SCG1004"), 1, itemMetadata->getSourceLocation(),
+          nameToken->getText().c_str()));
+      return {};
+    }
+    auto isAssignment = false;
+    if (defOrAssignMetadata->getProdId() == assignmentExpId) {
+      isAssignment = true;
+    } else if (defOrAssignMetadata->getProdId() == lowerLinkExpId) {
+    } else {
+      this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
+          STR("Invalid 'def' command."),
+          STR("SCG1004"), 1, itemMetadata->getSourceLocation(),
+          nameToken->getText().c_str()));
+      return {};
+    }
+
     static SharedPtr<Reference> defReference = ReferenceParser::parseQualifier(
       STR("1~where(prodId=Expression.Exp)."
-          "0~where(prodId=Expression.LowerLinkExp)."
+          "0." //~where(prodId=Expression.LowerLinkExp)."
           "2"), ReferenceUsageCriteria::MULTI_DATA);
     auto def = seeker.tryGet(defReference.get(), item.get());
     ParsingMetadataHolder *defMetadata = def==0 ? 0 : def->getInterface<ParsingMetadataHolder>();
@@ -235,31 +267,32 @@ namespace Scg
                                  STR("A 'def' command needs a definition body"),
                                  STR("SCG1003"), 1, itemMetadata->getSourceLocation(),
                                  nameToken->getText().c_str()));
-      return 0;
+      return {};
     }
 
     if (defMetadata->getProdId() == functionalExpId)
       // Defining a variable
-      return GenerateDefineVariable(name, getSharedPtr(def));
+      return GenerateDefineVariable(name, getSharedPtr(def), isAssignment);
     else if (defMetadata->getProdId() == subjectId)
     {
       auto routeData = static_cast<ParsedRoute*>(def)->getData();
       auto routeMetadata = routeData->getInterface<ParsingMetadataHolder>();
-      if (routeMetadata->getProdId() == parameterId)
+      if (routeMetadata->getProdId() == parameterId ||
+          routeMetadata->getProdId() == literalId) {
         // Defining a variable
-        return GenerateDefineVariable(name, routeData);
-      else if (routeMetadata->getProdId() == functionId)
+        return GenerateDefineVariable(name, routeData, isAssignment);
+      } else if (routeMetadata->getProdId() == functionId)
         // Defining a function
-        return GenerateDefineFunction(name, routeData);
+        return ExpressionArray({GenerateDefineFunction(name, routeData)});
       else if (routeMetadata->getProdId() == structureId)
         // Defining a structure
-        return GenerateDefineStructure(name, routeData);
+        return ExpressionArray({GenerateDefineStructure(name, routeData)});
       else {
         this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                    STR("Invalid def command."),
                                    STR("SCG1004"), 1, itemMetadata->getSourceLocation(),
                                    nameToken->getText().c_str()));
-        return 0;
+        return ExpressionArray();
       }
     }
     else {
@@ -267,24 +300,39 @@ namespace Scg
                                  STR("Invalid def command."),
                                  STR("SCG1004"), 1, itemMetadata->getSourceLocation(),
                                  nameToken->getText().c_str()));
-      return 0;
+      return ExpressionArray();
     }
   }
 
   //----------------------------------------------------------------------------
 
-  DefineVariable *CodeGenerator::GenerateDefineVariable(Char const *name,
-      SharedPtr<IdentifiableObject> const &expr)
+  ExpressionArray CodeGenerator::GenerateDefineVariable(Char const *name,
+      SharedPtr<IdentifiableObject> const &expr, bool isAssignment)
   {
-    // Parses the variable type.
-    auto type = ParseVariableType(expr);
-    // Creates the DefineVariable instruction and sets its line and column numbers.
-    auto defVar = new DefineVariable(type, name);
-    auto exprMetadata = expr->getInterface<ParsingMetadataHolder>();
-    if (exprMetadata != 0) {
-      defVar->setSourceLocation(exprMetadata->getSourceLocation());
+    if (isAssignment) {
+      auto value = GenerateExpression(expr);
+      auto value2 = GenerateExpression(expr);
+      auto defVar = new DefineVariable(value2, name);
+      auto assign = new AssignmentOperator(
+          new Content(new PointerToVariable(name)), value);
+
+      auto exprMetadata = expr->getInterface<ParsingMetadataHolder>();
+      if (exprMetadata != nullptr) {
+        defVar->setSourceLocation(exprMetadata->getSourceLocation());
+        assign->setSourceLocation(exprMetadata->getSourceLocation());
+      }
+      return {defVar, assign};
+    } else {
+      // Parses the variable type.
+      auto type = ParseVariableType(expr);
+      // Creates the DefineVariable instruction and sets its line and column numbers.
+      auto defVar = new DefineVariable(type, name);
+      auto exprMetadata = expr->getInterface<ParsingMetadataHolder>();
+      if (exprMetadata != 0) {
+        defVar->setSourceLocation(exprMetadata->getSourceLocation());
+      }
+      return {defVar};
     }
-    return defVar;
   }
 
   //----------------------------------------------------------------------------

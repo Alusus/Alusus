@@ -40,7 +40,11 @@ namespace Scg
     /**
      * Constructs an empty block.
      */
-    Block() : llvmBasicBlock(0) , irBuilder(0) {}
+    Block() : llvmBasicBlock(0) , irBuilder(0)
+    {
+      this->preserveChildrenCodeGenerationOrder = true;
+
+    }
 
     /**
      * Constructs an empty block.

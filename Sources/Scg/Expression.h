@@ -96,6 +96,7 @@ namespace Scg
     CodeGenerationStage childrenCodeGenStage = CodeGenerationStage::None;
     //! The source location at which this expression was produced.
     Core::Data::SourceLocation sourceLocation;
+    bool preserveChildrenCodeGenerationOrder = false;
 
   protected:
     //! The LLVM Value object generated during code generation, or @c nullptr.

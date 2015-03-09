@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/DefineVariable.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2015 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -30,6 +30,7 @@ class DefineVariable : public Instruction
 {
   //! The name of the type of the variable to define.
   const ValueTypeSpec *typeSpec;
+  Expression *value;
   //! The name of the variable to define.
   std::string name;
   //! The variable defined by this instruction (set during code generation.)
@@ -46,10 +47,22 @@ public:
    *                      in the heap, and will be freed by this object.
    * @param[in] name      The name of the variable to define.
    */
-  DefineVariable(const ValueTypeSpec *typeSpec , Char const *name)
+  DefineVariable(const ValueTypeSpec *typeSpec , Core::Basic::Char const *name)
     : typeSpec(typeSpec)
+    , value(nullptr)
     , name(name)
   {
+  }
+
+  /**
+  *
+  */
+  DefineVariable(Expression *value, Core::Basic::Char const *name)
+  : value(value)
+  , typeSpec(nullptr)
+  , name(name)
+  {
+    this->children.push_back(value);
   }
 
   /**

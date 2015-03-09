@@ -48,8 +48,8 @@ public:
   * @param[in] function The function to be called to create the LLVM
   *                     instruction to execute this function.
   */
-  BasicUnaryBuiltInFunction(const Char *name, const Char *retType,
-      const Char *argType, Callback function);
+  BasicUnaryBuiltInFunction(const Core::Basic::Char *name, const Core::Basic::Char *retType,
+      const Core::Basic::Char *argType, Callback function);
   ~BasicUnaryBuiltInFunction();
 
   //! @copydoc Function::GetName()

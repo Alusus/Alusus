@@ -16,11 +16,11 @@
 
 // SCG files
 #include <BuiltInFunctions/BasicUnaryBuiltInFunction.h>
-#include <Types/DoubleType.h>
-#include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
+using namespace Core::Basic;
+
 BasicUnaryBuiltInFunction::BasicUnaryBuiltInFunction(const Char *name, const Char *retType,
       const Char *argType, BasicUnaryBuiltInFunction::Callback function)
 : name(name)

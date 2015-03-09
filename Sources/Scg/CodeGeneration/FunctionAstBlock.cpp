@@ -67,7 +67,9 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
     auto bodyAstBlock = ListExpression(gen, bodyRoot);
     ExpressionArray bodyStats;
     for (auto i = 0; i < bodyAstBlock.GetItemCount(); i++)
-      bodyStats.push_back(gen->GenerateStatement(bodyAstBlock.GetItem(i)));
+      for (auto stat : gen->GenerateStatement(bodyAstBlock.GetItem(i))) {
+        bodyStats.push_back(stat);
+      }
     this->body = new Block(bodyStats);
   }
   else

@@ -15,12 +15,12 @@
 #include <llvm/IR/IRBuilder.h>
 
 // SCG files
-#include "BasicBinaryBuiltInFunction.h"
-#include <Types/DoubleType.h>
-#include <Types/ValueTypeSpec.h>
+#include <BuiltInFunctions/BasicBinaryBuiltInFunction.h>
 
 namespace Scg
 {
+using namespace Core::Basic;
+
 BasicBinaryBuiltInFunction::BasicBinaryBuiltInFunction(const Char *name, const Char *retType,
       const Char *arg1Type, const Char *arg2Type, BasicBinaryBuiltInFunction::Callback function)
 : name(name)

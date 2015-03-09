@@ -128,9 +128,9 @@ namespace Scg
     Module *GenerateModule(const std::string &name, const Core::Basic::SharedPtr<Core::Data::Module> &srcModule);
     Block *GenerateSet(const Core::Basic::SharedPtr<Core::Data::ParsedList> &list);
     Block *GenerateInnerSet(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
-    Expression *GenerateStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
-    Expression *GenerateDefine(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
-    DefineVariable *GenerateDefineVariable(Core::Basic::Char const *name, const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+    ExpressionArray GenerateStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+    ExpressionArray GenerateDefine(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+    ExpressionArray GenerateDefineVariable(Core::Basic::Char const *name, const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item, bool isAssignment);
     DefineFunction *GenerateDefineFunction(Core::Basic::Char const *name, const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &expr);
     DefineStruct *GenerateDefineStructure(Core::Basic::Char const *name, const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &expr);
 

@@ -31,6 +31,7 @@ namespace Scg
     : llvmBasicBlock(0)
     , irBuilder(0)
   {
+    this->preserveChildrenCodeGenerationOrder = true;
     this->children = body;
   }
 

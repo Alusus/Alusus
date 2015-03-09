@@ -62,9 +62,14 @@ namespace Scg
         this->childrenCodeGenStage == CodeGenerationStage::PreCodeGeneration) {
       // The expression finished pre-code generation but the children didn't.
       this->childrenCodeGenStage = CodeGenerationStage::CodeGeneration;
-      for (auto expr : this->children)
+      for (auto expr : this->children) {
         this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
             expr->CallPreGenerateCode());
+        if (this->childrenCodeGenStage == CodeGenerationStage::PreCodeGeneration &&
+            this->preserveChildrenCodeGenerationOrder) {
+          break;
+        }
+      }
     }
 
     return std::min(this->codeGenStage, this->childrenCodeGenStage);
