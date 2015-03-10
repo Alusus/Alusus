@@ -40,8 +40,10 @@ Expression::CodeGenerationStage Content::GenerateCode()
   this->pointer = this->expression->GetGeneratedLlvmValue();
   // TODO: generatedLlvmValue is a duplicate of llvmPointer. Should we just use
   // generatedLlvmValue?
-  this->generatedLlvmValue = this->loadInst =
-  		GetBlock()->GetIRBuilder()->CreateLoad(this->pointer);
+  if (this->pointer != 0) {
+    this->generatedLlvmValue = this->loadInst =
+          GetBlock()->GetIRBuilder()->CreateLoad(this->pointer);
+  }
 
   return Expression::GenerateCode();
 }

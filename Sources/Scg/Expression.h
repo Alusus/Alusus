@@ -118,6 +118,11 @@ namespace Scg
      */
     virtual ~Expression();
 
+    Core::Data::SourceLocation const& GetSourceLocation() const
+    {
+      return this->sourceLocation;
+    }
+
     //@{
     /**
      * Returns a pointer to the program containing this expression.

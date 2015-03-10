@@ -51,8 +51,10 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
   if (true /*statementList != 0*/) {
     // Execute a list of statements.
     try {
+      Word prevBuildMsgCount = state->getBuildMsgStore()->getCount();
       LlvmContainer::Initialize();
       Program program;
+      program.SetBuildMsgStore(state->getBuildMsgStore());
       auto *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).io_cast_get<Data::Module>();
       for (auto i = 0; i < rootModule->getCount(); i++) {
         auto statList = rootModule->getShared(i).io_cast<Data::Module>();
@@ -60,9 +62,18 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
         Module *module = generator.GenerateModule(name->getText(), statList);
         program.AddModule(module);
       }
-      outStream << STR("---------------------- IR Code -----------------------\n");
-      outStream << program.Compile();
-      outStream << STR("------------------------------------------------------\n");
+      Str ir = program.Compile();
+      if (state->getBuildMsgStore()->getCount() == prevBuildMsgCount) {
+        // No errors were found, so proceed to build.
+        outStream << STR("---------------------- IR Code -----------------------\n");
+        outStream << ir;
+        outStream << STR("------------------------------------------------------\n");
+      } else {
+        // Some errors were found, so we'll not execute.
+        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(STR("Couldn't build module due to build errors"),
+                                                                        STR("SCG1001"), 1, name->getSourceLocation(),
+                                                                        name->getText().c_str()));
+      }
       LlvmContainer::Finalize();
     } catch (Core::Basic::Exception &e) {
       // TODO: Use the source code position once they are added to the module definition.

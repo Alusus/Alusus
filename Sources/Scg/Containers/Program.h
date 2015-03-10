@@ -46,6 +46,8 @@ class Program
   //! A store containing built-in functions.
   FunctionStore builtInFunctions;
 
+  Core::Processing::BuildMsgStore *buildMsgStore = nullptr;
+
 public:
   /**
    * Class constructor.
@@ -72,6 +74,9 @@ private:
 public:
   const ModuleArray &GetModules() const { return modules; }
   ModuleArray &GetModules() { return modules; }
+
+  void SetBuildMsgStore(Core::Processing::BuildMsgStore *store) { this->buildMsgStore = store; }
+  Core::Processing::BuildMsgStore* GetBuildMsgStore() { return this->buildMsgStore; }
 
   //@{
   /**

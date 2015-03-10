@@ -11,6 +11,7 @@
 
 // Scg header files
 #include <Expression.h>
+#include <Containers/Program.h>
 
 namespace Scg
 {
@@ -58,19 +59,28 @@ namespace Scg
     // function to call. NOTE that we need to ensure that all expressions we
     // have take the responsibility themselves of checking whether the parent
     // has finished pre-code generation step if they depend on it.
+    Bool errors = false;
     if (/*this->codeGenStage == CodeGenerationStage::CodeGeneration &&*/
         this->childrenCodeGenStage == CodeGenerationStage::PreCodeGeneration) {
       // The expression finished pre-code generation but the children didn't.
       this->childrenCodeGenStage = CodeGenerationStage::CodeGeneration;
       for (auto expr : this->children) {
-        this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
-            expr->CallPreGenerateCode());
+        try {
+          this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
+              expr->CallPreGenerateCode());
+        } catch (Core::Basic::Exception &e) {
+          GetModule()->GetProgram()->GetBuildMsgStore()->add(
+            std::make_shared<Core::Processing::CustomBuildMsg>(e.getErrorMessage().c_str(),
+                                                               STR("SCG1030"), 1, expr->GetSourceLocation()));
+          errors = true;
+        }
         if (this->childrenCodeGenStage == CodeGenerationStage::PreCodeGeneration &&
             this->preserveChildrenCodeGenerationOrder) {
           break;
         }
       }
     }
+    if (errors) return CodeGenerationStage::None;
 
     return std::min(this->codeGenStage, this->childrenCodeGenStage);
   }
@@ -94,12 +104,20 @@ namespace Scg
     // code for the children like in the IfStatement and ForStatement instructions.
     // In those instructions, we override CallGenerateCode() and make it call
     // GenerateCode() only, and then we do what we want in GenerateCode().
+    Bool errors = false;
     if (this->childrenCodeGenStage == CodeGenerationStage::CodeGeneration) {
       // The expression finished code generation but the children didn't.
       this->childrenCodeGenStage = CodeGenerationStage::PostCodeGeneration;
       for (auto expr : this->children) {
-        this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
-            expr->CallGenerateCode());
+        try {
+          this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
+              expr->CallGenerateCode());
+        } catch (Core::Basic::Exception &e) {
+          GetModule()->GetProgram()->GetBuildMsgStore()->add(
+            std::make_shared<Core::Processing::CustomBuildMsg>(e.getErrorMessage().c_str(),
+                                                               STR("SCG1030"), 1, expr->GetSourceLocation()));
+          errors = true;
+        }
         if (expr->IsTermInstGenerated())
           // If an instruction that terminates execution of a block of code, e.g.
           // return statement, is generated, then we don't try to generate the
@@ -107,6 +125,8 @@ namespace Scg
           break;
       }
     }
+    if (errors) return CodeGenerationStage::None;
+
     if (this->childrenCodeGenStage != CodeGenerationStage::PostCodeGeneration) {
       return CodeGenerationStage::CodeGeneration;
     }
@@ -129,13 +149,23 @@ namespace Scg
         this->childrenCodeGenStage == CodeGenerationStage::None)
       return CodeGenerationStage::None;
 
+    Bool errors = false;
     if (this->childrenCodeGenStage == CodeGenerationStage::PostCodeGeneration) {
       // The children didn't yet finish post-code generation.
       this->childrenCodeGenStage = CodeGenerationStage::None;
-      for (auto expr : this->children)
-        this->childrenCodeGenStage = std::max(this->childrenCodeGenStage,
-            expr->CallPostGenerateCode());
+      for (auto expr : this->children) {
+        try {
+          this->childrenCodeGenStage = std::max(this->childrenCodeGenStage,
+              expr->CallPostGenerateCode());
+        } catch (Core::Basic::Exception &e) {
+          GetModule()->GetProgram()->GetBuildMsgStore()->add(
+            std::make_shared<Core::Processing::CustomBuildMsg>(e.getErrorMessage().c_str(),
+                                                               STR("SCG1030"), 1, expr->GetSourceLocation()));
+          errors = true;
+        }
+      }
     }
+    if (errors) return CodeGenerationStage::None;
     if (this->childrenCodeGenStage == CodeGenerationStage::None &&
         this->codeGenStage == CodeGenerationStage::PreCodeGeneration) {
       // The children finished post-code generation but the expression didn't.

@@ -55,6 +55,7 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
       Word prevBuildMsgCount = state->getBuildMsgStore()->getCount();
       LlvmContainer::Initialize();
       Program program;
+      program.SetBuildMsgStore(state->getBuildMsgStore());
       auto *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).io_cast_get<Data::Module>();
       for (auto i = 0; i < rootModule->getCount(); i++) {
         auto statList = rootModule->getShared(i).io_cast<Data::Module>();

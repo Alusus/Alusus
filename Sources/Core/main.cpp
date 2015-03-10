@@ -30,6 +30,9 @@ namespace Core
  */
 void printBuildMsg(const SharedPtr<Processing::BuildMsg> &msg)
 {
+  // We will only print the error message if we have a source location for it.
+  if (msg->getSourceLocation().filename == 0) return;
+
   // Print severity.
   switch (msg->getSeverity()) {
     case 0: outStream << STR("BLOCKER "); break;
