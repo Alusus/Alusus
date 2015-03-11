@@ -471,25 +471,37 @@ void Parser::processState(const Data::Token * token, StateIterator si)
       (*si)->setProcessingStatus(ParserProcessingStatus::COMPLETE);
       break;
     }
-    Data::Term *term = (*si)->refTopTermLevel().getTerm();
-    if (term->isA<Data::TokenTerm>()) {
-      this->processTokenTerm(token, si);
-    } else if (term->isA<Data::MultiplyTerm>()) {
-      this->processMultiplyTerm(token, si);
-    } else if (term->isA<Data::AlternateTerm>()) {
-      this->processAlternateTerm(token, si);
-    } else if (term->isA<Data::ConcatTerm>()) {
-      this->processConcatTerm(token, si);
-    } else if (term->isA<Data::ReferenceTerm>()) {
-      this->processReferenceTerm(token, si);
+    // If the previous state was an error, it means we are waiting to sync. But we'll need to check
+    // block pairs so that we only sync when we are at the same block level rather than inside a
+    // deeper level.
+    if ((*si)->getPrevProcessingStatus() == ParserProcessingStatus::ERROR &&
+        this->matchErrorSyncBlockPairs(*si, token)) {
+      // We are in a deeper block (or just left that deeper block) so we'll assume we are still in
+      // error.
+      (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
     } else {
-      // Invalid state type.
-      StrStream stream;
-      stream << STR("Invalid term type while processing ")
-             << ID_GENERATOR->getDesc((*si)->refTopProdLevel().getProd()->getId())
-             << STR(". Found Term Type: ")
-             << term->getTypeInfo()->getTypeName();
-      throw EXCEPTION(GenericException, stream.str().c_str());
+      // We are not waiting to sync, or we are waiting to sync but we are already on the same block
+      // level, so we'll proceed with matching the token normally.
+      Data::Term *term = (*si)->refTopTermLevel().getTerm();
+      if (term->isA<Data::TokenTerm>()) {
+        this->processTokenTerm(token, si);
+      } else if (term->isA<Data::MultiplyTerm>()) {
+        this->processMultiplyTerm(token, si);
+      } else if (term->isA<Data::AlternateTerm>()) {
+        this->processAlternateTerm(token, si);
+      } else if (term->isA<Data::ConcatTerm>()) {
+        this->processConcatTerm(token, si);
+      } else if (term->isA<Data::ReferenceTerm>()) {
+        this->processReferenceTerm(token, si);
+      } else {
+        // Invalid state type.
+        StrStream stream;
+        stream << STR("Invalid term type while processing ")
+               << ID_GENERATOR->getDesc((*si)->refTopProdLevel().getProd()->getId())
+               << STR(". Found Term Type: ")
+               << term->getTypeInfo()->getTypeName();
+        throw EXCEPTION(GenericException, stream.str().c_str());
+      }
     }
     if ((*si)->getTermLevelCount()-1 <= (*si)->getTestUppermostLevel()) {
       // If we are moving deeper then any previously calculated uppermost level is no longer valid.
@@ -521,6 +533,9 @@ void Parser::processState(const Data::Token * token, StateIterator si)
           }
           this->popStateLevel(*si, false);
         }
+        // We need to match the error block pairs in case the error token itself is the opening of
+        // a block (a bracket for example).
+        this->matchErrorSyncBlockPairs(*si, token);
       }
       // Set the status back to IN_PROGRESS for now (we'll be setting it back to ERROR later).
       (*si)->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
@@ -593,20 +608,8 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
     if (matchId == UNKNOWN_ID && matchText == 0) {
       throw EXCEPTION(GenericException, STR("Token term's match id isn't assigned yet."));
     }
-    // We are checking this token.
-    Bool matched = true;
-    Data::String *matchStr = 0;
-    if (matchId != 0 && matchId != token->getId()) {
-      matched = false;
-    }
-    if (matched == true && matchText != 0) {
-      if (matchText->isA<Data::String>()) {
-        matchStr = static_cast<Data::String*>(matchText);
-        if (matchStr->getStr() != token->getText()) matched = false;
-      } else if (matchText->isA<Data::SharedMap>()) {
-        if (static_cast<Data::SharedMap*>(matchText)->findIndex(token->getText().c_str()) == -1) matched = false;
-      }
-    }
+    // Match this token with the token term.
+    Bool matched = this->matchToken(matchId, matchText, token);
     if (matched) {
       // Fire parsing handler event.
       this->getTopParsingHandler(*si)->onNewToken(this, *si, token);
@@ -620,6 +623,7 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
     if (!matched) {
       // Processing of this state has errored out.
       (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
+      Data::String *matchStr = io_cast<Data::String>(matchText);
       LOG(LogLevel::PARSER_MID, STR("Process State: Token failed (") <<
           ID_GENERATOR->getDesc(matchId) << STR(":") <<
           (matchStr==0?"":matchStr->get()) << STR(") -- Received (") <<
@@ -1162,30 +1166,19 @@ void Parser::testTokenTerm(const Data::Token *token, ParserState *state)
     if (matchId == UNKNOWN_ID && matchText == 0) {
       throw EXCEPTION(GenericException, STR("Token term's match id isn't assigned yet."));
     }
-    Bool matched = true;
-    Data::String *matchStr = 0;
-    if (matchId != 0 && matchId != token->getId()) {
-      matched = false;
-    }
-    if (matched == true && matchText != 0) {
-      if (matchText->isA<Data::String>()) {
-        matchStr = static_cast<Data::String*>(matchText);
-        if (matchStr->getStr() != token->getText()) matched = false;
-      } else if (matchText->isA<Data::SharedMap>()) {
-        if (static_cast<Data::SharedMap*>(matchText)->findIndex(token->getText().c_str()) == -1) matched = false;
-      }
-    }
+    Bool matched = this->matchToken(matchId, matchText, token);
     if (matched) {
       // Processing of this state is complete.
       state->setTopTermPosId(1|THIS_TESTING_PASS);
       state->setProcessingStatus(ParserProcessingStatus::COMPLETE);
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Matched for token (") <<
           ID_GENERATOR->getDesc(matchId) << STR(":") <<
-          (matchStr==0?"":matchStr->get()) << STR(")"));
+          token->getText() << STR(")"));
     }
     if (!matched) {
       // Processing of this state has errored out.
       state->setProcessingStatus(ParserProcessingStatus::ERROR);
+      Data::String *matchStr = io_cast<Data::String>(matchText);
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failed for token (") <<
           ID_GENERATOR->getDesc(matchId) << STR(":") <<
           (matchStr==0?"":matchStr->get()) << STR(") -- Received (") <<
@@ -1769,6 +1762,69 @@ Bool Parser::isDefinitionInUse(Data::SymbolDefinition *definition) const
     }
   }
   return false;
+}
+
+
+Bool Parser::matchToken(Word matchId, IdentifiableObject *matchText, const Data::Token *token)
+{
+  Bool matched = true;
+  Data::String *matchStr = 0;
+  if (matchId != 0 && matchId != token->getId()) {
+    matched = false;
+  }
+  if (matched == true && matchText != 0) {
+    if (matchText->isA<Data::String>()) {
+      matchStr = static_cast<Data::String*>(matchText);
+      if (matchStr->getStr() != token->getText()) matched = false;
+    } else if (matchText->isA<Data::SharedMap>()) {
+      if (static_cast<Data::SharedMap*>(matchText)->findIndex(token->getText().c_str()) == -1) matched = false;
+    }
+  }
+  return matched;
+}
+
+
+Bool Parser::matchErrorSyncBlockPairs(ParserState *state, const Data::Token *token)
+{
+  if (state->getErrorSyncBlockPairs() == 0) return false;
+  // TODO: To improve performance, validate the error sync pairs once per grammar, rather than
+  //       on each token received.
+  // The odd entries in the match pairs list are for block start, the even entries are for block end.
+  for (Int i = 0; i < state->getErrorSyncBlockPairs()->getCount(); i += 2) {
+    Data::TokenTerm *term = io_cast<Data::TokenTerm>(state->getErrorSyncBlockPairs()->get(i));
+    if (term == 0) {
+      throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
+                                            "Pair entries must be of type TokenTerm."));
+    }
+    Data::Integer *matchId = term->getTokenId().io_cast_get<Data::Integer>();
+    IdentifiableObject *matchText = term->getTokenText().get();
+    if (this->matchToken(matchId, matchText, token)) {
+      state->getErrorSyncBlockStack().push_back(i);
+      return true;
+    }
+  }
+
+  // No match for block opening was found. If we are not already inside a block, then we don't
+  // need to check block end.
+  if (state->getErrorSyncBlockStack().size() == 0) return false;
+
+  // We are inside a block already. Let's check block end.
+  Int closingIndex = state->getErrorSyncBlockStack().back()+1;
+  if (closingIndex >= state->getErrorSyncBlockPairs()->getCount()) {
+    throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
+                                          "There must be an even number of entries in this list."));
+  }
+  Data::TokenTerm *term = io_cast<Data::TokenTerm>(state->getErrorSyncBlockPairs()->get(closingIndex));
+  if (term == 0) {
+    throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
+                                          "Pair entries must be of type TokenTerm."));
+  }
+  Data::Integer *matchId = term->getTokenId().io_cast_get<Data::Integer>();
+  IdentifiableObject *matchText = term->getTokenText().get();
+  if (this->matchToken(matchId, matchText, token)) {
+    state->getErrorSyncBlockStack().pop_back();
+  }
+  return true;
 }
 
 

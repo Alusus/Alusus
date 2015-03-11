@@ -26,7 +26,8 @@ ParserState::ParserState() :
   topProdLevelCache(0),
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
-  tokensToLive(-1)
+  tokensToLive(-1),
+  errorSyncBlockPairs(0)
 {
   this->grammarContext.setRoot(0);
   this->grammarContext.setStack(&this->variableStack);
@@ -47,7 +48,8 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
-  tokensToLive(-1)
+  tokensToLive(-1),
+  errorSyncBlockPairs(0)
 {
   this->termStack.resize(0);
   this->prodStack.resize(0);
@@ -70,7 +72,8 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
-  tokensToLive(-1)
+  tokensToLive(-1),
+  errorSyncBlockPairs(0)
 {
   this->termStack.resize(0);
   this->prodStack.resize(0);
@@ -98,6 +101,7 @@ void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevel
   this->termStack.clear();
   this->dataStack.clear();
   this->prodStack.clear();
+  this->errorSyncBlockStack.clear();
   this->variableStack.initialize(maxVarNameLength, reservedVarCount, reservedVarLevelCount);
   this->grammarContext.setRoot(rootModule);
   this->grammarContext.setStack(&this->variableStack);
@@ -121,6 +125,7 @@ void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevel
   this->termStack.clear();
   this->dataStack.clear();
   this->prodStack.clear();
+  this->errorSyncBlockStack.clear();
   this->variableStack.initialize(maxVarNameLength, reservedVarCount, reservedVarLevelCount);
   this->grammarContext.copyFrom(context);
   this->grammarContext.setStack(&this->variableStack);
@@ -144,6 +149,8 @@ void ParserState::reset()
   this->tempTrunkProdStackIndex = -1;
   this->topTermLevelCache = 0;
   this->topProdLevelCache = 0;
+  this->errorSyncBlockPairs = 0;
+  this->errorSyncBlockStack.clear();
 }
 
 
@@ -326,6 +333,13 @@ ParserProdLevel& ParserState::refProdLevel(Int i)
 
 void ParserState::pushProdLevel(Data::Module *module, Data::SymbolDefinition *prod)
 {
+  // TODO: Once we switch to exclusively using GrammarModule in the grammar, change the following
+  //       code to update the error sync block pairs everytime the module changes and the new
+  //       module has a different value for errorSyncBlockPairsRef.
+  if (this->topProdLevelCache == 0) {
+    this->errorSyncBlockPairs = this->grammarContext.getAssociatedErrorSyncBlockPairs(module);
+  }
+
   this->prodStack.push_back(ParserProdLevel());
   this->topProdLevelCache = &this->prodStack.back();
   this->topProdLevelCache->setModule(module);

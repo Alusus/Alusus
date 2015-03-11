@@ -37,6 +37,8 @@ class GrammarModule : public Module, public virtual Initializable
 
   private: SharedPtr<Reference> lexerModuleRef;
 
+  private: SharedPtr<Reference> errorSyncBlockPairsRef;
+
   private: Word ownership;
 
   // TODO: Add the other dimensions.
@@ -85,6 +87,16 @@ class GrammarModule : public Module, public virtual Initializable
   public: const SharedPtr<Reference>& getLexerModuleRef() const
   {
     return this->lexerModuleRef;
+  }
+
+  public: void setErrorSyncBlockPairsRef(const SharedPtr<Reference> &ref)
+  {
+    this->errorSyncBlockPairsRef = ref;
+    this->metaChangeNotifier.emit(this, GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF);
+  }
+  public: const SharedPtr<Reference>& getErrorSyncBlockPairsRef() const
+  {
+    return this->errorSyncBlockPairsRef;
   }
 
   public: void setStartRef(const SharedPtr<Reference> &sr)

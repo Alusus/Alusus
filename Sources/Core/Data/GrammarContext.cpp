@@ -293,18 +293,17 @@ SharedMap* GrammarContext::getSymbolVars(const SymbolDefinition *definition, Mod
 
 Module* GrammarContext::getAssociatedLexerModule(Module *module)
 {
-  // TODO: Modify this function so that it searches the root module if it can't
-  //       find an associated lexer module in the given module.
-
-  if (module == 0) module = this->getModule();
-  if (module == 0) module = this->getRoot();
-  GrammarModule *grammarModule = io_cast<GrammarModule>(module);
-
-  // Find the reference to the lexer module.
   Reference *lmr = 0;
-  while (lmr == 0 && grammarModule != 0) {
-    lmr = grammarModule->getLexerModuleRef().get();
-    if (lmr == 0) grammarModule = grammarModule->getParent();
+
+  // Find the reference to the lexer module of the current module.
+  if (module == 0) module = this->getModule();
+  GrammarModule *grammarModule = io_cast<GrammarModule>(module);
+  if (grammarModule != 0) lmr = grammarModule->getLexerModuleRef().get();
+
+  // If we can't find a lexer module, we'll grab the root's lexer module.
+  if (lmr == 0) {
+    grammarModule = io_cast<GrammarModule>(this->getRoot());
+    if (grammarModule != 0) lmr = grammarModule->getLexerModuleRef().get();
   }
 
   // Find the module itself.
@@ -314,6 +313,31 @@ Module* GrammarContext::getAssociatedLexerModule(Module *module)
     throw EXCEPTION(GenericException, STR("The module has an invalid lexer module reference."));
   }
   return lm;
+}
+
+
+SharedList* GrammarContext::getAssociatedErrorSyncBlockPairs(Module *module)
+{
+  Reference *spr = 0;
+
+  // Find the reference to the sync pairs of the current module.
+  if (module == 0) module = this->getModule();
+  GrammarModule *grammarModule = io_cast<GrammarModule>(module);
+  if (grammarModule != 0) spr = grammarModule->getErrorSyncBlockPairsRef().get();
+
+  // If we can't find the sync pairs, we'll grab the root's sync pairs.
+  if (spr == 0) {
+    grammarModule = io_cast<GrammarModule>(this->getRoot());
+    if (grammarModule != 0) spr = grammarModule->getErrorSyncBlockPairsRef().get();
+  }
+
+  // Find the list itself.
+  if (spr == 0) return 0;
+  SharedList *sp = io_cast<SharedList>(this->traceValue(spr, grammarModule));
+  if (sp == 0) {
+    throw EXCEPTION(GenericException, STR("The module has an invalid error sync pairs reference."));
+  }
+  return sp;
 }
 
 } } // namespace

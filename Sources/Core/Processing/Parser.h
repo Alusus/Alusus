@@ -260,6 +260,15 @@ class Parser : public SignalReceiver
   /// Check whether the production with the given id is currently in use.
   public: Bool isDefinitionInUse(Data::SymbolDefinition *definition) const;
 
+  private: Bool matchToken(Data::Integer *matchId, IdentifiableObject *matchText, Data::Token const *token)
+  {
+    return this->matchToken(matchId==0?0:matchId->get(), matchText, token);
+  }
+
+  private: Bool matchToken(Word matchId, IdentifiableObject *matchText, Data::Token const *token);
+
+  private: Bool matchErrorSyncBlockPairs(ParserState *state, Data::Token const *token);
+
   /// @}
 
   /// @name Branch Management Functions

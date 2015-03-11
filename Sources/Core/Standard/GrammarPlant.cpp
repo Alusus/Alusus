@@ -46,10 +46,21 @@ void GrammarPlant::createGrammar(RootManager *root)
   // Create parser definitions.
   this->createProductionDefinitions();
 
+  // Create error sync block pairs.
+  this->repository.set(STR("root:ErrorSyncBlockPairs"), SharedList::create({
+    TokenTerm::create(this->constTokenId, STR("(")),
+    TokenTerm::create(this->constTokenId, STR(")")),
+    TokenTerm::create(this->constTokenId, STR("[")),
+    TokenTerm::create(this->constTokenId, STR("]")),
+    TokenTerm::create(this->constTokenId, STR("{")),
+    TokenTerm::create(this->constTokenId, STR("}"))
+  }).get());
+
   // Set start production and lexer module.
   GrammarModule *rootModule = this->repository.getRoot().get();
   rootModule->setStartRef(ReferenceParser::parseQualifier(STR("module:Program")));
   rootModule->setLexerModuleRef(ReferenceParser::parseQualifier(STR("root:LexerDefs")));
+  rootModule->setErrorSyncBlockPairsRef(ReferenceParser::parseQualifier(STR("root:ErrorSyncBlockPairs")));
 
   // Generate const token definitions from production definitions.
   this->generateConstTokenDefinitions();

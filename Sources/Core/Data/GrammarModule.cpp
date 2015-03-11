@@ -39,6 +39,12 @@ GrammarModule::GrammarModule(const std::initializer_list<Argument<Char const*>> 
       if (this->lexerModuleRef == 0 && arg.ioVal != 0) {
         throw EXCEPTION(GenericException, STR("Provided lexer module reference is not of type Reference."));
       }
+    } else if (sbstr_cast(arg.id) == STR("@error_sync_block_pairs")) {
+      this->errorSyncBlockPairsRef = arg.ioVal.io_cast<Reference>();
+      this->ownership |= GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF;
+      if (this->errorSyncBlockPairsRef == 0 && arg.ioVal != 0) {
+        throw EXCEPTION(GenericException, STR("Provided error sync block pairs reference is not of type Reference."));
+      }
     } else {
       this->add(arg.id, arg.ioVal);
     }
@@ -64,6 +70,9 @@ void GrammarModule::attachToParent(GrammarModule *p)
   if ((this->ownership & GrammarModuleMetaElement::LEXER_MODULE_REF) == 0) {
     this->lexerModuleRef = this->parent->getLexerModuleRef();
   }
+  if ((this->ownership & GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
+    this->errorSyncBlockPairsRef = this->parent->getErrorSyncBlockPairsRef();
+  }
 }
 
 
@@ -77,6 +86,9 @@ void GrammarModule::detachFromParent()
   }
   if ((this->ownership & GrammarModuleMetaElement::LEXER_MODULE_REF) == 0) {
     this->lexerModuleRef.reset();
+  }
+  if ((this->ownership & GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
+    this->errorSyncBlockPairsRef.reset();
   }
 
   this->parent->destroyNotifier.unconnect(this, &GrammarModule::onParentDestroyed);
@@ -92,6 +104,9 @@ void GrammarModule::onParentMetaChanged(GrammarModule *obj, Word element)
   }
   if ((element & GrammarModuleMetaElement::LEXER_MODULE_REF) == 0) {
     this->lexerModuleRef = obj->getLexerModuleRef();
+  }
+  if ((element & GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
+    this->errorSyncBlockPairsRef = obj->getErrorSyncBlockPairsRef();
   }
 }
 
@@ -129,6 +144,9 @@ void GrammarModule::unsetIndexes(Int from, Int to)
   }
   if (this->lexerModuleRef != 0 && (this->ownership & GrammarModuleMetaElement::LEXER_MODULE_REF) != 0) {
     Data::unsetIndexes(this->lexerModuleRef.get(), from, to);
+  }
+  if (this->errorSyncBlockPairsRef != 0 && (this->ownership & GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) != 0) {
+    Data::unsetIndexes(this->errorSyncBlockPairsRef.get(), from, to);
   }
   Module::unsetIndexes(from, to);
 }

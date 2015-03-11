@@ -182,6 +182,8 @@ class GrammarContext : public IdentifiableObject, public virtual Tracer
 
   public: Module* getAssociatedLexerModule(Module *module=0);
 
+  public: SharedList* getAssociatedErrorSyncBlockPairs(Module *module=0);
+
   /// @}
 
 }; // class

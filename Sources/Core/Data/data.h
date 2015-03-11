@@ -109,7 +109,10 @@ enumeration(ContentChangeOp, ADD, UPDATE, REMOVE);
  * This enumeration is used to refer to an element within GrammarModule's
  * meta data. It's needed by GrammarModule::metaChangeNotifier.
  */
-enumeration(GrammarModuleMetaElement, START_REF=1, LEXER_MODULE_REF=2, ALL=static_cast<Word>(-1));
+enumeration(GrammarModuleMetaElement, START_REF=1,
+                                      LEXER_MODULE_REF=2,
+                                      ERROR_SYNC_BLOCK_PAIRS_REF=4,
+                                      ALL=static_cast<Word>(-1));
 
 /**
  * @brief An enumeration for change operations of SymbolDefinition.

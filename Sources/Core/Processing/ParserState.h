@@ -131,6 +131,10 @@ class ParserState
 
   private: Int testUppermostLevel;
 
+  private: Data::SharedList *errorSyncBlockPairs;
+
+  private: std::vector<Int> errorSyncBlockStack;
+
 
   //============================================================================
   // Constructors / Destructor
@@ -492,6 +496,16 @@ class ParserState
   {
     if (this->isAtProdRoot()) this->popProdLevel();
     else this->popTermLevel();
+  }
+
+  public: Data::SharedList* getErrorSyncBlockPairs() const
+  {
+    return this->errorSyncBlockPairs;
+  }
+
+  public: std::vector<Int>& getErrorSyncBlockStack()
+  {
+    return this->errorSyncBlockStack;
   }
 
   /// @}
