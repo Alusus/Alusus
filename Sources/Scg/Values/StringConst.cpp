@@ -19,43 +19,43 @@
 
 namespace Scg
 {
-  const ValueTypeSpec *StringConst::GetValueTypeSpec() const
-  {
-    return StringType::Get()->GetValueTypeSpec();
-  }
+const ValueTypeSpec *StringConst::GetValueTypeSpec() const
+{
+  return StringType::Get()->GetValueTypeSpec();
+}
 
-  //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-  Expression::CodeGenerationStage StringConst::GenerateCode()
-  {
+Expression::CodeGenerationStage StringConst::GenerateCode()
+{
   // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
   // generatedLlvmValue?
-    this->generatedLlvmValue = this->llvmValue =
-    		StringType::Get()->GetLlvmConstant(GetModule(), this->value);
-    return Expression::GenerateCode();
-  }
+  this->generatedLlvmValue = this->llvmValue =
+      StringType::Get()->GetLlvmConstant(GetModule(), this->value);
+  return Expression::GenerateCode();
+}
 
-  //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-  Expression::CodeGenerationStage StringConst::PostGenerateCode()
-  {
-    if (this->llvmValue == nullptr)
-      // Nothing to delete
-      return CodeGenerationStage::None;
-    if (!this->llvmValue->hasNUses(0))
-      // The value is still in use; stay in PostCodeGeneration stage.
-      return CodeGenerationStage::PostCodeGeneration;
-    // TODO: Do we need to delete this? In IntegerConst, FloatConst, and
-    // DoubleConst we are not doing this and saying that LLVM handles it!
-    delete this->llvmValue;
-    this->llvmValue = nullptr;
+Expression::CodeGenerationStage StringConst::PostGenerateCode()
+{
+  if (this->llvmValue == nullptr)
+    // Nothing to delete
     return CodeGenerationStage::None;
-  }
+  if (!this->llvmValue->hasNUses(0))
+    // The value is still in use; stay in PostCodeGeneration stage.
+    return CodeGenerationStage::PostCodeGeneration;
+  // TODO: Do we need to delete this? In IntegerConst, FloatConst, and
+  // DoubleConst we are not doing this and saying that LLVM handles it!
+  delete this->llvmValue;
+  this->llvmValue = nullptr;
+  return CodeGenerationStage::None;
+}
 
-  //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-  std::string StringConst::ToString()
-  {
-    return this->value;
-  }
+std::string StringConst::ToString()
+{
+  return this->value;
+}
 }

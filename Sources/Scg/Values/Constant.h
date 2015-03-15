@@ -21,20 +21,20 @@
 
 namespace Scg
 {
-  class ValueType;
+class ValueType;
 }
 
 namespace Scg
 {
-  /**
-   * Represent a constant.
-   */
-  class Constant : public Value
-  {
-  protected:
-    //! The LLVM Value object representing the constant.
-    llvm::Value *llvmValue;
-  };
+/**
+ * Represent a constant.
+ */
+class Constant : public Value
+{
+protected:
+  //! The LLVM Value object representing the constant.
+  llvm::Value *llvmValue;
+};
 }
 
 #endif // __Constant_h__

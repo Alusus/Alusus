@@ -53,16 +53,18 @@ public:
    */
   Variable(const std::string &name, ValueType *variableType,
       llvm::Argument *llvmArgument = nullptr)
-    : name(name)
-    , variableType(variableType)
-    , llvmArgument(llvmArgument)
-  {}
+      : name(name), variableType(variableType), llvmArgument(llvmArgument)
+  {
+  }
 
   /**
    * Retrieves the name of the variable.
    * @return The name of the variable.
    */
-  const std::string &GetName() { return name; }
+  const std::string &GetName()
+  {
+    return name;
+  }
 
   //@{
   /**
@@ -84,10 +86,11 @@ public:
       return llvmGlobalVariable;
     }
   }
+
   llvm::Value *GetLlvmValue()
   {
-    return const_cast<llvm::Value*>(
-        static_cast<const Variable*>(this)->GetLlvmValue());
+    return const_cast<llvm::Value *>(
+        static_cast<const Variable *>(this)->GetLlvmValue());
   }
   //@}
 
@@ -106,10 +109,11 @@ public:
   {
     return llvmAllocaInst;
   }
+
   llvm::AllocaInst *GetLlvmAllocaInst()
   {
-    return const_cast<llvm::AllocaInst*>(
-        static_cast<const Variable*>(this)->GetLlvmAllocaInst());
+    return const_cast<llvm::AllocaInst *>(
+        static_cast<const Variable *>(this)->GetLlvmAllocaInst());
   }
   //@}
 
@@ -128,10 +132,11 @@ public:
   {
     return llvmGlobalVariable;
   }
+
   llvm::GlobalVariable *GetLlvmGlobalVariable()
   {
-    return const_cast<llvm::GlobalVariable*>(
-        static_cast<const Variable*>(this)->GetLlvmGlobalVariable());
+    return const_cast<llvm::GlobalVariable *>(
+        static_cast<const Variable *>(this)->GetLlvmGlobalVariable());
   }
   //@}
 
@@ -140,7 +145,10 @@ public:
 
   //@{
   //! @copydoc Value::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override { return variableType->GetValueTypeSpec(); }
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override
+  {
+    return variableType->GetValueTypeSpec();
+  }
   //@}
 
   //! @copydoc Expression::PreGenerateCode()

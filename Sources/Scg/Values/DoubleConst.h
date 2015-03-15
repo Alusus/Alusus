@@ -17,39 +17,44 @@
 
 namespace Scg
 {
+/**
+ * Represent an integral value.
+ */
+class DoubleConst : public Constant
+{
+  //! The value of the double.
+  double value;
+
+public:
   /**
-   * Represent an integral value.
+   * Constructs a double with the given value.
    */
-  class DoubleConst : public Constant
+  DoubleConst(double value) : value(value)
   {
-    //! The value of the double.
-    double value;
+  }
 
-  public:
-    /**
-     * Constructs a double with the given value.
-     */
-    DoubleConst(double value) : value(value) {}
+  /**
+   * Retrieves the value of this double constant object.
+   *
+   * @return The value of this double constant object.
+   */
+  const double &GetValue() const
+  {
+    return value;
+  }
 
-    /**
-     * Retrieves the value of this double constant object.
-     *
-     * @return The value of this double constant object.
-     */
-    const double &GetValue() const { return value; }
+  //! @copydoc Value::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
 
-    //! @copydoc Value::GetValueTypeSpec()
-    virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Expression::GenerateCode()
+  virtual CodeGenerationStage GenerateCode();
 
-    //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::PostGenerateCode()
+  virtual CodeGenerationStage PostGenerateCode();
 
-    //! @copydoc Expression::PostGenerateCode()
-    virtual CodeGenerationStage PostGenerateCode();
-
-    //! @copydoc Expression::ToString()
-    virtual std::string ToString();
-  };
+  //! @copydoc Expression::ToString()
+  virtual std::string ToString();
+};
 }
 
 #endif // __DoubleConst_h__

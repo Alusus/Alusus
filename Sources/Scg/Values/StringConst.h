@@ -17,39 +17,44 @@
 
 namespace Scg
 {
+/**
+ * Represent a string.
+ */
+class StringConst : public Constant
+{
+  //! The value of the string.
+  std::string value;
+
+public:
   /**
-   * Represent a string.
+   * Constructs a string with the given value.
    */
-  class StringConst : public Constant
+  StringConst(const std::string &value) : value(value)
   {
-    //! The value of the string.
-    std::string value;
+  }
 
-  public:
-    /**
-     * Constructs a string with the given value.
-     */
-    StringConst(const std::string &value) : value(value) {}
+  /**
+   * Retrieves the string value of this string constant object.
+   *
+   * @return The string value of this string constant object.
+   */
+  const std::string &GetValue() const
+  {
+    return value;
+  }
 
-    /**
-     * Retrieves the string value of this string constant object.
-     *
-     * @return The string value of this string constant object.
-     */
-    const std::string &GetValue() const { return value; }
+  //! @copydoc Value::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const;
 
-    //! @copydoc Value::GetValueTypeSpec()
-    virtual const ValueTypeSpec *GetValueTypeSpec() const;
+  //! @copydoc Expression::GenerateCode()
+  virtual CodeGenerationStage GenerateCode();
 
-    //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::PostGenerateCode()
+  virtual CodeGenerationStage PostGenerateCode();
 
-    //! @copydoc Expression::PostGenerateCode()
-    virtual CodeGenerationStage PostGenerateCode();
-
-    //! @copydoc Expression::ToString()
-    virtual std::string ToString();
-  };
+  //! @copydoc Expression::ToString()
+  virtual std::string ToString();
+};
 }
 
 #endif // __StringConst_h__

@@ -17,39 +17,44 @@
 
 namespace Scg
 {
+/**
+ * Represent an integral value.
+ */
+class IntegerConst : public Constant
+{
+  //! The value of the integer.
+  int value;
+
+public:
   /**
-   * Represent an integral value.
+   * Constructs a integer with the given value.
    */
-  class IntegerConst : public Constant
+  IntegerConst(int value) : value(value)
   {
-    //! The value of the integer.
-    int value;
+  }
 
-  public:
-    /**
-     * Constructs a integer with the given value.
-     */
-    IntegerConst(int value) : value(value) {}
+  /**
+   * Retrieves the integral value of this integer constant object.
+   *
+   * @return The integral value of this integer constant object.
+   */
+  const int &GetValue() const
+  {
+    return value;
+  }
 
-    /**
-     * Retrieves the integral value of this integer constant object.
-     *
-     * @return The integral value of this integer constant object.
-     */
-    const int &GetValue() const { return value; }
+  //! @copydoc Value::GetValueTypeSpec()
+  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
 
-    //! @copydoc Value::GetValueTypeSpec()
-    virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Expression::GenerateCode()
+  virtual CodeGenerationStage GenerateCode();
 
-    //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::PostGenerateCode()
+  virtual CodeGenerationStage PostGenerateCode();
 
-    //! @copydoc Expression::PostGenerateCode()
-    virtual CodeGenerationStage PostGenerateCode();
-
-    //! @copydoc Expression::ToString()
-    virtual std::string ToString();
-  };
+  //! @copydoc Expression::ToString()
+  virtual std::string ToString();
+};
 }
 
 #endif // __Integer_h__
