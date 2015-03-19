@@ -79,12 +79,17 @@ int main(int argCount, char * const args[])
   }
 
   if (help) {
+    Char alususReleaseYear[5];
+    Char alususHijriReleaseYear[5];
+    copyStr(ALUSUS_RELEASE_DATE, alususReleaseYear, 4);
+    copyStr(ALUSUS_HIJRI_RELEASE_DATE, alususHijriReleaseYear, 4);
+    alususReleaseYear[4] = alususHijriReleaseYear[4] = 0;
     // Check if the command line was in English by detecting if the first character is ASCII.
     if (args[0][0] > 0) {
       // Write English help.
       outStream << STR("Alusus Core\n"
-                  "Version " ALUSUS_VERSION "\n"
-                  "Copyright (C) " ALUSUS_RELEASE_YEAR " Sarmad Khalid Abdullah\n\n");
+                  "Version " ALUSUS_VERSION " (" ALUSUS_RELEASE_DATE ")\n"
+                  "Copyright (C) " << alususReleaseYear << " Sarmad Khalid Abdullah\n\n");
       outStream << STR("This software is released under Alusus Public License, Version 1.0.\n"
                   "For details on usage and copying conditions read the full license at\n"
                   "<http://alusus.net/alusus_license_1_0>. By using this software you acknowledge\n"
@@ -103,8 +108,8 @@ int main(int argCount, char * const args[])
     } else {
       // Write Arabic help.
       outStream << STR("قلب الأسُس\n"
-                       "الإصدار " ALUSUS_VERSION "\n"
-                       "جميع الحقوق محفوظة لـ سرمد خالد عبدالله " ALUSUS_RELEASE_YEAR "م\\" ALUSUS_HIJRI_RELEASE_YEAR "هـ\n\n");
+                       "الإصدار " ALUSUS_VERSION " (" ALUSUS_RELEASE_DATE "م \\ " ALUSUS_HIJRI_RELEASE_DATE "هـ)\n"
+                       "جميع الحقوق محفوظة لـ سرمد خالد عبدالله " << alususReleaseYear << "م\\" << alususHijriReleaseYear << "هـ\n\n");
       outStream << STR("نُشر هذا البرنامج برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0\n"
                        "والمتوفرة على الرابط <http://alusus.net/alusus_license_1_0>. يرجى قراءة\n"
                        "الرخصة قبل استخدام البرنامج. استخدامك لهذا البرنامج أو أي من الملفات\n"

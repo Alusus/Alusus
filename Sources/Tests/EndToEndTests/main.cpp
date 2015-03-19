@@ -200,9 +200,12 @@ using namespace Tests::EndToEndTests;
 
 int main(int argc, char **argv)
 {
+  Char alususReleaseYear[5];
+  copyStr(ALUSUS_RELEASE_DATE, alususReleaseYear, 4);
+  alususReleaseYear[4] = 0;
   std::cout << "Alusus End-to-End Tests\n"
-               "Version " << ALUSUS_VERSION << "\n"
-               "Copyright (C) " << ALUSUS_RELEASE_YEAR << " Rafid Khalid Abdullah\n\n";
+               "Version " ALUSUS_VERSION " (" ALUSUS_RELEASE_DATE ")\n"
+               "Copyright (C) " << alususReleaseYear << " Rafid Khalid Abdullah\n\n";
 
   // Prepare a temporary filename.
   Char const * tempPath = getenv("TMPDIR");
@@ -215,8 +218,6 @@ int main(int argc, char **argv)
   resultFilename += "AlususEndToEndTest.txt";
 
   auto ret = EXIT_SUCCESS;
-  if (!RunEndToEndTests("./Tests/Development"))
-    ret = EXIT_FAILURE;
   if (!RunEndToEndTests("./Tests/General"))
     ret = EXIT_FAILURE;
   if (!RunEndToEndTests("./Tests/Arabic"))

@@ -5,14 +5,23 @@
 project(Alusus)
 cmake_minimum_required(VERSION 2.8)
 
-set(AlususVersion "0.1.1")
-set(AlususSoVersion "0.1")
-set(AlususReleaseYear "2015")
-set(AlususHijriReleaseYear "1436")
+# Read version info from version file.
+file(READ "../version" VersionInfo)
+string(REGEX MATCH "VERSION: ([0-9]+\\.[0-9]+\\.[0-9]+)" _dummy_ ${VersionInfo})
+set(AlususVersion ${CMAKE_MATCH_1})
+string(REGEX MATCH "^[0-9]+\\.[0-9]+" AlususSoVersion ${AlususVersion})
+string(REGEX MATCH "DATE: ([0-9]+-[0-9]+-[0-9]+)" _dummy_ ${VersionInfo})
+set(AlususReleaseDate ${CMAKE_MATCH_1})
+string(REGEX MATCH "HIJRI_DATE: ([0-9]+-[0-9]+-[0-9]+)" _dummy_ ${VersionInfo})
+set(AlususHijriReleaseDate ${CMAKE_MATCH_1})
+message(STATUS "Alusus Version: " ${AlususVersion})
+message(STATUS "Alusus So Version: " ${AlususSoVersion})
+message(STATUS "Alusus Release Date: " ${AlususReleaseDate})
+message(STATUS "Alusus Hijri Release Date: " ${AlususHijriReleaseDate})
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${AlususVersion}"
-                                                           ALUSUS_RELEASE_YEAR="${AlususReleaseYear}"
-                                                           ALUSUS_HIJRI_RELEASE_YEAR="${AlususHijriReleaseYear}")
+                                                           ALUSUS_RELEASE_DATE="${AlususReleaseDate}"
+                                                           ALUSUS_HIJRI_RELEASE_DATE="${AlususHijriReleaseDate}")
 
 # Boost path
 set (BOOST_PATH "" CACHE PATH "Path to Boost libraries root folder.")

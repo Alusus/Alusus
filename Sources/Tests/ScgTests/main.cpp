@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <core.h>
 
 namespace Tests { namespace ScgTests
 {
@@ -29,13 +30,17 @@ bool RunCastToFloatTest();
 
 } } // namespace
 
+using namespace Core::Basic;
 using namespace Tests::ScgTests;
 
 int main(int argc, char **argv)
 {
+  Char alususReleaseYear[5];
+  copyStr(ALUSUS_RELEASE_DATE, alususReleaseYear, 4);
+  alususReleaseYear[4]=0;
   std::cout << "Alusus SCG Tests\n"
-               "Version " << ALUSUS_VERSION << "\n"
-               "Copyright (C) " << ALUSUS_RELEASE_YEAR << " Rafid Khalid Abdullah\n\n";
+               "Version " ALUSUS_VERSION " (" ALUSUS_RELEASE_DATE ")\n"
+               "Copyright (C) " << alususReleaseYear << " Rafid Khalid Abdullah\n\n";
 
   int result = EXIT_SUCCESS;
   if (!TestDefineAndUseArray()) result = EXIT_FAILURE;

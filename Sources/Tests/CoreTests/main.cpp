@@ -32,9 +32,12 @@ int main(int argCount, char * const args[])
   // Validate arguments.
   for (int i = 0; i < argCount; ++i) {
     if (strcmp(args[i], STR("--help")) == 0) {
+      Char alususReleaseYear[5];
+      copyStr(ALUSUS_RELEASE_DATE, alususReleaseYear, 4);
+      alususReleaseYear[4] = 0;
       outStream << STR("Alusus Core Tests\n"
-                  "Version " ALUSUS_VERSION "\n"
-                  "Copyright (C) " ALUSUS_RELEASE_YEAR " Sarmad Khalid Abdullah\n\n");
+                  "Version " ALUSUS_VERSION " (" ALUSUS_RELEASE_DATE ")\n"
+                  "Copyright (C) " << alususReleaseYear << " Sarmad Khalid Abdullah\n\n");
       outStream << STR("Usage: alusus_tests [<options>]\n");
       outStream << STR("\nOptions:\n");
 #if defined(USE_LOGS)
