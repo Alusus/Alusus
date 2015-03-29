@@ -1,0 +1,40 @@
+Alusus (0.2.0) unstable; urgency=low
+
+  * Fix bugs :
+    - Expressions with multiple binary operators now work properly.
+    - Handling some memory leaks.
+    - Various bug fixes.
+  * Support for automatic type deduction during variable definition. For example
+    this statement will automatically determine the type of i as integer:
+    def i := 5;
+  * Support for implicit casting.
+  * Support for unary -, prefix ++, and prefix -- operators.
+  * Support for calling functions defined later in the module.
+  * Enabled linking to third party shared libraries.
+  * The 'import' command now searches through multiple paths for the requested
+    file rather than only the current directory.
+  * Support for UTF8 in the lexer.
+  * Added 'alias' definition type. This is useful for localization of the
+    language.
+  * Arabic localization. It's now possible to write your source code in Arabic.
+  * Improvement to compilation error reporting:
+    - Bracketed code blocks are properly skipped now when trying to find the end
+      of the statement after an error.
+    - Error location is properly reported now. Error messages include the source
+      file, line, and column at which the error is found.
+    - More errors are reported before the compiler quites.
+  * Eliminated the need to modify LD_LIBRARY_PATH environment variable to run
+    the compiler.
+  * Internal refactoring:
+    - The SCG now uses the Core's exception classes.
+    - Streamlined the classes in the Core::Data namespace to improve the design
+      and eliminate unneeded complexity.
+    - Streamlined the Core namespace by reducing the number of inner namespaces.
+    - Switched the lexer to use the same data classes defined in Core::Data
+      rather than its own separate classes.
+    - Improved the design of the data references subsystem of the Core making it
+      more generic and extensible.
+    - Removed ParsedDataBrowser and replaced its references with calls to the
+      improved data references subsystem.
+
+ -- Hicham OUALI ALAMI <hicham@oualialami.com>  Thu, 05 Mar 2015 07:24:01 +0100
