@@ -27,11 +27,11 @@ Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiac
 .asciidoc .hljs-blockquote,
 .markdown .hljs-blockquote {
   font-style: italic;
-  color: #772
+  color: #808
 }
 
 .hljs-attribute {
-  color: #800;
+  color: #770;
 }
 
 .hljs-number,
@@ -40,10 +40,10 @@ Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiac
 }
 
 .hljs-type {
-  color: #228;
+  color: #844;
 }
 
 .hljs-keyword {
-  font-weight: bold;
+  color: #00B
 }
 

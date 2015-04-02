@@ -222,7 +222,7 @@ int main(int argc, char **argv)
     ret = EXIT_FAILURE;
   if (!RunEndToEndTests("./Tests/Arabic"))
     ret = EXIT_FAILURE;
-  if (!RunEndToEndTests("./Tests/TheCProgrammingLanguage"))
+  if (!RunEndToEndTests("./Tests/Ported_C_Examples"))
     ret = EXIT_FAILURE;
 
   std::remove(resultFilename.c_str());

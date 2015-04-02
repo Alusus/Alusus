@@ -103,11 +103,13 @@ cite {
 
 .code {
  text-align:left;
- background:#f4f4f4;
+ background:#f8f8f8;
  margin:5px 30px 5px 30px;
  padding:6px 8px 6px 8px;
- border:1px solid gray;
- font-size:90%;
+ border:2px solid gray;
+ font-family:'Monospace', 'Courier New';
+ font-size:85%;
+ line-height:160%;
  overflow: auto;
 }
 .samplecode {
@@ -116,7 +118,9 @@ cite {
  margin:5px 30px 5px 30px;
  padding:6px 8px 6px 8px;
  border:1px solid gray;
- font-size:90%;
+ font-family:'Monospace', 'Courier New';
+ font-size:85%;
+ line-height:160%;
  overflow: auto;
 }
 

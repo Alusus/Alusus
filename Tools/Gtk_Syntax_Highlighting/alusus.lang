@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Alusus Language Sytnax Highlighting
+ Author: Sarmad Khalid Abdullah <sarmad@alusus.org>
+ Copyright (C) 2015 Sarmad Khalid Abdullah <sarmad@alusus.org>
+-->
+<language id="alusus" _name="Alusus" version="2.0" _section="Sources">
+  <metadata>
+    <property name="mimetypes">text/x-alusus</property>
+    <property name="globs">*.alusus;*.أسس</property>
+    <property name="line-comment-start">//</property>
+    <property name="block-comment-start">/*</property>
+    <property name="block-comment-end">*/</property>
+  </metadata>
+
+  <styles>
+    <style id="escaped-character" _name="Escaped Character"         map-to="def:special-char"/>
+    <style id="literal"           _name="Literal"                   map-to="def:string"/>
+    <style id="keyword"           _name="Keyword"                   map-to="def:keyword"/>
+    <style id="type"              _name="Data Type"                 map-to="def:type"/>
+    <style id="modifier"          _name="Modifier"                  map-to="def:preprocessor"/>
+  </styles>
+
+  <definitions>
+
+    <define-regex id="escaped-character" extended="true">
+      \\(               # leading backslash
+      [\\\"\'nrbtf] |   # escaped character
+      [0-9]{1,3}    |   # latin encoded char
+      u[0-9]{1,4}       # unicode char
+      )
+    </define-regex>
+
+    <context id="string" style-ref="literal" end-at-line-end="true" class="string" class-disabled="no-spell-check">
+      <start>"</start>
+      <end>"</end>
+      <include>
+        <context id="escaped-character" style-ref="escaped-character">
+          <match>\%{escaped-character}</match>
+        </context>
+      </include>
+    </context>
+
+    <context id="char" style-ref="literal">
+      <match>'(\%{escaped-character}|.)'</match>
+    </context>
+
+    <context id="numeric" style-ref="literal">
+      <match extended="true">
+        (\b([0-9]+|0[hHbBoO][0-9a-fA-F]+)[Ll]?\b|
+         \b(([0-9]+[Ee][-]?[0-9]+|
+            ([0-9]*\.[0-9]+|[0-9]+\.)([Ee][-]?[0-9]+)?)[fFdD]?|
+            [0-9]+[FfDd]))
+      </match>
+    </context>
+
+    <context id="boolean" style-ref="literal">
+      <keyword>false</keyword>
+      <keyword>true</keyword>
+    </context>
+
+    <context id="null-value" style-ref="literal">
+      <keyword>null</keyword>
+    </context>
+
+    <context id="keyword" style-ref="keyword">
+      <keyword>import</keyword>
+      <keyword>def</keyword>
+      <keyword>module</keyword>
+      <keyword>function</keyword>
+      <keyword>struct</keyword>
+      <keyword>if</keyword>
+      <keyword>else</keyword>
+      <keyword>do</keyword>
+      <keyword>while</keyword>
+      <keyword>for</keyword>
+      <keyword>return</keyword>
+      <keyword>run</keyword>
+      <keyword>build</keyword>
+      <keyword>dump</keyword>
+      <keyword>ptr</keyword>
+      <keyword>arr</keyword>
+    </context>
+
+    <context id="ar_keyword" style-ref="keyword">
+      <keyword>اشمل</keyword>
+      <keyword>عرّف</keyword>
+      <keyword>حزمة</keyword>
+      <keyword>دالّة</keyword>
+      <keyword>هيكل</keyword>
+      <keyword>إذا</keyword>
+      <keyword>وإلا</keyword>
+      <keyword>قم</keyword>
+      <keyword>بينما</keyword>
+      <keyword>لكل</keyword>
+      <keyword>أرجع</keyword>
+      <keyword>نفّذ</keyword>
+      <keyword>مؤشر</keyword>
+      <keyword>مصفوفة</keyword>
+    </context>
+
+    <context id="type" style-ref="type">
+      <match extended="true">
+        (\b[A-Z][a-zA-Z0-9_]*\b)
+      </match>
+    </context>
+
+    <context id="ar_type" style-ref="type">
+      <match extended="true">
+        (ال[\x{0620}-\x{065F}0-9_]+) |
+        ([\x{0620}-\x{065F}_][\x{0620}-\x{065F}0-9_]*_ال[\x{0620}-\x{065F}0-9_]+)
+      </match>
+    </context>
+
+    <context id="tilde" style-ref="keyword">
+      <match extended="true">
+        (~[a-zA-Z_\x{0620}-\x{065F}][a-zA-Z0-9_\x{0620}-\x{065F}]*\b)
+      </match>
+    </context>
+
+    <context id="modifier" style-ref="modifier">
+      <match extended="true">
+        (@[a-zA-Z_\x{0620}-\x{065F}][a-zA-Z0-9_\x{0620}-\x{065F}]*\b)
+      </match>
+    </context>
+
+    <context id="alusus" class="no-spell-check">
+      <include>
+        <context ref="def:c-like-comment"/>
+        <context ref="def:c-like-comment-multiline"/>
+        <context ref="def:c-like-close-comment-outside-comment"/>
+
+        <context ref="string"/>
+        <context ref="char"/>
+        <context ref="numeric"/>
+        <context ref="boolean"/>
+        <context ref="null-value"/>
+
+        <context ref="keyword"/>
+        <context ref="ar_keyword"/>
+        <context ref="type"/>
+        <context ref="ar_type"/>
+        <context ref="tilde"/>
+        <context ref="modifier"/>
+      </include>
+    </context>
+
+  </definitions>
+</language>

@@ -533,10 +533,10 @@ Main : module {
 
   // Default phrases.
   CmdPhrase : prule ref Phrase(subjects:=((prd:=LeadingCmdGroup,min:=1,max:=1),
-		                                       (prd:=TrailingCmdGroup,min:=0,max:=endless)));
+                                          (prd:=TrailingCmdGroup,min:=0,max:=endless)));
   SoloCmdPhrase : prule ref Phrase(sections:=((prd:=SoloCmdGroup,min:=1,max:=1)));
   ExpPhrase : prule ref Phrase(subjects:=((prd:=root.Expression,min:=1,max:=1),
-		                                       (prd:=TrailingCmdGroup,min:=0,max:=endless)));
+                                          (prd:=TrailingCmdGroup,min:=0,max:=endless)));
 }
 </pre>
    </div>
@@ -724,12 +724,14 @@ a := (b + c) * d;
 <pre dir=ltr class="code">
 TokenData : module {
   // Predefined Operator Lists
-  assignmentOpList : keywords := (":=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "^:=", "&lt;&lt;=", "&gt;&gt;=");
+  assignmentOpList : keywords := (":=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "^:=",
+                                  "&lt;&lt;=", "&gt;&gt;=");
   comparisonOpList : keywords := ("=", "^=", "==", "^==", "&lt;", "&gt;", "&lt;=", "&gt;=");
   addOpList : keywords := ("+", "-");
   mulOpList : keywords := ("*", "/", "%");
   bitwiseOpList : keywords := ("|", "^|", "$", "^$", "&", "^&", "&lt;&lt;", "&gt;&gt;");
-  logOpList : keywords := ("||", "^||", "$$", "^$$", "&&", "^&&", "or", "nor", "xor", "xnor", "and", "nand");
+  logOpList : keywords := ("||", "^||", "$$", "^$$", "&&", "^&&", "or", "nor", "xor", "xnor", "and",
+                           "nand");
   prefixOpList : keywords := ("++", "--", "+", "-", "^", "^^", "not");
   postfixOpList : keywords := ("++", "--");
   linkOpList : keywords := ("-&gt;", ".", ".&gt;", "&lt;.");
@@ -782,23 +784,30 @@ Expression : module {
   BitwiseExp : prule prefix self.id as (enable:integer:=endless)=&gt;{
       UnaryExp + (@priority(in,0) (BitwiseOp + UnaryExp)*(0,enable))
     };
-  UnaryExp : prule prefix self.id as (enable1:integer[0&lt;=n&lt;=1]:=1, enable2:integer[0&lt;=n&lt;=1]:=1)=&gt;{
+  UnaryExp : prule prefix self.id as (enable1:integer[0&lt;=n&lt;=1]:=1,
+                                      enable2:integer[0&lt;=n&lt;=1]:=1)=&gt;{
       (@priority(in,0) PrefixOp*(0,enable1)) + FunctionalExp +
       (@priority(in,0) PostfixOp*(0,enable2))
     };
   FunctionalExp : prule prefix self.id
-    as (operand:valid_subject:=root.Subject, fltr:filter:=null, dup:integer:=endless, pty:integer:=in)=&gt;{
-      operand + (@priority(pty,0) (@filter(fltr) ParamPassExp || TildeExp || LinkExp(operand))*(0,dup))
+    as (operand:valid_subject:=root.Subject, fltr:filter:=null, dup:integer:=endless,
+        pty:integer:=in)=&gt;{
+      operand + (@priority(pty,0) (@filter(fltr) ParamPassExp ||
+                                                 TildeExp ||
+                                                 LinkExp(operand))*(0,dup))
     };
 
   // ParamPassExp : "(" [Expression] ")" | "[" [Expression] "]".
-  ParamPassExp : prule as (expr:prule[Expression||Statement]:=root.Expression, fltr:filter:=null)=&gt;{
+  ParamPassExp : prule as (expr:prule[Expression||Statement]:=root.Expression,
+                           fltr:filter:=null)=&gt;{
     @filter(fltr) lexer.Constant("(") + expr*(0,1) + lexer.Constant(")") ||
                   lexer.Constant("[") + expr*(0,1) + lexer.Constant("]")
   };
 
   // TildeExp : "~" Subject.
-  TildeExp : prule as (operand:valid_subject:=root.TildeSubject)=&gt;{ lexer.Constant("~") + operand };
+  TildeExp : prule as (operand:valid_subject:=root.TildeSubject)=&gt;{
+      lexer.Constant("~") + operand
+    };
 
   // LinkExp : LinkOp operand.
   LinkExp : prule as (operand:valid_subject:=root.Subject)=&gt;{ LinkOp + operand };
@@ -888,7 +897,8 @@ Cmd : @limit[user.parent=root.Command] prule
 // MultiCmd : {keyword {Subject}}.
 MultiCmd : @limit[user.parent=root.Command] prule
   as (sections:list[map[kwd:keywords, min:integer, max:integer, pty:integer,
-                         args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]]]])=>{
+                        args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]]
+                       ]])=>{
     concat (sections:s)->(
       @priority(s.pty,0) (root.KeywordGroup(s.kwd) + concat (s.args:a)->(
         @priority(a.pty,0) a.arg*(a.min, a.max)
@@ -947,16 +957,20 @@ Subject : module {
   prefix self.id, DefaultModifier;
   start Subject1;
 
-  Subject1 : prule as (sbj1:list[prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set]]
+  Subject1 : prule as (sbj1:list[prule[Parameter||root.Command||root.Expression||
+                                       root.Main.Statement||root.Set]]
                            :=(Parameter, SubjectCommandGroup, root.Set),
-		                     sbj2:list[prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set]]
+                       sbj2:list[prule[Parameter||root.Command||root.Expression||
+                                       root.Main.Statement||root.Set]]
                            :=(root.Expression),
-                       sbj3:list[prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set]]
+                       sbj3:list[prule[Parameter||root.Command||root.Expression||
+                                       root.Main.Statement||root.Set]]
                            :=(root.Expression),
                       fltr:filter, frc2:integer:=0, frc3:integer:=0)=>{
-    @filter(fltr) alternate (sbj1:s)->( s ) ||
-                  lexer.Constant("(") + (alternate (sbj2:s)->( s ))*(frc2,1) + lexer.Constant(")") ||
-                  lexer.Constant("[") + (alternate (sbj3:s)->( s ))*(frc3,1) + lexer.Constant("]")
+    @filter(fltr)
+      alternate (sbj1:s)->( s ) ||
+      lexer.Constant("(") + (alternate (sbj2:s)->( s ))*(frc2,1) + lexer.Constant(")") ||
+      lexer.Constant("[") + (alternate (sbj3:s)->( s ))*(frc3,1) + lexer.Constant("]")
   };
   Subject2 : @limit[user.owner=Subject] prule
     as (sbj:prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set],
@@ -978,8 +992,8 @@ Subject : module {
 
   // Literal
   Literal : prule as (fltr:filter:=null)=>{
-    @filter(fltr) lexer.IntLiteral || lexer.FloatLiteral || lexer.CharLiteral || lexer.StringLiteral ||
-                  lexer.CustomLiteral
+    @filter(fltr) lexer.IntLiteral || lexer.FloatLiteral || lexer.CharLiteral ||
+                  lexer.StringLiteral || lexer.CustomLiteral
   }
 }
 </pre>
@@ -1296,12 +1310,14 @@ TokenData : module {
     "\\.", "\\?", "\\|", "\\^", "\\$");
 
   // Predefined Operator Lists
-  assignmentOpList : keywords := (":=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "^:=", "<<=", ">>=");
+  assignmentOpList : keywords := (":=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "^:=",
+                                  "<<=", ">>=");
   comparisonOpList : keywords := ("=", "^=", "==", "^==", "<", ">", "<=", ">=");
   addOpList : keywords := ("+", "-");
   mulOpList : keywords := ("*", "/", "%");
   bitwiseOpList : keywords := ("|", "^|", "$", "^$", "&", "^&", "<<", ">>");
-  logOpList : keywords := ("||", "^||", "$$", "^$$", "&&", "^&&", "or", "nor", "xor", "xnor", "and", "nand");
+  logOpList : keywords := ("||", "^||", "$$", "^$$", "&&", "^&&", "or", "nor", "xor", "xnor",
+                           "and", "nand");
   prefixOpList : keywords := ("++", "--", "+", "-", "^", "^^", "not");
   postfixOpList : keywords := ("++", "--");
   linkOpList : keywords := ("->", ".", ".>", "<.");
@@ -1412,9 +1428,9 @@ LexerDefs : module {
 ////////////////////////////////////////////////////////////////////////////
 // Parser Productions
 // NOTE:
-//	The syntax written in comments is just an approximation of the actual syntax.
-//	This commented syntax is written just to give the reader a simplified outline
-//	of the actual syntax of the element.
+//  The syntax written in comments is just an approximation of the actual syntax.
+//  This commented syntax is written just to give the reader a simplified outline
+//  of the actual syntax of the element.
 
 start Program;
 
@@ -1444,7 +1460,8 @@ Main : module {
     };
 
   // Phrase : { Subject }.
-  Phrase : prule as (subjects:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
+  Phrase : prule as (subjects:list[map[prd:valid_subject, min:integer, max:integer,
+                                       pty:integer]])=>{
     concat (subjects:s)->( @priority(s.pty,0) s.prd*(s.min,s.max) )
   };
 
@@ -1472,7 +1489,7 @@ Main : module {
   // 'use' command.
   UseCmd : prule inherits SoloCommand
     ref root.Cmd(kwd:=("use"), args:=((prd:=root.FullIdSubject, min:=1, max:=1, pty:=in),
-			                                  (prd:=root.IdSubject, min:=0, max:=1, pty:=in)))
+                                      (prd:=root.IdSubject, min:=0, max:=1, pty:=in)))
     handle onProductionEnd : function (dt:ParsingData) {
       if dt.data(1) = null
         override dt.data(0)
@@ -1496,7 +1513,8 @@ Cmd : @limit[user.parent=root.Command] prule
 // MultiCmd : {keyword {Subject}}.
 MultiCmd : @limit[user.parent=root.Command] prule
   as (sections:list[map[kwd:keywords, min:integer, max:integer, pty:integer,
-                         args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]]]])=>{
+                        args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]]
+                       ]])=>{
     concat (sections:s)->(
       @priority(s.pty,0) (root.KeywordGroup(s.kwd) + concat (s.args:a)->(
         @priority(a.pty,0) a.arg*(a.min, a.max)
@@ -1555,8 +1573,11 @@ Expression : module {
     (@priority(in,0) PostfixOp*(0,enable2))
   };
   FunctionalExp : prule prefix self.id
-    as (operand:valid_subject:=root.Subject, fltr:filter:=null, dup:integer:=endless, pty:integer:=in)=>{
-      operand + (@priority(pty,0) (@filter(fltr) ParamPassExp || TildeExp || LinkExp(operand))*(0,dup))
+    as (operand:valid_subject:=root.Subject, fltr:filter:=null, dup:integer:=endless,
+        pty:integer:=in)=>{
+      operand + (@priority(pty,0) (@filter(fltr) ParamPassExp ||
+                                                 TildeExp ||
+                                                 LinkExp(operand))*(0,dup))
     };
 
   // ParamPassExp : "(" [Expression] ")" | "[" [Expression] "]".
@@ -1614,16 +1635,20 @@ Subject : module {
   prefix self.id, DefaultModifier;
   start Subject1;
 
-  Subject1 : prule as (sbj1:list[prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set]]
+  Subject1 : prule as (sbj1:list[prule[Parameter||root.Command||root.Expression||
+                                       root.Main.Statement||root.Set]]
                            :=(Parameter, SubjectCommandGroup, root.Set),
-                       sbj2:list[prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set]]
+                       sbj2:list[prule[Parameter||root.Command||root.Expression||
+                                       root.Main.Statement||root.Set]]
                            :=(root.Expression),
-                       sbj3:list[prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set]]
+                       sbj3:list[prule[Parameter||root.Command||root.Expression||
+                                       root.Main.Statement||root.Set]]
                            :=(root.Expression),
                        fltr:filter:=null, frc2:integer:=0, frc3:integer:=0)=>{
-    @filter(fltr) alternate (sbj1:s)->( s ) ||
-                  lexer.Constant("(") + (alternate (sbj2:s)->( s ))*(frc2,1) + lexer.Constant(")") ||
-                  lexer.Constant("[") + (alternate (sbj3:s)->( s ))*(frc3,1) + lexer.Constant("]")
+    @filter(fltr)
+      alternate (sbj1:s)->( s ) ||
+      lexer.Constant("(") + (alternate (sbj2:s)->( s ))*(frc2,1) + lexer.Constant(")") ||
+      lexer.Constant("[") + (alternate (sbj3:s)->( s ))*(frc3,1) + lexer.Constant("]")
   };
   Subject2 : @limit[user.owner=Subject] prule
     as (sbj:prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set],
@@ -1645,8 +1670,8 @@ Subject : module {
 
   // Literal: IntLiteral | FloatLiteral | CharLiteral | StringLiteral | CustomLiteral.
   Literal : prule as (fltr:filter:=null)=>{
-    @filter(fltr) lexer.IntLiteral || lexer.FloatLiteral || lexer.CharLiteral || lexer.StringLiteral ||
-                  lexer.CustomLiteral
+    @filter(fltr) lexer.IntLiteral || lexer.FloatLiteral || lexer.CharLiteral ||
+                  lexer.StringLiteral || lexer.CustomLiteral
   }
 };
 

@@ -623,7 +623,9 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
     if (!matched) {
       // Processing of this state has errored out.
       (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
-      Data::String *matchStr = io_cast<Data::String>(matchText);
+      #ifdef USE_LOGS
+        Data::String *matchStr = io_cast<Data::String>(matchText);
+      #endif
       LOG(LogLevel::PARSER_MID, STR("Process State: Token failed (") <<
           ID_GENERATOR->getDesc(matchId) << STR(":") <<
           (matchStr==0?"":matchStr->get()) << STR(") -- Received (") <<
@@ -1178,7 +1180,9 @@ void Parser::testTokenTerm(const Data::Token *token, ParserState *state)
     if (!matched) {
       // Processing of this state has errored out.
       state->setProcessingStatus(ParserProcessingStatus::ERROR);
-      Data::String *matchStr = io_cast<Data::String>(matchText);
+      #ifdef USE_LOGS
+        Data::String *matchStr = io_cast<Data::String>(matchText);
+      #endif
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failed for token (") <<
           ID_GENERATOR->getDesc(matchId) << STR(":") <<
           (matchStr==0?"":matchStr->get()) << STR(") -- Received (") <<
