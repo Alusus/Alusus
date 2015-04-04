@@ -41,7 +41,7 @@
  <ul>
   <li>نزل حزم أدوات البناء مثل GCC و CMake وغيرها باستخدام مدير الحزم الخاص بتوزيعة لينُكس التي تستخدم. اعتماداً على التوزيعة بعض هذه الحزم قد يُنصّب مسبقاً في التوزيعة.<br/>
   في توزيعة أوبونتو استخدم الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc cmake</pre>
+<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake</pre>
   وفي توزيعة فيدورا استخدم الأمر التالي:
 <pre dir=ltr class="code nohighlight">$ sudo yum install gcc gcc-c++ cmake valgrind valgrind-devel</pre>
   لاحظ حاجتنا لتنصيب valgrind في توزيعة فيدورا للتمكن من بناء LLVM وهو الأمر الذي لم نحتج إليه مع توزيعة أوبونتو. قد تحتاج أيضاً لتنصيب حزم أخرى إن كنت تستخدم توزيعات غير المذكورة أعلاه. راجع موقع LLVM لمعلومات أوفر حول طريقة بنائها.<br/>

@@ -48,7 +48,7 @@
  <ul>
   <li>Install the packages for build tools like GCC and CMake using your distribution's package manager. Depending on the distribution you are using, some of these packages might already be installed for you.<br/>
   In Ubuntu use the following command:
-<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc cmake</pre>
+<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake</pre>
   And for Fedora use the following:
 <pre dir=ltr class="code nohighlight">$ sudo yum install gcc gcc-c++ cmake valgrind valgrind-devel</pre>
   Notice the need to install valgrind in Fedora in order to be able to build LLVM. We didn't need to install valgrind in Ubuntu. You might also need to install other packages if you are using distros other than the above. Visit LLVM's website for more details on how to build it.<br/>

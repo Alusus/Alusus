@@ -37,7 +37,7 @@ target_link_libraries(AlususCoreTests AlususCoreLib AlususStorage "dl")
 
 # Set executable output names.
 set_target_properties(AlususCoreTests PROPERTIES OUTPUT_NAME alusus_tests)
-set_target_properties(AlususCoreTests PROPERTIES DEBUG_OUTPUT_NAME alusus_tests_d)
+set_target_properties(AlususCoreTests PROPERTIES DEBUG_OUTPUT_NAME alusus_tests.dbg)
 set_target_properties(AlususCoreTests PROPERTIES VERSION ${AlususVersion})
 
 add_test(NAME AlususCoreTests COMMAND AlususCoreTests)

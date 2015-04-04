@@ -46,7 +46,7 @@ set_target_properties(AlususScgTests PROPERTIES COMPILE_FLAGS "${AlususScgTests_
 
 # Set output names.
 set_target_properties(AlususScgTests PROPERTIES OUTPUT_NAME alusus_scg_tests)
-set_target_properties(AlususScgTests PROPERTIES DEBUG_OUTPUT_NAME alusus_scg_tests_d)
+set_target_properties(AlususScgTests PROPERTIES DEBUG_OUTPUT_NAME alusus_scg_tests.dbg)
 set_target_properties(AlususScgTests PROPERTIES VERSION ${AlususVersion})
 
 llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES core jit native)

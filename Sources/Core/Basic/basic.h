@@ -371,9 +371,31 @@ inline Int compareStr(WChar const *str1, WChar const *str2, Int size)
  *
  * The main purpose of this is to support both regular and wide character types.
  */
+inline void copyStr(Char const *src, Char *dest)
+{
+    strcpy(dest, src);
+}
+
+/**
+ * @brief Wrapper for string copy function.
+ * @ingroup basic_functions
+ *
+ * The main purpose of this is to support both regular and wide character types.
+ */
 inline void copyStr(Char const *src, Char *dest, Word size)
 {
     strncpy(dest, src, size);
+}
+
+/**
+ * @brief Wrapper for wide string copy function.
+ * @ingroup basic_functions
+ *
+ * The main purpose of this is to support both regular and wide character types.
+ */
+inline void copyStr(WChar const *src, WChar *dest)
+{
+    wcscpy(dest, src);
 }
 
 /**

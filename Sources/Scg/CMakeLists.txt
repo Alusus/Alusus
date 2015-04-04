@@ -64,7 +64,7 @@ ADD_PRECOMPILED_HEADER(AlususScg "precompiled_headers.h")
 
 # Set output names.
 set_target_properties(AlususScg PROPERTIES OUTPUT_NAME alusus_scg)
-set_target_properties(AlususScg PROPERTIES DEBUG_OUTPUT_NAME alusus_scg_d)
+set_target_properties(AlususScg PROPERTIES DEBUG_OUTPUT_NAME alusus_scg.dbg)
 set_target_properties(AlususScg PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususScg PROPERTIES SOVERSION ${AlususSoVersion})
 

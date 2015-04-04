@@ -1,4 +1,4 @@
-import "libalusus_scg_d.so";
+import "libalusus_scg.so";
 
 def FunctionOverloading : module {
   link {

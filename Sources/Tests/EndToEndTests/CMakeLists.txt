@@ -51,7 +51,7 @@ set_target_properties(AlususE2ETests PROPERTIES COMPILE_FLAGS "${AlususE2ETests_
 
 # Set output names.
 set_target_properties(AlususE2ETests PROPERTIES OUTPUT_NAME alusus_e2e_tests)
-set_target_properties(AlususE2ETests PROPERTIES DEBUG_OUTPUT_NAME alusus_e2e_tests_d)
+set_target_properties(AlususE2ETests PROPERTIES DEBUG_OUTPUT_NAME alusus_e2e_tests.dbg)
 set_target_properties(AlususE2ETests PROPERTIES VERSION ${AlususVersion})
 
 llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES core jit native)
