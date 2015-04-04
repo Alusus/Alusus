@@ -1,7 +1,7 @@
 import "common.alusus";
 
 def HelloWorld : module {
-  def main : function() => int {
+  def main : function() => Int {
     print_helloworld();
     return 0;
   };

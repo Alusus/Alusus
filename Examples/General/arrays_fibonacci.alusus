@@ -2,10 +2,10 @@ import "common.alusus";
 
 def ArraysFibonacci : module {
   def main : function() {
-    def i : int;
+    def i : Int;
 
     // Generates an array whose elements contains Fibonacci sequence.
-    def testArray : arr[int, 10];
+    def testArray : arr[Int, 10];
     testArray[0] := 1;
     testArray[1] := 1;
 

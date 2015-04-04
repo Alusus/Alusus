@@ -1,9 +1,9 @@
 import "common.alusus";
 
 def Arrays2 : module {
-  def main : function() => int {
-    def testArray : arr[int, 10];
-    def i : int;
+  def main : function() => Int {
+    def testArray : arr[Int, 10];
+    def i : Int;
     i := 3;
     testArray[i+1] := i*5 + 1;
     print("testArray[");

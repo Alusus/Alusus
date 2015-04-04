@@ -35,10 +35,10 @@ void printBuildMsg(const SharedPtr<Processing::BuildMsg> &msg)
 
   // Print severity.
   switch (msg->getSeverity()) {
-    case 0: outStream << STR("BLOCKER "); break;
-    case 1: outStream << STR("ERROR "); break;
-    case 2: case 3: outStream << STR("WARNING "); break;
-    case 4: outStream << STR("ATTN "); break;
+    case 0: outStream << STR("\033[0;31mBLOCKER "); break;
+    case 1: outStream << STR("\033[0;31mERROR "); break;
+    case 2: case 3: outStream << STR("\033[1;33mWARNING "); break;
+    case 4: outStream << STR("\033[0;34mATTN "); break;
   }
   // Print msg code.
   outStream << msg->getCode() << " @ ";
@@ -46,7 +46,7 @@ void printBuildMsg(const SharedPtr<Processing::BuildMsg> &msg)
   outStream << msg->getSourceLocation().filename->c_str()
             << " (" << msg->getSourceLocation().line << "," << msg->getSourceLocation().column << "): ";
   // Print description.
-  outStream << msg->getDescription() << NEW_LINE;
+  outStream << msg->getDescription() << STR("\033[0m") << NEW_LINE;
 }
 
 } // namespace

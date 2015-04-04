@@ -1,11 +1,11 @@
 import "common.alusus";
 
 def TypeDeduction : module {
-  def add : function(a : int, b : int) => int {
+  def add : function(a : Int, b : Int) => Int {
     return a + b;
   };
   
-  def add : function(a : double, b : double) => double {
+  def add : function(a : Double, b : Double) => Double {
     return a + b;
   };
   
@@ -19,7 +19,7 @@ def TypeDeduction : module {
     printf("intValue = %d\n", intValue);
     // We cast the float to double before printing it because %f flat expects
     // a double.
-    def floatValueAsDouble : double;
+    def floatValueAsDouble : Double;
     floatValueAsDouble := floatValue;
     printf("floatValue = %f\n", floatValueAsDouble);
     printf("doubleValue = %f\n", doubleValue);

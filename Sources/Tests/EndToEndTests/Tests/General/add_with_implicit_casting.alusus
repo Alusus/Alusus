@@ -2,8 +2,8 @@ import "common.alusus";
 
 def Add : module {
   def main : function() {
-    def i : int;
-    def d : double;
+    def i : Int;
+    def d : Double;
     i := 1;
     d := 2.0;
     printDouble(i+d);

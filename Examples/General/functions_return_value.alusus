@@ -1,7 +1,7 @@
 import "common.alusus";
 
 def FunctionsReturnValue : module {
-  def add_ints : function (a : int, b : int) => int {
+  def addInts : function (a : Int, b : Int) => int {
     return a + b;
   };
 
@@ -12,15 +12,15 @@ def FunctionsReturnValue : module {
   // of type double, hence I couldn't print the values. If you are wondering how
   // they work in C/C++, the answer is that they get implicitly converted to
   // doubles
-  def return_same : function (a : double) => double {
+  def returnSame : function (a : Double) => Double {
     return a;
   };
 
   def main : function() {
-    printf("%d\n", add_ints(1, 2));
-    printf("%d\n", add_ints(1234, 5678));
-    printf("%g\n", return_same(1.2));
-    printf("%g\n", return_same(12.34));
+    printf("%d\n", addInts(1, 2));
+    printf("%d\n", addInts(1234, 5678));
+    printf("%g\n", returnSame(1.2));
+    printf("%g\n", returnSame(12.34));
   }
 };
 

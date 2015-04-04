@@ -3,8 +3,8 @@ import "common.alusus";
 def Pointers1 : module {
   def main : function()
   {
-    def i : int;
-    def j : ptr[int];
+    def i : Int;
+    def j : ptr[Int];
     i := 5;
     j := i~ptr;
     printf("%d", j~cnt);

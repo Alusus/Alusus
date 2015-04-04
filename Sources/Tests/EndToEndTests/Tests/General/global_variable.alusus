@@ -1,7 +1,7 @@
 import "common.alusus";
 
 def GlobalVariable : module {
-  def i : int;
+  def i : Int;
 
   def main : function() {
     i := 5;

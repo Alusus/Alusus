@@ -2,12 +2,12 @@ import "common.alusus";
 
 def Program1_5_1 : module {
   def main : function() {
-    def EOF : int;
-    EOF := -1;
+    def eof : Int;
+    eof := -1;
 
-    def c : int;
+    def c : Int;
     c := getchar();
-    while (c ^= EOF) {
+    while (c ^= eof) {
       putchar(c);
       c := getchar();
     };

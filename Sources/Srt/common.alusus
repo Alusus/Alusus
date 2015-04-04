@@ -1,5 +1,10 @@
 import "libalusus_scg.so";
 
+def Int : alias int;
+def Flaot : alias float;
+def Double : alias double;
+def String : alias string;
+
 def SystemLinks : module {
   link {
   	fopen(string, string) => ptr[int];
