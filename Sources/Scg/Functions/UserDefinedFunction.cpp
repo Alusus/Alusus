@@ -39,10 +39,6 @@ UserDefinedFunction::UserDefinedFunction(const std::string &name,
     // TODO: Is there anyway to avoid casting away the constness?
     this->argTypeSpecs.push_back(const_cast<ValueTypeSpec*>(def.GetTypeSpec()));
   }
-  // Instances of this class are defined during code generation time by
-  // DefineFunction and DeclareExtFunction, and they take the responsibility
-  // of deleting the body, so we shouldn't allow Expression class to delete it.
-  this->autoDeleteChildren = false;
 }
 
 UserDefinedFunction::~UserDefinedFunction()

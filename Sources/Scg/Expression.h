@@ -107,8 +107,6 @@ protected:
 protected:
   //! An array containing the children expressions.
   ExpressionArray children;
-  //! Whether children should automatically be deleted at destruction time.
-  bool autoDeleteChildren = true;
 
 public:
   Expression() { }
@@ -116,7 +114,7 @@ public:
   /**
    * Destructor.
    */
-  virtual ~Expression();
+  virtual ~Expression() { };
 
   Core::Data::SourceLocation const& GetSourceLocation() const
   {
@@ -307,6 +305,15 @@ private:
   {
     return this->sourceLocation;
   }
+
+public:
+  static void *operator new[](size_t size) = delete;
+
+  static void operator delete[](void *ptr) = delete;
+
+  static void *operator new(size_t size);
+
+  static void operator delete(void *ptr);
 };
 }
 

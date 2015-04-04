@@ -89,6 +89,7 @@ namespace Scg
     GENERATE_ID(linkId, "Main.Link");
     GENERATE_ID(functionId, "Subject.Function");
     GENERATE_ID(structureId, "Subject.Structure");
+    GENERATE_ID(castTildeId, "Expression.Cast_Tilde");
     GENERATE_ID(pointerTildeId, "Expression.Pointer_Tilde");
     GENERATE_ID(contentTildeId, "Expression.Content_Tilde");
   }
@@ -311,8 +312,7 @@ namespace Scg
   {
     if (isAssignment) {
       auto value = GenerateExpression(expr);
-      auto value2 = GenerateExpression(expr);
-      auto defVar = new DefineVariable(value2, name);
+      auto defVar = new DefineVariable(value, name);
       auto assign = new AssignmentOperator(
           new Content(new PointerToVariable(name)), value);
 
@@ -644,24 +644,10 @@ namespace Scg
     } else if (opText.compare("-") == 0) {
       expr = new CallFunction("__neg", new List({expr}));
     } else if (opText.compare("--") == 0) {
-      // TODO: We are regenerating the operand to avoid memory exception
-      // because we are using the same expression in the CallFunction
-      // and the AssignmentOperator expressions. Find a better way to avoid
-      // this. The best way is to a create a memory allocator (or possible use
-      // the AutoDeleteAllocator) for expressions that automatically deallocate
-      // expressions later.
-      auto expr2 = GenerateExpression(unaryExpr->getShared(1));
-      expr = new AssignmentOperator(expr2,
+      expr = new AssignmentOperator(expr,
           new CallFunction("__sub", new List({expr, new IntegerConst(1)})));
     } else if (opText.compare("++") == 0) {
-      // TODO: We are regenerating the operand to avoid memory exception
-      // because we are using the same expression in the CallFunction
-      // and the AssignmentOperator expressions. Find a better way to avoid
-      // this. The best way is to a create a memory allocator (or possible use
-      // the AutoDeleteAllocator) for expressions that automatically deallocate
-      // expressions later.
-      auto expr2 = GenerateExpression(unaryExpr->getShared(1));
-      expr = new AssignmentOperator(expr2,
+      expr = new AssignmentOperator(expr,
           new CallFunction("__add", new List({expr, new IntegerConst(1)})));
     } else {
       throw EXCEPTION(InvalidOperationException, "Unrecognized unary operator.");

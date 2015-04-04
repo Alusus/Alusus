@@ -15,16 +15,17 @@
 #include <boost/lexical_cast.hpp>
 
 // Scg header files
-#include <Containers/List.h>
 #include <CodeGeneration/CodeGenerator.h>
 #include <CodeGeneration/FunctionalExpression.h>
 #include <CodeGeneration/ParamPassExp.h>
+#include <Containers/List.h>
 #include <Instructions/CallFunction.h>
+#include <Instructions/Cast.h>
+#include <Instructions/DeclareExtFunction.h>
 #include <Operators/Content.h>
 #include <Operators/PointerToArrayElement.h>
 #include <Operators/PointerToMemberField.h>
 #include <Operators/PointerToVariable.h>
-#include <Instructions/DeclareExtFunction.h>
 
 namespace Scg
 {
@@ -153,6 +154,39 @@ Expression *FunctionalExpression::ToExpression()
         // ~ptr
         cancelNextContentOp = true;
       }
+      else if (child->getProdId() == this->gen->GetCastTildeId())
+      {
+        // ~cast
+        if (i >= (this->subExprs.size() - 1))
+        {
+          this->gen->GetBuildMsgStore()->add(std::make_shared<Processing::CustomBuildMsg>(
+                                         STR("Invalid postfix tilde expression."),
+                                         STR("SCG1024"), 1, metadata->getSourceLocation()));
+        }
+        else
+        {
+          auto nextExprAst = this->subExprs[i+1];
+          auto nextExprAstMeta = nextExprAst->getInterface<ParsingMetadataHolder>();
+          if (nextExprAstMeta->getProdId() == this->gen->GetParamPassId() &&
+              nextExprAst.s_cast<ParsedRoute>()->getRoute() == ParamPassExp::Square)
+          {
+            ParamPassExp params(this->gen, nextExprAst.s_cast<ParsedRoute>());
+            auto type = this->gen->ParseVariableType(params.GetParam(0));
+            // A token followed by parentheses. This is a function call.
+            if (!cancelNextContentOp) {
+              expr = new Content(expr);
+              expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
+            }
+            expr = new Cast(expr, type);
+            expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
+            i++;
+            // FIXME: Workaround to avoid taking the content of a cast instruction
+            // which is not possible.
+            cancelNextContentOp = true;
+            continue;
+          }
+        }
+      }
       else
       {
         this->gen->GetBuildMsgStore()->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -164,8 +198,12 @@ Expression *FunctionalExpression::ToExpression()
 
   if (cancelNextContentOp)
     return expr;
-  else
-    return new Content(expr);
+  else {
+    auto loc = expr->getSourceLocation();
+    expr = new Content(expr);
+    expr->setSourceLocation(loc);
+    return expr;
+  }
 }
 
 //------------------------------------------------------------------------------

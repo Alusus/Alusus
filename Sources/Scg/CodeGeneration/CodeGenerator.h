@@ -70,6 +70,7 @@ namespace Scg
     Core::Basic::Word GetFunctionId() { return functionId; }
     Core::Basic::Word GetStructureId() { return structureId; }
     Core::Basic::Word GetLinkId() { return linkId; }
+    Core::Basic::Word GetCastTildeId() { return castTildeId; }
     Core::Basic::Word GetPointerTildeId() { return pointerTildeId; }
     Core::Basic::Word GetContentTildeId() { return contentTildeId; }
     Core::Basic::Word GetUnaryExpId() { return unaryExpId; }
@@ -109,6 +110,7 @@ namespace Scg
     Core::Basic::Word functionId;
     Core::Basic::Word structureId;
     Core::Basic::Word linkId;
+    Core::Basic::Word castTildeId;
     Core::Basic::Word pointerTildeId;
     Core::Basic::Word contentTildeId;
 

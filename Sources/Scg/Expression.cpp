@@ -10,20 +10,12 @@
 //==============================================================================
 
 // Scg header files
-#include <Expression.h>
 #include <Containers/Program.h>
+#include <Expression.h>
+#include <Memory/AutoDeleteAllocator.h>
 
 namespace Scg
 {
-Expression::~Expression()
-{
-  if (this->autoDeleteChildren == true)
-    for (auto expr : this->children)
-      delete expr;
-}
-
-//----------------------------------------------------------------------------
-
 // TODO: CallPreGenerateCode(), CallGenerateCode(), and CallPostGenerateCode() now
 // do the same functionality. Combine them into one function that accepts a
 // a parameter specifying the stage of code generation so that we remove duplication
@@ -85,8 +77,6 @@ Expression::CodeGenerationStage Expression::CallPreGenerateCode()
   return std::min(this->codeGenStage, this->childrenCodeGenStage);
 }
 
-//----------------------------------------------------------------------------
-
 Expression::CodeGenerationStage Expression::CallGenerateCode()
 {
   // Have we already finished code generation for this expression and its
@@ -139,8 +129,6 @@ Expression::CodeGenerationStage Expression::CallGenerateCode()
   return std::min(this->codeGenStage, this->childrenCodeGenStage);
 }
 
-//----------------------------------------------------------------------------
-
 Expression::CodeGenerationStage Expression::CallPostGenerateCode()
 {
   // Have we already finished post-code generation for this expression and its
@@ -175,16 +163,12 @@ Expression::CodeGenerationStage Expression::CallPostGenerateCode()
   return std::min(this->codeGenStage, this->childrenCodeGenStage);
 }
 
-//----------------------------------------------------------------------------
-
 const Program *Expression::GetProgram() const
 {
   if (module == nullptr)
     return nullptr;
   return module->GetProgram();
 }
-
-//----------------------------------------------------------------------------
 
 void Expression::SetModule(Module *module)
 {
@@ -193,8 +177,6 @@ void Expression::SetModule(Module *module)
     expr->SetModule(module);
 }
 
-//----------------------------------------------------------------------------
-
 void Expression::SetFunction(UserDefinedFunction *function)
 {
   this->function = function;
@@ -202,12 +184,20 @@ void Expression::SetFunction(UserDefinedFunction *function)
     expr->SetFunction(function);
 }
 
-//----------------------------------------------------------------------------
-
 void Expression::SetBlock(Block *block)
 {
   this->block = block;
   for (auto expr : this->children)
     expr->SetBlock(block);
+}
+
+void *Expression::operator new(size_t size)
+{
+  return AutoDeleteAllocator::GetSingleton().Allocate(size);
+}
+
+void Expression::operator delete(void *ptr)
+{
+  AutoDeleteAllocator::GetSingleton().Free(ptr);
 }
 }
