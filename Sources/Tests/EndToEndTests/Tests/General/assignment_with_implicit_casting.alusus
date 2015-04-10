@@ -4,8 +4,8 @@ def AssignmentWithImplicitCasting : module {
   def main : function() {
     def i : Int;
     def d : Double;
-    i := 1;
-    d := i;
+    i = 1;
+    d = i;
     printDouble(d);
     return 0;
   }

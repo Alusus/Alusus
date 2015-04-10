@@ -114,8 +114,8 @@ BinaryOperation (kwds:list[string]) : Operand (Command(kwds[0]) Command(kwds[1])
    Grammar definitions can be grouped into modules in a way similar to object oriented programming. In the following example, definitions related to expressions are grouped into one module:
 <pre dir=ltr class="code">
 Expression : {
-  Add (kwds:=["+","-"]) : Multiply [(kwds[0] | kwds[1] | ...) Add].
-  Multiply (kwds:=["*","/"]) : Operand [(kwds[0] | kwds[1] | ...) Multiply].
+  Add (kwds=["+","-"]) : Multiply [(kwds[0] | kwds[1] | ...) Add].
+  Multiply (kwds=["*","/"]) : Operand [(kwds[0] | kwds[1] | ...) Multiply].
   Operand : Identifier | Literal.
 }.
 </pre>
@@ -124,12 +124,12 @@ Expression : {
   <h3>Grammar Inheritance</h3>
   In Alusus, grammar definitions can inherit from other definitions. As in object oriented programming, inheritance in the grammar copies the properties of a definition into the inheriting definition which can in turn override some of those properties. For example, if we have the following definition:
 <pre dir=ltr class="code">
-LogicalOperation (kwds:=["and", "or"]) : Operand (kwds[0] | kwds[1] | ...) Operand.
+LogicalOperation (kwds=["and", "or"]) : Operand (kwds[0] | kwds[1] | ...) Operand.
 </pre>
   then we can derive a new definition from it and add more keywords to the child (inheriting) definition:
 <pre dir=ltr class="code">
 MyLogicalOperation -&gt; LogicalOperation (
-  kwds := ["and", "or", "&&", "||"]
+  kwds = ["and", "or", "&&", "||"]
 ).
 </pre>
   Inheritance is also possible with modules, so you can have one module inherits from another. In the case of modules, inheritance copies all elements of the parent module to the child module which in turn can replace some of those elements or add new elements. In the following example we define a module that inherits another module and replace one of its definitions:
@@ -240,16 +240,16 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
 
   <h3>Expressions</h3>
   Expressions consists of subjects linked with operators in a way similar to popular programming languages. The following is a list of the important operators:
-  NOT operator: ^<br/>
+  NOT operator: !<br/>
   OR operator: |<br/>
-  XOR operator: !<br/>
+  XOR operator: $<br/>
   AND operator: &<br/>
   Math operators: +، -، *، /<br/>
-  Bitwise operators: &، |، !، ^<br/>
-  Logical operators: &&، ||، !!، ^^<br/>
+  Bitwise operators: &، |، $، !<br/>
+  Logical operators: &&، ||، $$، !!<br/>
   Comparison operators: <، >، =>، =<، =<br/>
-  Assignment operator: =:<br/>
-  Other Assignment operators: =+، =-، =*، =/، =|، =&، =!، =^<br/>
+  Assignment operator: =<br/>
+  Other Assignment operators: +=، -=، *=، /=، |=، &=، $=<br/>
   Lists are separated by commas. For example: a,b,c<br/>
   Grouping subjects is done using regular brackets: ()<br/>
 
@@ -287,7 +287,7 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
   And to dynamically specify the array size the following syntax is used:
 <pre dir=ltr class="code">
  "def" name ":" "array" "[" type "]" "(" number ")".
- "def" name ":=" "array" "[" type "]" "~new" "(" number ")".
+ "def" name "=" "array" "[" type "]" "~new" "(" number ")".
 </pre>
   Array Usage:
   <pre dir=ltr class="code">name "(" number ")".</pre>
@@ -325,9 +325,7 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
   <ul>
    <li>Function Brackets: Regular brackets have always been used for functions in math, so Alusus chose to follow suit and use them for functions.</li>
    <li>Command Arguments: Command arguments (like expressions of conditional statements) do not include brackets because parsing can be done without them, therefore adding them is meaningless.</li>
-   <li>Assignment Symbol: For assignment the symbol := is used because the symbol = in math has a meaning that is closer to comparison than assignment. Also, the := symbol is consistent with +=, -=, etc, while the = symbol is consistent with other comparison operators like >, >=, <, <=, etc.</li>
    <li>Some programmers prefer not to use statement separators (;) but if this is correct then why do we have statement separators in human languages?</li>
-   <li>The symbol ^ is used for NOT instead of ! because the latter is used for XOR due to its similarity with the or symbol |.</li>
    <li>Access control keywords like `public` and `private` are treated as modifiers (starting with @) because they only carry metadata that are used by the compilation system and they do not affect the way the program is executed.</li>
    <li>The keyword `def` is used to define functions and classes in order to put the entire definition on the side that follows the colon instead of having the name of the function or the class in the middle of the definition. This makes it easier to understand the definition especially with complex definitions like pointers to functions or arrays of pointers to functions.</li>
    <li>Regular brackets are used to access array members instead of square brackets because the latter is used for compile time arguments. For the same reason regular brackets are used to dynamically specify array sizes while square brackets are used to define array types which is a compile time info.</li>
@@ -358,7 +356,7 @@ def Factorial : namespace
 {
   def factorial : function (i:int)=>(int)
   {
-    if i = 0 return 1 else return i * factorial(i-1)
+    if i == 0 return 1 else return i * factorial(i-1)
   };
   
   def main : function
@@ -376,7 +374,7 @@ def While : namespace
 {
   def main : function
   {
-    def i : int := 1;
+    def i : int = 1;
     while i < 10 {
       print("%d\n", i);
       ++i;
@@ -394,8 +392,8 @@ def Arrays : namespace
   def main : function
   {
     def a : array[int](10);
-    for i:int:=0, i<10, ++i a(i) := i;
-    for i:int:=0, i<10, ++i print("%d\n", a(i));
+    for i:int=0, i<10, ++i a(i) = i;
+    for i:int=0, i<10, ++i print("%d\n", a(i));
     return 0
   }
 }
@@ -409,8 +407,8 @@ def Pointers : namespace
   def main : function
   {
     def p : ptr[int], i : int;
-    i := 10;
-    p := i~ptr;
+    i = 10;
+    p = i~ptr;
     print("%d\n", p);     // prints the address of i.
     print("%d\n", p~cnt); // prints the value of i.
     return 0
@@ -426,7 +424,7 @@ def Casting : namespace
   def main : function
   {
     def i : int, f : float;
-    i := 10;
+    i = 10;
     // Treat the bits of i as a floating point number by doing this:
     // Get the pointer of i,
     // then cast the pointer to a pointer of float,
@@ -449,8 +447,8 @@ def ClassDefinition : namespace
     @private def j : int;
     @public def constructor : function (a:int, b:int)
     {
-      this.i := a;
-      this.j := b;
+      this.i = a;
+      this.j = b;
     };
     @public def getI : function ()=>(int) { return this.i };
     @public def getJ : function ()=>(int) { return this.j }
@@ -462,7 +460,7 @@ def ClassDefinition : namespace
     @public def constructor : function (a:int, b:int, c:int)
     {
       parent.constructor(a, b);
-      this.k := c
+      this.k = c
     };
     @public def getK : function ()=>(int) { return this.j }
   }
@@ -472,7 +470,7 @@ def ClassDefinition : namespace
 
  </div>
  <div style="border-top: solid 1px; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>Copyright (C) 2014 <a href="http://sarmad-khalid.info" target="__blank">Sarmad Khalid Abdullah</a>.<br/>
+  <p>Copyright (C) 2015 <a href="http://sarmad-khalid.info" target="__blank">Sarmad Khalid Abdullah</a>.<br/>
   This file is released under Alusus Public License, Version 1.0. For details on usage and copying conditions
   read the full license in the accompanying license file or at <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>.
   </p>

@@ -591,9 +591,9 @@ namespace Scg
       } else if (opText.compare("/") == 0) {
         expr = new CallFunction("__div", new List({lhs, rhs}));
       // Comparison operators
-      } else if (opText.compare("=") == 0)
+      } else if (opText.compare("==") == 0)
         expr = new BinaryOperator(BinaryOperator::EQUAL, lhs, rhs);
-      else if (opText.compare("^=") == 0)
+      else if (opText.compare("!=") == 0)
         expr = new BinaryOperator(BinaryOperator::NOTEQUAL, lhs, rhs);
       else if (opText.compare(">") == 0)
         expr = new BinaryOperator(BinaryOperator::GREATERTHAN, lhs, rhs);
@@ -604,7 +604,7 @@ namespace Scg
       else if (opText.compare("<=") == 0)
         expr = new BinaryOperator(BinaryOperator::LESSTHAN_EQUAL, lhs, rhs);
       // Assignment operators
-      else if (opText.compare(":=") == 0)
+      else if (opText.compare("=") == 0)
         expr = new AssignmentOperator(lhs, rhs);
       // Invalid operator
       else
@@ -837,7 +837,7 @@ namespace Scg
     }
     else if (itemMetadata->getProdId() == functionalExpId)
     {
-      // This is a compound type so we need to parse the modifier (ptr, arr, etc.)
+      // This is a compound type so we need to parse the modifier (ptr, ary, etc.)
       static ReferenceSeeker seeker;
       static SharedPtr<Reference> modifierReference = ReferenceParser::parseQualifier(
         STR("0~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
@@ -867,7 +867,7 @@ namespace Scg
         auto contentTypeSpec = ParseVariableType(typeAstRoot);
         return new PointerValueTypeSpec(contentTypeSpec);
       }
-      else if (SBSTR(this->TranslateAliasedName(funcName->getText().c_str())) == "arr")
+      else if (SBSTR(this->TranslateAliasedName(funcName->getText().c_str())) == "ary")
       {
         // TODO: Re-factor this if block into a separate function.
         // Array of types

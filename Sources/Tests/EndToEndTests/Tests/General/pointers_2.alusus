@@ -9,8 +9,8 @@ def Pointers2 : module {
   {
     def i : Int;
     def j : ptr[Int];
-    i := 5;
-    j := i~ptr;
+    i = 5;
+    j = i~ptr;
     print_content(j);
   }
 };

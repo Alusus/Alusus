@@ -3,11 +3,11 @@ import "common.alusus";
 def Increment : module {
   def main : function() {
     def i : Int;
-    i := 0;
+    i = 0;
     def j : Int;
-    j := --i;
+    j = --i;
     def k : Int;
-    k := --i;
+    k = --i;
     printInt(i);
     print("\n");
     printInt(j);

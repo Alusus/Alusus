@@ -4,8 +4,8 @@ def Add : module {
   def main : function() {
     def i : Int;
     def d : Double;
-    i := 1;
-    d := 2.0;
+    i = 1;
+    d = 2.0;
     printDouble(i+d);
     print("\n");
     printInt(1234+5678);

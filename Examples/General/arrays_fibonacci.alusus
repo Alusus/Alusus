@@ -5,16 +5,16 @@ def ArraysFibonacci : module {
     def i : Int;
 
     // Generates an array whose elements contains Fibonacci sequence.
-    def testArray : arr[Int, 10];
-    testArray[0] := 1;
-    testArray[1] := 1;
+    def testArray : ary[Int, 10];
+    testArray[0] = 1;
+    testArray[1] = 1;
 
-    for (i := 2, i < 10, i := i+1) {
-      testArray[i] := testArray[i-1] + testArray[i-2];  	  
+    for (i = 2, i < 10, i = i+1) {
+      testArray[i] = testArray[i-1] + testArray[i-2];  	  
     };
   	
     // Prints the elements of the array.
-    for (i := 0, i < 10, i := i+1) {
+    for (i = 0, i < 10, i = i+1) {
       printf("%d\n", testArray[i]);
     };
   }

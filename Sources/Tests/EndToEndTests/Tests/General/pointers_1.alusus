@@ -5,8 +5,8 @@ def Pointers1 : module {
   {
     def i : Int;
     def j : ptr[Int];
-    i := 5;
-    j := i~ptr;
+    i = 5;
+    j = i~ptr;
     printf("%d", j~cnt);
     return 0;
   }

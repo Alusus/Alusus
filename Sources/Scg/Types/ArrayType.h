@@ -29,7 +29,7 @@ namespace Scg
 */
 class ArrayType : public ValueType
 {
-  //! The name of the type, for example arr[int, 10].
+  //! The name of the type, for example ary[int, 10].
   std::string name;
   ArrayValueTypeSpec typeSpec;
   const ValueType *elementsType;

@@ -8,11 +8,14 @@ What's New:
 
   * Support for automatic type deduction during variable definition. For example
     this statement will automatically determine the type of i as integer:
-    def i := 5;
-  * Support for implicit casting.
+    def i = 5;
+  * Support for explicit and implicit casting.
   * Support for unary -, prefix ++, and prefix -- operators.
   * Support for calling functions defined later in the module.
   * Enabled linking to third party shared libraries.
+  * Replaced some operators with more familiar operators. The assignment
+    operator is now = instead of :=, and the comparison operator is now
+    == instead of =. The negation operator is now using ! instead of ^.
   * The 'import' command now searches through multiple paths for the requested
     file rather than only the current directory.
   * Support for UTF8 in the lexer.

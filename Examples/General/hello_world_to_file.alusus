@@ -7,7 +7,7 @@ def HelloWorld : module {
 
   def main : function() => Int {
     def f : ptr[Int];
-    f := openTestFile();
+    f = openTestFile();
     writeToFile(f, "Hello World!\n");
     closeFile(f);
     return 0;

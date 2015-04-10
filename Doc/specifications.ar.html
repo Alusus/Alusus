@@ -215,7 +215,7 @@ ignore { Spacing * (1,endless) };
 
     <h3>التعريف القواعدي</h3>
 <pre dir=ltr class="code">
-escapeSequences : keywords := (
+escapeSequences : keywords = (
   // invisible characters:
   "\\n", "\\r", "\\t", "\\b", "\\f", "\\0",
   // special characters:
@@ -281,13 +281,13 @@ Constant : token as (@unique cnst:string)=>{ cnst };
      <h3>مجموعات الثوابت</h3>
      يمكن تقسيم ثوابت اللغة إلى المجموعات التالية:
      <table class="dict bilingual">
-      <tr><td>مؤثرات التعيين</td><td dir=ltr style="word-spacing:20px;">:=  +=  -=  *=  /=  %=  &=  |=  $=  ^:=  &lt;&lt;=  &gt;&gt;=</td></tr>
-      <tr><td>مؤثرات المقارنة</td><td dir=ltr style="word-spacing:20px;">=  ^=  ==  ^==  &lt;  &gt;  &lt;=  &gt;=</td></tr>
+      <tr><td>مؤثرات التعيين</td><td dir=ltr style="word-spacing:20px;">=  +=  -=  *=  /=  %=  &=  |=  $=  &lt;&lt;=  &gt;&gt;=</td></tr>
+      <tr><td>مؤثرات المقارنة</td><td dir=ltr style="word-spacing:20px;">==  !=  &lt;  &gt;  &lt;=  &gt;=</td></tr>
       <tr><td>مؤثرات الجمع والطرح</td><td dir=ltr style="word-spacing:20px;">+  -</td></tr>
       <tr><td>مؤثرات القسمة والضرب</td><td dir=ltr style="word-spacing:20px;">*  /  %</td></tr>
-      <tr><td>مؤثرات التعاملات البتّية</td><td dir=ltr style="word-spacing:20px;">|  ^|  $  ^$  &  ^&  &lt;&lt;  &gt;&gt;</td></tr>
-      <tr><td>مؤثرات التعاملات المنطقية</td><td dir=ltr style="word-spacing:20px;">||  ^||  $$  ^$$  &&  ^&&  or  nor  xor  xnor  and  nand</td></tr>
-      <tr><td>مؤثرات التعاملات الأحادية المسبقة</td><td dir=ltr style="word-spacing:20px;">++  --  +  -  ^  ^^  not</td></tr>
+      <tr><td>مؤثرات التعاملات البتّية</td><td dir=ltr style="word-spacing:20px;">|  $  &  &lt;&lt;  &gt;&gt;</td></tr>
+      <tr><td>مؤثرات التعاملات المنطقية</td><td dir=ltr style="word-spacing:20px;">||  $$  &&  or  nor  xor  xnor  and  nand</td></tr>
+      <tr><td>مؤثرات التعاملات الأحادية المسبقة</td><td dir=ltr style="word-spacing:20px;">++  --  +  -  !  !!  not</td></tr>
       <tr><td>مؤثرات التعاملات الأحادية المؤخرة</td><td dir=ltr style="word-spacing:20px;">++  --</td></tr>
       <tr><td>مؤثرات الربط العليا</td><td dir=ltr style="word-spacing:20px;">.  -&gt;  .&gt; &lt;.</td></tr>
       <tr><td>مؤثرات الربط الثانية</td><td dir=ltr style="word-spacing:20px;">=&gt;  ..  ..&gt;  &lt;..</td></tr>
@@ -374,8 +374,8 @@ FloatLiteral : trule as {
 
       <h3>التعريف القواعدي</h3>
 <pre dir=ltr class="code">
-charCodes : list[string] := ("u", "u8", "u16", "u32", "a");
-escapeSequences : keywords := (
+charCodes : list[string] = ("u", "u8", "u16", "u32", "a");
+escapeSequences : keywords = (
   // invisible characters:
   "\\n", "\\r", "\\t", "\\b", "\\f", "\\0",
   // special characters:
@@ -417,8 +417,8 @@ CharLiteral : trule as { "'" + EsCharWithDoubleQuote + "'" + CharCodePostfix*(0,
 
       <h3>التعريف القواعدي</h3>
 <pre dir=ltr class="code">
-charCodes : list[string] := ("u", "u8", "u16", "u32", "a");
-escapeSequences : keywords := (
+charCodes : list[string] = ("u", "u8", "u16", "u32", "a");
+escapeSequences : keywords = (
   // invisible characters:
   "\\n", "\\r", "\\t", "\\b", "\\f", "\\0",
   // special characters:
@@ -457,7 +457,7 @@ StringLiteral : trule as {
 
       <h3>التعريف القواعدي</h3>
 <pre dir=ltr class="code">
-escapeSequences : keywords := (
+escapeSequences : keywords = (
   // invisible characters:
   "\\n", "\\r", "\\t", "\\b", "\\f", "\\0",
   // special characters:
@@ -521,9 +521,9 @@ Main : module {
     Statement*(0, 1) + (lexer.Constant(";") + Statement*(0, 1))*(0, endless)
   };
 
-  Statement : @limit[user.parent=self,child.terms=self] prule
+  Statement : @limit[user.parent==self,child.terms==self] prule
     prefix self.id, DefaultModifier
-    as (phrases:list[prule[Phrase]]:=(CmdPhrase, SoloCmdPhrase, ExpPhrase)=>{
+    as (phrases:list[prule[Phrase]]=(CmdPhrase, SoloCmdPhrase, ExpPhrase)=>{
       alternate (phrases:phrase)->( phrase )
   };
 
@@ -532,11 +532,11 @@ Main : module {
   };
 
   // Default phrases.
-  CmdPhrase : prule ref Phrase(subjects:=((prd:=LeadingCmdGroup,min:=1,max:=1),
-                                          (prd:=TrailingCmdGroup,min:=0,max:=endless)));
-  SoloCmdPhrase : prule ref Phrase(sections:=((prd:=SoloCmdGroup,min:=1,max:=1)));
-  ExpPhrase : prule ref Phrase(subjects:=((prd:=root.Expression,min:=1,max:=1),
-                                          (prd:=TrailingCmdGroup,min:=0,max:=endless)));
+  CmdPhrase : prule ref Phrase(subjects=((prd=LeadingCmdGroup,min=1,max=1),
+                                         (prd=TrailingCmdGroup,min=0,max=endless)));
+  SoloCmdPhrase : prule ref Phrase(sections=((prd=SoloCmdGroup,min=1,max=1)));
+  ExpPhrase : prule ref Phrase(subjects=((prd=root.Expression,min=1,max=1),
+                                         (prd=TrailingCmdGroup,min=0,max=endless)));
 }
 </pre>
    </div>
@@ -583,7 +583,7 @@ operand1 {binaryOp operand2}.
       <li><b>مؤثرات التعيين</b><br/>
       تستخدم لتعيين قيمة جديدة لحدّ.
        <table class="dict">
-        <tr><td dir=ltr>:=</td><td>تحديد قيمة جديدة</tr>
+        <tr><td dir=ltr>=</td><td>تحديد قيمة جديدة</tr>
         <tr><td dir=ltr>+=</td><td>إضافة قيمة للقيمة الحالية</td></tr>
         <tr><td dir=ltr>-=</td><td>طرح قيمة من القيمة الحالية</td></tr>
         <tr><td dir=ltr>*=</td><td>ضرب القيمة الحالية بقيمة أخرى</td></tr>
@@ -592,7 +592,6 @@ operand1 {binaryOp operand2}.
         <tr><td dir=ltr>&=</td><td>تطبيق عملية 'و' المنطقية على القيمة الحالية</td></tr>
         <tr><td dir=ltr>|=</td><td>تطبيق عملية 'أو' المنطقية على القيمة الحالية</td></tr>
         <tr><td dir=ltr>$=</td><td>تطبيق عملية xor المنطقية على القيمة الحالية</td></tr>
-        <tr><td dir=ltr>^:=</td><td>تحديد قيمة جديدة بعد عكسها (أي عكس جميع بتّاتها)</td></tr>
         <tr><td dir=ltr>&lt;&lt;=</td><td>تزحيف جميع البتّات يساراً مراتباَ بتعداد القيمة المعطاة</td></tr>
         <tr><td dir=ltr>=&gt;&gt;</td><td>تزحيف جميع البتّات يميناً مراتباً بتعداد القيمة المعطاة</td></tr>
        </table>
@@ -602,23 +601,18 @@ operand1 {binaryOp operand2}.
         <tr><td dir=ltr>or</td><td>عملية 'أو'</td></tr>
         <tr><td dir=ltr>||</td><td>صيغة رمزية ل or</td></tr>
         <tr><td dir=ltr>nor</td><td>عملية 'أو' معكوسة</td></tr>
-        <tr><td dir=ltr>^||</td><td>صيغة رمزية ل nor</td></tr>
         <tr><td dir=ltr>xor</td><td>عملية xor</td></tr>
         <tr><td dir=ltr>$$</td><td>صيغة رمزية ل xor</td></tr>
         <tr><td dir=ltr>xnor</td><td>عملية xor معكوسة</td></tr>
-        <tr><td dir=ltr>^$$</td><td>صيغة رمزية ل xnor</td></tr>
         <tr><td dir=ltr>and</td><td>عملية 'و'</td></tr>
         <tr><td dir=ltr>&&</td><td>صيغة رمزية ل and</td></tr>
         <tr><td dir=ltr>nand</td><td>عملية 'و' معكوسة</td></tr>
-        <tr><td dir=ltr>^&&</td><td>صيغة رمزية ل nand</td></tr>
        </table>
       </li>
       <li><b>مؤثرات المقارنة</b><br/>
        <table class="dict">
-        <tr><td dir=ltr>=</td><td>فحص مساواة</td></tr>
-        <tr><td dir=ltr>^=</td><td>فحص عدم المساواة</td></tr>
-        <tr><td dir=ltr>==</td><td>فحص مساواة غير حرفية، كأن تساوي بين رقم وبين سلسلة محارف تحمل رقماً</td></tr>
-        <tr><td dir=ltr>^==</td><td>فحص عدم مساواة غير حرفية</td></tr>
+        <tr><td dir=ltr>==</td><td>فحص مساواة</td></tr>
+        <tr><td dir=ltr>!=</td><td>فحص عدم المساواة</td></tr>
         <tr><td dir=ltr>&lt;</td><td>فحص أصغر</td></tr>
         <tr><td dir=ltr>&gt;</td><td>فحص أكبر</td></tr>
         <tr><td dir=ltr>&lt;=</td><td>فحص أصغر أو يساوي</td></tr>
@@ -651,11 +645,8 @@ operand1 {binaryOp operand2}.
        هذه المؤثرات لتطبيق عمليات منطقية على مستوى البتّات، أي تطبيق العمليات على كل بت وما يقابله، بالإضافة إلى عمليات تزحيف البتّات.
        <table class="dict">
         <tr><td dir=ltr>|</td><td>عملية 'أو'</td></tr>
-        <tr><td dir=ltr>^|</td><td>عملية 'أو' معكوسة</td></tr>
         <tr><td dir=ltr>$</td><td>عملية xor</td></tr>
-        <tr><td dir=ltr>^$</td><td>عملية xor معكوسة</td></tr>
         <tr><td dir=ltr>&</td><td>عملية 'و'</td></tr>
-        <tr><td dir=ltr>^&</td><td>عملية 'و' معكوسة</td></tr>
         <tr><td dir=ltr>&lt;&lt;</td><td>تزحيف البتّات يميناً مراتباً بتعداد القيمة المعطاة</td></tr>
         <tr><td dir=ltr>&gt;&gt;</td><td>تزحيف البتّات يساراً مراتباً بتعداد القيمة المعطاة</td></tr>
        </table>
@@ -666,8 +657,8 @@ operand1 {binaryOp operand2}.
         <tr><td>--</td><td>إنقاص بواحد</td></tr>
         <tr><td>+</td><td>إشارة الرقم الموجب</td></tr>
         <tr><td>-</td><td>إشارة الرقم السالب</td></tr>
-        <tr><td>^</td><td>علامة النفي البتّية (عكس قيمة البتّات)</td></tr>
-        <tr><td>^^</td><td>علامة النفي المنطقية</td></tr>
+        <tr><td>!</td><td>علامة النفي البتّية (عكس قيمة البتّات)</td></tr>
+        <tr><td>!!</td><td>علامة النفي المنطقية</td></tr>
        </table>
       </li>
       <li><b>المؤثرات الأحادية اللاحقة</b>
@@ -715,8 +706,8 @@ if a(b,c,d)\ -e  // makes (a,b,c) part of the condition and leaves -e out.
    <h3>فرض أسبقيات مختلفة</h3>
    يمكن استخدام الأقواس لوضع تركيب كامل كحدً في تركيب آخر وذلك لفرض أسبقيات مختلفة عن الأسبقية الإفتراضية. على سبيل المثال:
 <pre dir=ltr class="samplecode">
-a := b + c * d;
-a := (b + c) * d;
+a = b + c * d;
+a = (b + c) * d;
 </pre>
    في المثال الأول تجمع b مع ناتج ضرب c و d بينما في المثال الثاني تُضرب d بناتج جمع c و b.
 
@@ -724,20 +715,19 @@ a := (b + c) * d;
 <pre dir=ltr class="code">
 TokenData : module {
   // Predefined Operator Lists
-  assignmentOpList : keywords := (":=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "^:=",
+  assignmentOpList : keywords = ("=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=",
                                   "&lt;&lt;=", "&gt;&gt;=");
-  comparisonOpList : keywords := ("=", "^=", "==", "^==", "&lt;", "&gt;", "&lt;=", "&gt;=");
-  addOpList : keywords := ("+", "-");
-  mulOpList : keywords := ("*", "/", "%");
-  bitwiseOpList : keywords := ("|", "^|", "$", "^$", "&", "^&", "&lt;&lt;", "&gt;&gt;");
-  logOpList : keywords := ("||", "^||", "$$", "^$$", "&&", "^&&", "or", "nor", "xor", "xnor", "and",
-                           "nand");
-  prefixOpList : keywords := ("++", "--", "+", "-", "^", "^^", "not");
-  postfixOpList : keywords := ("++", "--");
-  linkOpList : keywords := ("-&gt;", ".", ".&gt;", "&lt;.");
-  lowLinkOpList : keywords := ("=&gt;", "..", "..&gt;", "&lt;..");
-  lowerLinkOpList : keywords := (":", ":&gt;", "&lt;:");
-  lowestLinkOpList : keywords := ("::", "::&gt;", "&lt;::", "in")
+  comparisonOpList : keywords = ("==", "!=", "&lt;", "&gt;", "&lt;=", "&gt;=");
+  addOpList : keywords = ("+", "-");
+  mulOpList : keywords = ("*", "/", "%");
+  bitwiseOpList : keywords = ("|", "$", "&", "&lt;&lt;", "&gt;&gt;");
+  logOpList : keywords = ("||", "$$", "&&", "or", "nor", "xor", "xnor", "and", "nand");
+  prefixOpList : keywords = ("++", "--", "+", "-", "!", "!!", "not");
+  postfixOpList : keywords = ("++", "--");
+  linkOpList : keywords = ("-&gt;", ".", ".&gt;", "&lt;.");
+  lowLinkOpList : keywords = ("=&gt;", "..", "..&gt;", "&lt;..");
+  lowerLinkOpList : keywords = (":", ":&gt;", "&lt;:");
+  lowestLinkOpList : keywords = ("::", "::&gt;", "&lt;::", "in")
 };
 
 // Expression :
@@ -750,67 +740,67 @@ Expression : module {
   start Exp;
 
   Exp : prule as { LowestLinkExp + (@priority(in,0) lexer.Constant("\\")*(0,1)) };
-  LowestLinkExp : prule prefix self.id as (enable:integer:=endless)=&gt;{
+  LowestLinkExp : prule prefix self.id as (enable:integer=endless)=&gt;{
       ConditionalExp + (@priority(in,0) (LowestLinkOp + ConditionalExp)*(0,enable))
     };
-  ConditionalExp : prule prefix self.id  as (enable:integer[0&lt;=n&lt;=1]:=1)=&gt;{
+  ConditionalExp : prule prefix self.id  as (enable:integer[0&lt;=n&lt;=1]=1)=&gt;{
       ListExp + (@priority(in,0) (lexer.Constant("?") + ListExp)*(0,enable))
     };
-  ListExp : prule prefix self.id as (enable:integer:=endless)=&gt;{
+  ListExp : prule prefix self.id as (enable:integer=endless)=&gt;{
       (@priority(in,0) lexer.Constant(",")*(0,enable)) + LowerLinkExp +
       (@priority(in,0) (lexer.Constant(",") + LowerLinkExp*(0,1))*(0,enable))
     };
-  LowerLinkExp : prule prefix self.id as (enable:integer:=endless)=&gt;{
+  LowerLinkExp : prule prefix self.id as (enable:integer=endless)=&gt;{
       AssignmentExp + (@priority(in,0) (LowerLinkOp + AssignmentExp)*(0,enable))
     };
-  AssignmentExp : prule prefix self.id as (enable:integer:=endless)=&gt;{
+  AssignmentExp : prule prefix self.id as (enable:integer=endless)=&gt;{
       LogExp + (@priority(in,0) (AssignmentOp + LogExp)*(0,enable))
     };
-  LogExp : prule prefix self.id as (enable:integer:=endless)=&gt;{
+  LogExp : prule prefix self.id as (enable:integer=endless)=&gt;{
       ComparisonExp + (@priority(in,0) (LogOp + ComparisonExp)*(0,enable))
     };
-  ComparisonExp : prule prefix self.id as (enable:integer:=endless)=&gt;{
+  ComparisonExp : prule prefix self.id as (enable:integer=endless)=&gt;{
       LowLinkExp + (@priority(in,0) (ComparisonOp + LowLinkExp)*(0,enable))
     };
-  LowLinkExp : prule prefix self.id as (enable:integer:=endless)=&gt;{
+  LowLinkExp : prule prefix self.id as (enable:integer=endless)=&gt;{
       AddExp + (@priority(in,0) (LowLinkOp + AddExp)*(0,enable))
     };
-  AddExp : prule prefix self.id as (enable:integer:=endless)=&gt;{
+  AddExp : prule prefix self.id as (enable:integer=endless)=&gt;{
       MulExp + (@priority(in,0) (AddOp + MulExp)*(0,enable))
     };
-  MulExp : prule prefix self.id as (enable:integer:=endless)=&gt;{
+  MulExp : prule prefix self.id as (enable:integer=endless)=&gt;{
       BitwiseExp + (@priority(in,0) (MulOp + BitwiseExp)*(0,enable))
     };
-  BitwiseExp : prule prefix self.id as (enable:integer:=endless)=&gt;{
+  BitwiseExp : prule prefix self.id as (enable:integer=endless)=&gt;{
       UnaryExp + (@priority(in,0) (BitwiseOp + UnaryExp)*(0,enable))
     };
-  UnaryExp : prule prefix self.id as (enable1:integer[0&lt;=n&lt;=1]:=1,
-                                      enable2:integer[0&lt;=n&lt;=1]:=1)=&gt;{
+  UnaryExp : prule prefix self.id as (enable1:integer[0&lt;=n&lt;=1]=1,
+                                      enable2:integer[0&lt;=n&lt;=1]=1)=&gt;{
       (@priority(in,0) PrefixOp*(0,enable1)) + FunctionalExp +
       (@priority(in,0) PostfixOp*(0,enable2))
     };
   FunctionalExp : prule prefix self.id
-    as (operand:valid_subject:=root.Subject, fltr:filter:=null, dup:integer:=endless,
-        pty:integer:=in)=&gt;{
+    as (operand:valid_subject=root.Subject, fltr:filter=null, dup:integer=endless,
+        pty:integer=in)=&gt;{
       operand + (@priority(pty,0) (@filter(fltr) ParamPassExp ||
                                                  TildeExp ||
                                                  LinkExp(operand))*(0,dup))
     };
 
   // ParamPassExp : "(" [Expression] ")" | "[" [Expression] "]".
-  ParamPassExp : prule as (expr:prule[Expression||Statement]:=root.Expression,
-                           fltr:filter:=null)=&gt;{
+  ParamPassExp : prule as (expr:prule[Expression||Statement]=root.Expression,
+                           fltr:filter=null)=&gt;{
     @filter(fltr) lexer.Constant("(") + expr*(0,1) + lexer.Constant(")") ||
                   lexer.Constant("[") + expr*(0,1) + lexer.Constant("]")
   };
 
   // TildeExp : "~" Subject.
-  TildeExp : prule as (operand:valid_subject:=root.TildeSubject)=&gt;{
+  TildeExp : prule as (operand:valid_subject=root.TildeSubject)=&gt;{
       lexer.Constant("~") + operand
     };
 
   // LinkExp : LinkOp operand.
-  LinkExp : prule as (operand:valid_subject:=root.Subject)=&gt;{ LinkOp + operand };
+  LinkExp : prule as (operand:valid_subject=root.Subject)=&gt;{ LinkOp + operand };
 
   // Operators :
   AssignmentOp : prule as { root.Constants(root.TokenData.assignmentOpList) };
@@ -833,28 +823,28 @@ Expression : module {
 <pre dir=ltr class="code">
 // An expression that blocks sets.
 NoSetExpression : module inherits Expression {
-  FunctionalExp.operand := root.NoSetSubject;
-  LinkExp.operand := root.NoSetSubject;
+  FunctionalExp.operand = root.NoSetSubject;
+  LinkExp.operand = root.NoSetSubject;
 };
 
 // An expression that doesn't allow brackets.
 NoBracketExpression : module inherits Expression {
-  FunctionalExp.{operand:=root.NoBracketSubject; fltr:=(0,1,1); dup:=endless; pty:=in};
-  LinkExp.operand := root.NoBracketSubject;
+  FunctionalExp.{operand=root.NoBracketSubject; fltr=(0,1,1); dup=endless; pty=in};
+  LinkExp.operand = root.NoBracketSubject;
 };
 
 // An expression that allows only identifiers with link operators.
 FullIdExpression : module inherits Expression {
   start FunctionalExp;
-  FunctionalExp.{operand:=IdSubject; fltr:=2; dup:=endless; pty:=in};
-  LinkExp.operand := root.IdSubject;
+  FunctionalExp.{operand=IdSubject; fltr=2; dup=endless; pty=in};
+  LinkExp.operand = root.IdSubject;
 };
 </pre>
 
    <h3>أمثلة</h3>
    الأمثلة التالية توضح بعض التراكيب وكيفية إعرابيها:
 <pre dir=ltr class="samplecode">
-statement:        a := b + c * d
+statement:        a = b + c * d
 translates into:  store(a, add(b, multiply(c, d)))
 
 statement:        a > b ? c, d
@@ -863,7 +853,7 @@ translates into:  decide(greaterThan(a, b), list(c, d))
 statement:        a:int, b:float, c:char
 translates into:  list(link(a,int), link(b,float), link(c,char))
 
-statement:        a := myclass.myfunction(5, 2)
+statement:        a = myclass.myfunction(5, 2)
 translates into:  store(a, bracketOp(dot(myclass, myfunction), list(5, 2)))
 </pre>
    </div>
@@ -885,17 +875,17 @@ MultiCmd : {keyword {Subject}}.
     <h3>التعريفات القواعدية</h3>
 <pre dir=ltr class="code">
 // Root Command
-Command : @limit[child.terms=(Cmd||MultiCmd)] prule
+Command : @limit[child.terms==(Cmd||MultiCmd)] prule
   prefix self.id, DefaultModifier;
 
 // Cmd : keyword {Subject}.
-Cmd : @limit[user.parent=root.Command] prule
+Cmd : @limit[user.parent==root.Command] prule
   as (kwd:keywords, args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
     root.KeywordGroup(kwd) + concat (args:a)->( @priority(a.pty,0) a.prd*(a.min,a.max) )
   };
 
 // MultiCmd : {keyword {Subject}}.
-MultiCmd : @limit[user.parent=root.Command] prule
+MultiCmd : @limit[user.parent==root.Command] prule
   as (sections:list[map[kwd:keywords, min:integer, max:integer, pty:integer,
                         args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]]
                        ]])=>{
@@ -959,20 +949,20 @@ Subject : module {
 
   Subject1 : prule as (sbj1:list[prule[Parameter||root.Command||root.Expression||
                                        root.Main.Statement||root.Set]]
-                           :=(Parameter, SubjectCommandGroup, root.Set),
+                           =(Parameter, SubjectCommandGroup, root.Set),
                        sbj2:list[prule[Parameter||root.Command||root.Expression||
                                        root.Main.Statement||root.Set]]
-                           :=(root.Expression),
+                           =(root.Expression),
                        sbj3:list[prule[Parameter||root.Command||root.Expression||
                                        root.Main.Statement||root.Set]]
-                           :=(root.Expression),
-                      fltr:filter, frc2:integer:=0, frc3:integer:=0)=>{
+                           =(root.Expression),
+                      fltr:filter, frc2:integer=0, frc3:integer=0)=>{
     @filter(fltr)
       alternate (sbj1:s)->( s ) ||
       lexer.Constant("(") + (alternate (sbj2:s)->( s ))*(frc2,1) + lexer.Constant(")") ||
       lexer.Constant("[") + (alternate (sbj3:s)->( s ))*(frc3,1) + lexer.Constant("]")
   };
-  Subject2 : @limit[user.owner=Subject] prule
+  Subject2 : @limit[user.owner==Subject] prule
     as (sbj:prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set],
         fltr:filter, frc:integer)=>{
         @filter(fltr) sbj ||
@@ -986,12 +976,12 @@ Subject : module {
 
   // Parameter
   Parameter : prule prefix self.id
-    as (fltr:filter:=null, cnsts:keywords:=null)=>{
+    as (fltr:filter=null, cnsts:keywords=null)=>{
       @filter(fltr) lexer.Identifier || Literal || root.Constants(cnsts)
     };
 
   // Literal
-  Literal : prule as (fltr:filter:=null)=>{
+  Literal : prule as (fltr:filter=null)=>{
     @filter(fltr) lexer.IntLiteral || lexer.FloatLiteral || lexer.CharLiteral ||
                   lexer.StringLiteral || lexer.CustomLiteral
   }
@@ -1009,49 +999,49 @@ Subject : module {
 <pre dir=ltr class="code">
 // The default Tilde subject.
 TildeSubject : module inherits Subject {
-  Subject1.{sbj1:=(SubjectCommandGroup);
-            sbj2:=(root.Expression); frc2:=0;
-            sbj3:=(root.Expression); frc3:=0};
-  SubjectCommandGroup := ();
+  Subject1.{sbj1=(SubjectCommandGroup);
+            sbj2=(root.Expression); frc2=0;
+            sbj3=(root.Expression); frc3=0};
+  SubjectCommandGroup = ();
 };
 
 // A subject that doesn't allow sets.
 NoSetSubject : module inherits Subject {
-  Subject1.{sbj1:=(Parameter, SubjectCommandGroup);
-            sbj2:=(root.Expression); frc2:=0;
-            sbj3:=(root.Expression); frc3:=0}
+  Subject1.{sbj1=(Parameter, SubjectCommandGroup);
+            sbj2=(root.Expression); frc2=0;
+            sbj3=(root.Expression); frc3=0}
 };
 
 // A subject that doesn't allow brackets.
 NoBracketSubject : module inherits Subject {
-  Subject1.{sbj1:=(Parameter, SubjectCommandGroup, root.Set);
-            sbj2:=(); frc2:=0;
-            sbj3:=(); frc3:=0}
+  Subject1.{sbj1=(Parameter, SubjectCommandGroup, root.Set);
+            sbj2=(); frc2=0;
+            sbj3=(); frc3=0}
 };
 
 // A subject that allows only identifiers.
 IdSubject : module inherits Subject {
   start Parameter;
-  Parameter.{fltr:=0; cnsts:=null}
+  Parameter.{fltr=0; cnsts=null}
 };
 
 // A subject that allows full identifiers (with . or -> operators).
 FullIdSubject : module inherits Subject {
   start Subject2;
-  Subject2.{obj:=root.FullIdExpression; fltr:=0; frc:=0}
+  Subject2.{obj=root.FullIdExpression; fltr=0; frc=0}
 };
 
 ModifierSubject : module inherits Subject {
-  Subject1.{sbj1:=(SubjectCommandGroup);
-            sbj2:=(root.Expression); frc2:=0;
-            sbj3:=(root.Expression); frc3:=0};
-  SubjectCommandGroup := (UseModifierCmd);
+  Subject1.{sbj1=(SubjectCommandGroup);
+            sbj2=(root.Expression); frc2=0;
+            sbj3=(root.Expression); frc3=0};
+  SubjectCommandGroup = (UseModifierCmd);
 
   // @use modifier.
-  UseModifierCmd : prule ref root.Cmd(kwd:=("use"),
-                                       args:=((UseModifierSubject)));
+  UseModifierCmd : prule ref root.Cmd(kwd=("use"),
+                                       args=((UseModifierSubject)));
   UseModifierSubject : module inherits root.FullIdSubject {
-    Subject2.{fltr:=2, frc:=1}
+    Subject2.{fltr=2, frc=1}
   }
 };
 </pre>
@@ -1068,9 +1058,9 @@ Set : "{" StatementList "}".
 
     <h3>التعريف القواعدي</h3>
 <pre dir=ltr class="code">
-Set : @limit[child.terms=self,user.parent=self] prule
+Set : @limit[child.terms==self,user.parent==self] prule
   prefix DefaultModifier
-  as (stmt:prule[StatementList]:=root.Main)=>{ lexer.Constant("{") + stmt + lexer.Constant("}") };
+  as (stmt:prule[StatementList]=root.Main)=>{ lexer.Constant("{") + stmt + lexer.Constant("}") };
 </pre>
    </div>
    
@@ -1102,11 +1092,11 @@ Modifiers : module {
   // "@<" Subject.
   Modifier : prule as { InnerModifier || OuterModifier };
 
-  InnerModifier : prule as (operand:valid_subject:=root.ModifierSubject)=>{
+  InnerModifier : prule as (operand:valid_subject=root.ModifierSubject)=>{
     root.Constants(("@", "@>")) + operand
   };
 
-  OuterModifier : prule as (operand:valid_subject:=root.ModifierSubject)=>{
+  OuterModifier : prule as (operand:valid_subject=root.ModifierSubject)=>{
     lexer.Constant("@<") + operand
   }
 };
@@ -1115,17 +1105,17 @@ dimension {
   start : Modifiers;
   diverge : atRuleEntry;
   onExit : function (dt:ParsingData) {
-    if dt.data.data.id = root.ModifierSubject.UseModifierCmd
+    if dt.data.data.id == root.ModifierSubject.UseModifierCmd
       // Grammar overriding modifier.
       override dt.data.data.data
-    else if dt.data.data.route = 0
+    else if dt.data.data.route == 0
       // Command based modifiers (specifies their own targets).
-      addPrefix data:=dt.data.data.data, type:=dt.data.data.id,
-                 targets:=prule(dt.data.data.id).targets, priority:=(dt.route=0?inner,outer)
+      addPrefix data=dt.data.data.data, type=dt.data.data.id,
+                targets=prule(dt.data.data.id).targets, priority=(dt.route==0?inner,outer)
     else
       // Expression based modifiers (uses a default target).
-      addPrefix data:=dt.data.data.data, type:=dt.data.data.id,
-                 targets:=DefaultModifier, priority:=(dt.route=0?inner,outer)
+      addPrefix data=dt.data.data.data, type=dt.data.data.id,
+                targets=DefaultModifier, priority=(dt.route==0?inner,outer)
   }
 }
 </pre>
@@ -1146,7 +1136,7 @@ Import : "import" Expression.
     <h3>التعريف القواعدي</h3>
 <pre dir=ltr class="code">
 ImportCmd : prule inherits SoloCommand
-  ref root.Cmd(kwd:=("use"), args:=((prd:=root.Expression, min:=1, max:=1, pty:=in)));
+  ref root.Cmd(kwd=("use"), args=((prd=root.Expression, min=1, max=1, pty=in)));
 </pre>
    </div>
    
@@ -1163,18 +1153,18 @@ UseModifierCmd : "use" "[" FullIdSubject "]".
     <h3>التعريف القواعدي</h3>
 <pre dir=ltr class="code">
 UseCmd : prule inherits SoloCommand
-  ref root.Cmd(kwd:=("use"), args:=((prd:=root.FullIdSubject, min:=1, max:=1, pty:=in),
-                                    (prd:=root.IdSubject, min:=0, max:=1, pty:=in)))
+  ref root.Cmd(kwd=("use"), args=((prd=root.FullIdSubject, min=1, max=1, pty=in),
+                                  (prd=root.IdSubject, min=0, max=1, pty=in)))
   handle onProductionEnd : function (dt:ParsingData) {
-    if dt.data(1) = null
+    if dt.data(1) == null
       override dt.data(0)
     else
       defGrammar dt.data(1), dt.data(0)
   };
-UseModifierCmd : prule ref root.Cmd(kwd:=("use"),
-                                      args:=((UseModifierSubject)));
+UseModifierCmd : prule ref root.Cmd(kwd=("use"),
+                                    args=((UseModifierSubject)));
 UseModifierSubject : module inherits root.FullIdSubject {
-  Subject2.{fltr:=2, frc:=1}
+  Subject2.{fltr=2, frc=1}
 }
 </pre>
 
@@ -1297,10 +1287,10 @@ valid_subject : type prule[Subject||Subject.Parameter||Command||Expression||Main
 
 TokenData : module {
   // The set of postfixes used to specify character coding (ascii, unicode, etc.).
-  charCodes : list[string] := ("u", "u8", "u16", "u32", "a");
+  charCodes : list[string] = ("u", "u8", "u16", "u32", "a");
 
   // Escape Sequences
-  escapeSequences : keywords := (
+  escapeSequences : keywords = (
     // invisible characters:
     "\\n", "\\r", "\\t", "\\b", "\\f", "\\0",
     // special characters:
@@ -1310,20 +1300,19 @@ TokenData : module {
     "\\.", "\\?", "\\|", "\\^", "\\$");
 
   // Predefined Operator Lists
-  assignmentOpList : keywords := (":=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "^:=",
+  assignmentOpList : keywords = ("=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=",
                                   "<<=", ">>=");
-  comparisonOpList : keywords := ("=", "^=", "==", "^==", "<", ">", "<=", ">=");
-  addOpList : keywords := ("+", "-");
-  mulOpList : keywords := ("*", "/", "%");
-  bitwiseOpList : keywords := ("|", "^|", "$", "^$", "&", "^&", "<<", ">>");
-  logOpList : keywords := ("||", "^||", "$$", "^$$", "&&", "^&&", "or", "nor", "xor", "xnor",
-                           "and", "nand");
-  prefixOpList : keywords := ("++", "--", "+", "-", "^", "^^", "not");
-  postfixOpList : keywords := ("++", "--");
-  linkOpList : keywords := ("->", ".", ".>", "<.");
-  lowLinkOpList : keywords := ("=>", "..", "..>", "<..");
-  lowerLinkOpList : keywords := (":", ":>", "<:");
-  lowestLinkOpList : keywords := ("::", "::>", "<::", "in")
+  comparisonOpList : keywords = ("==", "!=", "<", ">", "<=", ">=");
+  addOpList : keywords = ("+", "-");
+  mulOpList : keywords = ("*", "/", "%");
+  bitwiseOpList : keywords = ("|", "$", "&", "<<", ">>");
+  logOpList : keywords = ("||", "$$", "&&", "or", "nor", "xor", "xnor", "and", "nand");
+  prefixOpList : keywords = ("++", "--", "+", "-", "!", "!!", "not");
+  postfixOpList : keywords = ("++", "--");
+  linkOpList : keywords = ("->", ".", ".>", "<.");
+  lowLinkOpList : keywords = ("=>", "..", "..>", "<..");
+  lowerLinkOpList : keywords = (":", ":>", "<:");
+  lowestLinkOpList : keywords = ("::", "::>", "<::", "in")
 };
 
 
@@ -1453,9 +1442,9 @@ Main : module {
   };
 
   // Statement : (Phrase | Phrase | ...).
-  Statement : @limit[user.parent=self,child.terms=self] prule
+  Statement : @limit[user.parent==self,child.terms==self] prule
     prefix self.id, DefaultModifier
-    as (phrases:list[prule[Phrase]]:=(CmdPhrase, SoloCmdPhrase, ExpPhrase)=>{
+    as (phrases:list[prule[Phrase]]=(CmdPhrase, SoloCmdPhrase, ExpPhrase)=>{
       alternate (phrases:phrase)->( phrase )
     };
 
@@ -1466,11 +1455,11 @@ Main : module {
   };
 
   // Default phrases.
-  CmdPhrase : prule ref Phrase(subjects:=((prd:=LeadingCmdGroup,min:=1,max:=1),
-                                          (prd:=TrailingCmdGroup,min:=0,max:=endless)));
-  SoloCmdPhrase : prule ref Phrase(subjects:=((prd:=SoloCmdGroup,min:=1,max:=1)));
-  ExpPhrase : prule ref Phrase(subjects:=((prd:=root.Expression,min:=1,max:=1),
-                                          (prd:=TrailingCmdGroup,min:=0,max:=endless)));
+  CmdPhrase : prule ref Phrase(subjects=((prd=LeadingCmdGroup,min=1,max=1),
+                                         (prd=TrailingCmdGroup,min=0,max=endless)));
+  SoloCmdPhrase : prule ref Phrase(subjects=((prd=SoloCmdGroup,min=1,max=1)));
+  ExpPhrase : prule ref Phrase(subjects=((prd=root.Expression,min=1,max=1),
+                                         (prd=TrailingCmdGroup,min=0,max=endless)));
 
   // Default Command Types
   LeadingCommand : prule inherits root.Command prefix self.id;
@@ -1480,18 +1469,18 @@ Main : module {
   // Default Command Groups
   LeadingCmdGroup : prule_group[LeadingCommand];
   TrailingCmdGroup : prule_group[TrailingCommand];
-  SoloCmdGroup : prule_group[SoloCommand] := (ImportCmd, UseCmd);
+  SoloCmdGroup : prule_group[SoloCommand] = (ImportCmd, UseCmd);
 
   // 'import' command.
   ImportCmd : prule inherits SoloCommand
-    ref root.Cmd(kwd:=("use"), args:=((prd:=root.Expression, min:=1, max:=1, pty:=in)));
+    ref root.Cmd(kwd=("use"), args=((prd=root.Expression, min=1, max=1, pty=in)));
 
   // 'use' command.
   UseCmd : prule inherits SoloCommand
-    ref root.Cmd(kwd:=("use"), args:=((prd:=root.FullIdSubject, min:=1, max:=1, pty:=in),
-                                      (prd:=root.IdSubject, min:=0, max:=1, pty:=in)))
+    ref root.Cmd(kwd=("use"), args=((prd=root.FullIdSubject, min=1, max=1, pty=in),
+                                    (prd=root.IdSubject, min=0, max=1, pty=in)))
     handle onProductionEnd : function (dt:ParsingData) {
-      if dt.data(1) = null
+      if dt.data(1) == null
         override dt.data(0)
       else
         defGrammar dt.data(1), dt.data(0)
@@ -1501,17 +1490,17 @@ Main : module {
 //////****** Commands ******//////
 
 // Root Command
-Command : @limit[child.terms=(Cmd||MultiCmd)] prule
+Command : @limit[child.terms==(Cmd||MultiCmd)] prule
   prefix self.id, DefaultModifier;
 
 // Cmd : keyword {Subject}.
-Cmd : @limit[user.parent=root.Command] prule
+Cmd : @limit[user.parent==root.Command] prule
   as (kwd:keywords, args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
     root.KeywordGroup(kwd) + concat (args:a)->( @priority(a.pty,0) a.prd*(a.min,a.max) )
   };
 
 // MultiCmd : {keyword {Subject}}.
-MultiCmd : @limit[user.parent=root.Command] prule
+MultiCmd : @limit[user.parent==root.Command] prule
   as (sections:list[map[kwd:keywords, min:integer, max:integer, pty:integer,
                         args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]]
                        ]])=>{
@@ -1534,63 +1523,63 @@ Expression : module {
   start Exp;
 
   Exp : prule as { LowestLinkExp + (@priority(in,0) lexer.Constant("\\")*(0,1)) };
-  LowestLinkExp : prule prefix self.id as (enable:integer:=endless)=>{
+  LowestLinkExp : prule prefix self.id as (enable:integer=endless)=>{
     ConditionalExp + (@priority(in,0) (LowestLinkOp + ConditionalExp)*(0,enable))
   };
-  ConditionalExp : prule prefix self.id  as (enable:integer[0<=n<=1]:=1)=>{
+  ConditionalExp : prule prefix self.id  as (enable:integer[0<=n<=1]=1)=>{
     ListExp + (@priority(in,0) (lexer.Constant("?") + ListExp)*(0,enable))
   };
-  ListExp : prule prefix self.id as (enable:integer:=endless)=>{
+  ListExp : prule prefix self.id as (enable:integer=endless)=>{
     (@priority(in,0) lexer.Constant(",")*(0,enable)) + LowerLinkExp +
     (@priority(in,0) (lexer.Constant(",") + LowerLinkExp*(0,1))*(0,enable))
   };
-  LowerLinkExp : prule prefix self.id as (enable:integer:=endless)=>{
+  LowerLinkExp : prule prefix self.id as (enable:integer=endless)=>{
     AssignmentExp + (@priority(in,0) (LowerLinkOp + AssignmentExp)*(0,enable))
   };
-  AssignmentExp : prule prefix self.id as (enable:integer:=endless)=>{
+  AssignmentExp : prule prefix self.id as (enable:integer=endless)=>{
     LogExp + (@priority(in,0) (AssignmentOp + LogExp)*(0,enable))
   };
-  LogExp : prule prefix self.id as (enable:integer:=endless)=>{
+  LogExp : prule prefix self.id as (enable:integer=endless)=>{
     ComparisonExp + (@priority(in,0) (LogOp + ComparisonExp)*(0,enable))
   };
-  ComparisonExp : prule prefix self.id as (enable:integer:=endless)=>{
+  ComparisonExp : prule prefix self.id as (enable:integer=endless)=>{
     LowLinkExp + (@priority(in,0) (ComparisonOp + LowLinkExp)*(0,enable))
   };
-  LowLinkExp : prule prefix self.id as (enable:integer:=endless)=>{
+  LowLinkExp : prule prefix self.id as (enable:integer=endless)=>{
     AddExp + (@priority(in,0) (LowLinkOp + AddExp)*(0,enable))
   };
-  AddExp : prule prefix self.id as (enable:integer:=endless)=>{
+  AddExp : prule prefix self.id as (enable:integer=endless)=>{
     MulExp + (@priority(in,0) (AddOp + MulExp)*(0,enable))
   };
-  MulExp : prule prefix self.id as (enable:integer:=endless)=>{
+  MulExp : prule prefix self.id as (enable:integer=endless)=>{
     BitwiseExp + (@priority(in,0) (MulOp + BitwiseExp)*(0,enable))
   };
-  BitwiseExp : prule prefix self.id as (enable:integer:=endless)=>{
+  BitwiseExp : prule prefix self.id as (enable:integer=endless)=>{
     UnaryExp + (@priority(in,0) (BitwiseOp + UnaryExp)*(0,enable))
   };
-  UnaryExp : prule prefix self.id as (enable1:integer[0<=n<=1]:=1, enable2:integer[0<=n<=1]:=1)=>{
+  UnaryExp : prule prefix self.id as (enable1:integer[0<=n<=1]=1, enable2:integer[0<=n<=1]=1)=>{
     (@priority(in,0) PrefixOp*(0,enable1)) + FunctionalExp +
     (@priority(in,0) PostfixOp*(0,enable2))
   };
   FunctionalExp : prule prefix self.id
-    as (operand:valid_subject:=root.Subject, fltr:filter:=null, dup:integer:=endless,
-        pty:integer:=in)=>{
+    as (operand:valid_subject=root.Subject, fltr:filter=null, dup:integer=endless,
+        pty:integer=in)=>{
       operand + (@priority(pty,0) (@filter(fltr) ParamPassExp ||
                                                  TildeExp ||
                                                  LinkExp(operand))*(0,dup))
     };
 
   // ParamPassExp : "(" [Expression] ")" | "[" [Expression] "]".
-  ParamPassExp : prule as (expr:prule[Expression||Statement]:=root.Expression, fltr:filter:=null)=>{
+  ParamPassExp : prule as (expr:prule[Expression||Statement]=root.Expression, fltr:filter=null)=>{
     @filter(fltr) lexer.Constant("(") + expr*(0,1) + lexer.Constant(")") ||
                   lexer.Constant("[") + expr*(0,1) + lexer.Constant("]")
   };
 
   // TildeExp : "~" Subject.
-  TildeExp : prule as (operand:valid_subject:=root.TildeSubject)=>{ lexer.Constant("~") + operand };
+  TildeExp : prule as (operand:valid_subject=root.TildeSubject)=>{ lexer.Constant("~") + operand };
 
   // LinkExp : LinkOp operand.
-  LinkExp : prule as (operand:valid_subject:=root.Subject)=>{ LinkOp + operand };
+  LinkExp : prule as (operand:valid_subject=root.Subject)=>{ LinkOp + operand };
 
   // Operators :
   AssignmentOp : prule as { root.Constants(root.TokenData.assignmentOpList) };
@@ -1609,21 +1598,21 @@ Expression : module {
 
 // An expression that blocks sets.
 NoSetExpression : module inherits Expression {
-  FunctionalExp.operand := root.NoSetSubject;
-  LinkExp.operand := root.NoSetSubject;
+  FunctionalExp.operand = root.NoSetSubject;
+  LinkExp.operand = root.NoSetSubject;
 };
 
 // An expression that doesn't allow brackets.
 NoBracketExpression : module inherits Expression {
-  FunctionalExp.{operand:=root.NoBracketSubject; fltr:=(0,1,1); dup:=endless; pty:=in};
-  LinkExp.operand := root.NoBracketSubject;
+  FunctionalExp.{operand=root.NoBracketSubject; fltr=(0,1,1); dup=endless; pty=in};
+  LinkExp.operand = root.NoBracketSubject;
 };
 
 // An expression that allows only identifiers with link operators.
 FullIdExpression : module inherits Expression {
   start FunctionalExp;
-  FunctionalExp.{operand:=IdSubject; fltr:=2; dup:=endless; pty:=in};
-  LinkExp.operand := root.IdSubject;
+  FunctionalExp.{operand=IdSubject; fltr=2; dup=endless; pty=in};
+  LinkExp.operand = root.IdSubject;
 };
 
 //////****** Subjects ******//////
@@ -1637,20 +1626,20 @@ Subject : module {
 
   Subject1 : prule as (sbj1:list[prule[Parameter||root.Command||root.Expression||
                                        root.Main.Statement||root.Set]]
-                           :=(Parameter, SubjectCommandGroup, root.Set),
+                           =(Parameter, SubjectCommandGroup, root.Set),
                        sbj2:list[prule[Parameter||root.Command||root.Expression||
                                        root.Main.Statement||root.Set]]
-                           :=(root.Expression),
+                           =(root.Expression),
                        sbj3:list[prule[Parameter||root.Command||root.Expression||
                                        root.Main.Statement||root.Set]]
-                           :=(root.Expression),
-                       fltr:filter:=null, frc2:integer:=0, frc3:integer:=0)=>{
+                           =(root.Expression),
+                       fltr:filter=null, frc2:integer=0, frc3:integer=0)=>{
     @filter(fltr)
       alternate (sbj1:s)->( s ) ||
       lexer.Constant("(") + (alternate (sbj2:s)->( s ))*(frc2,1) + lexer.Constant(")") ||
       lexer.Constant("[") + (alternate (sbj3:s)->( s ))*(frc3,1) + lexer.Constant("]")
   };
-  Subject2 : @limit[user.owner=Subject] prule
+  Subject2 : @limit[user.owner==Subject] prule
     as (sbj:prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set],
         fltr:filter, frc:integer)=>{
         @filter(fltr) sbj ||
@@ -1664,12 +1653,12 @@ Subject : module {
 
   // Parameter: Identifier | Literal.
   Parameter : prule prefix self.id
-    as (fltr:filter:=null, cnsts:keywords:=null)=>{
+    as (fltr:filter=null, cnsts:keywords=null)=>{
       @filter(fltr) lexer.Identifier || Literal || root.Constants(cnsts)
     };
 
   // Literal: IntLiteral | FloatLiteral | CharLiteral | StringLiteral | CustomLiteral.
-  Literal : prule as (fltr:filter:=null)=>{
+  Literal : prule as (fltr:filter=null)=>{
     @filter(fltr) lexer.IntLiteral || lexer.FloatLiteral || lexer.CharLiteral ||
                   lexer.StringLiteral || lexer.CustomLiteral
   }
@@ -1677,58 +1666,58 @@ Subject : module {
 
 // The default Tilde subject.
 TildeSubject : module inherits Subject {
-  Subject1.{sbj1:=(SubjectCommandGroup);
-            sbj2:=(root.Expression); frc2:=0;
-            sbj3:=(root.Expression); frc3:=0};
-  SubjectCommandGroup := ();
+  Subject1.{sbj1=(SubjectCommandGroup);
+            sbj2=(root.Expression); frc2=0;
+            sbj3=(root.Expression); frc3=0};
+  SubjectCommandGroup = ();
 };
 
 // A subject that doesn't allow sets.
 NoSetSubject : module inherits Subject {
-  Subject1.{sbj1:=(Parameter, SubjectCommandGroup);
-            sbj2:=(root.Expression); frc2:=0;
-            sbj3:=(root.Expression); frc3:=0}
+  Subject1.{sbj1=(Parameter, SubjectCommandGroup);
+            sbj2=(root.Expression); frc2=0;
+            sbj3=(root.Expression); frc3=0}
 };
 
 // A subject that doesn't allow brackets.
 NoBracketSubject : module inherits Subject {
-  Subject1.{sbj1:=(Parameter, SubjectCommandGroup, root.Set);
-            sbj2:=(); frc2:=0;
-            sbj3:=(); frc3:=0}
+  Subject1.{sbj1=(Parameter, SubjectCommandGroup, root.Set);
+            sbj2=(); frc2=0;
+            sbj3=(); frc3=0}
 };
 
 // A subject that allows only identifiers.
 IdSubject : module inherits Subject {
   start Parameter;
-  Parameter.{fltr:=0; cnsts:=null}
+  Parameter.{fltr=0; cnsts=null}
 };
 
 // A subject that allows full identifiers (with . or -> operators).
 FullIdSubject : module inherits Subject {
   start Subject2;
-  Subject2.{obj:=root.FullIdExpression; fltr:=0; frc:=0}
+  Subject2.{obj=root.FullIdExpression; fltr=0; frc=0}
 };
 
 ModifierSubject : module inherits Subject {
-  Subject1.{sbj1:=(SubjectCommandGroup);
-            sbj2:=(root.Expression); frc2:=0;
-            sbj3:=(root.Expression); frc3:=0};
-  SubjectCommandGroup := (UseModifierCmd);
+  Subject1.{sbj1=(SubjectCommandGroup);
+            sbj2=(root.Expression); frc2=0;
+            sbj3=(root.Expression); frc3=0};
+  SubjectCommandGroup = (UseModifierCmd);
 
   // @use modifier.
-  UseModifierCmd : prule ref root.Cmd(kwd:=("use"),
-                                      args:=((UseModifierSubject)));
+  UseModifierCmd : prule ref root.Cmd(kwd=("use"),
+                                      args=((UseModifierSubject)));
   UseModifierSubject : module inherits root.FullIdSubject {
-    Subject2.{fltr:=2, frc:=1}
+    Subject2.{fltr=2, frc=1}
   }
 };
 
 //////****** Sets ******//////
 
 // Set : "{" StatementList "}".
-Set : @limit[child.terms=self,user.parent=self] prule
+Set : @limit[child.terms==self,user.parent==self] prule
   prefix DefaultModifier
-  as (stmt:prule[StatementList]:=root.Main)=>{ lexer.Constant("{") + stmt + lexer.Constant("}") };
+  as (stmt:prule[StatementList]=root.Main)=>{ lexer.Constant("{") + stmt + lexer.Constant("}") };
 
 //////****** Modifiers ******//////
 
@@ -1741,11 +1730,11 @@ Modifiers : module {
   // "@<" Subject.
   Modifier : prule as { InnerModifier || OuterModifier };
 
-  InnerModifier : prule as (operand:valid_subject:=root.ModifierSubject)=>{
+  InnerModifier : prule as (operand:valid_subject=root.ModifierSubject)=>{
     root.Constants(("@", "@>")) + operand
   };
 
-  OuterModifier : prule as (operand:valid_subject:=root.ModifierSubject)=>{
+  OuterModifier : prule as (operand:valid_subject=root.ModifierSubject)=>{
     lexer.Constant("@<") + operand
   }
 };
@@ -1754,17 +1743,17 @@ dimension {
   start : Modifiers;
   diverge : atRuleEntry;
   onExit : function (dt:ParsingData) {
-    if dt.data.data.id = root.ModifierSubject.UseModifierCmd
+    if dt.data.data.id == root.ModifierSubject.UseModifierCmd
       // Grammar overriding modifier.
       override dt.data.data.data
-    else if dt.data.data.route = 0
+    else if dt.data.data.route == 0
       // Command based modifiers (specifies their own targets).
-      addPrefix data:=dt.data.data.data, type:=dt.data.data.id,
-                 targets:=prule(dt.data.data.id).targets, priority:=(dt.route=0?inner,outer)
+      addPrefix data=dt.data.data.data, type=dt.data.data.id,
+                targets=prule(dt.data.data.id).targets, priority=(dt.route==0?inner,outer)
     else
       // Expression based modifiers (uses a default target).
-      addPrefix data:=dt.data.data.data, type:=dt.data.data.id,
-                 targets:=DefaultModifier, priority:=(dt.route=0?inner,outer)
+      addPrefix data=dt.data.data.data, type=dt.data.data.id,
+                targets=DefaultModifier, priority=(dt.route==0?inner,outer)
   }
 }
 </pre>
@@ -1993,17 +1982,17 @@ Exp : module {
    <h3>القواعد ذات المعطيات</h3>
    تعرّف قائمة المعطيات بالصيغة التالية:
 <pre dir=ltr class="code">
-ParamList : Name ":" Type [":=" Value] {"," Name ":" Type [":=" Value]}
+ParamList : Name ":" Type ["=" Value] {"," Name ":" Type ["=" Value]}
 </pre>
    إن غابت قيمة المعطى من التعريف فإن الناتج يكون قالباً لا يُستخدم مباشرة وإنما بعد إنشاء قاعدة موصولة به أو مشتقة منه.
    المثال التالي يوضح  كيفية إنشاء قالب وقاعدة موصولة به:
 <pre dir=ltr class="samplecode">
 Cmd : prule as (kwd:string,body:prule[Expression])=>{ lexer.Constant(kwd) + body };
-Print : prule ref Cmd(kwd:="print", body:=MyExpression);
+Print : prule ref Cmd(kwd="print", body=MyExpression);
 </pre>
    المثال التالي يوضح تحديد قيمة للمعطيات في تعريف القاعدة:
 <pre dir=ltr class="samplecode">
-LogicalExp : prule as (ops:list[string]:=("&&", "||"))=>{
+LogicalExp : prule as (ops:list[string]=("&&", "||"))=>{
   Operand + (Constants(ops) + Operand)*(0,endless)
 }
 </pre>
@@ -2064,17 +2053,17 @@ C : module inherits P {
    يُمكن أيضا في الحزمة الوارثة تعديل التعريفات بدل استبدالها كليّاً. على سبيل المثال يمكن استبدال قيمة المعطيات في قاعدة إعرابية دون استبدال متن القاعدة كما في المثال:
 <pre dir=ltr class="samplecode">
 P : module {
-  a : prule as (kwd:string:="cmd")=>{ kwd + Expression }
+  a : prule as (kwd:string="cmd")=>{ kwd + Expression }
 };
 
 C : module inherits P {
-  a.kwd := "mycmd";
+  a.kwd = "mycmd";
 }
 </pre>
    يُمكن جمع عمليات تعديل متعددة باستخدام الأقواس الحاصرة كما في المثال التالي:
 <pre dir=ltr class="samplecode">
 C : module inherits P {
-  a.{kwd := "mycmd"; param := MyExpression}
+  a.{kwd = "mycmd"; param = MyExpression}
 }
 </pre>
    <h3>أوامر وكلمات تعريفية أخرى</h3>
@@ -2135,15 +2124,15 @@ Exp2 || Exp1 || Exp4
 a + (@priority(in,0) b*(0,1));     // <span dir=rtl>الأسبقية للفرع b وتهمل الحالة الأخرى</span>
 a + (@priority(out,0) b*(0,1));    // <span dir=rtl>الأسبقية لترك الفرع b</span>
 @priority(2,3) a || b || c || d;   // <span dir=rtl>الأسبقية للفرع c مع إعطاء الفروع الأخرى فرصة مدتها 3 رموز قبل إلغائهم</span>
-@priority(5,0) prule MyCmd := x;  // <span dir=rtl>أسبقية بقيمة 5 تعطى لهذه القاعدة ويؤدي ذلك لإلغاء أي قاعدة بأسبقية تقل عن 5</span>
+@priority(5,0) prule MyCmd = x;  // <span dir=rtl>أسبقية بقيمة 5 تعطى لهذه القاعدة ويؤدي ذلك لإلغاء أي قاعدة بأسبقية تقل عن 5</span>
 </pre>
    </p>
 
    <p><span dir=ltr class="kwd">@limit</span><br/>
    يُستخدم للإشارة إلى القيود المطبقة على القواعد. يُعطى هذا المبدل مجموعة من الشروط التي تطبقها القاعدة على القواعد المتعاملة معها. على سبيل المثال:
 <pre dir=ltr class="samplecode">
-CmdTemplate : @limit[user.parent=Command] prule as (kwd:keywords)=>{ KeywordGroup(kwd) + Expression };
-Command : @limit[child.terms=(CmdTemplate||CmdTemplate2)] prule;
+CmdTemplate : @limit[user.parent==Command] prule as (kwd:keywords)=>{ KeywordGroup(kwd) + Expression };
+Command : @limit[child.terms==(CmdTemplate||CmdTemplate2)] prule;
 </pre>
    في المثال أعلاه يشترط على أي مستخدم للقالب CmdTemplate أن يكون وريثاً للقاعدة Command. ويُشترط على ورثة Command أن يستخدموا أحد القالبين CmdTemplate و CmdTemplate2.
    </p>
@@ -2177,7 +2166,7 @@ dimension {
  </div>
  </div>
  <div style="border-top: solid 1px; text-align: right; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2014م \ 1435هـ.<br/>
+  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2015م \ 1436هـ.<br/>
 نُشر هذا الملف برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0، والمضمّنة مع هذا الملف
 والمتوفرة أيضاً على الرابط <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>. يرجى قراءة الرخصة للتعرف على شروط الاستخدام والنسخ.</p>
  </div>

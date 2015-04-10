@@ -4,7 +4,7 @@ def GlobalVariable : module {
   def i : Int;
 
   def main : function() {
-    i := 5;
+    i = 5;
     printf("%d\n", i);
     return 0
   }

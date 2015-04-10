@@ -2,10 +2,10 @@ import "common.alusus";
 
 def Arrays2 : module {
   def main : function() => Int {
-    def testArray : arr[Int, 10];
+    def testArray : ary[Int, 10];
     def i : Int;
-    i := 3;
-    testArray[i+1] := i*5 + 1;
+    i = 3;
+    testArray[i+1] = i*5 + 1;
     print("testArray[");
     printInt(i+1);
     print("] = ");

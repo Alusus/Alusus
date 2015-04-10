@@ -27,16 +27,16 @@ def Aliases : module {
 
   def main : function()
   {
-    ten := 10;
-    five := 5;
+    ten = 10;
+    five = 5;
 
     def x : intAlias;
     def y : intAlias;
-    x := tenAlias;
-    y := fiveAlias;
+    x = tenAlias;
+    y = fiveAlias;
     def p : PointAlias;
-    p.x := x~ptr;
-    p.y := y~ptr;
+    p.x = x~ptr;
+    p.y = y~ptr;
     writeAlias("x = %d, ", p.x~cnt);
     writeAlias("y = %d\n", p.y~cnt);
   }

@@ -79,7 +79,7 @@
       <keyword>build</keyword>
       <keyword>dump</keyword>
       <keyword>ptr</keyword>
-      <keyword>arr</keyword>
+      <keyword>ary</keyword>
     </context>
 
     <context id="ar_keyword" style-ref="keyword">

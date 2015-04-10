@@ -122,7 +122,7 @@ ValueType *ArrayValueTypeSpec::ToValueType(const Module &module) const
 std::string ArrayValueTypeSpec::ToString() const
 {
   std::stringstream ss;
-  ss << "arr[";
+  ss << "ary[";
   ss << this->elementsTypeSpec->ToString();
   ss << ", ";
   ss << this->arraySize;

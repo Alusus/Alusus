@@ -4,10 +4,10 @@ def FactorialWhileLoop : module {
   def factorial : function(i:Int) => Int {
     if i<=0 return 1;
     def f : Int;
-    f := i;
+    f = i;
     while (i >= 2) {
-      i := i - 1;
-      f := f*i;
+      i = i - 1;
+      f = f*i;
     };
     return f;
   };

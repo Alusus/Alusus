@@ -112,8 +112,8 @@ BinaryOperation (kwds:list[string]) : Operand (Command(kwds[0]) Command(kwds[1])
   بالأمكان تجميع التعريفات القواعدية في حزم بطريقة مشابهة للبرمجة كائنية المنحى. في المثال التالي نقوم بجمع التعريفات المتعلقة بالتراكيب في حزمة واحدة:
 <pre dir=ltr class="code">
 Expression : {
-  Add (kwds:=["+","-"]) : Multiply [(kwds[0] | kwds[1] | ...) Add].
-  Multiply (kwds:=["*","/"]) : Operand [(kwds[0] | kwds[1] | ...) Multiply].
+  Add (kwds=["+","-"]) : Multiply [(kwds[0] | kwds[1] | ...) Add].
+  Multiply (kwds=["*","/"]) : Operand [(kwds[0] | kwds[1] | ...) Multiply].
   Operand : Identifier | Literal.
 }.
 </pre>
@@ -122,12 +122,12 @@ Expression : {
   <h3>التوريث القواعدي</h3>
   يمكن في قواعد لغة الأسُس استخدام التوريث لاشتقاق قاعدة من قاعدة أخرى. كما هو حال التوريث في البرمجة كائنية المنحى، فإن التوريث في قواعد الأسُس ينسخ صفات القاعدة المورِّثة إلى القاعدة الوارثة والتي بدورها تستطيع استبدال بعض هذه الصفات. على سبيل المثال، لو كان عندنا القاعدة التالية:
 <pre dir=ltr class="code">
-LogicalOperation (kwds:=["and", "or"]) : Operand (kwds[0] | kwds[1] | ...) Operand.
+LogicalOperation (kwds=["and", "or"]) : Operand (kwds[0] | kwds[1] | ...) Operand.
 </pre>
   فيمكن اشتقاق قاعدة أخرى منها تعرف مزيداً من الكلمات التمييزية، كما يلي:
 <pre dir=ltr class="code">
 MyLogicalOperation -&gt; LogicalOperation (
-  kwds := ["and", "or", "&&", "||"]
+  kwds = ["and", "or", "&&", "||"]
 ).
 </pre>
   الاشتقاق جائز أيضاً مع الحزم، أي يمكن اشتقاق حزمة من حزمة أخرى. في حالة الحزم فإن عناصر الحزمة المورِّثة ستنتقل كاملة إلى الحزمة الوارثة التي ستستطيع استبدال بعض العناصر أو إضافة عناصر أخرى. في المثال التالي نقوم بتعريف حزمة تشتق من حزمة أخرى وتغيّر أحدى القواعد فيها:
@@ -236,16 +236,16 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
  فيما يلي نماذج لقواعد اللغة المُضمّنة في المكتبات المعيارية. هذه النماذج تمثل نبذة مختصرة ولا تتضمن كل تفاصيل القواعد.
  <h3>التراكيب</h3>
  تتكون التراكيب من حدود تربطها مؤثرات (operators) بشكل مشابه للّغات الشائعة الأخرى. وفيما يلي قائمة بأهم المؤثرات المتوفرة:<br/>
- مؤثر النفي: ^<br/>
+ مؤثر النفي: !<br/>
  مؤثر أو: |<br/>
- مؤثر أو حصرية (xor): !<br/>
+ مؤثر أو حصرية (xor): $<br/>
  مؤثر و: &<br/>
  العمليات الحسابية: +، -، *، /<br/>
- العمليات البِتّية (bitwise): &، |، !، ^<br/>
- العمليات المنطقية: &&، ||، !!، ^^<br/>
- المقارنات: <، >، =>، =<، =<br/>
- التعيين: =:<br/>
- العمليات التعيينية: =+، =-، =*، =/، =|، =&، =!، =^<br/>
+ العمليات البِتّية (bitwise): &، |، $, !<br/>
+ العمليات المنطقية: &&، ||، $$، !!<br/>
+ المقارنات: <، >، =>، =<، ==, =!<br/>
+ التعيين: =<br/>
+ العمليات التعيينية: =+، =-، =*، =/، =|، =&، =$<br/>
  القوائم تُفصل بالفاصلة. على سبيل المثال: a,b,c<br/>
  تجميع الحدود يتم باستخدام الأقواس الإعتيادية: ()<br/>
 
@@ -283,7 +283,7 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
  ولتحديد حجم المصفوفة ديناميكياً تستخدم الصيغة التالية:
 <pre dir=ltr class="code">
  "def" name ":" "array" "[" type "]" "(" number ")".
- "def" name ":=" "array" "[" type "]" "~new" "(" number ")".
+ "def" name "=" "array" "[" type "]" "~new" "(" number ")".
 </pre>
  استخدام المصفوفات:
  <pre dir=ltr class="code">name "(" number ")".</pre>
@@ -317,13 +317,11 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
  <h3>الفصل بين الجمل</h3>
  تستخدم الفاصلة المنقوطة للفصل بين الجمل بطريقة مشابهة للفاصلة الإعتيادية التي تفصل بين الحدود داخل القوائم. بمعنى آخر فإن الفاصلة المنقوطة ليست جزءاً من الجملة ويُمكن إهمالها إن لم يأت بعدها جملة أخرى.
  
- <h3>المنظق في بعض الخيارات النحوية</h3>
+ <h3>المنطق في بعض الخيارات النحوية</h3>
  <ul>
   <li>أقواس الدالّات:أُستخدمت الأقواس الاعتيادية مع الدالّات في الرياضيات منذ القدم، لذا تم الالتزام بذات الاسلوب مع دالّات لغة الأسُس.</li>
   <li>معطيات الأوامر: معطيات الأوامر (مثل فعل الشرط في الجمل الشرطية) تخلوا من الأقواس ببساطة لأنها لا حاجة لها من منظور إعرابي لذا فإن إضافتها لا معنى له.</li>
-  <li>علامة التعيين: أُستخدم لتعيين قيمة جديدة في متغير الرمز := وذلك لأن الرمز = رياضياً أقرب في معناه إلى المقارنة منه إلى التعيين. كذلك فإن الرمز := ينسجم مع += و -= وغيرها من رموز التعيين بينما ينسجم الرمز = مع رموز المقارنة الأخرى مثل >= و <= وغيرها.</li>
   <li>يُفضل البعض البرامج بدون علامة الفصل بين الجمل (;) ولكن إن كان الأمر صحيحاً فلماذا لدينا تنقيط في اللغات البشرية؟</li>
-  <li>رمز النفي ^ أستخدم بدل ! لأن الأخير يُستخدم لتمثيل العملية xor لقربه من رمز | الذي يمثل or.</li>
   <li>عوملت الكلمات الترميزية public و private وما شابههما كمبدّلات (أي ببدئهم بالرمز @) لأنهم ببساطة ليسوا أكثر من معلومات وصفية يستخدمها نظام الترجمة لكنها ليست عمليات تؤثر على طريقة تنفيذ البرنامج.</li>
   <li>استخدمت الكلمة الترميزية def لتعريف الدالّات والفئات كي نتمكن من حصر كامل التعريف في الجهة التي تلي النقطتين بدل أن يكون اسم الدالة أو الفئة في وسط التعريف. يساعد هذا الأمر على تيسير فهم التعريفات خصوصاً مع التعريفات المركبة مثل تعريف مؤشر إلى دالّة أو مصفوفة مؤشرات إلى دالّات.</li>
   <li>استخدمت الأقواس الهلالية للولوج إلى عناصر المصفوفة بدل الأقواس المعقوفة لأن الأخيرة تستخدم لمعطيات الترجمة. ولنفس السبب استخدمت الأقواس الاعتيادية لتحديد حجم المصفوفة ديناميكياً بينما استخدمت الأقواس المعقوفة لتحديد نوع المصفوفة وهو ما يندرج ضمن معطيات الترجمة.</li>
@@ -354,7 +352,7 @@ def Factorial : namespace
 {
   def factorial : function (i:int)=>(int)
   {
-    if i = 0 return 1 else return i * factorial(i-1)
+    if i == 0 return 1 else return i * factorial(i-1)
   };
   
   def main : function
@@ -372,7 +370,7 @@ def While : namespace
 {
   def main : function
   {
-    def i : int := 1;
+    def i : int = 1;
     while i < 10 {
       print("%d\n", i);
       ++i;
@@ -390,8 +388,8 @@ def Arrays : namespace
   def main : function
   {
     def a : array[int](10);
-    for i:int:=0, i<10, ++i a(i) := i;
-    for i:int:=0, i<10, ++i print("%d\n", a(i));
+    for i:int=0, i<10, ++i a(i) = i;
+    for i:int=0, i<10, ++i print("%d\n", a(i));
     return 0
   }
 }
@@ -405,8 +403,8 @@ def Pointers : namespace
   def main : function
   {
     def p : ptr[int], i : int;
-    i := 10;
-    p := i~ptr;
+    i = 10;
+    p = i~ptr;
     print("%d\n", p);     // prints the address of i.
     print("%d\n", p~cnt); // prints the value of i.
     return 0
@@ -422,7 +420,7 @@ def Casting : namespace
   def main : function
   {
     def i : int, f : float;
-    i := 10;
+    i = 10;
     // Treat the bits of i as a floating point number by doing this:
     // Get the pointer of i,
     // then cast the pointer to a pointer of float,
@@ -445,8 +443,8 @@ def ClassDefinition : namespace
     @private def j : int;
     @public def constructor : function (a:int, b:int)
     {
-      this.i := a;
-      this.j := b;
+      this.i = a;
+      this.j = b;
     };
     @public def getI : function ()=>(int) { return this.i };
     @public def getJ : function ()=>(int) { return this.j }
@@ -458,7 +456,7 @@ def ClassDefinition : namespace
     @public def constructor : function (a:int, b:int, c:int)
     {
       parent.constructor(a, b);
-      this.k := c
+      this.k = c
     };
     @public def getK : function ()=>(int) { return this.j }
   }
@@ -468,7 +466,7 @@ def ClassDefinition : namespace
 
  </div>
  <div style="border-top: solid 1px; text-align: right; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2014م \ 1435هـ.<br/>
+  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2015م \ 1436هـ.<br/>
 نُشر هذا الملف برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0، والمضمّنة مع هذا الملف
 والمتوفرة أيضاً على الرابط <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>. يرجى قراءة الرخصة للتعرف على شروط الاستخدام والنسخ.</p>
  </div>

@@ -3,13 +3,13 @@ import "common.alusus";
 def Program1_5_1 : module {
   def main : function() {
     def eof : Int;
-    eof := -1;
+    eof = -1;
 
     def c : Int;
-    c := getchar();
-    while (c ^= eof) {
+    c = getchar();
+    while (c != eof) {
       putchar(c);
-      c := getchar();
+      c = getchar();
     };
   }
 };

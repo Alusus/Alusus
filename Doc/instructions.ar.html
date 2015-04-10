@@ -24,7 +24,7 @@
   <span class="menuItem"><a href="http://alusus.net?lang=ar">لغة الأسُس</a> &#x276f; <a href="http://alusus.net/documentation?lang=ar">الوثائق</a></span>
  </div>
  <div id='rootdiv' style="padding-top:5px; padding-left:20px; padding-right:20px; padding-bottom:35px;">
- <h1>تعليمات بناء واستعمال لغة الأسُس</h1>
+ <h1>تعليمات بناء وتشغيل لغة الأسُس</h1>
 
  <!-- ********************************************************************** -->
  <h2>الاعتماديات الخارجية</h2>
@@ -34,19 +34,35 @@
  <p><a href="http://www.boost.org/users/history/version_1_55_0.html" target="__blank">Boost 1.55.0</a></p>
 
  <p><a href="http://alusus.net/Downloads/CATCH.tar.gz">CATCH</a></p>
- إصدار مكتبة CATCH الذي تستخدمه شفرة الأسُس قديم لذا يُرجى تحميلها من الرابط أعلاه وليس من موقعهم الرسمي الذي يحتوي على إصدار أحدث قد لا يتوافق مع شفرة الأسُس الحالية. بالإضافة إلى المكتبات أعلاه، ستحتاج إلى GCC و CMake لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل valgrind.
- 
- <!-- ********************************************************************** -->
- <h2>خطوات البناء</h2>
- <ul>
-  <li>نزل حزم أدوات البناء مثل GCC و CMake وغيرها باستخدام مدير الحزم الخاص بتوزيعة لينُكس التي تستخدم. اعتماداً على التوزيعة بعض هذه الحزم قد يُنصّب مسبقاً في التوزيعة.<br/>
-  في توزيعة أوبونتو استخدم الأمر التالي:
+ إصدار مكتبة CATCH الذي تستخدمه شفرة الأسُس قديم لذا يُرجى تحميلها من الرابط أعلاه وليس من موقعهم الرسمي الذي يحتوي على إصدار أحدث قد لا يتوافق مع شفرة الأسُس الحالية. بالإضافة إلى المكتبات أعلاه، ستحتاج إلى GCC و CMake لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل valgrind.<br/>
+  لتنصيب أدوات البناء في توزيعة أوبونتو استخدم الأمر التالي:
 <pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake</pre>
   وفي توزيعة فيدورا استخدم الأمر التالي:
 <pre dir=ltr class="code nohighlight">$ sudo yum install gcc gcc-c++ cmake valgrind valgrind-devel</pre>
   لاحظ حاجتنا لتنصيب valgrind في توزيعة فيدورا للتمكن من بناء LLVM وهو الأمر الذي لم نحتج إليه مع توزيعة أوبونتو. قد تحتاج أيضاً لتنصيب حزم أخرى إن كنت تستخدم توزيعات غير المذكورة أعلاه. راجع موقع LLVM لمعلومات أوفر حول طريقة بنائها.<br/>
   <span style="color:red;">ملاحظة: ستحتاج إلى الإصدار 4.8 فما فوق من GCC. لن تتمكن من بناء شفرة الأسُس بإصدار أقدم.</span>
+
+ <!-- ********************************************************************** -->
+ <h2>البناء باستخدام build.sh</h2>
+ هذه هي الطريقة الأيسر للبناء والتي يُنصح بها.
+ <ul>
+  <li>قم بتنصيب أدوات البناء كما هو مبين في الفقرة السابقة.</li>
+  
+  <li>لُج إلى مجلّد Tools ونفّذ الملف <span dir=ltr>build.sh</span>.
+  سيقوم هذا الملف تلقائيا بتنزيل الاعتماديات وبناء LLVM وسيقوم بعدها ببناء الأسُس وتنصيبها. تنزيل الاعتماديات وبناء LLVM سيستغرق وقتاً طويلاً لكن ذلك يتم فقط عند التشغيل الأول لهذا البرنامج. تشغيله مجدداً لن يعيد تجهيز الاعتماديات وسيكون أسرع بكثير.
+<pre dir=ltr class="code nohighlight">
+$ cd &lt;path-to-Alusus&gt;/Tools
+$ ./build.sh
+</pre>
   </li>
+ </ul>
+ يوجد في ملف <span dir=ltr>build.sh</span> بعض المتغيرات التي يمكن التحكم بها منها MAKE_THREAD_COUNT وهو عدد خيوط التنفيذ المتوازي المستخدمة أثناء البناء. تم تحديد قيمة هذا المتغير بـ8 لتسريع البناء لكن يمكنك التحكم به إن واجهت مشاكل أو لم يكن حاسوبك قادراً على تشغيل 8 خطوط تنفيذ معاً.<br/>
+ إن واجهت أخطاءاً أثناء بناء LLVM فقد تضطر لتعديل الأمر cmake الخاص ببناء LLVM داخل ملف <span dir=ltr>build.sh</span> بإعطاء معطيات إضافية مثل <span dir=ltr>-DLLVM_TARGET_ARCH</span>.
+
+ <!-- ********************************************************************** -->
+ <h2>البناء يدوياً</h2>
+ <ul>
+  <li>قم بتنصيب أدوات البناء كما هو مبين في الفقرة السابقة.</li>
   
   <li>حمل الشفرة المصدرية للإصدارة المبينة أعلاه لكل من Boost و CATCH و LLVM وقم باستخراج ملفاتها.</li>
   
@@ -54,16 +70,16 @@
    <ul>
     <li>أنشئ مجلداً مخصصاً للبناء وسمّه ما شئت. مثلاً llvm.build.</li>
     <li>لُج إلى مجلد بناء LLVM الذي أنشأته واكتب الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt;</pre>
+<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt;</pre>
     قد تحتاج أيضاً لتحديد المعمارية يدوياً بتحديد قيمة LLVM_TARGET_ARCH. على سبيل المثال، لتحديد قيمة المعمارية في بيئة 32 بت استخدم الأمر التالي بدل الأمر أعلاه:
-<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DLLVM_TARGET_ARCH=i386</pre>
+<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt; -DLLVM_TARGET_ARCH=i386</pre>
     ولتحديدها في بيئة 64 بت استخدم الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DLLVM_TARGET_ARCH=x86_64</pre>
+<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt; -DLLVM_TARGET_ARCH=x86_64</pre>
     </li>
     <li>أكمل عملية البناء والتثبيت:
 <pre dir=ltr class="code nohighlight">
 $ make
-$ sudo make install
+$ make install
 </pre>
     </li>
    </ul>
@@ -75,11 +91,13 @@ $ sudo make install
     <li>لُج إلى ذلك المجلد وأكمل عملية البناء كما يلي:
 <pre dir=ltr class="code nohighlight">
 $ cd &lt;path-to-Builds&gt;
-$ cmake &lt;path-to-Alusus-root&gt;/Sources -DBOOST_PATH=&lt;path-to-Boost-source&gt; -DCATCH_PATH=&lt;path-to-CATCH&gt; -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=&lt;path-to-Alusus-root&gt; -DLLVM_PATH=&lt;path-to-LLVM-build&gt;
+$ cmake &lt;path-to-Alusus-root&gt;/Sources -DBOOST_PATH=&lt;path-to-Boost-source&gt; -DCATCH_PATH=&lt;path-to-CATCH&gt; -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=&lt;path-to-Alusus-root&gt; -DLLVM_PATH=&lt;path-to-LLVM-install&gt;
 $ make
 $ make install
 </pre>
   العبارة الأخيرة (make install) تنسخ الملفات الناتجة إلى مجلدات Bin و Lib و Include تحت مجلد الأسُس المشار إليه أعلاه في معطى CMAKE_INSTALL_PREFIX وليس إلى نظام التشغيل. يمكنك اختيار مجلد آخر لخزن هذه الملفات كأن يكون <span dir=ltr>/opt/Alusus</span> وذلك بتغيير قيمة CMAKE_INSTALL_PREFIX في معطيات cmake أعلاه. أمر cmake أعلاه يجهز للبناء بصيغة التنقيح (debug) ولتغييرها إلى صيغة النشر (release) يجب تغيير المعطى CMAKE_BUILD_TYPE إلى release بدل debug.
+    </li>
+   </ul>
   </li>
  </ul>
 
@@ -93,17 +111,16 @@ $ make test
 
  <!-- ********************************************************************** -->
  <h2>استخدام لغة الأسُس</h2>
- بعد الانتهاء من البناء سيكون الملف التنفيذي داخل Bin وستكون المكتبات داخل Lib. لتتمكن من تشغيل اللغة ستحتاج لإضافة مجلد Lib إلى LD_LIBRARY_PATH. بعد ذلك تستطيع تنفيذ الأمثلة داخل المجلد Examples كما يلي:
+ بعد الانتهاء من البناء سيكون الملف التنفيذي داخل Bin وستكون المكتبات داخل Lib. تستطيع تنفيذ الأمثلة داخل المجلد Examples كما يلي:
 <pre dir=ltr class="code nohighlight">
-$ export LD_LIBRARY_PATH=&lt;path-to-Alusus&gt;/Lib:$LD_LIBRARY_PATH
 $ export PATH=&lt;path-to-Alusus&gt;/Bin:$PATH
-$ cd &lt;path-to-Alusus&gt;/Examples
-$ alusus_d hello_world.alusus
+$ cd &lt;path-to-Alusus&gt;/Examples/General
+$ alusus.dbg hello_world.alusus
 </pre>
- اسم الملف التنفيذي عند البناء بصيغة التنقيح (debug) يكون alusus_d. لو تم بناؤها بصيغة النشر (release) فإن اسم الملف التنفيذي يكون alusus، أي بدون الإضافة d_.
+ اسم الملف التنفيذي عند البناء بصيغة التنقيح (debug) يكون alusus.dbg. لو تم بناؤها بصيغة النشر (release) فإن اسم الملف التنفيذي يكون alusus، أي بدون الإضافة dbg.
  <p>إذا تم بناء القلب بصيغة التنقيح (debug) فإن بالإمكان تدوين الأحداث (logging) وذلك بإضافة معطى log-- إلى البرنامج وإعطائه رقماً يحدد مستوى التفاصيل المرجو كما في المثال التالي: 
 <pre dir=ltr class="code nohighlight">
-$ alusus_d helloworld.alusus --log 16
+$ alusus.dbg helloworld.alusus --log 16
 </pre>
  مستوى التفاصيل يحدد بمرتبات ثنائية حيث تشير كل مرتبة إلى مستوى معين من التدوين يُمكّن إذا كانت قيمة تلك المرتبة 1 ويُعطّل إذا كانت قيمتها 0. الجدول التالي يوضح تفاصيل هذه المرتبات:<br/>
  المرمّز، المستوى الأدنى = 1،<br/>
@@ -117,7 +134,7 @@ $ alusus_d helloworld.alusus --log 16
 
  </div>
  <div style="border-top: solid 1px; text-align: right; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2014م \ 1435هـ.<br/>
+  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2015م \ 1436هـ.<br/>
 نُشر هذا الملف برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0، والمضمّنة مع هذا الملف
 والمتوفرة أيضاً على الرابط <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>. يرجى قراءة الرخصة للتعرف على شروط الاستخدام والنسخ.</p>
  </div>

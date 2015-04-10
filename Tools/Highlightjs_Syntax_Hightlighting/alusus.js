@@ -1,13 +1,12 @@
 /*
- Alusus Language Sytnax Highlighting
- Author: Sarmad Khalid Abdullah <sarmad@alusus.org>
- Copyright (C) 2015 Sarmad Khalid Abdullah <sarmad@alusus.org>
+Language: Alusus
+Author: Sarmad Khalid Abdullah <sarmad@alusus.org>
 */
 
 function(hljs) {
   var KEYWORDS =
       'trule prule prule_group module type integer string list map lexer start as ref in ' +
-      'prefix inherits self root dimension import def function output use cast cnt ptr array ' +
+      'prefix inherits self root dimension import def function output use cast cnt ptr ary ' +
       'null false int float while private char catch export virtual operator sizeof ' +
       'dynamic_cast typedef const_cast|10 const struct for static_cast union namespace ' +
       'unsigned long throw volatile static protected bool template mutable if public friend ' +
