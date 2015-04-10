@@ -33,6 +33,7 @@ void StringLiteralTokenizingHandler::prepareToken(Data::Token *token, Word id, W
   static WChar raaLetterChar = getWideCharFromUtf8(STR("ر"));
   static WChar taaLetterChar = getWideCharFromUtf8(STR("ت"));
   static WChar doubleQuoteChar = getWideCharFromUtf8(STR("\""));
+  static WChar singleQuoteChar = getWideCharFromUtf8(STR("'"));
   // Set the token text after parsing control sequences and removing quotes.
   Word i = 0;
   Bool inStr = false;
@@ -43,7 +44,16 @@ void StringLiteralTokenizingHandler::prepareToken(Data::Token *token, Word id, W
       if (tokenText[i] == doubleQuoteChar) inStr = false;
       else if (tokenText[i] == backSlashChar) {
         ++i;
-        if (tokenText[i] == nLetterChar || tokenText[i] == jeemLetterChar) {
+        if (tokenText[i] == doubleQuoteChar) {
+          buffer[bufferLength] = doubleQuoteChar;
+          ++bufferLength;
+        } else if (tokenText[i] == singleQuoteChar) {
+            buffer[bufferLength] = singleQuoteChar;
+            ++bufferLength;
+        } else if (tokenText[i] == backSlashChar) {
+            buffer[bufferLength] = backSlashChar;
+            ++bufferLength;
+        } else if (tokenText[i] == nLetterChar || tokenText[i] == jeemLetterChar) {
           buffer[bufferLength] = newLineChar;
           ++bufferLength;
         } else if (tokenText[i] == rLetterChar || tokenText[i] == raaLetterChar) {

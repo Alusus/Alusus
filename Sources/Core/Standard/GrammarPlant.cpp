@@ -105,22 +105,22 @@ void GrammarPlant::createCharGroupDefinitions()
   this->repository.set(STR("root:LexerDefs.Letter"), CharGroupDefinition::create(letterCharGroup).get());
   ReferenceParser::setLetterCharGroup(letterCharGroup);
 
-  // AnyCharNoEs : char ^('\\');
+  // AnyCharNoEs : char !('\\');
   this->repository.set(STR("root:LexerDefs.AnyCharNoEs"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
       SequenceCharGroupUnit::create(STR("\\"), STR("\\")))).get());
 
-  // AnyCharNoEsOrSingleQuote : char ^("\\'");
+  // AnyCharNoEsOrSingleQuote : char !("\\'");
   this->repository.set(STR("root:LexerDefs.AnyCharNoEsOrSingleQuote"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
       RandomCharGroupUnit::create(STR("\\'")))).get());
 
-  // AnyCharNoEsOrDoubleQuote : char ^("\\\"");
+  // AnyCharNoEsOrDoubleQuote : char !("\\\"");
   this->repository.set(STR("root:LexerDefs.AnyCharNoEsOrDoubleQuote"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
       RandomCharGroupUnit::create(STR("\\\"")))).get());
 
-  // AnyCharNoReturn = ^('\\');
+  // AnyCharNoReturn = !('\\');
   this->repository.set(STR("root:LexerDefs.AnyCharNoReturn"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
       SequenceCharGroupUnit::create(STR("\n"), STR("\n")))).get());
@@ -412,7 +412,7 @@ void GrammarPlant::createTokenDefinitions()
   }).get());
 
   // @inner EsCharWithSingleQuote : trule as {
-  //   AnyCharNoEsOrDoubleQuote || EsSequence ||
+  //   AnyCharNoEsOrDoubleQuote || EsCodeSequence ||
   //   alternate (root.TokenData.escapeSequences:es)->( es )
   // };
   // TODO: Add the heap.escape_sequences part
@@ -426,7 +426,7 @@ void GrammarPlant::createTokenDefinitions()
   }).get());
 
   // @inner EsCharWithDoubleQuote : trule as {
-  //   AnyCharNoEsOrSingleQuote || EsSequence ||
+  //   AnyCharNoEsOrSingleQuote || EsCodeSequence ||
   //   alternate (root.TokenData.escapeSequences:es)->( es )
   // };
   // TODO: Add the root.TokenData.escapeSequences part
@@ -440,7 +440,7 @@ void GrammarPlant::createTokenDefinitions()
   }).get());
 
   // @inner EsCharWithQuotes : trule as {
-  //   AnyCharNoEs || EsSequence || alternate (root.TokenData.escapeSequences:es)->( es )
+  //   AnyCharNoEs || EsCodeSequence || alternate (root.TokenData.escapeSequences:es)->( es )
   // };
   // TODO: Add the heap.escape_sequences part
   this->repository.set(STR("root:LexerDefs.EsCharWithQuotes"), SymbolDefinition::create({
@@ -456,7 +456,7 @@ void GrammarPlant::createTokenDefinitions()
   //   '\\' + ('c' + HexDigit*(2,2) ||
   //           'u' + HexDigit*(4,4) ||
   //           'w' + HexDigit*(8,8) ||
-  //           'n' || 't' || 'r')
+  //           'n' || 't' || 'r' || '"' || '\'' || '\\')
   // };
   this->repository.set(STR("root:LexerDefs.EsSequence"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
@@ -464,6 +464,9 @@ void GrammarPlant::createTokenDefinitions()
          ConstTerm::create(0, STR("\\")),
          AlternateTerm::create({
            {TermElement::TERM, SharedList::create({
+              ConstTerm::create(0, STR("\\")),
+              ConstTerm::create(0, STR("\"")),
+              ConstTerm::create(0, STR("'")),
               ConstTerm::create(0, STR("n")),
               ConstTerm::create(0, STR("t")),
               ConstTerm::create(0, STR("r")),

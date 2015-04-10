@@ -327,7 +327,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     grammarRepository->set(STR("root:Expression.Cast_Tilde"), SymbolDefinition::create({
         {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
         {SymbolDefElement::VARS, SharedMap::create(false, {
-            {STR("kwd"), SharedMap::create(false, {{STR("cast"), 0}, {STR("حوّل"), 0}})},
+            {STR("kwd"), SharedMap::create(false, {{STR("cast"), 0}, {STR("مثّل"), 0}})},
             {STR("prms"), SharedList::create({})}
             })},
         {SymbolDefElement::HANDLER, this->handler}
