@@ -6,20 +6,29 @@ project(Alusus)
 cmake_minimum_required(VERSION 2.8)
 
 # Read version info from version file.
-file(READ "../version" VersionInfo)
+execute_process(COMMAND bash version_info.sh
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/
+                OUTPUT_VARIABLE VersionInfo)
 string(REGEX MATCH "VERSION: ([0-9]+\\.[0-9]+\\.[0-9]+)" _dummy_ ${VersionInfo})
 set(AlususVersion ${CMAKE_MATCH_1})
 string(REGEX MATCH "^[0-9]+\\.[0-9]+" AlususSoVersion ${AlususVersion})
+string(REGEX MATCH "REVISION: ([A-Za-z0-9]+)" _dummy_ ${VersionInfo})
+set(AlususRevision ${CMAKE_MATCH_1})
+if (NOT ${AlususRevision} STREQUAL "")
+  set(AlususRevision "-${AlususRevision}")
+endif()
 string(REGEX MATCH "DATE: ([0-9]+-[0-9]+-[0-9]+)" _dummy_ ${VersionInfo})
 set(AlususReleaseDate ${CMAKE_MATCH_1})
 string(REGEX MATCH "HIJRI_DATE: ([0-9]+-[0-9]+-[0-9]+)" _dummy_ ${VersionInfo})
 set(AlususHijriReleaseDate ${CMAKE_MATCH_1})
 message(STATUS "Alusus Version: " ${AlususVersion})
+message(STATUS "Alusus Revision: " ${AlususRevision})
 message(STATUS "Alusus So Version: " ${AlususSoVersion})
 message(STATUS "Alusus Release Date: " ${AlususReleaseDate})
 message(STATUS "Alusus Hijri Release Date: " ${AlususHijriReleaseDate})
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${AlususVersion}"
+                                                           ALUSUS_REVISION="${AlususRevision}"
                                                            ALUSUS_RELEASE_DATE="${AlususReleaseDate}"
                                                            ALUSUS_HIJRI_RELEASE_DATE="${AlususHijriReleaseDate}")
 

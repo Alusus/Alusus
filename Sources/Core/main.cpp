@@ -88,7 +88,7 @@ int main(int argCount, char * const args[])
     if (args[0][0] > 0) {
       // Write English help.
       outStream << STR("Alusus Core\n"
-                  "Version " ALUSUS_VERSION " (" ALUSUS_RELEASE_DATE ")\n"
+                  "Version " ALUSUS_VERSION ALUSUS_REVISION " (" ALUSUS_RELEASE_DATE ")\n"
                   "Copyright (C) " << alususReleaseYear << " Sarmad Khalid Abdullah\n\n");
       outStream << STR("This software is released under Alusus Public License, Version 1.0.\n"
                   "For details on usage and copying conditions read the full license at\n"
@@ -108,7 +108,7 @@ int main(int argCount, char * const args[])
     } else {
       // Write Arabic help.
       outStream << STR("قلب الأسُس\n"
-                       "الإصدار " ALUSUS_VERSION " (" ALUSUS_RELEASE_DATE "م \\ " ALUSUS_HIJRI_RELEASE_DATE "هـ)\n"
+                       "الإصدار " ALUSUS_VERSION ALUSUS_REVISION "\n (" ALUSUS_RELEASE_DATE "م \\ " ALUSUS_HIJRI_RELEASE_DATE "هـ)\n"
                        "جميع الحقوق محفوظة لـ سرمد خالد عبدالله " << alususReleaseYear << "م\\" << alususHijriReleaseYear << "هـ\n\n");
       outStream << STR("نُشر هذا البرنامج برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0\n"
                        "والمتوفرة على الرابط <http://alusus.net/alusus_license_1_0>. يرجى قراءة\n"

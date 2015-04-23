@@ -21,7 +21,7 @@ MAKE_THREAD_COUNT=8
 BUILD_TYPE="debug"
 
 # Package Creation Args.
-VERSION_FILE="version"
+VERSION_FILE="version_info.sh"
 CREATE_PACKAGES="no"
 DEB_CHANGE_LOG="deb-changelog.en.txt"
 RPM_CHANGE_LOG="rpm-changelog.en.txt"
@@ -56,6 +56,8 @@ do
     sudo rm -rf $INSTALL_PATH/*
   fi
 done
+
+BUILD_PATH=$BUILDS_PATH/$BUILD_TYPE
 
 
 #---------------------------
@@ -93,14 +95,14 @@ FailMessage () {
    echo -e "${RED_CLR}FAILED: ${1}${NO_CLR}"
 }
 
-mkdir -p $BUILDS_PATH
-mkdir -p $DEPS_PATH
-
 
 #-------------------------
 # Dependencies Preparation
 
 InformationMessage "Preparing dependencies..."
+
+mkdir -p $BUILD_PATH
+mkdir -p $DEPS_PATH
 
 cd $DEPS_PATH
 
@@ -146,7 +148,7 @@ SuccessMessage "Preparing dependencies."
 
 InformationMessage "Building Alusus..."
 
-cd $BUILDS_PATH
+cd $BUILD_PATH
 
 cmake $ALUSUS_ROOT/Sources -DBOOST_PATH=$DEPS_PATH/$BOOST_SRC_NAME -DCATCH_PATH=$DEPS_PATH/$CATCH_SRC_NAME -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DLLVM_PATH=$DEPS_PATH/${LLVM_NAME}.install
 
@@ -187,11 +189,16 @@ rm -rf *
 
 INPUT_TYPE="dir"
 
-PACKAGE_VERSION=`cat $ALUSUS_ROOT/$VERSION_FILE | head -1 | awk '{split($0,a," "); print a[2]}'`
+VERSION_INFO=`$ALUSUS_ROOT/Tools/$VERSION_FILE`
+PACKAGE_VERSION=`echo $VERSION_INFO | awk 'match($0, /VERSION: ([0-9.]+)/, a) { print a[1] }'`
+PACKAGE_REVISION=`echo $VERSION_INFO | awk 'match($0, /REVISION: ([a-zA-Z0-9]+)/, a) { print a[1] }'`
+if [[ $PACKAGE_REVISION != "" ]]; then
+  PACKAGE_REVISION="--iteration ${PACKAGE_REVISION}"
+fi
 
-fpm -s ${INPUT_TYPE} -t deb -a "${ARCHITECTURE}" -n "${PACKAGE_NAME}" -v "${PACKAGE_VERSION}" --description "${PACKAGE_DESCRIPTION}" --url "${PACKAGE_URL}" -m "${PACKAGE_MAINTAINER}" --deb-changelog "$ALUSUS_ROOT/${DEB_CHANGE_LOG}" --after-install "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_INSTALL_SCRIPT}" --after-remove "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_REMOVAL_SCRIPT}" --directories "${INSTALL_PATH}" "${INSTALL_PATH}" || { FailMessage "Creating Debian Package."; exit 1; }
+fpm -s ${INPUT_TYPE} -t deb -a "${ARCHITECTURE}" -n "${PACKAGE_NAME}" -v "${PACKAGE_VERSION}" ${PACKAGE_REVISION} --description "${PACKAGE_DESCRIPTION}" --url "${PACKAGE_URL}" -m "${PACKAGE_MAINTAINER}" --deb-changelog "$ALUSUS_ROOT/${DEB_CHANGE_LOG}" --after-install "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_INSTALL_SCRIPT}" --after-remove "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_REMOVAL_SCRIPT}" --directories "${INSTALL_PATH}" "${INSTALL_PATH}" || { FailMessage "Creating Debian Package."; exit 1; }
 
-fpm -s ${INPUT_TYPE} -t rpm -a "${ARCHITECTURE}" -n "${PACKAGE_NAME}" -v "${PACKAGE_VERSION}" --description "${PACKAGE_DESCRIPTION}" --url "${PACKAGE_URL}" -m "${PACKAGE_MAINTAINER}" --after-install "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_INSTALL_SCRIPT}" --after-remove "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_REMOVAL_SCRIPT}" --directories "${INSTALL_PATH}" "${INSTALL_PATH}" || { FailMessage "Creating RPM Package."; exit 1; }
+fpm -s ${INPUT_TYPE} -t rpm -a "${ARCHITECTURE}" -n "${PACKAGE_NAME}" -v "${PACKAGE_VERSION}" ${PACKAGE_REVISION} --description "${PACKAGE_DESCRIPTION}" --url "${PACKAGE_URL}" -m "${PACKAGE_MAINTAINER}" --after-install "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_INSTALL_SCRIPT}" --after-remove "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_REMOVAL_SCRIPT}" --directories "${INSTALL_PATH}" "${INSTALL_PATH}" || { FailMessage "Creating RPM Package."; exit 1; }
 
 SuccessMessage "Creating installation packages."
 

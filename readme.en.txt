@@ -49,6 +49,9 @@ at an early stage. The license allows:
 For more information about the license please contact the team at:
 http://alusus.net/contact
 
+NOTE: Files that are released under a different license than Alusus Public
+      License mentions at the beginning its own licensing information.
+
 
 Directory Structure
 ===================

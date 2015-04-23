@@ -204,7 +204,7 @@ int main(int argc, char **argv)
   copyStr(ALUSUS_RELEASE_DATE, alususReleaseYear, 4);
   alususReleaseYear[4] = 0;
   std::cout << "Alusus End-to-End Tests\n"
-               "Version " ALUSUS_VERSION " (" ALUSUS_RELEASE_DATE ")\n"
+               "Version " ALUSUS_VERSION ALUSUS_REVISION " (" ALUSUS_RELEASE_DATE ")\n"
                "Copyright (C) " << alususReleaseYear << " Rafid Khalid Abdullah\n\n";
 
   // Prepare a temporary filename.
