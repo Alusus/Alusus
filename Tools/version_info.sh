@@ -34,7 +34,7 @@ HIJRI_DATE=`Helpers/greg_to_hijri.php $DATE`
 
 echo "VERSION: $VERSION"
 if [[ $DISTANCE != "" ]]; then
-  if [[ $CURRENT_BRANCH == "rb$VERSION" ]]; then
+  if [[ $CURRENT_BRANCH == "vb$VERSION" ]]; then
     echo "REVISION: $DISTANCE"
   else
     echo "REVISION: GIT$COMMIT"

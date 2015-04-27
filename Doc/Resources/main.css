@@ -51,11 +51,13 @@ h1 {
 h2 {
   font-size:120%;
   border-bottom:dotted 1px gray;
+  padding-top:10px;
   margin-bottom:5px;
   padding-bottom:5px;
 }
 h3 {
   font-size:110%;
+  padding-top:5px;
 }
 
 img {
@@ -67,7 +69,6 @@ cite {
 	font-size: 90%;
 	font-style: normal;
 }
-
 
 .menu {
  padding-left:8px;
@@ -89,10 +90,12 @@ cite {
 }
 .activeMenuItem {
  color:black;
- padding-bottom:4px;
+ padding-bottom:0px;
  padding-left:10px;
  padding-right:10px;
  font-weight:bold;
+ height:30px;
+ display:inline-block;
  border-bottom:solid 2px black;
 }
 .activeMenuItem a {
@@ -107,9 +110,10 @@ cite {
  margin:5px 30px 5px 30px;
  padding:6px 8px 6px 8px;
  border:2px solid gray;
- font-family:'Monospace', 'Courier New';
- font-size:85%;
- line-height:160%;
+ font-family: 'Monospace', 'Courier New';
+ font-size:90%;
+ font-weight:bold;
+ line-height:140%;
  overflow: auto;
 }
 .samplecode {
@@ -118,9 +122,10 @@ cite {
  margin:5px 30px 5px 30px;
  padding:6px 8px 6px 8px;
  border:1px solid gray;
- font-family:'Monospace', 'Courier New';
- font-size:85%;
- line-height:160%;
+ font-family: 'Monospace', 'Courier New';
+ font-size:90%;
+ font-weight:bold;
+ line-height:140%;
  overflow: auto;
 }
 

@@ -178,6 +178,8 @@ cd $ALUSUS_ROOT
 sudo cp -r Doc ${INSTALL_PATH}/
 sudo mkdir -p ${INSTALL_PATH}/Tools/Gtk_Syntax_Highlighting
 sudo cp Tools/Gtk_Syntax_Highlighting/alusus.lang ${INSTALL_PATH}/Tools/Gtk_Syntax_Highlighting/
+sudo cp changelog.en.txt ${INSTALL_PATH}/
+sudo cp changelog.ar.txt ${INSTALL_PATH}/
 
 if [[ ! -e ${PACKAGES_PATH} ]]; then
    mkdir ${PACKAGES_PATH}
