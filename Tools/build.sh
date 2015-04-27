@@ -23,8 +23,6 @@ BUILD_TYPE="debug"
 # Package Creation Args.
 VERSION_FILE="version_info.sh"
 CREATE_PACKAGES="no"
-DEB_CHANGE_LOG="deb-changelog.en.txt"
-RPM_CHANGE_LOG="rpm-changelog.en.txt"
 ARCHITECTURE="native"
 PACKAGE_NAME="alusus"
 PACKAGE_DESCRIPTION="Alusus Programming Language's core compilation system and standard libraries."
@@ -180,6 +178,8 @@ sudo mkdir -p ${INSTALL_PATH}/Tools/Gtk_Syntax_Highlighting
 sudo cp Tools/Gtk_Syntax_Highlighting/alusus.lang ${INSTALL_PATH}/Tools/Gtk_Syntax_Highlighting/
 sudo cp changelog.en.txt ${INSTALL_PATH}/
 sudo cp changelog.ar.txt ${INSTALL_PATH}/
+sudo cp license.pdf ${INSTALL_PATH}/
+sudo cp license.txt ${INSTALL_PATH}/
 
 if [[ ! -e ${PACKAGES_PATH} ]]; then
    mkdir ${PACKAGES_PATH}
@@ -198,7 +198,7 @@ if [[ $PACKAGE_REVISION != "" ]]; then
   PACKAGE_REVISION="--iteration ${PACKAGE_REVISION}"
 fi
 
-fpm -s ${INPUT_TYPE} -t deb -a "${ARCHITECTURE}" -n "${PACKAGE_NAME}" -v "${PACKAGE_VERSION}" ${PACKAGE_REVISION} --description "${PACKAGE_DESCRIPTION}" --url "${PACKAGE_URL}" -m "${PACKAGE_MAINTAINER}" --deb-changelog "$ALUSUS_ROOT/${DEB_CHANGE_LOG}" --after-install "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_INSTALL_SCRIPT}" --after-remove "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_REMOVAL_SCRIPT}" --directories "${INSTALL_PATH}" "${INSTALL_PATH}" || { FailMessage "Creating Debian Package."; exit 1; }
+fpm -s ${INPUT_TYPE} -t deb -a "${ARCHITECTURE}" -n "${PACKAGE_NAME}" -v "${PACKAGE_VERSION}" ${PACKAGE_REVISION} --description "${PACKAGE_DESCRIPTION}" --url "${PACKAGE_URL}" -m "${PACKAGE_MAINTAINER}" --after-install "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_INSTALL_SCRIPT}" --after-remove "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_REMOVAL_SCRIPT}" --directories "${INSTALL_PATH}" "${INSTALL_PATH}" || { FailMessage "Creating DEB Package."; exit 1; }
 
 fpm -s ${INPUT_TYPE} -t rpm -a "${ARCHITECTURE}" -n "${PACKAGE_NAME}" -v "${PACKAGE_VERSION}" ${PACKAGE_REVISION} --description "${PACKAGE_DESCRIPTION}" --url "${PACKAGE_URL}" -m "${PACKAGE_MAINTAINER}" --after-install "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_INSTALL_SCRIPT}" --after-remove "$ALUSUS_ROOT/Tools/Package_Scripts/${AFTER_REMOVAL_SCRIPT}" --directories "${INSTALL_PATH}" "${INSTALL_PATH}" || { FailMessage "Creating RPM Package."; exit 1; }
 
