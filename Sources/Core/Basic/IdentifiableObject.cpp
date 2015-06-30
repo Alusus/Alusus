@@ -49,7 +49,7 @@ TypeInfo * IdentifiableObject::getTypeInfo()
  *         this object is instantiated, or for the class from which this
  *         object's class is derived, false otherwise.
  */
-Bool IdentifiableObject::isDerivedFrom(TypeInfo * info) const
+Bool IdentifiableObject::isDerivedFrom(TypeInfo const *info) const
 {
   TypeInfo * i = this->getMyTypeInfo();
   while (i != 0) {

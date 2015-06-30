@@ -37,11 +37,11 @@
  <p><a href="http://www.boost.org/users/history/version_1_55_0.html" target="__blank">Boost 1.55.0</a></p>
 
  <p><a href="http://alusus.net/Downloads/CATCH.tar.gz">CATCH</a></p>
- إصدار مكتبة CATCH الذي تستخدمه شفرة الأسُس قديم لذا يُرجى تحميلها من الرابط أعلاه وليس من موقعهم الرسمي الذي يحتوي على إصدار أحدث قد لا يتوافق مع شفرة الأسُس الحالية. بالإضافة إلى المكتبات أعلاه، ستحتاج إلى GCC و CMake لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل valgrind.<br/>
+ إصدار مكتبة CATCH الذي تستخدمه شفرة الأسُس قديم لذا يُرجى تحميلها من الرابط أعلاه وليس من موقعهم الرسمي الذي يحتوي على إصدار أحدث قد لا يتوافق مع شفرة الأسُس الحالية. بالإضافة إلى المكتبات أعلاه، ستحتاج إلى GCC و CMake و Gawk و PHP لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل valgrind.<br/>
   لتنصيب أدوات البناء في توزيعة أوبونتو استخدم الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake</pre>
+<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake gawk php5</pre>
   وفي توزيعة فيدورا استخدم الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ sudo yum install gcc gcc-c++ cmake valgrind valgrind-devel</pre>
+<pre dir=ltr class="code nohighlight">$ sudo yum install gcc gcc-c++ cmake gawk php valgrind valgrind-devel</pre>
   لاحظ حاجتنا لتنصيب valgrind في توزيعة فيدورا للتمكن من بناء LLVM وهو الأمر الذي لم نحتج إليه مع توزيعة أوبونتو. قد تحتاج أيضاً لتنصيب حزم أخرى إن كنت تستخدم توزيعات غير المذكورة أعلاه. راجع موقع LLVM لمعلومات أوفر حول طريقة بنائها.<br/>
   <span style="color:red;">ملاحظة: ستحتاج إلى الإصدار 4.8 فما فوق من GCC. لن تتمكن من بناء شفرة الأسُس بإصدار أقدم.</span>
 

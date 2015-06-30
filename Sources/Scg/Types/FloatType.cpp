@@ -84,7 +84,7 @@ CastingOperator *FloatType::GetImplicitCastingOperator(
     return new CastToFloat(expr);
   }
   else {
-    throw EXCEPTION(InvalidCastException, ("Integer cannot be casted to " + targetType->ToString()).c_str());
+    throw EXCEPTION(InvalidCastException, ("Float cannot be casted to " + targetType->ToString()).c_str());
   }
 }
 
@@ -103,7 +103,7 @@ CastingOperator *FloatType::GetExplicitCastingOperator(
     return new CastToInt(expr);
   }
   else {
-    throw EXCEPTION(InvalidCastException, ("Integer cannot be casted to " + targetType->ToString()).c_str());
+    throw EXCEPTION(InvalidCastException, ("Float cannot be casted to " + targetType->ToString()).c_str());
   }
 }
 

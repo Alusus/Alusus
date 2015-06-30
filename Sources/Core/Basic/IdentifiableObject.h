@@ -74,7 +74,7 @@ class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObjec
   public: static TypeInfo* getTypeInfo();
 
   /// Check if this object is of the given type, or a derived type.
-  public: Bool isDerivedFrom(TypeInfo *info) const;
+  public: Bool isDerivedFrom(TypeInfo const *info) const;
 
   /**
      * @brief A template equivalent to isDerivedFrom.

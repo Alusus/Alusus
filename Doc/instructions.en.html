@@ -20,9 +20,9 @@
 
 <body style="background: grey; text-align:center; height:100%; padding-left: 10px; padding-right:10px;" alink="#00FFFF" link="#FFFFFF" text="#FFFFFF" vlink="#CCCCCC">
 <div style="border-left: solid 1px; border-right: solid 1px; background: white; min-width:840px; max-width:1200px; width: 100%; min-height:100%; text-align:left; margin-left:auto; margin-right:auto;">
- <div style="width: 100%; height: 100px; padding-top:10px; text-align:center;">
-  <div style="float:left;"><img src="Resources/logo.gif" style="border:0;"/></div>
-  <img src="Resources/title.gif" style="border:0;"/>
+ <div style="width: 100%; height: 83px; padding-top:10px; text-align:center;">
+  <div style="float:left;"><img src="Resources/logo.en.gif" style="border:0;"/></div>
+  <img src="Resources/title.en.gif" style="border:0;padding-top:15px;"/>
   <div style="padding: 10px 15px; float:right; width:120px; text-align:right;"><a style="text-decoration:none; color:black;" href="instructions.ar.html"><b>العربية</b></a></div>
  </div>
  <div class="menu">
@@ -43,11 +43,11 @@
 
  <p><a href="http://alusus.net/Downloads/CATCH.tar.gz">CATCH</a></p>
 
- The release of CATCH used by Alusus' source code is old, therefore you need to download CATCH from the link above and not from their official page which includes a newer release that might not be compatible with Alusus' source code. In addition to the libraries mentioned above, you'll need GCC (4.8) and CMake to be able to build the binaries from the source code. LLVM also has its own dependencies like valgrind for example.
+ The release of CATCH used by Alusus' source code is old, therefore you need to download CATCH from the link above and not from their official page which includes a newer release that might not be compatible with Alusus' source code. In addition to the libraries mentioned above, you'll need GCC (4.8), CMake, Gawk, and PHP to be able to build the binaries from the source code. LLVM also has its own dependencies like valgrind for example.
   To install the build tools in Ubuntu use the following command:
-<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake</pre>
+<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake gawk php5</pre>
   And for Fedora use the following:
-<pre dir=ltr class="code nohighlight">$ sudo yum install gcc gcc-c++ cmake valgrind valgrind-devel</pre>
+<pre dir=ltr class="code nohighlight">$ sudo yum install gcc gcc-c++ cmake gawk php valgrind valgrind-devel</pre>
   Notice the need to install valgrind in Fedora in order to be able to build LLVM. We didn't need to install valgrind in Ubuntu. You might also need to install other packages if you are using distros other than the above. Visit LLVM's website for more details on how to build it.<br/>
   <span style="color:red;">Note: You'll need GCC version 4.8 or newer. You won't be able to build Alusus code with older versions.</span>
 

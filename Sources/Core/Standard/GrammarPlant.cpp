@@ -549,8 +549,6 @@ void GrammarPlant::createTokenDefinitions()
  */
 void GrammarPlant::createProductionDefinitions()
 {
-  // TODO: Replace the generic parsing handler for the root with the appropriate one.
-
   //// TokenData module.
 
   this->repository.set(STR("root:TokenData"), GrammarModule::create({}).get());

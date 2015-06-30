@@ -8,6 +8,11 @@ def ExplicitCasting : module {
     d = i~cast[double];
     printDouble(i);
     print("\n");
+    // Test pointer casting.
+    i~ptr~cast[ptr[float]]~cnt = 3.0f;
+    printf("%d\n", i);
+    printDouble(i~ptr~cast[ptr[float]]~cnt);
+    print("\n");
     return 0;
   }
 };

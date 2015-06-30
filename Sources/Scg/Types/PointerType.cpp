@@ -65,4 +65,18 @@ PointerType *PointerType::Get(const ValueType *contentType)
   PointerType::usedPointerTypes.insert(std::make_pair(contentType, type));
   return type;
 }
+
+llvm::Value *PointerType::CreateCastInst(llvm::IRBuilder<> *irb,
+    llvm::Value *value, const ValueType *targetType) const
+{
+  // TODO: Add support for casting to integer types.
+  if (dynamic_cast<PointerType const*>(targetType) != nullptr) {
+    // Casting to another pointer type.
+    return irb->CreateBitCast(value, const_cast<llvm::Type*>(targetType->GetLlvmType()));
+  } else {
+    // TODO: Improve the message.
+    throw EXCEPTION(InvalidCastException, "Invalid cast.");
+  }
+}
+
 }
