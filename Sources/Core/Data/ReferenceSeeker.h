@@ -59,33 +59,42 @@ class ReferenceSeeker
   /// @name Data Read Functions
   /// @{
 
-  public: IdentifiableObject* get(Reference const *seg, IdentifiableObject *parent) const;
+  public: IdentifiableObject* get(Reference const *ref, IdentifiableObject *source) const;
 
-  public: IdentifiableObject* tryGet(Reference const *seg, IdentifiableObject *parent) const;
+  public: IdentifiableObject* tryGet(Reference const *ref, IdentifiableObject *source) const;
 
-  public: Bool tryGet(Reference const *seg, IdentifiableObject *parent, IdentifiableObject *&result) const;
+  public: void get(Reference const *ref, IdentifiableObject *source, IdentifiableObject *&retVal,
+                   TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) const;
 
-  public: void get(Reference const *seg, IdentifiableObject *parent, PlainModulePairedPtr &retVal) const;
+  public: Bool tryGet(Reference const *ref, IdentifiableObject *source, IdentifiableObject *&retVal,
+                      TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) const;
 
-  public: Bool tryGet(Reference const *seg, IdentifiableObject *parent, PlainModulePairedPtr &retVal) const;
+  public: template<class T> Bool tryGet(Reference const *ref, IdentifiableObject *source,
+                                        IdentifiableObject *&retVal, T *&retParent) const
+  {
+    IdentifiableObject *retIoParent;
+    Bool result = this->tryGet(ref, source, retVal, T::getTypeInfo(), &retIoParent);
+    retParent = static_cast<T*>(retIoParent);
+    return result;
+  }
 
   /// @}
 
   /// @name Data Write Functions
   /// @{
 
-  public: void set(Reference const *seg, IdentifiableObject *parent, IdentifiableObject *val) const;
+  public: void set(Reference const *ref, IdentifiableObject *target, IdentifiableObject *val) const;
 
-  public: Bool trySet(Reference const *seg, IdentifiableObject *parent, IdentifiableObject *val) const;
+  public: Bool trySet(Reference const *ref, IdentifiableObject *target, IdentifiableObject *val) const;
 
   /// @}
 
   /// @name Data Delete Functions
   /// @{
 
-  public: void remove(Reference const *seg, IdentifiableObject *parent) const;
+  public: void remove(Reference const *ref, IdentifiableObject *target) const;
 
-  public: Bool tryRemove(Reference const *seg, IdentifiableObject *parent) const;
+  public: Bool tryRemove(Reference const *ref, IdentifiableObject *target) const;
 
   /// @}
 

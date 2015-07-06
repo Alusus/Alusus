@@ -114,26 +114,25 @@ class GrammarContext : public IdentifiableObject, public virtual Tracer
 
   public: IdentifiableObject* traceValue(IdentifiableObject *val, Module *module)
   {
-    PlainModulePairedPtr retVal;
-    this->traceValue(val, retVal, module);
-    return retVal.object;
+    IdentifiableObject *retVal;
+    Module *retModule;
+    this->traceValue(val, module, retVal, retModule);
+    return retVal;
   }
 
-  public: void traceValue(IdentifiableObject *val, PlainModulePairedPtr &retVal, Module *module);
+  public: void traceValue(IdentifiableObject *val, Module *module,
+                          IdentifiableObject *&retVal, Module *&retModule);
 
   /// @}
 
   /// @name Tracer Implementation
   /// @{
 
-  public: virtual IdentifiableObject* traceValue(IdentifiableObject *val)
-  {
-    return this->traceValue(val, 0);
-  }
+  using Tracer::traceValue;
 
-  public: virtual void traceValue(IdentifiableObject *val, PlainModulePairedPtr &retVal)
+  public: virtual void traceValue(IdentifiableObject *val, IdentifiableObject *&retVal, Module *&retModule)
   {
-    this->traceValue(val, retVal, 0);
+    this->traceValue(val, 0, retVal, retModule);
   }
 
   /// @}
@@ -141,15 +140,15 @@ class GrammarContext : public IdentifiableObject, public virtual Tracer
   /// @name Term Helper Functions
   /// @{
 
-  public: void getListTermData(ListTerm *term, PlainModulePairedPtr &retVal, Module *module=0);
+  public: void getListTermData(ListTerm *term, PlainPairedPtr &retVal, Module *module=0);
 
-  public: Word getListTermChildCount(ListTerm *term, PlainModulePairedPtr const &listData) const;
+  public: Word getListTermChildCount(ListTerm *term, PlainPairedPtr const &listData) const;
 
-  public: void getListTermChild(ListTerm *term, Int index, PlainModulePairedPtr &listData,
-                                Term *&retTerm, PlainModulePairedPtr &retData) const;
+  public: void getListTermChild(ListTerm *term, Int index, PlainPairedPtr &listData,
+                                Term *&retTerm, PlainPairedPtr &retData) const;
 
-  public: void useListTermChild(ListTerm *term, Int index, PlainModulePairedPtr &listData,
-                                Term *&retTerm, PlainModulePairedPtr *retData);
+  public: void useListTermChild(ListTerm *term, Int index, PlainPairedPtr &listData,
+                                Term *&retTerm, PlainPairedPtr *retData);
 
   public: Integer* getTokenTermId(TokenTerm *term, Module *module=0);
 

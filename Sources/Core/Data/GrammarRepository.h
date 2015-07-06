@@ -90,23 +90,9 @@ class GrammarRepository : public IdentifiableObject,
   /// @name Provider Implementation
   /// @{
 
-  public: virtual void set(Reference const *ref, IdentifiableObject *val);
-
-  public: virtual void set(Char const *qualifier, IdentifiableObject *val);
-
   public: virtual Bool trySet(Reference const *ref, IdentifiableObject *val);
 
   public: virtual Bool trySet(Char const *qualifier, IdentifiableObject *val);
-
-  public: virtual void remove(Reference const *ref)
-  {
-    this->repository.remove(ref);
-  }
-
-  public: virtual void remove(Char const *qualifier)
-  {
-    this->repository.remove(qualifier);
-  }
 
   public: virtual Bool tryRemove(Reference const *ref)
   {
@@ -118,46 +104,18 @@ class GrammarRepository : public IdentifiableObject,
     return this->repository.tryRemove(qualifier);
   }
 
-  public: virtual IdentifiableObject* get(Reference const *ref)
-  {
-    return this->repository.get(ref);
-  }
-
-  public: virtual void get(Reference const *ref, PlainModulePairedPtr &retVal)
-  {
-    this->repository.get(ref, retVal);
-  }
-
-  public: virtual IdentifiableObject* get(Char const *qualifier)
-  {
-    return this->repository.get(qualifier);
-  }
-
-  public: virtual void get(Char const *qualifier, PlainModulePairedPtr &retVal)
-  {
-    this->repository.get(qualifier, retVal);
-  }
-
   using Provider::tryGet;
 
-  public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal)
+  public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal,
+                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
   {
-    return this->repository.tryGet(ref, retVal);
+    return this->repository.tryGet(ref, retVal, parentTypeInfo, retParent);
   }
 
-  public: virtual Bool tryGet(Reference const *ref, PlainModulePairedPtr &retVal)
+  public: virtual Bool tryGet(Char const *qualifier, IdentifiableObject *&retVal,
+                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
   {
-    return this->repository.tryGet(ref, retVal);
-  }
-
-  public: virtual Bool tryGet(Char const *qualifier, IdentifiableObject *&retVal)
-  {
-    return this->repository.tryGet(qualifier, retVal);
-  }
-
-  public: virtual Bool tryGet(Char const *qualifier, PlainModulePairedPtr &retVal)
-  {
-    return this->repository.tryGet(qualifier, retVal);
+    return this->repository.tryGet(qualifier, retVal, parentTypeInfo, retParent);
   }
 
   /// @}
@@ -165,9 +123,9 @@ class GrammarRepository : public IdentifiableObject,
   /// @name Tracer Implementation
   /// @{
 
-  public: virtual IdentifiableObject* traceValue(IdentifiableObject *val);
+  using Tracer::traceValue;
 
-  public: virtual void traceValue(IdentifiableObject *val, PlainModulePairedPtr &retVal);
+  public: virtual void traceValue(IdentifiableObject *val, IdentifiableObject *&retVal, Module *&retModule);
 
   /// @}
 

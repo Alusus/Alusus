@@ -446,15 +446,16 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
 
 SharedList* LibraryGateway::GetLeadingCommandsList(GrammarRepository *grammarRepository)
 {
-  PlainModulePairedPtr retVal;
-  grammarRepository->get(STR("root:Main.LeadingCmdGrp"), retVal);
+  PlainPairedPtr retVal;
+  grammarRepository->get(STR("root:Main.LeadingCmdGrp"), retVal.object,
+                         Core::Data::Module::getTypeInfo(), &retVal.parent);
   SymbolDefinition *def = io_cast<SymbolDefinition>(retVal.object);
   if (def == 0) {
     throw EXCEPTION(GenericException, STR("Could not find leading command group."));
   }
   GrammarContext context;
   context.setRoot(grammarRepository->getRoot().get());
-  SharedMap *vars = context.getSymbolVars(def, retVal.module);
+  SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
   SharedList *cmd_list = io_cast<SharedList>(vars->get(STR("cmds")));
   if (cmd_list == 0) {
     throw EXCEPTION(GenericException, STR("Could not find leading command group's command list."));
@@ -465,15 +466,16 @@ SharedList* LibraryGateway::GetLeadingCommandsList(GrammarRepository *grammarRep
 
 SharedList* LibraryGateway::GetInnerCommandsList(GrammarRepository *grammarRepository)
 {
-  PlainModulePairedPtr retVal;
-  grammarRepository->get(STR("root:Subject.SubjectCmdGrp"), retVal);
+  PlainPairedPtr retVal;
+  grammarRepository->get(STR("root:Subject.SubjectCmdGrp"), retVal.object,
+                         Core::Data::Module::getTypeInfo(), &retVal.parent);
   SymbolDefinition *def = io_cast<SymbolDefinition>(retVal.object);
   if (def == 0) {
     throw EXCEPTION(GenericException, STR("Could not find inner command group."));
   }
   GrammarContext context;
   context.setRoot(grammarRepository->getRoot().get());
-  SharedMap *vars = context.getSymbolVars(def, retVal.module);
+  SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
   SharedList *cmd_list = io_cast<SharedList>(vars->get(STR("cmds")));
   if (cmd_list == 0) {
     throw EXCEPTION(GenericException, STR("Could not find inner command group's command list."));
@@ -484,15 +486,16 @@ SharedList* LibraryGateway::GetInnerCommandsList(GrammarRepository *grammarRepos
 
 SharedList* LibraryGateway::GetTildeCommandsList(GrammarRepository *grammarRepository)
 {
-  PlainModulePairedPtr retVal;
-  grammarRepository->get(STR("root:Expression.DefaultPostfixTildeCmd"), retVal);
+  PlainPairedPtr retVal;
+  grammarRepository->get(STR("root:Expression.DefaultPostfixTildeCmd"), retVal.object,
+                         Core::Data::Module::getTypeInfo(), &retVal.parent);
   SymbolDefinition *def = io_cast<SymbolDefinition>(retVal.object);
   if (def == 0) {
     throw EXCEPTION(GenericException, STR("Could not find tilde command group."));
   }
   GrammarContext context;
   context.setRoot(grammarRepository->getRoot().get());
-  SharedMap *vars = context.getSymbolVars(def, retVal.module);
+  SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
   SharedList *cmd_list = io_cast<SharedList>(vars->get(STR("cmds")));
   if (cmd_list == 0) {
     throw EXCEPTION(GenericException, STR("Could not find inner command group's command list."));

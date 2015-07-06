@@ -31,20 +31,21 @@ GrammarContext::GrammarContext() : repository(10, 5)
 //==============================================================================
 // Misc Functions
 
-void GrammarContext::traceValue(IdentifiableObject *val, PlainModulePairedPtr &retVal, Module *module)
+void GrammarContext::traceValue(IdentifiableObject *val, Module *module,
+                                IdentifiableObject *&retVal, Module *&retModule)
 {
-  retVal.object = val;
-  retVal.module = module;
-  if (retVal.object == 0 || !retVal.object->isDerivedFrom<Reference>()) return;
+  retVal = val;
+  retModule = module;
+  if (retVal == 0 || !retVal->isDerivedFrom<Reference>()) return;
   Module *oldModule = this->getModule();
   Module *curModule = oldModule;
   do {
-    if (retVal.module != 0 && retVal.module != curModule) {
-      this->setModule(retVal.module);
-      curModule = retVal.module;
+    if (retModule != 0 && retModule != curModule) {
+      this->setModule(static_cast<Module*>(retModule));
+      curModule = retModule;
     }
-    this->repository.get(static_cast<Reference*>(retVal.object), retVal);
-  } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
+    this->repository.get(static_cast<Reference*>(retVal), retVal, retModule);
+  } while (retVal != 0 && retVal->isDerivedFrom<Reference>());
   if (curModule != oldModule) this->setModule(oldModule);
 }
 
@@ -52,16 +53,18 @@ void GrammarContext::traceValue(IdentifiableObject *val, PlainModulePairedPtr &r
 //==============================================================================
 // Term Helper Functions
 
-void GrammarContext::getListTermData(ListTerm *term, PlainModulePairedPtr &retVal, Module *module)
+void GrammarContext::getListTermData(ListTerm *term, PlainPairedPtr &retVal, Module *module)
 {
-  this->traceValue(term->getData().get(), retVal, module);
+  Module *retModule;
+  this->traceValue(term->getData().get(), module, retVal.object, retModule);
   if (retVal.object != 0 && !retVal.object->isA<SharedList>() && !retVal.object->isA<Integer>()) {
     throw EXCEPTION(GenericException, STR("Type of list term data is invalid"));
   }
+  retVal.parent = retModule;
 }
 
 
-Word GrammarContext::getListTermChildCount(ListTerm *term, PlainModulePairedPtr const &listData) const
+Word GrammarContext::getListTermChildCount(ListTerm *term, PlainPairedPtr const &listData) const
 {
   if (term->isStatic()) {
     if (listData.object == 0) return static_cast<SharedList*>(term->getTerms().get())->getCount();
@@ -85,8 +88,8 @@ Word GrammarContext::getListTermChildCount(ListTerm *term, PlainModulePairedPtr 
 }
 
 
-void GrammarContext::getListTermChild(ListTerm *term, Int index, PlainModulePairedPtr &listData,
-                                      Term *&retTerm, PlainModulePairedPtr &retData) const
+void GrammarContext::getListTermChild(ListTerm *term, Int index, PlainPairedPtr &listData,
+                                      Term *&retTerm, PlainPairedPtr &retData) const
 {
   if (term->isStatic()) {
     if (listData.object == 0) {
@@ -121,14 +124,14 @@ void GrammarContext::getListTermChild(ListTerm *term, Int index, PlainModulePair
       ASSERT(term->getTerms()->isDerivedFrom<Term>());
       retTerm = static_cast<Term*>(term->getTerms().get());
       retData.object = static_cast<SharedList*>(listData.object)->get(index);
-      retData.module = listData.module;
+      retData.parent = listData.parent;
     }
   }
 }
 
 
-void GrammarContext::useListTermChild(ListTerm *term, Int index, PlainModulePairedPtr &listData,
-                                      Term *&retTerm, PlainModulePairedPtr *retData)
+void GrammarContext::useListTermChild(ListTerm *term, Int index, PlainPairedPtr &listData,
+                                      Term *&retTerm, PlainPairedPtr *retData)
 {
   if (retData == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("retData"), STR("Must not be null."));
@@ -136,7 +139,7 @@ void GrammarContext::useListTermChild(ListTerm *term, Int index, PlainModulePair
   this->getListTermChild(term, index, listData, retTerm, *retData);
 
   if (term->getTargetRef() != 0) {
-    if (retData->module == 0) this->repository.set(term->getTargetRef().get(), retData->object);
+    if (retData->parent == 0) this->repository.set(term->getTargetRef().get(), retData->object);
     else this->repository.set(term->getTargetRef().get(), retData);
   }
 }
@@ -177,16 +180,16 @@ void GrammarContext::getReferencedSymbol(Reference const *ref, Module *&retModul
 {
   Module *oldModule = this->getModule();
   Module *curModule = oldModule;
-  PlainModulePairedPtr retVal(const_cast<Reference*>(ref), module);
+  PlainPairedPtr retVal(const_cast<Reference*>(ref), module);
   do {
-    if (retVal.module != 0 && retVal.module != curModule) {
-      this->setModule(retVal.module);
-      curModule = retVal.module;
+    if (retVal.parent != 0 && retVal.parent != curModule) {
+      this->setModule(static_cast<Module*>(retVal.parent));
+      curModule = static_cast<Module*>(retVal.parent);
     }
-    this->repository.get(static_cast<Reference*>(retVal.object), retVal);
+    this->repository.get(static_cast<Reference*>(retVal.object), retVal.object, Module::getTypeInfo(), &retVal.parent);
     // If the reference points to a grammar module, then the reference wants the module's start (default) definition.
     if (retVal.object != 0 && retVal.object->isA<GrammarModule>()) {
-      retVal.module = static_cast<GrammarModule*>(retVal.object);
+      retVal.parent = retVal.object;
       retVal.object = static_cast<GrammarModule*>(retVal.object)->getStartRef().get();
     }
   } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
@@ -195,7 +198,7 @@ void GrammarContext::getReferencedSymbol(Reference const *ref, Module *&retModul
   }
   if (curModule != oldModule) this->setModule(oldModule);
   retDef = static_cast<SymbolDefinition*>(retVal.object);
-  retModule = retVal.module;
+  retModule = static_cast<Module*>(retVal.parent);
 }
 
 
@@ -236,14 +239,14 @@ Term* GrammarContext::getSymbolTerm(const SymbolDefinition *definition, Module *
 {
   Module *oldModule = this->getModule();
   Module *curModule = oldModule;
-  PlainModulePairedPtr retVal(definition->getTerm().get(), module);
+  PlainPairedPtr retVal(definition->getTerm().get(), module);
   if (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>()) {
     do {
-      if (retVal.module != 0 && retVal.module != curModule) {
-        this->setModule(retVal.module);
-        curModule = retVal.module;
+      if (retVal.parent != 0 && retVal.parent != curModule) {
+        this->setModule(static_cast<Module*>(retVal.parent));
+        curModule = static_cast<Module*>(retVal.parent);
       }
-      this->repository.get(static_cast<Reference*>(retVal.object), retVal);
+      this->repository.get(static_cast<Reference*>(retVal.object), retVal.object, Module::getTypeInfo(), &retVal.parent);
       // A definition could have a term reference to another definition which means it wants the terms of that
       // other definition. This is used in cases where a definition is inheriting from another definition.
       if (retVal.object != 0 && retVal.object->isA<SymbolDefinition>()) {
@@ -264,14 +267,14 @@ SharedMap* GrammarContext::getSymbolVars(const SymbolDefinition *definition, Mod
 {
   Module *oldModule = this->getModule();
   Module *curModule = oldModule;
-  PlainModulePairedPtr retVal(definition->getVars().get(), module);
+  PlainPairedPtr retVal(definition->getVars().get(), module);
   if (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>()) {
     do {
-      if (retVal.module != 0 && retVal.module != curModule) {
-        this->setModule(retVal.module);
-        curModule = retVal.module;
+      if (retVal.parent != 0 && retVal.parent != curModule) {
+        this->setModule(static_cast<Module*>(retVal.parent));
+        curModule = static_cast<Module*>(retVal.parent);
       }
-      this->repository.get(static_cast<Reference*>(retVal.object), retVal);
+      this->repository.get(static_cast<Reference*>(retVal.object), retVal.object, Module::getTypeInfo(), &retVal.parent);
       // A definition could have a vars reference to another definition which means it wants the vars of that
       // other definition. This is used in cases where a definition is inheriting from another definition.
       if (retVal.object != 0 && retVal.object->isA<SymbolDefinition>()) {

@@ -158,39 +158,21 @@ class SharedRepository : public IdentifiableObject, public virtual Provider
   /// @name Provider Implementation
   /// @{
 
-  public: virtual void set(Reference const *ref, IdentifiableObject *val);
-
-  public: virtual void set(Char const *qualifier, IdentifiableObject *val);
-
   public: virtual Bool trySet(Reference const *ref, IdentifiableObject *val);
 
   public: virtual Bool trySet(Char const *qualifier, IdentifiableObject *val);
-
-  public: virtual void remove(Reference const *ref);
-
-  public: virtual void remove(Char const *qualifier);
 
   public: virtual Bool tryRemove(Reference const *ref);
 
   public: virtual Bool tryRemove(Char const *qualifier);
 
-  public: virtual IdentifiableObject* get(Reference const *ref);
-
-  public: virtual void get(Reference const *ref, PlainModulePairedPtr &retVal);
-
-  public: virtual IdentifiableObject* get(Char const *qualifier);
-
-  public: virtual void get(Char const *qualifier, PlainModulePairedPtr &retVal);
-
   using Provider::tryGet;
 
-  public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal);
+  public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal,
+                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0);
 
-  public: virtual Bool tryGet(Reference const *ref, PlainModulePairedPtr &retVal);
-
-  public: virtual Bool tryGet(Char const *qualifier, IdentifiableObject *&retVal);
-
-  public: virtual Bool tryGet(Char const *qualifier, PlainModulePairedPtr &retVal);
+  public: virtual Bool tryGet(Char const *qualifier, IdentifiableObject *&retVal,
+                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0);
 
   /// @}
 

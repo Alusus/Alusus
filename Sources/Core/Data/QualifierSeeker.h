@@ -64,29 +64,38 @@ class QualifierSeeker
 
   public: IdentifiableObject* tryGet(Char const *qualifier, IdentifiableObject *parent) const;
 
-  public: Bool tryGet(Char const *qualifier, IdentifiableObject *parent, IdentifiableObject *&result) const;
+  public: void get(Char const *qualifier, IdentifiableObject *source, IdentifiableObject *&retVal,
+                   TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) const;
 
-  public: void get(Char const *qualifier, IdentifiableObject *parent, PlainModulePairedPtr &retVal) const;
+  public: Bool tryGet(Char const *qualifier, IdentifiableObject *source, IdentifiableObject *&retVal,
+                      TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) const;
 
-  public: Bool tryGet(Char const *qualifier, IdentifiableObject *parent, PlainModulePairedPtr &retVal) const;
+  public: template<class T> Bool tryGet(Char const *qualifier, IdentifiableObject *source,
+                                        IdentifiableObject *&retVal, T *&retParent) const
+  {
+    IdentifiableObject *retIoParent;
+    Bool result = this->tryGet(qualifier, source, retVal, T::getTypeInfo(), &retIoParent);
+    retParent = static_cast<T*>(retIoParent);
+    return result;
+  }
 
   /// @}
 
   /// @name Data Write Functions
   /// @{
 
-  public: void set(Char const *qualifier, IdentifiableObject *parent, IdentifiableObject *val) const;
+  public: void set(Char const *qualifier, IdentifiableObject *target, IdentifiableObject *val) const;
 
-  public: Bool trySet(Char const *qualifier, IdentifiableObject *parent, IdentifiableObject *val) const;
+  public: Bool trySet(Char const *qualifier, IdentifiableObject *target, IdentifiableObject *val) const;
 
   /// @}
 
   /// @name Data Delete Functions
   /// @{
 
-  public: void remove(Char const *qualifier, IdentifiableObject *parent) const;
+  public: void remove(Char const *qualifier, IdentifiableObject *target) const;
 
-  public: Bool tryRemove(Char const *qualifier, IdentifiableObject *parent) const;
+  public: Bool tryRemove(Char const *qualifier, IdentifiableObject *target) const;
 
   /// @}
 

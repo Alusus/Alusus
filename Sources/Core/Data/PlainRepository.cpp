@@ -200,85 +200,6 @@ void PlainRepository::ownTopLevel()
 //==============================================================================
 // Provider Implementation
 
-void PlainRepository::set(Reference const *ref, IdentifiableObject *val)
-{
-  // Set the value first.
-  if (ref->isA<ScopeReference>()) {
-    this->referenceSeeker.set(ref, &this->stack, val);
-  } else {
-    Bool ret = false;
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      ret = this->referenceSeeker.trySet(ref, parent, val);
-      if (ret) break;
-    }
-    if (!ret) {
-      throw EXCEPTION(GenericException,
-                      STR("Couldn't set value. Reference doesn't point to an existing element."));
-    }
-  }
-
-  // TODO: We can remove this part if/when we start handling IDs in definition signals.
-  // Set the id for the new object.
-  if (this->owner) {
-    Str qualifierStr;
-    if (ref->isA<ScopeReference>()) qualifierStr = ReferenceParser::getQualifier(ref->getNext().get());
-    else qualifierStr = ReferenceParser::getQualifier(ref);
-    Char const *qualifier = qualifierStr.c_str();
-    setTreeIds(val, qualifier);
-  }
-}
-
-
-void PlainRepository::set(Char const *qualifier, IdentifiableObject *val)
-{
-  Char const *qualifier2 = qualifier;
-  ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
-  // Set the value first.
-  if (ref->isA<ScopeReference>()) {
-    ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *parent;
-    Int index = 0;
-    Bool ret = false;
-    while (index != -1) {
-      if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid scope value."), qualifier);
-      }
-      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
-      if (ret) break;
-    }
-    if (!ret) {
-      throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
-                      STR("Qualifier doesn't point to an existing element."), qualifier);
-    }
-  } else {
-    qualifier2 = qualifier;
-    Bool ret = false;
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
-      if (ret) break;
-    }
-    if (!ret) {
-      throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
-                      STR("Qualifier doesn't point to an existing element."), qualifier);
-    }
-  }
-
-  // TODO: We can remove this part if/when we start handling IDs in definition signals.
-  // Set the id for the new object.
-  if (this->owner) {
-    setTreeIds(val, qualifier2);
-  }
-}
-
-
 Bool PlainRepository::trySet(Reference const *ref, IdentifiableObject *val)
 {
   // Set the value first.
@@ -351,54 +272,6 @@ Bool PlainRepository::trySet(Char const *qualifier, IdentifiableObject *val)
 }
 
 
-void PlainRepository::remove(Reference const *ref)
-{
-  if (ref->isA<ScopeReference>()) {
-    this->referenceSeeker.remove(ref, &this->stack);
-  } else {
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->referenceSeeker.tryRemove(ref, parent)) return;
-    }
-    throw EXCEPTION(InvalidArgumentException, STR("ref"),
-                    STR("Doesn't refer to an existing element."), ReferenceParser::getQualifier(ref));
-  }
-}
-
-
-void PlainRepository::remove(Char const *qualifier)
-{
-  Char const *qualifier2 = qualifier;
-  ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
-  if (ref->isA<ScopeReference>()) {
-    ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *parent;
-    Int index = 0;
-    while (index != -1) {
-      if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
-                        STR("Invalid scope value."), qualifier);
-      }
-      if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return;
-    }
-  } else {
-    qualifier2 = qualifier;
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return;
-    }
-  }
-  throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
-                  STR("Qualifier doesn't refer to an existing element."), qualifier);
-}
-
-
 Bool PlainRepository::tryRemove(Reference const *ref)
 {
   if (ref->isA<ScopeReference>()) {
@@ -442,136 +315,25 @@ Bool PlainRepository::tryRemove(Char const *qualifier)
 }
 
 
-IdentifiableObject* PlainRepository::get(Reference const *ref)
+Bool PlainRepository::tryGet(Reference const *ref, IdentifiableObject *&retVal,
+                             TypeInfo const *parentTypeInfo, IdentifiableObject **retParent)
 {
   if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.get(ref, &this->stack);
-  } else {
-    // The default is to go downward through the stack.
-    IdentifiableObject *obj;
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->referenceSeeker.tryGet(ref, parent, obj)) return obj;
-    }
-    throw EXCEPTION(GenericException,
-                    STR("Couldn't set value. Reference doesn't point to an existing element."));
-  }
-}
-
-
-void PlainRepository::get(Reference const *ref, PlainModulePairedPtr &retVal)
-{
-  if (ref->isA<ScopeReference>()) {
-    this->referenceSeeker.get(ref, &this->stack, retVal);
+    return this->referenceSeeker.tryGet(ref, &this->stack, retVal, parentTypeInfo, retParent);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->referenceSeeker.tryGet(ref, parent, retVal)) return;
-    }
-    throw EXCEPTION(GenericException,
-                    STR("Couldn't set value. Reference doesn't point to an existing element."));
-  }
-}
-
-
-IdentifiableObject* PlainRepository::get(Char const *qualifier)
-{
-  Char const *qualifier2 = qualifier;
-  IdentifiableObject *obj;
-  ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
-  if (ref->isA<ScopeReference>()) {
-    ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *parent;
-    Int index = 0;
-    while (index != -1) {
-      if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid scope value."), qualifier);
-      }
-      if (this->qualifierSeeker.tryGet(qualifier2, parent, obj)) return obj;
-    }
-  } else {
-    qualifier2 = qualifier;
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGet(qualifier2, parent, obj)) return obj;
-    }
-  }
-  throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
-                  STR("Qualifier doesn't point to an existing element."), qualifier);
-}
-
-
-void PlainRepository::get(Char const *qualifier, PlainModulePairedPtr &retVal)
-{
-  Char const *qualifier2 = qualifier;
-  ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
-  if (ref->isA<ScopeReference>()) {
-    ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *parent;
-    Int index = 0;
-    while (index != -1) {
-      if (!ref->getValue(0, &this->stack, parent, index)) {
-        throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
-                        STR("Invalid scope value."), qualifier);
-      }
-      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return;
-    }
-  } else {
-    qualifier2 = qualifier;
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return;
-    }
-  }
-  throw EXCEPTION(InvalidArgumentException, STR("qualifier"),
-                  STR("Qualifier doesn't point to an existing element."), qualifier);
-}
-
-
-Bool PlainRepository::tryGet(Reference const *ref, IdentifiableObject *&retVal)
-{
-  if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.tryGet(ref, &this->stack, retVal);
-  } else {
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->referenceSeeker.tryGet(ref, parent, retVal)) return true;
+      IdentifiableObject *source = this->stack.get(i);
+      if (source == 0) continue;
+      if (this->referenceSeeker.tryGet(ref, source, retVal, parentTypeInfo, retParent)) return true;
     }
     return false;
   }
 }
 
 
-Bool PlainRepository::tryGet(Reference const *ref, PlainModulePairedPtr &retVal)
-{
-  if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.tryGet(ref, &this->stack, retVal);
-  } else {
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->referenceSeeker.tryGet(ref, parent, retVal)) return true;
-    }
-    return false;
-  }
-}
-
-
-Bool PlainRepository::tryGet(Char const *qualifier, IdentifiableObject *&retVal)
+Bool PlainRepository::tryGet(Char const *qualifier, IdentifiableObject *&retVal,
+                             TypeInfo const *parentTypeInfo, IdentifiableObject **retParent)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
@@ -579,50 +341,22 @@ Bool PlainRepository::tryGet(Char const *qualifier, IdentifiableObject *&retVal)
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     ++qualifier2;
-    IdentifiableObject *parent;
+    IdentifiableObject *source;
     Int index = 0;
     while (index != -1) {
-      if (!ref->getValue(0, &this->stack, parent, index)) break;
-      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
+      if (!ref->getValue(0, &this->stack, source, index)) break;
+      if (this->qualifierSeeker.tryGet(qualifier2, source, retVal, parentTypeInfo, retParent)) return true;
     }
   } else {
     qualifier2 = qualifier;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
-    }
-  }
-  return false;
-}
-
-
-Bool PlainRepository::tryGet(Char const *qualifier, PlainModulePairedPtr &retVal)
-{
-  Char const *qualifier2 = qualifier;
-  ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
-  if (ref->isA<ScopeReference>()) {
-    ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *parent;
-    Int index = 0;
-    while (index != -1) {
-      if (!ref->getValue(0, &this->stack, parent, index)) break;
-      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
-    }
-  } else {
-    qualifier2 = qualifier;
-    // The default is to go downward through the stack.
-    for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
-      if (parent == 0) continue;
-      if (this->qualifierSeeker.tryGet(qualifier2, parent, retVal)) return true;
+      IdentifiableObject *source = this->stack.get(i);
+      if (source == 0) continue;
+      if (this->qualifierSeeker.tryGet(qualifier2, source, retVal, parentTypeInfo, retParent)) return true;
     }
   }
   return false;
 }
 
 } } // namespace
-

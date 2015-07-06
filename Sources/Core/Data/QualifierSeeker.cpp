@@ -18,92 +18,57 @@ namespace Core { namespace Data
 //==============================================================================
 // Data Read Functions
 
-IdentifiableObject* QualifierSeeker::get(Char const *qualifier, IdentifiableObject *parent) const
+IdentifiableObject* QualifierSeeker::get(Char const *qualifier, IdentifiableObject *source) const
 {
   IdentifiableObject *result;
-  if (!this->tryGet(qualifier, parent, result)) {
-    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
+  if (!this->tryGet(qualifier, source, result)) {
+    throw EXCEPTION(GenericException, STR("Qualifier pointing to a missing element/tree."));
   }
   return result;
 }
 
 
-IdentifiableObject* QualifierSeeker::tryGet(Char const *qualifier, IdentifiableObject *parent) const
+IdentifiableObject* QualifierSeeker::tryGet(Char const *qualifier, IdentifiableObject *source) const
 {
   IdentifiableObject *result = 0;
-  this->tryGet(qualifier, parent, result);
+  this->tryGet(qualifier, source, result);
   return result;
 }
 
 
-Bool QualifierSeeker::tryGet(Char const *qualifier, IdentifiableObject *parent, IdentifiableObject *&result) const
+void QualifierSeeker::get(Char const *qualifier, IdentifiableObject *source, IdentifiableObject *&retVal,
+                          TypeInfo const *parentTypeInfo, IdentifiableObject **retParent) const
+{
+  if (!this->tryGet(qualifier, source, retVal, parentTypeInfo, retParent)) {
+    throw EXCEPTION(GenericException, STR("Qualifier pointing to a missing element/tree."));
+  }
+}
+
+
+Bool QualifierSeeker::tryGet(Char const *qualifier, IdentifiableObject *source, IdentifiableObject *&retVal,
+                             TypeInfo const *parentTypeInfo, IdentifiableObject **retParent) const
 {
   if (qualifier == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
   }
-  if (parent == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
+  if (source == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("source"), STR("Cannot be null."));
   }
   Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     Int index = 0;
     IdentifiableObject *tempResult;
-    if (seg->getValue(this->dataProvider, parent, tempResult, index)) {
-      if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult) == false) return false;
-      result = tempResult;
-      return true;
-    }
-    else return false;
-  } else {
-    ++qualifier;
-    Int index = 0;
-    IdentifiableObject *innerParent;
-    while (index != -1) {
-      if (seg->getValue(this->dataProvider, parent, innerParent, index)) {
-        if (innerParent->isA<PlainModulePairedPtr>()) {
-          innerParent = static_cast<PlainModulePairedPtr*>(innerParent)->object;
-        } else if (innerParent->isA<SharedModulePairedPtr>()) {
-          innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
-        }
-        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
-          if (this->tryGet(qualifier, innerParent, result)) return true;
-        }
-      }
-    }
-    return false;
-  }
-}
-
-
-void QualifierSeeker::get(Char const *qualifier, IdentifiableObject *parent, PlainModulePairedPtr &retVal) const
-{
-  if (!this->tryGet(qualifier, parent, retVal)) {
-    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
-  }
-}
-
-
-Bool QualifierSeeker::tryGet(Char const *qualifier, IdentifiableObject *parent, PlainModulePairedPtr &retVal) const
-{
-  if (qualifier == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
-  }
-  if (parent == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
-  }
-  Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
-  if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
-    Int index = 0;
-    IdentifiableObject *tempResult;
-    if (seg->getValue(this->dataProvider, parent, tempResult, index)) {
+    if (seg->getValue(this->dataProvider, source, tempResult, index)) {
       if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(tempResult) == false) {
         return false;
       }
-      retVal.object = tempResult;
-      if (parent->isDerivedFrom<Module>()) {
-        retVal.module = static_cast<Module*>(parent);
-      } else {
-        retVal.module = 0;
+      retVal = tempResult;
+      if (parentTypeInfo != 0 && retParent != 0) {
+        if (source->isDerivedFrom(parentTypeInfo)) {
+          *retParent = source;
+        } else {
+          *retParent = 0;
+        }
       }
       return true;
     } else {
@@ -112,39 +77,47 @@ Bool QualifierSeeker::tryGet(Char const *qualifier, IdentifiableObject *parent, 
   } else {
     ++qualifier;
     Int index = 0;
-    IdentifiableObject *innerParent;
+    IdentifiableObject *innerSource;
     Bool ret = false;
     index = 0;
     while (index != -1) {
-      if (seg->getValue(this->dataProvider, parent, innerParent, index)) {
-        if (innerParent->isA<SharedModulePairedPtr>()) {
-          SharedModulePairedPtr *pairedPtr = static_cast<SharedModulePairedPtr*>(innerParent);
+      if (seg->getValue(this->dataProvider, source, innerSource, index)) {
+        if (innerSource->isA<SharedPairedPtr>()) {
+          SharedPairedPtr *pairedPtr = static_cast<SharedPairedPtr*>(innerSource);
           if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object.get()) == true) {
-            ret = this->tryGet(qualifier, pairedPtr->object.get(), retVal);
+            ret = this->tryGet(qualifier, pairedPtr->object.get(), retVal, parentTypeInfo, retParent);
             if (ret) {
-              if (retVal.module == 0) retVal.module = pairedPtr->module.get();
-              break;
+              if (parentTypeInfo != 0 && retParent != 0) {
+                if (*retParent == 0 && pairedPtr->parent->isDerivedFrom(parentTypeInfo)) {
+                  *retParent = pairedPtr->parent.get();
+                }
+                break;
+              }
             }
           }
-        } else if (innerParent->isA<PlainModulePairedPtr>()) {
-          PlainModulePairedPtr *pairedPtr = static_cast<PlainModulePairedPtr*>(innerParent);
+        } else if (innerSource->isA<PlainPairedPtr>()) {
+          PlainPairedPtr *pairedPtr = static_cast<PlainPairedPtr*>(innerSource);
           if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(pairedPtr->object) == true) {
-            ret = this->tryGet(qualifier, pairedPtr->object, retVal);
+            ret = this->tryGet(qualifier, pairedPtr->object, retVal, parentTypeInfo, retParent);
             if (ret) {
-              if (retVal.module == 0) retVal.module = pairedPtr->module;
+              if (parentTypeInfo != 0 && retParent != 0) {
+                if (*retParent == 0 && pairedPtr->parent->isDerivedFrom(parentTypeInfo)) {
+                  *retParent = pairedPtr->parent;
+                }
+              }
               break;
             }
           }
         } else {
-          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
-            ret = this->tryGet(qualifier, innerParent, retVal);
+          if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerSource) == true) {
+            ret = this->tryGet(qualifier, innerSource, retVal, parentTypeInfo, retParent);
             if (ret) break;
           }
         }
       }
     }
-    if (ret == true && retVal.module == 0) {
-      if (parent->isDerivedFrom<Module>()) retVal.module = static_cast<Module*>(parent);
+    if (ret == true && parentTypeInfo != 0 && retParent != 0 && *retParent == 0) {
+      if (source->isDerivedFrom(parentTypeInfo)) *retParent = source;
     }
     return ret;
   }
@@ -154,43 +127,43 @@ Bool QualifierSeeker::tryGet(Char const *qualifier, IdentifiableObject *parent, 
 //==============================================================================
 // Data Write Functions
 
-void QualifierSeeker::set(Char const *qualifier, IdentifiableObject *parent, IdentifiableObject *val) const
+void QualifierSeeker::set(Char const *qualifier, IdentifiableObject *target, IdentifiableObject *val) const
 {
-  if (!this->trySet(qualifier, parent, val)) {
+  if (!this->trySet(qualifier, target, val)) {
     throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
   }
 }
 
 
-Bool QualifierSeeker::trySet(Char const *qualifier, IdentifiableObject *parent, IdentifiableObject *val) const
+Bool QualifierSeeker::trySet(Char const *qualifier, IdentifiableObject *target, IdentifiableObject *val) const
 {
   if (qualifier == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
   }
-  if (parent == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
+  if (target == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("target"), STR("Cannot be null."));
   }
   Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     Int index = 0;
     if (seg->getResultValidator() != 0 && seg->getResultValidator()->validate(val) == false) return false;
-    if (seg->setValue(this->dataProvider, parent, val, index)) return true;
+    if (seg->setValue(this->dataProvider, target, val, index)) return true;
     else return false;
   } else {
     ++qualifier;
     Int index = 0;
-    IdentifiableObject *innerParent;
+    IdentifiableObject *innerTarget;
     Bool ret = false;
     index = 0;
     while (index != -1) {
-      if (seg->getValue(this->dataProvider, parent, innerParent, index)) {
-        if (innerParent->isA<PlainModulePairedPtr>()) {
-          innerParent = static_cast<PlainModulePairedPtr*>(innerParent)->object;
-        } else if (innerParent->isA<SharedModulePairedPtr>()) {
-          innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
+      if (seg->getValue(this->dataProvider, target, innerTarget, index)) {
+        if (innerTarget->isA<PlainPairedPtr>()) {
+          innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
+        } else if (innerTarget->isA<SharedPairedPtr>()) {
+          innerTarget = static_cast<SharedPairedPtr*>(innerTarget)->object.get();
         }
-        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
-          ret = this->trySet(qualifier, innerParent, val);
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerTarget) == true) {
+          ret = this->trySet(qualifier, innerTarget, val);
           if (ret) break;
         }
       }
@@ -203,21 +176,21 @@ Bool QualifierSeeker::trySet(Char const *qualifier, IdentifiableObject *parent, 
 //==============================================================================
 // Data Delete Functions
 
-void QualifierSeeker::remove(Char const *qualifier, IdentifiableObject *parent) const
+void QualifierSeeker::remove(Char const *qualifier, IdentifiableObject *target) const
 {
-  if (!this->tryRemove(qualifier, parent)) {
+  if (!this->tryRemove(qualifier, target)) {
     throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
   }
 }
 
 
-Bool QualifierSeeker::tryRemove(Char const *qualifier, IdentifiableObject *parent) const
+Bool QualifierSeeker::tryRemove(Char const *qualifier, IdentifiableObject *target) const
 {
   if (qualifier == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
   }
-  if (parent == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Cannot be null."));
+  if (target == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("target"), STR("Cannot be null."));
   }
   Reference const *seg = &this->parser.parseQualifierSegment(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
@@ -225,28 +198,28 @@ Bool QualifierSeeker::tryRemove(Char const *qualifier, IdentifiableObject *paren
     if (seg->getResultValidator() != 0) {
       // Validate the object before removing it.
       IdentifiableObject *obj;
-      if (seg->getValue(this->dataProvider, parent, obj, index)) {
+      if (seg->getValue(this->dataProvider, target, obj, index)) {
         if (seg->getResultValidator()->validate(obj) == false) return false;
       }
       index = 0;
     }
-    if (seg->removeValue(this->dataProvider, parent, index)) return true;
+    if (seg->removeValue(this->dataProvider, target, index)) return true;
     else return false;
   } else {
     ++qualifier;
     Int index = 0;
-    IdentifiableObject *innerParent;
+    IdentifiableObject *innerTarget;
     Bool ret = false;
     index = 0;
     while (index != -1) {
-      if (seg->getValue(this->dataProvider, parent, innerParent, index)) {
-        if (innerParent->isA<PlainModulePairedPtr>()) {
-          innerParent = static_cast<PlainModulePairedPtr*>(innerParent)->object;
-        } else if (innerParent->isA<SharedModulePairedPtr>()) {
-          innerParent = static_cast<SharedModulePairedPtr*>(innerParent)->object.get();
+      if (seg->getValue(this->dataProvider, target, innerTarget, index)) {
+        if (innerTarget->isA<PlainPairedPtr>()) {
+          innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
+        } else if (innerTarget->isA<SharedPairedPtr>()) {
+          innerTarget = static_cast<SharedPairedPtr*>(innerTarget)->object.get();
         }
-        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerParent) == true) {
-          ret = this->tryRemove(qualifier, innerParent);
+        if (seg->getResultValidator() == 0 || seg->getResultValidator()->validate(innerTarget) == true) {
+          ret = this->tryRemove(qualifier, innerTarget);
           if (ret) break;
         }
       }

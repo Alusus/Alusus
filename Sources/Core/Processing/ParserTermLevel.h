@@ -46,13 +46,13 @@ class ParserTermLevel
   private: Data::Term *term;
 
   /// @sa setParam1()
-  private: Data::PlainModulePairedPtr param1;
+  private: Data::PlainPairedPtr param1;
 
   /// @sa setParam2()
-  private: Data::PlainModulePairedPtr param2;
+  private: Data::PlainPairedPtr param2;
 
   /// @sa setParam3()
-  private: Data::PlainModulePairedPtr param3;
+  private: Data::PlainPairedPtr param3;
 
 
   //============================================================================
@@ -118,11 +118,11 @@ class ParserTermLevel
    * parameters everytime the level is revisited. This is needed mainly for
    * concat terms, alternate terms, as well as multiply terms.
    */
-  protected: Data::PlainModulePairedPtr* getParam1()
+  protected: Data::PlainPairedPtr* getParam1()
   {
     return &this->param1;
   }
-  protected: Data::PlainModulePairedPtr const* getParam1() const
+  protected: Data::PlainPairedPtr const* getParam1() const
   {
     return &this->param1;
   }
@@ -133,11 +133,11 @@ class ParserTermLevel
    * parameters everytime the level is revisited. This is needed mainly for
    * concat terms, alternate terms, as well as multiply terms.
    */
-  protected: Data::PlainModulePairedPtr* getParam2()
+  protected: Data::PlainPairedPtr* getParam2()
   {
     return &this->param2;
   }
-  protected: Data::PlainModulePairedPtr const* getParam2() const
+  protected: Data::PlainPairedPtr const* getParam2() const
   {
     return &this->param2;
   }
@@ -148,11 +148,11 @@ class ParserTermLevel
    * parameters everytime the level is revisited. This is needed mainly for
    * concat terms, alternate terms, as well as multiply terms.
    */
-  protected: Data::PlainModulePairedPtr* getParam3()
+  protected: Data::PlainPairedPtr* getParam3()
   {
     return &this->param3;
   }
-  protected: Data::PlainModulePairedPtr const* getParam3() const
+  protected: Data::PlainPairedPtr const* getParam3() const
   {
     return &this->param3;
   }

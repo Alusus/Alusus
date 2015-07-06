@@ -36,27 +36,28 @@ TEST_CASE("Core::Data/simple_seek", "Successfully seek an element with its conta
                                        })}
                                     }).get());
 
-    PlainModulePairedPtr retVal;
+    PlainPairedPtr retVal;
 
     IdentifiableObject *plainStr;
 
     SECTION("s1", "Data retrieved using qualifier.")
     {
-      repository.get(STR("mod1.mod2.map1.var6"), retVal);
+      repository.get(STR("mod1.mod2.map1.var6"), retVal.object, Module::getTypeInfo(), &retVal.parent);
       REQUIRE(retVal.object != 0);
       REQUIRE(retVal.object->isA<String>());
       REQUIRE(static_cast<String*>(retVal.object)->getStr() == STR("hello"));
-      REQUIRE(retVal.module != 0);
-      REQUIRE(retVal.module->getId() == ID_GENERATOR->getId(STR("mod1.mod2")));
+      REQUIRE(retVal.parent != 0);
+      REQUIRE(static_cast<Module*>(retVal.parent)->getId() == ID_GENERATOR->getId(STR("mod1.mod2")));
     }
     SECTION("s2", "Data retrieved using Reference.")
     {
-      repository.get(ReferenceParser::parseQualifier(STR("mod1.mod2.map1.var6")).get(), retVal);
+      repository.get(ReferenceParser::parseQualifier(STR("mod1.mod2.map1.var6")).get(), retVal.object,
+                     Module::getTypeInfo(), &retVal.parent);
       REQUIRE(retVal.object != 0);
       REQUIRE(retVal.object->isA<String>());
       REQUIRE(static_cast<String*>(retVal.object)->getStr() == STR("hello"));
-      REQUIRE(retVal.module != 0);
-      REQUIRE(retVal.module->getId() == ID_GENERATOR->getId(STR("mod1.mod2")));
+      REQUIRE(retVal.parent != 0);
+      REQUIRE(static_cast<Module*>(retVal.parent)->getId() == ID_GENERATOR->getId(STR("mod1.mod2")));
     }
     SECTION("s3", "Plain data retrieved using qualifier.")
     {
@@ -71,6 +72,34 @@ TEST_CASE("Core::Data/simple_seek", "Successfully seek an element with its conta
       REQUIRE(plainStr != 0);
       REQUIRE(plainStr->isA<String>());
       REQUIRE(static_cast<String*>(plainStr)->getStr() == STR("hello"));
+    }
+    SECTION("s5", "Data retrieved using qualifier.")
+    {
+      QualifierSeeker seeker;
+      IdentifiableObject *result, *parent;
+      seeker.tryGet(STR("mod1.mod2.map1.var6"), repository.getRoot().get(), result, Module::getTypeInfo(), &parent);
+      REQUIRE(result != 0);
+      REQUIRE(parent != 0);
+      IdentifiableObject *parent2;
+      seeker.tryGet(STR("mod1.mod2.map1.var6"), repository.getRoot().get(), result, SharedMap::getTypeInfo(), &parent2);
+      REQUIRE(result != 0);
+      REQUIRE(parent != 0);
+      REQUIRE(parent != parent2);
+    }
+    SECTION("s6", "Data retrieved using reference.")
+    {
+      ReferenceSeeker seeker;
+      IdentifiableObject *result, *parent;
+      seeker.tryGet(ReferenceParser::parseQualifier(STR("mod1.mod2.map1.var6")).get(),
+                    repository.getRoot().get(), result, Module::getTypeInfo(), &parent);
+      REQUIRE(result != 0);
+      REQUIRE(parent != 0);
+      IdentifiableObject *parent2;
+      seeker.tryGet(ReferenceParser::parseQualifier(STR("mod1.mod2.map1.var6")).get(),
+                    repository.getRoot().get(), result, SharedMap::getTypeInfo(), &parent2);
+      REQUIRE(result != 0);
+      REQUIRE(parent != 0);
+      REQUIRE(parent != parent2);
     }
   } catch (Exception &e) {
     FAIL(e.getVerboseErrorMessage());

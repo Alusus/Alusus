@@ -1,7 +1,7 @@
 /**
- * @file Core/Data/module_paired_pointers.h
- * Contains the definitions of Core::Data::SharedModulePairedPtr and
- * Core::Data::PlainModulePairedPtr classes.
+ * @file Core/Data/paired_pointers.h
+ * Contains the definitions of Core::Data::SharedPairedPtr and
+ * Core::Data::PlainPairedPtr classes.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -11,25 +11,23 @@
  */
 //==============================================================================
 
-#ifndef DATA_MODULEPAIREDPOINTERS_H
-#define DATA_MODULEPAIREDPOINTERS_H
+#ifndef DATA_PAIREDPOINTERS_H
+#define DATA_PAIREDPOINTERS_H
 
 namespace Core { namespace Data
 {
 
-class Module;
-
 /**
- * @brief A shared pointer pair of an object and its containing module.
+ * @brief A shared pointer pair of an object and its container.
  * This will be used when seeking objects in data trees to obtain both the
  * object itself and the module that contains it.
  */
-class SharedModulePairedPtr : public IdentifiableObject
+class SharedPairedPtr : public IdentifiableObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SharedModulePairedPtr, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(SharedPairedPtr, IdentifiableObject, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
@@ -37,22 +35,22 @@ class SharedModulePairedPtr : public IdentifiableObject
 
   public: SharedPtr<IdentifiableObject> object;
 
-  public: SharedPtr<Module> module;
+  public: SharedPtr<IdentifiableObject> parent;
 
 
   //============================================================================
   // Constructors
 
-  public: SharedModulePairedPtr()
+  public: SharedPairedPtr()
   {
   }
 
-  public: SharedModulePairedPtr(const SharedPtr<IdentifiableObject> &o, const SharedPtr<Module> &m) :
-    object(o), module(m)
+  public: SharedPairedPtr(SharedPtr<IdentifiableObject> const &o, SharedPtr<IdentifiableObject> const &p) :
+    object(o), parent(p)
   {
   }
 
-  public: SharedModulePairedPtr(const SharedModulePairedPtr &ptr) : object(ptr.object), module(ptr.module)
+  public: SharedPairedPtr(SharedPairedPtr const &ptr) : object(ptr.object), parent(ptr.parent)
   {
   }
 
@@ -60,10 +58,10 @@ class SharedModulePairedPtr : public IdentifiableObject
   //============================================================================
   // Operators
 
-  public: SharedModulePairedPtr& operator=(const SharedModulePairedPtr &ptr)
+  public: SharedPairedPtr& operator=(const SharedPairedPtr &ptr)
   {
     this->object = ptr.object;
-    this->module = ptr.module;
+    this->parent = ptr.parent;
     return *this;
   }
 
@@ -74,23 +72,23 @@ class SharedModulePairedPtr : public IdentifiableObject
   public: void reset()
   {
     this->object.reset();
-    this->module.reset();
+    this->parent.reset();
   }
 
 }; // class
 
 
 /**
- * @brief A plain pointer pair of an object and its containing module.
+ * @brief A plain pointer pair of an object and its container.
  * This will be used when seeking objects in data trees to obtain both the
  * object itself and the module that contains it.
  */
-class PlainModulePairedPtr : public IdentifiableObject
+class PlainPairedPtr : public IdentifiableObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(PlainModulePairedPtr, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(PlainPairedPtr, IdentifiableObject, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
@@ -98,18 +96,18 @@ class PlainModulePairedPtr : public IdentifiableObject
 
   public: IdentifiableObject *object;
 
-  public: Module *module;
+  public: IdentifiableObject *parent;
 
 
   //============================================================================
   // Constructors
 
-  public: PlainModulePairedPtr(IdentifiableObject *o = 0, Module *m = 0) :
-    object(o), module(m)
+  public: PlainPairedPtr(IdentifiableObject *o = 0, IdentifiableObject *m = 0) :
+    object(o), parent(m)
   {
   }
 
-  public: PlainModulePairedPtr(const PlainModulePairedPtr &ptr) : object(ptr.object), module(ptr.module)
+  public: PlainPairedPtr(const PlainPairedPtr &ptr) : object(ptr.object), parent(ptr.parent)
   {
   }
 
@@ -117,10 +115,10 @@ class PlainModulePairedPtr : public IdentifiableObject
   //============================================================================
   // Operators
 
-  public: PlainModulePairedPtr& operator=(const PlainModulePairedPtr &ptr)
+  public: PlainPairedPtr& operator=(const PlainPairedPtr &ptr)
   {
     this->object = ptr.object;
-    this->module = ptr.module;
+    this->parent = ptr.parent;
     return *this;
   }
 
@@ -131,7 +129,7 @@ class PlainModulePairedPtr : public IdentifiableObject
   public: void reset()
   {
     this->object = 0;
-    this->module = 0;
+    this->parent = 0;
   }
 
 }; // class
