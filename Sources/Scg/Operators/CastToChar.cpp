@@ -1,7 +1,7 @@
 /**
- * @file Scg/Operators/CastToInt.cpp
+ * @file Scg/Operators/CastToChar.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2015 Hicham OUALI ALAMI
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,28 +16,26 @@
 
 // SCG files
 #include <Containers/Block.h>
-#include <Operators/CastToInt.h>
+#include <Operators/CastToChar.h>
 #include <Operators/Content.h>
-#include <Types/DoubleType.h>
-#include <Types/FloatType.h>
-#include <Types/IntegerType.h>
 #include <Types/CharType.h>
+#include <Types/IntegerType.h>
 
 namespace Scg
 {
-const ValueTypeSpec * CastToInt::GetValueTypeSpec() const
+const ValueTypeSpec * CastToChar::GetValueTypeSpec() const
 {
-  return IntegerType::Get()->GetValueTypeSpec();
+  return CharType::Get()->GetValueTypeSpec();
 }
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage CastToInt::GenerateCode()
+Expression::CodeGenerationStage CastToChar::GenerateCode()
 {
   BLOCK_CHECK;
 
   auto module = GetModule();
-  auto irb = GetBlock()->GetIRBuilder();
+  //auto irb = GetBlock()->GetIRBuilder();
 
   // TODO: This need to be updated when other standard data types are supported.
   // TODO: Add the following helper methods in ValueTypeSpec (and ValueType?)
@@ -47,20 +45,13 @@ Expression::CodeGenerationStage CastToInt::GenerateCode()
   // IsString
   // IsVoid
   // Anything else?
-  if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == IntegerType::Get() ||
-      this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == CharType::Get()) {
+  if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == CharType::Get() ||
+      this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == IntegerType::Get()) {
     // The operand is already an integer, no need to cast.
     this->generatedLlvmValue = GetOperand()->GetGeneratedLlvmValue();
-  } else if (this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == FloatType::Get() ||
-      this->GetOperand()->GetValueTypeSpec()->ToValueType(*module) == DoubleType::Get()) {
-    // The operand is integer or float, so we need to add FPToSI instruction.
-    this->llvmCastInst = static_cast<llvm::CastInst*>(irb->CreateFPToSI(
-        GetOperand()->GetGeneratedLlvmValue(),
-        IntegerType::Get()->Get()->GetLlvmType()));
-    this->generatedLlvmValue = this->llvmCastInst;
   } else {
     throw EXCEPTION(ArgumentOutOfRangeException,
-        "The operand of CastToInt operator should be integer, char, float, or double.");
+        "The operand of CastToInt operator should be integer, float, or double.");
   }
 
   return Expression::GenerateCode();
@@ -68,7 +59,7 @@ Expression::CodeGenerationStage CastToInt::GenerateCode()
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage CastToInt::PostGenerateCode()
+Expression::CodeGenerationStage CastToChar::PostGenerateCode()
 {
   if (this->llvmCastInst != nullptr) {
     if (!this->llvmCastInst->hasNUses(0)) {
@@ -84,8 +75,8 @@ Expression::CodeGenerationStage CastToInt::PostGenerateCode()
 
 //------------------------------------------------------------------------------
 
-std::string CastToInt::ToString()
+std::string CastToChar::ToString()
 {
-  return GetOperand()->ToString() + "~cast[int]";
+  return GetOperand()->ToString() + "~cast[char]";
 }
 }

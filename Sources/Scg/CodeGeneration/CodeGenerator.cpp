@@ -40,6 +40,7 @@
 #include <Values/DoubleConst.h>
 #include <Values/FloatConst.h>
 #include <Values/IntegerConst.h>
+#include <Values/CharConst.h>
 #include <Values/StringConst.h>
 
 // LLVM header files
@@ -546,7 +547,13 @@ namespace Scg
     else if (literalId == ID_GENERATOR->getId("LexerDefs.StringLiteral"))
       // String constant
       constant = new StringConst(literalText);
-    else
+    else if (literalId == ID_GENERATOR->getId("LexerDefs.CharLiteral")) {
+      // Char constant
+      char tempLiteral[2];
+      tempLiteral[0] = literalText[1];
+      tempLiteral[1] = '\0';
+      constant = new CharConst(boost::lexical_cast<char>(tempLiteral));
+    } else
       throw EXCEPTION(NotImplementedException, "Not implemented yet.");
 
     // Sets the line and the column of the source code that generated this

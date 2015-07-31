@@ -18,6 +18,7 @@
 #include <Types/DoubleType.h>
 #include <Types/FloatType.h>
 #include <Types/IntegerType.h>
+#include <Types/CharType.h>
 #include <Types/StringType.h>
 #include <Types/VoidType.h>
 #include <Values/Variable.h>
@@ -29,6 +30,8 @@ ValueType *ValueType::GetPrimitiveType(const std::string &typeName)
 {
   if (typeName == "int") {
     return IntegerType::Get();
+  } else if (typeName == "char") {
+    return CharType::Get();
   } else if (typeName == "float") {
     return FloatType::Get();
   } else if (typeName == "double") {

@@ -1,0 +1,19 @@
+import "common.alusus";
+
+def HelloWorld : module {
+  def main : function() => Int {
+    def c : char;
+    def a : char;
+    def i : int;
+    c='a';
+    a=98;
+    printf("%c\n", c);
+    i=c;
+    printf("%d\n", i);
+    printf("%c\n", a);
+    return 0;
+  };
+};
+run HelloWorld;
+
+

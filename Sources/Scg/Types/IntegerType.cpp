@@ -18,9 +18,11 @@
 #include <Operators/CastToDouble.h>
 #include <Operators/CastToFloat.h>
 #include <Operators/CastToInt.h>
+#include <Operators/CastToChar.h>
 #include <Types/DoubleType.h>
 #include <Types/FloatType.h>
 #include <Types/IntegerType.h>
+#include <Types/CharType.h>
 
 // LLVM header files
 
@@ -43,10 +45,12 @@ void IntegerType::InitCastingTargets() const
   this->implicitCastingTargets.push_back(DoubleType::Get());
   this->implicitCastingTargets.push_back(FloatType::Get());
   this->implicitCastingTargets.push_back(IntegerType::Get());
+    this->implicitCastingTargets.push_back(CharType::Get());
 
   this->explicitCastingTargets.push_back(DoubleType::Get());
   this->explicitCastingTargets.push_back(FloatType::Get());
   this->explicitCastingTargets.push_back(IntegerType::Get());
+    this->explicitCastingTargets.push_back(CharType::Get());
 }
 
 //----------------------------------------------------------------------------
@@ -73,7 +77,13 @@ llvm::Value *IntegerType::CreateCastInst(llvm::IRBuilder<> *irb,
     // The operand is an integer, so we need to add SItoFP instruction.
     return irb->CreateSIToFP(value,
         DoubleType::Get()->Get()->GetLlvmType());
-  } else {
+  }
+  else if (targetType == CharType::Get()) {
+        // The operand is an integer, so we need to add SItoFP instruction.
+        return irb->CreateIntCast(value,
+            CharType::Get()->Get()->GetLlvmType(), true);
+  }
+  else {
     // TODO: Improve the message.
     throw EXCEPTION(InvalidCastException, "Invalid cast.");
   }
@@ -112,6 +122,9 @@ CastingOperator *IntegerType::GetExplicitCastingOperator(
   }
   else if (targetType == IntegerType::Get()) {
     return new CastToInt(expr);
+  }
+  else if (targetType == CharType::Get()) {
+    return new CastToChar(expr);
   }
   else {
     throw EXCEPTION(InvalidCastException,
