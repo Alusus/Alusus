@@ -28,16 +28,20 @@
 
 namespace Scg
 {
-  void LlvmContainer::Initialize()
-  {
-    llvm::InitializeNativeTarget();
-  }
 
-  void LlvmContainer::Finalize()
-  {
-    // TODO: Ensure that we don't need to delete these manually, and
-    // AutoDeleteAllocator is doing the job.
-    /*
+llvm::DataLayout *LlvmContainer::dataLayout = 0;
+
+void LlvmContainer::Initialize()
+{
+  llvm::InitializeNativeTarget();
+  LlvmContainer::dataLayout = new llvm::DataLayout("");
+}
+
+void LlvmContainer::Finalize()
+{
+  // TODO: Ensure that we don't need to delete these manually, and
+  // AutoDeleteAllocator is doing the job.
+  /*
     delete DoubleType::s_singleton;
     delete FloatType::s_singleton;
     delete IntegerType::s_singleton;
@@ -50,10 +54,16 @@ namespace Scg
     StringType::s_singleton= nullptr;
     VoidType::s_singleton= nullptr;
     */
-  }
+}
 
-  llvm::LLVMContext &LlvmContainer::GetContext()
-  {
-    return llvm::getGlobalContext();
-  }
+llvm::LLVMContext &LlvmContainer::GetContext()
+{
+  return llvm::getGlobalContext();
+}
+
+llvm::DataLayout* LlvmContainer::getDataLayout()
+{
+  return LlvmContainer::dataLayout;
+}
+
 }

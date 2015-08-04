@@ -14,7 +14,9 @@
 #include <prerequisites.h>
 
 // Scg header files
-#include <Types/PointerType.h>
+#include "Types/PointerType.h"
+#include "Types/IntegerType.h"
+#include "LlvmContainer.h"
 
 // LLVM header files
 
@@ -69,14 +71,18 @@ PointerType *PointerType::Get(const ValueType *contentType)
 llvm::Value *PointerType::CreateCastInst(llvm::IRBuilder<> *irb,
     llvm::Value *value, const ValueType *targetType) const
 {
-  // TODO: Add support for casting to integer types.
   if (dynamic_cast<PointerType const*>(targetType) != nullptr) {
     // Casting to another pointer type.
     return irb->CreateBitCast(value, const_cast<llvm::Type*>(targetType->GetLlvmType()));
-  } else {
-    // TODO: Improve the message.
-    throw EXCEPTION(InvalidCastException, "Invalid cast.");
+  } else if (dynamic_cast<IntegerType const*>(targetType) != nullptr) {
+    Int thisBitCount = LlvmContainer::getDataLayout()->getPointerSizeInBits();
+    Int targetBitCount = LlvmContainer::getDataLayout()->getTypeSizeInBits(const_cast<llvm::Type*>(targetType->GetLlvmType()));
+    if (targetBitCount == thisBitCount) {
+      return irb->CreateBitCast(value, const_cast<llvm::Type*>(targetType->GetLlvmType()));
+    }
   }
+  // TODO: Improve the message.
+  throw EXCEPTION(InvalidCastException, "Invalid cast.");
 }
 
 }

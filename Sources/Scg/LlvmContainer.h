@@ -15,16 +15,20 @@
 namespace llvm
 {
   class LLVMContext;
+  class DataLayout;
 }
 
 namespace Scg
 {
   class LlvmContainer
   {
+    public: static llvm::DataLayout *dataLayout;
+
   public:
     static void Initialize();
     static void Finalize();
     static llvm::LLVMContext &GetContext();
+    static llvm::DataLayout* getDataLayout();
   };
 }
 
