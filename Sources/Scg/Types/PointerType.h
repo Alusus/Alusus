@@ -26,6 +26,7 @@
 
 namespace Scg
 {
+
 /**
 * Represent a pointer type.
 */
@@ -36,8 +37,6 @@ class PointerType : public ValueType
   //! The type of the content of this pointer.
   const ValueType *contentType;
   PointerValueTypeSpec typeSpec;
-  //!
-  std::unordered_map<ValueType *, PointerType *> definedPointerTypes;
 
 private:
   // TODO: We should
@@ -86,18 +85,6 @@ public:
   virtual llvm::Value *CreateCastInst(llvm::IRBuilder<> *irb,
       llvm::Value *value, const ValueType *targetType) const override;
 
-  //! @copydoc ValueType::GetImplicitCastingOperator()
-  virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-  {
-    throw EXCEPTION(NotImplementedException, "Not implemented yet for pointers.");
-  }
-
-  //! @copydoc ValueType::GetExplicitCastingOperator()
-  virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-  {
-    throw EXCEPTION(NotImplementedException, "Not implemented yet for pointers.");
-  }
-
   //! Stores all pointer types used so far, so that we can reuse them.
   static std::unordered_map<const ValueType *, PointerType *> usedPointerTypes;
 
@@ -111,6 +98,7 @@ public:
   */
   static PointerType *Get(const ValueType *contentType);
 };
+
 }
 
 #endif // __PointerType_h__

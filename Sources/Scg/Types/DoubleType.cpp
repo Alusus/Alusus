@@ -13,9 +13,6 @@
 
 // Scg header files
 #include <LlvmContainer.h>
-#include <Operators/CastToDouble.h>
-#include <Operators/CastToFloat.h>
-#include <Operators/CastToInt.h>
 #include <Types/DoubleType.h>
 #include <Types/FloatType.h>
 #include <Types/IntegerType.h>
@@ -63,35 +60,6 @@ llvm::Value *DoubleType::CreateCastInst(llvm::IRBuilder<> *irb,
   } else {
     // TODO: Improve the message.
     throw EXCEPTION(InvalidCastException, "Invalid cast.");
-  }
-}
-
-CastingOperator *DoubleType::GetImplicitCastingOperator(
-    const ValueType *targetType, Expression *expr) const
-{
-  if (targetType == DoubleType::Get()) {
-    return new CastToDouble(expr);
-  }
-  else {
-    throw EXCEPTION(InvalidCastException, ("Integer cannot be casted to " + targetType->ToString()).c_str());
-  }
-}
-
-CastingOperator *DoubleType::GetExplicitCastingOperator(
-    const ValueType *targetType, Expression *expr) const
-{
-  if (targetType == DoubleType::Get()) {
-    return new CastToDouble(expr);
-  }
-  else if (targetType == FloatType::Get()) {
-    return new CastToFloat(expr);
-  }
-  else if (targetType == IntegerType::Get()) {
-    return new CastToInt(expr);
-  }
-  else {
-    throw EXCEPTION(InvalidCastException,
-        ("Integer cannot be casted to " + targetType->ToString()).c_str());
   }
 }
 

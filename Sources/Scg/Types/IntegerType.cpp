@@ -15,10 +15,6 @@
 
 // Scg header files
 #include <LlvmContainer.h>
-#include <Operators/CastToDouble.h>
-#include <Operators/CastToFloat.h>
-#include <Operators/CastToInt.h>
-#include <Operators/CastToChar.h>
 #include <Types/DoubleType.h>
 #include <Types/FloatType.h>
 #include <Types/IntegerType.h>
@@ -90,47 +86,6 @@ llvm::Value *IntegerType::CreateCastInst(llvm::IRBuilder<> *irb,
 }
 
 //----------------------------------------------------------------------------
-
-CastingOperator *IntegerType::GetImplicitCastingOperator(
-    const ValueType *targetType, Expression *expr) const
-{
-  if (targetType == DoubleType::Get()) {
-    return new CastToDouble(expr);
-  }
-  else if (targetType == FloatType::Get()) {
-    return new CastToFloat(expr);
-  }
-  else if (targetType == IntegerType::Get()) {
-    return new CastToInt(expr);
-  }
-  else {
-    throw EXCEPTION(InvalidCastException,
-        ("Integer cannot be casted to " + targetType->ToString()).c_str());
-  }
-}
-
-//----------------------------------------------------------------------------
-
-CastingOperator *IntegerType::GetExplicitCastingOperator(
-    const ValueType *targetType, Expression *expr) const
-{
-  if (targetType == DoubleType::Get()) {
-    return new CastToDouble(expr);
-  }
-  else if (targetType == FloatType::Get()) {
-    return new CastToFloat(expr);
-  }
-  else if (targetType == IntegerType::Get()) {
-    return new CastToInt(expr);
-  }
-  else if (targetType == CharType::Get()) {
-    return new CastToChar(expr);
-  }
-  else {
-    throw EXCEPTION(InvalidCastException,
-        (std::string("Integer cannot be casted to ") + targetType->ToString()).c_str());
-  }
-}
 
 IntegerType *IntegerType::Get()
 {

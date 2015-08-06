@@ -14,7 +14,6 @@
 
 // SCG header files
 #include <Expression.h>
-#include <Operators/CastingOperator.h>
 #include <typedefs.h>
 
 // LLVM header files
@@ -92,6 +91,13 @@ public:
   * @return The name of the type.
   */
   virtual const std::string GetName() const = 0;
+
+  /// Get the number of bits of variables of this type.
+  virtual Int GetAllocationSize() const
+  {
+    // TODO:
+    return 0;
+  }
 
   /**
   * Return the number of variables of this type defined.
@@ -236,32 +242,6 @@ public:
     }
     return this->explicitCastingTargets;
   }
-
-  // TODO: Consider changing the name of the function since it now receives an
-  // expression as well. Maybe ImplicitlyCastExpression?
-
-  /**
-  * Retrieves an operator that implicitly casts a variable of this type to the
-  * given type.
-  * @param[in] targetType  A pointer to the target casting type.
-  * @return A pointer to the required casting operator. This should be freed
-  * by the caller.
-  */
-  virtual CastingOperator *GetImplicitCastingOperator(
-      const ValueType *targetType, Expression *expr) const = 0;
-
-  // TODO: Consider changing the name of the function since it now receives an
-  // expression as well. Maybe ExplicitlyCastExpression?
-
-  /**
-  * Retrieves an operator that explicitly casts a variable of this type to the
-  * given type.
-  * @param[in] targetType  A pointer to the target casting type.
-  * @return A pointer to the required casting operator. This should be freed
-  * by the caller.
-  */
-  virtual CastingOperator *GetExplicitCastingOperator(
-      const ValueType *targetType, Expression *expr) const = 0;
 
   /**
   * Gets a primitive type having the given name.

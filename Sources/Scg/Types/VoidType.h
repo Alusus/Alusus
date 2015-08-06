@@ -74,20 +74,9 @@ public:
     return dynamic_cast<const VoidType *>(other) != nullptr;
   }
 
-  //! @copydoc ValueType::GetImplicitCastingOperator()
-  virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-  {
-    throw EXCEPTION(InvalidOperationException, "Void type cannot be casted.");
-  };
-
-  //! @copydoc ValueType::GetExplicitCastingOperator()
-  virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-  {
-    throw EXCEPTION(NotImplementedException, "Void type cannot be casted.");
-  }
-
   static VoidType *Get();
 };
+
 }
 
 #endif // __VoidType_h__
