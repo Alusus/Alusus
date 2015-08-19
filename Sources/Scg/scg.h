@@ -41,10 +41,11 @@
 #include <Operators/AssignmentOperator.h>
 #include <Operators/BinaryOperator.h>
 #include <Operators/Content.h>
-#include <Operators/PointerToArrayElement.h>
-#include <Operators/PointerToMemberField.h>
-#include <Operators/PointerToVariable.h>
+#include <Operators/ArrayElementReference.h>
+#include <Operators/MemberFieldReference.h>
+#include <Operators/IdentifierReference.h>
 #include <Operators/UnaryOperator.h>
+#include <Operators/Size.h>
 #include <ParsingHandlers/BuildParsingHandler.h>
 #include <ParsingHandlers/DefParsingHandler.h>
 #include <ParsingHandlers/DumpParsingHandler.h>

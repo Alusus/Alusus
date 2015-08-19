@@ -1,0 +1,39 @@
+import "common.alusus";
+
+def SizeOperator : module {
+  def cfunc : function ()=>char
+  {
+    return 'c';
+  };
+  def ffunc : function ()=>float
+  {
+    return 0.0f;
+  };
+  def pfunc : function ()=>ptr[int]
+  {
+    return 0;
+  };
+
+  def main : function()
+  {
+    def c : Char;
+    def f : Float;
+    def p : ptr[Char];
+    printf("size of char literal: %d\n", 'c'~size);
+    printf("size of int literal: %d\n", 5~size);
+    printf("size of string literal: %d\n", "hello"~size);
+    printf("size of int+int: %d\n", (1+3)~size);
+    printf("size of char variable: %d\n", c~size);
+    printf("size of float variable: %d\n", f~size);
+    printf("size of pointer variable: %d\n", p~size);
+    printf("size of char type: %d\n", Char~size);
+    printf("size of float type: %d\n", Float~size);
+    printf("size of ptr type: %d\n", ptr~size);
+    printf("size of char-ret function: %d\n", cfunc()~size);
+    printf("size of float-ret function: %d\n", ffunc()~size);
+    printf("size of ptr-ret function: %d\n", pfunc()~size);
+    return 0;
+  }
+};
+
+run SizeOperator;

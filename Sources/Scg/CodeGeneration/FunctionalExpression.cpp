@@ -23,9 +23,10 @@
 #include <Instructions/Cast.h>
 #include <Instructions/DeclareExtFunction.h>
 #include <Operators/Content.h>
-#include <Operators/PointerToArrayElement.h>
-#include <Operators/PointerToMemberField.h>
-#include <Operators/PointerToVariable.h>
+#include <Operators/Size.h>
+#include <Operators/ArrayElementReference.h>
+#include <Operators/MemberFieldReference.h>
+#include <Operators/IdentifierReference.h>
 
 namespace Scg
 {
@@ -117,8 +118,12 @@ Expression *FunctionalExpression::ToExpression()
     }
     if (thisExprAstMeta->getProdId() == this->gen->GetSubjectId())
     {
-      auto varName = this->gen->ParseToken(thisExprAst);
-      expr = new PointerToVariable(varName);
+      try {
+        auto varName = this->gen->ParseToken(thisExprAst);
+        expr = new IdentifierReference(varName);
+      } catch (InvalidArgumentException) {
+        expr = this->gen->GenerateExpression(thisExprAst);
+      }
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     }
     else if (thisExprAstMeta->getProdId() == this->gen->GetParamPassId() &&
@@ -126,14 +131,14 @@ Expression *FunctionalExpression::ToExpression()
     {
       // Square brackets. This is array element access.
       auto index = ParseElementIndex(thisExprAst.s_cast<ParsedRoute>());
-      expr = new PointerToArrayElement(expr, index);
+      expr = new ArrayElementReference(expr, index);
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     }
     else if (thisExprAstMeta->getProdId() == this->gen->GetLinkExpId())
     {
       // Dot followed by a token. This is a field access.
       auto fieldName = ParseFieldName(thisExprAst.s_cast<ParsedList>());
-      expr = new PointerToMemberField(expr, fieldName);
+      expr = new MemberFieldReference(expr, fieldName);
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     }
     else if (thisExprAstMeta->getProdId() == this->gen->GetPostfixTildeExpId())
@@ -152,6 +157,13 @@ Expression *FunctionalExpression::ToExpression()
       else if (child->getProdId() == this->gen->GetPointerTildeId())
       {
         // ~ptr
+        cancelNextContentOp = true;
+      }
+      else if (child->getProdId() == this->gen->GetSizeTildeId())
+      {
+        // ~size
+        expr = new Size(expr);
+        expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
         cancelNextContentOp = true;
       }
       else if (child->getProdId() == this->gen->GetCastTildeId())

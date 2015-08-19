@@ -20,6 +20,7 @@
 #include <Types/IntegerType.h>
 #include <Types/CharType.h>
 #include <Types/StringType.h>
+#include <Types/PointerType.h>
 #include <Types/VoidType.h>
 #include <Values/Variable.h>
 #include <Memory/AutoDeleteAllocator.h>
@@ -38,6 +39,8 @@ ValueType *ValueType::GetPrimitiveType(const std::string &typeName)
     return DoubleType::Get();
   } else if (typeName == "string") {
     return StringType::Get();
+  } else if (typeName == "ptr") {
+    return PointerType::Get(CharType::Get());
   } else if (typeName == "void" || typeName == "") {
     return VoidType::Get();
   }
@@ -59,6 +62,11 @@ void ValueType::DeleteVariable(Variable *var) const
 {
   this->varCount--;
   delete var;
+}
+
+Int ValueType::getAllocationSize() const
+{
+  return LlvmContainer::getDataLayout()->getTypeAllocSize(this->GetLlvmType());
 }
 
 //------------------------------------------------------------------------------

@@ -73,6 +73,7 @@ namespace Scg
     Core::Basic::Word GetCastTildeId() { return castTildeId; }
     Core::Basic::Word GetPointerTildeId() { return pointerTildeId; }
     Core::Basic::Word GetContentTildeId() { return contentTildeId; }
+    Core::Basic::Word GetSizeTildeId() { return sizeTildeId; }
     Core::Basic::Word GetUnaryExpId() { return unaryExpId; }
 
     void SetBuildMsgStore(Core::Processing::BuildMsgStore *store) { this->buildMsgStore = store; }
@@ -113,6 +114,7 @@ namespace Scg
     Core::Basic::Word castTildeId;
     Core::Basic::Word pointerTildeId;
     Core::Basic::Word contentTildeId;
+    Core::Basic::Word sizeTildeId;
 
     Core::Processing::BuildMsgStore *buildMsgStore = nullptr;
 

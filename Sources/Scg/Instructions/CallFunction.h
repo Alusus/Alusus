@@ -25,7 +25,7 @@ class UserDefinedFunction;
 
 // TODO: Modify CallFunction class such that it accepts an expression in
 // addition to a name, where the expression should be a pointer to a function.
-// One idea might be to change the PointerToVariable operator such that it also
+// One idea might be to change the IdentifierReference operator such that it also
 // checks for functions in addition to variables.
 
 /**

@@ -350,12 +350,22 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
             })},
         {SymbolDefElement::HANDLER, this->handler}
         }).get());
+    // ~size
+    grammarRepository->set(STR("root:Expression.Size_Tilde"), SymbolDefinition::create({
+        {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
+        {SymbolDefElement::VARS, SharedMap::create(false, {
+            {STR("kwd"), SharedMap::create(false, {{STR("size"), 0}, {STR("حجم"), 0}})},
+            {STR("prms"), SharedList::create({})}
+            })},
+        {SymbolDefElement::HANDLER, this->handler}
+        }).get());
     //// Add command to tilde commands list.
     cmd_list = this->GetTildeCommandsList(grammarRepository);
     this->tildeCmdListPos = static_cast<Int>(cmd_list->getCount());
     cmd_list->add(ReferenceParser::parseQualifier(STR("module:Cast_Tilde")));
     cmd_list->add(ReferenceParser::parseQualifier(STR("module:Pointer_Tilde")));
     cmd_list->add(ReferenceParser::parseQualifier(STR("module:Content_Tilde")));
+    cmd_list->add(ReferenceParser::parseQualifier(STR("module:Size_Tilde")));
 
 
     // Define sub statements.
@@ -438,6 +448,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
     grammarRepository->remove(STR("root:Expression.Cast_Tilde"));
     grammarRepository->remove(STR("root:Expression.Pointer_Tilde"));
     grammarRepository->remove(STR("root:Expression.Content_Tilde"));
+    grammarRepository->remove(STR("root:Expression.Size_Tilde"));
     grammarRepository->remove(STR("root:SubMain"));
     //grammarRepository->remove(STR("root:SubSubject"));
     grammarRepository->remove(STR("root:SubSet"));

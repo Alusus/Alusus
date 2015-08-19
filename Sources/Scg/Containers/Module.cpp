@@ -58,7 +58,17 @@ llvm::Module *Module::GetLlvmModule()
 	return this->program->GetLlvmModule();
 }
 
-ValueType *Module::GetValueTypeByName(const std::string &typeName) const
+ValueType* Module::GetValueTypeByName(const std::string &typeName) const
+{
+  ValueType *type = this->tryGetValueTypeByName(typeName);
+  if (type == nullptr)
+    // TODO: String concatenation might allocate memory which will reduce
+    // compilation speed. We should use pre-allocated memory instead.
+    throw EXCEPTION(InvalidTypeException, ("Use of undefined type: " + typeName).c_str());
+  return type;
+}
+
+ValueType* Module::tryGetValueTypeByName(const std::string &typeName) const
 {
   ValueType *type;
   // First try the types defined in the module.
@@ -67,10 +77,6 @@ ValueType *Module::GetValueTypeByName(const std::string &typeName) const
     type = it->second;
   else
     type = ValueType::GetPrimitiveType(typeName);
-  if (type == nullptr)
-    // TODO: String concatenation might allocate memory which will reduce
-    // compilation speed. We should use pre-allocated memory instead.
-    throw EXCEPTION(InvalidTypeException, ("Use of undefined type: " + typeName).c_str());
   return type;
 }
 

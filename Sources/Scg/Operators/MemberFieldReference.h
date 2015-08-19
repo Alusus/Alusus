@@ -1,5 +1,5 @@
 /**
- * @file Scg/Operators/PointerToMemberField.h
+ * @file Scg/Operators/MemberFieldReference.h
  *
  * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
  *
@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __PointerToMemberField_h__
-#define __PointerToMemberField_h__
+#ifndef __MemberFieldReference_h__
+#define __MemberFieldReference_h__
 
 // Alusus header files
 #include <typedefs.h>
@@ -25,7 +25,7 @@ class Value;
 /**
  * Represents a reference to a variable by name.
  */
-class PointerToMemberField : public Expression
+class MemberFieldReference : public Expression
 {
 protected:
   /*! A pointer to the expression evaluating to a structure containing the field
@@ -50,7 +50,7 @@ public:
    *                        in a structure.
    * @param[in] fieldName   The name of the field to create a pointer to.
    */
-  PointerToMemberField(Expression *exp, Char const *fName) :
+  MemberFieldReference(Expression *exp, Char const *fName) :
     expression(exp), fieldName(fName)
   {
     children.push_back(expression);
@@ -67,4 +67,4 @@ public:
 };
 }
 
-#endif // __PointerToMemberField_h__
+#endif // __MemberFieldReference_h__

@@ -1,5 +1,5 @@
 /**
- * @file Scg/Operators/PointerToVariable.h
+ * @file Scg/Operators/IdentifierReference.h
  *
  * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
  *
@@ -9,10 +9,10 @@
  */
 //==============================================================================
 
-// TODO: Consider renaming the class to PointerToVariableByName.
+// TODO: Consider renaming the class to IdentifierReferenceByName.
 
-#ifndef __PointerToVariable_h__
-#define __PointerToVariable_h__
+#ifndef __IdentifierReference_h__
+#define __IdentifierReference_h__
 
 #include <Types/ValueTypeSpec.h>
 
@@ -27,7 +27,7 @@ class ValueType;
 /**
  * Represents a reference to a variable by name.
  */
-class PointerToVariable : public Expression
+class IdentifierReference : public Expression
 {
 protected:
   //! The name of the variable.
@@ -41,7 +41,7 @@ public:
    * this expression is defined.
    * @param[in] name  The name of the variable to point to.
    */
-  PointerToVariable(Char const *name) : name(name) {}
+  IdentifierReference(Char const *name) : name(name) {}
 
   /**
    * Gets the name of the variable pointed to by this instance.
@@ -60,4 +60,4 @@ public:
 };
 }
 
-#endif // __PointerToVariable_h__
+#endif // __IdentifierReference_h__

@@ -25,14 +25,14 @@ bool TestDefineAndUseArray()
     new DefineVariable(CreateArrayOfPrimitiveTypeSpec("int", 10), "testIntArray"),
     new AssignmentOperator
     (
-        new Content(new PointerToArrayElement(new PointerToVariable("testIntArray"), new IntegerConst(5))),
+        new Content(new ArrayElementReference(new IdentifierReference("testIntArray"), new IntegerConst(5))),
         new IntegerConst(10)
     ),
     new CallFunction("printf",
         new List
         ({
             new StringConst("%d"),
-            new Content(new PointerToArrayElement(new PointerToVariable("testIntArray"), new IntegerConst(5)))
+            new Content(new ArrayElementReference(new IdentifierReference("testIntArray"), new IntegerConst(5)))
         })),
     new Return(new IntegerConst(0))
   }, {

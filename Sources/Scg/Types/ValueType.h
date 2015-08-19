@@ -92,12 +92,8 @@ public:
   */
   virtual const std::string GetName() const = 0;
 
-  /// Get the number of bits of variables of this type.
-  virtual Int GetAllocationSize() const
-  {
-    // TODO:
-    return 0;
-  }
+  /// Get the number of bytes needed to store variables of this type.
+  public: virtual Int getAllocationSize() const;
 
   /**
   * Return the number of variables of this type defined.
@@ -114,15 +110,9 @@ public:
   *
   * @return A pointer to the LLVM object representing this type.
   */
-  virtual const llvm::Type *GetLlvmType() const
+  virtual llvm::Type* GetLlvmType() const
   {
-    return llvmType;
-  }
-
-  virtual llvm::Type *GetLlvmType()
-  {
-    return const_cast<llvm::Type *>(
-        static_cast<const ValueType *>(this)->GetLlvmType());
+    return this->llvmType;
   }
 
   /**
