@@ -51,7 +51,7 @@ Module *CreatePrintModule()
   auto print = new DefineFunction("Print", nullptr, {
       VariableDefinition("string", "output")
   }, new Block({
-    new CallFunction("printf", new List({new Content(new PointerToVariable("output"))}))
+    new CallFunction("printf", new List({new Content(new IdentifierReference("output"))}))
   }));
 
   // Creates the module.

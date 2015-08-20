@@ -16,9 +16,7 @@
 // Scg header files
 #include <LlvmContainer.h>
 #include <Types/CharType.h>
-#include <Operators/CastToInt.h>
 #include <Types/IntegerType.h>
-#include <Operators/CastToChar.h>
 
 // LLVM header files
 
@@ -74,35 +72,6 @@ llvm::Value *CharType::CreateCastInst(llvm::IRBuilder<> *irb,
 
 //----------------------------------------------------------------------------
 
-CastingOperator *CharType::GetImplicitCastingOperator(
-    const ValueType *targetType, Expression *expr) const
-{
-  if (targetType == CharType::Get()) {
-    return new CastToChar(expr);
-  }
-  else if (targetType == IntegerType::Get()) {
-    return new CastToInt(expr);
-  }
-  else {
-    throw EXCEPTION(InvalidCastException,
-        ("Char cannot be casted to " + targetType->ToString()).c_str());
-  }
-}
-
-//----------------------------------------------------------------------------
-
-CastingOperator *CharType::GetExplicitCastingOperator(
-    const ValueType *targetType, Expression *expr) const
-{
-  if (targetType == CharType::Get()) {
-    return new CastToChar(expr);
-  }
-  else {
-    throw EXCEPTION(InvalidCastException,
-        (std::string("Char cannot be casted to ") + targetType->ToString()).c_str());
-  }
-}
-
 CharType *CharType::Get()
 {
   // PERFORMANCE: What is the impact of running an unnecessary if statement
@@ -112,4 +81,5 @@ CharType *CharType::Get()
   }
   return s_singleton;
 }
+
 }

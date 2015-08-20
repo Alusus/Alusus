@@ -30,11 +30,11 @@ bool TestIncrementOperator()
       new DefineVariable(CreateTypeSpecByName("float"), "floatCounter"),
       new DefineVariable(CreateTypeSpecByName("double"), "doubleCounter"),
       new UnaryOperator(UnaryOperator::INCREMENT,
-          new Content(new PointerToVariable("intCounter"))),
+          new Content(new IdentifierReference("intCounter"))),
       new UnaryOperator(UnaryOperator::INCREMENT,
-          new Content(new PointerToVariable("floatCounter"))),
+          new Content(new IdentifierReference("floatCounter"))),
       new UnaryOperator(UnaryOperator::INCREMENT,
-          new Content(new PointerToVariable("doubleCounter"))),
+          new Content(new IdentifierReference("doubleCounter"))),
       new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),

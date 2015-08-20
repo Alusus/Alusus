@@ -36,7 +36,7 @@
 #include <Operators/AssignmentOperator.h>
 #include <Operators/BinaryOperator.h>
 #include <Operators/Content.h>
-#include <Operators/PointerToVariable.h>
+#include <Operators/IdentifierReference.h>
 #include <Values/DoubleConst.h>
 #include <Values/FloatConst.h>
 #include <Values/IntegerConst.h>
@@ -93,6 +93,7 @@ namespace Scg
     GENERATE_ID(castTildeId, "Expression.Cast_Tilde");
     GENERATE_ID(pointerTildeId, "Expression.Pointer_Tilde");
     GENERATE_ID(contentTildeId, "Expression.Content_Tilde");
+    GENERATE_ID(sizeTildeId, "Expression.Size_Tilde");
   }
 
   //----------------------------------------------------------------------------
@@ -315,7 +316,7 @@ namespace Scg
       auto value = GenerateExpression(expr);
       auto defVar = new DefineVariable(value, name);
       auto assign = new AssignmentOperator(
-          new Content(new PointerToVariable(name)), value);
+          new Content(new IdentifierReference(name)), value);
 
       auto exprMetadata = expr->getInterface<ParsingMetadataHolder>();
       if (exprMetadata != nullptr) {
@@ -497,7 +498,7 @@ namespace Scg
 //      auto postfixType = postfix.s_cast<ParsedList>()
 //          ->get(0)->getInterface<ParsingMetadataHolder>()->getProdId();
 //      if (postfixType == pointerTildeId)
-//        return new PointerToVariable(varName);
+//        return new IdentifierReference(varName);
 //      else if (postfixType == contentTildeId)
 //        // TODO: Implement this.
 //        return nullptr; //new VariableDeref(varName);
@@ -508,13 +509,13 @@ namespace Scg
     if (id == subjectId)
     {
       auto varName = ParseToken(parsedItem);
-      return new Content(new PointerToVariable(varName));
+      return new Content(new IdentifierReference(varName));
     }
     // This shouldn't be needed anymore.
     else if (id == parameterId)
     {
       auto varName = this->TranslateAliasedName(parsedItem.s_cast_get<ParsedToken>()->getText().c_str());
-      return new Content(new PointerToVariable(varName));
+      return new Content(new IdentifierReference(varName));
     }
     else {
       this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -856,7 +857,6 @@ namespace Scg
                                    STR("SCG1016"), 1, itemMetadata->getSourceLocation()));
         return new ValueTypeSpecByName(STR("__INVALID__"));
       }
-
       else if (SBSTR(this->TranslateAliasedName(funcName->getText().c_str())) == "ptr")
       {
         // TODO: Re-factor this if block into a separate function.

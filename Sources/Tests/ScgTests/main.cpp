@@ -51,9 +51,6 @@ int main(int argc, char **argv)
   if (!RunHelloWorldTest()) result = EXIT_FAILURE;
   if (!RunHelloWorldTwoModulesTest()) result = EXIT_FAILURE;
   if (!RunAllStructureTests()) result = EXIT_FAILURE;
-  if (!RunCastToIntTest()) result = EXIT_FAILURE;
-  if (!RunCastToDoubleTest()) result = EXIT_FAILURE;
-  if (!RunCastToFloatTest()) result = EXIT_FAILURE;
 
   return result;
 }

@@ -1,5 +1,6 @@
 import "libalusus_scg.so";
 
+def Char : alias char;
 def Int : alias int;
 def Float : alias float;
 def Double : alias double;

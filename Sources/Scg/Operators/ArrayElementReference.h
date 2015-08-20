@@ -1,5 +1,5 @@
 /**
- * @file Scg/Operators/PointerToArrayElement.h
+ * @file Scg/Operators/ArrayElementReference.h
  *
  * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
  *
@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __PointerToArrayElement_h__
-#define __PointerToArrayElement_h__
+#ifndef __ArrayElementReference_h__
+#define __ArrayElementReference_h__
 
 // Alusus header files
 #include <typedefs.h>
@@ -25,7 +25,7 @@ class Value;
 /**
  * Represents a reference to a variable by name.
  */
-class PointerToArrayElement : public Expression
+class ArrayElementReference : public Expression
 {
 protected:
   /*! A pointer to the expression evaluating to an array containing the element
@@ -47,7 +47,7 @@ public:
    *                          one of its elements.
    * @param[in] elementIndex  The index of the element to create a pointer to.
    */
-  PointerToArrayElement(Expression *expression, Expression *elementIndexExpr) :
+  ArrayElementReference(Expression *expression, Expression *elementIndexExpr) :
     expression(expression), elementIndexExpr(elementIndexExpr)
   {
     children.push_back(expression);
@@ -65,4 +65,4 @@ public:
 };
 }
 
-#endif // __PointerToArrayElement_h__
+#endif // __ArrayElementReference_h__

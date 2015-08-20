@@ -87,18 +87,6 @@ public:
   //! @copydoc ValueType::IsEqualTo()
   virtual bool IsEqualTo(const ValueType *other) const;
 
-  //! @copydoc ValueType::GetImplicitCastingOperator()
-  virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-  {
-    throw EXCEPTION(NotImplementedException, "Not implemented yet for arrays.");
-  }
-
-  //! @copydoc ValueType::GetExplicitCastingOperator()
-  virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-  {
-    throw EXCEPTION(NotImplementedException, "Not implemented yet for arrays.");
-  }
-
   //! Stores all array types used so far, so that we can reuse them.
   static std::unordered_map<const ValueType *, ArrayType *> usedArrayTypes;
 

@@ -1,5 +1,5 @@
 /**
- * @file Scg/Operators/PointerToVariable.cpp
+ * @file Scg/Operators/IdentifierReference.cpp
  *
  * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
  *
@@ -14,31 +14,35 @@
 #include <llvm/IR/IRBuilder.h>
 // Scg files
 #include <Containers/Block.h>
-#include <Operators/PointerToVariable.h>
+#include <Containers/Module.h>
+#include <Operators/IdentifierReference.h>
 #include <Types/PointerType.h>
 
 namespace Scg
 {
-const ValueTypeSpec *PointerToVariable::GetValueTypeSpec() const
+const ValueTypeSpec *IdentifierReference::GetValueTypeSpec() const
 {
   BLOCK_CHECK;
 
-  if (this->valueType)
-    return this->valueType->GetValueTypeSpec();
-
-  auto var = GetBlock()->GetVariable(this->name);
-  if (var == 0) {
-    throw EXCEPTION(UndefinedVariableException,
-        ("Referencing undefined variable: " + this->name).c_str());
+  if (this->valueType == 0) {
+    Variable const *var;
+    ValueType *type;
+    if ((var = GetBlock()->GetVariable(this->name)) != 0) {
+      this->valueType = PointerType::Get(var->GetValueTypeSpec()->ToValueType(*GetModule()));
+    } else if ((type = GetModule()->tryGetValueTypeByName(this->name)) != 0) {
+      this->valueType = type;
+    } else {
+      throw EXCEPTION(UndefinedVariableException,
+        ("Referencing undefined identifier: " + this->name).c_str());
+    }
   }
 
-  this->valueType = PointerType::Get(var->GetValueTypeSpec()->ToValueType(*GetModule()));
   return this->valueType->GetValueTypeSpec();
 }
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage PointerToVariable::GenerateCode()
+Expression::CodeGenerationStage IdentifierReference::GenerateCode()
 {
   BLOCK_CHECK;
 
@@ -58,7 +62,7 @@ Expression::CodeGenerationStage PointerToVariable::GenerateCode()
 
 //----------------------------------------------------------------------------
 
-std::string PointerToVariable::ToString()
+std::string IdentifierReference::ToString()
 {
   // TODO: Do we need to use std::stringstream?
   return this->name + "~ptr";

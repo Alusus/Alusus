@@ -29,8 +29,8 @@ bool TestAssignmentOperator()
       new DefineVariable(CreateTypeSpecByName("int"), "a"),
       new DefineVariable(CreateTypeSpecByName("int"), "b"),
       new AssignmentOperator(
-          new Content(new PointerToVariable("a")),
-          new Content(new PointerToVariable("b"))),
+          new Content(new IdentifierReference("a")),
+          new Content(new IdentifierReference("b"))),
       new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
@@ -60,39 +60,39 @@ bool TestBinaryOperators()
       new DefineVariable(CreateTypeSpecByName("int"), "a"),
       new DefineVariable(CreateTypeSpecByName("int"), "b"),
       new CallFunction("__add", new List({
-        new Content(new PointerToVariable("a")),
-        new Content(new PointerToVariable("b"))
+        new Content(new IdentifierReference("a")),
+        new Content(new IdentifierReference("b"))
       })),
       new CallFunction("__sub", new List({
-        new Content(new PointerToVariable("a")),
-        new Content(new PointerToVariable("b"))
+        new Content(new IdentifierReference("a")),
+        new Content(new IdentifierReference("b"))
       })),
       new CallFunction("__mul", new List({
-        new Content(new PointerToVariable("a")),
-        new Content(new PointerToVariable("b"))
+        new Content(new IdentifierReference("a")),
+        new Content(new IdentifierReference("b"))
       })),
       new CallFunction("__div", new List({
-        new Content(new PointerToVariable("a")),
-        new Content(new PointerToVariable("b"))
+        new Content(new IdentifierReference("a")),
+        new Content(new IdentifierReference("b"))
       })),
       new BinaryOperator(BinaryOperator::GREATERTHAN,
-          new Content(new PointerToVariable("a")),
-          new Content(new PointerToVariable("b"))),
+          new Content(new IdentifierReference("a")),
+          new Content(new IdentifierReference("b"))),
       new BinaryOperator(BinaryOperator::GREATERTHAN_EQUAL,
-          new Content(new PointerToVariable("a")),
-          new Content(new PointerToVariable("b"))),
+          new Content(new IdentifierReference("a")),
+          new Content(new IdentifierReference("b"))),
       new BinaryOperator(BinaryOperator::LESSTHAN,
-          new Content(new PointerToVariable("a")),
-          new Content(new PointerToVariable("b"))),
+          new Content(new IdentifierReference("a")),
+          new Content(new IdentifierReference("b"))),
       new BinaryOperator(BinaryOperator::LESSTHAN_EQUAL,
-          new Content(new PointerToVariable("a")),
-          new Content(new PointerToVariable("b"))),
+          new Content(new IdentifierReference("a")),
+          new Content(new IdentifierReference("b"))),
       new BinaryOperator(BinaryOperator::EQUAL,
-          new Content(new PointerToVariable("a")),
-          new Content(new PointerToVariable("b"))),
+          new Content(new IdentifierReference("a")),
+          new Content(new IdentifierReference("b"))),
       new BinaryOperator(BinaryOperator::NOTEQUAL,
-          new Content(new PointerToVariable("a")),
-          new Content(new PointerToVariable("b"))),
+          new Content(new IdentifierReference("a")),
+          new Content(new IdentifierReference("b"))),
       new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),

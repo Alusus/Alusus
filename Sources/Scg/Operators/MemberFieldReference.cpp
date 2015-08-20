@@ -1,5 +1,5 @@
 /**
- * @file Scg/Operators/PointerToMemberField.cpp
+ * @file Scg/Operators/MemberFieldReference.cpp
  *
  * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
  *
@@ -14,7 +14,7 @@
 #include <llvm/IR/IRBuilder.h>
 // Scg files
 #include <Containers/Block.h>
-#include <Operators/PointerToMemberField.h>
+#include <Operators/MemberFieldReference.h>
 #include <Values/IntegerConst.h>
 #include <Types/IntegerType.h>
 #include <Types/PointerType.h>
@@ -22,7 +22,7 @@
 
 namespace Scg
 {
-const ValueTypeSpec * PointerToMemberField::GetValueTypeSpec() const
+const ValueTypeSpec * MemberFieldReference::GetValueTypeSpec() const
 {
   if (this->valueType)
     return this->valueType->GetValueTypeSpec();
@@ -33,7 +33,7 @@ const ValueTypeSpec * PointerToMemberField::GetValueTypeSpec() const
   auto pointerType = dynamic_cast<PointerType*>(typeSpec->ToValueType(*module));
   if (pointerType == nullptr)
     throw EXCEPTION(InvalidArgumentException, "The expression passed to "
-        "PointerToMemberField should be a pointer to a structure.");
+        "MemberFieldReference should be a pointer to a structure.");
   auto contType = pointerType->GetContentType();
   auto structType = dynamic_cast<StructType*>(const_cast<ValueType*>(contType));
   if (structType == nullptr) {
@@ -47,7 +47,7 @@ const ValueTypeSpec * PointerToMemberField::GetValueTypeSpec() const
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage PointerToMemberField::GenerateCode()
+Expression::CodeGenerationStage MemberFieldReference::GenerateCode()
 {
   BLOCK_CHECK;
 
@@ -60,7 +60,7 @@ Expression::CodeGenerationStage PointerToMemberField::GenerateCode()
   auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueTypeSpec()->ToValueType(*module));
   if (pointerType == nullptr) {
     throw EXCEPTION(InvalidArgumentException, "The expression passed to "
-        "PointerToMemberField should be a pointer to a structure.");
+        "MemberFieldReference should be a pointer to a structure.");
   }
   auto structType = dynamic_cast<StructType*>(const_cast<ValueType*>(pointerType->GetContentType()));
   if (structType == nullptr) {
@@ -88,7 +88,7 @@ Expression::CodeGenerationStage PointerToMemberField::GenerateCode()
 
 //----------------------------------------------------------------------------
 
-std::string PointerToMemberField::ToString()
+std::string MemberFieldReference::ToString()
 {
   // TODO: Implement this function.
   return "";

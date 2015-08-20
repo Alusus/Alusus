@@ -14,7 +14,6 @@
 
 // SCG header files
 #include <Expression.h>
-#include <Operators/CastingOperator.h>
 #include <typedefs.h>
 
 // LLVM header files
@@ -93,6 +92,9 @@ public:
   */
   virtual const std::string GetName() const = 0;
 
+  /// Get the number of bytes needed to store variables of this type.
+  public: virtual Int getAllocationSize() const;
+
   /**
   * Return the number of variables of this type defined.
   * @return The number of variables of this type defined.
@@ -108,15 +110,9 @@ public:
   *
   * @return A pointer to the LLVM object representing this type.
   */
-  virtual const llvm::Type *GetLlvmType() const
+  virtual llvm::Type* GetLlvmType() const
   {
-    return llvmType;
-  }
-
-  virtual llvm::Type *GetLlvmType()
-  {
-    return const_cast<llvm::Type *>(
-        static_cast<const ValueType *>(this)->GetLlvmType());
+    return this->llvmType;
   }
 
   /**
@@ -236,32 +232,6 @@ public:
     }
     return this->explicitCastingTargets;
   }
-
-  // TODO: Consider changing the name of the function since it now receives an
-  // expression as well. Maybe ImplicitlyCastExpression?
-
-  /**
-  * Retrieves an operator that implicitly casts a variable of this type to the
-  * given type.
-  * @param[in] targetType  A pointer to the target casting type.
-  * @return A pointer to the required casting operator. This should be freed
-  * by the caller.
-  */
-  virtual CastingOperator *GetImplicitCastingOperator(
-      const ValueType *targetType, Expression *expr) const = 0;
-
-  // TODO: Consider changing the name of the function since it now receives an
-  // expression as well. Maybe ExplicitlyCastExpression?
-
-  /**
-  * Retrieves an operator that explicitly casts a variable of this type to the
-  * given type.
-  * @param[in] targetType  A pointer to the target casting type.
-  * @return A pointer to the required casting operator. This should be freed
-  * by the caller.
-  */
-  virtual CastingOperator *GetExplicitCastingOperator(
-      const ValueType *targetType, Expression *expr) const = 0;
 
   /**
   * Gets a primitive type having the given name.

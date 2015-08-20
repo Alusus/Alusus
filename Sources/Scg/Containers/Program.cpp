@@ -198,6 +198,7 @@ std::string Program::Compile()
         "module and cannot be executed.");
 
   this->llvmModule = new llvm::Module("AlususProgram", LlvmContainer::GetContext());
+  this->llvmModule->setDataLayout(LlvmContainer::getDataLayout()->getStringRepresentation());
 
   for (auto module : this->modules) {
     module->SetProgram(this);

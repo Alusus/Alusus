@@ -19,7 +19,6 @@
 #include <Instructions/DefineVariable.h>
 #include <Operators/AssignmentOperator.h>
 #include <Operators/Content.h>
-#include <Operators/PointerToVariable.h>
 #include <Types/ValueType.h>
 #include <Values/Variable.h>
 

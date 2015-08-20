@@ -92,6 +92,12 @@ public:
   ValueType *GetValueTypeByName(const std::string &typeName) const;
 
   /**
+   * Retrieves the value type having the given name.
+   * @param[in] typeName  The name of the value type to retrieve.
+   */
+  ValueType *tryGetValueTypeByName(const std::string &typeName) const;
+
+  /**
    * Adds the given function to the function store of the module.
    * @param[in] function  A pointer to the function to be added.
    */

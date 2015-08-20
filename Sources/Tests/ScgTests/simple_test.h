@@ -33,11 +33,11 @@ namespace Tests { namespace ScgTests
 
 // Referencing variables.
 #define CONTENT(expr) new Content(expr)
-#define VAR_PTR(name) new PointerToVariable(name)
+#define VAR_PTR(name) new IdentifierReference(name)
 #define VAR(name) CONTENT(VAR_PTR(name))
-#define FIELD_PTR(var, field) new PointerToMemberField(var, field)
+#define FIELD_PTR(var, field) new MemberFieldReference(var, field)
 #define FIELD(var, field) CONTENT(FIELD_PTR(var, field))
-#define ELEM_PTR(var, index) new PointerToArrayElement(var, new IntegerConst(index))
+#define ELEM_PTR(var, index) new ArrayElementReference(var, new IntegerConst(index))
 #define ELEM(var, index) CONTENT(ELEM_PTR(var, new IntegerConst(index)))
 #define FIELD_OF_ELEM(name, index, field) CONTENT(FIELD_PTR(ELEM_PTR(VAR_PTR(name), index), field))
 

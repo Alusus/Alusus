@@ -1,5 +1,5 @@
 /**
- * @file Scg/Operators/PointerToArrayElement.cpp
+ * @file Scg/Operators/ArrayElementReference.cpp
  *
  * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
  *
@@ -17,7 +17,7 @@
 
 // Scg files
 #include <Containers/Block.h>
-#include <Operators/PointerToArrayElement.h>
+#include <Operators/ArrayElementReference.h>
 #include <Values/IntegerConst.h>
 #include <Types/ArrayType.h>
 #include <Types/IntegerType.h>
@@ -25,7 +25,7 @@
 
 namespace Scg
 {
-const ValueTypeSpec * PointerToArrayElement::GetValueTypeSpec() const
+const ValueTypeSpec * ArrayElementReference::GetValueTypeSpec() const
 {
   if (this->valueType)
     return this->valueType->GetValueTypeSpec();
@@ -35,7 +35,7 @@ const ValueTypeSpec * PointerToArrayElement::GetValueTypeSpec() const
   auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueTypeSpec()->ToValueType(*module));
   if (pointerType == nullptr)
     throw EXCEPTION(InvalidArgumentException, "The expression passed to "
-        "PointerToArrayElement should be a pointer to an array.");
+        "ArrayElementReference should be a pointer to an array.");
   auto arrayType = dynamic_cast<ArrayType*>(const_cast<ValueType*>(pointerType->GetContentType()));
   if (arrayType == nullptr)
     throw EXCEPTION(InvalidArgumentException, "Non-array variable types "
@@ -47,7 +47,7 @@ const ValueTypeSpec * PointerToArrayElement::GetValueTypeSpec() const
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage PointerToArrayElement::GenerateCode()
+Expression::CodeGenerationStage ArrayElementReference::GenerateCode()
 {
   BLOCK_CHECK;
 
@@ -57,11 +57,11 @@ Expression::CodeGenerationStage PointerToArrayElement::GenerateCode()
   auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueTypeSpec()->ToValueType(*module));
   if (pointerType == nullptr)
     throw EXCEPTION(InvalidArgumentException, "The expression passed to "
-        "PointerToArrayElement should be a pointer to an array.");
+        "ArrayElementReference should be a pointer to an array.");
   auto valType = dynamic_cast<ArrayType*>(const_cast<ValueType*>(pointerType->GetContentType()));
   if (valType == nullptr)
     throw EXCEPTION(InvalidArgumentException, "The expression passed to "
-        "PointerToArrayElement should be a pointer to an array.");
+        "ArrayElementReference should be a pointer to an array.");
 
   // Generates the code of the structure which will return a pointer to the
   // structure, which we will use to generate a pointer to the required field.
@@ -82,7 +82,7 @@ Expression::CodeGenerationStage PointerToArrayElement::GenerateCode()
 
 //----------------------------------------------------------------------------
 
-std::string PointerToArrayElement::ToString()
+std::string ArrayElementReference::ToString()
 {
   // TODO: Implement this function.
   return "";

@@ -79,18 +79,6 @@ public:
     return dynamic_cast<const StringType *>(other) != nullptr;
   }
 
-  //! @copydoc ValueType::GetImplicitCastingOperator()
-  virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-  {
-    throw EXCEPTION(NotImplementedException, "Not implemented yet for strings.");
-  }
-
-  //! @copydoc ValueType::GetExplicitCastingOperator()
-  virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-  {
-    throw EXCEPTION(NotImplementedException, "Not implemented yet for strings.");
-  }
-
   static StringType *Get();
 };
 }

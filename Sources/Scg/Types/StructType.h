@@ -116,18 +116,8 @@ public:
   //! @copydoc ValueType::IsEqualTo()
   virtual bool IsEqualTo(const ValueType *other) const;
 
-  //! @copydoc ValueType::GetImplicitCastingOperator()
-  virtual CastingOperator *GetImplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-  {
-    throw EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
-  }
-
-  //! @copydoc ValueType::GetExplicitCastingOperator()
-  virtual CastingOperator *GetExplicitCastingOperator(const ValueType *targetType, Expression *expr) const
-  {
-    throw EXCEPTION(NotImplementedException, "Not implemented yet for structures.");
-  }
 };
+
 }
 
 #endif // __StructureType_h__
