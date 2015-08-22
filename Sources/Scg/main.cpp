@@ -26,8 +26,7 @@ __attribute__((destructor)) void destructor()
 }
 
 
-DL_EXPORTED LIBRARY_GATEWAY_GETTER_DEF
-{
-    static Scg::LibraryGateway libraryGateway;
-    return &libraryGateway;
+DL_EXPORTED LIBRARY_GATEWAY_GETTER_DEF {
+  static Scg::LibraryGateway libraryGateway;
+  return &libraryGateway;
 }

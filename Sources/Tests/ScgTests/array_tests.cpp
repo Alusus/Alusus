@@ -16,7 +16,9 @@
 
 using namespace Scg;
 
-namespace Tests { namespace ScgTests
+namespace Tests
+{
+namespace ScgTests
 {
 
 bool TestDefineAndUseArray()
@@ -25,22 +27,23 @@ bool TestDefineAndUseArray()
     new DefineVariable(CreateArrayOfPrimitiveTypeSpec("int", 10), "testIntArray"),
     new AssignmentOperator
     (
-        new Content(new ArrayElementReference(new IdentifierReference("testIntArray"), new IntegerConst(5))),
-        new IntegerConst(10)
+      new Content(new ArrayElementReference(new IdentifierReference("testIntArray"), new IntegerConst(5))),
+      new IntegerConst(10)
     ),
     new CallFunction("printf",
-        new List
-        ({
-            new StringConst("%d"),
-            new Content(new ArrayElementReference(new IdentifierReference("testIntArray"), new IntegerConst(5)))
-        })),
+    new List
+    ({
+      new StringConst("%d"),
+      new Content(new ArrayElementReference(new IdentifierReference("testIntArray"), new IntegerConst(5)))
+    })),
     new Return(new IntegerConst(0))
   }, {
-      new DeclareExtFunction("printf", CreateTypeSpecByName("int"),
-          {CreateTypeSpecByName("string")}, true)
+    new DeclareExtFunction("printf", CreateTypeSpecByName("int"),
+    {CreateTypeSpecByName("string")}, true)
   });
 
   return true;
 }
 
-} } // namespace
+}
+} // namespace

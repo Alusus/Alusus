@@ -16,8 +16,8 @@
 
 namespace Scg
 {
-void PrintLlvmValue(llvm::Value *value);
-void PrintLlvmValueType(llvm::Value *value);
+void printLlvmValue(llvm::Value *value);
+void printLlvmValueType(llvm::Value *value);
 }
 
 #endif // __DebuggingHelpers_llvm_helpers_h__

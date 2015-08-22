@@ -27,7 +27,7 @@ protected:
   //! The name of the variable.
   std::string name;
   // TODO: We should change this variable type to const ValueType & after we
-  // change the return type of the function Value::GetValueTypeSpec().
+  // change the return type of the function Value::getValueTypeSpec().
   //! The type of the variable.
   ValueType *variableType;
   //! The LLVM Alloca instruction used to define the variable, if it is local.
@@ -35,11 +35,11 @@ protected:
   //! The LLVM GlobalVariable object used to define the variable, if it is global.
   llvm::GlobalVariable *llvmGlobalVariable = nullptr;
   /*! If this variable represents a function argument, this points to the
-      LLVM StoreInst used to set the value of the variable to the value
-      passed by the caller of the function. */
+    LLVM StoreInst used to set the value of the variable to the value
+    passed by the caller of the function. */
   llvm::StoreInst *llvmStoreInst = nullptr;
   /*! If this variable represents a function argument, this points to the
-      LLVM Argument instance representing the function argument. */
+    LLVM Argument instance representing the function argument. */
   llvm::Argument *llvmArgument;
 
 public:
@@ -52,8 +52,8 @@ public:
    *                          argument here.
    */
   Variable(const std::string &name, ValueType *variableType,
-      llvm::Argument *llvmArgument = nullptr)
-      : name(name), variableType(variableType), llvmArgument(llvmArgument)
+           llvm::Argument *llvmArgument = nullptr)
+    : name(name), variableType(variableType), llvmArgument(llvmArgument)
   {
   }
 
@@ -61,7 +61,7 @@ public:
    * Retrieves the name of the variable.
    * @return The name of the variable.
    */
-  const std::string &GetName()
+  const std::string &getName()
   {
     return name;
   }
@@ -78,7 +78,7 @@ public:
    *
    * @return The LLVM Value object representing this variable.
    */
-  const llvm::Value *GetLlvmValue() const
+  const llvm::Value *getLlvmValue() const
   {
     if (llvmAllocaInst != nullptr) {
       return llvmAllocaInst;
@@ -87,10 +87,10 @@ public:
     }
   }
 
-  llvm::Value *GetLlvmValue()
+  llvm::Value *getLlvmValue()
   {
     return const_cast<llvm::Value *>(
-        static_cast<const Variable *>(this)->GetLlvmValue());
+             static_cast<const Variable *>(this)->getLlvmValue());
   }
   //@}
 
@@ -105,15 +105,15 @@ public:
    *
    * @return A pointer to the LLVM Alloca instruction.
    */
-  const llvm::AllocaInst *GetLlvmAllocaInst() const
+  const llvm::AllocaInst *getLlvmAllocaInst() const
   {
     return llvmAllocaInst;
   }
 
-  llvm::AllocaInst *GetLlvmAllocaInst()
+  llvm::AllocaInst *getLlvmAllocaInst()
   {
     return const_cast<llvm::AllocaInst *>(
-        static_cast<const Variable *>(this)->GetLlvmAllocaInst());
+             static_cast<const Variable *>(this)->getLlvmAllocaInst());
   }
   //@}
 
@@ -128,15 +128,15 @@ public:
    *
    * @return A pointer to the LLVM GlobalVariable instruction.
    */
-  const llvm::GlobalVariable *GetLlvmGlobalVariable() const
+  const llvm::GlobalVariable *getLlvmGlobalVariable() const
   {
     return llvmGlobalVariable;
   }
 
-  llvm::GlobalVariable *GetLlvmGlobalVariable()
+  llvm::GlobalVariable *getLlvmGlobalVariable()
   {
     return const_cast<llvm::GlobalVariable *>(
-        static_cast<const Variable *>(this)->GetLlvmGlobalVariable());
+             static_cast<const Variable *>(this)->getLlvmGlobalVariable());
   }
   //@}
 
@@ -144,24 +144,24 @@ public:
   // const ValueType &.
 
   //@{
-  //! @copydoc Value::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override
+  //! @copydoc Value::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override
   {
-    return variableType->GetValueTypeSpec();
+    return variableType->getValueTypeSpec();
   }
   //@}
 
-  //! @copydoc Expression::PreGenerateCode()
-  virtual CodeGenerationStage PreGenerateCode();
+  //! @copydoc Expression::preGenerateCode()
+  virtual CodeGenerationStage preGenerateCode();
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

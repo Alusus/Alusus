@@ -19,32 +19,34 @@
 
 namespace Scg
 {
-const ValueTypeSpec *StringConst::GetValueTypeSpec() const
+const ValueTypeSpec *StringConst::getValueTypeSpec() const
 {
-  return StringType::Get()->GetValueTypeSpec();
+  return StringType::get()->getValueTypeSpec();
 }
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage StringConst::GenerateCode()
+Expression::CodeGenerationStage StringConst::generateCode()
 {
   // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
   // generatedLlvmValue?
   this->generatedLlvmValue = this->llvmValue =
-      StringType::Get()->GetLlvmConstant(GetModule(), this->value);
-  return Expression::GenerateCode();
+                               StringType::get()->getLlvmConstant(getModule(), this->value);
+  return Expression::generateCode();
 }
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage StringConst::PostGenerateCode()
+Expression::CodeGenerationStage StringConst::postGenerateCode()
 {
   if (this->llvmValue == nullptr)
     // Nothing to delete
     return CodeGenerationStage::None;
+
   if (!this->llvmValue->hasNUses(0))
     // The value is still in use; stay in PostCodeGeneration stage.
     return CodeGenerationStage::PostCodeGeneration;
+
   // TODO: Do we need to delete this? In IntegerConst, FloatConst, and
   // DoubleConst we are not doing this and saying that LLVM handles it!
   delete this->llvmValue;
@@ -54,7 +56,7 @@ Expression::CodeGenerationStage StringConst::PostGenerateCode()
 
 //----------------------------------------------------------------------------
 
-std::string StringConst::ToString()
+std::string StringConst::toString()
 {
   return this->value;
 }

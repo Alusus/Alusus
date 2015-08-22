@@ -21,32 +21,34 @@
 
 namespace Scg
 {
-const ValueTypeSpec *DoubleConst::GetValueTypeSpec() const
+const ValueTypeSpec *DoubleConst::getValueTypeSpec() const
 {
-  return DoubleType::Get()->GetValueTypeSpec();
+  return DoubleType::get()->getValueTypeSpec();
 }
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage DoubleConst::GenerateCode()
+Expression::CodeGenerationStage DoubleConst::generateCode()
 {
   // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
   // generatedLlvmValue?
   this->generatedLlvmValue = this->llvmValue =
-      DoubleType::Get()->GetLlvmConstant(this->value);
-  return Expression::GenerateCode();
+                               DoubleType::get()->getLlvmConstant(this->value);
+  return Expression::generateCode();
 }
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage DoubleConst::PostGenerateCode()
+Expression::CodeGenerationStage DoubleConst::postGenerateCode()
 {
   if (this->llvmValue == nullptr)
     // Nothing to delete
     return CodeGenerationStage::None;
+
   if (!this->llvmValue->hasNUses(0))
     // The value is still in use; stay in PostCodeGeneration stage.
     return CodeGenerationStage::PostCodeGeneration;
+
   // We don't need to delete the constant, it is handled by LLVM.
   this->llvmValue = nullptr;
   return CodeGenerationStage::None;
@@ -54,7 +56,7 @@ Expression::CodeGenerationStage DoubleConst::PostGenerateCode()
 
 //----------------------------------------------------------------------------
 
-std::string DoubleConst::ToString()
+std::string DoubleConst::toString()
 {
   return boost::lexical_cast<std::string>(this->value);
 }

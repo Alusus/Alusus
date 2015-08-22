@@ -23,77 +23,83 @@ using namespace llvm;
 
 namespace Scg
 {
-const ValueTypeSpec *AssignmentOperator::GetValueTypeSpec() const
+const ValueTypeSpec *AssignmentOperator::getValueTypeSpec() const
 {
-  return GetRHS()->GetValueTypeSpec();
+  return getRHS()->getValueTypeSpec();
 }
 
-Expression::CodeGenerationStage AssignmentOperator::GenerateCode()
+Expression::CodeGenerationStage AssignmentOperator::generateCode()
 {
   BLOCK_CHECK;
 
-  auto irb = GetBlock()->GetIRBuilder();
+  auto irb = getBlock()->getIRBuilder();
 
   // TODO: Don't use dynamic_cast.
-  auto lhs = dynamic_cast<Content*>(GetLHS());
+  auto lhs = dynamic_cast<Content*>(getLHS());
+
   if (lhs == nullptr)
-  throw EXCEPTION(InvalidOperationException, "The left-hand side of an "
-      "assignment must be the content of a pointer.");
-  if (lhs->GetCodeGenerationStage() == Expression::CodeGenerationStage::CodeGeneration)
-  	if (lhs->CallGenerateCode() == Expression::CodeGenerationStage::CodeGeneration)
-  		return Expression::CodeGenerationStage::CodeGeneration;
+    throw EXCEPTION(InvalidOperationException, "The left-hand side of an "
+                    "assignment must be the content of a pointer.");
+
+  if (lhs->getCodeGenerationStage() == Expression::CodeGenerationStage::CodeGeneration)
+    if (lhs->callGenerateCode() == Expression::CodeGenerationStage::CodeGeneration)
+      return Expression::CodeGenerationStage::CodeGeneration;
 
   // Find the value of the right-hand side expression.
-  if (GetRHS()->GetCodeGenerationStage() == Expression::CodeGenerationStage::CodeGeneration)
-  	if (GetRHS()->CallGenerateCode() == Expression::CodeGenerationStage::CodeGeneration)
-  		return Expression::CodeGenerationStage::CodeGeneration;
-  auto rhs = GetRHS()->GetGeneratedLlvmValue();
+  if (getRHS()->getCodeGenerationStage() == Expression::CodeGenerationStage::CodeGeneration)
+    if (getRHS()->callGenerateCode() == Expression::CodeGenerationStage::CodeGeneration)
+      return Expression::CodeGenerationStage::CodeGeneration;
+
+  auto rhs = getRHS()->getGeneratedLlvmValue();
+
   if (rhs == 0)
     throw EXCEPTION(InvalidValueException,
-        ("Right-hand side of '=' doesn't evaluate to a value: "
-            + GetRHS()->ToString()).c_str());
+                    ("Right-hand side of '=' doesn't evaluate to a value: "
+                     + getRHS()->toString()).c_str());
 
-  auto targetType = GetLHS()->GetValueTypeSpec()->ToValueType(*GetModule());
-  auto sourceType = GetRHS()->GetValueTypeSpec()->ToValueType(*GetModule());
-  if (!sourceType->IsImplicitlyCastableTo(targetType)) {
+  auto targetType = getLHS()->getValueTypeSpec()->toValueType(*getModule());
+  auto sourceType = getRHS()->getValueTypeSpec()->toValueType(*getModule());
+
+  if (!sourceType->isImplicitlyCastableTo(targetType)) {
     throw EXCEPTION(CompilationErrorException,
-        "The right-hand side cannot be assigned to the left-hand side because "
-        "it has a different type.");
+                    "The right-hand side cannot be assigned to the left-hand side because "
+                    "it has a different type.");
   }
 
   // Add a store instruction to set the value of the variable.
   if (sourceType != targetType) {
     this->llvmStoreInst = irb->CreateStore(
-        sourceType->CreateCastInst(irb, rhs, targetType), lhs->GetLlvmPointer());
+                            sourceType->createCastInst(irb, rhs, targetType), lhs->getLlvmPointer());
   } else {
-    this->llvmStoreInst = irb->CreateStore(rhs, lhs->GetLlvmPointer());
+    this->llvmStoreInst = irb->CreateStore(rhs, lhs->getLlvmPointer());
   }
 
   // The generated value for an assignment is the right-hand side of the
   // assignment itself.
   generatedLlvmValue = rhs;
 
-  return Expression::GenerateCode();
+  return Expression::generateCode();
 }
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage AssignmentOperator::PostGenerateCode()
+Expression::CodeGenerationStage AssignmentOperator::postGenerateCode()
 {
   if (!this->llvmStoreInst->hasNUses(0)) {
     // Cannot delete the instruction yet; stay in PostCodeGeneration stage.
     return CodeGenerationStage::PostCodeGeneration;
   }
+
   this->llvmStoreInst->eraseFromParent();
   this->llvmStoreInst = nullptr;
 
-  return Expression::PostGenerateCode();
+  return Expression::postGenerateCode();
 }
 
 //------------------------------------------------------------------------------
 
-std::string AssignmentOperator::ToString()
+std::string AssignmentOperator::toString()
 {
-  return GetLHS()->ToString() + " := " + GetRHS()->ToString();
+  return getLHS()->toString() + " := " + getRHS()->toString();
 }
 }

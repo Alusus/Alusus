@@ -27,29 +27,29 @@ namespace Scg
 using namespace Core::Basic;
 
 DeclareExtFunction::DeclareExtFunction(Char const *name,
-    ValueTypeSpec *returnType, const ValueTypeSpecArray &argTypes,
-    bool isVarArgs) :
-        name(name),
-        returnType(returnType),
-        argTypes(argTypes),
-        isVarArgs(isVarArgs)
+                                       ValueTypeSpec *returnType, const ValueTypeSpecArray &argTypes,
+                                       bool varArgs) :
+  name(name),
+  returnType(returnType),
+  argTypes(argTypes),
+  varArgs(varArgs)
 {
 }
 
 //------------------------------------------------------------------------------
 
 DeclareExtFunction::DeclareExtFunction(DeclareExtFunction *decl) :
-    name(decl->GetName()),
-    isVarArgs(decl->IsVarArgs())
+  name(decl->getName()),
+  varArgs(decl->isVarArgs())
 {
 
-  if (decl->GetReturnType() != nullptr)
-    this->returnType = decl->GetReturnType()->Clone();
+  if (decl->getReturnType() != nullptr)
+    this->returnType = decl->getReturnType()->clone();
   else
     this->returnType = nullptr;
-  for (auto arg : decl->GetArgumentTypes())
-  {
-    this->argTypes.push_back(arg->Clone());
+
+  for (auto arg : decl->getArgumentTypes()) {
+    this->argTypes.push_back(arg->clone());
   }
 }
 
@@ -60,16 +60,16 @@ DeclareExtFunction::DeclareExtFunction(DeclareExtFunction *decl) :
 // types that doesn't allocate the same variable type twice, and takes the
 // responsibility of freeing the types at the end.
 DeclareExtFunction::DeclareExtFunction(DefineFunction *definition) :
-    name(definition->GetName()),
-    isVarArgs(false)
+  name(definition->getName()),
+  varArgs(false)
 {
-  if (definition->GetReturnType() != nullptr)
-    this->returnType = definition->GetReturnType()->Clone();
+  if (definition->getReturnType() != nullptr)
+    this->returnType = definition->getReturnType()->clone();
   else
     this->returnType = nullptr;
-  for (auto arg : definition->GetArguments())
-  {
-    this->argTypes.push_back(arg.GetTypeSpec()->Clone());
+
+  for (auto arg : definition->getArguments()) {
+    this->argTypes.push_back(arg.getTypeSpec()->clone());
   }
 }
 
@@ -78,23 +78,24 @@ DeclareExtFunction::DeclareExtFunction(DefineFunction *definition) :
 DeclareExtFunction::~DeclareExtFunction()
 {
   delete this->returnType;
+
   for (auto type : this->argTypes)
     delete type;
 }
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage DeclareExtFunction::PreGenerateCode()
+Expression::CodeGenerationStage DeclareExtFunction::preGenerateCode()
 {
   MODULE_CHECK;
   BLOCK_CHECK;
   FUNCTION_CHECK;
 
   auto function = new ExternalFunction(
-        this->name, this->returnType, this->argTypes, this->isVarArgs);
-  ((Expression*)function)->SetModule(GetModule());
-  ((Expression*)function)->SetFunction(GetFunction());
-  ((Expression*)function)->SetBlock(GetBlock());
+    this->name, this->returnType, this->argTypes, this->varArgs);
+  ((Expression*)function)->setModule(getModule());
+  ((Expression*)function)->setFunction(getFunction());
+  ((Expression*)function)->setBlock(getBlock());
   this->children.push_back(function);
 
   return CodeGenerationStage::CodeGeneration;
@@ -102,7 +103,7 @@ Expression::CodeGenerationStage DeclareExtFunction::PreGenerateCode()
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage DeclareExtFunction::PostGenerateCode()
+Expression::CodeGenerationStage DeclareExtFunction::postGenerateCode()
 {
   delete this->children[0];
   this->children.clear();
@@ -111,7 +112,7 @@ Expression::CodeGenerationStage DeclareExtFunction::PostGenerateCode()
 
 //------------------------------------------------------------------------------
 
-std::string DeclareExtFunction::ToString()
+std::string DeclareExtFunction::toString()
 {
   // TODO: Implement this.
   return "";

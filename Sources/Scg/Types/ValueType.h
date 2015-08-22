@@ -64,11 +64,11 @@ public:
 
 protected:
   /**
-  * Called by GetImplicitCastingTargets() GetExplicitCastingTargets() to
+  * Called by getImplicitCastingTargets() getExplicitCastingTargets() to
   * allow the type to initialize implicitCastingTargets and
   * explicitCastingTargets .
   */
-  virtual void InitCastingTargets() const = 0;
+  virtual void initCastingTargets() const = 0;
 
 public:
   /**
@@ -76,30 +76,31 @@ public:
   * @param[in] name  The name of the variable.
   * @return A pointer to the variable.
   */
-  virtual Variable *NewVariable(const std::string &name,
-      llvm::Argument *llvmArgument = nullptr) const;
+  virtual Variable *newVariable(const std::string &name,
+                                llvm::Argument *llvmArgument = nullptr) const;
 
   /**
-  * Deletes the variable defined by NewVariable() method.
+  * Deletes the variable defined by newVariable() method.
   * @param[in] var   A pointer to the variable.
   */
-  virtual void DeleteVariable(Variable *var) const;
+  virtual void deleteVariable(Variable *var) const;
 
   /**
   * Retrieves the name of the type, e.g. int, float, etc.
   *
   * @return The name of the type.
   */
-  virtual const std::string GetName() const = 0;
+  virtual const std::string getName() const = 0;
 
   /// Get the number of bytes needed to store variables of this type.
-  public: virtual Int getAllocationSize() const;
+public:
+  virtual Int getAllocationSize() const;
 
   /**
   * Return the number of variables of this type defined.
   * @return The number of variables of this type defined.
   */
-  int GetVarCount() const
+  int getVarCount() const
   {
     return varCount;
   }
@@ -110,7 +111,7 @@ public:
   *
   * @return A pointer to the LLVM object representing this type.
   */
-  virtual llvm::Type* GetLlvmType() const
+  virtual llvm::Type* getLlvmType() const
   {
     return this->llvmType;
   }
@@ -119,19 +120,19 @@ public:
   * Retrieves the default value of this type as an LLVM Constant object.
   * @return The LLVM Constant object representing the default value.
   */
-  virtual llvm::Constant *GetDefaultLLVMValue() const = 0;
+  virtual llvm::Constant *getDefaultLLVMValue() const = 0;
 
   /**
   * Retrieves the type specification of this type.
   * @return A pointer to the type specification of this type. This gets
   * automatically freed by the type, hence shouldn't be freed by the caller.
   */
-  virtual const ValueTypeSpec *GetValueTypeSpec() const = 0;
+  virtual const ValueTypeSpec *getValueTypeSpec() const = 0;
 
-  virtual ValueTypeSpec *GetValueTypeSpec()
+  virtual ValueTypeSpec *getValueTypeSpec()
   {
     return const_cast<ValueTypeSpec *>(
-        static_cast<const ValueType *>(this)->GetValueTypeSpec());
+             static_cast<const ValueType *>(this)->getValueTypeSpec());
   }
 
   /**
@@ -142,8 +143,8 @@ public:
   * @return The casted LLVM value. This is usually an instruction that does
   * the casting having the given LLVM value as its argument.
   */
-  virtual llvm::Value *CreateCastInst(llvm::IRBuilder<> *irb,
-      llvm::Value *value, const ValueType *targetType) const
+  virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
+                                      llvm::Value *value, const ValueType *targetType) const
   {
     THROW_NOT_IMPLEMENTED();
   }
@@ -153,22 +154,23 @@ public:
   * @param[in] other The type.
   * @return @c true or @c false.
   */
-  virtual bool IsEqualTo(const ValueType *other) const = 0;
+  virtual bool isEqualTo(const ValueType *other) const = 0;
 
   /**
   * Determines whether this type can be implicitly casted to the given type.
   * @param[in] type The type.
   * @return @c true or @c false.
   */
-  bool IsImplicitlyCastableTo(const ValueType *type) const
+  bool isImplicitlyCastableTo(const ValueType *type) const
   {
-    // PERFORMANCE: Consider changing GetImplicitCastingTargets() to return
+    // PERFORMANCE: Consider changing getImplicitCastingTargets() to return
     // a set instead of a vector so that we can find elements in O(1).
-    for (auto t : GetImplicitCastingTargets()) {
+    for (auto t : getImplicitCastingTargets()) {
       if (t == type) {
         return true;
       }
     }
+
     return false;
   }
 
@@ -177,15 +179,16 @@ public:
   * @param[in] type The type.
   * @return @c true or @c false.
   */
-  bool IsExplicitlyCastableTo(const ValueType *type) const
+  bool isExplicitlyCastableTo(const ValueType *type) const
   {
-    // PERFORMANCE: Consider changing GetImplicitCastingTargets() to return
+    // PERFORMANCE: Consider changing getImplicitCastingTargets() to return
     // a set instead of a vector so that we can find elements in O(1).
-    for (auto t : GetExplicitCastingTargets()) {
+    for (auto t : getExplicitCastingTargets()) {
       if (t == type) {
         return true;
       }
     }
+
     return false;
   }
 
@@ -194,13 +197,13 @@ public:
   * @param[in] other The type to compare against.
   * @return One of the results of Scg::TypeComparisonResult.
   */
-  virtual TypeComparisonResult Compare(const ValueType *other)
+  virtual TypeComparisonResult compare(const ValueType *other)
   {
-    if (IsEqualTo(other)) {
+    if (isEqualTo(other)) {
       return TypeComparisonResult::Equivalent;
-    } else if (IsImplicitlyCastableTo(other)) {
+    } else if (isImplicitlyCastableTo(other)) {
       return TypeComparisonResult::ImplicitlyEquivalent;
-    } else if (IsExplicitlyCastableTo(other)) {
+    } else if (isExplicitlyCastableTo(other)) {
       return TypeComparisonResult::ExplicitlyEquivalent;
     } else {
       return TypeComparisonResult::NotEquivalent;
@@ -211,12 +214,13 @@ public:
   * Retrieves a list of the types that this type can be implicitly casted to.
   * @return A list of the types that this type can be implicitly casted to.
   */
-  virtual const std::vector<const ValueType *> &GetImplicitCastingTargets() const
+  virtual const std::vector<const ValueType *> &getImplicitCastingTargets() const
   {
     if (!this->castingTargetsInitialized) {
       this->castingTargetsInitialized = true;
-      this->InitCastingTargets();
+      this->initCastingTargets();
     }
+
     return this->implicitCastingTargets;
   }
 
@@ -224,12 +228,13 @@ public:
   * Retrieves a list of the types that this type can be explicitly casted to.
   * @return A list of the types that this type can be explicitly casted to.
   */
-  virtual const std::vector<const ValueType *> &GetExplicitCastingTargets() const
+  virtual const std::vector<const ValueType *> &getExplicitCastingTargets() const
   {
     if (!this->castingTargetsInitialized) {
       this->castingTargetsInitialized = true;
-      this->InitCastingTargets();
+      this->initCastingTargets();
     }
+
     return this->explicitCastingTargets;
   }
 
@@ -240,7 +245,7 @@ public:
   *
   * @return A pointer to the type.
   */
-  static ValueType *GetPrimitiveType(const std::string &typeName);
+  static ValueType *getPrimitiveType(const std::string &typeName);
 
 public:
   static void *operator new[](size_t size) = delete;

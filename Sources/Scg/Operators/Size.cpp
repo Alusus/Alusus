@@ -27,59 +27,66 @@ Size::Size(Expression *exp) : expression(exp), llvmValue(nullptr)
 {
   // If this given expression is IdentifierReference we won't add it to the children, instead
   // we will manually lookup the referenced type by name. Otherwise, we will add it and use
-  // its Expression::GetValueTypeSpec function to determine the type.
+  // its Expression::getValueTypeSpec function to determine the type.
   IdentifierReference *ref = dynamic_cast<IdentifierReference*>(this->expression);
+
   if (!ref) children.push_back(this->expression);
 }
 
 
-const ValueTypeSpec *Size::GetValueTypeSpec() const
+const ValueTypeSpec *Size::getValueTypeSpec() const
 {
-  return IntegerType::Get()->GetValueTypeSpec();
+  return IntegerType::get()->getValueTypeSpec();
 }
 
 
-Expression::CodeGenerationStage Size::GenerateCode()
+Expression::CodeGenerationStage Size::generateCode()
 {
   IdentifierReference *ref = dynamic_cast<IdentifierReference*>(this->expression);
   ValueType const *type = 0;
+
   // If the provided expression is just an identifier, then we will lookup the type in the list of
   // varialbes of the current block and the list of types in the current module.
   if (ref != 0) {
     Variable const *var;
-    if ((var = GetBlock()->GetVariable(ref->GetName())) != 0) {
-      type = PointerType::Get(var->GetValueTypeSpec()->ToValueType(*GetModule()));
+
+    if ((var = getBlock()->getVariable(ref->getName())) != 0) {
+      type = PointerType::get(var->getValueTypeSpec()->toValueType(*getModule()));
       // For variables the returned type is actually the pointer to that variable, so we need to get
       // the actual type of the variable, not the type of its pointer.
       auto ptype = dynamic_cast<PointerType const*>(type);
-      if (ptype != 0) type = ptype->GetContentType();
-    } else if ((type = GetModule()->tryGetValueTypeByName(ref->GetName())) == 0) {
+
+      if (ptype != 0) type = ptype->getContentType();
+    } else if ((type = getModule()->tryGetValueTypeByName(ref->getName())) == 0) {
       throw EXCEPTION(UndefinedVariableException,
-        ("Referencing undefined identifier: " + ref->GetName()).c_str());
+                      ("Referencing undefined identifier: " + ref->getName()).c_str());
     }
   } else {
-    type = this->expression->GetValueTypeSpec()->ToValueType(*GetModule());
+    type = this->expression->getValueTypeSpec()->toValueType(*getModule());
   }
-  this->generatedLlvmValue = this->llvmValue = IntegerType::Get()->GetLlvmConstant(type->getAllocationSize());
-  return Expression::GenerateCode();
+
+  this->generatedLlvmValue = this->llvmValue = IntegerType::get()->getLlvmConstant(type->getAllocationSize());
+  return Expression::generateCode();
 }
 
 
-Expression::CodeGenerationStage Size::PostGenerateCode()
+Expression::CodeGenerationStage Size::postGenerateCode()
 {
   if (this->llvmValue == nullptr)
     // Nothing to delete
     return CodeGenerationStage::None;
+
   if (!this->llvmValue->hasNUses(0))
     // The value is still in use; stay in PostCodeGeneration stage.
     return CodeGenerationStage::PostCodeGeneration;
+
   // We don't need to delete the constant, it is handled by LLVM.
   this->llvmValue = nullptr;
   return CodeGenerationStage::None;
 }
 
 
-std::string Size::ToString()
+std::string Size::toString()
 {
   // TODO: Implement this function.
   return "";

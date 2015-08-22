@@ -35,7 +35,8 @@ class ModuleParsingHandler : public Core::Processing::GenericParsingHandler
   //============================================================================
   // Constructor
 
-  public: ModuleParsingHandler(Core::Standard::RootManager *rm) : rootManager(rm)
+public:
+  ModuleParsingHandler(Core::Standard::RootManager *rm) : rootManager(rm)
   {
   }
 
@@ -43,15 +44,19 @@ class ModuleParsingHandler : public Core::Processing::GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
+public:
+  virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
-  private: void addDefinitionToModule(Core::Processing::ParserState *state,const SharedPtr<IdentifiableObject> &def,
-                                      Core::Data::Module *module);
+private:
+  void addDefinitionToModule(Core::Processing::ParserState *state, const SharedPtr<IdentifiableObject> &def,
+                             Core::Data::Module *module);
 
-  private: void addLinkToModule(Core::Processing::ParserState *state, const SharedPtr<IdentifiableObject> &link,
-                                Core::Data::Module *module);
+private:
+  void addLinkToModule(Core::Processing::ParserState *state, const SharedPtr<IdentifiableObject> &link,
+                       Core::Data::Module *module);
 
-  private: Char const* getLinkName(IdentifiableObject *link);
+private:
+  Char const* getLinkName(IdentifiableObject *link);
 
 }; // class
 

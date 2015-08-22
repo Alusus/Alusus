@@ -20,65 +20,77 @@
 
 namespace Scg
 {
-  class Block;
+class Block;
 }
 
 namespace Scg
 {
+/**
+ * Represents a function definition, i.e. a prototype and body.
+ */
+class WhileStatement : public Expression
+{
+private:
+  Expression *cond;
+  Block *condBlock;
+  Block *loopBlock;
+  Block *exitBlock;
+  llvm::Instruction *brInst;
+
+public:
   /**
-   * Represents a function definition, i.e. a prototype and body.
+   * Construct a function with the given name, arguments, and body.
+   *
+   * @param[in] cond  The condition expression of the for statement.
+   * @param[in] body  The body of the for loop.
    */
-  class WhileStatement : public Expression
+  WhileStatement(Expression *cond, Block *body);
+
+  /**
+   * Get the condition expression of the for loop.
+   *
+   * @return A pointer to the condition expression of the for loop.
+   */
+  const Expression *getCondExpr() const
   {
-  private:
-    Expression *cond;
-    Block *condBlock;
-    Block *loopBlock;
-    Block *exitBlock;
-    llvm::Instruction *brInst;
+    return cond;
+  }
+  Expression *getCondExpr()
+  {
+    return cond;
+  }
 
-  public:
-    /**
-     * Construct a function with the given name, arguments, and body.
-     *
-     * @param[in] cond  The condition expression of the for statement.
-     * @param[in] body  The body of the for loop.
-     */
-    WhileStatement(Expression *cond, Block *body);
+  /**
+   * Get the body of the for loop.
+   *
+   * @return A pointer to the body of the for loop.
+   */
+  const Block *getBody() const
+  {
+    return loopBlock;
+  }
+  Block *getBody()
+  {
+    return loopBlock;
+  }
 
-    /**
-     * Get the condition expression of the for loop.
-     *
-     * @return A pointer to the condition expression of the for loop.
-     */
-    const Expression *GetCondExpr() const { return cond; }
-    Expression *GetCondExpr() { return cond; }
+  //! @copydoc Expression::callGenerateCode()
+  virtual CodeGenerationStage callGenerateCode()
+  {
+    // We want to manually call the generateCode() member function of children
+    // so we override the default behaviour of callGenerateCode();
+    return generateCode();
+  }
 
-    /**
-     * Get the body of the for loop.
-     *
-     * @return A pointer to the body of the for loop.
-     */
-    const Block *GetBody() const { return loopBlock; }
-    Block *GetBody() { return loopBlock; }
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-    //! @copydoc Expression::CallGenerateCode()
-    virtual CodeGenerationStage CallGenerateCode()
-    {
-    	// We want to manually call the GenerateCode() member function of children
-    	// so we override the default behaviour of CallGenerateCode();
-    	return GenerateCode();
-    }
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-    //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationStage GenerateCode();
-
-    //! @copydoc Expression::PostGenerateCode()
-    virtual CodeGenerationStage PostGenerateCode();
-
-    //! @copydoc Expression::ToString()
-    virtual std::string ToString();
-  };
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
+};
 }
 
 #endif // __WhileStatement_h__

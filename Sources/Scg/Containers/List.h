@@ -18,47 +18,56 @@
 
 namespace Scg
 {
-  // TODO: Why is List derived from Expression?
-  // TODO: Why do we need ExpressionArray if we already have this class?
+// TODO: Why is List derived from Expression?
+// TODO: Why do we need ExpressionArray if we already have this class?
+/**
+ * Represent a return statement.
+ */
+class List : public Expression
+{
+public:
   /**
-   * Represent a return statement.
+   * Construct a return statement that returns the value of the given expression.
+   *
+   * @param[in] expression  A pointer to the expression to be returned. Notice that
+   *                        this expression will automatically get deleted, so it
+   *                        should be allocated in the heap and not deleted.
    */
-  class List : public Expression
+  List(const ExpressionArray &elements)
   {
-  public:
-    /**
-     * Construct a return statement that returns the value of the given expression.
-     *
-     * @param[in] expression  A pointer to the expression to be returned. Notice that
-     *                        this expression will automatically get deleted, so it
-     *                        should be allocated in the heap and not deleted.
-     */
-    List(const ExpressionArray &elements)
-    {
-      this->children = elements;
-    }
+    this->children = elements;
+  }
 
-    /**
-     * Get the nth element of this list.
-     *
-     * @return A pointer to the nth element of this list.
-     */
-    const ExpressionArray::value_type GetElement(ExpressionArray::size_type n) const { return children[n]; }
-    ExpressionArray::value_type GetElement(ExpressionArray::size_type n) { return children[n]; }
+  /**
+   * Get the nth element of this list.
+   *
+   * @return A pointer to the nth element of this list.
+   */
+  const ExpressionArray::value_type getElement(ExpressionArray::size_type n) const
+  {
+    return children[n];
+  }
+  ExpressionArray::value_type getElement(ExpressionArray::size_type n)
+  {
+    return children[n];
+  }
 
-    /**
-     * Get the number of elements in the list.
-     *
-     * @return The number of elements in the list.
-     */
-    ExpressionArray::size_type GetElementCount() const { return children.size(); }
+  /**
+   * Get the number of elements in the list.
+   *
+   * @return The number of elements in the list.
+   */
+  ExpressionArray::size_type getElementCount() const
+  {
+    return children.size();
+  }
 
-    //! @copydoc Expression::GenerateCode()
-    virtual Expression::CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual Expression::CodeGenerationStage generateCode();
 
-    //! @copydoc Expression::ToString()
-    virtual std::string ToString();
-  };
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
+};
 }
 
 #endif // __Return_h__

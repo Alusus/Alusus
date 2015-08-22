@@ -13,7 +13,9 @@
 #include <core.h>
 #include <scg.h>
 
-namespace Tests { namespace ScgTests
+namespace Tests
+{
+namespace ScgTests
 {
 // Macros for constants
 #undef STR
@@ -56,8 +58,9 @@ Scg::ValueTypeSpec *CreateTypeSpecByName(const std::string &name);
 Scg::ValueTypeSpec *CreatePointerToPrimitiveTypeSpec(const std::string &name);
 Scg::ValueTypeSpec *CreateArrayOfPrimitiveTypeSpec(const std::string &name, int size);
 std::string BuildSimpleTest(const Scg::ExpressionArray &mainBody,
-    const std::vector<Scg::Expression*> &linkStatements = {});
+                            const std::vector<Scg::Expression*> &linkStatements = {});
 std::string RunSimpleTest(const Scg::ExpressionArray &mainBody,
-    const std::vector<Scg::Expression*> &linkStatements = {});
+                          const std::vector<Scg::Expression*> &linkStatements = {});
 
-} } // namespace
+}
+} // namespace

@@ -12,7 +12,7 @@ class FunctionSignature;
 /**
  * Represent a block of expressions.
  */
-class FunctionStore: public Expression
+class FunctionStore : public Expression
 {
   // TODO: To quickly implement this function, I just used an array and
   // implemented a function that iterates through it to find the required
@@ -32,7 +32,7 @@ public:
    * Adds the given function to the store.
    * @param[in] function  A pointer to the function to be added.
    */
-  void Add(Function *function);
+  void add(Function *function);
 
   // @{
   /**
@@ -41,13 +41,13 @@ public:
    * @param[in] arguments An array containing the arguments of the function.
    * @return The required function if found, or @c nullptr.
    */
-  const Function *Get(const std::string &name,
-      const ValueTypeSpecArray &arguments) const;
-  Function *Get(const std::string &name,
-      const ValueTypeSpecArray &arguments)
+  const Function *get(const std::string &name,
+                      const ValueTypeSpecArray &arguments) const;
+  Function *get(const std::string &name,
+                const ValueTypeSpecArray &arguments)
   {
     return const_cast<Function *>(
-        static_cast<const FunctionStore*>(this)->Get(name, arguments));
+             static_cast<const FunctionStore*>(this)->get(name, arguments));
   }
   // @}
 
@@ -57,27 +57,27 @@ public:
    * @param[in] signature The signature of the function to retrieve.
    * @return The requested function if found, or @c nullptr.
    */
-  const Function *Get(const FunctionSignature &signature) const;
-  Function *Get(const FunctionSignature &signature)
+  const Function *get(const FunctionSignature &signature) const;
+  Function *get(const FunctionSignature &signature)
   {
     return const_cast<Function *>(
-        static_cast<const FunctionStore*>(this)->Get(signature));
+             static_cast<const FunctionStore*>(this)->get(signature));
   }
   // @}
 
   // @{
   /**
    * Finds a function matching the given signature. The difference between
-   * this and Get() is that this method consider implicit casting.
+   * this and get() is that this method consider implicit casting.
    * @param[in] signature The signature of the function to match.
    * @return The matching function if found, or @c nullptr.
    */
-  const Function *Match(const Module &module,
-      const std::string &name, const ValueTypeSpecArray &argTypes) const;
-  Function *Match(const Module &module, const std::string &name, const ValueTypeSpecArray &argTypes)
+  const Function *match(const Module &module,
+                        const std::string &name, const ValueTypeSpecArray &argTypes) const;
+  Function *match(const Module &module, const std::string &name, const ValueTypeSpecArray &argTypes)
   {
-    return const_cast<Function*>(static_cast<const FunctionStore*>(this)->Match(
-        module, name, argTypes));
+    return const_cast<Function*>(static_cast<const FunctionStore*>(this)->match(
+                                   module, name, argTypes));
   }
   // @}
 };

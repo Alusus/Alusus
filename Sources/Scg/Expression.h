@@ -24,20 +24,20 @@
 
 namespace Scg
 {
-  class BinaryOperator;
-  class Block;
-  class CallFunction;
-  class UserDefinedFunction;
-  class FunctionAstBlock;
-  class FunctionExpression;
-  class DefineStruct;
-  class DefineVariable;
-  class FloatConst;
-  class FunctionLinkExpression;
-  class Module;
-  class Program;
-  class Return;
-  class Struct;
+class BinaryOperator;
+class Block;
+class CallFunction;
+class UserDefinedFunction;
+class FunctionAstBlock;
+class FunctionExpression;
+class DefineStruct;
+class DefineVariable;
+class FloatConst;
+class FunctionLinkExpression;
+class Module;
+class Program;
+class Return;
+class Struct;
 }
 
 namespace Scg
@@ -48,7 +48,7 @@ namespace Scg
 class Expression
 {
   // TODO: Befriending other expression classes is necessary to be able to call
-  // SetModule() and SetBlock() methods from them. Is there a better way to
+  // setModule() and setBlock() methods from them. Is there a better way to
   // do this?
   friend class Array;
   friend class BinaryOperator;
@@ -74,13 +74,12 @@ public:
    * An enumeration that specifies the code generation stage an expression is
    * currently at.
    */
-  enum CodeGenerationStage
-  {
+  enum CodeGenerationStage {
     PreCodeGeneration,  //!< The expression is still in pre-code generation.
     CodeGeneration,     //!< The expression is generating code.
     PostCodeGeneration, //!< The expression is doing post-code generation.
     None                /*!< The expression either finished code generation
-                             or hasn't started. */
+                   or hasn't started. */
   };
 
 private:
@@ -109,14 +108,14 @@ protected:
   ExpressionArray children;
 
 public:
-  Expression() { }
+  Expression() {}
 
   /**
    * Destructor.
    */
-  virtual ~Expression() { };
+  virtual ~Expression() {};
 
-  Core::Data::SourceLocation const& GetSourceLocation() const
+  Core::Data::SourceLocation const& getSourceLocation() const
   {
     return this->sourceLocation;
   }
@@ -126,11 +125,11 @@ public:
    * Returns a pointer to the program containing this expression.
    * @return A pointer to the module or @c nullptr.
    */
-  const Program *GetProgram() const;
-  Program *GetProgram()
+  const Program *getProgram() const;
+  Program *getProgram()
   {
     return const_cast<Program*>(
-        const_cast<const Expression*>(this)->GetProgram());
+             const_cast<const Expression*>(this)->getProgram());
   }
   //@}
 
@@ -139,24 +138,42 @@ public:
    *
    * @return A pointer to the module.
    */
-  const Module *GetModule() const { return module; }
-  Module *GetModule() { return module; }
+  const Module *getModule() const
+  {
+    return module;
+  }
+  Module *getModule()
+  {
+    return module;
+  }
 
   /**
    * Get a pointer to the function whose body is this block.
    *
    * @return A pointer to the function, or 0.
    */
-  const UserDefinedFunction *GetFunction() const { return function; }
-  UserDefinedFunction *GetFunction() { return function; }
+  const UserDefinedFunction *getFunction() const
+  {
+    return function;
+  }
+  UserDefinedFunction *getFunction()
+  {
+    return function;
+  }
 
   /**
    * Returns a pointer to the module containing this expression, or 0 if this is the top expression.
    *
    * A pointer to the module or 0.
    */
-  const Block *GetBlock() const { return block; }
-  Block *GetBlock() { return block; }
+  const Block *getBlock() const
+  {
+    return block;
+  }
+  Block *getBlock()
+  {
+    return block;
+  }
 
   // TODO: Should we change the return type of this function to
   // const ValueType &?
@@ -167,23 +184,23 @@ public:
    * @throw InvalidValueException If the expression doesn't evaluate to a
    * value.
    */
-  virtual const ValueTypeSpec *GetValueTypeSpec() const
+  virtual const ValueTypeSpec *getValueTypeSpec() const
   {
     // TODO: This exception is being frequently used, with a similar statement
     // each time. A macro should be created for it to avoid duplication.
     throw EXCEPTION(InvalidValueException,
-        "Expression doesn't evaluate to a value.");
+                    "Expression doesn't evaluate to a value.");
   }
-  virtual ValueTypeSpec *GetValueTypeSpec()
+  virtual ValueTypeSpec *getValueTypeSpec()
   {
     return const_cast<ValueTypeSpec*>(
-        static_cast<const Expression *>(this)->GetValueTypeSpec());
+             static_cast<const Expression *>(this)->getValueTypeSpec());
   }
 
   /**
    * Returns a reference to the children.
    */
-  const ExpressionArray& GetChildren() const
+  const ExpressionArray& getChildren() const
   {
     return children;
   }
@@ -197,21 +214,21 @@ public:
    * considered to be in PreCodeGeneration stage.
    * @return The code generation stage of this expression and its children.
    */
-  CodeGenerationStage GetCodeGenerationStage()
+  CodeGenerationStage getCodeGenerationStage()
   {
     return std::min(codeGenStage, childrenCodeGenStage);
   }
 
-  virtual CodeGenerationStage CallPreGenerateCode();
-  virtual CodeGenerationStage CallGenerateCode();
-  virtual CodeGenerationStage CallPostGenerateCode();
+  virtual CodeGenerationStage callPreGenerateCode();
+  virtual CodeGenerationStage callGenerateCode();
+  virtual CodeGenerationStage callPostGenerateCode();
 
   /**
    * Called as a preparatory step before generating IR code.
    *
    * @return @c true if the function succeeds, otherwise @c false.
    */
-  virtual CodeGenerationStage PreGenerateCode()
+  virtual CodeGenerationStage preGenerateCode()
   {
     // By default there is nothing to do, so we just move the expression
     // to the next stage of code generation.
@@ -223,13 +240,13 @@ public:
    *
    * @return The value of this expression, or 0 if it doesn't evaluate to a value.
    */
-  virtual CodeGenerationStage GenerateCode()
+  virtual CodeGenerationStage generateCode()
   {
     return CodeGenerationStage::PostCodeGeneration;
   }
 
   // TODO: This is not implemented yet, but I just added the declaration so that
-  // I can use it in the build-in functions. The idea is to change the GenerateCode()
+  // I can use it in the build-in functions. The idea is to change the generateCode()
   // member function such that it doesn't return the value (or at least stores it
   // somewhere) and leave it to this function to generate it. The reason is that
   // I want to move the logic of creating LLVM instructions for built-in and
@@ -240,11 +257,11 @@ public:
   // intervening in the process of generating the code for the arguments to be passed,
   // thus it needs to call the method
   /**
-   * Retrieves the value that was generated by this expression in GenerateCode()
+   * Retrieves the value that was generated by this expression in generateCode()
    * member function.
    * @return The generated LLVM Value.
    */
-  virtual llvm::Value *GetGeneratedLlvmValue() const
+  virtual llvm::Value *getGeneratedLlvmValue() const
   {
     // TODO: Probably we should throw an exception if this method is being called
     // before the code-generation stage.
@@ -255,13 +272,13 @@ public:
    * Retrieves a value determining whether a terminate instruction was generated
    * during the course of the code generation of this expression.
    *
-   * @note This function should only be called after GenerateCode() member function
+   * @note This function should only be called after generateCode() member function
    * finishes execution successfully, i.e. with
    * CodeGenerationStage::PostCodeGeneration value.
    *
    * @return True or false.
    */
-  virtual bool IsTermInstGenerated() const
+  virtual bool isTermInstGenerated() const
   {
     // TODO: Probably we should throw an exception if this method is being called
     // before the code-generation stage.
@@ -275,7 +292,7 @@ public:
    * This is useful because this function might need to be called multiple times to
    * be executed multiple times in case of dependencies preventing finalisation.
    */
-  virtual CodeGenerationStage PostGenerateCode()
+  virtual CodeGenerationStage postGenerateCode()
   {
     // By default there is nothing to do, so we just move the expression
     // to the next stage of code generation.
@@ -288,22 +305,20 @@ public:
    *
    * @return The string representation.
    */
-  virtual std::string ToString() const { return ""; }
+  virtual std::string toString() const
+  {
+    return "";
+  }
 
 private:
-  virtual void SetModule(Module *module);
-  virtual void SetFunction(UserDefinedFunction *function);
-  virtual void SetBlock(Block *block);
+  virtual void setModule(Module *module);
+  virtual void setFunction(UserDefinedFunction *function);
+  virtual void setBlock(Block *block);
 
   /// Sets the source location at which this expression was produced.
   void setSourceLocation(Core::Data::SourceLocation const &sl)
   {
     this->sourceLocation = sl;
-  }
-
-  Core::Data::SourceLocation const& getSourceLocation() const
-  {
-    return this->sourceLocation;
   }
 
 public:

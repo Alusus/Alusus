@@ -24,22 +24,24 @@ using namespace llvm;
 
 namespace Scg
 {
-  Expression::CodeGenerationStage List::GenerateCode()
-  {
-    // List doesn't evaluate to a value.
-    // TODO: Later, a list built-in type should be added to the language making list
-    // evaluate to a value!
-    return Expression::GenerateCode();
-  }
+Expression::CodeGenerationStage List::generateCode()
+{
+  // List doesn't evaluate to a value.
+  // TODO: Later, a list built-in type should be added to the language making list
+  // evaluate to a value!
+  return Expression::generateCode();
+}
 
-  //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-  std::string List::ToString()
-  {
-    std::vector<std::string> strs;
-    strs.reserve(this->children.size());
-    for (auto expr : this->children)
-      strs.push_back(expr->ToString());
-    return "(" + boost::algorithm::join(strs, ", ") + ")";
-  }
+std::string List::toString()
+{
+  std::vector<std::string> strs;
+  strs.reserve(this->children.size());
+
+  for (auto expr : this->children)
+    strs.push_back(expr->toString());
+
+  return "(" + boost::algorithm::join(strs, ", ") + ")";
+}
 }

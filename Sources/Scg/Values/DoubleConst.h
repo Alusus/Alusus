@@ -38,22 +38,22 @@ public:
    *
    * @return The value of this double constant object.
    */
-  const double &GetValue() const
+  const double &getValue() const
   {
     return value;
   }
 
-  //! @copydoc Value::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Value::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override;
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

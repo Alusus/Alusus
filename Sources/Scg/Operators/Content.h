@@ -45,27 +45,27 @@ public:
     children.push_back(expression);
   }
 
-  llvm::Value *GetLlvmContent()
+  llvm::Value *getLlvmContent()
   {
     return loadInst;
   }
 
-  llvm::Value *GetLlvmPointer()
+  llvm::Value *getLlvmPointer()
   {
     return pointer;
   }
 
-  //! @copydoc Expression::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Expression::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override;
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage  PostGenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage  postGenerateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

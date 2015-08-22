@@ -16,20 +16,23 @@
 
 using namespace Scg;
 
-namespace Tests { namespace ScgTests
+namespace Tests
+{
+namespace ScgTests
 {
 
 bool RunHelloWorldTest()
 {
   std::cout << RunSimpleTest({
-      new CallFunction("printf", new List({new StringConst("Hello World!\n")})),
-      new Return(new IntegerConst(0))
+    new CallFunction("printf", new List({new StringConst("Hello World!\n")})),
+    new Return(new IntegerConst(0))
   }, {
-      new DeclareExtFunction("printf", CreateTypeSpecByName("int"),
-          {CreateTypeSpecByName("string")}, true)
+    new DeclareExtFunction("printf", CreateTypeSpecByName("int"),
+    {CreateTypeSpecByName("string")}, true)
   });
 
   return true;
 }
 
-} } // namespace
+}
+} // namespace

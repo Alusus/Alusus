@@ -16,12 +16,12 @@
 
 namespace Scg
 {
-  /**
-   * Base class for all instruction classes in the language.
-   */
-  class Instruction : public Expression
-  {
-  };
+/**
+ * Base class for all instruction classes in the language.
+ */
+class Instruction : public Expression
+{
+};
 }
 
 #endif // __Instruction_h__

@@ -22,27 +22,28 @@ using namespace llvm;
 
 namespace Scg
 {
-  Expression::CodeGenerationStage CondGotoStatement::GenerateCode()
-  {
-    auto condition = GetCondition()->GetGeneratedLlvmValue();
-    if (condition == nullptr)
-      // TODO: This exception is being frequently used, with a similar statement
-      // each time. A macro should be created for it to avoid duplication.
-      throw EXCEPTION(InvalidValueException, ("The condition of the conditional "
-      "goto statement doesn't evaluate to a value: " + GetCondition()->ToString()).c_str());
+Expression::CodeGenerationStage CondGotoStatement::generateCode()
+{
+  auto condition = getCondition()->getGeneratedLlvmValue();
 
-    auto irBuilder = GetBlock()->GetIRBuilder();
-    this->branchInst = irBuilder->CreateCondBr(
-          condition, GetTrueBlock()->GetLlvmBB(), GetFalseBlock()->GetLlvmBB());
+  if (condition == nullptr)
+    // TODO: This exception is being frequently used, with a similar statement
+    // each time. A macro should be created for it to avoid duplication.
+    throw EXCEPTION(InvalidValueException, ("The condition of the conditional "
+                                            "goto statement doesn't evaluate to a value: " + getCondition()->toString()).c_str());
 
-    return Expression::GenerateCode();
-  }
+  auto irBuilder = getBlock()->getIRBuilder();
+  this->branchInst = irBuilder->CreateCondBr(
+                       condition, getTrueBlock()->getLlvmBB(), getFalseBlock()->getLlvmBB());
 
-  //----------------------------------------------------------------------------
+  return Expression::generateCode();
+}
 
-  Expression::CodeGenerationStage  CondGotoStatement::PostGenerateCode()
-  {
-    SAFE_DELETE_LLVM_INST(this->branchInst);
-    return Expression::PostGenerateCode();
-  }
+//----------------------------------------------------------------------------
+
+Expression::CodeGenerationStage  CondGotoStatement::postGenerateCode()
+{
+  SAFE_DELETE_LLVM_INST(this->branchInst);
+  return Expression::postGenerateCode();
+}
 }

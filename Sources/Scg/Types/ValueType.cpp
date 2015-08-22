@@ -27,30 +27,31 @@
 
 namespace Scg
 {
-ValueType *ValueType::GetPrimitiveType(const std::string &typeName)
+ValueType *ValueType::getPrimitiveType(const std::string &typeName)
 {
   if (typeName == "int") {
-    return IntegerType::Get();
+    return IntegerType::get();
   } else if (typeName == "char") {
-    return CharType::Get();
+    return CharType::get();
   } else if (typeName == "float") {
-    return FloatType::Get();
+    return FloatType::get();
   } else if (typeName == "double") {
-    return DoubleType::Get();
+    return DoubleType::get();
   } else if (typeName == "string") {
-    return StringType::Get();
+    return StringType::get();
   } else if (typeName == "ptr") {
-    return PointerType::Get(CharType::Get());
+    return PointerType::get(CharType::get());
   } else if (typeName == "void" || typeName == "") {
-    return VoidType::Get();
+    return VoidType::get();
   }
+
   return nullptr;
 }
 
 //----------------------------------------------------------------------------
 
-Variable *ValueType::NewVariable(const std::string &name,
-    llvm::Argument *llvmArgument) const
+Variable *ValueType::newVariable(const std::string &name,
+                                 llvm::Argument *llvmArgument) const
 {
   this->varCount++;
   return new Variable(name, const_cast<ValueType *>(this), llvmArgument);
@@ -58,7 +59,7 @@ Variable *ValueType::NewVariable(const std::string &name,
 
 //----------------------------------------------------------------------------
 
-void ValueType::DeleteVariable(Variable *var) const
+void ValueType::deleteVariable(Variable *var) const
 {
   this->varCount--;
   delete var;
@@ -66,20 +67,20 @@ void ValueType::DeleteVariable(Variable *var) const
 
 Int ValueType::getAllocationSize() const
 {
-  return LlvmContainer::getDataLayout()->getTypeAllocSize(this->GetLlvmType());
+  return LlvmContainer::getDataLayout()->getTypeAllocSize(this->getLlvmType());
 }
 
 //------------------------------------------------------------------------------
 
 void *ValueType::operator new(size_t size)
 {
-  return AutoDeleteAllocator::GetSingleton().Allocate(size);
+  return AutoDeleteAllocator::getSingleton().allocateMem(size);
 }
 
 //------------------------------------------------------------------------------
 
 void ValueType::operator delete(void *ptr)
 {
-  AutoDeleteAllocator::GetSingleton().Free(ptr);
+  AutoDeleteAllocator::getSingleton().freeMem(ptr);
 }
 }

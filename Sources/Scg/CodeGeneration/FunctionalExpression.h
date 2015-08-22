@@ -63,7 +63,7 @@ public:
    * and AST block root.
    */
   FunctionalExpression(CodeGenerator *gen,
-      const Core::Basic::SharedPtr<Core::Data::ParsedList> &astBlockRoot);
+                       const Core::Basic::SharedPtr<Core::Data::ParsedList> &astBlockRoot);
 
   /**
    * If this functional expression is the result of a link expression, this
@@ -112,7 +112,7 @@ public:
    * @return A pointer to the DeclareExtFunction instance. This is allocated
    * in the heap, and thus should be deleted by the caller.
    */
-  DeclareExtFunction *ToDeclareExtFunction(ValueTypeSpec *retType);
+  DeclareExtFunction *toDeclareExtFunction(ValueTypeSpec *retType);
 
   /**
    * If this functional expression is the result of an expression that includes
@@ -122,13 +122,13 @@ public:
    * @return A pointer to the Expression instance. This is allocated in the heap,
    * and thus should be deleted by the caller.
    */
-  Expression *ToExpression();
+  Expression *toExpression();
 
 private:
-  Char const *ParseFieldName(
-      const Core::Basic::SharedPtr<Core::Data::ParsedList> &astBlockRoot);
-  Expression *ParseElementIndex(
-      const Core::Basic::SharedPtr<Core::Data::ParsedRoute> &astBlockRoot);
+  Char const *parseFieldName(
+    const Core::Basic::SharedPtr<Core::Data::ParsedList> &astBlockRoot);
+  Expression *parseElementIndex(
+    const Core::Basic::SharedPtr<Core::Data::ParsedRoute> &astBlockRoot);
 };
 }
 

@@ -20,74 +20,93 @@
 
 namespace Scg
 {
+/**
+ * Represent a return statement.
+ */
+class CondGotoStatement : public Expression
+{
+  //! A pointer to the LLVM CondGotoStatement instruction representing this return statement.
+  llvm::BranchInst *branchInst;
+  //! The condition that decides where the goto statement is jumping.
+  Expression *cond;
+  //! A pointer to the block this statement is jumping to if the condition is true.
+  Block *trueBlock;
+  //! A pointer to the block this statement is jumping to if the condition is false.
+  Block *falseBlock;
+
+public:
   /**
-   * Represent a return statement.
+   * Construct a return statement that returns the value of the given expression.
+   *
+   * @param[in] expression  A pointer to the expression to be returned. Notice that
+   *                        this expression will automatically get deleted, so it
+   *                        should be allocated in the heap and not deleted.
    */
-  class CondGotoStatement : public Expression
+  CondGotoStatement(Expression *cond, Block *trueBlock, Block *falseBlock)
+    : branchInst(0)
+    , cond(cond)
+    , trueBlock(trueBlock)
+    , falseBlock(falseBlock)
   {
-    //! A pointer to the LLVM CondGotoStatement instruction representing this return statement.
-    llvm::BranchInst *branchInst;
-    //! The condition that decides where the goto statement is jumping.
-    Expression *cond;
-    //! A pointer to the block this statement is jumping to if the condition is true.
-    Block *trueBlock;
-    //! A pointer to the block this statement is jumping to if the condition is false.
-    Block *falseBlock;
+    if (this->cond == 0)
+      throw EXCEPTION(ArgumentOutOfRangeException, "Conditional goto statement "
+                      "expects a condition!");
 
-  public:
-    /**
-     * Construct a return statement that returns the value of the given expression.
-     *
-     * @param[in] expression  A pointer to the expression to be returned. Notice that
-     *                        this expression will automatically get deleted, so it
-     *                        should be allocated in the heap and not deleted.
-     */
-    CondGotoStatement(Expression *cond, Block *trueBlock, Block *falseBlock)
-      : branchInst(0)
-      , cond(cond)
-      , trueBlock(trueBlock)
-      , falseBlock(falseBlock)
-    {
-      if (this->cond == 0)
-        throw EXCEPTION(ArgumentOutOfRangeException, "Conditional goto statement "
-        "expects a condition!");
-      if (this->trueBlock == 0 || this->falseBlock == 0)
-        throw EXCEPTION(ArgumentOutOfRangeException, "Conditional goto statement "
-        "expects two blocks!");
+    if (this->trueBlock == 0 || this->falseBlock == 0)
+      throw EXCEPTION(ArgumentOutOfRangeException, "Conditional goto statement "
+                      "expects two blocks!");
 
-      this->children.push_back(this->cond);
-    }
+    this->children.push_back(this->cond);
+  }
 
-    /**
-     * Get the expression of this conditional goto.
-     *
-     * @return A pointer to the expression.
-     */
-    const Expression *GetCondition() const { return cond; }
-    Expression *GetCondition() { return cond; }
+  /**
+   * Get the expression of this conditional goto.
+   *
+   * @return A pointer to the expression.
+   */
+  const Expression *getCondition() const
+  {
+    return cond;
+  }
+  Expression *getCondition()
+  {
+    return cond;
+  }
 
-    /**
-     * Get the block this statement is jumping to if the condition is true.
-     *
-     * @return A pointer to the block.
-     */
-    const Block *GetTrueBlock() const { return trueBlock; }
-    Block *GetTrueBlock() { return trueBlock; }
+  /**
+   * Get the block this statement is jumping to if the condition is true.
+   *
+   * @return A pointer to the block.
+   */
+  const Block *getTrueBlock() const
+  {
+    return trueBlock;
+  }
+  Block *getTrueBlock()
+  {
+    return trueBlock;
+  }
 
-    /**
-     * Get the block this statement is jumping to if the condition is false.
-     *
-     * @return A pointer to the block.
-     */
-    const Block *GetFalseBlock() const { return falseBlock; }
-    Block *GetFalseBlock() { return falseBlock; }
+  /**
+   * Get the block this statement is jumping to if the condition is false.
+   *
+   * @return A pointer to the block.
+   */
+  const Block *getFalseBlock() const
+  {
+    return falseBlock;
+  }
+  Block *getFalseBlock()
+  {
+    return falseBlock;
+  }
 
-    //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-    //! @copydoc Expression::PostGenerateCode()
-    virtual CodeGenerationStage PostGenerateCode();
-  };
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
+};
 }
 
 #endif // __Return_h__

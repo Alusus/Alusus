@@ -44,12 +44,12 @@ private:
   ArrayType(const ValueType *elementsType, unsigned int arraySize);
 
 protected:
-  //! @copydoc ValueType::InitCastingTargets()
-  virtual void InitCastingTargets() const override;
+  //! @copydoc ValueType::initCastingTargets()
+  virtual void initCastingTargets() const override;
 
 public:
-  //! @copydoc ValueType::GetName()
-  virtual const std::string GetName() const
+  //! @copydoc ValueType::getName()
+  virtual const std::string getName() const
   {
     return name;
   }
@@ -58,7 +58,7 @@ public:
   * Retrieves the type of the elements of the array.
   * @return A pointer to the type of the elements of the array.
   */
-  virtual const ValueType *GetElementsType() const
+  virtual const ValueType *getElementsType() const
   {
     return elementsType;
   }
@@ -67,25 +67,25 @@ public:
   * Retrieves the number of the elements of the array.
   * @return The number of the elements of the array.
   */
-  unsigned int GetArraySize() const
+  unsigned int getArraySize() const
   {
     return arraySize;
   }
 
-  //! @copydoc ValueType::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override
+  //! @copydoc ValueType::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override
   {
     return &typeSpec;
   }
 
-  //! @copydoc ValueType::GetDefaultLLVMValue()
-  virtual llvm::Constant *GetDefaultLLVMValue() const
+  //! @copydoc ValueType::getDefaultLLVMValue()
+  virtual llvm::Constant *getDefaultLLVMValue() const
   {
     throw EXCEPTION(NotImplementedException, "Not implemented yet!");
   }
 
-  //! @copydoc ValueType::IsEqualTo()
-  virtual bool IsEqualTo(const ValueType *other) const;
+  //! @copydoc ValueType::isEqualTo()
+  virtual bool isEqualTo(const ValueType *other) const;
 
   //! Stores all array types used so far, so that we can reuse them.
   static std::unordered_map<const ValueType *, ArrayType *> usedArrayTypes;
@@ -99,7 +99,7 @@ public:
   * @param[in] arraySize The number of elements in this array type.
   * @return The array type.
   */
-  static ArrayType *Get(const ValueType *elementsType, int arraySize);
+  static ArrayType *get(const ValueType *elementsType, int arraySize);
 };
 }
 

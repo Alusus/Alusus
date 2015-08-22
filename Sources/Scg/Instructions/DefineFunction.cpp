@@ -25,11 +25,11 @@ namespace Scg
 using namespace Core::Basic;
 
 DefineFunction::DefineFunction(Char const *name, ValueTypeSpec *returnType,
-    const VariableDefinitionArray &arguments, Block *body) :
-        name(name),
-        returnType(returnType),
-        arguments(arguments),
-        body(body)
+                               const VariableDefinitionArray &arguments, Block *body) :
+  name(name),
+  returnType(returnType),
+  arguments(arguments),
+  body(body)
 {
 }
 
@@ -38,24 +38,26 @@ DefineFunction::DefineFunction(Char const *name, ValueTypeSpec *returnType,
 DefineFunction::~DefineFunction()
 {
   delete this->returnType;
+
   for (auto arg : this->arguments)
-    delete arg.GetTypeSpec();
+    delete arg.getTypeSpec();
+
   delete this->body;
 
 }
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage DefineFunction::PreGenerateCode()
+Expression::CodeGenerationStage DefineFunction::preGenerateCode()
 {
   MODULE_CHECK;
   BLOCK_CHECK;
   FUNCTION_CHECK;
 
   auto function = new UserDefinedFunction(this->name, this->returnType, this->arguments, this->body);
-  ((Expression*)function)->SetModule(GetModule());
-  ((Expression*)function)->SetFunction(GetFunction());
-  ((Expression*)function)->SetBlock(GetBlock());
+  ((Expression*)function)->setModule(getModule());
+  ((Expression*)function)->setFunction(getFunction());
+  ((Expression*)function)->setBlock(getBlock());
   this->children.push_back(function);
 
   return CodeGenerationStage::CodeGeneration;
@@ -63,7 +65,7 @@ Expression::CodeGenerationStage DefineFunction::PreGenerateCode()
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage DefineFunction::PostGenerateCode()
+Expression::CodeGenerationStage DefineFunction::postGenerateCode()
 {
   delete this->children[0];
   this->children.clear();
@@ -72,7 +74,7 @@ Expression::CodeGenerationStage DefineFunction::PostGenerateCode()
 
 //------------------------------------------------------------------------------
 
-std::string DefineFunction::ToString()
+std::string DefineFunction::toString()
 {
   // TODO: Implement this.
   return "";

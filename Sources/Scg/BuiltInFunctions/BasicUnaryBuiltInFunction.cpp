@@ -22,9 +22,9 @@ namespace Scg
 using namespace Core::Basic;
 
 BasicUnaryBuiltInFunction::BasicUnaryBuiltInFunction(const Char *name, const Char *retType,
-      const Char *argType, BasicUnaryBuiltInFunction::Callback function)
-: name(name)
-, function(function)
+    const Char *argType, BasicUnaryBuiltInFunction::Callback function)
+  : name(name)
+  , function(function)
 {
   this->argTypeSpecs.push_back(new ValueTypeSpecByName(argType));
   this->retTypeSpec = new ValueTypeSpecByName(retType);
@@ -38,22 +38,23 @@ BasicUnaryBuiltInFunction::~BasicUnaryBuiltInFunction()
   this->argTypeSpecs.clear();
 }
 
-llvm::Value *BasicUnaryBuiltInFunction::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
+llvm::Value *BasicUnaryBuiltInFunction::createLLVMInstruction(llvm::IRBuilder<> *irb,
     const std::vector<llvm::Value*> &args) const
 {
-	if (args.size() != 1)
-		// TODO: The exception message shouldn't use BasicUnaryBuiltInFunction as this is the class name.
-		// Instead, it should use a user friendly name, e.g. operator +.
-		// TODO: Should we use CompilationErrorException? Should we derive from that an
-		// exception specific for the invalid number of arguments.
-		throw EXCEPTION(CompilationErrorException,
-				"BasicUnaryBuiltInFunction built-in function requires one arguments.");
+  if (args.size() != 1)
+    // TODO: The exception message shouldn't use BasicUnaryBuiltInFunction as this is the class name.
+    // Instead, it should use a user friendly name, e.g. operator +.
+    // TODO: Should we use CompilationErrorException? Should we derive from that an
+    // exception specific for the invalid number of arguments.
+    throw EXCEPTION(CompilationErrorException,
+                    "BasicUnaryBuiltInFunction built-in function requires one arguments.");
+
   return this->function(irb, args[0]);
 }
 
-const ValueTypeSpec *BasicUnaryBuiltInFunction::GetValueTypeSpec() const
+const ValueTypeSpec *BasicUnaryBuiltInFunction::getValueTypeSpec() const
 {
-	return this->retTypeSpec;
+  return this->retTypeSpec;
 }
 }
 

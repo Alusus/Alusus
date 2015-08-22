@@ -54,7 +54,7 @@ public:
    */
   Program()
   {
-    InitialiseBuiltInFunctions();
+    initialiseBuiltInFunctions();
   }
 
   /**
@@ -65,18 +65,31 @@ public:
     for (auto module : this->modules) {
       delete module;
     }
+
     this->modules.clear();
   }
 
 private:
-  void InitialiseBuiltInFunctions();
+  void initialiseBuiltInFunctions();
 
 public:
-  const ModuleArray &GetModules() const { return modules; }
-  ModuleArray &GetModules() { return modules; }
+  const ModuleArray &getModules() const
+  {
+    return modules;
+  }
+  ModuleArray &getModules()
+  {
+    return modules;
+  }
 
-  void SetBuildMsgStore(Core::Processing::BuildMsgStore *store) { this->buildMsgStore = store; }
-  Core::Processing::BuildMsgStore* GetBuildMsgStore() { return this->buildMsgStore; }
+  void setBuildMsgStore(Core::Processing::BuildMsgStore *store)
+  {
+    this->buildMsgStore = store;
+  }
+  Core::Processing::BuildMsgStore* getBuildMsgStore()
+  {
+    return this->buildMsgStore;
+  }
 
   //@{
   /**
@@ -84,13 +97,13 @@ public:
    * during compilation.
    * @return The LLVM Module.
    */
-  const llvm::Module *GetLlvmModule() const
+  const llvm::Module *getLlvmModule() const
   {
-  	return llvmModule;
+    return llvmModule;
   }
-  llvm::Module *GetLlvmModule()
+  llvm::Module *getLlvmModule()
   {
-  	return llvmModule;
+    return llvmModule;
   }
   //@}
 
@@ -100,7 +113,7 @@ public:
    *                    should be allocated in the heap and is going to be
    *                    freed by the program so the user shouldn't free it.
    */
-  void AddModule(Module *module)
+  void addModule(Module *module)
   {
     this->modules.push_back(module);
   }
@@ -111,7 +124,7 @@ public:
    *
    * @note While this function might return true indicating that there is a
    * DefineFunction or DeclareExtFunction instructions, the function
-   * GetFunction() might still return @c nullptr until the function has
+   * getFunction() might still return @c nullptr until the function has
    * actually been generated during code generation.
    *
    * @param[in] name      The name of the function.
@@ -119,8 +132,8 @@ public:
    *
    * @return True or false.
    */
-  bool HasFunction(const std::string &name,
-  		const ValueTypeSpecArray &arguments) const;
+  bool hasFunction(const std::string &name,
+                   const ValueTypeSpecArray &arguments) const;
 
   /**
    * Gets all function matches for the given name and argument types.
@@ -129,18 +142,18 @@ public:
    * @return A pointer to the function, or nullptr if there is no matching
    * function.
    */
-  std::vector<Function *> GetFunction(const std::string &funcName,
-  		const ValueTypeSpecArray &arguments);
+  std::vector<Function *> getFunction(const std::string &funcName,
+                                      const ValueTypeSpecArray &arguments);
 
-  std::vector<Function *> MatchFunction(const std::string &funcName,
-  		const ValueTypeSpecArray &arguments);
+  std::vector<Function *> matchFunction(const std::string &funcName,
+                                        const ValueTypeSpecArray &arguments);
 
   /**
    * Finds the DefineFunction instructions that generates functions matching
    * the given name.
    * @return An array containing all the matching DefineFunction instructions.
    */
-  std::vector<DefineFunction*> FindDefineFunction(const std::string &funcName,
+  std::vector<DefineFunction*> findDefineFunction(const std::string &funcName,
       const ValueTypeSpecArray &arguments);
 
   /**
@@ -148,20 +161,20 @@ public:
    * the given name.
    * @return An array containing all the matching DeclareExtFunction instructions.
    */
-  std::vector<DeclareExtFunction*> FindDeclareFunction(const std::string &funcName,
+  std::vector<DeclareExtFunction*> findDeclareFunction(const std::string &funcName,
       const ValueTypeSpecArray &arguments);
 
   /**
    * Compiles the program into LLVM IR and return the result.
    * @return A string containing the generated LLVM IR code.
    */
-  std::string Compile();
+  std::string compile();
 
   /**
    * Executes the program given the name of the main function.
    * @param[in] functionName  The name of the entry point of the program.
    */
-  void Execute(const char *functionName);
+  void execute(const char *functionName);
 };
 }
 

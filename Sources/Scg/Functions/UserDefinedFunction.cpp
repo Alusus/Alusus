@@ -30,14 +30,15 @@ namespace Scg
 UserDefinedFunction::UserDefinedFunction(const std::string &name,
     ValueTypeSpec *returnTypeSpec, const VariableDefinitionArray &argDefs,
     Block *body)
-    : name(name)
-    , returnTypeSpec(returnTypeSpec)
-    , argDefs(argDefs)
+  : name(name)
+  , returnTypeSpec(returnTypeSpec)
+  , argDefs(argDefs)
 {
   this->children.push_back(body);
+
   for (auto def : this->argDefs) {
     // TODO: Is there anyway to avoid casting away the constness?
-    this->argTypeSpecs.push_back(const_cast<ValueTypeSpec*>(def.GetTypeSpec()));
+    this->argTypeSpecs.push_back(const_cast<ValueTypeSpec*>(def.getTypeSpec()));
   }
 }
 
@@ -52,54 +53,55 @@ UserDefinedFunction::~UserDefinedFunction()
   // instance each time its PreCodeGeneration() function called.
 }
 
-llvm::Value *UserDefinedFunction::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
+llvm::Value *UserDefinedFunction::createLLVMInstruction(llvm::IRBuilder<> *irb,
     const std::vector<llvm::Value*> &args) const
 {
   return irb->CreateCall(this->llvmFunction, args);
 }
 
-void UserDefinedFunction::CreateFunction()
+void UserDefinedFunction::createFunction()
 {
   // Constructs the LLVM types representing the argument and return value types.
   std::vector<Type*> argTypes(this->argDefs.size());
-  for (auto i = 0; i < argTypes.size(); i++)
-  {
-    auto type = this->argDefs[i].GetTypeSpec()->ToValueType(*GetModule());
-    argTypes[i] = type->GetLlvmType();
+
+  for (auto i = 0; i < argTypes.size(); i++) {
+    auto type = this->argDefs[i].getTypeSpec()->toValueType(*getModule());
+    argTypes[i] = type->getLlvmType();
   }
+
   auto retType =
-      (this->returnTypeSpec != nullptr ?
-          this->returnTypeSpec->ToValueType(*GetModule()) :
-          GetModule()->GetValueTypeByName(""))->GetLlvmType();
+    (this->returnTypeSpec != nullptr ?
+     this->returnTypeSpec->toValueType(*getModule()) :
+     getModule()->getValueTypeByName(""))->getLlvmType();
 
   // Constructs the LLVM function type.
   auto funcType = llvm::FunctionType::get(retType, argTypes,
-      false);
+                                          false);
 
   // Creates the LLVM function representing this function.
-  std::string fullName = GetModule()->GetName() + std::string("_") + this->name;
+  std::string fullName = getModule()->getName() + std::string("_") + this->name;
   this->llvmFunction = llvm::Function::Create(funcType,
-      llvm::Function::ExternalLinkage, fullName, GetModule()->GetLlvmModule());
+                       llvm::Function::ExternalLinkage, fullName, getModule()->getLlvmModule());
 
   // Creates the Alusus variables wrapping the LLVM the arguments of the function.
   auto i = 0;
+
   for (auto iter = this->llvmFunction->arg_begin(); i != this->argDefs.size();
-      ++iter, ++i)
-  {
-    iter->setName(this->argDefs[i].GetVariableName());
+       ++iter, ++i) {
+    iter->setName(this->argDefs[i].getVariableName());
     auto var =
-        this->argDefs[i].GetTypeSpec()->ToValueType(*GetModule())->NewVariable(
-            this->argDefs[i].GetVariableName(), iter);
-    GetBody()->PrependExpression(var);
+      this->argDefs[i].getTypeSpec()->toValueType(*getModule())->newVariable(
+        this->argDefs[i].getVariableName(), iter);
+    getBody()->prependExpression(var);
     this->args.push_back(var);
   }
 
-  ((Expression*) GetBody())->SetModule(this->module);
-  ((Expression*) GetBody())->SetFunction(this);
-  ((Expression*) GetBody())->SetBlock(this->block);
+  ((Expression*)getBody())->setModule(this->module);
+  ((Expression*)getBody())->setFunction(this);
+  ((Expression*)getBody())->setBlock(this->block);
 }
 
-Expression::CodeGenerationStage UserDefinedFunction::PreGenerateCode()
+Expression::CodeGenerationStage UserDefinedFunction::preGenerateCode()
 {
   MODULE_CHECK;
 
@@ -109,57 +111,61 @@ Expression::CodeGenerationStage UserDefinedFunction::PreGenerateCode()
   // define functions inside blocks?
 
   // Is the function already defined?
-  if (GetModule()->GetFunction(this->name, this->GetArgumentTypeSpecs()) != nullptr) {
+  if (getModule()->getFunction(this->name, this->getArgumentTypeSpecs()) != nullptr) {
     throw EXCEPTION(RedefinitionException,
-        ("Function already defined: " + this->name).c_str());
+                    ("Function already defined: " + this->name).c_str());
   }
 
   // Stores this function in the function store of the module.
-  GetModule()->AddFunction(this);
+  getModule()->addFunction(this);
 
-  CreateFunction();
+  createFunction();
 
   return CodeGenerationStage::CodeGeneration;
 }
 
-Expression::CodeGenerationStage UserDefinedFunction::GenerateCode()
+Expression::CodeGenerationStage UserDefinedFunction::generateCode()
 {
   MODULE_CHECK;
 
-  GetBody()->GenerateCode();
+  getBody()->generateCode();
 
   // If this function is of type void, we need to make sure there is a
   // return statement at the end in case the user doesn't add one.
   // TODO: What if the function is non-void and the user forgets to return
   // a value?
-  if (this->returnTypeSpec == nullptr || this->returnTypeSpec->IsVoid())
-    GetBody()->GetIRBuilder()->CreateRetVoid();
+  if (this->returnTypeSpec == nullptr || this->returnTypeSpec->isVoid())
+    getBody()->getIRBuilder()->CreateRetVoid();
 
   // A function definition doesn't evaluate to a value.
-  return Expression::GenerateCode();
+  return Expression::generateCode();
 }
 
 // TODO: Do we not need to define post code generation code?
 
-void UserDefinedFunction::SetFunction(UserDefinedFunction *function)
+void UserDefinedFunction::setFunction(UserDefinedFunction *function)
 {
   this->function = function;
+
   for (auto expr : this->children)
-    expr->SetFunction(this);
+    expr->setFunction(this);
 }
 
-std::string UserDefinedFunction::ToString()
+std::string UserDefinedFunction::toString()
 {
   std::stringstream str;
   str << "def " << this->name << " : function" << std::endl;
-  if (this->argDefs.size() > 0)
-  {
+
+  if (this->argDefs.size() > 0) {
     str << "(";
+
     for (auto i = 0; i < this->argDefs.size(); i++)
-      str << this->argDefs[0].ToString();
+      str << this->argDefs[0].toString();
+
     str << ")";
   }
-  str << GetBody()->ToString();
+
+  str << getBody()->toString();
   return str.str();
 }
 }

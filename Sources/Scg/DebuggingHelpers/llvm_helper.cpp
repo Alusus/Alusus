@@ -19,7 +19,7 @@
 
 namespace Scg
 {
-void PrintLlvmValue(llvm::Value *value)
+void printLlvmValue(llvm::Value *value)
 {
   std::string out;
   llvm::raw_string_ostream ostream(out);
@@ -31,7 +31,7 @@ void PrintLlvmValue(llvm::Value *value)
 
 //------------------------------------------------------------------------------
 
-void PrintLlvmValueType(llvm::Value *value)
+void printLlvmValueType(llvm::Value *value)
 {
   std::string out;
   llvm::raw_string_ostream ostream(out);

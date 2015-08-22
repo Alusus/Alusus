@@ -43,12 +43,12 @@ private:
   }
 
 protected:
-  //! @copydoc ValueType::InitCastingTargets()
-  virtual void InitCastingTargets() const override;
+  //! @copydoc ValueType::initCastingTargets()
+  virtual void initCastingTargets() const override;
 
 public:
-  //! @copydoc ValueType::GetName()
-  virtual const std::string GetName() const
+  //! @copydoc ValueType::getName()
+  virtual const std::string getName() const
   {
     return "string";
   }
@@ -59,27 +59,27 @@ public:
   * @param[in] value The value of the constant.
   */
   // TODO: Can we find some way to remove module?
-  llvm::Constant *GetLlvmConstant(Module *module, const std::string &value) const;
+  llvm::Constant *getLlvmConstant(Module *module, const std::string &value) const;
 
-  //! @copydoc ValueType::GetDefaultLLVMValue()
-  virtual llvm::Constant *GetDefaultLLVMValue() const
+  //! @copydoc ValueType::getDefaultLLVMValue()
+  virtual llvm::Constant *getDefaultLLVMValue() const
   {
     throw EXCEPTION(NotImplementedException, "Not implemented yet!");
   }
 
-  //! @copydoc ValueType::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override
+  //! @copydoc ValueType::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override
   {
     return &typeSpec;
   }
 
-  //! @copydoc ValueType::IsEqualTo()
-  virtual bool IsEqualTo(const ValueType *other) const
+  //! @copydoc ValueType::isEqualTo()
+  virtual bool isEqualTo(const ValueType *other) const
   {
     return dynamic_cast<const StringType *>(other) != nullptr;
   }
 
-  static StringType *Get();
+  static StringType *get();
 };
 }
 

@@ -47,7 +47,7 @@ public:
    * @param[in] size  The size in bytes of the memory block to allocate.
    * @return A pointer to the memory block.
    */
-  void *Allocate(size_t size)
+  void *allocateMem(size_t size)
   {
     void *ptr = malloc(size);
     allocatedBuffers.insert(ptr);
@@ -55,28 +55,30 @@ public:
   }
 
   /**
-   * Free a memory block.
+   * freeMem a memory block.
    * @param[in] A pointer to the memory block.
    */
-  void Free(void *ptr)
+  void freeMem(void *ptr)
   {
     auto it = allocatedBuffers.find(ptr);
+
     if (it == allocatedBuffers.end()) {
       throw EXCEPTION(Core::Basic::MemoryException, CHR('f'),
                       STR("The given pointer doesn't exist "
                           "in this AutoDeleteAllocater."));
     }
+
     free(ptr);
     allocatedBuffers.erase(it);
   }
 
 private:
-  static AutoDeleteAllocator s_singleton;
+  static AutoDeleteAllocator sSingleton;
 
 public:
-  static AutoDeleteAllocator &GetSingleton()
+  static AutoDeleteAllocator &getSingleton()
   {
-    return s_singleton;
+    return sSingleton;
   }
 };
 }

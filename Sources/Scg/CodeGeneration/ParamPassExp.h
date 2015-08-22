@@ -32,8 +32,7 @@ public:
    * The type of the parameter pass expression. Could be either parentheses or
    * square brackets for now.
    */
-  enum BracketType
-  {
+  enum BracketType {
     Parenthesis = 0,
     Square = 1
   };
@@ -45,13 +44,13 @@ private:
 
 public:
   ParamPassExp(CodeGenerator *gen,
-      const Core::Basic::SharedPtr<Core::Data::ParsedRoute> &item);
+               const Core::Basic::SharedPtr<Core::Data::ParsedRoute> &item);
 
   /**
    * Retrieves the number of parameters in this list expression.
    * @return The number of parameters in this list expression.
    */
-  ParsedItemArray::size_type GetParamCount() const
+  ParsedItemArray::size_type getParamCount() const
   {
     return params.size();
   }
@@ -61,7 +60,7 @@ public:
    * @param[in] index The index of the parameter
    * @return A pointer to the parameter.
    */
-  ParsedItemArray::value_type GetParam(ParsedItemArray::size_type index) const
+  ParsedItemArray::value_type getParam(ParsedItemArray::size_type index) const
   {
     return params[index];
   }
@@ -70,7 +69,10 @@ public:
    * Retrieves the type of the brackets of this parameter pass expression.
    * @return The type of the bracket.
    */
-  BracketType GetRoute() const { return static_cast<BracketType>(route); }
+  BracketType getRoute() const
+  {
+    return static_cast<BracketType>(route);
+  }
 
   // TODO: We need to have a generic function that parses a list of expressions,
   // regardless of their types. Then probably we will not even the two function
@@ -81,21 +83,21 @@ public:
    * them as an array.
    * @return An array of the expressions inside this parameter pass expression.
    */
-  ExpressionArray ParseExpressionList() const;
+  ExpressionArray parseExpressionList() const;
 
   /**
    * If the parameter pass expression is a list of tokens, e.g. variable names,
    * this function return them.
    * @return An array of strings.
    */
-  StringArray ParseTokenList() const;
+  StringArray parseTokenList() const;
 
   /**
    * If the parameter pass expression is a list of types, e.g. the
    * variable types in a link statement, this function return them.
    * @return An array of value type IDs.
    */
-  ValueTypeSpecArray ParseValueTypes() const;
+  ValueTypeSpecArray parseValueTypes() const;
 };
 }
 

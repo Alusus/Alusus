@@ -25,48 +25,54 @@ namespace Scg
 {
 std::unordered_map<const ValueType *, ArrayType *> ArrayType::usedArrayTypes;
 
-// TODO: We are calling Clone() because the passed type spec gets automatically
+// TODO: We are calling clone() because the passed type spec gets automatically
 // freed. Is there a better way to avoid extra memory allocation and free?
 ArrayType::ArrayType(const ValueType *elemsType, unsigned int size) :
-    typeSpec(const_cast<ValueTypeSpec *>(elemsType->GetValueTypeSpec()->Clone()), size),
-    elementsType(elemsType),
-    arraySize(size)
+  typeSpec(const_cast<ValueTypeSpec *>(elemsType->getValueTypeSpec()->clone()), size),
+  elementsType(elemsType),
+  arraySize(size)
 {
   if (elemsType == nullptr) {
     throw EXCEPTION(InvalidArgumentException, "elemsType argument cannot be nullptr.");
   }
-  this->name = elementsType->GetName() +
-      "[" + boost::lexical_cast<std::string>(arraySize) + "]";
+
+  this->name = elementsType->getName() +
+               "[" + boost::lexical_cast<std::string>(arraySize)+"]";
   this->llvmType = llvm::ArrayType::get(
-      const_cast<llvm::Type *>(this->elementsType->GetLlvmType()), this->arraySize);
+                     const_cast<llvm::Type *>(this->elementsType->getLlvmType()), this->arraySize);
 }
 
-void ArrayType::InitCastingTargets() const
+void ArrayType::initCastingTargets() const
 {
   // TODO: Implement this.
 }
 
 //------------------------------------------------------------------------------
 
-bool ArrayType::IsEqualTo(const ValueType *other) const
+bool ArrayType::isEqualTo(const ValueType *other) const
 {
   auto otherAsArray = dynamic_cast<const ArrayType *>(other);
+
   if (otherAsArray == nullptr) {
     return false;
   }
+
   if (this->arraySize != otherAsArray->arraySize ||
-      !this->elementsType->IsEqualTo(otherAsArray->elementsType)) {
+      !this->elementsType->isEqualTo(otherAsArray->elementsType)) {
     return false;
   }
+
   return true;
 }
 
-ArrayType *ArrayType::Get(const ValueType *elementsType, int arraySize)
+ArrayType *ArrayType::get(const ValueType *elementsType, int arraySize)
 {
   auto it = ArrayType::usedArrayTypes.find(elementsType);
+
   if (it != ArrayType::usedArrayTypes.end()) {
     return it->second;
   }
+
   // TODO: We need to create a map of all the so-far allocated value types to
   // avoid creating a value type twice.
   // TODO: Change ValueType& to ValueType* or change the constructor of

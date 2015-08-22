@@ -70,18 +70,24 @@ public:
    * Retrieves the name of the module.
    * @return The name of the module.
    */
-  const std::string &GetName() const { return this->name; }
-  std::string &GetName() { return this->name; }
+  const std::string &getName() const
+  {
+    return this->name;
+  }
+  std::string &getName()
+  {
+    return this->name;
+  }
   //@}
 
   //@{
   /**
-   * Get a pointer to the LLVM module.
+   * get a pointer to the LLVM module.
    *
    * @return A pointer to the LLVM module.
    */
-  const llvm::Module *GetLlvmModule() const;
-  llvm::Module *GetLlvmModule();
+  const llvm::Module *getLlvmModule() const;
+  llvm::Module *getLlvmModule();
   //@}
 
   // TODO: Do we need a constant version of this member function?
@@ -89,7 +95,7 @@ public:
    * Retrieves the value type having the given name.
    * @param[in] typeName  The name of the value type to retrieve.
    */
-  ValueType *GetValueTypeByName(const std::string &typeName) const;
+  ValueType *getValueTypeByName(const std::string &typeName) const;
 
   /**
    * Retrieves the value type having the given name.
@@ -101,8 +107,9 @@ public:
    * Adds the given function to the function store of the module.
    * @param[in] function  A pointer to the function to be added.
    */
-  void AddFunction(Function *function) {
-    this->functionStore.Add(function);
+  void addFunction(Function *function)
+  {
+    this->functionStore.add(function);
   }
 
   /**
@@ -111,7 +118,7 @@ public:
    *
    * @note While this function might return true indicating that there is a
    * DefineFunction or DeclareExtFunction instructions, the function
-   * GetFunction() might still return @c nullptr until the function has
+   * getFunction() might still return @c nullptr until the function has
    * actually been generated during code generation.
    *
    * @param[in] name      The name of the function.
@@ -119,14 +126,14 @@ public:
    *
    * @return True or false.
    */
-  bool HasFunction(const std::string &name,
-  		const ValueTypeSpecArray &arguments) const;
+  bool hasFunction(const std::string &name,
+                   const ValueTypeSpecArray &arguments) const;
 
   //@{
   /**
-   * Get the function having the given name and argument types.
+   * get the function having the given name and argument types.
    *
-   * @note This function might return null even if HasFunction() returns false,
+   * @note This function might return null even if hasFunction() returns false,
    * as this function only retrieves the UserDefinedFunction object if it has been
    * generated.
    *
@@ -135,22 +142,22 @@ public:
    * @return A pointer to the function, or nullptr if there is no matching
    * function.
    */
-  const Function *GetFunction(const std::string &name,
-      const ValueTypeSpecArray &arguments) const
+  const Function *getFunction(const std::string &name,
+                              const ValueTypeSpecArray &arguments) const
   {
-    return this->functionStore.Get(name, arguments);
+    return this->functionStore.get(name, arguments);
   }
-  Function *GetFunction(const std::string &name,
-      const ValueTypeSpecArray &arguments)
+  Function *getFunction(const std::string &name,
+                        const ValueTypeSpecArray &arguments)
   {
-    return this->functionStore.Get(name, arguments);
+    return this->functionStore.get(name, arguments);
   }
   //@}
 
-  Function *MatchFunction(const std::string &name,
-      const ValueTypeSpecArray &arguments)
+  Function *matchFunction(const std::string &name,
+                          const ValueTypeSpecArray &arguments)
   {
-    return this->functionStore.Match(*this, name, arguments);
+    return this->functionStore.match(*this, name, arguments);
   }
 
   //@{
@@ -159,12 +166,12 @@ public:
    * @return A pointer to the program, or @c null if this program is not
    * in a module.
    */
-  const Program *GetProgram() const
+  const Program *getProgram() const
   {
     return program;
   }
 
-  Program *GetProgram()
+  Program *getProgram()
   {
     return program;
   }
@@ -176,8 +183,8 @@ public:
    * @param[in] name  The name of the function.
    * @return A pointer to the DefineFunction instruction, or @c null.
    */
-  DefineFunction *FindDefineFunction(const std::string &name,
-      const ValueTypeSpecArray &arguments);
+  DefineFunction *findDefineFunction(const std::string &name,
+                                     const ValueTypeSpecArray &arguments);
 
   /**
    * Finds the DeclareExtFunction instruction that declares a function with the
@@ -185,32 +192,44 @@ public:
    * @param[in] name  The name of the function.
    * @return A pointer to the DeclareExtFunction instruction, or @c null.
    */
-  DeclareExtFunction *FindDeclareFunction(const std::string &name,
-      const ValueTypeSpecArray &arguments);
+  DeclareExtFunction *findDeclareFunction(const std::string &name,
+                                          const ValueTypeSpecArray &arguments);
 
   /**
    * Returns a reference to the variable map.
    * @return A reference to the variable map.
    */
-  const VariableMap &GetVariableMap() const { return variableMap; }
-  VariableMap &GetVariableMap() { return variableMap; }
+  const VariableMap &getVariableMap() const
+  {
+    return variableMap;
+  }
+  VariableMap &getVariableMap()
+  {
+    return variableMap;
+  }
 
   /**
-   * Get a reference to the type map of this module.
+   * get a reference to the type map of this module.
    *
    * @return A reference to the type map.
    */
-  const ValueTypeMap &GetTypeMap() const { return typeMap; }
-  ValueTypeMap &GetTypeMap() { return typeMap; }
+  const ValueTypeMap &getTypeMap() const
+  {
+    return typeMap;
+  }
+  ValueTypeMap &getTypeMap()
+  {
+    return typeMap;
+  }
 
-  std::string GetTempVarName();
+  std::string getTempVarName();
 
   //@{
   /**
    * Prepends the given expression at the beginning of the module.
    * @param[in] expr  A pointer to the expression.
    */
-  void PrependExpression(Expression *expr);
+  void prependExpression(Expression *expr);
   void PrependExpressions(ExpressionArray &expr);
   //@}
 
@@ -219,8 +238,8 @@ public:
    * Appends the given expression to the end of the module.
    * @param[in] expr  A pointer to the expression.
    */
-  void AppendExpression(Expression *expr);
-  void AppendExpressions(ExpressionArray &expr);
+  void appendExpression(Expression *expr);
+  void appendExpressions(ExpressionArray &expr);
   //@}
 
 private:
@@ -228,7 +247,10 @@ private:
    * Sets a pointer to the program containing this module.
    * @param program A pointer to the program.
    */
-  void SetProgram(Program *prog) { this->program = prog; }
+  void setProgram(Program *prog)
+  {
+    this->program = prog;
+  }
 };
 }
 

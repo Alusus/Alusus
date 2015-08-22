@@ -27,7 +27,7 @@ namespace Scg
 class BasicBinaryBuiltInFunction : public Function
 {
 public:
-  using Callback = std::function<llvm::Value*(llvm::IRBuilder<> *irb, llvm::Value*, llvm::Value*)>;
+  using Callback = std::function < llvm::Value*(llvm::IRBuilder<> *irb, llvm::Value*, llvm::Value*) > ;
 
 private:
   //! Storing the binary operator so that it can be freed after code generation.
@@ -49,11 +49,14 @@ public:
   *                     instruction to execute this function.
   */
   BasicBinaryBuiltInFunction(const Core::Basic::Char *name, const Core::Basic::Char *retType,
-      const Core::Basic::Char *arg1Type, const Core::Basic::Char *arg2Type, Callback function);
+                             const Core::Basic::Char *arg1Type, const Core::Basic::Char *arg2Type, Callback function);
   ~BasicBinaryBuiltInFunction();
 
-  //! @copydoc Function::GetName()
-  virtual const std::string &GetName() const { return name; }
+  //! @copydoc Function::getName()
+  virtual const std::string &getName() const
+  {
+    return name;
+  }
 
   //! @copydoc Function::GetArgumentType()
   //virtual const ValueType *GetArgumentType(int n) const;
@@ -61,12 +64,12 @@ public:
   //! @copydoc Function::GetArgumentCount()
   //virtual ExpressionArray::size_type GetArgumentCount() const { return 2; }
 
-  //! @copydoc Function::CreateLLVMInstruction()
-  virtual llvm::Value *CreateLLVMInstruction(llvm::IRBuilder<> *irb,
+  //! @copydoc Function::createLLVMInstruction()
+  virtual llvm::Value *createLLVMInstruction(llvm::IRBuilder<> *irb,
       const std::vector<llvm::Value*> &args) const override;
 
-  //! @copydoc Expression::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Expression::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override;
 };
 }
 

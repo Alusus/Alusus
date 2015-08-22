@@ -24,115 +24,133 @@
 
 namespace Scg
 {
+/**
+ * Represent a block of expressions.
+ */
+class Block : public Expression
+{
+  //! A map containing the variables defined in this block.
+  VariableMap variableMap;
+  //! The LLVM BasicBlock object representing the block.
+  llvm::BasicBlock *llvmBasicBlock;
+  //! The IR builder used to generate IR code when generateCode() is called.
+  llvm::IRBuilder<> *irBuilder;
+
+public:
   /**
-   * Represent a block of expressions.
+   * Constructs an empty block.
    */
-  class Block : public Expression
+  Block() : llvmBasicBlock(0), irBuilder(0)
   {
-    //! A map containing the variables defined in this block.
-    VariableMap variableMap;
-    //! The LLVM BasicBlock object representing the block.
-    llvm::BasicBlock *llvmBasicBlock;
-    //! The IR builder used to generate IR code when GenerateCode() is called.
-    llvm::IRBuilder<> *irBuilder;
+    this->preserveChildrenCodeGenerationOrder = true;
 
-  public:
-    /**
-     * Constructs an empty block.
-     */
-    Block() : llvmBasicBlock(0) , irBuilder(0)
-    {
-      this->preserveChildrenCodeGenerationOrder = true;
+  }
 
-    }
+  /**
+   * Constructs an empty block.
+   */
+  Block(const ExpressionArray &body);
 
-    /**
-     * Constructs an empty block.
-     */
-    Block(const ExpressionArray &body);
+  /**
+   * Get a pointer to the LLVM IR builder.
+   *
+   * @return A pointer to the LLVM IR builder.
+   */
+  const llvm::IRBuilder<> *getIRBuilder() const
+  {
+    return irBuilder;
+  }
+  llvm::IRBuilder<> *getIRBuilder()
+  {
+    return irBuilder;
+  }
 
-    /**
-     * Get a pointer to the LLVM IR builder.
-     *
-     * @return A pointer to the LLVM IR builder.
-     */
-    const llvm::IRBuilder<> *GetIRBuilder() const { return irBuilder; }
-    llvm::IRBuilder<> *GetIRBuilder() { return irBuilder; }
+  /**
+   * Get a pointer to the LLVM Basic Block representing this block.
+   *
+   * @return A pointer to the LLVM Basic Block.
+   */
+  const llvm::BasicBlock *getLlvmBB() const
+  {
+    return llvmBasicBlock;
+  }
+  llvm::BasicBlock *getLlvmBB()
+  {
+    return llvmBasicBlock;
+  }
 
-    /**
-     * Get a pointer to the LLVM Basic Block representing this block.
-     *
-     * @return A pointer to the LLVM Basic Block.
-     */
-    const llvm::BasicBlock *GetLlvmBB() const { return llvmBasicBlock; }
-    llvm::BasicBlock *GetLlvmBB() { return llvmBasicBlock; }
+  /**
+   * Prepends the given expression at the beginning of the block.
+   *
+   * @param[in] expr  A pointer to the expression.
+   */
+  void prependExpression(Expression *expr)
+  {
+    children.insert(children.begin(), expr);
+  }
 
-    /**
-     * Prepends the given expression at the beginning of the block.
-     *
-     * @param[in] expr  A pointer to the expression.
-     */
-    void PrependExpression(Expression *expr)
-    {
-      children.insert(children.begin(), expr);
-    }
+  /**
+   * Append the given expression to the end of the block.
+   *
+   * @param[in] expr  A pointer to the expression.
+   */
+  void appendExpression(Expression *expr)
+  {
+    children.push_back(expr);
+  }
 
-    /**
-     * Append the given expression to the end of the block.
-     *
-     * @param[in] expr  A pointer to the expression.
-     */
-    void AppendExpression(Expression *expr)
-    {
-      children.push_back(expr);
-    }
+  /**
+   * Get the variable having the given name.
+   * @param[in] name  The name of the variable.
+   * @return A pointer to the variable, or 0 if there is variable with the
+   * the given name.
+   */
+  const Variable *getVariable(const std::string &name) const;
 
-    /**
-     * Get the variable having the given name.
-     * @param[in] name  The name of the variable.
-     * @return A pointer to the variable, or 0 if there is variable with the
-     * the given name.
-     */
-    const Variable *GetVariable(const std::string &name) const;
+  Variable *getVariable(const std::string &name)
+  {
+    return const_cast<Variable*>(
+             static_cast<const Block*>(this)->getVariable(name));
+  }
 
-    Variable *GetVariable(const std::string &name)
-    {
-      return const_cast<Variable*>(
-          static_cast<const Block*>(this)->GetVariable(name));
-    }
+  /**
+   * Returns a reference to the variable map.
+   * @return A reference to the variable map.
+   */
+  const VariableMap &getVariableMap() const
+  {
+    return variableMap;
+  }
+  VariableMap &getVariableMap()
+  {
+    return variableMap;
+  }
 
-    /**
-     * Returns a reference to the variable map.
-     * @return A reference to the variable map.
-     */
-    const VariableMap &GetVariableMap() const { return variableMap; }
-    VariableMap &GetVariableMap() { return variableMap; }
+  //! @copydoc Expression::preGenerateCode()
+  virtual CodeGenerationStage preGenerateCode();
 
-    //! @copydoc Expression::PreGenerateCode()
-    virtual CodeGenerationStage PreGenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-    //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-    //! @copydoc Expression::PostGenerateCode()
-    virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 
-    //! @copydoc Expression::ToString()
-    virtual std::string ToString();
+private:
+  //! @copydoc Expression::setBlock()
+  virtual void setBlock(Block *block);
 
-  private:
-    //! @copydoc Expression::SetBlock()
-    virtual void SetBlock(Block *block);
+private:
+  static int getNewIndex()
+  {
+    static int s_blockIndex = 0;
+    return s_blockIndex++;
+  }
 
-  private:
-    static int GetNewIndex()
-    {
-      static int s_blockIndex = 0;
-      return s_blockIndex++;
-    }
-
-    static std::string GetNewBlockName();
-  };
+  static std::string getNewBlockName();
+};
 }
 
 #endif // __Block_h__

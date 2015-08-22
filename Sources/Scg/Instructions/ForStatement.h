@@ -20,86 +20,110 @@
 
 namespace Scg
 {
-  class Block;
+class Block;
 }
 
 namespace Scg
 {
+/**
+ * Represents a function definition, i.e. a prototype and body.
+ */
+class ForStatement : public Expression
+{
+private:
+  Expression *init;
+  Expression *cond;
+  Expression *loop;
+  Block *initBlock;
+  Block *condBlock;
+  Block *loopBlock;
+  Block *exitBlock;
+  llvm::Instruction *brInst;
+
+public:
   /**
-   * Represents a function definition, i.e. a prototype and body.
+   * Construct a function with the given name, arguments, and body.
+   *
+   * @param[in] init  The initialization expression of the for statement.
+   * @param[in] cond  The condition expression of the for statement.
+   * @param[in] loop  The loop expression of the for statement.
+   * @param[in] body  The body of the for loop.
    */
-  class ForStatement : public Expression
+  ForStatement(Expression *init, Expression *cond, Expression *loop, Block *body);
+
+  /**
+   * Get the initialization expression of the for loop.
+   *
+   * @return A pointer to the initialization expression of the for loop.
+   */
+  const Expression *getInitExpr() const
   {
-  private:
-    Expression *init;
-    Expression *cond;
-    Expression *loop;
-    Block *initBlock;
-    Block *condBlock;
-    Block *loopBlock;
-    Block *exitBlock;
-    llvm::Instruction *brInst;
+    return init;
+  }
+  Expression *getInitExpr()
+  {
+    return init;
+  }
 
-  public:
-    /**
-     * Construct a function with the given name, arguments, and body.
-     *
-     * @param[in] init  The initialization expression of the for statement.
-     * @param[in] cond  The condition expression of the for statement.
-     * @param[in] loop  The loop expression of the for statement.
-     * @param[in] body  The body of the for loop.
-     */
-    ForStatement(Expression *init, Expression *cond, Expression *loop, Block *body);
+  /**
+   * Get the condition expression of the for loop.
+   *
+   * @return A pointer to the condition expression of the for loop.
+   */
+  const Expression *getCondExpr() const
+  {
+    return cond;
+  }
+  Expression *getCondExpr()
+  {
+    return cond;
+  }
 
-    /**
-     * Get the initialization expression of the for loop.
-     *
-     * @return A pointer to the initialization expression of the for loop.
-     */
-    const Expression *GetInitExpr() const { return init; }
-    Expression *GetInitExpr() { return init; }
+  /**
+   * Get the loop expression of the for loop.
+   *
+   * @return A pointer to the loop expression of the for loop.
+   */
+  const Expression *getLoopExpr() const
+  {
+    return loop;
+  }
+  Expression *getLoopExpr()
+  {
+    return loop;
+  }
 
-    /**
-     * Get the condition expression of the for loop.
-     *
-     * @return A pointer to the condition expression of the for loop.
-     */
-    const Expression *GetCondExpr() const { return cond; }
-    Expression *GetCondExpr() { return cond; }
+  /**
+   * Get the body of the for loop.
+   *
+   * @return A pointer to the body of the for loop.
+   */
+  const Block *getBody() const
+  {
+    return loopBlock;
+  }
+  Block *getBody()
+  {
+    return loopBlock;
+  }
 
-    /**
-     * Get the loop expression of the for loop.
-     *
-     * @return A pointer to the loop expression of the for loop.
-     */
-    const Expression *GetLoopExpr() const { return loop; }
-    Expression *GetLoopExpr() { return loop; }
+  //! @copydoc Expression::callGenerateCode()
+  virtual CodeGenerationStage callGenerateCode()
+  {
+    // We want to manually call the generateCode() member function of children
+    // so we override the default behaviour of callGenerateCode();
+    return generateCode();
+  }
 
-    /**
-     * Get the body of the for loop.
-     *
-     * @return A pointer to the body of the for loop.
-     */
-    const Block *GetBody() const { return loopBlock; }
-    Block *GetBody() { return loopBlock; }
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-    //! @copydoc Expression::CallGenerateCode()
-    virtual CodeGenerationStage CallGenerateCode()
-    {
-    	// We want to manually call the GenerateCode() member function of children
-    	// so we override the default behaviour of CallGenerateCode();
-    	return GenerateCode();
-    }
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-    //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationStage GenerateCode();
-
-    //! @copydoc Expression::PostGenerateCode()
-    virtual CodeGenerationStage PostGenerateCode();
-
-    //! @copydoc Expression::ToString()
-    virtual std::string ToString();
-  };
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
+};
 }
 
 #endif // __ForStatement_h__

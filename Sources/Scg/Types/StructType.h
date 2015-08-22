@@ -21,11 +21,12 @@
 
 namespace Scg
 {
+
 class DefineStruct;
 
 /**
-* Represents a structure type with custom fields.
-*/
+ * Represents a structure type with custom fields.
+ */
 class StructType : public ValueType
 {
   friend class DefineStruct;
@@ -36,85 +37,86 @@ class StructType : public ValueType
 
 protected:
   /**
-  * Constructs a new structure type.
-  * @param[in] name    The name of the structure.
-  */
+   * Constructs a new structure type.
+   * @param[in] name    The name of the structure.
+   */
   StructType(const std::string &name);
 
   /**
-  * Sets the fields of the structure.
-  * @param[in] fields  An array of (type ID, name) pairs specifying the
-  *                    fields of the structure.
-  */
-  void SetFields(const ValueTypeNameArray &fields);
+   * Sets the fields of the structure.
+   * @param[in] fields  An array of (type ID, name) pairs specifying the
+   *                    fields of the structure.
+   */
+  void setFields(const ValueTypeNameArray &fields);
 
 protected:
-  //! @copydoc ValueType::InitCastingTargets()
-  virtual void InitCastingTargets() const override;
+  //! @copydoc ValueType::initCastingTargets()
+  virtual void initCastingTargets() const override;
 
 public:
   //! @copydoc ValueType::GetName()
-  virtual const std::string GetName() const
+  virtual const std::string getName() const
   {
     return name;
   }
 
   /**
-  * Retrieves the fields of the structure as an array of type-name pairs.
-  * @return The array of type-name pairs defining the fields of the structure.
-  */
-  const ValueTypeNameArray &GetFields() const
+   * Retrieves the fields of the structure as an array of type-name pairs.
+   * @return The array of type-name pairs defining the fields of the structure.
+   */
+  const ValueTypeNameArray &getFields() const
   {
     return fields;
   }
 
   /**
-  * Retrieves the type-name pair of the field having the giver index.
-  * @param[in] name  The index of the field.
-  * @return Type-name pair.
-  */
-  const ValueTypeNamePair GetFieldByIndex(int index) const
+   * Retrieves the type-name pair of the field having the giver index.
+   * @param[in] name  The index of the field.
+   * @return Type-name pair.
+   */
+  const ValueTypeNamePair getFieldByIndex(int index) const
   {
     return fields[index];
   }
 
   /**
-  * Retrieves the type-name pair of the field having the giver name.
-  * @param[in] name  The name of the field.
-  * @return Type-name pair.
-  */
-  const ValueTypeNamePair GetFieldByName(const std::string &name)
+   * Retrieves the type-name pair of the field having the giver name.
+   * @param[in] name  The name of the field.
+   * @return Type-name pair.
+   */
+  const ValueTypeNamePair getFieldByName(const std::string &name)
   {
-    return GetFieldByIndex(GetFieldIndex(name));
+    return getFieldByIndex(getFieldIndex(name));
   }
 
   /**
-  * Finds the index of the field having the given name.
-  * @param[in] name  The name of the field.
-  * @return The index of the field in the structure.
-  */
-  int GetFieldIndex(const std::string &name)
+   * Finds the index of the field having the given name.
+   * @param[in] name  The name of the field.
+   * @return The index of the field in the structure.
+   */
+  int getFieldIndex(const std::string &name)
   {
     for (auto nameType = fields.begin(); nameType != fields.end(); nameType++)
       if ((*nameType).second == name)
-        return (int) (nameType - fields.begin());
+        return (int)(nameType - fields.begin());
+
     return -1;
   }
 
   //! @copydoc ValueType::GetDefaultLLVMValue()
-  virtual llvm::Constant *GetDefaultLLVMValue() const
+  virtual llvm::Constant *getDefaultLLVMValue() const
   {
     throw EXCEPTION(NotImplementedException, "Not implemented yet!");
   }
 
   //! @copydoc ValueType::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override
+  virtual const ValueTypeSpec *getValueTypeSpec() const override
   {
     return &typeSpec;
   }
 
   //! @copydoc ValueType::IsEqualTo()
-  virtual bool IsEqualTo(const ValueType *other) const;
+  virtual bool isEqualTo(const ValueType *other) const;
 
 };
 

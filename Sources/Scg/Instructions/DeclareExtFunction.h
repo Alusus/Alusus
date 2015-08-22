@@ -27,7 +27,7 @@ class DefineFunction;
 /**
  * Represents a function definition, i.e. a prototype and body.
  */
-class DeclareExtFunction: public Instruction
+class DeclareExtFunction : public Instruction
 {
   //! A string containing the name of the function.
   std::string name;
@@ -36,7 +36,7 @@ class DeclareExtFunction: public Instruction
   //! An array containing the types of the function's arguments.
   ValueTypeSpecArray argTypes;
   //! Whether the function has a variable number of arguments.
-  bool isVarArgs;
+  bool varArgs;
 
 public:
   // TODO: The return type and arguments should support pointers.
@@ -45,11 +45,11 @@ public:
    * @param[in] name        The name of the function.
    * @param[in] returnType  The return value type of the function.
    * @param[in] argTypes    The types of the function arguments.
-   * @param[in] isVarArgs   Whether the function has a variable number of
+       * @param[in] varArgs   Whether the function has a variable number of
    * arguments.
    */
   DeclareExtFunction(Core::Basic::Char const *name, ValueTypeSpec *returnType,
-      const ValueTypeSpecArray &argTypes, bool isVarArgs = false);
+                     const ValueTypeSpecArray &argTypes, bool varArgs = false);
 
   /**
    * Constructs a copy of the given DeclareExtFunction instruction.
@@ -73,45 +73,72 @@ public:
    * Retrieves the name of the function being declared.
    * @return The name of the function being declared.
    */
-  const std::string &GetName() const { return name; }
-  std::string &GetName() { return name; }
+  const std::string &getName() const
+  {
+    return name;
+  }
+  std::string &getName()
+  {
+    return name;
+  }
 
   /**
    * Retrieves the return type of the function being declared.
    * @return A pointer to the @c ValueTypeSpec specifying the return type.
    */
-  const ValueTypeSpec *GetReturnType() const { return returnType; }
-  ValueTypeSpec *GetReturnType() { return returnType; }
+  const ValueTypeSpec *getReturnType() const
+  {
+    return returnType;
+  }
+  ValueTypeSpec *getReturnType()
+  {
+    return returnType;
+  }
 
   /**
    * Retrieves an array containing the argument types of the function being declared.
    * @return An array containing the argument types of the function being declared.
    */
-  const ValueTypeSpecArray &GetArgumentTypes() const { return argTypes; }
-  ValueTypeSpecArray &GetArgumentTypes() { return argTypes; }
+  const ValueTypeSpecArray &getArgumentTypes() const
+  {
+    return argTypes;
+  }
+  ValueTypeSpecArray &getArgumentTypes()
+  {
+    return argTypes;
+  }
 
   /**
    * Returns whether the function has a variable number of arguments.
    * @return Whether the function has a variable number of arguments.
    */
-  bool IsVarArgs() const { return isVarArgs; }
+  bool isVarArgs() const
+  {
+    return varArgs;
+  }
 
   /**
    * Retrieves a pointer to the Alusus function declared by this instruction.
    *
    * @return A pointer to the Alusus function declared by this instruction.
    */
-  const UserDefinedFunction *GetDeclaredFunction() const { return (UserDefinedFunction *)(children[0]); }
-  UserDefinedFunction *GetDeclaredFunction() { return (UserDefinedFunction *)(children[0]); }
+  const UserDefinedFunction *getDeclaredFunction() const
+  {
+    return (UserDefinedFunction *)(children[0]);
+  }
+  UserDefinedFunction *getDeclaredFunction()
+  {
+    return (UserDefinedFunction *)(children[0]);
+  }
 
-  //! @copydoc Expression::PreGenerateCode()
-  virtual CodeGenerationStage PreGenerateCode();
+  //! @copydoc Expression::preGenerateCode()
+  virtual CodeGenerationStage preGenerateCode();
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

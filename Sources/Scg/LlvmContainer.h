@@ -14,22 +14,23 @@
 
 namespace llvm
 {
-  class LLVMContext;
-  class DataLayout;
+class LLVMContext;
+class DataLayout;
 }
 
 namespace Scg
 {
-  class LlvmContainer
-  {
-    public: static llvm::DataLayout *dataLayout;
+class LlvmContainer
+{
+public:
+  static llvm::DataLayout *dataLayout;
 
-  public:
-    static void Initialize();
-    static void Finalize();
-    static llvm::LLVMContext &GetContext();
-    static llvm::DataLayout* getDataLayout();
-  };
+public:
+  static void initialize();
+  static void finalize();
+  static llvm::LLVMContext &getContext();
+  static llvm::DataLayout* getDataLayout();
+};
 }
 
 #endif // __LlvmContainer_h__

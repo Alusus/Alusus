@@ -23,12 +23,12 @@ class Variable;
 
 class Container : public Expression
 {
-	//! A function store containing the functions defined in this container.
-	//FunctionStore callables;
-	//! A map containing the variables defined in this container.
-	std::unordered_map<std::string, Variable*> variables;
-	//! A pointer to the parent container or @c nullptr if this is the root.
-	Container *parent;
+  //! A function store containing the functions defined in this container.
+  //FunctionStore callables;
+  //! A map containing the variables defined in this container.
+  std::unordered_map<std::string, Variable*> variables;
+  //! A pointer to the parent container or @c nullptr if this is the root.
+  Container *parent;
 
 public:
   Container(Container *parent = nullptr) : parent(parent) {}
@@ -40,12 +40,18 @@ public:
    * Retrieves a pointer to the parent container.
    * @return A pointer to the parent or @c nullptr if this is the root.
    */
-  const Container *GetParent() const { return parent; }
-  Container *GetParent() { return parent; }
+  const Container *getParent() const
+  {
+    return parent;
+  }
+  Container *getParent()
+  {
+    return parent;
+  }
   //@}
 
-  void AddCallable(Function *callable);
-  void AddVariable(Variable *variable);
+  void addCallable(Function *callable);
+  void addVariable(Variable *variable);
 
   //@{
   /**
@@ -60,13 +66,13 @@ public:
    *
    * @return A vector of all the matches.
    */
-  const Function * MatchCallable(const std::string &name,
-  		const ValueTypeSpecArray &argTyps) const;
-  Function * MatchCallable(const std::string &name,
-  		const ValueTypeSpecArray &argTypes)
+  const Function * matchCallable(const std::string &name,
+                                 const ValueTypeSpecArray &argTyps) const;
+  Function * matchCallable(const std::string &name,
+                           const ValueTypeSpecArray &argTypes)
   {
     return const_cast<Function *>(
-        static_cast<const Container*>(this)->MatchCallable(name, argTypes));
+             static_cast<const Container*>(this)->matchCallable(name, argTypes));
   }
   //@}
 
@@ -74,11 +80,11 @@ public:
   /**
    * Retrieves the variable having the given name.
    */
-  const Variable *GetVariable(const std::string &name) const;
-  Variable *GetVariable(const std::string &name)
+  const Variable *getVariable(const std::string &name) const;
+  Variable *getVariable(const std::string &name)
   {
     return const_cast<Variable*>(
-        static_cast<const Container*>(this)->GetVariable(name));
+             static_cast<const Container*>(this)->getVariable(name));
   }
   //@}
 };

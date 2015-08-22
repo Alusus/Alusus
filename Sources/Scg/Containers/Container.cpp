@@ -15,21 +15,21 @@
 
 namespace Scg
 {
-void Container::AddCallable(Function *callable)
+void Container::addCallable(Function *callable)
 {
   //this->callables.Add(callable);
 }
 
 //------------------------------------------------------------------------------
 
-void Container::AddVariable(Variable *variable)
+void Container::addVariable(Variable *variable)
 {
   //this->variables.insert(variable->GetName(), variable);
 }
 
 //------------------------------------------------------------------------------
 
-const Function *Container::MatchCallable(const std::string &name,
+const Function *Container::matchCallable(const std::string &name,
     const ValueTypeSpecArray &argTypes) const
 {
   return nullptr;
@@ -37,11 +37,11 @@ const Function *Container::MatchCallable(const std::string &name,
   // Tries to match a function defined in the current container.
   auto match = this->callables.Match(name, argTypes);
   if (match != nullptr) {
-    return match;
+  return match;
   }
   // Tries to match a function defined in the parent container.
-  if (GetParent() != nullptr) {
-    return GetParent()->MatchCallable(name, argTypes);
+  if (getParent() != nullptr) {
+  return getParent()->matchCallable(name, argTypes);
   }
   // Couldn't find a match.
   return nullptr;
@@ -50,17 +50,20 @@ const Function *Container::MatchCallable(const std::string &name,
 
 //------------------------------------------------------------------------------
 
-const Variable* Container::GetVariable(const std::string &name) const
+const Variable* Container::getVariable(const std::string &name) const
 {
   // Tries to find the variable in the current container.
   auto it = this->variables.find(name);
+
   if (it != this->variables.end()) {
     return it->second;
   }
+
   // Tries to find the variable in the parent container.
-  if (GetParent() != nullptr) {
-    return GetParent()->GetVariable(name);
+  if (getParent() != nullptr) {
+    return getParent()->getVariable(name);
   }
+
   // Couldn't find a match.
   return nullptr;
 }

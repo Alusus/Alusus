@@ -27,7 +27,7 @@
 
 namespace Scg
 {
-Expression::CodeGenerationStage Variable::PreGenerateCode()
+Expression::CodeGenerationStage Variable::preGenerateCode()
 {
   MODULE_OR_BLOCK_CHECK;
 
@@ -38,20 +38,20 @@ Expression::CodeGenerationStage Variable::PreGenerateCode()
   // be obvious.
 
   // Is the variable already defined?
-  if (GetBlock() != nullptr) {
+  if (getBlock() != nullptr) {
     // This is a local variable.
-    if (GetBlock()->GetVariableMap().find(this->name) != GetBlock()->GetVariableMap().end())
+    if (getBlock()->getVariableMap().find(this->name) != getBlock()->getVariableMap().end())
       throw EXCEPTION(RedefinitionException, ("Local variable already defined: " + this->name).c_str());
 
     // Store this variable in the variable map of the container block.
-    GetBlock()->GetVariableMap()[this->name] = this;
+    getBlock()->getVariableMap()[this->name] = this;
   } else {
     // This is a global variable.
-    if (GetModule()->GetVariableMap().find(this->name) != GetModule()->GetVariableMap().end())
+    if (getModule()->getVariableMap().find(this->name) != getModule()->getVariableMap().end())
       throw EXCEPTION(RedefinitionException, ("Global variable already defined: " + this->name).c_str());
 
     // Store this variable in the variable map of the container block.
-    GetModule()->GetVariableMap()[this->name] = this;
+    getModule()->getVariableMap()[this->name] = this;
   }
 
   return CodeGenerationStage::CodeGeneration;
@@ -59,60 +59,64 @@ Expression::CodeGenerationStage Variable::PreGenerateCode()
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Variable::GenerateCode()
+Expression::CodeGenerationStage Variable::generateCode()
 {
   MODULE_OR_BLOCK_CHECK;
 
-  if (GetBlock() != nullptr) {
+  if (getBlock() != nullptr) {
     // This is a local variable, use the block's IRBuilder.
-    this->llvmAllocaInst = GetBlock()->GetIRBuilder()->CreateAlloca(
-        const_cast<llvm::Type *>(this->variableType->GetLlvmType()), 0, this->name.c_str());
+    this->llvmAllocaInst = getBlock()->getIRBuilder()->CreateAlloca(
+                             const_cast<llvm::Type *>(this->variableType->getLlvmType()), 0, this->name.c_str());
 
     // If this variable represents a function argument, create the necessary
     // store instruction that sets the value of the variable passed by the
     // function caller.
     if (this->llvmArgument != nullptr)
-      this->llvmStoreInst = GetBlock()->GetIRBuilder()->CreateStore(this->llvmArgument,
-          this->llvmAllocaInst);
+      this->llvmStoreInst = getBlock()->getIRBuilder()->CreateStore(this->llvmArgument,
+                            this->llvmAllocaInst);
   } else {
     // This is a global variable.
     this->llvmGlobalVariable = new llvm::GlobalVariable(
-        *GetModule()->GetLlvmModule(),
-        this->variableType->GetLlvmType(),
-        false, /* isConstant */
-        llvm::GlobalVariable::ExternalLinkage,
-        this->variableType->GetDefaultLLVMValue() /* Initializer */,
-        this->name.c_str());
+      *getModule()->getLlvmModule(),
+      this->variableType->getLlvmType(),
+      false, /* isConstant */
+      llvm::GlobalVariable::ExternalLinkage,
+      this->variableType->getDefaultLLVMValue() /* Initializer */,
+      this->name.c_str());
   }
 
   // Defining a variable doesn't evaluate to a value.
-  return Expression::GenerateCode();
+  return Expression::generateCode();
 }
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Variable::PostGenerateCode()
+Expression::CodeGenerationStage Variable::postGenerateCode()
 {
   if (this->llvmAllocaInst && this->llvmAllocaInst->hasNUses(0)) {
     this->llvmAllocaInst->eraseFromParent();
     this->llvmAllocaInst = nullptr;
   }
+
   if (this->llvmGlobalVariable && this->llvmGlobalVariable->hasNUses(0)) {
     this->llvmGlobalVariable->eraseFromParent();
     this->llvmGlobalVariable = nullptr;
   }
+
   if (this->llvmStoreInst && this->llvmStoreInst->hasNUses(0)) {
     this->llvmStoreInst->eraseFromParent();
     this->llvmStoreInst = nullptr;
   }
+
   if (this->llvmAllocaInst != nullptr || this->llvmStoreInst != nullptr)
     return CodeGenerationStage::PostCodeGeneration;
+
   return CodeGenerationStage::None;
 }
 
 //----------------------------------------------------------------------------
 
-std::string Variable::ToString()
+std::string Variable::toString()
 {
   return this->name;
 }

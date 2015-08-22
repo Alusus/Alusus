@@ -29,7 +29,7 @@ class ArrayElementReference : public Expression
 {
 protected:
   /*! A pointer to the expression evaluating to an array containing the element
-      this pointer instance is pointing to. */
+    this pointer instance is pointing to. */
   Expression *expression;
   //! The index of the element to point to.
   Expression *elementIndexExpr;
@@ -54,14 +54,14 @@ public:
     children.push_back(elementIndexExpr);
   }
 
-  //! @copydoc Expression::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Expression::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override;
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 
