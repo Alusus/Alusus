@@ -9,6 +9,7 @@
  */
 //==============================================================================
 
+
 #include <prerequisites.h>
 
 // STL header files
@@ -31,28 +32,32 @@ using namespace llvm;
 
 namespace Scg
 {
-const ValueTypeSpec * CallFunction::GetValueTypeSpec() const
+const ValueTypeSpec * CallFunction::getValueTypeSpec() const
 {
   if (this->function == nullptr) {
     throw EXCEPTION(InvalidOperationException, "This function should only "
-        "be called after the pre-code generation step has finished, because "
-        "we don't have a reference to the function before that.");
+                    "be called after the pre-code generation step has finished, because "
+                    "we don't have a reference to the function before that.");
   }
-  auto funcRetType = this->function->GetValueTypeSpec();
+
+  auto funcRetType = this->function->getValueTypeSpec();
+
   if (funcRetType == nullptr) {
-    return VoidType::Get()->GetValueTypeSpec();
+    return VoidType::get()->getValueTypeSpec();
   }
+
   return funcRetType;
 }
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage CallFunction::PreGenerateCode()
+Expression::CodeGenerationStage CallFunction::preGenerateCode()
 {
   // Ensures that all children have finished pre-code generation step so that
   // we can grab their types.
-  for (auto i = 0; i < this->args->GetElementCount(); i++) {
-    auto stage = this->args->GetElement(i)->GetCodeGenerationStage();
+  for (auto i = 0; i < this->args->getElementCount(); i++) {
+    auto stage = this->args->getElement(i)->getCodeGenerationStage();
+
     if (stage < CodeGenerationStage::CodeGeneration
         || stage == CodeGenerationStage::None) {
       return CodeGenerationStage::PreCodeGeneration;
@@ -60,46 +65,51 @@ Expression::CodeGenerationStage CallFunction::PreGenerateCode()
   }
 
   // Finds the types of the arguments.
-  if (argTypes.size() != this->args->GetElementCount()) {
-    argTypes.resize(this->args->GetElementCount());
-    for (auto i = 0; i < this->args->GetElementCount(); i++) {
+  if (argTypes.size() != this->args->getElementCount()) {
+    argTypes.resize(this->args->getElementCount());
+
+    for (auto i = 0; i < this->args->getElementCount(); i++) {
       argTypes[i] = const_cast<ValueTypeSpec*>(
-      		this->args->GetElement(i)->GetValueTypeSpec());
+                      this->args->getElement(i)->getValueTypeSpec());
     }
   }
 
   // Try to find the function in the same module.
-  this->function = GetModule()->MatchFunction(this->funcName, argTypes);
+  this->function = getModule()->matchFunction(this->funcName, argTypes);
+
   if (this->function == nullptr) {
-  	// We couldn't find it in the current module, search the whole program.
-  	auto matches = GetModule()->GetProgram()->MatchFunction(
-  			this->funcName, argTypes);
-  	switch (matches.size()) {
-  		case 0:
-  			// We couldn't find the function in the whole program, but it might
-  			// not have been generated yet.
-  			if (GetModule()->HasFunction(this->funcName, argTypes) ||
-  					GetProgram()->HasFunction(this->funcName, argTypes)) {
-  				// Yes, wait until it is generated.
-          return CodeGenerationStage::PreCodeGeneration;
-  			} else {
-  				// No match, throw a CompilationErrorException.
-          throw EXCEPTION(CompilationErrorException,
-                ("Calling undefined function " + this->funcName).c_str());
-  			}
-  			break;
+    // We couldn't find it in the current module, search the whole program.
+    auto matches = getModule()->getProgram()->matchFunction(
+                     this->funcName, argTypes);
 
-  		case 1:
-  			// Found the function, use it.
-  			this->function = matches[0];
-  			break;
+    switch (matches.size()) {
+    case 0:
 
-  		default:
-  			// Found more than one match, throw a CompilationErrorException.
-  			// TODO: Improve the exception so that it shows the candidate functions.
-  			throw EXCEPTION(CompilationErrorException,
-                    ("Found multiple matches for " + this->funcName).c_str());
-  	}
+      // We couldn't find the function in the whole program, but it might
+      // not have been generated yet.
+      if (getModule()->hasFunction(this->funcName, argTypes) ||
+          getProgram()->hasFunction(this->funcName, argTypes)) {
+        // Yes, wait until it is generated.
+        return CodeGenerationStage::PreCodeGeneration;
+      } else {
+        // No match, throw a CompilationErrorException.
+        throw EXCEPTION(CompilationErrorException,
+                        ("Calling undefined function " + this->funcName).c_str());
+      }
+
+      break;
+
+    case 1:
+      // Found the function, use it.
+      this->function = matches[0];
+      break;
+
+    default:
+      // Found more than one match, throw a CompilationErrorException.
+      // TODO: Improve the exception so that it shows the candidate functions.
+      throw EXCEPTION(CompilationErrorException,
+                      ("Found multiple matches for " + this->funcName).c_str());
+    }
   }
 
   return CodeGenerationStage::CodeGeneration;
@@ -107,7 +117,7 @@ Expression::CodeGenerationStage CallFunction::PreGenerateCode()
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage CallFunction::GenerateCode()
+Expression::CodeGenerationStage CallFunction::generateCode()
 {
   MODULE_CHECK;
   BLOCK_CHECK;
@@ -117,35 +127,34 @@ Expression::CodeGenerationStage CallFunction::GenerateCode()
 
   // If argument mismatch error.
   // TODO: Check the types of arguments as well.
-  if ((this->function->IsVarArgs() &&
-          this->function->GetArgumentTypeSpecs().size() > GetArguments()->GetElementCount()) ||
-      (!this->function->IsVarArgs() &&
-          this->function->GetArgumentTypeSpecs().size() != GetArguments()->GetElementCount()))
-  {
+  if ((this->function->isVarArgs() &&
+       this->function->getArgumentTypeSpecs().size() > getArguments()->getElementCount()) ||
+      (!this->function->isVarArgs() &&
+       this->function->getArgumentTypeSpecs().size() != getArguments()->getElementCount())) {
     std::stringstream str;
     str << "Function " << this->funcName << " expects "
-        << this->function->GetArgumentTypeSpecs().size() << " arguments, but got "
-        << GetArguments()->GetElementCount();
+        << this->function->getArgumentTypeSpecs().size() << " arguments, but got "
+        << getArguments()->getElementCount();
     throw EXCEPTION(ArgumentMismatchException, str.str().c_str());
   }
 
-  for (size_t i = 0, e = GetArguments()->GetElementCount(); i != e; ++i)
-  {
-    auto expectedArgType = i < this->function->GetArgumentTypeSpecs().size() ?
-        this->function->GetArgumentTypeSpecs()[i]->ToValueType(*GetModule()) :
-        nullptr;
-    auto argType = GetArguments()->GetElement(i)->GetValueTypeSpec()->ToValueType(*GetModule());
-    auto argValue = GetArguments()->GetElement(i)->GetGeneratedLlvmValue();
+  for (size_t i = 0, e = getArguments()->getElementCount(); i != e; ++i) {
+    auto expectedArgType = i < this->function->getArgumentTypeSpecs().size() ?
+                           this->function->getArgumentTypeSpecs()[i]->toValueType(*getModule()) :
+                           nullptr;
+    auto argType = getArguments()->getElement(i)->getValueTypeSpec()->toValueType(*getModule());
+    auto argValue = getArguments()->getElement(i)->getGeneratedLlvmValue();
+
     if (argValue == nullptr)
       throw EXCEPTION(EvaluationException,
-          ("Expression doesn't evaluate to a value: "
-              + GetArguments()->GetElement(i)->ToString()).c_str());
+                      ("Expression doesn't evaluate to a value: "
+                       + getArguments()->getElement(i)->toString()).c_str());
 
     if (expectedArgType != nullptr &&
-        argType->Compare(expectedArgType) != TypeComparisonResult::Equivalent) {
+        argType->compare(expectedArgType) != TypeComparisonResult::Equivalent) {
       // Need to cast the type before sending it to the function.
-      args.push_back(argType->CreateCastInst(GetBlock()->GetIRBuilder(),
-          argValue, expectedArgType));
+      args.push_back(argType->createCastInst(getBlock()->getIRBuilder(),
+                                             argValue, expectedArgType));
     } else {
       args.push_back(argValue);
     }
@@ -153,19 +162,19 @@ Expression::CodeGenerationStage CallFunction::GenerateCode()
 
   // Generate code for calling the function.
   this->generatedLlvmValue = this->callInst =
-      this->function->CreateLLVMInstruction(GetBlock()->GetIRBuilder(), args);
+                               this->function->createLLVMInstruction(getBlock()->getIRBuilder(), args);
 
-  return Expression::GenerateCode();
+  return Expression::generateCode();
 }
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage CallFunction::PostGenerateCode()
+Expression::CodeGenerationStage CallFunction::postGenerateCode()
 {
   this->function = nullptr;
   // TODO: Do something about deleting callInst. I commented it out because
   // its type was converted to llvm::Value object following the change of
-  // the code generation to call Function::CreateLLVMInstruction which
+  // the code generation to call Function::createLLVMInstruction which
   // returns a generic llvm::Value object.
   //SAFE_DELETE_LLVM_INST(this->callInst);
   return CodeGenerationStage::None;
@@ -173,8 +182,8 @@ Expression::CodeGenerationStage CallFunction::PostGenerateCode()
 
 //------------------------------------------------------------------------------
 
-std::string CallFunction::ToString()
+std::string CallFunction::toString()
 {
-  return this->funcName + GetArguments()->ToString();
+  return this->funcName + getArguments()->toString();
 }
 }

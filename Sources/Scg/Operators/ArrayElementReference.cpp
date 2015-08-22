@@ -25,64 +25,70 @@
 
 namespace Scg
 {
-const ValueTypeSpec * ArrayElementReference::GetValueTypeSpec() const
+const ValueTypeSpec * ArrayElementReference::getValueTypeSpec() const
 {
   if (this->valueType)
-    return this->valueType->GetValueTypeSpec();
+    return this->valueType->getValueTypeSpec();
 
-  auto module = GetModule();
+  auto module = getModule();
   // TODO: Don't use dynamic_cast.
-  auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueTypeSpec()->ToValueType(*module));
+  auto pointerType = dynamic_cast<PointerType*>(this->expression->getValueTypeSpec()->toValueType(*module));
+
   if (pointerType == nullptr)
     throw EXCEPTION(InvalidArgumentException, "The expression passed to "
-        "ArrayElementReference should be a pointer to an array.");
-  auto arrayType = dynamic_cast<ArrayType*>(const_cast<ValueType*>(pointerType->GetContentType()));
+                    "ArrayElementReference should be a pointer to an array.");
+
+  auto arrayType = dynamic_cast<ArrayType*>(const_cast<ValueType*>(pointerType->getContentType()));
+
   if (arrayType == nullptr)
     throw EXCEPTION(InvalidArgumentException, "Non-array variable types "
-        "doesn't have elements to access.");
+                    "doesn't have elements to access.");
 
-  this->valueType = PointerType::Get(arrayType->GetElementsType());
-  return this->valueType->GetValueTypeSpec();
+  this->valueType = PointerType::get(arrayType->getElementsType());
+  return this->valueType->getValueTypeSpec();
 }
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage ArrayElementReference::GenerateCode()
+Expression::CodeGenerationStage ArrayElementReference::generateCode()
 {
   BLOCK_CHECK;
 
   // Finds the index of the field in the structure.
   // TODO: Don't use dynamic_cast.
-  auto module = GetModule();
-  auto pointerType = dynamic_cast<PointerType*>(this->expression->GetValueTypeSpec()->ToValueType(*module));
+  auto module = getModule();
+  auto pointerType = dynamic_cast<PointerType*>(this->expression->getValueTypeSpec()->toValueType(*module));
+
   if (pointerType == nullptr)
     throw EXCEPTION(InvalidArgumentException, "The expression passed to "
-        "ArrayElementReference should be a pointer to an array.");
-  auto valType = dynamic_cast<ArrayType*>(const_cast<ValueType*>(pointerType->GetContentType()));
+                    "ArrayElementReference should be a pointer to an array.");
+
+  auto valType = dynamic_cast<ArrayType*>(const_cast<ValueType*>(pointerType->getContentType()));
+
   if (valType == nullptr)
     throw EXCEPTION(InvalidArgumentException, "The expression passed to "
-        "ArrayElementReference should be a pointer to an array.");
+                    "ArrayElementReference should be a pointer to an array.");
 
   // Generates the code of the structure which will return a pointer to the
   // structure, which we will use to generate a pointer to the required field.
-  auto llvmPtr = this->expression->GetGeneratedLlvmValue();
-  auto zero = IntegerType::Get()->GetLlvmConstant(0);
-  auto index = this->elementIndexExpr->GetGeneratedLlvmValue();
+  auto llvmPtr = this->expression->getGeneratedLlvmValue();
+  auto zero = IntegerType::get()->getLlvmConstant(0);
+  auto index = this->elementIndexExpr->getGeneratedLlvmValue();
 
   // Generates a pointer to the required field.
-  auto irb = GetBlock()->GetIRBuilder();
+  auto irb = getBlock()->getIRBuilder();
   // TODO: We need to delete this pointer in the PostGenerateCode() function.
   // TODO: generatedLlvmValue is a duplicate of llvmPointer. Should we just use
   // generatedLlvmValue?
   this->generatedLlvmValue = this->llvmPointer = irb->CreateGEP(llvmPtr,
-      llvm::makeArrayRef(std::vector<llvm::Value*>({zero, index})), "");
+                             llvm::makeArrayRef(std::vector<llvm::Value*>({ zero, index })), "");
 
-  return Expression::GenerateCode();
+  return Expression::generateCode();
 }
 
 //----------------------------------------------------------------------------
 
-std::string ArrayElementReference::ToString()
+std::string ArrayElementReference::toString()
 {
   // TODO: Implement this function.
   return "";

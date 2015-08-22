@@ -39,64 +39,64 @@ private:
   }
 
 protected:
-  //! @copydoc ValueType::InitCastingTargets()
-  virtual void InitCastingTargets() const override;
+  //! @copydoc ValueType::initCastingTargets()
+  virtual void initCastingTargets() const override;
 
 public:
   /**
   * Gets a constant value of float type.
   * @param[in] value The value of the constant.
   */
-  llvm::Constant *GetLlvmConstant(float value)
+  llvm::Constant *getLlvmConstant(float value)
 
-      const;
+  const;
 
-  //! @copydoc ValueType::GetDefaultLLVMValue()
+  //! @copydoc ValueType::getDefaultLLVMValue()
   virtual llvm::Constant *
-  GetDefaultLLVMValue(
+  getDefaultLLVMValue(
   )
   const
   {
     return
-        GetLlvmConstant(0.0f);
+      getLlvmConstant(0.0f);
   }
 
-  //! @copydoc ValueType::GetName()
+  //! @copydoc ValueType::getName()
   virtual
   const std::string
-  GetName()
+  getName()
 
   const
   {
     return "float";
   }
 
-  //! @copydoc ValueType::GetValueTypeSpec()
+  //! @copydoc ValueType::getValueTypeSpec()
   virtual const ValueTypeSpec *
-  GetValueTypeSpec() const
+  getValueTypeSpec() const
   override
   {
     return &
 
-        typeSpec;
+           typeSpec;
   }
 
-  //! @copydoc ValueType::IsEqualTo()
+  //! @copydoc ValueType::isEqualTo()
   virtual
-  bool IsEqualTo(const
-  ValueType *other) const
+  bool isEqualTo(const
+                 ValueType *other) const
   {
     return dynamic_cast<const FloatType *>(other)
-        !=
+           !=
 
-        nullptr;
+           nullptr;
   }
 
-  //! @copydoc ValueType::CreateCastInst()
-  virtual llvm::Value *CreateCastInst(llvm::IRBuilder<> *irb,
-      llvm::Value *value, const ValueType *targetType) const override;
+  //! @copydoc ValueType::createCastInst()
+  virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
+                                      llvm::Value *value, const ValueType *targetType) const override;
 
-  static FloatType *Get();
+  static FloatType *get();
 };
 }
 

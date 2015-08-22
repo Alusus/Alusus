@@ -35,26 +35,37 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<ModuleParsingHandler> moduleHandler;
-  private: SharedPtr<BuildParsingHandler> buildHandler;
-  private: SharedPtr<RunParsingHandler> runHandler;
-  private: SharedPtr<DumpParsingHandler> dumpHandler;
-  private: SharedPtr<DefParsingHandler> defHandler;
-  private: SharedPtr<Core::Processing::GenericParsingHandler> handler;
+private:
+  SharedPtr<ModuleParsingHandler> moduleHandler;
+private:
+  SharedPtr<BuildParsingHandler> buildHandler;
+private:
+  SharedPtr<RunParsingHandler> runHandler;
+private:
+  SharedPtr<DumpParsingHandler> dumpHandler;
+private:
+  SharedPtr<DefParsingHandler> defHandler;
+private:
+  SharedPtr<Core::Processing::GenericParsingHandler> handler;
 
-  private: Core::Basic::Int leadingCmdListPos;
-  private: Core::Basic::Int innerCmdListPos;
-  private: Core::Basic::Int tildeCmdListPos;
+private:
+  Core::Basic::Int leadingCmdListPos;
+private:
+  Core::Basic::Int innerCmdListPos;
+private:
+  Core::Basic::Int tildeCmdListPos;
 
 
   //============================================================================
   // Constructor
 
-  public: LibraryGateway() : leadingCmdListPos(-1), innerCmdListPos(-1), tildeCmdListPos(-1)
+public:
+  LibraryGateway() : leadingCmdListPos(-1), innerCmdListPos(-1), tildeCmdListPos(-1)
   {
   }
 
-  public: virtual ~LibraryGateway()
+public:
+  virtual ~LibraryGateway()
   {
   }
 
@@ -62,15 +73,20 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   //============================================================================
   // Member Functions
 
-  public: virtual void initialize(Core::Standard::RootManager *manager);
+public:
+  virtual void initialize(Core::Standard::RootManager *manager);
 
-  public: virtual void uninitialize(Core::Standard::RootManager *manager);
+public:
+  virtual void uninitialize(Core::Standard::RootManager *manager);
 
-  private: Core::Data::SharedList* GetLeadingCommandsList(Core::Data::GrammarRepository *grammarRepository);
+private:
+  Core::Data::SharedList* getLeadingCommandsList(Core::Data::GrammarRepository *grammarRepository);
 
-  private: Core::Data::SharedList* GetInnerCommandsList(Core::Data::GrammarRepository *grammarRepository);
+private:
+  Core::Data::SharedList* getInnerCommandsList(Core::Data::GrammarRepository *grammarRepository);
 
-  private: Core::Data::SharedList* GetTildeCommandsList(Core::Data::GrammarRepository *grammarRepository);
+private:
+  Core::Data::SharedList* getTildeCommandsList(Core::Data::GrammarRepository *grammarRepository);
 
 }; // class
 

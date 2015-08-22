@@ -14,7 +14,7 @@
 
 #ifdef _DEBUG
 #define MODULE_CHECK                                                           \
-  if (GetModule() == 0)                                                        \
+  if (getModule() == 0)                                                        \
     throw EXCEPTION(UnattachedExpressionException,                             \
     "This expression must be contained in a module!");
 #else
@@ -23,7 +23,7 @@
 
 #ifdef _DEBUG
 #define FUNCTION_CHECK                                                         \
-  if (GetFunction() == 0)                                                      \
+  if (getFunction() == 0)                                                      \
     throw EXCEPTION(UnattachedExpressionException,                             \
     "This expression must be contained in a function!");
 #else
@@ -32,7 +32,7 @@
 
 #ifdef _DEBUG
 #define BLOCK_CHECK                                                            \
-  if (GetBlock() == 0)                                                         \
+  if (getBlock() == 0)                                                         \
     throw EXCEPTION(UnattachedExpressionException,                             \
     "This expression must be contained in a block!");
 #else
@@ -41,7 +41,7 @@
 
 #ifdef _DEBUG
 #define MODULE_OR_BLOCK_CHECK                                                  \
-  if (GetModule() == nullptr && GetBlock() == nullptr)                         \
+  if (getModule() == nullptr && getBlock() == nullptr)                         \
     throw EXCEPTION(UnattachedExpressionException,                             \
     "This expression must be contained in a module or a block!");
 #else
@@ -49,27 +49,27 @@
 #endif
 
 #ifdef _DEBUG
-  #define LOG_TRACE(message)  Logger::GetSingleton().LogMessage(Logger::Trace, (message));
-  #define LOG_DEBUG(message)  Logger::GetSingleton().LogMessage(Logger::Debug, (message));
+#define LOG_TRACE(message)  Logger::getSingleton().logMessage(Logger::Trace, (message));
+#define LOG_DEBUG(message)  Logger::getSingleton().logMessage(Logger::Debug, (message));
 #else
-  #define LOG_TRACE(message)
-  #define LOG_DEBUG(message)
+#define LOG_TRACE(message)
+#define LOG_DEBUG(message)
 #endif
-#define LOG_INFO(message)     Logger::GetSingleton().LogMessage(Logger::Info, (message));
-#define LOG_WARNING(message)  Logger::GetSingleton().LogMessage(Logger::Warning, (message));
-#define LOG_ERROR(message)    Logger::GetSingleton().LogMessage(Logger::Error, (message));
-#define LOG_FATAL(message)    Logger::GetSingleton().LogMessage(Logger::Fatal, (message));
+#define LOG_INFO(message)     Logger::getSingleton().logMessage(Logger::Info, (message));
+#define LOG_WARNING(message)  Logger::getSingleton().logMessage(Logger::Warning, (message));
+#define LOG_ERROR(message)    Logger::getSingleton().logMessage(Logger::Error, (message));
+#define LOG_FATAL(message)    Logger::getSingleton().logMessage(Logger::Fatal, (message));
 
 #define MAX_PRE_CODE_GEN_REPEAT  1000
 #define MAX_POST_CODE_GEN_REPEAT  1000
 
 #define SAFE_DELETE_LLVM_INST(inst)                                            \
     if (inst != nullptr)                                                       \
-    {                                                                          \
+        {                                                                          \
       if (!inst->hasNUses(0))                                                  \
         return CodeGenerationStage::PostCodeGeneration;                        \
       inst->eraseFromParent();                                                 \
       inst = nullptr;                                                          \
-    }
+        }
 
 #endif // __macros_h__

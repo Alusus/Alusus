@@ -24,50 +24,50 @@
 
 namespace Scg
 {
-  class CodeGenerator;
-  class DeclareExtFunction;
+class CodeGenerator;
+class DeclareExtFunction;
 
-  class LowLinkExpression
+class LowLinkExpression
+{
+private:
+  Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> lhs;
+  Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> rhs;
+  std::string separator;
+
+public:
+  LowLinkExpression(CodeGenerator *gen,
+                    const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+
+  /**
+   * Retrieves the parsed item to the left of the token.
+   *
+   * @return The parsed item.
+   */
+  Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> getLHS()
   {
-  private:
-    Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> lhs;
-    Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> rhs;
-    std::string separator;
+    return lhs;
+  }
 
-  public:
-    LowLinkExpression(CodeGenerator *gen,
-        const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+  /**
+   * Retrieves the parsed item to the right of the token.
+   *
+   * @return The parsed item.
+   */
+  Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> getRHS()
+  {
+    return rhs;
+  }
 
-    /**
-     * Retrieves the parsed item to the left of the token.
-     *
-     * @return The parsed item.
-     */
-    Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> GetLHS()
-    {
-      return lhs;
-    }
-
-    /**
-     * Retrieves the parsed item to the right of the token.
-     *
-     * @return The parsed item.
-     */
-    Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> GetRHS()
-    {
-      return rhs;
-    }
-
-    /**
-     * Retrieves the separator of the expression.
-     *
-     * @return A string containing the separator.
-     */
-    std::string GetSeparator()
-    {
-      return separator;
-    }
-  };
+  /**
+   * Retrieves the separator of the expression.
+   *
+   * @return A string containing the separator.
+   */
+  std::string getSeparator()
+  {
+    return separator;
+  }
+};
 }
 
 #endif // __LowLinkExpression_h__

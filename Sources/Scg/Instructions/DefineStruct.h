@@ -23,50 +23,58 @@ using namespace Core;
 
 namespace Scg
 {
-  class StructType;
+class StructType;
+
+/**
+ * Represents a call to a function.
+ */
+class DefineStruct : public Instruction
+{
+  //! The name of the structure.
+  std::string name;
+  //! An array of the fields of the structure.
+  VariableDefinitionArray fields;
+  //! The LLVM StructType representing this structure.
+  StructType *structType;
+
+public:
+  /**
+   * Defines a new structure.
+   * @param[in] name    The name of the structure.
+   * @param[in] fields  The fields in the structure.
+   */
+  DefineStruct(Char const *name, const VariableDefinitionArray &fields)
+    : name(name), fields(fields), structType(0)
+  {
+  }
 
   /**
-   * Represents a call to a function.
+   * Retrieves the name of the structure.
+   * @return A string containing the name of the structure.
    */
-  class DefineStruct : public Instruction
+  const std::string &getName() const
   {
-    //! The name of the structure.
-    std::string name;
-    //! An array of the fields of the structure.
-    VariableDefinitionArray fields;
-    //! The LLVM StructType representing this structure.
-    StructType *structType;
+    return name;
+  }
 
-  public:
-    /**
-     * Defines a new structure.
-     * @param[in] name    The name of the structure.
-     * @param[in] fields  The fields in the structure.
-     */
-    DefineStruct(Char const *name, const VariableDefinitionArray &fields)
-      : name(name), fields(fields), structType(0) { }
+  /**
+   * Retrieves an array containing the fields of the structure.
+   * @return An array containing the fields of the structure.
+   */
+  const VariableDefinitionArray &getFields() const
+  {
+    return fields;
+  }
 
-    /**
-     * Retrieves the name of the structure.
-     * @return A string containing the name of the structure.
-     */
-    const std::string &GetName() const { return name; }
+  //! @copydoc Expression::preGenerateCode()
+  virtual CodeGenerationStage preGenerateCode();
 
-    /**
-     * Retrieves an array containing the fields of the structure.
-     * @return An array containing the fields of the structure.
-     */
-    const VariableDefinitionArray &GetFields() const { return fields; }
+  //! @copydoc Expression::preGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-    //! @copydoc Expression::PreGenerateCode()
-    virtual CodeGenerationStage PreGenerateCode();
-
-    //! @copydoc Expression::PreGenerateCode()
-    virtual CodeGenerationStage PostGenerateCode();
-
-    //! @copydoc Expression::ToString()
-    virtual std::string ToString();
-  };
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
+};
 }
 
 #endif // __DefineStruct_h__

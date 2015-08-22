@@ -45,12 +45,12 @@ typedef std::vector<Scg::Variable*> VariableArray;
 /**
  * A pair of a value type and a name.
  */
-class ValueTypeNamePair: public std::pair<ValueType*, std::string>
+class ValueTypeNamePair : public std::pair < ValueType*, std::string >
 {
 public:
   //! Default constructor.
   ValueTypeNamePair() :
-          std::pair<ValueType*, std::string>()
+    std::pair<ValueType*, std::string>()
   {
   }
 
@@ -60,7 +60,7 @@ public:
    * @param[in] name        A string containing the name.
    */
   ValueTypeNamePair(ValueType *valueType, const std::string &name) :
-          std::pair<ValueType*, std::string>(valueType, name)
+    std::pair<ValueType*, std::string>(valueType, name)
   {
   }
 
@@ -68,11 +68,11 @@ public:
    * Retrieves the value type of this pair.
    * @return A pointer to the value type of this pair.
    */
-  const ValueType *GetValueType() const
+  const ValueType *getValueType() const
   {
     return first;
   }
-  ValueType *GetValueType()
+  ValueType *getValueType()
   {
     return first;
   }
@@ -81,7 +81,7 @@ public:
    * Retrieves the name of this pair.
    * @return A string containing the name.
    */
-  const std::string &GetName() const
+  const std::string &getName() const
   {
     return second;
   }
@@ -94,8 +94,7 @@ typedef std::vector<StringPair> StringPairArray;
 typedef std::set<std::string> StringSet;
 
 // TODO: Re-factor into a different place?
-enum class TypeComparisonResult
-{
+enum class TypeComparisonResult {
   NotEquivalent = -1,
   Equivalent = 0,
   ImplicitlyEquivalent = 1,

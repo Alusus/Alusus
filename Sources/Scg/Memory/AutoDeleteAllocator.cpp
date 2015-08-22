@@ -14,5 +14,5 @@
 
 namespace Scg
 {
-AutoDeleteAllocator AutoDeleteAllocator::s_singleton;
+AutoDeleteAllocator AutoDeleteAllocator::sSingleton;
 }

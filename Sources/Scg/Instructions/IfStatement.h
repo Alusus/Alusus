@@ -20,85 +20,109 @@
 
 namespace Scg
 {
-  class Block;
+class Block;
 }
 
 namespace Scg
 {
+/**
+ * Represents a function definition, i.e. a prototype and body.
+ */
+class IfStatement : public Expression
+{
+private:
+  Expression *condition;
+  Block *thenBlock;
+  Block *elseBlock;
+  Block *mergeBlock;
+  llvm::ICmpInst *cmpInst;
+  llvm::BranchInst *ifBranch;
+  llvm::BranchInst *thenBranch;
+  llvm::BranchInst *elseBranch;
+
+public:
   /**
-   * Represents a function definition, i.e. a prototype and body.
+   * Construct a function with the given name, arguments, and body.
+   *
+   * @param[in] condition The condition of the if statement.
+   * @param[in] thenBlock The block to be executed if the condition evaluates to true.
+   * @param[in] elseBlock The block to be executed if the condition evaluates to false.
    */
-  class IfStatement : public Expression
+  IfStatement(Expression *condition, Block *thenBlock, Block *elseBlock);
+
+  /**
+   * Class destructor
+   */
+  ~IfStatement();
+
+  /**
+   * Get the block to be executed if the condition evaluates to true.
+   *
+   * @return A pointer to the 'then' block.
+   */
+  const Expression *getCondition() const
   {
-  private:
-    Expression *condition;
-    Block *thenBlock;
-    Block *elseBlock;
-    Block *mergeBlock;
-    llvm::ICmpInst *cmpInst;
-    llvm::BranchInst *ifBranch;
-    llvm::BranchInst *thenBranch;
-    llvm::BranchInst *elseBranch;
+    return condition;
+  }
+  Expression *getCondition()
+  {
+    return condition;
+  }
 
-  public:
-    /**
-     * Construct a function with the given name, arguments, and body.
-     *
-     * @param[in] condition The condition of the if statement.
-     * @param[in] thenBlock The block to be executed if the condition evaluates to true.
-     * @param[in] elseBlock The block to be executed if the condition evaluates to false.
-     */
-    IfStatement(Expression *condition, Block *thenBlock, Block *elseBlock);
+  /**
+   * Get the block to be executed if the condition evaluates to true.
+   *
+   * @return A pointer to the 'then' block.
+   */
+  const Block *getThenBlock() const
+  {
+    return thenBlock;
+  }
+  Block *getThenBlock()
+  {
+    return thenBlock;
+  }
 
-    /**
-     * Class destructor
-     */
-    ~IfStatement();
+  /**
+   * Get the block to be executed if the condition evaluates to true.
+   *
+   * @return A pointer to the 'else' block.
+   */
+  const Block *getElseBlock() const
+  {
+    return elseBlock;
+  }
+  Block *getElseBlock()
+  {
+    return elseBlock;
+  }
 
-    /**
-     * Get the block to be executed if the condition evaluates to true.
-     *
-     * @return A pointer to the 'then' block.
-     */
-    const Expression *GetCondition() const { return condition; }
-    Expression *GetCondition() { return condition; }
+  const Block *getMergeBlock() const
+  {
+    return mergeBlock;
+  }
+  Block *getMergeBlock()
+  {
+    return mergeBlock;
+  }
 
-    /**
-     * Get the block to be executed if the condition evaluates to true.
-     *
-     * @return A pointer to the 'then' block.
-     */
-    const Block *GetThenBlock() const { return thenBlock; }
-    Block *GetThenBlock() { return thenBlock; }
+  //! @copydoc Expression::callGenerateCode()
+  virtual CodeGenerationStage callGenerateCode()
+  {
+    // We want to manually call the generateCode() member function of children
+    // so we override the default behaviour of callGenerateCode();
+    return generateCode();
+  }
 
-    /**
-     * Get the block to be executed if the condition evaluates to true.
-     *
-     * @return A pointer to the 'else' block.
-     */
-    const Block *GetElseBlock() const { return elseBlock; }
-    Block *GetElseBlock() { return elseBlock; }
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-    const Block *GetMergeBlock() const { return mergeBlock; }
-    Block *GetMergeBlock() { return mergeBlock; }
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-    //! @copydoc Expression::CallGenerateCode()
-    virtual CodeGenerationStage CallGenerateCode()
-    {
-    	// We want to manually call the GenerateCode() member function of children
-    	// so we override the default behaviour of CallGenerateCode();
-    	return GenerateCode();
-    }
-
-    //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationStage GenerateCode();
-
-    //! @copydoc Expression::PostGenerateCode()
-    virtual CodeGenerationStage PostGenerateCode();
-
-    //! @copydoc Expression::ToString()
-    virtual std::string ToString();
-  };
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
+};
 }
 
 #endif // __IfStatement_h__

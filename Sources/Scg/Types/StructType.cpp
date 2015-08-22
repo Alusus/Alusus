@@ -19,25 +19,27 @@
 namespace Scg
 {
 StructType::StructType(const std::string &name)
-    : name(name), typeSpec(name.c_str())
+  : name(name), typeSpec(name.c_str())
 {
   // We don't delete a structure type we create as it is defined using
   // LLVM's BumpPtrAllocator.
-  this->llvmType = llvm::StructType::create(LlvmContainer::GetContext(), this->name.c_str());
+  this->llvmType = llvm::StructType::create(LlvmContainer::getContext(), this->name.c_str());
 }
 
 //------------------------------------------------------------------------------
 
-void StructType::SetFields(const ValueTypeNameArray &fields)
+void StructType::setFields(const ValueTypeNameArray &fields)
 {
   this->fields = fields;
   std::vector<llvm::Type *> llvmFields;
+
   for (auto field : this->fields)
-    llvmFields.push_back(field.GetValueType()->GetLlvmType());
+    llvmFields.push_back(field.getValueType()->getLlvmType());
+
   static_cast<llvm::StructType *>(this->llvmType)->setBody(llvmFields);
 }
 
-void StructType::InitCastingTargets() const
+void StructType::initCastingTargets() const
 {
   this->implicitCastingTargets.push_back(this);
 
@@ -46,13 +48,15 @@ void StructType::InitCastingTargets() const
 
 //------------------------------------------------------------------------------
 
-bool StructType::IsEqualTo(const ValueType *other) const
+bool StructType::isEqualTo(const ValueType *other) const
 {
   auto otherAsStruct = dynamic_cast<const StructType *>(other);
+
   if (otherAsStruct == nullptr) {
     return false;
   }
+
   // TODO: For now we are just comparing the name. Later
-  return otherAsStruct->GetName().compare(otherAsStruct->GetName()) == 0;
+  return otherAsStruct->getName().compare(otherAsStruct->getName()) == 0;
 }
 }

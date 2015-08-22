@@ -35,35 +35,35 @@ Cast::~Cast()
 
 //----------------------------------------------------------------------------
 
-const ValueTypeSpec *Cast::GetValueTypeSpec() const
+const ValueTypeSpec *Cast::getValueTypeSpec() const
 {
   return this->typeSpec;
 }
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Cast::PreGenerateCode()
+Expression::CodeGenerationStage Cast::preGenerateCode()
 {
-  this->type = this->typeSpec->ToValueType(*GetModule());
+  this->type = this->typeSpec->toValueType(*getModule());
   return CodeGenerationStage::CodeGeneration;
 }
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Cast::GenerateCode()
+Expression::CodeGenerationStage Cast::generateCode()
 {
-  auto sourceType = this->expr->GetValueTypeSpec()->ToValueType(*GetModule());
-  auto irb = GetBlock()->GetIRBuilder();
+  auto sourceType = this->expr->getValueTypeSpec()->toValueType(*getModule());
+  auto irb = getBlock()->getIRBuilder();
   // TODO: Should delete the cast instruction.
-  generatedLlvmValue = sourceType->CreateCastInst(irb,
-      this->expr->GetGeneratedLlvmValue(), this->type);
-  return Expression::GenerateCode();
+  generatedLlvmValue = sourceType->createCastInst(irb,
+                       this->expr->getGeneratedLlvmValue(), this->type);
+  return Expression::generateCode();
 }
 
 //----------------------------------------------------------------------------
 
-std::string Cast::ToString()
+std::string Cast::toString()
 {
-  return expr->ToString() + "cast[" + type->ToString() + "]";
+  return expr->toString() + "cast[" + type->toString() + "]";
 }
 }

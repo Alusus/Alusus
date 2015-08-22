@@ -39,45 +39,45 @@ private:
   }
 
 protected:
-  //! @copydoc ValueType::InitCastingTargets()
-  virtual void InitCastingTargets() const override;
+  //! @copydoc ValueType::initCastingTargets()
+  virtual void initCastingTargets() const override;
 
 public:
   /**
   * Gets a constant value of double type.
   * @param[in] value The value of the constant.
   */
-  llvm::Constant *GetLlvmConstant(double value) const;
+  llvm::Constant *getLlvmConstant(double value) const;
 
-  //! @copydoc ValueType::GetDefaultLLVMValue()
-  virtual llvm::Constant *GetDefaultLLVMValue() const
+  //! @copydoc ValueType::getDefaultLLVMValue()
+  virtual llvm::Constant *getDefaultLLVMValue() const
   {
-    return GetLlvmConstant(0.0);
+    return getLlvmConstant(0.0);
   }
 
-  //! @copydoc ValueType::GetName()
-  virtual const std::string GetName() const
+  //! @copydoc ValueType::getName()
+  virtual const std::string getName() const
   {
     return "double";
   }
 
-  //! @copydoc ValueType::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override
+  //! @copydoc ValueType::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override
   {
     return &typeSpec;
   }
 
-  //! @copydoc ValueType::IsEqualTo()
-  virtual bool IsEqualTo(const ValueType *other) const
+  //! @copydoc ValueType::isEqualTo()
+  virtual bool isEqualTo(const ValueType *other) const
   {
     return dynamic_cast<const DoubleType *>(other) != nullptr;
   }
 
-  //! @copydoc ValueType::CreateCastInst()
-  virtual llvm::Value *CreateCastInst(llvm::IRBuilder<> *irb,
-      llvm::Value *value, const ValueType *targetType) const override;
+  //! @copydoc ValueType::createCastInst()
+  virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
+                                      llvm::Value *value, const ValueType *targetType) const override;
 
-  static DoubleType *Get();
+  static DoubleType *get();
 };
 }
 

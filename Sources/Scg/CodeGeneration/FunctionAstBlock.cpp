@@ -23,58 +23,62 @@ using namespace Core::Data;
 using std::shared_ptr;
 
 FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
-    const shared_ptr<ParsedList> &astRoot) : autoDelete(false)
+                                   const shared_ptr<ParsedList> &astRoot) : autoDelete(false)
 {
-  if (astRoot->getProdId() != gen->GetFunctionId())
+  if (astRoot->getProdId() != gen->getFunctionId())
     throw EXCEPTION(InvalidArgumentException,
-        "Functions can be constructed from Function parsed items only.");
+                    "Functions can be constructed from Function parsed items only.");
 
   // Initialises tree browsers.
   static ReferenceSeeker seeker;
   // Signature having return value
   static SharedPtr<Reference> sigWithRetReference = ReferenceParser::parseQualifier(
-    STR("1~where(prodId=Expression.Exp)."
-        "0~where(prodId=Expression.LowLinkExp)"),
-    ReferenceUsageCriteria::MULTI_DATA);
+        STR("1~where(prodId=Expression.Exp)."
+            "0~where(prodId=Expression.LowLinkExp)"),
+        ReferenceUsageCriteria::MULTI_DATA);
   static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
-    STR("(-1)~where(prodId=Main.StatementList)"),
-    ReferenceUsageCriteria::MULTI_DATA);
+        STR("(-1)~where(prodId=Main.StatementList)"),
+        ReferenceUsageCriteria::MULTI_DATA);
 
   // Parses the arguments and return types of the function.
   auto sigWithRet = getSharedPtr(seeker.tryGet(sigWithRetReference.get(), astRoot.get())).io_cast<ParsedList>();
+
   if (sigWithRet != nullptr) {
     // The function has return value.
     auto sigRet = LowLinkExpression(gen, sigWithRet);
-    if (sigRet.GetSeparator().compare("=>") != 0) {
-      gen->GetBuildMsgStore()->add(std::make_shared<Core::Processing::CustomBuildMsg>(
+
+    if (sigRet.getSeparator().compare("=>") != 0) {
+      gen->getBuildMsgStore()->add(std::make_shared<Core::Processing::CustomBuildMsg>(
                                      STR("Invalid separator between the arguments of the function"
                                          " and its return type. Must use '=>'"),
                                      STR("SCG1022"), 1, astRoot->getSourceLocation(),
-                                     sigRet.GetSeparator().c_str()));
+                                     sigRet.getSeparator().c_str()));
     }
-    this->arguments = gen->ParseFunctionArguments(sigRet.GetLHS());
-    this->returnType = gen->ParseVariableType(sigRet.GetRHS());
+
+    this->arguments = gen->parseFunctionArguments(sigRet.getLHS());
+    this->returnType = gen->parseVariableType(sigRet.getRHS());
   } else {
     // The function doesn't have a return value.
-    this->arguments = gen->ParseFunctionArguments(
-        astRoot->getShared(1));
+    this->arguments = gen->parseFunctionArguments(
+                        astRoot->getShared(1));
   }
 
   // Parses the body of the function.
   auto bodyRoot = getSharedPtr(seeker.tryGet(bodyReference.get(), astRoot.get())).io_cast<ParsedList>();
-  if (bodyRoot != nullptr)
-  {
+
+  if (bodyRoot != nullptr) {
     auto bodyAstBlock = ListExpression(gen, bodyRoot);
     ExpressionArray bodyStats;
-    for (auto i = 0; i < bodyAstBlock.GetItemCount(); i++)
-      for (auto stat : gen->GenerateStatement(bodyAstBlock.GetItem(i))) {
+
+    for (auto i = 0; i < bodyAstBlock.getItemCount(); i++)
+      for (auto stat : gen->generateStatement(bodyAstBlock.getItem(i))) {
         bodyStats.push_back(stat);
       }
+
     this->body = new Block(bodyStats);
-  }
-  else
+  } else
     throw EXCEPTION(InvalidArgumentException,
-        "Function should have a statement list under the path -1:SubSubject.Subject1.");
+                    "Function should have a statement list under the path -1:SubSubject.Subject1.");
 
   // Stores the line and column numbers.
   this->sourceLocation = astRoot->getSourceLocation();
@@ -90,7 +94,7 @@ FunctionAstBlock::~FunctionAstBlock()
 
 //------------------------------------------------------------------------------
 
-DefineFunction *FunctionAstBlock::ToDefineFunction(Char const *name)
+DefineFunction *FunctionAstBlock::toDefineFunction(Char const *name)
 {
   // We don't own the body anymore, the new DefineFunction instruction does,
   // so we don't delete the body when this object is destroyed.

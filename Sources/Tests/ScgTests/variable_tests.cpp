@@ -16,12 +16,14 @@
 
 using namespace Scg;
 
-namespace Tests { namespace ScgTests
+namespace Tests
+{
+namespace ScgTests
 {
 
 bool TestDefinePrimitiveTypes()
 {
-  LlvmContainer::Initialize();
+  LlvmContainer::initialize();
 
   // Create a type specification for an integer.
   // Create the main function.
@@ -33,26 +35,26 @@ bool TestDefinePrimitiveTypes()
     new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-      VariableDefinitionArray(), mainBody);
+                                 VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefinePrimitiveTypes");
-  module->AppendExpression(main);
+  module->appendExpression(main);
   auto program = new Program();
-  program->AddModule(module);
-  std::cout << program->Compile() << std::endl;
+  program->addModule(module);
+  std::cout << program->compile() << std::endl;
   std::cout << "TestDefinePrimitiveTypes succeeded." << std::endl;
   delete program;
 
 
-  LlvmContainer::Finalize();
+  LlvmContainer::finalize();
 
   return true;
 }
 
 bool TestDefinePointersOfPrimitiveTypes()
 {
-  LlvmContainer::Initialize();
+  LlvmContainer::initialize();
 
   // Create a type specification for an integer.
   // Create the main function.
@@ -64,25 +66,25 @@ bool TestDefinePointersOfPrimitiveTypes()
     new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-      VariableDefinitionArray(), mainBody);
+                                 VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefinePointerOfPrimitiveTypes");
-  module->AppendExpression(main);
+  module->appendExpression(main);
   auto program = new Program();
-  program->AddModule(module);
-  std::cout << program->Compile() << std::endl;
+  program->addModule(module);
+  std::cout << program->compile() << std::endl;
   std::cout << "TestDefinePointerOfPrimitiveTypes succeeded." << std::endl;
   delete program;
 
-  LlvmContainer::Finalize();
+  LlvmContainer::finalize();
 
   return true;
 }
 
 bool TestDefineArraysOfPrimitiveTypes()
 {
-  LlvmContainer::Initialize();
+  LlvmContainer::initialize();
 
   // Create a type specification for an integer.
   // Create the main function.
@@ -94,172 +96,172 @@ bool TestDefineArraysOfPrimitiveTypes()
     new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-      VariableDefinitionArray(), mainBody);
+                                 VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefineArraysOfPrimitiveTypes");
-  module->AppendExpression(main);
+  module->appendExpression(main);
   auto program = new Program();
-  program->AddModule(module);
-  std::cout << program->Compile() << std::endl;
+  program->addModule(module);
+  std::cout << program->compile() << std::endl;
   std::cout << "TestDefineArraysOfPrimitiveTypes succeeded." << std::endl;
   delete program;
 
-  LlvmContainer::Finalize();
+  LlvmContainer::finalize();
 
   return true;
 }
 
 bool TestDefineStructure()
 {
-  LlvmContainer::Initialize();
+  LlvmContainer::initialize();
 
   // Create a type specification for an integer.
   // Create the main function.
   auto mainBody = new Block({
-      new DefineStruct("Point", {
-          VariableDefinition(CreateTypeSpecByName("int"), "x"),
-          VariableDefinition(CreateTypeSpecByName("int"), "y")
-      }),
-      new DefineVariable(CreateTypeSpecByName("Point"), "point"),
-      new Return(new IntegerConst(0))
+    new DefineStruct("Point", {
+      VariableDefinition(CreateTypeSpecByName("int"), "x"),
+      VariableDefinition(CreateTypeSpecByName("int"), "y")
+    }),
+    new DefineVariable(CreateTypeSpecByName("Point"), "point"),
+    new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-      VariableDefinitionArray(), mainBody);
+                                 VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefineStructure");
-  module->AppendExpression(main);
+  module->appendExpression(main);
   auto program = new Program();
-  program->AddModule(module);
-  std::cout << program->Compile() << std::endl;
+  program->addModule(module);
+  std::cout << program->compile() << std::endl;
   std::cout << "TestDefineStructure succeeded." << std::endl;
   delete program;
 
-  LlvmContainer::Finalize();
+  LlvmContainer::finalize();
 
   return true;
 }
 
 bool TestDefineArrayOfStructure()
 {
-  LlvmContainer::Initialize();
+  LlvmContainer::initialize();
 
   // Create a type specification for an integer.
   // Create the main function.
   auto mainBody = new Block({
-      new DefineStruct("Point", {
-          VariableDefinition(CreateTypeSpecByName("int"), "x"),
-          VariableDefinition(CreateTypeSpecByName("int"), "y")
-      }),
-      new DefineVariable(CreateArrayOfPrimitiveTypeSpec("Point", 10), "points"),
-      new Return(new IntegerConst(0))
+    new DefineStruct("Point", {
+      VariableDefinition(CreateTypeSpecByName("int"), "x"),
+      VariableDefinition(CreateTypeSpecByName("int"), "y")
+    }),
+    new DefineVariable(CreateArrayOfPrimitiveTypeSpec("Point", 10), "points"),
+    new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-      VariableDefinitionArray(), mainBody);
+                                 VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefineArrayOfStructure");
-  module->AppendExpression(main);
+  module->appendExpression(main);
   auto program = new Program();
-  program->AddModule(module);
-  std::cout << program->Compile() << std::endl;
+  program->addModule(module);
+  std::cout << program->compile() << std::endl;
   std::cout << "TestDefineArrayOfStructure succeeded." << std::endl;
   delete program;
 
-  LlvmContainer::Finalize();
+  LlvmContainer::finalize();
 
   return true;
 }
 
 bool TestDefineLinkListNodeStructure()
 {
-  LlvmContainer::Initialize();
+  LlvmContainer::initialize();
 
   // Create a type specification for an integer.
   // Create the main function.
   auto mainBody = new Block({
-      new DefineStruct("LinkListNode", {
-          VariableDefinition(CreateTypeSpecByName("int"), "data"),
-          VariableDefinition(CreatePointerToPrimitiveTypeSpec("LinkListNode"), "prev"),
-          VariableDefinition(CreatePointerToPrimitiveTypeSpec("LinkListNode"), "next"),
-      }),
-      new DefineVariable(CreateTypeSpecByName("LinkListNode"), "node"),
-      new Return(new IntegerConst(0))
+    new DefineStruct("LinkListNode", {
+      VariableDefinition(CreateTypeSpecByName("int"), "data"),
+      VariableDefinition(CreatePointerToPrimitiveTypeSpec("LinkListNode"), "prev"),
+      VariableDefinition(CreatePointerToPrimitiveTypeSpec("LinkListNode"), "next"),
+    }),
+    new DefineVariable(CreateTypeSpecByName("LinkListNode"), "node"),
+    new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-      VariableDefinitionArray(), mainBody);
+                                 VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefineLinkListNodeStructure");
-  module->AppendExpression(main);
+  module->appendExpression(main);
   auto program = new Program();
-  program->AddModule(module);
-  std::cout << program->Compile() << std::endl;
+  program->addModule(module);
+  std::cout << program->compile() << std::endl;
   std::cout << "TestDefineLinkListNodeStructure succeeded." << std::endl;
   delete program;
 
-  LlvmContainer::Finalize();
+  LlvmContainer::finalize();
 
   return true;
 }
 
 bool TestDefinePointerToArray()
 {
-  LlvmContainer::Initialize();
+  LlvmContainer::initialize();
 
   // Create a type specification for an integer.
   // Create the main function.
   auto mainBody = new Block({
-      new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("int", 10)), "ints"),
-      new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("float", 10)), "floats"),
-      new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("double", 10)), "doubles"),
-      new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("string", 10)), "strings"),
-      new Return(new IntegerConst(0))
+    new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("int", 10)), "ints"),
+    new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("float", 10)), "floats"),
+    new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("double", 10)), "doubles"),
+    new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("string", 10)), "strings"),
+    new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-      VariableDefinitionArray(), mainBody);
+                                 VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefinePointerToArray");
-  module->AppendExpression(main);
+  module->appendExpression(main);
   auto program = new Program();
-  program->AddModule(module);
-  std::cout << program->Compile() << std::endl;
+  program->addModule(module);
+  std::cout << program->compile() << std::endl;
   std::cout << "TestDefinePointerToArray succeeded." << std::endl;
   delete program;
 
-  LlvmContainer::Finalize();
+  LlvmContainer::finalize();
 
   return true;
 }
 
 bool TestDefineArrayOfPointers()
 {
-  LlvmContainer::Initialize();
+  LlvmContainer::initialize();
 
   // Create a type specification for an integer.
   // Create the main function.
   auto mainBody = new Block({
-      new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("int"), 10), "ints"),
-      new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("float"), 10), "floats"),
-      new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("double"), 10), "doubles"),
-      new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("string"), 10), "strings"),
-      new Return(new IntegerConst(0))
+    new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("int"), 10), "ints"),
+    new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("float"), 10), "floats"),
+    new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("double"), 10), "doubles"),
+    new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("string"), 10), "strings"),
+    new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-      VariableDefinitionArray(), mainBody);
+                                 VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefineArrayOfPointers");
-  module->AppendExpression(main);
+  module->appendExpression(main);
   auto program = new Program();
-  program->AddModule(module);
-  std::cout << program->Compile() << std::endl;
+  program->addModule(module);
+  std::cout << program->compile() << std::endl;
   std::cout << "TestDefineArrayOfPointers succeeded." << std::endl;
   delete program;
 
-  LlvmContainer::Finalize();
+  LlvmContainer::finalize();
 
   return true;
 }
@@ -267,16 +269,25 @@ bool TestDefineArrayOfPointers()
 bool RunAllVariableTests()
 {
   auto ret = true;
+
   if (!TestDefinePrimitiveTypes()) ret = false;
+
   if (!TestDefinePointersOfPrimitiveTypes()) ret = false;
+
   if (!TestDefineArraysOfPrimitiveTypes()) ret = false;
+
   if (!TestDefineStructure()) ret = false;
+
   if (!TestDefineArrayOfStructure()) ret = false;
+
   if (!TestDefineLinkListNodeStructure()) ret = false;
+
   if (!TestDefinePointerToArray()) ret = false;
+
   if (!TestDefineArrayOfPointers()) ret = false;
 
   return ret;
 }
 
-} } // namespace
+}
+} // namespace

@@ -32,13 +32,14 @@ class RunParsingHandler : public Core::Processing::GenericParsingHandler
   Core::Standard::RootManager *rootManager;
   Core::Basic::SharedPtr<Core::Data::Reference> aliasDictionaryRef =
     Core::Data::ReferenceParser::parseQualifier(STR("root:_Aliases"),
-      Core::Data::ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH);
+        Core::Data::ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH);
 
 
   //============================================================================
   // Constructor
 
-  public: RunParsingHandler(Core::Standard::RootManager *rm) : rootManager(rm)
+public:
+  RunParsingHandler(Core::Standard::RootManager *rm) : rootManager(rm)
   {
   }
 
@@ -46,7 +47,8 @@ class RunParsingHandler : public Core::Processing::GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
+public:
+  virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
 }; // class
 

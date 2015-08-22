@@ -47,7 +47,7 @@ public:
    *                      in the heap, and will be freed by this object.
    * @param[in] name      The name of the variable to define.
    */
-  DefineVariable(const ValueTypeSpec *typeSpec , Core::Basic::Char const *name)
+  DefineVariable(const ValueTypeSpec *typeSpec, Core::Basic::Char const *name)
     : typeSpec(typeSpec)
     , value(nullptr)
     , name(name)
@@ -58,9 +58,9 @@ public:
   *
   */
   DefineVariable(Expression *value, Core::Basic::Char const *name)
-  : value(value)
-  , typeSpec(nullptr)
-  , name(name)
+    : value(value)
+    , typeSpec(nullptr)
+    , name(name)
   {
     this->children.push_back(value);
   }
@@ -75,11 +75,14 @@ public:
    *
    * @return A pointer to the variable type.
    */
-  const ValueType *GetVarType() const { return type; }
-  ValueType *GetVarType()
+  const ValueType *getVarType() const
+  {
+    return type;
+  }
+  ValueType *getVarType()
   {
     return const_cast<ValueType*>(
-        static_cast<const DefineVariable*>(this)->GetVarType());
+             static_cast<const DefineVariable*>(this)->getVarType());
   }
 
   /**
@@ -87,23 +90,29 @@ public:
    *
    * @return The name of the variable.
    */
-  const std::string &GetVarName() const { return name; }
+  const std::string &getVarName() const
+  {
+    return name;
+  }
 
   /**
    * Retrieves the name of the type of this variable.
    *
    * @return The name of the type.
    */
-  const ValueTypeSpec *GetVarTypeSpec() const { return typeSpec; }
+  const ValueTypeSpec *getVarTypeSpec() const
+  {
+    return typeSpec;
+  }
 
-  //! @copydoc Expression::PreGenerateCode()
-  virtual CodeGenerationStage PreGenerateCode();
+  //! @copydoc Expression::preGenerateCode()
+  virtual CodeGenerationStage preGenerateCode();
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

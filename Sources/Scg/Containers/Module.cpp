@@ -48,23 +48,25 @@ Module::~Module()
   //delete this->llvmModule;
 }
 
-const llvm::Module *Module::GetLlvmModule() const
+const llvm::Module *Module::getLlvmModule() const
 {
-	return this->program->GetLlvmModule();
+  return this->program->getLlvmModule();
 }
 
-llvm::Module *Module::GetLlvmModule()
+llvm::Module *Module::getLlvmModule()
 {
-	return this->program->GetLlvmModule();
+  return this->program->getLlvmModule();
 }
 
-ValueType* Module::GetValueTypeByName(const std::string &typeName) const
+ValueType* Module::getValueTypeByName(const std::string &typeName) const
 {
   ValueType *type = this->tryGetValueTypeByName(typeName);
+
   if (type == nullptr)
     // TODO: String concatenation might allocate memory which will reduce
     // compilation speed. We should use pre-allocated memory instead.
     throw EXCEPTION(InvalidTypeException, ("Use of undefined type: " + typeName).c_str());
+
   return type;
 }
 
@@ -73,96 +75,102 @@ ValueType* Module::tryGetValueTypeByName(const std::string &typeName) const
   ValueType *type;
   // First try the types defined in the module.
   auto it = this->typeMap.find(typeName);
+
   if (it != this->typeMap.end())
     type = it->second;
   else
-    type = ValueType::GetPrimitiveType(typeName);
+    type = ValueType::getPrimitiveType(typeName);
+
   return type;
 }
 
-bool Module::HasFunction(const std::string &name,
-		const ValueTypeSpecArray &arguments) const
+bool Module::hasFunction(const std::string &name,
+                         const ValueTypeSpecArray &arguments) const
 {
-	auto nonConstThis = const_cast<Module*>(this);
-	return nonConstThis->FindDefineFunction(name, arguments) != nullptr ||
-			nonConstThis->FindDeclareFunction(name, arguments) != nullptr;
+  auto nonConstThis = const_cast<Module*>(this);
+  return nonConstThis->findDefineFunction(name, arguments) != nullptr ||
+         nonConstThis->findDeclareFunction(name, arguments) != nullptr;
 }
 
-DefineFunction *Module::FindDefineFunction(const std::string &name,
+DefineFunction *Module::findDefineFunction(const std::string &name,
     const ValueTypeSpecArray &arguments)
 {
   // TODO: We need to create a map for faster retrieval.
   // TODO: We need to raise an error if there is more than one match.
-  for (auto expr : this->children)
-  {
+  for (auto expr : this->children) {
     // TODO: Don't use dynamic_cast.
     auto defFunc = dynamic_cast<DefineFunction*>(expr);
+
     if (defFunc == nullptr)
       continue;
-    if (defFunc->GetName().compare(name) == 0 &&
-        defFunc->GetArguments().AreTypesEqualTo(&arguments))
+
+    if (defFunc->getName().compare(name) == 0 &&
+        defFunc->getArguments().areTypesEqualTo(&arguments))
       return defFunc;
   }
+
   return nullptr;
 }
 
-DeclareExtFunction *Module::FindDeclareFunction(const std::string &name,
+DeclareExtFunction *Module::findDeclareFunction(const std::string &name,
     const ValueTypeSpecArray &arguments)
 {
   // TODO: We need to create a map for faster retrieval.
   // TODO: We need to raise an error if there is more than one match.
-  for (auto expr : this->children)
-  {
+  for (auto expr : this->children) {
     // TODO: Don't use dynamic_cast.
     auto declFunc = dynamic_cast<DeclareExtFunction*>(expr);
+
     if (declFunc == nullptr)
       continue;
-    if (declFunc->GetName().compare(name) == 0 &&
-        declFunc->GetArgumentTypes().IsEqualTo(&arguments,
-            declFunc->GetArgumentTypes().size()))
+
+    if (declFunc->getName().compare(name) == 0 &&
+        declFunc->getArgumentTypes().isEqualTo(&arguments,
+            declFunc->getArgumentTypes().size()))
       return declFunc;
   }
+
   return nullptr;
 }
 
-std::string Module::GetTempVarName()
+std::string Module::getTempVarName()
 {
   std::stringstream str;
   str << "_tmp" << this->tempIndex++;
   return str.str();
 }
 
-void Module::PrependExpression(Expression *expr)
+void Module::prependExpression(Expression *expr)
 {
   this->children.insert(this->children.begin(), expr);
-  expr->SetModule(this);
-  expr->SetBlock(nullptr);
+  expr->setModule(this);
+  expr->setBlock(nullptr);
 }
 
 void Module::PrependExpressions(ExpressionArray &expr)
 {
   this->children.insert(this->children.begin(), expr.begin(), expr.end());
-  for (auto e : expr)
-  {
-    e->SetModule(this);
-    e->SetBlock(nullptr);
+
+  for (auto e : expr) {
+    e->setModule(this);
+    e->setBlock(nullptr);
   }
 }
 
-void Module::AppendExpression(Expression *expr)
+void Module::appendExpression(Expression *expr)
 {
   this->children.push_back(expr);
-  expr->SetModule(this);
-  expr->SetBlock(nullptr);
+  expr->setModule(this);
+  expr->setBlock(nullptr);
 }
 
-void Module::AppendExpressions(ExpressionArray &expr)
+void Module::appendExpressions(ExpressionArray &expr)
 {
   this->children.insert(this->children.end(), expr.begin(), expr.end());
-  for (auto e : expr)
-  {
-    e->SetModule(this);
-    e->SetBlock(nullptr);
+
+  for (auto e : expr) {
+    e->setModule(this);
+    e->setBlock(nullptr);
   }
 }
 }

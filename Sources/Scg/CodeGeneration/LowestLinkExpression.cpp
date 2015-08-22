@@ -15,21 +15,22 @@
 
 namespace Scg
 {
-  using namespace Core::Basic;
-  using namespace Core::Data;
+using namespace Core::Basic;
+using namespace Core::Data;
 
-  LowestLinkExpression::LowestLinkExpression(CodeGenerator *gen,
-      const SharedPtr<IdentifiableObject> &item)
-  {
-    auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
-    if (metadata == nullptr || metadata->getProdId() != gen->GetLowestLinkExpId())
-      throw EXCEPTION(InvalidArgumentException,
-          "Lowest link expressions can be constructed from "
-          "Expression.LowestLinkExp only.");
+LowestLinkExpression::LowestLinkExpression(CodeGenerator *gen,
+    const SharedPtr<IdentifiableObject> &item)
+{
+  auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
 
-    auto list = item.s_cast<ParsedList>();
-    this->lhs = list->getShared(0);
-    this->separator = static_cast<ParsedToken*>(list->get(1))->getText();
-    this->rhs = list->getShared(2);
-  }
+  if (metadata == nullptr || metadata->getProdId() != gen->getLowestLinkExpId())
+    throw EXCEPTION(InvalidArgumentException,
+                    "Lowest link expressions can be constructed from "
+                    "Expression.LowestLinkExp only.");
+
+  auto list = item.s_cast<ParsedList>();
+  this->lhs = list->getShared(0);
+  this->separator = static_cast<ParsedToken*>(list->get(1))->getText();
+  this->rhs = list->getShared(2);
+}
 }

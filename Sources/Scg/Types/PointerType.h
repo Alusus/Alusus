@@ -47,18 +47,18 @@ private:
   PointerType(const ValueType *contentType);
 
 protected:
-  //! @copydoc ValueType::InitCastingTargets()
-  virtual void InitCastingTargets() const override;
+  //! @copydoc ValueType::initCastingTargets()
+  virtual void initCastingTargets() const override;
 
 public:
-  //! @copydoc ValueType::GetName()
-  virtual const std::string GetName() const
+  //! @copydoc ValueType::getName()
+  virtual const std::string getName() const
   {
     return name;
   }
 
-  //! @copydoc ValueType::GetDefaultLLVMValue()
-  virtual llvm::Constant *GetDefaultLLVMValue() const
+  //! @copydoc ValueType::getDefaultLLVMValue()
+  virtual llvm::Constant *getDefaultLLVMValue() const
   {
     throw EXCEPTION(NotImplementedException, "Not implemented yet!");
   }
@@ -67,23 +67,23 @@ public:
   * Retrieves the type of the content of this pointer.
   * @return A pointer to the type of the content of this pointer.
   */
-  virtual const ValueType *GetContentType() const
+  virtual const ValueType *getContentType() const
   {
     return contentType;
   }
 
-  //! @copydoc ValueType::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override
+  //! @copydoc ValueType::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override
   {
     return &typeSpec;
   }
 
-  //! @copydoc ValueType::IsEqualTo()
-  virtual bool IsEqualTo(const ValueType *other) const;
+  //! @copydoc ValueType::isEqualTo()
+  virtual bool isEqualTo(const ValueType *other) const;
 
-  //! @copydoc ValueType::CreateCastInst()
-  virtual llvm::Value *CreateCastInst(llvm::IRBuilder<> *irb,
-      llvm::Value *value, const ValueType *targetType) const override;
+  //! @copydoc ValueType::createCastInst()
+  virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
+                                      llvm::Value *value, const ValueType *targetType) const override;
 
   //! Stores all pointer types used so far, so that we can reuse them.
   static std::unordered_map<const ValueType *, PointerType *> usedPointerTypes;
@@ -96,7 +96,7 @@ public:
   * @param[in] contentType The type of the content of this pointer type.
   * @return The pointer type.
   */
-  static PointerType *Get(const ValueType *contentType);
+  static PointerType *get(const ValueType *contentType);
 };
 
 }

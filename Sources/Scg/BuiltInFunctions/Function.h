@@ -61,13 +61,13 @@ public:
    * Retrieves the name of this callable.
    * @return The name of the callable.
    */
-  virtual const std::string &GetName() const = 0;
+  virtual const std::string &getName() const = 0;
 
   /**
   * Retrieves the type specifications of the arguments of this function.
   * @return An array containing the type specifications of the arguments.
   */
-  virtual const ValueTypeSpecArray &GetArgumentTypeSpecs() const
+  virtual const ValueTypeSpecArray &getArgumentTypeSpecs() const
   {
     return argTypeSpecs;
   }
@@ -77,7 +77,7 @@ public:
   * arguments.
   * @return True or false.
   */
-  virtual bool IsVarArgs() const
+  virtual bool isVarArgs() const
   {
     // Most functions have a fixed number of arguments, so we return false by
     // default.
@@ -89,17 +89,18 @@ public:
   * Retrieves the signature of this function.
   * @return The signature of the function.
   */
-  virtual const FunctionSignature &GetSignature() const
+  virtual const FunctionSignature &getSignature() const
   {
     if (sig == nullptr) {
-      sig = new FunctionSignature(GetName(), GetArgumentTypeSpecs(), IsVarArgs());
+      sig = new FunctionSignature(getName(), getArgumentTypeSpecs(), isVarArgs());
     }
+
     return *sig;
   }
-  virtual FunctionSignature &GetSignature()
+  virtual FunctionSignature &getSignature()
   {
     return const_cast<FunctionSignature&>(
-        static_cast<const Function*>(this)->GetSignature());
+             static_cast<const Function*>(this)->getSignature());
   }
   //@}
 
@@ -110,8 +111,8 @@ public:
    * @return A pointer to the LLVM instruction. This has to be freed by the
    * caller.
    */
-  virtual llvm::Value *CreateLLVMInstruction(llvm::IRBuilder<> *irb,
-  		const std::vector<llvm::Value*> &args) const = 0;
+  virtual llvm::Value *createLLVMInstruction(llvm::IRBuilder<> *irb,
+      const std::vector<llvm::Value*> &args) const = 0;
 };
 }
 

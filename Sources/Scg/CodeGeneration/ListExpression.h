@@ -25,36 +25,41 @@
 
 namespace Scg
 {
-  class ListExpression
+class ListExpression
+{
+private:
+  ParsedItemArray items;
+
+public:
+  ListExpression(CodeGenerator *gen,
+                 const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+
+  /**
+   * Retrieves the number of items in this list expression.
+   * @return The number of items in this list expression.
+   */
+  ParsedItemArray::size_type getItemCount() const
   {
-  private:
-    ParsedItemArray items;
+    return items.size();
+  }
 
-  public:
-    ListExpression(CodeGenerator *gen,
-        const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+  /**
+   * Retrieves the item at the given index.
+   * @param[in] index The index of the item.
+   * @return A pointer to the item.
+   */
+  ParsedItemArray::value_type getItem(ParsedItemArray::size_type index) const
+  {
+    return items[index];
+  }
 
-    /**
-     * Retrieves the number of items in this list expression.
-     * @return The number of items in this list expression.
-     */
-    ParsedItemArray::size_type GetItemCount() const { return items.size(); }
-
-    /**
-     * Retrieves the item at the given index.
-     * @param[in] index The index of the item.
-     * @return A pointer to the item.
-     */
-    ParsedItemArray::value_type GetItem(ParsedItemArray::size_type index) const
-    { return items[index]; }
-
-    /**
-     * If this list is a list of tokens, this function extracts the tokens
-     * and return them as a string list.
-     * @return
-     */
-    StringArray ParseTokenList() const;
-  };
+  /**
+   * If this list is a list of tokens, this function extracts the tokens
+   * and return them as a string list.
+   * @return
+   */
+  StringArray parseTokenList() const;
+};
 }
 
 #endif // __ListExpression_h__

@@ -38,10 +38,10 @@ class CallFunction : public Instruction
   //! A list containing the arguments of the function.
   List *args;
   /*! A pointer to the function this CallFunction instruction is calling.
-      This is found during the code generation process. */
+    This is found during the code generation process. */
   Function *function = nullptr;
   /*! An array containing the types of the arguments. This is filled in
-      during the code generation process. */
+    during the code generation process. */
   ValueTypeSpecArray argTypes;
   //! The LLVM call instruction representing this function call.
   llvm::Value *callInst;
@@ -67,7 +67,10 @@ public:
    * Retrieves the name of the function to be called.
    * @return A string containing the name of the function to be called.
    */
-  const std::string &GetFunctionName() const { return funcName; }
+  const std::string &getFunctionName() const
+  {
+    return funcName;
+  }
 
   //@{
   /**
@@ -75,32 +78,44 @@ public:
    * being called. Note this gets generated during the pre-code generation
    * stage.
    */
-  const ValueTypeSpecArray &GetArgumentTypes() const { return argTypes; }
-  ValueTypeSpecArray &GetArgumentTypes() { return argTypes; }
+  const ValueTypeSpecArray &getArgumentTypes() const
+  {
+    return argTypes;
+  }
+  ValueTypeSpecArray &getArgumentTypes()
+  {
+    return argTypes;
+  }
   //@}
 
   /**
    * Retrieves the expression containing the arguments passed to the function.
    * @return A pointers to the expression.
    */
-  const List *GetArguments() const { return reinterpret_cast<List*>(children[0]); }
-  List *GetArguments() { return reinterpret_cast<List*>(children[0]); }
+  const List *getArguments() const
+  {
+    return reinterpret_cast<List*>(children[0]);
+  }
+  List *getArguments()
+  {
+    return reinterpret_cast<List*>(children[0]);
+  }
 
-  //! @copydoc Expression::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Expression::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override;
 
 public:
-  //! @copydoc Expression::PreGenerateCode()
-  virtual CodeGenerationStage PreGenerateCode();
+  //! @copydoc Expression::preGenerateCode()
+  virtual CodeGenerationStage preGenerateCode();
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

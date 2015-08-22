@@ -47,16 +47,19 @@ public:
    * Gets the name of the variable pointed to by this instance.
    * @return The name of the variable.
    */
-  const std::string &GetName() const { return name; }
+  const std::string &getName() const
+  {
+    return name;
+  }
 
-  //! @copydoc Pointer::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Pointer::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override;
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

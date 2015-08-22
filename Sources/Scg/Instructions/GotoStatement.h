@@ -20,45 +20,51 @@
 
 namespace Scg
 {
+/**
+ * Represent a return statement.
+ */
+class GotoStatement : public Expression
+{
+  //! A pointer to the LLVM GotoStatement instruction representing this return statement.
+  llvm::BranchInst *branchInst;
+  //! A pointer to the block this statement is jumping to.
+  Block *block;
+
+public:
   /**
-   * Represent a return statement.
+   * Construct a return statement that returns the value of the given expression.
+   *
+   * @param[in] expression  A pointer to the expression to be returned. Notice that
+   *                        this expression will automatically get deleted, so it
+   *                        should be allocated in the heap and not deleted.
    */
-  class GotoStatement : public Expression
+  GotoStatement(Block *block) : branchInst(0), block(block)
   {
-    //! A pointer to the LLVM GotoStatement instruction representing this return statement.
-    llvm::BranchInst *branchInst;
-    //! A pointer to the block this statement is jumping to.
-    Block *block;
+    if (block == 0)
+      throw EXCEPTION(ArgumentOutOfRangeException, "Goto statement needs a "
+                      "target block to jump to.");
+  }
 
-  public:
-    /**
-     * Construct a return statement that returns the value of the given expression.
-     *
-     * @param[in] expression  A pointer to the expression to be returned. Notice that
-     *                        this expression will automatically get deleted, so it
-     *                        should be allocated in the heap and not deleted.
-     */
-    GotoStatement(Block *block) : branchInst(0), block(block)
-    {
-      if (block == 0)
-        throw EXCEPTION(ArgumentOutOfRangeException, "Goto statement needs a "
-        "target block to jump to.");
-    }
+  /**
+   * Get the block this statement is jumping to.
+   *
+   * @return A pointer to the block.
+   */
+  const Block *getTargetBlock() const
+  {
+    return block;
+  }
+  Block *getTargetBlock()
+  {
+    return block;
+  }
 
-    /**
-     * Get the block this statement is jumping to.
-     *
-     * @return A pointer to the block.
-     */
-    const Block *GetTargetBlock() const { return block; }
-    Block *GetTargetBlock() { return block; }
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-    //! @copydoc Expression::GenerateCode()
-    virtual CodeGenerationStage GenerateCode();
-
-    //! @copydoc Expression::PostGenerateCode()
-    virtual CodeGenerationStage PostGenerateCode();
-  };
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
+};
 }
 
 #endif // __Return_h__

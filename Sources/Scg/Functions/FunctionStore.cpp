@@ -12,59 +12,63 @@ using namespace llvm;
 
 namespace Scg
 {
-void FunctionStore::Add(Function *function)
+void FunctionStore::add(Function *function)
 {
   this->functions.push_back(function);
 }
 
 //------------------------------------------------------------------------------
 
-const Function *FunctionStore::Get(const std::string &name,
-      const ValueTypeSpecArray &arguments) const
+const Function *FunctionStore::get(const std::string &name,
+                                   const ValueTypeSpecArray &arguments) const
 {
   for (auto func : this->functions) {
-    if (func->GetName().compare(name) == 0) {
-      if (func->IsVarArgs()) {
+    if (func->getName().compare(name) == 0) {
+      if (func->isVarArgs()) {
         // The function has a variable number of arguments, so we only check
         // the fixed ones.
-        if (func->GetArgumentTypeSpecs().IsEqualTo(&arguments,
-            func->GetArgumentTypeSpecs().size() /* limit the comparison */)) {
+        if (func->getArgumentTypeSpecs().isEqualTo(&arguments,
+            func->getArgumentTypeSpecs().size() /* limit the comparison */)) {
           return func;
         }
       } else {
-        if (func->GetArgumentTypeSpecs().IsEqualTo(&arguments)) {
+        if (func->getArgumentTypeSpecs().isEqualTo(&arguments)) {
           return func;
         }
       }
     }
   }
+
   return nullptr;
 }
 
 //------------------------------------------------------------------------------
 
-const Function *FunctionStore::Get(const FunctionSignature &signature) const
+const Function *FunctionStore::get(const FunctionSignature &signature) const
 {
-	return Get(signature.name, signature.arguments);
+  return get(signature.name, signature.arguments);
 }
 
 //------------------------------------------------------------------------------
 
-const Function *FunctionStore::Match(const Module &module,
-    const std::string &name, const ValueTypeSpecArray &argTypes) const
+const Function *FunctionStore::match(const Module &module,
+                                     const std::string &name, const ValueTypeSpecArray &argTypes) const
 {
   // Find all the matching functions and sort them by the number of required
   // implicit casting.
-	typedef std::pair<int, Function *> FunctionMatch;
+  typedef std::pair<int, Function *> FunctionMatch;
   std::vector<FunctionMatch> matches;
+
   for (auto function : this->functions) {
-    auto matchability = function->GetSignature().Match(module, name, argTypes);
+    auto matchability = function->getSignature().match(module, name, argTypes);
+
     if (matchability != -1) {
       matches.push_back(std::make_pair(matchability, function));
     }
   }
+
   auto compFunc = [](const FunctionMatch &a, const FunctionMatch &b) {
-  	return a.first < b.first;
+    return a.first < b.first;
   };
   std::sort(matches.begin(), matches.end(), compFunc);
 
@@ -78,6 +82,7 @@ const Function *FunctionStore::Match(const Module &module,
     return matches[0].second;
 
   default:
+
     // More than one match.
     if (matches[0].first == matches[1].first) {
       // More than one match with the same number of implicit castings and

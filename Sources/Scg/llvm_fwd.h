@@ -14,24 +14,24 @@
 
 namespace llvm
 {
-  class AllocaInst;
-  class Argument;
-  class BasicBlock;
-  class BranchInst;
-  class CallInst;
-  class CastInst;
-  class ConstantFolder;
-  class Function;
-  class GetElementPtrInst;
-  class GlobalVariable;
-  class ICmpInst;
-  class Instruction;
-  class LoadInst;
-  class Module;
-  class ReturnInst;
-  class StoreInst;
-  class Type;
-  class Value;
+class AllocaInst;
+class Argument;
+class BasicBlock;
+class BranchInst;
+class CallInst;
+class CastInst;
+class ConstantFolder;
+class Function;
+class GetElementPtrInst;
+class GlobalVariable;
+class ICmpInst;
+class Instruction;
+class LoadInst;
+class Module;
+class ReturnInst;
+class StoreInst;
+class Type;
+class Value;
 }
 
 #endif // __llvm_fwd_h__

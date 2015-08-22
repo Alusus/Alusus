@@ -21,37 +21,38 @@
 
 namespace Scg
 {
-TypeComparisonResult ValueTypeSpec::Compare(const Module &module,
+TypeComparisonResult ValueTypeSpec::compare(const Module &module,
     const ValueTypeSpec *other) const
 {
-  auto thisType = this->ToValueType(module);
-  auto otherType = other->ToValueType(module);
-  return thisType->Compare(otherType);
+  auto thisType = this->toValueType(module);
+  auto otherType = other->toValueType(module);
+  return thisType->compare(otherType);
 }
 
 //------------------------------------------------------------------------------
 
 void *ValueTypeSpec::operator new(size_t size)
 {
-  return AutoDeleteAllocator::GetSingleton().Allocate(size);
+  return AutoDeleteAllocator::getSingleton().allocateMem(size);
 }
 
 //------------------------------------------------------------------------------
 
 void ValueTypeSpec::operator delete(void *ptr)
 {
-  AutoDeleteAllocator::GetSingleton().Free(ptr);
+  AutoDeleteAllocator::getSingleton().freeMem(ptr);
 }
 
 //===== ValueTypeSpecByName ====================================================
 
-TypeComparisonResult ValueTypeSpecByName::Compare(const Module &module, const ValueTypeSpec *other) const
+TypeComparisonResult ValueTypeSpecByName::compare(const Module &module, const ValueTypeSpec *other) const
 {
-  auto thisType = this->ToValueType(module);
-  auto otherType = other->ToValueType(module);
+  auto thisType = this->toValueType(module);
+  auto otherType = other->toValueType(module);
+
   if (thisType == otherType) {
     return TypeComparisonResult::Equivalent;
-  } else if (thisType->IsImplicitlyCastableTo(otherType)) {
+  } else if (thisType->isImplicitlyCastableTo(otherType)) {
     return TypeComparisonResult::ImplicitlyEquivalent;
   } else {
     return TypeComparisonResult::NotEquivalent;
@@ -60,14 +61,14 @@ TypeComparisonResult ValueTypeSpecByName::Compare(const Module &module, const Va
 
 //------------------------------------------------------------------------------
 
-ValueType *ValueTypeSpecByName::ToValueType(const Module &module) const
+ValueType *ValueTypeSpecByName::toValueType(const Module &module) const
 {
-  return module.GetValueTypeByName(this->name);
+  return module.getValueTypeByName(this->name);
 }
 
 //------------------------------------------------------------------------------
 
-std::string ValueTypeSpecByName::ToString() const
+std::string ValueTypeSpecByName::toString() const
 {
   return this->name;
 }
@@ -81,21 +82,23 @@ PointerValueTypeSpec::~PointerValueTypeSpec()
 
 //------------------------------------------------------------------------------
 
-ValueType *PointerValueTypeSpec::ToValueType(const Module &module) const
+ValueType *PointerValueTypeSpec::toValueType(const Module &module) const
 {
-  auto contentType = this->contentTypeSpec->ToValueType(module);
+  auto contentType = this->contentTypeSpec->toValueType(module);
+
   if (contentType == nullptr)
     return nullptr;
-  return PointerType::Get(contentType);
+
+  return PointerType::get(contentType);
 }
 
 //------------------------------------------------------------------------------
 
-std::string PointerValueTypeSpec::ToString() const
+std::string PointerValueTypeSpec::toString() const
 {
   std::stringstream ss;
   ss << "ptr[";
-  ss << this->contentTypeSpec->ToString();
+  ss << this->contentTypeSpec->toString();
   ss << "]";
   return ss.str();
 }
@@ -109,21 +112,23 @@ ArrayValueTypeSpec::~ArrayValueTypeSpec()
 
 //------------------------------------------------------------------------------
 
-ValueType *ArrayValueTypeSpec::ToValueType(const Module &module) const
+ValueType *ArrayValueTypeSpec::toValueType(const Module &module) const
 {
-  auto elementsType = this->elementsTypeSpec->ToValueType(module);
+  auto elementsType = this->elementsTypeSpec->toValueType(module);
+
   if (elementsType == nullptr)
     return nullptr;
-  return ArrayType::Get(elementsType, this->arraySize);
+
+  return ArrayType::get(elementsType, this->arraySize);
 }
 
 //------------------------------------------------------------------------------
 
-std::string ArrayValueTypeSpec::ToString() const
+std::string ArrayValueTypeSpec::toString() const
 {
   std::stringstream ss;
   ss << "ary[";
-  ss << this->elementsTypeSpec->ToString();
+  ss << this->elementsTypeSpec->toString();
   ss << ", ";
   ss << this->arraySize;
   ss << "]";
@@ -132,13 +137,14 @@ std::string ArrayValueTypeSpec::ToString() const
 
 //===== ValueTypeSpecArray =====================================================
 
-bool ValueTypeSpecArray::IsEqualTo(const ValueTypeSpecArray *other,
-    int sizeLimit) const
+bool ValueTypeSpecArray::isEqualTo(const ValueTypeSpecArray *other,
+                                   int sizeLimit) const
 {
   if (sizeLimit == 0) {
     if (this->size() != other->size()) {
       return false;
     }
+
     sizeLimit = this->size();
   } else {
     if (this->size() < sizeLimit || other->size() < sizeLimit) {
@@ -147,22 +153,24 @@ bool ValueTypeSpecArray::IsEqualTo(const ValueTypeSpecArray *other,
   }
 
   for (auto i = sizeLimit - 1; i >= 0; i--) {
-    if (!this->at(i)->IsEqualTo(other->at(i))) {
+    if (!this->at(i)->isEqualTo(other->at(i))) {
       return false;
     }
   }
+
   return true;
 }
 
 //===== VariableDefinitionArray ================================================
 
-bool VariableDefinitionArray::AreTypesEqualTo(const ValueTypeSpecArray *other,
+bool VariableDefinitionArray::areTypesEqualTo(const ValueTypeSpecArray *other,
     int sizeLimit) const
 {
   if (sizeLimit == 0) {
     if (this->size() != other->size()) {
       return false;
     }
+
     sizeLimit = this->size();
   } else {
     if (this->size() < sizeLimit || other->size() < sizeLimit) {
@@ -171,10 +179,11 @@ bool VariableDefinitionArray::AreTypesEqualTo(const ValueTypeSpecArray *other,
   }
 
   for (auto i = sizeLimit - 1; i >= 0; i--) {
-    if (!this->at(i).GetTypeSpec()->IsEqualTo(other->at(i))) {
+    if (!this->at(i).getTypeSpec()->isEqualTo(other->at(i))) {
       return false;
     }
   }
+
   return true;
 }
 }

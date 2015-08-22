@@ -28,54 +28,56 @@ using namespace llvm;
 
 namespace Scg
 {
-  DefineVariable::~DefineVariable()
-  {
-    delete this->typeSpec;
-  }
+DefineVariable::~DefineVariable()
+{
+  delete this->typeSpec;
+}
 
-  //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-  Expression::CodeGenerationStage DefineVariable::PreGenerateCode()
-  {
-    MODULE_CHECK;
-    BLOCK_CHECK;
-    FUNCTION_CHECK;
+Expression::CodeGenerationStage DefineVariable::preGenerateCode()
+{
+  MODULE_CHECK;
+  BLOCK_CHECK;
+  FUNCTION_CHECK;
 
-    // Fetch the type of the variable by name from the module.
-    if (this->typeSpec == nullptr) {
-      if (this->value->GetCodeGenerationStage() != CodeGenerationStage::CodeGeneration) {
-        return CodeGenerationStage::PreCodeGeneration;
-      }
-      this->typeSpec = this->value->GetValueTypeSpec()->Clone();
+  // Fetch the type of the variable by name from the module.
+  if (this->typeSpec == nullptr) {
+    if (this->value->getCodeGenerationStage() != CodeGenerationStage::CodeGeneration) {
+      return CodeGenerationStage::PreCodeGeneration;
     }
-    this->type = this->typeSpec->ToValueType(*GetModule());
-    this->var = this->type->NewVariable(this->name);
-    this->var->SetModule(GetModule());
-    this->var->SetFunction(GetFunction());
-    this->var->SetBlock(GetBlock());
-    this->children.push_back(this->var);
-    // We added a new child, so we need to make sure that we let
-    // Expression::CallPreGenerateCode() that we are still in
-    // PreCodeGeneration stage.
-    this->childrenCodeGenStage = CodeGenerationStage::PreCodeGeneration;
-    return CodeGenerationStage::CodeGeneration;
+
+    this->typeSpec = this->value->getValueTypeSpec()->clone();
   }
 
-  //----------------------------------------------------------------------------
+  this->type = this->typeSpec->toValueType(*getModule());
+  this->var = this->type->newVariable(this->name);
+  this->var->setModule(getModule());
+  this->var->setFunction(getFunction());
+  this->var->setBlock(getBlock());
+  this->children.push_back(this->var);
+  // We added a new child, so we need to make sure that we let
+  // Expression::CallPreGenerateCode() that we are still in
+  // PreCodeGeneration stage.
+  this->childrenCodeGenStage = CodeGenerationStage::PreCodeGeneration;
+  return CodeGenerationStage::CodeGeneration;
+}
 
-  Expression::CodeGenerationStage DefineVariable::PostGenerateCode()
-  {
-    this->type->DeleteVariable(this->var);
-    this->type = nullptr;
-    this->var = nullptr;
-    this->children.clear();
-    return CodeGenerationStage::None;
-  }
+//----------------------------------------------------------------------------
 
-  //----------------------------------------------------------------------------
+Expression::CodeGenerationStage DefineVariable::postGenerateCode()
+{
+  this->type->deleteVariable(this->var);
+  this->type = nullptr;
+  this->var = nullptr;
+  this->children.clear();
+  return CodeGenerationStage::None;
+}
 
-  std::string DefineVariable::ToString()
-  {
-    return "def " + this->name + " : " + this->typeSpec->ToString() + ";";
-  }
+//----------------------------------------------------------------------------
+
+std::string DefineVariable::toString()
+{
+  return "def " + this->name + " : " + this->typeSpec->toString() + ";";
+}
 }

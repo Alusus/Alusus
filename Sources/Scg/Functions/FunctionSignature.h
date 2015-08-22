@@ -32,13 +32,15 @@ public:
   const std::string &name;
   //! The arguments of the functions.
   const ValueTypeSpecArray &arguments;
-  bool isVarArgs;
+  bool varArgs;
 
   /**
    * Constructs a signature with the given name and arguments.
    */
   FunctionSignature(const std::string &name, const ValueTypeSpecArray &args,
-  		bool isVarArgs) : name(name), arguments(args), isVarArgs(isVarArgs) {}
+                    bool varArgs) : name(name), arguments(args), varArgs(varArgs)
+  {
+  }
 
   // TODO: Replace the return type with an enum.
   /**
@@ -48,8 +50,8 @@ public:
    * @return Returns -1 if there is no match, otherwise return the number of
    * implicit conversion required to match the signatures.
    */
-  int Match(const Module &module, const std::string &name,
-      const ValueTypeSpecArray &argTypes) const;
+  int match(const Module &module, const std::string &name,
+            const ValueTypeSpecArray &argTypes) const;
 };
 }
 

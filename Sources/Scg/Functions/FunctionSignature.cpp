@@ -17,15 +17,15 @@
 
 namespace Scg
 {
-int FunctionSignature::Match(const Module &module, const std::string &name,
-    const ValueTypeSpecArray &argTypes) const
+int FunctionSignature::match(const Module &module, const std::string &name,
+                             const ValueTypeSpecArray &argTypes) const
 {
   if (this->name.compare(name) != 0) {
     // Name doesn't match.
     return -1;
   }
 
-  if (isVarArgs) {
+  if (varArgs) {
     if (this->arguments.size() > argTypes.size()) {
       // Argument count doesn't match.
       return -1;
@@ -38,14 +38,17 @@ int FunctionSignature::Match(const Module &module, const std::string &name,
   }
 
   auto implCastCount = 0;
+
   for (auto i = 0; i < this->arguments.size(); i++) {
-    //auto compRes = this->arguments[i]->Compare(module, argTypes[i]);
-    auto compRes = argTypes[i]->Compare(module, this->arguments[i]);
+    //auto compRes = this->arguments[i]->compare(module, argTypes[i]);
+    auto compRes = argTypes[i]->compare(module, this->arguments[i]);
+
     if (compRes == TypeComparisonResult::NotEquivalent) {
       // One of the arguments is not equal or cannot be implicitly casted
       // to the corresponding argument in the other signature.
       return -1;
     }
+
     implCastCount += (int)compRes;
   }
 

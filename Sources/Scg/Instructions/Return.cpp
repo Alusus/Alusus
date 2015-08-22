@@ -24,30 +24,30 @@ using namespace llvm;
 
 namespace Scg
 {
-  Expression::CodeGenerationStage Return::GenerateCode()
-  {
-    if (GetExpression()->GetGeneratedLlvmValue() == nullptr)
-      throw EXCEPTION(EvaluationException,
-          ("Expression doesn't evaluate to a value: " + GetExpression()->ToString()).c_str());
+Expression::CodeGenerationStage Return::generateCode()
+{
+  if (getExpression()->getGeneratedLlvmValue() == nullptr)
+    throw EXCEPTION(EvaluationException,
+                    ("Expression doesn't evaluate to a value: " + getExpression()->toString()).c_str());
 
-    IRBuilder<> *irBuilder = GetBlock()->GetIRBuilder();
-    irBuilder->CreateRet(GetExpression()->GetGeneratedLlvmValue());
-    this->termInstGenerated = true;
-    return Expression::GenerateCode();
-  }
+  IRBuilder<> *irBuilder = getBlock()->getIRBuilder();
+  irBuilder->CreateRet(getExpression()->getGeneratedLlvmValue());
+  this->termInstGenerated = true;
+  return Expression::generateCode();
+}
 
-  //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-  Expression::CodeGenerationStage Return::PostGenerateCode()
-  {
-    SAFE_DELETE_LLVM_INST(this->retInst);
-    return CodeGenerationStage::None;
-  }
+Expression::CodeGenerationStage Return::postGenerateCode()
+{
+  SAFE_DELETE_LLVM_INST(this->retInst);
+  return CodeGenerationStage::None;
+}
 
-  //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-  std::string Return::ToString()
-  {
-    return "return " + GetExpression()->ToString() + ";";
-  }
+std::string Return::toString()
+{
+  return "return " + getExpression()->toString() + ";";
+}
 }

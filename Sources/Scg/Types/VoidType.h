@@ -45,36 +45,36 @@ private:
   }
 
 protected:
-  //! @copydoc ValueType::InitCastingTargets()
-  virtual void InitCastingTargets() const override;
+  //! @copydoc ValueType::initCastingTargets()
+  virtual void initCastingTargets() const override;
 
 public:
-  //! @copydoc ValueType::GetName()
-  virtual const std::string GetName() const
+  //! @copydoc ValueType::getName()
+  virtual const std::string getName() const
   {
     return "void";
   }
 
-  //! @copydoc ValueType::GetDefaultLLVMValue()
-  virtual llvm::Constant *GetDefaultLLVMValue() const
+  //! @copydoc ValueType::getDefaultLLVMValue()
+  virtual llvm::Constant *getDefaultLLVMValue() const
   {
     throw EXCEPTION(NotImplementedException, "Not implemented yet!");
   }
 
-  //! @copydoc ValueType::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override
+  //! @copydoc ValueType::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override
   {
     return &typeSpec;
   }
 
-  //! @copydoc ValueType::IsEqualTo()
-  virtual bool IsEqualTo(const ValueType *other) const
+  //! @copydoc ValueType::isEqualTo()
+  virtual bool isEqualTo(const ValueType *other) const
   {
     // TODO: Should we throw InvalidOperationException here?
     return dynamic_cast<const VoidType *>(other) != nullptr;
   }
 
-  static VoidType *Get();
+  static VoidType *get();
 };
 
 }

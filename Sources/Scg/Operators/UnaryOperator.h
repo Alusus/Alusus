@@ -28,8 +28,7 @@ namespace Scg
 class UnaryOperator : public Expression
 {
 public:
-  enum Operator
-  {
+  enum Operator {
     INCREMENT,
     DECREMENT,
     NEGATIVE,
@@ -56,6 +55,7 @@ public:
   {
     if (operatorType < INCREMENT || operatorType > NEGATIVE)
       throw EXCEPTION(ArgumentOutOfRangeException, "Invalid unary operator.");
+
     children.push_back(operand);
   }
 
@@ -64,17 +64,23 @@ public:
    *
    * @return A pointer to the left-hand side expression.
    */
-  const Expression *GetOperand() const { return children[0]; }
-  Expression *GetOperand() { return children[0]; }
+  const Expression *getOperand() const
+  {
+    return children[0];
+  }
+  Expression *getOperand()
+  {
+    return children[0];
+  }
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

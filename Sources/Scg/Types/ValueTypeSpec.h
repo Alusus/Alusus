@@ -45,7 +45,7 @@ public:
   * Determines whether this instance specifies a void type.
   * @return @c true or @c false.
   */
-  virtual bool IsVoid() const
+  virtual bool isVoid() const
   {
     return false;
   }
@@ -54,7 +54,7 @@ public:
   * Creates a copy of the type specification.
   * @return A pointer to the new instance..
   */
-  virtual ValueTypeSpec *Clone() const = 0;
+  virtual ValueTypeSpec *clone() const = 0;
 
   /**
   * Retrieves the ValueType object having the specification specified by this
@@ -62,7 +62,7 @@ public:
   * @param[in] module  A pointer to the module
   * @return A pointer to the ValueType.
   */
-  virtual ValueType *ToValueType(const Module &module) const = 0;
+  virtual ValueType *toValueType(const Module &module) const = 0;
 
   /**
   * Determines whether this value type specification is equal to the given
@@ -70,7 +70,7 @@ public:
   * @param[in] other The other type specification to compare to.
   * @return @c true or @false.
   */
-  virtual bool IsEqualTo(const ValueTypeSpec *other) const = 0;
+  virtual bool isEqualTo(const ValueTypeSpec *other) const = 0;
 
   /**
   * Determines whether the type specified. by this spec can be implicitly
@@ -78,14 +78,14 @@ public:
   * @param[in] other The other type specification.
   * @return @c true or @false.
   */
-  virtual TypeComparisonResult Compare(const Module &module,
-      const ValueTypeSpec *other) const;
+  virtual TypeComparisonResult compare(const Module &module,
+                                       const ValueTypeSpec *other) const;
 
   /**
   * Gets the string representation of the type specification.
   * @return A string representation of the type specification.
   */
-  virtual std::string ToString() const = 0;
+  virtual std::string toString() const = 0;
 
 public:
   static void *operator new[](size_t size) = delete;
@@ -114,14 +114,14 @@ public:
   {
   }
 
-  //! @copydoc ValueTypeSpec::IsVoid()
-  virtual bool IsVoid() const
+  //! @copydoc ValueTypeSpec::isVoid()
+  virtual bool isVoid() const
   {
     return name == "" || name == "void";
   }
 
-  //! @copydoc ValueTypeSpec::Clone()
-  virtual ValueTypeSpec *Clone() const
+  //! @copydoc ValueTypeSpec::clone()
+  virtual ValueTypeSpec *clone() const
   {
     return new ValueTypeSpecByName(name.c_str());
   }
@@ -130,26 +130,26 @@ public:
   * Retrieves the name of the type specified by this instance.
   * @return The name of the type.
   */
-  const std::string &GetName() const
+  const std::string &getName() const
   {
     return name;
   }
 
-  //! @copydoc ValueTypeSpec::ToValueType()
-  virtual ValueType *ToValueType(const Module &module) const;
+  //! @copydoc ValueTypeSpec::toValueType()
+  virtual ValueType *toValueType(const Module &module) const;
 
-  //! @copydoc ValueTypeSpec::IsEqualTo()
-  virtual bool IsEqualTo(const ValueTypeSpec *other) const
+  //! @copydoc ValueTypeSpec::isEqualTo()
+  virtual bool isEqualTo(const ValueTypeSpec *other) const
   {
     auto otherCasted = dynamic_cast<const ValueTypeSpecByName *>(other);
     return otherCasted != nullptr && name.compare(otherCasted->name) == 0;
   }
 
-  //! @copydoc ValueTypeSpec::Compare()
-  virtual TypeComparisonResult Compare(const Module &module, const ValueTypeSpec *other) const;
+  //! @copydoc ValueTypeSpec::compare()
+  virtual TypeComparisonResult compare(const Module &module, const ValueTypeSpec *other) const;
 
-  //! @copydoc ValueTypeSpec::ToString()
-  virtual std::string ToString() const;
+  //! @copydoc ValueTypeSpec::toString()
+  virtual std::string toString() const;
 };
 
 //==============================================================================
@@ -168,32 +168,32 @@ public:
   * @param[in] contentTypeSpec   The specification of the content type.
   */
   PointerValueTypeSpec(ValueTypeSpec *contentTypeSpec)
-      : contentTypeSpec(contentTypeSpec)
+    : contentTypeSpec(contentTypeSpec)
   {
   }
 
   //! Class destructor.
   virtual ~PointerValueTypeSpec();
 
-  //! @copydoc ValueTypeSpec::Clone()
-  virtual ValueTypeSpec *Clone() const
+  //! @copydoc ValueTypeSpec::clone()
+  virtual ValueTypeSpec *clone() const
   {
-    return new PointerValueTypeSpec(contentTypeSpec->Clone());
+    return new PointerValueTypeSpec(contentTypeSpec->clone());
   }
 
-  //! @copydoc ValueTypeSpec::ToValueType()
-  virtual ValueType *ToValueType(const Module &module) const;
+  //! @copydoc ValueTypeSpec::toValueType()
+  virtual ValueType *toValueType(const Module &module) const;
 
-  //! @copydoc ValueTypeSpec::IsEqualTo()
-  virtual bool IsEqualTo(const ValueTypeSpec *other) const
+  //! @copydoc ValueTypeSpec::isEqualTo()
+  virtual bool isEqualTo(const ValueTypeSpec *other) const
   {
     auto otherCasted = dynamic_cast<const PointerValueTypeSpec *>(other);
     return otherCasted != nullptr &&
-        contentTypeSpec->IsEqualTo(otherCasted->contentTypeSpec);
+           contentTypeSpec->isEqualTo(otherCasted->contentTypeSpec);
   }
 
-  //! @copydoc ValueTypeSpec::ToString()
-  virtual std::string ToString() const;
+  //! @copydoc ValueTypeSpec::toString()
+  virtual std::string toString() const;
 };
 
 //==============================================================================
@@ -215,33 +215,33 @@ public:
   * @param[in] arraySize         The size of the array type specification.
   */
   ArrayValueTypeSpec(ValueTypeSpec *elementsTypeSpec, int arraySize)
-      : elementsTypeSpec(elementsTypeSpec), arraySize(arraySize)
+    : elementsTypeSpec(elementsTypeSpec), arraySize(arraySize)
   {
   }
 
   //! Class destructor.
   virtual ~ArrayValueTypeSpec();
 
-  //! @copydoc ValueTypeSpec::Clone()
-  virtual ValueTypeSpec *Clone() const
+  //! @copydoc ValueTypeSpec::clone()
+  virtual ValueTypeSpec *clone() const
   {
-    return new ArrayValueTypeSpec(elementsTypeSpec->Clone(), arraySize);
+    return new ArrayValueTypeSpec(elementsTypeSpec->clone(), arraySize);
   }
 
-  //! @copydoc ValueTypeSpec::ToValueType()
-  virtual ValueType *ToValueType(const Module &module) const;
+  //! @copydoc ValueTypeSpec::toValueType()
+  virtual ValueType *toValueType(const Module &module) const;
 
-  //! @copydoc ValueTypeSpec::IsEqualTo()
-  virtual bool IsEqualTo(const ValueTypeSpec *other) const
+  //! @copydoc ValueTypeSpec::isEqualTo()
+  virtual bool isEqualTo(const ValueTypeSpec *other) const
   {
     auto otherCasted = dynamic_cast<const ArrayValueTypeSpec *>(other);
     return otherCasted != nullptr &&
-        arraySize == otherCasted->arraySize &&
-        elementsTypeSpec->IsEqualTo(otherCasted->elementsTypeSpec);
+           arraySize == otherCasted->arraySize &&
+           elementsTypeSpec->isEqualTo(otherCasted->elementsTypeSpec);
   }
 
-  //! @copydoc ValueTypeSpec::ToString()
-  virtual std::string ToString() const;
+  //! @copydoc ValueTypeSpec::toString()
+  virtual std::string toString() const;
 };
 
 //==============================================================================
@@ -254,7 +254,7 @@ public:
 * @note This class assumes the pointer to ValueTypeSpec to be allocated in heap
 * and it will take the responsibility of deallocating the memory.
 */
-class VariableDefinition : public std::pair<const ValueTypeSpec *, std::string>
+class VariableDefinition : public std::pair < const ValueTypeSpec *, std::string >
 {
 public:
   /**
@@ -273,7 +273,7 @@ public:
   * @param[in] name      The name of the variable.
   */
   VariableDefinition(const std::string &typeName, const std::string &name)
-      : std::pair<const ValueTypeSpec *, std::string>(new ValueTypeSpecByName(typeName.c_str()), name)
+    : std::pair<const ValueTypeSpec *, std::string>(new ValueTypeSpecByName(typeName.c_str()), name)
   {
   }
 
@@ -286,7 +286,7 @@ public:
   * @param[in] name      The name of the variable.
   */
   VariableDefinition(const ValueTypeSpec *typeSpec, const std::string &name)
-      : std::pair<const ValueTypeSpec *, std::string>(typeSpec, name)
+    : std::pair<const ValueTypeSpec *, std::string>(typeSpec, name)
   {
   }
 
@@ -304,7 +304,7 @@ public:
   * Gets the type specification of the variable.
   * @return The type specification of the variable.
   */
-  const ValueTypeSpec *GetTypeSpec() const
+  const ValueTypeSpec *getTypeSpec() const
   {
     return first;
   }
@@ -313,7 +313,7 @@ public:
   * Gets the name of the variable.
   * @return A string containing the name of the variable.
   */
-  const std::string &GetVariableName() const
+  const std::string &getVariableName() const
   {
     return second;
   }
@@ -322,7 +322,7 @@ public:
   * Sets the name of the variable.
   * @return A string containing the name of the variable.
   */
-  void SetVariableName(const std::string &varName)
+  void setVariableName(const std::string &varName)
   {
     second = varName;
   }
@@ -331,9 +331,9 @@ public:
   * Returns a string representation of the type ID/name pairs.
   * @return The string representation of the type ID/name pairs.
   */
-  const std::string ToString() const
+  const std::string toString() const
   {
-    return GetVariableName() + ":" + GetTypeSpec()->ToString();
+    return getVariableName() + ":" + getTypeSpec()->toString();
   }
 };
 
@@ -342,7 +342,7 @@ public:
 /**
 * An array of value type specifications.
 */
-class ValueTypeSpecArray : public std::vector<ValueTypeSpec *>
+class ValueTypeSpecArray : public std::vector < ValueTypeSpec * >
 {
   using std::vector<ValueTypeSpec *>::vector;
 
@@ -353,14 +353,14 @@ public:
   * @param[in] other The other array to compare to.
   * @return @c true or @false.
   */
-  bool IsEqualTo(const ValueTypeSpecArray *other, int sizeLimit = 0) const;
+  bool isEqualTo(const ValueTypeSpecArray *other, int sizeLimit = 0) const;
 
 };
 
 /**
 * An array of value type ID/name pairs.
 */
-class VariableDefinitionArray : public std::vector<VariableDefinition>
+class VariableDefinitionArray : public std::vector < VariableDefinition >
 {
   using std::vector<VariableDefinition>::vector;
 
@@ -371,7 +371,7 @@ public:
   * @param[in] other The array of value type specifications to compare with.
   * @return @c true or @false.
   */
-  bool AreTypesEqualTo(const ValueTypeSpecArray *other, int sizeLimit = 0) const;
+  bool areTypesEqualTo(const ValueTypeSpecArray *other, int sizeLimit = 0) const;
 };
 
 }

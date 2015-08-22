@@ -18,16 +18,16 @@
 
 namespace Scg
 {
-Expression::CodeGenerationStage DefineStruct::PreGenerateCode()
+Expression::CodeGenerationStage DefineStruct::preGenerateCode()
 {
   MODULE_CHECK;
 
   // Creates a new structure type.
   this->structType = new StructType(this->name);
-  ((Expression*)this->structType)->SetModule(GetModule());
-  ((Expression*)this->structType)->SetFunction(GetFunction());
-  ((Expression*)this->structType)->SetBlock(GetBlock());
-  GetModule()->GetTypeMap()[this->name] = this->structType;
+  ((Expression*)this->structType)->setModule(getModule());
+  ((Expression*)this->structType)->setFunction(getFunction());
+  ((Expression*)this->structType)->setBlock(getBlock());
+  getModule()->getTypeMap()[this->name] = this->structType;
   this->children.push_back(this->structType);
 
   // Creates the types of the fields of the structure.
@@ -39,9 +39,9 @@ Expression::CodeGenerationStage DefineStruct::PreGenerateCode()
   // modules to reduce duplication further and save memory.
   ValueTypeNameArray fields;
   auto i = 0;
-  for (auto field : this->fields)
-  {
-    fields.push_back(ValueTypeNamePair(field.GetTypeSpec()->ToValueType(*GetModule()), field.GetVariableName()));
+
+  for (auto field : this->fields) {
+    fields.push_back(ValueTypeNamePair(field.getTypeSpec()->toValueType(*getModule()), field.getVariableName()));
     i++;
   }
 
@@ -52,25 +52,25 @@ Expression::CodeGenerationStage DefineStruct::PreGenerateCode()
   // a linked list node. Thus we need to create the structure and register its
   // name, then create the fields.
   // TODO: Don't allow fields of non-pointer type of the structure itself.
-  this->structType->SetFields(fields);
+  this->structType->setFields(fields);
 
   return CodeGenerationStage::CodeGeneration;
 }
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage DefineStruct::PostGenerateCode()
+Expression::CodeGenerationStage DefineStruct::postGenerateCode()
 {
   // TODO: It might be better to have a method Delete() that does this
   // check and delete itself.
-  if (this->structType != 0 && this->structType->GetVarCount() != 0)
+  if (this->structType != 0 && this->structType->getVarCount() != 0)
     // Cannot delete the structure yet; stay in PostCodeGeneration stage.
     return CodeGenerationStage::PostCodeGeneration;
 
   // Deletes the structure type we created in the pre-code generation step.
   if (this->structType != 0) {
-      delete this->structType;
-      this->structType = 0;
+    delete this->structType;
+    this->structType = 0;
   }
 
   this->children.clear();
@@ -79,18 +79,19 @@ Expression::CodeGenerationStage DefineStruct::PostGenerateCode()
 
 //------------------------------------------------------------------------------
 
-std::string DefineStruct::ToString()
+std::string DefineStruct::toString()
 {
   std::string str;
   str.append("def " + this->name + " : struct\n");
   str.append("{\n");
-  for (auto pair : this->fields)
-  {
+
+  for (auto pair : this->fields) {
     str.append("  ");
-    str.append(pair.GetVariableName());
+    str.append(pair.getVariableName());
     str.append(" : ");
-    str.append(pair.GetTypeSpec()->ToString());
+    str.append(pair.getTypeSpec()->toString());
   }
+
   str.append("}\n");
   return str;
 }

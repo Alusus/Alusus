@@ -29,8 +29,7 @@ namespace Scg
 class BinaryOperator : public Expression
 {
 public:
-  enum Operator
-  {
+  enum Operator {
     ADD,
     SUBTRACT,
     MULTIPLY,
@@ -62,6 +61,7 @@ public:
   {
     if (opType < ADD || opType > NOTEQUAL)
       throw EXCEPTION(ArgumentOutOfRangeException, "Invalid binary operator.");
+
     children.push_back(lhs);
     children.push_back(rhs);
   }
@@ -71,28 +71,40 @@ public:
    *
    * @return A pointer to the left-hand side expression.
    */
-  const ExpressionArray::value_type GetLHS() const { return children[0]; }
-  ExpressionArray::value_type GetLHS() { return children[0]; }
+  const ExpressionArray::value_type getLHS() const
+  {
+    return children[0];
+  }
+  ExpressionArray::value_type getLHS()
+  {
+    return children[0];
+  }
 
   /**
    * Get the expression representing the right-hand side of the binary operator.
    *
    * @return A pointer to the right-hand side expression.
    */
-  const ExpressionArray::value_type GetRHS() const { return children[1]; }
-  ExpressionArray::value_type GetRHS() { return children[1]; }
+  const ExpressionArray::value_type getRHS() const
+  {
+    return children[1];
+  }
+  ExpressionArray::value_type getRHS()
+  {
+    return children[1];
+  }
 
-  //! @copydoc Expression::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Expression::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override;
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

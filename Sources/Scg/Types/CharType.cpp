@@ -28,43 +28,42 @@ CharType *CharType::s_singleton = nullptr;
 
 CharType::CharType() : typeSpec("char")
 {
-  this->llvmType = llvm::Type::getInt8Ty(LlvmContainer::GetContext());
+  this->llvmType = llvm::Type::getInt8Ty(LlvmContainer::getContext());
+
   if (s_singleton == nullptr)
     s_singleton = this;
 }
 
-void CharType::InitCastingTargets() const
+void CharType::initCastingTargets() const
 {
-  this->implicitCastingTargets.push_back(CharType::Get());
-  this->implicitCastingTargets.push_back(IntegerType::Get());
+  this->implicitCastingTargets.push_back(CharType::get());
+  this->implicitCastingTargets.push_back(IntegerType::get());
 
-  this->explicitCastingTargets.push_back(CharType::Get());
-  this->explicitCastingTargets.push_back(IntegerType::Get());
+  this->explicitCastingTargets.push_back(CharType::get());
+  this->explicitCastingTargets.push_back(IntegerType::get());
 }
 
 //----------------------------------------------------------------------------
 
-llvm::Constant *CharType::GetLlvmConstant(char value) const
+llvm::Constant *CharType::getLlvmConstant(char value) const
 {
-  return llvm::ConstantInt::get(LlvmContainer::GetContext(),
-      llvm::APInt(sizeof(value) * 8, value, true));
+  return llvm::ConstantInt::get(LlvmContainer::getContext(),
+                                llvm::APInt(sizeof(value) * 8, value, true));
 }
 
 //----------------------------------------------------------------------------
 
-llvm::Value *CharType::CreateCastInst(llvm::IRBuilder<> *irb,
-    llvm::Value *value, const ValueType *targetType) const
+llvm::Value *CharType::createCastInst(llvm::IRBuilder<> *irb,
+                                      llvm::Value *value, const ValueType *targetType) const
 {
-  if (targetType == CharType::Get()) {
+  if (targetType == CharType::get()) {
     // Target type is the same type, just return the input.
     return value;
-  }
-  else if (targetType == IntegerType::Get()) {
-        // The operand is an integer, so we need to add SItoFP instruction.
-        return irb->CreateIntCast(value,
-            IntegerType::Get()->Get()->GetLlvmType(), true);
-  }
-  else {
+  } else if (targetType == IntegerType::get()) {
+    // The operand is an integer, so we need to add SItoFP instruction.
+    return irb->CreateIntCast(value,
+                              IntegerType::get()->get()->getLlvmType(), true);
+  } else {
     // TODO: Improve the message.
     throw EXCEPTION(InvalidCastException, "Invalid cast.");
   }
@@ -72,13 +71,14 @@ llvm::Value *CharType::CreateCastInst(llvm::IRBuilder<> *irb,
 
 //----------------------------------------------------------------------------
 
-CharType *CharType::Get()
+CharType *CharType::get()
 {
   // PERFORMANCE: What is the impact of running an unnecessary if statement
   // thousands of times?
   if (s_singleton == nullptr) {
     s_singleton = new CharType();
   }
+
   return s_singleton;
 }
 

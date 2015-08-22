@@ -24,43 +24,48 @@ namespace Scg
 {
 std::unordered_map<const ValueType *, PointerType *> PointerType::usedPointerTypes;
 
-// TODO: We are calling Clone() because the passed type spec gets automatically
+// TODO: We are calling clone() because the passed type spec gets automatically
 // freed. Is there a better way to avoid extra memory allocation and free?
 PointerType::PointerType(const ValueType *cntType) :
-    contentType(cntType),
-    typeSpec(const_cast<ValueTypeSpec *>(cntType->GetValueTypeSpec()->Clone()))
+  contentType(cntType),
+  typeSpec(const_cast<ValueTypeSpec *>(cntType->getValueTypeSpec()->clone()))
 {
-  this->llvmType = const_cast<llvm::Type *>(this->contentType->GetLlvmType())->getPointerTo(0);
+  this->llvmType = const_cast<llvm::Type *>(this->contentType->getLlvmType())->getPointerTo(0);
 }
 
-void PointerType::InitCastingTargets() const
+void PointerType::initCastingTargets() const
 {
   this->implicitCastingTargets.push_back(this);
 
   this->explicitCastingTargets.push_back(this);
 }
 
-bool PointerType::IsEqualTo(const ValueType *other) const
+bool PointerType::isEqualTo(const ValueType *other) const
 {
   auto otherAsPointer = dynamic_cast<const PointerType *>(other);
+
   if (otherAsPointer == nullptr) {
     return false;
   }
+
   // TODO: Why is PointerType::contentType reference while
   // ArrayType::elementsType is pointer?
-  if (!this->contentType->IsEqualTo(otherAsPointer->contentType)) {
+  if (!this->contentType->isEqualTo(otherAsPointer->contentType)) {
     return false;
   }
+
   return true;
 }
 
 
-PointerType *PointerType::Get(const ValueType *contentType)
+PointerType *PointerType::get(const ValueType *contentType)
 {
   auto it = PointerType::usedPointerTypes.find(contentType);
+
   if (it != PointerType::usedPointerTypes.end()) {
     return it->second;
   }
+
   // TODO: We need to create a map of all the so-far allocated value types to
   // avoid creating a value type twice.
   auto type = new PointerType(contentType);
@@ -68,19 +73,22 @@ PointerType *PointerType::Get(const ValueType *contentType)
   return type;
 }
 
-llvm::Value *PointerType::CreateCastInst(llvm::IRBuilder<> *irb,
+llvm::Value *PointerType::createCastInst(llvm::IRBuilder<> *irb,
     llvm::Value *value, const ValueType *targetType) const
 {
   if (dynamic_cast<PointerType const*>(targetType) != nullptr) {
     // Casting to another pointer type.
-    return irb->CreateBitCast(value, const_cast<llvm::Type*>(targetType->GetLlvmType()));
+    return irb->CreateBitCast(value, const_cast<llvm::Type*>(targetType->getLlvmType()));
   } else if (dynamic_cast<IntegerType const*>(targetType) != nullptr) {
     Int thisBitCount = LlvmContainer::getDataLayout()->getPointerSizeInBits();
-    Int targetBitCount = LlvmContainer::getDataLayout()->getTypeSizeInBits(const_cast<llvm::Type*>(targetType->GetLlvmType()));
+    Int targetBitCount = LlvmContainer::getDataLayout()->getTypeSizeInBits(const_cast<llvm::Type*>
+                         (targetType->getLlvmType()));
+
     if (targetBitCount == thisBitCount) {
-      return irb->CreateBitCast(value, const_cast<llvm::Type*>(targetType->GetLlvmType()));
+      return irb->CreateBitCast(value, const_cast<llvm::Type*>(targetType->getLlvmType()));
     }
   }
+
   // TODO: Improve the message.
   throw EXCEPTION(InvalidCastException, "Invalid cast.");
 }

@@ -61,11 +61,14 @@ public:
    *
    * @return A pointer to the target type.
    */
-  const ValueType *GetTargetType() const { return type; }
-  ValueType *GetTargetType()
+  const ValueType *getTargetType() const
+  {
+    return type;
+  }
+  ValueType *getTargetType()
   {
     return const_cast<ValueType*>(
-        static_cast<const Cast*>(this)->GetTargetType());
+             static_cast<const Cast*>(this)->getTargetType());
   }
 
   /**
@@ -73,19 +76,22 @@ public:
    *
    * @return The name of the type.
    */
-  const ValueTypeSpec *GetTargetTypeSpec() const { return typeSpec; }
+  const ValueTypeSpec *getTargetTypeSpec() const
+  {
+    return typeSpec;
+  }
 
-  //! @copydoc Expression::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Expression::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override;
 
-  //! @copydoc Expression::PreGenerateCode()
-  virtual CodeGenerationStage PreGenerateCode();
+  //! @copydoc Expression::preGenerateCode()
+  virtual CodeGenerationStage preGenerateCode();
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

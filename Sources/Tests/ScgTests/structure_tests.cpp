@@ -16,7 +16,9 @@
 
 using namespace Scg;
 
-namespace Tests { namespace ScgTests
+namespace Tests
+{
+namespace ScgTests
 {
 
 
@@ -25,8 +27,8 @@ bool TestDefineAndUseStructure()
 
   std::cout << RunSimpleTest({
     DEFINE_STRUCT("Point")
-        STRUCT_FIELD("int", "x"),
-        STRUCT_FIELD("int", "y")
+    STRUCT_FIELD("int", "x"),
+    STRUCT_FIELD("int", "y")
     END_DEFINE_STRUCT(),
     DEF_VAR("Point", "point"),
     ASSIGN(FIELD(VAR_PTR("point"), "x"), INT_CONST(10)),
@@ -35,7 +37,7 @@ bool TestDefineAndUseStructure()
     CALL("printf", STR_CONST("point.y = %d\n"), FIELD(VAR_PTR("point"), "y")),
     RET_ZERO()
   }, {
-      new DeclareExtFunction("printf", TYPE("int"), {TYPE("string")}, true)
+    new DeclareExtFunction("printf", TYPE("int"), {TYPE("string")}, true)
   });
 
   return true;
@@ -45,8 +47,8 @@ bool TestDefineAndUseArrayOfStructures()
 {
   std::cout << RunSimpleTest({
     DEFINE_STRUCT("Point")
-        STRUCT_FIELD("int", "x"),
-        STRUCT_FIELD("int", "y")
+    STRUCT_FIELD("int", "x"),
+    STRUCT_FIELD("int", "y")
     END_DEFINE_STRUCT(),
     DEF_ARRAY("Point", "points", 10),
     ASSIGN(FIELD_OF_ELEM("points", 5, "x"), INT_CONST(10)),
@@ -55,7 +57,7 @@ bool TestDefineAndUseArrayOfStructures()
     CALL("printf", STR_CONST("points[4].y = %d\n"), FIELD_OF_ELEM("points", 4, "y")),
     RET_ZERO()
   }, {
-      new DeclareExtFunction("printf", TYPE("int"), {TYPE("string")}, true)
+    new DeclareExtFunction("printf", TYPE("int"), {TYPE("string")}, true)
   });
 
   return true;
@@ -70,19 +72,19 @@ bool TestCallFunctionReturningStructure()
     CALL("printf", STR_CONST("point.y = %d\n"), FIELD(VAR_PTR("point"), "y")),
     RET_ZERO()
   }, {
-      new DeclareExtFunction("printf", TYPE("int"), {TYPE("string")}, true),
-      DEFINE_STRUCT("Point")
-          STRUCT_FIELD("int", "x"),
-          STRUCT_FIELD("int", "y")
-      END_DEFINE_STRUCT(),
-      new DefineFunction("GetPoint", TYPE("Point"),
-          {FUNC_ARG("int", "x"), FUNC_ARG("int", "y")}, new Block({
-              DEF_VAR("Point", "point"),
-              ASSIGN(FIELD(VAR_PTR("point"), "x"), VAR("x")),
-              ASSIGN(FIELD(VAR_PTR("point"), "y"), VAR("y")),
-              RET(VAR("point"))
-          }))
-      });
+    new DeclareExtFunction("printf", TYPE("int"), {TYPE("string")}, true),
+    DEFINE_STRUCT("Point")
+    STRUCT_FIELD("int", "x"),
+    STRUCT_FIELD("int", "y")
+    END_DEFINE_STRUCT(),
+    new DefineFunction("GetPoint", TYPE("Point"),
+    {FUNC_ARG("int", "x"), FUNC_ARG("int", "y")}, new Block({
+      DEF_VAR("Point", "point"),
+      ASSIGN(FIELD(VAR_PTR("point"), "x"), VAR("x")),
+      ASSIGN(FIELD(VAR_PTR("point"), "y"), VAR("y")),
+      RET(VAR("point"))
+    }))
+  });
 
   return true;
 }
@@ -90,11 +92,15 @@ bool TestCallFunctionReturningStructure()
 bool RunAllStructureTests()
 {
   auto ret = true;
+
   if (!TestDefineAndUseStructure()) ret = false;
+
   if (!TestDefineAndUseArrayOfStructures()) ret = false;
+
   if (!TestCallFunctionReturningStructure()) ret = false;
 
   return ret;
 }
 
-} } // namespace
+}
+} // namespace

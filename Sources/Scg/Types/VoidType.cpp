@@ -24,22 +24,24 @@ VoidType *VoidType::s_singleton = nullptr;
 
 VoidType::VoidType() : typeSpec("void")
 {
-  this->llvmType = llvm::Type::getVoidTy(LlvmContainer::GetContext());
+  this->llvmType = llvm::Type::getVoidTy(LlvmContainer::getContext());
+
   if (s_singleton == nullptr)
     s_singleton = this;
 }
 
-void VoidType::InitCastingTargets() const
+void VoidType::initCastingTargets() const
 {
 }
 
-VoidType *VoidType::Get()
+VoidType *VoidType::get()
 {
   // PERFORMANCE: What is the impact of running an unnecessary if statement
   // thousands of times?
   if (s_singleton == nullptr) {
     s_singleton = new VoidType();
   }
+
   return s_singleton;
 }
 }

@@ -29,7 +29,7 @@ class MemberFieldReference : public Expression
 {
 protected:
   /*! A pointer to the expression evaluating to a structure containing the field
-      this pointer instance is pointing to. */
+    this pointer instance is pointing to. */
   Expression *expression;
   //! The name of the field this pointer instance is pointing to.
   std::string fieldName;
@@ -56,14 +56,14 @@ public:
     children.push_back(expression);
   }
 
-  //! @copydoc Expression::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Expression::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override;
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

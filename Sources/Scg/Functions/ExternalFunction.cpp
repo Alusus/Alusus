@@ -27,10 +27,10 @@ using namespace llvm;
 namespace Scg
 {
 ExternalFunction::ExternalFunction(const std::string &name, ValueTypeSpec *returnTypeSpec,
-    const ValueTypeSpecArray &argTypeSpecs, bool isVarArgs) :
-        name(name),
-        returnTypeSpec(returnTypeSpec),
-        isVarArgs(isVarArgs)
+                                   const ValueTypeSpecArray &argTypeSpecs, bool varArgs) :
+  name(name),
+  returnTypeSpec(returnTypeSpec),
+  varArgs(varArgs)
 {
   this->argTypeSpecs = argTypeSpecs;
 }
@@ -41,30 +41,31 @@ ExternalFunction::~ExternalFunction()
   // the defining instruction.
 }
 
-llvm::Value *ExternalFunction::CreateLLVMInstruction(llvm::IRBuilder<> *irb,
+llvm::Value *ExternalFunction::createLLVMInstruction(llvm::IRBuilder<> *irb,
     const std::vector<llvm::Value*> &args) const
 {
   return irb->CreateCall(this->llvmFunction, args);
 }
 
-void ExternalFunction::CreateLinkToExternalFunction()
+void ExternalFunction::createLinkToExternalFunction()
 {
   // Constructs the LLVM types representing the argument and return value types.
-  std::vector<Type*> argTypes(this->GetArgumentTypeSpecs().size());
-  for (auto i = 0; i < GetArgumentTypeSpecs().size(); i++)
-  {
-    auto type = this->GetArgumentTypeSpecs()[i]->ToValueType(*GetModule());
-    argTypes[i] = type->GetLlvmType();
+  std::vector<Type*> argTypes(this->getArgumentTypeSpecs().size());
+
+  for (auto i = 0; i < getArgumentTypeSpecs().size(); i++) {
+    auto type = this->getArgumentTypeSpecs()[i]->toValueType(*getModule());
+    argTypes[i] = type->getLlvmType();
   }
+
   auto retType =
-      (this->returnTypeSpec != nullptr ?
-          this->returnTypeSpec->ToValueType(*GetModule()) :
-          GetModule()->GetValueTypeByName(""))->GetLlvmType();
+    (this->returnTypeSpec != nullptr ?
+     this->returnTypeSpec->toValueType(*getModule()) :
+     getModule()->getValueTypeByName(""))->getLlvmType();
 
   // Creates the LLVM function.
-  auto funcType = llvm::FunctionType::get(retType, argTypes, this->isVarArgs);
+  auto funcType = llvm::FunctionType::get(retType, argTypes, this->varArgs);
   this->llvmFunction = llvm::Function::Create(funcType,
-      llvm::Function::ExternalLinkage, this->name, GetModule()->GetLlvmModule());
+                       llvm::Function::ExternalLinkage, this->name, getModule()->getLlvmModule());
 
   // TODO: Not sure whether these are required, but I just copied them from the code
   // that generates printf in Module.cpp
@@ -72,7 +73,7 @@ void ExternalFunction::CreateLinkToExternalFunction()
   this->llvmFunction->addFnAttr(Attribute::NoUnwind);
 }
 
-Expression::CodeGenerationStage ExternalFunction::PreGenerateCode()
+Expression::CodeGenerationStage ExternalFunction::preGenerateCode()
 {
   MODULE_CHECK;
 
@@ -82,22 +83,22 @@ Expression::CodeGenerationStage ExternalFunction::PreGenerateCode()
   // define functions inside blocks?
 
   // Is the function already defined?
-  if (GetModule()->GetFunction(this->name, this->GetArgumentTypeSpecs()) != nullptr) {
+  if (getModule()->getFunction(this->name, this->getArgumentTypeSpecs()) != nullptr) {
     throw EXCEPTION(RedefinitionException,
-        ("Function already defined: " + this->name).c_str());
+                    ("Function already defined: " + this->name).c_str());
   }
 
   // Stores this function in the function store of the module.
-  GetModule()->AddFunction(this);
+  getModule()->addFunction(this);
 
-  CreateLinkToExternalFunction();
+  createLinkToExternalFunction();
 
   return CodeGenerationStage::CodeGeneration;
 }
 
 // TODO: Do we not need to define post code generation code?
 
-std::string ExternalFunction::ToString()
+std::string ExternalFunction::toString()
 {
   // TODO: Implement.
   return "";

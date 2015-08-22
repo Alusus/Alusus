@@ -22,29 +22,31 @@ using namespace llvm;
 
 namespace Scg
 {
-  Expression::CodeGenerationStage GotoStatement::GenerateCode()
-  {
-    auto targetBlock = GetTargetBlock();
+Expression::CodeGenerationStage GotoStatement::generateCode()
+{
+  auto targetBlock = getTargetBlock();
 
-    auto irBuilder = GetBlock()->GetIRBuilder();
-    this->branchInst = irBuilder->CreateBr(targetBlock->GetLlvmBB());
+  auto irBuilder = getBlock()->getIRBuilder();
+  this->branchInst = irBuilder->CreateBr(targetBlock->getLlvmBB());
 
-    return Expression::GenerateCode();
-  }
+  return Expression::generateCode();
+}
 
-  //------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 
-  Expression::CodeGenerationStage GotoStatement::PostGenerateCode()
-  {
-    if (this->branchInst == nullptr)
-      // Nothing to do!
-      return CodeGenerationStage::None;
-    if (!this->branchInst->hasNUses(0))
-      // Cannot delete the instruction yet; stay in PostCodeGeneration stage.
-      return CodeGenerationStage::PostCodeGeneration;
-    // Delete the branch instruction.
-    this->branchInst->eraseFromParent();
-    this->branchInst = nullptr;
+Expression::CodeGenerationStage GotoStatement::postGenerateCode()
+{
+  if (this->branchInst == nullptr)
+    // Nothing to do!
     return CodeGenerationStage::None;
-  }
+
+  if (!this->branchInst->hasNUses(0))
+    // Cannot delete the instruction yet; stay in PostCodeGeneration stage.
+    return CodeGenerationStage::PostCodeGeneration;
+
+  // Delete the branch instruction.
+  this->branchInst->eraseFromParent();
+  this->branchInst = nullptr;
+  return CodeGenerationStage::None;
+}
 }

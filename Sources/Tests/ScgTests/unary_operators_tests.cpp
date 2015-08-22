@@ -16,40 +16,42 @@
 
 using namespace Scg;
 
-namespace Tests { namespace ScgTests
+namespace Tests
+{
+namespace ScgTests
 {
 
 bool TestIncrementOperator()
 {
-  LlvmContainer::Initialize();
+  LlvmContainer::initialize();
 
   // Create a type specification for an integer.
   // Create the main function.
   auto mainBody = new Block({
-      new DefineVariable(CreateTypeSpecByName("int"), "intCounter"),
-      new DefineVariable(CreateTypeSpecByName("float"), "floatCounter"),
-      new DefineVariable(CreateTypeSpecByName("double"), "doubleCounter"),
-      new UnaryOperator(UnaryOperator::INCREMENT,
-          new Content(new IdentifierReference("intCounter"))),
-      new UnaryOperator(UnaryOperator::INCREMENT,
-          new Content(new IdentifierReference("floatCounter"))),
-      new UnaryOperator(UnaryOperator::INCREMENT,
-          new Content(new IdentifierReference("doubleCounter"))),
-      new Return(new IntegerConst(0))
+    new DefineVariable(CreateTypeSpecByName("int"), "intCounter"),
+    new DefineVariable(CreateTypeSpecByName("float"), "floatCounter"),
+    new DefineVariable(CreateTypeSpecByName("double"), "doubleCounter"),
+    new UnaryOperator(UnaryOperator::INCREMENT,
+    new Content(new IdentifierReference("intCounter"))),
+    new UnaryOperator(UnaryOperator::INCREMENT,
+    new Content(new IdentifierReference("floatCounter"))),
+    new UnaryOperator(UnaryOperator::INCREMENT,
+    new Content(new IdentifierReference("doubleCounter"))),
+    new Return(new IntegerConst(0))
   });
   auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-      VariableDefinitionArray(), mainBody);
+                                 VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestIncrementOperator");
-  module->AppendExpression(main);
+  module->appendExpression(main);
   auto program = new Program();
-  program->AddModule(module);
-  std::cout << program->Compile() << std::endl;
+  program->addModule(module);
+  std::cout << program->compile() << std::endl;
   std::cout << "TestIncrementOperator succeeded." << std::endl;
   delete program;
 
-  LlvmContainer::Finalize();
+  LlvmContainer::finalize();
 
   return true;
 }
@@ -57,9 +59,11 @@ bool TestIncrementOperator()
 bool RunAllUnaryOperatorsTests()
 {
   auto ret = true;
+
   if (!TestIncrementOperator()) ret = false;
 
   return ret;
 }
 
-} } // namespace
+}
+} // namespace

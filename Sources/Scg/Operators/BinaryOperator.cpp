@@ -24,34 +24,36 @@ using namespace llvm;
 
 namespace Scg
 {
-const ValueTypeSpec * BinaryOperator::GetValueTypeSpec() const
+const ValueTypeSpec * BinaryOperator::getValueTypeSpec() const
 {
   // FIXME: Fix this!
-  return IntegerType::Get()->GetValueTypeSpec();
+  return IntegerType::get()->getValueTypeSpec();
 }
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage BinaryOperator::GenerateCode()
+Expression::CodeGenerationStage BinaryOperator::generateCode()
 {
   BLOCK_CHECK;
 
-  auto lhs = GetLHS()->GetGeneratedLlvmValue();
-  auto rhs = GetRHS()->GetGeneratedLlvmValue();
+  auto lhs = getLHS()->getGeneratedLlvmValue();
+  auto rhs = getRHS()->getGeneratedLlvmValue();
+
   if (lhs == nullptr) {
     throw EXCEPTION(InvalidValueException,
-        ("Right-hand side of '=' doesn't evaluate to a value: "
-            + GetLHS()->ToString()).c_str());
-  }
-  if (rhs == nullptr) {
-    throw EXCEPTION(InvalidValueException,
-        ("Right-hand side of '=' doesn't evaluate to a value: "
-            + GetRHS()->ToString()).c_str());
+                    ("Right-hand side of '=' doesn't evaluate to a value: "
+                     + getLHS()->toString()).c_str());
   }
 
-  auto irb = GetBlock()->GetIRBuilder();
-  switch (this->opType)
-  {
+  if (rhs == nullptr) {
+    throw EXCEPTION(InvalidValueException,
+                    ("Right-hand side of '=' doesn't evaluate to a value: "
+                     + getRHS()->toString()).c_str());
+  }
+
+  auto irb = getBlock()->getIRBuilder();
+
+  switch (this->opType) {
   case ADD:
   case SUBTRACT:
   case MULTIPLY:
@@ -61,21 +63,27 @@ Expression::CodeGenerationStage BinaryOperator::GenerateCode()
   case GREATERTHAN:
     this->llvmValue = irb->CreateICmpSGT(lhs, rhs);
     break;
+
   case GREATERTHAN_EQUAL:
     this->llvmValue = irb->CreateICmpSGE(lhs, rhs);
     break;
+
   case LESSTHAN:
     this->llvmValue = irb->CreateICmpSLT(lhs, rhs);
     break;
+
   case LESSTHAN_EQUAL:
     this->llvmValue = irb->CreateICmpSLE(lhs, rhs);
     break;
+
   case EQUAL:
     this->llvmValue = irb->CreateICmpEQ(lhs, rhs);
     break;
+
   case NOTEQUAL:
     this->llvmValue = irb->CreateICmpNE(lhs, rhs);
     break;
+
   default:
     throw EXCEPTION(UnreachableCodeException, "This code shouldn't be reached.");
   }
@@ -83,22 +91,25 @@ Expression::CodeGenerationStage BinaryOperator::GenerateCode()
   // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
   // generatedLlvmValue?
   this->generatedLlvmValue = llvmValue;
-  return Expression::GenerateCode();
+  return Expression::generateCode();
 }
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage BinaryOperator::PostGenerateCode()
+Expression::CodeGenerationStage BinaryOperator::postGenerateCode()
 {
   if (!this->llvmValue->hasNUses(0))
     // Cannot delete the instruction yet; stay in PostCodeGeneration stage.
     return CodeGenerationStage::PostCodeGeneration;
+
   // TODO: Is it possible anymore for this->llvmValue to be of Instruction type?
   auto asInst = dyn_cast<llvm::Instruction>(this->llvmValue);
+
   if (asInst != nullptr)
     asInst->eraseFromParent();
   else
     delete this->llvmValue;
+
   this->llvmValue = nullptr;
 
   return CodeGenerationStage::None;
@@ -106,30 +117,39 @@ Expression::CodeGenerationStage BinaryOperator::PostGenerateCode()
 
 //------------------------------------------------------------------------------
 
-std::string BinaryOperator::ToString()
+std::string BinaryOperator::toString()
 {
-  switch (this->opType)
-  {
+  switch (this->opType) {
   case ADD:
-    return GetLHS()->ToString() + " + " + GetRHS()->ToString();
+    return getLHS()->toString() + " + " + getRHS()->toString();
+
   case SUBTRACT:
-    return GetLHS()->ToString() + " - " + GetRHS()->ToString();
+    return getLHS()->toString() + " - " + getRHS()->toString();
+
   case MULTIPLY:
-    return GetLHS()->ToString() + " * " + GetRHS()->ToString();
+    return getLHS()->toString() + " * " + getRHS()->toString();
+
   case DIVISION:
-    return GetLHS()->ToString() + " / " + GetRHS()->ToString();
+    return getLHS()->toString() + " / " + getRHS()->toString();
+
   case GREATERTHAN:
-    return GetLHS()->ToString() + " > " + GetRHS()->ToString();
+    return getLHS()->toString() + " > " + getRHS()->toString();
+
   case GREATERTHAN_EQUAL:
-    return GetLHS()->ToString() + " >= " + GetRHS()->ToString();
+    return getLHS()->toString() + " >= " + getRHS()->toString();
+
   case LESSTHAN:
-    return GetLHS()->ToString() + " < " + GetRHS()->ToString();
+    return getLHS()->toString() + " < " + getRHS()->toString();
+
   case LESSTHAN_EQUAL:
-    return GetLHS()->ToString() + " <= " + GetRHS()->ToString();
+    return getLHS()->toString() + " <= " + getRHS()->toString();
+
   case EQUAL:
-    return GetLHS()->ToString() + " == " + GetRHS()->ToString();
+    return getLHS()->toString() + " == " + getRHS()->toString();
+
   case NOTEQUAL:
-    return GetLHS()->ToString() + " != " + GetRHS()->ToString();
+    return getLHS()->toString() + " != " + getRHS()->toString();
+
   default:
     return "";
   }

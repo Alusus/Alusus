@@ -32,121 +32,125 @@
 
 namespace Scg
 {
-void Program::InitialiseBuiltInFunctions()
+void Program::initialiseBuiltInFunctions()
 {
-  // Add functions
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__add",
-      "int", "int", "int",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  // add functions
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__add",
+                             "int", "int", "int",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateAdd(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__add",
-      "float", "float", "float",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__add",
+                             "float", "float", "float",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFAdd(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__add",
-      "double", "double", "double",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__add",
+                             "double", "double", "double",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFAdd(a, b);
   }));
 
   // Subtract functions
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__sub",
-      "int", "int", "int",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__sub",
+                             "int", "int", "int",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateSub(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__sub",
-      "float", "float", "float",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__sub",
+                             "float", "float", "float",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFSub(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__sub",
-      "double", "double", "double",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__sub",
+                             "double", "double", "double",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFSub(a, b);
   }));
 
   // Multiplication functions
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__mul",
-      "int", "int", "int",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__mul",
+                             "int", "int", "int",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateMul(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__mul",
-      "float", "float", "float",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__mul",
+                             "float", "float", "float",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFMul(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__mul",
-      "double", "double", "double",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__mul",
+                             "double", "double", "double",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFMul(a, b);
   }));
 
   // Division functions
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__div",
-      "int", "int", "int",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__div",
+                             "int", "int", "int",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateSDiv(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__div",
-      "float", "float", "float",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__div",
+                             "float", "float", "float",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFDiv(a, b);
   }));
-  this->builtInFunctions.Add(new BasicBinaryBuiltInFunction("__div",
-      "double", "double", "double",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
+  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__div",
+                             "double", "double", "double",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFDiv(a, b);
   }));
 
   // Negative functions
-  this->builtInFunctions.Add(new BasicUnaryBuiltInFunction("__neg",
-      "int", "int",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a) {
-      return irb->CreateNeg(a);
+  this->builtInFunctions.add(new BasicUnaryBuiltInFunction("__neg",
+                             "int", "int",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a) {
+    return irb->CreateNeg(a);
   }));
-  this->builtInFunctions.Add(new BasicUnaryBuiltInFunction("__neg",
-      "float", "float",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a) {
+  this->builtInFunctions.add(new BasicUnaryBuiltInFunction("__neg",
+                             "float", "float",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a) {
     return irb->CreateFNeg(a);
   }));
-  this->builtInFunctions.Add(new BasicUnaryBuiltInFunction("__neg",
-      "double", "double",
-      [](llvm::IRBuilder<> *irb, llvm::Value *a) {
+  this->builtInFunctions.add(new BasicUnaryBuiltInFunction("__neg",
+                             "double", "double",
+  [](llvm::IRBuilder<> *irb, llvm::Value *a) {
     return irb->CreateFNeg(a);
   }));
 }
 
-bool Program::HasFunction(const std::string &name,
-		const ValueTypeSpecArray &arguments) const
+bool Program::hasFunction(const std::string &name,
+                          const ValueTypeSpecArray &arguments) const
 {
-	auto nonConstThis = const_cast<Program*>(this);
-	return nonConstThis->FindDefineFunction(name, arguments).size() > 0 ||
-			nonConstThis->FindDeclareFunction(name, arguments).size() > 0;
+  auto nonConstThis = const_cast<Program*>(this);
+  return nonConstThis->findDefineFunction(name, arguments).size() > 0 ||
+         nonConstThis->findDeclareFunction(name, arguments).size() > 0;
 }
 
-std::vector<Function *> Program::GetFunction(
-    const std::string &funcName, const ValueTypeSpecArray &arguments)
+std::vector<Function *> Program::getFunction(
+  const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
   std::vector<Function *> matches;
-  for (auto module : this->modules)
-  {
-    auto defFunc = module->GetFunction(funcName, arguments);
+
+  for (auto module : this->modules) {
+    auto defFunc = module->getFunction(funcName, arguments);
+
     if (defFunc != nullptr)
       matches.push_back(defFunc);
   }
+
   return matches;
 }
 
-std::vector<Function *> Program::MatchFunction(
-    const std::string &funcName, const ValueTypeSpecArray &arguments)
+std::vector<Function *> Program::matchFunction(
+  const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
   std::vector<Function *> matches;
+
   for (auto module : this->modules) {
-    auto defFunc = module->MatchFunction(funcName, arguments);
+    auto defFunc = module->matchFunction(funcName, arguments);
+
     if (defFunc != nullptr) {
       matches.push_back(defFunc);
     }
@@ -155,8 +159,9 @@ std::vector<Function *> Program::MatchFunction(
   if (matches.empty()) {
     // The module is not needed, so we pass the first one.
     // TODO: Remove the need to pass a module when it is not needed.
-    auto match = this->builtInFunctions.Match(*this->modules[0], funcName,
-        arguments);
+    auto match = this->builtInFunctions.match(*this->modules[0], funcName,
+                 arguments);
+
     if (match != nullptr) {
       matches.push_back(match);
     }
@@ -165,64 +170,72 @@ std::vector<Function *> Program::MatchFunction(
   return matches;
 }
 
-std::vector<DefineFunction*> Program::FindDefineFunction(
-    const std::string &funcName, const ValueTypeSpecArray &arguments)
+std::vector<DefineFunction*> Program::findDefineFunction(
+  const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
   std::vector<DefineFunction*> matches;
-  for (auto module : this->modules)
-  {
-    auto defFunc = module->FindDefineFunction(funcName, arguments);
+
+  for (auto module : this->modules) {
+    auto defFunc = module->findDefineFunction(funcName, arguments);
+
     if (defFunc != nullptr)
       matches.push_back(defFunc);
   }
+
   return matches;
 }
 
-std::vector<DeclareExtFunction*> Program::FindDeclareFunction(const std::string &funcName,
+std::vector<DeclareExtFunction*> Program::findDeclareFunction(const std::string &funcName,
     const ValueTypeSpecArray &arguments)
 {
   std::vector<DeclareExtFunction*> matches;
-  for (auto module : this->modules)
-  {
-    auto declFunc = module->FindDeclareFunction(funcName, arguments);
+
+  for (auto module : this->modules) {
+    auto declFunc = module->findDeclareFunction(funcName, arguments);
+
     if (declFunc != nullptr)
       matches.push_back(declFunc);
   }
+
   return matches;
 }
 
-std::string Program::Compile()
+std::string Program::compile()
 {
   if (this->modules.empty())
     throw EXCEPTION(InvalidObjectException, "The program doesn't contain any "
-        "module and cannot be executed.");
+                    "module and cannot be executed.");
 
-  this->llvmModule = new llvm::Module("AlususProgram", LlvmContainer::GetContext());
+  this->llvmModule = new llvm::Module("AlususProgram", LlvmContainer::getContext());
   this->llvmModule->setDataLayout(LlvmContainer::getDataLayout()->getStringRepresentation());
 
   for (auto module : this->modules) {
-    module->SetProgram(this);
+    module->setProgram(this);
   }
 
   // Repeatedly call pre-code generation until all modules are ready for code generation.
   bool repeat = true;
   int repeatCount = 0;
+
   while (repeat && repeatCount < MAX_PRE_CODE_GEN_REPEAT) {
-    repeat = false; repeatCount++;
+    repeat = false;
+    repeatCount++;
+
     for (auto module : this->modules) {
-      if (module->CallPreGenerateCode() != Expression::CodeGenerationStage::CodeGeneration) {
-      	repeat = true;
+      if (module->callPreGenerateCode() != Expression::CodeGenerationStage::CodeGeneration) {
+        repeat = true;
       }
     }
   }
+
   if (repeat == true) {
     throw EXCEPTION(SystemException,
-  			"Couldn't finish the pre-code generation step of compilation.");
+                    "Couldn't finish the pre-code generation step of compilation.");
   }
 
   // Generates code for all modules.
   for (auto module : this->modules) {
-  	module->CallGenerateCode();
+    module->callGenerateCode();
   }
 
   std::string out;
@@ -233,8 +246,8 @@ std::string Program::Compile()
 
   // Call post-code generation for all modules.
   for (auto module : this->modules) {
-    module->CallPostGenerateCode();
-    module->SetProgram(nullptr);
+    module->callPostGenerateCode();
+    module->setProgram(nullptr);
   }
 
   delete llvmModule;
@@ -242,48 +255,56 @@ std::string Program::Compile()
   return out;
 }
 
-void Program::Execute(const char *functionName)
+void Program::execute(const char *functionName)
 {
-	if (this->modules.empty())
+  if (this->modules.empty())
     throw EXCEPTION(InvalidObjectException, "The program doesn't contain any "
-        "module and cannot be executed.");
+                    "module and cannot be executed.");
 
-  this->llvmModule = new llvm::Module("AlususProgram", LlvmContainer::GetContext());
+  this->llvmModule = new llvm::Module("AlususProgram", LlvmContainer::getContext());
 
   for (auto module : this->modules) {
-    module->SetProgram(this);
+    module->setProgram(this);
   }
 
   // Repeatedly call pre-code generation until all modules are ready for code generation.
   bool repeat = true;
   int repeatCount = 0;
+
   while (repeat && repeatCount < MAX_PRE_CODE_GEN_REPEAT) {
-    repeat = false; repeatCount++;
+    repeat = false;
+    repeatCount++;
+
     for (auto module : this->modules) {
-      if (module->CallPreGenerateCode() != Expression::CodeGenerationStage::CodeGeneration) {
-      	repeat = true;
+      if (module->callPreGenerateCode() != Expression::CodeGenerationStage::CodeGeneration) {
+        repeat = true;
       }
     }
   }
+
   if (repeat == true) {
     throw EXCEPTION(SystemException,
-  			"Couldn't finish the pre-code generation step of compilation.");
+                    "Couldn't finish the pre-code generation step of compilation.");
   }
 
   // Generates code for all modules.
   repeat = true;
   repeatCount = 0;
+
   while (repeat && repeatCount < MAX_PRE_CODE_GEN_REPEAT) {
-    repeat = false; repeatCount++;
+    repeat = false;
+    repeatCount++;
+
     for (auto module : this->modules) {
-      if (module->CallGenerateCode() != Expression::CodeGenerationStage::PostCodeGeneration) {
-      	repeat = true;
+      if (module->callGenerateCode() != Expression::CodeGenerationStage::PostCodeGeneration) {
+        repeat = true;
       }
     }
   }
+
   if (repeat == true) {
     throw EXCEPTION(SystemException,
-  			"Couldn't finish the code generation step of compilation.");
+                    "Couldn't finish the code generation step of compilation.");
   }
 
   // Execute the generated IR code.
@@ -296,23 +317,27 @@ void Program::Execute(const char *functionName)
   // Call post-code generation for all modules.
   repeat = true;
   repeatCount = 0;
+
   while (repeat && repeatCount < MAX_PRE_CODE_GEN_REPEAT) {
-    repeat = false; repeatCount++;
+    repeat = false;
+    repeatCount++;
+
     for (auto module : this->modules) {
-      if (module->CallPostGenerateCode() != Expression::CodeGenerationStage::None) {
-      	repeat = true;
+      if (module->callPostGenerateCode() != Expression::CodeGenerationStage::None) {
+        repeat = true;
       }
     }
   }
+
   // FIXME: There is a problem with post-code generation at the moment and we end up
   // getting the exception below. We need to fix that.
   /*if (repeat == true) {
-  	// TODO: Should we just log this and report that there is a possible memory leak?
+    // TODO: Should we just log this and report that there is a possible memory leak?
     throw EXCEPTION(SystemException,
-  			"Couldn't finish the post-code generation step of compilation.");
-  }*/
+    "Couldn't finish the post-code generation step of compilation.");
+    }*/
   for (auto module : this->modules) {
-    module->SetProgram(nullptr);
+    module->setProgram(nullptr);
   }
 
   delete llvmModule;

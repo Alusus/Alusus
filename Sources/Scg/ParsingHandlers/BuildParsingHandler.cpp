@@ -32,37 +32,43 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
   static ReferenceSeeker seeker;
 
   // Set the build msg store.
-  generator.SetBuildMsgStore(state->getBuildMsgStore());
+  generator.setBuildMsgStore(state->getBuildMsgStore());
 
   // Set the aliases dictionary.
-  generator.SetAliasDictionary(static_cast<SharedMap*>(state->getDataStack()->tryGet(this->aliasDictionaryRef.get())));
+  generator.setAliasDictionary(static_cast<SharedMap*>(state->getDataStack()->tryGet(this->aliasDictionaryRef.get())));
 
   static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
-    STR("1~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
-    ReferenceUsageCriteria::MULTI_DATA);
+        STR("1~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
+        ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
   auto name = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), item.get()));
+
   /*SharedPtr<Module> statementList;
   if (name != 0) {
-    statementList = this->rootManager->getDefinitionsStore()->getValue(name->getText().c_str())
-                    .io_cast<Module>();
+  statementList = this->rootManager->getDefinitionsStore()->getValue(name->getText().c_str())
+  .io_cast<Module>();
   }*/
   if (true /*statementList != 0*/) {
     // Execute a list of statements.
     try {
       Word prevBuildMsgCount = state->getBuildMsgStore()->getCount();
-      LlvmContainer::Initialize();
+      LlvmContainer::initialize();
       Program program;
-      program.SetBuildMsgStore(state->getBuildMsgStore());
+      program.setBuildMsgStore(state->getBuildMsgStore());
       auto *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).io_cast_get<Data::Module>();
+
       for (auto i = 0; i < rootModule->getCount(); i++) {
         auto statList = rootModule->getShared(i).io_cast<Data::Module>();
+
         if (statList == 0) continue;
-        Module *module = generator.GenerateModule(name->getText(), statList);
-        program.AddModule(module);
+
+        Module *module = generator.generateModule(name->getText(), statList);
+        program.addModule(module);
       }
-      Str ir = program.Compile();
+
+      Str ir = program.compile();
+
       if (state->getBuildMsgStore()->getCount() == prevBuildMsgCount) {
         // No errors were found, so proceed to build.
         outStream << STR("---------------------- IR Code -----------------------\n");
@@ -71,28 +77,31 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
       } else {
         // Some errors were found, so we'll not execute.
         state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(STR("Couldn't build module due to build errors"),
-                                                                        STR("SCG1001"), 1, name->getSourceLocation(),
-                                                                        name->getText().c_str()));
+                           STR("SCG1001"), 1, name->getSourceLocation(),
+                           name->getText().c_str()));
       }
-      LlvmContainer::Finalize();
+
+      LlvmContainer::finalize();
     } catch (Core::Basic::Exception &e) {
       // TODO: Use the source code position once they are added to the module definition.
       //state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.getErrorMessage(),
       //  statementList->getLine(), statementList->getColumn())));
       state->addBuildMsg(SharedPtr<Processing::BuildMsg>(new Processing::CustomBuildMsg(e.getErrorMessage().c_str(),
-                                                                                        name->getSourceLocation())));
+                         name->getSourceLocation())));
     }
   } else {
-      // Create a build message.
-      Str message = "Couldn't find module: ";
-      message += name->getText();
-      auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
-      if (metadata != nullptr) {
-        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), metadata->getSourceLocation()));
-      } else {
-        state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), name->getSourceLocation()));
-      }
+    // Create a build message.
+    Str message = "Couldn't find module: ";
+    message += name->getText();
+    auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
+
+    if (metadata != nullptr) {
+      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), metadata->getSourceLocation()));
+    } else {
+      state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), name->getSourceLocation()));
+    }
   }
+
   // Reset parsed data because we are done with the command.
   state->setData(SharedPtr<IdentifiableObject>(0));
 }

@@ -31,13 +31,13 @@ namespace Scg
 
 llvm::DataLayout *LlvmContainer::dataLayout = 0;
 
-void LlvmContainer::Initialize()
+void LlvmContainer::initialize()
 {
   llvm::InitializeNativeTarget();
   LlvmContainer::dataLayout = new llvm::DataLayout("");
 }
 
-void LlvmContainer::Finalize()
+void LlvmContainer::finalize()
 {
   // TODO: Ensure that we don't need to delete these manually, and
   // AutoDeleteAllocator is doing the job.
@@ -56,7 +56,7 @@ void LlvmContainer::Finalize()
     */
 }
 
-llvm::LLVMContext &LlvmContainer::GetContext()
+llvm::LLVMContext &LlvmContainer::getContext()
 {
   return llvm::getGlobalContext();
 }

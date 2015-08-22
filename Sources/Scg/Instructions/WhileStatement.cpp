@@ -28,86 +28,92 @@ using namespace llvm;
 
 namespace Scg
 {
-  WhileStatement::WhileStatement(Expression *cond, Block *body)
-    : cond(cond)
-    , brInst(0)
-  {
-    if (cond == nullptr && body == nullptr)
-      throw EXCEPTION(InfiniteLoopException, "This loop is infinite.");
+WhileStatement::WhileStatement(Expression *cond, Block *body)
+  : cond(cond)
+  , brInst(0)
+{
+  if (cond == nullptr && body == nullptr)
+    throw EXCEPTION(InfiniteLoopException, "This loop is infinite.");
 
-    this->loopBlock = body;
+  this->loopBlock = body;
 
-    // Create a block which is used to exit the loop if the condition is not
-    // met.
-    this->exitBlock = new Block();
-    this->condBlock = this->cond != nullptr
-      ? new Block({new CondGotoStatement(this->cond, this->loopBlock, this->exitBlock)})
-      : new Block({new GotoStatement(this->loopBlock)});
+  // Create a block which is used to exit the loop if the condition is not
+  // met.
+  this->exitBlock = new Block();
+  this->condBlock = this->cond != nullptr
+  ? new Block({ new CondGotoStatement(this->cond, this->loopBlock, this->exitBlock) })
+    : new Block({ new GotoStatement(this->loopBlock) });
 
-    // Add an expression at the end of the loop block to go back to the
-    // block checking the condition.
-    this->loopBlock->AppendExpression(new GotoStatement(this->condBlock));
+  // Add an expression at the end of the loop block to go back to the
+  // block checking the condition.
+  this->loopBlock->appendExpression(new GotoStatement(this->condBlock));
 
-    this->children.push_back(this->condBlock);
-    this->children.push_back(this->loopBlock);
-    this->children.push_back(this->exitBlock);
-  }
+  this->children.push_back(this->condBlock);
+  this->children.push_back(this->loopBlock);
+  this->children.push_back(this->exitBlock);
+}
 
-  //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-  Expression::CodeGenerationStage WhileStatement::GenerateCode()
-  {
-    MODULE_CHECK;
+Expression::CodeGenerationStage WhileStatement::generateCode()
+{
+  MODULE_CHECK;
 
-    auto irBuilder = GetBlock()->GetIRBuilder();
+  auto irBuilder = getBlock()->getIRBuilder();
 
-    this->brInst = irBuilder->CreateBr(this->condBlock->GetLlvmBB());
-    // Generate the code of the condition of the for condition.
-    if (this->condBlock->GetCodeGenerationStage() ==
+  this->brInst = irBuilder->CreateBr(this->condBlock->getLlvmBB());
+
+  // Generate the code of the condition of the for condition.
+  if (this->condBlock->getCodeGenerationStage() ==
+      Expression::CodeGenerationStage::CodeGeneration) {
+    if (this->condBlock->callGenerateCode() ==
         Expression::CodeGenerationStage::CodeGeneration) {
-      if (this->condBlock->CallGenerateCode() ==
-        Expression::CodeGenerationStage::CodeGeneration) {
-        return Expression::CodeGenerationStage::CodeGeneration;
-      }
+      return Expression::CodeGenerationStage::CodeGeneration;
     }
-    // Generate the code of the loop code.
-    if (this->loopBlock->GetCodeGenerationStage() ==
+  }
+
+  // Generate the code of the loop code.
+  if (this->loopBlock->getCodeGenerationStage() ==
+      Expression::CodeGenerationStage::CodeGeneration) {
+    if (this->loopBlock->callGenerateCode() ==
         Expression::CodeGenerationStage::CodeGeneration) {
-      if (this->loopBlock->CallGenerateCode() ==
-        Expression::CodeGenerationStage::CodeGeneration) {
-        return Expression::CodeGenerationStage::CodeGeneration;
-      }
+      return Expression::CodeGenerationStage::CodeGeneration;
     }
-    // Generate the code of the exit block.
-    if (this->exitBlock->GetCodeGenerationStage() ==
+  }
+
+  // Generate the code of the exit block.
+  if (this->exitBlock->getCodeGenerationStage() ==
+      Expression::CodeGenerationStage::CodeGeneration) {
+    if (this->exitBlock->callGenerateCode() ==
         Expression::CodeGenerationStage::CodeGeneration) {
-      if (this->exitBlock->CallGenerateCode() ==
-        Expression::CodeGenerationStage::CodeGeneration) {
-        return Expression::CodeGenerationStage::CodeGeneration;
-      }
+      return Expression::CodeGenerationStage::CodeGeneration;
     }
-    irBuilder->SetInsertPoint(this->exitBlock->GetLlvmBB());
-
-    return Expression::GenerateCode();
   }
 
-  //----------------------------------------------------------------------------
+  irBuilder->SetInsertPoint(this->exitBlock->getLlvmBB());
 
-  Expression::CodeGenerationStage WhileStatement::PostGenerateCode()
-  {
-    SAFE_DELETE_LLVM_INST(this->brInst);
-    return CodeGenerationStage::None;
-  }
+  return Expression::generateCode();
+}
 
-  //------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-  std::string WhileStatement::ToString()
-  {
-    std::string str;
-    str.append("while (");
-    if (this->cond != 0) str.append(this->cond->ToString());
-    str.append(")\n");
-    str.append(GetBlock()->ToString());
-    return str;
-  }
+Expression::CodeGenerationStage WhileStatement::postGenerateCode()
+{
+  SAFE_DELETE_LLVM_INST(this->brInst);
+  return CodeGenerationStage::None;
+}
+
+//------------------------------------------------------------------------------------------------
+
+std::string WhileStatement::toString()
+{
+  std::string str;
+  str.append("while (");
+
+  if (this->cond != 0) str.append(this->cond->toString());
+
+  str.append(")\n");
+  str.append(getBlock()->toString());
+  return str;
+}
 }

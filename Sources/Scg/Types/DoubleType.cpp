@@ -25,36 +25,36 @@ DoubleType *DoubleType::s_singleton = nullptr;
 
 DoubleType::DoubleType() : typeSpec("double")
 {
-  this->llvmType = llvm::Type::getDoubleTy(LlvmContainer::GetContext());
+  this->llvmType = llvm::Type::getDoubleTy(LlvmContainer::getContext());
 }
 
-void DoubleType::InitCastingTargets() const
+void DoubleType::initCastingTargets() const
 {
-  this->implicitCastingTargets.push_back(DoubleType::Get());
+  this->implicitCastingTargets.push_back(DoubleType::get());
 
-  this->explicitCastingTargets.push_back(DoubleType::Get());
-  this->explicitCastingTargets.push_back(FloatType::Get());
-  this->explicitCastingTargets.push_back(IntegerType::Get());
+  this->explicitCastingTargets.push_back(DoubleType::get());
+  this->explicitCastingTargets.push_back(FloatType::get());
+  this->explicitCastingTargets.push_back(IntegerType::get());
 }
 
-llvm::Constant *DoubleType::GetLlvmConstant(double value) const
+llvm::Constant *DoubleType::getLlvmConstant(double value) const
 {
-  return llvm::ConstantFP::get(LlvmContainer::GetContext(),
-      llvm::APFloat(value));
+  return llvm::ConstantFP::get(LlvmContainer::getContext(),
+                               llvm::APFloat(value));
 }
 
-llvm::Value *DoubleType::CreateCastInst(llvm::IRBuilder<> *irb,
-    llvm::Value *value, const ValueType *targetType) const
+llvm::Value *DoubleType::createCastInst(llvm::IRBuilder<> *irb,
+                                        llvm::Value *value, const ValueType *targetType) const
 {
-  if (targetType == IntegerType::Get()) {
+  if (targetType == IntegerType::get()) {
     // The operand is a float, so we need to use FPTrunc instruction.
     return irb->CreateFPToSI(value,
-        IntegerType::Get()->Get()->GetLlvmType());
-  } else if (targetType == FloatType::Get()) {
+                             IntegerType::get()->get()->getLlvmType());
+  } else if (targetType == FloatType::get()) {
     // The operand is a float, so we need to use FPTrunc instruction.
     return irb->CreateFPTrunc(value,
-        FloatType::Get()->Get()->GetLlvmType());
-  } else if (targetType == DoubleType::Get()) {
+                              FloatType::get()->get()->getLlvmType());
+  } else if (targetType == DoubleType::get()) {
     // Target type is the same type, just return the input.
     return value;
   } else {
@@ -63,13 +63,14 @@ llvm::Value *DoubleType::CreateCastInst(llvm::IRBuilder<> *irb,
   }
 }
 
-DoubleType *DoubleType::Get()
+DoubleType *DoubleType::get()
 {
   // PERFORMANCE: What is the impact of running an unnecessary if statement
   // thousands of times?
   if (s_singleton == nullptr) {
     s_singleton = new DoubleType();
   }
+
   return s_singleton;
 }
 }

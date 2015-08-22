@@ -48,36 +48,48 @@ public:
    *
    * @return A pointer to the left-hand side expression.
    */
-  const ExpressionArray::value_type GetLHS() const { return children[0]; }
-  ExpressionArray::value_type GetLHS() { return children[0]; }
+  const ExpressionArray::value_type getLHS() const
+  {
+    return children[0];
+  }
+  ExpressionArray::value_type getLHS()
+  {
+    return children[0];
+  }
 
   /**
    * Get the expression representing the right-hand side of the binary operator.
    *
    * @return A pointer to the right-hand side expression.
    */
-  const ExpressionArray::value_type GetRHS() const { return children[1]; }
-  ExpressionArray::value_type GetRHS() { return children[1]; }
-
-  //! @copydoc Expression::CallGenerateCode()
-  virtual CodeGenerationStage CallGenerateCode()
+  const ExpressionArray::value_type getRHS() const
   {
-  	// We want to manually call the GenerateCode() member function of children
-  	// so we override the default behaviour of CallGenerateCode().
-  	return GenerateCode();
+    return children[1];
+  }
+  ExpressionArray::value_type getRHS()
+  {
+    return children[1];
   }
 
-  //! @copydoc Value::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Expression::callGenerateCode()
+  virtual CodeGenerationStage callGenerateCode()
+  {
+    // We want to manually call the generateCode() member function of children
+    // so we override the default behaviour of callGenerateCode().
+    return generateCode();
+  }
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Value::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override;
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
+
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

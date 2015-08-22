@@ -38,22 +38,22 @@ public:
    *
    * @return The string value of this string constant object.
    */
-  const std::string &GetValue() const
+  const std::string &getValue() const
   {
     return value;
   }
 
-  //! @copydoc Value::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const;
+  //! @copydoc Value::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const;
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

@@ -35,7 +35,8 @@ class DumpParsingHandler : public Core::Processing::GenericParsingHandler
   //============================================================================
   // Constructor
 
-  public: DumpParsingHandler(Core::Standard::RootManager *rm) : rootManager(rm)
+public:
+  DumpParsingHandler(Core::Standard::RootManager *rm) : rootManager(rm)
   {
   }
 
@@ -43,7 +44,8 @@ class DumpParsingHandler : public Core::Processing::GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
+public:
+  virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
 }; // class
 

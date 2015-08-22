@@ -15,47 +15,50 @@
 
 namespace Scg
 {
-  using namespace Core::Basic;
-  using namespace Core::Data;
+using namespace Core::Basic;
+using namespace Core::Data;
 
-  ListExpression::ListExpression(CodeGenerator *gen,
-      const SharedPtr<IdentifiableObject> &item)
-  {
-    // TODO: Why is the statement list considered a list expression? It is
-    // currently used by Function class to parse the body of the function, but I don't
-    // think this is correct. Instead, we should have a separate class to
-    // parse a list of statements.
-    auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
-    if (metadata != nullptr && (metadata->getProdId() == gen->GetListExpId() ||
-                                metadata->getProdId() == gen->GetStatementListId()))
-    {
-      auto listExp = item.s_cast<Core::Data::ParsedList>();
-      for (auto i = 0; i < listExp->getCount(); i++)
-        this->items.push_back(listExp->getShared(i));
-    }
-    else
-      this->items.push_back(item);
+ListExpression::ListExpression(CodeGenerator *gen,
+                               const SharedPtr<IdentifiableObject> &item)
+{
+  // TODO: Why is the statement list considered a list expression? It is
+  // currently used by Function class to parse the body of the function, but I don't
+  // think this is correct. Instead, we should have a separate class to
+  // parse a list of statements.
+  auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
+
+  if (metadata != nullptr && (metadata->getProdId() == gen->getListExpId() ||
+                              metadata->getProdId() == gen->getStatementListId())) {
+    auto listExp = item.s_cast<Core::Data::ParsedList>();
+
+    for (auto i = 0; i < listExp->getCount(); i++)
+      this->items.push_back(listExp->getShared(i));
+  } else
+    this->items.push_back(item);
+}
+
+//----------------------------------------------------------------------------
+
+StringArray ListExpression::parseTokenList() const
+{
+  static ReferenceSeeker seeker;
+  static SharedPtr<Reference> tokenReference = ReferenceParser::parseQualifier(
+        STR("self~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
+        ReferenceUsageCriteria::MULTI_DATA);
+  StringArray tokens;
+
+  for (auto i = 0; i < getItemCount(); i++) {
+    auto item = getItem(i);
+    auto token = io_cast<ParsedToken>(seeker.tryGet(tokenReference.get(), item.get()));
+
+    if (token == 0)
+      // TODO: Add the index of the non-token to the exception message.
+      throw EXCEPTION(InvalidArgumentException,
+                      "This list expression has one or more non-token item(s).");
+
+    tokens.push_back(token->getText());
   }
 
-  //----------------------------------------------------------------------------
-
-  StringArray ListExpression::ParseTokenList() const
-  {
-    static ReferenceSeeker seeker;
-    static SharedPtr<Reference> tokenReference = ReferenceParser::parseQualifier(
-      STR("self~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
-      ReferenceUsageCriteria::MULTI_DATA);
-    StringArray tokens;
-    for (auto i = 0; i < GetItemCount(); i++)
-    {
-      auto item = GetItem(i);
-      auto token = io_cast<ParsedToken>(seeker.tryGet(tokenReference.get(), item.get()));
-      if (token == 0)
-        // TODO: Add the index of the non-token to the exception message.
-        throw EXCEPTION(InvalidArgumentException,
-            "This list expression has one or more non-token item(s).");
-      tokens.push_back(token->getText());
-    }
-    return tokens;
-  }
+  return tokens;
+}
 }

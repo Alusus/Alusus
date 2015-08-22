@@ -26,72 +26,75 @@
 
 namespace Scg
 {
-  class CodeGenerator;
-  class DeclareExtFunction;
-  class FunctionalExpression;
+class CodeGenerator;
+class DeclareExtFunction;
+class FunctionalExpression;
+
+/**
+ * Parses an AST block representing a function link.
+ *
+ * An example of an AST block is shown below, which is generated
+ * from the following line of code:
+ *
+ * test(ptr[int], string, string) : ptr[int];
+ *
+ * Expression.Exp -- [LIST]:
+ *  Expression.LowerLinkExp -- [LIST]:
+ *   Expression.FunctionalExp -- [LIST]:
+ *    Subject.Subject1 -- [ROUTE]: 0
+ *     Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("test")
+ *    Expression.ParamPassExp -- [ROUTE]: 0
+ *     Expression.Exp -- [LIST]:
+ *      Expression.ListExp -- [LIST]:
+ *       Expression.FunctionalExp -- [LIST]:
+ *        Subject.Subject1 -- [ROUTE]: 0
+ *         Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("ptr")
+ *        Expression.ParamPassExp -- [ROUTE]: 1
+ *         Expression.Exp -- [LIST]:
+ *          Subject.Subject1 -- [ROUTE]: 0
+ *           Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("int")
+ *       Subject.Subject1 -- [ROUTE]: 0
+ *        Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("string")
+ *       Subject.Subject1 -- [ROUTE]: 0
+ *        Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("string")
+ *   [TOKEN]: CONSTANT_59 (":")
+ *   Expression.FunctionalExp -- [LIST]:
+ *    Subject.Subject1 -- [ROUTE]: 0
+ *     Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("ptr")
+ *    Expression.ParamPassExp -- [ROUTE]: 1
+ *     Expression.Exp -- [LIST]:
+ *      Subject.Subject1 -- [ROUTE]: 0
+ *       Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("int")
+ */
+class FunctionLinkExpression
+{
+private:
+  ValueTypeSpec *retType = nullptr;
+  Core::Data::SourceLocation sourceLocation;
+  FunctionalExpression *arguments;
+
+public:
+  FunctionLinkExpression(CodeGenerator *gen,
+                         const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+  ~FunctionLinkExpression();
 
   /**
-   * Parses an AST block representing a function link.
-   *
-   * An example of an AST block is shown below, which is generated
-   * from the following line of code:
-   *
-   * test(ptr[int], string, string) : ptr[int];
-   *
-   * Expression.Exp -- [LIST]:
-   *  Expression.LowerLinkExp -- [LIST]:
-   *   Expression.FunctionalExp -- [LIST]:
-   *    Subject.Subject1 -- [ROUTE]: 0
-   *     Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("test")
-   *    Expression.ParamPassExp -- [ROUTE]: 0
-   *     Expression.Exp -- [LIST]:
-   *      Expression.ListExp -- [LIST]:
-   *       Expression.FunctionalExp -- [LIST]:
-   *        Subject.Subject1 -- [ROUTE]: 0
-   *         Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("ptr")
-   *        Expression.ParamPassExp -- [ROUTE]: 1
-   *         Expression.Exp -- [LIST]:
-   *          Subject.Subject1 -- [ROUTE]: 0
-   *           Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("int")
-   *       Subject.Subject1 -- [ROUTE]: 0
-   *        Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("string")
-   *       Subject.Subject1 -- [ROUTE]: 0
-   *        Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("string")
-   *   [TOKEN]: CONSTANT_59 (":")
-   *   Expression.FunctionalExp -- [LIST]:
-   *    Subject.Subject1 -- [ROUTE]: 0
-   *     Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("ptr")
-   *    Expression.ParamPassExp -- [ROUTE]: 1
-   *     Expression.Exp -- [LIST]:
-   *      Subject.Subject1 -- [ROUTE]: 0
-   *       Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("int")
+   * Returns the return type name of the function we are linking to.
+   * @return A string containing the return type name.
    */
-  class FunctionLinkExpression
+  const ValueTypeSpec *getReturnType() const
   {
-  private:
-    ValueTypeSpec *retType = nullptr;
-    Core::Data::SourceLocation sourceLocation;
-    FunctionalExpression *arguments;
+    return retType;
+  }
 
-  public:
-    FunctionLinkExpression(CodeGenerator *gen,
-        const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
-    ~FunctionLinkExpression();
-
-    /**
-     * Returns the return type name of the function we are linking to.
-     * @return A string containing the return type name.
-     */
-    const ValueTypeSpec *GetReturnType() const { return retType; }
-
-    /**
-     * Converts the function link expression to a DeclareExtFunction expression.
-     *
-     * @return A pointer to a DeclareExtFunction object. The object should be
-     * freed by the caller.
-     */
-    DeclareExtFunction *ToDeclareExtFunction();
-  };
+  /**
+   * Converts the function link expression to a DeclareExtFunction expression.
+   *
+   * @return A pointer to a DeclareExtFunction object. The object should be
+   * freed by the caller.
+   */
+  DeclareExtFunction *toDeclareExtFunction();
+};
 }
 
 #endif // __FunctionLinkExpression_h__

@@ -22,8 +22,8 @@
 
 namespace Scg
 {
-  class Block;
-  class ValueTypeSpec;
+class Block;
+class ValueTypeSpec;
 }
 
 namespace Scg
@@ -51,7 +51,7 @@ public:
    * @param[in] body        The body of the function.
    */
   DefineFunction(Core::Basic::Char const *name, ValueTypeSpec *returnType,
-    const VariableDefinitionArray &arguments, Block *body);
+                 const VariableDefinitionArray &arguments, Block *body);
 
   //! Class destructor.
   ~DefineFunction();
@@ -60,38 +60,56 @@ public:
    * Retrieves the name of the function to be defined by this instruction.
    * @return The name of the function to be defined.
    */
-  const std::string &GetName() const { return name; }
+  const std::string &getName() const
+  {
+    return name;
+  }
 
   /**
    * Retrieves the return type of the function.
    * @return The return type of the function.
    */
-  const ValueTypeSpec *GetReturnType() const { return returnType; }
-  ValueTypeSpec *GetReturnType() { return returnType; }
+  const ValueTypeSpec *getReturnType() const
+  {
+    return returnType;
+  }
+  ValueTypeSpec *getReturnType()
+  {
+    return returnType;
+  }
 
   /**
    * Retrieves the arguments of the function to be defined by this instruction.
    * This is an array type-name tuple, one array item for each argument.
    * @return The arguments of the function.
    */
-  const VariableDefinitionArray &GetArguments() const { return arguments; }
+  const VariableDefinitionArray &getArguments() const
+  {
+    return arguments;
+  }
 
   /**
    * Retrieves a pointer to the Alusus function defined by this instruction.
    *
    * @return A pointer to the Alusus function defined by this instruction.
    */
-  const UserDefinedFunction *GetDefinedFunction() const { return (UserDefinedFunction *)(children[0]); }
-  UserDefinedFunction *GetDefinedFunction() { return (UserDefinedFunction *)(children[0]); }
+  const UserDefinedFunction *getDefinedFunction() const
+  {
+    return (UserDefinedFunction *)(children[0]);
+  }
+  UserDefinedFunction *getDefinedFunction()
+  {
+    return (UserDefinedFunction *)(children[0]);
+  }
 
-  //! @copydoc Expression::PreGenerateCode()
-  virtual CodeGenerationStage PreGenerateCode();
+  //! @copydoc Expression::preGenerateCode()
+  virtual CodeGenerationStage preGenerateCode();
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 };
 }
 

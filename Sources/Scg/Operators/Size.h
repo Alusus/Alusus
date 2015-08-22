@@ -25,16 +25,20 @@ class Size : public Constant
   //============================================================================
   // Member Variables
 
-  private: Expression *expression;
-  private: llvm::Value *llvmValue;
+private:
+  Expression *expression;
+private:
+  llvm::Value *llvmValue;
 
 
   //============================================================================
   // Constructor
 
-  public: Size(Expression *exp);
+public:
+  Size(Expression *exp);
 
-  public: virtual ~Size()
+public:
+  virtual ~Size()
   {
     if (this->expression) delete this->expression;
   }
@@ -42,17 +46,17 @@ class Size : public Constant
   //============================================================================
   // Member Functions
 
-  //! @copydoc Value::GetValueTypeSpec()
-  virtual const ValueTypeSpec *GetValueTypeSpec() const override;
+  //! @copydoc Value::getValueTypeSpec()
+  virtual const ValueTypeSpec *getValueTypeSpec() const override;
 
-  //! @copydoc Expression::GenerateCode()
-  virtual CodeGenerationStage GenerateCode();
+  //! @copydoc Expression::generateCode()
+  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::PostGenerateCode()
-  virtual CodeGenerationStage PostGenerateCode();
+  //! @copydoc Expression::postGenerateCode()
+  virtual CodeGenerationStage postGenerateCode();
 
-  //! @copydoc Expression::ToString()
-  virtual std::string ToString();
+  //! @copydoc Expression::toString()
+  virtual std::string toString();
 
 }; // class
 
