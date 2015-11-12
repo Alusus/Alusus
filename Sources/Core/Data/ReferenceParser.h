@@ -23,71 +23,117 @@ class ReferenceParser
   //============================================================================
   // Constants
 
-  private: static constexpr Char const *ROOT_KEYWORD = STR("root");
-  private: static constexpr Int ROOT_KEYWORD_LEN = 4;
+  protected: static constexpr Char const *ROOT_KEYWORD = STR("root");
+  protected: static constexpr Int ROOT_KEYWORD_LEN = 4;
 
-  private: static constexpr Char const *SELF_KEYWORD = STR("self");
-  private: static constexpr Int SELF_KEYWORD_LEN = 4;
+  protected: static constexpr Char const *SELF_KEYWORD = STR("self");
+  protected: static constexpr Int SELF_KEYWORD_LEN = 4;
 
-  private: static constexpr Char const *FIND_KEYWORD = STR("{find ");
-  private: static constexpr Int FIND_KEYWORD_LEN = 6;
+  protected: static constexpr Char const *FIND_KEYWORD = STR("{find ");
+  protected: static constexpr Int FIND_KEYWORD_LEN = 6;
 
-  private: static constexpr Char const *EVAL_KEYWORD = STR("{eval ");
-  private: static constexpr Int EVAL_KEYWORD_LEN = 6;
+  protected: static constexpr Char const *EVAL_KEYWORD = STR("{eval ");
+  protected: static constexpr Int EVAL_KEYWORD_LEN = 6;
 
-  private: static constexpr Char const *BACKWARDS_KEYWORD = STR("backwards");
-  private: static constexpr Int BACKWARDS_KEYWORD_LEN = 9;
+  protected: static constexpr Char const *BACKWARDS_KEYWORD = STR("backwards");
+  protected: static constexpr Int BACKWARDS_KEYWORD_LEN = 9;
 
-  private: static constexpr Char const *WHERE_KEYWORD = STR("~where(");
-  private: static constexpr Int WHERE_KEYWORD_LEN = 7;
+  protected: static constexpr Char const *WHERE_KEYWORD = STR("~where(");
+  protected: static constexpr Int WHERE_KEYWORD_LEN = 7;
 
-  private: static SharedPtr<CharGroupUnit> letterCharGroup;
-  private: static SharedPtr<CharGroupUnit> numberCharGroup;
+
+  //============================================================================
+  // Data Types
+
+  private: struct CharGroupStorage
+  {
+    SharedPtr<CharGroupUnit> letterCharGroup;
+    SharedPtr<CharGroupUnit> numberCharGroup;
+  };
 
 
   //============================================================================
   // Member Variables
 
-  private: IndexReference tempIndexReference;
+  protected: IndexReference tempIndexReference;
 
-  private: StrKeyReference tempStrKeyReference;
+  protected: StrKeyReference tempStrKeyReference;
 
-  private: ScopeReference tempScopeReference;
+  protected: ScopeReference tempScopeReference;
 
-  private: SearchReference tempSearchReference;
+  protected: SearchReference tempSearchReference;
 
-  private: SelfReference tempSelfReference;
+  protected: SelfReference tempSelfReference;
 
-  private: SharedPtr<StrAttributeValidator> tempSearchValidator;
+  protected: SharedPtr<StrAttributeValidator> tempSearchValidator;
 
-  private: SharedPtr<StrAttributeValidator> tempResultValidator;
+  protected: SharedPtr<StrAttributeValidator> tempResultValidator;
+
+  protected: ReferenceUsageCriteria usageCriteria;
+
+
+  //============================================================================
+  // Construction & Destruction
+
+  public: ReferenceParser()
+  {
+  }
+
+  public: virtual ~ReferenceParser()
+  {
+  }
+
+  /**
+   * @brief Get a shared instance that can be used to parser non temp refs.
+   * This is just to avoid reinstantiating the object multiple times. It's not
+   * a singleton because this class is not designed to work as a singleton. This
+   * method is only needed for performance purposes since the same instance can
+   * be reused to parse non-temp references. Those who are parsing temp segments
+   * should instantiate their own instances.
+   */
+  public: static ReferenceParser* getSharedInstance()
+  {
+    static ReferenceParser parser;
+    return &parser;
+  }
+
+  private: static CharGroupStorage* getSharedCharGroupStorage();
 
 
   //============================================================================
   // Member Functions
 
-  protected: static void initDefaultCharGroups();
+  /// @name Char Group Functions
+  /// @{
 
-  public: static void setLetterCharGroup(SharedPtr<CharGroupUnit> const group)
-  {
-    ReferenceParser::letterCharGroup = group;
-  }
+  public: static void setSharedLetterCharGroup(SharedPtr<CharGroupUnit> const group);
 
-  public: static void setNumberCharGroup(SharedPtr<CharGroupUnit> const group)
-  {
-    ReferenceParser::numberCharGroup = group;
-  }
+  public: static void setSharedNumberCharGroup(SharedPtr<CharGroupUnit> const group);
+
+  protected: virtual CharGroupUnit* getLetterCharGroup() const;
+
+  protected: virtual CharGroupUnit* getNumberCharGroup() const;
+
+  /// @}
+
+  /// @name Qualifier Building Functions
+  /// @{
 
   /// Build the string representation of this reference.
-  public: static void buildQualifier(Reference const *ref, StrStream &qualifier);
+  public: virtual void buildQualifier(Reference const *ref, StrStream &qualifier);
 
   /// Build the string representation of this reference and returns it.
-  public: static const Str getQualifier(Reference const *ref)
+  public: const Str getQualifier(Reference const *ref)
   {
     StrStream stream;
-    ReferenceParser::buildQualifier(ref, stream);
+    this->buildQualifier(ref, stream);
     return stream.str();
   }
+
+  /// @}
+
+  /// @name Qualifier Parsing Functions
+  /// @{
 
   /**
    * @brief Builds a Reference chain that represents the given gualifier.
@@ -101,69 +147,134 @@ class ReferenceParser
    * Brackets are used to use a reference as the id of another reference.
    * Strings are used to reference map items by their key, while integers are
    * used to reference list items by their index.
+   * @param criteria The usage criteria that will be assigned to each segment in
+   *                 the generated reference chain.
    */
-  public: static SharedPtr<Reference> parseQualifier(Char const *qualifier,
+  public: SharedPtr<Reference> parseQualifier(Char const *qualifier,
     ReferenceUsageCriteria criteria = ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH)
   {
-    Int pos;
-    return ReferenceParser::_parseQualifier(qualifier, pos, criteria);
+    Int pos = 0;
+    this->usageCriteria = criteria;
+    return this->_parseQualifier(qualifier, pos);
   }
 
   /// Internal recursive function that does the actual parsing of qualifiers.
-  private: static SharedPtr<Reference> _parseQualifier(Char const *qualifier, Int &pos,
-                                                       ReferenceUsageCriteria criteria);
+  protected: virtual SharedPtr<Reference> _parseQualifier(Char const *qualifier, Int &pos);
+
+  protected: virtual SharedPtr<Reference> _parseQualifierSegment(Char const *qualifier, Int &pos);
 
   /// Parses a single segment of the qualifier string.
-  public: Reference const& parseQualifierSegment(Char const *&qualifier);
+  public: virtual Reference const& parseQualifierSegmentToTemp(Char const *&qualifier);
 
-  private: void setQualifierSegmentResultValidator(Char const *&qualifier, Reference *seg);
+  protected: virtual void setTempQualifierSegmentResultValidator(Char const *&qualifier, Reference *seg);
+
+  /// @}
+
+  /// @name Qualifier Validation and Segment Seeking Functions
+  /// @{
 
   /**
-     * @brief Validate a qualifier string.
-     * @param absolute Specifies whether to validate an absolute qualifier or
-     *                 not. An absolute qualifier is one that doesn't use a
-     *                 subqualifier, i.e. doesn't have any brackets.
-     */
-  public: static Bool validateQualifier(Char const *qualifier, Bool absolute)
+   * @brief Validate a qualifier string.
+   * @param absolute Specifies whether to validate an absolute qualifier or
+   *                 not. An absolute qualifier is one that doesn't use a
+   *                 subqualifier, i.e. doesn't have any brackets.
+   */
+  public: Bool validateQualifier(Char const *qualifier, Bool absolute=false)
   {
-    return ReferenceParser::_validateQualifier(qualifier, absolute, 0);
+    return this->_validateQualifier(qualifier, absolute);
   }
 
   /// Internal recursive function that does the actual validation.
-  private: static Bool _validateQualifier(Char const *qualifier, Bool absolute, Char const **end);
+  protected: virtual Bool _validateQualifier(Char const *&qualifier, Bool absolute, Bool subQualifier=false);
+
+  protected: virtual Bool _validateQualifierSegment(Char const *&qualifier, Bool absolute);
+
+  protected: virtual Bool _validateResultValidator(Char const *&qualifier);
 
   /**
-     * @brief Find the beginning of the last segment within a qualifier string.
-     * The last segument could be a subqualifier (a bracketed full qualifier) in
-     * which case the return will be the opening bracket. If the last segment is
-     * not a subqualifier the return will be the beginning of the segment, not
-     * the dot preceding it.
-     */
-  public: static Char const* findLastQualifierSegment(Char const *qualifier)
+   * @brief Find the beginning of the last segment within a qualifier string.
+   * The last segument could be a subqualifier (a bracketed full qualifier) in
+   * which case the return will be the opening bracket. If the last segment is
+   * not a subqualifier the return will be the beginning of the segment, not
+   * the dot preceding it.
+   */
+  public: Char const* findLastQualifierSegment(Char const *qualifier);
+
+  /// @}
+
+  /// @name Reference Generation Functions
+  /// @{
+
+  protected: virtual SharedPtr<Reference> createIndexReference(Int index)
   {
-    qualifier = ReferenceParser::_findLastQualifierSegment(qualifier);
-    if (*qualifier != CHR('\0')) {
-      throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
-    }
-    return qualifier;
+    return std::make_shared<IndexReference>(index);
   }
 
-  /// Internal recursive function to find the last qualifier segument.
-  private: static Char const* _findLastQualifierSegment(Char const *qualifier);
+  protected: virtual SharedPtr<Reference> createStrKeyReference(Char const *key, Word length)
+  {
+    return std::make_shared<StrKeyReference>(key, length);
+  }
 
-  private: static Int parseInt(Char const *qualifier, Int &result);
+  protected: virtual SharedPtr<Reference> createScopeReference(Char const *scope, Word length);
 
-  private: static Int parseStrAttributeValidator(Char const *qualifier, StrAttributeValidator *targetValidator);
+  protected: virtual SharedPtr<Reference> createSelfReference()
+  {
+    return std::make_shared<SelfReference>();
+  }
 
-  private: static Int skipSpaces(Char const *qualifier)
+  protected: virtual SharedPtr<Reference> createSearchReference(Char const *&qualifier);
+
+  protected: virtual SharedPtr<Reference> createIndirectReference(Char const *&qualifier);
+
+  protected: virtual SharedPtr<Validator> createResultValidator(Char const *&qualifier);
+
+  protected: virtual Reference const& prepareTempIndexReference(Int index)
+  {
+    this->tempIndexReference.setIndex(index);
+    return this->tempIndexReference;
+  }
+
+  protected: virtual Reference const& prepareTempStrKeyReference(Char const *key, Word length)
+  {
+    this->tempStrKeyReference.setKey(key, length);
+    return this->tempStrKeyReference;
+  }
+
+  protected: virtual Reference const& prepareTempScopeReference(Char const *scope, Word length);
+
+  protected: virtual Reference const& prepareTempSelfReference()
+  {
+    return this->tempSelfReference;
+  }
+
+  protected: virtual Reference const& prepareTempSearchReference(Char const *&qualifier);
+
+  /// @}
+
+  /// @name Helper Functions
+  /// @{
+
+  protected: virtual Int parseInt(Char const *qualifier, Int &result);
+
+  protected: virtual Int parseStrAttributeValidator(Char const *qualifier, StrAttributeValidator *targetValidator);
+
+  protected: static Int skipSpaces(Char const *qualifier)
   {
     Int i = 0;
     while (qualifier[i] == CHR(' ') || qualifier[i] == CHR('\t')) ++i;
     return i;
   }
 
+  /// @}
+
 }; // class
 
 } } // namespace
+
+/**
+ * @brief A shortcut to access the reference parser singleton.
+ * @ingroup data
+ */
+#define REF_PARSER Core::Data::ReferenceParser::getSharedInstance()
 
 #endif

@@ -2,7 +2,7 @@
  * @file Core/Data/Container.h
  * Contains the header of interface Data::Container.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -35,9 +35,8 @@ class Container : public IdentifiableInterface
      * @brief A signal for enquiring whether the given content is in use.
      *
      * This signal is fired before removing any content from the list. This
-     * is to make sure no one is still using this content. Anyone handling
-     * this signal should return true if he's using the definition with the
-     * provided id.
+     * is to make sure no one is still using this content. Anything handling
+     * this signal should return true if it's using provided content object.
      */
   public: SIGNAL_WITH_ACK(contentInUseInquirer, (IdentifiableObject *content), (content));
 

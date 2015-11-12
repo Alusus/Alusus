@@ -2,7 +2,7 @@
  * @file Core/Data/String.h
  * Contains the header of class Core::Data::String.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,12 +24,12 @@ namespace Core { namespace Data
  * the grammar. This is simply a wrappar around Str that provides runtime type
  * info, which is needed for grammar data.
  */
-class String : public IdentifiableObject
+class String : public Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(String, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(String, Node, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

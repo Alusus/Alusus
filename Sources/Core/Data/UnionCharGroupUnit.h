@@ -53,6 +53,7 @@ class UnionCharGroupUnit : public CharGroupUnit
 
   public: virtual ~UnionCharGroupUnit()
   {
+    for (auto unit : this->charGroupUnits) RESET_OWNED_SHAREDPTR(unit);
   }
 
   public: static SharedPtr<UnionCharGroupUnit> create(std::initializer_list<SharedPtr<CharGroupUnit>> const &args)
@@ -68,6 +69,7 @@ class UnionCharGroupUnit : public CharGroupUnit
   public: void addCharGroupUnit(const SharedPtr<CharGroupUnit> &u)
   {
     this->charGroupUnits.push_back(u);
+    if (u != 0) u->setOwner(this);
   }
 
   /// Get a pointer to the vector of char groups that forms the union.

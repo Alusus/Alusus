@@ -18,6 +18,37 @@ namespace Core { namespace Data
 //==============================================================================
 // Constructor
 
+SymbolDefinition::SymbolDefinition(const SharedPtr<Reference> &pnt,
+                                   SharedPtr<Node> const &t,
+                                   SharedPtr<Node> const &vd,
+                                   SharedPtr<Node> const &v,
+                                   const SharedPtr<OperationHandler> &h,
+                                   Int p, Word f,
+                                   SharedPtr<Node> const &a) :
+  parentReference(pnt), term(t), varDefs(vd), vars(v), handler(h), priority(p),
+  flags(f), attributes(a), ownership(SymbolDefElement::ALL)
+{
+  if (t == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("t"), STR("Should not be null."));
+  }
+  if (!t->isDerivedFrom<Term>() && !t->isDerivedFrom<Reference>()) {
+    throw EXCEPTION(InvalidArgumentException, STR("t"), STR("Must be of type Term or Reference."));
+  }
+  if (vd != 0 && !vd->isA<SharedMap>() && !vd->isDerivedFrom<Reference>()) {
+    throw EXCEPTION(InvalidArgumentException, STR("vd"), STR("Must be of type SharedMap or Reference."));
+  }
+  if (v != 0 && !v->isA<SharedMap>() && !v->isDerivedFrom<Reference>()) {
+    throw EXCEPTION(InvalidArgumentException, STR("v"), STR("Must be of type SharedMap or Reference."));
+  }
+  if (this->parentReference != 0) this->parentReference->setOwner(this);
+  if (this->term != 0) this->term->setOwner(this);
+  if (this->varDefs != 0) this->varDefs->setOwner(this);
+  if (this->vars != 0) this->vars->setOwner(this);
+  if (this->attributes != 0) this->attributes->setOwner(this);
+  if (this->handler != 0) this->handler->setOwner(this);
+}
+
+
 SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDefElement>> &args) :
   priority(0), flags(0), ownership(0), parent(0)
 {
@@ -32,11 +63,11 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
         this->ownership |= SymbolDefElement::PARENT_REF;
         break;
       case SymbolDefElement::TERM:
-        this->term = arg.ioVal;
+        UPDATE_OWNED_SHAREDPTR(this->term, arg.ioVal.io_cast<Node>());
         this->ownership |= SymbolDefElement::TERM;
         break;
       case SymbolDefElement::VAR_DEFS:
-        this->varDefs = arg.ioVal;
+        UPDATE_OWNED_SHAREDPTR(this->varDefs, arg.ioVal.io_cast<Node>());
         if (this->varDefs != 0 && !this->varDefs->isA<SharedMap>() && !this->varDefs->isDerivedFrom<Reference>()) {
           throw EXCEPTION(InvalidArgumentException, STR("varDefs"),
                           STR("Must be of type SharedMap or Reference."));
@@ -44,7 +75,7 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
         this->ownership |= SymbolDefElement::VAR_DEFS;
         break;
       case SymbolDefElement::VARS:
-        this->vars = arg.ioVal;
+        UPDATE_OWNED_SHAREDPTR(this->vars, arg.ioVal.io_cast<Node>());
         if (this->vars != 0 && !this->vars->isA<SharedMap>() && !this->vars->isDerivedFrom<Reference>()) {
           throw EXCEPTION(InvalidArgumentException, STR("vars"),
                           STR("Must be of type SharedMap or Reference."));
@@ -52,7 +83,7 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
         this->ownership |= SymbolDefElement::VARS;
         break;
       case SymbolDefElement::HANDLER:
-        this->handler = arg.ioVal.io_cast<OperationHandler>();
+        UPDATE_OWNED_SHAREDPTR(this->handler, arg.ioVal.io_cast<OperationHandler>());
         if (this->handler == 0 && arg.ioVal != 0) {
           throw EXCEPTION(InvalidArgumentException, STR("handler"), STR("Must be of type OperationHandler."),
                           arg.ioVal->getMyTypeInfo()->getUniqueName());
@@ -68,7 +99,7 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
         this->ownership |= SymbolDefElement::FLAGS;
         break;
       case SymbolDefElement::ATTRIBUTES:
-        this->attributes = arg.ioVal;
+        UPDATE_OWNED_SHAREDPTR(this->attributes, arg.ioVal.io_cast<Node>());
         this->ownership |= SymbolDefElement::ATTRIBUTES;
         break;
     }
@@ -82,6 +113,19 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
                       STR("Must be of type Term or Reference."));
     }
   }
+}
+
+
+SymbolDefinition::~SymbolDefinition()
+{
+  if (this->parent != 0) this->detachFromParent();
+  this->changeNotifier.emit(this, SymbolDefChangeOp::DESTROY, 0);
+  RESET_OWNED_SHAREDPTR(this->parentReference);
+  RESET_OWNED_SHAREDPTR(this->term);
+  RESET_OWNED_SHAREDPTR(this->varDefs);
+  RESET_OWNED_SHAREDPTR(this->vars);
+  RESET_OWNED_SHAREDPTR(this->attributes);
+  RESET_OWNED_SHAREDPTR(this->handler);
 }
 
 

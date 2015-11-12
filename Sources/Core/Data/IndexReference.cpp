@@ -26,78 +26,70 @@ Bool IndexReference::compare(Reference const *r) const
 }
 
 
-Bool IndexReference::setValue(Provider *provider, IdentifiableObject *parent,
-                              IdentifiableObject *obj, Int &index) const
+void IndexReference::setValue(Provider *provider, IdentifiableObject *parent,
+                              ReferenceSetLambda handler) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
-  if (index == -1) return false;
-  index = -1;
   Container *container = parent->getInterface<Container>();
-  if (container == 0) return false;
+  IdentifiableObject *obj;
+  if (container == 0) return;
   if (this->index >= 0 && this->index < container->getCount()) {
-    container->set(this->index, obj);
-    return true;
+    obj = container->get(this->index);
+    if (isPerform(handler(0, obj))) {
+      container->set(this->index, obj);
+    }
   } else if (this->index == container->getCount()) {
     ListContainer *listContainer = parent->getInterface<ListContainer>();
-    if (listContainer == 0) return false;
-    listContainer->add(obj);
-    return true;
+    if (listContainer == 0) return;
+    obj = 0;
+    if (isPerform(handler(0, obj))) {
+      listContainer->add(obj);
+    }
   } else if (this->index < 0 && this->index >= -container->getCount()) {
-    container->set(container->getCount() + this->index, obj);
-    return true;
-  } else {
-    return false;
+    obj = container->get(container->getCount() + this->index);
+    if (isPerform(handler(0, obj))) {
+      container->set(container->getCount() + this->index, obj);
+    }
   }
 }
 
 
-Bool IndexReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
+void IndexReference::removeValue(Provider *provider, IdentifiableObject *parent,
+                                 ReferenceRemoveLambda handler) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
-  if (index == -1) return false;
-  index = -1;
   Container *container;
   if ((container = parent->getInterface<Container>()) != 0) {
     if (this->index >= 0 && this->index < container->getCount()) {
-      container->remove(this->index);
-      return true;
+      if (isPerform(handler(0, container->get(this->index)))) {
+        container->remove(this->index);
+      }
     } else if (this->index < 0 && this->index >= -container->getCount()) {
-      container->remove(container->getCount() + this->index);
-      return true;
-    } else {
-      return false;
+      if (isPerform(handler(0, container->get(container->getCount() + this->index)))) {
+        container->remove(container->getCount() + this->index);
+      }
     }
-  } else {
-    return false;
   }
 }
 
 
-Bool IndexReference::getValue(Provider *provider, IdentifiableObject *parent,
-                              IdentifiableObject *&result, Int &index) const
+void IndexReference::forEachValue(Provider *provider, IdentifiableObject *parent,
+                                  ReferenceForeachLambda handler) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
-  if (index == -1) return false;
-  index = -1;
   Container const *container;
   if ((container = parent->getInterface<Container>()) != 0) {
     if (this->index >= 0 && this->index < container->getCount()) {
-      result = container->get(this->index);
-      return true;
+      handler(0, container->get(this->index));
     } else if (this->index < 0 && this->index >= -container->getCount()) {
-      result = container->get(container->getCount() + this->index);
-      return true;
-    } else {
-      return false;
+      handler(0, container->get(container->getCount() + this->index));
     }
-  } else {
-    return false;
   }
 }
 

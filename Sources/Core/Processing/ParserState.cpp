@@ -31,7 +31,7 @@ ParserState::ParserState() :
 {
   this->grammarContext.setRoot(0);
   this->grammarContext.setStack(&this->variableStack);
-  this->dataStack.setOwner(true);
+  this->dataStack.setOwningEnabled(true);
 }
 
 
@@ -55,7 +55,7 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   this->prodStack.resize(0);
   this->grammarContext.setRoot(rootModule);
   this->grammarContext.setStack(&this->variableStack);
-  this->dataStack.setOwner(true);
+  this->dataStack.setOwningEnabled(true);
 }
 
 
@@ -79,7 +79,7 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   this->prodStack.resize(0);
   this->grammarContext.copyFrom(context);
   this->grammarContext.setStack(&this->variableStack);
-  this->dataStack.setOwner(true);
+  this->dataStack.setOwningEnabled(true);
 }
 
 

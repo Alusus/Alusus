@@ -2,7 +2,7 @@
  * @file Core/Data/OperationHandler.h
  * Contains the header of class Core::Data::OperationHandler.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,12 +18,12 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class OperationHandler : public IdentifiableObject
+class OperationHandler : public Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(OperationHandler, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(OperationHandler, Node, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

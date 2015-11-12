@@ -30,16 +30,16 @@ class TokenTerm : public Term, public virtual DataOwner
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<IdentifiableObject> tokenId;
+  private: SharedPtr<Node> tokenId;
 
-  private: SharedPtr<IdentifiableObject> tokenText;
+  private: SharedPtr<Node> tokenText;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: TokenTerm(Word f=0, SharedPtr<IdentifiableObject> const &id=SharedPtr<IdentifiableObject>(),
-                    SharedPtr<IdentifiableObject> const &text=SharedPtr<IdentifiableObject>()) :
+  public: TokenTerm(Word f=0, SharedPtr<Node> const &id=SharedPtr<Node>(),
+                    SharedPtr<Node> const &text=SharedPtr<Node>()) :
     Term(f), tokenId(id), tokenText(text)
   {
     if (id != 0 && !id->isA<Integer>() && !id->isDerivedFrom<Reference>()) {
@@ -48,26 +48,34 @@ class TokenTerm : public Term, public virtual DataOwner
     if (text != 0 && !text->isA<String>() && !text->isA<SharedMap>() && !text->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, STR("text"), STR("Must be of type String or Reference."));
     }
+    if (this->tokenId != 0) this->tokenId->setOwner(this);
+    if (this->tokenText != 0) this->tokenText->setOwner(this);
   }
 
   public: TokenTerm(Word f, Word id, Char const *text=0) :
     Term(f), tokenId(std::make_shared<Integer>(id))
   {
-    if (text != 0) this->tokenText = std::make_shared<String>(text);
+    this->tokenId->setOwner(this);
+    if (text != 0) {
+      UPDATE_OWNED_SHAREDPTR(this->tokenText, std::make_shared<String>(text));
+    }
   }
 
   public: TokenTerm(Word f, Char const *text) :
     Term(f), tokenText(std::make_shared<String>(text))
   {
+    this->tokenText->setOwner(this);
   }
 
   public: virtual ~TokenTerm()
   {
+    RESET_OWNED_SHAREDPTR(this->tokenId);
+    RESET_OWNED_SHAREDPTR(this->tokenText);
   }
 
   public: static SharedPtr<TokenTerm> create(Word f=0,
-                                             SharedPtr<IdentifiableObject> const &id=SharedPtr<IdentifiableObject>(),
-                                             SharedPtr<IdentifiableObject> const &text=SharedPtr<IdentifiableObject>())
+                                             SharedPtr<Node> const &id=SharedPtr<Node>(),
+                                             SharedPtr<Node> const &text=SharedPtr<Node>())
   {
     return std::make_shared<TokenTerm>(f, id, text);
   }
@@ -86,28 +94,28 @@ class TokenTerm : public Term, public virtual DataOwner
   //============================================================================
   // Member Functions
 
-  public: void setTokenId(SharedPtr<IdentifiableObject> const &id)
+  public: void setTokenId(SharedPtr<Node> const &id)
   {
     if (id != 0 && !id->isA<Integer>() && !id->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, STR("s"), STR("Must be of type Integer or Reference."));
     }
-    this->tokenId = id;
+    UPDATE_OWNED_SHAREDPTR(this->tokenId, id);
   }
 
-  public: SharedPtr<IdentifiableObject> const& getTokenId() const
+  public: SharedPtr<Node> const& getTokenId() const
   {
     return this->tokenId;
   }
 
-  public: void setTokenText(SharedPtr<IdentifiableObject> const &text)
+  public: void setTokenText(SharedPtr<Node> const &text)
   {
     if (text != 0 && !text->isA<String>() && !text->isA<SharedMap>() && !text->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, STR("text"), STR("Must be of type String or Reference."));
     }
-    this->tokenText = text;
+    UPDATE_OWNED_SHAREDPTR(this->tokenText, text);
   }
 
-  public: SharedPtr<IdentifiableObject> const& getTokenText() const
+  public: SharedPtr<Node> const& getTokenText() const
   {
     return this->tokenText;
   }

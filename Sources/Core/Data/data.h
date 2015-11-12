@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Data
  * namespace.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -65,6 +65,21 @@ enumeration(GrammarScopeIndex, ROOT=0, MODULE=1, PMODULE=2, STACK=3, ARGS=4);
 enumeration(ReferenceUsageCriteria, SINGLE_DATA_SINGLE_MATCH, SINGLE_DATA_MULTI_MATCH, MULTI_DATA);
 
 /**
+ * @brief An enumeration for the list of operations for references.
+ * References use lambdas to determine the operation to perform.and those
+ * lambdas can return one of the values in this enumeration to tell the
+ * Reference object what operation to perform.
+ *
+ * MOVE: Move to the next element matched by this reference.
+ * STOP: Stop the matching and ignore any other possible matches.
+ * PERFORM_AND_MOVE: Perform the requested operation on this match, then move
+ *                   to the next match.
+ * PERFORM_AND_STOP: Perform the requested operation on this match, then stop
+ *                   and ignore other possible matches.
+ */
+enumeration(RefOp, MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP);
+
+/**
  * @brief An enumeration used to define term flags.
  * @ingroup data
  *
@@ -76,7 +91,7 @@ enumeration(ReferenceUsageCriteria, SINGLE_DATA_SINGLE_MATCH, SINGLE_DATA_MULTI_
  *                 route is found the state machine will not try to test the
  *                 lower priority routes.
  */
-enumeration(TermFlags, ERROR_SYNC_TERM=(2<<16), ONE_ROUTE_TERM=(2<<17));
+enumeration(TermFlags, ERROR_SYNC_TERM=(1<<16), ONE_ROUTE_TERM=(1<<17));
 
 /**
  * @brief An enumeration used to define symbol flags.
@@ -87,7 +102,7 @@ enumeration(TermFlags, ERROR_SYNC_TERM=(2<<16), ONE_ROUTE_TERM=(2<<17));
  *             all symbols in the lexer module that has this flag set and skips
  *             other symbol definitions.
  */
-enumeration(SymbolFlags, ROOT_TOKEN=(2<<16), IGNORED_TOKEN=(2<<17));
+enumeration(SymbolFlags, ROOT_TOKEN=(1<<16), IGNORED_TOKEN=(1<<17));
 
 /**
  * @brief An enumeration for change operation of Containers' contents.
@@ -147,20 +162,48 @@ enumeration(TermElement, FLAGS=1, REF=2, DATA=4, TERM=8, ESPI=16, PRIORITY=32, M
 //==============================================================================
 // Forward Class Definitions
 
+class Node;
 class Module;
 class Provider;
-class PlainProvider;
 class CharGroupUnit;
 
 
 //==============================================================================
 // Functions
 
-/// Reset the indexes of all references in a specific range within a tree.
+/**
+ * A helper function to check whether 'op' is any of the perform values.
+ * @ingroup data
+ */
+Bool isPerform(RefOp op);
+
+/**
+ * A helper function to check whether 'op' is any of the move values.
+ * @ingroup data
+ */
+Bool isMove(RefOp op);
+
+/**
+ * Reset the indexes of all references in a specific range within a tree.
+ * @ingroup data
+ * Call the unsetIndexes method of DataOwner interface, if implemented by
+ * the object.
+ */
 void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
 
 /**
  * @brief Set the IDs of all elements in a given tree.
+ * @ingroup data
+ * Sets the ID of the given object, and the IDs of any objects contained within
+ * the given object if the given object is a container. The ids will be the
+ * concatenated container keys that lead to the given object from the root.
+ * @sa generateId()
+ */
+void setTreeIds(IdentifiableObject *obj);
+
+/**
+ * @brief Set the IDs of all elements in a given tree.
+ * @ingroup data
  * Sets the ID of the given object, and the IDs of any objects contained within
  * the given object if the given object is a container. The IDs of inner
  * objects will have the format: <id>.<childName>
@@ -168,7 +211,19 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
 void setTreeIds(IdentifiableObject *obj, const Char *id);
 
 /**
+ * @brief Generate an ID for the given object.
+ * @ingroup data
+ * This function will generate the ID by tracing the owners of the given object
+ * all the way to the root and generate the ID from the concatenated keys that
+ * leads to the given object.
+ * @param obj The object for which to generate the ID.
+ * @param id A string stream to hold the generated ID.
+ */
+void generateId(Node *obj, StrStream &id);
+
+/**
  * @brief Match a given character to a character group hierarchy.
+ * @ingroup data
  * Recursively matches the given character to the given character group. This
  * recursive function will descend into the entire character group tree to
  * match the given character.
@@ -182,7 +237,7 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit);
 
 /**
  * @brief Recursive function to print a tree of parsed data.
- * @ingroup main
+ * @ingroup data
  *
  * The given tree should have default parsing data (ParsedRoute,
  * ParsedList, or ParsedToken). Anything other than the
@@ -192,46 +247,139 @@ void dumpParsedData(IdentifiableObject *ptr, int indents=0, Bool start_indent=tr
 
 // TODO: Find module for other dimensions.
 
+
+//==============================================================================
+// Function Signature Definitions
+
+typedef std::function<RefOp(Int index, IdentifiableObject *&obj)> ReferenceSetLambda;
+typedef std::function<RefOp(Int index, IdentifiableObject *obj)> ReferenceRemoveLambda;
+typedef std::function<RefOp(Int index, IdentifiableObject *obj)> ReferenceForeachLambda;
+
+typedef std::function<RefOp(Int index, IdentifiableObject *&obj)> SeekerSetLambda;
+typedef std::function<RefOp(Int index, IdentifiableObject *obj)> SeekerRemoveLambda;
+typedef std::function<RefOp(Int index, IdentifiableObject *obj, IdentifiableObject *parent)> SeekerForeachLambda;
+
+
+//==============================================================================
+// Macros
+
+/**
+ * @brief Set the owner of ptr to this if ptr is of type Node.
+ * @ingroup data
+ */
+#define OWN_SHAREDPTR(ptr) \
+  if ((ptr) != 0 && (ptr)->isDerivedFrom<Node>()) { \
+      (ptr).s_cast_get<Node>()->setOwner(this); \
+  }
+
+/**
+ * @brief A plain pointer version of OWN_SHAREDPTR.
+ * @ingroup data
+ * @sa OWN_SHAREDPTR()
+ */
+#define OWN_PLAINPTR(ptr) \
+  if ((ptr) != 0 && (ptr)->isDerivedFrom<Node>()) { \
+      static_cast<Node*>(ptr)->setOwner(this); \
+  }
+
+/**
+ * @brief Reset the owner of ptr if ptr is of type Node.
+ * @ingroup data
+ */
+#define DISOWN_SHAREDPTR(ptr) \
+  if ((ptr) != 0 && (ptr)->isDerivedFrom<Node>() && (ptr).s_cast_get<Node>()->getOwner() == this) { \
+      (ptr).s_cast_get<Node>()->setOwner(0); \
+  }
+
+/**
+ * @brief A plain pointer version of DIWOWN_SHAREDPTR.
+ * @ingroup data
+ * @sa DISOWN_SHAREDPTR()
+ */
+#define DISOWN_PLAINPTR(ptr) \
+  if ((ptr) != 0 && (ptr)->isDerivedFrom<Node>() && static_cast<Node*>(ptr)->getOwner() == this) { \
+      static_cast<Node*>(ptr)->setOwner(0); \
+  }
+
+/**
+ * @brief A macro to make it easy to set and update owned object pointers.
+ * @ingroup data
+ * This macro will first reset the owner of the current object before setting
+ * the new object and setting the owner of the new object.
+ */
+#define UPDATE_OWNED_SHAREDPTR(ptr, val) \
+  { \
+    DISOWN_SHAREDPTR(ptr); \
+    (ptr) = val; \
+    OWN_SHAREDPTR(ptr); \
+  }
+
+/**
+ * @brief A plain pointer version of UPDATED_OWNED_SHAREDPTR.
+ * @ingroup data
+ * @sa UPDATED_OWNED_SHARED_PTR()
+ */
+#define UPDATE_OWNED_PLAINPTR(ptr, val) \
+  { \
+    DISOWN_PLAINPTR(ptr); \
+    (ptr) = val; \
+    OWN_PLAINPTR(ptr); \
+  }
+
+/**
+ * @brief A macro to simplify resetting a pointer to an owned object.
+ * @ingroup data
+ * This macro will first reset the owner of the object before resetting the
+ * pointer.
+ */
+#define RESET_OWNED_SHAREDPTR(ptr) \
+  {\
+    DISOWN_SHAREDPTR(ptr); \
+    (ptr).reset(); \
+  }
+
+/**
+ * @brief A plain pointer version of RESET_OWNED_SHAREDPTR.
+ * @ingroup data
+ * @sa RESET_OWNED_SHAREDPTR()
+ */
+#define RESET_OWNED_PLAINPTR(ptr) \
+  {\
+    DISOWN_PLAINPTR(ptr); \
+    (ptr) = 0; \
+  }
+
 } } // namespace
 
 
 //==============================================================================
 // Classes
 
+#include "Node.h"
+
+// Basic Data Types
+#include "Integer.h"
+#include "String.h"
+
+// Generic Data Interfaces
+#include "DataOwner.h"
+#include "AttributesHolder.h"
+#include "Initializable.h"
+#include "IdHolder.h"
+
 // Helpers
 #include "paired_pointers.h"
 #include "IdGenerator.h"
 #include "SourceLocation.h"
 
-// Data Classes
-//-------------
-// Simple Data
-#include "Integer.h"
-#include "String.h"
-// Generic Data Interfaces
-#include "DataOwner.h"
-#include "AttributesHolder.h"
-#include "IdHolder.h"
-#include "Initializable.h"
-// Container Interfaces
+// References Subsystem Classes
+//-----------------------------
+// Interfaces
 #include "Container.h"
 #include "ListContainer.h"
 #include "NamedListContainer.h"
 #include "MapContainer.h"
-// Complex Data
-#include "SharedMap.h"
-#include "SharedList.h"
-#include "SharedNamedList.h"
-#include "PlainNamedList.h"
-#include "Module.h"
-#include "VariableStack.h"
-#include "Token.h"
-
-// Data Provider Classes
-//----------------------
-// Interfaces
 #include "Provider.h"
-#include "Tracer.h"
 // Validators
 #include "Validator.h"
 #include "StrAttributeValidator.h"
@@ -248,11 +396,21 @@ void dumpParsedData(IdentifiableObject *ptr, int indents=0, Bool start_indent=tr
 // Seekers and Data Providers
 #include "ReferenceSeeker.h"
 #include "QualifierSeeker.h"
+
+// Generic Containers
+//-------------------
+#include "SharedMap.h"
+#include "SharedList.h"
+#include "SharedNamedList.h"
+#include "PlainNamedList.h"
+#include "Module.h"
+#include "VariableStack.h"
 #include "SharedRepository.h"
 #include "PlainRepository.h"
 
 // Grammar Classes
 //----------------
+#include "Token.h"
 // Character Groups
 #include "CharGroupUnit.h"
 #include "SequenceCharGroupUnit.h"
@@ -275,6 +433,7 @@ void dumpParsedData(IdentifiableObject *ptr, int indents=0, Bool start_indent=tr
 #include "SymbolDefinition.h"
 // TODO: #include "SymbolGroup.h"
 #include "GrammarModule.h"
+#include "Tracer.h"
 #include "GrammarRepository.h"
 #include "GrammarContext.h"
 #include "GrammarPlant.h"

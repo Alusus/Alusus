@@ -45,10 +45,10 @@ class ListTerm : public Term, public virtual DataOwner
   // Member Variables
 
   /// @sa getTerms()
-  protected: SharedPtr<IdentifiableObject> terms;
+  protected: SharedPtr<Node> terms;
 
   /// @sa getData()
-  protected: SharedPtr<IdentifiableObject> data;
+  protected: SharedPtr<Node> data;
 
   /// @sa set_target_var()
   protected: SharedPtr<Reference> targetRef;
@@ -67,6 +67,9 @@ class ListTerm : public Term, public virtual DataOwner
 
   public: virtual ~ListTerm()
   {
+    RESET_OWNED_SHAREDPTR(this->terms);
+    RESET_OWNED_SHAREDPTR(this->data);
+    RESET_OWNED_SHAREDPTR(this->targetRef);
   }
 
 
@@ -74,11 +77,11 @@ class ListTerm : public Term, public virtual DataOwner
   // Member Functions
 
   /// Set a static list for this list term.
-  public: void setStatic(const SharedPtr<SharedList> &terms,
-                         SharedPtr<IdentifiableObject> const &filter=SharedPtr<IdentifiableObject>());
+  public: void setStatic(SharedPtr<SharedList> const &terms,
+                         SharedPtr<Node> const &filter=SharedPtr<Node>());
 
   /// Set a dynamic list for this list term.
-  public: void setDynamic(const SharedPtr<Term> &term, SharedPtr<IdentifiableObject> const &data,
+  public: void setDynamic(const SharedPtr<Term> &term, SharedPtr<Node> const &data,
                           const SharedPtr<Reference> &ref);
 
   /// Unset the list.
@@ -109,7 +112,7 @@ class ListTerm : public Term, public virtual DataOwner
    * This can either be of type Term or SharedList depending on whether the term is
    * dynamic or static.
    */
-  public: SharedPtr<IdentifiableObject> const& getTerms() const
+  public: SharedPtr<Node> const& getTerms() const
   {
     return this->terms;
   }
@@ -122,7 +125,7 @@ class ListTerm : public Term, public virtual DataOwner
    * This can either be the filter if the list is static or the data if the
    * term is dynamic.
    */
-  public: SharedPtr<IdentifiableObject> const& getData() const
+  public: SharedPtr<Node> const& getData() const
   {
     return this->data;
   }

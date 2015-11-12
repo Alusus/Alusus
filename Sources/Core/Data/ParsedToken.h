@@ -2,7 +2,7 @@
  * @file Core/Data/ParsedToken.h
  * Contains the header of class Core::Data::ParsedToken.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,13 +24,13 @@ namespace Core { namespace Data
  * composed of the token definition and the token text. This object is created
  * by the GenericParsingHandler to compose the parsed tree.
  */
-class ParsedToken : public IdentifiableObject, public virtual ParsingMetadataHolder
+class ParsedToken : public Node, public virtual ParsingMetadataHolder
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ParsedToken, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, ParsingMetadataHolder);
+  TYPE_INFO(ParsedToken, Node, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_1(Node, ParsingMetadataHolder);
 
 
   //============================================================================

@@ -85,37 +85,40 @@ class GrammarRepository : public IdentifiableObject,
 
   public: void clear();
 
+  public: void initializeObject(IdentifiableObject *obj);
+
   /// @}
 
   /// @name Provider Implementation
   /// @{
 
-  public: virtual Bool trySet(Reference const *ref, IdentifiableObject *val);
+  public: using Provider::set;
+  public: using Provider::remove;
 
-  public: virtual Bool trySet(Char const *qualifier, IdentifiableObject *val);
+  public: virtual void set(Reference const *ref, SeekerSetLambda handler);
 
-  public: virtual Bool tryRemove(Reference const *ref)
+  public: virtual void set(Char const *qualifier, SeekerSetLambda handler);
+
+  public: virtual void remove(Reference const *ref, SeekerRemoveLambda handler)
   {
-    return this->repository.tryRemove(ref);
+    this->repository.remove(ref, handler);
   }
 
-  public: virtual Bool tryRemove(Char const *qualifier)
+  public: virtual void remove(Char const *qualifier, SeekerRemoveLambda handler)
   {
-    return this->repository.tryRemove(qualifier);
+    this->repository.remove(qualifier, handler);
   }
 
-  using Provider::tryGet;
-
-  public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal,
-                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
+  public: virtual void forEach(Reference const *ref, SeekerForeachLambda handler,
+                               TypeInfo const *parentTypeInfo=0)
   {
-    return this->repository.tryGet(ref, retVal, parentTypeInfo, retParent);
+    this->repository.forEach(ref, handler, parentTypeInfo);
   }
 
-  public: virtual Bool tryGet(Char const *qualifier, IdentifiableObject *&retVal,
-                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
+  public: virtual void forEach(Char const *qualifier, SeekerForeachLambda handler,
+                               TypeInfo const *parentTypeInfo=0)
   {
-    return this->repository.tryGet(qualifier, retVal, parentTypeInfo, retParent);
+    this->repository.forEach(qualifier, handler, parentTypeInfo);
   }
 
   /// @}

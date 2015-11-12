@@ -200,163 +200,190 @@ void PlainRepository::ownTopLevel()
 //==============================================================================
 // Provider Implementation
 
-Bool PlainRepository::trySet(Reference const *ref, IdentifiableObject *val)
+void PlainRepository::set(Reference const *ref, SeekerSetLambda handler)
 {
-  // Set the value first.
+  IdentifiableObject *objToSet = 0;
   if (ref->isA<ScopeReference>()) {
-    if (!this->referenceSeeker.trySet(ref, &this->stack, val)) return false;
+    this->referenceSeeker.set(ref, &this->stack,
+                              [=,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+      RefOp ret = handler(index, obj);
+      if (this->owningEnabled && isPerform(ret)) {
+        // We can't call setTreeIds until the object is set to the tree, so we will cache the
+        // pointer to be set later. If we already have an object from a previous iteration then
+        // it's safe to set it now.
+        if (objToSet != 0) setTreeIds(objToSet);
+        objToSet = obj;
+      }
+      return ret;
+    });
+    // If we have a cached object we'll set its id now.
+    if (objToSet != 0) setTreeIds(objToSet);
   } else {
-    Bool ret = false;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      ret = this->referenceSeeker.trySet(ref, parent, val);
-      if (ret) break;
+      RefOp ret;
+      this->referenceSeeker.set(ref, parent,
+                                [=,&ret,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+        ret = handler(index, obj);
+        if (this->owningEnabled && isPerform(ret)) {
+          // We can't call setTreeIds until the object is set to the tree, so we will cache the
+          // pointer to be set later. If we already have an object from a previous iteration then
+          // it's safe to set it now.
+          if (objToSet != 0) setTreeIds(objToSet);
+          objToSet = obj;
+        }
+        return ret;
+      });
+      if (!isMove(ret)) break;
     }
-    if (!ret) return false;
+    // If we have a cached object we'll set its id now.
+    if (objToSet != 0) setTreeIds(objToSet);
   }
-
-  // TODO: We can remove this part if/when we start handling IDs in definition signals.
-  // Set the id for the new object.
-  if (this->owner) {
-    Str qualifierStr;
-    if (ref->isA<ScopeReference>()) qualifierStr = ReferenceParser::getQualifier(ref->getNext().get());
-    else qualifierStr = ReferenceParser::getQualifier(ref);
-    Char const *qualifier = qualifierStr.c_str();
-    setTreeIds(val, qualifier);
-  }
-
-  return true;
 }
 
 
-Bool PlainRepository::trySet(Char const *qualifier, IdentifiableObject *val)
+void PlainRepository::set(Char const *qualifier, SeekerSetLambda handler)
 {
+  IdentifiableObject *objToSet = 0;
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegmentToTemp(qualifier2);
   // Set the value first.
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *parent;
-    Int index = 0;
-    Bool ret = false;
-    while (index != -1) {
-      if (!ref->getValue(0, &this->stack, parent, index)) return false;
-      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
-      if (ret) break;
-    }
-    if (!ret) return false;
+    this->qualifierSeeker.set(qualifier, &this->stack,
+                              [=,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+      RefOp ret = handler(index, obj);
+      if (this->owningEnabled && isPerform(ret)) {
+        // We can't call setTreeIds until the object is set to the tree, so we will cache the
+        // pointer to be set later. If we already have an object from a previous iteration then
+        // it's safe to set it now.
+        if (objToSet != 0) setTreeIds(objToSet);
+        objToSet = obj;
+      }
+      return ret;
+    });
+    // If we have a cached object we'll set its id now.
+    if (objToSet != 0) setTreeIds(objToSet);
   } else {
-    qualifier2 = qualifier;
-    Bool ret = false;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      ret = this->qualifierSeeker.trySet(qualifier2, parent, val);
-      if (ret) break;
+      RefOp ret;
+      this->qualifierSeeker.set(qualifier, parent,
+                                [=,&ret,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+        ret = handler(index, obj);
+        if (this->owningEnabled && isPerform(ret)) {
+          // We can't call setTreeIds until the object is set to the tree, so we will cache the
+          // pointer to be set later. If we already have an object from a previous iteration then
+          // it's safe to set it now.
+          if (objToSet != 0) setTreeIds(objToSet);
+          objToSet = obj;
+        }
+        return ret;
+      });
+      if (!isMove(ret)) break;
     }
-    if (!ret) return false;
+    // If we have a cached object we'll set its id now.
+    if (objToSet != 0) setTreeIds(objToSet);
   }
-
-  // TODO: We can remove this part if/when we start handling IDs in definition signals.
-  // Set the id for the new object.
-  if (this->owner) {
-    setTreeIds(val, qualifier2);
-  }
-
-  return true;
 }
 
 
-Bool PlainRepository::tryRemove(Reference const *ref)
+void PlainRepository::remove(Reference const *ref, SeekerRemoveLambda handler)
 {
   if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.tryRemove(ref, &this->stack);
+    this->referenceSeeker.remove(ref, &this->stack, handler);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->referenceSeeker.tryRemove(ref, parent)) return true;
+      RefOp ret;
+      this->referenceSeeker.remove(ref, parent,
+                                   [=,&ret](Int index, IdentifiableObject *obj)->RefOp {
+        ret = handler(index, obj);
+        return ret;
+      });
+      if (!isMove(ret)) break;
     }
-    return false;
   }
 }
 
 
-Bool PlainRepository::tryRemove(Char const *qualifier)
+void PlainRepository::remove(Char const *qualifier, SeekerRemoveLambda handler)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegmentToTemp(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *parent;
-    Int index = 0;
-    while (index != -1) {
-      if (!ref->getValue(0, &this->stack, parent, index)) break;
-      if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return true;
-    }
+    this->qualifierSeeker.remove(qualifier, &this->stack, handler);
   } else {
-    qualifier2 = qualifier;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *parent = this->stack.get(i);
       if (parent == 0) continue;
-      if (this->qualifierSeeker.tryRemove(qualifier2, parent)) return true;
+      RefOp ret;
+      this->qualifierSeeker.remove(qualifier, parent,
+                                   [=,&ret](Int index, IdentifiableObject *obj)->RefOp {
+        ret = handler(index, obj);
+        return ret;
+      });
+      if (!isMove(ret)) break;
     }
   }
-  return false;
 }
 
 
-Bool PlainRepository::tryGet(Reference const *ref, IdentifiableObject *&retVal,
-                             TypeInfo const *parentTypeInfo, IdentifiableObject **retParent)
+void PlainRepository::forEach(Reference const *ref, SeekerForeachLambda handler,
+                               TypeInfo const *parentTypeInfo)
 {
   if (ref->isA<ScopeReference>()) {
-    return this->referenceSeeker.tryGet(ref, &this->stack, retVal, parentTypeInfo, retParent);
+    this->referenceSeeker.forEach(ref, &this->stack, handler, parentTypeInfo);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *source = this->stack.get(i);
       if (source == 0) continue;
-      if (this->referenceSeeker.tryGet(ref, source, retVal, parentTypeInfo, retParent)) return true;
+      RefOp ret;
+      this->referenceSeeker.forEach(ref, source,
+                                    [=,&ret](Int index, IdentifiableObject *obj, IdentifiableObject *parent)->RefOp {
+        ret = handler(index, obj, parent);
+        return ret;
+      }, parentTypeInfo);
+      if (!isMove(ret)) break;
     }
-    return false;
   }
 }
 
 
-Bool PlainRepository::tryGet(Char const *qualifier, IdentifiableObject *&retVal,
-                             TypeInfo const *parentTypeInfo, IdentifiableObject **retParent)
+void PlainRepository::forEach(Char const *qualifier, SeekerForeachLambda handler,
+                               TypeInfo const *parentTypeInfo)
 {
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
-  Reference const *ref = &parser.parseQualifierSegment(qualifier2);
+  Reference const *ref = &parser.parseQualifierSegmentToTemp(qualifier2);
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
-    ++qualifier2;
-    IdentifiableObject *source;
-    Int index = 0;
-    while (index != -1) {
-      if (!ref->getValue(0, &this->stack, source, index)) break;
-      if (this->qualifierSeeker.tryGet(qualifier2, source, retVal, parentTypeInfo, retParent)) return true;
-    }
+    this->qualifierSeeker.forEach(qualifier, &this->stack, handler, parentTypeInfo);
   } else {
-    qualifier2 = qualifier;
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
       IdentifiableObject *source = this->stack.get(i);
       if (source == 0) continue;
-      if (this->qualifierSeeker.tryGet(qualifier2, source, retVal, parentTypeInfo, retParent)) return true;
+      RefOp ret;
+      this->qualifierSeeker.forEach(qualifier, source,
+                                    [=,&ret](Int index, IdentifiableObject *obj, IdentifiableObject *parent)->RefOp {
+        ret = handler(index, obj, parent);
+        return ret;
+      }, parentTypeInfo);
+      if (!isMove(ret)) break;
     }
   }
-  return false;
 }
 
 } } // namespace

@@ -2,7 +2,7 @@
  * @file Core/Data/SharedList.h
  * Contains the header of class Core::Data::SharedList.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -31,13 +31,13 @@ namespace Core { namespace Data
  * of contained objects, the user must manually delete objects that are no
  * longer needed.
  */
-class SharedList : public IdentifiableObject, public virtual DataOwner, public virtual ListContainer
+class SharedList : public Node, public virtual DataOwner, public virtual ListContainer
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SharedList, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(IdentifiableObject, DataOwner, ListContainer);
+  TYPE_INFO(SharedList, Node, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_2(Node, DataOwner, ListContainer);
 
 
   //============================================================================
@@ -56,6 +56,8 @@ class SharedList : public IdentifiableObject, public virtual DataOwner, public v
 
   public: SharedList(const std::initializer_list<SharedPtr<IdentifiableObject>> &args);
 
+  public: virtual ~SharedList();
+
   public: static SharedPtr<SharedList> create(const std::initializer_list<SharedPtr<IdentifiableObject>> &args)
   {
     return std::make_shared<SharedList>(args);
@@ -70,16 +72,13 @@ class SharedList : public IdentifiableObject, public virtual DataOwner, public v
    * This is more efficient than individually calling add() on each item
    * because it preallocates any needed memory in advance.
    */
-  public: void add(const std::initializer_list<SharedPtr<IdentifiableObject>> &objs)
-  {
-    if (this->list.capacity() < this->list.size() + objs.size()) this->list.reserve(this->list.size() + objs.size());
-    for (auto obj : objs) this->list.push_back(obj);
-  }
+  public: void add(const std::initializer_list<SharedPtr<IdentifiableObject>> &objs);
 
   /// Add a new object to the list.
   public: void add(SharedPtr<IdentifiableObject> const &val)
   {
     this->list.push_back(val);
+    OWN_SHAREDPTR(val);
   }
 
   /// Change the element at the specified index.
@@ -93,10 +92,7 @@ class SharedList : public IdentifiableObject, public virtual DataOwner, public v
    * This will not delete the contained objects, only removes them from the
    * list.
    */
-  public: void clear()
-  {
-    this->list.clear();
-  }
+  public: void clear();
 
   public: void reserve(Int size)
   {
@@ -139,6 +135,7 @@ class SharedList : public IdentifiableObject, public virtual DataOwner, public v
   public: virtual Int add(IdentifiableObject *val)
   {
     this->list.push_back(getSharedPtr(val, true));
+    OWN_PLAINPTR(val);
     return this->list.size()-1;
   }
 

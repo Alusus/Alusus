@@ -2,7 +2,7 @@
  * @file Core/Data/ParsedRoute.h
  * Contains the header of class Core::Data::ParsedRoute.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,14 +27,14 @@ namespace Core { namespace Data
  * taking that route. This object is created by the GenericParsingHandler to
  * compose the parsed tree.
  */
-class ParsedRoute : public IdentifiableObject,
+class ParsedRoute : public Node,
                     public virtual ParsingMetadataHolder, public virtual Container
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ParsedRoute, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(IdentifiableObject, ParsingMetadataHolder, Container);
+  TYPE_INFO(ParsedRoute, Node, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_2(Node, ParsingMetadataHolder, Container);
 
 
   //============================================================================
@@ -66,25 +66,30 @@ class ParsedRoute : public IdentifiableObject,
   public: ParsedRoute(Word pid=UNKNOWN_ID, Int r=-1, IdentifiableObject *d=0) :
     ParsingMetadataHolder(pid), route(r), data(d)
   {
+    OWN_SHAREDPTR(this->data);
   }
 
   public: ParsedRoute(Word pid, Int r, SharedPtr<IdentifiableObject> const &d) :
     ParsingMetadataHolder(pid), route(r), data(d)
   {
+    OWN_SHAREDPTR(this->data);
   }
 
   public: ParsedRoute(Word pid, Int r, SourceLocation const &sl, IdentifiableObject *d=0) :
     ParsingMetadataHolder(pid, sl), route(r), data(d)
   {
+    OWN_SHAREDPTR(this->data);
   }
 
   public: ParsedRoute(Word pid, Int r, SourceLocation const &sl, SharedPtr<IdentifiableObject> const &d) :
     ParsingMetadataHolder(pid, sl), route(r), data(d)
   {
+    OWN_SHAREDPTR(this->data);
   }
 
   public: virtual ~ParsedRoute()
   {
+    DISOWN_SHAREDPTR(this->data);
   }
 
   public: static SharedPtr<ParsedRoute> create(Word pid=UNKNOWN_ID, Int r=-1, IdentifiableObject *d=0)
@@ -102,7 +107,8 @@ class ParsedRoute : public IdentifiableObject,
     return std::make_shared<ParsedRoute>(pid, r, sl, d);
   }
 
-  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, SourceLocation const &sl, SharedPtr<IdentifiableObject> const &d)
+  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, SourceLocation const &sl,
+                                               SharedPtr<IdentifiableObject> const &d)
   {
     return std::make_shared<ParsedRoute>(pid, r, sl, d);
   }
@@ -147,7 +153,7 @@ class ParsedRoute : public IdentifiableObject,
    */
   public: void setData(SharedPtr<IdentifiableObject> const &d)
   {
-    this->data = d;
+    UPDATE_OWNED_SHAREDPTR(this->data, d);
   }
 
   /**
@@ -203,7 +209,7 @@ class ParsedRoute : public IdentifiableObject,
   public: virtual void set(Int index, IdentifiableObject *val)
   {
     if (index == 0) {
-      this->data = getSharedPtr(val, true);
+      UPDATE_OWNED_SHAREDPTR(this->data, getSharedPtr(val, true));
     } else {
       throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Must be 0 for this class."));
     }
@@ -215,7 +221,7 @@ class ParsedRoute : public IdentifiableObject,
     if (index != 0) {
       throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Must be 0 for this class."));
     }
-    this->data.reset();
+    RESET_OWNED_SHAREDPTR(this->data);
   }
 
   /// Get the count of elements in the list.

@@ -18,10 +18,26 @@ namespace Core { namespace Data
 //============================================================================
 // Global Functions
 
-/**
- * Call the unsetIndexes method of DataOwner interface, if implemented by
- * the object.
- */
+Bool isPerform(RefOp op)
+{
+  if (op == RefOp::PERFORM_AND_STOP || op == RefOp::PERFORM_AND_MOVE) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+
+Bool isMove(RefOp op)
+{
+  if (op == RefOp::MOVE || op == RefOp::PERFORM_AND_MOVE) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+
 void unsetIndexes(IdentifiableObject *obj, Int from, Int to)
 {
   if (obj == 0) {
@@ -32,26 +48,67 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to)
 }
 
 
+void setTreeIds(IdentifiableObject *obj)
+{
+  StrStream stream;
+  Node *node = io_cast<Node>(obj);
+  if (node != 0) generateId(node, stream);
+  setTreeIds(obj, stream.str().c_str());
+}
+
+
 void setTreeIds(IdentifiableObject *obj, const Char *id)
 {
   IdHolder *idh = ii_cast<IdHolder>(obj);
   if (idh != 0) idh->setId(ID_GENERATOR->getId(id));
 
+  StrStream childId;
   MapContainer *map; Container *list;
   if ((map = ii_cast<MapContainer>(obj)) != 0) {
-    Str childId;
     for (Int i = 0; static_cast<Word>(i) < map->getCount(); ++i) {
-      childId = id;
-      childId += CHR('.');
-      childId += map->getKey(i).c_str();
-      setTreeIds(map->get(i), childId.c_str());
+      childId.str(Str());
+      childId << id;
+      if (childId.tellp() != 0) childId << CHR('.');
+      childId << map->getKey(i).c_str();
+      setTreeIds(map->get(i), childId.str().c_str());
     }
   } else if ((list = ii_cast<Container>(obj)) != 0) {
     for (Int i = 0; static_cast<Word>(i) < list->getCount(); ++i) {
-      StrStream childId;
-      childId << id << CHR('.') << i;
+      childId.str(Str());
+      childId << id;
+      if (childId.tellp() != 0) childId << CHR('.');
+      childId << i;
       setTreeIds(list->get(i), childId.str().c_str());
     }
+  }
+}
+
+
+void generateId(Node *obj, StrStream &id)
+{
+  if (obj == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("obj"), STR("Value is null."));
+  }
+  Node *owner = obj->getOwner();
+  if (owner == 0) return;
+  generateId(owner, id);
+  if (id.tellp() != 0) id << CHR('.');
+  Container *container = owner->getInterface<Container>();
+  if (container != 0) {
+    for (Int i = 0; i < container->getCount(); ++i) {
+      if (container->get(i) == obj) {
+        MapContainer *mapContainer = owner->getInterface<MapContainer>();
+        if (mapContainer != 0) {
+          id << mapContainer->getKey(i).c_str();
+        } else {
+          id << i;
+        }
+        return;
+      }
+    }
+    throw EXCEPTION(GenericException, STR("The provided object has an invalid owner."));
+  } else {
+    id << STR("_");
   }
 }
 

@@ -35,9 +35,27 @@ class Provider : public IdentifiableInterface
   /// @name Data Setting Functions
   /// @{
 
-  public: virtual Bool trySet(Reference const *ref, IdentifiableObject *val) = 0;
+  public: virtual Bool trySet(Reference const *ref, IdentifiableObject *val)
+  {
+    Bool result = false;
+    this->set(ref, [=,&result](Int index, IdentifiableObject *&obj)->RefOp {
+      obj = val;
+      result = true;
+      return RefOp::PERFORM_AND_MOVE;
+    });
+    return result;
+  }
 
-  public: virtual Bool trySet(Char const *qualifier, IdentifiableObject *val) = 0;
+  public: virtual Bool trySet(Char const *qualifier, IdentifiableObject *val)
+  {
+    Bool result = false;
+    this->set(qualifier, [=,&result](Int index, IdentifiableObject *&obj)->RefOp {
+      obj = val;
+      result = true;
+      return RefOp::PERFORM_AND_MOVE;
+    });
+    return result;
+  }
 
   public: virtual void set(Reference const *ref, IdentifiableObject *val)
   {
@@ -53,14 +71,34 @@ class Provider : public IdentifiableInterface
     }
   }
 
+  public: virtual void set(Reference const *ref, SeekerSetLambda handler) = 0;
+
+  public: virtual void set(Char const *qualifier, SeekerSetLambda handler) = 0;
+
   /// @}
 
   /// @name Data Removal Functions
   /// @{
 
-  public: virtual Bool tryRemove(Reference const *ref) = 0;
+  public: virtual Bool tryRemove(Reference const *ref)
+  {
+    Bool ret = false;
+    this->remove(ref, [&ret](Int index, IdentifiableObject *o)->RefOp {
+      ret = true;
+      return RefOp::PERFORM_AND_MOVE;
+    });
+    return ret;
+  }
 
-  public: virtual Bool tryRemove(Char const *qualifier) = 0;
+  public: virtual Bool tryRemove(Char const *qualifier)
+  {
+    Bool ret = false;
+    this->remove(qualifier, [&ret](Int index, IdentifiableObject *o)->RefOp {
+      ret = true;
+      return RefOp::PERFORM_AND_MOVE;
+    });
+    return ret;
+  }
 
   public: virtual void remove(Reference const *ref)
   {
@@ -76,16 +114,40 @@ class Provider : public IdentifiableInterface
     }
   }
 
+  public: virtual void remove(Reference const *ref, SeekerRemoveLambda handler) = 0;
+
+  public: virtual void remove(Char const *qualifier, SeekerRemoveLambda handler) = 0;
+
   /// @}
 
   /// @name Data Retrieval Functions
   /// @{
 
   public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal,
-                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) = 0;
+                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
+  {
+    Bool ret = false;
+    this->forEach(ref, [&ret,&retVal,&retParent](Int index, IdentifiableObject *o, IdentifiableObject *p)->RefOp {
+      retVal = o;
+      if (retParent != 0) *retParent = p;
+      ret = true;
+      return RefOp::STOP;
+    }, parentTypeInfo);
+    return ret;
+  }
 
   public: virtual Bool tryGet(Char const *qualifier, IdentifiableObject *&retVal,
-                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) = 0;
+                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
+  {
+    Bool ret = false;
+    this->forEach(qualifier, [&ret,&retVal,&retParent](Int index, IdentifiableObject *o, IdentifiableObject *p)->RefOp {
+      retVal = o;
+      if (retParent != 0) *retParent = p;
+      ret = true;
+      return RefOp::STOP;
+    }, parentTypeInfo);
+    return ret;
+  }
 
   public: virtual IdentifiableObject* tryGet(Reference const *ref)
   {
@@ -160,6 +222,12 @@ class Provider : public IdentifiableInterface
     this->get(qualifier, retVal, T::getTypeInfo(), &retIoParent);
     retParent = static_cast<T*>(retIoParent);
   }
+
+  public: virtual void forEach(Reference const *ref, SeekerForeachLambda handler,
+                               TypeInfo const *parentTypeInfo=0) = 0;
+
+  public: virtual void forEach(Char const *qualifier, SeekerForeachLambda handler,
+                               TypeInfo const *parentTypeInfo=0) = 0;
 
   /// @}
 

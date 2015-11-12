@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_DATA_OWNER_H
-#define DATA_DATA_OWNER_H
+#ifndef DATA_DATAOWNER_H
+#define DATA_DATAOWNER_H
 
 namespace Core { namespace Data
 {

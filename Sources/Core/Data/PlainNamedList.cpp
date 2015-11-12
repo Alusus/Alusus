@@ -2,7 +2,7 @@
  * @file Core/Data/PlainNamedList.cpp
  * Contains the implementation of class Core::Data::PlainNamedList.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -54,8 +54,8 @@ void PlainNamedList::reinitialize(Word maxStrSize, Word reservedCount)
         Byte *destBuf = this->buffer + i*this->getRecordSize();
         Byte *srcBuf = oldBuf + i*PlainNamedList::getRecordSize(oldStrSize);
         sbstr_cast(destBuf).assign(sbstr_cast(srcBuf).c_str(), this->maxStrSize);
-        *reinterpret_cast<IdentifiableObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
-            *reinterpret_cast<IdentifiableObject**>(srcBuf+sizeof(Char)*oldStrSize);
+        *reinterpret_cast<Node**>(destBuf+sizeof(Char)*this->maxStrSize) =
+            *reinterpret_cast<Node**>(srcBuf+sizeof(Char)*oldStrSize);
       }
     }
   }
@@ -94,6 +94,7 @@ void PlainNamedList::copy(const PlainNamedList *src)
 
 void PlainNamedList::release()
 {
+  if (this->buffer != 0) this->clear();
   if (this->buffer != 0) delete[] this->buffer;
   this->buffer = 0;
 }
@@ -105,6 +106,12 @@ void PlainNamedList::clear()
     throw EXCEPTION(GenericException, STR("List not initialized."));
   }
   ASSERT(this->count >= 0);
+  if (this->owningEnabled) {
+    for (Int i = 0; i < this->count; ++i) {
+      IdentifiableObject *obj = this->get(i);
+      DISOWN_PLAINPTR(obj);
+    }
+  }
   this->count = 0;
 }
 
@@ -134,7 +141,12 @@ void PlainNamedList::set(Int index, IdentifiableObject *val)
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
-  *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
+  IdentifiableObject **obj = reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize);
+  DISOWN_PLAINPTR(*obj);
+  *obj = val;
+  if (this->owningEnabled) {
+    OWN_PLAINPTR(val);
+  }
 }
 
 
@@ -147,6 +159,7 @@ void PlainNamedList::remove(Int index)
   if (index < 0 || index >= this->count) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
+  DISOWN_PLAINPTR(this->get(index));
   if (this->count > index+1) {
     memcpy(this->buffer+this->getRecordSize()*index,
            this->buffer+this->getRecordSize()*(index+1),
@@ -180,6 +193,9 @@ Int PlainNamedList::add(Char const *name, IdentifiableObject *val)
   Byte *buf = this->buffer + this->count*this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
   *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
+  if (this->owningEnabled) {
+    OWN_PLAINPTR(val);
+  }
   this->count++;
   return this->count - 1;
 }
@@ -195,7 +211,12 @@ void PlainNamedList::set(Int index, Char const *name, IdentifiableObject *val)
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
-  *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
+  IdentifiableObject **obj = reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize);
+  DISOWN_PLAINPTR(*obj);
+  *obj = val;
+  if (this->owningEnabled) {
+    OWN_PLAINPTR(val);
+  }
 }
 
 

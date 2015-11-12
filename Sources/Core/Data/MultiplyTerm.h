@@ -47,38 +47,29 @@ class MultiplyTerm : public Term, public virtual DataOwner
   private: SharedPtr<Term> term;
 
   /// @sa setMinOccurances()
-  private: SharedPtr<IdentifiableObject> minOccurances;
+  private: SharedPtr<Node> minOccurances;
 
   /// @sa setMaxOccurances()
-  private: SharedPtr<IdentifiableObject> maxOccurances;
+  private: SharedPtr<Node> maxOccurances;
 
   /// @sa setPriority()
-  private: SharedPtr<IdentifiableObject> priority;
+  private: SharedPtr<Node> priority;
 
 
   //============================================================================
   // Constructors
 
   /// Initialize the object.
-  public: MultiplyTerm(SharedPtr<IdentifiableObject> const &p=SharedPtr<IdentifiableObject>(), Word f=0,
-                       SharedPtr<IdentifiableObject> const &min=SharedPtr<IdentifiableObject>(),
-                       SharedPtr<IdentifiableObject> const &max=SharedPtr<IdentifiableObject>(),
+  public: MultiplyTerm(SharedPtr<Node> const &p=SharedPtr<Node>(), Word f=0,
+                       SharedPtr<Node> const &min=SharedPtr<Node>(),
+                       SharedPtr<Node> const &max=SharedPtr<Node>(),
                        const SharedPtr<Term> &t=SharedPtr<Term>());
 
-  public: MultiplyTerm(Int p, Word f, Int min, Int max, const SharedPtr<Term> &t) :
-    priority(new Integer(p)),
-    minOccurances(new Integer(min)),
-    maxOccurances(new Integer(max)),
-    term(t),
-    Term(f)
-  {
-  }
+  public: MultiplyTerm(Int p, Word f, Int min, Int max, const SharedPtr<Term> &t);
 
   public: MultiplyTerm(const std::initializer_list<Argument<TermElement>> &args);
 
-  public: virtual ~MultiplyTerm()
-  {
-  }
+  public: virtual ~MultiplyTerm();
 
   public: static SharedPtr<MultiplyTerm> create(const std::initializer_list<Argument<TermElement>> &args)
   {
@@ -92,7 +83,7 @@ class MultiplyTerm : public Term, public virtual DataOwner
   /// Set the head of the child branch.
   public: void setTerm(const SharedPtr<Term> &t)
   {
-    this->term = t;
+    UPDATE_OWNED_SHAREDPTR(this->term, t);
   }
 
   /// Get the head of the child branch.
@@ -102,28 +93,28 @@ class MultiplyTerm : public Term, public virtual DataOwner
   }
 
   /// Set the minimum number of occurances.
-  public: void setMinOccurances(SharedPtr<IdentifiableObject> const &min);
+  public: void setMinOccurances(SharedPtr<Node> const &min);
 
   /// @sa setMinOccurances()
-  public: SharedPtr<IdentifiableObject> const& getMinOccurances() const
+  public: SharedPtr<Node> const& getMinOccurances() const
   {
     return this->minOccurances;
   }
 
   /// Set the maximum number of occurances.
-  public: void setMaxOccurances(SharedPtr<IdentifiableObject> const &max);
+  public: void setMaxOccurances(SharedPtr<Node> const &max);
 
   /// @sa setMaxOccurances()
-  public: SharedPtr<IdentifiableObject> const& getMaxOccurances() const
+  public: SharedPtr<Node> const& getMaxOccurances() const
   {
     return this->maxOccurances;
   }
 
   /// Set the priority of the child branches.
-  public: void setPriority(SharedPtr<IdentifiableObject> const &p);
+  public: void setPriority(SharedPtr<Node> const &p);
 
   /// @sa setPriority()
-  public: SharedPtr<IdentifiableObject> const& getPriority() const
+  public: SharedPtr<Node> const& getPriority() const
   {
     return this->priority;
   }

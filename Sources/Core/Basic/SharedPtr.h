@@ -364,10 +364,13 @@ template <class T, class T2> SharedPtr<T> ii2io_cast(std::shared_ptr<T2> const &
 template <class T> SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
 {
   if (obj == 0) {
+    return SharedPtr<T>();
+  }
+  SharedPtr<IdentifiableObject> sp = obj->getSharedThis();
+  if (sp == 0) {
     if (ownIfUnowned) return SharedPtr<T>(obj);
     else return SharedPtr<T>();
   }
-  SharedPtr<IdentifiableObject> sp = obj->getSharedThis();
   // Since T is derived from IdentifiableObject, casting will result in the same
   // pointer value, so a reinterpret cast should be enough; creating a new
   // temporary shared pointer is not necessary.

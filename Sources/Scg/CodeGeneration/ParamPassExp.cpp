@@ -28,10 +28,10 @@ ParamPassExp::ParamPassExp(CodeGenerator *gen,
   this->route = astBlockRoot->getRoute();
 
   static ReferenceSeeker seeker;
-  static SharedPtr<Reference> singleParamReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> singleParamReference = REF_PARSER->parseQualifier(
         STR("{find prodId=Expression.Exp, 0}.0"),
         ReferenceUsageCriteria::MULTI_DATA);
-  static SharedPtr<Reference> multiParamReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> multiParamReference = REF_PARSER->parseQualifier(
         STR("{find prodId=Expression.Exp, 0}.0~where(prodId=Expression.ListExp)"),
         ReferenceUsageCriteria::MULTI_DATA);
 

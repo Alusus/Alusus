@@ -58,6 +58,7 @@ class SearchReference : public Reference
 
   public: virtual ~SearchReference()
   {
+    RESET_OWNED_SHAREDPTR(this->searchValidator);
   }
 
 
@@ -66,7 +67,7 @@ class SearchReference : public Reference
 
   public: void setSearchValidator(SharedPtr<Validator> v)
   {
-    this->searchValidator = v;
+    UPDATE_OWNED_SHAREDPTR(this->searchValidator, v);
     this->cachedIndex = -1;
   }
 
@@ -129,13 +130,14 @@ class SearchReference : public Reference
     this->cachedIndex = -1;
   }
 
-  public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *obj, Int &index) const;
+  public: virtual void setValue(Provider *provider, IdentifiableObject *parent,
+                                ReferenceSetLambda handler) const;
 
-  public: virtual Bool removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const;
+  public: virtual void removeValue(Provider *provider, IdentifiableObject *parent,
+                                   ReferenceRemoveLambda handler) const;
 
-  public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *&result, Int &index) const;
+  public: virtual void forEachValue(Provider *provider, IdentifiableObject *parent,
+                                    ReferenceForeachLambda handler) const;
 
   private: Int getListIndex(Container const *container, Int i) const
   {

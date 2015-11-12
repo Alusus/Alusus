@@ -45,8 +45,8 @@ Bool RawIndirectReference::compare(Reference const *r) const
 }
 
 
-Bool RawIndirectReference::setValue(Provider *provider, IdentifiableObject *parent,
-                                    IdentifiableObject *obj, Int &index) const
+void RawIndirectReference::setValue(Provider *provider, IdentifiableObject *parent,
+                                    ReferenceSetLambda handler) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
@@ -54,48 +54,55 @@ Bool RawIndirectReference::setValue(Provider *provider, IdentifiableObject *pare
   if (provider == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("provider"), STR("Should not be null."));
   }
-  if (index == -1) return false;
   IdentifiableObject *ref;
-  if (!provider->tryGet(this->getQualifier(), ref)) {
-    index = -1;
-    return false;
-  }
-  if (ref == 0) {
-    index = -1;
-    return false;
-  }
+  if (!provider->tryGet(this->getQualifier(), ref)) return;
+  if (ref == 0) return;
+
   if (ref->isA<String>()) {
-    index = -1;
     MapContainer *container = parent->getInterface<MapContainer>();
-    if (container == 0) return false;
-    container->set(static_cast<String*>(ref)->get(), obj);
-    return true;
-  } else if (ref->isA<Integer>()) {
-    index = -1;
-    Int i = static_cast<Integer*>(ref)->get();
-    Container *container = parent->getInterface<Container>();
-    if (container == 0) return false;
-    if (i >= 0 && i < container->getCount()) {
-      container->set(i, obj);
-      return true;
-    } else if (i == container->getCount()) {
-      ListContainer *listContainer = parent->getInterface<ListContainer>();
-      if (listContainer == 0) return false;
-      listContainer->add(obj);
-      return true;
+    if (container == 0) return;
+    Int index = container->findIndex(static_cast<String*>(ref)->get());
+    if (index == -1) {
+      IdentifiableObject *obj = 0;
+      if (isPerform(handler(0, obj))) {
+        container->set(static_cast<String*>(ref)->get(), obj);
+      }
     } else {
-      return false;
+      IdentifiableObject *obj = container->get(index);
+      if (isPerform(handler(0, obj))) {
+        container->set(index, obj);
+      }
+    }
+  } else if (ref->isA<Integer>()) {
+    Int index = static_cast<Integer*>(ref)->get();
+    Container *container = parent->getInterface<Container>();
+    if (container == 0) return;
+    if (index >= 0 && index < container->getCount()) {
+      IdentifiableObject *obj = container->get(index);
+      if (isPerform(handler(0, obj))) {
+        container->set(index, obj);
+      }
+    } else if (index == container->getCount()) {
+      ListContainer *listContainer = parent->getInterface<ListContainer>();
+      if (listContainer == 0) return;
+      IdentifiableObject *obj = 0;
+      if (isPerform(handler(0, obj))) {
+        listContainer->add(obj);
+      }
+    } else if (index < 0 && index >= -container->getCount()) {
+      IdentifiableObject *obj = container->get(container->getCount() + index);
+      if (isPerform(handler(0, obj))) {
+        container->set(container->getCount() + index, obj);
+      }
     }
   } else if (ref->isA<Reference>()) {
-    return static_cast<Reference*>(ref)->setValue(provider, parent, obj, index);
-  } else {
-    index = -1;
-    return false;
+    static_cast<Reference*>(ref)->setValue(provider, parent, handler);
   }
 }
 
 
-Bool RawIndirectReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
+void RawIndirectReference::removeValue(Provider *provider, IdentifiableObject *parent,
+                                       ReferenceRemoveLambda handler) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
@@ -103,49 +110,41 @@ Bool RawIndirectReference::removeValue(Provider *provider, IdentifiableObject *p
   if (provider == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("provider"), STR("Should not be null."));
   }
-  if (index == -1) return false;
   IdentifiableObject *ref;
-  if (!provider->tryGet(this->getQualifier(), ref)) {
-    index = -1;
-    return false;
-  }
-  if (ref == 0) {
-    index = -1;
-    return false;
-  }
+  if (!provider->tryGet(this->getQualifier(), ref)) return;
+  if (ref == 0) return;
+
   if (ref->isA<String>()) {
-    index = -1;
     MapContainer *container;
     if ((container = parent->getInterface<MapContainer>()) != 0) {
-      Int i = container->findIndex(static_cast<String*>(ref)->get());
-      if (i == -1) return false;
-      container->remove(i);
-      return true;
-    } else {
-      return false;
+      Int index = container->findIndex(static_cast<String*>(ref)->get());
+      if (index == -1) return;
+      if (isPerform(handler(0, container->get(index)))) {
+        container->remove(index);
+      }
     }
   } else if (ref->isA<Integer>()) {
-    index = -1;
-    Int i = static_cast<Integer*>(ref)->get();
+    Int index = static_cast<Integer*>(ref)->get();
     Container *container;
     if ((container = parent->getInterface<Container>()) != 0) {
-      if (i < 0 || i >= container->getCount()) return false;
-      container->remove(i);
-      return true;
-    } else {
-      return false;
+      if (index >= 0 && index < container->getCount()) {
+        if (isPerform(handler(0, container->get(index)))) {
+          container->remove(index);
+        }
+      } else if (index < 0 && index >= -container->getCount()) {
+        if (isPerform(handler(0, container->get(container->getCount() + index)))) {
+          container->remove(container->getCount() + index);
+        }
+      }
     }
   } else if (ref->isA<Reference>()) {
-    return static_cast<Reference*>(ref)->removeValue(provider, parent, index);
-  } else {
-    index = -1;
-    return false;
+    static_cast<Reference*>(ref)->removeValue(provider, parent, handler);
   }
 }
 
 
-Bool RawIndirectReference::getValue(Provider *provider, IdentifiableObject *parent,
-                                    IdentifiableObject *&result, Int &index) const
+void RawIndirectReference::forEachValue(Provider *provider, IdentifiableObject *parent,
+                                        ReferenceForeachLambda handler) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
@@ -153,43 +152,29 @@ Bool RawIndirectReference::getValue(Provider *provider, IdentifiableObject *pare
   if (provider == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("provider"), STR("Should not be null."));
   }
-  if (index == -1) return false;
   IdentifiableObject *ref;
-  if (!provider->tryGet(this->getQualifier(), ref)) {
-    index = -1;
-    return false;
-  }
-  if (ref == 0) {
-    index = -1;
-    return false;
-  }
+  if (!provider->tryGet(this->getQualifier(), ref)) return;
+  if (ref == 0) return;
+
   if (ref->isA<String>()) {
-    index = -1;
     MapContainer const *container;
     if ((container = parent->getInterface<MapContainer>()) != 0) {
-      Int i = container->findIndex(static_cast<String*>(ref)->get());
-      if (i == -1) return false;
-      result = container->get(i);
-      return true;
-    } else {
-      return false;
+      Int index = container->findIndex(static_cast<String*>(ref)->get());
+      if (index == -1) return;
+      handler(0, container->get(index));
     }
   } else if (ref->isA<Integer>()) {
-    index = -1;
-    Int i = static_cast<Integer*>(ref)->get();
+    Int index = static_cast<Integer*>(ref)->get();
     Container const *container;
     if ((container = parent->getInterface<Container>()) != 0) {
-      if (i < 0 || i >= container->getCount()) return false;
-      result = container->get(i);
-      return true;
-    } else {
-      return false;
+      if (index >= 0 && index < container->getCount()) {
+        handler(0, container->get(index));
+      } else if (index < 0 && index >= -container->getCount()) {
+        handler(0, container->get(container->getCount() + index));
+      }
     }
   } else if (ref->isA<Reference>()) {
-    return static_cast<Reference*>(ref)->getValue(provider, parent, result, index);
-  } else {
-    index = -1;
-    return false;
+    static_cast<Reference*>(ref)->forEachValue(provider, parent, handler);
   }
 }
 

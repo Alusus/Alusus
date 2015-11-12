@@ -52,24 +52,20 @@ class SelfReference : public Reference
   {
   }
 
-  public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *obj, Int &index) const
+  public: virtual void setValue(Provider *provider, IdentifiableObject *parent,
+                                ReferenceSetLambda handler) const
   {
-    return false;
   }
 
-  public: virtual Bool removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
+  public: virtual void removeValue(Provider *provider, IdentifiableObject *parent,
+                                   ReferenceRemoveLambda handler) const
   {
-    return false;
   }
 
-  public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *&result, Int &index) const
+  public: virtual void forEachValue(Provider *provider, IdentifiableObject *parent,
+                                    ReferenceForeachLambda handler) const
   {
-    if (index == -1) return false;
-    result = parent;
-    index = -1;
-    return true;
+    handler(0, parent);
   }
 
 }; // class

@@ -3,7 +3,7 @@
  * Contains the definitions of Core::Data::SharedPairedPtr and
  * Core::Data::PlainPairedPtr classes.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,12 +22,12 @@ namespace Core { namespace Data
  * This will be used when seeking objects in data trees to obtain both the
  * object itself and the module that contains it.
  */
-class SharedPairedPtr : public IdentifiableObject
+class SharedPairedPtr : public Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SharedPairedPtr, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(SharedPairedPtr, Node, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
@@ -83,12 +83,12 @@ class SharedPairedPtr : public IdentifiableObject
  * This will be used when seeking objects in data trees to obtain both the
  * object itself and the module that contains it.
  */
-class PlainPairedPtr : public IdentifiableObject
+class PlainPairedPtr : public Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(PlainPairedPtr, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(PlainPairedPtr, Node, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

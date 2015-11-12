@@ -33,7 +33,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
   static Word defId = IdGenerator::getSingleton()->getId(STR("SubMain.Def"));
   static Word linkId = IdGenerator::getSingleton()->getId(STR("Main.Link"));
   static ReferenceSeeker seeker;
-  static SharedPtr<Reference> statementListReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> statementListReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Main.StatementList)"),
         ReferenceUsageCriteria::MULTI_DATA);
 
@@ -89,7 +89,7 @@ void ModuleParsingHandler::addDefinitionToModule(Processing::ParserState *state,
 {
   static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
   static ReferenceSeeker seeker;
-  static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> nameReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)."
             "0~where(prodId=Expression.LowerLinkExp)."
             "0~where(prodId=Subject.Subject1)."
@@ -122,12 +122,12 @@ void ModuleParsingHandler::addLinkToModule(Processing::ParserState *state,
   auto linkMetadata = link->getInterface<ParsingMetadataHolder>();
 
   static ReferenceSeeker seeker;
-  static SharedPtr<Reference> listReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> listReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)."
             "0~where(prodId=Subject.Subject1)."
             "0~where(prodId=Main.StatementList)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  static SharedPtr<Reference> exprReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> exprReference = REF_PARSER->parseQualifier(
         STR("0~where(prodId=Expression.Exp)"),
         ReferenceUsageCriteria::MULTI_DATA);
 
@@ -158,14 +158,14 @@ void ModuleParsingHandler::addLinkToModule(Processing::ParserState *state,
 Char const* ModuleParsingHandler::getLinkName(IdentifiableObject *link)
 {
   static ReferenceSeeker seeker;
-  static SharedPtr<Reference> funcExpNoRetReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> funcExpNoRetReference = REF_PARSER->parseQualifier(
         STR("0~where(prodId=Expression.FunctionalExp)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  static SharedPtr<Reference> funcExpReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> funcExpReference = REF_PARSER->parseQualifier(
         STR("0~where(prodId=Expression.LowLinkExp)."
             "0~where(prodId=Expression.FunctionalExp)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> nameReference = REF_PARSER->parseQualifier(
         STR("0~where(prodId=Subject.Subject1)."
             "0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);

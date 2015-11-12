@@ -32,7 +32,7 @@ class SharedRepository : public IdentifiableObject, public virtual Provider
   // Member Variables
 
   private: SharedNamedList stack;
-  private: Bool owner;
+  private: Bool owningEnabled;
 
   private: SharedRepository *trunkRepo;
   private: Int trunkIndex;
@@ -44,13 +44,13 @@ class SharedRepository : public IdentifiableObject, public virtual Provider
   //============================================================================
   // Constructor & Destructor
 
-  public: SharedRepository() : owner(false), trunkRepo(0), trunkIndex(-1),
+  public: SharedRepository() : stack(false), owningEnabled(false), trunkRepo(0), trunkIndex(-1),
     referenceSeeker(static_cast<Provider*>(this)), qualifierSeeker(static_cast<Provider*>(this))
   {
   }
 
   public: SharedRepository(Word maxScopeNameSize, Word reservedCount) :
-    stack(maxScopeNameSize, reservedCount), owner(false), trunkRepo(0), trunkIndex(-1),
+    stack(maxScopeNameSize, reservedCount, false), owningEnabled(false), trunkRepo(0), trunkIndex(-1),
     referenceSeeker(static_cast<Provider*>(this)), qualifierSeeker(static_cast<Provider*>(this))
   {
   }
@@ -83,14 +83,14 @@ class SharedRepository : public IdentifiableObject, public virtual Provider
     return this->stack.getReservedCount();
   }
 
-  public: void setOwner(Bool owner)
+  public: void setOwningEnabled(Bool e)
   {
-    this->owner = owner;
+    this->owningEnabled = e;
   }
 
-  public: Bool isOwner() const
+  public: Bool isOwningEnabled() const
   {
-    return this->owner;
+    return this->owningEnabled;
   }
 
   /// @}
@@ -158,21 +158,22 @@ class SharedRepository : public IdentifiableObject, public virtual Provider
   /// @name Provider Implementation
   /// @{
 
-  public: virtual Bool trySet(Reference const *ref, IdentifiableObject *val);
+  public: using Provider::set;
+  public: using Provider::remove;
 
-  public: virtual Bool trySet(Char const *qualifier, IdentifiableObject *val);
+  public: virtual void set(Reference const *ref, SeekerSetLambda handler);
 
-  public: virtual Bool tryRemove(Reference const *ref);
+  public: virtual void set(Char const *qualifier, SeekerSetLambda handler);
 
-  public: virtual Bool tryRemove(Char const *qualifier);
+  public: virtual void remove(Reference const *ref, SeekerRemoveLambda handler);
 
-  using Provider::tryGet;
+  public: virtual void remove(Char const *qualifier, SeekerRemoveLambda handler);
 
-  public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal,
-                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0);
+  public: virtual void forEach(Reference const *ref, SeekerForeachLambda handler,
+                               TypeInfo const *parentTypeInfo=0);
 
-  public: virtual Bool tryGet(Char const *qualifier, IdentifiableObject *&retVal,
-                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0);
+  public: virtual void forEach(Char const *qualifier, SeekerForeachLambda handler,
+                               TypeInfo const *parentTypeInfo=0);
 
   /// @}
 

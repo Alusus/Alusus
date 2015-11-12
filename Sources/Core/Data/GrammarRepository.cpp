@@ -20,7 +20,7 @@ namespace Core { namespace Data
 
 GrammarRepository::GrammarRepository() : repository(10, 2)
 {
-  this->repository.setOwner(true);
+  this->repository.setOwningEnabled(true);
   this->repository.pushLevel(STR("root"), std::make_shared<GrammarModule>());
   this->repository.pushLevel(STR("module"), SharedPtr<IdentifiableObject>());
   this->repository.pushLevel(STR("pmodule"), SharedPtr<IdentifiableObject>());
@@ -50,39 +50,60 @@ void GrammarRepository::clear()
 }
 
 
-Bool GrammarRepository::trySet(Reference const *ref, IdentifiableObject *val)
+void GrammarRepository::initializeObject(IdentifiableObject *obj)
 {
-  if (!this->repository.trySet(ref, val)) return false;
-
-  Initializable *initializable = val->getInterface<Initializable>();
+  if (obj == 0) return;
+  Initializable *initializable = obj->getInterface<Initializable>();
   if (initializable != 0) {
     SharedPtr<Module> oldModule = this->getModule();
-    PlainPairedPtr ptr;
-    this->repository.get(ref, ptr.object, Module::getTypeInfo(), &ptr.parent);
-    this->setModule(getSharedPtr(static_cast<Module*>(ptr.parent)));
+    Node *node = io_cast<Node>(obj);
+    Module *ownerModule = (node == 0 ? 0 : node->findOwner<Module>());
+    this->setModule(getSharedPtr(ownerModule));
     initializable->initialize(this);
     this->setModule(oldModule);
   }
-
-  return true;
 }
 
 
-Bool GrammarRepository::trySet(Char const *qualifier, IdentifiableObject *val)
+void GrammarRepository::set(Reference const *ref, SeekerSetLambda handler)
 {
-  if (!this->repository.trySet(qualifier, val)) return false;
+  IdentifiableObject *objToInit = 0;
+  this->repository.set(ref, [=,&objToInit](Int index, IdentifiableObject *&obj)->RefOp {
+    RefOp ret = handler(index, obj);
 
-  Initializable *initializable = val->getInterface<Initializable>();
-  if (initializable != 0) {
-    SharedPtr<Module> oldModule = this->getModule();
-    PlainPairedPtr ptr;
-    this->repository.get(qualifier, ptr.object, Module::getTypeInfo(), &ptr.parent);
-    this->setModule(getSharedPtr(static_cast<Module*>(ptr.parent)));
-    initializable->initialize(this);
-    this->setModule(oldModule);
-  }
+    if (isPerform(ret)) {
+      // We shouldn't initialize until the object is set to the tree, so we will cache the
+      // pointer to be initialized later. If we already have an object from a previous
+      // iteration then it's safe to initialize it now.
+      if (objToInit != 0) this->initializeObject(objToInit);
+      objToInit = obj;
+    }
 
-  return true;
+    return ret;
+  });
+  // If we have a cached object we'll initialize it now.
+  if (objToInit != 0) this->initializeObject(objToInit);
+}
+
+
+void GrammarRepository::set(Char const *qualifier, SeekerSetLambda handler)
+{
+  IdentifiableObject *objToInit = 0;
+  this->repository.set(qualifier, [=,&objToInit](Int index, IdentifiableObject *&obj)->RefOp {
+    RefOp ret = handler(index, obj);
+
+    if (isPerform(ret)) {
+      // We shouldn't initialize until the object is set to the tree, so we will cache the
+      // pointer to be initialized later. If we already have an object from a previous
+      // iteration then it's safe to initialize it now.
+      if (objToInit != 0) this->initializeObject(objToInit);
+      objToInit = obj;
+    }
+
+    return ret;
+  });
+  // If we have a cached object we'll initialize it now.
+  if (objToInit != 0) this->initializeObject(objToInit);
 }
 
 

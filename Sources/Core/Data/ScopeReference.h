@@ -48,7 +48,7 @@ class ScopeReference : public Reference
   {
   }
 
-  public: ScopeReference(Char const *s, Int l, Bool up = true) : scope(s, l), upward(up),
+  public: ScopeReference(Char const *s, Word l, Bool up = true) : scope(s, l), upward(up),
     usageCriteria(ReferenceUsageCriteria::MULTI_DATA), cachedIndex(-1)
   {
   }
@@ -97,13 +97,14 @@ class ScopeReference : public Reference
     this->cachedIndex = -1;
   }
 
-  public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *obj, Int &index) const;
+  public: virtual void setValue(Provider *provider, IdentifiableObject *parent,
+                                ReferenceSetLambda handler) const;
 
-  public: virtual Bool removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const;
+  public: virtual void removeValue(Provider *provider, IdentifiableObject *parent,
+                                   ReferenceRemoveLambda handler) const;
 
-  public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *&result, Int &index) const;
+  public: virtual void forEachValue(Provider *provider, IdentifiableObject *parent,
+                                    ReferenceForeachLambda handler) const;
 
   private: Int getListIndex(NamedListContainer const *container, Int i) const
   {

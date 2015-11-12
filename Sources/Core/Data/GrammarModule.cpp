@@ -23,24 +23,24 @@ GrammarModule::GrammarModule(const std::initializer_list<Argument<Char const*>> 
 {
   for (auto arg : args) {
     if (sbstr_cast(arg.id) == STR("@parent")) {
-      this->parentReference = arg.ioVal.io_cast<Reference>();
+      UPDATE_OWNED_SHAREDPTR(this->parentReference, arg.ioVal.io_cast<Reference>());
       if (this->parentReference == 0 && arg.ioVal != 0) {
         throw EXCEPTION(GenericException, STR("Provided parent reference is not of type Reference."));
       }
     } else if (sbstr_cast(arg.id) == STR("@start")) {
-      this->startRef = arg.ioVal.io_cast<Reference>();
+      UPDATE_OWNED_SHAREDPTR(this->startRef, arg.ioVal.io_cast<Reference>());
       this->ownership |= GrammarModuleMetaElement::START_REF;
       if (this->startRef == 0 && arg.ioVal != 0) {
         throw EXCEPTION(GenericException, STR("Provided start reference is not of type Reference."));
       }
     } else if (sbstr_cast(arg.id) == STR("@lexer_module")) {
-      this->lexerModuleRef = arg.ioVal.io_cast<Reference>();
+      UPDATE_OWNED_SHAREDPTR(this->lexerModuleRef, arg.ioVal.io_cast<Reference>());
       this->ownership |= GrammarModuleMetaElement::LEXER_MODULE_REF;
       if (this->lexerModuleRef == 0 && arg.ioVal != 0) {
         throw EXCEPTION(GenericException, STR("Provided lexer module reference is not of type Reference."));
       }
     } else if (sbstr_cast(arg.id) == STR("@error_sync_block_pairs")) {
-      this->errorSyncBlockPairsRef = arg.ioVal.io_cast<Reference>();
+      UPDATE_OWNED_SHAREDPTR(this->errorSyncBlockPairsRef, arg.ioVal.io_cast<Reference>());
       this->ownership |= GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF;
       if (this->errorSyncBlockPairsRef == 0 && arg.ioVal != 0) {
         throw EXCEPTION(GenericException, STR("Provided error sync block pairs reference is not of type Reference."));
@@ -49,6 +49,17 @@ GrammarModule::GrammarModule(const std::initializer_list<Argument<Char const*>> 
       this->add(arg.id, arg.ioVal);
     }
   }
+}
+
+
+GrammarModule::~GrammarModule()
+{
+  if (this->parent != 0) this->detachFromParent();
+  this->destroyNotifier.emit(this);
+  RESET_OWNED_SHAREDPTR(this->parentReference);
+  RESET_OWNED_SHAREDPTR(this->startRef);
+  RESET_OWNED_SHAREDPTR(this->lexerModuleRef);
+  RESET_OWNED_SHAREDPTR(this->errorSyncBlockPairsRef);
 }
 
 
