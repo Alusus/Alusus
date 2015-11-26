@@ -110,4 +110,58 @@ void StrKeyReference::forEachValue(Provider *provider, IdentifiableObject *paren
   handler(0, container->get(index));
 }
 
+
+Bool StrKeyReference::setValue(Provider *provider, IdentifiableObject *parent,
+                              IdentifiableObject *obj) const
+{
+  if (parent == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
+  }
+  MapContainer *container = parent->getInterface<MapContainer>();
+  if (container == 0) return false;
+
+  Int index = -1;
+  if (this->usageCriteria == ReferenceUsageCriteria::MULTI_DATA) {
+    index = container->findIndex(this->key.c_str());
+  } else {
+    if (this->cachedIndex < 0 || this->cachedIndex >= container->getCount()) {
+      this->cachedIndex = container->findIndex(this->key.c_str());
+    }
+    index = this->cachedIndex;
+  }
+
+  if (index == -1) {
+    container->set(this->key.c_str(), obj);
+  } else {
+    container->set(index, obj);
+  }
+  return true;
+}
+
+
+Bool StrKeyReference::getValue(Provider *provider, IdentifiableObject *parent,
+                               IdentifiableObject *&result) const
+{
+  if (parent == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
+  }
+  MapContainer *container = parent->getInterface<MapContainer>();
+  if (container == 0) return false;
+
+  Int index;
+  if (this->usageCriteria == ReferenceUsageCriteria::MULTI_DATA) {
+    index = container->findIndex(this->key.c_str());
+    if (index == -1) return false;
+  } else {
+    if (this->cachedIndex < 0 || this->cachedIndex >= container->getCount()) {
+      this->cachedIndex = container->findIndex(this->key.c_str());
+      if (this->cachedIndex == -1) return false;
+    }
+    index = this->cachedIndex;
+  }
+
+  result = container->get(index);
+  return true;
+}
+
 } } // namespace

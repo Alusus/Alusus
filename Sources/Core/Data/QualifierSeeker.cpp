@@ -30,36 +30,37 @@ RefOp QualifierSeeker::set(Char const *qualifier, IdentifiableObject *target, Se
   Int _index = 0;
   if (index == 0) index = &_index;
 
-  RefOp result;
+  RefOp result = RefOp::MOVE;
   Reference const *ref = &this->parser.parseQualifierSegmentToTemp(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
-    ref->setValue(this->dataProvider, target, [=,&result,&index](Int i, IdentifiableObject *&obj)->RefOp {
-                    if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
-                      return RefOp::MOVE;
-                    }
-                    RefOp ret = handler(*index, obj);
-                    *index++;
-                    if (isMove(ret)) result = RefOp::MOVE;
-                    else result = RefOp::STOP;
-                    return ret;
-                  });
+    ref->setValue(this->dataProvider, target,
+      [=,&result,&index](Int i, IdentifiableObject *&obj)->RefOp {
+        if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
+          return RefOp::MOVE;
+        }
+        RefOp ret = handler(*index, obj);
+        *index++;
+        if (!isMove(ret)) result = RefOp::STOP;
+        return ret;
+      });
   } else {
     ++qualifier;
-    ref->forEachValue(this->dataProvider, target, [=,&result](Int i, IdentifiableObject *innerTarget)->RefOp {
-                        // Prepare innerSrc.
-                        if (innerTarget->isA<PlainPairedPtr>()) {
-                          innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
-                        } else if (innerTarget->isA<SharedPairedPtr>()) {
-                          innerTarget = static_cast<SharedPairedPtr*>(innerTarget)->object.get();
-                        }
-                        if (ref->getResultValidator()!=0 && ref->getResultValidator()->validate(innerTarget)==false) {
-                          return RefOp::MOVE;
-                        }
-                        // Recurse into next level.
-                        RefOp ret = this->set(qualifier, innerTarget, handler, index);
-                        result = ret;
-                        return ret;
-                      });
+    ref->forEachValue(this->dataProvider, target,
+      [=,&result](Int i, IdentifiableObject *innerTarget)->RefOp {
+        // Prepare innerSrc.
+        if (innerTarget->isA<PlainPairedPtr>()) {
+          innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
+        } else if (innerTarget->isA<SharedPairedPtr>()) {
+          innerTarget = static_cast<SharedPairedPtr*>(innerTarget)->object.get();
+        }
+        if (ref->getResultValidator()!=0 && ref->getResultValidator()->validate(innerTarget)==false) {
+          return RefOp::MOVE;
+        }
+        // Recurse into next level.
+        RefOp ret = this->set(qualifier, innerTarget, handler, index);
+        result = ret;
+        return ret;
+      });
   }
   return result;
 }
@@ -80,36 +81,37 @@ RefOp QualifierSeeker::remove(Char const *qualifier, IdentifiableObject *target,
   Int _index = 0;
   if (index == 0) index = &_index;
 
-  RefOp result;
+  RefOp result = RefOp::MOVE;
   Reference const *ref = &this->parser.parseQualifierSegmentToTemp(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
-    ref->removeValue(this->dataProvider, target, [=,&result,&index](Int i, IdentifiableObject *obj)->RefOp {
-                       if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
-                         return RefOp::MOVE;
-                       }
-                       RefOp ret = handler(*index, obj);
-                       *index++;
-                       if (isMove(ret)) result = RefOp::MOVE;
-                       else result = RefOp::STOP;
-                       return ret;
-                     });
+    ref->removeValue(this->dataProvider, target,
+      [=,&result,&index](Int i, IdentifiableObject *obj)->RefOp {
+        if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
+         return RefOp::MOVE;
+        }
+        RefOp ret = handler(*index, obj);
+        *index++;
+        if (!isMove(ret)) result = RefOp::STOP;
+        return ret;
+      });
   } else {
     ++qualifier;
-    ref->forEachValue(this->dataProvider, target, [=,&result](Int i, IdentifiableObject *innerTarget)->RefOp {
-                        // Prepare innerSrc.
-                        if (innerTarget->isA<PlainPairedPtr>()) {
-                          innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
-                        } else if (innerTarget->isA<SharedPairedPtr>()) {
-                          innerTarget = static_cast<SharedPairedPtr*>(innerTarget)->object.get();
-                        }
-                        if (ref->getResultValidator()!=0 && ref->getResultValidator()->validate(innerTarget)==false) {
-                          return RefOp::MOVE;
-                        }
-                        // Recurse into next level.
-                        RefOp ret = this->remove(qualifier, innerTarget, handler, index);
-                        result = ret;
-                        return ret;
-                      });
+    ref->forEachValue(this->dataProvider, target,
+      [=,&result](Int i, IdentifiableObject *innerTarget)->RefOp {
+        // Prepare innerSrc.
+        if (innerTarget->isA<PlainPairedPtr>()) {
+          innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
+        } else if (innerTarget->isA<SharedPairedPtr>()) {
+          innerTarget = static_cast<SharedPairedPtr*>(innerTarget)->object.get();
+        }
+        if (ref->getResultValidator()!=0 && ref->getResultValidator()->validate(innerTarget)==false) {
+          return RefOp::MOVE;
+        }
+        // Recurse into next level.
+        RefOp ret = this->remove(qualifier, innerTarget, handler, index);
+        result = ret;
+        return ret;
+      });
   }
   return result;
 }
@@ -135,64 +137,65 @@ RefOp QualifierSeeker::forEach(Char const *qualifier, IdentifiableObject *source
     }
   }
 
-  RefOp result;
+  RefOp result = RefOp::MOVE;
   Reference const *ref = &this->parser.parseQualifierSegmentToTemp(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
-    ref->forEachValue(this->dataProvider, source, [=,&result,&index](Int i, IdentifiableObject *obj)->RefOp {
-                        if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
-                          return RefOp::MOVE;
-                        }
-                        RefOp ret = handler(*index, obj, parent);
-                        *index++;
-                        if (isMove(ret)) result = RefOp::MOVE;
-                        else result = RefOp::STOP;
-                        return ret;
-                      });
+    ref->forEachValue(this->dataProvider, source,
+      [=,&result,&index](Int i, IdentifiableObject *obj)->RefOp {
+        if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
+          return RefOp::MOVE;
+        }
+        RefOp ret = handler(*index, obj, parent);
+        *index++;
+        if (!isMove(ret)) result = RefOp::STOP;
+        return ret;
+      });
   } else {
     ++qualifier;
-    ref->forEachValue(this->dataProvider, source, [=,&result](Int i, IdentifiableObject *innerSrc)->RefOp {
-                        // Prepare innerSrc and innerParent
-                        IdentifiableObject *innerParent = parent;
-                        if (innerSrc->isA<SharedPairedPtr>()) {
-                          SharedPairedPtr *pairedPtr = static_cast<SharedPairedPtr*>(innerSrc);
-                          if (ref->getResultValidator() != 0 &&
-                              ref->getResultValidator()->validate(pairedPtr->object.get()) == false) {
-                            return RefOp::MOVE;
-                          }
-                          innerSrc = pairedPtr->object.get();
-                          if (parentTypeInfo != 0) {
-                            if (pairedPtr->parent->isDerivedFrom(parentTypeInfo)) {
-                              innerParent = pairedPtr->parent.get();
-                            } else {
-                              innerParent = 0;
-                            }
-                          }
-                        } else if (innerSrc->isA<PlainPairedPtr>()) {
-                          PlainPairedPtr *pairedPtr = static_cast<PlainPairedPtr*>(innerSrc);
-                          if (ref->getResultValidator() != 0 &&
-                              ref->getResultValidator()->validate(pairedPtr->object) == false) {
-                            return RefOp::MOVE;
-                          }
-                          innerSrc = pairedPtr->object;
-                          if (parentTypeInfo != 0) {
-                            if (pairedPtr->parent->isDerivedFrom(parentTypeInfo)) {
-                              innerParent = pairedPtr->parent;
-                            } else {
-                              innerParent = 0;
-                            }
-                          }
-                        } else {
-                          if (ref->getResultValidator() != 0 &&
-                              ref->getResultValidator()->validate(innerSrc) == false) {
-                            return RefOp::MOVE;
-                          }
-                        }
-                        // Recurse into next level.
-                        RefOp ret = this->forEach(qualifier, innerSrc, handler,
-                                                  parentTypeInfo, innerParent, index);
-                        result = ret;
-                        return ret;
-                      });
+    ref->forEachValue(this->dataProvider, source,
+      [=,&result](Int i, IdentifiableObject *innerSrc)->RefOp {
+        // Prepare innerSrc and innerParent
+        IdentifiableObject *innerParent = parent;
+        if (innerSrc->isA<SharedPairedPtr>()) {
+          SharedPairedPtr *pairedPtr = static_cast<SharedPairedPtr*>(innerSrc);
+          if (ref->getResultValidator() != 0 &&
+              ref->getResultValidator()->validate(pairedPtr->object.get()) == false) {
+            return RefOp::MOVE;
+          }
+          innerSrc = pairedPtr->object.get();
+          if (parentTypeInfo != 0) {
+            if (pairedPtr->parent->isDerivedFrom(parentTypeInfo)) {
+              innerParent = pairedPtr->parent.get();
+            } else {
+              innerParent = 0;
+            }
+          }
+        } else if (innerSrc->isA<PlainPairedPtr>()) {
+          PlainPairedPtr *pairedPtr = static_cast<PlainPairedPtr*>(innerSrc);
+          if (ref->getResultValidator() != 0 &&
+              ref->getResultValidator()->validate(pairedPtr->object) == false) {
+            return RefOp::MOVE;
+          }
+          innerSrc = pairedPtr->object;
+          if (parentTypeInfo != 0) {
+            if (pairedPtr->parent->isDerivedFrom(parentTypeInfo)) {
+              innerParent = pairedPtr->parent;
+            } else {
+              innerParent = 0;
+            }
+          }
+        } else {
+          if (ref->getResultValidator() != 0 &&
+              ref->getResultValidator()->validate(innerSrc) == false) {
+            return RefOp::MOVE;
+          }
+        }
+        // Recurse into next level.
+        RefOp ret = this->forEach(qualifier, innerSrc, handler,
+                                  parentTypeInfo, innerParent, index);
+        result = ret;
+        return ret;
+      });
   }
   return result;
 }

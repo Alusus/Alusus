@@ -35,7 +35,7 @@ class IndexReference : public Reference
   //============================================================================
   // Constructor
 
-  public: IndexReference(Int i = -1) : index(i)
+  public: IndexReference(Int i = -1) : Reference(true), index(i)
   {
   }
 
@@ -71,6 +71,12 @@ class IndexReference : public Reference
 
   public: virtual void forEachValue(Provider *provider, IdentifiableObject *parent,
                                     ReferenceForeachLambda handler) const;
+
+  public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
+                                IdentifiableObject *obj) const;
+
+  public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
+                                IdentifiableObject *&result) const;
 
 }; // class
 

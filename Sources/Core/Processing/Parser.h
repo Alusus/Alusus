@@ -75,16 +75,7 @@ class Parser : public SignalReceiver
    */
   private: ParserState tempState;
 
-  /**
-   * @brief The list of possible routes to take from a specific parsing point.
-   *
-   * When parsing reaches a crossroad where a decision needs to be made on all
-   * possible routes to take, the compute_possible_routes function is called
-   * which will populate this list with values referring to the route to take.
-   * The interpretation of these integer values depend on the term that needs
-   * them (alternate, duplicate, optional).
-   */
-  private: std::vector<Int> possibleRoutes;
+  private: DecisionNodePool decisionNodes;
 
   /**
    * @brief Specifies whether an UnexpectedTokenMsg has already been raised.
@@ -201,12 +192,15 @@ class Parser : public SignalReceiver
 
   /// Compute the list of possible routes to take at a duplicate term.
   private: void computePossibleMultiplyRoutes(const Data::Token *token, ParserState *state);
+  private: Bool computeInnerMultiplyRoute(const Data::Token *token, ParserState *state, Data::MultiplyTerm *multiplyTerm);
+  private: Bool computeOuterMultiplyRoute(const Data::Token *token, ParserState *state, Data::MultiplyTerm *multiplyTerm, Data::Integer *priority);
+
 
   /// Compute the list of possible routes to take at an alternative term.
   private: void computePossibleAlternativeRoutes(const Data::Token *token, ParserState *state);
 
   /// Test the route taken by the given state.
-  private: void testState(const Data::Token *token, ParserState *state);
+  private: Int testState(const Data::Token *token, ParserState *state);
 
   /// Test the given token against a single level within the test state.
   private: void testStateLevel(const Data::Token *token, ParserState *state);

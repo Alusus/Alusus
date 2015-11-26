@@ -36,6 +36,9 @@ class Reference : public Node, public virtual DataOwner
   //============================================================================
   // Member Variables
 
+  /// @sa isSingleValued()
+  private: Bool singleValued;
+
   /// @sa setNext()
   private: SharedPtr<Reference> next;
 
@@ -46,7 +49,7 @@ class Reference : public Node, public virtual DataOwner
   //============================================================================
   // Constructor
 
-  protected: Reference()
+  protected: Reference(Bool sv=false) : singleValued(sv)
   {
   }
 
@@ -140,6 +143,16 @@ class Reference : public Node, public virtual DataOwner
    * @sa ReferenceUsageCriteria
    */
   public: virtual void setUsageCriteria(ReferenceUsageCriteria criteria) = 0;
+
+  /**
+   * @brief Returns whether this reference can only match a single value.
+   * This function should return true if it this reference can match only a
+   * single value within a source. This is useful for optimization purposes.
+   */
+  public: Bool isSingleValued() const
+  {
+    return this->singleValued;
+  }
 
   /// @}
 

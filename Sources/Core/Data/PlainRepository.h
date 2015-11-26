@@ -157,6 +157,18 @@ class PlainRepository : public IdentifiableObject, public virtual Provider
 
   public: using Provider::set;
   public: using Provider::remove;
+  public: using Provider::tryGet;
+
+  public: virtual Bool trySet(Reference const *ref, IdentifiableObject *val)
+  {
+    return this->referenceSeeker.trySet(ref, &this->stack, val);
+  }
+
+  public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal,
+                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
+  {
+    return this->referenceSeeker.tryGet(ref, &this->stack, retVal, parentTypeInfo, retParent);
+  }
 
   public: virtual void set(Reference const *ref, SeekerSetLambda handler);
 
