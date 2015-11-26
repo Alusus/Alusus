@@ -66,16 +66,7 @@ class ReferenceSeeker
     }
   }
 
-  public: Bool trySet(Reference const *ref, IdentifiableObject *target, IdentifiableObject *val) const
-  {
-    Bool ret = false;
-    this->set(ref, target, [=,&ret](Int index, IdentifiableObject *&o)->RefOp {
-      o = val;
-      ret = true;
-      return RefOp::PERFORM_AND_MOVE;
-    });
-    return ret;
-  }
+  public: Bool trySet(Reference const *ref, IdentifiableObject *target, IdentifiableObject *val) const;
 
   public: RefOp set(Reference const *ref, IdentifiableObject *target, SeekerSetLambda handler) const
   {
@@ -145,17 +136,7 @@ class ReferenceSeeker
   }
 
   public: Bool tryGet(Reference const *ref, IdentifiableObject *source, IdentifiableObject *&retVal,
-                      TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) const
-  {
-    Bool ret = false;
-    this->forEach(ref, source, [=,&ret,&retVal](Int i, IdentifiableObject *obj, IdentifiableObject *parent)->RefOp {
-      retVal = obj;
-      if (retParent) *retParent = parent;
-      ret = true;
-      return RefOp::STOP;
-    }, parentTypeInfo);
-    return ret;
-  }
+                      TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) const;
 
   public: template<class T> Bool tryGet(Reference const *ref, IdentifiableObject *source,
                                         IdentifiableObject *&retVal, T *&retParent) const

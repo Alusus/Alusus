@@ -37,15 +37,18 @@ class StrKeyReference : public Reference
   //============================================================================
   // Constructor
 
-  public: StrKeyReference() : usageCriteria(ReferenceUsageCriteria::MULTI_DATA), cachedIndex(-1)
+  public: StrKeyReference()
+    : Reference(true), usageCriteria(ReferenceUsageCriteria::MULTI_DATA), cachedIndex(-1)
   {
   }
 
-  public: StrKeyReference(Char const *k) : key(k), usageCriteria(ReferenceUsageCriteria::MULTI_DATA), cachedIndex(-1)
+  public: StrKeyReference(Char const *k)
+    : Reference(true), key(k), usageCriteria(ReferenceUsageCriteria::MULTI_DATA), cachedIndex(-1)
   {
   }
 
-  public: StrKeyReference(Char const *k, Int s) : key(k, s), usageCriteria(ReferenceUsageCriteria::MULTI_DATA), cachedIndex(-1)
+  public: StrKeyReference(Char const *k, Int s)
+    : Reference(true), key(k, s), usageCriteria(ReferenceUsageCriteria::MULTI_DATA), cachedIndex(-1)
   {
   }
 
@@ -90,6 +93,12 @@ class StrKeyReference : public Reference
 
   public: virtual void forEachValue(Provider *provider, IdentifiableObject *parent,
                                     ReferenceForeachLambda handler) const;
+
+  public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
+                                IdentifiableObject *obj) const;
+
+  public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
+                                IdentifiableObject *&result) const;
 
   /// @sa DataOwner::unsetIndexes()
   public: virtual void unsetIndexes(Int from, Int to)

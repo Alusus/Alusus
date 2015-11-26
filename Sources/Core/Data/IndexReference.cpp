@@ -93,4 +93,45 @@ void IndexReference::forEachValue(Provider *provider, IdentifiableObject *parent
   }
 }
 
+
+Bool IndexReference::setValue(Provider *provider, IdentifiableObject *parent,
+                              IdentifiableObject *obj) const
+{
+  if (parent == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
+  }
+  Container *container = parent->getInterface<Container>();
+  if (container == 0) return false;
+  if (this->index >= 0 && this->index < container->getCount()) {
+    container->set(this->index, obj);
+  } else if (this->index == container->getCount()) {
+    ListContainer *listContainer = parent->getInterface<ListContainer>();
+    if (listContainer == 0) return false;
+    listContainer->add(obj);
+  } else if (this->index < 0 && this->index >= -container->getCount()) {
+    container->set(container->getCount() + this->index, obj);
+  }
+  return true;
+}
+
+
+Bool IndexReference::getValue(Provider *provider, IdentifiableObject *parent,
+                              IdentifiableObject *&result) const
+{
+  if (parent == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
+  }
+  Container const *container;
+  if ((container = parent->getInterface<Container>()) != 0) {
+    if (this->index >= 0 && this->index < container->getCount()) {
+      result = container->get(this->index);
+      return true;
+    } else if (this->index < 0 && this->index >= -container->getCount()) {
+      result = container->get(container->getCount() + this->index);
+      return true;
+    }
+  }
+  return false;
+}
+
 } } // namespace

@@ -278,6 +278,7 @@ enumeration(ParsingFlags,
 #include "ParserProdLevel.h"
 #include "ParserState.h"
 #include "ParsingHandler.h"
+#include "DecisionNodePool.h"
 #include "Parser.h"
 // Parsing Handlers
 #include "GenericParsingHandler.h"

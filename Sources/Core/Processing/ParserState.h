@@ -31,6 +31,7 @@ namespace Core { namespace Processing
 class ParserState
 {
   friend class Parser;
+  friend class DecisionNodePool;
 
   //============================================================================
   // Data Types
@@ -129,7 +130,7 @@ class ParserState
    */
   private: Int tokensToLive;
 
-  private: Int testUppermostLevel;
+  private: Int decisionNodeIndex;
 
   private: Data::SharedList *errorSyncBlockPairs;
 
@@ -221,14 +222,14 @@ class ParserState
     return this->prevProcessingStatus;
   }
 
-  protected: void setTestUppermostLevel(Int l)
+  protected: void setDecisionNodeIndex(Int i)
   {
-    this->testUppermostLevel = l;
+    this->decisionNodeIndex = i;
   }
 
-  protected: Int getTestUppermostLevel() const
+  protected: Int getDecisionNodeIndex() const
   {
-    return this->testUppermostLevel;
+    return this->decisionNodeIndex;
   }
 
   /// @}

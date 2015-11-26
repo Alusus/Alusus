@@ -64,6 +64,55 @@ TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Tes
   }
 }
 
+// Test for a successful parsing of a simple prefix expression.
+TEST_CASE("Core::Main/prefix_op", "Prefix Operator Successful Parsing Test")
+{
+  TestEngine engine;
+  vector<SharedPtr<IdentifiableObject> > results;
+  vector<SharedPtr<IdentifiableObject> > results2;
+
+  try {
+    SharedPtr<IdentifiableObject> ptr = engine.processString(STR("--strVar;"), STR("testcode"));
+    SECTION("s1", "Data generated.")
+    {
+      CHECK(ptr.get() != 0);
+    }
+    results.clear();
+    findProdData(ID_GENERATOR->getId(STR("UnaryExp")), ptr, results);
+    SECTION("s2", "One unary expression in generated data.")
+    {
+      CHECK(results.size() == 1);
+    }
+    SECTION("s3", "One identifier token (strVar) in generated expression")
+    {
+      results2.clear();
+      if (results.size() > 0) {
+        findToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("strVar"), results[0], results2);
+      }
+      CHECK(results2.size() == 1);
+    }
+  } catch (Exception &e) {
+    FAIL(e.getVerboseErrorMessage());
+  }
+}
+
+TEST_CASE("Core::Main/do_cmd", "'do' Command Successful Parsing Test")
+{
+  TestEngine engine;
+  vector<SharedPtr<IdentifiableObject> > results;
+  vector<SharedPtr<IdentifiableObject> > results2;
+
+  try {
+    SharedPtr<IdentifiableObject> ptr = engine.processString(STR("do { a = 5; };"), STR("testcode"));
+    SECTION("s1", "Data generated.")
+    {
+      CHECK(ptr.get() != 0);
+    }
+  } catch (Exception &e) {
+    FAIL(e.getVerboseErrorMessage());
+  }
+}
+
 // Test for a successful parsing of multiple statements.
 TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test")
 {
