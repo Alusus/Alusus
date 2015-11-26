@@ -32,11 +32,11 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
   // Initialises tree browsers.
   static ReferenceSeeker seeker;
   // Signature having return value
-  static SharedPtr<Reference> sigWithRetReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> sigWithRetReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)."
             "0~where(prodId=Expression.LowLinkExp)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> bodyReference = REF_PARSER->parseQualifier(
         STR("(-1)~where(prodId=Main.StatementList)"),
         ReferenceUsageCriteria::MULTI_DATA);
 

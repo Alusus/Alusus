@@ -22,7 +22,7 @@ Word IdGenerator::getId(Char const *desc)
 {
   Int id = this->index.find(Str(desc));
   if (id == -1) {
-    ReferenceParser::validateQualifier(desc, true);
+    REF_PARSER->validateQualifier(desc, true);
     this->ids.push_back(Desc());
     this->ids.back().str = desc;
     this->index.add();
@@ -32,6 +32,7 @@ Word IdGenerator::getId(Char const *desc)
   }
 }
 
+
 Str const& IdGenerator::getDesc(Word id) const
 {
   if (id >= this->ids.size()) {
@@ -40,11 +41,9 @@ Str const& IdGenerator::getDesc(Word id) const
   return this->ids[id].str;
 }
 
-/// Get the singleton object.
+
 IdGenerator* IdGenerator::getSingleton()
 {
-  // This can be a static object rather than pointer because it doesn't depend on anything
-  // else in initialization.
   static IdGenerator *idGenerator=0;
   if (idGenerator == 0) {
     idGenerator = reinterpret_cast<IdGenerator*>(GLOBAL_STORAGE->getObject(STR("Core::Data::IdGenerator")));

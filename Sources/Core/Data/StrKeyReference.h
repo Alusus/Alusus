@@ -82,13 +82,14 @@ class StrKeyReference : public Reference
     this->cachedIndex = -1;
   }
 
-  public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *obj, Int &index) const;
+  public: virtual void setValue(Provider *provider, IdentifiableObject *parent,
+                                ReferenceSetLambda handler) const;
 
-  public: virtual Bool removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const;
+  public: virtual void removeValue(Provider *provider, IdentifiableObject *parent,
+                                   ReferenceRemoveLambda handler) const;
 
-  public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *&result, Int &index) const;
+  public: virtual void forEachValue(Provider *provider, IdentifiableObject *parent,
+                                    ReferenceForeachLambda handler) const;
 
   /// @sa DataOwner::unsetIndexes()
   public: virtual void unsetIndexes(Int from, Int to)

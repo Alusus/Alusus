@@ -15,38 +15,104 @@
 namespace Core { namespace Data
 {
 
-//==============================================================================
-// Data Read Functions
-
-IdentifiableObject* ReferenceSeeker::get(Reference const *ref, IdentifiableObject *source) const
+RefOp ReferenceSeeker::set(Reference const *ref, IdentifiableObject *target, SeekerSetLambda handler,
+                           Int *index) const
 {
-  IdentifiableObject *result;
-  if (!this->tryGet(ref, source, result)) {
-    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
+  if (ref == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
+  }
+
+  if (target == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("target"), STR("Cannot be null."));
+  }
+
+  // Prepare parent and index.
+  Int _index = 0;
+  if (index == 0) index = &_index;
+
+  RefOp result;
+  if (ref->getNext() == 0) {
+    ref->setValue(this->dataProvider, target, [=,&result,&index](Int i, IdentifiableObject *&obj)->RefOp {
+                    if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
+                      return RefOp::MOVE;
+                    }
+                    RefOp ret = handler(*index, obj);
+                    *index++;
+                    if (isMove(ret)) result = RefOp::MOVE;
+                    else result = RefOp::STOP;
+                    return ret;
+                  });
+  } else {
+    ref->forEachValue(this->dataProvider, target, [=,&result](Int i, IdentifiableObject *innerTarget)->RefOp {
+                        // Prepare innerSrc.
+                        if (innerTarget->isA<PlainPairedPtr>()) {
+                          innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
+                        } else if (innerTarget->isA<SharedPairedPtr>()) {
+                          innerTarget = static_cast<SharedPairedPtr*>(innerTarget)->object.get();
+                        }
+                        if (ref->getResultValidator()!=0 && ref->getResultValidator()->validate(innerTarget)==false) {
+                          return RefOp::MOVE;
+                        }
+                        // Recurse into next level.
+                        RefOp ret = this->set(ref->getNext().get(), innerTarget, handler, index);
+                        result = ret;
+                        return ret;
+                      });
   }
   return result;
 }
 
 
-IdentifiableObject* ReferenceSeeker::tryGet(Reference const *ref, IdentifiableObject *source) const
+RefOp ReferenceSeeker::remove(Reference const *ref, IdentifiableObject *target, SeekerRemoveLambda handler,
+                              Int *index) const
 {
-  IdentifiableObject *result = 0;
-  this->tryGet(ref, source, result);
+  if (ref == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
+  }
+
+  if (target == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("target"), STR("Cannot be null."));
+  }
+
+  // Prepare parent and index.
+  Int _index = 0;
+  if (index == 0) index = &_index;
+
+  RefOp result;
+  if (ref->getNext() == 0) {
+    ref->removeValue(this->dataProvider, target, [=,&result,&index](Int i, IdentifiableObject *obj)->RefOp {
+                       if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
+                         return RefOp::MOVE;
+                       }
+                       RefOp ret = handler(*index, obj);
+                       *index++;
+                       if (isMove(ret)) result = RefOp::MOVE;
+                       else result = RefOp::STOP;
+                       return ret;
+                     });
+  } else {
+    ref->forEachValue(this->dataProvider, target, [=,&result](Int i, IdentifiableObject *innerTarget)->RefOp {
+                        // Prepare innerSrc.
+                        if (innerTarget->isA<PlainPairedPtr>()) {
+                          innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
+                        } else if (innerTarget->isA<SharedPairedPtr>()) {
+                          innerTarget = static_cast<SharedPairedPtr*>(innerTarget)->object.get();
+                        }
+                        if (ref->getResultValidator()!=0 && ref->getResultValidator()->validate(innerTarget)==false) {
+                          return RefOp::MOVE;
+                        }
+                        // Recurse into next level.
+                        RefOp ret = this->remove(ref->getNext().get(), innerTarget, handler, index);
+                        result = ret;
+                        return ret;
+                      });
+  }
   return result;
 }
 
 
-void ReferenceSeeker::get(Reference const *ref, IdentifiableObject *source, IdentifiableObject *&retVal,
-                          TypeInfo const *parentTypeInfo, IdentifiableObject **retParent) const
-{
-  if (!this->tryGet(ref, source, retVal, parentTypeInfo, retParent)) {
-    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
-  }
-}
-
-
-Bool ReferenceSeeker::tryGet(Reference const *ref, IdentifiableObject *source, IdentifiableObject *&retVal,
-                             TypeInfo const *parentTypeInfo, IdentifiableObject **retParent) const
+RefOp ReferenceSeeker::forEach(Reference const *ref, IdentifiableObject *source, SeekerForeachLambda handler,
+                               TypeInfo const *parentTypeInfo, IdentifiableObject *parent, Int *index) const
 {
   if (ref == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
@@ -55,172 +121,74 @@ Bool ReferenceSeeker::tryGet(Reference const *ref, IdentifiableObject *source, I
   if (source == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("source"), STR("Cannot be null."));
   }
+
+  // Prepare parent and index.
+  Int _index = 0;
+  if (index == 0) index = &_index;
+  if (parentTypeInfo != 0) {
+    if (source->isDerivedFrom(parentTypeInfo)) {
+      parent = source;
+    }
+  }
+
+  RefOp result;
   if (ref->getNext() == 0) {
-    Int index = 0;
-    IdentifiableObject *tempResult;
-    if (ref->getValue(this->dataProvider, source, tempResult, index)) {
-      if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(tempResult) == false) {
-        return false;
-      }
-      retVal = tempResult;
-      if (parentTypeInfo != 0 && retParent != 0) {
-        if (source->isDerivedFrom(parentTypeInfo)) {
-          *retParent = source;
-        } else {
-          *retParent = 0;
-        }
-      }
-      return true;
-    } else {
-      return false;
-    }
+    ref->forEachValue(this->dataProvider, source, [=,&result,&index](Int i, IdentifiableObject *obj)->RefOp {
+                        if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
+                          return RefOp::MOVE;
+                        }
+                        RefOp ret = handler(*index, obj, parent);
+                        *index++;
+                        if (isMove(ret)) result = RefOp::MOVE;
+                        else result = RefOp::STOP;
+                        return ret;
+                      });
   } else {
-    Int index = 0;
-    IdentifiableObject *innerSource;
-    Bool ret = false;
-    index = 0;
-    while (index != -1) {
-      if (ref->getValue(this->dataProvider, source, innerSource, index)) {
-        if (innerSource->isA<SharedPairedPtr>()) {
-          SharedPairedPtr *pairedPtr = static_cast<SharedPairedPtr*>(innerSource);
-          if (ref->getResultValidator() == 0 || ref->getResultValidator()->validate(pairedPtr->object.get()) == true) {
-            ret = this->tryGet(ref->getNext().get(), pairedPtr->object.get(), retVal, parentTypeInfo, retParent);
-            if (ret) {
-              if (parentTypeInfo != 0 && retParent != 0) {
-                if (*retParent == 0 && pairedPtr->parent->isDerivedFrom(parentTypeInfo)) {
-                  *retParent = pairedPtr->parent.get();
-                }
-                break;
-              }
-            }
-          }
-        } else if (innerSource->isA<PlainPairedPtr>()) {
-          PlainPairedPtr *pairedPtr = static_cast<PlainPairedPtr*>(innerSource);
-          if (ref->getResultValidator() == 0 || ref->getResultValidator()->validate(pairedPtr->object) == true) {
-            ret = this->tryGet(ref->getNext().get(), pairedPtr->object, retVal, parentTypeInfo, retParent);
-            if (ret) {
-              if (parentTypeInfo != 0 && retParent != 0) {
-                if (*retParent == 0 && pairedPtr->parent->isDerivedFrom(parentTypeInfo)) {
-                  *retParent = pairedPtr->parent;
-                }
-              }
-              break;
-            }
-          }
-        } else {
-          if (ref->getResultValidator() == 0 || ref->getResultValidator()->validate(innerSource) == true) {
-            ret = this->tryGet(ref->getNext().get(), innerSource, retVal, parentTypeInfo, retParent);
-            if (ret) break;
-          }
-        }
-      }
-    }
-    if (ret == true && parentTypeInfo != 0 && retParent != 0 && *retParent == 0) {
-      if (source->isDerivedFrom(parentTypeInfo)) *retParent = source;
-    }
-    return ret;
+    ref->forEachValue(this->dataProvider, source, [=,&result](Int i, IdentifiableObject *innerSrc)->RefOp {
+                        // Prepare innerSrc and innerParent
+                        IdentifiableObject *innerParent = parent;
+                        if (innerSrc->isA<SharedPairedPtr>()) {
+                          SharedPairedPtr *pairedPtr = static_cast<SharedPairedPtr*>(innerSrc);
+                          if (ref->getResultValidator() != 0 &&
+                              ref->getResultValidator()->validate(pairedPtr->object.get()) == false) {
+                            return RefOp::MOVE;
+                          }
+                          innerSrc = pairedPtr->object.get();
+                          if (parentTypeInfo != 0) {
+                            if (pairedPtr->parent->isDerivedFrom(parentTypeInfo)) {
+                              innerParent = pairedPtr->parent.get();
+                            } else {
+                              innerParent = 0;
+                            }
+                          }
+                        } else if (innerSrc->isA<PlainPairedPtr>()) {
+                          PlainPairedPtr *pairedPtr = static_cast<PlainPairedPtr*>(innerSrc);
+                          if (ref->getResultValidator() != 0 &&
+                              ref->getResultValidator()->validate(pairedPtr->object) == false) {
+                            return RefOp::MOVE;
+                          }
+                          innerSrc = pairedPtr->object;
+                          if (parentTypeInfo != 0) {
+                            if (pairedPtr->parent->isDerivedFrom(parentTypeInfo)) {
+                              innerParent = pairedPtr->parent;
+                            } else {
+                              innerParent = 0;
+                            }
+                          }
+                        } else {
+                          if (ref->getResultValidator() != 0 &&
+                              ref->getResultValidator()->validate(innerSrc) == false) {
+                            return RefOp::MOVE;
+                          }
+                        }
+                        // Recurse into next level.
+                        RefOp ret = this->forEach(ref->getNext().get(), innerSrc, handler,
+                                                  parentTypeInfo, innerParent, index);
+                        result = ret;
+                        return ret;
+                      });
   }
-}
-
-
-//==============================================================================
-// Data Write Functions
-
-void ReferenceSeeker::set(Reference const *ref, IdentifiableObject *target, IdentifiableObject *val) const
-{
-  if (!this->trySet(ref, target, val)) {
-    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
-  }
-}
-
-
-Bool ReferenceSeeker::trySet(Reference const *ref, IdentifiableObject *target, IdentifiableObject *val) const
-{
-  if (ref == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
-  }
-  if (target == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("target"), STR("Cannot be null."));
-  }
-  if (ref->getNext() == 0) {
-    Int index = 0;
-    if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(val) == false) return false;
-    if (ref->setValue(this->dataProvider, target, val, index)) return true;
-    else return false;
-  } else {
-    Int index = 0;
-    IdentifiableObject *innerTarget;
-    Bool ret = false;
-    index = 0;
-    while (index != -1) {
-      if (ref->getValue(this->dataProvider, target, innerTarget, index)) {
-        if (innerTarget->isA<PlainPairedPtr>()) {
-          innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
-        } else if (innerTarget->isA<SharedPairedPtr>()) {
-          innerTarget = static_cast<SharedPairedPtr*>(innerTarget)->object.get();
-        }
-        if (ref->getResultValidator() == 0 || ref->getResultValidator()->validate(innerTarget) == true) {
-          ret = this->trySet(ref->getNext().get(), innerTarget, val);
-          if (ret) break;
-        }
-      }
-    }
-    return ret;
-  }
-}
-
-
-//============================================================================
-// Data Delete Functions
-
-void ReferenceSeeker::remove(Reference const *ref, IdentifiableObject *target) const
-{
-  if (!this->tryRemove(ref, target)) {
-    throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
-  }
-}
-
-
-Bool ReferenceSeeker::tryRemove(Reference const *ref, IdentifiableObject *target) const
-{
-  if (ref == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
-  }
-  if (target == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("target"), STR("Cannot be null."));
-  }
-  if (ref->getNext() == 0) {
-    Int index = 0;
-    if (ref->getResultValidator() != 0) {
-      // Validate the object before removing it.
-      IdentifiableObject *obj;
-      if (ref->getValue(this->dataProvider, target, obj, index)) {
-        if (ref->getResultValidator()->validate(obj) == false) return false;
-      }
-      index = 0;
-    }
-    if (ref->removeValue(this->dataProvider, target, index)) return true;
-    else return false;
-  } else {
-    Int index = 0;
-    IdentifiableObject *innerTarget;
-    Bool ret = false;
-    index = 0;
-    while (index != -1) {
-      if (ref->getValue(this->dataProvider, target, innerTarget, index)) {
-        if (innerTarget->isA<PlainPairedPtr>()) {
-          innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
-        } else if (innerTarget->isA<SharedPairedPtr>()) {
-          innerTarget = static_cast<SharedPairedPtr*>(innerTarget)->object.get();
-        }
-        if (ref->getResultValidator() == 0 || ref->getResultValidator()->validate(innerTarget) == true) {
-          ret = this->tryRemove(ref->getNext().get(), innerTarget);
-          if (ret) break;
-        }
-      }
-    }
-    return ret;
-  }
+  return result;
 }
 
 } } // namespace

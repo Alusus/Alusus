@@ -170,7 +170,7 @@ Block *CodeGenerator::generateSet(const SharedPtr<ParsedList> &list)
 
 Block *CodeGenerator::generateInnerSet(SharedPtr<IdentifiableObject> const &item)
 {
-  static SharedPtr<Reference> setReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> setReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Expression.Exp)."
             "0~where(prodId=Subject.Subject1)."
             "0~where(prodId=Main.StatementList)"),
@@ -224,7 +224,7 @@ ExpressionArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> cons
   }
 
   // Get the name of the definition.
-  static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> nameReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)."
             "0." //~where(prodId=Expression.LowerLinkExp | prodId=Expression.AssignmentExp)."
             "0~where(prodId=Subject.Subject1)."
@@ -243,7 +243,7 @@ ExpressionArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> cons
 
   // Get the defined (after the colon).
 
-  static SharedPtr<Reference> defOrAssignReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> defOrAssignReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)."
             "0"), ReferenceUsageCriteria::MULTI_DATA);
   auto defOrAssign = seeker.tryGet(defOrAssignReference.get(), item.get());
@@ -272,7 +272,7 @@ ExpressionArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> cons
     return{};
   }
 
-  static SharedPtr<Reference> defReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> defReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)."
             "0." //~where(prodId=Expression.LowerLinkExp)."
             "2"), ReferenceUsageCriteria::MULTI_DATA);
@@ -377,7 +377,7 @@ DefineStruct *CodeGenerator::generateDefineStructure(Char const *name,
   }
 
   // Generate function body.
-  static SharedPtr<Reference> structBodyReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> structBodyReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Main.StatementList)"), ReferenceUsageCriteria::MULTI_DATA);
   auto bodyStmtList = getSharedPtr(seeker.tryGet(structBodyReference.get(), item.get())).io_cast<ParsedList>();
 
@@ -431,7 +431,7 @@ Return *CodeGenerator::generateReturn(SharedPtr<IdentifiableObject> const &item)
     throw EXCEPTION(SyntaxErrorException, "Invalid return argument.");
   }
 
-  static SharedPtr<Reference> expReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> expReference = REF_PARSER->parseQualifier(
         STR("{find prodId=Expression.Exp, 0}"), ReferenceUsageCriteria::MULTI_DATA);
   auto exp = getSharedPtr(seeker.tryGet(expReference.get(), item.get()));
 
@@ -710,7 +710,7 @@ IfStatement *CodeGenerator::generateIfStatement(SharedPtr<IdentifiableObject> co
   }
 
   // The condition of the if statement.
-  static SharedPtr<Reference> expReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> expReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
 
   auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
@@ -725,7 +725,7 @@ IfStatement *CodeGenerator::generateIfStatement(SharedPtr<IdentifiableObject> co
   auto condition = generateExpression(exp);
 
   // The body of the if statement.
-  static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> bodyReference = REF_PARSER->parseQualifier(
         STR("2"), ReferenceUsageCriteria::MULTI_DATA);
   auto body = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
 
@@ -758,7 +758,7 @@ ForStatement *CodeGenerator::generateForStatement(SharedPtr<IdentifiableObject> 
   }
 
   // The condition of the for statement.
-  static SharedPtr<Reference> expReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> expReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
   auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
 
@@ -796,7 +796,7 @@ ForStatement *CodeGenerator::generateForStatement(SharedPtr<IdentifiableObject> 
   auto loop = initCondLoopAsList->getElement(2);
 
   // The body of the for statement.
-  static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> bodyReference = REF_PARSER->parseQualifier(
         STR("2"), ReferenceUsageCriteria::MULTI_DATA);
   auto body = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
 
@@ -829,7 +829,7 @@ WhileStatement *CodeGenerator::generateWhileStatement(SharedPtr<IdentifiableObje
   }
 
   // The condition of the while statement.
-  static SharedPtr<Reference> condReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> condReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
   auto condAST = getSharedPtr(seeker.tryGet(condReference.get(), command.get())).io_cast<ParsedList>();
 
@@ -843,7 +843,7 @@ WhileStatement *CodeGenerator::generateWhileStatement(SharedPtr<IdentifiableObje
   auto cond = generateExpression(condAST);
 
   // The body of the 'while' statement.
-  static SharedPtr<Reference> bodyReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> bodyReference = REF_PARSER->parseQualifier(
         STR("2"), ReferenceUsageCriteria::MULTI_DATA);
   auto bodyAST = getSharedPtr(seeker.tryGet(bodyReference.get(), command.get()));
 
@@ -869,7 +869,7 @@ WhileStatement *CodeGenerator::generateWhileStatement(SharedPtr<IdentifiableObje
 Char const* CodeGenerator::parseToken(SharedPtr<IdentifiableObject> const &item)
 {
   static ReferenceSeeker seeker;
-  static SharedPtr<Reference> tokenReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> tokenReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
   auto token = io_cast<ParsedToken>(seeker.tryGet(tokenReference.get(), item.get()));
@@ -905,7 +905,7 @@ ValueTypeSpec *CodeGenerator::parseVariableType(
   } else if (itemMetadata->getProdId() == functionalExpId) {
     // This is a compound type so we need to parse the modifier (ptr, ary, etc.)
     static ReferenceSeeker seeker;
-    static SharedPtr<Reference> modifierReference = ReferenceParser::parseQualifier(
+    static SharedPtr<Reference> modifierReference = REF_PARSER->parseQualifier(
           STR("0~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
           ReferenceUsageCriteria::MULTI_DATA);
     auto funcName = io_cast<ParsedToken>(seeker.tryGet(modifierReference.get(), item.get()));
@@ -918,7 +918,7 @@ ValueTypeSpec *CodeGenerator::parseVariableType(
     } else if (SBSTR(this->translateAliasedName(funcName->getText().c_str())) == "ptr") {
       // TODO: Re-factor this if block into a separate function.
       // Pointer to a type.
-      static SharedPtr<Reference> contentTypeReference = ReferenceParser::parseQualifier(
+      static SharedPtr<Reference> contentTypeReference = REF_PARSER->parseQualifier(
             STR("1~where(prodId=Expression.ParamPassExp).0~where(prodId=Expression.Exp).0"),
             ReferenceUsageCriteria::MULTI_DATA);
       auto typeAstRoot = getSharedPtr(seeker.tryGet(contentTypeReference.get(), item.get()));
@@ -935,12 +935,12 @@ ValueTypeSpec *CodeGenerator::parseVariableType(
     } else if (SBSTR(this->translateAliasedName(funcName->getText().c_str())) == "ary") {
       // TODO: Re-factor this if block into a separate function.
       // Array of types
-      static SharedPtr<Reference> elementTypeReference = ReferenceParser::parseQualifier(
+      static SharedPtr<Reference> elementTypeReference = REF_PARSER->parseQualifier(
             STR("1~where(prodId=Expression.ParamPassExp)."
                 "0~where(prodId=Expression.Exp)."
                 "0~where(prodId=Expression.ListExp)."
                 "0"), ReferenceUsageCriteria::MULTI_DATA);
-      static SharedPtr<Reference> arraySizeReference = ReferenceParser::parseQualifier(
+      static SharedPtr<Reference> arraySizeReference = REF_PARSER->parseQualifier(
             STR("1~where(prodId=Expression.ParamPassExp)."
                 "0~where(prodId=Expression.Exp)."
                 "0~where(prodId=Expression.ListExp)."
@@ -1006,7 +1006,7 @@ VariableDefinition CodeGenerator::parseVariableDefinition(
   }
 
   // Finds the name of the variable.
-  static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> nameReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Expression.LowerLinkExp).0~where(prodId=Subject.Subject1)"),
         ReferenceUsageCriteria::MULTI_DATA);
   auto nameToken = getSharedPtr(seeker.tryGet(nameReference.get(), astBlockRoot.get()));
@@ -1019,7 +1019,7 @@ VariableDefinition CodeGenerator::parseVariableDefinition(
   }
 
   // Finds the type of the variable.
-  static SharedPtr<Reference> typeReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> typeReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Expression.LowerLinkExp).2"),
         ReferenceUsageCriteria::MULTI_DATA);
   auto typeAst = getSharedPtr(seeker.tryGet(typeReference.get(), astBlockRoot.get()));

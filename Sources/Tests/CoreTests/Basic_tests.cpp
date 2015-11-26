@@ -24,10 +24,10 @@ TEST_CASE("Core::Basic/getSharedPtr", "Test of getSharedPtr function.")
     {
       SharedPtr<Data::SharedList> list(new SharedList());
       SharedPtr<Data::SharedList> pl2 = getSharedPtr(list.get());
-      REQUIRE(pl2.get() != 0);
-      REQUIRE(pl2.get() == list.get());
-      REQUIRE(list.use_count() == 2);
-      REQUIRE(pl2.use_count() == 2);
+      CHECK(pl2.get() != 0);
+      CHECK(pl2.get() == list.get());
+      CHECK(list.use_count() == 2);
+      CHECK(pl2.use_count() == 2);
     }
   } catch (Exception &e) {
     FAIL(e.getVerboseErrorMessage());
@@ -49,60 +49,60 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
       SharedPtr<ParsedToken> testToken1 = s_cast<ParsedToken>(getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())));
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
       SharedPtr<ParsedToken> testToken2 = s_cast<ParsedToken>(testTok);
-      REQUIRE(testToken1.get() != 0);
-      REQUIRE(testToken2.get() == testToken1.get());
-      REQUIRE(testToken1.use_count() > 1);
-      REQUIRE(testToken2.use_count() > 1);
+      CHECK(testToken1.get() != 0);
+      CHECK(testToken2.get() == testToken1.get());
+      CHECK(testToken1.use_count() > 1);
+      CHECK(testToken2.use_count() > 1);
     }
     SECTION("s2", "Reinterpret Cast")
     {
       SharedPtr<ParsedToken> testToken1 = r_cast<ParsedToken>(getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())));
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
       SharedPtr<ParsedToken> testToken2 = r_cast<ParsedToken>(testTok);
-      REQUIRE(testToken1.get() != 0);
-      REQUIRE(testToken2.get() == testToken1.get());
-      REQUIRE(testToken1.use_count() > 1);
-      REQUIRE(testToken2.use_count() > 1);
+      CHECK(testToken1.get() != 0);
+      CHECK(testToken2.get() == testToken1.get());
+      CHECK(testToken1.use_count() > 1);
+      CHECK(testToken2.use_count() > 1);
     }
     SECTION("s3", "IdentifiableObject Cast")
     {
       SharedPtr<ParsedToken> testToken1 = io_cast<ParsedToken>(getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())));
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
       SharedPtr<ParsedToken> testToken2 = io_cast<ParsedToken>(testTok);
-      REQUIRE(testToken1.get() != 0);
-      REQUIRE(testToken2.get() == testToken1.get());
-      REQUIRE(testToken1.use_count() > 1);
-      REQUIRE(testToken2.use_count() > 1);
+      CHECK(testToken1.get() != 0);
+      CHECK(testToken2.get() == testToken1.get());
+      CHECK(testToken1.use_count() > 1);
+      CHECK(testToken2.use_count() > 1);
     }
     SECTION("s4", "Member Static Cast")
     {
       SharedPtr<ParsedToken> testToken1 = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())).s_cast<ParsedToken>();
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
       SharedPtr<ParsedToken> testToken2 = testTok.s_cast<ParsedToken>();
-      REQUIRE(testToken1.get() != 0);
-      REQUIRE(testToken2.get() == testToken1.get());
-      REQUIRE(testToken1.use_count() > 1);
-      REQUIRE(testToken2.use_count() > 1);
+      CHECK(testToken1.get() != 0);
+      CHECK(testToken2.get() == testToken1.get());
+      CHECK(testToken1.use_count() > 1);
+      CHECK(testToken2.use_count() > 1);
     }
     SECTION("s5", "Member Reinterpret Cast")
     {
       SharedPtr<ParsedToken> testToken1 = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())).r_cast<ParsedToken>();
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
       SharedPtr<ParsedToken> testToken2 = testTok.r_cast<ParsedToken>();
-      REQUIRE(testToken1.get() != 0);
-      REQUIRE(testToken2.get() == testToken1.get());
-      REQUIRE(testToken1.use_count() > 1);
-      REQUIRE(testToken2.use_count() > 1);
+      CHECK(testToken1.get() != 0);
+      CHECK(testToken2.get() == testToken1.get());
+      CHECK(testToken1.use_count() > 1);
+      CHECK(testToken2.use_count() > 1);
     }
     SECTION("s6", "Member IdentifiableObject Cast")
     {
       SharedPtr<ParsedToken> testToken1 = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())).io_cast<ParsedToken>();
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
       SharedPtr<ParsedToken> testToken2 = testTok.io_cast<ParsedToken>();
-      REQUIRE(testToken1.get() != 0);
-      REQUIRE(testToken2.get() == testToken1.get());
-      REQUIRE(testToken1.use_count() > 1);
-      REQUIRE(testToken2.use_count() > 1);
+      CHECK(testToken1.get() != 0);
+      CHECK(testToken2.get() == testToken1.get());
+      CHECK(testToken1.use_count() > 1);
+      CHECK(testToken2.use_count() > 1);
     }
   } catch (Exception &e) {
     FAIL(e.getVerboseErrorMessage());

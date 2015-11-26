@@ -41,8 +41,8 @@ void TestGrammarPlant::createGrammar()
 
   // Set start production and lexer module.
   GrammarModule *root = this->repository.getRoot().get();
-  root->setStartRef(ReferenceParser::parseQualifier(STR("module:Program")));
-  root->setLexerModuleRef(ReferenceParser::parseQualifier(STR("root:LexerDefs")));
+  root->setStartRef(REF_PARSER->parseQualifier(STR("module:Program")));
+  root->setLexerModuleRef(REF_PARSER->parseQualifier(STR("root:LexerDefs")));
 
   // Generate const token definitions from production definitions.
   this->constTokenPrefix = STR("LexerDefs");

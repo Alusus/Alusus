@@ -34,9 +34,9 @@ namespace Core { namespace Data
  *            be null, Integer or Reference.
  * @param t The head of the child branch.
  */
-MultiplyTerm::MultiplyTerm(SharedPtr<IdentifiableObject> const &p, Word f,
-                           SharedPtr<IdentifiableObject> const &min,
-                           SharedPtr<IdentifiableObject> const &max,
+MultiplyTerm::MultiplyTerm(SharedPtr<Node> const &p, Word f,
+                           SharedPtr<Node> const &min,
+                           SharedPtr<Node> const &max,
                            const SharedPtr<Term> &t) :
   priority(p), minOccurances(min), maxOccurances(max), term(t), Term(f)
 {
@@ -58,6 +58,20 @@ MultiplyTerm::MultiplyTerm(SharedPtr<IdentifiableObject> const &p, Word f,
 }
 
 
+MultiplyTerm::MultiplyTerm(Int p, Word f, Int min, Int max, const SharedPtr<Term> &t) :
+  priority(new Integer(p)),
+  minOccurances(new Integer(min)),
+  maxOccurances(new Integer(max)),
+  term(t),
+  Term(f)
+{
+  if (this->priority != 0) this->priority->setOwner(this);
+  if (this->minOccurances != 0) this->priority->setOwner(this);
+  if (this->maxOccurances != 0) this->priority->setOwner(this);
+  if (this->term != 0) this->term->setOwner(this);
+}
+
+
 MultiplyTerm::MultiplyTerm(const std::initializer_list<Argument<TermElement>> &args)
 {
   for (auto arg : args) {
@@ -66,16 +80,16 @@ MultiplyTerm::MultiplyTerm(const std::initializer_list<Argument<TermElement>> &a
         this->flags = arg.intVal;
         break;
       case TermElement::PRIORITY:
-        this->priority = arg.ioVal;
+        UPDATE_OWNED_SHAREDPTR(this->priority, arg.ioVal.io_cast<Node>());
         break;
       case TermElement::MIN:
-        this->minOccurances = arg.ioVal;
+        UPDATE_OWNED_SHAREDPTR(this->minOccurances, arg.ioVal.io_cast<Node>());
         break;
       case TermElement::MAX:
-        this->maxOccurances = arg.ioVal;
+        UPDATE_OWNED_SHAREDPTR(this->maxOccurances, arg.ioVal.io_cast<Node>());
         break;
       case TermElement::TERM:
-        this->term = arg.ioVal.io_cast<Term>();
+        UPDATE_OWNED_SHAREDPTR(this->term, arg.ioVal.io_cast<Term>());
         if (this->term == 0 && arg.ioVal != 0) {
           throw EXCEPTION(InvalidArgumentException, STR("term"),
                           STR("Term value must be of type Term."),
@@ -104,6 +118,15 @@ MultiplyTerm::MultiplyTerm(const std::initializer_list<Argument<TermElement>> &a
 }
 
 
+MultiplyTerm::~MultiplyTerm()
+{
+  RESET_OWNED_SHAREDPTR(this->term);
+  RESET_OWNED_SHAREDPTR(this->minOccurances);
+  RESET_OWNED_SHAREDPTR(this->maxOccurances);
+  RESET_OWNED_SHAREDPTR(this->priority);
+}
+
+
 //==============================================================================
 // Member Functions
 
@@ -112,14 +135,14 @@ MultiplyTerm::MultiplyTerm(const std::initializer_list<Argument<TermElement>> &a
  * This must be >= 0. If null is specified, the default value of 0 will be
  * considered. This value must be either Integer or Reference.
  */
-void MultiplyTerm::setMinOccurances(SharedPtr<IdentifiableObject> const &min)
+void MultiplyTerm::setMinOccurances(SharedPtr<Node> const &min)
 {
   if (min != 0 && min->isA<Integer>() && !min->isDerivedFrom<Reference>()) {
     throw EXCEPTION(InvalidArgumentException, STR("min"),
                     STR("Must be of type Integer or Reference."),
                     min->getMyTypeInfo()->getUniqueName());
   }
-  this->minOccurances = min;
+  UPDATE_OWNED_SHAREDPTR(this->minOccurances, min);
 }
 
 
@@ -128,14 +151,14 @@ void MultiplyTerm::setMinOccurances(SharedPtr<IdentifiableObject> const &min)
  * the number of occurances will be unlimited. This value must be null, Integer
  * or Reference.
  */
-void MultiplyTerm::setMaxOccurances(SharedPtr<IdentifiableObject> const &max)
+void MultiplyTerm::setMaxOccurances(SharedPtr<Node> const &max)
 {
   if (max != 0 && max->isA<Integer>() && !max->isDerivedFrom<Reference>()) {
     throw EXCEPTION(InvalidArgumentException, STR("max"),
                     STR("Must be of type Integer or Reference."),
                     max->getMyTypeInfo()->getUniqueName());
   }
-  this->maxOccurances = max;
+  UPDATE_OWNED_SHAREDPTR(this->maxOccurances, max);
 }
 
 
@@ -145,14 +168,14 @@ void MultiplyTerm::setMaxOccurances(SharedPtr<IdentifiableObject> const &max)
  * is for taking (or staying) in the branch, or 0 which means priority is to
  * leave the branch. If null is specified the default value of 1 is considered.
  */
-void MultiplyTerm::setPriority(SharedPtr<IdentifiableObject> const &p)
+void MultiplyTerm::setPriority(SharedPtr<Node> const &p)
 {
   if (p != 0 && p->isA<Integer>() && !p->isDerivedFrom<Reference>()) {
     throw EXCEPTION(InvalidArgumentException, STR("p"),
                     STR("Must be of type Integer or Reference."),
                     p->getMyTypeInfo()->getUniqueName());
   }
-  this->priority = p;
+  UPDATE_OWNED_SHAREDPTR(this->priority, p);
 }
 
 

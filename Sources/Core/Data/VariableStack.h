@@ -2,7 +2,7 @@
  * @file Core/Data/VariableStack.h
  * Contains the header of class Core::Data::VariableStack.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -113,12 +113,12 @@ class VariableStack : public IdentifiableObject, public virtual MapContainer
 
   private: Word getRecordSize() const
   {
-    return this->maxStrSize * sizeof(Char) + sizeof(IdentifiableObject*);
+    return this->maxStrSize * sizeof(Char) + sizeof(Node*);
   }
 
   private: static Word getRecordSize(Word maxStrSize)
   {
-    return maxStrSize * sizeof(Char) + sizeof(IdentifiableObject*);
+    return maxStrSize * sizeof(Char) + sizeof(Node*);
   }
 
   /// @}

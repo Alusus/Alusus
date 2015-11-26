@@ -25,12 +25,12 @@ namespace Core { namespace Data
  * Contains the information that defines a single token. This information is
  * composed of the token definition and the token text.
  */
-class Token : public IdentifiableObject
+class Token : public Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Token, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(Token, Node, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

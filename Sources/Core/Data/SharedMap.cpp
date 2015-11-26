@@ -2,7 +2,7 @@
  * @file Core/Data/SharedMap.cpp
  * Contains the implementation of class Core::Data::SharedMap.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -33,6 +33,19 @@ SharedMap::SharedMap(Bool useIndex, const std::initializer_list<Argument<Char co
       this->add(arg.id, arg.ioVal);
     }
   }
+}
+
+
+SharedMap::~SharedMap()
+{
+  for (Int i = 0; i < this->list.size(); ++i) {
+    if (this->inherited == 0 || this->inherited->at(i) == false) {
+      DISOWN_SHAREDPTR(this->list[i].second);
+    }
+  }
+  if (this->index != 0) delete this->index;
+  if (this->parent != 0) this->detachFromParent();
+  this->destroyNotifier.emit(this);
 }
 
 
@@ -156,6 +169,7 @@ Int SharedMap::add(Char const *key, SharedPtr<IdentifiableObject> const &val)
     if (this->inherited != 0 && this->inherited->at(i)) {
       this->list[i].second = val;
       this->inherited->at(i) = false;
+      OWN_SHAREDPTR(val);
       this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, i);
     } else {
       throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Already exists."), key);
@@ -165,6 +179,7 @@ Int SharedMap::add(Char const *key, SharedPtr<IdentifiableObject> const &val)
     this->list.push_back(Entry(key, val));
     if (this->inherited != 0) this->inherited->push_back(false);
     if (this->index != 0) this->index->add();
+    OWN_SHAREDPTR(val);
     this->contentChangeNotifier.emit(this, ContentChangeOp::ADD, i);
   }
   return i;
@@ -183,6 +198,7 @@ void SharedMap::insert(Int index, Char const *key, SharedPtr<IdentifiableObject>
   this->list.insert(this->list.begin()+index, Entry(key, val));
   if (this->inherited != 0) this->inherited->insert(this->inherited->begin()+index, false);
   if (this->index != 0) this->index->add(index);
+  OWN_SHAREDPTR(val);
   this->contentChangeNotifier.emit(this, ContentChangeOp::ADD, index);
 }
 
@@ -196,12 +212,13 @@ Int SharedMap::set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bo
       this->list.push_back(Entry(key, val));
       if (this->inherited != 0) this->inherited->push_back(false);
       if (this->index != 0) this->index->add();
+      OWN_SHAREDPTR(val);
       this->contentChangeNotifier.emit(this, ContentChangeOp::ADD, idx);
     } else {
       throw EXCEPTION(InvalidArgumentException, STR("key"),STR("Not found."), key);
     }
   } else {
-    this->list[idx].second = val;
+    UPDATE_OWNED_SHAREDPTR(this->list[idx].second, val);
     if (this->inherited != 0) this->inherited->at(idx) = false;
     this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, idx);
   }
@@ -214,7 +231,7 @@ void SharedMap::set(Int index, SharedPtr<IdentifiableObject> const &val)
   if (static_cast<Word>(index) >= this->list.size()) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
-  this->list[index].second = val;
+  UPDATE_OWNED_SHAREDPTR(this->list[index].second, val);
   if (this->inherited != 0) this->inherited->at(index) = false;
   this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, index);
 }
@@ -246,6 +263,7 @@ void SharedMap::clear()
     ASSERT(this->parent != 0);
     ASSERT(this->inherited != 0);
     if (!this->inherited->at(i)) {
+      DISOWN_SHAREDPTR(this->list[i].second);
       this->list[i].second = this->parent->getShared(i);
       this->inherited->at(i) = true;
       this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, i);
@@ -322,10 +340,14 @@ void SharedMap::unsetIndexes(Int from, Int to)
 
 void SharedMap::set(Int index, IdentifiableObject *val)
 {
+  Node *node = io_cast<Node>(val);
+  if (node == 0 && val != 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("val"), STR("Must be of type Node"));
+  }
   if (static_cast<Word>(index) >= this->list.size()) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
-  this->list[index].second = getSharedPtr(val, true);
+  UPDATE_OWNED_SHAREDPTR(this->list[index].second, getSharedPtr(node, true));
   if (this->inherited != 0) this->inherited->at(index) = false;
   this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, index);
 }
@@ -342,10 +364,14 @@ void SharedMap::remove(Int index)
   if (static_cast<Word>(index) < this->getParentDefCount()) {
     ASSERT(this->parent != 0);
     ASSERT(this->inherited != 0);
+    if (this->inherited->at(index) == false) {
+      DISOWN_SHAREDPTR(this->list[index].second);
+    }
     this->list[index].second = this->parent->getShared(index);
     this->inherited->at(index) = true;
     this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, index);
   } else {
+    DISOWN_SHAREDPTR(this->list[index].second);
     this->list.erase(this->list.begin()+index);
     if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+index);
     if (this->index != 0) this->index->remove(index);
@@ -372,10 +398,14 @@ void SharedMap::remove(Char const *key)
   if (static_cast<Word>(idx) < this->getParentDefCount()) {
     ASSERT(this->parent != 0);
     ASSERT(this->inherited != 0);
+    if (this->inherited->at(idx) == false) {
+      DISOWN_SHAREDPTR(this->list[idx].second);
+    }
     this->list[idx].second = this->parent->getShared(idx);
     this->inherited->at(idx) = true;
     this->contentChangeNotifier.emit(this, ContentChangeOp::UPDATE, idx);
   } else {
+    DISOWN_SHAREDPTR(this->list[idx].second);
     this->list.erase(this->list.begin()+idx);
     if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+idx);
     if (this->index != 0) this->index->remove(idx);

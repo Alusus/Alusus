@@ -18,12 +18,12 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class Validator : public IdentifiableObject
+class Validator : public Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Validator, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(Validator, Node, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

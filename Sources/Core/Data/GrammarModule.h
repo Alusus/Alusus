@@ -2,7 +2,7 @@
  * @file Core/Data/GrammarModule.h
  * Contains the header of class Core::Data::GrammarModule.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -61,11 +61,7 @@ class GrammarModule : public Module, public virtual Initializable
 
   public: GrammarModule(const std::initializer_list<Argument<Char const*>> &args);
 
-  public: virtual ~GrammarModule()
-  {
-    if (this->parent != 0) this->detachFromParent();
-    this->destroyNotifier.emit(this);
-  }
+  public: virtual ~GrammarModule();
 
   public: static SharedPtr<GrammarModule> create(const std::initializer_list<Argument<Char const*>> &args)
   {
@@ -81,9 +77,19 @@ class GrammarModule : public Module, public virtual Initializable
 
   public: void setLexerModuleRef(const SharedPtr<Reference> &lmr)
   {
-    this->lexerModuleRef = lmr;
+    UPDATE_OWNED_SHAREDPTR(this->lexerModuleRef, lmr);
+    this->ownership |= GrammarModuleMetaElement::LEXER_MODULE_REF;
     this->metaChangeNotifier.emit(this, GrammarModuleMetaElement::LEXER_MODULE_REF);
   }
+
+  public: void resetLexerModuleRef()
+  {
+    RESET_OWNED_SHAREDPTR(this->lexerModuleRef);
+    if (this->parent != 0) this->lexerModuleRef = this->parent->getLexerModuleRef();
+    this->ownership &= ~GrammarModuleMetaElement::LEXER_MODULE_REF;
+    this->metaChangeNotifier.emit(this, GrammarModuleMetaElement::LEXER_MODULE_REF);
+  }
+
   public: const SharedPtr<Reference>& getLexerModuleRef() const
   {
     return this->lexerModuleRef;
@@ -91,9 +97,19 @@ class GrammarModule : public Module, public virtual Initializable
 
   public: void setErrorSyncBlockPairsRef(const SharedPtr<Reference> &ref)
   {
-    this->errorSyncBlockPairsRef = ref;
+    UPDATE_OWNED_SHAREDPTR(this->errorSyncBlockPairsRef, ref);
+    this->ownership |= GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF;
     this->metaChangeNotifier.emit(this, GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF);
   }
+
+  public: void resetErrorSyncBlockPairsRef()
+  {
+    RESET_OWNED_SHAREDPTR(this->errorSyncBlockPairsRef);
+    if (this->parent != 0) this->errorSyncBlockPairsRef = this->parent->getErrorSyncBlockPairsRef();
+    this->ownership &= ~GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF;
+    this->metaChangeNotifier.emit(this, GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF);
+  }
+
   public: const SharedPtr<Reference>& getErrorSyncBlockPairsRef() const
   {
     return this->errorSyncBlockPairsRef;
@@ -101,9 +117,19 @@ class GrammarModule : public Module, public virtual Initializable
 
   public: void setStartRef(const SharedPtr<Reference> &sr)
   {
-    this->startRef = sr;
+    UPDATE_OWNED_SHAREDPTR(this->startRef, sr);
+    this->ownership |= GrammarModuleMetaElement::START_REF;
     this->metaChangeNotifier.emit(this, GrammarModuleMetaElement::START_REF);
   }
+
+  public: void resetStartRef()
+  {
+    RESET_OWNED_SHAREDPTR(this->startRef);
+    if (this->parent != 0) this->startRef = this->parent->getStartRef();
+    this->ownership &= ~GrammarModuleMetaElement::START_REF;
+    this->metaChangeNotifier.emit(this, GrammarModuleMetaElement::START_REF);
+  }
+
   public: const SharedPtr<Reference>& getStartRef() const
   {
     return this->startRef;
@@ -116,7 +142,7 @@ class GrammarModule : public Module, public virtual Initializable
 
   public: void setParentReference(const SharedPtr<Reference> &pr)
   {
-    this->parentReference = pr;
+    UPDATE_OWNED_SHAREDPTR(this->parentReference, pr);
   }
 
   public: const SharedPtr<Reference>& getParentReference() const

@@ -38,15 +38,19 @@ class ReferenceTerm : public Term, public virtual DataOwner
 
   public: ReferenceTerm(Char const *ref=0, Word f=0) : Term(f)
   {
-    if (ref != 0) this->reference = ReferenceParser::parseQualifier(ref);
+    if (ref != 0) {
+      UPDATE_OWNED_SHAREDPTR(this->reference, REF_PARSER->parseQualifier(ref));
+    }
   }
 
   public: ReferenceTerm(const SharedPtr<Reference> &ref, Word f=0) : Term(f), reference(ref)
   {
+    if (this->reference != 0) this->reference->setOwner(this);
   }
 
   public: virtual ~ReferenceTerm()
   {
+    RESET_OWNED_SHAREDPTR(this->reference);
   }
 
   public: static SharedPtr<ReferenceTerm> create(Char const *ref=0, Word f=0)
@@ -65,13 +69,16 @@ class ReferenceTerm : public Term, public virtual DataOwner
 
   public: void setReference(SharedPtr<Reference> const &ref)
   {
-    this->reference = ref;
+    UPDATE_OWNED_SHAREDPTR(this->reference, ref);
   }
 
   public: void setReference(Char const *ref)
   {
-    if (ref != 0) this->reference = ReferenceParser::parseQualifier(ref);
-    else this->reference.reset();
+    if (ref != 0) {
+      UPDATE_OWNED_SHAREDPTR(this->reference, REF_PARSER->parseQualifier(ref));
+    } else {
+      RESET_OWNED_SHAREDPTR(this->reference);
+    }
   }
 
   public: SharedPtr<Reference> const& getReference() const

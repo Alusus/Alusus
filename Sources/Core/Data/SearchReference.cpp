@@ -29,96 +29,139 @@ Bool SearchReference::compare(Reference const *r) const
 }
 
 
-Bool SearchReference::setValue(Provider *provider, IdentifiableObject *parent,
-                              IdentifiableObject *obj, Int &index) const
+void SearchReference::setValue(Provider *provider, IdentifiableObject *parent,
+                               ReferenceSetLambda handler) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
-  if (index < 0) return false;
   Container *container = parent->getInterface<Container>();
-  if (container == 0) return false;
+  if (container == 0) return;
 
-  if (this->isCacheUsable() && this->cachedIndex >= index && this->cachedIndex < container->getCount()) {
-    container->set(this->getListIndex(container, this->cachedIndex), obj);
-    if (this->matchLimitationIndex == -1) index = this->cachedIndex+1;
-    else index = -1;
+  if (this->isCacheUsable() && this->cachedIndex >= 0 && this->cachedIndex < container->getCount()) {
+    IdentifiableObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
+    if (isPerform(handler(0, obj))) {
+      container->set(this->getListIndex(container, this->cachedIndex), obj);
+    }
   } else {
+    Int i = 0;
+    Int index = 0;
     if (this->matchLimitationIndex == -1) {
-      index = this->findMatch(container, index);
+      while (true) {
+        index = this->findMatch(container, index);
+        if (index == -1) break;
+        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        if (isPerform(handler(i, obj))) {
+          container->set(this->getListIndex(container, index), obj);
+        }
+        if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH) {
+          this->cachedIndex = index;
+          break;
+        }
+        ++index;
+        ++i;
+      }
     } else {
       index = this->findMatch(container, 0, this->matchLimitationIndex);
+      if (index != -1) {
+        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        if (isPerform(handler(i, obj))) {
+          container->set(this->getListIndex(container, index), obj);
+        }
+        if (this->isCacheUsable()) {
+          this->cachedIndex = index;
+        }
+      }
     }
-    if (index == -1) return false;
-    container->set(this->getListIndex(container, index), obj);
-    this->cachedIndex = index;
-    if (this->matchLimitationIndex == -1) ++index;
-    else index = -1;
   }
-  return true;
 }
 
 
-Bool SearchReference::removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const
+void SearchReference::removeValue(Provider *provider, IdentifiableObject *parent,
+                                  ReferenceRemoveLambda handler) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
-  if (index < 0) return false;
-  Container *container;
-  if ((container = parent->getInterface<Container>()) != 0) {
-    if (this->isCacheUsable() && this->cachedIndex >= index && this->cachedIndex < container->getCount()) {
+  Container *container = parent->getInterface<Container>();
+  if (container == 0) return;
+
+  if (this->isCacheUsable() && this->cachedIndex >= 0 && this->cachedIndex < container->getCount()) {
+    IdentifiableObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
+    if (isPerform(handler(0, obj))) {
       container->remove(this->getListIndex(container, this->cachedIndex));
-      if (this->matchLimitationIndex == -1) index = this->cachedIndex;
-      else index = -1;
-    } else {
-      if (this->matchLimitationIndex == -1) {
-        index = this->findMatch(container, index);
-      } else {
-        index = this->findMatch(container, 0, this->matchLimitationIndex);
-      }
-      if (index == -1) return false;
-      container->remove(this->getListIndex(container, index));
-      this->cachedIndex = index;
-      if (this->matchLimitationIndex != -1) index = -1;
     }
-    return true;
   } else {
-    index = -1;
-    return false;
+    Int i = 0;
+    Int index = 0;
+    if (this->matchLimitationIndex == -1) {
+      while (true) {
+        index = this->findMatch(container, index);
+        if (index == -1) break;
+        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        if (isPerform(handler(i, obj))) {
+          container->remove(this->getListIndex(container, index));
+        }
+        if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH) {
+          this->cachedIndex = index;
+          break;
+        }
+        ++i;
+      }
+    } else {
+      index = this->findMatch(container, 0, this->matchLimitationIndex);
+      if (index != -1) {
+        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        if (isPerform(handler(i, obj))) {
+          container->remove(this->getListIndex(container, index));
+        }
+        if (this->isCacheUsable()) {
+          this->cachedIndex = index;
+        }
+      }
+    }
   }
 }
 
 
-Bool SearchReference::getValue(Provider *provider, IdentifiableObject *parent,
-                              IdentifiableObject *&result, Int &index) const
+void SearchReference::forEachValue(Provider *provider, IdentifiableObject *parent,
+                                   ReferenceForeachLambda handler) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
-  if (index < 0) return false;
-  Container const *container;
-  if ((container = parent->getInterface<Container>()) != 0) {
-    if (this->isCacheUsable() && this->cachedIndex >= index && this->cachedIndex < container->getCount()) {
-      result = container->get(this->getListIndex(container, this->cachedIndex));
-      if (this->matchLimitationIndex == -1) index = this->cachedIndex+1;
-      else index = -1;
-    } else {
-      if (this->matchLimitationIndex == -1) {
-        index = this->findMatch(container, index);
-      } else {
-        index = this->findMatch(container, 0, this->matchLimitationIndex);
-      }
-      if (index == -1) return false;
-      result = container->get(this->getListIndex(container, index));
-      this->cachedIndex = index;
-      if (this->matchLimitationIndex == -1) ++index;
-      else index = -1;
-    }
-    return true;
+  Container *container = parent->getInterface<Container>();
+  if (container == 0) return;
+
+  if (this->isCacheUsable() && this->cachedIndex >= 0 && this->cachedIndex < container->getCount()) {
+    IdentifiableObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
+    handler(0, obj);
   } else {
-    index = -1;
-    return false;
+    Int i = 0;
+    Int index = 0;
+    if (this->matchLimitationIndex == -1) {
+      while (true) {
+        index = this->findMatch(container, index);
+        if (index == -1) break;
+        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        handler(i, obj);
+        if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH) {
+          this->cachedIndex = index;
+          break;
+        }
+        ++index;
+        ++i;
+      }
+    } else {
+      index = this->findMatch(container, 0, this->matchLimitationIndex);
+      if (index != -1) {
+        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        handler(i, obj);
+        if (this->isCacheUsable()) {
+          this->cachedIndex = index;
+        }
+      }
+    }
   }
 }
 

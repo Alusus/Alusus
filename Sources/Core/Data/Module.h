@@ -2,7 +2,7 @@
  * @file Core/Data/Module.h
  * Contains the header of class Core::Data::Module.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,14 +18,14 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class Module : public IdentifiableObject,
+class Module : public Node,
                public virtual MapContainer, public virtual IdHolder, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Module, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(IdentifiableObject, MapContainer, IdHolder, DataOwner);
+  TYPE_INFO(Module, Node, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_3(Node, MapContainer, IdHolder, DataOwner);
 
 
   //============================================================================
@@ -42,17 +42,13 @@ class Module : public IdentifiableObject,
     this->definitions.contentChangeNotifier.connect(this, &Module::onDefinitionsContentChanged);
   }
 
-  public: Module(const std::initializer_list<Argument<Char const*>> &args) : definitions(true)
-  {
-    this->definitions.contentChangeNotifier.connect(this, &Module::onDefinitionsContentChanged);
+  public: Module(const std::initializer_list<Argument<Char const*>> &args);
 
-    for (auto arg : args) {
-      this->add(arg.id, arg.ioVal);
-    }
-  }
+  public: virtual ~Module();
 
-  public: virtual ~Module()
+  public: static SharedPtr<Module> create()
   {
+    return std::make_shared<Module>();
   }
 
   public: static SharedPtr<Module> create(const std::initializer_list<Argument<Char const*>> &args)
@@ -87,30 +83,15 @@ class Module : public IdentifiableObject,
   /// @name Definitions Access Functions
   /// @{
 
-  public: Int add(Char const *key, SharedPtr<IdentifiableObject> const &val)
-  {
-    return this->definitions.add(key, val);
-  }
+  public: Int add(Char const *key, SharedPtr<IdentifiableObject> const &val);
 
-  public: void insert(Int index, Char const *key, SharedPtr<IdentifiableObject> const &val)
-  {
-    this->definitions.insert(index, key, val);
-  }
+  public: void insert(Int index, Char const *key, SharedPtr<IdentifiableObject> const &val);
 
-  public: Int set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bool insertIfNew)
-  {
-    return this->definitions.set(key, val, insertIfNew);
-  }
+  public: Int set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bool insertIfNew);
 
-  public: Int set(Char const *key, SharedPtr<IdentifiableObject> const &val)
-  {
-    return this->definitions.set(key, val, true);
-  }
+  public: Int set(Char const *key, SharedPtr<IdentifiableObject> const &val);
 
-  public: void set(Int index, SharedPtr<IdentifiableObject> const &val)
-  {
-    this->definitions.set(index, val);
-  }
+  public: void set(Int index, SharedPtr<IdentifiableObject> const &val);
 
   public: virtual SharedPtr<IdentifiableObject> const& getShared(Int index) const
   {
@@ -141,15 +122,9 @@ class Module : public IdentifiableObject,
   /// @name MapContainer Implementation
   /// @{
 
-  public: virtual void set(Int index, IdentifiableObject *val)
-  {
-    this->definitions.set(index, val);
-  }
+  public: virtual void set(Int index, IdentifiableObject *val);
 
-  public: virtual void remove(Int index)
-  {
-    this->definitions.remove(index);
-  }
+  public: virtual void remove(Int index);
 
   public: virtual Word getCount() const
   {
@@ -161,15 +136,9 @@ class Module : public IdentifiableObject,
     return this->definitions.get(index);
   }
 
-  public: virtual Int set(Char const *key, IdentifiableObject *val)
-  {
-    return this->definitions.set(key, val);
-  }
+  public: virtual Int set(Char const *key, IdentifiableObject *val);
 
-  public: virtual void remove(Char const *key)
-  {
-    this->definitions.remove(key);
-  }
+  public: virtual void remove(Char const *key);
 
   public: virtual IdentifiableObject* get(Char const *key) const
   {

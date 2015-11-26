@@ -2,7 +2,7 @@
  * @file Core/Data/SharedNamedList.cpp
  * Contains the implementation of class Core::Data::SharedNamedList.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -54,7 +54,8 @@ void SharedNamedList::reinitialize(Word maxStrSize, Word reservedCount)
         Byte *destBuf = this->buffer + i*this->getRecordSize();
         Byte *srcBuf = oldBuf + i*SharedNamedList::getRecordSize(oldStrSize);
         sbstr_cast(destBuf).assign(sbstr_cast(srcBuf).c_str(), this->maxStrSize);
-        SharedPtr<IdentifiableObject> *destPtr = new(destBuf+sizeof(Char)*this->maxStrSize) SharedPtr<IdentifiableObject>();
+        SharedPtr<IdentifiableObject> *destPtr =
+            new(destBuf+sizeof(Char)*this->maxStrSize) SharedPtr<IdentifiableObject>();
         *destPtr = *reinterpret_cast<SharedPtr<IdentifiableObject>*>(srcBuf+sizeof(Char)*oldStrSize);
       }
     }
@@ -94,6 +95,7 @@ void SharedNamedList::copy(const SharedNamedList *src)
 
 void SharedNamedList::release()
 {
+  if (this->buffer != 0) this->clear();
   if (this->buffer != 0) delete[] this->buffer;
   this->buffer = 0;
 }
@@ -107,7 +109,9 @@ void SharedNamedList::clear()
   ASSERT(this->count >= 0);
   for (Int i = 0; i < this->count; ++i) {
     Byte *buf = this->buffer + i*this->getRecordSize();
-    reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize)->reset();
+    SharedPtr<IdentifiableObject> *obj =
+        reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize);
+    RESET_OWNED_SHAREDPTR(*obj);
   }
   this->count = 0;
 }
@@ -127,6 +131,9 @@ Int SharedNamedList::add(Char const *name, SharedPtr<IdentifiableObject> const &
   Byte *buf = this->buffer + this->count*this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
   new(buf+sizeof(Char)*this->maxStrSize) SharedPtr<IdentifiableObject>(val);
+  if (this->owningEnabled) {
+    OWN_SHAREDPTR(val);
+  }
   this->count++;
   return this->count - 1;
 }
@@ -142,7 +149,13 @@ void SharedNamedList::set(Int index, Char const *name, SharedPtr<IdentifiableObj
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
-  *reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize) = val;
+  SharedPtr<IdentifiableObject> *obj =
+      reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize);
+  DISOWN_SHAREDPTR(*obj);
+  *obj = val;
+  if (this->owningEnabled) {
+    OWN_SHAREDPTR(val);
+  }
 }
 
 
@@ -155,7 +168,13 @@ void SharedNamedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
-  *reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize) = val;
+  SharedPtr<IdentifiableObject> *obj =
+      reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize);
+  DISOWN_SHAREDPTR(*obj);
+  *obj = val;
+  if (this->owningEnabled) {
+    OWN_SHAREDPTR(val);
+  }
 }
 
 
@@ -197,11 +216,17 @@ void SharedNamedList::remove(Int index)
   if (index < 0 || index >= this->count) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
+  // Reset owner of the object to be removed.
+  IdentifiableObject *o = this->get(index);
+  DISOWN_PLAINPTR(o);
+  // Shift the remaining items.
   for (Int i = index; i < this->count-1; ++i) {
     this->set(i, this->getName(i+1).c_str(), this->get(i+1));
   }
+  // Remove the last item.
   Byte *buf = this->buffer + (this->count-1)*this->getRecordSize();
-  reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize)->reset();
+  SharedPtr<Node> *obj = reinterpret_cast<SharedPtr<Node>*>(buf+sizeof(Char)*this->maxStrSize);
+  obj->reset();
   this->count--;
 }
 

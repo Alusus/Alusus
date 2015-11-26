@@ -24,13 +24,13 @@ namespace Core { namespace Data
  * definition includes the CharGroupUnit tree and the identifier of the char
  * group.
  */
-class CharGroupDefinition : public IdentifiableObject, public virtual IdHolder
+class CharGroupDefinition : public Node, public virtual IdHolder
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(CharGroupDefinition, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, IdHolder);
+  TYPE_INFO(CharGroupDefinition, Node, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_1(Node, IdHolder);
 
 
   //============================================================================
@@ -56,10 +56,12 @@ class CharGroupDefinition : public IdentifiableObject, public virtual IdHolder
     if (u == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("u"), STR("Argument is null"));
     }
+    u->setOwner(this);
   }
 
   public: virtual ~CharGroupDefinition()
   {
+    RESET_OWNED_SHAREDPTR(this->charGroupUnit);
   }
 
   public: static SharedPtr<CharGroupDefinition> create(SharedPtr<CharGroupUnit> const &u)
@@ -87,6 +89,7 @@ class CharGroupDefinition : public IdentifiableObject, public virtual IdHolder
       throw EXCEPTION(GenericException, STR("Modifying an already set char group unit is not allowed."));
     }
     this->charGroupUnit = u;
+    this->charGroupUnit->setOwner(this);
   }
 
   /// Get the formula head object.

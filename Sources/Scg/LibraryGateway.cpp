@@ -37,14 +37,14 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// run = "run" + Subject
   grammarRepository->set(STR("root:Main.Run"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("run"), 0 }, { STR("نفّذ"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:Subject")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -58,14 +58,14 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// build = "build" + Subject
   grammarRepository->set(STR("root:Main.Build"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("build"), 0 }, { STR("ترجم"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:Subject")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -79,14 +79,14 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// dump = "dump" + Subject
   grammarRepository->set(STR("root:Main.Dump"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), std::make_shared<String>(STR("dump")) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:Subject")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -100,14 +100,14 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// def = "def" + Subject
   grammarRepository->set(STR("root:Main.Def"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("def"), 0 }, { STR("عرّف"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -121,14 +121,14 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// return = "return" + Subject
   grammarRepository->set(STR("root:Main.Return"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("return"), 0 }, { STR("أرجع"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
               { STR("min"), std::make_shared<Integer>(0) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -142,20 +142,20 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// if = "if" + Exp + Statement
   grammarRepository->set(STR("root:Main.If"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("if"), 0 }, { STR("إذا"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
             }),
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("module:Statement")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("module:Statement")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -169,20 +169,20 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// for = "for" + Exp + Statement
   grammarRepository->set(STR("root:Main.For"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("for"), 0 }, { STR("لكل"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
             }),
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("module:Statement")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("module:Statement")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -196,20 +196,20 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// while = "while" + Exp + Statement
   grammarRepository->set(STR("root:Main.While"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("while"), 0 }, { STR("بينما"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
             }),
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("module:Statement")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("module:Statement")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -223,14 +223,14 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// link = "link" + Set
   grammarRepository->set(STR("root:Main.Link"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("link"), 0 }, { STR("ربط"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("module:Statement")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("module:Statement")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -245,29 +245,29 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   //// Add command to leading commands list.
   SharedList *cmd_list = this->getLeadingCommandsList(grammarRepository);
   this->leadingCmdListPos = static_cast<Int>(cmd_list->getCount());
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Run")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Build")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Dump")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Def")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Return")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:If")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:For")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:While")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Link")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Run")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Build")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Dump")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Def")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Return")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:If")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:For")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:While")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Link")));
 
 
   // Create inner command.
 
   //// module = "module" + Subject + Subject
   grammarRepository->set(STR("root:Subject.Module"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("module"), 0 }, { STR("حزمة"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:SubSet")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:SubSet")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -283,12 +283,12 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   // TODO: Exp and Statement need to be optional, but at least one of them is
   // given.
   /*grammarRepository->set(STR("root:Subject.Function"), SymbolDefinition::create({
-    {SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd"))},
+    {SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd"))},
     {SymbolDefElement::VARS, SharedMap::create(false, {
     {STR("kwd"), std::make_shared<String>(STR("function"))},
     {STR("prms"), SharedList::create({
     SharedMap::create(false, {
-    {STR("prd"), ReferenceParser::parseQualifier(STR("root:SubSubject"))},
+    {STR("prd"), REF_PARSER->parseQualifier(STR("root:SubSubject"))},
     {STR("min"), std::make_shared<Integer>(1)},
     {STR("max"), std::make_shared<Integer>(2)},
     {STR("pty"), std::make_shared<Integer>(1)}
@@ -298,20 +298,20 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     {SymbolDefElement::HANDLER, this->handler}
     }));*/
   grammarRepository->set(STR("root:Subject.Function"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("function"), 0 }, { STR("دالّة"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:Expression")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
             }),
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:SubSet")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:SubSet")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -325,14 +325,14 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// structure = "struct" + Statement
   grammarRepository->set(STR("root:Subject.Structure"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("struct"), 0 }, { STR("هيكل"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:SubSet")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:SubSet")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -346,14 +346,14 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// alias = "alias" + Subject
   grammarRepository->set(STR("root:Subject.Alias"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("alias"), 0 }, { STR("لقب"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), ReferenceParser::parseQualifier(STR("root:Subject")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -368,16 +368,16 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   //// Add command to inner commands list.
   cmd_list = this->getInnerCommandsList(grammarRepository);
   this->innerCmdListPos = static_cast<Int>(cmd_list->getCount());
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Module")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Function")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Structure")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Alias")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Module")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Function")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Structure")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Alias")));
 
   // Create tilde commands.
 
   // ~cast
   grammarRepository->set(STR("root:Expression.Cast_Tilde"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("cast"), 0 }, { STR("مثّل"), 0 } }) },
@@ -388,7 +388,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
   // ~ptr
   grammarRepository->set(STR("root:Expression.Pointer_Tilde"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("ptr"), 0 }, { STR("مؤشر"), 0 } }) },
@@ -399,7 +399,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
   // ~cnt
   grammarRepository->set(STR("root:Expression.Content_Tilde"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("cnt"), 0 }, { STR("محتوى"), 0 } }) },
@@ -410,7 +410,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
   // ~size
   grammarRepository->set(STR("root:Expression.Size_Tilde"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, ReferenceParser::parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("size"), 0 }, { STR("حجم"), 0 } }) },
@@ -422,39 +422,39 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   //// Add command to tilde commands list.
   cmd_list = this->getTildeCommandsList(grammarRepository);
   this->tildeCmdListPos = static_cast<Int>(cmd_list->getCount());
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Cast_Tilde")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Pointer_Tilde")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Content_Tilde")));
-  cmd_list->add(ReferenceParser::parseQualifier(STR("module:Size_Tilde")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Cast_Tilde")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Pointer_Tilde")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Content_Tilde")));
+  cmd_list->add(REF_PARSER->parseQualifier(STR("module:Size_Tilde")));
 
 
   // Define sub statements.
 
   // Define a SubMain module.
   grammarRepository->set(STR("root:SubMain"), GrammarModule::create({
-    { STR("@parent"), ReferenceParser::parseQualifier(STR("root:Main")) }
+    { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Main")) }
   }).get());
 
   //// def = "def" + Subject
   grammarRepository->set(STR("root:SubMain.Def"), SymbolDefinition::create({
-    { SymbolDefElement::PARENT_REF, ReferenceParser::parseQualifier(STR("pmodule:Def")) },
+    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:Def")) },
     { SymbolDefElement::HANDLER, this->handler }
   }).get());
 
   //// Overloaded subject.
   /*grammarRepository->set(STR("root:SubSubject"), GrammarModule::create({
-    {STR("@parent"), ReferenceParser::parseQualifier(STR("root:Subject"))}
+    {STR("@parent"), REF_PARSER->parseQualifier(STR("root:Subject"))}
     }).get());
     grammarRepository->set(STR("root:SubSubject.Subject1"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, ReferenceParser::parseQualifier(STR("pmodule:Subject1"))},
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:Subject1"))},
     {SymbolDefElement::VARS, SharedMap::create(false, {
     {STR("sbj1"), SharedList::create({
-    ReferenceParser::parseQualifier(STR("module:SubjectCmdGrp")),
-    ReferenceParser::parseQualifier(STR("module:Parameter")),
-    ReferenceParser::parseQualifier(STR("root:SubSet"))
+    REF_PARSER->parseQualifier(STR("module:SubjectCmdGrp")),
+    REF_PARSER->parseQualifier(STR("module:Parameter")),
+    REF_PARSER->parseQualifier(STR("root:SubSet"))
     })},
-    {STR("sbj2"), SharedList::create({ReferenceParser::parseQualifier(STR("root:Expression"))})},
-    {STR("sbj3"), SharedList::create({ReferenceParser::parseQualifier(STR("root:Expression"))})},
+    {STR("sbj2"), SharedList::create({REF_PARSER->parseQualifier(STR("root:Expression"))})},
+    {STR("sbj3"), SharedList::create({REF_PARSER->parseQualifier(STR("root:Expression"))})},
     {STR("frc2"), 0},
     {STR("frc3"), 0}
     })}
@@ -462,10 +462,10 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   //// Overloaded set.
   grammarRepository->set(STR("root:SubSet"), SymbolDefinition::create({
-    { SymbolDefElement::PARENT_REF, ReferenceParser::parseQualifier(STR("root:Set")) },
+    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("root:Set")) },
     {
       SymbolDefElement::VARS, SharedMap::create(false, {
-        { STR("stmt"), ReferenceParser::parseQualifier(STR("root:SubMain.StatementList")) }
+        { STR("stmt"), REF_PARSER->parseQualifier(STR("root:SubMain.StatementList")) }
       })
     }
   }).get());

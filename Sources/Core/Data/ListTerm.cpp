@@ -41,17 +41,17 @@ ListTerm::ListTerm(const std::initializer_list<Argument<TermElement>> &args)
         this->setFlags(arg.intVal);
         break;
       case TermElement::REF:
-        this->targetRef = arg.ioVal.io_cast<Reference>();
+        UPDATE_OWNED_SHAREDPTR(this->targetRef, arg.ioVal.io_cast<Reference>());
         if (this->targetRef == 0 && arg.ioVal != 0) {
           throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Object must be of type Reference."),
                           arg.ioVal->getMyTypeInfo()->getUniqueName());
         }
         break;
       case TermElement::DATA:
-        this->data = arg.ioVal;
+        UPDATE_OWNED_SHAREDPTR(this->data, arg.ioVal.io_cast<Node>());
         break;
       case TermElement::TERM:
-        this->terms = arg.ioVal;
+        UPDATE_OWNED_SHAREDPTR(this->terms, arg.ioVal.io_cast<Node>());
         break;
     }
   }
@@ -87,7 +87,7 @@ ListTerm::ListTerm(const std::initializer_list<Argument<TermElement>> &args)
  *               (used as booleans) specifying which term is active and
  *               which term isn't, or a Reference to either.
  */
-void ListTerm::setStatic(const SharedPtr<SharedList> &terms, SharedPtr<IdentifiableObject> const &filter)
+void ListTerm::setStatic(SharedPtr<SharedList> const &terms, SharedPtr<Node> const &filter)
 {
   if (terms == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("terms"), STR("Cannot be null."));
@@ -98,9 +98,9 @@ void ListTerm::setStatic(const SharedPtr<SharedList> &terms, SharedPtr<Identifia
     throw EXCEPTION(InvalidArgumentException, STR("filter"),
                     STR("Must be either SharedList, Integer, or a Reference."));
   }
-  this->terms = terms;
-  this->data = filter;
-  this->targetRef.reset();
+  UPDATE_OWNED_SHAREDPTR(this->terms, terms);
+  UPDATE_OWNED_SHAREDPTR(this->data, filter);
+  UPDATE_OWNED_SHAREDPTR(this->targetRef, SharedPtr<Reference>());
 }
 
 
@@ -110,7 +110,7 @@ void ListTerm::setStatic(const SharedPtr<SharedList> &terms, SharedPtr<Identifia
  * @param data A SharedList of data objects, or a Reference to such SharedList.
  * @param var A reference to the stack variable to be used for the loop.
  */
-void ListTerm::setDynamic(const SharedPtr<Term> &term, SharedPtr<IdentifiableObject> const &data,
+void ListTerm::setDynamic(const SharedPtr<Term> &term, SharedPtr<Node> const &data,
                           const SharedPtr<Reference> &ref)
 {
   if (term == 0) {
@@ -122,17 +122,17 @@ void ListTerm::setDynamic(const SharedPtr<Term> &term, SharedPtr<IdentifiableObj
   if (ref == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
   }
-  this->terms = term;
-  this->data = data;
-  this->targetRef = ref;
+  UPDATE_OWNED_SHAREDPTR(this->terms, terms);
+  UPDATE_OWNED_SHAREDPTR(this->data, data);
+  UPDATE_OWNED_SHAREDPTR(this->targetRef, ref);
 }
 
 
 void ListTerm::reset()
 {
-  this->terms.reset();
-  this->data.reset();
-  this->targetRef.reset();
+  RESET_OWNED_SHAREDPTR(this->terms);
+  RESET_OWNED_SHAREDPTR(this->data);
+  RESET_OWNED_SHAREDPTR(this->targetRef);
 }
 
 
@@ -168,7 +168,7 @@ void ListTerm::setTargetRef(const SharedPtr<Reference> &ref)
   if (!this->isDynamic()) {
     throw EXCEPTION(GenericException, STR("Can set target var only for dynamic lists."));
   }
-  this->targetRef = ref;
+  UPDATE_OWNED_SHAREDPTR(this->targetRef, ref);
 }
 
 

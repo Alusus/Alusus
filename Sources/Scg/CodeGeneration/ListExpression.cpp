@@ -42,7 +42,7 @@ ListExpression::ListExpression(CodeGenerator *gen,
 StringArray ListExpression::parseTokenList() const
 {
   static ReferenceSeeker seeker;
-  static SharedPtr<Reference> tokenReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> tokenReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
   StringArray tokens;

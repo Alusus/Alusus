@@ -2,7 +2,7 @@
  * @file Core/Data/SharedNamedList.h
  * Contains the header of class Core::Data::SharedNamedList.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,14 +18,14 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class SharedNamedList : public IdentifiableObject,
+class SharedNamedList : public Node,
                         public virtual DataOwner, public virtual NamedListContainer
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SharedNamedList, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(IdentifiableObject, DataOwner, NamedListContainer);
+  TYPE_INFO(SharedNamedList, Node, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_2(Node, DataOwner, NamedListContainer);
 
 
   //============================================================================
@@ -37,17 +37,18 @@ class SharedNamedList : public IdentifiableObject,
   private: Word count;
   private: Word maxStrSize;
   private: Word reservedCount;
+  private: Bool owningEnabled;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: SharedNamedList() : buffer(0)
+  public: SharedNamedList(Bool oe=true) : buffer(0), owningEnabled(oe)
   {
   }
 
-  public: SharedNamedList(Word maxStrSize, Word rsrvdCount) :
-    buffer(0)
+  public: SharedNamedList(Word maxStrSize, Word rsrvdCount, Bool oe=true) :
+    buffer(0), owningEnabled(oe)
   {
     this->initialize(maxStrSize, rsrvdCount);
   }

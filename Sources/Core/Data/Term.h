@@ -23,12 +23,12 @@ namespace Core { namespace Data
  * The base class of all grammar term classes. Term classes are used to
  * construct a grammar formulas.
  */
-class Term : public IdentifiableObject
+class Term : public Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Term, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(Term, Node, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

@@ -2,7 +2,7 @@
  * @file Core/Data/SharedMap.h
  * Contains the header of class Core::Data::SharedMap.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -35,14 +35,14 @@ class Reference;
  * key, which is a string, and by their index. This is to allow users to cache
  * the position of the elements for faster access.
  */
-class SharedMap : public IdentifiableObject,
+class SharedMap : public Node,
                   public virtual Initializable, public virtual DataOwner, public virtual MapContainer
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SharedMap, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(IdentifiableObject, Initializable, DataOwner, MapContainer);
+  TYPE_INFO(SharedMap, Node, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_3(Node, Initializable, DataOwner, MapContainer);
 
 
   //============================================================================
@@ -104,12 +104,7 @@ class SharedMap : public IdentifiableObject,
   public: SharedMap(Bool useIndex, const std::initializer_list<Argument<Char const*>> &args);
 
   /// Delete the index created in the constructor, if any.
-  public: virtual ~SharedMap()
-  {
-    if (this->index != 0) delete this->index;
-    if (this->parent != 0) this->detachFromParent();
-    this->destroyNotifier.emit(this);
-  }
+  public: virtual ~SharedMap();
 
   public: static SharedPtr<SharedMap> create(Bool useIndex, const std::initializer_list<Argument<Char const*>> &args)
   {

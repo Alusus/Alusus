@@ -2,7 +2,7 @@
  * @file Core/Data/PlainNamedList.h
  * Contains the header of class Core::Data::PlainNamedList.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,14 +18,14 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class PlainNamedList : public IdentifiableObject,
+class PlainNamedList : public Node,
                        public virtual DataOwner, public virtual NamedListContainer
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(PlainNamedList, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(IdentifiableObject, DataOwner, NamedListContainer);
+  TYPE_INFO(PlainNamedList, Node, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_2(Node, DataOwner, NamedListContainer);
 
 
   //============================================================================
@@ -37,17 +37,18 @@ class PlainNamedList : public IdentifiableObject,
   private: Word count;
   private: Word maxStrSize;
   private: Word reservedCount;
+  private: Bool owningEnabled;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: PlainNamedList() : buffer(0)
+  public: PlainNamedList(Bool oe=true) : buffer(0), owningEnabled(oe)
   {
   }
 
-  public: PlainNamedList(Word maxStrSize, Word rsrvdCount) :
-    buffer(0)
+  public: PlainNamedList(Word maxStrSize, Word rsrvdCount, Bool oe=true) :
+    buffer(0), owningEnabled(oe)
   {
     this->initialize(maxStrSize, rsrvdCount);
   }

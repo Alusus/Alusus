@@ -61,6 +61,7 @@ class InvertCharGroupUnit : public CharGroupUnit
 
   public: virtual ~InvertCharGroupUnit()
   {
+    RESET_OWNED_SHAREDPTR(this->childCharGroupUnit);
   }
 
   public: static SharedPtr<InvertCharGroupUnit> create(SharedPtr<CharGroupUnit> const &cgu)
@@ -87,6 +88,7 @@ class InvertCharGroupUnit : public CharGroupUnit
       throw EXCEPTION(GenericException, STR("Modifying an already set child char group unit is not allowed."));
     }
     this->childCharGroupUnit = u;
+    this->childCharGroupUnit->setOwner(this);
   }
 
   /// Get a pointer to the char group unit that is to be excluded (inverted).

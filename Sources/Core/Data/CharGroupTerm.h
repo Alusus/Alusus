@@ -44,15 +44,20 @@ class CharGroupTerm : public Term, public virtual DataOwner
 
   public: CharGroupTerm(Char const *ref=0, Word f=0) : Term(f)
   {
-    if (ref != 0) this->charGroupReference = ReferenceParser::parseQualifier(ref);
+    if (ref != 0) {
+      this->charGroupReference = REF_PARSER->parseQualifier(ref);
+      this->charGroupReference->setOwner(this);
+    }
   }
 
   public: CharGroupTerm(const SharedPtr<Reference> &ref, Word f=0) : Term(f), charGroupReference(ref)
   {
+    if (this->charGroupReference != 0) this->charGroupReference->setOwner(this);
   }
 
   public: virtual ~CharGroupTerm()
   {
+    RESET_OWNED_SHAREDPTR(this->charGroupReference);
   }
 
   public: static SharedPtr<CharGroupTerm> create(Char const *ref=0, Word f=0)
@@ -71,8 +76,11 @@ class CharGroupTerm : public Term, public virtual DataOwner
 
   public: void setReference(Char const *ref)
   {
-    if (ref != 0) this->charGroupReference = ReferenceParser::parseQualifier(ref);
-    else this->charGroupReference.reset();
+    if (ref != 0) {
+      UPDATE_OWNED_SHAREDPTR(this->charGroupReference, REF_PARSER->parseQualifier(ref));
+    } else {
+      RESET_OWNED_SHAREDPTR(this->charGroupReference);
+    }
   }
 
   public: SharedPtr<Reference> const& getReference() const

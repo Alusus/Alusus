@@ -29,7 +29,7 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
   SharedPtr<IdentifiableObject> item = state->getData();
 
   static ReferenceSeeker seeker;
-  static SharedPtr<Reference> nameReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> nameReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
         ReferenceUsageCriteria::MULTI_DATA);
 

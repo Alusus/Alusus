@@ -2,7 +2,7 @@
  * @file Core/Data/SymbolDefinition.h
  * Contains the header of class Core::Data::SymbolDefinition.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,22 +10,22 @@
  */
 //==============================================================================
 
-#ifndef DATA_SYMBOL_DEFINITION_H
-#define DATA_SYMBOL_DEFINITION_H
+#ifndef DATA_SYMBOLDEFINITION_H
+#define DATA_SYMBOLDEFINITION_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class SymbolDefinition : public IdentifiableObject,
+class SymbolDefinition : public Node,
                          public virtual Initializable, public virtual IdHolder, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SymbolDefinition, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(IdentifiableObject, Initializable, IdHolder, DataOwner);
+  TYPE_INFO(SymbolDefinition, Node, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_3(Node, Initializable, IdHolder, DataOwner);
 
 
   //============================================================================
@@ -35,11 +35,11 @@ class SymbolDefinition : public IdentifiableObject,
 
   private: SymbolDefinition *parent;
 
-  private: SharedPtr<IdentifiableObject> term;
+  private: SharedPtr<Node> term;
 
-  private: SharedPtr<IdentifiableObject> varDefs;
+  private: SharedPtr<Node> varDefs;
 
-  private: SharedPtr<IdentifiableObject> vars;
+  private: SharedPtr<Node> vars;
 
   private: SharedPtr<OperationHandler> handler;
 
@@ -53,7 +53,7 @@ class SymbolDefinition : public IdentifiableObject,
      */
   private: Word flags;
 
-  private: SharedPtr<IdentifiableObject> attributes;
+  private: SharedPtr<Node> attributes;
 
   private: Word ownership;
 
@@ -74,36 +74,16 @@ class SymbolDefinition : public IdentifiableObject,
   }
 
   public: SymbolDefinition(const SharedPtr<Reference> &pnt,
-                           SharedPtr<IdentifiableObject> const &t,
-                           SharedPtr<IdentifiableObject> const &vd,
-                           SharedPtr<IdentifiableObject> const &v,
+                           SharedPtr<Node> const &t,
+                           SharedPtr<Node> const &vd,
+                           SharedPtr<Node> const &v,
                            const SharedPtr<OperationHandler> &h,
                            Int p, Word f,
-                           SharedPtr<IdentifiableObject> const &a=SharedPtr<IdentifiableObject>()) :
-    parentReference(pnt), term(t), varDefs(vd), vars(v), handler(h), priority(p),
-    flags(f), attributes(a), ownership(SymbolDefElement::ALL)
-  {
-    if (t == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("t"), STR("Should not be null."));
-    }
-    if (!t->isDerivedFrom<Term>() && !t->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("t"), STR("Must be of type Term or Reference."));
-    }
-    if (vd != 0 && !vd->isA<SharedMap>() && !vd->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("vd"), STR("Must be of type SharedMap or Reference."));
-    }
-    if (v != 0 && !v->isA<SharedMap>() && !v->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("v"), STR("Must be of type SharedMap or Reference."));
-    }
-  }
+                           SharedPtr<Node> const &a=SharedPtr<Node>());
 
   public: SymbolDefinition(const std::initializer_list<Argument<SymbolDefElement>> &args);
 
-  public: virtual ~SymbolDefinition()
-  {
-    if (this->parent != 0) this->detachFromParent();
-    this->changeNotifier.emit(this, SymbolDefChangeOp::DESTROY, 0);
-  }
+  public: virtual ~SymbolDefinition();
 
   public: static SharedPtr<SymbolDefinition> create(const std::initializer_list<Argument<SymbolDefElement>> &args)
   {
@@ -116,7 +96,7 @@ class SymbolDefinition : public IdentifiableObject,
 
   public: void setParentReference(SharedPtr<Reference> const &p)
   {
-    this->parentReference = p;
+    UPDATE_OWNED_SHAREDPTR(this->parentReference, p);
   }
 
   public: SharedPtr<Reference> const& getParentReference() const
@@ -145,71 +125,71 @@ class SymbolDefinition : public IdentifiableObject,
 
   private: void onParentElementChanged(SymbolDefinition *obj, SymbolDefChangeOp op, Word elmt);
 
-  public: void setTerm(SharedPtr<IdentifiableObject> const &t)
+  public: void setTerm(SharedPtr<Node> const &t)
   {
     if (!t->isDerivedFrom<Term>() && !t->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, STR("t"), STR("Must be of type Term or Reference."));
     }
-    this->term = t;
+    UPDATE_OWNED_SHAREDPTR(this->term, t);
     this->ownership |= SymbolDefElement::TERM;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::TERM);
   }
 
   public: void resetTerm()
   {
+    RESET_OWNED_SHAREDPTR(this->term);
     if (this->parent != 0) this->term = this->parent->getTerm();
-    else this->term.reset();
     this->ownership &= ~SymbolDefElement::TERM;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::TERM);
   }
 
-  public: SharedPtr<IdentifiableObject> const& getTerm() const
+  public: SharedPtr<Node> const& getTerm() const
   {
     return this->term;
   }
 
-  public: void setVarDefs(SharedPtr<IdentifiableObject> const &vd)
+  public: void setVarDefs(SharedPtr<Node> const &vd)
   {
     if (vd != 0 && !vd->isA<SharedMap>() && !vd->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, STR("vd"), STR("Must be of type SharedMap or Reference."));
     }
-    this->varDefs = vd;
+    UPDATE_OWNED_SHAREDPTR(this->varDefs, vd);
     this->ownership |= SymbolDefElement::VAR_DEFS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::VAR_DEFS);
   }
 
   public: void resetVarDefs()
   {
+    RESET_OWNED_SHAREDPTR(this->varDefs);
     if (this->parent != 0) this->varDefs = this->parent->getVarDefs();
-    else this->varDefs.reset();
     this->ownership &= ~SymbolDefElement::VAR_DEFS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::VAR_DEFS);
   }
 
-  public: SharedPtr<IdentifiableObject> const& getVarDefs() const
+  public: SharedPtr<Node> const& getVarDefs() const
   {
     return this->varDefs;
   }
 
-  public: void setVars(SharedPtr<IdentifiableObject> const &v)
+  public: void setVars(SharedPtr<Node> const &v)
   {
     if (v != 0 && !v->isA<SharedMap>() && !v->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, STR("v"), STR("Must be of type SharedMap or Reference."));
     }
-    this->vars = v;
+    UPDATE_OWNED_SHAREDPTR(this->vars, v);
     this->ownership |= SymbolDefElement::VARS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::VARS);
   }
 
   public: void resetVars()
   {
+    RESET_OWNED_SHAREDPTR(this->vars);
     if (this->parent != 0) this->vars = this->parent->getVars();
-    else this->vars.reset();
     this->ownership &= ~SymbolDefElement::VARS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::VARS);
   }
 
-  public: SharedPtr<IdentifiableObject> const& getVars() const
+  public: SharedPtr<Node> const& getVars() const
   {
     return this->vars;
   }
@@ -224,15 +204,15 @@ class SymbolDefinition : public IdentifiableObject,
      */
   public: void setOperationHandler(const SharedPtr<OperationHandler> &h)
   {
-    this->handler = h;
+    UPDATE_OWNED_SHAREDPTR(this->handler, h);
     this->ownership |= SymbolDefElement::HANDLER;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::HANDLER);
   }
 
   public: void resetOperationHandler()
   {
+    RESET_OWNED_SHAREDPTR(this->handler);
     if (this->parent != 0) this->handler = this->parent->getOperationHandler();
-    else this->handler.reset();
     this->ownership &= ~SymbolDefElement::HANDLER;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::HANDLER);
   }
@@ -298,22 +278,22 @@ class SymbolDefinition : public IdentifiableObject,
     return this->flags;
   }
 
-  public: void setAttributes(SharedPtr<IdentifiableObject> const &a)
+  public: void setAttributes(SharedPtr<Node> const &a)
   {
-    this->attributes = a;
+    UPDATE_OWNED_SHAREDPTR(this->attributes, a);
     this->ownership |= SymbolDefElement::ATTRIBUTES;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::ATTRIBUTES);
   }
 
   public: void resetAttributes()
   {
+    RESET_OWNED_SHAREDPTR(this->attributes);
     if (this->parent != 0) this->attributes = this->parent->getAttributes();
-    else this->attributes.reset();
     this->ownership &= ~SymbolDefElement::ATTRIBUTES;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::ATTRIBUTES);
   }
 
-  public: SharedPtr<IdentifiableObject> const& getAttributes() const
+  public: SharedPtr<Node> const& getAttributes() const
   {
     return this->attributes;
   }

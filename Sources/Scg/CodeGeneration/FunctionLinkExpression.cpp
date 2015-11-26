@@ -31,11 +31,11 @@ FunctionLinkExpression::FunctionLinkExpression(CodeGenerator *gen,
 
   // Initialise tree browsers.
   static ReferenceSeeker seeker;
-  static SharedPtr<Reference> funcExpNoRetReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> funcExpNoRetReference = REF_PARSER->parseQualifier(
         STR("0~where(prodId=Expression.Exp)."
             "0~where(prodId=Expression.FunctionalExp)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  static SharedPtr<Reference> funcExpReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> funcExpReference = REF_PARSER->parseQualifier(
         STR("0~where(prodId=Expression.Exp)."
             "0~where(prodId=Expression.LowLinkExp)"),
         ReferenceUsageCriteria::MULTI_DATA);

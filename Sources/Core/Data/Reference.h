@@ -24,13 +24,13 @@ namespace Core { namespace Data
  * hierarchical way.
  * @ingroup data
  */
-class Reference : public IdentifiableObject, public virtual DataOwner
+class Reference : public Node, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Reference, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, DataOwner);
+  TYPE_INFO(Reference, Node, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_1(Node, DataOwner);
 
 
   //============================================================================
@@ -52,6 +52,8 @@ class Reference : public IdentifiableObject, public virtual DataOwner
 
   public: virtual ~Reference()
   {
+    RESET_OWNED_SHAREDPTR(this->next);
+    RESET_OWNED_SHAREDPTR(this->resultValidator);
   }
 
 
@@ -84,7 +86,7 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    */
   public: void setNext(SharedPtr<Reference> const &n)
   {
-    this->next = n;
+    UPDATE_OWNED_SHAREDPTR(this->next, n);
   }
 
   /// @sa setNext()
@@ -100,7 +102,7 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    */
   public: void setResultValidator(SharedPtr<Validator> const &v)
   {
-    this->resultValidator = v;
+    UPDATE_OWNED_SHAREDPTR(this->resultValidator, v);
   }
 
   /// @sa setResultValidator()
@@ -132,11 +134,6 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    */
   public: virtual Bool compare(Reference const *r) const;
 
-  /// @}
-
-  /// @name Abstract Functions
-  /// @{
-
   /**
    * @brief Inform the object of the intended usage for this reference.
    * The intended use helps the object determine caching criteria.
@@ -144,40 +141,83 @@ class Reference : public IdentifiableObject, public virtual DataOwner
    */
   public: virtual void setUsageCriteria(ReferenceUsageCriteria criteria) = 0;
 
+  /// @}
+
+  /// @name Matching Functions
+  /// @{
+
   /**
-   * @brief Set a value on the given parent object.
-   * @param index A reference to a variable that will store an index value used
-   *              for multi match searches. This will allow a next call to
-   *              continue the search from where it left. If the value was set
-   *              to -1 after the call it means no more matches are there.
-   *              Single match references will always set it to -1.
-   * @return True if the operation was successful.
+   * @brief Set a value for all matches on the given parent object.
+   * @return True if any match is found.
    */
   public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *obj, Int &index) const = 0;
+                                IdentifiableObject *obj) const
+  {
+    Bool ret = false;
+    this->setValue(provider, parent, [obj,&ret](Int index, IdentifiableObject *&o)->RefOp {
+      o = obj;
+      ret = true;
+      return RefOp::PERFORM_AND_MOVE;
+    });
+    return ret;
+  }
 
   /**
-   * @brief Remove the value from the given parent object.
-   * @param index A reference to a variable that will store an index value used
-   *              for multi match searches. This will allow a next call to
-   *              continue the search from where it left. If the value was set
-   *              to -1 after the call it means no more matches are there.
-   *              Single match references will always set it to -1.
-   * @return True if the operation was successful.
+   * @brief Remove all matches on the given parent object.
+   * @return True if any match is found.
    */
-  public: virtual Bool removeValue(Provider *provider, IdentifiableObject *parent, Int &index) const = 0;
+  public: virtual Bool removeValue(Provider *provider, IdentifiableObject *parent) const
+  {
+    Bool ret = false;
+    this->removeValue(provider, parent, [&ret](Int index, IdentifiableObject *o)->RefOp {
+      ret = true;
+      return RefOp::PERFORM_AND_MOVE;
+    });
+    return ret;
+  }
 
   /**
-   * @brief Get the value from the given parent object.
-   * @param index A reference to a variable that will store an index value used
-   *              for multi match searches. This will allow a next call to
-   *              continue the search from where it left. If the value was set
-   *              to -1 after the call it means no more matches are there.
-   *              Single match references will always set it to -1.
-   * @return True if the operation was successful.
+   * @brief Get the first value matched from the given parent object.
+   * @return True if a match was found.
    */
   public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *&result, Int &index) const = 0;
+                                IdentifiableObject *&result) const
+  {
+    Bool ret = false;
+    this->forEachValue(provider, parent, [&ret,&result](Int index, IdentifiableObject *o)->RefOp {
+      result = o;
+      ret = true;
+      return RefOp::STOP;
+    });
+    return ret;
+  }
+
+  /**
+   * @brief Set values on the given parent object.
+   * @param handler A lambda function to be called for each match that should
+   *                determine whether to set the value for that match and
+   *                whether to move to the next match or stop.
+   */
+  public: virtual void setValue(Provider *provider, IdentifiableObject *parent,
+                                ReferenceSetLambda handler) const = 0;
+
+  /**
+   * @brief Remove matched values from the given parent object.
+   * @param handler A lambda function to be called for each match that should
+   *                determine whether to remove the value for that match and
+   *                whether to move to the next match or stop.
+   */
+  public: virtual void removeValue(Provider *provider, IdentifiableObject *parent,
+                                   ReferenceRemoveLambda handler) const = 0;
+
+  /**
+   * @brief Loop on all matches in the given parent object.
+   * @param handler A lambda function to be called for each match. The return
+   *                vlue of the lambda determines whether to proceed in the
+   *                matching or stop.
+   */
+  public: virtual void forEachValue(Provider *provider, IdentifiableObject *parent,
+                                    ReferenceForeachLambda handler) const = 0;
 
   /// @}
 

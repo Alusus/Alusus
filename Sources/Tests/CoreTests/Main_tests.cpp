@@ -26,13 +26,13 @@ TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Tes
     SharedPtr<IdentifiableObject> ptr = engine.processString(STR("strVar := \"Hello World\";"), STR("testcode"));
     SECTION("s1", "Data generated.")
     {
-      REQUIRE(ptr.get() != 0);
+      CHECK(ptr.get() != 0);
     }
     results.clear();
     findProdData(ID_GENERATOR->getId(STR("AssignmentExp")), ptr, results);
     SECTION("s2", "One assignment expression in generated data.")
     {
-      REQUIRE(results.size() == 1);
+      CHECK(results.size() == 1);
     }
     SECTION("s3", "One identifier token (strVar) in generated expression")
     {
@@ -40,7 +40,7 @@ TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Tes
       if (results.size() > 0) {
         findToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("strVar"), results[0], results2);
       }
-      REQUIRE(results2.size() == 1);
+      CHECK(results2.size() == 1);
     }
     SECTION("s4", "One const token (:=) in generated expression")
     {
@@ -48,7 +48,7 @@ TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Tes
       if (results.size() > 0) {
         findToken(UNKNOWN_ID, STR(":="), results[0], results2);
       }
-      REQUIRE(results2.size() == 1);
+      CHECK(results2.size() == 1);
     }
     SECTION("s5", "One string literal expression (Hello World) in generated expression")
     {
@@ -57,7 +57,7 @@ TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Tes
         findToken(ID_GENERATOR->getId(STR("LexerDefs.StringLiteral")),
                   STR("Hello World"), results[0], results2);
       }
-      REQUIRE(results2.size() == 1);
+      CHECK(results2.size() == 1);
     }
   } catch (Exception &e) {
     FAIL(e.getVerboseErrorMessage());
@@ -85,17 +85,17 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
       STR("testcode"));
     SECTION("s1", "No error msgs received.")
     {
-      REQUIRE(buildMsgs.getMsgCount() == 0);
+      CHECK(buildMsgs.getMsgCount() == 0);
     }
     SECTION("s2", "Data generated.")
     {
-      REQUIRE(ptr.get() != 0);
+      CHECK(ptr.get() != 0);
     }
     results.clear();
     findProdData(ID_GENERATOR->getId(STR("AssignmentExp")), ptr, results);
     SECTION("s3", "Three assignment expression statements in generated data.")
     {
-      REQUIRE(results.size() == 3);
+      CHECK(results.size() == 3);
     }
     SECTION("s4", "First assignment statement correct.")
     {
@@ -109,7 +109,7 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
         findToken(ID_GENERATOR->getId(STR("LexerDefs.StringLiteral")), STR("Hello World"),
                   results[0], results3, 2);
       }
-      REQUIRE((results1.size() == 1 && results2.size() == 1 && results3.size() == 1));
+      CHECK((results1.size() == 1 && results2.size() == 1 && results3.size() == 1));
     }
     SECTION("s5", "Second assignment statement correct.")
     {
@@ -122,7 +122,7 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
         findToken(UNKNOWN_ID, STR(":="), results[1], results2, 1);
         findToken(ID_GENERATOR->getId(STR("LexerDefs.IntLiteral")), STR("5"), results[1], results3, 2);
       }
-      REQUIRE((results1.size() == 1 && results2.size() == 1 && results3.size() == 1));
+      CHECK((results1.size() == 1 && results2.size() == 1 && results3.size() == 1));
     }
     SECTION("s6", "Hash assignment statement correct.")
     {
@@ -130,13 +130,13 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
       if (results.size() > 2) {
         findProdData(ID_GENERATOR->getId(STR("ColonPairExp")), results[2], results1);
       }
-      REQUIRE(results1.size() == 3);
+      CHECK(results1.size() == 3);
     }
     results.clear();
     findProdData(ID_GENERATOR->getId(STR("UnaryExp")), ptr, results);
     SECTION("s7", "Unary expression statements in generated data.")
     {
-      REQUIRE(results.size() == 2);
+      CHECK(results.size() == 2);
     }
     SECTION("s8", "Postfix op expression correct.")
     {
@@ -147,7 +147,7 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
                   results[0], results1, 0);
         findToken(UNKNOWN_ID, STR("++"), results[0], results2, 1);
       }
-      REQUIRE((results1.size() == 1 && results2.size() == 1));
+      CHECK((results1.size() == 1 && results2.size() == 1));
     }
     SECTION("s9", "Prefix op expression correct.")
     {
@@ -158,7 +158,7 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
         findToken(ID_GENERATOR->getId(STR("LexerDefs.Identifier")), STR("intVar"),
                   results[1], results1, 1);
       }
-      REQUIRE((results1.size() == 1 && results2.size() == 1));
+      CHECK((results1.size() == 1 && results2.size() == 1));
     }
     results.clear();
     findProdData(ID_GENERATOR->getId(STR("Command")), ptr, results);
@@ -176,7 +176,7 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
                     results1[0], results3, 1);
         }
       }
-      REQUIRE((results2.size() == 1 && results3.size() == 1));
+      CHECK((results2.size() == 1 && results3.size() == 1));
     }
     SECTION("s11", "Second command statement correct.")
     {
@@ -195,7 +195,7 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
           }
         }
       }
-      REQUIRE((results3.size() == 1 && results4.size() == 1));
+      CHECK((results3.size() == 1 && results4.size() == 1));
     }
   } catch (Exception &e) {
     FAIL(e.getVerboseErrorMessage());
@@ -223,38 +223,38 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
       STR("testcode"));
     SECTION("s1", "Error msgs received.")
     {
-      REQUIRE(buildMsgs.getMsgCount() == 3);
+      CHECK(buildMsgs.getMsgCount() == 3);
     }
     SECTION("s2", "Error msgs correct.")
     {
       SharedPtr<Processing::BuildMsg> msg;
       if (buildMsgs.getMsgCount() > 0) msg = buildMsgs.getMsg(0);
-      REQUIRE((msg != 0));
-      REQUIRE(msg->getCode().compare("P1001") == 0);
-      REQUIRE(msg->getSourceLocation().line == 3);
-      REQUIRE(msg->getSourceLocation().column == 10);
+      CHECK((msg != 0));
+      CHECK(msg->getCode().compare("P1001") == 0);
+      CHECK(msg->getSourceLocation().line == 3);
+      CHECK(msg->getSourceLocation().column == 10);
 
       msg = SharedPtr<Processing::BuildMsg>(0);
       if (buildMsgs.getMsgCount() > 1) msg = buildMsgs.getMsg(1);
-      REQUIRE((msg != 0));
-      REQUIRE(msg->getCode().compare("P1001") == 0);
-      REQUIRE(msg->getSourceLocation().line == 5);
-      REQUIRE(msg->getSourceLocation().column == 13);
+      CHECK((msg != 0));
+      CHECK(msg->getCode().compare("P1001") == 0);
+      CHECK(msg->getSourceLocation().line == 5);
+      CHECK(msg->getSourceLocation().column == 13);
 
       msg = SharedPtr<Processing::BuildMsg>(0);
       if (buildMsgs.getMsgCount() > 2) msg = buildMsgs.getMsg(2);
-      REQUIRE((msg != 0));
-      REQUIRE(msg->getCode().compare("P1002") == 0);
+      CHECK((msg != 0));
+      CHECK(msg->getCode().compare("P1002") == 0);
     }
     SECTION("s3", "Data generated.")
     {
-      REQUIRE(ptr.get() != 0);
+      CHECK(ptr.get() != 0);
     }
     results.clear();
     findProdData(ID_GENERATOR->getId(STR("Statement")), ptr, results);
     SECTION("s4", "Seven statements in generated data.")
     {
-      REQUIRE(results.size() == 7);
+      CHECK(results.size() == 7);
     }
     SECTION("s5", "First two statements not empty.")
     {
@@ -263,37 +263,37 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
       else for (Int i = 0; i < 2; i++) {
         if (isEmpty(results[i])) empty = true;
       }
-      REQUIRE(empty == false);
+      CHECK(empty == false);
     }
     SECTION("s6", "Third statement empty.")
     {
       Bool empty = false;
       if (results.size() > 2 && isEmpty(results[2])) empty = true;
-      REQUIRE(empty == true);
+      CHECK(empty == true);
     }
     SECTION("s7", "Fourth statement not empty.")
     {
       Bool empty = true;
       if (results.size() > 3 && !isEmpty(results[3])) empty = false;
-      REQUIRE(empty == false);
+      CHECK(empty == false);
     }
     SECTION("s8", "Fifth statement empty.")
     {
       Bool empty = false;
       if (results.size() > 4 && isEmpty(results[4])) empty = true;
-      REQUIRE(empty == true);
+      CHECK(empty == true);
     }
     SECTION("s9", "Sixth statement not empty.")
     {
       Bool empty = true;
       if (results.size() > 5 && !isEmpty(results[5])) empty = false;
-      REQUIRE(empty == false);
+      CHECK(empty == false);
     }
     SECTION("s10", "Seven statement empty.")
     {
       Bool empty = false;
       if (results.size() > 6 && isEmpty(results[6])) empty = true;
-      REQUIRE(empty == true);
+      CHECK(empty == true);
     }
   } catch (Exception &e) {
     FAIL(e.getVerboseErrorMessage());

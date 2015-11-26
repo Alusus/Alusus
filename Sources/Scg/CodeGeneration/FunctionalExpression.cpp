@@ -220,7 +220,7 @@ Char const* FunctionalExpression::parseFieldName(
                     "Unexpected error while trying to parse a field name.");
 
   static ReferenceSeeker seeker;
-  static SharedPtr<Reference> fieldNameReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> fieldNameReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Subject.Subject1)"),
         ReferenceUsageCriteria::MULTI_DATA);
   auto fieldName = getSharedPtr(seeker.tryGet(fieldNameReference.get(), astBlockRoot.get()));
@@ -242,7 +242,7 @@ Expression *FunctionalExpression::parseElementIndex(
                     "Unexpected error while trying to parse an array index.");
 
   static ReferenceSeeker seeker;
-  static SharedPtr<Reference> indexReference = ReferenceParser::parseQualifier(
+  static SharedPtr<Reference> indexReference = REF_PARSER->parseQualifier(
         STR("0~where(prodId=Expression.Exp)"),
         ReferenceUsageCriteria::MULTI_DATA);
   auto index = getSharedPtr(seeker.tryGet(indexReference.get(), astBlockRoot.get()));

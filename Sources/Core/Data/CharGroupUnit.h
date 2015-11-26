@@ -29,12 +29,12 @@ namespace Core { namespace Data
  * Contains the required abstract function definitions needed for character
  * group unit classes.
  */
-class CharGroupUnit : public IdentifiableObject
+class CharGroupUnit : public Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(CharGroupUnit, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(CharGroupUnit, Node, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

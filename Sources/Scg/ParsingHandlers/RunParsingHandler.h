@@ -31,7 +31,7 @@ class RunParsingHandler : public Core::Processing::GenericParsingHandler
 
   Core::Standard::RootManager *rootManager;
   Core::Basic::SharedPtr<Core::Data::Reference> aliasDictionaryRef =
-    Core::Data::ReferenceParser::parseQualifier(STR("root:_Aliases"),
+    REF_PARSER->parseQualifier(STR("root:_Aliases"),
         Core::Data::ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH);
 
 

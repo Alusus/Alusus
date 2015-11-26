@@ -2,7 +2,7 @@
  * @file Core/Data/SharedList.cpp
  * Contains the implementation of class Core::Data::SharedList.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,16 +25,33 @@ SharedList::SharedList(const std::initializer_list<SharedPtr<IdentifiableObject>
   for (auto arg : args) this->add(arg);
 }
 
+SharedList::~SharedList()
+{
+  for (Int i = 0; i < this->list.size(); ++i) {
+    DISOWN_SHAREDPTR(this->list[i]);
+  }
+}
+
 
 //==============================================================================
 // Member Functions
+
+void SharedList::add(const std::initializer_list<SharedPtr<IdentifiableObject>> &objs)
+{
+  if (this->list.capacity() < this->list.size() + objs.size()) this->list.reserve(this->list.size() + objs.size());
+  for (auto obj : objs) {
+    this->list.push_back(obj);
+    OWN_SHAREDPTR(obj);
+  }
+}
+
 
 void SharedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
   } else {
-    this->list[index] = val;
+    UPDATE_OWNED_SHAREDPTR(this->list[index], val);
   }
 }
 
@@ -45,6 +62,15 @@ SharedPtr<IdentifiableObject> const& SharedList::getShared(Int index) const
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
   }
   return this->list[index];
+}
+
+
+void SharedList::clear()
+{
+  for (Int i = 0; i < this->list.size(); ++i) {
+    DISOWN_SHAREDPTR(this->list[i]);
+  }
+  this->list.clear();
 }
 
 
@@ -68,6 +94,7 @@ void SharedList::remove(Int index)
   if (static_cast<Word>(index) >= this->list.size()) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
   }
+  DISOWN_SHAREDPTR(this->list[index]);
   this->list.erase(this->list.begin()+index);
 }
 

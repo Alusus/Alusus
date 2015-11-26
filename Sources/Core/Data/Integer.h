@@ -2,7 +2,7 @@
  * @file Core/Data/Integer.h
  * Contains the header of class Core::Data::Integer.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_NUMBER_H
-#define DATA_NUMBER_H
+#ifndef DATA_INTEGER_H
+#define DATA_INTEGER_H
 
 namespace Core { namespace Data
 {
@@ -24,12 +24,12 @@ namespace Core { namespace Data
  * the grammar. This is simply a wrappar around Int that provides runtime type
  * info, which is needed for grammar data.
  */
-class Integer : public IdentifiableObject
+class Integer : public Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Integer, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(Integer, Node, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
