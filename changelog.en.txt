@@ -1,6 +1,28 @@
 Alusus Changelog
 ================
 
+Version 0.2.1 (2015-11-28)
+--------------------------
+
+What's New:
+
+  * Support for casting between different pointer types.
+  * Support for casting from pointer to integer.
+  * Added ~size operator for obtaining the size of a variable or an expression
+    in memory.
+  * Added char data type.
+  * Refactored the Core's data framework to make it generic and streamlined.
+    This change is needed by SCG to enable it to use the Core's data framework
+    to store compiled code. This work is a preparation to start implementing
+    namespaces and other object-oriented features.
+  * Improved performance of the parser.
+  
+Fixes:
+
+  * Fixed the naming convention of the SCG source code.
+  * Various cleanup and minor bug fixes.
+
+
 Version 0.2.0 (2015-04-27)
 --------------------------
 
