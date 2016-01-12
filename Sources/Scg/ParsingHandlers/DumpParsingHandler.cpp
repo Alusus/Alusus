@@ -34,7 +34,7 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
         ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
-  auto name = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), item.get()));
+  auto name = io_cast<PrtToken>(seeker.tryGet(nameReference.get(), item.get()));
   IdentifiableObject *def = 0;
 
   if (name != 0) {

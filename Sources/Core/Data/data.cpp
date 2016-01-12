@@ -193,22 +193,22 @@ void dumpParsedData(IdentifiableObject *ptr, int indents, Bool start_indent)
   // Print the data itself.
   MapContainer *mapContainer;
   ListContainer *listContainer;
-  if (ptr->isDerivedFrom<ParsedList>()) {
+  if (ptr->isDerivedFrom<PrtList>()) {
     outStream << STR("[LIST]:\n");
-    for (Word i = 0; i < static_cast<ParsedList*>(ptr)->getCount(); ++i) {
-      dumpParsedData(static_cast<ParsedList*>(ptr)->get(i), indents+1);
+    for (Word i = 0; i < static_cast<PrtList*>(ptr)->getCount(); ++i) {
+      dumpParsedData(static_cast<PrtList*>(ptr)->get(i), indents+1);
     }
-  } else if (ptr->isDerivedFrom<ParsedRoute>()) {
+  } else if (ptr->isDerivedFrom<PrtRoute>()) {
     outStream << STR("[ROUTE]: ");
-    outStream << static_cast<ParsedRoute*>(ptr)->getRoute() << STR("\n");
-    dumpParsedData(static_cast<ParsedRoute*>(ptr)->getData().get(), indents+1);
-  } else if (ptr->isDerivedFrom<ParsedToken>()) {
+    outStream << static_cast<PrtRoute*>(ptr)->getRoute() << STR("\n");
+    dumpParsedData(static_cast<PrtRoute*>(ptr)->getData().get(), indents+1);
+  } else if (ptr->isDerivedFrom<PrtToken>()) {
     outStream << STR("[TOKEN]: ");
     // Print the token type.
-    Int id = static_cast<ParsedToken*>(ptr)->getId();
+    Int id = static_cast<PrtToken*>(ptr)->getId();
     outStream << IdGenerator::getSingleton()->getDesc(id);
     // Print the token text.
-    outStream << STR(" (\"") << static_cast<ParsedToken*>(ptr)->getText() << STR("\")\n");
+    outStream << STR(" (\"") << static_cast<PrtToken*>(ptr)->getText() << STR("\")\n");
   } else if ((listContainer = ptr->getInterface<ListContainer>()) != 0) {
     outStream << STR("[LIST]:\n");
     for (Word i = 0; i < listContainer->getCount(); ++i) {

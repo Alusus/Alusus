@@ -42,7 +42,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
   ASSERT(metadata != 0);
 
   // Find the statement list in the subject.
-  auto statementList = io_cast<ParsedList>(seeker.tryGet(statementListReference.get(), item.get()));
+  auto statementList = io_cast<PrtList>(seeker.tryGet(statementListReference.get(), item.get()));
 
   if (statementList == 0) {
     // Create a build error msg.
@@ -97,7 +97,7 @@ void ModuleParsingHandler::addDefinitionToModule(Processing::ParserState *state,
         ReferenceUsageCriteria::MULTI_DATA);
   auto metadata = def.ii_cast_get<ParsingMetadataHolder>();
   ASSERT(metadata != 0);
-  auto nameToken = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), def.get()));
+  auto nameToken = io_cast<PrtToken>(seeker.tryGet(nameReference.get(), def.get()));
 
   if (nameToken == nullptr || nameToken->getId() != identifierTokenId) {
     state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
@@ -131,17 +131,17 @@ void ModuleParsingHandler::addLinkToModule(Processing::ParserState *state,
         STR("0~where(prodId=Expression.Exp)"),
         ReferenceUsageCriteria::MULTI_DATA);
 
-  auto list = io_cast<ParsedList>(seeker.tryGet(listReference.get(), link.get()));
+  auto list = io_cast<PrtList>(seeker.tryGet(listReference.get(), link.get()));
 
   if (list != 0) {
     for (auto i = 0; i < list->getCount(); i++) {
       auto name = this->getLinkName(list->get(i));
-      auto l = std::make_shared<ParsedList>(linkMetadata->getProdId(), linkMetadata->getSourceLocation());
+      auto l = std::make_shared<PrtList>(linkMetadata->getProdId(), linkMetadata->getSourceLocation());
       l->add(list->get(i));
       module->add(name, l);
     }
   } else {
-    auto expr = io_cast<ParsedList>(seeker.tryGet(exprReference.get(), link.get()));
+    auto expr = io_cast<PrtList>(seeker.tryGet(exprReference.get(), link.get()));
 
     if (expr != 0) {
       auto name = this->getLinkName(expr);
@@ -171,16 +171,16 @@ Char const* ModuleParsingHandler::getLinkName(IdentifiableObject *link)
         ReferenceUsageCriteria::MULTI_DATA);
   static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
 
-  auto funcExp = io_cast<ParsedList>(seeker.tryGet(funcExpNoRetReference.get(), link));
+  auto funcExp = io_cast<PrtList>(seeker.tryGet(funcExpNoRetReference.get(), link));
 
   if (funcExp == 0) {
-    funcExp = io_cast<ParsedList>(seeker.tryGet(funcExpReference.get(), link));
+    funcExp = io_cast<PrtList>(seeker.tryGet(funcExpReference.get(), link));
 
     if (funcExp == 0)
       throw EXCEPTION(InvalidArgumentException, "Invalid function link expression.");
   }
 
-  auto nameToken = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), funcExp));
+  auto nameToken = io_cast<PrtToken>(seeker.tryGet(nameReference.get(), funcExp));
 
   if (nameToken == 0 || nameToken->getId() != identifierTokenId)
     throw EXCEPTION(InvalidArgumentException,

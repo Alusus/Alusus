@@ -86,8 +86,8 @@ MACRO(ADD_PRECOMPILED_HEADER _targetName _input)
       LIST(APPEND _compiler_FLAGS "-I${item}")
     ENDFOREACH(item)
  
-    GET_DIRECTORY_PROPERTY(_directory_flags DEFINITIONS)
-    LIST(APPEND _compiler_FLAGS ${_directory_flags})
+    #GET_DIRECTORY_PROPERTY(_directory_flags COMPILE_DEFINITIONS)
+    #LIST(APPEND _compiler_FLAGS ${_directory_flags})
 
     GET_TARGET_PROPERTY(_flags ${_targetName} COMPILE_FLAGS)
     SET(_commandArgs "${_compiler_FLAGS} ${_flags} -x c++-header -o ${_output} ${_source}")

@@ -235,7 +235,7 @@ public:
 
 public:
   Module *generateModule(const std::string &name, const Core::Basic::SharedPtr<Core::Data::Module> &srcModule);
-  Block *generateSet(const Core::Basic::SharedPtr<Core::Data::ParsedList> &list);
+  Block *generateSet(const Core::Basic::SharedPtr<Core::Data::PrtList> &list);
   Block *generateInnerSet(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
   ExpressionArray generateStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
   ExpressionArray generateDefine(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
@@ -252,10 +252,10 @@ public:
 private:
   void initializeIds();
   Expression *generateVariableRef(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &param);
-  Expression *generateConst(const Core::Basic::SharedPtr<Core::Data::ParsedToken> &literal);
-  List *generateList(const Core::Basic::SharedPtr<Core::Data::ParsedList> &listExpr);
-  Expression *generateBinaryOperator(const Core::Basic::SharedPtr<Core::Data::ParsedList> &cmpExpr);
-  Expression *generateUnaryOperator(const Core::Basic::SharedPtr<Core::Data::ParsedList> &cmpExpr);
+  Expression *generateConst(const Core::Basic::SharedPtr<Core::Data::PrtToken> &literal);
+  List *generateList(const Core::Basic::SharedPtr<Core::Data::PrtList> &listExpr);
+  Expression *generateBinaryOperator(const Core::Basic::SharedPtr<Core::Data::PrtList> &cmpExpr);
+  Expression *generateUnaryOperator(const Core::Basic::SharedPtr<Core::Data::PrtList> &cmpExpr);
   IfStatement *generateIfStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &command);
   ForStatement *generateForStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &command);
   WhileStatement *generateWhileStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &command);

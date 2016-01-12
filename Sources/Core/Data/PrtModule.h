@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/ParsedModule.h
- * Contains the header of class Core::Data::ParsedModule.
+ * @file Core/Data/PrtModule.h
+ * Contains the header of class Core::Data::PrtModule.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,70 +10,70 @@
  */
 //==============================================================================
 
-#ifndef DATA_PARSEDMODULE_H
-#define DATA_PARSEDMODULE_H
+#ifndef DATA_PRTMODULE_H
+#define DATA_PRTMODULE_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class ParsedModule : public Module,
-                     public virtual ParsingMetadataHolder
+class PrtModule : public Module,
+                  public virtual ParsingMetadataHolder
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ParsedModule, Module, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(PrtModule, Module, "Core.Data", "Core", "alusus.net");
   IMPLEMENT_INTERFACES_1(Module, ParsingMetadataHolder);
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: ParsedModule()
+  public: PrtModule()
   {
   }
 
-  public: ParsedModule(Word pid, SourceLocation const &sl) :
+  public: PrtModule(Word pid, SourceLocation const &sl) :
     ParsingMetadataHolder(pid, sl)
   {
   }
 
-  public: ParsedModule(Word pid, const std::initializer_list<Argument<Char const*>> &args) :
+  public: PrtModule(Word pid, const std::initializer_list<Argument<Char const*>> &args) :
     ParsingMetadataHolder(pid), Module(args)
   {
   }
 
-  public: ParsedModule(Word pid, SourceLocation const &sl,
+  public: PrtModule(Word pid, SourceLocation const &sl,
                        const std::initializer_list<Argument<Char const*>> &args) :
     ParsingMetadataHolder(pid, sl), Module(args)
   {
   }
 
-  public: virtual ~ParsedModule()
+  public: virtual ~PrtModule()
   {
   }
 
-  public: static SharedPtr<ParsedModule> create()
+  public: static SharedPtr<PrtModule> create()
   {
-    return std::make_shared<ParsedModule>();
+    return std::make_shared<PrtModule>();
   }
 
-  public: static SharedPtr<ParsedModule> creaet(Word pid, SourceLocation const &sl)
+  public: static SharedPtr<PrtModule> creaet(Word pid, SourceLocation const &sl)
   {
-    return std::make_shared<ParsedModule>(pid, sl);
+    return std::make_shared<PrtModule>(pid, sl);
   }
 
-  public: static SharedPtr<ParsedModule> create(Word pid, const std::initializer_list<Argument<Char const*>> &args)
+  public: static SharedPtr<PrtModule> create(Word pid, const std::initializer_list<Argument<Char const*>> &args)
   {
-    return std::make_shared<ParsedModule>(pid, args);
+    return std::make_shared<PrtModule>(pid, args);
   }
 
-  public: static SharedPtr<ParsedModule> create(Word pid, SourceLocation const &sl,
+  public: static SharedPtr<PrtModule> create(Word pid, SourceLocation const &sl,
                                                 const std::initializer_list<Argument<Char const*>> &args)
   {
-    return std::make_shared<ParsedModule>(pid, sl, args);
+    return std::make_shared<PrtModule>(pid, sl, args);
   }
 
 

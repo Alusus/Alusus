@@ -63,7 +63,7 @@ public:
    * and AST block root.
    */
   FunctionalExpression(CodeGenerator *gen,
-                       const Core::Basic::SharedPtr<Core::Data::ParsedList> &astBlockRoot);
+                       const Core::Basic::SharedPtr<Core::Data::PrtList> &astBlockRoot);
 
   /**
    * If this functional expression is the result of a link expression, this
@@ -126,9 +126,9 @@ public:
 
 private:
   Char const *parseFieldName(
-    const Core::Basic::SharedPtr<Core::Data::ParsedList> &astBlockRoot);
+    const Core::Basic::SharedPtr<Core::Data::PrtList> &astBlockRoot);
   Expression *parseElementIndex(
-    const Core::Basic::SharedPtr<Core::Data::ParsedRoute> &astBlockRoot);
+    const Core::Basic::SharedPtr<Core::Data::PrtRoute> &astBlockRoot);
 };
 }
 

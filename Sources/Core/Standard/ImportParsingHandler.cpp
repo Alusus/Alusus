@@ -29,11 +29,11 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
   // Find a literal token in the subject.
   IdentifiableObject *token;
   if (seeker.tryGet(STR("1~where(prodId=Subject.Subject1).{find prodId=Subject.Literal}"), item, token)) {
-    ParsedToken *parsedToken = io_cast<ParsedToken>(token);
+    PrtToken *prtToken = io_cast<PrtToken>(token);
     // Is it a string token?
-    if (parsedToken != 0 && parsedToken->getId() == stringLiteralId) {
-      auto fileName = parsedToken->getText();
-      if (!this->import(parsedToken->getText().c_str(), state)) {
+    if (prtToken != 0 && prtToken->getId() == stringLiteralId) {
+      auto fileName = prtToken->getText();
+      if (!this->import(prtToken->getText().c_str(), state)) {
         // Create a build msg.
         ParsingMetadataHolder *itemMeta = item->getInterface<ParsingMetadataHolder>();
         ASSERT(itemMeta != 0);

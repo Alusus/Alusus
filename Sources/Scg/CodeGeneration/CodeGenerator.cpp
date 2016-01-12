@@ -151,7 +151,7 @@ ExpressionArray CodeGenerator::generateStatement(SharedPtr<IdentifiableObject> c
 
 //----------------------------------------------------------------------------
 
-Block *CodeGenerator::generateSet(const SharedPtr<ParsedList> &list)
+Block *CodeGenerator::generateSet(const SharedPtr<PrtList> &list)
 {
   ExpressionArray blockExprs;
 
@@ -196,7 +196,7 @@ Block *CodeGenerator::generateInnerSet(SharedPtr<IdentifiableObject> const &item
 
     return block;
   } else {
-    return generateSet(s_cast<ParsedList>(getSharedPtr(set)));
+    return generateSet(s_cast<PrtList>(getSharedPtr(set)));
   }
 }
 
@@ -230,7 +230,7 @@ ExpressionArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> cons
             "0~where(prodId=Subject.Subject1)."
             "0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto nameToken = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), item.get()));
+  auto nameToken = io_cast<PrtToken>(seeker.tryGet(nameReference.get(), item.get()));
 
   if (nameToken == nullptr || nameToken->getId() != identifierTokenId) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -293,7 +293,7 @@ ExpressionArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> cons
     // Defining a variable
     return generateDefineVariable(name, getSharedPtr(def), isAssignment);
   else if (defMetadata->getProdId() == subjectId) {
-    auto routeData = static_cast<ParsedRoute*>(def)->getData();
+    auto routeData = static_cast<PrtRoute*>(def)->getData();
     auto routeMetadata = routeData->getInterface<ParsingMetadataHolder>();
 
     if (routeMetadata->getProdId() == parameterId ||
@@ -361,7 +361,7 @@ ExpressionArray CodeGenerator::generateDefineVariable(Char const *name,
 DefineFunction *CodeGenerator::generateDefineFunction(Char const *name,
     const SharedPtr<IdentifiableObject> &item)
 {
-  return FunctionAstBlock(this, item.s_cast<ParsedList>()).toDefineFunction(name);
+  return FunctionAstBlock(this, item.s_cast<PrtList>()).toDefineFunction(name);
 }
 
 //----------------------------------------------------------------------------
@@ -379,7 +379,7 @@ DefineStruct *CodeGenerator::generateDefineStructure(Char const *name,
   // Generate function body.
   static SharedPtr<Reference> structBodyReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Main.StatementList)"), ReferenceUsageCriteria::MULTI_DATA);
-  auto bodyStmtList = getSharedPtr(seeker.tryGet(structBodyReference.get(), item.get())).io_cast<ParsedList>();
+  auto bodyStmtList = getSharedPtr(seeker.tryGet(structBodyReference.get(), item.get())).io_cast<PrtList>();
 
   if (bodyStmtList == 0) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -462,35 +462,35 @@ Expression* CodeGenerator::generateExpression(SharedPtr<IdentifiableObject> cons
   Expression *expr;
 
   if (id == expressionId)
-    expr = generateExpression(item.s_cast_get<ParsedList>()->getShared(0));
+    expr = generateExpression(item.s_cast_get<PrtList>()->getShared(0));
   else if (id == subjectId)
-    expr = generateExpression(item.s_cast_get<ParsedRoute>()->getData());
+    expr = generateExpression(item.s_cast_get<PrtRoute>()->getData());
   else if (id == parameterId)
     // Subject.Subject1>Subject.Parameter are variable references.
     expr = generateVariableRef(item);
   else if (id == literalId)
     // Literals are constants
-    expr = generateConst(item.s_cast<ParsedToken>());
+    expr = generateConst(item.s_cast<PrtToken>());
   else if (id == functionalExpId) {
-    /*auto list = item.s_cast<ParsedList>();
+    /*auto list = item.s_cast<PrtList>();
     auto id2 = list->get(1)->getInterface<ParsingMetadataHolder>()->getProdId();
     if (id2 == paramPassId)
-    expr = GenerateFunctionCall(item.s_cast<ParsedList>());
+    expr = GenerateFunctionCall(item.s_cast<PrtList>());
     else if (id2 == postfixTildeExpId)
     expr = GenerateVariableRef(item);
     else if (id2 == linkExpId)
     expr = GenerateMemberAccess(item);
     else
     throw EXCEPTION(ArgumentOutOfRangeException, "The given parsing data doesn't evaluate to an expression.");*/
-    expr = FunctionalExpression(this, item.s_cast<ParsedList>()).toExpression();
+    expr = FunctionalExpression(this, item.s_cast<PrtList>()).toExpression();
   } else if (id == listExpId)
-    expr = generateList(item.s_cast<ParsedList>());
+    expr = generateList(item.s_cast<PrtList>());
   else if (id == comparisonExpId || id == assignmentExpId || id == addExpId || id == mulExpId)
-    expr = generateBinaryOperator(item.s_cast<ParsedList>());
+    expr = generateBinaryOperator(item.s_cast<PrtList>());
   else if (id == statementListId)
-    expr = generateSet(item.s_cast<ParsedList>());
+    expr = generateSet(item.s_cast<PrtList>());
   else if (id == unaryExpId)
-    expr = generateUnaryOperator(item.s_cast<ParsedList>());
+    expr = generateUnaryOperator(item.s_cast<PrtList>());
   else
     throw EXCEPTION(ArgumentOutOfRangeException, "The given parsing data doesn't evaluate to an expression.");
 
@@ -518,18 +518,18 @@ Expression *CodeGenerator::generateVariableRef(SharedPtr<IdentifiableObject> con
 
   //    if (id == functionalExpId)
   //    {
-  //      auto parsedList = parsedItem.s_cast<ParsedList>();
-  //      if (parsedList->getElementCount() != 2)
+  //      auto PrtList = parsedItem.s_cast<PrtList>();
+  //      if (PrtList->getElementCount() != 2)
   //        throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
-  //      auto varName = parsedList
-  //          ->getElement(0).s_cast<ParsedRoute>()
-  //          ->getData().s_cast<ParsedToken>()
+  //      auto varName = PrtList
+  //          ->getElement(0).s_cast<PrtRoute>()
+  //          ->getData().s_cast<PrtToken>()
   //          ->getText();
-  //      auto postfix = parsedList->get(1);
+  //      auto postfix = PrtList->get(1);
   //      auto postfixId = postfix->getInterface<ParsingMetadataHolder>()->getProdId();
   //      if (postfixId != postfixTildeExpId)
   //        throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
-  //      auto postfixType = postfix.s_cast<ParsedList>()
+  //      auto postfixType = postfix.s_cast<PrtList>()
   //          ->get(0)->getInterface<ParsingMetadataHolder>()->getProdId();
   //      if (postfixType == pointerTildeId)
   //        return new IdentifierReference(varName);
@@ -546,7 +546,7 @@ Expression *CodeGenerator::generateVariableRef(SharedPtr<IdentifiableObject> con
   }
   // This shouldn't be needed anymore.
   else if (id == parameterId) {
-    auto varName = this->translateAliasedName(parsedItem.s_cast_get<ParsedToken>()->getText().c_str());
+    auto varName = this->translateAliasedName(parsedItem.s_cast_get<PrtToken>()->getText().c_str());
     return new Content(new IdentifierReference(varName));
   } else {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -556,7 +556,7 @@ Expression *CodeGenerator::generateVariableRef(SharedPtr<IdentifiableObject> con
   }
 }
 
-Expression *CodeGenerator::generateConst(const SharedPtr<ParsedToken> &literal)
+Expression *CodeGenerator::generateConst(const SharedPtr<PrtToken> &literal)
 {
   auto literalId = literal->getId();
   auto literalText = literal->getText();
@@ -595,7 +595,7 @@ Expression *CodeGenerator::generateConst(const SharedPtr<ParsedToken> &literal)
 
 //----------------------------------------------------------------------------
 
-List *CodeGenerator::generateList(const SharedPtr<ParsedList> &listExpr)
+List *CodeGenerator::generateList(const SharedPtr<PrtList> &listExpr)
 {
   // Generate an array containing the expressions representing the elements of
   // the list.
@@ -615,7 +615,7 @@ List *CodeGenerator::generateList(const SharedPtr<ParsedList> &listExpr)
 
 //----------------------------------------------------------------------------
 
-Expression *CodeGenerator::generateBinaryOperator(const SharedPtr<ParsedList> &cmpExpr)
+Expression *CodeGenerator::generateBinaryOperator(const SharedPtr<PrtList> &cmpExpr)
 {
   auto createOperator = [](const std::string &opText, Expression *lhs, Expression *rhs) {
     Expression *expr;
@@ -657,12 +657,12 @@ Expression *CodeGenerator::generateBinaryOperator(const SharedPtr<ParsedList> &c
   for (auto i = 0; i < cmpExpr->getCount();) {
     if (i == 0) {
       auto lhs = generateExpression(cmpExpr->getShared(0));
-      auto opText = static_cast<ParsedToken*>(cmpExpr->get(1))->getText();
+      auto opText = static_cast<PrtToken*>(cmpExpr->get(1))->getText();
       auto rhs = generateExpression(cmpExpr->getShared(2));
       expr = createOperator(opText, lhs, rhs);
       i += 3;
     } else {
-      auto opText = static_cast<ParsedToken*>(cmpExpr->get(i))->getText();
+      auto opText = static_cast<PrtToken*>(cmpExpr->get(i))->getText();
       auto rhs = generateExpression(cmpExpr->getShared(i + 1));
       expr = createOperator(opText, expr, rhs);
       i += 2;
@@ -676,9 +676,9 @@ Expression *CodeGenerator::generateBinaryOperator(const SharedPtr<ParsedList> &c
   return expr;
 }
 
-Expression *CodeGenerator::generateUnaryOperator(const SharedPtr<ParsedList> &unaryExpr)
+Expression *CodeGenerator::generateUnaryOperator(const SharedPtr<PrtList> &unaryExpr)
 {
-  auto opText = static_cast<ParsedToken*>(unaryExpr->get(0))->getText();
+  auto opText = static_cast<PrtToken*>(unaryExpr->get(0))->getText();
   auto expr = generateExpression(unaryExpr->getShared(1));
 
   if (opText.compare("+") == 0) {
@@ -713,7 +713,7 @@ IfStatement *CodeGenerator::generateIfStatement(SharedPtr<IdentifiableObject> co
   static SharedPtr<Reference> expReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
 
-  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
+  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<PrtList>();
 
   if (exp == 0) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -760,7 +760,7 @@ ForStatement *CodeGenerator::generateForStatement(SharedPtr<IdentifiableObject> 
   // The condition of the for statement.
   static SharedPtr<Reference> expReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
-  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<ParsedList>();
+  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<PrtList>();
 
   if (exp == 0) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -831,7 +831,7 @@ WhileStatement *CodeGenerator::generateWhileStatement(SharedPtr<IdentifiableObje
   // The condition of the while statement.
   static SharedPtr<Reference> condReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
-  auto condAST = getSharedPtr(seeker.tryGet(condReference.get(), command.get())).io_cast<ParsedList>();
+  auto condAST = getSharedPtr(seeker.tryGet(condReference.get(), command.get())).io_cast<PrtList>();
 
   if (exp == nullptr) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -865,14 +865,14 @@ WhileStatement *CodeGenerator::generateWhileStatement(SharedPtr<IdentifiableObje
 
 //----------------------------------------------------------------------------
 
-// TODO: Change the parameter type to ParsedRoute to instead.
+// TODO: Change the parameter type to PrtRoute to instead.
 Char const* CodeGenerator::parseToken(SharedPtr<IdentifiableObject> const &item)
 {
   static ReferenceSeeker seeker;
   static SharedPtr<Reference> tokenReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto token = io_cast<ParsedToken>(seeker.tryGet(tokenReference.get(), item.get()));
+  auto token = io_cast<PrtToken>(seeker.tryGet(tokenReference.get(), item.get()));
 
   if (token == nullptr)
     // TODO: Add the index of the non-token to the exception message.
@@ -894,7 +894,7 @@ ValueTypeSpec *CodeGenerator::parseVariableType(
   }
 
   if (itemMetadata->getProdId() == parameterId) {
-    auto typeName = this->translateAliasedName(item.s_cast<ParsedToken>()->getText().c_str());
+    auto typeName = this->translateAliasedName(item.s_cast<PrtToken>()->getText().c_str());
     return new ValueTypeSpecByName(typeName);
   }
 
@@ -908,7 +908,7 @@ ValueTypeSpec *CodeGenerator::parseVariableType(
     static SharedPtr<Reference> modifierReference = REF_PARSER->parseQualifier(
           STR("0~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
           ReferenceUsageCriteria::MULTI_DATA);
-    auto funcName = io_cast<ParsedToken>(seeker.tryGet(modifierReference.get(), item.get()));
+    auto funcName = io_cast<PrtToken>(seeker.tryGet(modifierReference.get(), item.get()));
 
     if (funcName == nullptr) {
       this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -956,7 +956,7 @@ ValueTypeSpec *CodeGenerator::parseVariableType(
         return new ValueTypeSpecByName(STR("__INVALID__"));
       }
 
-      auto arraySizeAst = io_cast<ParsedToken>(seeker.tryGet(arraySizeReference.get(), item.get()));
+      auto arraySizeAst = io_cast<PrtToken>(seeker.tryGet(arraySizeReference.get(), item.get()));
 
       if (arraySizeAst == nullptr) {
         this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -1067,19 +1067,19 @@ VariableDefinitionArray CodeGenerator::parseFunctionArguments(
   VariableDefinitionArray args;
 
   if (id == expressionId) {
-    return parseFunctionArguments(astBlockRoot.s_cast_get<ParsedList>()
+    return parseFunctionArguments(astBlockRoot.s_cast_get<PrtList>()
                                   ->getShared(0));
   }
 
   if (id == subjectId) {
-    auto route = astBlockRoot.s_cast<ParsedRoute>();
+    auto route = astBlockRoot.s_cast<PrtRoute>();
 
     if (route->getData() == nullptr)
       return args;
 
     return parseFunctionArguments(route->getData());
   } else if (id == listExpId) {
-    auto list = astBlockRoot.s_cast<ParsedList>();
+    auto list = astBlockRoot.s_cast<PrtList>();
 
     for (int i = 0, e = (int)list->getCount(); i < e; ++i) {
       args.push_back(parseVariableDefinition(list->getShared(i)));

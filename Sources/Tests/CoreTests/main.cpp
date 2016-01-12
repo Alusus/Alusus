@@ -10,8 +10,10 @@
  */
 //==============================================================================
 
-#include "core_tests.h"
-#include <catch_runner.hpp>
+#include "core_tests_pch.h"
+
+#define CATCH_CONFIG_RUNNER
+#include <catch.hpp>
 
 using namespace Core;
 
@@ -44,13 +46,7 @@ int main(int argCount, char * const args[])
       outStream << STR("\t--log  A 3 bit value to control the level of details of the log.\n");
 #endif
       outStream << STR("\nUnit Test Specific Options:\n");
-      outStream << STR("\t-l, --list  <tests | reporters> [xml]\n");
-      outStream << STR("\t-t, --test  <testspec> [<testspec>...]\n");
-      outStream << STR("\t-r, --reporter  <reporter name>\n");
-      outStream << STR("\t-o, --out  <file name>|<%stream name>\n");
-      outStream << STR("\t-s, --success\n");
-      outStream << STR("\t-b, --break\n\n");
-      outStream << STR("For more detail usage please see: https://github.com/philsquared/Catch/wiki/Command-line\n");
+      Catch::Session().run(argCount, args);
       return 0;
     }
   }
@@ -68,16 +64,15 @@ int main(int argCount, char * const args[])
   // Create the args list, skipping non CATCH arguments.
   char **utargs = new char*[argCount];
   int utcount = 0;
-  for (Int i = 1; i < argCount; i++) {
+  for (Int i = 0; i < argCount; i++) {
     if (strcmp(args[i], STR("--log")) == 0) {
-      ++i;
       continue;
     }
     utargs[utcount] = const_cast<char*>(args[i]);
     utcount++;
   }
   // Run the unit tests.
-  int ret = Catch::Main(utcount, utargs);
+  int ret = Catch::Session().run(utcount, utargs);
   delete[] utargs;
   return ret;
 }

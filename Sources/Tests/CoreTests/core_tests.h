@@ -2,7 +2,7 @@
  * @file Tests/CoreTests/core_tests.h
  * Contains the CoreTests namespace main include statements.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,13 +13,8 @@
 #ifndef CORE_TESTS_H
 #define CORE_TESTS_H
 
-#include "core.h"
-#include <string.h>
-#include <sstream>
+#include "core_tests_pch.h"
 
-#undef __WIN32__
-#undef _WIN32
-#undef _MSC_VER
 #include <catch.hpp>
 
 #include "helpers.h"

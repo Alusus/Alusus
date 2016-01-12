@@ -37,7 +37,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   static SharedPtr<Reference> nameReference = REF_PARSER->parseQualifier(
         STR("1.0~where(prodId=Expression.LowerLinkExp).0~where(prodId=Subject.Subject1).0"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto nameToken = io_cast<Data::ParsedToken>(seeker.tryGet(nameReference.get(), expr.get()));
+  auto nameToken = io_cast<Data::PrtToken>(seeker.tryGet(nameReference.get(), expr.get()));
 
   if (nameToken == 0 || nameToken->getId() != identifierTokenId) {
     state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
@@ -74,7 +74,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   static SharedPtr<Reference> aliasReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Subject.Alias).1~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto alias = io_cast<ParsedToken>(seeker.tryGet(aliasReference.get(), def));
+  auto alias = io_cast<PrtToken>(seeker.tryGet(aliasReference.get(), def));
 
   if (alias != 0) {
     // Add the alias to the dictionary.

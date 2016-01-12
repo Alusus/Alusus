@@ -41,9 +41,9 @@ FunctionLinkExpression::FunctionLinkExpression(CodeGenerator *gen,
         ReferenceUsageCriteria::MULTI_DATA);
 
   // Try to parse a function link with no return value.
-  SharedPtr<ParsedList> item;
+  SharedPtr<PrtList> item;
 
-  if ((item = getSharedPtr(seeker.tryGet(funcExpReference.get(), astRoot.get())).io_cast<ParsedList>()) != nullptr) {
+  if ((item = getSharedPtr(seeker.tryGet(funcExpReference.get(), astRoot.get())).io_cast<PrtList>()) != nullptr) {
     auto argsAndRet = LowLinkExpression(gen, item);
 
     if (argsAndRet.getSeparator().compare("=>") != 0) {
@@ -55,10 +55,10 @@ FunctionLinkExpression::FunctionLinkExpression(CodeGenerator *gen,
     }
 
     this->arguments = new FunctionalExpression(
-      gen, argsAndRet.getLHS().s_cast<ParsedList>());
+      gen, argsAndRet.getLHS().s_cast<PrtList>());
     this->retType = gen->parseVariableType(argsAndRet.getRHS());
   } else if ((item = getSharedPtr(seeker.tryGet(funcExpNoRetReference.get(),
-                                  astRoot.get())).io_cast<ParsedList>()) != nullptr)
+                                  astRoot.get())).io_cast<PrtList>()) != nullptr)
     this->arguments = new FunctionalExpression(gen, item);
 
   // Stores the line and column numbers.

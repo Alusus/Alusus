@@ -42,7 +42,7 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
         ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
-  auto name = io_cast<ParsedToken>(seeker.tryGet(nameReference.get(), item.get()));
+  auto name = io_cast<PrtToken>(seeker.tryGet(nameReference.get(), item.get()));
 
   /*SharedPtr<Module> statementList;
   if (name != 0) {
