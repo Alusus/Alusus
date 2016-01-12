@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/ParsedToken.h
- * Contains the header of class Core::Data::ParsedToken.
+ * @file Core/Data/PrtToken.h
+ * Contains the header of class Core::Data::PrtToken.
  *
  * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
@@ -10,26 +10,27 @@
  */
 //==============================================================================
 
-#ifndef DATA_PARSEDTOKEN_H
-#define DATA_PARSEDTOKEN_H
+#ifndef DATA_PRTTOKEN_H
+#define DATA_PRTTOKEN_H
 
 namespace Core { namespace Data
 {
 
 /**
- * @brief Contains information about a single token.
+ * @brief Contains information about a single token in a PRT.
  * @ingroup data
  *
- * Contains the information that defines a single token. This information is
- * composed of the token definition and the token text. This object is created
- * by the GenericParsingHandler to compose the parsed tree.
+ * Contains the information that defines a single token in a Parsing
+ * Representation Tree (PRT). This information is composed of the token
+ * definition and the token text. This object is created by the
+ * GenericParsingHandler to compose the parsed tree.
  */
-class ParsedToken : public Node, public virtual ParsingMetadataHolder
+class PrtToken : public Node, public virtual ParsingMetadataHolder
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ParsedToken, Node, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(PrtToken, Node, "Core.Data", "Core", "alusus.net");
   IMPLEMENT_INTERFACES_1(Node, ParsingMetadataHolder);
 
 
@@ -55,28 +56,28 @@ class ParsedToken : public Node, public virtual ParsingMetadataHolder
   //============================================================================
   // Constructor / Destructor
 
-  public: ParsedToken(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR("")) :
+  public: PrtToken(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR("")) :
     ParsingMetadataHolder(pid), id(i), text(txt)
   {
   }
 
-  public: ParsedToken(Word pid, Word i, Char const *txt, SourceLocation const &sl) :
+  public: PrtToken(Word pid, Word i, Char const *txt, SourceLocation const &sl) :
     ParsingMetadataHolder(pid, sl), id(i), text(txt)
   {
   }
 
-  public: virtual ~ParsedToken()
+  public: virtual ~PrtToken()
   {
   }
 
-  public: static SharedPtr<ParsedToken> create(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR(""))
+  public: static SharedPtr<PrtToken> create(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR(""))
   {
-    return std::make_shared<ParsedToken>(pid, i, txt);
+    return std::make_shared<PrtToken>(pid, i, txt);
   }
 
-  public: static SharedPtr<ParsedToken> create(Word pid, Word i, Char const *txt, SourceLocation const &sl)
+  public: static SharedPtr<PrtToken> create(Word pid, Word i, Char const *txt, SourceLocation const &sl)
   {
-    return std::make_shared<ParsedToken>(pid, i, txt, sl);
+    return std::make_shared<PrtToken>(pid, i, txt, sl);
   }
 
 

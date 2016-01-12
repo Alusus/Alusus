@@ -1,6 +1,6 @@
 /**
- * @file Core/core_fwd.h
- * Contains forward declarations for Alusus Core. The file is still incomplete.
+ * @file Tests/CoreTests/core_tests_pch.h
+ * Contains the generic precompiled headers.
  *
  * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
@@ -10,25 +10,11 @@
  */
 //==============================================================================
 
-namespace Core
-{
+#ifndef CORETESTSPCH_H
+#define CORETESTSPCH_H
 
-namespace Processing
-{
-class BuildMsgStore;
-}
+#include "core.h"
+#include <string.h>
+#include <sstream>
 
-namespace Data
-{
-class SharedMap;
-class Module;
-class PrtList;
-class PrtToken;
-}
-
-namespace Basic
-{
-class IdentifiableObject;
-}
-
-}
+#endif // CORETESTSPCH_H

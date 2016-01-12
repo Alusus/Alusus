@@ -163,15 +163,15 @@ TEST_CASE("Core::Data/advanced_qualifier_seek", "Seek elements with advanced qua
 {
   // Prepare a data tree.
   SharedPtr<IdentifiableObject> data =
-    ParsedList::create(ID_GENERATOR->getId(STR("root")), {
-                       ParsedRoute::create(ID_GENERATOR->getId(STR("parent.1")), 1,
-                                           ParsedToken::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")),
+    PrtList::create(ID_GENERATOR->getId(STR("root")), {
+                       PrtRoute::create(ID_GENERATOR->getId(STR("parent.1")), 1,
+                                           PrtToken::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")),
                                                                STR("text"))),
-                       ParsedList::create(ID_GENERATOR->getId(STR("parent.2")), {
-                                          ParsedRoute::create(ID_GENERATOR->getId(STR("child.1")), 0),
-                                          ParsedToken::create(ID_GENERATOR->getId(STR("child.2")),
+                       PrtList::create(ID_GENERATOR->getId(STR("parent.2")), {
+                                          PrtRoute::create(ID_GENERATOR->getId(STR("child.1")), 0),
+                                          PrtToken::create(ID_GENERATOR->getId(STR("child.2")),
                                                               ID_GENERATOR->getId(STR("token2")))}),
-                       ParsedToken::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
+                       PrtToken::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
 
   IdentifiableObject *result = 0;
   IdentifiableObject *plainResult = 0;
@@ -239,14 +239,14 @@ TEST_CASE("Core::Data/advanced_reference_seek", "Seek elements with advanced ref
 {
   // Prepare a data tree.
   SharedPtr<IdentifiableObject> data =
-    ParsedList::create(ID_GENERATOR->getId(STR("root")), {
-                       ParsedRoute::create(ID_GENERATOR->getId(STR("parent.1")), 1,
-                                           ParsedToken::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")), STR("text"))),
-                       ParsedList::create(ID_GENERATOR->getId(STR("parent.2")), {
-                                          ParsedRoute::create(ID_GENERATOR->getId(STR("child.1")), 0),
-                                          ParsedToken::create(ID_GENERATOR->getId(STR("child.2")),
+    PrtList::create(ID_GENERATOR->getId(STR("root")), {
+                       PrtRoute::create(ID_GENERATOR->getId(STR("parent.1")), 1,
+                                           PrtToken::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")), STR("text"))),
+                       PrtList::create(ID_GENERATOR->getId(STR("parent.2")), {
+                                          PrtRoute::create(ID_GENERATOR->getId(STR("child.1")), 0),
+                                          PrtToken::create(ID_GENERATOR->getId(STR("child.2")),
                                                               ID_GENERATOR->getId(STR("token2")))}),
-                       ParsedToken::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
+                       PrtToken::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
 
   ReferenceSeeker seeker;
   SharedPtr<Reference> reference;

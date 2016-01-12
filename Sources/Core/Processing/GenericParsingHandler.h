@@ -25,7 +25,7 @@ namespace Core { namespace Processing
  * be used wherever a specific parsing handler is not defined. The generated
  * data can then be used by other parsing handlers up in the grammar tree, or
  * it can be simply passed to the calling function/applictaion.<br>
- * This parsing handler uses ParsedList, ParsedRoute, and ParsedToken to
+ * This parsing handler uses PrtList, PrtRoute, and PrtToken to
  * compose the parsed tree.
  */
 class GenericParsingHandler : public ParsingHandler

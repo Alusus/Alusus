@@ -93,7 +93,7 @@ public:
    * @param[in] astRoot A pointer to the AST block root.
    */
   FunctionAstBlock(CodeGenerator *gen,
-                   const std::shared_ptr<Core::Data::ParsedList> &astRoot);
+                   const std::shared_ptr<Core::Data::PrtList> &astRoot);
 
   //! Class destructor.
   ~FunctionAstBlock();

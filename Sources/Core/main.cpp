@@ -139,14 +139,14 @@ int main(int argCount, char * const args[])
     if (ptr == 0) return EXIT_SUCCESS;
 
     // Check if we have orphan data to print.
-    SharedPtr<Data::ParsedList> orphan;
+    SharedPtr<Data::PrtList> orphan;
     if (ptr->isDerivedFrom<Data::Module>()) {
       Int orphanIndex = ptr.s_cast<Data::Module>()->findIndex(STR("_ORPHAN_"));
       if (orphanIndex != -1) {
-        orphan = ptr.s_cast<Data::Module>()->getShared(orphanIndex).io_cast<Data::ParsedList>();
+        orphan = ptr.s_cast<Data::Module>()->getShared(orphanIndex).io_cast<Data::PrtList>();
       }
-    } else if (ptr->isDerivedFrom<Data::ParsedList>()) {
-      orphan = ptr.s_cast<Data::ParsedList>();
+    } else if (ptr->isDerivedFrom<Data::PrtList>()) {
+      orphan = ptr.s_cast<Data::PrtList>();
     }
     if (orphan == 0 || orphan->getCount() == 0) return 0;
 

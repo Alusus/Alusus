@@ -30,7 +30,7 @@ file(GLOB AlususCoreTests_Header_Files *.h)
 set(AlususCoreTests_Files ${AlususCoreTests_Source_Files} ${AlususCoreTests_Header_Files})
 add_executable(AlususCoreTests ${AlususCoreTests_Files})
 set_target_properties(AlususCoreTests PROPERTIES COMPILE_FLAGS "${AlususCoreTests_COMPILE_FLAGS}")
-ADD_PRECOMPILED_HEADER(AlususCoreTests "core_tests.h")
+ADD_PRECOMPILED_HEADER(AlususCoreTests "core_tests_pch.h")
 
 # Finally, we link the executable to the libraries.
 target_link_libraries(AlususCoreTests AlususCoreLib AlususStorage "dl")

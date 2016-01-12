@@ -239,8 +239,8 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit);
  * @brief Recursive function to print a tree of parsed data.
  * @ingroup data
  *
- * The given tree should have default parsing data (ParsedRoute,
- * ParsedList, or ParsedToken). Anything other than the
+ * The given tree should have default parsing data (PrtRoute,
+ * PrtList, or PrtToken). Anything other than the
  * default data types will be represented by [UNKNOWN TYPE].
  */
 void dumpParsedData(IdentifiableObject *ptr, int indents=0, Bool start_indent=true);
@@ -441,12 +441,12 @@ typedef std::function<RefOp(Int index, IdentifiableObject *obj, IdentifiableObje
 // TODO: ExtensionManager manages extensions to grammar (loaded using import for example). And it automatically
 //       manages the IDs of those extension definitions (rather than the IDs remain invalid until merged with DataStore).
 
-// Parsed Data Classes
-//--------------------
+// Parsing Representation Tree (PRT) Classes
+//------------------------------------------
 #include "ParsingMetadataHolder.h"
-#include "ParsedToken.h"
-#include "ParsedRoute.h"
-#include "ParsedList.h"
-#include "ParsedModule.h"
+#include "PrtToken.h"
+#include "PrtRoute.h"
+#include "PrtList.h"
+#include "PrtModule.h"
 
 #endif

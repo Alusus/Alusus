@@ -33,9 +33,9 @@ LowerLinkExpression::LowerLinkExpression(CodeGenerator *gen,
                     "Lower link expressions can be constructed from "
                     "Expression.LowerLinkExp only.");
 
-  auto list = item.s_cast<ParsedList>();
+  auto list = item.s_cast<PrtList>();
   this->lhs = list->getShared(0);
-  this->separator = static_cast<ParsedToken*>(list->get(1))->getText();
+  this->separator = static_cast<PrtToken*>(list->get(1))->getText();
   this->rhs = list->getShared(2);
 }
 }

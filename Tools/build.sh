@@ -5,8 +5,8 @@ LLVM_SRC_URL="http://llvm.org/releases/3.3/llvm-3.3.src.tar.gz"
 LLVM_NAME="llvm-3.3"
 BOOST_SRC_URL="http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.gz"
 BOOST_SRC_NAME="boost_1_55_0"
-CATCH_SRC_URL="http://alusus.net/Downloads/CATCH.tar.gz"
-CATCH_SRC_NAME="CATCH"
+CATCH_SRC_URL="https://github.com/philsquared/Catch/archive/v1.3.0.tar.gz"
+CATCH_SRC_NAME="Catch-1.3.0"
 
 # Paths
 ALUSUS_ROOT="$(pwd)/.."
@@ -120,7 +120,7 @@ fi
 
 if [[ ! -e ${CATCH_SRC_NAME} ]]; then
   wget ${CATCH_SRC_URL}
-  tar -xvf ${CATCH_SRC_NAME}.tar.gz
+  tar -xvf $(basename ${CATCH_SRC_URL})
 else
   InformationMessage "CATCH is already available."
 fi
@@ -148,7 +148,7 @@ InformationMessage "Building Alusus..."
 
 cd $BUILD_PATH
 
-cmake $ALUSUS_ROOT/Sources -DBOOST_PATH=$DEPS_PATH/$BOOST_SRC_NAME -DCATCH_PATH=$DEPS_PATH/$CATCH_SRC_NAME -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DLLVM_PATH=$DEPS_PATH/${LLVM_NAME}.install
+cmake $ALUSUS_ROOT/Sources -DBOOST_PATH=$DEPS_PATH/$BOOST_SRC_NAME -DCATCH_PATH=$DEPS_PATH/$CATCH_SRC_NAME/single_include -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DLLVM_PATH=$DEPS_PATH/${LLVM_NAME}.install
 
 make -j${MAKE_THREAD_COUNT} || { FailMessage "Building Alusus."; exit 1; }
 

@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/ParsedRoute.h
- * Contains the header of class Core::Data::ParsedRoute.
+ * @file Core/Data/PrtRoute.h
+ * Contains the header of class Core::Data::PrtRoute.
  *
  * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_PARSEDROUTE_H
-#define DATA_PARSEDROUTE_H
+#ifndef DATA_PRTROUTE_H
+#define DATA_PRTROUTE_H
 
 namespace Core { namespace Data
 {
@@ -19,21 +19,21 @@ namespace Core { namespace Data
 // TODO: DOC
 
 /**
- * @brief Contains parsed information of a single route.
+ * @brief Contains parsed information of a single route in a PRT.
  * @ingroup data
  *
  * A decision made at an alternative or optional term is recorded in this object
  * by the GenericParsingHandler along with the child data resulting from
  * taking that route. This object is created by the GenericParsingHandler to
- * compose the parsed tree.
+ * compose the Parsing Representation Tree (PRT).
  */
-class ParsedRoute : public Node,
-                    public virtual ParsingMetadataHolder, public virtual Container
+class PrtRoute : public Node,
+                 public virtual ParsingMetadataHolder, public virtual Container
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ParsedRoute, Node, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(PrtRoute, Node, "Core.Data", "Core", "alusus.net");
   IMPLEMENT_INTERFACES_2(Node, ParsingMetadataHolder, Container);
 
 
@@ -63,54 +63,54 @@ class ParsedRoute : public Node,
   //============================================================================
   // Constructor / Destructor
 
-  public: ParsedRoute(Word pid=UNKNOWN_ID, Int r=-1, IdentifiableObject *d=0) :
+  public: PrtRoute(Word pid=UNKNOWN_ID, Int r=-1, IdentifiableObject *d=0) :
     ParsingMetadataHolder(pid), route(r), data(d)
   {
     OWN_SHAREDPTR(this->data);
   }
 
-  public: ParsedRoute(Word pid, Int r, SharedPtr<IdentifiableObject> const &d) :
+  public: PrtRoute(Word pid, Int r, SharedPtr<IdentifiableObject> const &d) :
     ParsingMetadataHolder(pid), route(r), data(d)
   {
     OWN_SHAREDPTR(this->data);
   }
 
-  public: ParsedRoute(Word pid, Int r, SourceLocation const &sl, IdentifiableObject *d=0) :
+  public: PrtRoute(Word pid, Int r, SourceLocation const &sl, IdentifiableObject *d=0) :
     ParsingMetadataHolder(pid, sl), route(r), data(d)
   {
     OWN_SHAREDPTR(this->data);
   }
 
-  public: ParsedRoute(Word pid, Int r, SourceLocation const &sl, SharedPtr<IdentifiableObject> const &d) :
+  public: PrtRoute(Word pid, Int r, SourceLocation const &sl, SharedPtr<IdentifiableObject> const &d) :
     ParsingMetadataHolder(pid, sl), route(r), data(d)
   {
     OWN_SHAREDPTR(this->data);
   }
 
-  public: virtual ~ParsedRoute()
+  public: virtual ~PrtRoute()
   {
     DISOWN_SHAREDPTR(this->data);
   }
 
-  public: static SharedPtr<ParsedRoute> create(Word pid=UNKNOWN_ID, Int r=-1, IdentifiableObject *d=0)
+  public: static SharedPtr<PrtRoute> create(Word pid=UNKNOWN_ID, Int r=-1, IdentifiableObject *d=0)
   {
-    return std::make_shared<ParsedRoute>(pid, r, d);
+    return std::make_shared<PrtRoute>(pid, r, d);
   }
 
-  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, SharedPtr<IdentifiableObject> const &d)
+  public: static SharedPtr<PrtRoute> create(Word pid, Int r, SharedPtr<IdentifiableObject> const &d)
   {
-    return std::make_shared<ParsedRoute>(pid, r, d);
+    return std::make_shared<PrtRoute>(pid, r, d);
   }
 
-  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, SourceLocation const &sl, IdentifiableObject *d=0)
+  public: static SharedPtr<PrtRoute> create(Word pid, Int r, SourceLocation const &sl, IdentifiableObject *d=0)
   {
-    return std::make_shared<ParsedRoute>(pid, r, sl, d);
+    return std::make_shared<PrtRoute>(pid, r, sl, d);
   }
 
-  public: static SharedPtr<ParsedRoute> create(Word pid, Int r, SourceLocation const &sl,
+  public: static SharedPtr<PrtRoute> create(Word pid, Int r, SourceLocation const &sl,
                                                SharedPtr<IdentifiableObject> const &d)
   {
-    return std::make_shared<ParsedRoute>(pid, r, sl, d);
+    return std::make_shared<PrtRoute>(pid, r, sl, d);
   }
 
 

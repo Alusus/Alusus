@@ -29,7 +29,7 @@ ListExpression::ListExpression(CodeGenerator *gen,
 
   if (metadata != nullptr && (metadata->getProdId() == gen->getListExpId() ||
                               metadata->getProdId() == gen->getStatementListId())) {
-    auto listExp = item.s_cast<Core::Data::ParsedList>();
+    auto listExp = item.s_cast<Core::Data::PrtList>();
 
     for (auto i = 0; i < listExp->getCount(); i++)
       this->items.push_back(listExp->getShared(i));
@@ -49,7 +49,7 @@ StringArray ListExpression::parseTokenList() const
 
   for (auto i = 0; i < getItemCount(); i++) {
     auto item = getItem(i);
-    auto token = io_cast<ParsedToken>(seeker.tryGet(tokenReference.get(), item.get()));
+    auto token = io_cast<PrtToken>(seeker.tryGet(tokenReference.get(), item.get()));
 
     if (token == 0)
       // TODO: Add the index of the non-token to the exception message.

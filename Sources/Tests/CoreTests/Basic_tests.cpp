@@ -39,16 +39,16 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
 {
   // Prepare a data tree.
   SharedPtr<IdentifiableObject> data =
-    ParsedList::create(ID_GENERATOR->getId(STR("root")), {
-                       ParsedToken::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
+    PrtList::create(ID_GENERATOR->getId(STR("root")), {
+                       PrtToken::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
   QualifierSeeker seeker;
 
   try {
     SECTION("s1", "Static Cast")
     {
-      SharedPtr<ParsedToken> testToken1 = s_cast<ParsedToken>(getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())));
+      SharedPtr<PrtToken> testToken1 = s_cast<PrtToken>(getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())));
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
-      SharedPtr<ParsedToken> testToken2 = s_cast<ParsedToken>(testTok);
+      SharedPtr<PrtToken> testToken2 = s_cast<PrtToken>(testTok);
       CHECK(testToken1.get() != 0);
       CHECK(testToken2.get() == testToken1.get());
       CHECK(testToken1.use_count() > 1);
@@ -56,9 +56,9 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
     }
     SECTION("s2", "Reinterpret Cast")
     {
-      SharedPtr<ParsedToken> testToken1 = r_cast<ParsedToken>(getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())));
+      SharedPtr<PrtToken> testToken1 = r_cast<PrtToken>(getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())));
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
-      SharedPtr<ParsedToken> testToken2 = r_cast<ParsedToken>(testTok);
+      SharedPtr<PrtToken> testToken2 = r_cast<PrtToken>(testTok);
       CHECK(testToken1.get() != 0);
       CHECK(testToken2.get() == testToken1.get());
       CHECK(testToken1.use_count() > 1);
@@ -66,9 +66,9 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
     }
     SECTION("s3", "IdentifiableObject Cast")
     {
-      SharedPtr<ParsedToken> testToken1 = io_cast<ParsedToken>(getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())));
+      SharedPtr<PrtToken> testToken1 = io_cast<PrtToken>(getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())));
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
-      SharedPtr<ParsedToken> testToken2 = io_cast<ParsedToken>(testTok);
+      SharedPtr<PrtToken> testToken2 = io_cast<PrtToken>(testTok);
       CHECK(testToken1.get() != 0);
       CHECK(testToken2.get() == testToken1.get());
       CHECK(testToken1.use_count() > 1);
@@ -76,9 +76,9 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
     }
     SECTION("s4", "Member Static Cast")
     {
-      SharedPtr<ParsedToken> testToken1 = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())).s_cast<ParsedToken>();
+      SharedPtr<PrtToken> testToken1 = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())).s_cast<PrtToken>();
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
-      SharedPtr<ParsedToken> testToken2 = testTok.s_cast<ParsedToken>();
+      SharedPtr<PrtToken> testToken2 = testTok.s_cast<PrtToken>();
       CHECK(testToken1.get() != 0);
       CHECK(testToken2.get() == testToken1.get());
       CHECK(testToken1.use_count() > 1);
@@ -86,9 +86,9 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
     }
     SECTION("s5", "Member Reinterpret Cast")
     {
-      SharedPtr<ParsedToken> testToken1 = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())).r_cast<ParsedToken>();
+      SharedPtr<PrtToken> testToken1 = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())).r_cast<PrtToken>();
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
-      SharedPtr<ParsedToken> testToken2 = testTok.r_cast<ParsedToken>();
+      SharedPtr<PrtToken> testToken2 = testTok.r_cast<PrtToken>();
       CHECK(testToken1.get() != 0);
       CHECK(testToken2.get() == testToken1.get());
       CHECK(testToken1.use_count() > 1);
@@ -96,9 +96,9 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
     }
     SECTION("s6", "Member IdentifiableObject Cast")
     {
-      SharedPtr<ParsedToken> testToken1 = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())).io_cast<ParsedToken>();
+      SharedPtr<PrtToken> testToken1 = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())).io_cast<PrtToken>();
       SharedPtr<IdentifiableObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
-      SharedPtr<ParsedToken> testToken2 = testTok.io_cast<ParsedToken>();
+      SharedPtr<PrtToken> testToken2 = testTok.io_cast<PrtToken>();
       CHECK(testToken1.get() != 0);
       CHECK(testToken2.get() == testToken1.get());
       CHECK(testToken1.use_count() > 1);

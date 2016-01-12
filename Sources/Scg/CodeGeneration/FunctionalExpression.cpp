@@ -34,7 +34,7 @@ using namespace Core::Basic;
 using namespace Core::Data;
 
 FunctionalExpression::FunctionalExpression(CodeGenerator *gen,
-    const SharedPtr<ParsedList> &item) : gen(gen)
+    const SharedPtr<PrtList> &item) : gen(gen)
 {
   if (item->getProdId() != gen->getFunctionalExpId())
     throw EXCEPTION(InvalidArgumentException,
@@ -54,7 +54,7 @@ DeclareExtFunction *FunctionalExpression::toDeclareExtFunction(
 
   auto name = this->gen->parseToken(this->subExprs[0]);
   auto args = ParamPassExp(
-                this->gen, this->subExprs[1].s_cast<ParsedRoute>()).parseValueTypes();
+                this->gen, this->subExprs[1].s_cast<PrtRoute>()).parseValueTypes();
 
   // Determine whether the function being linked to has a variable number of
   // arguments or not, e.g. printf.
@@ -111,9 +111,9 @@ Expression *FunctionalExpression::toExpression()
 
       if (thisExprAstMeta->getProdId() == this->gen->getSubjectId() &&
           nextExprAstMeta->getProdId() == this->gen->getParamPassId() &&
-          nextExprAst.s_cast<ParsedRoute>()->getRoute() == ParamPassExp::Parenthesis) {
+          nextExprAst.s_cast<PrtRoute>()->getRoute() == ParamPassExp::Parenthesis) {
         // A token followed by parentheses. This is a function call.
-        ParamPassExp params(this->gen, nextExprAst.s_cast<ParsedRoute>());
+        ParamPassExp params(this->gen, nextExprAst.s_cast<PrtRoute>());
         expr = new CallFunction(this->gen->parseToken(thisExprAst),
                                 new List(params.parseExpressionList()));
         expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
@@ -133,18 +133,18 @@ Expression *FunctionalExpression::toExpression()
 
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     } else if (thisExprAstMeta->getProdId() == this->gen->getParamPassId() &&
-               thisExprAst.s_cast<ParsedRoute>()->getRoute() == ParamPassExp::Square) {
+               thisExprAst.s_cast<PrtRoute>()->getRoute() == ParamPassExp::Square) {
       // Square brackets. This is array element access.
-      auto index = parseElementIndex(thisExprAst.s_cast<ParsedRoute>());
+      auto index = parseElementIndex(thisExprAst.s_cast<PrtRoute>());
       expr = new ArrayElementReference(expr, index);
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     } else if (thisExprAstMeta->getProdId() == this->gen->getLinkExpId()) {
       // Dot followed by a token. This is a field access.
-      auto fieldName = parseFieldName(thisExprAst.s_cast<ParsedList>());
+      auto fieldName = parseFieldName(thisExprAst.s_cast<PrtList>());
       expr = new MemberFieldReference(expr, fieldName);
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     } else if (thisExprAstMeta->getProdId() == this->gen->getPostfixTildeExpId()) {
-      auto child = ii_cast<ParsingMetadataHolder>(thisExprAst.s_cast<ParsedList>()->get(0));
+      auto child = ii_cast<ParsingMetadataHolder>(thisExprAst.s_cast<PrtList>()->get(0));
 
       if (child->getProdId() == this->gen->getContentTildeId()) {
         // ~cnt
@@ -173,8 +173,8 @@ Expression *FunctionalExpression::toExpression()
           auto nextExprAstMeta = nextExprAst->getInterface<ParsingMetadataHolder>();
 
           if (nextExprAstMeta->getProdId() == this->gen->getParamPassId() &&
-              nextExprAst.s_cast<ParsedRoute>()->getRoute() == ParamPassExp::Square) {
-            ParamPassExp params(this->gen, nextExprAst.s_cast<ParsedRoute>());
+              nextExprAst.s_cast<PrtRoute>()->getRoute() == ParamPassExp::Square) {
+            ParamPassExp params(this->gen, nextExprAst.s_cast<PrtRoute>());
             auto type = this->gen->parseVariableType(params.getParam(0));
 
             // A token followed by parentheses. This is a function call.
@@ -213,7 +213,7 @@ Expression *FunctionalExpression::toExpression()
 //------------------------------------------------------------------------------
 
 Char const* FunctionalExpression::parseFieldName(
-  const SharedPtr<ParsedList> &astBlockRoot)
+  const SharedPtr<PrtList> &astBlockRoot)
 {
   if (astBlockRoot->getProdId() != this->gen->getLinkExpId())
     throw EXCEPTION(SystemException,
@@ -235,7 +235,7 @@ Char const* FunctionalExpression::parseFieldName(
 //------------------------------------------------------------------------------
 
 Expression *FunctionalExpression::parseElementIndex(
-  const SharedPtr<ParsedRoute> &astBlockRoot)
+  const SharedPtr<PrtRoute> &astBlockRoot)
 {
   if (astBlockRoot->getProdId() != this->gen->getParamPassId())
     throw EXCEPTION(SystemException,
