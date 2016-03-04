@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/FloatType.h
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -9,95 +9,92 @@
 */
 //==============================================================================
 
-#ifndef __FloatType_h__
-#define __FloatType_h__
+#ifndef SCG_FLOATTYPE_H
+#define SCG_FLOATTYPE_H
 
-// Scg header files
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
-
-// LLVM forward declarations
 #include <llvm_fwd.h>
 
 namespace Scg
 {
+
 //! Represents the float type.
 class FloatType : public ValueType
 {
   friend class LlvmContainer;
 
-  static FloatType *s_singleton;
-  ValueTypeSpecByName typeSpec;
+  //============================================================================
+  // Type Info
 
-private:
+  TYPE_INFO(FloatType, ValueType, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  private: static FloatType *s_singleton;
+  private: SharedPtr<ValueTypeSpec> typeSpec;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   //! Constructs a float type.
-  FloatType();
+  private: FloatType();
 
   //! Class destructor.
-  virtual ~FloatType()
+  private: virtual ~FloatType()
   {
   }
 
-protected:
-  //! @copydoc ValueType::initCastingTargets()
-  virtual void initCastingTargets() const override;
 
-public:
+  //============================================================================
+  // Member Functions
+
+  //! @copydoc ValueType::initCastingTargets()
+  protected: virtual void initCastingTargets() const override;
+
   /**
   * Gets a constant value of float type.
   * @param[in] value The value of the constant.
   */
-  llvm::Constant *getLlvmConstant(float value)
-
-  const;
+  public: llvm::Constant* getLlvmConstant(float value) const;
 
   //! @copydoc ValueType::getDefaultLLVMValue()
-  virtual llvm::Constant *
-  getDefaultLLVMValue(
-  )
-  const
+  public: virtual llvm::Constant* getDefaultLLVMValue() const
   {
-    return
-      getLlvmConstant(0.0f);
+    return getLlvmConstant(0.0f);
   }
 
   //! @copydoc ValueType::getName()
-  virtual
-  const std::string
-  getName()
-
-  const
+  public: virtual std::string const& getName() const
   {
-    return "float";
+    static std::string name("float");
+    return name;
   }
 
   //! @copydoc ValueType::getValueTypeSpec()
-  virtual const ValueTypeSpec *
-  getValueTypeSpec() const
-  override
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
   {
-    return &
-
-           typeSpec;
+    return this->typeSpec;
   }
 
   //! @copydoc ValueType::isEqualTo()
-  virtual
-  bool isEqualTo(const
-                 ValueType *other) const
+  public: virtual bool isEqualTo(ValueType const *other) const
   {
-    return dynamic_cast<const FloatType *>(other)
-           !=
-
-           nullptr;
+    return dynamic_cast<const FloatType *>(other) != nullptr;
   }
 
   //! @copydoc ValueType::createCastInst()
-  virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
-                                      llvm::Value *value, const ValueType *targetType) const override;
+  public: virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
+                                              llvm::Value *value,
+                                              const ValueType *targetType) const override;
 
-  static FloatType *get();
-};
-}
+  public: static FloatType *get();
 
-#endif // __FloatType_h__
+}; // class
+
+} // namespace
+
+#endif

@@ -1,7 +1,7 @@
 /**
- * @file Scg/Containers/Program.cpp
+ * @file Scg/CodeGenUnit.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -12,10 +12,10 @@
 #include <prerequisites.h>
 
 // Scg include files
-#include <BuiltInFunctions/BasicBinaryBuiltInFunction.h>
-#include <BuiltInFunctions/BasicUnaryBuiltInFunction.h>
+#include <Functions/BasicBinaryBuiltInFunction.h>
+#include <Functions/BasicUnaryBuiltInFunction.h>
 #include <Containers/Module.h>
-#include <Containers/Program.h>
+#include <CodeGenUnit.h>
 #include <LlvmContainer.h>
 #include <Types/DoubleType.h>
 #include <Types/FloatType.h>
@@ -32,109 +32,110 @@
 
 namespace Scg
 {
-void Program::initialiseBuiltInFunctions()
+
+void CodeGenUnit::initialiseBuiltInFunctions()
 {
   // add functions
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__add",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__add",
                              "int", "int", "int",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateAdd(a, b);
   }));
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__add",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__add",
                              "float", "float", "float",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFAdd(a, b);
   }));
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__add",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__add",
                              "double", "double", "double",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFAdd(a, b);
   }));
 
   // Subtract functions
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__sub",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__sub",
                              "int", "int", "int",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateSub(a, b);
   }));
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__sub",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__sub",
                              "float", "float", "float",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFSub(a, b);
   }));
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__sub",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__sub",
                              "double", "double", "double",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFSub(a, b);
   }));
 
   // Multiplication functions
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__mul",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__mul",
                              "int", "int", "int",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateMul(a, b);
   }));
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__mul",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__mul",
                              "float", "float", "float",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFMul(a, b);
   }));
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__mul",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__mul",
                              "double", "double", "double",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFMul(a, b);
   }));
 
   // Division functions
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__div",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__div",
                              "int", "int", "int",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateSDiv(a, b);
   }));
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__div",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__div",
                              "float", "float", "float",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFDiv(a, b);
   }));
-  this->builtInFunctions.add(new BasicBinaryBuiltInFunction("__div",
+  this->builtInFunctions.add(std::make_shared<BasicBinaryBuiltInFunction>("__div",
                              "double", "double", "double",
   [](llvm::IRBuilder<> *irb, llvm::Value *a, llvm::Value *b) {
     return irb->CreateFDiv(a, b);
   }));
 
   // Negative functions
-  this->builtInFunctions.add(new BasicUnaryBuiltInFunction("__neg",
+  this->builtInFunctions.add(std::make_shared<BasicUnaryBuiltInFunction>("__neg",
                              "int", "int",
   [](llvm::IRBuilder<> *irb, llvm::Value *a) {
     return irb->CreateNeg(a);
   }));
-  this->builtInFunctions.add(new BasicUnaryBuiltInFunction("__neg",
+  this->builtInFunctions.add(std::make_shared<BasicUnaryBuiltInFunction>("__neg",
                              "float", "float",
   [](llvm::IRBuilder<> *irb, llvm::Value *a) {
     return irb->CreateFNeg(a);
   }));
-  this->builtInFunctions.add(new BasicUnaryBuiltInFunction("__neg",
+  this->builtInFunctions.add(std::make_shared<BasicUnaryBuiltInFunction>("__neg",
                              "double", "double",
   [](llvm::IRBuilder<> *irb, llvm::Value *a) {
     return irb->CreateFNeg(a);
   }));
 }
 
-bool Program::hasFunction(const std::string &name,
+bool CodeGenUnit::hasFunction(const std::string &name,
                           const ValueTypeSpecArray &arguments) const
 {
-  auto nonConstThis = const_cast<Program*>(this);
+  auto nonConstThis = const_cast<CodeGenUnit*>(this);
   return nonConstThis->findDefineFunction(name, arguments).size() > 0 ||
          nonConstThis->findDeclareFunction(name, arguments).size() > 0;
 }
 
-std::vector<Function *> Program::getFunction(
+std::vector<Function *> CodeGenUnit::getFunction(
   const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
   std::vector<Function *> matches;
 
   for (auto module : this->modules) {
-    auto defFunc = module->getFunction(funcName, arguments);
+    auto defFunc = module->getFunction(funcName, arguments).get();
 
     if (defFunc != nullptr)
       matches.push_back(defFunc);
@@ -143,7 +144,7 @@ std::vector<Function *> Program::getFunction(
   return matches;
 }
 
-std::vector<Function *> Program::matchFunction(
+std::vector<Function *> CodeGenUnit::matchFunction(
   const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
   std::vector<Function *> matches;
@@ -159,8 +160,7 @@ std::vector<Function *> Program::matchFunction(
   if (matches.empty()) {
     // The module is not needed, so we pass the first one.
     // TODO: Remove the need to pass a module when it is not needed.
-    auto match = this->builtInFunctions.match(*this->modules[0], funcName,
-                 arguments);
+    auto match = this->builtInFunctions.match(*this->modules[0], funcName, arguments);
 
     if (match != nullptr) {
       matches.push_back(match);
@@ -170,7 +170,7 @@ std::vector<Function *> Program::matchFunction(
   return matches;
 }
 
-std::vector<DefineFunction*> Program::findDefineFunction(
+std::vector<DefineFunction*> CodeGenUnit::findDefineFunction(
   const std::string &funcName, const ValueTypeSpecArray &arguments)
 {
   std::vector<DefineFunction*> matches;
@@ -185,7 +185,7 @@ std::vector<DefineFunction*> Program::findDefineFunction(
   return matches;
 }
 
-std::vector<DeclareExtFunction*> Program::findDeclareFunction(const std::string &funcName,
+std::vector<DeclareExtFunction*> CodeGenUnit::findDeclareFunction(const std::string &funcName,
     const ValueTypeSpecArray &arguments)
 {
   std::vector<DeclareExtFunction*> matches;
@@ -200,7 +200,7 @@ std::vector<DeclareExtFunction*> Program::findDeclareFunction(const std::string 
   return matches;
 }
 
-std::string Program::compile()
+std::string CodeGenUnit::compile()
 {
   if (this->modules.empty())
     throw EXCEPTION(InvalidObjectException, "The program doesn't contain any "
@@ -208,10 +208,6 @@ std::string Program::compile()
 
   this->llvmModule = new llvm::Module("AlususProgram", LlvmContainer::getContext());
   this->llvmModule->setDataLayout(LlvmContainer::getDataLayout()->getStringRepresentation());
-
-  for (auto module : this->modules) {
-    module->setProgram(this);
-  }
 
   // Repeatedly call pre-code generation until all modules are ready for code generation.
   bool repeat = true;
@@ -222,7 +218,7 @@ std::string Program::compile()
     repeatCount++;
 
     for (auto module : this->modules) {
-      if (module->callPreGenerateCode() != Expression::CodeGenerationStage::CodeGeneration) {
+      if (module->callPreGenerateCode(this) != AstNode::CodeGenerationStage::CodeGeneration) {
         repeat = true;
       }
     }
@@ -235,7 +231,7 @@ std::string Program::compile()
 
   // Generates code for all modules.
   for (auto module : this->modules) {
-    module->callGenerateCode();
+    module->callGenerateCode(this);
   }
 
   std::string out;
@@ -246,8 +242,7 @@ std::string Program::compile()
 
   // Call post-code generation for all modules.
   for (auto module : this->modules) {
-    module->callPostGenerateCode();
-    module->setProgram(nullptr);
+    module->callPostGenerateCode(this);
   }
 
   delete llvmModule;
@@ -255,17 +250,13 @@ std::string Program::compile()
   return out;
 }
 
-void Program::execute(const char *functionName)
+void CodeGenUnit::execute(const char *functionName)
 {
   if (this->modules.empty())
     throw EXCEPTION(InvalidObjectException, "The program doesn't contain any "
                     "module and cannot be executed.");
 
   this->llvmModule = new llvm::Module("AlususProgram", LlvmContainer::getContext());
-
-  for (auto module : this->modules) {
-    module->setProgram(this);
-  }
 
   // Repeatedly call pre-code generation until all modules are ready for code generation.
   bool repeat = true;
@@ -276,7 +267,7 @@ void Program::execute(const char *functionName)
     repeatCount++;
 
     for (auto module : this->modules) {
-      if (module->callPreGenerateCode() != Expression::CodeGenerationStage::CodeGeneration) {
+      if (module->callPreGenerateCode(this) != AstNode::CodeGenerationStage::CodeGeneration) {
         repeat = true;
       }
     }
@@ -296,7 +287,7 @@ void Program::execute(const char *functionName)
     repeatCount++;
 
     for (auto module : this->modules) {
-      if (module->callGenerateCode() != Expression::CodeGenerationStage::PostCodeGeneration) {
+      if (module->callGenerateCode(this) != AstNode::CodeGenerationStage::PostCodeGeneration) {
         repeat = true;
       }
     }
@@ -323,7 +314,7 @@ void Program::execute(const char *functionName)
     repeatCount++;
 
     for (auto module : this->modules) {
-      if (module->callPostGenerateCode() != Expression::CodeGenerationStage::None) {
+      if (module->callPostGenerateCode(this) != AstNode::CodeGenerationStage::None) {
         repeat = true;
       }
     }
@@ -336,10 +327,8 @@ void Program::execute(const char *functionName)
     throw EXCEPTION(SystemException,
     "Couldn't finish the post-code generation step of compilation.");
     }*/
-  for (auto module : this->modules) {
-    module->setProgram(nullptr);
-  }
 
   delete llvmModule;
 }
-}
+
+} // namespace

@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/CharType.cpp
 *
-* @copyright Copyright (C) 2014 Hicham OUALI ALAMI
+* @copyright Copyright (C) 2016 Hicham OUALI ALAMI
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -22,17 +22,30 @@
 
 namespace Scg
 {
+
+//==============================================================================
+// Static Variables
+
 CharType *CharType::s_singleton = nullptr;
 
-//----------------------------------------------------------------------------
 
-CharType::CharType() : typeSpec("char")
+
+//==============================================================================
+// Constructors & Destructor
+
+CharType::CharType()
 {
+  this->typeSpec = std::make_shared<ValueTypeSpecByName>(STR("char"));
+
   this->llvmType = llvm::Type::getInt8Ty(LlvmContainer::getContext());
 
   if (s_singleton == nullptr)
     s_singleton = this;
 }
+
+
+//==============================================================================
+// Member Functions
 
 void CharType::initCastingTargets() const
 {
@@ -43,17 +56,15 @@ void CharType::initCastingTargets() const
   this->explicitCastingTargets.push_back(IntegerType::get());
 }
 
-//----------------------------------------------------------------------------
 
-llvm::Constant *CharType::getLlvmConstant(char value) const
+llvm::Constant* CharType::getLlvmConstant(char value) const
 {
   return llvm::ConstantInt::get(LlvmContainer::getContext(),
                                 llvm::APInt(sizeof(value) * 8, value, true));
 }
 
-//----------------------------------------------------------------------------
 
-llvm::Value *CharType::createCastInst(llvm::IRBuilder<> *irb,
+llvm::Value* CharType::createCastInst(llvm::IRBuilder<> *irb,
                                       llvm::Value *value, const ValueType *targetType) const
 {
   if (targetType == CharType::get()) {
@@ -69,7 +80,6 @@ llvm::Value *CharType::createCastInst(llvm::IRBuilder<> *irb,
   }
 }
 
-//----------------------------------------------------------------------------
 
 CharType *CharType::get()
 {
@@ -82,4 +92,4 @@ CharType *CharType::get()
   return s_singleton;
 }
 
-}
+} // namespace

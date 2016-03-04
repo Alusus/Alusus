@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/ArrayType.cpp
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -23,12 +23,19 @@
 
 namespace Scg
 {
-std::unordered_map<const ValueType *, ArrayType *> ArrayType::usedArrayTypes;
+
+//==============================================================================
+// Static Variables
+
+std::unordered_map<ValueType const*, ArrayType*> ArrayType::usedArrayTypes;
+
+
+//==============================================================================
+// Constructors & Destructor
 
 // TODO: We are calling clone() because the passed type spec gets automatically
 // freed. Is there a better way to avoid extra memory allocation and free?
 ArrayType::ArrayType(const ValueType *elemsType, unsigned int size) :
-  typeSpec(const_cast<ValueTypeSpec *>(elemsType->getValueTypeSpec()->clone()), size),
   elementsType(elemsType),
   arraySize(size)
 {
@@ -36,18 +43,23 @@ ArrayType::ArrayType(const ValueType *elemsType, unsigned int size) :
     throw EXCEPTION(InvalidArgumentException, "elemsType argument cannot be nullptr.");
   }
 
+  this->typeSpec = std::make_shared<ArrayValueTypeSpec>(elemsType->getValueTypeSpec()->clone(), size);
+
   this->name = elementsType->getName() +
                "[" + boost::lexical_cast<std::string>(arraySize)+"]";
   this->llvmType = llvm::ArrayType::get(
                      const_cast<llvm::Type *>(this->elementsType->getLlvmType()), this->arraySize);
 }
 
+
+//==============================================================================
+// Member Functions
+
 void ArrayType::initCastingTargets() const
 {
   // TODO: Implement this.
 }
 
-//------------------------------------------------------------------------------
 
 bool ArrayType::isEqualTo(const ValueType *other) const
 {
@@ -65,7 +77,8 @@ bool ArrayType::isEqualTo(const ValueType *other) const
   return true;
 }
 
-ArrayType *ArrayType::get(const ValueType *elementsType, int arraySize)
+
+ArrayType* ArrayType::get(const ValueType *elementsType, int arraySize)
 {
   auto it = ArrayType::usedArrayTypes.find(elementsType);
 
@@ -81,4 +94,5 @@ ArrayType *ArrayType::get(const ValueType *elementsType, int arraySize)
   ArrayType::usedArrayTypes.insert(std::make_pair(elementsType, arrayType));
   return arrayType;
 }
-}
+
+} // namespace

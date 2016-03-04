@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/StructType.cpp
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -14,21 +14,25 @@
 // Scg header files
 #include <Types/StructType.h>
 
-// LLVM header files
-
 namespace Scg
 {
-StructType::StructType(const std::string &name)
-  : name(name), typeSpec(name.c_str())
+
+//==============================================================================
+// Constructors & Destructor
+
+StructType::StructType(const std::string &name) : name(name)
 {
+  this->typeSpec = std::make_shared<ValueTypeSpecByName>(name.c_str());
   // We don't delete a structure type we create as it is defined using
   // LLVM's BumpPtrAllocator.
   this->llvmType = llvm::StructType::create(LlvmContainer::getContext(), this->name.c_str());
 }
 
-//------------------------------------------------------------------------------
 
-void StructType::setFields(const ValueTypeNameArray &fields)
+//==============================================================================
+// Member Functions
+
+void StructType::setFields(ValueTypeNameArray const &fields)
 {
   this->fields = fields;
   std::vector<llvm::Type *> llvmFields;
@@ -39,6 +43,7 @@ void StructType::setFields(const ValueTypeNameArray &fields)
   static_cast<llvm::StructType *>(this->llvmType)->setBody(llvmFields);
 }
 
+
 void StructType::initCastingTargets() const
 {
   this->implicitCastingTargets.push_back(this);
@@ -46,9 +51,8 @@ void StructType::initCastingTargets() const
   this->explicitCastingTargets.push_back(this);
 }
 
-//------------------------------------------------------------------------------
 
-bool StructType::isEqualTo(const ValueType *other) const
+bool StructType::isEqualTo(ValueType const *other) const
 {
   auto otherAsStruct = dynamic_cast<const StructType *>(other);
 
@@ -59,4 +63,5 @@ bool StructType::isEqualTo(const ValueType *other) const
   // TODO: For now we are just comparing the name. Later
   return otherAsStruct->getName().compare(otherAsStruct->getName()) == 0;
 }
-}
+
+} // namespace

@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/Return.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,26 +9,44 @@
  */
 //==============================================================================
 
-#ifndef __Return_h__
-#define __Return_h__
+#ifndef SCG_RETURN_H
+#define SCG_RETURN_H
 
-// Scg header files
+#include "core.h"
 #include <typedefs.h>
-#include <Expression.h>
+#include <Instructions/Instruction.h>
 #include <llvm_fwd.h>
 #include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
+
+class CodeGenUnit;
+
 /**
  * Represent a return statement.
  */
-class Return : public Expression
+class Return : public Instruction, public virtual Core::Data::Container
 {
-  //! A pointer to the LLVM Return instruction representing this return statement.
-  llvm::ReturnInst *retInst;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(Return, Instruction, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(Instruction, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The expression to return
+  private: SharedPtr<AstNode> retExpr;
+  //! A pointer to the LLVM Return instruction representing this return statement.
+  private: llvm::ReturnInst *retInst;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   // TODO: This expression should be a constant, because we only need to generate
   // IR code out of it. This means that the generateCode() method should be
   // converted to a constant method, and any variable that is changed inside the
@@ -42,40 +60,69 @@ public:
    *                        this expression will automatically get deleted, so it
    *                        should be allocated in the heap and not deleted.
    */
-  Return(Expression *expression) : retInst(0)
+  public: Return(SharedPtr<AstNode> const &expression) : retExpr(expression), retInst(0)
   {
-    children.push_back(expression);
+    OWN_SHAREDPTR(this->retExpr);
   }
+
+  public: virtual ~Return()
+  {
+    DISOWN_SHAREDPTR(this->retExpr);
+  }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Get the expression this statement should return.
    *
    * @return A pointer to the expression.
    */
-  const ExpressionArray::value_type getExpression() const
+  public: SharedPtr<AstNode> const& getExpression() const
   {
-    return children[0];
-  }
-  ExpressionArray::value_type getExpression()
-  {
-    return children[0];
+    return this->retExpr;
   }
 
-  //! @copydoc Expression::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override
+  //! @copydoc AstNode::getValueTypeSpec()
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
   {
     return getExpression()->getValueTypeSpec();
   }
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __Return_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 1;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    return this->retExpr.get();
+  }
+
+}; // class
+
+} // namespace
+
+#endif

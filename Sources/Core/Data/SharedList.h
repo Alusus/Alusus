@@ -75,11 +75,10 @@ class SharedList : public Node, public virtual DataOwner, public virtual ListCon
   public: void add(const std::initializer_list<SharedPtr<IdentifiableObject>> &objs);
 
   /// Add a new object to the list.
-  public: void add(SharedPtr<IdentifiableObject> const &val)
-  {
-    this->list.push_back(val);
-    OWN_SHAREDPTR(val);
-  }
+  public: Int add(SharedPtr<IdentifiableObject> const &val);
+
+  /// Insert an element at a specific index.
+  public: void insert(Int index, SharedPtr<IdentifiableObject> const &val);
 
   /// Change the element at the specified index.
   public: void set(Int index, SharedPtr<IdentifiableObject> const &val);
@@ -103,7 +102,7 @@ class SharedList : public Node, public virtual DataOwner, public virtual ListCon
   //============================================================================
   // DataOwner Implementation
 
-  /// @sa DataOwner::unsetIndexes()
+  /// @sa DataOwner::unsetIndexes()void
   public: virtual void unsetIndexes(Int from, Int to);
 
 
@@ -134,9 +133,12 @@ class SharedList : public Node, public virtual DataOwner, public virtual ListCon
   /// Add a new object to the list.
   public: virtual Int add(IdentifiableObject *val)
   {
-    this->list.push_back(getSharedPtr(val, true));
-    OWN_PLAINPTR(val);
-    return this->list.size()-1;
+    return this->add(getSharedPtr(val, true));
+  }
+
+  public: virtual void insert(Int index, IdentifiableObject *val)
+  {
+    this->insert(index, getSharedPtr(val, true));
   }
 
 }; // class

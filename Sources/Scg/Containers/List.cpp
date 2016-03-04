@@ -1,7 +1,7 @@
 /**
  * @file Scg/Containers/List.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,24 +24,18 @@ using namespace llvm;
 
 namespace Scg
 {
-Expression::CodeGenerationStage List::generateCode()
-{
-  // List doesn't evaluate to a value.
-  // TODO: Later, a list built-in type should be added to the language making list
-  // evaluate to a value!
-  return Expression::generateCode();
-}
-
-//----------------------------------------------------------------------------
 
 std::string List::toString()
 {
   std::vector<std::string> strs;
-  strs.reserve(this->children.size());
+  strs.reserve(this->children.getCount());
 
-  for (auto expr : this->children)
-    strs.push_back(expr->toString());
+  for (Int i = 0; i < this->children.getCount(); ++i) {
+    auto node = io_cast<AstNode>(this->children.get(i));
+    strs.push_back(node->toString());
+  }
 
   return "(" + boost::algorithm::join(strs, ", ") + ")";
 }
-}
+
+} // namespace

@@ -1,7 +1,7 @@
 /**
  * @file Scg/Values/IntegerConst.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,52 +9,72 @@
  */
 //==============================================================================
 
-#ifndef __IntegerConst_h__
-#define __IntegerConst_h__
+#ifndef SCG_INTEGERCONST_H
+#define SCG_INTEGERCONST_H
 
-// Scg header files
 #include <Values/Constant.h>
 
 namespace Scg
 {
+
+class CodeGenUnit;
+
 /**
  * Represent an integral value.
  */
 class IntegerConst : public Constant
 {
-  //! The value of the integer.
-  int value;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(IntegerConst, Constant, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The value of the integer.
+  private: int value;
+
+
+  //============================================================================
+  // Cosntructors & Destructor
+
   /**
    * Constructs a integer with the given value.
    */
-  IntegerConst(int value) : value(value)
+  public: IntegerConst(int value) : value(value)
   {
   }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Retrieves the integral value of this integer constant object.
    *
    * @return The integral value of this integer constant object.
    */
-  const int &getValue() const
+  public: int getValue() const
   {
-    return value;
+    return this->value;
   }
 
   //! @copydoc Value::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override;
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override;
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
+  //! @copydoc AstNode::toString()
   virtual std::string toString();
-};
-}
 
-#endif // __Integer_h__
+}; // class
+
+} // namespace
+
+#endif

@@ -1,7 +1,7 @@
 /**
  * @file Scg/CodeGeneration/ParamPassExp.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __ParamPassExp_h__
-#define __ParamPassExp_h__
+#ifndef SCG_PARAMPASSEXP_H
+#define SCG_PARAMPASSEXP_H
 
 // STL header files
 #include <vector>
@@ -25,6 +25,7 @@
 
 namespace Scg
 {
+
 class ParamPassExp
 {
 public:
@@ -44,7 +45,7 @@ private:
 
 public:
   ParamPassExp(CodeGenerator *gen,
-               const Core::Basic::SharedPtr<Core::Data::PrtRoute> &item);
+               Core::Basic::SharedPtr<Core::Data::PrtRoute> const &item);
 
   /**
    * Retrieves the number of parameters in this list expression.
@@ -83,7 +84,7 @@ public:
    * them as an array.
    * @return An array of the expressions inside this parameter pass expression.
    */
-  ExpressionArray parseExpressionList() const;
+  AstNodeSharedArray parseExpressionList() const;
 
   /**
    * If the parameter pass expression is a list of tokens, e.g. variable names,
@@ -98,7 +99,9 @@ public:
    * @return An array of value type IDs.
    */
   ValueTypeSpecArray parseValueTypes() const;
-};
-}
 
-#endif // __ParamPassExp_h__
+}; // class
+
+} // namespace
+
+#endif

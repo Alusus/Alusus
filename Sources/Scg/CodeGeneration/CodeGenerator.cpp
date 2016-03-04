@@ -1,7 +1,7 @@
 /**
  * @file Scg/CodeGeneration/CodeGenerator.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -98,29 +98,7 @@ void CodeGenerator::initializeIds()
 
 //----------------------------------------------------------------------------
 
-Module *CodeGenerator::generateModule(const std::string &name,
-                                      const SharedPtr<Core::Data::Module> &srcModule)
-{
-  Module *module = new Module(name);
-
-  for (auto i = 0; i < srcModule->getCount(); i++) {
-    auto item = srcModule->getShared(i);
-
-    if (item == 0) {
-      throw EXCEPTION(SyntaxErrorException, "Invalid object type in def command.");
-    }
-
-    for (auto stat : generateStatement(item)) {
-      module->appendExpression(stat);
-    }
-  }
-
-  return module;
-}
-
-//----------------------------------------------------------------------------
-
-ExpressionArray CodeGenerator::generateStatement(SharedPtr<IdentifiableObject> const &item)
+AstNodeSharedArray CodeGenerator::generateStatement(SharedPtr<IdentifiableObject> const &item)
 {
   auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
 
@@ -151,9 +129,9 @@ ExpressionArray CodeGenerator::generateStatement(SharedPtr<IdentifiableObject> c
 
 //----------------------------------------------------------------------------
 
-Block *CodeGenerator::generateSet(const SharedPtr<PrtList> &list)
+SharedPtr<Block> CodeGenerator::generateSet(const SharedPtr<PrtList> &list)
 {
-  ExpressionArray blockExprs;
+  AstNodeSharedArray blockExprs;
 
   for (auto i = 0; i < list->getCount(); i++) {
     auto element = list->getShared(i);
@@ -163,12 +141,12 @@ Block *CodeGenerator::generateSet(const SharedPtr<PrtList> &list)
     }
   }
 
-  return new Block(blockExprs);
+  return std::make_shared<Block>(blockExprs);
 }
 
 //----------------------------------------------------------------------------
 
-Block *CodeGenerator::generateInnerSet(SharedPtr<IdentifiableObject> const &item)
+SharedPtr<Block> CodeGenerator::generateInnerSet(SharedPtr<IdentifiableObject> const &item)
 {
   static SharedPtr<Reference> setReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Expression.Exp)."
@@ -179,7 +157,7 @@ Block *CodeGenerator::generateInnerSet(SharedPtr<IdentifiableObject> const &item
   IdentifiableObject *set = seeker.tryGet(setReference.get(), item.get());
 
   if (set == 0) {
-    ExpressionArray blockExprs;
+    AstNodeSharedArray blockExprs;
 
     for (auto stat : generateStatement(item)) {
       blockExprs.push_back(stat);
@@ -187,7 +165,7 @@ Block *CodeGenerator::generateInnerSet(SharedPtr<IdentifiableObject> const &item
 
     // Creates the block representing the inner set and sets its line and
     // column number.
-    auto block = new Block(blockExprs);
+    auto block = std::make_shared<Block>(blockExprs);
     auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
 
     if (metadata != nullptr) {
@@ -202,7 +180,7 @@ Block *CodeGenerator::generateInnerSet(SharedPtr<IdentifiableObject> const &item
 
 //----------------------------------------------------------------------------
 
-ExpressionArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> const &item)
+AstNodeSharedArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> const &item)
 {
   // Def -- [LIST]:
   //  Expression.Exp -- [LIST]:
@@ -302,36 +280,36 @@ ExpressionArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> cons
       return generateDefineVariable(name, routeData, isAssignment);
     } else if (routeMetadata->getProdId() == functionId)
       // Defining a function
-      return ExpressionArray({ generateDefineFunction(name, routeData) });
+      return AstNodeSharedArray({ generateDefineFunction(name, routeData) });
     else if (routeMetadata->getProdId() == structureId)
       // Defining a structure
-      return ExpressionArray({ generateDefineStructure(name, routeData) });
+      return AstNodeSharedArray({ generateDefineStructure(name, routeData) });
     else {
       this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                  STR("Invalid def command."),
                                  STR("SCG1004"), 1, itemMetadata->getSourceLocation(),
                                  nameToken->getText().c_str()));
-      return ExpressionArray();
+      return AstNodeSharedArray();
     }
   } else {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                STR("Invalid def command."),
                                STR("SCG1004"), 1, itemMetadata->getSourceLocation(),
                                nameToken->getText().c_str()));
-    return ExpressionArray();
+    return AstNodeSharedArray();
   }
 }
 
 //----------------------------------------------------------------------------
 
-ExpressionArray CodeGenerator::generateDefineVariable(Char const *name,
+AstNodeSharedArray CodeGenerator::generateDefineVariable(Char const *name,
     SharedPtr<IdentifiableObject> const &expr, bool isAssignment)
 {
   if (isAssignment) {
     auto value = generateExpression(expr);
-    auto defVar = new DefineVariable(value, name);
-    auto assign = new AssignmentOperator(
-      new Content(new IdentifierReference(name)), value);
+    auto defVar = std::make_shared<DefineVariable>(value, name);
+    auto assign = std::make_shared<AssignmentOperator>(
+      std::make_shared<Content>(std::make_shared<IdentifierReference>(name)), value);
 
     auto exprMetadata = expr->getInterface<ParsingMetadataHolder>();
 
@@ -340,25 +318,25 @@ ExpressionArray CodeGenerator::generateDefineVariable(Char const *name,
       assign->setSourceLocation(exprMetadata->getSourceLocation());
     }
 
-    return{ defVar, assign };
+    return {defVar, assign};
   } else {
     // Parses the variable type.
     auto type = parseVariableType(expr);
     // Creates the DefineVariable instruction and sets its line and column numbers.
-    auto defVar = new DefineVariable(type, name);
+    auto defVar = std::make_shared<DefineVariable>(type, name);
     auto exprMetadata = expr->getInterface<ParsingMetadataHolder>();
 
     if (exprMetadata != 0) {
       defVar->setSourceLocation(exprMetadata->getSourceLocation());
     }
 
-    return{ defVar };
+    return {defVar};
   }
 }
 
 //----------------------------------------------------------------------------
 
-DefineFunction *CodeGenerator::generateDefineFunction(Char const *name,
+SharedPtr<DefineFunction> CodeGenerator::generateDefineFunction(Char const *name,
     const SharedPtr<IdentifiableObject> &item)
 {
   return FunctionAstBlock(this, item.s_cast<PrtList>()).toDefineFunction(name);
@@ -366,7 +344,7 @@ DefineFunction *CodeGenerator::generateDefineFunction(Char const *name,
 
 //----------------------------------------------------------------------------
 
-DefineStruct *CodeGenerator::generateDefineStructure(Char const *name,
+SharedPtr<DefineStruct> CodeGenerator::generateDefineStructure(Char const *name,
     SharedPtr<IdentifiableObject> const &item)
 {
   static ReferenceSeeker seeker;
@@ -390,12 +368,15 @@ DefineStruct *CodeGenerator::generateDefineStructure(Char const *name,
 
   auto structBody = generateSet(bodyStmtList);
 
-  // Extract members names and types.
+  // Extract members names and types from structBody and ignore the body.
   VariableDefinitionArray fields;
+  for (Int i = 0; i < structBody->getCount(); ++i) {
+    auto child = io_cast<AstNode>(structBody->get(i));
+    if (child == 0) {
+      throw EXCEPTION(GenericException, STR("Invalid node type found."));
+    }
 
-  for (auto child : structBody->getChildren()) {
-    // TODO: Don't use dynamic_cast.
-    auto field = dynamic_cast<DefineVariable*>(child);
+    auto field = io_cast<DefineVariable>(child);
 
     if (field == nullptr) {
       this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -409,12 +390,8 @@ DefineStruct *CodeGenerator::generateDefineStructure(Char const *name,
     fields.push_back(VariableDefinition(typeSpec, name));
   }
 
-  // We are not going to attach the set (of DefineVariable's to the module) so
-  // we need to delete it manually.
-  delete structBody;
-
   // Creates the DefineStruct instruction and sets its line and column numbers.
-  auto defStruct = new DefineStruct(name, fields);
+  auto defStruct = std::make_shared<DefineStruct>(name, fields);
   defStruct->setSourceLocation(itemMetadata->getSourceLocation());
 
   return defStruct;
@@ -422,7 +399,7 @@ DefineStruct *CodeGenerator::generateDefineStructure(Char const *name,
 
 //----------------------------------------------------------------------------
 
-Return *CodeGenerator::generateReturn(SharedPtr<IdentifiableObject> const &item)
+SharedPtr<Return> CodeGenerator::generateReturn(SharedPtr<IdentifiableObject> const &item)
 {
   static ReferenceSeeker seeker;
   auto itemMetadata = item.ii_cast_get<ParsingMetadataHolder>();
@@ -443,14 +420,14 @@ Return *CodeGenerator::generateReturn(SharedPtr<IdentifiableObject> const &item)
   }
 
   // Creates the Return instruction and sets the line and column numbers.
-  auto ret = new Return(generateExpression(exp));
+  auto ret = std::make_shared<Return>(generateExpression(exp));
   ret->setSourceLocation(itemMetadata->getSourceLocation());
   return ret;
 }
 
 //----------------------------------------------------------------------------
 
-Expression* CodeGenerator::generateExpression(SharedPtr<IdentifiableObject> const &item)
+SharedPtr<AstNode> CodeGenerator::generateExpression(SharedPtr<IdentifiableObject> const &item)
 {
   auto itemMetadata = item->getInterface<ParsingMetadataHolder>();
 
@@ -459,7 +436,7 @@ Expression* CodeGenerator::generateExpression(SharedPtr<IdentifiableObject> cons
 
   auto id = itemMetadata->getProdId();
 
-  Expression *expr;
+  SharedPtr<AstNode> expr;
 
   if (id == expressionId)
     expr = generateExpression(item.s_cast_get<PrtList>()->getShared(0));
@@ -497,7 +474,7 @@ Expression* CodeGenerator::generateExpression(SharedPtr<IdentifiableObject> cons
   if (expr == 0) {
     // In case of errors we'll end up with a null expr. To avoid exceptions we'll
     // return a dummy expression.
-    expr = new StringConst(STR("__DUMMY__"));
+    expr = std::make_shared<StringConst>(STR("__DUMMY__"));
     expr->setSourceLocation(itemMetadata->getSourceLocation());
   }
 
@@ -506,7 +483,7 @@ Expression* CodeGenerator::generateExpression(SharedPtr<IdentifiableObject> cons
 
 //----------------------------------------------------------------------------
 
-Expression *CodeGenerator::generateVariableRef(SharedPtr<IdentifiableObject> const &parsedItem)
+SharedPtr<AstNode> CodeGenerator::generateVariableRef(SharedPtr<IdentifiableObject> const &parsedItem)
 {
   auto parsedItemMetadata = parsedItem->getInterface<ParsingMetadataHolder>();
 
@@ -542,12 +519,12 @@ Expression *CodeGenerator::generateVariableRef(SharedPtr<IdentifiableObject> con
   //    else
   if (id == subjectId) {
     auto varName = parseToken(parsedItem);
-    return new Content(new IdentifierReference(varName));
+    return std::make_shared<Content>(std::make_shared<IdentifierReference>(varName));
   }
   // This shouldn't be needed anymore.
   else if (id == parameterId) {
     auto varName = this->translateAliasedName(parsedItem.s_cast_get<PrtToken>()->getText().c_str());
-    return new Content(new IdentifierReference(varName));
+    return std::make_shared<Content>(std::make_shared<IdentifierReference>(varName));
   } else {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                STR("Expression doesn't evaluate to a variable reference."),
@@ -556,33 +533,33 @@ Expression *CodeGenerator::generateVariableRef(SharedPtr<IdentifiableObject> con
   }
 }
 
-Expression *CodeGenerator::generateConst(const SharedPtr<PrtToken> &literal)
+SharedPtr<AstNode> CodeGenerator::generateConst(const SharedPtr<PrtToken> &literal)
 {
   auto literalId = literal->getId();
   auto literalText = literal->getText();
-  Expression *constant;
+  SharedPtr<AstNode> constant;
 
   if (literalId == ID_GENERATOR->getId("LexerDefs.IntLiteral"))
     // Integral constant
-    constant = new IntegerConst(boost::lexical_cast<int>(literalText));
+    constant = std::make_shared<IntegerConst>(boost::lexical_cast<int>(literalText));
   else if (literalId == ID_GENERATOR->getId("LexerDefs.FloatLiteral")) {
     if (literalText[literalText.size() - 1] == 'f' ||
         literalText[literalText.size() - 1] == 'F')
       // Floating point constant
-      constant = new FloatConst(boost::lexical_cast<float>(
-                                  literalText.substr(0, literalText.size() - 1)));
+      constant = std::make_shared<FloatConst>(boost::lexical_cast<float>(
+                                              literalText.substr(0, literalText.size() - 1)));
     else
       // Double floating point constant
-      constant = new DoubleConst(boost::lexical_cast<float>(literalText));
+      constant = std::make_shared<DoubleConst>(boost::lexical_cast<float>(literalText));
   } else if (literalId == ID_GENERATOR->getId("LexerDefs.StringLiteral"))
     // String constant
-    constant = new StringConst(literalText);
+    constant = std::make_shared<StringConst>(literalText);
   else if (literalId == ID_GENERATOR->getId("LexerDefs.CharLiteral")) {
     // Char constant
     char tempLiteral[2];
     tempLiteral[0] = literalText[1];
     tempLiteral[1] = '\0';
-    constant = new CharConst(boost::lexical_cast<char>(tempLiteral));
+    constant = std::make_shared<CharConst>(boost::lexical_cast<char>(tempLiteral));
   } else
     throw EXCEPTION(NotImplementedException, "Not implemented yet.");
 
@@ -595,16 +572,16 @@ Expression *CodeGenerator::generateConst(const SharedPtr<PrtToken> &literal)
 
 //----------------------------------------------------------------------------
 
-List *CodeGenerator::generateList(const SharedPtr<PrtList> &listExpr)
+SharedPtr<List> CodeGenerator::generateList(const SharedPtr<PrtList> &listExpr)
 {
   // Generate an array containing the expressions representing the elements of
   // the list.
-  ExpressionArray elements;
+  AstNodeSharedArray elements;
 
   for (auto i = 0; i < listExpr->getCount(); i++)
     elements.push_back(generateExpression(listExpr->getShared(i)));
 
-  auto list = new List(elements);
+  auto list = std::make_shared<List>(elements);
 
   // Sets the line and the column of the source code that generated this
   // expression.
@@ -615,36 +592,36 @@ List *CodeGenerator::generateList(const SharedPtr<PrtList> &listExpr)
 
 //----------------------------------------------------------------------------
 
-Expression *CodeGenerator::generateBinaryOperator(const SharedPtr<PrtList> &cmpExpr)
+SharedPtr<AstNode> CodeGenerator::generateBinaryOperator(const SharedPtr<PrtList> &cmpExpr)
 {
-  auto createOperator = [](const std::string &opText, Expression *lhs, Expression *rhs) {
-    Expression *expr;
+  auto createOperator = [](const std::string &opText, SharedPtr<AstNode> const &lhs, SharedPtr<AstNode> const &rhs) {
+    SharedPtr<AstNode> expr;
 
     // Arithmetic operators
     if (opText.compare("+") == 0) {
-      expr = new CallFunction("__add", new List({ lhs, rhs }));
+      expr = std::make_shared<CallFunction>("__add", List::create({ lhs, rhs }));
     } else if (opText.compare("-") == 0) {
-      expr = new CallFunction("__sub", new List({ lhs, rhs }));
+      expr = std::make_shared<CallFunction>("__sub", List::create({ lhs, rhs }));
     } else if (opText.compare("*") == 0) {
-      expr = new CallFunction("__mul", new List({ lhs, rhs }));
+      expr = std::make_shared<CallFunction>("__mul", List::create({ lhs, rhs }));
     } else if (opText.compare("/") == 0) {
-      expr = new CallFunction("__div", new List({ lhs, rhs }));
+      expr = std::make_shared<CallFunction>("__div", List::create({ lhs, rhs }));
       // Comparison operators
     } else if (opText.compare("==") == 0)
-      expr = new BinaryOperator(BinaryOperator::EQUAL, lhs, rhs);
+      expr = std::make_shared<BinaryOperator>(BinaryOperator::EQUAL, lhs, rhs);
     else if (opText.compare("!=") == 0)
-      expr = new BinaryOperator(BinaryOperator::NOTEQUAL, lhs, rhs);
+      expr = std::make_shared<BinaryOperator>(BinaryOperator::NOTEQUAL, lhs, rhs);
     else if (opText.compare(">") == 0)
-      expr = new BinaryOperator(BinaryOperator::GREATERTHAN, lhs, rhs);
+      expr = std::make_shared<BinaryOperator>(BinaryOperator::GREATERTHAN, lhs, rhs);
     else if (opText.compare(">=") == 0)
-      expr = new BinaryOperator(BinaryOperator::GREATERTHAN_EQUAL, lhs, rhs);
+      expr = std::make_shared<BinaryOperator>(BinaryOperator::GREATERTHAN_EQUAL, lhs, rhs);
     else if (opText.compare("<") == 0)
-      expr = new BinaryOperator(BinaryOperator::LESSTHAN, lhs, rhs);
+      expr = std::make_shared<BinaryOperator>(BinaryOperator::LESSTHAN, lhs, rhs);
     else if (opText.compare("<=") == 0)
-      expr = new BinaryOperator(BinaryOperator::LESSTHAN_EQUAL, lhs, rhs);
+      expr = std::make_shared<BinaryOperator>(BinaryOperator::LESSTHAN_EQUAL, lhs, rhs);
     // Assignment operators
     else if (opText.compare("=") == 0)
-      expr = new AssignmentOperator(lhs, rhs);
+      expr = std::make_shared<AssignmentOperator>(lhs, rhs);
     // Invalid operator
     else
       throw EXCEPTION(InvalidOperationException, "Unrecognized binary operator.");
@@ -652,7 +629,7 @@ Expression *CodeGenerator::generateBinaryOperator(const SharedPtr<PrtList> &cmpE
     return expr;
   };
 
-  Expression *expr = nullptr;
+  SharedPtr<AstNode> expr;
 
   for (auto i = 0; i < cmpExpr->getCount();) {
     if (i == 0) {
@@ -676,7 +653,7 @@ Expression *CodeGenerator::generateBinaryOperator(const SharedPtr<PrtList> &cmpE
   return expr;
 }
 
-Expression *CodeGenerator::generateUnaryOperator(const SharedPtr<PrtList> &unaryExpr)
+SharedPtr<AstNode> CodeGenerator::generateUnaryOperator(const SharedPtr<PrtList> &unaryExpr)
 {
   auto opText = static_cast<PrtToken*>(unaryExpr->get(0))->getText();
   auto expr = generateExpression(unaryExpr->getShared(1));
@@ -685,13 +662,13 @@ Expression *CodeGenerator::generateUnaryOperator(const SharedPtr<PrtList> &unary
     // Return the expression as it is.
     return expr;
   } else if (opText.compare("-") == 0) {
-    expr = new CallFunction("__neg", new List({ expr }));
+    expr = std::make_shared<CallFunction>("__neg", List::create({ expr }));
   } else if (opText.compare("--") == 0) {
-    expr = new AssignmentOperator(expr,
-                                  new CallFunction("__sub", new List({ expr, new IntegerConst(1) })));
+    expr = std::make_shared<AssignmentOperator>(expr,
+      std::make_shared<CallFunction>("__sub", List::create({ expr, std::make_shared<IntegerConst>(1) })));
   } else if (opText.compare("++") == 0) {
-    expr = new AssignmentOperator(expr,
-                                  new CallFunction("__add", new List({ expr, new IntegerConst(1) })));
+    expr = std::make_shared<AssignmentOperator>(expr,
+      std::make_shared<CallFunction>("__add", List::create({ expr, std::make_shared<IntegerConst>(1) })));
   } else {
     throw EXCEPTION(InvalidOperationException, "Unrecognized unary operator.");
   }
@@ -700,7 +677,7 @@ Expression *CodeGenerator::generateUnaryOperator(const SharedPtr<PrtList> &unary
   return expr;
 }
 
-IfStatement *CodeGenerator::generateIfStatement(SharedPtr<IdentifiableObject> const &command)
+SharedPtr<IfStatement> CodeGenerator::generateIfStatement(SharedPtr<IdentifiableObject> const &command)
 {
   static ReferenceSeeker seeker;
   auto commandMetadata = command.ii_cast_get<ParsingMetadataHolder>();
@@ -739,7 +716,7 @@ IfStatement *CodeGenerator::generateIfStatement(SharedPtr<IdentifiableObject> co
   auto thenBody = generateInnerSet(body);
 
   // Creates the IfStatement instruction and sets the line and column numbers.
-  auto ifStat = new IfStatement(condition, thenBody, 0);
+  auto ifStat = std::make_shared<IfStatement>(condition, thenBody, SharedPtr<Block>::null);
   ifStat->setSourceLocation(commandMetadata->getSourceLocation());
 
   return ifStat;
@@ -747,7 +724,7 @@ IfStatement *CodeGenerator::generateIfStatement(SharedPtr<IdentifiableObject> co
 
 //----------------------------------------------------------------------------
 
-ForStatement *CodeGenerator::generateForStatement(SharedPtr<IdentifiableObject> const &command)
+SharedPtr<ForStatement> CodeGenerator::generateForStatement(SharedPtr<IdentifiableObject> const &command)
 {
   static ReferenceSeeker seeker;
 
@@ -771,7 +748,7 @@ ForStatement *CodeGenerator::generateForStatement(SharedPtr<IdentifiableObject> 
 
   auto initCondLoop = generateExpression(exp);
 
-  if (dynamic_cast<List*>(initCondLoop) == 0) {
+  if (!initCondLoop->isDerivedFrom<List>()) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                STR("A 'for' keyword should be followed by a list of three "
                                    "expressions specifying the initial, condition, and loop "
@@ -780,9 +757,9 @@ ForStatement *CodeGenerator::generateForStatement(SharedPtr<IdentifiableObject> 
     return 0;
   }
 
-  auto initCondLoopAsList = dynamic_cast<List*>(initCondLoop);
+  auto initCondLoopAsList = initCondLoop.io_cast_get<List>();
 
-  if (initCondLoopAsList->getElementCount() != 3) {
+  if (initCondLoopAsList->getCount() != 3) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                STR("A 'for' keyword should be followed by a list of three "
                                    "expressions specifying the initial, condition, and loop "
@@ -791,9 +768,9 @@ ForStatement *CodeGenerator::generateForStatement(SharedPtr<IdentifiableObject> 
     return 0;
   }
 
-  auto init = initCondLoopAsList->getElement(0);
-  auto cond = initCondLoopAsList->getElement(1);
-  auto loop = initCondLoopAsList->getElement(2);
+  auto init = initCondLoopAsList->getShared(0).s_cast<AstNode>();
+  auto cond = initCondLoopAsList->getShared(1).s_cast<AstNode>();
+  auto loop = initCondLoopAsList->getShared(2).s_cast<AstNode>();
 
   // The body of the for statement.
   static SharedPtr<Reference> bodyReference = REF_PARSER->parseQualifier(
@@ -810,7 +787,7 @@ ForStatement *CodeGenerator::generateForStatement(SharedPtr<IdentifiableObject> 
   auto thenBody = generateInnerSet(body);
 
   // Creates the IfStatement instruction and sets the line and column numbers.
-  auto forStat = new ForStatement(init, cond, loop, thenBody);
+  auto forStat = std::make_shared<ForStatement>(init, cond, loop, thenBody);
   forStat->setSourceLocation(commandMetadata->getSourceLocation());
 
   return forStat;
@@ -818,7 +795,7 @@ ForStatement *CodeGenerator::generateForStatement(SharedPtr<IdentifiableObject> 
 
 //----------------------------------------------------------------------------
 
-WhileStatement *CodeGenerator::generateWhileStatement(SharedPtr<IdentifiableObject> const &command)
+SharedPtr<WhileStatement> CodeGenerator::generateWhileStatement(SharedPtr<IdentifiableObject> const &command)
 {
   static ReferenceSeeker seeker;
 
@@ -857,7 +834,7 @@ WhileStatement *CodeGenerator::generateWhileStatement(SharedPtr<IdentifiableObje
   auto body = generateInnerSet(bodyAST);
 
   // Creates the IfStatement instruction and sets the line and column numbers.
-  auto whileState = new WhileStatement(cond, body);
+  auto whileState = std::make_shared<WhileStatement>(cond, body);
   whileState->setSourceLocation(commandMetadata->getSourceLocation());
 
   return whileState;
@@ -884,8 +861,7 @@ Char const* CodeGenerator::parseToken(SharedPtr<IdentifiableObject> const &item)
 
 //----------------------------------------------------------------------------
 
-ValueTypeSpec *CodeGenerator::parseVariableType(
-  Core::Basic::SharedPtr<IdentifiableObject> const &item)
+SharedPtr<ValueTypeSpec> CodeGenerator::parseVariableType(Core::Basic::SharedPtr<IdentifiableObject> const &item)
 {
   auto itemMetadata = item->getInterface<ParsingMetadataHolder>();
 
@@ -895,13 +871,13 @@ ValueTypeSpec *CodeGenerator::parseVariableType(
 
   if (itemMetadata->getProdId() == parameterId) {
     auto typeName = this->translateAliasedName(item.s_cast<PrtToken>()->getText().c_str());
-    return new ValueTypeSpecByName(typeName);
+    return std::make_shared<ValueTypeSpecByName>(typeName);
   }
 
   if (itemMetadata->getProdId() == subjectId) {
     // TODO: Handle the exception potentially thrown by parseToken.
     auto typeName = parseToken(item);
-    return new ValueTypeSpecByName(typeName);
+    return std::make_shared<ValueTypeSpecByName>(typeName);
   } else if (itemMetadata->getProdId() == functionalExpId) {
     // This is a compound type so we need to parse the modifier (ptr, ary, etc.)
     static ReferenceSeeker seeker;
@@ -914,7 +890,7 @@ ValueTypeSpec *CodeGenerator::parseVariableType(
       this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                  STR("Invalid variable type."),
                                  STR("SCG1016"), 1, itemMetadata->getSourceLocation()));
-      return new ValueTypeSpecByName(STR("__INVALID__"));
+      return std::make_shared<ValueTypeSpecByName>(STR("__INVALID__"));
     } else if (SBSTR(this->translateAliasedName(funcName->getText().c_str())) == "ptr") {
       // TODO: Re-factor this if block into a separate function.
       // Pointer to a type.
@@ -927,11 +903,11 @@ ValueTypeSpec *CodeGenerator::parseVariableType(
         this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                    STR("Invalid pointer type."),
                                    STR("SCG1017"), 1, funcName->getSourceLocation()));
-        return new ValueTypeSpecByName(STR("__INVALID__"));
+        return std::make_shared<ValueTypeSpecByName>(STR("__INVALID__"));
       }
 
       auto contentTypeSpec = parseVariableType(typeAstRoot);
-      return new PointerValueTypeSpec(contentTypeSpec);
+      return std::make_shared<PointerValueTypeSpec>(contentTypeSpec);
     } else if (SBSTR(this->translateAliasedName(funcName->getText().c_str())) == "ary") {
       // TODO: Re-factor this if block into a separate function.
       // Array of types
@@ -953,7 +929,7 @@ ValueTypeSpec *CodeGenerator::parseVariableType(
         this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                    STR("Invalid array type."),
                                    STR("SCG1018"), 1, funcName->getSourceLocation()));
-        return new ValueTypeSpecByName(STR("__INVALID__"));
+        return std::make_shared<ValueTypeSpecByName>(STR("__INVALID__"));
       }
 
       auto arraySizeAst = io_cast<PrtToken>(seeker.tryGet(arraySizeReference.get(), item.get()));
@@ -962,31 +938,30 @@ ValueTypeSpec *CodeGenerator::parseVariableType(
         this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                    STR("Invalid array type."),
                                    STR("SCG1018"), 1, funcName->getSourceLocation()));
-        return new ValueTypeSpecByName(STR("__INVALID__"));
+        return std::make_shared<ValueTypeSpecByName>(STR("__INVALID__"));
       }
 
       auto elementTypeSpec = parseVariableType(elementTypeAst);
       auto arraySize = boost::lexical_cast<int>(arraySizeAst->getText());
-      return new ArrayValueTypeSpec(elementTypeSpec, arraySize);
+      return std::make_shared<ArrayValueTypeSpec>(elementTypeSpec, arraySize);
     } else {
       this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                  STR("Invalid variable type."),
                                  STR("SCG1019"), 1, funcName->getSourceLocation(),
                                  funcName->getText().c_str()));
-      return new ValueTypeSpecByName(STR("__INVALID__"));
+      return std::make_shared<ValueTypeSpecByName>(STR("__INVALID__"));
     }
   } else {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
                                STR("Invalid variable type."),
                                STR("SCG1019"), 1, itemMetadata->getSourceLocation()));
-    return new ValueTypeSpecByName(STR("__INVALID__"));
+    return std::make_shared<ValueTypeSpecByName>(STR("__INVALID__"));
   }
 }
 
 //----------------------------------------------------------------------------
 
-VariableDefinition CodeGenerator::parseVariableDefinition(
-  SharedPtr<IdentifiableObject> const &astBlockRoot)
+VariableDefinition CodeGenerator::parseVariableDefinition(SharedPtr<IdentifiableObject> const &astBlockRoot)
 {
   // Example of an AST block this function parses
   //
@@ -1036,8 +1011,7 @@ VariableDefinition CodeGenerator::parseVariableDefinition(
 
 //----------------------------------------------------------------------------
 
-VariableDefinitionArray CodeGenerator::parseFunctionArguments(
-  SharedPtr<IdentifiableObject> const &astBlockRoot)
+VariableDefinitionArray CodeGenerator::parseFunctionArguments(SharedPtr<IdentifiableObject> const &astBlockRoot)
 {
   // Example of an AST block this function parses:
   //
@@ -1067,8 +1041,7 @@ VariableDefinitionArray CodeGenerator::parseFunctionArguments(
   VariableDefinitionArray args;
 
   if (id == expressionId) {
-    return parseFunctionArguments(astBlockRoot.s_cast_get<PrtList>()
-                                  ->getShared(0));
+    return parseFunctionArguments(astBlockRoot.s_cast_get<PrtList>()->getShared(0));
   }
 
   if (id == subjectId) {

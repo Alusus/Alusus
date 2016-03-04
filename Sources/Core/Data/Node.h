@@ -57,7 +57,7 @@ class Node : public IdentifiableObject
   }
 
   /// Find a node's owner of a specific type.
-  template<class T> T* findOwner()
+  template<class T> T* findOwner() const
   {
     Node *node = this->getOwner();
     while (node != 0 && !node->isDerivedFrom<T>()) node = node->getOwner();

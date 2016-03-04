@@ -141,6 +141,13 @@ class PlainNamedList : public Node,
 
   public: virtual Int add(Char const *name, IdentifiableObject *val);
 
+  public: virtual void insert(Int index, IdentifiableObject *val)
+  {
+    this->insert(index, 0, val);
+  }
+
+  public: virtual void insert(Int index, Char const *name, IdentifiableObject *val);
+
   public: virtual void set(Int index, Char const *name, IdentifiableObject *val);
 
   public: virtual const SbStr& getName(Int index) const;

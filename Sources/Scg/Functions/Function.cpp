@@ -1,5 +1,5 @@
 /**
- * @file Scg/BuiltInFunctions/Function.cpp
+ * @file Scg/Functions/Function.cpp
  *
  * @copyright Copyright (C) 2015 Rafid Khalid Abdullah
  *
@@ -15,7 +15,7 @@
 #include <llvm/IR/IRBuilder.h>
 
 // Scg files
-#include <BuiltInFunctions/Function.h>
+#include <Functions/Function.h>
 #include <Containers/Block.h>
 #include <Types/DoubleType.h>
 

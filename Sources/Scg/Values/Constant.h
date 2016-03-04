@@ -1,7 +1,7 @@
 /**
  * @file Scg/Values/Constant.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,32 +9,38 @@
  */
 //==============================================================================
 
-#ifndef __Constant_h__
-#define __Constant_h__
+#ifndef SCG_CONSTANT_H
+#define SCG_CONSTANT_H
 
-// Scg header files
+#include "core.h"
 #include <typedefs.h>
 #include <Values/Value.h>
-
-// LLVM class declarations
 #include <llvm_fwd.h>
 
 namespace Scg
 {
-class ValueType;
-}
 
-namespace Scg
-{
+class ValueType;
+
 /**
  * Represent a constant.
  */
 class Constant : public Value
 {
-protected:
-  //! The LLVM Value object representing the constant.
-  llvm::Value *llvmValue;
-};
-}
+  //============================================================================
+  // Type Info
 
-#endif // __Constant_h__
+  TYPE_INFO(Constant, Value, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The LLVM Value object representing the constant.
+  protected: llvm::Value *llvmValue;
+
+}; // class
+
+} // namespace
+
+#endif

@@ -31,6 +31,8 @@ class ListContainer : public virtual Container
 
   public: virtual Int add(IdentifiableObject *val) = 0;
 
+  public: virtual void insert(Int index, IdentifiableObject *val) = 0;
+
 }; // class
 
 } } // namespace

@@ -12,7 +12,6 @@
 #include <core.h>   // Alusus core header files.
 #include <llvm/IR/IRBuilder.h>
 #include <scg.h>
-#include <CodeGeneration/CodeGenerator.h>
 #include <ParsingHandlers/BuildParsingHandler.h>
 
 namespace Scg
@@ -28,14 +27,7 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
 {
   SharedPtr<IdentifiableObject> item = state->getData();
 
-  static CodeGenerator generator;
   static ReferenceSeeker seeker;
-
-  // Set the build msg store.
-  generator.setBuildMsgStore(state->getBuildMsgStore());
-
-  // Set the aliases dictionary.
-  generator.setAliasDictionary(static_cast<SharedMap*>(state->getDataStack()->tryGet(this->aliasDictionaryRef.get())));
 
   static SharedPtr<Reference> nameReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
@@ -54,16 +46,13 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
     try {
       Word prevBuildMsgCount = state->getBuildMsgStore()->getCount();
       LlvmContainer::initialize();
-      Program program;
+      CodeGenUnit program;
       program.setBuildMsgStore(state->getBuildMsgStore());
       auto *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).io_cast_get<Data::Module>();
 
       for (auto i = 0; i < rootModule->getCount(); i++) {
-        auto statList = rootModule->getShared(i).io_cast<Data::Module>();
-
-        if (statList == 0) continue;
-
-        Module *module = generator.generateModule(name->getText(), statList);
+        auto module = rootModule->getShared(i).io_cast_get<Module>();
+        if (module == 0) continue;
         program.addModule(module);
       }
 

@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/DoubleType.h
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -9,76 +9,92 @@
 */
 //==============================================================================
 
-#ifndef __DoubleType_h__
-#define __DoubleType_h__
+#ifndef SCG_DOUBLETYPE_H
+#define SCG_DOUBLETYPE_H
 
-// Scg header files
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
-
-// LLVM forward declarations
 #include <llvm_fwd.h>
 
 namespace Scg
 {
+
 //! Represents the double type.
 class DoubleType : public ValueType
 {
   friend class LlvmContainer;
 
-  static DoubleType *s_singleton;
-  ValueTypeSpecByName typeSpec;
+  //============================================================================
+  // Type Info
 
-private:
+  TYPE_INFO(DoubleType, ValueType, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  private: static DoubleType *s_singleton;
+  private: SharedPtr<ValueTypeSpec> typeSpec;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   //! Constructs a double type.
-  DoubleType();
+  private: DoubleType();
 
   //! Destructor.
-  virtual ~DoubleType()
+  private: virtual ~DoubleType()
   {
   }
 
-protected:
-  //! @copydoc ValueType::initCastingTargets()
-  virtual void initCastingTargets() const override;
 
-public:
+  //============================================================================
+  // Member Functions
+
+  //! @copydoc ValueType::initCastingTargets()
+  protected: virtual void initCastingTargets() const override;
+
   /**
   * Gets a constant value of double type.
   * @param[in] value The value of the constant.
   */
-  llvm::Constant *getLlvmConstant(double value) const;
+  public: llvm::Constant *getLlvmConstant(double value) const;
 
   //! @copydoc ValueType::getDefaultLLVMValue()
-  virtual llvm::Constant *getDefaultLLVMValue() const
+  public: virtual llvm::Constant *getDefaultLLVMValue() const
   {
     return getLlvmConstant(0.0);
   }
 
   //! @copydoc ValueType::getName()
-  virtual const std::string getName() const
+  public: virtual std::string const& getName() const
   {
-    return "double";
+    static std::string name("double");
+    return name;
   }
 
   //! @copydoc ValueType::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
   {
-    return &typeSpec;
+    return this->typeSpec;
   }
 
   //! @copydoc ValueType::isEqualTo()
-  virtual bool isEqualTo(const ValueType *other) const
+  public: virtual bool isEqualTo(ValueType const *other) const
   {
     return dynamic_cast<const DoubleType *>(other) != nullptr;
   }
 
   //! @copydoc ValueType::createCastInst()
-  virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
-                                      llvm::Value *value, const ValueType *targetType) const override;
+  public: virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
+                                              llvm::Value *value,
+                                              const ValueType *targetType) const override;
 
-  static DoubleType *get();
-};
-}
+  public: static DoubleType *get();
 
-#endif // __DoubleType_h__
+}; // class
+
+} // namespace
+
+#endif

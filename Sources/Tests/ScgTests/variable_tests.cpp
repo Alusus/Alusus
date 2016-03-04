@@ -27,20 +27,20 @@ bool TestDefinePrimitiveTypes()
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto mainBody = new Block({
-    new DefineVariable(CreateTypeSpecByName("int"), "testInt"),
-    new DefineVariable(CreateTypeSpecByName("float"), "testFloat"),
-    new DefineVariable(CreateTypeSpecByName("double"), "testDouble"),
-    new DefineVariable(CreateTypeSpecByName("string"), "testString"),
-    new Return(new IntegerConst(0))
+  auto mainBody = Block::create({
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("int"), "testInt"),
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("float"), "testFloat"),
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("double"), "testDouble"),
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("string"), "testString"),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   });
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), mainBody);
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefinePrimitiveTypes");
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   std::cout << "TestDefinePrimitiveTypes succeeded." << std::endl;
@@ -58,20 +58,20 @@ bool TestDefinePointersOfPrimitiveTypes()
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto mainBody = new Block({
-    new DefineVariable(CreatePointerToPrimitiveTypeSpec("int"), "testInt"),
-    new DefineVariable(CreatePointerToPrimitiveTypeSpec("float"), "testFloat"),
-    new DefineVariable(CreatePointerToPrimitiveTypeSpec("double"), "testDouble"),
-    new DefineVariable(CreatePointerToPrimitiveTypeSpec("string"), "testString"),
-    new Return(new IntegerConst(0))
+  auto mainBody = Block::create({
+    std::make_shared<DefineVariable>(CreatePointerToPrimitiveTypeSpec("int"), "testInt"),
+    std::make_shared<DefineVariable>(CreatePointerToPrimitiveTypeSpec("float"), "testFloat"),
+    std::make_shared<DefineVariable>(CreatePointerToPrimitiveTypeSpec("double"), "testDouble"),
+    std::make_shared<DefineVariable>(CreatePointerToPrimitiveTypeSpec("string"), "testString"),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   });
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), mainBody);
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefinePointerOfPrimitiveTypes");
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   std::cout << "TestDefinePointerOfPrimitiveTypes succeeded." << std::endl;
@@ -88,20 +88,20 @@ bool TestDefineArraysOfPrimitiveTypes()
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto mainBody = new Block({
-    new DefineVariable(CreateArrayOfPrimitiveTypeSpec("int", 10), "testInt"),
-    new DefineVariable(CreateArrayOfPrimitiveTypeSpec("float", 10), "testFloat"),
-    new DefineVariable(CreateArrayOfPrimitiveTypeSpec("double", 10), "testDouble"),
-    new DefineVariable(CreateArrayOfPrimitiveTypeSpec("string", 10), "testString"),
-    new Return(new IntegerConst(0))
+  auto mainBody = Block::create({
+    std::make_shared<DefineVariable>(CreateArrayOfPrimitiveTypeSpec("int", 10), "testInt"),
+    std::make_shared<DefineVariable>(CreateArrayOfPrimitiveTypeSpec("float", 10), "testFloat"),
+    std::make_shared<DefineVariable>(CreateArrayOfPrimitiveTypeSpec("double", 10), "testDouble"),
+    std::make_shared<DefineVariable>(CreateArrayOfPrimitiveTypeSpec("string", 10), "testString"),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   });
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), mainBody);
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefineArraysOfPrimitiveTypes");
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   std::cout << "TestDefineArraysOfPrimitiveTypes succeeded." << std::endl;
@@ -118,21 +118,21 @@ bool TestDefineStructure()
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto mainBody = new Block({
-    new DefineStruct("Point", {
+  auto mainBody = Block::create({
+    DefineStruct::create("Point", {
       VariableDefinition(CreateTypeSpecByName("int"), "x"),
       VariableDefinition(CreateTypeSpecByName("int"), "y")
     }),
-    new DefineVariable(CreateTypeSpecByName("Point"), "point"),
-    new Return(new IntegerConst(0))
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("Point"), "point"),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   });
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), mainBody);
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefineStructure");
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   std::cout << "TestDefineStructure succeeded." << std::endl;
@@ -149,21 +149,21 @@ bool TestDefineArrayOfStructure()
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto mainBody = new Block({
-    new DefineStruct("Point", {
+  auto mainBody = Block::create({
+    DefineStruct::create("Point", {
       VariableDefinition(CreateTypeSpecByName("int"), "x"),
       VariableDefinition(CreateTypeSpecByName("int"), "y")
     }),
-    new DefineVariable(CreateArrayOfPrimitiveTypeSpec("Point", 10), "points"),
-    new Return(new IntegerConst(0))
+    std::make_shared<DefineVariable>(CreateArrayOfPrimitiveTypeSpec("Point", 10), "points"),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   });
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), mainBody);
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefineArrayOfStructure");
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   std::cout << "TestDefineArrayOfStructure succeeded." << std::endl;
@@ -180,22 +180,22 @@ bool TestDefineLinkListNodeStructure()
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto mainBody = new Block({
-    new DefineStruct("LinkListNode", {
+  auto mainBody = Block::create({
+    DefineStruct::create("LinkListNode", {
       VariableDefinition(CreateTypeSpecByName("int"), "data"),
       VariableDefinition(CreatePointerToPrimitiveTypeSpec("LinkListNode"), "prev"),
       VariableDefinition(CreatePointerToPrimitiveTypeSpec("LinkListNode"), "next"),
     }),
-    new DefineVariable(CreateTypeSpecByName("LinkListNode"), "node"),
-    new Return(new IntegerConst(0))
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("LinkListNode"), "node"),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   });
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), mainBody);
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefineLinkListNodeStructure");
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   std::cout << "TestDefineLinkListNodeStructure succeeded." << std::endl;
@@ -212,20 +212,20 @@ bool TestDefinePointerToArray()
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto mainBody = new Block({
-    new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("int", 10)), "ints"),
-    new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("float", 10)), "floats"),
-    new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("double", 10)), "doubles"),
-    new DefineVariable(new PointerValueTypeSpec(CreateArrayOfPrimitiveTypeSpec("string", 10)), "strings"),
-    new Return(new IntegerConst(0))
+  auto mainBody = Block::create({
+    std::make_shared<DefineVariable>(std::make_shared<PointerValueTypeSpec>(CreateArrayOfPrimitiveTypeSpec("int", 10)), "ints"),
+    std::make_shared<DefineVariable>(std::make_shared<PointerValueTypeSpec>(CreateArrayOfPrimitiveTypeSpec("float", 10)), "floats"),
+    std::make_shared<DefineVariable>(std::make_shared<PointerValueTypeSpec>(CreateArrayOfPrimitiveTypeSpec("double", 10)), "doubles"),
+    std::make_shared<DefineVariable>(std::make_shared<PointerValueTypeSpec>(CreateArrayOfPrimitiveTypeSpec("string", 10)), "strings"),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   });
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), mainBody);
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefinePointerToArray");
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   std::cout << "TestDefinePointerToArray succeeded." << std::endl;
@@ -242,20 +242,20 @@ bool TestDefineArrayOfPointers()
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto mainBody = new Block({
-    new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("int"), 10), "ints"),
-    new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("float"), 10), "floats"),
-    new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("double"), 10), "doubles"),
-    new DefineVariable(new ArrayValueTypeSpec(CreatePointerToPrimitiveTypeSpec("string"), 10), "strings"),
-    new Return(new IntegerConst(0))
+  auto mainBody = Block::create({
+    std::make_shared<DefineVariable>(std::make_shared<ArrayValueTypeSpec>(CreatePointerToPrimitiveTypeSpec("int"), 10), "ints"),
+    std::make_shared<DefineVariable>(std::make_shared<ArrayValueTypeSpec>(CreatePointerToPrimitiveTypeSpec("float"), 10), "floats"),
+    std::make_shared<DefineVariable>(std::make_shared<ArrayValueTypeSpec>(CreatePointerToPrimitiveTypeSpec("double"), 10), "doubles"),
+    std::make_shared<DefineVariable>(std::make_shared<ArrayValueTypeSpec>(CreatePointerToPrimitiveTypeSpec("string"), 10), "strings"),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   });
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), mainBody);
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestDefineArrayOfPointers");
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   std::cout << "TestDefineArrayOfPointers succeeded." << std::endl;

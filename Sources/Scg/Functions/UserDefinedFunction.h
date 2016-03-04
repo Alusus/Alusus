@@ -1,7 +1,7 @@
 /**
- * @file Scg/Functions/Function.h
+ * @file Scg/Functions/UserDefinedFunction.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,12 +9,11 @@
  */
 //==============================================================================
 
-#ifndef __UserDefinedFunction_h__
-#define __UserDefinedFunction_h__
+#ifndef SCG_USERDEFINEDFUNCTION_H
+#define SCG_USERDEFINEDFUNCTION_H
 
 // Scg header files
-#include <BuiltInFunctions/Function.h>
-#include <Functions/FunctionSignature.h>
+#include <Functions/Function.h>
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
 #include <Values/Value.h>
@@ -23,33 +22,46 @@
 
 namespace Scg
 {
+
 class Block;
 class ValueTypeSpec;
-}
+class CodeGenUnit;
 
-namespace Scg
-{
 /**
  * Represents a function definition, i.e. a prototype and body.
  */
-class UserDefinedFunction : public Function
+class UserDefinedFunction : public Function, public virtual Core::Data::Container
 {
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(UserDefinedFunction, Function, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(Function, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
   //! A string containing the name of the function being defined or linked to.
-  std::string name;
+  private: std::string name;
   //! The return value type of the function being defined or linked to.
-  ValueTypeSpec *returnTypeSpec;
+  private: SharedPtr<ValueTypeSpec> returnTypeSpec;
   /*! An array containing the definitions (types and names) of the arguments of
     the function being defined. */
-  VariableDefinitionArray argDefs;
+  private: VariableDefinitionArray argDefs;
   //! Whether the function being linked to has a variable number of arguments.
-  bool varArgs = false;
+  private: bool varArgs = false;
+  private: SharedPtr<Block> body;
   //! A pointer to the LLVM function representing this function.
-  llvm::Function *llvmFunction = nullptr;
+  private: llvm::Function *llvmFunction = nullptr;
   /*! An array containing the Alusus variables representing the arguments of the
-    function. */
-  VariableArray args;
+      function. */
+  private: VariableArray args;
 
-public:
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Construct a function with the given name, arguments, and body.
    * @param[in] name            The name of the function.
@@ -57,105 +69,103 @@ public:
    * @param[in] arguments       The arguments of the function.
    * @param[in] body            The body of the function.
    */
-  UserDefinedFunction(const std::string &name, ValueTypeSpec *returnTypeSpec,
-                      const VariableDefinitionArray &argDefs, Block *body);
+  public: UserDefinedFunction(std::string const &name, SharedPtr<ValueTypeSpec> const &returnTypeSpec,
+                              VariableDefinitionArray const &argDefs, SharedPtr<Block> const &body);
 
-  //! Class destructor.
-  ~UserDefinedFunction();
+  public: virtual ~UserDefinedFunction();
 
-  // TODO: Document these functions.
+
+  //============================================================================
+  // Member Functions
 
   //! @copydoc Function::getName().
-  virtual const std::string &getName() const
+  public: virtual const std::string &getName() const
   {
     return name;
   }
 
   // FIXME: Implement the functions below.
 
-  //! @copydoc Expression::getValueTypeSpec().
-  virtual const ValueTypeSpec *getValueTypeSpec() const override
+  //! @copydoc AstNode::getValueTypeSpec().
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
   {
-    return returnTypeSpec;
+    return this->returnTypeSpec;
   }
 
-  const VariableDefinitionArray &getArgumentDefinitions() const
+  public: const VariableDefinitionArray &getArgumentDefinitions() const
   {
     return argDefs;
   }
 
-  //  //! @copydoc Expression::GetArgumentType().
-  //  virtual const ValueType *GetArgumentType(int n) const
-  //  {
-  //    return argTypes[n];
-  //  }
-  //
-  //  //! @copydoc Function::GetArgumentCount()
-  //  virtual ExpressionArray::size_type GetArgumentCount() const override
-  //  {
-  //    return getArgumentDefinitions().size();
-  //  }
-
   //! @copydoc Function::isVarArgs()
-  virtual bool isVarArgs() const
+  public: virtual bool isVarArgs() const
   {
     return varArgs;
   }
 
   //! @copydoc ExternalFunction::createLLVMInstruction()
-  virtual llvm::Value *createLLVMInstruction(llvm::IRBuilder<> *irb,
+  public: virtual llvm::Value *createLLVMInstruction(llvm::IRBuilder<> *irb,
       const std::vector<llvm::Value*> &args) const override;
 
-  // @{
   /**
    * Retrieves the LLVM function generated by this function.
    * @note This function should only be used during the after the call
    * to generateCode().
    * @return The LLVM function generated by this function.
    */
-  const llvm::Function *getLlvmFunction() const
+  public: llvm::Function* getLlvmFunction() const
   {
     return llvmFunction;
   }
-  llvm::Function *getLlvmFunction()
-  {
-    return llvmFunction;
-  }
-  // @}
 
   /**
    * Get the expression representing the left-hand side of the binary operator.
    *
    * @return A pointer to the left-hand side expression.
    */
-  const Block *getBody() const
+  public: SharedPtr<Block> const& getBody() const
   {
-    return (Block*)children[0];
-  }
-  Block *getBody()
-  {
-    return (Block*)children[0];
+    return this->body;
   }
 
-private:
   /**
    * Called by preGenerateCode() if this object represents a function.
    */
-  void createFunction();
+  private: void createFunction(CodeGenUnit *codeGenUnit);
 
-public:
-  //! @copydoc Expression::preGenerateCode()
-  virtual CodeGenerationStage preGenerateCode();
+  //! @copydoc AstNode::preGenerateCode()
+  public: virtual CodeGenerationStage preGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-private:
-  virtual void setFunction(UserDefinedFunction *function);
-};
-}
 
-#endif // __UserDefinedFunction_h__
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 1;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    return this->body.get();
+  }
+
+}; // class
+
+} // namespace
+
+#endif

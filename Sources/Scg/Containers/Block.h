@@ -1,7 +1,7 @@
 /**
  * @file Scg/Containers/Block.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,12 +9,12 @@
  */
 //==============================================================================
 
-#ifndef __Block_h__
-#define __Block_h__
+#ifndef SCG_BLOCK_H
+#define SCG_BLOCK_H
 
 // Scg header files
 #include <typedefs.h>
-#include <Expression.h>
+#include <AstNode.h>
 
 // LLVM header files
 #pragma warning(disable: 4146 4800 4355 4996)
@@ -24,43 +24,63 @@
 
 namespace Scg
 {
+
 /**
  * Represent a block of expressions.
  */
-class Block : public Expression
+class Block : public AstNode, public virtual Core::Data::Container
 {
-  //! A map containing the variables defined in this block.
-  VariableMap variableMap;
-  //! The LLVM BasicBlock object representing the block.
-  llvm::BasicBlock *llvmBasicBlock;
-  //! The IR builder used to generate IR code when generateCode() is called.
-  llvm::IRBuilder<> *irBuilder;
+  //============================================================================
+  // Type Info
 
-public:
-  /**
-   * Constructs an empty block.
-   */
-  Block() : llvmBasicBlock(0), irBuilder(0)
+  TYPE_INFO(Block, AstNode, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(AstNode, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
+  //! A map containing the variables defined in this block.
+  private: VariableMap variableMap;
+  //! The LLVM BasicBlock object representing the block.
+  private: llvm::BasicBlock *llvmBasicBlock;
+  //! The IR builder used to generate IR code when generateCode() is called.
+  private: llvm::IRBuilder<> *irBuilder;
+  //! An array containing the children nodes.
+  private: Core::Data::SharedList children;
+
+
+  //============================================================================
+  // Constructors
+
+  public: Block() : llvmBasicBlock(0), irBuilder(0)
   {
     this->preserveChildrenCodeGenerationOrder = true;
-
   }
 
-  /**
-   * Constructs an empty block.
-   */
-  Block(const ExpressionArray &body);
+  public: Block(AstNodeSharedArray const &body);
+
+  public: virtual ~Block();
+
+  public: static SharedPtr<Block> create(AstNodeSharedArray const &body)
+  {
+    return std::make_shared<Block>(body);
+  }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Get a pointer to the LLVM IR builder.
    *
    * @return A pointer to the LLVM IR builder.
    */
-  const llvm::IRBuilder<> *getIRBuilder() const
+  public: const llvm::IRBuilder<> *getIRBuilder() const
   {
     return irBuilder;
   }
-  llvm::IRBuilder<> *getIRBuilder()
+  public: llvm::IRBuilder<> *getIRBuilder()
   {
     return irBuilder;
   }
@@ -70,33 +90,27 @@ public:
    *
    * @return A pointer to the LLVM Basic Block.
    */
-  const llvm::BasicBlock *getLlvmBB() const
+  public: const llvm::BasicBlock *getLlvmBB() const
   {
     return llvmBasicBlock;
   }
-  llvm::BasicBlock *getLlvmBB()
+  public: llvm::BasicBlock *getLlvmBB()
   {
     return llvmBasicBlock;
   }
 
-  /**
-   * Prepends the given expression at the beginning of the block.
-   *
-   * @param[in] expr  A pointer to the expression.
-   */
-  void prependExpression(Expression *expr)
+  /// Prepends the given node at the beginning of the block.
+  public: void prependNode(SharedPtr<AstNode> const &node)
   {
-    children.insert(children.begin(), expr);
+    this->children.insert(0, node);
+    OWN_SHAREDPTR(node);
   }
 
-  /**
-   * Append the given expression to the end of the block.
-   *
-   * @param[in] expr  A pointer to the expression.
-   */
-  void appendExpression(Expression *expr)
+  /// Append the given node to the end of the block.
+  public: void appendNode(SharedPtr<AstNode> const &node)
   {
-    children.push_back(expr);
+    this->children.add(node);
+    OWN_SHAREDPTR(node);
   }
 
   /**
@@ -105,9 +119,9 @@ public:
    * @return A pointer to the variable, or 0 if there is variable with the
    * the given name.
    */
-  const Variable *getVariable(const std::string &name) const;
+  public: const Variable *getVariable(const std::string &name) const;
 
-  Variable *getVariable(const std::string &name)
+  public: Variable *getVariable(const std::string &name)
   {
     return const_cast<Variable*>(
              static_cast<const Block*>(this)->getVariable(name));
@@ -117,40 +131,59 @@ public:
    * Returns a reference to the variable map.
    * @return A reference to the variable map.
    */
-  const VariableMap &getVariableMap() const
+  public: VariableMap const& getVariableMap() const
   {
     return variableMap;
   }
-  VariableMap &getVariableMap()
+  public: VariableMap& getVariableMap()
   {
     return variableMap;
   }
 
-  //! @copydoc Expression::preGenerateCode()
-  virtual CodeGenerationStage preGenerateCode();
+  //! @copydoc AstNode::preGenerateCode()
+  public: virtual CodeGenerationStage preGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-private:
-  //! @copydoc Expression::setBlock()
-  virtual void setBlock(Block *block);
-
-private:
-  static int getNewIndex()
+  private: static int getNewIndex()
   {
     static int s_blockIndex = 0;
     return s_blockIndex++;
   }
 
-  static std::string getNewBlockName();
-};
-}
+  private: static std::string getNewBlockName();
 
-#endif // __Block_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return this->children.getCount();
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    return this->children.get(index);
+  }
+
+}; // class
+
+} // namespace
+
+#endif

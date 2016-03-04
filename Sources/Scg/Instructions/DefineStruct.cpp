@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/DefineStruct.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -12,23 +12,23 @@
 #include <prerequisites.h>
 
 // Scg header files
+#include <CodeGenUnit.h>
 #include <Containers/Module.h>
 #include <Instructions/DefineStruct.h>
 #include <Types/StructType.h>
 
 namespace Scg
 {
-Expression::CodeGenerationStage DefineStruct::preGenerateCode()
+
+AstNode::CodeGenerationStage DefineStruct::preGenerateCode(CodeGenUnit *codeGenUnit)
 {
   MODULE_CHECK;
 
   // Creates a new structure type.
-  this->structType = new StructType(this->name);
-  ((Expression*)this->structType)->setModule(getModule());
-  ((Expression*)this->structType)->setFunction(getFunction());
-  ((Expression*)this->structType)->setBlock(getBlock());
-  getModule()->getTypeMap()[this->name] = this->structType;
-  this->children.push_back(this->structType);
+  this->structType = std::make_shared<StructType>(this->name);
+  this->structType->setOwner(this);
+  Module *module = this->findOwner<Module>();
+  module->getTypeMap()[this->name] = this->structType.get();
 
   // Creates the types of the fields of the structure.
   // TODO: It is highly possibly to have more than one field with the same
@@ -41,7 +41,7 @@ Expression::CodeGenerationStage DefineStruct::preGenerateCode()
   auto i = 0;
 
   for (auto field : this->fields) {
-    fields.push_back(ValueTypeNamePair(field.getTypeSpec()->toValueType(*getModule()), field.getVariableName()));
+    fields.push_back(ValueTypeNamePair(field.getTypeSpec()->toValueType(*module), field.getVariableName()));
     i++;
   }
 
@@ -57,9 +57,8 @@ Expression::CodeGenerationStage DefineStruct::preGenerateCode()
   return CodeGenerationStage::CodeGeneration;
 }
 
-//------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage DefineStruct::postGenerateCode()
+AstNode::CodeGenerationStage DefineStruct::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   // TODO: It might be better to have a method Delete() that does this
   // check and delete itself.
@@ -69,15 +68,13 @@ Expression::CodeGenerationStage DefineStruct::postGenerateCode()
 
   // Deletes the structure type we created in the pre-code generation step.
   if (this->structType != 0) {
-    delete this->structType;
-    this->structType = 0;
+    this->structType->setOwner(0);
+    this->structType.reset();
   }
 
-  this->children.clear();
   return CodeGenerationStage::None;
 }
 
-//------------------------------------------------------------------------------
 
 std::string DefineStruct::toString()
 {
@@ -95,4 +92,5 @@ std::string DefineStruct::toString()
   str.append("}\n");
   return str;
 }
-}
+
+} // namespace

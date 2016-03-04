@@ -27,6 +27,12 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
 
 
   //============================================================================
+  // Static Variables
+
+  public: static SharedPtr<T> const null;
+
+
+  //============================================================================
   // Overloaded Operators
 
   /// @name Comparison Operators
@@ -283,6 +289,15 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
 }; // class
 
 
+//==============================================================================
+// Static Variables Initializations
+
+template<class T> SharedPtr<T> const SharedPtr<T>::null = 0;
+
+
+//==============================================================================
+// Helper Functions
+
 template <class T, class T2> inline SharedPtr<T> s_cast(std::shared_ptr<T2> const &src)
 {
   return SharedPtr<T>(src, static_cast<T*>(src.get()));
@@ -345,10 +360,12 @@ template <class T, class T2> SharedPtr<T> ii_cast(std::shared_ptr<T2> const &src
   return SharedPtr<T>(src, Core::Basic::ii_cast<T*>(src.get()));
 }
 
+
 template <class T, class T2> SharedPtr<T> ii2io_cast(std::shared_ptr<T2> const &src)
 {
   return SharedPtr<T>(src, Core::Basic::ii2io_cast<T*>(src.get()));
 }
+
 
 /**
  * @brief Get a shared pointer to the given IdentifiableObject based pointer.

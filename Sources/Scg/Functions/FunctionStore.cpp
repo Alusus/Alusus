@@ -1,3 +1,14 @@
+/**
+ * @file Scg/Functions/FunctionStore.cpp
+ *
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ */
+//==============================================================================
+
 #include <prerequisites.h>
 
 // STL header files
@@ -12,17 +23,18 @@ using namespace llvm;
 
 namespace Scg
 {
-void FunctionStore::add(Function *function)
+
+void FunctionStore::add(SharedPtr<Function> const &function)
 {
   this->functions.push_back(function);
 }
 
-//------------------------------------------------------------------------------
 
-const Function *FunctionStore::get(const std::string &name,
-                                   const ValueTypeSpecArray &arguments) const
+SharedPtr<Function> const& FunctionStore::get(const std::string &name,
+                                              const ValueTypeSpecArray &arguments) const
 {
-  for (auto func : this->functions) {
+  for (Int i = 0; i < this->functions.size(); ++i) {
+    SharedPtr<Function> const &func = this->functions[i];
     if (func->getName().compare(name) == 0) {
       if (func->isVarArgs()) {
         // The function has a variable number of arguments, so we only check
@@ -39,27 +51,21 @@ const Function *FunctionStore::get(const std::string &name,
     }
   }
 
-  return nullptr;
+  return SharedPtr<Function>::null;
 }
 
-//------------------------------------------------------------------------------
 
-const Function *FunctionStore::get(const FunctionSignature &signature) const
-{
-  return get(signature.name, signature.arguments);
-}
-
-//------------------------------------------------------------------------------
-
-const Function *FunctionStore::match(const Module &module,
-                                     const std::string &name, const ValueTypeSpecArray &argTypes) const
+Function* FunctionStore::match(const Module &module,
+                               const std::string &name,
+                               const ValueTypeSpecArray &argTypes) const
 {
   // Find all the matching functions and sort them by the number of required
   // implicit casting.
-  typedef std::pair<int, Function *> FunctionMatch;
+  typedef std::pair<int, Function*> FunctionMatch;
   std::vector<FunctionMatch> matches;
 
-  for (auto function : this->functions) {
+  for (Int i = 0; i < this->functions.size(); ++i) {
+    Function *function = this->functions[i].get();
     auto matchability = function->getSignature().match(module, name, argTypes);
 
     if (matchability != -1) {
@@ -94,4 +100,5 @@ const Function *FunctionStore::match(const Module &module,
     }
   }
 }
-}
+
+} // namespace

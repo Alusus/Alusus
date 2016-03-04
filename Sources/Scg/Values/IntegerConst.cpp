@@ -1,7 +1,7 @@
 /**
  * @file Scg/Values/IntegerConst.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,36 +10,33 @@
 //==============================================================================
 
 #include <prerequisites.h>
-
 #include <llvm/IR/Constants.h>
 
 // Scg files
+#include <CodeGenUnit.h>
 #include <Values/IntegerConst.h>
 #include <Types/IntegerType.h>
 
-// LLVM header files
-
 namespace Scg
 {
-const ValueTypeSpec *IntegerConst::getValueTypeSpec() const
+
+SharedPtr<ValueTypeSpec> const& IntegerConst::getValueTypeSpec() const
 {
   return IntegerType::get()->getValueTypeSpec();
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage IntegerConst::generateCode()
+AstNode::CodeGenerationStage IntegerConst::generateCode(CodeGenUnit *codeGenUnit)
 {
   // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
   // generatedLlvmValue?
   this->generatedLlvmValue = this->llvmValue =
-                               IntegerType::get()->getLlvmConstant(this->value);
-  return Expression::generateCode();
+    IntegerType::get()->getLlvmConstant(this->value);
+  return AstNode::generateCode(codeGenUnit);
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage IntegerConst::postGenerateCode()
+AstNode::CodeGenerationStage IntegerConst::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   if (this->llvmValue == nullptr)
     // Nothing to delete
@@ -54,10 +51,10 @@ Expression::CodeGenerationStage IntegerConst::postGenerateCode()
   return CodeGenerationStage::None;
 }
 
-//----------------------------------------------------------------------------
 
 std::string IntegerConst::toString()
 {
   return boost::lexical_cast<std::string>(this->value);
 }
-}
+
+} // namespace

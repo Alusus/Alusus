@@ -39,21 +39,19 @@ void LlvmContainer::initialize()
 
 void LlvmContainer::finalize()
 {
-  // TODO: Ensure that we don't need to delete these manually, and
-  // AutoDeleteAllocator is doing the job.
   /*
-    delete DoubleType::s_singleton;
-    delete FloatType::s_singleton;
-    delete IntegerType::s_singleton;
-    delete StringType::s_singleton;
-    delete VoidType::s_singleton;
+  delete DoubleType::s_singleton;
+  delete FloatType::s_singleton;
+  delete IntegerType::s_singleton;
+  delete StringType::s_singleton;
+  delete VoidType::s_singleton;
 
-    DoubleType::s_singleton = nullptr;
-    FloatType::s_singleton= nullptr;
-    IntegerType::s_singleton= nullptr;
-    StringType::s_singleton= nullptr;
-    VoidType::s_singleton= nullptr;
-    */
+  DoubleType::s_singleton = nullptr;
+  FloatType::s_singleton= nullptr;
+  IntegerType::s_singleton= nullptr;
+  StringType::s_singleton= nullptr;
+  VoidType::s_singleton= nullptr;
+  */
 }
 
 llvm::LLVMContext &LlvmContainer::getContext()

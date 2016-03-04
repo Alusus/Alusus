@@ -46,6 +46,24 @@ void SharedList::add(const std::initializer_list<SharedPtr<IdentifiableObject>> 
 }
 
 
+Int SharedList::add(SharedPtr<IdentifiableObject> const &val)
+{
+  this->list.push_back(val);
+  OWN_SHAREDPTR(val);
+  return this->list.size()-1;
+}
+
+
+void SharedList::insert(Int index, SharedPtr<IdentifiableObject> const &val)
+{
+  if (index < 0 || index > this->getCount()) {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
+  this->list.insert(this->list.begin()+index, val);
+  OWN_SHAREDPTR(val);
+}
+
+
 void SharedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
 {
   if (static_cast<Word>(index) >= this->list.size()) {

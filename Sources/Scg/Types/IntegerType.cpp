@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/IntegerType.cpp
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -24,21 +24,31 @@
 
 namespace Scg
 {
+
+//==============================================================================
+// Static Variables
+
 IntegerType *IntegerType::s_singleton = nullptr;
 
-//----------------------------------------------------------------------------
 
-IntegerType::IntegerType() : typeSpec("int")
+//==============================================================================
+// Constructors & Destructor
+
+IntegerType::IntegerType()
 {
+  this->typeSpec = std::make_shared<ValueTypeSpecByName>(STR("int"));
   this->llvmType = llvm::Type::getInt32Ty(LlvmContainer::getContext());
 
   if (s_singleton == nullptr)
     s_singleton = this;
 }
 
+
+//==============================================================================
+// Member Functions
+
 void IntegerType::initCastingTargets() const
 {
-
   this->implicitCastingTargets.push_back(DoubleType::get());
   this->implicitCastingTargets.push_back(FloatType::get());
   this->implicitCastingTargets.push_back(IntegerType::get());
@@ -50,17 +60,15 @@ void IntegerType::initCastingTargets() const
   this->explicitCastingTargets.push_back(CharType::get());
 }
 
-//----------------------------------------------------------------------------
 
-llvm::Constant *IntegerType::getLlvmConstant(int value) const
+llvm::Constant* IntegerType::getLlvmConstant(int value) const
 {
   return llvm::ConstantInt::get(LlvmContainer::getContext(),
                                 llvm::APInt(sizeof(value) * 8, value, true));
 }
 
-//----------------------------------------------------------------------------
 
-llvm::Value *IntegerType::createCastInst(llvm::IRBuilder<> *irb,
+llvm::Value* IntegerType::createCastInst(llvm::IRBuilder<> *irb,
     llvm::Value *value, const ValueType *targetType) const
 {
   if (targetType == IntegerType::get()) {
@@ -84,9 +92,8 @@ llvm::Value *IntegerType::createCastInst(llvm::IRBuilder<> *irb,
   }
 }
 
-//----------------------------------------------------------------------------
 
-IntegerType *IntegerType::get()
+IntegerType* IntegerType::get()
 {
   // PERFORMANCE: What is the impact of running an unnecessary if statement
   // thousands of times?
@@ -96,4 +103,5 @@ IntegerType *IntegerType::get()
 
   return s_singleton;
 }
-}
+
+} // namespace

@@ -1,13 +1,14 @@
 /**
 * @file Scg/Types/ValueType.cpp
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
 * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
 */
 //==============================================================================
+
 #include <prerequisites.h>
 
 // LLVM header files
@@ -23,11 +24,11 @@
 #include <Types/PointerType.h>
 #include <Types/VoidType.h>
 #include <Values/Variable.h>
-#include <Memory/AutoDeleteAllocator.h>
 
 namespace Scg
 {
-ValueType *ValueType::getPrimitiveType(const std::string &typeName)
+
+ValueType* ValueType::getPrimitiveType(std::string const &typeName)
 {
   if (typeName == "int") {
     return IntegerType::get();
@@ -48,39 +49,24 @@ ValueType *ValueType::getPrimitiveType(const std::string &typeName)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
 
-Variable *ValueType::newVariable(const std::string &name,
-                                 llvm::Argument *llvmArgument) const
+SharedPtr<Variable> ValueType::newVariable(std::string const &name,
+                                           llvm::Argument *llvmArgument) const
 {
   this->varCount++;
-  return new Variable(name, const_cast<ValueType *>(this), llvmArgument);
+  return std::make_shared<Variable>(name, const_cast<ValueType *>(this), llvmArgument);
 }
 
-//----------------------------------------------------------------------------
 
-void ValueType::deleteVariable(Variable *var) const
+void ValueType::releaseVariable(Variable *var) const
 {
   this->varCount--;
-  delete var;
 }
+
 
 Int ValueType::getAllocationSize() const
 {
   return LlvmContainer::getDataLayout()->getTypeAllocSize(this->getLlvmType());
 }
 
-//------------------------------------------------------------------------------
-
-void *ValueType::operator new(size_t size)
-{
-  return AutoDeleteAllocator::getSingleton().allocateMem(size);
-}
-
-//------------------------------------------------------------------------------
-
-void ValueType::operator delete(void *ptr)
-{
-  AutoDeleteAllocator::getSingleton().freeMem(ptr);
-}
-}
+} // namespace

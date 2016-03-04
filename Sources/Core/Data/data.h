@@ -268,8 +268,11 @@ typedef std::function<RefOp(Int index, IdentifiableObject *obj, IdentifiableObje
  * @ingroup data
  */
 #define OWN_SHAREDPTR(ptr) \
-  if ((ptr) != 0 && (ptr)->isDerivedFrom<Node>()) { \
-      (ptr).s_cast_get<Node>()->setOwner(this); \
+  { \
+    auto __ptr = (ptr).s_cast_get<Node>(); \
+    if (__ptr != 0 && __ptr->isDerivedFrom<Node>()) { \
+        __ptr->setOwner(this); \
+    } \
   }
 
 /**
@@ -278,8 +281,11 @@ typedef std::function<RefOp(Int index, IdentifiableObject *obj, IdentifiableObje
  * @sa OWN_SHAREDPTR()
  */
 #define OWN_PLAINPTR(ptr) \
-  if ((ptr) != 0 && (ptr)->isDerivedFrom<Node>()) { \
-      static_cast<Node*>(ptr)->setOwner(this); \
+  { \
+    auto __ptr = ptr; \
+    if (__ptr != 0 && __ptr->isDerivedFrom<Node>()) { \
+        static_cast<Node*>(__ptr)->setOwner(this); \
+    } \
   }
 
 /**
@@ -287,8 +293,11 @@ typedef std::function<RefOp(Int index, IdentifiableObject *obj, IdentifiableObje
  * @ingroup data
  */
 #define DISOWN_SHAREDPTR(ptr) \
-  if ((ptr) != 0 && (ptr)->isDerivedFrom<Node>() && (ptr).s_cast_get<Node>()->getOwner() == this) { \
-      (ptr).s_cast_get<Node>()->setOwner(0); \
+  { \
+    auto __ptr = (ptr).s_cast_get<Node>(); \
+    if (__ptr != 0 && __ptr->isDerivedFrom<Node>() && __ptr->getOwner() == this) { \
+        __ptr->setOwner(0); \
+    } \
   }
 
 /**
@@ -297,8 +306,11 @@ typedef std::function<RefOp(Int index, IdentifiableObject *obj, IdentifiableObje
  * @sa DISOWN_SHAREDPTR()
  */
 #define DISOWN_PLAINPTR(ptr) \
-  if ((ptr) != 0 && (ptr)->isDerivedFrom<Node>() && static_cast<Node*>(ptr)->getOwner() == this) { \
-      static_cast<Node*>(ptr)->setOwner(0); \
+  { \
+    auto __ptr = static_cast<Node*>(ptr); \
+    if (__ptr != 0 && __ptr->isDerivedFrom<Node>() && __ptr->getOwner() == this) { \
+        __ptr->setOwner(0); \
+    } \
   }
 
 /**

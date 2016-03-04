@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/IfStatement.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,38 +9,47 @@
  */
 //==============================================================================
 
-#ifndef __IfStatement_h__
-#define __IfStatement_h__
+#ifndef SCG_IFSTATEMENT_H
+#define SCG_IFSTATEMENT_H
 
-// Scg header files
-#include <Expression.h>
-
-// LLVM forward declarations
+#include "core.h"
+#include <AstNode.h>
 #include <llvm_fwd.h>
 
 namespace Scg
 {
-class Block;
-}
 
-namespace Scg
-{
+class Block;
+class CodeGenUnit;
+
 /**
  * Represents a function definition, i.e. a prototype and body.
  */
-class IfStatement : public Expression
+class IfStatement : public AstNode, public virtual Core::Data::Container
 {
-private:
-  Expression *condition;
-  Block *thenBlock;
-  Block *elseBlock;
-  Block *mergeBlock;
-  llvm::ICmpInst *cmpInst;
-  llvm::BranchInst *ifBranch;
-  llvm::BranchInst *thenBranch;
-  llvm::BranchInst *elseBranch;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(IfStatement, AstNode, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(AstNode, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
+  private: SharedPtr<AstNode> condition;
+  private: SharedPtr<Block> thenBlock;
+  private: SharedPtr<Block> elseBlock;
+  private: SharedPtr<Block> mergeBlock;
+  private: llvm::ICmpInst *cmpInst;
+  private: llvm::BranchInst *ifBranch;
+  private: llvm::BranchInst *thenBranch;
+  private: llvm::BranchInst *elseBranch;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Construct a function with the given name, arguments, and body.
    *
@@ -48,39 +57,34 @@ public:
    * @param[in] thenBlock The block to be executed if the condition evaluates to true.
    * @param[in] elseBlock The block to be executed if the condition evaluates to false.
    */
-  IfStatement(Expression *condition, Block *thenBlock, Block *elseBlock);
+  public: IfStatement(SharedPtr<AstNode> const &condition,
+                      SharedPtr<Block> const &thenBlock,
+                      SharedPtr<Block> const &elseBlock);
 
-  /**
-   * Class destructor
-   */
-  ~IfStatement();
+  public: virtual ~IfStatement();
 
-  /**
-   * Get the block to be executed if the condition evaluates to true.
-   *
-   * @return A pointer to the 'then' block.
-   */
-  const Expression *getCondition() const
-  {
-    return condition;
-  }
-  Expression *getCondition()
-  {
-    return condition;
-  }
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Get the block to be executed if the condition evaluates to true.
    *
    * @return A pointer to the 'then' block.
    */
-  const Block *getThenBlock() const
+  public: SharedPtr<AstNode> const& getCondition() const
   {
-    return thenBlock;
+    return this->condition;
   }
-  Block *getThenBlock()
+
+  /**
+   * Get the block to be executed if the condition evaluates to true.
+   *
+   * @return A pointer to the 'then' block.
+   */
+  public: SharedPtr<Block> const& getThenBlock() const
   {
-    return thenBlock;
+    return this->thenBlock;
   }
 
   /**
@@ -88,41 +92,63 @@ public:
    *
    * @return A pointer to the 'else' block.
    */
-  const Block *getElseBlock() const
+  public: SharedPtr<Block> const& getElseBlock() const
   {
-    return elseBlock;
-  }
-  Block *getElseBlock()
-  {
-    return elseBlock;
+    return this->elseBlock;
   }
 
-  const Block *getMergeBlock() const
+  public: SharedPtr<Block> const& getMergeBlock() const
   {
-    return mergeBlock;
-  }
-  Block *getMergeBlock()
-  {
-    return mergeBlock;
+    return this->mergeBlock;
   }
 
-  //! @copydoc Expression::callGenerateCode()
-  virtual CodeGenerationStage callGenerateCode()
+  //! @copydoc AstNode::callGenerateCode()
+  public: virtual CodeGenerationStage callGenerateCode(CodeGenUnit *codeGenUnit)
   {
     // We want to manually call the generateCode() member function of children
     // so we override the default behaviour of callGenerateCode();
-    return generateCode();
+    return generateCode(codeGenUnit);
   }
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __IfStatement_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 4;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    switch (index) {
+      case 0: return this->condition.get();
+      case 1: return this->thenBlock.get();
+      case 2: return this->elseBlock.get();
+      case 3: return this->mergeBlock.get();
+      default: return 0;
+    }
+  }
+
+}; // class
+
+} // namespace
+
+#endif

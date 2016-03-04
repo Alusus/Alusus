@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/Cast.h
  *
- * @copyright Copyright (C) 2015 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,10 +9,10 @@
  */
 //==============================================================================
 
-#ifndef __Cast_h__
-#define __Cast_h__
+#ifndef SCG_CAST_H
+#define SCG_CAST_H
 
-// Scg header files
+#include "core.h"
 #include <typedefs.h>
 #include <Instructions/Instruction.h>
 #include <llvm_fwd.h>
@@ -21,21 +21,36 @@ using namespace Core;
 
 namespace Scg
 {
+
 class ValueTypeSpec;
+class CodeGenUnit;
 
 /**
  * Define a mutable variable with a given name.
  */
-class Cast : public Instruction
+class Cast : public Instruction, public virtual Core::Data::Container
 {
-  //! The specification of the type to cast the expression to.
-  const ValueTypeSpec *typeSpec;
-  //! The type to cast the expression to (set during code generation.)
-  ValueType *type = nullptr;
-  //! The expression to cast
-  Expression *expr;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(Cast, Instruction, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(Instruction, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The specification of the type to cast the expression to.
+  private: SharedPtr<ValueTypeSpec> typeSpec;
+  //! The expression to cast
+  private: SharedPtr<AstNode> expr;
+  //! The type to cast the expression to (set during code generation.)
+  private: ValueType *type = nullptr;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Construct a variable definition expression with the given name.
    *
@@ -44,28 +59,32 @@ public:
    *                      in the heap, and will be freed by this object.
    * @param[in] name      The name of the variable to define.
    */
-  Cast(Expression *expr, const ValueTypeSpec *typeSpec)
+  public: Cast(SharedPtr<AstNode> const &expr, SharedPtr<ValueTypeSpec> const &typeSpec)
     : typeSpec(typeSpec)
     , expr(expr)
   {
-    children.push_back(expr);
+    OWN_SHAREDPTR(this->expr);
   }
 
-  /**
-   * Class destructor.
-   */
-  ~Cast();
+  public: virtual ~Cast()
+  {
+    DISOWN_SHAREDPTR(this->expr);
+  }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Retrieves a pointer to the target type (the type to cast the expression to.)
    *
    * @return A pointer to the target type.
    */
-  const ValueType *getTargetType() const
+  public: const ValueType *getTargetType() const
   {
     return type;
   }
-  ValueType *getTargetType()
+  public: ValueType *getTargetType()
   {
     return const_cast<ValueType*>(
              static_cast<const Cast*>(this)->getTargetType());
@@ -76,23 +95,50 @@ public:
    *
    * @return The name of the type.
    */
-  const ValueTypeSpec *getTargetTypeSpec() const
+  public: SharedPtr<ValueTypeSpec> const& getTargetTypeSpec() const
   {
-    return typeSpec;
+    return this->typeSpec;
   }
 
-  //! @copydoc Expression::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override;
+  //! @copydoc AstNode::getValueTypeSpec()
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
+  {
+    return this->typeSpec;
+  }
 
-  //! @copydoc Expression::preGenerateCode()
-  virtual CodeGenerationStage preGenerateCode();
+  //! @copydoc AstNode::preGenerateCode()
+  public: virtual CodeGenerationStage preGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __Cast_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 1;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    return this->expr.get();
+  }
+
+}; // class
+
+} // namespace
+
+#endif

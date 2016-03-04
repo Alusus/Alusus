@@ -16,7 +16,6 @@
 #include <boost/lexical_cast.hpp>
 
 // SCG header files
-#include <scg.h>
 #include <ParsingHandlers/ModuleParsingHandler.h>
 
 namespace Scg
@@ -51,7 +50,11 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
   }
 
   // Create a Module out of the given statement list.
-  auto module = Core::Data::Module::create({});
+  auto module = std::make_shared<Scg::Module>();
+
+  static CodeGenerator generator;
+  generator.setBuildMsgStore(state->getBuildMsgStore());
+  generator.setAliasDictionary(static_cast<SharedMap*>(state->getDataStack()->tryGet(this->aliasDictionaryRef.get())));
 
   for (auto i = 0; i < statementList->getCount(); i++) {
     auto element = statementList->getShared(i);
@@ -67,10 +70,10 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 
     if (id == defId) {
       // Add the definition to the module.
-      this->addDefinitionToModule(state, element, module.get());
+      this->addDefinitionToModule(state, element, module.get(), &generator);
     } else if (id == linkId) {
       // Add the link expression to the module.
-      this->addLinkToModule(state, element, module.get());
+      this->addLinkToModule(state, element, module.get(), &generator);
     } else {
       // Raise a build error.
       state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(STR("Invalid statement inside module body."),
@@ -85,7 +88,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 
 void ModuleParsingHandler::addDefinitionToModule(Processing::ParserState *state,
     const SharedPtr<IdentifiableObject> &def,
-    Core::Data::Module *module)
+    Module *module, CodeGenerator *generator)
 {
   static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
   static ReferenceSeeker seeker;
@@ -108,16 +111,16 @@ void ModuleParsingHandler::addDefinitionToModule(Processing::ParserState *state,
 
   auto name = nameToken->getText();
 
-  static int i = 0;
-  i++;
   //module->add(name.c_str(), def);
-  module->add(boost::lexical_cast<std::string>(i).c_str(), def);
+  for (auto stat : generator->generateStatement(def)) {
+    module->appendNode(stat);
+  }
 }
 
 
 void ModuleParsingHandler::addLinkToModule(Processing::ParserState *state,
     const SharedPtr<IdentifiableObject> &link,
-    Core::Data::Module *module)
+    Module *module, CodeGenerator *generator)
 {
   auto linkMetadata = link->getInterface<ParsingMetadataHolder>();
 
@@ -135,17 +138,21 @@ void ModuleParsingHandler::addLinkToModule(Processing::ParserState *state,
 
   if (list != 0) {
     for (auto i = 0; i < list->getCount(); i++) {
-      auto name = this->getLinkName(list->get(i));
+      // auto name = this->getLinkName(list->get(i));
       auto l = std::make_shared<PrtList>(linkMetadata->getProdId(), linkMetadata->getSourceLocation());
       l->add(list->get(i));
-      module->add(name, l);
+      for (auto stat : generator->generateStatement(l)) {
+        module->appendNode(stat);
+      }
     }
   } else {
     auto expr = io_cast<PrtList>(seeker.tryGet(exprReference.get(), link.get()));
 
     if (expr != 0) {
-      auto name = this->getLinkName(expr);
-      module->add(name, link);
+      // auto name = this->getLinkName(expr);
+      for (auto stat : generator->generateStatement(link)) {
+        module->appendNode(stat);
+      }
     } else {
       state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
                            STR("Invalid link statement."),

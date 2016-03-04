@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/ValueTypeSpec.h
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -9,14 +9,11 @@
 */
 //==============================================================================
 
-#ifndef __ValueTypeSpec_h__
-#define __ValueTypeSpec_h__
+#ifndef SCG_VALUETYPESPEC_H
+#define SCG_VALUETYPESPEC_H
 
-// SCG header files
-#include <Expression.h>
+#include "core.h"
 #include <typedefs.h>
-
-// LLVM forward declarations
 #include <llvm_fwd.h>
 
 namespace Scg
@@ -27,18 +24,18 @@ namespace Scg
 // make it use a pre-allocated memory and thus avoid the cost of frequently
 // allocating memory in the heap. Consider using
 /**
-* Base class for all value type specifications. These are used to a specify
-* a soft link to a type (e.g. by name, as opposed to a passing the type
-* instance itself, which I call the hard link). This allows the user to deal
-* with instructions only without having to worry about the underlying objects
-* being created by the Intermediate Language.
-*/
+ * Base class for all value type specifications. These are used to a specify
+ * a soft link to a type (e.g. by name, as opposed to a passing the type
+ * instance itself, which I call the hard link). This allows the user to deal
+ * with instructions only without having to worry about the underlying objects
+ * being created by the Intermediate Language.
+ */
 class ValueTypeSpec
 {
 public:
   virtual ~ValueTypeSpec()
   {
-  };
+  }
 
   // TODO: Should this be defined here or under ValueTypeSpecByName?
   /**
@@ -54,7 +51,7 @@ public:
   * Creates a copy of the type specification.
   * @return A pointer to the new instance..
   */
-  virtual ValueTypeSpec *clone() const = 0;
+  virtual SharedPtr<ValueTypeSpec> clone() const = 0;
 
   /**
   * Retrieves the ValueType object having the specification specified by this
@@ -62,7 +59,7 @@ public:
   * @param[in] module  A pointer to the module
   * @return A pointer to the ValueType.
   */
-  virtual ValueType *toValueType(const Module &module) const = 0;
+  virtual ValueType* toValueType(const Module &module) const = 0;
 
   /**
   * Determines whether this value type specification is equal to the given
@@ -87,20 +84,13 @@ public:
   */
   virtual std::string toString() const = 0;
 
-public:
-  static void *operator new[](size_t size) = delete;
-
-  static void operator delete[](void *ptr) = delete;
-
-  static void *operator new(size_t size);
-
-  static void operator delete(void *ptr);
 };
 
+//==============================================================================
 
 /**
-* Specifies a type by name.
-*/
+ * Specifies a type by name.
+ */
 class ValueTypeSpecByName : public ValueTypeSpec
 {
   // TODO: Consider using a character array instead of std::string to eliminate
@@ -121,9 +111,9 @@ public:
   }
 
   //! @copydoc ValueTypeSpec::clone()
-  virtual ValueTypeSpec *clone() const
+  virtual SharedPtr<ValueTypeSpec> clone() const
   {
-    return new ValueTypeSpecByName(name.c_str());
+    return std::make_shared<ValueTypeSpecByName>(name.c_str());
   }
 
   /**
@@ -160,25 +150,22 @@ public:
 class PointerValueTypeSpec : public ValueTypeSpec
 {
   //! The type specification of the content of this pointer type specification.
-  ValueTypeSpec *contentTypeSpec;
+  SharedPtr<ValueTypeSpec> contentTypeSpec;
 
 public:
   /**
   * Constructs a pointer value type specification.
   * @param[in] contentTypeSpec   The specification of the content type.
   */
-  PointerValueTypeSpec(ValueTypeSpec *contentTypeSpec)
+  PointerValueTypeSpec(SharedPtr<ValueTypeSpec> const &contentTypeSpec)
     : contentTypeSpec(contentTypeSpec)
   {
   }
 
-  //! Class destructor.
-  virtual ~PointerValueTypeSpec();
-
   //! @copydoc ValueTypeSpec::clone()
-  virtual ValueTypeSpec *clone() const
+  virtual SharedPtr<ValueTypeSpec> clone() const
   {
-    return new PointerValueTypeSpec(contentTypeSpec->clone());
+    return std::make_shared<PointerValueTypeSpec>(contentTypeSpec->clone());
   }
 
   //! @copydoc ValueTypeSpec::toValueType()
@@ -189,7 +176,7 @@ public:
   {
     auto otherCasted = dynamic_cast<const PointerValueTypeSpec *>(other);
     return otherCasted != nullptr &&
-           contentTypeSpec->isEqualTo(otherCasted->contentTypeSpec);
+           contentTypeSpec->isEqualTo(otherCasted->contentTypeSpec.get());
   }
 
   //! @copydoc ValueTypeSpec::toString()
@@ -204,7 +191,7 @@ public:
 class ArrayValueTypeSpec : public ValueTypeSpec
 {
   //! The type specification of the elements specified by this type specification.
-  ValueTypeSpec *elementsTypeSpec;
+  SharedPtr<ValueTypeSpec> elementsTypeSpec;
   //! The size of the array specified by this type specification.
   int arraySize;
 
@@ -214,18 +201,15 @@ public:
   * @param[in] elementsTypeSpec  The specification of the elements type.
   * @param[in] arraySize         The size of the array type specification.
   */
-  ArrayValueTypeSpec(ValueTypeSpec *elementsTypeSpec, int arraySize)
+  ArrayValueTypeSpec(SharedPtr<ValueTypeSpec> const &elementsTypeSpec, int arraySize)
     : elementsTypeSpec(elementsTypeSpec), arraySize(arraySize)
   {
   }
 
-  //! Class destructor.
-  virtual ~ArrayValueTypeSpec();
-
   //! @copydoc ValueTypeSpec::clone()
-  virtual ValueTypeSpec *clone() const
+  virtual SharedPtr<ValueTypeSpec> clone() const
   {
-    return new ArrayValueTypeSpec(elementsTypeSpec->clone(), arraySize);
+    return std::make_shared<ArrayValueTypeSpec>(elementsTypeSpec->clone(), arraySize);
   }
 
   //! @copydoc ValueTypeSpec::toValueType()
@@ -237,7 +221,7 @@ public:
     auto otherCasted = dynamic_cast<const ArrayValueTypeSpec *>(other);
     return otherCasted != nullptr &&
            arraySize == otherCasted->arraySize &&
-           elementsTypeSpec->isEqualTo(otherCasted->elementsTypeSpec);
+           elementsTypeSpec->isEqualTo(otherCasted->elementsTypeSpec.get());
   }
 
   //! @copydoc ValueTypeSpec::toString()
@@ -254,13 +238,13 @@ public:
 * @note This class assumes the pointer to ValueTypeSpec to be allocated in heap
 * and it will take the responsibility of deallocating the memory.
 */
-class VariableDefinition : public std::pair < const ValueTypeSpec *, std::string >
+class VariableDefinition : public std::pair<SharedPtr<ValueTypeSpec>, std::string>
 {
 public:
   /**
   * Default constructor.
   */
-  VariableDefinition() : std::pair<const ValueTypeSpec *, std::string>(nullptr, "")
+  VariableDefinition() : std::pair<SharedPtr<ValueTypeSpec>, std::string>(nullptr, "")
   {
   }
 
@@ -273,7 +257,7 @@ public:
   * @param[in] name      The name of the variable.
   */
   VariableDefinition(const std::string &typeName, const std::string &name)
-    : std::pair<const ValueTypeSpec *, std::string>(new ValueTypeSpecByName(typeName.c_str()), name)
+    : std::pair<SharedPtr<ValueTypeSpec>, std::string>(std::make_shared<ValueTypeSpecByName>(typeName.c_str()), name)
   {
   }
 
@@ -285,8 +269,8 @@ public:
   *                      this class at destruction time.
   * @param[in] name      The name of the variable.
   */
-  VariableDefinition(const ValueTypeSpec *typeSpec, const std::string &name)
-    : std::pair<const ValueTypeSpec *, std::string>(typeSpec, name)
+  VariableDefinition(SharedPtr<ValueTypeSpec> const &typeSpec, const std::string &name)
+    : std::pair<SharedPtr<ValueTypeSpec>, std::string>(typeSpec, name)
   {
   }
 
@@ -304,27 +288,27 @@ public:
   * Gets the type specification of the variable.
   * @return The type specification of the variable.
   */
-  const ValueTypeSpec *getTypeSpec() const
+  SharedPtr<ValueTypeSpec> const& getTypeSpec() const
   {
-    return first;
+    return this->first;
   }
 
   /**
   * Gets the name of the variable.
   * @return A string containing the name of the variable.
   */
-  const std::string &getVariableName() const
+  std::string const& getVariableName() const
   {
-    return second;
+    return this->second;
   }
 
   /**
   * Sets the name of the variable.
   * @return A string containing the name of the variable.
   */
-  void setVariableName(const std::string &varName)
+  void setVariableName(std::string const &varName)
   {
-    second = varName;
+    this->second = varName;
   }
 
   /**
@@ -342,19 +326,17 @@ public:
 /**
 * An array of value type specifications.
 */
-class ValueTypeSpecArray : public std::vector < ValueTypeSpec * >
+class ValueTypeSpecArray : public std::vector<SharedPtr<ValueTypeSpec>>
 {
-  using std::vector<ValueTypeSpec *>::vector;
+  using std::vector<SharedPtr<ValueTypeSpec>>::vector;
 
-public:
   /**
   * Determines whether this array of value type specifications is equal to the
   * given array.
   * @param[in] other The other array to compare to.
   * @return @c true or @false.
   */
-  bool isEqualTo(const ValueTypeSpecArray *other, int sizeLimit = 0) const;
-
+  public: bool isEqualTo(const ValueTypeSpecArray *other, int sizeLimit = 0) const;
 };
 
 /**
@@ -364,16 +346,15 @@ class VariableDefinitionArray : public std::vector < VariableDefinition >
 {
   using std::vector<VariableDefinition>::vector;
 
-public:
   /**
   * Determines whether the types in this array of value type specifications
   * are equal to the given array of value type specifications.
   * @param[in] other The array of value type specifications to compare with.
   * @return @c true or @false.
   */
-  bool areTypesEqualTo(const ValueTypeSpecArray *other, int sizeLimit = 0) const;
+  public: bool areTypesEqualTo(const ValueTypeSpecArray *other, int sizeLimit = 0) const;
 };
 
-}
+} // namespace
 
-#endif // __ValueTypeSpec_h__
+#endif

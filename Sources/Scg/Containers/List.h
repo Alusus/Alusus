@@ -1,7 +1,7 @@
 /**
  * @file Scg/Containers/List.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,23 +9,39 @@
  */
 //==============================================================================
 
-#ifndef __List_h__
-#define __List_h__
+#ifndef SCG_LIST_H
+#define SCG_LIST_H
 
 #include <typedefs.h>
-#include <Expression.h>
+#include <AstNode.h>
 #include <llvm_fwd.h>
 
 namespace Scg
 {
-// TODO: Why is List derived from Expression?
-// TODO: Why do we need ExpressionArray if we already have this class?
+
+// TODO: Why is List derived from AstNode?
+
 /**
  * Represent a return statement.
  */
-class List : public Expression
+class List : public AstNode, public virtual Core::Data::Container
 {
-public:
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(List, AstNode, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(AstNode, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
+  private: Core::Data::SharedList children;
+
+
+  //============================================================================
+  // Constructor & Destructor
+
   /**
    * Construct a return statement that returns the value of the given expression.
    *
@@ -33,41 +49,67 @@ public:
    *                        this expression will automatically get deleted, so it
    *                        should be allocated in the heap and not deleted.
    */
-  List(const ExpressionArray &elements)
+  public: List(AstNodeSharedArray const &elements)
   {
-    this->children = elements;
+    for (auto element : elements) {
+      this->children.add(element);
+      OWN_SHAREDPTR(element);
+    }
   }
 
-  /**
-   * Get the nth element of this list.
-   *
-   * @return A pointer to the nth element of this list.
-   */
-  const ExpressionArray::value_type getElement(ExpressionArray::size_type n) const
+  public: virtual ~List()
   {
-    return children[n];
-  }
-  ExpressionArray::value_type getElement(ExpressionArray::size_type n)
-  {
-    return children[n];
+    for (Int i = 0; i < this->getCount(); ++i) {
+      DISOWN_PLAINPTR(this->get(i));
+    }
   }
 
-  /**
-   * Get the number of elements in the list.
-   *
-   * @return The number of elements in the list.
-   */
-  ExpressionArray::size_type getElementCount() const
+  public: static SharedPtr<List> create(AstNodeSharedArray const &elements)
   {
-    return children.size();
+    return std::make_shared<List>(elements);
   }
 
-  //! @copydoc Expression::generateCode()
-  virtual Expression::CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::toString()
+  //============================================================================
+  // Member Functions
+
+  public: SharedPtr<AstNode> getShared(Int index)
+  {
+    return this->children.getShared(index).s_cast<AstNode>();
+  }
+
+  //! @copydoc AstNode::toString()
   virtual std::string toString();
-};
-}
 
-#endif // __Return_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+    DISOWN_PLAINPTR(this->children.get(index));
+    this->children.set(index, val);
+    OWN_PLAINPTR(val);
+  }
+
+  public: virtual void remove(Int index)
+  {
+    DISOWN_PLAINPTR(this->children.get(index));
+    this->children.remove(index);
+  }
+
+  public: virtual Word getCount() const
+  {
+    return this->children.getCount();
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    return this->children.get(index);
+  }
+
+}; // class
+
+} // namespace
+
+#endif

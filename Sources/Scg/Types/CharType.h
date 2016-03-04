@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/CharType.h
 *
-* @copyright Copyright (C) 2014 Hicham OUALI ALAMI
+* @copyright Copyright (C) 2016 Hicham OUALI ALAMI
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -9,8 +9,8 @@
 */
 //==============================================================================
 
-#ifndef __CharType_h__
-#define __CharType_h__
+#ifndef SCG_CHARTYPE_H
+#define SCG_CHARTYPE_H
 
 // Scg header files
 #include <Types/ValueType.h>
@@ -21,32 +21,48 @@
 
 namespace Scg
 {
+
 //! Represent the char type.
 class CharType : public ValueType
 {
   friend class LlvmContainer;
 
-  static CharType *s_singleton;
-  ValueTypeSpecByName typeSpec;
+  //============================================================================
+  // Type Info
 
-private:
+  TYPE_INFO(CharType, ValueType, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  private: static CharType *s_singleton;
+  private: SharedPtr<ValueTypeSpec> typeSpec;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   //! Constructs an char type.
-  CharType();
+  private: CharType();
 
   //! Class destructor.
-  virtual ~CharType()
+  private: virtual ~CharType()
   {
   }
 
-protected:
-  //! @copydoc ValueType::initCastingTargets()
-  virtual void initCastingTargets() const override;
 
-public:
+  //============================================================================
+  // Member Functions
+
+  //! @copydoc ValueType::initCastingTargets()
+  protected: virtual void initCastingTargets() const override;
+
   //! @copydoc ValueType::getName()
-  virtual const std::string getName() const
+  public: virtual std::string const& getName() const
   {
-    return "char";
+    static std::string name("char");
+    return name;
   }
 
   /**
@@ -54,32 +70,35 @@ public:
   * @param[in] value The value of the constant.
   * @return The llvm::Value object representing the constant.
   */
-  llvm::Constant *getLlvmConstant(char value) const;
+  public: llvm::Constant *getLlvmConstant(char value) const;
 
   //! @copydoc ValueType::getDefaultLLVMValue()
-  virtual llvm::Constant *getDefaultLLVMValue() const
+  public: virtual llvm::Constant *getDefaultLLVMValue() const
   {
     return getLlvmConstant(0);
   }
 
   //! @copydoc ValueType::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
   {
-    return &typeSpec;
+    return this->typeSpec;
   }
 
   //! @copydoc ValueType::isEqualTo()
-  virtual bool isEqualTo(const ValueType *other) const
+  public: virtual bool isEqualTo(ValueType const *other) const
   {
     return dynamic_cast<const CharType *>(other) != nullptr;
   }
 
   //! @copydoc ValueType::createCastInst()
-  virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
-                                      llvm::Value *value, const ValueType *targetType) const override;
+  public: virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
+                                              llvm::Value *value,
+                                              ValueType const *targetType) const override;
 
-  static CharType *get();
-};
-}
+  public: static CharType *get();
 
-#endif // __CharType_h__
+}; // class
+
+} // namespace
+
+#endif

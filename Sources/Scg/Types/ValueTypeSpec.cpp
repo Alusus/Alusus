@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/ValueTypeSpec.cpp
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -13,7 +13,6 @@
 
 // Scg files
 #include <Containers/Module.h>
-#include <Memory/AutoDeleteAllocator.h>
 #include <Types/ArrayType.h>
 #include <Types/PointerType.h>
 
@@ -21,29 +20,21 @@
 
 namespace Scg
 {
-TypeComparisonResult ValueTypeSpec::compare(const Module &module,
-    const ValueTypeSpec *other) const
+
+//============================================================================
+// ValueTypeSpec
+
+TypeComparisonResult ValueTypeSpec::compare(Module const &module,
+    ValueTypeSpec const *other) const
 {
   auto thisType = this->toValueType(module);
   auto otherType = other->toValueType(module);
   return thisType->compare(otherType);
 }
 
-//------------------------------------------------------------------------------
 
-void *ValueTypeSpec::operator new(size_t size)
-{
-  return AutoDeleteAllocator::getSingleton().allocateMem(size);
-}
-
-//------------------------------------------------------------------------------
-
-void ValueTypeSpec::operator delete(void *ptr)
-{
-  AutoDeleteAllocator::getSingleton().freeMem(ptr);
-}
-
-//===== ValueTypeSpecByName ====================================================
+//============================================================================
+// ValueTypeSpecByName
 
 TypeComparisonResult ValueTypeSpecByName::compare(const Module &module, const ValueTypeSpec *other) const
 {
@@ -59,28 +50,21 @@ TypeComparisonResult ValueTypeSpecByName::compare(const Module &module, const Va
   }
 }
 
-//------------------------------------------------------------------------------
 
-ValueType *ValueTypeSpecByName::toValueType(const Module &module) const
+ValueType* ValueTypeSpecByName::toValueType(const Module &module) const
 {
   return module.getValueTypeByName(this->name);
 }
 
-//------------------------------------------------------------------------------
 
 std::string ValueTypeSpecByName::toString() const
 {
   return this->name;
 }
 
-//===== PointerValueTypeSpec ===================================================
 
-PointerValueTypeSpec::~PointerValueTypeSpec()
-{
-  delete this->contentTypeSpec;
-}
-
-//------------------------------------------------------------------------------
+//============================================================================
+// PointerValueTypeSpec
 
 ValueType *PointerValueTypeSpec::toValueType(const Module &module) const
 {
@@ -92,7 +76,6 @@ ValueType *PointerValueTypeSpec::toValueType(const Module &module) const
   return PointerType::get(contentType);
 }
 
-//------------------------------------------------------------------------------
 
 std::string PointerValueTypeSpec::toString() const
 {
@@ -103,14 +86,9 @@ std::string PointerValueTypeSpec::toString() const
   return ss.str();
 }
 
-//===== ArrayValueTypeSpec =====================================================
 
-ArrayValueTypeSpec::~ArrayValueTypeSpec()
-{
-  delete this->elementsTypeSpec;
-}
-
-//------------------------------------------------------------------------------
+//============================================================================
+// ArrayValueTypeSpec
 
 ValueType *ArrayValueTypeSpec::toValueType(const Module &module) const
 {
@@ -122,7 +100,6 @@ ValueType *ArrayValueTypeSpec::toValueType(const Module &module) const
   return ArrayType::get(elementsType, this->arraySize);
 }
 
-//------------------------------------------------------------------------------
 
 std::string ArrayValueTypeSpec::toString() const
 {
@@ -135,7 +112,9 @@ std::string ArrayValueTypeSpec::toString() const
   return ss.str();
 }
 
-//===== ValueTypeSpecArray =====================================================
+
+//============================================================================
+// ValueTypeSpecArray
 
 bool ValueTypeSpecArray::isEqualTo(const ValueTypeSpecArray *other,
                                    int sizeLimit) const
@@ -153,7 +132,7 @@ bool ValueTypeSpecArray::isEqualTo(const ValueTypeSpecArray *other,
   }
 
   for (auto i = sizeLimit - 1; i >= 0; i--) {
-    if (!this->at(i)->isEqualTo(other->at(i))) {
+    if (!this->at(i)->isEqualTo(other->at(i).get())) {
       return false;
     }
   }
@@ -161,7 +140,9 @@ bool ValueTypeSpecArray::isEqualTo(const ValueTypeSpecArray *other,
   return true;
 }
 
-//===== VariableDefinitionArray ================================================
+
+//============================================================================
+// VariableDefinitionArray
 
 bool VariableDefinitionArray::areTypesEqualTo(const ValueTypeSpecArray *other,
     int sizeLimit) const
@@ -179,11 +160,12 @@ bool VariableDefinitionArray::areTypesEqualTo(const ValueTypeSpecArray *other,
   }
 
   for (auto i = sizeLimit - 1; i >= 0; i--) {
-    if (!this->at(i).getTypeSpec()->isEqualTo(other->at(i))) {
+    if (!this->at(i).getTypeSpec()->isEqualTo(other->at(i).get())) {
       return false;
     }
   }
 
   return true;
 }
-}
+
+} // namespace

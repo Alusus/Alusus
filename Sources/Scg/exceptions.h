@@ -1,7 +1,7 @@
 /**
  * @file Scg/exceptions.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __exceptions_h__
-#define __exceptions_h__
+#ifndef SCG_EXCEPTIONS_H
+#define SCG_EXCEPTIONS_H
 
 // Core header files.
 #include <Basic/exceptions.h>

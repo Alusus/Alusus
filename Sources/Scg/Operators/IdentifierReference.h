@@ -1,7 +1,7 @@
 /**
  * @file Scg/Operators/IdentifierReference.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -11,56 +11,77 @@
 
 // TODO: Consider renaming the class to IdentifierReferenceByName.
 
-#ifndef __IdentifierReference_h__
-#define __IdentifierReference_h__
+#ifndef SCG_IDENTIFIERREFERENCE_H
+#define SCG_IDENTIFIERREFERENCE_H
 
+#include "core.h"
+#include <AstNode.h>
 #include <Types/ValueTypeSpec.h>
 
 using namespace Core;
 
 namespace Scg
 {
+
 class Block;
 class Value;
 class ValueType;
+class CodeGenUnit;
 
 /**
  * Represents a reference to a variable by name.
  */
-class IdentifierReference : public Expression
+class IdentifierReference : public AstNode
 {
-protected:
-  //! The name of the variable.
-  std::string name;
-  //! Storing the value type to avoid fetching it frequently.
-  mutable ValueType *valueType = nullptr;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(IdentifierReference, AstNode, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The name of the variable.
+  protected: std::string name;
+  //! Storing the value type to avoid fetching it frequently.
+  protected: mutable ValueType *valueType = nullptr;
+
+
+  //============================================================================
+  // Constructor & Destructor
+
   /**
    * Constructs pointer to the variable having the given name in the scope where
    * this expression is defined.
    * @param[in] name  The name of the variable to point to.
    */
-  IdentifierReference(Char const *name) : name(name) {}
+  public: IdentifierReference(Char const *name) : name(name) {}
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Gets the name of the variable pointed to by this instance.
    * @return The name of the variable.
    */
-  const std::string &getName() const
+  public: const std::string& getName() const
   {
-    return name;
+    return this->name;
   }
 
   //! @copydoc Pointer::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override;
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override;
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __IdentifierReference_h__
+}; // class
+
+} // namespace
+
+#endif

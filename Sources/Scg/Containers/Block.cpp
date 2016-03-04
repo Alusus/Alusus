@@ -1,7 +1,7 @@
 /**
  * @file Scg/Containers/Block.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,12 +27,24 @@ using namespace llvm;
 
 namespace Scg
 {
-Block::Block(const ExpressionArray &body)
+
+Block::Block(AstNodeSharedArray const &body)
   : llvmBasicBlock(0)
   , irBuilder(0)
 {
   this->preserveChildrenCodeGenerationOrder = true;
-  this->children = body;
+  for (auto node : body) {
+    this->children.add(node);
+    OWN_SHAREDPTR(node);
+  }
+}
+
+
+Block::~Block()
+{
+  for (Int i = 0; i < this->getCount(); ++i) {
+    DISOWN_PLAINPTR(this->get(i));
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -41,14 +53,16 @@ const Variable *Block::getVariable(const std::string &name) const
 {
   auto var = this->variableMap.find(name);
 
+  Block *block;
+  Module *module;
+
   if (var != this->variableMap.end()) {
     return var->second;
-  } else if (getBlock() != nullptr) {
-    return getBlock()->getVariable(name);
-  } else if (getModule() != nullptr) {
-    auto var = getModule()->getVariableMap().find(name);
-
-    if (var != getModule()->getVariableMap().end())
+  } else if ((block=this->findOwner<Block>()) != nullptr) {
+    return block->getVariable(name);
+  } else if ((module=this->findOwner<Module>()) != nullptr) {
+    auto var = module->getVariableMap().find(name);
+    if (var != module->getVariableMap().end())
       return var->second;
   }
 
@@ -57,36 +71,34 @@ const Variable *Block::getVariable(const std::string &name) const
 
 //------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Block::preGenerateCode()
+AstNode::CodeGenerationStage Block::preGenerateCode(CodeGenUnit *codeGenUnit)
 {
   FUNCTION_CHECK;
 
-  for (auto expr : this->children)
-    expr->setBlock(this);
-
   // Create LLVM basic block and IR builder.
   this->llvmBasicBlock = BasicBlock::Create(LlvmContainer::getContext(),
-                         getNewBlockName(), getFunction()->getLlvmFunction());
+                         getNewBlockName(), this->findOwner<UserDefinedFunction>()->getLlvmFunction());
   this->irBuilder = new IRBuilder<>(this->llvmBasicBlock);
-  return Expression::preGenerateCode();
+  return AstNode::preGenerateCode(codeGenUnit);
 }
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Block::generateCode()
+AstNode::CodeGenerationStage Block::generateCode(CodeGenUnit *codeGenUnit)
 {
   // Iteratively generate the code of all contained expressions.
-  for (auto expr : this->children) {
+  for (Int i = 0; i < this->children.getCount(); ++i) {
+    auto expr = io_cast<AstNode>(this->children.get(i));
     if (expr->isTermInstGenerated())
       termInstGenerated = true;
   }
 
-  return Expression::generateCode();
+  return AstNode::generateCode(codeGenUnit);
 }
 
 //----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Block::postGenerateCode()
+AstNode::CodeGenerationStage Block::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   if (this->llvmBasicBlock != nullptr) {
     if (!this->llvmBasicBlock->hasNUses(0))
@@ -99,7 +111,7 @@ Expression::CodeGenerationStage Block::postGenerateCode()
     this->irBuilder = nullptr;
   }
 
-  return Expression::postGenerateCode();
+  return AstNode::postGenerateCode(codeGenUnit);
 }
 
 //----------------------------------------------------------------------------
@@ -112,7 +124,8 @@ std::string Block::toString()
   str.reserve(10 * 1024);
   str.append("{\n");
 
-  for (auto expr : this->children) {
+  for (Int i = 0; i < this->children.getCount(); ++i) {
+    auto expr = io_cast<AstNode>(this->children.get(i));
     auto exprStr = expr->toString();
     str.append("  ");
     str.append(boost::replace_all_copy(exprStr, "\n", "  \n"));
@@ -124,18 +137,9 @@ std::string Block::toString()
 
 //----------------------------------------------------------------------------
 
-void Block::setBlock(Block *block)
-{
-  this->block = block;
-
-  for (auto expr : this->children)
-    expr->setBlock(this);
-}
-
-//----------------------------------------------------------------------------
-
 std::string Block::getNewBlockName()
 {
   return "block" + boost::lexical_cast<std::string>(getNewIndex());
 }
-}
+
+} // namespace

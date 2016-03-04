@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/PointerType.cpp
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -22,16 +22,28 @@
 
 namespace Scg
 {
-std::unordered_map<const ValueType *, PointerType *> PointerType::usedPointerTypes;
+
+//============================================================================
+// Static Variables
+
+std::unordered_map<ValueType const*, PointerType*> PointerType::usedPointerTypes;
+
+
+//============================================================================
+// Constructors & Destructor
 
 // TODO: We are calling clone() because the passed type spec gets automatically
 // freed. Is there a better way to avoid extra memory allocation and free?
 PointerType::PointerType(const ValueType *cntType) :
-  contentType(cntType),
-  typeSpec(const_cast<ValueTypeSpec *>(cntType->getValueTypeSpec()->clone()))
+  contentType(cntType)
 {
+  this->typeSpec = std::make_shared<PointerValueTypeSpec>(cntType->getValueTypeSpec()->clone());
   this->llvmType = const_cast<llvm::Type *>(this->contentType->getLlvmType())->getPointerTo(0);
 }
+
+
+//============================================================================
+// Member Functions
 
 void PointerType::initCastingTargets() const
 {
@@ -39,6 +51,7 @@ void PointerType::initCastingTargets() const
 
   this->explicitCastingTargets.push_back(this);
 }
+
 
 bool PointerType::isEqualTo(const ValueType *other) const
 {
@@ -58,7 +71,7 @@ bool PointerType::isEqualTo(const ValueType *other) const
 }
 
 
-PointerType *PointerType::get(const ValueType *contentType)
+PointerType* PointerType::get(const ValueType *contentType)
 {
   auto it = PointerType::usedPointerTypes.find(contentType);
 
@@ -73,7 +86,8 @@ PointerType *PointerType::get(const ValueType *contentType)
   return type;
 }
 
-llvm::Value *PointerType::createCastInst(llvm::IRBuilder<> *irb,
+
+llvm::Value* PointerType::createCastInst(llvm::IRBuilder<> *irb,
     llvm::Value *value, const ValueType *targetType) const
 {
   if (dynamic_cast<PointerType const*>(targetType) != nullptr) {
@@ -93,4 +107,4 @@ llvm::Value *PointerType::createCastInst(llvm::IRBuilder<> *irb,
   throw EXCEPTION(InvalidCastException, "Invalid cast.");
 }
 
-}
+} // namespace

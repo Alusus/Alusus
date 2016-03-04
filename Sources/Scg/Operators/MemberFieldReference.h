@@ -1,7 +1,7 @@
 /**
  * @file Scg/Operators/MemberFieldReference.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,36 +9,51 @@
  */
 //==============================================================================
 
-#ifndef __MemberFieldReference_h__
-#define __MemberFieldReference_h__
+#ifndef SCG_MEMBERFIELDREFERENCE_H
+#define SCG_MEMBERFIELDREFERENCE_H
 
-// Alusus header files
+#include "core.h"
+#include <AstNode.h>
 #include <typedefs.h>
 #include <llvm_fwd.h>
 #include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
+
 class Block;
 class Value;
+class CodeGenUnit;
 
 /**
  * Represents a reference to a variable by name.
  */
-class MemberFieldReference : public Expression
+class MemberFieldReference : public AstNode, public virtual Core::Data::Container
 {
-protected:
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(MemberFieldReference, AstNode, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(AstNode, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
   /*! A pointer to the expression evaluating to a structure containing the field
     this pointer instance is pointing to. */
-  Expression *expression;
+  protected: SharedPtr<AstNode> expression;
   //! The name of the field this pointer instance is pointing to.
-  std::string fieldName;
+  protected: std::string fieldName;
   //! A pointer to the LLVM pointer object pointing to the structure field.
-  llvm::Value *llvmPointer = nullptr;
+  protected: llvm::Value *llvmPointer = nullptr;
   //! Storing the value type to avoid fetching it frequently.
-  mutable ValueType *valueType = nullptr;
+  protected: mutable ValueType *valueType = nullptr;
 
-public:
+
+  //============================================================================
+  // Constructor & Destructor
+
   // TODO: Change the fieldName to StringConst to allow compile-time constants
   // to be used to access member fields. Later we should also consider
   // changing fieldName to an expression to allow compile-time string
@@ -50,21 +65,55 @@ public:
    *                        in a structure.
    * @param[in] fieldName   The name of the field to create a pointer to.
    */
-  MemberFieldReference(Expression *exp, Char const *fName) :
+  public: MemberFieldReference(SharedPtr<AstNode> const &exp, Char const *fName) :
     expression(exp), fieldName(fName)
   {
-    children.push_back(expression);
+    OWN_SHAREDPTR(this->expression);
   }
 
-  //! @copydoc Expression::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override;
+  public: virtual ~MemberFieldReference()
+  {
+    DISOWN_SHAREDPTR(this->expression);
+  }
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //============================================================================
+  // Member Functions
 
-#endif // __MemberFieldReference_h__
+  //! @copydoc AstNode::getValueTypeSpec()
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override;
+
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
+
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
+
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 1;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    if (index == 0) return this->expression.get();
+    else return 0;
+  }
+
+}; // class
+
+} // namespace
+
+#endif

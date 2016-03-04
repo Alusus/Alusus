@@ -1,7 +1,7 @@
 /**
  * @file Scg/Values/FloatConst.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,27 +9,41 @@
  */
 //==============================================================================
 
-#ifndef __FloatConst_h__
-#define __FloatConst_h__
+#ifndef SCG_FLOATCONST_H
+#define SCG_FLOATCONST_H
 
-// Scg header files
 #include <Values/Constant.h>
 
 namespace Scg
 {
+
+class CodeGenUnit;
+
 /**
  * Represent an integral value.
  */
 class FloatConst : public Constant
 {
-  //! The value of the float.
-  float value;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(FloatConst, Constant, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The value of the float.
+  private: float value;
+
+
+  //============================================================================
+  // Cosntructors & Destructor
+
   /**
    * Constructs a float with the given value.
    */
-  FloatConst(float value) : value(value)
+  public: FloatConst(float value) : value(value)
   {
   }
 
@@ -38,23 +52,25 @@ public:
    *
    * @return The floating value of this float constant object.
    */
-  const float &getValue() const
+  public: float getValue() const
   {
-    return value;
+    return this->value;
   }
 
   //! @copydoc Value::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override;
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override;
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __FloatConst_h__
+}; // class
+
+} // namespace
+
+#endif

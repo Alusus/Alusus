@@ -33,6 +33,10 @@ class NamedListContainer : public virtual ListContainer
 
   public: virtual Int add(Char const *name, IdentifiableObject *val) = 0;
 
+  public: using ListContainer::insert;
+
+  public: virtual void insert(Int index, Char const *name, IdentifiableObject *val) = 0;
+
   public: using Container::set;
 
   public: virtual void set(Int index, Char const *name, IdentifiableObject *val) = 0;

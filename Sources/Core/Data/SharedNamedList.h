@@ -103,6 +103,14 @@ class SharedNamedList : public Node,
     return this->add(0, val);
   }
 
+  public: void insert(Int index, Char const *name, SharedPtr<IdentifiableObject> const &val);
+
+  /// Add a new object to the list at a specific index.
+  public: void insert(Int index, SharedPtr<IdentifiableObject> const &val)
+  {
+    return this->insert(index, 0, val);
+  }
+
   public: void set(Int index, Char const *name, SharedPtr<IdentifiableObject> const &val);
 
   /// Change the element at the specified index.
@@ -169,6 +177,16 @@ class SharedNamedList : public Node,
   public: virtual Int add(Char const *name, IdentifiableObject *val)
   {
     return this->add(name, getSharedPtr(val, true));
+  }
+
+  public: virtual void insert(Int index, IdentifiableObject *val)
+  {
+    this->insert(index, 0, getSharedPtr(val, true));
+  }
+
+  public: virtual void insert(Int index, Char const *name, IdentifiableObject *val)
+  {
+    this->insert(index, name, getSharedPtr(val, true));
   }
 
   public: virtual void set(Int index, Char const *name, IdentifiableObject *val)

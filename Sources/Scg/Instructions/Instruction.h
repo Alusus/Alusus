@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/Instruction.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,19 +9,23 @@
  */
 //==============================================================================
 
-#ifndef __Instruction_h__
-#define __Instruction_h__
+#ifndef SCG_INSTRUCTION_H
+#define SCG_INSTRUCTION_H
 
-#include <Expression.h>
+#include "core.h"
+#include <AstNode.h>
 
 namespace Scg
 {
+
 /**
  * Base class for all instruction classes in the language.
  */
-class Instruction : public Expression
+class Instruction : public AstNode
 {
+  TYPE_INFO(Instruction, AstNode, "Scg", "Scg", "alusus.net");
 };
-}
 
-#endif // __Instruction_h__
+} // namespace
+
+#endif

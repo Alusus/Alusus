@@ -1,7 +1,7 @@
 /**
-* @file Scg/Expression.cpp
+* @file Scg/AstNode.cpp
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -10,18 +10,18 @@
 //==============================================================================
 
 // Scg header files
-#include <Containers/Program.h>
-#include <Expression.h>
-#include <Memory/AutoDeleteAllocator.h>
+#include <AstNode.h>
+#include <CodeGenUnit.h>
 
 namespace Scg
 {
+
 // TODO: callPreGenerateCode(), callGenerateCode(), and callPostGenerateCode() now
 // do the same functionality. Combine them into one function that accepts a
 // a parameter specifying the stage of code generation so that we remove duplication
 // and we make it easier to increase the number of stages if we need to.
 
-Expression::CodeGenerationStage Expression::callPreGenerateCode()
+AstNode::CodeGenerationStage AstNode::callPreGenerateCode(CodeGenUnit *codeGenUnit)
 {
   // Marks the beginning of code generation if we haven't started yet.
   if (this->codeGenStage == CodeGenerationStage::None) {
@@ -32,7 +32,7 @@ Expression::CodeGenerationStage Expression::callPreGenerateCode()
     this->childrenCodeGenStage = CodeGenerationStage::PreCodeGeneration;
   }
 
-  // Have we already finished pre-code generation for this expression and its
+  // Have we already finished pre-code generation for this object and its
   // children?
   if (this->codeGenStage == CodeGenerationStage::CodeGeneration &&
       this->childrenCodeGenStage == CodeGenerationStage::CodeGeneration) {
@@ -40,40 +40,45 @@ Expression::CodeGenerationStage Expression::callPreGenerateCode()
   }
 
   if (this->codeGenStage == CodeGenerationStage::PreCodeGeneration) {
-    // The expression didn't yet finish pre-code generation.
-    this->codeGenStage = preGenerateCode();
+    // The object didn't yet finish pre-code generation.
+    this->codeGenStage = preGenerateCode(codeGenUnit);
   }
 
-  // Commented the condition that the parent expression should be finish
+  // Commented the condition that the parent object should be finish
   // pre-code generation before we can call the pre-code generation step
   // of the children. This is because we sometimes need to finish the
   // pre-code generation step of the children before we can finish that of
   // the parent. For example, in a call to a function, we need to know the
   // types of the arguments, i.e. the children, so that we can find the right
-  // function to call. NOTE that we need to ensure that all expressions we
+  // function to call. NOTE that we need to ensure that all objects we
   // have take the responsibility themselves of checking whether the parent
   // has finished pre-code generation step if they depend on it.
   Bool errors = false;
 
   if (/*this->codeGenStage == CodeGenerationStage::CodeGeneration &&*/
     this->childrenCodeGenStage == CodeGenerationStage::PreCodeGeneration) {
-    // The expression finished pre-code generation but the children didn't.
+    // The object finished pre-code generation but the children didn't.
     this->childrenCodeGenStage = CodeGenerationStage::CodeGeneration;
 
-    for (auto expr : this->children) {
-      try {
-        this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
-                                              expr->callPreGenerateCode());
-      } catch (Core::Basic::Exception &e) {
-        getModule()->getProgram()->getBuildMsgStore()->add(
-          std::make_shared<Core::Processing::CustomBuildMsg>(e.getErrorMessage().c_str(),
-              STR("SCG1030"), 1, expr->getSourceLocation()));
-        errors = true;
-      }
+    auto children = this->getInterface<Core::Data::Container>();
+    if (children != 0) {
+      for (Int i = 0; i < children->getCount(); ++i) {
+        auto child = io_cast<AstNode>(children->get(i));
+        if (child == 0) continue;
+        try {
+          this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
+                                                child->callPreGenerateCode(codeGenUnit));
+        } catch (Core::Basic::Exception &e) {
+          codeGenUnit->getBuildMsgStore()->add(
+            std::make_shared<Core::Processing::CustomBuildMsg>(e.getErrorMessage().c_str(),
+                STR("SCG1030"), 1, child->getSourceLocation()));
+          errors = true;
+        }
 
-      if (this->childrenCodeGenStage == CodeGenerationStage::PreCodeGeneration &&
-          this->preserveChildrenCodeGenerationOrder) {
-        break;
+        if (this->childrenCodeGenStage == CodeGenerationStage::PreCodeGeneration &&
+            this->preserveChildrenCodeGenerationOrder) {
+          break;
+        }
       }
     }
   }
@@ -83,9 +88,10 @@ Expression::CodeGenerationStage Expression::callPreGenerateCode()
   return std::min(this->codeGenStage, this->childrenCodeGenStage);
 }
 
-Expression::CodeGenerationStage Expression::callGenerateCode()
+
+AstNode::CodeGenerationStage AstNode::callGenerateCode(CodeGenUnit *codeGenUnit)
 {
-  // Have we already finished code generation for this expression and its
+  // Have we already finished code generation for this object and its
   // children?
   if (this->codeGenStage == CodeGenerationStage::PostCodeGeneration &&
       this->childrenCodeGenStage == CodeGenerationStage::PostCodeGeneration) {
@@ -103,25 +109,31 @@ Expression::CodeGenerationStage Expression::callGenerateCode()
   Bool errors = false;
 
   if (this->childrenCodeGenStage == CodeGenerationStage::CodeGeneration) {
-    // The expression finished code generation but the children didn't.
+    // The object finished code generation but the children didn't.
     this->childrenCodeGenStage = CodeGenerationStage::PostCodeGeneration;
 
-    for (auto expr : this->children) {
-      try {
-        this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
-                                              expr->callGenerateCode());
-      } catch (Core::Basic::Exception &e) {
-        getModule()->getProgram()->getBuildMsgStore()->add(
-          std::make_shared<Core::Processing::CustomBuildMsg>(e.getErrorMessage().c_str(),
-              STR("SCG1030"), 1, expr->getSourceLocation()));
-        errors = true;
-      }
+    auto children = this->getInterface<Core::Data::Container>();
+    if (children != 0) {
+      for (Int i = 0; i < children->getCount(); ++i) {
+        auto child = io_cast<AstNode>(children->get(i));
+        if (child == 0) continue;
+        try {
+          this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
+                                                child->callGenerateCode(codeGenUnit));
+        } catch (Core::Basic::Exception &e) {
+          codeGenUnit->getBuildMsgStore()->add(
+            std::make_shared<Core::Processing::CustomBuildMsg>(e.getErrorMessage().c_str(),
+                STR("SCG1030"), 1, child->getSourceLocation()));
+          errors = true;
+        }
 
-      if (expr->isTermInstGenerated())
-        // If an instruction that terminates execution of a block of code, e.g.
-        // return statement, is generated, then we don't try to generate the
-        // code for more children, as LLVM seems to object that.
-        break;
+        if (child->isTermInstGenerated()) {
+          // If an instruction that terminates execution of a block of code, e.g.
+          // return statement, is generated, then we don't try to generate the
+          // code for more children, as LLVM seems to object that.
+          break;
+        }
+      }
     }
   }
 
@@ -132,16 +144,17 @@ Expression::CodeGenerationStage Expression::callGenerateCode()
   }
 
   if (this->codeGenStage == CodeGenerationStage::CodeGeneration) {
-    // The expression didn't yet finish code generation.
-    this->codeGenStage = generateCode();
+    // The object didn't yet finish code generation.
+    this->codeGenStage = generateCode(codeGenUnit);
   }
 
   return std::min(this->codeGenStage, this->childrenCodeGenStage);
 }
 
-Expression::CodeGenerationStage Expression::callPostGenerateCode()
+
+AstNode::CodeGenerationStage AstNode::callPostGenerateCode(CodeGenUnit *codeGenUnit)
 {
-  // Have we already finished post-code generation for this expression and its
+  // Have we already finished post-code generation for this object and its
   // children?
   if (this->codeGenStage == CodeGenerationStage::None &&
       this->childrenCodeGenStage == CodeGenerationStage::None)
@@ -153,15 +166,20 @@ Expression::CodeGenerationStage Expression::callPostGenerateCode()
     // The children didn't yet finish post-code generation.
     this->childrenCodeGenStage = CodeGenerationStage::None;
 
-    for (auto expr : this->children) {
-      try {
-        this->childrenCodeGenStage = std::max(this->childrenCodeGenStage,
-                                              expr->callPostGenerateCode());
-      } catch (Core::Basic::Exception &e) {
-        getModule()->getProgram()->getBuildMsgStore()->add(
-          std::make_shared<Core::Processing::CustomBuildMsg>(e.getErrorMessage().c_str(),
-              STR("SCG1030"), 1, expr->getSourceLocation()));
-        errors = true;
+    auto children = this->getInterface<Core::Data::Container>();
+    if (children != 0) {
+      for (Int i = 0; i < children->getCount(); ++i) {
+        auto child = io_cast<AstNode>(children->get(i));
+        if (child == 0) continue;
+        try {
+          this->childrenCodeGenStage = std::max(this->childrenCodeGenStage,
+                                                child->callPostGenerateCode(codeGenUnit));
+        } catch (Core::Basic::Exception &e) {
+          codeGenUnit->getBuildMsgStore()->add(
+            std::make_shared<Core::Processing::CustomBuildMsg>(e.getErrorMessage().c_str(),
+                STR("SCG1030"), 1, child->getSourceLocation()));
+          errors = true;
+        }
       }
     }
   }
@@ -170,52 +188,11 @@ Expression::CodeGenerationStage Expression::callPostGenerateCode()
 
   if (this->childrenCodeGenStage == CodeGenerationStage::None &&
       this->codeGenStage == CodeGenerationStage::PreCodeGeneration) {
-    // The children finished post-code generation but the expression didn't.
-    this->codeGenStage = postGenerateCode();
+    // The children finished post-code generation but the object didn't.
+    this->codeGenStage = postGenerateCode(codeGenUnit);
   }
 
   return std::min(this->codeGenStage, this->childrenCodeGenStage);
 }
 
-const Program *Expression::getProgram() const
-{
-  if (module == nullptr)
-    return nullptr;
-
-  return module->getProgram();
-}
-
-void Expression::setModule(Module *module)
-{
-  this->module = module;
-
-  for (auto expr : this->children)
-    expr->setModule(module);
-}
-
-void Expression::setFunction(UserDefinedFunction *function)
-{
-  this->function = function;
-
-  for (auto expr : this->children)
-    expr->setFunction(function);
-}
-
-void Expression::setBlock(Block *block)
-{
-  this->block = block;
-
-  for (auto expr : this->children)
-    expr->setBlock(block);
-}
-
-void *Expression::operator new(size_t size)
-{
-  return AutoDeleteAllocator::getSingleton().allocateMem(size);
-}
-
-void Expression::operator delete(void *ptr)
-{
-  AutoDeleteAllocator::getSingleton().freeMem(ptr);
-}
-}
+} // namespace

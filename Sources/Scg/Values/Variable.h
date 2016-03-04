@@ -1,7 +1,7 @@
 /**
  * @file Scg/Values/Variable.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __Variable_h__
-#define __Variable_h__
+#ifndef SCG_VARIABLE_H
+#define SCG_VARIABLE_H
 
 #include <exceptions.h>
 #include <typedefs.h>
@@ -21,28 +21,42 @@
 
 namespace Scg
 {
+
+class CodeGenUnit;
+
 class Variable : public Value
 {
-protected:
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(Variable, Value, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
   //! The name of the variable.
-  std::string name;
+  protected: std::string name;
   // TODO: We should change this variable type to const ValueType & after we
   // change the return type of the function Value::getValueTypeSpec().
   //! The type of the variable.
-  ValueType *variableType;
+  protected: ValueType *variableType;
   //! The LLVM Alloca instruction used to define the variable, if it is local.
-  llvm::AllocaInst *llvmAllocaInst = nullptr;
+  protected: llvm::AllocaInst *llvmAllocaInst = nullptr;
   //! The LLVM GlobalVariable object used to define the variable, if it is global.
-  llvm::GlobalVariable *llvmGlobalVariable = nullptr;
+  protected: llvm::GlobalVariable *llvmGlobalVariable = nullptr;
   /*! If this variable represents a function argument, this points to the
     LLVM StoreInst used to set the value of the variable to the value
     passed by the caller of the function. */
-  llvm::StoreInst *llvmStoreInst = nullptr;
+  protected: llvm::StoreInst *llvmStoreInst = nullptr;
   /*! If this variable represents a function argument, this points to the
     LLVM Argument instance representing the function argument. */
-  llvm::Argument *llvmArgument;
+  protected: llvm::Argument *llvmArgument;
 
-public:
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Constructs a variable.
    * @param[in] name          The name of the variable.
@@ -51,22 +65,25 @@ public:
    *                          pass in the LLVM Argument representing the
    *                          argument here.
    */
-  Variable(const std::string &name, ValueType *variableType,
-           llvm::Argument *llvmArgument = nullptr)
+  public: Variable(const std::string &name, ValueType *variableType,
+                   llvm::Argument *llvmArgument = nullptr)
     : name(name), variableType(variableType), llvmArgument(llvmArgument)
   {
   }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Retrieves the name of the variable.
    * @return The name of the variable.
    */
-  const std::string &getName()
+  public: std::string const& getName()
   {
-    return name;
+    return this->name;
   }
 
-  //@{
   /**
    * Returns an LLVM Value object representing this variable. This is either
    * the LLVM AllocaInst object if this is a local variable, or the LLVM
@@ -78,7 +95,7 @@ public:
    *
    * @return The LLVM Value object representing this variable.
    */
-  const llvm::Value *getLlvmValue() const
+  public: llvm::Value const* getLlvmValue() const
   {
     if (llvmAllocaInst != nullptr) {
       return llvmAllocaInst;
@@ -87,14 +104,11 @@ public:
     }
   }
 
-  llvm::Value *getLlvmValue()
+  public: llvm::Value* getLlvmValue()
   {
-    return const_cast<llvm::Value *>(
-             static_cast<const Variable *>(this)->getLlvmValue());
+    return const_cast<llvm::Value *>(static_cast<const Variable *>(this)->getLlvmValue());
   }
-  //@}
 
-  //@{
   /**
    * Retrieves a pointer to the LLVM Alloca instruction which is used to
    * define this variable in LLVM, if it is a local variable.
@@ -105,19 +119,16 @@ public:
    *
    * @return A pointer to the LLVM Alloca instruction.
    */
-  const llvm::AllocaInst *getLlvmAllocaInst() const
+  public: llvm::AllocaInst const* getLlvmAllocaInst() const
   {
-    return llvmAllocaInst;
+    return this->llvmAllocaInst;
   }
 
-  llvm::AllocaInst *getLlvmAllocaInst()
+  public: llvm::AllocaInst* getLlvmAllocaInst()
   {
-    return const_cast<llvm::AllocaInst *>(
-             static_cast<const Variable *>(this)->getLlvmAllocaInst());
+    return const_cast<llvm::AllocaInst *>(static_cast<const Variable *>(this)->getLlvmAllocaInst());
   }
-  //@}
 
-  //@{
   /**
    * Retrieves a pointer to the LLVM GlobalVariable object which is used to
    * define this variable in LLVM, if it is a global variable.
@@ -128,41 +139,39 @@ public:
    *
    * @return A pointer to the LLVM GlobalVariable instruction.
    */
-  const llvm::GlobalVariable *getLlvmGlobalVariable() const
+  public: llvm::GlobalVariable const* getLlvmGlobalVariable() const
   {
-    return llvmGlobalVariable;
+    return this->llvmGlobalVariable;
   }
 
-  llvm::GlobalVariable *getLlvmGlobalVariable()
+  public: llvm::GlobalVariable* getLlvmGlobalVariable()
   {
-    return const_cast<llvm::GlobalVariable *>(
-             static_cast<const Variable *>(this)->getLlvmGlobalVariable());
+    return const_cast<llvm::GlobalVariable *>(static_cast<const Variable *>(this)->getLlvmGlobalVariable());
   }
-  //@}
 
   // TODO: We should change the return type of this function to
   // const ValueType &.
 
-  //@{
   //! @copydoc Value::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
   {
     return variableType->getValueTypeSpec();
   }
-  //@}
 
-  //! @copydoc Expression::preGenerateCode()
-  virtual CodeGenerationStage preGenerateCode();
+  //! @copydoc AstNode::preGenerateCode()
+  public: virtual CodeGenerationStage preGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __Variable_h__
+}; // class
+
+} // namespace
+
+#endif

@@ -1,7 +1,7 @@
 /**
- * @file Scg/Instructions/FunctionMatcher.cpp
+ * @file Scg/Functions/FunctionSignature.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -17,6 +17,7 @@
 
 namespace Scg
 {
+
 int FunctionSignature::match(const Module &module, const std::string &name,
                              const ValueTypeSpecArray &argTypes) const
 {
@@ -41,7 +42,7 @@ int FunctionSignature::match(const Module &module, const std::string &name,
 
   for (auto i = 0; i < this->arguments.size(); i++) {
     //auto compRes = this->arguments[i]->compare(module, argTypes[i]);
-    auto compRes = argTypes[i]->compare(module, this->arguments[i]);
+    auto compRes = argTypes[i]->compare(module, this->arguments[i].get());
 
     if (compRes == TypeComparisonResult::NotEquivalent) {
       // One of the arguments is not equal or cannot be implicitly casted
@@ -54,4 +55,5 @@ int FunctionSignature::match(const Module &module, const std::string &name,
 
   return implCastCount;
 }
-}
+
+} // namespace

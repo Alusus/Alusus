@@ -1,7 +1,7 @@
 /**
  * @file Scg/CodeGeneration/FunctionalExpression.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __FunctionalExpression_h__
-#define __FunctionalExpression_h__
+#ifndef SCG_FUNCTIONALEXPRESSION_H
+#define SCG_FUNCTIONALEXPRESSION_H
 
 // STL header files
 #include <vector>
@@ -28,7 +28,7 @@ namespace Scg
 class CodeGenerator;
 class DeclareExtFunction;
 class ParamPassExp;
-class Expression;
+class AstNode;
 
 /**
  * Represents and help parsing a functional expressions AST block. Functional
@@ -112,7 +112,7 @@ public:
    * @return A pointer to the DeclareExtFunction instance. This is allocated
    * in the heap, and thus should be deleted by the caller.
    */
-  DeclareExtFunction *toDeclareExtFunction(ValueTypeSpec *retType);
+  SharedPtr<DeclareExtFunction> toDeclareExtFunction(SharedPtr<ValueTypeSpec> const &retType);
 
   /**
    * If this functional expression is the result of an expression that includes
@@ -122,14 +122,14 @@ public:
    * @return A pointer to the Expression instance. This is allocated in the heap,
    * and thus should be deleted by the caller.
    */
-  Expression *toExpression();
+  SharedPtr<AstNode> toExpression();
 
 private:
-  Char const *parseFieldName(
-    const Core::Basic::SharedPtr<Core::Data::PrtList> &astBlockRoot);
-  Expression *parseElementIndex(
-    const Core::Basic::SharedPtr<Core::Data::PrtRoute> &astBlockRoot);
-};
-}
+  Char const *parseFieldName(const Core::Basic::SharedPtr<Core::Data::PrtList> &astBlockRoot);
+  SharedPtr<AstNode> parseElementIndex(const Core::Basic::SharedPtr<Core::Data::PrtRoute> &astBlockRoot);
 
-#endif // __FunctionalExpression_h__
+}; // class
+
+} // namespace
+
+#endif

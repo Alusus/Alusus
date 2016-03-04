@@ -19,39 +19,38 @@ using namespace Scg;
 // TODO: This was copied from StructureTests.cpp. It should be defined in
 // a separate header file instead to avoid duplication.
 
-namespace Tests
+namespace Tests { namespace ScgTests
 {
-namespace ScgTests
-{
+
 bool TestGlobalVariable()
 {
   LlvmContainer::initialize();
 
   // Defines the global variable.
-  auto defGlobInt = new DefineVariable(CreateTypeSpecByName("int"), "globVarInt");
-  auto defGlobDouble = new DefineVariable(CreateTypeSpecByName("double"), "globVarDouble");
+  auto defGlobInt = std::make_shared<DefineVariable>(CreateTypeSpecByName("int"), "globVarInt");
+  auto defGlobDouble = std::make_shared<DefineVariable>(CreateTypeSpecByName("double"), "globVarDouble");
 
   // Creates a link to printf.
-  auto printfLink = new DeclareExtFunction("printf", CreateTypeSpecByName("int"),
-  {CreateTypeSpecByName("string")}, true);
+  auto printfLink = DeclareExtFunction::create("printf", CreateTypeSpecByName("int"),
+                                               {CreateTypeSpecByName("string")}, true);
 
   // Creates the main function.
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-  VariableDefinitionArray(), new Block({
-    new AssignmentOperator(VAR("globVarInt"), new IntegerConst(10)),
-    new AssignmentOperator(VAR("globVarDouble"), new DoubleConst(20.0)),
-    new CallFunction("printf", new List({new StringConst("The value of the integer global variable is %d\n"), VAR("globVarInt") })),
-    new CallFunction("printf", new List({new StringConst("The value of the double global variable is %f\n"), VAR("globVarDouble") })),
-    new Return(new IntegerConst(0))
-  }));
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+    VariableDefinitionArray(), Block::create({
+      std::make_shared<AssignmentOperator>(VAR("globVarInt"), std::make_shared<IntegerConst>(10)),
+      std::make_shared<AssignmentOperator>(VAR("globVarDouble"), std::make_shared<DoubleConst>(20.0)),
+      std::make_shared<CallFunction>("printf", List::create({std::make_shared<StringConst>("The value of the integer global variable is %d\n"), VAR("globVarInt") })),
+      std::make_shared<CallFunction>("printf", List::create({std::make_shared<StringConst>("The value of the double global variable is %f\n"), VAR("globVarDouble") })),
+      std::make_shared<Return>(std::make_shared<IntegerConst>(0))
+    }));
 
   // Creates the module.
   auto *module = new Module("MainModule");
-  module->appendExpression(defGlobInt);
-  module->appendExpression(defGlobDouble);
-  module->appendExpression(printfLink);
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(defGlobInt);
+  module->appendNode(defGlobDouble);
+  module->appendNode(printfLink);
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   delete program;
@@ -60,5 +59,5 @@ bool TestGlobalVariable()
 
   return true;
 }
-}
-} // namespace
+
+} } // namespace

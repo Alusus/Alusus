@@ -1,7 +1,7 @@
 /**
- * @file Scg/BuiltInFunctions/Function.h
+ * @file Scg/Functions/Function.h
  *
- * @copyright Copyright (C) 2015 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,13 +9,12 @@
  */
 //==============================================================================
 
-#ifndef __Function_h__
-#define __Function_h__
+#ifndef SCG_FUNCTION_H
+#define SCG_FUNCTION_H
 
-// STL header files
 #include <vector>
 
-// SCG header files
+#include "core.h"
 #include <Containers/List.h>
 #include <Functions/FunctionSignature.h>
 #include <Values/Value.h>
@@ -24,50 +23,50 @@
 #pragma warning(disable: 4146 4800 4355 4996)
 #include <llvm/IR/IRBuilder.h>
 #include <Types/ValueType.h>
-
 #pragma warning(default: 4146 4800 4355 4996)
 
 namespace Scg
 {
+
 /**
  * Base class for all expressions that can be called and return a value.
  * Such expressions include built-in functions and user-defined functions.
  */
 class Function : public Value
 {
-protected:
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(Function, Value, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
   // Defining as protected to allow inheritors to specify them. See for example UserDefinedFunction.
   //! The types of the arguments of this function.
-  // mutable ValueTypeArray argTypes;
+  // protected: mutable ValueTypeArray argTypes;
   //! The type specifications of the arguments of this function. This has to
   //! be set by the overriding function.
-  mutable ValueTypeSpecArray argTypeSpecs;
-private:
+  protected: mutable ValueTypeSpecArray argTypeSpecs;
   //! The signature of this function.
-  mutable FunctionSignature *sig = nullptr;
+  private: mutable SharedPtr<FunctionSignature> sig;
 
-public:
-  /**
-  * Class destructor.
-  */
-  virtual ~Function()
-  {
-    if (sig != nullptr) {
-      delete sig;
-    }
-  }
+
+  //============================================================================
+  // Member Function
 
   /**
    * Retrieves the name of this callable.
    * @return The name of the callable.
    */
-  virtual const std::string &getName() const = 0;
+  public: virtual const std::string &getName() const = 0;
 
   /**
   * Retrieves the type specifications of the arguments of this function.
   * @return An array containing the type specifications of the arguments.
   */
-  virtual const ValueTypeSpecArray &getArgumentTypeSpecs() const
+  public: virtual const ValueTypeSpecArray &getArgumentTypeSpecs() const
   {
     return argTypeSpecs;
   }
@@ -77,32 +76,29 @@ public:
   * arguments.
   * @return True or false.
   */
-  virtual bool isVarArgs() const
+  public: virtual bool isVarArgs() const
   {
     // Most functions have a fixed number of arguments, so we return false by
     // default.
     return false;
   }
 
-  //@{
   /**
   * Retrieves the signature of this function.
   * @return The signature of the function.
   */
-  virtual const FunctionSignature &getSignature() const
+  public: virtual FunctionSignature const& getSignature() const
   {
-    if (sig == nullptr) {
-      sig = new FunctionSignature(getName(), getArgumentTypeSpecs(), isVarArgs());
+    if (sig == 0) {
+      sig = std::make_shared<FunctionSignature>(getName(), getArgumentTypeSpecs(), isVarArgs());
     }
 
     return *sig;
   }
-  virtual FunctionSignature &getSignature()
+  public: virtual FunctionSignature& getSignature()
   {
-    return const_cast<FunctionSignature&>(
-             static_cast<const Function*>(this)->getSignature());
+    return const_cast<FunctionSignature&>(static_cast<const Function*>(this)->getSignature());
   }
-  //@}
 
   // TODO: Can we convert the return type to llvm::Instruction.
   /**
@@ -111,9 +107,11 @@ public:
    * @return A pointer to the LLVM instruction. This has to be freed by the
    * caller.
    */
-  virtual llvm::Value *createLLVMInstruction(llvm::IRBuilder<> *irb,
+  public: virtual llvm::Value *createLLVMInstruction(llvm::IRBuilder<> *irb,
       const std::vector<llvm::Value*> &args) const = 0;
-};
-}
 
-#endif // __Function_h__
+}; // class
+
+} // namespace
+
+#endif

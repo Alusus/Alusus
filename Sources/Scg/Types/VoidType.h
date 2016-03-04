@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/VoidType.h
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -9,74 +9,82 @@
 */
 //==============================================================================
 
-#ifndef __VoidType_h__
-#define __VoidType_h__
+#ifndef SCG_VOIDTYPE_H
+#define SCG_VOIDTYPE_H
 
-// Scg header files
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
-
-// LLVM forward declarations
 #include <llvm_fwd.h>
 
 namespace Scg
 {
+
 /**
-* Represent a variable type.
-*/
+ * Represent a variable type.
+ */
 class VoidType : public ValueType
 {
   friend class LlvmContainer;
 
-  static VoidType *s_singleton;
-  ValueTypeSpecByName typeSpec;
+  //============================================================================
+  // Type Info
 
-private:
-  /**
-  * Constructs a void type.
-  */
-  VoidType();
+  TYPE_INFO(VoidType, ValueType, "Scg", "Scg", "alusus.net");
 
-  /**
-  * Class destructor.
-  */
-  virtual ~VoidType()
+
+  //============================================================================
+  // Member Variables
+
+  private: static VoidType *s_singleton;
+  private: SharedPtr<ValueTypeSpec> typeSpec;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
+  private: VoidType();
+
+  private: virtual ~VoidType()
   {
   }
 
-protected:
-  //! @copydoc ValueType::initCastingTargets()
-  virtual void initCastingTargets() const override;
 
-public:
+  //============================================================================
+  // Member Functions
+
+  //! @copydoc ValueType::initCastingTargets()
+  protected: virtual void initCastingTargets() const override;
+
   //! @copydoc ValueType::getName()
-  virtual const std::string getName() const
+  public: virtual std::string const& getName() const
   {
-    return "void";
+    static std::string name("void");
+    return name;
   }
 
   //! @copydoc ValueType::getDefaultLLVMValue()
-  virtual llvm::Constant *getDefaultLLVMValue() const
+  public: virtual llvm::Constant* getDefaultLLVMValue() const
   {
     throw EXCEPTION(NotImplementedException, "Not implemented yet!");
   }
 
   //! @copydoc ValueType::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
   {
-    return &typeSpec;
+    return this->typeSpec;
   }
 
   //! @copydoc ValueType::isEqualTo()
-  virtual bool isEqualTo(const ValueType *other) const
+  public: virtual bool isEqualTo(ValueType const *other) const
   {
     // TODO: Should we throw InvalidOperationException here?
-    return dynamic_cast<const VoidType *>(other) != nullptr;
+    return dynamic_cast<VoidType const*>(other) != nullptr;
   }
 
-  static VoidType *get();
-};
+  public: static VoidType *get();
 
-}
+}; // class
 
-#endif // __VoidType_h__
+} // namespace
+
+#endif

@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/DeclareExtFunction.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,36 +9,54 @@
  */
 //==============================================================================
 
-#ifndef __DeclareExtFunction_h__
-#define __DeclareExtFunction_h__
+#ifndef SCG_DECLAREEXTFUNCTION_H
+#define SCG_DECLAREEXTFUNCTION_H
 
-// Scg header files
+#include "core.h"
 #include <Instructions/Instruction.h>
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
-#include <Functions/UserDefinedFunction.h>
-
+#include <Functions/ExternalFunction.h>
 #include <llvm_fwd.h>
+
+using namespace Core;
 
 namespace Scg
 {
+
 class DefineFunction;
+class CodeGenUnit;
 
 /**
  * Represents a function definition, i.e. a prototype and body.
  */
-class DeclareExtFunction : public Instruction
+class DeclareExtFunction : public Instruction, public virtual Core::Data::Container
 {
-  //! A string containing the name of the function.
-  std::string name;
-  //! The return value of the function.
-  ValueTypeSpec *returnType;
-  //! An array containing the types of the function's arguments.
-  ValueTypeSpecArray argTypes;
-  //! Whether the function has a variable number of arguments.
-  bool varArgs;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(DeclareExtFunction, Instruction, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(Instruction, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
+  //! A string containing the name of the function.
+  private: std::string name;
+  //! The return value of the function.
+  private: SharedPtr<ValueTypeSpec> returnType;
+  //! An array containing the types of the function's arguments.
+  private: ValueTypeSpecArray argTypes;
+  //! Whether the function has a variable number of arguments.
+  private: bool varArgs;
+  //! The function object created during code generation.
+  private: SharedPtr<ExternalFunction> function;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   // TODO: The return type and arguments should support pointers.
   /**
    * Constructs a function declaration with the given name and signature.
@@ -48,62 +66,59 @@ public:
        * @param[in] varArgs   Whether the function has a variable number of
    * arguments.
    */
-  DeclareExtFunction(Core::Basic::Char const *name, ValueTypeSpec *returnType,
-                     const ValueTypeSpecArray &argTypes, bool varArgs = false);
+  public: DeclareExtFunction(Core::Basic::Char const *name, SharedPtr<ValueTypeSpec> const &returnType,
+                             ValueTypeSpecArray const &argTypes, bool varArgs = false);
 
   /**
    * Constructs a copy of the given DeclareExtFunction instruction.
    * @param[in] declFunc  The DeclareExtFunction instruction to be copied.
    */
-  DeclareExtFunction(DeclareExtFunction *declFunc);
+  public: DeclareExtFunction(DeclareExtFunction *declFunc);
 
   /**
    * Constructs a function declaration for the given function definition.
    * @param definition  A pointer to the function definition to construct a
    * declaration for.
    */
-  DeclareExtFunction(DefineFunction *definition);
+  public: DeclareExtFunction(DefineFunction *definition);
 
-  /**
-   * Class destructor.
-   */
-  ~DeclareExtFunction();
+  public: static SharedPtr<DeclareExtFunction> create(Core::Basic::Char const *name, SharedPtr<ValueTypeSpec> const &returnType,
+                                                      ValueTypeSpecArray const &argTypes, bool varArgs = false)
+  {
+    return std::make_shared<DeclareExtFunction>(name, returnType, argTypes, varArgs);
+  }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Retrieves the name of the function being declared.
    * @return The name of the function being declared.
    */
-  const std::string &getName() const
+  public: std::string const& getName() const
   {
-    return name;
-  }
-  std::string &getName()
-  {
-    return name;
+    return this->name;
   }
 
   /**
    * Retrieves the return type of the function being declared.
    * @return A pointer to the @c ValueTypeSpec specifying the return type.
    */
-  const ValueTypeSpec *getReturnType() const
+  public: SharedPtr<ValueTypeSpec> const& getReturnType() const
   {
-    return returnType;
-  }
-  ValueTypeSpec *getReturnType()
-  {
-    return returnType;
+    return this->returnType;
   }
 
   /**
    * Retrieves an array containing the argument types of the function being declared.
    * @return An array containing the argument types of the function being declared.
    */
-  const ValueTypeSpecArray &getArgumentTypes() const
+  public: ValueTypeSpecArray const& getArgumentTypes() const
   {
     return argTypes;
   }
-  ValueTypeSpecArray &getArgumentTypes()
+  public: ValueTypeSpecArray& getArgumentTypes()
   {
     return argTypes;
   }
@@ -112,7 +127,7 @@ public:
    * Returns whether the function has a variable number of arguments.
    * @return Whether the function has a variable number of arguments.
    */
-  bool isVarArgs() const
+  public: bool isVarArgs() const
   {
     return varArgs;
   }
@@ -122,24 +137,44 @@ public:
    *
    * @return A pointer to the Alusus function declared by this instruction.
    */
-  const UserDefinedFunction *getDeclaredFunction() const
+  public: SharedPtr<ExternalFunction> const& getDeclaredFunction() const
   {
-    return (UserDefinedFunction *)(children[0]);
-  }
-  UserDefinedFunction *getDeclaredFunction()
-  {
-    return (UserDefinedFunction *)(children[0]);
+    return this->function;
   }
 
-  //! @copydoc Expression::preGenerateCode()
-  virtual CodeGenerationStage preGenerateCode();
+  //! @copydoc AstNode::preGenerateCode()
+  public: virtual CodeGenerationStage preGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __DeclareExtFunction_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 1;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    return this->function.get();
+  }
+
+}; // class
+
+} // namespace
+
+#endif

@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/GotoStatement.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -15,6 +15,7 @@
 #include <llvm/IR/IRBuilder.h>
 
 // Scg files
+#include <CodeGenUnit.h>
 #include <Containers/Block.h>
 #include <Instructions/GotoStatement.h>
 
@@ -22,19 +23,19 @@ using namespace llvm;
 
 namespace Scg
 {
-Expression::CodeGenerationStage GotoStatement::generateCode()
+
+AstNode::CodeGenerationStage GotoStatement::generateCode(CodeGenUnit *codeGenUnit)
 {
   auto targetBlock = getTargetBlock();
 
-  auto irBuilder = getBlock()->getIRBuilder();
+  auto irBuilder = this->findOwner<Block>()->getIRBuilder();
   this->branchInst = irBuilder->CreateBr(targetBlock->getLlvmBB());
 
-  return Expression::generateCode();
+  return AstNode::generateCode(codeGenUnit);
 }
 
-//------------------------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage GotoStatement::postGenerateCode()
+AstNode::CodeGenerationStage GotoStatement::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   if (this->branchInst == nullptr)
     // Nothing to do!
@@ -49,4 +50,5 @@ Expression::CodeGenerationStage GotoStatement::postGenerateCode()
   this->branchInst = nullptr;
   return CodeGenerationStage::None;
 }
-}
+
+} // namespace

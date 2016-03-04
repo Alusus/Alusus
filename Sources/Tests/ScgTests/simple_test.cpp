@@ -1,7 +1,7 @@
 /**
  * @file Tests/ScgTests/simple_test.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,40 +20,40 @@ namespace Tests
 namespace ScgTests
 {
 
-ValueTypeSpec *CreateTypeSpecByName(const std::string &name)
+SharedPtr<ValueTypeSpec> CreateTypeSpecByName(const std::string &name)
 {
-  return new ValueTypeSpecByName(name.c_str());
+  return std::make_shared<ValueTypeSpecByName>(name.c_str());
 }
 
-ValueTypeSpec *CreatePointerToPrimitiveTypeSpec(const std::string &name)
+SharedPtr<ValueTypeSpec> CreatePointerToPrimitiveTypeSpec(const std::string &name)
 {
-  return new PointerValueTypeSpec(new ValueTypeSpecByName(name.c_str()));
+  return std::make_shared<PointerValueTypeSpec>(std::make_shared<ValueTypeSpecByName>(name.c_str()));
 }
 
-ValueTypeSpec *CreateArrayOfPrimitiveTypeSpec(const std::string &name, int size)
+SharedPtr<ValueTypeSpec> CreateArrayOfPrimitiveTypeSpec(const std::string &name, int size)
 {
-  return new ArrayValueTypeSpec(new ValueTypeSpecByName(name.c_str()), size);
+  return std::make_shared<ArrayValueTypeSpec>(std::make_shared<ValueTypeSpecByName>(name.c_str()), size);
 }
 
-std::string BuildSimpleTest(const ExpressionArray &mainBody,
-                            const std::vector<Expression*> &headerStatements)
+std::string BuildSimpleTest(const AstNodeSharedArray &mainBody,
+                            const std::vector<SharedPtr<AstNode>> &headerStatements)
 {
   LlvmContainer::initialize();
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), new Block(mainBody));
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), std::make_shared<Block>(mainBody));
 
   // Create the module.
   auto *module = new Module("MainModule");
 
   for (auto link : headerStatements)
-    module->appendExpression(link);
+    module->appendNode(link);
 
-  module->appendExpression(main);
+  module->appendNode(main);
 
-  auto *program = new Program();
+  auto *program = new CodeGenUnit();
   program->addModule(module);
 
   // Generate the IR Code and assert that it matches what we expect.
@@ -67,25 +67,25 @@ std::string BuildSimpleTest(const ExpressionArray &mainBody,
   return irCode;
 }
 
-std::string RunSimpleTest(const ExpressionArray &mainBody,
-                          const std::vector<Expression*> &headerStatements)
+std::string RunSimpleTest(const AstNodeSharedArray &mainBody,
+                          const std::vector<SharedPtr<AstNode>> &headerStatements)
 {
   LlvmContainer::initialize();
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), new Block(mainBody));
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), std::make_shared<Block>(mainBody));
 
   // Create the module.
   auto module = new Module("MainModule");
 
   for (auto link : headerStatements)
-    module->appendExpression(link);
+    module->appendNode(link);
 
-  module->appendExpression(main);
+  module->appendNode(main);
 
-  auto *program = new Program();
+  auto *program = new CodeGenUnit();
   program->addModule(module);
 
   // Generate the IR Code and assert that it matches what we expect.

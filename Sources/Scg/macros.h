@@ -13,36 +13,36 @@
 #define __macros_h__
 
 #ifdef _DEBUG
-#define MODULE_CHECK                                                           \
-  if (getModule() == 0)                                                        \
-    throw EXCEPTION(UnattachedExpressionException,                             \
+#define MODULE_CHECK \
+  if (this->findOwner<Module>() == 0) \
+    throw EXCEPTION(UnattachedExpressionException, \
     "This expression must be contained in a module!");
 #else
 #define MODULE_CHECK
 #endif
 
 #ifdef _DEBUG
-#define FUNCTION_CHECK                                                         \
-  if (getFunction() == 0)                                                      \
-    throw EXCEPTION(UnattachedExpressionException,                             \
+#define FUNCTION_CHECK \
+  if (this->findOwner<UserDefinedFunction>() == 0) \
+    throw EXCEPTION(UnattachedExpressionException, \
     "This expression must be contained in a function!");
 #else
 #define FUNCTION_CHECK
 #endif
 
 #ifdef _DEBUG
-#define BLOCK_CHECK                                                            \
-  if (getBlock() == 0)                                                         \
-    throw EXCEPTION(UnattachedExpressionException,                             \
+#define BLOCK_CHECK \
+  if (this->findOwner<Block>() == 0) \
+    throw EXCEPTION(UnattachedExpressionException, \
     "This expression must be contained in a block!");
 #else
 #define BLOCK_CHECK
 #endif
 
 #ifdef _DEBUG
-#define MODULE_OR_BLOCK_CHECK                                                  \
-  if (getModule() == nullptr && getBlock() == nullptr)                         \
-    throw EXCEPTION(UnattachedExpressionException,                             \
+#define MODULE_OR_BLOCK_CHECK \
+  if (this->findOwner<Module>() == nullptr && this->findOwner<Block>() == nullptr) \
+    throw EXCEPTION(UnattachedExpressionException, \
     "This expression must be contained in a module or a block!");
 #else
 #define MODULE_OR_BLOCK_CHECK
@@ -63,13 +63,12 @@
 #define MAX_PRE_CODE_GEN_REPEAT  1000
 #define MAX_POST_CODE_GEN_REPEAT  1000
 
-#define SAFE_DELETE_LLVM_INST(inst)                                            \
-    if (inst != nullptr)                                                       \
-        {                                                                          \
-      if (!inst->hasNUses(0))                                                  \
-        return CodeGenerationStage::PostCodeGeneration;                        \
-      inst->eraseFromParent();                                                 \
-      inst = nullptr;                                                          \
-        }
+#define SAFE_DELETE_LLVM_INST(inst) \
+  if (inst != nullptr) { \
+    if (!inst->hasNUses(0)) \
+      return CodeGenerationStage::PostCodeGeneration; \
+    inst->eraseFromParent(); \
+    inst = nullptr; \
+  }
 
 #endif // __macros_h__

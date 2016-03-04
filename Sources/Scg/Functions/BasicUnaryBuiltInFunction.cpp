@@ -1,5 +1,5 @@
 /**
- * @file Scg/BuiltInFunctions/BasicUnaryBuiltInFunction.cpp
+ * @file Scg/Functions/BasicUnaryBuiltInFunction.cpp
  *
  * @copyright Copyright (C) 2015 Rafid Khalid Abdullah
  *
@@ -15,31 +15,25 @@
 #include <llvm/IR/IRBuilder.h>
 
 // SCG files
-#include <BuiltInFunctions/BasicUnaryBuiltInFunction.h>
+#include <Functions/BasicUnaryBuiltInFunction.h>
 
 namespace Scg
 {
+
 using namespace Core::Basic;
 
 BasicUnaryBuiltInFunction::BasicUnaryBuiltInFunction(const Char *name, const Char *retType,
-    const Char *argType, BasicUnaryBuiltInFunction::Callback function)
+  const Char *argType, BasicUnaryBuiltInFunction::Callback function)
   : name(name)
   , function(function)
 {
-  this->argTypeSpecs.push_back(new ValueTypeSpecByName(argType));
-  this->retTypeSpec = new ValueTypeSpecByName(retType);
+  this->argTypeSpecs.push_back(std::make_shared<ValueTypeSpecByName>(argType));
+  this->retTypeSpec = std::make_shared<ValueTypeSpecByName>(retType);
 }
 
-BasicUnaryBuiltInFunction::~BasicUnaryBuiltInFunction()
-{
-  delete this->argTypeSpecs[0];
-  delete this->argTypeSpecs[1];
-  delete this->retTypeSpec;
-  this->argTypeSpecs.clear();
-}
 
 llvm::Value *BasicUnaryBuiltInFunction::createLLVMInstruction(llvm::IRBuilder<> *irb,
-    const std::vector<llvm::Value*> &args) const
+  const std::vector<llvm::Value*> &args) const
 {
   if (args.size() != 1)
     // TODO: The exception message shouldn't use BasicUnaryBuiltInFunction as this is the class name.
@@ -52,9 +46,4 @@ llvm::Value *BasicUnaryBuiltInFunction::createLLVMInstruction(llvm::IRBuilder<> 
   return this->function(irb, args[0]);
 }
 
-const ValueTypeSpec *BasicUnaryBuiltInFunction::getValueTypeSpec() const
-{
-  return this->retTypeSpec;
-}
-}
-
+} // namespace

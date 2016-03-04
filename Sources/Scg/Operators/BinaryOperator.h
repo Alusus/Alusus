@@ -1,7 +1,7 @@
 /**
  * @file Scg/Operators/BinaryOperator.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,27 +9,37 @@
  */
 //==============================================================================
 
-#ifndef __BinaryOperator_h__
-#define __BinaryOperator_h__
+#ifndef SCG_BINARYOPERATOR_H
+#define SCG_BINARYOPERATOR_H
 
-// Scg header files
+#include "core.h"
 #include <typedefs.h>
 #include <exceptions.h>
-#include <Expression.h>
-
-// LLVM forward declarations
+#include <AstNode.h>
 #include <llvm_fwd.h>
 #include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
+
+class CodeGenUnit;
+
 /**
  * Represents a binary operator.
  */
-class BinaryOperator : public Expression
+class BinaryOperator : public AstNode, public virtual Core::Data::Container
 {
-public:
-  enum Operator {
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(BinaryOperator, AstNode, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(AstNode, Core::Data::Container);
+
+
+  //============================================================================
+  // Data Types
+
+  public: enum Operator {
     ADD,
     SUBTRACT,
     MULTIPLY,
@@ -42,13 +52,21 @@ public:
     NOTEQUAL
   };
 
-private:
-  //! The operator represented by the instance ('+', '-', etc.)
-  Operator opType;
-  //! Storing the binary operator so that it can be freed after code generation.
-  llvm::Value *llvmValue = nullptr;
 
-public:
+  //============================================================================
+  // Member Variables
+
+  private: SharedPtr<AstNode> leftExpr;
+  private: SharedPtr<AstNode> rightExpr;
+  //! The operator represented by the instance ('+', '-', etc.)
+  private: Operator opType;
+  //! Storing the binary operator so that it can be freed after code generation.
+  private: llvm::Value *llvmValue = nullptr;
+
+
+  //============================================================================
+  // Cosntructors & Destructor
+
   /**
    * Construct a binary operation.
    *
@@ -56,28 +74,34 @@ public:
    * @param[in] lhs The left-hand side of the operator. Must be a variable if the operation is '='.
    * @param[in] rhs The operation; can be '+', '-', '*', or '='.
    */
-  BinaryOperator(Operator op, Expression *lhs, Expression *rhs)
-    : opType(op)
+  public: BinaryOperator(Operator op, SharedPtr<AstNode> const &lhs, SharedPtr<AstNode> const &rhs)
+    : opType(op), leftExpr(lhs), rightExpr(rhs)
   {
     if (opType < ADD || opType > NOTEQUAL)
       throw EXCEPTION(ArgumentOutOfRangeException, "Invalid binary operator.");
 
-    children.push_back(lhs);
-    children.push_back(rhs);
+    OWN_SHAREDPTR(this->leftExpr);
+    OWN_SHAREDPTR(this->rightExpr);
   }
+
+  public: virtual ~BinaryOperator()
+  {
+    DISOWN_SHAREDPTR(this->leftExpr);
+    DISOWN_SHAREDPTR(this->rightExpr);
+  }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Get the expression representing the left-hand side of the binary operator.
    *
    * @return A pointer to the left-hand side expression.
    */
-  const ExpressionArray::value_type getLHS() const
+  public: SharedPtr<AstNode> const& getLHS() const
   {
-    return children[0];
-  }
-  ExpressionArray::value_type getLHS()
-  {
-    return children[0];
+    return this->leftExpr;
   }
 
   /**
@@ -85,27 +109,51 @@ public:
    *
    * @return A pointer to the right-hand side expression.
    */
-  const ExpressionArray::value_type getRHS() const
+  public: SharedPtr<AstNode> const& getRHS() const
   {
-    return children[1];
-  }
-  ExpressionArray::value_type getRHS()
-  {
-    return children[1];
+    return this->rightExpr;
   }
 
-  //! @copydoc Expression::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override;
+  //! @copydoc AstNode::getValueTypeSpec()
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override;
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __BinaryOperator_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 2;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    switch (index) {
+      case 0: return this->leftExpr.get();
+      case 1: return this->rightExpr.get();
+      default: return 0;
+    }
+  }
+
+}; // class
+
+} // namespace
+
+#endif

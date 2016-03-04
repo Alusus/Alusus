@@ -25,7 +25,6 @@
 
 // Scg include files
 #include <Containers/Module.h>
-#include <Containers/Program.h>
 #include <Instructions/CallFunction.h>
 #include <Instructions/DeclareExtFunction.h>
 #include <Instructions/DefineFunction.h>
@@ -36,27 +35,14 @@
 
 namespace Scg
 {
-Module::Module(const std::string& name) : functionStore(), name(name)
-{
-  //this->llvmModule = new llvm::Module(name, LlvmContainer::GetContext());
-}
 
 Module::~Module()
 {
-  /*for(auto expr : this->expressions)
-    delete expr;*/
-  //delete this->llvmModule;
+  for (Int i = 0; i < this->children.getCount(); ++i) {
+    DISOWN_PLAINPTR(this->children.get(i));
+  }
 }
 
-const llvm::Module *Module::getLlvmModule() const
-{
-  return this->program->getLlvmModule();
-}
-
-llvm::Module *Module::getLlvmModule()
-{
-  return this->program->getLlvmModule();
-}
 
 ValueType* Module::getValueTypeByName(const std::string &typeName) const
 {
@@ -97,9 +83,10 @@ DefineFunction *Module::findDefineFunction(const std::string &name,
 {
   // TODO: We need to create a map for faster retrieval.
   // TODO: We need to raise an error if there is more than one match.
-  for (auto expr : this->children) {
+  for (Int i = 0; i < this->children.getCount(); ++i) {
+    auto expr = static_cast<AstNode*>(this->children.get(i));
     // TODO: Don't use dynamic_cast.
-    auto defFunc = dynamic_cast<DefineFunction*>(expr);
+    auto defFunc = io_cast<DefineFunction>(expr);
 
     if (defFunc == nullptr)
       continue;
@@ -117,9 +104,10 @@ DeclareExtFunction *Module::findDeclareFunction(const std::string &name,
 {
   // TODO: We need to create a map for faster retrieval.
   // TODO: We need to raise an error if there is more than one match.
-  for (auto expr : this->children) {
+  for (Int i = 0; i < this->children.getCount(); ++i) {
+    auto expr = static_cast<AstNode*>(this->children.get(i));
     // TODO: Don't use dynamic_cast.
-    auto declFunc = dynamic_cast<DeclareExtFunction*>(expr);
+    auto declFunc = io_cast<DeclareExtFunction>(expr);
 
     if (declFunc == nullptr)
       continue;
@@ -140,37 +128,16 @@ std::string Module::getTempVarName()
   return str.str();
 }
 
-void Module::prependExpression(Expression *expr)
+void Module::prependNode(SharedPtr<AstNode> const &node)
 {
-  this->children.insert(this->children.begin(), expr);
-  expr->setModule(this);
-  expr->setBlock(nullptr);
+  this->children.insert(0, node);
+  OWN_SHAREDPTR(node);
 }
 
-void Module::PrependExpressions(ExpressionArray &expr)
+void Module::appendNode(SharedPtr<AstNode> const &node)
 {
-  this->children.insert(this->children.begin(), expr.begin(), expr.end());
-
-  for (auto e : expr) {
-    e->setModule(this);
-    e->setBlock(nullptr);
-  }
+  this->children.add(node);
+  OWN_SHAREDPTR(node);
 }
 
-void Module::appendExpression(Expression *expr)
-{
-  this->children.push_back(expr);
-  expr->setModule(this);
-  expr->setBlock(nullptr);
-}
-
-void Module::appendExpressions(ExpressionArray &expr)
-{
-  this->children.insert(this->children.end(), expr.begin(), expr.end());
-
-  for (auto e : expr) {
-    e->setModule(this);
-    e->setBlock(nullptr);
-  }
-}
-}
+} // namespace

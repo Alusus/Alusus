@@ -16,9 +16,7 @@
 
 using namespace Scg;
 
-namespace Tests
-{
-namespace ScgTests
+namespace Tests { namespace ScgTests
 {
 
 bool TestIncrementOperator()
@@ -27,25 +25,25 @@ bool TestIncrementOperator()
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto mainBody = new Block({
-    new DefineVariable(CreateTypeSpecByName("int"), "intCounter"),
-    new DefineVariable(CreateTypeSpecByName("float"), "floatCounter"),
-    new DefineVariable(CreateTypeSpecByName("double"), "doubleCounter"),
-    new UnaryOperator(UnaryOperator::INCREMENT,
-    new Content(new IdentifierReference("intCounter"))),
-    new UnaryOperator(UnaryOperator::INCREMENT,
-    new Content(new IdentifierReference("floatCounter"))),
-    new UnaryOperator(UnaryOperator::INCREMENT,
-    new Content(new IdentifierReference("doubleCounter"))),
-    new Return(new IntegerConst(0))
+  auto mainBody = Block::create({
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("int"), "intCounter"),
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("float"), "floatCounter"),
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("double"), "doubleCounter"),
+    std::make_shared<UnaryOperator>(UnaryOperator::INCREMENT,
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("intCounter"))),
+    std::make_shared<UnaryOperator>(UnaryOperator::INCREMENT,
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("floatCounter"))),
+    std::make_shared<UnaryOperator>(UnaryOperator::INCREMENT,
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("doubleCounter"))),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   });
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), mainBody);
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestIncrementOperator");
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   std::cout << "TestIncrementOperator succeeded." << std::endl;
@@ -65,5 +63,4 @@ bool RunAllUnaryOperatorsTests()
   return ret;
 }
 
-}
-} // namespace
+} } // namespace

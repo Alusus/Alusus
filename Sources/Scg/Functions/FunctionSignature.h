@@ -1,7 +1,7 @@
 /**
  * @file Scg/Functions/FunctionSignature.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,13 +9,14 @@
  */
 //==============================================================================
 
-#ifndef __FunctionSignature_h__
-#define __FunctionSignature_h__
+#ifndef SCG_FUNCTIONSIGNATURE_H
+#define SCG_FUNCTIONSIGNATURE_H
 
 #include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
+
 class Module;
 
 /**
@@ -52,7 +53,9 @@ public:
    */
   int match(const Module &module, const std::string &name,
             const ValueTypeSpecArray &argTypes) const;
-};
-}
 
-#endif // __FunctionSignature_h__
+}; // class
+
+} // namespace
+
+#endif

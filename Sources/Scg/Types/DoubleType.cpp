@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/DoubleType.cpp
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -21,12 +21,25 @@
 
 namespace Scg
 {
+
+//==============================================================================
+// Static Variables
+
 DoubleType *DoubleType::s_singleton = nullptr;
 
-DoubleType::DoubleType() : typeSpec("double")
+
+//==============================================================================
+// Constructors & Destructor
+
+DoubleType::DoubleType()
 {
+  this->typeSpec = std::make_shared<ValueTypeSpecByName>(STR("double"));
   this->llvmType = llvm::Type::getDoubleTy(LlvmContainer::getContext());
 }
+
+
+//==============================================================================
+// Member Functions
 
 void DoubleType::initCastingTargets() const
 {
@@ -37,13 +50,15 @@ void DoubleType::initCastingTargets() const
   this->explicitCastingTargets.push_back(IntegerType::get());
 }
 
-llvm::Constant *DoubleType::getLlvmConstant(double value) const
+
+llvm::Constant* DoubleType::getLlvmConstant(double value) const
 {
   return llvm::ConstantFP::get(LlvmContainer::getContext(),
                                llvm::APFloat(value));
 }
 
-llvm::Value *DoubleType::createCastInst(llvm::IRBuilder<> *irb,
+
+llvm::Value* DoubleType::createCastInst(llvm::IRBuilder<> *irb,
                                         llvm::Value *value, const ValueType *targetType) const
 {
   if (targetType == IntegerType::get()) {
@@ -63,6 +78,7 @@ llvm::Value *DoubleType::createCastInst(llvm::IRBuilder<> *irb,
   }
 }
 
+
 DoubleType *DoubleType::get()
 {
   // PERFORMANCE: What is the impact of running an unnecessary if statement
@@ -73,4 +89,5 @@ DoubleType *DoubleType::get()
 
   return s_singleton;
 }
-}
+
+} // namespace
