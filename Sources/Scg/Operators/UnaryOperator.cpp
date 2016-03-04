@@ -1,7 +1,7 @@
 /**
  * @file Scg/Operators/UnaryOperator.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -15,6 +15,7 @@
 #include <llvm/IR/IRBuilder.h>
 
 // Scg files
+#include <CodeGenUnit.h>
 #include <Containers/Block.h>
 #include <Operators/Content.h>
 #include <Operators/UnaryOperator.h>
@@ -27,20 +28,21 @@ using namespace llvm;
 
 namespace Scg
 {
-Expression::CodeGenerationStage UnaryOperator::generateCode()
+
+AstNode::CodeGenerationStage UnaryOperator::generateCode(CodeGenUnit *codeGenUnit)
 {
   BLOCK_CHECK;
 
   // Special case '=' because we don't want to emit the LHS as an expression.
-  auto irb = getBlock()->getIRBuilder();
+  auto irb = this->findOwner<Block>()->getIRBuilder();
 
-  auto operand = dynamic_cast<Content*>(getOperand());
+  auto operand = getOperand().io_cast_get<Content>();
 
   if (operand == nullptr)
     throw EXCEPTION(InvalidOperationException, "The operand of a unary "
                     "operator must be the content of a pointer.");
 
-  auto operandType = operand->getValueTypeSpec()->toValueType(*getModule());
+  auto operandType = operand->getValueTypeSpec()->toValueType(*this->findOwner<Module>());
 
   if (operandType != IntegerType::get() &&
       operandType != FloatType::get() &&
@@ -82,12 +84,11 @@ Expression::CodeGenerationStage UnaryOperator::generateCode()
 
   this->generatedLlvmValue = this->llvmValue;
 
-  return Expression::generateCode();
+  return AstNode::generateCode(codeGenUnit);
 }
 
-//------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage UnaryOperator::postGenerateCode()
+AstNode::CodeGenerationStage UnaryOperator::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   if (this->llvmStoreInst) {
     if (!this->llvmStoreInst->hasNUses(0))
@@ -115,7 +116,6 @@ Expression::CodeGenerationStage UnaryOperator::postGenerateCode()
   return CodeGenerationStage::None;
 }
 
-//----------------------------------------------------------------------------
 
 std::string UnaryOperator::toString()
 {
@@ -124,4 +124,5 @@ std::string UnaryOperator::toString()
   else
     return getOperand()->toString() + "--";
 }
-}
+
+} // namespace

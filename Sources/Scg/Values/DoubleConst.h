@@ -1,7 +1,7 @@
 /**
  * @file Scg/Values/DoubleConst.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,52 +9,73 @@
  */
 //==============================================================================
 
-#ifndef __DoubleConst_h__
-#define __DoubleConst_h__
+#ifndef SCG_DOUBLECONST_H
+#define SCG_DOUBLECONST_H
 
-// Scg header files
+#include "core.h"
 #include <Values/Constant.h>
 
 namespace Scg
 {
+
+class CodeGenUnit;
+
 /**
  * Represent an integral value.
  */
 class DoubleConst : public Constant
 {
-  //! The value of the double.
-  double value;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(DoubleConst, Constant, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The value of the double.
+  private: double value;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Constructs a double with the given value.
    */
-  DoubleConst(double value) : value(value)
+  public: DoubleConst(double value) : value(value)
   {
   }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Retrieves the value of this double constant object.
    *
    * @return The value of this double constant object.
    */
-  const double &getValue() const
+  public: double getValue() const
   {
-    return value;
+    return this->value;
   }
 
   //! @copydoc Value::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override;
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override;
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
+  //! @copydoc AstNode::toString()
   virtual std::string toString();
-};
-}
 
-#endif // __DoubleConst_h__
+}; // class
+
+} // namespace
+
+#endif

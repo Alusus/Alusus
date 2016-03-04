@@ -30,11 +30,11 @@
 
 namespace Scg
 {
+
 using namespace Core::Basic;
 using namespace Core::Data;
 
-FunctionalExpression::FunctionalExpression(CodeGenerator *gen,
-    const SharedPtr<PrtList> &item) : gen(gen)
+FunctionalExpression::FunctionalExpression(CodeGenerator *gen, const SharedPtr<PrtList> &item) : gen(gen)
 {
   if (item->getProdId() != gen->getFunctionalExpId())
     throw EXCEPTION(InvalidArgumentException,
@@ -44,10 +44,8 @@ FunctionalExpression::FunctionalExpression(CodeGenerator *gen,
     this->subExprs.push_back(item->getShared(i));
 }
 
-//------------------------------------------------------------------------------
 
-DeclareExtFunction *FunctionalExpression::toDeclareExtFunction(
-  ValueTypeSpec *retType)
+SharedPtr<DeclareExtFunction> FunctionalExpression::toDeclareExtFunction(SharedPtr<ValueTypeSpec> const &retType)
 {
   if (this->subExprs.size() != 2)
     throw EXCEPTION(SystemException, "Invalid function link.");
@@ -62,7 +60,7 @@ DeclareExtFunction *FunctionalExpression::toDeclareExtFunction(
   auto varArgs = false;
 
   if (args.size() > 0) {
-    auto typeByName = dynamic_cast<ValueTypeSpecByName*>(args[args.size() - 1]);
+    auto typeByName = dynamic_cast<ValueTypeSpecByName*>(args[args.size() - 1].get());
 
     if (typeByName != nullptr && typeByName->getName().compare("args") == 0) {
       varArgs = true;
@@ -70,7 +68,7 @@ DeclareExtFunction *FunctionalExpression::toDeclareExtFunction(
     }
   }
 
-  auto declFunc = new DeclareExtFunction(name, retType, args, varArgs);
+  auto declFunc = std::make_shared<DeclareExtFunction>(name, retType, args, varArgs);
   auto metadata = this->subExprs[0]->getInterface<ParsingMetadataHolder>();
 
   if (metadata != 0) {
@@ -80,9 +78,8 @@ DeclareExtFunction *FunctionalExpression::toDeclareExtFunction(
   return declFunc;
 }
 
-//------------------------------------------------------------------------------
 
-Expression *FunctionalExpression::toExpression()
+SharedPtr<AstNode> FunctionalExpression::toExpression()
 {
   auto metadata = this->subExprs[0]->getInterface<ParsingMetadataHolder>();
 
@@ -98,7 +95,7 @@ Expression *FunctionalExpression::toExpression()
                                          STR("SCG1023"), 1, metadata->getSourceLocation()));
   }
 
-  Expression *expr = nullptr;
+  SharedPtr<AstNode> expr;
   auto cancelNextContentOp = false;
 
   for (auto i = 0; i < this->subExprs.size(); i++) {
@@ -114,8 +111,8 @@ Expression *FunctionalExpression::toExpression()
           nextExprAst.s_cast<PrtRoute>()->getRoute() == ParamPassExp::Parenthesis) {
         // A token followed by parentheses. This is a function call.
         ParamPassExp params(this->gen, nextExprAst.s_cast<PrtRoute>());
-        expr = new CallFunction(this->gen->parseToken(thisExprAst),
-                                new List(params.parseExpressionList()));
+        expr = std::make_shared<CallFunction>(this->gen->parseToken(thisExprAst),
+                                              std::make_shared<List>(params.parseExpressionList()));
         expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
         i++;
         cancelNextContentOp = true;
@@ -126,7 +123,7 @@ Expression *FunctionalExpression::toExpression()
     if (thisExprAstMeta->getProdId() == this->gen->getSubjectId()) {
       try {
         auto varName = this->gen->parseToken(thisExprAst);
-        expr = new IdentifierReference(varName);
+        expr = std::make_shared<IdentifierReference>(varName);
       } catch (InvalidArgumentException) {
         expr = this->gen->generateExpression(thisExprAst);
       }
@@ -136,12 +133,12 @@ Expression *FunctionalExpression::toExpression()
                thisExprAst.s_cast<PrtRoute>()->getRoute() == ParamPassExp::Square) {
       // Square brackets. This is array element access.
       auto index = parseElementIndex(thisExprAst.s_cast<PrtRoute>());
-      expr = new ArrayElementReference(expr, index);
+      expr = std::make_shared<ArrayElementReference>(expr, index);
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     } else if (thisExprAstMeta->getProdId() == this->gen->getLinkExpId()) {
       // Dot followed by a token. This is a field access.
       auto fieldName = parseFieldName(thisExprAst.s_cast<PrtList>());
-      expr = new MemberFieldReference(expr, fieldName);
+      expr = std::make_shared<MemberFieldReference>(expr, fieldName);
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     } else if (thisExprAstMeta->getProdId() == this->gen->getPostfixTildeExpId()) {
       auto child = ii_cast<ParsingMetadataHolder>(thisExprAst.s_cast<PrtList>()->get(0));
@@ -151,7 +148,7 @@ Expression *FunctionalExpression::toExpression()
         if (cancelNextContentOp) {
           cancelNextContentOp = false;
         } else {
-          expr = new Content(expr);
+          expr = std::make_shared<Content>(expr);
           expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
         }
       } else if (child->getProdId() == this->gen->getPointerTildeId()) {
@@ -159,7 +156,7 @@ Expression *FunctionalExpression::toExpression()
         cancelNextContentOp = true;
       } else if (child->getProdId() == this->gen->getSizeTildeId()) {
         // ~size
-        expr = new Size(expr);
+        expr = std::make_shared<Size>(expr);
         expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
         cancelNextContentOp = true;
       } else if (child->getProdId() == this->gen->getCastTildeId()) {
@@ -179,11 +176,11 @@ Expression *FunctionalExpression::toExpression()
 
             // A token followed by parentheses. This is a function call.
             if (!cancelNextContentOp) {
-              expr = new Content(expr);
+              expr = std::make_shared<Content>(expr);
               expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
             }
 
-            expr = new Cast(expr, type);
+            expr = std::make_shared<Cast>(expr, type);
             expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
             i++;
             // FIXME: Workaround to avoid taking the content of a cast instruction
@@ -204,13 +201,12 @@ Expression *FunctionalExpression::toExpression()
     return expr;
   else {
     auto loc = expr->getSourceLocation();
-    expr = new Content(expr);
+    expr = std::make_shared<Content>(expr);
     expr->setSourceLocation(loc);
     return expr;
   }
 }
 
-//------------------------------------------------------------------------------
 
 Char const* FunctionalExpression::parseFieldName(
   const SharedPtr<PrtList> &astBlockRoot)
@@ -232,10 +228,8 @@ Char const* FunctionalExpression::parseFieldName(
   return this->gen->parseToken(fieldName);
 }
 
-//------------------------------------------------------------------------------
 
-Expression *FunctionalExpression::parseElementIndex(
-  const SharedPtr<PrtRoute> &astBlockRoot)
+SharedPtr<AstNode> FunctionalExpression::parseElementIndex(SharedPtr<PrtRoute> const &astBlockRoot)
 {
   if (astBlockRoot->getProdId() != this->gen->getParamPassId())
     throw EXCEPTION(SystemException,
@@ -254,4 +248,4 @@ Expression *FunctionalExpression::parseElementIndex(
   return this->gen->generateExpression(index);
 }
 
-}
+} // namespace

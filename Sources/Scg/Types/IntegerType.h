@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/IntegerType.h
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -9,77 +9,93 @@
 */
 //==============================================================================
 
-#ifndef __IntegerType_h__
-#define __IntegerType_h__
+#ifndef SCG_INTEGERTYPE_H
+#define SCG_INTEGERTYPE_H
 
-// Scg header files
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
-
-// LLVM forward declarations
 #include <llvm_fwd.h>
 
 namespace Scg
 {
+
 //! Represent the integer type.
 class IntegerType : public ValueType
 {
   friend class LlvmContainer;
 
-  static IntegerType *s_singleton;
-  ValueTypeSpecByName typeSpec;
+  //============================================================================
+  // Type Info
 
-private:
+  TYPE_INFO(IntegerType, ValueType, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  private: static IntegerType *s_singleton;
+  private: SharedPtr<ValueTypeSpec> typeSpec;
+
+
+  //============================================================================
+  // Construtors & Destructor
+
   //! Constructs an integer type.
-  IntegerType();
+  private: IntegerType();
 
   //! Class destructor.
-  virtual ~IntegerType()
+  private: virtual ~IntegerType()
   {
   }
 
-protected:
-  //! @copydoc ValueType::initCastingTargets()
-  virtual void initCastingTargets() const override;
 
-public:
+  //============================================================================
+  // Member Functions
+
+  //! @copydoc ValueType::initCastingTargets()
+  protected: virtual void initCastingTargets() const override;
+
   //! @copydoc ValueType::getName()
-  virtual const std::string getName() const
+  public: virtual std::string const& getName() const
   {
-    return "int";
+    static std::string name("int");
+    return name;
   }
 
   /**
-  * Get an LLVM constant value of integral type.
-  * @param[in] value The value of the constant.
-  * @return The llvm::Value object representing the constant.
-  */
-  llvm::Constant *getLlvmConstant(int value) const;
+   * Get an LLVM constant value of integral type.
+   * @param[in] value The value of the constant.
+   * @return The llvm::Value object representing the constant.
+   */
+  public: llvm::Constant* getLlvmConstant(int value) const;
 
   //! @copydoc ValueType::getDefaultLLVMValue()
-  virtual llvm::Constant *getDefaultLLVMValue() const
+  public: virtual llvm::Constant* getDefaultLLVMValue() const
   {
     return getLlvmConstant(0);
   }
 
   //! @copydoc ValueType::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
   {
-    return &typeSpec;
+    return this->typeSpec;
   }
 
   //! @copydoc ValueType::isEqualTo()
-  virtual bool isEqualTo(const ValueType *other) const
+  public: virtual bool isEqualTo(const ValueType *other) const
   {
     return dynamic_cast<const IntegerType *>(other) != nullptr;
   }
 
   //! @copydoc ValueType::createCastInst()
-  virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
-                                      llvm::Value *value, const ValueType *targetType) const override;
+  public: virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
+                                              llvm::Value *value,
+                                              const ValueType *targetType) const override;
 
-  static IntegerType *get();
-};
-}
+  public: static IntegerType *get();
 
-#endif // __IntegerType_h__
+}; // class
+
+} // namespace
+
+#endif

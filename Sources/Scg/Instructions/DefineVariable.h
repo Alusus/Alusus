@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/DefineVariable.h
  *
- * @copyright Copyright (C) 2015 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,36 +9,52 @@
  */
 //==============================================================================
 
-#ifndef __DefineVariable_h__
-#define __DefineVariable_h__
+#ifndef SCG_DEFINEVARIABLE_H
+#define SCG_DEFINEVARIABLE_H
 
-// Scg header files
+#include "core.h"
 #include <typedefs.h>
 #include <Instructions/Instruction.h>
+#include <Values/Variable.h>
 #include <llvm_fwd.h>
 
 using namespace Core;
 
 namespace Scg
 {
+
 class ValueTypeSpec;
+class CodeGenUnit;
 
 /**
  * Define a mutable variable with a given name.
  */
-class DefineVariable : public Instruction
+class DefineVariable : public Instruction, public virtual Core::Data::Container
 {
-  //! The name of the type of the variable to define.
-  const ValueTypeSpec *typeSpec;
-  Expression *value;
-  //! The name of the variable to define.
-  std::string name;
-  //! The variable defined by this instruction (set during code generation.)
-  Variable *var = nullptr;
-  //! The type of the variable to define (set during code generation.)
-  ValueType *type = nullptr;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(DefineVariable, Instruction, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(Instruction, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The name of the type of the variable to define.
+  private: SharedPtr<ValueTypeSpec> typeSpec;
+  private: SharedPtr<AstNode> value;
+  //! The name of the variable to define.
+  private: std::string name;
+  //! The variable defined by this instruction (set during code generation.)
+  private: SharedPtr<Variable> var;
+  //! The type of the variable to define (set during code generation.)
+  private: ValueType *type = nullptr;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Construct a variable definition expression with the given name.
    *
@@ -47,39 +63,40 @@ public:
    *                      in the heap, and will be freed by this object.
    * @param[in] name      The name of the variable to define.
    */
-  DefineVariable(const ValueTypeSpec *typeSpec, Core::Basic::Char const *name)
+  public: DefineVariable(SharedPtr<ValueTypeSpec> const &typeSpec, Core::Basic::Char const *name)
     : typeSpec(typeSpec)
     , value(nullptr)
     , name(name)
   {
   }
 
-  /**
-  *
-  */
-  DefineVariable(Expression *value, Core::Basic::Char const *name)
+  public: DefineVariable(SharedPtr<AstNode> const &value, Core::Basic::Char const *name)
     : value(value)
     , typeSpec(nullptr)
     , name(name)
   {
-    this->children.push_back(value);
+    OWN_SHAREDPTR(this->value);
   }
 
-  /**
-   * Class destructor.
-   */
-  ~DefineVariable();
+  public: virtual ~DefineVariable()
+  {
+    DISOWN_SHAREDPTR(this->value);
+  }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Retrieves a pointer to the type of this variable.
    *
    * @return A pointer to the variable type.
    */
-  const ValueType *getVarType() const
+  public: ValueType const* getVarType() const
   {
-    return type;
+    return this->type;
   }
-  ValueType *getVarType()
+  public: ValueType* getVarType()
   {
     return const_cast<ValueType*>(
              static_cast<const DefineVariable*>(this)->getVarType());
@@ -90,9 +107,9 @@ public:
    *
    * @return The name of the variable.
    */
-  const std::string &getVarName() const
+  public: std::string const& getVarName() const
   {
-    return name;
+    return this->name;
   }
 
   /**
@@ -100,20 +117,51 @@ public:
    *
    * @return The name of the type.
    */
-  const ValueTypeSpec *getVarTypeSpec() const
+  public: SharedPtr<ValueTypeSpec> const& getVarTypeSpec() const
   {
-    return typeSpec;
+    return this->typeSpec;
   }
 
-  //! @copydoc Expression::preGenerateCode()
-  virtual CodeGenerationStage preGenerateCode();
+  //! @copydoc AstNode::preGenerateCode()
+  public: virtual CodeGenerationStage preGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __DefineVariable_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return this->value == 0 ? 1 : 2;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    if (this->value == 0) {
+      if (index == 0) return this->var.get();
+      else return 0;
+    } else {
+      if (index == 0) return this->value.get();
+      else if (index == 1) return this->var.get();
+      else return 0;
+    }
+  }
+
+}; // class
+
+} // namespace
+
+#endif

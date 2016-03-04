@@ -1,7 +1,7 @@
 /**
- * @file Scg/Containers/Program.h
+ * @file Scg/CodeGenUnit.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,35 +9,23 @@
  */
 //==============================================================================
 
-#ifndef __Program_h__
-#define __Program_h__
+#ifndef SCG_CODEGENUNIT_H
+#define SCG_CODEGENUNIT_H
 
-// STL header files
+// Dependencies
 #include <list>
-
-// Alusus header files
+// Alusus Headers
 #include <typedefs.h>
 #include <llvm_fwd.h>
+#include <Functions/FunctionStore.h>
 
-// Scg forward declarations
-// TODO: Maybe this should be moved to an fwd file?
 namespace Scg
 {
 
-class ArrayType;
-class BinaryOperator;
-class Block;
-class FloatConst;
-class CallFunction;
 class DeclareExtFunction;
 class DefineFunction;
-class PointerType;
-class Return;
-}
 
-namespace Scg
-{
-class Program
+class CodeGenUnit
 {
   //! A list of the modules making up this program.
   ModuleArray modules;
@@ -52,7 +40,7 @@ public:
   /**
    * Class constructor.
    */
-  Program()
+  CodeGenUnit()
   {
     initialiseBuiltInFunctions();
   }
@@ -60,13 +48,8 @@ public:
   /**
    * Class destructor.
    */
-  ~Program()
+  ~CodeGenUnit()
   {
-    for (auto module : this->modules) {
-      delete module;
-    }
-
-    this->modules.clear();
   }
 
 private:
@@ -175,7 +158,9 @@ public:
    * @param[in] functionName  The name of the entry point of the program.
    */
   void execute(const char *functionName);
-};
-}
 
-#endif // __Program_h__
+}; // class
+
+} // namespace
+
+#endif

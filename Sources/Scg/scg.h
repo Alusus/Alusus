@@ -13,14 +13,15 @@
 #define __scg_h__
 
 #include <prerequisites.h>
+#include <precompiled_headers.h>
 
 #include <CodeGeneration/CodeGenerator.h>
 #include <Containers/Block.h>
 #include <Containers/List.h>
 #include <Containers/Module.h>
-#include <Containers/Program.h>
 #include <exceptions.h>
-#include <Expression.h>
+#include <AstNode.h>
+#include <CodeGenUnit.h>
 #include <Instructions/CallFunction.h>
 #include <Instructions/CondGotoStatement.h>
 #include <Instructions/DeclareExtFunction.h>
@@ -51,7 +52,6 @@
 #include <ParsingHandlers/DumpParsingHandler.h>
 #include <ParsingHandlers/ModuleParsingHandler.h>
 #include <ParsingHandlers/RunParsingHandler.h>
-#include <precompiled_headers.h>
 #include <typedefs.h>
 #include <Types/ArrayType.h>
 #include <Types/DoubleType.h>

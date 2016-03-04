@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/ArrayType.h
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -9,86 +9,97 @@
 */
 //==============================================================================
 
-#ifndef __ArrayType_h__
-#define __ArrayType_h__
+#ifndef SCG_ARRAYTYPE_H
+#define SCG_ARRAYTYPE_H
 
-// STL header files
 #include <unordered_map>
-
-// SCG header files
+#include "core.h"
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
-
-// LLVM forward declarations
 #include <llvm_fwd.h>
 
 namespace Scg
 {
+
 /**
 * Represents a structure type with custom fields.
 */
 class ArrayType : public ValueType
 {
-  //! The name of the type, for example ary[int, 10].
-  std::string name;
-  ArrayValueTypeSpec typeSpec;
-  const ValueType *elementsType;
-  unsigned int arraySize;
+  //============================================================================
+  // Type Info
 
-private:
+  TYPE_INFO(ArrayType, ValueType, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The name of the type, for example ary[int, 10].
+  private: std::string name;
+  private: SharedPtr<ValueTypeSpec> typeSpec;
+  private: const ValueType *elementsType;
+  private: unsigned int arraySize;
+
+  //! Stores all array types used so far, so that we can reuse them.
+  public: static std::unordered_map<ValueType const*, ArrayType*> usedArrayTypes;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
   * Constructs a new array type.
   * @param[in] elementsType  The type of the elements of the array.
   * @param[in] arraySize     The number of elements in the array.
   */
-  ArrayType(const ValueType *elementsType, unsigned int arraySize);
+  private: ArrayType(const ValueType *elementsType, unsigned int arraySize);
 
-protected:
+
+  //============================================================================
+  // Member Functions
+
   //! @copydoc ValueType::initCastingTargets()
-  virtual void initCastingTargets() const override;
+  protected: virtual void initCastingTargets() const override;
 
-public:
   //! @copydoc ValueType::getName()
-  virtual const std::string getName() const
+  public: virtual std::string const& getName() const
   {
-    return name;
+    return this->name;
   }
 
   /**
   * Retrieves the type of the elements of the array.
   * @return A pointer to the type of the elements of the array.
   */
-  virtual const ValueType *getElementsType() const
+  public: virtual ValueType const* getElementsType() const
   {
-    return elementsType;
+    return this->elementsType;
   }
 
   /**
   * Retrieves the number of the elements of the array.
   * @return The number of the elements of the array.
   */
-  unsigned int getArraySize() const
+  public: unsigned int getArraySize() const
   {
-    return arraySize;
+    return this->arraySize;
   }
 
   //! @copydoc ValueType::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
   {
-    return &typeSpec;
+    return this->typeSpec;
   }
 
   //! @copydoc ValueType::getDefaultLLVMValue()
-  virtual llvm::Constant *getDefaultLLVMValue() const
+  public: virtual llvm::Constant* getDefaultLLVMValue() const
   {
     throw EXCEPTION(NotImplementedException, "Not implemented yet!");
   }
 
   //! @copydoc ValueType::isEqualTo()
-  virtual bool isEqualTo(const ValueType *other) const;
-
-  //! Stores all array types used so far, so that we can reuse them.
-  static std::unordered_map<const ValueType *, ArrayType *> usedArrayTypes;
+  public: virtual bool isEqualTo(const ValueType *other) const;
 
   /**
   * Retrieves an array type whose elements type is the given value type.
@@ -99,8 +110,10 @@ public:
   * @param[in] arraySize The number of elements in this array type.
   * @return The array type.
   */
-  static ArrayType *get(const ValueType *elementsType, int arraySize);
-};
-}
+  public: static ArrayType* get(const ValueType *elementsType, int arraySize);
 
-#endif // __ArrayType_h__
+}; // class
+
+} // namespace
+
+#endif

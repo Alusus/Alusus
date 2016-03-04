@@ -139,6 +139,45 @@ Int SharedNamedList::add(Char const *name, SharedPtr<IdentifiableObject> const &
 }
 
 
+void SharedNamedList::insert(Int index, Char const *name, SharedPtr<IdentifiableObject> const &val)
+{
+  if (this->buffer == 0) {
+    throw EXCEPTION(GenericException, STR("List not initialized."));
+  }
+  if (index < 0 || index > this->getCount()) {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
+
+  if (this->count >= this->reservedCount) {
+    // Allocate a new buffer.
+    this->reservedCount += SharedNamedList::recordCountIncrement;
+    Byte *oldBuf = this->buffer;
+    this->buffer = new Byte[this->reservedCount * this->getRecordSize()];
+
+    if (!this->isEmpty()) {
+      if (index > 0) memcpy(this->buffer, oldBuf, this->getRecordSize()*index);
+      if (index < this->count) {
+        memcpy(this->buffer + (index+1) * this->getRecordSize(),
+               oldBuf + index * this->getRecordSize(),
+               (this->count - index) * this->getRecordSize());
+      }
+    }
+    delete[] oldBuf;
+  } else {
+    // Shift contents of the current buffer.
+    memmove(this->buffer + (index+1) * this->getRecordSize(),
+            this->buffer + index * this->getRecordSize(),
+            (this->count - index) * this->getRecordSize());
+  }
+  Byte *buf = this->buffer + index * this->getRecordSize();
+  sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
+  new(buf+sizeof(Char)*this->maxStrSize) SharedPtr<IdentifiableObject>(val);
+  if (this->owningEnabled) {
+    OWN_SHAREDPTR(val);
+  }
+}
+
+
 void SharedNamedList::set(Int index, Char const *name, SharedPtr<IdentifiableObject> const &val)
 {
   if (this->buffer == 0) {

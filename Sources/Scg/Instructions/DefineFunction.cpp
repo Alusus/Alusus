@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/DefineFunction.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -17,66 +17,40 @@
 #include <Containers/Block.h>
 #include <Instructions/DefineFunction.h>
 #include <Containers/Module.h>
+#include <CodeGenUnit.h>
 
 using namespace llvm;
 
 namespace Scg
 {
+
 using namespace Core::Basic;
 
-DefineFunction::DefineFunction(Char const *name, ValueTypeSpec *returnType,
-                               const VariableDefinitionArray &arguments, Block *body) :
-  name(name),
-  returnType(returnType),
-  arguments(arguments),
-  body(body)
+//==============================================================================
+// Member Functions
+
+AstNode::CodeGenerationStage DefineFunction::preGenerateCode(CodeGenUnit *codeGenUnit)
 {
-}
-
-//------------------------------------------------------------------------------
-
-DefineFunction::~DefineFunction()
-{
-  delete this->returnType;
-
-  for (auto arg : this->arguments)
-    delete arg.getTypeSpec();
-
-  delete this->body;
-
-}
-
-//------------------------------------------------------------------------------
-
-Expression::CodeGenerationStage DefineFunction::preGenerateCode()
-{
-  MODULE_CHECK;
-  BLOCK_CHECK;
-  FUNCTION_CHECK;
-
-  auto function = new UserDefinedFunction(this->name, this->returnType, this->arguments, this->body);
-  ((Expression*)function)->setModule(getModule());
-  ((Expression*)function)->setFunction(getFunction());
-  ((Expression*)function)->setBlock(getBlock());
-  this->children.push_back(function);
+  this->function = std::make_shared<UserDefinedFunction>(this->name, this->returnType, this->arguments, this->body);
+  this->function->setOwner(this);
 
   return CodeGenerationStage::CodeGeneration;
 }
 
-//------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage DefineFunction::postGenerateCode()
+AstNode::CodeGenerationStage DefineFunction::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
-  delete this->children[0];
-  this->children.clear();
+  this->function->setOwner(0);
+  this->function.reset();
+
   return CodeGenerationStage::None;
 }
 
-//------------------------------------------------------------------------------
 
 std::string DefineFunction::toString()
 {
   // TODO: Implement this.
   return "";
 }
-}
+
+} // namespace

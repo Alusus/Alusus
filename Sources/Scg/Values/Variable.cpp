@@ -1,7 +1,7 @@
 /**
  * @file Scg/Values/Variable.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -12,6 +12,7 @@
 #include <prerequisites.h>
 
 // Scg files
+#include <CodeGenUnit.h>
 #include <Containers/Block.h>
 #include <Containers/Module.h>
 #include <Types/IntegerType.h>
@@ -21,13 +22,10 @@
 #include <llvm/IR/Argument.h>
 #include <llvm/IR/GlobalVariable.h>
 
-// STL header files
-
-// Boost header files
-
 namespace Scg
 {
-Expression::CodeGenerationStage Variable::preGenerateCode()
+
+AstNode::CodeGenerationStage Variable::preGenerateCode(CodeGenUnit *codeGenUnit)
 {
   MODULE_OR_BLOCK_CHECK;
 
@@ -38,46 +36,48 @@ Expression::CodeGenerationStage Variable::preGenerateCode()
   // be obvious.
 
   // Is the variable already defined?
-  if (getBlock() != nullptr) {
+  auto block = this->findOwner<Block>();
+  if (block != nullptr) {
     // This is a local variable.
-    if (getBlock()->getVariableMap().find(this->name) != getBlock()->getVariableMap().end())
+    if (block->getVariableMap().find(this->name) != block->getVariableMap().end())
       throw EXCEPTION(RedefinitionException, ("Local variable already defined: " + this->name).c_str());
 
     // Store this variable in the variable map of the container block.
-    getBlock()->getVariableMap()[this->name] = this;
+    block->getVariableMap()[this->name] = this;
   } else {
+    auto module = this->findOwner<Module>();
     // This is a global variable.
-    if (getModule()->getVariableMap().find(this->name) != getModule()->getVariableMap().end())
+    if (module->getVariableMap().find(this->name) != module->getVariableMap().end())
       throw EXCEPTION(RedefinitionException, ("Global variable already defined: " + this->name).c_str());
 
     // Store this variable in the variable map of the container block.
-    getModule()->getVariableMap()[this->name] = this;
+    module->getVariableMap()[this->name] = this;
   }
 
   return CodeGenerationStage::CodeGeneration;
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Variable::generateCode()
+AstNode::CodeGenerationStage Variable::generateCode(CodeGenUnit *codeGenUnit)
 {
   MODULE_OR_BLOCK_CHECK;
 
-  if (getBlock() != nullptr) {
+  auto block = this->findOwner<Block>();
+  if (block != nullptr) {
     // This is a local variable, use the block's IRBuilder.
-    this->llvmAllocaInst = getBlock()->getIRBuilder()->CreateAlloca(
-                             const_cast<llvm::Type *>(this->variableType->getLlvmType()), 0, this->name.c_str());
+    this->llvmAllocaInst = block->getIRBuilder()->CreateAlloca(
+      const_cast<llvm::Type *>(this->variableType->getLlvmType()), 0, this->name.c_str());
 
     // If this variable represents a function argument, create the necessary
     // store instruction that sets the value of the variable passed by the
     // function caller.
     if (this->llvmArgument != nullptr)
-      this->llvmStoreInst = getBlock()->getIRBuilder()->CreateStore(this->llvmArgument,
-                            this->llvmAllocaInst);
+      this->llvmStoreInst = block->getIRBuilder()->CreateStore(this->llvmArgument,
+                                                               this->llvmAllocaInst);
   } else {
     // This is a global variable.
     this->llvmGlobalVariable = new llvm::GlobalVariable(
-      *getModule()->getLlvmModule(),
+      *codeGenUnit->getLlvmModule(),
       this->variableType->getLlvmType(),
       false, /* isConstant */
       llvm::GlobalVariable::ExternalLinkage,
@@ -86,12 +86,11 @@ Expression::CodeGenerationStage Variable::generateCode()
   }
 
   // Defining a variable doesn't evaluate to a value.
-  return Expression::generateCode();
+  return AstNode::generateCode(codeGenUnit);
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Variable::postGenerateCode()
+AstNode::CodeGenerationStage Variable::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   if (this->llvmAllocaInst && this->llvmAllocaInst->hasNUses(0)) {
     this->llvmAllocaInst->eraseFromParent();
@@ -114,10 +113,10 @@ Expression::CodeGenerationStage Variable::postGenerateCode()
   return CodeGenerationStage::None;
 }
 
-//----------------------------------------------------------------------------
 
 std::string Variable::toString()
 {
   return this->name;
 }
-}
+
+} // namespace

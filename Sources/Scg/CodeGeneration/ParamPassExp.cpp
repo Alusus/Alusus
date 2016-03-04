@@ -1,7 +1,7 @@
 /**
  * @file Scg/CodeGeneration/ParamPassExp.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -53,9 +53,9 @@ ParamPassExp::ParamPassExp(CodeGenerator *gen,
 
 //------------------------------------------------------------------------------
 
-ExpressionArray ParamPassExp::parseExpressionList() const
+AstNodeSharedArray ParamPassExp::parseExpressionList() const
 {
-  ExpressionArray exprs;
+  AstNodeSharedArray exprs;
 
   for (auto i = 0; i < getParamCount(); i++)
     exprs.push_back(this->gen->generateExpression(getParam(i)));
@@ -86,4 +86,5 @@ ValueTypeSpecArray ParamPassExp::parseValueTypes() const
 
   return tokens;
 }
-}
+
+} // namespace

@@ -1,86 +1,91 @@
-#ifndef __FunctionStore_h__
-#define __FunctionStore_h__
+/**
+ * @file Scg/Functions/FunctionStore.h
+ *
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ */
+//==============================================================================
 
-// SCG header files
-#include <BuiltInFunctions/Function.h>
+#ifndef SCG_FUNCTIONSTORE_H
+#define SCG_FUNCTIONSTORE_H
+
+#include "core.h"
+#include <AstNode.h>
+#include <Functions/Function.h>
 #include <typedefs.h>
 
 namespace Scg
 {
+
 class FunctionSignature;
 
-/**
- * Represent a block of expressions.
- */
-class FunctionStore : public Expression
+class FunctionStore : public AstNode
 {
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(FunctionStore, AstNode, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
   // TODO: To quickly implement this function, I just used an array and
   // implemented a function that iterates through it to find the required
   // function. This is really inefficient, but should be sufficient for now.
   //! An array containing the functions of this store.
-  FunctionArray functions;
+  private: std::vector<SharedPtr<Scg::Function> > functions;
 
-public:
-  /**
-   * Constructs a function store for the given module.
-   */
-  FunctionStore() {}
-  ~FunctionStore() {}
 
-public:
+  //============================================================================
+  // Constructors & Destructor
+
+  public: FunctionStore() {}
+
+
+  //============================================================================
+  // Member Functions
+
   /**
    * Adds the given function to the store.
    * @param[in] function  A pointer to the function to be added.
    */
-  void add(Function *function);
+  public: void add(SharedPtr<Function> const &function);
 
-  // @{
   /**
    * Retrieves the function having the given name and argument types.
    * @param[in] name  The name of the function.
    * @param[in] arguments An array containing the arguments of the function.
    * @return The required function if found, or @c nullptr.
    */
-  const Function *get(const std::string &name,
-                      const ValueTypeSpecArray &arguments) const;
-  Function *get(const std::string &name,
-                const ValueTypeSpecArray &arguments)
-  {
-    return const_cast<Function *>(
-             static_cast<const FunctionStore*>(this)->get(name, arguments));
-  }
-  // @}
+  public: SharedPtr<Function> const& get(const std::string &name,
+                                         const ValueTypeSpecArray &arguments) const;
 
-  // @{
   /**
    * Retrieves the function having the given signature.
    * @param[in] signature The signature of the function to retrieve.
    * @return The requested function if found, or @c nullptr.
    */
-  const Function *get(const FunctionSignature &signature) const;
-  Function *get(const FunctionSignature &signature)
+  public: SharedPtr<Function> const& get(const FunctionSignature &signature) const
   {
-    return const_cast<Function *>(
-             static_cast<const FunctionStore*>(this)->get(signature));
+    return this->get(signature.name, signature.arguments);
   }
-  // @}
 
-  // @{
   /**
    * Finds a function matching the given signature. The difference between
    * this and get() is that this method consider implicit casting.
    * @param[in] signature The signature of the function to match.
    * @return The matching function if found, or @c nullptr.
    */
-  const Function *match(const Module &module,
-                        const std::string &name, const ValueTypeSpecArray &argTypes) const;
-  Function *match(const Module &module, const std::string &name, const ValueTypeSpecArray &argTypes)
-  {
-    return const_cast<Function*>(static_cast<const FunctionStore*>(this)->match(
-                                   module, name, argTypes));
-  }
-  // @}
-};
-}
+  public: Function* match(const Module &module,
+                          const std::string &name,
+                          const ValueTypeSpecArray &argTypes) const;
 
-#endif // __FunctionStore_h__
+}; // class
+
+} // namespace
+
+#endif

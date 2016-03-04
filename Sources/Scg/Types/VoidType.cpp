@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/VoidType.cpp
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -20,21 +20,35 @@
 
 namespace Scg
 {
+
+//==============================================================================
+// Static Variables
+
 VoidType *VoidType::s_singleton = nullptr;
 
-VoidType::VoidType() : typeSpec("void")
+
+//==============================================================================
+// Constructors & Destructor
+
+VoidType::VoidType()
 {
+  this->typeSpec = std::make_shared<ValueTypeSpecByName>(STR("void"));
   this->llvmType = llvm::Type::getVoidTy(LlvmContainer::getContext());
 
   if (s_singleton == nullptr)
     s_singleton = this;
 }
 
+
+//==============================================================================
+// Member Functions
+
 void VoidType::initCastingTargets() const
 {
 }
 
-VoidType *VoidType::get()
+
+VoidType* VoidType::get()
 {
   // PERFORMANCE: What is the impact of running an unnecessary if statement
   // thousands of times?
@@ -44,4 +58,5 @@ VoidType *VoidType::get()
 
   return s_singleton;
 }
-}
+
+} // namespace

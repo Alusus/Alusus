@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/ValueType.h
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -9,159 +9,157 @@
 */
 //==============================================================================
 
-#ifndef __ValueType_h__
-#define __ValueType_h__
+#ifndef SCG_VALUETYPE_H
+#define SCG_VALUETYPE_H
 
-// SCG header files
-#include <Expression.h>
+#include <AstNode.h>
 #include <typedefs.h>
 
-// LLVM header files
 #pragma warning(disable: 4146 4800 4355 4996)
-
 #include <llvm/IR/IRBuilder.h>
-
 #pragma warning(default: 4146 4800 4355 4996)
 
 namespace Scg
 {
+
 // TODO: Should ValueType be derived from Expression? I can't think of any
 // advantage in that, but I don't remember I decided to derive it from
 // Expression.
 /**
-* Represent a value type, e.g. IntegerType.
-*/
-class ValueType : public Expression
+ * Represent a value type, e.g. IntegerType.
+ */
+class ValueType : public AstNode
 {
-protected:
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(ValueType, AstNode, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
   //! The LLVM type representing this type.
   // TODO: Rename to llvmType for consistency.
   // TODO: Can we change the type to llvm::Type& without having to include
   // LLVM header file for the Type class?
-  llvm::Type *llvmType;
+  protected: llvm::Type *llvmType;
   //! The number of variables of this type defined.
-  mutable int varCount;
-  mutable std::vector<const ValueType *> implicitCastingTargets;
-  mutable std::vector<const ValueType *> explicitCastingTargets;
-  mutable bool castingTargetsInitialized = false;
+  protected: mutable int varCount;
+  protected: mutable std::vector<const ValueType *> implicitCastingTargets;
+  protected: mutable std::vector<const ValueType *> explicitCastingTargets;
+  protected: mutable bool castingTargetsInitialized = false;
 
-protected:
-  //! Default constructor
-  ValueType() : llvmType(0), varCount(0)
+
+  //============================================================================
+  // Constructors & Destructor
+
+  protected: ValueType() : llvmType(0), varCount(0)
   {
   }
 
-public:
-  //! Class destructor
-  virtual ~ValueType()
+  public: virtual ~ValueType()
   {
   }
+
+
+  //============================================================================
+  // Operators
 
   // Disables copy constructor and assignment.
-  ValueType &operator=(const ValueType &source) = delete;
+  public: ValueType &operator=(const ValueType &source) = delete;
 
-  ValueType(const ValueType &source) = delete;
+  public: ValueType(const ValueType &source) = delete;
 
-protected:
-  /**
-  * Called by getImplicitCastingTargets() getExplicitCastingTargets() to
-  * allow the type to initialize implicitCastingTargets and
-  * explicitCastingTargets .
-  */
-  virtual void initCastingTargets() const = 0;
 
-public:
-  /**
-  * Allocates a new variable of this type.
-  * @param[in] name  The name of the variable.
-  * @return A pointer to the variable.
-  */
-  virtual Variable *newVariable(const std::string &name,
-                                llvm::Argument *llvmArgument = nullptr) const;
+  //============================================================================
+  // Member Functions
 
   /**
-  * Deletes the variable defined by newVariable() method.
-  * @param[in] var   A pointer to the variable.
-  */
-  virtual void deleteVariable(Variable *var) const;
+   * Called by getImplicitCastingTargets() getExplicitCastingTargets() to
+   * allow the type to initialize implicitCastingTargets and
+   * explicitCastingTargets .
+   */
+  protected: virtual void initCastingTargets() const = 0;
 
   /**
-  * Retrieves the name of the type, e.g. int, float, etc.
-  *
-  * @return The name of the type.
-  */
-  virtual const std::string getName() const = 0;
+   * Allocates a new variable of this type.
+   * @param[in] name  The name of the variable.
+   * @return A pointer to the variable.
+   */
+  public: virtual SharedPtr<Variable> newVariable(std::string const &name,
+                                                  llvm::Argument *llvmArgument = nullptr) const;
+
+  /**
+   * Deletes the variable defined by newVariable() method.
+   * @param[in] var   A pointer to the variable.
+   */
+  public: virtual void releaseVariable(Variable *var) const;
+
+  /**
+   * Retrieves the name of the type, e.g. int, float, etc.
+   *
+   * @return The name of the type.
+   */
+  public: virtual std::string const& getName() const = 0;
 
   /// Get the number of bytes needed to store variables of this type.
-public:
-  virtual Int getAllocationSize() const;
+  public: virtual Int getAllocationSize() const;
 
   /**
-  * Return the number of variables of this type defined.
-  * @return The number of variables of this type defined.
-  */
-  int getVarCount() const
+   * Return the number of variables of this type defined.
+   * @return The number of variables of this type defined.
+   */
+  public: int getVarCount() const
   {
     return varCount;
   }
 
   /**
-  * Get the LLVM Type object representing this type. This is used to define
-  * variables of this type in LLVM.
-  *
-  * @return A pointer to the LLVM object representing this type.
-  */
-  virtual llvm::Type* getLlvmType() const
+   * Get the LLVM Type object representing this type. This is used to define
+   * variables of this type in LLVM.
+   *
+   * @return A pointer to the LLVM object representing this type.
+   */
+  public: virtual llvm::Type* getLlvmType() const
   {
     return this->llvmType;
   }
 
   /**
-  * Retrieves the default value of this type as an LLVM Constant object.
-  * @return The LLVM Constant object representing the default value.
-  */
-  virtual llvm::Constant *getDefaultLLVMValue() const = 0;
+   * Retrieves the default value of this type as an LLVM Constant object.
+   * @return The LLVM Constant object representing the default value.
+   */
+  public: virtual llvm::Constant* getDefaultLLVMValue() const = 0;
 
   /**
-  * Retrieves the type specification of this type.
-  * @return A pointer to the type specification of this type. This gets
-  * automatically freed by the type, hence shouldn't be freed by the caller.
-  */
-  virtual const ValueTypeSpec *getValueTypeSpec() const = 0;
-
-  virtual ValueTypeSpec *getValueTypeSpec()
-  {
-    return const_cast<ValueTypeSpec *>(
-             static_cast<const ValueType *>(this)->getValueTypeSpec());
-  }
-
-  /**
-  * Casts the given LLVM value to the given target type.
-  * @param[in] irb         The IRBuilder object used to create the instruction.
-  * @param[in] value       The LLVM value to be casted.
-  * @param[in] targetType  The target type.
-  * @return The casted LLVM value. This is usually an instruction that does
-  * the casting having the given LLVM value as its argument.
-  */
-  virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
-                                      llvm::Value *value, const ValueType *targetType) const
+   * Casts the given LLVM value to the given target type.
+   * @param[in] irb         The IRBuilder object used to create the instruction.
+   * @param[in] value       The LLVM value to be casted.
+   * @param[in] targetType  The target type.
+   * @return The casted LLVM value. This is usually an instruction that does
+   * the casting having the given LLVM value as its argument.
+   */
+  public: virtual llvm::Value* createCastInst(llvm::IRBuilder<> *irb,
+                                              llvm::Value *value,
+                                              ValueType const *targetType) const
   {
     THROW_NOT_IMPLEMENTED();
   }
 
   /**
-  * Determines whether this type is equal to the given type.
-  * @param[in] other The type.
-  * @return @c true or @c false.
-  */
-  virtual bool isEqualTo(const ValueType *other) const = 0;
+   * Determines whether this type is equal to the given type.
+   * @param[in] other The type.
+   * @return @c true or @c false.
+   */
+  public: virtual bool isEqualTo(ValueType const *other) const = 0;
 
   /**
-  * Determines whether this type can be implicitly casted to the given type.
-  * @param[in] type The type.
-  * @return @c true or @c false.
-  */
-  bool isImplicitlyCastableTo(const ValueType *type) const
+   * Determines whether this type can be implicitly casted to the given type.
+   * @param[in] type The type.
+   * @return @c true or @c false.
+   */
+  public: bool isImplicitlyCastableTo(ValueType const *type) const
   {
     // PERFORMANCE: Consider changing getImplicitCastingTargets() to return
     // a set instead of a vector so that we can find elements in O(1).
@@ -175,11 +173,11 @@ public:
   }
 
   /**
-  * Determines whether this type can be explicitly casted to the given type.
-  * @param[in] type The type.
-  * @return @c true or @c false.
-  */
-  bool isExplicitlyCastableTo(const ValueType *type) const
+   * Determines whether this type can be explicitly casted to the given type.
+   * @param[in] type The type.
+   * @return @c true or @c false.
+   */
+  public: bool isExplicitlyCastableTo(ValueType const *type) const
   {
     // PERFORMANCE: Consider changing getImplicitCastingTargets() to return
     // a set instead of a vector so that we can find elements in O(1).
@@ -193,11 +191,11 @@ public:
   }
 
   /**
-  * Compares this type against the given type.
-  * @param[in] other The type to compare against.
-  * @return One of the results of Scg::TypeComparisonResult.
-  */
-  virtual TypeComparisonResult compare(const ValueType *other)
+   * Compares this type against the given type.
+   * @param[in] other The type to compare against.
+   * @return One of the results of Scg::TypeComparisonResult.
+   */
+  public: virtual TypeComparisonResult compare(ValueType const *other)
   {
     if (isEqualTo(other)) {
       return TypeComparisonResult::Equivalent;
@@ -211,10 +209,10 @@ public:
   }
 
   /**
-  * Retrieves a list of the types that this type can be implicitly casted to.
-  * @return A list of the types that this type can be implicitly casted to.
-  */
-  virtual const std::vector<const ValueType *> &getImplicitCastingTargets() const
+   * Retrieves a list of the types that this type can be implicitly casted to.
+   * @return A list of the types that this type can be implicitly casted to.
+   */
+  public: virtual std::vector<ValueType const*> const& getImplicitCastingTargets() const
   {
     if (!this->castingTargetsInitialized) {
       this->castingTargetsInitialized = true;
@@ -225,10 +223,10 @@ public:
   }
 
   /**
-  * Retrieves a list of the types that this type can be explicitly casted to.
-  * @return A list of the types that this type can be explicitly casted to.
-  */
-  virtual const std::vector<const ValueType *> &getExplicitCastingTargets() const
+   * Retrieves a list of the types that this type can be explicitly casted to.
+   * @return A list of the types that this type can be explicitly casted to.
+   */
+  public: virtual std::vector<ValueType const*> const& getExplicitCastingTargets() const
   {
     if (!this->castingTargetsInitialized) {
       this->castingTargetsInitialized = true;
@@ -239,23 +237,16 @@ public:
   }
 
   /**
-  * Gets a primitive type having the given name.
-  *
-  * @param[in] typeName  The name of the type (e.g. "Float".)
-  *
-  * @return A pointer to the type.
-  */
-  static ValueType *getPrimitiveType(const std::string &typeName);
+   * Gets a primitive type having the given name.
+   *
+   * @param[in] typeName  The name of the type (e.g. "Float".)
+   *
+   * @return A pointer to the type.
+   */
+  public: static ValueType* getPrimitiveType(std::string const &typeName);
 
-public:
-  static void *operator new[](size_t size) = delete;
+}; // class
 
-  static void operator delete[](void *ptr) = delete;
+} // namespace
 
-  static void *operator new(size_t size);
-
-  static void operator delete(void *ptr);
-};
-}
-
-#endif // __ValueType_h__
+#endif

@@ -1,7 +1,7 @@
 /**
  * @file Scg/CodeGeneration/CodeGenerator.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,13 +9,11 @@
  */
 //==============================================================================
 
-#ifndef __CodeGenerator_h__
-#define __CodeGenerator_h__
+#ifndef SCG_CODEGENERATOR_H
+#define SCG_CODEGENERATOR_H
 
 // Alusus Core forward declarations.
-#include <Basic/SharedPtr.h>
-#include <Basic/basic.h>
-#include <core_fwd.h>
+#include "core.h"
 
 // Scg CodeGeneration type definitions.
 #include <typedefs.h>
@@ -30,7 +28,7 @@ class DeclareExtFunction;
 class DefineFunction;
 class DefineStruct;
 class DefineVariable;
-class Expression;
+class AstNode;
 class ForStatement;
 class IfStatement;
 class List;
@@ -234,31 +232,31 @@ public:
   ~CodeGenerator() {}
 
 public:
-  Module *generateModule(const std::string &name, const Core::Basic::SharedPtr<Core::Data::Module> &srcModule);
-  Block *generateSet(const Core::Basic::SharedPtr<Core::Data::PrtList> &list);
-  Block *generateInnerSet(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
-  ExpressionArray generateStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
-  ExpressionArray generateDefine(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
-  ExpressionArray generateDefineVariable(Core::Basic::Char const *name,
-                                         const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item, bool isAssignment);
-  DefineFunction *generateDefineFunction(Core::Basic::Char const *name,
-                                         const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &expr);
-  DefineStruct *generateDefineStructure(Core::Basic::Char const *name,
-                                        const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &expr);
+  SharedPtr<Block> generateSet(const Core::Basic::SharedPtr<Core::Data::PrtList> &list);
+  SharedPtr<Block> generateInnerSet(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+  AstNodeSharedArray generateStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+  AstNodeSharedArray generateDefine(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+  AstNodeSharedArray generateDefineVariable(Core::Basic::Char const *name,
+                                      const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item,
+                                      bool isAssignment);
+  SharedPtr<DefineFunction> generateDefineFunction(Core::Basic::Char const *name,
+                                                   Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> const &expr);
+  SharedPtr<DefineStruct> generateDefineStructure(Core::Basic::Char const *name,
+                                                  Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> const &expr);
 
-  Expression *generateExpression(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
-  Return *generateReturn(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &ptr);
+  SharedPtr<AstNode> generateExpression(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+  SharedPtr<Return> generateReturn(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &ptr);
 
 private:
   void initializeIds();
-  Expression *generateVariableRef(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &param);
-  Expression *generateConst(const Core::Basic::SharedPtr<Core::Data::PrtToken> &literal);
-  List *generateList(const Core::Basic::SharedPtr<Core::Data::PrtList> &listExpr);
-  Expression *generateBinaryOperator(const Core::Basic::SharedPtr<Core::Data::PrtList> &cmpExpr);
-  Expression *generateUnaryOperator(const Core::Basic::SharedPtr<Core::Data::PrtList> &cmpExpr);
-  IfStatement *generateIfStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &command);
-  ForStatement *generateForStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &command);
-  WhileStatement *generateWhileStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &command);
+  SharedPtr<AstNode> generateVariableRef(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &param);
+  SharedPtr<AstNode> generateConst(const Core::Basic::SharedPtr<Core::Data::PrtToken> &literal);
+  SharedPtr<List> generateList(const Core::Basic::SharedPtr<Core::Data::PrtList> &listExpr);
+  SharedPtr<AstNode> generateBinaryOperator(const Core::Basic::SharedPtr<Core::Data::PrtList> &cmpExpr);
+  SharedPtr<AstNode> generateUnaryOperator(const Core::Basic::SharedPtr<Core::Data::PrtList> &cmpExpr);
+  SharedPtr<IfStatement> generateIfStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &command);
+  SharedPtr<ForStatement> generateForStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &command);
+  SharedPtr<WhileStatement> generateWhileStatement(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &command);
 
 public:
   /**
@@ -267,7 +265,7 @@ public:
    *
    * @param[in] item  A pointer to the root of the AST block.
    */
-  Core::Basic::Char const* parseToken(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+  Core::Basic::Char const* parseToken(SharedPtr<Core::Basic::IdentifiableObject> const &item);
 
   /**
    * Parses an AST block that is generated for a variable type, e.g. int,
@@ -279,7 +277,7 @@ public:
    * content of the pointer is allocated in the heap and should be freed by
    * the caller.
    */
-  ValueTypeSpec *parseVariableType(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+  SharedPtr<ValueTypeSpec> parseVariableType(SharedPtr<Core::Basic::IdentifiableObject> const &item);
 
   /**
    * Parses a colon-separated variable definition where the name of the
@@ -291,7 +289,7 @@ public:
    * @return A VariableDefinition value specifying the name and type of the
    * variable.
    */
-  VariableDefinition parseVariableDefinition(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &astBlockRoot);
+  VariableDefinition parseVariableDefinition(SharedPtr<Core::Basic::IdentifiableObject> const &astBlockRoot);
 
   /**
    * Parses a comma-separated list of variable definitions which is used
@@ -302,8 +300,7 @@ public:
    *
    * @return A VariableDefinitionArray containing the variable definitions.
    */
-  VariableDefinitionArray parseFunctionArguments(const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject>
-      &astBlockRoot);
+  VariableDefinitionArray parseFunctionArguments(SharedPtr<Core::Basic::IdentifiableObject> const &astBlockRoot);
 
   // TODO: Remove this when proper alias implementation is done.
   /**
@@ -313,7 +310,8 @@ public:
    */
   Core::Basic::Char const* translateAliasedName(Core::Basic::Char const *name);
 
-}; // CodeGenerator
-} // Scg
+}; // class
 
-#endif // __CodeGenerator_h__
+} // namespace
+
+#endif

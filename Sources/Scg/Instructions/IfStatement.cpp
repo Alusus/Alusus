@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/IfStatement.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -11,14 +11,13 @@
 
 #include <prerequisites.h>
 
-// STL header files
-
 // LLVM header files
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/IRBuilder.h>
 
 // Scg files
+#include <CodeGenUnit.h>
 #include <Containers/Block.h>
 #include <Containers/Module.h>
 #include <Instructions/IfStatement.h>
@@ -28,7 +27,13 @@ using namespace llvm;
 
 namespace Scg
 {
-IfStatement::IfStatement(Expression *condition, Block *thenBlock, Block *elseBlock)
+
+//==============================================================================
+// Constructors & Destructor
+
+IfStatement::IfStatement(SharedPtr<AstNode> const &condition,
+                         SharedPtr<Block> const &thenBlock,
+                         SharedPtr<Block> const &elseBlock)
   : condition(condition)
   , thenBlock(thenBlock)
   , elseBlock(elseBlock)
@@ -39,42 +44,43 @@ IfStatement::IfStatement(Expression *condition, Block *thenBlock, Block *elseBlo
 {
   // Create an empty block to serve as a label for branching from either of
   // the 'then' or 'else' parts.
-  this->mergeBlock = new Block();
+  this->mergeBlock = std::make_shared<Block>();
 
   if (thenBlock == 0)
     throw EXCEPTION(ArgumentOutOfRangeException, "If statements must "
                     "have a 'then' block.");
 
-  this->children.push_back(this->condition);
-  this->children.push_back(this->thenBlock);
-
-  if (this->elseBlock != 0)
-    this->children.push_back(this->elseBlock);
-
-  this->children.push_back(this->mergeBlock);
+  OWN_SHAREDPTR(this->condition);
+  OWN_SHAREDPTR(this->thenBlock);
+  OWN_SHAREDPTR(this->elseBlock);
+  OWN_SHAREDPTR(this->mergeBlock);
 }
-
-//----------------------------------------------------------------------------
 
 IfStatement::~IfStatement()
 {
+  DISOWN_SHAREDPTR(this->condition);
+  DISOWN_SHAREDPTR(this->thenBlock);
+  DISOWN_SHAREDPTR(this->elseBlock);
+  DISOWN_SHAREDPTR(this->mergeBlock);
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage IfStatement::generateCode()
+//==============================================================================
+// Member Functions
+
+AstNode::CodeGenerationStage IfStatement::generateCode(CodeGenUnit *codeGenUnit)
 {
-  MODULE_CHECK;
+  BLOCK_CHECK;
 
-  auto irBuilder = getBlock()->getIRBuilder();
+  auto irBuilder = this->findOwner<Block>()->getIRBuilder();
 
   // Evaluate the condition to a boolean.
   // TODO: 'condition' should be freed in postGenerateCode().
   if (this->condition->getCodeGenerationStage() ==
-      Expression::CodeGenerationStage::CodeGeneration) {
-    if (this->condition->callGenerateCode() ==
-        Expression::CodeGenerationStage::CodeGeneration) {
-      return Expression::CodeGenerationStage::CodeGeneration;
+      AstNode::CodeGenerationStage::CodeGeneration) {
+    if (this->condition->callGenerateCode(codeGenUnit) ==
+        AstNode::CodeGenerationStage::CodeGeneration) {
+      return AstNode::CodeGenerationStage::CodeGeneration;
     }
   }
 
@@ -94,28 +100,28 @@ Expression::CodeGenerationStage IfStatement::generateCode()
 
   // Generate the code of the 'then', 'else', and merge parts.
   if (this->thenBlock->getCodeGenerationStage() ==
-      Expression::CodeGenerationStage::CodeGeneration) {
-    if (this->thenBlock->callGenerateCode() ==
-        Expression::CodeGenerationStage::CodeGeneration) {
-      return Expression::CodeGenerationStage::CodeGeneration;
+      AstNode::CodeGenerationStage::CodeGeneration) {
+    if (this->thenBlock->callGenerateCode(codeGenUnit) ==
+        AstNode::CodeGenerationStage::CodeGeneration) {
+      return AstNode::CodeGenerationStage::CodeGeneration;
     }
   }
 
   if (this->elseBlock != nullptr) {
     if (this->elseBlock->getCodeGenerationStage() ==
-        Expression::CodeGenerationStage::CodeGeneration) {
-      if (this->elseBlock->callGenerateCode() ==
-          Expression::CodeGenerationStage::CodeGeneration) {
-        return Expression::CodeGenerationStage::CodeGeneration;
+        AstNode::CodeGenerationStage::CodeGeneration) {
+      if (this->elseBlock->callGenerateCode(codeGenUnit) ==
+          AstNode::CodeGenerationStage::CodeGeneration) {
+        return AstNode::CodeGenerationStage::CodeGeneration;
       }
     }
   }
 
   if (this->mergeBlock->getCodeGenerationStage() ==
-      Expression::CodeGenerationStage::CodeGeneration) {
-    if (this->mergeBlock->callGenerateCode() ==
-        Expression::CodeGenerationStage::CodeGeneration) {
-      return Expression::CodeGenerationStage::CodeGeneration;
+      AstNode::CodeGenerationStage::CodeGeneration) {
+    if (this->mergeBlock->callGenerateCode(codeGenUnit) ==
+        AstNode::CodeGenerationStage::CodeGeneration) {
+      return AstNode::CodeGenerationStage::CodeGeneration;
     }
   }
 
@@ -128,12 +134,11 @@ Expression::CodeGenerationStage IfStatement::generateCode()
 
   irBuilder->SetInsertPoint(this->mergeBlock->getLlvmBB());
 
-  return Expression::generateCode();
+  return AstNode::generateCode(codeGenUnit);
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage IfStatement::postGenerateCode()
+AstNode::CodeGenerationStage IfStatement::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   SAFE_DELETE_LLVM_INST(this->cmpInst);
   SAFE_DELETE_LLVM_INST(this->ifBranch);
@@ -142,7 +147,6 @@ Expression::CodeGenerationStage IfStatement::postGenerateCode()
   return CodeGenerationStage::None;
 }
 
-//----------------------------------------------------------------------------
 
 std::string IfStatement::toString()
 {
@@ -157,4 +161,5 @@ std::string IfStatement::toString()
 
   return str;
 }
-}
+
+} // namespace

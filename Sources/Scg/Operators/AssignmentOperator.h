@@ -1,7 +1,7 @@
 /**
  * @file Scg/Operators/AssignmentOperator.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,52 +9,74 @@
  */
 //==============================================================================
 
-#ifndef __AssignmentOperator_h__
-#define __AssignmentOperator_h__
+#ifndef SCG_ASSIGNMENTOPERATOR_H
+#define SCG_ASSIGNMENTOPERATOR_H
 
-// Scg header files
+#include "core.h"
 #include <typedefs.h>
 #include <exceptions.h>
-#include <Expression.h>
-
-// LLVM forward declarations
+#include <AstNode.h>
 #include <llvm_fwd.h>
 
 namespace Scg
 {
+
+class CodeGenUnit;
+
 /**
  * Represents a binary operator.
  */
-class AssignmentOperator : public Expression
+class AssignmentOperator : public AstNode, public virtual Core::Data::Container
 {
-private:
-  //! Storing the LLVM store instruction so that it can be freed after code generation.
-  llvm::StoreInst *llvmStoreInst = nullptr;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(AssignmentOperator, AstNode, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(AstNode, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
+  private: SharedPtr<AstNode> leftExpr;
+  private: SharedPtr<AstNode> rightExpr;
+  //! Storing the LLVM store instruction so that it can be freed after code generation.
+  private: llvm::StoreInst *llvmStoreInst = nullptr;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Construct a binary operation.
    * @param[in] lhs The left-hand side of the operator. Must be a variable if the operation is '='.
    * @param[in] rhs The operation; can be '+', '-', '*', or '='.
    */
-  AssignmentOperator(Expression *lhs, Expression *rhs)
+  public: AssignmentOperator(SharedPtr<AstNode> const &lhs, SharedPtr<AstNode> const &rhs)
+    : leftExpr(lhs), rightExpr(rhs)
   {
-    children.push_back(lhs);
-    children.push_back(rhs);
+    OWN_SHAREDPTR(this->leftExpr);
+    OWN_SHAREDPTR(this->rightExpr);
   }
+
+  public: virtual ~AssignmentOperator()
+  {
+    DISOWN_SHAREDPTR(this->leftExpr);
+    DISOWN_SHAREDPTR(this->rightExpr);
+  }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Get the expression representing the left-hand side of the binary operator.
    *
    * @return A pointer to the left-hand side expression.
    */
-  const ExpressionArray::value_type getLHS() const
+  public: SharedPtr<AstNode> const& getLHS() const
   {
-    return children[0];
-  }
-  ExpressionArray::value_type getLHS()
-  {
-    return children[0];
+    return this->leftExpr;
   }
 
   /**
@@ -62,35 +84,62 @@ public:
    *
    * @return A pointer to the right-hand side expression.
    */
-  const ExpressionArray::value_type getRHS() const
+  public: SharedPtr<AstNode> const& getRHS() const
   {
-    return children[1];
-  }
-  ExpressionArray::value_type getRHS()
-  {
-    return children[1];
+    return this->rightExpr;
   }
 
-  //! @copydoc Expression::callGenerateCode()
-  virtual CodeGenerationStage callGenerateCode()
+  //! @copydoc AstNode::callGenerateCode()
+  public: virtual CodeGenerationStage callGenerateCode(CodeGenUnit *codeGenUnit)
   {
     // We want to manually call the generateCode() member function of children
     // so we override the default behaviour of callGenerateCode().
-    return generateCode();
+    return generateCode(codeGenUnit);
   }
 
   //! @copydoc Value::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override;
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
+  {
+    return getRHS()->getValueTypeSpec();
+  }
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __AssignmentOperator_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 2;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    switch (index) {
+      case 0: return this->leftExpr.get();
+      case 1: return this->rightExpr.get();
+      default: return 0;
+    }
+  }
+
+}; // class
+
+} // namespace
+
+#endif

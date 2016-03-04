@@ -27,21 +27,21 @@ bool TestAssignmentOperator()
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto mainBody = new Block({
-    new DefineVariable(CreateTypeSpecByName("int"), "a"),
-    new DefineVariable(CreateTypeSpecByName("int"), "b"),
-    new AssignmentOperator(
-      new Content(new IdentifierReference("a")),
-      new Content(new IdentifierReference("b"))),
-    new Return(new IntegerConst(0))
+  auto mainBody = Block::create({
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("int"), "a"),
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("int"), "b"),
+    std::make_shared<AssignmentOperator>(
+      std::make_shared<Content>(std::make_shared<IdentifierReference>("a")),
+      std::make_shared<Content>(std::make_shared<IdentifierReference>("b"))),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   });
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), mainBody);
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestAssignmentOperator");
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   std::cout << "TestAssignmentOperator succeeded." << std::endl;
@@ -58,52 +58,52 @@ bool TestBinaryOperators()
 
   // Create a type specification for an integer.
   // Create the main function.
-  auto mainBody = new Block({
-    new DefineVariable(CreateTypeSpecByName("int"), "a"),
-    new DefineVariable(CreateTypeSpecByName("int"), "b"),
-    new CallFunction("__add", new List({
-      new Content(new IdentifierReference("a")),
-      new Content(new IdentifierReference("b"))
+  auto mainBody = Block::create({
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("int"), "a"),
+    std::make_shared<DefineVariable>(CreateTypeSpecByName("int"), "b"),
+    std::make_shared<CallFunction>("__add", List::create({
+      std::make_shared<Content>(std::make_shared<IdentifierReference>("a")),
+      std::make_shared<Content>(std::make_shared<IdentifierReference>("b"))
     })),
-    new CallFunction("__sub", new List({
-      new Content(new IdentifierReference("a")),
-      new Content(new IdentifierReference("b"))
+    std::make_shared<CallFunction>("__sub", List::create({
+      std::make_shared<Content>(std::make_shared<IdentifierReference>("a")),
+      std::make_shared<Content>(std::make_shared<IdentifierReference>("b"))
     })),
-    new CallFunction("__mul", new List({
-      new Content(new IdentifierReference("a")),
-      new Content(new IdentifierReference("b"))
+    std::make_shared<CallFunction>("__mul", List::create({
+      std::make_shared<Content>(std::make_shared<IdentifierReference>("a")),
+      std::make_shared<Content>(std::make_shared<IdentifierReference>("b"))
     })),
-    new CallFunction("__div", new List({
-      new Content(new IdentifierReference("a")),
-      new Content(new IdentifierReference("b"))
+    std::make_shared<CallFunction>("__div", List::create({
+      std::make_shared<Content>(std::make_shared<IdentifierReference>("a")),
+      std::make_shared<Content>(std::make_shared<IdentifierReference>("b"))
     })),
-    new BinaryOperator(BinaryOperator::GREATERTHAN,
-    new Content(new IdentifierReference("a")),
-    new Content(new IdentifierReference("b"))),
-    new BinaryOperator(BinaryOperator::GREATERTHAN_EQUAL,
-    new Content(new IdentifierReference("a")),
-    new Content(new IdentifierReference("b"))),
-    new BinaryOperator(BinaryOperator::LESSTHAN,
-    new Content(new IdentifierReference("a")),
-    new Content(new IdentifierReference("b"))),
-    new BinaryOperator(BinaryOperator::LESSTHAN_EQUAL,
-    new Content(new IdentifierReference("a")),
-    new Content(new IdentifierReference("b"))),
-    new BinaryOperator(BinaryOperator::EQUAL,
-    new Content(new IdentifierReference("a")),
-    new Content(new IdentifierReference("b"))),
-    new BinaryOperator(BinaryOperator::NOTEQUAL,
-    new Content(new IdentifierReference("a")),
-    new Content(new IdentifierReference("b"))),
-    new Return(new IntegerConst(0))
+    std::make_shared<BinaryOperator>(BinaryOperator::GREATERTHAN,
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("a")),
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("b"))),
+    std::make_shared<BinaryOperator>(BinaryOperator::GREATERTHAN_EQUAL,
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("a")),
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("b"))),
+    std::make_shared<BinaryOperator>(BinaryOperator::LESSTHAN,
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("a")),
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("b"))),
+    std::make_shared<BinaryOperator>(BinaryOperator::LESSTHAN_EQUAL,
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("a")),
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("b"))),
+    std::make_shared<BinaryOperator>(BinaryOperator::EQUAL,
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("a")),
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("b"))),
+    std::make_shared<BinaryOperator>(BinaryOperator::NOTEQUAL,
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("a")),
+    std::make_shared<Content>(std::make_shared<IdentifierReference>("b"))),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   });
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-                                 VariableDefinitionArray(), mainBody);
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+                                               VariableDefinitionArray(), mainBody);
 
   // Create the module.
   auto module = new Module("TestBinaryOperators");
-  module->appendExpression(main);
-  auto program = new Program();
+  module->appendNode(main);
+  auto program = new CodeGenUnit();
   program->addModule(module);
   std::cout << program->compile() << std::endl;
   std::cout << "TestBinaryOperators succeeded." << std::endl;

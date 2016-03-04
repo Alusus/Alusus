@@ -1,7 +1,7 @@
 /**
  * @file Scg/CodeGeneration/FunctionLinkExpression.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -17,6 +17,7 @@
 
 namespace Scg
 {
+
 using namespace Core::Basic;
 using namespace Core::Data;
 
@@ -54,30 +55,22 @@ FunctionLinkExpression::FunctionLinkExpression(CodeGenerator *gen,
                                      argsAndRet.getSeparator().c_str()));
     }
 
-    this->arguments = new FunctionalExpression(
-      gen, argsAndRet.getLHS().s_cast<PrtList>());
+    this->arguments = std::make_shared<FunctionalExpression>(gen, argsAndRet.getLHS().s_cast<PrtList>());
     this->retType = gen->parseVariableType(argsAndRet.getRHS());
   } else if ((item = getSharedPtr(seeker.tryGet(funcExpNoRetReference.get(),
                                   astRoot.get())).io_cast<PrtList>()) != nullptr)
-    this->arguments = new FunctionalExpression(gen, item);
+    this->arguments = std::make_shared<FunctionalExpression>(gen, item);
 
   // Stores the line and column numbers.
   this->sourceLocation = item->getSourceLocation();
 }
 
-//----------------------------------------------------------------------------
 
-FunctionLinkExpression::~FunctionLinkExpression()
-{
-  if (this->arguments != 0) delete this->arguments;
-}
-
-//----------------------------------------------------------------------------
-
-DeclareExtFunction *FunctionLinkExpression::toDeclareExtFunction()
+SharedPtr<DeclareExtFunction> FunctionLinkExpression::toDeclareExtFunction()
 {
   auto declExtFunc = this->arguments->toDeclareExtFunction(this->retType);
   declExtFunc->setSourceLocation(this->sourceLocation);
   return declExtFunc;
 }
-}
+
+} // namespace

@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/CondGotoStatement.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,32 +9,49 @@
  */
 //==============================================================================
 
-#ifndef __CondGotoStatement_h__
-#define __CondGotoStatement_h__
+#ifndef SCG_CONDGOTOSTATEMENT_H
+#define SCG_CONDGOTOSTATEMENT_H
 
-// Scg header files
+#include "core.h"
 #include <typedefs.h>
 #include <exceptions.h>
-#include <Expression.h>
+#include <Instructions/Instruction.h>
 #include <llvm_fwd.h>
 
 namespace Scg
 {
+
+class Block;
+class CodeGenUnit;
+
 /**
  * Represent a return statement.
  */
-class CondGotoStatement : public Expression
+class CondGotoStatement : public Instruction, public virtual Core::Data::Container
 {
-  //! A pointer to the LLVM CondGotoStatement instruction representing this return statement.
-  llvm::BranchInst *branchInst;
-  //! The condition that decides where the goto statement is jumping.
-  Expression *cond;
-  //! A pointer to the block this statement is jumping to if the condition is true.
-  Block *trueBlock;
-  //! A pointer to the block this statement is jumping to if the condition is false.
-  Block *falseBlock;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(CondGotoStatement, Instruction, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(Instruction, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
+  //! A pointer to the LLVM CondGotoStatement instruction representing this return statement.
+  private: llvm::BranchInst *branchInst;
+  //! The condition that decides where the goto statement is jumping.
+  private: SharedPtr<AstNode> cond;
+  //! A pointer to the block this statement is jumping to if the condition is true.
+  private: Block *trueBlock;
+  //! A pointer to the block this statement is jumping to if the condition is false.
+  private: Block *falseBlock;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Construct a return statement that returns the value of the given expression.
    *
@@ -42,7 +59,7 @@ public:
    *                        this expression will automatically get deleted, so it
    *                        should be allocated in the heap and not deleted.
    */
-  CondGotoStatement(Expression *cond, Block *trueBlock, Block *falseBlock)
+  public: CondGotoStatement(SharedPtr<AstNode> const &cond, Block *trueBlock, Block *falseBlock)
     : branchInst(0)
     , cond(cond)
     , trueBlock(trueBlock)
@@ -55,22 +72,26 @@ public:
     if (this->trueBlock == 0 || this->falseBlock == 0)
       throw EXCEPTION(ArgumentOutOfRangeException, "Conditional goto statement "
                       "expects two blocks!");
-
-    this->children.push_back(this->cond);
+    OWN_SHAREDPTR(this->cond);
   }
+
+  public: virtual ~CondGotoStatement()
+  {
+    DISOWN_SHAREDPTR(this->cond);
+  }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Get the expression of this conditional goto.
    *
    * @return A pointer to the expression.
    */
-  const Expression *getCondition() const
+  public: SharedPtr<AstNode> const& getCondition() const
   {
-    return cond;
-  }
-  Expression *getCondition()
-  {
-    return cond;
+    return this->cond;
   }
 
   /**
@@ -78,13 +99,9 @@ public:
    *
    * @return A pointer to the block.
    */
-  const Block *getTrueBlock() const
+  public: Block* getTrueBlock() const
   {
-    return trueBlock;
-  }
-  Block *getTrueBlock()
-  {
-    return trueBlock;
+    return this->trueBlock;
   }
 
   /**
@@ -92,21 +109,41 @@ public:
    *
    * @return A pointer to the block.
    */
-  const Block *getFalseBlock() const
+  public: Block* getFalseBlock() const
   {
-    return falseBlock;
-  }
-  Block *getFalseBlock()
-  {
-    return falseBlock;
+    return this->falseBlock;
   }
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
-};
-}
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-#endif // __Return_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 1;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    return this->cond.get();
+  }
+
+}; // class
+
+} // namespace
+
+#endif

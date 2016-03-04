@@ -25,8 +25,7 @@ class IdentifiableObject;
 namespace Scg
 {
 
-typedef std::vector < Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> >
-ParsedItemArray;
+typedef std::vector < Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> > ParsedItemArray;
 
 /**
  * Defines a pair of a name and a parsed item.

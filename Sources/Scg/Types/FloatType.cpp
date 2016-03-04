@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/FloatType.cpp
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -21,21 +21,31 @@
 
 namespace Scg
 {
+
+//==============================================================================
+// Static Variables
+
 FloatType *FloatType::s_singleton = nullptr;
 
-//----------------------------------------------------------------------------
 
-FloatType::FloatType() : typeSpec("float")
+//==============================================================================
+// Constructors & Destructor
+
+FloatType::FloatType()
 {
+  this->typeSpec = std::make_shared<ValueTypeSpecByName>(STR("float"));
   this->llvmType = llvm::Type::getFloatTy(LlvmContainer::getContext());
 
   if (s_singleton == nullptr)
     s_singleton = this;
 }
 
+
+//==============================================================================
+// Member Functions
+
 void FloatType::initCastingTargets() const
 {
-
   this->implicitCastingTargets.push_back(DoubleType::get());
   this->implicitCastingTargets.push_back(FloatType::get());
 
@@ -44,13 +54,13 @@ void FloatType::initCastingTargets() const
   this->explicitCastingTargets.push_back(IntegerType::get());
 }
 
-//----------------------------------------------------------------------------
 
-llvm::Constant *FloatType::getLlvmConstant(float value) const
+llvm::Constant* FloatType::getLlvmConstant(float value) const
 {
   return llvm::ConstantFP::get(LlvmContainer::getContext(),
                                llvm::APFloat(value));
 }
+
 
 llvm::Value *FloatType::createCastInst(llvm::IRBuilder<> *irb,
                                        llvm::Value *value, const ValueType *targetType) const
@@ -72,6 +82,7 @@ llvm::Value *FloatType::createCastInst(llvm::IRBuilder<> *irb,
   }
 }
 
+
 FloatType *FloatType::get()
 {
   // PERFORMANCE: What is the impact of running an unnecessary if statement
@@ -82,4 +93,5 @@ FloatType *FloatType::get()
 
   return s_singleton;
 }
-}
+
+} // namespace

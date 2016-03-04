@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/DefineStruct.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,72 +9,119 @@
  */
 //==============================================================================
 
-#ifndef __DefineStruct_h__
-#define __DefineStruct_h__
+#ifndef SCG_DEFINESTRUCT_H
+#define SCG_DEFINESTRUCT_H
 
-// Scg header files
+#include "core.h"
 #include <typedefs.h>
 #include <Instructions/Instruction.h>
+#include <Types/StructType.h>
 #include <Types/ValueTypeSpec.h>
-
 #include <llvm_fwd.h>
 
 using namespace Core;
 
 namespace Scg
 {
-class StructType;
+
+class CodeGenUnit;
 
 /**
  * Represents a call to a function.
  */
-class DefineStruct : public Instruction
+class DefineStruct : public Instruction, public virtual Core::Data::Container
 {
-  //! The name of the structure.
-  std::string name;
-  //! An array of the fields of the structure.
-  VariableDefinitionArray fields;
-  //! The LLVM StructType representing this structure.
-  StructType *structType;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(DefineStruct, Instruction, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(Instruction, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The name of the structure.
+  private: std::string name;
+  //! An array of the fields of the structure.
+  private: VariableDefinitionArray fields;
+  //! The LLVM StructType representing this structure.
+  private: SharedPtr<StructType> structType;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Defines a new structure.
    * @param[in] name    The name of the structure.
    * @param[in] fields  The fields in the structure.
    */
-  DefineStruct(Char const *name, const VariableDefinitionArray &fields)
-    : name(name), fields(fields), structType(0)
+  public: DefineStruct(Char const *name, VariableDefinitionArray const &fields)
+    : name(name), fields(fields)
   {
   }
+
+  public: static SharedPtr<DefineStruct> create(Char const *name, VariableDefinitionArray const &fields)
+  {
+    return std::make_shared<DefineStruct>(name, fields);
+  }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Retrieves the name of the structure.
    * @return A string containing the name of the structure.
    */
-  const std::string &getName() const
+  public: std::string const& getName() const
   {
-    return name;
+    return this->name;
   }
 
   /**
    * Retrieves an array containing the fields of the structure.
    * @return An array containing the fields of the structure.
    */
-  const VariableDefinitionArray &getFields() const
+  public: VariableDefinitionArray const& getFields() const
   {
-    return fields;
+    return this->fields;
   }
 
-  //! @copydoc Expression::preGenerateCode()
-  virtual CodeGenerationStage preGenerateCode();
+  //! @copydoc AstNode::preGenerateCode()
+  public: virtual CodeGenerationStage preGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::preGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::preGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __DefineStruct_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 1;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    return this->structType.get();
+  }
+
+}; // class
+
+} // namespace
+
+#endif

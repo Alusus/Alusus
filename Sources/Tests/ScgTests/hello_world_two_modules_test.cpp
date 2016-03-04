@@ -16,9 +16,7 @@
 
 using namespace Scg;
 
-namespace Tests
-{
-namespace ScgTests
+namespace Tests { namespace ScgTests
 {
 
 Module *CreateMainModule()
@@ -28,19 +26,19 @@ Module *CreateMainModule()
       {CreateTypeSpecByName("string")}, false);*/
 
   // Creates the main function.
-  auto main = new DefineFunction("main", new ValueTypeSpecByName("int"),
-  VariableDefinitionArray(), new Block({
-    new CallFunction("Print", new List({
-      new StringConst(
-        "Hello World, from the other module!\n")
-    })),
-    new Return(new IntegerConst(0))
-  }));
+  auto main = std::make_shared<DefineFunction>("main", std::make_shared<ValueTypeSpecByName>("int"),
+    VariableDefinitionArray(), Block::create({
+      std::make_shared<CallFunction>("Print", List::create({
+        std::make_shared<StringConst>(
+          "Hello World, from the other module!\n")
+      })),
+      std::make_shared<Return>(std::make_shared<IntegerConst>(0))
+    }));
 
   // Creates the module.
   auto module = new Module("MainModule");
   //module->AppendExpression(printLink);
-  module->appendExpression(main);
+  module->appendNode(main);
 
   return module;
 }
@@ -48,20 +46,20 @@ Module *CreateMainModule()
 Module *CreatePrintModule()
 {
   // Creates the link to printf function.
-  auto printfLink = new DeclareExtFunction("printf", CreateTypeSpecByName("int"),
-  {CreateTypeSpecByName("string")}, true);
+  auto printfLink = DeclareExtFunction::create("printf", CreateTypeSpecByName("int"),
+                                               {CreateTypeSpecByName("string")}, true);
 
   // Creates the print function.
-  auto print = new DefineFunction("Print", nullptr, {
+  auto print = DefineFunction::create("Print", nullptr, {
     VariableDefinition("string", "output")
-  }, new Block({
-    new CallFunction("printf", new List({new Content(new IdentifierReference("output"))}))
+  }, Block::create({
+    std::make_shared<CallFunction>("printf", List::create({std::make_shared<Content>(std::make_shared<IdentifierReference>("output"))}))
   }));
 
   // Creates the module.
   auto module = new Module("PrintModule");
-  module->appendExpression(printfLink);
-  module->appendExpression(print);
+  module->appendNode(printfLink);
+  module->appendNode(print);
 
   return module;
 }
@@ -70,7 +68,7 @@ bool RunHelloWorldTwoModulesTest()
 {
   LlvmContainer::initialize();
 
-  Program *program = new Program();;
+  CodeGenUnit *program = new CodeGenUnit();
   program->addModule(CreateMainModule());
   program->addModule(CreatePrintModule());
   //std::cout << program->Compile();
@@ -82,5 +80,4 @@ bool RunHelloWorldTwoModulesTest()
   return true;
 }
 
-}
-} // namespace
+} } // namespace

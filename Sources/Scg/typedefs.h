@@ -1,7 +1,7 @@
 /**
  * @file Scg/typedefs.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __typedefs_h__
-#define __typedefs_h__
+#ifndef SCG_TYPEDEFS_H
+#define SCG_TYPEDEFS_H
 
 // STL header files
 #include <map>
@@ -19,12 +19,15 @@
 #include <vector>
 #include <sstream>
 
+#include "core.h"
+
 // LLVM forward declarations
 #include <llvm_fwd.h>
 
 namespace Scg
 {
-class Expression;
+
+class AstNode;
 class Function;
 class Module;
 class StructType;
@@ -33,19 +36,18 @@ class ValueTypeSpec;
 class ValueTypeSpecArray;
 class Variable;
 
-typedef std::vector<Scg::Function *> FunctionArray;
 typedef std::map<std::string, Scg::Function *> FunctionMap;
 typedef std::vector<Scg::ValueType*> ValueTypeArray;
 typedef std::map<std::string, Scg::ValueType*> ValueTypeMap;
 typedef std::map<std::string, Scg::Variable*> VariableMap;
-typedef std::vector<Scg::Expression*> ExpressionArray;
+typedef std::vector<SharedPtr<Scg::AstNode>> AstNodeSharedArray;
 typedef std::vector<Scg::Module*> ModuleArray;
 typedef std::vector<Scg::Variable*> VariableArray;
 
 /**
  * A pair of a value type and a name.
  */
-class ValueTypeNamePair : public std::pair < ValueType*, std::string >
+class ValueTypeNamePair : public std::pair<ValueType*, std::string>
 {
 public:
   //! Default constructor.
@@ -101,6 +103,6 @@ enum class TypeComparisonResult {
   ExplicitlyEquivalent = 2,
 };
 
-}
+} // namespace
 
-#endif // __typedefs_h__
+#endif

@@ -1,7 +1,7 @@
 /**
  * @file Scg/Operators/BinaryOperator.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -15,6 +15,7 @@
 #include <llvm/IR/IRBuilder.h>
 
 // Scg files
+#include <CodeGenUnit.h>
 #include <Containers/Block.h>
 #include <Operators/Content.h>
 #include <Operators/BinaryOperator.h>
@@ -24,15 +25,15 @@ using namespace llvm;
 
 namespace Scg
 {
-const ValueTypeSpec * BinaryOperator::getValueTypeSpec() const
+
+SharedPtr<ValueTypeSpec> const& BinaryOperator::getValueTypeSpec() const
 {
   // FIXME: Fix this!
   return IntegerType::get()->getValueTypeSpec();
 }
 
-//------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage BinaryOperator::generateCode()
+AstNode::CodeGenerationStage BinaryOperator::generateCode(CodeGenUnit *codeGenUnit)
 {
   BLOCK_CHECK;
 
@@ -51,7 +52,7 @@ Expression::CodeGenerationStage BinaryOperator::generateCode()
                      + getRHS()->toString()).c_str());
   }
 
-  auto irb = getBlock()->getIRBuilder();
+  auto irb = this->findOwner<Block>()->getIRBuilder();
 
   switch (this->opType) {
   case ADD:
@@ -91,12 +92,11 @@ Expression::CodeGenerationStage BinaryOperator::generateCode()
   // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
   // generatedLlvmValue?
   this->generatedLlvmValue = llvmValue;
-  return Expression::generateCode();
+  return AstNode::generateCode(codeGenUnit);
 }
 
-//------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage BinaryOperator::postGenerateCode()
+AstNode::CodeGenerationStage BinaryOperator::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   if (!this->llvmValue->hasNUses(0))
     // Cannot delete the instruction yet; stay in PostCodeGeneration stage.
@@ -115,7 +115,6 @@ Expression::CodeGenerationStage BinaryOperator::postGenerateCode()
   return CodeGenerationStage::None;
 }
 
-//------------------------------------------------------------------------------
 
 std::string BinaryOperator::toString()
 {
@@ -154,4 +153,5 @@ std::string BinaryOperator::toString()
     return "";
   }
 }
-}
+
+} // namespace

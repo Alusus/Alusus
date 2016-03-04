@@ -1,7 +1,7 @@
 /**
  * @file Scg/CodeGeneration/FunctionAstBlock.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,12 +18,12 @@
 
 namespace Scg
 {
+
 using namespace Core::Basic;
 using namespace Core::Data;
 using std::shared_ptr;
 
-FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
-                                   const shared_ptr<PrtList> &astRoot) : autoDelete(false)
+FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen, SharedPtr<PrtList> const &astRoot)
 {
   if (astRoot->getProdId() != gen->getFunctionId())
     throw EXCEPTION(InvalidArgumentException,
@@ -68,14 +68,12 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
 
   if (bodyRoot != nullptr) {
     auto bodyAstBlock = ListExpression(gen, bodyRoot);
-    ExpressionArray bodyStats;
+    this->body = std::make_shared<Block>();
 
     for (auto i = 0; i < bodyAstBlock.getItemCount(); i++)
       for (auto stat : gen->generateStatement(bodyAstBlock.getItem(i))) {
-        bodyStats.push_back(stat);
+        this->body->appendNode(stat);
       }
-
-    this->body = new Block(bodyStats);
   } else
     throw EXCEPTION(InvalidArgumentException,
                     "Function should have a statement list under the path -1:SubSubject.Subject1.");
@@ -84,25 +82,13 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen,
   this->sourceLocation = astRoot->getSourceLocation();
 }
 
-//------------------------------------------------------------------------------
 
-FunctionAstBlock::~FunctionAstBlock()
+SharedPtr<DefineFunction> FunctionAstBlock::toDefineFunction(Char const *name)
 {
-  if (this->autoDelete)
-    delete this->body;
-}
-
-//------------------------------------------------------------------------------
-
-DefineFunction *FunctionAstBlock::toDefineFunction(Char const *name)
-{
-  // We don't own the body anymore, the new DefineFunction instruction does,
-  // so we don't delete the body when this object is destroyed.
-  this->autoDelete = false;
   // Creates the DefineFunction instruction and sets the line and column numbers.
-  auto defFunc = new DefineFunction(name, this->returnType, this->arguments,
-                                    this->body);
+  auto defFunc = std::make_shared<DefineFunction>(name, this->returnType, this->arguments, this->body);
   defFunc->setSourceLocation(this->sourceLocation);
   return defFunc;
 }
-}
+
+} // namespace

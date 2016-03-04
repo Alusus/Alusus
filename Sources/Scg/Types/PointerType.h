@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/PointerType.h
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -9,8 +9,8 @@
 */
 //==============================================================================
 
-#ifndef __PointerType_h__
-#define __PointerType_h__
+#ifndef SCG_POINTERTYPE_H
+#define SCG_POINTERTYPE_H
 
 // STL header files
 #include <unordered_map>
@@ -32,33 +32,50 @@ namespace Scg
 */
 class PointerType : public ValueType
 {
-  //! The name of the type, for example ptr[int].
-  std::string name;
-  //! The type of the content of this pointer.
-  const ValueType *contentType;
-  PointerValueTypeSpec typeSpec;
+  //============================================================================
+  // Type Info
 
-private:
+  TYPE_INFO(PointerType, ValueType, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The name of the type, for example ptr[int].
+  private: std::string name;
+  //! The type of the content of this pointer.
+  private: const ValueType *contentType;
+  private: SharedPtr<ValueTypeSpec> typeSpec;
+
+  //! Stores all pointer types used so far, so that we can reuse them.
+  public: static std::unordered_map<ValueType const*, PointerType*> usedPointerTypes;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   // TODO: We should
   /**
   * Constructs a pointer type.
   * @param[in] pointeeType The type of the variable to point to.
   */
-  PointerType(const ValueType *contentType);
+  private: PointerType(const ValueType *contentType);
 
-protected:
+
+  //============================================================================
+  // Member Functions
+
   //! @copydoc ValueType::initCastingTargets()
-  virtual void initCastingTargets() const override;
+  protected: virtual void initCastingTargets() const override;
 
-public:
   //! @copydoc ValueType::getName()
-  virtual const std::string getName() const
+  public: virtual std::string const& getName() const
   {
-    return name;
+    return this->name;
   }
 
   //! @copydoc ValueType::getDefaultLLVMValue()
-  virtual llvm::Constant *getDefaultLLVMValue() const
+  public: virtual llvm::Constant* getDefaultLLVMValue() const
   {
     throw EXCEPTION(NotImplementedException, "Not implemented yet!");
   }
@@ -67,26 +84,24 @@ public:
   * Retrieves the type of the content of this pointer.
   * @return A pointer to the type of the content of this pointer.
   */
-  virtual const ValueType *getContentType() const
+  public: virtual ValueType const* getContentType() const
   {
-    return contentType;
+    return this->contentType;
   }
 
   //! @copydoc ValueType::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
   {
-    return &typeSpec;
+    return this->typeSpec;
   }
 
   //! @copydoc ValueType::isEqualTo()
-  virtual bool isEqualTo(const ValueType *other) const;
+  public: virtual bool isEqualTo(const ValueType *other) const;
 
   //! @copydoc ValueType::createCastInst()
-  virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
-                                      llvm::Value *value, const ValueType *targetType) const override;
-
-  //! Stores all pointer types used so far, so that we can reuse them.
-  static std::unordered_map<const ValueType *, PointerType *> usedPointerTypes;
+  public: virtual llvm::Value *createCastInst(llvm::IRBuilder<> *irb,
+                                              llvm::Value *value,
+                                              const ValueType *targetType) const override;
 
   /**
   * Retrieves a pointer type whose content type is the given value type.
@@ -96,9 +111,10 @@ public:
   * @param[in] contentType The type of the content of this pointer type.
   * @return The pointer type.
   */
-  static PointerType *get(const ValueType *contentType);
-};
+  public: static PointerType *get(const ValueType *contentType);
 
-}
+}; // class
 
-#endif // __PointerType_h__
+} // namespace
+
+#endif

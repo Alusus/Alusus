@@ -1,14 +1,13 @@
 /**
  * @file Scg/Instructions/CallFunction.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
  * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
  */
 //==============================================================================
-
 
 #include <prerequisites.h>
 
@@ -22,7 +21,7 @@
 #include <Containers/Block.h>
 #include <Containers/List.h>
 #include <Containers/Module.h>
-#include <Containers/Program.h>
+#include <CodeGenUnit.h>
 #include <Functions/UserDefinedFunction.h>
 #include <Instructions/CallFunction.h>
 #include <Instructions/DefineFunction.h>
@@ -32,7 +31,8 @@ using namespace llvm;
 
 namespace Scg
 {
-const ValueTypeSpec * CallFunction::getValueTypeSpec() const
+
+SharedPtr<ValueTypeSpec> const& CallFunction::getValueTypeSpec() const
 {
   if (this->function == nullptr) {
     throw EXCEPTION(InvalidOperationException, "This function should only "
@@ -40,7 +40,7 @@ const ValueTypeSpec * CallFunction::getValueTypeSpec() const
                     "we don't have a reference to the function before that.");
   }
 
-  auto funcRetType = this->function->getValueTypeSpec();
+  SharedPtr<ValueTypeSpec> const &funcRetType = this->function->getValueTypeSpec();
 
   if (funcRetType == nullptr) {
     return VoidType::get()->getValueTypeSpec();
@@ -49,14 +49,13 @@ const ValueTypeSpec * CallFunction::getValueTypeSpec() const
   return funcRetType;
 }
 
-//------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage CallFunction::preGenerateCode()
+AstNode::CodeGenerationStage CallFunction::preGenerateCode(CodeGenUnit *codeGenUnit)
 {
   // Ensures that all children have finished pre-code generation step so that
   // we can grab their types.
-  for (auto i = 0; i < this->args->getElementCount(); i++) {
-    auto stage = this->args->getElement(i)->getCodeGenerationStage();
+  for (auto i = 0; i < this->args->getCount(); i++) {
+    auto stage = static_cast<AstNode*>(this->args->get(i))->getCodeGenerationStage();
 
     if (stage < CodeGenerationStage::CodeGeneration
         || stage == CodeGenerationStage::None) {
@@ -65,30 +64,28 @@ Expression::CodeGenerationStage CallFunction::preGenerateCode()
   }
 
   // Finds the types of the arguments.
-  if (argTypes.size() != this->args->getElementCount()) {
-    argTypes.resize(this->args->getElementCount());
+  if (argTypes.size() != this->args->getCount()) {
+    argTypes.resize(this->args->getCount());
 
-    for (auto i = 0; i < this->args->getElementCount(); i++) {
-      argTypes[i] = const_cast<ValueTypeSpec*>(
-                      this->args->getElement(i)->getValueTypeSpec());
+    for (auto i = 0; i < this->args->getCount(); i++) {
+      argTypes[i] = static_cast<AstNode*>(this->args->get(i))->getValueTypeSpec();
     }
   }
 
   // Try to find the function in the same module.
-  this->function = getModule()->matchFunction(this->funcName, argTypes);
+  Module *module = this->findOwner<Module>();
+  this->function = module->matchFunction(this->funcName, argTypes);
 
   if (this->function == nullptr) {
-    // We couldn't find it in the current module, search the whole program.
-    auto matches = getModule()->getProgram()->matchFunction(
-                     this->funcName, argTypes);
+    // We couldn't find it in the current module, search the whole unit.
+    auto matches = codeGenUnit->matchFunction(this->funcName, argTypes);
 
     switch (matches.size()) {
     case 0:
-
       // We couldn't find the function in the whole program, but it might
       // not have been generated yet.
-      if (getModule()->hasFunction(this->funcName, argTypes) ||
-          getProgram()->hasFunction(this->funcName, argTypes)) {
+      if (module->hasFunction(this->funcName, argTypes) ||
+          codeGenUnit->hasFunction(this->funcName, argTypes)) {
         // Yes, wait until it is generated.
         return CodeGenerationStage::PreCodeGeneration;
       } else {
@@ -96,7 +93,6 @@ Expression::CodeGenerationStage CallFunction::preGenerateCode()
         throw EXCEPTION(CompilationErrorException,
                         ("Calling undefined function " + this->funcName).c_str());
       }
-
       break;
 
     case 1:
@@ -115,9 +111,8 @@ Expression::CodeGenerationStage CallFunction::preGenerateCode()
   return CodeGenerationStage::CodeGeneration;
 }
 
-//------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage CallFunction::generateCode()
+AstNode::CodeGenerationStage CallFunction::generateCode(CodeGenUnit *codeGenUnit)
 {
   MODULE_CHECK;
   BLOCK_CHECK;
@@ -128,32 +123,36 @@ Expression::CodeGenerationStage CallFunction::generateCode()
   // If argument mismatch error.
   // TODO: Check the types of arguments as well.
   if ((this->function->isVarArgs() &&
-       this->function->getArgumentTypeSpecs().size() > getArguments()->getElementCount()) ||
+       this->function->getArgumentTypeSpecs().size() > getArguments()->getCount()) ||
       (!this->function->isVarArgs() &&
-       this->function->getArgumentTypeSpecs().size() != getArguments()->getElementCount())) {
+       this->function->getArgumentTypeSpecs().size() != getArguments()->getCount())) {
     std::stringstream str;
     str << "Function " << this->funcName << " expects "
         << this->function->getArgumentTypeSpecs().size() << " arguments, but got "
-        << getArguments()->getElementCount();
+        << getArguments()->getCount();
     throw EXCEPTION(ArgumentMismatchException, str.str().c_str());
   }
 
-  for (size_t i = 0, e = getArguments()->getElementCount(); i != e; ++i) {
+  auto block = this->findOwner<Block>();
+
+  for (size_t i = 0, e = getArguments()->getCount(); i != e; ++i) {
+    auto module = this->findOwner<Module>();
+
     auto expectedArgType = i < this->function->getArgumentTypeSpecs().size() ?
-                           this->function->getArgumentTypeSpecs()[i]->toValueType(*getModule()) :
+                           this->function->getArgumentTypeSpecs()[i]->toValueType(*module) :
                            nullptr;
-    auto argType = getArguments()->getElement(i)->getValueTypeSpec()->toValueType(*getModule());
-    auto argValue = getArguments()->getElement(i)->getGeneratedLlvmValue();
+    auto argType = static_cast<AstNode*>(this->args->get(i))->getValueTypeSpec()->toValueType(*module);
+    auto argValue = static_cast<AstNode*>(this->args->get(i))->getGeneratedLlvmValue();
 
     if (argValue == nullptr)
       throw EXCEPTION(EvaluationException,
                       ("Expression doesn't evaluate to a value: "
-                       + getArguments()->getElement(i)->toString()).c_str());
+                       + static_cast<AstNode*>(getArguments()->get(i))->toString()).c_str());
 
     if (expectedArgType != nullptr &&
         argType->compare(expectedArgType) != TypeComparisonResult::Equivalent) {
       // Need to cast the type before sending it to the function.
-      args.push_back(argType->createCastInst(getBlock()->getIRBuilder(),
+      args.push_back(argType->createCastInst(block->getIRBuilder(),
                                              argValue, expectedArgType));
     } else {
       args.push_back(argValue);
@@ -162,14 +161,13 @@ Expression::CodeGenerationStage CallFunction::generateCode()
 
   // Generate code for calling the function.
   this->generatedLlvmValue = this->callInst =
-                               this->function->createLLVMInstruction(getBlock()->getIRBuilder(), args);
+                               this->function->createLLVMInstruction(block->getIRBuilder(), args);
 
-  return Expression::generateCode();
+  return AstNode::generateCode(codeGenUnit);
 }
 
-//------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage CallFunction::postGenerateCode()
+AstNode::CodeGenerationStage CallFunction::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   this->function = nullptr;
   // TODO: Do something about deleting callInst. I commented it out because
@@ -180,10 +178,10 @@ Expression::CodeGenerationStage CallFunction::postGenerateCode()
   return CodeGenerationStage::None;
 }
 
-//------------------------------------------------------------------------------
 
 std::string CallFunction::toString()
 {
   return this->funcName + getArguments()->toString();
 }
-}
+
+} // namespace

@@ -1,7 +1,7 @@
 /**
  * @file Scg/Values/CharConst.h
  *
- * @copyright Copyright (C) 2015 Hicham OUALI ALAMI
+ * @copyright Copyright (C) 2016 Hicham OUALI ALAMI
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,52 +9,73 @@
  */
 //==============================================================================
 
-#ifndef __CharConst_h__
-#define __CharConst_h__
+#ifndef SCG_CHARCONST_H
+#define SCG_CHARCONST_H
 
-// Scg header files
+#include "core.h"
 #include <Values/Constant.h>
 
 namespace Scg
 {
+
+class CodeGenUnit;
+
 /**
  * Represent an integral value.
  */
 class CharConst : public Constant
 {
-  //! The value of the char.
-  char value;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(CharConst, Constant, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The value of the char.
+  private: char value;
+
+
+  //============================================================================
+  // Cosntructors & Destructor
+
   /**
    * Constructs a char with the given value.
    */
-  CharConst(char value) : value(value)
+  public: CharConst(char value) : value(value)
   {
   }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Retrieves the character value of this character constant object.
    *
    * @return The character value of this character constant object.
    */
-  const char &getValue() const
+  public: char getValue() const
   {
-    return value;
+    return this->value;
   }
 
   //! @copydoc Value::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override;
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override;
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __CharConst_h__
+}; // class
+
+} // namespace
+
+#endif

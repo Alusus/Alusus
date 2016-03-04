@@ -1,7 +1,7 @@
 /**
  * @file Scg/Operators/MemberFieldReference.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,6 +13,7 @@
 // LLVM header files
 #include <llvm/IR/IRBuilder.h>
 // Scg files
+#include <CodeGenUnit.h>
 #include <Containers/Block.h>
 #include <Operators/MemberFieldReference.h>
 #include <Values/IntegerConst.h>
@@ -22,13 +23,14 @@
 
 namespace Scg
 {
-const ValueTypeSpec * MemberFieldReference::getValueTypeSpec() const
+
+SharedPtr<ValueTypeSpec> const& MemberFieldReference::getValueTypeSpec() const
 {
   if (this->valueType)
     return this->valueType->getValueTypeSpec();
 
   // TODO: Don't use dynamic_cast.
-  auto module = getModule();
+  auto module = this->findOwner<Module>();
   auto typeSpec = this->expression->getValueTypeSpec();
   auto pointerType = dynamic_cast<PointerType*>(typeSpec->toValueType(*module));
 
@@ -48,9 +50,8 @@ const ValueTypeSpec * MemberFieldReference::getValueTypeSpec() const
   return this->valueType->getValueTypeSpec();
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage MemberFieldReference::generateCode()
+AstNode::CodeGenerationStage MemberFieldReference::generateCode(CodeGenUnit *codeGenUnit)
 {
   BLOCK_CHECK;
 
@@ -59,7 +60,7 @@ Expression::CodeGenerationStage MemberFieldReference::generateCode()
   // TODO: Finding the index by name is an O(n) operation, so consider it
   // saving the index here or in GetPointedToType() to speed up compilation
   // time.
-  auto module = getModule();
+  auto module = this->findOwner<Module>();
   auto pointerType = dynamic_cast<PointerType*>(this->expression->getValueTypeSpec()->toValueType(*module));
 
   if (pointerType == nullptr) {
@@ -83,21 +84,21 @@ Expression::CodeGenerationStage MemberFieldReference::generateCode()
   auto llvmPtr = this->expression->getGeneratedLlvmValue();
 
   // Generates a pointer to the required field.
-  auto irb = getBlock()->getIRBuilder();
+  auto irb = this->findOwner<Block>()->getIRBuilder();
   // TODO: We need to delete this pointer in the PostGenerateCode() function.
   // TODO: generatedLlvmValue is a duplicate of llvmPointer. Should we just use
   // generatedLlvmValue?
   this->generatedLlvmValue = this->llvmPointer = irb->CreateGEP(llvmPtr,
                              llvm::makeArrayRef(std::vector<llvm::Value*>({ zero, index })), "");
 
-  return Expression::generateCode();
+  return AstNode::generateCode(codeGenUnit);
 }
 
-//----------------------------------------------------------------------------
 
 std::string MemberFieldReference::toString()
 {
   // TODO: Implement this function.
   return "";
 }
-}
+
+} // namespace

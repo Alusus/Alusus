@@ -1,7 +1,7 @@
 /**
  * @file Tests/ScgTests/array_tests.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,34 +16,35 @@
 
 using namespace Scg;
 
-namespace Tests
-{
-namespace ScgTests
+namespace Tests { namespace ScgTests
 {
 
 bool TestDefineAndUseArray()
 {
   std::cout << RunSimpleTest({
-    new DefineVariable(CreateArrayOfPrimitiveTypeSpec("int", 10), "testIntArray"),
-    new AssignmentOperator
+    std::make_shared<DefineVariable>(CreateArrayOfPrimitiveTypeSpec("int", 10), "testIntArray"),
+    std::make_shared<AssignmentOperator>
     (
-      new Content(new ArrayElementReference(new IdentifierReference("testIntArray"), new IntegerConst(5))),
-      new IntegerConst(10)
+      std::make_shared<Content>(std::make_shared<ArrayElementReference>(
+        std::make_shared<IdentifierReference>("testIntArray"),
+        std::make_shared<IntegerConst>(5))),
+      std::make_shared<IntegerConst>(10)
     ),
-    new CallFunction("printf",
-    new List
-    ({
-      new StringConst("%d"),
-      new Content(new ArrayElementReference(new IdentifierReference("testIntArray"), new IntegerConst(5)))
-    })),
-    new Return(new IntegerConst(0))
+    std::make_shared<CallFunction>("printf",
+      List::create
+      ({
+        std::make_shared<StringConst>("%d"),
+        std::make_shared<Content>(std::make_shared<ArrayElementReference>(
+          std::make_shared<IdentifierReference>("testIntArray"),
+          std::make_shared<IntegerConst>(5)))
+      })),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   }, {
-    new DeclareExtFunction("printf", CreateTypeSpecByName("int"),
-    {CreateTypeSpecByName("string")}, true)
+    DeclareExtFunction::create("printf", CreateTypeSpecByName("int"),
+      {CreateTypeSpecByName("string")}, true)
   });
 
   return true;
 }
 
-}
-} // namespace
+} } // namespace

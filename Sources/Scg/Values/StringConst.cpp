@@ -1,7 +1,7 @@
 /**
  * @file Scg/Values/StringConst.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -12,32 +12,30 @@
 #include <prerequisites.h>
 
 // Scg files
+#include <CodeGenUnit.h>
 #include <Values/StringConst.h>
 #include <Types/StringType.h>
 
-// LLVM header files
-
 namespace Scg
 {
-const ValueTypeSpec *StringConst::getValueTypeSpec() const
+
+SharedPtr<ValueTypeSpec> const& StringConst::getValueTypeSpec() const
 {
   return StringType::get()->getValueTypeSpec();
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage StringConst::generateCode()
+AstNode::CodeGenerationStage StringConst::generateCode(CodeGenUnit *codeGenUnit)
 {
   // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
   // generatedLlvmValue?
   this->generatedLlvmValue = this->llvmValue =
-                               StringType::get()->getLlvmConstant(getModule(), this->value);
-  return Expression::generateCode();
+    StringType::get()->getLlvmConstant(codeGenUnit, this->findOwner<Module>(), this->value);
+  return AstNode::generateCode(codeGenUnit);
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage StringConst::postGenerateCode()
+AstNode::CodeGenerationStage StringConst::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   if (this->llvmValue == nullptr)
     // Nothing to delete
@@ -54,10 +52,10 @@ Expression::CodeGenerationStage StringConst::postGenerateCode()
   return CodeGenerationStage::None;
 }
 
-//----------------------------------------------------------------------------
 
 std::string StringConst::toString()
 {
   return this->value;
 }
-}
+
+} // namespace

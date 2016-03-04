@@ -1,7 +1,7 @@
 /**
  * @file Scg/CodeGeneration/FunctionLinkExpression.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __FunctionLinkExpression_h__
-#define __FunctionLinkExpression_h__
+#ifndef SCG_FUNCTIONLINKEXPRESSION_H
+#define SCG_FUNCTIONLINKEXPRESSION_H
 
 // STL header files
 #include <vector>
@@ -69,22 +69,21 @@ class FunctionalExpression;
 class FunctionLinkExpression
 {
 private:
-  ValueTypeSpec *retType = nullptr;
+  SharedPtr<ValueTypeSpec> retType;
   Core::Data::SourceLocation sourceLocation;
-  FunctionalExpression *arguments;
+  SharedPtr<FunctionalExpression> arguments;
 
 public:
   FunctionLinkExpression(CodeGenerator *gen,
                          const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
-  ~FunctionLinkExpression();
 
   /**
    * Returns the return type name of the function we are linking to.
    * @return A string containing the return type name.
    */
-  const ValueTypeSpec *getReturnType() const
+  SharedPtr<ValueTypeSpec> const& getReturnType() const
   {
-    return retType;
+    return this->retType;
   }
 
   /**
@@ -93,8 +92,9 @@ public:
    * @return A pointer to a DeclareExtFunction object. The object should be
    * freed by the caller.
    */
-  DeclareExtFunction *toDeclareExtFunction();
+  SharedPtr<DeclareExtFunction> toDeclareExtFunction();
 };
-}
 
-#endif // __FunctionLinkExpression_h__
+} // namespace
+
+#endif

@@ -1,7 +1,7 @@
 /**
  * @file Scg/Values/StringConst.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,52 +9,72 @@
  */
 //==============================================================================
 
-#ifndef __StringConst_h__
-#define __StringConst_h__
+#ifndef SCG_STRINGCONST_H
+#define SCG_STRINGCONST_H
 
-// Scg header files
 #include <Values/Constant.h>
 
 namespace Scg
 {
+
+class CodeGenUnit;
+
 /**
  * Represent a string.
  */
 class StringConst : public Constant
 {
-  //! The value of the string.
-  std::string value;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(StringConst, Constant, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  //! The value of the string.
+  private: std::string value;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Constructs a string with the given value.
    */
-  StringConst(const std::string &value) : value(value)
+  public: StringConst(std::string const& value) : value(value)
   {
   }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Retrieves the string value of this string constant object.
    *
    * @return The string value of this string constant object.
    */
-  const std::string &getValue() const
+  public: std::string const& getValue() const
   {
-    return value;
+    return this->value;
   }
 
   //! @copydoc Value::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const;
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const;
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __StringConst_h__
+}; // class
+
+} // namespace
+
+#endif

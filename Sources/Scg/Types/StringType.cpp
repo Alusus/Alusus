@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/StringType.cpp
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -12,6 +12,7 @@
 #include <prerequisites.h>
 
 // Scg header files
+#include <CodeGenUnit.h>
 #include <Containers/Module.h>
 #include <LlvmContainer.h>
 #include <Types/StringType.h>
@@ -21,17 +22,28 @@
 
 namespace Scg
 {
+
+//==============================================================================
+// Static Variables
+
 StringType *StringType::s_singleton = nullptr;
 
-//----------------------------------------------------------------------------
 
-StringType::StringType() : typeSpec("string")
+//==============================================================================
+// Constructors & Destructor
+
+StringType::StringType()
 {
+  this->typeSpec = std::make_shared<ValueTypeSpecByName>(STR("string"));
   this->llvmType = llvm::Type::getInt8PtrTy(LlvmContainer::getContext());
 
   if (s_singleton == nullptr)
     s_singleton = this;
 }
+
+
+//==============================================================================
+// Member Functions
 
 void StringType::initCastingTargets() const
 {
@@ -40,9 +52,8 @@ void StringType::initCastingTargets() const
   this->explicitCastingTargets.push_back(StringType::get());
 }
 
-//----------------------------------------------------------------------------
 
-llvm::Constant *StringType::getLlvmConstant(Module *module, const std::string &value) const
+llvm::Constant* StringType::getLlvmConstant(CodeGenUnit *codeGenUnit, Module *module, const std::string &value) const
 {
   // TODO: This function should be optimised to ensure the same string is not
   // defined twice in the same module.
@@ -60,7 +71,7 @@ llvm::Constant *StringType::getLlvmConstant(Module *module, const std::string &v
   strChars.push_back(llvm::ConstantInt::get(charType, 0));
 
   auto strConst = llvm::ConstantArray::get(strType, strChars);
-  auto var = new llvm::GlobalVariable(*module->getLlvmModule(), strType, true,
+  auto var = new llvm::GlobalVariable(*codeGenUnit->getLlvmModule(), strType, true,
                                       llvm::GlobalValue::PrivateLinkage, strConst, module->getTempVarName().c_str());
   var->setAlignment(1);
 
@@ -73,7 +84,8 @@ llvm::Constant *StringType::getLlvmConstant(Module *module, const std::string &v
   return llvm::ConstantExpr::getGetElementPtr(var, indices);
 }
 
-StringType *StringType::get()
+
+StringType* StringType::get()
 {
   // PERFORMANCE: What is the impact of running an unnecessary if statement
   // thousands of times?
@@ -83,4 +95,5 @@ StringType *StringType::get()
 
   return s_singleton;
 }
-}
+
+} // namespace

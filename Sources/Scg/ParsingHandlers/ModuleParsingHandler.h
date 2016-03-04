@@ -13,6 +13,8 @@
 #define __ModuleParsingHandler_h__
 
 #include <core.h>
+#include <Containers/Module.h>
+#include <CodeGeneration/CodeGenerator.h>
 
 namespace Scg
 {
@@ -30,6 +32,9 @@ class ModuleParsingHandler : public Core::Processing::GenericParsingHandler
   // Member Variables
 
   Core::Standard::RootManager *rootManager;
+  Core::Basic::SharedPtr<Core::Data::Reference> aliasDictionaryRef =
+    REF_PARSER->parseQualifier(STR("root:_Aliases"),
+        Core::Data::ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH);
 
 
   //============================================================================
@@ -49,11 +54,11 @@ public:
 
 private:
   void addDefinitionToModule(Core::Processing::ParserState *state, const SharedPtr<IdentifiableObject> &def,
-                             Core::Data::Module *module);
+                             Module *module, CodeGenerator *generator);
 
 private:
   void addLinkToModule(Core::Processing::ParserState *state, const SharedPtr<IdentifiableObject> &link,
-                       Core::Data::Module *module);
+                       Module *module, CodeGenerator *generator);
 
 private:
   Char const* getLinkName(IdentifiableObject *link);

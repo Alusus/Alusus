@@ -1,7 +1,7 @@
 /**
 * @file Scg/Types/StructType.h
 *
-* @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+* @copyright Copyright (C) 2016 Rafid Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -9,14 +9,11 @@
 */
 //==============================================================================
 
-#ifndef __StructureType_h__
-#define __StructureType_h__
+#ifndef SCG_STRUCTTYPE_H
+#define SCG_STRUCTTYPE_H
 
-// Scg header files
 #include <Types/ValueType.h>
 #include <Types/ValueTypeSpec.h>
-
-// LLVM forward declarations
 #include <llvm_fwd.h>
 
 namespace Scg
@@ -31,42 +28,56 @@ class StructType : public ValueType
 {
   friend class DefineStruct;
 
-  std::string name;
-  ValueTypeNameArray fields;
-  ValueTypeSpecByName typeSpec;
+  //============================================================================
+  // Type Info
 
-protected:
+  TYPE_INFO(StructType, ValueType, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  private: std::string name;
+  private: ValueTypeNameArray fields;
+  private: SharedPtr<ValueTypeSpec> typeSpec;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Constructs a new structure type.
    * @param[in] name    The name of the structure.
    */
-  StructType(const std::string &name);
+  public: StructType(const std::string &name);
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Sets the fields of the structure.
    * @param[in] fields  An array of (type ID, name) pairs specifying the
    *                    fields of the structure.
    */
-  void setFields(const ValueTypeNameArray &fields);
+  protected: void setFields(const ValueTypeNameArray &fields);
 
-protected:
   //! @copydoc ValueType::initCastingTargets()
-  virtual void initCastingTargets() const override;
+  protected: virtual void initCastingTargets() const override;
 
-public:
   //! @copydoc ValueType::GetName()
-  virtual const std::string getName() const
+  public: virtual std::string const& getName() const
   {
-    return name;
+    return this->name;
   }
 
   /**
    * Retrieves the fields of the structure as an array of type-name pairs.
    * @return The array of type-name pairs defining the fields of the structure.
    */
-  const ValueTypeNameArray &getFields() const
+  public: ValueTypeNameArray const& getFields() const
   {
-    return fields;
+    return this->fields;
   }
 
   /**
@@ -74,7 +85,7 @@ public:
    * @param[in] name  The index of the field.
    * @return Type-name pair.
    */
-  const ValueTypeNamePair getFieldByIndex(int index) const
+  public: ValueTypeNamePair const& getFieldByIndex(int index) const
   {
     return fields[index];
   }
@@ -84,9 +95,9 @@ public:
    * @param[in] name  The name of the field.
    * @return Type-name pair.
    */
-  const ValueTypeNamePair getFieldByName(const std::string &name)
+  public: ValueTypeNamePair const& getFieldByName(const std::string &name)
   {
-    return getFieldByIndex(getFieldIndex(name));
+    return this->getFieldByIndex(getFieldIndex(name));
   }
 
   /**
@@ -94,7 +105,7 @@ public:
    * @param[in] name  The name of the field.
    * @return The index of the field in the structure.
    */
-  int getFieldIndex(const std::string &name)
+  public: int getFieldIndex(std::string const &name)
   {
     for (auto nameType = fields.begin(); nameType != fields.end(); nameType++)
       if ((*nameType).second == name)
@@ -104,22 +115,22 @@ public:
   }
 
   //! @copydoc ValueType::GetDefaultLLVMValue()
-  virtual llvm::Constant *getDefaultLLVMValue() const
+  public: virtual llvm::Constant* getDefaultLLVMValue() const
   {
     throw EXCEPTION(NotImplementedException, "Not implemented yet!");
   }
 
   //! @copydoc ValueType::GetValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override
   {
-    return &typeSpec;
+    return this->typeSpec;
   }
 
   //! @copydoc ValueType::IsEqualTo()
-  virtual bool isEqualTo(const ValueType *other) const;
+  public: virtual bool isEqualTo(const ValueType *other) const;
 
-};
+}; // class
 
-}
+} // namespace
 
-#endif // __StructureType_h__
+#endif

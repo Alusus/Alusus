@@ -65,6 +65,10 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     return;
   }
 
+  // If the definee is a Module set its name now.
+  Module *module = io_cast<Module>(def);
+  if (module != 0) module->setName(name.c_str());
+
   // Check if the definee is an alias.
   // TODO: Replace the following hack with a proper alias structure after the reference
   //       system is utilized in the SCG.

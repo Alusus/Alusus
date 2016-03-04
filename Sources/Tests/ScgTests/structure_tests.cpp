@@ -1,7 +1,7 @@
 /**
  * @file Tests/ScgTests/structure_tests.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,11 +16,8 @@
 
 using namespace Scg;
 
-namespace Tests
+namespace Tests { namespace ScgTests
 {
-namespace ScgTests
-{
-
 
 bool TestDefineAndUseStructure()
 {
@@ -37,7 +34,7 @@ bool TestDefineAndUseStructure()
     CALL("printf", STR_CONST("point.y = %d\n"), FIELD(VAR_PTR("point"), "y")),
     RET_ZERO()
   }, {
-    new DeclareExtFunction("printf", TYPE("int"), {TYPE("string")}, true)
+    DeclareExtFunction::create("printf", TYPE("int"), {TYPE("string")}, true)
   });
 
   return true;
@@ -57,7 +54,7 @@ bool TestDefineAndUseArrayOfStructures()
     CALL("printf", STR_CONST("points[4].y = %d\n"), FIELD_OF_ELEM("points", 4, "y")),
     RET_ZERO()
   }, {
-    new DeclareExtFunction("printf", TYPE("int"), {TYPE("string")}, true)
+    DeclareExtFunction::create("printf", TYPE("int"), {TYPE("string")}, true)
   });
 
   return true;
@@ -72,13 +69,13 @@ bool TestCallFunctionReturningStructure()
     CALL("printf", STR_CONST("point.y = %d\n"), FIELD(VAR_PTR("point"), "y")),
     RET_ZERO()
   }, {
-    new DeclareExtFunction("printf", TYPE("int"), {TYPE("string")}, true),
+    DeclareExtFunction::create("printf", TYPE("int"), {TYPE("string")}, true),
     DEFINE_STRUCT("Point")
     STRUCT_FIELD("int", "x"),
     STRUCT_FIELD("int", "y")
     END_DEFINE_STRUCT(),
-    new DefineFunction("GetPoint", TYPE("Point"),
-    {FUNC_ARG("int", "x"), FUNC_ARG("int", "y")}, new Block({
+    DefineFunction::create("GetPoint", TYPE("Point"),
+    {FUNC_ARG("int", "x"), FUNC_ARG("int", "y")}, Block::create({
       DEF_VAR("Point", "point"),
       ASSIGN(FIELD(VAR_PTR("point"), "x"), VAR("x")),
       ASSIGN(FIELD(VAR_PTR("point"), "y"), VAR("y")),
@@ -102,5 +99,4 @@ bool RunAllStructureTests()
   return ret;
 }
 
-}
-} // namespace
+} } // namespace

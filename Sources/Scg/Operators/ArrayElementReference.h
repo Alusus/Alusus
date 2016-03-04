@@ -1,7 +1,7 @@
 /**
  * @file Scg/Operators/ArrayElementReference.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,36 +9,50 @@
  */
 //==============================================================================
 
-#ifndef __ArrayElementReference_h__
-#define __ArrayElementReference_h__
+#ifndef SCG_ARRAYELEMENTREFERENCE_H
+#define SCG_ARRAYELEMENTREFERENCE_H
 
-// Alusus header files
+#include "core.h"
 #include <typedefs.h>
 #include <llvm_fwd.h>
 #include <Types/ValueTypeSpec.h>
 
 namespace Scg
 {
+
 class Block;
 class Value;
+class CodeGenUnit;
 
 /**
  * Represents a reference to a variable by name.
  */
-class ArrayElementReference : public Expression
+class ArrayElementReference : public AstNode, public virtual Core::Data::Container
 {
-protected:
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(ArrayElementReference, AstNode, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(AstNode, Core::Data::Container);
+
+
+  //============================================================================
+  // Member Variables
+
   /*! A pointer to the expression evaluating to an array containing the element
     this pointer instance is pointing to. */
-  Expression *expression;
+  protected: SharedPtr<AstNode> expression;
   //! The index of the element to point to.
-  Expression *elementIndexExpr;
+  protected: SharedPtr<AstNode> elementIndexExpr;
   //! A pointer to the LLVM pointer object pointing to the array element.
-  llvm::Value *llvmPointer = nullptr;
+  protected: llvm::Value *llvmPointer = nullptr;
   //! Storing the value type to avoid fetching it frequently.
-  mutable ValueType *valueType = nullptr;
+  protected: mutable ValueType *valueType = nullptr;
 
-public:
+
+  //============================================================================
+  // Constructors & Destructor
+
   // TODO: Change elementIndex to Expression to allow run-time integral
   // expressions to be used to access array elements.
   /**
@@ -47,22 +61,60 @@ public:
    *                          one of its elements.
    * @param[in] elementIndex  The index of the element to create a pointer to.
    */
-  ArrayElementReference(Expression *expression, Expression *elementIndexExpr) :
+  public: ArrayElementReference(SharedPtr<AstNode> const &expression, SharedPtr<AstNode> const &elementIndexExpr) :
     expression(expression), elementIndexExpr(elementIndexExpr)
   {
-    children.push_back(expression);
-    children.push_back(elementIndexExpr);
+    OWN_SHAREDPTR(this->expression);
+    OWN_SHAREDPTR(this->elementIndexExpr);
   }
 
-  //! @copydoc Expression::getValueTypeSpec()
-  virtual const ValueTypeSpec *getValueTypeSpec() const override;
+  public: virtual ~ArrayElementReference()
+  {
+    DISOWN_SHAREDPTR(this->expression);
+    DISOWN_SHAREDPTR(this->elementIndexExpr);
+  }
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //============================================================================
+  // Member Functions
 
-#endif // __ArrayElementReference_h__
+  //! @copydoc AstNode::getValueTypeSpec()
+  public: virtual SharedPtr<ValueTypeSpec> const& getValueTypeSpec() const override;
+
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
+
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
+
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 2;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    switch (index) {
+      case 0: return this->expression.get();
+      case 1: return this->elementIndexExpr.get();
+      default: return 0;
+    }
+  }
+
+}; // class
+
+} // namespace
+
+#endif

@@ -49,7 +49,7 @@
 #include <Containers/Block.h>
 #include <Containers/Module.h>
 #include <exceptions.h>
-#include <Expression.h>
+#include <AstNode.h>
 #include <LlvmContainer.h>
 #include <llvm_fwd.h>
 #include <Logger.h>

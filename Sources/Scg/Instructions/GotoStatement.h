@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/GotoStatement.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,28 +9,44 @@
  */
 //==============================================================================
 
-#ifndef __GotoStatement_h__
-#define __GotoStatement_h__
+#ifndef SCG_GOTOSTATEMENT_H
+#define SCG_GOTOSTATEMENT_H
 
-// Scg header files
+#include "core.h"
 #include <exceptions.h>
 #include <typedefs.h>
-#include <Expression.h>
+#include <AstNode.h>
 #include <llvm_fwd.h>
 
 namespace Scg
 {
+
+class Block;
+class CodeGenUnit;
+
 /**
  * Represent a return statement.
  */
-class GotoStatement : public Expression
+class GotoStatement : public AstNode
 {
-  //! A pointer to the LLVM GotoStatement instruction representing this return statement.
-  llvm::BranchInst *branchInst;
-  //! A pointer to the block this statement is jumping to.
-  Block *block;
+  //============================================================================
+  // Type Info
 
-public:
+  TYPE_INFO(GotoStatement, AstNode, "Scg", "Scg", "alusus.net");
+
+
+  //============================================================================
+  // Member Variables
+
+  //! A pointer to the LLVM GotoStatement instruction representing this return statement.
+  private: llvm::BranchInst *branchInst;
+  //! A pointer to the block this statement is jumping to.
+  private: Block *block;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Construct a return statement that returns the value of the given expression.
    *
@@ -38,33 +54,39 @@ public:
    *                        this expression will automatically get deleted, so it
    *                        should be allocated in the heap and not deleted.
    */
-  GotoStatement(Block *block) : branchInst(0), block(block)
+  public: GotoStatement(Block *block) : branchInst(0), block(block)
   {
     if (block == 0)
       throw EXCEPTION(ArgumentOutOfRangeException, "Goto statement needs a "
                       "target block to jump to.");
   }
 
+
+  //============================================================================
+  // Member Functions
+
   /**
    * Get the block this statement is jumping to.
    *
    * @return A pointer to the block.
    */
-  const Block *getTargetBlock() const
+  public: Block const* getTargetBlock() const
   {
-    return block;
+    return this->block;
   }
-  Block *getTargetBlock()
+  public: Block* getTargetBlock()
   {
-    return block;
+    return this->block;
   }
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
-};
-}
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-#endif // __Return_h__
+}; // class
+
+} // namespace
+
+#endif

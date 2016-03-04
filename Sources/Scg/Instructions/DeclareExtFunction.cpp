@@ -1,7 +1,7 @@
 /**
  * @file Scg/Instructions/DeclareExtFunction.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -19,15 +19,19 @@
 // Scg files
 #include <Instructions/DeclareExtFunction.h>
 #include <Instructions/DefineFunction.h>
-#include <Containers/Module.h>
-#include <Functions/ExternalFunction.h>
+#include <CodeGenUnit.h>
 
 namespace Scg
 {
+
 using namespace Core::Basic;
 
+//==============================================================================
+// Constructors & Destructor
+
 DeclareExtFunction::DeclareExtFunction(Char const *name,
-                                       ValueTypeSpec *returnType, const ValueTypeSpecArray &argTypes,
+                                       SharedPtr<ValueTypeSpec> const &returnType,
+                                       ValueTypeSpecArray const &argTypes,
                                        bool varArgs) :
   name(name),
   returnType(returnType),
@@ -36,7 +40,6 @@ DeclareExtFunction::DeclareExtFunction(Char const *name,
 {
 }
 
-//------------------------------------------------------------------------------
 
 DeclareExtFunction::DeclareExtFunction(DeclareExtFunction *decl) :
   name(decl->getName()),
@@ -53,7 +56,6 @@ DeclareExtFunction::DeclareExtFunction(DeclareExtFunction *decl) :
   }
 }
 
-//------------------------------------------------------------------------------
 
 // TODO: We shouldn't be really cloning variable types because that is just
 // more memory allocation. Instead, we should have an allocator for variable
@@ -73,48 +75,32 @@ DeclareExtFunction::DeclareExtFunction(DefineFunction *definition) :
   }
 }
 
-//------------------------------------------------------------------------------
 
-DeclareExtFunction::~DeclareExtFunction()
+//============================================================================
+// Member Functions
+
+AstNode::CodeGenerationStage DeclareExtFunction::preGenerateCode(CodeGenUnit *codeGenUnit)
 {
-  delete this->returnType;
-
-  for (auto type : this->argTypes)
-    delete type;
-}
-
-//------------------------------------------------------------------------------
-
-Expression::CodeGenerationStage DeclareExtFunction::preGenerateCode()
-{
-  MODULE_CHECK;
-  BLOCK_CHECK;
-  FUNCTION_CHECK;
-
-  auto function = new ExternalFunction(
-    this->name, this->returnType, this->argTypes, this->varArgs);
-  ((Expression*)function)->setModule(getModule());
-  ((Expression*)function)->setFunction(getFunction());
-  ((Expression*)function)->setBlock(getBlock());
-  this->children.push_back(function);
+  this->function = std::make_shared<ExternalFunction>(this->name, this->returnType, this->argTypes, this->varArgs);
+  this->function->setOwner(this);
 
   return CodeGenerationStage::CodeGeneration;
 }
 
-//------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage DeclareExtFunction::postGenerateCode()
+AstNode::CodeGenerationStage DeclareExtFunction::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
-  delete this->children[0];
-  this->children.clear();
+  this->function->setOwner(0);
+  this->function.reset();
+
   return CodeGenerationStage::None;
 }
 
-//------------------------------------------------------------------------------
 
 std::string DeclareExtFunction::toString()
 {
   // TODO: Implement this.
   return "";
 }
-}
+
+} // namespace

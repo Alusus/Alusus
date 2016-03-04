@@ -1,7 +1,7 @@
 /**
  * @file Scg/Operators/UnaryOperator.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,79 +9,126 @@
  */
 //==============================================================================
 
-#ifndef __UnaryOperator_h__
-#define __UnaryOperator_h__
+#ifndef SCG_UNARYOPERATOR_H
+#define SCG_UNARYOPERATOR_H
 
-// Scg header files
+#include "core.h"
 #include <typedefs.h>
 #include <exceptions.h>
-#include <Expression.h>
-
-// LLVM forward declarations
+#include <AstNode.h>
 #include <llvm_fwd.h>
 
 namespace Scg
 {
+
+class CodeGenUnit;
+
 /**
  * Represents a binary operator.
  */
-class UnaryOperator : public Expression
+class UnaryOperator : public AstNode, public virtual Core::Data::Container
 {
-public:
-  enum Operator {
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(UnaryOperator, AstNode, "Scg", "Scg", "alusus.net");
+  IMPLEMENT_INTERFACES_1(AstNode, Core::Data::Container);
+
+
+  //============================================================================
+  // Data Types
+
+  public: enum Operator {
     INCREMENT,
     DECREMENT,
     NEGATIVE,
   };
 
-private:
+
+  //============================================================================
+  // Member Variables
+
   //! The operator represented by the instance ('++' or '--')
-  Operator operatorType;
+  private: Operator operatorType;
+  private: SharedPtr<AstNode> operand;
   //! Storing the binary operator so that it can be freed after code generation.
-  llvm::Value *llvmValue = nullptr;
+  private: llvm::Value *llvmValue = nullptr;
   //! Storing the LLVM Load instruction so that it can be freed after code generation.
   //llvm::LoadInst *llvmLoadInst = nullptr;
   //! Storing the LLVM Store instruction so that it can be freed after code generation.
-  llvm::StoreInst *llvmStoreInst = nullptr;
+  private: llvm::StoreInst *llvmStoreInst = nullptr;
 
-public:
+
+  //============================================================================
+  // Constructors & Destructor
+
   /**
    * Construct a binary operation.
    *
    * @param[in] op        The operation.
    * @param[in] operand   The operand to apply the operator on.
    */
-  UnaryOperator(Operator op, Expression *operand) : operatorType(op)
+  public: UnaryOperator(Operator op, SharedPtr<AstNode> const &operand) : operatorType(op), operand(operand)
   {
     if (operatorType < INCREMENT || operatorType > NEGATIVE)
       throw EXCEPTION(ArgumentOutOfRangeException, "Invalid unary operator.");
 
-    children.push_back(operand);
+    OWN_SHAREDPTR(this->operand);
   }
+
+  public: virtual ~UnaryOperator()
+  {
+    DISOWN_SHAREDPTR(this->operand);
+  }
+
+
+  //============================================================================
+  // Member Functions
 
   /**
    * Get the expression representing the left-hand side of the binary operator.
    *
    * @return A pointer to the left-hand side expression.
    */
-  const Expression *getOperand() const
+  public: SharedPtr<AstNode> const& getOperand() const
   {
-    return children[0];
-  }
-  Expression *getOperand()
-  {
-    return children[0];
+    return this->operand;
   }
 
-  //! @copydoc Expression::generateCode()
-  virtual CodeGenerationStage generateCode();
+  //! @copydoc AstNode::generateCode()
+  public: virtual CodeGenerationStage generateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::postGenerateCode()
-  virtual CodeGenerationStage postGenerateCode();
+  //! @copydoc AstNode::postGenerateCode()
+  public: virtual CodeGenerationStage postGenerateCode(CodeGenUnit *codeGenUnit);
 
-  //! @copydoc Expression::toString()
-  virtual std::string toString();
-};
-}
+  //! @copydoc AstNode::toString()
+  public: virtual std::string toString();
 
-#endif // __UnaryOperator_h__
+
+  //============================================================================
+  // Container Implementation
+
+  public: virtual void set(Int index, IdentifiableObject *val)
+  {
+  }
+
+  public: virtual void remove(Int index)
+  {
+  }
+
+  public: virtual Word getCount() const
+  {
+    return 1;
+  }
+
+  public: virtual IdentifiableObject* get(Int index) const
+  {
+    if (index == 0) return this->operand.get();
+    else return 0;
+  }
+
+}; // class
+
+} // namespace
+
+#endif

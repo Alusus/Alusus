@@ -1,7 +1,7 @@
 /**
  * @file Scg/Values/CharConst.cpp
  *
- * @copyright Copyright (C) 2015 Hicham OUALI ALAMI
+ * @copyright Copyright (C) 2016 Hicham OUALI ALAMI
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,10 +10,10 @@
 //==============================================================================
 
 #include <prerequisites.h>
-
 #include <llvm/IR/Constants.h>
 
 // Scg files
+#include <CodeGenUnit.h>
 #include <Values/CharConst.h>
 #include <Types/CharType.h>
 
@@ -21,25 +21,24 @@
 
 namespace Scg
 {
-const ValueTypeSpec *CharConst::getValueTypeSpec() const
+
+SharedPtr<ValueTypeSpec> const& CharConst::getValueTypeSpec() const
 {
   return CharType::get()->getValueTypeSpec();
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage CharConst::generateCode()
+AstNode::CodeGenerationStage CharConst::generateCode(CodeGenUnit *codeGenUnit)
 {
   // TODO: generatedLlvmValue is a duplicate of llvmValue. Should we just use
   // generatedLlvmValue?
   this->generatedLlvmValue = this->llvmValue =
-                               CharType::get()->getLlvmConstant(this->value);
-  return Expression::generateCode();
+    CharType::get()->getLlvmConstant(this->value);
+  return AstNode::generateCode(codeGenUnit);
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage CharConst::postGenerateCode()
+AstNode::CodeGenerationStage CharConst::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   if (this->llvmValue == nullptr)
     // Nothing to delete
@@ -54,10 +53,10 @@ Expression::CodeGenerationStage CharConst::postGenerateCode()
   return CodeGenerationStage::None;
 }
 
-//----------------------------------------------------------------------------
 
 std::string CharConst::toString()
 {
   return boost::lexical_cast<std::string>(this->value);
 }
-}
+
+} // namespace

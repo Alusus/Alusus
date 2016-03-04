@@ -1,7 +1,7 @@
 /**
  * @file Tests/ScgTests/hello_world_test.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,23 +16,20 @@
 
 using namespace Scg;
 
-namespace Tests
-{
-namespace ScgTests
+namespace Tests { namespace ScgTests
 {
 
 bool RunHelloWorldTest()
 {
   std::cout << RunSimpleTest({
-    new CallFunction("printf", new List({new StringConst("Hello World!\n")})),
-    new Return(new IntegerConst(0))
+    std::make_shared<CallFunction>("printf", List::create({std::make_shared<StringConst>("Hello World!\n")})),
+    std::make_shared<Return>(std::make_shared<IntegerConst>(0))
   }, {
-    new DeclareExtFunction("printf", CreateTypeSpecByName("int"),
-    {CreateTypeSpecByName("string")}, true)
+    DeclareExtFunction::create("printf", CreateTypeSpecByName("int"),
+      {CreateTypeSpecByName("string")}, true)
   });
 
   return true;
 }
 
-}
-} // namespace
+} } // namespace

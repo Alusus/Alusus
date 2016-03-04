@@ -1,7 +1,7 @@
 /**
  * @file Scg/Operators/Content.cpp
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,17 +13,19 @@
 // LLVM header files
 #include <llvm/IR/IRBuilder.h>
 // Scg files
+#include <CodeGenUnit.h>
 #include <Containers/Block.h>
 #include <Operators/Content.h>
 #include <Types/PointerType.h>
 
 namespace Scg
 {
-const ValueTypeSpec *Content::getValueTypeSpec() const
+
+SharedPtr<ValueTypeSpec> const& Content::getValueTypeSpec() const
 {
   // TODO: Don't use dynamic_cast.
   auto pointerType = dynamic_cast<PointerType*>(
-                       this->expression->getValueTypeSpec()->toValueType(*getModule()));
+    this->expression->getValueTypeSpec()->toValueType(*this->findOwner<Module>()));
 
   if (pointerType == nullptr)
     throw EXCEPTION(InvalidOperationException, "Trying to find the content "
@@ -33,9 +35,8 @@ const ValueTypeSpec *Content::getValueTypeSpec() const
   return pointerType->getContentType()->getValueTypeSpec();
 }
 
-//------------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Content::generateCode()
+AstNode::CodeGenerationStage Content::generateCode(CodeGenUnit *codeGenUnit)
 {
   BLOCK_CHECK;
 
@@ -45,15 +46,14 @@ Expression::CodeGenerationStage Content::generateCode()
   // generatedLlvmValue?
   if (this->pointer != 0) {
     this->generatedLlvmValue = this->loadInst =
-                                 getBlock()->getIRBuilder()->CreateLoad(this->pointer);
+      this->findOwner<Block>()->getIRBuilder()->CreateLoad(this->pointer);
   }
 
-  return Expression::generateCode();
+  return AstNode::generateCode(codeGenUnit);
 }
 
-//----------------------------------------------------------------------------
 
-Expression::CodeGenerationStage Content::postGenerateCode()
+AstNode::CodeGenerationStage Content::postGenerateCode(CodeGenUnit *codeGenUnit)
 {
   if (this->loadInst == nullptr)
     return CodeGenerationStage::None;
@@ -64,14 +64,14 @@ Expression::CodeGenerationStage Content::postGenerateCode()
 
   this->loadInst->eraseFromParent();
   this->loadInst = nullptr;
-  return Expression::postGenerateCode();
+  return AstNode::postGenerateCode(codeGenUnit);
 }
 
-//----------------------------------------------------------------------------
 
 std::string Content::toString()
 {
   // TODO: Implement this function.
   return "";
 }
-}
+
+} // namespace

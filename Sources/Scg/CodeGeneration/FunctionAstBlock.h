@@ -1,7 +1,7 @@
 /**
  * @file Scg/CodeGeneration/FunctionAstBlock.h
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2016 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef __FunctionAstBlock_h__
-#define __FunctionAstBlock_h__
+#ifndef SCG_FUNCTIONASTBLOCK_H
+#define SCG_FUNCTIONASTBLOCK_H
 
 // STL header files
 #include <vector>
@@ -25,6 +25,7 @@
 
 namespace Scg
 {
+
 class CodeGenerator;
 class DefineFunction;
 class ListExpression;
@@ -80,9 +81,8 @@ class FunctionAstBlock
 {
 private:
   VariableDefinitionArray arguments;
-  ValueTypeSpec *returnType = nullptr;
-  Block *body;
-  bool autoDelete;
+  SharedPtr<ValueTypeSpec> returnType = nullptr;
+  SharedPtr<Block> body;
   Core::Data::SourceLocation sourceLocation;
 
 public:
@@ -93,19 +93,16 @@ public:
    * @param[in] astRoot A pointer to the AST block root.
    */
   FunctionAstBlock(CodeGenerator *gen,
-                   const std::shared_ptr<Core::Data::PrtList> &astRoot);
-
-  //! Class destructor.
-  ~FunctionAstBlock();
+                   SharedPtr<Core::Data::PrtList> const &astRoot);
 
   /**
    * Creates a DefineFunction instruction from this AST block.
    * @param[in] name  A string containing the name of the function
-   * @return A pointer to the DefineFunction instruction. The caller has to
-   * delete the memory allocated for this object.
+   * @return A pointer to the DefineFunction instruction.
    */
-  DefineFunction *toDefineFunction(Char const *name);
+  SharedPtr<DefineFunction> toDefineFunction(Char const *name);
 };
-}
 
-#endif // __FunctionAstBlock_h__
+} // namespace
+
+#endif
