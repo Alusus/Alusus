@@ -20,15 +20,6 @@ using namespace Data;
 //==============================================================================
 // Overloaded Abstract Functions
 
-/**
- * Assign the produciton id to the production data. If the data is null or
- * belongs to another production and this production is not omissible, then this
- * function will create a new data item (of a type matching the root term type)
- * and assign the production to it after assigning the existing data as a child
- * of the newly created data.
- *
- * @sa ParsingHandler::onProdEnd()
- */
 void GenericParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
   ParsingMetadataHolder *item = state->getData().ii_cast_get<ParsingMetadataHolder>();
@@ -38,46 +29,15 @@ void GenericParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
     this->prepareToModifyData(state, -1);
     item = state->getData().ii_cast_get<ParsingMetadataHolder>();
     item->setProdId(prod->getId());
-  } else if (prod->getFlags() & ParsingFlags::OMISSIBLE) {
-    // We don't need to set the production id since it's omissible.
-    return;
-  } else {
+  } else if (this->isProdObjEnforced(state)) {
     // We need to create a container data object for this production root.
-    SharedPtr<IdentifiableObject> data;
-    Term *term = state->refTopTermLevel().getTerm();
-    if (term->isA<AlternateTerm>()) {
-      data = std::make_shared<PrtRoute>();
-      data.s_cast_get<PrtRoute>()->setData(state->getData());
-    } else if (term->isA<MultiplyTerm>()) {
-      Integer *min = state->getMultiplyTermMin();
-      Integer *max = state->getMultiplyTermMax();
-      if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
-        // Optional term.
-        data = std::make_shared<PrtRoute>();
-        data.s_cast_get<PrtRoute>()->setData(state->getData());
-      } else {
-        // Duplicate term.
-        data = std::make_shared<PrtList>();
-        if (!(state->getData() == 0 &&
-              (state->refTopTermLevel().getTerm()->getFlags() & ParsingFlags::OMISSIBLE))) {
-          data.s_cast_get<PrtList>()->add(state->getData());
-        }
-      }
-    } else if (term->isA<ConcatTerm>()) {
-      data = std::make_shared<PrtList>();
-      if (!(state->getData() == 0 &&
-            (state->refTopTermLevel().getTerm()->getFlags() & ParsingFlags::OMISSIBLE))) {
-        data.s_cast_get<PrtList>()->add(state->getData());
-      }
-    } else if (term->isA<TokenTerm>()) {
-      // This should never be reachable.
-      ASSERT(false);
-    } else if (term->isA<ReferenceTerm>()) {
-      // Reference production are just aliases and will always be considered omissible.
-      return;
-    }
+    SharedPtr<IdentifiableObject> data = this->createEnforcedProdNode(state);
     // Set the production id for this data item.
     ParsingMetadataHolder *dataMeta = data.ii_cast_get<ParsingMetadataHolder>();
+    if (dataMeta == 0) {
+      throw EXCEPTION(GenericException,
+                      STR("Production root objects must implement ParsingMetadataHolder interface."));
+    }
     dataMeta->setProdId(prod->getId());
     // Set the line and column, if any.
     if (item != 0) {
@@ -89,29 +49,46 @@ void GenericParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
 }
 
 
-/**
- * Passes the data of the top level to the level above it by calling
- * setChildData(). If the top level has the PASS_UP flag then we will skip
- * because the data would already be passed up by now.
- *
- * @sa setChildData()
- * @sa ParsingHandler::onTermEnd()
- */
 void GenericParsingHandler::onTermEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  if (!(state->refTopTermLevel().getTerm()->getFlags() & ParsingFlags::PASS_UP)) {
-    this->setChildData(state->getData(), state, -2);
+  // Skip if this term passes its data up.
+  if (this->isRouteTerm(state, -1)) {
+    if (!this->isRouteObjEnforced(state, -1)) return;
+  } else if (this->isListTerm(state, -1)) {
+    if (this->isPassUpList(state, -1)) return;
+  }
+
+  SharedPtr<IdentifiableObject> data = state->getData();
+  Int levelIndex = -2;
+  while (true) {
+    if (this->isRouteTerm(state, levelIndex)) {
+      if (this->isRouteObjEnforced(state, levelIndex) ||  state->isAProdRoot(levelIndex)) {
+        this->addData(data, state, levelIndex);
+        return;
+      } else {
+        --levelIndex;
+        continue;
+      }
+    } else if (this->isListTerm(state, levelIndex)) {
+      if (data == 0 && !this->isListItemEnforced(state, levelIndex)) return;
+      if (this->isPassUpList(state, levelIndex)) {
+        // This data should be passed up.
+        // But we shouldn't be at the root level already.
+        if (state->isAProdRoot(levelIndex)) {
+          throw EXCEPTION(GenericException, STR("Pass-up list terms are not allowed at produciton roots."));
+        }
+        ASSERT(state->getData(levelIndex) == 0);
+        --levelIndex;
+        continue;
+      } else {
+        this->addData(data, state, levelIndex);
+      }
+    }
+    return;
   }
 }
 
 
-/**
- * Set the data of a reference term with the data received from the referenced
- * production. If the term type at the top state level is not reference this
- * function will do nothing.
- *
- * @sa ParsingHandler::onLevelExit()
- */
 void GenericParsingHandler::onLevelExit(Processing::Parser *parser, Processing::ParserState *state,
                                         SharedPtr<IdentifiableObject> const &data)
 {
@@ -122,13 +99,6 @@ void GenericParsingHandler::onLevelExit(Processing::Parser *parser, Processing::
 }
 
 
-/**
- * Create a PrtToken object and associate it with the current state level.
- * If the token term is omissible and the token is a constant token, no data
- * will be created.
- *
- * @sa ParsingHandler::onNewToken()
- */
 void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::ParserState *state,
                                        const Token *token)
 {
@@ -138,116 +108,77 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
 
   IdentifiableObject *matchText = state->getTokenTermText();
   // Skip if the term should be omitted.
-  if (term->getFlags() & ParsingFlags::FORCE_OMIT) return;
-  else if ((term->getFlags() & ParsingFlags::OMISSIBLE) && matchText != 0 && matchText->isA<Data::String>()) return;
+  if (term->getFlags() & ParsingFlags::ENFORCE_TOKEN_OMIT) return;
+  else if (!(term->getFlags() & ParsingFlags::ENFORCE_TOKEN_OBJ) && matchText != 0 && matchText->isA<Data::String>()) {
+    return;
+  }
 
-  // We shouldn't have any data on this level if we are not a production.
+  // We shouldn't have any data on this level at this point.
   ASSERT(state->getData() == 0);
   // Create a new item.
-  SharedPtr<PrtToken> tokenItem = std::make_shared<PrtToken>();
-  state->setData(tokenItem);
 
-  // Now we can modify the data of the token.
-  tokenItem->setId(token->getId());
-  tokenItem->setSourceLocation(token->getSourceLocation());
+  Char const *tokenText = STR("");
   // If the token term defines a map as its match criteria then we'll use the value of the matched
   // entry as the value of our PrtToken text, otherwise we'll just use the actual token text
   // captured by the lexer.
   if (matchText != 0 && matchText->isA<Data::SharedMap>()) {
     IdentifiableObject *mappedText = static_cast<Data::SharedMap*>(matchText)->get(token->getText().c_str());
     if (mappedText != 0 && mappedText->isA<Data::String>()) {
-      tokenItem->setText(static_cast<Data::String*>(mappedText)->get());
+      tokenText = static_cast<Data::String*>(mappedText)->get();
     } else {
-      tokenItem->setText(token->getText().c_str());
+      tokenText = token->getText().c_str();
     }
   } else {
-    tokenItem->setText(token->getText().c_str());
+    tokenText = token->getText().c_str();
   }
   // TODO: Implement control character parsing for character literals.
+
+  // Create the token item.
+  SharedPtr<IdentifiableObject> tokenItem = this->createTokenNode(state, -1, token->getId(), tokenText);
+  auto metadata = tokenItem.ii_cast_get<ParsingMetadataHolder>();
+  if (metadata) {
+    metadata->setSourceLocation(token->getSourceLocation());
+  }
+  state->setData(tokenItem);
 }
 
 
-/**
- * Create a PrtList object if this level's term has a FORCE_LIST parsing
- * flag set and no list is already created. If this term has the PASS_UP flag
- * nothing will be done.
- *
- * @sa ParsingHandler::onConcatStep()
- */
 void GenericParsingHandler::onConcatStep(Processing::Parser *parser, Processing::ParserState *state,
                                          Int newPos)
 {
-  // Get the term object.
-  ConcatTerm *term = static_cast<ConcatTerm*>(state->refTopTermLevel().getTerm());
-  ASSERT(term->isA<ConcatTerm>());
-
   // If this term pass data up we can skip.
-  if (term->getFlags() & ParsingFlags::PASS_UP) {
+  if (this->isPassUpList(state, -1)) {
     // We shouldn't be at the root level.
     if (state->isAtProdRoot()) {
-      throw EXCEPTION(GenericException, STR("PASS_UP parsing flag is not allowed for produciton root list terms."));
+      throw EXCEPTION(GenericException, STR("Passing items up is not allowed for produciton root list terms."));
     }
-    if (term->getFlags() & ParsingFlags::FORCE_LIST) {
-      throw EXCEPTION(GenericException, STR("FORCE_LIST parsing flag cannot be used with PASS_UP"));
+    if (this->isListObjEnforced(state, -1)) {
+      throw EXCEPTION(GenericException, STR("Enforcing list object cannot be used with pass-up terms."));
     }
     return;
   }
 
   // Should we create a list?
-  if ((term->getFlags() & ParsingFlags::FORCE_LIST) && (state->getData() == 0)) {
-    state->setData(std::make_shared<PrtList>());
+  if (this->isListObjEnforced(state, -1) && (state->getData() == 0)) {
+    state->setData(this->createListNode(state, -1));
   }
 }
 
 
-/**
- * Create a PrtRoute object and associate it with the current state level
- * if this level's term is not PASS_UP flagged.
- *
- * @sa ParsingHandler::onAlternateRouteDecision()
- */
 void GenericParsingHandler::onAlternateRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
                                                      Int route)
 {
-  // Get the term object.
-  Term *term = state->refTopTermLevel().getTerm();
-  ASSERT(term->isA<AlternateTerm>() ||
-         (term->isA<MultiplyTerm>() &&
-          (state->getMultiplyTermMin()==0 || state->getMultiplyTermMin()->get() == 0) &&
-          (state->getMultiplyTermMax()!=0 && state->getMultiplyTermMax()->get() == 1)));
-
-  if (term->getFlags() & ParsingFlags::PASS_UP) return;
+  ASSERT(this->isRouteTerm(state, -1));
+  if (!this->isRouteObjEnforced(state, -1)) return;
 
   ASSERT(state->getData() == 0);
-
-  // Create a new item.
-  SharedPtr<PrtRoute> routeItem = std::make_shared<PrtRoute>();
-  state->setData(routeItem);
-
-  // Now we can modify the data of the token.
-  routeItem->setRoute(route);
+  state->setData(this->createRouteNode(state, -1, route));
 }
 
 
-/**
- * For optional multiply terms (min==0 && max==1):<br>
- * This function simply calls onAlternateRouteDecision since the
- * implementation for optional terms is similar to that of alternative terms.
- * <br>
- * For other multiply terms:<br>
- * Create a PrtList object if this level's term has a FORCE_LIST parsing
- * flag set and no list is already created. If this term has the PASS_UP flag
- * nothing will be done.
- *
- * @sa ParsingHandler::onMultiplyRouteDecision()
- */
 void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
                                                     Int route)
 {
-  // Get the term object.
-  MultiplyTerm *term = static_cast<MultiplyTerm*>(state->refTopTermLevel().getTerm());
-  ASSERT(term->isA<MultiplyTerm>());
-
   Integer *min = state->getMultiplyTermMin();
   Integer *max = state->getMultiplyTermMax();
   if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
@@ -255,192 +186,223 @@ void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *parser, 
     this->onAlternateRouteDecision(parser, state, route);
   } else {
     // If this term pass data up we can skip.
-    if (term->getFlags() & ParsingFlags::PASS_UP) {
+    if (this->isPassUpList(state, -1)) {
       // We shouldn't be at the root level.
       if (state->isAtProdRoot()) {
-        throw EXCEPTION(GenericException, STR("PASS_UP parsing flag is not allowed for produciton root list terms."));
+        throw EXCEPTION(GenericException, STR("Passing terms up is not allowed for produciton root list terms."));
       }
-      if (term->getFlags() & ParsingFlags::FORCE_LIST) {
-        throw EXCEPTION(GenericException, STR("FORCE_LIST parsing flag cannot be used with PASS_UP"));
+      if (this->isListObjEnforced(state, -1)) {
+        throw EXCEPTION(GenericException, STR("Enforcing list object cannot be used with pass-up terms."));
       }
       return;
     }
 
     // Should we create a list?
-    if ((term->getFlags() & ParsingFlags::FORCE_LIST) && (state->getData() == 0)) {
-      state->setData(std::make_shared<PrtList>());
+    if (this->isListObjEnforced(state, -1)) {
+      state->setData(this->createListNode(state, -1));
     }
   }
 }
 
 
-/**
- * Wipe out any generated data from the canceled term level.
- * @sa ParsingHandler::onTermCancelling()
- */
 void GenericParsingHandler::onTermCancelling(Processing::Parser *parser, Processing::ParserState *state)
 {
   state->setData(SharedPtr<IdentifiableObject>(0));
 }
 
 
-/**
- * Wipe out any generated data from the canceled production level.
- * This function will simply call onTermCancelling.
- * @sa ParsingHandler::onProdCancelling()
- */
 void GenericParsingHandler::onProdCancelling(Processing::Parser *parser, Processing::ParserState *state)
 {
   this->onTermCancelling(parser, state);
 }
 
 
-/**
- * Set the given data object to the specified state level. If the term at that
- * state level need to pass the data to the upper level (has the PASS_UP flag
- * or a route term with the OMISSIBLE flag) the function will call itself with
- * the index of the upper level, and will keep doing so recursively until it
- * hits the production's root or a term that can accept the new data.
- */
-void GenericParsingHandler::setChildData(SharedPtr<IdentifiableObject> const &data, Processing::ParserState *state,
-                                         Int levelIndex)
-{
-  // Get the state level.
-  Processing::ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
+//==============================================================================
+// Member Functions
 
-  if (termLevel.getTerm()->isA<AlternateTerm>() ||
-      (termLevel.getTerm()->isA<MultiplyTerm>() &&
-       (state->getMultiplyTermMin(levelIndex) == 0 || state->getMultiplyTermMin(levelIndex)->get() == 0) &&
-       (state->getMultiplyTermMax(levelIndex) != 0 && state->getMultiplyTermMax(levelIndex)->get() == 1))) {
-    if ((termLevel.getTerm()->getFlags() & ParsingFlags::FORCE_LIST)) {
-      throw EXCEPTION(GenericException,
-                      STR("FORCE_LIST parsing flag is not allowed for optional or alternative terms."));
-    }
-    if (termLevel.getTerm()->getFlags() & ParsingFlags::PASS_UP) {
-      // This is a pass up route based term, so set the data to the upper level directly.
-      // But only if the data is not omissible in the first place.
-      if ((data == 0) && (termLevel.getTerm()->getFlags() & ParsingFlags::OMISSIBLE)) return;
-      if (state->getData(levelIndex) != 0) {
-        throw EXCEPTION(GenericException,
-                        STR("Trying to set data to an alternative or optional term that already has"
-                            " data. Is a concat or duplicate term trying to PASS_UP multiple data "
-                            "to an upper alternative or optional term?"));
-      }
-      ASSERT(state->getData(levelIndex) == 0);
-      if (state->isAProdRoot(levelIndex)) {
-        // This is the root of the production, so we can't go up anymore.
-        state->setData(data, levelIndex);
-      } else {
-        // Try the upper level.
-        this->setChildData(data, state, levelIndex - 1);
-      }
-    } else {
-      //This is not an omissible term, we'll set this as the data of this term.
-      ASSERT(state->getData(levelIndex) != 0);
-      ASSERT(state->getData(levelIndex).io_cast_get<PrtRoute>() != 0);
+void GenericParsingHandler::addData(SharedPtr<IdentifiableObject> const &data, Processing::ParserState *state,
+                                    Int levelIndex)
+{
+  if (this->isRouteTerm(state, levelIndex)) {
+    IdentifiableObject *currentData = state->getData(levelIndex).get();
+    Container *container= ii_cast<Container>(currentData);
+    if (currentData == 0) {
+      state->setData(data, levelIndex);
+    } else if (container != 0 && container->get(0) == 0) {
       this->prepareToModifyData(state, levelIndex);
-      PrtRoute *route = state->getData(levelIndex).io_cast_get<PrtRoute>();
-      if (route->getData() != 0) {
-        throw EXCEPTION(GenericException,
-                        STR("Trying to set data to an alternative or optional term that already has"
-                            " data. Is a concat or duplicate term trying to PASS_UP multiple data "
-                            "to an upper alternative or optional term?"));
-      }
-      route->setData(data);
-    }
-  } else if (termLevel.getTerm()->isA<MultiplyTerm>() ||
-             termLevel.getTerm()->isA<ConcatTerm>()) {
-    if ((termLevel.getTerm()->getFlags() & ParsingFlags::OMISSIBLE) &&
-        (data == 0)) {
-      // This is an omissible list based term and the data is null, so we can skip.
-      return;
-    }
-    if (termLevel.getTerm()->getFlags() & ParsingFlags::PASS_UP) {
-      // This data should be passed up.
-      // But we shouldn't be at the root level already.
-      if (state->isAProdRoot(levelIndex)) {
-        throw EXCEPTION(GenericException, STR("PASS_UP parsing flag is not allowed for produciton root list terms."));
-      }
-      if (termLevel.getTerm()->getFlags() & ParsingFlags::FORCE_LIST) {
-        throw EXCEPTION(GenericException, STR("FORCE_LIST parsing flag cannot be used with PASS_UP"));
-      }
-      ASSERT(state->getData(levelIndex) == 0);
-      this->setChildData(data, state, levelIndex - 1);
+      container = state->getData(levelIndex).ii_cast_get<Container>();
+      container->set(0, data.get());
     } else {
-      // Add the given data to this list term.
-      IdentifiableObject *currentData = state->getData(levelIndex).get();
-      if (currentData == 0) {
-        // Set the given data as the level's data.
-        // If this term has FORCE_LIST flag the data should never be null in the first place.
-        ASSERT((termLevel.getTerm()->getFlags() & ParsingFlags::FORCE_LIST) == 0);
-        state->setData(data, levelIndex);
-      } else if (io_cast<PrtList>(currentData) != 0 &&
-                 static_cast<PrtList*>(currentData)->getProdId() == UNKNOWN_ID) {
+      throw EXCEPTION(GenericException,
+                      STR("Trying to set data to an alternative or optional term that already has"
+                          " data. Is a concat or duplicate term trying to pass-up multiple data "
+                          "to an upper alternative or optional term?"));
+    }
+  } else if (this->isListTerm(state, levelIndex)) {
+    // Add the given data to this list term.
+    IdentifiableObject *currentData = state->getData(levelIndex).get();
+    if (currentData == 0) {
+      // Set the given data as the level's data.
+      // If this term has FORCE_LIST flag the data should never be null in the first place.
+      ASSERT(!this->isListObjEnforced(state, levelIndex));
+      state->setData(data, levelIndex);
+    } else {
+      ListContainer *container = ii_cast<ListContainer>(currentData);
+      ParsingMetadataHolder *metadata = ii_cast<ParsingMetadataHolder>(currentData);
+      if (container != 0 && (metadata == 0 || metadata->getProdId() == UNKNOWN_ID)) {
         // This level already has a list that belongs to this production, so we can just add the new data
         // to this list.
         this->prepareToModifyData(state, levelIndex);
-        currentData = state->getData(levelIndex).get();
-        // The element is not created yet.
-        static_cast<PrtList*>(currentData)->add(data);
+        container = state->getData(levelIndex).ii_cast_get<ListContainer>();
+        container->add(data.get());
       } else {
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
-        ASSERT((termLevel.getTerm()->getFlags() & ParsingFlags::FORCE_LIST) == 0);
-        SharedPtr<PrtList> list = std::make_shared<PrtList>();
-        ParsingMetadataHolder *currentDataMeta = currentData->getInterface<ParsingMetadataHolder>();
-        list->setSourceLocation(currentDataMeta->getSourceLocation());
-        list->add(state->getData(levelIndex));
-        list->add(data);
+        ASSERT(!this->isListObjEnforced(state, levelIndex));
+        SharedPtr<IdentifiableObject> list = this->createListNode(state, levelIndex);
+        ListContainer *newContainer = list.ii_cast_get<ListContainer>();
+        ParsingMetadataHolder *newMetadata = list.ii_cast_get<ParsingMetadataHolder>();
+        if (newMetadata != 0 && metadata != 0) {
+          newMetadata->setSourceLocation(metadata->getSourceLocation());
+        }
+        newContainer->add(currentData);
+        newContainer->add(data.get());
         state->setData(list, levelIndex);
       }
     }
-  } else if (termLevel.getTerm()->isA<ReferenceTerm>() ||
-             termLevel.getTerm()->isA<TokenTerm>()) {
+  } else {
     // This should never be reachable.
     ASSERT(false);
   }
 }
 
 
-/**
- * If the top level is shared (the shared pointer is not unique) this function
- * will duplicate that term.
- */
+Bool GenericParsingHandler::isListObjEnforced(ParserState *state, Int levelIndex)
+{
+  Processing::ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
+  return termLevel.getTerm()->getFlags() & ParsingFlags::ENFORCE_LIST_OBJ;
+}
+
+
+Bool GenericParsingHandler::isListItemEnforced(ParserState *state, Int levelIndex)
+{
+  Processing::ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
+  return termLevel.getTerm()->getFlags() & ParsingFlags::ENFORCE_LIST_ITEM;
+}
+
+
+Bool GenericParsingHandler::isRouteObjEnforced(ParserState *state, Int levelIndex)
+{
+  Processing::ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
+  return termLevel.getTerm()->getFlags() & ParsingFlags::ENFORCE_ROUTE_OBJ;
+}
+
+
+Bool GenericParsingHandler::isPassUpList(ParserState *state, Int levelIndex)
+{
+  Processing::ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
+  return termLevel.getTerm()->getFlags() & ParsingFlags::PASS_ITEMS_UP;
+}
+
+
+Bool GenericParsingHandler::isProdObjEnforced(ParserState *state)
+{
+  SymbolDefinition *prod = state->refTopProdLevel().getProd();
+  return prod->getFlags() & ParsingFlags::ENFORCE_PROD_OBJ;
+}
+
+
+SharedPtr<IdentifiableObject> GenericParsingHandler::createListNode(ParserState *state, Int levelIndex)
+{
+  return std::make_shared<PrtList>();
+}
+
+
+SharedPtr<IdentifiableObject> GenericParsingHandler::createRouteNode(ParserState *state, Int levelIndex, Int route)
+{
+  auto routeItem = std::make_shared<PrtRoute>();
+  routeItem->setRoute(route);
+  return routeItem;
+}
+
+
+SharedPtr<IdentifiableObject> GenericParsingHandler::createTokenNode(ParserState *state, Int levelIndex,
+                                                                     Word tokenId, Char const *tokenText)
+{
+  auto token = std::make_shared<PrtToken>();
+  token->setId(tokenId);
+  token->setText(tokenText);
+  return token;
+}
+
+
+SharedPtr<IdentifiableObject> GenericParsingHandler::createEnforcedProdNode(ParserState *state)
+{
+  // We need to create a container data object for this production root.
+  SharedPtr<IdentifiableObject> data;
+  Term *term = state->refTopTermLevel().getTerm();
+  if (term->isA<AlternateTerm>()) {
+    data = std::make_shared<PrtRoute>();
+    data.s_cast_get<PrtRoute>()->setData(state->getData());
+  } else if (term->isA<MultiplyTerm>()) {
+    Integer *min = state->getMultiplyTermMin();
+    Integer *max = state->getMultiplyTermMax();
+    if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
+      // Optional term.
+      data = std::make_shared<PrtRoute>();
+      data.s_cast_get<PrtRoute>()->setData(state->getData());
+    } else {
+      // Duplicate term.
+      data = std::make_shared<PrtList>();
+      if (state->getData() != 0 || this->isListItemEnforced(state, -1)) {
+        data.s_cast_get<PrtList>()->add(state->getData());
+      }
+    }
+  } else if (term->isA<ConcatTerm>()) {
+    data = std::make_shared<PrtList>();
+    if (state->getData() != 0 || this->isListItemEnforced(state, -1)) {
+      data.s_cast_get<PrtList>()->add(state->getData());
+    }
+  } else if (term->isA<ReferenceTerm>()) {
+    throw EXCEPTION(GenericException,
+                    STR("Enforcing a production object on an alias production (a production that is merely a "
+                        "reference to another production) is not allowed."));
+  } else {
+    // This should never be reachable.
+    ASSERT(false);
+  }
+  return data;
+}
+
+
+Bool GenericParsingHandler::isRouteTerm(ParserState *state, Int levelIndex)
+{
+  ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
+  return termLevel.getTerm()->isA<AlternateTerm>() ||
+         (termLevel.getTerm()->isA<MultiplyTerm>() &&
+          (state->getMultiplyTermMin(levelIndex) == 0 || state->getMultiplyTermMin(levelIndex)->get() == 0) &&
+          (state->getMultiplyTermMax(levelIndex) != 0 && state->getMultiplyTermMax(levelIndex)->get() == 1));
+}
+
+
+Bool GenericParsingHandler::isListTerm(ParserState *state, Int levelIndex)
+{
+  ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
+  return termLevel.getTerm()->isA<MultiplyTerm>() || termLevel.getTerm()->isA<ConcatTerm>();
+}
+
+
 void GenericParsingHandler::prepareToModifyData(Processing::ParserState *state, Int levelIndex)
 {
   if (state->isDataShared(levelIndex)) {
     // Duplicate the data.
-    SharedPtr<IdentifiableObject> data = state->getData(levelIndex);
-    if (data->isDerivedFrom<PrtToken>()) {
-      // Duplicate token data.
-      PrtToken *sourceToken = data.s_cast_get<PrtToken>();
-      SharedPtr<PrtToken> newToken = std::make_shared<PrtToken>();
-      newToken->setProdId(sourceToken->getProdId());
-      newToken->setId(sourceToken->getId());
-      newToken->setText(sourceToken->getText().c_str());
-      newToken->setSourceLocation(sourceToken->getSourceLocation());
-      state->setData(newToken, levelIndex);
-    } else if (data->isDerivedFrom<PrtRoute>()) {
-      // Duplicate route data.
-      PrtRoute *sourceRoute = data.s_cast_get<PrtRoute>();
-      SharedPtr<PrtRoute> newRoute = std::make_shared<PrtRoute>();
-      newRoute->setProdId(sourceRoute->getProdId());
-      newRoute->setRoute(sourceRoute->getRoute());
-      newRoute->setData(sourceRoute->getData());
-      newRoute->setSourceLocation(sourceRoute->getSourceLocation());
-      state->setData(newRoute, levelIndex);
-    } else if (data->isDerivedFrom<PrtList>()) {
-      // Duplicate list data.
-      PrtList *sourceList = data.s_cast_get<PrtList>();
-      SharedPtr<PrtList> newList = std::make_shared<PrtList>();
-      newList->setProdId(sourceList->getProdId());
-      for (Word i = 0; i < sourceList->getCount(); ++i) {
-        newList->add(sourceList->get(i));
-      }
-      newList->setSourceLocation(sourceList->getSourceLocation());
-      state->setData(newList, levelIndex);
-    } else {
-      // This should never be reachable.
-      ASSERT(false);
+    auto data = state->getData(levelIndex).get();
+    auto clonable = ii_cast<Clonable>(data);
+    if (data != 0 && clonable == 0) {
+      throw EXCEPTION(GenericException,
+                      STR("State branching requires that state data is Clonable."));
+    }
+    if (clonable) {
+      state->setData(clonable->clone(), levelIndex);
     }
   }
 }

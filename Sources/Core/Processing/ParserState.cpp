@@ -315,7 +315,7 @@ ParserProdLevel& ParserState::refProdLevel(Int i)
       throw EXCEPTION(GenericException, STR("This state has an empty production stack, or i is out of range."));
     }
   } else {
-    if (-(i) > this->getTermLevelCount()) {
+    if (-(i) > this->getProdLevelCount()) {
       throw EXCEPTION(GenericException, STR("Given state has an empty production stack, or i is out of range."));
     }
     i = this->getProdLevelCount() + i;

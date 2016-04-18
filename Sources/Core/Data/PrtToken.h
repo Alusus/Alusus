@@ -25,13 +25,13 @@ namespace Core { namespace Data
  * definition and the token text. This object is created by the
  * GenericParsingHandler to compose the parsed tree.
  */
-class PrtToken : public Node, public virtual ParsingMetadataHolder
+class PrtToken : public Node, public virtual ParsingMetadataHolder, public virtual Clonable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(PrtToken, Node, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(Node, ParsingMetadataHolder);
+  IMPLEMENT_INTERFACES_2(Node, ParsingMetadataHolder, Clonable);
 
 
   //============================================================================
@@ -135,6 +135,20 @@ class PrtToken : public Node, public virtual ParsingMetadataHolder
   public: const Str& getText() const
   {
     return this->text;
+  }
+
+
+  //============================================================================
+  // Clonable Overrides
+
+  public: virtual SharedPtr<IdentifiableObject> clone() const
+  {
+    SharedPtr<PrtToken> newToken = std::make_shared<PrtToken>();
+    newToken->setProdId(this->getProdId());
+    newToken->setId(this->getId());
+    newToken->setText(this->getText().c_str());
+    newToken->setSourceLocation(this->getSourceLocation());
+    return newToken;
   }
 
 }; // class

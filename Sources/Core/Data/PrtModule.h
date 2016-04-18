@@ -19,13 +19,13 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class PrtModule : public Module,
-                  public virtual ParsingMetadataHolder
+                  public virtual ParsingMetadataHolder, public virtual Clonable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(PrtModule, Module, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(Module, ParsingMetadataHolder);
+  IMPLEMENT_INTERFACES_2(Module, ParsingMetadataHolder, Clonable);
 
 
   //============================================================================
@@ -112,6 +112,21 @@ class PrtModule : public Module,
       }
     }
     return ParsingMetadataHolder::getAttribute(name);
+  }
+
+
+  //============================================================================
+  // Clonable Overrides
+
+  public: virtual SharedPtr<IdentifiableObject> clone() const
+  {
+    SharedPtr<PrtModule> newModule = std::make_shared<PrtModule>();
+    newModule->setProdId(this->getProdId());
+    for (Word i = 0; i < this->getCount(); ++i) {
+      newModule->add(this->getKey(i).c_str(), this->getShared(i));
+    }
+    newModule->setSourceLocation(this->getSourceLocation());
+    return newModule;
   }
 
 }; // class

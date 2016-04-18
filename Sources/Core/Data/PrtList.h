@@ -30,13 +30,13 @@ namespace Core { namespace Data
  * handler.
  */
 class PrtList : public SharedList,
-                public virtual ParsingMetadataHolder
+                public virtual ParsingMetadataHolder, public virtual Clonable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(PrtList, SharedList, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(SharedList, ParsingMetadataHolder);
+  IMPLEMENT_INTERFACES_2(SharedList, ParsingMetadataHolder, Clonable);
 
 
   //============================================================================
@@ -124,6 +124,21 @@ class PrtList : public SharedList,
       }
     }
     return ParsingMetadataHolder::getAttribute(name);
+  }
+
+
+  //============================================================================
+  // Clonable Overrides
+
+  public: virtual SharedPtr<IdentifiableObject> clone() const
+  {
+    SharedPtr<PrtList> newList = std::make_shared<PrtList>();
+    newList->setProdId(this->getProdId());
+    for (Word i = 0; i < this->getCount(); ++i) {
+      newList->add(this->get(i));
+    }
+    newList->setSourceLocation(this->getSourceLocation());
+    return newList;
   }
 
 }; // class

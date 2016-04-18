@@ -213,35 +213,41 @@ enumeration(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_
  * @brief A set of parsing flags to use with grammar terms by parsing handlers.
  * @ingroup processing_parser
  *
- * OMISSIBLE: Specifies that the parsed data for this term can be omitted if the
- *            data has no info to provide. For token terms, this is true if the
- *            token is constants. For other terms, it's true if the child term
- *            returned null contents. For route terms this will only be
- *            effective if the PASS_UP flag is also provided. For list terms
- *            (duplicate and concat) omission happens to individual items of the
- *            list if no data were received from the parent. Productions can be
- *            omitted if it has only one item which is a data of a referenced
- *            production.<br>
- * FORCE_OMIT: Used with token terms to specify that the term should be omitted
- *             even if the omission will lead to loss of info. For example, if
- *             a token term accepts one of multiple constant tokens then
- *             omitting the data will lead to loss of knowledge about which one
- *             of the constant tokens was received. With this flag the parsing
- *             handler should omit the data even if such loss of knowledge
- *             happens.
- * PASS_UP: This flag specifies that this term is to pass its data up to the
- *          parent. Typically, the parent's element will be a list type element
- *          so the data will be added to that list. This flag applies to route
- *          as well as list term types.<br>
- * FORCE_LIST: For list items (concat and duplicate). This flag will force the
- *             creation of a list item even if there is only one item in the
- *             list. This flag conflicts with PASS_UP.
+ * ENFORCE_LIST_OBJ: For list items (concat and duplicate). This flag will force
+ *                   the creation of a list item even if there is only one item
+ *                   in the list or even if the list is empty. This flag
+ *                   conflicts with PASS_UP.<br>
+ * ENFORCE_LIST_ITEM: For list items (concat and duplicate). This flag will
+ *                    force the insertion of an item in to the list even if the
+ *                    item is null.<br>
+ * ENFORCE_ROUTE_OBJ: For routes (alternate and optional). This flag will force
+ *                    the creation of a route item to capture the index of the
+ *                    selected route. Without this flag selected route indexes
+ *                    will be ignored.<br>
+ * ENFORCE_PROD_OBJ: For productions. This item enforces the creation of a prod
+ *                   object even if it just includes a single child prod obj.<br>
+ * ENFORCE_TOKEN_OBJ: Used to enforce the creation of a token object even if the
+ *                    matched token is a const token.
+ * ENFORCE_TOKEN_OMIT: Used with token terms to specify that the term should be
+ *                     omitted even if the omission will lead to loss of info.
+ *                     For example, if a token term accepts one of multiple
+ *                     constant tokens then omitting the data will lead to loss
+ *                     of knowledge about which one of the constant tokens was
+ *                     received. With this flag the parsing handler should omit
+ *                     the data even if such loss of knowledge happens.
+ * PASS_ITEMS_UP: For list items (concat and duplicate). This flag specifies
+ *                that this term is to pass its data up to the parent.
+ *                Typically, the parent's element will be a list type element so
+ *                the data will be added to that list instead of to a child list.
  */
 enumeration(ParsingFlags,
-            OMISSIBLE = 1,
-            FORCE_OMIT = 2,
-            FORCE_LIST = 4,
-            PASS_UP = 8);
+            ENFORCE_LIST_OBJ = 1,
+            ENFORCE_LIST_ITEM = 2,
+            ENFORCE_ROUTE_OBJ = 4,
+            ENFORCE_PROD_OBJ = 8,
+            ENFORCE_TOKEN_OBJ = 16,
+            ENFORCE_TOKEN_OMIT = 32,
+            PASS_ITEMS_UP = 64);
 
 } } // namespace
 

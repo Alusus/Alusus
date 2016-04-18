@@ -96,6 +96,16 @@ void Module::set(Int index, SharedPtr<IdentifiableObject> const &val)
 }
 
 
+void Module::clear()
+{
+  for (Int i = 0; i < this->definitions.getCount(); ++i) {
+    IdentifiableObject *obj = this->definitions.get(i);
+    DISOWN_PLAINPTR(obj);
+  }
+  this->definitions.clear();
+}
+
+
 //==============================================================================
 // MapContainer Implementation
 

@@ -11,7 +11,6 @@
 //==============================================================================
 
 #include "core.h"
-#include <stdarg.h>
 
 namespace Core { namespace Data
 {

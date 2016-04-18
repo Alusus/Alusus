@@ -93,15 +93,12 @@ class Module : public Node,
 
   public: void set(Int index, SharedPtr<IdentifiableObject> const &val);
 
-  public: virtual SharedPtr<IdentifiableObject> const& getShared(Int index) const
+  public: SharedPtr<IdentifiableObject> const& getShared(Int index) const
   {
     return this->definitions.getShared(index);
   }
 
-  public: void clear()
-  {
-    this->definitions.clear();
-  }
+  public: void clear();
 
   public: Bool isInherited(Int idx) const
   {
@@ -114,10 +111,6 @@ class Module : public Node,
   }
 
   /// @}
-
-
-  //============================================================================
-  // MapContainer Implementation
 
   /// @name MapContainer Implementation
   /// @{
@@ -160,10 +153,6 @@ class Module : public Node,
   }
 
   /// @}
-
-
-  //============================================================================
-  // DataOwner Implementation
 
   /// @name DataOwner Implementation
   /// @{

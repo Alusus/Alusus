@@ -378,6 +378,7 @@ typedef std::function<RefOp(Int index, IdentifiableObject *obj, IdentifiableObje
 #include "AttributesHolder.h"
 #include "Initializable.h"
 #include "IdHolder.h"
+#include "Clonable.h"
 
 // Helpers
 #include "paired_pointers.h"

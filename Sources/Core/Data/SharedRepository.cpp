@@ -193,7 +193,7 @@ Bool SharedRepository::isShared(Int index) const
     return !this->stack.getShared(index).unique();
   }
   // Dummy return statement to avoid compilation error. This won't be reached.
-  return !this->stack.getShared(index).unique();
+  return false;
 }
 
 

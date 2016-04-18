@@ -28,13 +28,13 @@ namespace Core { namespace Data
  * compose the Parsing Representation Tree (PRT).
  */
 class PrtRoute : public Node,
-                 public virtual ParsingMetadataHolder, public virtual Container
+                 public virtual ParsingMetadataHolder, public virtual Container, public virtual Clonable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(PrtRoute, Node, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(Node, ParsingMetadataHolder, Container);
+  IMPLEMENT_INTERFACES_3(Node, ParsingMetadataHolder, Container, Clonable);
 
 
   //============================================================================
@@ -237,6 +237,20 @@ class PrtRoute : public Node,
       throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Must be 0 for this class."));
     }
     return this->data.get();
+  }
+
+
+  //============================================================================
+  // Clonable Overrides
+
+  public: virtual SharedPtr<IdentifiableObject> clone() const
+  {
+    SharedPtr<PrtRoute> newRoute = std::make_shared<PrtRoute>();
+    newRoute->setProdId(this->getProdId());
+    newRoute->setRoute(this->getRoute());
+    newRoute->setData(this->getData());
+    newRoute->setSourceLocation(this->getSourceLocation());
+    return newRoute;
   }
 
 }; // class
