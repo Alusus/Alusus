@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_MAPCONTAINER_H
-#define DATA_MAPCONTAINER_H
+#ifndef CORE_DATA_MAPCONTAINER_H
+#define CORE_DATA_MAPCONTAINER_H
 
 namespace Core { namespace Data
 {

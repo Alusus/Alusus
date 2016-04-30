@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_PRTLIST_H
-#define DATA_PRTLIST_H
+#ifndef CORE_DATA_PRTLIST_H
+#define CORE_DATA_PRTLIST_H
 
 namespace Core { namespace Data
 {

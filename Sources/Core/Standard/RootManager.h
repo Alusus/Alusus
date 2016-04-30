@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_ROOTMANAGER_H
-#define STANDARD_ROOTMANAGER_H
+#ifndef CORE_STANDARD_ROOTMANAGER_H
+#define CORE_STANDARD_ROOTMANAGER_H
 
 namespace Core { namespace Standard
 {

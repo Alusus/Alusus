@@ -34,8 +34,8 @@ void GrammarPlant::createGrammar(RootManager *root)
   // Instantiate handlers.
   this->stringLiteralHandler = std::make_shared<StringLiteralTokenizingHandler>();
   this->constTokenHandler = std::make_shared<ConstTokenizingHandler>(this->constTokenId);
-  this->rootHandler = std::make_shared<RootParsingHandler>();
-  this->parsingHandler = std::make_shared<GenericParsingHandler>();
+  this->rootHandler = std::make_shared<Handlers::RootParsingHandler>();
+  this->parsingHandler = std::make_shared<Handlers::GenericParsingHandler>();
   this->importHandler = std::make_shared<ImportParsingHandler>(root);
 
   // Create lexer definitions.

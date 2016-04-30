@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_VALIDATOR_H
-#define DATA_VALIDATOR_H
+#ifndef CORE_DATA_VALIDATOR_H
+#define CORE_DATA_VALIDATOR_H
 
 namespace Core { namespace Data
 {

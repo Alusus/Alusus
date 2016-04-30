@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_INDIRECTREFERENCE_H
-#define DATA_INDIRECTREFERENCE_H
+#ifndef CORE_DATA_INDIRECTREFERENCE_H
+#define CORE_DATA_INDIRECTREFERENCE_H
 
 namespace Core { namespace Data
 {

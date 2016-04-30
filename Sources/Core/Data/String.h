@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_STRING_H
-#define DATA_STRING_H
+#ifndef CORE_DATA_STRING_H
+#define CORE_DATA_STRING_H
 
 namespace Core { namespace Data
 {

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_SYMBOLDEFINITION_H
-#define DATA_SYMBOLDEFINITION_H
+#ifndef CORE_DATA_SYMBOLDEFINITION_H
+#define CORE_DATA_SYMBOLDEFINITION_H
 
 namespace Core { namespace Data
 {

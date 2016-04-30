@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_SIGNALS_H
-#define BASIC_SIGNALS_H
+#ifndef CORE_BASIC_SIGNALS_H
+#define CORE_BASIC_SIGNALS_H
 
 namespace Core { namespace Basic
 {

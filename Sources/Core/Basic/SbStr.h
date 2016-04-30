@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_SBSTR_H
-#define BASIC_SBSTR_H
+#ifndef CORE_BASIC_SBSTR_H
+#define CORE_BASIC_SBSTR_H
 
 namespace Core { namespace Basic
 {

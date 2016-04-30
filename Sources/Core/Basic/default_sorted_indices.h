@@ -11,8 +11,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_DEFAULT_SORTED_INDICES_H
-#define BASIC_DEFAULT_SORTED_INDICES_H
+#ifndef CORE_BASIC_DEFAULT_SORTED_INDICES_H
+#define CORE_BASIC_DEFAULT_SORTED_INDICES_H
 
 namespace Core { namespace Basic
 {

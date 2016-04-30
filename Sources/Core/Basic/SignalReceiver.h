@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_SIGNAL_RECIEVER_H
-#define BASIC_SIGNAL_RECEIVER_H
+#ifndef CORE_BASIC_SIGNAL_RECIEVER_H
+#define CORE_BASIC_SIGNAL_RECEIVER_H
 
 namespace Core { namespace Basic
 {

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_SCOPEREFERENCE_H
-#define DATA_SCOPEREFERENCE_H
+#ifndef CORE_DATA_SCOPEREFERENCE_H
+#define CORE_DATA_SCOPEREFERENCE_H
 
 namespace Core { namespace Data
 {

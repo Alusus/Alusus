@@ -11,8 +11,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_DATA_H
-#define DATA_DATA_H
+#ifndef CORE_DATA_DATA_H
+#define CORE_DATA_DATA_H
 
 namespace Core { namespace Data
 {
@@ -379,6 +379,7 @@ typedef std::function<RefOp(Int index, IdentifiableObject *obj, IdentifiableObje
 #include "Initializable.h"
 #include "IdHolder.h"
 #include "Clonable.h"
+#include "Stringifyable.h"
 
 // Helpers
 #include "paired_pointers.h"

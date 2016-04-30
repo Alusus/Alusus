@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_CHARGROUPUNIT_H
-#define DATA_CHARGROUPUNIT_H
+#ifndef CORE_DATA_CHARGROUPUNIT_H
+#define CORE_DATA_CHARGROUPUNIT_H
 
 /**
  * @defgroup data_char_group_units Char Group Unit Classes

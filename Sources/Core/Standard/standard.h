@@ -11,8 +11,8 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_STANDARD_H
-#define STANDARD_STANDARD_H
+#ifndef CORE_STANDARD_STANDARD_H
+#define CORE_STANDARD_STANDARD_H
 
 namespace Core { namespace Standard
 {

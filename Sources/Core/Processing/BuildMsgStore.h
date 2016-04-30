@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_BUILDMSGSTORE_H
-#define PROCESSING_BUILDMSGSTORE_H
+#ifndef CORE_PROCESSING_BUILDMSGSTORE_H
+#define CORE_PROCESSING_BUILDMSGSTORE_H
 
 namespace Core { namespace Processing
 {

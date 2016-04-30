@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_TRACER_H
-#define DATA_TRACER_H
+#ifndef CORE_DATA_TRACER_H
+#define CORE_DATA_TRACER_H
 
 namespace Core { namespace Data
 {

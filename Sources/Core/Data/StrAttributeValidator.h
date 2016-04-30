@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_STRATTRIBUTEVALIDATOR_H
-#define DATA_STRATTRIBUTEVALIDATOR_H
+#ifndef CORE_DATA_STRATTRIBUTEVALIDATOR_H
+#define CORE_DATA_STRATTRIBUTEVALIDATOR_H
 
 namespace Core { namespace Data
 {

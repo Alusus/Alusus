@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_IMPORTLOADFAILEDMSG_H
-#define STANDARD_IMPORTLOADFAILEDMSG_H
+#ifndef CORE_STANDARD_IMPORTLOADFAILEDMSG_H
+#define CORE_STANDARD_IMPORTLOADFAILEDMSG_H
 
 namespace Core { namespace Standard
 {

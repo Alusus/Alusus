@@ -29,7 +29,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   this->runHandler = std::make_shared<RunParsingHandler>(manager);
   this->dumpHandler = std::make_shared<DumpParsingHandler>(manager);
   this->defHandler = std::make_shared<DefParsingHandler>(manager);
-  this->handler = std::make_shared<Core::Processing::GenericParsingHandler>();
+  this->handler = std::make_shared<Core::Processing::Handlers::GenericParsingHandler>();
 
   GrammarRepository *grammarRepository = manager->getGrammarRepository();
 

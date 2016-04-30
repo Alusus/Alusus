@@ -10,20 +10,20 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_IMPORTPARSINGHANDLER_H
-#define STANDARD_IMPORTPARSINGHANDLER_H
+#ifndef CORE_STANDARD_IMPORTPARSINGHANDLER_H
+#define CORE_STANDARD_IMPORTPARSINGHANDLER_H
 
 namespace Core { namespace Standard
 {
 
 // TODO: DOC
 
-class ImportParsingHandler : public Processing::GenericParsingHandler
+class ImportParsingHandler : public Processing::Handlers::GenericParsingHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ImportParsingHandler, Processing::GenericParsingHandler, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(ImportParsingHandler, Processing::Handlers::GenericParsingHandler, "Core.Standard", "Core", "alusus.net");
 
 
   //============================================================================

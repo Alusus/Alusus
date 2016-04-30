@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_SELFREFERENCE_H
-#define DATA_SELFREFERENCE_H
+#ifndef CORE_DATA_SELFREFERENCE_H
+#define CORE_DATA_SELFREFERENCE_H
 
 namespace Core { namespace Data
 {

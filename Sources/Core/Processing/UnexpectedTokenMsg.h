@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_UNEXPECTEDTOKENMSG_H
-#define PROCESSING_UNEXPECTEDTOKENMSG_H
+#ifndef CORE_PROCESSING_UNEXPECTEDTOKENMSG_H
+#define CORE_PROCESSING_UNEXPECTEDTOKENMSG_H
 
 namespace Core { namespace Processing
 {

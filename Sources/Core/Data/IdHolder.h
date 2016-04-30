@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_IDHOLDER_H
-#define DATA_IDHOLDER_H
+#ifndef CORE_DATA_IDHOLDER_H
+#define CORE_DATA_IDHOLDER_H
 
 namespace Core { namespace Data
 {

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_SHARED_PTR_H
-#define BASIC_SHARED_PTR_H
+#ifndef CORE_BASIC_SHARED_PTR_H
+#define CORE_BASIC_SHARED_PTR_H
 
 #include <memory>
 
@@ -296,7 +296,7 @@ template<class T> SharedPtr<T> const SharedPtr<T>::null = 0;
 
 
 //==============================================================================
-// Helper Functions
+// Helper Definitions
 
 template <class T, class T2> inline SharedPtr<T> s_cast(std::shared_ptr<T2> const &src)
 {
@@ -393,6 +393,9 @@ template <class T> SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
   // temporary shared pointer is not necessary.
   return std::move(*(reinterpret_cast<SharedPtr<T>*>(&sp)));
 }
+
+
+typedef SharedPtr<IdentifiableObject> SharedIoPtr;
 
 } } // namespace
 

@@ -2,7 +2,7 @@
  * @file Core/Data/Clonable.h
  * Contains the header of interface Data::Clonable.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_CLONABLE_H
-#define DATA_CLONABLE_H
+#ifndef CORE_DATA_CLONABLE_H
+#define CORE_DATA_CLONABLE_H
 
 namespace Core { namespace Data
 {

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_CUSTOM_BUILD_MSG_H
-#define PROCESSING_CUSTOM_BUILD_MSG_H
+#ifndef CORE_PROCESSING_CUSTOM_BUILD_MSG_H
+#define CORE_PROCESSING_CUSTOM_BUILD_MSG_H
 
 namespace Core { namespace Processing
 {

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_UNRECOGNIZEDCHARMSG_H
-#define PROCESSING_UNRECOGNIZEDCHARMSG_H
+#ifndef CORE_PROCESSING_UNRECOGNIZEDCHARMSG_H
+#define CORE_PROCESSING_UNRECOGNIZEDCHARMSG_H
 
 namespace Core { namespace Processing
 {

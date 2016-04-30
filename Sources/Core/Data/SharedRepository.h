@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_SHAREDREPOSITORY_H
-#define DATA_SHAREDREPOSITORY_H
+#ifndef CORE_DATA_SHAREDREPOSITORY_H
+#define CORE_DATA_SHAREDREPOSITORY_H
 
 namespace Core { namespace Data
 {

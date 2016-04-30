@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_PRTTOKEN_H
-#define DATA_PRTTOKEN_H
+#ifndef CORE_DATA_PRTTOKEN_H
+#define CORE_DATA_PRTTOKEN_H
 
 namespace Core { namespace Data
 {

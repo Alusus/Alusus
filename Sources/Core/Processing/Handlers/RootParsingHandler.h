@@ -1,6 +1,6 @@
 /**
- * @file Core/Processing/RootParsingHandler.h
- * Contains the header of class Core::Processing::RootParsingHandler.
+ * @file Core/Processing/Handlers/RootParsingHandler.h
+ * Contains the header of class Core::Processing::Handlers::RootParsingHandler.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_ROOTPARSINGHANDLER_H
-#define PROCESSING_ROOTPARSINGHANDLER_H
+#ifndef CORE_PROCESSING_HANDLERS_ROOTPARSINGHANDLER_H
+#define CORE_PROCESSING_HANDLERS_ROOTPARSINGHANDLER_H
 
-namespace Core { namespace Processing
+namespace Core { namespace Processing { namespace Handlers
 {
 
 // TODO: DOC
@@ -43,6 +43,6 @@ class RootParsingHandler : public ParsingHandler
 
 }; // class
 
-} } // namespace
+} } } // namespace
 
 #endif

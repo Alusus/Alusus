@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_REDEFINITIONMSG_H
-#define STANDARD_REDEFINITIONMSG_H
+#ifndef CORE_STANDARD_REDEFINITIONMSG_H
+#define CORE_STANDARD_REDEFINITIONMSG_H
 
 namespace Core { namespace Standard
 {

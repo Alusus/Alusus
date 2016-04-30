@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_WEAK_PTR_H
-#define BASIC_WEAK_PTR_H
+#ifndef CORE_BASIC_WEAK_PTR_H
+#define CORE_BASIC_WEAK_PTR_H
 
 namespace Core { namespace Basic
 {

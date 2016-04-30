@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_GRAMMAR_PLANT_H
-#define STANDARD_GRAMMAR_PLANT_H
+#ifndef CORE_STANDARD_GRAMMAR_PLANT_H
+#define CORE_STANDARD_GRAMMAR_PLANT_H
 
 namespace Core { namespace Standard
 {
@@ -35,9 +35,9 @@ class GrammarPlant : public Data::GrammarPlant
 
   private: SharedPtr<StringLiteralTokenizingHandler> stringLiteralHandler;
 
-  private: SharedPtr<Processing::RootParsingHandler> rootHandler;
+  private: SharedPtr<Processing::Handlers::RootParsingHandler> rootHandler;
 
-  private: SharedPtr<Processing::GenericParsingHandler> parsingHandler;
+  private: SharedPtr<Processing::Handlers::GenericParsingHandler> parsingHandler;
 
   private: SharedPtr<ImportParsingHandler> importHandler;
 

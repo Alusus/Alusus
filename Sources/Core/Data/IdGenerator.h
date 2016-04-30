@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_IDGENERATOR_H
-#define DATA_IDGENERATOR_H
+#ifndef CORE_DATA_IDGENERATOR_H
+#define CORE_DATA_IDGENERATOR_H
 
 namespace Core { namespace Data
 {

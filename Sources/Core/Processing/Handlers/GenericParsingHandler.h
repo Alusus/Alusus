@@ -1,6 +1,6 @@
 /**
- * @file Core/Processing/GenericParsingHandler.h
- * Contains the header of class Core::Processing::GenericParsingHandler.
+ * @file Core/Processing/Handlers/GenericParsingHandler.h
+ * Contains the header of class Core::Processing::Handlers::GenericParsingHandler.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_GENERICPARSINGHANDLER_H
-#define PROCESSING_GENERICPARSINGHANDLER_H
+#ifndef CORE_PROCESSING_HANDLERS_GENERICPARSINGHANDLER_H
+#define CORE_PROCESSING_HANDLERS_GENERICPARSINGHANDLER_H
 
-namespace Core { namespace Processing
+namespace Core { namespace Processing { namespace Handlers
 {
 
 /**
@@ -174,12 +174,12 @@ class GenericParsingHandler : public ParsingHandler
    * If the top level is shared (the shared pointer is not unique) this function
    * will duplicate that term.
    */
-  private: void prepareToModifyData(Processing::ParserState *state, Int levelIndex);
+  protected: void prepareToModifyData(Processing::ParserState *state, Int levelIndex);
 
   /// @}
 
 }; // class
 
-} } // namespace
+} } } // namespace
 
 #endif

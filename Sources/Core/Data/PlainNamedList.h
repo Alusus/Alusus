@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_PLAINNAMEDLIST_H
-#define DATA_PLAINNAMEDLIST_H
+#ifndef CORE_DATA_PLAINNAMEDLIST_H
+#define CORE_DATA_PLAINNAMEDLIST_H
 
 namespace Core { namespace Data
 {

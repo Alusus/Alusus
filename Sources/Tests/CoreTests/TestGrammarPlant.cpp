@@ -29,7 +29,7 @@ void TestGrammarPlant::createGrammar()
   // Instantiate handlers.
   this->stringLiteralHandler = std::make_shared<StringLiteralTokenizingHandler>();
   this->constTokenHandler = std::make_shared<ConstTokenizingHandler>(this->constTokenId);
-  this->parsingHandler = std::make_shared<GenericParsingHandler>();
+  this->parsingHandler = std::make_shared<Handlers::GenericParsingHandler>();
 
   // Create lexer definitions.
   this->repository.set(STR("root:LexerDefs"), GrammarModule::create({}).get());
@@ -934,18 +934,18 @@ void TestGrammarPlant::createProductionDefinitions()
   this->repository.set(STR("AssignmentOp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::TERM, SharedList::create({
-           TokenTerm::create(0, this->constTokenId, STR(":=")),
-           TokenTerm::create(0, this->constTokenId, STR("+=")),
-           TokenTerm::create(0, this->constTokenId, STR("-=")),
-           TokenTerm::create(0, this->constTokenId, STR("*=")),
-           TokenTerm::create(0, this->constTokenId, STR("/=")),
-           TokenTerm::create(0, this->constTokenId, STR("%=")),
-           TokenTerm::create(0, this->constTokenId, STR("&=")),
-           TokenTerm::create(0, this->constTokenId, STR("|=")),
-           TokenTerm::create(0, this->constTokenId, STR("$=")),
-           TokenTerm::create(0, this->constTokenId, STR("^:=")),
-           TokenTerm::create(0, this->constTokenId, STR("<<=")),
-           TokenTerm::create(0, this->constTokenId, STR(">>="))
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR(":=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("+=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("-=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("*=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("/=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("%=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("&=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("|=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("$=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("^:=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("<<=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR(">>="))
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -955,14 +955,14 @@ void TestGrammarPlant::createProductionDefinitions()
   this->repository.set(STR("ComparisonOp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::TERM, SharedList::create({
-           TokenTerm::create(0, this->constTokenId, STR("=")),
-           TokenTerm::create(0, this->constTokenId, STR("^=")),
-           TokenTerm::create(0, this->constTokenId, STR("==")),
-           TokenTerm::create(0, this->constTokenId, STR("^==")),
-           TokenTerm::create(0, this->constTokenId, STR("<")),
-           TokenTerm::create(0, this->constTokenId, STR(">")),
-           TokenTerm::create(0, this->constTokenId, STR("<=")),
-           TokenTerm::create(0, this->constTokenId, STR(">="))
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("^=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("==")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("^==")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("<")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR(">")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("<=")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR(">="))
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -972,8 +972,8 @@ void TestGrammarPlant::createProductionDefinitions()
   this->repository.set(STR("AddOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, this->constTokenId, STR("+")),
-          TokenTerm::create(0, this->constTokenId, STR("-"))
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("+")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("-"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -983,9 +983,9 @@ void TestGrammarPlant::createProductionDefinitions()
   this->repository.set(STR("MulOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, this->constTokenId, STR("*")),
-          TokenTerm::create(0, this->constTokenId, STR("/")),
-          TokenTerm::create(0, this->constTokenId, STR("%"))
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("*")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("/")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("%"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -995,14 +995,14 @@ void TestGrammarPlant::createProductionDefinitions()
   this->repository.set(STR("BitwiseOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, this->constTokenId, STR("|")),
-          TokenTerm::create(0, this->constTokenId, STR("^|")),
-          TokenTerm::create(0, this->constTokenId, STR("$")),
-          TokenTerm::create(0, this->constTokenId, STR("^$")),
-          TokenTerm::create(0, this->constTokenId, STR("&")),
-          TokenTerm::create(0, this->constTokenId, STR("^&")),
-          TokenTerm::create(0, this->constTokenId, STR("<<")),
-          TokenTerm::create(0, this->constTokenId, STR(">>"))
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("|")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("^|")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("$")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("^$")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("&")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("^&")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("<<")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR(">>"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -1012,12 +1012,12 @@ void TestGrammarPlant::createProductionDefinitions()
   this->repository.set(STR("LogOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, this->constTokenId, STR("||")),
-          TokenTerm::create(0, this->constTokenId, STR("^||")),
-          TokenTerm::create(0, this->constTokenId, STR("$$")),
-          TokenTerm::create(0, this->constTokenId, STR("^$$")),
-          TokenTerm::create(0, this->constTokenId, STR("&&")),
-          TokenTerm::create(0, this->constTokenId, STR("^&&"))
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("||")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("^||")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("$$")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("^$$")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("&&")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("^&&"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -1027,12 +1027,12 @@ void TestGrammarPlant::createProductionDefinitions()
   this->repository.set(STR("PrefixOp"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
         {TermElement::TERM, SharedList::create({
-           TokenTerm::create(0, this->constTokenId, STR("++")),
-           TokenTerm::create(0, this->constTokenId, STR("--")),
-           TokenTerm::create(0, this->constTokenId, STR("+")),
-           TokenTerm::create(0, this->constTokenId, STR("-")),
-           TokenTerm::create(0, this->constTokenId, STR("^")),
-           TokenTerm::create(0, this->constTokenId, STR("^^"))
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("++")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("--")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("+")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("-")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("^")),
+           TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("^^"))
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -1042,8 +1042,8 @@ void TestGrammarPlant::createProductionDefinitions()
   this->repository.set(STR("PostfixOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, this->constTokenId, STR("++")),
-          TokenTerm::create(0, this->constTokenId, STR("--"))
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("++")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("--"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -1053,9 +1053,9 @@ void TestGrammarPlant::createProductionDefinitions()
   this->repository.set(STR("LinkOp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, AlternateTerm::create({
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, this->constTokenId, STR(".")),
-          TokenTerm::create(0, this->constTokenId, STR("->")),
-          TokenTerm::create(0, this->constTokenId, STR("=>"))
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR(".")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("->")),
+          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OBJ, this->constTokenId, STR("=>"))
         })}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}

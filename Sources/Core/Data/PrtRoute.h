@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_PRTROUTE_H
-#define DATA_PRTROUTE_H
+#ifndef CORE_DATA_PRTROUTE_H
+#define CORE_DATA_PRTROUTE_H
 
 namespace Core { namespace Data
 {

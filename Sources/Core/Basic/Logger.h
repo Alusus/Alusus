@@ -12,8 +12,8 @@
 
 #ifdef USE_LOGS
 
-#ifndef BASIC_LOGGER_H
-#define BASIC_LOGGER_H
+#ifndef CORE_BASIC_LOGGER_H
+#define CORE_BASIC_LOGGER_H
 
 namespace Core { namespace Basic
 {

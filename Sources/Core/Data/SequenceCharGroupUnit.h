@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_SEQUENCECHARGROUPUNIT_H
-#define DATA_SEQUENCECHARGROUPUNIT_H
+#ifndef CORE_DATA_SEQUENCECHARGROUPUNIT_H
+#define CORE_DATA_SEQUENCECHARGROUPUNIT_H
 
 namespace Core { namespace Data
 {

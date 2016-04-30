@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_LISTTERM_H
-#define DATA_LISTTERM_H
+#ifndef CORE_DATA_LISTTERM_H
+#define CORE_DATA_LISTTERM_H
 
 namespace Core { namespace Data
 {

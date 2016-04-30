@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_TYPE_INFO_H
-#define BASIC_TYPE_INFO_H
+#ifndef CORE_BASIC_TYPE_INFO_H
+#define CORE_BASIC_TYPE_INFO_H
 
 namespace Core { namespace Basic
 {

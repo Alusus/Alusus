@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_TOKENCLAMPEDMSG_H
-#define PROCESSING_TOKENCLAMPEDMSG_H
+#ifndef CORE_PROCESSING_TOKENCLAMPEDMSG_H
+#define CORE_PROCESSING_TOKENCLAMPEDMSG_H
 
 namespace Core { namespace Processing
 {

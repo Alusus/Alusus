@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_SIGNAL_REVERSE_CONNECTOR_H
-#define BASIC_SIGNAL_REVERSE_CONNECTOR_H
+#ifndef CORE_BASIC_SIGNAL_REVERSE_CONNECTOR_H
+#define CORE_BASIC_SIGNAL_REVERSE_CONNECTOR_H
 
 namespace Core { namespace Basic
 {

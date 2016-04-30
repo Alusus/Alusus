@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_INVERTCHARGROUPUNIT_H
-#define DATA_INVERTCHARGROUPUNIT_H
+#ifndef CORE_DATA_INVERTCHARGROUPUNIT_H
+#define CORE_DATA_INVERTCHARGROUPUNIT_H
 
 namespace Core { namespace Data
 {

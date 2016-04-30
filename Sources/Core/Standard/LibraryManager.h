@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_LIBRARY_MANAGER_H
-#define STANDARD_LIBRARY_MANAGER_H
+#ifndef CORE_STANDARD_LIBRARY_MANAGER_H
+#define CORE_STANDARD_LIBRARY_MANAGER_H
 
 namespace Core { namespace Standard
 {

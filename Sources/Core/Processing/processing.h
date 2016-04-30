@@ -11,8 +11,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_PROCESSING_H
-#define PROCESSING_PROCESSING_H
+#ifndef CORE_PROCESSING_PROCESSING_H
+#define CORE_PROCESSING_PROCESSING_H
 
 namespace Core { namespace Processing
 {
@@ -286,9 +286,16 @@ enumeration(ParsingFlags,
 #include "ParsingHandler.h"
 #include "DecisionNodePool.h"
 #include "Parser.h"
+
 // Parsing Handlers
-#include "GenericParsingHandler.h"
-#include "RootParsingHandler.h"
+#include "Handlers/GenericParsingHandler.h"
+#include "Handlers/RootParsingHandler.h"
+#include "Handlers/ListParsingHandler.h"
+#include "Handlers/InfixParsingHandler.h"
+#include "Handlers/OutfixParsingHandler.h"
+#include "Handlers/PrefixParsingHandler.h"
+#include "Handlers/PostfixParsingHandler.h"
+#include "Handlers/ChainOpParsingHandler.h"
 
 // Main Class
 #include "Engine.h"

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_UNRECOGNIZEDERRORMSG_H
-#define PROCESSING_UNRECOGNIZEDERRORMSG_H
+#ifndef CORE_PROCESSING_UNRECOGNIZEDERRORMSG_H
+#define CORE_PROCESSING_UNRECOGNIZEDERRORMSG_H
 
 namespace Core { namespace Processing
 {

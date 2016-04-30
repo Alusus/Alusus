@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_EXCEPTIONS_H
-#define BASIC_EXCEPTIONS_H
+#ifndef CORE_BASIC_EXCEPTIONS_H
+#define CORE_BASIC_EXCEPTIONS_H
 
 namespace Core { namespace Basic
 {

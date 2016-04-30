@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_SORTED_INDEX_H
-#define BASIC_SORTED_INDEX_H
+#ifndef CORE_BASIC_SORTED_INDEX_H
+#define CORE_BASIC_SORTED_INDEX_H
 
 namespace Core { namespace Basic
 {

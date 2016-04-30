@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_INITIALIZABLE_H
-#define DATA_INITIALIZABLE_H
+#ifndef CORE_DATA_INITIALIZABLE_H
+#define CORE_DATA_INITIALIZABLE_H
 
 namespace Core { namespace Data
 {

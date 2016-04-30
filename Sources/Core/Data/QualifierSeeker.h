@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_QUALIFIERSEEKER_H
-#define DATA_QUALIFIERSEEKER_H
+#ifndef CORE_DATA_QUALIFIERSEEKER_H
+#define CORE_DATA_QUALIFIERSEEKER_H
 
 namespace Core { namespace Data
 {

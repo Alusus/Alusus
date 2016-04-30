@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_GRAMMARPLANT_H
-#define DATA_GRAMMARPLANT_H
+#ifndef CORE_DATA_GRAMMARPLANT_H
+#define CORE_DATA_GRAMMARPLANT_H
 
 namespace Core { namespace Data
 {

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_OPERATION_HANDLER_H
-#define DATA_OPERATION_HANDLER_H
+#ifndef CORE_DATA_OPERATION_HANDLER_H
+#define CORE_DATA_OPERATION_HANDLER_H
 
 namespace Core { namespace Data
 {

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_REFERENCEPARSER_H
-#define DATA_REFERENCEPARSER_H
+#ifndef CORE_DATA_REFERENCEPARSER_H
+#define CORE_DATA_REFERENCEPARSER_H
 
 namespace Core { namespace Data
 {

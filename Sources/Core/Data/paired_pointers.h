@@ -11,8 +11,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_PAIREDPOINTERS_H
-#define DATA_PAIREDPOINTERS_H
+#ifndef CORE_DATA_PAIREDPOINTERS_H
+#define CORE_DATA_PAIREDPOINTERS_H
 
 namespace Core { namespace Data
 {

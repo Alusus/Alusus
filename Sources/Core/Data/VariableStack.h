@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_VARIABLESTACK_H
-#define DATA_VARIABLESTACK_H
+#ifndef CORE_DATA_VARIABLESTACK_H
+#define CORE_DATA_VARIABLESTACK_H
 
 namespace Core { namespace Data
 {

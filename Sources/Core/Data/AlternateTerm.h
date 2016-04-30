@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_ALTERNATE_TERM_H
-#define DATA_ALTERNATE_TERM_H
+#ifndef CORE_DATA_ALTERNATE_TERM_H
+#define CORE_DATA_ALTERNATE_TERM_H
 
 namespace Core { namespace Data
 {

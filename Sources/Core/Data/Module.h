@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_MODULE_H
-#define DATA_MODULE_H
+#ifndef CORE_DATA_MODULE_H
+#define CORE_DATA_MODULE_H
 
 namespace Core { namespace Data
 {

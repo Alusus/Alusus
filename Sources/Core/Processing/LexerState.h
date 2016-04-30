@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_LEXERSTATE_H
-#define PROCESSING_LEXERSTATE_H
+#ifndef CORE_PROCESSING_LEXERSTATE_H
+#define CORE_PROCESSING_LEXERSTATE_H
 
 namespace Core { namespace Processing
 {

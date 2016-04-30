@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_ATTRIBUTESHOLDER_H
-#define DATA_ATTRIBUTESHOLDER_H
+#ifndef CORE_DATA_ATTRIBUTESHOLDER_H
+#define CORE_DATA_ATTRIBUTESHOLDER_H
 
 namespace Core { namespace Data
 {

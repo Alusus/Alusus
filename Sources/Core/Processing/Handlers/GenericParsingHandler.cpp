@@ -1,6 +1,6 @@
 /**
- * @file Core/Processing/GenericParsingHandler.cpp
- * Contains the implementation of class Core::Processing::GenericParsingHandler.
+ * @file Core/Processing/Handlers/GenericParsingHandler.cpp
+ * Contains the implementation of class Core::Processing::Handlers::GenericParsingHandler.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Processing
+namespace Core { namespace Processing { namespace Handlers
 {
 
 using namespace Data;
@@ -247,17 +247,19 @@ void GenericParsingHandler::addData(SharedPtr<IdentifiableObject> const &data, P
       ASSERT(!this->isListObjEnforced(state, levelIndex));
       state->setData(data, levelIndex);
     } else {
+      // There is three possible situations at this point: Either the list was enforced, or
+      // a child data was set into this level, or this level was visited more than once causing
+      // a list to be created.
       ListContainer *container = ii_cast<ListContainer>(currentData);
       ParsingMetadataHolder *metadata = ii_cast<ParsingMetadataHolder>(currentData);
       if (container != 0 && (metadata == 0 || metadata->getProdId() == UNKNOWN_ID)) {
         // This level already has a list that belongs to this production, so we can just add the new data
         // to this list.
         this->prepareToModifyData(state, levelIndex);
-        container = state->getData(levelIndex).ii_cast_get<ListContainer>();
+        auto container = state->getData(levelIndex).ii_cast_get<ListContainer>();
         container->add(data.get());
       } else {
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
-        ASSERT(!this->isListObjEnforced(state, levelIndex));
         SharedPtr<IdentifiableObject> list = this->createListNode(state, levelIndex);
         ListContainer *newContainer = list.ii_cast_get<ListContainer>();
         ParsingMetadataHolder *newMetadata = list.ii_cast_get<ParsingMetadataHolder>();
@@ -407,4 +409,4 @@ void GenericParsingHandler::prepareToModifyData(Processing::ParserState *state, 
   }
 }
 
-} } // namespace
+} } } // namespace

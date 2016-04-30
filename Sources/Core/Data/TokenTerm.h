@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_TOKENTERM_H
-#define DATA_TOKENTERM_H
+#ifndef CORE_DATA_TOKENTERM_H
+#define CORE_DATA_TOKENTERM_H
 
 namespace Core { namespace Data
 {

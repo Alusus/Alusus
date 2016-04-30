@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_TOKENIZINGHANDLER_H
-#define PROCESSING_TOKENIZINGHANDLER_H
+#ifndef CORE_PROCESSING_TOKENIZINGHANDLER_H
+#define CORE_PROCESSING_TOKENIZINGHANDLER_H
 
 namespace Core { namespace Processing
 {

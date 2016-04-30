@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_CHARGROUPDEFINITION_H
-#define DATA_CHARGROUPDEFINITION_H
+#ifndef CORE_DATA_CHARGROUPDEFINITION_H
+#define CORE_DATA_CHARGROUPDEFINITION_H
 
 namespace Core { namespace Data
 {

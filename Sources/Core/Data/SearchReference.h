@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_SEARCHREFERENCE_H
-#define DATA_SEARCHREFERENCE_H
+#ifndef CORE_DATA_SEARCHREFERENCE_H
+#define CORE_DATA_SEARCHREFERENCE_H
 
 namespace Core { namespace Data
 {

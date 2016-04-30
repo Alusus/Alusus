@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_PARSERPRODLEVEL_H
-#define PROCESSING_PARSERPRODLEVEL_H
+#ifndef CORE_PROCESSING_PARSERPRODLEVEL_H
+#define CORE_PROCESSING_PARSERPRODLEVEL_H
 
 namespace Core { namespace Processing
 {

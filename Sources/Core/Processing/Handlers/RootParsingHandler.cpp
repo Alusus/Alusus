@@ -1,6 +1,6 @@
 /**
- * @file Core/Processing/RootParsingHandler.cpp
- * Contains the implementation of class Core::Processing::RootParsingHandler.
+ * @file Core/Processing/Handlers/RootParsingHandler.cpp
+ * Contains the implementation of class Core::Processing::Handlers::RootParsingHandler.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Processing
+namespace Core { namespace Processing { namespace Handlers
 {
 
 //==============================================================================
@@ -50,4 +50,4 @@ void RootParsingHandler::onLevelExit(Parser *parser, ParserState *state, SharedP
   }
 }
 
-} } // namespace
+} } } // namespace

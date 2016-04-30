@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_LISTCONTAINER_H
-#define DATA_LISTCONTAINER_H
+#ifndef CORE_DATA_LISTCONTAINER_H
+#define CORE_DATA_LISTCONTAINER_H
 
 namespace Core { namespace Data
 {

@@ -17,12 +17,12 @@
 namespace Scg
 {
 
-class DefParsingHandler : public Core::Processing::GenericParsingHandler
+class DefParsingHandler : public Core::Processing::Handlers::GenericParsingHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(DefParsingHandler, Core::Processing::GenericParsingHandler,
+  TYPE_INFO(DefParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
             "Scg", "Scg", "alusus.net");
 
 

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_PRTMODULE_H
-#define DATA_PRTMODULE_H
+#ifndef CORE_DATA_PRTMODULE_H
+#define CORE_DATA_PRTMODULE_H
 
 namespace Core { namespace Data
 {

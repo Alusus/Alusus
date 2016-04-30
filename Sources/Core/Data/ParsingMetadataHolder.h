@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_PARSINGMETADATAHOLDER_H
-#define DATA_PARSINGMETADATAHOLDER_H
+#ifndef CORE_DATA_PARSINGMETADATAHOLDER_H
+#define CORE_DATA_PARSINGMETADATAHOLDER_H
 
 namespace Core { namespace Data
 {

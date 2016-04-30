@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_INPUTBUFFER_H
-#define PROCESSING_INPUTBUFFER_H
+#ifndef CORE_PROCESSING_INPUTBUFFER_H
+#define CORE_PROCESSING_INPUTBUFFER_H
 
 namespace Core { namespace Processing
 {

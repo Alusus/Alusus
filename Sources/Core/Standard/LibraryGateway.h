@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_LIBRARY_GATEWAY_H
-#define STANDARD_LIBRARY_GATEWAY_H
+#ifndef CORE_STANDARD_LIBRARY_GATEWAY_H
+#define CORE_STANDARD_LIBRARY_GATEWAY_H
 
 namespace Core { namespace Standard
 {

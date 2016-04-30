@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_BUFFERFULLMSG_H
-#define PROCESSING_BUFFERFULLMSG_H
+#ifndef CORE_PROCESSING_BUFFERFULLMSG_H
+#define CORE_PROCESSING_BUFFERFULLMSG_H
 
 namespace Core { namespace Processing
 {

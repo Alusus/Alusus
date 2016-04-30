@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_RANDOMCHARGROUPUNIT_H
-#define DATA_RANDOMCHARGROUPUNIT_H
+#ifndef CORE_DATA_RANDOMCHARGROUPUNIT_H
+#define CORE_DATA_RANDOMCHARGROUPUNIT_H
 
 namespace Core { namespace Data
 {

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_GLOBAL_STORAGE_H
-#define BASIC_GLOBAL_STORAGE_H
+#ifndef CORE_BASIC_GLOBAL_STORAGE_H
+#define CORE_BASIC_GLOBAL_STORAGE_H
 
 namespace Core { namespace Basic
 {

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_SHAREDLIST_H
-#define DATA_SHAREDLIST_H
+#ifndef CORE_DATA_SHAREDLIST_H
+#define CORE_DATA_SHAREDLIST_H
 
 namespace Core { namespace Data
 {

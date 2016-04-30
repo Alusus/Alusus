@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_IDENTIFIABLEOBJECT_H
-#define BASIC_IDENTIFIABLEOBJECT_H
+#ifndef CORE_BASIC_IDENTIFIABLEOBJECT_H
+#define CORE_BASIC_IDENTIFIABLEOBJECT_H
 
 namespace Core { namespace Basic
 {
@@ -159,6 +159,34 @@ class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObjec
 
 
 /**
+ * @brief A recursive template used to get comma-separated list of IO names.
+ * @ingroup basic_utils
+ */
+template <typename... TYPES> struct _IoListUniqueNames;
+template <typename TYPE, typename... REST> struct _IoListUniqueNames<TYPE, REST...>
+{
+  static Str getUniqueName()
+  {
+    return TYPE::getTypeInfo()->getUniqueName() + ", " + _IoListUniqueNames<REST...>::getUniqueName();
+  }
+};
+template <typename TYPE> struct _IoListUniqueNames<TYPE>
+{
+  static Str getUniqueName()
+  {
+    return TYPE::getTypeInfo()->getUniqueName();
+  }
+};
+template <> struct _IoListUniqueNames<>
+{
+  static Str getUniqueName()
+  {
+    return "";
+  }
+};
+
+
+/**
  * @brief A macro that defines the body of getTypeInfo static functions.
  * @ingroup basic_utils
  *
@@ -168,12 +196,32 @@ class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObjec
 #define GET_TYPE_INFO_BODY(myType, baseType, typeNamespace, moduleName, url) \
   static Core::Basic::TypeInfo *typeInfo = 0; \
   if (typeInfo == 0) { \
-    Char const* uniqueName = url "#" moduleName "#" typeNamespace "." #myType; \
+    Char const* uniqueName = url "#" moduleName "#" typeNamespace "." myType; \
     typeInfo = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
     if (typeInfo == 0) { \
-      typeInfo = new Core::Basic::TypeInfo(#myType, typeNamespace, moduleName, url, \
+      typeInfo = new Core::Basic::TypeInfo(myType, typeNamespace, moduleName, url, \
       baseType::getTypeInfo()); \
       GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
+    } \
+  } \
+  return typeInfo;
+
+
+/**
+ * @brief A template version of GET_TYPE_INFO_BODY.
+ * @ingroup basic_utils
+ * @sa GET_TYPE_INFO_BODY
+ */
+#define GET_TYPE_INFO_TEMPLATE_BODY(myType, baseType, typeNamespace, moduleName, url, ...) \
+  static Core::Basic::TypeInfo *typeInfo = 0; \
+  if (typeInfo == 0) { \
+    Str typeName = Str(#myType) + "<" + _IoListUniqueNames<__VA_ARGS__>::getUniqueName() + ">"; \
+    Str uniqueName = Str(url "#" moduleName "#" typeNamespace ".") + typeName; \
+    typeInfo = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName.c_str())); \
+    if (typeInfo == 0) { \
+      typeInfo = new Core::Basic::TypeInfo(typeName.c_str(), typeNamespace, moduleName, url, \
+                                           baseType::getTypeInfo()); \
+      GLOBAL_STORAGE->setObject(uniqueName.c_str(), reinterpret_cast<void*>(typeInfo)); \
     } \
   } \
   return typeInfo;
@@ -200,58 +248,36 @@ class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObjec
  */
 #define TYPE_INFO(myType, baseType, typeNamespace, moduleName, url) \
   public: \
-    virtual Core::Basic::TypeInfo * getMyTypeInfo() const { return myType::getTypeInfo(); } \
-    static Core::Basic::TypeInfo * getTypeInfo() { \
-      GET_TYPE_INFO_BODY(myType, baseType, typeNamespace, moduleName, url) \
+    virtual Core::Basic::TypeInfo* getMyTypeInfo() const { return myType::getTypeInfo(); } \
+    static Core::Basic::TypeInfo* getTypeInfo() { \
+      GET_TYPE_INFO_BODY(#myType, baseType, typeNamespace, moduleName, url) \
     }
 
 
-// TODO: Do we need TYPE_INFO_HEADER and TYPE_INFO_IMPLEMENTATION?
-
 /**
- * @brief A macro used to declare the type info for an identifiable object.
+ * @brief A template version of TYPE_INFO.
  * @ingroup basic_utils
- *
- * This macro is used to declare the type info methods for classes derived
- * from IdentifiableObject. It only declares the methods and leaves the
- * implementation for the TYPE_INFO_IMPLEMENTATION macro which must then be
- * used inside the class's implementation file.<br>
- * This macro, along with the TYPE_INFO_IMPLEMENTATION macro, are provided
- * as an alternative to the TYPE_INFO macro in cases where the implementation
- * needs to be separated from the declaration due to the base class not being
- * defined yet (only declared) (Is that even possible though??)
- *
- * @param myType The class name as a keyword (rather than stringized).
+ * @sa TYPE_INFO
  */
-#define TYPE_INFO_HEADER(myType) \
+#define TEMPLATE_TYPE_INFO(myType, baseType, typeNamespace, moduleName, url, ...) \
   public: \
-    virtual Core::Basic::TypeInfo * getMyTypeInfo() const { return myType::getTypeInfo(); } \
-    static Core::Basic::TypeInfo * getTypeInfo();
+    virtual Core::Basic::TypeInfo* getMyTypeInfo() const { return myType<__VA_ARGS__>::getTypeInfo(); } \
+    static Core::Basic::TypeInfo* getTypeInfo() { \
+      GET_TYPE_INFO_TEMPLATE_BODY(myType, baseType, typeNamespace, moduleName, url, __VA_ARGS__) \
+    }
 
 
 /**
- * @brief A macro used to implement the type info for an identifiable object.
+ * @brief A custom version of TYPE_INFO allowing defining the name manually.
  * @ingroup basic_utils
- *
- * This macro is used to implement the type info methods declared using the
- * TYPE_INFO_HEADER macro for classes derived from IdentifiableObject. It
- * defines the implementation for the static getTypeInfo function.
- *
- * @param myType The class name as a keyword (rather than stringized).
- * @param baseType The base class name as a keyword (rather than stringized).
- * @param typeNamespace This class's full namespace resolution, in a string.
- *                        namespaces in this string should be seperated by a
- *                        dot.
- * @param moduleName The name of the module that contains the class. This can
- *                    be anything that identifies the module, whether it's a
- *                    filename or just a title.
- * @param url A URL associated with the module. This is used to help identify
- *            the module. It can be an empty string.
+ * @sa TYPE_INFO
  */
-#define TYPE_INFO_IMPLEMENTATION(myType, baseType, typeNamespace, moduleName, url) \
-  Core::Basic::TypeInfo * myType::getTypeInfo() { \
-    GET_TYPE_INFO_BODY(myType, baseType, typeNamespace, moduleName, url) \
-  }
+#define CUSTOM_NAME_TYPE_INFO(myType, myCustomTypeName, baseType, typeNamespace, moduleName, url) \
+  public: \
+    virtual Core::Basic::TypeInfo* getMyTypeInfo() const { return myType::getTypeInfo(); } \
+    static Core::Basic::TypeInfo* getTypeInfo() { \
+      GET_TYPE_INFO_BODY(myCustomTypeName, baseType, typeNamespace, moduleName, url) \
+    }
 
 
 /**

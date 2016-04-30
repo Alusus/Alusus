@@ -11,8 +11,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_BASIC_H
-#define BASIC_BASIC_H
+#ifndef CORE_BASIC_BASIC_H
+#define CORE_BASIC_BASIC_H
 
 namespace Core { namespace Basic
 {

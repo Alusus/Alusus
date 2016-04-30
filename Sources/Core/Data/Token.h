@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_TOKEN_H
-#define DATA_TOKEN_H
+#ifndef CORE_DATA_TOKEN_H
+#define CORE_DATA_TOKEN_H
 
 namespace Core { namespace Data
 {

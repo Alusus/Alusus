@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_LEXER_H
-#define PROCESSING_LEXER_H
+#ifndef CORE_PROCESSING_LEXER_H
+#define CORE_PROCESSING_LEXER_H
 
 namespace Core { namespace Processing
 {

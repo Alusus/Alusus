@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_ARGUMENTS_H
-#define BASIC_ARGUMENTS_H
+#ifndef CORE_BASIC_ARGUMENTS_H
+#define CORE_BASIC_ARGUMENTS_H
 
 namespace Core { namespace Basic
 {

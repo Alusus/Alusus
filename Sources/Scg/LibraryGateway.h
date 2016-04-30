@@ -46,7 +46,7 @@ private:
 private:
   SharedPtr<DefParsingHandler> defHandler;
 private:
-  SharedPtr<Core::Processing::GenericParsingHandler> handler;
+  SharedPtr<Core::Processing::Handlers::GenericParsingHandler> handler;
 
 private:
   Core::Basic::Int leadingCmdListPos;

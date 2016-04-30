@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_SYNTAXERRORMSG_H
-#define PROCESSING_SYNTAXERRORMSG_H
+#ifndef CORE_PROCESSING_SYNTAXERRORMSG_H
+#define CORE_PROCESSING_SYNTAXERRORMSG_H
 
 namespace Core { namespace Processing
 {

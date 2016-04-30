@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_STRKEYREFERENCE_H
-#define DATA_STRKEYREFERENCE_H
+#ifndef CORE_DATA_STRKEYREFERENCE_H
+#define CORE_DATA_STRKEYREFERENCE_H
 
 namespace Core { namespace Data
 {

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_PROVIDER_H
-#define DATA_PROVIDER_H
+#ifndef CORE_DATA_PROVIDER_H
+#define CORE_DATA_PROVIDER_H
 
 namespace Core { namespace Data
 {

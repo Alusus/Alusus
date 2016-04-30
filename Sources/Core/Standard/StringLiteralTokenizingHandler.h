@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef STANDARD_STRINGLITERALTOKENIZINGHANDLER_H
-#define STANDARD_STRINGLITERALTOKENIZINGHANDLER_H
+#ifndef CORE_STANDARD_STRINGLITERALTOKENIZINGHANDLER_H
+#define CORE_STANDARD_STRINGLITERALTOKENIZINGHANDLER_H
 
 namespace Core { namespace Standard
 {

@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_REFERENCESEEKER_H
-#define DATA_REFERENCESEEKER_H
+#ifndef CORE_DATA_REFERENCESEEKER_H
+#define CORE_DATA_REFERENCESEEKER_H
 
 namespace Core { namespace Data
 {

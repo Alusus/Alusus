@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_IDENTIFIABLE_INTERFACE_H
-#define BASIC_IDENTIFIABLE_INTERFACE_H
+#ifndef CORE_BASIC_IDENTIFIABLE_INTERFACE_H
+#define CORE_BASIC_IDENTIFIABLE_INTERFACE_H
 
 namespace Core { namespace Basic
 {
