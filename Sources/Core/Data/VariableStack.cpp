@@ -55,8 +55,8 @@ void VariableStack::reinitialize(Word maxStrSize, Word reservedRecordCount, Word
         Byte *destBuf = this->buffer + i*this->getRecordSize();
         Byte *srcBuf = oldBuf + i*VariableStack::getRecordSize(oldStrSize);
         sbstr_cast(destBuf).assign(sbstr_cast(srcBuf).c_str(), this->maxStrSize);
-        *reinterpret_cast<IdentifiableObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
-            *reinterpret_cast<IdentifiableObject**>(srcBuf+sizeof(Char)*oldStrSize);
+        *reinterpret_cast<TiObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
+            *reinterpret_cast<TiObject**>(srcBuf+sizeof(Char)*oldStrSize);
       }
     }
   }
@@ -194,8 +194,8 @@ void VariableStack::ownTopLevel()
       Byte *destBuf = this->buffer + i*this->getRecordSize();
       Byte *srcBuf = this->trunkStack->buffer + (srcStart+i)*this->trunkStack->getRecordSize();
       sbstr_cast(destBuf).assign(sbstr_cast(srcBuf).c_str(), this->maxStrSize);
-      *reinterpret_cast<IdentifiableObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
-          *reinterpret_cast<IdentifiableObject**>(srcBuf+sizeof(Char)*this->trunkStack->maxStrSize);
+      *reinterpret_cast<TiObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
+          *reinterpret_cast<TiObject**>(srcBuf+sizeof(Char)*this->trunkStack->maxStrSize);
     }
   }
 }
@@ -223,7 +223,7 @@ void VariableStack::popLevel()
 }
 
 
-Int VariableStack::add(Char const *key, IdentifiableObject *val)
+Int VariableStack::add(Char const *key, TiObject *val)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
@@ -241,13 +241,13 @@ Int VariableStack::add(Char const *key, IdentifiableObject *val)
   else start = this->levels[this->levels.size()-2];
   Byte *buf = this->buffer + this->levels.back()*this->getRecordSize();
   sbstr_cast(buf).assign(key, this->maxStrSize);
-  *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
+  *reinterpret_cast<TiObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
   this->levels.back()++;
   return this->levels.back() - 1 - start;
 }
 
 
-Int VariableStack::set(Char const *key, IdentifiableObject *val, Bool insertIfNew)
+Int VariableStack::set(Char const *key, TiObject *val, Bool insertIfNew)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
@@ -269,7 +269,7 @@ Int VariableStack::set(Char const *key, IdentifiableObject *val, Bool insertIfNe
   }
   Byte *buf = this->buffer + (start+index)*this->getRecordSize();
   sbstr_cast(buf).assign(key, this->maxStrSize);
-  *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
+  *reinterpret_cast<TiObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
   return index;
 }
 
@@ -293,7 +293,7 @@ Int VariableStack::getCount(Int levelIndex) const
 }
 
 
-IdentifiableObject* VariableStack::get(Char const *key, Int levelIndex) const
+TiObject* VariableStack::get(Char const *key, Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
     throw EXCEPTION(GenericException, STR("No levels added yet."));
@@ -315,11 +315,11 @@ IdentifiableObject* VariableStack::get(Char const *key, Int levelIndex) const
     throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found."), key);
   }
   Byte *buf = this->buffer + this->getRecordSize()*(start+index) + sizeof(Char)*this->maxStrSize;
-  return *reinterpret_cast<IdentifiableObject**>(buf);
+  return *reinterpret_cast<TiObject**>(buf);
 }
 
 
-IdentifiableObject* VariableStack::get(Int index, Int levelIndex) const
+TiObject* VariableStack::get(Int index, Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
     throw EXCEPTION(GenericException, STR("No levels added yet."));
@@ -340,7 +340,7 @@ IdentifiableObject* VariableStack::get(Int index, Int levelIndex) const
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + this->getRecordSize()*(start+index) + sizeof(Char)*this->maxStrSize;
-  return *reinterpret_cast<IdentifiableObject**>(buf);
+  return *reinterpret_cast<TiObject**>(buf);
 }
 
 
@@ -428,7 +428,7 @@ Int VariableStack::findIndex(Char const *key, Int start, Int end) const
 //==============================================================================
 // MapContainer Implementation
 
-void VariableStack::set(Int index, IdentifiableObject *val)
+void VariableStack::set(Int index, TiObject *val)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
@@ -444,7 +444,7 @@ void VariableStack::set(Int index, IdentifiableObject *val)
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + (start+index)*this->getRecordSize();
-  *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
+  *reinterpret_cast<TiObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
 }
 
 

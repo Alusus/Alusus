@@ -18,7 +18,7 @@ namespace Core { namespace Data
 //==============================================================================
 // Constructors
 
-SharedList::SharedList(const std::initializer_list<SharedPtr<IdentifiableObject>> &args)
+SharedList::SharedList(const std::initializer_list<SharedPtr<TiObject>> &args)
 {
   this->reserve(args.size());
   for (auto arg : args) this->add(arg);
@@ -35,7 +35,7 @@ SharedList::~SharedList()
 //==============================================================================
 // Member Functions
 
-void SharedList::add(const std::initializer_list<SharedPtr<IdentifiableObject>> &objs)
+void SharedList::add(const std::initializer_list<SharedPtr<TiObject>> &objs)
 {
   if (this->list.capacity() < this->list.size() + objs.size()) this->list.reserve(this->list.size() + objs.size());
   for (auto obj : objs) {
@@ -45,7 +45,7 @@ void SharedList::add(const std::initializer_list<SharedPtr<IdentifiableObject>> 
 }
 
 
-Int SharedList::add(SharedPtr<IdentifiableObject> const &val)
+Int SharedList::add(SharedPtr<TiObject> const &val)
 {
   this->list.push_back(val);
   OWN_SHAREDPTR(val);
@@ -53,7 +53,7 @@ Int SharedList::add(SharedPtr<IdentifiableObject> const &val)
 }
 
 
-void SharedList::insert(Int index, SharedPtr<IdentifiableObject> const &val)
+void SharedList::insert(Int index, SharedPtr<TiObject> const &val)
 {
   if (index < 0 || index > this->getCount()) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
@@ -63,7 +63,7 @@ void SharedList::insert(Int index, SharedPtr<IdentifiableObject> const &val)
 }
 
 
-void SharedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
+void SharedList::set(Int index, SharedPtr<TiObject> const &val)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
@@ -73,7 +73,7 @@ void SharedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
 }
 
 
-SharedPtr<IdentifiableObject> const& SharedList::getShared(Int index) const
+SharedPtr<TiObject> const& SharedList::getShared(Int index) const
 {
   if (static_cast<Word>(index) >= this->list.size()) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
@@ -97,7 +97,7 @@ void SharedList::clear()
 void SharedList::unsetIndexes(Int from, Int to)
 {
   for (Word i = 0; i < this->getCount(); ++i) {
-    IdentifiableObject *obj = this->get(i);
+    TiObject *obj = this->get(i);
     if (obj != 0) Data::unsetIndexes(obj, from, to);
   }
 }

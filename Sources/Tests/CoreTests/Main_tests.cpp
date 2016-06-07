@@ -19,11 +19,11 @@ namespace Tests { namespace CoreTests
 TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Test")
 {
   TestEngine engine;
-  vector<SharedPtr<IdentifiableObject> > results;
-  vector<SharedPtr<IdentifiableObject> > results2;
+  vector<SharedPtr<TiObject> > results;
+  vector<SharedPtr<TiObject> > results2;
 
   try {
-    SharedPtr<IdentifiableObject> ptr = engine.processString(STR("strVar := \"Hello World\";"), STR("testcode"));
+    SharedPtr<TiObject> ptr = engine.processString(STR("strVar := \"Hello World\";"), STR("testcode"));
     SECTION("s1", "Data generated.")
     {
       CHECK(ptr.get() != 0);
@@ -68,11 +68,11 @@ TEST_CASE("Core::Main/assignment", "Assignment Expression Successful Parsing Tes
 TEST_CASE("Core::Main/prefix_op", "Prefix Operator Successful Parsing Test")
 {
   TestEngine engine;
-  vector<SharedPtr<IdentifiableObject> > results;
-  vector<SharedPtr<IdentifiableObject> > results2;
+  vector<SharedPtr<TiObject> > results;
+  vector<SharedPtr<TiObject> > results2;
 
   try {
-    SharedPtr<IdentifiableObject> ptr = engine.processString(STR("--strVar;"), STR("testcode"));
+    SharedPtr<TiObject> ptr = engine.processString(STR("--strVar;"), STR("testcode"));
     SECTION("s1", "Data generated.")
     {
       CHECK(ptr.get() != 0);
@@ -99,11 +99,11 @@ TEST_CASE("Core::Main/prefix_op", "Prefix Operator Successful Parsing Test")
 TEST_CASE("Core::Main/do_cmd", "'do' Command Successful Parsing Test")
 {
   TestEngine engine;
-  vector<SharedPtr<IdentifiableObject> > results;
-  vector<SharedPtr<IdentifiableObject> > results2;
+  vector<SharedPtr<TiObject> > results;
+  vector<SharedPtr<TiObject> > results2;
 
   try {
-    SharedPtr<IdentifiableObject> ptr = engine.processString(STR("do { a = 5; };"), STR("testcode"));
+    SharedPtr<TiObject> ptr = engine.processString(STR("do { a = 5; };"), STR("testcode"));
     SECTION("s1", "Data generated.")
     {
       CHECK(ptr.get() != 0);
@@ -117,13 +117,13 @@ TEST_CASE("Core::Main/do_cmd", "'do' Command Successful Parsing Test")
 TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test")
 {
   TestEngine engine;
-  vector<SharedPtr<IdentifiableObject> > results;
-  vector<SharedPtr<IdentifiableObject> > results1, results2, results3, results4;
+  vector<SharedPtr<TiObject> > results;
+  vector<SharedPtr<TiObject> > results1, results2, results3, results4;
   BuildMsgReceiver buildMsgs(&engine);
 
   try {
     buildMsgs.clear();
-    SharedPtr<IdentifiableObject> ptr = engine.processString(
+    SharedPtr<TiObject> ptr = engine.processString(
       STR("strVar := \"Hello World\";"
           "intVar := 5;"
           "intVar++;"
@@ -255,13 +255,13 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
 TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
 {
   TestEngine engine;
-  vector<SharedPtr<IdentifiableObject> > results;
-  vector<SharedPtr<IdentifiableObject> > results1, results2, results3;
+  vector<SharedPtr<TiObject> > results;
+  vector<SharedPtr<TiObject> > results1, results2, results3;
   BuildMsgReceiver buildMsgs(&engine);
 
   try {
     buildMsgs.clear();
-    SharedPtr<IdentifiableObject> ptr = engine.processString(
+    SharedPtr<TiObject> ptr = engine.processString(
       STR("strVar := \"Hello World\";\n"
           "intVar := 5;\n"
           "intVar+++;\n"

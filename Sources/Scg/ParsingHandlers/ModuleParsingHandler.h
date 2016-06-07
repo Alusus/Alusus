@@ -53,15 +53,15 @@ public:
   virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
 private:
-  void addDefinitionToModule(Core::Processing::ParserState *state, const SharedPtr<IdentifiableObject> &def,
+  void addDefinitionToModule(Core::Processing::ParserState *state, const SharedPtr<TiObject> &def,
                              Module *module, CodeGenerator *generator);
 
 private:
-  void addLinkToModule(Core::Processing::ParserState *state, const SharedPtr<IdentifiableObject> &link,
+  void addLinkToModule(Core::Processing::ParserState *state, const SharedPtr<TiObject> &link,
                        Module *module, CodeGenerator *generator);
 
 private:
-  Char const* getLinkName(IdentifiableObject *link);
+  Char const* getLinkName(TiObject *link);
 
 }; // class
 

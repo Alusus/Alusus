@@ -33,7 +33,7 @@ void SharedRepository::popLevel()
 }
 
 
-void SharedRepository::setLevel(SharedPtr<IdentifiableObject> const &obj, Int index)
+void SharedRepository::setLevel(SharedPtr<TiObject> const &obj, Int index)
 {
   if (this->getLevelCount() == 0) {
     throw EXCEPTION(GenericException, STR("Stack is empty."));
@@ -62,7 +62,7 @@ void SharedRepository::setLevel(SharedPtr<IdentifiableObject> const &obj, Int in
 }
 
 
-void SharedRepository::setLevel(Char const *scope, SharedPtr<IdentifiableObject> const &obj, Int index)
+void SharedRepository::setLevel(Char const *scope, SharedPtr<TiObject> const &obj, Int index)
 {
   if (this->getLevelCount() == 0) {
     throw EXCEPTION(GenericException, STR("Stack is empty."));
@@ -91,7 +91,7 @@ void SharedRepository::setLevel(Char const *scope, SharedPtr<IdentifiableObject>
 }
 
 
-SharedPtr<IdentifiableObject> const& SharedRepository::getLevelData(Int index) const
+SharedPtr<TiObject> const& SharedRepository::getLevelData(Int index) const
 {
   if (this->getLevelCount() == 0) {
     throw EXCEPTION(GenericException, STR("Stack is empty."));
@@ -234,10 +234,10 @@ void SharedRepository::ownTopLevel()
 
 void SharedRepository::set(Reference const *ref, SeekerSetLambda handler)
 {
-  IdentifiableObject *objToSet = 0;
+  TiObject *objToSet = 0;
   if (ref->isA<ScopeReference>()) {
     this->referenceSeeker.set(ref, &this->stack,
-                              [=,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+                              [=,&objToSet](Int index, TiObject *&obj)->RefOp {
       RefOp ret = handler(index, obj);
       if (this->owningEnabled && isPerform(ret)) {
         // We can't call setTreeIds until the object is set to the tree, so we will cache the
@@ -253,11 +253,11 @@ void SharedRepository::set(Reference const *ref, SeekerSetLambda handler)
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
+      TiObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       RefOp ret;
       this->referenceSeeker.set(ref, parent,
-                                [=,&ret,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+                                [=,&ret,&objToSet](Int index, TiObject *&obj)->RefOp {
         ret = handler(index, obj);
         if (this->owningEnabled && isPerform(ret)) {
           // We can't call setTreeIds until the object is set to the tree, so we will cache the
@@ -278,7 +278,7 @@ void SharedRepository::set(Reference const *ref, SeekerSetLambda handler)
 
 void SharedRepository::set(Char const *qualifier, SeekerSetLambda handler)
 {
-  IdentifiableObject *objToSet = 0;
+  TiObject *objToSet = 0;
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
   Reference const *ref = &parser.parseQualifierSegmentToTemp(qualifier2);
@@ -286,7 +286,7 @@ void SharedRepository::set(Char const *qualifier, SeekerSetLambda handler)
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     this->qualifierSeeker.set(qualifier, &this->stack,
-                              [=,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+                              [=,&objToSet](Int index, TiObject *&obj)->RefOp {
       RefOp ret = handler(index, obj);
       if (this->owningEnabled && isPerform(ret)) {
         // We can't call setTreeIds until the object is set to the tree, so we will cache the
@@ -302,11 +302,11 @@ void SharedRepository::set(Char const *qualifier, SeekerSetLambda handler)
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
+      TiObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       RefOp ret;
       this->qualifierSeeker.set(qualifier, parent,
-                                [=,&ret,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+                                [=,&ret,&objToSet](Int index, TiObject *&obj)->RefOp {
         ret = handler(index, obj);
         if (this->owningEnabled && isPerform(ret)) {
           // We can't call setTreeIds until the object is set to the tree, so we will cache the
@@ -332,11 +332,11 @@ void SharedRepository::remove(Reference const *ref, SeekerRemoveLambda handler)
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
+      TiObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       RefOp ret;
       this->referenceSeeker.remove(ref, parent,
-                                   [=,&ret](Int index, IdentifiableObject *obj)->RefOp {
+                                   [=,&ret](Int index, TiObject *obj)->RefOp {
         ret = handler(index, obj);
         return ret;
       });
@@ -357,11 +357,11 @@ void SharedRepository::remove(Char const *qualifier, SeekerRemoveLambda handler)
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
+      TiObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       RefOp ret;
       this->qualifierSeeker.remove(qualifier, parent,
-                                   [=,&ret](Int index, IdentifiableObject *obj)->RefOp {
+                                   [=,&ret](Int index, TiObject *obj)->RefOp {
         ret = handler(index, obj);
         return ret;
       });
@@ -379,11 +379,11 @@ void SharedRepository::forEach(Reference const *ref, SeekerForeachLambda handler
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *source = this->stack.get(i);
+      TiObject *source = this->stack.get(i);
       if (source == 0) continue;
       RefOp ret;
       this->referenceSeeker.forEach(ref, source,
-                                    [=,&ret](Int index, IdentifiableObject *obj, IdentifiableObject *parent)->RefOp {
+                                    [=,&ret](Int index, TiObject *obj, TiObject *parent)->RefOp {
         ret = handler(index, obj, parent);
         return ret;
       }, parentTypeInfo);
@@ -405,11 +405,11 @@ void SharedRepository::forEach(Char const *qualifier, SeekerForeachLambda handle
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *source = this->stack.get(i);
+      TiObject *source = this->stack.get(i);
       if (source == 0) continue;
       RefOp ret;
       this->qualifierSeeker.forEach(qualifier, source,
-                                    [=,&ret](Int index, IdentifiableObject *obj, IdentifiableObject *parent)->RefOp {
+                                    [=,&ret](Int index, TiObject *obj, TiObject *parent)->RefOp {
         ret = handler(index, obj, parent);
         return ret;
       }, parentTypeInfo);

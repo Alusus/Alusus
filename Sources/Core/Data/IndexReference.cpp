@@ -20,20 +20,20 @@ namespace Core { namespace Data
 
 Bool IndexReference::compare(Reference const *r) const
 {
-  const IndexReference *ir = io_cast<const IndexReference>(r);
+  const IndexReference *ir = tio_cast<const IndexReference>(r);
   if (ir != 0 && ir->getIndex() == this->getIndex()) return Reference::compare(r);
   else return false;
 }
 
 
-void IndexReference::setValue(Provider *provider, IdentifiableObject *parent,
+void IndexReference::setValue(Provider *provider, TiObject *parent,
                               ReferenceSetLambda handler) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
   }
   Container *container = parent->getInterface<Container>();
-  IdentifiableObject *obj;
+  TiObject *obj;
   if (container == 0) return;
   if (this->index >= 0 && this->index < container->getCount()) {
     obj = container->get(this->index);
@@ -56,7 +56,7 @@ void IndexReference::setValue(Provider *provider, IdentifiableObject *parent,
 }
 
 
-void IndexReference::removeValue(Provider *provider, IdentifiableObject *parent,
+void IndexReference::removeValue(Provider *provider, TiObject *parent,
                                  ReferenceRemoveLambda handler) const
 {
   if (parent == 0) {
@@ -77,7 +77,7 @@ void IndexReference::removeValue(Provider *provider, IdentifiableObject *parent,
 }
 
 
-void IndexReference::forEachValue(Provider *provider, IdentifiableObject *parent,
+void IndexReference::forEachValue(Provider *provider, TiObject *parent,
                                   ReferenceForeachLambda handler) const
 {
   if (parent == 0) {
@@ -94,8 +94,8 @@ void IndexReference::forEachValue(Provider *provider, IdentifiableObject *parent
 }
 
 
-Bool IndexReference::setValue(Provider *provider, IdentifiableObject *parent,
-                              IdentifiableObject *obj) const
+Bool IndexReference::setValue(Provider *provider, TiObject *parent,
+                              TiObject *obj) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
@@ -115,8 +115,8 @@ Bool IndexReference::setValue(Provider *provider, IdentifiableObject *parent,
 }
 
 
-Bool IndexReference::getValue(Provider *provider, IdentifiableObject *parent,
-                              IdentifiableObject *&result) const
+Bool IndexReference::getValue(Provider *provider, TiObject *parent,
+                              TiObject *&result) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));

@@ -23,7 +23,7 @@ using namespace Core::Basic;
 using namespace Core::Data;
 using std::shared_ptr;
 
-FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen, SharedPtr<PrtList> const &astRoot)
+FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen, SharedPtr<Ast::List> const &astRoot)
 {
   if (astRoot->getProdId() != gen->getFunctionId())
     throw EXCEPTION(InvalidArgumentException,
@@ -41,7 +41,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen, SharedPtr<PrtList> const 
         ReferenceUsageCriteria::MULTI_DATA);
 
   // Parses the arguments and return types of the function.
-  auto sigWithRet = getSharedPtr(seeker.tryGet(sigWithRetReference.get(), astRoot.get())).io_cast<PrtList>();
+  auto sigWithRet = getSharedPtr(seeker.tryGet(sigWithRetReference.get(), astRoot.get())).tio_cast<Ast::List>();
 
   if (sigWithRet != nullptr) {
     // The function has return value.
@@ -64,7 +64,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen, SharedPtr<PrtList> const 
   }
 
   // Parses the body of the function.
-  auto bodyRoot = getSharedPtr(seeker.tryGet(bodyReference.get(), astRoot.get())).io_cast<PrtList>();
+  auto bodyRoot = getSharedPtr(seeker.tryGet(bodyReference.get(), astRoot.get())).tio_cast<Ast::List>();
 
   if (bodyRoot != nullptr) {
     auto bodyAstBlock = ListExpression(gen, bodyRoot);

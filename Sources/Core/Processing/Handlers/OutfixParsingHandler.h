@@ -45,10 +45,10 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
   //============================================================================
   // Member Functions
 
-  protected: virtual void addData(SharedPtr<IdentifiableObject> const &data, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
-      SharedPtr<IdentifiableObject> currentData = state->getData(levelIndex);
+      SharedPtr<TiObject> currentData = state->getData(levelIndex);
       if (currentData != 0) {
         if (state->refTermLevel(levelIndex).getPosId() == 2) {
           // Attach prefix
@@ -77,10 +77,10 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
     else return GenericParsingHandler::isListObjEnforced(state, levelIndex);
   }
 
-  private: SharedPtr<PREFIXTYPE> createPrefixObj(SharedIoPtr const &currentData,
-                                                 SharedIoPtr const &data)
+  private: SharedPtr<PREFIXTYPE> createPrefixObj(TioSharedPtr const &currentData,
+                                                 TioSharedPtr const &data)
   {
-    auto token = currentData.io_cast_get<Data::PrtToken>();
+    auto token = currentData.tio_cast_get<Data::Ast::Token>();
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("currentData"), STR("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());
@@ -90,17 +90,17 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
     obj->setOperand(data);
     obj->setType(token->getText().c_str());
 
-    auto metadata = currentData.ii_cast_get<Data::ParsingMetadataHolder>();
+    auto metadata = currentData.tii_cast_get<Data::Ast::MetadataHolder>();
     if (metadata != 0) {
       obj->setSourceLocation(metadata->getSourceLocation());
     }
     return obj;
   }
 
-  private: SharedPtr<POSTFIXTYPE> createPostfixObj(SharedIoPtr const &currentData,
-                                                   SharedIoPtr const &data)
+  private: SharedPtr<POSTFIXTYPE> createPostfixObj(TioSharedPtr const &currentData,
+                                                   TioSharedPtr const &data)
   {
-    auto token = data.io_cast_get<Data::PrtToken>();
+    auto token = data.tio_cast_get<Data::Ast::Token>();
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());
@@ -110,7 +110,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
     obj->setOperand(currentData);
     obj->setType(token->getText().c_str());
 
-    auto metadata = currentData.ii_cast_get<Data::ParsingMetadataHolder>();
+    auto metadata = currentData.tii_cast_get<Data::Ast::MetadataHolder>();
     if (metadata != 0) {
       obj->setSourceLocation(metadata->getSourceLocation());
     }

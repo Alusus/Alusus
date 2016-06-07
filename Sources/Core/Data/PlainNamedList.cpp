@@ -108,7 +108,7 @@ void PlainNamedList::clear()
   ASSERT(this->count >= 0);
   if (this->owningEnabled) {
     for (Int i = 0; i < this->count; ++i) {
-      IdentifiableObject *obj = this->get(i);
+      TiObject *obj = this->get(i);
       DISOWN_PLAINPTR(obj);
     }
   }
@@ -123,7 +123,7 @@ void PlainNamedList::unsetIndexes(Int from, Int to)
 {
   if (this->buffer == 0) return;
   for (Word i = 0; i < this->count; ++i) {
-    IdentifiableObject *obj = this->get(i);
+    TiObject *obj = this->get(i);
     if (obj != 0) Data::unsetIndexes(obj, from, to);
   }
 }
@@ -132,7 +132,7 @@ void PlainNamedList::unsetIndexes(Int from, Int to)
 //==============================================================================
 // NamedListContainer Implementation
 
-void PlainNamedList::set(Int index, IdentifiableObject *val)
+void PlainNamedList::set(Int index, TiObject *val)
 {
   if (this->buffer == 0) {
     throw EXCEPTION(GenericException, STR("List not initialized."));
@@ -141,7 +141,7 @@ void PlainNamedList::set(Int index, IdentifiableObject *val)
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
-  IdentifiableObject **obj = reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize);
+  TiObject **obj = reinterpret_cast<TiObject**>(buf+sizeof(Char)*this->maxStrSize);
   DISOWN_PLAINPTR(*obj);
   *obj = val;
   if (this->owningEnabled) {
@@ -169,7 +169,7 @@ void PlainNamedList::remove(Int index)
 }
 
 
-IdentifiableObject* PlainNamedList::get(Int index) const
+TiObject* PlainNamedList::get(Int index) const
 {
   if (this->buffer == 0) {
     throw EXCEPTION(GenericException, STR("List not initialized."));
@@ -178,11 +178,11 @@ IdentifiableObject* PlainNamedList::get(Int index) const
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
-  return *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize);
+  return *reinterpret_cast<TiObject**>(buf+sizeof(Char)*this->maxStrSize);
 }
 
 
-Int PlainNamedList::add(Char const *name, IdentifiableObject *val)
+Int PlainNamedList::add(Char const *name, TiObject *val)
 {
   if (this->buffer == 0) {
     throw EXCEPTION(GenericException, STR("List not initialized."));
@@ -192,7 +192,7 @@ Int PlainNamedList::add(Char const *name, IdentifiableObject *val)
   }
   Byte *buf = this->buffer + this->count*this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
-  *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
+  *reinterpret_cast<TiObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
   if (this->owningEnabled) {
     OWN_PLAINPTR(val);
   }
@@ -201,7 +201,7 @@ Int PlainNamedList::add(Char const *name, IdentifiableObject *val)
 }
 
 
-void PlainNamedList::insert(Int index, Char const *name, IdentifiableObject *val)
+void PlainNamedList::insert(Int index, Char const *name, TiObject *val)
 {
   if (this->buffer == 0) {
     throw EXCEPTION(GenericException, STR("List not initialized."));
@@ -233,14 +233,14 @@ void PlainNamedList::insert(Int index, Char const *name, IdentifiableObject *val
   }
   Byte *buf = this->buffer + index * this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
-  *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
+  *reinterpret_cast<TiObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
   if (this->owningEnabled) {
     OWN_PLAINPTR(val);
   }
 }
 
 
-void PlainNamedList::set(Int index, Char const *name, IdentifiableObject *val)
+void PlainNamedList::set(Int index, Char const *name, TiObject *val)
 {
   if (this->buffer == 0) {
     throw EXCEPTION(GenericException, STR("List not initialized."));
@@ -250,7 +250,7 @@ void PlainNamedList::set(Int index, Char const *name, IdentifiableObject *val)
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
-  IdentifiableObject **obj = reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize);
+  TiObject **obj = reinterpret_cast<TiObject**>(buf+sizeof(Char)*this->maxStrSize);
   DISOWN_PLAINPTR(*obj);
   *obj = val;
   if (this->owningEnabled) {

@@ -18,22 +18,22 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class Tracer : public IdentifiableInterface
+class Tracer : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(Tracer, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(Tracer, TiInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual void traceValue(IdentifiableObject *val, IdentifiableObject *&retVal, Module *&retModule) = 0;
+  public: virtual void traceValue(TiObject *val, TiObject *&retVal, Module *&retModule) = 0;
 
-  public: virtual IdentifiableObject* traceValue(IdentifiableObject *val)
+  public: virtual TiObject* traceValue(TiObject *val)
   {
-    IdentifiableObject *retVal;
+    TiObject *retVal;
     Module *retModule;
     this->traceValue(val, retVal, retModule);
     return retVal;

@@ -18,12 +18,12 @@ namespace Core { namespace Standard
 
 // TODO: DOC
 
-class LibraryGateway : public IdentifiableObject
+class LibraryGateway : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(LibraryGateway, IdentifiableObject, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(LibraryGateway, TiObject, "Core.Standard", "Core", "alusus.net");
 
 
   //============================================================================

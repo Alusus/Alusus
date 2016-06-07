@@ -18,18 +18,18 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class AttributesHolder : public IdentifiableInterface
+class AttributesHolder : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(AttributesHolder, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(AttributesHolder, TiInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual IdentifiableObject* getAttribute(Char const *name) = 0;
+  public: virtual TiObject* getAttribute(Char const *name) = 0;
 
 }; // class
 

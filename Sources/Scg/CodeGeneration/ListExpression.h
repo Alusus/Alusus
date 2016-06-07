@@ -32,7 +32,7 @@ private:
 
 public:
   ListExpression(CodeGenerator *gen,
-                 const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+                 const Core::Basic::SharedPtr<Core::Basic::TiObject> &item);
 
   /**
    * Retrieves the number of items in this list expression.

@@ -25,12 +25,12 @@ namespace Core { namespace Data
  * Classes that owns children need to implement this class to provide those
  * functionalitites.
  */
-class DataOwner : public IdentifiableInterface
+class DataOwner : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(DataOwner, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(DataOwner, TiInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

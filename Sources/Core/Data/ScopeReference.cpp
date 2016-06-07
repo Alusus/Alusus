@@ -20,13 +20,13 @@ namespace Core { namespace Data
 
 Bool ScopeReference::compare(Reference const *r) const
 {
-  const ScopeReference *sr = io_cast<ScopeReference>(r);
+  const ScopeReference *sr = tio_cast<ScopeReference>(r);
   if (sr != 0 && sr->getScope() == this->getScope()) return Reference::compare(r);
   else return false;
 }
 
 
-void ScopeReference::setValue(Provider *provider, IdentifiableObject *parent,
+void ScopeReference::setValue(Provider *provider, TiObject *parent,
                               ReferenceSetLambda handler) const
 {
   if (parent == 0) {
@@ -37,7 +37,7 @@ void ScopeReference::setValue(Provider *provider, IdentifiableObject *parent,
 
   if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH &&
       this->cachedIndex >= 0 && this->cachedIndex < container->getCount()) {
-    IdentifiableObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
+    TiObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
     if (isPerform(handler(0, obj))) {
       container->set(this->getListIndex(container, this->cachedIndex), obj);
     }
@@ -47,7 +47,7 @@ void ScopeReference::setValue(Provider *provider, IdentifiableObject *parent,
     while (true) {
       index = this->findScope(container, index);
       if (index == -1) break;
-      IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+      TiObject *obj = container->get(this->getListIndex(container, index));
       if (isPerform(handler(i, obj))) {
         container->set(this->getListIndex(container, index), obj);
       }
@@ -62,7 +62,7 @@ void ScopeReference::setValue(Provider *provider, IdentifiableObject *parent,
 }
 
 
-void ScopeReference::removeValue(Provider *provider, IdentifiableObject *parent,
+void ScopeReference::removeValue(Provider *provider, TiObject *parent,
                                  ReferenceRemoveLambda handler) const
 {
   if (parent == 0) {
@@ -73,7 +73,7 @@ void ScopeReference::removeValue(Provider *provider, IdentifiableObject *parent,
 
   if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH &&
       this->cachedIndex >= 0 && this->cachedIndex < container->getCount()) {
-    IdentifiableObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
+    TiObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
     if (isPerform(handler(0, obj))) {
       container->remove(this->getListIndex(container, this->cachedIndex));
     }
@@ -83,7 +83,7 @@ void ScopeReference::removeValue(Provider *provider, IdentifiableObject *parent,
     while (true) {
       index = this->findScope(container, index);
       if (index == -1) break;
-      IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+      TiObject *obj = container->get(this->getListIndex(container, index));
       if (isPerform(handler(i, obj))) {
         container->remove(this->getListIndex(container, index));
       }
@@ -97,7 +97,7 @@ void ScopeReference::removeValue(Provider *provider, IdentifiableObject *parent,
 }
 
 
-void ScopeReference::forEachValue(Provider *provider, IdentifiableObject *parent,
+void ScopeReference::forEachValue(Provider *provider, TiObject *parent,
                                   ReferenceForeachLambda handler) const
 {
   if (parent == 0) {
@@ -108,7 +108,7 @@ void ScopeReference::forEachValue(Provider *provider, IdentifiableObject *parent
 
   if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH &&
       this->cachedIndex >= 0 && this->cachedIndex < container->getCount()) {
-    IdentifiableObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
+    TiObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
     handler(0, obj);
   } else {
     Int i = 0;
@@ -116,7 +116,7 @@ void ScopeReference::forEachValue(Provider *provider, IdentifiableObject *parent
     while (true) {
       index = this->findScope(container, index);
       if (index == -1) break;
-      IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+      TiObject *obj = container->get(this->getListIndex(container, index));
       handler(i, obj);
       if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH) {
         this->cachedIndex = index;

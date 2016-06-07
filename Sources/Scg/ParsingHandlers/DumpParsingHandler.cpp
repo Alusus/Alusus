@@ -26,7 +26,7 @@ using namespace Core::Data;
 
 void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  SharedPtr<IdentifiableObject> item = state->getData();
+  SharedPtr<TiObject> item = state->getData();
 
   static ReferenceSeeker seeker;
   static SharedPtr<Reference> nameReference = REF_PARSER->parseQualifier(
@@ -34,8 +34,8 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
         ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
-  auto name = io_cast<PrtToken>(seeker.tryGet(nameReference.get(), item.get()));
-  IdentifiableObject *def = 0;
+  auto name = tio_cast<Ast::Token>(seeker.tryGet(nameReference.get(), item.get()));
+  TiObject *def = 0;
 
   if (name != 0) {
     def = this->rootManager->getDefinitionsRepository()->get(name->getText().c_str());
@@ -43,13 +43,13 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
 
   if (def != 0) {
     outStream << STR("------------------ Parsed Data Dump ------------------\n");
-    dumpParsedData(def);
+    dumpData(outStream, def, 0);
     outStream << STR("------------------------------------------------------\n");
   } else {
     // Create a build msg.
     Str message = "Couldn't find module: ";
     message += name->getText();
-    ParsingMetadataHolder *metadata = item->getInterface<ParsingMetadataHolder>();
+    Ast::MetadataHolder *metadata = item->getInterface<Ast::MetadataHolder>();
 
     if (metadata != 0) {
       state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), metadata->getSourceLocation()));
@@ -59,7 +59,7 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
   }
 
   // Reset parsed data because we are done with the command.
-  state->setData(SharedPtr<IdentifiableObject>(0));
+  state->setData(SharedPtr<TiObject>(0));
 }
 
 } // namespace

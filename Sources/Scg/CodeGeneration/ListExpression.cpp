@@ -19,17 +19,17 @@ using namespace Core::Basic;
 using namespace Core::Data;
 
 ListExpression::ListExpression(CodeGenerator *gen,
-                               const SharedPtr<IdentifiableObject> &item)
+                               const SharedPtr<TiObject> &item)
 {
   // TODO: Why is the statement list considered a list expression? It is
   // currently used by Function class to parse the body of the function, but I don't
   // think this is correct. Instead, we should have a separate class to
   // parse a list of statements.
-  auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
+  auto metadata = item.tii_cast_get<Ast::MetadataHolder>();
 
   if (metadata != nullptr && (metadata->getProdId() == gen->getListExpId() ||
                               metadata->getProdId() == gen->getStatementListId())) {
-    auto listExp = item.s_cast<Core::Data::PrtList>();
+    auto listExp = item.s_cast<Core::Data::Ast::List>();
 
     for (auto i = 0; i < listExp->getCount(); i++)
       this->items.push_back(listExp->getShared(i));
@@ -49,7 +49,7 @@ StringArray ListExpression::parseTokenList() const
 
   for (auto i = 0; i < getItemCount(); i++) {
     auto item = getItem(i);
-    auto token = io_cast<PrtToken>(seeker.tryGet(tokenReference.get(), item.get()));
+    auto token = tio_cast<Ast::Token>(seeker.tryGet(tokenReference.get(), item.get()));
 
     if (token == 0)
       // TODO: Add the index of the non-token to the exception message.

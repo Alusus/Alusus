@@ -18,13 +18,13 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class VariableStack : public IdentifiableObject, public virtual MapContainer
+class VariableStack : public TiObject, public virtual MapContainer
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(VariableStack, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, MapContainer);
+  TYPE_INFO(VariableStack, TiObject, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_1(TiObject, MapContainer);
 
 
   //============================================================================
@@ -152,15 +152,15 @@ class VariableStack : public IdentifiableObject, public virtual MapContainer
   /// @name Variable Access Functions
   /// @{
 
-  public: Int add(Char const *key, IdentifiableObject *val);
+  public: Int add(Char const *key, TiObject *val);
 
-  public: Int set(Char const *key, IdentifiableObject *val, Bool insertIfNew);
+  public: Int set(Char const *key, TiObject *val, Bool insertIfNew);
 
   public: Int getCount(Int levelIndex) const;
 
-  public: IdentifiableObject* get(Char const *key, Int levelIndex) const;
+  public: TiObject* get(Char const *key, Int levelIndex) const;
 
-  public: IdentifiableObject* get(Int index, Int levelIndex) const;
+  public: TiObject* get(Int index, Int levelIndex) const;
 
   public: const SbStr& getKey(Int index, Int levelIndex) const;
 
@@ -176,7 +176,7 @@ class VariableStack : public IdentifiableObject, public virtual MapContainer
   //============================================================================
   // MapContainer Implementation
 
-  public: virtual void set(Int index, IdentifiableObject *val);
+  public: virtual void set(Int index, TiObject *val);
 
   public: virtual void remove(Int index);
 
@@ -185,19 +185,19 @@ class VariableStack : public IdentifiableObject, public virtual MapContainer
     return this->getCount(-1);
   }
 
-  public: virtual IdentifiableObject* get(Int index) const
+  public: virtual TiObject* get(Int index) const
   {
     return this->get(index, -1);
   }
 
-  public: virtual Int set(Char const *key, IdentifiableObject *val)
+  public: virtual Int set(Char const *key, TiObject *val)
   {
     return this->set(key, val, true);
   }
 
   public: virtual void remove(Char const *key);
 
-  public: virtual IdentifiableObject* get(Char const *key) const
+  public: virtual TiObject* get(Char const *key) const
   {
     return this->get(key, -1);
   }

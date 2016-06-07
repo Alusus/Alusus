@@ -44,10 +44,10 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  protected: virtual void addData(SharedPtr<IdentifiableObject> const &data, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
-      SharedPtr<IdentifiableObject> currentData = state->getData(levelIndex);
+      SharedPtr<TiObject> currentData = state->getData(levelIndex);
       if (currentData != 0) {
         // Either a child data was set into this level, or this level was visited more than once
         // causing an infix obj to be created.
@@ -77,20 +77,20 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     TYPE *leaf = 0;
     while (obj != 0 && obj->getProdId() == UNKNOWN_ID) {
       leaf = obj;
-      obj = obj->getRight().template io_cast_get<TYPE>();
+      obj = obj->getRight().template tio_cast_get<TYPE>();
     }
     return leaf;
   }
 
-  private: SharedPtr<TYPE> createInfixObj(SharedPtr<IdentifiableObject> const &currentData,
-                                          SharedPtr<IdentifiableObject> const &data)
+  private: SharedPtr<TYPE> createInfixObj(SharedPtr<TiObject> const &currentData,
+                                          SharedPtr<TiObject> const &data)
   {
-    Data::PrtList *list = data.io_cast_get<Data::PrtList>();
+    Data::Ast::List *list = data.tio_cast_get<Data::Ast::List>();
     if (list == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid object type received."),
                       data->getMyTypeInfo()->getUniqueName());
     }
-    auto token = list->get(0).template io_cast_get<Data::PrtToken>();
+    auto token = list->get(0).template tio_cast_get<Data::Ast::Token>();
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("data[0]"), STR("Invalid op token object received."),
                       list->get(0)->getMyTypeInfo()->getUniqueName());
@@ -101,7 +101,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     obj->setType(token->getText().c_str());
     obj->setRight(list->get(1));
 
-    auto metadata = currentData.ii_cast_get<Data::ParsingMetadataHolder>();
+    auto metadata = currentData.tii_cast_get<Data::Ast::MetadataHolder>();
     if (metadata != 0) {
       obj->setSourceLocation(metadata->getSourceLocation());
     }
@@ -118,9 +118,9 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     }
   }
 
-  private: SharedPtr<IdentifiableObject> cloneInfixTree(SharedPtr<IdentifiableObject> const &obj)
+  private: SharedPtr<TiObject> cloneInfixTree(SharedPtr<TiObject> const &obj)
   {
-    TYPE *infixObj = obj.io_cast_get<TYPE>();
+    TYPE *infixObj = obj.tio_cast_get<TYPE>();
     if (infixObj == 0 || infixObj->getProdId() != UNKNOWN_ID) return obj;
 
     SharedPtr<TYPE> newObj = std::make_shared<TYPE>();

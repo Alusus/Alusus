@@ -33,9 +33,9 @@ class SharedPairedPtr : public Node
   //============================================================================
   // Member Variables
 
-  public: SharedPtr<IdentifiableObject> object;
+  public: SharedPtr<TiObject> object;
 
-  public: SharedPtr<IdentifiableObject> parent;
+  public: SharedPtr<TiObject> parent;
 
 
   //============================================================================
@@ -45,7 +45,7 @@ class SharedPairedPtr : public Node
   {
   }
 
-  public: SharedPairedPtr(SharedPtr<IdentifiableObject> const &o, SharedPtr<IdentifiableObject> const &p) :
+  public: SharedPairedPtr(SharedPtr<TiObject> const &o, SharedPtr<TiObject> const &p) :
     object(o), parent(p)
   {
   }
@@ -94,15 +94,15 @@ class PlainPairedPtr : public Node
   //============================================================================
   // Member Variables
 
-  public: IdentifiableObject *object;
+  public: TiObject *object;
 
-  public: IdentifiableObject *parent;
+  public: TiObject *parent;
 
 
   //============================================================================
   // Constructors
 
-  public: PlainPairedPtr(IdentifiableObject *o = 0, IdentifiableObject *m = 0) :
+  public: PlainPairedPtr(TiObject *o = 0, TiObject *m = 0) :
     object(o), parent(m)
   {
   }

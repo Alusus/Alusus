@@ -28,12 +28,12 @@ class SignalBase;
  * list of those connections for proper disconnection when the object is
  * destroyed.
  */
-class SignalReverseConnector : public IdentifiableInterface
+class SignalReverseConnector : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(SignalReverseConnector, IdentifiableInterface, "Core.Basic", "Core", "alusus.net");
+  INTERFACE_INFO(SignalReverseConnector, TiInterface, "Core.Basic", "Core", "alusus.net");
 
 
   //============================================================================

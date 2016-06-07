@@ -18,12 +18,12 @@ namespace Core { namespace Standard
 
 // TODO: DOC
 
-class LibraryManager : public IdentifiableObject
+class LibraryManager : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(LibraryManager, IdentifiableObject, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(LibraryManager, TiObject, "Core.Standard", "Core", "alusus.net");
 
 
   //============================================================================

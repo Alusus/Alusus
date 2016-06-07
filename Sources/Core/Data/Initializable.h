@@ -18,18 +18,18 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class Initializable : public IdentifiableInterface
+class Initializable : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(Initializable, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(Initializable, TiInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual void initialize(IdentifiableObject *owner) = 0;
+  public: virtual void initialize(TiObject *owner) = 0;
 
 }; // class
 

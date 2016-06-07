@@ -135,7 +135,7 @@ class DefineVariable : public Instruction, public virtual Core::Data::Container
   //============================================================================
   // Container Implementation
 
-  public: virtual void set(Int index, IdentifiableObject *val)
+  public: virtual void set(Int index, TiObject *val)
   {
   }
 
@@ -148,7 +148,7 @@ class DefineVariable : public Instruction, public virtual Core::Data::Container
     return this->value == 0 ? 1 : 2;
   }
 
-  public: virtual IdentifiableObject* get(Int index) const
+  public: virtual TiObject* get(Int index) const
   {
     if (this->value == 0) {
       if (index == 0) return this->var.get();

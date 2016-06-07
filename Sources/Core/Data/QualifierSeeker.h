@@ -60,17 +60,17 @@ class QualifierSeeker
   /// @name Data Write Functions
   /// @{
 
-  public: void set(Char const *qualifier, IdentifiableObject *target, IdentifiableObject *val) const
+  public: void set(Char const *qualifier, TiObject *target, TiObject *val) const
   {
     if (!this->trySet(qualifier, target, val)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
   }
 
-  public: Bool trySet(Char const *qualifier, IdentifiableObject *target, IdentifiableObject *val) const
+  public: Bool trySet(Char const *qualifier, TiObject *target, TiObject *val) const
   {
     Bool ret = false;
-    this->set(qualifier, target, [=,&ret](Int index, IdentifiableObject *&o)->RefOp {
+    this->set(qualifier, target, [=,&ret](Int index, TiObject *&o)->RefOp {
       o = val;
       ret = true;
       return RefOp::PERFORM_AND_MOVE;
@@ -78,12 +78,12 @@ class QualifierSeeker
     return ret;
   }
 
-  public: RefOp set(Char const *qualifier, IdentifiableObject *target, SeekerSetLambda handler) const
+  public: RefOp set(Char const *qualifier, TiObject *target, SeekerSetLambda handler) const
   {
     return this->set(qualifier, target, handler, 0);
   }
 
-  private: RefOp set(Char const *qualifier, IdentifiableObject *target, SeekerSetLambda handler,
+  private: RefOp set(Char const *qualifier, TiObject *target, SeekerSetLambda handler,
                      Int *index) const;
 
   /// @}
@@ -91,29 +91,29 @@ class QualifierSeeker
   /// @name Data Delete Functions
   /// @{
 
-  public: void remove(Char const *qualifier, IdentifiableObject *target) const
+  public: void remove(Char const *qualifier, TiObject *target) const
   {
     if (!this->tryRemove(qualifier, target)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
   }
 
-  public: Bool tryRemove(Char const *qualifier, IdentifiableObject *target) const
+  public: Bool tryRemove(Char const *qualifier, TiObject *target) const
   {
     Bool ret = false;
-    this->remove(qualifier, target, [&ret](Int index, IdentifiableObject *o)->RefOp {
+    this->remove(qualifier, target, [&ret](Int index, TiObject *o)->RefOp {
       ret = true;
       return RefOp::PERFORM_AND_MOVE;
     });
     return ret;
   }
 
-  public: RefOp remove(Char const *qualifier, IdentifiableObject *target, SeekerRemoveLambda handler) const
+  public: RefOp remove(Char const *qualifier, TiObject *target, SeekerRemoveLambda handler) const
   {
     return this->remove(qualifier, target, handler, 0);
   }
 
-  private: RefOp remove(Char const *qualifier, IdentifiableObject *target, SeekerRemoveLambda handler,
+  private: RefOp remove(Char const *qualifier, TiObject *target, SeekerRemoveLambda handler,
                         Int *index) const;
 
   /// @}
@@ -121,35 +121,35 @@ class QualifierSeeker
   /// @name Data Read Functions
   /// @{
 
-  public: IdentifiableObject* get(Char const *qualifier, IdentifiableObject *source) const
+  public: TiObject* get(Char const *qualifier, TiObject *source) const
   {
-    IdentifiableObject *result;
+    TiObject *result;
     if (!this->tryGet(qualifier, source, result)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
     return result;
   }
 
-  public: IdentifiableObject* tryGet(Char const *qualifier, IdentifiableObject *source) const
+  public: TiObject* tryGet(Char const *qualifier, TiObject *source) const
   {
-    IdentifiableObject *result = 0;
+    TiObject *result = 0;
     this->tryGet(qualifier, source, result);
     return result;
   }
 
-  public: void get(Char const *qualifier, IdentifiableObject *source, IdentifiableObject *&retVal,
-                   TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) const
+  public: void get(Char const *qualifier, TiObject *source, TiObject *&retVal,
+                   TypeInfo const *parentTypeInfo=0, TiObject **retParent=0) const
   {
     if (!this->tryGet(qualifier, source, retVal, parentTypeInfo, retParent)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
   }
 
-  public: Bool tryGet(Char const *qualifier, IdentifiableObject *source, IdentifiableObject *&retVal,
-                      TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) const
+  public: Bool tryGet(Char const *qualifier, TiObject *source, TiObject *&retVal,
+                      TypeInfo const *parentTypeInfo=0, TiObject **retParent=0) const
   {
     Bool ret = false;
-    this->forEach(qualifier, source, [=,&ret,&retVal](Int i, IdentifiableObject *obj, IdentifiableObject *parent)->RefOp {
+    this->forEach(qualifier, source, [=,&ret,&retVal](Int i, TiObject *obj, TiObject *parent)->RefOp {
       retVal = obj;
       if (retParent) *retParent = parent;
       ret = true;
@@ -158,23 +158,23 @@ class QualifierSeeker
     return ret;
   }
 
-  public: template<class T> Bool tryGet(Char const *qualifier, IdentifiableObject *source,
-                                        IdentifiableObject *&retVal, T *&retParent) const
+  public: template<class T> Bool tryGet(Char const *qualifier, TiObject *source,
+                                        TiObject *&retVal, T *&retParent) const
   {
-    IdentifiableObject *retIoParent;
+    TiObject *retIoParent;
     Bool result = this->tryGet(qualifier, source, retVal, T::getTypeInfo(), &retIoParent);
     retParent = static_cast<T*>(retIoParent);
     return result;
   }
 
-  public: RefOp forEach(Char const *qualifier, IdentifiableObject *source, SeekerForeachLambda handler,
+  public: RefOp forEach(Char const *qualifier, TiObject *source, SeekerForeachLambda handler,
                         TypeInfo const *parentTypeInfo=0) const
   {
     return this->forEach(qualifier, source, handler, parentTypeInfo, 0, 0);
   }
 
-  private: RefOp forEach(Char const *qualifier, IdentifiableObject *source, SeekerForeachLambda handler,
-                         TypeInfo const *parentTypeInfo, IdentifiableObject *parent, Int *index) const;
+  private: RefOp forEach(Char const *qualifier, TiObject *source, SeekerForeachLambda handler,
+                         TypeInfo const *parentTypeInfo, TiObject *parent, Int *index) const;
 
   /// @}
 

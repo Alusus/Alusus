@@ -29,9 +29,9 @@ class ListContainer : public virtual Container
   //============================================================================
   // Abstract Functions
 
-  public: virtual Int add(IdentifiableObject *val) = 0;
+  public: virtual Int add(TiObject *val) = 0;
 
-  public: virtual void insert(Int index, IdentifiableObject *val) = 0;
+  public: virtual void insert(Int index, TiObject *val) = 0;
 
 }; // class
 

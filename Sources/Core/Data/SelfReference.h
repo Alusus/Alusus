@@ -43,7 +43,7 @@ class SelfReference : public Reference
 
   public: virtual Bool compare(Reference const *r) const
   {
-    const SelfReference *ir = io_cast<const SelfReference>(r);
+    const SelfReference *ir = tio_cast<const SelfReference>(r);
     if (ir != 0) return Reference::compare(r);
     else return false;
   }
@@ -52,17 +52,17 @@ class SelfReference : public Reference
   {
   }
 
-  public: virtual void setValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void setValue(Provider *provider, TiObject *parent,
                                 ReferenceSetLambda handler) const
   {
   }
 
-  public: virtual void removeValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void removeValue(Provider *provider, TiObject *parent,
                                    ReferenceRemoveLambda handler) const
   {
   }
 
-  public: virtual void forEachValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void forEachValue(Provider *provider, TiObject *parent,
                                     ReferenceForeachLambda handler) const
   {
     handler(0, parent);

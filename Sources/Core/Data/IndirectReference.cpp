@@ -20,7 +20,7 @@ namespace Core { namespace Data
 
 Bool IndirectReference::compare(Reference const *r) const
 {
-  const IndirectReference *ir = io_cast<IndirectReference>(r);
+  const IndirectReference *ir = tio_cast<IndirectReference>(r);
   if (ir == 0) return false;
   else if (ir->getKey() != 0 && this->key != 0 && this->key->compare(ir->getKey().get())) {
     return Reference::compare(r);
@@ -29,7 +29,7 @@ Bool IndirectReference::compare(Reference const *r) const
 }
 
 
-void IndirectReference::setValue(Provider *provider, IdentifiableObject *parent,
+void IndirectReference::setValue(Provider *provider, TiObject *parent,
                                  ReferenceSetLambda handler) const
 {
   if (parent == 0) {
@@ -38,7 +38,7 @@ void IndirectReference::setValue(Provider *provider, IdentifiableObject *parent,
   if (provider == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("provider"), STR("Should not be null."));
   }
-  IdentifiableObject *ref;
+  TiObject *ref;
   if (!provider->tryGet(this->key.get(), ref)) return;
   if (ref == 0) return;
 
@@ -47,12 +47,12 @@ void IndirectReference::setValue(Provider *provider, IdentifiableObject *parent,
     if (container == 0) return;
     Int index = container->findIndex(static_cast<String*>(ref)->get());
     if (index == -1) {
-      IdentifiableObject *obj = 0;
+      TiObject *obj = 0;
       if (isPerform(handler(0, obj))) {
         container->set(static_cast<String*>(ref)->get(), obj);
       }
     } else {
-      IdentifiableObject *obj = container->get(index);
+      TiObject *obj = container->get(index);
       if (isPerform(handler(0, obj))) {
         container->set(index, obj);
       }
@@ -62,19 +62,19 @@ void IndirectReference::setValue(Provider *provider, IdentifiableObject *parent,
     Container *container = parent->getInterface<Container>();
     if (container == 0) return;
     if (index >= 0 && index < container->getCount()) {
-      IdentifiableObject *obj = container->get(index);
+      TiObject *obj = container->get(index);
       if (isPerform(handler(0, obj))) {
         container->set(index, obj);
       }
     } else if (index == container->getCount()) {
       ListContainer *listContainer = parent->getInterface<ListContainer>();
       if (listContainer == 0) return;
-      IdentifiableObject *obj = 0;
+      TiObject *obj = 0;
       if (isPerform(handler(0, obj))) {
         listContainer->add(obj);
       }
     } else if (index < 0 && index >= -container->getCount()) {
-      IdentifiableObject *obj = container->get(container->getCount() + index);
+      TiObject *obj = container->get(container->getCount() + index);
       if (isPerform(handler(0, obj))) {
         container->set(container->getCount() + index, obj);
       }
@@ -85,7 +85,7 @@ void IndirectReference::setValue(Provider *provider, IdentifiableObject *parent,
 }
 
 
-void IndirectReference::removeValue(Provider *provider, IdentifiableObject *parent,
+void IndirectReference::removeValue(Provider *provider, TiObject *parent,
                                     ReferenceRemoveLambda handler) const
 {
   if (parent == 0) {
@@ -94,7 +94,7 @@ void IndirectReference::removeValue(Provider *provider, IdentifiableObject *pare
   if (provider == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("provider"), STR("Should not be null."));
   }
-  IdentifiableObject *ref;
+  TiObject *ref;
   if (!provider->tryGet(this->key.get(), ref)) return;
   if (ref == 0) return;
 
@@ -127,7 +127,7 @@ void IndirectReference::removeValue(Provider *provider, IdentifiableObject *pare
 }
 
 
-void IndirectReference::forEachValue(Provider *provider, IdentifiableObject *parent,
+void IndirectReference::forEachValue(Provider *provider, TiObject *parent,
                                      ReferenceForeachLambda handler) const
 {
   if (parent == 0) {
@@ -136,7 +136,7 @@ void IndirectReference::forEachValue(Provider *provider, IdentifiableObject *par
   if (provider == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("provider"), STR("Should not be null."));
   }
-  IdentifiableObject *ref;
+  TiObject *ref;
   if (!provider->tryGet(this->key.get(), ref)) return;
   if (ref == 0) return;
 

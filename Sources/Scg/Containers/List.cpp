@@ -31,7 +31,7 @@ std::string List::toString()
   strs.reserve(this->children.getCount());
 
   for (Int i = 0; i < this->children.getCount(); ++i) {
-    auto node = io_cast<AstNode>(this->children.get(i));
+    auto node = tio_cast<AstNode>(this->children.get(i));
     strs.push_back(node->toString());
   }
 

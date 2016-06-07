@@ -88,7 +88,7 @@ AstNode::CodeGenerationStage Block::generateCode(CodeGenUnit *codeGenUnit)
 {
   // Iteratively generate the code of all contained expressions.
   for (Int i = 0; i < this->children.getCount(); ++i) {
-    auto expr = io_cast<AstNode>(this->children.get(i));
+    auto expr = tio_cast<AstNode>(this->children.get(i));
     if (expr->isTermInstGenerated())
       termInstGenerated = true;
   }
@@ -125,7 +125,7 @@ std::string Block::toString()
   str.append("{\n");
 
   for (Int i = 0; i < this->children.getCount(); ++i) {
-    auto expr = io_cast<AstNode>(this->children.get(i));
+    auto expr = tio_cast<AstNode>(this->children.get(i));
     auto exprStr = expr->toString();
     str.append("  ");
     str.append(boost::replace_all_copy(exprStr, "\n", "  \n"));

@@ -18,12 +18,12 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class Container : public IdentifiableInterface
+class Container : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(Container, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(Container, TiInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
@@ -38,7 +38,7 @@ class Container : public IdentifiableInterface
      * is to make sure no one is still using this content. Anything handling
      * this signal should return true if it's using provided content object.
      */
-  public: SIGNAL_WITH_ACK(contentInUseInquirer, (IdentifiableObject *content), (content));
+  public: SIGNAL_WITH_ACK(contentInUseInquirer, (TiObject *content), (content));
 
   public: SIGNAL(indexChangeNotifier, (Int from, Int to), (from, to));
 
@@ -48,13 +48,13 @@ class Container : public IdentifiableInterface
   //============================================================================
   // Abstract Functions
 
-  public: virtual void set(Int index, IdentifiableObject *val) = 0;
+  public: virtual void set(Int index, TiObject *val) = 0;
 
   public: virtual void remove(Int index) = 0;
 
   public: virtual Word getCount() const = 0;
 
-  public: virtual IdentifiableObject* get(Int index) const = 0;
+  public: virtual TiObject* get(Int index) const = 0;
 
 }; // class
 

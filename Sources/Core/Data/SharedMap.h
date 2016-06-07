@@ -26,7 +26,7 @@ class Reference;
  * @brief An identifiable object that holds an associative array.
  * @ingroup data_containers
  *
- * This IdentifiableObject derived class is used to hold a map of identifiable
+ * This TiObject derived class is used to hold a map of identifiable
  * objects. This class is used mainly to store data used by the grammar. This
  * class stores the pointers to the identifiable objects, rather than the
  * objects themselves. Destructing this object will not result in the deletion
@@ -51,9 +51,9 @@ class SharedMap : public Node,
   /**
    * @brief A type of an entry in the list of elements.
    * This is a key/value pair. The keys are strings and the values must be
-   * IdentifiableObject inherited objects.
+   * TiObject inherited objects.
    */
-  private: typedef std::pair<Str, SharedPtr<IdentifiableObject>> Entry;
+  private: typedef std::pair<Str, SharedPtr<TiObject>> Entry;
 
   /// The type for the sorted index used to index the string key of the list.
   private: typedef DirectSortedIndex<Entry, Str, &Entry::first> Index;
@@ -171,17 +171,17 @@ class SharedMap : public Node,
   /// @name Definitions Access Functions
   /// @{
 
-  public: Int add(Char const *key, SharedPtr<IdentifiableObject> const &val);
+  public: Int add(Char const *key, SharedPtr<TiObject> const &val);
 
-  public: void insert(Int index, Char const *key, SharedPtr<IdentifiableObject> const &val);
+  public: void insert(Int index, Char const *key, SharedPtr<TiObject> const &val);
 
-  public: Int set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bool insertIfNew);
+  public: Int set(Char const *key, SharedPtr<TiObject> const &val, Bool insertIfNew=true);
 
-  public: void set(Int index, SharedPtr<IdentifiableObject> const &val);
+  public: void set(Int index, SharedPtr<TiObject> const &val);
 
-  public: SharedPtr<IdentifiableObject> const& getShared(Char const *key) const;
+  public: SharedPtr<TiObject> const& getShared(Char const *key) const;
 
-  public: SharedPtr<IdentifiableObject> const& getShared(Int index) const;
+  public: SharedPtr<TiObject> const& getShared(Int index) const;
 
   public: void clear();
 
@@ -204,7 +204,7 @@ class SharedMap : public Node,
   /// @name Initializable Implementation
   /// @{
 
-  public: virtual void initialize(IdentifiableObject *owner);
+  public: virtual void initialize(TiObject *owner);
 
   /// @}
 
@@ -228,7 +228,7 @@ class SharedMap : public Node,
   /// @{
 
   /// Change the value at the specified index.
-  public: virtual void set(Int index, IdentifiableObject *val);
+  public: virtual void set(Int index, TiObject *val);
 
   /// Remove the element at the specified index.
   public: virtual void remove(Int index);
@@ -240,16 +240,16 @@ class SharedMap : public Node,
   }
 
   /// Get the value (object) at a specified index.
-  public: virtual IdentifiableObject* get(Int index) const;
+  public: virtual TiObject* get(Int index) const;
 
-  public: virtual Int set(Char const *key, IdentifiableObject *val)
+  public: virtual Int set(Char const *key, TiObject *val)
   {
     return this->set(key, getSharedPtr(val, true), true);
   }
 
   public: virtual void remove(Char const *key);
 
-  public: virtual IdentifiableObject* get(Char const *key) const;
+  public: virtual TiObject* get(Char const *key) const;
 
   public: virtual const SbStr& getKey(Int index) const;
 

@@ -45,7 +45,7 @@ class IdHolder : public AttributesHolder
     return this->id;
   }
 
-  public: virtual IdentifiableObject* getAttribute(Char const *name)
+  public: virtual TiObject* getAttribute(Char const *name)
   {
     if (SBSTR(name) == STR("id")) {
       return &this->id;

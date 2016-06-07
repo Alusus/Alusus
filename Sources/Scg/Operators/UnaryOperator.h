@@ -108,7 +108,7 @@ class UnaryOperator : public AstNode, public virtual Core::Data::Container
   //============================================================================
   // Container Implementation
 
-  public: virtual void set(Int index, IdentifiableObject *val)
+  public: virtual void set(Int index, TiObject *val)
   {
   }
 
@@ -121,7 +121,7 @@ class UnaryOperator : public AstNode, public virtual Core::Data::Container
     return 1;
   }
 
-  public: virtual IdentifiableObject* get(Int index) const
+  public: virtual TiObject* get(Int index) const
   {
     if (index == 0) return this->operand.get();
     else return 0;

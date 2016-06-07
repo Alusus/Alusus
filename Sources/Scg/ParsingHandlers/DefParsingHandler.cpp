@@ -28,7 +28,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
 {
   auto expr = state->getData();
   ASSERT(expr != 0);
-  auto exprMetadata = expr.ii_cast_get<ParsingMetadataHolder>();
+  auto exprMetadata = expr.tii_cast_get<Ast::MetadataHolder>();
   ASSERT(exprMetadata != 0);
 
   // Get the name of the definition.
@@ -37,13 +37,13 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   static SharedPtr<Reference> nameReference = REF_PARSER->parseQualifier(
         STR("1.0~where(prodId=Expression.LowerLinkExp).0~where(prodId=Subject.Subject1).0"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto nameToken = io_cast<Data::PrtToken>(seeker.tryGet(nameReference.get(), expr.get()));
+  auto nameToken = tio_cast<Data::Ast::Token>(seeker.tryGet(nameReference.get(), expr.get()));
 
   if (nameToken == 0 || nameToken->getId() != identifierTokenId) {
     state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
                          STR("A 'def' command needs a definition name."),
                          STR("SCG1002"), 1, exprMetadata->getSourceLocation()));
-    state->setData(SharedPtr<IdentifiableObject>(0));
+    state->setData(SharedPtr<TiObject>(0));
     return;
   }
 
@@ -61,12 +61,12 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
                          STR("Invalid def command."),
                          STR("SCG1004"), 1, exprMetadata->getSourceLocation()));
-    state->setData(SharedPtr<IdentifiableObject>(0));
+    state->setData(SharedPtr<TiObject>(0));
     return;
   }
 
   // If the definee is a Module set its name now.
-  Module *module = io_cast<Module>(def);
+  Module *module = tio_cast<Module>(def);
   if (module != 0) module->setName(name.c_str());
 
   // Check if the definee is an alias.
@@ -78,7 +78,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   static SharedPtr<Reference> aliasReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Subject.Alias).1~where(prodId=Subject.Subject1).{find prodId=Subject.Parameter, 0}"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto alias = io_cast<PrtToken>(seeker.tryGet(aliasReference.get(), def));
+  auto alias = tio_cast<Ast::Token>(seeker.tryGet(aliasReference.get(), def));
 
   if (alias != 0) {
     // Add the alias to the dictionary.
@@ -99,7 +99,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   }
 
   // Reset parsed data because we are done with the command.
-  state->setData(SharedPtr<IdentifiableObject>(0));
+  state->setData(SharedPtr<TiObject>(0));
 }
 
 } // namespace

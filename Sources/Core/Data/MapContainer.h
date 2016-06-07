@@ -31,7 +31,7 @@ class MapContainer : public Container
 
   public: using Container::set;
 
-  public: virtual Int set(Char const *key, IdentifiableObject *val) = 0;
+  public: virtual Int set(Char const *key, TiObject *val) = 0;
 
   public: using Container::remove;
 
@@ -39,7 +39,7 @@ class MapContainer : public Container
 
   public: using Container::get;
 
-  public: virtual IdentifiableObject* get(Char const *key) const = 0;
+  public: virtual TiObject* get(Char const *key) const = 0;
 
   public: virtual const SbStr& getKey(Int index) const = 0;
 

@@ -25,7 +25,7 @@ void RootParsingHandler::onProdStart(Parser *parser, ParserState *state)
   if (parser->getDefinitionsRepository() != 0 &&
       parser->getDefinitionsRepository()->getLevelCount() > 0 &&
       parser->getDefinitionsRepository()->getLevelData(0) != 0) {
-    module = parser->getDefinitionsRepository()->getLevelData(0).io_cast<Data::Module>();
+    module = parser->getDefinitionsRepository()->getLevelData(0).tio_cast<Data::Module>();
   }
 
   if (module != 0) {
@@ -38,7 +38,7 @@ void RootParsingHandler::onProdStart(Parser *parser, ParserState *state)
 }
 
 
-void RootParsingHandler::onLevelExit(Parser *parser, ParserState *state, SharedPtr<IdentifiableObject> const &data)
+void RootParsingHandler::onLevelExit(Parser *parser, ParserState *state, SharedPtr<TiObject> const &data)
 {
   // Store unhandled data into the definitions module.
   if (state->isAtProdRoot()) {

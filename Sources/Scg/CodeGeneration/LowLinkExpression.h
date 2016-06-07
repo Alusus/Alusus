@@ -30,20 +30,20 @@ class DeclareExtFunction;
 class LowLinkExpression
 {
 private:
-  Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> lhs;
-  Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> rhs;
+  Core::Basic::SharedPtr<Core::Basic::TiObject> lhs;
+  Core::Basic::SharedPtr<Core::Basic::TiObject> rhs;
   std::string separator;
 
 public:
   LowLinkExpression(CodeGenerator *gen,
-                    const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+                    const Core::Basic::SharedPtr<Core::Basic::TiObject> &item);
 
   /**
    * Retrieves the parsed item to the left of the token.
    *
    * @return The parsed item.
    */
-  Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> getLHS()
+  Core::Basic::SharedPtr<Core::Basic::TiObject> getLHS()
   {
     return lhs;
   }
@@ -53,7 +53,7 @@ public:
    *
    * @return The parsed item.
    */
-  Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> getRHS()
+  Core::Basic::SharedPtr<Core::Basic::TiObject> getRHS()
   {
     return rhs;
   }

@@ -20,7 +20,7 @@ namespace Core { namespace Data
 
 Bool SearchReference::compare(Reference const *r) const
 {
-  const SearchReference *sr = io_cast<SearchReference>(r);
+  const SearchReference *sr = tio_cast<SearchReference>(r);
   if (sr != 0 &&
       this->searchValidator->compare(sr->getSearchValidator().get()) &&
       this->forward == sr->getSearchDirection() &&
@@ -29,7 +29,7 @@ Bool SearchReference::compare(Reference const *r) const
 }
 
 
-void SearchReference::setValue(Provider *provider, IdentifiableObject *parent,
+void SearchReference::setValue(Provider *provider, TiObject *parent,
                                ReferenceSetLambda handler) const
 {
   if (parent == 0) {
@@ -39,7 +39,7 @@ void SearchReference::setValue(Provider *provider, IdentifiableObject *parent,
   if (container == 0) return;
 
   if (this->isCacheUsable() && this->cachedIndex >= 0 && this->cachedIndex < container->getCount()) {
-    IdentifiableObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
+    TiObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
     if (isPerform(handler(0, obj))) {
       container->set(this->getListIndex(container, this->cachedIndex), obj);
     }
@@ -50,7 +50,7 @@ void SearchReference::setValue(Provider *provider, IdentifiableObject *parent,
       while (true) {
         index = this->findMatch(container, index);
         if (index == -1) break;
-        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        TiObject *obj = container->get(this->getListIndex(container, index));
         if (isPerform(handler(i, obj))) {
           container->set(this->getListIndex(container, index), obj);
         }
@@ -64,7 +64,7 @@ void SearchReference::setValue(Provider *provider, IdentifiableObject *parent,
     } else {
       index = this->findMatch(container, 0, this->matchLimitationIndex);
       if (index != -1) {
-        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        TiObject *obj = container->get(this->getListIndex(container, index));
         if (isPerform(handler(i, obj))) {
           container->set(this->getListIndex(container, index), obj);
         }
@@ -77,7 +77,7 @@ void SearchReference::setValue(Provider *provider, IdentifiableObject *parent,
 }
 
 
-void SearchReference::removeValue(Provider *provider, IdentifiableObject *parent,
+void SearchReference::removeValue(Provider *provider, TiObject *parent,
                                   ReferenceRemoveLambda handler) const
 {
   if (parent == 0) {
@@ -87,7 +87,7 @@ void SearchReference::removeValue(Provider *provider, IdentifiableObject *parent
   if (container == 0) return;
 
   if (this->isCacheUsable() && this->cachedIndex >= 0 && this->cachedIndex < container->getCount()) {
-    IdentifiableObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
+    TiObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
     if (isPerform(handler(0, obj))) {
       container->remove(this->getListIndex(container, this->cachedIndex));
     }
@@ -98,7 +98,7 @@ void SearchReference::removeValue(Provider *provider, IdentifiableObject *parent
       while (true) {
         index = this->findMatch(container, index);
         if (index == -1) break;
-        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        TiObject *obj = container->get(this->getListIndex(container, index));
         if (isPerform(handler(i, obj))) {
           container->remove(this->getListIndex(container, index));
         }
@@ -111,7 +111,7 @@ void SearchReference::removeValue(Provider *provider, IdentifiableObject *parent
     } else {
       index = this->findMatch(container, 0, this->matchLimitationIndex);
       if (index != -1) {
-        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        TiObject *obj = container->get(this->getListIndex(container, index));
         if (isPerform(handler(i, obj))) {
           container->remove(this->getListIndex(container, index));
         }
@@ -124,7 +124,7 @@ void SearchReference::removeValue(Provider *provider, IdentifiableObject *parent
 }
 
 
-void SearchReference::forEachValue(Provider *provider, IdentifiableObject *parent,
+void SearchReference::forEachValue(Provider *provider, TiObject *parent,
                                    ReferenceForeachLambda handler) const
 {
   if (parent == 0) {
@@ -134,7 +134,7 @@ void SearchReference::forEachValue(Provider *provider, IdentifiableObject *paren
   if (container == 0) return;
 
   if (this->isCacheUsable() && this->cachedIndex >= 0 && this->cachedIndex < container->getCount()) {
-    IdentifiableObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
+    TiObject *obj = container->get(this->getListIndex(container, this->cachedIndex));
     handler(0, obj);
   } else {
     Int i = 0;
@@ -143,7 +143,7 @@ void SearchReference::forEachValue(Provider *provider, IdentifiableObject *paren
       while (true) {
         index = this->findMatch(container, index);
         if (index == -1) break;
-        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        TiObject *obj = container->get(this->getListIndex(container, index));
         handler(i, obj);
         if (this->usageCriteria == ReferenceUsageCriteria::SINGLE_DATA_SINGLE_MATCH) {
           this->cachedIndex = index;
@@ -155,7 +155,7 @@ void SearchReference::forEachValue(Provider *provider, IdentifiableObject *paren
     } else {
       index = this->findMatch(container, 0, this->matchLimitationIndex);
       if (index != -1) {
-        IdentifiableObject *obj = container->get(this->getListIndex(container, index));
+        TiObject *obj = container->get(this->getListIndex(container, index));
         handler(i, obj);
         if (this->isCacheUsable()) {
           this->cachedIndex = index;

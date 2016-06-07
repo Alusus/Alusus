@@ -25,7 +25,7 @@ namespace Core { namespace Processing { namespace Handlers
  * be used wherever a specific parsing handler is not defined. The generated
  * data can then be used by other parsing handlers up in the grammar tree, or
  * it can be simply passed to the calling function/applictaion.<br>
- * This parsing handler uses PrtList, PrtRoute, and PrtToken to
+ * This parsing handler uses Ast::List, Ast::Route, and Ast::Token to
  * compose the parsed tree.
  */
 class GenericParsingHandler : public ParsingHandler
@@ -33,7 +33,7 @@ class GenericParsingHandler : public ParsingHandler
   //============================================================================
   // Type Info
 
-  TYPE_INFO(GenericParsingHandler, ParsingHandler, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(GenericParsingHandler, ParsingHandler, "Core.Processing.Handlers", "Core", "alusus.net");
 
 
   //============================================================================
@@ -81,11 +81,11 @@ class GenericParsingHandler : public ParsingHandler
    * @sa ParsingHandler::onLevelExit()
    */
   public: virtual void onLevelExit(Processing::Parser *parser, Processing::ParserState *state,
-                                   SharedPtr<IdentifiableObject> const &data);
+                                   SharedPtr<TiObject> const &data);
 
   /**
    * @brief Called when a new successful token is received.
-   * Create a PrtToken object and associate it with the current state level.
+   * Create a Ast::Token object and associate it with the current state level.
    * If the token term is omissible and the token is a constant token, no data
    * will be created.
    *
@@ -96,7 +96,7 @@ class GenericParsingHandler : public ParsingHandler
 
   /**
    * @brief Called when a step is to be made on a concat term.
-   * Create a PrtList object if this level's term has a FORCE_LIST parsing
+   * Create a Ast::List object if this level's term has a FORCE_LIST parsing
    * flag set and no list is already created. If this term has the PASS_UP flag
    * nothing will be done.
    *
@@ -107,7 +107,7 @@ class GenericParsingHandler : public ParsingHandler
 
   /**
    * @brief Called when a route decision is made on an alternative term.
-   * Create a PrtRoute object and associate it with the current state level
+   * Create a Ast::Route object and associate it with the current state level
    * if this level's term is not PASS_UP flagged.
    *
    * @sa ParsingHandler::onAlternateRouteDecision()
@@ -122,7 +122,7 @@ class GenericParsingHandler : public ParsingHandler
    * implementation for optional terms is similar to that of alternative terms.
    * <br>
    * For other multiply terms:<br>
-   * Create a PrtList object if this level's term has a FORCE_LIST parsing
+   * Create a Ast::List object if this level's term has a FORCE_LIST parsing
    * flag set and no list is already created. If this term has the PASS_UP flag
    * nothing will be done.
    *
@@ -152,7 +152,7 @@ class GenericParsingHandler : public ParsingHandler
   /// @{
 
   /// Add the given data to the given state level.
-  protected: virtual void addData(SharedPtr<IdentifiableObject> const &data, ParserState *state, Int levelIndex);
+  protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex);
 
   protected: virtual Bool isListObjEnforced(ParserState *state, Int levelIndex);
   protected: virtual Bool isListItemEnforced(ParserState *state, Int levelIndex);
@@ -160,11 +160,11 @@ class GenericParsingHandler : public ParsingHandler
   protected: virtual Bool isPassUpList(ParserState *state, Int levelIndex);
   protected: virtual Bool isProdObjEnforced(ParserState *state);
 
-  protected: virtual SharedPtr<IdentifiableObject> createListNode(ParserState *state, Int levelIndex);
-  protected: virtual SharedPtr<IdentifiableObject> createRouteNode(ParserState *state, Int levelIndex, Int route);
-  protected: virtual SharedPtr<IdentifiableObject> createTokenNode(ParserState *state, Int levelIndex,
-                                                                   Word tokenId, Char const *tokenText);
-  protected: virtual SharedPtr<IdentifiableObject> createEnforcedProdNode(ParserState *state);
+  protected: virtual SharedPtr<TiObject> createListNode(ParserState *state, Int levelIndex);
+  protected: virtual SharedPtr<TiObject> createRouteNode(ParserState *state, Int levelIndex, Int route);
+  protected: virtual SharedPtr<TiObject> createTokenNode(ParserState *state, Int levelIndex,
+                                                         Word tokenId, Char const *tokenText);
+  protected: virtual SharedPtr<TiObject> createEnforcedProdNode(ParserState *state);
 
   protected: Bool isRouteTerm(ParserState *state, Int levelIndex);
   protected: Bool isListTerm(ParserState *state, Int levelIndex);

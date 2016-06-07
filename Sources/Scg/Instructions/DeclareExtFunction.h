@@ -155,7 +155,7 @@ class DeclareExtFunction : public Instruction, public virtual Core::Data::Contai
   //============================================================================
   // Container Implementation
 
-  public: virtual void set(Int index, IdentifiableObject *val)
+  public: virtual void set(Int index, TiObject *val)
   {
   }
 
@@ -168,7 +168,7 @@ class DeclareExtFunction : public Instruction, public virtual Core::Data::Contai
     return 1;
   }
 
-  public: virtual IdentifiableObject* get(Int index) const
+  public: virtual TiObject* get(Int index) const
   {
     return this->function.get();
   }

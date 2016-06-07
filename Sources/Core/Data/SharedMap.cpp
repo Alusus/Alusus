@@ -25,7 +25,7 @@ SharedMap::SharedMap(Bool useIndex, const std::initializer_list<Argument<Char co
 
   for (auto arg : args) {
     if (sbstr_cast(arg.id) == STR("@parent")) {
-      this->parentReference = arg.ioVal.io_cast<Reference>();
+      this->parentReference = arg.ioVal.tio_cast<Reference>();
       if (this->parentReference == 0 && arg.ioVal != 0) {
         throw EXCEPTION(GenericException, STR("Provided parent reference is not of type Reference."));
       }
@@ -109,7 +109,7 @@ void SharedMap::onAdded(Int index)
   ASSERT(static_cast<Word>(index) < this->getParentDefCount());
   Char const *key = this->parent->getKey(index).c_str();
   Int myIndex = this->findIndex(key);
-  SharedPtr<IdentifiableObject> obj;
+  SharedPtr<TiObject> obj;
   if (myIndex != -1 && myIndex != index) {
     obj = this->getShared(myIndex);
     this->list.erase(this->list.begin()+myIndex);
@@ -152,7 +152,7 @@ void SharedMap::onRemoved(Int index)
     this->contentChangeNotifier.emit(this, ContentChangeOp::REMOVE, index);
   } else {
     Str key = this->getKey(index);
-    SharedPtr<IdentifiableObject> obj = this->getShared(index);
+    SharedPtr<TiObject> obj = this->getShared(index);
     this->list.erase(this->list.begin()+index);
     this->inherited->erase(this->inherited->begin()+index);
     if (this->index != 0) this->index->remove(index);
@@ -162,7 +162,7 @@ void SharedMap::onRemoved(Int index)
 }
 
 
-Int SharedMap::add(Char const *key, SharedPtr<IdentifiableObject> const &val)
+Int SharedMap::add(Char const *key, SharedPtr<TiObject> const &val)
 {
   Int i = this->findIndex(key);
   if (i != -1) {
@@ -186,7 +186,7 @@ Int SharedMap::add(Char const *key, SharedPtr<IdentifiableObject> const &val)
 }
 
 
-void SharedMap::insert(Int index, Char const *key, SharedPtr<IdentifiableObject> const &val)
+void SharedMap::insert(Int index, Char const *key, SharedPtr<TiObject> const &val)
 {
   if (this->findIndex(key) != -1) {
     throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Already exists."), key);
@@ -203,7 +203,7 @@ void SharedMap::insert(Int index, Char const *key, SharedPtr<IdentifiableObject>
 }
 
 
-Int SharedMap::set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bool insertIfNew)
+Int SharedMap::set(Char const *key, SharedPtr<TiObject> const &val, Bool insertIfNew)
 {
   Int idx = this->findIndex(key);
   if (idx == -1) {
@@ -226,7 +226,7 @@ Int SharedMap::set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bo
 }
 
 
-void SharedMap::set(Int index, SharedPtr<IdentifiableObject> const &val)
+void SharedMap::set(Int index, SharedPtr<TiObject> const &val)
 {
   if (static_cast<Word>(index) >= this->list.size()) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
@@ -237,7 +237,7 @@ void SharedMap::set(Int index, SharedPtr<IdentifiableObject> const &val)
 }
 
 
-SharedPtr<IdentifiableObject> const& SharedMap::getShared(Char const *key) const
+SharedPtr<TiObject> const& SharedMap::getShared(Char const *key) const
 {
   Int idx = this->findIndex(key);
   if (idx == -1) {
@@ -247,7 +247,7 @@ SharedPtr<IdentifiableObject> const& SharedMap::getShared(Char const *key) const
 }
 
 
-SharedPtr<IdentifiableObject> const& SharedMap::getShared(Int index) const
+SharedPtr<TiObject> const& SharedMap::getShared(Int index) const
 {
   if (static_cast<Word>(index) >= this->list.size()) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
@@ -301,15 +301,15 @@ Int SharedMap::getIndex(Char const *key) const
 //==============================================================================
 // Initializable Implementation
 
-void SharedMap::initialize(IdentifiableObject *owner)
+void SharedMap::initialize(TiObject *owner)
 {
   if (this->parentReference != 0) {
     Tracer *tracer = owner->getInterface<Tracer>();
-    IdentifiableObject *p = tracer->traceValue(this->parentReference.get());
+    TiObject *p = tracer->traceValue(this->parentReference.get());
     if (p == 0) {
       throw EXCEPTION(GenericException, STR("Parent reference points to missing definition."));
     }
-    SharedMap *pm = io_cast<SharedMap>(p);
+    SharedMap *pm = tio_cast<SharedMap>(p);
     if (pm == 0) {
       throw EXCEPTION(GenericException, STR("Parent reference points to an object of an invalid type."));
     }
@@ -328,7 +328,7 @@ void SharedMap::unsetIndexes(Int from, Int to)
   }
   for (Word i = 0; i < this->getCount(); ++i) {
     if (this->inherited == 0 || !this->inherited->at(i)) {
-      IdentifiableObject *obj = this->get(i);
+      TiObject *obj = this->get(i);
       if (obj != 0) Data::unsetIndexes(obj, from, to);
     }
   }
@@ -338,9 +338,9 @@ void SharedMap::unsetIndexes(Int from, Int to)
 //==============================================================================
 // MapContainer Implementation
 
-void SharedMap::set(Int index, IdentifiableObject *val)
+void SharedMap::set(Int index, TiObject *val)
 {
-  Node *node = io_cast<Node>(val);
+  Node *node = tio_cast<Node>(val);
   if (node == 0 && val != 0) {
     throw EXCEPTION(InvalidArgumentException, STR("val"), STR("Must be of type Node"));
   }
@@ -380,7 +380,7 @@ void SharedMap::remove(Int index)
 }
 
 
-IdentifiableObject* SharedMap::get(Int index) const
+TiObject* SharedMap::get(Int index) const
 {
   if (static_cast<Word>(index) >= this->list.size()) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
@@ -414,7 +414,7 @@ void SharedMap::remove(Char const *key)
 }
 
 
-IdentifiableObject* SharedMap::get(Char const *key) const
+TiObject* SharedMap::get(Char const *key) const
 {
   Int idx = this->findIndex(key);
   if (idx == -1) {

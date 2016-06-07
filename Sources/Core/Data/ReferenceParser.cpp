@@ -108,7 +108,7 @@ void ReferenceParser::buildQualifier(Reference const *ref, StrStream &qualifier)
     } else if (ref->isA<SearchReference>()) {
       SearchReference const *iref = static_cast<SearchReference const*>(ref);
       qualifier << ReferenceParser::FIND_KEYWORD;
-      StrAttributeValidator *validator = iref->getSearchValidator().io_cast_get<StrAttributeValidator>();
+      StrAttributeValidator *validator = iref->getSearchValidator().tio_cast_get<StrAttributeValidator>();
       if (validator == 0) {
         throw EXCEPTION(GenericException, STR("Provided reference contains a search segment with an invalid validator."));
       }
@@ -124,7 +124,7 @@ void ReferenceParser::buildQualifier(Reference const *ref, StrStream &qualifier)
       throw EXCEPTION(GenericException, STR("Provided reference contains an invalid segment type."));
     }
     if (ref->getResultValidator() != 0) {
-      StrAttributeValidator *validator = ref->getResultValidator().io_cast_get<StrAttributeValidator>();
+      StrAttributeValidator *validator = ref->getResultValidator().tio_cast_get<StrAttributeValidator>();
       if (validator == 0) {
         throw EXCEPTION(GenericException,
                         STR("Provided reference contains a segment with an invalid result validator."));

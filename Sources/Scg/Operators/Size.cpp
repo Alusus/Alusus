@@ -32,7 +32,7 @@ SharedPtr<ValueTypeSpec> const& Size::getValueTypeSpec() const
 
 AstNode::CodeGenerationStage Size::generateCode(CodeGenUnit *codeGenUnit)
 {
-  IdentifierReference *ref = this->expression.io_cast_get<IdentifierReference>();
+  IdentifierReference *ref = this->expression.tio_cast_get<IdentifierReference>();
   ValueType const *type = 0;
 
   auto module = this->findOwner<Module>();

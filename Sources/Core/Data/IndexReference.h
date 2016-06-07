@@ -63,20 +63,20 @@ class IndexReference : public Reference
   {
   }
 
-  public: virtual void setValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void setValue(Provider *provider, TiObject *parent,
                                 ReferenceSetLambda handler) const;
 
-  public: virtual void removeValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void removeValue(Provider *provider, TiObject *parent,
                                    ReferenceRemoveLambda handler) const;
 
-  public: virtual void forEachValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void forEachValue(Provider *provider, TiObject *parent,
                                     ReferenceForeachLambda handler) const;
 
-  public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *obj) const;
+  public: virtual Bool setValue(Provider *provider, TiObject *parent,
+                                TiObject *obj) const;
 
-  public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *&result) const;
+  public: virtual Bool getValue(Provider *provider, TiObject *parent,
+                                TiObject *&result) const;
 
 }; // class
 

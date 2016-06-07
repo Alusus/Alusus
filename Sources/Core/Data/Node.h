@@ -21,12 +21,12 @@ namespace Core { namespace Data
  * This class links data objects to their owners. This is needed to allow
  * moving upwards through data trees nodes.
  */
-class Node : public IdentifiableObject
+class Node : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Node, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(Node, TiObject, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

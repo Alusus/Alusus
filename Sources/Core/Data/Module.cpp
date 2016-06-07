@@ -31,7 +31,7 @@ Module::Module(const std::initializer_list<Argument<Char const*>> &args) : defin
 Module::~Module()
 {
   for (Int i = 0; i < this->definitions.getCount(); ++i) {
-    IdentifiableObject *obj = this->definitions.get(i);
+    TiObject *obj = this->definitions.get(i);
     DISOWN_PLAINPTR(obj);
   }
 }
@@ -40,7 +40,7 @@ Module::~Module()
 //==============================================================================
 // Definitions Access Functions
 
-Int Module::add(Char const *key, SharedPtr<IdentifiableObject> const &val)
+Int Module::add(Char const *key, SharedPtr<TiObject> const &val)
 {
   Int ret = this->definitions.add(key, val);
   OWN_SHAREDPTR(val);
@@ -48,18 +48,18 @@ Int Module::add(Char const *key, SharedPtr<IdentifiableObject> const &val)
 }
 
 
-void Module::insert(Int index, Char const *key, SharedPtr<IdentifiableObject> const &val)
+void Module::insert(Int index, Char const *key, SharedPtr<TiObject> const &val)
 {
   this->definitions.insert(index, key, val);
   OWN_SHAREDPTR(val);
 }
 
 
-Int Module::set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bool insertIfNew)
+Int Module::set(Char const *key, SharedPtr<TiObject> const &val, Bool insertIfNew)
 {
   Int index = this->definitions.findIndex(key);
   if (index != -1) {
-    IdentifiableObject *old = this->definitions.get(index);
+    TiObject *old = this->definitions.get(index);
     DISOWN_PLAINPTR(old);
     this->definitions.set(index, val);
     OWN_SHAREDPTR(val);
@@ -71,25 +71,9 @@ Int Module::set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bool 
 }
 
 
-Int Module::set(Char const *key, SharedPtr<IdentifiableObject> const &val)
+void Module::set(Int index, SharedPtr<TiObject> const &val)
 {
-  Int index = this->definitions.findIndex(key);
-  if (index != -1) {
-    IdentifiableObject *old = this->definitions.get(index);
-    DISOWN_PLAINPTR(old);
-    this->definitions.set(index, val);
-    OWN_SHAREDPTR(val);
-  } else {
-    index = this->definitions.set(key, val, true);
-    OWN_SHAREDPTR(val);
-  }
-  return index;
-}
-
-
-void Module::set(Int index, SharedPtr<IdentifiableObject> const &val)
-{
-  IdentifiableObject *old = this->definitions.get(index);
+  TiObject *old = this->definitions.get(index);
   DISOWN_PLAINPTR(old);
   this->definitions.set(index, val);
   OWN_SHAREDPTR(val);
@@ -99,7 +83,7 @@ void Module::set(Int index, SharedPtr<IdentifiableObject> const &val)
 void Module::clear()
 {
   for (Int i = 0; i < this->definitions.getCount(); ++i) {
-    IdentifiableObject *obj = this->definitions.get(i);
+    TiObject *obj = this->definitions.get(i);
     DISOWN_PLAINPTR(obj);
   }
   this->definitions.clear();
@@ -109,9 +93,9 @@ void Module::clear()
 //==============================================================================
 // MapContainer Implementation
 
-void Module::set(Int index, IdentifiableObject *val)
+void Module::set(Int index, TiObject *val)
 {
-  IdentifiableObject *old = this->definitions.get(index);
+  TiObject *old = this->definitions.get(index);
   DISOWN_PLAINPTR(old);
   this->definitions.set(index, val);
   OWN_PLAINPTR(val);
@@ -120,17 +104,17 @@ void Module::set(Int index, IdentifiableObject *val)
 
 void Module::remove(Int index)
 {
-  IdentifiableObject *old = this->definitions.get(index);
+  TiObject *old = this->definitions.get(index);
   DISOWN_PLAINPTR(old);
   this->definitions.remove(index);
 }
 
 
-Int Module::set(Char const *key, IdentifiableObject *val)
+Int Module::set(Char const *key, TiObject *val)
 {
   Int index = this->definitions.findIndex(key);
   if (index != -1) {
-    IdentifiableObject *old = this->definitions.get(index);
+    TiObject *old = this->definitions.get(index);
     DISOWN_PLAINPTR(old);
     this->definitions.set(index, val);
     OWN_PLAINPTR(val);
@@ -146,7 +130,7 @@ void Module::remove(Char const *key)
 {
   Int index = this->definitions.findIndex(key);
   if (index != -1) {
-    IdentifiableObject *old = this->definitions.get(index);
+    TiObject *old = this->definitions.get(index);
     DISOWN_PLAINPTR(old);
     this->definitions.remove(index);
   } else {

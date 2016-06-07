@@ -64,10 +64,10 @@ class Engine : public SignalReceiver
   public: void initialize(Data::GrammarRepository *grammarRepo, Data::SharedRepository *definitionsRepo);
 
   /// Parse the given string and return any resulting parsing data.
-  public: SharedPtr<IdentifiableObject> processString(Char const *str, Char const *name);
+  public: SharedPtr<TiObject> processString(Char const *str, Char const *name);
 
   /// Parse the given file and return any resulting parsing data.
-  public: SharedPtr<IdentifiableObject> processFile(Char const *filename);
+  public: SharedPtr<TiObject> processFile(Char const *filename);
 
 }; // class
 

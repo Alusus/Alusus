@@ -44,32 +44,32 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  protected: virtual void addData(SharedPtr<IdentifiableObject> const &data, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
-      IdentifiableObject *currentData = state->getData(levelIndex).get();
+      TiObject *currentData = state->getData(levelIndex).get();
       if (currentData != 0) {
         // There is three possible situations at this point: Either the list was enforced, or
         // a child data was set into this level, or this level was visited more than once causing
         // a list to be created.
-        TYPE *typedCurrentData = io_cast<TYPE>(currentData);
+        TYPE *typedCurrentData = tio_cast<TYPE>(currentData);
         if (typedCurrentData != 0 && typedCurrentData->getProdId() == UNKNOWN_ID) {
           // This level already has a list that belongs to this production, so we can just add the new data
           // to this list.
           this->prepareToModifyData(state, levelIndex);
-          typedCurrentData = state->getData(levelIndex).io_cast_get<TYPE>();
+          typedCurrentData = state->getData(levelIndex).tio_cast_get<TYPE>();
           ASSERT(typedCurrentData != 0);
           auto posId = state->refTermLevel(levelIndex).getPosId();
           typedCurrentData->set(this->startIndex + posId - 1, data);
         } else {
           // At this point, posId must be 1 since the list is not enforced and the current data is
           // not null, meaning we've already set data at this level.
-          SharedIoPtr list = this->createListNode(state, levelIndex);
-          auto metadata = ii_cast<Data::ParsingMetadataHolder>(currentData);
+          TioSharedPtr list = this->createListNode(state, levelIndex);
+          auto metadata = tii_cast<Data::Ast::MetadataHolder>(currentData);
           if (metadata != 0) {
             list.s_cast_get<TYPE>()->setSourceLocation(metadata->getSourceLocation());
           }
-          auto newContainer = list.ii_cast_get<Data::Container>();
+          auto newContainer = list.tii_cast_get<Data::Container>();
           newContainer->set(this->startIndex + 0, currentData);
           newContainer->set(this->startIndex + 1, data.get());
           state->setData(list, levelIndex);
@@ -80,7 +80,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
     GenericParsingHandler::addData(data, state, levelIndex);
   }
 
-  protected: virtual SharedPtr<IdentifiableObject> createListNode(ParserState *state, Int levelIndex)
+  protected: virtual SharedPtr<TiObject> createListNode(ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex)) {
       return std::make_shared<TYPE>();

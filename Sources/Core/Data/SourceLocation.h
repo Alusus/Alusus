@@ -24,12 +24,12 @@ namespace Core { namespace Data
  * a parsed data object. This includes, the name of the source file, and the
  * line and column within that file at which the token appeared.
  */
-class SourceLocation : public IdentifiableObject
+class SourceLocation : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SourceLocation, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(SourceLocation, TiObject, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

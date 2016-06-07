@@ -22,9 +22,9 @@ using namespace Core::Basic;
 using namespace Core::Data;
 
 FunctionLinkExpression::FunctionLinkExpression(CodeGenerator *gen,
-    const SharedPtr<IdentifiableObject> &astRoot)
+    const SharedPtr<TiObject> &astRoot)
 {
-  auto astRootMeta = astRoot->getInterface<ParsingMetadataHolder>();
+  auto astRootMeta = astRoot->getInterface<Ast::MetadataHolder>();
 
   if (astRootMeta == nullptr || astRootMeta->getProdId() != gen->getLinkId())
     throw EXCEPTION(SystemException,
@@ -42,9 +42,9 @@ FunctionLinkExpression::FunctionLinkExpression(CodeGenerator *gen,
         ReferenceUsageCriteria::MULTI_DATA);
 
   // Try to parse a function link with no return value.
-  SharedPtr<PrtList> item;
+  SharedPtr<Ast::List> item;
 
-  if ((item = getSharedPtr(seeker.tryGet(funcExpReference.get(), astRoot.get())).io_cast<PrtList>()) != nullptr) {
+  if ((item = getSharedPtr(seeker.tryGet(funcExpReference.get(), astRoot.get())).tio_cast<Ast::List>()) != nullptr) {
     auto argsAndRet = LowLinkExpression(gen, item);
 
     if (argsAndRet.getSeparator().compare("=>") != 0) {
@@ -55,10 +55,10 @@ FunctionLinkExpression::FunctionLinkExpression(CodeGenerator *gen,
                                      argsAndRet.getSeparator().c_str()));
     }
 
-    this->arguments = std::make_shared<FunctionalExpression>(gen, argsAndRet.getLHS().s_cast<PrtList>());
+    this->arguments = std::make_shared<FunctionalExpression>(gen, argsAndRet.getLHS().s_cast<Ast::List>());
     this->retType = gen->parseVariableType(argsAndRet.getRHS());
   } else if ((item = getSharedPtr(seeker.tryGet(funcExpNoRetReference.get(),
-                                  astRoot.get())).io_cast<PrtList>()) != nullptr)
+                                  astRoot.get())).tio_cast<Ast::List>()) != nullptr)
     this->arguments = std::make_shared<FunctionalExpression>(gen, item);
 
   // Stores the line and column numbers.

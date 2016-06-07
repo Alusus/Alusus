@@ -31,8 +31,8 @@ GrammarContext::GrammarContext() : repository(10, 5)
 //==============================================================================
 // Misc Functions
 
-void GrammarContext::traceValue(IdentifiableObject *val, Module *module,
-                                IdentifiableObject *&retVal, Module *&retModule)
+void GrammarContext::traceValue(TiObject *val, Module *module,
+                                TiObject *&retVal, Module *&retModule)
 {
   retVal = val;
   retModule = module;
@@ -99,7 +99,7 @@ void GrammarContext::getListTermChild(ListTerm *term, Int index, PlainPairedPtr 
       retTerm = term->getTerm(static_cast<Integer*>(listData.object)->get()).get();
       retData.reset();
     } else if (listData.object->isA<SharedList>()) {
-      Integer *index2 = io_cast<Integer>(static_cast<SharedList*>(listData.object)->get(index));
+      Integer *index2 = tio_cast<Integer>(static_cast<SharedList*>(listData.object)->get(index));
       if (index2 == 0) {
         throw EXCEPTION(InvalidArgumentException, STR("listData"),
                         STR("List must contain Integers for static list terms."));
@@ -147,7 +147,7 @@ void GrammarContext::useListTermChild(ListTerm *term, Int index, PlainPairedPtr 
 
 Integer* GrammarContext::getTokenTermId(TokenTerm *term, Module *module)
 {
-  IdentifiableObject *id = this->traceValue(term->getTokenId().get(), module);
+  TiObject *id = this->traceValue(term->getTokenId().get(), module);
   if (id == 0 || !id->isA<Integer>()) {
     throw EXCEPTION(GenericException, STR("Token term's ID is invalid."));
   }
@@ -155,9 +155,9 @@ Integer* GrammarContext::getTokenTermId(TokenTerm *term, Module *module)
 }
 
 
-IdentifiableObject* GrammarContext::getTokenTermText(TokenTerm *term, Module *module)
+TiObject* GrammarContext::getTokenTermText(TokenTerm *term, Module *module)
 {
-  IdentifiableObject *text = this->traceValue(term->getTokenText().get(), module);
+  TiObject *text = this->traceValue(term->getTokenText().get(), module);
   if (text != 0 && !text->isA<String>() && !text->isA<SharedMap>()) {
     throw EXCEPTION(GenericException, STR("Token term's text is of invalid type."));
   }
@@ -167,7 +167,7 @@ IdentifiableObject* GrammarContext::getTokenTermText(TokenTerm *term, Module *mo
 
 void GrammarContext::getReferencedCharGroup(Reference const *ref, CharGroupDefinition *&charGroupDef, Module *module)
 {
-  IdentifiableObject *obj = this->traceValue(const_cast<Reference*>(ref), module);
+  TiObject *obj = this->traceValue(const_cast<Reference*>(ref), module);
   if (obj == 0 || !obj->isA<CharGroupDefinition>()) {
     throw EXCEPTION(GenericException, STR("Reference does not point to a char group definition."));
   }
@@ -204,7 +204,7 @@ void GrammarContext::getReferencedSymbol(Reference const *ref, Module *&retModul
 
 Integer* GrammarContext::getMultiplyTermMax(MultiplyTerm *term, Module *module)
 {
-  IdentifiableObject *max = this->traceValue(term->getMaxOccurances().get(), module);
+  TiObject *max = this->traceValue(term->getMaxOccurances().get(), module);
   if (max != 0 && !max->isA<Integer>()) {
     throw EXCEPTION(GenericException, STR("Multiply term's max occurances is of invalid type."));
   }
@@ -214,7 +214,7 @@ Integer* GrammarContext::getMultiplyTermMax(MultiplyTerm *term, Module *module)
 
 Integer* GrammarContext::getMultiplyTermMin(MultiplyTerm *term, Module *module)
 {
-  IdentifiableObject *min = this->traceValue(term->getMinOccurances().get(), module);
+  TiObject *min = this->traceValue(term->getMinOccurances().get(), module);
   if (min != 0 && !min->isA<Integer>()) {
     throw EXCEPTION(GenericException, STR("Multiply term's min occurances is of invalid type."));
   }
@@ -224,7 +224,7 @@ Integer* GrammarContext::getMultiplyTermMin(MultiplyTerm *term, Module *module)
 
 Integer* GrammarContext::getMultiplyTermPriority(MultiplyTerm *term, Module *module)
 {
-  IdentifiableObject *priority = this->traceValue(term->getPriority().get(), module);
+  TiObject *priority = this->traceValue(term->getPriority().get(), module);
   if (priority != 0 && !priority->isA<Integer>()) {
     throw EXCEPTION(GenericException, STR("Multiply term's priority occurances is of invalid type."));
   }
@@ -300,18 +300,18 @@ Module* GrammarContext::getAssociatedLexerModule(Module *module)
 
   // Find the reference to the lexer module of the current module.
   if (module == 0) module = this->getModule();
-  GrammarModule *grammarModule = io_cast<GrammarModule>(module);
+  GrammarModule *grammarModule = tio_cast<GrammarModule>(module);
   if (grammarModule != 0) lmr = grammarModule->getLexerModuleRef().get();
 
   // If we can't find a lexer module, we'll grab the root's lexer module.
   if (lmr == 0) {
-    grammarModule = io_cast<GrammarModule>(this->getRoot());
+    grammarModule = tio_cast<GrammarModule>(this->getRoot());
     if (grammarModule != 0) lmr = grammarModule->getLexerModuleRef().get();
   }
 
   // Find the module itself.
   if (lmr == 0) return 0;
-  Module *lm = io_cast<Module>(this->traceValue(lmr, grammarModule));
+  Module *lm = tio_cast<Module>(this->traceValue(lmr, grammarModule));
   if (lm == 0) {
     throw EXCEPTION(GenericException, STR("The module has an invalid lexer module reference."));
   }
@@ -325,18 +325,18 @@ SharedList* GrammarContext::getAssociatedErrorSyncBlockPairs(Module *module)
 
   // Find the reference to the sync pairs of the current module.
   if (module == 0) module = this->getModule();
-  GrammarModule *grammarModule = io_cast<GrammarModule>(module);
+  GrammarModule *grammarModule = tio_cast<GrammarModule>(module);
   if (grammarModule != 0) spr = grammarModule->getErrorSyncBlockPairsRef().get();
 
   // If we can't find the sync pairs, we'll grab the root's sync pairs.
   if (spr == 0) {
-    grammarModule = io_cast<GrammarModule>(this->getRoot());
+    grammarModule = tio_cast<GrammarModule>(this->getRoot());
     if (grammarModule != 0) spr = grammarModule->getErrorSyncBlockPairsRef().get();
   }
 
   // Find the list itself.
   if (spr == 0) return 0;
-  SharedList *sp = io_cast<SharedList>(this->traceValue(spr, grammarModule));
+  SharedList *sp = tio_cast<SharedList>(this->traceValue(spr, grammarModule));
   if (sp == 0) {
     throw EXCEPTION(GenericException, STR("The module has an invalid error sync pairs reference."));
   }

@@ -260,7 +260,7 @@ Int Lexer::process()
           this->currentTokenClamped = false;
         }
         // Set token properties.
-        TokenizingHandler *handler = io_cast<TokenizingHandler>(def->getOperationHandler().get());
+        TokenizingHandler *handler = tio_cast<TokenizingHandler>(def->getOperationHandler().get());
         if (handler == 0) {
           this->lastToken.setId(def->getId());
           this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
@@ -308,7 +308,7 @@ Int Lexer::process()
         this->currentTokenClamped = false;
       }
       // Set token properties.
-      TokenizingHandler *handler = io_cast<TokenizingHandler>(def->getOperationHandler().get());
+      TokenizingHandler *handler = tio_cast<TokenizingHandler>(def->getOperationHandler().get());
       if (handler == 0) {
         this->lastToken.setId(def->getId());
         this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
@@ -393,7 +393,7 @@ void Lexer::processStartChar(WChar inputChar)
 
   for (Word i = 0; i < this->grammarContext.getModule()->getCount(); i++) {
     // Skip non tokens and non-root tokens.
-    IdentifiableObject *obj = this->grammarContext.getModule()->get(i);
+    TiObject *obj = this->grammarContext.getModule()->get(i);
     if (obj == 0 || !obj->isA<Data::SymbolDefinition>()) continue;
     Data::SymbolDefinition *def = static_cast<Data::SymbolDefinition*>(obj);
     if (!(def->getFlags() & Data::SymbolFlags::ROOT_TOKEN)) continue;
@@ -616,7 +616,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Term *currentTe
 
     Int iterationIndex = 0;
     Data::MultiplyTerm *multiplyTerm = static_cast<Data::MultiplyTerm*>(currentTerm);
-    if (multiplyTerm->getTerm().io_cast_get<Data::Term>() == 0) {
+    if (multiplyTerm->getTerm().tio_cast_get<Data::Term>() == 0) {
       Str excMsg = STR("Multiply term with null or invalid child is found at definition: ");
       excMsg += ID_GENERATOR->getDesc(this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId());
       throw EXCEPTION(GenericException, excMsg.c_str());
@@ -773,7 +773,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Term *currentTe
       Bool delayedStateCreated = false;
       termIndex = 0;
       for (Int i = 0; i < alternateList->getCount(); ++i) {
-        Data::Term *term = io_cast<Data::Term>(alternateList->get(i));
+        Data::Term *term = tio_cast<Data::Term>(alternateList->get(i));
         if (term == 0) {
           Str excMsg = STR("Null term found in an alternate branch. Token def: ");
           excMsg += ID_GENERATOR->getDesc(this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId());
@@ -859,7 +859,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Term *currentTe
       termIndex = this->tempState.getIndexStack()->at(currentLevel);
     }
     // get the next term object
-    Data::Term *term = io_cast<Data::Term>(concatList->get(termIndex));
+    Data::Term *term = tio_cast<Data::Term>(concatList->get(termIndex));
     if (term == 0) {
       Str excMsg = STR("Concat term's child term is null. Token def: ");
       excMsg += ID_GENERATOR->getDesc(this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId());
@@ -894,7 +894,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Term *currentTe
             // update the term index on the stack
             termIndex++;
             this->tempState.getIndexStack()->at(currentLevel) = termIndex;
-            term = io_cast<Data::Term>(concatList->get(termIndex));
+            term = tio_cast<Data::Term>(concatList->get(termIndex));
             if (term == 0) {
               Str excMsg = STR("Concat term's child term is null. Token def: ");
               excMsg += ID_GENERATOR->getDesc(this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId());

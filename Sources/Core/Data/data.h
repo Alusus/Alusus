@@ -38,6 +38,12 @@ namespace Core { namespace Data
  * @brief Terms of symbol formulas.
  */
 
+/**
+ * @defgroup data_ast AST Classes
+ * @ingroup data
+ * @brief Abstract Syntax Tree classes.
+ */
+
 
 //==============================================================================
 // Data Types
@@ -46,7 +52,7 @@ namespace Core { namespace Data
  * @brief Specifies the repository index of each grammar scope.
  * Each of the scopes will have a fixed index within the repository.
  */
-enumeration(GrammarScopeIndex, ROOT=0, MODULE=1, PMODULE=2, STACK=3, ARGS=4);
+s_enum(GrammarScopeIndex, ROOT=0, MODULE=1, PMODULE=2, STACK=3, ARGS=4);
 
 /**
  * @brief An enumeration that specifies the usage criteria of references.
@@ -62,7 +68,7 @@ enumeration(GrammarScopeIndex, ROOT=0, MODULE=1, PMODULE=2, STACK=3, ARGS=4);
  *                          data repository, but can match multiple targets.
  * MULTI_DATA: The reference can be used against different data repositories.
  */
-enumeration(ReferenceUsageCriteria, SINGLE_DATA_SINGLE_MATCH, SINGLE_DATA_MULTI_MATCH, MULTI_DATA);
+s_enum(ReferenceUsageCriteria, SINGLE_DATA_SINGLE_MATCH, SINGLE_DATA_MULTI_MATCH, MULTI_DATA);
 
 /**
  * @brief An enumeration for the list of operations for references.
@@ -77,7 +83,7 @@ enumeration(ReferenceUsageCriteria, SINGLE_DATA_SINGLE_MATCH, SINGLE_DATA_MULTI_
  * PERFORM_AND_STOP: Perform the requested operation on this match, then stop
  *                   and ignore other possible matches.
  */
-enumeration(RefOp, MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP);
+s_enum(RefOp, MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP);
 
 /**
  * @brief An enumeration used to define term flags.
@@ -91,7 +97,7 @@ enumeration(RefOp, MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP);
  *                 route is found the state machine will not try to test the
  *                 lower priority routes.
  */
-enumeration(TermFlags, ERROR_SYNC_TERM=(1<<16), ONE_ROUTE_TERM=(1<<17));
+s_enum(TermFlags, ERROR_SYNC_TERM=(1<<16), ONE_ROUTE_TERM=(1<<17));
 
 /**
  * @brief An enumeration used to define symbol flags.
@@ -102,7 +108,7 @@ enumeration(TermFlags, ERROR_SYNC_TERM=(1<<16), ONE_ROUTE_TERM=(1<<17));
  *             all symbols in the lexer module that has this flag set and skips
  *             other symbol definitions.
  */
-enumeration(SymbolFlags, ROOT_TOKEN=(1<<16), IGNORED_TOKEN=(1<<17));
+s_enum(SymbolFlags, ROOT_TOKEN=(1<<16), IGNORED_TOKEN=(1<<17));
 
 /**
  * @brief An enumeration for change operation of Containers' contents.
@@ -115,7 +121,7 @@ enumeration(SymbolFlags, ROOT_TOKEN=(1<<16), IGNORED_TOKEN=(1<<17));
  * UPDATE: The operation is an update of an existing element.
  * REMOVE: The operation is a removal of an existing element.
  */
-enumeration(ContentChangeOp, ADD, UPDATE, REMOVE);
+s_enum(ContentChangeOp, ADD, UPDATE, REMOVE);
 
 /**
  * @brief An enumeration for metadata elements of GrammarModule.
@@ -124,7 +130,7 @@ enumeration(ContentChangeOp, ADD, UPDATE, REMOVE);
  * This enumeration is used to refer to an element within GrammarModule's
  * meta data. It's needed by GrammarModule::metaChangeNotifier.
  */
-enumeration(GrammarModuleMetaElement, START_REF=1,
+s_enum(GrammarModuleMetaElement, START_REF=1,
                                       LEXER_MODULE_REF=2,
                                       ERROR_SYNC_BLOCK_PAIRS_REF=4,
                                       ALL=static_cast<Word>(-1));
@@ -139,7 +145,7 @@ enumeration(GrammarModuleMetaElement, START_REF=1,
  * UPDATE: An element is being updated.
  * DESTROY: The entire Symbol is being destroyed.
  */
-enumeration(SymbolDefChangeOp, UPDATE, DESTROY);
+s_enum(SymbolDefChangeOp, UPDATE, DESTROY);
 
 /**
  * @brief An enumeration for the different member elements in SymbolDefinition.
@@ -149,14 +155,14 @@ enumeration(SymbolDefChangeOp, UPDATE, DESTROY);
  * This is needed by SymbolDefinition::changeNotifier as well as the
  * constructors.
  */
-enumeration(SymbolDefElement, PARENT_REF=1, TERM=2, VAR_DEFS=4, VARS=8, HANDLER=16, PRIORITY=32, FLAGS=64,
+s_enum(SymbolDefElement, PARENT_REF=1, TERM=2, VAR_DEFS=4, VARS=8, HANDLER=16, PRIORITY=32, FLAGS=64,
             ATTRIBUTES=128, ALL=static_cast<Word>(-1));
 
 /**
  * @brief An enumeration for the different member elements of Term objects.
  * @ingroup data
  */
-enumeration(TermElement, FLAGS=1, REF=2, DATA=4, TERM=8, ESPI=16, PRIORITY=32, MIN=64, MAX=128, ID=256, TEXT=512);
+s_enum(TermElement, FLAGS=1, REF=2, DATA=4, TERM=8, ESPI=16, PRIORITY=32, MIN=64, MAX=128, ID=256, TEXT=512);
 
 
 //==============================================================================
@@ -189,7 +195,7 @@ Bool isMove(RefOp op);
  * Call the unsetIndexes method of DataOwner interface, if implemented by
  * the object.
  */
-void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
+void unsetIndexes(TiObject *obj, Int from, Int to);
 
 /**
  * @brief Set the IDs of all elements in a given tree.
@@ -199,7 +205,7 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to);
  * concatenated container keys that lead to the given object from the root.
  * @sa generateId()
  */
-void setTreeIds(IdentifiableObject *obj);
+void setTreeIds(TiObject *obj);
 
 /**
  * @brief Set the IDs of all elements in a given tree.
@@ -208,7 +214,7 @@ void setTreeIds(IdentifiableObject *obj);
  * the given object if the given object is a container. The IDs of inner
  * objects will have the format: <id>.<childName>
  */
-void setTreeIds(IdentifiableObject *obj, const Char *id);
+void setTreeIds(TiObject *obj, const Char *id);
 
 /**
  * @brief Generate an ID for the given object.
@@ -236,14 +242,14 @@ void generateId(Node *obj, StrStream &id);
 Bool matchCharGroup(WChar ch, CharGroupUnit *unit);
 
 /**
- * @brief Recursive function to print a tree of parsed data.
+ * @brief Print the given object to the given stream.
  * @ingroup data
  *
- * The given tree should have default parsing data (PrtRoute,
- * PrtList, or PrtToken). Anything other than the
- * default data types will be represented by [UNKNOWN TYPE].
+ * If the object implements the Printable interface, it will pass the call to
+ * that interface, otherwise it will print the object type and the production
+ * id if available.
  */
-void dumpParsedData(IdentifiableObject *ptr, int indents=0, Bool start_indent=true);
+void dumpData(OutStream &stream, TiObject *ptr, int indents);
 
 // TODO: Find module for other dimensions.
 
@@ -251,13 +257,13 @@ void dumpParsedData(IdentifiableObject *ptr, int indents=0, Bool start_indent=tr
 //==============================================================================
 // Function Signature Definitions
 
-typedef std::function<RefOp(Int index, IdentifiableObject *&obj)> ReferenceSetLambda;
-typedef std::function<RefOp(Int index, IdentifiableObject *obj)> ReferenceRemoveLambda;
-typedef std::function<RefOp(Int index, IdentifiableObject *obj)> ReferenceForeachLambda;
+typedef std::function<RefOp(Int index, TiObject *&obj)> ReferenceSetLambda;
+typedef std::function<RefOp(Int index, TiObject *obj)> ReferenceRemoveLambda;
+typedef std::function<RefOp(Int index, TiObject *obj)> ReferenceForeachLambda;
 
-typedef std::function<RefOp(Int index, IdentifiableObject *&obj)> SeekerSetLambda;
-typedef std::function<RefOp(Int index, IdentifiableObject *obj)> SeekerRemoveLambda;
-typedef std::function<RefOp(Int index, IdentifiableObject *obj, IdentifiableObject *parent)> SeekerForeachLambda;
+typedef std::function<RefOp(Int index, TiObject *&obj)> SeekerSetLambda;
+typedef std::function<RefOp(Int index, TiObject *obj)> SeekerRemoveLambda;
+typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerForeachLambda;
 
 
 //==============================================================================
@@ -379,7 +385,7 @@ typedef std::function<RefOp(Int index, IdentifiableObject *obj, IdentifiableObje
 #include "Initializable.h"
 #include "IdHolder.h"
 #include "Clonable.h"
-#include "Stringifyable.h"
+#include "Printable.h"
 
 // Helpers
 #include "paired_pointers.h"
@@ -455,12 +461,49 @@ typedef std::function<RefOp(Int index, IdentifiableObject *obj, IdentifiableObje
 // TODO: ExtensionManager manages extensions to grammar (loaded using import for example). And it automatically
 //       manages the IDs of those extension definitions (rather than the IDs remain invalid until merged with DataStore).
 
-// Parsing Representation Tree (PRT) Classes
-//------------------------------------------
-#include "ParsingMetadataHolder.h"
-#include "PrtToken.h"
-#include "PrtRoute.h"
-#include "PrtList.h"
-#include "PrtModule.h"
+
+// Abstract Syntax Tree Classes
+//-----------------------------
+
+namespace Core { namespace Data { namespace Ast
+{
+
+ti_s_enum(BracketType, Integer, "Core.Data.Ast", "Core", "alusus.net", ROUND, SQUARE);
+
+} } } // namespace
+
+#include "Ast/MetadataHolder.h"
+#include "Ast/Token.h"
+#include "Ast/Route.h"
+#include "Ast/List.h"
+#include "Ast/ExpressionList.h"
+#include "Ast/StatementList.h"
+#include "Ast/Module.h"
+#include "Ast/ParamPass.h"
+#include "Ast/InfixOperator.h"
+#include "Ast/OutfixOperator.h"
+#include "Ast/Text.h"
+#include "Ast/Bracket.h"
+
+namespace Core { namespace Data { namespace Ast
+{
+
+DEFINE_AST_OUTFIX_OPERATOR(PrefixOperator);
+DEFINE_AST_OUTFIX_OPERATOR(PostfixOperator);
+
+DEFINE_AST_INFIX_OPERATOR(AssignmentOperator);
+DEFINE_AST_INFIX_OPERATOR(ComparisonOperator);
+DEFINE_AST_INFIX_OPERATOR(AdditionOperator);
+DEFINE_AST_INFIX_OPERATOR(MultiplicationOperator);
+DEFINE_AST_INFIX_OPERATOR(BitwiseOperator);
+DEFINE_AST_INFIX_OPERATOR(LogOperator);
+
+DEFINE_AST_TEXT_ELEMENT(Identifier);
+DEFINE_AST_TEXT_ELEMENT(IntegerLiteral);
+DEFINE_AST_TEXT_ELEMENT(FloatLiteral);
+DEFINE_AST_TEXT_ELEMENT(CharLiteral);
+DEFINE_AST_TEXT_ELEMENT(StringLiteral);
+
+} } } // namespace
 
 #endif

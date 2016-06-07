@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/IdentifiableObject.cpp
- * Contains the implementation of class Core::Basic::IdentifiableObject.
+ * @file Core/Basic/TiObject.cpp
+ * Contains the implementation of class Core::Basic::TiObject.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -23,15 +23,15 @@ namespace Core { namespace Basic
  * class. This function (along with getMyTypeInfo) is automatically
  * defined by the TYPE_INFO macro.
  */
-TypeInfo * IdentifiableObject::getTypeInfo()
+TypeInfo * TiObject::getTypeInfo()
 {
   static Core::Basic::TypeInfo *type_info = 0;
   if (type_info == 0) {
-    Char const *my_type = STR("IdentifiableObject");
+    Char const *my_type = STR("TiObject");
     Char const *typeNamespace = STR("Core.Basic");
     Char const *moduleName = STR("Core");
     Char const *url = STR("alusus.net");
-    Char const *uniqueName = STR("alusus.net#Core#Core.Basic.IdentifiableObject");
+    Char const *uniqueName = STR("alusus.net#Core#Core.Basic.TiObject");
     type_info = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (type_info == 0) {
       type_info = new Core::Basic::TypeInfo(my_type, typeNamespace, moduleName, url, 0);
@@ -49,7 +49,7 @@ TypeInfo * IdentifiableObject::getTypeInfo()
  *         this object is instantiated, or for the class from which this
  *         object's class is derived, false otherwise.
  */
-Bool IdentifiableObject::isDerivedFrom(TypeInfo const *info) const
+Bool TiObject::isDerivedFrom(TypeInfo const *info) const
 {
   TypeInfo * i = this->getMyTypeInfo();
   while (i != 0) {

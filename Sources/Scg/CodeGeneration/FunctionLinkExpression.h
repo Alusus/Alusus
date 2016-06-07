@@ -75,7 +75,7 @@ private:
 
 public:
   FunctionLinkExpression(CodeGenerator *gen,
-                         const Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> &item);
+                         const Core::Basic::SharedPtr<Core::Basic::TiObject> &item);
 
   /**
    * Returns the return type name of the function we are linking to.

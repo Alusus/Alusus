@@ -90,7 +90,7 @@ TEST_CASE("Core::Data/simple_seek", "Successfully seek an element with its conta
 
     PlainPairedPtr retVal;
 
-    IdentifiableObject *plainStr;
+    TiObject *plainStr;
 
     SECTION("s1", "Data retrieved using qualifier.")
     {
@@ -128,11 +128,11 @@ TEST_CASE("Core::Data/simple_seek", "Successfully seek an element with its conta
     SECTION("s5", "Data retrieved using qualifier.")
     {
       QualifierSeeker seeker;
-      IdentifiableObject *result, *parent;
+      TiObject *result, *parent;
       seeker.tryGet(STR("mod1.mod2.map1.var6"), repository.getRoot().get(), result, Module::getTypeInfo(), &parent);
       CHECK(result != 0);
       CHECK(parent != 0);
-      IdentifiableObject *parent2;
+      TiObject *parent2;
       seeker.tryGet(STR("mod1.mod2.map1.var6"), repository.getRoot().get(), result, SharedMap::getTypeInfo(), &parent2);
       CHECK(result != 0);
       CHECK(parent != 0);
@@ -141,12 +141,12 @@ TEST_CASE("Core::Data/simple_seek", "Successfully seek an element with its conta
     SECTION("s6", "Data retrieved using reference.")
     {
       ReferenceSeeker seeker;
-      IdentifiableObject *result, *parent;
+      TiObject *result, *parent;
       seeker.tryGet(REF_PARSER->parseQualifier(STR("mod1.mod2.map1.var6")).get(),
                     repository.getRoot().get(), result, Module::getTypeInfo(), &parent);
       CHECK(result != 0);
       CHECK(parent != 0);
-      IdentifiableObject *parent2;
+      TiObject *parent2;
       seeker.tryGet(REF_PARSER->parseQualifier(STR("mod1.mod2.map1.var6")).get(),
                     repository.getRoot().get(), result, SharedMap::getTypeInfo(), &parent2);
       CHECK(result != 0);
@@ -162,20 +162,20 @@ TEST_CASE("Core::Data/simple_seek", "Successfully seek an element with its conta
 TEST_CASE("Core::Data/advanced_qualifier_seek", "Seek elements with advanced qualifiers.")
 {
   // Prepare a data tree.
-  SharedPtr<IdentifiableObject> data =
-    PrtList::create(ID_GENERATOR->getId(STR("root")), {
-                       PrtRoute::create(ID_GENERATOR->getId(STR("parent.1")), 1,
-                                           PrtToken::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")),
+  SharedPtr<TiObject> data =
+    Ast::List::create(ID_GENERATOR->getId(STR("root")), {
+                       Ast::Route::create(ID_GENERATOR->getId(STR("parent.1")), 1,
+                                           Ast::Token::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")),
                                                                STR("text"))),
-                       PrtList::create(ID_GENERATOR->getId(STR("parent.2")), {
-                                          PrtRoute::create(ID_GENERATOR->getId(STR("child.1")), 0),
-                                          PrtToken::create(ID_GENERATOR->getId(STR("child.2")),
+                       Ast::List::create(ID_GENERATOR->getId(STR("parent.2")), {
+                                          Ast::Route::create(ID_GENERATOR->getId(STR("child.1")), 0),
+                                          Ast::Token::create(ID_GENERATOR->getId(STR("child.2")),
                                                               ID_GENERATOR->getId(STR("token2")))}),
-                       PrtToken::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
+                       Ast::Token::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
 
-  IdentifiableObject *result = 0;
-  IdentifiableObject *plainResult = 0;
-  IdentifiableObject *null = 0;
+  TiObject *result = 0;
+  TiObject *plainResult = 0;
+  TiObject *null = 0;
   QualifierSeeker seeker;
 
   try {
@@ -238,21 +238,21 @@ TEST_CASE("Core::Data/advanced_qualifier_seek", "Seek elements with advanced qua
 TEST_CASE("Core::Data/advanced_reference_seek", "Seek elements with advanced references.")
 {
   // Prepare a data tree.
-  SharedPtr<IdentifiableObject> data =
-    PrtList::create(ID_GENERATOR->getId(STR("root")), {
-                       PrtRoute::create(ID_GENERATOR->getId(STR("parent.1")), 1,
-                                           PrtToken::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")), STR("text"))),
-                       PrtList::create(ID_GENERATOR->getId(STR("parent.2")), {
-                                          PrtRoute::create(ID_GENERATOR->getId(STR("child.1")), 0),
-                                          PrtToken::create(ID_GENERATOR->getId(STR("child.2")),
+  SharedPtr<TiObject> data =
+    Ast::List::create(ID_GENERATOR->getId(STR("root")), {
+                       Ast::Route::create(ID_GENERATOR->getId(STR("parent.1")), 1,
+                                           Ast::Token::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")), STR("text"))),
+                       Ast::List::create(ID_GENERATOR->getId(STR("parent.2")), {
+                                          Ast::Route::create(ID_GENERATOR->getId(STR("child.1")), 0),
+                                          Ast::Token::create(ID_GENERATOR->getId(STR("child.2")),
                                                               ID_GENERATOR->getId(STR("token2")))}),
-                       PrtToken::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
+                       Ast::Token::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
 
   ReferenceSeeker seeker;
   SharedPtr<Reference> reference;
-  IdentifiableObject *result = 0;
-  IdentifiableObject *plainResult = 0;
-  IdentifiableObject *null = 0;
+  TiObject *result = 0;
+  TiObject *plainResult = 0;
+  TiObject *null = 0;
 
   try {
     SECTION("s1", "Successful one level search.")
@@ -499,7 +499,7 @@ TEST_CASE("Core::Data/initializables", "Initializable objects are initialized co
       CHECK(childMod->getParent() == 0);
       repository.set(STR("mod1.mod3"), childMod.get());
       CHECK(childMod->getParent() != 0);
-      IdentifiableObject *parent = childMod->getParent();
+      TiObject *parent = childMod->getParent();
       IdHolder *idHolder = parent->getInterface<IdHolder>();
       CHECK(idHolder != 0);
       CHECK(idHolder->getId() == ID_GENERATOR->getId(STR("mod1.mod2")));

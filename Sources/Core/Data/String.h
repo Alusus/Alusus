@@ -20,7 +20,7 @@ namespace Core { namespace Data
  * @brief An identifiable object that holds a string value.
  * @ingroup data
  *
- * This IdentifiableObject derived class is used to hold string data used in
+ * This TiObject derived class is used to hold string data used in
  * the grammar. This is simply a wrappar around Str that provides runtime type
  * info, which is needed for grammar data.
  */

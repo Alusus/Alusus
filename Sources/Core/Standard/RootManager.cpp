@@ -47,7 +47,7 @@ RootManager::RootManager() : grammarPlant(this), libraryManager(this), definitio
 //==============================================================================
 // Member Functions
 
-SharedPtr<IdentifiableObject> RootManager::processFile(Char const *filename)
+SharedPtr<TiObject> RootManager::processFile(Char const *filename)
 {
   // Find the absolute path of the file.
   Str fullPath = this->findAbsolutePath(filename);

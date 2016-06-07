@@ -23,19 +23,19 @@ using namespace Data;
 
 void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  IdentifiableObject *item = state->getData().get();
+  TiObject *item = state->getData().get();
   static Word stringLiteralId = ID_GENERATOR->getId(STR("LexerDefs.StringLiteral"));
   QualifierSeeker seeker;
   // Find a literal token in the subject.
-  IdentifiableObject *token;
+  TiObject *token;
   if (seeker.tryGet(STR("1~where(prodId=Subject.Subject1).{find prodId=Subject.Literal}"), item, token)) {
-    PrtToken *prtToken = io_cast<PrtToken>(token);
+    Ast::Token *prtToken = tio_cast<Ast::Token>(token);
     // Is it a string token?
     if (prtToken != 0 && prtToken->getId() == stringLiteralId) {
       auto fileName = prtToken->getText();
       if (!this->import(prtToken->getText().c_str(), state)) {
         // Create a build msg.
-        ParsingMetadataHolder *itemMeta = item->getInterface<ParsingMetadataHolder>();
+        Ast::MetadataHolder *itemMeta = item->getInterface<Ast::MetadataHolder>();
         ASSERT(itemMeta != 0);
         state->addBuildMsg(
               SharedPtr<ImportLoadFailedMsg>(
@@ -46,7 +46,7 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
     throw EXCEPTION(GenericException, STR("Invalid data format."));
   }
   // Reset parsed data because we are done with the command.
-  state->setData(SharedPtr<IdentifiableObject>(0));
+  state->setData(SharedPtr<TiObject>(0));
 }
 
 

@@ -90,7 +90,7 @@ class StrAttributeValidator : public Validator
     return this->attributeValue;
   }
 
-  public: virtual Bool validate(IdentifiableObject *obj) const;
+  public: virtual Bool validate(TiObject *obj) const;
 
   public: virtual Bool compare(Validator const *v) const;
 

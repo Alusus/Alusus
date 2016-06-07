@@ -18,11 +18,11 @@ namespace Core { namespace Data
 void GrammarPlant::generateConstTokenDefinitions(Container *container)
 {
   for (Int i = 0; static_cast<Word>(i) < container->getCount(); ++i) {
-    IdentifiableObject *obj = container->get(i);
+    TiObject *obj = container->get(i);
     if (obj == 0) continue;
-    SymbolDefinition *def = io_cast<SymbolDefinition>(obj);
+    SymbolDefinition *def = tio_cast<SymbolDefinition>(obj);
     if (def != 0) {
-      IdentifiableObject *term = def->getTerm().get();
+      TiObject *term = def->getTerm().get();
       if (term->isDerivedFrom<Term>()) {
         this->generateConstTokenDefinitions(static_cast<Term*>(term));
       }
@@ -39,9 +39,9 @@ void GrammarPlant::generateConstTokenDefinitions(Term *term)
 {
   if (term->isDerivedFrom<TokenTerm>()) {
     TokenTerm *tokenTerm = static_cast<TokenTerm*>(term);
-    Integer *pid = tokenTerm->getTokenId().io_cast_get<Integer>();
+    Integer *pid = tokenTerm->getTokenId().tio_cast_get<Integer>();
     if (pid != 0 && pid->get() == this->constTokenId) {
-      IdentifiableObject *text = tokenTerm->getTokenText().get();
+      TiObject *text = tokenTerm->getTokenText().get();
       if (text == 0) {
         throw EXCEPTION(GenericException, STR("Token term has null id and text."));
       }
@@ -50,12 +50,12 @@ void GrammarPlant::generateConstTokenDefinitions(Term *term)
   } else if (term->isDerivedFrom<MultiplyTerm>()) {
     this->generateConstTokenDefinitions(static_cast<MultiplyTerm*>(term)->getTerm().get());
   } else if (term->isDerivedFrom<ListTerm>()) {
-    IdentifiableObject *terms = static_cast<ListTerm*>(term)->getTerms().get();
+    TiObject *terms = static_cast<ListTerm*>(term)->getTerms().get();
     if (terms->isDerivedFrom<Term>()) {
       this->generateConstTokenDefinitions(static_cast<Term*>(terms));
     } else if (terms->isDerivedFrom<SharedList>()) {
       for (Int i = 0; static_cast<Word>(i) < static_cast<SharedList*>(terms)->getCount(); ++i) {
-        IdentifiableObject *child = static_cast<SharedList*>(terms)->get(i);
+        TiObject *child = static_cast<SharedList*>(terms)->get(i);
         if (!child->isDerivedFrom<Term>()) {
           throw EXCEPTION(GenericException, STR("ListTerm has a non-Term child."));
         }
@@ -66,7 +66,7 @@ void GrammarPlant::generateConstTokenDefinitions(Term *term)
 }
 
 
-void GrammarPlant::generateConstTokensForStrings(IdentifiableObject *obj)
+void GrammarPlant::generateConstTokensForStrings(TiObject *obj)
 {
   if (obj == 0) return;
   if (obj->isA<String>()) {
@@ -99,7 +99,7 @@ Word GrammarPlant::addConstToken(Char const *text)
   path += STR(".");
   path += key;
   // If the same constant is already created, skip.
-  IdentifiableObject *dummyObj;
+  TiObject *dummyObj;
   if (this->repository.tryGet(path.c_str(), dummyObj) == false) {
     // Create the token definition.
     this->repository.set(path.c_str(), this->createConstTokenDef(text).get());

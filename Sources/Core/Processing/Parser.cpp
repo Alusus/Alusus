@@ -132,7 +132,7 @@ void Parser::beginParsing()
  *         parsing is complete. This can be 0 if the parsing handlers chose
  *         to remove all parsing data upon level/production end.
  */
-SharedPtr<IdentifiableObject> Parser::endParsing()
+SharedPtr<TiObject> Parser::endParsing()
 {
   // Validation.
   if (this->states.empty()) {
@@ -216,7 +216,7 @@ SharedPtr<IdentifiableObject> Parser::endParsing()
   this->flushApprovedBuildMsgs();
 
   // Return remaining parsing data after clearing the remaining state.
-  SharedPtr<IdentifiableObject> data = (*this->states.begin())->getData();
+  SharedPtr<TiObject> data = (*this->states.begin())->getData();
   this->clear();
   return data;
 }
@@ -600,7 +600,7 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
   if ((*si)->refTopTermLevel().getPosId() == 0) {
     // Make sure we have some token id.
     Word matchId = (*si)->getTokenTermId()->get();
-    IdentifiableObject *matchText = (*si)->getTokenTermText();
+    TiObject *matchText = (*si)->getTokenTermText();
     if (matchId == UNKNOWN_ID && matchText == 0) {
       throw EXCEPTION(GenericException, STR("Token term's match id isn't assigned yet."));
     }
@@ -620,7 +620,7 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
       // Processing of this state has errored out.
       (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
       #ifdef USE_LOGS
-        Data::String *matchStr = io_cast<Data::String>(matchText);
+        Data::String *matchStr = tio_cast<Data::String>(matchText);
       #endif
       LOG(LogLevel::PARSER_MID, STR("Process State: Token failed (") <<
           ID_GENERATOR->getDesc(matchId) << STR(":") <<
@@ -1244,7 +1244,7 @@ void Parser::testTokenTerm(const Data::Token *token, ParserState *state)
   if (state->refTopTermLevel().getPosId() == 0) {
     // We are checking this token.
     Word matchId = state->getTokenTermId()->get();
-    IdentifiableObject *matchText = state->getTokenTermText();
+    TiObject *matchText = state->getTokenTermText();
     if (matchId == UNKNOWN_ID && matchText == 0) {
       throw EXCEPTION(GenericException, STR("Token term's match id isn't assigned yet."));
     }
@@ -1261,7 +1261,7 @@ void Parser::testTokenTerm(const Data::Token *token, ParserState *state)
       // Processing of this state has errored out.
       state->setProcessingStatus(ParserProcessingStatus::ERROR);
       #ifdef USE_LOGS
-        Data::String *matchStr = io_cast<Data::String>(matchText);
+        Data::String *matchStr = tio_cast<Data::String>(matchText);
       #endif
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failed for token (") <<
           ID_GENERATOR->getDesc(matchId) << STR(":") <<
@@ -1807,7 +1807,7 @@ void Parser::popStateLevel(ParserState *state, Bool success)
     }
   }
   // Grab the level's data before deleting it.
-  SharedPtr<IdentifiableObject> data = state->getData();
+  SharedPtr<TiObject> data = state->getData();
   // Now we can remove that state level.
   state->popLevel();
   // Did we just pop the program root production?
@@ -1867,7 +1867,7 @@ Bool Parser::isDefinitionInUse(Data::SymbolDefinition *definition) const
 }
 
 
-Bool Parser::matchToken(Word matchId, IdentifiableObject *matchText, const Data::Token *token)
+Bool Parser::matchToken(Word matchId, TiObject *matchText, const Data::Token *token)
 {
   Bool matched = true;
   Data::String *matchStr = 0;
@@ -1893,13 +1893,13 @@ Bool Parser::matchErrorSyncBlockPairs(ParserState *state, const Data::Token *tok
   //       on each token received.
   // The odd entries in the match pairs list are for block start, the even entries are for block end.
   for (Int i = 0; i < state->getErrorSyncBlockPairs()->getCount(); i += 2) {
-    Data::TokenTerm *term = io_cast<Data::TokenTerm>(state->getErrorSyncBlockPairs()->get(i));
+    Data::TokenTerm *term = tio_cast<Data::TokenTerm>(state->getErrorSyncBlockPairs()->get(i));
     if (term == 0) {
       throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
                                             "Pair entries must be of type TokenTerm."));
     }
-    Data::Integer *matchId = term->getTokenId().io_cast_get<Data::Integer>();
-    IdentifiableObject *matchText = term->getTokenText().get();
+    Data::Integer *matchId = term->getTokenId().tio_cast_get<Data::Integer>();
+    TiObject *matchText = term->getTokenText().get();
     if (this->matchToken(matchId, matchText, token)) {
       state->getErrorSyncBlockStack().push_back(i);
       return true;
@@ -1916,13 +1916,13 @@ Bool Parser::matchErrorSyncBlockPairs(ParserState *state, const Data::Token *tok
     throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
                                           "There must be an even number of entries in this list."));
   }
-  Data::TokenTerm *term = io_cast<Data::TokenTerm>(state->getErrorSyncBlockPairs()->get(closingIndex));
+  Data::TokenTerm *term = tio_cast<Data::TokenTerm>(state->getErrorSyncBlockPairs()->get(closingIndex));
   if (term == 0) {
     throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
                                           "Pair entries must be of type TokenTerm."));
   }
-  Data::Integer *matchId = term->getTokenId().io_cast_get<Data::Integer>();
-  IdentifiableObject *matchText = term->getTokenText().get();
+  Data::Integer *matchId = term->getTokenId().tio_cast_get<Data::Integer>();
+  TiObject *matchText = term->getTokenText().get();
   if (this->matchToken(matchId, matchText, token)) {
     state->getErrorSyncBlockStack().pop_back();
   }

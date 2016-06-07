@@ -24,7 +24,7 @@ namespace Core { namespace Basic
 SignalBase::~SignalBase()
 {
   for (Int i = 0; i < (Int)this->connections.size(); ++i) {
-    IdentifiableObject *obj = this->connections[i].obj;
+    TiObject *obj = this->connections[i].obj;
     if (obj == 0) continue;
     SignalReverseConnector *connector = obj->getInterface<SignalReverseConnector>();
     if (connector != 0) connector->onSignalUnlinked(this);
@@ -42,7 +42,7 @@ SignalBase::~SignalBase()
  *
  * @return true if the connection was successful, false if already connected.
  */
-Bool SignalBase::_connect(IdentifiableObject *obj, void (IdentifiableObject::*mfunc)())
+Bool SignalBase::_connect(TiObject *obj, void (TiObject::*mfunc)())
 {
   // First, make sure the given object is not already connected.
   for (Int i = 0; i < (Int)this->connections.size(); ++i) {
@@ -89,7 +89,7 @@ Bool SignalBase::_connect(void (*func)())
  * @return true if the operation was successful, false if no connection was
  *         found.
  */
-Bool SignalBase::_unconnect(IdentifiableObject *obj, void (IdentifiableObject::*mfunc)())
+Bool SignalBase::_unconnect(TiObject *obj, void (TiObject::*mfunc)())
 {
   // Look for the connection in this list and remove it.
   for (Int i = 0; i < (Int)this->connections.size(); ++i) {
@@ -132,7 +132,7 @@ Bool SignalBase::_unconnect(void (*func)())
 }
 
 
-void SignalBase::onReceiverDestroyed(IdentifiableObject *obj)
+void SignalBase::onReceiverDestroyed(TiObject *obj)
 {
   // Look for the connection in this list and remove it.
   for (Int i = 0; i < (Int)this->connections.size(); ++i) {

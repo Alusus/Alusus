@@ -56,7 +56,7 @@ class GrammarPlant
   protected: void generateConstTokenDefinitions(Term *term);
 
   /// Generate lexer definitions for all strings found in the given hierarchy.
-  protected: void generateConstTokensForStrings(IdentifiableObject *obj);
+  protected: void generateConstTokensForStrings(TiObject *obj);
 
   /**
    * @brief Add a const token definition in the lexer module.

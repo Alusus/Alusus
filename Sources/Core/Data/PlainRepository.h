@@ -17,15 +17,15 @@ namespace Core { namespace Data
 {
 
 /**
- * @brief A stack of IdentifiableObject derived data objects.
+ * @brief A stack of TiObject derived data objects.
  */
-class PlainRepository : public IdentifiableObject, public virtual Provider
+class PlainRepository : public TiObject, public virtual Provider
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(PlainRepository, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, Provider);
+  TYPE_INFO(PlainRepository, TiObject, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_1(TiObject, Provider);
 
 
   //============================================================================
@@ -98,23 +98,23 @@ class PlainRepository : public IdentifiableObject, public virtual Provider
   /// @name Data Functions
   /// @{
 
-  public: void pushLevel(IdentifiableObject *obj)
+  public: void pushLevel(TiObject *obj)
   {
     this->stack.add(obj);
   }
 
-  public: void pushLevel(Char const *scope, IdentifiableObject *obj)
+  public: void pushLevel(Char const *scope, TiObject *obj)
   {
     this->stack.add(scope, obj);
   }
 
   public: void popLevel();
 
-  public: void setLevel(IdentifiableObject *obj, Int index = -1);
+  public: void setLevel(TiObject *obj, Int index = -1);
 
-  public: void setLevel(Char const *scope, IdentifiableObject *obj, Int index = -1);
+  public: void setLevel(Char const *scope, TiObject *obj, Int index = -1);
 
-  public: IdentifiableObject* getLevelData(Int index = -1) const;
+  public: TiObject* getLevelData(Int index = -1) const;
 
   public: const SbStr& getLevelScope(Int index = -1) const;
 
@@ -159,13 +159,13 @@ class PlainRepository : public IdentifiableObject, public virtual Provider
   public: using Provider::remove;
   public: using Provider::tryGet;
 
-  public: virtual Bool trySet(Reference const *ref, IdentifiableObject *val)
+  public: virtual Bool trySet(Reference const *ref, TiObject *val)
   {
     return this->referenceSeeker.trySet(ref, &this->stack, val);
   }
 
-  public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal,
-                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
+  public: virtual Bool tryGet(Reference const *ref, TiObject *&retVal,
+                              TypeInfo const *parentTypeInfo=0, TiObject **retParent=0)
   {
     return this->referenceSeeker.tryGet(ref, &this->stack, retVal, parentTypeInfo, retParent);
   }

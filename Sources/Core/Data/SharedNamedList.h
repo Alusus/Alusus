@@ -95,29 +95,29 @@ class SharedNamedList : public Node,
   /// @name Data Access Functions
   /// @{
 
-  public: Int add(Char const *name, SharedPtr<IdentifiableObject> const &val);
+  public: Int add(Char const *name, SharedPtr<TiObject> const &val);
 
   /// Add a new object to the list.
-  public: Int add(SharedPtr<IdentifiableObject> const &val)
+  public: Int add(SharedPtr<TiObject> const &val)
   {
     return this->add(0, val);
   }
 
-  public: void insert(Int index, Char const *name, SharedPtr<IdentifiableObject> const &val);
+  public: void insert(Int index, Char const *name, SharedPtr<TiObject> const &val);
 
   /// Add a new object to the list at a specific index.
-  public: void insert(Int index, SharedPtr<IdentifiableObject> const &val)
+  public: void insert(Int index, SharedPtr<TiObject> const &val)
   {
     return this->insert(index, 0, val);
   }
 
-  public: void set(Int index, Char const *name, SharedPtr<IdentifiableObject> const &val);
+  public: void set(Int index, Char const *name, SharedPtr<TiObject> const &val);
 
   /// Change the element at the specified index.
-  public: void set(Int index, SharedPtr<IdentifiableObject> const &val);
+  public: void set(Int index, SharedPtr<TiObject> const &val);
 
   /// Get the object at the specified index.
-  public: SharedPtr<IdentifiableObject> const& getShared(Int index) const;
+  public: SharedPtr<TiObject> const& getShared(Int index) const;
 
   /// @}
 
@@ -131,7 +131,7 @@ class SharedNamedList : public Node,
 
   private: static Word getRecordSize(Word maxStrSize)
   {
-    return maxStrSize * sizeof(Char) + sizeof(SharedPtr<IdentifiableObject>);
+    return maxStrSize * sizeof(Char) + sizeof(SharedPtr<TiObject>);
   }
 
   /// @}
@@ -148,7 +148,7 @@ class SharedNamedList : public Node,
   /// @{
 
   /// Change the element at the specified index.
-  public: virtual void set(Int index, IdentifiableObject *val)
+  public: virtual void set(Int index, TiObject *val)
   {
     this->set(index, getSharedPtr(val, true));
   }
@@ -163,33 +163,33 @@ class SharedNamedList : public Node,
   }
 
   /// Get the object at the specified index.
-  public: virtual IdentifiableObject* get(Int index) const
+  public: virtual TiObject* get(Int index) const
   {
     return this->getShared(index).get();
   }
 
   /// Add a new object to the list.
-  public: virtual Int add(IdentifiableObject *val)
+  public: virtual Int add(TiObject *val)
   {
     return this->add(0, getSharedPtr(val, true));
   }
 
-  public: virtual Int add(Char const *name, IdentifiableObject *val)
+  public: virtual Int add(Char const *name, TiObject *val)
   {
     return this->add(name, getSharedPtr(val, true));
   }
 
-  public: virtual void insert(Int index, IdentifiableObject *val)
+  public: virtual void insert(Int index, TiObject *val)
   {
     this->insert(index, 0, getSharedPtr(val, true));
   }
 
-  public: virtual void insert(Int index, Char const *name, IdentifiableObject *val)
+  public: virtual void insert(Int index, Char const *name, TiObject *val)
   {
     this->insert(index, name, getSharedPtr(val, true));
   }
 
-  public: virtual void set(Int index, Char const *name, IdentifiableObject *val)
+  public: virtual void set(Int index, Char const *name, TiObject *val)
   {
     this->set(index, name, getSharedPtr(val, true));
   }

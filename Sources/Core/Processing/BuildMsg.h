@@ -26,12 +26,12 @@ namespace Core { namespace Processing
  * functions for obtaining the details of the msg including code, description,
  * severity, and source code location.
  */
-class BuildMsg : public IdentifiableObject
+class BuildMsg : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(BuildMsg, IdentifiableObject, "Core.Processing", "Core", "alusus.net");
+  TYPE_INFO(BuildMsg, TiObject, "Core.Processing", "Core", "alusus.net");
 
 
   //============================================================================

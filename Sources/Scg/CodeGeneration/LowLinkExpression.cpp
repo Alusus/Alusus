@@ -19,18 +19,18 @@ using namespace Core::Basic;
 using namespace Core::Data;
 
 LowLinkExpression::LowLinkExpression(CodeGenerator *gen,
-                                     const SharedPtr<IdentifiableObject> &item)
+                                     const SharedPtr<TiObject> &item)
 {
-  auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
+  auto metadata = item.tii_cast_get<Ast::MetadataHolder>();
 
   if (metadata == nullptr || metadata->getProdId() != gen->getLowLinkExpId())
     throw EXCEPTION(InvalidArgumentException,
                     "Low link expressions can be constructed from "
                     "Expression.LowLinkExp only.");
 
-  auto list = item.s_cast<PrtList>();
+  auto list = item.s_cast<Ast::List>();
   this->lhs = list->getShared(0);
-  this->separator = static_cast<PrtToken*>(list->get(1))->getText();
+  this->separator = static_cast<Ast::Token*>(list->get(1))->getText();
   this->rhs = list->getShared(2);
 }
 }

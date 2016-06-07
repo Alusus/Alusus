@@ -40,7 +40,7 @@ class SignalBase
   /// Contains info of a single connection.
   protected: struct Connection
   {
-    Connection(IdentifiableObject *o, void (IdentifiableObject::*f)()) : obj(o), mfunc(f)
+    Connection(TiObject *o, void (TiObject::*f)()) : obj(o), mfunc(f)
     {
     }
 
@@ -49,7 +49,7 @@ class SignalBase
     }
 
     /// A pointer to the target object.
-    IdentifiableObject *obj;
+    TiObject *obj;
 
     union
     {
@@ -60,7 +60,7 @@ class SignalBase
              * signal) this value will be 0.
              * This should only be used if obj is not 0.
              */
-      void (IdentifiableObject::*mfunc)();
+      void (TiObject::*mfunc)();
 
       /**
              * @brief A pointer to a non member function.
@@ -95,19 +95,19 @@ class SignalBase
   // Member Functions
 
   /// Connect a member function target to this source.
-  protected: Bool _connect(IdentifiableObject *obj, void (IdentifiableObject::*mfunc)());
+  protected: Bool _connect(TiObject *obj, void (TiObject::*mfunc)());
 
   /// Connect a non member function target to this source.
   protected: Bool _connect(void (*func)());
 
   /// Disconnect a member function target from this source.
-  protected: Bool _unconnect(IdentifiableObject *obj, void (IdentifiableObject::*mfunc)());
+  protected: Bool _unconnect(TiObject *obj, void (TiObject::*mfunc)());
 
   /// Disconnect a non member function target from this source.
   protected: Bool _unconnect(void (*func)());
 
   /// Disconnect all connections to a specific object.
-  public: void onReceiverDestroyed(IdentifiableObject* obj);
+  public: void onReceiverDestroyed(TiObject* obj);
 };
 
 
@@ -147,7 +147,7 @@ class SignalBase
     _##name() {} \
     template<class T> Core::Basic::Bool connect(T *obj, void (T::*mfunc)argsDef) \
     { \
-      return this->_connect(obj, reinterpret_cast<void (Core::Basic::IdentifiableObject::*)()>(mfunc)); \
+      return this->_connect(obj, reinterpret_cast<void (Core::Basic::TiObject::*)()>(mfunc)); \
     } \
     Core::Basic::Bool connect(void (*func)argsDef) \
     { \
@@ -155,7 +155,7 @@ class SignalBase
     } \
     template<class T> Core::Basic::Bool unconnect(T *obj, void (T::*mfunc)argsDef) \
     { \
-      return this->_unconnect(obj, reinterpret_cast<void (Core::Basic::IdentifiableObject::*)()>(mfunc)); \
+      return this->_unconnect(obj, reinterpret_cast<void (Core::Basic::TiObject::*)()>(mfunc)); \
     } \
     Core::Basic::Bool unconnect(void (*func)argsDef) \
     { \
@@ -173,7 +173,7 @@ class SignalBase
           reinterpret_cast<void (*)argsDef>(this->connections[_i].func)argsCall; \
         } else { \
           ((this->connections[_i].obj)->* \
-            (reinterpret_cast<void (Core::Basic::IdentifiableObject::*)argsDef> \
+            (reinterpret_cast<void (Core::Basic::TiObject::*)argsDef> \
                              (this->connections[_i].mfunc)))argsCall; \
         } \
       } \
@@ -228,7 +228,7 @@ class SignalBase
     _##name() {} \
     template<class T> Core::Basic::Bool connect(T *obj, Core::Basic::Bool (T::*mfunc)argsDef) \
     { \
-      return this->_connect(obj, reinterpret_cast<void (Core::Basic::IdentifiableObject::*)()>(mfunc)); \
+      return this->_connect(obj, reinterpret_cast<void (Core::Basic::TiObject::*)()>(mfunc)); \
     } \
     Core::Basic::Bool connect(Core::Basic::Bool (*func)argsDef) \
     { \
@@ -236,7 +236,7 @@ class SignalBase
     } \
     template<class T> Core::Basic::Bool unconnect(T *obj, Core::Basic::Bool (T::*mfunc)argsDef) \
     { \
-      return this->_unconnect(obj, reinterpret_cast<void (Core::Basic::IdentifiableObject::*)()>(mfunc)); \
+      return this->_unconnect(obj, reinterpret_cast<void (Core::Basic::TiObject::*)()>(mfunc)); \
     } \
     Core::Basic::Bool unconnect(Core::Basic::Bool (*func)argsDef) \
     { \
@@ -250,7 +250,7 @@ class SignalBase
           if (reinterpret_cast<Core::Basic::Bool (*)argsDef>(this->connections[_i].func)argsCall) return true; \
         } else {\
           if (((this->connections[_i].obj)->* \
-            (reinterpret_cast<Core::Basic::Bool (Core::Basic::IdentifiableObject::*)argsDef> \
+            (reinterpret_cast<Core::Basic::Bool (Core::Basic::TiObject::*)argsDef> \
                              (this->connections[_i].mfunc)))argsCall) return true; \
         } \
       } \
@@ -265,7 +265,7 @@ class SignalBase
           if (!reinterpret_cast<Core::Basic::Bool (*)argsDef>(this->connections[_i].func)argsCall) ++count; \
         } else { \
           if (!((this->connections[_i].obj)->* \
-            (reinterpret_cast<Core::Basic::Bool (Core::Basic::IdentifiableObject::*)argsDef> \
+            (reinterpret_cast<Core::Basic::Bool (Core::Basic::TiObject::*)argsDef> \
                              (this->connections[_i].mfunc)))argsCall) ++count; \
         } \
       } \

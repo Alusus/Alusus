@@ -20,13 +20,13 @@ namespace Core { namespace Data
 
 Bool StrKeyReference::compare(Reference const *r) const
 {
-  const StrKeyReference *sr = io_cast<const StrKeyReference>(r);
+  const StrKeyReference *sr = tio_cast<const StrKeyReference>(r);
   if (sr != 0 && sr->getKey() == this->getKey()) return Reference::compare(r);
   else return false;
 }
 
 
-void StrKeyReference::setValue(Provider *provider, IdentifiableObject *parent,
+void StrKeyReference::setValue(Provider *provider, TiObject *parent,
                                ReferenceSetLambda handler) const
 {
   if (parent == 0) {
@@ -45,7 +45,7 @@ void StrKeyReference::setValue(Provider *provider, IdentifiableObject *parent,
     index = this->cachedIndex;
   }
 
-  IdentifiableObject *obj = 0;
+  TiObject *obj = 0;
   if (index == -1) {
     if (isPerform(handler(0, obj))) {
       container->set(this->key.c_str(), obj);
@@ -59,7 +59,7 @@ void StrKeyReference::setValue(Provider *provider, IdentifiableObject *parent,
 }
 
 
-void StrKeyReference::removeValue(Provider *provider, IdentifiableObject *parent,
+void StrKeyReference::removeValue(Provider *provider, TiObject *parent,
                                   ReferenceRemoveLambda handler) const
 {
   if (parent == 0) {
@@ -86,7 +86,7 @@ void StrKeyReference::removeValue(Provider *provider, IdentifiableObject *parent
 }
 
 
-void StrKeyReference::forEachValue(Provider *provider, IdentifiableObject *parent,
+void StrKeyReference::forEachValue(Provider *provider, TiObject *parent,
                                    ReferenceForeachLambda handler) const
 {
   if (parent == 0) {
@@ -111,8 +111,8 @@ void StrKeyReference::forEachValue(Provider *provider, IdentifiableObject *paren
 }
 
 
-Bool StrKeyReference::setValue(Provider *provider, IdentifiableObject *parent,
-                              IdentifiableObject *obj) const
+Bool StrKeyReference::setValue(Provider *provider, TiObject *parent,
+                              TiObject *obj) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));
@@ -139,8 +139,8 @@ Bool StrKeyReference::setValue(Provider *provider, IdentifiableObject *parent,
 }
 
 
-Bool StrKeyReference::getValue(Provider *provider, IdentifiableObject *parent,
-                               IdentifiableObject *&result) const
+Bool StrKeyReference::getValue(Provider *provider, TiObject *parent,
+                               TiObject *&result) const
 {
   if (parent == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("parent"), STR("Should not be null."));

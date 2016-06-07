@@ -22,21 +22,21 @@ using namespace Data;
 
 void GenericParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  ParsingMetadataHolder *item = state->getData().ii_cast_get<ParsingMetadataHolder>();
+  Ast::MetadataHolder *item = state->getData().tii_cast_get<Ast::MetadataHolder>();
   SymbolDefinition *prod = state->refTopProdLevel().getProd();
   if (item != 0 && item->getProdId() == UNKNOWN_ID) {
     // We need to set the production id now.
     this->prepareToModifyData(state, -1);
-    item = state->getData().ii_cast_get<ParsingMetadataHolder>();
+    item = state->getData().tii_cast_get<Ast::MetadataHolder>();
     item->setProdId(prod->getId());
   } else if (this->isProdObjEnforced(state)) {
     // We need to create a container data object for this production root.
-    SharedPtr<IdentifiableObject> data = this->createEnforcedProdNode(state);
+    SharedPtr<TiObject> data = this->createEnforcedProdNode(state);
     // Set the production id for this data item.
-    ParsingMetadataHolder *dataMeta = data.ii_cast_get<ParsingMetadataHolder>();
+    Ast::MetadataHolder *dataMeta = data.tii_cast_get<Ast::MetadataHolder>();
     if (dataMeta == 0) {
       throw EXCEPTION(GenericException,
-                      STR("Production root objects must implement ParsingMetadataHolder interface."));
+                      STR("Production root objects must implement Ast::MetadataHolder interface."));
     }
     dataMeta->setProdId(prod->getId());
     // Set the line and column, if any.
@@ -58,7 +58,7 @@ void GenericParsingHandler::onTermEnd(Processing::Parser *parser, Processing::Pa
     if (this->isPassUpList(state, -1)) return;
   }
 
-  SharedPtr<IdentifiableObject> data = state->getData();
+  SharedPtr<TiObject> data = state->getData();
   Int levelIndex = -2;
   while (true) {
     if (this->isRouteTerm(state, levelIndex)) {
@@ -90,7 +90,7 @@ void GenericParsingHandler::onTermEnd(Processing::Parser *parser, Processing::Pa
 
 
 void GenericParsingHandler::onLevelExit(Processing::Parser *parser, Processing::ParserState *state,
-                                        SharedPtr<IdentifiableObject> const &data)
+                                        SharedPtr<TiObject> const &data)
 {
   if (state->refTopTermLevel().getTerm()->isA<ReferenceTerm>()) {
     ASSERT(state->getData() == 0);
@@ -106,7 +106,7 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
   TokenTerm *term = static_cast<TokenTerm*>(state->refTopTermLevel().getTerm());
   ASSERT(term->isA<TokenTerm>());
 
-  IdentifiableObject *matchText = state->getTokenTermText();
+  TiObject *matchText = state->getTokenTermText();
   // Skip if the term should be omitted.
   if (term->getFlags() & ParsingFlags::ENFORCE_TOKEN_OMIT) return;
   else if (!(term->getFlags() & ParsingFlags::ENFORCE_TOKEN_OBJ) && matchText != 0 && matchText->isA<Data::String>()) {
@@ -119,10 +119,10 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
 
   Char const *tokenText = STR("");
   // If the token term defines a map as its match criteria then we'll use the value of the matched
-  // entry as the value of our PrtToken text, otherwise we'll just use the actual token text
+  // entry as the value of our Ast::Token text, otherwise we'll just use the actual token text
   // captured by the lexer.
   if (matchText != 0 && matchText->isA<Data::SharedMap>()) {
-    IdentifiableObject *mappedText = static_cast<Data::SharedMap*>(matchText)->get(token->getText().c_str());
+    TiObject *mappedText = static_cast<Data::SharedMap*>(matchText)->get(token->getText().c_str());
     if (mappedText != 0 && mappedText->isA<Data::String>()) {
       tokenText = static_cast<Data::String*>(mappedText)->get();
     } else {
@@ -134,8 +134,8 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
   // TODO: Implement control character parsing for character literals.
 
   // Create the token item.
-  SharedPtr<IdentifiableObject> tokenItem = this->createTokenNode(state, -1, token->getId(), tokenText);
-  auto metadata = tokenItem.ii_cast_get<ParsingMetadataHolder>();
+  SharedPtr<TiObject> tokenItem = this->createTokenNode(state, -1, token->getId(), tokenText);
+  auto metadata = tokenItem.tii_cast_get<Ast::MetadataHolder>();
   if (metadata) {
     metadata->setSourceLocation(token->getSourceLocation());
   }
@@ -207,7 +207,7 @@ void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *parser, 
 
 void GenericParsingHandler::onTermCancelling(Processing::Parser *parser, Processing::ParserState *state)
 {
-  state->setData(SharedPtr<IdentifiableObject>(0));
+  state->setData(SharedPtr<TiObject>(0));
 }
 
 
@@ -220,17 +220,17 @@ void GenericParsingHandler::onProdCancelling(Processing::Parser *parser, Process
 //==============================================================================
 // Member Functions
 
-void GenericParsingHandler::addData(SharedPtr<IdentifiableObject> const &data, Processing::ParserState *state,
+void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing::ParserState *state,
                                     Int levelIndex)
 {
   if (this->isRouteTerm(state, levelIndex)) {
-    IdentifiableObject *currentData = state->getData(levelIndex).get();
-    Container *container= ii_cast<Container>(currentData);
+    TiObject *currentData = state->getData(levelIndex).get();
+    Container *container= tii_cast<Container>(currentData);
     if (currentData == 0) {
       state->setData(data, levelIndex);
     } else if (container != 0 && container->get(0) == 0) {
       this->prepareToModifyData(state, levelIndex);
-      container = state->getData(levelIndex).ii_cast_get<Container>();
+      container = state->getData(levelIndex).tii_cast_get<Container>();
       container->set(0, data.get());
     } else {
       throw EXCEPTION(GenericException,
@@ -240,7 +240,7 @@ void GenericParsingHandler::addData(SharedPtr<IdentifiableObject> const &data, P
     }
   } else if (this->isListTerm(state, levelIndex)) {
     // Add the given data to this list term.
-    IdentifiableObject *currentData = state->getData(levelIndex).get();
+    TiObject *currentData = state->getData(levelIndex).get();
     if (currentData == 0) {
       // Set the given data as the level's data.
       // If this term has FORCE_LIST flag the data should never be null in the first place.
@@ -250,19 +250,19 @@ void GenericParsingHandler::addData(SharedPtr<IdentifiableObject> const &data, P
       // There is three possible situations at this point: Either the list was enforced, or
       // a child data was set into this level, or this level was visited more than once causing
       // a list to be created.
-      ListContainer *container = ii_cast<ListContainer>(currentData);
-      ParsingMetadataHolder *metadata = ii_cast<ParsingMetadataHolder>(currentData);
+      ListContainer *container = tii_cast<ListContainer>(currentData);
+      Ast::MetadataHolder *metadata = tii_cast<Ast::MetadataHolder>(currentData);
       if (container != 0 && (metadata == 0 || metadata->getProdId() == UNKNOWN_ID)) {
         // This level already has a list that belongs to this production, so we can just add the new data
         // to this list.
         this->prepareToModifyData(state, levelIndex);
-        auto container = state->getData(levelIndex).ii_cast_get<ListContainer>();
+        auto container = state->getData(levelIndex).tii_cast_get<ListContainer>();
         container->add(data.get());
       } else {
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
-        SharedPtr<IdentifiableObject> list = this->createListNode(state, levelIndex);
-        ListContainer *newContainer = list.ii_cast_get<ListContainer>();
-        ParsingMetadataHolder *newMetadata = list.ii_cast_get<ParsingMetadataHolder>();
+        SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
+        ListContainer *newContainer = list.tii_cast_get<ListContainer>();
+        Ast::MetadataHolder *newMetadata = list.tii_cast_get<Ast::MetadataHolder>();
         if (newMetadata != 0 && metadata != 0) {
           newMetadata->setSourceLocation(metadata->getSourceLocation());
         }
@@ -313,56 +313,56 @@ Bool GenericParsingHandler::isProdObjEnforced(ParserState *state)
 }
 
 
-SharedPtr<IdentifiableObject> GenericParsingHandler::createListNode(ParserState *state, Int levelIndex)
+SharedPtr<TiObject> GenericParsingHandler::createListNode(ParserState *state, Int levelIndex)
 {
-  return std::make_shared<PrtList>();
+  return std::make_shared<Ast::List>();
 }
 
 
-SharedPtr<IdentifiableObject> GenericParsingHandler::createRouteNode(ParserState *state, Int levelIndex, Int route)
+SharedPtr<TiObject> GenericParsingHandler::createRouteNode(ParserState *state, Int levelIndex, Int route)
 {
-  auto routeItem = std::make_shared<PrtRoute>();
+  auto routeItem = std::make_shared<Ast::Route>();
   routeItem->setRoute(route);
   return routeItem;
 }
 
 
-SharedPtr<IdentifiableObject> GenericParsingHandler::createTokenNode(ParserState *state, Int levelIndex,
+SharedPtr<TiObject> GenericParsingHandler::createTokenNode(ParserState *state, Int levelIndex,
                                                                      Word tokenId, Char const *tokenText)
 {
-  auto token = std::make_shared<PrtToken>();
+  auto token = std::make_shared<Ast::Token>();
   token->setId(tokenId);
   token->setText(tokenText);
   return token;
 }
 
 
-SharedPtr<IdentifiableObject> GenericParsingHandler::createEnforcedProdNode(ParserState *state)
+SharedPtr<TiObject> GenericParsingHandler::createEnforcedProdNode(ParserState *state)
 {
   // We need to create a container data object for this production root.
-  SharedPtr<IdentifiableObject> data;
+  SharedPtr<TiObject> data;
   Term *term = state->refTopTermLevel().getTerm();
   if (term->isA<AlternateTerm>()) {
-    data = std::make_shared<PrtRoute>();
-    data.s_cast_get<PrtRoute>()->setData(state->getData());
+    data = std::make_shared<Ast::Route>();
+    data.s_cast_get<Ast::Route>()->setData(state->getData());
   } else if (term->isA<MultiplyTerm>()) {
     Integer *min = state->getMultiplyTermMin();
     Integer *max = state->getMultiplyTermMax();
     if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
       // Optional term.
-      data = std::make_shared<PrtRoute>();
-      data.s_cast_get<PrtRoute>()->setData(state->getData());
+      data = std::make_shared<Ast::Route>();
+      data.s_cast_get<Ast::Route>()->setData(state->getData());
     } else {
       // Duplicate term.
-      data = std::make_shared<PrtList>();
+      data = std::make_shared<Ast::List>();
       if (state->getData() != 0 || this->isListItemEnforced(state, -1)) {
-        data.s_cast_get<PrtList>()->add(state->getData());
+        data.s_cast_get<Ast::List>()->add(state->getData());
       }
     }
   } else if (term->isA<ConcatTerm>()) {
-    data = std::make_shared<PrtList>();
+    data = std::make_shared<Ast::List>();
     if (state->getData() != 0 || this->isListItemEnforced(state, -1)) {
-      data.s_cast_get<PrtList>()->add(state->getData());
+      data.s_cast_get<Ast::List>()->add(state->getData());
     }
   } else if (term->isA<ReferenceTerm>()) {
     throw EXCEPTION(GenericException,
@@ -398,7 +398,7 @@ void GenericParsingHandler::prepareToModifyData(Processing::ParserState *state, 
   if (state->isDataShared(levelIndex)) {
     // Duplicate the data.
     auto data = state->getData(levelIndex).get();
-    auto clonable = ii_cast<Clonable>(data);
+    auto clonable = tii_cast<Clonable>(data);
     if (data != 0 && clonable == 0) {
       throw EXCEPTION(GenericException,
                       STR("State branching requires that state data is Clonable."));

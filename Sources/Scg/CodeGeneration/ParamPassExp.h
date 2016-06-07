@@ -45,7 +45,7 @@ private:
 
 public:
   ParamPassExp(CodeGenerator *gen,
-               Core::Basic::SharedPtr<Core::Data::PrtRoute> const &item);
+               Core::Basic::SharedPtr<Core::Data::Ast::Route> const &item);
 
   /**
    * Retrieves the number of parameters in this list expression.

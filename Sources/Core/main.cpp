@@ -135,25 +135,26 @@ int main(int argCount, char * const args[])
     root.buildMsgNotifier.connect(&printBuildMsg);
 
     // Parse the provided filename.
-    SharedPtr<IdentifiableObject> ptr = root.processFile(args[1]);
+    SharedPtr<TiObject> ptr = root.processFile(args[1]);
     if (ptr == 0) return EXIT_SUCCESS;
 
     // Check if we have orphan data to print.
-    SharedPtr<Data::PrtList> orphan;
+    SharedPtr<Data::Ast::List> orphan;
     if (ptr->isDerivedFrom<Data::Module>()) {
       Int orphanIndex = ptr.s_cast<Data::Module>()->findIndex(STR("_ORPHAN_"));
       if (orphanIndex != -1) {
-        orphan = ptr.s_cast<Data::Module>()->getShared(orphanIndex).io_cast<Data::PrtList>();
+        orphan = ptr.s_cast<Data::Module>()->getShared(orphanIndex).tio_cast<Data::Ast::List>();
       }
-    } else if (ptr->isDerivedFrom<Data::PrtList>()) {
-      orphan = ptr.s_cast<Data::PrtList>();
+    } else if (ptr->isDerivedFrom<Data::Ast::List>()) {
+      orphan = ptr.s_cast<Data::Ast::List>();
     }
     if (orphan == 0 || orphan->getCount() == 0) return 0;
 
     // Print the parsed data.
     outStream << NEW_LINE << STR("-- BUILD COMPLETE --") << NEW_LINE << NEW_LINE <<
             STR("Build Results:") << NEW_LINE << NEW_LINE;
-    dumpParsedData(orphan.get());
+    dumpData(outStream, orphan.get(), 0);
+    outStream << NEW_LINE;
   } catch (Exception &e) {
     outStream << e.getVerboseErrorMessage() << NEW_LINE;
     return EXIT_FAILURE;

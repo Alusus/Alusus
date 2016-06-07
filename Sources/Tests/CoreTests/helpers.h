@@ -21,15 +21,15 @@ using namespace std;
 using namespace Core;
 
 /// Search the given tree recursively for the data of the given production id.
-void findProdData(Word prodId, SharedPtr<IdentifiableObject> ptr,
-                  vector<SharedPtr<IdentifiableObject> > &result, Int index = -1);
+void findProdData(Word prodId, SharedPtr<TiObject> ptr,
+                  vector<SharedPtr<TiObject> > &result, Int index = -1);
 
 /// Search the given tree recursively for a token.
-void findToken(Word tokenId, Char const *text, SharedPtr<IdentifiableObject> ptr,
-               vector<SharedPtr<IdentifiableObject> > &result, Int index = -1);
+void findToken(Word tokenId, Char const *text, SharedPtr<TiObject> ptr,
+               vector<SharedPtr<TiObject> > &result, Int index = -1);
 
 /// Check whether the provided pointer has empty data.
-Bool isEmpty(SharedPtr<IdentifiableObject> ptr);
+Bool isEmpty(SharedPtr<TiObject> ptr);
 
 /**
  * @brief A class used to validate the tokens generated from the lexer.

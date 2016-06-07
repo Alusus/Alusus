@@ -25,7 +25,7 @@ using namespace Core::Data;
 
 void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  SharedPtr<IdentifiableObject> item = state->getData();
+  SharedPtr<TiObject> item = state->getData();
 
   static ReferenceSeeker seeker;
 
@@ -35,12 +35,12 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
         ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
-  auto name = io_cast<PrtToken>(seeker.tryGet(nameReference.get(), item.get()));
+  auto name = tio_cast<Ast::Token>(seeker.tryGet(nameReference.get(), item.get()));
 
   /*SharedPtr<Module> statementList;
   if (name != 0) {
   statementList = this->rootManager->getDefinitionsStore()->getValue(name->getText().c_str())
-  .io_cast<Module>();
+  .tio_cast<Module>();
   }*/
   if (true /*statementList != 0*/) {
     // Execute a list of statements.
@@ -49,10 +49,10 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
       LlvmContainer::initialize();
       CodeGenUnit program;
       program.setBuildMsgStore(state->getBuildMsgStore());
-      auto *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).io_cast_get<Data::Module>();
+      auto *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).tio_cast_get<Data::Module>();
 
       for (auto i = 0; i < rootModule->getCount(); i++) {
-        auto module = rootModule->getShared(i).io_cast_get<Module>();
+        auto module = rootModule->getShared(i).tio_cast_get<Module>();
         if (module == 0) continue;
         program.addModule(module);
       }
@@ -81,7 +81,7 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     // Create a build message.
     Str message = "Couldn't find module: ";
     message += name->getText();
-    auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
+    auto metadata = item.tii_cast_get<Ast::MetadataHolder>();
 
     if (metadata != nullptr) {
       state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(),
@@ -92,7 +92,7 @@ void RunParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   }
 
   // Reset parsed data because we are done with the command.
-  state->setData(SharedPtr<IdentifiableObject>(0));
+  state->setData(SharedPtr<TiObject>(0));
 }
 
 } // namespace

@@ -23,7 +23,7 @@ class RootParsingHandler : public ParsingHandler
   //============================================================================
   // Type Info
 
-  TYPE_INFO(RootParsingHandler, ParsingHandler, "Core.Processing", "Core", "alusus.net");
+  TYPE_INFO(RootParsingHandler, ParsingHandler, "Core.Processing.Handlers", "Core", "alusus.net");
 
 
   //============================================================================
@@ -39,7 +39,7 @@ class RootParsingHandler : public ParsingHandler
 
   public: virtual void onProdStart(Parser *parser, ParserState *state);
 
-  public: virtual void onLevelExit(Parser *parser, ParserState *state, SharedPtr<IdentifiableObject> const &data);
+  public: virtual void onLevelExit(Parser *parser, ParserState *state, SharedPtr<TiObject> const &data);
 
 }; // class
 

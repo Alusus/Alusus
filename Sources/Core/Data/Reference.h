@@ -163,11 +163,11 @@ class Reference : public Node, public virtual DataOwner
    * @brief Set a value for all matches on the given parent object.
    * @return True if any match is found.
    */
-  public: virtual Bool setValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *obj) const
+  public: virtual Bool setValue(Provider *provider, TiObject *parent,
+                                TiObject *obj) const
   {
     Bool ret = false;
-    this->setValue(provider, parent, [obj,&ret](Int index, IdentifiableObject *&o)->RefOp {
+    this->setValue(provider, parent, [obj,&ret](Int index, TiObject *&o)->RefOp {
       o = obj;
       ret = true;
       return RefOp::PERFORM_AND_MOVE;
@@ -179,10 +179,10 @@ class Reference : public Node, public virtual DataOwner
    * @brief Remove all matches on the given parent object.
    * @return True if any match is found.
    */
-  public: virtual Bool removeValue(Provider *provider, IdentifiableObject *parent) const
+  public: virtual Bool removeValue(Provider *provider, TiObject *parent) const
   {
     Bool ret = false;
-    this->removeValue(provider, parent, [&ret](Int index, IdentifiableObject *o)->RefOp {
+    this->removeValue(provider, parent, [&ret](Int index, TiObject *o)->RefOp {
       ret = true;
       return RefOp::PERFORM_AND_MOVE;
     });
@@ -193,11 +193,11 @@ class Reference : public Node, public virtual DataOwner
    * @brief Get the first value matched from the given parent object.
    * @return True if a match was found.
    */
-  public: virtual Bool getValue(Provider *provider, IdentifiableObject *parent,
-                                IdentifiableObject *&result) const
+  public: virtual Bool getValue(Provider *provider, TiObject *parent,
+                                TiObject *&result) const
   {
     Bool ret = false;
-    this->forEachValue(provider, parent, [&ret,&result](Int index, IdentifiableObject *o)->RefOp {
+    this->forEachValue(provider, parent, [&ret,&result](Int index, TiObject *o)->RefOp {
       result = o;
       ret = true;
       return RefOp::STOP;
@@ -211,7 +211,7 @@ class Reference : public Node, public virtual DataOwner
    *                determine whether to set the value for that match and
    *                whether to move to the next match or stop.
    */
-  public: virtual void setValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void setValue(Provider *provider, TiObject *parent,
                                 ReferenceSetLambda handler) const = 0;
 
   /**
@@ -220,7 +220,7 @@ class Reference : public Node, public virtual DataOwner
    *                determine whether to remove the value for that match and
    *                whether to move to the next match or stop.
    */
-  public: virtual void removeValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void removeValue(Provider *provider, TiObject *parent,
                                    ReferenceRemoveLambda handler) const = 0;
 
   /**
@@ -229,7 +229,7 @@ class Reference : public Node, public virtual DataOwner
    *                vlue of the lambda determines whether to proceed in the
    *                matching or stop.
    */
-  public: virtual void forEachValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void forEachValue(Provider *provider, TiObject *parent,
                                     ReferenceForeachLambda handler) const = 0;
 
   /// @}

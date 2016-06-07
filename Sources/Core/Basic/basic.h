@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Basic
  * namespace.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -78,6 +78,9 @@ typedef unsigned long long int PtrWord;
 
 /// @ingroup basic_datatypes
 typedef std::stringstream StrStream;
+
+/// @ingroup basic_datatypes
+typedef std::ostream OutStream;
 
 
 //==============================================================================
@@ -197,9 +200,9 @@ typedef std::stringstream StrStream;
  * <br>
  * Usage: this macro takes the type name in the first argument, followed by
  * a variable list of arguments defining the enum values. Ex:<br>
- * enumeration(My_Type, VAL1, VAL2=8, V3);
+ * s_enum(My_Type, VAL1, VAL2=8, V3);
  */
-#define enumeration(x,...) \
+#define s_enum(x,...) \
   struct x \
   { \
     enum _##x {__VA_ARGS__} val; \
@@ -210,6 +213,31 @@ typedef std::stringstream StrStream;
     bool operator !=(x v) const { return this->val != v.val; } \
     bool operator ==(_##x v) const { return this->val == v; } \
     bool operator !=(_##x v) const { return this->val != v; } \
+  }
+
+/**
+ * @brief Defines an RttiObject based enumeration.
+ * @ingroup basic_macros
+ *
+ * This is similar to s_enum, but it derives the new type from RttiObject or one
+ * of its children.
+ *
+ * @sa s_enum
+ * @sa RttiObject
+ */
+#define ti_s_enum(x, p, typeNamespace, moduleName, url, ...) \
+  class x : public p \
+  { \
+    TYPE_INFO(x, p, typeNamespace, moduleName, url); \
+    public: \
+      enum _##x {__VA_ARGS__}; \
+      x() : p(0) {} \
+      x(_##x v) : p(v) {} \
+      const x& operator=(_##x v) { this->set(v); return *this; } \
+      bool operator ==(x v) const { return this->get() == v.get(); } \
+      bool operator !=(x v) const { return this->get() != v.get(); } \
+      bool operator ==(_##x v) const { return this->get() == v; } \
+      bool operator !=(_##x v) const { return this->get() != v; } \
   }
 
 /**
@@ -296,7 +324,7 @@ typedef std::stringstream StrStream;
  * &lt;x&gt;_MAJOR: Refers to major events. This should be used for messages
  *                 that can give the reader simple high level info.
  */
-enumeration(LogLevel,
+s_enum(LogLevel,
     LEXER_MINOR = 1,
     LEXER_MID = 2,
     LEXER_MAJOR = 4,
@@ -463,6 +491,9 @@ void convertStr(WChar const *input, int inputLength, Char *output, int outputSiz
  */
 WChar getWideCharFromUtf8(Char const *s);
 
+/// Print 'indents' number of spaces.
+void printIndents(OutStream &stream, int indents);
+
 
 //==============================================================================
 // Global Variable Definitions
@@ -509,8 +540,8 @@ extern std::ostream &outStream;
 #include "default_sorted_indices.h"
 #include "GlobalStorage.h"
 #include "TypeInfo.h"
-#include "IdentifiableObject.h"
-#include "IdentifiableInterface.h"
+#include "TiObject.h"
+#include "TiInterface.h"
 #include "SharedPtr.h"
 #include "WeakPtr.h"
 #include "SignalReverseConnector.h"

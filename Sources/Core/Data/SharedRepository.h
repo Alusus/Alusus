@@ -17,15 +17,15 @@ namespace Core { namespace Data
 {
 
 /**
- * @brief A stack of IdentifiableObject derived data objects.
+ * @brief A stack of TiObject derived data objects.
  */
-class SharedRepository : public IdentifiableObject, public virtual Provider
+class SharedRepository : public TiObject, public virtual Provider
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SharedRepository, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, Provider);
+  TYPE_INFO(SharedRepository, TiObject, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_1(TiObject, Provider);
 
 
   //============================================================================
@@ -98,23 +98,23 @@ class SharedRepository : public IdentifiableObject, public virtual Provider
   /// @name Data Functions
   /// @{
 
-  public: void pushLevel(SharedPtr<IdentifiableObject> const &obj)
+  public: void pushLevel(SharedPtr<TiObject> const &obj)
   {
     this->stack.add(obj);
   }
 
-  public: void pushLevel(Char const *scope, SharedPtr<IdentifiableObject> const &obj)
+  public: void pushLevel(Char const *scope, SharedPtr<TiObject> const &obj)
   {
     this->stack.add(scope, obj);
   }
 
   public: void popLevel();
 
-  public: void setLevel(SharedPtr<IdentifiableObject> const &obj, Int index = -1);
+  public: void setLevel(SharedPtr<TiObject> const &obj, Int index = -1);
 
-  public: void setLevel(Char const *scope, SharedPtr<IdentifiableObject> const &obj, Int index = -1);
+  public: void setLevel(Char const *scope, SharedPtr<TiObject> const &obj, Int index = -1);
 
-  public: SharedPtr<IdentifiableObject> const& getLevelData(Int index = -1) const;
+  public: SharedPtr<TiObject> const& getLevelData(Int index = -1) const;
 
   public: const SbStr& getLevelScope(Int index = -1) const;
 

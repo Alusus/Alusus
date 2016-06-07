@@ -15,7 +15,7 @@
 namespace Core { namespace Data
 {
 
-Bool ReferenceSeeker::trySet(Reference const *ref, IdentifiableObject *target, IdentifiableObject *val) const
+Bool ReferenceSeeker::trySet(Reference const *ref, TiObject *target, TiObject *val) const
 {
   if (ref == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
@@ -29,14 +29,14 @@ Bool ReferenceSeeker::trySet(Reference const *ref, IdentifiableObject *target, I
   if (ref->getNext() == 0) {
     if (ref->isSingleValued()) {
       if (ref->getResultValidator() != 0) {
-        IdentifiableObject *tempResult = 0;
+        TiObject *tempResult = 0;
         ref->getValue(this->dataProvider, target, tempResult);
         if (ref->getResultValidator()->validate(tempResult) == false) return false;
       }
       return ref->setValue(this->dataProvider, target, val);
     } else {
       ref->setValue(this->dataProvider, target,
-        [=,&result](Int i, IdentifiableObject *&obj)->RefOp {
+        [=,&result](Int i, TiObject *&obj)->RefOp {
           if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
             return RefOp::MOVE;
           }
@@ -47,7 +47,7 @@ Bool ReferenceSeeker::trySet(Reference const *ref, IdentifiableObject *target, I
     }
   } else {
     if (ref->isSingleValued()) {
-      IdentifiableObject *innerTarget;
+      TiObject *innerTarget;
       if (!ref->getValue(this->dataProvider, target, innerTarget)) return false;
       if (innerTarget == 0) return false;
       // Prepare innerSrc.
@@ -63,7 +63,7 @@ Bool ReferenceSeeker::trySet(Reference const *ref, IdentifiableObject *target, I
       return this->trySet(ref->getNext().get(), innerTarget, val);
     } else {
       ref->forEachValue(this->dataProvider, target,
-        [=,&result](Int i, IdentifiableObject *innerTarget)->RefOp {
+        [=,&result](Int i, TiObject *innerTarget)->RefOp {
           // Prepare innerSrc.
           if (innerTarget->isA<PlainPairedPtr>()) {
             innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
@@ -87,7 +87,7 @@ Bool ReferenceSeeker::trySet(Reference const *ref, IdentifiableObject *target, I
 }
 
 
-RefOp ReferenceSeeker::set(Reference const *ref, IdentifiableObject *target, SeekerSetLambda handler,
+RefOp ReferenceSeeker::set(Reference const *ref, TiObject *target, SeekerSetLambda handler,
                            Int *index) const
 {
   if (ref == 0) {
@@ -105,7 +105,7 @@ RefOp ReferenceSeeker::set(Reference const *ref, IdentifiableObject *target, See
   RefOp result = RefOp::MOVE;
   if (ref->getNext() == 0) {
     ref->setValue(this->dataProvider, target,
-      [=,&result,&index](Int i, IdentifiableObject *&obj)->RefOp {
+      [=,&result,&index](Int i, TiObject *&obj)->RefOp {
         if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
           return RefOp::MOVE;
         }
@@ -116,7 +116,7 @@ RefOp ReferenceSeeker::set(Reference const *ref, IdentifiableObject *target, See
       });
   } else {
     ref->forEachValue(this->dataProvider, target,
-      [=,&result](Int i, IdentifiableObject *innerTarget)->RefOp {
+      [=,&result](Int i, TiObject *innerTarget)->RefOp {
         // Prepare innerSrc.
         if (innerTarget->isA<PlainPairedPtr>()) {
           innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
@@ -136,7 +136,7 @@ RefOp ReferenceSeeker::set(Reference const *ref, IdentifiableObject *target, See
 }
 
 
-RefOp ReferenceSeeker::remove(Reference const *ref, IdentifiableObject *target, SeekerRemoveLambda handler,
+RefOp ReferenceSeeker::remove(Reference const *ref, TiObject *target, SeekerRemoveLambda handler,
                               Int *index) const
 {
   if (ref == 0) {
@@ -154,7 +154,7 @@ RefOp ReferenceSeeker::remove(Reference const *ref, IdentifiableObject *target, 
   RefOp result = RefOp::MOVE;
   if (ref->getNext() == 0) {
     ref->removeValue(this->dataProvider, target,
-      [=,&result,&index](Int i, IdentifiableObject *obj)->RefOp {
+      [=,&result,&index](Int i, TiObject *obj)->RefOp {
         if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
           return RefOp::MOVE;
         }
@@ -165,7 +165,7 @@ RefOp ReferenceSeeker::remove(Reference const *ref, IdentifiableObject *target, 
       });
   } else {
     ref->forEachValue(this->dataProvider, target,
-      [=,&result](Int i, IdentifiableObject *innerTarget)->RefOp {
+      [=,&result](Int i, TiObject *innerTarget)->RefOp {
         // Prepare innerSrc.
         if (innerTarget->isA<PlainPairedPtr>()) {
           innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
@@ -185,8 +185,8 @@ RefOp ReferenceSeeker::remove(Reference const *ref, IdentifiableObject *target, 
 }
 
 
-Bool ReferenceSeeker::tryGet(Reference const *ref, IdentifiableObject *source, IdentifiableObject *&retVal,
-                             TypeInfo const *parentTypeInfo, IdentifiableObject **retParent) const
+Bool ReferenceSeeker::tryGet(Reference const *ref, TiObject *source, TiObject *&retVal,
+                             TypeInfo const *parentTypeInfo, TiObject **retParent) const
 {
   if (ref == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
@@ -199,7 +199,7 @@ Bool ReferenceSeeker::tryGet(Reference const *ref, IdentifiableObject *source, I
   Bool result = false;
   if (ref->getNext() == 0) {
     if (ref->isSingleValued()) {
-      IdentifiableObject *tempResult;
+      TiObject *tempResult;
       if (ref->getValue(this->dataProvider, source, tempResult)) {
         if (ref->getResultValidator() == 0 || ref->getResultValidator()->validate(tempResult) == true) {
           retVal = tempResult;
@@ -208,7 +208,7 @@ Bool ReferenceSeeker::tryGet(Reference const *ref, IdentifiableObject *source, I
       }
     } else {
       ref->forEachValue(this->dataProvider, source,
-        [=,&result,&retVal](Int i, IdentifiableObject *obj)->RefOp {
+        [=,&result,&retVal](Int i, TiObject *obj)->RefOp {
           if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
             return RefOp::MOVE;
           }
@@ -227,11 +227,11 @@ Bool ReferenceSeeker::tryGet(Reference const *ref, IdentifiableObject *source, I
     return result;
   } else {
     if (ref->isSingleValued()) {
-      IdentifiableObject *innerSrc;
+      TiObject *innerSrc;
       if (!ref->getValue(this->dataProvider, source, innerSrc)) return false;
       if (innerSrc == 0) return false;
       // Prepare innerSrc
-      IdentifiableObject *innerParent;
+      TiObject *innerParent;
       if (innerSrc->isA<SharedPairedPtr>()) {
         SharedPairedPtr *pairedPtr = static_cast<SharedPairedPtr*>(innerSrc);
         innerSrc = pairedPtr->object.get();
@@ -256,10 +256,10 @@ Bool ReferenceSeeker::tryGet(Reference const *ref, IdentifiableObject *source, I
       }
     } else {
       ref->forEachValue(this->dataProvider, source,
-        [=,&retVal,&result](Int i, IdentifiableObject *innerSrc)->RefOp {
+        [=,&retVal,&result](Int i, TiObject *innerSrc)->RefOp {
           if (innerSrc == 0) return RefOp::MOVE;
           // Prepare innerSrc
-          IdentifiableObject *innerParent;
+          TiObject *innerParent;
           if (innerSrc->isA<SharedPairedPtr>()) {
             SharedPairedPtr *pairedPtr = static_cast<SharedPairedPtr*>(innerSrc);
             innerSrc = pairedPtr->object.get();
@@ -294,8 +294,8 @@ Bool ReferenceSeeker::tryGet(Reference const *ref, IdentifiableObject *source, I
 }
 
 
-RefOp ReferenceSeeker::forEach(Reference const *ref, IdentifiableObject *source, SeekerForeachLambda handler,
-                               TypeInfo const *parentTypeInfo, IdentifiableObject *parent, Int *index) const
+RefOp ReferenceSeeker::forEach(Reference const *ref, TiObject *source, SeekerForeachLambda handler,
+                               TypeInfo const *parentTypeInfo, TiObject *parent, Int *index) const
 {
   if (ref == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
@@ -317,7 +317,7 @@ RefOp ReferenceSeeker::forEach(Reference const *ref, IdentifiableObject *source,
   RefOp result = RefOp::MOVE;
   if (ref->getNext() == 0) {
     ref->forEachValue(this->dataProvider, source,
-      [=,&result,&index](Int i, IdentifiableObject *obj)->RefOp {
+      [=,&result,&index](Int i, TiObject *obj)->RefOp {
         if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
           return RefOp::MOVE;
         }
@@ -328,9 +328,9 @@ RefOp ReferenceSeeker::forEach(Reference const *ref, IdentifiableObject *source,
       });
   } else {
     ref->forEachValue(this->dataProvider, source,
-      [=,&result](Int i, IdentifiableObject *innerSrc)->RefOp {
+      [=,&result](Int i, TiObject *innerSrc)->RefOp {
         // Prepare innerSrc and innerParent
-        IdentifiableObject *innerParent = parent;
+        TiObject *innerParent = parent;
         if (innerSrc->isA<SharedPairedPtr>()) {
           SharedPairedPtr *pairedPtr = static_cast<SharedPairedPtr*>(innerSrc);
           if (ref->getResultValidator() != 0 &&

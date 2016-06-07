@@ -83,17 +83,15 @@ class Module : public Node,
   /// @name Definitions Access Functions
   /// @{
 
-  public: Int add(Char const *key, SharedPtr<IdentifiableObject> const &val);
+  public: Int add(Char const *key, SharedPtr<TiObject> const &val);
 
-  public: void insert(Int index, Char const *key, SharedPtr<IdentifiableObject> const &val);
+  public: void insert(Int index, Char const *key, SharedPtr<TiObject> const &val);
 
-  public: Int set(Char const *key, SharedPtr<IdentifiableObject> const &val, Bool insertIfNew);
+  public: Int set(Char const *key, SharedPtr<TiObject> const &val, Bool insertIfNew=true);
 
-  public: Int set(Char const *key, SharedPtr<IdentifiableObject> const &val);
+  public: void set(Int index, SharedPtr<TiObject> const &val);
 
-  public: void set(Int index, SharedPtr<IdentifiableObject> const &val);
-
-  public: SharedPtr<IdentifiableObject> const& getShared(Int index) const
+  public: SharedPtr<TiObject> const& getShared(Int index) const
   {
     return this->definitions.getShared(index);
   }
@@ -115,7 +113,7 @@ class Module : public Node,
   /// @name MapContainer Implementation
   /// @{
 
-  public: virtual void set(Int index, IdentifiableObject *val);
+  public: virtual void set(Int index, TiObject *val);
 
   public: virtual void remove(Int index);
 
@@ -124,16 +122,16 @@ class Module : public Node,
     return this->definitions.getCount();
   }
 
-  public: virtual IdentifiableObject* get(Int index) const
+  public: virtual TiObject* get(Int index) const
   {
     return this->definitions.get(index);
   }
 
-  public: virtual Int set(Char const *key, IdentifiableObject *val);
+  public: virtual Int set(Char const *key, TiObject *val);
 
   public: virtual void remove(Char const *key);
 
-  public: virtual IdentifiableObject* get(Char const *key) const
+  public: virtual TiObject* get(Char const *key) const
   {
     return this->definitions.get(key);
   }

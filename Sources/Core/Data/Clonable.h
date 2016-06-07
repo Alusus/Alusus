@@ -18,18 +18,18 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class Clonable : public IdentifiableInterface
+class Clonable : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(Clonable, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(Clonable, TiInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual SharedPtr<IdentifiableObject> clone() const = 0;
+  public: virtual SharedPtr<TiObject> clone() const = 0;
 
 }; // class
 

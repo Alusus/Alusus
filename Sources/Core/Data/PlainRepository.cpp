@@ -33,7 +33,7 @@ void PlainRepository::popLevel()
 }
 
 
-void PlainRepository::setLevel(IdentifiableObject *obj, Int index)
+void PlainRepository::setLevel(TiObject *obj, Int index)
 {
   if (this->getLevelCount() == 0) {
     throw EXCEPTION(GenericException, STR("Stack is empty."));
@@ -62,7 +62,7 @@ void PlainRepository::setLevel(IdentifiableObject *obj, Int index)
 }
 
 
-void PlainRepository::setLevel(Char const *scope, IdentifiableObject *obj, Int index)
+void PlainRepository::setLevel(Char const *scope, TiObject *obj, Int index)
 {
   if (this->getLevelCount() == 0) {
     throw EXCEPTION(GenericException, STR("Stack is empty."));
@@ -91,7 +91,7 @@ void PlainRepository::setLevel(Char const *scope, IdentifiableObject *obj, Int i
 }
 
 
-IdentifiableObject* PlainRepository::getLevelData(Int index) const
+TiObject* PlainRepository::getLevelData(Int index) const
 {
   if (this->getLevelCount() == 0) {
     throw EXCEPTION(GenericException, STR("Stack is empty."));
@@ -202,10 +202,10 @@ void PlainRepository::ownTopLevel()
 
 void PlainRepository::set(Reference const *ref, SeekerSetLambda handler)
 {
-  IdentifiableObject *objToSet = 0;
+  TiObject *objToSet = 0;
   if (ref->isA<ScopeReference>()) {
     this->referenceSeeker.set(ref, &this->stack,
-                              [=,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+                              [=,&objToSet](Int index, TiObject *&obj)->RefOp {
       RefOp ret = handler(index, obj);
       if (this->owningEnabled && isPerform(ret)) {
         // We can't call setTreeIds until the object is set to the tree, so we will cache the
@@ -221,11 +221,11 @@ void PlainRepository::set(Reference const *ref, SeekerSetLambda handler)
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
+      TiObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       RefOp ret;
       this->referenceSeeker.set(ref, parent,
-                                [=,&ret,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+                                [=,&ret,&objToSet](Int index, TiObject *&obj)->RefOp {
         ret = handler(index, obj);
         if (this->owningEnabled && isPerform(ret)) {
           // We can't call setTreeIds until the object is set to the tree, so we will cache the
@@ -246,7 +246,7 @@ void PlainRepository::set(Reference const *ref, SeekerSetLambda handler)
 
 void PlainRepository::set(Char const *qualifier, SeekerSetLambda handler)
 {
-  IdentifiableObject *objToSet = 0;
+  TiObject *objToSet = 0;
   Char const *qualifier2 = qualifier;
   ReferenceParser parser;
   Reference const *ref = &parser.parseQualifierSegmentToTemp(qualifier2);
@@ -254,7 +254,7 @@ void PlainRepository::set(Char const *qualifier, SeekerSetLambda handler)
   if (ref->isA<ScopeReference>()) {
     ASSERT(*qualifier2 == CHR(':'));
     this->qualifierSeeker.set(qualifier, &this->stack,
-                              [=,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+                              [=,&objToSet](Int index, TiObject *&obj)->RefOp {
       RefOp ret = handler(index, obj);
       if (this->owningEnabled && isPerform(ret)) {
         // We can't call setTreeIds until the object is set to the tree, so we will cache the
@@ -270,11 +270,11 @@ void PlainRepository::set(Char const *qualifier, SeekerSetLambda handler)
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
+      TiObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       RefOp ret;
       this->qualifierSeeker.set(qualifier, parent,
-                                [=,&ret,&objToSet](Int index, IdentifiableObject *&obj)->RefOp {
+                                [=,&ret,&objToSet](Int index, TiObject *&obj)->RefOp {
         ret = handler(index, obj);
         if (this->owningEnabled && isPerform(ret)) {
           // We can't call setTreeIds until the object is set to the tree, so we will cache the
@@ -300,11 +300,11 @@ void PlainRepository::remove(Reference const *ref, SeekerRemoveLambda handler)
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
+      TiObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       RefOp ret;
       this->referenceSeeker.remove(ref, parent,
-                                   [=,&ret](Int index, IdentifiableObject *obj)->RefOp {
+                                   [=,&ret](Int index, TiObject *obj)->RefOp {
         ret = handler(index, obj);
         return ret;
       });
@@ -325,11 +325,11 @@ void PlainRepository::remove(Char const *qualifier, SeekerRemoveLambda handler)
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *parent = this->stack.get(i);
+      TiObject *parent = this->stack.get(i);
       if (parent == 0) continue;
       RefOp ret;
       this->qualifierSeeker.remove(qualifier, parent,
-                                   [=,&ret](Int index, IdentifiableObject *obj)->RefOp {
+                                   [=,&ret](Int index, TiObject *obj)->RefOp {
         ret = handler(index, obj);
         return ret;
       });
@@ -347,11 +347,11 @@ void PlainRepository::forEach(Reference const *ref, SeekerForeachLambda handler,
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *source = this->stack.get(i);
+      TiObject *source = this->stack.get(i);
       if (source == 0) continue;
       RefOp ret;
       this->referenceSeeker.forEach(ref, source,
-                                    [=,&ret](Int index, IdentifiableObject *obj, IdentifiableObject *parent)->RefOp {
+                                    [=,&ret](Int index, TiObject *obj, TiObject *parent)->RefOp {
         ret = handler(index, obj, parent);
         return ret;
       }, parentTypeInfo);
@@ -373,11 +373,11 @@ void PlainRepository::forEach(Char const *qualifier, SeekerForeachLambda handler
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
-      IdentifiableObject *source = this->stack.get(i);
+      TiObject *source = this->stack.get(i);
       if (source == 0) continue;
       RefOp ret;
       this->qualifierSeeker.forEach(qualifier, source,
-                                    [=,&ret](Int index, IdentifiableObject *obj, IdentifiableObject *parent)->RefOp {
+                                    [=,&ret](Int index, TiObject *obj, TiObject *parent)->RefOp {
         ret = handler(index, obj, parent);
         return ret;
       }, parentTypeInfo);

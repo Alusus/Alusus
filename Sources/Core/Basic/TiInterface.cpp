@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/IdentifiableInterface.cpp
- * Contains the implementation of class Core::Basic::IdentifiableInterface.
+ * @file Core/Basic/TiInterface.cpp
+ * Contains the implementation of class Core::Basic::TiInterface.
  *
  * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
  *
@@ -23,15 +23,15 @@ namespace Core { namespace Basic
  * interface. This function (along with getMyInterfaceInfo) is automatically
  * defined by the TYPE_INFO macro.
  */
-TypeInfo * IdentifiableInterface::getInterfaceInfo()
+TypeInfo * TiInterface::getInterfaceInfo()
 {
   static Core::Basic::TypeInfo *typeInfo = 0;
   if (typeInfo == 0) {
-    Char const *myType = STR("IdentifiableInterface");
+    Char const *myType = STR("TiInterface");
     Char const *typeNamespace = STR("Core.Basic");
     Char const *moduleName = STR("Core");
     Char const *url = STR("alusus.net");
-    Char const *uniqueName = STR("alusus.net#Core#Core.Basic.IdentifiableInterface");
+    Char const *uniqueName = STR("alusus.net#Core#Core.Basic.TiInterface");
     typeInfo = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (typeInfo == 0) {
       typeInfo = new Core::Basic::TypeInfo(myType, typeNamespace, moduleName, url, 0);
@@ -49,7 +49,7 @@ TypeInfo * IdentifiableInterface::getInterfaceInfo()
  *         this interface is instantiated, or for the interface from which this
  *         interface's class is derived, false otherwise.
  */
-Bool IdentifiableInterface::isInterfaceDerivedFrom(TypeInfo * info) const
+Bool TiInterface::isInterfaceDerivedFrom(TypeInfo * info) const
 {
   TypeInfo * i = this->getMyInterfaceInfo();
   while (i != 0) {

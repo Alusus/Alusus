@@ -181,7 +181,7 @@ class GrammarModule : public Module, public virtual Initializable
   /// @name Initializable Implementation
   /// @{
 
-  public: virtual void initialize(IdentifiableObject *owner);
+  public: virtual void initialize(TiObject *owner);
 
   /// @}
 

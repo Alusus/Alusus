@@ -38,7 +38,7 @@ Bool isMove(RefOp op)
 }
 
 
-void unsetIndexes(IdentifiableObject *obj, Int from, Int to)
+void unsetIndexes(TiObject *obj, Int from, Int to)
 {
   if (obj == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("obj"), STR("Obj is null."));
@@ -48,23 +48,23 @@ void unsetIndexes(IdentifiableObject *obj, Int from, Int to)
 }
 
 
-void setTreeIds(IdentifiableObject *obj)
+void setTreeIds(TiObject *obj)
 {
   StrStream stream;
-  Node *node = io_cast<Node>(obj);
+  Node *node = tio_cast<Node>(obj);
   if (node != 0) generateId(node, stream);
   setTreeIds(obj, stream.str().c_str());
 }
 
 
-void setTreeIds(IdentifiableObject *obj, const Char *id)
+void setTreeIds(TiObject *obj, const Char *id)
 {
-  IdHolder *idh = ii_cast<IdHolder>(obj);
+  IdHolder *idh = tii_cast<IdHolder>(obj);
   if (idh != 0) idh->setId(ID_GENERATOR->getId(id));
 
   StrStream childId;
   MapContainer *map; Container *list;
-  if ((map = ii_cast<MapContainer>(obj)) != 0) {
+  if ((map = tii_cast<MapContainer>(obj)) != 0) {
     for (Int i = 0; static_cast<Word>(i) < map->getCount(); ++i) {
       childId.str(Str());
       childId << id;
@@ -72,7 +72,7 @@ void setTreeIds(IdentifiableObject *obj, const Char *id)
       childId << map->getKey(i).c_str();
       setTreeIds(map->get(i), childId.str().c_str());
     }
-  } else if ((list = ii_cast<Container>(obj)) != 0) {
+  } else if ((list = tii_cast<Container>(obj)) != 0) {
     for (Int i = 0; static_cast<Word>(i) < list->getCount(); ++i) {
       childId.str(Str());
       childId << id;
@@ -161,69 +161,48 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit)
 }
 
 
-/// Print 'indents' number of spaces.
-void printIndents(int indents)
+void dumpData(OutStream &stream, TiObject *ptr, int indents)
 {
-  for (Int i=0; i < indents; ++i) {
-    outStream << STR(" ");
-  }
-}
-
-
-void dumpParsedData(IdentifiableObject *ptr, int indents, Bool start_indent)
-{
-  if (start_indent) printIndents(indents);
   if (ptr == 0) {
-    outStream << STR("NULL:\n");
-    return;
+    stream << STR("NULL");
   }
 
-  // Is this a default data type?
-  ParsingMetadataHolder *metadata;
-  if ((metadata = ptr->getInterface<ParsingMetadataHolder>()) != 0) {
-    // Print the production name.
-    Word id = metadata->getProdId();
-    if (id != UNKNOWN_ID) {
-      outStream << IdGenerator::getSingleton()->getDesc(id) << STR(" -- ");
-    }
+  auto printable = tii_cast<Printable>(ptr);
+  if (printable) {
+    printable->print(stream, indents);
   } else {
-    // Unkown data type not even implementing ParsingMetadataHolder.
-    outStream << ptr->getMyTypeInfo()->getUniqueName() << STR(" -- ");
-  }
-  // Print the data itself.
-  MapContainer *mapContainer;
-  ListContainer *listContainer;
-  if (ptr->isDerivedFrom<PrtList>()) {
-    outStream << STR("[LIST]:\n");
-    for (Word i = 0; i < static_cast<PrtList*>(ptr)->getCount(); ++i) {
-      dumpParsedData(static_cast<PrtList*>(ptr)->get(i), indents+1);
+    stream << ptr->getMyTypeInfo()->getUniqueName();
+    auto metadata = tii_cast<Ast::MetadataHolder>(ptr);
+    if (metadata) {
+      Word id = metadata->getProdId();
+      if (id != UNKNOWN_ID) {
+        stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");
+      }
     }
-  } else if (ptr->isDerivedFrom<PrtRoute>()) {
-    outStream << STR("[ROUTE]: ");
-    outStream << static_cast<PrtRoute*>(ptr)->getRoute() << STR("\n");
-    dumpParsedData(static_cast<PrtRoute*>(ptr)->getData().get(), indents+1);
-  } else if (ptr->isDerivedFrom<PrtToken>()) {
-    outStream << STR("[TOKEN]: ");
-    // Print the token type.
-    Int id = static_cast<PrtToken*>(ptr)->getId();
-    outStream << IdGenerator::getSingleton()->getDesc(id);
-    // Print the token text.
-    outStream << STR(" (\"") << static_cast<PrtToken*>(ptr)->getText() << STR("\")\n");
-  } else if ((listContainer = ptr->getInterface<ListContainer>()) != 0) {
-    outStream << STR("[LIST]:\n");
-    for (Word i = 0; i < listContainer->getCount(); ++i) {
-      dumpParsedData(listContainer->get(i), indents+1);
+    ListContainer *listContainer;
+    MapContainer *mapContainer;
+    NamedListContainer *namedListContainer;
+    if ((listContainer = ptr->getInterface<ListContainer>()) != 0) {
+      for (Word i = 0; i < listContainer->getCount(); ++i) {
+        stream << STR("\n");
+        printIndents(stream, indents + 1);
+        dumpData(stream, listContainer->get(i), indents+1);
+      }
+    } else if ((mapContainer = ptr->getInterface<MapContainer>()) != 0) {
+      for (Word i = 0; i < mapContainer->getCount(); ++i) {
+        stream << STR("\n");
+        printIndents(stream, indents+1);
+        stream << mapContainer->getKey(i).c_str() << STR(": ");
+        dumpData(stream, mapContainer->get(i), indents+1);
+      }
+    } else if ((namedListContainer = ptr->getInterface<NamedListContainer>()) != 0) {
+      for (Word i = 0; i < namedListContainer->getCount(); ++i) {
+        stream << STR("\n");
+        printIndents(stream, indents+1);
+        stream << STR("[") << namedListContainer->getName(i).c_str() << STR("] ");
+        dumpData(stream, namedListContainer->get(i), indents+1);
+      }
     }
-  } else if ((mapContainer = ptr->getInterface<MapContainer>()) != 0) {
-    outStream << STR("[MAP]:\n");
-    for (Word i = 0; i < mapContainer->getCount(); ++i) {
-      printIndents(indents+1);
-      outStream << mapContainer->getKey(i).c_str() << STR(": ");
-      dumpParsedData(mapContainer->get(i), indents+1, false);
-    }
-  } else {
-    // A default parsed item but not one of the three known types.
-    outStream << STR("[UNKNOWN TYPE]\n");
   }
 }
 

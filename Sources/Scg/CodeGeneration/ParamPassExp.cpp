@@ -19,7 +19,7 @@ using namespace Core::Basic;
 using namespace Core::Data;
 
 ParamPassExp::ParamPassExp(CodeGenerator *gen,
-                           const SharedPtr<PrtRoute> &astBlockRoot) : gen(gen)
+                           const SharedPtr<Ast::Route> &astBlockRoot) : gen(gen)
 {
   if (astBlockRoot->getProdId() != gen->getParamPassId())
     throw EXCEPTION(InvalidArgumentException,
@@ -35,11 +35,11 @@ ParamPassExp::ParamPassExp(CodeGenerator *gen,
         STR("{find prodId=Expression.Exp, 0}.0~where(prodId=Expression.ListExp)"),
         ReferenceUsageCriteria::MULTI_DATA);
 
-  SharedPtr<IdentifiableObject> exp;
-  SharedPtr<PrtList> listExprItem;
+  SharedPtr<TiObject> exp;
+  SharedPtr<Ast::List> listExprItem;
 
   if ((listExprItem = getSharedPtr(seeker.tryGet(multiParamReference.get(), astBlockRoot.get()))
-                      .io_cast<PrtList>()) != 0) {
+                      .tio_cast<Ast::List>()) != 0) {
     auto listExpr = ListExpression(gen, listExprItem);
 
     for (auto i = 0; i < listExpr.getItemCount(); i++)

@@ -1,8 +1,8 @@
 /**
- * @file Core/Data/PrtToken.h
- * Contains the header of class Core::Data::PrtToken.
+ * @file Core/Data/Ast/Token.h
+ * Contains the header of class Core::Data::Ast::Token.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef CORE_DATA_PRTTOKEN_H
-#define CORE_DATA_PRTTOKEN_H
+#ifndef CORE_DATA_AST_TOKEN_H
+#define CORE_DATA_AST_TOKEN_H
 
-namespace Core { namespace Data
+namespace Core { namespace Data { namespace Ast
 {
 
 /**
@@ -25,13 +25,14 @@ namespace Core { namespace Data
  * definition and the token text. This object is created by the
  * GenericParsingHandler to compose the parsed tree.
  */
-class PrtToken : public Node, public virtual ParsingMetadataHolder, public virtual Clonable
+class Token : public Node,
+              public virtual MetadataHolder, public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(PrtToken, Node, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(Node, ParsingMetadataHolder, Clonable);
+  TYPE_INFO(Token, Node, "Core.Data.Ast", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_3(Node, MetadataHolder, Clonable, Printable);
 
 
   //============================================================================
@@ -56,28 +57,28 @@ class PrtToken : public Node, public virtual ParsingMetadataHolder, public virtu
   //============================================================================
   // Constructor / Destructor
 
-  public: PrtToken(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR("")) :
-    ParsingMetadataHolder(pid), id(i), text(txt)
+  public: Token(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR("")) :
+    MetadataHolder(pid), id(i), text(txt)
   {
   }
 
-  public: PrtToken(Word pid, Word i, Char const *txt, SourceLocation const &sl) :
-    ParsingMetadataHolder(pid, sl), id(i), text(txt)
+  public: Token(Word pid, Word i, Char const *txt, SourceLocation const &sl) :
+    MetadataHolder(pid, sl), id(i), text(txt)
   {
   }
 
-  public: virtual ~PrtToken()
+  public: virtual ~Token()
   {
   }
 
-  public: static SharedPtr<PrtToken> create(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR(""))
+  public: static SharedPtr<Token> create(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR(""))
   {
-    return std::make_shared<PrtToken>(pid, i, txt);
+    return std::make_shared<Token>(pid, i, txt);
   }
 
-  public: static SharedPtr<PrtToken> create(Word pid, Word i, Char const *txt, SourceLocation const &sl)
+  public: static SharedPtr<Token> create(Word pid, Word i, Char const *txt, SourceLocation const &sl)
   {
-    return std::make_shared<PrtToken>(pid, i, txt, sl);
+    return std::make_shared<Token>(pid, i, txt, sl);
   }
 
 
@@ -139,11 +140,11 @@ class PrtToken : public Node, public virtual ParsingMetadataHolder, public virtu
 
 
   //============================================================================
-  // Clonable Overrides
+  // Clonable Implementation
 
-  public: virtual SharedPtr<IdentifiableObject> clone() const
+  public: virtual SharedPtr<TiObject> clone() const
   {
-    SharedPtr<PrtToken> newToken = std::make_shared<PrtToken>();
+    SharedPtr<Token> newToken = std::make_shared<Token>();
     newToken->setProdId(this->getProdId());
     newToken->setId(this->getId());
     newToken->setText(this->getText().c_str());
@@ -151,8 +152,25 @@ class PrtToken : public Node, public virtual ParsingMetadataHolder, public virtu
     return newToken;
   }
 
+
+  //============================================================================
+  // Printable Implementation
+
+  public: virtual void print(OutStream &stream, Int indents=0) const
+  {
+    stream << STR("Token");
+    Word id = this->getProdId();
+    if (id != UNKNOWN_ID) {
+      stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("] ");
+    }
+    stream << STR(": ");
+
+    stream << IdGenerator::getSingleton()->getDesc(this->getId());
+    stream << STR(" (\"") << this->getText() << STR("\")");
+  }
+
 }; // class
 
-} } // namespace
+} } } // namespace
 
 #endif

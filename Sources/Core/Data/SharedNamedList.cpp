@@ -54,9 +54,9 @@ void SharedNamedList::reinitialize(Word maxStrSize, Word reservedCount)
         Byte *destBuf = this->buffer + i*this->getRecordSize();
         Byte *srcBuf = oldBuf + i*SharedNamedList::getRecordSize(oldStrSize);
         sbstr_cast(destBuf).assign(sbstr_cast(srcBuf).c_str(), this->maxStrSize);
-        SharedPtr<IdentifiableObject> *destPtr =
-            new(destBuf+sizeof(Char)*this->maxStrSize) SharedPtr<IdentifiableObject>();
-        *destPtr = *reinterpret_cast<SharedPtr<IdentifiableObject>*>(srcBuf+sizeof(Char)*oldStrSize);
+        SharedPtr<TiObject> *destPtr =
+            new(destBuf+sizeof(Char)*this->maxStrSize) SharedPtr<TiObject>();
+        *destPtr = *reinterpret_cast<SharedPtr<TiObject>*>(srcBuf+sizeof(Char)*oldStrSize);
       }
     }
   }
@@ -109,8 +109,8 @@ void SharedNamedList::clear()
   ASSERT(this->count >= 0);
   for (Int i = 0; i < this->count; ++i) {
     Byte *buf = this->buffer + i*this->getRecordSize();
-    SharedPtr<IdentifiableObject> *obj =
-        reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize);
+    SharedPtr<TiObject> *obj =
+        reinterpret_cast<SharedPtr<TiObject>*>(buf+sizeof(Char)*this->maxStrSize);
     RESET_OWNED_SHAREDPTR(*obj);
   }
   this->count = 0;
@@ -120,7 +120,7 @@ void SharedNamedList::clear()
 //==============================================================================
 // Data Access Functions
 
-Int SharedNamedList::add(Char const *name, SharedPtr<IdentifiableObject> const &val)
+Int SharedNamedList::add(Char const *name, SharedPtr<TiObject> const &val)
 {
   if (this->buffer == 0) {
     throw EXCEPTION(GenericException, STR("List not initialized."));
@@ -130,7 +130,7 @@ Int SharedNamedList::add(Char const *name, SharedPtr<IdentifiableObject> const &
   }
   Byte *buf = this->buffer + this->count*this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
-  new(buf+sizeof(Char)*this->maxStrSize) SharedPtr<IdentifiableObject>(val);
+  new(buf+sizeof(Char)*this->maxStrSize) SharedPtr<TiObject>(val);
   if (this->owningEnabled) {
     OWN_SHAREDPTR(val);
   }
@@ -139,7 +139,7 @@ Int SharedNamedList::add(Char const *name, SharedPtr<IdentifiableObject> const &
 }
 
 
-void SharedNamedList::insert(Int index, Char const *name, SharedPtr<IdentifiableObject> const &val)
+void SharedNamedList::insert(Int index, Char const *name, SharedPtr<TiObject> const &val)
 {
   if (this->buffer == 0) {
     throw EXCEPTION(GenericException, STR("List not initialized."));
@@ -171,14 +171,14 @@ void SharedNamedList::insert(Int index, Char const *name, SharedPtr<Identifiable
   }
   Byte *buf = this->buffer + index * this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
-  new(buf+sizeof(Char)*this->maxStrSize) SharedPtr<IdentifiableObject>(val);
+  new(buf+sizeof(Char)*this->maxStrSize) SharedPtr<TiObject>(val);
   if (this->owningEnabled) {
     OWN_SHAREDPTR(val);
   }
 }
 
 
-void SharedNamedList::set(Int index, Char const *name, SharedPtr<IdentifiableObject> const &val)
+void SharedNamedList::set(Int index, Char const *name, SharedPtr<TiObject> const &val)
 {
   if (this->buffer == 0) {
     throw EXCEPTION(GenericException, STR("List not initialized."));
@@ -188,8 +188,8 @@ void SharedNamedList::set(Int index, Char const *name, SharedPtr<IdentifiableObj
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
   sbstr_cast(buf).assign(name==0?STR(""):name, this->maxStrSize);
-  SharedPtr<IdentifiableObject> *obj =
-      reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize);
+  SharedPtr<TiObject> *obj =
+      reinterpret_cast<SharedPtr<TiObject>*>(buf+sizeof(Char)*this->maxStrSize);
   DISOWN_SHAREDPTR(*obj);
   *obj = val;
   if (this->owningEnabled) {
@@ -198,7 +198,7 @@ void SharedNamedList::set(Int index, Char const *name, SharedPtr<IdentifiableObj
 }
 
 
-void SharedNamedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
+void SharedNamedList::set(Int index, SharedPtr<TiObject> const &val)
 {
   if (this->buffer == 0) {
     throw EXCEPTION(GenericException, STR("List not initialized."));
@@ -207,8 +207,8 @@ void SharedNamedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
-  SharedPtr<IdentifiableObject> *obj =
-      reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize);
+  SharedPtr<TiObject> *obj =
+      reinterpret_cast<SharedPtr<TiObject>*>(buf+sizeof(Char)*this->maxStrSize);
   DISOWN_SHAREDPTR(*obj);
   *obj = val;
   if (this->owningEnabled) {
@@ -217,7 +217,7 @@ void SharedNamedList::set(Int index, SharedPtr<IdentifiableObject> const &val)
 }
 
 
-SharedPtr<IdentifiableObject> const& SharedNamedList::getShared(Int index) const
+SharedPtr<TiObject> const& SharedNamedList::getShared(Int index) const
 {
   if (this->buffer == 0) {
     throw EXCEPTION(GenericException, STR("List not initialized."));
@@ -226,7 +226,7 @@ SharedPtr<IdentifiableObject> const& SharedNamedList::getShared(Int index) const
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   Byte *buf = this->buffer + index*this->getRecordSize();
-  return *reinterpret_cast<SharedPtr<IdentifiableObject>*>(buf+sizeof(Char)*this->maxStrSize);
+  return *reinterpret_cast<SharedPtr<TiObject>*>(buf+sizeof(Char)*this->maxStrSize);
 }
 
 
@@ -237,7 +237,7 @@ void SharedNamedList::unsetIndexes(Int from, Int to)
 {
   if (this->buffer == 0) return;
   for (Word i = 0; i < this->count; ++i) {
-    IdentifiableObject *obj = this->get(i);
+    TiObject *obj = this->get(i);
     if (obj != 0) Data::unsetIndexes(obj, from, to);
   }
 }
@@ -256,7 +256,7 @@ void SharedNamedList::remove(Int index)
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
   // Reset owner of the object to be removed.
-  IdentifiableObject *o = this->get(index);
+  TiObject *o = this->get(index);
   DISOWN_PLAINPTR(o);
   // Shift the remaining items.
   for (Int i = index; i < this->count-1; ++i) {

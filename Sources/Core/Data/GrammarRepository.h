@@ -17,16 +17,16 @@ namespace Core { namespace Data
 {
 
 /**
- * @brief A stack of IdentifiableObject derived data objects.
+ * @brief A stack of TiObject derived data objects.
  */
-class GrammarRepository : public IdentifiableObject,
+class GrammarRepository : public TiObject,
                           public virtual Provider, public virtual Tracer
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(GrammarRepository, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(IdentifiableObject, Provider, Tracer);
+  TYPE_INFO(GrammarRepository, TiObject, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_2(TiObject, Provider, Tracer);
 
 
   //============================================================================
@@ -85,7 +85,7 @@ class GrammarRepository : public IdentifiableObject,
 
   public: void clear();
 
-  public: void initializeObject(IdentifiableObject *obj);
+  public: void initializeObject(TiObject *obj);
 
   /// @}
 
@@ -128,7 +128,7 @@ class GrammarRepository : public IdentifiableObject,
 
   using Tracer::traceValue;
 
-  public: virtual void traceValue(IdentifiableObject *val, IdentifiableObject *&retVal, Module *&retModule);
+  public: virtual void traceValue(TiObject *val, TiObject *&retVal, Module *&retModule);
 
   /// @}
 

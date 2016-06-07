@@ -18,26 +18,26 @@ namespace Core
 {
 namespace Basic
 {
-class IdentifiableObject;
+class TiObject;
 }
 }
 
 namespace Scg
 {
 
-typedef std::vector < Core::Basic::SharedPtr<Core::Basic::IdentifiableObject> > ParsedItemArray;
+typedef std::vector < Core::Basic::SharedPtr<Core::Basic::TiObject> > ParsedItemArray;
 
 /**
  * Defines a pair of a name and a parsed item.
  */
-class NameParsedItemPair : public std::pair < std::string, std::shared_ptr<Core::Basic::IdentifiableObject> >
+class NameParsedItemPair : public std::pair < std::string, std::shared_ptr<Core::Basic::TiObject> >
 {
 public:
   NameParsedItemPair()
-    : std::pair<std::string, std::shared_ptr<Core::Basic::IdentifiableObject>>() {}
+    : std::pair<std::string, std::shared_ptr<Core::Basic::TiObject>>() {}
 
-  NameParsedItemPair(const std::string &name, const std::shared_ptr<Core::Basic::IdentifiableObject> &item)
-    : std::pair<std::string, std::shared_ptr<Core::Basic::IdentifiableObject>>(name, item) {}
+  NameParsedItemPair(const std::string &name, const std::shared_ptr<Core::Basic::TiObject> &item)
+    : std::pair<std::string, std::shared_ptr<Core::Basic::TiObject>>(name, item) {}
 
   /**
    * Retrieves the name of the parsed item.
@@ -52,7 +52,7 @@ public:
    * Retrieves a pointer to the parsed item.
    * @return A pointer to the parsed item.
    */
-  const std::shared_ptr<Core::Basic::IdentifiableObject> getParsedItem() const
+  const std::shared_ptr<Core::Basic::TiObject> getParsedItem() const
   {
     return second;
   }
@@ -61,7 +61,7 @@ public:
    * Retrieves a pointer to the parsed item.
    * @return A pointer to the parsed item.
    */
-  std::shared_ptr<Core::Basic::IdentifiableObject> getParsedItem()
+  std::shared_ptr<Core::Basic::TiObject> getParsedItem()
   {
     return second;
   }

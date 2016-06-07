@@ -186,7 +186,7 @@ void computeNextCharPosition(WChar ch, Int &line, Int &column);
  *            token.<br>
  * ERROR : The given token caused the state to go into a syntax error.
  */
-enumeration(ParserProcessingStatus, IN_PROGRESS = 0, COMPLETE, ERROR);
+s_enum(ParserProcessingStatus, IN_PROGRESS = 0, COMPLETE, ERROR);
 
 /**
  * @brief The cause of termination for a given state.
@@ -206,7 +206,7 @@ enumeration(ParserProcessingStatus, IN_PROGRESS = 0, COMPLETE, ERROR);
  *                     tree, so we'll consider parsing complete and drop this
  *                     lower priority state.
  */
-enumeration(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER_PRIORITY_STATE,
+s_enum(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER_PRIORITY_STATE,
                                          CONSUMED_TOKENS_TO_LIVE, FOLDED_OUT_TOO_SOON, NOT_NEEDED_ANYMORE);
 
 /**
@@ -240,7 +240,7 @@ enumeration(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_
  *                Typically, the parent's element will be a list type element so
  *                the data will be added to that list instead of to a child list.
  */
-enumeration(ParsingFlags,
+s_enum(ParsingFlags,
             ENFORCE_LIST_OBJ = 1,
             ENFORCE_LIST_ITEM = 2,
             ENFORCE_ROUTE_OBJ = 4,
@@ -296,6 +296,8 @@ enumeration(ParsingFlags,
 #include "Handlers/PrefixParsingHandler.h"
 #include "Handlers/PostfixParsingHandler.h"
 #include "Handlers/ChainOpParsingHandler.h"
+#include "Handlers/TextParsingHandler.h"
+#include "Handlers/CustomParsingHandler.h"
 
 // Main Class
 #include "Engine.h"

@@ -37,11 +37,11 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
         ReferenceUsageCriteria::MULTI_DATA);
 
   auto item = state->getData();
-  auto metadata = item->getInterface<ParsingMetadataHolder>();
+  auto metadata = item->getInterface<Ast::MetadataHolder>();
   ASSERT(metadata != 0);
 
   // Find the statement list in the subject.
-  auto statementList = io_cast<PrtList>(seeker.tryGet(statementListReference.get(), item.get()));
+  auto statementList = tio_cast<Ast::List>(seeker.tryGet(statementListReference.get(), item.get()));
 
   if (statementList == 0) {
     // Create a build error msg.
@@ -58,7 +58,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 
   for (auto i = 0; i < statementList->getCount(); i++) {
     auto element = statementList->getShared(i);
-    auto elementMetadata = element->getInterface<ParsingMetadataHolder>();
+    auto elementMetadata = element->getInterface<Ast::MetadataHolder>();
 
     if (element == 0 || elementMetadata == 0) {
       state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
@@ -87,7 +87,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 
 
 void ModuleParsingHandler::addDefinitionToModule(Processing::ParserState *state,
-    const SharedPtr<IdentifiableObject> &def,
+    const SharedPtr<TiObject> &def,
     Module *module, CodeGenerator *generator)
 {
   static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
@@ -98,9 +98,9 @@ void ModuleParsingHandler::addDefinitionToModule(Processing::ParserState *state,
             "0~where(prodId=Subject.Subject1)."
             "0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto metadata = def.ii_cast_get<ParsingMetadataHolder>();
+  auto metadata = def.tii_cast_get<Ast::MetadataHolder>();
   ASSERT(metadata != 0);
-  auto nameToken = io_cast<PrtToken>(seeker.tryGet(nameReference.get(), def.get()));
+  auto nameToken = tio_cast<Ast::Token>(seeker.tryGet(nameReference.get(), def.get()));
 
   if (nameToken == nullptr || nameToken->getId() != identifierTokenId) {
     state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
@@ -119,10 +119,10 @@ void ModuleParsingHandler::addDefinitionToModule(Processing::ParserState *state,
 
 
 void ModuleParsingHandler::addLinkToModule(Processing::ParserState *state,
-    const SharedPtr<IdentifiableObject> &link,
+    const SharedPtr<TiObject> &link,
     Module *module, CodeGenerator *generator)
 {
-  auto linkMetadata = link->getInterface<ParsingMetadataHolder>();
+  auto linkMetadata = link->getInterface<Ast::MetadataHolder>();
 
   static ReferenceSeeker seeker;
   static SharedPtr<Reference> listReference = REF_PARSER->parseQualifier(
@@ -134,19 +134,19 @@ void ModuleParsingHandler::addLinkToModule(Processing::ParserState *state,
         STR("0~where(prodId=Expression.Exp)"),
         ReferenceUsageCriteria::MULTI_DATA);
 
-  auto list = io_cast<PrtList>(seeker.tryGet(listReference.get(), link.get()));
+  auto list = tio_cast<Ast::List>(seeker.tryGet(listReference.get(), link.get()));
 
   if (list != 0) {
     for (auto i = 0; i < list->getCount(); i++) {
       // auto name = this->getLinkName(list->get(i));
-      auto l = std::make_shared<PrtList>(linkMetadata->getProdId(), linkMetadata->getSourceLocation());
+      auto l = std::make_shared<Ast::List>(linkMetadata->getProdId(), linkMetadata->getSourceLocation());
       l->add(list->get(i));
       for (auto stat : generator->generateStatement(l)) {
         module->appendNode(stat);
       }
     }
   } else {
-    auto expr = io_cast<PrtList>(seeker.tryGet(exprReference.get(), link.get()));
+    auto expr = tio_cast<Ast::List>(seeker.tryGet(exprReference.get(), link.get()));
 
     if (expr != 0) {
       // auto name = this->getLinkName(expr);
@@ -162,7 +162,7 @@ void ModuleParsingHandler::addLinkToModule(Processing::ParserState *state,
 }
 
 
-Char const* ModuleParsingHandler::getLinkName(IdentifiableObject *link)
+Char const* ModuleParsingHandler::getLinkName(TiObject *link)
 {
   static ReferenceSeeker seeker;
   static SharedPtr<Reference> funcExpNoRetReference = REF_PARSER->parseQualifier(
@@ -178,16 +178,16 @@ Char const* ModuleParsingHandler::getLinkName(IdentifiableObject *link)
         ReferenceUsageCriteria::MULTI_DATA);
   static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
 
-  auto funcExp = io_cast<PrtList>(seeker.tryGet(funcExpNoRetReference.get(), link));
+  auto funcExp = tio_cast<Ast::List>(seeker.tryGet(funcExpNoRetReference.get(), link));
 
   if (funcExp == 0) {
-    funcExp = io_cast<PrtList>(seeker.tryGet(funcExpReference.get(), link));
+    funcExp = tio_cast<Ast::List>(seeker.tryGet(funcExpReference.get(), link));
 
     if (funcExp == 0)
       throw EXCEPTION(InvalidArgumentException, "Invalid function link expression.");
   }
 
-  auto nameToken = io_cast<PrtToken>(seeker.tryGet(nameReference.get(), funcExp));
+  auto nameToken = tio_cast<Ast::Token>(seeker.tryGet(nameReference.get(), funcExp));
 
   if (nameToken == 0 || nameToken->getId() != identifierTokenId)
     throw EXCEPTION(InvalidArgumentException,

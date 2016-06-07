@@ -74,13 +74,13 @@ class RawIndirectReference : public Reference
   {
   }
 
-  public: virtual void setValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void setValue(Provider *provider, TiObject *parent,
                                 ReferenceSetLambda handler) const;
 
-  public: virtual void removeValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void removeValue(Provider *provider, TiObject *parent,
                                    ReferenceRemoveLambda handler) const;
 
-  public: virtual void forEachValue(Provider *provider, IdentifiableObject *parent,
+  public: virtual void forEachValue(Provider *provider, TiObject *parent,
                                     ReferenceForeachLambda handler) const;
 
 }; // class

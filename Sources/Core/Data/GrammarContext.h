@@ -18,13 +18,13 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class GrammarContext : public IdentifiableObject, public virtual Tracer
+class GrammarContext : public TiObject, public virtual Tracer
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(GrammarContext, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, Tracer);
+  TYPE_INFO(GrammarContext, TiObject, "Core.Data", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_1(TiObject, Tracer);
 
 
   //============================================================================
@@ -97,12 +97,12 @@ class GrammarContext : public IdentifiableObject, public virtual Tracer
     return static_cast<VariableStack*>(this->repository.getLevelData(GrammarScopeIndex::STACK));
   }
 
-  public: void setArgs(IdentifiableObject *args)
+  public: void setArgs(TiObject *args)
   {
     this->repository.setLevel(args, GrammarScopeIndex::ARGS);
   }
 
-  public: IdentifiableObject* getArgs() const
+  public: TiObject* getArgs() const
   {
     return this->repository.getLevelData(GrammarScopeIndex::ARGS);
   }
@@ -112,16 +112,16 @@ class GrammarContext : public IdentifiableObject, public virtual Tracer
   /// @name Misc Functions
   /// @{
 
-  public: IdentifiableObject* traceValue(IdentifiableObject *val, Module *module)
+  public: TiObject* traceValue(TiObject *val, Module *module)
   {
-    IdentifiableObject *retVal;
+    TiObject *retVal;
     Module *retModule;
     this->traceValue(val, module, retVal, retModule);
     return retVal;
   }
 
-  public: void traceValue(IdentifiableObject *val, Module *module,
-                          IdentifiableObject *&retVal, Module *&retModule);
+  public: void traceValue(TiObject *val, Module *module,
+                          TiObject *&retVal, Module *&retModule);
 
   /// @}
 
@@ -130,7 +130,7 @@ class GrammarContext : public IdentifiableObject, public virtual Tracer
 
   using Tracer::traceValue;
 
-  public: virtual void traceValue(IdentifiableObject *val, IdentifiableObject *&retVal, Module *&retModule)
+  public: virtual void traceValue(TiObject *val, TiObject *&retVal, Module *&retModule)
   {
     this->traceValue(val, 0, retVal, retModule);
   }
@@ -152,7 +152,7 @@ class GrammarContext : public IdentifiableObject, public virtual Tracer
 
   public: Integer* getTokenTermId(TokenTerm *term, Module *module=0);
 
-  public: IdentifiableObject* getTokenTermText(TokenTerm *term, Module *module=0);
+  public: TiObject* getTokenTermText(TokenTerm *term, Module *module=0);
 
   public: void getReferencedCharGroup(Reference const *ref, CharGroupDefinition *&charGroupDef, Module *module=0);
 

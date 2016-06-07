@@ -59,21 +59,21 @@ class ReferenceSeeker
   /// @name Data Write Functions
   /// @{
 
-  public: void set(Reference const *ref, IdentifiableObject *target, IdentifiableObject *val) const
+  public: void set(Reference const *ref, TiObject *target, TiObject *val) const
   {
     if (!this->trySet(ref, target, val)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
   }
 
-  public: Bool trySet(Reference const *ref, IdentifiableObject *target, IdentifiableObject *val) const;
+  public: Bool trySet(Reference const *ref, TiObject *target, TiObject *val) const;
 
-  public: RefOp set(Reference const *ref, IdentifiableObject *target, SeekerSetLambda handler) const
+  public: RefOp set(Reference const *ref, TiObject *target, SeekerSetLambda handler) const
   {
     return this->set(ref, target, handler, 0);
   }
 
-  private: RefOp set(Reference const *ref, IdentifiableObject *target, SeekerSetLambda handler,
+  private: RefOp set(Reference const *ref, TiObject *target, SeekerSetLambda handler,
                      Int *index) const;
 
   /// @}
@@ -81,29 +81,29 @@ class ReferenceSeeker
   /// @name Data Delete Functions
   /// @{
 
-  public: void remove(Reference const *ref, IdentifiableObject *target) const
+  public: void remove(Reference const *ref, TiObject *target) const
   {
     if (!this->tryRemove(ref, target)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
   }
 
-  public: Bool tryRemove(Reference const *ref, IdentifiableObject *target) const
+  public: Bool tryRemove(Reference const *ref, TiObject *target) const
   {
     Bool ret = false;
-    this->remove(ref, target, [&ret](Int index, IdentifiableObject *o)->RefOp {
+    this->remove(ref, target, [&ret](Int index, TiObject *o)->RefOp {
       ret = true;
       return RefOp::PERFORM_AND_MOVE;
     });
     return ret;
   }
 
-  public: RefOp remove(Reference const *ref, IdentifiableObject *target, SeekerRemoveLambda handler) const
+  public: RefOp remove(Reference const *ref, TiObject *target, SeekerRemoveLambda handler) const
   {
     return this->remove(ref, target, handler, 0);
   }
 
-  private: RefOp remove(Reference const *ref, IdentifiableObject *target, SeekerRemoveLambda handler,
+  private: RefOp remove(Reference const *ref, TiObject *target, SeekerRemoveLambda handler,
                         Int *index) const;
 
   /// @}
@@ -111,50 +111,50 @@ class ReferenceSeeker
   /// @name Data Read Functions
   /// @{
 
-  public: IdentifiableObject* get(Reference const *ref, IdentifiableObject *source) const
+  public: TiObject* get(Reference const *ref, TiObject *source) const
   {
-    IdentifiableObject *result;
+    TiObject *result;
     if (!this->tryGet(ref, source, result)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
     return result;
   }
 
-  public: IdentifiableObject* tryGet(Reference const *ref, IdentifiableObject *source) const
+  public: TiObject* tryGet(Reference const *ref, TiObject *source) const
   {
-    IdentifiableObject *result = 0;
+    TiObject *result = 0;
     this->tryGet(ref, source, result);
     return result;
   }
 
-  public: void get(Reference const *ref, IdentifiableObject *source, IdentifiableObject *&retVal,
-                   TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) const
+  public: void get(Reference const *ref, TiObject *source, TiObject *&retVal,
+                   TypeInfo const *parentTypeInfo=0, TiObject **retParent=0) const
   {
     if (!this->tryGet(ref, source, retVal, parentTypeInfo, retParent)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
   }
 
-  public: Bool tryGet(Reference const *ref, IdentifiableObject *source, IdentifiableObject *&retVal,
-                      TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0) const;
+  public: Bool tryGet(Reference const *ref, TiObject *source, TiObject *&retVal,
+                      TypeInfo const *parentTypeInfo=0, TiObject **retParent=0) const;
 
-  public: template<class T> Bool tryGet(Reference const *ref, IdentifiableObject *source,
-                                        IdentifiableObject *&retVal, T *&retParent) const
+  public: template<class T> Bool tryGet(Reference const *ref, TiObject *source,
+                                        TiObject *&retVal, T *&retParent) const
   {
-    IdentifiableObject *retIoParent;
+    TiObject *retIoParent;
     Bool result = this->tryGet(ref, source, retVal, T::getTypeInfo(), &retIoParent);
     retParent = static_cast<T*>(retIoParent);
     return result;
   }
 
-  public: RefOp forEach(Reference const *ref, IdentifiableObject *source, SeekerForeachLambda handler,
+  public: RefOp forEach(Reference const *ref, TiObject *source, SeekerForeachLambda handler,
                         TypeInfo const *parentTypeInfo=0) const
   {
     return this->forEach(ref, source, handler, parentTypeInfo, 0, 0);
   }
 
-  private: RefOp forEach(Reference const *ref, IdentifiableObject *source, SeekerForeachLambda handler,
-                         TypeInfo const *parentTypeInfo, IdentifiableObject *parent, Int *index) const;
+  private: RefOp forEach(Reference const *ref, TiObject *source, SeekerForeachLambda handler,
+                         TypeInfo const *parentTypeInfo, TiObject *parent, Int *index) const;
 
   /// @}
 

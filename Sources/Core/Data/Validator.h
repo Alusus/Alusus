@@ -37,7 +37,7 @@ class Validator : public Node
   //============================================================================
   // Member Functions
 
-  public: virtual Bool validate(IdentifiableObject *obj) const = 0;
+  public: virtual Bool validate(TiObject *obj) const = 0;
 
   public: virtual Bool compare(Validator const *v) const = 0;
 

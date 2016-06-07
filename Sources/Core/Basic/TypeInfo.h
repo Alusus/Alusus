@@ -20,7 +20,7 @@ namespace Core { namespace Basic
  * @brief Contains run-time type information.
  * @ingroup basic_utils
  *
- * Classes derived from IdentifiableObject uses this object to pass the type
+ * Classes derived from TiObject uses this object to pass the type
  * information at run time.
  */
 class TypeInfo

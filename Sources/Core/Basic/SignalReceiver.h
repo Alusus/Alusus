@@ -28,13 +28,13 @@ class SignalBase;
  * record of all connections in order to automatically disconnect them on
  * object's destruction.
  */
-class SignalReceiver : public IdentifiableObject, public SignalReverseConnector
+class SignalReceiver : public TiObject, public SignalReverseConnector
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SignalReceiver, IdentifiableObject, "Core.Basic", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, SignalReverseConnector);
+  TYPE_INFO(SignalReceiver, TiObject, "Core.Basic", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_1(TiObject, SignalReverseConnector);
 
 
   //============================================================================

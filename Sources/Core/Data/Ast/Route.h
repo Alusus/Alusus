@@ -1,8 +1,8 @@
 /**
- * @file Core/Data/PrtRoute.h
- * Contains the header of class Core::Data::PrtRoute.
+ * @file Core/Data/Ast/Route.h
+ * Contains the header of class Core::Data::Ast::Route.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef CORE_DATA_PRTROUTE_H
-#define CORE_DATA_PRTROUTE_H
+#ifndef CORE_DATA_AST_ROUTE_H
+#define CORE_DATA_AST_ROUTE_H
 
-namespace Core { namespace Data
+namespace Core { namespace Data { namespace Ast
 {
 
 // TODO: DOC
@@ -27,14 +27,14 @@ namespace Core { namespace Data
  * taking that route. This object is created by the GenericParsingHandler to
  * compose the Parsing Representation Tree (PRT).
  */
-class PrtRoute : public Node,
-                 public virtual ParsingMetadataHolder, public virtual Container, public virtual Clonable
+class Route : public Node,
+              public virtual MetadataHolder, public virtual Container, public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(PrtRoute, Node, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(Node, ParsingMetadataHolder, Container, Clonable);
+  TYPE_INFO(Route, Node, "Core.Data.Ast", "Core", "alusus.net");
+  IMPLEMENT_INTERFACES_4(Node, MetadataHolder, Container, Clonable, Printable);
 
 
   //============================================================================
@@ -57,60 +57,60 @@ class PrtRoute : public Node,
    * The parsed data from the terms contained in the selected route (if any)
    * is recorded to this pointer.
    */
-  public: SharedPtr<IdentifiableObject> data;
+  public: SharedPtr<TiObject> data;
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: PrtRoute(Word pid=UNKNOWN_ID, Int r=-1, IdentifiableObject *d=0) :
-    ParsingMetadataHolder(pid), route(r), data(d)
+  public: Route(Word pid=UNKNOWN_ID, Int r=-1, TiObject *d=0) :
+    MetadataHolder(pid), route(r), data(d)
   {
     OWN_SHAREDPTR(this->data);
   }
 
-  public: PrtRoute(Word pid, Int r, SharedPtr<IdentifiableObject> const &d) :
-    ParsingMetadataHolder(pid), route(r), data(d)
+  public: Route(Word pid, Int r, SharedPtr<TiObject> const &d) :
+    MetadataHolder(pid), route(r), data(d)
   {
     OWN_SHAREDPTR(this->data);
   }
 
-  public: PrtRoute(Word pid, Int r, SourceLocation const &sl, IdentifiableObject *d=0) :
-    ParsingMetadataHolder(pid, sl), route(r), data(d)
+  public: Route(Word pid, Int r, SourceLocation const &sl, TiObject *d=0) :
+    MetadataHolder(pid, sl), route(r), data(d)
   {
     OWN_SHAREDPTR(this->data);
   }
 
-  public: PrtRoute(Word pid, Int r, SourceLocation const &sl, SharedPtr<IdentifiableObject> const &d) :
-    ParsingMetadataHolder(pid, sl), route(r), data(d)
+  public: Route(Word pid, Int r, SourceLocation const &sl, SharedPtr<TiObject> const &d) :
+    MetadataHolder(pid, sl), route(r), data(d)
   {
     OWN_SHAREDPTR(this->data);
   }
 
-  public: virtual ~PrtRoute()
+  public: virtual ~Route()
   {
     DISOWN_SHAREDPTR(this->data);
   }
 
-  public: static SharedPtr<PrtRoute> create(Word pid=UNKNOWN_ID, Int r=-1, IdentifiableObject *d=0)
+  public: static SharedPtr<Route> create(Word pid=UNKNOWN_ID, Int r=-1, TiObject *d=0)
   {
-    return std::make_shared<PrtRoute>(pid, r, d);
+    return std::make_shared<Route>(pid, r, d);
   }
 
-  public: static SharedPtr<PrtRoute> create(Word pid, Int r, SharedPtr<IdentifiableObject> const &d)
+  public: static SharedPtr<Route> create(Word pid, Int r, SharedPtr<TiObject> const &d)
   {
-    return std::make_shared<PrtRoute>(pid, r, d);
+    return std::make_shared<Route>(pid, r, d);
   }
 
-  public: static SharedPtr<PrtRoute> create(Word pid, Int r, SourceLocation const &sl, IdentifiableObject *d=0)
+  public: static SharedPtr<Route> create(Word pid, Int r, SourceLocation const &sl, TiObject *d=0)
   {
-    return std::make_shared<PrtRoute>(pid, r, sl, d);
+    return std::make_shared<Route>(pid, r, sl, d);
   }
 
-  public: static SharedPtr<PrtRoute> create(Word pid, Int r, SourceLocation const &sl,
-                                               SharedPtr<IdentifiableObject> const &d)
+  public: static SharedPtr<Route> create(Word pid, Int r, SourceLocation const &sl,
+                                         SharedPtr<TiObject> const &d)
   {
-    return std::make_shared<PrtRoute>(pid, r, sl, d);
+    return std::make_shared<Route>(pid, r, sl, d);
   }
 
 
@@ -151,7 +151,7 @@ class PrtRoute : public Node,
    * This is the parsed data from the terms contained in the selected route
    * (if any) is recorded to this pointer.
    */
-  public: void setData(SharedPtr<IdentifiableObject> const &d)
+  public: void setData(SharedPtr<TiObject> const &d)
   {
     UPDATE_OWNED_SHAREDPTR(this->data, d);
   }
@@ -162,51 +162,30 @@ class PrtRoute : public Node,
    * This is the parsed data from the terms contained in the selected route
    * (if any) is recorded to this pointer.
    */
-  public: SharedPtr<IdentifiableObject> const& getData() const
+  public: SharedPtr<TiObject> const& getData() const
   {
     return this->data;
   }
 
 
   //============================================================================
-  // ParsingMetadataHolder Overrides
+  // MetadataHolder Overrides
 
   /**
    * @brief Override the original implementation to search the tree if needed.
    * If the value is not yet set for this object and it has children, it will
    * call getSourceLocation on the children.
    */
-  public: virtual SourceLocation const& getSourceLocation() const
-  {
-    if (ParsingMetadataHolder::getSourceLocation().line == 0) {
-      ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->getData().get());
-      if (ptr != 0) {
-        SourceLocation const &sl = ptr->getSourceLocation();
-        if (sl.line != 0) return sl;
-      }
-    }
-    return ParsingMetadataHolder::getSourceLocation();
-  }
+  public: virtual SourceLocation const& getSourceLocation() const;
 
-  public: virtual IdentifiableObject* getAttribute(Char const *name)
-  {
-    if (SBSTR(name) == STR("sourceLocation")) {
-      if (ParsingMetadataHolder::getSourceLocation().line == 0) {
-        ParsingMetadataHolder *ptr = ii_cast<ParsingMetadataHolder>(this->getData().get());
-        if (ptr != 0) {
-          return ptr->getAttribute(name);
-        }
-      }
-    }
-    return ParsingMetadataHolder::getAttribute(name);
-  }
+  public: virtual TiObject* getAttribute(Char const *name);
 
 
   //============================================================================
   // Container Implementation
 
   /// Change the element at the specified index.
-  public: virtual void set(Int index, IdentifiableObject *val)
+  public: virtual void set(Int index, TiObject *val)
   {
     if (index == 0) {
       UPDATE_OWNED_SHAREDPTR(this->data, getSharedPtr(val, true));
@@ -231,7 +210,7 @@ class PrtRoute : public Node,
   }
 
   /// Get the object at the specified index.
-  public: virtual IdentifiableObject* get(Int index) const
+  public: virtual TiObject* get(Int index) const
   {
     if (index != 0) {
       throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Must be 0 for this class."));
@@ -241,20 +220,18 @@ class PrtRoute : public Node,
 
 
   //============================================================================
-  // Clonable Overrides
+  // Clonable Implementation
 
-  public: virtual SharedPtr<IdentifiableObject> clone() const
-  {
-    SharedPtr<PrtRoute> newRoute = std::make_shared<PrtRoute>();
-    newRoute->setProdId(this->getProdId());
-    newRoute->setRoute(this->getRoute());
-    newRoute->setData(this->getData());
-    newRoute->setSourceLocation(this->getSourceLocation());
-    return newRoute;
-  }
+  public: virtual SharedPtr<TiObject> clone() const;
+
+
+  //============================================================================
+  // Printable Implementation
+
+  public: virtual void print(OutStream &stream, Int indents=0) const;
 
 }; // class
 
-} } // namespace
+} } } // namespace
 
 #endif

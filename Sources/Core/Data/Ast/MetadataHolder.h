@@ -1,8 +1,8 @@
 /**
- * @file Core/Data/ParsingMetadataHolder.h
- * Contains the header of interface Data::ParsingMetadataHolder.
+ * @file Core/Data/Ast/MetadataHolder.h
+ * Contains the header of interface Data::Ast::MetadataHolder.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,20 +10,20 @@
  */
 //==============================================================================
 
-#ifndef CORE_DATA_PARSINGMETADATAHOLDER_H
-#define CORE_DATA_PARSINGMETADATAHOLDER_H
+#ifndef CORE_DATA_AST_METADATAHOLDER_H
+#define CORE_DATA_AST_METADATAHOLDER_H
 
-namespace Core { namespace Data
+namespace Core { namespace Data { namespace Ast
 {
 
 // TODO: DOC
 
-class ParsingMetadataHolder : public AttributesHolder
+class MetadataHolder : public AttributesHolder
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(ParsingMetadataHolder, AttributesHolder, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(MetadataHolder, AttributesHolder, "Core.Data.Ast", "Core", "alusus.net");
 
 
   //============================================================================
@@ -52,15 +52,15 @@ class ParsingMetadataHolder : public AttributesHolder
   //============================================================================
   // Constructors
 
-  public: ParsingMetadataHolder() : prodId(UNKNOWN_ID)
+  public: MetadataHolder() : prodId(UNKNOWN_ID)
   {
   }
 
-  public: ParsingMetadataHolder(Int pid) : prodId(pid)
+  public: MetadataHolder(Word pid) : prodId(pid)
   {
   }
 
-  public: ParsingMetadataHolder(Int pid, SourceLocation const &loc) : prodId(pid), sourceLocation(loc)
+  public: MetadataHolder(Word pid, SourceLocation const &loc) : prodId(pid), sourceLocation(loc)
   {
   }
 
@@ -124,7 +124,7 @@ class ParsingMetadataHolder : public AttributesHolder
     return this->sourceLocation;
   }
 
-  public: virtual IdentifiableObject* getAttribute(Char const *name)
+  public: virtual TiObject* getAttribute(Char const *name)
   {
     if (SBSTR(name) == STR("prodId")) {
       return &this->prodId;
@@ -137,6 +137,6 @@ class ParsingMetadataHolder : public AttributesHolder
 
 }; // class
 
-} } // namespace
+} } } // namespace
 
 #endif

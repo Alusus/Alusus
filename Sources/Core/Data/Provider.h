@@ -21,12 +21,12 @@ namespace Core { namespace Data
 class Reference;
 class Module;
 
-class Provider : public IdentifiableInterface
+class Provider : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(Provider, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(Provider, TiInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
@@ -35,10 +35,10 @@ class Provider : public IdentifiableInterface
   /// @name Data Setting Functions
   /// @{
 
-  public: virtual Bool trySet(Reference const *ref, IdentifiableObject *val)
+  public: virtual Bool trySet(Reference const *ref, TiObject *val)
   {
     Bool result = false;
-    this->set(ref, [=,&result](Int index, IdentifiableObject *&obj)->RefOp {
+    this->set(ref, [=,&result](Int index, TiObject *&obj)->RefOp {
       obj = val;
       result = true;
       return RefOp::PERFORM_AND_MOVE;
@@ -46,10 +46,10 @@ class Provider : public IdentifiableInterface
     return result;
   }
 
-  public: virtual Bool trySet(Char const *qualifier, IdentifiableObject *val)
+  public: virtual Bool trySet(Char const *qualifier, TiObject *val)
   {
     Bool result = false;
-    this->set(qualifier, [=,&result](Int index, IdentifiableObject *&obj)->RefOp {
+    this->set(qualifier, [=,&result](Int index, TiObject *&obj)->RefOp {
       obj = val;
       result = true;
       return RefOp::PERFORM_AND_MOVE;
@@ -57,14 +57,14 @@ class Provider : public IdentifiableInterface
     return result;
   }
 
-  public: virtual void set(Reference const *ref, IdentifiableObject *val)
+  public: virtual void set(Reference const *ref, TiObject *val)
   {
     if (!this->trySet(ref, val)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
   }
 
-  public: virtual void set(Char const *qualifier, IdentifiableObject *val)
+  public: virtual void set(Char const *qualifier, TiObject *val)
   {
     if (!this->trySet(qualifier, val)) {
       throw EXCEPTION(GenericException, STR("Qualifier pointing to a missing element/tree."));
@@ -83,7 +83,7 @@ class Provider : public IdentifiableInterface
   public: virtual Bool tryRemove(Reference const *ref)
   {
     Bool ret = false;
-    this->remove(ref, [&ret](Int index, IdentifiableObject *o)->RefOp {
+    this->remove(ref, [&ret](Int index, TiObject *o)->RefOp {
       ret = true;
       return RefOp::PERFORM_AND_MOVE;
     });
@@ -93,7 +93,7 @@ class Provider : public IdentifiableInterface
   public: virtual Bool tryRemove(Char const *qualifier)
   {
     Bool ret = false;
-    this->remove(qualifier, [&ret](Int index, IdentifiableObject *o)->RefOp {
+    this->remove(qualifier, [&ret](Int index, TiObject *o)->RefOp {
       ret = true;
       return RefOp::PERFORM_AND_MOVE;
     });
@@ -123,11 +123,11 @@ class Provider : public IdentifiableInterface
   /// @name Data Retrieval Functions
   /// @{
 
-  public: virtual Bool tryGet(Reference const *ref, IdentifiableObject *&retVal,
-                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
+  public: virtual Bool tryGet(Reference const *ref, TiObject *&retVal,
+                              TypeInfo const *parentTypeInfo=0, TiObject **retParent=0)
   {
     Bool ret = false;
-    this->forEach(ref, [&ret,&retVal,&retParent](Int index, IdentifiableObject *o, IdentifiableObject *p)->RefOp {
+    this->forEach(ref, [&ret,&retVal,&retParent](Int index, TiObject *o, TiObject *p)->RefOp {
       retVal = o;
       if (retParent != 0) *retParent = p;
       ret = true;
@@ -136,11 +136,11 @@ class Provider : public IdentifiableInterface
     return ret;
   }
 
-  public: virtual Bool tryGet(Char const *qualifier, IdentifiableObject *&retVal,
-                              TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
+  public: virtual Bool tryGet(Char const *qualifier, TiObject *&retVal,
+                              TypeInfo const *parentTypeInfo=0, TiObject **retParent=0)
   {
     Bool ret = false;
-    this->forEach(qualifier, [&ret,&retVal,&retParent](Int index, IdentifiableObject *o, IdentifiableObject *p)->RefOp {
+    this->forEach(qualifier, [&ret,&retVal,&retParent](Int index, TiObject *o, TiObject *p)->RefOp {
       retVal = o;
       if (retParent != 0) *retParent = p;
       ret = true;
@@ -149,76 +149,76 @@ class Provider : public IdentifiableInterface
     return ret;
   }
 
-  public: virtual IdentifiableObject* tryGet(Reference const *ref)
+  public: virtual TiObject* tryGet(Reference const *ref)
   {
-    IdentifiableObject *result = 0;
+    TiObject *result = 0;
     this->tryGet(ref, result);
     return result;
   }
 
-  public: virtual IdentifiableObject* tryGet(Char const *qualifier)
+  public: virtual TiObject* tryGet(Char const *qualifier)
   {
-    IdentifiableObject *result = 0;
+    TiObject *result = 0;
     this->tryGet(qualifier, result);
     return result;
   }
 
-  public: template<class T> Bool tryGet(Reference const *ref, IdentifiableObject *&retVal, T *&retParent)
+  public: template<class T> Bool tryGet(Reference const *ref, TiObject *&retVal, T *&retParent)
   {
-    IdentifiableObject *retIoParent;
+    TiObject *retIoParent;
     Bool result = this->tryGet(ref, retVal, T::getTypeInfo(), &retIoParent);
     retParent = static_cast<T*>(retIoParent);
     return result;
   }
 
-  public: template<class T> Bool tryGet(Char const *qualifier, IdentifiableObject *&retVal, T *&retParent)
+  public: template<class T> Bool tryGet(Char const *qualifier, TiObject *&retVal, T *&retParent)
   {
-    IdentifiableObject *retIoParent;
+    TiObject *retIoParent;
     Bool result = this->tryGet(qualifier, retVal, T::getTypeInfo(), &retIoParent);
     retParent = static_cast<T*>(retIoParent);
     return result;
   }
 
-  public: virtual void get(Reference const *ref, IdentifiableObject *&retVal,
-                           TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
+  public: virtual void get(Reference const *ref, TiObject *&retVal,
+                           TypeInfo const *parentTypeInfo=0, TiObject **retParent=0)
   {
     if (!this->tryGet(ref, retVal, parentTypeInfo, retParent)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
   }
 
-  public: virtual void get(Char const *qualifier, IdentifiableObject *&retVal,
-                           TypeInfo const *parentTypeInfo=0, IdentifiableObject **retParent=0)
+  public: virtual void get(Char const *qualifier, TiObject *&retVal,
+                           TypeInfo const *parentTypeInfo=0, TiObject **retParent=0)
   {
     if (!this->tryGet(qualifier, retVal, parentTypeInfo, retParent)) {
       throw EXCEPTION(GenericException, STR("Qualifier pointing to a missing element/tree."));
     }
   }
 
-  public: virtual IdentifiableObject* get(Reference const *ref)
+  public: virtual TiObject* get(Reference const *ref)
   {
-    IdentifiableObject *retVal = 0;
+    TiObject *retVal = 0;
     this->get(ref, retVal);
     return retVal;
   }
 
-  public: virtual IdentifiableObject* get(Char const *qualifier)
+  public: virtual TiObject* get(Char const *qualifier)
   {
-    IdentifiableObject *retVal = 0;
+    TiObject *retVal = 0;
     this->get(qualifier, retVal);
     return retVal;
   }
 
-  public: template<class T> void get(Reference const *ref, IdentifiableObject *&retVal, T *&retParent)
+  public: template<class T> void get(Reference const *ref, TiObject *&retVal, T *&retParent)
   {
-    IdentifiableObject *retIoParent;
+    TiObject *retIoParent;
     this->get(ref, retVal, T::getTypeInfo(), &retIoParent);
     retParent = static_cast<T*>(retIoParent);
   }
 
-  public: template<class T> void get(Char const *qualifier, IdentifiableObject *&retVal, T *&retParent)
+  public: template<class T> void get(Char const *qualifier, TiObject *&retVal, T *&retParent)
   {
-    IdentifiableObject *retIoParent;
+    TiObject *retIoParent;
     this->get(qualifier, retVal, T::getTypeInfo(), &retIoParent);
     retParent = static_cast<T*>(retIoParent);
   }

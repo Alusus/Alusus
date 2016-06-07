@@ -116,7 +116,7 @@ class AssignmentOperator : public AstNode, public virtual Core::Data::Container
   //============================================================================
   // Container Implementation
 
-  public: virtual void set(Int index, IdentifiableObject *val)
+  public: virtual void set(Int index, TiObject *val)
   {
   }
 
@@ -129,7 +129,7 @@ class AssignmentOperator : public AstNode, public virtual Core::Data::Container
     return 2;
   }
 
-  public: virtual IdentifiableObject* get(Int index) const
+  public: virtual TiObject* get(Int index) const
   {
     switch (index) {
       case 0: return this->leftExpr.get();

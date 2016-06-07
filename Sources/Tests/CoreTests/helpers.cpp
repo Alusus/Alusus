@@ -28,12 +28,12 @@ using namespace std;
  *              of that list to search. If this is -1 the entire list will be
  *              searched.
  */
-void findProdData(Word prodId, SharedPtr<IdentifiableObject> ptr,
-                  vector<SharedPtr<IdentifiableObject> > &result, Int index)
+void findProdData(Word prodId, SharedPtr<TiObject> ptr,
+                  vector<SharedPtr<TiObject> > &result, Int index)
 {
   if (ptr == 0) return;
 
-  Data::ParsingMetadataHolder *metadata = ptr->getInterface<Data::ParsingMetadataHolder>();
+  Data::Ast::MetadataHolder *metadata = ptr->getInterface<Data::Ast::MetadataHolder>();
   if (metadata == 0) return;
 
   if (metadata->getProdId() == prodId) {
@@ -41,16 +41,16 @@ void findProdData(Word prodId, SharedPtr<IdentifiableObject> ptr,
   }
 
   // Print the data itself.
-  if (ptr->isDerivedFrom<Data::PrtList>()) {
+  if (ptr->isDerivedFrom<Data::Ast::List>()) {
     if (index != -1) {
-      findProdData(prodId, ptr.s_cast_get<Data::PrtList>()->getShared(index), result);
+      findProdData(prodId, ptr.s_cast_get<Data::Ast::List>()->getShared(index), result);
     } else {
-      for (Word i = 0; i < ptr.s_cast_get<Data::PrtList>()->getCount(); ++i) {
-        findProdData(prodId, ptr.s_cast_get<Data::PrtList>()->getShared(i), result);
+      for (Word i = 0; i < ptr.s_cast_get<Data::Ast::List>()->getCount(); ++i) {
+        findProdData(prodId, ptr.s_cast_get<Data::Ast::List>()->getShared(i), result);
       }
     }
-  } else if (ptr->isDerivedFrom<Data::PrtRoute>()) {
-    findProdData(prodId, ptr.s_cast_get<Data::PrtRoute>()->getData(), result);
+  } else if (ptr->isDerivedFrom<Data::Ast::Route>()) {
+    findProdData(prodId, ptr.s_cast_get<Data::Ast::Route>()->getData(), result);
   }
 }
 
@@ -68,25 +68,25 @@ void findProdData(Word prodId, SharedPtr<IdentifiableObject> ptr,
  *              of that list to search. If this is -1 the entire list will be
  *              searched.
  */
-void findToken(Word tokenId, Char const *text, SharedPtr<IdentifiableObject> ptr,
-               vector<SharedPtr<IdentifiableObject> > &result, Int index)
+void findToken(Word tokenId, Char const *text, SharedPtr<TiObject> ptr,
+               vector<SharedPtr<TiObject> > &result, Int index)
 {
   if (ptr == 0) return;
 
   // Print the data itself.
-  if (ptr->isDerivedFrom<Data::PrtList>()) {
+  if (ptr->isDerivedFrom<Data::Ast::List>()) {
     if (index != -1) {
-      findToken(tokenId, text, ptr.s_cast_get<Data::PrtList>()->getShared(index), result);
+      findToken(tokenId, text, ptr.s_cast_get<Data::Ast::List>()->getShared(index), result);
     } else {
-      for (Word i = 0; i < ptr.s_cast_get<Data::PrtList>()->getCount(); ++i) {
-        findToken(tokenId, text, ptr.s_cast_get<Data::PrtList>()->getShared(i), result);
+      for (Word i = 0; i < ptr.s_cast_get<Data::Ast::List>()->getCount(); ++i) {
+        findToken(tokenId, text, ptr.s_cast_get<Data::Ast::List>()->getShared(i), result);
       }
     }
-  } else if (ptr->isDerivedFrom<Data::PrtRoute>()) {
-    findToken(tokenId, text, ptr.s_cast_get<Data::PrtRoute>()->getData(), result);
-  } else if (ptr->isDerivedFrom<Data::PrtToken>()) {
+  } else if (ptr->isDerivedFrom<Data::Ast::Route>()) {
+    findToken(tokenId, text, ptr.s_cast_get<Data::Ast::Route>()->getData(), result);
+  } else if (ptr->isDerivedFrom<Data::Ast::Token>()) {
     // Print the token type.
-    SharedPtr<Data::PrtToken> token = ptr.s_cast<Data::PrtToken>();
+    SharedPtr<Data::Ast::Token> token = ptr.s_cast<Data::Ast::Token>();
     if ((tokenId == 0 || tokenId == token->getId()) &&
         (text == 0 || token->getText().compare(text) == 0)) {
       result.push_back(token);
@@ -103,16 +103,16 @@ void findToken(Word tokenId, Char const *text, SharedPtr<IdentifiableObject> ptr
  * or<br>
  * - ptr is a token that has UNKNOWN_ID.
  */
-Bool isEmpty(SharedPtr<IdentifiableObject> ptr)
+Bool isEmpty(SharedPtr<TiObject> ptr)
 {
   if (ptr == 0) {
     return false;
-  } else if (ptr->isDerivedFrom<Data::PrtList>()) {
-    return ptr.s_cast_get<Data::PrtList>()->getCount() == 0;
-  } else if (ptr->isDerivedFrom<Data::PrtRoute>()) {
-    return ptr.s_cast_get<Data::PrtRoute>()->getData() == 0;
-  } else if (ptr->isDerivedFrom<Data::PrtToken>()) {
-    return ptr.s_cast_get<Data::PrtToken>()->getId() == UNKNOWN_ID;
+  } else if (ptr->isDerivedFrom<Data::Ast::List>()) {
+    return ptr.s_cast_get<Data::Ast::List>()->getCount() == 0;
+  } else if (ptr->isDerivedFrom<Data::Ast::Route>()) {
+    return ptr.s_cast_get<Data::Ast::Route>()->getData() == 0;
+  } else if (ptr->isDerivedFrom<Data::Ast::Token>()) {
+    return ptr.s_cast_get<Data::Ast::Token>()->getId() == UNKNOWN_ID;
   }
   return false;
 }

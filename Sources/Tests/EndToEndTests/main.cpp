@@ -21,7 +21,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 using Core::Processing::BuildMsg;
-using Core::Data::PrtList;
+using Core::Data::Ast::List;
 using Core::Standard::RootManager;
 
 namespace Tests { namespace EndToEndTests

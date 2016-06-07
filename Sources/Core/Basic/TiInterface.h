@@ -1,8 +1,8 @@
 /**
- * @file Core/Basic/IdentifiableInterface.h
- * Contains the header of class Core::Basic::IdentifiableInterface.
+ * @file Core/Basic/TiInterface.h
+ * Contains the header of class Core::Basic::TiInterface.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_IDENTIFIABLE_INTERFACE_H
-#define CORE_BASIC_IDENTIFIABLE_INTERFACE_H
+#ifndef CORE_BASIC_TIINTERFACE_H
+#define CORE_BASIC_TIINTERFACE_H
 
 namespace Core { namespace Basic
 {
@@ -25,12 +25,12 @@ namespace Core { namespace Basic
  * interfaces works with identifiable objects, which has special methods for
  * querying those interfaces.
  */
-class IdentifiableInterface
+class TiInterface
 {
   //============================================================================
   // Pure Virtual Destructor
 
-  public: virtual ~IdentifiableInterface() {}
+  public: virtual ~TiInterface() {}
 
 
   //============================================================================
@@ -76,7 +76,7 @@ class IdentifiableInterface
   /// Get a pointer to the requested interface.
   public: void* getInterfacePtr(TypeInfo *info)
   {
-    if (info == IdentifiableInterface::getInterfaceInfo())
+    if (info == TiInterface::getInterfaceInfo())
       return reinterpret_cast<void*>(this);
     else
       return 0;
@@ -95,13 +95,13 @@ class IdentifiableInterface
   }
 
   /// Get the identifiable object that owns this interface.
-  public: virtual IdentifiableObject* getIdentifiableObject() = 0;
+  public: virtual TiObject* getTiObject() = 0;
 
   /**
-   * @brief A const version of getIdentifiableObject.
-   * @sa getIdentifiableObject()
+   * @brief A const version of getTiObject.
+   * @sa getTiObject()
    */
-  public: virtual IdentifiableObject const* getIdentifiableObject() const = 0;
+  public: virtual TiObject const* getTiObject() const = 0;
 
 }; // class
 
@@ -111,7 +111,7 @@ class IdentifiableInterface
  * @ingroup basic_utils
  *
  * This macro is used to define the type info methods for interfaces derived
- * from IdentifiableInterface. It defines and implements the virtual
+ * from TiInterface. It defines and implements the virtual
  * getMyInterfaceInfo and the static getInterfaceInfo functions.
  *
  * @param myType The class name as a keyword (rather than stringized).
@@ -150,49 +150,49 @@ class IdentifiableInterface
 
 
 /**
- * @brief Dynamically cast an IdentifiableObject to an implemented interface.
+ * @brief Dynamically cast an TiObject to an implemented interface.
  * @ingroup basic_utils
  *
  * This inline template function uses the run-time type info functions of the
- * IdentifiableObject class to dynamically cast a pointer of a base class to
+ * TiObject class to dynamically cast a pointer of a base class to
  * one of its derived classes. If the object is not of that type, the result of
  * the function will be 0.
  */
-template <class T> inline T* ii_cast(IdentifiableObject *object)
+template <class T> inline T* tii_cast(TiObject *object)
 {
   return object==0 ? 0 : object->getInterface<T>();
 }
 
 
 /**
- * @brief Dynamically cast an IdentifiableInterface to a dervied type.
+ * @brief Dynamically cast an TiInterface to a dervied type.
  * @ingroup basic_utils
  *
  * This inline template function uses the runt-time type info functions of the
- * IdentifiableInterface class to dynamically cast a pointer of a base
+ * TiInterface class to dynamically cast a pointer of a base
  * interface to one of its derived interfaces. If the object is not of that type
  * the result of the function will be 0.
  */
-template <class T> inline T* ii_cast(IdentifiableInterface *interface)
+template <class T> inline T* tii_cast(TiInterface *interface)
 {
-  return interface==0 ? 0 : interface->getIdentifiableObject()->getInterface<T>();
+  return interface==0 ? 0 : interface->getTiObject()->getInterface<T>();
 }
 
 
 /**
- * @brief Dynamically cast an IdentifiableInterface to a derived class.
+ * @brief Dynamically cast an TiInterface to a derived class.
  * @ingroup basic_utils
  *
  * This inline template function uses the run-time type info functions of the
- * IdentifiableObject class to dynamically cast a pointer of an interface to
- * one of the derived classes of its IdentifiableObject. This is simply a
- * shortcut to getting the IdentifiableObject of that interface and then
+ * TiObject class to dynamically cast a pointer of an interface to
+ * one of the derived classes of its TiObject. This is simply a
+ * shortcut to getting the TiObject of that interface and then
  * casting it to the right type. If the object is not of that type, the result
  * of the function will be 0.
  */
-template <class T> inline T* ii2io_cast(IdentifiableInterface *interface)
+template <class T> inline T* tii2tio_cast(TiInterface *interface)
 {
-  return io_cast<T>(interface==0 ? 0 : interface->getIdentifiableObject());
+  return tio_cast<T>(interface==0 ? 0 : interface->getTiObject());
 }
 
 
@@ -201,11 +201,11 @@ template <class T> inline T* ii2io_cast(IdentifiableInterface *interface)
  * @ingroup basic_utils
  *
  * This inline template function uses the run-time type info functions of the
- * IdentifiableObject to check whether the given pointer is of the given type.
+ * TiObject to check whether the given pointer is of the given type.
  * The function returns true only if the object is of that type. If the object
  * is of a type derived from the given type the function will return false.
  */
-template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
+template <class T> inline bool isInterfaceA(TiInterface *interface)
 {
   return (interface==0?false:interface->isInterfaceA(T::getTypeInfo()));
 }
@@ -217,12 +217,12 @@ template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
 
 
 /**
- * @brief A macro used in IdentifiableObjects to implement interfaces.
+ * @brief A macro used in TiObjects to implement interfaces.
  * @ingroup basic_utils
  *
- * IdentifiableObjects need to use this macro to implement the getInterface
+ * TiObjects need to use this macro to implement the getInterface
  * method which is used to query the object for impelemnted interfaces. It also
- * implements the getIdentifiableObject method of IdentifiableInterface that
+ * implements the getTiObject method of TiInterface that
  * enables the user the query the original object from the interface. This macro
  * allows the user to implement only one interface. If the user's object
  * implements more than one interface, the following equivalent macros can be
@@ -248,8 +248,8 @@ template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
       return parent::_getInterface(info); \
     } \
   public: \
-    virtual IdentifiableObject* getIdentifiableObject() { return this; } \
-    virtual IdentifiableObject const* getIdentifiableObject() const { return this; }
+    virtual TiObject* getTiObject() { return this; } \
+    virtual TiObject const* getTiObject() const { return this; }
 
 #define IMPLEMENT_INTERFACES_2(parent, interface1, interface2) \
   protected: \
@@ -260,8 +260,8 @@ template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
       return parent::_getInterface(info); \
     } \
     public: \
-      virtual IdentifiableObject* getIdentifiableObject() { return this; } \
-      virtual IdentifiableObject const* getIdentifiableObject() const { return this; }
+      virtual TiObject* getTiObject() { return this; } \
+      virtual TiObject const* getTiObject() const { return this; }
 
 #define IMPLEMENT_INTERFACES_3(parent, interface1, interface2, interface3) \
   protected: \
@@ -273,8 +273,8 @@ template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
       return parent::_getInterface(info); \
     } \
     public: \
-      virtual IdentifiableObject* getIdentifiableObject() { return this; } \
-      virtual IdentifiableObject const* getIdentifiableObject() const { return this; }
+      virtual TiObject* getTiObject() { return this; } \
+      virtual TiObject const* getTiObject() const { return this; }
 
 #define IMPLEMENT_INTERFACES_4(parent, interface1, interface2, interface3, interface4) \
   protected: \
@@ -287,8 +287,8 @@ template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
       return parent::_getInterface(info); \
     } \
     public: \
-      virtual IdentifiableObject* getIdentifiableObject() { return this; } \
-      virtual IdentifiableObject const* getIdentifiableObject() const { return this; }
+      virtual TiObject* getTiObject() { return this; } \
+      virtual TiObject const* getTiObject() const { return this; }
 
 #define IMPLEMENT_INTERFACES_5(parent, interface1, interface2, interface3, interface4, interface5) \
   protected: \
@@ -302,8 +302,8 @@ template <class T> inline bool isInterfaceA(IdentifiableInterface *interface)
       return parent::_getInterface(info); \
     } \
     public: \
-      virtual IdentifiableObject* getIdentifiableObject() { return this; } \
-      virtual IdentifiableObject const* getIdentifiableObject() const { return this; }
+      virtual TiObject* getTiObject() { return this; } \
+      virtual TiObject const* getTiObject() const { return this; }
 
 } } // namespace
 

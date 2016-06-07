@@ -153,7 +153,7 @@ class Parser : public SignalReceiver
   public: void beginParsing();
 
   /// Finalize the parsing process.
-  public: SharedPtr<IdentifiableObject> endParsing();
+  public: SharedPtr<TiObject> endParsing();
 
   /// Try to fold out of the grammar tree.
   public: void tryCompleteFoldout(StateIterator si);
@@ -254,12 +254,12 @@ class Parser : public SignalReceiver
   /// Check whether the production with the given id is currently in use.
   public: Bool isDefinitionInUse(Data::SymbolDefinition *definition) const;
 
-  private: Bool matchToken(Data::Integer *matchId, IdentifiableObject *matchText, Data::Token const *token)
+  private: Bool matchToken(Data::Integer *matchId, TiObject *matchText, Data::Token const *token)
   {
     return this->matchToken(matchId==0?0:matchId->get(), matchText, token);
   }
 
-  private: Bool matchToken(Word matchId, IdentifiableObject *matchText, Data::Token const *token);
+  private: Bool matchToken(Word matchId, TiObject *matchText, Data::Token const *token);
 
   private: Bool matchErrorSyncBlockPairs(ParserState *state, Data::Token const *token);
 

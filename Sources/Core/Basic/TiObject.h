@@ -1,8 +1,8 @@
 /**
- * @file Core/Basic/IdentifiableObject.h
- * Contains the header of class Core::Basic::IdentifiableObject.
+ * @file Core/Basic/TiObject.h
+ * Contains the header of class Core::Basic::TiObject.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,13 +10,13 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_IDENTIFIABLEOBJECT_H
-#define CORE_BASIC_IDENTIFIABLEOBJECT_H
+#ifndef CORE_BASIC_TIOBJECT_H
+#define CORE_BASIC_TIOBJECT_H
 
 namespace Core { namespace Basic
 {
 
-class IdentifiableInterface;
+class TiInterface;
 
 /**
  * @brief The base of all identifiable classes.
@@ -25,12 +25,12 @@ class IdentifiableInterface;
  * Identifiable classes are classes that have run-time type information. This
  * abstract class uses polymorphism to provide RTTI.
  */
-class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObject>
+class TiObject : public std::enable_shared_from_this<TiObject>
 {
   //============================================================================
   // Virtual Destructor
 
-  public: virtual ~IdentifiableObject() {}
+  public: virtual ~TiObject() {}
 
 
   //============================================================================
@@ -87,13 +87,13 @@ class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObjec
 
   /**
    * @brief Get a pointer to the given interface, if implemented.
-   * When a class implements IdentifiableInterfaces it should override this
+   * When a class implements TiInterfaces it should override this
    * method and return a pointer to the requested type (by casting itself to
    * that type). If the requested interface is not implemented by the class it
    * should return 0, which is the default implementation. Classes should use
    * the IMPLEMENT_INTERFACE family of macros to do this instead of manually
    * implementing this method.
-   * @note The method returns void* instead of IdentifiableInterface in
+   * @note The method returns void* instead of TiInterface in
    *       order to avoid casting that can result in changing the value
    *       of the pointer due to virtual inheritance. Users should use the
    *       template version of getInterface.
@@ -119,7 +119,7 @@ class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObjec
    */
   public: template<class T> const T* getInterface() const
   {
-    return reinterpret_cast<const T*>(const_cast<IdentifiableObject*>(this)->_getInterface(T::getInterfaceInfo()));
+    return reinterpret_cast<const T*>(const_cast<TiObject*>(this)->_getInterface(T::getInterfaceInfo()));
   }
 
   /**
@@ -127,7 +127,7 @@ class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObjec
    * This function returns a shared pointer that shares ownership of this object
    * with existing shared pointer.
    */
-  public: std::shared_ptr<IdentifiableObject> getSharedThis()
+  public: std::shared_ptr<TiObject> getSharedThis()
   {
     try
     {
@@ -135,7 +135,7 @@ class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObjec
     }
     catch(const std::bad_weak_ptr &e)
     {
-      return std::shared_ptr<IdentifiableObject>();
+      return std::shared_ptr<TiObject>();
     }
   }
 
@@ -143,7 +143,7 @@ class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObjec
    * @brief A const version of getSharedThis.
    * @sa getSharedThis()
    */
-  public: std::shared_ptr<IdentifiableObject const> getSharedThis() const
+  public: std::shared_ptr<TiObject const> getSharedThis() const
   {
     try
     {
@@ -151,7 +151,7 @@ class IdentifiableObject : public std::enable_shared_from_this<IdentifiableObjec
     }
     catch(const std::bad_weak_ptr &e)
     {
-      return std::shared_ptr<IdentifiableObject>();
+      return std::shared_ptr<TiObject>();
     }
   }
 
@@ -232,7 +232,7 @@ template <> struct _IoListUniqueNames<>
  * @ingroup basic_utils
  *
  * This macro is used to define the type info methods for classes derived
- * from IdentifiableObject. It defines and implements the virtual
+ * from TiObject. It defines and implements the virtual
  * getMyTypeInfo and the static getTypeInfo functions.
  *
  * @param myType The type name as a keyword (rather than stringized).
@@ -281,21 +281,21 @@ template <> struct _IoListUniqueNames<>
 
 
 /**
- * @brief Dynamically cast an IdentifiableObject to a derived class.
+ * @brief Dynamically cast an TiObject to a derived class.
  * @ingroup basic_utils
  *
  * This inline template function uses the run-time type info functions of the
- * IdentifiableObject class to dynamically cast a pointer of a base class to
+ * TiObject class to dynamically cast a pointer of a base class to
  * one of its derived classes. If the object is not of that type, the result of
  * the function will be 0.
  */
-template <class T> inline T* io_cast(IdentifiableObject *object)
+template <class T> inline T* tio_cast(TiObject *object)
 {
   return static_cast<T*>(object==0?0:object->isDerivedFrom(T::getTypeInfo())?object:0);
 }
 
-/// @sa io_cast()
-template <class T> inline const T* io_cast(IdentifiableObject const *object)
+/// @sa tio_cast()
+template <class T> inline const T* tio_cast(TiObject const *object)
 {
   return static_cast<const T*>(object==0?0:object->isDerivedFrom(T::getTypeInfo())?object:0);
 }
@@ -305,11 +305,11 @@ template <class T> inline const T* io_cast(IdentifiableObject const *object)
  * @ingroup basic_utils
  *
  * This inline template function uses the run-time type info functions of the
- * IdentifiableObject to check whether the given pointer is of the given type.
+ * TiObject to check whether the given pointer is of the given type.
  * The function returns true only if the object is of that type. If the object
  * is of a type derived from the given type the function will return false.
  */
-template <class T> inline bool isA(IdentifiableObject const *object)
+template <class T> inline bool isA(TiObject const *object)
 {
   return (object==0?false:object->isA(T::getTypeInfo()));
 }

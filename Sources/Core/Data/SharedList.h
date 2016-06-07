@@ -24,7 +24,7 @@ namespace Core { namespace Data
  * @brief An identifiable object that holds a list.
  * @ingroup data_containers
  *
- * This IdentifiableObject derived class is used to hold a list of identifiable
+ * This TiObject derived class is used to hold a list of identifiable
  * objects. This class is used mainly to store data used by the grammar. This
  * class stores the pointers to the identifiable objects, rather than the
  * objects themselves. Destructing this object will not result in the deletion
@@ -44,7 +44,7 @@ class SharedList : public Node, public virtual DataOwner, public virtual ListCon
   // Member Variables
 
   /// The vector in which the object pointers will be stored.
-  private: std::vector<SharedPtr<IdentifiableObject>> list;
+  private: std::vector<SharedPtr<TiObject>> list;
 
 
   //============================================================================
@@ -54,11 +54,11 @@ class SharedList : public Node, public virtual DataOwner, public virtual ListCon
   {
   }
 
-  public: SharedList(const std::initializer_list<SharedPtr<IdentifiableObject>> &args);
+  public: SharedList(const std::initializer_list<SharedPtr<TiObject>> &args);
 
   public: virtual ~SharedList();
 
-  public: static SharedPtr<SharedList> create(const std::initializer_list<SharedPtr<IdentifiableObject>> &args)
+  public: static SharedPtr<SharedList> create(const std::initializer_list<SharedPtr<TiObject>> &args)
   {
     return std::make_shared<SharedList>(args);
   }
@@ -72,19 +72,19 @@ class SharedList : public Node, public virtual DataOwner, public virtual ListCon
    * This is more efficient than individually calling add() on each item
    * because it preallocates any needed memory in advance.
    */
-  public: void add(const std::initializer_list<SharedPtr<IdentifiableObject>> &objs);
+  public: void add(const std::initializer_list<SharedPtr<TiObject>> &objs);
 
   /// Add a new object to the list.
-  public: Int add(SharedPtr<IdentifiableObject> const &val);
+  public: Int add(SharedPtr<TiObject> const &val);
 
   /// Insert an element at a specific index.
-  public: void insert(Int index, SharedPtr<IdentifiableObject> const &val);
+  public: void insert(Int index, SharedPtr<TiObject> const &val);
 
   /// Change the element at the specified index.
-  public: void set(Int index, SharedPtr<IdentifiableObject> const &val);
+  public: void set(Int index, SharedPtr<TiObject> const &val);
 
   /// Get the object at the specified index.
-  public: SharedPtr<IdentifiableObject> const& getShared(Int index) const;
+  public: SharedPtr<TiObject> const& getShared(Int index) const;
 
   /**
    * @brief Clear the entire list.
@@ -110,7 +110,7 @@ class SharedList : public Node, public virtual DataOwner, public virtual ListCon
   // ListContainer Implementation
 
   /// Change the element at the specified index.
-  public: virtual void set(Int index, IdentifiableObject *val)
+  public: virtual void set(Int index, TiObject *val)
   {
     this->set(index, getSharedPtr(val, true));
   }
@@ -125,18 +125,18 @@ class SharedList : public Node, public virtual DataOwner, public virtual ListCon
   }
 
   /// Get the object at the specified index.
-  public: virtual IdentifiableObject* get(Int index) const
+  public: virtual TiObject* get(Int index) const
   {
     return this->getShared(index).get();
   }
 
   /// Add a new object to the list.
-  public: virtual Int add(IdentifiableObject *val)
+  public: virtual Int add(TiObject *val)
   {
     return this->add(getSharedPtr(val, true));
   }
 
-  public: virtual void insert(Int index, IdentifiableObject *val)
+  public: virtual void insert(Int index, TiObject *val)
   {
     this->insert(index, getSharedPtr(val, true));
   }

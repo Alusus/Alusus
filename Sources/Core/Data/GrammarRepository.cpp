@@ -22,8 +22,8 @@ GrammarRepository::GrammarRepository() : repository(10, 2)
 {
   this->repository.setOwningEnabled(true);
   this->repository.pushLevel(STR("root"), std::make_shared<GrammarModule>());
-  this->repository.pushLevel(STR("module"), SharedPtr<IdentifiableObject>());
-  this->repository.pushLevel(STR("pmodule"), SharedPtr<IdentifiableObject>());
+  this->repository.pushLevel(STR("module"), SharedPtr<TiObject>());
+  this->repository.pushLevel(STR("pmodule"), SharedPtr<TiObject>());
 }
 
 
@@ -37,7 +37,7 @@ void GrammarRepository::setModule(SharedPtr<Module> const &module)
     auto pmodule = getSharedPtr(module.s_cast_get<GrammarModule>()->getParent());
     this->repository.setLevel(pmodule, GrammarScopeIndex::PMODULE);
   } else {
-    this->repository.setLevel(SharedPtr<IdentifiableObject>(), GrammarScopeIndex::PMODULE);
+    this->repository.setLevel(SharedPtr<TiObject>(), GrammarScopeIndex::PMODULE);
   }
 }
 
@@ -45,18 +45,18 @@ void GrammarRepository::setModule(SharedPtr<Module> const &module)
 void GrammarRepository::clear()
 {
   this->repository.setLevel(std::make_shared<GrammarModule>(), GrammarScopeIndex::ROOT);
-  this->repository.setLevel(SharedPtr<IdentifiableObject>(), GrammarScopeIndex::MODULE);
-  this->repository.setLevel(SharedPtr<IdentifiableObject>(), GrammarScopeIndex::PMODULE);
+  this->repository.setLevel(SharedPtr<TiObject>(), GrammarScopeIndex::MODULE);
+  this->repository.setLevel(SharedPtr<TiObject>(), GrammarScopeIndex::PMODULE);
 }
 
 
-void GrammarRepository::initializeObject(IdentifiableObject *obj)
+void GrammarRepository::initializeObject(TiObject *obj)
 {
   if (obj == 0) return;
   Initializable *initializable = obj->getInterface<Initializable>();
   if (initializable != 0) {
     SharedPtr<Module> oldModule = this->getModule();
-    Node *node = io_cast<Node>(obj);
+    Node *node = tio_cast<Node>(obj);
     Module *ownerModule = (node == 0 ? 0 : node->findOwner<Module>());
     this->setModule(getSharedPtr(ownerModule));
     initializable->initialize(this);
@@ -67,8 +67,8 @@ void GrammarRepository::initializeObject(IdentifiableObject *obj)
 
 void GrammarRepository::set(Reference const *ref, SeekerSetLambda handler)
 {
-  IdentifiableObject *objToInit = 0;
-  this->repository.set(ref, [=,&objToInit](Int index, IdentifiableObject *&obj)->RefOp {
+  TiObject *objToInit = 0;
+  this->repository.set(ref, [=,&objToInit](Int index, TiObject *&obj)->RefOp {
     RefOp ret = handler(index, obj);
 
     if (isPerform(ret)) {
@@ -88,8 +88,8 @@ void GrammarRepository::set(Reference const *ref, SeekerSetLambda handler)
 
 void GrammarRepository::set(Char const *qualifier, SeekerSetLambda handler)
 {
-  IdentifiableObject *objToInit = 0;
-  this->repository.set(qualifier, [=,&objToInit](Int index, IdentifiableObject *&obj)->RefOp {
+  TiObject *objToInit = 0;
+  this->repository.set(qualifier, [=,&objToInit](Int index, TiObject *&obj)->RefOp {
     RefOp ret = handler(index, obj);
 
     if (isPerform(ret)) {
@@ -107,7 +107,7 @@ void GrammarRepository::set(Char const *qualifier, SeekerSetLambda handler)
 }
 
 
-void GrammarRepository::traceValue(IdentifiableObject *val, IdentifiableObject *&retVal, Module *&retModule)
+void GrammarRepository::traceValue(TiObject *val, TiObject *&retVal, Module *&retModule)
 {
   retVal = val;
   retModule = 0;

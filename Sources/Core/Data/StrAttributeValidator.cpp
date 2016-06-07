@@ -18,12 +18,12 @@ namespace Core { namespace Data
 //==============================================================================
 // Member Functions
 
-Bool StrAttributeValidator::validate(IdentifiableObject *r) const
+Bool StrAttributeValidator::validate(TiObject *r) const
 {
   if (r == 0) return false;
-  AttributesHolder *ah = ii_cast<AttributesHolder>(r);
+  AttributesHolder *ah = tii_cast<AttributesHolder>(r);
   if (ah == 0) return false;
-  IdentifiableObject *val = ah->getAttribute(this->attributeName.c_str());
+  TiObject *val = ah->getAttribute(this->attributeName.c_str());
   if (val == 0) return false;
   if (val->isA<String>()) {
     return static_cast<String*>(val)->getStr() == this->attributeValue;
@@ -39,7 +39,7 @@ Bool StrAttributeValidator::validate(IdentifiableObject *r) const
 
 Bool StrAttributeValidator::compare(Validator const *v) const
 {
-  const StrAttributeValidator *sav = io_cast<StrAttributeValidator>(v);
+  const StrAttributeValidator *sav = tio_cast<StrAttributeValidator>(v);
   if (sav != 0 && this->getName() == sav->getName() && this->getValue() == sav->getValue()) return true;
   else return false;
 }

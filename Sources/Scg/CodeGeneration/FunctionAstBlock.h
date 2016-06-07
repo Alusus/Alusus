@@ -93,7 +93,7 @@ public:
    * @param[in] astRoot A pointer to the AST block root.
    */
   FunctionAstBlock(CodeGenerator *gen,
-                   SharedPtr<Core::Data::PrtList> const &astRoot);
+                   SharedPtr<Core::Data::Ast::List> const &astRoot);
 
   /**
    * Creates a DefineFunction instruction from this AST block.

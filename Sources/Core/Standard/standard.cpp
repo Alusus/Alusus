@@ -66,7 +66,7 @@ std::string getModuleDirectory()
 }
 
 
-Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processing::ParserState *state)
+Bool mergeContainers(TiObject *dest, TiObject *src, Processing::ParserState *state)
 {
   if (!dest->isA(src->getMyTypeInfo())) return false;
 
@@ -85,7 +85,7 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processi
         IdHolder *idHolder = srcMap->get(i)->getInterface<IdHolder>();
         if (idHolder != 0) name = ID_GENERATOR->getDesc(idHolder->getId()).c_str();
         else name = srcMap->getKey(i).c_str();
-        ParsingMetadataHolder *itemMeta = ii_cast<ParsingMetadataHolder>(srcMap->get(i));
+        Ast::MetadataHolder *itemMeta = tii_cast<Ast::MetadataHolder>(srcMap->get(i));
         Data::SourceLocation sl;
         if (itemMeta != 0) sl = itemMeta->getSourceLocation();
         state->addBuildMsg(std::make_shared<RedefinitionMsg>(name, sl));
@@ -105,17 +105,17 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processi
 }
 
 
-void mergeDefinition(Char const *qualifier, IdentifiableObject *obj, Processing::ParserState *state)
+void mergeDefinition(Char const *qualifier, TiObject *obj, Processing::ParserState *state)
 {
   auto repository = state->getDataStack();
-  IdentifiableObject *dest;
+  TiObject *dest;
   Bool ret = repository->tryGet(qualifier, dest);
   if (ret == false || dest == 0) {
     repository->set(qualifier, obj);
   } else {
     if (!mergeContainers(dest, obj, state)) {
       // Generate a build message.
-      ParsingMetadataHolder *itemMeta = ii_cast<ParsingMetadataHolder>(obj);
+      Ast::MetadataHolder *itemMeta = tii_cast<Ast::MetadataHolder>(obj);
       Data::SourceLocation sl;
       if (itemMeta != 0) sl = itemMeta->getSourceLocation();
       state->addBuildMsg(std::make_shared<RedefinitionMsg>(qualifier, sl));

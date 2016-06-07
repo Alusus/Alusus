@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Stringifyable.h
- * Contains the header of interface Data::Stringifyable.
+ * @file Core/Data/Printable.h
+ * Contains the header of interface Data::Printable.
  *
  * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
@@ -10,31 +10,31 @@
  */
 //==============================================================================
 
-#ifndef CORE_DATA_STRINGIFYABLE_H
-#define CORE_DATA_STRINGIFYABLE_H
+#ifndef CORE_DATA_PRINTABLE_H
+#define CORE_DATA_PRINTABLE_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class Stringifyable : public IdentifiableInterface
+class Printable : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(Stringifyable, IdentifiableInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(Printable, TiInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual void toString(StrStream &stream, Int indentation=0) const = 0;
+  public: virtual void print(OutStream &stream, Int indents=0) const = 0;
 
-  public: virtual Str toString(Int indentation=0) const
+  public: virtual Str toString(Int indents=0) const
   {
     StrStream stream;
-    this->toString(stream);
+    this->print(stream, indents);
     return stream.str();
   }
 

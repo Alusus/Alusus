@@ -151,19 +151,19 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
   /**
    * @brief Cast this shared pointer to a shared pointer of another data type.
    *
-   * Casting is done using io_cast.
+   * Casting is done using tio_cast.
    *
    * @tparam TO The requested type of the subject, not the pointer. In other
    *            words, if you want to cast the pointer to SharedPtr<My_Type>,
    *            TO must be My_Type, not SharedPtr<My_Type>.
    */
-  public: template <class TO> inline SharedPtr<TO> io_cast() const &
+  public: template <class TO> inline SharedPtr<TO> tio_cast() const &
   {
-    return SharedPtr<TO>(*this, Core::Basic::io_cast<TO>(this->get()));
+    return SharedPtr<TO>(*this, Core::Basic::tio_cast<TO>(this->get()));
   }
 
-  /// @sa io_cast()
-  public: template <class TO> inline SharedPtr<TO> io_cast() &&
+  /// @sa tio_cast()
+  public: template <class TO> inline SharedPtr<TO> tio_cast() &&
   {
     if (this->get() != 0 && this->get()->isDerivedFrom(TO::getTypeInfo())) {
       return std::move(*(reinterpret_cast<SharedPtr<TO>*>(this)));
@@ -175,29 +175,29 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
   /**
    * @brief Cast this shared pointer to a shared pointer of another data type.
    *
-   * Casting is done using ii_cast.
+   * Casting is done using tii_cast.
    *
    * @tparam TO The requested type of the subject, not the pointer. In other
    *            words, if you want to cast the pointer to SharedPtr<My_Type>,
    *            TO must be My_Type, not SharedPtr<My_Type>.
    */
-  public: template <class TO> inline SharedPtr<TO> ii_cast() const
+  public: template <class TO> inline SharedPtr<TO> tii_cast() const
   {
-    return SharedPtr<TO>(*this, Core::Basic::ii_cast<TO>(this->get()));
+    return SharedPtr<TO>(*this, Core::Basic::tii_cast<TO>(this->get()));
   }
 
   /**
    * @brief Cast this shared pointer to a shared pointer of another data type.
    *
-   * Casting is done using ii2io_cast.
+   * Casting is done using tii2tio_cast.
    *
    * @tparam TO The requested type of the subject, not the pointer. In other
    *            words, if you want to cast the pointer to SharedPtr<My_Type>,
    *            TO must be My_Type, not SharedPtr<My_Type>.
    */
-  public: template <class TO> inline SharedPtr<TO> ii2io_cast() const
+  public: template <class TO> inline SharedPtr<TO> tii2tio_cast() const
   {
-    return SharedPtr<TO>(*this, Core::Basic::ii2io_cast<TO>(this->get()));
+    return SharedPtr<TO>(*this, Core::Basic::tii2tio_cast<TO>(this->get()));
   }
 
   /**
@@ -245,43 +245,43 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
   /**
    * @brief Cast and return the subject of this shared pointer.
    *
-   * Casting is done using io_cast.
+   * Casting is done using tio_cast.
    *
    * @tparam TO The requested type of the subject, not the pointer. In other
    *            words, if you want to cast the pointer to My_Type,
    *            TO must be My_Type, not My_Type*.
    */
-  public: template <class TO> inline TO* io_cast_get() const
+  public: template <class TO> inline TO* tio_cast_get() const
   {
-    return Core::Basic::io_cast<TO>(this->get());
+    return Core::Basic::tio_cast<TO>(this->get());
   }
 
   /**
    * @brief Cast and return the subject of this shared pointer.
    *
-   * Casting is done using ii_cast.
+   * Casting is done using tii_cast.
    *
    * @tparam TO The requested type of the subject, not the pointer. In other
    *            words, if you want to cast the pointer to My_Type,
    *            TO must be My_Type, not My_Type*.
    */
-  public: template <class TO> inline TO* ii_cast_get() const
+  public: template <class TO> inline TO* tii_cast_get() const
   {
-    return Core::Basic::ii_cast<TO>(this->get());
+    return Core::Basic::tii_cast<TO>(this->get());
   }
 
   /**
    * @brief Cast and return the subject of this shared pointer.
    *
-   * Casting is done using ii2io_cast.
+   * Casting is done using tii2tio_cast.
    *
    * @tparam TO The requested type of the subject, not the pointer. In other
    *            words, if you want to cast the pointer to My_Type,
    *            TO must be My_Type, not My_Type*.
    */
-  public: template <class TO> inline TO* ii2io_cast_get() const
+  public: template <class TO> inline TO* tii2tio_cast_get() const
   {
-    return Core::Basic::ii2io_cast<TO>(this->get());
+    return Core::Basic::tii2tio_cast<TO>(this->get());
   }
 
   /// @}
@@ -339,13 +339,13 @@ template <class T> inline SharedPtr<T> c_cast(std::shared_ptr<const T> &&src)
 }
 
 
-template <class T, class T2> inline SharedPtr<T> io_cast(std::shared_ptr<T2> const &src)
+template <class T, class T2> inline SharedPtr<T> tio_cast(std::shared_ptr<T2> const &src)
 {
-  return SharedPtr<T>(src, Core::Basic::io_cast<T>(src.get()));
+  return SharedPtr<T>(src, Core::Basic::tio_cast<T>(src.get()));
 }
 
 
-template <class T, class T2> inline SharedPtr<T> io_cast(std::shared_ptr<T2> &&src)
+template <class T, class T2> inline SharedPtr<T> tio_cast(std::shared_ptr<T2> &&src)
 {
   if (src.get() != 0 && src.get()->isDerivedFrom(T::getTypeInfo())) {
     return std::move(*(reinterpret_cast<SharedPtr<T>*>(&src)));
@@ -355,24 +355,24 @@ template <class T, class T2> inline SharedPtr<T> io_cast(std::shared_ptr<T2> &&s
 }
 
 
-template <class T, class T2> SharedPtr<T> ii_cast(std::shared_ptr<T2> const &src)
+template <class T, class T2> SharedPtr<T> tii_cast(std::shared_ptr<T2> const &src)
 {
-  return SharedPtr<T>(src, Core::Basic::ii_cast<T*>(src.get()));
+  return SharedPtr<T>(src, Core::Basic::tii_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> SharedPtr<T> ii2io_cast(std::shared_ptr<T2> const &src)
+template <class T, class T2> SharedPtr<T> tii2tio_cast(std::shared_ptr<T2> const &src)
 {
-  return SharedPtr<T>(src, Core::Basic::ii2io_cast<T*>(src.get()));
+  return SharedPtr<T>(src, Core::Basic::tii2tio_cast<T*>(src.get()));
 }
 
 
 /**
- * @brief Get a shared pointer to the given IdentifiableObject based pointer.
+ * @brief Get a shared pointer to the given TiObject based pointer.
  * The function will get a shared pointer that shares ownership with existing
  * shared pointers to this object. It will automatically cast it to the type of
  * the passed pointer.
- * @param obj A pointer to an object derived from IdentifiableObject.
+ * @param obj A pointer to an object derived from TiObject.
  * @param ownIfUnowned Specify whether to own this object if it's not already
  *                     owned. If true and no shared pointer owns this object,
  *                     the function will create a new shared pointer to own
@@ -383,19 +383,19 @@ template <class T> SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
   if (obj == 0) {
     return SharedPtr<T>();
   }
-  SharedPtr<IdentifiableObject> sp = obj->getSharedThis();
+  SharedPtr<TiObject> sp = obj->getSharedThis();
   if (sp == 0) {
     if (ownIfUnowned) return SharedPtr<T>(obj);
     else return SharedPtr<T>();
   }
-  // Since T is derived from IdentifiableObject, casting will result in the same
+  // Since T is derived from TiObject, casting will result in the same
   // pointer value, so a reinterpret cast should be enough; creating a new
   // temporary shared pointer is not necessary.
   return std::move(*(reinterpret_cast<SharedPtr<T>*>(&sp)));
 }
 
 
-typedef SharedPtr<IdentifiableObject> SharedIoPtr;
+typedef SharedPtr<TiObject> TioSharedPtr;
 
 } } // namespace
 

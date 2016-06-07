@@ -31,7 +31,7 @@ void Engine::initialize(Data::GrammarRepository *grammarRepo, Data::SharedReposi
 }
 
 
-SharedPtr<IdentifiableObject> Engine::processString(Char const *str, Char const *name)
+SharedPtr<TiObject> Engine::processString(Char const *str, Char const *name)
 {
   if (str == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("str"), STR("Cannot be null."), str);
@@ -52,7 +52,7 @@ SharedPtr<IdentifiableObject> Engine::processString(Char const *str, Char const 
 }
 
 
-SharedPtr<IdentifiableObject> Engine::processFile(Char const *filename)
+SharedPtr<TiObject> Engine::processFile(Char const *filename)
 {
   // Open the file.
   std::ifstream fin(filename);

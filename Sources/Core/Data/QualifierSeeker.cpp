@@ -15,7 +15,7 @@
 namespace Core { namespace Data
 {
 
-RefOp QualifierSeeker::set(Char const *qualifier, IdentifiableObject *target, SeekerSetLambda handler,
+RefOp QualifierSeeker::set(Char const *qualifier, TiObject *target, SeekerSetLambda handler,
                            Int *index) const
 {
   if (qualifier == 0) {
@@ -34,7 +34,7 @@ RefOp QualifierSeeker::set(Char const *qualifier, IdentifiableObject *target, Se
   Reference const *ref = &this->parser.parseQualifierSegmentToTemp(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     ref->setValue(this->dataProvider, target,
-      [=,&result,&index](Int i, IdentifiableObject *&obj)->RefOp {
+      [=,&result,&index](Int i, TiObject *&obj)->RefOp {
         if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
           return RefOp::MOVE;
         }
@@ -46,7 +46,7 @@ RefOp QualifierSeeker::set(Char const *qualifier, IdentifiableObject *target, Se
   } else {
     ++qualifier;
     ref->forEachValue(this->dataProvider, target,
-      [=,&result](Int i, IdentifiableObject *innerTarget)->RefOp {
+      [=,&result](Int i, TiObject *innerTarget)->RefOp {
         // Prepare innerSrc.
         if (innerTarget->isA<PlainPairedPtr>()) {
           innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
@@ -66,7 +66,7 @@ RefOp QualifierSeeker::set(Char const *qualifier, IdentifiableObject *target, Se
 }
 
 
-RefOp QualifierSeeker::remove(Char const *qualifier, IdentifiableObject *target, SeekerRemoveLambda handler,
+RefOp QualifierSeeker::remove(Char const *qualifier, TiObject *target, SeekerRemoveLambda handler,
                               Int *index) const
 {
   if (qualifier == 0) {
@@ -85,7 +85,7 @@ RefOp QualifierSeeker::remove(Char const *qualifier, IdentifiableObject *target,
   Reference const *ref = &this->parser.parseQualifierSegmentToTemp(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     ref->removeValue(this->dataProvider, target,
-      [=,&result,&index](Int i, IdentifiableObject *obj)->RefOp {
+      [=,&result,&index](Int i, TiObject *obj)->RefOp {
         if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
          return RefOp::MOVE;
         }
@@ -97,7 +97,7 @@ RefOp QualifierSeeker::remove(Char const *qualifier, IdentifiableObject *target,
   } else {
     ++qualifier;
     ref->forEachValue(this->dataProvider, target,
-      [=,&result](Int i, IdentifiableObject *innerTarget)->RefOp {
+      [=,&result](Int i, TiObject *innerTarget)->RefOp {
         // Prepare innerSrc.
         if (innerTarget->isA<PlainPairedPtr>()) {
           innerTarget = static_cast<PlainPairedPtr*>(innerTarget)->object;
@@ -117,8 +117,8 @@ RefOp QualifierSeeker::remove(Char const *qualifier, IdentifiableObject *target,
 }
 
 
-RefOp QualifierSeeker::forEach(Char const *qualifier, IdentifiableObject *source, SeekerForeachLambda handler,
-                               TypeInfo const *parentTypeInfo, IdentifiableObject *parent, Int *index) const
+RefOp QualifierSeeker::forEach(Char const *qualifier, TiObject *source, SeekerForeachLambda handler,
+                               TypeInfo const *parentTypeInfo, TiObject *parent, Int *index) const
 {
   if (qualifier == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Cannot be null."));
@@ -141,7 +141,7 @@ RefOp QualifierSeeker::forEach(Char const *qualifier, IdentifiableObject *source
   Reference const *ref = &this->parser.parseQualifierSegmentToTemp(qualifier);
   if (*qualifier != CHR('.') && *qualifier != CHR(':')) {
     ref->forEachValue(this->dataProvider, source,
-      [=,&result,&index](Int i, IdentifiableObject *obj)->RefOp {
+      [=,&result,&index](Int i, TiObject *obj)->RefOp {
         if (ref->getResultValidator() != 0 && ref->getResultValidator()->validate(obj) == false) {
           return RefOp::MOVE;
         }
@@ -153,9 +153,9 @@ RefOp QualifierSeeker::forEach(Char const *qualifier, IdentifiableObject *source
   } else {
     ++qualifier;
     ref->forEachValue(this->dataProvider, source,
-      [=,&result](Int i, IdentifiableObject *innerSrc)->RefOp {
+      [=,&result](Int i, TiObject *innerSrc)->RefOp {
         // Prepare innerSrc and innerParent
-        IdentifiableObject *innerParent = parent;
+        TiObject *innerParent = parent;
         if (innerSrc->isA<SharedPairedPtr>()) {
           SharedPairedPtr *pairedPtr = static_cast<SharedPairedPtr*>(innerSrc);
           if (ref->getResultValidator() != 0 &&

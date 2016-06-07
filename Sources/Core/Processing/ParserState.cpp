@@ -225,7 +225,7 @@ Int ParserState::getTopprodTermLevelCount() const
 void ParserState::pushTermLevel(Data::Term *term)
 {
   this->termStack.push_back(ParserTermLevel());
-  this->dataStack.pushLevel(SharedPtr<IdentifiableObject>());
+  this->dataStack.pushLevel(SharedPtr<TiObject>());
   this->topTermLevelCache = &this->refTermLevel(-1);
 
   // If we don't have any term to set, then we also won't have any related info to cache.
@@ -426,7 +426,7 @@ Data::Integer* ParserState::getTokenTermId(Int levelOffset) const
 }
 
 
-IdentifiableObject* ParserState::getTokenTermText(Int levelOffset) const
+TiObject* ParserState::getTokenTermText(Int levelOffset) const
 {
   const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();

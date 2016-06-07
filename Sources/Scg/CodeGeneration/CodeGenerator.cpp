@@ -98,9 +98,9 @@ void CodeGenerator::initializeIds()
 
 //----------------------------------------------------------------------------
 
-AstNodeSharedArray CodeGenerator::generateStatement(SharedPtr<IdentifiableObject> const &item)
+AstNodeSharedArray CodeGenerator::generateStatement(SharedPtr<TiObject> const &item)
 {
-  auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
+  auto metadata = item.tii_cast_get<Ast::MetadataHolder>();
 
   if (metadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid object type in def command.");
@@ -129,7 +129,7 @@ AstNodeSharedArray CodeGenerator::generateStatement(SharedPtr<IdentifiableObject
 
 //----------------------------------------------------------------------------
 
-SharedPtr<Block> CodeGenerator::generateSet(const SharedPtr<PrtList> &list)
+SharedPtr<Block> CodeGenerator::generateSet(const SharedPtr<Ast::List> &list)
 {
   AstNodeSharedArray blockExprs;
 
@@ -146,7 +146,7 @@ SharedPtr<Block> CodeGenerator::generateSet(const SharedPtr<PrtList> &list)
 
 //----------------------------------------------------------------------------
 
-SharedPtr<Block> CodeGenerator::generateInnerSet(SharedPtr<IdentifiableObject> const &item)
+SharedPtr<Block> CodeGenerator::generateInnerSet(SharedPtr<TiObject> const &item)
 {
   static SharedPtr<Reference> setReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Expression.Exp)."
@@ -154,7 +154,7 @@ SharedPtr<Block> CodeGenerator::generateInnerSet(SharedPtr<IdentifiableObject> c
             "0~where(prodId=Main.StatementList)"),
         ReferenceUsageCriteria::MULTI_DATA);
   static ReferenceSeeker seeker;
-  IdentifiableObject *set = seeker.tryGet(setReference.get(), item.get());
+  TiObject *set = seeker.tryGet(setReference.get(), item.get());
 
   if (set == 0) {
     AstNodeSharedArray blockExprs;
@@ -166,7 +166,7 @@ SharedPtr<Block> CodeGenerator::generateInnerSet(SharedPtr<IdentifiableObject> c
     // Creates the block representing the inner set and sets its line and
     // column number.
     auto block = std::make_shared<Block>(blockExprs);
-    auto metadata = item.ii_cast_get<ParsingMetadataHolder>();
+    auto metadata = item.tii_cast_get<Ast::MetadataHolder>();
 
     if (metadata != nullptr) {
       block->setSourceLocation(metadata->getSourceLocation());
@@ -174,13 +174,13 @@ SharedPtr<Block> CodeGenerator::generateInnerSet(SharedPtr<IdentifiableObject> c
 
     return block;
   } else {
-    return generateSet(s_cast<PrtList>(getSharedPtr(set)));
+    return generateSet(s_cast<Ast::List>(getSharedPtr(set)));
   }
 }
 
 //----------------------------------------------------------------------------
 
-AstNodeSharedArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> const &item)
+AstNodeSharedArray CodeGenerator::generateDefine(SharedPtr<TiObject> const &item)
 {
   // Def -- [LIST]:
   //  Expression.Exp -- [LIST]:
@@ -195,7 +195,7 @@ AstNodeSharedArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> c
 
   static ReferenceSeeker seeker;
 
-  ParsingMetadataHolder *itemMetadata = item->getInterface<ParsingMetadataHolder>();
+  Ast::MetadataHolder *itemMetadata = item->getInterface<Ast::MetadataHolder>();
 
   if (itemMetadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid 'def' command data.");
@@ -208,7 +208,7 @@ AstNodeSharedArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> c
             "0~where(prodId=Subject.Subject1)."
             "0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto nameToken = io_cast<PrtToken>(seeker.tryGet(nameReference.get(), item.get()));
+  auto nameToken = tio_cast<Ast::Token>(seeker.tryGet(nameReference.get(), item.get()));
 
   if (nameToken == nullptr || nameToken->getId() != identifierTokenId) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -226,7 +226,7 @@ AstNodeSharedArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> c
             "0"), ReferenceUsageCriteria::MULTI_DATA);
   auto defOrAssign = seeker.tryGet(defOrAssignReference.get(), item.get());
   auto defOrAssignMetadata = defOrAssign != nullptr ?
-                             defOrAssign->getInterface<ParsingMetadataHolder>() :
+                             defOrAssign->getInterface<Ast::MetadataHolder>() :
                              nullptr;
 
   if (defOrAssignMetadata == nullptr) {
@@ -255,7 +255,7 @@ AstNodeSharedArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> c
             "0." //~where(prodId=Expression.LowerLinkExp)."
             "2"), ReferenceUsageCriteria::MULTI_DATA);
   auto def = seeker.tryGet(defReference.get(), item.get());
-  ParsingMetadataHolder *defMetadata = def == 0 ? 0 : def->getInterface<ParsingMetadataHolder>();
+  Ast::MetadataHolder *defMetadata = def == 0 ? 0 : def->getInterface<Ast::MetadataHolder>();
 
   if (defMetadata == nullptr) {
     // TODO: We need to choose terms for the parts of a define command, e.g.
@@ -271,8 +271,8 @@ AstNodeSharedArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> c
     // Defining a variable
     return generateDefineVariable(name, getSharedPtr(def), isAssignment);
   else if (defMetadata->getProdId() == subjectId) {
-    auto routeData = static_cast<PrtRoute*>(def)->getData();
-    auto routeMetadata = routeData->getInterface<ParsingMetadataHolder>();
+    auto routeData = static_cast<Ast::Route*>(def)->getData();
+    auto routeMetadata = routeData->getInterface<Ast::MetadataHolder>();
 
     if (routeMetadata->getProdId() == parameterId ||
         routeMetadata->getProdId() == literalId) {
@@ -303,7 +303,7 @@ AstNodeSharedArray CodeGenerator::generateDefine(SharedPtr<IdentifiableObject> c
 //----------------------------------------------------------------------------
 
 AstNodeSharedArray CodeGenerator::generateDefineVariable(Char const *name,
-    SharedPtr<IdentifiableObject> const &expr, bool isAssignment)
+    SharedPtr<TiObject> const &expr, bool isAssignment)
 {
   if (isAssignment) {
     auto value = generateExpression(expr);
@@ -311,7 +311,7 @@ AstNodeSharedArray CodeGenerator::generateDefineVariable(Char const *name,
     auto assign = std::make_shared<AssignmentOperator>(
       std::make_shared<Content>(std::make_shared<IdentifierReference>(name)), value);
 
-    auto exprMetadata = expr->getInterface<ParsingMetadataHolder>();
+    auto exprMetadata = expr->getInterface<Ast::MetadataHolder>();
 
     if (exprMetadata != nullptr) {
       defVar->setSourceLocation(exprMetadata->getSourceLocation());
@@ -324,7 +324,7 @@ AstNodeSharedArray CodeGenerator::generateDefineVariable(Char const *name,
     auto type = parseVariableType(expr);
     // Creates the DefineVariable instruction and sets its line and column numbers.
     auto defVar = std::make_shared<DefineVariable>(type, name);
-    auto exprMetadata = expr->getInterface<ParsingMetadataHolder>();
+    auto exprMetadata = expr->getInterface<Ast::MetadataHolder>();
 
     if (exprMetadata != 0) {
       defVar->setSourceLocation(exprMetadata->getSourceLocation());
@@ -337,18 +337,18 @@ AstNodeSharedArray CodeGenerator::generateDefineVariable(Char const *name,
 //----------------------------------------------------------------------------
 
 SharedPtr<DefineFunction> CodeGenerator::generateDefineFunction(Char const *name,
-    const SharedPtr<IdentifiableObject> &item)
+    const SharedPtr<TiObject> &item)
 {
-  return FunctionAstBlock(this, item.s_cast<PrtList>()).toDefineFunction(name);
+  return FunctionAstBlock(this, item.s_cast<Ast::List>()).toDefineFunction(name);
 }
 
 //----------------------------------------------------------------------------
 
 SharedPtr<DefineStruct> CodeGenerator::generateDefineStructure(Char const *name,
-    SharedPtr<IdentifiableObject> const &item)
+    SharedPtr<TiObject> const &item)
 {
   static ReferenceSeeker seeker;
-  auto itemMetadata = item->getInterface<ParsingMetadataHolder>();
+  auto itemMetadata = item->getInterface<Ast::MetadataHolder>();
 
   if (itemMetadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid struct definition data.");
@@ -357,7 +357,7 @@ SharedPtr<DefineStruct> CodeGenerator::generateDefineStructure(Char const *name,
   // Generate function body.
   static SharedPtr<Reference> structBodyReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Main.StatementList)"), ReferenceUsageCriteria::MULTI_DATA);
-  auto bodyStmtList = getSharedPtr(seeker.tryGet(structBodyReference.get(), item.get())).io_cast<PrtList>();
+  auto bodyStmtList = getSharedPtr(seeker.tryGet(structBodyReference.get(), item.get())).tio_cast<Ast::List>();
 
   if (bodyStmtList == 0) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -371,12 +371,12 @@ SharedPtr<DefineStruct> CodeGenerator::generateDefineStructure(Char const *name,
   // Extract members names and types from structBody and ignore the body.
   VariableDefinitionArray fields;
   for (Int i = 0; i < structBody->getCount(); ++i) {
-    auto child = io_cast<AstNode>(structBody->get(i));
+    auto child = tio_cast<AstNode>(structBody->get(i));
     if (child == 0) {
       throw EXCEPTION(GenericException, STR("Invalid node type found."));
     }
 
-    auto field = io_cast<DefineVariable>(child);
+    auto field = tio_cast<DefineVariable>(child);
 
     if (field == nullptr) {
       this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -399,10 +399,10 @@ SharedPtr<DefineStruct> CodeGenerator::generateDefineStructure(Char const *name,
 
 //----------------------------------------------------------------------------
 
-SharedPtr<Return> CodeGenerator::generateReturn(SharedPtr<IdentifiableObject> const &item)
+SharedPtr<Return> CodeGenerator::generateReturn(SharedPtr<TiObject> const &item)
 {
   static ReferenceSeeker seeker;
-  auto itemMetadata = item.ii_cast_get<ParsingMetadataHolder>();
+  auto itemMetadata = item.tii_cast_get<Ast::MetadataHolder>();
 
   if (itemMetadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid return argument.");
@@ -427,9 +427,9 @@ SharedPtr<Return> CodeGenerator::generateReturn(SharedPtr<IdentifiableObject> co
 
 //----------------------------------------------------------------------------
 
-SharedPtr<AstNode> CodeGenerator::generateExpression(SharedPtr<IdentifiableObject> const &item)
+SharedPtr<AstNode> CodeGenerator::generateExpression(SharedPtr<TiObject> const &item)
 {
-  auto itemMetadata = item->getInterface<ParsingMetadataHolder>();
+  auto itemMetadata = item->getInterface<Ast::MetadataHolder>();
 
   if (itemMetadata == nullptr)
     throw EXCEPTION(SyntaxErrorException, "Invalid expression data structure.");
@@ -439,35 +439,35 @@ SharedPtr<AstNode> CodeGenerator::generateExpression(SharedPtr<IdentifiableObjec
   SharedPtr<AstNode> expr;
 
   if (id == expressionId)
-    expr = generateExpression(item.s_cast_get<PrtList>()->getShared(0));
+    expr = generateExpression(item.s_cast_get<Ast::List>()->getShared(0));
   else if (id == subjectId)
-    expr = generateExpression(item.s_cast_get<PrtRoute>()->getData());
+    expr = generateExpression(item.s_cast_get<Ast::Route>()->getData());
   else if (id == parameterId)
     // Subject.Subject1>Subject.Parameter are variable references.
     expr = generateVariableRef(item);
   else if (id == literalId)
     // Literals are constants
-    expr = generateConst(item.s_cast<PrtToken>());
+    expr = generateConst(item.s_cast<Ast::Token>());
   else if (id == functionalExpId) {
-    /*auto list = item.s_cast<PrtList>();
-    auto id2 = list->get(1)->getInterface<ParsingMetadataHolder>()->getProdId();
+    /*auto list = item.s_cast<Ast::List>();
+    auto id2 = list->get(1)->getInterface<Ast::MetadataHolder>()->getProdId();
     if (id2 == paramPassId)
-    expr = GenerateFunctionCall(item.s_cast<PrtList>());
+    expr = GenerateFunctionCall(item.s_cast<Ast::List>());
     else if (id2 == postfixTildeExpId)
     expr = GenerateVariableRef(item);
     else if (id2 == linkExpId)
     expr = GenerateMemberAccess(item);
     else
     throw EXCEPTION(ArgumentOutOfRangeException, "The given parsing data doesn't evaluate to an expression.");*/
-    expr = FunctionalExpression(this, item.s_cast<PrtList>()).toExpression();
+    expr = FunctionalExpression(this, item.s_cast<Ast::List>()).toExpression();
   } else if (id == listExpId)
-    expr = generateList(item.s_cast<PrtList>());
+    expr = generateList(item.s_cast<Ast::List>());
   else if (id == comparisonExpId || id == assignmentExpId || id == addExpId || id == mulExpId)
-    expr = generateBinaryOperator(item.s_cast<PrtList>());
+    expr = generateBinaryOperator(item.s_cast<Ast::List>());
   else if (id == statementListId)
-    expr = generateSet(item.s_cast<PrtList>());
+    expr = generateSet(item.s_cast<Ast::List>());
   else if (id == unaryExpId)
-    expr = generateUnaryOperator(item.s_cast<PrtList>());
+    expr = generateUnaryOperator(item.s_cast<Ast::List>());
   else
     throw EXCEPTION(ArgumentOutOfRangeException, "The given parsing data doesn't evaluate to an expression.");
 
@@ -483,9 +483,9 @@ SharedPtr<AstNode> CodeGenerator::generateExpression(SharedPtr<IdentifiableObjec
 
 //----------------------------------------------------------------------------
 
-SharedPtr<AstNode> CodeGenerator::generateVariableRef(SharedPtr<IdentifiableObject> const &parsedItem)
+SharedPtr<AstNode> CodeGenerator::generateVariableRef(SharedPtr<TiObject> const &parsedItem)
 {
-  auto parsedItemMetadata = parsedItem->getInterface<ParsingMetadataHolder>();
+  auto parsedItemMetadata = parsedItem->getInterface<Ast::MetadataHolder>();
 
   if (parsedItemMetadata == nullptr) {
     throw EXCEPTION(SyntaxErrorException, "Invalid variable ref data structure.");
@@ -495,19 +495,19 @@ SharedPtr<AstNode> CodeGenerator::generateVariableRef(SharedPtr<IdentifiableObje
 
   //    if (id == functionalExpId)
   //    {
-  //      auto PrtList = parsedItem.s_cast<PrtList>();
-  //      if (PrtList->getElementCount() != 2)
+  //      auto Ast::List = parsedItem.s_cast<Ast::List>();
+  //      if (Ast::List->getElementCount() != 2)
   //        throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
-  //      auto varName = PrtList
-  //          ->getElement(0).s_cast<PrtRoute>()
-  //          ->getData().s_cast<PrtToken>()
+  //      auto varName = Ast::List
+  //          ->getElement(0).s_cast<Ast::Route>()
+  //          ->getData().s_cast<Ast::Token>()
   //          ->getText();
-  //      auto postfix = PrtList->get(1);
-  //      auto postfixId = postfix->getInterface<ParsingMetadataHolder>()->getProdId();
+  //      auto postfix = Ast::List->get(1);
+  //      auto postfixId = postfix->getInterface<Ast::MetadataHolder>()->getProdId();
   //      if (postfixId != postfixTildeExpId)
   //        throw EXCEPTION(SyntaxErrorException, "Expression doesn't evaluate to a variable reference.");
-  //      auto postfixType = postfix.s_cast<PrtList>()
-  //          ->get(0)->getInterface<ParsingMetadataHolder>()->getProdId();
+  //      auto postfixType = postfix.s_cast<Ast::List>()
+  //          ->get(0)->getInterface<Ast::MetadataHolder>()->getProdId();
   //      if (postfixType == pointerTildeId)
   //        return new IdentifierReference(varName);
   //      else if (postfixType == contentTildeId)
@@ -523,7 +523,7 @@ SharedPtr<AstNode> CodeGenerator::generateVariableRef(SharedPtr<IdentifiableObje
   }
   // This shouldn't be needed anymore.
   else if (id == parameterId) {
-    auto varName = this->translateAliasedName(parsedItem.s_cast_get<PrtToken>()->getText().c_str());
+    auto varName = this->translateAliasedName(parsedItem.s_cast_get<Ast::Token>()->getText().c_str());
     return std::make_shared<Content>(std::make_shared<IdentifierReference>(varName));
   } else {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -533,7 +533,7 @@ SharedPtr<AstNode> CodeGenerator::generateVariableRef(SharedPtr<IdentifiableObje
   }
 }
 
-SharedPtr<AstNode> CodeGenerator::generateConst(const SharedPtr<PrtToken> &literal)
+SharedPtr<AstNode> CodeGenerator::generateConst(const SharedPtr<Ast::Token> &literal)
 {
   auto literalId = literal->getId();
   auto literalText = literal->getText();
@@ -572,7 +572,7 @@ SharedPtr<AstNode> CodeGenerator::generateConst(const SharedPtr<PrtToken> &liter
 
 //----------------------------------------------------------------------------
 
-SharedPtr<List> CodeGenerator::generateList(const SharedPtr<PrtList> &listExpr)
+SharedPtr<List> CodeGenerator::generateList(const SharedPtr<Ast::List> &listExpr)
 {
   // Generate an array containing the expressions representing the elements of
   // the list.
@@ -592,7 +592,7 @@ SharedPtr<List> CodeGenerator::generateList(const SharedPtr<PrtList> &listExpr)
 
 //----------------------------------------------------------------------------
 
-SharedPtr<AstNode> CodeGenerator::generateBinaryOperator(const SharedPtr<PrtList> &cmpExpr)
+SharedPtr<AstNode> CodeGenerator::generateBinaryOperator(const SharedPtr<Ast::List> &cmpExpr)
 {
   auto createOperator = [](const std::string &opText, SharedPtr<AstNode> const &lhs, SharedPtr<AstNode> const &rhs) {
     SharedPtr<AstNode> expr;
@@ -634,12 +634,12 @@ SharedPtr<AstNode> CodeGenerator::generateBinaryOperator(const SharedPtr<PrtList
   for (auto i = 0; i < cmpExpr->getCount();) {
     if (i == 0) {
       auto lhs = generateExpression(cmpExpr->getShared(0));
-      auto opText = static_cast<PrtToken*>(cmpExpr->get(1))->getText();
+      auto opText = static_cast<Ast::Token*>(cmpExpr->get(1))->getText();
       auto rhs = generateExpression(cmpExpr->getShared(2));
       expr = createOperator(opText, lhs, rhs);
       i += 3;
     } else {
-      auto opText = static_cast<PrtToken*>(cmpExpr->get(i))->getText();
+      auto opText = static_cast<Ast::Token*>(cmpExpr->get(i))->getText();
       auto rhs = generateExpression(cmpExpr->getShared(i + 1));
       expr = createOperator(opText, expr, rhs);
       i += 2;
@@ -653,9 +653,9 @@ SharedPtr<AstNode> CodeGenerator::generateBinaryOperator(const SharedPtr<PrtList
   return expr;
 }
 
-SharedPtr<AstNode> CodeGenerator::generateUnaryOperator(const SharedPtr<PrtList> &unaryExpr)
+SharedPtr<AstNode> CodeGenerator::generateUnaryOperator(const SharedPtr<Ast::List> &unaryExpr)
 {
-  auto opText = static_cast<PrtToken*>(unaryExpr->get(0))->getText();
+  auto opText = static_cast<Ast::Token*>(unaryExpr->get(0))->getText();
   auto expr = generateExpression(unaryExpr->getShared(1));
 
   if (opText.compare("+") == 0) {
@@ -677,10 +677,10 @@ SharedPtr<AstNode> CodeGenerator::generateUnaryOperator(const SharedPtr<PrtList>
   return expr;
 }
 
-SharedPtr<IfStatement> CodeGenerator::generateIfStatement(SharedPtr<IdentifiableObject> const &command)
+SharedPtr<IfStatement> CodeGenerator::generateIfStatement(SharedPtr<TiObject> const &command)
 {
   static ReferenceSeeker seeker;
-  auto commandMetadata = command.ii_cast_get<ParsingMetadataHolder>();
+  auto commandMetadata = command.tii_cast_get<Ast::MetadataHolder>();
 
   if (commandMetadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid if command data.");
@@ -690,7 +690,7 @@ SharedPtr<IfStatement> CodeGenerator::generateIfStatement(SharedPtr<Identifiable
   static SharedPtr<Reference> expReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
 
-  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<PrtList>();
+  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).tio_cast<Ast::List>();
 
   if (exp == 0) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -724,11 +724,11 @@ SharedPtr<IfStatement> CodeGenerator::generateIfStatement(SharedPtr<Identifiable
 
 //----------------------------------------------------------------------------
 
-SharedPtr<ForStatement> CodeGenerator::generateForStatement(SharedPtr<IdentifiableObject> const &command)
+SharedPtr<ForStatement> CodeGenerator::generateForStatement(SharedPtr<TiObject> const &command)
 {
   static ReferenceSeeker seeker;
 
-  auto commandMetadata = command.ii_cast_get<ParsingMetadataHolder>();
+  auto commandMetadata = command.tii_cast_get<Ast::MetadataHolder>();
 
   if (commandMetadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid for command data.");
@@ -737,7 +737,7 @@ SharedPtr<ForStatement> CodeGenerator::generateForStatement(SharedPtr<Identifiab
   // The condition of the for statement.
   static SharedPtr<Reference> expReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
-  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).io_cast<PrtList>();
+  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).tio_cast<Ast::List>();
 
   if (exp == 0) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -757,7 +757,7 @@ SharedPtr<ForStatement> CodeGenerator::generateForStatement(SharedPtr<Identifiab
     return 0;
   }
 
-  auto initCondLoopAsList = initCondLoop.io_cast_get<List>();
+  auto initCondLoopAsList = initCondLoop.tio_cast_get<List>();
 
   if (initCondLoopAsList->getCount() != 3) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -795,11 +795,11 @@ SharedPtr<ForStatement> CodeGenerator::generateForStatement(SharedPtr<Identifiab
 
 //----------------------------------------------------------------------------
 
-SharedPtr<WhileStatement> CodeGenerator::generateWhileStatement(SharedPtr<IdentifiableObject> const &command)
+SharedPtr<WhileStatement> CodeGenerator::generateWhileStatement(SharedPtr<TiObject> const &command)
 {
   static ReferenceSeeker seeker;
 
-  auto commandMetadata = command.ii_cast_get<ParsingMetadataHolder>();
+  auto commandMetadata = command.tii_cast_get<Ast::MetadataHolder>();
 
   if (commandMetadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid 'while' command data.");
@@ -808,7 +808,7 @@ SharedPtr<WhileStatement> CodeGenerator::generateWhileStatement(SharedPtr<Identi
   // The condition of the while statement.
   static SharedPtr<Reference> condReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
-  auto condAST = getSharedPtr(seeker.tryGet(condReference.get(), command.get())).io_cast<PrtList>();
+  auto condAST = getSharedPtr(seeker.tryGet(condReference.get(), command.get())).tio_cast<Ast::List>();
 
   if (exp == nullptr) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -842,14 +842,14 @@ SharedPtr<WhileStatement> CodeGenerator::generateWhileStatement(SharedPtr<Identi
 
 //----------------------------------------------------------------------------
 
-// TODO: Change the parameter type to PrtRoute to instead.
-Char const* CodeGenerator::parseToken(SharedPtr<IdentifiableObject> const &item)
+// TODO: Change the parameter type to Ast::Route to instead.
+Char const* CodeGenerator::parseToken(SharedPtr<TiObject> const &item)
 {
   static ReferenceSeeker seeker;
   static SharedPtr<Reference> tokenReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto token = io_cast<PrtToken>(seeker.tryGet(tokenReference.get(), item.get()));
+  auto token = tio_cast<Ast::Token>(seeker.tryGet(tokenReference.get(), item.get()));
 
   if (token == nullptr)
     // TODO: Add the index of the non-token to the exception message.
@@ -861,16 +861,16 @@ Char const* CodeGenerator::parseToken(SharedPtr<IdentifiableObject> const &item)
 
 //----------------------------------------------------------------------------
 
-SharedPtr<ValueTypeSpec> CodeGenerator::parseVariableType(Core::Basic::SharedPtr<IdentifiableObject> const &item)
+SharedPtr<ValueTypeSpec> CodeGenerator::parseVariableType(Core::Basic::SharedPtr<TiObject> const &item)
 {
-  auto itemMetadata = item->getInterface<ParsingMetadataHolder>();
+  auto itemMetadata = item->getInterface<Ast::MetadataHolder>();
 
   if (itemMetadata == 0) {
     throw EXCEPTION(InvalidArgumentException, "Invalid variable type.");
   }
 
   if (itemMetadata->getProdId() == parameterId) {
-    auto typeName = this->translateAliasedName(item.s_cast<PrtToken>()->getText().c_str());
+    auto typeName = this->translateAliasedName(item.s_cast<Ast::Token>()->getText().c_str());
     return std::make_shared<ValueTypeSpecByName>(typeName);
   }
 
@@ -884,7 +884,7 @@ SharedPtr<ValueTypeSpec> CodeGenerator::parseVariableType(Core::Basic::SharedPtr
     static SharedPtr<Reference> modifierReference = REF_PARSER->parseQualifier(
           STR("0~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
           ReferenceUsageCriteria::MULTI_DATA);
-    auto funcName = io_cast<PrtToken>(seeker.tryGet(modifierReference.get(), item.get()));
+    auto funcName = tio_cast<Ast::Token>(seeker.tryGet(modifierReference.get(), item.get()));
 
     if (funcName == nullptr) {
       this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -932,7 +932,7 @@ SharedPtr<ValueTypeSpec> CodeGenerator::parseVariableType(Core::Basic::SharedPtr
         return std::make_shared<ValueTypeSpecByName>(STR("__INVALID__"));
       }
 
-      auto arraySizeAst = io_cast<PrtToken>(seeker.tryGet(arraySizeReference.get(), item.get()));
+      auto arraySizeAst = tio_cast<Ast::Token>(seeker.tryGet(arraySizeReference.get(), item.get()));
 
       if (arraySizeAst == nullptr) {
         this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -961,7 +961,7 @@ SharedPtr<ValueTypeSpec> CodeGenerator::parseVariableType(Core::Basic::SharedPtr
 
 //----------------------------------------------------------------------------
 
-VariableDefinition CodeGenerator::parseVariableDefinition(SharedPtr<IdentifiableObject> const &astBlockRoot)
+VariableDefinition CodeGenerator::parseVariableDefinition(SharedPtr<TiObject> const &astBlockRoot)
 {
   // Example of an AST block this function parses
   //
@@ -974,7 +974,7 @@ VariableDefinition CodeGenerator::parseVariableDefinition(SharedPtr<Identifiable
 
   static ReferenceSeeker seeker;
 
-  auto metadata = astBlockRoot.ii_cast_get<ParsingMetadataHolder>();
+  auto metadata = astBlockRoot.tii_cast_get<Ast::MetadataHolder>();
 
   if (metadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid variable definition data.");
@@ -1011,7 +1011,7 @@ VariableDefinition CodeGenerator::parseVariableDefinition(SharedPtr<Identifiable
 
 //----------------------------------------------------------------------------
 
-VariableDefinitionArray CodeGenerator::parseFunctionArguments(SharedPtr<IdentifiableObject> const &astBlockRoot)
+VariableDefinitionArray CodeGenerator::parseFunctionArguments(SharedPtr<TiObject> const &astBlockRoot)
 {
   // Example of an AST block this function parses:
   //
@@ -1030,7 +1030,7 @@ VariableDefinitionArray CodeGenerator::parseFunctionArguments(SharedPtr<Identifi
   //    Subject.Subject1 -- [ROUTE]: 0
   //     Subject.Parameter -- [TOKEN]: IDENTIFIER_TOKEN ("float")
 
-  auto astBlockRootMetadata = astBlockRoot->getInterface<ParsingMetadataHolder>();
+  auto astBlockRootMetadata = astBlockRoot->getInterface<Ast::MetadataHolder>();
 
   if (astBlockRootMetadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid function argument list.");
@@ -1041,18 +1041,18 @@ VariableDefinitionArray CodeGenerator::parseFunctionArguments(SharedPtr<Identifi
   VariableDefinitionArray args;
 
   if (id == expressionId) {
-    return parseFunctionArguments(astBlockRoot.s_cast_get<PrtList>()->getShared(0));
+    return parseFunctionArguments(astBlockRoot.s_cast_get<Ast::List>()->getShared(0));
   }
 
   if (id == subjectId) {
-    auto route = astBlockRoot.s_cast<PrtRoute>();
+    auto route = astBlockRoot.s_cast<Ast::Route>();
 
     if (route->getData() == nullptr)
       return args;
 
     return parseFunctionArguments(route->getData());
   } else if (id == listExpId) {
-    auto list = astBlockRoot.s_cast<PrtList>();
+    auto list = astBlockRoot.s_cast<Ast::List>();
 
     for (int i = 0, e = (int)list->getCount(); i < e; ++i) {
       args.push_back(parseVariableDefinition(list->getShared(i)));

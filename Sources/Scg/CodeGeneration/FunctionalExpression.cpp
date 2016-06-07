@@ -34,7 +34,7 @@ namespace Scg
 using namespace Core::Basic;
 using namespace Core::Data;
 
-FunctionalExpression::FunctionalExpression(CodeGenerator *gen, const SharedPtr<PrtList> &item) : gen(gen)
+FunctionalExpression::FunctionalExpression(CodeGenerator *gen, const SharedPtr<Ast::List> &item) : gen(gen)
 {
   if (item->getProdId() != gen->getFunctionalExpId())
     throw EXCEPTION(InvalidArgumentException,
@@ -52,7 +52,7 @@ SharedPtr<DeclareExtFunction> FunctionalExpression::toDeclareExtFunction(SharedP
 
   auto name = this->gen->parseToken(this->subExprs[0]);
   auto args = ParamPassExp(
-                this->gen, this->subExprs[1].s_cast<PrtRoute>()).parseValueTypes();
+                this->gen, this->subExprs[1].s_cast<Ast::Route>()).parseValueTypes();
 
   // Determine whether the function being linked to has a variable number of
   // arguments or not, e.g. printf.
@@ -69,7 +69,7 @@ SharedPtr<DeclareExtFunction> FunctionalExpression::toDeclareExtFunction(SharedP
   }
 
   auto declFunc = std::make_shared<DeclareExtFunction>(name, retType, args, varArgs);
-  auto metadata = this->subExprs[0]->getInterface<ParsingMetadataHolder>();
+  auto metadata = this->subExprs[0]->getInterface<Ast::MetadataHolder>();
 
   if (metadata != 0) {
     declFunc->setSourceLocation(metadata->getSourceLocation());
@@ -81,7 +81,7 @@ SharedPtr<DeclareExtFunction> FunctionalExpression::toDeclareExtFunction(SharedP
 
 SharedPtr<AstNode> FunctionalExpression::toExpression()
 {
-  auto metadata = this->subExprs[0]->getInterface<ParsingMetadataHolder>();
+  auto metadata = this->subExprs[0]->getInterface<Ast::MetadataHolder>();
 
   if (metadata == nullptr) {
     throw EXCEPTION(SyntaxErrorException, "Invalid expression. Expressions "
@@ -100,17 +100,17 @@ SharedPtr<AstNode> FunctionalExpression::toExpression()
 
   for (auto i = 0; i < this->subExprs.size(); i++) {
     auto thisExprAst = this->subExprs[i];
-    auto thisExprAstMeta = thisExprAst->getInterface<ParsingMetadataHolder>();
+    auto thisExprAstMeta = thisExprAst->getInterface<Ast::MetadataHolder>();
 
     if (i < (this->subExprs.size() - 1)) {
       auto nextExprAst = this->subExprs[i + 1];
-      auto nextExprAstMeta = nextExprAst->getInterface<ParsingMetadataHolder>();
+      auto nextExprAstMeta = nextExprAst->getInterface<Ast::MetadataHolder>();
 
       if (thisExprAstMeta->getProdId() == this->gen->getSubjectId() &&
           nextExprAstMeta->getProdId() == this->gen->getParamPassId() &&
-          nextExprAst.s_cast<PrtRoute>()->getRoute() == ParamPassExp::Parenthesis) {
+          nextExprAst.s_cast<Ast::Route>()->getRoute() == ParamPassExp::Parenthesis) {
         // A token followed by parentheses. This is a function call.
-        ParamPassExp params(this->gen, nextExprAst.s_cast<PrtRoute>());
+        ParamPassExp params(this->gen, nextExprAst.s_cast<Ast::Route>());
         expr = std::make_shared<CallFunction>(this->gen->parseToken(thisExprAst),
                                               std::make_shared<List>(params.parseExpressionList()));
         expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
@@ -130,18 +130,18 @@ SharedPtr<AstNode> FunctionalExpression::toExpression()
 
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     } else if (thisExprAstMeta->getProdId() == this->gen->getParamPassId() &&
-               thisExprAst.s_cast<PrtRoute>()->getRoute() == ParamPassExp::Square) {
+               thisExprAst.s_cast<Ast::Route>()->getRoute() == ParamPassExp::Square) {
       // Square brackets. This is array element access.
-      auto index = parseElementIndex(thisExprAst.s_cast<PrtRoute>());
+      auto index = parseElementIndex(thisExprAst.s_cast<Ast::Route>());
       expr = std::make_shared<ArrayElementReference>(expr, index);
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     } else if (thisExprAstMeta->getProdId() == this->gen->getLinkExpId()) {
       // Dot followed by a token. This is a field access.
-      auto fieldName = parseFieldName(thisExprAst.s_cast<PrtList>());
+      auto fieldName = parseFieldName(thisExprAst.s_cast<Ast::List>());
       expr = std::make_shared<MemberFieldReference>(expr, fieldName);
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     } else if (thisExprAstMeta->getProdId() == this->gen->getPostfixTildeExpId()) {
-      auto child = ii_cast<ParsingMetadataHolder>(thisExprAst.s_cast<PrtList>()->get(0));
+      auto child = tii_cast<Ast::MetadataHolder>(thisExprAst.s_cast<Ast::List>()->get(0));
 
       if (child->getProdId() == this->gen->getContentTildeId()) {
         // ~cnt
@@ -167,11 +167,11 @@ SharedPtr<AstNode> FunctionalExpression::toExpression()
                                                STR("SCG1024"), 1, metadata->getSourceLocation()));
         } else {
           auto nextExprAst = this->subExprs[i + 1];
-          auto nextExprAstMeta = nextExprAst->getInterface<ParsingMetadataHolder>();
+          auto nextExprAstMeta = nextExprAst->getInterface<Ast::MetadataHolder>();
 
           if (nextExprAstMeta->getProdId() == this->gen->getParamPassId() &&
-              nextExprAst.s_cast<PrtRoute>()->getRoute() == ParamPassExp::Square) {
-            ParamPassExp params(this->gen, nextExprAst.s_cast<PrtRoute>());
+              nextExprAst.s_cast<Ast::Route>()->getRoute() == ParamPassExp::Square) {
+            ParamPassExp params(this->gen, nextExprAst.s_cast<Ast::Route>());
             auto type = this->gen->parseVariableType(params.getParam(0));
 
             // A token followed by parentheses. This is a function call.
@@ -209,7 +209,7 @@ SharedPtr<AstNode> FunctionalExpression::toExpression()
 
 
 Char const* FunctionalExpression::parseFieldName(
-  const SharedPtr<PrtList> &astBlockRoot)
+  const SharedPtr<Ast::List> &astBlockRoot)
 {
   if (astBlockRoot->getProdId() != this->gen->getLinkExpId())
     throw EXCEPTION(SystemException,
@@ -229,7 +229,7 @@ Char const* FunctionalExpression::parseFieldName(
 }
 
 
-SharedPtr<AstNode> FunctionalExpression::parseElementIndex(SharedPtr<PrtRoute> const &astBlockRoot)
+SharedPtr<AstNode> FunctionalExpression::parseElementIndex(SharedPtr<Ast::Route> const &astBlockRoot)
 {
   if (astBlockRoot->getProdId() != this->gen->getParamPassId())
     throw EXCEPTION(SystemException,

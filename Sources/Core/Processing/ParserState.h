@@ -40,7 +40,7 @@ class ParserState
    * @brief An enumeration that specifies the repository index of each scope.
    * Each of the scopes will have a fixed index within the context repository.
    */
-  private: enumeration(GrammarScopeIndex, ROOT=0, MODULE=1, PMODULE=2, STACK=3, ARGS=4);
+  private: s_enum(GrammarScopeIndex, ROOT=0, MODULE=1, PMODULE=2, STACK=3, ARGS=4);
 
 
   //============================================================================
@@ -426,7 +426,7 @@ class ParserState
    * @brief Set the parsing data associated with a term level.
    * This is an arbitrary data created and used by the parsing handler.
    */
-  public: void setData(SharedPtr<IdentifiableObject> const &data, Int levelOffset = -1)
+  public: void setData(SharedPtr<TiObject> const &data, Int levelOffset = -1)
   {
     this->dataStack.setLevel(data, levelOffset);
   }
@@ -436,7 +436,7 @@ class ParserState
    * This is an arbitrary data created and used by the parsing handler. This
    * function also sets the scope for this level.
    */
-  public: void setData(Char const *scope, SharedPtr<IdentifiableObject> const &data, Int levelOffset = -1)
+  public: void setData(Char const *scope, SharedPtr<TiObject> const &data, Int levelOffset = -1)
   {
     this->dataStack.setLevel(scope, data, levelOffset);
   }
@@ -445,7 +445,7 @@ class ParserState
    * @brief Get the parsing data associated with a term level.
    * This is an arbitrary data created and used by the parsing handler.
    */
-  public: SharedPtr<IdentifiableObject> const& getData(Int levelOffset = -1) const
+  public: SharedPtr<TiObject> const& getData(Int levelOffset = -1) const
   {
     return this->dataStack.getLevelData(levelOffset);
   }
@@ -467,7 +467,7 @@ class ParserState
 
   public: Data::Integer* getTokenTermId(Int levelOffset = -1) const;
 
-  public: IdentifiableObject* getTokenTermText(Int levelOffset = -1) const;
+  public: TiObject* getTokenTermText(Int levelOffset = -1) const;
 
   public: void getReferencedSymbol(Data::Module *&module, Data::SymbolDefinition *&definition,
                                    Int levelOffset = -1);

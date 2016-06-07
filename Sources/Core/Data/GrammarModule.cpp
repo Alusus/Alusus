@@ -22,24 +22,24 @@ GrammarModule::GrammarModule(const std::initializer_list<Argument<Char const*>> 
 {
   for (auto arg : args) {
     if (sbstr_cast(arg.id) == STR("@parent")) {
-      UPDATE_OWNED_SHAREDPTR(this->parentReference, arg.ioVal.io_cast<Reference>());
+      UPDATE_OWNED_SHAREDPTR(this->parentReference, arg.ioVal.tio_cast<Reference>());
       if (this->parentReference == 0 && arg.ioVal != 0) {
         throw EXCEPTION(GenericException, STR("Provided parent reference is not of type Reference."));
       }
     } else if (sbstr_cast(arg.id) == STR("@start")) {
-      UPDATE_OWNED_SHAREDPTR(this->startRef, arg.ioVal.io_cast<Reference>());
+      UPDATE_OWNED_SHAREDPTR(this->startRef, arg.ioVal.tio_cast<Reference>());
       this->ownership |= GrammarModuleMetaElement::START_REF;
       if (this->startRef == 0 && arg.ioVal != 0) {
         throw EXCEPTION(GenericException, STR("Provided start reference is not of type Reference."));
       }
     } else if (sbstr_cast(arg.id) == STR("@lexer_module")) {
-      UPDATE_OWNED_SHAREDPTR(this->lexerModuleRef, arg.ioVal.io_cast<Reference>());
+      UPDATE_OWNED_SHAREDPTR(this->lexerModuleRef, arg.ioVal.tio_cast<Reference>());
       this->ownership |= GrammarModuleMetaElement::LEXER_MODULE_REF;
       if (this->lexerModuleRef == 0 && arg.ioVal != 0) {
         throw EXCEPTION(GenericException, STR("Provided lexer module reference is not of type Reference."));
       }
     } else if (sbstr_cast(arg.id) == STR("@error_sync_block_pairs")) {
-      UPDATE_OWNED_SHAREDPTR(this->errorSyncBlockPairsRef, arg.ioVal.io_cast<Reference>());
+      UPDATE_OWNED_SHAREDPTR(this->errorSyncBlockPairsRef, arg.ioVal.tio_cast<Reference>());
       this->ownership |= GrammarModuleMetaElement::ERROR_SYNC_BLOCK_PAIRS_REF;
       if (this->errorSyncBlockPairsRef == 0 && arg.ioVal != 0) {
         throw EXCEPTION(GenericException, STR("Provided error sync block pairs reference is not of type Reference."));
@@ -124,15 +124,15 @@ void GrammarModule::onParentMetaChanged(GrammarModule *obj, Word element)
 //==============================================================================
 // Initializable Implementation
 
-void GrammarModule::initialize(IdentifiableObject *owner)
+void GrammarModule::initialize(TiObject *owner)
 {
   if (this->parentReference != 0) {
     Tracer *tracer = owner->getInterface<Tracer>();
-    IdentifiableObject *p = tracer->traceValue(this->parentReference.get());
+    TiObject *p = tracer->traceValue(this->parentReference.get());
     if (p == 0) {
       throw EXCEPTION(GenericException, STR("Parent reference points to missing definition."));
     }
-    GrammarModule *pm = io_cast<GrammarModule>(p);
+    GrammarModule *pm = tio_cast<GrammarModule>(p);
     if (pm == 0) {
       throw EXCEPTION(GenericException, STR("Parent reference points to an object of an invalid type."));
     }

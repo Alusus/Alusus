@@ -20,7 +20,7 @@ namespace Core { namespace Data
  * @brief An identifiable object that holds an integer number.
  * @ingroup data
  *
- * This IdentifiableObject derived class is used to hold integer data used in
+ * This TiObject derived class is used to hold integer data used in
  * the grammar. This is simply a wrappar around Int that provides runtime type
  * info, which is needed for grammar data.
  */

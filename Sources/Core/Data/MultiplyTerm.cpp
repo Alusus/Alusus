@@ -80,16 +80,16 @@ MultiplyTerm::MultiplyTerm(const std::initializer_list<Argument<TermElement>> &a
         this->flags = arg.intVal;
         break;
       case TermElement::PRIORITY:
-        UPDATE_OWNED_SHAREDPTR(this->priority, arg.ioVal.io_cast<Node>());
+        UPDATE_OWNED_SHAREDPTR(this->priority, arg.ioVal.tio_cast<Node>());
         break;
       case TermElement::MIN:
-        UPDATE_OWNED_SHAREDPTR(this->minOccurances, arg.ioVal.io_cast<Node>());
+        UPDATE_OWNED_SHAREDPTR(this->minOccurances, arg.ioVal.tio_cast<Node>());
         break;
       case TermElement::MAX:
-        UPDATE_OWNED_SHAREDPTR(this->maxOccurances, arg.ioVal.io_cast<Node>());
+        UPDATE_OWNED_SHAREDPTR(this->maxOccurances, arg.ioVal.tio_cast<Node>());
         break;
       case TermElement::TERM:
-        UPDATE_OWNED_SHAREDPTR(this->term, arg.ioVal.io_cast<Term>());
+        UPDATE_OWNED_SHAREDPTR(this->term, arg.ioVal.tio_cast<Term>());
         if (this->term == 0 && arg.ioVal != 0) {
           throw EXCEPTION(InvalidArgumentException, STR("term"),
                           STR("Term value must be of type Term."),

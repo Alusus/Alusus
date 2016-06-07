@@ -99,7 +99,7 @@ std::string getModuleDirectory();
  * be appended at the end of the dest list. The function will handle plain
  * containers as well.
  */
-Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processing::ParserState *state);
+Bool mergeContainers(TiObject *dest, TiObject *src, Processing::ParserState *state);
 
 /**
  * @brief Merge the given object into the provided definition manager.
@@ -113,7 +113,7 @@ Bool mergeContainers(IdentifiableObject *dest, IdentifiableObject *src, Processi
  * Container interface, the destination will be overwritten after a build msg
  * is created.
  */
-void mergeDefinition(Char const *qualifier, IdentifiableObject *obj, Processing::ParserState *state);
+void mergeDefinition(Char const *qualifier, TiObject *obj, Processing::ParserState *state);
 
 } } // namespace
 

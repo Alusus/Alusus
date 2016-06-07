@@ -27,13 +27,13 @@ template <class TID> struct Argument
   Int intVal;
   Bool boolVal;
   Char const *strVal;
-  SharedPtr<IdentifiableObject> ioVal;
+  SharedPtr<TiObject> ioVal;
 
   Argument(TID i, Int v) : id(i), intVal(v) {}
   Argument(TID i, Word v) : id(i), intVal(reinterpret_cast<Int>(v)) {}
   Argument(TID i, Bool v) : id(i), boolVal(v) {}
   Argument(TID i, Char const *v) : id(i), strVal(v) {}
-  Argument(TID i, SharedPtr<IdentifiableObject> const &v) : id(i), ioVal(v) {}
+  Argument(TID i, SharedPtr<TiObject> const &v) : id(i), ioVal(v) {}
 };
 
 

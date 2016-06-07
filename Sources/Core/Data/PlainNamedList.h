@@ -102,7 +102,7 @@ class PlainNamedList : public Node,
 
   private: static Word getRecordSize(Word maxStrSize)
   {
-    return maxStrSize * sizeof(Char) + sizeof(IdentifiableObject*);
+    return maxStrSize * sizeof(Char) + sizeof(TiObject*);
   }
 
   /// @}
@@ -119,7 +119,7 @@ class PlainNamedList : public Node,
   /// @{
 
   /// Change the element at the specified index.
-  public: virtual void set(Int index, IdentifiableObject *val);
+  public: virtual void set(Int index, TiObject *val);
 
   /// Remove the element at the specified index.
   public: virtual void remove(Int index);
@@ -131,24 +131,24 @@ class PlainNamedList : public Node,
   }
 
   /// Get the object at the specified index.
-  public: virtual IdentifiableObject* get(Int index) const;
+  public: virtual TiObject* get(Int index) const;
 
   /// Add a new object to the list.
-  public: virtual Int add(IdentifiableObject *val)
+  public: virtual Int add(TiObject *val)
   {
     return this->add(0, val);
   }
 
-  public: virtual Int add(Char const *name, IdentifiableObject *val);
+  public: virtual Int add(Char const *name, TiObject *val);
 
-  public: virtual void insert(Int index, IdentifiableObject *val)
+  public: virtual void insert(Int index, TiObject *val)
   {
     this->insert(index, 0, val);
   }
 
-  public: virtual void insert(Int index, Char const *name, IdentifiableObject *val);
+  public: virtual void insert(Int index, Char const *name, TiObject *val);
 
-  public: virtual void set(Int index, Char const *name, IdentifiableObject *val);
+  public: virtual void set(Int index, Char const *name, TiObject *val);
 
   public: virtual const SbStr& getName(Int index) const;
 

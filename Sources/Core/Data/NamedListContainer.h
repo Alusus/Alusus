@@ -31,15 +31,15 @@ class NamedListContainer : public virtual ListContainer
 
   public: using ListContainer::add;
 
-  public: virtual Int add(Char const *name, IdentifiableObject *val) = 0;
+  public: virtual Int add(Char const *name, TiObject *val) = 0;
 
   public: using ListContainer::insert;
 
-  public: virtual void insert(Int index, Char const *name, IdentifiableObject *val) = 0;
+  public: virtual void insert(Int index, Char const *name, TiObject *val) = 0;
 
   public: using Container::set;
 
-  public: virtual void set(Int index, Char const *name, IdentifiableObject *val) = 0;
+  public: virtual void set(Int index, Char const *name, TiObject *val) = 0;
 
   public: virtual const SbStr& getName(Int index) const = 0;
 
