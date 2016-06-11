@@ -245,7 +245,22 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
       // Set the given data as the level's data.
       // If this term has FORCE_LIST flag the data should never be null in the first place.
       ASSERT(!this->isListObjEnforced(state, levelIndex));
-      state->setData(data, levelIndex);
+      if (this->isListItemEnforced(state, levelIndex) && state->refTermLevel(levelIndex).getPosId() > 1) {
+        // We have an enforced-item list, and this is not the first item in the list, so we'll create
+        // a list whose first item is null.
+        SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
+        ListContainer *newContainer = list.tii_cast_get<ListContainer>();
+        Ast::MetadataHolder *metadata = data.tii_cast_get<Ast::MetadataHolder>();
+        Ast::MetadataHolder *newMetadata = list.tii_cast_get<Ast::MetadataHolder>();
+        if (newMetadata != 0 && metadata != 0) {
+          newMetadata->setSourceLocation(metadata->getSourceLocation());
+        }
+        newContainer->add(currentData);
+        newContainer->add(data.get());
+        state->setData(list, levelIndex);
+      } else {
+        state->setData(data, levelIndex);
+      }
     } else {
       // There is three possible situations at this point: Either the list was enforced, or
       // a child data was set into this level, or this level was visited more than once causing

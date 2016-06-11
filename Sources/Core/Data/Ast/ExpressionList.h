@@ -86,7 +86,7 @@ class ExpressionList : public List
     return newList;
   }
 
-  public: virtual void print(OutStream &stream, Int indents=0)
+  public: virtual void print(OutStream &stream, Int indents=0) const
   {
     stream << STR("ExpressionList") ;
     Word id = this->getProdId();

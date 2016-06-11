@@ -31,12 +31,13 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
   // Member Variables
 
   private: Int startIndex;
+  private: Bool rootOnly;
 
 
   //============================================================================
   // Constructor
 
-  public: ListParsingHandler(Int sIndex = 0) : startIndex(sIndex)
+  public: ListParsingHandler(Int sIndex = -1, Bool ro = true) : startIndex(sIndex), rootOnly(ro)
   {
   }
 
@@ -46,7 +47,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
 
   protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
   {
-    if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
+    if (this->isEnabled(state, levelIndex) && this->isListTerm(state, levelIndex) && this->startIndex != -1) {
       TiObject *currentData = state->getData(levelIndex).get();
       if (currentData != 0) {
         // There is three possible situations at this point: Either the list was enforced, or
@@ -75,6 +76,16 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
           state->setData(list, levelIndex);
         }
         return;
+      } else if (this->isListItemEnforced(state, levelIndex) && state->refTermLevel(levelIndex).getPosId() > 1) {
+        TioSharedPtr list = this->createListNode(state, levelIndex);
+        auto metadata = data.tii_cast_get<Data::Ast::MetadataHolder>();
+        if (metadata != 0) {
+          list.s_cast_get<TYPE>()->setSourceLocation(metadata->getSourceLocation());
+        }
+        auto newContainer = list.tii_cast_get<Data::Container>();
+        newContainer->set(this->startIndex + 0, currentData);
+        newContainer->set(this->startIndex + 1, data.get());
+        state->setData(list, levelIndex);
       }
     }
     GenericParsingHandler::addData(data, state, levelIndex);
@@ -82,11 +93,16 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
 
   protected: virtual SharedPtr<TiObject> createListNode(ParserState *state, Int levelIndex)
   {
-    if (state->isAProdRoot(levelIndex)) {
+    if (this->isEnabled(state, levelIndex)) {
       return std::make_shared<TYPE>();
     } else {
       return GenericParsingHandler::createListNode(state, levelIndex);
     }
+  }
+
+  protected: Bool isEnabled(ParserState *state, Int levelIndex)
+  {
+    return state->isAProdRoot(levelIndex) || !this->rootOnly;
   }
 
 }; // class

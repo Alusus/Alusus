@@ -1,4 +1,5 @@
 func("test");
+i = b :: 5;
 strVar := "Hello World";
 intVar += 5;
 --intVar;

@@ -56,7 +56,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
           // existing infix tree.
           this->prepareToModifyInfixTree(state, levelIndex);
           auto leaf = this->findRightLeaf(state->getData(levelIndex).s_cast_get<TYPE>());
-          leaf->setRight(this->createInfixObj(leaf->getRight(), data));
+          leaf->setSecond(this->createInfixObj(leaf->getSecond(), data));
         } else {
           state->setData(this->createInfixObj(currentData, data), levelIndex);
         }
@@ -77,7 +77,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     TYPE *leaf = 0;
     while (obj != 0 && obj->getProdId() == UNKNOWN_ID) {
       leaf = obj;
-      obj = obj->getRight().template tio_cast_get<TYPE>();
+      obj = obj->getSecond().template tio_cast_get<TYPE>();
     }
     return leaf;
   }
@@ -90,16 +90,16 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
       throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid object type received."),
                       data->getMyTypeInfo()->getUniqueName());
     }
-    auto token = list->get(0).template tio_cast_get<Data::Ast::Token>();
+    auto token = tio_cast<Data::Ast::Token>(list->get(0));
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("data[0]"), STR("Invalid op token object received."),
                       list->get(0)->getMyTypeInfo()->getUniqueName());
     }
 
     auto obj = std::make_shared<TYPE>();
-    obj->setLeft(currentData);
+    obj->setFirst(currentData);
     obj->setType(token->getText().c_str());
-    obj->setRight(list->get(1));
+    obj->setSecond(getSharedPtr(list->get(1)));
 
     auto metadata = currentData.tii_cast_get<Data::Ast::MetadataHolder>();
     if (metadata != 0) {
@@ -124,8 +124,8 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     if (infixObj == 0 || infixObj->getProdId() != UNKNOWN_ID) return obj;
 
     SharedPtr<TYPE> newObj = std::make_shared<TYPE>();
-    newObj->setLeft(this->cloneInfixTree(infixObj->getLeft()));
-    newObj->setRight(this->cloneInfixTree(infixObj->getRight()));
+    newObj->setFirst(this->cloneInfixTree(infixObj->getFirst()));
+    newObj->setSecond(this->cloneInfixTree(infixObj->getSecond()));
     newObj->setType(infixObj->getType());
     newObj->setSourceLocation(infixObj->getSourceLocation());
     return newObj;

@@ -705,7 +705,7 @@ void GrammarPlant::createProductionDefinitions()
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {
        {STR("stmt"), REF_PARSER->parseQualifier(STR("module:Statement"))}})},
-    {SymbolDefElement::HANDLER, this->parsingHandler},
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::ListParsingHandler<Ast::StatementList>>()},
     {SymbolDefElement::FLAGS, ParsingFlags::ENFORCE_PROD_OBJ}
   }).get());
 
@@ -900,7 +900,6 @@ void GrammarPlant::createProductionDefinitions()
            {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
-              {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
               {TermElement::TERM, SharedList::create({
                  TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                    REF_PARSER->parseQualifier(STR("root:TokenData.lowestLinkOpList"))),
@@ -911,7 +910,7 @@ void GrammarPlant::createProductionDefinitions()
        })}
     })},
    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
-   {SymbolDefElement::HANDLER, this->parsingHandler}
+   {SymbolDefElement::HANDLER, std::make_shared<Handlers::InfixParsingHandler<Ast::LinkOperator>>(false)}
   }).get());
 
   // ConditionalExp : @single @prefix(heap.Modifiers.ConditionalModifierCmd)
@@ -941,44 +940,59 @@ void GrammarPlant::createProductionDefinitions()
   }).get());
 
   // ListExp : @single @prefix(heap.Modifiers.ListModifierCmd)
-  //     prod (enable:integer=endless) as
-  //     (@priority(in,0) lexer.Constant(",")*(0,enable)) + LowerLinkExp +
-  //     (@priority(in,0) (lexer.Constant(",") + LowerLinkExp*(0,1))*(0,enable));
+  //   prod (enable:integer=1) as
+  //     @filter(enable) LowerLinkExp ||
+  //                     (LowerLinkExp || lexer.Constant(",") + LowerLinkExp*(0,1)) +
+  //                       (@priority(in,0) (lexer.Constant(",") + LowerLinkExp*(0,1))*(0,endless));
   this->repository.set(STR("root:Expression.ListExp"), SymbolDefinition::create({
-    {SymbolDefElement::TERM, ConcatTerm::create({
+    {SymbolDefElement::TERM, AlternateTerm::create({
+       {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:enable"))},
        {TermElement::TERM, SharedList::create({
-          MultiplyTerm::create({
-            {TermElement::PRIORITY, std::make_shared<Integer>(0)},
-            {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
-            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
-            {TermElement::TERM, TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OMIT,
-                                                  Integer::create(this->constTokenId),
-                                                  SharedMap::create(false, {{STR(","), 0}, {STR("،"), 0}}))}
-          }),
-          ReferenceTerm::create(STR("module:LowerLinkExp")),
-          MultiplyTerm::create({
-            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
-            {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
-            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
-            {TermElement::TERM, ConcatTerm::create({
-               {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
-               {TermElement::TERM, SharedList::create({
-                  TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OMIT,
-                                    Integer::create(this->constTokenId),
-                                    SharedMap::create(false, {{STR(","), 0}, {STR("،"), 0}})),
-                  MultiplyTerm::create({
-                    {TermElement::PRIORITY, std::make_shared<Integer>(1)},
-                    {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
-                    {TermElement::MAX, std::make_shared<Integer>(1)},
-                    {TermElement::TERM, ReferenceTerm::create(STR("module:LowerLinkExp"))}
-                  })
-                })}
+         ReferenceTerm::create(STR("module:LowerLinkExp")),
+         ConcatTerm::create({
+            {TermElement::TERM, SharedList::create({
+               AlternateTerm::create({
+                 {TermElement::TERM, SharedList::create({
+                    ReferenceTerm::create(STR("module:LowerLinkExp")),
+                    ConcatTerm::create({
+                      {TermElement::FLAGS, ParsingFlags::ENFORCE_LIST_ITEM},
+                      {TermElement::TERM, SharedList::create({
+                         TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OMIT,
+                                           Integer::create(this->constTokenId),
+                                           SharedMap::create(false, {{STR(","), 0}, {STR("،"), 0}})),
+                         MultiplyTerm::create({
+                           {TermElement::PRIORITY, std::make_shared<Integer>(1)},
+                           {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
+                           {TermElement::MAX, std::make_shared<Integer>(1)},
+                           {TermElement::TERM, ReferenceTerm::create(STR("module:LowerLinkExp"))}
+                         })
+                       })}
+                    })
+                  })}
+               }),
+               MultiplyTerm::create({
+                 {TermElement::PRIORITY, std::make_shared<Integer>(1)},
+                 {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
+                 {TermElement::TERM, ConcatTerm::create({
+                    {TermElement::TERM, SharedList::create({
+                       TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OMIT,
+                                         Integer::create(this->constTokenId),
+                                         SharedMap::create(false, {{STR(","), 0}, {STR("،"), 0}})),
+                       MultiplyTerm::create({
+                         {TermElement::PRIORITY, std::make_shared<Integer>(1)},
+                         {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
+                         {TermElement::MAX, std::make_shared<Integer>(1)},
+                         {TermElement::TERM, ReferenceTerm::create(STR("module:LowerLinkExp"))}
+                       })
+                     })}
+                  })}
+               })
              })}
-          })
-        })}
-     })},
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
-    {SymbolDefElement::HANDLER, this->parsingHandler}
+         })
+       })}
+    })},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), Integer::create(1)}})},
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::ListParsingHandler<Ast::ExpressionList>>(-1, false)}
   }).get());
 
   // LowerLinkExp : @single @prefix(heap.Modifiers.LowerLinkModifierCmd)
