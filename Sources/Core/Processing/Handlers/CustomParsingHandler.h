@@ -41,7 +41,7 @@ class CustomParsingHandler : public GenericParsingHandler
   //============================================================================
   // Constructor
 
-  public: CustomParsingHandler(ProdEndHandler &h) : prodEndHandler(h)
+  public: CustomParsingHandler(ProdEndHandler const &h) : prodEndHandler(h)
   {
   }
 
@@ -51,6 +51,7 @@ class CustomParsingHandler : public GenericParsingHandler
 
   public: virtual void onProdEnd(Parser *parser, ParserState *state)
   {
+    GenericParsingHandler::onProdEnd(parser, state);
     this->prodEndHandler(parser, state);
   }
 

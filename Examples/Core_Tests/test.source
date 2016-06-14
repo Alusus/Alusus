@@ -1,8 +1,10 @@
 func("test");
-i = b :: 5;
+i = b.i :: 5;
 strVar := "Hello World";
 intVar += 5;
 --intVar;
+intVar++;
+--intVar++;
 intVar+++;
 opVar = i + j * k;
 

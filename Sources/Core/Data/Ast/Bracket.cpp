@@ -107,18 +107,15 @@ SharedPtr<TiObject> Bracket::clone() const
 
 void Bracket::print(OutStream &stream, Int indents) const
 {
-  stream << STR("Bracket") ;
+  stream << STR("Bracket ") << (this->type == BracketType::ROUND ? STR("()") : STR("[]"));
   Word id = this->getProdId();
   if (id != UNKNOWN_ID) {
     stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");
   }
-  stream << STR("\n");
-  printIndents(stream, indents+1);
-  stream << STR("Type: ") << (this->type == BracketType::ROUND ? STR("()") : STR("[]"));
 
   stream << STR("\n");
   printIndents(stream, indents+1);
-  stream << STR("Operand: ");
+  stream << STR("-operand: ");
   dumpData(stream, this->operand.get(), indents+1);
 }
 

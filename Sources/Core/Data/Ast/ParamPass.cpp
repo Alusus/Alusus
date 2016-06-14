@@ -110,23 +110,20 @@ SharedPtr<TiObject> ParamPass::clone() const
 
 void ParamPass::print(OutStream &stream, Int indents) const
 {
-  stream << STR("ParamPass") ;
+  stream << STR("ParamPass ") << (this->type == BracketType::ROUND ? STR("()") : STR("[]"));
   Word id = this->getProdId();
   if (id != UNKNOWN_ID) {
     stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");
   }
-  stream << STR("\n");
-  printIndents(stream, indents+1);
-  stream << STR("Type: ") << (this->type == BracketType::ROUND ? STR("()") : STR("[]"));
 
   stream << STR("\n");
   printIndents(stream, indents+1);
-  stream << STR("Operand: ");
+  stream << STR("-operand: ");
   dumpData(stream, this->operand.get(), indents+1);
 
   stream << STR("\n");
   printIndents(stream, indents+1);
-  stream << STR("Param: ");
+  stream << STR("-param: ");
   dumpData(stream, this->param.get(), indents+1);
 }
 

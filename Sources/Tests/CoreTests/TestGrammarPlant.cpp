@@ -531,6 +531,7 @@ void TestGrammarPlant::createProductionDefinitions()
   // Statement = Command + ";" || Expression + ";";
   this->repository.set(STR("Statement"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
+       {TermElement::FLAGS, ParsingFlags::ENFORCE_LIST_OBJ},
        {TermElement::ESPI, 1},
        {TermElement::TERM, SharedList::create({
           ReferenceTerm::create(STR("root:SubStatement")),
@@ -566,6 +567,7 @@ void TestGrammarPlant::createProductionDefinitions()
   // Set = "{" + Statement*v + "}";
   this->repository.set(STR("Set"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
+       {TermElement::FLAGS, ParsingFlags::ENFORCE_LIST_OBJ},
        {TermElement::TERM, SharedList::create({
           TokenTerm::create(0, this->constTokenId, STR("{")),
           MultiplyTerm::create({

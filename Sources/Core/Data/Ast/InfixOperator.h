@@ -220,21 +220,18 @@ class InfixOperator : public Node,
     } \
     public: virtual void print(OutStream &stream, Int indents=0) const \
     { \
-      stream << STR(#X) ; \
+      stream << STR(#X " ") << this->type; \
       Word id = this->getProdId(); \
       if (id != UNKNOWN_ID) { \
         stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]"); \
       } \
       stream << STR("\n"); \
       printIndents(stream, indents+1); \
-      stream << STR("Type: ") << this->type; \
-      stream << STR("\n"); \
-      printIndents(stream, indents+1); \
-      stream << STR("First: "); \
+      stream << STR("-first: "); \
       dumpData(stream, this->first.get(), indents+1); \
       stream << STR("\n"); \
       printIndents(stream, indents+1); \
-      stream << STR("Second: "); \
+      stream << STR("-second: "); \
       dumpData(stream, this->second.get(), indents+1); \
     } \
   }

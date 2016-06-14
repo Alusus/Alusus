@@ -897,7 +897,7 @@ void GrammarPlant::createProductionDefinitions()
          ReferenceTerm::create(STR("module:ConditionalExp")),
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
-           {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
+           {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
               {TermElement::TERM, SharedList::create({
@@ -922,12 +922,11 @@ void GrammarPlant::createProductionDefinitions()
          ReferenceTerm::create(STR("module:ListExp")),
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
-           {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
+           {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
-              {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
               {TermElement::TERM, SharedList::create({
-                 TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OMIT, Integer::create(this->constTokenId),
+                 TokenTerm::create(0, Integer::create(this->constTokenId),
                                    SharedMap::create(false, {{STR("?"), 0}, {STR("؟"), 0}})),
                  ReferenceTerm::create(STR("module:ListExp"))
                })}
@@ -936,7 +935,7 @@ void GrammarPlant::createProductionDefinitions()
        })}
     })},
    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(1)}})},
-   {SymbolDefElement::HANDLER, this->parsingHandler}
+   {SymbolDefElement::HANDLER, std::make_shared<Handlers::InfixParsingHandler<Ast::ConditionalOperator>>(false)}
   }).get());
 
   // ListExp : @single @prefix(heap.Modifiers.ListModifierCmd)
@@ -1007,7 +1006,6 @@ void GrammarPlant::createProductionDefinitions()
             {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
             {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
-               {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
                {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, Integer::create(this->constTokenId),
                                     REF_PARSER->parseQualifier(STR("root:TokenData.lowerLinkOpList"))),
@@ -1018,7 +1016,7 @@ void GrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
-    {SymbolDefElement::HANDLER, this->parsingHandler}
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::InfixParsingHandler<Ast::LinkOperator>>(false)}
   }).get());
 
   // AssignmentExp : @single @prefix(heap.Modifiers.AssignmentModifierCmd)
@@ -1033,7 +1031,6 @@ void GrammarPlant::createProductionDefinitions()
             {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
             {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
-               {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
                {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, Integer::create(this->constTokenId),
                                     REF_PARSER->parseQualifier(STR("root:TokenData.assignmentOpList"))),
@@ -1044,7 +1041,7 @@ void GrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
-    {SymbolDefElement::HANDLER, this->parsingHandler}
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::InfixParsingHandler<Ast::AssignmentOperator>>(false)}
   }).get());
 
   // LogExp : @single @prefix(heap.Modifiers.LogModifierCmd)
@@ -1059,7 +1056,6 @@ void GrammarPlant::createProductionDefinitions()
              {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
              {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
              {TermElement::TERM, ConcatTerm::create({
-                {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
                 {TermElement::TERM, SharedList::create({
                    TokenTerm::create(0, Integer::create(this->constTokenId),
                                      REF_PARSER->parseQualifier(STR("root:TokenData.logOpList"))),
@@ -1070,7 +1066,7 @@ void GrammarPlant::createProductionDefinitions()
          })}
       })},
      {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
-     {SymbolDefElement::HANDLER, this->parsingHandler}
+     {SymbolDefElement::HANDLER, std::make_shared<Handlers::InfixParsingHandler<Ast::LogOperator>>(false)}
    }).get());
 
   // ComparisonExp : @single @prefix(heap.Modifiers.ComparisonModifierCmd)
@@ -1085,7 +1081,6 @@ void GrammarPlant::createProductionDefinitions()
             {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
             {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
-               {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
                {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, Integer::create(this->constTokenId),
                                     REF_PARSER->parseQualifier(STR("root:TokenData.comparisonOpList"))),
@@ -1096,7 +1091,7 @@ void GrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
-    {SymbolDefElement::HANDLER, this->parsingHandler}
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::InfixParsingHandler<Ast::ComparisonOperator>>(false)}
   }).get());
 
   // LowLinkExp : @single @prefix(heap.Modifiers.LowLinkModifierCmd)
@@ -1111,7 +1106,6 @@ void GrammarPlant::createProductionDefinitions()
             {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
             {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
-               {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
                {TermElement::TERM, SharedList::create({
                   TokenTerm::create(0, Integer::create(this->constTokenId),
                                     REF_PARSER->parseQualifier(STR("root:TokenData.lowLinkOpList"))),
@@ -1122,7 +1116,7 @@ void GrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
-    {SymbolDefElement::HANDLER, this->parsingHandler}
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::InfixParsingHandler<Ast::LinkOperator>>(false)}
   }).get());
 
   // AddExp : @single @prefix(heap.Modifiers.AddModifierCmd)
@@ -1137,7 +1131,6 @@ void GrammarPlant::createProductionDefinitions()
            {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
-              {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
               {TermElement::TERM, SharedList::create({
                  TokenTerm::create(0, Integer::create(this->constTokenId),
                                    REF_PARSER->parseQualifier(STR("root:TokenData.addOpList"))),
@@ -1148,7 +1141,7 @@ void GrammarPlant::createProductionDefinitions()
        })}
     })},
    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
-   {SymbolDefElement::HANDLER, this->parsingHandler}
+   {SymbolDefElement::HANDLER, std::make_shared<Handlers::InfixParsingHandler<Ast::AdditionOperator>>(false)}
   }).get());
 
   // MulExp : @single @prefix(heap.Modifiers.MulModifierCmd)
@@ -1163,7 +1156,6 @@ void GrammarPlant::createProductionDefinitions()
            {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
-              {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
               {TermElement::TERM, SharedList::create({
                  TokenTerm::create(0, Integer::create(this->constTokenId),
                                    REF_PARSER->parseQualifier(STR("root:TokenData.mulOpList"))),
@@ -1174,7 +1166,7 @@ void GrammarPlant::createProductionDefinitions()
        })}
     })},
    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
-   {SymbolDefElement::HANDLER, this->parsingHandler}
+   {SymbolDefElement::HANDLER, std::make_shared<Handlers::InfixParsingHandler<Ast::MultiplicationOperator>>(false)}
   }).get());
 
   // BitwiseExp : @single @prefix(heap.Modifiers.BitwiseModifierCmd)
@@ -1189,7 +1181,6 @@ void GrammarPlant::createProductionDefinitions()
            {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP},
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
-              {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
               {TermElement::TERM, SharedList::create({
                  TokenTerm::create(0, Integer::create(this->constTokenId),
                                    REF_PARSER->parseQualifier(STR("root:TokenData.bitwiseOpList"))),
@@ -1200,7 +1191,7 @@ void GrammarPlant::createProductionDefinitions()
        })}
     })},
    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), 0}})},
-   {SymbolDefElement::HANDLER, this->parsingHandler}
+   {SymbolDefElement::HANDLER, std::make_shared<Handlers::InfixParsingHandler<Ast::BitwiseOperator>>(false)}
   }).get());
 
   // UnaryExp : @single @prefix(heap.Modifiers.UnaryModifierCmd)
@@ -1228,7 +1219,7 @@ void GrammarPlant::createProductionDefinitions()
       {STR("enable1"), std::make_shared<Integer>(1)},
       {STR("enable2"), std::make_shared<Integer>(1)}
     })},
-   {SymbolDefElement::HANDLER, this->parsingHandler}
+   {SymbolDefElement::HANDLER, std::make_shared<Handlers::OutfixParsingHandler<Ast::PrefixOperator, Ast::PostfixOperator>>()}
   }).get());
 
   // FunctionalExp : @single @prefix(heap.Modifiers.FunctionalModifierCmd)
@@ -1264,7 +1255,7 @@ void GrammarPlant::createProductionDefinitions()
        {STR("dup"), 0},
        {STR("fltr2"), 0}
      })},
-    {SymbolDefElement::HANDLER, this->parsingHandler}
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::ChainOpParsingHandler>()}
   }).get());
 
   // LinkExp : @single prod (operand:production[heap.Subject]=heap.Subject) as LinkOp + operand;
@@ -1277,7 +1268,16 @@ void GrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {{STR("operand"), REF_PARSER->parseQualifier(STR("root:Subject"))}})},
-    {SymbolDefElement::HANDLER, this->parsingHandler}}).get());
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
+       auto currentList = state->getData().tii_cast_get<Data::Container>();
+       auto metadata = tii_cast<Ast::MetadataHolder>(currentList);
+       auto token = tio_cast<Ast::Token>(currentList->get(0));
+       auto linkOp = std::make_shared<Ast::LinkOperator>(metadata->getProdId(), metadata->getSourceLocation());
+       linkOp->setType(token->getText().c_str());
+       linkOp->setSecond(getSharedPtr(currentList->get(1)));
+       state->setData(linkOp);
+     })}
+  }).get());
 
   //// ParamPassExp : "(" [Expression] ")" | "[" [Expression] "]".
   // ParamPassExp : @single prod (expr:production[Expression||Statement]=heap.Expression, fltr:filter=null) as
@@ -1313,11 +1313,18 @@ void GrammarPlant::createProductionDefinitions()
            })}
         })
       })}
-   })},
-  {SymbolDefElement::VARS, SharedMap::create(false, {
-     {STR("expr"), REF_PARSER->parseQualifier(STR("root:Expression"))},
-     {STR("fltr"), 0}})},
-  {SymbolDefElement::HANDLER, this->parsingHandler}}).get());
+    })},
+    {SymbolDefElement::VARS, SharedMap::create(false, {
+       {STR("expr"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+       {STR("fltr"), 0}})},
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
+       auto currentRoute = state->getData().tio_cast_get<Ast::Route>();
+       auto paramPass = std::make_shared<Ast::ParamPass>(currentRoute->getProdId(), currentRoute->getSourceLocation());
+       paramPass->setType(currentRoute->getRoute()==0 ? Ast::BracketType::ROUND : Ast::BracketType::SQUARE);
+       paramPass->setParam(currentRoute->getData());
+       state->setData(paramPass);
+    })}
+  }).get());
 
   //// PostfixTildeExp :
   //// "~" keyword {Subject}.
@@ -1334,7 +1341,16 @@ void GrammarPlant::createProductionDefinitions()
     {SymbolDefElement::VARS, SharedMap::create(false, {
       {STR("cmd"), REF_PARSER->parseQualifier(STR("module:DefaultPostfixTildeCmd"))}
     })},
-    {SymbolDefElement::HANDLER, this->parsingHandler}}).get());
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
+       auto currentList = state->getData().tii_cast_get<Data::Container>();
+       auto metadata = tii_cast<Ast::MetadataHolder>(currentList);
+       auto token = tio_cast<Ast::Token>(currentList->get(0));
+       auto linkOp = std::make_shared<Ast::LinkOperator>(metadata->getProdId(), metadata->getSourceLocation());
+       linkOp->setType(token->getText().c_str());
+       linkOp->setSecond(getSharedPtr(currentList->get(1)));
+       state->setData(linkOp);
+     })}
+  }).get());
   //OpenPostfixTildeCmd : @limit[user.parent==PostfixTildeCmd]
   //    prod (expr:production[Expression], args:list[hash[sbj:valid_subject, min:integer,
   //                                                      max:integer, pty:integer]]) as
@@ -1369,7 +1385,8 @@ void GrammarPlant::createProductionDefinitions()
                                      {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))}
                                    })})}
      })},
-    {SymbolDefElement::HANDLER, this->parsingHandler}}).get());
+    {SymbolDefElement::HANDLER, this->parsingHandler}
+  }).get());
   //DefaultPostfixTildeCmd=>PostfixTildeCmd : prod_group;
   this->repository.set(STR("root:Expression.DefaultPostfixTildeCmd"), SymbolDefinition::create({
    {SymbolDefElement::TERM, AlternateTerm::create({
@@ -1471,7 +1488,17 @@ void GrammarPlant::createProductionDefinitions()
       {STR("frc2"), 0},
       {STR("frc3"), 0}
     })},
-   {SymbolDefElement::HANDLER, this->parsingHandler}
+   {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
+      auto currentRoute = state->getData().tio_cast_get<Ast::Route>();
+      if (currentRoute->getRoute() == 0) {
+        state->setData(currentRoute->getData());
+      } else {
+        auto bracket = std::make_shared<Ast::Bracket>(currentRoute->getProdId(), currentRoute->getSourceLocation());
+        bracket->setType(currentRoute->getRoute()==1 ? Ast::BracketType::ROUND : Ast::BracketType::SQUARE);
+        bracket->setOperand(currentRoute->getData());
+        state->setData(bracket);
+      }
+   })}
   }).get());
 
   // Subject2 : @limit[user.owner==Subject] prod (sbj:production[Parameter||Command||Expression||Statement||Set],
@@ -1511,7 +1538,17 @@ void GrammarPlant::createProductionDefinitions()
            })
          })}
       })},
-     {SymbolDefElement::HANDLER, this->parsingHandler}
+     {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
+        auto currentRoute = state->getData().tio_cast_get<Ast::Route>();
+        if (currentRoute->getRoute() == 0) {
+          state->setData(currentRoute->getData());
+        } else {
+          auto bracket = std::make_shared<Ast::Bracket>(currentRoute->getProdId(), currentRoute->getSourceLocation());
+          bracket->setType(currentRoute->getRoute()==1 ? Ast::BracketType::ROUND : Ast::BracketType::SQUARE);
+          bracket->setOperand(currentRoute->getData());
+          state->setData(bracket);
+        }
+     })}
    }).get());
 
   // SubjectCommandGroup
@@ -1540,7 +1577,25 @@ void GrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {{ STR("fltr"), 0 }} )},
-    {SymbolDefElement::HANDLER, this->parsingHandler}
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
+       auto current = state->getData().tio_cast_get<Ast::Token>();
+       SharedPtr<Ast::Text> newObj;
+       if (current->getId() == ID_GENERATOR->getId(STR("LexerDefs.Identifier"))) {
+         newObj = std::make_shared<Ast::Identifier>();
+       } else if (current->getId() == ID_GENERATOR->getId(STR("LexerDefs.IntLiteral"))) {
+         newObj = std::make_shared<Ast::IntegerLiteral>();
+       } else if (current->getId() == ID_GENERATOR->getId(STR("LexerDefs.FloatLiteral"))) {
+         newObj = std::make_shared<Ast::FloatLiteral>();
+       } else if (current->getId() == ID_GENERATOR->getId(STR("LexerDefs.CharLiteral"))) {
+         newObj = std::make_shared<Ast::CharLiteral>();
+       } else if (current->getId() == ID_GENERATOR->getId(STR("LexerDefs.StringLiteral"))) {
+         newObj = std::make_shared<Ast::StringLiteral>();
+       }
+       newObj->setValue(current->getText().c_str());
+       newObj->setProdId(current->getProdId());
+       newObj->setSourceLocation(current->getSourceLocation());
+       state->setData(newObj);
+    })}
   }).get());
 
   // Literal:

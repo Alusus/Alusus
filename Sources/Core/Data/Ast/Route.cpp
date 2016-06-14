@@ -69,11 +69,11 @@ SharedPtr<TiObject> Route::clone() const
 void Route::print(OutStream &stream, Int indents) const
 {
   stream << STR("Route");
+  stream << STR(" (") << this->getRoute() << STR(")");
   Word id = this->getProdId();
   if (id != UNKNOWN_ID) {
     stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("] ");
   }
-  stream << STR(" (") << this->getRoute() << STR(")");
   if (this->getData() != 0) {
     stream << STR("\n");
     printIndents(stream, indents+1);

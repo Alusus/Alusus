@@ -48,7 +48,7 @@ class Text : public Node,
   {
   }
 
-  public: Text(Word pid, Char const *v, SourceLocation const &sl) :
+  public: Text(Word pid, SourceLocation const &sl, Char const *v=STR("")) :
     MetadataHolder(pid, sl), value(v)
   {
   }
@@ -62,9 +62,9 @@ class Text : public Node,
     return std::make_shared<Text>(pid, v);
   }
 
-  public: static SharedPtr<Text> create(Word pid, Char const *v, SourceLocation const &sl)
+  public: static SharedPtr<Text> create(Word pid, SourceLocation const &sl, Char const *v=STR(""))
   {
-    return std::make_shared<Text>(pid, v, sl);
+    return std::make_shared<Text>(pid, sl, v);
   }
 
 
@@ -126,16 +126,16 @@ class Text : public Node,
     public: X(Word pid=UNKNOWN_ID, Char const *v=STR("")) : Text(pid, v) \
     { \
     } \
-    public: X(Word pid, Char const *v, SourceLocation const &sl) : Text(pid, v, sl) \
+    public: X(Word pid, SourceLocation const &sl, Char const *v=STR("")) : Text(pid, sl, v) \
     { \
     } \
     public: static SharedPtr<X> create(Word pid=UNKNOWN_ID, Char const *v=STR("")) \
     { \
       return std::make_shared<X>(pid, v); \
     } \
-    public: static SharedPtr<X> create(Word pid, Char const *v, SourceLocation const &sl) \
+    public: static SharedPtr<X> create(Word pid, SourceLocation const &sl, Char const *v=STR("")) \
     { \
-      return std::make_shared<X>(pid, v, sl); \
+      return std::make_shared<X>(pid, sl, v); \
     } \
     public: virtual SharedPtr<TiObject> clone() const \
     { \
@@ -145,14 +145,14 @@ class Text : public Node,
       newObject->setSourceLocation(this->getSourceLocation()); \
       return newObject; \
     } \
-    public: virtual void print(OutStream &stream, Int indents=0) \
+    public: virtual void print(OutStream &stream, Int indents=0) const \
     { \
       stream << STR(#X); \
+      stream << STR(": ") << this->getValue(); \
       Word id = this->getProdId(); \
       if (id != UNKNOWN_ID) { \
         stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("] "); \
       } \
-      stream << STR(": ") << this->getValue(); \
     } \
   }
 

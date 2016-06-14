@@ -110,23 +110,20 @@ SharedPtr<TiObject> InfixOperator::clone() const
 
 void InfixOperator::print(OutStream &stream, Int indents) const
 {
-  stream << STR("InfixOperator") ;
+  stream << STR("InfixOperator ") << this->type.get();
   Word id = this->getProdId();
   if (id != UNKNOWN_ID) {
     stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");
   }
-  stream << STR("\n");
-  printIndents(stream, indents+1);
-  stream << STR("Type: ") << this->type.get();
 
   stream << STR("\n");
   printIndents(stream, indents+1);
-  stream << STR("First: ");
+  stream << STR("-first: ");
   dumpData(stream, this->first.get(), indents+1);
 
   stream << STR("\n");
   printIndents(stream, indents+1);
-  stream << STR("Second: ");
+  stream << STR("-second: ");
   dumpData(stream, this->second.get(), indents+1);
 }
 
