@@ -191,6 +191,17 @@ typedef std::ostream OutStream;
 #define ASSERT(x) assert(x)
 
 /**
+ * @brief Select a macro based on number of arguments.
+ * @ingroup basic_macros
+ *
+ * This helper macro selects one of ten provided macros based on the number of
+ * arguments provided in a variable-args macro.
+ *
+ * Usage: SELECT_MACRO(__VA_ARGS__, macro10, macro9, macro8 ...)
+ */
+#define SELECT_MACRO(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, macro, ...) macro
+
+/**
  * @brief Defines an enumeration.
  * @ingroup basic_macros
  *
@@ -542,6 +553,7 @@ extern std::ostream &outStream;
 #include "TypeInfo.h"
 #include "TiObject.h"
 #include "TiInterface.h"
+#include "ti_casting.h"
 #include "SharedPtr.h"
 #include "WeakPtr.h"
 #include "SignalReverseConnector.h"

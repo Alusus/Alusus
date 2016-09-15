@@ -1,0 +1,34 @@
+import "libalusus_spp.so";
+
+(a:int, b:int)=>int;
+
+def a: {"hello", "world"};
+
+def b: module {
+  def c: 124;
+  c = c + 1;
+  def t: type {
+    def x: float;
+    def y: float;
+  };
+};
+
+def f: function (x:int, y:int)=>int {
+  x + y;
+  while x==3 doSomething();
+  while y==3 {
+    doSomething1();
+    doSomething2()
+  }
+};
+
+def t: type {
+  def x: float;
+  def y: float;
+};
+
+dump a;
+dump b;
+dump f;
+dump t;
+

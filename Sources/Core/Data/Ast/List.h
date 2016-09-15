@@ -36,7 +36,11 @@ class List : public SharedList,
   // Type Info
 
   TYPE_INFO(List, SharedList, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(SharedList, MetadataHolder, Clonable, Printable);
+  IMPLEMENT_INTERFACES(SharedList, MetadataHolder, Clonable, Printable);
+
+  IMPLEMENT_AST_LIST_CLONABLE(List);
+
+  IMPLEMENT_AST_LIST_PRINTABLE(List);
 
 
   //============================================================================
@@ -87,31 +91,6 @@ class List : public SharedList,
   {
     return std::make_shared<List>(pid, sl, args);
   }
-
-
-  //============================================================================
-  // MetadataHolder Overrides
-
-  /**
-   * @brief Override the original implementation to search the tree if needed.
-   * If the value is not yet set for this object and it has children, it will
-   * call getSourceLocation on the children.
-   */
-  public: virtual SourceLocation const& getSourceLocation() const;
-
-  public: virtual TiObject* getAttribute(Char const *name);
-
-
-  //============================================================================
-  // Clonable Implementation
-
-  public: virtual SharedPtr<TiObject> clone() const;
-
-
-  //============================================================================
-  // Printable Implementation
-
-  public: virtual void print(OutStream &stream, Int indents=0) const;
 
 }; // class
 

@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class Bracket : public Node,
-                public virtual Container, public virtual MetadataHolder,
+                public virtual MapContainer, public virtual MetadataHolder,
                 public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Bracket, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_4(Node, Container, MetadataHolder, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, MapContainer, MetadataHolder, Clonable, Printable);
 
 
   //============================================================================
@@ -34,6 +34,10 @@ class Bracket : public Node,
 
   private: BracketType type;
   private: TioSharedPtr operand;
+
+  IMPLEMENT_MAP_CONTAINER((TiObject, operand));
+
+  IMPLEMENT_AST_MAP_PRINTABLE(Bracket, << (this->type == BracketType::ROUND ? STR("()") : STR("[]")));
 
 
   //============================================================================
@@ -111,43 +115,21 @@ class Bracket : public Node,
 
 
   //============================================================================
-  // Container Implementation
-
-  public: virtual void set(Int index, TiObject *val);
-
-  public: virtual void remove(Int index);
-
-  public: virtual Word getCount() const
-  {
-    return 1;
-  }
-
-  public: virtual TiObject* get(Int index) const;
-
-
-  //============================================================================
   // MetadataHolder Overrides
 
-  /**
-   * @brief Override the original implementation to search the tree if needed.
-   * If the value is not yet set for this object and it has children, it will
-   * call getSourceLocation on the children.
-   */
-  public: virtual SourceLocation const& getSourceLocation() const;
-
-  public: virtual TiObject* getAttribute(Char const *name);
+  public: virtual TiObject* getAttribute(Char const *name)
+  {
+    if (SBSTR(name) == STR("type")) {
+      return &this->type;
+    }
+    return MetadataHolder::getAttribute(name);
+  }
 
 
   //============================================================================
   // Clonable Implementation
 
   public: virtual SharedPtr<TiObject> clone() const;
-
-
-  //============================================================================
-  // Printable Implementation
-
-  public: virtual void print(OutStream &stream, Int indents=0) const;
 
 }; // class
 

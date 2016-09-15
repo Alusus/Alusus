@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/RootParsingHandler.cpp
  * Contains the implementation of class Core::Processing::Handlers::RootParsingHandler.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -21,19 +21,19 @@ namespace Core { namespace Processing { namespace Handlers
 void RootParsingHandler::onProdStart(Parser *parser, ParserState *state)
 {
   // Find the global definition module, if any.
-  SharedPtr<Data::Module> module;
+  SharedPtr<Data::Ast::Scope> scope;
   if (parser->getDefinitionsRepository() != 0 &&
       parser->getDefinitionsRepository()->getLevelCount() > 0 &&
       parser->getDefinitionsRepository()->getLevelData(0) != 0) {
-    module = parser->getDefinitionsRepository()->getLevelData(0).tio_cast<Data::Module>();
+    scope = parser->getDefinitionsRepository()->getLevelData(0).tio_cast<Data::Ast::Scope>();
   }
 
-  if (module != 0) {
+  if (scope != 0) {
     // Use the global root module.
-    state->setData(STR("root"), module);
+    state->setData(STR("root"), scope);
   } else {
     // Create a new module.
-    state->setData(STR("root"), Data::Module::create({}));
+    state->setData(STR("root"), Data::Ast::Scope::create({}));
   }
 }
 
@@ -42,9 +42,9 @@ void RootParsingHandler::onLevelExit(Parser *parser, ParserState *state, SharedP
 {
   // Store unhandled data into the definitions module.
   if (state->isAtProdRoot()) {
-    Data::Module *module = state->getData().s_cast_get<Data::Module>();
-    ASSERT(module != 0);
-    module->set(STR("_ORPHAN_"), data);
+    Data::Ast::Scope *scope = state->getData().s_cast_get<Data::Ast::Scope>();
+    ASSERT(scope != 0);
+    scope->set(STR("_ORPHAN_"), data);
   } else {
     state->setData(data);
   }

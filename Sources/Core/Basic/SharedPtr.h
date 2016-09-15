@@ -201,6 +201,20 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
   }
 
   /**
+   * @brief Cast this shared pointer to a shared pointer of another data type.
+   *
+   * Casting is done using ti_cast.
+   *
+   * @tparam TO The requested type of the subject, not the pointer. In other
+   *            words, if you want to cast the pointer to SharedPtr<My_Type>,
+   *            TO must be My_Type, not SharedPtr<My_Type>.
+   */
+  public: template <class TO> inline SharedPtr<TO> ti_cast() const
+  {
+    return SharedPtr<TO>(*this, Core::Basic::ti_cast<TO>(this->get()));
+  }
+
+  /**
    * @brief Cast and return the subject of this shared pointer.
    *
    * Casting is done using static_cast.
@@ -282,6 +296,20 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
   public: template <class TO> inline TO* tii2tio_cast_get() const
   {
     return Core::Basic::tii2tio_cast<TO>(this->get());
+  }
+
+  /**
+   * @brief Cast and return the subject of this shared pointer.
+   *
+   * Casting is done using ti_cast.
+   *
+   * @tparam TO The requested type of the subject, not the pointer. In other
+   *            words, if you want to cast the pointer to My_Type,
+   *            TO must be My_Type, not My_Type*.
+   */
+  public: template <class TO> inline TO* ti_cast_get() const
+  {
+    return Core::Basic::ti_cast<TO>(this->get());
   }
 
   /// @}
@@ -378,12 +406,33 @@ template <class T, class T2> SharedPtr<T> tii2tio_cast(std::shared_ptr<T2> const
  *                     the function will create a new shared pointer to own
  *                     this, otherwise it will return an empty pointer.
  */
-template <class T> SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
+template <class T,
+          typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
+SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
 {
   if (obj == 0) {
     return SharedPtr<T>();
   }
   SharedPtr<TiObject> sp = obj->getSharedThis();
+  if (sp == 0) {
+    if (ownIfUnowned) return SharedPtr<T>(obj);
+    else return SharedPtr<T>();
+  }
+  // Since T is derived from TiObject, casting will result in the same
+  // pointer value, so a reinterpret cast should be enough; creating a new
+  // temporary shared pointer is not necessary.
+  return std::move(*(reinterpret_cast<SharedPtr<T>*>(&sp)));
+}
+
+
+template <class T,
+          typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
+SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
+{
+  if (obj == 0) {
+    return SharedPtr<T>();
+  }
+  SharedPtr<TiObject> sp = obj->getTiObject()->getSharedThis();
   if (sp == 0) {
     if (ownIfUnowned) return SharedPtr<T>(obj);
     else return SharedPtr<T>();

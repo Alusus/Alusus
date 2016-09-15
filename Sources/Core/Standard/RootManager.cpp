@@ -20,7 +20,7 @@ namespace Core { namespace Standard
 
 RootManager::RootManager() : grammarPlant(this), libraryManager(this), definitionsRepository(10, 10)
 {
-  this->definitionsRepository.pushLevel(STR("root"), Data::Module::create({}));
+  this->definitionsRepository.pushLevel(STR("root"), Data::Ast::Scope::create({}));
 
   // Initialize current paths.
   this->pushSearchPath(getModuleDirectory().c_str());

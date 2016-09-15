@@ -295,7 +295,7 @@ template <class T> inline T* tio_cast(TiObject *object)
 }
 
 /// @sa tio_cast()
-template <class T> inline const T* tio_cast(TiObject const *object)
+template <class T> inline T const* tio_cast(TiObject const *object)
 {
   return static_cast<const T*>(object==0?0:object->isDerivedFrom(T::getTypeInfo())?object:0);
 }

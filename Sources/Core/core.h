@@ -24,6 +24,7 @@
 #include <cassert>
 #include <exception>
 #include <string.h>
+#include <type_traits>
 
 // Include global storage functions.
 #include "core_global_storage.h"

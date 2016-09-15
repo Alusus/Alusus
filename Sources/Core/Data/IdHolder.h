@@ -45,6 +45,11 @@ class IdHolder : public AttributesHolder
     return this->id;
   }
 
+  public: virtual Str const& getIdString() const
+  {
+    return ID_GENERATOR->getDesc(this->getId());
+  }
+
   public: virtual TiObject* getAttribute(Char const *name)
   {
     if (SBSTR(name) == STR("id")) {

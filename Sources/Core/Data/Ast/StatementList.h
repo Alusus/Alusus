@@ -23,6 +23,10 @@ class StatementList : public List
 
   TYPE_INFO(StatementList, List, "Core.Data.Ast", "Core", "alusus.net");
 
+  IMPLEMENT_AST_LIST_CLONABLE(StatementList);
+
+  IMPLEMENT_AST_LIST_PRINTABLE(StatementList);
+
 
   //============================================================================
   // Constructor / Destructor
@@ -69,35 +73,6 @@ class StatementList : public List
                                                  const std::initializer_list<SharedPtr<TiObject>> &args)
   {
     return std::make_shared<StatementList>(pid, sl, args);
-  }
-
-
-  //============================================================================
-  // Overrides
-
-  public: virtual SharedPtr<TiObject> clone() const
-  {
-    SharedPtr<StatementList> newList = std::make_shared<StatementList>();
-    newList->setProdId(this->getProdId());
-    for (Word i = 0; i < this->getCount(); ++i) {
-      newList->add(this->get(i));
-    }
-    newList->setSourceLocation(this->getSourceLocation());
-    return newList;
-  }
-
-  public: virtual void print(OutStream &stream, Int indents=0) const
-  {
-    stream << STR("StatementList") ;
-    Word id = this->getProdId();
-    if (id != UNKNOWN_ID) {
-      stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");
-    }
-    for (Word i = 0; i < this->getCount(); ++i) {
-      stream << STR("\n");
-      printIndents(stream, indents+1);
-      dumpData(stream, this->get(i), indents+1);
-    }
   }
 
 }; // class

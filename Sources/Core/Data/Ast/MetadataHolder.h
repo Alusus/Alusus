@@ -121,6 +121,18 @@ class MetadataHolder : public AttributesHolder
    */
   public: virtual SourceLocation const& getSourceLocation() const
   {
+    if (this->sourceLocation.line == 0) {
+      Container const *container = this->getTiObject()->getInterface<Container const>();
+      if (container != 0) {
+        for (Int i = 0; i < container->getCount(); ++i) {
+          MetadataHolder *ptr = tii_cast<MetadataHolder>(container->get(i));
+          if (ptr != 0) {
+            SourceLocation const &sl = ptr->getSourceLocation();
+            if (sl.line != 0) return sl;
+          }
+        }
+      }
+    }
     return this->sourceLocation;
   }
 
@@ -129,6 +141,18 @@ class MetadataHolder : public AttributesHolder
     if (SBSTR(name) == STR("prodId")) {
       return &this->prodId;
     } else if (SBSTR(name) == STR("sourceLocation")) {
+      if (this->sourceLocation.line == 0) {
+        Container *container = this->getTiObject()->getInterface<Container>();
+        if (container != 0) {
+          for (Int i = 0; i < container->getCount(); ++i) {
+            MetadataHolder *ptr = tii_cast<MetadataHolder>(container->get(i));
+            if (ptr != 0) {
+              if (ptr->getSourceLocation().line != 0) return ptr->getAttribute(name);
+            }
+          }
+        }
+      }
+
       return &this->sourceLocation;
     } else {
       return 0;

@@ -23,6 +23,10 @@ class ExpressionList : public List
 
   TYPE_INFO(ExpressionList, List, "Core.Data.Ast", "Core", "alusus.net");
 
+  IMPLEMENT_AST_LIST_CLONABLE(ExpressionList);
+
+  IMPLEMENT_AST_LIST_PRINTABLE(ExpressionList);
+
 
   //============================================================================
   // Constructor / Destructor
@@ -69,35 +73,6 @@ class ExpressionList : public List
                                                   const std::initializer_list<SharedPtr<TiObject>> &args)
   {
     return std::make_shared<ExpressionList>(pid, sl, args);
-  }
-
-
-  //============================================================================
-  // Overrides
-
-  public: virtual SharedPtr<TiObject> clone() const
-  {
-    SharedPtr<ExpressionList> newList = std::make_shared<ExpressionList>();
-    newList->setProdId(this->getProdId());
-    for (Word i = 0; i < this->getCount(); ++i) {
-      newList->add(this->get(i));
-    }
-    newList->setSourceLocation(this->getSourceLocation());
-    return newList;
-  }
-
-  public: virtual void print(OutStream &stream, Int indents=0) const
-  {
-    stream << STR("ExpressionList") ;
-    Word id = this->getProdId();
-    if (id != UNKNOWN_ID) {
-      stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");
-    }
-    for (Word i = 0; i < this->getCount(); ++i) {
-      stream << STR("\n");
-      printIndents(stream, indents+1);
-      dumpData(stream, this->get(i), indents+1);
-    }
   }
 
 }; // class

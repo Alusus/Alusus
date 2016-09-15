@@ -358,24 +358,24 @@ SharedPtr<TiObject> GenericParsingHandler::createEnforcedProdNode(ParserState *s
   SharedPtr<TiObject> data;
   Term *term = state->refTopTermLevel().getTerm();
   if (term->isA<AlternateTerm>()) {
-    data = std::make_shared<Ast::Route>();
+    data = this->createRouteNode(state, -1, -1);
     data.s_cast_get<Ast::Route>()->setData(state->getData());
   } else if (term->isA<MultiplyTerm>()) {
     Integer *min = state->getMultiplyTermMin();
     Integer *max = state->getMultiplyTermMax();
     if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
       // Optional term.
-      data = std::make_shared<Ast::Route>();
+      data = this->createRouteNode(state, -1, -1);
       data.s_cast_get<Ast::Route>()->setData(state->getData());
     } else {
       // Duplicate term.
-      data = std::make_shared<Ast::List>();
+      data = this->createListNode(state, -1);
       if (state->getData() != 0 || this->isListItemEnforced(state, -1)) {
         data.s_cast_get<Ast::List>()->add(state->getData());
       }
     }
   } else if (term->isA<ConcatTerm>()) {
-    data = std::make_shared<Ast::List>();
+    data = this->createListNode(state, -1);
     if (state->getData() != 0 || this->isListItemEnforced(state, -1)) {
       data.s_cast_get<Ast::List>()->add(state->getData());
     }

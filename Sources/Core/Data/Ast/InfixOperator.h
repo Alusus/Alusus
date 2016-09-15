@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class InfixOperator : public Node,
-                      public virtual Container, public virtual MetadataHolder,
+                      public virtual MapContainer, public virtual MetadataHolder,
                       public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(InfixOperator, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_4(Node, Container, MetadataHolder, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, MapContainer, MetadataHolder, Clonable, Printable);
 
 
   //============================================================================
@@ -35,6 +35,10 @@ class InfixOperator : public Node,
   protected: String type;
   protected: TioSharedPtr first;
   protected: TioSharedPtr second;
+
+  IMPLEMENT_MAP_CONTAINER((TiObject, first), (TiObject, second));
+
+  IMPLEMENT_AST_MAP_PRINTABLE(InfixOperator, << this->type.get());
 
 
   //============================================================================
@@ -126,31 +130,15 @@ class InfixOperator : public Node,
 
 
   //============================================================================
-  // Container Implementation
-
-  public: virtual void set(Int index, TiObject *val);
-
-  public: virtual void remove(Int index);
-
-  public: virtual Word getCount() const
-  {
-    return 2;
-  }
-
-  public: virtual TiObject* get(Int index) const;
-
-
-  //============================================================================
   // MetadataHolder Overrides
 
-  /**
-   * @brief Override the original implementation to search the tree if needed.
-   * If the value is not yet set for this object and it has children, it will
-   * call getSourceLocation on the children.
-   */
-  public: virtual SourceLocation const& getSourceLocation() const;
-
-  public: virtual TiObject* getAttribute(Char const *name);
+  public: virtual TiObject* getAttribute(Char const *name)
+  {
+    if (SBSTR(name) == STR("type")) {
+      return &this->type;
+    }
+    return MetadataHolder::getAttribute(name);
+  }
 
 
   //============================================================================
@@ -158,16 +146,10 @@ class InfixOperator : public Node,
 
   public: virtual SharedPtr<TiObject> clone() const;
 
-
-  //============================================================================
-  // Printable Implementation
-
-  public: virtual void print(OutStream &stream, Int indents=0) const;
-
 }; // class
 
 
-//============================================================================
+//==============================================================================
 // Macros
 
 #define DEFINE_AST_INFIX_OPERATOR(X) \
@@ -175,6 +157,7 @@ class InfixOperator : public Node,
   { \
     TYPE_INFO(X, InfixOperator, "Core.Data.Ast", "Core", "alusus.net"); \
     IMPLEMENT_INTERFACES_2(InfixOperator, Clonable, Printable); \
+    IMPLEMENT_AST_MAP_PRINTABLE(X, << this->type.get()); \
     public: X() \
     { \
     } \
@@ -217,22 +200,6 @@ class InfixOperator : public Node,
       newObject->setType(this->type); \
       newObject->setSourceLocation(this->getSourceLocation()); \
       return newObject; \
-    } \
-    public: virtual void print(OutStream &stream, Int indents=0) const \
-    { \
-      stream << STR(#X " ") << this->type; \
-      Word id = this->getProdId(); \
-      if (id != UNKNOWN_ID) { \
-        stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]"); \
-      } \
-      stream << STR("\n"); \
-      printIndents(stream, indents+1); \
-      stream << STR("-first: "); \
-      dumpData(stream, this->first.get(), indents+1); \
-      stream << STR("\n"); \
-      printIndents(stream, indents+1); \
-      stream << STR("-second: "); \
-      dumpData(stream, this->second.get(), indents+1); \
     } \
   }
 

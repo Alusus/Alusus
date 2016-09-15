@@ -140,10 +140,10 @@ int main(int argCount, char * const args[])
 
     // Check if we have orphan data to print.
     SharedPtr<Data::Ast::List> orphan;
-    if (ptr->isDerivedFrom<Data::Module>()) {
-      Int orphanIndex = ptr.s_cast<Data::Module>()->findIndex(STR("_ORPHAN_"));
+    if (ptr->isDerivedFrom<Data::Ast::Scope>()) {
+      Int orphanIndex = ptr.s_cast<Data::Ast::Scope>()->findIndex(STR("_ORPHAN_"));
       if (orphanIndex != -1) {
-        orphan = ptr.s_cast<Data::Module>()->getShared(orphanIndex).tio_cast<Data::Ast::List>();
+        orphan = ptr.s_cast<Data::Ast::Scope>()->getShared(orphanIndex).tio_cast<Data::Ast::List>();
       }
     } else if (ptr->isDerivedFrom<Data::Ast::List>()) {
       orphan = ptr.s_cast<Data::Ast::List>();

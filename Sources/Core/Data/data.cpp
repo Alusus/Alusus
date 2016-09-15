@@ -165,6 +165,7 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
 {
   if (ptr == 0) {
     stream << STR("NULL");
+    return;
   }
 
   auto printable = tii_cast<Printable>(ptr);

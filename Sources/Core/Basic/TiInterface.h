@@ -214,7 +214,31 @@ template <class T> inline bool isInterfaceA(TiInterface *interface)
 #define _IMPLEMENT_INTERFACES_CONDITION(info, interface) \
   interfacePtr = static_cast<interface*>(this)->getInterfacePtr(info); \
   if (interfacePtr != 0) return interfacePtr;
-
+#define _IMPLEMENT_INTERFACES_CONDITIONS1(info, interface1) \
+  _IMPLEMENT_INTERFACES_CONDITION(info, interface1)
+#define _IMPLEMENT_INTERFACES_CONDITIONS2(info, interface1, interface2) \
+  _IMPLEMENT_INTERFACES_CONDITION(info, interface1) \
+  _IMPLEMENT_INTERFACES_CONDITION(info, interface2)
+#define _IMPLEMENT_INTERFACES_CONDITIONS3(info, interface1, interface2, interface3) \
+  _IMPLEMENT_INTERFACES_CONDITIONS2(info, interface1, interface2) \
+  _IMPLEMENT_INTERFACES_CONDITION(info, interface3)
+#define _IMPLEMENT_INTERFACES_CONDITIONS4(info, interface1, interface2, interface3, interface4) \
+  _IMPLEMENT_INTERFACES_CONDITIONS3(info, interface1, interface2, interface3) \
+  _IMPLEMENT_INTERFACES_CONDITION(info, interface4)
+#define _IMPLEMENT_INTERFACES_CONDITIONS5(info, interface1, interface2, interface3, interface4, interface5) \
+  _IMPLEMENT_INTERFACES_CONDITIONS4(info, interface1, interface2, interface3, interface4) \
+  _IMPLEMENT_INTERFACES_CONDITION(info, interface5)
+#define _IMPLEMENT_INTERFACES_CONDITIONS6(info, interface1, interface2, interface3, interface4, interface5, interface6) \
+  _IMPLEMENT_INTERFACES_CONDITIONS5(info, interface1, interface2, interface3, interface4, interface5) \
+  _IMPLEMENT_INTERFACES_CONDITION(info, interface6)
+#define _IMPLEMENT_INTERFACES_CONDITIONS(info, ...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               _IMPLEMENT_INTERFACES_CONDITIONS6, \
+               _IMPLEMENT_INTERFACES_CONDITIONS5, \
+               _IMPLEMENT_INTERFACES_CONDITIONS4, \
+               _IMPLEMENT_INTERFACES_CONDITIONS3, \
+               _IMPLEMENT_INTERFACES_CONDITIONS2, \
+               _IMPLEMENT_INTERFACES_CONDITIONS1)(info, __VA_ARGS__)
 
 /**
  * @brief A macro used in TiObjects to implement interfaces.
@@ -240,70 +264,31 @@ template <class T> inline bool isInterfaceA(TiInterface *interface)
  * @note IMPLEMENT_INTERFACES_1 uses only interface1 param.
  *       IMPLEMENT_INTERFACES_2 uses interface1 and interface2, and so on.
  */
-#define IMPLEMENT_INTERFACES_1(parent, interface1) \
+#define IMPLEMENT_INTERFACES(parent, ...) \
   protected: \
     virtual void* _getInterface(TypeInfo *info) { \
       void* interfacePtr; \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface1) \
+      _IMPLEMENT_INTERFACES_CONDITIONS(info, __VA_ARGS__) \
       return parent::_getInterface(info); \
     } \
   public: \
     virtual TiObject* getTiObject() { return this; } \
     virtual TiObject const* getTiObject() const { return this; }
 
+#define IMPLEMENT_INTERFACES_1(parent, interface1) \
+  IMPLEMENT_INTERFACES(parent, interface1)
+
 #define IMPLEMENT_INTERFACES_2(parent, interface1, interface2) \
-  protected: \
-    virtual void* _getInterface(TypeInfo *info) { \
-      void* interfacePtr; \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface1) \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface2) \
-      return parent::_getInterface(info); \
-    } \
-    public: \
-      virtual TiObject* getTiObject() { return this; } \
-      virtual TiObject const* getTiObject() const { return this; }
+  IMPLEMENT_INTERFACES(parent, interface1, interface2)
 
 #define IMPLEMENT_INTERFACES_3(parent, interface1, interface2, interface3) \
-  protected: \
-    virtual void* _getInterface(TypeInfo *info) { \
-      void* interfacePtr; \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface1) \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface2) \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface3) \
-      return parent::_getInterface(info); \
-    } \
-    public: \
-      virtual TiObject* getTiObject() { return this; } \
-      virtual TiObject const* getTiObject() const { return this; }
+  IMPLEMENT_INTERFACES(parent, interface1, interface2, interface3)
 
 #define IMPLEMENT_INTERFACES_4(parent, interface1, interface2, interface3, interface4) \
-  protected: \
-    virtual void* _getInterface(TypeInfo *info) { \
-      void* interfacePtr; \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface1) \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface2) \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface3) \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface4) \
-      return parent::_getInterface(info); \
-    } \
-    public: \
-      virtual TiObject* getTiObject() { return this; } \
-      virtual TiObject const* getTiObject() const { return this; }
+  IMPLEMENT_INTERFACES(parent, interface1, interface2, interface3, interface4)
 
 #define IMPLEMENT_INTERFACES_5(parent, interface1, interface2, interface3, interface4, interface5) \
-  protected: \
-    virtual void* _getInterface(TypeInfo *info) { \
-      void* interfacePtr; \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface1) \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface2) \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface3) \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface4) \
-      _IMPLEMENT_INTERFACES_CONDITION(info, interface5) \
-      return parent::_getInterface(info); \
-    } \
-    public: \
-      virtual TiObject* getTiObject() { return this; } \
-      virtual TiObject const* getTiObject() const { return this; }
+  IMPLEMENT_INTERFACES(parent, interface1, interface2, interface3, interface4, interface5)
 
 } } // namespace
 

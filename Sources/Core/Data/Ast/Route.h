@@ -28,13 +28,14 @@ namespace Core { namespace Data { namespace Ast
  * compose the Parsing Representation Tree (PRT).
  */
 class Route : public Node,
-              public virtual MetadataHolder, public virtual Container, public virtual Clonable, public virtual Printable
+              public virtual MetadataHolder, public virtual MapContainer,
+              public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Route, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_4(Node, MetadataHolder, Container, Clonable, Printable);
+  IMPLEMENT_INTERFACES_4(Node, MetadataHolder, MapContainer, Clonable, Printable);
 
 
   //============================================================================
@@ -58,6 +59,10 @@ class Route : public Node,
    * is recorded to this pointer.
    */
   public: SharedPtr<TiObject> data;
+
+  IMPLEMENT_MAP_CONTAINER((TiObject, data));
+
+  IMPLEMENT_AST_LIST_PRINTABLE(Route, << this->route);
 
 
   //============================================================================
@@ -169,66 +174,9 @@ class Route : public Node,
 
 
   //============================================================================
-  // MetadataHolder Overrides
-
-  /**
-   * @brief Override the original implementation to search the tree if needed.
-   * If the value is not yet set for this object and it has children, it will
-   * call getSourceLocation on the children.
-   */
-  public: virtual SourceLocation const& getSourceLocation() const;
-
-  public: virtual TiObject* getAttribute(Char const *name);
-
-
-  //============================================================================
-  // Container Implementation
-
-  /// Change the element at the specified index.
-  public: virtual void set(Int index, TiObject *val)
-  {
-    if (index == 0) {
-      UPDATE_OWNED_SHAREDPTR(this->data, getSharedPtr(val, true));
-    } else {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Must be 0 for this class."));
-    }
-  }
-
-  /// Remove the element at the specified index.
-  public: virtual void remove(Int index)
-  {
-    if (index != 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Must be 0 for this class."));
-    }
-    RESET_OWNED_SHAREDPTR(this->data);
-  }
-
-  /// Get the count of elements in the list.
-  public: virtual Word getCount() const
-  {
-    return 1;
-  }
-
-  /// Get the object at the specified index.
-  public: virtual TiObject* get(Int index) const
-  {
-    if (index != 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Must be 0 for this class."));
-    }
-    return this->data.get();
-  }
-
-
-  //============================================================================
   // Clonable Implementation
 
   public: virtual SharedPtr<TiObject> clone() const;
-
-
-  //============================================================================
-  // Printable Implementation
-
-  public: virtual void print(OutStream &stream, Int indents=0) const;
 
 }; // class
 

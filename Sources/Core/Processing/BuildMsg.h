@@ -125,6 +125,32 @@ class BuildMsg : public TiObject
 
 }; // class
 
+//==============================================================================
+// Macros
+
+#define DEFINE_BUILD_MSG(name, typeNamespace, moduleName, url, code, severity, msg) \
+  class name : public Core::Processing::BuildMsg \
+  { \
+    TYPE_INFO(name, Core::Processing::BuildMsg, typeNamespace, moduleName, url); \
+    public: name() {} \
+    public: name(Data::SourceLocation const &sl) : Processing::BuildMsg(sl) \
+    { \
+    } \
+    public: virtual Str const& getCode() const \
+    { \
+      static Str _code(code); \
+      return _code; \
+    } \
+    public: virtual Int getSeverity() const \
+    { \
+      return severity; \
+    } \
+    public: virtual void buildDescription(Str &str) const \
+    { \
+      str = msg; \
+    } \
+  }
+
 } } // namespace
 
 #endif

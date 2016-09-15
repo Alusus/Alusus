@@ -257,16 +257,32 @@ s_enum(ParsingFlags,
 
 // Build Messages
 #include "BuildMsg.h"
-#include "CustomBuildMsg.h"
-#include "UnrecognizedErrorMsg.h"
 #include "BuildMsgStore.h"
+#include "CustomBuildMsg.h"
+namespace Core { namespace Processing
+{
+DEFINE_BUILD_MSG(UnrecognizedErrorMsg, "Core.Processing", "Core", "alusus.net", "G1001", 1,
+                 STR("Unrecognized error."));
+// Lexer Build Messages
+DEFINE_BUILD_MSG(BufferFullMsg, "Core.Processing", "Core", "alusus.net", "L1002", 1,
+                 STR("Lexer Error: Input buffer is full. A single token is too long to fit in the input buffer. "
+                     "The token may have been broken into more than one token."));
+DEFINE_BUILD_MSG(TokenClampedMsg, "Core.Processing", "Core", "alusus.net", "L2001", 2,
+                 STR("Warning: Input buffer is full. A single token is too long to fit in the input buffer. "
+                     "Some characters that are part of the token has been ignored."));
+// Parser Build Messages
+DEFINE_BUILD_MSG(SyntaxErrorMsg, "Core.Processing", "Core", "alusus.net", "P1001", 1,
+                 STR("Parser syntax error."));
+DEFINE_BUILD_MSG(UnexpectedEofMsg, "Core.Processing", "Core", "alusus.net", "P1002", 1,
+                 STR("Parsing exited while needing more tokens."));
+DEFINE_BUILD_MSG(UnexpectedTokenMsg, "Core.Processing", "Core", "alusus.net", "P1003", 1,
+                 STR("Parsing has already folded out to completion."));
+DEFINE_BUILD_MSG(AmbiguityMsg, "Core.Processing", "Core", "alusus.net", "P2001", 2,
+                 STR("Ambiguity is causing state branching."));
+} } // namespace
 
 // Lexer
-// Lexer Specific Build Messages
-#include "BufferFullMsg.h"
-#include "TokenClampedMsg.h"
 #include "UnrecognizedCharMsg.h"
-// Tokenizing Classes
 #include "InputBuffer.h"
 #include "LexerState.h"
 #include "TokenizingHandler.h"
@@ -274,12 +290,6 @@ s_enum(ParsingFlags,
 #include "Lexer.h"
 
 // Parser
-// Parser Specific Build Messages
-#include "SyntaxErrorMsg.h"
-#include "UnexpectedEofMsg.h"
-#include "UnexpectedTokenMsg.h"
-#include "AmbiguityMsg.h"
-// Parsing Classes
 #include "ParserTermLevel.h"
 #include "ParserProdLevel.h"
 #include "ParserState.h"

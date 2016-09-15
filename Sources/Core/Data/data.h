@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Data
  * namespace.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -275,7 +275,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
  */
 #define OWN_SHAREDPTR(ptr) \
   { \
-    auto __ptr = (ptr).s_cast_get<Node>(); \
+    auto __ptr = (ptr).ti_cast_get<Node>(); \
     if (__ptr != 0 && __ptr->isDerivedFrom<Node>()) { \
         __ptr->setOwner(this); \
     } \
@@ -290,7 +290,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
   { \
     auto __ptr = ptr; \
     if (__ptr != 0 && __ptr->isDerivedFrom<Node>()) { \
-        static_cast<Node*>(__ptr)->setOwner(this); \
+        ti_cast<Node>(__ptr)->setOwner(this); \
     } \
   }
 
@@ -300,7 +300,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
  */
 #define DISOWN_SHAREDPTR(ptr) \
   { \
-    auto __ptr = (ptr).s_cast_get<Node>(); \
+    auto __ptr = (ptr).ti_cast_get<Node>(); \
     if (__ptr != 0 && __ptr->isDerivedFrom<Node>() && __ptr->getOwner() == this) { \
         __ptr->setOwner(0); \
     } \
@@ -313,7 +313,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
  */
 #define DISOWN_PLAINPTR(ptr) \
   { \
-    auto __ptr = static_cast<Node*>(ptr); \
+    auto __ptr = ti_cast<Node>(ptr); \
     if (__ptr != 0 && __ptr->isDerivedFrom<Node>() && __ptr->getOwner() == this) { \
         __ptr->setOwner(0); \
     } \
@@ -375,6 +375,11 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 
 #include "Node.h"
 
+// Helpers
+#include "paired_pointers.h"
+#include "IdGenerator.h"
+#include "SourceLocation.h"
+
 // Basic Data Types
 #include "Integer.h"
 #include "String.h"
@@ -383,14 +388,10 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 #include "DataOwner.h"
 #include "AttributesHolder.h"
 #include "Initializable.h"
+#include "Named.h"
 #include "IdHolder.h"
 #include "Clonable.h"
 #include "Printable.h"
-
-// Helpers
-#include "paired_pointers.h"
-#include "IdGenerator.h"
-#include "SourceLocation.h"
 
 // References Subsystem Classes
 //-----------------------------
@@ -399,6 +400,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 #include "ListContainer.h"
 #include "NamedListContainer.h"
 #include "MapContainer.h"
+#include "container_helpers.h"
 #include "Provider.h"
 // Validators
 #include "Validator.h"
@@ -461,51 +463,8 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 // TODO: ExtensionManager manages extensions to grammar (loaded using import for example). And it automatically
 //       manages the IDs of those extension definitions (rather than the IDs remain invalid until merged with DataStore).
 
-
-// Abstract Syntax Tree Classes
-//-----------------------------
-
-namespace Core { namespace Data { namespace Ast
-{
-
-ti_s_enum(BracketType, Integer, "Core.Data.Ast", "Core", "alusus.net", ROUND, SQUARE);
-
-} } } // namespace
-
-#include "Ast/MetadataHolder.h"
-#include "Ast/Token.h"
-#include "Ast/Route.h"
-#include "Ast/List.h"
-#include "Ast/ExpressionList.h"
-#include "Ast/StatementList.h"
-#include "Ast/Module.h"
-#include "Ast/ParamPass.h"
-#include "Ast/InfixOperator.h"
-#include "Ast/OutfixOperator.h"
-#include "Ast/Text.h"
-#include "Ast/Bracket.h"
-
-namespace Core { namespace Data { namespace Ast
-{
-
-DEFINE_AST_OUTFIX_OPERATOR(PrefixOperator);
-DEFINE_AST_OUTFIX_OPERATOR(PostfixOperator);
-
-DEFINE_AST_INFIX_OPERATOR(AssignmentOperator);
-DEFINE_AST_INFIX_OPERATOR(ComparisonOperator);
-DEFINE_AST_INFIX_OPERATOR(AdditionOperator);
-DEFINE_AST_INFIX_OPERATOR(MultiplicationOperator);
-DEFINE_AST_INFIX_OPERATOR(BitwiseOperator);
-DEFINE_AST_INFIX_OPERATOR(LogOperator);
-DEFINE_AST_INFIX_OPERATOR(LinkOperator);
-DEFINE_AST_INFIX_OPERATOR(ConditionalOperator);
-
-DEFINE_AST_TEXT_ELEMENT(Identifier);
-DEFINE_AST_TEXT_ELEMENT(IntegerLiteral);
-DEFINE_AST_TEXT_ELEMENT(FloatLiteral);
-DEFINE_AST_TEXT_ELEMENT(CharLiteral);
-DEFINE_AST_TEXT_ELEMENT(StringLiteral);
-
-} } } // namespace
+// Abstract Syntax Tree
+//---------------------
+#include "Ast/ast.h"
 
 #endif

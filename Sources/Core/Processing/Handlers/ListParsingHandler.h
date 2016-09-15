@@ -61,7 +61,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
           typedCurrentData = state->getData(levelIndex).tio_cast_get<TYPE>();
           ASSERT(typedCurrentData != 0);
           auto posId = state->refTermLevel(levelIndex).getPosId();
-          typedCurrentData->set(this->startIndex + posId - 1, data);
+          typedCurrentData->set(this->startIndex + posId - 1, data.get());
         } else {
           // At this point, posId must be 1 since the list is not enforced and the current data is
           // not null, meaning we've already set data at this level.

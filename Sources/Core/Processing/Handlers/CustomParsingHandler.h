@@ -36,12 +36,14 @@ class CustomParsingHandler : public GenericParsingHandler
   // Member Variables
 
   private: ProdEndHandler prodEndHandler;
+  private: Bool callingParentEnabled;
 
 
   //============================================================================
   // Constructor
 
-  public: CustomParsingHandler(ProdEndHandler const &h) : prodEndHandler(h)
+  public: CustomParsingHandler(ProdEndHandler const &h, Bool parentEnabled=true) :
+    prodEndHandler(h), callingParentEnabled(parentEnabled)
   {
   }
 
@@ -51,7 +53,9 @@ class CustomParsingHandler : public GenericParsingHandler
 
   public: virtual void onProdEnd(Parser *parser, ParserState *state)
   {
-    GenericParsingHandler::onProdEnd(parser, state);
+    if (this->callingParentEnabled) {
+      GenericParsingHandler::onProdEnd(parser, state);
+    }
     this->prodEndHandler(parser, state);
   }
 

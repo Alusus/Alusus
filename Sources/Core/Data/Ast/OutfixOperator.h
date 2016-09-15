@@ -19,13 +19,13 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class OutfixOperator : public Node,
-                       public virtual Container, public virtual MetadataHolder
+                       public virtual MapContainer, public virtual MetadataHolder
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(OutfixOperator, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_2(Node, Container, MetadataHolder);
+  IMPLEMENT_INTERFACES(Node, MapContainer, MetadataHolder);
 
 
   //============================================================================
@@ -33,6 +33,8 @@ class OutfixOperator : public Node,
 
   protected: String type;
   protected: TioSharedPtr operand;
+
+  IMPLEMENT_MAP_CONTAINER((TiObject, operand));
 
 
   //============================================================================
@@ -90,36 +92,20 @@ class OutfixOperator : public Node,
 
 
   //============================================================================
-  // Container Implementation
-
-  public: virtual void set(Int index, TiObject *val);
-
-  public: virtual void remove(Int index);
-
-  public: virtual Word getCount() const
-  {
-    return 1;
-  }
-
-  public: virtual TiObject* get(Int index) const;
-
-
-  //============================================================================
   // MetadataHolder Overrides
 
-  /**
-   * @brief Override the original implementation to search the tree if needed.
-   * If the value is not yet set for this object and it has children, it will
-   * call getSourceLocation on the children.
-   */
-  public: virtual SourceLocation const& getSourceLocation() const;
-
-  public: virtual TiObject* getAttribute(Char const *name);
+  public: virtual TiObject* getAttribute(Char const *name)
+  {
+    if (SBSTR(name) == STR("type")) {
+      return &this->type;
+    }
+    return MetadataHolder::getAttribute(name);
+  }
 
 }; // class
 
 
-//============================================================================
+//==============================================================================
 // Macros
 
 #define DEFINE_AST_OUTFIX_OPERATOR(X) \
@@ -127,6 +113,7 @@ class OutfixOperator : public Node,
   { \
     TYPE_INFO(X, OutfixOperator, "Core.Data.Ast", "Core", "alusus.net"); \
     IMPLEMENT_INTERFACES_2(OutfixOperator, Clonable, Printable); \
+    IMPLEMENT_AST_MAP_PRINTABLE(X, << this->type.get()); \
     public: X() \
     { \
     } \
@@ -169,18 +156,6 @@ class OutfixOperator : public Node,
       newObject->setType(this->type); \
       newObject->setSourceLocation(this->getSourceLocation()); \
       return newObject; \
-    } \
-    public: virtual void print(OutStream &stream, Int indents=0) const \
-    { \
-      stream << STR(#X " ") << this->type; \
-      Word id = this->getProdId(); \
-      if (id != UNKNOWN_ID) { \
-        stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]"); \
-      } \
-      stream << STR("\n"); \
-      printIndents(stream, indents+1); \
-      stream << STR("-operand: "); \
-      dumpData(stream, this->operand.get(), indents+1); \
     } \
   }
 
