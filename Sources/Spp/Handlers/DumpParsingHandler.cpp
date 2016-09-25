@@ -9,7 +9,7 @@
  */
 //==============================================================================
 
-#include <spp.h>
+#include "spp.h"
 
 namespace Spp { namespace Handlers
 {
@@ -37,11 +37,19 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
     return;
   }
 
-  auto def = this->rootManager->getDefinitionsRepository()->tryGet(identifier->getValue().c_str());
+  auto rootScope = this->rootManager->getRootScope();
+  TioSharedPtr obj = 0;
+  for (Int i = 0; i < rootScope->getCount(); ++i) {
+    auto def = tio_cast<Data::Ast::Definition>(rootScope->get(i));
+    if (def != 0 && def->getName() == identifier->getValue()) {
+      obj = def->getTarget();
+      break;
+    }
+  }
 
-  if (def != 0) {
+  if (obj != 0) {
     outStream << STR("------------------ Parsed Data Dump ------------------\n");
-    dumpData(outStream, def, 0);
+    dumpData(outStream, obj.get(), 0);
     outStream << STR("\n------------------------------------------------------\n");
   } else {
     // Create a build msg.

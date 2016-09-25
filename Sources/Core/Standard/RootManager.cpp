@@ -18,9 +18,9 @@ namespace Core { namespace Standard
 //==============================================================================
 // Constructor
 
-RootManager::RootManager() : grammarPlant(this), libraryManager(this), definitionsRepository(10, 10)
+RootManager::RootManager() : grammarPlant(this), libraryManager(this)
 {
-  this->definitionsRepository.pushLevel(STR("root"), Data::Ast::Scope::create({}));
+  this->rootScope = Data::Ast::Scope::create();
 
   // Initialize current paths.
   this->pushSearchPath(getModuleDirectory().c_str());
@@ -62,7 +62,7 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename)
     this->pushSearchPath(searchPath.c_str());
   }
   // Process the file
-  Processing::Engine engine(this->grammarPlant.getRepository(), &this->definitionsRepository);
+  Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
   engine.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
   auto result = engine.processFile(fullPath.c_str());
   // Remove the added path, if any.

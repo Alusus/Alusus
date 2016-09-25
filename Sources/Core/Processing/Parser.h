@@ -57,7 +57,7 @@ class Parser : public SignalReceiver
 
   private: Data::GrammarRepository *grammarRepository;
 
-  private: Data::SharedRepository *definitionsRepository;
+  private: SharedPtr<Data::Ast::Scope> rootScope;
 
   /**
    * @brief The array of current states.
@@ -110,7 +110,7 @@ class Parser : public SignalReceiver
 
   public: Parser() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")),
                      grammarRepository(0),
-                     definitionsRepository(0)
+                     rootScope(0)
   {
   }
 
@@ -125,13 +125,14 @@ class Parser : public SignalReceiver
   /// @name Initialization Related Functions
   /// @{
 
-  public: void initialize(Data::GrammarRepository *grammarRepo, Data::SharedRepository *definitionsRepo);
+  public: void initialize(Data::GrammarRepository *grammarRepo,
+                          SharedPtr<Data::Ast::Scope> rootScope);
 
   public: void release()
   {
     this->clear();
     this->grammarRepository = 0;
-    this->definitionsRepository = 0;
+    this->rootScope.reset();
   }
 
   public: Data::GrammarRepository* getGrammarRepository() const
@@ -139,9 +140,9 @@ class Parser : public SignalReceiver
     return this->grammarRepository;
   }
 
-  public: Data::SharedRepository* getDefinitionsRepository() const
+  public: SharedPtr<Data::Ast::Scope> const& getRootScope() const
   {
-    return this->definitionsRepository;
+    return this->rootScope;
   }
 
   /// @}

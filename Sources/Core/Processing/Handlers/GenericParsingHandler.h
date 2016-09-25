@@ -43,6 +43,11 @@ class GenericParsingHandler : public ParsingHandler
   {
   }
 
+  public: static SharedPtr<GenericParsingHandler> create()
+  {
+    return std::make_shared<GenericParsingHandler>();
+  }
+
 
   //============================================================================
   // Member Functions
@@ -174,7 +179,7 @@ class GenericParsingHandler : public ParsingHandler
    * If the top level is shared (the shared pointer is not unique) this function
    * will duplicate that term.
    */
-  protected: void prepareToModifyData(Processing::ParserState *state, Int levelIndex);
+  protected: virtual void prepareToModifyData(Processing::ParserState *state, Int levelIndex);
 
   /// @}
 

@@ -1,5 +1,6 @@
 /**
- * @file Spp/Handlers/DefParsingHandler.cpp
+ * @file Core/Processing/Handlers/DefParsingHandler.cpp
+ * Contains the implementation of Core::Processing::Handlers::DefParsingHandler.
  *
  * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
@@ -9,9 +10,9 @@
  */
 //==============================================================================
 
-#include <spp.h>
+#include "core.h"
 
-namespace Spp { namespace Handlers
+namespace Core { namespace Processing { namespace Handlers
 {
 
 using namespace Core;
@@ -23,6 +24,8 @@ using namespace Core::Data;
 
 void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
+  GenericParsingHandler::onProdEnd(parser, state);
+
   auto expr = state->getData().ti_cast_get<Core::Data::Ast::List>();
   ASSERT(expr != 0);
   auto exprMetadata = ti_cast<Core::Data::Ast::MetadataHolder>(expr);
@@ -48,8 +51,8 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   auto name = nameToken->getValue();
 
   // Get the definee (after the colon).
-  auto def = linkOp->getSecond().get();
-  if (def == 0) {
+  auto val = linkOp->getSecond();
+  if (val == 0) {
     // TODO: We need to choose terms for the parts of a define command, e.g.
     // definition name, definition, etc.
     state->addBuildMsg(std::make_shared<InvalidDefCommand>(exprMetadata->getSourceLocation()));
@@ -57,50 +60,10 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     return;
   }
 
-  // If the definee is a function we'll set it's name.
-  if (def->isDerivedFrom<Spp::Ast::Function>()) {
-    static_cast<Spp::Ast::Function*>(def)->setName(name.c_str());
-  }
-
-  // Store the definition in the definitions manager.
-  this->mergeDefinition(name.c_str(), def, state);
-
-  // Reset parsed data because we are done with the command.
-  state->setData(SharedPtr<TiObject>(0));
+  // Create the definition.
+  auto def = Core::Data::Ast::Definition::create(exprMetadata->getProdId(), exprMetadata->getSourceLocation(),
+                                                 name.c_str(), val);
+  state->setData(def);
 }
 
-
-void DefParsingHandler::mergeDefinition(Char const *qualifier, TiObject *obj, Core::Processing::ParserState *state)
-{
-  auto repository = state->getDataStack();
-
-  // Find a scope.
-  Int i = repository->getLevelCount() - 1;
-  Core::Data::Ast::Scope *scope = 0;
-  while (scope == 0 && i > 0) {
-    scope = repository->getLevelData(i).ti_cast_get<Core::Data::Ast::Scope>();
-    --i;
-  }
-  if (scope == 0) {
-    throw EXCEPTION(Core::Basic::GenericException, STR("No scope was found in the stack."));
-  }
-
-  QualifierSeeker seeker;
-  TiObject *dest = seeker.tryGet(qualifier, scope);
-  if (dest == 0) {
-    seeker.set(qualifier, scope, obj);
-    Data::setTreeIds(obj);
-  } else {
-    if (!Core::Standard::mergeContainers(dest, obj, state)) {
-      // Generate a build message.
-      Core::Data::Ast::MetadataHolder *itemMeta = ti_cast<Core::Data::Ast::MetadataHolder>(obj);
-      Data::SourceLocation sl;
-      if (itemMeta != 0) sl = itemMeta->getSourceLocation();
-      state->addBuildMsg(std::make_shared<Core::Standard::RedefinitionMsg>(qualifier, sl));
-      // Overwrite old data.
-      repository->set(qualifier, obj);
-    }
-  }
-}
-
-} } // namespace
+} } } // namespace

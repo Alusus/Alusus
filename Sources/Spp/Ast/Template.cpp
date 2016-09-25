@@ -32,7 +32,7 @@ SharedPtr<Block> const& Template::getDefaultInstance(Seeker *seeker)
   }
   // No default instance was found, create a new one.
   auto block = std::make_shared<Block>();
-  block->setStatements(this->templateBody->clone());
+  block->add(this->templateBody->clone());
   this->instances.push_back(block);
   return this->instances.back();
 }
@@ -51,7 +51,7 @@ SharedPtr<Block> const& Template::getInstance(TiObject *templateInput, Seeker *s
   }
   // No default instance was found, create a new one.
   auto block = std::make_shared<Block>();
-  block->setStatements(this->templateBody->clone());
+  block->add(this->templateBody->clone());
   this->assignTemplateVars(templateInput, block.get(), seeker);
   this->instances.push_back(block);
   return this->instances.back();

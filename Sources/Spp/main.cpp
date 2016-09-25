@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#include <core.h>
-#include <spp.h>
+#include "core.h"
+#include "spp.h"
 
 using namespace Spp;
 using namespace Core;

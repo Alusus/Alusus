@@ -1,5 +1,6 @@
 /**
- * @file Spp/Handlers/DefParsingHandler.h
+ * @file Core/Processing/Handlers/DefParsingHandler.h
+ * Contains the header of Core::Processing::Handlers::DefParsingHandler.
  *
  * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
@@ -9,19 +10,18 @@
  */
 //==============================================================================
 
-#ifndef SPP_HANDLERS_DEFPARSINGHANDLER_H
-#define SPP_HANDLERS_DEFPARSINGHANDLER_H
+#ifndef CORE_PROCESSING_HANDLERS_DEFPARSINGHANDLER_H
+#define CORE_PROCESSING_HANDLERS_DEFPARSINGHANDLER_H
 
-namespace Spp { namespace Handlers
+namespace Core { namespace Processing { namespace Handlers
 {
 
-class DefParsingHandler : public Core::Processing::Handlers::GenericParsingHandler
+class DefParsingHandler : public GenericParsingHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(DefParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
-            "Spp.Handlers", "Spp", "alusus.net");
+  TYPE_INFO(DefParsingHandler, GenericParsingHandler, "Core.Processing.Handlers", "Core", "alusus.net");
 
 
   //============================================================================
@@ -37,10 +37,8 @@ class DefParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
 
   public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
-  private: void mergeDefinition(Char const *qualifier, TiObject *obj, Core::Processing::ParserState *state);
-
 }; // class
 
-} } // namespace
+} } } // namespace
 
 #endif

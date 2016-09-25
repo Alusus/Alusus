@@ -33,7 +33,7 @@ class RootManager : public SignalReceiver
 
   private: LibraryManager libraryManager;
 
-  private: Data::SharedRepository definitionsRepository;
+  private: SharedPtr<Data::Ast::Scope> rootScope;
 
   private: std::vector<Str> searchPaths;
   private: std::vector<Int> searchPathCounts;
@@ -74,14 +74,14 @@ class RootManager : public SignalReceiver
     return &this->libraryManager;
   }
 
-  public: virtual Data::SharedRepository* getDefinitionsRepository()
+  public: virtual SharedPtr<Data::Ast::Scope> const& getRootScope()
   {
-    return &this->definitionsRepository;
+    return this->rootScope;
   }
 
   public: virtual SharedPtr<TiObject> processString(Char const *str, Char const *name)
   {
-    Processing::Engine engine(this->grammarPlant.getRepository(), &this->definitionsRepository);
+    Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
     engine.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
     return engine.processString(str, name);
   }

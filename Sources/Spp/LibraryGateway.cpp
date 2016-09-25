@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#include <core.h>
-#include <spp.h>
+#include "core.h"
+#include "spp.h"
 
 namespace Spp
 {
@@ -18,6 +18,7 @@ namespace Spp
 using namespace Core;
 using namespace Core::Data;
 using namespace Core::Processing;
+using namespace Core::Processing::Handlers;
 
 //==============================================================================
 // Overloaded Abstract Functions
@@ -52,28 +53,6 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
   this->addReferenceToCommandList(leadingCmdList, STR("module:Dump"));
 
-  //// def = "def" + Subject
-  grammarRepository->set(STR("root:Main.Def"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, SharedMap::create(false, {
-        { STR("kwd"), SharedMap::create(false, { { STR("def"), 0 }, { STR("عرّف"), 0 } }) },
-        {
-          STR("prms"), SharedList::create({
-            SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
-              { STR("min"), std::make_shared<Integer>(1) },
-              { STR("max"), std::make_shared<Integer>(1) },
-              { STR("pty"), std::make_shared<Integer>(1) }
-            })
-          })
-        }
-      })
-    },
-    {SymbolDefElement::HANDLER, std::make_shared<Handlers::DefParsingHandler>()}
-  }).get());
-  this->addReferenceToCommandList(leadingCmdList, STR("module:Def"));
-
   //// while = "while" + Expression + Statement
   grammarRepository->set(STR("root:Main.While"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
@@ -99,7 +78,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
       })
     },
     {SymbolDefElement::HANDLER,
-      std::make_shared<Spp::Handlers::WhileParsingHandler>()}
+      std::make_shared<Handlers::WhileParsingHandler>()}
   }).get());
   this->addReferenceToCommandList(leadingCmdList, STR("module:While"));
 
@@ -108,13 +87,12 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   //// module = "module" + Set
   grammarRepository->set(STR("root:Subject.Module"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, SharedMap::create(false, {
+    { SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("module"), 0 }, { STR("حزمة"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Set")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:ModuleBody")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -123,20 +101,32 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }
       })
     },
-    { SymbolDefElement::HANDLER, std::make_shared<Spp::Handlers::BlockParsingHandler<Spp::Ast::Module>>() }
+    { SymbolDefElement::HANDLER, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+       auto currentList = state->getData().tii_cast_get<Data::Container>();
+       state->setData(getSharedPtr(currentList->get(1)));
+    })}
   }).get());
   this->addReferenceToCommandList(innerCmdList, STR("module:Module"));
+  grammarRepository->set(STR("root:ModuleBody"), SymbolDefinition::create({
+    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("root:Set")) },
+    { SymbolDefElement::VARS, SharedMap::create(false, {
+      {STR("stmt"), REF_PARSER->parseQualifier(STR("root:Main.ModuleStatementList"))}
+    })}
+  }).get());
+  grammarRepository->set(STR("root:Main.ModuleStatementList"), SymbolDefinition::create({
+    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("module:StatementList")) },
+    { SymbolDefElement::HANDLER, ScopeParsingHandler<Spp::Ast::Module>::create(-1) }
+  }).get());
 
   //// type = "type" + Set
   grammarRepository->set(STR("root:Subject.Type"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, SharedMap::create(false, {
+    { SymbolDefElement::VARS, SharedMap::create(false, {
         { STR("kwd"), SharedMap::create(false, { { STR("type"), 0 }, { STR("صنف"), 0 } }) },
         {
           STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Set")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:TypeBody")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
@@ -145,9 +135,22 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }
       })
     },
-    { SymbolDefElement::HANDLER, std::make_shared<Spp::Handlers::BlockParsingHandler<Spp::Ast::Type>>() }
+    { SymbolDefElement::HANDLER, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+       auto currentList = state->getData().tii_cast_get<Data::Container>();
+       state->setData(getSharedPtr(currentList->get(1)));
+    })}
   }).get());
   this->addReferenceToCommandList(innerCmdList, STR("module:Type"));
+  grammarRepository->set(STR("root:TypeBody"), SymbolDefinition::create({
+    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("root:Set")) },
+    { SymbolDefElement::VARS, SharedMap::create(false, {
+      {STR("stmt"), REF_PARSER->parseQualifier(STR("root:Main.TypeStatementList"))}
+    })}
+  }).get());
+  grammarRepository->set(STR("root:Main.TypeStatementList"), SymbolDefinition::create({
+    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("module:StatementList")) },
+    { SymbolDefElement::HANDLER, ScopeParsingHandler<Spp::Ast::Type>::create(-1) }
+  }).get());
 
   // Function
   grammarRepository->set(STR("root:Subject.Function"), SymbolDefinition::create({
@@ -173,16 +176,20 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }
       })
     },
-    { SymbolDefElement::HANDLER, std::make_shared<Spp::Handlers::FunctionParsingHandler>() }
+    { SymbolDefElement::HANDLER, std::make_shared<Handlers::FunctionParsingHandler>() }
   }).get());
   this->addReferenceToCommandList(innerCmdList, STR("module:Function"));
 
   // Block
   grammarRepository->set(STR("root:Block"), SymbolDefinition::create({
     { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("root:Set")) },
-    {
-      SymbolDefElement::HANDLER, std::make_shared<Spp::Handlers::BlockParsingHandler<Spp::Ast::Block>>()
-    }
+    { SymbolDefElement::VARS, SharedMap::create(false, {
+      {STR("stmt"), REF_PARSER->parseQualifier(STR("root:Main.BlockStatementList"))}
+    })}
+  }).get());
+  grammarRepository->set(STR("root:Main.BlockStatementList"), SymbolDefinition::create({
+    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("module:StatementList")) },
+    { SymbolDefElement::HANDLER, ScopeParsingHandler<Spp::Ast::Block>::create(-1) }
   }).get());
 
   // Block based statement.
@@ -238,7 +245,6 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
 
   // Remove commands from leading commands list.
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Dump"));
-  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Def"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:While"));
 
   // Remove command from inner commands list.
@@ -248,10 +254,11 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
 
   // Delete definitions.
   grammarRepository->remove(STR("root:Main.Dump"));
-  grammarRepository->remove(STR("root:Main.Def"));
   grammarRepository->remove(STR("root:Main.While"));
   grammarRepository->remove(STR("root:Subject.Module"));
+  grammarRepository->remove(STR("root:ModuleBody"));
   grammarRepository->remove(STR("root:Subject.Type"));
+  grammarRepository->remove(STR("root:TypeBody"));
   grammarRepository->remove(STR("root:Subject.Function"));
   grammarRepository->remove(STR("root:Block"));
   grammarRepository->remove(STR("root:BlockSubject"));

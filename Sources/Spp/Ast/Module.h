@@ -25,7 +25,9 @@ class Module : public Block
 
   TYPE_INFO(Module, Block, "Spp.Ast", "Spp", "alusus.net");
 
-  IMPLEMENT_AST_MAP_CLONABLE(Module);
+  IMPLEMENT_AST_LIST_CLONABLE(Module);
+
+  IMPLEMENT_AST_LIST_PRINTABLE(Module);
 
 
   //============================================================================
@@ -39,16 +41,12 @@ class Module : public Block
   {
   }
 
-  public: Module(std::initializer_list<Argument<Char const*>> const &args) : Block(args)
-  {
-  }
-
-  public: Module(Word pid, std::initializer_list<Argument<Char const*>> const &args) : Block(pid, args)
+  public: Module(Word pid, std::initializer_list<SharedPtr<TiObject>> const &args) : Block(pid, args)
   {
   }
 
   public: Module(Word pid, Core::Data::SourceLocation const &sl,
-                 const std::initializer_list<Argument<Char const*>> &args) :
+                 std::initializer_list<SharedPtr<TiObject>> const &args) :
     Block(pid, sl, args)
   {
   }
@@ -56,12 +54,6 @@ class Module : public Block
   public: virtual ~Module()
   {
   }
-
-
-  //============================================================================
-  // Printable Implementation
-
-  public: virtual void print(OutStream &stream, Int indents=0) const;
 
 }; // class
 

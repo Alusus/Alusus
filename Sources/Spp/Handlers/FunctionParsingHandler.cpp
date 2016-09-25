@@ -9,7 +9,7 @@
  */
 //==============================================================================
 
-#include <spp.h>
+#include "spp.h"
 
 namespace Spp { namespace Handlers
 {

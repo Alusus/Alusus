@@ -63,10 +63,13 @@ using namespace Core;
 int main(int argCount, char * const args[])
 {
   Bool help = false;
+  Bool dump = false;
   if (argCount < 2) help = true;
   for (Int i = 1; i < argCount; ++i) {
     if (strcmp(args[i], STR("--help")) == 0) help = true;
     else if (strcmp(args[i], STR("--مساعدة")) == 0) help = true;
+    else if (strcmp(args[i], STR("--dump")) == 0) dump = true;
+    else if (strcmp(args[i], STR("--إلقاء")) == 0) dump = true;
 #ifdef USE_LOGS
     // Parse the log option.
     if (i < argCount-1) {
@@ -101,8 +104,9 @@ int main(int argCount, char * const args[])
         outStream << STR("Usage: alusus <source>\n");
       #endif
       outStream << STR("source = filename.\n");
+      outStream << STR("\nOptions:\n");
+      outStream << STR("\t--dump  Tells the Core to dump the resulting AST tree.\n");
       #if defined(USE_LOGS)
-        outStream << STR("\nOptions:\n");
         outStream << STR("\t--log  A 6 bit value to control the level of details of the log.\n");
       #endif
     } else {
@@ -120,8 +124,9 @@ int main(int argCount, char * const args[])
         outStream << STR("طريقة الاستخدام: الأسُس < الشفرة المصدرية >\n");
       #endif
       outStream << STR("الشفرة المصدرية = اسم الملف الحاوي على الشفرة المصدرية\n");
+      outStream << STR("\nالخيارات:\n");
+      outStream << STR("\t--إلقاء  تبلغ القلب بإلقاء شجرة AST عند الانتهاء.\n");
       #if defined(USE_LOGS)
-        outStream << STR("\nالخيارات:\n");
         outStream << STR("\t--تدوين  قيمة من 6 بتّات للتحكم بمستوى التدوين.\n");
       #endif
     }
@@ -135,26 +140,16 @@ int main(int argCount, char * const args[])
     root.buildMsgNotifier.connect(&printBuildMsg);
 
     // Parse the provided filename.
-    SharedPtr<TiObject> ptr = root.processFile(args[1]);
+    TioSharedPtr ptr = root.processFile(args[1]);
     if (ptr == 0) return EXIT_SUCCESS;
 
-    // Check if we have orphan data to print.
-    SharedPtr<Data::Ast::List> orphan;
-    if (ptr->isDerivedFrom<Data::Ast::Scope>()) {
-      Int orphanIndex = ptr.s_cast<Data::Ast::Scope>()->findIndex(STR("_ORPHAN_"));
-      if (orphanIndex != -1) {
-        orphan = ptr.s_cast<Data::Ast::Scope>()->getShared(orphanIndex).tio_cast<Data::Ast::List>();
-      }
-    } else if (ptr->isDerivedFrom<Data::Ast::List>()) {
-      orphan = ptr.s_cast<Data::Ast::List>();
-    }
-    if (orphan == 0 || orphan->getCount() == 0) return 0;
-
     // Print the parsed data.
-    outStream << NEW_LINE << STR("-- BUILD COMPLETE --") << NEW_LINE << NEW_LINE <<
-            STR("Build Results:") << NEW_LINE << NEW_LINE;
-    dumpData(outStream, orphan.get(), 0);
-    outStream << NEW_LINE;
+    if (dump) {
+      outStream << NEW_LINE << STR("-- BUILD COMPLETE --") << NEW_LINE << NEW_LINE <<
+              STR("Build Results:") << NEW_LINE << NEW_LINE;
+      Data::dumpData(outStream, ptr.get(), 0);
+      outStream << NEW_LINE;
+    }
   } catch (Exception &e) {
     outStream << e.getVerboseErrorMessage() << NEW_LINE;
     return EXIT_FAILURE;

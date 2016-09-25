@@ -34,7 +34,6 @@ void GrammarPlant::createGrammar(RootManager *root)
   // Instantiate handlers.
   this->stringLiteralHandler = std::make_shared<StringLiteralTokenizingHandler>();
   this->constTokenHandler = std::make_shared<ConstTokenizingHandler>(this->constTokenId);
-  this->rootHandler = std::make_shared<Handlers::RootParsingHandler>();
   this->parsingHandler = std::make_shared<Handlers::GenericParsingHandler>();
   this->importHandler = std::make_shared<ImportParsingHandler>(root);
 
@@ -668,7 +667,7 @@ void GrammarPlant::createProductionDefinitions()
   // Program : prod as StatementList(DefaultMain.DefaultStatement);
   this->repository.set(STR("root:Program"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ReferenceTerm::create(STR("root:Main.StatementList"))},
-    {SymbolDefElement::HANDLER, this->rootHandler}
+    {SymbolDefElement::HANDLER, this->parsingHandler}
   }).get());
 
   this->repository.set(STR("root:Main"), GrammarModule::create({}).get());
@@ -705,7 +704,7 @@ void GrammarPlant::createProductionDefinitions()
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {
        {STR("stmt"), REF_PARSER->parseQualifier(STR("module:Statement"))}})},
-    {SymbolDefElement::HANDLER, std::make_shared<Handlers::ListParsingHandler<Ast::StatementList>>()},
+    {SymbolDefElement::HANDLER, Handlers::ScopeParsingHandler<Data::Ast::Scope>::create(1)},
     {SymbolDefElement::FLAGS, ParsingFlags::ENFORCE_PROD_OBJ}
   }).get());
 
@@ -794,7 +793,8 @@ void GrammarPlant::createProductionDefinitions()
    {SymbolDefElement::VARS, SharedMap::create(false, {
       {STR("cmds"), SharedList::create({
          REF_PARSER->parseQualifier(STR("module:Do")),
-         REF_PARSER->parseQualifier(STR("module:Import"))
+         REF_PARSER->parseQualifier(STR("module:Import")),
+         REF_PARSER->parseQualifier(STR("module:Def"))
        })}
     })},
    {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -833,6 +833,27 @@ void GrammarPlant::createProductionDefinitions()
         })}
      })},
     {SymbolDefElement::HANDLER, this->importHandler}
+  }).get());
+
+  //// Def = "def" + Subject
+  this->repository.set(STR("root:Main.Def"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    {
+      SymbolDefElement::VARS, SharedMap::create(false, {
+        { STR("kwd"), SharedMap::create(false, { { STR("def"), 0 }, { STR("عرّف"), 0 } }) },
+        {
+          STR("prms"), SharedList::create({
+            SharedMap::create(false, {
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
+              { STR("min"), std::make_shared<Integer>(1) },
+              { STR("max"), std::make_shared<Integer>(1) },
+              { STR("pty"), std::make_shared<Integer>(1) }
+            })
+          })
+        }
+      })
+    },
+    {SymbolDefElement::HANDLER, std::make_shared<Processing::Handlers::DefParsingHandler>()}
   }).get());
 
   //// Cmd : keyword {Subject}.

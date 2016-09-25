@@ -35,8 +35,6 @@ class GrammarPlant : public Data::GrammarPlant
 
   private: SharedPtr<StringLiteralTokenizingHandler> stringLiteralHandler;
 
-  private: SharedPtr<Processing::Handlers::RootParsingHandler> rootHandler;
-
   private: SharedPtr<Processing::Handlers::GenericParsingHandler> parsingHandler;
 
   private: SharedPtr<ImportParsingHandler> importHandler;

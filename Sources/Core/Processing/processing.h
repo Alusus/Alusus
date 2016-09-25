@@ -297,19 +297,10 @@ DEFINE_BUILD_MSG(AmbiguityMsg, "Core.Processing", "Core", "alusus.net", "P2001",
 #include "DecisionNodePool.h"
 #include "Parser.h"
 
-// Parsing Handlers
-#include "Handlers/GenericParsingHandler.h"
-#include "Handlers/RootParsingHandler.h"
-#include "Handlers/ListParsingHandler.h"
-#include "Handlers/InfixParsingHandler.h"
-#include "Handlers/OutfixParsingHandler.h"
-#include "Handlers/PrefixParsingHandler.h"
-#include "Handlers/PostfixParsingHandler.h"
-#include "Handlers/ChainOpParsingHandler.h"
-#include "Handlers/TextParsingHandler.h"
-#include "Handlers/CustomParsingHandler.h"
-
 // Main Class
 #include "Engine.h"
+
+// Parsing Handlers
+#include "Handlers/handlers.h"
 
 #endif

@@ -2,7 +2,7 @@ import "libalusus_spp.so";
 
 (a:int, b:int)=>int;
 
-def a: {"hello", "world"};
+def a: {"hello", "world"; i++ };
 
 def b: module {
   def c: 124;

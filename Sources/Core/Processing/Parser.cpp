@@ -20,7 +20,7 @@ namespace Core { namespace Processing
 //==============================================================================
 // Member Functions
 
-void Parser::initialize(Data::GrammarRepository *grammarRepo, Data::SharedRepository *definitionsRepo)
+void Parser::initialize(Data::GrammarRepository *grammarRepo, SharedPtr<Data::Ast::Scope> rootScope)
 {
   // Before we can change the production list, we need to make sure we have no outstanding
   // states.
@@ -35,7 +35,7 @@ void Parser::initialize(Data::GrammarRepository *grammarRepo, Data::SharedReposi
 
   // Set the repositories.
   this->grammarRepository = grammarRepo;
-  this->definitionsRepository = definitionsRepo;
+  this->rootScope = rootScope;
 
   // TODO: If we have a new manager, we need to set the production_in_use_inquirer signal.
   //if (this->production_definitions != 0) {

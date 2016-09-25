@@ -58,12 +58,12 @@ namespace Core { namespace Data { namespace Ast
     stream << STR(#type) __VA_ARGS__; \
     Word id = this->getProdId(); \
     if (id != UNKNOWN_ID) { \
-      stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]"); \
+      stream << STR(" [") << ID_GENERATOR->getDesc(id) << STR("]"); \
     } \
     for (Word i = 0; i < this->getCount(); ++i) { \
       stream << STR("\n"); \
       printIndents(stream, indents+1); \
-      dumpData(stream, this->get(i), indents+1); \
+      Core::Data::dumpData(stream, this->get(i), indents+1); \
     } \
   }
 
@@ -87,6 +87,7 @@ ti_s_enum(BracketType, Integer, "Core.Data.Ast", "Core", "alusus.net", ROUND, SQ
 #include "OutfixOperator.h"
 #include "Text.h"
 #include "Bracket.h"
+#include "Definition.h"
 
 namespace Core { namespace Data { namespace Ast
 {

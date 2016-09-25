@@ -388,7 +388,6 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 #include "DataOwner.h"
 #include "AttributesHolder.h"
 #include "Initializable.h"
-#include "Named.h"
 #include "IdHolder.h"
 #include "Clonable.h"
 #include "Printable.h"
