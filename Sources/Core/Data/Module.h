@@ -19,19 +19,27 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class Module : public Node,
-               public virtual MapContainer, public virtual IdHolder, public virtual DataOwner
+               public virtual RtMembers, public virtual MapContainer, public virtual IdHolder, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Module, Node, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(Node, MapContainer, IdHolder, DataOwner);
+  IMPLEMENT_INTERFACES(Node, RtMembers, MapContainer, IdHolder, DataOwner);
 
 
   //============================================================================
   // Member Variables
 
   protected: SharedMap definitions;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_IDHOLDER(Module);
+
+  IMPLEMENT_RTMEMBERS((id, TiWord, VALUE, setId(value), &id));
 
 
   //============================================================================

@@ -23,7 +23,7 @@ Module::Module(const std::initializer_list<Argument<Char const*>> &args) : defin
   this->definitions.contentChangeNotifier.connect(this, &Module::onDefinitionsContentChanged);
 
   for (auto arg : args) {
-    this->add(arg.id, arg.ioVal);
+    this->add(arg.id, arg.tiShared);
   }
 }
 

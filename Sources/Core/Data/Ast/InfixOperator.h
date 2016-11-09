@@ -19,22 +19,32 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class InfixOperator : public Node,
-                      public virtual MapContainer, public virtual MetadataHolder,
+                      public virtual RtMembers, public virtual MapContainer, public virtual Metadata,
                       public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(InfixOperator, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, MapContainer, MetadataHolder, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, RtMembers, MapContainer, Metadata, Clonable, Printable);
 
 
   //============================================================================
   // Member Variables
 
-  protected: String type;
+  protected: TiStr type;
   protected: TioSharedPtr first;
   protected: TioSharedPtr second;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(InfixOperator);
+
+  IMPLEMENT_RTMEMBERS((type, TiStr, VALUE, setType(value), &type),
+                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER((TiObject, first), (TiObject, second));
 
@@ -44,54 +54,16 @@ class InfixOperator : public Node,
   //============================================================================
   // Constructors & Destructor
 
-  public: InfixOperator()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(InfixOperator);
 
-  public: InfixOperator(Word pid, SourceLocation const &sl) :
-    MetadataHolder(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(InfixOperator);
 
-  public: InfixOperator(Word pid, Char const *t, TioSharedPtr const &f, TioSharedPtr const &s) :
-    MetadataHolder(pid), type(t), first(f), second(s)
-  {
-    OWN_SHAREDPTR(this->first);
-    OWN_SHAREDPTR(this->second);
-  }
-
-  public: InfixOperator(Word pid, SourceLocation const &sl, Char const *t, TioSharedPtr const &f, TioSharedPtr const &s) :
-    MetadataHolder(pid, sl), type(t), first(f), second(s)
-  {
-    OWN_SHAREDPTR(this->first);
-    OWN_SHAREDPTR(this->second);
-  }
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(InfixOperator);
 
   public: virtual ~InfixOperator()
   {
     DISOWN_SHAREDPTR(this->first);
     DISOWN_SHAREDPTR(this->second);
-  }
-
-  public: static SharedPtr<InfixOperator> create()
-  {
-    return std::make_shared<InfixOperator>();
-  }
-
-  public: static SharedPtr<InfixOperator> create(Word pid, SourceLocation const &sl)
-  {
-    return std::make_shared<InfixOperator>(pid, sl);
-  }
-
-  public: static SharedPtr<InfixOperator> create(Word pid, Char const *t, TioSharedPtr const &f, TioSharedPtr const &s)
-  {
-    return std::make_shared<InfixOperator>(pid, t, f, s);
-  }
-
-  public: static SharedPtr<InfixOperator> create(Word pid, SourceLocation const &sl,
-                                                 Char const *t, TioSharedPtr const &f, TioSharedPtr const &s)
-  {
-    return std::make_shared<InfixOperator>(pid, sl, t, f, s);
   }
 
 
@@ -102,8 +74,12 @@ class InfixOperator : public Node,
   {
     this->type = t;
   }
+  public: void setType(TiStr const *t)
+  {
+    this->type = t == 0 ? "" : t->get();
+  }
 
-  public: String const& getType() const
+  public: TiStr const& getType() const
   {
     return this->type;
   }
@@ -130,18 +106,6 @@ class InfixOperator : public Node,
 
 
   //============================================================================
-  // MetadataHolder Overrides
-
-  public: virtual TiObject* getAttribute(Char const *name)
-  {
-    if (SBSTR(name) == STR("type")) {
-      return &this->type;
-    }
-    return MetadataHolder::getAttribute(name);
-  }
-
-
-  //============================================================================
   // Clonable Implementation
 
   public: virtual SharedPtr<TiObject> clone() const;
@@ -158,38 +122,9 @@ class InfixOperator : public Node,
     TYPE_INFO(X, InfixOperator, "Core.Data.Ast", "Core", "alusus.net"); \
     IMPLEMENT_INTERFACES_2(InfixOperator, Clonable, Printable); \
     IMPLEMENT_AST_MAP_PRINTABLE(X, << this->type.get()); \
-    public: X() \
-    { \
-    } \
-    public: X(Word pid, SourceLocation const &sl) : \
-      InfixOperator(pid, sl) \
-    { \
-    } \
-    public: X(Word pid, Char const *t, TioSharedPtr const &f, TioSharedPtr const &s) : \
-      InfixOperator(pid, t, f, s) \
-    { \
-    } \
-    public: X(Word pid, SourceLocation const &sl, Char const *t, TioSharedPtr const &f, TioSharedPtr const &s) : \
-      InfixOperator(pid, sl, t, f, s) \
-    { \
-    } \
-    public: static SharedPtr<X> create() \
-    { \
-      return std::make_shared<X>(); \
-    } \
-    public: static SharedPtr<X> create(Word pid, SourceLocation const &sl) \
-    { \
-      return std::make_shared<X>(pid, sl); \
-    } \
-    public: static SharedPtr<X> create(Word pid, Char const *t, TioSharedPtr const &f, TioSharedPtr const &s) \
-    { \
-      return std::make_shared<X>(pid, t, f, s); \
-    } \
-    public: static SharedPtr<X> create(Word pid, SourceLocation const &sl, \
-                                       Char const *t, TioSharedPtr const &f, TioSharedPtr const &s) \
-    { \
-      return std::make_shared<X>(pid, sl, t, f, s); \
-    } \
+    IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
+    IMPLEMENT_ATTR_CONSTRUCTOR(X); \
+    IMPLEMENT_ATTR_MAP_CONSTRUCTOR(X); \
     public: virtual SharedPtr<TiObject> clone() const \
     { \
       SharedPtr<X> newObject = std::make_shared<X>(); \

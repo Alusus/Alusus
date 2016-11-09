@@ -26,13 +26,13 @@ namespace Core { namespace Data { namespace Ast
  * GenericParsingHandler to compose the parsed tree.
  */
 class Token : public Node,
-              public virtual MetadataHolder, public virtual Clonable, public virtual Printable
+              public virtual RtMembers, public virtual Metadata, public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Token, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(Node, MetadataHolder, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, RtMembers, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -43,7 +43,7 @@ class Token : public Node,
    *
    * This value is the id of the token definition that matched this token.
    */
-  private: Word id;
+  private: TiWord id;
 
   /**
    * @brief The text of the token, if needed.
@@ -51,35 +51,26 @@ class Token : public Node,
    * If the token is not a constant string, this value will contain the token
    * text, otherwise it will be empty.
    */
-  private: Str text;
+  private: TiStr text;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(Token);
+
+  IMPLEMENT_RTMEMBERS((id, TiWord, VALUE, setId(value), &id),
+                      (text, TiStr, VALUE, setText(value), &text),
+                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: Token(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR("")) :
-    MetadataHolder(pid), id(i), text(txt)
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Token);
 
-  public: Token(Word pid, Word i, Char const *txt, SourceLocation const &sl) :
-    MetadataHolder(pid, sl), id(i), text(txt)
-  {
-  }
-
-  public: virtual ~Token()
-  {
-  }
-
-  public: static SharedPtr<Token> create(Word pid=UNKNOWN_ID, Word i=UNKNOWN_ID, Char const *txt=STR(""))
-  {
-    return std::make_shared<Token>(pid, i, txt);
-  }
-
-  public: static SharedPtr<Token> create(Word pid, Word i, Char const *txt, SourceLocation const &sl)
-  {
-    return std::make_shared<Token>(pid, i, txt, sl);
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(Token);
 
 
   //============================================================================
@@ -95,6 +86,10 @@ class Token : public Node,
   {
     this->id = i;
   }
+  public: void setId(TiWord const *i)
+  {
+    this->id = i == 0 ? UNKNOWN_ID : i->get();
+  }
 
   /**
    * @brief Get the token id.
@@ -102,7 +97,7 @@ class Token : public Node,
    * @return Returns the token id. This value is the id of the token
    *         definition that matched this token.
    */
-  public: Word getId() const
+  public: TiWord const& getId() const
   {
     return this->id;
   }
@@ -116,16 +111,13 @@ class Token : public Node,
   {
     this->text = t;
   }
-
-  /**
-   * @brief Set the token text.
-   *
-   * @param t A pointer to a string containing the token text.
-   * @param s The size of the string.
-   */
   public: void setText(Char const *t, Int s)
   {
-    this->text.assign(t, s);
+    this->text.set(t, s);
+  }
+  public: void setText(TiStr const *t)
+  {
+    this->text = t == 0 ? "" : t->get();
   }
 
   /**
@@ -133,7 +125,7 @@ class Token : public Node,
    *
    * @return Returns a pointer to the token text string.
    */
-  public: const Str& getText() const
+  public: TiStr const& getText() const
   {
     return this->text;
   }
@@ -147,7 +139,7 @@ class Token : public Node,
     SharedPtr<Token> newToken = std::make_shared<Token>();
     newToken->setProdId(this->getProdId());
     newToken->setId(this->getId());
-    newToken->setText(this->getText().c_str());
+    newToken->setText(this->getText());
     newToken->setSourceLocation(this->getSourceLocation());
     return newToken;
   }

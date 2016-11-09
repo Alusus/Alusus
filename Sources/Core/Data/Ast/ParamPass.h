@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class ParamPass : public Node,
-                  public virtual MapContainer, public virtual MetadataHolder,
+                  public virtual RtMembers, public virtual MapContainer, public virtual Metadata,
                   public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ParamPass, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_4(Node, MapContainer, MetadataHolder, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, RtMembers, MapContainer, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -36,7 +36,18 @@ class ParamPass : public Node,
   private: TioSharedPtr operand;
   private: TioSharedPtr param;
 
-  IMPLEMENT_MAP_CONTAINER((TiObject, operand), (TiObject, param));
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(ParamPass);
+
+  IMPLEMENT_RTMEMBERS((type, BracketType, VALUE, setType(value), &type),
+                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+
+  IMPLEMENT_MAP_CONTAINER((TiObject, operand),
+                          (TiObject, param));
 
   IMPLEMENT_AST_MAP_PRINTABLE(ParamPass, << (this->type == BracketType::ROUND ? STR("()") : STR("[]")));
 
@@ -44,28 +55,11 @@ class ParamPass : public Node,
   //============================================================================
   // Constructors & Destructor
 
-  public: ParamPass()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(ParamPass);
 
-  public: ParamPass(Word pid, SourceLocation const &sl) :
-    MetadataHolder(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(ParamPass);
 
-  public: ParamPass(Word pid, BracketType t, TioSharedPtr const &o, TioSharedPtr const &p) :
-    MetadataHolder(pid), type(t), operand(o), param(p)
-  {
-    OWN_SHAREDPTR(this->operand);
-    OWN_SHAREDPTR(this->param);
-  }
-
-  public: ParamPass(Word pid, SourceLocation const &sl, BracketType t, TioSharedPtr const &o, TioSharedPtr const &p) :
-    MetadataHolder(pid, sl), type(t), operand(o), param(p)
-  {
-    OWN_SHAREDPTR(this->operand);
-    OWN_SHAREDPTR(this->param);
-  }
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(ParamPass);
 
   public: virtual ~ParamPass()
   {
@@ -73,37 +67,20 @@ class ParamPass : public Node,
     DISOWN_SHAREDPTR(this->param);
   }
 
-  public: static SharedPtr<ParamPass> create()
-  {
-    return std::make_shared<ParamPass>();
-  }
-
-  public: static SharedPtr<ParamPass> create(Word pid, SourceLocation const &sl)
-  {
-    return std::make_shared<ParamPass>(pid, sl);
-  }
-
-  public: static SharedPtr<ParamPass> create(Word pid, BracketType t, TioSharedPtr const &o, TioSharedPtr const &p)
-  {
-    return std::make_shared<ParamPass>(pid, t, o, p);
-  }
-
-  public: static SharedPtr<ParamPass> create(Word pid, SourceLocation const &sl,
-                                             BracketType t, TioSharedPtr const &o, TioSharedPtr const &p)
-  {
-    return std::make_shared<ParamPass>(pid, sl, t, o, p);
-  }
-
 
   //============================================================================
   // Member Functions
 
-  public: void setType(BracketType t)
+  public: void setType(BracketType const &t)
   {
     this->type = t;
   }
+  public: void setType(BracketType const *t)
+  {
+    this->type = t == 0 ? BracketType::ROUND : t->get();
+  }
 
-  public: BracketType getType() const
+  public: BracketType const& getType() const
   {
     return this->type;
   }
@@ -126,18 +103,6 @@ class ParamPass : public Node,
   public: TioSharedPtr const& getParam() const
   {
     return this->param;
-  }
-
-
-  //============================================================================
-  // MetadataHolder Overrides
-
-  public: virtual TiObject* getAttribute(Char const *name)
-  {
-    if (SBSTR(name) == STR("type")) {
-      return &this->type;
-    }
-    return MetadataHolder::getAttribute(name);
   }
 
 

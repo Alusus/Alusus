@@ -18,48 +18,52 @@ namespace Core { namespace Data
 
 // TODO: DOC
 
-class IdHolder : public AttributesHolder
+class IdHolder : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(IdHolder, AttributesHolder, "Core.Data", "Core", "alusus.net");
-
-
-  //============================================================================
-  // Member Variables
-
-  private: Integer id;
+  INTERFACE_INFO(IdHolder, TiInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual void setId(Word id)
+  public: virtual void setId(Word id) = 0;
+  public: virtual void setId(TiWord const *id)
   {
-    this->id = id;
+    this->setId(id == 0 ? UNKNOWN_ID : id->get());
   }
 
-  public: virtual Word getId() const
-  {
-    return this->id;
-  }
+  public: virtual TiWord& getId() = 0;
+  public: virtual TiWord const& getId() const = 0;
 
   public: virtual Str const& getIdString() const
   {
     return ID_GENERATOR->getDesc(this->getId());
   }
 
-  public: virtual TiObject* getAttribute(Char const *name)
-  {
-    if (SBSTR(name) == STR("id")) {
-      return &this->id;
-    } else {
-      return 0;
-    }
-  }
-
 }; // class
+
+
+//==============================================================================
+// Macros
+
+#define IMPLEMENT_IDHOLDER(type) \
+  private: Core::Basic::TiWord id = UNKNOWN_ID; \
+  using IdHolder::setId; \
+  public: virtual void setId(Word id) \
+  { \
+    this->id = id; \
+  } \
+  public: virtual Core::Basic::TiWord& getId() \
+  { \
+    return this->id; \
+  } \
+  public: virtual Core::Basic::TiWord const& getId() const \
+  { \
+    return this->id; \
+  }
 
 } } // namespace
 

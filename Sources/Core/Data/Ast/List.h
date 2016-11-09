@@ -30,13 +30,22 @@ namespace Core { namespace Data { namespace Ast
  * handler.
  */
 class List : public SharedList,
-             public virtual MetadataHolder, public virtual Clonable, public virtual Printable
+             public virtual RtMembers, public virtual Metadata, public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(List, SharedList, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(SharedList, MetadataHolder, Clonable, Printable);
+  IMPLEMENT_INTERFACES(SharedList, RtMembers, Metadata, Clonable, Printable);
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(List);
+
+  IMPLEMENT_RTMEMBERS((prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_AST_LIST_CLONABLE(List);
 
@@ -46,51 +55,11 @@ class List : public SharedList,
   //============================================================================
   // Constructor / Destructor
 
-  public: List()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(List);
 
-  public: List(Word pid, SourceLocation const &sl) :
-    MetadataHolder(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(List);
 
-  public: List(Word pid, const std::initializer_list<SharedPtr<TiObject>> &args) :
-    MetadataHolder(pid), SharedList(args)
-  {
-  }
-
-  public: List(Word pid, SourceLocation const &sl,
-                     const std::initializer_list<SharedPtr<TiObject>> &args) :
-    MetadataHolder(pid, sl), SharedList(args)
-  {
-  }
-
-  public: virtual ~List()
-  {
-  }
-
-  public: static SharedPtr<List> create()
-  {
-    return std::make_shared<List>();
-  }
-
-  public: static SharedPtr<List> create(Word pid, SourceLocation const &sl)
-  {
-    return std::make_shared<List>(pid, sl);
-  }
-
-  public: static SharedPtr<List> create(Word pid,
-                                        const std::initializer_list<SharedPtr<TiObject>> &args)
-  {
-    return std::make_shared<List>(pid, args);
-  }
-
-  public: static SharedPtr<List> create(Word pid, SourceLocation const &sl,
-                                        const std::initializer_list<SharedPtr<TiObject>> &args)
-  {
-    return std::make_shared<List>(pid, sl, args);
-  }
+  IMPLEMENT_ATTR_LIST_CONSTRUCTOR(List);
 
 }; // class
 

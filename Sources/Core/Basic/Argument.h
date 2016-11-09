@@ -16,24 +16,31 @@
 namespace Core { namespace Basic
 {
 
+s_enum(ArgumentType, INT, WORD, BOOL, STR, TI_PTR, TI_REF, TI_SHARED);
+
 /**
  * @brief A structure to hold different arguments used in initializer lists.
  * @ingroup basic_utils
  */
 template <class TID> struct Argument
 {
+  ArgumentType type;
   TID id;
 
   Int intVal;
   Bool boolVal;
   Char const *strVal;
-  SharedPtr<TiObject> ioVal;
+  TiObject *tiPtr;
+  TiObject const *tiRef;
+  SharedPtr<TiObject> tiShared;
 
-  Argument(TID i, Int v) : id(i), intVal(v) {}
-  Argument(TID i, Word v) : id(i), intVal(reinterpret_cast<Int>(v)) {}
-  Argument(TID i, Bool v) : id(i), boolVal(v) {}
-  Argument(TID i, Char const *v) : id(i), strVal(v) {}
-  Argument(TID i, SharedPtr<TiObject> const &v) : id(i), ioVal(v) {}
+  Argument(TID i, Int v) : id(i), intVal(v), type(ArgumentType::INT) {}
+  Argument(TID i, Word v) : id(i), intVal(static_cast<Int>(v)), type(ArgumentType::WORD) {}
+  Argument(TID i, Bool v) : id(i), boolVal(v), type(ArgumentType::BOOL) {}
+  Argument(TID i, Char const *v) : id(i), strVal(v), type(ArgumentType::STR) {}
+  Argument(TID i, TiObject *v) : id(i), tiPtr(v), type(ArgumentType::TI_PTR) {}
+  Argument(TID i, TiObject const &v) : id(i), tiRef(&v), type(ArgumentType::TI_REF) {}
+  Argument(TID i, SharedPtr<TiObject> const &v) : id(i), tiShared(v), type(ArgumentType::TI_SHARED) {}
 };
 
 

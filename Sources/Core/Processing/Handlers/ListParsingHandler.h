@@ -66,7 +66,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
           // At this point, posId must be 1 since the list is not enforced and the current data is
           // not null, meaning we've already set data at this level.
           TioSharedPtr list = this->createListNode(state, levelIndex);
-          auto metadata = tii_cast<Data::Ast::MetadataHolder>(currentData);
+          auto metadata = ti_cast<Data::Ast::Metadata>(currentData);
           if (metadata != 0) {
             list.s_cast_get<TYPE>()->setSourceLocation(metadata->getSourceLocation());
           }
@@ -78,7 +78,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
         return;
       } else if (this->isListItemEnforced(state, levelIndex) && state->refTermLevel(levelIndex).getPosId() > 1) {
         TioSharedPtr list = this->createListNode(state, levelIndex);
-        auto metadata = data.tii_cast_get<Data::Ast::MetadataHolder>();
+        auto metadata = data.ti_cast_get<Data::Ast::Metadata>();
         if (metadata != 0) {
           list.s_cast_get<TYPE>()->setSourceLocation(metadata->getSourceLocation());
         }

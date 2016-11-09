@@ -31,29 +31,13 @@ class Type : public Block
 
 
   //============================================================================
-  // Constructors & Destructor
+  // Constructor / Destructor
 
-  public: Type()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Type);
 
-  public: Type(Word pid, Core::Data::SourceLocation const &sl) : Block(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(Type);
 
-  public: Type(Word pid, std::initializer_list<SharedPtr<TiObject>> const &args) : Block(pid, args)
-  {
-  }
-
-  public: Type(Word pid, Core::Data::SourceLocation const &sl,
-               std::initializer_list<SharedPtr<TiObject>> const &args) :
-    Block(pid, sl, args)
-  {
-  }
-
-  public: virtual ~Type()
-  {
-  }
+  IMPLEMENT_ATTR_LIST_CONSTRUCTOR(Type);
 
 }; // class
 

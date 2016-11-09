@@ -249,7 +249,7 @@ class Parser : public SignalReceiver
   /// Get the parsing handler for the top production level in a state.
   private: ParsingHandler* getTopParsingHandler(ParserState *state)
   {
-    return state->refTopProdLevel().getProd()->getOperationHandler().s_cast_get<ParsingHandler>();
+    return state->refTopProdLevel().getProd()->getBuildHandler().s_cast_get<ParsingHandler>();
   }
 
   /// Check whether the production with the given id is currently in use.

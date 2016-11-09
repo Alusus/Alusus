@@ -75,7 +75,7 @@ ti_s_enum(BracketType, Integer, "Core.Data.Ast", "Core", "alusus.net", ROUND, SQ
 
 } } } // namespace
 
-#include "MetadataHolder.h"
+#include "Metadata.h"
 #include "Token.h"
 #include "Route.h"
 #include "List.h"

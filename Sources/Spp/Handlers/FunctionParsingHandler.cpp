@@ -23,7 +23,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
 
   auto expr = state->getData().ti_cast_get<Core::Data::Ast::List>();
   ASSERT(expr != 0);
-  auto exprMetadata = ti_cast<Core::Data::Ast::MetadataHolder>(expr);
+  auto exprMetadata = ti_cast<Core::Data::Ast::Metadata>(expr);
   ASSERT(exprMetadata != 0);
 
   if (expr->getCount() != 3) {
@@ -96,7 +96,7 @@ Bool FunctionParsingHandler::parseArgs(Processing::ParserState *state,
       }
       auto link = ti_cast<Core::Data::Ast::LinkOperator>(argsList->get(i));
       if (link == 0) {
-        auto metadata = ti_cast<Core::Data::Ast::MetadataHolder>(argsList->get(i));
+        auto metadata = ti_cast<Core::Data::Ast::Metadata>(argsList->get(i));
         state->addBuildMsg(std::make_shared<InvalidFunctionArg>(
           metadata == 0 ? bracket->getSourceLocation() : metadata->getSourceLocation()));
         return false;
@@ -118,7 +118,7 @@ Bool FunctionParsingHandler::parseArgs(Processing::ParserState *state,
 
 Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
                                       Core::Data::Ast::LinkOperator *link,
-                                      SharedPtr<SharedMap> const &result)
+                                      SharedPtr<Core::Data::SharedMap> const &result)
 {
   auto name = link->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
   if (name == 0) {
@@ -130,7 +130,7 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
     state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(link->getSourceLocation()));
     return false;
   }
-  result->set(name->getValue().c_str(), type);
+  result->set(name->getValue().get(), type);
   return true;
 }
 

@@ -23,15 +23,15 @@ using namespace Data;
 
 void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  auto metadata = state->getData().tii_cast<Ast::MetadataHolder>();
+  auto metadata = state->getData().ti_cast<Ast::Metadata>();
   auto stringLiteral = tio_cast<Ast::StringLiteral>(state->getData().tii_cast_get<Container>()->get(1));
   if (stringLiteral) {
-    auto filename = stringLiteral->getValue().c_str();
+    auto filename = stringLiteral->getValue().get();
     if (!this->import(filename, state)) {
       // Create a build msg.
       state->addBuildMsg(
-        SharedPtr<ImportLoadFailedMsg>(
-          new ImportLoadFailedMsg(filename, metadata->getSourceLocation())));
+        SharedPtr<ImportLoadFailedMsg>(new ImportLoadFailedMsg(filename, metadata->getSourceLocation()))
+      );
     }
   } else {
     throw EXCEPTION(GenericException, STR("Invalid data format."));

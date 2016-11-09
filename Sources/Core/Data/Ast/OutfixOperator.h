@@ -19,20 +19,30 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class OutfixOperator : public Node,
-                       public virtual MapContainer, public virtual MetadataHolder
+                       public virtual RtMembers, public virtual MapContainer, public virtual Metadata
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(OutfixOperator, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, MapContainer, MetadataHolder);
+  IMPLEMENT_INTERFACES(Node, RtMembers, MapContainer, Metadata);
 
 
   //============================================================================
   // Member Variables
 
-  protected: String type;
+  protected: TiStr type;
   protected: TioSharedPtr operand;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(OutfixOperator);
+
+  IMPLEMENT_RTMEMBERS((type, TiStr, VALUE, setType(value), &type),
+                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER((TiObject, operand));
 
@@ -40,26 +50,11 @@ class OutfixOperator : public Node,
   //============================================================================
   // Constructors & Destructor
 
-  public: OutfixOperator()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(OutfixOperator);
 
-  public: OutfixOperator(Word pid, SourceLocation const &sl) :
-    MetadataHolder(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(OutfixOperator);
 
-  public: OutfixOperator(Word pid, Char const *t, TioSharedPtr const &o) :
-    MetadataHolder(pid), type(t), operand(o)
-  {
-    OWN_SHAREDPTR(this->operand);
-  }
-
-  public: OutfixOperator(Word pid, SourceLocation const &sl, Char const *t, TioSharedPtr const &o) :
-    MetadataHolder(pid, sl), type(t), operand(o)
-  {
-    OWN_SHAREDPTR(this->operand);
-  }
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(OutfixOperator);
 
   public: virtual ~OutfixOperator()
   {
@@ -74,8 +69,12 @@ class OutfixOperator : public Node,
   {
     this->type = t;
   }
+  public: void setType(TiStr const *t)
+  {
+    this->type = t == 0 ? "" : t->get();
+  }
 
-  public: String const& getType() const
+  public: TiStr const& getType() const
   {
     return this->type;
   }
@@ -90,18 +89,6 @@ class OutfixOperator : public Node,
     return this->operand;
   }
 
-
-  //============================================================================
-  // MetadataHolder Overrides
-
-  public: virtual TiObject* getAttribute(Char const *name)
-  {
-    if (SBSTR(name) == STR("type")) {
-      return &this->type;
-    }
-    return MetadataHolder::getAttribute(name);
-  }
-
 }; // class
 
 
@@ -114,38 +101,9 @@ class OutfixOperator : public Node,
     TYPE_INFO(X, OutfixOperator, "Core.Data.Ast", "Core", "alusus.net"); \
     IMPLEMENT_INTERFACES_2(OutfixOperator, Clonable, Printable); \
     IMPLEMENT_AST_MAP_PRINTABLE(X, << this->type.get()); \
-    public: X() \
-    { \
-    } \
-    public: X(Word pid, SourceLocation const &sl) : \
-      OutfixOperator(pid, sl) \
-    { \
-    } \
-    public: X(Word pid, Char const *t, TioSharedPtr const &o) : \
-      OutfixOperator(pid, t, o) \
-    { \
-    } \
-    public: X(Word pid, SourceLocation const &sl, Char const *t, TioSharedPtr const &o) : \
-      OutfixOperator(pid, sl, t, o) \
-    { \
-    } \
-    public: static SharedPtr<X> create() \
-    { \
-      return std::make_shared<X>(); \
-    } \
-    public: static SharedPtr<X> create(Word pid, SourceLocation const &sl) \
-    { \
-      return std::make_shared<X>(pid, sl); \
-    } \
-    public: static SharedPtr<X> create(Word pid, Char const *t, TioSharedPtr const &o) \
-    { \
-      return std::make_shared<X>(pid, t, o); \
-    } \
-    public: static SharedPtr<X> create(Word pid, SourceLocation const &sl, \
-                                       Char const *t, TioSharedPtr const &o) \
-    { \
-      return std::make_shared<X>(pid, sl, t, o); \
-    } \
+    IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
+    IMPLEMENT_ATTR_CONSTRUCTOR(X); \
+    IMPLEMENT_ATTR_MAP_CONSTRUCTOR(X); \
     public: virtual SharedPtr<TiObject> clone() const \
     { \
       SharedPtr<X> newObject = std::make_shared<X>(); \

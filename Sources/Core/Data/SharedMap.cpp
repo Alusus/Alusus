@@ -25,12 +25,12 @@ SharedMap::SharedMap(Bool useIndex, const std::initializer_list<Argument<Char co
 
   for (auto arg : args) {
     if (sbstr_cast(arg.id) == STR("@parent")) {
-      this->parentReference = arg.ioVal.tio_cast<Reference>();
-      if (this->parentReference == 0 && arg.ioVal != 0) {
+      this->parentReference = arg.tiShared.tio_cast<Reference>();
+      if (this->parentReference == 0 && arg.tiShared != 0) {
         throw EXCEPTION(GenericException, STR("Provided parent reference is not of type Reference."));
       }
     } else {
-      this->add(arg.id, arg.ioVal);
+      this->add(arg.id, arg.tiShared);
     }
   }
 }

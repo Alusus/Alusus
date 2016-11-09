@@ -28,14 +28,14 @@ namespace Core { namespace Data { namespace Ast
  * compose the Parsing Representation Tree (PRT).
  */
 class Route : public Node,
-              public virtual MetadataHolder, public virtual MapContainer,
+              public virtual RtMembers, public virtual MapContainer, public virtual Metadata,
               public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Route, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_4(Node, MetadataHolder, MapContainer, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, RtMembers, MapContainer, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -50,7 +50,7 @@ class Route : public Node,
    *                   of the selected term/path.
    * Optional Term: For optional terms this value can be 0 or 1.
    */
-  public: Int route;
+  public: TiInt route;
 
   /**
    * @brief The child parsed data for the term.
@@ -60,63 +60,29 @@ class Route : public Node,
    */
   public: SharedPtr<TiObject> data;
 
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(Route);
+
+  IMPLEMENT_RTMEMBERS((route, TiInt, VALUE, setRoute(value), &route),
+                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+
   IMPLEMENT_MAP_CONTAINER((TiObject, data));
 
-  IMPLEMENT_AST_LIST_PRINTABLE(Route, << this->route);
+  IMPLEMENT_AST_LIST_PRINTABLE(Route, << this->route.get());
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: Route(Word pid=UNKNOWN_ID, Int r=-1, TiObject *d=0) :
-    MetadataHolder(pid), route(r), data(d)
-  {
-    OWN_SHAREDPTR(this->data);
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Route);
 
-  public: Route(Word pid, Int r, SharedPtr<TiObject> const &d) :
-    MetadataHolder(pid), route(r), data(d)
-  {
-    OWN_SHAREDPTR(this->data);
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(Route);
 
-  public: Route(Word pid, Int r, SourceLocation const &sl, TiObject *d=0) :
-    MetadataHolder(pid, sl), route(r), data(d)
-  {
-    OWN_SHAREDPTR(this->data);
-  }
-
-  public: Route(Word pid, Int r, SourceLocation const &sl, SharedPtr<TiObject> const &d) :
-    MetadataHolder(pid, sl), route(r), data(d)
-  {
-    OWN_SHAREDPTR(this->data);
-  }
-
-  public: virtual ~Route()
-  {
-    DISOWN_SHAREDPTR(this->data);
-  }
-
-  public: static SharedPtr<Route> create(Word pid=UNKNOWN_ID, Int r=-1, TiObject *d=0)
-  {
-    return std::make_shared<Route>(pid, r, d);
-  }
-
-  public: static SharedPtr<Route> create(Word pid, Int r, SharedPtr<TiObject> const &d)
-  {
-    return std::make_shared<Route>(pid, r, d);
-  }
-
-  public: static SharedPtr<Route> create(Word pid, Int r, SourceLocation const &sl, TiObject *d=0)
-  {
-    return std::make_shared<Route>(pid, r, sl, d);
-  }
-
-  public: static SharedPtr<Route> create(Word pid, Int r, SourceLocation const &sl,
-                                         SharedPtr<TiObject> const &d)
-  {
-    return std::make_shared<Route>(pid, r, sl, d);
-  }
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(Route);
 
 
   //============================================================================
@@ -135,6 +101,10 @@ class Route : public Node,
   {
     this->route = r;
   }
+  public: void setRoute(TiInt const *r)
+  {
+    this->route = r == 0 ? 0 : r->get();
+  }
 
   /**
    * @brief Get the route index.
@@ -145,7 +115,7 @@ class Route : public Node,
    *                   of the selected term/path.
    * Optional Term: For optional terms this value can be 0 or 1.
    */
-  public: Int getRoute() const
+  public: TiInt const& getRoute() const
   {
     return this->route;
   }

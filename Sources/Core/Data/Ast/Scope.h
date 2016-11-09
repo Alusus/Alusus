@@ -31,48 +31,11 @@ class Scope : public StatementList
   //============================================================================
   // Constructor / Destructor
 
-  public: Scope()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Scope);
 
-  public: Scope(Word pid, SourceLocation const &sl) : StatementList(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(Scope);
 
-  public: Scope(Word pid, const std::initializer_list<SharedPtr<TiObject>> &args) : StatementList(pid, args)
-  {
-  }
-
-  public: Scope(Word pid, SourceLocation const &sl,
-                const std::initializer_list<SharedPtr<TiObject>> &args) :
-    StatementList(pid, sl, args)
-  {
-  }
-
-  public: virtual ~Scope()
-  {
-  }
-
-  public: static SharedPtr<Scope> create()
-  {
-    return std::make_shared<Scope>();
-  }
-
-  public: static SharedPtr<Scope> create(Word pid, SourceLocation const &sl)
-  {
-    return std::make_shared<Scope>(pid, sl);
-  }
-
-  public: static SharedPtr<Scope> create(Word pid, const std::initializer_list<SharedPtr<TiObject>> &args)
-  {
-    return std::make_shared<Scope>(pid, args);
-  }
-
-  public: static SharedPtr<Scope> create(Word pid, SourceLocation const &sl,
-                                         const std::initializer_list<SharedPtr<TiObject>> &args)
-  {
-    return std::make_shared<Scope>(pid, sl, args);
-  }
+  IMPLEMENT_ATTR_LIST_CONSTRUCTOR(Scope);
 
 }; // class
 

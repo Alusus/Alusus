@@ -17,14 +17,15 @@ namespace Spp { namespace Ast
 {
 
 class CastOp : public Core::Data::Node,
-               public virtual Core::Data::MapContainer, public virtual Core::Data::Ast::MetadataHolder,
-               public virtual Core::Data::Clonable, public virtual Core::Data::Printable
+               public virtual Core::Basic::RtMembers, public virtual Core::Data::MapContainer,
+               public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
+               public virtual Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(CastOp, Core::Data::Node, "Spp.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Data::MapContainer, Core::Data::Ast::MetadataHolder,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::RtMembers, Core::Data::MapContainer, Core::Data::Ast::Metadata,
                                          Core::Data::Clonable, Core::Data::Printable);
 
 
@@ -34,7 +35,17 @@ class CastOp : public Core::Data::Node,
   private: TioSharedPtr operand;
   private: TioSharedPtr targetType;
 
-  IMPLEMENT_MAP_CONTAINER((TiObject, operand), (TiObject, targetType));
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(CastOp);
+
+  IMPLEMENT_RTMEMBERS((prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+
+  IMPLEMENT_MAP_CONTAINER((TiObject, operand),
+                          (TiObject, targetType));
 
   IMPLEMENT_AST_CLONABLE(PointerOp);
 
@@ -44,54 +55,16 @@ class CastOp : public Core::Data::Node,
   //============================================================================
   // Constructors & Destructor
 
-  public: CastOp()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(CastOp);
 
-  public: CastOp(Word pid, Core::Data::SourceLocation const &sl) :
-    MetadataHolder(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(CastOp);
 
-  public: CastOp(Word pid, TioSharedPtr const &o, TioSharedPtr const &t) :
-    MetadataHolder(pid), operand(o), targetType(t)
-  {
-    OWN_SHAREDPTR(this->operand);
-    OWN_SHAREDPTR(this->targetType);
-  }
-
-  public: CastOp(Word pid, Core::Data::SourceLocation const &sl, TioSharedPtr const &o, TioSharedPtr const &t) :
-    MetadataHolder(pid, sl), operand(o), targetType(t)
-  {
-    OWN_SHAREDPTR(this->operand);
-    OWN_SHAREDPTR(this->targetType);
-  }
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(CastOp);
 
   public: virtual ~CastOp()
   {
     DISOWN_SHAREDPTR(this->operand);
     DISOWN_SHAREDPTR(this->targetType);
-  }
-
-  public: static SharedPtr<CastOp> create()
-  {
-    return std::make_shared<CastOp>();
-  }
-
-  public: static SharedPtr<CastOp> create(Word pid, Core::Data::SourceLocation const &sl)
-  {
-    return std::make_shared<CastOp>(pid, sl);
-  }
-
-  public: static SharedPtr<CastOp> create(Word pid, TioSharedPtr const &o, TioSharedPtr const &t)
-  {
-    return std::make_shared<CastOp>(pid, o, t);
-  }
-
-  public: static SharedPtr<CastOp> create(Word pid, Core::Data::SourceLocation const &sl,
-                                          TioSharedPtr const &o, TioSharedPtr const &t)
-  {
-    return std::make_shared<CastOp>(pid, sl, o, t);
   }
 
 

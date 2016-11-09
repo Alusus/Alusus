@@ -98,10 +98,10 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
 
     auto obj = std::make_shared<TYPE>();
     obj->setFirst(currentData);
-    obj->setType(token->getText().c_str());
+    obj->setType(token->getText());
     obj->setSecond(getSharedPtr(list->get(1)));
 
-    auto metadata = currentData.tii_cast_get<Data::Ast::MetadataHolder>();
+    auto metadata = currentData.ti_cast_get<Data::Ast::Metadata>();
     if (metadata != 0) {
       obj->setSourceLocation(metadata->getSourceLocation());
     }

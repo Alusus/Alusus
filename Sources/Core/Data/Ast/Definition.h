@@ -19,21 +19,31 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class Definition : public Node,
-                   public virtual MapContainer, public virtual MetadataHolder,
+                   public virtual RtMembers, public virtual MapContainer, public virtual Metadata,
                    public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Definition, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, MapContainer, MetadataHolder, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, RtMembers, MapContainer, Metadata, Clonable, Printable);
 
 
   //============================================================================
   // Member Variables
 
-  private: Str name;
+  private: TiStr name;
   private: TioSharedPtr target;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(Definition);
+
+  IMPLEMENT_RTMEMBERS((name, TiStr, VALUE, setName(value), &name),
+                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER((TiObject, target));
 
@@ -41,50 +51,15 @@ class Definition : public Node,
   //============================================================================
   // Constructors & Destructor
 
-  public: Definition()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Definition);
 
-  public: Definition(Word pid, SourceLocation const &sl) :
-    MetadataHolder(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(Definition);
 
-  public: Definition(Word pid, Char const *n, TioSharedPtr const &t) :
-    MetadataHolder(pid), name(n), target(t)
-  {
-    OWN_SHAREDPTR(this->target);
-  }
-
-  public: Definition(Word pid, SourceLocation const &sl, Char const *n, TioSharedPtr const &t) :
-    MetadataHolder(pid, sl), name(n), target(t)
-  {
-    OWN_SHAREDPTR(this->target);
-  }
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(Definition);
 
   public: virtual ~Definition()
   {
     DISOWN_SHAREDPTR(this->target);
-  }
-
-  public: static SharedPtr<Definition> create()
-  {
-    return std::make_shared<Definition>();
-  }
-
-  public: static SharedPtr<Definition> create(Word pid, SourceLocation const &sl)
-  {
-    return std::make_shared<Definition>(pid, sl);
-  }
-
-  public: static SharedPtr<Definition> create(Word pid, Char const *n, TioSharedPtr const &t)
-  {
-    return std::make_shared<Definition>(pid, n, t);
-  }
-
-  public: static SharedPtr<Definition> create(Word pid, SourceLocation const &sl, Char const *n, TioSharedPtr const &t)
-  {
-    return std::make_shared<Definition>(pid, sl, n, t);
   }
 
 
@@ -95,8 +70,12 @@ class Definition : public Node,
   {
     this->name = n;
   }
+  public: void setName(TiStr const *n)
+  {
+    this->name = n == 0 ? "" : n->get();
+  }
 
-  public: Str const& getName() const
+  public: TiStr const& getName() const
   {
     return this->name;
   }

@@ -34,6 +34,7 @@ class RootManager : public SignalReceiver
   private: LibraryManager libraryManager;
 
   private: SharedPtr<Data::Ast::Scope> rootScope;
+  private: StandardSeeker seeker;
 
   private: std::vector<Str> searchPaths;
   private: std::vector<Int> searchPathCounts;
@@ -77,6 +78,11 @@ class RootManager : public SignalReceiver
   public: virtual SharedPtr<Data::Ast::Scope> const& getRootScope()
   {
     return this->rootScope;
+  }
+
+  public: virtual StandardSeeker* getSeeker()
+  {
+    return &this->seeker;
   }
 
   public: virtual SharedPtr<TiObject> processString(Char const *str, Char const *name)

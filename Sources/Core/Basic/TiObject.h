@@ -110,7 +110,7 @@ class TiObject : public std::enable_shared_from_this<TiObject>
    */
   public: template<class T> T* getInterface()
   {
-    return reinterpret_cast<T*>(this->_getInterface(T::getInterfaceInfo()));
+    return reinterpret_cast<T*>(this->_getInterface(T::getTypeInfo()));
   }
 
   /**
@@ -119,7 +119,7 @@ class TiObject : public std::enable_shared_from_this<TiObject>
    */
   public: template<class T> const T* getInterface() const
   {
-    return reinterpret_cast<const T*>(const_cast<TiObject*>(this)->_getInterface(T::getInterfaceInfo()));
+    return reinterpret_cast<const T*>(const_cast<TiObject*>(this)->_getInterface(T::getTypeInfo()));
   }
 
   /**
@@ -159,34 +159,6 @@ class TiObject : public std::enable_shared_from_this<TiObject>
 
 
 /**
- * @brief A recursive template used to get comma-separated list of IO names.
- * @ingroup basic_utils
- */
-template <typename... TYPES> struct _IoListUniqueNames;
-template <typename TYPE, typename... REST> struct _IoListUniqueNames<TYPE, REST...>
-{
-  static Str getUniqueName()
-  {
-    return TYPE::getTypeInfo()->getUniqueName() + ", " + _IoListUniqueNames<REST...>::getUniqueName();
-  }
-};
-template <typename TYPE> struct _IoListUniqueNames<TYPE>
-{
-  static Str getUniqueName()
-  {
-    return TYPE::getTypeInfo()->getUniqueName();
-  }
-};
-template <> struct _IoListUniqueNames<>
-{
-  static Str getUniqueName()
-  {
-    return "";
-  }
-};
-
-
-/**
  * @brief A macro that defines the body of getTypeInfo static functions.
  * @ingroup basic_utils
  *
@@ -196,7 +168,7 @@ template <> struct _IoListUniqueNames<>
 #define GET_TYPE_INFO_BODY(myType, baseType, typeNamespace, moduleName, url) \
   static Core::Basic::TypeInfo *typeInfo = 0; \
   if (typeInfo == 0) { \
-    Char const* uniqueName = url "#" moduleName "#" typeNamespace "." myType; \
+    Char const* uniqueName = url "/" moduleName "/" typeNamespace "." myType; \
     typeInfo = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
     if (typeInfo == 0) { \
       typeInfo = new Core::Basic::TypeInfo(myType, typeNamespace, moduleName, url, \
@@ -215,8 +187,8 @@ template <> struct _IoListUniqueNames<>
 #define GET_TYPE_INFO_TEMPLATE_BODY(myType, baseType, typeNamespace, moduleName, url, ...) \
   static Core::Basic::TypeInfo *typeInfo = 0; \
   if (typeInfo == 0) { \
-    Str typeName = Str(#myType) + "<" + _IoListUniqueNames<__VA_ARGS__>::getUniqueName() + ">"; \
-    Str uniqueName = Str(url "#" moduleName "#" typeNamespace ".") + typeName; \
+    Str typeName = Str(#myType) + "<" + TypeName<__VA_ARGS__>::get() + ">"; \
+    Str uniqueName = Str(url "/" moduleName "/" typeNamespace ".") + typeName; \
     typeInfo = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName.c_str())); \
     if (typeInfo == 0) { \
       typeInfo = new Core::Basic::TypeInfo(typeName.c_str(), typeNamespace, moduleName, url, \

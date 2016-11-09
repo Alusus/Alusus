@@ -81,7 +81,7 @@ TEST_CASE("Core::Data/simple_seek", "Successfully seek an element with its conta
                                       {STR("mod2"), Module::create({
                                          {STR("var3"), 0},
                                          {STR("var4"), 0},
-                                         {STR("map1"), SharedMap::create(true, {
+                                         {STR("map1"), Core::Data::SharedMap::create(true, {
                                             {STR("var5"), 0},
                                             {STR("var6"), std::make_shared<String>(STR("hello"))}
                                           })}
@@ -133,7 +133,8 @@ TEST_CASE("Core::Data/simple_seek", "Successfully seek an element with its conta
       CHECK(result != 0);
       CHECK(parent != 0);
       TiObject *parent2;
-      seeker.tryGet(STR("mod1.mod2.map1.var6"), repository.getRoot().get(), result, SharedMap::getTypeInfo(), &parent2);
+      seeker.tryGet(STR("mod1.mod2.map1.var6"), repository.getRoot().get(), result,
+                    Core::Data::SharedMap::getTypeInfo(), &parent2);
       CHECK(result != 0);
       CHECK(parent != 0);
       CHECK(parent != parent2);
@@ -148,7 +149,7 @@ TEST_CASE("Core::Data/simple_seek", "Successfully seek an element with its conta
       CHECK(parent != 0);
       TiObject *parent2;
       seeker.tryGet(REF_PARSER->parseQualifier(STR("mod1.mod2.map1.var6")).get(),
-                    repository.getRoot().get(), result, SharedMap::getTypeInfo(), &parent2);
+                    repository.getRoot().get(), result, Core::Data::SharedMap::getTypeInfo(), &parent2);
       CHECK(result != 0);
       CHECK(parent != 0);
       CHECK(parent != parent2);
@@ -163,15 +164,35 @@ TEST_CASE("Core::Data/advanced_qualifier_seek", "Seek elements with advanced qua
 {
   // Prepare a data tree.
   SharedPtr<TiObject> data =
-    Ast::List::create(ID_GENERATOR->getId(STR("root")), {
-                       Ast::Route::create(ID_GENERATOR->getId(STR("parent.1")), 1,
-                                           Ast::Token::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")),
-                                                               STR("text"))),
-                       Ast::List::create(ID_GENERATOR->getId(STR("parent.2")), {
-                                          Ast::Route::create(ID_GENERATOR->getId(STR("child.1")), 0),
-                                          Ast::Token::create(ID_GENERATOR->getId(STR("child.2")),
-                                                              ID_GENERATOR->getId(STR("token2")))}),
-                       Ast::Token::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
+    Ast::List::create({
+      { "prodId", ID_GENERATOR->getId(STR("root")) }
+    }, {
+      Ast::Route::create({
+        { "prodId", ID_GENERATOR->getId(STR("parent.1")) },
+        { "route", TiInt(1) }
+      }, {
+        { "data", Ast::Token::create({
+          { "id", ID_GENERATOR->getId(STR("token1")) },
+          { "text", STR("text") }
+        }) }
+      }),
+      Ast::List::create({
+        { "prodId", ID_GENERATOR->getId(STR("parent.2")) }
+      }, {
+        Ast::Route::create({
+          { "prodId", ID_GENERATOR->getId(STR("child.1")) },
+          { "route", TiInt(0) }
+        }),
+        Ast::Token::create({
+          { "prodId", ID_GENERATOR->getId(STR("child.2")) },
+          { "id", ID_GENERATOR->getId(STR("token2")) }
+        })
+      }),
+      Ast::Token::create({
+        { "prodId", ID_GENERATOR->getId(STR("parent.3")) },
+        { "id", ID_GENERATOR->getId(STR("token3")) }
+      })
+    });
 
   TiObject *result = 0;
   TiObject *plainResult = 0;
@@ -239,14 +260,35 @@ TEST_CASE("Core::Data/advanced_reference_seek", "Seek elements with advanced ref
 {
   // Prepare a data tree.
   SharedPtr<TiObject> data =
-    Ast::List::create(ID_GENERATOR->getId(STR("root")), {
-                       Ast::Route::create(ID_GENERATOR->getId(STR("parent.1")), 1,
-                                           Ast::Token::create(UNKNOWN_ID, ID_GENERATOR->getId(STR("token1")), STR("text"))),
-                       Ast::List::create(ID_GENERATOR->getId(STR("parent.2")), {
-                                          Ast::Route::create(ID_GENERATOR->getId(STR("child.1")), 0),
-                                          Ast::Token::create(ID_GENERATOR->getId(STR("child.2")),
-                                                              ID_GENERATOR->getId(STR("token2")))}),
-                       Ast::Token::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
+    Ast::List::create({
+      { "prodId", ID_GENERATOR->getId(STR("root")) }
+    }, {
+      Ast::Route::create({
+        { "prodId", ID_GENERATOR->getId(STR("parent.1")) },
+        { "route", TiInt(1) }
+      }, {
+        { "data", Ast::Token::create({
+          { "id", ID_GENERATOR->getId(STR("token1")) },
+          { "text", STR("text") }
+        }) }
+      }),
+      Ast::List::create({
+        { "prodId", ID_GENERATOR->getId(STR("parent.2")) }
+      }, {
+        Ast::Route::create({
+          { "prodId", ID_GENERATOR->getId(STR("child.1")) },
+          { "route", TiInt(0) }
+        }),
+        Ast::Token::create({
+          { "prodId", ID_GENERATOR->getId(STR("child.2")) },
+          { "id", ID_GENERATOR->getId(STR("token2")) }
+        })
+      }),
+      Ast::Token::create({
+        { "prodId", ID_GENERATOR->getId(STR("parent.3")) },
+        { "id", ID_GENERATOR->getId(STR("token3")) }
+      })
+    });
 
   ReferenceSeeker seeker;
   SharedPtr<Reference> reference;
@@ -344,7 +386,7 @@ TEST_CASE("Core::Data/node_ownership", "node owner is set and reset correctly.")
     }
     SECTION("s2", "SharedList owns and disowns objects.")
     {
-      SharedPtr<SharedList> list = SharedList::create({node1, node2});
+      SharedPtr<Core::Data::SharedList> list = Core::Data::SharedList::create({node1, node2});
       CHECK(node1->getOwner() == list.get());
       CHECK(node2->getOwner() == list.get());
       list->add(node3);
@@ -362,7 +404,7 @@ TEST_CASE("Core::Data/node_ownership", "node owner is set and reset correctly.")
     }
     SECTION("s3", "SharedMap owns and disowns objects.")
     {
-      SharedPtr<SharedMap> map = SharedMap::create(false, {
+      SharedPtr<Core::Data::SharedMap> map = Core::Data::SharedMap::create(false, {
          {STR("node1"), node1},
          {STR("node2"), node2}
        });
@@ -421,7 +463,7 @@ TEST_CASE("Core::Data/id_generation", "ID is generated correctly in data trees."
                                       {STR("mod2"), Module::create({
                                          {STR("var3"), 0},
                                          {STR("var4"), 0},
-                                         {STR("map1"), SharedMap::create(true, {
+                                         {STR("map1"), Core::Data::SharedMap::create(true, {
                                             {STR("var5"), 0},
                                             {STR("var6"), std::make_shared<String>(STR("hello"))}
                                           })}
@@ -485,7 +527,7 @@ TEST_CASE("Core::Data/initializables", "Initializable objects are initialized co
                                       {STR("mod2"), GrammarModule::create({
                                          {STR("var3"), 0},
                                          {STR("var4"), 0},
-                                         {STR("map1"), SharedMap::create(true, {
+                                         {STR("map1"), Core::Data::SharedMap::create(true, {
                                             {STR("var5"), 0},
                                             {STR("var6"), std::make_shared<String>(STR("hello"))}
                                           })}

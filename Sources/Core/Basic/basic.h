@@ -202,6 +202,48 @@ typedef std::ostream OutStream;
 #define SELECT_MACRO(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, macro, ...) macro
 
 /**
+ * @brief Selects the variable name from a var tuple.
+ * The tuple consists of: type, name, setter, getter, hold method.
+ * @ingroup basic_macros
+ */
+#define VARNAME_FROM_TUPLE(name, ...) name
+
+/**
+ * @brief Selects the variable name as a string from a type/name pair.
+ * The tuple consists of: type, name, setter, getter, hold type.
+ * @ingroup basic_macros
+ */
+#define VARNAMESTR_FROM_TUPLE(name, ...) #name
+
+/**
+ * @brief Selects the variable type from a var tuple.
+ * The tuple consists of: type, name, setter, getter, hold method.
+ * @ingroup basic_macros
+ */
+#define VARTYPE_FROM_TUPLE(name, type, ...) type
+
+/**
+ * @brief Selects the variable hold type from a var tuple.
+ * The tuple consists of: type, name, setter, getter, hold method.
+ * @ingroup basic_macros
+ */
+#define VARHOLDMETHOD_FROM_TUPLE(name, type, holdMethod, ...) holdMethod
+
+/**
+ * @brief Selects the variable's setter from a var tuple.
+ * The tuple consists of: type, name, setter, getter, hold method.
+ * @ingroup basic_macros
+ */
+#define VARSETTER_FROM_TUPLE(name, type, holdMethod, setter, ...) setter
+
+/**
+ * @brief Selects the variable's getter from a var tuple.
+ * The tuple consists of: type, name, setter, getter, hold method.
+ * @ingroup basic_macros
+ */
+#define VARGETTER_FROM_TUPLE(name, type, holdMethod, setter, getter) getter
+
+/**
  * @brief Defines an enumeration.
  * @ingroup basic_macros
  *
@@ -245,10 +287,12 @@ typedef std::ostream OutStream;
       x() : p(0) {} \
       x(_##x v) : p(v) {} \
       const x& operator=(_##x v) { this->set(v); return *this; } \
-      bool operator ==(x v) const { return this->get() == v.get(); } \
-      bool operator !=(x v) const { return this->get() != v.get(); } \
+      const x& operator=(x const v) { this->set(v.get()); return *this; } \
+      bool operator ==(x const v) const { return this->get() == v.get(); } \
+      bool operator !=(x const v) const { return this->get() != v.get(); } \
       bool operator ==(_##x v) const { return this->get() == v; } \
       bool operator !=(_##x v) const { return this->get() != v; } \
+      _##x get() const { return static_cast<_##x>(p::get()); } \
   }
 
 /**
@@ -545,20 +589,39 @@ extern std::ostream &outStream;
 #include "SbWStr.h"
 #include "Str.h"
 #include "WStr.h"
+
 #include "Logger.h"
 #include "exceptions.h"
+
 #include "SortedIndex.h"
 #include "default_sorted_indices.h"
+
 #include "GlobalStorage.h"
+
+#include "type_names.h"
 #include "TypeInfo.h"
 #include "TiObject.h"
 #include "TiInterface.h"
 #include "ti_casting.h"
+
 #include "SharedPtr.h"
 #include "WeakPtr.h"
+
 #include "SignalReverseConnector.h"
 #include "SignalReceiver.h"
 #include "signals.h"
-#include "arguments.h"
+
+#include "Argument.h"
+
+#include "SharedList.h"
+#include "SharedMap.h"
+
+#include "ti_functions.h"
+#include "RtMembers.h"
+#include "rtmembers_helpers.h"
+#include "DynamicRtMembers.h"
+
+#include "TiNumber.h"
+#include "TiStr.h"
 
 #endif

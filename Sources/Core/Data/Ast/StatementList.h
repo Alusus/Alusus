@@ -31,49 +31,11 @@ class StatementList : public List
   //============================================================================
   // Constructor / Destructor
 
-  public: StatementList()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(StatementList);
 
-  public: StatementList(Word pid, SourceLocation const &sl) : List(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(StatementList);
 
-  public: StatementList(Word pid, const std::initializer_list<SharedPtr<TiObject>> &args) : List(pid, args)
-  {
-  }
-
-  public: StatementList(Word pid, SourceLocation const &sl,
-                        const std::initializer_list<SharedPtr<TiObject>> &args) :
-    List(pid, sl, args)
-  {
-  }
-
-  public: virtual ~StatementList()
-  {
-  }
-
-  public: static SharedPtr<StatementList> create()
-  {
-    return std::make_shared<StatementList>();
-  }
-
-  public: static SharedPtr<StatementList> create(Word pid, SourceLocation const &sl)
-  {
-    return std::make_shared<StatementList>(pid, sl);
-  }
-
-  public: static SharedPtr<StatementList> create(Word pid,
-                                                 const std::initializer_list<SharedPtr<TiObject>> &args)
-  {
-    return std::make_shared<StatementList>(pid, args);
-  }
-
-  public: static SharedPtr<StatementList> create(Word pid, SourceLocation const &sl,
-                                                 const std::initializer_list<SharedPtr<TiObject>> &args)
-  {
-    return std::make_shared<StatementList>(pid, sl, args);
-  }
+  IMPLEMENT_ATTR_LIST_CONSTRUCTOR(StatementList);
 
 }; // class
 

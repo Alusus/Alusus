@@ -17,14 +17,15 @@ namespace Spp { namespace Ast
 {
 
 class SizeOp : public Core::Data::Node,
-               public virtual Core::Data::MapContainer, public virtual Core::Data::Ast::MetadataHolder,
-               public virtual Core::Data::Clonable, public virtual Core::Data::Printable
+               public virtual Core::Basic::RtMembers, public virtual Core::Data::MapContainer,
+               public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
+               public virtual Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SizeOp, Core::Data::Node, "Spp.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Data::MapContainer, Core::Data::Ast::MetadataHolder,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::RtMembers, Core::Data::MapContainer, Core::Data::Ast::Metadata,
                                          Core::Data::Clonable, Core::Data::Printable);
 
 
@@ -32,6 +33,15 @@ class SizeOp : public Core::Data::Node,
   // Member Variables
 
   private: TioSharedPtr operand;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(SizeOp);
+
+  IMPLEMENT_RTMEMBERS((prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER((TiObject, operand));
 
@@ -43,50 +53,15 @@ class SizeOp : public Core::Data::Node,
   //============================================================================
   // Constructors & Destructor
 
-  public: SizeOp()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(SizeOp);
 
-  public: SizeOp(Word pid, Core::Data::SourceLocation const &sl) :
-    MetadataHolder(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(SizeOp);
 
-  public: SizeOp(Word pid, TioSharedPtr const &o) :
-    MetadataHolder(pid), operand(o)
-  {
-    OWN_SHAREDPTR(this->operand);
-  }
-
-  public: SizeOp(Word pid, Core::Data::SourceLocation const &sl, TioSharedPtr const &o) :
-    MetadataHolder(pid, sl), operand(o)
-  {
-    OWN_SHAREDPTR(this->operand);
-  }
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(SizeOp);
 
   public: virtual ~SizeOp()
   {
     DISOWN_SHAREDPTR(this->operand);
-  }
-
-  public: static SharedPtr<SizeOp> create()
-  {
-    return std::make_shared<SizeOp>();
-  }
-
-  public: static SharedPtr<SizeOp> create(Word pid, Core::Data::SourceLocation const &sl)
-  {
-    return std::make_shared<SizeOp>(pid, sl);
-  }
-
-  public: static SharedPtr<SizeOp> create(Word pid, TioSharedPtr const &o)
-  {
-    return std::make_shared<SizeOp>(pid, o);
-  }
-
-  public: static SharedPtr<SizeOp> create(Word pid, Core::Data::SourceLocation const &sl, TioSharedPtr const &o)
-  {
-    return std::make_shared<SizeOp>(pid, sl, o);
   }
 
 

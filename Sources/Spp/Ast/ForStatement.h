@@ -19,17 +19,17 @@ namespace Spp { namespace Ast
 using namespace Core;
 
 class ForStatement : public Core::Data::Node,
-                     public virtual Core::Data::MapContainer, public virtual Core::Data::IdHolder,
-                     public virtual Core::Data::Ast::MetadataHolder, public virtual Core::Data::Clonable,
+                     public virtual Core::Basic::RtMembers, public virtual Core::Data::MapContainer,
+                     public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                      public virtual Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ForStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Data::MapContainer, Core::Data::IdHolder,
-                                         Core::Data::Ast::MetadataHolder,
-                                         Core::Data::Clonable, Core::Data::Printable);
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::RtMembers, Core::Data::MapContainer,
+                                         Core::Data::Ast::Metadata, Core::Data::Clonable,
+                                         Core::Data::Printable);
 
 
   //============================================================================
@@ -39,6 +39,15 @@ class ForStatement : public Core::Data::Node,
   private: TioSharedPtr condition;
   private: TioSharedPtr updater;
   private: SharedPtr<Block> body;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(ForStatement);
+
+  IMPLEMENT_RTMEMBERS((prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER((TiObject, initializer),
                           (TiObject, condition),
@@ -53,18 +62,11 @@ class ForStatement : public Core::Data::Node,
   //============================================================================
   // Constructors & Destructor
 
-  public: ForStatement()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(ForStatement);
 
-  public: ForStatement(TioSharedPtr const &init, TioSharedPtr const &cond, TioSharedPtr const &updater,
-                       SharedPtr<Block> const &body) : initializer(init), condition(cond), updater(updater), body(body)
-  {
-    OWN_SHAREDPTR(this->initializer);
-    OWN_SHAREDPTR(this->condition);
-    OWN_SHAREDPTR(this->updater);
-    OWN_SHAREDPTR(this->body);
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(ForStatement);
+
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(ForStatement);
 
   public: virtual ~ForStatement()
   {

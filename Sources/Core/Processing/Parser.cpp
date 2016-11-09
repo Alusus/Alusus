@@ -283,7 +283,7 @@ void Parser::handleNewToken(const Data::Token *token)
     // Raise an unexpected token error.
     if (!this->unexpectedTokenMsgRaised) {
       this->states.front()->addBuildMsg(
-            SharedPtr<Processing::BuildMsg>(new UnexpectedTokenMsg(token->getSourceLocation())));
+            SharedPtr<Processing::BuildMsg>(new UnexpectedTokenMsg(*token->getSourceLocation())));
       this->unexpectedTokenMsgRaised = true;
     }
     return;
@@ -510,7 +510,8 @@ void Parser::processState(const Data::Token * token, StateIterator si)
       if ((*si)->getPrevProcessingStatus() != ParserProcessingStatus::ERROR) {
         if (!this->getTopParsingHandler(*si)->onErrorToken(this, *si, token)) {
           (*si)->addBuildMsg(
-                SharedPtr<Processing::BuildMsg>(new SyntaxErrorMsg(token->getSourceLocation())));
+            SharedPtr<Processing::BuildMsg>(new SyntaxErrorMsg(*token->getSourceLocation()))
+          );
         }
         // Move the state to an error sync position.
         while ((*si)->getTermLevelCount() > 1) {
@@ -704,7 +705,8 @@ void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
     parsingHandler->onBranching(this, *si);
     // Duplicate the state.
     (*si)->addBuildMsg(
-          SharedPtr<Processing::BuildMsg>(new AmbiguityMsg(token->getSourceLocation())));
+      SharedPtr<Processing::BuildMsg>(new AmbiguityMsg(*token->getSourceLocation()))
+    );
     // TODO: Grab the value of tokensToLive from the grammer instead of always using the
     //       default value.
     StateIterator si2 = this->duplicateState(si, DEFAULT_TOKENS_TO_LIVE);
@@ -808,7 +810,8 @@ void Parser::processAlternateTerm(const Data::Token *token, StateIterator si)
         // Duplicate the state, without the top level since that one is for accessing the
         // other route.
         (*si2)->addBuildMsg(
-              SharedPtr<Processing::BuildMsg>(new AmbiguityMsg(token->getSourceLocation())));
+          SharedPtr<Processing::BuildMsg>(new AmbiguityMsg(*token->getSourceLocation()))
+        );
         // TODO: Grab the value of tokensToLive from the grammer instead of always using the
         //       default value.
         StateIterator newSi = this->duplicateState(si2, DEFAULT_TOKENS_TO_LIVE,
@@ -1587,8 +1590,11 @@ void Parser::testReferenceTerm(const Data::Token *token, ParserState *state)
     // removing the current state level.
     state->popLevel();
     LOG(LogLevel::PARSER_MINOR, STR("Testing State: Done with referenced production. Back to (") <<
-        (state->getProdLevelCount()==0 ? STR("start") :
-                                         ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId()))
+        (
+          state->getProdLevelCount()==0 ?
+          STR("start") :
+          ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId())
+        )
         << STR(")."));
   }
 }
@@ -1658,7 +1664,7 @@ Parser::StateIterator Parser::duplicateState(StateIterator si, Int tokensToLive,
       // There shouldn't be the case where i is 0 and at the same time we are at production level.
       ASSERT(i != 0);
       // Switch the current parsing handler.
-      parsingHandler = prodLevel->getProd()->getOperationHandler().s_cast_get<ParsingHandler>();
+      parsingHandler = prodLevel->getProd()->getBuildHandler().s_cast_get<ParsingHandler>();
       // Fire parsing handler event and copy.
       parsingHandler->onProdLevelDuplicating(this, *si, pi, i);
       (*newSi)->copyProdLevel(*si, pi);

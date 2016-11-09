@@ -41,7 +41,7 @@ class MapContainer : public Container
 
   public: virtual TiObject* get(Char const *key) const = 0;
 
-  public: virtual const SbStr& getKey(Int index) const = 0;
+  public: virtual SbStr const& getKey(Int index) const = 0;
 
   /**
    * @brief Find the index of a specified key.

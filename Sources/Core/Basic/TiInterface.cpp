@@ -23,7 +23,7 @@ namespace Core { namespace Basic
  * interface. This function (along with getMyInterfaceInfo) is automatically
  * defined by the TYPE_INFO macro.
  */
-TypeInfo * TiInterface::getInterfaceInfo()
+TypeInfo * TiInterface::getTypeInfo()
 {
   static Core::Basic::TypeInfo *typeInfo = 0;
   if (typeInfo == 0) {

@@ -21,14 +21,14 @@ namespace Core { namespace Data
 Bool StrAttributeValidator::validate(TiObject *r) const
 {
   if (r == 0) return false;
-  AttributesHolder *ah = tii_cast<AttributesHolder>(r);
-  if (ah == 0) return false;
-  TiObject *val = ah->getAttribute(this->attributeName.c_str());
+  RtMembers *rtm = ti_cast<RtMembers>(r);
+  if (rtm == 0) return false;
+  TiObject *val = rtm->getRtMember(this->attributeName.c_str());
   if (val == 0) return false;
-  if (val->isA<String>()) {
-    return static_cast<String*>(val)->getStr() == this->attributeValue;
-  } else if (val->isA<Integer>()) {
-    Word num = static_cast<Integer*>(val)->getUnsigned();
+  if (val->isA<TiStr>()) {
+    return static_cast<TiStr*>(val)->getStr() == this->attributeValue;
+  } else if (val->isA<TiWord>()) {
+    Word num = static_cast<TiWord*>(val)->get();
     if (ID_GENERATOR->isDefined(num)) return ID_GENERATOR->getDesc(num) == this->attributeValue;
     else return false;
   } else {

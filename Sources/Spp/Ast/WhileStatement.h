@@ -19,17 +19,17 @@ namespace Spp { namespace Ast
 using namespace Core;
 
 class WhileStatement : public Core::Data::Node,
-                       public virtual Core::Data::MapContainer, public virtual Core::Data::IdHolder,
-                       public virtual Core::Data::Ast::MetadataHolder, public virtual Core::Data::Clonable,
+                       public virtual Core::Basic::RtMembers, public virtual Core::Data::MapContainer,
+                       public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                        public virtual Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(WhileStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Data::MapContainer, Core::Data::IdHolder,
-                                         Core::Data::Ast::MetadataHolder,
-                                         Core::Data::Clonable, Core::Data::Printable);
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::RtMembers, Core::Data::MapContainer,
+                                         Core::Data::Ast::Metadata, Core::Data::Clonable,
+                                         Core::Data::Printable);
 
 
   //============================================================================
@@ -37,6 +37,15 @@ class WhileStatement : public Core::Data::Node,
 
   private: TioSharedPtr condition;
   private: TioSharedPtr body;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(WhileStatement);
+
+  IMPLEMENT_RTMEMBERS((prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER((TiObject, condition),
                           (TiObject, body));
@@ -49,16 +58,11 @@ class WhileStatement : public Core::Data::Node,
   //============================================================================
   // Constructors & Destructor
 
-  public: WhileStatement()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(WhileStatement);
 
-  public: WhileStatement(TioSharedPtr const &cond, TioSharedPtr const &bdy) :
-    condition(cond), body(bdy)
-  {
-    OWN_SHAREDPTR(this->condition);
-    OWN_SHAREDPTR(this->body);
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(WhileStatement);
+
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(WhileStatement);
 
   public: virtual ~WhileStatement()
   {

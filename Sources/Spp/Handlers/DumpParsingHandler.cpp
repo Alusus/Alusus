@@ -27,7 +27,7 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
 
   auto data = state->getData().get();
   ASSERT(data != 0);
-  auto metadata = ti_cast<Core::Data::Ast::MetadataHolder>(data);
+  auto metadata = ti_cast<Core::Data::Ast::Metadata>(data);
   ASSERT(metadata != 0);
 
   auto identifier = ti_cast<Core::Data::Ast::Identifier>(data);

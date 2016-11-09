@@ -85,7 +85,7 @@ Bool mergeContainers(TiObject *dest, TiObject *src, Processing::ParserState *sta
         IdHolder *idHolder = srcMap->get(i)->getInterface<IdHolder>();
         if (idHolder != 0) name = ID_GENERATOR->getDesc(idHolder->getId()).c_str();
         else name = srcMap->getKey(i).c_str();
-        Ast::MetadataHolder *itemMeta = tii_cast<Ast::MetadataHolder>(srcMap->get(i));
+        Ast::Metadata *itemMeta = ti_cast<Ast::Metadata>(srcMap->get(i));
         Data::SourceLocation sl;
         if (itemMeta != 0) sl = itemMeta->getSourceLocation();
         state->addBuildMsg(std::make_shared<RedefinitionMsg>(name, sl));
@@ -115,7 +115,7 @@ void mergeDefinition(Char const *qualifier, TiObject *obj, Processing::ParserSta
   } else {
     if (!mergeContainers(dest, obj, state)) {
       // Generate a build message.
-      Ast::MetadataHolder *itemMeta = tii_cast<Ast::MetadataHolder>(obj);
+      Ast::Metadata *itemMeta = ti_cast<Ast::Metadata>(obj);
       Data::SourceLocation sl;
       if (itemMeta != 0) sl = itemMeta->getSourceLocation();
       state->addBuildMsg(std::make_shared<RedefinitionMsg>(qualifier, sl));

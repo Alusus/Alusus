@@ -24,7 +24,7 @@ SharedPtr<TiObject> Definition::clone() const
   newDefinition->setProdId(this->getProdId());
   newDefinition->setSourceLocation(this->getSourceLocation());
   newDefinition->setTarget(this->target);
-  newDefinition->setName(this->name.c_str());
+  newDefinition->setName(this->name.get());
   return newDefinition;
 }
 

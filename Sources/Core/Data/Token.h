@@ -145,15 +145,15 @@ class Token : public Node
   }
 
   /// Set the location of the token within the source code.
-  public: void setSourceLocation(SourceLocation const &loc)
+  public: void setSourceLocation(SourceLocation const *loc)
   {
-    this->sourceLocation = loc;
+    this->sourceLocation = *loc;
   }
 
   /// Get the location of the token within the source code.
-  public: SourceLocation const& getSourceLocation() const
+  public: SourceLocation const* getSourceLocation() const
   {
-    return this->sourceLocation;
+    return &this->sourceLocation;
   }
 
 }; // class

@@ -19,16 +19,16 @@ namespace Spp { namespace Ast
 using namespace Core;
 
 class Function : public Core::Data::Node,
-                 public virtual Core::Data::MapContainer, public virtual Core::Data::IdHolder,
-                 public virtual Core::Data::Ast::MetadataHolder, public virtual Core::Data::Clonable,
-                 public virtual Core::Data::Printable
+                 public virtual Core::Basic::RtMembers, public virtual Core::Data::MapContainer,
+                 public virtual Core::Data::IdHolder, public virtual Core::Data::Ast::Metadata,
+                 public virtual Core::Data::Clonable, public virtual Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Function, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Data::MapContainer, Core::Data::IdHolder,
-                                         Core::Data::Ast::MetadataHolder,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::RtMembers, Core::Data::MapContainer,
+                                         Core::Data::IdHolder, Core::Data::Ast::Metadata,
                                          Core::Data::Clonable, Core::Data::Printable);
 
 
@@ -41,6 +41,19 @@ class Function : public Core::Data::Node,
   private: TioSharedPtr retType;
   private: SharedPtr<Block> body;
 
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_IDHOLDER(Function);
+
+  IMPLEMENT_METADATA(Function);
+
+  IMPLEMENT_RTMEMBERS((name, Core::Data::String, VALUE, setName(value), &name),
+                      (id, TiWord, VALUE, setId(value), &id),
+                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+
   IMPLEMENT_MAP_CONTAINER((Core::Data::SharedMap, argTypes),
                           (TiObject, retType),
                           (Block, body));
@@ -52,18 +65,11 @@ class Function : public Core::Data::Node,
   //============================================================================
   // Constructors & Destructor
 
-  public: Function()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Function);
 
-  public: Function(Char const *name, SharedPtr<Core::Data::SharedMap> const &args, Bool var, TioSharedPtr const &ret,
-                   SharedPtr<Block> const &body) :
-    name(name), argTypes(args), variadic(var), retType(ret), body(body)
-  {
-    OWN_SHAREDPTR(this->argTypes);
-    OWN_SHAREDPTR(this->retType);
-    OWN_SHAREDPTR(this->body);
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(Function);
+
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(Function);
 
   public: virtual ~Function()
   {
@@ -84,6 +90,10 @@ class Function : public Core::Data::Node,
   public: void setName(Char const *n)
   {
     this->name.set(n);
+  }
+  public: void setName(Core::Data::String const *n)
+  {
+    this->setName(n == 0 ? STR("") : n->get());
   }
 
   public: Core::Data::String const* getName() const

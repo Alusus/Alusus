@@ -88,9 +88,9 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
 
     auto obj = std::make_shared<PREFIXTYPE>();
     obj->setOperand(data);
-    obj->setType(token->getText().c_str());
+    obj->setType(token->getText());
 
-    auto metadata = currentData.tii_cast_get<Data::Ast::MetadataHolder>();
+    auto metadata = currentData.ti_cast_get<Data::Ast::Metadata>();
     if (metadata != 0) {
       obj->setSourceLocation(metadata->getSourceLocation());
     }
@@ -108,9 +108,9 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
 
     auto obj = std::make_shared<POSTFIXTYPE>();
     obj->setOperand(currentData);
-    obj->setType(token->getText().c_str());
+    obj->setType(token->getText());
 
-    auto metadata = currentData.tii_cast_get<Data::Ast::MetadataHolder>();
+    auto metadata = currentData.ti_cast_get<Data::Ast::Metadata>();
     if (metadata != 0) {
       obj->setSourceLocation(metadata->getSourceLocation());
     }

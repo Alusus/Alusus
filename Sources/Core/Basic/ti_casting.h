@@ -83,7 +83,7 @@ inline DT const* ti_cast(ST const *interface)
 template <class DT, class ST,
           typename std::enable_if<!std::is_base_of<TiObject, ST>::value &&
                                   !std::is_base_of<TiObject, DT>::value, int>::type = 0>
-inline DT* tii_cast(ST *interface)
+inline DT* ti_cast(ST *interface)
 {
   return interface==0 ? 0 : interface->getTiObject()->template getInterface<DT>();
 }
@@ -91,7 +91,7 @@ inline DT* tii_cast(ST *interface)
 template <class DT, class ST,
           typename std::enable_if<!std::is_base_of<TiObject, ST>::value &&
                                   !std::is_base_of<TiObject, DT>::value, int>::type = 0>
-inline DT const* tii_cast(ST const *interface)
+inline DT const* ti_cast(ST const *interface)
 {
   return interface==0 ? 0 : interface->getTiObject()->template getInterface<DT>();
 }

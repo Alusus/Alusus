@@ -33,7 +33,7 @@ void findProdData(Word prodId, SharedPtr<TiObject> ptr,
 {
   if (ptr == 0) return;
 
-  Data::Ast::MetadataHolder *metadata = ptr->getInterface<Data::Ast::MetadataHolder>();
+  Data::Ast::Metadata *metadata = ptr->getInterface<Data::Ast::Metadata>();
   if (metadata == 0) return;
 
   if (metadata->getProdId() == prodId) {
@@ -88,7 +88,7 @@ void findToken(Word tokenId, Char const *text, SharedPtr<TiObject> ptr,
     // Print the token type.
     SharedPtr<Data::Ast::Token> token = ptr.s_cast<Data::Ast::Token>();
     if ((tokenId == 0 || tokenId == token->getId()) &&
-        (text == 0 || token->getText().compare(text) == 0)) {
+        (text == 0 || token->getText() == text)) {
       result.push_back(token);
     }
   }

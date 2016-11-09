@@ -28,7 +28,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
 
   auto expr = state->getData().ti_cast_get<Core::Data::Ast::List>();
   ASSERT(expr != 0);
-  auto exprMetadata = ti_cast<Core::Data::Ast::MetadataHolder>(expr);
+  auto exprMetadata = ti_cast<Core::Data::Ast::Metadata>(expr);
   ASSERT(exprMetadata != 0);
 
   Core::Data::Ast::LinkOperator *linkOp = 0;
@@ -61,8 +61,13 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   }
 
   // Create the definition.
-  auto def = Core::Data::Ast::Definition::create(exprMetadata->getProdId(), exprMetadata->getSourceLocation(),
-                                                 name.c_str(), val);
+  auto def = Core::Data::Ast::Definition::create({
+    { "prodId", exprMetadata->getProdId() },
+    { "sourceLocation", exprMetadata->getSourceLocation() },
+    { "name", name }
+  }, {
+    { "target", val }
+  });
   state->setData(def);
 }
 

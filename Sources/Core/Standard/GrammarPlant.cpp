@@ -170,7 +170,7 @@ void GrammarPlant::createTokenDefinitions()
            })}
          }),
          MultiplyTerm::create({
-           {TermElement::MAX, Integer::create(1)},
+           {TermElement::MAX, std::make_shared<Integer>(1)},
            {TermElement::TERM, AlternateTerm::create({
               {TermElement::TERM, SharedList::create({
                  ConstTerm::create(0, STR("u")),
@@ -179,7 +179,7 @@ void GrammarPlant::createTokenDefinitions()
            })}
          }),
          MultiplyTerm::create({
-           {TermElement::MAX, Integer::create(1)},
+           {TermElement::MAX, std::make_shared<Integer>(1)},
            {TermElement::TERM, ConcatTerm::create({
               {TermElement::TERM, SharedList::create({
                 AlternateTerm::create({
@@ -200,7 +200,7 @@ void GrammarPlant::createTokenDefinitions()
   // @inner DecIntLiteral : trule as { DecDigit*(1,endless) };
   this->repository.set(STR("root:LexerDefs.DecIntLiteral"), SymbolDefinition::create({
     {SymbolDefElement::TERM, MultiplyTerm::create({
-      {TermElement::MIN, Integer::create(1)},
+      {TermElement::MIN, std::make_shared<Integer>(1)},
       {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
     })}
   }).get());
@@ -216,7 +216,7 @@ void GrammarPlant::createTokenDefinitions()
            })}
          }),
          MultiplyTerm::create({
-           {TermElement::MIN, Integer::create(1)},
+           {TermElement::MIN, std::make_shared<Integer>(1)},
            {TermElement::TERM, CharGroupTerm::create(STR("module:BinDigit"))}
          })
        })}
@@ -234,7 +234,7 @@ void GrammarPlant::createTokenDefinitions()
            })}
          }),
          MultiplyTerm::create({
-           {TermElement::MIN, Integer::create(1)},
+           {TermElement::MIN, std::make_shared<Integer>(1)},
            {TermElement::TERM, CharGroupTerm::create(STR("module:OctDigit"))}
          })
        })}
@@ -252,7 +252,7 @@ void GrammarPlant::createTokenDefinitions()
            })}
          }),
          MultiplyTerm::create({
-           {TermElement::MIN, Integer::create(1)},
+           {TermElement::MIN, std::make_shared<Integer>(1)},
            {TermElement::TERM, CharGroupTerm::create(STR("module:HexDigit"))}
          })
        })}
@@ -271,7 +271,7 @@ void GrammarPlant::createTokenDefinitions()
          ConcatTerm::create({
            {TermElement::TERM, SharedList::create({
               MultiplyTerm::create({
-                {TermElement::MIN, Integer::create(1)},
+                {TermElement::MIN, std::make_shared<Integer>(1)},
                 {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
               }),
               ReferenceTerm::create(STR("module:FloatPostfix"))
@@ -280,12 +280,12 @@ void GrammarPlant::createTokenDefinitions()
          ConcatTerm::create({
            {TermElement::TERM, SharedList::create({
               MultiplyTerm::create({
-                {TermElement::MIN, Integer::create(1)},
+                {TermElement::MIN, std::make_shared<Integer>(1)},
                 {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
               }),
               ReferenceTerm::create(STR("module:FloatExponent")),
               MultiplyTerm::create({
-                {TermElement::MAX, Integer::create(1)},
+                {TermElement::MAX, std::make_shared<Integer>(1)},
                 {TermElement::TERM, ReferenceTerm::create(STR("module:FloatPostfix"))}
               })
            })}
@@ -297,15 +297,15 @@ void GrammarPlant::createTokenDefinitions()
               }),
               ConstTerm::create(0, STR(".")),
               MultiplyTerm::create({
-                {TermElement::MIN, Integer::create(1)},
+                {TermElement::MIN, std::make_shared<Integer>(1)},
                 {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
               }),
               MultiplyTerm::create({
-                {TermElement::MAX, Integer::create(1)},
+                {TermElement::MAX, std::make_shared<Integer>(1)},
                 {TermElement::TERM, ReferenceTerm::create(STR("module:FloatExponent"))}
               }),
               MultiplyTerm::create({
-                {TermElement::MAX, Integer::create(1)},
+                {TermElement::MAX, std::make_shared<Integer>(1)},
                 {TermElement::TERM, ReferenceTerm::create(STR("module:FloatPostfix"))}
               })
            })}
@@ -326,7 +326,7 @@ void GrammarPlant::createTokenDefinitions()
            })}
          }),
          MultiplyTerm::create({
-           {TermElement::MAX, Integer::create(1)},
+           {TermElement::MAX, std::make_shared<Integer>(1)},
            {TermElement::TERM, AlternateTerm::create({
               {TermElement::TERM, SharedList::create({
                  ConstTerm::create(0, STR("+")),
@@ -335,7 +335,7 @@ void GrammarPlant::createTokenDefinitions()
            })}
          }),
          MultiplyTerm::create({
-           {TermElement::MIN, Integer::create(1)},
+           {TermElement::MIN, std::make_shared<Integer>(1)},
            {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
          })
        })}
@@ -512,7 +512,7 @@ void GrammarPlant::createTokenDefinitions()
   // ignore { Spacing*(1,endless) };
   this->repository.set(STR("root:LexerDefs.IgnoredSpaces"), SymbolDefinition::create({
     {SymbolDefElement::TERM, MultiplyTerm::create({
-      {TermElement::MIN, Integer::create(1)},
+      {TermElement::MIN, std::make_shared<Integer>(1)},
       {TermElement::TERM, CharGroupTerm::create(STR("module:Spacing"))}
     })},
     {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN|SymbolFlags::IGNORED_TOKEN}
@@ -558,7 +558,7 @@ void GrammarPlant::createProductionDefinitions()
    {STR("-="), 0},
    {STR("*="), 0},
    {STR("/="), 0},
-   {STR("÷="), String::create(("/="))},
+   {STR("÷="), std::make_shared<String>(("/="))},
    {STR("%="), 0},
    {STR("&="), 0},
    {STR("|="), 0},
@@ -584,7 +584,7 @@ void GrammarPlant::createProductionDefinitions()
   this->repository.set(STR("root:TokenData.mulOpList"), SharedMap::create(true, {
     {STR("*"), 0},
     {STR("/"), 0},
-    {STR("÷"), String::create(STR("/"))},
+    {STR("÷"), std::make_shared<String>(STR("/"))},
     {STR("%"), 0}
   }).get());
   // bitwiseOpList : keywords = ("|", "$", "&", "<<", ">>");
@@ -601,17 +601,17 @@ void GrammarPlant::createProductionDefinitions()
     {STR("$$"), 0},
     {STR("&&"), 0},
     {STR("or"), 0},
-    {STR("أو"), String::create(STR("or"))},
+    {STR("أو"), std::make_shared<String>(STR("or"))},
     {STR("nor"), 0},
-    {STR("وليس"), String::create(STR("nor"))},
+    {STR("وليس"), std::make_shared<String>(STR("nor"))},
     {STR("xor"), 0},
-    {STR("أو_حصرا"), String::create(STR("xor"))},
+    {STR("أو_حصرا"), std::make_shared<String>(STR("xor"))},
     {STR("xnor"), 0},
-    {STR("وليس_حصرا"), String::create(STR("xnor"))},
+    {STR("وليس_حصرا"), std::make_shared<String>(STR("xnor"))},
     {STR("and"), 0},
-    {STR("و"), String::create(STR("and"))},
+    {STR("و"), std::make_shared<String>(STR("and"))},
     {STR("nand"), 0},
-    {STR("أو_ليس"), String::create(STR("nand"))}
+    {STR("أو_ليس"), std::make_shared<String>(STR("nand"))}
   }).get());
   // prefixOpList : keywords = ("++", "--", "+", "-", "!", "!!", "not");
   this->repository.set(STR("root:TokenData.prefixOpList"), SharedMap::create(true, {
@@ -622,7 +622,7 @@ void GrammarPlant::createProductionDefinitions()
     {STR("!"), 0},
     {STR("!!"), 0},
     {STR("not"), 0},
-    {STR("ليس"), String::create(STR("not"))}
+    {STR("ليس"), std::make_shared<String>(STR("not"))}
   }).get());
   // postfixOpList : keywords = ("++", "--");
   this->repository.set(STR("root:TokenData.postfixOpList"), SharedMap::create(true, {
@@ -655,7 +655,7 @@ void GrammarPlant::createProductionDefinitions()
     {STR("::>"), 0},
     {STR("<::"), 0},
     {STR("in"), 0},
-    {STR("في"), String::create(STR("in"))}
+    {STR("في"), std::make_shared<String>(STR("in"))}
   }).get());
 
   this->generateConstTokensForStrings(this->repository.get(STR("root:TokenData")));
@@ -689,7 +689,7 @@ void GrammarPlant::createProductionDefinitions()
             {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP|TermFlags::ERROR_SYNC_TERM},
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::TERM, SharedList::create({
-                  TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OMIT, Integer::create(this->constTokenId),
+                  TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OMIT, std::make_shared<Integer>(this->constTokenId),
                                     SharedMap::create(0, {{STR(";"),0},{STR("؛"),0}})),
                   MultiplyTerm::create({
                     {TermElement::PRIORITY, std::make_shared<Integer>(1)},
@@ -863,7 +863,7 @@ void GrammarPlant::createProductionDefinitions()
   this->repository.set(STR("root:Cmd"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, Integer::create(ID_GENERATOR->getId(STR("LexerDefs.Identifier"))),
+          TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("LexerDefs.Identifier"))),
                             REF_PARSER->parseQualifier(STR("args:kwd"))),
           ConcatTerm::create({
             {TermElement::FLAGS, ParsingFlags::PASS_ITEMS_UP},
@@ -947,7 +947,7 @@ void GrammarPlant::createProductionDefinitions()
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
               {TermElement::TERM, SharedList::create({
-                 TokenTerm::create(0, Integer::create(this->constTokenId),
+                 TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                    SharedMap::create(false, {{STR("?"), 0}, {STR("؟"), 0}})),
                  ReferenceTerm::create(STR("module:ListExp"))
                })}
@@ -978,7 +978,7 @@ void GrammarPlant::createProductionDefinitions()
                       {TermElement::FLAGS, ParsingFlags::ENFORCE_LIST_ITEM},
                       {TermElement::TERM, SharedList::create({
                          TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OMIT,
-                                           Integer::create(this->constTokenId),
+                                           std::make_shared<Integer>(this->constTokenId),
                                            SharedMap::create(false, {{STR(","), 0}, {STR("،"), 0}})),
                          MultiplyTerm::create({
                            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
@@ -996,7 +996,7 @@ void GrammarPlant::createProductionDefinitions()
                  {TermElement::TERM, ConcatTerm::create({
                     {TermElement::TERM, SharedList::create({
                        TokenTerm::create(ParsingFlags::ENFORCE_TOKEN_OMIT,
-                                         Integer::create(this->constTokenId),
+                                         std::make_shared<Integer>(this->constTokenId),
                                          SharedMap::create(false, {{STR(","), 0}, {STR("،"), 0}})),
                        MultiplyTerm::create({
                          {TermElement::PRIORITY, std::make_shared<Integer>(1)},
@@ -1011,7 +1011,7 @@ void GrammarPlant::createProductionDefinitions()
          })
        })}
     })},
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), Integer::create(1)}})},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(1)}})},
     {SymbolDefElement::HANDLER, std::make_shared<Handlers::ListParsingHandler<Ast::ExpressionList>>(-1, false)}
   }).get());
 
@@ -1028,7 +1028,7 @@ void GrammarPlant::createProductionDefinitions()
             {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::TERM, SharedList::create({
-                  TokenTerm::create(0, Integer::create(this->constTokenId),
+                  TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                     REF_PARSER->parseQualifier(STR("root:TokenData.lowerLinkOpList"))),
                   ReferenceTerm::create(STR("module:AssignmentExp"))
                 })}
@@ -1053,7 +1053,7 @@ void GrammarPlant::createProductionDefinitions()
             {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::TERM, SharedList::create({
-                  TokenTerm::create(0, Integer::create(this->constTokenId),
+                  TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                     REF_PARSER->parseQualifier(STR("root:TokenData.assignmentOpList"))),
                   ReferenceTerm::create(STR("module:LogExp"))
                 })}
@@ -1078,7 +1078,7 @@ void GrammarPlant::createProductionDefinitions()
              {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
              {TermElement::TERM, ConcatTerm::create({
                 {TermElement::TERM, SharedList::create({
-                   TokenTerm::create(0, Integer::create(this->constTokenId),
+                   TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                      REF_PARSER->parseQualifier(STR("root:TokenData.logOpList"))),
                    ReferenceTerm::create(STR("module:ComparisonExp"))
                  })}
@@ -1103,7 +1103,7 @@ void GrammarPlant::createProductionDefinitions()
             {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::TERM, SharedList::create({
-                  TokenTerm::create(0, Integer::create(this->constTokenId),
+                  TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                     REF_PARSER->parseQualifier(STR("root:TokenData.comparisonOpList"))),
                   ReferenceTerm::create(STR("module:LowLinkExp"))
                 })}
@@ -1128,7 +1128,7 @@ void GrammarPlant::createProductionDefinitions()
             {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
             {TermElement::TERM, ConcatTerm::create({
                {TermElement::TERM, SharedList::create({
-                  TokenTerm::create(0, Integer::create(this->constTokenId),
+                  TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                     REF_PARSER->parseQualifier(STR("root:TokenData.lowLinkOpList"))),
                   ReferenceTerm::create(STR("module:AddExp"))
                 })}
@@ -1153,7 +1153,7 @@ void GrammarPlant::createProductionDefinitions()
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
               {TermElement::TERM, SharedList::create({
-                 TokenTerm::create(0, Integer::create(this->constTokenId),
+                 TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                    REF_PARSER->parseQualifier(STR("root:TokenData.addOpList"))),
                  ReferenceTerm::create(STR("module:MulExp"))
                })}
@@ -1178,7 +1178,7 @@ void GrammarPlant::createProductionDefinitions()
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
               {TermElement::TERM, SharedList::create({
-                 TokenTerm::create(0, Integer::create(this->constTokenId),
+                 TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                    REF_PARSER->parseQualifier(STR("root:TokenData.mulOpList"))),
                  ReferenceTerm::create(STR("module:BitwiseExp"))
                })}
@@ -1203,7 +1203,7 @@ void GrammarPlant::createProductionDefinitions()
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable"))},
            {TermElement::TERM, ConcatTerm::create({
               {TermElement::TERM, SharedList::create({
-                 TokenTerm::create(0, Integer::create(this->constTokenId),
+                 TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                    REF_PARSER->parseQualifier(STR("root:TokenData.bitwiseOpList"))),
                  ReferenceTerm::create(STR("module:UnaryExp"))
                })}
@@ -1283,18 +1283,21 @@ void GrammarPlant::createProductionDefinitions()
   this->repository.set(STR("root:Expression.LinkExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, Integer::create(this->constTokenId),
+          TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                             REF_PARSER->parseQualifier(STR("root:TokenData.linkOpList"))),
           ReferenceTerm::create(STR("args:operand"))
         })}
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {{STR("operand"), REF_PARSER->parseQualifier(STR("root:Subject"))}})},
     {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
-       auto currentList = state->getData().tii_cast_get<Data::Container>();
-       auto metadata = tii_cast<Ast::MetadataHolder>(currentList);
+       auto currentList = state->getData().ti_cast_get<Data::Container>();
+       auto metadata = ti_cast<Ast::Metadata>(currentList);
        auto token = tio_cast<Ast::Token>(currentList->get(0));
-       auto linkOp = std::make_shared<Ast::LinkOperator>(metadata->getProdId(), metadata->getSourceLocation());
-       linkOp->setType(token->getText().c_str());
+       auto linkOp = Ast::LinkOperator::create({
+         { "prodId", metadata->getProdId() },
+         { "sourceLocation", metadata->getSourceLocation() }
+       });
+       linkOp->setType(token->getText());
        linkOp->setSecond(getSharedPtr(currentList->get(1)));
        state->setData(linkOp);
      })}
@@ -1340,7 +1343,10 @@ void GrammarPlant::createProductionDefinitions()
        {STR("fltr"), 0}})},
     {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
        auto currentRoute = state->getData().tio_cast_get<Ast::Route>();
-       auto paramPass = std::make_shared<Ast::ParamPass>(currentRoute->getProdId(), currentRoute->getSourceLocation());
+       auto paramPass = Ast::ParamPass::create({
+         { "prodId", currentRoute->getProdId() },
+         { "sourceLocation", currentRoute->getSourceLocation() }
+       });
        paramPass->setType(currentRoute->getRoute()==0 ? Ast::BracketType::ROUND : Ast::BracketType::SQUARE);
        paramPass->setParam(currentRoute->getData());
        state->setData(paramPass);
@@ -1364,10 +1370,13 @@ void GrammarPlant::createProductionDefinitions()
     })},
     {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
        auto currentList = state->getData().tii_cast_get<Data::Container>();
-       auto metadata = tii_cast<Ast::MetadataHolder>(currentList);
+       auto metadata = ti_cast<Ast::Metadata>(currentList);
        auto token = tio_cast<Ast::Token>(currentList->get(0));
-       auto linkOp = std::make_shared<Ast::LinkOperator>(metadata->getProdId(), metadata->getSourceLocation());
-       linkOp->setType(token->getText().c_str());
+       auto linkOp = Ast::LinkOperator::create({
+         { "prodId", metadata->getProdId() },
+         { "sourceLocation", metadata->getSourceLocation() }
+       });
+       linkOp->setType(token->getText());
        linkOp->setSecond(getSharedPtr(currentList->get(1)));
        state->setData(linkOp);
      })}
@@ -1425,13 +1434,13 @@ void GrammarPlant::createProductionDefinitions()
   //// Operators :
   // PrefixOp : prod ref heap.ConstantKeywordGroup(heap.TokenData.prefixOpList);
   this->repository.set(STR("root:Expression.PrefixOp"), SymbolDefinition::create({
-    {SymbolDefElement::TERM, TokenTerm::create(0, Integer::create(this->constTokenId),
+    {SymbolDefElement::TERM, TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                                REF_PARSER->parseQualifier(STR("root:TokenData.prefixOpList")))},
     {SymbolDefElement::HANDLER, this->parsingHandler}
   }).get());
   // PostfixOp : prod ref heap.ConstantKeywordGroup(heap.TokenData.postfixOpList);
   this->repository.set(STR("root:Expression.PostfixOp"), SymbolDefinition::create({
-    {SymbolDefElement::TERM, TokenTerm::create(0, Integer::create(this->constTokenId),
+    {SymbolDefElement::TERM, TokenTerm::create(0, std::make_shared<Integer>(this->constTokenId),
                                                REF_PARSER->parseQualifier(STR("root:TokenData.postfixOpList")))},
     {SymbolDefElement::HANDLER, this->parsingHandler}
   }).get());
@@ -1514,7 +1523,10 @@ void GrammarPlant::createProductionDefinitions()
       if (currentRoute->getRoute() == 0) {
         state->setData(currentRoute->getData());
       } else {
-        auto bracket = std::make_shared<Ast::Bracket>(currentRoute->getProdId(), currentRoute->getSourceLocation());
+        auto bracket = Ast::Bracket::create({
+          { "prodId", currentRoute->getProdId() },
+          { "sourceLocation", currentRoute->getSourceLocation() }
+        });
         bracket->setType(currentRoute->getRoute()==1 ? Ast::BracketType::ROUND : Ast::BracketType::SQUARE);
         bracket->setOperand(currentRoute->getData());
         state->setData(bracket);
@@ -1564,7 +1576,10 @@ void GrammarPlant::createProductionDefinitions()
         if (currentRoute->getRoute() == 0) {
           state->setData(currentRoute->getData());
         } else {
-          auto bracket = std::make_shared<Ast::Bracket>(currentRoute->getProdId(), currentRoute->getSourceLocation());
+          auto bracket = Ast::Bracket::create({
+            { "prodId", currentRoute->getProdId() },
+            { "sourceLocation", currentRoute->getSourceLocation() }
+          });
           bracket->setType(currentRoute->getRoute()==1 ? Ast::BracketType::ROUND : Ast::BracketType::SQUARE);
           bracket->setOperand(currentRoute->getData());
           state->setData(bracket);
@@ -1612,7 +1627,7 @@ void GrammarPlant::createProductionDefinitions()
        } else if (current->getId() == ID_GENERATOR->getId(STR("LexerDefs.StringLiteral"))) {
          newObj = std::make_shared<Ast::StringLiteral>();
        }
-       newObj->setValue(current->getText().c_str());
+       newObj->setValue(current->getText());
        newObj->setProdId(current->getProdId());
        newObj->setSourceLocation(current->getSourceLocation());
        state->setData(newObj);

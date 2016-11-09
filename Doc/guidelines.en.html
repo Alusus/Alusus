@@ -89,13 +89,21 @@
    Exception usage should be limited to exceptional errors and should never be used in program control. For example, if it's normal for a search function to return no results then dealing with no-result situations should be done through return values rather than exceptions. On the other hand, if the program faces syntax errors while parsing configuration files then exceptions should be used to deal with this situation because finding an error in config files is not expected.<br/>
    Naming convention should also be respected when dealing with exceptions. For example, a search function that is expected to always find results should start with `get` while a search function that can find no results should instead start with `find`.
 
+   <h3>Nested Types</h3>
+   Nested types (types defined inside a class) follows the following rules:
+   <ul>
+    <li>If a type is internal to a class (not used outside the class) it is defined inside that class.</li>
+    <li>If a type is used only with a certain class and is not used outside of it except for dealing with it, then it's defined inside that class. An example of this is return types of a member function.</li>
+    <li>If the type is related to a class but can be used outside the class independently of it, then it's defined outside the class.</li>
+    <li>If the type is a class that can be a parent of another non-internal class then it's defined outside any class.</li>
+   </ul>
+   
    <h3>Miscellaneous Notes</h3>
    <ul>
     <li>`std::vector` should store pointers when the stored object contains a complex constructor (for example one that allocates memory) in order to avoid repeatedly calling this constructor when the objects are copied during vector resizing.</li>
     <li>Member functions that don't modify any member variables should always be marked as const.</li>
     <li>We should avoid global variables as much as possible.</li>
     <li>Variables should be instantiated in the smallest scope possible.</li>
-    <li>Internal classes should not be used outside the containing class.</li>
     <li>Structures should not be used except when it doesn't need member functions. An exception to that is constructor functions.</li>
     <li>Initialization lists should be used during object construction instead of assignment operations.</li>
     <li>We should follow SOLID principles for object-oriented design.</li>
@@ -427,6 +435,7 @@ if (str == 0) ... // correct
 if (!str) ...     // wrong
 </pre>
     </li>
+    <li>Definitions related to a certain class are placed inside the header of that class, even if they are not internal to the class itself.</li>
    </ul>
   </div>
  </div>

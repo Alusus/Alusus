@@ -31,29 +31,13 @@ class Module : public Block
 
 
   //============================================================================
-  // Constructors & Destructor
+  // Constructor / Destructor
 
-  public: Module()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Module);
 
-  public: Module(Word pid, Core::Data::SourceLocation const &sl) : Block(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(Module);
 
-  public: Module(Word pid, std::initializer_list<SharedPtr<TiObject>> const &args) : Block(pid, args)
-  {
-  }
-
-  public: Module(Word pid, Core::Data::SourceLocation const &sl,
-                 std::initializer_list<SharedPtr<TiObject>> const &args) :
-    Block(pid, sl, args)
-  {
-  }
-
-  public: virtual ~Module()
-  {
-  }
+  IMPLEMENT_ATTR_LIST_CONSTRUCTOR(Module);
 
 }; // class
 

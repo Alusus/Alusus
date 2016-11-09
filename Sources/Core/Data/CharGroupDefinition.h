@@ -24,13 +24,13 @@ namespace Core { namespace Data
  * definition includes the CharGroupUnit tree and the identifier of the char
  * group.
  */
-class CharGroupDefinition : public Node, public virtual IdHolder
+class CharGroupDefinition : public Node, public virtual RtMembers, public virtual IdHolder
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(CharGroupDefinition, Node, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(Node, IdHolder);
+  IMPLEMENT_INTERFACES(Node, RtMembers, IdHolder);
 
 
   //============================================================================
@@ -42,6 +42,14 @@ class CharGroupDefinition : public Node, public virtual IdHolder
    * This object is the root of the tree that defines the character group.
    */
   private: SharedPtr<CharGroupUnit> charGroupUnit;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_IDHOLDER(CharGroupDefinition);
+
+  IMPLEMENT_RTMEMBERS((id, TiWord, VALUE, setId(value), &id));
 
 
   //============================================================================

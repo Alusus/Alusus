@@ -1,7 +1,6 @@
 /**
  * @file Core/Data/data.h
- * Contains the definitions and include statements of all types in the Data
- * namespace.
+ * Contains container related helper definitions.
  *
  * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *

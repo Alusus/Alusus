@@ -26,12 +26,12 @@ class Parser;
  * events that can be used for custom operations on the generated tokens.
  * Assigning tokenizing handlers to token definitions is optional.
  */
-class TokenizingHandler : public Data::OperationHandler
+class TokenizingHandler : public Data::BuildHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(TokenizingHandler, Data::OperationHandler, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(TokenizingHandler, Data::BuildHandler, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================

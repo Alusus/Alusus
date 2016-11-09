@@ -19,17 +19,17 @@ namespace Spp { namespace Ast
 using namespace Core;
 
 class IfStatement : public Core::Data::Node,
-                    public virtual Core::Data::MapContainer, public virtual Core::Data::IdHolder,
-                    public virtual Core::Data::Ast::MetadataHolder, public virtual Core::Data::Clonable,
+                    public virtual Core::Basic::RtMembers, public virtual Core::Data::MapContainer,
+                    public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                     public virtual Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(IfStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Data::MapContainer, Core::Data::IdHolder,
-                                         Core::Data::Ast::MetadataHolder,
-                                         Core::Data::Clonable, Core::Data::Printable);
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::RtMembers, Core::Data::MapContainer,
+                                         Core::Data::Ast::Metadata, Core::Data::Clonable,
+                                         Core::Data::Printable);
 
 
   //============================================================================
@@ -38,6 +38,15 @@ class IfStatement : public Core::Data::Node,
   private: TioSharedPtr condition;
   private: SharedPtr<Block> ifBody;
   private: SharedPtr<Block> elseBody;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(IfStatement);
+
+  IMPLEMENT_RTMEMBERS((prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER((TiObject, condition),
                           (Block, ifBody),
@@ -51,17 +60,11 @@ class IfStatement : public Core::Data::Node,
   //============================================================================
   // Constructors & Destructor
 
-  public: IfStatement()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(IfStatement);
 
-  public: IfStatement(TioSharedPtr const &cond, SharedPtr<Block> const &ifb,
-                      SharedPtr<Block> const &elseb) : condition(cond), ifBody(ifb), elseBody(elseb)
-  {
-    OWN_SHAREDPTR(this->condition);
-    OWN_SHAREDPTR(this->ifBody);
-    OWN_SHAREDPTR(this->elseBody);
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(IfStatement);
+
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(IfStatement);
 
   public: virtual ~IfStatement()
   {

@@ -22,7 +22,7 @@ SymbolDefinition::SymbolDefinition(const SharedPtr<Reference> &pnt,
                                    SharedPtr<Node> const &t,
                                    SharedPtr<Node> const &vd,
                                    SharedPtr<Node> const &v,
-                                   const SharedPtr<OperationHandler> &h,
+                                   const SharedPtr<BuildHandler> &h,
                                    Int p, Word f,
                                    SharedPtr<Node> const &a) :
   parentReference(pnt), term(t), varDefs(vd), vars(v), handler(h), priority(p),
@@ -55,19 +55,19 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
   for (auto arg : args) {
     switch (arg.id.val) {
       case SymbolDefElement::PARENT_REF:
-        this->parentReference = arg.ioVal.tio_cast<Reference>();
-        if (this->parentReference == 0 && arg.ioVal != 0) {
+        this->parentReference = arg.tiShared.ti_cast<Reference>();
+        if (this->parentReference == 0 && arg.tiShared != 0) {
           throw EXCEPTION(InvalidArgumentException, STR("parent_ref"),
-                          STR("Must be of type Reference."), arg.ioVal->getMyTypeInfo()->getUniqueName());
+                          STR("Must be of type Reference."), arg.tiShared->getMyTypeInfo()->getUniqueName());
         }
         this->ownership |= SymbolDefElement::PARENT_REF;
         break;
       case SymbolDefElement::TERM:
-        UPDATE_OWNED_SHAREDPTR(this->term, arg.ioVal.tio_cast<Node>());
+        UPDATE_OWNED_SHAREDPTR(this->term, arg.tiShared.ti_cast<Node>());
         this->ownership |= SymbolDefElement::TERM;
         break;
       case SymbolDefElement::VAR_DEFS:
-        UPDATE_OWNED_SHAREDPTR(this->varDefs, arg.ioVal.tio_cast<Node>());
+        UPDATE_OWNED_SHAREDPTR(this->varDefs, arg.tiShared.ti_cast<Node>());
         if (this->varDefs != 0 && !this->varDefs->isA<SharedMap>() && !this->varDefs->isDerivedFrom<Reference>()) {
           throw EXCEPTION(InvalidArgumentException, STR("varDefs"),
                           STR("Must be of type SharedMap or Reference."));
@@ -75,7 +75,7 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
         this->ownership |= SymbolDefElement::VAR_DEFS;
         break;
       case SymbolDefElement::VARS:
-        UPDATE_OWNED_SHAREDPTR(this->vars, arg.ioVal.tio_cast<Node>());
+        UPDATE_OWNED_SHAREDPTR(this->vars, arg.tiShared.ti_cast<Node>());
         if (this->vars != 0 && !this->vars->isA<SharedMap>() && !this->vars->isDerivedFrom<Reference>()) {
           throw EXCEPTION(InvalidArgumentException, STR("vars"),
                           STR("Must be of type SharedMap or Reference."));
@@ -83,10 +83,10 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
         this->ownership |= SymbolDefElement::VARS;
         break;
       case SymbolDefElement::HANDLER:
-        UPDATE_OWNED_SHAREDPTR(this->handler, arg.ioVal.tio_cast<OperationHandler>());
-        if (this->handler == 0 && arg.ioVal != 0) {
-          throw EXCEPTION(InvalidArgumentException, STR("handler"), STR("Must be of type OperationHandler."),
-                          arg.ioVal->getMyTypeInfo()->getUniqueName());
+        UPDATE_OWNED_SHAREDPTR(this->handler, arg.tiShared.ti_cast<BuildHandler>());
+        if (this->handler == 0 && arg.tiShared != 0) {
+          throw EXCEPTION(InvalidArgumentException, STR("handler"), STR("Must be of type BuildHandler."),
+                          arg.tiShared->getMyTypeInfo()->getUniqueName());
         }
         this->ownership |= SymbolDefElement::HANDLER;
         break;
@@ -99,7 +99,7 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
         this->ownership |= SymbolDefElement::FLAGS;
         break;
       case SymbolDefElement::ATTRIBUTES:
-        UPDATE_OWNED_SHAREDPTR(this->attributes, arg.ioVal.tio_cast<Node>());
+        UPDATE_OWNED_SHAREDPTR(this->attributes, arg.tiShared.ti_cast<Node>());
         this->ownership |= SymbolDefElement::ATTRIBUTES;
         break;
     }
@@ -156,7 +156,7 @@ void SymbolDefinition::inheritFromParent()
   if ((this->ownership & SymbolDefElement::TERM) == 0) this->term = this->parent->getTerm();
   if ((this->ownership & SymbolDefElement::VAR_DEFS) == 0) this->varDefs = this->parent->getVarDefs();
   if ((this->ownership & SymbolDefElement::VARS) == 0) this->vars = this->parent->getVars();
-  if ((this->ownership & SymbolDefElement::HANDLER) == 0) this->handler = this->parent->getOperationHandler();
+  if ((this->ownership & SymbolDefElement::HANDLER) == 0) this->handler = this->parent->getBuildHandler();
   if ((this->ownership & SymbolDefElement::PRIORITY) == 0) this->priority = this->parent->getPriority();
   if ((this->ownership & SymbolDefElement::FLAGS) == 0) this->flags = this->parent->getFlags();
   if ((this->ownership & SymbolDefElement::ATTRIBUTES) == 0) this->attributes = this->parent->getAttributes();
@@ -183,7 +183,7 @@ void SymbolDefinition::onParentElementChanged(SymbolDefinition *obj, SymbolDefCh
     if ((elmt & SymbolDefElement::TERM) == 0) this->term = this->parent->getTerm();
     if ((elmt & SymbolDefElement::VAR_DEFS) == 0) this->varDefs = this->parent->getVarDefs();
     if ((elmt & SymbolDefElement::VARS) == 0) this->vars = this->parent->getVars();
-    if ((elmt & SymbolDefElement::HANDLER) == 0) this->handler = this->parent->getOperationHandler();
+    if ((elmt & SymbolDefElement::HANDLER) == 0) this->handler = this->parent->getBuildHandler();
     if ((elmt & SymbolDefElement::PRIORITY) == 0) this->priority = this->parent->getPriority();
     if ((elmt & SymbolDefElement::FLAGS) == 0) this->flags = this->parent->getFlags();
     if ((elmt & SymbolDefElement::ATTRIBUTES) == 0) this->attributes = this->parent->getAttributes();

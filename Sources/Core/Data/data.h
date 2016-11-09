@@ -131,9 +131,9 @@ s_enum(ContentChangeOp, ADD, UPDATE, REMOVE);
  * meta data. It's needed by GrammarModule::metaChangeNotifier.
  */
 s_enum(GrammarModuleMetaElement, START_REF=1,
-                                      LEXER_MODULE_REF=2,
-                                      ERROR_SYNC_BLOCK_PAIRS_REF=4,
-                                      ALL=static_cast<Word>(-1));
+                                 LEXER_MODULE_REF=2,
+                                 ERROR_SYNC_BLOCK_PAIRS_REF=4,
+                                 ALL=static_cast<Word>(-1));
 
 /**
  * @brief An enumeration for change operations of SymbolDefinition.
@@ -156,7 +156,7 @@ s_enum(SymbolDefChangeOp, UPDATE, DESTROY);
  * constructors.
  */
 s_enum(SymbolDefElement, PARENT_REF=1, TERM=2, VAR_DEFS=4, VARS=8, HANDLER=16, PRIORITY=32, FLAGS=64,
-            ATTRIBUTES=128, ALL=static_cast<Word>(-1));
+                         ATTRIBUTES=128, ALL=static_cast<Word>(-1));
 
 /**
  * @brief An enumeration for the different member elements of Term objects.
@@ -172,6 +172,7 @@ class Node;
 class Module;
 class Provider;
 class CharGroupUnit;
+class Seeker;
 
 
 //==============================================================================
@@ -375,32 +376,37 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 
 #include "Node.h"
 
+namespace Core { namespace Data
+{
+
+typedef TiNumber<Int, Node> Integer;
+typedef TiStrBase<Node> String;
+
+} } // namespace
+
 // Helpers
+#include "constructor_helpers.h"
 #include "paired_pointers.h"
 #include "IdGenerator.h"
 #include "SourceLocation.h"
 
-// Basic Data Types
-#include "Integer.h"
-#include "String.h"
-
 // Generic Data Interfaces
 #include "DataOwner.h"
-#include "AttributesHolder.h"
 #include "Initializable.h"
 #include "IdHolder.h"
 #include "Clonable.h"
 #include "Printable.h"
 
-// References Subsystem Classes
-//-----------------------------
-// Interfaces
+// Container Interfaces
 #include "Container.h"
 #include "ListContainer.h"
 #include "NamedListContainer.h"
 #include "MapContainer.h"
 #include "container_helpers.h"
 #include "Provider.h"
+
+// References Subsystem Classes
+//-----------------------------
 // Validators
 #include "Validator.h"
 #include "StrAttributeValidator.h"
@@ -417,6 +423,10 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 // Seekers and Data Providers
 #include "ReferenceSeeker.h"
 #include "QualifierSeeker.h"
+
+// Operation Repository
+//--------------------
+#include "Seeker.h"
 
 // Generic Containers
 //-------------------
@@ -450,7 +460,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 #include "ReferenceTerm.h"
 #include "TokenTerm.h"
 // Other Grammar Classes
-#include "OperationHandler.h"
+#include "BuildHandler.h"
 #include "SymbolDefinition.h"
 // TODO: #include "SymbolGroup.h"
 #include "GrammarModule.h"

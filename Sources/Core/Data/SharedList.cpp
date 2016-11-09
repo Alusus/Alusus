@@ -18,12 +18,6 @@ namespace Core { namespace Data
 //==============================================================================
 // Constructors
 
-SharedList::SharedList(const std::initializer_list<SharedPtr<TiObject>> &args)
-{
-  this->reserve(args.size());
-  for (auto arg : args) this->add(arg);
-}
-
 SharedList::~SharedList()
 {
   for (Int i = 0; i < this->list.size(); ++i) {

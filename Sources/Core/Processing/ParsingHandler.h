@@ -29,12 +29,12 @@ class Parser;
  * generators can also include their own parsing handlers that they associate
  * with the desired production.
  */
-class ParsingHandler : public Data::OperationHandler
+class ParsingHandler : public Data::BuildHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ParsingHandler, Data::OperationHandler, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(ParsingHandler, Data::BuildHandler, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================

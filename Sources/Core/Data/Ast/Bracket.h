@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class Bracket : public Node,
-                public virtual MapContainer, public virtual MetadataHolder,
+                public virtual RtMembers, public virtual MapContainer, public virtual Metadata,
                 public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Bracket, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, MapContainer, MetadataHolder, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, RtMembers, MapContainer, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -34,6 +34,16 @@ class Bracket : public Node,
 
   private: BracketType type;
   private: TioSharedPtr operand;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_METADATA(Bracket);
+
+  IMPLEMENT_RTMEMBERS((type, BracketType, VALUE, setType(value), &type),
+                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER((TiObject, operand));
 
@@ -43,62 +53,31 @@ class Bracket : public Node,
   //============================================================================
   // Constructors & Destructor
 
-  public: Bracket()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Bracket);
 
-  public: Bracket(Word pid, SourceLocation const &sl) :
-    MetadataHolder(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(Bracket);
 
-  public: Bracket(Word pid, BracketType t, TioSharedPtr const &o) :
-    MetadataHolder(pid), type(t), operand(o)
-  {
-    OWN_SHAREDPTR(this->operand);
-  }
-
-  public: Bracket(Word pid, SourceLocation const &sl, BracketType t, TioSharedPtr const &o) :
-    MetadataHolder(pid, sl), type(t), operand(o)
-  {
-    OWN_SHAREDPTR(this->operand);
-  }
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(Bracket);
 
   public: virtual ~Bracket()
   {
     DISOWN_SHAREDPTR(this->operand);
   }
 
-  public: static SharedPtr<Bracket> create()
-  {
-    return std::make_shared<Bracket>();
-  }
-
-  public: static SharedPtr<Bracket> create(Word pid, SourceLocation const &sl)
-  {
-    return std::make_shared<Bracket>(pid, sl);
-  }
-
-  public: static SharedPtr<Bracket> create(Word pid, BracketType t, TioSharedPtr const &o)
-  {
-    return std::make_shared<Bracket>(pid, t, o);
-  }
-
-  public: static SharedPtr<Bracket> create(Word pid, SourceLocation const &sl, BracketType t, TioSharedPtr const &o)
-  {
-    return std::make_shared<Bracket>(pid, sl, t, o);
-  }
-
 
   //============================================================================
   // Member Functions
 
-  public: void setType(BracketType t)
+  public: void setType(BracketType const &t)
   {
     this->type = t;
   }
+  public: void setType(BracketType const *t)
+  {
+    this->type = t == 0 ? BracketType::ROUND : t->get();
+  }
 
-  public: BracketType getType() const
+  public: BracketType const& getType() const
   {
     return this->type;
   }
@@ -111,18 +90,6 @@ class Bracket : public Node,
   public: TioSharedPtr const& getOperand() const
   {
     return this->operand;
-  }
-
-
-  //============================================================================
-  // MetadataHolder Overrides
-
-  public: virtual TiObject* getAttribute(Char const *name)
-  {
-    if (SBSTR(name) == STR("type")) {
-      return &this->type;
-    }
-    return MetadataHolder::getAttribute(name);
   }
 
 

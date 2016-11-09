@@ -41,17 +41,17 @@ ListTerm::ListTerm(const std::initializer_list<Argument<TermElement>> &args)
         this->setFlags(arg.intVal);
         break;
       case TermElement::REF:
-        UPDATE_OWNED_SHAREDPTR(this->targetRef, arg.ioVal.tio_cast<Reference>());
-        if (this->targetRef == 0 && arg.ioVal != 0) {
+        UPDATE_OWNED_SHAREDPTR(this->targetRef, arg.tiShared.ti_cast<Reference>());
+        if (this->targetRef == 0 && arg.tiShared != 0) {
           throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Object must be of type Reference."),
-                          arg.ioVal->getMyTypeInfo()->getUniqueName());
+                          arg.tiShared->getMyTypeInfo()->getUniqueName());
         }
         break;
       case TermElement::DATA:
-        UPDATE_OWNED_SHAREDPTR(this->data, arg.ioVal.tio_cast<Node>());
+        UPDATE_OWNED_SHAREDPTR(this->data, arg.tiShared.tio_cast<Node>());
         break;
       case TermElement::TERM:
-        UPDATE_OWNED_SHAREDPTR(this->terms, arg.ioVal.tio_cast<Node>());
+        UPDATE_OWNED_SHAREDPTR(this->terms, arg.tiShared.tio_cast<Node>());
         break;
     }
   }

@@ -19,13 +19,14 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class SymbolDefinition : public Node,
-                         public virtual Initializable, public virtual IdHolder, public virtual DataOwner
+                         public virtual RtMembers, public virtual Initializable,
+                         public virtual IdHolder, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SymbolDefinition, Node, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_3(Node, Initializable, IdHolder, DataOwner);
+  IMPLEMENT_INTERFACES(Node, RtMembers, Initializable, IdHolder, DataOwner);
 
 
   //============================================================================
@@ -41,7 +42,7 @@ class SymbolDefinition : public Node,
 
   private: SharedPtr<Node> vars;
 
-  private: SharedPtr<OperationHandler> handler;
+  private: SharedPtr<BuildHandler> handler;
 
   private: Int priority;
 
@@ -61,6 +62,14 @@ class SymbolDefinition : public Node,
 
 
   //============================================================================
+  // Implementations
+
+  IMPLEMENT_IDHOLDER(SymbolDefinition);
+
+  IMPLEMENT_RTMEMBERS((id, TiWord, VALUE, setId(value), &id));
+
+
+  //============================================================================
   // Signals
 
   public: SIGNAL(changeNotifier, (SymbolDefinition *obj, SymbolDefChangeOp op, Word elmt), (obj, op, elmt));
@@ -77,7 +86,7 @@ class SymbolDefinition : public Node,
                            SharedPtr<Node> const &t,
                            SharedPtr<Node> const &vd,
                            SharedPtr<Node> const &v,
-                           const SharedPtr<OperationHandler> &h,
+                           const SharedPtr<BuildHandler> &h,
                            Int p, Word f,
                            SharedPtr<Node> const &a=SharedPtr<Node>());
 
@@ -202,17 +211,17 @@ class SymbolDefinition : public Node,
      * Once set, modifying this value is not allowed. This is to prevent
      * accidentally modifying the handler while being in use by some state.
      */
-  public: void setOperationHandler(const SharedPtr<OperationHandler> &h)
+  public: void setBuildHandler(SharedPtr<BuildHandler> const &h)
   {
     UPDATE_OWNED_SHAREDPTR(this->handler, h);
     this->ownership |= SymbolDefElement::HANDLER;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::HANDLER);
   }
 
-  public: void resetOperationHandler()
+  public: void resetBuildHandler()
   {
     RESET_OWNED_SHAREDPTR(this->handler);
-    if (this->parent != 0) this->handler = this->parent->getOperationHandler();
+    if (this->parent != 0) this->handler = this->parent->getBuildHandler();
     this->ownership &= ~SymbolDefElement::HANDLER;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::HANDLER);
   }
@@ -223,7 +232,7 @@ class SymbolDefinition : public Node,
      * The operation handler is the object that receives the parsing events and
      * generates the required output results.
      */
-  public: const SharedPtr<OperationHandler>& getOperationHandler() const
+  public: SharedPtr<BuildHandler> const& getBuildHandler() const
   {
     return this->handler;
   }

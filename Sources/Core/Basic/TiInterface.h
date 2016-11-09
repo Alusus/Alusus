@@ -67,16 +67,16 @@ class TiInterface
    */
   public: template <class T> Bool isInterfaceA() const
   {
-    return this->getMyInterfaceInfo() == T::getInterfaceInfo();
+    return this->getMyInterfaceInfo() == T::getTypeInfo();
   }
 
   /// Get this interface's type info.
-  public: static TypeInfo* getInterfaceInfo();
+  public: static TypeInfo* getTypeInfo();
 
   /// Get a pointer to the requested interface.
   public: void* getInterfacePtr(TypeInfo *info)
   {
-    if (info == TiInterface::getInterfaceInfo())
+    if (info == TiInterface::getTypeInfo())
       return reinterpret_cast<void*>(this);
     else
       return 0;
@@ -91,7 +91,7 @@ class TiInterface
    */
   public: template <class T> Bool isInterfaceDerivedFrom() const
   {
-    return this->isInterfaceDerivedFrom(T::getInterfaceInfo());
+    return this->isInterfaceDerivedFrom(T::getTypeInfo());
   }
 
   /// Get the identifiable object that owns this interface.
@@ -112,7 +112,7 @@ class TiInterface
  *
  * This macro is used to define the type info methods for interfaces derived
  * from TiInterface. It defines and implements the virtual
- * getMyInterfaceInfo and the static getInterfaceInfo functions.
+ * getMyInterfaceInfo and the static getTypeInfo functions.
  *
  * @param myType The class name as a keyword (rather than stringized).
  * @param baseType The base class name as a keyword (rather than stringized).
@@ -127,22 +127,22 @@ class TiInterface
  */
 #define INTERFACE_INFO(myType, baseType, typeNamespace, moduleName, url) \
   public: \
-    virtual Core::Basic::TypeInfo * getMyInterfaceInfo() const { return myType::getInterfaceInfo(); } \
-    static Core::Basic::TypeInfo * getInterfaceInfo() {   \
+    virtual Core::Basic::TypeInfo * getMyInterfaceInfo() const { return myType::getTypeInfo(); } \
+    static Core::Basic::TypeInfo * getTypeInfo() {   \
       static Core::Basic::TypeInfo *typeInfo = 0; \
       if (typeInfo == 0) { \
         Char const* uniqueName = url "#" moduleName "#" typeNamespace "." #myType; \
         typeInfo = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
           typeInfo = new Core::Basic::TypeInfo(#myType, typeNamespace, moduleName, url, \
-          baseType::getInterfaceInfo()); \
+          baseType::getTypeInfo()); \
           GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
         } \
       } \
       return typeInfo; \
     } \
     void* getInterfacePtr(Core::Basic::TypeInfo *info) {\
-      if (info == myType::getInterfaceInfo()) \
+      if (info == myType::getTypeInfo()) \
       return reinterpret_cast<void*>(this); \
       else \
       return baseType::getInterfacePtr(info); \

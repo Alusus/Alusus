@@ -129,6 +129,7 @@ void mergeDefinition(Char const *qualifier, TiObject *obj, Processing::ParserSta
 
 #include "RedefinitionMsg.h"
 
+#include "StandardSeeker.h"
 #include "GrammarPlant.h"
 #include "LibraryGateway.h"
 #include "LibraryManager.h"

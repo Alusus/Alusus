@@ -50,18 +50,11 @@ class SharedList : public Node, public virtual DataOwner, public virtual ListCon
   //============================================================================
   // Constructors
 
-  public: SharedList()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(SharedList);
 
-  public: SharedList(const std::initializer_list<SharedPtr<TiObject>> &args);
+  IMPLEMENT_LIST_CONSTRUCTOR(SharedList);
 
   public: virtual ~SharedList();
-
-  public: static SharedPtr<SharedList> create(const std::initializer_list<SharedPtr<TiObject>> &args)
-  {
-    return std::make_shared<SharedList>(args);
-  }
 
 
   //============================================================================

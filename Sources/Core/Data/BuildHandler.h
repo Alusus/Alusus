@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/OperationHandler.h
- * Contains the header of class Core::Data::OperationHandler.
+ * @file Core/Data/BuildHandler.h
+ * Contains the header of class Core::Data::BuildHandler.
  *
  * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
  *
@@ -10,26 +10,26 @@
  */
 //==============================================================================
 
-#ifndef CORE_DATA_OPERATION_HANDLER_H
-#define CORE_DATA_OPERATION_HANDLER_H
+#ifndef CORE_DATA_BUILDHANDLER_H
+#define CORE_DATA_BUILDHANDLER_H
 
 namespace Core { namespace Data
 {
 
 // TODO: DOC
 
-class OperationHandler : public Node
+class BuildHandler : public Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(OperationHandler, Node, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(BuildHandler, Node, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Protected Constructor
 
-  protected: OperationHandler()
+  protected: BuildHandler()
   {
   }
 

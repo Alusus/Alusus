@@ -22,7 +22,7 @@ TEST_CASE("Core::Basic/getSharedPtr", "Test of getSharedPtr function.")
   try {
     SECTION("s1", "getSharedPtr shares ownership with existing pointers.")
     {
-      SharedPtr<Data::SharedList> list(new SharedList());
+      SharedPtr<Data::SharedList> list(new Data::SharedList());
       SharedPtr<Data::SharedList> pl2 = getSharedPtr(list.get());
       CHECK(pl2.get() != 0);
       CHECK(pl2.get() == list.get());
@@ -39,8 +39,14 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
 {
   // Prepare a data tree.
   SharedPtr<TiObject> data =
-    Ast::List::create(ID_GENERATOR->getId(STR("root")), {
-                       Ast::Token::create(ID_GENERATOR->getId(STR("parent.3")), ID_GENERATOR->getId(STR("token3")))});
+    Ast::List::create({
+      { "prodId", ID_GENERATOR->getId(STR("root")) }
+    }, {
+      Ast::Token::create({
+        { "prodId", ID_GENERATOR->getId(STR("parent.3")) },
+        { "id", ID_GENERATOR->getId(STR("token3")) }
+      })
+    });
   QualifierSeeker seeker;
 
   try {

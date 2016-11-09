@@ -173,7 +173,7 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
     printable->print(stream, indents);
   } else {
     stream << ptr->getMyTypeInfo()->getUniqueName();
-    auto metadata = tii_cast<Ast::MetadataHolder>(ptr);
+    auto metadata = ti_cast<Ast::Metadata>(ptr);
     if (metadata) {
       Word id = metadata->getProdId();
       if (id != UNKNOWN_ID) {

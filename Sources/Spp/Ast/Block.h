@@ -31,30 +31,13 @@ class Block : public Core::Data::Ast::Scope
 
 
   //============================================================================
-  // Constructors & Destructor
+  // Constructor / Destructor
 
-  public: Block()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Block);
 
-  public: Block(Word pid, Core::Data::SourceLocation const &sl) : Scope(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(Block);
 
-  public: Block(Word pid, std::initializer_list<SharedPtr<TiObject>> const &args) :
-    Scope(pid, args)
-  {
-  }
-
-  public: Block(Word pid, Core::Data::SourceLocation const &sl,
-                std::initializer_list<SharedPtr<TiObject>> const &args) :
-    Scope(pid, sl, args)
-  {
-  }
-
-  public: virtual ~Block()
-  {
-  }
+  IMPLEMENT_ATTR_LIST_CONSTRUCTOR(Block);
 
 }; // class
 

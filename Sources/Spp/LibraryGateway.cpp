@@ -35,11 +35,11 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   grammarRepository->set(STR("root:Main.Dump"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
-      SymbolDefElement::VARS, SharedMap::create(false, {
+      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
         { STR("kwd"), std::make_shared<String>(STR("dump")) },
         {
-          STR("prms"), SharedList::create({
-            SharedMap::create(false, {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
               { STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
@@ -57,17 +57,17 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   grammarRepository->set(STR("root:Main.While"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
-      SymbolDefElement::VARS, SharedMap::create(false, {
-        { STR("kwd"), SharedMap::create(false, { { STR("while"), 0 }, { STR("بينما"), 0 } }) },
+      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("while"), 0 }, { STR("بينما"), 0 } }) },
         {
-          STR("prms"), SharedList::create({
-            SharedMap::create(false, {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
               { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
             }),
-            SharedMap::create(false, {
+            Core::Data::SharedMap::create(false, {
               { STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockMain.Statement")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
@@ -87,11 +87,11 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   //// module = "module" + Set
   grammarRepository->set(STR("root:Subject.Module"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    { SymbolDefElement::VARS, SharedMap::create(false, {
-        { STR("kwd"), SharedMap::create(false, { { STR("module"), 0 }, { STR("حزمة"), 0 } }) },
+    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("module"), 0 }, { STR("حزمة"), 0 } }) },
         {
-          STR("prms"), SharedList::create({
-            SharedMap::create(false, {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
               { STR("prd"), REF_PARSER->parseQualifier(STR("root:ModuleBody")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
@@ -109,7 +109,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   this->addReferenceToCommandList(innerCmdList, STR("module:Module"));
   grammarRepository->set(STR("root:ModuleBody"), SymbolDefinition::create({
     { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("root:Set")) },
-    { SymbolDefElement::VARS, SharedMap::create(false, {
+    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
       {STR("stmt"), REF_PARSER->parseQualifier(STR("root:Main.ModuleStatementList"))}
     })}
   }).get());
@@ -121,11 +121,11 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   //// type = "type" + Set
   grammarRepository->set(STR("root:Subject.Type"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    { SymbolDefElement::VARS, SharedMap::create(false, {
-        { STR("kwd"), SharedMap::create(false, { { STR("type"), 0 }, { STR("صنف"), 0 } }) },
+    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("type"), 0 }, { STR("صنف"), 0 } }) },
         {
-          STR("prms"), SharedList::create({
-            SharedMap::create(false, {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
               { STR("prd"), REF_PARSER->parseQualifier(STR("root:TypeBody")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
@@ -143,7 +143,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   this->addReferenceToCommandList(innerCmdList, STR("module:Type"));
   grammarRepository->set(STR("root:TypeBody"), SymbolDefinition::create({
     { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("root:Set")) },
-    { SymbolDefElement::VARS, SharedMap::create(false, {
+    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
       {STR("stmt"), REF_PARSER->parseQualifier(STR("root:Main.TypeStatementList"))}
     })}
   }).get());
@@ -156,17 +156,17 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   grammarRepository->set(STR("root:Subject.Function"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
-      SymbolDefElement::VARS, SharedMap::create(false, {
-        { STR("kwd"), SharedMap::create(false, { { STR("function"), 0 }, { STR("دالّة"), 0 } }) },
+      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("function"), 0 }, { STR("دالّة"), 0 } }) },
         {
-          STR("prms"), SharedList::create({
-            SharedMap::create(false, {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
               { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }
             }),
-            SharedMap::create(false, {
+            Core::Data::SharedMap::create(false, {
               { STR("prd"), REF_PARSER->parseQualifier(STR("root:Block")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
@@ -183,7 +183,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   // Block
   grammarRepository->set(STR("root:Block"), SymbolDefinition::create({
     { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("root:Set")) },
-    { SymbolDefElement::VARS, SharedMap::create(false, {
+    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
       {STR("stmt"), REF_PARSER->parseQualifier(STR("root:Main.BlockStatementList"))}
     })}
   }).get());
@@ -198,8 +198,8 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
   grammarRepository->set(STR("root:BlockSubject.Subject1"), SymbolDefinition::create({
    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:Subject1")) },
-   {SymbolDefElement::VARS, SharedMap::create(false, {
-      {STR("sbj1"), SharedList::create({
+   {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+      {STR("sbj1"), Core::Data::SharedList::create({
          REF_PARSER->parseQualifier(STR("module:SubjectCmdGrp")),
          REF_PARSER->parseQualifier(STR("module:Parameter")),
          REF_PARSER->parseQualifier(STR("root:Block"))
@@ -211,7 +211,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
   grammarRepository->set(STR("root:BlockExpression.FunctionalExp"), SymbolDefinition::create({
     {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:FunctionalExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {
+    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
        {STR("operand"), REF_PARSER->parseQualifier(STR("root:BlockSubject"))},
        {STR("pty2"), std::make_shared<Integer>(1)},
        {STR("dup"), 0},
@@ -223,9 +223,9 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
   grammarRepository->set(STR("root:BlockMain.ExpPhrase"), SymbolDefinition::create({
    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:ExpPhrase")) },
-   {SymbolDefElement::VARS, SharedMap::create(false, {
-      {STR("subjects"), SharedList::create({
-         SharedMap::create(false, {
+   {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+      {STR("subjects"), Core::Data::SharedList::create({
+         Core::Data::SharedMap::create(false, {
            {STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockExpression"))},
            {STR("min"), std::make_shared<Integer>(1)},
            {STR("max"), std::make_shared<Integer>(1)},
@@ -267,7 +267,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
 }
 
 
-SharedList* LibraryGateway::getLeadingCommandsList(GrammarRepository *grammarRepository)
+Core::Data::SharedList* LibraryGateway::getLeadingCommandsList(GrammarRepository *grammarRepository)
 {
   PlainPairedPtr retVal;
   grammarRepository->get(STR("root:Main.LeadingCmdGrp"), retVal.object,
@@ -280,8 +280,8 @@ SharedList* LibraryGateway::getLeadingCommandsList(GrammarRepository *grammarRep
 
   GrammarContext context;
   context.setRoot(grammarRepository->getRoot().get());
-  SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
-  SharedList *cmd_list = tio_cast<SharedList>(vars->get(STR("cmds")));
+  Core::Data::SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
+  Core::Data::SharedList *cmd_list = ti_cast<Core::Data::SharedList>(vars->get(STR("cmds")));
 
   if (cmd_list == 0) {
     throw EXCEPTION(GenericException, STR("Could not find leading command group's command list."));
@@ -291,7 +291,7 @@ SharedList* LibraryGateway::getLeadingCommandsList(GrammarRepository *grammarRep
 }
 
 
-SharedList* LibraryGateway::getInnerCommandsList(GrammarRepository *grammarRepository)
+Core::Data::SharedList* LibraryGateway::getInnerCommandsList(GrammarRepository *grammarRepository)
 {
   PlainPairedPtr retVal;
   grammarRepository->get(STR("root:Subject.SubjectCmdGrp"), retVal.object,
@@ -304,8 +304,8 @@ SharedList* LibraryGateway::getInnerCommandsList(GrammarRepository *grammarRepos
 
   GrammarContext context;
   context.setRoot(grammarRepository->getRoot().get());
-  SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
-  SharedList *cmd_list = tio_cast<SharedList>(vars->get(STR("cmds")));
+  Core::Data::SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
+  Core::Data::SharedList *cmd_list = ti_cast<Core::Data::SharedList>(vars->get(STR("cmds")));
 
   if (cmd_list == 0) {
     throw EXCEPTION(GenericException, STR("Could not find inner command group's command list."));
@@ -315,7 +315,7 @@ SharedList* LibraryGateway::getInnerCommandsList(GrammarRepository *grammarRepos
 }
 
 
-SharedList* LibraryGateway::getTildeCommandsList(GrammarRepository *grammarRepository)
+Core::Data::SharedList* LibraryGateway::getTildeCommandsList(GrammarRepository *grammarRepository)
 {
   PlainPairedPtr retVal;
   grammarRepository->get(STR("root:Expression.DefaultPostfixTildeCmd"), retVal.object,
@@ -328,8 +328,8 @@ SharedList* LibraryGateway::getTildeCommandsList(GrammarRepository *grammarRepos
 
   GrammarContext context;
   context.setRoot(grammarRepository->getRoot().get());
-  SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
-  SharedList *cmd_list = tio_cast<SharedList>(vars->get(STR("cmds")));
+  Core::Data::SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
+  Core::Data::SharedList *cmd_list = tio_cast<Core::Data::SharedList>(vars->get(STR("cmds")));
 
   if (cmd_list == 0) {
     throw EXCEPTION(GenericException, STR("Could not find inner command group's command list."));

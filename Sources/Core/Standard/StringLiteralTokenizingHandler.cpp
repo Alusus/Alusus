@@ -77,7 +77,7 @@ void StringLiteralTokenizingHandler::prepareToken(Data::Token *token, Word id, W
   SFREE(buffer);
   // Set other token info.
   token->setId(id);
-  token->setSourceLocation(sourceLocation);
+  token->setSourceLocation(&sourceLocation);
 }
 
 } } // namespace

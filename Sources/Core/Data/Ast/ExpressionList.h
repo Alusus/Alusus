@@ -31,49 +31,11 @@ class ExpressionList : public List
   //============================================================================
   // Constructor / Destructor
 
-  public: ExpressionList()
-  {
-  }
+  IMPLEMENT_EMPTY_CONSTRUCTOR(ExpressionList);
 
-  public: ExpressionList(Word pid, SourceLocation const &sl) : List(pid, sl)
-  {
-  }
+  IMPLEMENT_ATTR_CONSTRUCTOR(ExpressionList);
 
-  public: ExpressionList(Word pid, const std::initializer_list<SharedPtr<TiObject>> &args) : List(pid, args)
-  {
-  }
-
-  public: ExpressionList(Word pid, SourceLocation const &sl,
-                         const std::initializer_list<SharedPtr<TiObject>> &args) :
-    List(pid, sl, args)
-  {
-  }
-
-  public: virtual ~ExpressionList()
-  {
-  }
-
-  public: static SharedPtr<ExpressionList> create()
-  {
-    return std::make_shared<ExpressionList>();
-  }
-
-  public: static SharedPtr<ExpressionList> create(Word pid, SourceLocation const &sl)
-  {
-    return std::make_shared<ExpressionList>(pid, sl);
-  }
-
-  public: static SharedPtr<ExpressionList> create(Word pid,
-                                                  const std::initializer_list<SharedPtr<TiObject>> &args)
-  {
-    return std::make_shared<ExpressionList>(pid, args);
-  }
-
-  public: static SharedPtr<ExpressionList> create(Word pid, SourceLocation const &sl,
-                                                  const std::initializer_list<SharedPtr<TiObject>> &args)
-  {
-    return std::make_shared<ExpressionList>(pid, sl, args);
-  }
+  IMPLEMENT_ATTR_LIST_CONSTRUCTOR(ExpressionList);
 
 }; // class
 
