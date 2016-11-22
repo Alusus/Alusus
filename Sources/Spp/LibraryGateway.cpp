@@ -40,7 +40,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {
           STR("prms"), Core::Data::SharedList::create({
             Core::Data::SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject")) },
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
               { STR("min"), std::make_shared<Integer>(1) },
               { STR("max"), std::make_shared<Integer>(1) },
               { STR("pty"), std::make_shared<Integer>(1) }

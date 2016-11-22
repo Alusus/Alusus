@@ -23,42 +23,34 @@ using namespace Core::Data;
 
 void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  // TODO: Modify this once we have Seeker so it can dump non-root elements.
+  using SeekVerb = Data::Seeker::SeekVerb;
 
   auto data = state->getData().get();
   ASSERT(data != 0);
   auto metadata = ti_cast<Core::Data::Ast::Metadata>(data);
   ASSERT(metadata != 0);
 
-  auto identifier = ti_cast<Core::Data::Ast::Identifier>(data);
-  if (identifier == 0) {
-    state->addBuildMsg(std::make_shared<InvalidDumpArg>(metadata->getSourceLocation()));
-    state->setData(SharedPtr<TiObject>(0));
-    return;
-  }
-
-  auto rootScope = this->rootManager->getRootScope();
-  TioSharedPtr obj = 0;
-  for (Int i = 0; i < rootScope->getCount(); ++i) {
-    auto def = tio_cast<Data::Ast::Definition>(rootScope->get(i));
-    if (def != 0 && def->getName() == identifier->getValue()) {
-      obj = def->getTarget();
-      break;
+  try {
+    Bool found = false;
+    this->rootManager->getSeeker()->foreach(data, state->getDataStack(),
+      [=, &found](Seeker *newSeeker, TiObject *obj)->SeekVerb
+      {
+        if (obj != 0) {
+          outStream << STR("------------------ Parsed Data Dump ------------------\n");
+          dumpData(outStream, obj, 0);
+          outStream << STR("\n------------------------------------------------------\n");
+          found = true;
+        }
+        return SeekVerb::MOVE;
+      }
+    );
+    if (!found) {
+      state->addBuildMsg(std::make_shared<InvalidDumpArg>(metadata->getSourceLocation()));
     }
+  } catch (InvalidArgumentException) {
+    state->addBuildMsg(std::make_shared<InvalidDumpArg>(metadata->getSourceLocation()));
   }
 
-  if (obj != 0) {
-    outStream << STR("------------------ Parsed Data Dump ------------------\n");
-    dumpData(outStream, obj.get(), 0);
-    outStream << STR("\n------------------------------------------------------\n");
-  } else {
-    // Create a build msg.
-    Str message = "Couldn't find element: ";
-    message += identifier->getValue();
-    state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), metadata->getSourceLocation()));
-  }
-
-  // Reset parsed data because we are done with the command.
   state->setData(SharedPtr<TiObject>(0));
 }
 

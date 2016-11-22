@@ -63,17 +63,17 @@ class Seeker : public TiObject, public virtual DynamicRtMembers
 
   public: void set(TiObject const *ref, TiObject *target, SeekSetCallback callback)
   {
-    callRtMethod<void>(this, "_set", ref, target, callback);
+    callVoidRtMethod(this, "_set", ref, target, callback);
   }
 
   public: void remove(TiObject const *ref, TiObject *target, SeekRemoveCallback callback)
   {
-    callRtMethod<void>(this, "_remove", ref, target, callback);
+    callVoidRtMethod(this, "_remove", ref, target, callback);
   }
 
   public: void foreach(TiObject const *ref, TiObject *target, SeekForeachCallback callback)
   {
-    callRtMethod<void>(this, "_foreach", ref, target, callback);
+    callVoidRtMethod(this, "_foreach", ref, target, callback);
   }
 
   /// @}

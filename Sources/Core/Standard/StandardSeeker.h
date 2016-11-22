@@ -18,6 +18,8 @@ namespace Core { namespace Standard
 
 class StandardSeeker : public Data::Seeker
 {
+  using SeekVerb = Data::Seeker::SeekVerb;
+
   //============================================================================
   // Type Info
 
@@ -50,9 +52,9 @@ class StandardSeeker : public Data::Seeker
   /// @name Main Seek Functions
   /// @{
 
-  private: void _set(TiObject const *ref, TiObject *target, SeekSetCallback cb);
-  private: void _remove(TiObject const *ref, TiObject *target, SeekRemoveCallback cb);
-  private: void _foreach(TiObject const *ref, TiObject *target, SeekForeachCallback cb);
+  private: static void _set(Seeker *self, TiObject const *ref, TiObject *target, SeekSetCallback cb);
+  private: static void _remove(Seeker *self, TiObject const *ref, TiObject *target, SeekRemoveCallback cb);
+  private: static void _foreach(Seeker *self, TiObject const *ref, TiObject *target, SeekForeachCallback cb);
 
   /// @}
 
@@ -60,8 +62,20 @@ class StandardSeeker : public Data::Seeker
   /// @{
 
   private: void setByIdentifier(Data::Ast::Identifier const *identifier, TiObject *data, SeekSetCallback cb);
+  private: void setByIdentifier_SharedRepository(Data::Ast::Identifier const *identifier,
+                                                 Data::SharedRepository *repo, SeekSetCallback cb);
+  private: void setByIdentifier_Ast(Data::Ast::Identifier const *identifier, TiObject *data, SeekSetCallback cb);
+
   private: void removeByIdentifier(Data::Ast::Identifier const *identifier, TiObject *data, SeekRemoveCallback cb);
-  private: void foreachByIdentifier(Data::Ast::Identifier const *identifer, TiObject *data, SeekForeachCallback cb);
+  private: void removeByIdentifier_SharedRepository(Data::Ast::Identifier const *identifier,
+                                                    Data::SharedRepository *repo, SeekRemoveCallback cb);
+  private: void removeByIdentifier_Ast(Data::Ast::Identifier const *identifier, TiObject *data, SeekRemoveCallback cb);
+
+  private: void foreachByIdentifier(Data::Ast::Identifier const *identifier, TiObject *data, SeekForeachCallback cb);
+  private: void foreachByIdentifier_SharedRepository(Data::Ast::Identifier const *identifier,
+                                                     Data::SharedRepository *repo, SeekForeachCallback cb);
+  private: void foreachByIdentifier_Ast(Data::Ast::Identifier const *identifier, TiObject *data,
+                                        SeekForeachCallback cb);
 
   /// @}
 
@@ -75,21 +89,21 @@ class StandardSeeker : public Data::Seeker
   private: SeekVerb setByLinkOperator_mapDotIdentifier(Data::Ast::Identifier const *identifier, Data::MapContainer *map,
                                                        SeekSetCallback cb);
 
-  // TODO:
+  private: void removeByLinkOperator(Data::Ast::LinkOperator const *link, TiObject *data, SeekRemoveCallback cb);
+  private: SeekVerb removeByLinkOperator_routing(Data::Ast::LinkOperator const *link, TiObject *data,
+                                                 SeekRemoveCallback cb);
+  private: SeekVerb removeByLinkOperator_scopeDotIdentifier(Data::Ast::Identifier const *identifier,
+                                                            Data::Ast::Scope *scope, SeekRemoveCallback cb);
+  private: SeekVerb removeByLinkOperator_mapDotIdentifier(Data::Ast::Identifier const *identifier,
+                                                          Data::MapContainer *map, SeekRemoveCallback cb);
 
-  private: void removeByLinkOperator(Data::Ast::LinkOperator *ref, TiObject *data, SeekRemoveCallback cb);
-  private: SeekVerb removeByLinkOperator_routing(Data::Ast::LinkOperator *ref, TiObject *data, SeekRemoveCallback cb);
-  private: SeekVerb removeByLinkOperator_scopeDotIdentifier(Data::Ast::LinkOperator *ref, TiObject *data,
-                                                            SeekRemoveCallback cb);
-  private: SeekVerb removeByLinkOperator_anyDotIdentifier(Data::Ast::LinkOperator *ref, TiObject *data,
-                                                          SeekRemoveCallback cb);
-
-  private: void foreachByLinkOperator(Data::Ast::LinkOperator *ref, TiObject *data, SeekForeachCallback cb);
-  private: SeekVerb foreachByLinkOperator_routing(Data::Ast::LinkOperator *ref, TiObject *data, SeekForeachCallback cb);
-  private: SeekVerb foreachByLinkOperator_scopeDotIdentifier(Data::Ast::LinkOperator *ref, TiObject *data,
-                                                             SeekForeachCallback cb);
-  private: SeekVerb foreachByLinkOperator_anyDotIdentifier(Data::Ast::LinkOperator *ref, TiObject *data,
-                                                           SeekForeachCallback cb);
+  private: void foreachByLinkOperator(Data::Ast::LinkOperator const *link, TiObject *data, SeekForeachCallback cb);
+  private: SeekVerb foreachByLinkOperator_routing(Data::Ast::LinkOperator const *link, TiObject *data,
+                                                  SeekForeachCallback cb);
+  private: SeekVerb foreachByLinkOperator_scopeDotIdentifier(Data::Ast::Identifier *identifier,
+                                                             Data::Ast::Scope *scope, SeekForeachCallback cb);
+  private: SeekVerb foreachByLinkOperator_mapDotIdentifier(Data::Ast::Identifier const *identifier,
+                                                           Data::MapContainer *map, SeekForeachCallback cb);
 
   /// @}
 

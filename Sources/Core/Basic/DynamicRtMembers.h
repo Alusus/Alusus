@@ -70,6 +70,12 @@ class DynamicRtMembers : public RtMembers
     map->set(name, tifn);
   }
 
+  public: template <class RT, class ...ARGS>
+    void setRtFunction(Char const *name, RT(*fn)(ARGS...), Bool replace = false)
+  {
+    this->setRtFunction(name, std::function<RT(ARGS...)>(fn), replace);
+  }
+
   public: template <class RT, class CT, class ...ARGS>
     void setRtMemberFunction(Char const *name, RT (CT::*fn)(ARGS...), Bool replace = false)
   {
