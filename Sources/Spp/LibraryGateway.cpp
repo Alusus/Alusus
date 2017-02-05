@@ -25,11 +25,17 @@ using namespace Core::Processing::Handlers;
 
 void LibraryGateway::initialize(Standard::RootManager *manager)
 {
+  // Extend Seeker.
+  this->seekerExtension = SeekerExtension::extend(manager->getSeeker());
+
+  // Create the generator.
+  this->llvmGenerator = new LlvmCodeGen::Generator(manager->getSeeker());
+
+  // Create leading commands.
+
   auto grammarRepository = manager->getGrammarRepository();
   auto leadingCmdList = this->getLeadingCommandsList(grammarRepository);
   auto innerCmdList = this->getInnerCommandsList(grammarRepository);
-
-  // Create leading commands.
 
   //// dump = "dump" + Subject
   grammarRepository->set(STR("root:Main.Dump"), SymbolDefinition::create({
@@ -52,6 +58,28 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     { SymbolDefElement::HANDLER, std::make_shared<Handlers::DumpParsingHandler>(manager) }
   }).get());
   this->addReferenceToCommandList(leadingCmdList, STR("module:Dump"));
+
+  //// build = "build" + Subject
+  grammarRepository->set(STR("root:Main.Build"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    {
+      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), std::make_shared<String>(STR("build")) },
+        {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
+              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
+              { STR("min"), std::make_shared<Integer>(1) },
+              { STR("max"), std::make_shared<Integer>(1) },
+              { STR("pty"), std::make_shared<Integer>(1) }
+            })
+          })
+        }
+      })
+    },
+    { SymbolDefElement::HANDLER, std::make_shared<Handlers::BuildParsingHandler>(manager, this->llvmGenerator) }
+  }).get());
+  this->addReferenceToCommandList(leadingCmdList, STR("module:Build"));
 
   //// while = "while" + Expression + Statement
   grammarRepository->set(STR("root:Main.While"), SymbolDefinition::create({
@@ -234,17 +262,27 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
        })}
     })}
   }).get());
+
+  this->createBuiltInTypes(manager);
 }
 
 
 void LibraryGateway::uninitialize(Standard::RootManager *manager)
 {
+  // Unextend Seeker.
+  SeekerExtension::unextend(manager->getSeeker(), this->seekerExtension);
+  this->seekerExtension = 0;
+
+  delete this->llvmGenerator;
+  this->llvmGenerator = 0;
+
   auto grammarRepository = manager->getGrammarRepository();
   auto leadingCmdList = this->getLeadingCommandsList(grammarRepository);
   auto innerCmdList = this->getInnerCommandsList(grammarRepository);
 
   // Remove commands from leading commands list.
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Dump"));
+  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Build"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:While"));
 
   // Remove command from inner commands list.
@@ -254,7 +292,11 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
 
   // Delete definitions.
   grammarRepository->remove(STR("root:Main.Dump"));
+  grammarRepository->remove(STR("root:Main.Build"));
   grammarRepository->remove(STR("root:Main.While"));
+  grammarRepository->remove(STR("root:Main.ModuleStatementList"));
+  grammarRepository->remove(STR("root:Main.TypeStatementList"));
+  grammarRepository->remove(STR("root:Main.BlockStatementList"));
   grammarRepository->remove(STR("root:Subject.Module"));
   grammarRepository->remove(STR("root:ModuleBody"));
   grammarRepository->remove(STR("root:Subject.Type"));
@@ -264,6 +306,8 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   grammarRepository->remove(STR("root:BlockSubject"));
   grammarRepository->remove(STR("root:BlockExpression"));
   grammarRepository->remove(STR("root:BlockMain"));
+
+  this->removeBuiltInTypes(manager);
 }
 
 
@@ -354,6 +398,51 @@ void LibraryGateway::removeReferenceFromCommandList(Core::Data::SharedList *cmdL
       return;
     }
   }
+}
+
+
+void LibraryGateway::createBuiltInTypes(Core::Standard::RootManager *manager)
+{
+  Core::Data::Ast::Identifier identifier;
+  auto root = manager->getRootScope().get();
+  SharedPtr<Ast::Template> tmplt;
+
+  // Int
+  tmplt = Ast::Template::create();
+  tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER }});
+  tmplt->setTemplateBody(Ast::Type::create());
+  identifier.setValue(STR("Int"));
+  manager->getSeeker()->doSet(&identifier, root, tmplt.get());
+
+  // Float
+  tmplt = Ast::Template::create();
+  tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER }});
+  tmplt->setTemplateBody(Ast::Type::create());
+  identifier.setValue(STR("Float"));
+  manager->getSeeker()->doSet(&identifier, root, tmplt.get());
+
+  // ptr
+  tmplt = Ast::Template::create();
+  tmplt->setVarDefs({{ STR("type"), Ast::Template::VarType::TYPE }});
+  tmplt->setTemplateBody(Ast::Type::create());
+  identifier.setValue(STR("ptr"));
+  manager->getSeeker()->doSet(&identifier, root, tmplt.get());
+}
+
+
+void LibraryGateway::removeBuiltInTypes(Core::Standard::RootManager *manager)
+{
+  Core::Data::Ast::Identifier identifier;
+  auto root = manager->getRootScope().get();
+
+  identifier.setValue(STR("Int"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("Float"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("ptr"));
+  manager->getSeeker()->doRemove(&identifier, root);
 }
 
 } // namespace

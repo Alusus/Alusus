@@ -2,7 +2,7 @@
  * @file Core/Basic/SharedMap.h
  * Contains the header of class Core::Basic::SharedMap.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,18 +10,20 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_MAP_H
-#define CORE_BASIC_MAP_H
+#ifndef CORE_BASIC_SHAREDMAP_H
+#define CORE_BASIC_SHAREDMAP_H
 
 namespace Core { namespace Basic
 {
+
+s_enum(ContentChangeOp, ADDED, WILL_UPDATE, UPDATED, WILL_REMOVE, REMOVED);
 
 template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
 {
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(SharedMap, PTYPE, "Core.Data", "Core", "alusus.net", CTYPE, PTYPE);
+  TEMPLATE_TYPE_INFO(SharedMap, PTYPE, "Core.Basic", "Core", "alusus.net", CTYPE, PTYPE);
 
 
   //============================================================================
@@ -30,14 +32,12 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
   /**
    * @brief A type of an entry in the list of elements.
    * This is a key/value pair. The keys are strings and the values must be
-   * TiObject inherited objects.
+   * CTYPE inherited objects.
    */
-  private: typedef std::pair<Str, SharedPtr<TiObject>> Entry;
+  private: typedef std::pair<Str, SharedPtr<CTYPE>> Entry;
 
   /// The type for the sorted index used to index the string key of the list.
   private: typedef DirectSortedIndex<Entry, Str, &Entry::first> Index;
-
-  s_enum(ChangeOp, ADD, UPDATE, REMOVE);
 
 
   //============================================================================
@@ -60,10 +60,17 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
 
 
   //============================================================================
-  // Signals
+  // Signals & Slots
 
-  public: SIGNAL(destroyNotifier, (SharedMap<CTYPE, PTYPE> *obj), (obj));
-  public: SIGNAL(changeNotifier, (SharedMap<CTYPE, PTYPE> *obj, ChangeOp op, Int index), (obj, op, index));
+  public: Signal<void, SharedMap<CTYPE, PTYPE>*> destroyNotifier;
+  public: Signal<void, SharedMap<CTYPE, PTYPE>*, ContentChangeOp, Int> changeNotifier;
+
+  private: Slot<void, SharedMap<CTYPE, PTYPE>*> parentDestroySlot = {
+    this, &SharedMap<CTYPE, PTYPE>::onBaseDestroyed
+  };
+  private: Slot<void, SharedMap<CTYPE, PTYPE>*, ContentChangeOp, Int> parentChangeSlot = {
+    this, &SharedMap<CTYPE, PTYPE>::onBaseContentChanged
+  };
 
 
   //============================================================================
@@ -75,14 +82,14 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
    * searching, otherwise the object will use sequential searching instead of
    * binary search.
    */
-  public: SharedMap(Bool useIndex=false) : inherited(0), base(0)
+  public: SharedMap(Bool useIndex = false) : inherited(0), base(0)
   {
     if (useIndex) this->index = new Index(&this->list);
     else this->index = 0;
   }
 
   /// Initialize the map and create the index, if required.
-  public: SharedMap(Bool useIndex, const std::initializer_list<Argument<Char const*>> &args)
+  public: SharedMap(const std::initializer_list<Argument<Char const*>> &args, Bool useIndex = false)
   {
     if (useIndex) this->index = new Index(&this->list);
     else this->index = 0;
@@ -93,9 +100,9 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
   /// Delete the index created in the constructor, if any.
   public: virtual ~SharedMap()
   {
+    this->destroyNotifier.emit(this);
     if (this->index != 0) delete this->index;
     if (this->base != 0) this->detachFromBase();
-    this->destroyNotifier.emit(this);
   }
 
   public: static SharedPtr<SharedMap<CTYPE, PTYPE>> create(
@@ -133,8 +140,8 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
     ASSERT(this->base == 0);
     ASSERT(this->inherited == 0);
     this->base = b;
-    this->base->changeNotifier.connect(this, &SharedMap::onBaseContentChanged);
-    this->base->destroyNotifier.connect(this, &SharedMap::onBaseDestroyed);
+    this->base->changeNotifier.connect(this->parentChangeSlot);
+    this->base->destroyNotifier.connect(this->parentDestroySlot);
     this->inherited = new std::vector<Bool>(this->list.size(), false);
     this->inheritFromBase();
   }
@@ -143,8 +150,8 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
   {
     ASSERT(this->base != 0);
     this->removeInheritted();
-    this->base->changeNotifier.unconnect(this, &SharedMap::onBaseContentChanged);
-    this->base->destroyNotifier.unconnect(this, &SharedMap::onBaseDestroyed);
+    this->base->changeNotifier.disconnect(this->parentChangeSlot);
+    this->base->destroyNotifier.disconnect(this->parentDestroySlot);
     this->base = 0;
     delete this->inherited;
     this->inherited = 0;
@@ -179,7 +186,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
       this->list.erase(this->list.begin()+myIndex);
       this->inherited->erase(this->inherited->begin()+myIndex);
       if (this->index != 0) this->index->remove(myIndex);
-      this->changeNotifier.emit(this, ChangeOp::REMOVE, myIndex);
+      this->changeNotifier.emit(this, ContentChangeOp::REMOVED, myIndex);
       this->list.insert(this->list.begin()+index, Entry(key, obj));
       this->inherited->insert(this->inherited->begin()+index, false);
     } else if (myIndex == -1) {
@@ -188,7 +195,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
       this->inherited->insert(this->inherited->begin()+index, true);
     }
     if (this->index != 0) this->index->add(index);
-    this->changeNotifier.emit(this, ChangeOp::ADD, index);
+    this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
   }
 
   private: void onUpdated(Int index)
@@ -198,7 +205,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
     ASSERT(static_cast<Word>(index) < this->getBaseDefCount());
     if (this->inherited->at(index)) {
       this->list[index].second = this->base->get(index);
-      this->changeNotifier.emit(this, ChangeOp::UPDATE, index);
+      this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
     }
   }
 
@@ -211,26 +218,26 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
       this->list.erase(this->list.begin()+index);
       this->inherited->erase(this->inherited->begin()+index);
       if (this->index != 0) this->index->remove(index);
-      this->changeNotifier.emit(this, ChangeOp::REMOVE, index);
+      this->changeNotifier.emit(this, ContentChangeOp::REMOVED, index);
     } else {
       Str key = this->getKey(index);
       SharedPtr<CTYPE> obj = this->get(index);
       this->list.erase(this->list.begin()+index);
       this->inherited->erase(this->inherited->begin()+index);
       if (this->index != 0) this->index->remove(index);
-      this->changeNotifier.emit(this, ChangeOp::REMOVE, index);
+      this->changeNotifier.emit(this, ContentChangeOp::REMOVED, index);
       this->add(key.c_str(), obj);
     }
   }
 
-  private: void onBaseContentChanged(SharedMap<CTYPE, PTYPE> *obj, ChangeOp op, Int index)
+  private: void onBaseContentChanged(SharedMap<CTYPE, PTYPE> *obj, ContentChangeOp op, Int index)
   {
-    if (op == ChangeOp::ADD) this->onAdded(index);
-    else if (op == ChangeOp::UPDATE) this->onUpdated(index);
-    else if (op == ChangeOp::REMOVE) this->onRemoved(index);
+    if (op == ContentChangeOp::ADDED) this->onAdded(index);
+    else if (op == ContentChangeOp::UPDATED) this->onUpdated(index);
+    else if (op == ContentChangeOp::REMOVED) this->onRemoved(index);
   }
 
-  private: void onBaseDestroyed(SharedMap *obj)
+  private: void onBaseDestroyed(SharedMap<CTYPE, PTYPE> *obj)
   {
     this->detachFromBase();
   }
@@ -247,7 +254,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
       if (this->inherited != 0 && this->inherited->at(i)) {
         this->list[i].second = val;
         this->inherited->at(i) = false;
-        this->changeNotifier.emit(this, ChangeOp::UPDATE, i);
+        this->changeNotifier.emit(this, ContentChangeOp::UPDATED, i);
       } else {
         throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Already exists."), key);
       }
@@ -256,7 +263,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
       this->list.push_back(Entry(key, val));
       if (this->inherited != 0) this->inherited->push_back(false);
       if (this->index != 0) this->index->add();
-      this->changeNotifier.emit(this, ChangeOp::ADD, i);
+      this->changeNotifier.emit(this, ContentChangeOp::ADDED, i);
     }
     return i;
   }
@@ -273,7 +280,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
     this->list.insert(this->list.begin()+index, Entry(key, val));
     if (this->inherited != 0) this->inherited->insert(this->inherited->begin()+index, false);
     if (this->index != 0) this->index->add(index);
-    this->changeNotifier.emit(this, ChangeOp::ADD, index);
+    this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
   }
 
   public: Int set(Char const *key, SharedPtr<CTYPE> const &val, Bool insertIfNew=true)
@@ -285,14 +292,15 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
         this->list.push_back(Entry(key, val));
         if (this->inherited != 0) this->inherited->push_back(false);
         if (this->index != 0) this->index->add();
-        this->changeNotifier.emit(this, ChangeOp::ADD, idx);
+        this->changeNotifier.emit(this, ContentChangeOp::ADDED, idx);
       } else {
         throw EXCEPTION(InvalidArgumentException, STR("key"),STR("Not found."), key);
       }
     } else {
+      this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, idx);
       this->list[idx].second = val;
       if (this->inherited != 0) this->inherited->at(idx) = false;
-      this->changeNotifier.emit(this, ChangeOp::UPDATE, idx);
+      this->changeNotifier.emit(this, ContentChangeOp::UPDATED, idx);
     }
     return idx;
   }
@@ -302,9 +310,10 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
     if (static_cast<Word>(index) >= this->list.size()) {
       throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
     }
+    this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, index);
     this->list[index].second = val;
     if (this->inherited != 0) this->inherited->at(index) = false;
-    this->changeNotifier.emit(this, ChangeOp::UPDATE, index);
+    this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
   }
 
   public: void remove(Char const *key)
@@ -316,14 +325,16 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
     if (static_cast<Word>(idx) < this->getBaseDefCount()) {
       ASSERT(this->base != 0);
       ASSERT(this->inherited != 0);
+      this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, idx);
       this->list[idx].second = this->base->get(idx);
       this->inherited->at(idx) = true;
-      this->changeNotifier.emit(this, ChangeOp::UPDATE, idx);
+      this->changeNotifier.emit(this, ContentChangeOp::UPDATED, idx);
     } else {
+      this->changeNotifier.emit(this, ContentChangeOp::WILL_REMOVE, idx);
       this->list.erase(this->list.begin()+idx);
       if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+idx);
       if (this->index != 0) this->index->remove(idx);
-      this->changeNotifier.emit(this, ChangeOp::REMOVE, idx);
+      this->changeNotifier.emit(this, ContentChangeOp::REMOVED, idx);
     }
   }
 
@@ -338,14 +349,16 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
     if (static_cast<Word>(index) < this->getBaseDefCount()) {
       ASSERT(this->base != 0);
       ASSERT(this->inherited != 0);
+      this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, index);
       this->list[index].second = this->base->get(index);
       this->inherited->at(index) = true;
-      this->changeNotifier.emit(this, ChangeOp::UPDATE, index);
+      this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
     } else {
+      this->changeNotifier.emit(this, ContentChangeOp::WILL_REMOVE, index);
       this->list.erase(this->list.begin()+index);
       if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+index);
       if (this->index != 0) this->index->remove(index);
-      this->changeNotifier.emit(this, ChangeOp::REMOVE, index);
+      this->changeNotifier.emit(this, ContentChangeOp::REMOVED, index);
     }
   }
 
@@ -411,9 +424,10 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
       ASSERT(this->base != 0);
       ASSERT(this->inherited != 0);
       if (!this->inherited->at(i)) {
+        this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, i);
         this->list[i].second = this->base->get(i);
         this->inherited->at(i) = true;
-        this->changeNotifier.emit(this, ChangeOp::UPDATE, i);
+        this->changeNotifier.emit(this, ContentChangeOp::UPDATED, i);
       }
       ++i;
     }

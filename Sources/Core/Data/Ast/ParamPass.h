@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class ParamPass : public Node,
-                  public virtual RtMembers, public virtual MapContainer, public virtual Metadata,
+                  public virtual RtBinding, public virtual MapContainer, public virtual Metadata,
                   public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ParamPass, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, RtMembers, MapContainer, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, RtBinding, MapContainer, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -42,7 +42,7 @@ class ParamPass : public Node,
 
   IMPLEMENT_METADATA(ParamPass);
 
-  IMPLEMENT_RTMEMBERS((type, BracketType, VALUE, setType(value), &type),
+  IMPLEMENT_RTBINDING((type, BracketType, VALUE, setType(value), &type),
                       (prodId, TiWord, VALUE, setProdId(value), &prodId),
                       (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 

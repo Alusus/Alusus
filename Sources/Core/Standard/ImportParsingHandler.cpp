@@ -27,10 +27,13 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
   auto stringLiteral = tio_cast<Ast::StringLiteral>(state->getData().tii_cast_get<Container>()->get(1));
   if (stringLiteral) {
     auto filename = stringLiteral->getValue().get();
-    if (!this->import(filename, state)) {
+    Str errorDetails;
+    if (!this->import(filename, state, errorDetails)) {
       // Create a build msg.
       state->addBuildMsg(
-        SharedPtr<ImportLoadFailedMsg>(new ImportLoadFailedMsg(filename, metadata->getSourceLocation()))
+        SharedPtr<ImportLoadFailedMsg>(
+          new ImportLoadFailedMsg(filename, errorDetails.c_str(), metadata->getSourceLocation())
+        )
       );
     }
   } else {
@@ -49,7 +52,7 @@ Bool compareStringEnd(Str const &str, Char const *end)
 }
 
 
-Bool ImportParsingHandler::import(Char const *filename, Processing::ParserState *state)
+Bool ImportParsingHandler::import(Char const *filename, Processing::ParserState *state, Str &errorDetails)
 {
   // Check the file type.
   if (compareStringEnd(filename, STR(".source")) || compareStringEnd(filename, STR(".alusus")) ||
@@ -67,6 +70,7 @@ Bool ImportParsingHandler::import(Char const *filename, Processing::ParserState 
 
     // If so, import library and return.
     PtrWord id = 0;
+
     #ifndef RELEASE
       // We are running in debug mode, so we will look first for a debug verion.
       // Find the first '.' after the last '/'.
@@ -78,7 +82,7 @@ Bool ImportParsingHandler::import(Char const *filename, Processing::ParserState 
         // The filename has no extension, so we'll attach .dbg to the end.
         copyStr(filename, dbgFilename.data());
         copyStr(STR(".dbg"), dbgFilename.data()+getStrLen(filename));
-        id = this->rootManager->getLibraryManager()->load(dbgFilename.data());
+        id = this->rootManager->getLibraryManager()->load(dbgFilename.data(), errorDetails);
       } else if (compareStr(dotPos, STR(".dbg."), 5) != 0) {
         // The position of the file's extension is found, and it doesn't already have
         // the .dbg extension, so we'll attach it.
@@ -86,10 +90,10 @@ Bool ImportParsingHandler::import(Char const *filename, Processing::ParserState 
         copyStr(filename, dbgFilename.data(), dotIndex);
         copyStr(STR(".dbg"), dbgFilename.data()+dotIndex);
         copyStr(dotPos, dbgFilename.data()+dotIndex+4);
-        id = this->rootManager->getLibraryManager()->load(dbgFilename.data());
+        id = this->rootManager->getLibraryManager()->load(dbgFilename.data(), errorDetails);
       }
     #endif
-    if (id == 0) id = this->rootManager->getLibraryManager()->load(filename);
+    if (id == 0) id = this->rootManager->getLibraryManager()->load(filename, errorDetails);
     // Did we fail the loading?
     if (id == 0) {
       return false;

@@ -27,12 +27,17 @@ class ImportLoadFailedMsg : public Processing::BuildMsg
 
 
   //============================================================================
+  // Member Variables
+
+  private: Str fileName;
+  private: Str errorDetails;
+
+
+  //============================================================================
   // Constructor / Destructor
 
-  Str fileName;
-
-  public: ImportLoadFailedMsg(Char const * fileName, Data::SourceLocation const &sl) :
-    Processing::BuildMsg(sl), fileName(fileName)
+  public: ImportLoadFailedMsg(Char const *fileName, Char const *errorDetails, Data::SourceLocation const &sl) :
+    Processing::BuildMsg(sl), fileName(fileName), errorDetails(errorDetails)
   {
   }
 
@@ -60,7 +65,11 @@ class ImportLoadFailedMsg : public Processing::BuildMsg
   /// @sa Processing::BuildMsg::getCode()
   public: virtual void buildDescription(Str &str) const
   {
-    str = STR("Importing Failed. Could not load requested file: " + fileName + ".");
+    str = STR("Importing Failed. Could not load requested file: ") + fileName + STR(".");
+    if (!this->errorDetails.empty()) {
+      str += STR("\n");
+      str += this->errorDetails;
+    }
   }
 
 }; // class

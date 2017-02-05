@@ -16,10 +16,6 @@
 namespace Spp { namespace Ast
 {
 
-using namespace Core;
-
-class Seeker;
-
 class FunctionGroup : public Core::Data::SharedList,
                       public virtual Core::Data::IdHolder, public virtual Core::Data::MetadataHolder,
                       public virtual Core::Data::Clonable, public virtual Core::Data::Printable
@@ -104,13 +100,13 @@ class FunctionGroup : public Core::Data::SharedList,
     return this->getShared(index).ti_cast<Function>();
   }
 
-  public: virtual SharedPtr<Function> findMatchingFunction(TiObject *input, Seeker *seeker)
+  public: virtual SharedPtr<Function> findMatchingFunction(TiObject *input, Core::Data::Seeker *seeker)
   {
     // TODO:
     throw EXCEPTION(NotImplementedException, "Not implemented yet.");
   }
 
-  private: Bool matchSignature(TiObject *input, Function *function, Seeker *seeker)
+  private: Bool matchSignature(TiObject *input, Function *function, Core::Data::Seeker *seeker)
   {
     // TODO:
     throw EXCEPTION(NotImplementedException, "Not implemented yet.");

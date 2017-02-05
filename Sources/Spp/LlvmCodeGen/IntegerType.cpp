@@ -1,6 +1,6 @@
 /**
- * @file Spp/Ast/FloatType.cpp
- * Contains the implementation of class Spp::Ast::FloatType.
+ * @file Spp/LlvmCodeGen/IntegerType.cpp
+ * Contains the implementation of class Spp::LlvmCodeGen::IntegerType.
  *
  * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
@@ -12,22 +12,24 @@
 
 #include "spp.h"
 
-namespace Spp { namespace Ast
+namespace Spp { namespace LlvmCodeGen
 {
 
 //==============================================================================
 // Member Functions
 
-bool FloatType::isImplicitlyCastableTo(ValueType const *type, ExecutionContext const *context) const
+Bool IntegerType::isImplicitlyCastableTo(Type const *type, ExecutionContext const *context) const
 {
-  auto FloatType = tio_cast<FloatType>(type);
-  if (FloatType != 0 && FloatType->getBitCount() >= this->bitCount) return true;
+  auto integerType = tio_cast<IntegerType>(type);
+  if (integerType != 0 && integerType->getBitCount() >= this->bitCount) return true;
+  else return false;
 }
 
 
-bool FloatType::isExplicitlyCastableTo(ValueType const *type, ExecutionContext const *context) const
+Bool IntegerType::isExplicitlyCastableTo(Type const *type, ExecutionContext const *context) const
 {
   if (type->isDerivedFrom<IntegerType>() || type->isDerivedFrom<FloatType>()) return true;
+  else if (type->isDerivedFrom<PointerType>() && context->getPointerBitCount() == this->bitCount) return true;
   else return false;
 }
 

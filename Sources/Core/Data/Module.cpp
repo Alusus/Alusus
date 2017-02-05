@@ -20,7 +20,7 @@ namespace Core { namespace Data
 
 Module::Module(const std::initializer_list<Argument<Char const*>> &args) : definitions(true)
 {
-  this->definitions.contentChangeNotifier.connect(this, &Module::onDefinitionsContentChanged);
+  this->contentChangeNotifier.relay(this->definitions.contentChangeNotifier);
 
   for (auto arg : args) {
     this->add(arg.id, arg.tiShared);

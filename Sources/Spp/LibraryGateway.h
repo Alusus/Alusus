@@ -24,6 +24,13 @@ class LibraryGateway : public Core::Standard::LibraryGateway
 
 
   //============================================================================
+  // Member Variables
+
+  private: SeekerExtension *seekerExtension = 0;
+  private: LlvmCodeGen::Generator *llvmGenerator = 0;
+
+
+  //============================================================================
   // Constructor
 
   public: LibraryGateway()
@@ -32,6 +39,7 @@ class LibraryGateway : public Core::Standard::LibraryGateway
 
   public: virtual ~LibraryGateway()
   {
+    if (this->llvmGenerator != 0) delete this->llvmGenerator;
   }
 
 
@@ -51,6 +59,10 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   private: void addReferenceToCommandList(Core::Data::SharedList *cmdList, Char const *qualifier);
 
   private: void removeReferenceFromCommandList(Core::Data::SharedList *cmdList, Char const *qualifier);
+
+  private: void createBuiltInTypes(Core::Standard::RootManager *manager);
+
+  private: void removeBuiltInTypes(Core::Standard::RootManager *manager);
 
 }; // class
 

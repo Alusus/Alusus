@@ -17,7 +17,6 @@ namespace Spp { namespace Handlers
 using namespace Core;
 using namespace Core::Data;
 
-
 //==============================================================================
 // Overloaded Abstract Functions
 
@@ -32,8 +31,8 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
 
   try {
     Bool found = false;
-    this->rootManager->getSeeker()->foreach(data, state->getDataStack(),
-      [=, &found](Seeker *newSeeker, TiObject *obj)->SeekVerb
+    this->rootManager->getSeeker()->doForeach(data, state->getDataStack(),
+      [=, &found](TiObject *obj)->SeekVerb
       {
         if (obj != 0) {
           outStream << STR("------------------ Parsed Data Dump ------------------\n");

@@ -45,11 +45,19 @@ class GrammarModule : public Module, public virtual Initializable
 
 
   //============================================================================
-  // Signals
+  // Signals & Slots
 
-  public: SIGNAL(destroyNotifier, (GrammarModule *obj), (obj));
+  public: Signal<void, GrammarModule*> destroyNotifier;
 
-  public: SIGNAL(metaChangeNotifier, (GrammarModule *obj, Word element), (obj, element));
+  public: Signal<void, GrammarModule*, Word> metaChangeNotifier;
+
+  public: Slot<void, GrammarModule*> parentDestroySlot = {
+    this, &GrammarModule::onParentDestroyed
+  };
+
+  public: Slot<void, GrammarModule*, Word> parentMetaChangeSlot = {
+    this, &GrammarModule::onParentMetaChanged
+  };
 
 
   //============================================================================

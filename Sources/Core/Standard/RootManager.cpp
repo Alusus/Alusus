@@ -63,7 +63,7 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename)
   }
   // Process the file
   Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
-  engine.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
+  this->buildMsgNotifier.relay(engine.buildMsgNotifier);
   auto result = engine.processFile(fullPath.c_str());
   // Remove the added path, if any.
   if (!searchPath.empty()) {

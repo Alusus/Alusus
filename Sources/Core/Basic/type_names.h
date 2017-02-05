@@ -81,6 +81,7 @@ DEFINE_TYPE_NAME(long long, "long long");
 DEFINE_TYPE_NAME(Core::Basic::Int, "alusus.net/Core/Core.Basic.Int");
 DEFINE_TYPE_NAME(Core::Basic::Char, "alusus.net/Core/Core.Basic.Char");
 DEFINE_TYPE_NAME(Core::Basic::Word, "alusus.net/Core/Core.Basic.Word");
+DEFINE_TYPE_NAME(Core::Basic::StrStream, "alusus.net/Core/Core.Basic.StrStream");
 
 DEFINE_TEMPLATE_TYPE_NAME(std::shared_ptr, "std::shared_ptr");
 DEFINE_TEMPLATE_TYPE_NAME(std::vector, "std::vector");

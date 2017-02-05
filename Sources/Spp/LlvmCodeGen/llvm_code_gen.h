@@ -1,7 +1,7 @@
 /**
- * @file Spp/CodeGeneration/code_generation.h
+ * @file Spp/LlvmCodeGen/llvm_code_gen.h
  * Contains the definitions and include statements of all types in the
- * CodeGeneration namespace.
+ * LlvmCodeGen namespace.
  *
  * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
@@ -11,16 +11,16 @@
  */
 //==============================================================================
 
-#ifndef SPP_CODEGENERATION_CODEGENERATION_H
-#define SPP_CODEGENERATION_CODEGENERATION_H
+#ifndef SPP_LLVMCODEGEN_LLVMCODEGEN_H
+#define SPP_LLVMCODEGEN_LLVMCODEGEN_H
 
-namespace Spp { namespace CodeGeneration
+namespace Spp { namespace LlvmCodeGen
 {
 
 /**
- * @defgroup code_generation Code Generation
+ * @defgroup llvm_code_gen LLVM Code Generation
  * @ingroup spp
- * @brief Classes related to the SPP's code generation.
+ * @brief Classes related to the SPP's llvm-based code generation.
  */
 
 } } // namespace
@@ -29,11 +29,20 @@ namespace Spp { namespace CodeGeneration
 //==============================================================================
 // Classes
 
-// TODO:
-// Seeker
-// CodeGenerator
-// TypeResolver
-// Manager
-//   builderRepo
+#include "llvm_dependencies.h"
+
+// Types
+#include "Type.h"
+#include "IntegerType.h"
+#include "FloatType.h"
+#include "PointerType.h"
+
+// Functions
+#include "Block.h"
+#include "Function.h"
+#include "UserFunction.h"
+
+// The Generator
+#include "Generator.h"
 
 #endif

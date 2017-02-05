@@ -23,6 +23,19 @@ class TiFunctionBase : public TiObject
 
   TYPE_INFO(TiFunctionBase, TiObject, "Core.Basic", "Core", "alusus.net");
 
+
+  //============================================================================
+  // Member Functions
+
+  public: virtual TiFunctionBase* getSuper() const
+  {
+    return 0;
+  }
+
+  public: virtual void setSuper(TiFunctionBase *super)
+  {
+  }
+
 }; // class
 
 
@@ -43,7 +56,7 @@ template<class FT> class TiFunction : public TiFunctionBase
   //============================================================================
   // Member Variables
 
-  public: Fn const fn;
+  public: Fn fn;
 
 
   //============================================================================
@@ -88,13 +101,36 @@ template<class FT> class TiFunctionOverride : public TiFunction<FT>
 
   public: TiFunctionOverride() {}
 
+  public: TiFunctionOverride(Fn const &f) : TiFunction<FT>(f)
+  {
+  }
+
   public: TiFunctionOverride(Fn const &f, SharedPtr<TiFunctionBase> const &super) : TiFunction<FT>(f), superFn(super)
   {
+  }
+
+  public: static SharedPtr<TiFunctionOverride<FT>> create(Fn const &f)
+  {
+    return std::make_shared<TiFunctionOverride<FT>>(f);
   }
 
   public: static SharedPtr<TiFunctionOverride<FT>> create(Fn const &f, SharedPtr<TiFunctionBase> const &super)
   {
     return std::make_shared<TiFunctionOverride<FT>>(f, super);
+  }
+
+
+  //============================================================================
+  // Member Functions
+
+  public: virtual TiFunctionBase* getSuper() const
+  {
+    return this->superFn.get();
+  }
+
+  public: virtual void setSuper(TiFunctionBase *super)
+  {
+    this->superFn = getSharedPtr(super, true);
   }
 
 }; // class

@@ -19,13 +19,13 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class Text : public Node,
-             public virtual RtMembers, public virtual Metadata, public virtual Clonable, public virtual Printable
+             public virtual RtBinding, public virtual Metadata, public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Text, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, RtMembers, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, RtBinding, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -45,7 +45,7 @@ class Text : public Node,
 
   IMPLEMENT_METADATA(Text);
 
-  IMPLEMENT_RTMEMBERS((value, TiStr, VALUE, setValue(value), &value),
+  IMPLEMENT_RTBINDING((value, TiStr, VALUE, setValue(value), &value),
                       (prodId, TiWord, VALUE, setProdId(value), &prodId),
                       (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 

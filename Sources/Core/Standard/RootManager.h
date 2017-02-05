@@ -2,7 +2,7 @@
  * @file Core/Standard/RootManager.h
  * Contains the header of class Core::Standard::RootManager.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,12 +18,12 @@ namespace Core { namespace Standard
 
 // TODO: DOC
 
-class RootManager : public SignalReceiver
+class RootManager : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(RootManager, SignalReceiver, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(RootManager, TiObject, "Core.Standard", "Core", "alusus.net");
 
 
   //============================================================================
@@ -34,7 +34,7 @@ class RootManager : public SignalReceiver
   private: LibraryManager libraryManager;
 
   private: SharedPtr<Data::Ast::Scope> rootScope;
-  private: StandardSeeker seeker;
+  private: Data::Seeker seeker;
 
   private: std::vector<Str> searchPaths;
   private: std::vector<Int> searchPathCounts;
@@ -44,7 +44,7 @@ class RootManager : public SignalReceiver
   // Signals
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: RESIGNAL(buildMsgNotifier, (const SharedPtr<Processing::BuildMsg> &msg), (msg));
+  public: SignalRelay<void, SharedPtr<Processing::BuildMsg> const&> buildMsgNotifier;
 
 
   //============================================================================
@@ -54,6 +54,7 @@ class RootManager : public SignalReceiver
 
   public: virtual ~RootManager()
   {
+    this->libraryManager.unloadAll();
   }
 
 
@@ -80,7 +81,7 @@ class RootManager : public SignalReceiver
     return this->rootScope;
   }
 
-  public: virtual StandardSeeker* getSeeker()
+  public: virtual Data::Seeker* getSeeker()
   {
     return &this->seeker;
   }
@@ -88,7 +89,7 @@ class RootManager : public SignalReceiver
   public: virtual SharedPtr<TiObject> processString(Char const *str, Char const *name)
   {
     Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
-    engine.buildMsgNotifier.connect(this, &RootManager::buildMsgNotifierRelay);
+    this->buildMsgNotifier.relay(engine.buildMsgNotifier);
     return engine.processString(str, name);
   }
 

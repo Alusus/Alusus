@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Data
  * namespace.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -424,10 +424,6 @@ typedef TiStrBase<Node> String;
 #include "ReferenceSeeker.h"
 #include "QualifierSeeker.h"
 
-// Operation Repository
-//--------------------
-#include "Seeker.h"
-
 // Generic Containers
 //-------------------
 #include "SharedMap.h"
@@ -475,5 +471,9 @@ typedef TiStrBase<Node> String;
 // Abstract Syntax Tree
 //---------------------
 #include "Ast/ast.h"
+
+// Operations
+//-----------
+#include "Seeker.h"
 
 #endif

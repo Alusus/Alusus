@@ -51,7 +51,7 @@ class IdHolder : public TiInterface
 
 #define IMPLEMENT_IDHOLDER(type) \
   private: Core::Basic::TiWord id = UNKNOWN_ID; \
-  using IdHolder::setId; \
+  using Core::Data::IdHolder::setId; \
   public: virtual void setId(Word id) \
   { \
     this->id = id; \

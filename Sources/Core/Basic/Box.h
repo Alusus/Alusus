@@ -1,6 +1,6 @@
 /**
- * @file Spp/Ast/FloatType.h
- * Contains the header of class Spp::Ast::FloatType.
+ * @file Core/Basic/Box.h
+ * Contains the header of class Core::Basic::Box.
  *
  * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
@@ -10,36 +10,32 @@
  */
 //==============================================================================
 
-#ifndef SPP_AST_FLOATTYPE_H
-#define SPP_AST_FLOATTYPE_H
+#ifndef CORE_BASIC_BOX_H
+#define CORE_BASIC_BOX_H
 
-namespace Spp { namespace Ast
+namespace Core { namespace Basic
 {
 
-//! Represent the integer type.
-class FloatType : public ValueType
+template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(FloatType, ValueType, "Spp.Ast", "Spp", "alusus.net");
+  TEMPLATE_TYPE_INFO(Box, PTYPE, "Core.Basic", "Core", "alusus.net", CTYPE, PTYPE);
 
 
   //============================================================================
   // Member Variables
 
-  private: Int bitCount;
+  private: CTYPE *obj;
 
 
   //============================================================================
-  // Construtors & Destructor
+  // Constructors & Destructor
 
-  //! Constructs an integer type.
-  public: FloatType(Int bits) : bitCount(bits)
-  {
-  }
+  Box() : obj(0) {}
 
-  public: virtual ~FloatType()
+  Box(CTYPE *o) : obj(o)
   {
   }
 
@@ -47,14 +43,15 @@ class FloatType : public ValueType
   //============================================================================
   // Member Functions
 
-  public: Int getBitCount() const
+  public: void set(CTYPE *o)
   {
-    return this->bitCount;
+    this->obj = o;
   }
 
-  public: virtual bool isImplicitlyCastableTo(ValueType const *type, ExecutionContext const *context) const;
-
-  public: virtual bool isExplicitlyCastableTo(ValueType const *type, ExecutionContext const *context) const;
+  public: CTYPE* get() const
+  {
+    return this->obj;
+  }
 
 }; // class
 

@@ -26,8 +26,13 @@ namespace Spp
 // Alusus's SPP base header files
 
 #include "ExecutionContext.h"
+
 #include "Ast/ast.h"
+
+#include "SeekerExtension.h"
+#include "NodePathResolver.h"
+
+#include "LlvmCodeGen/llvm_code_gen.h"
 #include "Handlers/handlers.h"
-#include "CodeGeneration/code_generation.h"
 
 #include "LibraryGateway.h"

@@ -17,11 +17,11 @@
   if (attrs.size() > 0) { \
     for (auto attr : attrs) { \
       if (attr.type == ArgumentType::TI_PTR) { \
-        this->setRtMember(attr.id, attr.tiPtr); \
+        this->setMember(attr.id, attr.tiPtr); \
       } else if (attr.type == ArgumentType::TI_REF) { \
-        this->setRtMember(attr.id, *attr.tiRef); \
+        this->setMember(attr.id, *attr.tiRef); \
       } else if (attr.type == ArgumentType::TI_SHARED) { \
-        this->setRtMember(attr.id, attr.tiShared); \
+        this->setMember(attr.id, attr.tiShared); \
       } else { \
         throw EXCEPTION(InvalidArgumentException, attr.id, STR("Invalid argument type.")); \
       } \

@@ -1,6 +1,6 @@
 /**
- * @file Spp/Ast/ArrayType.h
- * Contains the header of class Spp::Ast::ArrayType.
+ * @file Spp/LlvmCodeGen/ArrayType.h
+ * Contains the header of class Spp::LlvmCodeGen::ArrayType.
  *
  * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
@@ -10,20 +10,18 @@
  */
 //==============================================================================
 
-#ifndef SPP_AST_ARRAYTYPE_H
-#define SPP_AST_ARRAYTYPE_H
+#ifndef SPP_LLVMCODEGEN_ARRAYTYPE_H
+#define SPP_LLVMCODEGEN_ARRAYTYPE_H
 
-namespace Spp { namespace Ast
+namespace Spp { namespace LlvmCodeGen
 {
 
-class ArrayType : public ValueType
+class ArrayType : public Type
 {
-  friend class ArrayTypeTemplate;
-
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ArrayType, ValueType, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(ArrayType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.net");
 
 
   //============================================================================

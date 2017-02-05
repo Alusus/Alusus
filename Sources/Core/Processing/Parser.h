@@ -2,7 +2,7 @@
  * @file Core/Processing/Parser.h
  * Contains the header of class Core::Processing::Parser.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,12 +25,12 @@ namespace Core { namespace Processing
  * This class contains all the member variables and functions of the state
  * machine.
  */
-class Parser : public SignalReceiver
+class Parser : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Parser, SignalReceiver, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(Parser, TiObject, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
@@ -90,10 +90,10 @@ class Parser : public SignalReceiver
 
 
   //============================================================================
-  // Signals
+  // Signals & Slots
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: SIGNAL(buildMsgNotifier, (const SharedPtr<Processing::BuildMsg> &msg), (msg));
+  public: Signal<void, SharedPtr<Processing::BuildMsg> const&> buildMsgNotifier;
 
   /**
      * @brief Emitted when parsing has folded out of the grammar tree.
@@ -102,7 +102,9 @@ class Parser : public SignalReceiver
      * such a way to allow that. When this signal is received, the caller should
      * call endParsing and should stop sending more tokens.
      */
-  public: SIGNAL(parsingCompleted, (), ());
+  public: Signal<void> parsingCompleted;
+
+  public: Slot<void, Data::Token const*> handleNewTokenSlot = {this, &Parser::handleNewToken};
 
 
   //============================================================================

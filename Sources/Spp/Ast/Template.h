@@ -16,12 +16,8 @@
 namespace Spp { namespace Ast
 {
 
-using namespace Core;
-
-class Seeker;
-
 class Template : public Core::Data::Node,
-                 public virtual Core::Basic::RtMembers, public virtual Core::Data::MapContainer,
+                 public virtual Core::Basic::RtBinding, public virtual Core::Data::MapContainer,
                  public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                  public virtual Core::Data::Printable
 {
@@ -29,14 +25,14 @@ class Template : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(Template, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::RtMembers, Core::Data::MapContainer, Core::Data::Ast::Metadata,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::RtBinding, Core::Data::MapContainer, Core::Data::Ast::Metadata,
                                          Core::Data::Clonable, Core::Data::Printable);
 
 
   //============================================================================
   // Types
 
-  public: s_enum(VarType, INTEGER, STRING, ALIAS);
+  public: s_enum(VarType, INTEGER, STRING, TYPE, FUNCTION);
 
   public: typedef std::pair<Str, VarType> VarDef;
 
@@ -56,7 +52,7 @@ class Template : public Core::Data::Node,
 
   IMPLEMENT_METADATA(Template);
 
-  IMPLEMENT_RTMEMBERS((prodId, TiWord, VALUE, setProdId(value), &prodId),
+  IMPLEMENT_RTBINDING((prodId, TiWord, VALUE, setProdId(value), &prodId),
                       (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER((Data::Clonable, templateBody));
@@ -105,13 +101,17 @@ class Template : public Core::Data::Node,
     return &this->varDefs;
   }
 
-  public: virtual SharedPtr<Block> const& getDefaultInstance(Seeker *seeker);
+  public: virtual TioSharedPtr const& getDefaultInstance(Core::Data::Seeker *seeker);
+  public: virtual TioSharedPtr const& getInstance(TiObject *templateInput, Core::Data::Seeker *seeker);
 
-  public: virtual SharedPtr<Block> const& getInstance(TiObject *templateInput, Seeker *seeker);
+  private: Bool matchTemplateVars(TiObject *templateInput, Block *instance, Core::Data::Seeker *seeker);
+  private: Bool matchTemplateVar(TiObject *templateInput, Block *instance, Int varIndex, Core::Data::Seeker *seeker);
 
-  private: Bool matchTemplateVars(TiObject *templateInput, Block *instance, Seeker *seeker);
+  private: void assignTemplateVars(TiObject *templateInput, Block *instance, Core::Data::Seeker *seeker);
 
-  private: void assignTemplateVars(TiObject *templateInput, Block *instance, Seeker *seeker);
+  public: static TiObject* getTemplateVar(Block const *instance, Char const *name);
+
+  private: static TiObject* traceObject(TiObject *ref, VarType varType, Core::Data::Seeker *seeker);
 
 
   //============================================================================

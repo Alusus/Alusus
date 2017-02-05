@@ -18,12 +18,12 @@ namespace Core { namespace Processing
 
 // TODO: DOC
 
-class Engine : public SignalReceiver
+class Engine : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Engine, SignalReceiver, "Core.Processing", "Core", "alusus.net");
+  TYPE_INFO(Engine, TiObject, "Core.Processing", "Core", "alusus.net");
 
 
   //============================================================================
@@ -38,7 +38,7 @@ class Engine : public SignalReceiver
   // Signals
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: RESIGNAL(buildMsgNotifier, (const SharedPtr<Processing::BuildMsg> &msg), (msg));
+  public: SignalRelay<void, SharedPtr<Processing::BuildMsg> const&> buildMsgNotifier;
 
 
   //============================================================================

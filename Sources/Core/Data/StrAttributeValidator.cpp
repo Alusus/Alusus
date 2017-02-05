@@ -21,9 +21,9 @@ namespace Core { namespace Data
 Bool StrAttributeValidator::validate(TiObject *r) const
 {
   if (r == 0) return false;
-  RtMembers *rtm = ti_cast<RtMembers>(r);
+  RtBinding *rtm = ti_cast<RtBinding>(r);
   if (rtm == 0) return false;
-  TiObject *val = rtm->getRtMember(this->attributeName.c_str());
+  TiObject *val = rtm->getMember(this->attributeName.c_str());
   if (val == 0) return false;
   if (val->isA<TiStr>()) {
     return static_cast<TiStr*>(val)->getStr() == this->attributeValue;

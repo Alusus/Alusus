@@ -57,8 +57,8 @@ void SharedMap::attachToParent(SharedMap *p)
   ASSERT(this->parent == 0);
   ASSERT(this->inherited == 0);
   this->parent = p;
-  this->parent->contentChangeNotifier.connect(this, &SharedMap::onParentContentChanged);
-  this->parent->destroyNotifier.connect(this, &SharedMap::onParentDestroyed);
+  this->parent->contentChangeNotifier.connect(this->parentContentChangeSlot);
+  this->parent->destroyNotifier.connect(this->parentDestroySlot);
   this->inherited = new std::vector<Bool>(this->list.size(), false);
   this->inheritFromParent();
 }
@@ -68,8 +68,8 @@ void SharedMap::detachFromParent()
 {
   ASSERT(this->parent != 0);
   this->removeInheritted();
-  this->parent->contentChangeNotifier.unconnect(this, &SharedMap::onParentContentChanged);
-  this->parent->destroyNotifier.unconnect(this, &SharedMap::onParentDestroyed);
+  this->parent->contentChangeNotifier.disconnect(this->parentContentChangeSlot);
+  this->parent->destroyNotifier.disconnect(this->parentDestroySlot);
   this->parent = 0;
   delete this->inherited;
   this->inherited = 0;

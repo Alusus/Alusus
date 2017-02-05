@@ -135,8 +135,9 @@ SymbolDefinition::~SymbolDefinition()
 void SymbolDefinition::attachToParent(SymbolDefinition *p)
 {
   ASSERT(this->parent == 0);
+  ASSERT(p != 0);
   this->parent = p;
-  this->parent->changeNotifier.connect(this, &SymbolDefinition::onParentElementChanged);
+  this->parent->changeNotifier.connect(this->parentContentChangeSlot);
   this->inheritFromParent();
 }
 
@@ -145,7 +146,7 @@ void SymbolDefinition::detachFromParent()
 {
   ASSERT(this->parent != 0);
   this->removeInheritted();
-  this->parent->changeNotifier.unconnect(this, &SymbolDefinition::onParentElementChanged);
+  this->parent->changeNotifier.disconnect(this->parentContentChangeSlot);
   this->parent = 0;
 }
 

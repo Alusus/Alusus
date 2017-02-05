@@ -17,15 +17,15 @@ namespace Spp { namespace Ast
 {
 
 class PointerOp : public Core::Data::Node,
-                  public virtual Core::Basic::RtMembers, public virtual Core::Data::MapContainer,
+                  public virtual Core::Basic::RtBinding, public virtual Core::Data::MapContainer,
                   public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                   public virtual Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(PointerOp, Core::Data::Node, "Spp.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::RtMembers, Core::Data::MapContainer, Core::Data::Ast::Metadata,
+  TYPE_INFO(PointerOp, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::RtBinding, Core::Data::MapContainer, Core::Data::Ast::Metadata,
                                          Core::Data::Clonable, Core::Data::Printable);
 
 
@@ -40,7 +40,7 @@ class PointerOp : public Core::Data::Node,
 
   IMPLEMENT_METADATA(PointerOp);
 
-  IMPLEMENT_RTMEMBERS((prodId, TiWord, VALUE, setProdId(value), &prodId),
+  IMPLEMENT_RTBINDING((prodId, TiWord, VALUE, setProdId(value), &prodId),
                       (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER((TiObject, operand));

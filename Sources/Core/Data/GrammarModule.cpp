@@ -70,10 +70,10 @@ void GrammarModule::attachToParent(GrammarModule *p)
   ASSERT(this->parent == 0);
 
   this->parent = p;
-  this->parent->destroyNotifier.connect(this, &GrammarModule::onParentDestroyed);
+  this->parent->destroyNotifier.connect(this->parentDestroySlot);
   this->definitions.setParent(this->parent->getDefinitions());
 
-  this->parent->metaChangeNotifier.connect(this, &GrammarModule::onParentMetaChanged);
+  this->parent->metaChangeNotifier.connect(this->parentMetaChangeSlot);
   if ((this->ownership & GrammarModuleMetaElement::START_REF) == 0) {
     this->startRef = this->parent->getStartRef();
   }
@@ -90,7 +90,7 @@ void GrammarModule::detachFromParent()
 {
   ASSERT(this->parent != 0);
 
-  this->parent->metaChangeNotifier.unconnect(this, &GrammarModule::onParentMetaChanged);
+  this->parent->metaChangeNotifier.disconnect(this->parentMetaChangeSlot);
   if ((this->ownership & GrammarModuleMetaElement::START_REF) == 0) {
     this->startRef.reset();
   }
@@ -101,7 +101,7 @@ void GrammarModule::detachFromParent()
     this->errorSyncBlockPairsRef.reset();
   }
 
-  this->parent->destroyNotifier.unconnect(this, &GrammarModule::onParentDestroyed);
+  this->parent->destroyNotifier.disconnect(this->parentDestroySlot);
   this->parent = 0;
   this->definitions.setParent(0);
 }

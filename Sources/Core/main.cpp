@@ -137,7 +137,8 @@ int main(int argCount, char * const args[])
   try {
     // Prepare the root object;
     Standard::RootManager root;
-    root.buildMsgNotifier.connect(&printBuildMsg);
+    Slot<void, SharedPtr<Processing::BuildMsg> const&> buildMsgSlot(printBuildMsg);
+    root.buildMsgNotifier.connect(buildMsgSlot);
 
     // Parse the provided filename.
     TioSharedPtr ptr = root.processFile(args[1]);

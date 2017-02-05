@@ -72,7 +72,7 @@ class LibraryManager : public TiObject
 
   public: LibraryGateway* getGateway(Char const *libId);
 
-  public: PtrWord load(Char const *path);
+  public: PtrWord load(Char const *path, Str &error);
 
   public: void unload(PtrWord id);
 

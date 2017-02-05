@@ -25,12 +25,12 @@ namespace Core { namespace Processing
  * This class contains all the member variables and functions of the state
  * machine.
  */
-class Lexer : public SignalReceiver
+class Lexer : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Lexer, SignalReceiver, "Core.Processing", "Core", "alusus.net");
+  TYPE_INFO(Lexer, TiObject, "Core.Processing", "Core", "alusus.net");
 
 
   //============================================================================
@@ -161,7 +161,7 @@ class Lexer : public SignalReceiver
   // Signals
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: SIGNAL(buildMsgNotifier, (const SharedPtr<Processing::BuildMsg> &msg), (msg));
+  public: Signal<void, SharedPtr<Processing::BuildMsg> const&> buildMsgNotifier;
 
   /**
    * @brief A signal to inform targets of a newly generated token.
@@ -170,7 +170,7 @@ class Lexer : public SignalReceiver
    * receivers should not retain this pointer because its data won't be
    * retained beyond the firing of this signal.
    */
-  public: SIGNAL(tokenGenerated, (const Data::Token *token), (token));
+  public: Signal<void, Data::Token const*> tokenGenerated;
 
 
   //============================================================================

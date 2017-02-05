@@ -1,8 +1,8 @@
 /**
  * @file Core/Basic/signals.h
- * Contains definitions for signals macros and classes.
+ * Contains definitions for signal and slot classes.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,287 +16,340 @@
 namespace Core { namespace Basic
 {
 
-// TODO: DOC
+// TODO: Add multi-threading safety.
 
-/**
- * @brief The base for classes that can emit or receive signals.
- * @ingroup basic_utils
- *
- * Classes that can emit or receive signals must inherit from this class. This
- * class keeps a list of all connections allowing it to emit signals as well as
- * to disconnect all connections on destruction.<br>
- * The user shouldn't use this class directly, instead, he should either use the
- * EVENT macro, the ENQUIRY macro, or the Signal_Handler definition.
- *
- * @sa EVENT
- * @sa ENQUIRY
- * @sa Signal_Handler
- */
-class SignalBase
+template<class RT, class ...ARGS> class _Signal;
+template<class RT, class ...ARGS> class Signal;
+template<class RT, class ...ARGS> class SignalRelay;
+
+//==============================================================================
+// Slot
+
+template<class RT, class ...ARGS> class Slot
 {
-  //============================================================================
-  // Data Types
+  friend class _Signal<RT, ARGS...>;
+  friend class SignalRelay<RT, ARGS...>;
 
-  /// Contains info of a single connection.
-  protected: struct Connection
+  //============================================================================
+  // Member Vars
+
+  private: std::vector<_Signal<RT, ARGS...>*> signals;
+  private: std::function<RT(ARGS...)> func;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
+  protected: Slot() {}
+
+  public: Slot(RT(*f)(ARGS...)) : func(f) {}
+
+  public: Slot(std::function<RT(ARGS...)> const &f) : func(f) {}
+
+  public: template<class C> Slot(C *self, RT(C::*m)(ARGS...))
   {
-    Connection(TiObject *o, void (TiObject::*f)()) : obj(o), mfunc(f)
-    {
-    }
-
-    Connection(void (*f)()) : obj(0), func(f)
-    {
-    }
-
-    /// A pointer to the target object.
-    TiObject *obj;
-
-    union
-    {
-      /**
-             * @brief A pointer to the target object's member function.
-             *
-             * If this connection refers to a source (obj is the source of the
-             * signal) this value will be 0.
-             * This should only be used if obj is not 0.
-             */
-      void (TiObject::*mfunc)();
-
-      /**
-             * @brief A pointer to a non member function.
-             *
-             * This is used to connect the signal to global functions instead of
-             * member functions. This should only be used if obj is 0.
-             */
-      void (*func)();
-    };
-  };
-
-
-  //============================================================================
-  // Member Variables
-
-  /// The list of connections made to or from this object.
-  protected: std::vector<Connection> connections;
-
-
-  //============================================================================
-  // Constructor & Destructor
-
-  protected: SignalBase()
-  {
+    this->init(self, m);
   }
 
-  /// Remove all connections.
-  protected: ~SignalBase();
+  public: ~Slot()
+  {
+    for (auto signal : this->signals) signal->disconnect(*this);
+  }
 
 
   //============================================================================
   // Member Functions
 
-  /// Connect a member function target to this source.
-  protected: Bool _connect(TiObject *obj, void (TiObject::*mfunc)());
+  protected: void addSignal(_Signal<RT, ARGS...> *s)
+  {
+    this->signals.push_back(s);
+  }
+  protected: void removeSignal(_Signal<RT, ARGS...> *s)
+  {
+    for (Int i = 0; i < this->signals.size(); ++i) {
+      if (this->signals[i] == s) {
+        this->signals.erase(this->signals.begin() + i);
+        return;
+      }
+    }
+  }
+  protected: std::vector<_Signal<RT, ARGS...>*> const& getSignals() const
+  {
+    return this->signals;
+  }
 
-  /// Connect a non member function target to this source.
-  protected: Bool _connect(void (*func)());
+  public: void disconnect()
+  {
+    for (auto signal : this->signals) signal->disconnect(*this);
+    this->signals.clear();
+  }
 
-  /// Disconnect a member function target from this source.
-  protected: Bool _unconnect(TiObject *obj, void (TiObject::*mfunc)());
+  public: void init(RT(*f)(ARGS...))
+  {
+    this->disconnect();
+    this->func = std::function<RT(ARGS...)>(f);
+  }
 
-  /// Disconnect a non member function target from this source.
-  protected: Bool _unconnect(void (*func)());
+  public: void init(std::function<RT(ARGS...)> const &f)
+  {
+    this->disconnect();
+    this->func = f;
+  }
 
-  /// Disconnect all connections to a specific object.
-  public: void onReceiverDestroyed(TiObject* obj);
+  public: template<class C> void init(C *self, RT(C::*m)(ARGS...))
+  {
+    this->disconnect();
+    this->func = [=](ARGS... args)->RT {
+      return (self->*m)(args...);
+    };
+  }
+
+  public: Bool isInitialized() const
+  {
+    return (Bool)this->func;
+  }
+
+  public: RT call(ARGS... args)
+  {
+    return this->func(args...);
+  }
+
+
+  //============================================================================
+  // Operators
+
+  public: void operator=(std::function<RT(ARGS...)> const &f)
+  {
+    this->disconnect();
+    this->func = f;
+  }
+
+  public: RT operator()(ARGS... args)
+  {
+    return this->func(args...);
+  }
+
 };
 
 
-/**
- * @brief A definition macro for signals.
- * @ingroup basic_utils
- *
- * This macro is used to define signals. The macro defines a class that inherits
- * from SignalBase and implements a 'emit' function and () operator with the
- * specified argument definitions. The defined functions have a return value of
- * void. The macro gives an internal name for the class and instantiates it with
- * the name provided to the macro.<br>
- * The getTargetCount member function returns the number of all targets
- * attached to this signal.
- *
- * Following is an exmaple of how this can be used. The Obj::Func function
- * which is the function that will recieve the event has two arguments: an int
- * and a float.<br>
- * SIGNAL(my_event, (int i, float f), (i, f));<br>
- * my_event.connect(&obj, &Obj::Func);<br>
- * my_event(5, 3.2f);
- *
- * @param name The name of the event. This will be the name of the instance of
- *             the defined class.
- * @param argsDef The definition of the arguments of the function exactly as it
- *                 appears in the function definition (the part after the
- *                 function name including the brackets). This will also be the
- *                 args definition of the emit function and the () operator.
- * @param argsCall The list of arguments when placed in the call to the defined
- *                  function. This is typically a comma separated list of all
- *                  arguments in argsDef included in brackets.
- */
-#define SIGNAL(name, argsDef, argsCall) \
-  class _##name : public Core::Basic::SignalBase \
-  { \
-    public: \
-    _##name() {} \
-    template<class T> Core::Basic::Bool connect(T *obj, void (T::*mfunc)argsDef) \
-    { \
-      return this->_connect(obj, reinterpret_cast<void (Core::Basic::TiObject::*)()>(mfunc)); \
-    } \
-    Core::Basic::Bool connect(void (*func)argsDef) \
-    { \
-      return this->_connect(reinterpret_cast<void (*)()>(func)); \
-    } \
-    template<class T> Core::Basic::Bool unconnect(T *obj, void (T::*mfunc)argsDef) \
-    { \
-      return this->_unconnect(obj, reinterpret_cast<void (Core::Basic::TiObject::*)()>(mfunc)); \
-    } \
-    Core::Basic::Bool unconnect(void (*func)argsDef) \
-    { \
-      return this->_unconnect(reinterpret_cast<void (*)()>(func)); \
-    } \
-    void operator() argsDef \
-    { \
-      this->emit argsCall; \
-    } \
-    void emit argsDef \
-    { \
-      for (Core::Basic::Int _i = 0; _i < (Core::Basic::Int)this->connections.size(); ++_i) { \
-        if (this->connections[_i].func == 0) continue; \
-        if (this->connections[_i].obj == 0) { \
-          reinterpret_cast<void (*)argsDef>(this->connections[_i].func)argsCall; \
-        } else { \
-          ((this->connections[_i].obj)->* \
-            (reinterpret_cast<void (Core::Basic::TiObject::*)argsDef> \
-                             (this->connections[_i].mfunc)))argsCall; \
-        } \
-      } \
-    } \
-    Core::Basic::Int getTargetCount() \
-    { \
-      Core::Basic::Int count=0; \
-      for (Core::Basic::Int _i = 0; _i < (Core::Basic::Int)this->connections.size(); ++_i) { \
-        if (this->connections[_i].func != 0) ++count; \
-      } \
-      return count; \
-    } \
-  } name
+//==============================================================================
+// Signal
+
+template<class RT, class ...ARGS> class _Signal
+{
+  //============================================================================
+  // Types
+
+  protected: struct SlotEntry
+  {
+    Slot<RT, ARGS...> *slot;
+    Bool enabled;
+    SlotEntry() : slot(0), enabled(true) {}
+    SlotEntry(Slot<RT, ARGS...> *s) : slot(s), enabled(true) {}
+  };
 
 
-/**
- * @brief A definition macro for relayed signals.
- * @ingroup basic_utils
- *
- * This macro calls SIGNAL to define the signal and then creates a function that
- * can be used to as a relay to connect the signal to another signal.
- *
- * @sa SIGNAL
- */
-#define RESIGNAL(name, argsDef, argsCall) \
-  SIGNAL(name, argsDef, argsCall); \
-  void name##Relay argsDef { name.emit argsCall; }
+  //============================================================================
+  // Member Vars
+
+  protected: std::vector<SlotEntry> slotsEntries;
+  protected: std::atomic<Int> firing;
+  protected: Bool scheduledDelete;
 
 
-/**
- * @brief A definition macro for signals with acknowledgements.
- * @ingroup basic_utils
- *
- * This is equivalent to SIGNAL, except that the defined function has a return
- * value of Bool. This doesn't define the () operator, instead it defines two
- * functions: emitAny and emitAll.<br>
- * emitAny calls the targets one after the other until it reaches one that
- * returns true, in which case it quits and returns true, otherwise it returns
- * false.<br>
- * emitAll calls all targets, regardless of their return value, and returns the
- * number of targets that returned false. In other words, it emits the signal
- * and tells you how many couldn't handle the signal.<br>
- * The getTargetCount member function returns the number of all targets
- * attached to this signal.
- *
- * @sa SIGNAL
- */
-#define SIGNAL_WITH_ACK(name, argsDef, argsCall) \
-  class _##name : public Core::Basic::SignalBase \
-  { \
-    public: \
-    _##name() {} \
-    template<class T> Core::Basic::Bool connect(T *obj, Core::Basic::Bool (T::*mfunc)argsDef) \
-    { \
-      return this->_connect(obj, reinterpret_cast<void (Core::Basic::TiObject::*)()>(mfunc)); \
-    } \
-    Core::Basic::Bool connect(Core::Basic::Bool (*func)argsDef) \
-    { \
-      return this->_connect(reinterpret_cast<void (*)()>(func)); \
-    } \
-    template<class T> Core::Basic::Bool unconnect(T *obj, Core::Basic::Bool (T::*mfunc)argsDef) \
-    { \
-      return this->_unconnect(obj, reinterpret_cast<void (Core::Basic::TiObject::*)()>(mfunc)); \
-    } \
-    Core::Basic::Bool unconnect(Core::Basic::Bool (*func)argsDef) \
-    { \
-      return this->_unconnect(reinterpret_cast<void (*)()>(func)); \
-    } \
-    Core::Basic::Bool emitAny argsDef \
-    { \
-      for (Core::Basic::Int _i = 0; _i < (Core::Basic::Int)this->connections.size(); ++_i) { \
-        if (this->connections[_i].func == 0) continue; \
-        if (this->connections[_i].obj == 0) { \
-          if (reinterpret_cast<Core::Basic::Bool (*)argsDef>(this->connections[_i].func)argsCall) return true; \
-        } else {\
-          if (((this->connections[_i].obj)->* \
-            (reinterpret_cast<Core::Basic::Bool (Core::Basic::TiObject::*)argsDef> \
-                             (this->connections[_i].mfunc)))argsCall) return true; \
-        } \
-      } \
-      return false; \
-    } \
-    Core::Basic::Int emitAll argsDef \
-    { \
-      Core::Basic::Int count = 0; \
-      for (Core::Basic::Int _i = 0; _i < (Core::Basic::Int)this->connections.size(); ++_i) { \
-        if (this->connections[_i].func == 0) continue; \
-        if (this->connections[_i].obj == 0) { \
-          if (!reinterpret_cast<Core::Basic::Bool (*)argsDef>(this->connections[_i].func)argsCall) ++count; \
-        } else { \
-          if (!((this->connections[_i].obj)->* \
-            (reinterpret_cast<Core::Basic::Bool (Core::Basic::TiObject::*)argsDef> \
-                             (this->connections[_i].mfunc)))argsCall) ++count; \
-        } \
-      } \
-      return count; \
-    } \
-    Core::Basic::Int getTargetCount() \
-    { \
-      Core::Basic::Int count=0; \
-      for (Core::Basic::Int _i = 0; _i < (Core::Basic::Int)this->connections.size(); ++_i) { \
-        if (this->connections[_i].func != 0) ++count; \
-      } \
-      return count; \
-    } \
-  } name
+  //============================================================================
+  // Constructor & Destructor
+
+  public: _Signal() : firing(0), scheduledDelete(false) {}
+
+  public: ~_Signal()
+  {
+    this->disconnectAll();
+  }
 
 
-/**
- * @brief A definition macro for relayed signals with acknowledgements.
- * @ingroup basic_utils
- *
- * This macro calls SIGNAL_WITH_ACK to define the signal and then creates a
- * function that can be used to as a relay to connect the signal to another
- * signal.
- *
- * @sa SIGNAL_WITH_ACK
- */
-#define RESIGNAL_WITH_ACK(name, argsDef, argsCall) \
-  SIGNAL_WITH_ACK(name, argsDef, argsCall); \
-  Core::Basic::Bool name##_relay_any argsDef { return name.emitAny argsCall; } \
-  Core::Basic::Int name##_relay_all argsDef { return name.emitAll argsCall; }
+  //============================================================================
+  // Member Functions
 
+  public: virtual void connect(Slot<RT, ARGS...> &slot)
+  {
+    for (auto s : this->slotsEntries) if (s.slot == &slot) return;
+    this->slotsEntries.push_back(&slot);
+    slot.addSignal(this);
+  }
+
+  public: virtual void disconnect(Slot<RT, ARGS...> &slot)
+  {
+    for (Int i = 0; i < this->slotsEntries.size(); ++i) {
+      if (this->slotsEntries[i].slot == &slot) {
+        if (this->firing > 0) {
+          this->slotsEntries[i].enabled = false;
+          this->scheduledDelete = true;
+        } else {
+          this->slotsEntries.erase(this->slotsEntries.begin() + i);
+          slot.removeSignal(this);
+        }
+        return;
+      }
+    }
+  }
+
+  public: virtual void disconnectAll()
+  {
+    while (this->slotsEntries.size() > 0) {
+      this->disconnect(*this->slotsEntries[0].slot);
+    }
+  }
+
+  protected: virtual void disconnectScheduled()
+  {
+    // TOOD: Apply thread safetly.
+    if (!this->scheduledDelete || this->firing > 0) return;
+    for (Int i = 0; i < this->slotsEntries.size(); ++i) {
+      if (!this->slotsEntries[i].enabled) {
+        auto slot = this->slotsEntries[i].slot;
+        this->slotsEntries.erase(this->slotsEntries.begin() + i);
+        slot->removeSignal(this);
+        --i;
+      }
+    }
+    this->scheduledDelete = false;
+  }
+
+};
+
+template<class RT, class ...ARGS> class Signal;
+
+template<class ...ARGS> class Signal<void, ARGS...> : public _Signal<void, ARGS...>
+{
+  public: void emit(ARGS... args)
+  {
+    finally([=] {
+      --this->firing;
+      if (this->scheduledDelete) this->disconnectScheduled();
+    });
+
+    ++this->firing;
+    for (auto slotEntry : this->slotsEntries) {
+      if (slotEntry.enabled) {
+        if (slotEntry.slot->isInitialized()) slotEntry.slot->call(args...);
+      }
+    }
+  }
+};
+
+template<class ...ARGS> class Signal<Bool, ARGS...> : public _Signal<Bool, ARGS...>
+{
+  public: Word emit(ARGS... args)
+  {
+    finally([=] {
+      --this->firing;
+      if (this->scheduledDelete) this->disconnectScheduled();
+    });
+
+    ++this->firing;
+    Word count = 0;
+    for (auto slotEntry : this->slotsEntries) {
+      if (slotEntry.enabled) {
+        if (slotEntry.slot->isInitialized()) {
+          if (slotEntry.slot->call(args...)) ++count;
+        }
+      }
+    }
+    return count;
+  }
+
+  public: Bool emitAny(ARGS... args)
+  {
+    finally([=] {
+      --this->firing;
+      if (this->scheduledDelete) this->disconnectScheduled();
+    });
+
+    Bool result = false;
+    ++this->firing;
+    for (auto slotEntry : this->slotsEntries) {
+      if (slotEntry.enabled) {
+        if (slotEntry.slot->isInitialized()) {
+          if (slotEntry.slot->call(args...)) {
+            result = true;
+            break;
+          }
+        }
+      }
+    }
+    return result;
+  }
+};
+
+
+//==============================================================================
+// SignalRelay
+
+template<class RT, class ...ARGS> class SignalRelay : public _Signal<RT, ARGS...>
+{
+  //============================================================================
+  // Member Variables
+
+  private: Slot<RT, ARGS...> linkSlot;
+
+
+  //============================================================================
+  // Constructors
+
+  public: SignalRelay()
+  {
+  }
+
+  public: SignalRelay(_Signal<RT, ARGS...> *signal)
+  {
+    this->relay(signal);
+  }
+
+  public: ~SignalRelay()
+  {
+    while (this->linkSlot.getSignals().size() > 0) {
+      this->unrelay(*this->linkSlot.getSignals().back());
+    }
+  }
+
+
+  //============================================================================
+  // Member Functions
+
+  public: void relay(_Signal<RT, ARGS...> &signal)
+  {
+    signal.connect(this->linkSlot);
+    for (auto slotEntry : this->slotsEntries) {
+      signal.connect(*slotEntry.slot);
+    }
+  }
+
+  public: void unrelay(_Signal<RT, ARGS...> &signal)
+  {
+    for (auto slotEntry : this->slotsEntries) {
+      signal.disconnect(*slotEntry.slot);
+    }
+    signal.disconnect(this->linkSlot);
+  }
+
+  public: virtual void connect(Slot<RT, ARGS...> &slot)
+  {
+    for (auto signal : this->linkSlot.getSignals()) {
+      signal->connect(slot);
+    }
+    _Signal<RT, ARGS...>::connect(slot);
+  }
+
+  public: virtual void disconnect(Slot<RT, ARGS...> &slot)
+  {
+    for (auto signal : this->linkSlot.getSignals()) {
+      signal->disconnect(slot);
+    }
+    _Signal<RT, ARGS...>::disconnect(slot);
+  }
+
+};
 
 } } // namespace
 

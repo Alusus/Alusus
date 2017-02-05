@@ -25,6 +25,7 @@
 #include <exception>
 #include <string.h>
 #include <type_traits>
+#include <atomic>
 
 // Include global storage functions.
 #include "core_global_storage.h"

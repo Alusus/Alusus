@@ -37,18 +37,20 @@ Bool isEmpty(SharedPtr<TiObject> ptr);
  * It works by adding a list of tokens to it, then start the lexer. The class
  * will then make sure it receives the same sequence of tokens.
  */
-class LexerTester : public SignalReceiver
+class LexerTester : public TiObject
 {
-  TYPE_INFO(LexerTester, SignalReceiver, "Core.Test", "Core", "alusus.net");
+  TYPE_INFO(LexerTester, TiObject, "Core.Test", "Core", "alusus.net");
 
   private: vector<SharedPtr<Data::Token> > tokens;
   private: Int currentIndex;
   private: Str errorMsg;
   private: Processing::Lexer *lexer;
 
+  private: Slot<void, Data::Token const*> handleNewTokenSlot = {this, &LexerTester::handleNewToken};
+
   public: LexerTester(Processing::Lexer *l) : currentIndex(0), lexer(l)
   {
-    this->lexer->tokenGenerated.connect(this, &LexerTester::handleNewToken);
+    this->lexer->tokenGenerated.connect(this->handleNewTokenSlot);
   }
 
   public: void handleNewToken(const Data::Token *token)
@@ -113,18 +115,19 @@ class LexerTester : public SignalReceiver
 
 
 /// A class that receives and stores build messages.
-class BuildMsgReceiver : public SignalReceiver
+class BuildMsgReceiver : public TiObject
 {
-  TYPE_INFO(BuildMsgReceiver, SignalReceiver, "Core.Test", "Core", "alusus.net");
+  TYPE_INFO(BuildMsgReceiver, TiObject, "Core.Test", "Core", "alusus.net");
 
   private: vector<SharedPtr<Processing::BuildMsg> > msgs;
+  private: Slot<void, SharedPtr<Processing::BuildMsg> const&> buildMsgSlot = {this, &BuildMsgReceiver::receiveBuildMsg};
 
   public: BuildMsgReceiver(Processing::Engine *engine)
   {
-    engine->buildMsgNotifier.connect(this, &BuildMsgReceiver::receiveBuildMsg);
+    engine->buildMsgNotifier.connect(this->buildMsgSlot);
   }
 
-  public: void receiveBuildMsg(const SharedPtr<Processing::BuildMsg> &msg)
+  public: void receiveBuildMsg(SharedPtr<Processing::BuildMsg> const &msg)
   {
     this->msgs.push_back(msg);
   }

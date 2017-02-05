@@ -2,7 +2,7 @@
  * @file Core/Data/SharedMap.h
  * Contains the header of class Core::Data::SharedMap.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -80,9 +80,15 @@ class SharedMap : public Node,
 
 
   //============================================================================
-  // Signals
+  // Signals & Slots
 
-  public: SIGNAL(destroyNotifier, (SharedMap *obj), (obj));
+  public: Signal<void, Container*, ContentChangeOp, Int> contentChangeNotifier;
+  public: Signal<void, SharedMap*> destroyNotifier;
+
+  private: Slot<void, Container*, ContentChangeOp, Int> parentContentChangeSlot = {
+    this, &SharedMap::onParentContentChanged
+  };
+  private: Slot<void, SharedMap*> parentDestroySlot = {this, &SharedMap::onParentDestroyed};
 
 
   //============================================================================

@@ -1,6 +1,6 @@
 /**
- * @file Spp/Ast/PointerType.h
- * Contains the header of class Spp::Ast::PointerType.
+ * @file Spp/LlvmCodeGen/PointerType.h
+ * Contains the header of class Spp::LlvmCodeGen::PointerType.
  *
  * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
@@ -10,49 +10,56 @@
  */
 //==============================================================================
 
-#ifndef SPP_AST_POINTERTYPE_H
-#define SPP_AST_POINTERTYPE_H
+#ifndef SPP_LLVMCODEGEN_POINTERTYPE_H
+#define SPP_LLVMCODEGEN_POINTERTYPE_H
 
-namespace Spp { namespace Ast
+namespace Spp { namespace LlvmCodeGen
 {
 
-class PointerType : public ValueType
+class PointerType : public Type
 {
-  friend class PointerTypeTemplate;
-
   //============================================================================
   // Type Info
 
-  TYPE_INFO(PointerType, ValueType, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(PointerType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.net");
 
 
   //============================================================================
   // Member Variables
 
-  private: ValueType const *contentType;
+  private: Type const *contentType;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  private: PointerType(ValueType const *contentType);
+  public: PointerType(Type const *ct) : contentType(ct)
+  {
+    this->llvmType = this->contentType->getLlvmType()->getPointerTo();
+  }
 
 
   //============================================================================
   // Member Functions
 
-  public: ValueType const* getContentType() const
+  public: Type const* getContentType() const
   {
     return this->contentType;
   }
 
-  public: virtual bool isImplicitlyCastableTo(ValueType const *type, ExecutionContext const *context) const
+  public: virtual llvm::Constant* getDefaultLlvmValue() const
   {
-    auto pointerType = tio_cast<PointerType>(type);
-    if (pointerType != 0 && pointerType->getContentType() == 0) return true;
+    return llvm::ConstantPointerNull::get(static_cast<llvm::PointerType*>(this->llvmType));
   }
 
-  public: virtual bool isExplicitlyCastableTo(ValueType const *type, ExecutionContext const *context) const
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, ExecutionContext const *context) const
+  {
+    auto pointerType = ti_cast<PointerType>(type);
+    if (pointerType != 0 && pointerType->getContentType() == 0) return true;
+    else return false;
+  }
+
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, ExecutionContext const *context) const
   {
     return type->isDerivedFrom<PointerType>();
   }

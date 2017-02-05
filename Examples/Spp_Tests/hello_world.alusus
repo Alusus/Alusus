@@ -1,0 +1,10 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def main: function ()=>Int[64] {
+  }
+};
+
+build Main;
+

@@ -2,7 +2,7 @@
  * @file Core/Data/Module.h
  * Contains the header of class Core::Data::Module.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -19,13 +19,13 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class Module : public Node,
-               public virtual RtMembers, public virtual MapContainer, public virtual IdHolder, public virtual DataOwner
+               public virtual RtBinding, public virtual MapContainer, public virtual IdHolder, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Module, Node, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, RtMembers, MapContainer, IdHolder, DataOwner);
+  IMPLEMENT_INTERFACES(Node, RtBinding, MapContainer, IdHolder, DataOwner);
 
 
   //============================================================================
@@ -35,11 +35,17 @@ class Module : public Node,
 
 
   //============================================================================
+  // Signals & Slots
+
+  public: SignalRelay<void, Container*, ContentChangeOp, Int> contentChangeNotifier;
+
+
+  //============================================================================
   // Implementations
 
   IMPLEMENT_IDHOLDER(Module);
 
-  IMPLEMENT_RTMEMBERS((id, TiWord, VALUE, setId(value), &id));
+  IMPLEMENT_RTBINDING((id, TiWord, VALUE, setId(value), &id));
 
 
   //============================================================================
@@ -47,7 +53,7 @@ class Module : public Node,
 
   public: Module() : definitions(true)
   {
-    this->definitions.contentChangeNotifier.connect(this, &Module::onDefinitionsContentChanged);
+    this->contentChangeNotifier.relay(this->definitions.contentChangeNotifier);
   }
 
   public: Module(const std::initializer_list<Argument<Char const*>> &args);
@@ -79,11 +85,6 @@ class Module : public Node,
   public: SharedMap* getDefinitions()
   {
     return &this->definitions;
-  }
-
-  private: void onDefinitionsContentChanged(Container *obj, ContentChangeOp op, Int index)
-  {
-    this->contentChangeNotifier.emit(this, op, index);
   }
 
   /// @}

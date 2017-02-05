@@ -26,13 +26,13 @@ namespace Core { namespace Data { namespace Ast
  * GenericParsingHandler to compose the parsed tree.
  */
 class Token : public Node,
-              public virtual RtMembers, public virtual Metadata, public virtual Clonable, public virtual Printable
+              public virtual RtBinding, public virtual Metadata, public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Token, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, RtMembers, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, RtBinding, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -59,7 +59,7 @@ class Token : public Node,
 
   IMPLEMENT_METADATA(Token);
 
-  IMPLEMENT_RTMEMBERS((id, TiWord, VALUE, setId(value), &id),
+  IMPLEMENT_RTBINDING((id, TiWord, VALUE, setId(value), &id),
                       (text, TiStr, VALUE, setText(value), &text),
                       (prodId, TiWord, VALUE, setProdId(value), &prodId),
                       (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));

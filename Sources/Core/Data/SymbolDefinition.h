@@ -19,14 +19,14 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class SymbolDefinition : public Node,
-                         public virtual RtMembers, public virtual Initializable,
+                         public virtual RtBinding, public virtual Initializable,
                          public virtual IdHolder, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SymbolDefinition, Node, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, RtMembers, Initializable, IdHolder, DataOwner);
+  IMPLEMENT_INTERFACES(Node, RtBinding, Initializable, IdHolder, DataOwner);
 
 
   //============================================================================
@@ -66,13 +66,17 @@ class SymbolDefinition : public Node,
 
   IMPLEMENT_IDHOLDER(SymbolDefinition);
 
-  IMPLEMENT_RTMEMBERS((id, TiWord, VALUE, setId(value), &id));
+  IMPLEMENT_RTBINDING((id, TiWord, VALUE, setId(value), &id));
 
 
   //============================================================================
-  // Signals
+  // Signals & Slots
 
-  public: SIGNAL(changeNotifier, (SymbolDefinition *obj, SymbolDefChangeOp op, Word elmt), (obj, op, elmt));
+  public: Signal<void, SymbolDefinition*, SymbolDefChangeOp, Word> changeNotifier;
+
+  private: Slot<void, SymbolDefinition*, SymbolDefChangeOp, Word> parentContentChangeSlot = {
+    this, &SymbolDefinition::onParentElementChanged
+  };
 
 
   //============================================================================

@@ -77,9 +77,9 @@ class TiObject : public std::enable_shared_from_this<TiObject>
   public: Bool isDerivedFrom(TypeInfo const *info) const;
 
   /**
-     * @brief A template equivalent to isDerivedFrom.
-     * @sa isDerivedFrom()
-     */
+   * @brief A template equivalent to isDerivedFrom.
+   * @sa isDerivedFrom()
+   */
   public: template <class T> Bool isDerivedFrom() const
   {
     return this->isDerivedFrom(T::getTypeInfo());
@@ -281,9 +281,22 @@ template <class T> inline T const* tio_cast(TiObject const *object)
  * The function returns true only if the object is of that type. If the object
  * is of a type derived from the given type the function will return false.
  */
-template <class T> inline bool isA(TiObject const *object)
+template <class T> inline Bool isA(TiObject const *object)
 {
-  return (object==0?false:object->isA(T::getTypeInfo()));
+  return (object == 0 ? false : object->isA(T::getTypeInfo()));
+}
+
+/**
+ * @brief Check if the given pointer is of a type derived from the given type.
+ * @ingroup basic_utils
+ *
+ * This inline template function uses the run-time type info functions of the
+ * TiObject to check whether the given pointer is of the given type or a type
+ * derived from it. It will return false if the pointer is null.
+ */
+template <class T> inline Bool isDerivedFrom(TiObject const *object)
+{
+  return (object == 0 ? false : object->isDerivedFrom(T::getTypeInfo()));
 }
 
 } } // namespace

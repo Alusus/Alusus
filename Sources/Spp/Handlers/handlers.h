@@ -28,6 +28,8 @@ namespace Spp { namespace Handlers
 
 DEFINE_BUILD_MSG(InvalidDumpArg, "Spp.Handlers", "Spp", "alusus.net", "SPP1001", 1,
                  STR("Invalid argument for 'dump' command."));
+DEFINE_BUILD_MSG(InvalidBuildArg, "Spp.Handlers", "Spp", "alusus.net", "SPP1001", 1,
+                 STR("Invalid argument for 'build' command."));
 DEFINE_BUILD_MSG(MissingFunctionSigOrBody, "Spp.Handlers", "Spp", "alusus.net", "SPP1002", 1,
                  STR("Missing signature or body in 'function' command."));
 DEFINE_BUILD_MSG(InvalidFunctionSignature, "Spp.Handleres", "Spp", "alusus.net", "SPP1003", 1,
@@ -49,8 +51,9 @@ DEFINE_BUILD_MSG(InvalidWhileStatement, "Spp.Handlers", "Spp", "alusus.net", "SP
 //==============================================================================
 // Classes
 
-#include "DumpParsingHandler.h"
 #include "FunctionParsingHandler.h"
 #include "WhileParsingHandler.h"
+#include "DumpParsingHandler.h"
+#include "BuildParsingHandler.h"
 
 #endif

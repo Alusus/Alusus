@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Metadata.h
  * Contains the header of interface Data::Ast::Metadata.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -101,6 +101,9 @@ class Metadata : public TiInterface
     return sl;
   }
 
+  public: virtual void setExtra(Char const *name, TioSharedPtr const &obj) = 0;
+  public: virtual TioSharedPtr const& getExtra(Char const *name) const = 0;
+
 }; // class
 
 
@@ -110,6 +113,7 @@ class Metadata : public TiInterface
 #define IMPLEMENT_METADATA(type) \
   private: Core::Basic::TiWord prodId = UNKNOWN_ID; \
   private: Core::Data::SourceLocation sourceLocation; \
+  private: Core::Basic::SharedMap<Core::Basic::TiObject, Core::Basic::TiObject> extras; \
   public: using Metadata::setProdId; \
   public: virtual void setProdId(Word id) \
   { \
@@ -135,6 +139,16 @@ class Metadata : public TiInterface
   public: virtual Core::Data::SourceLocation const& getThisSourceLocation() const \
   { \
     return this->sourceLocation; \
+  } \
+  public: virtual void setExtra(Char const *name, TioSharedPtr const &obj) \
+  { \
+    this->extras.set(name, obj); \
+  } \
+  public: virtual TioSharedPtr const& getExtra(Char const *name) const \
+  { \
+    auto index = this->extras.findIndex(name); \
+    if (index == -1) return TioSharedPtr::null; \
+    else return this->extras.get(index); \
   }
 
 } } } // namespace

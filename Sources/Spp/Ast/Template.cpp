@@ -18,7 +18,7 @@ namespace Spp { namespace Ast
 //==============================================================================
 // Member Functions
 
-SharedPtr<Block> const& Template::getDefaultInstance(Seeker *seeker)
+TioSharedPtr const& Template::getDefaultInstance(Core::Data::Seeker *seeker)
 {
   if (this->templateBody == 0) {
     throw EXCEPTION(GenericException, STR("Template body is not set."));
@@ -26,49 +26,188 @@ SharedPtr<Block> const& Template::getDefaultInstance(Seeker *seeker)
 
   // Do we already have a default instance?
   for (Int i = 0; i < this->instances.size(); ++i) {
-    if (this->instances[i]->getCount() == 0) {
-      return this->instances[i];
+    if (this->instances[i]->getCount() == 1) {
+      return this->instances[i]->getShared(0);
     }
   }
   // No default instance was found, create a new one.
   auto block = std::make_shared<Block>();
   block->add(this->templateBody->clone());
   this->instances.push_back(block);
-  return this->instances.back();
+  block->setOwner(this);
+  return this->instances.back()->getShared(0);
 }
 
-SharedPtr<Block> const& Template::getInstance(TiObject *templateInput, Seeker *seeker)
+TioSharedPtr const& Template::getInstance(TiObject *templateInput, Core::Data::Seeker *seeker)
 {
   if (this->templateBody == 0) {
     throw EXCEPTION(GenericException, STR("Template body is not set."));
   }
 
-  // Do we already have a default instance?
+  // Do we already have an instance?
   for (Int i = 0; i < this->instances.size(); ++i) {
     if (this->matchTemplateVars(templateInput, this->instances[0].get(), seeker)) {
-      return this->instances[i];
+      return this->instances[i]->getShared(0);
     }
   }
-  // No default instance was found, create a new one.
+  // No instance was found, create a new one.
   auto block = std::make_shared<Block>();
   block->add(this->templateBody->clone());
   this->assignTemplateVars(templateInput, block.get(), seeker);
   this->instances.push_back(block);
-  return this->instances.back();
+  block->setOwner(this);
+  return this->instances.back()->getShared(0);
 }
 
 
-Bool Template::matchTemplateVars(TiObject *templateInput, Block *instance, Seeker *seeker)
+Bool Template::matchTemplateVars(TiObject *templateInput, Block *instance, Core::Data::Seeker *seeker)
 {
-  // TODO:
-  throw EXCEPTION(GenericException, "Not implemented yet.");
+  if (templateInput->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
+    auto list = static_cast<Core::Data::Ast::ExpressionList*>(templateInput);
+    if (this->varDefs.size() != list->getCount()) {
+      throw EXCEPTION(GenericException, STR("Template argument mismatch."));
+    }
+    for (Int i = 0; i < list->getCount(); ++i) {
+      if (!this->matchTemplateVar(list->get(i), instance, i, seeker)) return false;
+    }
+  } else {
+    if (this->varDefs.size() != 1) {
+      throw EXCEPTION(GenericException, STR("Template argument mismatch."));
+    }
+    if (!this->matchTemplateVar(templateInput, instance, 0, seeker)) return false;
+  }
+  return true;
 }
 
 
-void Template::assignTemplateVars(TiObject *templateInput, Block *instance, Seeker *seeker)
+Bool Template::matchTemplateVar(TiObject *templateInput, Block *instance, Int varIndex, Core::Data::Seeker *seeker)
 {
-  // TODO:
-  throw EXCEPTION(GenericException, "Not implemented yet.");
+  switch (this->varDefs[varIndex].second.val) {
+    case VarType::INTEGER: {
+      auto var = ti_cast<Core::Data::Ast::IntegerLiteral>(
+        Template::getTemplateVar(instance, this->varDefs[varIndex].first.c_str())
+      );
+      if (var == 0) {
+        throw EXCEPTION(GenericException, STR("Missing variable in template instance."));
+      }
+      auto newVar = ti_cast<Core::Data::Ast::IntegerLiteral>(
+        Template::traceObject(templateInput, VarType::INTEGER, seeker)
+      );
+      if (newVar == 0) {
+        throw EXCEPTION(GenericException, STR("Provided template argument is invalid."));
+      }
+      return std::stol(newVar->getValue().get()) == std::stol(var->getValue().get());
+    }
+
+    case VarType::STRING: {
+      auto var = ti_cast<Core::Data::Ast::StringLiteral>(
+        Template::getTemplateVar(instance, this->varDefs[varIndex].first.c_str())
+      );
+      if (var == 0) {
+        throw EXCEPTION(GenericException, STR("Missing variable in template instance."));
+      }
+      auto newVar = ti_cast<Core::Data::Ast::StringLiteral>(
+        Template::traceObject(templateInput, VarType::STRING, seeker)
+      );
+      if (newVar == 0) {
+        throw EXCEPTION(GenericException, STR("Provided template argument is invalid."));
+      }
+      return newVar->getValue() == var->getValue();
+    }
+
+    default: {
+      auto var = Template::getTemplateVar(instance, this->varDefs[varIndex].first.c_str());
+      if (var == 0) {
+        throw EXCEPTION(GenericException, STR("Missing variable in template instance."));
+      }
+      auto newVar = Template::traceObject(templateInput, VarType::STRING, seeker);
+      if (newVar == 0) {
+        throw EXCEPTION(GenericException, STR("Provided template argument is invalid."));
+      }
+      return newVar == var;
+    }
+  }
+}
+
+
+void Template::assignTemplateVars(TiObject *templateInput, Block *instance, Core::Data::Seeker *seeker)
+{
+  if (templateInput->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
+    auto list = static_cast<Core::Data::Ast::ExpressionList*>(templateInput);
+    if (this->varDefs.size() != list->getCount()) {
+      throw EXCEPTION(GenericException, STR("Template argument mismatch."));
+    }
+    for (Int i = 0; i < list->getCount(); ++i) {
+      auto var = Template::traceObject(list->get(i), this->varDefs[i].second, seeker);
+      auto def = Core::Data::Ast::Definition::create();
+      def->setName(this->varDefs[i].first.c_str());
+      def->setTarget(std::make_shared<Core::Basic::TioSharedBox>(getSharedPtr(var)));
+      instance->add(def);
+    }
+  } else {
+    if (this->varDefs.size() != 1) {
+      throw EXCEPTION(GenericException, STR("Template argument mismatch."));
+    }
+    auto var = Template::traceObject(templateInput, this->varDefs[0].second, seeker);
+    auto def = Core::Data::Ast::Definition::create();
+    def->setName(this->varDefs[0].first.c_str());
+    def->setTarget(std::make_shared<Core::Basic::TioSharedBox>(getSharedPtr(var)));
+    instance->add(def);
+  }
+}
+
+
+TiObject* Template::getTemplateVar(Block const *instance, Char const *name)
+{
+  for (Int i = 0; i < instance->getCount(); ++i) {
+    auto def = ti_cast<Core::Data::Ast::Definition>(instance->get(i));
+    if (def != 0 && def->getName() == name) {
+      auto box = def->getTarget().ti_cast_get<Core::Basic::TioSharedBox>();
+      if (box == 0) {
+        throw EXCEPTION(GenericException, STR("Template var not found."));
+      }
+      return box->get().get();
+    }
+  }
+  throw EXCEPTION(GenericException, STR("Template var not found."));
+}
+
+
+TiObject* Template::traceObject(TiObject *ref, VarType varType, Core::Data::Seeker *seeker)
+{
+  TiObject *result = 0;
+  Node *refNode = ti_cast<Node>(ref);
+  if (refNode == 0) {
+    throw EXCEPTION(GenericException, STR("Invalid template variable."));
+  }
+  if (varType == VarType::INTEGER && ref->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
+    return ref;
+  } else if (varType == VarType::STRING && ref->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+    return ref;
+  } else {
+    seeker->doForeach(ref, refNode->getOwner(), [=, &result](TiObject *obj)->Core::Data::Seeker::SeekVerb
+    {
+      if (varType == VarType::INTEGER && obj->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
+        result = obj;
+        return Core::Data::Seeker::SeekVerb::STOP;
+      } else if (varType == VarType::STRING && obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+        result = obj;
+        return Core::Data::Seeker::SeekVerb::STOP;
+      } else if (varType == VarType::TYPE && obj->isDerivedFrom<Spp::Ast::Type>()) {
+        result = obj;
+        return Core::Data::Seeker::SeekVerb::STOP;
+      } else if (varType == VarType::FUNCTION && obj->isDerivedFrom<Spp::Ast::Function>()) {
+        result = obj;
+        return Core::Data::Seeker::SeekVerb::STOP;
+      }
+      // TODO: Recurse if the object is an Alias.
+      return Core::Data::Seeker::SeekVerb::MOVE;
+    });
+  }
+  if (result == 0) {
+    throw EXCEPTION(GenericException, STR("Invalid template variable."));
+  }
+  return result;
 }
 
 
@@ -108,7 +247,8 @@ void Template::print(OutStream &stream, Int indents) const
     switch (this->varDefs[i].second.val) {
       case VarType::INTEGER: stream << STR("Integer"); break;
       case VarType::STRING: stream << STR("String"); break;
-      case VarType::ALIAS: stream << STR("Alias"); break;
+      case VarType::TYPE: stream << STR("Type"); break;
+      case VarType::FUNCTION: stream << STR("Function"); break;
     }
   }
   stream << STR("\n");

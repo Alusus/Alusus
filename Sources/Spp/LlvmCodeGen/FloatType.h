@@ -1,6 +1,6 @@
 /**
- * @file Spp/Ast/IntegerType.h
- * Contains the header of class Spp::Ast::IntegerType.
+ * @file Spp/LlvmCodeGen/FloatType.h
+ * Contains the header of class Spp::LlvmCodeGen::FloatType.
  *
  * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
  *
@@ -10,19 +10,19 @@
  */
 //==============================================================================
 
-#ifndef SPP_AST_INTEGERTYPE_H
-#define SPP_AST_INTEGERTYPE_H
+#ifndef SPP_LLVMCODEGEN_FLOATTYPE_H
+#define SPP_LLVMCODEGEN_FLOATTYPE_H
 
-namespace Spp { namespace Ast
+namespace Spp { namespace LlvmCodeGen
 {
 
 //! Represent the integer type.
-class IntegerType : public ValueType
+class FloatType : public Type
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(IntegerType, ValueType, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(FloatType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.net");
 
 
   //============================================================================
@@ -34,14 +34,7 @@ class IntegerType : public ValueType
   //============================================================================
   // Construtors & Destructor
 
-  //! Constructs an integer type.
-  public: IntegerType(Int bits) : bitCount(bits)
-  {
-  }
-
-  public: virtual ~IntegerType()
-  {
-  }
+  public: FloatType(Int bits);
 
 
   //============================================================================
@@ -52,9 +45,19 @@ class IntegerType : public ValueType
     return this->bitCount;
   }
 
-  public: virtual bool isImplicitlyCastableTo(ValueType const *type, ExecutionContext const *context) const;
+  public: llvm::Constant* getLlvmConstant(double value) const
+  {
+    return llvm::ConstantFP::get(this->llvmType, value);
+  }
 
-  public: virtual bool isExplicitlyCastableTo(ValueType const *type, ExecutionContext const *context) const;
+  public: virtual llvm::Constant* getDefaultLlvmValue() const
+  {
+    return this->getLlvmConstant(0);
+  }
+
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, ExecutionContext const *context) const;
+
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, ExecutionContext const *context) const;
 
 }; // class
 
