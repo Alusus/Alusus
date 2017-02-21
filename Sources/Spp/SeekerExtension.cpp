@@ -31,19 +31,19 @@ SeekerExtension* SeekerExtension::extend(Core::Data::Seeker *seeker)
   extension->foreachRef = seeker->setFunction(
     seeker->foreach,
     std::function<
-      void(TiFunctionBase*, RtBinding*, TiObject const*, TiObject*, Core::Data::Seeker::SeekForeachCallback)
+      void(TiFunctionBase*, Bindings*, TiObject const*, TiObject*, Core::Data::Seeker::SeekForeachCallback)
     >(std::bind(&SeekerExtension::_foreach, extension, _1, _2, _3, _4, _5))
   ).get();
   extension->foreachByParamPassRef = seeker->setFunction(
     extension->foreachByParamPass,
     std::function<
-      void(RtBinding*, Data::Ast::ParamPass const*, TiObject*, Core::Data::Seeker::SeekForeachCallback cb)
+      void(Bindings*, Data::Ast::ParamPass const*, TiObject*, Core::Data::Seeker::SeekForeachCallback cb)
     >(std::bind(&SeekerExtension::_foreachByParamPass, extension, _1, _2, _3, _4))
   ).get();
   extension->foreachByParamPass_routingRef = seeker->setFunction(
     extension->foreachByParamPass_routing,
     std::function<
-      Core::Data::Seeker::SeekVerb(RtBinding*,
+      Core::Data::Seeker::SeekVerb(Bindings*,
                                    Data::Ast::ParamPass const*,
                                    TiObject*,
                                    Core::Data::Seeker::SeekForeachCallback)
@@ -52,7 +52,7 @@ SeekerExtension* SeekerExtension::extend(Core::Data::Seeker *seeker)
   extension->foreachByParamPass_templateRef = seeker->setFunction(
     extension->foreachByParamPass_template,
     std::function<
-      Core::Data::Seeker::SeekVerb(RtBinding*, TiObject*, Ast::Template*, Core::Data::Seeker::SeekForeachCallback)
+      Core::Data::Seeker::SeekVerb(Bindings*, TiObject*, Ast::Template*, Core::Data::Seeker::SeekForeachCallback)
     >(std::bind(&SeekerExtension::_foreachByParamPass_template, extension, _1, _2, _3, _4))
   ).get();
 
@@ -73,7 +73,7 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, SeekerExtension *exte
 //==============================================================================
 // Seek Functions
 
-void SeekerExtension::_foreach(SeekerExtension *extension, TiFunctionBase *base, RtBinding *_self,
+void SeekerExtension::_foreach(SeekerExtension *extension, TiFunctionBase *base, Bindings *_self,
                                TiObject const *ref, TiObject *target, Core::Data::Seeker::SeekForeachCallback cb)
 {
   PREPARE_SELF(Core::Data::Seeker);
@@ -85,7 +85,7 @@ void SeekerExtension::_foreach(SeekerExtension *extension, TiFunctionBase *base,
 }
 
 
-void SeekerExtension::_foreachByParamPass(SeekerExtension *extension, RtBinding *_self,
+void SeekerExtension::_foreachByParamPass(SeekerExtension *extension, Bindings *_self,
                                           Data::Ast::ParamPass const *paramPass, TiObject *data,
                                           Core::Data::Seeker::SeekForeachCallback cb)
 {
@@ -100,7 +100,7 @@ void SeekerExtension::_foreachByParamPass(SeekerExtension *extension, RtBinding 
 }
 
 
-Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_routing(SeekerExtension *extension, RtBinding *_self,
+Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_routing(SeekerExtension *extension, Bindings *_self,
                                                                           Data::Ast::ParamPass const *paramPass,
                                                                           TiObject *data,
                                                                           Core::Data::Seeker::SeekForeachCallback cb)
@@ -121,7 +121,7 @@ Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_routing(Seeker
 }
 
 
-Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_template(SeekerExtension *extension, RtBinding *_self,
+Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_template(SeekerExtension *extension, Bindings *_self,
                                                                            TiObject *param, Ast::Template *tmplt,
                                                                            Core::Data::Seeker::SeekForeachCallback cb)
 {

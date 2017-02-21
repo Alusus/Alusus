@@ -19,14 +19,14 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class SymbolDefinition : public Node,
-                         public virtual RtBinding, public virtual Initializable,
+                         public virtual Bindings, public virtual Initializable,
                          public virtual IdHolder, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SymbolDefinition, Node, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, RtBinding, Initializable, IdHolder, DataOwner);
+  IMPLEMENT_INTERFACES(Node, Bindings, Initializable, IdHolder, DataOwner);
 
 
   //============================================================================
@@ -66,7 +66,7 @@ class SymbolDefinition : public Node,
 
   IMPLEMENT_IDHOLDER(SymbolDefinition);
 
-  IMPLEMENT_RTBINDING((id, TiWord, VALUE, setId(value), &id));
+  IMPLEMENT_BINDINGS((id, TiWord, VALUE, setId(value), &id));
 
 
   //============================================================================

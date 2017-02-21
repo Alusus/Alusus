@@ -16,13 +16,13 @@
 namespace Spp { namespace LlvmCodeGen
 {
 
-class Generator : public TiObject, public virtual DynamicRtBinding
+class Generator : public TiObject, public virtual DynamicBindings
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Generator, TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(TiObject, DynamicRtBinding);
+  IMPLEMENT_INTERFACES(TiObject, DynamicBindings);
 
 
   //============================================================================
@@ -99,18 +99,18 @@ class Generator : public TiObject, public virtual DynamicRtBinding
   public: BINDING_INDEX_CACHE(generateWhileStatement, this->getBindingMap());
   public: BINDING_INDEX_CACHE(generateExpression, this->getBindingMap());
 
-  private: static void _generateModule(RtBinding *_self, Spp::Ast::Module *astModule, llvm::Module *llvmModule);
-  private: static void _generateType(RtBinding *_self, Spp::Ast::Type *astType, llvm::Module *llvmModule);
-  private: static void _generateBuiltInType(RtBinding *_self, Char const *typeName, Spp::Ast::Type *astType,
+  private: static void _generateModule(Bindings *_self, Spp::Ast::Module *astModule, llvm::Module *llvmModule);
+  private: static void _generateType(Bindings *_self, Spp::Ast::Type *astType, llvm::Module *llvmModule);
+  private: static void _generateBuiltInType(Bindings *_self, Char const *typeName, Spp::Ast::Type *astType,
                                             llvm::Module *llvmModule);
-  private: static void _generateUserType(RtBinding *_self, Spp::Ast::Type *astType, llvm::Module *llvmModule);
-  private: static void _generateFunction(RtBinding *_self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule);
-  private: static void _generateBlock(RtBinding *_self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc);
-  private: static void _generateStatements(RtBinding *_self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc);
-  //private: static void _generateStatement(RtBinding *_self, );
-  //private: static void _generateIfStatement(RtBinding *_self, );
-  //private: static void _generateWhileStatement(RtBinding *_self, );
-  //private: static void _generateExpression(RtBinding *_self, );
+  private: static void _generateUserType(Bindings *_self, Spp::Ast::Type *astType, llvm::Module *llvmModule);
+  private: static void _generateFunction(Bindings *_self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule);
+  private: static void _generateBlock(Bindings *_self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc);
+  private: static void _generateStatements(Bindings *_self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc);
+  //private: static void _generateStatement(Bindings *_self, );
+  //private: static void _generateIfStatement(Bindings *_self, );
+  //private: static void _generateWhileStatement(Bindings *_self, );
+  //private: static void _generateExpression(Bindings *_self, );
 
   /// @}
 

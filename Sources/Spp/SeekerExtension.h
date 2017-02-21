@@ -41,18 +41,18 @@ class SeekerExtension
   public: BINDING_INDEX_CACHE(foreachByParamPass_routing);
   public: BINDING_INDEX_CACHE(foreachByParamPass_template);
 
-  private: static void _foreach(SeekerExtension *extension, TiFunctionBase *base, RtBinding *_self,
+  private: static void _foreach(SeekerExtension *extension, TiFunctionBase *base, Bindings *_self,
                                 TiObject const *ref, TiObject *target, Core::Data::Seeker::SeekForeachCallback cb);
 
-  private: static void _foreachByParamPass(SeekerExtension *extension, RtBinding *_self,
+  private: static void _foreachByParamPass(SeekerExtension *extension, Bindings *_self,
                                            Data::Ast::ParamPass const *paramPass, TiObject *data,
                                            Core::Data::Seeker::SeekForeachCallback cb);
-  private: static Core::Data::Seeker::SeekVerb _foreachByParamPass_routing(SeekerExtension *extension, RtBinding *_self,
+  private: static Core::Data::Seeker::SeekVerb _foreachByParamPass_routing(SeekerExtension *extension, Bindings *_self,
                                                                            Data::Ast::ParamPass const *paramPass,
                                                                            TiObject *data,
                                                                            Core::Data::Seeker::SeekForeachCallback cb);
   private: static Core::Data::Seeker::SeekVerb _foreachByParamPass_template(SeekerExtension *extension,
-                                                                            RtBinding *_self,
+                                                                            Bindings *_self,
                                                                             TiObject *param,
                                                                             Spp::Ast::Template *tmplt,
                                                                             Core::Data::Seeker::SeekForeachCallback cb);

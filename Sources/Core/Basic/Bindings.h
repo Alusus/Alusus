@@ -1,8 +1,8 @@
 /**
- * @file Core/Basic/RtBinding.h
- * Contains the header of interface Basic::RtBinding.
+ * @file Core/Basic/Bindings.h
+ * Contains the header of interface Basic::Bindings.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_RTBINDING_H
-#define CORE_BASIC_RTBINDING_H
+#ifndef CORE_BASIC_BINDINGS_H
+#define CORE_BASIC_BINDINGS_H
 
 namespace Core { namespace Basic
 {
@@ -19,9 +19,9 @@ namespace Core { namespace Basic
 //==============================================================================
 // Forward Declarations
 
-class RtBinding;
+class Bindings;
 template <class RT, class ...ARGS> RT call(TiObject *callee, ARGS ...args);
-template <class RT, class ...ARGS> RT call(RtBinding *self, Char const *name, ARGS... args);
+template <class RT, class ...ARGS> RT call(Bindings *self, Char const *name, ARGS... args);
 
 
 //==============================================================================
@@ -31,14 +31,14 @@ s_enum(HoldMethod, SHARED_REF, WEAK_REF, PLAIN_REF, OWNER, VALUE);
 
 
 //==============================================================================
-// RtBinding Interface
+// Bindings Interface
 
-class RtBinding : public TiInterface
+class Bindings : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(RtBinding, TiInterface, "Core.Basic", "Core", "alusus.net");
+  INTERFACE_INFO(Bindings, TiInterface, "Core.Basic", "Core", "alusus.net");
 
 
   //============================================================================

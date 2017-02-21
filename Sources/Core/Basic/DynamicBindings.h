@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/DynamicRtBinding.h
- * Contains the header of interface Core::Basic::DynamicRtBinding.
+ * @file Core/Basic/DynamicBindings.h
+ * Contains the header of interface Core::Basic::DynamicBindings.
  *
  * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
@@ -10,24 +10,24 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_DYNAMICRTBINDING_H
-#define CORE_BASIC_DYNAMICRTBINDING_H
+#ifndef CORE_BASIC_DYNAMICBINDINGS_H
+#define CORE_BASIC_DYNAMICBINDINGS_H
 
 namespace Core { namespace Basic
 {
 
-class DynamicRtBinding : public RtBinding
+class DynamicBindings : public Bindings
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(DynamicRtBinding, RtBinding, "Core.Basic", "Core", "alusus.net");
+  INTERFACE_INFO(DynamicBindings, Bindings, "Core.Basic", "Core", "alusus.net");
 
 
   //============================================================================
   // Member Functions
 
-  /// @name RtBinding Overrides
+  /// @name Bindings Overrides
   /// @{
 
   public: virtual Int setMember(Char const *name, TiObject *val)
@@ -107,57 +107,57 @@ class DynamicRtBinding : public RtBinding
 
   /// @}
 
-  /// @name DynamicRtBinding Functions
+  /// @name DynamicBindings Functions
   /// @{
 
   public: virtual BindingMap* getBindingMap() = 0;
 
   public: virtual BindingMap const* getBindingMap() const
   {
-    return const_cast<DynamicRtBinding*>(this)->getBindingMap();
+    return const_cast<DynamicBindings*>(this)->getBindingMap();
   }
 
-  public: virtual void inherit(DynamicRtBinding *base)
+  public: virtual void inherit(DynamicBindings *base)
   {
     this->getBindingMap()->setBase(base->getBindingMap());
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(RtBinding*,ARGS...)>> setFunction(Char const *name,
-                                                                      RT (*fn)(RtBinding*,ARGS...))
+    SharedPtr<TiFunctionOverride<RT(Bindings*,ARGS...)>> setFunction(Char const *name,
+                                                                     RT (*fn)(Bindings*,ARGS...))
   {
     VALIDATE_NOT_NULL(name, fn);
     return this->getBindingMap()->setFunction(name, fn);
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, RtBinding*,ARGS...)>>
-      setFunction(Char const *name, RT (*fn)(TiFunctionBase*, RtBinding*,ARGS...))
+    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, Bindings*,ARGS...)>>
+      setFunction(Char const *name, RT (*fn)(TiFunctionBase*, Bindings*,ARGS...))
   {
     VALIDATE_NOT_NULL(name, fn);
     return this->getBindingMap()->setFunction(name, fn);
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(RtBinding*,ARGS...)>> setFunction(Char const *name,
-                                                                      std::function<RT(RtBinding*,ARGS...)> fn)
+    SharedPtr<TiFunctionOverride<RT(Bindings*,ARGS...)>> setFunction(Char const *name,
+                                                                     std::function<RT(Bindings*,ARGS...)> fn)
   {
     VALIDATE_NOT_NULL(name, fn);
     return this->getBindingMap()->setFunction(name, fn);
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, RtBinding*,ARGS...)>>
-      setFunction(Char const *name, std::function<RT(TiFunctionBase*, RtBinding*,ARGS...)> fn)
+    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, Bindings*,ARGS...)>>
+      setFunction(Char const *name, std::function<RT(TiFunctionBase*, Bindings*,ARGS...)> fn)
   {
     VALIDATE_NOT_NULL(name, fn);
     return this->getBindingMap()->setFunction(name, fn);
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(RtBinding*,ARGS...)>> updateFunction(Char const *name,
-                                                                         TiFunctionBase *currentTifn,
-                                                                         RT (*fn)(RtBinding*,ARGS...))
+    SharedPtr<TiFunctionOverride<RT(Bindings*,ARGS...)>> updateFunction(Char const *name,
+                                                                        TiFunctionBase *currentTifn,
+                                                                        RT (*fn)(Bindings*,ARGS...))
   {
     VALIDATE_NOT_NULL(name, fn);
     return this->getBindingMap()->updateFunction(name, currentTifn, fn);
@@ -197,40 +197,40 @@ class DynamicRtBinding : public RtBinding
     return ti_cast<T>(this->getMember(bic.get()));
   }
 
-  public: using RtBinding::call;
+  public: using Bindings::call;
 
   public: template <class RT, class ...ARGS> RT call(BindingIndexCache &bic, ARGS... args)
   {
-    return Core::Basic::call<RT, RtBinding*, ARGS...>(this->getMember(bic), this, args...);
+    return Core::Basic::call<RT, Bindings*, ARGS...>(this->getMember(bic), this, args...);
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(RtBinding*,ARGS...)>> setFunction(BindingIndexCache &bic,
-                                                                      RT (*fn)(RtBinding*,ARGS...))
+    SharedPtr<TiFunctionOverride<RT(Bindings*,ARGS...)>> setFunction(BindingIndexCache &bic,
+                                                                     RT (*fn)(Bindings*,ARGS...))
   {
     VALIDATE_NOT_NULL(fn);
     return this->getBindingMap()->setFunction(bic.getName(), fn);
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, RtBinding*,ARGS...)>>
-      setFunction(BindingIndexCache &bic, RT (*fn)(TiFunctionBase*, RtBinding*,ARGS...))
+    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, Bindings*,ARGS...)>>
+      setFunction(BindingIndexCache &bic, RT (*fn)(TiFunctionBase*, Bindings*,ARGS...))
   {
     VALIDATE_NOT_NULL(fn);
     return this->getBindingMap()->setFunction(bic.getName(), fn);
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(RtBinding*,ARGS...)>> setFunction(BindingIndexCache &bic,
-                                                                      std::function<RT(RtBinding*,ARGS...)> fn)
+    SharedPtr<TiFunctionOverride<RT(Bindings*,ARGS...)>> setFunction(BindingIndexCache &bic,
+                                                                     std::function<RT(Bindings*,ARGS...)> fn)
   {
     VALIDATE_NOT_NULL(fn);
     return this->getBindingMap()->setFunction(bic.getName(), fn);
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, RtBinding*,ARGS...)>>
-      setFunction(BindingIndexCache &bic, std::function<RT(TiFunctionBase*, RtBinding*,ARGS...)> fn)
+    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, Bindings*,ARGS...)>>
+      setFunction(BindingIndexCache &bic, std::function<RT(TiFunctionBase*, Bindings*,ARGS...)> fn)
   {
     VALIDATE_NOT_NULL(fn);
     return this->getBindingMap()->setFunction(bic.getName(), fn);

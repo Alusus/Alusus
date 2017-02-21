@@ -16,13 +16,13 @@
 namespace Spp
 {
 
-class NodePathResolver : public TiObject, public virtual DynamicRtBinding
+class NodePathResolver : public TiObject, public virtual DynamicBindings
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(NodePathResolver, TiObject, "Spp", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(TiObject, DynamicRtBinding);
+  IMPLEMENT_INTERFACES(TiObject, DynamicBindings);
 
 
   //============================================================================
@@ -94,10 +94,10 @@ class NodePathResolver : public TiObject, public virtual DynamicRtBinding
   public: BINDING_INDEX_CACHE(resolveFunction, this->getBindingMap());
   public: BINDING_INDEX_CACHE(resolveTemplateInstance, this->getBindingMap());
 
-  private: static void _resolve(RtBinding *_self, Core::Data::Node const *node, StrStream &path);
-  private: static void _resolveDefinition(RtBinding *_self, Core::Data::Ast::Definition const *def, StrStream &path);
-  private: static void _resolveFunction(RtBinding *_self, Spp::Ast::Function const *func, StrStream &path);
-  private: static void _resolveTemplateInstance(RtBinding *_self, Spp::Ast::Block const *block, StrStream &path);
+  private: static void _resolve(Bindings *_self, Core::Data::Node const *node, StrStream &path);
+  private: static void _resolveDefinition(Bindings *_self, Core::Data::Ast::Definition const *def, StrStream &path);
+  private: static void _resolveFunction(Bindings *_self, Spp::Ast::Function const *func, StrStream &path);
+  private: static void _resolveTemplateInstance(Bindings *_self, Spp::Ast::Block const *block, StrStream &path);
 
   /// @}
 

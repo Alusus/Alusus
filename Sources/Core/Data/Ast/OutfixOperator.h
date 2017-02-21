@@ -19,13 +19,13 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class OutfixOperator : public Node,
-                       public virtual RtBinding, public virtual MapContainer, public virtual Metadata
+                       public virtual Bindings, public virtual MapContainer, public virtual Metadata
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(OutfixOperator, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, RtBinding, MapContainer, Metadata);
+  IMPLEMENT_INTERFACES(Node, Bindings, MapContainer, Metadata);
 
 
   //============================================================================
@@ -40,7 +40,7 @@ class OutfixOperator : public Node,
 
   IMPLEMENT_METADATA(OutfixOperator);
 
-  IMPLEMENT_RTBINDING((type, TiStr, VALUE, setType(value), &type),
+  IMPLEMENT_BINDINGS((type, TiStr, VALUE, setType(value), &type),
                       (prodId, TiWord, VALUE, setProdId(value), &prodId),
                       (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 

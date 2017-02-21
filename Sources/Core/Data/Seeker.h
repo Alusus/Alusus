@@ -16,13 +16,13 @@
 namespace Core { namespace Data
 {
 
-class Seeker : public TiObject, public virtual DynamicRtBinding
+class Seeker : public TiObject, public virtual DynamicBindings
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Seeker, TiObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(TiObject, DynamicRtBinding);
+  IMPLEMENT_INTERFACES(TiObject, DynamicBindings);
 
 
   //============================================================================
@@ -139,9 +139,9 @@ class Seeker : public TiObject, public virtual DynamicRtBinding
   public: BINDING_INDEX_CACHE(remove, &this->bindingMap);
   public: BINDING_INDEX_CACHE(foreach, &this->bindingMap);
 
-  private: static void _set(RtBinding *_self, TiObject const *ref, TiObject *target, SeekSetCallback cb);
-  private: static void _remove(RtBinding *_self, TiObject const *ref, TiObject *target, SeekRemoveCallback cb);
-  private: static void _foreach(RtBinding *_self, TiObject const *ref, TiObject *target, SeekForeachCallback cb);
+  private: static void _set(Bindings *_self, TiObject const *ref, TiObject *target, SeekSetCallback cb);
+  private: static void _remove(Bindings *_self, TiObject const *ref, TiObject *target, SeekRemoveCallback cb);
+  private: static void _foreach(Bindings *_self, TiObject const *ref, TiObject *target, SeekForeachCallback cb);
 
   /// @}
 
@@ -152,33 +152,33 @@ class Seeker : public TiObject, public virtual DynamicRtBinding
   public: BINDING_INDEX_CACHE(setByIdentifier_sharedRepository, &this->bindingMap);
   public: BINDING_INDEX_CACHE(setByIdentifier_ast, &this->bindingMap);
 
-  private: static void _setByIdentifier(RtBinding *_self, Data::Ast::Identifier const *identifier,
+  private: static void _setByIdentifier(Bindings *_self, Data::Ast::Identifier const *identifier,
                                         TiObject *data, SeekSetCallback cb);
-  private: static void _setByIdentifier_sharedRepository(RtBinding *_self, Data::Ast::Identifier const *identifier,
+  private: static void _setByIdentifier_sharedRepository(Bindings *_self, Data::Ast::Identifier const *identifier,
                                                          Data::SharedRepository *repo, SeekSetCallback cb);
-  private: static void _setByIdentifier_ast(RtBinding *_self, Data::Ast::Identifier const *identifier, TiObject *data,
+  private: static void _setByIdentifier_ast(Bindings *_self, Data::Ast::Identifier const *identifier, TiObject *data,
                                             SeekSetCallback cb);
 
   public: BINDING_INDEX_CACHE(removeByIdentifier, &this->bindingMap);
   public: BINDING_INDEX_CACHE(removeByIdentifier_sharedRepository, &this->bindingMap);
   public: BINDING_INDEX_CACHE(removeByIdentifier_ast, &this->bindingMap);
 
-  private: static void _removeByIdentifier(RtBinding *_self, Data::Ast::Identifier const *identifier, TiObject *data,
+  private: static void _removeByIdentifier(Bindings *_self, Data::Ast::Identifier const *identifier, TiObject *data,
                                            SeekRemoveCallback cb);
-  private: static void _removeByIdentifier_sharedRepository(RtBinding *_self, Data::Ast::Identifier const *identifier,
+  private: static void _removeByIdentifier_sharedRepository(Bindings *_self, Data::Ast::Identifier const *identifier,
                                                             Data::SharedRepository *repo, SeekRemoveCallback cb);
-  private: static void _removeByIdentifier_ast(RtBinding *_self, Data::Ast::Identifier const *identifier,
+  private: static void _removeByIdentifier_ast(Bindings *_self, Data::Ast::Identifier const *identifier,
                                                TiObject *data, SeekRemoveCallback cb);
 
   public: BINDING_INDEX_CACHE(foreachByIdentifier, &this->bindingMap);
   public: BINDING_INDEX_CACHE(foreachByIdentifier_sharedRepository, &this->bindingMap);
   public: BINDING_INDEX_CACHE(foreachByIdentifier_ast, &this->bindingMap);
 
-  private: static void _foreachByIdentifier(RtBinding *_self, Data::Ast::Identifier const *identifier, TiObject *data,
+  private: static void _foreachByIdentifier(Bindings *_self, Data::Ast::Identifier const *identifier, TiObject *data,
                                             SeekForeachCallback cb);
-  private: static void _foreachByIdentifier_sharedRepository(RtBinding *_self, Data::Ast::Identifier const *identifier,
+  private: static void _foreachByIdentifier_sharedRepository(Bindings *_self, Data::Ast::Identifier const *identifier,
                                                              Data::SharedRepository *repo, SeekForeachCallback cb);
-  private: static void _foreachByIdentifier_ast(RtBinding *_self, Data::Ast::Identifier const *identifier,
+  private: static void _foreachByIdentifier_ast(Bindings *_self, Data::Ast::Identifier const *identifier,
                                                 TiObject *data, SeekForeachCallback cb);
 
   /// @}
@@ -191,14 +191,14 @@ class Seeker : public TiObject, public virtual DynamicRtBinding
   public: BINDING_INDEX_CACHE(setByLinkOperator_scopeDotIdentifier, &this->bindingMap);
   public: BINDING_INDEX_CACHE(setByLinkOperator_mapDotIdentifier, &this->bindingMap);
 
-  private: static void _setByLinkOperator(RtBinding *_self, Data::Ast::LinkOperator const *link, TiObject *data,
+  private: static void _setByLinkOperator(Bindings *_self, Data::Ast::LinkOperator const *link, TiObject *data,
                                           SeekSetCallback cb);
-  private: static SeekVerb _setByLinkOperator_routing(RtBinding *_self, Data::Ast::LinkOperator const *link,
+  private: static SeekVerb _setByLinkOperator_routing(Bindings *_self, Data::Ast::LinkOperator const *link,
                                                       TiObject *data, SeekSetCallback cb);
-  private: static SeekVerb _setByLinkOperator_scopeDotIdentifier(RtBinding *_self,
+  private: static SeekVerb _setByLinkOperator_scopeDotIdentifier(Bindings *_self,
                                                                  Data::Ast::Identifier const *identifier,
                                                                  Data::Ast::Scope *scope, SeekSetCallback cb);
-  private: static SeekVerb _setByLinkOperator_mapDotIdentifier(RtBinding *_self,
+  private: static SeekVerb _setByLinkOperator_mapDotIdentifier(Bindings *_self,
                                                                Data::Ast::Identifier const *identifier,
                                                                Data::MapContainer *map, SeekSetCallback cb);
 
@@ -207,14 +207,14 @@ class Seeker : public TiObject, public virtual DynamicRtBinding
   public: BINDING_INDEX_CACHE(removeByLinkOperator_scopeDotIdentifier, &this->bindingMap);
   public: BINDING_INDEX_CACHE(removeByLinkOperator_mapDotIdentifier, &this->bindingMap);
 
-  private: static void _removeByLinkOperator(RtBinding *_self, Data::Ast::LinkOperator const *link, TiObject *data,
+  private: static void _removeByLinkOperator(Bindings *_self, Data::Ast::LinkOperator const *link, TiObject *data,
                                              SeekRemoveCallback cb);
-  private: static SeekVerb _removeByLinkOperator_routing(RtBinding *_self, Data::Ast::LinkOperator const *link,
+  private: static SeekVerb _removeByLinkOperator_routing(Bindings *_self, Data::Ast::LinkOperator const *link,
                                                          TiObject *data, SeekRemoveCallback cb);
-  private: static SeekVerb _removeByLinkOperator_scopeDotIdentifier(RtBinding *_self,
+  private: static SeekVerb _removeByLinkOperator_scopeDotIdentifier(Bindings *_self,
                                                                     Data::Ast::Identifier const *identifier,
                                                                     Data::Ast::Scope *scope, SeekRemoveCallback cb);
-  private: static SeekVerb _removeByLinkOperator_mapDotIdentifier(RtBinding *_self,
+  private: static SeekVerb _removeByLinkOperator_mapDotIdentifier(Bindings *_self,
                                                                   Data::Ast::Identifier const *identifier,
                                                                   Data::MapContainer *map, SeekRemoveCallback cb);
 
@@ -223,14 +223,14 @@ class Seeker : public TiObject, public virtual DynamicRtBinding
   public: BINDING_INDEX_CACHE(foreachByLinkOperator_scopeDotIdentifier, &this->bindingMap);
   public: BINDING_INDEX_CACHE(foreachByLinkOperator_mapDotIdentifier, &this->bindingMap);
 
-  private: static void _foreachByLinkOperator(RtBinding *_self, Data::Ast::LinkOperator const *link, TiObject *data,
+  private: static void _foreachByLinkOperator(Bindings *_self, Data::Ast::LinkOperator const *link, TiObject *data,
                                               SeekForeachCallback cb);
-  private: static SeekVerb _foreachByLinkOperator_routing(RtBinding *_self, Data::Ast::LinkOperator const *link,
+  private: static SeekVerb _foreachByLinkOperator_routing(Bindings *_self, Data::Ast::LinkOperator const *link,
                                                           TiObject *data, SeekForeachCallback cb);
-  private: static SeekVerb _foreachByLinkOperator_scopeDotIdentifier(RtBinding *_self,
+  private: static SeekVerb _foreachByLinkOperator_scopeDotIdentifier(Bindings *_self,
                                                                      Data::Ast::Identifier *identifier,
                                                                      Data::Ast::Scope *scope, SeekForeachCallback cb);
-  private: static SeekVerb _foreachByLinkOperator_mapDotIdentifier(RtBinding *_self,
+  private: static SeekVerb _foreachByLinkOperator_mapDotIdentifier(Bindings *_self,
                                                                    Data::Ast::Identifier const *identifier,
                                                                    Data::MapContainer *map, SeekForeachCallback cb);
 

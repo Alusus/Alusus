@@ -56,7 +56,7 @@ Spp::Ast::Type* NodePathResolver::traceType(TiObject *ref)
 //==============================================================================
 // Path Resolving Functions
 
-void NodePathResolver::_resolve(RtBinding *_self, Core::Data::Node const *node, StrStream &path)
+void NodePathResolver::_resolve(Bindings *_self, Core::Data::Node const *node, StrStream &path)
 {
   PREPARE_SELF(NodePathResolver);
   if (node == 0) return;
@@ -76,7 +76,7 @@ void NodePathResolver::_resolve(RtBinding *_self, Core::Data::Node const *node, 
 }
 
 
-void NodePathResolver::_resolveDefinition(RtBinding *_self, Core::Data::Ast::Definition const *def, StrStream &path)
+void NodePathResolver::_resolveDefinition(Bindings *_self, Core::Data::Ast::Definition const *def, StrStream &path)
 {
   PREPARE_SELF(NodePathResolver);
   self->call<void, Core::Data::Node const*, StrStream&>(self->resolve, def->getOwner(), path);
@@ -85,7 +85,7 @@ void NodePathResolver::_resolveDefinition(RtBinding *_self, Core::Data::Ast::Def
 }
 
 
-void NodePathResolver::_resolveFunction(RtBinding *_self, Spp::Ast::Function const *func, StrStream &path)
+void NodePathResolver::_resolveFunction(Bindings *_self, Spp::Ast::Function const *func, StrStream &path)
 {
   PREPARE_SELF(NodePathResolver);
   self->call<void, Core::Data::Node const*, StrStream&>(self->resolve, func->getOwner(), path);
@@ -106,7 +106,7 @@ void NodePathResolver::_resolveFunction(RtBinding *_self, Spp::Ast::Function con
 }
 
 
-void NodePathResolver::_resolveTemplateInstance(RtBinding *_self, Spp::Ast::Block const *block, StrStream &path)
+void NodePathResolver::_resolveTemplateInstance(Bindings *_self, Spp::Ast::Block const *block, StrStream &path)
 {
   PREPARE_SELF(NodePathResolver);
   auto tmplt = static_cast<Spp::Ast::Template*>(block->getOwner());

@@ -19,7 +19,7 @@ namespace Spp { namespace Ast
 using namespace Core;
 
 class ForStatement : public Core::Data::Node,
-                     public virtual Core::Basic::RtBinding, public virtual Core::Data::MapContainer,
+                     public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
                      public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                      public virtual Core::Data::Printable
 {
@@ -27,7 +27,7 @@ class ForStatement : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(ForStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::RtBinding, Core::Data::MapContainer,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Data::MapContainer,
                                          Core::Data::Ast::Metadata, Core::Data::Clonable,
                                          Core::Data::Printable);
 
@@ -46,7 +46,7 @@ class ForStatement : public Core::Data::Node,
 
   IMPLEMENT_METADATA(ForStatement);
 
-  IMPLEMENT_RTBINDING((prodId, TiWord, VALUE, setProdId(value), &prodId),
+  IMPLEMENT_BINDINGS((prodId, TiWord, VALUE, setProdId(value), &prodId),
                       (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER((TiObject, initializer),

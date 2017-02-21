@@ -625,10 +625,10 @@ extern std::ostream &outStream;
 #include "TiStr.h"
 #include "ti_functions.h"
 
-#include "RtBinding.h"
+#include "Bindings.h"
 #include "BindingMap.h"
-#include "rtbinding_helpers.h"
+#include "bindings_helpers.h"
 #include "BindingIndexCache.h"
-#include "DynamicRtBinding.h"
+#include "DynamicBindings.h"
 
 #endif

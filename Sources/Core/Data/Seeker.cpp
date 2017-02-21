@@ -93,7 +93,7 @@ Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal)
 //==============================================================================
 // Main Seek Functions
 
-void Seeker::_set(RtBinding *_self, TiObject const *ref, TiObject *target, SeekSetCallback cb)
+void Seeker::_set(Bindings *_self, TiObject const *ref, TiObject *target, SeekSetCallback cb)
 {
   PREPARE_SELF(Seeker);
   if (ref->isA<Ast::Identifier>()) {
@@ -106,7 +106,7 @@ void Seeker::_set(RtBinding *_self, TiObject const *ref, TiObject *target, SeekS
 }
 
 
-void Seeker::_remove(RtBinding *_self, TiObject const *ref, TiObject *target, SeekRemoveCallback cb)
+void Seeker::_remove(Bindings *_self, TiObject const *ref, TiObject *target, SeekRemoveCallback cb)
 {
   PREPARE_SELF(Seeker);
   if (ref->isA<Ast::Identifier>()) {
@@ -119,7 +119,7 @@ void Seeker::_remove(RtBinding *_self, TiObject const *ref, TiObject *target, Se
 }
 
 
-void Seeker::_foreach(RtBinding *_self, TiObject const *ref, TiObject *target, SeekForeachCallback cb)
+void Seeker::_foreach(Bindings *_self, TiObject const *ref, TiObject *target, SeekForeachCallback cb)
 {
   PREPARE_SELF(Seeker);
   if (ref->isA<Ast::Identifier>()) {
@@ -135,7 +135,7 @@ void Seeker::_foreach(RtBinding *_self, TiObject const *ref, TiObject *target, S
 //==============================================================================
 // Identifier set
 
-void Seeker::_setByIdentifier(RtBinding *_self, Data::Ast::Identifier const *identifier, TiObject *data,
+void Seeker::_setByIdentifier(Bindings *_self, Data::Ast::Identifier const *identifier, TiObject *data,
                               SeekSetCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -147,7 +147,7 @@ void Seeker::_setByIdentifier(RtBinding *_self, Data::Ast::Identifier const *ide
 }
 
 
-void Seeker::_setByIdentifier_sharedRepository(RtBinding *_self, Data::Ast::Identifier const *identifier,
+void Seeker::_setByIdentifier_sharedRepository(Bindings *_self, Data::Ast::Identifier const *identifier,
                                                Data::SharedRepository *repo, SeekSetCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -185,7 +185,7 @@ void Seeker::_setByIdentifier_sharedRepository(RtBinding *_self, Data::Ast::Iden
 }
 
 
-void Seeker::_setByIdentifier_ast(RtBinding *_self, Data::Ast::Identifier const *identifier, TiObject *data,
+void Seeker::_setByIdentifier_ast(Bindings *_self, Data::Ast::Identifier const *identifier, TiObject *data,
                                   SeekSetCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -227,7 +227,7 @@ void Seeker::_setByIdentifier_ast(RtBinding *_self, Data::Ast::Identifier const 
 //==============================================================================
 // Identifier remove
 
-void Seeker::_removeByIdentifier(RtBinding *_self, Data::Ast::Identifier const *identifier, TiObject *data,
+void Seeker::_removeByIdentifier(Bindings *_self, Data::Ast::Identifier const *identifier, TiObject *data,
                                  SeekRemoveCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -241,7 +241,7 @@ void Seeker::_removeByIdentifier(RtBinding *_self, Data::Ast::Identifier const *
 }
 
 
-void Seeker::_removeByIdentifier_sharedRepository(RtBinding *_self, Data::Ast::Identifier const *identifier,
+void Seeker::_removeByIdentifier_sharedRepository(Bindings *_self, Data::Ast::Identifier const *identifier,
                                                   Data::SharedRepository *repo, SeekRemoveCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -269,7 +269,7 @@ void Seeker::_removeByIdentifier_sharedRepository(RtBinding *_self, Data::Ast::I
 }
 
 
-void Seeker::_removeByIdentifier_ast(RtBinding *_self, Data::Ast::Identifier const *identifier, TiObject *data,
+void Seeker::_removeByIdentifier_ast(Bindings *_self, Data::Ast::Identifier const *identifier, TiObject *data,
                                      SeekRemoveCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -301,7 +301,7 @@ void Seeker::_removeByIdentifier_ast(RtBinding *_self, Data::Ast::Identifier con
 //==============================================================================
 // Identifier foreach
 
-void Seeker::_foreachByIdentifier(RtBinding *_self, Data::Ast::Identifier const *identifier, TiObject *data,
+void Seeker::_foreachByIdentifier(Bindings *_self, Data::Ast::Identifier const *identifier, TiObject *data,
                                   SeekForeachCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -315,7 +315,7 @@ void Seeker::_foreachByIdentifier(RtBinding *_self, Data::Ast::Identifier const 
 }
 
 
-void Seeker::_foreachByIdentifier_sharedRepository(RtBinding *_self, Data::Ast::Identifier const *identifier,
+void Seeker::_foreachByIdentifier_sharedRepository(Bindings *_self, Data::Ast::Identifier const *identifier,
                                                    Data::SharedRepository *repo, SeekForeachCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -339,7 +339,7 @@ void Seeker::_foreachByIdentifier_sharedRepository(RtBinding *_self, Data::Ast::
 }
 
 
-void Seeker::_foreachByIdentifier_ast(RtBinding *_self, Data::Ast::Identifier const *identifier, TiObject *data,
+void Seeker::_foreachByIdentifier_ast(Bindings *_self, Data::Ast::Identifier const *identifier, TiObject *data,
                                       SeekForeachCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -367,7 +367,7 @@ void Seeker::_foreachByIdentifier_ast(RtBinding *_self, Data::Ast::Identifier co
 //==============================================================================
 // LinkOperator set
 
-void Seeker::_setByLinkOperator(RtBinding *_self, Ast::LinkOperator const *link, TiObject *data, SeekSetCallback cb)
+void Seeker::_setByLinkOperator(Bindings *_self, Ast::LinkOperator const *link, TiObject *data, SeekSetCallback cb)
 {
   PREPARE_SELF(Seeker);
   auto first = link->getFirst().get();
@@ -380,7 +380,7 @@ void Seeker::_setByLinkOperator(RtBinding *_self, Ast::LinkOperator const *link,
 }
 
 
-Seeker::SeekVerb Seeker::_setByLinkOperator_routing(RtBinding *_self, Ast::LinkOperator const *link, TiObject *data,
+Seeker::SeekVerb Seeker::_setByLinkOperator_routing(Bindings *_self, Ast::LinkOperator const *link, TiObject *data,
                                                     SeekSetCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -410,7 +410,7 @@ Seeker::SeekVerb Seeker::_setByLinkOperator_routing(RtBinding *_self, Ast::LinkO
 }
 
 
-Seeker::SeekVerb Seeker::_setByLinkOperator_scopeDotIdentifier(RtBinding *_self, Ast::Identifier const *identifier,
+Seeker::SeekVerb Seeker::_setByLinkOperator_scopeDotIdentifier(Bindings *_self, Ast::Identifier const *identifier,
                                                                Ast::Scope *scope, SeekSetCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -441,7 +441,7 @@ Seeker::SeekVerb Seeker::_setByLinkOperator_scopeDotIdentifier(RtBinding *_self,
 }
 
 
-Seeker::SeekVerb Seeker::_setByLinkOperator_mapDotIdentifier(RtBinding *_self, Ast::Identifier const *identifier,
+Seeker::SeekVerb Seeker::_setByLinkOperator_mapDotIdentifier(Bindings *_self, Ast::Identifier const *identifier,
                                                              MapContainer *map, SeekSetCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -458,7 +458,7 @@ Seeker::SeekVerb Seeker::_setByLinkOperator_mapDotIdentifier(RtBinding *_self, A
 //==============================================================================
 // LinkOperator remove
 
-void Seeker::_removeByLinkOperator(RtBinding *_self, Data::Ast::LinkOperator const *link, TiObject *data,
+void Seeker::_removeByLinkOperator(Bindings *_self, Data::Ast::LinkOperator const *link, TiObject *data,
                                    SeekRemoveCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -472,7 +472,7 @@ void Seeker::_removeByLinkOperator(RtBinding *_self, Data::Ast::LinkOperator con
 }
 
 
-Seeker::SeekVerb Seeker::_removeByLinkOperator_routing(RtBinding *_self, Data::Ast::LinkOperator const *link,
+Seeker::SeekVerb Seeker::_removeByLinkOperator_routing(Bindings *_self, Data::Ast::LinkOperator const *link,
                                                        TiObject *data,
                                                        SeekRemoveCallback cb)
 {
@@ -503,7 +503,7 @@ Seeker::SeekVerb Seeker::_removeByLinkOperator_routing(RtBinding *_self, Data::A
 }
 
 
-Seeker::SeekVerb Seeker::_removeByLinkOperator_scopeDotIdentifier(RtBinding *_self,
+Seeker::SeekVerb Seeker::_removeByLinkOperator_scopeDotIdentifier(Bindings *_self,
                                                                   Data::Ast::Identifier const *identifier,
                                                                   Data::Ast::Scope *scope, SeekRemoveCallback cb)
 {
@@ -525,7 +525,7 @@ Seeker::SeekVerb Seeker::_removeByLinkOperator_scopeDotIdentifier(RtBinding *_se
 }
 
 
-Seeker::SeekVerb Seeker::_removeByLinkOperator_mapDotIdentifier(RtBinding *_self,
+Seeker::SeekVerb Seeker::_removeByLinkOperator_mapDotIdentifier(Bindings *_self,
                                                                 Data::Ast::Identifier const *identifier,
                                                                 Data::MapContainer *map, SeekRemoveCallback cb)
 {
@@ -546,7 +546,7 @@ Seeker::SeekVerb Seeker::_removeByLinkOperator_mapDotIdentifier(RtBinding *_self
 //==============================================================================
 // LinkOperator foreach
 
-void Seeker::_foreachByLinkOperator(RtBinding *_self, Data::Ast::LinkOperator const *link, TiObject *data,
+void Seeker::_foreachByLinkOperator(Bindings *_self, Data::Ast::LinkOperator const *link, TiObject *data,
                                     SeekForeachCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -560,7 +560,7 @@ void Seeker::_foreachByLinkOperator(RtBinding *_self, Data::Ast::LinkOperator co
 }
 
 
-Seeker::SeekVerb Seeker::_foreachByLinkOperator_routing(RtBinding *_self, Data::Ast::LinkOperator const *link,
+Seeker::SeekVerb Seeker::_foreachByLinkOperator_routing(Bindings *_self, Data::Ast::LinkOperator const *link,
                                                         TiObject *data, SeekForeachCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -590,7 +590,7 @@ Seeker::SeekVerb Seeker::_foreachByLinkOperator_routing(RtBinding *_self, Data::
 }
 
 
-Seeker::SeekVerb Seeker::_foreachByLinkOperator_scopeDotIdentifier(RtBinding *_self, Data::Ast::Identifier *identifier,
+Seeker::SeekVerb Seeker::_foreachByLinkOperator_scopeDotIdentifier(Bindings *_self, Data::Ast::Identifier *identifier,
                                                                    Data::Ast::Scope *scope, SeekForeachCallback cb)
 {
   PREPARE_SELF(Seeker);
@@ -607,7 +607,7 @@ Seeker::SeekVerb Seeker::_foreachByLinkOperator_scopeDotIdentifier(RtBinding *_s
 }
 
 
-Seeker::SeekVerb Seeker::_foreachByLinkOperator_mapDotIdentifier(RtBinding *_self,
+Seeker::SeekVerb Seeker::_foreachByLinkOperator_mapDotIdentifier(Bindings *_self,
                                                                  Data::Ast::Identifier const *identifier,
                                                                  Data::MapContainer *map, SeekForeachCallback cb)
 {

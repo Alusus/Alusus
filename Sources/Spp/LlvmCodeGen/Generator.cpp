@@ -73,7 +73,7 @@ Str Generator::generateIr(Core::Data::Ast::Scope *root)
 //==============================================================================
 // Code Generation Functions
 
-void Generator::_generateModule(RtBinding *_self, Spp::Ast::Module *astModule, llvm::Module *llvmModule)
+void Generator::_generateModule(Bindings *_self, Spp::Ast::Module *astModule, llvm::Module *llvmModule)
 {
   PREPARE_SELF(Generator);
   for (Int i = 0; i < astModule->getCount(); ++i) {
@@ -91,7 +91,7 @@ void Generator::_generateModule(RtBinding *_self, Spp::Ast::Module *astModule, l
 }
 
 
-void Generator::_generateType(RtBinding *_self, Spp::Ast::Type *astType, llvm::Module *llvmModule)
+void Generator::_generateType(Bindings *_self, Spp::Ast::Type *astType, llvm::Module *llvmModule)
 {
   PREPARE_SELF(Generator);
 
@@ -109,7 +109,7 @@ void Generator::_generateType(RtBinding *_self, Spp::Ast::Type *astType, llvm::M
 }
 
 
-void Generator::_generateBuiltInType(RtBinding *_self, Char const *typeName, Spp::Ast::Type *astType,
+void Generator::_generateBuiltInType(Bindings *_self, Char const *typeName, Spp::Ast::Type *astType,
                                      llvm::Module *llvmModule)
 {
   PREPARE_SELF(Generator);
@@ -164,13 +164,13 @@ void Generator::_generateBuiltInType(RtBinding *_self, Char const *typeName, Spp
 }
 
 
-void Generator::_generateUserType(RtBinding *_self, Spp::Ast::Type *astType, llvm::Module *llvmModule)
+void Generator::_generateUserType(Bindings *_self, Spp::Ast::Type *astType, llvm::Module *llvmModule)
 {
   // TODO:
 }
 
 
-void Generator::_generateFunction(RtBinding *_self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule)
+void Generator::_generateFunction(Bindings *_self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule)
 {
   PREPARE_SELF(Generator);
 
@@ -229,12 +229,12 @@ void Generator::_generateFunction(RtBinding *_self, Spp::Ast::Function *astFunc,
 
 // TODO:
 
-void Generator::_generateBlock(RtBinding *_self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc)
+void Generator::_generateBlock(Bindings *_self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc)
 {
 }
 
 
-void Generator::_generateStatements(RtBinding *_self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc)
+void Generator::_generateStatements(Bindings *_self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc)
 {
 }
 

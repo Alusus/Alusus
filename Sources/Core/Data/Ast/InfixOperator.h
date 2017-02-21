@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class InfixOperator : public Node,
-                      public virtual RtBinding, public virtual MapContainer, public virtual Metadata,
+                      public virtual Bindings, public virtual MapContainer, public virtual Metadata,
                       public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(InfixOperator, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, RtBinding, MapContainer, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Bindings, MapContainer, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -42,7 +42,7 @@ class InfixOperator : public Node,
 
   IMPLEMENT_METADATA(InfixOperator);
 
-  IMPLEMENT_RTBINDING((type, TiStr, VALUE, setType(value), &type),
+  IMPLEMENT_BINDINGS((type, TiStr, VALUE, setType(value), &type),
                       (prodId, TiWord, VALUE, setProdId(value), &prodId),
                       (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 

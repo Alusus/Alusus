@@ -19,13 +19,13 @@ namespace Core { namespace Data
 // TODO: DOC
 
 class Module : public Node,
-               public virtual RtBinding, public virtual MapContainer, public virtual IdHolder, public virtual DataOwner
+               public virtual Bindings, public virtual MapContainer, public virtual IdHolder, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Module, Node, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, RtBinding, MapContainer, IdHolder, DataOwner);
+  IMPLEMENT_INTERFACES(Node, Bindings, MapContainer, IdHolder, DataOwner);
 
 
   //============================================================================
@@ -45,7 +45,7 @@ class Module : public Node,
 
   IMPLEMENT_IDHOLDER(Module);
 
-  IMPLEMENT_RTBINDING((id, TiWord, VALUE, setId(value), &id));
+  IMPLEMENT_BINDINGS((id, TiWord, VALUE, setId(value), &id));
 
 
   //============================================================================

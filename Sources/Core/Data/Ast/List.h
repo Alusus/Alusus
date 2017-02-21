@@ -30,13 +30,13 @@ namespace Core { namespace Data { namespace Ast
  * handler.
  */
 class List : public SharedList,
-             public virtual RtBinding, public virtual Metadata, public virtual Clonable, public virtual Printable
+             public virtual Bindings, public virtual Metadata, public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(List, SharedList, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(SharedList, RtBinding, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(SharedList, Bindings, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -44,7 +44,7 @@ class List : public SharedList,
 
   IMPLEMENT_METADATA(List);
 
-  IMPLEMENT_RTBINDING((prodId, TiWord, VALUE, setProdId(value), &prodId),
+  IMPLEMENT_BINDINGS((prodId, TiWord, VALUE, setProdId(value), &prodId),
                       (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_AST_LIST_CLONABLE(List);
