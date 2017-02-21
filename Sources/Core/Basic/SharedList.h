@@ -27,8 +27,24 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE
   //============================================================================
   // Member Variables
 
+  private: SharedList<CTYPE, PTYPE> *base;
+
   /// The vector in which the object pointers will be stored.
   private: std::vector<SharedPtr<CTYPE>> list;
+
+
+  //============================================================================
+  // Signals & Slots
+
+  public: Signal<void, SharedList<CTYPE, PTYPE>*> destroyNotifier;
+  public: Signal<void, SharedList<CTYPE, PTYPE>*, ContentChangeOp, Int> changeNotifier;
+
+  private: Slot<void, SharedList<CTYPE, PTYPE>*> parentDestroySlot = {
+    this, &SharedList<CTYPE, PTYPE>::onBaseDestroyed
+  };
+  private: Slot<void, SharedList<CTYPE, PTYPE>*, ContentChangeOp, Int> parentChangeSlot = {
+    this, &SharedList<CTYPE, PTYPE>::onBaseContentChanged
+  };
 
 
   //============================================================================
@@ -57,6 +73,98 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE
   //============================================================================
   // Member Functions
 
+  /// @name Inheritance Functions
+  /// @{
+
+  public: void setBase(SharedList<CTYPE, PTYPE> *b)
+  {
+    if (this->base != 0) this->detachFromBase();
+    if (b != 0) this->attachToBase(b);
+  }
+
+  public: SharedList<CTYPE, PTYPE>* getBase() const
+  {
+    return this->base;
+  }
+
+  private: Word getBaseDefCount() const
+  {
+    return this->base != 0 ? this->base->getCount() : 0;
+  }
+
+  private: void attachToBase(SharedList<CTYPE, PTYPE> *b)
+  {
+    ASSERT(this->base == 0);
+    this->base = b;
+    this->base->changeNotifier.connect(this->parentChangeSlot);
+    this->base->destroyNotifier.connect(this->parentDestroySlot);
+    this->inheritFromBase();
+  }
+
+  private: void detachFromBase()
+  {
+    ASSERT(this->base != 0);
+    this->removeInheritted();
+    this->base->changeNotifier.disconnect(this->parentChangeSlot);
+    this->base->destroyNotifier.disconnect(this->parentDestroySlot);
+    this->base = 0;
+  }
+
+  private: void inheritFromBase()
+  {
+    ASSERT(this->base != 0);
+    for (Int i = 0; static_cast<Word>(i) < this->getBaseDefCount(); ++i) this->onAdded(i);
+  }
+
+  private: void removeInheritted()
+  {
+    auto count = this->getBaseDefCount();
+    for (Int i = count-1; i >= 0; --i) {
+      this->onRemoved(i);
+    }
+  }
+
+  private: void onAdded(Int index)
+  {
+    ASSERT(this->base != 0);
+    ASSERT(static_cast<Word>(index) < this->getBaseDefCount());
+    this->list.insert(this->list.begin()+index, this->base->get(index));
+    this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
+  }
+
+  private: void onUpdated(Int index)
+  {
+    ASSERT(this->base != 0);
+    ASSERT(static_cast<Word>(index) < this->getBaseDefCount());
+    this->list[index] = this->base->get(index);
+    this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
+  }
+
+  private: void onRemoved(Int index)
+  {
+    ASSERT(this->base != 0);
+    ASSERT(static_cast<Word>(index) < this->getBaseDefCount()+1);
+    this->list.erase(this->list.begin()+index);
+    this->changeNotifier.emit(this, ContentChangeOp::REMOVED, index);
+  }
+
+  private: void onBaseContentChanged(SharedList<CTYPE, PTYPE> *obj, ContentChangeOp op, Int index)
+  {
+    if (op == ContentChangeOp::ADDED) this->onAdded(index);
+    else if (op == ContentChangeOp::UPDATED) this->onUpdated(index);
+    else if (op == ContentChangeOp::REMOVED) this->onRemoved(index);
+  }
+
+  private: void onBaseDestroyed(SharedList<CTYPE, PTYPE> *obj)
+  {
+    this->detachFromBase();
+  }
+
+  /// @}
+
+  /// @name Data Access Functions
+  /// @{
+
   /**
    * @brief Adds a list of new objects to the list.
    * This is more efficient than individually calling add() on each item
@@ -67,38 +175,45 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE
     if (this->list.capacity() < this->list.size() + objs.size()) this->list.reserve(this->list.size() + objs.size());
     for (auto obj : objs) {
       this->list.push_back(obj);
+      this->changeNotifier.emit(this, ContentChangeOp::ADDED, this->list.size() - 1);
     }
   }
 
   public: Int add(SharedPtr<CTYPE> const &val)
   {
     this->list.push_back(val);
-    return this->list.size()-1;
+    this->changeNotifier.emit(this, ContentChangeOp::ADDED, this->list.size() - 1);
+    return this->list.size() - 1;
   }
 
   public: void insert(Int index, SharedPtr<CTYPE> const &val)
   {
-    if (index < 0 || index > this->getCount()) {
+    if (index < this->getBaseDefCount() || index > this->getCount()) {
       throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
     }
     this->list.insert(this->list.begin()+index, val);
+    this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
   }
 
   public: void set(Int index, SharedPtr<CTYPE> const &val)
   {
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (index < this->getBaseDefCount() || static_cast<Word>(index) >= this->list.size()) {
       throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
     } else {
+      this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, index);
       this->list[index] = val;
+      this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
     }
   }
 
   public: void remove(Int index)
   {
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (index < this->getBaseDefCount() || static_cast<Word>(index) >= this->list.size()) {
       throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
     }
+    this->changeNotifier.emit(this, ContentChangeOp::WILL_REMOVE, index);
     this->list.erase(this->list.begin()+index);
+    this->changeNotifier.emit(this, ContentChangeOp::REMOVED, index);
   }
 
   public: Word getCount() const
@@ -108,7 +223,7 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE
 
   public: SharedPtr<CTYPE> const& get(Int index) const
   {
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (index < 0 || static_cast<Word>(index) >= this->list.size()) {
       throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
     }
     return this->list[index];
@@ -123,6 +238,8 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE
   {
     this->list.reserve(size);
   }
+
+  /// @}
 
 }; // class
 

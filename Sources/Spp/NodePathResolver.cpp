@@ -129,8 +129,7 @@ void NodePathResolver::_resolveTemplateInstance(RtBinding *_self, Spp::Ast::Bloc
       }
       path << strLiteral->getValue().get();
     } else {
-      auto box = ti_cast<Core::Basic::TioSharedBox>(obj);
-      path << self->doResolve(box->get().ti_cast_get<Core::Data::Node>());
+      path << self->doResolve(ti_cast<Core::Data::Node>(obj));
     }
   }
   path << CHR(']');

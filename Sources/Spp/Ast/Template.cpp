@@ -120,7 +120,7 @@ Bool Template::matchTemplateVar(TiObject *templateInput, Block *instance, Int va
       if (var == 0) {
         throw EXCEPTION(GenericException, STR("Missing variable in template instance."));
       }
-      auto newVar = Template::traceObject(templateInput, VarType::STRING, seeker);
+      auto newVar = Template::traceObject(templateInput, this->varDefs[varIndex].second, seeker);
       if (newVar == 0) {
         throw EXCEPTION(GenericException, STR("Provided template argument is invalid."));
       }
@@ -183,6 +183,10 @@ TiObject* Template::traceObject(TiObject *ref, VarType varType, Core::Data::Seek
   if (varType == VarType::INTEGER && ref->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
     return ref;
   } else if (varType == VarType::STRING && ref->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+    return ref;
+  } else if (varType == VarType::TYPE && ref->isDerivedFrom<Spp::Ast::Type>()) {
+    return ref;
+  } else if (varType == VarType::FUNCTION && ref->isDerivedFrom<Spp::Ast::Function>()) {
     return ref;
   } else {
     seeker->doForeach(ref, refNode->getOwner(), [=, &result](TiObject *obj)->Core::Data::Seeker::SeekVerb

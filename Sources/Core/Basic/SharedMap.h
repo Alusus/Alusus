@@ -16,8 +16,6 @@
 namespace Core { namespace Basic
 {
 
-s_enum(ContentChangeOp, ADDED, WILL_UPDATE, UPDATED, WILL_REMOVE, REMOVED);
-
 template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
 {
   //============================================================================

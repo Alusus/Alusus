@@ -27,63 +27,6 @@ namespace Core { namespace Basic
 
 
 //==============================================================================
-// Basic Datatypes
-
-/**
- * @defgroup basic_datatypes Basic Datatypes
- * @ingroup basic
- * @brief Wrapper definitions for basic datatypes.
- */
-
-/// @ingroup basic_datatypes
-typedef unsigned char Byte;
-
-/// @ingroup basic_datatypes
-typedef char Char;
-
-/// @ingroup basic_datatypes
-typedef wchar_t WChar;
-
-/// @ingroup basic_datatypes
-typedef int Int;
-
-/// @ingroup basic_datatypes
-typedef short ShortInt;
-
-/**
- * @brief An integer of the same size as pointers.
- * This is used for pointer arithmetics.
- * @ingroup basic_datatypes
- */
-typedef long long int PtrInt;
-
-/// @ingroup basic_datatypes
-typedef float Float;
-
-/// @ingroup basic_datatypes
-typedef bool Bool;
-
-/// @ingroup basic_datatypes
-typedef unsigned int Word;
-
-/// @ingroup basic_datatypes
-typedef unsigned short ShortWord;
-
-/**
- * @brief A word of the same size as pointers.
- * This is used for things lik IDs that need to be the same size as pointers.
- * @ingroup basic_datatypes
- */
-typedef unsigned long long int PtrWord;
-
-/// @ingroup basic_datatypes
-typedef std::stringstream StrStream;
-
-/// @ingroup basic_datatypes
-typedef std::ostream OutStream;
-
-
-//==============================================================================
 // Basic Constants
 
 /**
@@ -393,6 +336,66 @@ s_enum(LogLevel,
 #define LOG(l,x)
 
 #endif
+
+
+//==============================================================================
+// Basic Datatypes
+
+/**
+ * @defgroup basic_datatypes Basic Datatypes
+ * @ingroup basic
+ * @brief Wrapper definitions for basic datatypes.
+ */
+
+/// @ingroup basic_datatypes
+typedef unsigned char Byte;
+
+/// @ingroup basic_datatypes
+typedef char Char;
+
+/// @ingroup basic_datatypes
+typedef wchar_t WChar;
+
+/// @ingroup basic_datatypes
+typedef int Int;
+
+/// @ingroup basic_datatypes
+typedef short ShortInt;
+
+/**
+ * @brief An integer of the same size as pointers.
+ * This is used for pointer arithmetics.
+ * @ingroup basic_datatypes
+ */
+typedef long long int PtrInt;
+
+/// @ingroup basic_datatypes
+typedef float Float;
+
+/// @ingroup basic_datatypes
+typedef bool Bool;
+
+/// @ingroup basic_datatypes
+typedef unsigned int Word;
+
+/// @ingroup basic_datatypes
+typedef unsigned short ShortWord;
+
+/**
+ * @brief A word of the same size as pointers.
+ * This is used for things lik IDs that need to be the same size as pointers.
+ * @ingroup basic_datatypes
+ */
+typedef unsigned long long int PtrWord;
+
+/// @ingroup basic_datatypes
+typedef std::stringstream StrStream;
+
+/// @ingroup basic_datatypes
+typedef std::ostream OutStream;
+
+/// @ingroup basic_datatypes
+s_enum(ContentChangeOp, ADDED, WILL_UPDATE, UPDATED, WILL_REMOVE, REMOVED);
 
 
 //==============================================================================
