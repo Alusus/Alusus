@@ -18,12 +18,23 @@ namespace Spp
 //==============================================================================
 // Initialization Functions
 
-void NodePathResolver::initialize()
+void NodePathResolver::initBindingCaches()
 {
-  this->setFunction(this->resolve, &NodePathResolver::_resolve);
-  this->setFunction(this->resolveDefinition, &NodePathResolver::_resolveDefinition);
-  this->setFunction(this->resolveFunction, &NodePathResolver::_resolveFunction);
-  this->setFunction(this->resolveTemplateInstance, &NodePathResolver::_resolveTemplateInstance);
+  Core::Basic::initBindingCaches(this, {
+    &this->resolve,
+    &this->resolveDefinition,
+    &this->resolveFunction,
+    &this->resolveTemplateInstance
+  });
+}
+
+
+void NodePathResolver::initBindings()
+{
+  this->resolve = &NodePathResolver::_resolve;
+  this->resolveDefinition = &NodePathResolver::_resolveDefinition;
+  this->resolveFunction = &NodePathResolver::_resolveFunction;
+  this->resolveTemplateInstance = &NodePathResolver::_resolveTemplateInstance;
 }
 
 
@@ -56,61 +67,61 @@ Spp::Ast::Type* NodePathResolver::traceType(TiObject *ref)
 //==============================================================================
 // Path Resolving Functions
 
-void NodePathResolver::_resolve(Bindings *_self, Core::Data::Node const *node, StrStream &path)
+void NodePathResolver::_resolve(TiObject *self, Core::Data::Node const *node, StrStream &path)
 {
-  PREPARE_SELF(NodePathResolver);
+  PREPARE_SELF(resolver, NodePathResolver);
   if (node == 0) return;
   if (node->isDerivedFrom<Core::Data::Ast::Definition>()) {
     auto def = static_cast<Core::Data::Ast::Definition const*>(node);
-    self->call<void, Core::Data::Ast::Definition const*, StrStream&>(self->resolveDefinition, def, path);
+    resolver->resolveDefinition(def, path);
   } else if (node->isDerivedFrom<Spp::Ast::Function>()) {
     auto func = static_cast<Spp::Ast::Function const*>(node);
-    self->call<void, Spp::Ast::Function const*, StrStream&>(self->resolveFunction, func, path);
+    resolver->resolveFunction(func, path);
   } else if (node->isDerivedFrom<Spp::Ast::Block>() &&
              Core::Basic::isDerivedFrom<Spp::Ast::Template>(node->getOwner())) {
     auto block = static_cast<Spp::Ast::Block const*>(node);
-    self->call<void, Spp::Ast::Block const*, StrStream&>(self->resolveTemplateInstance, block, path);
+    resolver->resolveTemplateInstance(block, path);
   } else {
-    NodePathResolver::_resolve(_self, node->getOwner(), path);
+    NodePathResolver::_resolve(self, node->getOwner(), path);
   }
 }
 
 
-void NodePathResolver::_resolveDefinition(Bindings *_self, Core::Data::Ast::Definition const *def, StrStream &path)
+void NodePathResolver::_resolveDefinition(TiObject *self, Core::Data::Ast::Definition const *def, StrStream &path)
 {
-  PREPARE_SELF(NodePathResolver);
-  self->call<void, Core::Data::Node const*, StrStream&>(self->resolve, def->getOwner(), path);
+  PREPARE_SELF(resolver, NodePathResolver);
+  resolver->resolve(def->getOwner(), path);
   if (path.rdbuf()->in_avail() != 0) path << CHR('.');
   path << def->getName().get();
 }
 
 
-void NodePathResolver::_resolveFunction(Bindings *_self, Spp::Ast::Function const *func, StrStream &path)
+void NodePathResolver::_resolveFunction(TiObject *self, Spp::Ast::Function const *func, StrStream &path)
 {
-  PREPARE_SELF(NodePathResolver);
-  self->call<void, Core::Data::Node const*, StrStream&>(self->resolve, func->getOwner(), path);
+  PREPARE_SELF(resolver, NodePathResolver);
+  resolver->resolve(func->getOwner(), path);
   path << CHR('(');
   auto argTypes = func->getArgTypes().get();
   if (argTypes != 0) {
     for (Int i = 0; i < argTypes->getCount(); ++i) {
       if (i > 0) path << CHR(',');
-      auto type = self->traceType(argTypes->get(i));
-      path << self->doResolve(type);
+      auto type = resolver->traceType(argTypes->get(i));
+      path << resolver->doResolve(type);
     }
   }
   path << STR(")");
   if (func->getRetType() != 0) {
-    auto type = self->traceType(func->getRetType().get());
-    path << STR("->(") << self->doResolve(type) << STR(")");
+    auto type = resolver->traceType(func->getRetType().get());
+    path << STR("->(") << resolver->doResolve(type) << STR(")");
   }
 }
 
 
-void NodePathResolver::_resolveTemplateInstance(Bindings *_self, Spp::Ast::Block const *block, StrStream &path)
+void NodePathResolver::_resolveTemplateInstance(TiObject *self, Spp::Ast::Block const *block, StrStream &path)
 {
-  PREPARE_SELF(NodePathResolver);
+  PREPARE_SELF(resolver, NodePathResolver);
   auto tmplt = static_cast<Spp::Ast::Template*>(block->getOwner());
-  self->call<void, Core::Data::Node const*, StrStream&>(self->resolve, tmplt->getOwner(), path);
+  resolver->resolve(tmplt->getOwner(), path);
   path << CHR('[');
   auto varDefs = tmplt->getVarDefs();
   for (Int i = 0; i < varDefs->size(); ++i) {
@@ -129,7 +140,7 @@ void NodePathResolver::_resolveTemplateInstance(Bindings *_self, Spp::Ast::Block
       }
       path << strLiteral->getValue().get();
     } else {
-      path << self->doResolve(ti_cast<Core::Data::Node>(obj));
+      path << resolver->doResolve(ti_cast<Core::Data::Node>(obj));
     }
   }
   path << CHR(']');

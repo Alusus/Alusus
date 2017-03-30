@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/OutfixParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::OutfixParsingHandler
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,7 +25,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
   // Type Info
 
   TEMPLATE_TYPE_INFO(OutfixParsingHandler, GenericParsingHandler, "Core.Processing.Handlers", "Core", "alusus.net",
-                     PREFIXTYPE, POSTFIXTYPE);
+                     (PREFIXTYPE, POSTFIXTYPE));
 
 
   //============================================================================

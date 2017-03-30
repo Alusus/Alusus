@@ -27,7 +27,7 @@ template <class RT, class ...ARGS> RT call(Bindings *self, Char const *name, ARG
 //==============================================================================
 // Types
 
-s_enum(HoldMethod, SHARED_REF, WEAK_REF, PLAIN_REF, OWNER, VALUE);
+s_enum(HoldMode, SHARED_REF, WEAK_REF, PLAIN_REF, OWNER, VALUE);
 
 
 //==============================================================================
@@ -61,8 +61,8 @@ class Bindings : public TiInterface
   public: virtual TypeInfo* getMemberNeededType(Char const *name) const = 0;
   public: virtual TypeInfo* getMemberNeededType(Int index) const = 0;
 
-  public: virtual HoldMethod getMemberHoldMethod(Char const *name) const = 0;
-  public: virtual HoldMethod getMemberHoldMethod(Int index) const = 0;
+  public: virtual HoldMode getMemberHoldMode(Char const *name) const = 0;
+  public: virtual HoldMode getMemberHoldMode(Int index) const = 0;
 
   public: virtual SbStr const& getMemberKey(Int index) const = 0;
   public: virtual Int findMemberIndex(Char const *name) const = 0;
@@ -77,7 +77,7 @@ class Bindings : public TiInterface
     if (index == -1) {
       throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."));
     }
-    if (this->getMemberHoldMethod(index) != HoldMethod::VALUE) {
+    if (this->getMemberHoldMode(index) != HoldMode::VALUE) {
       throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by value."));
     }
     if (!val.isDerivedFrom(this->getMemberNeededType(index))) {
@@ -92,8 +92,8 @@ class Bindings : public TiInterface
     if (index == -1) {
       throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."));
     }
-    if (this->getMemberHoldMethod(index) != HoldMethod::SHARED_REF &&
-        this->getMemberHoldMethod(index) != HoldMethod::WEAK_REF)
+    if (this->getMemberHoldMode(index) != HoldMode::SHARED_REF &&
+        this->getMemberHoldMode(index) != HoldMode::WEAK_REF)
     {
       throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by shared or weak ptr."));
     }
@@ -109,7 +109,7 @@ class Bindings : public TiInterface
     if (index == -1) {
       throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."));
     }
-    if (this->getMemberHoldMethod(index) != HoldMethod::VALUE) {
+    if (this->getMemberHoldMode(index) != HoldMode::VALUE) {
       throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by value."));
     }
     if (T::getTypeInfo() != this->getMemberNeededType(index)) {
@@ -125,8 +125,8 @@ class Bindings : public TiInterface
     if (index == -1) {
       throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."));
     }
-    if (this->getMemberHoldMethod(index) != HoldMethod::SHARED_REF &&
-        this->getMemberHoldMethod(index) != HoldMethod::WEAK_REF)
+    if (this->getMemberHoldMode(index) != HoldMode::SHARED_REF &&
+        this->getMemberHoldMode(index) != HoldMode::WEAK_REF)
     {
       throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by shared or weak ptr."));
     }
@@ -140,12 +140,12 @@ class Bindings : public TiInterface
 
   public: template <class RT, class ...ARGS> RT call(Char const *name, ARGS... args)
   {
-    return Core::Basic::call<RT>(this, name, this, args...);
+    return Core::Basic::call<RT>(this, name, this->getTiObject(), args...);
   }
 
   public: template <class RT, class ...ARGS> RT call(TiObject *callee, ARGS... args)
   {
-    return Core::Basic::call<RT>(callee, this, args...);
+    return Core::Basic::call<RT>(callee, this->getTiObject(), args...);
   }
 
 }; // class

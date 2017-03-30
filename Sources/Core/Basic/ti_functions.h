@@ -1,8 +1,8 @@
 /**
- * @file Core/Basic/TiFunction.h
- * Contains the header of class Core::Basic::TiFunction.
+ * @file Core/Basic/ti_functions.h
+ * Contains definitions for TI function classes.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_TIFUNCTION_H
-#define CORE_BASIC_TIFUNCTION_H
+#ifndef CORE_BASIC_TIFUNCTIONS_H
+#define CORE_BASIC_TIFUNCTIONS_H
 
 namespace Core { namespace Basic
 {
@@ -44,7 +44,7 @@ template<class FT> class TiFunction : public TiFunctionBase
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(TiFunction, TiFunctionBase, "Core.Basic", "Core", "alusus.net", FT);
+  TEMPLATE_TYPE_INFO(TiFunction, TiFunctionBase, "Core.Basic", "Core", "alusus.net", (FT));
 
 
   //============================================================================
@@ -81,7 +81,7 @@ template<class FT> class TiFunctionOverride : public TiFunction<FT>
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(TiFunctionOverride, TiFunction<FT>, "Core.Basic", "Core", "alusus.net", FT);
+  TEMPLATE_TYPE_INFO(TiFunctionOverride, TiFunction<FT>, "Core.Basic", "Core", "alusus.net", (FT));
 
 
   //============================================================================

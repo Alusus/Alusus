@@ -1,8 +1,8 @@
 /**
- * @file Core/Basic/TypeInfo.h
- * Contains the header of class Core::Basic::TypeInfo.
+ * @file Core/Basic/type_info.h
+ * Contains definitions of type info classes.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,11 +10,14 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_TYPE_INFO_H
-#define CORE_BASIC_TYPE_INFO_H
+#ifndef CORE_BASIC_TYPEINFO_H
+#define CORE_BASIC_TYPEINFO_H
 
 namespace Core { namespace Basic
 {
+
+//==============================================================================
+// Classes
 
 /**
  * @brief Contains run-time type information.
@@ -156,6 +159,46 @@ class TypeInfo
   }
 
 }; // class
+
+
+template<class FT, class P> class ExtendedTypeInfo : public P
+{
+  //============================================================================
+  // Member Variables
+
+  private: FT *factory;
+
+
+  //============================================================================
+  // Constructor
+
+  public: ExtendedTypeInfo(Char const *typeName, Char const *typeNamespace, Char const *moduleName,
+                           Char const *url, TypeInfo *baseTypeInfo, FT *factory) :
+    P(typeName, typeNamespace, moduleName, url, baseTypeInfo), factory(factory)
+  {
+  }
+
+
+  //============================================================================
+  // Member Functions
+
+  public: FT* getFactory() const
+  {
+    return this->factory;
+  }
+
+}; // class
+
+
+//==============================================================================
+// Type Definitions
+
+class TiObjectFactory;
+class ObjTiInterfaceFactory;
+
+typedef ExtendedTypeInfo<TiObjectFactory, TypeInfo> ObjectTypeInfo;
+typedef TypeInfo InterfaceTypeInfo;
+typedef ExtendedTypeInfo<ObjTiInterfaceFactory, InterfaceTypeInfo> ObjInterfaceTypeInfo;
 
 } } // namespace
 

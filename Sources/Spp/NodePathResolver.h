@@ -16,13 +16,15 @@
 namespace Spp
 {
 
-class NodePathResolver : public TiObject, public virtual DynamicBindings
+class NodePathResolver : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(NodePathResolver, TiObject, "Spp", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(TiObject, DynamicBindings);
+  TYPE_INFO(NodePathResolver, TiObject, "Spp", "Spp", "alusus.net", (
+    INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
+    OBJECT_INTERFACE_LIST(interfaceList)
+  ));
 
 
   //============================================================================
@@ -34,7 +36,8 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings
   //============================================================================
   // Implementations
 
-  IMPLEMENT_DYNAMIC_RT_BINDING;
+  IMPLEMENT_DYNAMIC_BINDINGS(bindingMap);
+  IMPLEMENT_DYNAMIC_INTERFACES(interfaceList);
 
 
   //============================================================================
@@ -42,12 +45,15 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings
 
   NodePathResolver(Core::Data::Seeker *s) : seeker(s)
   {
-    this->initialize();
+    this->initBindingCaches();
+    this->initBindings();
   }
 
   NodePathResolver(NodePathResolver *parent)
   {
-    this->inherit(parent);
+    this->initBindingCaches();
+    this->inheritBindings(parent);
+    this->inheritInterfaces(parent);
     this->seeker = parent->getSeeker();
   }
 
@@ -58,7 +64,9 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings
   /// @name Initialization
   /// @{
 
-  private: void initialize();
+  private: void initBindingCaches();
+
+  private: void initBindings();
 
   public: Core::Data::Seeker* getSeeker() const
   {
@@ -79,7 +87,7 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings
 
   public: void doResolve(Core::Data::Node const *node, StrStream &path)
   {
-    this->call<void, Core::Data::Node const*, StrStream&>(this->resolve, node, path);
+    this->resolve(node, path);
   }
 
   private: Spp::Ast::Type* traceType(TiObject *ref);
@@ -89,15 +97,15 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings
   /// @name Path Resolving Functions
   /// @{
 
-  public: BINDING_INDEX_CACHE(resolve, this->getBindingMap());
-  public: BINDING_INDEX_CACHE(resolveDefinition, this->getBindingMap());
-  public: BINDING_INDEX_CACHE(resolveFunction, this->getBindingMap());
-  public: BINDING_INDEX_CACHE(resolveTemplateInstance, this->getBindingMap());
+  public: METHOD_BINDING_CACHE(resolve, void, (Core::Data::Node const*, StrStream&));
+  public: METHOD_BINDING_CACHE(resolveDefinition, void, (Core::Data::Ast::Definition const*, StrStream&));
+  public: METHOD_BINDING_CACHE(resolveFunction, void, (Spp::Ast::Function const*, StrStream&));
+  public: METHOD_BINDING_CACHE(resolveTemplateInstance, void, (Spp::Ast::Block const*, StrStream&));
 
-  private: static void _resolve(Bindings *_self, Core::Data::Node const *node, StrStream &path);
-  private: static void _resolveDefinition(Bindings *_self, Core::Data::Ast::Definition const *def, StrStream &path);
-  private: static void _resolveFunction(Bindings *_self, Spp::Ast::Function const *func, StrStream &path);
-  private: static void _resolveTemplateInstance(Bindings *_self, Spp::Ast::Block const *block, StrStream &path);
+  private: static void _resolve(TiObject *self, Core::Data::Node const *node, StrStream &path);
+  private: static void _resolveDefinition(TiObject *self, Core::Data::Ast::Definition const *def, StrStream &path);
+  private: static void _resolveFunction(TiObject *self, Spp::Ast::Function const *func, StrStream &path);
+  private: static void _resolveTemplateInstance(TiObject *self, Spp::Ast::Block const *block, StrStream &path);
 
   /// @}
 

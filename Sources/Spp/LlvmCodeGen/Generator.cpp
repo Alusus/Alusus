@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/Generator.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::Generator.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -19,21 +19,35 @@ namespace Spp { namespace LlvmCodeGen
 //==============================================================================
 // Main Operation Functions
 
-void Generator::initialize()
+void Generator::initBindingCaches()
+{
+  Core::Basic::initBindingCaches(this, {
+    &this->generateModule,
+    &this->generateType,
+    &this->generateBuiltInType,
+    &this->generateUserType,
+    &this->generateFunction,
+    &this->generateBlock,
+    &this->generateStatements
+  });
+}
+
+
+void Generator::initBindings()
 {
   this->nodePathResolver = std::make_shared<NodePathResolver>(this->seeker);
 
-  this->setFunction(this->generateModule, &Generator::_generateModule);
-  this->setFunction(this->generateType, &Generator::_generateType);
-  this->setFunction(this->generateBuiltInType, &Generator::_generateBuiltInType);
-  this->setFunction(this->generateUserType, &Generator::_generateUserType);
-  this->setFunction(this->generateFunction, &Generator::_generateFunction);
-  this->setFunction(this->generateBlock, &Generator::_generateBlock);
-  this->setFunction(this->generateStatements, &Generator::_generateStatements);
-  //  this->setFunction(this->generateStatement, &Generator::_generateStatement);
-  //  this->setFunction(this->generateIfStatement, &Generator::_generateIfStatement);
-  //  this->setFunction(this->generateWhileStatement, &Generator::_generateWhileStatement);
-  //  this->setFunction(this->generateExpression, &Generator::_generateExpression);
+  this->generateModule = &Generator::_generateModule;
+  this->generateType = &Generator::_generateType;
+  this->generateBuiltInType = &Generator::_generateBuiltInType;
+  this->generateUserType = &Generator::_generateUserType;
+  this->generateFunction = &Generator::_generateFunction;
+  this->generateBlock = &Generator::_generateBlock;
+  this->generateStatements = &Generator::_generateStatements;
+  //  this->generateStatement = &Generator::_generateStatement;
+  //  this->generateIfStatement = &Generator::_generateIfStatement;
+  //  this->generateWhileStatement = &Generator::_generateWhileStatement;
+  //  this->generateExpression = &Generator::_generateExpression;
 }
 
 
@@ -73,17 +87,17 @@ Str Generator::generateIr(Core::Data::Ast::Scope *root)
 //==============================================================================
 // Code Generation Functions
 
-void Generator::_generateModule(Bindings *_self, Spp::Ast::Module *astModule, llvm::Module *llvmModule)
+void Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, llvm::Module *llvmModule)
 {
-  PREPARE_SELF(Generator);
+  PREPARE_SELF(generator, Generator);
   for (Int i = 0; i < astModule->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(astModule->get(i));
     if (def != 0) {
       auto obj = def->getTarget().get();
       if (obj->isDerivedFrom<Spp::Ast::Module>()) {
-        self->call<void>(self->generateModule, static_cast<Spp::Ast::Module*>(obj), llvmModule);
+        generator->generateModule(static_cast<Spp::Ast::Module*>(obj), llvmModule);
       } else if (obj->isDerivedFrom<Spp::Ast::Function>()) {
-        self->call<void>(self->generateFunction, static_cast<Spp::Ast::Function*>(obj), llvmModule);
+        generator->generateFunction(static_cast<Spp::Ast::Function*>(obj), llvmModule);
       }
       // TODO: Generate for types and global variables.
     }
@@ -91,34 +105,34 @@ void Generator::_generateModule(Bindings *_self, Spp::Ast::Module *astModule, ll
 }
 
 
-void Generator::_generateType(Bindings *_self, Spp::Ast::Type *astType, llvm::Module *llvmModule)
+void Generator::_generateType(TiObject *self, Spp::Ast::Type *astType, llvm::Module *llvmModule)
 {
-  PREPARE_SELF(Generator);
+  PREPARE_SELF(generator, Generator);
 
   auto cgType = astType->getExtra(Generator::META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Type>();
   if (cgType != 0) return;
 
   Str typeName;
-  if (self->isRootTemplateInstance(astType, typeName)) {
+  if (generator->isRootTemplateInstance(astType, typeName)) {
     if (typeName == STR("Int") || typeName == STR("Float") || typeName == STR("ptr")) {
-      self->call<void>(self->generateBuiltInType, typeName.c_str(), astType, llvmModule);
+      generator->generateBuiltInType(typeName.c_str(), astType, llvmModule);
       return;
     }
   }
-  self->call<void>(self->generateUserType, astType, llvmModule);
+  generator->generateUserType(astType, llvmModule);
 }
 
 
-void Generator::_generateBuiltInType(Bindings *_self, Char const *typeName, Spp::Ast::Type *astType,
+void Generator::_generateBuiltInType(TiObject *self, Char const *typeName, Spp::Ast::Type *astType,
                                      llvm::Module *llvmModule)
 {
-  PREPARE_SELF(Generator);
+  PREPARE_SELF(generator, Generator);
   Core::Data::Ast::Identifier identifier;
   if (SBSTR(typeName) == STR("Int")) {
     // Generate Int.
     identifier.setValue("bitCount");
     auto bitCountBox = ti_cast<Core::Basic::TioSharedBox>(
-      self->getSeeker()->doGet(&identifier, astType->getOwner())
+      generator->getSeeker()->doGet(&identifier, astType->getOwner())
     );
     if (bitCountBox == 0) {
       throw EXCEPTION(GenericException, STR("Could not find bitCount of built-in Int type."));
@@ -133,7 +147,7 @@ void Generator::_generateBuiltInType(Bindings *_self, Char const *typeName, Spp:
     // Generate Float.
     identifier.setValue("bitCount");
     auto bitCountBox = ti_cast<Core::Basic::TioSharedBox>(
-      self->getSeeker()->doGet(&identifier, astType->getOwner())
+      generator->getSeeker()->doGet(&identifier, astType->getOwner())
     );
     if (bitCountBox == 0) {
       throw EXCEPTION(GenericException, STR("Could not find bitCount of built-in Int type."));
@@ -148,13 +162,13 @@ void Generator::_generateBuiltInType(Bindings *_self, Char const *typeName, Spp:
     // Generate ptr.
     identifier.setValue("type");
     auto contentAstTypeBox = ti_cast<Core::Basic::TioSharedBox>(
-      self->getSeeker()->doGet(&identifier, astType->getOwner())
+      generator->getSeeker()->doGet(&identifier, astType->getOwner())
     );
     auto contentAstType = contentAstTypeBox->get().ti_cast_get<Spp::Ast::Type>();
     if (contentAstType == 0) {
       throw EXCEPTION(GenericException, STR("Could not find pointer content type."));
     }
-    self->call<void>(self->generateType, contentAstType, llvmModule);
+    generator->generateType(contentAstType, llvmModule);
     auto contentCgType = contentAstType->getExtra(Generator::META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Type>();
     auto cgType = std::make_shared<LlvmCodeGen::PointerType>(contentCgType);
     astType->setExtra(Generator::META_EXTRA_NAME, cgType);
@@ -164,15 +178,15 @@ void Generator::_generateBuiltInType(Bindings *_self, Char const *typeName, Spp:
 }
 
 
-void Generator::_generateUserType(Bindings *_self, Spp::Ast::Type *astType, llvm::Module *llvmModule)
+void Generator::_generateUserType(TiObject *self, Spp::Ast::Type *astType, llvm::Module *llvmModule)
 {
   // TODO:
 }
 
 
-void Generator::_generateFunction(Bindings *_self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule)
+void Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule)
 {
-  PREPARE_SELF(Generator);
+  PREPARE_SELF(generator, Generator);
 
   auto genType = astFunc->getExtra(Generator::META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Function>();
   if (genType != 0) return;
@@ -183,20 +197,20 @@ void Generator::_generateFunction(Bindings *_self, Spp::Ast::Function *astFunc, 
   auto argCount = astArgs == 0 ? 0 : astArgs->getCount();
   std::vector<llvm::Type*> llvmArgTypes(argCount);
   for (Int i = 0; i < argCount; ++i) {
-    llvmArgTypes[i] = self->getGeneratedLlvmType(astArgs->get(i), llvmModule);
+    llvmArgTypes[i] = generator->getGeneratedLlvmType(astArgs->get(i), llvmModule);
   }
 
   // Get the return LLVM type.
   llvm::Type *llvmRetType = 0;
   if (astFunc->getRetType() != 0) {
-    llvmRetType = self->getGeneratedLlvmType(astFunc->getRetType().get(), llvmModule);
+    llvmRetType = generator->getGeneratedLlvmType(astFunc->getRetType().get(), llvmModule);
   } else {
     llvmRetType = llvm::Type::getVoidTy(llvm::getGlobalContext());
   }
 
   // Generate the function object.
   auto llvmFuncType = llvm::FunctionType::get(llvmRetType, llvmArgTypes, false);
-  Str name = self->getFunctionName(astFunc);
+  Str name = generator->getFunctionName(astFunc);
   auto cgFunc = std::make_shared<LlvmCodeGen::UserFunction>();
   cgFunc->setLlvmFunction(llvm::Function::Create(llvmFuncType, llvm::Function::ExternalLinkage, name, llvmModule));
   astFunc->setExtra(Generator::META_EXTRA_NAME, cgFunc);
@@ -207,7 +221,7 @@ void Generator::_generateFunction(Bindings *_self, Spp::Ast::Function *astFunc, 
     auto cgBlock = std::make_shared<LlvmCodeGen::Block>();
     cgBlock->setLlvmBlock(llvm::BasicBlock::Create(
       llvm::getGlobalContext(),
-      self->getNewBlockName(),
+      generator->getNewBlockName(),
       cgFunc->getLlvmFunction()
     ));
     cgBlock->setIrBuilder(new llvm::IRBuilder<>(cgBlock->getLlvmBlock()));
@@ -223,18 +237,18 @@ void Generator::_generateFunction(Bindings *_self, Spp::Ast::Function *astFunc, 
     }
 
     // Generate the function's statements.
-    self->call<void>(self->generateStatements, astBlock, cgFunc->getLlvmFunction());
+    generator->generateStatements(astBlock, cgFunc->getLlvmFunction());
   }
 }
 
 // TODO:
 
-void Generator::_generateBlock(Bindings *_self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc)
+void Generator::_generateBlock(TiObject *self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc)
 {
 }
 
 
-void Generator::_generateStatements(Bindings *_self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc)
+void Generator::_generateStatements(TiObject *self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc)
 {
 }
 

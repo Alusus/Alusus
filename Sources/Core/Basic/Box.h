@@ -2,7 +2,7 @@
  * @file Core/Basic/Box.h
  * Contains the header of class Core::Basic::Box.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -21,7 +21,7 @@ template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(Box, PTYPE, "Core.Basic", "Core", "alusus.net", CTYPE, PTYPE);
+  TEMPLATE_TYPE_INFO(Box, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE));
 
 
   //============================================================================

@@ -2,7 +2,7 @@
  * @file Core/Basic/TiInterface.cpp
  * Contains the implementation of class Core::Basic::TiInterface.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -23,18 +23,18 @@ namespace Core { namespace Basic
  * interface. This function (along with getMyInterfaceInfo) is automatically
  * defined by the TYPE_INFO macro.
  */
-TypeInfo * TiInterface::getTypeInfo()
+InterfaceTypeInfo * TiInterface::getTypeInfo()
 {
-  static Core::Basic::TypeInfo *typeInfo = 0;
+  static Core::Basic::InterfaceTypeInfo *typeInfo = 0;
   if (typeInfo == 0) {
     Char const *myType = STR("TiInterface");
     Char const *typeNamespace = STR("Core.Basic");
     Char const *moduleName = STR("Core");
     Char const *url = STR("alusus.net");
     Char const *uniqueName = STR("alusus.net#Core#Core.Basic.TiInterface");
-    typeInfo = reinterpret_cast<Core::Basic::TypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName));
+    typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (typeInfo == 0) {
-      typeInfo = new Core::Basic::TypeInfo(myType, typeNamespace, moduleName, url, 0);
+      typeInfo = new Core::Basic::InterfaceTypeInfo(myType, typeNamespace, moduleName, url, 0);
       GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo));
     }
   }

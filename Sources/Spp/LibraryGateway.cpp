@@ -1,7 +1,7 @@
 /**
  * @file Spp/LibraryGateway.cpp
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -26,7 +26,7 @@ using namespace Core::Processing::Handlers;
 void LibraryGateway::initialize(Standard::RootManager *manager)
 {
   // Extend Seeker.
-  this->seekerExtension = SeekerExtension::extend(manager->getSeeker());
+  this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker());
 
   // Create the generator.
   this->llvmGenerator = new LlvmCodeGen::Generator(manager->getSeeker());
@@ -270,8 +270,8 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 void LibraryGateway::uninitialize(Standard::RootManager *manager)
 {
   // Unextend Seeker.
-  SeekerExtension::unextend(manager->getSeeker(), this->seekerExtension);
-  this->seekerExtension = 0;
+  SeekerExtension::unextend(manager->getSeeker(), this->seekerExtensionOverrides);
+  this->seekerExtensionOverrides = 0;
 
   delete this->llvmGenerator;
   this->llvmGenerator = 0;

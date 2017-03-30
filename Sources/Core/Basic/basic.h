@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Basic
  * namespace.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -145,6 +145,53 @@ namespace Core { namespace Basic
 #define SELECT_MACRO(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, macro, ...) macro
 
 /**
+ * @def SPACE_EXPAND_ARGS(...)
+ * @brief Expands a variadic macro into sequential elements separated by spaces.
+ * @ingroup basic_macros
+ */
+#define SPACE_EXPAND_ARGS1(arg1)                               arg1
+#define SPACE_EXPAND_ARGS2(arg1, arg2)                         arg1 arg2
+#define SPACE_EXPAND_ARGS3(arg1, arg2, arg3)                   arg1 arg2 arg3
+#define SPACE_EXPAND_ARGS4(arg1, arg2, arg3, arg4)             arg1 arg2 arg3 arg4
+#define SPACE_EXPAND_ARGS5(arg1, arg2, arg3, arg4, arg5)       arg1 arg2 arg3 arg4 arg5
+#define SPACE_EXPAND_ARGS6(arg1, arg2, arg3, arg4, arg5, arg6) arg1 arg2 arg3 arg4 arg5 arg6
+#define SPACE_EXPAND_ARGS(...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               SPACE_EXPAND_ARGS6, \
+               SPACE_EXPAND_ARGS5, \
+               SPACE_EXPAND_ARGS4, \
+               SPACE_EXPAND_ARGS3, \
+               SPACE_EXPAND_ARGS2, \
+               SPACE_EXPAND_ARGS1)(__VA_ARGS__)
+
+/**
+ * @def SEMICOLON_EXPAND_ARGS(...)
+ * @brief Expands a variadic macro into sequential elements separated by spaces.
+ * @ingroup basic_macros
+ */
+#define SEMICOLON_EXPAND_ARGS1(arg1)                               arg1
+#define SEMICOLON_EXPAND_ARGS2(arg1, arg2)                         arg1; arg2
+#define SEMICOLON_EXPAND_ARGS3(arg1, arg2, arg3)                   arg1; arg2; arg3
+#define SEMICOLON_EXPAND_ARGS4(arg1, arg2, arg3, arg4)             arg1; arg2; arg3; arg4
+#define SEMICOLON_EXPAND_ARGS5(arg1, arg2, arg3, arg4, arg5)       arg1; arg2; arg3; arg4; arg5
+#define SEMICOLON_EXPAND_ARGS6(arg1, arg2, arg3, arg4, arg5, arg6) arg1; arg2; arg3; arg4; arg5; arg6
+#define SEMICOLON_EXPAND_ARGS(...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               SEMICOLON_EXPAND_ARGS6, \
+               SEMICOLON_EXPAND_ARGS5, \
+               SEMICOLON_EXPAND_ARGS4, \
+               SEMICOLON_EXPAND_ARGS3, \
+               SEMICOLON_EXPAND_ARGS2, \
+               SEMICOLON_EXPAND_ARGS1)(__VA_ARGS__)
+
+/**
+ * @def COMMA_EXPAND_ARGS(...)
+ * @brief Expands a variadic macro into sequential elements separated by commas.
+ * @ingroup basic_macros
+ */
+#define COMMA_EXPAND_ARGS(...) __VA_ARGS__
+
+/**
  * @brief Selects the variable name from a var tuple.
  * The tuple consists of: type, name, setter, getter, hold method.
  * @ingroup basic_macros
@@ -170,21 +217,21 @@ namespace Core { namespace Basic
  * The tuple consists of: type, name, setter, getter, hold method.
  * @ingroup basic_macros
  */
-#define VARHOLDMETHOD_FROM_TUPLE(name, type, holdMethod, ...) holdMethod
+#define VARHOLDMODE_FROM_TUPLE(name, type, holdMode, ...) holdMode
 
 /**
  * @brief Selects the variable's setter from a var tuple.
  * The tuple consists of: type, name, setter, getter, hold method.
  * @ingroup basic_macros
  */
-#define VARSETTER_FROM_TUPLE(name, type, holdMethod, setter, ...) setter
+#define VARSETTER_FROM_TUPLE(name, type, holdMode, setter, ...) setter
 
 /**
  * @brief Selects the variable's getter from a var tuple.
  * The tuple consists of: type, name, setter, getter, hold method.
  * @ingroup basic_macros
  */
-#define VARGETTER_FROM_TUPLE(name, type, holdMethod, setter, getter) getter
+#define VARGETTER_FROM_TUPLE(name, type, holdMode, setter, getter) getter
 
 /**
  * @brief Defines an enumeration.
@@ -603,13 +650,17 @@ extern std::ostream &outStream;
 #include "GlobalStorage.h"
 
 #include "type_names.h"
-#include "TypeInfo.h"
+#include "type_info.h"
+#include "ti_declarers.h"
 #include "TiObject.h"
 #include "TiInterface.h"
+#include "ObjTiInterface.h"
 #include "ti_casting.h"
 
 #include "SharedPtr.h"
 #include "WeakPtr.h"
+
+#include "ti_object_factories.h"
 
 #include "Finally.h"
 #include "signals.h"
@@ -628,7 +679,10 @@ extern std::ostream &outStream;
 #include "Bindings.h"
 #include "BindingMap.h"
 #include "bindings_helpers.h"
-#include "BindingIndexCache.h"
 #include "DynamicBindings.h"
+#include "binding_caches.h"
+
+#include "ObjTiInterfaceList.h"
+#include "DynamicInterfaces.h"
 
 #endif

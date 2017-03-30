@@ -2,7 +2,7 @@
  * @file Core/Basic/TiNumber.h
  * Contains the header of class Core::Basic::TiNumber.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,7 +25,7 @@ template<class T, class P> class TiNumber : public P
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(TiNumber, P, "Core.Basic", "Core", "alusus.net", T, P);
+  TEMPLATE_TYPE_INFO(TiNumber, P, "Core.Basic", "Core", "alusus.net", (T, P));
 
 
   //============================================================================

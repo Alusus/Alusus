@@ -23,7 +23,7 @@ class BindingMap : public BindingMapBase
   //============================================================================
   // Type Info
 
-  TYPE_INFO(BindingMap, BindingMapBase, "Core.Data.Ast", "Core", "alusus.net");
+  TYPE_INFO(BindingMap, BindingMapBase, "Core.Basic", "Core", "alusus.net");
 
 
   //============================================================================
