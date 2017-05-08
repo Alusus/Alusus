@@ -37,17 +37,16 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   //============================================================================
   // Member Variables
 
-  public: static constexpr Char const* META_EXTRA_NAME = STR("llvmCodeGen");
-
   private: Core::Data::Seeker *seeker;
-
-  private: SharedPtr<NodePathResolver> nodePathResolver;
+  private: NodePathResolver *nodePathResolver;
+  private: TypeGenerator *typeGenerator;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: Generator(Core::Data::Seeker *s) : seeker(s)
+  public: Generator(Core::Data::Seeker *s, NodePathResolver *r, TypeGenerator *tg)
+    : seeker(s), nodePathResolver(r), typeGenerator(tg)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -60,6 +59,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     this->inheritInterfaces(parent);
     this->seeker = parent->getSeeker();
     this->nodePathResolver = parent->getNodePathResolver();
+    this->typeGenerator = parent->getTypeGenerator();
   }
 
   public: virtual ~Generator()
@@ -70,24 +70,35 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   //============================================================================
   // Member Functions
 
-  /// @name Main Operation Functions
+  /// @name Initialization Functions
   /// @{
 
   private: void initBindingCaches();
   private: void initBindings();
-
-  public: Str generateIr(Core::Data::Ast::Scope *root);
-  public: void execute(Core::Data::Ast::Scope *root, Char const *functionName);
 
   public: Core::Data::Seeker* getSeeker() const
   {
     return this->seeker;
   }
 
-  public: SharedPtr<NodePathResolver> const& getNodePathResolver() const
+  public: NodePathResolver* getNodePathResolver() const
   {
     return this->nodePathResolver;
   }
+
+  public: TypeGenerator* getTypeGenerator() const
+  {
+    return this->typeGenerator;
+  }
+
+
+  /// @}
+
+  /// @name Main Operation Functions
+  /// @{
+
+  public: Str generateIr(Core::Data::Ast::Scope *root);
+  public: void execute(Core::Data::Ast::Scope *root, Char const *functionName);
 
   /// @}
 
@@ -95,26 +106,43 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   /// @{
 
   public: METHOD_BINDING_CACHE(generateModule, void, (Spp::Ast::Module*, llvm::Module*));
-  public: METHOD_BINDING_CACHE(generateType, void, (Spp::Ast::Type*, llvm::Module*));
-  public: METHOD_BINDING_CACHE(generateBuiltInType, void, (Char const*, Spp::Ast::Type*, llvm::Module*));
-  public: METHOD_BINDING_CACHE(generateUserType, void, (Spp::Ast::Type*, llvm::Module*));
   public: METHOD_BINDING_CACHE(generateFunction, void, (Spp::Ast::Function*, llvm::Module*));
   public: METHOD_BINDING_CACHE(generateBlock, void, (Spp::Ast::Block*, llvm::Function*));
-  public: METHOD_BINDING_CACHE(generateStatements, void, (Spp::Ast::Block*, llvm::Function*));
-  // public: METHOD_BINDING_CACHE(generateStatement, this->getBindingMap());
+  public: METHOD_BINDING_CACHE(generateStatement,
+    void, (TiObject*, llvm::Function*, Spp::Ast::Type*&, TiObject*&, TiObject*&)
+  );
+  public: METHOD_BINDING_CACHE(generateParamPass,
+    void, (Core::Data::Ast::ParamPass*, llvm::Function*, Spp::Ast::Type*&, TiObject*&, TiObject*&)
+  );
+  public: METHOD_BINDING_CACHE(generateIdentifier,
+    void, (Core::Data::Ast::Identifier*, llvm::Function*, Spp::Ast::Type*&, TiObject*&, TiObject*&)
+  );
+  public: METHOD_BINDING_CACHE(generateStringLiteral,
+    void, (Core::Data::Ast::StringLiteral*, llvm::Function*, Spp::Ast::Type*&, TiObject*&, TiObject*&)
+  );
   // public: METHOD_BINDING_CACHE(generateIfStatement, this->getBindingMap());
   // public: METHOD_BINDING_CACHE(generateWhileStatement, this->getBindingMap());
   // public: METHOD_BINDING_CACHE(generateExpression, this->getBindingMap());
 
   private: static void _generateModule(TiObject *self, Spp::Ast::Module *astModule, llvm::Module *llvmModule);
-  private: static void _generateType(TiObject *self, Spp::Ast::Type *astType, llvm::Module *llvmModule);
-  private: static void _generateBuiltInType(TiObject *self, Char const *typeName, Spp::Ast::Type *astType,
-                                            llvm::Module *llvmModule);
-  private: static void _generateUserType(TiObject *self, Spp::Ast::Type *astType, llvm::Module *llvmModule);
   private: static void _generateFunction(TiObject *self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule);
   private: static void _generateBlock(TiObject *self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc);
-  private: static void _generateStatements(TiObject *self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc);
-  //private: static void _generateStatement(Bindings *_self, );
+  private: static void _generateStatement(
+    TiObject *self, TiObject *astNode, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, TiObject *&resultCg, TiObject *&lastProcessedRef
+  );
+  private: static void _generateParamPass(
+    TiObject *self, Core::Data::Ast::ParamPass *astNode, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, TiObject *&resultCg, TiObject *&lastProcessedRef
+  );
+  private: static void _generateIdentifier(
+    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, TiObject *&resultCg, TiObject *&lastProcessedRef
+  );
+  private: static void _generateStringLiteral(
+    TiObject *self, Core::Data::Ast::StringLiteral *astNode, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, TiObject *&resultCg, TiObject *&lastProcessedRef
+  );
   //private: static void _generateIfStatement(Bindings *_self, );
   //private: static void _generateWhileStatement(Bindings *_self, );
   //private: static void _generateExpression(Bindings *_self, );
@@ -128,7 +156,6 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   public: llvm::Type* getGeneratedLlvmType(TiObject *ref, llvm::Module *llvmModule);
   public: Str const& getFunctionName(Spp::Ast::Function *astFunc);
   public: Str getNewBlockName();
-  public: Bool isRootTemplateInstance(Ast::Type *obj, Str &name);
 
   /// @}
 

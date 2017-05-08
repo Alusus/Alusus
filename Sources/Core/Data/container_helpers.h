@@ -220,45 +220,45 @@
                _IMPLEMENT_MAP_CONTAINER_FINDINDEX1)(__VA_ARGS__)
 
 // MapContainer Implementation Macro
-#define IMPLEMENT_MAP_CONTAINER(...) \
+#define IMPLEMENT_MAP_CONTAINER(parent, ...) \
   public: virtual void set(Int index, TiObject *val) \
   { \
     _IMPLEMENT_MAP_CONTAINER_INDEXSET(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index); \
+    parent::set(index, val); \
   } \
   public: virtual Int set(Char const *key, TiObject *val) \
   { \
     _IMPLEMENT_MAP_CONTAINER_KEYSET(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key); \
+    return parent::set(key, val); \
   } \
   public: virtual void remove(Int index) \
   { \
     _IMPLEMENT_MAP_CONTAINER_INDEXREMOVE(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index); \
+    parent::remove(index); \
   } \
   public: virtual void remove(Char const *key) \
   { \
     _IMPLEMENT_MAP_CONTAINER_KEYREMOVE(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key); \
+    parent::remove(key); \
   } \
   public: virtual Word getCount() const \
   { \
-    return SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, 5, 4, 3, 2, 1); \
+    return SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, 5, 4, 3, 2, 1) + parent::getCount(); \
   } \
   public: virtual TiObject* get(Int index) const \
   { \
     _IMPLEMENT_MAP_CONTAINER_INDEXGET(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index); \
+    return parent::get(index); \
   } \
   public: virtual TiObject* get(Char const *key) const \
   { \
     _IMPLEMENT_MAP_CONTAINER_KEYGET(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key); \
+    return parent::get(key); \
   } \
-  public: virtual const SbStr& getKey(Int index) const \
+  public: virtual SbStr const& getKey(Int index) const \
   { \
     _IMPLEMENT_MAP_CONTAINER_GETKEY(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index); \
+    return parent::getKey(index); \
   } \
   public: virtual Int findIndex(Char const *key) const \
   { \
@@ -266,7 +266,7 @@
       throw EXCEPTION(InvalidArgumentException, STR("key"), STR("key is null")); \
     } \
     _IMPLEMENT_MAP_CONTAINER_FINDINDEX(__VA_ARGS__); \
-    return -1; \
+    return parent::findIndex(key); \
   }
 
 #endif

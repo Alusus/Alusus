@@ -2,7 +2,7 @@
  * @file Spp/Ast/Function.h
  * Contains the header of class Spp::Ast::Function.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -33,6 +33,12 @@ class Function : public Core::Data::Node,
 
 
   //============================================================================
+  // Types
+
+  public: s_enum(CallMatchStatus, EXACT, CASTED, NONE);
+
+
+  //============================================================================
   // Member Variables
 
   private: Core::Data::String name;
@@ -47,11 +53,13 @@ class Function : public Core::Data::Node,
 
   IMPLEMENT_METADATA(Function);
 
-  IMPLEMENT_BINDINGS((name, Core::Data::String, VALUE, setName(value), &name),
-                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                      (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+  IMPLEMENT_BINDINGS(Bindings,
+                     (name, Core::Data::String, VALUE, setName(value), &name),
+                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                     (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
-  IMPLEMENT_MAP_CONTAINER((Core::Data::SharedMap, argTypes),
+  IMPLEMENT_MAP_CONTAINER(MapContainer,
+                          (Core::Data::SharedMap, argTypes),
                           (TiObject, retType),
                           (Block, body));
 
@@ -132,6 +140,12 @@ class Function : public Core::Data::Node,
   {
     return this->body;
   }
+
+  public: CallMatchStatus matchCall(
+    Core::Data::Container *types, ExecutionContext const *context, Core::Data::Seeker *seeker
+  );
+
+  private: Type* traceType(TiObject *ref, Core::Data::Seeker *seeker);
 
 
   //============================================================================

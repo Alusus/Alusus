@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/InfixOperator.h
  * Contains the header of class Core::Data::Ast::InfixOperator.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -42,11 +42,12 @@ class InfixOperator : public Node,
 
   IMPLEMENT_METADATA(InfixOperator);
 
-  IMPLEMENT_BINDINGS((type, TiStr, VALUE, setType(value), &type),
-                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+  IMPLEMENT_BINDINGS(Bindings,
+                     (type, TiStr, VALUE, setType(value), &type),
+                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                     (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
-  IMPLEMENT_MAP_CONTAINER((TiObject, first), (TiObject, second));
+  IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, first), (TiObject, second));
 
   IMPLEMENT_AST_MAP_PRINTABLE(InfixOperator, << this->type.get());
 

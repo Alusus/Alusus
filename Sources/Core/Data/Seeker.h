@@ -39,6 +39,27 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
 
 
   //============================================================================
+  // Types
+
+  private: struct PrecomputedRecord
+  {
+    TiObject const *ref;
+    TiObject *target;
+    TiObject *result;
+    PrecomputedRecord(TiObject const *ref, TiObject *target, TiObject *result)
+      : ref(ref), target(target), result(result)
+    {
+    }
+  };
+
+
+  //============================================================================
+  // Member Variables
+
+  private: std::vector<PrecomputedRecord> precomputedRecords;
+
+
+  //============================================================================
   // Implementations
 
   IMPLEMENT_DYNAMIC_BINDINGS(bindingMap);
@@ -89,7 +110,21 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
 
   public: void doForeach(TiObject const *ref, TiObject *target, SeekForeachCallback callback)
   {
+    for (PrecomputedRecord &record : this->precomputedRecords) {
+      if (record.ref == ref && record.target == target) {
+        callback(record.result);
+        return;
+      }
+    }
     this->foreach(ref, target, callback);
+  }
+
+  public: void doContinueForeach(TiObject const *continueRef, TiObject *continueResult,
+                                 TiObject const *ref, TiObject *target, SeekForeachCallback callback)
+  {
+    this->precomputedRecords.push_back(PrecomputedRecord(continueRef, target, continueResult));
+    this->doForeach(ref, target, callback);
+    this->precomputedRecords.pop_back();
   }
 
   public: Bool trySet(TiObject const *ref, TiObject *target, TiObject *val);

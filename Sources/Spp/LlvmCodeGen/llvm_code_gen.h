@@ -23,6 +23,8 @@ namespace Spp { namespace LlvmCodeGen
  * @brief Classes related to the SPP's llvm-based code generation.
  */
 
+constexpr Char const* META_EXTRA_NAME = STR("llvmCodeGen");
+
 } } // namespace
 
 
@@ -31,18 +33,13 @@ namespace Spp { namespace LlvmCodeGen
 
 #include "llvm_dependencies.h"
 
-// Types
-#include "Type.h"
-#include "IntegerType.h"
-#include "FloatType.h"
-#include "PointerType.h"
-
 // Functions
 #include "Block.h"
 #include "Function.h"
 #include "UserFunction.h"
 
 // The Generator
+#include "TypeGenerator.h"
 #include "Generator.h"
 
 #endif

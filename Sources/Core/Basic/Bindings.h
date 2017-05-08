@@ -44,34 +44,72 @@ class Bindings : public TiInterface
   //============================================================================
   // Abstract Functions
 
-  public: virtual Int setMember(Char const *name, TiObject *val) = 0;
-  public: virtual void setMember(Int index, TiObject *val) = 0;
+  public: virtual Int setMember(Char const *name, TiObject *val)
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found"), name);
+  }
+  public: virtual void setMember(Int index, TiObject *val)
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
 
-  public: virtual void removeMember(Char const *name) = 0;
-  public: virtual void removeMember(Int index) = 0;
+  public: virtual void removeMember(Char const *name)
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found"), name);
+  }
+  public: virtual void removeMember(Int index)
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
 
-  public: virtual Word getMemberCount() const = 0;
+  public: virtual Word getMemberCount() const
+  {
+    return 0;
+  }
 
-  public: virtual TiObject* getMember(Char const *name) = 0;
-  public: virtual TiObject* getMember(Int index) = 0;
+  public: virtual TiObject* getMember(Char const *name) const
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found"), name);
+  }
+  public: virtual TiObject* getMember(Int index) const
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
 
-  public: virtual TiObject const* getMember(Char const *name) const = 0;
-  public: virtual TiObject const* getMember(Int index) const = 0;
+  public: virtual TypeInfo* getMemberNeededType(Char const *name) const
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found"), name);
+  }
+  public: virtual TypeInfo* getMemberNeededType(Int index) const
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
 
-  public: virtual TypeInfo* getMemberNeededType(Char const *name) const = 0;
-  public: virtual TypeInfo* getMemberNeededType(Int index) const = 0;
+  public: virtual HoldMode getMemberHoldMode(Char const *name) const
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found"), name);
+  }
+  public: virtual HoldMode getMemberHoldMode(Int index) const
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
 
-  public: virtual HoldMode getMemberHoldMode(Char const *name) const = 0;
-  public: virtual HoldMode getMemberHoldMode(Int index) const = 0;
-
-  public: virtual SbStr const& getMemberKey(Int index) const = 0;
-  public: virtual Int findMemberIndex(Char const *name) const = 0;
+  public: virtual SbStr const& getMemberKey(Int index) const
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
+  public: virtual Int findMemberIndex(Char const *name) const
+  {
+    return -1;
+  }
 
 
   //============================================================================
   // Helper Functions
 
-  public: template <class T> void setMember(Char const *name, T const &val)
+  public: template <class T,
+                    typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
+    void setMember(Char const *name, T const &val)
   {
     Int index = this->findMemberIndex(name);
     if (index == -1) {
@@ -103,7 +141,7 @@ class Bindings : public TiInterface
     this->setMember(index, val.get());
   }
 
-  public: template <class T> T const& refMember(Char const *name)
+  public: template <class T> T& refMember(Char const *name)
   {
     Int index = this->findMemberIndex(name);
     if (index == -1) {
@@ -119,7 +157,12 @@ class Bindings : public TiInterface
     return *static_cast<T*>(this->getMember(index));
   }
 
-  public: template <class T> SharedPtr<T> getSharedMember(Char const *name)
+  public: template <class T> T const& refMember(Char const *name) const
+  {
+    return const_cast<Bindings*>(this)->refMember<T>(name);
+  }
+
+  public: template <class T> SharedPtr<T> getSharedMember(Char const *name) const
   {
     Int index = this->findMemberIndex(name);
     if (index == -1) {
@@ -133,7 +176,7 @@ class Bindings : public TiInterface
     return getSharedPtr<T>(this->getMember(index));
   }
 
-  public: template <class T> T* getMember(Char const *name)
+  public: template <class T> T* getMember(Char const *name) const
   {
     return ti_cast<T>(this->getMember(name));
   }

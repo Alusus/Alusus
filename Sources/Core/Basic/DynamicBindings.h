@@ -55,22 +55,12 @@ class DynamicBindings : public Bindings
     return this->getBindingMap()->getCount();
   }
 
-  public: virtual TiObject* getMember(Char const *name)
+  public: virtual TiObject* getMember(Char const *name) const
   {
     return this->getBindingMap()->get(name).get();
   }
 
-  public: virtual TiObject* getMember(Int index)
-  {
-    return this->getBindingMap()->get(index).get();
-  }
-
-  public: virtual TiObject const* getMember(Char const *name) const
-  {
-    return this->getBindingMap()->get(name).get();
-  }
-
-  public: virtual TiObject const* getMember(Int index) const
+  public: virtual TiObject* getMember(Int index) const
   {
     return this->getBindingMap()->get(index).get();
   }

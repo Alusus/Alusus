@@ -29,25 +29,51 @@ class MapContainer : public Container
   //============================================================================
   // Abstract Functions
 
-  public: using Container::set;
+  public: virtual void set(Int index, TiObject *val)
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
+  public: virtual Int set(Char const *key, TiObject *val)
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key);
+  }
 
-  public: virtual Int set(Char const *key, TiObject *val) = 0;
+  public: virtual void remove(Int index)
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
+  public: virtual void remove(Char const *key)
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key);
+  }
 
-  public: using Container::remove;
+  public: virtual Word getCount() const
+  {
+    return 0;
+  }
 
-  public: virtual void remove(Char const *key) = 0;
+  public: virtual TiObject* get(Int index) const
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
+  public: virtual TiObject* get(Char const *key) const
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key);
+  }
 
-  public: using Container::get;
-
-  public: virtual TiObject* get(Char const *key) const = 0;
-
-  public: virtual SbStr const& getKey(Int index) const = 0;
+  public: virtual SbStr const& getKey(Int index) const
+  {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+  }
 
   /**
    * @brief Find the index of a specified key.
    * @return The index of the key, or -1 if the key doesn't exist.
    */
-  public: virtual Int findIndex(Char const *key) const = 0;
+  public: virtual Int findIndex(Char const *key) const
+  {
+    return -1;
+  }
 
 }; // class
 

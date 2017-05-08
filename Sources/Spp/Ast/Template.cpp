@@ -38,6 +38,7 @@ TioSharedPtr const& Template::getDefaultInstance(Core::Data::Seeker *seeker)
   return this->instances.back()->getShared(0);
 }
 
+
 TioSharedPtr const& Template::getInstance(TiObject *templateInput, Core::Data::Seeker *seeker)
 {
   if (this->templateBody == 0) {

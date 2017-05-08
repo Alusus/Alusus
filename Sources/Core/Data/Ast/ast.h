@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Data::Ast
  * namespace.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,17 +24,21 @@ namespace Core { namespace Data { namespace Ast
   public: virtual SharedPtr<TiObject> clone() const \
   { \
     SharedPtr<type> newObj = std::make_shared<type>(); \
-    newObj->setProdId(this->getProdId()); \
-    newObj->setSourceLocation(this->getSourceLocation()); \
+    for (Word i = 0; i < this->getMemberCount(); ++i) { \
+      newObj->setMember(this->getMemberKey(i).c_str(), this->getMember(i)); \
+    } \
     for (Int i = 0; i < this->getCount(); ++i) { \
       copyStmt; \
     } \
     return newObj; \
   }
 
-#define IMPLEMENT_AST_CLONABLE(type) _IMPLEMENT_AST_CLONABLE(type, newObj->set(i, this->get(i)))
-#define IMPLEMENT_AST_LIST_CLONABLE(type) _IMPLEMENT_AST_CLONABLE(type, newObj->add(this->get(i)))
-#define IMPLEMENT_AST_MAP_CLONABLE(type) _IMPLEMENT_AST_CLONABLE(type, newObj->set(this->getKey(i).c_str(), this->get(i)))
+#define IMPLEMENT_AST_CLONABLE(type) \
+  _IMPLEMENT_AST_CLONABLE(type, newObj->set(i, this->get(i)))
+#define IMPLEMENT_AST_LIST_CLONABLE(type) \
+  _IMPLEMENT_AST_CLONABLE(type, newObj->add(this->get(i)))
+#define IMPLEMENT_AST_MAP_CLONABLE(type) \
+  _IMPLEMENT_AST_CLONABLE(type, newObj->set(this->getKey(i).c_str(), this->get(i)))
 
 #define IMPLEMENT_AST_MAP_PRINTABLE(type, ...) \
   public: virtual void print(OutStream &stream, Int indents=0) const \

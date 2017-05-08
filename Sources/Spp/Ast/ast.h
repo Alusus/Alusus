@@ -33,6 +33,10 @@ namespace Spp { namespace Ast
 #include "Block.h"
 #include "Module.h"
 #include "Type.h"
+#include "IntegerType.h"
+#include "FloatType.h"
+#include "PointerType.h"
+#include "UserType.h"
 #include "Template.h"
 #include "Function.h"
 

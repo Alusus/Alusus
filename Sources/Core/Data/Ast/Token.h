@@ -59,7 +59,8 @@ class Token : public Node,
 
   IMPLEMENT_METADATA(Token);
 
-  IMPLEMENT_BINDINGS((id, TiWord, VALUE, setId(value), &id),
+  IMPLEMENT_BINDINGS(Bindings,
+                     (id, TiWord, VALUE, setId(value), &id),
                      (text, TiStr, VALUE, setText(value), &text),
                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));

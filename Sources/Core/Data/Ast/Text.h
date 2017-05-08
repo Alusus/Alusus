@@ -45,7 +45,8 @@ class Text : public Node,
 
   IMPLEMENT_METADATA(Text);
 
-  IMPLEMENT_BINDINGS((value, TiStr, VALUE, setValue(value), &value),
+  IMPLEMENT_BINDINGS(Bindings,
+                     (value, TiStr, VALUE, setValue(value), &value),
                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 

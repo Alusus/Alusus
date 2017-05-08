@@ -2,7 +2,7 @@
  * @file Spp/Ast/IfStatement.h
  * Contains the header of class Spp::Ast::IfStatement.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -45,10 +45,12 @@ class IfStatement : public Core::Data::Node,
 
   IMPLEMENT_METADATA(IfStatement);
 
-  IMPLEMENT_BINDINGS((prodId, TiWord, VALUE, setProdId(value), &prodId),
-                      (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+  IMPLEMENT_BINDINGS(Bindings,
+                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                     (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
-  IMPLEMENT_MAP_CONTAINER((TiObject, condition),
+  IMPLEMENT_MAP_CONTAINER(MapContainer,
+                          (TiObject, condition),
                           (Block, ifBody),
                           (Block, elseBody));
 

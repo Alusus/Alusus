@@ -29,7 +29,13 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker());
 
   // Create the generator.
-  this->llvmGenerator = new LlvmCodeGen::Generator(manager->getSeeker());
+  this->nodePathResolver = new NodePathResolver(manager->getSeeker());
+  this->llvmTypeGenerator = new LlvmCodeGen::TypeGenerator(manager->getSeeker(), this->nodePathResolver);
+  this->llvmGenerator = new LlvmCodeGen::Generator(
+    manager->getSeeker(),
+    this->nodePathResolver,
+    this->llvmTypeGenerator
+  );
 
   // Create leading commands.
 
@@ -177,7 +183,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
   grammarRepository->set(STR("root:Main.TypeStatementList"), SymbolDefinition::create({
     { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("module:StatementList")) },
-    { SymbolDefElement::HANDLER, ScopeParsingHandler<Spp::Ast::Type>::create(-1) }
+    { SymbolDefElement::HANDLER, ScopeParsingHandler<Spp::Ast::UserType>::create(-1) }
   }).get());
 
   // Function
@@ -275,6 +281,10 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
 
   delete this->llvmGenerator;
   this->llvmGenerator = 0;
+  delete this->llvmTypeGenerator;
+  this->llvmTypeGenerator = 0;
+  delete this->nodePathResolver;
+  this->nodePathResolver = 0;
 
   auto grammarRepository = manager->getGrammarRepository();
   auto leadingCmdList = this->getLeadingCommandsList(grammarRepository);
@@ -410,21 +420,21 @@ void LibraryGateway::createBuiltInTypes(Core::Standard::RootManager *manager)
   // Int
   tmplt = Ast::Template::create();
   tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER }});
-  tmplt->setTemplateBody(Ast::Type::create());
+  tmplt->setTemplateBody(Ast::IntegerType::create());
   identifier.setValue(STR("Int"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // Float
   tmplt = Ast::Template::create();
   tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER }});
-  tmplt->setTemplateBody(Ast::Type::create());
+  tmplt->setTemplateBody(Ast::FloatType::create());
   identifier.setValue(STR("Float"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // ptr
   tmplt = Ast::Template::create();
   tmplt->setVarDefs({{ STR("type"), Ast::Template::VarType::TYPE }});
-  tmplt->setTemplateBody(Ast::Type::create());
+  tmplt->setTemplateBody(Ast::PointerType::create());
   identifier.setValue(STR("ptr"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 }

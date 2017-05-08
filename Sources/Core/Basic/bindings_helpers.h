@@ -95,7 +95,14 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
 
 // Set a single member
 #define _SET_MEMBER(var) \
-  auto value = ti_cast<VARTYPE_FROM_TUPLE var>(val); VARSETTER_FROM_TUPLE var
+  auto value = ti_cast<VARTYPE_FROM_TUPLE var>(val); \
+  if (value == 0 && val != 0) { \
+    Str msg = STR("Invalid argument type for member `"); \
+    msg += VARNAMESTR_FROM_TUPLE var; \
+    msg += STR("`"); \
+    throw EXCEPTION(InvalidArgumentException, STR("val"), msg.c_str(), val->getMyTypeInfo()->getUniqueName()); \
+  } \
+  VARSETTER_FROM_TUPLE var
 
 // Remove a single member
 #define _REMOVE_MEMBER(var) \
@@ -103,10 +110,14 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
 
 // Get a single member
 #define _GET_MEMBER(var) \
-  VARGETTER_FROM_TUPLE var;
+  VARGETTER_FROM_TUPLE var
 
 // Get the type of a member
 #define _GET_MEMBER_TYPE(var) \
+  VARTYPE_FROM_TUPLE var
+
+// Get the type info of a member
+#define _GET_MEMBER_TYPE_INFO(var) \
   VARTYPE_FROM_TUPLE var::getTypeInfo()
 
 // Get the hold method of a member
@@ -219,7 +230,7 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
 
 // Cases for getMember(key)
 #define _IMPLEMENT_BINDINGS_KEYGET_CASE(varIndex, varNameStr, var) \
-  if (SBSTR(key) == varNameStr) { return _GET_MEMBER(var); }
+  if (SBSTR(key) == varNameStr) { return const_cast<_GET_MEMBER_TYPE(var)*>(_GET_MEMBER(var)); }
 #define _IMPLEMENT_BINDINGS_KEYGET1(var1) \
   _IMPLEMENT_BINDINGS_KEYGET_CASE(0, VARNAMESTR_FROM_TUPLE var1, var1)
 #define _IMPLEMENT_BINDINGS_KEYGET2(var1, var2) \
@@ -244,7 +255,7 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
 
 // Cases for getMember(index)
 #define _IMPLEMENT_BINDINGS_INDEXGET_CASE(varIndex, var) \
-  if (index == varIndex) { return _GET_MEMBER(var); }
+  if (index == varIndex) { return const_cast<_GET_MEMBER_TYPE(var)*>(_GET_MEMBER(var)); }
 #define _IMPLEMENT_BINDINGS_INDEXGET1(var1) \
   _IMPLEMENT_BINDINGS_INDEXGET_CASE(0, var1)
 #define _IMPLEMENT_BINDINGS_INDEXGET2(var1, var2) \
@@ -269,7 +280,7 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
 
 // Cases for getMemberNeededType(key)
 #define _IMPLEMENT_BINDINGS_KEYGETTYPE_CASE(varIndex, varNameStr, var) \
-  if (SBSTR(key) == varNameStr) { return _GET_MEMBER_TYPE(var); }
+  if (SBSTR(key) == varNameStr) { return _GET_MEMBER_TYPE_INFO(var); }
 #define _IMPLEMENT_BINDINGS_KEYGETTYPE1(var1) \
   _IMPLEMENT_BINDINGS_KEYGETTYPE_CASE(0, VARNAMESTR_FROM_TUPLE var1, var1)
 #define _IMPLEMENT_BINDINGS_KEYGETTYPE2(var1, var2) \
@@ -294,7 +305,7 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
 
 // Cases for getMemberNeededType(index)
 #define _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(varIndex, var) \
-  if (index == varIndex) { return _GET_MEMBER_TYPE(var); }
+  if (index == varIndex) { return _GET_MEMBER_TYPE_INFO(var); }
 #define _IMPLEMENT_BINDINGS_INDEXGETTYPE1(var1) \
   _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(0, var1)
 #define _IMPLEMENT_BINDINGS_INDEXGETTYPE2(var1, var2) \
@@ -418,77 +429,67 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
                _IMPLEMENT_BINDINGS_FINDINDEX1)(__VA_ARGS__)
 
 // MapContainer Implementation Macro
-#define IMPLEMENT_BINDINGS(...) \
+#define IMPLEMENT_BINDINGS(parent, ...) \
   public: using Bindings::setMember; \
   public: virtual Int setMember(Char const *key, TiObject *val) \
   { \
     _IMPLEMENT_BINDINGS_KEYSET(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key); \
+    return parent::setMember(key, val); \
   } \
   public: virtual void setMember(Int index, TiObject *val) \
   { \
     _IMPLEMENT_BINDINGS_INDEXSET(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index); \
+    parent::setMember(index, val); \
   } \
   public: virtual void removeMember(Char const *key) \
   { \
     _IMPLEMENT_BINDINGS_KEYREMOVE(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key); \
+    parent::removeMember(key); \
   } \
   public: virtual void removeMember(Int index) \
   { \
     _IMPLEMENT_BINDINGS_INDEXREMOVE(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index); \
+    parent::removeMember(index); \
   } \
   public: virtual Word getMemberCount() const \
   { \
-    return SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, 5, 4, 3, 2, 1); \
+    return SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, 5, 4, 3, 2, 1) + parent::getMemberCount(); \
   } \
   public: using Bindings::getMember; \
-  public: virtual TiObject* getMember(Char const *key) \
+  public: virtual TiObject* getMember(Char const *key) const \
   { \
     _IMPLEMENT_BINDINGS_KEYGET(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key); \
+    return parent::getMember(key); \
   } \
-  public: virtual TiObject* getMember(Int index) \
+  public: virtual TiObject* getMember(Int index) const \
   { \
     _IMPLEMENT_BINDINGS_INDEXGET(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index); \
-  } \
-  public: virtual TiObject const* getMember(Char const *key) const \
-  { \
-    _IMPLEMENT_BINDINGS_KEYGET(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key); \
-  } \
-  public: virtual TiObject const* getMember(Int index) const \
-  { \
-    _IMPLEMENT_BINDINGS_INDEXGET(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index); \
+    return parent::getMember(index); \
   } \
   public: virtual TypeInfo* getMemberNeededType(Char const *key) const \
   { \
     _IMPLEMENT_BINDINGS_KEYGETTYPE(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key); \
+    return parent::getMemberNeededType(key); \
   } \
   public: virtual TypeInfo* getMemberNeededType(Int index) const \
   { \
     _IMPLEMENT_BINDINGS_INDEXGETTYPE(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index); \
+    return parent::getMemberNeededType(index); \
   } \
   public: virtual HoldMode getMemberHoldMode(Char const *key) const \
   { \
     _IMPLEMENT_BINDINGS_KEYGETHOLDMODE(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key); \
+    return parent::getMemberHoldMode(key); \
   } \
   public: virtual HoldMode getMemberHoldMode(Int index) const \
   { \
     _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index); \
+    return parent::getMemberHoldMode(index); \
   } \
   public: virtual const SbStr& getMemberKey(Int index) const \
   { \
     _IMPLEMENT_BINDINGS_GETKEY(__VA_ARGS__); \
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index); \
+    return parent::getMemberKey(index); \
   } \
   public: virtual Int findMemberIndex(Char const *key) const \
   { \
@@ -496,7 +497,7 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
       throw EXCEPTION(InvalidArgumentException, STR("key"), STR("key is null")); \
     } \
     _IMPLEMENT_BINDINGS_FINDINDEX(__VA_ARGS__); \
-    return -1; \
+    return parent::findMemberIndex(key); \
   }
 
 } } // namespace

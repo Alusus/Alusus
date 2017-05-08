@@ -26,5 +26,6 @@
 
 DEFINE_TYPE_NAME(llvm::Module, "llvm.org/LLVM/llvm.Module");
 DEFINE_TYPE_NAME(llvm::Function, "llvm.org/LLVM/llvm.Function");
+DEFINE_TYPE_NAME(llvm::Type, "llvm.org/LLVM/llvm.Type");
 
 #endif

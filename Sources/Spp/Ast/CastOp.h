@@ -2,7 +2,7 @@
  * @file Spp/Ast/CastOp.h
  * Contains the header of class Spp::Ast::CastOp.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -41,10 +41,12 @@ class CastOp : public Core::Data::Node,
 
   IMPLEMENT_METADATA(CastOp);
 
-  IMPLEMENT_BINDINGS((prodId, TiWord, VALUE, setProdId(value), &prodId),
-                      (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+  IMPLEMENT_BINDINGS(Bindings,
+                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                     (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
-  IMPLEMENT_MAP_CONTAINER((TiObject, operand),
+  IMPLEMENT_MAP_CONTAINER(MapContainer,
+                          (TiObject, operand),
                           (TiObject, targetType));
 
   IMPLEMENT_AST_CLONABLE(PointerOp);

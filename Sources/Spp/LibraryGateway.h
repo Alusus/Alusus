@@ -27,6 +27,8 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   // Member Variables
 
   private: SeekerExtension::Overrides *seekerExtensionOverrides = 0;
+  private: NodePathResolver *nodePathResolver = 0;
+  private: LlvmCodeGen::TypeGenerator *llvmTypeGenerator = 0;
   private: LlvmCodeGen::Generator *llvmGenerator = 0;
 
 
@@ -40,6 +42,8 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   public: virtual ~LibraryGateway()
   {
     if (this->llvmGenerator != 0) delete this->llvmGenerator;
+    if (this->llvmTypeGenerator != 0) delete this->llvmTypeGenerator;
+    if (this->nodePathResolver != 0) delete this->nodePathResolver;
   }
 
 

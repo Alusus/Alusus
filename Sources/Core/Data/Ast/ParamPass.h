@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/ParamPass.h
  * Contains the header of class Core::Data::Ast::ParamPass.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -42,11 +42,13 @@ class ParamPass : public Node,
 
   IMPLEMENT_METADATA(ParamPass);
 
-  IMPLEMENT_BINDINGS((type, BracketType, VALUE, setType(value), &type),
-                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+  IMPLEMENT_BINDINGS(Bindings,
+                     (type, BracketType, VALUE, setType(value), &type),
+                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                     (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
-  IMPLEMENT_MAP_CONTAINER((TiObject, operand),
+  IMPLEMENT_MAP_CONTAINER(MapContainer,
+                          (TiObject, operand),
                           (TiObject, param));
 
   IMPLEMENT_AST_MAP_PRINTABLE(ParamPass, << (this->type == BracketType::ROUND ? STR("()") : STR("[]")));

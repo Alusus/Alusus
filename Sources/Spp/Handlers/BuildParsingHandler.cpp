@@ -52,8 +52,8 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
     // if (!found) {
     //   state->addBuildMsg(std::make_shared<InvalidDumpArg>(metadata->getSourceLocation()));
     // }
-  } catch (InvalidArgumentException &e) {
-    outStream << e.getErrorMessage();
+  } catch (Exception &e) {
+    outStream << e.getVerboseErrorMessage() << NEW_LINE;
     state->addBuildMsg(std::make_shared<InvalidBuildArg>(metadata->getSourceLocation()));
   }
 

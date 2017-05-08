@@ -33,10 +33,15 @@ template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
   //============================================================================
   // Constructors & Destructor
 
-  Box() : obj(0) {}
+  public: Box() : obj(0) {}
 
-  Box(CTYPE *o) : obj(o)
+  public: Box(CTYPE *o) : obj(o)
   {
+  }
+
+  public: static SharedPtr<Box<CTYPE, PTYPE>> create(CTYPE *o)
+  {
+    return std::make_shared<Box<CTYPE, PTYPE>>(o);
   }
 
 

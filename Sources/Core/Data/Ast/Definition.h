@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Definition.h
  * Contains the header of class Core::Data::Ast::Definition.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -41,11 +41,12 @@ class Definition : public Node,
 
   IMPLEMENT_METADATA(Definition);
 
-  IMPLEMENT_BINDINGS((name, TiStr, VALUE, setName(value), &name),
-                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+  IMPLEMENT_BINDINGS(Bindings,
+                     (name, TiStr, VALUE, setName(value), &name),
+                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                     (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
-  IMPLEMENT_MAP_CONTAINER((TiObject, target));
+  IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, target));
 
 
   //============================================================================

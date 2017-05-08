@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Route.h
  * Contains the header of class Core::Data::Ast::Route.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -66,11 +66,12 @@ class Route : public Node,
 
   IMPLEMENT_METADATA(Route);
 
-  IMPLEMENT_BINDINGS((route, TiInt, VALUE, setRoute(value), &route),
-                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                      (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+  IMPLEMENT_BINDINGS(Bindings,
+                     (route, TiInt, VALUE, setRoute(value), &route),
+                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                     (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
-  IMPLEMENT_MAP_CONTAINER((TiObject, data));
+  IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, data));
 
   IMPLEMENT_AST_LIST_PRINTABLE(Route, << this->route.get());
 

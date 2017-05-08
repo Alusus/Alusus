@@ -45,7 +45,7 @@ class Module : public Node,
 
   IMPLEMENT_IDHOLDER(Module);
 
-  IMPLEMENT_BINDINGS((id, TiWord, VALUE, setId(value), &id));
+  IMPLEMENT_BINDINGS(Bindings, (id, TiWord, VALUE, setId(value), &id));
 
 
   //============================================================================
