@@ -204,7 +204,7 @@
     static Core::Basic::InterfaceTypeInfo* getTypeInfo() {   \
       static Core::Basic::InterfaceTypeInfo *typeInfo = 0; \
       if (typeInfo == 0) { \
-        Char const* uniqueName = url "#" moduleName "#" typeNamespace "." #myType; \
+        Char const* uniqueName = url "/" moduleName "/" typeNamespace "." #myType; \
         typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
           typeInfo = new Core::Basic::InterfaceTypeInfo(#myType, typeNamespace, moduleName, url, \
@@ -216,6 +216,36 @@
     } \
     void* getInterfacePtr(Core::Basic::TypeInfo *info) {\
       if (info == myType::getTypeInfo()) \
+        return reinterpret_cast<void*>(this); \
+      else \
+        return baseType::getInterfacePtr(info); \
+    }
+
+
+//==============================================================================
+// Template Interface Type Info Macros
+
+#define TEMPLATE_INTERFACE_INFO(myType, baseType, typeNamespace, moduleName, url, templateArgs) \
+  public: \
+    virtual Core::Basic::InterfaceTypeInfo* getMyInterfaceInfo() const { \
+      return myType<COMMA_EXPAND_ARGS templateArgs>::getTypeInfo(); \
+    } \
+    static Core::Basic::InterfaceTypeInfo* getTypeInfo() {   \
+      static Core::Basic::InterfaceTypeInfo *typeInfo = 0; \
+      if (typeInfo == 0) { \
+        Str typeName = Str(#myType) + "<" + TypeName<COMMA_EXPAND_ARGS templateArgs>::get() + ">"; \
+        Str uniqueName = Str(url "/" moduleName "/" typeNamespace ".") + typeName; \
+        typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName.c_str())); \
+        if (typeInfo == 0) { \
+          typeInfo = new Core::Basic::InterfaceTypeInfo(typeName.c_str(), typeNamespace, moduleName, url, \
+            baseType::getTypeInfo()); \
+          GLOBAL_STORAGE->setObject(uniqueName.c_str(), reinterpret_cast<void*>(typeInfo)); \
+        } \
+      } \
+      return typeInfo; \
+    } \
+    void* getInterfacePtr(Core::Basic::TypeInfo *info) {\
+      if (info == myType<COMMA_EXPAND_ARGS templateArgs>::getTypeInfo()) \
         return reinterpret_cast<void*>(this); \
       else \
         return baseType::getInterfacePtr(info); \
