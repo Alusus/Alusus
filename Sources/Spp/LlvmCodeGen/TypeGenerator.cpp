@@ -73,7 +73,7 @@ Spp::Ast::Type* TypeGenerator::getGeneratedType(TiObject *ref, llvm::Module *llv
 llvm::Type* TypeGenerator::getGeneratedLlvmType(TiObject *ref, llvm::Module *llvmModule)
 {
   auto type = this->getGeneratedType(ref, llvmModule);
-  auto llvmTypeBox = type->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type>>();
+  auto llvmTypeBox = type->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type*>>();
   if (llvmTypeBox == 0 || llvmTypeBox->get() == 0) {
     throw EXCEPTION(GenericException, STR("AST Type is missing the generated Type object."));
   }
@@ -88,7 +88,7 @@ void TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, llvm:
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
-  auto llvmTypeBox = astType->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type>>();
+  auto llvmTypeBox = astType->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type*>>();
   if (llvmTypeBox != 0) return;
 
   if (astType->isDerivedFrom<Spp::Ast::IntegerType>()) {
@@ -112,7 +112,7 @@ void TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto bitCount = astType->getBitCount(typeGenerator->seeker);
   auto llvmType = llvm::Type::getIntNTy(llvm::getGlobalContext(), bitCount);
-  astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type>::create(llvmType));
+  astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
 }
 
 
@@ -134,7 +134,7 @@ void TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astT
     default:
       throw EXCEPTION(GenericException, STR("Unsupported float bit count. Bit count should be either 32, 64, or 128."));
   }
-  astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type>::create(llvmType));
+  astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
 }
 
 
@@ -144,7 +144,7 @@ void TypeGenerator::_generatePointerType(TiObject *self, Spp::Ast::PointerType *
   auto contentAstType = astType->getContentType(typeGenerator->seeker);
   auto contentLlvmType = typeGenerator->getGeneratedLlvmType(contentAstType, llvmModule);
   auto llvmType = contentLlvmType->getPointerTo();
-  astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type>::create(llvmType));
+  astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
 }
 
 } } // namespace

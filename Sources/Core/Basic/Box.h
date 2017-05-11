@@ -27,7 +27,7 @@ template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
   //============================================================================
   // Member Variables
 
-  private: CTYPE *obj;
+  private: CTYPE obj;
 
 
   //============================================================================
@@ -35,11 +35,15 @@ template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
 
   public: Box() : obj(0) {}
 
-  public: Box(CTYPE *o) : obj(o)
+  public: Box(CTYPE const &o) : obj(o)
   {
   }
 
-  public: static SharedPtr<Box<CTYPE, PTYPE>> create(CTYPE *o)
+  public: virtual ~Box()
+  {
+  }
+
+  public: static SharedPtr<Box<CTYPE, PTYPE>> create(CTYPE const &o)
   {
     return std::make_shared<Box<CTYPE, PTYPE>>(o);
   }
@@ -48,17 +52,23 @@ template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
   //============================================================================
   // Member Functions
 
-  public: void set(CTYPE *o)
+  public: void set(CTYPE const &o)
   {
     this->obj = o;
   }
 
-  public: CTYPE* get() const
+  public: CTYPE const& get() const
   {
     return this->obj;
   }
 
 }; // class
+
+
+//==============================================================================
+// Default Types
+
+typedef Box<SharedPtr<TiObject>> TioSharedBox;
 
 } } // namespace
 

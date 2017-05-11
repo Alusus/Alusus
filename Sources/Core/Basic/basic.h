@@ -674,7 +674,6 @@ extern std::ostream &outStream;
 #include "SharedList.h"
 #include "SharedMap.h"
 #include "Box.h"
-#include "SharedBox.h"
 
 #include "TiNumber.h"
 #include "TiStr.h"
