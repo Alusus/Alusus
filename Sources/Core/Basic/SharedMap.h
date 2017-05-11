@@ -16,12 +16,14 @@
 namespace Core { namespace Basic
 {
 
-template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
+template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtual MapContainer<CTYPE>
 {
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(SharedMap, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE));
+  TEMPLATE_TYPE_INFO(SharedMap, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE), (
+    INHERITANCE_INTERFACES(MapContainer<CTYPE>)
+  ));
 
 
   //============================================================================
@@ -455,6 +457,53 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE
     }
     if (this->inherited == 0) return false;
     else return this->inherited->at(index);
+  }
+
+  /// @}
+
+  /// @name Container Implementation
+  /// @{
+
+  public: virtual void setElement(Int index, CTYPE *val)
+  {
+    this->set(index, getSharedPtr(val));
+  }
+  public: virtual Int setElement(Char const *key, CTYPE *val)
+  {
+    return this->set(key, getSharedPtr(val));
+  }
+
+  public: virtual void removeElement(Int index)
+  {
+    this->remove(index);
+  }
+  public: virtual void removeElement(Char const *key)
+  {
+    this->remove(key);
+  }
+
+  public: virtual Word getElementCount() const
+  {
+    return this->getCount();
+  }
+
+  public: virtual CTYPE* getElement(Int index) const
+  {
+    return this->get(index).get();
+  }
+  public: virtual CTYPE* getElement(Char const *key) const
+  {
+    return this->get(key).get();
+  }
+
+  public: virtual SbStr const& getElementKey(Int index) const
+  {
+    return this->getKey(index);
+  }
+
+  public: virtual Int findElementIndex(Char const *key) const
+  {
+    return this->findIndex(key);
   }
 
   /// @}

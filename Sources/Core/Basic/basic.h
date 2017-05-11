@@ -668,6 +668,8 @@ extern std::ostream &outStream;
 #include "Argument.h"
 
 #include "Container.h"
+#include "ListContainer.h"
+#include "MapContainer.h"
 
 #include "SharedList.h"
 #include "SharedMap.h"

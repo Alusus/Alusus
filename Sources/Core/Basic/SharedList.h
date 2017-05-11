@@ -16,12 +16,14 @@
 namespace Core { namespace Basic
 {
 
-template<class CTYPE, class PTYPE> class SharedList : public PTYPE
+template<class CTYPE, class PTYPE> class SharedList : public PTYPE, public virtual ListContainer<CTYPE>
 {
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(SharedList, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE));
+  TEMPLATE_TYPE_INFO(SharedList, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE), (
+    INHERITANCE_INTERFACES(ListContainer<CTYPE>)
+  ));
 
 
   //============================================================================
@@ -309,6 +311,41 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE
   public: void reserve(Int size)
   {
     this->list.reserve(size);
+  }
+
+  /// @}
+
+  /// @name Container Implementation
+  /// @{
+
+  public: virtual void setElement(Int index, CTYPE *val)
+  {
+    this->set(index, getSharedPtr(val));
+  }
+
+  public: virtual void removeElement(Int index)
+  {
+    this->remove(index);
+  }
+
+  public: virtual Word getElementCount() const
+  {
+    return this->getCount();
+  }
+
+  public: virtual CTYPE* getElement(Int index) const
+  {
+    return this->get(index).get();
+  }
+
+  public: virtual Int addElement(CTYPE *val)
+  {
+    return this->add(getSharedPtr(val));
+  }
+
+  public: virtual void insertElement(Int index, CTYPE *val)
+  {
+    this->insert(index, getSharedPtr(val));
   }
 
   /// @}
