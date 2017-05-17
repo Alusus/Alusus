@@ -142,7 +142,7 @@ class Function : public Core::Data::Node,
   }
 
   public: CallMatchStatus matchCall(
-    Core::Data::Container *types, ExecutionContext const *context, Core::Data::Seeker *seeker
+    Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *context, Core::Data::Seeker *seeker
   );
 
   private: Type* traceType(TiObject *ref, Core::Data::Seeker *seeker);

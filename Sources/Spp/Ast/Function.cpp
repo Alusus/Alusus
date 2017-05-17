@@ -19,7 +19,7 @@ namespace Spp { namespace Ast
 // Member Functions
 
 Function::CallMatchStatus Function::matchCall(
-  Core::Data::Container *types, ExecutionContext const *context, Core::Data::Seeker *seeker
+  Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *context, Core::Data::Seeker *seeker
 ) {
   if (types == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("types"), STR("Cannot be null."));
@@ -27,15 +27,15 @@ Function::CallMatchStatus Function::matchCall(
   if (seeker == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("seeker"), STR("Cannot be null."));
   }
-  if (types->getCount() < this->argTypes->getCount()) {
+  if (types->getElementCount() < this->argTypes->getCount()) {
     return CallMatchStatus::NONE;
-  } else if (types->getCount() > this->argTypes->getCount() && !this->isVariadic()) {
+  } else if (types->getElementCount() > this->argTypes->getCount() && !this->isVariadic()) {
     return CallMatchStatus::NONE;
   } else {
     Bool casted = false;
     for (Int i = 0; i < this->argTypes->getCount(); ++i) {
       Type *wantedType = this->traceType(this->argTypes->get(i), seeker);
-      Type *providedType = this->traceType(types->get(i), seeker);
+      Type *providedType = this->traceType(types->getElement(i), seeker);
       if (wantedType != providedType) {
         if (providedType->isImplicitlyCastableTo(providedType, context, seeker)) {
           casted = true;

@@ -107,6 +107,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
 
   public: METHOD_BINDING_CACHE(generateModule, void, (Spp::Ast::Module*, llvm::Module*));
   public: METHOD_BINDING_CACHE(generateFunction, void, (Spp::Ast::Function*, llvm::Module*));
+  public: METHOD_BINDING_CACHE(generateFunctionDecl, void, (Spp::Ast::Function*, llvm::Module*));
   public: METHOD_BINDING_CACHE(generateBlock, void, (Spp::Ast::Block*, llvm::Function*));
   public: METHOD_BINDING_CACHE(generateStatement,
     void, (TiObject*, llvm::Function*, Spp::Ast::Type*&, TiObject*&, TiObject*&)
@@ -126,6 +127,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
 
   private: static void _generateModule(TiObject *self, Spp::Ast::Module *astModule, llvm::Module *llvmModule);
   private: static void _generateFunction(TiObject *self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule);
+  private: static void _generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule);
   private: static void _generateBlock(TiObject *self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc);
   private: static void _generateStatement(
     TiObject *self, TiObject *astNode, llvm::Function *llvmFunc,

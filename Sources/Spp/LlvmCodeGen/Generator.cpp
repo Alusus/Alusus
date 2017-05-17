@@ -24,6 +24,7 @@ void Generator::initBindingCaches()
   Core::Basic::initBindingCaches(this, {
     &this->generateModule,
     &this->generateFunction,
+    &this->generateFunctionDecl,
     &this->generateBlock,
     &this->generateStatement,
     &this->generateParamPass,
@@ -37,6 +38,7 @@ void Generator::initBindings()
 {
   this->generateModule = &Generator::_generateModule;
   this->generateFunction = &Generator::_generateFunction;
+  this->generateFunctionDecl = &Generator::_generateFunctionDecl;
   this->generateBlock = &Generator::_generateBlock;
   this->generateStatement = &Generator::_generateStatement;
   this->generateParamPass = &Generator::_generateParamPass;
@@ -109,6 +111,48 @@ void Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, l
 {
   PREPARE_SELF(generator, Generator);
 
+  auto cgFunc = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::UserFunction>();
+  if (cgFunc == 0) {
+    generator->generateFunctionDecl(astFunc, llvmModule);
+    cgFunc = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::UserFunction>();
+  }
+  if (cgFunc == 0) {
+    throw EXCEPTION(GenericException, STR("Failed to generate function decleration."));
+  }
+
+  auto astArgs = astFunc->getArgTypes().get();
+  auto astBlock = astFunc->getBody().get();
+  if (astBlock != 0) {
+    // Create an llvm block and its irbuilder.
+    auto cgBlock = std::make_shared<LlvmCodeGen::Block>();
+    cgBlock->setLlvmBlock(llvm::BasicBlock::Create(
+      llvm::getGlobalContext(),
+      generator->getNewBlockName(),
+      cgFunc->getLlvmFunction()
+    ));
+    cgBlock->setIrBuilder(new llvm::IRBuilder<>(cgBlock->getLlvmBlock()));
+    astBlock->setExtra(META_EXTRA_NAME, cgBlock);
+
+    // Create variables for each argument and assign them to cgFunc.
+    auto i = 0;
+    for (auto iter = cgFunc->getLlvmFunction()->arg_begin(); i != cgFunc->getArgCount(); ++iter, ++i) {
+      iter->setName(astArgs->getKey(i).c_str());
+      auto llvmAlloca = cgBlock->getIrBuilder()->CreateAlloca(cgFunc->getArg(i).type, 0, astArgs->getKey(i).c_str());
+      auto llvmStore = cgBlock->getIrBuilder()->CreateStore(iter, llvmAlloca);
+      cgFunc->setArgAllocaInst(i, llvmAlloca);
+      cgFunc->setArgStoreInst(i, llvmStore);
+    }
+
+    // Generate the function's statements.
+    generator->generateBlock(astBlock, cgFunc->getLlvmFunction());
+  }
+}
+
+
+void Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule)
+{
+  PREPARE_SELF(generator, Generator);
+
   auto genType = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Function>();
   if (genType != 0) return;
 
@@ -134,32 +178,10 @@ void Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, l
   Str name = generator->getFunctionName(astFunc);
   auto cgFunc = std::make_shared<LlvmCodeGen::UserFunction>();
   cgFunc->setLlvmFunction(llvm::Function::Create(llvmFuncType, llvm::Function::ExternalLinkage, name, llvmModule));
-  astFunc->setExtra(META_EXTRA_NAME, cgFunc);
-
-  auto astBlock = astFunc->getBody().get();
-  if (astBlock != 0) {
-    // Create an llvm block and its irbuilder.
-    auto cgBlock = std::make_shared<LlvmCodeGen::Block>();
-    cgBlock->setLlvmBlock(llvm::BasicBlock::Create(
-      llvm::getGlobalContext(),
-      generator->getNewBlockName(),
-      cgFunc->getLlvmFunction()
-    ));
-    cgBlock->setIrBuilder(new llvm::IRBuilder<>(cgBlock->getLlvmBlock()));
-    astBlock->setExtra(META_EXTRA_NAME, cgBlock);
-
-    // Create variables for each argument and assign them to cgFunc.
-    auto i = 0;
-    for (auto iter = cgFunc->getLlvmFunction()->arg_begin(); i != argCount; ++iter, ++i) {
-      iter->setName(astArgs->getKey(i).c_str());
-      auto llvmAlloca = cgBlock->getIrBuilder()->CreateAlloca(llvmArgTypes[i], 0, astArgs->getKey(i).c_str());
-      auto llvmStore = cgBlock->getIrBuilder()->CreateStore(iter, llvmAlloca);
-      cgFunc->addArg(llvmAlloca, llvmStore);
-    }
-
-    // Generate the function's statements.
-    generator->generateBlock(astBlock, cgFunc->getLlvmFunction());
+  for (auto llvmArgType : llvmArgTypes) {
+    cgFunc->addArg(llvmArgType);
   }
+  astFunc->setExtra(META_EXTRA_NAME, cgFunc);
 }
 
 

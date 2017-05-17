@@ -27,7 +27,13 @@ class UserFunction : public Function
   //============================================================================
   // Types
 
-  public: typedef std::pair<llvm::AllocaInst*, llvm::StoreInst*> Arg;
+  public: struct Arg
+  {
+    llvm::Type *type;
+    llvm::AllocaInst *allocaInst;
+    llvm::StoreInst *storeInst;
+    Arg(llvm::Type *t, llvm::AllocaInst *a, llvm::StoreInst *s) : type(t), allocaInst(a), storeInst(s) {}
+  };
 
 
   //============================================================================
@@ -68,9 +74,19 @@ class UserFunction : public Function
     return this->llvmFunction;
   }
 
-  public: void addArg(llvm::AllocaInst *alloca, llvm::StoreInst *store)
+  public: void addArg(llvm::Type *t, llvm::AllocaInst *alloca = 0, llvm::StoreInst *store = 0)
   {
-    this->args.push_back(Arg(alloca, store));
+    this->args.push_back(Arg(t, alloca, store));
+  }
+
+  public: void setArgAllocaInst(Int i, llvm::AllocaInst *alloca)
+  {
+    this->args[i].allocaInst = alloca;
+  }
+
+  public: void setArgStoreInst(Int i, llvm::StoreInst *store)
+  {
+    this->args[i].storeInst = store;
   }
 
   public: Word getArgCount() const
