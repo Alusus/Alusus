@@ -18,7 +18,7 @@ namespace Core { namespace Standard
 //==============================================================================
 // Constructor
 
-RootManager::RootManager() : grammarPlant(this), libraryManager(this)
+RootManager::RootManager() : grammarPlant(this, false), exprGrammarPlant(this, true), libraryManager(this)
 {
   this->rootScope = Data::Ast::Scope::create();
 
@@ -46,6 +46,32 @@ RootManager::RootManager() : grammarPlant(this), libraryManager(this)
 
 //==============================================================================
 // Member Functions
+
+SharedPtr<TiObject> RootManager::parseExpression(Char const *str)
+{
+  Processing::Engine engine(this->exprGrammarPlant.getRepository(), SharedPtr<Data::Ast::Scope>::null);
+  auto result = engine.processString(str, str);
+
+  if (result == 0) {
+    throw EXCEPTION(
+      InvalidArgumentException,
+      STR("str"),
+      STR("Parsing did not result in a valid expression"),
+      str
+    );
+  }
+
+  return result;
+}
+
+
+SharedPtr<TiObject> RootManager::processString(Char const *str, Char const *name)
+{
+  Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
+  this->buildMsgNotifier.relay(engine.buildMsgNotifier);
+  return engine.processString(str, name);
+}
+
 
 SharedPtr<TiObject> RootManager::processFile(Char const *filename)
 {

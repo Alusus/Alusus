@@ -43,9 +43,9 @@ class GrammarPlant : public Data::GrammarPlant
   //============================================================================
   // Constructor & Destructor
 
-  public: GrammarPlant(RootManager *root)
+  public: GrammarPlant(RootManager *root, Bool exprOnly)
   {
-    this->createGrammar(root);
+    this->createGrammar(root, exprOnly);
   }
 
   public: virtual ~GrammarPlant()
@@ -57,7 +57,7 @@ class GrammarPlant : public Data::GrammarPlant
   // Member Functions
 
   /// Create the entire core grammar.
-  private: void createGrammar(RootManager *root);
+  private: void createGrammar(RootManager *root, Bool exprOnly);
 
   /// Create the list of char group definitions for the Core's grammar.
   private: void createCharGroupDefinitions();
@@ -66,7 +66,7 @@ class GrammarPlant : public Data::GrammarPlant
   private: void createTokenDefinitions();
 
   /// Create the list of produciton definitions for the Core's grammar.
-  private: void createProductionDefinitions();
+  private: void createProductionDefinitions(Bool exprOnly);
 
   /// Create a const token that uses the ConstTokenizingHandler.
   protected: virtual SharedPtr<Data::SymbolDefinition> createConstTokenDef(Char const *text);

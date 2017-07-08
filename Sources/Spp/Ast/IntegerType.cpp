@@ -18,12 +18,13 @@ namespace Spp { namespace Ast
 //==============================================================================
 // Member Functions
 
-Word IntegerType::getBitCount(Core::Data::Seeker *seeker) const
+Word IntegerType::getBitCount(Core::Standard::RootManager *rootManager) const
 {
-  static Core::Basic::TiStr BIT_COUNT(STR("bitCount"));
-  static Core::Data::Ast::Identifier identifier({{STR("value"), &BIT_COUNT}});
+  if (this->bitCountRef == 0) {
+    this->bitCountRef = rootManager->parseExpression(STR("bitCount"));
+  }
   auto bitCountBox = ti_cast<Core::Basic::TioSharedBox>(
-    seeker->doGet(&identifier, this->getOwner())
+    rootManager->getSeeker()->doGet(this->bitCountRef.get(), this->getOwner())
   );
   if (bitCountBox == 0) {
     throw EXCEPTION(GenericException, STR("Could not find bitCount value."));
@@ -37,26 +38,26 @@ Word IntegerType::getBitCount(Core::Data::Seeker *seeker) const
 
 
 Bool IntegerType::isImplicitlyCastableTo(
-  Type const *type, ExecutionContext const *context, Core::Data::Seeker *seeker
+  Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
 ) const
 {
   if (this == type) return true;
 
   auto integerType = ti_cast<IntegerType>(type);
-  if (integerType != 0 && integerType->getBitCount(seeker) >= this->getBitCount(seeker)) return true;
+  if (integerType != 0 && integerType->getBitCount(rootManager) >= this->getBitCount(rootManager)) return true;
   else return false;
 }
 
 
 Bool IntegerType::isExplicitlyCastableTo(
-  Type const *type, ExecutionContext const *context, Core::Data::Seeker *seeker
+  Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
 ) const
 {
   if (this == type) return true;
 
   if (type->isDerivedFrom<IntegerType>() || type->isDerivedFrom<FloatType>()) {
     return true;
-  } else if (type->isDerivedFrom<PointerType>() && context->getPointerBitCount() == this->getBitCount(seeker)) {
+  } else if (type->isDerivedFrom<PointerType>() && context->getPointerBitCount() == this->getBitCount(rootManager)) {
     return true;
   } else {
     return false;

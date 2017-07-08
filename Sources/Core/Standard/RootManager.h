@@ -30,6 +30,7 @@ class RootManager : public TiObject
   // Member Variables
 
   private: GrammarPlant grammarPlant;
+  private: GrammarPlant exprGrammarPlant;
 
   private: LibraryManager libraryManager;
 
@@ -71,6 +72,16 @@ class RootManager : public TiObject
     return this->grammarPlant.getRepository();
   }
 
+  public: GrammarPlant* getExprGrammarPlant()
+  {
+    return &this->exprGrammarPlant;
+  }
+
+  public: virtual Data::GrammarRepository* getExprGrammarRepository()
+  {
+    return this->exprGrammarPlant.getRepository();
+  }
+
   public: virtual LibraryManager* getLibraryManager()
   {
     return &this->libraryManager;
@@ -86,12 +97,9 @@ class RootManager : public TiObject
     return &this->seeker;
   }
 
-  public: virtual SharedPtr<TiObject> processString(Char const *str, Char const *name)
-  {
-    Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
-    this->buildMsgNotifier.relay(engine.buildMsgNotifier);
-    return engine.processString(str, name);
-  }
+  public: virtual SharedPtr<TiObject> parseExpression(Char const *str);
+
+  public: virtual SharedPtr<TiObject> processString(Char const *str, Char const *name);
 
   public: virtual SharedPtr<TiObject> processFile(Char const *filename);
 

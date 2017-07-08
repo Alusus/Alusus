@@ -27,7 +27,7 @@ class Function : public Core::Basic::TiObject
   //============================================================================
   // Member Functions
 
-  public: virtual void createCallInstruction(llvm::IRBuilder<> *irb, std::vector<llvm::Value*> const &args) = 0;
+  public: virtual llvm::Value* createCallInstruction(llvm::IRBuilder<> *irb, std::vector<llvm::Value*> const &args) = 0;
 
 }; // class
 

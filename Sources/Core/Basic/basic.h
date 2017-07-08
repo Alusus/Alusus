@@ -672,7 +672,9 @@ extern std::ostream &outStream;
 #include "MapContainer.h"
 
 #include "SharedList.h"
+#include "PlainList.h"
 #include "SharedMap.h"
+#include "PlainMap.h"
 #include "Box.h"
 
 #include "TiNumber.h"

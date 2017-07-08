@@ -32,13 +32,16 @@ namespace Spp { namespace Ast
 // Containers
 #include "Block.h"
 #include "Module.h"
+#include "Template.h"
+#include "Function.h"
+
+// Types
 #include "Type.h"
 #include "IntegerType.h"
 #include "FloatType.h"
 #include "PointerType.h"
+#include "ArrayType.h"
 #include "UserType.h"
-#include "Template.h"
-#include "Function.h"
 
 // Control Statements
 #include "ForStatement.h"

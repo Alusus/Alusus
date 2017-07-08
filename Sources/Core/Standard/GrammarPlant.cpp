@@ -26,7 +26,7 @@ using namespace Core::Processing;
  * groups for the Core's grammar. This function will give you the complete
  * grammar definitions with all the required handlers.
  */
-void GrammarPlant::createGrammar(RootManager *root)
+void GrammarPlant::createGrammar(RootManager *root, Bool exprOnly)
 {
   this->constTokenPrefix = STR("LexerDefs");
   this->constTokenId = ID_GENERATOR->getId(STR("CONSTTOKEN"));
@@ -43,7 +43,7 @@ void GrammarPlant::createGrammar(RootManager *root)
   this->createTokenDefinitions();
 
   // Create parser definitions.
-  this->createProductionDefinitions();
+  this->createProductionDefinitions(exprOnly);
 
   // Create error sync block pairs.
   this->repository.set(STR("root:ErrorSyncBlockPairs"), SharedList::create({
@@ -546,7 +546,7 @@ void GrammarPlant::createTokenDefinitions()
  * Create a Production_Definition_List and add all the required definitions for
  * the Core's grammar. The created list will have assigned parsing handlers.
  */
-void GrammarPlant::createProductionDefinitions()
+void GrammarPlant::createProductionDefinitions(Bool exprOnly)
 {
   //// TokenData module.
 
@@ -665,10 +665,17 @@ void GrammarPlant::createProductionDefinitions()
 
   //// Program : StatementList.
   // Program : prod as StatementList(DefaultMain.DefaultStatement);
-  this->repository.set(STR("root:Program"), SymbolDefinition::create({
-    {SymbolDefElement::TERM, ReferenceTerm::create(STR("root:Main.StatementList"))},
-    {SymbolDefElement::HANDLER, this->parsingHandler}
-  }).get());
+  if (exprOnly) {
+    this->repository.set(STR("root:Program"), SymbolDefinition::create({
+      {SymbolDefElement::TERM, ReferenceTerm::create(STR("root:Main.Statement"))},
+      {SymbolDefElement::HANDLER, this->parsingHandler}
+    }).get());
+  } else {
+    this->repository.set(STR("root:Program"), SymbolDefinition::create({
+      {SymbolDefElement::TERM, ReferenceTerm::create(STR("root:Main.StatementList"))},
+      {SymbolDefElement::HANDLER, this->parsingHandler}
+    }).get());
+  }
 
   this->repository.set(STR("root:Main"), GrammarModule::create({}).get());
 
@@ -782,79 +789,95 @@ void GrammarPlant::createProductionDefinitions()
    {SymbolDefElement::HANDLER, this->parsingHandler}
   }).get());
 
-  // LeadingCommandGroup
-  this->repository.set(STR("root:Main.LeadingCmdGrp"), SymbolDefinition::create({
-   {SymbolDefElement::TERM, AlternateTerm::create({
-      {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM},
-      {TermElement::REF, REF_PARSER->parseQualifier(STR("stack:cmd"))},
-      {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:cmds"))},
-      {TermElement::TERM, ReferenceTerm::create(STR("stack:cmd"))}
-    })},
-   {SymbolDefElement::VARS, SharedMap::create(false, {
-      {STR("cmds"), SharedList::create({
-         REF_PARSER->parseQualifier(STR("module:Do")),
-         REF_PARSER->parseQualifier(STR("module:Import")),
-         REF_PARSER->parseQualifier(STR("module:Def"))
-       })}
-    })},
-   {SymbolDefElement::HANDLER, this->parsingHandler}
-  }).get());
+  if (exprOnly) {
+    // LeadingCommandGroup
+    this->repository.set(STR("root:Main.LeadingCmdGrp"), SymbolDefinition::create({
+     {SymbolDefElement::TERM, AlternateTerm::create({
+        {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM},
+        {TermElement::REF, REF_PARSER->parseQualifier(STR("stack:cmd"))},
+        {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:cmds"))},
+        {TermElement::TERM, ReferenceTerm::create(STR("stack:cmd"))}
+      })},
+     {SymbolDefElement::VARS, SharedMap::create(false, {
+        {STR("cmds"), SharedList::create()}
+      })},
+     {SymbolDefElement::HANDLER, this->parsingHandler}
+    }).get());
+  } else {
+    // LeadingCommandGroup
+    this->repository.set(STR("root:Main.LeadingCmdGrp"), SymbolDefinition::create({
+     {SymbolDefElement::TERM, AlternateTerm::create({
+        {TermElement::FLAGS, TermFlags::ONE_ROUTE_TERM},
+        {TermElement::REF, REF_PARSER->parseQualifier(STR("stack:cmd"))},
+        {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:cmds"))},
+        {TermElement::TERM, ReferenceTerm::create(STR("stack:cmd"))}
+      })},
+     {SymbolDefElement::VARS, SharedMap::create(false, {
+        {STR("cmds"), SharedList::create({
+           REF_PARSER->parseQualifier(STR("module:Do")),
+           REF_PARSER->parseQualifier(STR("module:Import")),
+           REF_PARSER->parseQualifier(STR("module:Def"))
+         })}
+      })},
+     {SymbolDefElement::HANDLER, this->parsingHandler}
+    }).get());
 
-  //// Do = "do" + Subject
-  this->repository.set(STR("root:Main.Do"), SymbolDefinition::create({
-    {SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd"))},
-    {SymbolDefElement::VARS, SharedMap::create(false, {
-       {STR("kwd"), std::make_shared<String>(STR("do"))},
-       {STR("prms"), SharedList::create({
-          SharedMap::create(false, {
-            {STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject"))},
-            {STR("min"), std::make_shared<Integer>(1)},
-            {STR("max"), std::make_shared<Integer>(1)},
-            {STR("pty"), std::make_shared<Integer>(1)}
-          })
-        })}
-     })},
-    {SymbolDefElement::HANDLER, this->parsingHandler},
-    {SymbolDefElement::FLAGS, ParsingFlags::ENFORCE_PROD_OBJ}
-  }).get());
-
-  //// Import = "import" + Subject
-  this->repository.set(STR("root:Main.Import"), SymbolDefinition::create({
-    {SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd"))},
-    {SymbolDefElement::VARS, SharedMap::create(false, {
-       {STR("kwd"), SharedMap::create(false, {{STR("import"),0},{STR("اشمل"),0}})},
-       {STR("prms"), SharedList::create({
-          SharedMap::create(false, {
-            {STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject"))},
-            {STR("min"), std::make_shared<Integer>(1)},
-            {STR("max"), std::make_shared<Integer>(1)},
-            {STR("pty"), std::make_shared<Integer>(1)}
-          })
-        })}
-     })},
-    {SymbolDefElement::HANDLER, this->importHandler}
-  }).get());
-
-  //// Def = "def" + Subject
-  this->repository.set(STR("root:Main.Def"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, SharedMap::create(false, {
-        { STR("kwd"), SharedMap::create(false, { { STR("def"), 0 }, { STR("عرّف"), 0 } }) },
-        {
-          STR("prms"), SharedList::create({
+    //// Do = "do" + Subject
+    this->repository.set(STR("root:Main.Do"), SymbolDefinition::create({
+      {SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd"))},
+      {SymbolDefElement::VARS, SharedMap::create(false, {
+         {STR("kwd"), std::make_shared<String>(STR("do"))},
+         {STR("prms"), SharedList::create({
             SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
-              { STR("min"), std::make_shared<Integer>(1) },
-              { STR("max"), std::make_shared<Integer>(1) },
-              { STR("pty"), std::make_shared<Integer>(1) }
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)}
             })
-          })
-        }
-      })
-    },
-    {SymbolDefElement::HANDLER, std::make_shared<Processing::Handlers::DefParsingHandler>()}
-  }).get());
+          })}
+       })},
+      {SymbolDefElement::HANDLER, this->parsingHandler},
+      {SymbolDefElement::FLAGS, ParsingFlags::ENFORCE_PROD_OBJ}
+    }).get());
+
+    //// Import = "import" + Subject
+    this->repository.set(STR("root:Main.Import"), SymbolDefinition::create({
+      {SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd"))},
+      {SymbolDefElement::VARS, SharedMap::create(false, {
+         {STR("kwd"), SharedMap::create(false, {{STR("import"),0},{STR("اشمل"),0}})},
+         {STR("prms"), SharedList::create({
+            SharedMap::create(false, {
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)}
+            })
+          })}
+       })},
+      {SymbolDefElement::HANDLER, this->importHandler}
+    }).get());
+
+    //// Def = "def" + Subject
+    this->repository.set(STR("root:Main.Def"), SymbolDefinition::create({
+      { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+      {
+        SymbolDefElement::VARS, SharedMap::create(false, {
+          { STR("kwd"), SharedMap::create(false, { { STR("def"), 0 }, { STR("عرّف"), 0 } }) },
+          {
+            STR("prms"), SharedList::create({
+              SharedMap::create(false, {
+                { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
+                { STR("min"), std::make_shared<Integer>(1) },
+                { STR("max"), std::make_shared<Integer>(1) },
+                { STR("pty"), std::make_shared<Integer>(1) }
+              })
+            })
+          }
+        })
+      },
+      {SymbolDefElement::HANDLER, std::make_shared<Processing::Handlers::DefParsingHandler>()}
+    }).get());
+  }
 
   //// Cmd : keyword {Subject}.
   // IdentCmd : @limit[user.parent=Command] prod (kwd:keywords, args:list[hash[prd:production[Subject], min:integer,

@@ -29,7 +29,13 @@ class IntegerType : public Type
 
 
   //============================================================================
-  // Constructor / Destructor
+  // Member Variables
+
+  private: mutable TioSharedPtr bitCountRef;
+
+
+  //============================================================================
+  // Constructors & Destructor
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(IntegerType);
 
@@ -41,14 +47,14 @@ class IntegerType : public Type
   //============================================================================
   // Member Functions
 
-  public: Word getBitCount(Core::Data::Seeker *seeker) const;
+  public: Word getBitCount(Core::Standard::RootManager *rootManager) const;
 
   public: virtual Bool isImplicitlyCastableTo(
-    Type const *type, ExecutionContext const *context, Core::Data::Seeker *seeker
+    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
   ) const;
 
   public: virtual Bool isExplicitlyCastableTo(
-    Type const *type, ExecutionContext const *context, Core::Data::Seeker *seeker
+    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
   ) const;
 
 }; // class

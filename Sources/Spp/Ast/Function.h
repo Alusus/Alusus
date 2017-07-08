@@ -17,6 +17,7 @@ namespace Spp { namespace Ast
 {
 
 using namespace Core;
+class Type;
 
 class Function : public Core::Data::Node,
                  public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
@@ -35,7 +36,7 @@ class Function : public Core::Data::Node,
   //============================================================================
   // Types
 
-  public: s_enum(CallMatchStatus, EXACT, CASTED, NONE);
+  public: s_enum(CallMatchStatus, NONE, CASTED, EXACT);
 
 
   //============================================================================
@@ -111,6 +112,22 @@ class Function : public Core::Data::Node,
     return this->argTypes;
   }
 
+  public: Word getArgCount() const
+  {
+    return this->argTypes == 0 ? 0 : this->argTypes->getCount();
+  }
+
+  public: Type* traceArgType(Int index, Core::Data::Seeker *seeker) const
+  {
+    if (this->argTypes == 0 || this->argTypes->getCount() == 0) {
+      throw EXCEPTION(GenericException, STR("Function takes no arguments."));
+    }
+    if (this->argTypes == 0 || index < 0 || index >= this->argTypes->getCount()) {
+      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+    }
+    return Function::traceType(this->argTypes->get(index), seeker);
+  }
+
   public: void setVariadic(Bool v)
   {
     this->variadic.set(v);
@@ -131,6 +148,11 @@ class Function : public Core::Data::Node,
     return this->retType;
   }
 
+  public: Type* traceRetType(Core::Data::Seeker *seeker) const
+  {
+    return Function::traceType(this->retType.get(), seeker);
+  }
+
   public: void setBody(SharedPtr<Block> const &b)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
@@ -142,10 +164,11 @@ class Function : public Core::Data::Node,
   }
 
   public: CallMatchStatus matchCall(
-    Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *context, Core::Data::Seeker *seeker
+    Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *context,
+    Core::Standard::RootManager *rootManager
   );
 
-  private: Type* traceType(TiObject *ref, Core::Data::Seeker *seeker);
+  private: static Type* traceType(TiObject *ref, Core::Data::Seeker *seeker);
 
 
   //============================================================================

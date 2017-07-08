@@ -19,25 +19,29 @@ namespace Spp { namespace Ast
 // Member Functions
 
 Function::CallMatchStatus Function::matchCall(
-  Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *context, Core::Data::Seeker *seeker
+  Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *context,
+  Core::Standard::RootManager *rootManager
 ) {
   if (types == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("types"), STR("Cannot be null."));
   }
-  if (seeker == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("seeker"), STR("Cannot be null."));
+  if (rootManager == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("rootManager"), STR("Cannot be null."));
   }
-  if (types->getElementCount() < this->argTypes->getCount()) {
+  Word argCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
+  if (argCount == 0) {
+    return types->getElementCount() == 0 ? CallMatchStatus::EXACT : CallMatchStatus::NONE;
+  } else if (types->getElementCount() < argCount) {
     return CallMatchStatus::NONE;
-  } else if (types->getElementCount() > this->argTypes->getCount() && !this->isVariadic()) {
+  } else if (types->getElementCount() > argCount && !this->isVariadic()) {
     return CallMatchStatus::NONE;
   } else {
     Bool casted = false;
-    for (Int i = 0; i < this->argTypes->getCount(); ++i) {
-      Type *wantedType = this->traceType(this->argTypes->get(i), seeker);
-      Type *providedType = this->traceType(types->getElement(i), seeker);
+    for (Int i = 0; i < argCount; ++i) {
+      Type *wantedType = this->traceType(this->argTypes->get(i), rootManager->getSeeker());
+      Type *providedType = this->traceType(types->getElement(i), rootManager->getSeeker());
       if (wantedType != providedType) {
-        if (providedType->isImplicitlyCastableTo(providedType, context, seeker)) {
+        if (providedType->isImplicitlyCastableTo(wantedType, context, rootManager)) {
           casted = true;
         } else {
           return CallMatchStatus::NONE;

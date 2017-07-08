@@ -30,12 +30,8 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   // Create the generator.
   this->nodePathResolver = new NodePathResolver(manager->getSeeker());
-  this->llvmTypeGenerator = new LlvmCodeGen::TypeGenerator(manager->getSeeker(), this->nodePathResolver);
-  this->llvmGenerator = new LlvmCodeGen::Generator(
-    manager->getSeeker(),
-    this->nodePathResolver,
-    this->llvmTypeGenerator
-  );
+  this->llvmTypeGenerator = new LlvmCodeGen::TypeGenerator(manager, this->nodePathResolver);
+  this->llvmGenerator = new LlvmCodeGen::Generator(manager, this->nodePathResolver, this->llvmTypeGenerator);
 
   // Create leading commands.
 
@@ -437,6 +433,16 @@ void LibraryGateway::createBuiltInTypes(Core::Standard::RootManager *manager)
   tmplt->setTemplateBody(Ast::PointerType::create());
   identifier.setValue(STR("ptr"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
+
+  // array
+  tmplt = Ast::Template::create();
+  tmplt->setVarDefs({
+    { STR("type"), Ast::Template::VarType::TYPE },
+    { STR("size"), Ast::Template::VarType::INTEGER }
+  });
+  tmplt->setTemplateBody(Ast::ArrayType::create());
+  identifier.setValue(STR("array"));
+  manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 }
 
 
@@ -452,6 +458,9 @@ void LibraryGateway::removeBuiltInTypes(Core::Standard::RootManager *manager)
   manager->getSeeker()->doRemove(&identifier, root);
 
   identifier.setValue(STR("ptr"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("array"));
   manager->getSeeker()->doRemove(&identifier, root);
 }
 

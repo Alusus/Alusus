@@ -37,16 +37,23 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   //============================================================================
   // Member Variables
 
-  private: Core::Data::Seeker *seeker;
+  private: Core::Standard::RootManager *rootManager;
   private: NodePathResolver *nodePathResolver;
   private: TypeGenerator *typeGenerator;
+
+  private: SharedPtr<llvm::Module> llvmModule;
+  private: SharedPtr<ExecutionContext> executionContext;
+  private: SharedPtr<Core::Data::Ast::ParamPass> constStringTypeRef;
+  
+  private: Spp::Ast::Type *astCharPtrType = 0;
+  private: llvm::Type *llvmCharType = 0;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: Generator(Core::Data::Seeker *s, NodePathResolver *r, TypeGenerator *tg)
-    : seeker(s), nodePathResolver(r), typeGenerator(tg)
+  public: Generator(Core::Standard::RootManager *manager, NodePathResolver *r, TypeGenerator *tg)
+    : rootManager(manager), nodePathResolver(r), typeGenerator(tg)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -57,7 +64,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
-    this->seeker = parent->getSeeker();
+    this->rootManager = parent->getRootManager();
     this->nodePathResolver = parent->getNodePathResolver();
     this->typeGenerator = parent->getTypeGenerator();
   }
@@ -76,9 +83,14 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   private: void initBindingCaches();
   private: void initBindings();
 
+  public: Core::Standard::RootManager* getRootManager() const
+  {
+    return this->rootManager;
+  }
+
   public: Core::Data::Seeker* getSeeker() const
   {
-    return this->seeker;
+    return this->rootManager->getSeeker();
   }
 
   public: NodePathResolver* getNodePathResolver() const
@@ -105,46 +117,70 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   /// @name Code Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(generateModule, void, (Spp::Ast::Module*, llvm::Module*));
-  public: METHOD_BINDING_CACHE(generateFunction, void, (Spp::Ast::Function*, llvm::Module*));
-  public: METHOD_BINDING_CACHE(generateFunctionDecl, void, (Spp::Ast::Function*, llvm::Module*));
+  public: METHOD_BINDING_CACHE(generateModule, void, (Spp::Ast::Module*));
+
+  public: METHOD_BINDING_CACHE(generateFunction, void, (Spp::Ast::Function*));
+  public: METHOD_BINDING_CACHE(generateFunctionDecl, void, (Spp::Ast::Function*));
+
   public: METHOD_BINDING_CACHE(generateBlock, void, (Spp::Ast::Block*, llvm::Function*));
+  public: METHOD_BINDING_CACHE(prepareBlock, void, (Spp::Ast::Block*, llvm::Function*));
+
+  public: METHOD_BINDING_CACHE(generateStatements,
+    void, (Spp::Ast::Block*, llvm::IRBuilder<>*, llvm::Function*)
+  );
   public: METHOD_BINDING_CACHE(generateStatement,
-    void, (TiObject*, llvm::Function*, Spp::Ast::Type*&, TiObject*&, TiObject*&)
+    void, (TiObject*, llvm::IRBuilder<>*, llvm::Function*, Spp::Ast::Type*&, llvm::Value*&, TiObject*&)
   );
   public: METHOD_BINDING_CACHE(generateParamPass,
-    void, (Core::Data::Ast::ParamPass*, llvm::Function*, Spp::Ast::Type*&, TiObject*&, TiObject*&)
+    void, (
+      Core::Data::Ast::ParamPass*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
   );
   public: METHOD_BINDING_CACHE(generateIdentifier,
-    void, (Core::Data::Ast::Identifier*, llvm::Function*, Spp::Ast::Type*&, TiObject*&, TiObject*&)
+    void, (
+      Core::Data::Ast::Identifier*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
   );
   public: METHOD_BINDING_CACHE(generateStringLiteral,
-    void, (Core::Data::Ast::StringLiteral*, llvm::Function*, Spp::Ast::Type*&, TiObject*&, TiObject*&)
+    void, (
+      Core::Data::Ast::StringLiteral*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
   );
   // public: METHOD_BINDING_CACHE(generateIfStatement, this->getBindingMap());
   // public: METHOD_BINDING_CACHE(generateWhileStatement, this->getBindingMap());
   // public: METHOD_BINDING_CACHE(generateExpression, this->getBindingMap());
 
-  private: static void _generateModule(TiObject *self, Spp::Ast::Module *astModule, llvm::Module *llvmModule);
-  private: static void _generateFunction(TiObject *self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule);
-  private: static void _generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc, llvm::Module *llvmModule);
+  private: static void _generateModule(TiObject *self, Spp::Ast::Module *astModule);
+
+  private: static void _generateFunction(TiObject *self, Spp::Ast::Function *astFunc);
+  private: static void _generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc);
+
   private: static void _generateBlock(TiObject *self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc);
+  private: static void _prepareBlock(TiObject *self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc);
+
+  private: static void _generateStatements(
+    TiObject *self, Spp::Ast::Block *astBlock, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
+  );
   private: static void _generateStatement(
-    TiObject *self, TiObject *astNode, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, TiObject *&resultCg, TiObject *&lastProcessedRef
+    TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
   );
   private: static void _generateParamPass(
-    TiObject *self, Core::Data::Ast::ParamPass *astNode, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, TiObject *&resultCg, TiObject *&lastProcessedRef
+    TiObject *self, Core::Data::Ast::ParamPass *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
   );
   private: static void _generateIdentifier(
-    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, TiObject *&resultCg, TiObject *&lastProcessedRef
+    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
   );
   private: static void _generateStringLiteral(
-    TiObject *self, Core::Data::Ast::StringLiteral *astNode, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, TiObject *&resultCg, TiObject *&lastProcessedRef
+    TiObject *self, Core::Data::Ast::StringLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
   );
+
   //private: static void _generateIfStatement(Bindings *_self, );
   //private: static void _generateWhileStatement(Bindings *_self, );
   //private: static void _generateExpression(Bindings *_self, );
@@ -154,10 +190,10 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   /// @name Helper Functions
   /// @{
 
-  public: Spp::Ast::Type* getGeneratedType(TiObject *ref, llvm::Module *llvmModule);
-  public: llvm::Type* getGeneratedLlvmType(TiObject *ref, llvm::Module *llvmModule);
-  public: Str const& getFunctionName(Spp::Ast::Function *astFunc);
-  public: Str getNewBlockName();
+  private: Str const& getFunctionName(Spp::Ast::Function *astFunc);
+  private: Str getNewBlockName();
+  private: Str getAnonymouseVarName();
+  private: void getConstStringType(Word size, Ast::Type *&astType, llvm::Type *&llvmType);
 
   /// @}
 

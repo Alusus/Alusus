@@ -59,9 +59,9 @@ class UserFunction : public Function
   //============================================================================
   // Member Functions
 
-  public: virtual void createCallInstruction(llvm::IRBuilder<> *irb, std::vector<llvm::Value*> const &args)
+  public: virtual llvm::Value* createCallInstruction(llvm::IRBuilder<> *irb, std::vector<llvm::Value*> const &args)
   {
-    throw EXCEPTION(GenericException, STR("Not implemented."));
+    return irb->CreateCall(this->llvmFunction, args);
   }
 
   public: void setLlvmFunction(llvm::Function *llvmF)

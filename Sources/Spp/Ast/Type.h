@@ -80,11 +80,11 @@ class Type : public Core::Data::Node,
   }
 
   public: virtual Bool isImplicitlyCastableTo(
-    Type const *type, ExecutionContext const *context, Core::Data::Seeker *seeker
+    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
   ) const = 0;
 
   public: virtual Bool isExplicitlyCastableTo(
-    Type const *type, ExecutionContext const *context, Core::Data::Seeker *seeker
+    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
   ) const = 0;
 
 }; // class

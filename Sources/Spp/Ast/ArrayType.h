@@ -1,8 +1,8 @@
 /**
- * @file Spp/LlvmCodeGen/ArrayType.h
- * Contains the header of class Spp::LlvmCodeGen::ArrayType.
+ * @file Spp/Ast/ArrayType.h
+ * Contains the header of class Spp::Ast::ArrayType.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,12 +10,10 @@
  */
 //==============================================================================
 
-// TODO:
+#ifndef SPP_AST_ARRAYTYPE_H
+#define SPP_AST_ARRAYTYPE_H
 
-#ifndef SPP_LLVMCODEGEN_ARRAYTYPE_H
-#define SPP_LLVMCODEGEN_ARRAYTYPE_H
-
-namespace Spp { namespace LlvmCodeGen
+namespace Spp { namespace Ast
 {
 
 class ArrayType : public Type
@@ -23,47 +21,49 @@ class ArrayType : public Type
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ArrayType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.net");
+  TYPE_INFO(ArrayType, Type, "Spp.Ast", "Spp", "alusus.net");
+
+  IMPLEMENT_AST_MAP_CLONABLE(ArrayType);
+
+  IMPLEMENT_AST_MAP_PRINTABLE(ArrayType);
 
 
   //============================================================================
   // Member Variables
 
-  private: ValueType const *contentType;
-
-  private: Word size;
+  private: mutable TioSharedPtr contentTypeRef;
+  private: mutable TioSharedPtr sizeRef;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  private: ArrayType(ValueType const *contentType, Word s);
+  IMPLEMENT_EMPTY_CONSTRUCTOR(ArrayType);
+
+  IMPLEMENT_ATTR_CONSTRUCTOR(ArrayType);
+
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(ArrayType);
 
 
   //============================================================================
   // Member Functions
 
-  public: ValueType const* getContentType() const
+  public: Type* getContentType(Core::Standard::RootManager *rootManager) const;
+
+  public: Word getSize(Core::Standard::RootManager *rootManager) const;
+
+  public: virtual Bool isImplicitlyCastableTo(
+    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
+  ) const
   {
-    return this->contentType;
+    return this == type;
   }
 
-  public: Word getSize() const
+  public: virtual Bool isExplicitlyCastableTo(
+    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
+  ) const
   {
-    return this->size;
-  }
-
-  // TODO:
-
-  public: virtual bool isImplicitlyCastableTo(ValueType const *type, ExecutionContext const *context) const
-  {
-    auto ArrayType = tio_cast<ArrayType>(type);
-    if (ArrayType != 0 && ArrayType->getContentType() == 0) return true;
-  }
-
-  public: virtual bool isExplicitlyCastableTo(ValueType const *type, ExecutionContext const *context) const
-  {
-    return type->isDerivedFrom<ArrayType>();
+    return this == type;
   }
 
 }; // class

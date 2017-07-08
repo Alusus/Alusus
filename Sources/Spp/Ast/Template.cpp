@@ -47,7 +47,7 @@ TioSharedPtr const& Template::getInstance(TiObject *templateInput, Core::Data::S
 
   // Do we already have an instance?
   for (Int i = 0; i < this->instances.size(); ++i) {
-    if (this->matchTemplateVars(templateInput, this->instances[0].get(), seeker)) {
+    if (this->matchTemplateVars(templateInput, this->instances[i].get(), seeker)) {
       return this->instances[i]->getShared(0);
     }
   }

@@ -18,12 +18,13 @@ namespace Spp { namespace Ast
 //==============================================================================
 // Member Functions
 
-Type* PointerType::getContentType(Core::Data::Seeker *seeker) const
+Type* PointerType::getContentType(Core::Standard::RootManager *rootManager) const
 {
-  static Core::Basic::TiStr TYPE(STR("type"));
-  static Core::Data::Ast::Identifier identifier({{STR("value"), &TYPE}});
+  if (this->contentTypeRef == 0) {
+    this->contentTypeRef = rootManager->parseExpression(STR("type"));
+  }
   auto typeBox = ti_cast<Core::Basic::TioSharedBox>(
-    seeker->doGet(&identifier, this->getOwner())
+    rootManager->getSeeker()->doGet(this->contentTypeRef.get(), this->getOwner())
   );
   if (typeBox == 0) return 0;
   auto type = typeBox->get().ti_cast_get<Spp::Ast::Type>();
@@ -35,7 +36,7 @@ Type* PointerType::getContentType(Core::Data::Seeker *seeker) const
 
 
 Bool PointerType::isImplicitlyCastableTo(
-  Type const *type, ExecutionContext const *context, Core::Data::Seeker *seeker
+  Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
 ) const
 {
   if (this == type) return true;
@@ -43,19 +44,20 @@ Bool PointerType::isImplicitlyCastableTo(
   auto pointerType = ti_cast<PointerType>(type);
   if (pointerType == 0) return false;
   else {
-    Type const *contentType = pointerType->getContentType(seeker);
+    Type const *contentType = pointerType->getContentType(rootManager);
     if (contentType == 0) return true;
     else {
-      Type const *thisContentType = this->getContentType(seeker);
+      Type const *thisContentType = this->getContentType(rootManager);
       if (thisContentType == 0) return false;
-      else return thisContentType->isImplicitlyCastableTo(contentType, context, seeker);
+      else return thisContentType == contentType;
+      // TODO: Allow for contents of same size and no-op casting.
     }
   }
 }
 
 
 Bool PointerType::isExplicitlyCastableTo(
-  Type const *type, ExecutionContext const *context, Core::Data::Seeker *seeker
+  Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
 ) const
 {
   if (this == type) return true;
@@ -64,7 +66,7 @@ Bool PointerType::isExplicitlyCastableTo(
 
   if (type->isDerivedFrom<IntegerType>()) {
     auto integerType = static_cast<IntegerType const*>(type);
-    if (integerType->getBitCount(seeker) == context->getPointerBitCount()) return true;
+    if (integerType->getBitCount(rootManager) == context->getPointerBitCount()) return true;
   }
 
   return false;

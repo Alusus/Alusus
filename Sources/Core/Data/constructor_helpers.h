@@ -13,7 +13,7 @@
 #ifndef CORE_DATA_CONSTRUCTORHELPERS_H
 #define CORE_DATA_CONSTRUCTORHELPERS_H
 
-#define _ATTR_INITIALIZATION_LOOP \
+#define ATTR_INITIALIZATION_LOOP(attrs) \
   if (attrs.size() > 0) { \
     for (auto attr : attrs) { \
       if (attr.type == ArgumentType::TI_PTR) { \
@@ -28,7 +28,7 @@
     } \
   }
 
-#define _MAP_ELEMENT_INITIALIZATION_LOOP \
+#define MAP_ELEMENT_INITIALIZATION_LOOP(elements) \
   if (elements.size() > 0) { \
     for (auto element : elements) { \
       if (element.type == ArgumentType::TI_PTR) { \
@@ -41,7 +41,7 @@
     } \
   }
 
-#define _LIST_ELEMENT_INITIALIZATION_LOOP \
+#define LIST_ELEMENT_INITIALIZATION_LOOP(elements) \
   if (elements.size() > 0) { \
     for (auto element : elements) this->add(element); \
   }
@@ -57,7 +57,7 @@
 #define IMPLEMENT_ATTR_CONSTRUCTOR(type) \
   public: type(std::initializer_list<Argument<Char const*>> const &attrs) \
   { \
-    _ATTR_INITIALIZATION_LOOP \
+    ATTR_INITIALIZATION_LOOP(attrs) \
   } \
   public: static SharedPtr<type> create(std::initializer_list<Argument<Char const*>> const &attrs) \
   { \
@@ -68,7 +68,7 @@
 #define IMPLEMENT_LIST_CONSTRUCTOR(type) \
   public: type(std::initializer_list<TioSharedPtr> const &elements) \
   { \
-    _LIST_ELEMENT_INITIALIZATION_LOOP \
+    LIST_ELEMENT_INITIALIZATION_LOOP(elements) \
   } \
   public: static SharedPtr<type> create(std::initializer_list<TioSharedPtr> const &args) \
   { \
@@ -79,7 +79,7 @@
 #define IMPLEMENT_MAP_CONSTRUCTOR(type) \
   public: type(std::initializer_list<Argument<Char const*>> const &elements) \
   { \
-    _MAP_ELEMENT_INITIALIZATION_LOOP \
+    MAP_ELEMENT_INITIALIZATION_LOOP(elements) \
   } \
   public: static SharedPtr<type> create(std::initializer_list<Argument<Char const*>> const &elements) \
   { \
@@ -91,8 +91,8 @@
   public: type(std::initializer_list<Argument<Char const*>> const &attrs, \
                std::initializer_list<TioSharedPtr> const &elements) \
   { \
-    _ATTR_INITIALIZATION_LOOP \
-    _LIST_ELEMENT_INITIALIZATION_LOOP \
+    ATTR_INITIALIZATION_LOOP(attrs) \
+    LIST_ELEMENT_INITIALIZATION_LOOP(elements) \
   } \
   public: static SharedPtr<type> create(std::initializer_list<Argument<Char const*>> const &attrs, \
                                         std::initializer_list<TioSharedPtr> const &elements) \
@@ -105,8 +105,8 @@
   public: type(std::initializer_list<Argument<Char const*>> const &attrs, \
                std::initializer_list<Argument<Char const*>> const &elements) \
   { \
-    _ATTR_INITIALIZATION_LOOP \
-    _MAP_ELEMENT_INITIALIZATION_LOOP \
+    ATTR_INITIALIZATION_LOOP(attrs) \
+    MAP_ELEMENT_INITIALIZATION_LOOP(elements) \
   } \
   public: static SharedPtr<type> create(std::initializer_list<Argument<Char const*>> const &attrs, \
                                         std::initializer_list<Argument<Char const*>> const &elements) \

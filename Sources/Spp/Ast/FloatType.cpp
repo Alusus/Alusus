@@ -18,12 +18,13 @@ namespace Spp { namespace Ast
 //==============================================================================
 // Member Functions
 
-Word FloatType::getBitCount(Core::Data::Seeker *seeker) const
+Word FloatType::getBitCount(Core::Standard::RootManager *rootManager) const
 {
-  static Core::Basic::TiStr BIT_COUNT(STR("bitCount"));
-  static Core::Data::Ast::Identifier identifier({{STR("value"), &BIT_COUNT}});
+  if (this->bitCountRef == 0) {
+    this->bitCountRef = rootManager->parseExpression(STR("bitCount"));
+  }
   auto bitCountBox = ti_cast<Core::Basic::TioSharedBox>(
-    seeker->doGet(&identifier, this->getOwner())
+    rootManager->getSeeker()->doGet(this->bitCountRef.get(), this->getOwner())
   );
   if (bitCountBox == 0) {
     throw EXCEPTION(GenericException, STR("Could not find bitCount value."));
@@ -37,19 +38,19 @@ Word FloatType::getBitCount(Core::Data::Seeker *seeker) const
 
 
 Bool FloatType::isImplicitlyCastableTo(
-  Type const *type, ExecutionContext const *context, Core::Data::Seeker *seeker
+  Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
 ) const
 {
   if (this == type) return true;
 
   auto floatType = tio_cast<FloatType>(type);
-  if (floatType != 0 && floatType->getBitCount(seeker) >= this->getBitCount(seeker)) return true;
+  if (floatType != 0 && floatType->getBitCount(rootManager) >= this->getBitCount(rootManager)) return true;
   else return false;
 }
 
 
 Bool FloatType::isExplicitlyCastableTo(
-  Type const *type, ExecutionContext const *context, Core::Data::Seeker *seeker
+  Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
 ) const
 {
   if (this == type) return true;
