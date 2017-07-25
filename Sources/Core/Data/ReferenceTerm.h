@@ -36,14 +36,15 @@ class ReferenceTerm : public Term, public virtual DataOwner
   //============================================================================
   // Constructor & Destructor
 
-  public: ReferenceTerm(Char const *ref=0, Word f=0) : Term(f)
+  public: ReferenceTerm(Char const *ref=0, SharedPtr<Node> const &f=SharedPtr<Node>()) : Term(f)
   {
     if (ref != 0) {
       UPDATE_OWNED_SHAREDPTR(this->reference, REF_PARSER->parseQualifier(ref));
     }
   }
 
-  public: ReferenceTerm(const SharedPtr<Reference> &ref, Word f=0) : Term(f), reference(ref)
+  public: ReferenceTerm(const SharedPtr<Reference> &ref, SharedPtr<Node> const &f=SharedPtr<Node>())
+    : Term(f), reference(ref)
   {
     if (this->reference != 0) this->reference->setOwner(this);
   }
@@ -53,12 +54,13 @@ class ReferenceTerm : public Term, public virtual DataOwner
     RESET_OWNED_SHAREDPTR(this->reference);
   }
 
-  public: static SharedPtr<ReferenceTerm> create(Char const *ref=0, Word f=0)
+  public: static SharedPtr<ReferenceTerm> create(Char const *ref=0, SharedPtr<Node> const &f=SharedPtr<Node>())
   {
     return std::make_shared<ReferenceTerm>(ref, f);
   }
 
-  public: static SharedPtr<ReferenceTerm> create(const SharedPtr<Reference> &ref, Word f=0)
+  public: static SharedPtr<ReferenceTerm> create(const SharedPtr<Reference> &ref,
+                                                 SharedPtr<Node> const &f=SharedPtr<Node>())
   {
     return std::make_shared<ReferenceTerm>(ref, f);
   }

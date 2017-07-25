@@ -42,7 +42,7 @@ class CharGroupTerm : public Term, public virtual DataOwner
   //============================================================================
   // Constructor / Destructor
 
-  public: CharGroupTerm(Char const *ref=0, Word f=0) : Term(f)
+  public: CharGroupTerm(Char const *ref, Word f) : Term(f)
   {
     if (ref != 0) {
       this->charGroupReference = REF_PARSER->parseQualifier(ref);
@@ -50,7 +50,21 @@ class CharGroupTerm : public Term, public virtual DataOwner
     }
   }
 
-  public: CharGroupTerm(const SharedPtr<Reference> &ref, Word f=0) : Term(f), charGroupReference(ref)
+  public: CharGroupTerm(Char const *ref=0, SharedPtr<Node> const &f=SharedPtr<Node>()) : Term(f)
+  {
+    if (ref != 0) {
+      this->charGroupReference = REF_PARSER->parseQualifier(ref);
+      this->charGroupReference->setOwner(this);
+    }
+  }
+
+  public: CharGroupTerm(const SharedPtr<Reference> &ref, Word f) : Term(f), charGroupReference(ref)
+  {
+    if (this->charGroupReference != 0) this->charGroupReference->setOwner(this);
+  }
+
+  public: CharGroupTerm(const SharedPtr<Reference> &ref, SharedPtr<Node> const &f=SharedPtr<Node>())
+    : Term(f), charGroupReference(ref)
   {
     if (this->charGroupReference != 0) this->charGroupReference->setOwner(this);
   }
@@ -60,12 +74,23 @@ class CharGroupTerm : public Term, public virtual DataOwner
     RESET_OWNED_SHAREDPTR(this->charGroupReference);
   }
 
-  public: static SharedPtr<CharGroupTerm> create(Char const *ref=0, Word f=0)
+  public: static SharedPtr<CharGroupTerm> create(Char const *ref, Word f)
   {
     return std::make_shared<CharGroupTerm>(ref, f);
   }
 
-  public: static SharedPtr<CharGroupTerm> create(const SharedPtr<Reference> &ref, Word f=0)
+  public: static SharedPtr<CharGroupTerm> create(Char const *ref=0, SharedPtr<Node> const &f=SharedPtr<Node>())
+  {
+    return std::make_shared<CharGroupTerm>(ref, f);
+  }
+
+  public: static SharedPtr<CharGroupTerm> create(const SharedPtr<Reference> &ref, Word f)
+  {
+    return std::make_shared<CharGroupTerm>(ref, f);
+  }
+
+  public: static SharedPtr<CharGroupTerm> create(const SharedPtr<Reference> &ref,
+                                                 SharedPtr<Node> const &f=SharedPtr<Node>())
   {
     return std::make_shared<CharGroupTerm>(ref, f);
   }

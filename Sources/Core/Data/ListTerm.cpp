@@ -38,7 +38,7 @@ ListTerm::ListTerm(const std::initializer_list<Argument<TermElement>> &args)
   for (auto arg : args) {
     switch (arg.id.val) {
       case TermElement::FLAGS:
-        this->setFlags(arg.intVal);
+        this->setFlags(arg.tiShared.ti_cast<Node>());
         break;
       case TermElement::REF:
         UPDATE_OWNED_SHAREDPTR(this->targetRef, arg.tiShared.ti_cast<Reference>());
@@ -48,10 +48,10 @@ ListTerm::ListTerm(const std::initializer_list<Argument<TermElement>> &args)
         }
         break;
       case TermElement::DATA:
-        UPDATE_OWNED_SHAREDPTR(this->data, arg.tiShared.tio_cast<Node>());
+        UPDATE_OWNED_SHAREDPTR(this->data, arg.tiShared.ti_cast<Node>());
         break;
       case TermElement::TERM:
-        UPDATE_OWNED_SHAREDPTR(this->terms, arg.tiShared.tio_cast<Node>());
+        UPDATE_OWNED_SHAREDPTR(this->terms, arg.tiShared.ti_cast<Node>());
         break;
     }
   }

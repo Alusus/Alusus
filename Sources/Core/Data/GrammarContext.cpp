@@ -226,9 +226,19 @@ Integer* GrammarContext::getMultiplyTermPriority(MultiplyTerm *term, Module *mod
 {
   TiObject *priority = this->traceValue(term->getPriority().get(), module);
   if (priority != 0 && !priority->isA<Integer>()) {
-    throw EXCEPTION(GenericException, STR("Multiply term's priority occurances is of invalid type."));
+    throw EXCEPTION(GenericException, STR("Multiply term's priority is of invalid type."));
   }
   return static_cast<Integer*>(priority);
+}
+
+
+Integer* GrammarContext::getTermFlags(Term *term, Module *module)
+{
+  TiObject *flags = this->traceValue(term->getFlags().get(), module);
+  if (flags != 0 && !flags->isA<Integer>()) {
+    throw EXCEPTION(GenericException, STR("Term's flags is of invalid type."));
+  }
+  return static_cast<Integer*>(flags);
 }
 
 
@@ -288,6 +298,26 @@ SharedMap* GrammarContext::getSymbolVars(const SymbolDefinition *definition, Mod
   }
   if (curModule != oldModule) this->setModule(oldModule);
   return static_cast<SharedMap*>(retVal.object);
+}
+
+
+Integer* GrammarContext::getSymbolPriority(SymbolDefinition const *definition, Module *module)
+{
+  TiObject *priority = this->traceValue(definition->getPriority().get(), module);
+  if (priority != 0 && !priority->isA<Integer>()) {
+    throw EXCEPTION(GenericException, STR("Symbol's priority is of invalid type."));
+  }
+  return static_cast<Integer*>(priority);
+}
+
+
+Integer* GrammarContext::getSymbolFlags(SymbolDefinition const *definition, Module *module)
+{
+  TiObject *flags = this->traceValue(definition->getFlags().get(), module);
+  if (flags != 0 && !flags->isA<Integer>()) {
+    throw EXCEPTION(GenericException, STR("Symbol's flags is of invalid type."));
+  }
+  return static_cast<Integer*>(flags);
 }
 
 

@@ -60,7 +60,8 @@ class MultiplyTerm : public Term, public virtual DataOwner
   // Constructors
 
   /// Initialize the object.
-  public: MultiplyTerm(SharedPtr<Node> const &p=SharedPtr<Node>(), Word f=0,
+  public: MultiplyTerm(SharedPtr<Node> const &p=SharedPtr<Node>(),
+                       SharedPtr<Node> const &f=SharedPtr<Node>(),
                        SharedPtr<Node> const &min=SharedPtr<Node>(),
                        SharedPtr<Node> const &max=SharedPtr<Node>(),
                        const SharedPtr<Term> &t=SharedPtr<Term>());

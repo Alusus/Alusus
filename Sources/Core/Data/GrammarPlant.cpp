@@ -112,7 +112,7 @@ SharedPtr<SymbolDefinition> GrammarPlant::createConstTokenDef(Char const *text)
 {
   return SymbolDefinition::create({
         {SymbolDefElement::TERM, ConstTerm::create(0, text)},
-        {SymbolDefElement::FLAGS, SymbolFlags::ROOT_TOKEN}});
+        {SymbolDefElement::FLAGS, Integer::create(SymbolFlags::ROOT_TOKEN)}});
 }
 
 

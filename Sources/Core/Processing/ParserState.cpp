@@ -233,6 +233,7 @@ void ParserState::pushTermLevel(Data::Term *term)
 
   // Set level info.
   this->topTermLevelCache->setTerm(term);
+  this->topTermLevelCache->getFlags()->object = this->grammarContext.getTermFlags(term);
   // Cache term parameters for faster access later.
   if (term->isA<Data::TokenTerm>()) {
     Data::TokenTerm *tokenTerm = static_cast<Data::TokenTerm*>(term);
@@ -348,6 +349,7 @@ void ParserState::pushProdLevel(Data::Module *module, Data::SymbolDefinition *pr
   this->topProdLevelCache->setModule(module);
   this->topProdLevelCache->setProd(prod);
   this->topProdLevelCache->setTermStackIndex(this->getTermLevelCount());
+  this->topProdLevelCache->setFlags(this->grammarContext.getSymbolFlags(prod));
   this->variableStack.pushLevel();
   this->grammarContext.setModule(module);
   this->grammarContext.setArgs(this->grammarContext.getSymbolVars(prod));
@@ -386,6 +388,15 @@ void ParserState::popProdLevel()
   }
 
   this->popTermLevel();
+}
+
+
+Data::Integer* ParserState::getProdFlags(Int levelOffset) const
+{
+  const ParserProdLevel *level;
+  if (levelOffset == -1) level = &this->refTopProdLevel();
+  else level = &this->refProdLevel(levelOffset);
+  return static_cast<Data::Integer*>(level->getFlags());
 }
 
 
@@ -478,6 +489,15 @@ Data::Integer* ParserState::getMultiplyTermPriority(Int levelOffset) const
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::MultiplyTerm>());
   return static_cast<Data::Integer*>(level->getParam3()->object);
+}
+
+
+Data::Integer* ParserState::getTermFlags(Int levelOffset) const
+{
+  const ParserTermLevel *level;
+  if (levelOffset == -1) level = &this->refTopTermLevel();
+  else level = &this->refTermLevel(levelOffset);
+  return static_cast<Data::Integer*>(level->getFlags()->object);
 }
 
 

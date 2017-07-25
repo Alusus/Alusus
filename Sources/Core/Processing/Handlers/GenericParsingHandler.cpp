@@ -108,8 +108,12 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
 
   TiObject *matchText = state->getTokenTermText();
   // Skip if the term should be omitted.
-  if (term->getFlags() & ParsingFlags::ENFORCE_TOKEN_OMIT) return;
-  else if (!(term->getFlags() & ParsingFlags::ENFORCE_TOKEN_OBJ) && matchText != 0 && matchText->isA<Data::String>()) {
+  Data::Integer *flags = state->getTermFlags();
+  if ((flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_TOKEN_OMIT) return;
+  else if (
+    !((flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_TOKEN_OBJ) &&
+    matchText != 0 && matchText->isA<Data::String>()
+  ) {
     return;
   }
 
@@ -295,36 +299,36 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
 
 Bool GenericParsingHandler::isListObjEnforced(ParserState *state, Int levelIndex)
 {
-  Processing::ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
-  return termLevel.getTerm()->getFlags() & ParsingFlags::ENFORCE_LIST_OBJ;
+  Data::Integer *flags = state->getTermFlags(levelIndex);
+  return (flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_LIST_OBJ;
 }
 
 
 Bool GenericParsingHandler::isListItemEnforced(ParserState *state, Int levelIndex)
 {
-  Processing::ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
-  return termLevel.getTerm()->getFlags() & ParsingFlags::ENFORCE_LIST_ITEM;
+  Data::Integer *flags = state->getTermFlags(levelIndex);
+  return (flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_LIST_ITEM;
 }
 
 
 Bool GenericParsingHandler::isRouteObjEnforced(ParserState *state, Int levelIndex)
 {
-  Processing::ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
-  return termLevel.getTerm()->getFlags() & ParsingFlags::ENFORCE_ROUTE_OBJ;
+  Data::Integer *flags = state->getTermFlags(levelIndex);
+  return (flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_ROUTE_OBJ;
 }
 
 
 Bool GenericParsingHandler::isPassUpList(ParserState *state, Int levelIndex)
 {
-  Processing::ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
-  return termLevel.getTerm()->getFlags() & ParsingFlags::PASS_ITEMS_UP;
+  Data::Integer *flags = state->getTermFlags(levelIndex);
+  return (flags == 0 ? 0 : flags->get()) & ParsingFlags::PASS_ITEMS_UP;
 }
 
 
 Bool GenericParsingHandler::isProdObjEnforced(ParserState *state)
 {
-  SymbolDefinition *prod = state->refTopProdLevel().getProd();
-  return prod->getFlags() & ParsingFlags::ENFORCE_PROD_OBJ;
+  Data::Integer *flags = state->getProdFlags();
+  return (flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_PROD_OBJ;
 }
 
 

@@ -41,7 +41,11 @@ class ConstTerm : public Term
   //============================================================================
   // Constructor / Destructor
 
-  public: ConstTerm(Word f=0, Char const *str=0) : Term(f), matchString(str)
+  public: ConstTerm(SharedPtr<Node> const &f=SharedPtr<Node>(), Char const *str=0) : Term(f), matchString(str)
+  {
+  }
+
+  public: ConstTerm(Word f, Char const *str=0) : Term(f), matchString(str)
   {
   }
 
@@ -49,7 +53,12 @@ class ConstTerm : public Term
   {
   }
 
-  public: static SharedPtr<ConstTerm> create(Word f=0, Char const *str=0)
+  public: static SharedPtr<ConstTerm> create(SharedPtr<Node> const &f=SharedPtr<Node>(), Char const *str=0)
+  {
+    return std::make_shared<ConstTerm>(f, str);
+  }
+
+  public: static SharedPtr<ConstTerm> create(Word f, Char const *str=0)
   {
     return std::make_shared<ConstTerm>(f, str);
   }

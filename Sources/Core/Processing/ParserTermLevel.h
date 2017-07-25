@@ -54,6 +54,9 @@ class ParserTermLevel
   /// @sa setParam3()
   private: Data::PlainPairedPtr param3;
 
+  /// @sa setFlags()
+  private: Data::PlainPairedPtr flags;
+
 
   //============================================================================
   // Constructors / Destructor
@@ -68,7 +71,8 @@ class ParserTermLevel
     term(level.getTerm()),
     param1(*(level.getParam1())),
     param2(*(level.getParam2())),
-    param3(*(level.getParam3()))
+    param3(*(level.getParam3())),
+    flags(*(level.getFlags()))
   {
   }
 
@@ -157,6 +161,15 @@ class ParserTermLevel
     return &this->param3;
   }
 
+  protected: Data::PlainPairedPtr* getFlags()
+  {
+    return &this->flags;
+  }
+  protected: Data::PlainPairedPtr const* getFlags() const
+  {
+    return &this->flags;
+  }
+
   public: void copyFrom(ParserTermLevel *src)
   {
     this->setTerm(src->getTerm());
@@ -164,6 +177,7 @@ class ParserTermLevel
     this->param1 = *src->getParam1();
     this->param2 = *src->getParam2();
     this->param3 = *src->getParam3();
+    this->flags = *src->getFlags();
   }
 
 }; // class

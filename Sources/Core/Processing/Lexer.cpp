@@ -251,7 +251,8 @@ Int Lexer::process()
       Int i = this->selectBestToken();
       Data::SymbolDefinition *def = this->getSymbolDefinition(this->states[i].getIndexStack()->at(0));
       // Check if the chosen token is not an ignored token.
-      if (!(def->getFlags() & Data::SymbolFlags::IGNORED_TOKEN)) {
+      Data::Integer *flags = this->grammarContext.getSymbolFlags(def);
+      if (!((flags == 0 ? 0 : flags->get()) & Data::SymbolFlags::IGNORED_TOKEN)) {
         // Has the token been clamped?
         if (this->currentTokenClamped) {
           // Raise a warning.
@@ -299,7 +300,8 @@ Int Lexer::process()
     Int i = this->selectBestToken();
     Data::SymbolDefinition *def = this->getSymbolDefinition(this->states[i].getIndexStack()->at(0));
     // Check if the chosen token is not an ignored token.
-    if (!(def->getFlags() & Data::SymbolFlags::IGNORED_TOKEN)) {
+    Data::Integer *flags = this->grammarContext.getSymbolFlags(def);
+    if (!((flags == 0 ? 0 : flags->get()) & Data::SymbolFlags::IGNORED_TOKEN)) {
       // Has the token been clamped?
       if (this->currentTokenClamped) {
         // Raise a warning.
@@ -396,7 +398,8 @@ void Lexer::processStartChar(WChar inputChar)
     TiObject *obj = this->grammarContext.getModule()->get(i);
     if (obj == 0 || !obj->isA<Data::SymbolDefinition>()) continue;
     Data::SymbolDefinition *def = static_cast<Data::SymbolDefinition*>(obj);
-    if (!(def->getFlags() & Data::SymbolFlags::ROOT_TOKEN)) continue;
+    Data::Integer *flags = this->grammarContext.getSymbolFlags(def);
+    if (!((flags == 0 ? 0 : flags->get()) & Data::SymbolFlags::ROOT_TOKEN)) continue;
     // Validation.
     if (def->getTerm() == 0) {
       Str excMsg = STR("Invalid token definition (");

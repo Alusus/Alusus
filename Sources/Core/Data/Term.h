@@ -40,13 +40,17 @@ class Term : public Node
      * These flags helps the parser and parsing handler determine different
      * features associated with this term.
      */
-  protected: Word flags;
+  protected: SharedPtr<Node> flags;
 
 
   //============================================================================
   // Constructor / Destructor
 
-  protected: Term(Word f = 0) : flags(f)
+  protected: Term(SharedPtr<Node> const &f=SharedPtr<Node>()) : flags(f)
+  {
+  }
+
+  protected: Term(Int f) : flags(std::make_shared<Integer>(f))
   {
   }
 
@@ -58,22 +62,15 @@ class Term : public Node
   //============================================================================
   // Member Functions
 
-  /**
-     * @brief Set the flags for parsing and code generation features.
-     *
-     * These flags helps the parser or the parsing handler determine different
-     * features associated with this term.
-     */
-  public: void setFlags(Word f)
+  public: void setFlags(SharedPtr<Node> const &f)
   {
-    this->flags = f;
+    if (f != 0 && !f->isA<Integer>() && !f->isDerivedFrom<Reference>()) {
+      throw EXCEPTION(InvalidArgumentException, STR("f"), STR("Must be of type Integer or Reference."));
+    }
+    UPDATE_OWNED_SHAREDPTR(this->flags, f);
   }
 
-  /**
-     * @brief Get the flags for parsing and code generation features.
-     * @sa setFlags()
-     */
-  public: Word getFlags() const
+  public: SharedPtr<Node> const& getFlags() const
   {
     return this->flags;
   }

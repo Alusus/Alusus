@@ -34,7 +34,8 @@ namespace Core { namespace Data
  *            be null, Integer or Reference.
  * @param t The head of the child branch.
  */
-MultiplyTerm::MultiplyTerm(SharedPtr<Node> const &p, Word f,
+MultiplyTerm::MultiplyTerm(SharedPtr<Node> const &p,
+                           SharedPtr<Node> const &f,
                            SharedPtr<Node> const &min,
                            SharedPtr<Node> const &max,
                            const SharedPtr<Term> &t) :
@@ -77,7 +78,7 @@ MultiplyTerm::MultiplyTerm(const std::initializer_list<Argument<TermElement>> &a
   for (auto arg : args) {
     switch (arg.id.val) {
       case TermElement::FLAGS:
-        this->flags = arg.intVal;
+        this->setFlags(arg.tiShared.ti_cast<Node>());
         break;
       case TermElement::PRIORITY:
         UPDATE_OWNED_SHAREDPTR(this->priority, arg.tiShared.tio_cast<Node>());

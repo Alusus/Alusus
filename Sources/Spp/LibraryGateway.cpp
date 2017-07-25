@@ -48,10 +48,11 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {
           STR("prms"), Core::Data::SharedList::create({
             Core::Data::SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
-              { STR("min"), std::make_shared<Integer>(1) },
-              { STR("max"), std::make_shared<Integer>(1) },
-              { STR("pty"), std::make_shared<Integer>(1) }
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
             })
           })
         }
@@ -70,10 +71,11 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {
           STR("prms"), Core::Data::SharedList::create({
             Core::Data::SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
-              { STR("min"), std::make_shared<Integer>(1) },
-              { STR("max"), std::make_shared<Integer>(1) },
-              { STR("pty"), std::make_shared<Integer>(1) }
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
             })
           })
         }
@@ -92,16 +94,18 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {
           STR("prms"), Core::Data::SharedList::create({
             Core::Data::SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
-              { STR("min"), std::make_shared<Integer>(1) },
-              { STR("max"), std::make_shared<Integer>(1) },
-              { STR("pty"), std::make_shared<Integer>(1) }
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
             }),
             Core::Data::SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockMain.Statement")) },
-              { STR("min"), std::make_shared<Integer>(1) },
-              { STR("max"), std::make_shared<Integer>(1) },
-              { STR("pty"), std::make_shared<Integer>(1) }
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockMain.Statement"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
             })
           })
         }
@@ -122,10 +126,11 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {
           STR("prms"), Core::Data::SharedList::create({
             Core::Data::SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:ModuleBody")) },
-              { STR("min"), std::make_shared<Integer>(1) },
-              { STR("max"), std::make_shared<Integer>(1) },
-              { STR("pty"), std::make_shared<Integer>(1) }
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:ModuleBody"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
             })
           })
         }
@@ -156,10 +161,11 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {
           STR("prms"), Core::Data::SharedList::create({
             Core::Data::SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:TypeBody")) },
-              { STR("min"), std::make_shared<Integer>(1) },
-              { STR("max"), std::make_shared<Integer>(1) },
-              { STR("pty"), std::make_shared<Integer>(1) }
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:TypeBody"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
             })
           })
         }
@@ -191,16 +197,18 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {
           STR("prms"), Core::Data::SharedList::create({
             Core::Data::SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression")) },
-              { STR("min"), std::make_shared<Integer>(1) },
-              { STR("max"), std::make_shared<Integer>(1) },
-              { STR("pty"), std::make_shared<Integer>(1) }
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
             }),
             Core::Data::SharedMap::create(false, {
-              { STR("prd"), REF_PARSER->parseQualifier(STR("root:Block")) },
-              { STR("min"), std::make_shared<Integer>(1) },
-              { STR("max"), std::make_shared<Integer>(1) },
-              { STR("pty"), std::make_shared<Integer>(1) }
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Block"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
             })
           })
         }

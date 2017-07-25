@@ -165,14 +165,20 @@ class GrammarContext : public TiObject, public virtual Tracer
 
   public: Integer* getMultiplyTermPriority(MultiplyTerm *term, Module *module=0);
 
+  public: Integer* getTermFlags(Term *term, Module *module=0);
+
   /// @}
 
   /// @name Symbol Definition Helper Functions
   /// @{
 
-  public: Term* getSymbolTerm(const SymbolDefinition *definition, Module *module=0);
+  public: Term* getSymbolTerm(SymbolDefinition const *definition, Module *module=0);
 
-  public: SharedMap* getSymbolVars(const SymbolDefinition *definition, Module *module=0);
+  public: SharedMap* getSymbolVars(SymbolDefinition const *definition, Module *module=0);
+
+  public: Integer* getSymbolPriority(SymbolDefinition const *definition, Module *module=0);
+
+  public: Integer* getSymbolFlags(SymbolDefinition const *definition, Module *module=0);
 
   /// @}
 

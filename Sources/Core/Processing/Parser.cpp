@@ -199,8 +199,11 @@ SharedPtr<TiObject> Parser::endParsing()
             // regardless of the sync pos id.
             (*si)->setTopTermPosId((*si)->getListTermChildCount());
             break;
-          } else if ((*si)->refTopTermLevel().getTerm()->getFlags() & Data::TermFlags::ERROR_SYNC_TERM) {
-            break;
+          } else {
+            Data::Integer *flags = (*si)->getTermFlags();
+            if ((flags == 0 ? 0 : flags->get()) & Data::TermFlags::ERROR_SYNC_TERM) {
+              break;
+            }
           }
         }
         this->popStateLevel(*si, false);
@@ -525,8 +528,11 @@ void Parser::processState(const Data::Token * token, StateIterator si)
               (*si)->setTopTermPosId(errorSyncPosId);
               break;
             }
-          } else if ((*si)->refTopTermLevel().getTerm()->getFlags() & Data::TermFlags::ERROR_SYNC_TERM) {
-            break;
+          } else {
+            Data::Integer *flags = (*si)->getTermFlags();
+            if ((flags == 0 ? 0 : flags->get()) & Data::TermFlags::ERROR_SYNC_TERM) {
+              break;
+            }
           }
           this->popStateLevel(*si, false);
         }
@@ -980,7 +986,8 @@ void Parser::computePossibleMultiplyRoutes(const Data::Token *token, ParserState
   Data::Integer *minOccurances = state->getMultiplyTermMin();
   Data::Integer *maxOccurances = state->getMultiplyTermMax();
   Data::Integer *priority = state->getMultiplyTermPriority();
-  Bool oneRoute = (multiplyTerm->getFlags() & Data::TermFlags::ONE_ROUTE_TERM);
+  Data::Integer *flags = state->getTermFlags();
+  Bool oneRoute = ((flags == 0 ? 0 : flags->get()) & Data::TermFlags::ONE_ROUTE_TERM);
 
   // NOTE: An empty inner route is treated as an error. So, if the inner route
   //       was found empty and the minimum occurances haven't been met yet the
@@ -1096,7 +1103,8 @@ void Parser::computePossibleAlternativeRoutes(const Data::Token *token, ParserSt
 {
   ASSERT(state->refTopTermLevel().getTerm()->isA<Data::AlternateTerm>());
 
-  Bool oneTerm = (state->refTopTermLevel().getTerm()->getFlags() & Data::TermFlags::ONE_ROUTE_TERM);
+  Data::Integer *flags = state->getTermFlags();
+  Bool oneTerm = ((flags == 0 ? 0 : flags->get()) & Data::TermFlags::ONE_ROUTE_TERM);
 
   Int testedRoute = 0;
   Int decisionIndex = state->getDecisionNodeIndex();

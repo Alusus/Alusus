@@ -33,18 +33,21 @@ class ParserProdLevel
 
   private: Data::SymbolDefinition *prod;
 
+  private: Data::Integer *flags;
+
   private: Int termStackIndex;
 
 
   //============================================================================
   // Constructors / Destructor
 
-  public: ParserProdLevel() : module(0), prod(0), termStackIndex(-1)
+  public: ParserProdLevel() : module(0), prod(0), flags(0), termStackIndex(-1)
   {
   }
 
   public: ParserProdLevel(const ParserProdLevel &level) : module(level.module),
     prod(level.prod),
+    flags(level.flags),
     termStackIndex(level.termStackIndex)
   {
   }
@@ -85,6 +88,16 @@ class ParserProdLevel
   public: Int getTermStackIndex() const
   {
     return this->termStackIndex;
+  }
+
+  protected: void setFlags(Data::Integer *f)
+  {
+    this->flags = f;
+  }
+
+  public: Data::Integer* getFlags() const
+  {
+    return this->flags;
   }
 
 }; // class

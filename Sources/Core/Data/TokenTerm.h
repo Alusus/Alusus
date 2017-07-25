@@ -38,7 +38,8 @@ class TokenTerm : public Term, public virtual DataOwner
   //============================================================================
   // Constructor & Destructor
 
-  public: TokenTerm(Word f=0, SharedPtr<Node> const &id=SharedPtr<Node>(),
+  public: TokenTerm(SharedPtr<Node> const &f=SharedPtr<Node>(),
+                    SharedPtr<Node> const &id=SharedPtr<Node>(),
                     SharedPtr<Node> const &text=SharedPtr<Node>()) :
     Term(f), tokenId(id), tokenText(text)
   {
@@ -73,7 +74,7 @@ class TokenTerm : public Term, public virtual DataOwner
     RESET_OWNED_SHAREDPTR(this->tokenText);
   }
 
-  public: static SharedPtr<TokenTerm> create(Word f=0,
+  public: static SharedPtr<TokenTerm> create(SharedPtr<Node> const &f=SharedPtr<Node>(),
                                              SharedPtr<Node> const &id=SharedPtr<Node>(),
                                              SharedPtr<Node> const &text=SharedPtr<Node>())
   {

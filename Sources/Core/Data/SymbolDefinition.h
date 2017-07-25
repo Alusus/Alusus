@@ -44,7 +44,7 @@ class SymbolDefinition : public Node,
 
   private: SharedPtr<BuildHandler> handler;
 
-  private: Int priority;
+  private: SharedPtr<Node> priority;
 
   /**
      * @brief Flags for parsing and code generation features.
@@ -52,7 +52,7 @@ class SymbolDefinition : public Node,
      * These flags helps the parser or the parsing handler determine different
      * features associated with this production.
      */
-  private: Word flags;
+  private: SharedPtr<Node> flags;
 
   private: SharedPtr<Node> attributes;
 
@@ -90,8 +90,9 @@ class SymbolDefinition : public Node,
                            SharedPtr<Node> const &t,
                            SharedPtr<Node> const &vd,
                            SharedPtr<Node> const &v,
-                           const SharedPtr<BuildHandler> &h,
-                           Int p, Word f,
+                           SharedPtr<BuildHandler> const &h,
+                           SharedPtr<Node> const &p,
+                           SharedPtr<Node> const &f,
                            SharedPtr<Node> const &a=SharedPtr<Node>());
 
   public: SymbolDefinition(const std::initializer_list<Argument<SymbolDefElement>> &args);
@@ -241,22 +242,25 @@ class SymbolDefinition : public Node,
     return this->handler;
   }
 
-  public: void setPriority(Int p)
+  public: void setPriority(SharedPtr<Node> const &p)
   {
-    this->priority = p;
+    if (p != 0 && !p->isA<Integer>() && !p->isDerivedFrom<Reference>()) {
+      throw EXCEPTION(InvalidArgumentException, STR("p"), STR("Must be of type Integer or Reference."));
+    }
+    UPDATE_OWNED_SHAREDPTR(this->priority, p);
     this->ownership |= SymbolDefElement::PRIORITY;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::PRIORITY);
   }
 
   public: void resetPriority()
   {
+    RESET_OWNED_SHAREDPTR(this->priority);
     if (this->parent != 0) this->priority = this->parent->getPriority();
-    else this->priority = 0;
     this->ownership &= ~SymbolDefElement::PRIORITY;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::PRIORITY);
   }
 
-  public: Int getPriority() const
+  public: SharedPtr<Node> const& getPriority() const
   {
     return this->priority;
   }
@@ -267,17 +271,20 @@ class SymbolDefinition : public Node,
      * These flags helps the parser or the parsing handler determine different
      * features associated with this production.
      */
-  public: void setFlags(Word f)
+  public: void setFlags(SharedPtr<Node> const &f)
   {
-    this->flags = f;
+    if (f != 0 && !f->isA<Integer>() && !f->isDerivedFrom<Reference>()) {
+      throw EXCEPTION(InvalidArgumentException, STR("f"), STR("Must be of type Integer or Reference."));
+    }
+    UPDATE_OWNED_SHAREDPTR(this->flags, f);
     this->ownership |= SymbolDefElement::FLAGS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::FLAGS);
   }
 
   public: void resetFlags()
   {
+    RESET_OWNED_SHAREDPTR(this->flags);
     if (this->parent != 0) this->flags = this->parent->getFlags();
-    else this->flags = 0;
     this->ownership &= ~SymbolDefElement::FLAGS;
     this->changeNotifier.emit(this, SymbolDefChangeOp::UPDATE, SymbolDefElement::FLAGS);
   }
@@ -286,7 +293,7 @@ class SymbolDefinition : public Node,
      * @brief Get the flags for parsing and code generation features.
      * @sa setFlags()
      */
-  public: Word getFlags() const
+  public: SharedPtr<Node> const& getFlags() const
   {
     return this->flags;
   }

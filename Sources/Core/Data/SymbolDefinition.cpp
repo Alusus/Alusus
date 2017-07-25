@@ -2,7 +2,7 @@
  * @file Core/Data/SymbolDefinition.cpp
  * Contains the implementation of class Core::Data::SymbolDefinition.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,8 +22,9 @@ SymbolDefinition::SymbolDefinition(const SharedPtr<Reference> &pnt,
                                    SharedPtr<Node> const &t,
                                    SharedPtr<Node> const &vd,
                                    SharedPtr<Node> const &v,
-                                   const SharedPtr<BuildHandler> &h,
-                                   Int p, Word f,
+                                   SharedPtr<BuildHandler> const &h,
+                                   SharedPtr<Node> const &p,
+                                   SharedPtr<Node> const &f,
                                    SharedPtr<Node> const &a) :
   parentReference(pnt), term(t), varDefs(vd), vars(v), handler(h), priority(p),
   flags(f), attributes(a), ownership(SymbolDefElement::ALL)
@@ -39,6 +40,12 @@ SymbolDefinition::SymbolDefinition(const SharedPtr<Reference> &pnt,
   }
   if (v != 0 && !v->isA<SharedMap>() && !v->isDerivedFrom<Reference>()) {
     throw EXCEPTION(InvalidArgumentException, STR("v"), STR("Must be of type SharedMap or Reference."));
+  }
+  if (p != 0 && !p->isA<Integer>() && !p->isDerivedFrom<Reference>()) {
+    throw EXCEPTION(InvalidArgumentException, STR("p"), STR("Must be of type Integer or Reference."));
+  }
+  if (f != 0 && !f->isA<Integer>() && !f->isDerivedFrom<Reference>()) {
+    throw EXCEPTION(InvalidArgumentException, STR("f"), STR("Must be of type Integer or Reference."));
   }
   if (this->parentReference != 0) this->parentReference->setOwner(this);
   if (this->term != 0) this->term->setOwner(this);
@@ -91,11 +98,19 @@ SymbolDefinition::SymbolDefinition(const std::initializer_list<Argument<SymbolDe
         this->ownership |= SymbolDefElement::HANDLER;
         break;
       case SymbolDefElement::PRIORITY:
-        this->priority = arg.intVal;
+        UPDATE_OWNED_SHAREDPTR(this->priority, arg.tiShared.ti_cast<Node>());
+        if (this->priority != 0 && !this->priority->isA<Integer>() && !this->priority->isDerivedFrom<Reference>()) {
+          throw EXCEPTION(InvalidArgumentException, STR("priority"),
+                          STR("Must be of type Integer or Reference."));
+        }
         this->ownership |= SymbolDefElement::PRIORITY;
         break;
       case SymbolDefElement::FLAGS:
-        this->flags = arg.intVal;
+        UPDATE_OWNED_SHAREDPTR(this->flags, arg.tiShared.ti_cast<Node>());
+        if (this->flags != 0 && !this->flags->isA<Integer>() && !this->flags->isDerivedFrom<Reference>()) {
+          throw EXCEPTION(InvalidArgumentException, STR("flags"),
+                          STR("Must be of type Integer or Reference."));
+        }
         this->ownership |= SymbolDefElement::FLAGS;
         break;
       case SymbolDefElement::ATTRIBUTES:
@@ -170,8 +185,8 @@ void SymbolDefinition::removeInheritted()
   if ((this->ownership & SymbolDefElement::VAR_DEFS) == 0) this->varDefs.reset();
   if ((this->ownership & SymbolDefElement::VARS) == 0) this->vars.reset();
   if ((this->ownership & SymbolDefElement::HANDLER) == 0) this->handler.reset();
-  if ((this->ownership & SymbolDefElement::PRIORITY) == 0) this->priority = 0;
-  if ((this->ownership & SymbolDefElement::FLAGS) == 0) this->flags = 0;
+  if ((this->ownership & SymbolDefElement::PRIORITY) == 0) this->priority.reset();
+  if ((this->ownership & SymbolDefElement::FLAGS) == 0) this->flags.reset();
   if ((this->ownership & SymbolDefElement::ATTRIBUTES) == 0) this->attributes.reset();
 }
 

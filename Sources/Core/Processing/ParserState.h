@@ -378,6 +378,8 @@ class ParserState
     return this->prodStack.capacity();
   }
 
+  public: Data::Integer* getProdFlags(Int levelOffset = -1) const;
+
   /// @}
 
   /// @name Variable Stack Functions
@@ -477,6 +479,8 @@ class ParserState
   public: Data::Integer* getMultiplyTermMin(Int levelOffset = -1) const;
 
   public: Data::Integer* getMultiplyTermPriority(Int levelOffset = -1) const;
+
+  public: Data::Integer* getTermFlags(Int levelOffset = -1) const;
 
   /// @}
 
