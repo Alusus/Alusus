@@ -20,9 +20,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-// Boost header files
-#include <boost/algorithm/string/predicate.hpp>
-
 using Core::Processing::BuildMsg;
 using Core::Data::Ast::List;
 using Core::Standard::RootManager;
@@ -66,6 +63,14 @@ Bool isDirectory(Char const *path)
   struct stat path_stat;
   stat(path, &path_stat);
   return S_ISDIR(path_stat.st_mode);
+}
+
+
+Bool compareStringEnd(Str const &str, Char const *end)
+{
+  Int len = getStrLen(end);
+  if (len >= str.size()) return false;
+  return compareStr(str.c_str()+str.size()-len, end) == 0;
 }
 
 
@@ -210,7 +215,7 @@ Bool RunEndToEndTests(Str const &dirPath)
         if (!RunEndToEndTests(filePath)) ret = false;
       } else if (
         fileName.compare("common.alusus") != 0 && fileName.find("ignore.alusus") == std::string::npos &&
-        (boost::algorithm::ends_with(fileName, ".alusus") || boost::algorithm::ends_with(fileName, ".أسس"))
+        (compareStringEnd(fileName, ".alusus") || compareStringEnd(fileName, ".أسس"))
       ) {
         if (!RunAndCheckSourceFile(filePath)) ret = false;
       }

@@ -32,14 +32,6 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${Alu
                                                            ALUSUS_RELEASE_DATE="${AlususReleaseDate}"
                                                            ALUSUS_HIJRI_RELEASE_DATE="${AlususHijriReleaseDate}")
 
-# Boost path
-set (BOOST_PATH "" CACHE PATH "Path to Boost libraries root folder.")
-if (NOT EXISTS "${BOOST_PATH}/boost")
-  message(SEND_ERROR "Please specify the path to boost libraries in BOOST_PATH.")
-else()
-  message(STATUS "The following Boost path was provided: " ${BOOST_PATH} ".")
-endif()
-
 # CATCH path
 set (CATCH_PATH "" CACHE PATH "Path to CATCH library root folder.")
 if (NOT EXISTS "${CATCH_PATH}")

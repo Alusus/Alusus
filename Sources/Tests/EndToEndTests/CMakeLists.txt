@@ -10,9 +10,6 @@ cmake_minimum_required(VERSION 2.8)
 # Prepare compile flags.
 set(AlususE2ETests_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
 
-# Header files path for Boost libraries
-include_directories("${BOOST_PATH}")
-
 # Header and library files paths for LLVM
 include_directories("${LLVM_INCLUDE_DIRS}")
 link_directories("${LLVM_LIBRARY_DIRS}")
