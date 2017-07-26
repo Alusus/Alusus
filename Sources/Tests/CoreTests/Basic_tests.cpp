@@ -40,11 +40,11 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
   // Prepare a data tree.
   SharedPtr<TiObject> data =
     Ast::List::create({
-      { "prodId", ID_GENERATOR->getId(STR("root")) }
+      { "prodId", TiWord(ID_GENERATOR->getId(STR("root"))) }
     }, {
       Ast::Token::create({
-        { "prodId", ID_GENERATOR->getId(STR("parent.3")) },
-        { "id", ID_GENERATOR->getId(STR("token3")) }
+        { "prodId", TiWord(ID_GENERATOR->getId(STR("parent.3"))) },
+        { "id", TiWord(ID_GENERATOR->getId(STR("token3"))) }
       })
     });
   QualifierSeeker seeker;

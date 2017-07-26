@@ -165,32 +165,32 @@ TEST_CASE("Core::Data/advanced_qualifier_seek", "Seek elements with advanced qua
   // Prepare a data tree.
   SharedPtr<TiObject> data =
     Ast::List::create({
-      { "prodId", ID_GENERATOR->getId(STR("root")) }
+      { "prodId", TiWord(ID_GENERATOR->getId(STR("root"))) }
     }, {
       Ast::Route::create({
-        { "prodId", ID_GENERATOR->getId(STR("parent.1")) },
+        { "prodId", TiWord(ID_GENERATOR->getId(STR("parent.1"))) },
         { "route", TiInt(1) }
       }, {
         { "data", Ast::Token::create({
-          { "id", ID_GENERATOR->getId(STR("token1")) },
-          { "text", STR("text") }
+          { "id", TiWord(ID_GENERATOR->getId(STR("token1"))) },
+          { "text", TiStr(STR("text")) }
         }) }
       }),
       Ast::List::create({
-        { "prodId", ID_GENERATOR->getId(STR("parent.2")) }
+        { "prodId", TiWord(ID_GENERATOR->getId(STR("parent.2"))) }
       }, {
         Ast::Route::create({
-          { "prodId", ID_GENERATOR->getId(STR("child.1")) },
+          { "prodId", TiWord(ID_GENERATOR->getId(STR("child.1"))) },
           { "route", TiInt(0) }
         }),
         Ast::Token::create({
-          { "prodId", ID_GENERATOR->getId(STR("child.2")) },
-          { "id", ID_GENERATOR->getId(STR("token2")) }
+          { "prodId", TiWord(ID_GENERATOR->getId(STR("child.2"))) },
+          { "id", TiWord(ID_GENERATOR->getId(STR("token2"))) }
         })
       }),
       Ast::Token::create({
-        { "prodId", ID_GENERATOR->getId(STR("parent.3")) },
-        { "id", ID_GENERATOR->getId(STR("token3")) }
+        { "prodId", TiWord(ID_GENERATOR->getId(STR("parent.3"))) },
+        { "id", TiWord(ID_GENERATOR->getId(STR("token3"))) }
       })
     });
 
@@ -261,32 +261,32 @@ TEST_CASE("Core::Data/advanced_reference_seek", "Seek elements with advanced ref
   // Prepare a data tree.
   SharedPtr<TiObject> data =
     Ast::List::create({
-      { "prodId", ID_GENERATOR->getId(STR("root")) }
+      { "prodId", TiWord(ID_GENERATOR->getId(STR("root"))) }
     }, {
       Ast::Route::create({
-        { "prodId", ID_GENERATOR->getId(STR("parent.1")) },
+        { "prodId", TiWord(ID_GENERATOR->getId(STR("parent.1"))) },
         { "route", TiInt(1) }
       }, {
         { "data", Ast::Token::create({
-          { "id", ID_GENERATOR->getId(STR("token1")) },
-          { "text", STR("text") }
+          { "id", TiWord(ID_GENERATOR->getId(STR("token1"))) },
+          { "text", TiStr(STR("text")) }
         }) }
       }),
       Ast::List::create({
-        { "prodId", ID_GENERATOR->getId(STR("parent.2")) }
+        { "prodId", TiWord(ID_GENERATOR->getId(STR("parent.2"))) }
       }, {
         Ast::Route::create({
-          { "prodId", ID_GENERATOR->getId(STR("child.1")) },
+          { "prodId", TiWord(ID_GENERATOR->getId(STR("child.1"))) },
           { "route", TiInt(0) }
         }),
         Ast::Token::create({
-          { "prodId", ID_GENERATOR->getId(STR("child.2")) },
-          { "id", ID_GENERATOR->getId(STR("token2")) }
+          { "prodId", TiWord(ID_GENERATOR->getId(STR("child.2"))) },
+          { "id", TiWord(ID_GENERATOR->getId(STR("token2"))) }
         })
       }),
       Ast::Token::create({
-        { "prodId", ID_GENERATOR->getId(STR("parent.3")) },
-        { "id", ID_GENERATOR->getId(STR("token3")) }
+        { "prodId", TiWord(ID_GENERATOR->getId(STR("parent.3"))) },
+        { "id", TiWord(ID_GENERATOR->getId(STR("token3"))) }
       })
     });
 
