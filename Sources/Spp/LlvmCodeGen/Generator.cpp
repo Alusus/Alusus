@@ -357,7 +357,7 @@ void Generator::_generateStringLiteral(
   Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
 ) {
   PREPARE_SELF(generator, Generator);
-  
+
   auto value = &astNode->getValue().getStr();
 
   // Prepare char llvm type.
@@ -388,7 +388,7 @@ void Generator::_generateStringLiteral(
   if (llvmType == 0) {
     throw EXCEPTION(GenericException, STR("Unexpected error."));
   }
-  
+
   // Prepare the llvm constant array.
   std::vector<llvm::Constant *> llvmCharArray;
   llvmCharArray.reserve(value->size() + 1);
@@ -433,15 +433,13 @@ Str const& Generator::getFunctionName(Spp::Ast::Function *astFunc)
 
 Str Generator::getNewBlockName()
 {
-  static Int index = 0;
-  return Str("__block") + std::to_string(index++);
+  return Str("__block") + std::to_string(this->blockIndex++);
 }
 
 
 Str Generator::getAnonymouseVarName()
 {
-  static Int index = 0;
-  return Str("__anonymous") + std::to_string(index++);
+  return Str("__anonymous") + std::to_string(this->anonymousVarIndex++);
 }
 
 

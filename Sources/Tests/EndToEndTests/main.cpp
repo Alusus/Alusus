@@ -14,8 +14,11 @@
 // Alusus header files
 #include <core.h>
 
-// Direct Entries library
+// System headers
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 // Boost header files
 #include <boost/algorithm/string/predicate.hpp>
@@ -52,11 +55,19 @@ void printBuildMsg(const SharedPtr<BuildMsg> &msg)
   // Print msg code.
   std::cout << msg->getCode() << " @ ";
   // Print location.
-  std::cout << msg->getSourceLocation().filename->c_str()
-            << " (" << msg->getSourceLocation().line << "," << msg->getSourceLocation().column << "): ";
+  std::cout << "(" << msg->getSourceLocation().line << "," << msg->getSourceLocation().column << "): ";
   // Print description.
   std::cout << msg->getDescription() << NEW_LINE;
 }
+
+
+Bool isDirectory(Char const *path)
+{
+  struct stat path_stat;
+  stat(path, &path_stat);
+  return S_ISDIR(path_stat.st_mode);
+}
+
 
 /**
  * Executes the given Alusus source code and compare the result against
@@ -66,19 +77,20 @@ void printBuildMsg(const SharedPtr<BuildMsg> &msg)
  *
  * @return Returns @c true if the function succeeds, otherwise @c false.
  */
-bool RunSourceFile(const std::string &fileName)
+Bool RunSourceFile(Str const &fileName)
 {
+  // Redirect stdout to a file.
+  fpos_t pos;
+  fgetpos(stdout, &pos);
+  int fd = dup(fileno(stdout));
+  freopen(resultFilename.c_str(),"w", stdout);
+
   try
   {
-    // Redirect stdout to a file.
-    fpos_t pos;
-    fgetpos(stdout, &pos);
-    int fd = dup(fileno(stdout));
-    freopen(resultFilename.c_str(),"w", stdout);
-
     // Prepare the root object;
     RootManager root;
-    root.buildMsgNotifier.connect(&printBuildMsg);
+    Slot<void, SharedPtr<Core::Processing::BuildMsg> const&> buildMsgSlot(printBuildMsg);
+    root.buildMsgNotifier.connect(buildMsgSlot);
 
     // Parse the provided filename.
     auto ptr = root.processFile(fileName.c_str());
@@ -97,6 +109,13 @@ bool RunSourceFile(const std::string &fileName)
   }
   catch (Core::Basic::Exception &e)
   {
+    // Restore stdout.
+    fflush(stdout);
+    dup2(fd, fileno(stdout));
+    close(fd);
+    clearerr(stdout);
+    fsetpos(stdout, &pos);
+
     std::cout << "Failed to run source file " << fileName << "." << std::endl;
     std::cout << "The following error were thrown: " << std::endl;
     std::cout << e.getVerboseErrorMessage() << std::endl;
@@ -104,10 +123,18 @@ bool RunSourceFile(const std::string &fileName)
   }
   catch (...)
   {
+    // Restore stdout.
+    fflush(stdout);
+    dup2(fd, fileno(stdout));
+    close(fd);
+    clearerr(stdout);
+    fsetpos(stdout, &pos);
+
     std::cout << "Failed to run source file " << fileName << "." << std::endl;
     throw;
   }
 }
+
 
 /**
  * Checks whether the run result of a source file matches the expected result.
@@ -118,7 +145,7 @@ bool RunSourceFile(const std::string &fileName)
  * @return Returns @c true if the run result matches the expected result,
  * otherwise @c false.
  */
-bool CheckRunResult(const std::string &fileName)
+Bool CheckRunResult(Str const &fileName)
 {
   std::ifstream runResult(resultFilename);
   std::string runResultContent((std::istreambuf_iterator<char>(runResult)),
@@ -144,6 +171,7 @@ bool CheckRunResult(const std::string &fileName)
   return ret;
 }
 
+
 /**
  * Runs the given Alusus source file and checks the result against an expected
  * content file. The expected result is stored in a file having the same name
@@ -154,37 +182,40 @@ bool CheckRunResult(const std::string &fileName)
  * @return Returns @c true if the run result matches the expected result,
  * otherwise @c false.
  */
-bool RunAndCheckSourceFile(const std::string &fileName)
+Bool RunAndCheckSourceFile(Str const &fileName)
 {
   if (!RunSourceFile(fileName))
     return false;
   return CheckRunResult(fileName);
 }
 
+
 /**
  * Runs all the end-to-end tests under the folder EndToEndTests.
  *
  * @return Returns @c true if all test succeeds, otherwise @c false.
  */
-bool RunEndToEndTests(const std::string &dirPath)
+Bool RunEndToEndTests(Str const &dirPath)
 {
   DIR *dir;
   dirent *ent;
-  if ((dir = opendir (dirPath.c_str())) != nullptr)
+  if ((dir = opendir(dirPath.c_str())) != nullptr)
   {
     auto ret = true;
-    while ((ent = readdir (dir)) != nullptr)
+    while ((ent = readdir(dir)) != nullptr)
     {
-      std::string fileName(ent->d_name);
-      if (fileName.compare("common.alusus") != 0 &&
-          fileName.find("ignore.alusus") == std::string::npos &&
-          (boost::algorithm::ends_with(fileName, ".alusus") || boost::algorithm::ends_with(fileName, ".أسس")))
-      {
-        if (!RunAndCheckSourceFile(dirPath + "/" + fileName))
-          ret = false;
+      Str fileName(ent->d_name);
+      Str filePath = dirPath + "/" + fileName;
+      if (isDirectory(filePath.c_str()) && fileName != "." && fileName != "..") {
+        if (!RunEndToEndTests(filePath)) ret = false;
+      } else if (
+        fileName.compare("common.alusus") != 0 && fileName.find("ignore.alusus") == std::string::npos &&
+        (boost::algorithm::ends_with(fileName, ".alusus") || boost::algorithm::ends_with(fileName, ".أسس"))
+      ) {
+        if (!RunAndCheckSourceFile(filePath)) ret = false;
       }
     }
-    closedir (dir);
+    closedir(dir);
     return ret;
   }
   else
@@ -195,6 +226,7 @@ bool RunEndToEndTests(const std::string &dirPath)
 }
 
 } } // namespace
+
 
 using namespace Tests::EndToEndTests;
 
@@ -218,11 +250,15 @@ int main(int argc, char **argv)
   resultFilename += "AlususEndToEndTest.txt";
 
   auto ret = EXIT_SUCCESS;
-  if (!RunEndToEndTests("./Tests/General"))
+  //  if (!RunEndToEndTests("./Tests/General"))
+  //    ret = EXIT_FAILURE;
+  //  if (!RunEndToEndTests("./Tests/Arabic"))
+  //    ret = EXIT_FAILURE;
+  //  if (!RunEndToEndTests("./Tests/Ported_C_Examples"))
+  //    ret = EXIT_FAILURE;
+  if (!RunEndToEndTests("./Tests/Core"))
     ret = EXIT_FAILURE;
-  if (!RunEndToEndTests("./Tests/Arabic"))
-    ret = EXIT_FAILURE;
-  if (!RunEndToEndTests("./Tests/Ported_C_Examples"))
+  if (!RunEndToEndTests("./Tests/Spp"))
     ret = EXIT_FAILURE;
 
   std::remove(resultFilename.c_str());

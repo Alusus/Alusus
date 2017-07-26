@@ -37,7 +37,9 @@ RootManager::RootManager() : grammarPlant(this, false), exprGrammarPlant(this, t
       endPos = envPath.find(CHR(':'), startPos);
       if (endPos == Str::npos) endPos = envPath.size();
       path.assign(envPath, startPos, endPos-startPos);
-      this->pushSearchPath(path.c_str());
+      if (path.size() > 0) {
+        this->pushSearchPath(path.c_str());
+      }
     }
   }
   // TODO: Do we need to add the paths from LD_LIBRARY_PATH env variable?

@@ -1,0 +1,58 @@
+------------------ Parsed Data Dump ------------------
+Scope [Main.StatementList]
+ ExpressionList [Expression.ListExp]
+  StringLiteral: hello [Subject.Literal] 
+  StringLiteral: world [Subject.Literal] 
+ PostfixOperator ++ [Expression.UnaryExp]
+  operand: Identifier: i [Subject.Parameter] 
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+List [Main.TypeStatementList]
+ UserType 
+  body: NULL
+ Definition [Main.Def] x: Identifier: float [Subject.Parameter] 
+ Definition [Main.Def] y: Identifier: float [Subject.Parameter] 
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+List [Main.TypeStatementList]
+ UserType 
+  body: NULL
+ Definition [Main.Def] x: Identifier: float [Subject.Parameter] 
+ Definition [Main.Def] y: Identifier: float [Subject.Parameter] 
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ argTypes: alusus.net#Core#Core.Data.SharedMap
+  x: Identifier: int [Subject.Parameter] 
+  y: Identifier: int [Subject.Parameter] 
+ retType: Identifier: int [Subject.Parameter] 
+ body: Block [Main.BlockStatementList]
+  AdditionOperator + [Expression.AddExp]
+   first: Identifier: x [Subject.Parameter] 
+   second: Identifier: y [Subject.Parameter] 
+  WhileStatement  [Main.While]
+   condition: ComparisonOperator == [Expression.ComparisonExp]
+    first: Identifier: x [Subject.Parameter] 
+    second: IntegerLiteral: 3 [Subject.Literal] 
+   body: ParamPass () [Expression.ParamPassExp]
+    operand: Identifier: doSomething [Subject.Parameter] 
+    param: NULL
+  WhileStatement  [Main.While]
+   condition: ComparisonOperator == [Expression.ComparisonExp]
+    first: Identifier: y [Subject.Parameter] 
+    second: IntegerLiteral: 3 [Subject.Literal] 
+   body: Block [Main.BlockStatementList]
+    ParamPass () [Expression.ParamPassExp]
+     operand: Identifier: doSomething1 [Subject.Parameter] 
+     param: NULL
+    ParamPass () [Expression.ParamPassExp]
+     operand: Identifier: doSomething2 [Subject.Parameter] 
+     param: NULL
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+List [Main.TypeStatementList]
+ UserType 
+  body: NULL
+ Definition [Main.Def] i: Identifier: float [Subject.Parameter] 
+ Definition [Main.Def] j: Identifier: float [Subject.Parameter] 
+------------------------------------------------------

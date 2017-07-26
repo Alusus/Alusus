@@ -44,9 +44,11 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   private: SharedPtr<llvm::Module> llvmModule;
   private: SharedPtr<ExecutionContext> executionContext;
   private: SharedPtr<Core::Data::Ast::ParamPass> constStringTypeRef;
-  
+
   private: Spp::Ast::Type *astCharPtrType = 0;
   private: llvm::Type *llvmCharType = 0;
+  private: Int blockIndex = 0;
+  private: Int anonymousVarIndex = 0;
 
 
   //============================================================================

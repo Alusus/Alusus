@@ -1,0 +1,34 @@
+------------------ Generated LLVM IR ------------------
+; ModuleID = 'AlususProgram'
+target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+
+@__anonymous0 = private constant [12 x i8] c"hello world\00", align 1
+
+define i64 @Main_main_Int_64__Float_64_____Int_64__(i64 %a, double %b) {
+__block0:
+  %a1 = alloca i64
+  store i64 %a, i64* %a1
+  %b2 = alloca double
+  store double %b, double* %b2
+  %0 = call i32 @Main_g_____Int_32__()
+  %1 = call i32 @Main_h_ptr_Int_8______Int_32__(i8* getelementptr inbounds ([12 x i8]* @__anonymous0, i64 0, i64 0))
+}
+
+define i32 @Main_g_____Int_32__() {
+__block2:
+}
+
+define i32 @Main_h_ptr_Int_8______Int_32__(i8* %a) {
+__block3:
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+}
+
+define i64 @Main_f_Int_32__Float_32_____Int_64__(i32 %a, float %b) {
+__block1:
+  %a1 = alloca i32
+  store i32 %a, i32* %a1
+  %b2 = alloca float
+  store float %b, float* %b2
+}
+-------------------------------------------------------
