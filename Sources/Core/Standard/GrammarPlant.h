@@ -39,6 +39,8 @@ class GrammarPlant : public Data::GrammarPlant
 
   private: SharedPtr<ImportParsingHandler> importHandler;
 
+  private: SharedPtr<DumpParsingHandler> dumpParsingHandler;
+
 
   //============================================================================
   // Constructor & Destructor

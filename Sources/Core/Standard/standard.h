@@ -115,6 +115,13 @@ Bool mergeContainers(TiObject *dest, TiObject *src, Processing::ParserState *sta
  */
 void mergeDefinition(Char const *qualifier, TiObject *obj, Processing::ParserState *state);
 
+
+//==============================================================================
+// Build Messages
+
+DEFINE_BUILD_MSG(InvalidDumpArg, "Core.Standard", "Core", "alusus.net", "DMP1001", 1,
+                 STR("Invalid argument for 'dump' command."));
+
 } } // namespace
 
 
@@ -126,6 +133,7 @@ void mergeDefinition(Char const *qualifier, TiObject *obj, Processing::ParserSta
 // TODO:
 // #include "NumberLiteralTokenizingHandler.h"
 #include "ImportParsingHandler.h"
+#include "DumpParsingHandler.h"
 
 #include "RedefinitionMsg.h"
 

@@ -39,29 +39,6 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   auto leadingCmdList = this->getLeadingCommandsList(grammarRepository);
   auto innerCmdList = this->getInnerCommandsList(grammarRepository);
 
-  //// dump = "dump" + Subject
-  grammarRepository->set(STR("root:Main.Dump"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), std::make_shared<String>(STR("dump")) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    { SymbolDefElement::HANDLER, std::make_shared<Handlers::DumpParsingHandler>(manager) }
-  }).get());
-  this->addReferenceToCommandList(leadingCmdList, STR("module:Dump"));
-
   //// build = "build" + Subject
   grammarRepository->set(STR("root:Main.Build"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
@@ -295,7 +272,6 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   auto innerCmdList = this->getInnerCommandsList(grammarRepository);
 
   // Remove commands from leading commands list.
-  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Dump"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Build"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:While"));
 
@@ -305,7 +281,6 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   this->removeReferenceFromCommandList(innerCmdList, STR("module:Function"));
 
   // Delete definitions.
-  grammarRepository->remove(STR("root:Main.Dump"));
   grammarRepository->remove(STR("root:Main.Build"));
   grammarRepository->remove(STR("root:Main.While"));
   grammarRepository->remove(STR("root:Main.ModuleStatementList"));

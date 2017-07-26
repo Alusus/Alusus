@@ -1,7 +1,8 @@
 /**
- * @file Spp/Handlers/DumpParsingHandler.cpp
+ * @file Core/Standard/DumpParsingHandler.cpp
+ * Contains the implementation of Core::Standard::DumpParsingHandler.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,12 +10,11 @@
  */
 //==============================================================================
 
-#include "spp.h"
+#include "core.h"
 
-namespace Spp { namespace Handlers
+namespace Core { namespace Standard
 {
 
-using namespace Core;
 using namespace Core::Data;
 
 //==============================================================================
@@ -24,7 +24,7 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
 {
   using SeekVerb = Data::Seeker::SeekVerb;
 
-  auto data = state->getData().get();
+  auto data = state->getData().ti_cast_get<Container>()->get(1);
   ASSERT(data != 0);
   auto metadata = ti_cast<Core::Data::Ast::Metadata>(data);
   ASSERT(metadata != 0);

@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the
  * Spp::Handlers namespace.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -26,8 +26,6 @@ namespace Spp { namespace Handlers
 //==============================================================================
 // Build Messages
 
-DEFINE_BUILD_MSG(InvalidDumpArg, "Spp.Handlers", "Spp", "alusus.net", "SPP1001", 1,
-                 STR("Invalid argument for 'dump' command."));
 DEFINE_BUILD_MSG(InvalidBuildArg, "Spp.Handlers", "Spp", "alusus.net", "SPP1001", 1,
                  STR("Invalid argument for 'build' command."));
 DEFINE_BUILD_MSG(MissingFunctionSigOrBody, "Spp.Handlers", "Spp", "alusus.net", "SPP1002", 1,
@@ -53,7 +51,6 @@ DEFINE_BUILD_MSG(InvalidWhileStatement, "Spp.Handlers", "Spp", "alusus.net", "SP
 
 #include "FunctionParsingHandler.h"
 #include "WhileParsingHandler.h"
-#include "DumpParsingHandler.h"
 #include "BuildParsingHandler.h"
 
 #endif

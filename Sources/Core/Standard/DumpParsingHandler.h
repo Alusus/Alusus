@@ -1,7 +1,8 @@
 /**
- * @file Spp/Handlers/DumpParsingHandler.h
+ * @file Core/Standard/DumpParsingHandler.h
+ * Contains the header of Core::Standard::DumpParsingHandler.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -9,31 +10,30 @@
  */
 //==============================================================================
 
-#ifndef SPP_HANDLERS_DUMPPARSINGHANDLER_H
-#define SPP_HANDLERS_DUMPPARSINGHANDLER_H
+#ifndef CORE_STANDARD_DUMPPARSINGHANDLER_H
+#define CORE_STANDARD_DUMPPARSINGHANDLER_H
 
-namespace Spp { namespace Handlers
+namespace Core { namespace Standard
 {
 
-class DumpParsingHandler : public Core::Processing::Handlers::GenericParsingHandler
+class DumpParsingHandler : public Processing::Handlers::GenericParsingHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(DumpParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
-            "Spp.Handlers", "Spp", "alusus.net");
+  TYPE_INFO(DumpParsingHandler, Processing::Handlers::GenericParsingHandler, "Core.Standard", "Core", "alusus.net");
 
 
   //============================================================================
   // Member Variables
 
-  Core::Standard::RootManager *rootManager;
+  RootManager *rootManager;
 
 
   //============================================================================
   // Constructor
 
-  public: DumpParsingHandler(Core::Standard::RootManager *rm) : rootManager(rm)
+  public: DumpParsingHandler(RootManager *rm) : rootManager(rm)
   {
   }
 
@@ -41,7 +41,7 @@ class DumpParsingHandler : public Core::Processing::Handlers::GenericParsingHand
   //============================================================================
   // Member Functions
 
-  public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
+  public: virtual void onProdEnd(Processing::Parser *parser, Processing::ParserState *state);
 
 }; // class
 

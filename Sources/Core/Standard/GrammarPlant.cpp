@@ -36,6 +36,7 @@ void GrammarPlant::createGrammar(RootManager *root, Bool exprOnly)
   this->constTokenHandler = std::make_shared<ConstTokenizingHandler>(this->constTokenId);
   this->parsingHandler = std::make_shared<Handlers::GenericParsingHandler>();
   this->importHandler = std::make_shared<ImportParsingHandler>(root);
+  this->dumpParsingHandler = std::make_shared<DumpParsingHandler>(root);
 
   // Create lexer definitions.
   this->repository.set(STR("root:LexerDefs"), GrammarModule::create({}).get());
@@ -818,7 +819,8 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
         {STR("cmds"), SharedList::create({
            REF_PARSER->parseQualifier(STR("module:Do")),
            REF_PARSER->parseQualifier(STR("module:Import")),
-           REF_PARSER->parseQualifier(STR("module:Def"))
+           REF_PARSER->parseQualifier(STR("module:Def")),
+           REF_PARSER->parseQualifier(STR("module:Dump"))
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -881,6 +883,28 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
         })
       },
       {SymbolDefElement::HANDLER, std::make_shared<Processing::Handlers::DefParsingHandler>()}
+    }).get());
+
+    //// dump = "dump" + Subject
+    this->repository.set(STR("root:Main.Dump"), SymbolDefinition::create({
+      { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+      {
+        SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+          { STR("kwd"), SharedMap::create(false, { { STR("dump"), 0 }, { STR("فرّغ"), 0 } }) },
+          {
+            STR("prms"), Core::Data::SharedList::create({
+              Core::Data::SharedMap::create(false, {
+                {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+                {STR("min"), std::make_shared<Integer>(1)},
+                {STR("max"), std::make_shared<Integer>(1)},
+                {STR("pty"), std::make_shared<Integer>(1)},
+                {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
+              })
+            })
+          }
+        })
+      },
+      { SymbolDefElement::HANDLER, this->dumpParsingHandler }
     }).get());
   }
 
