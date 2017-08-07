@@ -103,6 +103,8 @@ class RootManager : public TiObject
 
   public: virtual SharedPtr<TiObject> processFile(Char const *filename);
 
+  public: virtual SharedPtr<TiObject> processStream(InStream *is);
+
   public: virtual void pushSearchPath(Char const *path);
 
   public: virtual void popSearchPath(Char const *path);

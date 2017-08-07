@@ -63,11 +63,17 @@ using namespace Core;
 int main(int argCount, char * const args[])
 {
   Bool help = false;
+  Bool interactive = false;
   Bool dump = false;
+  Bool english = args[0][0] > 0;
   if (argCount < 2) help = true;
   for (Int i = 1; i < argCount; ++i) {
     if (strcmp(args[i], STR("--help")) == 0) help = true;
     else if (strcmp(args[i], STR("--مساعدة")) == 0) help = true;
+    else if (strcmp(args[i], STR("--interactive")) == 0) interactive = true;
+    else if (strcmp(args[i], STR("--تفاعلي")) == 0) interactive = true;
+    else if (strcmp(args[i], STR("-i")) == 0) interactive = true;
+    else if (strcmp(args[i], STR("-ت")) == 0) interactive = true;
     else if (strcmp(args[i], STR("--dump")) == 0) dump = true;
     else if (strcmp(args[i], STR("--إلقاء")) == 0) dump = true;
 #ifdef USE_LOGS
@@ -88,7 +94,7 @@ int main(int argCount, char * const args[])
     copyStr(ALUSUS_HIJRI_RELEASE_DATE, alususHijriReleaseYear, 4);
     alususReleaseYear[4] = alususHijriReleaseYear[4] = 0;
     // Check if the command line was in English by detecting if the first character is ASCII.
-    if (args[0][0] > 0) {
+    if (english) {
       // Write English help.
       outStream << STR("Alusus Core\n"
                   "Version " ALUSUS_VERSION ALUSUS_REVISION " (" ALUSUS_RELEASE_DATE ")\n"
@@ -105,6 +111,7 @@ int main(int argCount, char * const args[])
       #endif
       outStream << STR("source = filename.\n");
       outStream << STR("\nOptions:\n");
+      outStream << STR("\t--interactive, -i  Run in interactive mode.\n");
       outStream << STR("\t--dump  Tells the Core to dump the resulting AST tree.\n");
       #if defined(USE_LOGS)
         outStream << STR("\t--log  A 6 bit value to control the level of details of the log.\n");
@@ -125,36 +132,59 @@ int main(int argCount, char * const args[])
       #endif
       outStream << STR("الشفرة المصدرية = اسم الملف الحاوي على الشفرة المصدرية\n");
       outStream << STR("\nالخيارات:\n");
+      outStream << STR("\t--تفاعلي، -ت  تنفيذ بشكل تفاعلي.\n");
       outStream << STR("\t--إلقاء  تبلغ القلب بإلقاء شجرة AST عند الانتهاء.\n");
       #if defined(USE_LOGS)
         outStream << STR("\t--تدوين  قيمة من 6 بتّات للتحكم بمستوى التدوين.\n");
       #endif
     }
     return EXIT_SUCCESS;
-  }
-
-  // Parse the provided source file.
-  try {
-    // Prepare the root object;
-    Standard::RootManager root;
-    Slot<void, SharedPtr<Processing::BuildMsg> const&> buildMsgSlot(printBuildMsg);
-    root.buildMsgNotifier.connect(buildMsgSlot);
-
-    // Parse the provided filename.
-    TioSharedPtr ptr = root.processFile(args[1]);
-    if (ptr == 0) return EXIT_SUCCESS;
-
-    // Print the parsed data.
-    if (dump) {
-      outStream << NEW_LINE << STR("-- BUILD COMPLETE --") << NEW_LINE << NEW_LINE <<
-              STR("Build Results:") << NEW_LINE << NEW_LINE;
-      Data::dumpData(outStream, ptr.get(), 0);
-      outStream << NEW_LINE;
+  } else if (interactive) {
+    // Run in interactive mode.
+    if (english) {
+      outStream << STR("Running in interactive mode.\n");
+      outStream << STR("Press CTRL+C to exit.\n\n");
+    } else {
+      outStream << STR("تنفيذ بشكل تفاعلي.\n");
+      outStream << STR("إضغط على CTRL+C للخروج.\n\n");
     }
-  } catch (Exception &e) {
-    outStream << e.getVerboseErrorMessage() << NEW_LINE;
-    return EXIT_FAILURE;
-  }
 
-  return EXIT_SUCCESS;
+    try {
+      // Prepare the root object;
+      Standard::RootManager root;
+      Slot<void, SharedPtr<Processing::BuildMsg> const&> buildMsgSlot(printBuildMsg);
+      root.buildMsgNotifier.connect(buildMsgSlot);
+
+      // Parse the standard input stream.
+      root.processStream(&inStream);
+    } catch (Exception &e) {
+      outStream << e.getVerboseErrorMessage() << NEW_LINE;
+      return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+  } else {
+    // Parse the provided source file.
+    try {
+      // Prepare the root object;
+      Standard::RootManager root;
+      Slot<void, SharedPtr<Processing::BuildMsg> const&> buildMsgSlot(printBuildMsg);
+      root.buildMsgNotifier.connect(buildMsgSlot);
+
+      // Parse the provided filename.
+      TioSharedPtr ptr = root.processFile(args[1]);
+      if (ptr == 0) return EXIT_SUCCESS;
+
+      // Print the parsed data.
+      if (dump) {
+        outStream << NEW_LINE << STR("-- BUILD COMPLETE --") << NEW_LINE << NEW_LINE <<
+                STR("Build Results:") << NEW_LINE << NEW_LINE;
+        Data::dumpData(outStream, ptr.get(), 0);
+        outStream << NEW_LINE;
+      }
+    } catch (Exception &e) {
+      outStream << e.getVerboseErrorMessage() << NEW_LINE;
+      return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+  }
 }

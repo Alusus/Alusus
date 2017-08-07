@@ -442,6 +442,9 @@ typedef std::stringstream StrStream;
 typedef std::ostream OutStream;
 
 /// @ingroup basic_datatypes
+typedef std::istream InStream;
+
+/// @ingroup basic_datatypes
 s_enum(ContentChangeOp, ADDED, WILL_UPDATE, UPDATED, WILL_REMOVE, REMOVED);
 
 
@@ -612,6 +615,17 @@ void printIndents(OutStream &stream, int indents);
  * support wide characters in the output stream.
  */
 extern std::ostream &outStream;
+
+
+/**
+ * @brief A reference to std::cin to use to input from the console.
+ * @ingroup basic
+ *
+ * This should be used to input from the console instead of directly using
+ * std::cin, in order to minimize the needed changes in case we needed to
+ * support wide characters in the input stream.
+ */
+extern std::istream &inStream;
 
 
 //==============================================================================

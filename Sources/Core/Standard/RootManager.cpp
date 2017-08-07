@@ -102,6 +102,14 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename)
 }
 
 
+SharedPtr<TiObject> RootManager::processStream(InStream *is)
+{
+  Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
+  this->buildMsgNotifier.relay(engine.buildMsgNotifier);
+  return engine.processStream(is);
+}
+
+
 void RootManager::pushSearchPath(Char const *path)
 {
   if (path == 0 || *path == CHR('\0')) {

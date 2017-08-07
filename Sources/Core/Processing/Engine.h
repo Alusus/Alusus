@@ -69,6 +69,9 @@ class Engine : public TiObject
   /// Parse the given file and return any resulting parsing data.
   public: SharedPtr<TiObject> processFile(Char const *filename);
 
+  /// Parse the given stream and return any resulting parsing data.
+  public: SharedPtr<TiObject> processStream(InStream *is);
+
 }; // class
 
 } } // namespace
