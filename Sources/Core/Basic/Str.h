@@ -80,6 +80,21 @@ class Str : public std::string
     return this->compare(s.c_str()) == 0;
   }
 
+  public: Bool operator!=(Char const *s) const
+  {
+    return this->compare(s) != 0;
+  }
+
+  public: Bool operator!=(const std::string &s) const
+  {
+    return this->compare(s) != 0;
+  }
+
+  public: Bool operator!=(const SbStr &s) const
+  {
+    return this->compare(s.c_str()) != 0;
+  }
+
   public: Bool operator>(Char const *s) const
   {
     return this->compare(s) > 0;

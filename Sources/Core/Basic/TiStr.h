@@ -90,6 +90,26 @@ template <class P> class TiStrBase : public P
     return this->value.compare(s.c_str()) == 0;
   }
 
+  public: Bool operator!=(TiStrBase<P> const *s) const
+  {
+    return this->value.compare(s.value) != 0;
+  }
+
+  public: Bool operator!=(Char const *s) const
+  {
+    return this->value.compare(s) != 0;
+  }
+
+  public: Bool operator!=(const std::string &s) const
+  {
+    return this->value.compare(s) != 0;
+  }
+
+  public: Bool operator!=(const SbStr &s) const
+  {
+    return this->value.compare(s.c_str()) != 0;
+  }
+
   public: Bool operator>(TiStrBase<P> const &s) const
   {
     return this->value.compare(s.value) > 0;
