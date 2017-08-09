@@ -47,7 +47,7 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  public: virtual void onProdStart(Parser *parser, ParserState *state)
+  public: virtual void onProdStart(Parser *parser, ParserState *state, Data::Token const *token)
   {
     if (this->rootScopeIndex == state->getProdLevelCount() - 1) {
       auto scope = parser->getRootScope();

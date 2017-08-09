@@ -97,7 +97,7 @@ class GenericParsingHandler : public ParsingHandler
    * @sa ParsingHandler::onNewToken()
    */
   public: virtual void onNewToken(Processing::Parser *parser, Processing::ParserState *state,
-                                  const Data::Token *token);
+                                  Data::Token const *token);
 
   /**
    * @brief Called when a step is to be made on a concat term.
@@ -108,7 +108,7 @@ class GenericParsingHandler : public ParsingHandler
    * @sa ParsingHandler::onConcatStep()
    */
   public: virtual void onConcatStep(Processing::Parser *parser, Processing::ParserState *state,
-                                    Int newPos);
+                                    Int newPos, Data::Token const *token);
 
   /**
    * @brief Called when a route decision is made on an alternative term.
@@ -118,7 +118,7 @@ class GenericParsingHandler : public ParsingHandler
    * @sa ParsingHandler::onAlternateRouteDecision()
    */
   public: virtual void onAlternateRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
-                                                Int route);
+                                                Int route, Data::Token const *token);
 
   /**
    * @brief Called when a route decision is made on a duplicate term.
@@ -134,7 +134,7 @@ class GenericParsingHandler : public ParsingHandler
    * @sa ParsingHandler::onMultiplyRouteDecision()
    */
   public: virtual void onMultiplyRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
-                                               Int route);
+                                               Int route, Data::Token const *token);
 
   /**
    * @brief Wipe out any generated data from the canceled top level.

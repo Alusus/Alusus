@@ -162,28 +162,28 @@ class Parser : public TiObject
   public: void tryCompleteFoldout(StateIterator si);
 
   /// Process the given token by updating the states.
-  public: void handleNewToken(const Data::Token *token);
+  public: void handleNewToken(Data::Token const *token);
 
   /// Raise build msgs that are approved and remove them from the buffer.
   private: void flushApprovedBuildMsgs();
 
   /// Apply the received token on a specific state.
-  private: void processState(const Data::Token *token, StateIterator si);
+  private: void processState(Data::Token const *token, StateIterator si);
 
   /// Apply the received token on a token term.
-  private: void processTokenTerm(const Data::Token *token, StateIterator si);
+  private: void processTokenTerm(Data::Token const *token, StateIterator si);
 
   /// Apply the received token on a duplicate term.
-  private: void processMultiplyTerm(const Data::Token *token, StateIterator si);
+  private: void processMultiplyTerm(Data::Token const *token, StateIterator si);
 
   /// Apply the received token on an alternative term.
-  private: void processAlternateTerm(const Data::Token *token, StateIterator si);
+  private: void processAlternateTerm(Data::Token const *token, StateIterator si);
 
   /// Apply the received token on a concat term.
-  private: void processConcatTerm(const Data::Token *token, StateIterator si);
+  private: void processConcatTerm(Data::Token const *token, StateIterator si);
 
   /// Apply the received token on a reference term.
-  private: void processReferenceTerm(const Data::Token *token, StateIterator si);
+  private: void processReferenceTerm(Data::Token const *token, StateIterator si);
 
   /// Release all states and their data, but not the definitions.
   public: void clear();
@@ -194,34 +194,34 @@ class Parser : public TiObject
   /// @{
 
   /// Compute the list of possible routes to take at a duplicate term.
-  private: void computePossibleMultiplyRoutes(const Data::Token *token, ParserState *state);
-  private: Bool computeInnerMultiplyRoute(const Data::Token *token, ParserState *state, Data::MultiplyTerm *multiplyTerm);
-  private: Bool computeOuterMultiplyRoute(const Data::Token *token, ParserState *state, Data::MultiplyTerm *multiplyTerm, Data::Integer *priority);
+  private: void computePossibleMultiplyRoutes(Data::Token const *token, ParserState *state);
+  private: Bool computeInnerMultiplyRoute(Data::Token const *token, ParserState *state, Data::MultiplyTerm *multiplyTerm);
+  private: Bool computeOuterMultiplyRoute(Data::Token const *token, ParserState *state, Data::MultiplyTerm *multiplyTerm, Data::Integer *priority);
 
 
   /// Compute the list of possible routes to take at an alternative term.
-  private: void computePossibleAlternativeRoutes(const Data::Token *token, ParserState *state);
+  private: void computePossibleAlternativeRoutes(Data::Token const *token, ParserState *state);
 
   /// Test the route taken by the given state.
-  private: Int testState(const Data::Token *token, ParserState *state);
+  private: Int testState(Data::Token const *token, ParserState *state);
 
   /// Test the given token against a single level within the test state.
-  private: void testStateLevel(const Data::Token *token, ParserState *state);
+  private: void testStateLevel(Data::Token const *token, ParserState *state);
 
   /// Test the given token against a token term within the test state.
-  private: void testTokenTerm(const Data::Token *token, ParserState *state);
+  private: void testTokenTerm(Data::Token const *token, ParserState *state);
 
   /// Test against a duplicate term within the test state.
-  private: void testMultiplyTerm(const Data::Token *token, ParserState *state);
+  private: void testMultiplyTerm(Data::Token const *token, ParserState *state);
 
   /// Test against an alternative term within the test state.
-  private: void testAlternateTerm(const Data::Token *token, ParserState *state);
+  private: void testAlternateTerm(Data::Token const *token, ParserState *state);
 
   /// Test against a concat term within the test state.
-  private: void testConcatTerm(const Data::Token *token, ParserState *state);
+  private: void testConcatTerm(Data::Token const *token, ParserState *state);
 
   /// Test against a reference term within the test state.
-  private: void testReferenceTerm(const Data::Token *token, ParserState *state);
+  private: void testReferenceTerm(Data::Token const *token, ParserState *state);
 
   /// @}
 
@@ -232,15 +232,17 @@ class Parser : public TiObject
   private: StateIterator createState();
 
   /// Duplicate the given state.
-  private: StateIterator duplicateState(StateIterator si, Int tokensToLive, Int levelCount=-1);
+  private: StateIterator duplicateState(
+    StateIterator si, Data::Token const *token, Int tokensToLive, Int levelCount=-1
+  );
 
   /// Delete a state from the states stack.
   private: void deleteState(StateIterator si, ParserStateTerminationCause stc);
 
-  private: void pushStateTermLevel(ParserState *state, Data::Term *term, Word posId);
+  private: void pushStateTermLevel(ParserState *state, Data::Term *term, Word posId, Data::Token const *token);
 
   private: void pushStateProdLevel(ParserState *state, Data::Module *module,
-                                   Data::SymbolDefinition *prod);
+                                   Data::SymbolDefinition *prod, Data::Token const *token);
 
   /// Pop the top level from a specific state.
   private: void popStateLevel(ParserState *state, Bool success);

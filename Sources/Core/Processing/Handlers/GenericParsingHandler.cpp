@@ -148,7 +148,7 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
 
 
 void GenericParsingHandler::onConcatStep(Processing::Parser *parser, Processing::ParserState *state,
-                                         Int newPos)
+                                         Int newPos, Data::Token const *token)
 {
   // If this term pass data up we can skip.
   if (this->isPassUpList(state, -1)) {
@@ -170,7 +170,7 @@ void GenericParsingHandler::onConcatStep(Processing::Parser *parser, Processing:
 
 
 void GenericParsingHandler::onAlternateRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
-                                                     Int route)
+                                                     Int route, Data::Token const *token)
 {
   ASSERT(this->isRouteTerm(state, -1));
   if (!this->isRouteObjEnforced(state, -1)) return;
@@ -181,13 +181,13 @@ void GenericParsingHandler::onAlternateRouteDecision(Processing::Parser *parser,
 
 
 void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
-                                                    Int route)
+                                                    Int route, Data::Token const *token)
 {
   Integer *min = state->getMultiplyTermMin();
   Integer *max = state->getMultiplyTermMax();
   if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
     // This is an optional term, so we'll just treat it the same way as alternate terms.
-    this->onAlternateRouteDecision(parser, state, route);
+    this->onAlternateRouteDecision(parser, state, route, token);
   } else {
     // If this term pass data up we can skip.
     if (this->isPassUpList(state, -1)) {

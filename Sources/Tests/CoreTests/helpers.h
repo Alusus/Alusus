@@ -53,7 +53,7 @@ class LexerTester : public TiObject
     this->lexer->tokenGenerated.connect(this->handleNewTokenSlot);
   }
 
-  public: void handleNewToken(const Data::Token *token)
+  public: void handleNewToken(Data::Token const *token)
   {
     if (this->errorMsg.size() != 0) return;
     if (this->currentIndex >= static_cast<Int>(this->tokens.size())) {
