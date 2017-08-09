@@ -156,7 +156,7 @@ int main(int argCount, char * const args[])
       root.buildMsgNotifier.connect(buildMsgSlot);
 
       // Parse the standard input stream.
-      root.processStream(&inStream);
+      root.processStream(&inStream, STR("user input"));
     } catch (Exception &e) {
       outStream << e.getVerboseErrorMessage() << NEW_LINE;
       return EXIT_FAILURE;

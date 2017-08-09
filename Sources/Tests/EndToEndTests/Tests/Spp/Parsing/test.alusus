@@ -32,4 +32,3 @@ def t: type {
 
 dump f;
 dump t;
-

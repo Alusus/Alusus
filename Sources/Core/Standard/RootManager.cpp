@@ -102,11 +102,11 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename)
 }
 
 
-SharedPtr<TiObject> RootManager::processStream(InStream *is)
+SharedPtr<TiObject> RootManager::processStream(InStream *is, Char const *streamName)
 {
   Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
   this->buildMsgNotifier.relay(engine.buildMsgNotifier);
-  return engine.processStream(is);
+  return engine.processStream(is, streamName);
 }
 
 
