@@ -21,7 +21,7 @@ namespace Core { namespace Basic
 Str Exception::getVerboseErrorMessage() const throw()
 {
   return this->getErrorMessage() + STR("\nLocation:\n") + this->functionName + STR("\n") +
-      this->sourceFile += STR(" : ") + this->lineNumber;
+      this->sourceFile + STR(" : ") + std::to_string(this->lineNumber);
 }
 
 
