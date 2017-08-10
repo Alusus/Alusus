@@ -18,6 +18,15 @@ namespace Spp { namespace Ast
 //==============================================================================
 // Member Functions
 
+Bool Function::isVariadic() const
+{
+  return
+    this->argTypes != 0 &&
+    this->argTypes->getCount() > 0 &&
+    this->argTypes->get(this->getCount() - 1)->isA<ArgPack>();
+}
+
+
 Function::CallMatchStatus Function::matchCall(
   Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *context,
   Core::Standard::RootManager *rootManager
@@ -76,23 +85,6 @@ Type* Function::traceType(TiObject *ref, Core::Data::Seeker *seeker)
     throw EXCEPTION(GenericException, STR("Invalid type reference."));
   }
   return result;
-}
-
-
-//==============================================================================
-// Clonable Implementation
-
-SharedPtr<TiObject> Function::clone() const
-{
-  SharedPtr<Function> newFunction = std::make_shared<Function>();
-  newFunction->setProdId(this->getProdId());
-  newFunction->setSourceLocation(this->getSourceLocation());
-  for (Word i = 0; i < this->getCount(); ++i) {
-    newFunction->set(this->getKey(i).c_str(), this->get(i));
-  }
-  newFunction->setName(this->name.get());
-  newFunction->setVariadic(this->isVariadic());
-  return newFunction;
 }
 
 } } // namespace

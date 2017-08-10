@@ -44,7 +44,6 @@ class Function : public Core::Data::Node,
 
   private: Core::Data::String name;
   private: SharedPtr<Core::Data::SharedMap> argTypes;
-  private: Core::Data::Integer variadic;
   private: TioSharedPtr retType;
   private: SharedPtr<Block> body;
 
@@ -64,8 +63,9 @@ class Function : public Core::Data::Node,
                           (TiObject, retType),
                           (Block, body));
 
-  IMPLEMENT_AST_MAP_PRINTABLE(Function, << this->name.get()
-                                        << (this->variadic.get() != 0 ? STR(" ...variadic") : STR("")));
+  IMPLEMENT_AST_MAP_PRINTABLE(Function, << this->name.get());
+
+  IMPLEMENT_AST_MAP_CLONABLE(Function);
 
 
   //============================================================================
@@ -128,15 +128,7 @@ class Function : public Core::Data::Node,
     return Function::traceType(this->argTypes->get(index), seeker);
   }
 
-  public: void setVariadic(Bool v)
-  {
-    this->variadic.set(v);
-  }
-
-  public: Bool isVariadic() const
-  {
-    return this->variadic.get() != 0;
-  }
+  public: Bool isVariadic() const;
 
   public: void setRetType(TioSharedPtr const &ret)
   {
@@ -169,12 +161,6 @@ class Function : public Core::Data::Node,
   );
 
   private: static Type* traceType(TiObject *ref, Core::Data::Seeker *seeker);
-
-
-  //============================================================================
-  // Clonable Implementation
-
-  public: virtual SharedPtr<TiObject> clone() const;
 
 }; // class
 

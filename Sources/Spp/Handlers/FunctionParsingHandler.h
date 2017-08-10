@@ -43,6 +43,9 @@ class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsing
   private: Bool parseArg(Core::Processing::ParserState *state, Core::Data::Ast::LinkOperator *link,
                          SharedPtr<Core::Data::SharedMap> const &result);
 
+  private: Bool parseNumber(Core::Processing::ParserState *state, TiObject *ast, TiWord &result,
+                            Core::Data::Ast::Metadata *parentMetadata);
+
 }; // class
 
 } } // namespace

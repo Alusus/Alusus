@@ -130,8 +130,73 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
     state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(link->getSourceLocation()));
     return false;
   }
+  if (type->isA<Core::Data::Ast::PrefixOperator>()) {
+    auto prefixOp = type.s_cast<Core::Data::Ast::PrefixOperator>();
+    if (prefixOp->getType() != STR("...")) {
+      state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(prefixOp->getSourceLocation()));
+      return false;
+    }
+    TioSharedPtr packType;
+    TiWord packMin = 0;
+    TiWord packMax = 0;
+    auto operand = prefixOp->getOperand();
+    if (operand->isA<Core::Data::Ast::Bracket>()) {
+      auto bracket = operand.s_cast<Core::Data::Ast::Bracket>();
+      if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
+        state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(bracket->getSourceLocation()));
+        return false;
+      }
+      auto bracketOperand = bracket->getOperand();
+      if (bracketOperand == 0) {
+        state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(bracket->getSourceLocation()));
+        return false;
+      }
+      if (bracketOperand->isA<Core::Data::Ast::ExpressionList>()) {
+        auto bracketList = bracketOperand.s_cast<Core::Data::Ast::ExpressionList>();
+        if (bracketList->getCount() == 0 || bracketList->getCount() > 3) {
+          state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(bracketList->getSourceLocation()));
+          return false;
+        }
+        packType = bracketList->getShared(0);
+        if (bracketList->getCount() > 1) {
+          if (!this->parseNumber(state, bracketList->get(1), packMin, bracketList.get())) return false;
+        }
+        if (bracketList->getCount() > 2) {
+          if (!this->parseNumber(state, bracketList->get(2), packMax, bracketList.get())) return false;
+        }
+      } else {
+        packType = bracketOperand;
+      }
+    } else {
+      packType = operand;
+    }
+    type = Ast::ArgPack::create({
+      { STR("min"), &packMin },
+      { STR("max"), &packMax }
+    }, {
+      { STR("argType"), packType }
+    });
+  }
   result->set(name->getValue().get(), type);
   return true;
+}
+
+
+Bool FunctionParsingHandler::parseNumber(Core::Processing::ParserState *state, TiObject *ast, TiWord &result,
+                                         Core::Data::Ast::Metadata *parentMetadata)
+{
+  auto metadata = ti_cast<Core::Data::Ast::Metadata>(ast);
+  if (ast->isA<Core::Data::Ast::IntegerLiteral>()) {
+    result = std::stol(static_cast<Core::Data::Ast::IntegerLiteral*>(ast)->getValue().get());
+    return true;
+  } else {
+    if (metadata) {
+      state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(metadata->getSourceLocation()));
+    } else {
+      state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(parentMetadata->getSourceLocation()));
+    }
+    return false;
+  }
 }
 
 } } // namespace
