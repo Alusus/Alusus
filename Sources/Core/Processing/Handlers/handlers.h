@@ -47,6 +47,7 @@ DEFINE_BUILD_MSG(InvalidDefCommand, "Core.Processing.Handlers", "Core", "alusus.
 #include "OutfixParsingHandler.h"
 #include "PrefixParsingHandler.h"
 #include "PostfixParsingHandler.h"
+#include "SubjectParsingHandler.h"
 #include "ChainOpParsingHandler.h"
 #include "TextParsingHandler.h"
 #include "CustomParsingHandler.h"

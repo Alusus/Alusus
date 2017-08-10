@@ -1515,7 +1515,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
   //     lexer.Constant("[") + (alternate (sbj3:s)->( s ))*(frc3,1) + lexer.Constant("]");
   this->repository.set(STR("root:Subject.Subject1"), SymbolDefinition::create({
    {SymbolDefElement::TERM, AlternateTerm::create({
-      {TermElement::FLAGS, Integer::create(ParsingFlags::ENFORCE_ROUTE_OBJ|TermFlags::ONE_ROUTE_TERM)},
+      {TermElement::FLAGS, Integer::create(TermFlags::ONE_ROUTE_TERM)},
       {TermElement::TERM, SharedList::create({
          AlternateTerm::create({
            {TermElement::FLAGS, Integer::create(TermFlags::ONE_ROUTE_TERM)},
@@ -1570,20 +1570,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
       {STR("frc2"), 0},
       {STR("frc3"), 0}
     })},
-   {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto currentRoute = state->getData().tio_cast_get<Ast::Route>();
-      if (currentRoute->getRoute() == 0) {
-        state->setData(currentRoute->getData());
-      } else {
-        auto bracket = Ast::Bracket::create({
-          { "prodId", currentRoute->getProdId() },
-          { "sourceLocation", currentRoute->getSourceLocation() }
-        });
-        bracket->setType(currentRoute->getRoute()==1 ? Ast::BracketType::ROUND : Ast::BracketType::SQUARE);
-        bracket->setOperand(currentRoute->getData());
-        state->setData(bracket);
-      }
-   })}
+   {SymbolDefElement::HANDLER, std::make_shared<Handlers::SubjectParsingHandler>()}
   }).get());
 
   // Subject2 : @limit[user.owner==Subject] prod (sbj:production[Parameter||Command||Expression||Statement||Set],
@@ -1593,7 +1580,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
   //                   lexer.Constant("[") + sbj*(frc,1) + lexer.Constant("]");
   this->repository.set(STR("root:Subject.Subject2"), SymbolDefinition::create({
      {SymbolDefElement::TERM, AlternateTerm::create({
-        {TermElement::FLAGS, Integer::create(ParsingFlags::ENFORCE_ROUTE_OBJ|TermFlags::ONE_ROUTE_TERM)},
+        {TermElement::FLAGS, Integer::create(TermFlags::ONE_ROUTE_TERM)},
         {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:fltr"))},
         {TermElement::TERM, SharedList::create({
            ReferenceTerm::create(STR("args:sbj")),
@@ -1623,20 +1610,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
            })
          })}
       })},
-     {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
-        auto currentRoute = state->getData().tio_cast_get<Ast::Route>();
-        if (currentRoute->getRoute() == 0) {
-          state->setData(currentRoute->getData());
-        } else {
-          auto bracket = Ast::Bracket::create({
-            { "prodId", currentRoute->getProdId() },
-            { "sourceLocation", currentRoute->getSourceLocation() }
-          });
-          bracket->setType(currentRoute->getRoute()==1 ? Ast::BracketType::ROUND : Ast::BracketType::SQUARE);
-          bracket->setOperand(currentRoute->getData());
-          state->setData(bracket);
-        }
-     })}
+     {SymbolDefElement::HANDLER, std::make_shared<Handlers::SubjectParsingHandler>()}
    }).get());
 
   // SubjectCommandGroup
