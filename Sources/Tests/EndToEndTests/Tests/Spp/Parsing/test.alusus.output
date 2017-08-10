@@ -8,14 +8,14 @@ Scope [Main.StatementList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 List [Main.TypeStatementList]
- UserType 
+ UserType
   body: NULL
  Definition [Main.Def] x: Identifier: float [Subject.Parameter] 
  Definition [Main.Def] y: Identifier: float [Subject.Parameter] 
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 List [Main.TypeStatementList]
- UserType 
+ UserType
   body: NULL
  Definition [Main.Def] x: Identifier: float [Subject.Parameter] 
  Definition [Main.Def] y: Identifier: float [Subject.Parameter] 
@@ -30,14 +30,14 @@ Function  [Subject.Function]
   AdditionOperator + [Expression.AddExp]
    first: Identifier: x [Subject.Parameter] 
    second: Identifier: y [Subject.Parameter] 
-  WhileStatement  [Main.While]
+  WhileStatement [Main.While]
    condition: ComparisonOperator == [Expression.ComparisonExp]
     first: Identifier: x [Subject.Parameter] 
     second: IntegerLiteral: 3 [Subject.Literal] 
    body: ParamPass () [Expression.ParamPassExp]
     operand: Identifier: doSomething [Subject.Parameter] 
     param: NULL
-  WhileStatement  [Main.While]
+  WhileStatement [Main.While]
    condition: ComparisonOperator == [Expression.ComparisonExp]
     first: Identifier: y [Subject.Parameter] 
     second: IntegerLiteral: 3 [Subject.Literal] 
@@ -51,7 +51,7 @@ Function  [Subject.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 List [Main.TypeStatementList]
- UserType 
+ UserType
   body: NULL
  Definition [Main.Def] i: Identifier: float [Subject.Parameter] 
  Definition [Main.Def] j: Identifier: float [Subject.Parameter] 

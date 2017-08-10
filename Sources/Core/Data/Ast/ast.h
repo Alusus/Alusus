@@ -40,10 +40,15 @@ namespace Core { namespace Data { namespace Ast
 #define IMPLEMENT_AST_MAP_CLONABLE(type) \
   _IMPLEMENT_AST_CLONABLE(type, newObj->set(this->getKey(i).c_str(), this->get(i)))
 
-#define IMPLEMENT_AST_MAP_PRINTABLE(type, ...) \
+#define _PRINT_AST_TYPE_NAME1(type) stream << STR(#type)
+#define _PRINT_AST_TYPE_NAME2(type, extra) stream << STR(#type " ") extra
+#define _PRINT_AST_TYPE_NAME(...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, _, _, _, _PRINT_AST_TYPE_NAME2, _PRINT_AST_TYPE_NAME1)(__VA_ARGS__)
+
+#define IMPLEMENT_AST_MAP_PRINTABLE(...) \
   public: virtual void print(OutStream &stream, Int indents=0) const \
   { \
-    stream << STR(#type " ") __VA_ARGS__; \
+    _PRINT_AST_TYPE_NAME(__VA_ARGS__); \
     Word id = this->getProdId(); \
     if (id != UNKNOWN_ID) { \
       stream << STR(" [") << ID_GENERATOR->getDesc(id) << STR("]"); \
@@ -56,10 +61,10 @@ namespace Core { namespace Data { namespace Ast
     } \
   }
 
-#define IMPLEMENT_AST_LIST_PRINTABLE(type, ...) \
+#define IMPLEMENT_AST_LIST_PRINTABLE(...) \
   public: virtual void print(OutStream &stream, Int indents=0) const \
   { \
-    stream << STR(#type) __VA_ARGS__; \
+    _PRINT_AST_TYPE_NAME(__VA_ARGS__); \
     Word id = this->getProdId(); \
     if (id != UNKNOWN_ID) { \
       stream << STR(" [") << ID_GENERATOR->getDesc(id) << STR("]"); \
