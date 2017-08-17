@@ -170,12 +170,27 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
     } else {
       packType = operand;
     }
+    if (packType->isA<Core::Data::Ast::Identifier>()) {
+      auto packIdentifier = packType.s_cast<Core::Data::Ast::Identifier>();
+      if (packIdentifier->getValue() == STR("any")) {
+        packType = 0;
+      }
+    }
     type = Ast::ArgPack::create({
       { STR("min"), &packMin },
       { STR("max"), &packMax }
     }, {
       { STR("argType"), packType }
     });
+  } else {
+    // Do we have an arg pack prior to this arg?
+    for (Int i = 0; i < result->getCount(); ++i) {
+      if (result->get(i)->isDerivedFrom<Ast::ArgPack>()) {
+        // We cannot have a normal argument following an arg pack.
+        state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(link->getSourceLocation()));
+        return false;
+      }
+    }
   }
   result->set(name->getValue().get(), type);
   return true;

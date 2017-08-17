@@ -203,6 +203,33 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
         stream << STR("[") << namedListContainer->getName(i).c_str() << STR("] ");
         dumpData(stream, namedListContainer->get(i), indents+1);
       }
+    } else if (ptr->isA<TioSharedBox>()) {
+      TioSharedBox *sharedBox = static_cast<TioSharedBox*>(ptr);
+      stream << STR("\n");
+      printIndents(stream, indents+1);
+      dumpData(stream, sharedBox->get().get(), indents+1);
+    } else if (ptr->isA<TiWord>()) {
+      auto tiWord = static_cast<TiWord*>(ptr);
+      stream << STR(": ") << tiWord->get();
+    } else if (ptr->isA<TiInt>()) {
+      auto tiInt = static_cast<TiInt*>(ptr);
+      stream << STR(": ") << tiInt->get();
+    } else if (ptr->isA<TiFloat>()) {
+      auto tiFloat = static_cast<TiFloat*>(ptr);
+      stream << STR(": ") << tiFloat->get();
+    } else if (ptr->isA<Integer>()) {
+      auto num = static_cast<Integer*>(ptr);
+      stream << STR(": ") << num->get();
+    } else if (ptr->isA<TiStr>()) {
+      auto tiStr = static_cast<TiStr*>(ptr);
+      stream << STR("\n");
+      printIndents(stream, indents+1);
+      stream << tiStr->get();
+    } else if (ptr->isA<String>()) {
+      auto str = static_cast<String*>(ptr);
+      stream << STR("\n");
+      printIndents(stream, indents+1);
+      stream << str->get();
     }
   }
 }

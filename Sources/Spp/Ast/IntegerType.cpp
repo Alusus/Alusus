@@ -23,17 +23,13 @@ Word IntegerType::getBitCount(Core::Standard::RootManager *rootManager) const
   if (this->bitCountRef == 0) {
     this->bitCountRef = rootManager->parseExpression(STR("bitCount"));
   }
-  auto bitCountBox = ti_cast<Core::Basic::TioSharedBox>(
+  auto bitCount = ti_cast<Core::Data::Integer>(
     rootManager->getSeeker()->doGet(this->bitCountRef.get(), this->getOwner())
   );
-  if (bitCountBox == 0) {
+  if (bitCount == 0) {
     throw EXCEPTION(GenericException, STR("Could not find bitCount value."));
   }
-  auto bitCount = bitCountBox->get().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
-  if (bitCount == 0) {
-    throw EXCEPTION(GenericException, STR("Invalid bitCount value found."));
-  }
-  return std::stoi(bitCount->getValue().get());
+  return bitCount->get();
 }
 
 

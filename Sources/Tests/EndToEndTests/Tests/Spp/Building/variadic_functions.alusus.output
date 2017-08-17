@@ -1,0 +1,61 @@
+------------------ Generated LLVM IR ------------------
+; ModuleID = 'AlususProgram'
+target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+
+@__anonymous0 = private constant [6 x i8] c"hello\00", align 1
+@__anonymous1 = private constant [6 x i8] c"hello\00", align 1
+@__anonymous2 = private constant [7 x i8] c"world!\00", align 1
+@__anonymous3 = private constant [6 x i8] c"hello\00", align 1
+@__anonymous4 = private constant [6 x i8] c"world\00", align 1
+@__anonymous5 = private constant [4 x i8] c"...\00", align 1
+@__anonymous6 = private constant [6 x i8] c"hello\00", align 1
+@__anonymous7 = private constant [6 x i8] c"world\00", align 1
+@__anonymous8 = private constant [6 x i8] c"hello\00", align 1
+@__anonymous9 = private constant [6 x i8] c"world\00", align 1
+@__anonymous10 = private constant [6 x i8] c"again\00", align 1
+
+define i32 @Main_main_____Int_32__() {
+__block0:
+  %0 = call i32 (i8*, ...)* @Main_f0_ptr_Int_8___ArgPack_Int_32__0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous0, i64 0, i64 0))
+  %1 = call i32 (i8*, ...)* @Main_f1_ptr_Int_8___ArgPack_any_0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous1, i64 0, i64 0), i8* getelementptr inbounds ([7 x i8]* @__anonymous2, i64 0, i64 0))
+  %2 = call i32 (i8*, ...)* @Main_f1_ptr_Int_8___ArgPack_any_0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous3, i64 0, i64 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous4, i64 0, i64 0), i8* getelementptr inbounds ([4 x i8]* @__anonymous5, i64 0, i64 0))
+  %3 = call i32 (i8*, ...)* @Main_f2_ptr_Int_8___ArgPack_any_1_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous6, i64 0, i64 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous7, i64 0, i64 0))
+  %4 = call i32 (i8*, ...)* @Main_f3_ptr_Int_8___ArgPack_ptr_Int_8___1_2_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous8, i64 0, i64 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous9, i64 0, i64 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous10, i64 0, i64 0))
+}
+
+define i32 @Main_f0_ptr_Int_8___ArgPack_Int_32__0_0_____Int_32__(i8* %a, ...) {
+__block1:
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+}
+
+define i32 @Main_f1_ptr_Int_8___ArgPack_any_0_0_____Int_32__(i8* %a, ...) {
+__block3:
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+}
+
+define i32 @Main_f2_ptr_Int_8___ArgPack_any_1_0_____Int_32__(i8* %a, ...) {
+__block5:
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+}
+
+define i32 @Main_f3_ptr_Int_8___ArgPack_ptr_Int_8___1_2_____Int_32__(i8* %a, ...) {
+__block6:
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+}
+
+define i32 @Main_f1_ptr_Int_8___ArgPack_Int_32__0_0_____Int_32__(i8* %a, ...) {
+__block2:
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+}
+
+define i32 @Main_f1_Int_32__ArgPack_any_0_0_____Int_32__(i32 %a, ...) {
+__block4:
+  %a1 = alloca i32
+  store i32 %a, i32* %a1
+}
+-------------------------------------------------------

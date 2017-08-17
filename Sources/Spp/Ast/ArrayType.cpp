@@ -40,17 +40,13 @@ Word ArrayType::getSize(Core::Standard::RootManager *rootManager) const
   if (this->sizeRef == 0) {
     this->sizeRef = rootManager->parseExpression(STR("size"));
   }
-  auto sizeBox = ti_cast<Core::Basic::TioSharedBox>(
+  auto size = ti_cast<Core::Data::Integer>(
     rootManager->getSeeker()->doGet(this->sizeRef.get(), this->getOwner())
   );
-  if (sizeBox == 0) {
+  if (size == 0) {
     throw EXCEPTION(GenericException, STR("Could not find size value."));
   }
-  auto size = sizeBox->get().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
-  if (size == 0) {
-    throw EXCEPTION(GenericException, STR("Invalid size value found."));
-  }
-  return std::stoi(size->getValue().get());
+  return size->get();
 }
 
 } } // namespace

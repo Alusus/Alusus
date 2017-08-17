@@ -38,6 +38,14 @@ class Function : public Core::Data::Node,
 
   public: s_enum(CallMatchStatus, NONE, CASTED, EXACT);
 
+  public: struct ArgMatchContext
+  {
+    Int index;
+    Int subIndex;
+    Type *type;
+    ArgMatchContext() : index(-1), subIndex(-1), type(0) {}
+  };
+
 
   //============================================================================
   // Member Variables
@@ -125,7 +133,7 @@ class Function : public Core::Data::Node,
     if (this->argTypes == 0 || index < 0 || index >= this->argTypes->getCount()) {
       throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
     }
-    return Function::traceType(this->argTypes->get(index), seeker);
+    return traceType(this->argTypes->get(index), seeker);
   }
 
   public: Bool isVariadic() const;
@@ -142,7 +150,7 @@ class Function : public Core::Data::Node,
 
   public: Type* traceRetType(Core::Data::Seeker *seeker) const
   {
-    return Function::traceType(this->retType.get(), seeker);
+    return traceType(this->retType.get(), seeker);
   }
 
   public: void setBody(SharedPtr<Block> const &b)
@@ -156,11 +164,14 @@ class Function : public Core::Data::Node,
   }
 
   public: CallMatchStatus matchCall(
-    Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *context,
+    Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *executionContext,
     Core::Standard::RootManager *rootManager
   );
 
-  private: static Type* traceType(TiObject *ref, Core::Data::Seeker *seeker);
+  public: CallMatchStatus matchNextArg(
+    Core::Basic::TiObject *nextType, ArgMatchContext &matchContext,
+    ExecutionContext const *executionContext, Core::Standard::RootManager *rootManager
+  );
 
 }; // class
 

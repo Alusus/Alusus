@@ -1,8 +1,9 @@
-ERROR SPP1007 @ (19,31): Invalid function arg type.
-ERROR SPP1007 @ (23,34): Invalid function arg type.
-ERROR SPP1007 @ (27,35): Invalid function arg type.
+ERROR SPP1007 @ (27,31): Invalid function arg type.
 ERROR SPP1007 @ (31,34): Invalid function arg type.
-ERROR SPP1007 @ (35,40): Invalid function arg type.
+ERROR SPP1007 @ (35,35): Invalid function arg type.
+ERROR SPP1007 @ (39,34): Invalid function arg type.
+ERROR SPP1007 @ (43,40): Invalid function arg type.
+ERROR SPP1007 @ (47,39): Invalid function arg type.
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
  argTypes: alusus.net#Core#Core.Data.SharedMap
@@ -17,7 +18,7 @@ Function  [Subject.Function]
  argTypes: alusus.net#Core#Core.Data.SharedMap
   x: Identifier: Int [Subject.Parameter] 
   args: ArgPack 0 0
-   argType: Identifier: any [Subject.Parameter] 
+   argType: NULL
  retType: Identifier: void [Subject.Parameter] 
  body: Block [Main.BlockStatementList]
 ------------------------------------------------------
@@ -27,6 +28,15 @@ Function  [Subject.Function]
   x: Identifier: Int [Subject.Parameter] 
   args: ArgPack 0 0
    argType: Identifier: Int [Subject.Parameter] 
+ retType: Identifier: void [Subject.Parameter] 
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ argTypes: alusus.net#Core#Core.Data.SharedMap
+  x: Identifier: Int [Subject.Parameter] 
+  args: ArgPack 0 0
+   argType: NULL
  retType: Identifier: void [Subject.Parameter] 
  body: Block [Main.BlockStatementList]
 ------------------------------------------------------
@@ -36,6 +46,15 @@ Function  [Subject.Function]
   x: Identifier: Int [Subject.Parameter] 
   args: ArgPack 1 5
    argType: Identifier: Int [Subject.Parameter] 
+ retType: Identifier: void [Subject.Parameter] 
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ argTypes: alusus.net#Core#Core.Data.SharedMap
+  x: Identifier: Int [Subject.Parameter] 
+  args: ArgPack 1 5
+   argType: NULL
  retType: Identifier: void [Subject.Parameter] 
  body: Block [Main.BlockStatementList]
 ------------------------------------------------------

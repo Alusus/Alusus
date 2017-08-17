@@ -2,7 +2,7 @@
  * @file Spp/Ast/Template.cpp
  * Contains the implementation of class Spp::Ast::Template.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -85,7 +85,7 @@ Bool Template::matchTemplateVar(TiObject *templateInput, Block *instance, Int va
 {
   switch (this->varDefs[varIndex].second.val) {
     case VarType::INTEGER: {
-      auto var = ti_cast<Core::Data::Ast::IntegerLiteral>(
+      auto var = ti_cast<Core::Data::Integer>(
         Template::getTemplateVar(instance, this->varDefs[varIndex].first.c_str())
       );
       if (var == 0) {
@@ -97,11 +97,11 @@ Bool Template::matchTemplateVar(TiObject *templateInput, Block *instance, Int va
       if (newVar == 0) {
         throw EXCEPTION(GenericException, STR("Provided template argument is invalid."));
       }
-      return std::stol(newVar->getValue().get()) == std::stol(var->getValue().get());
+      return std::stol(newVar->getValue().get()) == var->get();
     }
 
     case VarType::STRING: {
-      auto var = ti_cast<Core::Data::Ast::StringLiteral>(
+      auto var = ti_cast<Core::Data::String>(
         Template::getTemplateVar(instance, this->varDefs[varIndex].first.c_str())
       );
       if (var == 0) {
@@ -113,7 +113,7 @@ Bool Template::matchTemplateVar(TiObject *templateInput, Block *instance, Int va
       if (newVar == 0) {
         throw EXCEPTION(GenericException, STR("Provided template argument is invalid."));
       }
-      return newVar->getValue() == var->getValue();
+      return newVar->getValue() == var->get();
     }
 
     default: {
@@ -142,7 +142,15 @@ void Template::assignTemplateVars(TiObject *templateInput, Block *instance, Core
       auto var = Template::traceObject(list->get(i), this->varDefs[i].second, seeker);
       auto def = Core::Data::Ast::Definition::create();
       def->setName(this->varDefs[i].first.c_str());
-      def->setTarget(std::make_shared<Core::Basic::TioSharedBox>(getSharedPtr(var)));
+      if (this->varDefs[i].second == VarType::INTEGER) {
+        auto intLiteral = static_cast<Core::Data::Ast::IntegerLiteral*>(var);
+        def->setTarget(Core::Data::Integer::create(std::stol(intLiteral->getValue().get())));
+      } else if (this->varDefs[i].second == VarType::STRING) {
+        auto strLiteral = static_cast<Core::Data::Ast::StringLiteral*>(var);
+        def->setTarget(std::make_shared<Core::Data::String>(strLiteral->getValue().get()));
+      } else {
+        def->setTarget(std::make_shared<Core::Basic::TioSharedBox>(getSharedPtr(var)));
+      }
       instance->add(def);
     }
   } else {
@@ -152,8 +160,16 @@ void Template::assignTemplateVars(TiObject *templateInput, Block *instance, Core
     auto var = Template::traceObject(templateInput, this->varDefs[0].second, seeker);
     auto def = Core::Data::Ast::Definition::create();
     def->setName(this->varDefs[0].first.c_str());
-    def->setTarget(std::make_shared<Core::Basic::TioSharedBox>(getSharedPtr(var)));
-    instance->add(def);
+    if (this->varDefs[0].second == VarType::INTEGER) {
+      auto intLiteral = static_cast<Core::Data::Ast::IntegerLiteral*>(var);
+      def->setTarget(Core::Data::Integer::create(std::stol(intLiteral->getValue().get())));
+    } else if (this->varDefs[0].second == VarType::STRING) {
+      auto strLiteral = static_cast<Core::Data::Ast::StringLiteral*>(var);
+      def->setTarget(std::make_shared<Core::Data::String>(strLiteral->getValue().get()));
+    } else {
+      def->setTarget(std::make_shared<Core::Basic::TioSharedBox>(getSharedPtr(var)));
+    }
+  instance->add(def);
   }
 }
 
@@ -164,10 +180,8 @@ TiObject* Template::getTemplateVar(Block const *instance, Char const *name)
     auto def = ti_cast<Core::Data::Ast::Definition>(instance->get(i));
     if (def != 0 && def->getName() == name) {
       auto box = def->getTarget().ti_cast_get<Core::Basic::TioSharedBox>();
-      if (box == 0) {
-        throw EXCEPTION(GenericException, STR("Template var not found."));
-      }
-      return box->get().get();
+      if (box != 0) return box->get().get();
+      else return def->getTarget().get();
     }
   }
   throw EXCEPTION(GenericException, STR("Template var not found."));
@@ -242,6 +256,7 @@ void Template::print(OutStream &stream, Int indents) const
   if (id != UNKNOWN_ID) {
     stream << STR(" [") << ID_GENERATOR->getDesc(id) << STR("]");
   }
+  // dump var defs
   stream << STR("\n");
   printIndents(stream, indents+1);
   stream << STR("-varDefs:");
@@ -256,11 +271,21 @@ void Template::print(OutStream &stream, Int indents) const
       case VarType::FUNCTION: stream << STR("Function"); break;
     }
   }
+  // dump body
   stream << STR("\n");
   printIndents(stream, indents+1);
   stream << STR("-templateBody:\n");
   printIndents(stream, indents+2);
   Core::Data::dumpData(stream, this->templateBody->getTiObject(), indents+2);
+  // dump instances
+  stream << STR("\n");
+  printIndents(stream, indents+1);
+  stream << STR("-instances:");
+  for (Word i = 0; i < this->instances.size(); ++i) {
+    stream << STR("\n");
+    printIndents(stream, indents+2);
+    Core::Data::dumpData(stream, this->instances[i].get(), indents+2);
+  }
 }
 
 } } // namespace

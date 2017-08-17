@@ -159,11 +159,14 @@ void Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   // TODO: Support functions that take no args.
   auto astArgs = astFunc->getArgTypes().get();
   auto argCount = astArgs == 0 ? 0 : astArgs->getCount();
-  std::vector<llvm::Type*> llvmArgTypes(argCount);
+  std::vector<llvm::Type*> llvmArgTypes;
+  llvmArgTypes.reserve(argCount);
   for (Int i = 0; i < argCount; ++i) {
-    llvmArgTypes[i] = generator->typeGenerator->getGeneratedLlvmType(
+    auto argType = astArgs->get(i);
+    if (argType->isDerivedFrom<Ast::ArgPack>()) break;
+    llvmArgTypes.push_back(generator->typeGenerator->getGeneratedLlvmType(
       astArgs->get(i), generator->llvmModule.get()
-    );
+    ));
   }
 
   // Get the return LLVM type.
@@ -177,7 +180,7 @@ void Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   }
 
   // Generate the function object.
-  auto llvmFuncType = llvm::FunctionType::get(llvmRetType, llvmArgTypes, false);
+  auto llvmFuncType = llvm::FunctionType::get(llvmRetType, llvmArgTypes, astFunc->isVariadic());
   Str name = generator->getFunctionName(astFunc);
   auto cgFunc = std::make_shared<LlvmCodeGen::UserFunction>();
   cgFunc->setLlvmFunction(
@@ -317,13 +320,20 @@ void Generator::_generateParamPass(
     auto cgFunction = function->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Function>();
     // Create function call.
     std::vector<llvm::Value*> args;
-    for (Int i = 0; i < function->getArgCount(); ++i) {
+    Ast::Function::ArgMatchContext context;
+    for (Int i = 0; i < paramCgs.getCount(); ++i) {
       Ast::Type *srcType = static_cast<Ast::Type*>(paramTypes.get(i));
-      Ast::Type *destType = function->traceArgType(i, generator->getSeeker());
-      auto destValue = generator->typeGenerator->createCast(
-        srcType, destType, paramCgs.get(i), llvmIrBuilder, generator->llvmModule.get()
-      );
-      args.push_back(destValue);
+      auto status =
+        function->matchNextArg(srcType, context, generator->executionContext.get(), generator->getRootManager());
+      ASSERT(status != Ast::Function::CallMatchStatus::NONE);
+      if (context.type == 0) {
+        args.push_back(paramCgs.get(i));
+      } else {
+        auto destValue = generator->typeGenerator->createCast(
+          srcType, context.type, paramCgs.get(i), llvmIrBuilder, generator->llvmModule.get()
+        );
+        args.push_back(destValue);
+      }
     }
     auto llvmCall = cgFunction->createCallInstruction(llvmIrBuilder, args);
     // Assign results.

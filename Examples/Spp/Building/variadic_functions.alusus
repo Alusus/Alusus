@@ -1,0 +1,41 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def main: function ()=>Int[32] {
+    f0("hello");
+
+    f1("hello", "world!");
+    f1("hello", "world", "...");
+
+    f2("hello", "world");
+
+    f3("hello", "world", "again");
+  };
+
+  def f0: function (a: ptr[Int[8]], args:...Int[32])=>Int[32]
+  {
+  };
+
+  def f1: function (a: ptr[Int[8]], args:...Int[32])=>Int[32]
+  {
+  };
+
+  def f1: function (a: ptr[Int[8]], args:...any)=>Int[32]
+  {
+  };
+
+  def f1: function (a: Int[32], args:...any)=>Int[32]
+  {
+  };
+
+  def f2: function (a: ptr[Int[8]], args:...[any, 1])=>Int[32]
+  {
+  };
+
+  def f3: function (a: ptr[Int[8]], args:...[ptr[Int[8]], 1, 2])=>Int[32]
+  {
+  };
+};
+
+build Main;

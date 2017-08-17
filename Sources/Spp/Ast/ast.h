@@ -23,6 +23,17 @@ namespace Spp { namespace Ast
  * @brief Classes related to the SPP's AST.
  */
 
+//==============================================================================
+// Forward Class Definitions
+
+class Type;
+
+
+//==============================================================================
+// Global Functions
+
+Type* traceType(TiObject *ref, Core::Data::Seeker *seeker);
+
 } } // namespace
 
 

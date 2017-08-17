@@ -90,8 +90,6 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
     this->resolve(node, path);
   }
 
-  private: Spp::Ast::Type* traceType(TiObject *ref);
-
   /// @}
 
   /// @name Path Resolving Functions
@@ -100,11 +98,13 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
   public: METHOD_BINDING_CACHE(resolve, void, (Core::Data::Node const*, StrStream&));
   public: METHOD_BINDING_CACHE(resolveDefinition, void, (Core::Data::Ast::Definition const*, StrStream&));
   public: METHOD_BINDING_CACHE(resolveFunction, void, (Spp::Ast::Function const*, StrStream&));
+  public: METHOD_BINDING_CACHE(resolveFunctionArg, void, (TiObject*, StrStream&));
   public: METHOD_BINDING_CACHE(resolveTemplateInstance, void, (Spp::Ast::Block const*, StrStream&));
 
   private: static void _resolve(TiObject *self, Core::Data::Node const *node, StrStream &path);
   private: static void _resolveDefinition(TiObject *self, Core::Data::Ast::Definition const *def, StrStream &path);
   private: static void _resolveFunction(TiObject *self, Spp::Ast::Function const *func, StrStream &path);
+  private: static void _resolveFunctionArg(TiObject *self, TiObject *arg, StrStream &path);
   private: static void _resolveTemplateInstance(TiObject *self, Spp::Ast::Block const *block, StrStream &path);
 
   /// @}
