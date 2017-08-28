@@ -49,6 +49,7 @@ class SourceLocation : public TiObject
    */
   public: Int column = 0;
 
+
   //============================================================================
   // Constructors and Operators
 

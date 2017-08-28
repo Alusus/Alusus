@@ -82,6 +82,12 @@ namespace Core { namespace Data { namespace Ast
 
 ti_s_enum(BracketType, Integer, "Core.Data.Ast", "Core", "alusus.net", ROUND, SQUARE);
 
+
+//==============================================================================
+// Global Functions
+
+SourceLocation getSourceLocation(TiObject *obj);
+
 } } } // namespace
 
 #include "Metadata.h"

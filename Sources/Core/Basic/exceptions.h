@@ -336,9 +336,8 @@ class InvalidArgumentException : public Exception
 
 }; // class
 
-
-
 } } // namespace
+
 
 //==============================================================================
 // Exception Macros

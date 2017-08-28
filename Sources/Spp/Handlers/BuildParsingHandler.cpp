@@ -31,7 +31,7 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
 
   try {
     auto root = this->rootManager->getRootScope().get();
-    auto ir = this->llvmGenerator->generateIr(root);
+    auto ir = this->llvmGenerator->generateIr(root, state);
     outStream << STR("------------------ Generated LLVM IR ------------------\n");
     outStream << ir;
     outStream << STR("-------------------------------------------------------\n");

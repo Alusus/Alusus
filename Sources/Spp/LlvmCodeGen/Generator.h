@@ -41,6 +41,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   private: NodePathResolver *nodePathResolver;
   private: TypeGenerator *typeGenerator;
 
+  private: Core::Processing::ParserState *parserState;
   private: SharedPtr<llvm::Module> llvmModule;
   private: SharedPtr<ExecutionContext> executionContext;
   private: SharedPtr<Core::Data::Ast::ParamPass> constStringTypeRef;
@@ -105,13 +106,12 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     return this->typeGenerator;
   }
 
-
   /// @}
 
   /// @name Main Operation Functions
   /// @{
 
-  public: Str generateIr(Core::Data::Ast::Scope *root);
+  public: Str generateIr(Core::Data::Ast::Scope *root, Core::Processing::ParserState *state);
   public: void execute(Core::Data::Ast::Scope *root, Char const *functionName);
 
   /// @}

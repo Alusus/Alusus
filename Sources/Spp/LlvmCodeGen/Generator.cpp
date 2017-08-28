@@ -57,7 +57,7 @@ void Generator::initBindings()
 //==============================================================================
 // Main Operation Functions
 
-Str Generator::generateIr(Core::Data::Ast::Scope *root)
+Str Generator::generateIr(Core::Data::Ast::Scope *root, Core::Processing::ParserState *state)
 {
   if (root == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("root"), STR("Must not be null."));
@@ -69,6 +69,8 @@ Str Generator::generateIr(Core::Data::Ast::Scope *root)
   this->llvmModule = std::make_shared<llvm::Module>("AlususProgram", llvm::getGlobalContext());
   this->llvmModule->setDataLayout(llvmDataLayout->getStringRepresentation());
   this->executionContext = std::make_shared<ExecutionContext>(llvmDataLayout->getPointerSizeInBits());
+
+  this->parserState = state;
 
   // Generates code for all modules.
   for (Int i = 0; i < root->getCount(); ++i) {
