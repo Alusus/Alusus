@@ -38,7 +38,7 @@ class Notice : public TiObject
   // Member Variables
 
   /// The source location at which the message was generated.
-  private: Data::SourceLocation sourceLocation;
+  private: SharedPtr<std::vector<Data::SourceLocation>> sourceLocationStack;
 
   /**
    * @brief A temporary buffer to hold the generated message description.
@@ -54,8 +54,21 @@ class Notice : public TiObject
   {
   }
 
-  public: Notice(Data::SourceLocation const &l) : sourceLocation(l)
+  public: Notice(Data::SourceLocation const &l)
   {
+    this->sourceLocationStack = std::make_shared<std::vector<Data::SourceLocation>>(1, l);
+  }
+
+  public: Notice(std::vector<Data::SourceLocation> const &l)
+  {
+    this->sourceLocationStack = std::make_shared<std::vector<Data::SourceLocation>>(l);
+  }
+
+  public: Notice(std::vector<Data::SourceLocation> *l)
+  {
+    if (l != 0) {
+      this->sourceLocationStack = std::make_shared<std::vector<Data::SourceLocation>>(*l);
+    }
   }
 
   public: virtual ~Notice()
@@ -114,13 +127,19 @@ class Notice : public TiObject
   /// Set the source location at which the message was generated.
   public: void setSourceLocation(Data::SourceLocation const &l)
   {
-    this->sourceLocation = l;
+    this->sourceLocationStack = std::make_shared<std::vector<Data::SourceLocation>>(1, l);
+  }
+
+  /// Set the source location at which the message was generated.
+  public: void setSourceLocationStack(std::vector<Data::SourceLocation> const &l)
+  {
+    this->sourceLocationStack = std::make_shared<std::vector<Data::SourceLocation>>(l);
   }
 
   /// Get the source location at which the message was generated.
-  public: Data::SourceLocation const& getSourceLocation() const
+  public: SharedPtr<std::vector<Data::SourceLocation>> const& getSourceLocationStack() const
   {
-    return this->sourceLocation;
+    return this->sourceLocationStack;
   }
 
 }; // class
@@ -134,9 +153,9 @@ class Notice : public TiObject
   { \
     TYPE_INFO(name, Core::Data::Notice, typeNamespace, moduleName, url); \
     public: name() {} \
-    public: name(Core::Data::SourceLocation const &sl) : Core::Data::Notice(sl) \
-    { \
-    } \
+    public: name(Core::Data::SourceLocation const &sl) : Core::Data::Notice(sl) {} \
+    public: name(std::vector<Core::Data::SourceLocation> const &sl) : Core::Data::Notice(sl) {} \
+    public: name(std::vector<Core::Data::SourceLocation> *sl) : Core::Data::Notice(sl) {} \
     public: virtual Str const& getCode() const \
     { \
       static Str _code(code); \

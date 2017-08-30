@@ -52,7 +52,17 @@ void printNotice(const SharedPtr<Notice> &msg)
   // Print msg code.
   std::cout << msg->getCode() << " @ ";
   // Print location.
-  std::cout << "(" << msg->getSourceLocation().line << "," << msg->getSourceLocation().column << "): ";
+  auto sourceLocationStack = msg->getSourceLocationStack().get();
+  if (sourceLocationStack != 0 && sourceLocationStack->size() > 0) {
+    std::cout << "(" << sourceLocationStack->at(0).line << "," << sourceLocationStack->at(0).column << ")";
+    for (Int i = 1; i < sourceLocationStack->size(); ++i) {
+      std::cout << NEW_LINE;
+      std::cout << "from (" << sourceLocationStack->at(i).line << "," << sourceLocationStack->at(i).column << ")";
+    }
+    std::cout << ": ";
+  } else {
+    std::cout << "unknown location: ";
+  }
   // Print description.
   std::cout << msg->getDescription() << NEW_LINE;
 }

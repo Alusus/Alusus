@@ -40,6 +40,16 @@ class RedefinitionNotice : public Data::Notice
   {
   }
 
+  public: RedefinitionNotice(Char const *n, std::vector<Data::SourceLocation> const &sl) :
+    name(n), Data::Notice(sl)
+  {
+  }
+
+  public: RedefinitionNotice(Char const *n, std::vector<Data::SourceLocation> *sl) :
+    name(n), Data::Notice(sl)
+  {
+  }
+
   public: virtual ~RedefinitionNotice()
   {
   }

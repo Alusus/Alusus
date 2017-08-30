@@ -31,7 +31,7 @@ namespace Core
 void printNotice(const SharedPtr<Data::Notice> &msg)
 {
   // We will only print the error message if we have a source location for it.
-  if (msg->getSourceLocation().filename == 0) return;
+  if (msg->getSourceLocationStack() == 0 || msg->getSourceLocationStack()->size() == 0) return;
 
   // Print severity.
   switch (msg->getSeverity()) {
@@ -43,8 +43,13 @@ void printNotice(const SharedPtr<Data::Notice> &msg)
   // Print msg code.
   outStream << msg->getCode() << " @ ";
   // Print location.
-  outStream << msg->getSourceLocation().filename->c_str()
-            << " (" << msg->getSourceLocation().line << "," << msg->getSourceLocation().column << "): ";
+  auto stack = msg->getSourceLocationStack().get();
+  outStream << stack->at(0).filename->c_str() << " (" << stack->at(0).line << "," << stack->at(0).column << ")";
+  for (Int i = 1; i < stack->size(); ++i) {
+    outStream << NEW_LINE << STR("from ");
+    outStream << stack->at(i).filename->c_str() << " (" << stack->at(i).line << "," << stack->at(i).column << ")";
+  }
+  outStream << STR(": ");
   // Print description.
   outStream << msg->getDescription() << STR("\033[0m") << NEW_LINE;
 }

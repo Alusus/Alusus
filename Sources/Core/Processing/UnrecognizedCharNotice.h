@@ -53,6 +53,14 @@ class UnrecognizedCharNotice : public Data::Notice
   {
   }
 
+  public: UnrecognizedCharNotice(Char const *t, std::vector<Data::SourceLocation> const &sl) : Data::Notice(sl), text(t)
+  {
+  }
+
+  public: UnrecognizedCharNotice(Char const *t, std::vector<Data::SourceLocation> *sl) : Data::Notice(sl), text(t)
+  {
+  }
+
   public: virtual ~UnrecognizedCharNotice()
   {
   }
@@ -109,7 +117,7 @@ class UnrecognizedCharNotice : public Data::Notice
    */
   public: void appendText(Char ch, Data::SourceLocation const &sl)
   {
-    if (this->getSourceLocation().line == 0) {
+    if (this->getSourceLocationStack() == 0) {
       this->setSourceLocation(sl);
     }
     this->text.append(1, ch);
@@ -132,7 +140,7 @@ class UnrecognizedCharNotice : public Data::Notice
   public: void appendText(Char const *str, Data::SourceLocation const &sl)
   {
     if (str == 0 || str[0] == CHR('\0')) return;
-    if (this->getSourceLocation().line == 0) {
+    if (this->getSourceLocationStack() == 0) {
       this->setSourceLocation(sl);
     }
     this->text.append(str);

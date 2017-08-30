@@ -44,8 +44,34 @@ class CustomNotice : public Notice
     if (p) this->param = p;
   }
 
+  public: CustomNotice(Char const *msg, std::vector<Data::SourceLocation> const &sl, Char const *p=0) :
+    Notice(sl), msg(msg), code(STR("G1002")), severity(1)
+  {
+    if (p) this->param = p;
+  }
+
+  public: CustomNotice(Char const *msg, std::vector<Data::SourceLocation> *sl, Char const *p=0) :
+    Notice(sl), msg(msg), code(STR("G1002")), severity(1)
+  {
+    if (p) this->param = p;
+  }
+
   public: CustomNotice(Char const *msg, Char const *code, Int severity, Data::SourceLocation const &sl, Char const *p=0)
     : Notice(sl), msg(msg), code(code), severity(severity)
+  {
+    if (p) this->param = p;
+  }
+
+  public: CustomNotice(
+    Char const *msg, Char const *code, Int severity, std::vector<Data::SourceLocation> const &sl, Char const *p=0
+  ) : Notice(sl), msg(msg), code(code), severity(severity)
+  {
+    if (p) this->param = p;
+  }
+
+  public: CustomNotice(
+    Char const *msg, Char const *code, Int severity, std::vector<Data::SourceLocation> *sl, Char const *p=0
+  ) : Notice(sl), msg(msg), code(code), severity(severity)
   {
     if (p) this->param = p;
   }

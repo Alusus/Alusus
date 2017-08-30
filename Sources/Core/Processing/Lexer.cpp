@@ -356,7 +356,7 @@ Int Lexer::process()
     if (this->errorBuffer.getTextLength() > 0) {
       this->noticeSignal.emit(
             SharedPtr<Data::Notice>(new UnrecognizedCharNotice(this->errorBuffer.getText().c_str(),
-                                                                this->errorBuffer.getSourceLocation())));
+                                                               this->errorBuffer.getSourceLocationStack().get())));
       this->errorBuffer.clear();
     }
   }
