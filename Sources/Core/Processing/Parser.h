@@ -78,22 +78,22 @@ class Parser : public TiObject
   private: DecisionNodePool decisionNodes;
 
   /**
-   * @brief Specifies whether an UnexpectedTokenMsg has already been raised.
+   * @brief Specifies whether an UnexpectedTokenNotice has already been raised.
    *
-   * During a single parsing process, an UnexpectedTokenMsg (raised when a
+   * During a single parsing process, an UnexpectedTokenNotice (raised when a
    * a token is received after parsing folds completely out of the grammar
    * tree) should only be raised once since the user will know that from that
    * token onwards all tokens are unexpected and there is no need to raise a
    * separate msg for each of them.
    */
-  private: Bool unexpectedTokenMsgRaised;
+  private: Bool unexpectedTokenNoticeRaised;
 
 
   //============================================================================
   // Signals & Slots
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: Signal<void, SharedPtr<Processing::BuildMsg> const&> buildMsgNotifier;
+  public: Signal<void, SharedPtr<Data::Notice> const&> noticeSignal;
 
   /**
      * @brief Emitted when parsing has folded out of the grammar tree.
@@ -165,7 +165,7 @@ class Parser : public TiObject
   public: void handleNewToken(Data::Token const *token);
 
   /// Raise build msgs that are approved and remove them from the buffer.
-  private: void flushApprovedBuildMsgs();
+  private: void flushApprovedNotices();
 
   /// Apply the received token on a specific state.
   private: void processState(Data::Token const *token, StateIterator si);

@@ -154,14 +154,14 @@ class Lexer : public TiObject
    * buffer also holds the position of the first error character, which will
    * later be used as the error position when the error is raised.
    */
-  private: UnrecognizedCharMsg errorBuffer;
+  private: UnrecognizedCharNotice errorBuffer;
 
 
   //============================================================================
   // Signals
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: Signal<void, SharedPtr<Processing::BuildMsg> const&> buildMsgNotifier;
+  public: Signal<void, SharedPtr<Data::Notice> const&> noticeSignal;
 
   /**
    * @brief A signal to inform targets of a newly generated token.

@@ -115,36 +115,36 @@ class LexerTester : public TiObject
 
 
 /// A class that receives and stores build messages.
-class BuildMsgReceiver : public TiObject
+class NoticeReceiver : public TiObject
 {
-  TYPE_INFO(BuildMsgReceiver, TiObject, "Core.Test", "Core", "alusus.net");
+  TYPE_INFO(NoticeReceiver, TiObject, "Core.Test", "Core", "alusus.net");
 
-  private: vector<SharedPtr<Processing::BuildMsg> > msgs;
-  private: Slot<void, SharedPtr<Processing::BuildMsg> const&> buildMsgSlot = {this, &BuildMsgReceiver::receiveBuildMsg};
+  private: vector<SharedPtr<Data::Notice> > notices;
+  private: Slot<void, SharedPtr<Data::Notice> const&> noticeSlot = {this, &NoticeReceiver::receiveNotice};
 
-  public: BuildMsgReceiver(Processing::Engine *engine)
+  public: NoticeReceiver(Processing::Engine *engine)
   {
-    engine->buildMsgNotifier.connect(this->buildMsgSlot);
+    engine->noticeSignal.connect(this->noticeSlot);
   }
 
-  public: void receiveBuildMsg(SharedPtr<Processing::BuildMsg> const &msg)
+  public: void receiveNotice(SharedPtr<Data::Notice> const &msg)
   {
-    this->msgs.push_back(msg);
+    this->notices.push_back(msg);
   }
 
-  public: Int getMsgCount()
+  public: Int getNoticeCount()
   {
-    return this->msgs.size();
+    return this->notices.size();
   }
 
-  public: const SharedPtr<Processing::BuildMsg>& getMsg(Int i)
+  public: const SharedPtr<Data::Notice>& getMsg(Int i)
   {
-    return this->msgs[i];
+    return this->notices[i];
   }
 
   public: void clear()
   {
-    this->msgs.clear();
+    this->notices.clear();
   }
 };
 

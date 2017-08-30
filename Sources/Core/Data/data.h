@@ -389,6 +389,8 @@ typedef TiStrBase<Node> String;
 #include "paired_pointers.h"
 #include "IdGenerator.h"
 #include "SourceLocation.h"
+#include "Notice.h"
+#include "CustomNotice.h"
 
 // Generic Data Interfaces
 #include "DataOwner.h"

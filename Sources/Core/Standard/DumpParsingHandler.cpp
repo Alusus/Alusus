@@ -44,10 +44,10 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
       }
     );
     if (!found) {
-      state->addBuildMsg(std::make_shared<InvalidDumpArg>(metadata->getSourceLocation()));
+      state->addNotice(std::make_shared<InvalidDumpArgNotice>(metadata->getSourceLocation()));
     }
   } catch (InvalidArgumentException) {
-    state->addBuildMsg(std::make_shared<InvalidDumpArg>(metadata->getSourceLocation()));
+    state->addNotice(std::make_shared<InvalidDumpArgNotice>(metadata->getSourceLocation()));
   }
 
   state->setData(SharedPtr<TiObject>(0));

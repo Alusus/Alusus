@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-using Core::Processing::BuildMsg;
+using Core::Data::Notice;
 using Core::Data::Ast::List;
 using Core::Standard::RootManager;
 
@@ -30,12 +30,12 @@ namespace Tests { namespace EndToEndTests
 Str resultFilename;
 
 /**
- * @brief Print the provided build message to the console.
+ * @brief Print the provided notices to the console.
  *
- * Printed message includes severity, msg code, location, as well as
+ * Printed notice includes severity, msg code, location, as well as
  * description.
  */
-void printBuildMsg(const SharedPtr<BuildMsg> &msg)
+void printNotice(const SharedPtr<Notice> &msg)
 {
   // Print severity.
   switch (msg->getSeverity()) {
@@ -94,8 +94,8 @@ Bool RunSourceFile(Str const &fileName)
   {
     // Prepare the root object;
     RootManager root;
-    Slot<void, SharedPtr<Core::Processing::BuildMsg> const&> buildMsgSlot(printBuildMsg);
-    root.buildMsgNotifier.connect(buildMsgSlot);
+    Slot<void, SharedPtr<Core::Data::Notice> const&> noticeSlot(printNotice);
+    root.noticeSignal.connect(noticeSlot);
 
     // Parse the provided filename.
     auto ptr = root.processFile(fileName.c_str());

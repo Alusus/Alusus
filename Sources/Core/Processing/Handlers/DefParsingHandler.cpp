@@ -36,7 +36,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     linkOp = ti_cast<Core::Data::Ast::LinkOperator>(expr->get(1));
   }
   if (linkOp == 0) {
-    state->addBuildMsg(std::make_shared<MissingDefLink>(exprMetadata->getSourceLocation()));
+    state->addNotice(std::make_shared<MissingDefLinkNotice>(exprMetadata->getSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -44,7 +44,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   // Get the name of the definition.
   auto nameToken = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
   if (nameToken == 0) {
-    state->addBuildMsg(std::make_shared<MissingDefName>(exprMetadata->getSourceLocation()));
+    state->addNotice(std::make_shared<MissingDefNameNotice>(exprMetadata->getSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -55,7 +55,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   if (val == 0) {
     // TODO: We need to choose terms for the parts of a define command, e.g.
     // definition name, definition, etc.
-    state->addBuildMsg(std::make_shared<InvalidDefCommand>(exprMetadata->getSourceLocation()));
+    state->addNotice(std::make_shared<InvalidDefCommandNotice>(exprMetadata->getSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }

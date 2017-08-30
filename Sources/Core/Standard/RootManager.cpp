@@ -70,7 +70,7 @@ SharedPtr<TiObject> RootManager::parseExpression(Char const *str)
 SharedPtr<TiObject> RootManager::processString(Char const *str, Char const *name)
 {
   Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
-  this->buildMsgNotifier.relay(engine.buildMsgNotifier);
+  this->noticeSignal.relay(engine.noticeSignal);
   return engine.processString(str, name);
 }
 
@@ -91,7 +91,7 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename)
   }
   // Process the file
   Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
-  this->buildMsgNotifier.relay(engine.buildMsgNotifier);
+  this->noticeSignal.relay(engine.noticeSignal);
   auto result = engine.processFile(fullPath.c_str());
   // Remove the added path, if any.
   if (!searchPath.empty()) {
@@ -105,7 +105,7 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename)
 SharedPtr<TiObject> RootManager::processStream(InStream *is, Char const *streamName)
 {
   Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
-  this->buildMsgNotifier.relay(engine.buildMsgNotifier);
+  this->noticeSignal.relay(engine.noticeSignal);
   return engine.processStream(is, streamName);
 }
 

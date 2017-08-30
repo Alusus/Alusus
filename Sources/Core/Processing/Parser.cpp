@@ -103,7 +103,7 @@ void Parser::beginParsing()
   }
   this->pushStateProdLevel(*si, module, static_cast<Data::SymbolDefinition*>(prod), 0);
 
-  this->unexpectedTokenMsgRaised = false;
+  this->unexpectedTokenNoticeRaised = false;
 }
 
 
@@ -183,7 +183,7 @@ SharedPtr<TiObject> Parser::endParsing()
       // Raise error notification event, but only if state has been waiting for more tokens.
       if ((*si)->getTermLevelCount() > 1) {
         if (!this->getTopParsingHandler(*si)->onErrorToken(this, *si, 0)) {
-          (*si)->addBuildMsg(SharedPtr<Processing::BuildMsg>(new UnexpectedEofMsg()));
+          (*si)->addNotice(SharedPtr<Data::Notice>(new UnexpectedEofNotice()));
         }
       }
       // First, move the state to an error sync position.
@@ -216,7 +216,7 @@ SharedPtr<TiObject> Parser::endParsing()
   // Finally, we are left with only one chosen state which has folded out of the grammar tree.
 
   // Flush build messages.
-  this->flushApprovedBuildMsgs();
+  this->flushApprovedNotices();
 
   // Return remaining parsing data after clearing the remaining state.
   SharedPtr<TiObject> data = (*this->states.begin())->getData();
@@ -284,10 +284,10 @@ void Parser::handleNewToken(Data::Token const *token)
     throw EXCEPTION(GenericException, STR("Parser::beginParsing should be called before calling handleNewToken"));
   else if (this->states.front()->getTermLevelCount() == 1) {
     // Raise an unexpected token error.
-    if (!this->unexpectedTokenMsgRaised) {
-      this->states.front()->addBuildMsg(
-            SharedPtr<Processing::BuildMsg>(new UnexpectedTokenMsg(*token->getSourceLocation())));
-      this->unexpectedTokenMsgRaised = true;
+    if (!this->unexpectedTokenNoticeRaised) {
+      this->states.front()->addNotice(
+            SharedPtr<Data::Notice>(new UnexpectedTokenNotice(*token->getSourceLocation())));
+      this->unexpectedTokenNoticeRaised = true;
     }
     return;
   }
@@ -389,7 +389,7 @@ void Parser::handleNewToken(Data::Token const *token)
   }
 
   // Flush any approved build messages.
-  this->flushApprovedBuildMsgs();
+  this->flushApprovedNotices();
 
   // Did we reach the end of parsing?
   si = this->states.begin();
@@ -409,17 +409,17 @@ void Parser::handleNewToken(Data::Token const *token)
  * wait until all other branches are cancelled before they are considered
  * approved.
  */
-void Parser::flushApprovedBuildMsgs()
+void Parser::flushApprovedNotices()
 {
   ASSERT(this->states.size() > 0);
 
   // Find the number of approved messages.
   StateIterator si = this->states.begin();
-  Int count = (*si)->getBuildMsgStore()->getCount();
+  Int count = (*si)->getNoticeStore()->getCount();
   for (++si; si != this->states.end() && count > 0; ++si) {
     if ((*si)->getTrunkState() == this->states.front()) {
-      if ((*si)->getBuildMsgStore()->getTrunkSharedCount() < count) {
-        count = (*si)->getBuildMsgStore()->getTrunkSharedCount();
+      if ((*si)->getNoticeStore()->getTrunkSharedCount() < count) {
+        count = (*si)->getNoticeStore()->getTrunkSharedCount();
       }
     }
   }
@@ -427,15 +427,15 @@ void Parser::flushApprovedBuildMsgs()
 
   // Now emit the messages.
   for (Int i = 0; i < count; ++i) {
-    this->buildMsgNotifier.emit(this->states.front()->getBuildMsgStore()->get(i));
+    this->noticeSignal.emit(this->states.front()->getNoticeStore()->get(i));
   }
-  this->states.front()->getBuildMsgStore()->flush(count);
+  this->states.front()->getNoticeStore()->flush(count);
 
   // Update the shared message count.
   si = this->states.begin();
   for (++si; si != this->states.end(); ++si) {
     if ((*si)->getTrunkState() == this->states.front()) {
-      (*si)->getBuildMsgStore()->setTrunkSharedCount((*si)->getBuildMsgStore()->getTrunkSharedCount()-count);
+      (*si)->getNoticeStore()->setTrunkSharedCount((*si)->getNoticeStore()->getTrunkSharedCount()-count);
     }
   }
 }
@@ -512,8 +512,8 @@ void Parser::processState(const Data::Token * token, StateIterator si)
       // Raise error notification event if we haven't already.
       if ((*si)->getPrevProcessingStatus() != ParserProcessingStatus::ERROR) {
         if (!this->getTopParsingHandler(*si)->onErrorToken(this, *si, token)) {
-          (*si)->addBuildMsg(
-            SharedPtr<Processing::BuildMsg>(new SyntaxErrorMsg(*token->getSourceLocation()))
+          (*si)->addNotice(
+            SharedPtr<Data::Notice>(new SyntaxErrorNotice(*token->getSourceLocation()))
           );
         }
         // Move the state to an error sync position.
@@ -710,8 +710,8 @@ void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
     ParsingHandler *parsingHandler = this->getTopParsingHandler(*si);
     parsingHandler->onBranching(this, *si, token);
     // Duplicate the state.
-    (*si)->addBuildMsg(
-      SharedPtr<Processing::BuildMsg>(new AmbiguityMsg(*token->getSourceLocation()))
+    (*si)->addNotice(
+      SharedPtr<Data::Notice>(new AmbiguityNotice(*token->getSourceLocation()))
     );
     // TODO: Grab the value of tokensToLive from the grammer instead of always using the
     //       default value.
@@ -815,8 +815,8 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
         parsingHandler->onBranching(this, *si2, token);
         // Duplicate the state, without the top level since that one is for accessing the
         // other route.
-        (*si2)->addBuildMsg(
-          SharedPtr<Processing::BuildMsg>(new AmbiguityMsg(*token->getSourceLocation()))
+        (*si2)->addNotice(
+          SharedPtr<Data::Notice>(new AmbiguityNotice(*token->getSourceLocation()))
         );
         // TODO: Grab the value of tokensToLive from the grammer instead of always using the
         //       default value.
@@ -1655,7 +1655,7 @@ Parser::StateIterator Parser::duplicateState(
   // Set the branching info for the new token.
   (*newSi)->setBranchingInfo(*si, tokensToLive, -1, -1);
   // Set build msg info.
-  (*newSi)->getBuildMsgStore()->setTrunkSharedCount((*si)->getBuildMsgStore()->getCount());
+  (*newSi)->getNoticeStore()->setTrunkSharedCount((*si)->getNoticeStore()->getCount());
   // Copy the processing status.
   (*newSi)->setProcessingStatus((*si)->getProcessingStatus());
   (*newSi)->setPrevProcessingStatus((*si)->getPrevProcessingStatus());
@@ -1733,9 +1733,9 @@ void Parser::deleteState(StateIterator si, ParserStateTerminationCause stc)
         } else {
           // The state being deleted is not the root, or this state is not the second
           // state (so it can copy the root's data coz it'll be the root anyway).
-          (*siLoop)->getBuildMsgStore()->copyTrunkSharedMsgs();
+          (*siLoop)->getNoticeStore()->copyTrunkSharedNotices();
           (*siLoop)->setBranchingInfo((*si)->getTrunkState(), (*si)->getTokensToLive(), -1, -1);
-          (*siLoop)->getBuildMsgStore()->setTrunkSharedCount((*si)->getBuildMsgStore()->getTrunkSharedCount());
+          (*siLoop)->getNoticeStore()->setTrunkSharedCount((*si)->getNoticeStore()->getTrunkSharedCount());
         }
       }
     }

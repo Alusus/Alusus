@@ -24,30 +24,30 @@ namespace Spp { namespace Handlers
  */
 
 //==============================================================================
-// Build Messages
+// Notices
 
-DEFINE_BUILD_MSG(InvalidBuildArg, "Spp.Handlers", "Spp", "alusus.net", "SPP1001", 1,
+DEFINE_NOTICE(InvalidBuildArgNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1001", 1,
   STR("Invalid argument for 'build' command.")
 );
-DEFINE_BUILD_MSG(MissingFunctionSigOrBody, "Spp.Handlers", "Spp", "alusus.net", "SPP1002", 1,
+DEFINE_NOTICE(MissingFunctionSigOrBodyNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1002", 1,
   STR("Missing signature or body in 'function' command.")
 );
-DEFINE_BUILD_MSG(InvalidFunctionSignature, "Spp.Handleres", "Spp", "alusus.net", "SPP1003", 1,
+DEFINE_NOTICE(InvalidFunctionSignatureNotice, "Spp.Handleres", "Spp", "alusus.net", "SPP1003", 1,
   STR("Invalid function signature.")
 );
-DEFINE_BUILD_MSG(InvalidFunctionBody, "Spp.Handlers", "Spp", "alusus.net", "SPP1004", 1,
+DEFINE_NOTICE(InvalidFunctionBodyNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1004", 1,
   STR("Invalid function body.")
 );
-DEFINE_BUILD_MSG(InvalidFunctionArg, "Spp.Handlers", "Spp", "alusus.net", "SPP1005", 1,
+DEFINE_NOTICE(InvalidFunctionArgNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1005", 1,
   STR("Invalid function argumnet.")
 );
-DEFINE_BUILD_MSG(InvalidFunctionArgName, "Spp.Handlers", "Spp", "alusus.net", "SPP1006", 1,
+DEFINE_NOTICE(InvalidFunctionArgNameNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1006", 1,
   STR("Invalid function arg name.")
 );
-DEFINE_BUILD_MSG(InvalidFunctionArgType, "Spp.Handlers", "Spp", "alusus.net", "SPP1007", 1,
+DEFINE_NOTICE(InvalidFunctionArgTypeNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1007", 1,
   STR("Invalid function arg type.")
 );
-DEFINE_BUILD_MSG(InvalidWhileStatement, "Spp.Handlers", "Spp", "alusus.net", "SPP1008", 1,
+DEFINE_NOTICE(InvalidWhileStatementNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1008", 1,
   STR("Invalid while statement.")
 );
 

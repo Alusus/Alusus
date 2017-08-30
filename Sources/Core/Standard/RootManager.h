@@ -45,7 +45,7 @@ class RootManager : public TiObject
   // Signals
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: SignalRelay<void, SharedPtr<Processing::BuildMsg> const&> buildMsgNotifier;
+  public: SignalRelay<void, SharedPtr<Data::Notice> const&> noticeSignal;
 
 
   //============================================================================

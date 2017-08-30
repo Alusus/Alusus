@@ -1,8 +1,8 @@
 /**
- * @file Core/Processing/BuildMsg.h
- * Contains the header of class Core::Processing::BuildMsg.
+ * @file Core/Data/Notice.h
+ * Contains the header of class Core::Data::Notice.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,28 +10,28 @@
  */
 //==============================================================================
 
-#ifndef CORE_PROCESSING_BUILDMSG_H
-#define CORE_PROCESSING_BUILDMSG_H
+#ifndef CORE_DATA_NOTICE_H
+#define CORE_DATA_NOTICE_H
 
-namespace Core { namespace Processing
+namespace Core { namespace Data
 {
 
 /**
- * @brief The base of all build messages.
- * @ingroup processing
+ * @brief The base of all notifications.
+ * @ingroup data
  *
- * Build messages are messages raised during the build process containing an
- * error, a warning, or simply a notification of something. All build msg
+ * Notices are messages raised during the build process containing an
+ * error, a warning, or simply a notification of something. All notice
  * classes must derive from this class. This class provides a set of abstract
  * functions for obtaining the details of the msg including code, description,
  * severity, and source code location.
  */
-class BuildMsg : public TiObject
+class Notice : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(BuildMsg, TiObject, "Core.Processing", "Core", "alusus.net");
+  TYPE_INFO(Notice, TiObject, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
@@ -50,15 +50,15 @@ class BuildMsg : public TiObject
   //============================================================================
   // Constructor / Destructor
 
-  public: BuildMsg()
+  public: Notice()
   {
   }
 
-  public: BuildMsg(Data::SourceLocation const &l) : sourceLocation(l)
+  public: Notice(Data::SourceLocation const &l) : sourceLocation(l)
   {
   }
 
-  public: virtual ~BuildMsg()
+  public: virtual ~Notice()
   {
   }
 
@@ -129,12 +129,12 @@ class BuildMsg : public TiObject
 //==============================================================================
 // Macros
 
-#define DEFINE_BUILD_MSG(name, typeNamespace, moduleName, url, code, severity, msg) \
-  class name : public Core::Processing::BuildMsg \
+#define DEFINE_NOTICE(name, typeNamespace, moduleName, url, code, severity, msg) \
+  class name : public Core::Data::Notice \
   { \
-    TYPE_INFO(name, Core::Processing::BuildMsg, typeNamespace, moduleName, url); \
+    TYPE_INFO(name, Core::Data::Notice, typeNamespace, moduleName, url); \
     public: name() {} \
-    public: name(Data::SourceLocation const &sl) : Processing::BuildMsg(sl) \
+    public: name(Core::Data::SourceLocation const &sl) : Core::Data::Notice(sl) \
     { \
     } \
     public: virtual Str const& getCode() const \

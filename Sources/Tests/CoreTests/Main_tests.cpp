@@ -119,10 +119,10 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
   TestEngine engine;
   vector<SharedPtr<TiObject> > results;
   vector<SharedPtr<TiObject> > results1, results2, results3, results4;
-  BuildMsgReceiver buildMsgs(&engine);
+  NoticeReceiver notices(&engine);
 
   try {
-    buildMsgs.clear();
+    notices.clear();
     SharedPtr<TiObject> ptr = engine.processString(
       STR("strVar := \"Hello World\";"
           "intVar := 5;"
@@ -134,7 +134,7 @@ TEST_CASE("Core::Main/successful", "Multiple Statements Successful Parsing Test"
       STR("testcode"));
     SECTION("s1", "No error msgs received.")
     {
-      CHECK(buildMsgs.getMsgCount() == 0);
+      CHECK(notices.getNoticeCount() == 0);
     }
     SECTION("s2", "Data generated.")
     {
@@ -257,10 +257,10 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
   TestEngine engine;
   vector<SharedPtr<TiObject> > results;
   vector<SharedPtr<TiObject> > results1, results2, results3;
-  BuildMsgReceiver buildMsgs(&engine);
+  NoticeReceiver notices(&engine);
 
   try {
-    buildMsgs.clear();
+    notices.clear();
     SharedPtr<TiObject> ptr = engine.processString(
       STR("strVar := \"Hello World\";\n"
           "intVar := 5;\n"
@@ -272,26 +272,26 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
       STR("testcode"));
     SECTION("s1", "Error msgs received.")
     {
-      CHECK(buildMsgs.getMsgCount() == 3);
+      CHECK(notices.getNoticeCount() == 3);
     }
     SECTION("s2", "Error msgs correct.")
     {
-      SharedPtr<Processing::BuildMsg> msg;
-      if (buildMsgs.getMsgCount() > 0) msg = buildMsgs.getMsg(0);
+      SharedPtr<Data::Notice> msg;
+      if (notices.getNoticeCount() > 0) msg = notices.getMsg(0);
       CHECK((msg != 0));
       CHECK(msg->getCode().compare("P1001") == 0);
       CHECK(msg->getSourceLocation().line == 3);
       CHECK(msg->getSourceLocation().column == 10);
 
-      msg = SharedPtr<Processing::BuildMsg>(0);
-      if (buildMsgs.getMsgCount() > 1) msg = buildMsgs.getMsg(1);
+      msg = SharedPtr<Data::Notice>(0);
+      if (notices.getNoticeCount() > 1) msg = notices.getMsg(1);
       CHECK((msg != 0));
       CHECK(msg->getCode().compare("P1001") == 0);
       CHECK(msg->getSourceLocation().line == 5);
       CHECK(msg->getSourceLocation().column == 13);
 
-      msg = SharedPtr<Processing::BuildMsg>(0);
-      if (buildMsgs.getMsgCount() > 2) msg = buildMsgs.getMsg(2);
+      msg = SharedPtr<Data::Notice>(0);
+      if (notices.getNoticeCount() > 2) msg = notices.getMsg(2);
       CHECK((msg != 0));
       CHECK(msg->getCode().compare("P1002") == 0);
     }

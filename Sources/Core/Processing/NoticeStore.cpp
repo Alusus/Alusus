@@ -1,8 +1,8 @@
 /**
- * @file Core/Processing/BuildMsgStore.cpp
- * Contains the implementation of class Core::Processing::BuildMsgStore.
+ * @file Core/Processing/NoticeStore.cpp
+ * Contains the implementation of class Core::Processing::NoticeStore.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,11 +20,11 @@ namespace Core { namespace Processing
 
 /**
  * This value is used for optimization purposes. It's used to delay the copying
- * of build msg objects as much as possible after a state branch. This can be
- * useful because in many cases we might not need to copy those build msgs at
- * all (build msgs gets flushed from the trunk, or this branched state dies).
+ * of notice objects as much as possible after a state branch. This can be
+ * useful because in many cases we might not need to copy those notices at
+ * all (notices gets flushed from the trunk, or this branched state dies).
  */
-void BuildMsgStore::setTrunkSharedCount(Word count)
+void NoticeStore::setTrunkSharedCount(Word count)
 {
   if (this->trunkStore == 0) {
     throw EXCEPTION(GenericException, STR("No trunk store set for this store."));
@@ -37,21 +37,21 @@ void BuildMsgStore::setTrunkSharedCount(Word count)
 
 
 /**
- * Copy the shared build msgs from the trunk state into this object then
- * reset the trunk shared build msg count.
+ * Copy the shared notices from the trunk state into this object then
+ * reset the trunk shared notice count.
  *
- * @sa setTrunkSharedBuildMsgCount
+ * @sa setTrunkSharedCount
  */
-void BuildMsgStore::copyTrunkSharedMsgs()
+void NoticeStore::copyTrunkSharedNotices()
 {
   if (this->trunkStore == 0) {
     throw EXCEPTION(GenericException, STR("No trunk store set for this store."));
   }
   ASSERT(this->trunkSharedCount >= 0 &&
          this->trunkSharedCount <= this->trunkStore->getTrunkSharedCount());
-  this->buildMsgs.insert(this->buildMsgs.begin(),
-                         this->trunkStore->buildMsgs.begin(),
-                         this->trunkStore->buildMsgs.begin()+this->trunkSharedCount);
+  this->notices.insert(this->notices.begin(),
+                         this->trunkStore->notices.begin(),
+                         this->trunkStore->notices.begin()+this->trunkSharedCount);
   this->trunkSharedCount = 0;
 }
 

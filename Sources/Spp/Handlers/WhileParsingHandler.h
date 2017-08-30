@@ -46,7 +46,7 @@ class WhileParsingHandler : public Core::Processing::Handlers::GenericParsingHan
     ASSERT(exprMetadata != 0);
 
     if (expr->getCount() != 3) {
-      state->addBuildMsg(std::make_shared<InvalidWhileStatement>(exprMetadata->getSourceLocation()));
+      state->addNotice(std::make_shared<InvalidWhileStatementNotice>(exprMetadata->getSourceLocation()));
       state->setData(SharedPtr<TiObject>(0));
       return;
     }

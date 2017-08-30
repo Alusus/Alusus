@@ -1,8 +1,8 @@
 /**
- * @file Core/Standard/RedefinitionMsg.h
- * Contains the header of class Core::Processing::RedefinitionMsg.
+ * @file Core/Standard/RedefinitionNotice.h
+ * Contains the header of class Core::Processing::RedefinitionNotice.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,20 +10,20 @@
  */
 //==============================================================================
 
-#ifndef CORE_STANDARD_REDEFINITIONMSG_H
-#define CORE_STANDARD_REDEFINITIONMSG_H
+#ifndef CORE_STANDARD_REDEFINITIONNOTICE_H
+#define CORE_STANDARD_REDEFINITIONNOTICE_H
 
 namespace Core { namespace Standard
 {
 
 // TODO: DOC
 
-class RedefinitionMsg : public Processing::BuildMsg
+class RedefinitionNotice : public Data::Notice
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(RedefinitionMsg, Processing::BuildMsg, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(RedefinitionNotice, Data::Notice, "Core.Standard", "Core", "alusus.net");
 
 
   //============================================================================
@@ -35,12 +35,12 @@ class RedefinitionMsg : public Processing::BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: RedefinitionMsg(Char const *n, Data::SourceLocation const &sl) :
-    name(n), Processing::BuildMsg(sl)
+  public: RedefinitionNotice(Char const *n, Data::SourceLocation const &sl) :
+    name(n), Data::Notice(sl)
   {
   }
 
-  public: virtual ~RedefinitionMsg()
+  public: virtual ~RedefinitionNotice()
   {
   }
 
@@ -48,14 +48,14 @@ class RedefinitionMsg : public Processing::BuildMsg
   //============================================================================
   // Member Functions
 
-  /// @sa Processing::BuildMsg::getCode()
+  /// @sa Data::Notice::getCode()
   public: virtual Str const& getCode() const
   {
     static Str code("S1001");
     return code;
   }
 
-  /// @sa Processing::BuildMsg::getSeverity()
+  /// @sa Data::Notice::getSeverity()
   public: virtual Int getSeverity() const
   {
     return 1;
@@ -67,7 +67,7 @@ class RedefinitionMsg : public Processing::BuildMsg
     return this->name;
   }
 
-  /// @sa Processing::BuildMsg::getCode()
+  /// @sa Data::Notice::getCode()
   public: virtual void buildDescription(Str &str) const
   {
     str = STR("Duplicate definition. [");

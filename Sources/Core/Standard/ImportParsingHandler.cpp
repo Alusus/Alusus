@@ -2,7 +2,7 @@
  * @file Core/Standard/ImportParsingHandler.cpp
  * Contains the implementation of class Core::Standard::ImportParsingHandler.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -30,9 +30,9 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
     Str errorDetails;
     if (!this->import(filename, state, errorDetails)) {
       // Create a build msg.
-      state->addBuildMsg(
-        SharedPtr<ImportLoadFailedMsg>(
-          new ImportLoadFailedMsg(filename, errorDetails.c_str(), metadata->getSourceLocation())
+      state->addNotice(
+        SharedPtr<ImportLoadFailedNotice>(
+          new ImportLoadFailedNotice(filename, errorDetails.c_str(), metadata->getSourceLocation())
         )
       );
     }

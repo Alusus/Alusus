@@ -24,14 +24,17 @@ namespace Core { namespace Processing { namespace Handlers
  */
 
 //==============================================================================
-// Build Messages
+// Notices
 
-DEFINE_BUILD_MSG(MissingDefLink, "Core.Processing.Handlers", "Core", "alusus.net", "DEF1001", 1,
-                 STR("Missing link expression in 'def' command."));
-DEFINE_BUILD_MSG(MissingDefName, "Core.Processing.Handlers", "Core", "alusus.net", "DEF1002", 1,
-                 STR("Missing definition name in 'def' command."));
-DEFINE_BUILD_MSG(InvalidDefCommand, "Core.Processing.Handlers", "Core", "alusus.net", "DEF1003", 1,
-                 STR("Invalid 'def' command."));
+DEFINE_NOTICE(MissingDefLinkNotice, "Core.Processing.Handlers", "Core", "alusus.net", "DEF1001", 1,
+  STR("Missing link expression in 'def' command.")
+);
+DEFINE_NOTICE(MissingDefNameNotice, "Core.Processing.Handlers", "Core", "alusus.net", "DEF1002", 1,
+  STR("Missing definition name in 'def' command.")
+);
+DEFINE_NOTICE(InvalidDefCommandNotice, "Core.Processing.Handlers", "Core", "alusus.net", "DEF1003", 1,
+  STR("Invalid 'def' command.")
+);
 
 } } } // namespace
 

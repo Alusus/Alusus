@@ -50,11 +50,11 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
     //   }
     // );
     // if (!found) {
-    //   state->addBuildMsg(std::make_shared<InvalidDumpArg>(metadata->getSourceLocation()));
+    //   state->addNotice(std::make_shared<InvalidBuildArgNotice>(metadata->getSourceLocation()));
     // }
   } catch (Exception &e) {
     outStream << e.getVerboseErrorMessage() << NEW_LINE;
-    state->addBuildMsg(std::make_shared<InvalidBuildArg>(metadata->getSourceLocation()));
+    state->addNotice(std::make_shared<InvalidBuildArgNotice>(metadata->getSourceLocation()));
   }
 
   state->setData(SharedPtr<TiObject>(0));

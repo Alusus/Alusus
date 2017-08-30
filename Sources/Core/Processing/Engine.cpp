@@ -22,11 +22,11 @@ void Engine::initialize(Data::GrammarRepository *grammarRepo, SharedPtr<Data::As
 {
   // Prepare the lexer.
   this->lexer.setGrammarRepository(grammarRepo);
-  this->buildMsgNotifier.relay(this->lexer.buildMsgNotifier);
+  this->noticeSignal.relay(this->lexer.noticeSignal);
 
   // Prepare the parser.
   this->parser.initialize(grammarRepo, rootScope);
-  this->buildMsgNotifier.relay(this->parser.buildMsgNotifier);
+  this->noticeSignal.relay(this->parser.noticeSignal);
   this->lexer.tokenGenerated.connect(this->parser.handleNewTokenSlot);
 }
 

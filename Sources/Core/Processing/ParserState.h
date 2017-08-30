@@ -63,7 +63,7 @@ class ParserState
 
   private: Data::GrammarContext grammarContext;
 
-  private: BuildMsgStore buildMsgStore;
+  private: NoticeStore noticeStore;
 
   /**
    * @brief A cached pointer to the top state level.
@@ -578,14 +578,14 @@ class ParserState
   /// @{
 
   /// Add a build message to the end of the list.
-  public: void addBuildMsg(SharedPtr<Processing::BuildMsg> const &msg)
+  public: void addNotice(SharedPtr<Data::Notice> const &msg)
   {
-    this->buildMsgStore.add(msg);
+    this->noticeStore.add(msg);
   }
 
-  public: BuildMsgStore* getBuildMsgStore()
+  public: NoticeStore* getNoticeStore()
   {
-    return &this->buildMsgStore;
+    return &this->noticeStore;
   }
 
   /// @}

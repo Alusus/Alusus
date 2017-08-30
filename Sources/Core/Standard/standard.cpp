@@ -2,7 +2,7 @@
  * @file Core/Standard/standard.cpp
  * Contains the global implementations of Standard namespace's declarations.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -88,7 +88,7 @@ Bool mergeContainers(TiObject *dest, TiObject *src, Processing::ParserState *sta
         Ast::Metadata *itemMeta = ti_cast<Ast::Metadata>(srcMap->get(i));
         Data::SourceLocation sl;
         if (itemMeta != 0) sl = itemMeta->getSourceLocation();
-        state->addBuildMsg(std::make_shared<RedefinitionMsg>(name, sl));
+        state->addNotice(std::make_shared<RedefinitionNotice>(name, sl));
         // Overwrite old data.
         destMap->set(srcMap->getKey(i).c_str(), srcMap->get(i));
       }
@@ -118,7 +118,7 @@ void mergeDefinition(Char const *qualifier, TiObject *obj, Processing::ParserSta
       Ast::Metadata *itemMeta = ti_cast<Ast::Metadata>(obj);
       Data::SourceLocation sl;
       if (itemMeta != 0) sl = itemMeta->getSourceLocation();
-      state->addBuildMsg(std::make_shared<RedefinitionMsg>(qualifier, sl));
+      state->addNotice(std::make_shared<RedefinitionNotice>(qualifier, sl));
       // Overwrite old data.
       repository->set(qualifier, obj);
     }

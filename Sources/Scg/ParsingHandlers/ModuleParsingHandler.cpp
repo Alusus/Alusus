@@ -45,7 +45,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 
   if (statementList == 0) {
     // Create a build error msg.
-    state->addBuildMsg(std::make_shared<Processing::UnrecognizedErrorMsg>(metadata->getSourceLocation()));
+    state->addBuildMsg(std::make_shared<Processing::UnrecognizedErrorNotice>(metadata->getSourceLocation()));
     return;
   }
 

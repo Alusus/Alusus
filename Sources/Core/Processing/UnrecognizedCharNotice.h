@@ -1,8 +1,8 @@
 /**
- * @file Core/Processing/UnrecognizedCharMsg.h
- * Contains the header of class Core::Processing::UnrecognizedCharMsg.
+ * @file Core/Processing/UnrecognizedCharNotice.h
+ * Contains the header of class Core::Processing::UnrecognizedCharNotice.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef CORE_PROCESSING_UNRECOGNIZEDCHARMSG_H
-#define CORE_PROCESSING_UNRECOGNIZEDCHARMSG_H
+#ifndef CORE_PROCESSING_UNRECOGNIZEDCHARNOTICE_H
+#define CORE_PROCESSING_UNRECOGNIZEDCHARNOTICE_H
 
 namespace Core { namespace Processing
 {
@@ -23,12 +23,12 @@ namespace Core { namespace Processing
  * This message class is for error code L1001, which is raised when the
  * lexer faces characters that are not recognized by any token.
  */
-class UnrecognizedCharMsg : public BuildMsg
+class UnrecognizedCharNotice : public Data::Notice
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(UnrecognizedCharMsg, Processing::BuildMsg, "Core.Processing", "Core", "alusus.net");
+  TYPE_INFO(UnrecognizedCharNotice, Data::Notice, "Core.Processing", "Core", "alusus.net");
 
 
   //============================================================================
@@ -49,11 +49,11 @@ class UnrecognizedCharMsg : public BuildMsg
   //============================================================================
   // Constructor / Destructor
 
-  public: UnrecognizedCharMsg(Char const *t, Data::SourceLocation const &sl) : BuildMsg(sl), text(t)
+  public: UnrecognizedCharNotice(Char const *t, Data::SourceLocation const &sl) : Data::Notice(sl), text(t)
   {
   }
 
-  public: virtual ~UnrecognizedCharMsg()
+  public: virtual ~UnrecognizedCharNotice()
   {
   }
 
@@ -61,20 +61,20 @@ class UnrecognizedCharMsg : public BuildMsg
   //============================================================================
   // Member Functions
 
-  /// @sa Processing::BuildMsg::getCode()
+  /// @sa Data::Notice::getCode()
   public: virtual Str const& getCode() const
   {
     static Str code("L1001");
     return code;
   }
 
-  /// @sa Processing::BuildMsg::getSeverity()
+  /// @sa Data::Notice::getSeverity()
   public: virtual Int getSeverity() const
   {
     return 1;
   }
 
-  /// @sa Processing::BuildMsg::buildDescription()
+  /// @sa Data::Notice::buildDescription()
   public: virtual void buildDescription(Str &str) const;
 
   /**

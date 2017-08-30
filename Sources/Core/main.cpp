@@ -23,12 +23,12 @@ namespace Core
 {
 
 /**
- * @brief Print the provided build message to the console.
+ * @brief Print the provided notices to the console.
  *
- * Printed message includes severity, msg code, location, as well as
+ * Printed notice includes severity, msg code, location, as well as
  * description.
  */
-void printBuildMsg(const SharedPtr<Processing::BuildMsg> &msg)
+void printNotice(const SharedPtr<Data::Notice> &msg)
 {
   // We will only print the error message if we have a source location for it.
   if (msg->getSourceLocation().filename == 0) return;
@@ -152,8 +152,8 @@ int main(int argCount, char * const args[])
     try {
       // Prepare the root object;
       Standard::RootManager root;
-      Slot<void, SharedPtr<Processing::BuildMsg> const&> buildMsgSlot(printBuildMsg);
-      root.buildMsgNotifier.connect(buildMsgSlot);
+      Slot<void, SharedPtr<Data::Notice> const&> noticeSlot(printNotice);
+      root.noticeSignal.connect(noticeSlot);
 
       // Parse the standard input stream.
       root.processStream(&inStream, STR("user input"));
@@ -167,8 +167,8 @@ int main(int argCount, char * const args[])
     try {
       // Prepare the root object;
       Standard::RootManager root;
-      Slot<void, SharedPtr<Processing::BuildMsg> const&> buildMsgSlot(printBuildMsg);
-      root.buildMsgNotifier.connect(buildMsgSlot);
+      Slot<void, SharedPtr<Data::Notice> const&> noticeSlot(printNotice);
+      root.noticeSignal.connect(noticeSlot);
 
       // Parse the provided filename.
       TioSharedPtr ptr = root.processFile(args[1]);

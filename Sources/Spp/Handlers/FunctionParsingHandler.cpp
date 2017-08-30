@@ -27,7 +27,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   ASSERT(exprMetadata != 0);
 
   if (expr->getCount() != 3) {
-    state->addBuildMsg(std::make_shared<MissingFunctionSigOrBody>(exprMetadata->getSourceLocation()));
+    state->addNotice(std::make_shared<MissingFunctionSigOrBodyNotice>(exprMetadata->getSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -35,7 +35,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   // Prepare function signature.
   auto signature = expr->get(1);
   if (signature == 0) {
-    state->addBuildMsg(std::make_shared<InvalidFunctionSignature>(exprMetadata->getSourceLocation()));
+    state->addNotice(std::make_shared<InvalidFunctionSignatureNotice>(exprMetadata->getSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -49,7 +49,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     bracket = ti_cast<Core::Data::Ast::Bracket>(signature);
   }
   if (bracket == 0) {
-    state->addBuildMsg(std::make_shared<InvalidFunctionSignature>(exprMetadata->getSourceLocation()));
+    state->addNotice(std::make_shared<InvalidFunctionSignatureNotice>(exprMetadata->getSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -62,7 +62,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   // Prepare function body.
   auto body = ti_cast<Spp::Ast::Block>(expr->get(2));
   if (body == 0) {
-    state->addBuildMsg(std::make_shared<InvalidFunctionBody>(exprMetadata->getSourceLocation()));
+    state->addNotice(std::make_shared<InvalidFunctionBodyNotice>(exprMetadata->getSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -91,13 +91,13 @@ Bool FunctionParsingHandler::parseArgs(Processing::ParserState *state,
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i);
       if (arg == 0) {
-        state->addBuildMsg(std::make_shared<InvalidFunctionArg>(bracket->getSourceLocation()));
+        state->addNotice(std::make_shared<InvalidFunctionArgNotice>(bracket->getSourceLocation()));
         return false;
       }
       auto link = ti_cast<Core::Data::Ast::LinkOperator>(argsList->get(i));
       if (link == 0) {
         auto metadata = ti_cast<Core::Data::Ast::Metadata>(argsList->get(i));
-        state->addBuildMsg(std::make_shared<InvalidFunctionArg>(
+        state->addNotice(std::make_shared<InvalidFunctionArgNotice>(
           metadata == 0 ? bracket->getSourceLocation() : metadata->getSourceLocation()));
         return false;
       }
@@ -110,7 +110,7 @@ Bool FunctionParsingHandler::parseArgs(Processing::ParserState *state,
     if (!this->parseArg(state, link, result)) return false;
     return true;
   } else {
-    state->addBuildMsg(std::make_shared<InvalidFunctionSignature>(bracket->getSourceLocation()));
+    state->addNotice(std::make_shared<InvalidFunctionSignatureNotice>(bracket->getSourceLocation()));
     return false;
   }
 }
@@ -122,18 +122,18 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
 {
   auto name = link->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
   if (name == 0) {
-    state->addBuildMsg(std::make_shared<InvalidFunctionArgName>(link->getSourceLocation()));
+    state->addNotice(std::make_shared<InvalidFunctionArgNameNotice>(link->getSourceLocation()));
     return false;
   }
   auto type = link->getSecond();
   if (type == 0) {
-    state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(link->getSourceLocation()));
+    state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(link->getSourceLocation()));
     return false;
   }
   if (type->isA<Core::Data::Ast::PrefixOperator>()) {
     auto prefixOp = type.s_cast<Core::Data::Ast::PrefixOperator>();
     if (prefixOp->getType() != STR("...")) {
-      state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(prefixOp->getSourceLocation()));
+      state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(prefixOp->getSourceLocation()));
       return false;
     }
     TioSharedPtr packType;
@@ -143,18 +143,18 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
     if (operand->isA<Core::Data::Ast::Bracket>()) {
       auto bracket = operand.s_cast<Core::Data::Ast::Bracket>();
       if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
-        state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(bracket->getSourceLocation()));
+        state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(bracket->getSourceLocation()));
         return false;
       }
       auto bracketOperand = bracket->getOperand();
       if (bracketOperand == 0) {
-        state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(bracket->getSourceLocation()));
+        state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(bracket->getSourceLocation()));
         return false;
       }
       if (bracketOperand->isA<Core::Data::Ast::ExpressionList>()) {
         auto bracketList = bracketOperand.s_cast<Core::Data::Ast::ExpressionList>();
         if (bracketList->getCount() == 0 || bracketList->getCount() > 3) {
-          state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(bracketList->getSourceLocation()));
+          state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(bracketList->getSourceLocation()));
           return false;
         }
         packType = bracketList->getShared(0);
@@ -187,7 +187,7 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
     for (Int i = 0; i < result->getCount(); ++i) {
       if (result->get(i)->isDerivedFrom<Ast::ArgPack>()) {
         // We cannot have a normal argument following an arg pack.
-        state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(link->getSourceLocation()));
+        state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(link->getSourceLocation()));
         return false;
       }
     }
@@ -206,9 +206,9 @@ Bool FunctionParsingHandler::parseNumber(Core::Processing::ParserState *state, T
     return true;
   } else {
     if (metadata) {
-      state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(metadata->getSourceLocation()));
+      state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(metadata->getSourceLocation()));
     } else {
-      state->addBuildMsg(std::make_shared<InvalidFunctionArgType>(parentMetadata->getSourceLocation()));
+      state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(parentMetadata->getSourceLocation()));
     }
     return false;
   }

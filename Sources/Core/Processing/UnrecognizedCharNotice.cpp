@@ -1,8 +1,8 @@
 /**
- * @file Core/Processing/UnrecognizedCharMsg.cpp
- * Contains the implementation of class Core::Processing::UnrecognizedCharMsg.
+ * @file Core/Processing/UnrecognizedCharNotice.cpp
+ * Contains the implementation of class Core::Processing::UnrecognizedCharNotice.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,7 +18,7 @@ namespace Core { namespace Processing
 //==============================================================================
 // Member Functions
 
-void UnrecognizedCharMsg::buildDescription(Str &str) const
+void UnrecognizedCharNotice::buildDescription(Str &str) const
 {
   str = STR("Lexer Error [Unrecognized Character(s)]: ");
   str += this->getText();

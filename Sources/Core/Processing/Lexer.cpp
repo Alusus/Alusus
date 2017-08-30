@@ -245,8 +245,8 @@ Int Lexer::process()
     if (closedStateCount > 0 && this->inputBuffer.isFull() == true &&
         this->currentProcessingIndex >= this->inputBuffer.getCharCount()-1) {
       // Raise a warning.
-      this->buildMsgNotifier.emit(
-            SharedPtr<Processing::BuildMsg>(new BufferFullMsg(this->inputBuffer.getSourceLocation())));
+      this->noticeSignal.emit(
+            SharedPtr<Data::Notice>(new BufferFullNotice(this->inputBuffer.getSourceLocation())));
       // Choose one of the closed states.
       Int i = this->selectBestToken();
       Data::SymbolDefinition *def = this->getSymbolDefinition(this->states[i].getIndexStack()->at(0));
@@ -256,8 +256,8 @@ Int Lexer::process()
         // Has the token been clamped?
         if (this->currentTokenClamped) {
           // Raise a warning.
-          this->buildMsgNotifier.emit(
-                SharedPtr<Processing::BuildMsg>(new TokenClampedMsg(this->inputBuffer.getSourceLocation())));
+          this->noticeSignal.emit(
+                SharedPtr<Data::Notice>(new TokenClampedNotice(this->inputBuffer.getSourceLocation())));
           this->currentTokenClamped = false;
         }
         // Set token properties.
@@ -305,8 +305,8 @@ Int Lexer::process()
       // Has the token been clamped?
       if (this->currentTokenClamped) {
         // Raise a warning.
-        this->buildMsgNotifier.emit(
-              SharedPtr<Processing::BuildMsg>(new TokenClampedMsg(this->inputBuffer.getSourceLocation())));
+        this->noticeSignal.emit(
+              SharedPtr<Data::Notice>(new TokenClampedNotice(this->inputBuffer.getSourceLocation())));
         this->currentTokenClamped = false;
       }
       // Set token properties.
@@ -354,8 +354,8 @@ Int Lexer::process()
        this->inputBuffer.getChars()[0]==FILE_TERMINATOR)) {
     // Report any characters in the error buffer.
     if (this->errorBuffer.getTextLength() > 0) {
-      this->buildMsgNotifier.emit(
-            SharedPtr<Processing::BuildMsg>(new UnrecognizedCharMsg(this->errorBuffer.getText().c_str(),
+      this->noticeSignal.emit(
+            SharedPtr<Data::Notice>(new UnrecognizedCharNotice(this->errorBuffer.getText().c_str(),
                                                                 this->errorBuffer.getSourceLocation())));
       this->errorBuffer.clear();
     }

@@ -146,7 +146,7 @@ void ParserState::reset()
   this->dataStack.clear();
   this->prodStack.clear();
   this->variableStack.clear();
-  this->buildMsgStore.clear();
+  this->noticeStore.clear();
   this->trunkState = 0;
   this->tempTrunkTermStackIndex = -1;
   this->tempTrunkProdStackIndex = -1;
@@ -555,7 +555,7 @@ void ParserState::setBranchingInfo(ParserState *ts, Int ttl, Int tsi, Int psi)
   } else {
     this->variableStack.setBranchingInfo(0, -1);
   }
-  this->buildMsgStore.setTrunkStore(ts->getBuildMsgStore());
+  this->noticeStore.setTrunkStore(ts->getNoticeStore());
   this->tokensToLive = ttl;
 }
 

@@ -1,8 +1,8 @@
 /**
- * @file Core/Processing/BuildMsg.cpp
- * Contains the implementation of class Core::Processing::BuildMsg.
+ * @file Core/Data/Notice.cpp
+ * Contains the implementation of class Core::Data::Notice.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -12,13 +12,13 @@
 
 #include "core.h"
 
-namespace Core { namespace Processing
+namespace Core { namespace Data
 {
 
 //==============================================================================
 // Static Variables
 
-Str BuildMsg::tempBuf;
+Str Notice::tempBuf;
 
 
 //==============================================================================
@@ -31,10 +31,10 @@ Str BuildMsg::tempBuf;
  *
  * @sa buildDescription()
  */
-Str const& BuildMsg::getDescription() const
+Str const& Notice::getDescription() const
 {
-  this->buildDescription(BuildMsg::tempBuf);
-  return BuildMsg::tempBuf;
+  this->buildDescription(Notice::tempBuf);
+  return Notice::tempBuf;
 }
 
 } } // namespace

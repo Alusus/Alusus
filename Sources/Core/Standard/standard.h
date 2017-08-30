@@ -117,10 +117,11 @@ void mergeDefinition(Char const *qualifier, TiObject *obj, Processing::ParserSta
 
 
 //==============================================================================
-// Build Messages
+// Notices
 
-DEFINE_BUILD_MSG(InvalidDumpArg, "Core.Standard", "Core", "alusus.net", "DMP1001", 1,
-                 STR("Invalid argument for 'dump' command."));
+DEFINE_NOTICE(InvalidDumpArgNotice, "Core.Standard", "Core", "alusus.net", "DMP1001", 1,
+  STR("Invalid argument for 'dump' command.")
+);
 
 } } // namespace
 
@@ -128,14 +129,14 @@ DEFINE_BUILD_MSG(InvalidDumpArg, "Core.Standard", "Core", "alusus.net", "DMP1001
 //==============================================================================
 // Classes
 
-#include "ImportLoadFailedMsg.h"
+#include "ImportLoadFailedNotice.h"
 #include "StringLiteralTokenizingHandler.h"
 // TODO:
 // #include "NumberLiteralTokenizingHandler.h"
 #include "ImportParsingHandler.h"
 #include "DumpParsingHandler.h"
 
-#include "RedefinitionMsg.h"
+#include "RedefinitionNotice.h"
 
 #include "GrammarPlant.h"
 #include "LibraryGateway.h"
