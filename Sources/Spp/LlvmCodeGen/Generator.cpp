@@ -294,7 +294,7 @@ void Generator::_generateParamPass(
     using CallMatchStatus = Ast::Function::CallMatchStatus;
     CallMatchStatus matchStatus = CallMatchStatus::NONE;
     generator->getSeeker()->doForeach(operand, astNode->getOwner(),
-      [=, &paramTypes, &function, &matchStatus](TiObject *obj)->Core::Data::Seeker::SeekVerb
+      [=, &paramTypes, &function, &matchStatus](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
       {
         if (obj->isDerivedFrom<Ast::Function>()) {
           auto f = static_cast<Ast::Function*>(obj);
@@ -355,12 +355,13 @@ void Generator::_generateIdentifier(
   llvmResult = 0;
   lastProcessedRef = 0;
   generator->getSeeker()->doForeach(astNode, astNode->getOwner(),
-    [=](TiObject *obj)->Core::Data::Seeker::SeekVerb
+    [=](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
     {
       // TODO: Check if the found obj is a variable definition.
       // TODO: Generate var reference if it's a variable.
       return Core::Data::Seeker::SeekVerb::MOVE;
-    });
+    }
+  );
 }
 
 

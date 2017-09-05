@@ -53,7 +53,7 @@ Spp::Ast::Type* TypeGenerator::getGeneratedType(TiObject *ref, llvm::Module *llv
   Spp::Ast::Type *type = ti_cast<Spp::Ast::Type>(ref);
   if (type == 0) {
     this->getSeeker()->doForeach(ref, ref,
-      [=,&type](TiObject *obj)->Core::Data::Seeker::SeekVerb
+      [=,&type](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
       {
         type = ti_cast<Spp::Ast::Type>(obj);
         if (type != 0) {
@@ -62,7 +62,8 @@ Spp::Ast::Type* TypeGenerator::getGeneratedType(TiObject *ref, llvm::Module *llv
         // TODO: Support template defaults.
         // TODO: Handle aliases.
         return Core::Data::Seeker::SeekVerb::MOVE;
-      });
+      }
+    );
   }
   if (type == 0) {
     throw EXCEPTION(GenericException, STR("AST Type is not found."));

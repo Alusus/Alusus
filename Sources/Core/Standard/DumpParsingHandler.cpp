@@ -32,7 +32,7 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
   try {
     Bool found = false;
     this->rootManager->getSeeker()->doForeach(data, state->getDataStack(),
-      [=, &found](TiObject *obj)->SeekVerb
+      [=, &found](TiObject *obj, Notice*)->SeekVerb
       {
         if (obj != 0) {
           outStream << STR("------------------ Parsed Data Dump ------------------\n");

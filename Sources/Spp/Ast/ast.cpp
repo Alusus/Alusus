@@ -25,19 +25,21 @@ Type* traceType(TiObject *ref, Core::Data::Seeker *seeker)
   if (refNode->isDerivedFrom<Type>()) {
     return static_cast<Type*>(refNode);
   }
-  seeker->doForeach(refNode, refNode->getOwner(), [=, &result](TiObject *obj)->Core::Data::Seeker::SeekVerb
-  {
-    if (obj->isDerivedFrom<Type>()) {
-      result = static_cast<Type*>(obj);
-      return Core::Data::Seeker::SeekVerb::STOP;
+  seeker->doForeach(refNode, refNode->getOwner(),
+    [=, &result](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
+    {
+      if (obj->isDerivedFrom<Type>()) {
+        result = static_cast<Type*>(obj);
+        return Core::Data::Seeker::SeekVerb::STOP;
+      }
+      // TODO: Recurse if the object is an Alias.
+      return Core::Data::Seeker::SeekVerb::MOVE;
     }
-    // TODO: Recurse if the object is an Alias.
-    return Core::Data::Seeker::SeekVerb::MOVE;
-  });
+  );
   if (result == 0) {
     throw EXCEPTION(GenericException, STR("Invalid type reference."));
   }
   return result;
 }
-  
+
 } } // namespace

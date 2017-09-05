@@ -204,24 +204,26 @@ TiObject* Template::traceObject(TiObject *ref, VarType varType, Core::Data::Seek
   } else if (varType == VarType::FUNCTION && ref->isDerivedFrom<Spp::Ast::Function>()) {
     return ref;
   } else {
-    seeker->doForeach(ref, refNode->getOwner(), [=, &result](TiObject *obj)->Core::Data::Seeker::SeekVerb
-    {
-      if (varType == VarType::INTEGER && obj->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
-        result = obj;
-        return Core::Data::Seeker::SeekVerb::STOP;
-      } else if (varType == VarType::STRING && obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
-        result = obj;
-        return Core::Data::Seeker::SeekVerb::STOP;
-      } else if (varType == VarType::TYPE && obj->isDerivedFrom<Spp::Ast::Type>()) {
-        result = obj;
-        return Core::Data::Seeker::SeekVerb::STOP;
-      } else if (varType == VarType::FUNCTION && obj->isDerivedFrom<Spp::Ast::Function>()) {
-        result = obj;
-        return Core::Data::Seeker::SeekVerb::STOP;
+    seeker->doForeach(ref, refNode->getOwner(),
+      [=, &result](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
+      {
+        if (varType == VarType::INTEGER && obj->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
+          result = obj;
+          return Core::Data::Seeker::SeekVerb::STOP;
+        } else if (varType == VarType::STRING && obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+          result = obj;
+          return Core::Data::Seeker::SeekVerb::STOP;
+        } else if (varType == VarType::TYPE && obj->isDerivedFrom<Spp::Ast::Type>()) {
+          result = obj;
+          return Core::Data::Seeker::SeekVerb::STOP;
+        } else if (varType == VarType::FUNCTION && obj->isDerivedFrom<Spp::Ast::Function>()) {
+          result = obj;
+          return Core::Data::Seeker::SeekVerb::STOP;
+        }
+        // TODO: Recurse if the object is an Alias.
+        return Core::Data::Seeker::SeekVerb::MOVE;
       }
-      // TODO: Recurse if the object is an Alias.
-      return Core::Data::Seeker::SeekVerb::MOVE;
-    });
+    );
   }
   if (result == 0) {
     throw EXCEPTION(GenericException, STR("Invalid template variable."));

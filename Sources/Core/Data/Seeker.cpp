@@ -89,7 +89,7 @@ void Seeker::initBindings()
 Bool Seeker::trySet(TiObject const *ref, TiObject *target, TiObject *val)
 {
   Bool result = false;
-  this->doSet(ref, target, [=,&result](TiObject *&obj)->SeekVerb {
+  this->doSet(ref, target, [=,&result](TiObject *&obj, Notice*)->SeekVerb {
     obj = val;
     result = true;
     return SeekVerb::PERFORM_AND_MOVE;
@@ -101,7 +101,7 @@ Bool Seeker::trySet(TiObject const *ref, TiObject *target, TiObject *val)
 Bool Seeker::tryRemove(TiObject const *ref, TiObject *target)
 {
   Bool ret = false;
-  this->doRemove(ref, target, [&ret](TiObject *o)->SeekVerb {
+  this->doRemove(ref, target, [&ret](TiObject *o, Notice*)->SeekVerb {
     ret = true;
     return SeekVerb::PERFORM_AND_MOVE;
   });
@@ -112,7 +112,7 @@ Bool Seeker::tryRemove(TiObject const *ref, TiObject *target)
 Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal)
 {
   Bool ret = false;
-  this->doForeach(ref, target, [&ret,&retVal](TiObject *o)->SeekVerb {
+  this->doForeach(ref, target, [&ret,&retVal](TiObject *o, Notice*)->SeekVerb {
     retVal = o;
     ret = true;
     return SeekVerb::STOP;
@@ -191,7 +191,7 @@ void Seeker::_setByIdentifier_sharedRepository(TiObject *self, Data::Ast::Identi
         auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
         if (def != 0 && def->getName() == identifier->getValue()) {
           auto obj = def->getTarget().get();
-          verb = cb(obj);
+          verb = cb(obj, 0);
           if (isPerform(verb)) {
             def->setTarget(getSharedPtr(obj));
           }
@@ -200,7 +200,7 @@ void Seeker::_setByIdentifier_sharedRepository(TiObject *self, Data::Ast::Identi
       }
       if (isMove(verb)) {
         TiObject *obj = 0;
-        verb = cb(obj);
+        verb = cb(obj, 0);
         if (isPerform(verb)) {
           // Add a new definition.
           auto def = Data::Ast::Definition::create();
@@ -228,7 +228,7 @@ void Seeker::_setByIdentifier_ast(TiObject *self, Data::Ast::Identifier const *i
         auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
         if (def != 0 && def->getName() == identifier->getValue()) {
           auto obj = def->getTarget().get();
-          verb = cb(obj);
+          verb = cb(obj, 0);
           if (isPerform(verb)) {
             def->setTarget(getSharedPtr(obj));
           }
@@ -237,7 +237,7 @@ void Seeker::_setByIdentifier_ast(TiObject *self, Data::Ast::Identifier const *i
       }
       if (isMove(verb)) {
         TiObject *obj = 0;
-        verb = cb(obj);
+        verb = cb(obj, 0);
         if (isPerform(verb)) {
           // Add a new definition.
           auto def = Data::Ast::Definition::create();
@@ -281,7 +281,7 @@ void Seeker::_removeByIdentifier_sharedRepository(TiObject *self, Data::Ast::Ide
         auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
         if (def != 0 && def->getName() == identifier->getValue()) {
           auto obj = def->getTarget().get();
-          verb = cb(obj);
+          verb = cb(obj, 0);
           if (isPerform(verb)) {
             scope->remove(i);
             --i;
@@ -308,7 +308,7 @@ void Seeker::_removeByIdentifier_ast(TiObject *self, Data::Ast::Identifier const
         auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
         if (def != 0 && def->getName() == identifier->getValue()) {
           auto obj = def->getTarget().get();
-          verb = cb(obj);
+          verb = cb(obj, 0);
           if (isPerform(verb)) {
             scope->remove(i);
             --i;
@@ -352,7 +352,7 @@ void Seeker::_foreachByIdentifier_sharedRepository(TiObject *self, Data::Ast::Id
         auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
         if (def != 0 && def->getName() == identifier->getValue()) {
           auto obj = def->getTarget().get();
-          verb = cb(obj);
+          verb = cb(obj, 0);
           if (!isMove(verb)) break;
         }
       }
@@ -375,7 +375,7 @@ void Seeker::_foreachByIdentifier_ast(TiObject *self, Data::Ast::Identifier cons
         auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
         if (def != 0 && def->getName() == identifier->getValue()) {
           auto obj = def->getTarget().get();
-          verb = cb(obj);
+          verb = cb(obj, 0);
           if (!isMove(verb)) break;
         }
       }
@@ -394,7 +394,7 @@ void Seeker::_setByLinkOperator(TiObject *self, Ast::LinkOperator const *link, T
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   seeker->doForeach(first, data,
-    [=](TiObject *newData)->SeekVerb
+    [=](TiObject *newData, Notice*)->SeekVerb
     {
       return seeker->setByLinkOperator_routing(link, newData, cb);
     }
@@ -438,7 +438,7 @@ Seeker::SeekVerb Seeker::_setByLinkOperator_scopeDotIdentifier(TiObject *self, A
     auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
     if (def != 0 && def->getName() == identifier->getValue()) {
       auto obj = def->getTarget().get();
-      verb = cb(obj);
+      verb = cb(obj, 0);
       if (isPerform(verb)) {
         def->setTarget(getSharedPtr(obj));
       }
@@ -447,7 +447,7 @@ Seeker::SeekVerb Seeker::_setByLinkOperator_scopeDotIdentifier(TiObject *self, A
   }
   if (isMove(verb)) {
     TiObject *obj = 0;
-    verb = cb(obj);
+    verb = cb(obj, 0);
     if (isPerform(verb)) {
       // Add a new definition.
       auto def = Data::Ast::Definition::create();
@@ -465,7 +465,7 @@ Seeker::SeekVerb Seeker::_setByLinkOperator_mapDotIdentifier(TiObject *self, Ast
 {
   SeekVerb verb = SeekVerb::MOVE;
   auto obj = map->get(identifier->getValue().get());
-  verb = cb(obj);
+  verb = cb(obj, 0);
   if (isPerform(verb)) {
     map->set(identifier->getValue().get(), obj);
   }
@@ -482,7 +482,7 @@ void Seeker::_removeByLinkOperator(TiObject *self, Data::Ast::LinkOperator const
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   seeker->doForeach(first, data,
-    [=](TiObject *newData)->SeekVerb
+    [=](TiObject *newData, Notice*)->SeekVerb
     {
       return seeker->removeByLinkOperator_routing(link, newData, cb);
     }
@@ -528,7 +528,7 @@ Seeker::SeekVerb Seeker::_removeByLinkOperator_scopeDotIdentifier(TiObject *self
     auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
     if (def != 0 && def->getName() == identifier->getValue()) {
       auto obj = def->getTarget().get();
-      verb = cb(obj);
+      verb = cb(obj, 0);
       if (isPerform(verb)) {
         scope->remove(i);
         --i;
@@ -548,7 +548,7 @@ Seeker::SeekVerb Seeker::_removeByLinkOperator_mapDotIdentifier(TiObject *self,
   auto index = map->findIndex(identifier->getValue().get());
   if (index != -1) {
     auto obj = map->get(index);
-    verb = cb(obj);
+    verb = cb(obj, 0);
     if (isPerform(verb)) {
       map->remove(index);
     }
@@ -566,7 +566,7 @@ void Seeker::_foreachByLinkOperator(TiObject *self, Data::Ast::LinkOperator cons
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   seeker->doForeach(first, data,
-    [=](TiObject *newData)->SeekVerb
+    [=](TiObject *newData, Notice*)->SeekVerb
     {
       return seeker->foreachByLinkOperator_routing(link, newData, cb);
     }
@@ -610,7 +610,7 @@ Seeker::SeekVerb Seeker::_foreachByLinkOperator_scopeDotIdentifier(TiObject *sel
     auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
     if (def != 0 && def->getName() == identifier->getValue()) {
       auto obj = def->getTarget().get();
-      verb = cb(obj);
+      verb = cb(obj, 0);
       if (!isMove(verb)) break;
     }
   }
@@ -623,7 +623,7 @@ Seeker::SeekVerb Seeker::_foreachByLinkOperator_mapDotIdentifier(TiObject *self,
                                                                  Data::MapContainer *map, SeekForeachCallback cb)
 {
   auto obj = map->get(identifier->getValue().get());
-  return cb(obj);
+  return cb(obj, 0);
 }
 
 } } // namespace

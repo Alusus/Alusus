@@ -33,9 +33,9 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   public: ti_s_enum(SeekVerb, Integer, "Core.Data", "Core", "alusus.net",
                     MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP);
 
-  public: typedef std::function<SeekVerb(TiObject *&obj)> SeekSetCallback;
-  public: typedef std::function<SeekVerb(TiObject *obj)> SeekRemoveCallback;
-  public: typedef std::function<SeekVerb(TiObject *obj)> SeekForeachCallback;
+  public: typedef std::function<SeekVerb(TiObject *&obj, Notice *notice)> SeekSetCallback;
+  public: typedef std::function<SeekVerb(TiObject *obj, Notice *notice)> SeekRemoveCallback;
+  public: typedef std::function<SeekVerb(TiObject *obj, Notice *notice)> SeekForeachCallback;
 
 
   //============================================================================
@@ -112,7 +112,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   {
     for (PrecomputedRecord &record : this->precomputedRecords) {
       if (record.ref == ref && record.target == target) {
-        callback(record.result);
+        callback(record.result, 0);
         return;
       }
     }

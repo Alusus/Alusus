@@ -75,7 +75,7 @@ void SeekerExtension::_foreachByParamPass(TiObject *self,
   PREPARE_SELF(seekerExtension, SeekerExtension);
   auto operand = paramPass->getOperand().get();
   seeker->doForeach(operand, data,
-    [=](TiObject *newData)->Core::Data::Seeker::SeekVerb
+    [=](TiObject *newData, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
     {
       return seekerExtension->foreachByParamPass_routing(paramPass, newData, cb);
     }
@@ -108,7 +108,7 @@ Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_template(TiObj
 {
   PREPARE_SELF(seeker, Core::Data::Seeker);
   auto instance = tmplt->getInstance(param, seeker).get();
-  return cb(instance);
+  return cb(instance, 0);
 }
 
 } // namespace
