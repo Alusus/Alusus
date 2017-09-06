@@ -171,6 +171,20 @@ template<class T> class BindingCache : public BindingCacheBase
 template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCache<TiFunctionBase>
 {
   //============================================================================
+  // Types
+
+  public: struct FunctionCalleeInstance
+  {
+    TiObject *callee;
+    FunctionCalleeInstance(TiObject *c) : callee(c) {}
+    RT operator()(ARGS... args)
+    {
+      return Core::Basic::call<RT, ARGS...>(this->callee, args...);
+    }
+  };
+
+
+  //============================================================================
   // Constructor & Destructor
 
   public: FunctionBindingCache(Char const *name) : BindingCache<TiFunctionBase>(name)
@@ -268,6 +282,11 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
     this->bindingMap->resetFunctionChain(this->name, currentTifn);
   }
 
+  public: FunctionCalleeInstance useCallee(TiFunctionBase *c)
+  {
+    return FunctionCalleeInstance(c);
+  }
+
 }; // class FunctionBindingCache
 
 
@@ -277,6 +296,20 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   // Member Variables
 
   protected: TiObject *self;
+
+
+  //============================================================================
+  // Types
+
+  public: struct MethodCalleeInstance
+  {
+    TiObject *callee, *self;
+    MethodCalleeInstance(TiObject *c, TiObject *s) : callee(c), self(s) {}
+    RT operator()(ARGS... args)
+    {
+      return Core::Basic::call<RT, TiObject*, ARGS...>(this->callee, this->self, args...);
+    }
+  };
 
 
   //============================================================================
@@ -359,6 +392,11 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
       throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
     }
     return this->bindingMap->updateFunction(this->name, currentTifn, fn);
+  }
+
+  public: MethodCalleeInstance useCallee(TiFunctionBase *c)
+  {
+    return MethodCalleeInstance(c, this->self);
   }
 
 }; // class FunctionBindingCache

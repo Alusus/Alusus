@@ -84,31 +84,34 @@ class SeekerExtension : public ObjTiInterface
   /// @name Seek Functions
   /// @{
 
-
   public: METHOD_BINDING_CACHE(foreachByParamPass,
-    void, (Data::Ast::ParamPass const*, TiObject*, Core::Data::Seeker::SeekForeachCallback)
+    void, (Data::Ast::ParamPass const*, TiObject*, Core::Data::Seeker::SeekForeachCallback const&)
   );
   public: METHOD_BINDING_CACHE(foreachByParamPass_routing,
-    Core::Data::Seeker::SeekVerb, (Data::Ast::ParamPass const*, TiObject *, Core::Data::Seeker::SeekForeachCallback)
+    Core::Data::Seeker::SeekVerb, (
+      Data::Ast::ParamPass const*, TiObject *, Core::Data::Seeker::SeekForeachCallback const&
+    )
   );
   public: METHOD_BINDING_CACHE(foreachByParamPass_template,
-    Core::Data::Seeker::SeekVerb, (TiObject*, Spp::Ast::Template*, Core::Data::Seeker::SeekForeachCallback)
+    Core::Data::Seeker::SeekVerb, (TiObject*, Spp::Ast::Template*, Core::Data::Seeker::SeekForeachCallback const&)
   );
 
-  private: static void _foreach(TiFunctionBase *base, TiObject *self,
-                                TiObject const *ref, TiObject *target, Core::Data::Seeker::SeekForeachCallback cb);
+  private: static void _foreach(
+    TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
+    Core::Data::Seeker::SeekForeachCallback const &cb
+  );
 
-  private: static void _foreachByParamPass(TiObject *self,
-                                           Data::Ast::ParamPass const *paramPass, TiObject *data,
-                                           Core::Data::Seeker::SeekForeachCallback cb);
-  private: static Core::Data::Seeker::SeekVerb _foreachByParamPass_routing(TiObject *self,
-                                                                           Data::Ast::ParamPass const *paramPass,
-                                                                           TiObject *data,
-                                                                           Core::Data::Seeker::SeekForeachCallback cb);
-  private: static Core::Data::Seeker::SeekVerb _foreachByParamPass_template(TiObject *self,
-                                                                            TiObject *param,
-                                                                            Spp::Ast::Template *tmplt,
-                                                                            Core::Data::Seeker::SeekForeachCallback cb);
+  private: static void _foreachByParamPass(
+    TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
+    Core::Data::Seeker::SeekForeachCallback const &cb
+  );
+  private: static Core::Data::Seeker::SeekVerb _foreachByParamPass_routing(
+    TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
+    Core::Data::Seeker::SeekForeachCallback const &cb
+  );
+  private: static Core::Data::Seeker::SeekVerb _foreachByParamPass_template(
+    TiObject *self, TiObject *param, Spp::Ast::Template *tmplt, Core::Data::Seeker::SeekForeachCallback const &cb
+  );
 
   /// @}
 

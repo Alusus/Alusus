@@ -183,12 +183,12 @@ class Bindings : public TiInterface
 
   public: template <class RT, class ...ARGS> RT call(Char const *name, ARGS... args)
   {
-    return Core::Basic::call<RT>(this, name, this->getTiObject(), args...);
+    return Core::Basic::call<RT, TiObject*, ARGS...>(this, name, this->getTiObject(), args...);
   }
 
   public: template <class RT, class ...ARGS> RT call(TiObject *callee, ARGS... args)
   {
-    return Core::Basic::call<RT>(callee, this->getTiObject(), args...);
+    return Core::Basic::call<RT, TiObject*, ARGS...>(callee, this->getTiObject(), args...);
   }
 
 }; // class

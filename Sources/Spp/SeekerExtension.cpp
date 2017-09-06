@@ -54,23 +54,24 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
 //==============================================================================
 // Seek Functions
 
-void SeekerExtension::_foreach(TiFunctionBase *base, TiObject *self,
-                               TiObject const *ref, TiObject *target, Core::Data::Seeker::SeekForeachCallback cb)
-{
+void SeekerExtension::_foreach(
+  TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
+  Core::Data::Seeker::SeekForeachCallback const &cb
+) {
   if (ref->isA<Data::Ast::ParamPass>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
     seekerExtension->foreachByParamPass(static_cast<Data::Ast::ParamPass const*>(ref), target, cb);
   } else {
     PREPARE_SELF(seeker, Core::Data::Seeker);
-    seeker->call<void>(base, ref, target, cb);
+    seeker->foreach.useCallee(base)(ref, target, cb);
   }
 }
 
 
-void SeekerExtension::_foreachByParamPass(TiObject *self,
-                                          Data::Ast::ParamPass const *paramPass, TiObject *data,
-                                          Core::Data::Seeker::SeekForeachCallback cb)
-{
+void SeekerExtension::_foreachByParamPass(
+  TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
+  Core::Data::Seeker::SeekForeachCallback const &cb
+) {
   PREPARE_SELF(seeker, Core::Data::Seeker);
   PREPARE_SELF(seekerExtension, SeekerExtension);
   auto operand = paramPass->getOperand().get();
@@ -83,11 +84,10 @@ void SeekerExtension::_foreachByParamPass(TiObject *self,
 }
 
 
-Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_routing(TiObject *self,
-                                                                          Data::Ast::ParamPass const *paramPass,
-                                                                          TiObject *data,
-                                                                          Core::Data::Seeker::SeekForeachCallback cb)
-{
+Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_routing(
+  TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
+  Core::Data::Seeker::SeekForeachCallback const &cb
+) {
   PREPARE_SELF(seekerExtension, SeekerExtension);
   if (paramPass->getType() == Core::Data::Ast::BracketType::SQUARE) {
     auto param = paramPass->getParam().get();
@@ -102,10 +102,9 @@ Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_routing(TiObje
 }
 
 
-Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_template(TiObject *self,
-                                                                           TiObject *param, Ast::Template *tmplt,
-                                                                           Core::Data::Seeker::SeekForeachCallback cb)
-{
+Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_template(
+  TiObject *self, TiObject *param, Ast::Template *tmplt, Core::Data::Seeker::SeekForeachCallback const &cb
+) {
   PREPARE_SELF(seeker, Core::Data::Seeker);
   auto instance = tmplt->getInstance(param, seeker).get();
   return cb(instance, 0);

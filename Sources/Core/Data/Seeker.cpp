@@ -124,7 +124,7 @@ Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal)
 //==============================================================================
 // Main Seek Functions
 
-void Seeker::_set(TiObject *self, TiObject const *ref, TiObject *target, SeekSetCallback cb)
+void Seeker::_set(TiObject *self, TiObject const *ref, TiObject *target, SeekSetCallback const &cb)
 {
   PREPARE_SELF(seeker, Seeker);
   if (ref->isA<Ast::Identifier>()) {
@@ -137,7 +137,7 @@ void Seeker::_set(TiObject *self, TiObject const *ref, TiObject *target, SeekSet
 }
 
 
-void Seeker::_remove(TiObject *self, TiObject const *ref, TiObject *target, SeekRemoveCallback cb)
+void Seeker::_remove(TiObject *self, TiObject const *ref, TiObject *target, SeekRemoveCallback const &cb)
 {
   PREPARE_SELF(seeker, Seeker);
   if (ref->isA<Ast::Identifier>()) {
@@ -150,7 +150,7 @@ void Seeker::_remove(TiObject *self, TiObject const *ref, TiObject *target, Seek
 }
 
 
-void Seeker::_foreach(TiObject *self, TiObject const *ref, TiObject *target, SeekForeachCallback cb)
+void Seeker::_foreach(TiObject *self, TiObject const *ref, TiObject *target, SeekForeachCallback const &cb)
 {
   PREPARE_SELF(seeker, Seeker);
   if (ref->isA<Ast::Identifier>()) {
@@ -166,9 +166,9 @@ void Seeker::_foreach(TiObject *self, TiObject const *ref, TiObject *target, See
 //==============================================================================
 // Identifier set
 
-void Seeker::_setByIdentifier(TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
-                              SeekSetCallback cb)
-{
+void Seeker::_setByIdentifier(
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SeekSetCallback const &cb
+) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<Data::SharedRepository>()) {
     seeker->setByIdentifier_sharedRepository(identifier, static_cast<Data::SharedRepository*>(data), cb);
@@ -178,9 +178,9 @@ void Seeker::_setByIdentifier(TiObject *self, Data::Ast::Identifier const *ident
 }
 
 
-void Seeker::_setByIdentifier_sharedRepository(TiObject *self, Data::Ast::Identifier const *identifier,
-                                               Data::SharedRepository *repo, SeekSetCallback cb)
-{
+void Seeker::_setByIdentifier_sharedRepository(
+  TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, SeekSetCallback const &cb
+) {
   SeekVerb verb = SeekVerb::MOVE;
   for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
     auto node = repo->getLevelData(i).ti_cast_get<Node>();
@@ -215,9 +215,9 @@ void Seeker::_setByIdentifier_sharedRepository(TiObject *self, Data::Ast::Identi
 }
 
 
-void Seeker::_setByIdentifier_ast(TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
-                                  SeekSetCallback cb)
-{
+void Seeker::_setByIdentifier_ast(
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SeekSetCallback const &cb
+) {
   auto node = ti_cast<Node>(data);
   SeekVerb verb = SeekVerb::MOVE;
   while (node != 0) {
@@ -256,9 +256,9 @@ void Seeker::_setByIdentifier_ast(TiObject *self, Data::Ast::Identifier const *i
 //==============================================================================
 // Identifier remove
 
-void Seeker::_removeByIdentifier(TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
-                                 SeekRemoveCallback cb)
-{
+void Seeker::_removeByIdentifier(
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SeekRemoveCallback const &cb
+) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<Data::SharedRepository>()) {
     seeker->removeByIdentifier_sharedRepository(identifier, static_cast<Data::SharedRepository*>(data), cb);
@@ -268,9 +268,9 @@ void Seeker::_removeByIdentifier(TiObject *self, Data::Ast::Identifier const *id
 }
 
 
-void Seeker::_removeByIdentifier_sharedRepository(TiObject *self, Data::Ast::Identifier const *identifier,
-                                                  Data::SharedRepository *repo, SeekRemoveCallback cb)
-{
+void Seeker::_removeByIdentifier_sharedRepository(
+  TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, SeekRemoveCallback const &cb
+) {
   SeekVerb verb = SeekVerb::MOVE;
   for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
     auto node = repo->getLevelData(i).ti_cast_get<Node>();
@@ -295,9 +295,9 @@ void Seeker::_removeByIdentifier_sharedRepository(TiObject *self, Data::Ast::Ide
 }
 
 
-void Seeker::_removeByIdentifier_ast(TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
-                                     SeekRemoveCallback cb)
-{
+void Seeker::_removeByIdentifier_ast(
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SeekRemoveCallback const &cb
+) {
   auto node = ti_cast<Node>(data);
   SeekVerb verb = SeekVerb::MOVE;
   while (node != 0) {
@@ -326,9 +326,9 @@ void Seeker::_removeByIdentifier_ast(TiObject *self, Data::Ast::Identifier const
 //==============================================================================
 // Identifier foreach
 
-void Seeker::_foreachByIdentifier(TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
-                                  SeekForeachCallback cb)
-{
+void Seeker::_foreachByIdentifier(
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SeekForeachCallback const &cb
+) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<Data::SharedRepository>()) {
     seeker->foreachByIdentifier_sharedRepository(identifier, static_cast<Data::SharedRepository*>(data), cb
@@ -339,9 +339,9 @@ void Seeker::_foreachByIdentifier(TiObject *self, Data::Ast::Identifier const *i
 }
 
 
-void Seeker::_foreachByIdentifier_sharedRepository(TiObject *self, Data::Ast::Identifier const *identifier,
-                                                   Data::SharedRepository *repo, SeekForeachCallback cb)
-{
+void Seeker::_foreachByIdentifier_sharedRepository(
+  TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, SeekForeachCallback const &cb
+) {
   SeekVerb verb = SeekVerb::MOVE;
   for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
     auto node = repo->getLevelData(i).ti_cast_get<Node>();
@@ -362,9 +362,9 @@ void Seeker::_foreachByIdentifier_sharedRepository(TiObject *self, Data::Ast::Id
 }
 
 
-void Seeker::_foreachByIdentifier_ast(TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
-                                      SeekForeachCallback cb)
-{
+void Seeker::_foreachByIdentifier_ast(
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SeekForeachCallback const &cb
+) {
   auto node = ti_cast<Node>(data);
   SeekVerb verb = SeekVerb::MOVE;
   while (node != 0) {
@@ -389,8 +389,9 @@ void Seeker::_foreachByIdentifier_ast(TiObject *self, Data::Ast::Identifier cons
 //==============================================================================
 // LinkOperator set
 
-void Seeker::_setByLinkOperator(TiObject *self, Ast::LinkOperator const *link, TiObject *data, SeekSetCallback cb)
-{
+void Seeker::_setByLinkOperator(
+  TiObject *self, Ast::LinkOperator const *link, TiObject *data, SeekSetCallback const &cb
+) {
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   seeker->doForeach(first, data,
@@ -402,9 +403,9 @@ void Seeker::_setByLinkOperator(TiObject *self, Ast::LinkOperator const *link, T
 }
 
 
-Seeker::SeekVerb Seeker::_setByLinkOperator_routing(TiObject *self, Ast::LinkOperator const *link, TiObject *data,
-                                                    SeekSetCallback cb)
-{
+Seeker::SeekVerb Seeker::_setByLinkOperator_routing(
+  TiObject *self, Ast::LinkOperator const *link, TiObject *data, SeekSetCallback const &cb
+) {
   PREPARE_SELF(seeker, Seeker);
   if (link->getType() == STR(".")) {
     auto second = link->getSecond().get();
@@ -430,9 +431,9 @@ Seeker::SeekVerb Seeker::_setByLinkOperator_routing(TiObject *self, Ast::LinkOpe
 }
 
 
-Seeker::SeekVerb Seeker::_setByLinkOperator_scopeDotIdentifier(TiObject *self, Ast::Identifier const *identifier,
-                                                               Ast::Scope *scope, SeekSetCallback cb)
-{
+Seeker::SeekVerb Seeker::_setByLinkOperator_scopeDotIdentifier(
+  TiObject *self, Ast::Identifier const *identifier, Ast::Scope *scope, SeekSetCallback const &cb
+) {
   SeekVerb verb = SeekVerb::MOVE;
   for (Int i = 0; i < scope->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
@@ -460,9 +461,9 @@ Seeker::SeekVerb Seeker::_setByLinkOperator_scopeDotIdentifier(TiObject *self, A
 }
 
 
-Seeker::SeekVerb Seeker::_setByLinkOperator_mapDotIdentifier(TiObject *self, Ast::Identifier const *identifier,
-                                                             MapContainer *map, SeekSetCallback cb)
-{
+Seeker::SeekVerb Seeker::_setByLinkOperator_mapDotIdentifier(
+  TiObject *self, Ast::Identifier const *identifier, MapContainer *map, SeekSetCallback const &cb
+) {
   SeekVerb verb = SeekVerb::MOVE;
   auto obj = map->get(identifier->getValue().get());
   verb = cb(obj, 0);
@@ -476,9 +477,9 @@ Seeker::SeekVerb Seeker::_setByLinkOperator_mapDotIdentifier(TiObject *self, Ast
 //==============================================================================
 // LinkOperator remove
 
-void Seeker::_removeByLinkOperator(TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data,
-                                   SeekRemoveCallback cb)
-{
+void Seeker::_removeByLinkOperator(
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SeekRemoveCallback const &cb
+) {
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   seeker->doForeach(first, data,
@@ -490,10 +491,9 @@ void Seeker::_removeByLinkOperator(TiObject *self, Data::Ast::LinkOperator const
 }
 
 
-Seeker::SeekVerb Seeker::_removeByLinkOperator_routing(TiObject *self, Data::Ast::LinkOperator const *link,
-                                                       TiObject *data,
-                                                       SeekRemoveCallback cb)
-{
+Seeker::SeekVerb Seeker::_removeByLinkOperator_routing(
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SeekRemoveCallback const &cb
+) {
   PREPARE_SELF(seeker, Seeker);
   if (link->getType() == STR(".")) {
     auto second = link->getSecond().get();
@@ -519,10 +519,9 @@ Seeker::SeekVerb Seeker::_removeByLinkOperator_routing(TiObject *self, Data::Ast
 }
 
 
-Seeker::SeekVerb Seeker::_removeByLinkOperator_scopeDotIdentifier(TiObject *self,
-                                                                  Data::Ast::Identifier const *identifier,
-                                                                  Data::Ast::Scope *scope, SeekRemoveCallback cb)
-{
+Seeker::SeekVerb Seeker::_removeByLinkOperator_scopeDotIdentifier(
+  TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, SeekRemoveCallback const &cb
+) {
   SeekVerb verb = SeekVerb::MOVE;
   for (Int i = 0; i < scope->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
@@ -540,10 +539,9 @@ Seeker::SeekVerb Seeker::_removeByLinkOperator_scopeDotIdentifier(TiObject *self
 }
 
 
-Seeker::SeekVerb Seeker::_removeByLinkOperator_mapDotIdentifier(TiObject *self,
-                                                                Data::Ast::Identifier const *identifier,
-                                                                Data::MapContainer *map, SeekRemoveCallback cb)
-{
+Seeker::SeekVerb Seeker::_removeByLinkOperator_mapDotIdentifier(
+  TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, SeekRemoveCallback const &cb
+) {
   SeekVerb verb = SeekVerb::MOVE;
   auto index = map->findIndex(identifier->getValue().get());
   if (index != -1) {
@@ -560,9 +558,9 @@ Seeker::SeekVerb Seeker::_removeByLinkOperator_mapDotIdentifier(TiObject *self,
 //==============================================================================
 // LinkOperator foreach
 
-void Seeker::_foreachByLinkOperator(TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data,
-                                    SeekForeachCallback cb)
-{
+void Seeker::_foreachByLinkOperator(
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SeekForeachCallback const &cb
+) {
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   seeker->doForeach(first, data,
@@ -574,9 +572,9 @@ void Seeker::_foreachByLinkOperator(TiObject *self, Data::Ast::LinkOperator cons
 }
 
 
-Seeker::SeekVerb Seeker::_foreachByLinkOperator_routing(TiObject *self, Data::Ast::LinkOperator const *link,
-                                                        TiObject *data, SeekForeachCallback cb)
-{
+Seeker::SeekVerb Seeker::_foreachByLinkOperator_routing(
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SeekForeachCallback const &cb
+) {
   PREPARE_SELF(seeker, Seeker);
   if (link->getType() == STR(".")) {
     auto second = link->getSecond().get();
@@ -602,9 +600,9 @@ Seeker::SeekVerb Seeker::_foreachByLinkOperator_routing(TiObject *self, Data::As
 }
 
 
-Seeker::SeekVerb Seeker::_foreachByLinkOperator_scopeDotIdentifier(TiObject *self, Data::Ast::Identifier *identifier,
-                                                                   Data::Ast::Scope *scope, SeekForeachCallback cb)
-{
+Seeker::SeekVerb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
+  TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, SeekForeachCallback const &cb
+) {
   SeekVerb verb = SeekVerb::MOVE;
   for (Int i = 0; i < scope->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
@@ -618,10 +616,9 @@ Seeker::SeekVerb Seeker::_foreachByLinkOperator_scopeDotIdentifier(TiObject *sel
 }
 
 
-Seeker::SeekVerb Seeker::_foreachByLinkOperator_mapDotIdentifier(TiObject *self,
-                                                                 Data::Ast::Identifier const *identifier,
-                                                                 Data::MapContainer *map, SeekForeachCallback cb)
-{
+Seeker::SeekVerb Seeker::_foreachByLinkOperator_mapDotIdentifier(
+  TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, SeekForeachCallback const &cb
+) {
   auto obj = map->get(identifier->getValue().get());
   return cb(obj, 0);
 }

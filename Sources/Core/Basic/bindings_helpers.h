@@ -19,7 +19,7 @@ namespace Core { namespace Basic
 //==============================================================================
 // Functions
 
-template <class RT, class ...ARGS> RT call(TiObject *callee, ARGS ...args)
+template <class RT, class ...ARGS> RT call(TiObject *callee, ARGS... args)
 {
   VALIDATE_NOT_NULL(callee);
   auto tifn = ti_cast<TiFunction<RT(TiFunctionBase*, ARGS...)>>(callee);
@@ -50,7 +50,7 @@ template <class RT, class ...ARGS> RT call(Bindings *self, Char const *name, ARG
   if (tifnBase == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not a function."), name);
   }
-  return call<RT>(tifnBase, args...);
+  return call<RT, ARGS...>(tifnBase, args...);
 }
 
 
@@ -69,7 +69,7 @@ template <class RT, class ...ARGS> RT call(BindingMap *bindingMap, Char const *n
   if (tifnBase == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not a function."), name);
   }
-  return call<RT>(tifnBase, args...);
+  return call<RT, ARGS...>(tifnBase, args...);
 }
 
 
