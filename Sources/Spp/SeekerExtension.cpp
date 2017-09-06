@@ -56,7 +56,7 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
 
 void SeekerExtension::_foreach(
   TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
-  Core::Data::Seeker::SeekForeachCallback const &cb
+  Core::Data::Seeker::ForeachCallback const &cb
 ) {
   if (ref->isA<Data::Ast::ParamPass>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
@@ -70,13 +70,13 @@ void SeekerExtension::_foreach(
 
 void SeekerExtension::_foreachByParamPass(
   TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
-  Core::Data::Seeker::SeekForeachCallback const &cb
+  Core::Data::Seeker::ForeachCallback const &cb
 ) {
   PREPARE_SELF(seeker, Core::Data::Seeker);
   PREPARE_SELF(seekerExtension, SeekerExtension);
   auto operand = paramPass->getOperand().get();
   seeker->doForeach(operand, data,
-    [=](TiObject *newData, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
+    [=](TiObject *newData, Core::Data::Notice*)->Core::Data::Seeker::Verb
     {
       return seekerExtension->foreachByParamPass_routing(paramPass, newData, cb);
     }
@@ -84,9 +84,9 @@ void SeekerExtension::_foreachByParamPass(
 }
 
 
-Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_routing(
+Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_routing(
   TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
-  Core::Data::Seeker::SeekForeachCallback const &cb
+  Core::Data::Seeker::ForeachCallback const &cb
 ) {
   PREPARE_SELF(seekerExtension, SeekerExtension);
   if (paramPass->getType() == Core::Data::Ast::BracketType::SQUARE) {
@@ -102,8 +102,8 @@ Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_routing(
 }
 
 
-Core::Data::Seeker::SeekVerb SeekerExtension::_foreachByParamPass_template(
-  TiObject *self, TiObject *param, Ast::Template *tmplt, Core::Data::Seeker::SeekForeachCallback const &cb
+Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_template(
+  TiObject *self, TiObject *param, Ast::Template *tmplt, Core::Data::Seeker::ForeachCallback const &cb
 ) {
   PREPARE_SELF(seeker, Core::Data::Seeker);
   auto instance = tmplt->getInstance(param, seeker).get();

@@ -26,14 +26,14 @@ Type* traceType(TiObject *ref, Core::Data::Seeker *seeker)
     return static_cast<Type*>(refNode);
   }
   seeker->doForeach(refNode, refNode->getOwner(),
-    [=, &result](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
+    [=, &result](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
     {
       if (obj->isDerivedFrom<Type>()) {
         result = static_cast<Type*>(obj);
-        return Core::Data::Seeker::SeekVerb::STOP;
+        return Core::Data::Seeker::Verb::STOP;
       }
       // TODO: Recurse if the object is an Alias.
-      return Core::Data::Seeker::SeekVerb::MOVE;
+      return Core::Data::Seeker::Verb::MOVE;
     }
   );
   if (result == 0) {

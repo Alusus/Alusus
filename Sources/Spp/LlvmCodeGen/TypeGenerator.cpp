@@ -53,15 +53,15 @@ Spp::Ast::Type* TypeGenerator::getGeneratedType(TiObject *ref, llvm::Module *llv
   Spp::Ast::Type *type = ti_cast<Spp::Ast::Type>(ref);
   if (type == 0) {
     this->getSeeker()->doForeach(ref, ref,
-      [=,&type](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
+      [=,&type](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
       {
         type = ti_cast<Spp::Ast::Type>(obj);
         if (type != 0) {
-          return Core::Data::Seeker::SeekVerb::STOP;
+          return Core::Data::Seeker::Verb::STOP;
         }
         // TODO: Support template defaults.
         // TODO: Handle aliases.
-        return Core::Data::Seeker::SeekVerb::MOVE;
+        return Core::Data::Seeker::Verb::MOVE;
       }
     );
   }

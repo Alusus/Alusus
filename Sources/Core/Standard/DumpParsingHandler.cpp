@@ -22,7 +22,7 @@ using namespace Core::Data;
 
 void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  using SeekVerb = Data::Seeker::SeekVerb;
+  using SeekVerb = Data::Seeker::Verb;
 
   auto data = state->getData().ti_cast_get<Container>()->get(1);
   ASSERT(data != 0);

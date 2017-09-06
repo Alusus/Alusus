@@ -22,7 +22,7 @@ using namespace Core::Data;
 
 void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  using SeekVerb = Data::Seeker::SeekVerb;
+  using SeekVerb = Data::Seeker::Verb;
 
   auto data = state->getData().get();
   ASSERT(data != 0);

@@ -30,12 +30,12 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   //============================================================================
   // Types
 
-  public: ti_s_enum(SeekVerb, Integer, "Core.Data", "Core", "alusus.net",
+  public: ti_s_enum(Verb, Integer, "Core.Data", "Core", "alusus.net",
                     MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP);
 
-  public: typedef std::function<SeekVerb(TiObject *&obj, Notice *notice)> SeekSetCallback;
-  public: typedef std::function<SeekVerb(TiObject *obj, Notice *notice)> SeekRemoveCallback;
-  public: typedef std::function<SeekVerb(TiObject *obj, Notice *notice)> SeekForeachCallback;
+  public: typedef std::function<Verb(TiObject *&obj, Notice *notice)> SetCallback;
+  public: typedef std::function<Verb(TiObject *obj, Notice *notice)> RemoveCallback;
+  public: typedef std::function<Verb(TiObject *obj, Notice *notice)> ForeachCallback;
 
 
   //============================================================================
@@ -98,17 +98,17 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @name Helper Functions
   /// @{
 
-  public: void doSet(TiObject const *ref, TiObject *target, SeekSetCallback const &cb)
+  public: void doSet(TiObject const *ref, TiObject *target, SetCallback const &cb)
   {
     this->set(ref, target, cb);
   }
 
-  public: void doRemove(TiObject const *ref, TiObject *target, SeekRemoveCallback const &cb)
+  public: void doRemove(TiObject const *ref, TiObject *target, RemoveCallback const &cb)
   {
     this->remove(ref, target, cb);
   }
 
-  public: void doForeach(TiObject const *ref, TiObject *target, SeekForeachCallback const &cb)
+  public: void doForeach(TiObject const *ref, TiObject *target, ForeachCallback const &cb)
   {
     for (PrecomputedRecord &record : this->precomputedRecords) {
       if (record.ref == ref && record.target == target) {
@@ -121,7 +121,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
 
   public: void doContinueForeach(
     TiObject const *continueRef, TiObject *continueResult, TiObject const *ref, TiObject *target,
-    SeekForeachCallback const &cb
+    ForeachCallback const &cb
   ) {
     this->precomputedRecords.push_back(PrecomputedRecord(continueRef, target, continueResult));
     this->doForeach(ref, target, cb);
@@ -164,14 +164,14 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     return retVal;
   }
 
-  public: static Bool isPerform(SeekVerb verb)
+  public: static Bool isPerform(Verb verb)
   {
-    return verb == SeekVerb::PERFORM_AND_STOP || verb == SeekVerb::PERFORM_AND_MOVE;
+    return verb == Verb::PERFORM_AND_STOP || verb == Verb::PERFORM_AND_MOVE;
   }
 
-  public: static Bool isMove(SeekVerb verb)
+  public: static Bool isMove(Verb verb)
   {
-    return verb == SeekVerb::MOVE || verb == SeekVerb::PERFORM_AND_MOVE;
+    return verb == Verb::MOVE || verb == Verb::PERFORM_AND_MOVE;
   }
 
   /// @}
@@ -179,13 +179,13 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @name Main Seek Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(set, void, (TiObject const*, TiObject*, SeekSetCallback const&));
-  public: METHOD_BINDING_CACHE(remove, void, (TiObject const*, TiObject*, SeekRemoveCallback const&));
-  public: METHOD_BINDING_CACHE(foreach, void, (TiObject const*, TiObject*, SeekForeachCallback const&));
+  public: METHOD_BINDING_CACHE(set, void, (TiObject const*, TiObject*, SetCallback const&));
+  public: METHOD_BINDING_CACHE(remove, void, (TiObject const*, TiObject*, RemoveCallback const&));
+  public: METHOD_BINDING_CACHE(foreach, void, (TiObject const*, TiObject*, ForeachCallback const&));
 
-  private: static void _set(TiObject *self, TiObject const *ref, TiObject *target, SeekSetCallback const &cb);
-  private: static void _remove(TiObject *self, TiObject const *ref, TiObject *target, SeekRemoveCallback const &cb);
-  private: static void _foreach(TiObject *self, TiObject const *ref, TiObject *target, SeekForeachCallback const &cb);
+  private: static void _set(TiObject *self, TiObject const *ref, TiObject *target, SetCallback const &cb);
+  private: static void _remove(TiObject *self, TiObject const *ref, TiObject *target, RemoveCallback const &cb);
+  private: static void _foreach(TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb);
 
   /// @}
 
@@ -193,60 +193,60 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @{
 
   public: METHOD_BINDING_CACHE(setByIdentifier,
-    void, (Data::Ast::Identifier const*, TiObject*, SeekSetCallback const&)
+    void, (Data::Ast::Identifier const*, TiObject*, SetCallback const&)
   );
   public: METHOD_BINDING_CACHE(setByIdentifier_sharedRepository,
-    void, (Data::Ast::Identifier const*, Data::SharedRepository*, SeekSetCallback const&)
+    void, (Data::Ast::Identifier const*, Data::SharedRepository*, SetCallback const&)
   );
   public: METHOD_BINDING_CACHE(setByIdentifier_ast,
-    void, (Data::Ast::Identifier const*, TiObject*, SeekSetCallback const&)
+    void, (Data::Ast::Identifier const*, TiObject*, SetCallback const&)
   );
 
   private: static void _setByIdentifier(TiObject *self, Data::Ast::Identifier const *identifier,
-                                        TiObject *data, SeekSetCallback const &cb);
+                                        TiObject *data, SetCallback const &cb);
   private: static void _setByIdentifier_sharedRepository(TiObject *self, Data::Ast::Identifier const *identifier,
-                                                         Data::SharedRepository *repo, SeekSetCallback const &cb);
+                                                         Data::SharedRepository *repo, SetCallback const &cb);
   private: static void _setByIdentifier_ast(TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
-                                            SeekSetCallback const &cb);
+                                            SetCallback const &cb);
 
   public: METHOD_BINDING_CACHE(removeByIdentifier,
-    void, (Data::Ast::Identifier const*, TiObject*, SeekRemoveCallback const&)
+    void, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&)
   );
   public: METHOD_BINDING_CACHE(removeByIdentifier_sharedRepository,
-    void, (Data::Ast::Identifier const*, Data::SharedRepository*, SeekRemoveCallback const&)
+    void, (Data::Ast::Identifier const*, Data::SharedRepository*, RemoveCallback const&)
   );
   public: METHOD_BINDING_CACHE(removeByIdentifier_ast,
-    void, (Data::Ast::Identifier const*, TiObject*, SeekRemoveCallback const&)
+    void, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&)
   );
 
   private: static void _removeByIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SeekRemoveCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb
   );
   private: static void _removeByIdentifier_sharedRepository(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, SeekRemoveCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, RemoveCallback const &cb
   );
   private: static void _removeByIdentifier_ast(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SeekRemoveCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb
   );
 
   public: METHOD_BINDING_CACHE(foreachByIdentifier,
-    void, (Data::Ast::Identifier const*, TiObject*, SeekForeachCallback const&)
+    void, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&)
   );
   public: METHOD_BINDING_CACHE(foreachByIdentifier_sharedRepository,
-    void, (Data::Ast::Identifier const*, Data::SharedRepository*, SeekForeachCallback const&)
+    void, (Data::Ast::Identifier const*, Data::SharedRepository*, ForeachCallback const&)
   );
   public: METHOD_BINDING_CACHE(foreachByIdentifier_ast,
-    void, (Data::Ast::Identifier const*, TiObject*, SeekForeachCallback const&)
+    void, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&)
   );
 
   private: static void _foreachByIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SeekForeachCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb
   );
   private: static void _foreachByIdentifier_sharedRepository(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, SeekForeachCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, ForeachCallback const &cb
   );
   private: static void _foreachByIdentifier_ast(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SeekForeachCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb
   );
 
   /// @}
@@ -255,81 +255,81 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @{
 
   public: METHOD_BINDING_CACHE(setByLinkOperator,
-    void, (Data::Ast::LinkOperator const*, TiObject*, SeekSetCallback const&)
+    void, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&)
   );
   public: METHOD_BINDING_CACHE(setByLinkOperator_routing,
-    SeekVerb, (Data::Ast::LinkOperator const*, TiObject*, SeekSetCallback const&)
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&)
   );
   public: METHOD_BINDING_CACHE(setByLinkOperator_scopeDotIdentifier,
-    SeekVerb, (Data::Ast::Identifier const*, Data::Ast::Scope*, SeekSetCallback const&)
+    Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, SetCallback const&)
   );
   public: METHOD_BINDING_CACHE(setByLinkOperator_mapDotIdentifier,
-    SeekVerb, (Data::Ast::Identifier const*, Data::MapContainer*, SeekSetCallback const&)
+    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, SetCallback const&)
   );
 
   private: static void _setByLinkOperator(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SeekSetCallback const &cb
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb
   );
-  private: static SeekVerb _setByLinkOperator_routing(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SeekSetCallback const &cb
+  private: static Verb _setByLinkOperator_routing(
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb
   );
-  private: static SeekVerb _setByLinkOperator_scopeDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, SeekSetCallback const &cb
+  private: static Verb _setByLinkOperator_scopeDotIdentifier(
+    TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, SetCallback const &cb
   );
-  private: static SeekVerb _setByLinkOperator_mapDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, SeekSetCallback const &cb
+  private: static Verb _setByLinkOperator_mapDotIdentifier(
+    TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, SetCallback const &cb
   );
 
   public: METHOD_BINDING_CACHE(removeByLinkOperator,
-    void, (Data::Ast::LinkOperator const*, TiObject*, SeekRemoveCallback const&)
+    void, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&)
   );
   public: METHOD_BINDING_CACHE(removeByLinkOperator_routing,
-    SeekVerb, (Data::Ast::LinkOperator const*, TiObject*, SeekRemoveCallback const&)
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&)
   );
   public: METHOD_BINDING_CACHE(removeByLinkOperator_scopeDotIdentifier,
-    SeekVerb, (Data::Ast::Identifier const*, Data::Ast::Scope*, SeekRemoveCallback const&)
+    Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, RemoveCallback const&)
   );
   public: METHOD_BINDING_CACHE(removeByLinkOperator_mapDotIdentifier,
-    SeekVerb, (Data::Ast::Identifier const*, Data::MapContainer*, SeekRemoveCallback const&)
+    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, RemoveCallback const&)
   );
 
   private: static void _removeByLinkOperator(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SeekRemoveCallback const &cb
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb
   );
-  private: static SeekVerb _removeByLinkOperator_routing(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SeekRemoveCallback const &cb
+  private: static Verb _removeByLinkOperator_routing(
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb
   );
-  private: static SeekVerb _removeByLinkOperator_scopeDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, SeekRemoveCallback const &cb
+  private: static Verb _removeByLinkOperator_scopeDotIdentifier(
+    TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, RemoveCallback const &cb
   );
-  private: static SeekVerb _removeByLinkOperator_mapDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, SeekRemoveCallback const &cb
+  private: static Verb _removeByLinkOperator_mapDotIdentifier(
+    TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, RemoveCallback const &cb
   );
 
   public: METHOD_BINDING_CACHE(foreachByLinkOperator,
-    void, (Data::Ast::LinkOperator const*, TiObject*, SeekForeachCallback const&)
+    void, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&)
   );
   public: METHOD_BINDING_CACHE(foreachByLinkOperator_routing,
-    SeekVerb, (Data::Ast::LinkOperator const*, TiObject*, SeekForeachCallback const&)
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&)
   );
   public: METHOD_BINDING_CACHE(foreachByLinkOperator_scopeDotIdentifier,
-    SeekVerb, (Data::Ast::Identifier*, Data::Ast::Scope*, SeekForeachCallback const&)
+    Verb, (Data::Ast::Identifier*, Data::Ast::Scope*, ForeachCallback const&)
   );
   public: METHOD_BINDING_CACHE(foreachByLinkOperator_mapDotIdentifier,
-    SeekVerb, (Data::Ast::Identifier const*, Data::MapContainer*, SeekForeachCallback const&)
+    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, ForeachCallback const&)
   );
 
   private: static void _foreachByLinkOperator(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SeekForeachCallback const &cb
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb
   );
-  private: static SeekVerb _foreachByLinkOperator_routing(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SeekForeachCallback const &cb
+  private: static Verb _foreachByLinkOperator_routing(
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb
   );
-  private: static SeekVerb _foreachByLinkOperator_scopeDotIdentifier(
-    TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, SeekForeachCallback const &cb
+  private: static Verb _foreachByLinkOperator_scopeDotIdentifier(
+    TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, ForeachCallback const &cb
   );
-  private: static SeekVerb _foreachByLinkOperator_mapDotIdentifier(
-    TiObject *_self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, SeekForeachCallback const &cb
+  private: static Verb _foreachByLinkOperator_mapDotIdentifier(
+    TiObject *_self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, ForeachCallback const &cb
   );
 
   /// @}

@@ -205,23 +205,23 @@ TiObject* Template::traceObject(TiObject *ref, VarType varType, Core::Data::Seek
     return ref;
   } else {
     seeker->doForeach(ref, refNode->getOwner(),
-      [=, &result](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
+      [=, &result](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
       {
         if (varType == VarType::INTEGER && obj->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
           result = obj;
-          return Core::Data::Seeker::SeekVerb::STOP;
+          return Core::Data::Seeker::Verb::STOP;
         } else if (varType == VarType::STRING && obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
           result = obj;
-          return Core::Data::Seeker::SeekVerb::STOP;
+          return Core::Data::Seeker::Verb::STOP;
         } else if (varType == VarType::TYPE && obj->isDerivedFrom<Spp::Ast::Type>()) {
           result = obj;
-          return Core::Data::Seeker::SeekVerb::STOP;
+          return Core::Data::Seeker::Verb::STOP;
         } else if (varType == VarType::FUNCTION && obj->isDerivedFrom<Spp::Ast::Function>()) {
           result = obj;
-          return Core::Data::Seeker::SeekVerb::STOP;
+          return Core::Data::Seeker::Verb::STOP;
         }
         // TODO: Recurse if the object is an Alias.
-        return Core::Data::Seeker::SeekVerb::MOVE;
+        return Core::Data::Seeker::Verb::MOVE;
       }
     );
   }

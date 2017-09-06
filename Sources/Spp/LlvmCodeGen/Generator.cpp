@@ -294,7 +294,7 @@ void Generator::_generateParamPass(
     using CallMatchStatus = Ast::Function::CallMatchStatus;
     CallMatchStatus matchStatus = CallMatchStatus::NONE;
     generator->getSeeker()->doForeach(operand, astNode->getOwner(),
-      [=, &paramTypes, &function, &matchStatus](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
+      [=, &paramTypes, &function, &matchStatus](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
       {
         if (obj->isDerivedFrom<Ast::Function>()) {
           auto f = static_cast<Ast::Function*>(obj);
@@ -310,7 +310,7 @@ void Generator::_generateParamPass(
             throw EXCEPTION(GenericException, STR("Multiple matches found for the same funciton call."));
           }
         }
-        return Core::Data::Seeker::SeekVerb::MOVE;
+        return Core::Data::Seeker::Verb::MOVE;
       }
     );
     // Did we have a matched function to call?
@@ -355,11 +355,11 @@ void Generator::_generateIdentifier(
   llvmResult = 0;
   lastProcessedRef = 0;
   generator->getSeeker()->doForeach(astNode, astNode->getOwner(),
-    [=](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::SeekVerb
+    [=](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
     {
       // TODO: Check if the found obj is a variable definition.
       // TODO: Generate var reference if it's a variable.
-      return Core::Data::Seeker::SeekVerb::MOVE;
+      return Core::Data::Seeker::Verb::MOVE;
     }
   );
 }
