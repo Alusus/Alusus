@@ -1,0 +1,12 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def f1: function (a: Int[32, 5])=>Int[64] {
+  };
+  
+  def f2: function (a: Float[33])=>Int[32] {
+  }
+};
+
+build Main;

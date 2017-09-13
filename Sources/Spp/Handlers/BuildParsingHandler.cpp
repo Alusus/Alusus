@@ -31,10 +31,19 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
 
   try {
     auto root = this->rootManager->getRootScope().get();
-    auto ir = this->llvmGenerator->generateIr(root, state);
-    outStream << STR("------------------ Generated LLVM IR ------------------\n");
-    outStream << ir;
-    outStream << STR("-------------------------------------------------------\n");
+    Core::Basic::StrStream ir;
+    Bool result = this->llvmGenerator->generateIr(root, state, ir);
+    if (result) {
+      outStream << STR("-------------------- Generated LLVM IR ---------------------\n");
+      outStream << ir.str();
+      outStream << STR("------------------------------------------------------------\n");
+    } else {
+      parser->flushApprovedNotices();
+      outStream << STR("Build Failed...\n");
+      outStream << STR("--------------------- Partial LLVM IR ----------------------\n");
+      outStream << ir.str();
+      outStream << STR("------------------------------------------------------------\n");
+    }
 
     // Bool found = false;
     // this->rootManager->getSeeker()->doForeach(data, state->getDataStack(),

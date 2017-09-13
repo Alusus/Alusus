@@ -57,8 +57,9 @@ void Generator::initBindings()
 //==============================================================================
 // Main Operation Functions
 
-Str Generator::generateIr(Core::Data::Ast::Scope *root, Core::Processing::ParserState *state)
-{
+Bool Generator::generateIr(
+  Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, Core::Basic::OutStream &out
+) {
   if (root == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("root"), STR("Must not be null."));
   }
@@ -69,63 +70,65 @@ Str Generator::generateIr(Core::Data::Ast::Scope *root, Core::Processing::Parser
   this->llvmModule = std::make_shared<llvm::Module>("AlususProgram", llvm::getGlobalContext());
   this->llvmModule->setDataLayout(llvmDataLayout->getStringRepresentation());
   this->executionContext = std::make_shared<ExecutionContext>(llvmDataLayout->getPointerSizeInBits());
-
+  this->sourceLocationStack.clear();
   this->parserState = state;
 
+  this->typeGenerator->prepareForGeneration(this->parserState, this->llvmModule, &this->sourceLocationStack);
+
   // Generates code for all modules.
+  Bool result = true;
   for (Int i = 0; i < root->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(root->get(i));
     if (def != 0) {
       auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
       if (module != 0) {
-        this->generateModule(module);
+        if (!this->generateModule(module)) result = false;
       }
     }
   }
 
-  Str out;
-  llvm::raw_string_ostream ostream(out);
+  llvm::raw_os_ostream ostream(out);
   llvm::PassManager passManager;
   passManager.add(llvm::createPrintModulePass(&ostream));
   passManager.run(*(this->llvmModule.get()));
 
-  return out;
+  return result;
 }
 
 
 //==============================================================================
 // Code Generation Functions
 
-void Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule)
+Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule)
 {
   PREPARE_SELF(generator, Generator);
+  Bool result = true;
   for (Int i = 0; i < astModule->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(astModule->get(i));
     if (def != 0) {
       auto obj = def->getTarget().get();
       if (obj->isDerivedFrom<Spp::Ast::Module>()) {
-        generator->generateModule(static_cast<Spp::Ast::Module*>(obj));
+        if (!generator->generateModule(static_cast<Spp::Ast::Module*>(obj))) result = false;
       } else if (obj->isDerivedFrom<Spp::Ast::Function>()) {
-        generator->generateFunction(static_cast<Spp::Ast::Function*>(obj));
+        if (!generator->generateFunction(static_cast<Spp::Ast::Function*>(obj))) result = false;
       }
       // TODO: Generate for types and global variables.
     }
   }
+  return result;
 }
 
 
-void Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc)
+Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc)
 {
   PREPARE_SELF(generator, Generator);
 
   auto cgFunc = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::UserFunction>();
   if (cgFunc == 0) {
-    generator->generateFunctionDecl(astFunc);
+    if (!generator->generateFunctionDecl(astFunc)) return false;
     cgFunc = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::UserFunction>();
   }
-  if (cgFunc == 0) {
-    throw EXCEPTION(GenericException, STR("Failed to generate function decleration."));
-  }
+  ASSERT(cgFunc != 0);
 
   auto astArgs = astFunc->getArgTypes().get();
   auto astBlock = astFunc->getBody().get();
@@ -145,17 +148,18 @@ void Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc)
     }
 
     // Generate the function's statements.
-    generator->generateStatements(astBlock, cgBlock->getIrBuilder(), cgFunc->getLlvmFunction());
+    if (!generator->generateStatements(astBlock, cgBlock->getIrBuilder(), cgFunc->getLlvmFunction())) return false;
   }
+  return true;
 }
 
 
-void Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc)
+Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc)
 {
   PREPARE_SELF(generator, Generator);
 
   auto genType = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Function>();
-  if (genType != 0) return;
+  if (genType != 0) return true;
 
   // Construct the list of argument LLVM types.
   // TODO: Support functions that take no args.
@@ -166,17 +170,19 @@ void Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   for (Int i = 0; i < argCount; ++i) {
     auto argType = astArgs->get(i);
     if (argType->isDerivedFrom<Ast::ArgPack>()) break;
-    llvmArgTypes.push_back(generator->typeGenerator->getGeneratedLlvmType(
-      astArgs->get(i), generator->llvmModule.get()
-    ));
+    llvm::Type *llvmType;
+    if (!generator->typeGenerator->getGeneratedLlvmType(astArgs->get(i), llvmType)) {
+      return false;
+    }
+    llvmArgTypes.push_back(llvmType);
   }
 
   // Get the return LLVM type.
   llvm::Type *llvmRetType = 0;
   if (astFunc->getRetType() != 0) {
-    llvmRetType = generator->typeGenerator->getGeneratedLlvmType(
-      astFunc->getRetType().get(), generator->llvmModule.get()
-    );
+    if (!generator->typeGenerator->getGeneratedLlvmType(
+      astFunc->getRetType().get(), llvmRetType
+    )) return false;
   } else {
     llvmRetType = llvm::Type::getVoidTy(llvm::getGlobalContext());
   }
@@ -192,15 +198,16 @@ void Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
     cgFunc->addArg(llvmArgType);
   }
   astFunc->setExtra(META_EXTRA_NAME, cgFunc);
+  return true;
 }
 
 
-void Generator::_generateBlock(TiObject *self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc)
+Bool Generator::_generateBlock(TiObject *self, Spp::Ast::Block *astBlock, llvm::Function *llvmFunc)
 {
   PREPARE_SELF(generator, Generator);
   generator->prepareBlock(astBlock, llvmFunc);
   auto cgBlock = astBlock->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Block>();
-  generator->generateStatements(astBlock, cgBlock->getIrBuilder(), llvmFunc);
+  return generator->generateStatements(astBlock, cgBlock->getIrBuilder(), llvmFunc);
 }
 
 
@@ -218,48 +225,58 @@ void Generator::_prepareBlock(TiObject *self, Spp::Ast::Block *astBlock, llvm::F
 }
 
 
-void Generator::_generateStatements(
+Bool Generator::_generateStatements(
   TiObject *self, Spp::Ast::Block *astBlock, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
 ) {
   PREPARE_SELF(generator, Generator);
+  Bool result = true;
   for (Int i = 0; i < astBlock->getCount(); ++i) {
     auto astNode = astBlock->get(i);
     Ast::Type *resultType;
     llvm::Value *llvmResult;
     TiObject *lastProcessedRef;
-    generator->generateStatement(astNode, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef);
+    if (!generator->generateStatement(astNode, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef)) {
+      result = false;
+    }
   }
+  return result;
 }
 
 
-void Generator::_generateStatement(
+Bool Generator::_generateStatement(
   TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
 ) {
   PREPARE_SELF(generator, Generator);
   if (astNode->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
     auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(astNode);
-    generator->generateParamPass(paramPass, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef);
+    return generator->generateParamPass(paramPass, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
-    generator->generateIdentifier(identifier, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef);
+    return generator->generateIdentifier(identifier, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);
-    generator->generateStringLiteral(stringLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef);
+    return generator->generateStringLiteral(
+      stringLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+    );
   }
   // TODO:
+  return false;
 }
 
 
-void Generator::_generateParamPass(
+Bool Generator::_generateParamPass(
   TiObject *self, Core::Data::Ast::ParamPass *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
 ) {
   PREPARE_SELF(generator, Generator);
   auto operand = astNode->getOperand().get();
-  generator->generateStatement(operand, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef);
+  if (!generator->generateStatement(operand, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef)) {
+    return false;
+  }
   if (resultType != 0) {
     // TODO: Check for function pointers and arrays.
+    return false;
   } else {
     // Prepare parameters list.
     using Core::Basic::TiObject;
@@ -274,9 +291,9 @@ void Generator::_generateParamPass(
           llvm::Value *paramResultCg;
           Ast::Type *paramType;
           TiObject *paramLastProcessedRef;
-          generator->generateStatement(
+          if (!generator->generateStatement(
             paramList->get(i), llvmIrBuilder, llvmFunc, paramType, paramResultCg, paramLastProcessedRef
-          );
+          )) return false;
           paramCgs.add(paramResultCg);
           paramTypes.add(paramType);
         }
@@ -284,7 +301,9 @@ void Generator::_generateParamPass(
         llvm::Value *paramResultCg;
         Ast::Type *paramType;
         TiObject *paramLastProcessedRef;
-        generator->generateStatement(param, llvmIrBuilder, llvmFunc, paramType, paramResultCg, paramLastProcessedRef);
+        if (!generator->generateStatement(
+          param, llvmIrBuilder, llvmFunc, paramType, paramResultCg, paramLastProcessedRef
+        )) return false;
         paramCgs.add(paramResultCg);
         paramTypes.add(paramType);
       }
@@ -293,32 +312,56 @@ void Generator::_generateParamPass(
     Ast::Function *function = 0;
     using CallMatchStatus = Ast::Function::CallMatchStatus;
     CallMatchStatus matchStatus = CallMatchStatus::NONE;
+    Int matchCount = 0;
+    SharedPtr<Core::Data::Notice> notice;
     generator->getSeeker()->doForeach(operand, astNode->getOwner(),
-      [=, &paramTypes, &function, &matchStatus](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
-      {
-        if (obj->isDerivedFrom<Ast::Function>()) {
-          auto f = static_cast<Ast::Function*>(obj);
-          CallMatchStatus ms;
-          ms = f->matchCall(&paramTypes, generator->executionContext.get(), generator->getRootManager());
-          if (ms != CallMatchStatus::NONE && matchStatus == CallMatchStatus::NONE) {
-            function = f;
-            matchStatus = ms;
-          } else if (ms == CallMatchStatus::EXACT && matchStatus == CallMatchStatus::CASTED) {
-            function  = f;
-            matchStatus = ms;
-          } else if (ms == CallMatchStatus::EXACT && matchStatus == CallMatchStatus::EXACT) {
-            throw EXCEPTION(GenericException, STR("Multiple matches found for the same funciton call."));
+      [=, &paramTypes, &function, &matchStatus, &matchCount, &notice]
+        (TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
+        {
+          if (ntc != 0) {
+            notice = getSharedPtr(ntc);
+            return Core::Data::Seeker::Verb::MOVE;
           }
+
+          if (obj != 0 && obj->isDerivedFrom<Ast::Function>()) {
+            auto f = static_cast<Ast::Function*>(obj);
+            CallMatchStatus ms;
+            ms = f->matchCall(&paramTypes, generator->executionContext.get(), generator->getRootManager());
+            if (ms != CallMatchStatus::NONE && matchStatus == CallMatchStatus::NONE) {
+              function = f;
+              matchStatus = ms;
+              matchCount = 1;
+            } else if (ms == CallMatchStatus::CASTED && matchStatus == CallMatchStatus::CASTED) {
+              matchCount++;
+            } else if (ms == CallMatchStatus::EXACT && matchStatus == CallMatchStatus::CASTED) {
+              function  = f;
+              matchStatus = ms;
+              matchCount = 1;
+            } else if (ms == CallMatchStatus::EXACT && matchStatus == CallMatchStatus::EXACT) {
+              matchCount++;
+            }
+          }
+          return Core::Data::Seeker::Verb::MOVE;
         }
-        return Core::Data::Seeker::Verb::MOVE;
-      }
     );
     // Did we have a matched function to call?
-    if (function == 0) {
-      throw EXCEPTION(GenericException, STR("No matching callee found."));
+    if (notice != 0 && (matchCount > 1 || function == 0)) {
+      notice->prependSourceLocationStack(generator->sourceLocationStack);
+      generator->parserState->addNotice(notice);
+    }
+    if (matchCount > 1) {
+      generator->sourceLocationStack.push_back(astNode->getSourceLocation());
+      generator->parserState->addNotice(std::make_shared<MultipleCalleeMatchNotice>(generator->sourceLocationStack));
+      generator->sourceLocationStack.pop_back();
+      return false;
+    } else if (function == 0) {
+      generator->sourceLocationStack.push_back(astNode->getSourceLocation());
+      generator->parserState->addNotice(std::make_shared<NoCalleeMatchNotice>(generator->sourceLocationStack));
+      generator->sourceLocationStack.pop_back();
+      return false;
     }
     // Build funcion declaration.
-    generator->generateFunctionDecl(function);
+    if (!generator->generateFunctionDecl(function)) return false;
     auto cgFunction = function->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Function>();
     // Create function call.
     std::vector<llvm::Value*> args;
@@ -331,9 +374,11 @@ void Generator::_generateParamPass(
       if (context.type == 0) {
         args.push_back(paramCgs.get(i));
       } else {
-        auto destValue = generator->typeGenerator->createCast(
-          srcType, context.type, paramCgs.get(i), llvmIrBuilder, generator->llvmModule.get()
-        );
+        llvm::Value *destValue;
+        if (!generator->typeGenerator->createCast(llvmIrBuilder, srcType, context.type, paramCgs.get(i), destValue)) {
+          // This should not happen since non-castable calls should be filtered out earlier.
+          throw EXCEPTION(GenericException, STR("Invalid cast was unexpectedly found."));
+        }
         args.push_back(destValue);
       }
     }
@@ -342,11 +387,12 @@ void Generator::_generateParamPass(
     llvmResult = llvmCall;
     resultType = function->traceRetType(generator->getSeeker());
     lastProcessedRef = astNode;
+    return true;
   }
 }
 
 
-void Generator::_generateIdentifier(
+Bool Generator::_generateIdentifier(
   TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
 ) {
@@ -362,10 +408,11 @@ void Generator::_generateIdentifier(
       return Core::Data::Seeker::Verb::MOVE;
     }
   );
+  return true;
 }
 
 
-void Generator::_generateStringLiteral(
+Bool Generator::_generateStringLiteral(
   TiObject *self, Core::Data::Ast::StringLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
 ) {
@@ -377,7 +424,9 @@ void Generator::_generateStringLiteral(
   if (generator->llvmCharType == 0) {
     auto charTypeRef = generator->rootManager->parseExpression(STR("Int[8]"));
     auto charAstType = generator->getSeeker()->doGet(charTypeRef.get(), generator->rootManager->getRootScope().get());
-    generator->llvmCharType = generator->typeGenerator->getGeneratedLlvmType(charAstType, generator->llvmModule.get());
+    if (!generator->typeGenerator->getGeneratedLlvmType(charAstType, generator->llvmCharType)) {
+      throw EXCEPTION(GenericException, STR("Failed to generate char type'"));
+    }
   }
 
   // Prepare the ast const string type.
@@ -426,6 +475,7 @@ void Generator::_generateStringLiteral(
   llvmResult = llvm::ConstantExpr::getGetElementPtr(llvmVar, indices);
 
   lastProcessedRef = astNode;
+  return true;
 }
 
 
@@ -483,7 +533,9 @@ void Generator::getConstStringType(Word size, Ast::Type *&astType, llvm::Type *&
   if (astType == 0) {
     throw EXCEPTION(GenericException, STR("Failed to get const string AST type."));
   }
-  llvmType = this->typeGenerator->getGeneratedLlvmType(astType, this->llvmModule.get());
+  if (!this->typeGenerator->getGeneratedLlvmType(astType, llvmType)) {
+    throw EXCEPTION(GenericException, STR("Failed to generate const string LLVM type."));
+  }
 }
 
 } } // namespace

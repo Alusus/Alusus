@@ -1,4 +1,10 @@
------------------- Generated LLVM IR ------------------
+ERROR SPP1302 @ (16,5): Multiple matches were found for the given callee.
+ERROR SPP1301 @ (17,5): No matches were found for the given callee.
+ERROR SPP1301 @ (18,5): No matches were found for the given callee.
+ERROR SPP1301 @ (19,5): No matches were found for the given callee.
+ERROR SPP1301 @ (20,5): No matches were found for the given callee.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
 
@@ -13,6 +19,15 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 @__anonymous8 = private constant [6 x i8] c"hello\00", align 1
 @__anonymous9 = private constant [6 x i8] c"world\00", align 1
 @__anonymous10 = private constant [6 x i8] c"again\00", align 1
+@__anonymous11 = private constant [6 x i8] c"hello\00", align 1
+@__anonymous12 = private constant [6 x i8] c"hello\00", align 1
+@__anonymous13 = private constant [6 x i8] c"hello\00", align 1
+@__anonymous14 = private constant [6 x i8] c"world\00", align 1
+@__anonymous15 = private constant [4 x i8] c"yet\00", align 1
+@__anonymous16 = private constant [6 x i8] c"again\00", align 1
+@__anonymous17 = private constant [6 x i8] c"hello\00", align 1
+@__anonymous18 = private constant [6 x i8] c"world\00", align 1
+@__anonymous19 = private constant [6 x i8] c"hello\00", align 1
 
 define i32 @Main_main_____Int_32__() {
 __block0:
@@ -58,4 +73,10 @@ __block4:
   %a1 = alloca i32
   store i32 %a, i32* %a1
 }
--------------------------------------------------------
+
+define i32 @Main_f4_ptr_Int_8___ArgPack_Int_8__0_0_____Int_32__(i8* %a, ...) {
+__block7:
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+}
+------------------------------------------------------------

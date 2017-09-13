@@ -34,6 +34,17 @@ class Type;
 
 Type* traceType(TiObject *ref, Core::Data::Seeker *seeker);
 
+
+//==============================================================================
+// Build Messages
+
+DEFINE_NOTICE(TemplateArgMismatchNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1101", 1,
+  STR("Template arguments mismatch.")
+);
+DEFINE_NOTICE(InvalidTemplateArgNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1102", 1,
+  STR("Invalid template argument.")
+);
+
 } } // namespace
 
 

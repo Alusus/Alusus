@@ -38,10 +38,12 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
   // Member Variables
 
   private: Core::Standard::RootManager *rootManager;
-
   private: NodePathResolver *nodePathResolver;
-
   private: llvm::DataLayout *llvmDataLayout;
+
+  private: Core::Processing::ParserState *parserState;
+  private: SharedPtr<llvm::Module> llvmModule;
+  private: std::vector<Core::Data::SourceLocation> *sourceLocationStack;
 
 
   //============================================================================
@@ -93,40 +95,50 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
     return this->nodePathResolver;
   }
 
+  public: void prepareForGeneration(
+    Core::Processing::ParserState *state,
+    SharedPtr<llvm::Module> const &module,
+    std::vector<Core::Data::SourceLocation> *stack)
+  {
+    this->parserState = state;
+    this->llvmModule = module;
+    this->sourceLocationStack = stack;
+  }
+
   /// @}
 
   /// @name Main Operation Functions
   /// @{
 
-  public: Spp::Ast::Type* getGeneratedType(TiObject *ref, llvm::Module *llvmModule);
-  public: llvm::Type* getGeneratedLlvmType(TiObject *ref, llvm::Module *llvmModule);
+  public: Bool getGeneratedType(TiObject *ref, Spp::Ast::Type *&type);
+  public: Bool getGeneratedLlvmType(TiObject *ref, llvm::Type *&type);
 
   /// @}
 
   /// @name Code Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(generateType, void, (Spp::Ast::Type*, llvm::Module*));
-  public: METHOD_BINDING_CACHE(generateIntegerType, void, (Spp::Ast::IntegerType*, llvm::Module*));
-  public: METHOD_BINDING_CACHE(generateFloatType, void, (Spp::Ast::FloatType*, llvm::Module*));
-  public: METHOD_BINDING_CACHE(generatePointerType, void, (Spp::Ast::PointerType*, llvm::Module*));
-  public: METHOD_BINDING_CACHE(generateArrayType, void, (Spp::Ast::ArrayType*, llvm::Module*));
-  // public: METHOD_BINDING_CACHE(generateStructType, void, (Spp::Ast::StructType*, llvm::Module*));
+  public: METHOD_BINDING_CACHE(generateType, Bool, (Spp::Ast::Type*));
+  public: METHOD_BINDING_CACHE(generateIntegerType, Bool, (Spp::Ast::IntegerType*));
+  public: METHOD_BINDING_CACHE(generateFloatType, Bool, (Spp::Ast::FloatType*));
+  public: METHOD_BINDING_CACHE(generatePointerType, Bool, (Spp::Ast::PointerType*));
+  public: METHOD_BINDING_CACHE(generateArrayType, Bool, (Spp::Ast::ArrayType*));
+  // public: METHOD_BINDING_CACHE(generateStructType, Bool, (Spp::Ast::StructType*));
 
   public: METHOD_BINDING_CACHE(createCast,
-    llvm::Value*, (Spp::Ast::Type*, Spp::Ast::Type*, llvm::Value*, llvm::IRBuilder<>*, llvm::Module*)
+    Bool, (llvm::IRBuilder<>*, Spp::Ast::Type*, Spp::Ast::Type*, llvm::Value*, llvm::Value*&)
   );
 
-  private: static void _generateType(TiObject *self, Spp::Ast::Type *astType, llvm::Module *llvmModule);
-  private: static void _generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType, llvm::Module *llvmModule);
-  private: static void _generateFloatType(TiObject *self, Spp::Ast::FloatType *astType, llvm::Module *llvmModule);
-  private: static void _generatePointerType(TiObject *self, Spp::Ast::PointerType *astType, llvm::Module *llvmModule);
-  private: static void _generateArrayType(TiObject *self, Spp::Ast::ArrayType *astType, llvm::Module *llvmModule);
-  // private: static void _generateStructType(TiObject *self, Spp::Ast::StructType *astType, llvm::Module *llvmModule);
+  private: static Bool _generateType(TiObject *self, Spp::Ast::Type *astType);
+  private: static Bool _generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType);
+  private: static Bool _generateFloatType(TiObject *self, Spp::Ast::FloatType *astType);
+  private: static Bool _generatePointerType(TiObject *self, Spp::Ast::PointerType *astType);
+  private: static Bool _generateArrayType(TiObject *self, Spp::Ast::ArrayType *astType);
+  // private: static Bool _generateStructType(TiObject *self, Spp::Ast::StructType *astType);
 
-  public: static llvm::Value* _createCast(
-    TiObject *self, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
-    llvm::Value *llvmValue, llvm::IRBuilder<> *llvmIrBuilder, llvm::Module *llvmModule
+  public: static Bool _createCast(
+    TiObject *self, llvm::IRBuilder<> *llvmIrBuilder, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
+    llvm::Value *llvmValue, llvm::Value *&llvmCastedValue
   );
 
   /// @}

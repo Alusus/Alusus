@@ -136,6 +136,20 @@ class Notice : public TiObject
     this->sourceLocationStack = std::make_shared<std::vector<Data::SourceLocation>>(l);
   }
 
+  public: void prependSourceLocationStack(std::vector<Data::SourceLocation> const *l);
+  
+  public: void prependSourceLocationStack(std::vector<Data::SourceLocation> const &l)
+  {
+    prependSourceLocationStack(&l);
+  }
+
+  public: void appendSourceLocationStack(std::vector<Data::SourceLocation> const *l);
+  
+  public: void appendSourceLocationStack(std::vector<Data::SourceLocation> const &l)
+  {
+    appendSourceLocationStack(&l);
+  }
+
   /// Get the source location at which the message was generated.
   public: SharedPtr<std::vector<Data::SourceLocation>> const& getSourceLocationStack() const
   {

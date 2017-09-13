@@ -165,7 +165,7 @@ class Parser : public TiObject
   public: void handleNewToken(Data::Token const *token);
 
   /// Raise build msgs that are approved and remove them from the buffer.
-  private: void flushApprovedNotices();
+  public: void flushApprovedNotices();
 
   /// Apply the received token on a specific state.
   private: void processState(Data::Token const *token, StateIterator si);

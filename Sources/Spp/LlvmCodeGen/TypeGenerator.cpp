@@ -48,13 +48,24 @@ void TypeGenerator::initBindings()
 //==============================================================================
 // Main Operation Functions
 
-Spp::Ast::Type* TypeGenerator::getGeneratedType(TiObject *ref, llvm::Module *llvmModule)
+Bool TypeGenerator::getGeneratedType(TiObject *ref, Spp::Ast::Type *&type)
 {
-  Spp::Ast::Type *type = ti_cast<Spp::Ast::Type>(ref);
+  auto metadata = ti_cast<Core::Data::Ast::Metadata>(ref);
+  if (metadata == 0) {
+    throw EXCEPTION(GenericException, STR("Reference does not contain metadata."));
+  }
+
+  SharedPtr<Core::Data::Notice> notice;
+  type = ti_cast<Spp::Ast::Type>(ref);
   if (type == 0) {
     this->getSeeker()->doForeach(ref, ref,
-      [=,&type](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
+      [=, &type, &notice](TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
       {
+        if (ntc != 0) {
+          notice = getSharedPtr(ntc);
+          return Core::Data::Seeker::Verb::MOVE;
+        }
+
         type = ti_cast<Spp::Ast::Type>(obj);
         if (type != 0) {
           return Core::Data::Seeker::Verb::STOP;
@@ -66,60 +77,77 @@ Spp::Ast::Type* TypeGenerator::getGeneratedType(TiObject *ref, llvm::Module *llv
     );
   }
   if (type == 0) {
-    throw EXCEPTION(GenericException, STR("AST Type is not found."));
+    if (notice != 0) {
+      notice->prependSourceLocationStack(this->sourceLocationStack);
+      this->parserState->addNotice(notice);
+    }
+    this->sourceLocationStack->push_back(metadata->getSourceLocation());
+    this->parserState->addNotice(std::make_shared<InvalidTypeNotice>(this->sourceLocationStack));
+    this->sourceLocationStack->pop_back();
+    return false;
   }
-  this->generateType(type, llvmModule);
-  return type;
+
+  this->sourceLocationStack->push_back(metadata->getSourceLocation());
+  Bool result = this->generateType(type);
+  this->sourceLocationStack->pop_back();
+
+  return result;
 }
 
 
-llvm::Type* TypeGenerator::getGeneratedLlvmType(TiObject *ref, llvm::Module *llvmModule)
+Bool TypeGenerator::getGeneratedLlvmType(TiObject *ref, llvm::Type *&type)
 {
-  auto type = this->getGeneratedType(ref, llvmModule);
-  auto llvmTypeBox = type->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type*>>();
+  Spp::Ast::Type *astType;
+  if (!this->getGeneratedType(ref, astType)) {
+    return false;
+  }
+  auto llvmTypeBox = astType->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type*>>();
   if (llvmTypeBox == 0 || llvmTypeBox->get() == 0) {
     throw EXCEPTION(GenericException, STR("AST Type is missing the generated Type object."));
   }
-  return llvmTypeBox->get();
+  type = llvmTypeBox->get();
+  return true;
 }
 
 
 //==============================================================================
 // Code Generation Functions
 
-void TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, llvm::Module *llvmModule)
+Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
   auto llvmTypeBox = astType->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type*>>();
-  if (llvmTypeBox != 0) return;
+  if (llvmTypeBox != 0) return true;
 
   if (astType->isDerivedFrom<Spp::Ast::IntegerType>()) {
-    typeGenerator->generateIntegerType(static_cast<Spp::Ast::IntegerType*>(astType), llvmModule);
+    return typeGenerator->generateIntegerType(static_cast<Spp::Ast::IntegerType*>(astType));
   } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
-    typeGenerator->generateFloatType(static_cast<Spp::Ast::FloatType*>(astType), llvmModule);
+    return typeGenerator->generateFloatType(static_cast<Spp::Ast::FloatType*>(astType));
   } else if (astType->isDerivedFrom<Spp::Ast::PointerType>()) {
-    typeGenerator->generatePointerType(static_cast<Spp::Ast::PointerType*>(astType), llvmModule);
+    return typeGenerator->generatePointerType(static_cast<Spp::Ast::PointerType*>(astType));
   } else if (astType->isDerivedFrom<Spp::Ast::ArrayType>()) {
-    typeGenerator->generateArrayType(static_cast<Spp::Ast::ArrayType*>(astType), llvmModule);
+    return typeGenerator->generateArrayType(static_cast<Spp::Ast::ArrayType*>(astType));
   // } else if (astType->isDerivedFrom<Spp::Ast::StructType>()) {
-  //   typeGenerator->generateStructType(static_cast<Spp::Ast::StructType*>(astType), llvmModule);
+  //   return typeGenerator->generateStructType(static_cast<Spp::Ast::StructType*>(astType));
   } else {
-    throw EXCEPTION(GenericException, STR("Unknown data type"));
+    typeGenerator->parserState->addNotice(std::make_shared<InvalidTypeNotice>(typeGenerator->sourceLocationStack));
+    return false;
   }
 }
 
 
-void TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType, llvm::Module *llvmModule)
+Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto bitCount = astType->getBitCount(typeGenerator->rootManager);
   auto llvmType = llvm::Type::getIntNTy(llvm::getGlobalContext(), bitCount);
   astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
+  return true;
 }
 
 
-void TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astType, llvm::Module *llvmModule)
+Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astType)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto bitCount = astType->getBitCount(typeGenerator->rootManager);
@@ -135,69 +163,77 @@ void TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astT
       llvmType = llvm::Type::getFP128Ty(llvm::getGlobalContext());
       break;
     default:
-      throw EXCEPTION(GenericException, STR("Unsupported float bit count. Bit count should be either 32, 64, or 128."));
+      typeGenerator->parserState->addNotice(
+        std::make_shared<InvalidFloatBitCountNotice>(typeGenerator->sourceLocationStack)
+      );
+      return false;
   }
   astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
+  return true;
 }
 
 
-void TypeGenerator::_generatePointerType(TiObject *self, Spp::Ast::PointerType *astType, llvm::Module *llvmModule)
+Bool TypeGenerator::_generatePointerType(TiObject *self, Spp::Ast::PointerType *astType)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto contentAstType = astType->getContentType(typeGenerator->rootManager);
-  auto contentLlvmType = typeGenerator->getGeneratedLlvmType(contentAstType, llvmModule);
+  llvm::Type *contentLlvmType;
+  if (!typeGenerator->getGeneratedLlvmType(contentAstType, contentLlvmType)) return false;
   auto llvmType = contentLlvmType->getPointerTo();
   astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
+  return true;
 }
 
 
-void TypeGenerator::_generateArrayType(TiObject *self, Spp::Ast::ArrayType *astType, llvm::Module *llvmModule)
+Bool TypeGenerator::_generateArrayType(TiObject *self, Spp::Ast::ArrayType *astType)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto contentAstType = astType->getContentType(typeGenerator->rootManager);
   auto contentSize = astType->getSize(typeGenerator->rootManager);
-  auto contentLlvmType = typeGenerator->getGeneratedLlvmType(contentAstType, llvmModule);
+  llvm::Type *contentLlvmType;
+  if (!typeGenerator->getGeneratedLlvmType(contentAstType, contentLlvmType)) return false;
   auto llvmType = llvm::ArrayType::get(contentLlvmType, contentSize);
   astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
+  return true;
 }
 
 
-llvm::Value* TypeGenerator::_createCast(
-  TiObject *self, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
-  llvm::Value *llvmValue, llvm::IRBuilder<> *llvmIrBuilder, llvm::Module *llvmModule
+Bool TypeGenerator::_createCast(
+  TiObject *self, llvm::IRBuilder<> *llvmIrBuilder, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
+  llvm::Value *llvmValue, llvm::Value *&llvmCastedValue
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   if (srcType == targetType) {
     // Same type, return value as is.
-    return llvmValue;
+    llvmCastedValue = llvmValue;
+    return true;
   } else if (srcType->isDerivedFrom<Spp::Ast::IntegerType>()) {
     // Casting from integer.
     auto srcIntegerType = static_cast<Spp::Ast::IntegerType*>(srcType);
     if (targetType->isDerivedFrom<Spp::Ast::IntegerType>()) {
       // Cast from integer to another integer.
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
-      return llvmIrBuilder->CreateIntCast(
-        llvmValue,
-        typeGenerator->getGeneratedLlvmType(targetIntegerType, llvmModule),
-        true
-      );
+      llvm::Type *targetIntegerLlvmType;
+      if (!typeGenerator->getGeneratedLlvmType(targetIntegerType, targetIntegerLlvmType)) return false;
+      llvmCastedValue = llvmIrBuilder->CreateIntCast(llvmValue, targetIntegerLlvmType, true);
+      return true;
     } else if (targetType->isDerivedFrom<Spp::Ast::FloatType>()) {
       // Cast from integer to float.
       auto targetFloatType = static_cast<Spp::Ast::FloatType*>(targetType);
-      return llvmIrBuilder->CreateSIToFP(
-        llvmValue,
-        typeGenerator->getGeneratedLlvmType(targetFloatType, llvmModule)
-      );
+      llvm::Type *targetFloatLlvmType;
+      if (!typeGenerator->getGeneratedLlvmType(targetFloatType, targetFloatLlvmType)) return false;
+      llvmCastedValue = llvmIrBuilder->CreateSIToFP(llvmValue, targetFloatLlvmType);
+      return true;
     } else if (targetType->isDerivedFrom<Spp::Ast::PointerType>()) {
       // Cast from integer to pointer.
       auto targetPointerType = static_cast<Spp::Ast::PointerType*>(targetType);
       Word targetBitCount = typeGenerator->llvmDataLayout->getPointerSizeInBits();
       Word srcBitCount = srcIntegerType->getBitCount(typeGenerator->rootManager);
+      llvm::Type *targetPointerLlvmType;
+      if (!typeGenerator->getGeneratedLlvmType(targetPointerType, targetPointerLlvmType)) return false;
       if (srcBitCount == targetBitCount) {
-        return llvmIrBuilder->CreateBitCast(
-          llvmValue,
-          typeGenerator->getGeneratedLlvmType(targetPointerType, llvmModule)
-        );
+        llvmCastedValue = llvmIrBuilder->CreateBitCast(llvmValue, targetPointerLlvmType);
+        return true;
       }
     }
   } else if (srcType->isDerivedFrom<Spp::Ast::FloatType>()) {
@@ -206,25 +242,23 @@ llvm::Value* TypeGenerator::_createCast(
     if (targetType->isDerivedFrom<Spp::Ast::IntegerType>()) {
       // Cast from float to integer.
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
-      return llvmIrBuilder->CreateFPToSI(
-        llvmValue,
-        typeGenerator->getGeneratedLlvmType(targetIntegerType, llvmModule)
-      );
+      llvm::Type *targetIntegerLlvmType;
+      if (!typeGenerator->getGeneratedLlvmType(targetIntegerType, targetIntegerLlvmType)) return false;
+      llvmCastedValue = llvmIrBuilder->CreateFPToSI(llvmValue, targetIntegerLlvmType);
+      return true;
     } else if (targetType->isDerivedFrom<Spp::Ast::FloatType>()) {
       // Cast from float to another float.
       auto targetFloatType = static_cast<Spp::Ast::FloatType*>(targetType);
       Word srcBitCount = srcFloatType->getBitCount(typeGenerator->rootManager);
       Word targetBitCount = targetFloatType->getBitCount(typeGenerator->rootManager);
+      llvm::Type *targetFloatLlvmType;
+      if (!typeGenerator->getGeneratedLlvmType(targetFloatType, targetFloatLlvmType)) return false;
       if (srcBitCount > targetBitCount) {
-        return llvmIrBuilder->CreateFPTrunc(
-          llvmValue,
-          typeGenerator->getGeneratedLlvmType(targetFloatType, llvmModule)
-        );
+        llvmCastedValue = llvmIrBuilder->CreateFPTrunc(llvmValue, targetFloatLlvmType);
+        return true;
       } else {
-        return llvmIrBuilder->CreateFPExt(
-          llvmValue,
-          typeGenerator->getGeneratedLlvmType(targetFloatType, llvmModule)
-        );
+        llvmCastedValue = llvmIrBuilder->CreateFPExt(llvmValue, targetFloatLlvmType);
+        return true;
       }
     }
   } else if (srcType->isDerivedFrom<Spp::Ast::PointerType>()) {
@@ -235,21 +269,22 @@ llvm::Value* TypeGenerator::_createCast(
       Word srcBitCount = typeGenerator->llvmDataLayout->getPointerSizeInBits();
       Word targetBitCount = targetIntegerType->getBitCount(typeGenerator->rootManager);
       if (srcBitCount == targetBitCount) {
-        return llvmIrBuilder->CreateBitCast(
-          llvmValue,
-          typeGenerator->getGeneratedLlvmType(targetIntegerType, llvmModule)
-        );
+        llvm::Type *targetIntegerLlvmType;
+        if (!typeGenerator->getGeneratedLlvmType(targetIntegerType, targetIntegerLlvmType)) return false;
+        llvmCastedValue = llvmIrBuilder->CreateBitCast(llvmValue, targetIntegerLlvmType);
+        return true;
       }
     } else if (targetType->isDerivedFrom<Spp::Ast::PointerType>()) {
       // Cast pointer to another pointer.
       auto targetPointerType = static_cast<Spp::Ast::PointerType*>(targetType);
-      return llvmIrBuilder->CreateBitCast(
-        llvmValue,
-        typeGenerator->getGeneratedLlvmType(targetPointerType, llvmModule)
-      );
+      llvm::Type *targetPointerLlvmType;
+      if (!typeGenerator->getGeneratedLlvmType(targetPointerType, targetPointerLlvmType)) return false;
+      llvmCastedValue = llvmIrBuilder->CreateBitCast(llvmValue, targetPointerLlvmType);
+      return true;
     }
   }
-  throw EXCEPTION(GenericException, STR("Invalid cast."));
+  typeGenerator->parserState->addNotice(std::make_shared<InvalidCastNotice>(typeGenerator->sourceLocationStack));
+  return false;
 }
 
 } } // namespace

@@ -103,12 +103,19 @@ class Template : public Core::Data::Node,
   }
 
   public: virtual TioSharedPtr const& getDefaultInstance(Core::Data::Seeker *seeker);
-  public: virtual TioSharedPtr const& getInstance(TiObject *templateInput, Core::Data::Seeker *seeker);
+  public: virtual Bool matchInstance(TiObject *templateInput, Core::Data::Seeker *seeker, TioSharedPtr &result);
+  
+  private: Bool matchTemplateVars(
+    TiObject *templateInput, Block *instance, Core::Data::Seeker *seeker, SharedPtr<Core::Data::Notice> &notice
+  );
+  private: Bool matchTemplateVar(
+    TiObject *templateInput, Block *instance, Int varIndex, Core::Data::Seeker *seeker,
+    SharedPtr<Core::Data::Notice> &notice
+  );
 
-  private: Bool matchTemplateVars(TiObject *templateInput, Block *instance, Core::Data::Seeker *seeker);
-  private: Bool matchTemplateVar(TiObject *templateInput, Block *instance, Int varIndex, Core::Data::Seeker *seeker);
-
-  private: void assignTemplateVars(TiObject *templateInput, Block *instance, Core::Data::Seeker *seeker);
+  private: Bool assignTemplateVars(
+    TiObject *templateInput, Block *instance, Core::Data::Seeker *seeker, SharedPtr<Core::Data::Notice> &notice
+  );
 
   public: static TiObject* getTemplateVar(Block const *instance, Char const *name);
 

@@ -106,8 +106,14 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_template(
   TiObject *self, TiObject *param, Ast::Template *tmplt, Core::Data::Seeker::ForeachCallback const &cb
 ) {
   PREPARE_SELF(seeker, Core::Data::Seeker);
-  auto instance = tmplt->getInstance(param, seeker).get();
-  return cb(instance, 0);
+  TioSharedPtr result;
+  if (tmplt->matchInstance(param, seeker, result)) {
+    return cb(result.get(), 0);
+  } else {
+    auto notice = result.ti_cast_get<Core::Data::Notice>();
+    if (notice != 0) return cb(0, notice);
+    else return Core::Data::Seeker::Verb::MOVE;
+  }
 }
 
 } // namespace

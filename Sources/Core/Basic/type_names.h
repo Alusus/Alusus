@@ -2,7 +2,7 @@
  * @file Core/Basic/type_names.h
  * Contains definitions for type name string representation.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -78,6 +78,7 @@ DEFINE_TYPE_NAME(void, "void");
 DEFINE_TYPE_NAME(long, "long");
 DEFINE_TYPE_NAME(long long, "long long");
 
+DEFINE_TYPE_NAME(Core::Basic::Bool, "alusus.net/Core/Core.Basic.Bool");
 DEFINE_TYPE_NAME(Core::Basic::Int, "alusus.net/Core/Core.Basic.Int");
 DEFINE_TYPE_NAME(Core::Basic::Word, "alusus.net/Core/Core.Basic.Word");
 DEFINE_TYPE_NAME(Core::Basic::Float, "alusus.net/Core/Core.Basic.Float");

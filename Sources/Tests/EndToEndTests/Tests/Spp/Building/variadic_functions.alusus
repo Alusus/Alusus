@@ -11,6 +11,13 @@ def Main: module
     f2("hello", "world");
 
     f3("hello", "world", "again");
+
+    // errors:
+    f1("hello");
+    f2("hello");
+    f3("hello", "world", "yet", "again");
+    f4("hello", "world");
+    unknown("hello");
   };
 
   def f0: function (a: ptr[Int[8]], args:...Int[32])=>Int[32]
@@ -34,6 +41,10 @@ def Main: module
   };
 
   def f3: function (a: ptr[Int[8]], args:...[ptr[Int[8]], 1, 2])=>Int[32]
+  {
+  };
+
+  def f4: function (a: ptr[Int[8]], args:...[Int[8]])=>Int[32]
   {
   };
 };

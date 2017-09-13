@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/llvm_dependencies.h
  * Contains include statement for LLVM dependencies.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -23,6 +23,7 @@
 #include <llvm/PassManager.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/raw_os_ostream.h>
 
 DEFINE_TYPE_NAME(llvm::Module, "llvm.org/LLVM/llvm.Module");
 DEFINE_TYPE_NAME(llvm::Function, "llvm.org/LLVM/llvm.Function");

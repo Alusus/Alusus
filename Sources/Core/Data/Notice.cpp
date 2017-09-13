@@ -37,4 +37,31 @@ Str const& Notice::getDescription() const
   return Notice::tempBuf;
 }
 
+
+void Notice::prependSourceLocationStack(std::vector<Data::SourceLocation> const *l)
+{
+  if (this->sourceLocationStack == 0) {
+    this->setSourceLocationStack(*l);
+  } else {
+    this->sourceLocationStack->reserve(this->sourceLocationStack->size() + l->size());
+    for (Int i = 0; i < l->size(); ++i) {
+      this->sourceLocationStack->insert(this->sourceLocationStack->begin() + i, l->at(i));
+    }
+  }
+}
+
+
+void Notice::appendSourceLocationStack(std::vector<Data::SourceLocation> const *l)
+{
+  if (l == 0) return;
+  if (this->sourceLocationStack == 0) {
+    this->setSourceLocationStack(*l);
+  } else {
+    this->sourceLocationStack->reserve(this->sourceLocationStack->size() + l->size());
+    for (Int i = 0; i < l->size(); ++i) {
+      this->sourceLocationStack->push_back(l->at(i));
+    }
+  }
+}
+
 } } // namespace
