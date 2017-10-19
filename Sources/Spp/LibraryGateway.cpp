@@ -227,11 +227,12 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   grammarRepository->set(STR("root:BlockExpression.FunctionalExp"), SymbolDefinition::create({
     {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:FunctionalExp")) },
     {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-       {STR("operand"), REF_PARSER->parseQualifier(STR("root:BlockSubject"))},
-       {STR("pty2"), std::make_shared<Integer>(1)},
-       {STR("dup"), 0},
-       {STR("fltr2"), 0}
-     })}
+      {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+      {STR("operand"), REF_PARSER->parseQualifier(STR("root:BlockSubject"))},
+      {STR("pty2"), std::make_shared<Integer>(1)},
+      {STR("dup"), 0},
+      {STR("fltr2"), 0}
+    })}
   }).get());
   grammarRepository->set(STR("root:BlockMain"), GrammarModule::create({
     { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Main")) }

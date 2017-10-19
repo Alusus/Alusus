@@ -2,7 +2,7 @@
  * @file Core/Data/GrammarPlant.cpp
  * Contains the implementation of class Core::Data::GrammarPlant.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,11 +20,17 @@ void GrammarPlant::generateConstTokenDefinitions(Container *container)
   for (Int i = 0; static_cast<Word>(i) < container->getCount(); ++i) {
     TiObject *obj = container->get(i);
     if (obj == 0) continue;
-    SymbolDefinition *def = tio_cast<SymbolDefinition>(obj);
+    SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);
     if (def != 0) {
       TiObject *term = def->getTerm().get();
       if (term->isDerivedFrom<Term>()) {
         this->generateConstTokenDefinitions(static_cast<Term*>(term));
+      }
+    } else {
+      auto parseDim = ti_cast<ParsingDimension>(obj);
+      if (parseDim != 0) {
+        Word id = this->addConstToken(parseDim->getEntryTokenText()->get());
+        parseDim->setEntryTokenId(Integer::create(id));
       }
     }
     Container *childContainer = obj->getInterface<Container>();
@@ -102,9 +108,13 @@ Word GrammarPlant::addConstToken(Char const *text)
   TiObject *dummyObj;
   if (this->repository.tryGet(path.c_str(), dummyObj) == false) {
     // Create the token definition.
-    this->repository.set(path.c_str(), this->createConstTokenDef(text).get());
+    auto constTokenDef = this->createConstTokenDef(text);
+    this->repository.set(path.c_str(), constTokenDef.get());
+    return constTokenDef->getId();
+  } else {
+    auto idHolder = ti_cast<IdHolder>(dummyObj);
+    return idHolder->getId();
   }
-  return ID_GENERATOR->getId(path.c_str());
 }
 
 

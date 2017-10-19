@@ -2,7 +2,7 @@
  * @file Core/Standard/GrammarPlant.h
  * Contains the header of class Core::Standard::GrammarPlant.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -40,6 +40,11 @@ class GrammarPlant : public Data::GrammarPlant
   private: SharedPtr<ImportParsingHandler> importHandler;
 
   private: SharedPtr<DumpParsingHandler> dumpParsingHandler;
+
+  private: SharedPtr<Processing::Handlers::ModifierParsingHandler> leadingModifierHandler;
+  private: SharedPtr<Processing::Handlers::ModifierParsingHandler> trailingModifierHandler;
+
+  private: SharedPtr<Processing::Handlers::GenericCommandParsingHandler> doCommandParsingHandler;
 
 
   //============================================================================

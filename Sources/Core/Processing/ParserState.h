@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserState.h
  * Contains the header of class Core::Processing::ParserState.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -57,6 +57,9 @@ class ParserState
 
   private: std::vector<ParserProdLevel> prodStack;
 
+  private: std::vector<ParserModifierLevel> leadingModifierStack;
+  private: std::vector<ParserModifierLevel> trailingModifierStack;
+
   private: Data::VariableStack variableStack;
 
   private: Data::SharedRepository dataStack;
@@ -99,6 +102,10 @@ class ParserState
   private: Int tempTrunkTermStackIndex;
 
   private: Int tempTrunkProdStackIndex;
+
+  private: Int parsingDimensionIndex;
+
+  private: Int parsingDimensionStartProdIndex;
 
   /**
    * @brief The current processing status of this state object.
@@ -283,22 +290,22 @@ class ParserState
   }
 
   /// Get the number of levels in the top production of this state.
-  public: Int getTopprodTermLevelCount() const;
+  public: Int getTopProdTermLevelCount() const;
 
   /// Get the state level of the top production in this state.
-  public: ParserTermLevel& refTopprodRootTermLevel()
+  public: ParserTermLevel& refTopProdRootTermLevel()
   {
     // The first level does not belong to any production, so we need at least 2 levels.
     if (this->getTermLevelCount() <= 1) {
       throw EXCEPTION(GenericException, STR("This state has an empty level stack."));
     }
-    return this->refTermLevel(-this->getTopprodTermLevelCount());
+    return this->refTermLevel(-this->getTopProdTermLevelCount());
   }
 
-  /// A const wrapper to refTopprodRootTermLevel().
-  public: const ParserTermLevel& refTopprodRootTermLevel() const
+  /// A const wrapper to refTopProdRootTermLevel().
+  public: const ParserTermLevel& refTopProdRootTermLevel() const
   {
-    return const_cast<ParserState*>(this)->refTopprodRootTermLevel();
+    return const_cast<ParserState*>(this)->refTopProdRootTermLevel();
   }
 
   /// Push a new level into the top of the level stack.
@@ -460,10 +467,63 @@ class ParserState
 
   /// @}
 
+  /// @name Modifier Stack Functions
+  /// @{
+
+  protected: std::vector<ParserModifierLevel>* getLeadingModifierStack()
+  {
+    return &this->leadingModifierStack;
+  }
+  protected: std::vector<ParserModifierLevel>* getTrailingModifierStack()
+  {
+    return &this->trailingModifierStack;
+  }
+
+  public: void pushLeadingModifierLevel(TioSharedPtr const &data)
+  {
+    this->leadingModifierStack.push_back(ParserModifierLevel(data));
+  }
+  public: void pushTrailingModifierLevel(TioSharedPtr const &data)
+  {
+    this->trailingModifierStack.push_back(ParserModifierLevel(data));
+  }
+
+  public: void pushLeadingModifierLevel(ParserModifierLevel const &level)
+  {
+    this->leadingModifierStack.push_back(level);
+  }
+  public: void pushTrailingModifierLevel(ParserModifierLevel const &level)
+  {
+    this->trailingModifierStack.push_back(level);
+  }
+
+  protected: void popFrontLeadingModifierLevel();
+  protected: void popFrontTrailingModifierLevel();
+
+  protected: void popBackLeadingModifierLevel();
+  protected: void popBackTrailingModifierLevel();
+
+  protected: void removeLeadingModifierLevel(Int index);
+  protected: void removeTrailingModifierLevel(Int index);
+
+  public: Word getLeadingModifierLevelCount() const
+  {
+    return this->leadingModifierStack.size();
+  }
+  public: Word getTrailingModifierLevelCount() const
+  {
+    return this->trailingModifierStack.size();
+  }
+
+  public: ParserModifierLevel& refLeadingModifierLevel(Int index);
+  public: ParserModifierLevel& refTrailingModifierLevel(Int index);
+
+  /// @}
+
   /// @name Term Helper Functions
   /// @{
 
-  public: Word getListTermChildCount(Int levelOffset = -1) const;
+    public: Word getListTermChildCount(Int levelOffset = -1) const;
 
   protected: Data::Term* useListTermChild(Int index, Int levelOffset = -1);
 
@@ -571,6 +631,27 @@ class ParserState
   protected: void copyProdLevel(ParserState *src, Int offset);
 
   protected: void copyTermLevel(ParserState *src, Int offset);
+
+  /// @}
+
+  /// @name Parsing Dimension Functions
+  /// @{
+
+  protected: void setParsingDimensionInfo(Int dimensionIndex, Int startProdIndex)
+  {
+    this->parsingDimensionIndex = dimensionIndex;
+    this->parsingDimensionStartProdIndex = startProdIndex;
+  }
+
+  public: Int getParsingDimensionIndex() const
+  {
+    return this->parsingDimensionIndex;
+  }
+
+  public: Int getParsingDimensionStartProdIndex() const
+  {
+    return this->parsingDimensionStartProdIndex;
+  }
 
   /// @}
 

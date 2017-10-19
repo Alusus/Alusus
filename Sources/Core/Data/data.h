@@ -462,6 +462,7 @@ typedef TiStrBase<Node> String;
 #include "SymbolDefinition.h"
 // TODO: #include "SymbolGroup.h"
 #include "GrammarModule.h"
+#include "ParsingDimension.h"
 #include "Tracer.h"
 #include "GrammarRepository.h"
 #include "GrammarContext.h"

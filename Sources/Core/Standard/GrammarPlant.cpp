@@ -2,7 +2,7 @@
  * @file Core/Standard/GrammarPlant.cpp
  * Contains the implementation of class Core::Standard::GrammarPlant.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -37,6 +37,9 @@ void GrammarPlant::createGrammar(RootManager *root, Bool exprOnly)
   this->parsingHandler = std::make_shared<Handlers::GenericParsingHandler>();
   this->importHandler = std::make_shared<ImportParsingHandler>(root);
   this->dumpParsingHandler = std::make_shared<DumpParsingHandler>(root);
+  this->leadingModifierHandler = std::make_shared<Handlers::ModifierParsingHandler>(true);
+  this->trailingModifierHandler = std::make_shared<Handlers::ModifierParsingHandler>(false);
+  this->doCommandParsingHandler = std::make_shared<Handlers::GenericCommandParsingHandler>(STR("do"));
 
   // Create lexer definitions.
   this->repository.set(STR("root:LexerDefs"), GrammarModule::create({}).get());
@@ -841,8 +844,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
             })
           })}
        })},
-      {SymbolDefElement::HANDLER, this->parsingHandler},
-      {SymbolDefElement::FLAGS, Integer::create(ParsingFlags::ENFORCE_PROD_OBJ)}
+      {SymbolDefElement::HANDLER, this->doCommandParsingHandler}
     }).get());
 
     //// Import = "import" + Subject
@@ -941,9 +943,10 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
   // [unaryOp] operand.
   // operand [unaryOp].
   // operand {FunctionalOp}.
-  this->repository.set(STR("root:Expression"),
-                       GrammarModule::create({{STR("@start"),
-                                               REF_PARSER->parseQualifier(STR("module:Exp"))}}).get());
+  this->repository.set(
+    STR("root:Expression"),
+    GrammarModule::create({{STR("@start"), REF_PARSER->parseQualifier(STR("module:Exp"))}}).get()
+  );
 
   // Exp : @single prod as LowestLinkExp + (@priority(in,0) lexer.Constant("\\")*(0,1));
   this->repository.set(STR("root:Expression.Exp"), SymbolDefinition::create({
@@ -1305,29 +1308,30 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
   //         PrefixTildeExp + operand;
   this->repository.set(STR("root:Expression.FunctionalExp"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
-       {TermElement::TERM, SharedList::create({
-          ReferenceTerm::create(STR("args:operand")),
-          MultiplyTerm::create({
-            {TermElement::PRIORITY, REF_PARSER->parseQualifier(STR("args:pty2"))},
-            {TermElement::FLAGS, Integer::create(ParsingFlags::PASS_ITEMS_UP)},
-            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:dup"))},
-            {TermElement::TERM, AlternateTerm::create({
-               {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:fltr2"))},
-               {TermElement::TERM, SharedList::create({
-                  ReferenceTerm::create(STR("module:LinkExp")),
-                  ReferenceTerm::create(STR("module:PostfixTildeExp")),
-                  ReferenceTerm::create(STR("module:ParamPassExp"))
-                })}
-             })}
-          })
-        })}
-     })},
+      {TermElement::TERM, SharedList::create({
+        ReferenceTerm::create(STR("args:operand")),
+        MultiplyTerm::create({
+          {TermElement::PRIORITY, REF_PARSER->parseQualifier(STR("args:pty2"))},
+          {TermElement::FLAGS, REF_PARSER->parseQualifier(STR("args:flags"))},
+          {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:dup"))},
+          {TermElement::TERM, AlternateTerm::create({
+            {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:fltr2"))},
+            {TermElement::TERM, SharedList::create({
+              ReferenceTerm::create(STR("module:LinkExp")),
+              ReferenceTerm::create(STR("module:PostfixTildeExp")),
+              ReferenceTerm::create(STR("module:ParamPassExp"))
+            })}
+          })}
+        })
+      })}
+    })},
     {SymbolDefElement::VARS, SharedMap::create(false, {
-       {STR("operand"), REF_PARSER->parseQualifier(STR("root:Subject"))},
-       {STR("pty2"), std::make_shared<Integer>(1)},
-       {STR("dup"), 0},
-       {STR("fltr2"), 0}
-     })},
+      {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+      {STR("operand"), REF_PARSER->parseQualifier(STR("root:Subject"))},
+      {STR("pty2"), std::make_shared<Integer>(1)},
+      {STR("dup"), 0},
+      {STR("fltr2"), 0}
+    })},
     {SymbolDefElement::HANDLER, std::make_shared<Handlers::ChainOpParsingHandler>()}
   }).get());
 
@@ -1499,9 +1503,10 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
 
 
   // Subject : Parameter | Command | Expression | Statement | Set.
-  this->repository.set(STR("root:Subject"),
-                       GrammarModule::create({{STR("@start"),
-                                               REF_PARSER->parseQualifier(STR("module:Subject1"))}}).get());
+  this->repository.set(
+    STR("root:Subject"),
+    GrammarModule::create({{STR("@start"), REF_PARSER->parseQualifier(STR("module:Subject1"))}}).get()
+  );
 
   // Subject1 : @single prod (sbj1:list[production[Parameter||Command||Expression||Statement||Set]]
   //                              =(Parameter, SubjectCommandGroup, heap.Default_Set),
@@ -1686,25 +1691,152 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
   //     lexer.Constant("{") + @override(ovrd) StatementList(stmt) + lexer.Constant("}");
   this->repository.set(STR("root:Set"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
-       {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, this->constTokenId, STR("{")),
-          ReferenceTerm::create(STR("args:stmt")),
-          TokenTerm::create(0, this->constTokenId, STR("}"))
-        })}
-     })},
+      {TermElement::ESPI, 1},
+      {TermElement::TERM, SharedList::create({
+        TokenTerm::create(0, this->constTokenId, STR("{")),
+        ReferenceTerm::create(STR("args:stmt")),
+        TokenTerm::create(0, this->constTokenId, STR("}"))
+      })}
+    })},
     {SymbolDefElement::VARS, SharedMap::create(false, {
        {STR("stmt"), REF_PARSER->parseQualifier(STR("root:Main.StatementList"))}
      })},
     {SymbolDefElement::HANDLER, this->parsingHandler}
   }).get());
+
+
+  // Modifiers
+  this->repository.set(STR("root:Modifier"), GrammarModule::create({}).get());
+  // Modifier.Subject
+  this->repository.set(STR("root:Modifier.Subject"), GrammarModule::create({
+    { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Subject")) }
+  }).get());
+  this->repository.set(STR("root:Modifier.Subject.SubjectCmdGrp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:SubjectCmdGrp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{ STR("cmds"), SharedList::create({}) }} )},
+  }).get());
+  // Modifier.Expression
+  this->repository.set(STR("root:Modifier.Expression"), GrammarModule::create({
+    { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Expression")) }
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.LowestLinkExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:LowestLinkExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.ConditionalExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:ConditionalExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.ListExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:ListExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.LowerLinkExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:LowerLinkExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.AssignmentExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:AssignmentExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.LogExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:LogExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.ComparisonExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:ComparisonExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.LowLinkExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:LowLinkExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.AddExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:AddExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.MulExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:MulExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.BitwiseExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:BitwiseExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.UnaryExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:UnaryExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {
+      {STR("enable1"), std::make_shared<Integer>(0)},
+      {STR("enable2"), std::make_shared<Integer>(0)}
+    })},
+  }).get());
+  this->repository.set(STR("root:Modifier.Expression.FunctionalExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:FunctionalExp")) },
+    {SymbolDefElement::VARS, SharedMap::create(false, {
+      {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP | TermFlags::ONE_ROUTE_TERM)},
+      {STR("operand"), REF_PARSER->parseQualifier(STR("root:Modifier.Subject"))},
+      {STR("pty2"), std::make_shared<Integer>(1)},
+      {STR("dup"), Integer::create(1)},
+      {STR("fltr2"), Integer::create(2)}
+     })}
+  }).get());
+  // Modifier.CmdGroup
+  this->repository.set(STR("root:Modifier.CmdGroup"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, AlternateTerm::create({
+      {TermElement::FLAGS, Integer::create(TermFlags::ONE_ROUTE_TERM)},
+      {TermElement::REF, REF_PARSER->parseQualifier(STR("stack:cmd"))},
+      {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:cmds"))},
+      {TermElement::TERM, ReferenceTerm::create(STR("stack:cmd"))}
+    })},
+    {SymbolDefElement::VARS, SharedMap::create(false, {
+      {STR("cmds"), SharedList::create()}
+    })},
+    {SymbolDefElement::HANDLER, this->parsingHandler}
+  }).get());
+  // Modifier.Phrase
+  this->repository.set(STR("root:Modifier.Phrase"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, AlternateTerm::create({
+      {TermElement::FLAGS, Integer::create(TermFlags::ONE_ROUTE_TERM)},
+      {TermElement::TERM, SharedList::create({
+        ReferenceTerm::create(STR("module:CmdGroup")),
+        ReferenceTerm::create(STR("module:Expression"))
+      })}
+    })}
+  }).get());
+  // Modifier.LeadingModifier
+  this->repository.set(STR("root:Modifier.LeadingModifier"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("module:Phrase")) },
+    {SymbolDefElement::HANDLER, this->leadingModifierHandler}
+  }).get());
+  // Modifier.TrailingModifier
+  this->repository.set(STR("root:Modifier.TrailingModifier"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("module:Phrase")) },
+    {SymbolDefElement::HANDLER, this->trailingModifierHandler}
+  }).get());
+
+  // Modifiers parsing dimensions.
+  this->repository.set(STR("root:LeadingModifierDim"), ParsingDimension::create(
+    std::make_shared<String>(STR("@")),
+    REF_PARSER->parseQualifier(STR("root:Modifier.LeadingModifier"))
+  ).get());
+  this->repository.set(STR("root:TrailingModifierDim"), ParsingDimension::create(
+    std::make_shared<String>(STR("@<")),
+    REF_PARSER->parseQualifier(STR("root:Modifier.TrailingModifier"))
+  ).get());
 }
 
 
 SharedPtr<Data::SymbolDefinition> GrammarPlant::createConstTokenDef(Char const *text)
 {
-  return SymbolDefinition::create({{SymbolDefElement::TERM, ConstTerm::create(0, text)},
-                                   {SymbolDefElement::FLAGS, Integer::create(SymbolFlags::ROOT_TOKEN)},
-                                   {SymbolDefElement::HANDLER, this->constTokenHandler}});
+  if (SBSTR(text) == STR("@") || SBSTR(text) == STR("@<")) {
+    return SymbolDefinition::create({
+          {SymbolDefElement::TERM, ConstTerm::create(0, text)},
+          {SymbolDefElement::FLAGS, Integer::create(SymbolFlags::ROOT_TOKEN)}});
+  } else {
+    return SymbolDefinition::create({{SymbolDefElement::TERM, ConstTerm::create(0, text)},
+                                     {SymbolDefElement::FLAGS, Integer::create(SymbolFlags::ROOT_TOKEN)},
+                                     {SymbolDefElement::HANDLER, this->constTokenHandler}});
+  }
 }
 
 } } // namespace

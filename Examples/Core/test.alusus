@@ -13,9 +13,9 @@ def a: {
   hashVar = (a:1, b:2, c:3);
   bracketVar = a + (b + c);
 
-  do "mylib.so";
+  @test do "mylib.so";
   do s:10;
-  do (s:10);
+  do (s:10) @<test;
   do [s:10];
 
   do {
@@ -33,4 +33,3 @@ def a: {
 };
 
 dump a;
-

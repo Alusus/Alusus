@@ -1,0 +1,103 @@
+ERROR P1001 @ (17,14): Parser syntax error.
+ERROR P1004 @ (17,4): Unexpected modifier encountered.
+ERROR P1001 @ (18,8): Parser syntax error.
+ERROR P1001 @ (19,40): Parser syntax error.
+ERROR P1001 @ (20,33): Parser syntax error.
+ERROR P1004 @ (22,4): Unexpected modifier encountered.
+ERROR P1004 @ (23,8): Unexpected modifier encountered.
+ERROR P1004 @ (24,10): Unexpected modifier encountered.
+ERROR P1004 @ (25,14): Unexpected modifier encountered.
+ERROR P1004 @ (26,7): Unexpected modifier encountered.
+ERROR P1004 @ (27,8): Unexpected modifier encountered.
+ERROR P1004 @ (28,5): Unexpected modifier encountered.
+------------------ Parsed Data Dump ------------------
+Scope [Main.StatementList]
+ GenericCommand do [Main.Do]
+  args: List
+   StringLiteral: leading [Subject.Literal] 
+  modifiers: List
+   Identifier: test [Subject.Parameter] 
+ GenericCommand do [Main.Do]
+  args: List
+   StringLiteral: trailing [Subject.Literal] 
+  modifiers: List
+   Identifier: test [Subject.Parameter] 
+ GenericCommand do [Main.Do]
+  args: List
+   StringLiteral: leading 2 [Subject.Literal] 
+  modifiers: List
+   Identifier: test1 [Subject.Parameter] 
+   Identifier: test2 [Subject.Parameter] 
+ GenericCommand do [Main.Do]
+  args: List
+   StringLiteral: trailing 2 [Subject.Literal] 
+  modifiers: List
+   Identifier: test1 [Subject.Parameter] 
+   Identifier: test2 [Subject.Parameter] 
+ GenericCommand do [Main.Do]
+  args: List
+   StringLiteral: leading parens [Subject.Literal] 
+  modifiers: List
+   ParamPass () [Expression.ParamPassExp]
+    operand: Identifier: test [Subject.Parameter] 
+    param: IntegerLiteral: 1 [Subject.Literal] 
+ GenericCommand do [Main.Do]
+  args: List
+   StringLiteral: trailing parens [Subject.Literal] 
+  modifiers: List
+   ParamPass () [Expression.ParamPassExp]
+    operand: Identifier: test [Subject.Parameter] 
+    param: IntegerLiteral: 1 [Subject.Literal] 
+ GenericCommand do [Main.Do]
+  args: List
+   StringLiteral: leading square brackets 2 [Subject.Literal] 
+  modifiers: List
+   ParamPass [] [Expression.ParamPassExp]
+    operand: Identifier: test [Subject.Parameter] 
+    param: IntegerLiteral: 1 [Subject.Literal] 
+   ParamPass [] [Expression.ParamPassExp]
+    operand: Identifier: test [Subject.Parameter] 
+    param: IntegerLiteral: 2 [Subject.Literal] 
+ GenericCommand do [Main.Do]
+  args: List
+   StringLiteral: trailing square brackets 2 [Subject.Literal] 
+  modifiers: List
+   ParamPass [] [Expression.ParamPassExp]
+    operand: Identifier: test [Subject.Parameter] 
+    param: IntegerLiteral: 1 [Subject.Literal] 
+   ParamPass [] [Expression.ParamPassExp]
+    operand: Identifier: test [Subject.Parameter] 
+    param: IntegerLiteral: 2 [Subject.Literal] 
+ AssignmentOperator = [Expression.AssignmentExp]
+  first: Identifier: a [Subject.Parameter] 
+  second: AdditionOperator + [Expression.AddExp]
+   first: IntegerLiteral: 1 [Subject.Literal] 
+   second: IntegerLiteral: 2 [Subject.Literal] 
+ AssignmentOperator = [Expression.AssignmentExp]
+  first: Identifier: a [Subject.Parameter] 
+  second: AdditionOperator + [Expression.AddExp]
+   first: IntegerLiteral: 1 [Subject.Literal] 
+   second: IntegerLiteral: 2 [Subject.Literal] 
+ AssignmentOperator = [Expression.AssignmentExp]
+  first: Identifier: a [Subject.Parameter] 
+  second: AdditionOperator + [Expression.AddExp]
+   first: IntegerLiteral: 1 [Subject.Literal] 
+   second: IntegerLiteral: 2 [Subject.Literal] 
+ AssignmentOperator = [Expression.AssignmentExp]
+  first: Identifier: a [Subject.Parameter] 
+  second: AdditionOperator + [Expression.AddExp]
+   first: IntegerLiteral: 1 [Subject.Literal] 
+   second: IntegerLiteral: 2 [Subject.Literal] 
+ GenericCommand do [Main.Do]
+  args: List
+   StringLiteral: middle leading [Subject.Literal] 
+  modifiers: NULL
+ GenericCommand do [Main.Do]
+  args: List
+   StringLiteral: middle trailing [Subject.Literal] 
+  modifiers: NULL
+ GenericCommand do [Main.Do]
+  args: List
+   StringLiteral: start trailing [Subject.Literal] 
+  modifiers: NULL
+------------------------------------------------------

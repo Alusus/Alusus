@@ -53,6 +53,8 @@ DEFINE_NOTICE(InvalidDefCommandNotice, "Core.Processing.Handlers", "Core", "alus
 #include "SubjectParsingHandler.h"
 #include "ChainOpParsingHandler.h"
 #include "TextParsingHandler.h"
+#include "ModifierParsingHandler.h"
+#include "GenericCommandParsingHandler.h"
 #include "CustomParsingHandler.h"
 
 #endif

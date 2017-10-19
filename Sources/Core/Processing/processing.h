@@ -3,7 +3,7 @@
  * Contains the definitions and include statements for all types used for
  * processing.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -278,6 +278,9 @@ DEFINE_NOTICE(UnexpectedTokenNotice, "Core.Processing", "Core", "alusus.net", "P
 DEFINE_NOTICE(AmbiguityNotice, "Core.Processing", "Core", "alusus.net", "P2001", 2,
   STR("Ambiguity is causing state branching.")
 );
+DEFINE_NOTICE(UnexpectedModifierNotice, "Core.Processing", "Core", "alusus.net", "P1004", 1,
+  STR("Unexpected modifier encountered.")
+);
 
 } } // namespace
 
@@ -297,6 +300,7 @@ DEFINE_NOTICE(AmbiguityNotice, "Core.Processing", "Core", "alusus.net", "P2001",
 #include "NoticeStore.h"
 #include "ParserTermLevel.h"
 #include "ParserProdLevel.h"
+#include "ParserModifierLevel.h"
 #include "ParserState.h"
 #include "ParsingHandler.h"
 #include "DecisionNodePool.h"

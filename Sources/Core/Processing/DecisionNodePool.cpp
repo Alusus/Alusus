@@ -2,7 +2,7 @@
  * @file Core/Processing/DecisionNodePool.cpp
  * Contains the implementation of Processing::DecisionNodePool.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -43,11 +43,12 @@ Int DecisionNodePool::addSiblingNode(ParserState *state, Int posId, Int childId)
   if (state->getDecisionNodeIndex() == -1) {
     state->setDecisionNodeIndex(index);
   } else {
-    Int sibling = this->decisionNodes[state->getDecisionNodeIndex()].siblingIndex;
+    Int sibling = state->getDecisionNodeIndex();
     while (this->decisionNodes[sibling].siblingIndex != -1) {
       sibling = this->decisionNodes[sibling].siblingIndex;
     }
     this->decisionNodes[sibling].siblingIndex = index;
+    this->decisionNodes[index].parentIndex = this->decisionNodes[sibling].parentIndex;
   }
   return index;
 }
@@ -59,13 +60,13 @@ Int DecisionNodePool::removeNode(ParserState *state)
   Int index = this->decisionNodes[state->getDecisionNodeIndex()].parentIndex;
   if (index != -1) {
     if (this->decisionNodes[index].childIndex == state->getDecisionNodeIndex()) {
-      this->decisionNodes[index].childIndex = -1;
+      this->decisionNodes[index].childIndex = this->decisionNodes[state->getDecisionNodeIndex()].siblingIndex;
     } else {
       Int sibling = this->decisionNodes[index].childIndex;
       while (this->decisionNodes[sibling].siblingIndex != state->getDecisionNodeIndex()) {
         sibling = this->decisionNodes[sibling].siblingIndex;
       }
-      this->decisionNodes[sibling].siblingIndex = -1;
+      this->decisionNodes[sibling].siblingIndex = this->decisionNodes[state->getDecisionNodeIndex()].siblingIndex;
     }
   }
   state->setDecisionNodeIndex(index);

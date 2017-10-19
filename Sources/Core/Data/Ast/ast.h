@@ -103,6 +103,7 @@ SourceLocation getSourceLocation(TiObject *obj);
 #include "Text.h"
 #include "Bracket.h"
 #include "Definition.h"
+#include "GenericCommand.h"
 
 namespace Core { namespace Data { namespace Ast
 {

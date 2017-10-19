@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserState.cpp
  * Contains the implementation of Processing::ParserState.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,6 +22,8 @@ ParserState::ParserState() :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
+  parsingDimensionIndex(-1),
+  parsingDimensionStartProdIndex(-1),
   topTermLevelCache(0),
   topProdLevelCache(0),
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
@@ -41,6 +43,8 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
+  parsingDimensionIndex(-1),
+  parsingDimensionStartProdIndex(-1),
   topTermLevelCache(0),
   topProdLevelCache(0),
   termStack(reservedTermLevelCount),
@@ -66,6 +70,8 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
+  parsingDimensionIndex(-1),
+  parsingDimensionStartProdIndex(-1),
   topTermLevelCache(0),
   topProdLevelCache(0),
   termStack(reservedTermLevelCount),
@@ -89,9 +95,10 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
 //==============================================================================
 // Term Stack Member Functions
 
-void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                       Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule)
-{
+void ParserState::initialize(
+  Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+  Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule
+) {
   ASSERT(reservedTermLevelCount > 0);
   ASSERT(reservedProdLevelCount > 0);
   ASSERT(maxVarNameLength > 1);
@@ -112,10 +119,11 @@ void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevel
 }
 
 
-void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                       Word reservedVarCount, Word reservedVarLevelCount,
-                       const Data::GrammarContext *context)
-{
+void ParserState::initialize(
+  Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+  Word reservedVarCount, Word reservedVarLevelCount,
+  const Data::GrammarContext *context
+) {
   ASSERT(reservedTermLevelCount > 0);
   ASSERT(reservedProdLevelCount > 0);
   ASSERT(maxVarNameLength > 1);
@@ -150,6 +158,8 @@ void ParserState::reset()
   this->trunkState = 0;
   this->tempTrunkTermStackIndex = -1;
   this->tempTrunkProdStackIndex = -1;
+  this->parsingDimensionIndex = -1;
+  this->parsingDimensionStartProdIndex = -1;
   this->topTermLevelCache = 0;
   this->topProdLevelCache = 0;
   this->errorSyncBlockPairs = 0;
@@ -206,7 +216,7 @@ ParserTermLevel& ParserState::refTermLevel(Int i)
  * Get the number of state levels in the top produciton in this state. The
  * level count includes the production root's level.
  */
-Int ParserState::getTopprodTermLevelCount() const
+Int ParserState::getTopProdTermLevelCount() const
 {
   // The first level does not belong to any production, so we need at least 2 levels.
   if (this->getTermLevelCount() <= 1) {
@@ -265,12 +275,8 @@ void ParserState::popTermLevel()
     ASSERT(this->dataStack.getLevelCount() > 0);
     this->dataStack.popLevel();
   } else {
-    if (this->tempTrunkTermStackIndex >= 0) {
-      this->tempTrunkTermStackIndex--;
-    } else {
-      // This should never be reached.
-      ASSERT(false);
-    }
+    ASSERT(this->tempTrunkTermStackIndex >= 0);
+    this->tempTrunkTermStackIndex--;
   }
   if (this->getTermLevelCount() > 0) this->topTermLevelCache = &this->refTermLevel(-1);
   else this->topTermLevelCache = 0;
@@ -369,12 +375,8 @@ void ParserState::popProdLevel()
   if (this->prodStack.size() > 0) {
     this->prodStack.pop_back();
   } else {
-    if (this->tempTrunkProdStackIndex >= 0) {
-      this->tempTrunkProdStackIndex--;
-    } else {
-      // This should never be reached.
-      ASSERT(false);
-    }
+    ASSERT(this->tempTrunkProdStackIndex >= 0);
+    this->tempTrunkProdStackIndex--;
   }
 
   if (this->getProdLevelCount() > 0) {
@@ -385,6 +387,12 @@ void ParserState::popProdLevel()
   }
   else {
     this->topProdLevelCache = 0;
+  }
+
+  // Exit parsing dimension, if needed.
+  if (this->parsingDimensionStartProdIndex >= this->getProdLevelCount()) {
+    this->parsingDimensionIndex = -1;
+    this->parsingDimensionStartProdIndex = -1;
   }
 
   this->popTermLevel();
@@ -502,7 +510,84 @@ Data::Integer* ParserState::getTermFlags(Int levelOffset) const
 
 
 //==============================================================================
-// Other Member Functions
+// Modifier Member Functions
+
+void ParserState::popFrontLeadingModifierLevel()
+{
+  if (this->leadingModifierStack.empty()) {
+    throw EXCEPTION(GenericException, STR("Leading modifier stack is empty."));
+  }
+  this->leadingModifierStack.erase(this->leadingModifierStack.begin());
+}
+
+
+void ParserState::popFrontTrailingModifierLevel()
+{
+  if (this->trailingModifierStack.empty()) {
+    throw EXCEPTION(GenericException, STR("Trailing modifier stack is empty."));
+  }
+  this->trailingModifierStack.erase(this->trailingModifierStack.begin());
+}
+
+
+void ParserState::popBackLeadingModifierLevel()
+{
+  if (this->leadingModifierStack.empty()) {
+    throw EXCEPTION(GenericException, STR("Leading modifier stack is empty."));
+  }
+  this->leadingModifierStack.pop_back();
+}
+
+
+void ParserState::popBackTrailingModifierLevel()
+{
+  if (this->trailingModifierStack.empty()) {
+    throw EXCEPTION(GenericException, STR("Trailing modifier stack is empty."));
+  }
+  this->trailingModifierStack.pop_back();
+}
+
+
+void ParserState::removeLeadingModifierLevel(Int index)
+{
+  if (index < 0 || index >= this->leadingModifierStack.size()) {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."));
+  }
+  this->leadingModifierStack.erase(this->leadingModifierStack.begin() + index);
+}
+
+
+void ParserState::removeTrailingModifierLevel(Int index)
+{
+  if (index < 0 || index >= this->trailingModifierStack.size()) {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."));
+  }
+  this->trailingModifierStack.erase(this->trailingModifierStack.begin() + index);
+}
+
+
+ParserModifierLevel& ParserState::refLeadingModifierLevel(Int index)
+{
+  if (index < 0) index += this->leadingModifierStack.size();
+  if (index < 0 || index >= this->leadingModifierStack.size()) {
+    throw EXCEPTION(GenericException, STR("Out of range"));
+  }
+  return this->leadingModifierStack[index];
+}
+
+
+ParserModifierLevel& ParserState::refTrailingModifierLevel(Int index)
+{
+  if (index < 0) index += this->trailingModifierStack.size();
+  if (index < 0 || index >= this->trailingModifierStack.size()) {
+    throw EXCEPTION(GenericException, STR("Out of range"));
+  }
+  return this->trailingModifierStack[index];
+}
+
+
+//==============================================================================
+// Branching Member Functions
 
 /**
  * Set the branching info to make this state a branch of another state.
@@ -615,6 +700,8 @@ void ParserState::ownTopProdLevel()
 
 void ParserState::ownTopLevel()
 {
+  if (!this->termStack.empty()) return;
+
   if (this->isAtProdRoot()) {
     this->ownTopProdLevel();
   }

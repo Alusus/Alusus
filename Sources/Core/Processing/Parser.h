@@ -57,6 +57,8 @@ class Parser : public TiObject
 
   private: Data::GrammarRepository *grammarRepository;
 
+  private: std::vector<Data::ParsingDimension*> parsingDimensions;
+
   private: SharedPtr<Data::Ast::Scope> rootScope;
 
   /**
@@ -88,6 +90,8 @@ class Parser : public TiObject
    */
   private: Bool unexpectedTokenNoticeRaised;
 
+  private: Bool preCloseCompleteLevels;
+
 
   //============================================================================
   // Signals & Slots
@@ -111,8 +115,7 @@ class Parser : public TiObject
   // Constructor / Destructor
 
   public: Parser() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")),
-                     grammarRepository(0),
-                     rootScope(0)
+                     grammarRepository(0), rootScope(0), preCloseCompleteLevels(false)
   {
   }
 
@@ -134,6 +137,7 @@ class Parser : public TiObject
   {
     this->clear();
     this->grammarRepository = 0;
+    this->parsingDimensions.clear();
     this->rootScope.reset();
   }
 
@@ -145,6 +149,16 @@ class Parser : public TiObject
   public: SharedPtr<Data::Ast::Scope> const& getRootScope() const
   {
     return this->rootScope;
+  }
+
+  public: void setCompleteLevelsPreClosing(Bool v)
+  {
+    this->preCloseCompleteLevels = v;
+  }
+
+  public: Bool getCompleteLevelsPreClosing() const
+  {
+    return this->preCloseCompleteLevels;
   }
 
   /// @}
@@ -185,6 +199,8 @@ class Parser : public TiObject
   /// Apply the received token on a reference term.
   private: void processReferenceTerm(Data::Token const *token, StateIterator si);
 
+  private: void enterParsingDimension(Data::Token const *token, Int parseDimIndex, StateIterator si);
+
   /// Release all states and their data, but not the definitions.
   public: void clear();
 
@@ -201,6 +217,8 @@ class Parser : public TiObject
 
   /// Compute the list of possible routes to take at an alternative term.
   private: void computePossibleAlternativeRoutes(Data::Token const *token, ParserState *state);
+
+  private: Int matchParsingDimensionEntry(Data::Token const *token);
 
   /// Test the route taken by the given state.
   private: Int testState(Data::Token const *token, ParserState *state);
@@ -222,6 +240,8 @@ class Parser : public TiObject
 
   /// Test against a reference term within the test state.
   private: void testReferenceTerm(Data::Token const *token, ParserState *state);
+
+  private: void testParsingDimension(Data::Token const *token, Int parseDimIndex, ParserState *state);
 
   /// @}
 
@@ -248,7 +268,7 @@ class Parser : public TiObject
   private: void popStateLevel(ParserState *state, Bool success);
 
   /// Compare two states to see if they are at the same spot in the grammar.
-  private: bool compareStates(ParserState *s1, ParserState *s2);
+  private: Bool compareStates(ParserState *s1, ParserState *s2);
 
   /// Get the parsing handler for the top production level in a state.
   private: ParsingHandler* getTopParsingHandler(ParserState *state)
@@ -267,6 +287,23 @@ class Parser : public TiObject
   private: Bool matchToken(Word matchId, TiObject *matchText, Data::Token const *token);
 
   private: Bool matchErrorSyncBlockPairs(ParserState *state, Data::Token const *token);
+
+  /// @}
+
+  /// @name Modifier Functions
+  /// @{
+
+  private: void processLeadingModifierEntry(ParserState *state);
+
+  private: void markLeadingModifiersMaxIndex(ParserState *state);
+
+  private: void processLeadingModifiersExit(ParserState *state);
+
+  private: void reportMislocatedLeadingModifiers(ParserState *state);
+
+  private: void processTrailingModifiers(ParserState *state);
+
+  private: void cancelTrailingModifiers(ParserState *state);
 
   /// @}
 
