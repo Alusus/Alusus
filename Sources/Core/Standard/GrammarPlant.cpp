@@ -1717,58 +1717,8 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
   }).get());
   // Modifier.Expression
   this->repository.set(STR("root:Modifier.Expression"), GrammarModule::create({
+    { STR("@start"), REF_PARSER->parseQualifier(STR("module:FunctionalExp")) },
     { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Expression")) }
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.LowestLinkExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:LowestLinkExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.ConditionalExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:ConditionalExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.ListExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:ListExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.LowerLinkExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:LowerLinkExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.AssignmentExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:AssignmentExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.LogExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:LogExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.ComparisonExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:ComparisonExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.LowLinkExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:LowLinkExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.AddExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:AddExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.MulExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:MulExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.BitwiseExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:BitwiseExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  this->repository.set(STR("root:Modifier.Expression.UnaryExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:UnaryExp")) },
-    {SymbolDefElement::VARS, SharedMap::create(false, {
-      {STR("enable1"), std::make_shared<Integer>(0)},
-      {STR("enable2"), std::make_shared<Integer>(0)}
-    })},
   }).get());
   this->repository.set(STR("root:Modifier.Expression.FunctionalExp"), SymbolDefinition::create({
     {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:FunctionalExp")) },

@@ -79,7 +79,8 @@
       <keyword>build</keyword>
       <keyword>dump</keyword>
       <keyword>ptr</keyword>
-      <keyword>ary</keyword>
+      <keyword>array</keyword>
+      <keyword>any</keyword>
     </context>
 
     <context id="ar_keyword" style-ref="keyword">
@@ -97,6 +98,7 @@
       <keyword>نفّذ</keyword>
       <keyword>مؤشر</keyword>
       <keyword>مصفوفة</keyword>
+      <keyword>أي</keyword>
     </context>
 
     <context id="type" style-ref="type">
@@ -120,7 +122,7 @@
 
     <context id="modifier" style-ref="modifier">
       <match extended="true">
-        (@[a-zA-Z_\x{0620}-\x{065F}][a-zA-Z0-9_\x{0620}-\x{065F}]*\b)
+        (@&lt;?[a-zA-Z_\x{0620}-\x{065F}][a-zA-Z0-9_\x{0620}-\x{065F}]*\b)
       </match>
     </context>
 
