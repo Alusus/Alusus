@@ -1,0 +1,27 @@
+import "libalusus_spp.so";
+
+def f1: @expname[f1] function (x:Int, args:...Int)=>void
+{
+};
+
+def f2: function (x:Int, args:...Int)=>void
+{
+};
+
+def f3: @wrongmodifier function (x:Int, args:...Int)=>void
+{
+};
+
+def f4: @wrongmodifier[f4] function (x:Int, args:...Int)=>void
+{
+};
+
+def f5: @expname[] function (x:Int, args:...Int)=>void
+{
+};
+
+dump f1;
+dump f2;
+dump f3;
+dump f4;
+dump f5;

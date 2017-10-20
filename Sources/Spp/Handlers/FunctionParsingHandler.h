@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/FunctionParsingHandler.h
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -36,6 +36,11 @@ class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsing
   // Member Functions
 
   public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
+
+  public: virtual Bool onIncomingModifier(
+    Core::Processing::Parser *parser, Core::Processing::ParserState *state,
+    TioSharedPtr const &modifierData, Bool prodProcessingComplete
+  );
 
   private: Bool parseArgs(Core::Processing::ParserState *state, Core::Data::Ast::Bracket *bracket,
                           SharedPtr<Core::Data::SharedMap> &result);

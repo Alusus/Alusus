@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/FunctionParsingHandler.cpp
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -75,6 +75,34 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   function->setProdId(exprMetadata->getProdId());
 
   state->setData(function);
+}
+
+
+Bool FunctionParsingHandler::onIncomingModifier(
+  Core::Processing::Parser *parser, Core::Processing::ParserState *state,
+  TioSharedPtr const &modifierData, Bool prodProcessingComplete
+) {
+  if (!prodProcessingComplete) return false;
+
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  auto function = state->getData(levelOffset).ti_cast_get<Spp::Ast::Function>();
+  ASSERT(function != 0);
+  this->prepareToModifyData(state, levelOffset);
+  function = state->getData(levelOffset).ti_cast_get<Spp::Ast::Function>();
+  ASSERT(function != 0);
+
+  // Set the function name.
+  auto paramPass = modifierData.ti_cast_get<Core::Data::Ast::ParamPass>();
+  if (paramPass == 0) return false;
+  if (paramPass->getType() != Core::Data::Ast::BracketType::SQUARE) return false;
+  auto operand = paramPass->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+  if (operand == 0) return false;
+  if (operand->getValue() != STR("expname")) return false;
+  auto param = paramPass->getParam().ti_cast_get<Core::Data::Ast::Identifier>();
+  if (param == 0) return false;
+  function->setName(param->getValue());
+
+  return true;
 }
 
 

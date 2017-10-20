@@ -1,0 +1,48 @@
+ERROR P1004 @ (11,10): Unexpected modifier encountered.
+ERROR P1004 @ (15,10): Unexpected modifier encountered.
+ERROR P1004 @ (19,10): Unexpected modifier encountered.
+------------------ Parsed Data Dump ------------------
+Function f1 [Subject.Function]
+ argTypes: alusus.net#Core#Core.Data.SharedMap
+  x: Identifier: Int [Subject.Parameter] 
+  args: ArgPack 0 0
+   argType: Identifier: Int [Subject.Parameter] 
+ retType: Identifier: void [Subject.Parameter] 
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ argTypes: alusus.net#Core#Core.Data.SharedMap
+  x: Identifier: Int [Subject.Parameter] 
+  args: ArgPack 0 0
+   argType: Identifier: Int [Subject.Parameter] 
+ retType: Identifier: void [Subject.Parameter] 
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ argTypes: alusus.net#Core#Core.Data.SharedMap
+  x: Identifier: Int [Subject.Parameter] 
+  args: ArgPack 0 0
+   argType: Identifier: Int [Subject.Parameter] 
+ retType: Identifier: void [Subject.Parameter] 
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ argTypes: alusus.net#Core#Core.Data.SharedMap
+  x: Identifier: Int [Subject.Parameter] 
+  args: ArgPack 0 0
+   argType: Identifier: Int [Subject.Parameter] 
+ retType: Identifier: void [Subject.Parameter] 
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ argTypes: alusus.net#Core#Core.Data.SharedMap
+  x: Identifier: Int [Subject.Parameter] 
+  args: ArgPack 0 0
+   argType: Identifier: Int [Subject.Parameter] 
+ retType: Identifier: void [Subject.Parameter] 
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
