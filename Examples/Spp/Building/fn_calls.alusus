@@ -6,6 +6,7 @@ def Main: module
     // printf("Hello World!");
     g();
     h("hello world");
+    h("hello", "world");
   };
 
   def f: function (a: Int[32], b: Float[32])=>Int[64] {
@@ -15,8 +16,10 @@ def Main: module
   };
 
   def h: function (a: ptr[Int[8]])=>Int[32] {
+  };
+
+  def h: @expname[hh] function (a: ptr[Int[8]], b: ptr[Int[8]])=>Int[32] {
   }
 };
 
 build Main;
-
