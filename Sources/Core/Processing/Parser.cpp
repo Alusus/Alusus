@@ -2119,7 +2119,7 @@ void Parser::processLeadingModifiersExit(ParserState *state)
   // Pass the modifiers to the parsing handler.
   while (first >= 0) {
     ParserModifierLevel &level = state->refLeadingModifierLevel(first);
-    if (level.getMaxProdIndex() >= state->getProdLevelCount()) {
+    if (level.getMaxProdIndex() >= state->getProdLevelCount() - 1) {
       ASSERT(level.getMaxProdIndex() >= level.getMinProdIndex());
       if (parsingHandler->onIncomingModifier(this, state, level.getData(), true)) {
         state->removeLeadingModifierLevel(first);
