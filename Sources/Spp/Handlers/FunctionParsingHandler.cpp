@@ -26,8 +26,8 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   auto exprMetadata = ti_cast<Core::Data::Ast::Metadata>(expr);
   ASSERT(exprMetadata != 0);
 
-  if (expr->getCount() != 3) {
-    state->addNotice(std::make_shared<MissingFunctionSigOrBodyNotice>(exprMetadata->getSourceLocation()));
+  if (expr->getCount() < 2) {
+    state->addNotice(std::make_shared<MissingFunctionSigNotice>(exprMetadata->getSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -60,11 +60,14 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   }
 
   // Prepare function body.
-  auto body = ti_cast<Spp::Ast::Block>(expr->get(2));
-  if (body == 0) {
-    state->addNotice(std::make_shared<InvalidFunctionBodyNotice>(exprMetadata->getSourceLocation()));
-    state->setData(SharedPtr<TiObject>(0));
-    return;
+  Spp::Ast::Block *body = 0;
+  if (expr->getCount() == 3) {
+    body = ti_cast<Spp::Ast::Block>(expr->get(2));
+    if (body == 0) {
+      state->addNotice(std::make_shared<InvalidFunctionBodyNotice>(exprMetadata->getSourceLocation()));
+      state->setData(SharedPtr<TiObject>(0));
+      return;
+    }  
   }
 
   auto function = std::make_shared<Spp::Ast::Function>();

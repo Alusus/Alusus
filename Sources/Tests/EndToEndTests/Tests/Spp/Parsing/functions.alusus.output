@@ -46,3 +46,23 @@ Function  [Subject.Function]
  retType: Identifier: void [Subject.Parameter] 
  body: Block [Main.BlockStatementList]
 ------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ argTypes: alusus.net#Core#Core.Data.SharedMap
+  X: Identifier: Int [Subject.Parameter] 
+  args: ArgPack 0 0
+   argType: NULL
+ retType: Identifier: void [Subject.Parameter] 
+ body: NULL
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function f7 [Subject.Function]
+ argTypes: alusus.net#Core#Core.Data.SharedMap
+  X: ParamPass [] [Expression.ParamPassExp]
+   operand: Identifier: ptr [Subject.Parameter] 
+   param: ParamPass [] [Expression.ParamPassExp]
+    operand: Identifier: Int [Subject.Parameter] 
+    param: IntegerLiteral: 8 [Subject.Literal] 
+ retType: NULL
+ body: NULL
+------------------------------------------------------

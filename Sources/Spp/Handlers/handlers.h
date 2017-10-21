@@ -29,8 +29,8 @@ namespace Spp { namespace Handlers
 DEFINE_NOTICE(InvalidBuildArgNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1001", 1,
   STR("Invalid argument for 'build' command.")
 );
-DEFINE_NOTICE(MissingFunctionSigOrBodyNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1002", 1,
-  STR("Missing signature or body in 'function' command.")
+DEFINE_NOTICE(MissingFunctionSigNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1002", 1,
+  STR("Missing signature in 'function' command.")
 );
 DEFINE_NOTICE(InvalidFunctionSignatureNotice, "Spp.Handleres", "Spp", "alusus.net", "SPP1003", 1,
   STR("Invalid function signature.")

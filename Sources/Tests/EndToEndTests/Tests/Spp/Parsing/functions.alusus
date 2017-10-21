@@ -20,8 +20,14 @@ def f5: @expname[] function (x:Int, args:...Int)=>void
 {
 };
 
+def f6: function (X:Int, args:...any)=>void;
+
+def f7: @expname[f7] function (X:ptr[Int[8]]);
+
 dump f1;
 dump f2;
 dump f3;
 dump f4;
 dump f5;
+dump f6;
+dump f7;

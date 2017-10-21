@@ -174,7 +174,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {
           STR("prms"), Core::Data::SharedList::create({
             Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:FuncSigExpression"))},
               {STR("min"), std::make_shared<Integer>(1)},
               {STR("max"), std::make_shared<Integer>(1)},
               {STR("pty"), std::make_shared<Integer>(1)},
@@ -182,7 +182,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
             }),
             Core::Data::SharedMap::create(false, {
               {STR("prd"), REF_PARSER->parseQualifier(STR("root:Block"))},
-              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("min"), std::make_shared<Integer>(0)},
               {STR("max"), std::make_shared<Integer>(1)},
               {STR("pty"), std::make_shared<Integer>(1)},
               {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
@@ -194,6 +194,45 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     { SymbolDefElement::HANDLER, std::make_shared<Handlers::FunctionParsingHandler>() }
   }).get());
   this->addReferenceToCommandList(innerCmdList, STR("module:Function"));
+
+  // FuncSigExpression
+  grammarRepository->set(STR("root:FuncSigExpression"), GrammarModule::create({
+    { STR("@start"), REF_PARSER->parseQualifier(STR("module:LowLinkExp")) },
+    { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Expression")) }
+  }).get());
+  grammarRepository->set(STR("root:FuncSigExpression.LowLinkExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:LowLinkExp"))},
+    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(1)}})},
+  }).get());
+  grammarRepository->set(STR("root:FuncSigExpression.AddExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:AddExp"))},
+    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  grammarRepository->set(STR("root:FuncSigExpression.MulExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:MulExp"))},
+    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  grammarRepository->set(STR("root:FuncSigExpression.BitwiseExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:BitwiseExp"))},
+    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
+  }).get());
+  grammarRepository->set(STR("root:FuncSigExpression.UnaryExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:UnaryExp"))},
+    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+      {STR("enable1"), std::make_shared<Integer>(0)},
+      {STR("enable2"), std::make_shared<Integer>(0)}
+    })},
+  }).get());
+  grammarRepository->set(STR("root:FuncSigExpression.FunctionalExp"), SymbolDefinition::create({
+    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:FunctionalExp")) },
+    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+      {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP | TermFlags::ONE_ROUTE_TERM)},
+      {STR("operand"), REF_PARSER->parseQualifier(STR("root:Subject"))},
+      {STR("pty2"), std::make_shared<Integer>(1)},
+      {STR("dup"), 0},
+      {STR("fltr2"), 0}
+    })}
+  }).get());
 
   // Block
   grammarRepository->set(STR("root:Block"), SymbolDefinition::create({
@@ -292,6 +331,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   grammarRepository->remove(STR("root:Subject.Type"));
   grammarRepository->remove(STR("root:TypeBody"));
   grammarRepository->remove(STR("root:Subject.Function"));
+  grammarRepository->remove(STR("root:FuncSigExpression"));
   grammarRepository->remove(STR("root:Block"));
   grammarRepository->remove(STR("root:BlockSubject"));
   grammarRepository->remove(STR("root:BlockExpression"));
