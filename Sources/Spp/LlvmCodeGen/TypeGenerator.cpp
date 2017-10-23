@@ -23,6 +23,7 @@ void TypeGenerator::initBindingCaches()
 {
   Core::Basic::initBindingCaches(this, {
     &this->generateType,
+    &this->generateVoidType,
     &this->generateIntegerType,
     &this->generateFloatType,
     &this->generatePointerType,
@@ -36,6 +37,7 @@ void TypeGenerator::initBindingCaches()
 void TypeGenerator::initBindings()
 {
   this->generateType = &TypeGenerator::_generateType;
+  this->generateVoidType = &TypeGenerator::_generateVoidType;
   this->generateIntegerType = &TypeGenerator::_generateIntegerType;
   this->generateFloatType = &TypeGenerator::_generateFloatType;
   this->generatePointerType = &TypeGenerator::_generatePointerType;
@@ -55,8 +57,50 @@ Bool TypeGenerator::getGeneratedType(TiObject *ref, Spp::Ast::Type *&type)
     throw EXCEPTION(GenericException, STR("Reference does not contain metadata."));
   }
 
+  type = this->traceAstType(ref);
+  if (type == 0) return false;
+
+  this->sourceLocationStack->push_back(metadata->getSourceLocation());
+  Bool result = this->generateType(type);
+  this->sourceLocationStack->pop_back();
+
+  return result;
+}
+
+
+Bool TypeGenerator::getGeneratedLlvmType(TiObject *ref, llvm::Type *&type)
+{
+  Spp::Ast::Type *astType;
+  if (!this->getGeneratedType(ref, astType)) {
+    return false;
+  }
+  auto llvmTypeBox = astType->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type*>>();
+  if (llvmTypeBox == 0 || llvmTypeBox->get() == 0) {
+    throw EXCEPTION(GenericException, STR("AST Type is missing the generated Type object."));
+  }
+  type = llvmTypeBox->get();
+  return true;
+}
+
+
+Bool TypeGenerator::isVoid(TiObject *ref)
+{
+  if (ref == 0) return true;
+  auto type = this->traceAstType(ref);
+  if (!type) return false;
+  return type->isA<Spp::Ast::VoidType>();
+}
+
+
+Spp::Ast::Type* TypeGenerator::traceAstType(TiObject *ref)
+{
+  auto metadata = ti_cast<Core::Data::Ast::Metadata>(ref);
+  if (metadata == 0) {
+    throw EXCEPTION(GenericException, STR("Reference does not contain metadata."));
+  }
+
   SharedPtr<Core::Data::Notice> notice;
-  type = ti_cast<Spp::Ast::Type>(ref);
+  auto type = ti_cast<Spp::Ast::Type>(ref);
   if (type == 0) {
     this->getSeeker()->doForeach(ref, ref,
       [=, &type, &notice](TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
@@ -84,29 +128,10 @@ Bool TypeGenerator::getGeneratedType(TiObject *ref, Spp::Ast::Type *&type)
     this->sourceLocationStack->push_back(metadata->getSourceLocation());
     this->parserState->addNotice(std::make_shared<InvalidTypeNotice>(this->sourceLocationStack));
     this->sourceLocationStack->pop_back();
-    return false;
+    return 0;
   }
 
-  this->sourceLocationStack->push_back(metadata->getSourceLocation());
-  Bool result = this->generateType(type);
-  this->sourceLocationStack->pop_back();
-
-  return result;
-}
-
-
-Bool TypeGenerator::getGeneratedLlvmType(TiObject *ref, llvm::Type *&type)
-{
-  Spp::Ast::Type *astType;
-  if (!this->getGeneratedType(ref, astType)) {
-    return false;
-  }
-  auto llvmTypeBox = astType->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type*>>();
-  if (llvmTypeBox == 0 || llvmTypeBox->get() == 0) {
-    throw EXCEPTION(GenericException, STR("AST Type is missing the generated Type object."));
-  }
-  type = llvmTypeBox->get();
-  return true;
+  return type;
 }
 
 
@@ -120,7 +145,9 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType)
   auto llvmTypeBox = astType->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type*>>();
   if (llvmTypeBox != 0) return true;
 
-  if (astType->isDerivedFrom<Spp::Ast::IntegerType>()) {
+  if (astType->isDerivedFrom<Spp::Ast::VoidType>()) {
+    return typeGenerator->generateVoidType(static_cast<Spp::Ast::VoidType*>(astType));
+  } else if (astType->isDerivedFrom<Spp::Ast::IntegerType>()) {
     return typeGenerator->generateIntegerType(static_cast<Spp::Ast::IntegerType*>(astType));
   } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
     return typeGenerator->generateFloatType(static_cast<Spp::Ast::FloatType*>(astType));
@@ -134,6 +161,15 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType)
     typeGenerator->parserState->addNotice(std::make_shared<InvalidTypeNotice>(typeGenerator->sourceLocationStack));
     return false;
   }
+}
+
+
+Bool TypeGenerator::_generateVoidType(TiObject *self, Spp::Ast::VoidType *astType)
+{
+  PREPARE_SELF(typeGenerator, TypeGenerator);
+  auto llvmType = llvm::Type::getVoidTy(llvm::getGlobalContext());
+  astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
+  return true;
 }
 
 

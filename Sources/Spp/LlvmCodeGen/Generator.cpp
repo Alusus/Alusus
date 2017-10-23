@@ -57,9 +57,86 @@ void Generator::initBindings()
 //==============================================================================
 // Main Operation Functions
 
-Bool Generator::generateIr(
-  Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, Core::Basic::OutStream &out
+Bool Generator::build(
+  Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, Core::Basic::OutStream &out  
 ) {
+  Bool result = this->generateIr(root, state);
+
+  llvm::raw_os_ostream ostream(out);
+  llvm::PassManager passManager;
+  passManager.add(llvm::createPrintModulePass(&ostream));
+  passManager.run(*(this->llvmModule.get()));
+
+  return result;
+}
+
+
+Bool Generator::execute(Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, TiObject *entryRef)
+{
+  if (!this->generateIr(root, state)) return false;
+
+  // Find the entry function.
+  Ast::Function *function = 0;
+  using CallMatchStatus = Ast::Function::CallMatchStatus;
+  CallMatchStatus matchStatus = CallMatchStatus::NONE;
+  Int matchCount = 0;
+  SharedPtr<Core::Data::Notice> notice;
+  this->getSeeker()->doForeach(entryRef, root,
+    [=, &function, &matchStatus, &matchCount, &notice]
+    (TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
+    {
+      if (ntc != 0) {
+        notice = getSharedPtr(ntc);
+        return Core::Data::Seeker::Verb::MOVE;
+      }
+
+      if (obj != 0 && obj->isDerivedFrom<Ast::Function>()) {
+        auto f = static_cast<Ast::Function*>(obj);
+        CallMatchStatus ms;
+        ms = f->matchCall(0, this->executionContext.get(), this->getRootManager());
+        if (ms != CallMatchStatus::NONE && matchStatus == CallMatchStatus::NONE) {
+          function = f;
+          matchStatus = ms;
+          matchCount = 1;
+        } else if (ms == CallMatchStatus::CASTED && matchStatus == CallMatchStatus::CASTED) {
+          matchCount++;
+        } else if (ms == CallMatchStatus::EXACT && matchStatus == CallMatchStatus::CASTED) {
+          function  = f;
+          matchStatus = ms;
+          matchCount = 1;
+        } else if (ms == CallMatchStatus::EXACT && matchStatus == CallMatchStatus::EXACT) {
+          matchCount++;
+        }
+      }
+      return Core::Data::Seeker::Verb::MOVE;
+    }
+  );
+  // Did we have a matched function to call?
+  if (notice != 0 && (matchCount > 1 || function == 0)) {
+    state->addNotice(notice);
+  }
+  if (matchCount > 1) {
+    auto metadata = ti_cast<Core::Data::Ast::Metadata>(entryRef);
+    state->addNotice(std::make_shared<MultipleCalleeMatchNotice>(metadata->getSourceLocation()));
+    return false;
+  } else if (function == 0) {
+    auto metadata = ti_cast<Core::Data::Ast::Metadata>(entryRef);
+    state->addNotice(std::make_shared<NoCalleeMatchNotice>(metadata->getSourceLocation()));
+    return false;
+  }
+
+  // Execute the IR
+  auto ee = llvm::ExecutionEngine::createJIT(this->llvmModule.get());
+  auto func = ee->FindFunctionNamed(this->getFunctionName(function).c_str());
+  std::vector<llvm::GenericValue> args(0);
+  ee->runFunction(func, args);
+
+  return true;
+}
+
+
+Bool Generator::generateIr(Core::Data::Ast::Scope *root, Core::Processing::ParserState *state)
+{
   if (root == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("root"), STR("Must not be null."));
   }
@@ -86,11 +163,6 @@ Bool Generator::generateIr(
       }
     }
   }
-
-  llvm::raw_os_ostream ostream(out);
-  llvm::PassManager passManager;
-  passManager.add(llvm::createPrintModulePass(&ostream));
-  passManager.run(*(this->llvmModule.get()));
 
   return result;
 }
@@ -149,6 +221,11 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc)
 
     // Generate the function's statements.
     if (!generator->generateStatements(astBlock, cgBlock->getIrBuilder(), cgFunc->getLlvmFunction())) return false;
+
+    // Add a void return, if necessary.
+    if (generator->typeGenerator->isVoid(astFunc->getRetType().get())) {
+      cgBlock->getIrBuilder()->CreateRetVoid();
+    }
   }
   return true;
 }
@@ -197,6 +274,13 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   for (auto llvmArgType : llvmArgTypes) {
     cgFunc->addArg(llvmArgType);
   }
+
+  // TODO: Do we need these attributes?
+  // if (astFunc->getBody() == 0) {
+  //   cgFunc->getLlvmFunction()->addFnAttr(llvm::Attribute::NoCapture);
+  //   cgFunc->getLlvmFunction()->addFnAttr(llvm::Attribute::NoUnwind);
+  // }
+
   astFunc->setExtra(META_EXTRA_NAME, cgFunc);
   return true;
 }

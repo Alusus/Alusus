@@ -1,0 +1,13 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+
+  def start: function ()=>Void
+  {
+    print("Hello World!\n")
+  }
+};
+
+run Main.start;

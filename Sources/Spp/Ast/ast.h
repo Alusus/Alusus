@@ -59,6 +59,7 @@ DEFINE_NOTICE(InvalidTemplateArgNotice, "Spp.Handlers", "Spp", "alusus.net", "SP
 
 // Types
 #include "Type.h"
+#include "VoidType.h"
 #include "IntegerType.h"
 #include "FloatType.h"
 #include "PointerType.h"

@@ -1,5 +1,5 @@
 /**
- * @file Spp/Handlers/BuildParsingHandler.cpp
+ * @file Spp/Handlers/CodeGenParsingHandler.cpp
  *
  * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
@@ -20,7 +20,7 @@ using namespace Core::Data;
 //==============================================================================
 // Overloaded Abstract Functions
 
-void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
+void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
   using SeekVerb = Data::Seeker::Verb;
 
@@ -31,18 +31,28 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
 
   try {
     auto root = this->rootManager->getRootScope().get();
-    Core::Basic::StrStream ir;
-    Bool result = this->llvmGenerator->generateIr(root, state, ir);
-    if (result) {
-      outStream << STR("-------------------- Generated LLVM IR ---------------------\n");
-      outStream << ir.str();
-      outStream << STR("------------------------------------------------------------\n");
+
+    if (this->execute) {
+      // Build and execute code.
+      auto container = ti_cast<Core::Data::Container>(data);
+      ASSERT(container != 0);
+      auto entryRef = container->get(1);
+      this->llvmGenerator->execute(root, state, entryRef);
     } else {
-      parser->flushApprovedNotices();
-      outStream << STR("Build Failed...\n");
-      outStream << STR("--------------------- Partial LLVM IR ----------------------\n");
-      outStream << ir.str();
-      outStream << STR("------------------------------------------------------------\n");
+      // Build and dump IR code.
+      Core::Basic::StrStream ir;
+      Bool result = this->llvmGenerator->build(root, state, ir);
+      if (result) {
+        outStream << STR("-------------------- Generated LLVM IR ---------------------\n");
+        outStream << ir.str();
+        outStream << STR("------------------------------------------------------------\n");
+      } else {
+        parser->flushApprovedNotices();
+        outStream << STR("Build Failed...\n");
+        outStream << STR("--------------------- Partial LLVM IR ----------------------\n");
+        outStream << ir.str();
+        outStream << STR("------------------------------------------------------------\n");
+      }
     }
 
     // Bool found = false;

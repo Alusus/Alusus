@@ -112,6 +112,8 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
 
   public: Bool getGeneratedType(TiObject *ref, Spp::Ast::Type *&type);
   public: Bool getGeneratedLlvmType(TiObject *ref, llvm::Type *&type);
+  public: Bool isVoid(TiObject *ref);
+  public: Spp::Ast::Type* traceAstType(TiObject *ref);
 
   /// @}
 
@@ -119,6 +121,7 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
   /// @{
 
   public: METHOD_BINDING_CACHE(generateType, Bool, (Spp::Ast::Type*));
+  public: METHOD_BINDING_CACHE(generateVoidType, Bool, (Spp::Ast::VoidType*));
   public: METHOD_BINDING_CACHE(generateIntegerType, Bool, (Spp::Ast::IntegerType*));
   public: METHOD_BINDING_CACHE(generateFloatType, Bool, (Spp::Ast::FloatType*));
   public: METHOD_BINDING_CACHE(generatePointerType, Bool, (Spp::Ast::PointerType*));
@@ -130,6 +133,7 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
   );
 
   private: static Bool _generateType(TiObject *self, Spp::Ast::Type *astType);
+  private: static Bool _generateVoidType(TiObject *self, Spp::Ast::VoidType *astType);
   private: static Bool _generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType);
   private: static Bool _generateFloatType(TiObject *self, Spp::Ast::FloatType *astType);
   private: static Bool _generatePointerType(TiObject *self, Spp::Ast::PointerType *astType);

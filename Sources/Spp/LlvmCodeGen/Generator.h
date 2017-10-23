@@ -112,10 +112,9 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   /// @name Main Operation Functions
   /// @{
 
-  public: Bool generateIr(
-    Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, Core::Basic::OutStream &out
-  );
-  public: void execute(Core::Data::Ast::Scope *root, Char const *functionName);
+  public: Bool build(Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, Core::Basic::OutStream &out);
+  public: Bool execute(Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, TiObject *entryRef);
+  public: Bool generateIr(Core::Data::Ast::Scope *root, Core::Processing::ParserState *state);
 
   /// @}
 

@@ -59,6 +59,6 @@ DEFINE_NOTICE(InvalidWhileStatementNotice, "Spp.Handlers", "Spp", "alusus.net", 
 
 #include "FunctionParsingHandler.h"
 #include "WhileParsingHandler.h"
-#include "BuildParsingHandler.h"
+#include "CodeGenParsingHandler.h"
 
 #endif

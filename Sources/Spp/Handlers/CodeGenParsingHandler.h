@@ -1,5 +1,5 @@
 /**
- * @file Spp/Handlers/BuildParsingHandler.h
+ * @file Spp/Handlers/CodeGenParsingHandler.h
  *
  * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
@@ -9,18 +9,18 @@
  */
 //==============================================================================
 
-#ifndef SPP_HANDLERS_BUILDPARSINGHANDLER_H
-#define SPP_HANDLERS_BUILDPARSINGHANDLER_H
+#ifndef SPP_HANDLERS_CODEGENPARSINGHANDLER_H
+#define SPP_HANDLERS_CODEGENPARSINGHANDLER_H
 
 namespace Spp { namespace Handlers
 {
 
-class BuildParsingHandler : public Core::Processing::Handlers::GenericParsingHandler
+class CodeGenParsingHandler : public Core::Processing::Handlers::GenericParsingHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(BuildParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
+  TYPE_INFO(CodeGenParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
             "Spp.Handlers", "Spp", "alusus.net");
 
 
@@ -29,13 +29,14 @@ class BuildParsingHandler : public Core::Processing::Handlers::GenericParsingHan
 
   Core::Standard::RootManager *rootManager;
   Spp::LlvmCodeGen::Generator *llvmGenerator;
+  Bool execute;
 
 
   //============================================================================
   // Constructor
 
-  public: BuildParsingHandler(Core::Standard::RootManager *rm, LlvmCodeGen::Generator *generator)
-    : rootManager(rm), llvmGenerator(generator)
+  public: CodeGenParsingHandler(Core::Standard::RootManager *rm, LlvmCodeGen::Generator *generator, Bool exe)
+    : rootManager(rm), llvmGenerator(generator), execute(exe)
   {
   }
 

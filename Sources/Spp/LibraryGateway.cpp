@@ -44,7 +44,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), std::make_shared<String>(STR("build")) },
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("build"), 0 }, { STR("أنشئ"), 0 } }) },
         {
           STR("prms"), Core::Data::SharedList::create({
             Core::Data::SharedMap::create(false, {
@@ -58,9 +58,32 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }
       })
     },
-    { SymbolDefElement::HANDLER, std::make_shared<Handlers::BuildParsingHandler>(manager, this->llvmGenerator) }
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CodeGenParsingHandler>(manager, this->llvmGenerator, false)}
   }).get());
   this->addReferenceToCommandList(leadingCmdList, STR("module:Build"));
+
+  //// run = "run" + Subject
+  grammarRepository->set(STR("root:Main.Run"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    {
+      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("run"), 0 }, { STR("نفّذ"), 0 } }) },
+        {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
+            })
+          })
+        }
+      })
+    },
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CodeGenParsingHandler>(manager, this->llvmGenerator, true)}
+  }).get());
+  this->addReferenceToCommandList(leadingCmdList, STR("module:Run"));
 
   //// while = "while" + Expression + Statement
   grammarRepository->set(STR("root:Main.While"), SymbolDefinition::create({
@@ -313,6 +336,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
 
   // Remove commands from leading commands list.
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Build"));
+  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Run"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:While"));
 
   // Remove command from inner commands list.
@@ -322,6 +346,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
 
   // Delete definitions.
   grammarRepository->remove(STR("root:Main.Build"));
+  grammarRepository->remove(STR("root:Main.Run"));
   grammarRepository->remove(STR("root:Main.While"));
   grammarRepository->remove(STR("root:Main.ModuleStatementList"));
   grammarRepository->remove(STR("root:Main.TypeStatementList"));
@@ -437,6 +462,10 @@ void LibraryGateway::createBuiltInTypes(Core::Standard::RootManager *manager)
   auto root = manager->getRootScope().get();
   SharedPtr<Ast::Template> tmplt;
 
+  // Void
+  identifier.setValue(STR("Void"));
+  manager->getSeeker()->doSet(&identifier, root, Ast::VoidType::create().get());
+
   // Int
   tmplt = Ast::Template::create();
   tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER }});
@@ -474,6 +503,9 @@ void LibraryGateway::removeBuiltInTypes(Core::Standard::RootManager *manager)
 {
   Core::Data::Ast::Identifier identifier;
   auto root = manager->getRootScope().get();
+
+  identifier.setValue(STR("Void"));
+  manager->getSeeker()->doRemove(&identifier, root);
 
   identifier.setValue(STR("Int"));
   manager->getSeeker()->doRemove(&identifier, root);

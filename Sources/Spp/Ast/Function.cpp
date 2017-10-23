@@ -31,23 +31,22 @@ Function::CallMatchStatus Function::matchCall(
   Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *executionContext,
   Core::Standard::RootManager *rootManager
 ) {
-  if (types == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("types"), STR("Cannot be null."));
-  }
   if (rootManager == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("rootManager"), STR("Cannot be null."));
   }
 
   Word argCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
   if (argCount == 0) {
-    return types->getElementCount() == 0 ? CallMatchStatus::EXACT : CallMatchStatus::NONE;
+    return types == 0 || types->getElementCount() == 0 ? CallMatchStatus::EXACT : CallMatchStatus::NONE;
   } else {
     Bool casted = false;
     Function::ArgMatchContext matchContext;
-    for (Int i = 0; i < types->getElementCount(); ++i) {
-      CallMatchStatus status = this->matchNextArg(types->getElement(i), matchContext, executionContext, rootManager);
-      if (status == CallMatchStatus::NONE) return CallMatchStatus::NONE;
-      else if (status == CallMatchStatus::CASTED) casted = true;
+    if (types != 0) {
+      for (Int i = 0; i < types->getElementCount(); ++i) {
+        CallMatchStatus status = this->matchNextArg(types->getElement(i), matchContext, executionContext, rootManager);
+        if (status == CallMatchStatus::NONE) return CallMatchStatus::NONE;
+        else if (status == CallMatchStatus::CASTED) casted = true;
+      }
     }
     // Make sure there is nore more needed args.
     if (matchContext.index == -1) {

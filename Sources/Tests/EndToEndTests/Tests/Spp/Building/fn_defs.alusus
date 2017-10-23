@@ -10,8 +10,9 @@ def Main: module
   };
   
   def g: function (a: ptr[Int[32]])=>Int[32] {
-  }
+  };
+
+  def h: function (a: ptr[Int[32]])=>Int[32];
 };
 
 build Main;
-
