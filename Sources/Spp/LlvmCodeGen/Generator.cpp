@@ -30,8 +30,7 @@ void Generator::initBindingCaches()
     &this->generateStatements,
     &this->generateStatement,
     &this->generateParamPass,
-    &this->generateIdentifier,
-    &this->generateStringLiteral
+    &this->generateIdentifier
   });
 }
 
@@ -47,7 +46,6 @@ void Generator::initBindings()
   this->generateStatement = &Generator::_generateStatement;
   this->generateParamPass = &Generator::_generateParamPass;
   this->generateIdentifier = &Generator::_generateIdentifier;
-  this->generateStringLiteral = &Generator::_generateStringLiteral;
   //  this->generateIfStatement = &Generator::_generateIfStatement;
   //  this->generateWhileStatement = &Generator::_generateWhileStatement;
   //  this->generateExpression = &Generator::_generateExpression;
@@ -151,7 +149,8 @@ Bool Generator::generateIr(Core::Data::Ast::Scope *root, Core::Processing::Parse
   this->parserState = state;
 
   this->typeGenerator->prepareForGeneration(this->parserState, this->llvmModule, &this->sourceLocationStack);
-
+  this->literalGenerator->prepareForGeneration(this->parserState, this->llvmModule, &this->sourceLocationStack);
+  
   // Generates code for all modules.
   Bool result = true;
   for (Int i = 0; i < root->getCount(); ++i) {
@@ -340,7 +339,7 @@ Bool Generator::_generateStatement(
     return generator->generateIdentifier(identifier, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);
-    return generator->generateStringLiteral(
+    return generator->literalGenerator->generateStringLiteral(
       stringLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
     );
   }
@@ -496,73 +495,6 @@ Bool Generator::_generateIdentifier(
 }
 
 
-Bool Generator::_generateStringLiteral(
-  TiObject *self, Core::Data::Ast::StringLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
-) {
-  PREPARE_SELF(generator, Generator);
-
-  auto value = &astNode->getValue().getStr();
-
-  // Prepare char llvm type.
-  if (generator->llvmCharType == 0) {
-    auto charTypeRef = generator->rootManager->parseExpression(STR("Int[8]"));
-    auto charAstType = generator->getSeeker()->doGet(charTypeRef.get(), generator->rootManager->getRootScope().get());
-    if (!generator->typeGenerator->getGeneratedLlvmType(charAstType, generator->llvmCharType)) {
-      throw EXCEPTION(GenericException, STR("Failed to generate char type'"));
-    }
-  }
-
-  // Prepare the ast const string type.
-  if (generator->astCharPtrType == 0) {
-    auto astCharPtrTypeRef = generator->rootManager->parseExpression(STR("ptr[Int[8]]"))
-      .s_cast<Core::Data::Ast::ParamPass>();
-    astCharPtrTypeRef->setOwner(generator->rootManager->getRootScope().get());
-    generator->astCharPtrType = ti_cast<Spp::Ast::Type>(generator->getSeeker()->doGet(
-      astCharPtrTypeRef.get(), generator->rootManager->getRootScope().get()
-    ));
-    if (generator->astCharPtrType == 0) {
-      throw EXCEPTION(GenericException, STR("Failed to get string literal AST type."));
-    }
-  }
-  resultType = generator->astCharPtrType;
-
-  // Fetch the llvm const string type.
-  llvm::Type *llvmType = 0;
-  Ast::Type *astType = 0;
-  generator->getConstStringType(value->size() + 1, astType, llvmType);
-  if (llvmType == 0) {
-    throw EXCEPTION(GenericException, STR("Unexpected error."));
-  }
-
-  // Prepare the llvm constant array.
-  std::vector<llvm::Constant *> llvmCharArray;
-  llvmCharArray.reserve(value->size() + 1);
-  for (Word i = 0; i < value->size(); i++) {
-    llvmCharArray.push_back(llvm::ConstantInt::get(generator->llvmCharType, value->at(i)));
-  }
-  llvmCharArray.push_back(llvm::ConstantInt::get(generator->llvmCharType, 0));
-
-  // Create an anonymous global variable.
-  auto llvmStrConst = llvm::ConstantArray::get(static_cast<llvm::ArrayType*>(llvmType), llvmCharArray);
-  auto llvmVar = new llvm::GlobalVariable(
-    *generator->llvmModule, llvmType, true,
-    llvm::GlobalValue::PrivateLinkage, llvmStrConst, generator->getAnonymouseVarName().c_str()
-  );
-  llvmVar->setAlignment(1);
-
-  // Get a pointer to the global variable and return it as the value of the string.
-  std::vector<llvm::Constant*> indices;
-  llvm::ConstantInt *zero = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0));
-  indices.push_back(zero);
-  indices.push_back(zero);
-  llvmResult = llvm::ConstantExpr::getGetElementPtr(llvmVar, indices);
-
-  lastProcessedRef = astNode;
-  return true;
-}
-
-
 //==============================================================================
 // Helper Functions
 
@@ -581,45 +513,6 @@ Str const& Generator::getFunctionName(Spp::Ast::Function *astFunc)
 Str Generator::getNewBlockName()
 {
   return Str("__block") + std::to_string(this->blockIndex++);
-}
-
-
-Str Generator::getAnonymouseVarName()
-{
-  return Str("__anonymous") + std::to_string(this->anonymousVarIndex++);
-}
-
-
-void Generator::getConstStringType(Word size, Ast::Type *&astType, llvm::Type *&llvmType)
-{
-  // Prepare the reference.
-  if (this->constStringTypeRef == 0) {
-    // Create a new reference.
-    StrStream stream;
-    stream << STR("array[Int[8],") << size << STR("]");
-    this->constStringTypeRef = this->rootManager->parseExpression(stream.str().c_str())
-      .s_cast<Core::Data::Ast::ParamPass>();
-    this->constStringTypeRef->setOwner(this->rootManager->getRootScope().get());
-  } else {
-    // Recycle the existing reference.
-    auto intLiteral = this->constStringTypeRef
-      ->getParam().ti_cast_get<Core::Data::Ast::ExpressionList>()
-      ->getShared(1).ti_cast_get<Core::Data::Ast::IntegerLiteral>();
-    if (!intLiteral) {
-      throw EXCEPTION(GenericException, STR("Unexpected internal error."));
-    }
-    intLiteral->setValue(std::to_string(size).c_str());
-  }
-  // Generate the llvm type.
-  astType = ti_cast<Ast::Type>(
-    this->getSeeker()->doGet(this->constStringTypeRef.get(), this->rootManager->getRootScope().get())
-  );
-  if (astType == 0) {
-    throw EXCEPTION(GenericException, STR("Failed to get const string AST type."));
-  }
-  if (!this->typeGenerator->getGeneratedLlvmType(astType, llvmType)) {
-    throw EXCEPTION(GenericException, STR("Failed to generate const string LLVM type."));
-  }
 }
 
 } } // namespace

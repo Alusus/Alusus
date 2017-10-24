@@ -31,7 +31,10 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   // Create the generator.
   this->nodePathResolver = new NodePathResolver(manager->getSeeker());
   this->llvmTypeGenerator = new LlvmCodeGen::TypeGenerator(manager, this->nodePathResolver);
-  this->llvmGenerator = new LlvmCodeGen::Generator(manager, this->nodePathResolver, this->llvmTypeGenerator);
+  this->llvmLiteralGenerator = new LlvmCodeGen::LiteralGenerator(manager, this->llvmTypeGenerator);
+  this->llvmGenerator = new LlvmCodeGen::Generator(
+    manager, this->nodePathResolver, this->llvmTypeGenerator, this->llvmLiteralGenerator
+  );
 
   // Create leading commands.
 
@@ -325,6 +328,8 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
 
   delete this->llvmGenerator;
   this->llvmGenerator = 0;
+  delete this->llvmLiteralGenerator;
+  this->llvmLiteralGenerator = 0;
   delete this->llvmTypeGenerator;
   this->llvmTypeGenerator = 0;
   delete this->nodePathResolver;

@@ -60,6 +60,7 @@ DEFINE_NOTICE(InvalidCastNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1305",
 
 // The Generator
 #include "TypeGenerator.h"
+#include "LiteralGenerator.h"
 #include "Generator.h"
 
 #endif
