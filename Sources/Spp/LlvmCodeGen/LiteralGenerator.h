@@ -45,7 +45,8 @@ class LiteralGenerator : public TiObject, public virtual DynamicBindings, public
   private: SharedPtr<llvm::Module> llvmModule;
   private: std::vector<Core::Data::SourceLocation> *sourceLocationStack;
   private: SharedPtr<Core::Data::Ast::ParamPass> constStringTypeRef;
-
+  private: SharedPtr<Core::Data::Ast::ParamPass> integerTypeRef;
+  
   private: Spp::Ast::Type *astCharPtrType = 0;
   private: llvm::Type *llvmCharType = 0;
   private: Int anonymousVarIndex = 0;
@@ -121,9 +122,20 @@ class LiteralGenerator : public TiObject, public virtual DynamicBindings, public
       Spp::Ast::Type*&, llvm::Value*&, TiObject*&
     )
   );
+  public: METHOD_BINDING_CACHE(generateIntegerLiteral,
+    Bool, (
+      Core::Data::Ast::IntegerLiteral*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
+  );
+  // TODO: generateFloatLiteral
 
   private: static Bool _generateStringLiteral(
     TiObject *self, Core::Data::Ast::StringLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  );
+  private: static Bool _generateIntegerLiteral(
+    TiObject *self, Core::Data::Ast::IntegerLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
   );
 
@@ -134,7 +146,8 @@ class LiteralGenerator : public TiObject, public virtual DynamicBindings, public
 
   private: Str getAnonymouseVarName();
   private: void getConstStringType(Word size, Ast::Type *&astType, llvm::Type *&llvmType);
-
+  private: Bool getIntegerType(Word size, Ast::Type *&astType, llvm::Type *&llvmType);
+  
   /// @}
 
 }; // class

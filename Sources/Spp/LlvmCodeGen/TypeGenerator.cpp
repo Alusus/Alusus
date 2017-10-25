@@ -60,9 +60,13 @@ Bool TypeGenerator::getGeneratedType(TiObject *ref, Spp::Ast::Type *&type)
   type = this->traceAstType(ref);
   if (type == 0) return false;
 
-  this->sourceLocationStack->push_back(metadata->getSourceLocation());
+  if (metadata->getSourceLocation().filename != 0) {
+    this->sourceLocationStack->push_back(metadata->getSourceLocation());
+  }
   Bool result = this->generateType(type);
-  this->sourceLocationStack->pop_back();
+  if (metadata->getSourceLocation().filename != 0) {
+    this->sourceLocationStack->pop_back();
+  }
 
   return result;
 }
@@ -125,9 +129,13 @@ Spp::Ast::Type* TypeGenerator::traceAstType(TiObject *ref)
       notice->prependSourceLocationStack(this->sourceLocationStack);
       this->parserState->addNotice(notice);
     }
-    this->sourceLocationStack->push_back(metadata->getSourceLocation());
-    this->parserState->addNotice(std::make_shared<InvalidTypeNotice>(this->sourceLocationStack));
-    this->sourceLocationStack->pop_back();
+    if (metadata->getSourceLocation().filename != 0) {
+      this->sourceLocationStack->push_back(metadata->getSourceLocation());
+      this->parserState->addNotice(std::make_shared<InvalidTypeNotice>(this->sourceLocationStack));
+      this->sourceLocationStack->pop_back();
+    } else {
+      this->parserState->addNotice(std::make_shared<InvalidTypeNotice>(this->sourceLocationStack));
+    }
     return 0;
   }
 
@@ -177,6 +185,12 @@ Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto bitCount = astType->getBitCount(typeGenerator->rootManager);
+  if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64 && bitCount != 128) {
+    typeGenerator->parserState->addNotice(
+      std::make_shared<InvalidIntegerBitCountNotice>(typeGenerator->sourceLocationStack)
+    );
+    return false;
+  }
   auto llvmType = llvm::Type::getIntNTy(llvm::getGlobalContext(), bitCount);
   astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
   return true;

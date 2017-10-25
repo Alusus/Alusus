@@ -41,7 +41,10 @@ DEFINE_NOTICE(InvalidTypeNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1303",
 DEFINE_NOTICE(InvalidFloatBitCountNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1304", 1,
   STR("Invalid float bit count. Bit count should be either 32, 64, or 128.")
 );
-DEFINE_NOTICE(InvalidCastNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1305", 1,
+DEFINE_NOTICE(InvalidIntegerBitCountNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1305", 1,
+  STR("Invalid integer bit count.")
+);
+DEFINE_NOTICE(InvalidCastNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1306", 1,
   STR("Invalid cast.")
 );
 
