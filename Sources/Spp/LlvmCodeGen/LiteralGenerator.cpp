@@ -22,7 +22,8 @@ void LiteralGenerator::initBindingCaches()
 {
   Core::Basic::initBindingCaches(this, {
     &this->generateStringLiteral,
-    &this->generateIntegerLiteral
+    &this->generateIntegerLiteral,
+    &this->generateFloatLiteral
   });
 }
 
@@ -31,6 +32,7 @@ void LiteralGenerator::initBindings()
 {
   this->generateStringLiteral = &LiteralGenerator::_generateStringLiteral;
   this->generateIntegerLiteral = &LiteralGenerator::_generateIntegerLiteral;
+  this->generateFloatLiteral = &LiteralGenerator::_generateFloatLiteral;
 }
 
 
@@ -129,7 +131,7 @@ Bool LiteralGenerator::_generateIntegerLiteral(
     base = 16;
     src += 2;
   }
-  Int value = 0;
+  Long value = 0;
   while (
     (*src >= CHR('0') && *src <= CHR('9')) ||
     (*src >= CHR('a') && *src <= CHR('f')) ||
@@ -167,6 +169,47 @@ Bool LiteralGenerator::_generateIntegerLiteral(
   literalGenerator->sourceLocationStack->pop_back();
   if (!result) return false;
   llvmResult = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, value, true));
+  resultType = astType;
+  lastProcessedRef = astNode;
+  return true;
+}
+
+
+Bool LiteralGenerator::_generateFloatLiteral(
+  TiObject *self, Core::Data::Ast::FloatLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+) {
+  PREPARE_SELF(literalGenerator, LiteralGenerator);
+
+  auto src = astNode->getValue().get();
+
+  // TODO: Consider non-English letters prefixes and postfixes in the literal.
+  // TODO: Consider the different float sizes.
+
+  // Parse the given value.
+  std::size_t numSize;
+  Double value = std::stof(src, &numSize);
+  src += numSize;
+
+  // Determine float size.
+  Int size = 32;
+  if (*src == CHR('f') || *src == CHR('F')) {
+    ++src;
+    size = std::stoi(src);
+  }
+
+  // Generate the literal.
+  llvm::Type *llvmType = 0;
+  Ast::Type *astType = 0;
+  literalGenerator->sourceLocationStack->push_back(astNode->getSourceLocation());
+  Bool result = literalGenerator->getFloatType(size, astType, llvmType);
+  literalGenerator->sourceLocationStack->pop_back();
+  if (!result) return false;
+  if (size == 32) {
+    llvmResult = llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Float)value));
+  } else {
+    llvmResult = llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(value));
+  }
   resultType = astType;
   lastProcessedRef = astNode;
   return true;
@@ -237,6 +280,36 @@ Bool LiteralGenerator::getIntegerType(Word size, Ast::Type *&astType, llvm::Type
   // Generate the llvm type.
   astType = ti_cast<Ast::Type>(
     this->getSeeker()->doGet(this->integerTypeRef.get(), this->rootManager->getRootScope().get())
+  );
+  if (astType == 0) {
+    throw EXCEPTION(GenericException, STR("Failed to get integer AST type."));
+  }
+  return this->typeGenerator->getGeneratedLlvmType(astType, llvmType);
+}
+
+
+Bool LiteralGenerator::getFloatType(Word size, Ast::Type *&astType, llvm::Type *&llvmType)
+{
+  // Prepare the reference.
+  if (this->floatTypeRef == 0) {
+    // Create a new reference.
+    StrStream stream;
+    stream << STR("Float[") << size << STR("]");
+    this->floatTypeRef = this->rootManager->parseExpression(stream.str().c_str())
+      .s_cast<Core::Data::Ast::ParamPass>();
+    this->floatTypeRef->setOwner(this->rootManager->getRootScope().get());
+  } else {
+    // Recycle the existing reference.
+    auto floatLiteral = this->floatTypeRef
+      ->getParam().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+    if (floatLiteral == 0) {
+      throw EXCEPTION(GenericException, STR("Unexpected internal error."));
+    }
+    floatLiteral->setValue(std::to_string(size).c_str());
+  }
+  // Generate the llvm type.
+  astType = ti_cast<Ast::Type>(
+    this->getSeeker()->doGet(this->floatTypeRef.get(), this->rootManager->getRootScope().get())
   );
   if (astType == 0) {
     throw EXCEPTION(GenericException, STR("Failed to get integer AST type."));

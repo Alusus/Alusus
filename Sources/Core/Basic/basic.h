@@ -407,6 +407,9 @@ typedef wchar_t WChar;
 typedef int Int;
 
 /// @ingroup basic_datatypes
+typedef long long int Long;
+
+/// @ingroup basic_datatypes
 typedef short ShortInt;
 
 /**
@@ -418,6 +421,9 @@ typedef long long int PtrInt;
 
 /// @ingroup basic_datatypes
 typedef float Float;
+
+/// @ingroup basic_datatypes
+typedef double Double;
 
 /// @ingroup basic_datatypes
 typedef bool Bool;

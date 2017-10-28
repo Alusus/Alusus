@@ -46,6 +46,7 @@ class LiteralGenerator : public TiObject, public virtual DynamicBindings, public
   private: std::vector<Core::Data::SourceLocation> *sourceLocationStack;
   private: SharedPtr<Core::Data::Ast::ParamPass> constStringTypeRef;
   private: SharedPtr<Core::Data::Ast::ParamPass> integerTypeRef;
+  private: SharedPtr<Core::Data::Ast::ParamPass> floatTypeRef;
   
   private: Spp::Ast::Type *astCharPtrType = 0;
   private: llvm::Type *llvmCharType = 0;
@@ -128,7 +129,12 @@ class LiteralGenerator : public TiObject, public virtual DynamicBindings, public
       Spp::Ast::Type*&, llvm::Value*&, TiObject*&
     )
   );
-  // TODO: generateFloatLiteral
+  public: METHOD_BINDING_CACHE(generateFloatLiteral,
+    Bool, (
+      Core::Data::Ast::FloatLiteral*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
+  );
 
   private: static Bool _generateStringLiteral(
     TiObject *self, Core::Data::Ast::StringLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
@@ -136,6 +142,10 @@ class LiteralGenerator : public TiObject, public virtual DynamicBindings, public
   );
   private: static Bool _generateIntegerLiteral(
     TiObject *self, Core::Data::Ast::IntegerLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  );
+  private: static Bool _generateFloatLiteral(
+    TiObject *self, Core::Data::Ast::FloatLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
   );
 
@@ -147,6 +157,7 @@ class LiteralGenerator : public TiObject, public virtual DynamicBindings, public
   private: Str getAnonymouseVarName();
   private: void getConstStringType(Word size, Ast::Type *&astType, llvm::Type *&llvmType);
   private: Bool getIntegerType(Word size, Ast::Type *&astType, llvm::Type *&llvmType);
+  private: Bool getFloatType(Word size, Ast::Type *&astType, llvm::Type *&llvmType);
   
   /// @}
 

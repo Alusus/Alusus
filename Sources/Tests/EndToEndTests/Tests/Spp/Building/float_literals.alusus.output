@@ -1,0 +1,26 @@
+ERROR SPP1304 @ (18,34): Invalid float bit count. Bit count should be either 32, 64, or 128.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+
+@__anonymous0 = private constant [12 x i8] c"1.2+1.2=%f\0A\00", align 1
+@__anonymous1 = private constant [10 x i8] c"1.0e2=%f\0A\00", align 1
+@__anonymous2 = private constant [11 x i8] c"1.0e+2=%f\0A\00", align 1
+@__anonymous3 = private constant [11 x i8] c"1.0e-2=%f\0A\00", align 1
+@__anonymous4 = private constant [17 x i8] c"32bit float: %f\0A\00", align 1
+@__anonymous5 = private constant [17 x i8] c"64bit float: %f\0A\00", align 1
+@__anonymous6 = private constant [19 x i8] c"invalid float: %f\0A\00", align 1
+
+declare i64 @printf(i8*, ...)
+
+define void @Main_start_____Void_() {
+__block0:
+  %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous0, i64 0, i64 0), float 0x4003333340000000)
+  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([10 x i8]* @__anonymous1, i64 0, i64 0), float 1.000000e+02)
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([11 x i8]* @__anonymous2, i64 0, i64 0), float 1.000000e+02)
+  %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([11 x i8]* @__anonymous3, i64 0, i64 0), float 0x3F847AE140000000)
+  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([17 x i8]* @__anonymous4, i64 0, i64 0), float 1.000000e+00)
+  %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([17 x i8]* @__anonymous5, i64 0, i64 0), double 1.000000e+00)
+}
+------------------------------------------------------------

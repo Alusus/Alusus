@@ -185,7 +185,8 @@ Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto bitCount = astType->getBitCount(typeGenerator->rootManager);
-  if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64 && bitCount != 128) {
+  // TODO: Support 128 bits?
+  if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
     typeGenerator->parserState->addNotice(
       std::make_shared<InvalidIntegerBitCountNotice>(typeGenerator->sourceLocationStack)
     );
@@ -209,9 +210,10 @@ Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astT
     case 64:
       llvmType = llvm::Type::getDoubleTy(llvm::getGlobalContext());
       break;
-    case 128:
-      llvmType = llvm::Type::getFP128Ty(llvm::getGlobalContext());
-      break;
+    // TODO: Support 128 bits?
+    // case 128:
+    //   llvmType = llvm::Type::getFP128Ty(llvm::getGlobalContext());
+    //   break;
     default:
       typeGenerator->parserState->addNotice(
         std::make_shared<InvalidFloatBitCountNotice>(typeGenerator->sourceLocationStack)

@@ -323,26 +323,26 @@ void GrammarPlant::createTokenDefinitions()
   this->repository.set(STR("root:LexerDefs.FloatExponent"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
       {TermElement::TERM, SharedList::create({
-         AlternateTerm::create({
-           {TermElement::TERM, SharedList::create({
-              ConstTerm::create(0, STR("e")),
-              ConstTerm::create(0, STR("E"))
-           })}
-         }),
-         MultiplyTerm::create({
-           {TermElement::MAX, std::make_shared<Integer>(1)},
-           {TermElement::TERM, AlternateTerm::create({
-              {TermElement::TERM, SharedList::create({
-                 ConstTerm::create(0, STR("+")),
-                 ConstTerm::create(0, STR("-"))
-              })}
-           })}
-         }),
-         MultiplyTerm::create({
-           {TermElement::MIN, std::make_shared<Integer>(1)},
-           {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
-         })
-       })}
+        AlternateTerm::create({
+          {TermElement::TERM, SharedList::create({
+            ConstTerm::create(0, STR("e")),
+            ConstTerm::create(0, STR("E"))
+          })}
+        }),
+        MultiplyTerm::create({
+          {TermElement::MAX, std::make_shared<Integer>(1)},
+          {TermElement::TERM, AlternateTerm::create({
+            {TermElement::TERM, SharedList::create({
+              ConstTerm::create(0, STR("+")),
+              ConstTerm::create(0, STR("-"))
+            })}
+          })}
+        }),
+        MultiplyTerm::create({
+          {TermElement::MIN, std::make_shared<Integer>(1)},
+          {TermElement::TERM, CharGroupTerm::create(STR("module:DecDigit"))}
+        })
+      })}
     })}
   }).get());
 

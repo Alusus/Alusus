@@ -347,6 +347,11 @@ Bool Generator::_generateStatement(
     return generator->literalGenerator->generateIntegerLiteral(
       integerLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
     );
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::FloatLiteral>()) {
+    auto floatLiteral = static_cast<Core::Data::Ast::FloatLiteral*>(astNode);
+    return generator->literalGenerator->generateFloatLiteral(
+      floatLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+    );
   }
   // TODO:
   return false;
