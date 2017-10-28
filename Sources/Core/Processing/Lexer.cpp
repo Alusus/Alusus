@@ -633,7 +633,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Term *currentTe
       iterationIndex = this->tempState.getIndexStack()->at(currentLevel);
     }
     // Are we in the middle of the multiply term?
-    if (static_cast<Int>(this->tempState.getIndexStack()->size()) <= currentLevel+1) {
+    if (static_cast<Int>(this->tempState.getIndexStack()->size()) < currentLevel+1) {
       // We are at the beginning of the multiply term
       Data::Term *term = multiplyTerm->getTerm().s_cast_get<Data::Term>();
       ASSERT(term != 0);
@@ -641,11 +641,21 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Term *currentTe
       this->tempState.getIndexStack()->resize(currentLevel+1);
       this->tempState.getIndexStack()->at(currentLevel) = iterationIndex;
       NextAction ret = this->processTempState(inputChar, term, currentLevel+1);
-      if (ret == CONTINUE_NEW_CHAR &&
-          (multiplyTerm->getMaxOccurances() == 0 ||
-           this->grammarContext.getMultiplyTermMax(multiplyTerm)->get() > iterationIndex+1)) {
-        this->tempState.getIndexStack()->at(currentLevel) = iterationIndex+1;
-        this->createState();
+      if (ret == CONTINUE_NEW_CHAR) {
+        if (
+          multiplyTerm->getMaxOccurances() == 0 ||
+          this->grammarContext.getMultiplyTermMax(multiplyTerm)->get() > iterationIndex+1
+        ) {
+          this->tempState.getIndexStack()->at(currentLevel) = iterationIndex+1;
+          this->createState();
+        }
+        if (
+          multiplyTerm->getMinOccurances() == 0 ||
+          iterationIndex+1 >= this->grammarContext.getMultiplyTermMin(multiplyTerm)->get()
+        ) {
+          this->tempState.getIndexStack()->at(currentLevel) = -1;
+          this->createState();      
+        }
       }
       // remove any added index
       this->tempState.getIndexStack()->resize(currentLevel);
