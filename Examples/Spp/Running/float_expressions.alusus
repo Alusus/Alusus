@@ -1,0 +1,26 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Int[8]], args: ...Float[64])=>Int[64];
+
+  def start: function ()=>Void
+  {
+    print("1.2+1.2=%f\n", 1.2+1.2);
+    print("5.5-2.5=%f\n", 5.5-2.5);
+    print("7.2*3.5=%f\n", 7.2*3.5);
+    print("10.4/2.0=%f\n", 10.4/2.0);
+
+    print("1.0+2.0*3.0=%f\n", 1.0+2.0*3.0);
+    print("10.0-6.0/2.0=%f\n", 10.0-6.0/2.0);
+    print("(1.0+2.0)*3.0=%f\n", (1.0+2.0)*3.0);
+    print("(10.0-6.0)/2.0=%f\n", (10.0-6.0)/2.0);
+
+    print("1f32 + 1f32 = %f\n", 1f32 + 1f32);
+    print("1f64 + 1f64 = %f\n", 1f64 + 1f64);
+    print("1f64 + 1f32 = %f\n", 1f64 + 1f32);
+    print("1f32 + 1f64 = %f\n", 1f32 + 1f64);
+  }
+};
+
+run Main.start;

@@ -41,11 +41,13 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   private: NodePathResolver *nodePathResolver;
   private: TypeGenerator *typeGenerator;
   private: LiteralGenerator *literalGenerator;
+  private: ExpressionGenerator *expressionGenerator;
 
-  private: Core::Processing::ParserState *parserState;
-  private: SharedPtr<llvm::Module> llvmModule;
+  private: Core::Processing::ParserState *parserState = 0;
   private: SharedPtr<ExecutionContext> executionContext;
   private: std::vector<Core::Data::SourceLocation> sourceLocationStack;
+  private: SharedPtr<llvm::Module> llvmModule;
+  private: SharedPtr<llvm::DataLayout> llvmDataLayout;
 
   private: Int blockIndex = 0;
 
@@ -54,8 +56,12 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   // Constructors & Destructor
 
   public: Generator(
-    Core::Standard::RootManager *manager, NodePathResolver *r, TypeGenerator *tg, LiteralGenerator *lg
-  ) : rootManager(manager), nodePathResolver(r), typeGenerator(tg), literalGenerator(lg)
+    Core::Standard::RootManager *manager,
+    NodePathResolver *r,
+    TypeGenerator *tg,
+    LiteralGenerator *lg,
+    ExpressionGenerator *eg
+  ) : rootManager(manager), nodePathResolver(r), typeGenerator(tg), literalGenerator(lg), expressionGenerator(eg)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -70,6 +76,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     this->nodePathResolver = parent->getNodePathResolver();
     this->typeGenerator = parent->getTypeGenerator();
     this->literalGenerator = parent->getLiteralGenerator();
+    this->expressionGenerator = parent->getExpressionGenerator();
   }
 
   public: virtual ~Generator()
@@ -85,6 +92,11 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
 
   private: void initBindingCaches();
   private: void initBindings();
+
+  /// @}
+
+  /// @name Property Getters
+  /// @{
 
   public: Core::Standard::RootManager* getRootManager() const
   {
@@ -109,6 +121,36 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   public: LiteralGenerator* getLiteralGenerator() const
   {
     return this->literalGenerator;
+  }
+
+  public: ExpressionGenerator* getExpressionGenerator() const
+  {
+    return this->expressionGenerator;
+  }
+
+  public: Core::Processing::ParserState* getParserState() const
+  {
+    return this->parserState;
+  }
+
+  public: SharedPtr<ExecutionContext> const& getExecutionContext() const
+  {
+    return this->executionContext;
+  }
+
+  public: std::vector<Core::Data::SourceLocation>* getSourceLocationStack()
+  {
+    return &this->sourceLocationStack;
+  }
+
+  public: SharedPtr<llvm::Module> const& getLlvmModule() const
+  {
+    return this->llvmModule;
+  }
+
+  public: SharedPtr<llvm::DataLayout> const& getLlvmDataLayout() const
+  {
+    return this->llvmDataLayout;
   }
 
   /// @}
@@ -136,20 +178,8 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   public: METHOD_BINDING_CACHE(generateStatements,
     Bool, (Spp::Ast::Block*, llvm::IRBuilder<>*, llvm::Function*)
   );
-  public: METHOD_BINDING_CACHE(generateStatement,
+  public: METHOD_BINDING_CACHE(generatePhrase,
     Bool, (TiObject*, llvm::IRBuilder<>*, llvm::Function*, Spp::Ast::Type*&, llvm::Value*&, TiObject*&)
-  );
-  public: METHOD_BINDING_CACHE(generateParamPass,
-    Bool, (
-      Core::Data::Ast::ParamPass*, llvm::IRBuilder<>*, llvm::Function*,
-      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
-    )
-  );
-  public: METHOD_BINDING_CACHE(generateIdentifier,
-    Bool, (
-      Core::Data::Ast::Identifier*, llvm::IRBuilder<>*, llvm::Function*,
-      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
-    )
   );
   // public: METHOD_BINDING_CACHE(generateIfStatement, this->getBindingMap());
   // public: METHOD_BINDING_CACHE(generateWhileStatement, this->getBindingMap());
@@ -166,16 +196,8 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   private: static Bool _generateStatements(
     TiObject *self, Spp::Ast::Block *astBlock, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
   );
-  private: static Bool _generateStatement(
+  private: static Bool _generatePhrase(
     TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
-  );
-  private: static Bool _generateParamPass(
-    TiObject *self, Core::Data::Ast::ParamPass *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
-  );
-  private: static Bool _generateIdentifier(
-    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
   );
 

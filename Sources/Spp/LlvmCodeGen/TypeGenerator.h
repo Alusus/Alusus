@@ -37,23 +37,16 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
   //============================================================================
   // Member Variables
 
-  private: Core::Standard::RootManager *rootManager;
-  private: NodePathResolver *nodePathResolver;
-  private: llvm::DataLayout *llvmDataLayout;
-
-  private: Core::Processing::ParserState *parserState;
-  private: SharedPtr<llvm::Module> llvmModule;
-  private: std::vector<Core::Data::SourceLocation> *sourceLocationStack;
+  private: Generator *generator;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: TypeGenerator(Core::Standard::RootManager *m, NodePathResolver *r) : rootManager(m), nodePathResolver(r)
+  public: TypeGenerator(Generator *g = 0) : generator(g)
   {
     this->initBindingCaches();
     this->initBindings();
-    this->llvmDataLayout = new llvm::DataLayout("");
   }
 
   public: TypeGenerator(TypeGenerator *parent)
@@ -61,9 +54,7 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
-    this->rootManager = parent->getRootManager();
-    this->nodePathResolver = parent->getNodePathResolver();
-    this->llvmDataLayout = new llvm::DataLayout("");
+    this->generator = parent->getGenerator();
   }
 
   public: virtual ~TypeGenerator()
@@ -80,29 +71,14 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
   private: void initBindingCaches();
   private: void initBindings();
 
-  public: Core::Standard::RootManager* getRootManager() const
+  public: void setGenerator(Generator *g)
   {
-    return this->rootManager;
+    this->generator = g;
   }
 
-  public: Core::Data::Seeker* getSeeker() const
+  public: Generator* getGenerator() const
   {
-    return this->rootManager->getSeeker();
-  }
-
-  public: NodePathResolver* getNodePathResolver() const
-  {
-    return this->nodePathResolver;
-  }
-
-  public: void prepareForGeneration(
-    Core::Processing::ParserState *state,
-    SharedPtr<llvm::Module> const &module,
-    std::vector<Core::Data::SourceLocation> *stack)
-  {
-    this->parserState = state;
-    this->llvmModule = module;
-    this->sourceLocationStack = stack;
+    return this->generator;
   }
 
   /// @}

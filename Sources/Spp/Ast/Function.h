@@ -16,7 +16,6 @@
 namespace Spp { namespace Ast
 {
 
-using namespace Core;
 class Type;
 
 class Function : public Core::Data::Node,
@@ -50,7 +49,8 @@ class Function : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: Core::Data::String name;
+  private: TiStr name;
+  private: TiBool inlined;
   private: SharedPtr<Core::Data::SharedMap> argTypes;
   private: TioSharedPtr retType;
   private: SharedPtr<Block> body;
@@ -62,7 +62,8 @@ class Function : public Core::Data::Node,
   IMPLEMENT_METADATA(Function);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (name, Core::Data::String, VALUE, setName(value), &name),
+                     (name, TiStr, VALUE, setName(value), &name),
+                     (inlined, TiBool, VALUE, setInlined(value), &inlined),
                      (prodId, TiWord, VALUE, setProdId(value), &prodId),
                      (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
@@ -100,14 +101,24 @@ class Function : public Core::Data::Node,
   {
     this->name.set(n);
   }
-  public: void setName(Core::Data::String const *n)
+  public: void setName(TiStr const *n)
   {
     this->setName(n == 0 ? STR("") : n->get());
   }
 
-  public: Core::Data::String const* getName() const
+  public: TiStr const& getName() const
   {
-    return &this->name;
+    return this->name;
+  }
+
+  public: void setInlined(Bool i)
+  {
+    this->inlined = i;
+  }
+
+  public: Bool getInlined() const
+  {
+    return this->inlined;
   }
 
   public: void setArgTypes(SharedPtr<Core::Data::SharedMap> const &args)

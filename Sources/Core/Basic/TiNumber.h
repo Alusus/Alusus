@@ -150,6 +150,7 @@ template<class T, class P> class TiNumber : public P
     return this->value;
   }
 
+
   //============================================================================
   // Member Functions
 

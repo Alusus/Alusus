@@ -1,0 +1,26 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+
+  def start: function ()=>Void
+  {
+    print("1+1=%d\n", 1+1);
+    print("5-2=%d\n", 5-2);
+    print("7*3=%d\n", 7*3);
+    print("10/2=%d\n", 10/2);
+
+    print("1+2*3=%d\n", 1+2*3);
+    print("10-6/2=%d\n", 10-6/2);
+    print("(1+2)*3=%d\n", (1+2)*3);
+    print("(10-6)/2=%d\n", (10-6)/2);
+
+    print("1i8 + 1i8 = %d\n", 1i8 + 1i8);
+    print("1i64 + 1i64 = %d\n", 1i64 + 1i64);
+    print("1i8 + 1i64 = %d\n", 1i8 + 1i64);
+    print("1i64 + 1i8 = %d\n", 1i64 + 1i8);
+  }
+};
+
+run Main.start;

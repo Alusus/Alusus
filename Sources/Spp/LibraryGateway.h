@@ -30,6 +30,7 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   private: NodePathResolver *nodePathResolver = 0;
   private: LlvmCodeGen::TypeGenerator *llvmTypeGenerator = 0;
   private: LlvmCodeGen::LiteralGenerator *llvmLiteralGenerator = 0;
+  private: LlvmCodeGen::ExpressionGenerator *llvmExpressionGenerator = 0;
   private: LlvmCodeGen::Generator *llvmGenerator = 0;
 
 
@@ -69,6 +70,18 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   private: void createBuiltInTypes(Core::Standard::RootManager *manager);
 
   private: void removeBuiltInTypes(Core::Standard::RootManager *manager);
+
+  private: void createBuiltInFunctions(Core::Standard::RootManager *manager);
+
+  private: void removeBuiltInFunctions(Core::Standard::RootManager *manager);
+
+  private: SharedPtr<Ast::Function> createBinaryFunction(
+    Core::Standard::RootManager *manager, Char const *name, Char const *in1, Char const *in2, Char const *out
+  );
+
+  private: SharedPtr<Ast::Function> createUnaryFunction(
+    Core::Standard::RootManager *manager, Char const *name, Char const *in, Char const *out
+  );
 
 }; // class
 

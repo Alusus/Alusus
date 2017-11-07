@@ -699,6 +699,7 @@ extern std::istream &inStream;
 
 #include "TiNumber.h"
 #include "TiStr.h"
+#include "TiBool.h"
 #include "ti_functions.h"
 
 #include "Bindings.h"

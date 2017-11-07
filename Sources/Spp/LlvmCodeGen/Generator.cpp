@@ -28,9 +28,7 @@ void Generator::initBindingCaches()
     &this->prepareBlock,
     &this->generateBlock,
     &this->generateStatements,
-    &this->generateStatement,
-    &this->generateParamPass,
-    &this->generateIdentifier
+    &this->generatePhrase
   });
 }
 
@@ -43,9 +41,7 @@ void Generator::initBindings()
   this->prepareBlock = &Generator::_prepareBlock;
   this->generateBlock = &Generator::_generateBlock;
   this->generateStatements = &Generator::_generateStatements;
-  this->generateStatement = &Generator::_generateStatement;
-  this->generateParamPass = &Generator::_generateParamPass;
-  this->generateIdentifier = &Generator::_generateIdentifier;
+  this->generatePhrase = &Generator::_generatePhrase;
   //  this->generateIfStatement = &Generator::_generateIfStatement;
   //  this->generateWhileStatement = &Generator::_generateWhileStatement;
   //  this->generateExpression = &Generator::_generateExpression;
@@ -141,15 +137,12 @@ Bool Generator::generateIr(Core::Data::Ast::Scope *root, Core::Processing::Parse
 
   llvm::InitializeNativeTarget();
 
-  SharedPtr<llvm::DataLayout> llvmDataLayout(new llvm::DataLayout(""));
+  this->llvmDataLayout = std::make_shared<llvm::DataLayout>("");
   this->llvmModule = std::make_shared<llvm::Module>("AlususProgram", llvm::getGlobalContext());
-  this->llvmModule->setDataLayout(llvmDataLayout->getStringRepresentation());
+  this->llvmModule->setDataLayout(this->llvmDataLayout->getStringRepresentation());
   this->executionContext = std::make_shared<ExecutionContext>(llvmDataLayout->getPointerSizeInBits());
   this->sourceLocationStack.clear();
   this->parserState = state;
-
-  this->typeGenerator->prepareForGeneration(this->parserState, this->llvmModule, &this->sourceLocationStack);
-  this->literalGenerator->prepareForGeneration(this->parserState, this->llvmModule, &this->sourceLocationStack);
   
   // Generates code for all modules.
   Bool result = true;
@@ -234,7 +227,7 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
 {
   PREPARE_SELF(generator, Generator);
 
-  auto genType = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Function>();
+  auto genType = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::UserFunction>();
   if (genType != 0) return true;
 
   // Construct the list of argument LLVM types.
@@ -318,7 +311,7 @@ Bool Generator::_generateStatements(
     Ast::Type *resultType;
     llvm::Value *llvmResult;
     TiObject *lastProcessedRef;
-    if (!generator->generateStatement(astNode, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef)) {
+    if (!generator->generatePhrase(astNode, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef)) {
       result = false;
     }
   }
@@ -326,17 +319,26 @@ Bool Generator::_generateStatements(
 }
 
 
-Bool Generator::_generateStatement(
+Bool Generator::_generatePhrase(
   TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
 ) {
   PREPARE_SELF(generator, Generator);
   if (astNode->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
     auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(astNode);
-    return generator->generateParamPass(paramPass, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef);
+    return generator->expressionGenerator->generateParamPass(
+      paramPass, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+    );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
-    return generator->generateIdentifier(identifier, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef);
+    return generator->expressionGenerator->generateIdentifier(
+      identifier, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+    );
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
+    auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+    return generator->expressionGenerator->generateInfixOp(
+      infixOp, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+    );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);
     return generator->literalGenerator->generateStringLiteral(
@@ -352,156 +354,22 @@ Bool Generator::_generateStatement(
     return generator->literalGenerator->generateFloatLiteral(
       floatLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
     );
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::Bracket>()) {
+    auto bracket = static_cast<Core::Data::Ast::Bracket*>(astNode);
+    if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
+      return generator->generatePhrase(
+        bracket->getOperand().get(), llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+      );
+    } else {
+      generator->parserState->addNotice(std::make_shared<InvalidOperationNotice>(bracket->getSourceLocation()));
+      return false;
+    }
   }
   // TODO:
-  return false;
-}
-
-
-Bool Generator::_generateParamPass(
-  TiObject *self, Core::Data::Ast::ParamPass *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
-) {
-  PREPARE_SELF(generator, Generator);
-  auto operand = astNode->getOperand().get();
-  if (!generator->generateStatement(operand, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef)) {
-    return false;
-  }
-  if (resultType != 0) {
-    // TODO: Check for function pointers and arrays.
-    return false;
-  } else {
-    // Prepare parameters list.
-    using Core::Basic::TiObject;
-    using Core::Basic::PlainList;
-    PlainList<llvm::Value, TiObject> paramCgs;
-    PlainList<TiObject, TiObject> paramTypes;
-    auto param = astNode->getParam().get();
-    if (param != 0) {
-      if (param->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
-        auto paramList = static_cast<Core::Data::Ast::ExpressionList*>(param);
-        for (Int i = 0; i < paramList->getCount(); ++i) {
-          llvm::Value *paramResultCg;
-          Ast::Type *paramType;
-          TiObject *paramLastProcessedRef;
-          if (!generator->generateStatement(
-            paramList->get(i), llvmIrBuilder, llvmFunc, paramType, paramResultCg, paramLastProcessedRef
-          )) return false;
-          paramCgs.add(paramResultCg);
-          paramTypes.add(paramType);
-        }
-      } else {
-        llvm::Value *paramResultCg;
-        Ast::Type *paramType;
-        TiObject *paramLastProcessedRef;
-        if (!generator->generateStatement(
-          param, llvmIrBuilder, llvmFunc, paramType, paramResultCg, paramLastProcessedRef
-        )) return false;
-        paramCgs.add(paramResultCg);
-        paramTypes.add(paramType);
-      }
-    }
-    // Look for a matching function to call.
-    Ast::Function *function = 0;
-    using CallMatchStatus = Ast::Function::CallMatchStatus;
-    CallMatchStatus matchStatus = CallMatchStatus::NONE;
-    Int matchCount = 0;
-    SharedPtr<Core::Data::Notice> notice;
-    generator->getSeeker()->doForeach(operand, astNode->getOwner(),
-      [=, &paramTypes, &function, &matchStatus, &matchCount, &notice]
-        (TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
-        {
-          if (ntc != 0) {
-            notice = getSharedPtr(ntc);
-            return Core::Data::Seeker::Verb::MOVE;
-          }
-
-          if (obj != 0 && obj->isDerivedFrom<Ast::Function>()) {
-            auto f = static_cast<Ast::Function*>(obj);
-            CallMatchStatus ms;
-            ms = f->matchCall(&paramTypes, generator->executionContext.get(), generator->getRootManager());
-            if (ms != CallMatchStatus::NONE && matchStatus == CallMatchStatus::NONE) {
-              function = f;
-              matchStatus = ms;
-              matchCount = 1;
-            } else if (ms == CallMatchStatus::CASTED && matchStatus == CallMatchStatus::CASTED) {
-              matchCount++;
-            } else if (ms == CallMatchStatus::EXACT && matchStatus == CallMatchStatus::CASTED) {
-              function  = f;
-              matchStatus = ms;
-              matchCount = 1;
-            } else if (ms == CallMatchStatus::EXACT && matchStatus == CallMatchStatus::EXACT) {
-              matchCount++;
-            }
-          }
-          return Core::Data::Seeker::Verb::MOVE;
-        }
-    );
-    // Did we have a matched function to call?
-    if (notice != 0 && (matchCount > 1 || function == 0)) {
-      notice->prependSourceLocationStack(generator->sourceLocationStack);
-      generator->parserState->addNotice(notice);
-    }
-    if (matchCount > 1) {
-      generator->sourceLocationStack.push_back(astNode->getSourceLocation());
-      generator->parserState->addNotice(std::make_shared<MultipleCalleeMatchNotice>(generator->sourceLocationStack));
-      generator->sourceLocationStack.pop_back();
-      return false;
-    } else if (function == 0) {
-      generator->sourceLocationStack.push_back(astNode->getSourceLocation());
-      generator->parserState->addNotice(std::make_shared<NoCalleeMatchNotice>(generator->sourceLocationStack));
-      generator->sourceLocationStack.pop_back();
-      return false;
-    }
-    // Build funcion declaration.
-    if (!generator->generateFunctionDecl(function)) return false;
-    auto cgFunction = function->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Function>();
-    // Create function call.
-    std::vector<llvm::Value*> args;
-    Ast::Function::ArgMatchContext context;
-    for (Int i = 0; i < paramCgs.getCount(); ++i) {
-      Ast::Type *srcType = static_cast<Ast::Type*>(paramTypes.get(i));
-      auto status =
-        function->matchNextArg(srcType, context, generator->executionContext.get(), generator->getRootManager());
-      ASSERT(status != Ast::Function::CallMatchStatus::NONE);
-      if (context.type == 0) {
-        args.push_back(paramCgs.get(i));
-      } else {
-        llvm::Value *destValue;
-        if (!generator->typeGenerator->createCast(llvmIrBuilder, srcType, context.type, paramCgs.get(i), destValue)) {
-          // This should not happen since non-castable calls should be filtered out earlier.
-          throw EXCEPTION(GenericException, STR("Invalid cast was unexpectedly found."));
-        }
-        args.push_back(destValue);
-      }
-    }
-    auto llvmCall = cgFunction->createCallInstruction(llvmIrBuilder, args);
-    // Assign results.
-    llvmResult = llvmCall;
-    resultType = function->traceRetType(generator->getSeeker());
-    lastProcessedRef = astNode;
-    return true;
-  }
-}
-
-
-Bool Generator::_generateIdentifier(
-  TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
-) {
-  PREPARE_SELF(generator, Generator);
-  resultType = 0;
-  llvmResult = 0;
-  lastProcessedRef = 0;
-  generator->getSeeker()->doForeach(astNode, astNode->getOwner(),
-    [=](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
-    {
-      // TODO: Check if the found obj is a variable definition.
-      // TODO: Generate var reference if it's a variable.
-      return Core::Data::Seeker::Verb::MOVE;
-    }
+  generator->parserState->addNotice(
+    std::make_shared<UnsupportedOperationNotice>(Core::Data::Ast::getSourceLocation(astNode))
   );
-  return true;
+  return false;
 }
 
 
@@ -510,13 +378,13 @@ Bool Generator::_generateIdentifier(
 
 Str const& Generator::getFunctionName(Spp::Ast::Function *astFunc)
 {
-  if (astFunc->getName()->getStr() == STR("")) {
+  if (astFunc->getName().getStr() == STR("")) {
     Str name = this->nodePathResolver->doResolve(astFunc);
     // Replace special characters with _.
     Str formattedName = std::regex_replace(name, std::regex("[^a-zA-Z0-9_]"), STR("_"));
     astFunc->setName(formattedName.c_str());
   }
-  return astFunc->getName()->getStr();
+  return astFunc->getName().getStr();
 }
 
 

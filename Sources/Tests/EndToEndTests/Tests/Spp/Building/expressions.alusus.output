@@ -1,0 +1,86 @@
+ERROR SPP1301 @ (45,33): No matches were found for the given callee.
+ERROR SPP1301 @ (46,33): No matches were found for the given callee.
+ERROR SPP1301 @ (47,33): No matches were found for the given callee.
+ERROR SPP1301 @ (48,33): No matches were found for the given callee.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+
+@__anonymous0 = private constant [8 x i8] c"1+1=%d\0A\00", align 1
+@__anonymous1 = private constant [8 x i8] c"5-2=%d\0A\00", align 1
+@__anonymous2 = private constant [8 x i8] c"7*3=%d\0A\00", align 1
+@__anonymous3 = private constant [9 x i8] c"10/2=%d\0A\00", align 1
+@__anonymous4 = private constant [10 x i8] c"1+2*3=%d\0A\00", align 1
+@__anonymous5 = private constant [11 x i8] c"10-6/2=%d\0A\00", align 1
+@__anonymous6 = private constant [12 x i8] c"(1+2)*3=%d\0A\00", align 1
+@__anonymous7 = private constant [13 x i8] c"(10-6)/2=%d\0A\00", align 1
+@__anonymous8 = private constant [12 x i8] c"1.2+1.2=%f\0A\00", align 1
+@__anonymous9 = private constant [12 x i8] c"5.5-2.5=%f\0A\00", align 1
+@__anonymous10 = private constant [12 x i8] c"7.2*3.5=%f\0A\00", align 1
+@__anonymous11 = private constant [13 x i8] c"10.4/2.0=%f\0A\00", align 1
+@__anonymous12 = private constant [16 x i8] c"1.0+2.0*3.0=%f\0A\00", align 1
+@__anonymous13 = private constant [17 x i8] c"10.0-6.0/2.0=%f\0A\00", align 1
+@__anonymous14 = private constant [18 x i8] c"(1.0+2.0)*3.0=%f\0A\00", align 1
+@__anonymous15 = private constant [19 x i8] c"(10.0-6.0)/2.0=%f\0A\00", align 1
+@__anonymous16 = private constant [16 x i8] c"1i8 + 1i8 = %d\0A\00", align 1
+@__anonymous17 = private constant [18 x i8] c"1i64 + 1i64 = %d\0A\00", align 1
+@__anonymous18 = private constant [17 x i8] c"1i8 + 1i64 = %d\0A\00", align 1
+@__anonymous19 = private constant [17 x i8] c"1i64 + 1i8 = %d\0A\00", align 1
+@__anonymous20 = private constant [18 x i8] c"1f32 + 1f32 = %f\0A\00", align 1
+@__anonymous21 = private constant [18 x i8] c"1f64 + 1f64 = %f\0A\00", align 1
+@__anonymous22 = private constant [18 x i8] c"1f64 + 1f32 = %f\0A\00", align 1
+@__anonymous23 = private constant [18 x i8] c"1f32 + 1f64 = %f\0A\00", align 1
+@__anonymous24 = private constant [18 x i8] c"1i32 + 1f32 = %f\0A\00", align 1
+@__anonymous25 = private constant [18 x i8] c"1f32 + 1i32 = %f\0A\00", align 1
+@__anonymous26 = private constant [18 x i8] c"1i64 + 1f32 = %f\0A\00", align 1
+@__anonymous27 = private constant [18 x i8] c"1f32 + 1i64 = %f\0A\00", align 1
+
+declare i64 @printf(i8*, ...)
+
+define void @Main_testInteger_____Void_() {
+__block0:
+  %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous0, i64 0, i64 0), i32 2)
+  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous1, i64 0, i64 0), i32 3)
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous2, i64 0, i64 0), i32 21)
+  %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous3, i64 0, i64 0), i32 5)
+  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([10 x i8]* @__anonymous4, i64 0, i64 0), i32 7)
+  %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([11 x i8]* @__anonymous5, i64 0, i64 0), i32 7)
+  %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous6, i64 0, i64 0), i32 9)
+  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([13 x i8]* @__anonymous7, i64 0, i64 0), i32 2)
+  ret void
+}
+
+define void @Main_testFloat_____Void_() {
+__block1:
+  %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous8, i64 0, i64 0), float 0x4003333340000000)
+  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous9, i64 0, i64 0), float 3.000000e+00)
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous10, i64 0, i64 0), float 0x4039333320000000)
+  %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([13 x i8]* @__anonymous11, i64 0, i64 0), float 0x4014CCCCC0000000)
+  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous12, i64 0, i64 0), float 7.000000e+00)
+  %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([17 x i8]* @__anonymous13, i64 0, i64 0), float 7.000000e+00)
+  %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous14, i64 0, i64 0), float 9.000000e+00)
+  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([19 x i8]* @__anonymous15, i64 0, i64 0), float 2.000000e+00)
+  ret void
+}
+
+define void @Main_testMixed_____Void_() {
+__block2:
+  %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous16, i64 0, i64 0), i8 2)
+  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous17, i64 0, i64 0), i64 2)
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([17 x i8]* @__anonymous18, i64 0, i64 0), i64 2)
+  %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([17 x i8]* @__anonymous19, i64 0, i64 0), i64 2)
+  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous20, i64 0, i64 0), float 2.000000e+00)
+  %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous21, i64 0, i64 0), double 2.000000e+00)
+  %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous22, i64 0, i64 0), double 2.000000e+00)
+  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous23, i64 0, i64 0), double 2.000000e+00)
+}
+
+define void @Main_start_____Void_() {
+__block3:
+  call void @Main_testInteger_____Void_()
+  call void @Main_testFloat_____Void_()
+  call void @Main_testMixed_____Void_()
+  ret void
+}
+------------------------------------------------------------

@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/UserFunction.h
  * Contains the header of class Spp::LlvmCodeGen::UserFunction.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,12 +16,12 @@
 namespace Spp { namespace LlvmCodeGen
 {
 
-class UserFunction : public Function
+class UserFunction : public Core::Basic::TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(UserFunction, Function, "Spp.LlvmCodeGen", "Spp", "alusus.net");
+  TYPE_INFO(UserFunction, Core::Basic::TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.net");
 
 
   //============================================================================
@@ -58,11 +58,6 @@ class UserFunction : public Function
 
   //============================================================================
   // Member Functions
-
-  public: virtual llvm::Value* createCallInstruction(llvm::IRBuilder<> *irb, std::vector<llvm::Value*> const &args)
-  {
-    return irb->CreateCall(this->llvmFunction, args);
-  }
 
   public: void setLlvmFunction(llvm::Function *llvmF)
   {

@@ -49,22 +49,24 @@ Bool LiteralGenerator::_generateStringLiteral(
 
   // Prepare char llvm type.
   if (literalGenerator->llvmCharType == 0) {
-    auto charTypeRef = literalGenerator->rootManager->parseExpression(STR("Int[8]"));
-    auto charAstType = literalGenerator->getSeeker()->doGet(
-      charTypeRef.get(), literalGenerator->rootManager->getRootScope().get()
+    auto charTypeRef = literalGenerator->generator->getRootManager()->parseExpression(STR("Int[8]"));
+    auto charAstType = literalGenerator->generator->getSeeker()->doGet(
+      charTypeRef.get(), literalGenerator->generator->getRootManager()->getRootScope().get()
     );
-    if (!literalGenerator->typeGenerator->getGeneratedLlvmType(charAstType, literalGenerator->llvmCharType)) {
+    if (!literalGenerator->generator->getTypeGenerator()->getGeneratedLlvmType(
+      charAstType, literalGenerator->llvmCharType)
+    ) {
       throw EXCEPTION(GenericException, STR("Failed to generate char type."));
     }
   }
 
   // Prepare the ast const string type.
   if (literalGenerator->astCharPtrType == 0) {
-    auto astCharPtrTypeRef = literalGenerator->rootManager->parseExpression(STR("ptr[Int[8]]"))
+    auto astCharPtrTypeRef = literalGenerator->generator->getRootManager()->parseExpression(STR("ptr[Int[8]]"))
       .s_cast<Core::Data::Ast::ParamPass>();
-    astCharPtrTypeRef->setOwner(literalGenerator->rootManager->getRootScope().get());
-    literalGenerator->astCharPtrType = ti_cast<Spp::Ast::Type>(literalGenerator->getSeeker()->doGet(
-      astCharPtrTypeRef.get(), literalGenerator->rootManager->getRootScope().get()
+    astCharPtrTypeRef->setOwner(literalGenerator->generator->getRootManager()->getRootScope().get());
+    literalGenerator->astCharPtrType = ti_cast<Spp::Ast::Type>(literalGenerator->generator->getSeeker()->doGet(
+      astCharPtrTypeRef.get(), literalGenerator->generator->getRootManager()->getRootScope().get()
     ));
     if (literalGenerator->astCharPtrType == 0) {
       throw EXCEPTION(GenericException, STR("Failed to get string literal AST type."));
@@ -91,7 +93,7 @@ Bool LiteralGenerator::_generateStringLiteral(
   // Create an anonymous global variable.
   auto llvmStrConst = llvm::ConstantArray::get(static_cast<llvm::ArrayType*>(llvmType), llvmCharArray);
   auto llvmVar = new llvm::GlobalVariable(
-    *literalGenerator->llvmModule, llvmType, true,
+    *(literalGenerator->generator->getLlvmModule().get()), llvmType, true,
     llvm::GlobalValue::PrivateLinkage, llvmStrConst, literalGenerator->getAnonymouseVarName().c_str()
   );
   llvmVar->setAlignment(1);
@@ -164,9 +166,9 @@ Bool LiteralGenerator::_generateIntegerLiteral(
   // Generate the literal.
   llvm::Type *llvmType = 0;
   Ast::Type *astType = 0;
-  literalGenerator->sourceLocationStack->push_back(astNode->getSourceLocation());
+  literalGenerator->generator->getSourceLocationStack()->push_back(astNode->getSourceLocation());
   Bool result = literalGenerator->getIntegerType(size, astType, llvmType);
-  literalGenerator->sourceLocationStack->pop_back();
+  literalGenerator->generator->getSourceLocationStack()->pop_back();
   if (!result) return false;
   llvmResult = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, value, true));
   resultType = astType;
@@ -201,9 +203,9 @@ Bool LiteralGenerator::_generateFloatLiteral(
   // Generate the literal.
   llvm::Type *llvmType = 0;
   Ast::Type *astType = 0;
-  literalGenerator->sourceLocationStack->push_back(astNode->getSourceLocation());
+  literalGenerator->generator->getSourceLocationStack()->push_back(astNode->getSourceLocation());
   Bool result = literalGenerator->getFloatType(size, astType, llvmType);
-  literalGenerator->sourceLocationStack->pop_back();
+  literalGenerator->generator->getSourceLocationStack()->pop_back();
   if (!result) return false;
   if (size == 32) {
     llvmResult = llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Float)value));
@@ -232,9 +234,9 @@ void LiteralGenerator::getConstStringType(Word size, Ast::Type *&astType, llvm::
     // Create a new reference.
     StrStream stream;
     stream << STR("array[Int[8],") << size << STR("]");
-    this->constStringTypeRef = this->rootManager->parseExpression(stream.str().c_str())
+    this->constStringTypeRef = this->generator->getRootManager()->parseExpression(stream.str().c_str())
       .s_cast<Core::Data::Ast::ParamPass>();
-    this->constStringTypeRef->setOwner(this->rootManager->getRootScope().get());
+    this->constStringTypeRef->setOwner(this->generator->getRootManager()->getRootScope().get());
   } else {
     // Recycle the existing reference.
     auto intLiteral = this->constStringTypeRef
@@ -247,12 +249,14 @@ void LiteralGenerator::getConstStringType(Word size, Ast::Type *&astType, llvm::
   }
   // Generate the llvm type.
   astType = ti_cast<Ast::Type>(
-    this->getSeeker()->doGet(this->constStringTypeRef.get(), this->rootManager->getRootScope().get())
+    this->generator->getSeeker()->doGet(
+      this->constStringTypeRef.get(), this->generator->getRootManager()->getRootScope().get()
+    )
   );
   if (astType == 0) {
     throw EXCEPTION(GenericException, STR("Failed to get const string AST type."));
   }
-  if (!this->typeGenerator->getGeneratedLlvmType(astType, llvmType)) {
+  if (!this->generator->getTypeGenerator()->getGeneratedLlvmType(astType, llvmType)) {
     throw EXCEPTION(GenericException, STR("Failed to generate const string LLVM type."));
   }
 }
@@ -265,9 +269,9 @@ Bool LiteralGenerator::getIntegerType(Word size, Ast::Type *&astType, llvm::Type
     // Create a new reference.
     StrStream stream;
     stream << STR("Int[") << size << STR("]");
-    this->integerTypeRef = this->rootManager->parseExpression(stream.str().c_str())
+    this->integerTypeRef = this->generator->getRootManager()->parseExpression(stream.str().c_str())
       .s_cast<Core::Data::Ast::ParamPass>();
-    this->integerTypeRef->setOwner(this->rootManager->getRootScope().get());
+    this->integerTypeRef->setOwner(this->generator->getRootManager()->getRootScope().get());
   } else {
     // Recycle the existing reference.
     auto intLiteral = this->integerTypeRef
@@ -279,12 +283,14 @@ Bool LiteralGenerator::getIntegerType(Word size, Ast::Type *&astType, llvm::Type
   }
   // Generate the llvm type.
   astType = ti_cast<Ast::Type>(
-    this->getSeeker()->doGet(this->integerTypeRef.get(), this->rootManager->getRootScope().get())
+    this->generator->getSeeker()->doGet(
+      this->integerTypeRef.get(), this->generator->getRootManager()->getRootScope().get()
+    )
   );
   if (astType == 0) {
     throw EXCEPTION(GenericException, STR("Failed to get integer AST type."));
   }
-  return this->typeGenerator->getGeneratedLlvmType(astType, llvmType);
+  return this->generator->getTypeGenerator()->getGeneratedLlvmType(astType, llvmType);
 }
 
 
@@ -295,9 +301,9 @@ Bool LiteralGenerator::getFloatType(Word size, Ast::Type *&astType, llvm::Type *
     // Create a new reference.
     StrStream stream;
     stream << STR("Float[") << size << STR("]");
-    this->floatTypeRef = this->rootManager->parseExpression(stream.str().c_str())
+    this->floatTypeRef = this->generator->getRootManager()->parseExpression(stream.str().c_str())
       .s_cast<Core::Data::Ast::ParamPass>();
-    this->floatTypeRef->setOwner(this->rootManager->getRootScope().get());
+    this->floatTypeRef->setOwner(this->generator->getRootManager()->getRootScope().get());
   } else {
     // Recycle the existing reference.
     auto floatLiteral = this->floatTypeRef
@@ -309,12 +315,14 @@ Bool LiteralGenerator::getFloatType(Word size, Ast::Type *&astType, llvm::Type *
   }
   // Generate the llvm type.
   astType = ti_cast<Ast::Type>(
-    this->getSeeker()->doGet(this->floatTypeRef.get(), this->rootManager->getRootScope().get())
+    this->generator->getSeeker()->doGet(
+      this->floatTypeRef.get(), this->generator->getRootManager()->getRootScope().get()
+    )
   );
   if (astType == 0) {
     throw EXCEPTION(GenericException, STR("Failed to get integer AST type."));
   }
-  return this->typeGenerator->getGeneratedLlvmType(astType, llvmType);
+  return this->generator->getTypeGenerator()->getGeneratedLlvmType(astType, llvmType);
 }
 
 } } // namespace

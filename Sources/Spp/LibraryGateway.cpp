@@ -30,11 +30,15 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 
   // Create the generator.
   this->nodePathResolver = new NodePathResolver(manager->getSeeker());
-  this->llvmTypeGenerator = new LlvmCodeGen::TypeGenerator(manager, this->nodePathResolver);
-  this->llvmLiteralGenerator = new LlvmCodeGen::LiteralGenerator(manager, this->llvmTypeGenerator);
+  this->llvmTypeGenerator = new LlvmCodeGen::TypeGenerator();
+  this->llvmLiteralGenerator = new LlvmCodeGen::LiteralGenerator();
+  this->llvmExpressionGenerator = new LlvmCodeGen::ExpressionGenerator();
   this->llvmGenerator = new LlvmCodeGen::Generator(
-    manager, this->nodePathResolver, this->llvmTypeGenerator, this->llvmLiteralGenerator
+    manager, this->nodePathResolver, this->llvmTypeGenerator, this->llvmLiteralGenerator, this->llvmExpressionGenerator
   );
+  this->llvmTypeGenerator->setGenerator(this->llvmGenerator);
+  this->llvmLiteralGenerator->setGenerator(this->llvmGenerator);
+  this->llvmExpressionGenerator->setGenerator(this->llvmGenerator);
 
   // Create leading commands.
 
@@ -317,6 +321,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
 
   this->createBuiltInTypes(manager);
+  this->createBuiltInFunctions(manager);
 }
 
 
@@ -367,6 +372,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   grammarRepository->remove(STR("root:BlockExpression"));
   grammarRepository->remove(STR("root:BlockMain"));
 
+  this->removeBuiltInFunctions(manager);
   this->removeBuiltInTypes(manager);
 }
 
@@ -523,6 +529,109 @@ void LibraryGateway::removeBuiltInTypes(Core::Standard::RootManager *manager)
 
   identifier.setValue(STR("array"));
   manager->getSeeker()->doRemove(&identifier, root);
+}
+
+
+void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager)
+{
+  Core::Data::Ast::Identifier identifier;
+  auto root = manager->getRootScope().get();
+  TioSharedPtr hook;
+  
+  Char const *binaryOps[] = { STR("add"), STR("sub"), STR("mul"), STR("div") };
+  Char const *types[] = {
+    STR("Int[8]"), STR("Int[16]"), STR("Int[32]"), STR("Int[64]"), STR("Float[32]"), STR("Float[64]")
+  };
+
+  for (Int i = 0; i < sizeof(binaryOps) / sizeof(binaryOps[0]); ++i) {
+    Str path = STR("__");
+    path += binaryOps[i];
+    identifier.setValue(path.c_str());
+
+    for (Int j = 0; j < sizeof(types) / sizeof(types[0]); ++j) {
+      Int length = SBSTR(types[j]).findPos(CHR('['));
+      Str funcName = STR("#");
+      funcName += binaryOps[i];
+      funcName.append(types[j], length);
+
+      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
+        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+        hook = this->createBinaryFunction(manager, funcName.c_str(), types[j], types[j], types[j]);
+        obj = hook.get();
+        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+      });
+    }
+  }
+
+  identifier.setValue(STR("__neg"));
+  for (Int j = 0; j < sizeof(types) / sizeof(types[0]); ++j) {
+    Int length = SBSTR(types[j]).findPos(CHR('['));
+    Str funcName = STR("#");
+    funcName += STR("neg");
+    funcName.append(types[j], length);
+
+    manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
+      if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+      hook = this->createUnaryFunction(manager, funcName.c_str(), types[j], types[j]);
+      obj = hook.get();
+      return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+    });
+  }
+}
+
+
+void LibraryGateway::removeBuiltInFunctions(Core::Standard::RootManager *manager)
+{
+  Core::Data::Ast::Identifier identifier;
+  auto root = manager->getRootScope().get();
+
+  identifier.setValue(STR("__add"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("__sub"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("__mul"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("__div"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("__neg"));
+  manager->getSeeker()->doRemove(&identifier, root);
+}
+
+
+SharedPtr<Ast::Function> LibraryGateway::createBinaryFunction(
+  Core::Standard::RootManager *manager, Char const *name, Char const *in1, Char const *in2, Char const *out
+) {
+  auto retType = manager->parseExpression(out);
+  auto argTypes = Core::Data::SharedMap::create(false, {
+    { STR("in1"), manager->parseExpression(in1) },
+    { STR("in2"), manager->parseExpression(in2) }
+  });
+  return Ast::Function::create({
+    { STR("name"), TiStr(name) }
+  }, {
+    { STR("argTypes"), argTypes },
+    { STR("retType"), retType }
+  });
+}
+
+
+SharedPtr<Ast::Function> LibraryGateway::createUnaryFunction(
+  Core::Standard::RootManager *manager, Char const *name, Char const *in, Char const *out
+) {
+  auto retType = manager->parseExpression(out);
+  auto argTypes = Core::Data::SharedMap::create(false, {
+    { STR("in"), manager->parseExpression(in) }
+  });
+  return Ast::Function::create({
+    { STR("name"), TiStr(name) }
+  }, {
+    { STR("argTypes"), argTypes },
+    { STR("retType"), retType }
+  });
 }
 
 } // namespace

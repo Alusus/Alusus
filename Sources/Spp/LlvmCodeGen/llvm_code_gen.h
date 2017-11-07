@@ -47,6 +47,12 @@ DEFINE_NOTICE(InvalidIntegerBitCountNotice, "Spp.Handlers", "Spp", "alusus.net",
 DEFINE_NOTICE(InvalidCastNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1306", 1,
   STR("Invalid cast.")
 );
+DEFINE_NOTICE(InvalidOperationNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1307", 1,
+  STR("Invalid operation.")
+);
+DEFINE_NOTICE(UnsupportedOperationNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1308", 1,
+  STR("Unsupported operation.")
+);
 
 } } // namespace
 
@@ -54,16 +60,23 @@ DEFINE_NOTICE(InvalidCastNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1306",
 //==============================================================================
 // Classes
 
+namespace Spp { namespace LlvmCodeGen
+{
+
+class Generator;  
+
+} }
+
 #include "llvm_dependencies.h"
 
 // Functions
 #include "Block.h"
-#include "Function.h"
 #include "UserFunction.h"
 
 // The Generator
 #include "TypeGenerator.h"
 #include "LiteralGenerator.h"
+#include "ExpressionGenerator.h"
 #include "Generator.h"
 
 #endif

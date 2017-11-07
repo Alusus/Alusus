@@ -37,13 +37,8 @@ class LiteralGenerator : public TiObject, public virtual DynamicBindings, public
   //============================================================================
   // Member Variables
 
-  private: Core::Standard::RootManager *rootManager;
-  private: TypeGenerator *typeGenerator;
-  private: llvm::DataLayout *llvmDataLayout;
+  private: Generator *generator;
 
-  private: Core::Processing::ParserState *parserState;
-  private: SharedPtr<llvm::Module> llvmModule;
-  private: std::vector<Core::Data::SourceLocation> *sourceLocationStack;
   private: SharedPtr<Core::Data::Ast::ParamPass> constStringTypeRef;
   private: SharedPtr<Core::Data::Ast::ParamPass> integerTypeRef;
   private: SharedPtr<Core::Data::Ast::ParamPass> floatTypeRef;
@@ -51,16 +46,15 @@ class LiteralGenerator : public TiObject, public virtual DynamicBindings, public
   private: Spp::Ast::Type *astCharPtrType = 0;
   private: llvm::Type *llvmCharType = 0;
   private: Int anonymousVarIndex = 0;
-  
+
 
   //============================================================================
   // Constructors & Destructor
 
-  public: LiteralGenerator(Core::Standard::RootManager *m, TypeGenerator *tg) : rootManager(m), typeGenerator(tg)
+  public: LiteralGenerator(Generator *g = 0) : generator(g)
   {
     this->initBindingCaches();
     this->initBindings();
-    this->llvmDataLayout = new llvm::DataLayout("");
   }
 
   public: LiteralGenerator(LiteralGenerator *parent)
@@ -68,9 +62,7 @@ class LiteralGenerator : public TiObject, public virtual DynamicBindings, public
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
-    this->rootManager = parent->getRootManager();
-    this->typeGenerator = parent->getTypeGenerator();
-    this->llvmDataLayout = new llvm::DataLayout("");
+    this->generator = parent->getGenerator();
   }
 
   public: virtual ~LiteralGenerator()
@@ -87,29 +79,14 @@ class LiteralGenerator : public TiObject, public virtual DynamicBindings, public
   private: void initBindingCaches();
   private: void initBindings();
 
-  public: Core::Standard::RootManager* getRootManager() const
+  public: void setGenerator(Generator *g)
   {
-    return this->rootManager;
+    this->generator = g;
   }
 
-  public: Core::Data::Seeker* getSeeker() const
+  public: Generator* getGenerator() const
   {
-    return this->rootManager->getSeeker();
-  }
-
-  public: TypeGenerator* getTypeGenerator() const
-  {
-    return this->typeGenerator;
-  }
-
-  public: void prepareForGeneration(
-    Core::Processing::ParserState *state,
-    SharedPtr<llvm::Module> const &module,
-    std::vector<Core::Data::SourceLocation> *stack)
-  {
-    this->parserState = state;
-    this->llvmModule = module;
-    this->sourceLocationStack = stack;
+    return this->generator;
   }
 
   /// @}
