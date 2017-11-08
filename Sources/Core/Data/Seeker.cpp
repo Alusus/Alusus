@@ -195,10 +195,10 @@ void Seeker::_setByIdentifier_sharedRepository(
           if (isPerform(verb)) {
             def->setTarget(getSharedPtr(obj));
           }
-          if (!isMove(verb)) break;
+          if (!Seeker::isMove(verb)) break;
         }
       }
-      if (isMove(verb)) {
+      if (Seeker::isMove(verb)) {
         TiObject *obj = 0;
         verb = cb(obj, 0);
         if (isPerform(verb)) {
@@ -209,7 +209,7 @@ void Seeker::_setByIdentifier_sharedRepository(
           scope->add(def);
         }
       }
-      if (!isMove(verb)) break;
+      if (!Seeker::isMove(verb)) break;
     }
   }
 }
@@ -232,10 +232,10 @@ void Seeker::_setByIdentifier_ast(
           if (isPerform(verb)) {
             def->setTarget(getSharedPtr(obj));
           }
-          if (!isMove(verb)) break;
+          if (!Seeker::isMove(verb)) break;
         }
       }
-      if (isMove(verb)) {
+      if (Seeker::isMove(verb)) {
         TiObject *obj = 0;
         verb = cb(obj, 0);
         if (isPerform(verb)) {
@@ -246,7 +246,7 @@ void Seeker::_setByIdentifier_ast(
           scope->add(def);
         }
       }
-      if (!isMove(verb)) break;
+      if (!Seeker::isMove(verb)) break;
     }
     node = node->getOwner();
   }
@@ -286,10 +286,10 @@ void Seeker::_removeByIdentifier_sharedRepository(
             scope->remove(i);
             --i;
           }
-          if (!isMove(verb)) break;
+          if (!Seeker::isMove(verb)) break;
         }
       }
-      if (!isMove(verb)) break;
+      if (!Seeker::isMove(verb)) break;
     }
   }
 }
@@ -313,10 +313,10 @@ void Seeker::_removeByIdentifier_ast(
             scope->remove(i);
             --i;
           }
-          if (!isMove(verb)) break;
+          if (!Seeker::isMove(verb)) break;
         }
       }
-      if (!isMove(verb)) break;
+      if (!Seeker::isMove(verb)) break;
     }
     node = node->getOwner();
   }
@@ -353,10 +353,10 @@ void Seeker::_foreachByIdentifier_sharedRepository(
         if (def != 0 && def->getName() == identifier->getValue()) {
           auto obj = def->getTarget().get();
           verb = cb(obj, 0);
-          if (!isMove(verb)) break;
+          if (!Seeker::isMove(verb)) break;
         }
       }
-      if (!isMove(verb)) break;
+      if (!Seeker::isMove(verb)) break;
     }
   }
 }
@@ -376,10 +376,10 @@ void Seeker::_foreachByIdentifier_ast(
         if (def != 0 && def->getName() == identifier->getValue()) {
           auto obj = def->getTarget().get();
           verb = cb(obj, 0);
-          if (!isMove(verb)) break;
+          if (!Seeker::isMove(verb)) break;
         }
       }
-      if (!isMove(verb)) break;
+      if (!Seeker::isMove(verb)) break;
     }
     node = node->getOwner();
   }
@@ -443,10 +443,10 @@ Seeker::Verb Seeker::_setByLinkOperator_scopeDotIdentifier(
       if (isPerform(verb)) {
         def->setTarget(getSharedPtr(obj));
       }
-      if (!isMove(verb)) break;
+      if (!Seeker::isMove(verb)) break;
     }
   }
-  if (isMove(verb)) {
+  if (Seeker::isMove(verb)) {
     TiObject *obj = 0;
     verb = cb(obj, 0);
     if (isPerform(verb)) {
@@ -532,7 +532,7 @@ Seeker::Verb Seeker::_removeByLinkOperator_scopeDotIdentifier(
         scope->remove(i);
         --i;
       }
-      if (!isMove(verb)) break;
+      if (!Seeker::isMove(verb)) break;
     }
   }
   return verb;
@@ -609,7 +609,7 @@ Seeker::Verb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
     if (def != 0 && def->getName() == identifier->getValue()) {
       auto obj = def->getTarget().get();
       verb = cb(obj, 0);
-      if (!isMove(verb)) break;
+      if (!Seeker::isMove(verb)) break;
     }
   }
   return verb;

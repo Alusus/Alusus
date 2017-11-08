@@ -42,7 +42,8 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   private: TypeGenerator *typeGenerator;
   private: LiteralGenerator *literalGenerator;
   private: ExpressionGenerator *expressionGenerator;
-
+  private: CommandGenerator *commandGenerator;
+  
   private: Core::Processing::ParserState *parserState = 0;
   private: SharedPtr<ExecutionContext> executionContext;
   private: std::vector<Core::Data::SourceLocation> sourceLocationStack;
@@ -60,8 +61,15 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     NodePathResolver *r,
     TypeGenerator *tg,
     LiteralGenerator *lg,
-    ExpressionGenerator *eg
-  ) : rootManager(manager), nodePathResolver(r), typeGenerator(tg), literalGenerator(lg), expressionGenerator(eg)
+    ExpressionGenerator *eg,
+    CommandGenerator *cg
+  ) :
+    rootManager(manager),
+    nodePathResolver(r),
+    typeGenerator(tg),
+    literalGenerator(lg),
+    expressionGenerator(eg),
+    commandGenerator(cg)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -77,6 +85,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     this->typeGenerator = parent->getTypeGenerator();
     this->literalGenerator = parent->getLiteralGenerator();
     this->expressionGenerator = parent->getExpressionGenerator();
+    this->commandGenerator = parent->getCommandGenerator();
   }
 
   public: virtual ~Generator()
@@ -126,6 +135,11 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   public: ExpressionGenerator* getExpressionGenerator() const
   {
     return this->expressionGenerator;
+  }
+
+  public: CommandGenerator* getCommandGenerator() const
+  {
+    return this->commandGenerator;
   }
 
   public: Core::Processing::ParserState* getParserState() const

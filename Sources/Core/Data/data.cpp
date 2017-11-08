@@ -113,6 +113,16 @@ void generateId(Node *obj, StrStream &id)
 }
 
 
+Node* findOwner(Node *obj, TypeInfo *typeInfo)
+{
+  while (obj != 0) {
+    if (obj->isDerivedFrom(typeInfo)) break;
+    obj = obj->getOwner();
+  }
+  return obj;
+}
+
+
 Bool matchCharGroup(WChar ch, CharGroupUnit *unit)
 {
   ASSERT(unit);

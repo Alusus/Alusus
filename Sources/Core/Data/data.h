@@ -229,6 +229,18 @@ void setTreeIds(TiObject *obj, const Char *id);
 void generateId(Node *obj, StrStream &id);
 
 /**
+ * @brief Find an object in the chain of owners with the given type.
+ * @ingroup data
+ * If the given object is of the given type, it will be returned.
+ */
+Node* findOwner(Node *obj, TypeInfo *typeInfo);
+
+template <class T> T* findOwner(Node *obj)
+{
+  return static_cast<T*>(findOwner(obj, T::getTypeInfo()));
+}
+
+/**
  * @brief Match a given character to a character group hierarchy.
  * @ingroup data
  * Recursively matches the given character to the given character group. This

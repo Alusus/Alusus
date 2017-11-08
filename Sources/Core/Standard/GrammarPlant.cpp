@@ -1346,17 +1346,17 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {{STR("operand"), REF_PARSER->parseQualifier(STR("root:Subject"))}})},
     {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
-       auto currentList = state->getData().ti_cast_get<Data::Container>();
-       auto metadata = ti_cast<Ast::Metadata>(currentList);
-       auto token = tio_cast<Ast::Token>(currentList->get(0));
-       auto linkOp = Ast::LinkOperator::create({
-         { "prodId", metadata->getProdId() },
-         { "sourceLocation", metadata->getSourceLocation() }
-       });
-       linkOp->setType(token->getText());
-       linkOp->setSecond(getSharedPtr(currentList->get(1)));
-       state->setData(linkOp);
-     })}
+      auto currentList = state->getData().ti_cast_get<Data::Container>();
+      auto metadata = ti_cast<Ast::Metadata>(currentList);
+      auto token = tio_cast<Ast::Token>(currentList->get(0));
+      auto linkOp = Ast::LinkOperator::create({
+        { "prodId", metadata->getProdId() },
+        { "sourceLocation", metadata->getSourceLocation() }
+      });
+      linkOp->setType(token->getText());
+      linkOp->setSecond(getSharedPtr(currentList->get(1)));
+      state->setData(linkOp);
+    })}
   }).get());
 
   //// ParamPassExp : "(" [Expression] ")" | "[" [Expression] "]".

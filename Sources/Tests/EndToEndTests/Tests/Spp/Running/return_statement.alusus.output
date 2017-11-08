@@ -1,0 +1,5 @@
+getInt: 30
+getFloat: 5.500000
+getFloatCasted: 5.500000
+getAddition: 15
+getIntIndirect: 30

@@ -1,0 +1,42 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+
+  def main: function ()=>Void
+  {
+    print("getInt: %d\n", getInt());
+    print("getFloat: %f\n", getFloat());
+    print("getFloatCasted: %f\n", getFloatCasted());
+    print("getAddition: %d\n", getAddition());
+    print("getIntIndirect: %d\n", getIntIndirect());
+  };
+
+  def getInt: function ()=>Int[32]
+  {
+    return 30;
+  };
+
+  def getFloat: function ()=>Float[64]
+  {
+    return 5.5f64;
+  };
+
+  def getFloatCasted: function ()=>Float[64]
+  {
+    return 5.5;
+  };
+
+  def getAddition: function ()=>Int[32]
+  {
+    return 5 + 10;
+  };
+
+  def getIntIndirect: function ()=>Int[32]
+  {
+    return getInt();
+  };
+};
+
+run Main.main;

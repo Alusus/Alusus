@@ -364,6 +364,11 @@ Bool Generator::_generatePhrase(
       generator->parserState->addNotice(std::make_shared<InvalidOperationNotice>(bracket->getSourceLocation()));
       return false;
     }
+  } else if (astNode->isDerivedFrom<Spp::Ast::ReturnStatement>()) {
+    auto returnStatement = static_cast<Spp::Ast::ReturnStatement*>(astNode);
+    return generator->commandGenerator->generateReturn(
+      returnStatement, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+    );
   }
   // TODO:
   generator->parserState->addNotice(

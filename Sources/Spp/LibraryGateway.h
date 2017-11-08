@@ -31,6 +31,7 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   private: LlvmCodeGen::TypeGenerator *llvmTypeGenerator = 0;
   private: LlvmCodeGen::LiteralGenerator *llvmLiteralGenerator = 0;
   private: LlvmCodeGen::ExpressionGenerator *llvmExpressionGenerator = 0;
+  private: LlvmCodeGen::CommandGenerator *llvmCommandGenerator = 0;
   private: LlvmCodeGen::Generator *llvmGenerator = 0;
 
 

@@ -33,13 +33,20 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   this->llvmTypeGenerator = new LlvmCodeGen::TypeGenerator();
   this->llvmLiteralGenerator = new LlvmCodeGen::LiteralGenerator();
   this->llvmExpressionGenerator = new LlvmCodeGen::ExpressionGenerator();
+  this->llvmCommandGenerator = new LlvmCodeGen::CommandGenerator();
   this->llvmGenerator = new LlvmCodeGen::Generator(
-    manager, this->nodePathResolver, this->llvmTypeGenerator, this->llvmLiteralGenerator, this->llvmExpressionGenerator
+    manager,
+    this->nodePathResolver,
+    this->llvmTypeGenerator,
+    this->llvmLiteralGenerator,
+    this->llvmExpressionGenerator,
+    this->llvmCommandGenerator
   );
   this->llvmTypeGenerator->setGenerator(this->llvmGenerator);
   this->llvmLiteralGenerator->setGenerator(this->llvmGenerator);
   this->llvmExpressionGenerator->setGenerator(this->llvmGenerator);
-
+  this->llvmCommandGenerator->setGenerator(this->llvmGenerator);
+  
   // Create leading commands.
 
   auto grammarRepository = manager->getGrammarRepository();
@@ -122,6 +129,39 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
       std::make_shared<Handlers::WhileParsingHandler>()}
   }).get());
   this->addReferenceToCommandList(leadingCmdList, STR("module:While"));
+
+  //// return = "return" + Expression
+  grammarRepository->set(STR("root:Main.Return"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("return"), 0 }, { STR("أرجع"), 0 } }) },
+        {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+              {STR("min"), std::make_shared<Integer>(0)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
+            })
+          })
+        }
+      })
+    },
+    { SymbolDefElement::HANDLER, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+      auto metadata = state->getData().ti_cast_get<Data::Ast::Metadata>();
+      auto currentList = state->getData().ti_cast_get<Data::Container>();
+      auto returnStatement = Ast::ReturnStatement::create({
+        { "prodId", metadata->getProdId() },
+        { "sourceLocation", metadata->getSourceLocation() }
+      });
+      if (currentList != 0) {
+        returnStatement->setOperand(getSharedPtr(currentList->get(1)));
+      }
+      state->setData(returnStatement);
+    })}
+  }).get());
+  this->addReferenceToCommandList(leadingCmdList, STR("module:Return"));
 
   // Create inner command.
 
@@ -348,7 +388,8 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Build"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Run"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:While"));
-
+  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Return"));
+  
   // Remove command from inner commands list.
   this->removeReferenceFromCommandList(innerCmdList, STR("module:Module"));
   this->removeReferenceFromCommandList(innerCmdList, STR("module:Type"));
@@ -358,6 +399,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   grammarRepository->remove(STR("root:Main.Build"));
   grammarRepository->remove(STR("root:Main.Run"));
   grammarRepository->remove(STR("root:Main.While"));
+  grammarRepository->remove(STR("root:Main.Return"));
   grammarRepository->remove(STR("root:Main.ModuleStatementList"));
   grammarRepository->remove(STR("root:Main.TypeStatementList"));
   grammarRepository->remove(STR("root:Main.BlockStatementList"));
