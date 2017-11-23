@@ -30,6 +30,8 @@ class SeekerExtension : public ObjTiInterface
   public: struct Overrides
   {
     TiFunctionBase *foreachRef;
+    TiFunctionBase *foreachByIdentifier_levelRef;
+    TiFunctionBase *foreachByIdentifier_functionRef;
     TiFunctionBase *foreachByParamPassRef;
     TiFunctionBase *foreachByParamPass_routingRef;
     TiFunctionBase *foreachByParamPass_templateRef;
@@ -48,6 +50,7 @@ class SeekerExtension : public ObjTiInterface
   public: SeekerExtension(TiObject *o) : owner(o)
   {
     initBindingCaches(this->owner, {
+      &this->foreachByIdentifier_function,
       &this->foreachByParamPass,
       &this->foreachByParamPass_routing,
       &this->foreachByParamPass_template
@@ -84,6 +87,12 @@ class SeekerExtension : public ObjTiInterface
   /// @name Seek Functions
   /// @{
 
+  public: METHOD_BINDING_CACHE(foreachByIdentifier_function,
+    Core::Data::Seeker::Verb, (
+      Data::Ast::Identifier const*, Ast::Function*, Core::Data::Seeker::ForeachCallback const&
+    )
+  );
+
   public: METHOD_BINDING_CACHE(foreachByParamPass,
     void, (Data::Ast::ParamPass const*, TiObject*, Core::Data::Seeker::ForeachCallback const&)
   );
@@ -98,6 +107,15 @@ class SeekerExtension : public ObjTiInterface
 
   private: static void _foreach(
     TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
+    Core::Data::Seeker::ForeachCallback const &cb
+  );
+
+  private: static Core::Data::Seeker::Verb _foreachByIdentifier_level(
+    TiFunctionBase *base, TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
+    Core::Data::Seeker::ForeachCallback const &cb
+  );
+  private: static Core::Data::Seeker::Verb _foreachByIdentifier_function(
+    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Function *function,
     Core::Data::Seeker::ForeachCallback const &cb
   );
 

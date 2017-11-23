@@ -92,15 +92,15 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
       Spp::Ast::Type*&, llvm::Value*&, TiObject*&
     )
   );
-  public: METHOD_BINDING_CACHE(generateIdentifier,
-    Bool, (
-      Core::Data::Ast::Identifier*, llvm::IRBuilder<>*, llvm::Function*,
-      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
-    )
-  );
   public: METHOD_BINDING_CACHE(generateInfixOp,
     Bool, (
       Core::Data::Ast::InfixOperator*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
+  );
+  public: METHOD_BINDING_CACHE(generateAssignment,
+    Bool, (
+      Core::Data::Ast::AssignmentOperator*, llvm::IRBuilder<>*, llvm::Function*,
       Spp::Ast::Type*&, llvm::Value*&, TiObject*&
     )
   );
@@ -130,13 +130,13 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
     TiObject *self, Core::Data::Ast::ParamPass *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
   );
-  private: static Bool _generateIdentifier(
-    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
-  );
   private: static Bool _generateInfixOp(
     TiObject *self, Core::Data::Ast::InfixOperator *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  );
+  private: static Bool _generateAssignment(
+    TiObject *self, Core::Data::Ast::AssignmentOperator *astNode, llvm::IRBuilder<> *llvmIrBuilder,
+    llvm::Function *llvmFunc, Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
   );
   private: static Bool _generateFunctionCall(
     TiObject *self, Spp::Ast::Function *callee,
@@ -173,7 +173,7 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
     Core::Basic::TiObject *ref, Core::Data::Node *astNode, Core::Basic::Container<Core::Basic::TiObject> *types,
     Ast::Function *&function
   );
-  
+
   /// @}
 
 }; // class

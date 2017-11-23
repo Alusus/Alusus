@@ -42,4 +42,13 @@ Type* traceType(TiObject *ref, Core::Data::Seeker *seeker)
   return result;
 }
 
+
+Bool isVarDefinition(TiObject *obj)
+{
+  return
+    obj->isDerivedFrom<Core::Data::Ast::ParamPass>() ||
+    obj->isDerivedFrom<Core::Data::Ast::LinkOperator>() ||
+    obj->isDerivedFrom<Core::Data::Ast::Identifier>();
+}
+
 } } // namespace

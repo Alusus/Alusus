@@ -1,0 +1,106 @@
+ERROR SPP1312 @ (24,10): Value is not implicitly castable to target type.
+ERROR SPP1312 @ (27,10): Value is not implicitly castable to target type.
+ERROR SPP1312 @ (31,10): Value is not implicitly castable to target type.
+ERROR SPP1312 @ (34,10): Value is not implicitly castable to target type.
+ERROR SPP1303 @ (45,5): No matches were found for the given callee.
+ERROR SPP1303 @ (46,5): No matches were found for the given callee.
+ERROR SPP1303 @ (47,5): No matches were found for the given callee.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+
+@Main_gi = global i32 0
+@Main_gpi = global i32* null
+@Main_gbi = global i64 0
+@Main_gf = global float 0.000000e+00
+@Main_gpf = global float* null
+@Main_gbf = global double 0.000000e+00
+@__anonymous0 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous1 = private constant [8 x i8] c"%d, %f\0A\00", align 1
+@__anonymous2 = private constant [4 x i8] c"%d\0A\00", align 1
+
+declare i64 @printf(i8*, ...)
+
+define void @Main_main_____Void_() {
+__block0:
+  %li = alloca i32
+  %lpi = alloca i32*
+  %lbi = alloca i64
+  %lf = alloca float
+  %lpf = alloca float*
+  %lbf = alloca double
+  store i32 1, i32* @Main_gi
+  store i64 3, i64* @Main_gbi
+  store float 4.000000e+00, float* @Main_gf
+  store double 6.000000e+00, double* @Main_gbf
+  store i32 7, i32* %li
+  store i64 9, i64* %lbi
+  store float 1.000000e+01, float* %lf
+  store double 1.200000e+01, double* %lbf
+  %0 = load i32* @Main_gi
+  %1 = load float* @Main_gf
+  %2 = sext i32 %0 to i64
+  %3 = fpext float %1 to double
+  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %2, double %3)
+  %4 = load i64* @Main_gbi
+  %5 = load double* @Main_gbf
+  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %4, double %5)
+  %6 = load i32* %li
+  %7 = load float* %lf
+  %8 = sext i32 %6 to i64
+  %9 = fpext float %7 to double
+  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %8, double %9)
+  %10 = load i64* %lbi
+  %11 = load double* %lbf
+  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %10, double %11)
+  %12 = load i32* @Main_gi
+  %13 = add i32 %12, 100
+  %14 = load float* @Main_gf
+  %15 = fadd float %14, 1.000000e+02
+  %16 = sext i32 %13 to i64
+  %17 = fpext float %15 to double
+  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %16, double %17)
+  %18 = load i32* %li
+  %19 = add i32 %18, 200
+  %20 = load float* %lf
+  %21 = fadd float %20, 2.000000e+02
+  %22 = sext i32 %19 to i64
+  %23 = fpext float %21 to double
+  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %22, double %23)
+  %24 = load float* @Main_gf
+  %25 = load i32* @Main_gi
+  %26 = load i32* @Main_gi
+  %27 = load i32* @Main_gi
+  %28 = load float* @Main_gf
+  %29 = load float* @Main_gf
+  call void @Main_testVarOverride_____Void_()
+  %30 = load i32* @Main_gi
+  %31 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i64 0, i64 0), i32 %30)
+}
+
+define void @Main_testVars_Int_64__Float_64_____Void_(i64 %ai, double %af) {
+__block1:
+  %ai1 = alloca i64
+  store i64 %ai, i64* %ai1
+  %af2 = alloca double
+  store double %af, double* %af2
+  %li = alloca i32
+  %lf = alloca float
+  %0 = load i64* %ai1
+  %1 = load double* %af2
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous1, i64 0, i64 0), i64 %0, double %1)
+  store i64 123, i64* %ai1
+  store double 4.560000e+02, double* %af2
+  ret void
+}
+
+define void @Main_testVarOverride_____Void_() {
+__block2:
+  %gi = alloca i32
+  store i32 60, i32* %gi
+  %0 = load i32* %gi
+  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous2, i64 0, i64 0), i32 %0)
+  ret void
+}
+------------------------------------------------------------

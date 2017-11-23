@@ -195,58 +195,61 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   public: METHOD_BINDING_CACHE(setByIdentifier,
     void, (Data::Ast::Identifier const*, TiObject*, SetCallback const&)
   );
-  public: METHOD_BINDING_CACHE(setByIdentifier_sharedRepository,
-    void, (Data::Ast::Identifier const*, Data::SharedRepository*, SetCallback const&)
+  public: METHOD_BINDING_CACHE(setByIdentifier_level,
+    Verb, (Data::Ast::Identifier const*, TiObject*, SetCallback const&)
   );
-  public: METHOD_BINDING_CACHE(setByIdentifier_ast,
-    void, (Data::Ast::Identifier const*, TiObject*, SetCallback const&)
+  public: METHOD_BINDING_CACHE(setByIdentifier_scope,
+    Verb, (Data::Ast::Identifier const*, Ast::Scope*, SetCallback const&)
   );
 
-  private: static void _setByIdentifier(TiObject *self, Data::Ast::Identifier const *identifier,
-                                        TiObject *data, SetCallback const &cb);
-  private: static void _setByIdentifier_sharedRepository(TiObject *self, Data::Ast::Identifier const *identifier,
-                                                         Data::SharedRepository *repo, SetCallback const &cb);
-  private: static void _setByIdentifier_ast(TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
-                                            SetCallback const &cb);
+  private: static void _setByIdentifier(
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb
+  );
+  private: static Verb _setByIdentifier_level(
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb
+  );
+  private: static Verb _setByIdentifier_scope(
+    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb
+  );
 
   public: METHOD_BINDING_CACHE(removeByIdentifier,
     void, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&)
   );
-  public: METHOD_BINDING_CACHE(removeByIdentifier_sharedRepository,
-    void, (Data::Ast::Identifier const*, Data::SharedRepository*, RemoveCallback const&)
+  public: METHOD_BINDING_CACHE(removeByIdentifier_level,
+    Verb, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&)
   );
-  public: METHOD_BINDING_CACHE(removeByIdentifier_ast,
-    void, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&)
+  public: METHOD_BINDING_CACHE(removeByIdentifier_scope,
+    Verb, (Data::Ast::Identifier const*, Ast::Scope*, RemoveCallback const&)
   );
 
   private: static void _removeByIdentifier(
     TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb
   );
-  private: static void _removeByIdentifier_sharedRepository(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, RemoveCallback const &cb
-  );
-  private: static void _removeByIdentifier_ast(
+  private: static Verb _removeByIdentifier_level(
     TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb
+  );
+  private: static Verb _removeByIdentifier_scope(
+    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, RemoveCallback const &cb
   );
 
   public: METHOD_BINDING_CACHE(foreachByIdentifier,
     void, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&)
   );
-  public: METHOD_BINDING_CACHE(foreachByIdentifier_sharedRepository,
-    void, (Data::Ast::Identifier const*, Data::SharedRepository*, ForeachCallback const&)
+  public: METHOD_BINDING_CACHE(foreachByIdentifier_level,
+    Verb, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&)
   );
-  public: METHOD_BINDING_CACHE(foreachByIdentifier_ast,
-    void, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&)
+  public: METHOD_BINDING_CACHE(foreachByIdentifier_scope,
+    Verb, (Data::Ast::Identifier const*, Ast::Scope*, ForeachCallback const&)
   );
 
   private: static void _foreachByIdentifier(
     TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb
   );
-  private: static void _foreachByIdentifier_sharedRepository(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, ForeachCallback const &cb
-  );
-  private: static void _foreachByIdentifier_ast(
+  private: static Verb _foreachByIdentifier_level(
     TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb
+  );
+  private: static Verb _foreachByIdentifier_scope(
+    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, ForeachCallback const &cb
   );
 
   /// @}

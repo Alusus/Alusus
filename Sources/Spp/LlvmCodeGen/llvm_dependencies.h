@@ -22,6 +22,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/GlobalVariable.h>
 #include <llvm/Linker.h>
 #include <llvm/PassManager.h>
 #include <llvm/Support/TargetSelect.h>
@@ -33,5 +34,6 @@ DEFINE_TYPE_NAME(llvm::Function, "llvm.org/LLVM/llvm.Function");
 DEFINE_TYPE_NAME(llvm::Type, "llvm.org/LLVM/llvm.Type");
 DEFINE_TYPE_NAME(llvm::Value, "llvm.org/LLVM/llvm.Value");
 DEFINE_TYPE_NAME(llvm::IRBuilder<>, "llvm.org/LLVM/llvm.IRBuilder<>");
+DEFINE_TYPE_NAME(llvm::Constant, "llvm.org/LLVM/llvm.Constant");
 
 #endif

@@ -29,7 +29,8 @@ void TypeGenerator::initBindingCaches()
     &this->generatePointerType,
     &this->generateArrayType,
     // &this->generateStructType,
-    &this->createCast
+    &this->generateCast,
+    &this->generateDefaultValue
   });
 }
 
@@ -43,7 +44,8 @@ void TypeGenerator::initBindings()
   this->generatePointerType = &TypeGenerator::_generatePointerType;
   this->generateArrayType = &TypeGenerator::_generateArrayType;
   // this->generateStructType = &TypeGenerator::_generateStructType;
-  this->createCast = &TypeGenerator::_createCast;
+  this->generateCast = &TypeGenerator::_generateCast;
+  this->generateDefaultValue = &TypeGenerator::_generateDefaultValue;
 }
 
 
@@ -72,7 +74,7 @@ Bool TypeGenerator::getGeneratedType(TiObject *ref, Spp::Ast::Type *&type)
 }
 
 
-Bool TypeGenerator::getGeneratedLlvmType(TiObject *ref, llvm::Type *&type)
+Bool TypeGenerator::getGeneratedLlvmType(TiObject *ref, llvm::Type *&llvmTypeResult, Ast::Type **astTypeResult)
 {
   Spp::Ast::Type *astType;
   if (!this->getGeneratedType(ref, astType)) {
@@ -82,7 +84,10 @@ Bool TypeGenerator::getGeneratedLlvmType(TiObject *ref, llvm::Type *&type)
   if (llvmTypeBox == 0 || llvmTypeBox->get() == 0) {
     throw EXCEPTION(GenericException, STR("AST Type is missing the generated Type object."));
   }
-  type = llvmTypeBox->get();
+  llvmTypeResult = llvmTypeBox->get();
+  if (astTypeResult != 0) {
+    *astTypeResult = astType;
+  }
   return true;
 }
 
@@ -256,7 +261,7 @@ Bool TypeGenerator::_generateArrayType(TiObject *self, Spp::Ast::ArrayType *astT
 }
 
 
-Bool TypeGenerator::_createCast(
+Bool TypeGenerator::_generateCast(
   TiObject *self, llvm::IRBuilder<> *llvmIrBuilder, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
   llvm::Value *llvmValue, llvm::Value *&llvmCastedValue
 ) {
@@ -345,6 +350,48 @@ Bool TypeGenerator::_createCast(
     std::make_shared<InvalidCastNotice>(typeGenerator->generator->getSourceLocationStack())
   );
   return false;
+}
+
+
+Bool TypeGenerator::_generateDefaultValue(TiObject *self, Spp::Ast::Type *astType, llvm::Constant *&result)
+{
+  PREPARE_SELF(typeGenerator, TypeGenerator);
+
+  auto llvmTypeBox = astType->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type*>>();
+  if (llvmTypeBox == 0) {
+    if (!typeGenerator->generateType(astType)) return false;
+    llvmTypeBox = astType->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type*>>();
+    ASSERT(llvmTypeBox != 0);
+  }
+
+  if (astType->isDerivedFrom<Spp::Ast::IntegerType>()) {
+    // Generate integer 0
+    auto integerType = static_cast<Spp::Ast::IntegerType*>(astType);
+    auto bitCount = integerType->getBitCount(typeGenerator->generator->getRootManager());
+    result = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(bitCount, 0, true));
+    return true;
+  } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
+    // Generate float 0
+    auto floatType = static_cast<Spp::Ast::FloatType*>(astType);
+    auto bitCount = floatType->getBitCount(typeGenerator->generator->getRootManager());
+    if (bitCount == 32) {
+      result = llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Float)0));
+    } else {
+      result = llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Double)0));
+    }
+    return true;
+  } else if (astType->isDerivedFrom<Spp::Ast::PointerType>()) {
+    // Generate pointer null
+    auto llvmPointerType = static_cast<llvm::PointerType*>(llvmTypeBox->get());
+    result = llvm::ConstantPointerNull::get(llvmPointerType);
+    return true;
+  } else if (astType->isDerivedFrom<Spp::Ast::ArrayType>()) {
+    throw EXCEPTION(GenericException, STR("Array default values are not implemented yet."));
+  // } else if (astType->isDerivedFrom<Spp::Ast::StructType>()) {
+  //   throw EXCEPTION(GenericException, STR("Struct default values are not implemented yet."));
+  } else {
+    throw EXCEPTION(GenericException, STR("Invlid type for generation of default value."));
+  }
 }
 
 } } // namespace

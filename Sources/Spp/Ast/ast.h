@@ -34,6 +34,8 @@ class Type;
 
 Type* traceType(TiObject *ref, Core::Data::Seeker *seeker);
 
+Bool isVarDefinition(TiObject *obj);
+
 
 //==============================================================================
 // Build Messages

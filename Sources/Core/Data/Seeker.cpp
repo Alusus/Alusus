@@ -25,14 +25,14 @@ void Seeker::initBindingCaches()
     &this->remove,
     &this->foreach,
     &this->setByIdentifier,
-    &this->setByIdentifier_sharedRepository,
-    &this->setByIdentifier_ast,
+    &this->setByIdentifier_level,
+    &this->setByIdentifier_scope,
     &this->removeByIdentifier,
-    &this->removeByIdentifier_sharedRepository,
-    &this->removeByIdentifier_ast,
+    &this->removeByIdentifier_level,
+    &this->removeByIdentifier_scope,
     &this->foreachByIdentifier,
-    &this->foreachByIdentifier_sharedRepository,
-    &this->foreachByIdentifier_ast,
+    &this->foreachByIdentifier_level,
+    &this->foreachByIdentifier_scope,
     &this->setByLinkOperator,
     &this->setByLinkOperator_routing,
     &this->setByLinkOperator_scopeDotIdentifier,
@@ -58,14 +58,14 @@ void Seeker::initBindings()
 
   // Identifier seek functions
   this->setByIdentifier = &Seeker::_setByIdentifier;
-  this->setByIdentifier_sharedRepository = &Seeker::_setByIdentifier_sharedRepository;
-  this->setByIdentifier_ast = &Seeker::_setByIdentifier_ast;
+  this->setByIdentifier_level = &Seeker::_setByIdentifier_level;
+  this->setByIdentifier_scope = &Seeker::_setByIdentifier_scope;
   this->removeByIdentifier = &Seeker::_removeByIdentifier;
-  this->removeByIdentifier_sharedRepository = &Seeker::_removeByIdentifier_sharedRepository;
-  this->removeByIdentifier_ast = &Seeker::_removeByIdentifier_ast;
+  this->removeByIdentifier_level = &Seeker::_removeByIdentifier_level;
+  this->removeByIdentifier_scope = &Seeker::_removeByIdentifier_scope;
   this->foreachByIdentifier = &Seeker::_foreachByIdentifier;
-  this->foreachByIdentifier_sharedRepository = &Seeker::_foreachByIdentifier_sharedRepository;
-  this->foreachByIdentifier_ast = &Seeker::_foreachByIdentifier_ast;
+  this->foreachByIdentifier_level = &Seeker::_foreachByIdentifier_level;
+  this->foreachByIdentifier_scope = &Seeker::_foreachByIdentifier_scope;
 
   // LinkOperator seek functions
   this->setByLinkOperator = &Seeker::_setByLinkOperator;
@@ -170,86 +170,64 @@ void Seeker::_setByIdentifier(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb
 ) {
   PREPARE_SELF(seeker, Seeker);
-  if (data->isDerivedFrom<Data::SharedRepository>()) {
-    seeker->setByIdentifier_sharedRepository(identifier, static_cast<Data::SharedRepository*>(data), cb);
-  } else {
-    seeker->setByIdentifier_ast(identifier, data, cb);
-  }
-}
-
-
-void Seeker::_setByIdentifier_sharedRepository(
-  TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, SetCallback const &cb
-) {
-  Verb verb = Verb::MOVE;
-  for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
-    auto node = repo->getLevelData(i).ti_cast_get<Node>();
-    if (node != 0 && node->isDerivedFrom<Ast::Scope>()) {
-      // Look into the scope for the given identifier.
-      auto scope = static_cast<Ast::Scope*>(node);
-      for (Int i = 0; i < scope->getCount(); ++i) {
-        auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
-        if (def != 0 && def->getName() == identifier->getValue()) {
-          auto obj = def->getTarget().get();
-          verb = cb(obj, 0);
-          if (isPerform(verb)) {
-            def->setTarget(getSharedPtr(obj));
-          }
-          if (!Seeker::isMove(verb)) break;
-        }
-      }
-      if (Seeker::isMove(verb)) {
-        TiObject *obj = 0;
-        verb = cb(obj, 0);
-        if (isPerform(verb)) {
-          // Add a new definition.
-          auto def = Data::Ast::Definition::create();
-          def->setName(identifier->getValue());
-          def->setTarget(getSharedPtr(obj));
-          scope->add(def);
-        }
-      }
-      if (!Seeker::isMove(verb)) break;
+  if (data->isDerivedFrom<SharedRepository>()) {
+    auto repo = static_cast<SharedRepository*>(data);
+    for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
+      auto data = repo->getLevelData(i).get();
+      if (data == 0) continue;
+      if (!Seeker::isMove(seeker->setByIdentifier_level(identifier, data, cb))) return;
     }
+  } else if (data->isDerivedFrom<Node>()) {
+    auto node = static_cast<Node*>(data);
+    while (node != 0) {
+      if (!Seeker::isMove(seeker->setByIdentifier_level(identifier, node, cb))) return;
+      node = node->getOwner();
+    }
+  } else {
+    throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid data type."));
   }
 }
 
 
-void Seeker::_setByIdentifier_ast(
+Seeker::Verb Seeker::_setByIdentifier_level(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb
 ) {
-  auto node = ti_cast<Node>(data);
-  Verb verb = Verb::MOVE;
-  while (node != 0) {
-    if (node->isDerivedFrom<Ast::Scope>()) {
-      // Look into the scope for the given identifier.
-      auto scope = static_cast<Ast::Scope*>(node);
-      for (Int i = 0; i < scope->getCount(); ++i) {
-        auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
-        if (def != 0 && def->getName() == identifier->getValue()) {
-          auto obj = def->getTarget().get();
-          verb = cb(obj, 0);
-          if (isPerform(verb)) {
-            def->setTarget(getSharedPtr(obj));
-          }
-          if (!Seeker::isMove(verb)) break;
-        }
-      }
-      if (Seeker::isMove(verb)) {
-        TiObject *obj = 0;
-        verb = cb(obj, 0);
-        if (isPerform(verb)) {
-          // Add a new definition.
-          auto def = Data::Ast::Definition::create();
-          def->setName(identifier->getValue());
-          def->setTarget(getSharedPtr(obj));
-          scope->add(def);
-        }
+  PREPARE_SELF(seeker, Seeker);
+  if (data->isDerivedFrom<Ast::Scope>()) {
+    return seeker->setByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb);
+  } else {
+    return Seeker::Verb::MOVE;
+  }
+}
+
+
+Seeker::Verb Seeker::_setByIdentifier_scope(
+  TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb
+) {
+  Seeker::Verb verb = Seeker::Verb::MOVE;
+  for (Int i = 0; i < scope->getCount(); ++i) {
+    auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
+    if (def != 0 && def->getName() == identifier->getValue()) {
+      auto obj = def->getTarget().get();
+      verb = cb(obj, 0);
+      if (isPerform(verb)) {
+        def->setTarget(getSharedPtr(obj));
       }
       if (!Seeker::isMove(verb)) break;
     }
-    node = node->getOwner();
   }
+  if (Seeker::isMove(verb)) {
+    TiObject *obj = 0;
+    verb = cb(obj, 0);
+    if (isPerform(verb)) {
+      // Add a new definition.
+      auto def = Data::Ast::Definition::create();
+      def->setName(identifier->getValue());
+      def->setTarget(getSharedPtr(obj));
+      scope->add(def);
+    }
+  }
+  return verb;
 }
 
 
@@ -260,66 +238,54 @@ void Seeker::_removeByIdentifier(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb
 ) {
   PREPARE_SELF(seeker, Seeker);
-  if (data->isDerivedFrom<Data::SharedRepository>()) {
-    seeker->removeByIdentifier_sharedRepository(identifier, static_cast<Data::SharedRepository*>(data), cb);
-  } else {
-    seeker->removeByIdentifier_ast(identifier, data, cb);
-  }
-}
-
-
-void Seeker::_removeByIdentifier_sharedRepository(
-  TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, RemoveCallback const &cb
-) {
-  Verb verb = Verb::MOVE;
-  for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
-    auto node = repo->getLevelData(i).ti_cast_get<Node>();
-    if (node != 0 && node->isDerivedFrom<Ast::Scope>()) {
-      // Look into the scope for the given identifier.
-      auto scope = static_cast<Ast::Scope*>(node);
-      for (Int i = 0; i < scope->getCount(); ++i) {
-        auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
-        if (def != 0 && def->getName() == identifier->getValue()) {
-          auto obj = def->getTarget().get();
-          verb = cb(obj, 0);
-          if (isPerform(verb)) {
-            scope->remove(i);
-            --i;
-          }
-          if (!Seeker::isMove(verb)) break;
-        }
-      }
-      if (!Seeker::isMove(verb)) break;
+  if (data->isDerivedFrom<SharedRepository>()) {
+    auto repo = static_cast<SharedRepository*>(data);
+    for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
+      auto data = repo->getLevelData(i).get();
+      if (data == 0) continue;
+      if (!Seeker::isMove(seeker->removeByIdentifier_level(identifier, data, cb))) return;
     }
+  } else if (data->isDerivedFrom<Node>()) {
+    auto node = static_cast<Node*>(data);
+    while (node != 0) {
+      if (!Seeker::isMove(seeker->removeByIdentifier_level(identifier, node, cb))) return;
+      node = node->getOwner();
+    }
+  } else {
+    throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid data type."));
   }
 }
 
 
-void Seeker::_removeByIdentifier_ast(
+Seeker::Verb Seeker::_removeByIdentifier_level(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb
 ) {
-  auto node = ti_cast<Node>(data);
-  Verb verb = Verb::MOVE;
-  while (node != 0) {
-    if (node->isDerivedFrom<Ast::Scope>()) {
-      // Look into the scope for the given identifier.
-      auto scope = static_cast<Ast::Scope*>(node);
-      for (Int i = 0; i < scope->getCount(); ++i) {
-        auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
-        if (def != 0 && def->getName() == identifier->getValue()) {
-          auto obj = def->getTarget().get();
-          verb = cb(obj, 0);
-          if (isPerform(verb)) {
-            scope->remove(i);
-            --i;
-          }
-          if (!Seeker::isMove(verb)) break;
-        }
-      }
-      if (!Seeker::isMove(verb)) break;
-    }
-    node = node->getOwner();
+  PREPARE_SELF(seeker, Seeker);
+  if (data->isDerivedFrom<Ast::Scope>()) {
+    return seeker->removeByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb);
+  } else {
+    return Seeker::Verb::MOVE;
   }
+}
+
+
+Seeker::Verb Seeker::_removeByIdentifier_scope(
+  TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, RemoveCallback const &cb
+) {
+  Seeker::Verb verb = Seeker::Verb::MOVE;
+  for (Int i = 0; i < scope->getCount(); ++i) {
+    auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
+    if (def != 0 && def->getName() == identifier->getValue()) {
+      auto obj = def->getTarget().get();
+      verb = cb(obj, 0);
+      if (isPerform(verb)) {
+        scope->remove(i);
+        --i;
+      }
+      if (!Seeker::isMove(verb)) return verb;
+    }
+  }
+  return verb;
 }
 
 
@@ -330,59 +296,50 @@ void Seeker::_foreachByIdentifier(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb
 ) {
   PREPARE_SELF(seeker, Seeker);
-  if (data->isDerivedFrom<Data::SharedRepository>()) {
-    seeker->foreachByIdentifier_sharedRepository(identifier, static_cast<Data::SharedRepository*>(data), cb
-    );
-  } else {
-    seeker->foreachByIdentifier_ast(identifier, data, cb);
-  }
-}
-
-
-void Seeker::_foreachByIdentifier_sharedRepository(
-  TiObject *self, Data::Ast::Identifier const *identifier, Data::SharedRepository *repo, ForeachCallback const &cb
-) {
-  Verb verb = Verb::MOVE;
-  for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
-    auto node = repo->getLevelData(i).ti_cast_get<Node>();
-    if (node != 0 && node->isDerivedFrom<Ast::Scope>()) {
-      // Look into the scope for the given identifier.
-      auto scope = static_cast<Ast::Scope*>(node);
-      for (Int i = 0; i < scope->getCount(); ++i) {
-        auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
-        if (def != 0 && def->getName() == identifier->getValue()) {
-          auto obj = def->getTarget().get();
-          verb = cb(obj, 0);
-          if (!Seeker::isMove(verb)) break;
-        }
-      }
-      if (!Seeker::isMove(verb)) break;
+  if (data->isDerivedFrom<SharedRepository>()) {
+    auto repo = static_cast<SharedRepository*>(data);
+    for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
+      auto data = repo->getLevelData(i).get();
+      if (data == 0) continue;
+      if (!Seeker::isMove(seeker->foreachByIdentifier_level(identifier, data, cb))) return;
     }
+  } else if (data->isDerivedFrom<Node>()) {
+    auto node = static_cast<Node*>(data);
+    while (node != 0) {
+      if (!Seeker::isMove(seeker->foreachByIdentifier_level(identifier, node, cb))) return;
+      node = node->getOwner();
+    }
+  } else {
+    throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid data type."));
   }
 }
 
 
-void Seeker::_foreachByIdentifier_ast(
+Seeker::Verb Seeker::_foreachByIdentifier_level(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb
 ) {
-  auto node = ti_cast<Node>(data);
-  Verb verb = Verb::MOVE;
-  while (node != 0) {
-    if (node->isDerivedFrom<Ast::Scope>()) {
-      // Look into the scope for the given identifier.
-      auto scope = static_cast<Ast::Scope*>(node);
-      for (Int i = 0; i < scope->getCount(); ++i) {
-        auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
-        if (def != 0 && def->getName() == identifier->getValue()) {
-          auto obj = def->getTarget().get();
-          verb = cb(obj, 0);
-          if (!Seeker::isMove(verb)) break;
-        }
-      }
-      if (!Seeker::isMove(verb)) break;
-    }
-    node = node->getOwner();
+  PREPARE_SELF(seeker, Seeker);
+  if (data->isDerivedFrom<Ast::Scope>()) {
+    return seeker->foreachByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb);
+  } else {
+    return Seeker::Verb::MOVE;
   }
+}
+
+
+Seeker::Verb Seeker::_foreachByIdentifier_scope(
+  TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, ForeachCallback const &cb
+) {
+  Seeker::Verb verb = Seeker::Verb::MOVE;
+  for (Int i = 0; i < scope->getCount(); ++i) {
+    auto def = ti_cast<Data::Ast::Definition>(scope->get(i));
+    if (def != 0 && def->getName() == identifier->getValue()) {
+      auto obj = def->getTarget().get();
+      verb = cb(obj, 0);
+      if (!Seeker::isMove(verb)) return verb;
+    }
+  }
+  return verb;
 }
 
 

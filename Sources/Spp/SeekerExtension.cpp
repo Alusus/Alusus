@@ -27,6 +27,10 @@ SeekerExtension::Overrides* SeekerExtension::extend(Core::Data::Seeker *seeker)
 
   auto overrides = new Overrides();
   overrides->foreachRef = seeker->foreach.set(&SeekerExtension::_foreach).get();
+  overrides->foreachByIdentifier_levelRef =
+    seeker->foreachByIdentifier_level.set(&SeekerExtension::_foreachByIdentifier_level).get();
+  overrides->foreachByIdentifier_functionRef =
+    extension->foreachByIdentifier_function.set(&SeekerExtension::_foreachByIdentifier_function).get();
   overrides->foreachByParamPassRef =
     extension->foreachByParamPass.set(&SeekerExtension::_foreachByParamPass).get();
   overrides->foreachByParamPass_routingRef =
@@ -42,6 +46,8 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
 {
   auto extension = Core::Basic::ti_cast<SeekerExtension>(seeker);
   seeker->foreach.reset(overrides->foreachRef);
+  seeker->foreachByIdentifier_level.reset(overrides->foreachByIdentifier_levelRef);
+  extension->foreachByIdentifier_function.reset(overrides->foreachByIdentifier_functionRef);
   extension->foreachByParamPass.reset(overrides->foreachByParamPassRef);
   extension->foreachByParamPass_routing.reset(overrides->foreachByParamPass_routingRef);
   extension->foreachByParamPass_template.reset(overrides->foreachByParamPass_templateRef);
@@ -65,6 +71,32 @@ void SeekerExtension::_foreach(
     PREPARE_SELF(seeker, Core::Data::Seeker);
     seeker->foreach.useCallee(base)(ref, target, cb);
   }
+}
+
+
+Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_level(
+  TiFunctionBase *base, TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
+  Core::Data::Seeker::ForeachCallback const &cb
+) {
+  if (data->isDerivedFrom<Ast::Function>()) {
+    PREPARE_SELF(seekerExtension, SeekerExtension);
+    return seekerExtension->foreachByIdentifier_function(identifier, static_cast<Ast::Function*>(data), cb);
+  } else {
+    PREPARE_SELF(seeker, Core::Data::Seeker);
+    return seeker->foreachByIdentifier_level.useCallee(base)(identifier, data, cb);
+  }
+}
+
+
+Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_function(
+  TiObject *self, Data::Ast::Identifier const *identifier, Ast::Function *function,
+  Core::Data::Seeker::ForeachCallback const &cb
+) {
+  auto argTypes = function->getArgTypes().get();
+  if (argTypes == 0) return Core::Data::Seeker::Verb::MOVE;
+  auto index = argTypes->findIndex(identifier->getValue().get());
+  if (index >= 0) return cb(argTypes->get(index), 0);
+  return Core::Data::Seeker::Verb::MOVE;
 }
 
 

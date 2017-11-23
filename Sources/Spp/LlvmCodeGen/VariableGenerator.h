@@ -1,6 +1,6 @@
 /**
- * @file Spp/LlvmCodeGen/CommandGenerator.h
- * Contains the header of class Spp::LlvmCodeGen::CommandGenerator.
+ * @file Spp/LlvmCodeGen/VariableGenerator.h
+ * Contains the header of class Spp::LlvmCodeGen::VariableGenerator.
  *
  * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
@@ -10,18 +10,18 @@
  */
 //==============================================================================
 
-#ifndef SPP_LLVMCODEGEN_COMMANDGENERATOR_H
-#define SPP_LLVMCODEGEN_COMMANDGENERATOR_H
+#ifndef SPP_LLVMCODEGEN_VARIABLEGENERATOR_H
+#define SPP_LLVMCODEGEN_VARIABLEGENERATOR_H
 
 namespace Spp { namespace LlvmCodeGen
 {
 
-class CommandGenerator : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
+class VariableGenerator : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(CommandGenerator, TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.net", (
+  TYPE_INFO(VariableGenerator, TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.net", (
     INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
@@ -43,13 +43,13 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
   //============================================================================
   // Constructors & Destructor
 
-  public: CommandGenerator(Generator *g = 0) : generator(g)
+  public: VariableGenerator(Generator *g = 0) : generator(g)
   {
     this->initBindingCaches();
     this->initBindings();
   }
 
-  public: CommandGenerator(CommandGenerator *parent)
+  public: VariableGenerator(VariableGenerator *parent)
   {
     this->initBindingCaches();
     this->inheritBindings(parent);
@@ -57,7 +57,7 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
     this->generator = parent->getGenerator();
   }
 
-  public: virtual ~CommandGenerator()
+  public: virtual ~VariableGenerator()
   {
   }
 
@@ -86,21 +86,39 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
   /// @name Code Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(generateReturn,
+  public: METHOD_BINDING_CACHE(generateVarDefinition, Bool, (Core::Data::Ast::Definition*));
+  public: METHOD_BINDING_CACHE(generateVarAccess,
     Bool, (
-      Spp::Ast::ReturnStatement*, llvm::IRBuilder<>*, llvm::Function*,
+      Core::Data::Ast::Identifier*, llvm::IRBuilder<>*, llvm::Function*,
       Spp::Ast::Type*&, llvm::Value*&, TiObject*&
     )
   );
-  // public: METHOD_BINDING_CACHE(generateIfStatement, this->getBindingMap());
-  // public: METHOD_BINDING_CACHE(generateWhileStatement, this->getBindingMap());
+  public: METHOD_BINDING_CACHE(generateVarReference,
+    Bool, (
+      Core::Data::Ast::Identifier*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
+  );
+  public: METHOD_BINDING_CACHE(generateMemberVarAccess,
+    Bool, (
+      Core::Data::Ast::Identifier*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
+  );
 
-  private: static Bool _generateReturn(
-    TiObject *self, Spp::Ast::ReturnStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  private: static Bool _generateVarDefinition(TiObject *self, Core::Data::Ast::Definition *definition);
+  private: static Bool _generateVarAccess(
+    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
   );
-  //private: static Bool _generateIfStatement(Bindings *_self, );
-  //private: static Bool _generateWhileStatement(Bindings *_self, );
+  private: static Bool _generateVarReference(
+    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  );
+  private: static Bool _generateMemberVarAccess(
+    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  );
 
   /// @}
 

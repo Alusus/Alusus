@@ -22,8 +22,8 @@ void ExpressionGenerator::initBindingCaches()
 {
   Core::Basic::initBindingCaches(this, {
     &this->generateParamPass,
-    &this->generateIdentifier,
     &this->generateInfixOp,
+    &this->generateAssignment,
     &this->generateFunctionCall,
     &this->generateBuiltInFunctionCall,
     &this->generateUserFunctionCall
@@ -34,8 +34,8 @@ void ExpressionGenerator::initBindingCaches()
 void ExpressionGenerator::initBindings()
 {
   this->generateParamPass = &ExpressionGenerator::_generateParamPass;
-  this->generateIdentifier = &ExpressionGenerator::_generateIdentifier;
   this->generateInfixOp = &ExpressionGenerator::_generateInfixOp;
+  this->generateAssignment = &ExpressionGenerator::_generateAssignment;
   this->generateFunctionCall = &ExpressionGenerator::_generateFunctionCall;
   this->generateBuiltInFunctionCall = &ExpressionGenerator::_generateBuiltInFunctionCall;
   this->generateUserFunctionCall = &ExpressionGenerator::_generateUserFunctionCall;
@@ -95,26 +95,6 @@ Bool ExpressionGenerator::_generateParamPass(
 }
 
 
-Bool ExpressionGenerator::_generateIdentifier(
-  TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
-) {
-  PREPARE_SELF(expGenerator, ExpressionGenerator);
-  resultType = 0;
-  llvmResult = 0;
-  lastProcessedRef = 0;
-  expGenerator->generator->getSeeker()->doForeach(astNode, astNode->getOwner(),
-    [=](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
-    {
-      // TODO: Check if the found obj is a variable definition.
-      // TODO: Generate var reference if it's a variable.
-      return Core::Data::Seeker::Verb::MOVE;
-    }
-  );
-  return true;
-}
-
-
 Bool ExpressionGenerator::_generateInfixOp(
   TiObject *self, Core::Data::Ast::InfixOperator *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
@@ -130,7 +110,7 @@ Bool ExpressionGenerator::_generateInfixOp(
   else {
     throw EXCEPTION(GenericException, STR("Unexpected infix operator."));
   }
-  
+
   // Prepare parameters list.
   using Core::Basic::TiObject;
   using Core::Basic::PlainList;
@@ -153,6 +133,69 @@ Bool ExpressionGenerator::_generateInfixOp(
 }
 
 
+Bool ExpressionGenerator::_generateAssignment(
+  TiObject *self, Core::Data::Ast::AssignmentOperator *astNode, llvm::IRBuilder<> *llvmIrBuilder,
+  llvm::Function *llvmFunc, Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // Generate assignment target.
+  auto var = astNode->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
+  if (var == 0) {
+    throw EXCEPTION(GenericException, STR("Assignment target is missing."));
+  }
+  Ast::Type *varAstType;
+  llvm::Value *varLlvmPointer;
+  TiObject *varLastRef;
+  if (!expGenerator->generator->getVariableGenerator()->generateVarReference(
+    var, llvmIrBuilder, llvmFunc, varAstType, varLlvmPointer, varLastRef
+  )) return false;
+
+  // Generate assignment value.
+  auto val = astNode->getSecond().get();
+  if (val == 0) {
+    throw EXCEPTION(GenericException, STR("Assignment value is missing."));
+  }
+  Ast::Type *valAstType;
+  llvm::Value *valLlvmValue;
+  TiObject *valLastRef;
+  if (!expGenerator->generator->generatePhrase(val, llvmIrBuilder, llvmFunc, valAstType, valLlvmValue, valLastRef)) {
+    return false;
+  }
+
+  // Is value implicitly castable?
+  if (!valAstType->isImplicitlyCastableTo(
+    varAstType, expGenerator->generator->getExecutionContext().get(), expGenerator->generator->getRootManager()
+  )) {
+    auto metadata = ti_cast<Core::Data::Ast::Metadata>(val);
+    ASSERT(metadata != 0);
+    expGenerator->generator->getSourceLocationStack()->push_back(metadata->getSourceLocation());
+    expGenerator->generator->getParserState()->addNotice(
+      std::make_shared<NotImplicitlyCastableNotice>(expGenerator->generator->getSourceLocationStack())
+    );
+    expGenerator->generator->getSourceLocationStack()->pop_back();
+    return false;
+  }
+
+  // Cast the generated value.
+  llvm::Value *castedLlvmVal;
+  if (!expGenerator->generator->getTypeGenerator()->generateCast(
+    llvmIrBuilder, valAstType, varAstType, valLlvmValue, castedLlvmVal
+  )) {
+    return false;
+  }
+
+  // Create the store instruction.
+  llvmIrBuilder->CreateStore(castedLlvmVal, varLlvmPointer);
+
+  // Set return values.
+  llvmResult = castedLlvmVal;
+  resultType = varAstType;
+  lastProcessedRef = astNode;
+  return true;
+}
+
+
 Bool ExpressionGenerator::_generateFunctionCall(
   TiObject *self, Spp::Ast::Function *callee,
   Core::Basic::Container<Core::Basic::TiObject> *paramTypes, Core::Basic::Container<llvm::Value> *paramCgs,
@@ -171,7 +214,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
     ASSERT(status != Ast::Function::CallMatchStatus::NONE);
     if (context.type != 0) {
       llvm::Value *destValue;
-      if (!expGenerator->generator->getTypeGenerator()->createCast(
+      if (!expGenerator->generator->getTypeGenerator()->generateCast(
         llvmIrBuilder, srcType, context.type, paramCgs->getElement(i), destValue)
       ) {
         // This should not happen since non-castable calls should be filtered out earlier.
@@ -207,7 +250,7 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   resultType = callee->traceRetType(expGenerator->generator->getSeeker());
-  
+
   if (callee->getName() == STR("#addInt")) {
     if (paramCgs->getElementCount() != 2) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #addInt built-in function."));
@@ -220,49 +263,49 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
     }
     llvmResult = llvmIrBuilder->CreateFAdd(paramCgs->getElement(0), paramCgs->getElement(1));
     return true;
-  } else if (callee->getName() == STR("#subInt")) {    
+  } else if (callee->getName() == STR("#subInt")) {
     if (paramCgs->getElementCount() != 2) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #subInt built-in function."));
     }
     llvmResult = llvmIrBuilder->CreateSub(paramCgs->getElement(0), paramCgs->getElement(1));
     return true;
-  } else if (callee->getName() == STR("#subFloat")) {    
+  } else if (callee->getName() == STR("#subFloat")) {
     if (paramCgs->getElementCount() != 2) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #subFloat built-in function."));
     }
     llvmResult = llvmIrBuilder->CreateFSub(paramCgs->getElement(0), paramCgs->getElement(1));
     return true;
-  } else if (callee->getName() == STR("#mulInt")) {    
+  } else if (callee->getName() == STR("#mulInt")) {
     if (paramCgs->getElementCount() != 2) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #mulInt built-in function."));
     }
     llvmResult = llvmIrBuilder->CreateMul(paramCgs->getElement(0), paramCgs->getElement(1));
     return true;
-  } else if (callee->getName() == STR("#mulFloat")) {    
+  } else if (callee->getName() == STR("#mulFloat")) {
     if (paramCgs->getElementCount() != 2) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #mulFloat built-in function."));
     }
     llvmResult = llvmIrBuilder->CreateFMul(paramCgs->getElement(0), paramCgs->getElement(1));
     return true;
-  } else if (callee->getName() == STR("#divInt")) {    
+  } else if (callee->getName() == STR("#divInt")) {
     if (paramCgs->getElementCount() != 2) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #divInt built-in function."));
     }
     llvmResult = llvmIrBuilder->CreateSDiv(paramCgs->getElement(0), paramCgs->getElement(1));
     return true;
-  } else if (callee->getName() == STR("#divFloat")) {    
+  } else if (callee->getName() == STR("#divFloat")) {
     if (paramCgs->getElementCount() != 2) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #divFloat built-in function."));
     }
     llvmResult = llvmIrBuilder->CreateFDiv(paramCgs->getElement(0), paramCgs->getElement(1));
     return true;
-  } else if (callee->getName() == STR("#negInt")) {    
+  } else if (callee->getName() == STR("#negInt")) {
     if (paramCgs->getElementCount() != 1) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #negInt built-in function."));
     }
     llvmResult = llvmIrBuilder->CreateNeg(paramCgs->getElement(0));
     return true;
-  } else if (callee->getName() == STR("#negFloat")) {    
+  } else if (callee->getName() == STR("#negFloat")) {
     if (paramCgs->getElementCount() != 2) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #negFloat built-in function."));
     }
@@ -283,13 +326,13 @@ Bool ExpressionGenerator::_generateUserFunctionCall(
 
   // Build funcion declaration.
   if (!expGenerator->generator->generateFunctionDecl(callee)) return false;
-  auto cgFunction = callee->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::UserFunction>();
+  auto llvmFuncBox = callee->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Function*>>();
   // Create function call.
   std::vector<llvm::Value*> args;
   for (Int i = 0; i < paramCgs->getElementCount(); ++i) {
     args.push_back(paramCgs->getElement(i));
   }
-  auto llvmCall = llvmIrBuilder->CreateCall(cgFunction->getLlvmFunction(), args);
+  auto llvmCall = llvmIrBuilder->CreateCall(llvmFuncBox->get(), args);
   // Assign results.
   llvmResult = llvmCall;
   resultType = callee->traceRetType(expGenerator->generator->getSeeker());

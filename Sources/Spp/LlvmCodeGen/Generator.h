@@ -42,8 +42,9 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   private: TypeGenerator *typeGenerator;
   private: LiteralGenerator *literalGenerator;
   private: ExpressionGenerator *expressionGenerator;
+  private: VariableGenerator *variableGenerator;
   private: CommandGenerator *commandGenerator;
-  
+
   private: Core::Processing::ParserState *parserState = 0;
   private: SharedPtr<ExecutionContext> executionContext;
   private: std::vector<Core::Data::SourceLocation> sourceLocationStack;
@@ -62,6 +63,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     TypeGenerator *tg,
     LiteralGenerator *lg,
     ExpressionGenerator *eg,
+    VariableGenerator *vg,
     CommandGenerator *cg
   ) :
     rootManager(manager),
@@ -69,6 +71,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     typeGenerator(tg),
     literalGenerator(lg),
     expressionGenerator(eg),
+    variableGenerator(vg),
     commandGenerator(cg)
   {
     this->initBindingCaches();
@@ -85,6 +88,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     this->typeGenerator = parent->getTypeGenerator();
     this->literalGenerator = parent->getLiteralGenerator();
     this->expressionGenerator = parent->getExpressionGenerator();
+    this->variableGenerator = parent->getVariableGenerator();
     this->commandGenerator = parent->getCommandGenerator();
   }
 
@@ -135,6 +139,11 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   public: ExpressionGenerator* getExpressionGenerator() const
   {
     return this->expressionGenerator;
+  }
+
+  public: VariableGenerator* getVariableGenerator() const
+  {
+    return this->variableGenerator;
   }
 
   public: CommandGenerator* getCommandGenerator() const
@@ -195,9 +204,6 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   public: METHOD_BINDING_CACHE(generatePhrase,
     Bool, (TiObject*, llvm::IRBuilder<>*, llvm::Function*, Spp::Ast::Type*&, llvm::Value*&, TiObject*&)
   );
-  // public: METHOD_BINDING_CACHE(generateIfStatement, this->getBindingMap());
-  // public: METHOD_BINDING_CACHE(generateWhileStatement, this->getBindingMap());
-  // public: METHOD_BINDING_CACHE(generateExpression, this->getBindingMap());
 
   private: static Bool _generateModule(TiObject *self, Spp::Ast::Module *astModule);
 
@@ -214,10 +220,6 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
   );
-
-  //private: static Bool _generateIfStatement(Bindings *_self, );
-  //private: static Bool _generateWhileStatement(Bindings *_self, );
-  //private: static Bool _generateExpression(Bindings *_self, );
 
   /// @}
 

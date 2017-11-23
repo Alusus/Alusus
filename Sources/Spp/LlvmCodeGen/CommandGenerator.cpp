@@ -71,7 +71,7 @@ Bool CommandGenerator::_generateReturn(
       return false;
     }
     llvm::Value *llvmReturnValue;
-    if (!cmdGenerator->generator->getTypeGenerator()->createCast(
+    if (!cmdGenerator->generator->getTypeGenerator()->generateCast(
       llvmIrBuilder, operandType, retType, operandLlvmResult, llvmReturnValue)
     ) {
       // This should not happen since non-castable calls should be filtered out earlier.

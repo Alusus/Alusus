@@ -42,9 +42,6 @@ void Generator::initBindings()
   this->generateBlock = &Generator::_generateBlock;
   this->generateStatements = &Generator::_generateStatements;
   this->generatePhrase = &Generator::_generatePhrase;
-  //  this->generateIfStatement = &Generator::_generateIfStatement;
-  //  this->generateWhileStatement = &Generator::_generateWhileStatement;
-  //  this->generateExpression = &Generator::_generateExpression;
 }
 
 
@@ -52,7 +49,7 @@ void Generator::initBindings()
 // Main Operation Functions
 
 Bool Generator::build(
-  Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, Core::Basic::OutStream &out  
+  Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, Core::Basic::OutStream &out
 ) {
   Bool result = this->generateIr(root, state);
 
@@ -143,7 +140,7 @@ Bool Generator::generateIr(Core::Data::Ast::Scope *root, Core::Processing::Parse
   this->executionContext = std::make_shared<ExecutionContext>(llvmDataLayout->getPointerSizeInBits());
   this->sourceLocationStack.clear();
   this->parserState = state;
-  
+
   // Generates code for all modules.
   Bool result = true;
   for (Int i = 0; i < root->getCount(); ++i) {
@@ -175,8 +172,16 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule)
         if (!generator->generateModule(static_cast<Spp::Ast::Module*>(obj))) result = false;
       } else if (obj->isDerivedFrom<Spp::Ast::Function>()) {
         if (!generator->generateFunction(static_cast<Spp::Ast::Function*>(obj))) result = false;
+      } else if (obj->isDerivedFrom<Spp::Ast::UserType>()) {
+        // TODO: Generate type.
+        generator->parserState->addNotice(std::make_shared<UnsupportedOperationNotice>(def->getSourceLocation()));
+        result = false;
+      } else {
+        // Generate global variable.
+        if (!generator->variableGenerator->generateVarDefinition(def)) {
+          result = false;
+        }
       }
-      // TODO: Generate for types and global variables.
     }
   }
   return result;
@@ -187,32 +192,45 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc)
 {
   PREPARE_SELF(generator, Generator);
 
-  auto cgFunc = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::UserFunction>();
-  if (cgFunc == 0) {
+  auto llvmFuncBox = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Function*>>();
+  if (llvmFuncBox == 0 || llvmFuncBox->get() == 0) {
     if (!generator->generateFunctionDecl(astFunc)) return false;
-    cgFunc = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::UserFunction>();
+    llvmFuncBox = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Function*>>();
   }
-  ASSERT(cgFunc != 0);
+  ASSERT(llvmFuncBox != 0);
 
   auto astArgs = astFunc->getArgTypes().get();
+  auto argCount = astArgs == 0 ? 0 : astArgs->getCount();
   auto astBlock = astFunc->getBody().get();
   if (astBlock != 0) {
     // Prepare the block's llvm objects.
-    generator->prepareBlock(astBlock, cgFunc->getLlvmFunction());
+    generator->prepareBlock(astBlock, llvmFuncBox->get());
     auto cgBlock = astBlock->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Block>();
 
-    // Create variables for each argument and assign them to cgFunc.
+    // Create variables for each argument.
     auto i = 0;
-    for (auto iter = cgFunc->getLlvmFunction()->arg_begin(); i != cgFunc->getArgCount(); ++iter, ++i) {
+    for (auto iter = llvmFuncBox->get()->arg_begin(); i != argCount; ++iter, ++i) {
+      auto astArgType = astArgs->get(i);
+      if (astArgType->isDerivedFrom<Ast::ArgPack>()) break;
+      auto metadata = ti_cast<Core::Data::Ast::Metadata>(astArgType);
+      auto cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
+      if (cgVar == 0 || cgVar->getAstType() == 0) {
+        throw EXCEPTION(GenericException, STR("Unexpected error while generating function declaration."));
+      }
+      auto llvmTypeBox = cgVar->getAstType()->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Type*>>();
+      if (llvmTypeBox == 0 || llvmTypeBox->get() == 0) {
+        throw EXCEPTION(GenericException, STR("Unexpected error while generating function declaration."));
+      }
+
       iter->setName(astArgs->getKey(i).c_str());
-      auto llvmAlloca = cgBlock->getIrBuilder()->CreateAlloca(cgFunc->getArg(i).type, 0, astArgs->getKey(i).c_str());
-      auto llvmStore = cgBlock->getIrBuilder()->CreateStore(iter, llvmAlloca);
-      cgFunc->setArgAllocaInst(i, llvmAlloca);
-      cgFunc->setArgStoreInst(i, llvmStore);
+      auto llvmAlloca = cgBlock->getIrBuilder()->CreateAlloca(llvmTypeBox->get(), 0, astArgs->getKey(i).c_str());
+      cgBlock->getIrBuilder()->CreateStore(iter, llvmAlloca);
+
+      cgVar->setLlvmAllocaInst(llvmAlloca);
     }
 
     // Generate the function's statements.
-    if (!generator->generateStatements(astBlock, cgBlock->getIrBuilder(), cgFunc->getLlvmFunction())) return false;
+    if (!generator->generateStatements(astBlock, cgBlock->getIrBuilder(), llvmFuncBox->get())) return false;
 
     // Add a void return, if necessary.
     if (generator->typeGenerator->isVoid(astFunc->getRetType().get())) {
@@ -227,8 +245,8 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
 {
   PREPARE_SELF(generator, Generator);
 
-  auto genType = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::UserFunction>();
-  if (genType != 0) return true;
+  auto llvmFuncBox = astFunc->getExtra(META_EXTRA_NAME).ti_cast_get<Core::Basic::Box<llvm::Function*>>();
+  if (llvmFuncBox != 0 && llvmFuncBox->get() != 0) return true;
 
   // Construct the list of argument LLVM types.
   // TODO: Support functions that take no args.
@@ -240,10 +258,16 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
     auto argType = astArgs->get(i);
     if (argType->isDerivedFrom<Ast::ArgPack>()) break;
     llvm::Type *llvmType;
-    if (!generator->typeGenerator->getGeneratedLlvmType(astArgs->get(i), llvmType)) {
+    Ast::Type *astType;
+    if (!generator->typeGenerator->getGeneratedLlvmType(argType, llvmType, &astType)) {
       return false;
     }
     llvmArgTypes.push_back(llvmType);
+
+    SharedPtr<Variable> cgVar = std::make_shared<Variable>();
+    cgVar->setAstType(astType);
+    auto metadata = ti_cast<Core::Data::Ast::Metadata>(argType);
+    metadata->setExtra(META_EXTRA_NAME, cgVar);
   }
 
   // Get the return LLVM type.
@@ -259,21 +283,17 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   // Generate the function object.
   auto llvmFuncType = llvm::FunctionType::get(llvmRetType, llvmArgTypes, astFunc->isVariadic());
   Str name = generator->getFunctionName(astFunc);
-  auto cgFunc = std::make_shared<LlvmCodeGen::UserFunction>();
-  cgFunc->setLlvmFunction(
-    llvm::Function::Create(llvmFuncType, llvm::Function::ExternalLinkage, name, generator->llvmModule.get())
+  auto llvmFunc = llvm::Function::Create(
+    llvmFuncType, llvm::Function::ExternalLinkage, name, generator->llvmModule.get()
   );
-  for (auto llvmArgType : llvmArgTypes) {
-    cgFunc->addArg(llvmArgType);
-  }
 
   // TODO: Do we need these attributes?
   // if (astFunc->getBody() == 0) {
-  //   cgFunc->getLlvmFunction()->addFnAttr(llvm::Attribute::NoCapture);
-  //   cgFunc->getLlvmFunction()->addFnAttr(llvm::Attribute::NoUnwind);
+  //   llvmFunc->addFnAttr(llvm::Attribute::NoCapture);
+  //   llvmFunc->addFnAttr(llvm::Attribute::NoUnwind);
   // }
 
-  astFunc->setExtra(META_EXTRA_NAME, cgFunc);
+  astFunc->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Function*>::create(llvmFunc));
   return true;
 }
 
@@ -324,15 +344,41 @@ Bool Generator::_generatePhrase(
   Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
 ) {
   PREPARE_SELF(generator, Generator);
-  if (astNode->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
+  if (astNode->isDerivedFrom<Core::Data::Ast::Definition>()) {
+    auto def = static_cast<Core::Data::Ast::Definition*>(astNode);
+    auto target = def->getTarget().get();
+    if (target->isDerivedFrom<Spp::Ast::Module>()) {
+      generator->parserState->addNotice(std::make_shared<InvalidOperationNotice>(def->getSourceLocation()));
+      return false;
+    } else if (target->isDerivedFrom<Spp::Ast::Function>()) {
+      // TODO: Generate function.
+      generator->parserState->addNotice(std::make_shared<UnsupportedOperationNotice>(def->getSourceLocation()));
+      return false;
+    } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
+      // TODO: Generate type.
+      generator->parserState->addNotice(std::make_shared<UnsupportedOperationNotice>(def->getSourceLocation()));
+      return false;
+    } else {
+      // Generate local variable.
+      resultType = 0;
+      llvmResult = 0;
+      lastProcessedRef = 0;
+      return generator->variableGenerator->generateVarDefinition(def);
+    }
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
     auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(astNode);
     return generator->expressionGenerator->generateParamPass(
       paramPass, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
-    return generator->expressionGenerator->generateIdentifier(
+    return generator->variableGenerator->generateVarAccess(
       identifier, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+    );
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::AssignmentOperator>()) {
+    auto assignmentOp = static_cast<Core::Data::Ast::AssignmentOperator*>(astNode);
+    return generator->expressionGenerator->generateAssignment(
+      assignmentOp, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
@@ -370,7 +416,6 @@ Bool Generator::_generatePhrase(
       returnStatement, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
     );
   }
-  // TODO:
   generator->parserState->addNotice(
     std::make_shared<UnsupportedOperationNotice>(Core::Data::Ast::getSourceLocation(astNode))
   );

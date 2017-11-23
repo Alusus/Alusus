@@ -87,7 +87,7 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
   /// @{
 
   public: Bool getGeneratedType(TiObject *ref, Spp::Ast::Type *&type);
-  public: Bool getGeneratedLlvmType(TiObject *ref, llvm::Type *&type);
+  public: Bool getGeneratedLlvmType(TiObject *ref, llvm::Type *&llvmTypeResult, Ast::Type **astTypeResult = 0);
   public: Bool isVoid(TiObject *ref);
   public: Spp::Ast::Type* traceAstType(TiObject *ref);
 
@@ -103,10 +103,12 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
   public: METHOD_BINDING_CACHE(generatePointerType, Bool, (Spp::Ast::PointerType*));
   public: METHOD_BINDING_CACHE(generateArrayType, Bool, (Spp::Ast::ArrayType*));
   // public: METHOD_BINDING_CACHE(generateStructType, Bool, (Spp::Ast::StructType*));
-
-  public: METHOD_BINDING_CACHE(createCast,
+  
+  public: METHOD_BINDING_CACHE(generateCast,
     Bool, (llvm::IRBuilder<>*, Spp::Ast::Type*, Spp::Ast::Type*, llvm::Value*, llvm::Value*&)
   );
+
+  public: METHOD_BINDING_CACHE(generateDefaultValue, Bool, (Spp::Ast::Type*, llvm::Constant*&));
 
   private: static Bool _generateType(TiObject *self, Spp::Ast::Type *astType);
   private: static Bool _generateVoidType(TiObject *self, Spp::Ast::VoidType *astType);
@@ -116,10 +118,12 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
   private: static Bool _generateArrayType(TiObject *self, Spp::Ast::ArrayType *astType);
   // private: static Bool _generateStructType(TiObject *self, Spp::Ast::StructType *astType);
 
-  public: static Bool _createCast(
+  public: static Bool _generateCast(
     TiObject *self, llvm::IRBuilder<> *llvmIrBuilder, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
     llvm::Value *llvmValue, llvm::Value *&llvmCastedValue
   );
+
+  private: static Bool _generateDefaultValue(TiObject *self, Spp::Ast::Type *astType, llvm::Constant *&result);
 
   /// @}
 

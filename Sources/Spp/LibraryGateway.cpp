@@ -33,6 +33,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   this->llvmTypeGenerator = new LlvmCodeGen::TypeGenerator();
   this->llvmLiteralGenerator = new LlvmCodeGen::LiteralGenerator();
   this->llvmExpressionGenerator = new LlvmCodeGen::ExpressionGenerator();
+  this->llvmVariableGenerator = new LlvmCodeGen::VariableGenerator();
   this->llvmCommandGenerator = new LlvmCodeGen::CommandGenerator();
   this->llvmGenerator = new LlvmCodeGen::Generator(
     manager,
@@ -40,13 +41,15 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     this->llvmTypeGenerator,
     this->llvmLiteralGenerator,
     this->llvmExpressionGenerator,
+    this->llvmVariableGenerator,
     this->llvmCommandGenerator
   );
   this->llvmTypeGenerator->setGenerator(this->llvmGenerator);
   this->llvmLiteralGenerator->setGenerator(this->llvmGenerator);
   this->llvmExpressionGenerator->setGenerator(this->llvmGenerator);
+  this->llvmVariableGenerator->setGenerator(this->llvmGenerator);
   this->llvmCommandGenerator->setGenerator(this->llvmGenerator);
-  
+
   // Create leading commands.
 
   auto grammarRepository = manager->getGrammarRepository();
@@ -389,7 +392,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Run"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:While"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Return"));
-  
+
   // Remove command from inner commands list.
   this->removeReferenceFromCommandList(innerCmdList, STR("module:Module"));
   this->removeReferenceFromCommandList(innerCmdList, STR("module:Type"));
@@ -579,7 +582,7 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
   Core::Data::Ast::Identifier identifier;
   auto root = manager->getRootScope().get();
   TioSharedPtr hook;
-  
+
   Char const *binaryOps[] = { STR("add"), STR("sub"), STR("mul"), STR("div") };
   Char const *types[] = {
     STR("Int[8]"), STR("Int[16]"), STR("Int[32]"), STR("Int[64]"), STR("Float[32]"), STR("Float[64]")

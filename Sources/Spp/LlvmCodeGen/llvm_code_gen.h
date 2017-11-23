@@ -56,6 +56,15 @@ DEFINE_NOTICE(InvalidCastNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1308",
 DEFINE_NOTICE(InvalidReturnValueNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1309", 1,
   STR("Invalid return value.")
 );
+DEFINE_NOTICE(UnknownSymbolNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1310", 1,
+  STR("Unknown symbol.")
+);
+DEFINE_NOTICE(InvalidReferenceNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1311", 1,
+  STR("Unknown symbol.")
+);
+DEFINE_NOTICE(NotImplicitlyCastableNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1312", 1,
+  STR("Value is not implicitly castable to target type.")
+);
 
 } } // namespace
 
@@ -66,7 +75,7 @@ DEFINE_NOTICE(InvalidReturnValueNotice, "Spp.Handlers", "Spp", "alusus.net", "SP
 namespace Spp { namespace LlvmCodeGen
 {
 
-class Generator;  
+class Generator;
 
 } }
 
@@ -74,12 +83,13 @@ class Generator;
 
 // Functions
 #include "Block.h"
-#include "UserFunction.h"
+#include "Variable.h"
 
 // The Generator
 #include "TypeGenerator.h"
 #include "LiteralGenerator.h"
 #include "ExpressionGenerator.h"
+#include "VariableGenerator.h"
 #include "CommandGenerator.h"
 #include "Generator.h"
 
