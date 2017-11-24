@@ -36,8 +36,8 @@ class IfStatement : public Core::Data::Node,
   // Member Variables
 
   private: TioSharedPtr condition;
-  private: SharedPtr<Block> ifBody;
-  private: SharedPtr<Block> elseBody;
+  private: TioSharedPtr ifBody;
+  private: TioSharedPtr elseBody;
 
 
   //============================================================================
@@ -46,13 +46,15 @@ class IfStatement : public Core::Data::Node,
   IMPLEMENT_METADATA(IfStatement);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                     (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
+    (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation)
+  );
 
   IMPLEMENT_MAP_CONTAINER(MapContainer,
-                          (TiObject, condition),
-                          (Block, ifBody),
-                          (Block, elseBody));
+    (TiObject, condition),
+    (TiObject, ifBody),
+    (TiObject, elseBody)
+  );
 
   IMPLEMENT_AST_CLONABLE(IfStatement);
 
@@ -89,22 +91,22 @@ class IfStatement : public Core::Data::Node,
     return this->condition;
   }
 
-  public: void setIfBody(SharedPtr<Block> const &body)
+  public: void setIfBody(TioSharedPtr const &body)
   {
     UPDATE_OWNED_SHAREDPTR(this->ifBody, body);
   }
 
-  public: SharedPtr<Block> const& getIfBody() const
+  public: TioSharedPtr const& getIfBody() const
   {
     return this->ifBody;
   }
 
-  public: void setElseBody(SharedPtr<Block> const &body)
+  public: void setElseBody(TioSharedPtr const &body)
   {
     UPDATE_OWNED_SHAREDPTR(this->elseBody, body);
   }
 
-  public: SharedPtr<Block> const& getElseBody() const
+  public: TioSharedPtr const& getElseBody() const
   {
     return this->elseBody;
   }

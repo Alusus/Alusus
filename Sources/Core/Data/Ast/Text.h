@@ -101,10 +101,10 @@ class Text : public Node,
   {
     stream << STR("Text");
     Word id = this->getProdId();
-    if (id != UNKNOWN_ID) {
-      stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("] ");
-    }
     stream << STR(": ") << this->getValue();
+    if (id != UNKNOWN_ID) {
+      stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");
+    }
   }
 
 }; // class
@@ -133,7 +133,7 @@ class Text : public Node,
       stream << STR(": ") << this->getValue(); \
       Word id = this->getProdId(); \
       if (id != UNKNOWN_ID) { \
-        stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("] "); \
+        stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]"); \
       } \
     } \
   }

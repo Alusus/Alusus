@@ -50,6 +50,9 @@ DEFINE_NOTICE(InvalidFunctionArgTypeNotice, "Spp.Handlers", "Spp", "alusus.net",
 DEFINE_NOTICE(InvalidWhileStatementNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1008", 1,
   STR("Invalid while statement.")
 );
+DEFINE_NOTICE(InvalidIfStatementNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1009", 1,
+  STR("Invalid if statement.")
+);
 
 } } // namespace
 
@@ -58,6 +61,7 @@ DEFINE_NOTICE(InvalidWhileStatementNotice, "Spp.Handlers", "Spp", "alusus.net", 
 // Classes
 
 #include "FunctionParsingHandler.h"
+#include "IfParsingHandler.h"
 #include "WhileParsingHandler.h"
 #include "CodeGenParsingHandler.h"
 

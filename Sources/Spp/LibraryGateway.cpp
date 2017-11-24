@@ -102,6 +102,57 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
   this->addReferenceToCommandList(leadingCmdList, STR("module:Run"));
 
+  //// if = "if" + Expression + Statement + ("else" + Statement)*(0, 1)
+  grammarRepository->set(STR("root:Main.If"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:MultiCmd"))},
+    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+      {STR("sections"), Core::Data::SharedList::create({
+        Core::Data::SharedMap::create(false, {
+          {STR("min"), std::make_shared<Integer>(1)},
+          {STR("max"), std::make_shared<Integer>(1)},
+          {STR("pty"), std::make_shared<Integer>(1)},
+          {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+          {STR("kwd"), Core::Data::SharedMap::create(false, { { STR("if"), 0 }, { STR("إذا"), 0 } })},
+          {STR("args"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))}
+            }),
+            Core::Data::SharedMap::create(false, {
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockMain.Statement"))}
+            })
+          })}
+        }),
+        Core::Data::SharedMap::create(false, {
+          {STR("min"), std::make_shared<Integer>(0)},
+          {STR("max"), std::make_shared<Integer>(1)},
+          {STR("pty"), std::make_shared<Integer>(1)},
+          {STR("flags"), Integer::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {STR("kwd"), Core::Data::SharedMap::create(false, { { STR("else"), 0 }, { STR("وإلا"), 0 } })},
+          {STR("args"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockMain.Statement"))}
+            })
+          })}
+        })
+      })}
+    })},
+    {SymbolDefElement::HANDLER,
+      std::make_shared<Handlers::IfParsingHandler>()}
+  }).get());
+  this->addReferenceToCommandList(leadingCmdList, STR("module:If"));
+
   //// while = "while" + Expression + Statement
   grammarRepository->set(STR("root:Main.While"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
@@ -327,10 +378,14 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:Subject1")) },
    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
       {STR("sbj1"), Core::Data::SharedList::create({
-         REF_PARSER->parseQualifier(STR("module:SubjectCmdGrp")),
-         REF_PARSER->parseQualifier(STR("module:Parameter")),
-         REF_PARSER->parseQualifier(STR("root:Block"))
-       })}
+        REF_PARSER->parseQualifier(STR("module:SubjectCmdGrp")),
+        REF_PARSER->parseQualifier(STR("module:Parameter")),
+        REF_PARSER->parseQualifier(STR("root:Block"))
+      })},
+      {STR("sbj2"), Core::Data::SharedList::create({REF_PARSER->parseQualifier(STR("root:Expression"))})},
+      {STR("sbj3"), Core::Data::SharedList::create({REF_PARSER->parseQualifier(STR("root:Expression"))})},
+      {STR("frc2"), 0},
+      {STR("frc3"), 0}
     })}
   }).get());
   grammarRepository->set(STR("root:BlockExpression"), GrammarModule::create({
@@ -339,7 +394,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   grammarRepository->set(STR("root:BlockExpression.FunctionalExp"), SymbolDefinition::create({
     {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:FunctionalExp")) },
     {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-      {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+      {STR("flags"), Integer::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
       {STR("operand"), REF_PARSER->parseQualifier(STR("root:BlockSubject"))},
       {STR("pty2"), std::make_shared<Integer>(1)},
       {STR("dup"), 0},
@@ -390,6 +445,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   // Remove commands from leading commands list.
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Build"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Run"));
+  this->removeReferenceFromCommandList(leadingCmdList, STR("module:If"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:While"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Return"));
 
@@ -401,6 +457,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   // Delete definitions.
   grammarRepository->remove(STR("root:Main.Build"));
   grammarRepository->remove(STR("root:Main.Run"));
+  grammarRepository->remove(STR("root:Main.If"));
   grammarRepository->remove(STR("root:Main.While"));
   grammarRepository->remove(STR("root:Main.Return"));
   grammarRepository->remove(STR("root:Main.ModuleStatementList"));

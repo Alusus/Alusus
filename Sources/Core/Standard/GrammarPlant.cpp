@@ -911,9 +911,10 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
   }
 
   //// Cmd : keyword {Subject}.
-  // IdentCmd : @limit[user.parent=Command] prod (kwd:keywords, args:list[hash[prd:production[Subject], min:integer,
-  //                                                                           max:integer, pty:integer]]) as
-  //     IdentifierKeywordGroup(kwd) + concat (args:a)->( @priority(a.pty,0) a.prd*(a.min,a.max) );
+  // Cmd : @limit[user.parent==root.Command] prule
+  //   as (kwd:keywords, args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
+  //     root.KeywordGroup(kwd) + concat (args:a)->( @priority(a.pty,0) a.prd*(a.min,a.max) )
+  //   };
   this->repository.set(STR("root:Cmd"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
        {TermElement::TERM, SharedList::create({
@@ -933,6 +934,51 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
           })
         })}
      })},
+    {SymbolDefElement::HANDLER, this->parsingHandler},
+    {SymbolDefElement::FLAGS, Integer::create(ParsingFlags::ENFORCE_PROD_OBJ)}
+  }).get());
+
+  //// MultiCmd : {keyword {Subject}}.
+  // MultiCmd : @limit[user.parent==root.Command] prule as
+  //   (sections:list[map[kwd:keywords, min:integer, max:integer, pty:integer,
+  //     args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]]
+  //   ]])=>{
+  //     concat (sections:s)->(
+  //       @priority(s.pty,0) (root.KeywordGroup(s.kwd) + concat (s.args:a)->(
+  //         @priority(a.pty,0) a.arg*(a.min, a.max)
+  //       ))*(s.min, s.max)
+  //     )
+  //   };
+  this->repository.set(STR("root:MultiCmd"), SymbolDefinition::create({
+    {SymbolDefElement::TERM, ConcatTerm::create({
+      {TermElement::REF, REF_PARSER->parseQualifier(STR("stack:s"))},
+      {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:sections"))},
+      {TermElement::TERM, MultiplyTerm::create({
+        {TermElement::PRIORITY, REF_PARSER->parseQualifier(STR("stack:s.pty"))},
+        {TermElement::FLAGS, REF_PARSER->parseQualifier(STR("stack:s.flags"))},
+        {TermElement::MIN, REF_PARSER->parseQualifier(STR("stack:s.min"))},
+        {TermElement::MAX, REF_PARSER->parseQualifier(STR("stack:s.max"))},
+        {TermElement::TERM, ConcatTerm::create({
+          {TermElement::FLAGS, Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+          {TermElement::TERM, SharedList::create({
+            TokenTerm::create(0, std::make_shared<Integer>(ID_GENERATOR->getId(STR("LexerDefs.Identifier"))),
+                              REF_PARSER->parseQualifier(STR("stack:s.kwd"))),
+            ConcatTerm::create({
+              {TermElement::FLAGS, Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+              {TermElement::REF, REF_PARSER->parseQualifier(STR("stack:a"))},
+              {TermElement::DATA, REF_PARSER->parseQualifier(STR("stack:s.args"))},
+              {TermElement::TERM, MultiplyTerm::create({
+                {TermElement::PRIORITY, REF_PARSER->parseQualifier(STR("stack:a.pty"))},
+                {TermElement::FLAGS, REF_PARSER->parseQualifier(STR("stack:a.flags"))},
+                {TermElement::MIN, REF_PARSER->parseQualifier(STR("stack:a.min"))},
+                {TermElement::MAX, REF_PARSER->parseQualifier(STR("stack:a.max"))},
+                {TermElement::TERM, ReferenceTerm::create(STR("stack:a.prd"))}
+              })}
+            })
+          })}
+        })}
+      })}
+    })},
     {SymbolDefElement::HANDLER, this->parsingHandler},
     {SymbolDefElement::FLAGS, Integer::create(ParsingFlags::ENFORCE_PROD_OBJ)}
   }).get());
@@ -1326,7 +1372,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
       })}
     })},
     {SymbolDefElement::VARS, SharedMap::create(false, {
-      {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+      {STR("flags"), Integer::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
       {STR("operand"), REF_PARSER->parseQualifier(STR("root:Subject"))},
       {STR("pty2"), std::make_shared<Integer>(1)},
       {STR("dup"), 0},
