@@ -330,8 +330,8 @@ Bool Generator::_generateStatements(
     auto astNode = astBlock->get(i);
     Ast::Type *resultType;
     llvm::Value *llvmResult;
-    TiObject *lastProcessedRef;
-    if (!generator->generatePhrase(astNode, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef)) {
+    TiObject *lastProcessedNode;
+    if (!generator->generatePhrase(astNode, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode)) {
       result = false;
     }
   }
@@ -341,7 +341,7 @@ Bool Generator::_generateStatements(
 
 Bool Generator::_generatePhrase(
   TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
   PREPARE_SELF(generator, Generator);
   if (astNode->isDerivedFrom<Core::Data::Ast::Definition>()) {
@@ -362,58 +362,61 @@ Bool Generator::_generatePhrase(
       // Generate local variable.
       resultType = 0;
       llvmResult = 0;
-      lastProcessedRef = 0;
+      lastProcessedNode = 0;
       return generator->variableGenerator->generateVarDefinition(def);
     }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
     auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(astNode);
     return generator->expressionGenerator->generateParamPass(
-      paramPass, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+      paramPass, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
     return generator->variableGenerator->generateVarAccess(
-      identifier, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+      identifier, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::AssignmentOperator>()) {
     auto assignmentOp = static_cast<Core::Data::Ast::AssignmentOperator*>(astNode);
     return generator->expressionGenerator->generateAssignment(
-      assignmentOp, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+      assignmentOp, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
     return generator->expressionGenerator->generateInfixOp(
-      infixOp, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+      infixOp, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);
     return generator->literalGenerator->generateStringLiteral(
-      stringLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+      stringLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
     auto integerLiteral = static_cast<Core::Data::Ast::IntegerLiteral*>(astNode);
     return generator->literalGenerator->generateIntegerLiteral(
-      integerLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+      integerLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::FloatLiteral>()) {
     auto floatLiteral = static_cast<Core::Data::Ast::FloatLiteral*>(astNode);
     return generator->literalGenerator->generateFloatLiteral(
-      floatLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+      floatLiteral, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Bracket>()) {
     auto bracket = static_cast<Core::Data::Ast::Bracket*>(astNode);
     if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
       return generator->generatePhrase(
-        bracket->getOperand().get(), llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+        bracket->getOperand().get(), llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
       );
     } else {
       generator->parserState->addNotice(std::make_shared<InvalidOperationNotice>(bracket->getSourceLocation()));
       return false;
     }
+  } else if (astNode->isDerivedFrom<Spp::Ast::IfStatement>()) {
+    auto ifStatement = static_cast<Spp::Ast::IfStatement*>(astNode);
+    return generator->commandGenerator->generateIfStatement(ifStatement, llvmIrBuilder, llvmFunc);
   } else if (astNode->isDerivedFrom<Spp::Ast::ReturnStatement>()) {
     auto returnStatement = static_cast<Spp::Ast::ReturnStatement*>(astNode);
     return generator->commandGenerator->generateReturn(
-      returnStatement, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef
+      returnStatement, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   }
   generator->parserState->addNotice(

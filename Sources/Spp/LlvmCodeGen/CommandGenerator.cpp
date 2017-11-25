@@ -21,7 +21,8 @@ namespace Spp { namespace LlvmCodeGen
 void CommandGenerator::initBindingCaches()
 {
   Core::Basic::initBindingCaches(this, {
-    &this->generateReturn
+    &this->generateReturn,
+    &this->generateIfStatement
   });
 }
 
@@ -29,6 +30,7 @@ void CommandGenerator::initBindingCaches()
 void CommandGenerator::initBindings()
 {
   this->generateReturn = &CommandGenerator::_generateReturn;
+  this->generateIfStatement = &CommandGenerator::_generateIfStatement;
 }
 
 
@@ -37,7 +39,7 @@ void CommandGenerator::initBindings()
 
 Bool CommandGenerator::_generateReturn(
   TiObject *self, Spp::Ast::ReturnStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
@@ -93,9 +95,106 @@ Bool CommandGenerator::_generateReturn(
     llvmIrBuilder->CreateRetVoid();
   }
 
-  lastProcessedRef = astNode;
+  lastProcessedNode = astNode;
   llvmResult = 0;
   resultType = 0;
+  return true;
+}
+
+
+Bool CommandGenerator::_generateIfStatement(
+  TiObject *self, Spp::Ast::IfStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
+) {
+  PREPARE_SELF(cmdGenerator, CommandGenerator);
+
+  TiObject *lastProcessedNode;
+
+  // Generate condition.
+  Ast::Type *conditionAstType;
+  llvm::Value *conditionLlvmValue;
+  if (!cmdGenerator->generator->generatePhrase(
+    astNode->getCondition().get(), llvmIrBuilder, llvmFunc, conditionAstType, conditionLlvmValue, lastProcessedNode
+  )) return false;
+
+  // Generate ifBody.
+  LlvmCodeGen::Block *ifCgBlock;
+  LlvmCodeGen::Block tmpIfCgBlock;
+  auto ifBody = astNode->getIfBody().get();
+  if (ifBody->isDerivedFrom<Ast::Block>()) {
+    // The if body is already a block, so just build it.
+    if (!cmdGenerator->generator->generateBlock(static_cast<Ast::Block*>(ifBody), llvmFunc)) {
+      return false;
+    }
+    ifCgBlock = static_cast<Ast::Block*>(ifBody)->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Block>();
+    if (ifCgBlock == 0) {
+      throw EXCEPTION(GenericException, STR("Unexpected error while generating if body."));
+    }
+  } else {
+    // The if body is a single statement, so create a block to contain it.
+    tmpIfCgBlock.setLlvmBlock(
+      llvm::BasicBlock::Create(llvm::getGlobalContext(), cmdGenerator->generator->getNewBlockName(), llvmFunc)
+    );
+    tmpIfCgBlock.setIrBuilder(new llvm::IRBuilder<>(tmpIfCgBlock.getLlvmBlock()));
+    ifCgBlock = &tmpIfCgBlock;
+    Ast::Type *resultType;
+    llvm::Value *llvmResult;
+    if (!cmdGenerator->generator->generatePhrase(
+      ifBody, tmpIfCgBlock.getIrBuilder(), llvmFunc, resultType, llvmResult, lastProcessedNode
+    )) {
+      return false;
+    }
+  }
+
+  // Generate elseBody, if needed.
+  LlvmCodeGen::Block *elseCgBlock = 0;
+  LlvmCodeGen::Block tmpElseCgBlock;
+  auto elseBody = astNode->getElseBody().get();
+  if (elseBody != 0) {
+    if (elseBody->isDerivedFrom<Ast::Block>()) {
+      // The else body is already a block, so just build it.
+      if (!cmdGenerator->generator->generateBlock(static_cast<Ast::Block*>(elseBody), llvmFunc)) {
+        return false;
+      }
+      elseCgBlock = static_cast<Ast::Block*>(elseBody)->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Block>();
+      if (elseCgBlock == 0) {
+        throw EXCEPTION(GenericException, STR("Unexpected error while generating else body."));
+      }
+    } else {
+      // The if body is a single statement, so create a block to contain it.
+      tmpElseCgBlock.setLlvmBlock(
+        llvm::BasicBlock::Create(llvm::getGlobalContext(), cmdGenerator->generator->getNewBlockName(), llvmFunc)
+      );
+      tmpElseCgBlock.setIrBuilder(new llvm::IRBuilder<>(tmpElseCgBlock.getLlvmBlock()));
+      elseCgBlock = &tmpElseCgBlock;
+      Ast::Type *resultType;
+      llvm::Value *llvmResult;
+      if (!cmdGenerator->generator->generatePhrase(
+        elseBody, tmpElseCgBlock.getIrBuilder(), llvmFunc, resultType, llvmResult, lastProcessedNode
+      )) {
+        return false;
+      }
+    }
+  }
+
+  // Create a merge block and jump to it from if and else bodies.
+  auto mergeLlvmBlock = llvm::BasicBlock::Create(
+    llvm::getGlobalContext(), cmdGenerator->generator->getNewBlockName(), llvmFunc
+  );
+  ifCgBlock->getIrBuilder()->CreateBr(mergeLlvmBlock);
+  if (elseCgBlock != 0) {
+    elseCgBlock->getIrBuilder()->CreateBr(mergeLlvmBlock);
+  }
+
+  // Create the if statement.
+  llvmIrBuilder->CreateCondBr(
+    conditionLlvmValue,
+    ifCgBlock->getLlvmBlock(),
+    elseCgBlock != 0 ? elseCgBlock->getLlvmBlock() : mergeLlvmBlock
+  );
+
+  // Set insert point to the merge body.
+  llvmIrBuilder->SetInsertPoint(mergeLlvmBlock);
+
   return true;
 }
 

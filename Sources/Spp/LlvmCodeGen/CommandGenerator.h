@@ -92,14 +92,20 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
       Spp::Ast::Type*&, llvm::Value*&, TiObject*&
     )
   );
-  // public: METHOD_BINDING_CACHE(generateIfStatement, this->getBindingMap());
+  public: METHOD_BINDING_CACHE(generateIfStatement,
+    Bool, (
+      Spp::Ast::IfStatement*, llvm::IRBuilder<>*, llvm::Function*
+    )
+  );
   // public: METHOD_BINDING_CACHE(generateWhileStatement, this->getBindingMap());
 
   private: static Bool _generateReturn(
     TiObject *self, Spp::Ast::ReturnStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );
-  //private: static Bool _generateIfStatement(Bindings *_self, );
+  private: static Bool _generateIfStatement(
+    TiObject *self, Spp::Ast::IfStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
+  );
   //private: static Bool _generateWhileStatement(Bindings *_self, );
 
   /// @}

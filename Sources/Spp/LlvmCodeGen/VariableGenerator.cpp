@@ -100,16 +100,16 @@ Bool VariableGenerator::_generateVarDefinition(TiObject *self, Core::Data::Ast::
 
 Bool VariableGenerator::_generateVarAccess(
   TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
   PREPARE_SELF(varGenerator, VariableGenerator);
   resultType = 0;
   llvmResult = 0;
-  lastProcessedRef = 0;
+  lastProcessedNode = 0;
   Bool result = false;
   Bool symbolFound = false;
   varGenerator->generator->getSeeker()->doForeach(astNode, astNode->getOwner(),
-    [=, &result, &lastProcessedRef, &llvmResult, &resultType, &symbolFound]
+    [=, &result, &lastProcessedNode, &llvmResult, &resultType, &symbolFound]
     (TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
     {
       symbolFound = true;
@@ -142,7 +142,7 @@ Bool VariableGenerator::_generateVarAccess(
         }
         // Set return values.
         resultType = cgVar->getAstType();
-        lastProcessedRef = astNode;
+        lastProcessedNode = astNode;
         result = true;
       } else if (obj->isDerivedFrom<Ast::Function>()) {
         result = true;
@@ -169,17 +169,17 @@ Bool VariableGenerator::_generateVarAccess(
 
 Bool VariableGenerator::_generateVarReference(
   TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
   PREPARE_SELF(varGenerator, VariableGenerator);
 
   resultType = 0;
   llvmResult = 0;
-  lastProcessedRef = 0;
+  lastProcessedNode = 0;
   Bool result = false;
   Bool symbolFound = false;
   varGenerator->generator->getSeeker()->doForeach(astNode, astNode->getOwner(),
-    [=, &result, &lastProcessedRef, &llvmResult, &resultType, &symbolFound]
+    [=, &result, &lastProcessedNode, &llvmResult, &resultType, &symbolFound]
     (TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
     {
       symbolFound = true;
@@ -212,7 +212,7 @@ Bool VariableGenerator::_generateVarReference(
         }
         // Set return values.
         resultType = cgVar->getAstType();
-        lastProcessedRef = astNode;
+        lastProcessedNode = astNode;
         result = true;
       } else {
         varGenerator->generator->getSourceLocationStack()->push_back(astNode->getSourceLocation());
@@ -237,7 +237,7 @@ Bool VariableGenerator::_generateVarReference(
 
 Bool VariableGenerator::_generateMemberVarAccess(
   TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
   PREPARE_SELF(varGenerator, VariableGenerator);
 

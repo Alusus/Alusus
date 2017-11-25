@@ -128,15 +128,15 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
 
   private: static Bool _generateParamPass(
     TiObject *self, Core::Data::Ast::ParamPass *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );
   private: static Bool _generateInfixOp(
     TiObject *self, Core::Data::Ast::InfixOperator *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+    Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );
   private: static Bool _generateAssignment(
     TiObject *self, Core::Data::Ast::AssignmentOperator *astNode, llvm::IRBuilder<> *llvmIrBuilder,
-    llvm::Function *llvmFunc, Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+    llvm::Function *llvmFunc, Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );
   private: static Bool _generateFunctionCall(
     TiObject *self, Spp::Ast::Function *callee,

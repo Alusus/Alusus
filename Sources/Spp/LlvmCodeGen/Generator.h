@@ -218,7 +218,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   );
   private: static Bool _generatePhrase(
     TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );
 
   /// @}
@@ -227,7 +227,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   /// @{
 
   private: Str const& getFunctionName(Spp::Ast::Function *astFunc);
-  private: Str getNewBlockName();
+  public: Str getNewBlockName();
 
   /// @}
 

@@ -41,7 +41,7 @@ void LiteralGenerator::initBindings()
 
 Bool LiteralGenerator::_generateStringLiteral(
   TiObject *self, Core::Data::Ast::StringLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
   PREPARE_SELF(literalGenerator, LiteralGenerator);
 
@@ -105,14 +105,14 @@ Bool LiteralGenerator::_generateStringLiteral(
   indices.push_back(zero);
   llvmResult = llvm::ConstantExpr::getGetElementPtr(llvmVar, indices);
 
-  lastProcessedRef = astNode;
+  lastProcessedNode = astNode;
   return true;
 }
 
 
 Bool LiteralGenerator::_generateIntegerLiteral(
   TiObject *self, Core::Data::Ast::IntegerLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
   PREPARE_SELF(literalGenerator, LiteralGenerator);
 
@@ -172,14 +172,14 @@ Bool LiteralGenerator::_generateIntegerLiteral(
   if (!result) return false;
   llvmResult = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, value, true));
   resultType = astType;
-  lastProcessedRef = astNode;
+  lastProcessedNode = astNode;
   return true;
 }
 
 
 Bool LiteralGenerator::_generateFloatLiteral(
   TiObject *self, Core::Data::Ast::FloatLiteral *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
   PREPARE_SELF(literalGenerator, LiteralGenerator);
 
@@ -213,7 +213,7 @@ Bool LiteralGenerator::_generateFloatLiteral(
     llvmResult = llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(value));
   }
   resultType = astType;
-  lastProcessedRef = astNode;
+  lastProcessedNode = astNode;
   return true;
 }
 

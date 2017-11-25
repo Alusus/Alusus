@@ -47,12 +47,12 @@ void ExpressionGenerator::initBindings()
 
 Bool ExpressionGenerator::_generateParamPass(
   TiObject *self, Core::Data::Ast::ParamPass *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
   auto operand = astNode->getOperand().get();
   if (!expGenerator->generator->generatePhrase(
-    operand, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedRef)
+    operand, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode)
   ) {
     return false;
   }
@@ -89,7 +89,7 @@ Bool ExpressionGenerator::_generateParamPass(
     Bool result = expGenerator->generateFunctionCall(
       function, &paramTypes, &paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
     );
-    if (result) lastProcessedRef = astNode;
+    if (result) lastProcessedNode = astNode;
     return result;
   }
 }
@@ -97,7 +97,7 @@ Bool ExpressionGenerator::_generateParamPass(
 
 Bool ExpressionGenerator::_generateInfixOp(
   TiObject *self, Core::Data::Ast::InfixOperator *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -128,14 +128,14 @@ Bool ExpressionGenerator::_generateInfixOp(
   Bool result = expGenerator->generateFunctionCall(
     function, &paramTypes, &paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
   );
-  if (result) lastProcessedRef = astNode;
+  if (result) lastProcessedNode = astNode;
   return result;
 }
 
 
 Bool ExpressionGenerator::_generateAssignment(
   TiObject *self, Core::Data::Ast::AssignmentOperator *astNode, llvm::IRBuilder<> *llvmIrBuilder,
-  llvm::Function *llvmFunc, Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+  llvm::Function *llvmFunc, Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -191,7 +191,7 @@ Bool ExpressionGenerator::_generateAssignment(
   // Set return values.
   llvmResult = castedLlvmVal;
   resultType = varAstType;
-  lastProcessedRef = astNode;
+  lastProcessedNode = astNode;
   return true;
 }
 

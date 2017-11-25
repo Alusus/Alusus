@@ -109,15 +109,15 @@ class VariableGenerator : public TiObject, public virtual DynamicBindings, publi
   private: static Bool _generateVarDefinition(TiObject *self, Core::Data::Ast::Definition *definition);
   private: static Bool _generateVarAccess(
     TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );
   private: static Bool _generateVarReference(
     TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );
   private: static Bool _generateMemberVarAccess(
     TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedRef
+    Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );
 
   /// @}
