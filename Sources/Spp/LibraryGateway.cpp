@@ -262,7 +262,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         {
           STR("prms"), Core::Data::SharedList::create({
             Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:TypeBody"))},
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Block"))},
               {STR("min"), std::make_shared<Integer>(1)},
               {STR("max"), std::make_shared<Integer>(1)},
               {STR("pty"), std::make_shared<Integer>(1)},
@@ -273,21 +273,18 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
       })
     },
     { SymbolDefElement::HANDLER, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-       auto currentList = state->getData().tii_cast_get<Data::Container>();
-       state->setData(getSharedPtr(currentList->get(1)));
+      auto currentList = state->getData().ti_cast_get<Data::Container>();
+      auto metadata = ti_cast<Data::Ast::Metadata>(currentList);
+      auto type = Ast::UserType::create({
+        { "prodId", metadata->getProdId() },
+        { "sourceLocation", metadata->getSourceLocation() }
+      }, {
+        { "body", currentList->get(1) }
+      });
+      state->setData(type);
     })}
   }).get());
   this->addReferenceToCommandList(innerCmdList, STR("module:Type"));
-  grammarRepository->set(STR("root:TypeBody"), SymbolDefinition::create({
-    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("root:Set")) },
-    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-      {STR("stmt"), REF_PARSER->parseQualifier(STR("root:Main.TypeStatementList"))}
-    })}
-  }).get());
-  grammarRepository->set(STR("root:Main.TypeStatementList"), SymbolDefinition::create({
-    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("module:StatementList")) },
-    { SymbolDefElement::HANDLER, ScopeParsingHandler<Spp::Ast::UserType>::create(-1) }
-  }).get());
 
   // Function
   grammarRepository->set(STR("root:Subject.Function"), SymbolDefinition::create({
@@ -461,12 +458,10 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   grammarRepository->remove(STR("root:Main.While"));
   grammarRepository->remove(STR("root:Main.Return"));
   grammarRepository->remove(STR("root:Main.ModuleStatementList"));
-  grammarRepository->remove(STR("root:Main.TypeStatementList"));
   grammarRepository->remove(STR("root:Main.BlockStatementList"));
   grammarRepository->remove(STR("root:Subject.Module"));
   grammarRepository->remove(STR("root:ModuleBody"));
   grammarRepository->remove(STR("root:Subject.Type"));
-  grammarRepository->remove(STR("root:TypeBody"));
   grammarRepository->remove(STR("root:Subject.Function"));
   grammarRepository->remove(STR("root:FuncSigExpression"));
   grammarRepository->remove(STR("root:Block"));
