@@ -16,8 +16,6 @@
 namespace Spp { namespace Ast
 {
 
-using namespace Core;
-
 class WhileStatement : public Core::Data::Node,
                        public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
                        public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
@@ -35,8 +33,8 @@ class WhileStatement : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: TioSharedPtr condition;
-  private: TioSharedPtr body;
+  private: Core::Basic::TioSharedPtr condition;
+  private: Core::Basic::TioSharedPtr body;
 
 
   //============================================================================
@@ -45,12 +43,13 @@ class WhileStatement : public Core::Data::Node,
   IMPLEMENT_METADATA(WhileStatement);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
+                     (prodId, Core::Basic::TiWord, VALUE, setProdId(value), &prodId),
                      (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
 
   IMPLEMENT_MAP_CONTAINER(MapContainer,
-                          (TiObject, condition),
-                          (TiObject, body));
+    (Core::Basic::TiObject, condition),
+    (Core::Basic::TiObject, body)
+  );
 
   IMPLEMENT_AST_CLONABLE(WhileStatement);
 
@@ -76,22 +75,22 @@ class WhileStatement : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setCondition(TioSharedPtr const &cond)
+  public: void setCondition(Core::Basic::TioSharedPtr const &cond)
   {
     UPDATE_OWNED_SHAREDPTR(this->condition, cond);
   }
 
-  public: TioSharedPtr const& getCondition() const
+  public: Core::Basic::TioSharedPtr const& getCondition() const
   {
     return this->condition;
   }
 
-  public: void setBody(TioSharedPtr const &b)
+  public: void setBody(Core::Basic::TioSharedPtr const &b)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
   }
 
-  public: TioSharedPtr const& getBody() const
+  public: Core::Basic::TioSharedPtr const& getBody() const
   {
     return this->body;
   }

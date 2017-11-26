@@ -22,7 +22,8 @@ void CommandGenerator::initBindingCaches()
 {
   Core::Basic::initBindingCaches(this, {
     &this->generateReturn,
-    &this->generateIfStatement
+    &this->generateIfStatement,
+    &this->generateWhileStatement
   });
 }
 
@@ -31,6 +32,7 @@ void CommandGenerator::initBindings()
 {
   this->generateReturn = &CommandGenerator::_generateReturn;
   this->generateIfStatement = &CommandGenerator::_generateIfStatement;
+  this->generateWhileStatement = &CommandGenerator::_generateWhileStatement;
 }
 
 
@@ -194,6 +196,78 @@ Bool CommandGenerator::_generateIfStatement(
 
   // Set insert point to the merge body.
   llvmIrBuilder->SetInsertPoint(mergeLlvmBlock);
+
+  return true;
+}
+
+
+Bool CommandGenerator::_generateWhileStatement(
+  TiObject *self, Spp::Ast::WhileStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
+) {
+  PREPARE_SELF(cmdGenerator, CommandGenerator);
+
+  TiObject *lastProcessedNode;
+
+  // Create empty condition block.
+  LlvmCodeGen::Block tmpCondCgBlock;
+  tmpCondCgBlock.setLlvmBlock(
+    llvm::BasicBlock::Create(llvm::getGlobalContext(), cmdGenerator->generator->getNewBlockName(), llvmFunc)
+  );
+  tmpCondCgBlock.setIrBuilder(new llvm::IRBuilder<>(tmpCondCgBlock.getLlvmBlock()));
+
+  // Jump to condition block.
+  llvmIrBuilder->CreateBr(tmpCondCgBlock.getLlvmBlock());
+
+  // Generate body.
+  LlvmCodeGen::Block *bodyCgBlock;
+  LlvmCodeGen::Block tmpBodyCgBlock;
+  auto body = astNode->getBody().get();
+  if (body->isDerivedFrom<Ast::Block>()) {
+    // The if body is already a block, so just build it.
+    if (!cmdGenerator->generator->generateBlock(static_cast<Ast::Block*>(body), llvmFunc)) {
+      return false;
+    }
+    bodyCgBlock = static_cast<Ast::Block*>(body)->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Block>();
+    if (bodyCgBlock == 0) {
+      throw EXCEPTION(GenericException, STR("Unexpected error while generating while body."));
+    }
+  } else {
+    // The if body is a single statement, so create a block to contain it.
+    tmpBodyCgBlock.setLlvmBlock(
+      llvm::BasicBlock::Create(llvm::getGlobalContext(), cmdGenerator->generator->getNewBlockName(), llvmFunc)
+    );
+    tmpBodyCgBlock.setIrBuilder(new llvm::IRBuilder<>(tmpBodyCgBlock.getLlvmBlock()));
+    bodyCgBlock = &tmpBodyCgBlock;
+    Ast::Type *resultType;
+    llvm::Value *llvmResult;
+    if (!cmdGenerator->generator->generatePhrase(
+      body, tmpBodyCgBlock.getIrBuilder(), llvmFunc, resultType, llvmResult, lastProcessedNode
+    )) {
+      return false;
+    }
+  }
+
+  // Jump from body to condition block.
+  bodyCgBlock->getIrBuilder()->CreateBr(tmpCondCgBlock.getLlvmBlock());
+
+  // Create exit block.
+  auto exitLlvmBlock = llvm::BasicBlock::Create(
+    llvm::getGlobalContext(), cmdGenerator->generator->getNewBlockName(), llvmFunc
+  );
+
+  // Generate the condition.
+  Ast::Type *conditionAstType;
+  llvm::Value *conditionLlvmValue;
+  if (!cmdGenerator->generator->generatePhrase(
+    astNode->getCondition().get(), tmpCondCgBlock.getIrBuilder(), llvmFunc,
+    conditionAstType, conditionLlvmValue, lastProcessedNode
+  )) return false;
+
+  // Create condition branch.
+  tmpCondCgBlock.getIrBuilder()->CreateCondBr(conditionLlvmValue, bodyCgBlock->getLlvmBlock(), exitLlvmBlock);
+
+  // Set insert point.
+  llvmIrBuilder->SetInsertPoint(exitLlvmBlock);
 
   return true;
 }

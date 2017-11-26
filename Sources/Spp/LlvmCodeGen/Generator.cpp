@@ -413,6 +413,9 @@ Bool Generator::_generatePhrase(
   } else if (astNode->isDerivedFrom<Spp::Ast::IfStatement>()) {
     auto ifStatement = static_cast<Spp::Ast::IfStatement*>(astNode);
     return generator->commandGenerator->generateIfStatement(ifStatement, llvmIrBuilder, llvmFunc);
+  } else if (astNode->isDerivedFrom<Spp::Ast::WhileStatement>()) {
+    auto whileStatement = static_cast<Spp::Ast::WhileStatement*>(astNode);
+    return generator->commandGenerator->generateWhileStatement(whileStatement, llvmIrBuilder, llvmFunc);
   } else if (astNode->isDerivedFrom<Spp::Ast::ReturnStatement>()) {
     auto returnStatement = static_cast<Spp::Ast::ReturnStatement*>(astNode);
     return generator->commandGenerator->generateReturn(

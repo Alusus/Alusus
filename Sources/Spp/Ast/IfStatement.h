@@ -16,8 +16,6 @@
 namespace Spp { namespace Ast
 {
 
-using namespace Core;
-
 class IfStatement : public Core::Data::Node,
                     public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
                     public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
@@ -35,9 +33,9 @@ class IfStatement : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: TioSharedPtr condition;
-  private: TioSharedPtr ifBody;
-  private: TioSharedPtr elseBody;
+  private: Core::Basic::TioSharedPtr condition;
+  private: Core::Basic::TioSharedPtr ifBody;
+  private: Core::Basic::TioSharedPtr elseBody;
 
 
   //============================================================================
@@ -46,14 +44,14 @@ class IfStatement : public Core::Data::Node,
   IMPLEMENT_METADATA(IfStatement);
 
   IMPLEMENT_BINDINGS(Bindings,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
+    (prodId, Core::Basic::TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation)
   );
 
   IMPLEMENT_MAP_CONTAINER(MapContainer,
-    (TiObject, condition),
-    (TiObject, ifBody),
-    (TiObject, elseBody)
+    (Core::Basic::TiObject, condition),
+    (Core::Basic::TiObject, ifBody),
+    (Core::Basic::TiObject, elseBody)
   );
 
   IMPLEMENT_AST_CLONABLE(IfStatement);
@@ -81,32 +79,32 @@ class IfStatement : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setCondition(TioSharedPtr const &cond)
+  public: void setCondition(Core::Basic::TioSharedPtr const &cond)
   {
     UPDATE_OWNED_SHAREDPTR(this->condition, cond);
   }
 
-  public: TioSharedPtr const& getCondition() const
+  public: Core::Basic::TioSharedPtr const& getCondition() const
   {
     return this->condition;
   }
 
-  public: void setIfBody(TioSharedPtr const &body)
+  public: void setIfBody(Core::Basic::TioSharedPtr const &body)
   {
     UPDATE_OWNED_SHAREDPTR(this->ifBody, body);
   }
 
-  public: TioSharedPtr const& getIfBody() const
+  public: Core::Basic::TioSharedPtr const& getIfBody() const
   {
     return this->ifBody;
   }
 
-  public: void setElseBody(TioSharedPtr const &body)
+  public: void setElseBody(Core::Basic::TioSharedPtr const &body)
   {
     UPDATE_OWNED_SHAREDPTR(this->elseBody, body);
   }
 
-  public: TioSharedPtr const& getElseBody() const
+  public: Core::Basic::TioSharedPtr const& getElseBody() const
   {
     return this->elseBody;
   }
