@@ -107,6 +107,12 @@ Bool ExpressionGenerator::_generateInfixOp(
   else if (astNode->getType() == STR("-")) funcName = STR("__sub");
   else if (astNode->getType() == STR("*")) funcName = STR("__mul");
   else if (astNode->getType() == STR("/")) funcName = STR("__div");
+  else if (astNode->getType() == STR("==")) funcName = STR("__equal");
+  else if (astNode->getType() == STR("!=")) funcName = STR("__notEqual");
+  else if (astNode->getType() == STR(">")) funcName = STR("__greaterThan");
+  else if (astNode->getType() == STR(">=")) funcName = STR("__greaterThanOrEqual");
+  else if (astNode->getType() == STR("<")) funcName = STR("__lessThan");
+  else if (astNode->getType() == STR("<=")) funcName = STR("__lessThanOrEqual");
   else {
     throw EXCEPTION(GenericException, STR("Unexpected infix operator."));
   }
@@ -251,6 +257,7 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
 
   resultType = callee->traceRetType(expGenerator->generator->getSeeker());
 
+  // Binary Math Operations
   if (callee->getName() == STR("#addInt")) {
     if (paramCgs->getElementCount() != 2) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #addInt built-in function."));
@@ -299,6 +306,8 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
     }
     llvmResult = llvmIrBuilder->CreateFDiv(paramCgs->getElement(0), paramCgs->getElement(1));
     return true;
+
+  // Unary Operations
   } else if (callee->getName() == STR("#negInt")) {
     if (paramCgs->getElementCount() != 1) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #negInt built-in function."));
@@ -310,6 +319,92 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #negFloat built-in function."));
     }
     llvmResult = llvmIrBuilder->CreateFNeg(paramCgs->getElement(0));
+    return true;
+
+  // Int Comparison Operations
+  } else if (callee->getName() == STR("#equalInt")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #equalInt built-in function."));
+    }
+    llvmResult = llvmIrBuilder->CreateICmpEQ(paramCgs->getElement(0), paramCgs->getElement(1));
+    return true;
+  } else if (callee->getName() == STR("#notEqualInt")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #notEqualInt built-in function."));
+    }
+    llvmResult = llvmIrBuilder->CreateICmpNE(paramCgs->getElement(0), paramCgs->getElement(1));
+    return true;
+  } else if (callee->getName() == STR("#greaterThanInt")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #greaterThanInt built-in function."));
+    }
+    llvmResult = llvmIrBuilder->CreateICmpSGT(paramCgs->getElement(0), paramCgs->getElement(1));
+    return true;
+  } else if (callee->getName() == STR("#greaterThanOrEqualInt")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(
+        GenericException, STR("Unexpected argument count in call to #greaterThanOrEqualInt built-in function.")
+      );
+    }
+    llvmResult = llvmIrBuilder->CreateICmpSGE(paramCgs->getElement(0), paramCgs->getElement(1));
+    return true;
+  } else if (callee->getName() == STR("#lessThanInt")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #lessThanInt built-in function."));
+    }
+    llvmResult = llvmIrBuilder->CreateICmpSLT(paramCgs->getElement(0), paramCgs->getElement(1));
+    return true;
+  } else if (callee->getName() == STR("#lessThanOrEqualInt")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(
+        GenericException, STR("Unexpected argument count in call to #lessThanOrEqualInt built-in function.")
+      );
+    }
+    llvmResult = llvmIrBuilder->CreateICmpSLE(paramCgs->getElement(0), paramCgs->getElement(1));
+    return true;
+
+  // Float Comparison Operations
+  } else if (callee->getName() == STR("#equalFloat")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #equalFloat built-in function."));
+    }
+    llvmResult = llvmIrBuilder->CreateFCmpOEQ(paramCgs->getElement(0), paramCgs->getElement(1));
+    return true;
+  } else if (callee->getName() == STR("#notEqualFloat")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #notEqualFloat built-in function."));
+    }
+    llvmResult = llvmIrBuilder->CreateFCmpONE(paramCgs->getElement(0), paramCgs->getElement(1));
+    return true;
+  } else if (callee->getName() == STR("#greaterThanFloat")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(
+        GenericException, STR("Unexpected argument count in call to #greaterThanFloat built-in function.")
+      );
+    }
+    llvmResult = llvmIrBuilder->CreateFCmpOGT(paramCgs->getElement(0), paramCgs->getElement(1));
+    return true;
+  } else if (callee->getName() == STR("#greaterThanOrEqualFloat")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(
+        GenericException, STR("Unexpected argument count in call to #greaterThanOrEqualFloat built-in function.")
+      );
+    }
+    llvmResult = llvmIrBuilder->CreateFCmpOGE(paramCgs->getElement(0), paramCgs->getElement(1));
+    return true;
+  } else if (callee->getName() == STR("#lessThanFloat")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #lessThanFloat built-in function."));
+    }
+    llvmResult = llvmIrBuilder->CreateFCmpOLT(paramCgs->getElement(0), paramCgs->getElement(1));
+    return true;
+  } else if (callee->getName() == STR("#lessThanOrEqualFloat")) {
+    if (paramCgs->getElementCount() != 2) {
+      throw EXCEPTION(
+        GenericException, STR("Unexpected argument count in call to #lessThanOrEqualFloat built-in function.")
+      );
+    }
+    llvmResult = llvmIrBuilder->CreateFCmpOLE(paramCgs->getElement(0), paramCgs->getElement(1));
     return true;
   }
 

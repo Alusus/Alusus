@@ -641,10 +641,16 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
   TioSharedPtr hook;
 
   Char const *binaryOps[] = { STR("add"), STR("sub"), STR("mul"), STR("div") };
+  Char const *comparisonOps[] = {
+    STR("equal"), STR("notEqual"),
+    STR("greaterThan"), STR("greaterThanOrEqual"),
+    STR("lessThan"), STR("lessThanOrEqual")
+  };
   Char const *types[] = {
     STR("Int[8]"), STR("Int[16]"), STR("Int[32]"), STR("Int[64]"), STR("Float[32]"), STR("Float[64]")
   };
 
+  // Add binary math operators.
   for (Int i = 0; i < sizeof(binaryOps) / sizeof(binaryOps[0]); ++i) {
     Str path = STR("__");
     path += binaryOps[i];
@@ -665,6 +671,28 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
     }
   }
 
+  // Add comparison operators.
+  for (Int i = 0; i < sizeof(comparisonOps) / sizeof(comparisonOps[0]); ++i) {
+    Str path = STR("__");
+    path += comparisonOps[i];
+    identifier.setValue(path.c_str());
+
+    for (Int j = 0; j < sizeof(types) / sizeof(types[0]); ++j) {
+      Int length = SBSTR(types[j]).findPos(CHR('['));
+      Str funcName = STR("#");
+      funcName += comparisonOps[i];
+      funcName.append(types[j], length);
+
+      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
+        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+        hook = this->createBinaryFunction(manager, funcName.c_str(), types[j], types[j], STR("Int[1]"));
+        obj = hook.get();
+        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+      });
+    }
+  }
+
+  // Add unary math operators.
   identifier.setValue(STR("__neg"));
   for (Int j = 0; j < sizeof(types) / sizeof(types[0]); ++j) {
     Int length = SBSTR(types[j]).findPos(CHR('['));
@@ -700,6 +728,24 @@ void LibraryGateway::removeBuiltInFunctions(Core::Standard::RootManager *manager
   manager->getSeeker()->doRemove(&identifier, root);
 
   identifier.setValue(STR("__neg"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("__equal"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("__notEqual"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("__greaterThan"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("__greaterThanOrEqual"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("__lessThan"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("__lessThanOrEqual"));
   manager->getSeeker()->doRemove(&identifier, root);
 }
 
