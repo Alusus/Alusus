@@ -28,6 +28,7 @@ class Variable : public Core::Basic::TiObject
   // Member Variables
 
   private: Ast::Type *astType = 0;
+  private: Int llvmStructIndex = -1;
   private: llvm::AllocaInst *llvmAllocaInst = 0;
   private: llvm::GlobalVariable *llvmGlobalVariable = 0;
 
@@ -51,6 +52,16 @@ class Variable : public Core::Basic::TiObject
   public: Ast::Type* getAstType() const
   {
     return this->astType;
+  }
+
+  public: void setLlvmStructIndex(Int i)
+  {
+    this->llvmStructIndex = i;
+  }
+
+  public: Int getLlvmStructIndex() const
+  {
+    return this->llvmStructIndex;
   }
 
   public: void setLlvmAllocaInst(llvm::AllocaInst *inst)

@@ -28,7 +28,7 @@ void TypeGenerator::initBindingCaches()
     &this->generateFloatType,
     &this->generatePointerType,
     &this->generateArrayType,
-    // &this->generateStructType,
+    &this->generateUserType,
     &this->generateCast,
     &this->generateDefaultValue
   });
@@ -43,7 +43,7 @@ void TypeGenerator::initBindings()
   this->generateFloatType = &TypeGenerator::_generateFloatType;
   this->generatePointerType = &TypeGenerator::_generatePointerType;
   this->generateArrayType = &TypeGenerator::_generateArrayType;
-  // this->generateStructType = &TypeGenerator::_generateStructType;
+  this->generateUserType = &TypeGenerator::_generateUserType;
   this->generateCast = &TypeGenerator::_generateCast;
   this->generateDefaultValue = &TypeGenerator::_generateDefaultValue;
 }
@@ -172,8 +172,8 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType)
     return typeGenerator->generatePointerType(static_cast<Spp::Ast::PointerType*>(astType));
   } else if (astType->isDerivedFrom<Spp::Ast::ArrayType>()) {
     return typeGenerator->generateArrayType(static_cast<Spp::Ast::ArrayType*>(astType));
-  // } else if (astType->isDerivedFrom<Spp::Ast::StructType>()) {
-  //   return typeGenerator->generateStructType(static_cast<Spp::Ast::StructType*>(astType));
+  } else if (astType->isDerivedFrom<Spp::Ast::UserType>()) {
+    return typeGenerator->generateUserType(static_cast<Spp::Ast::UserType*>(astType));
   } else {
     typeGenerator->generator->getParserState()->addNotice(
       std::make_shared<InvalidTypeNotice>(typeGenerator->generator->getSourceLocationStack())
@@ -256,6 +256,18 @@ Bool TypeGenerator::_generateArrayType(TiObject *self, Spp::Ast::ArrayType *astT
   llvm::Type *contentLlvmType;
   if (!typeGenerator->getGeneratedLlvmType(contentAstType, contentLlvmType)) return false;
   auto llvmType = llvm::ArrayType::get(contentLlvmType, contentSize);
+  astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
+  return true;
+}
+
+
+Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astType)
+{
+  PREPARE_SELF(typeGenerator, TypeGenerator);
+  Str name = std::regex_replace(
+    typeGenerator->generator->getNodePathResolver()->doResolve(astType), std::regex("[^a-zA-Z0-9_]"), STR("_")
+  );
+  auto llvmType = llvm::StructType::create(llvm::getGlobalContext(), name.c_str());
   astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
   return true;
 }

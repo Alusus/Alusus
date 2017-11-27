@@ -102,8 +102,8 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
   public: METHOD_BINDING_CACHE(generateFloatType, Bool, (Spp::Ast::FloatType*));
   public: METHOD_BINDING_CACHE(generatePointerType, Bool, (Spp::Ast::PointerType*));
   public: METHOD_BINDING_CACHE(generateArrayType, Bool, (Spp::Ast::ArrayType*));
-  // public: METHOD_BINDING_CACHE(generateStructType, Bool, (Spp::Ast::StructType*));
-  
+  public: METHOD_BINDING_CACHE(generateUserType, Bool, (Spp::Ast::UserType*));
+
   public: METHOD_BINDING_CACHE(generateCast,
     Bool, (llvm::IRBuilder<>*, Spp::Ast::Type*, Spp::Ast::Type*, llvm::Value*, llvm::Value*&)
   );
@@ -116,7 +116,7 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
   private: static Bool _generateFloatType(TiObject *self, Spp::Ast::FloatType *astType);
   private: static Bool _generatePointerType(TiObject *self, Spp::Ast::PointerType *astType);
   private: static Bool _generateArrayType(TiObject *self, Spp::Ast::ArrayType *astType);
-  // private: static Bool _generateStructType(TiObject *self, Spp::Ast::StructType *astType);
+  private: static Bool _generateUserType(TiObject *self, Spp::Ast::UserType *astType);
 
   public: static Bool _generateCast(
     TiObject *self, llvm::IRBuilder<> *llvmIrBuilder, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,

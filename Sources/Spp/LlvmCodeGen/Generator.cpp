@@ -25,6 +25,7 @@ void Generator::initBindingCaches()
     &this->generateModule,
     &this->generateFunction,
     &this->generateFunctionDecl,
+    &this->generateUserType,
     &this->prepareBlock,
     &this->generateBlock,
     &this->generateStatements,
@@ -38,6 +39,7 @@ void Generator::initBindings()
   this->generateModule = &Generator::_generateModule;
   this->generateFunction = &Generator::_generateFunction;
   this->generateFunctionDecl = &Generator::_generateFunctionDecl;
+  this->generateUserType = &Generator::_generateUserType;
   this->prepareBlock = &Generator::_prepareBlock;
   this->generateBlock = &Generator::_generateBlock;
   this->generateStatements = &Generator::_generateStatements;
@@ -173,9 +175,7 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule)
       } else if (obj->isDerivedFrom<Spp::Ast::Function>()) {
         if (!generator->generateFunction(static_cast<Spp::Ast::Function*>(obj))) result = false;
       } else if (obj->isDerivedFrom<Spp::Ast::UserType>()) {
-        // TODO: Generate type.
-        generator->parserState->addNotice(std::make_shared<UnsupportedOperationNotice>(def->getSourceLocation()));
-        result = false;
+        if (!generator->generateUserType(static_cast<Spp::Ast::UserType*>(obj))) result = false;
       } else {
         // Generate global variable.
         if (!generator->variableGenerator->generateVarDefinition(def)) {
@@ -295,6 +295,56 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
 
   astFunc->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Function*>::create(llvmFunc));
   return true;
+}
+
+
+Bool Generator::_generateUserType(TiObject *self, Spp::Ast::UserType *astType)
+{
+  PREPARE_SELF(generator, Generator);
+
+  llvm::Type *llvmType;
+  if (!generator->typeGenerator->getGeneratedLlvmType(astType, llvmType)) {
+    return false;
+  }
+  ASSERT(llvmType != 0);
+  llvm::StructType *llvmStructType = static_cast<llvm::StructType*>(llvmType);
+
+  // Add struct members.
+  auto body = astType->getBody().get();
+  if (body == 0) {
+    throw EXCEPTION(GenericException, STR("User type missing body block."));
+  }
+  Bool result = true;
+  std::vector<llvm::Type*> structMembers;
+  for (Int i = 0; i < body->getCount(); ++i) {
+    auto def = ti_cast<Data::Ast::Definition>(body->get(i));
+    if (def != 0) {
+      auto obj = def->getTarget().get();
+      if (Ast::isVarDefinition(obj)) {
+        // Generate member variable.
+        if (!generator->variableGenerator->generateVarDefinition(def)) {
+          result = false;
+          continue;
+        }
+        auto metadata = ti_cast<Core::Data::Ast::Metadata>(obj);
+        ASSERT(metadata != 0);
+        auto cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
+        ASSERT(cgVar != 0);
+        cgVar->setLlvmStructIndex(structMembers.size());
+        llvm::Type *memberLlvmType;
+        auto memberAstType = cgVar->getAstType();
+        if (!generator->typeGenerator->getGeneratedLlvmType(memberAstType, memberLlvmType)) {
+          result = false;
+          continue;
+        }
+        structMembers.push_back(memberLlvmType);
+      }
+      // TODO: Generate member functions.
+      // TODO: Generate subtypes.
+    }
+  }
+  llvmStructType->setBody(structMembers);
+  return result;
 }
 
 

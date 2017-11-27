@@ -80,14 +80,18 @@ Bool VariableGenerator::_generateVarDefinition(TiObject *self, Core::Data::Ast::
         defaultVal, name.c_str()
       ));
     } else {
-      // Generate a local variable.
-      // At this point we should already have an llvm ir builder.
-      auto cgBlock = astBlock->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Block>();
-      if (cgBlock == 0) {
-        throw EXCEPTION(GenericException, STR("Generated block object not found."));
+      if (ti_cast<Ast::Type>(astBlock->getOwner()) != 0) {
+        // This is a type member, so we don't need to generate anything.
+      } else {
+        // Generate a local variable.
+        // At this point we should already have an llvm ir builder.
+        auto cgBlock = astBlock->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Block>();
+        if (cgBlock == 0) {
+          throw EXCEPTION(GenericException, STR("Generated block object not found."));
+        }
+        ASSERT(cgBlock->getIrBuilder() != 0);
+        cgVar->setLlvmAllocaInst(cgBlock->getIrBuilder()->CreateAlloca(llvmType, 0, definition->getName().get()));
       }
-      ASSERT(cgBlock->getIrBuilder() != 0);
-      cgVar->setLlvmAllocaInst(cgBlock->getIrBuilder()->CreateAlloca(llvmType, 0, definition->getName().get()));
     }
 
     // Assign the result to definition target.

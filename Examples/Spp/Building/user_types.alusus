@@ -1,0 +1,35 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def Point: type
+  {
+    def x: Int[32];
+    def y: Int[32];
+    def s: Float[32];
+  };
+
+  def Nested: type
+  {
+    def p: Point;
+    def i: Int[32];
+  };
+
+  def Empty: type
+  {
+  };
+
+  def Wrong: type
+  {
+    def w: Invalid
+  };
+
+  def start: function ()=>Void
+  {
+    def p: Point;
+    def n: Nested;
+    def e: Empty;
+  }
+};
+
+build Main;
