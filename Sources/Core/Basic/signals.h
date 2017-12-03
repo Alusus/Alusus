@@ -42,8 +42,6 @@ template<class RT, class ...ARGS> class Slot
 
   protected: Slot() {}
 
-  public: Slot(RT(*f)(ARGS...)) : func(f) {}
-
   public: Slot(std::function<RT(ARGS...)> const &f) : func(f) {}
 
   public: template<class C> Slot(C *self, RT(C::*m)(ARGS...))

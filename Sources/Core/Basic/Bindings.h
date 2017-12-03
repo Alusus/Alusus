@@ -135,7 +135,7 @@ class Bindings : public TiInterface
     {
       throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by shared or weak ptr."));
     }
-    if (!val->isDerivedFrom(this->getMemberNeededType(index))) {
+    if (val != 0 && !val->isDerivedFrom(this->getMemberNeededType(index))) {
       throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Object type doesn't match needed type."));
     }
     this->setMember(index, val.get());

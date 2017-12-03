@@ -4,7 +4,7 @@
 LLVM_SRC_URL="http://llvm.org/releases/3.3/llvm-3.3.src.tar.gz"
 LLVM_NAME="llvm-3.3"
 CATCH_SRC_URL="https://github.com/philsquared/Catch/archive/v1.3.0.tar.gz"
-CATCH_SRC_NAME="Catch-1.3.0"
+CATCH_SRC_NAME="Catch2-1.3.0"
 
 # Paths
 ALUSUS_ROOT="$(pwd)/.."

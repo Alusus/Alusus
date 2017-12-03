@@ -286,7 +286,7 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE, public virtu
       ASSERT(this->inherited != 0);
       if (!this->inherited->at(i)) {
         this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, i);
-        this->list[i].second = this->getFromBase(i);
+        this->list[i] = this->getFromBase(i);
         this->inherited->at(i) = true;
         this->changeNotifier.emit(this, ContentChangeOp::UPDATED, i);
       }
