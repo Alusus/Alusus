@@ -59,7 +59,7 @@ class TokenizingHandler : public Data::BuildHandler
    * @param sourceLocation The source location at which the token is found.
    */
   public: virtual void prepareToken(Data::Token *token, Word id, WChar const *tokenText, Word tokenTextLength,
-                                    Data::SourceLocation const &sourceLocation)
+                                    Data::SourceLocationRecord const &sourceLocation)
   {
   }
 

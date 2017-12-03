@@ -39,27 +39,27 @@ void printNotice(const SharedPtr<Notice> &msg)
 {
   // Print severity.
   switch (msg->getSeverity()) {
-  case 0:
-    std::cout << "BLOCKER "; break;
-  case 1:
-    std::cout << "ERROR "; break;
-  case 2:
-  case 3:
-    std::cout << "WARNING "; break;
-  case 4:
-    std::cout << "ATTN "; break;
+  case 0: std::cout << "BLOCKER "; break;
+  case 1: std::cout << "ERROR "; break;
+  case 2: case 3: std::cout << "WARNING "; break;
+  case 4: std::cout << "ATTN "; break;
   }
   // Print msg code.
   std::cout << msg->getCode() << " @ ";
   // Print location.
-  auto sourceLocationStack = msg->getSourceLocationStack().get();
-  if (sourceLocationStack != 0 && sourceLocationStack->size() > 0) {
-    std::cout << "(" << sourceLocationStack->at(0).line << "," << sourceLocationStack->at(0).column << ")";
-    for (Int i = 1; i < sourceLocationStack->size(); ++i) {
-      std::cout << NEW_LINE;
-      std::cout << "from (" << sourceLocationStack->at(i).line << "," << sourceLocationStack->at(i).column << ")";
+  auto sl = msg->getSourceLocation().get();
+  if (Core::Data::getSourceLocationRecordCount(sl) > 0) {
+    if (sl->isDerivedFrom<Core::Data::SourceLocationRecord>()) {
+      auto slRecord = static_cast<Core::Data::SourceLocationRecord*>(sl);
+      outStream << "(" << slRecord->line << "," << slRecord->column << ")";
+    } else {
+      auto stack = static_cast<Core::Data::SourceLocationStack*>(sl);
+      for (Int i = stack->getCount() - 1; i >= 0; --i) {
+        if (i < stack->getCount() -1) outStream << NEW_LINE << STR("from ");
+        outStream << "(" << stack->get(i)->line << "," << stack->get(i)->column << ")";
+      }
     }
-    std::cout << ": ";
+    outStream << STR(": ");
   } else {
     std::cout << "unknown location: ";
   }

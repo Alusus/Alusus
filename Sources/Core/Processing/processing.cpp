@@ -28,4 +28,3 @@ void computeNextCharPosition(WChar ch, Int &line, Int &column)
 }
 
 } } // namespace
-

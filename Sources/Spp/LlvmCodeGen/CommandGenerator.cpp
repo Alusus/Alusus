@@ -67,11 +67,9 @@ Bool CommandGenerator::_generateReturn(
       cmdGenerator->generator->getExecutionContext().get(),
       cmdGenerator->generator->getRootManager()
     )) {
-      cmdGenerator->generator->getSourceLocationStack()->push_back(astNode->getSourceLocation());
-      cmdGenerator->generator->getParserState()->addNotice(
-        std::make_shared<InvalidReturnValueNotice>(cmdGenerator->generator->getSourceLocationStack())
+      cmdGenerator->generator->getNoticeStore()->add(
+        std::make_shared<InvalidReturnValueNotice>(astNode->findSourceLocation())
       );
-      cmdGenerator->generator->getSourceLocationStack()->pop_back();
       return false;
     }
     llvm::Value *llvmReturnValue;
@@ -86,11 +84,9 @@ Bool CommandGenerator::_generateReturn(
   } else {
     // Make sure return type is void.
     if (!retType->isA<Ast::VoidType>()) {
-      cmdGenerator->generator->getSourceLocationStack()->push_back(astNode->getSourceLocation());
-      cmdGenerator->generator->getParserState()->addNotice(
-        std::make_shared<InvalidReturnValueNotice>(cmdGenerator->generator->getSourceLocationStack())
+      cmdGenerator->generator->getNoticeStore()->add(
+        std::make_shared<InvalidReturnValueNotice>(astNode->findSourceLocation())
       );
-      cmdGenerator->generator->getSourceLocationStack()->pop_back();
       return false;
     }
     // Generate a void return statement.

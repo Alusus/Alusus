@@ -79,7 +79,7 @@ Bool Template::matchTemplateVars(
   if (templateInput->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
     auto list = static_cast<Core::Data::Ast::ExpressionList*>(templateInput);
     if (this->varDefs.size() != list->getCount()) {
-      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::getSourceLocation(templateInput));
+      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::findSourceLocation(templateInput));
       return false;
     }
     for (Int i = 0; i < list->getCount(); ++i) {
@@ -87,7 +87,7 @@ Bool Template::matchTemplateVars(
     }
   } else {
     if (this->varDefs.size() != 1) {
-      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::getSourceLocation(templateInput));
+      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::findSourceLocation(templateInput));
       return false;
     }
     if (!this->matchTemplateVar(templateInput, instance, 0, seeker, notice)) return false;
@@ -112,7 +112,7 @@ Bool Template::matchTemplateVar(
         Template::traceObject(templateInput, VarType::INTEGER, seeker)
       );
       if (newVar == 0) {
-        notice = std::make_shared<InvalidTemplateArgNotice>(Core::Data::Ast::getSourceLocation(templateInput));
+        notice = std::make_shared<InvalidTemplateArgNotice>(Core::Data::Ast::findSourceLocation(templateInput));
         return false;
       }
       return std::stol(newVar->getValue().get()) == var->get();
@@ -129,7 +129,7 @@ Bool Template::matchTemplateVar(
         Template::traceObject(templateInput, VarType::STRING, seeker)
       );
       if (newVar == 0) {
-        notice = std::make_shared<InvalidTemplateArgNotice>(Core::Data::Ast::getSourceLocation(templateInput));
+        notice = std::make_shared<InvalidTemplateArgNotice>(Core::Data::Ast::findSourceLocation(templateInput));
         return false;
       }
       return newVar->getValue() == var->get();
@@ -142,7 +142,7 @@ Bool Template::matchTemplateVar(
       }
       auto newVar = Template::traceObject(templateInput, this->varDefs[varIndex].second, seeker);
       if (newVar == 0) {
-        notice = std::make_shared<InvalidTemplateArgNotice>(Core::Data::Ast::getSourceLocation(templateInput));
+        notice = std::make_shared<InvalidTemplateArgNotice>(Core::Data::Ast::findSourceLocation(templateInput));
         return false;
       }
       return newVar == var;
@@ -157,7 +157,7 @@ Bool Template::assignTemplateVars(
   if (templateInput->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
     auto list = static_cast<Core::Data::Ast::ExpressionList*>(templateInput);
     if (this->varDefs.size() != list->getCount()) {
-      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::getSourceLocation(templateInput));
+      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::findSourceLocation(templateInput));
       return false;
     }
     for (Int i = 0; i < list->getCount(); ++i) {
@@ -177,7 +177,7 @@ Bool Template::assignTemplateVars(
     }
   } else {
     if (this->varDefs.size() != 1) {
-      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::getSourceLocation(templateInput));
+      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::findSourceLocation(templateInput));
       return false;
     }
     auto var = Template::traceObject(templateInput, this->varDefs[0].second, seeker);

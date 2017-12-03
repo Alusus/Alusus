@@ -92,7 +92,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
 
     auto metadata = currentData.ti_cast_get<Data::Ast::Metadata>();
     if (metadata != 0) {
-      obj->setSourceLocation(metadata->getSourceLocation());
+      obj->setSourceLocation(metadata->findSourceLocation());
     }
     return obj;
   }
@@ -112,7 +112,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
 
     auto metadata = currentData.ti_cast_get<Data::Ast::Metadata>();
     if (metadata != 0) {
-      obj->setSourceLocation(metadata->getSourceLocation());
+      obj->setSourceLocation(metadata->findSourceLocation());
     }
     return obj;
   }

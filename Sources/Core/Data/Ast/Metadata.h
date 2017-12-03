@@ -62,14 +62,13 @@ class Metadata : public TiInterface
    * at which item the error was detected. In the case of non-token items,
    * this refers to the location of the first token detected inside that term.
    */
-  public: virtual void setSourceLocation(SourceLocation const &loc) = 0;
-  public: virtual void setSourceLocation(SourceLocation const *loc)
+  public: virtual void setSourceLocation(SharedPtr<SourceLocation> const &loc) = 0;
+  public: virtual void setSourceLocation(SourceLocation *loc)
   {
-    this->setSourceLocation(loc == 0 ? SourceLocation(SharedPtr<Str>(), 0, 0) : *loc);
+    this->setSourceLocation(getSharedPtr(loc));
   }
 
-  public: virtual SourceLocation& getThisSourceLocation() = 0;
-  public: virtual SourceLocation const& getThisSourceLocation() const = 0;
+  public: virtual SharedPtr<SourceLocation> const& getSourceLocation() const = 0;
 
   /**
    * @brief Get the token's locaiton within the source code.
@@ -83,17 +82,17 @@ class Metadata : public TiInterface
    *
    * @return The line number of the first character in the token.
    */
-  public: virtual SourceLocation const& getSourceLocation() const
+  public: virtual SharedPtr<SourceLocation> const& findSourceLocation() const
   {
-    SourceLocation const &sl = this->getThisSourceLocation();
-    if (sl.line == 0) {
+    SharedPtr<SourceLocation> const &sl = this->getSourceLocation();
+    if (sl == 0) {
       Container const *container = this->getTiObject()->getInterface<Container const>();
       if (container != 0) {
         for (Int i = 0; i < container->getCount(); ++i) {
           Metadata *ptr = ti_cast<Metadata>(container->get(i));
           if (ptr != 0) {
-            SourceLocation const &sl2 = ptr->getSourceLocation();
-            if (sl2.line != 0) return sl2;
+            SharedPtr<SourceLocation> const &sl2 = ptr->findSourceLocation();
+            if (sl2 != 0) return sl2;
           }
         }
       }
@@ -112,7 +111,7 @@ class Metadata : public TiInterface
 
 #define IMPLEMENT_METADATA(type) \
   private: Core::Basic::TiWord prodId = UNKNOWN_ID; \
-  private: Core::Data::SourceLocation sourceLocation; \
+  private: Core::Basic::SharedPtr<Core::Data::SourceLocation> sourceLocation; \
   private: Core::Basic::SharedMap<Core::Basic::TiObject, Core::Basic::TiObject> extras; \
   public: using Metadata::setProdId; \
   public: virtual void setProdId(Word id) \
@@ -128,15 +127,11 @@ class Metadata : public TiInterface
     return this->prodId; \
   } \
   public: using Metadata::setSourceLocation; \
-  public: virtual void setSourceLocation(Core::Data::SourceLocation const &loc) \
+  public: virtual void setSourceLocation(Core::Basic::SharedPtr<Core::Data::SourceLocation> const &loc) \
   { \
     this->sourceLocation = loc; \
   } \
-  public: virtual Core::Data::SourceLocation& getThisSourceLocation() \
-  { \
-    return this->sourceLocation; \
-  } \
-  public: virtual Core::Data::SourceLocation const& getThisSourceLocation() const \
+  public: virtual Core::Basic::SharedPtr<Core::Data::SourceLocation> const& getSourceLocation() const \
   { \
     return this->sourceLocation; \
   } \

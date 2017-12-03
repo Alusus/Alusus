@@ -62,12 +62,16 @@ Bool TypeGenerator::getGeneratedType(TiObject *ref, Spp::Ast::Type *&type)
   type = this->traceAstType(ref);
   if (type == 0) return false;
 
-  if (metadata->getSourceLocation().filename != 0) {
-    this->generator->getSourceLocationStack()->push_back(metadata->getSourceLocation());
+  Core::Data::SourceLocation *sourceLocation = 0;
+  if (metadata->findSourceLocation() != 0) {
+    sourceLocation = metadata->findSourceLocation().get();
+    this->generator->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   }
   Bool result = this->generateType(type);
-  if (metadata->getSourceLocation().filename != 0) {
-    this->generator->getSourceLocationStack()->pop_back();
+  if (sourceLocation != 0) {
+    this->generator->getNoticeStore()->popPrefixSourceLocation(
+      Core::Data::getSourceLocationRecordCount(sourceLocation)
+    );
   }
 
   return result;
@@ -131,20 +135,11 @@ Spp::Ast::Type* TypeGenerator::traceAstType(TiObject *ref)
   }
   if (type == 0) {
     if (notice != 0) {
-      notice->prependSourceLocationStack(this->generator->getSourceLocationStack());
-      this->generator->getParserState()->addNotice(notice);
+      this->generator->getNoticeStore()->add(notice);
     }
-    if (metadata->getSourceLocation().filename != 0) {
-      this->generator->getSourceLocationStack()->push_back(metadata->getSourceLocation());
-      this->generator->getParserState()->addNotice(
-        std::make_shared<InvalidTypeNotice>(this->generator->getSourceLocationStack())
-      );
-      this->generator->getSourceLocationStack()->pop_back();
-    } else {
-      this->generator->getParserState()->addNotice(
-        std::make_shared<InvalidTypeNotice>(this->generator->getSourceLocationStack())
-      );
-    }
+    this->generator->getNoticeStore()->add(
+      std::make_shared<InvalidTypeNotice>(metadata->findSourceLocation())
+    );
     return 0;
   }
 
@@ -175,9 +170,7 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType)
   } else if (astType->isDerivedFrom<Spp::Ast::UserType>()) {
     return typeGenerator->generateUserType(static_cast<Spp::Ast::UserType*>(astType));
   } else {
-    typeGenerator->generator->getParserState()->addNotice(
-      std::make_shared<InvalidTypeNotice>(typeGenerator->generator->getSourceLocationStack())
-    );
+    typeGenerator->generator->getNoticeStore()->add(std::make_shared<InvalidTypeNotice>());
     return false;
   }
 }
@@ -198,9 +191,7 @@ Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
   auto bitCount = astType->getBitCount(typeGenerator->generator->getRootManager());
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
-    typeGenerator->generator->getParserState()->addNotice(
-      std::make_shared<InvalidIntegerBitCountNotice>(typeGenerator->generator->getSourceLocationStack())
-    );
+    typeGenerator->generator->getNoticeStore()->add(std::make_shared<InvalidIntegerBitCountNotice>());
     return false;
   }
   auto llvmType = llvm::Type::getIntNTy(llvm::getGlobalContext(), bitCount);
@@ -226,9 +217,7 @@ Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astT
     //   llvmType = llvm::Type::getFP128Ty(llvm::getGlobalContext());
     //   break;
     default:
-      typeGenerator->generator->getParserState()->addNotice(
-        std::make_shared<InvalidFloatBitCountNotice>(typeGenerator->generator->getSourceLocationStack())
-      );
+      typeGenerator->generator->getNoticeStore()->add(std::make_shared<InvalidFloatBitCountNotice>());
       return false;
   }
   astType->setExtra(META_EXTRA_NAME, Core::Basic::Box<llvm::Type*>::create(llvmType));
@@ -358,9 +347,7 @@ Bool TypeGenerator::_generateCast(
       return true;
     }
   }
-  typeGenerator->generator->getParserState()->addNotice(
-    std::make_shared<InvalidCastNotice>(typeGenerator->generator->getSourceLocationStack())
-  );
+  typeGenerator->generator->getNoticeStore()->add(std::make_shared<InvalidCastNotice>());
   return false;
 }
 

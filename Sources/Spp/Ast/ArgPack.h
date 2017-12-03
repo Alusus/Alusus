@@ -45,10 +45,11 @@ class ArgPack : public Core::Data::Node,
   IMPLEMENT_METADATA(ArgPack);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (min, TiWord, VALUE, setMin(value), &min),
-                     (max, TiWord, VALUE, setMax(value), &max),
-                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                     (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+    (min, TiWord, VALUE, setMin(value), &min),
+    (max, TiWord, VALUE, setMax(value), &max),
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
+    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  );
 
   IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, argType));
 

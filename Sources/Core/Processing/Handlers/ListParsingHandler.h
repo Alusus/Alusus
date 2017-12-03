@@ -68,7 +68,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
           TioSharedPtr list = this->createListNode(state, levelIndex);
           auto metadata = ti_cast<Data::Ast::Metadata>(currentData);
           if (metadata != 0) {
-            list.s_cast_get<TYPE>()->setSourceLocation(metadata->getSourceLocation());
+            list.s_cast_get<TYPE>()->setSourceLocation(metadata->findSourceLocation());
           }
           auto newContainer = list.tii_cast_get<Data::Container>();
           newContainer->set(this->startIndex + 0, currentData);
@@ -80,7 +80,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
         TioSharedPtr list = this->createListNode(state, levelIndex);
         auto metadata = data.ti_cast_get<Data::Ast::Metadata>();
         if (metadata != 0) {
-          list.s_cast_get<TYPE>()->setSourceLocation(metadata->getSourceLocation());
+          list.s_cast_get<TYPE>()->setSourceLocation(metadata->findSourceLocation());
         }
         auto newContainer = list.tii_cast_get<Data::Container>();
         newContainer->set(this->startIndex + 0, currentData);

@@ -173,6 +173,8 @@ class Module;
 class Provider;
 class CharGroupUnit;
 class Seeker;
+class Notice;
+class SourceLocation;
 
 
 //==============================================================================
@@ -263,6 +265,17 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit);
  * id if available.
  */
 void dumpData(OutStream &stream, TiObject *ptr, int indents);
+
+/**
+ * @brief Print the provided notices to the console.
+ * @ingroup data
+ *
+ * Printed notice includes severity, msg code, location, as well as
+ * description.
+ */
+void printNotice(Notice const *msg);
+
+Word getSourceLocationRecordCount(SourceLocation const *sl);
 
 // TODO: Find module for other dimensions.
 
@@ -400,7 +413,7 @@ typedef TiStrBase<Node> String;
 #include "constructor_helpers.h"
 #include "paired_pointers.h"
 #include "IdGenerator.h"
-#include "SourceLocation.h"
+#include "source_location.h"
 #include "Notice.h"
 #include "CustomNotice.h"
 

@@ -43,9 +43,10 @@ class ParamPass : public Node,
   IMPLEMENT_METADATA(ParamPass);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (type, BracketType, VALUE, setType(value), &type),
-                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                     (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+    (type, BracketType, VALUE, setType(value), &type),
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
+    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  );
 
   IMPLEMENT_MAP_CONTAINER(MapContainer,
                           (TiObject, operand),

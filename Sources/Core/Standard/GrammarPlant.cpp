@@ -1397,7 +1397,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
       auto token = tio_cast<Ast::Token>(currentList->get(0));
       auto linkOp = Ast::LinkOperator::create({
         { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->getSourceLocation() }
+        { "sourceLocation", metadata->findSourceLocation() }
       });
       linkOp->setType(token->getText());
       linkOp->setSecond(getSharedPtr(currentList->get(1)));
@@ -1447,7 +1447,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
        auto currentRoute = state->getData().tio_cast_get<Ast::Route>();
        auto paramPass = Ast::ParamPass::create({
          { "prodId", currentRoute->getProdId() },
-         { "sourceLocation", currentRoute->getSourceLocation() }
+         { "sourceLocation", currentRoute->findSourceLocation() }
        });
        paramPass->setType(currentRoute->getRoute()==0 ? Ast::BracketType::ROUND : Ast::BracketType::SQUARE);
        paramPass->setParam(currentRoute->getData());
@@ -1476,7 +1476,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
        auto token = tio_cast<Ast::Token>(currentList->get(0));
        auto linkOp = Ast::LinkOperator::create({
          { "prodId", metadata->getProdId() },
-         { "sourceLocation", metadata->getSourceLocation() }
+         { "sourceLocation", metadata->findSourceLocation() }
        });
        linkOp->setType(token->getText());
        linkOp->setSecond(getSharedPtr(currentList->get(1)));
@@ -1706,7 +1706,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
        }
        newObj->setValue(current->getText());
        newObj->setProdId(current->getProdId());
-       newObj->setSourceLocation(current->getSourceLocation());
+       newObj->setSourceLocation(current->findSourceLocation());
        state->setData(newObj);
     })}
   }).get());

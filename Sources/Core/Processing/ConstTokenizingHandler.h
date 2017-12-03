@@ -57,11 +57,11 @@ class ConstTokenizingHandler : public TokenizingHandler
   }
 
   public: virtual void prepareToken(Data::Token *token, Word id, WChar const *tokenText, Word tokenTextLength,
-                                    Data::SourceLocation const &sourceLocation)
+                                    Data::SourceLocationRecord const &sourceLocation)
   {
     token->setText(tokenText, tokenTextLength);
     token->setId(this->id);
-    token->setSourceLocation(&sourceLocation);
+    token->setSourceLocation(sourceLocation);
   }
 
 }; // class

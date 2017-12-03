@@ -42,9 +42,10 @@ class Definition : public Node,
   IMPLEMENT_METADATA(Definition);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (name, TiStr, VALUE, setName(value), &name),
-                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                     (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+    (name, TiStr, VALUE, setName(value), &name),
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
+    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  );
 
   IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, target));
 

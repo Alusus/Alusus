@@ -18,6 +18,24 @@ namespace Core { namespace Processing
 //==============================================================================
 // Member Functions
 
+void NoticeStore::add(SharedPtr<Data::Notice> const &notice)
+{
+  auto count = this->prefixSourceLocationStack.getCount();
+  if (count > 1 || (count == 1 && notice->getSourceLocation() != 0)) {
+    // We have more than one record, so we need a new stack.
+    auto stack = std::make_shared<Data::SourceLocationStack>();
+    stack->push(&this->prefixSourceLocationStack);
+    auto sl = notice->getSourceLocation().get();
+    if (sl != 0) stack->push(sl);
+    notice->setSourceLocation(stack);
+  } else if (count == 1) {
+    // We have a single record in the stack and no record in the notice.
+    notice->setSourceLocation(this->prefixSourceLocationStack.get(0));
+  }
+  this->notices.push_back(notice);
+}
+
+
 /**
  * This value is used for optimization purposes. It's used to delay the copying
  * of notice objects as much as possible after a state branch. This can be

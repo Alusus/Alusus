@@ -86,7 +86,7 @@ ti_s_enum(BracketType, Integer, "Core.Data.Ast", "Core", "alusus.net", ROUND, SQ
 //==============================================================================
 // Global Functions
 
-SourceLocation getSourceLocation(TiObject *obj);
+SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj);
 
 } } } // namespace
 

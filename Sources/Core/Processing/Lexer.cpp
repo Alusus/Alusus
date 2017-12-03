@@ -62,7 +62,7 @@ void Lexer::setGrammarRepository(Data::GrammarRepository *grammarRepo)
  *                       This will be updated with the location immediately
  *                       following this character.
  */
-void Lexer::handleNewChar(Char inputChar, Data::SourceLocation &sourceLocation)
+void Lexer::handleNewChar(Char inputChar, Data::SourceLocationRecord &sourceLocation)
 {
   // Buffer the input sequence until it can be converted to wide characters.
   this->tempByteCharBuffer[this->tempByteCharCount] = inputChar;
@@ -92,7 +92,7 @@ void Lexer::handleNewChar(Char inputChar, Data::SourceLocation &sourceLocation)
  * @param sourceLocation The source location of the first character in the
  *                       string. This will be updated with the new location.
  */
-void Lexer::handleNewString(Char const *inputStr, Data::SourceLocation &sourceLocation)
+void Lexer::handleNewString(Char const *inputStr, Data::SourceLocationRecord &sourceLocation)
 {
   for (Int i = 0; i < static_cast<Int>(strlen(inputStr)); i++) {
     this->handleNewChar(inputStr[i], sourceLocation);
@@ -135,7 +135,7 @@ void Lexer::processBuffer()
  * @param sl The source location of the given character.
  * @return Returns true if the character was inserted, false otherwise.
  */
-Bool Lexer::pushChar(WChar ch, Data::SourceLocation const &sl)
+Bool Lexer::pushChar(WChar ch, Data::SourceLocationRecord const &sl)
 {
   // Is the input buffer full?
   if (this->inputBuffer.isFull()) {
@@ -245,8 +245,9 @@ Int Lexer::process()
     if (closedStateCount > 0 && this->inputBuffer.isFull() == true &&
         this->currentProcessingIndex >= this->inputBuffer.getCharCount()-1) {
       // Raise a warning.
-      this->noticeSignal.emit(
-            SharedPtr<Data::Notice>(new BufferFullNotice(this->inputBuffer.getSourceLocation())));
+      this->noticeSignal.emit(std::make_shared<BufferFullNotice>(
+        std::make_shared<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
+      ));
       // Choose one of the closed states.
       Int i = this->selectBestToken();
       Data::SymbolDefinition *def = this->getSymbolDefinition(this->states[i].getIndexStack()->at(0));
@@ -256,8 +257,9 @@ Int Lexer::process()
         // Has the token been clamped?
         if (this->currentTokenClamped) {
           // Raise a warning.
-          this->noticeSignal.emit(
-                SharedPtr<Data::Notice>(new TokenClampedNotice(this->inputBuffer.getSourceLocation())));
+          this->noticeSignal.emit(std::make_shared<TokenClampedNotice>(
+            std::make_shared<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
+          ));
           this->currentTokenClamped = false;
         }
         // Set token properties.
@@ -265,7 +267,7 @@ Int Lexer::process()
         if (handler == 0) {
           this->lastToken.setId(def->getId());
           this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
-          this->lastToken.setSourceLocation(&this->inputBuffer.getSourceLocation());
+          this->lastToken.setSourceLocation(this->inputBuffer.getSourceLocation());
         } else {
           handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getChars(),
                                 this->states[i].getTokenLength(), this->inputBuffer.getSourceLocation());
@@ -305,8 +307,9 @@ Int Lexer::process()
       // Has the token been clamped?
       if (this->currentTokenClamped) {
         // Raise a warning.
-        this->noticeSignal.emit(
-              SharedPtr<Data::Notice>(new TokenClampedNotice(this->inputBuffer.getSourceLocation())));
+        this->noticeSignal.emit(std::make_shared<TokenClampedNotice>(
+          std::make_shared<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
+        ));
         this->currentTokenClamped = false;
       }
       // Set token properties.
@@ -314,7 +317,7 @@ Int Lexer::process()
       if (handler == 0) {
         this->lastToken.setId(def->getId());
         this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
-        this->lastToken.setSourceLocation(&this->inputBuffer.getSourceLocation());
+        this->lastToken.setSourceLocation(this->inputBuffer.getSourceLocation());
       } else {
         handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getChars(),
                               this->states[i].getTokenLength(), this->inputBuffer.getSourceLocation());
@@ -333,7 +336,7 @@ Int Lexer::process()
     // No states are still alive, so move the first character in the input buffer to the error
     // buffer and try again.
     Str err;
-    Data::SourceLocation sl;
+    Data::SourceLocationRecord sl;
     if (this->inputBuffer.getChars()[0] != FILE_TERMINATOR) {
       err.assign(this->inputBuffer.getChars(), 1);
       sl = this->inputBuffer.getSourceLocation();
@@ -354,9 +357,10 @@ Int Lexer::process()
        this->inputBuffer.getChars()[0]==FILE_TERMINATOR)) {
     // Report any characters in the error buffer.
     if (this->errorBuffer.getTextLength() > 0) {
-      this->noticeSignal.emit(
-            SharedPtr<Data::Notice>(new UnrecognizedCharNotice(this->errorBuffer.getText().c_str(),
-                                                               this->errorBuffer.getSourceLocationStack().get())));
+      this->noticeSignal.emit(std::make_shared<UnrecognizedCharNotice>(
+        this->errorBuffer.getText().c_str(),
+        this->errorBuffer.getSourceLocation()
+      ));
       this->errorBuffer.clear();
     }
   }
@@ -654,7 +658,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Term *currentTe
           iterationIndex+1 >= this->grammarContext.getMultiplyTermMin(multiplyTerm)->get()
         ) {
           this->tempState.getIndexStack()->at(currentLevel) = -1;
-          this->createState();      
+          this->createState();
         }
       }
       // remove any added index

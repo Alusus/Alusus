@@ -86,8 +86,8 @@ Bool mergeContainers(TiObject *dest, TiObject *src, Processing::ParserState *sta
         if (idHolder != 0) name = ID_GENERATOR->getDesc(idHolder->getId()).c_str();
         else name = srcMap->getKey(i).c_str();
         Ast::Metadata *itemMeta = ti_cast<Ast::Metadata>(srcMap->get(i));
-        Data::SourceLocation sl;
-        if (itemMeta != 0) sl = itemMeta->getSourceLocation();
+        SharedPtr<Data::SourceLocation> sl;
+        if (itemMeta != 0) sl = itemMeta->findSourceLocation();
         state->addNotice(std::make_shared<RedefinitionNotice>(name, sl));
         // Overwrite old data.
         destMap->set(srcMap->getKey(i).c_str(), srcMap->get(i));
@@ -116,8 +116,8 @@ void mergeDefinition(Char const *qualifier, TiObject *obj, Processing::ParserSta
     if (!mergeContainers(dest, obj, state)) {
       // Generate a build message.
       Ast::Metadata *itemMeta = ti_cast<Ast::Metadata>(obj);
-      Data::SourceLocation sl;
-      if (itemMeta != 0) sl = itemMeta->getSourceLocation();
+      SharedPtr<Data::SourceLocation> sl;
+      if (itemMeta != 0) sl = itemMeta->findSourceLocation();
       state->addNotice(std::make_shared<RedefinitionNotice>(qualifier, sl));
       // Overwrite old data.
       repository->set(qualifier, obj);

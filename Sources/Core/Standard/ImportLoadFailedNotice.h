@@ -36,19 +36,8 @@ class ImportLoadFailedNotice : public Data::Notice
   //============================================================================
   // Constructor / Destructor
 
-  public: ImportLoadFailedNotice(Char const *fileName, Char const *errorDetails, Data::SourceLocation const &sl) :
-    Data::Notice(sl), fileName(fileName), errorDetails(errorDetails)
-  {
-  }
-
   public: ImportLoadFailedNotice(
-    Char const *fileName, Char const *errorDetails, std::vector<Data::SourceLocation> const &sl
-  ) : Data::Notice(sl), fileName(fileName), errorDetails(errorDetails)
-  {
-  }
-
-  public: ImportLoadFailedNotice(
-    Char const *fileName, Char const *errorDetails, std::vector<Data::SourceLocation> *sl
+    Char const *fileName, Char const *errorDetails, SharedPtr<Data::SourceLocation> const &sl
   ) : Data::Notice(sl), fileName(fileName), errorDetails(errorDetails)
   {
   }

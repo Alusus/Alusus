@@ -41,9 +41,10 @@ class GenericCommand : public Node,
   IMPLEMENT_METADATA(GenericCommand);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (type, TiStr, VALUE, setType(value), &type),
-                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                     (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+    (type, TiStr, VALUE, setType(value), &type),
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
+    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  );
 
   IMPLEMENT_MAP_CONTAINER(MapContainer, (List, args), (List, modifiers));
 

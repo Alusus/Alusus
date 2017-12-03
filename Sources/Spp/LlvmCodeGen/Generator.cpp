@@ -110,11 +110,11 @@ Bool Generator::execute(Core::Data::Ast::Scope *root, Core::Processing::ParserSt
   }
   if (matchCount > 1) {
     auto metadata = ti_cast<Core::Data::Ast::Metadata>(entryRef);
-    state->addNotice(std::make_shared<MultipleCalleeMatchNotice>(metadata->getSourceLocation()));
+    state->addNotice(std::make_shared<MultipleCalleeMatchNotice>(metadata->findSourceLocation()));
     return false;
   } else if (function == 0) {
     auto metadata = ti_cast<Core::Data::Ast::Metadata>(entryRef);
-    state->addNotice(std::make_shared<NoCalleeMatchNotice>(metadata->getSourceLocation()));
+    state->addNotice(std::make_shared<NoCalleeMatchNotice>(metadata->findSourceLocation()));
     return false;
   }
 
@@ -140,8 +140,8 @@ Bool Generator::generateIr(Core::Data::Ast::Scope *root, Core::Processing::Parse
   this->llvmModule = std::make_shared<llvm::Module>("AlususProgram", llvm::getGlobalContext());
   this->llvmModule->setDataLayout(this->llvmDataLayout->getStringRepresentation());
   this->executionContext = std::make_shared<ExecutionContext>(llvmDataLayout->getPointerSizeInBits());
-  this->sourceLocationStack.clear();
   this->parserState = state;
+  this->getNoticeStore()->clearPrefixSourceLocationStack();
 
   // Generates code for all modules.
   Bool result = true;
@@ -398,15 +398,15 @@ Bool Generator::_generatePhrase(
     auto def = static_cast<Core::Data::Ast::Definition*>(astNode);
     auto target = def->getTarget().get();
     if (target->isDerivedFrom<Spp::Ast::Module>()) {
-      generator->parserState->addNotice(std::make_shared<InvalidOperationNotice>(def->getSourceLocation()));
+      generator->parserState->addNotice(std::make_shared<InvalidOperationNotice>(def->findSourceLocation()));
       return false;
     } else if (target->isDerivedFrom<Spp::Ast::Function>()) {
       // TODO: Generate function.
-      generator->parserState->addNotice(std::make_shared<UnsupportedOperationNotice>(def->getSourceLocation()));
+      generator->parserState->addNotice(std::make_shared<UnsupportedOperationNotice>(def->findSourceLocation()));
       return false;
     } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
       // TODO: Generate type.
-      generator->parserState->addNotice(std::make_shared<UnsupportedOperationNotice>(def->getSourceLocation()));
+      generator->parserState->addNotice(std::make_shared<UnsupportedOperationNotice>(def->findSourceLocation()));
       return false;
     } else {
       // Generate local variable.
@@ -457,7 +457,7 @@ Bool Generator::_generatePhrase(
         bracket->getOperand().get(), llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
       );
     } else {
-      generator->parserState->addNotice(std::make_shared<InvalidOperationNotice>(bracket->getSourceLocation()));
+      generator->parserState->addNotice(std::make_shared<InvalidOperationNotice>(bracket->findSourceLocation()));
       return false;
     }
   } else if (astNode->isDerivedFrom<Spp::Ast::IfStatement>()) {
@@ -473,7 +473,7 @@ Bool Generator::_generatePhrase(
     );
   }
   generator->parserState->addNotice(
-    std::make_shared<UnsupportedOperationNotice>(Core::Data::Ast::getSourceLocation(astNode))
+    std::make_shared<UnsupportedOperationNotice>(Core::Data::Ast::findSourceLocation(astNode))
   );
   return false;
 }

@@ -41,7 +41,7 @@ SharedPtr<TiObject> Engine::processString(Char const *str, Char const *name)
 
   // Start passing characters to the lexer.
 
-  Data::SourceLocation sourceLocation;
+  Data::SourceLocationRecord sourceLocation;
   sourceLocation.filename = std::make_shared<Str>(name);
   sourceLocation.line = 1;
   sourceLocation.column = 1;
@@ -73,7 +73,7 @@ SharedPtr<TiObject> Engine::processStream(InStream *is, Char const *streamName)
   parser.beginParsing();
 
   // Start passing characters to the lexer.
-  Data::SourceLocation sourceLocation;
+  Data::SourceLocationRecord sourceLocation;
   sourceLocation.filename = std::make_shared<Str>(streamName);
   sourceLocation.line = 1;
   sourceLocation.column = 1;

@@ -45,7 +45,7 @@ class IfStatement : public Core::Data::Node,
 
   IMPLEMENT_BINDINGS(Bindings,
     (prodId, Core::Basic::TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation)
+    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
   IMPLEMENT_MAP_CONTAINER(MapContainer,

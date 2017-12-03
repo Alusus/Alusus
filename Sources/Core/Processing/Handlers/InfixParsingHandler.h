@@ -103,7 +103,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
 
     auto metadata = currentData.ti_cast_get<Data::Ast::Metadata>();
     if (metadata != 0) {
-      obj->setSourceLocation(metadata->getSourceLocation());
+      obj->setSourceLocation(metadata->findSourceLocation());
     }
     return obj;
   }
@@ -127,7 +127,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     newObj->setFirst(this->cloneInfixTree(infixObj->getFirst()));
     newObj->setSecond(this->cloneInfixTree(infixObj->getSecond()));
     newObj->setType(infixObj->getType());
-    newObj->setSourceLocation(infixObj->getSourceLocation());
+    newObj->setSourceLocation(infixObj->findSourceLocation());
     return newObj;
   }
 

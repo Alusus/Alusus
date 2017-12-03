@@ -41,7 +41,7 @@ class InputBuffer
   private: struct CharacterGroup
   {
     /// The location of the first character in the group.
-    Data::SourceLocation sourceLocation;
+    Data::SourceLocationRecord sourceLocation;
 
     /// The number of characters in the group.
     Int length;
@@ -92,7 +92,7 @@ class InputBuffer
   /// @{
 
   /// Push a new character to the end of the buffer.
-  public: Bool push(WChar ch, Data::SourceLocation const &sl, Bool force=false);
+  public: Bool push(WChar ch, Data::SourceLocationRecord const &sl, Bool force=false);
 
   /// Remove a group of characters from the beginning of the buffer.
   public: void remove(Int count);
@@ -121,9 +121,9 @@ class InputBuffer
   }
 
   /// Get the source location of the first character in the buffer.
-  public: Data::SourceLocation const& getSourceLocation() const
+  public: Data::SourceLocationRecord const& getSourceLocation() const
   {
-    static Data::SourceLocation nullSL;
+    static Data::SourceLocationRecord nullSL;
     if (this->charGroups.size() == 0) return nullSL;
     else return this->charGroups.at(0).sourceLocation;
   }

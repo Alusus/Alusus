@@ -83,7 +83,7 @@ private:
   VariableDefinitionArray arguments;
   SharedPtr<ValueTypeSpec> returnType = nullptr;
   SharedPtr<Block> body;
-  Core::Data::SourceLocation sourceLocation;
+  Core::Data::SourceLocationRecord sourceLocation;
 
 public:
   /**

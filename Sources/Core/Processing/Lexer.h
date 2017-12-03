@@ -178,7 +178,7 @@ class Lexer : public TiObject
 
   public: Lexer() :
     grammarRepository(0),
-    errorBuffer(STR(""), Data::SourceLocation()),
+    errorBuffer(STR(""), 0),
     disabledStateIndex(-1),
     tempByteCharCount(0),
     currentProcessingIndex(0),
@@ -218,16 +218,16 @@ class Lexer : public TiObject
   /// @{
 
   /// Add a single input character to the input buffer and process it.
-  public: void handleNewChar(Char inputChar, Data::SourceLocation &sourceLocation);
+  public: void handleNewChar(Char inputChar, Data::SourceLocationRecord &sourceLocation);
 
   /// Add a string of input characters to the input buffer and process them.
-  public: void handleNewString(Char const *inputStr, Data::SourceLocation &sourceLocation);
+  public: void handleNewString(Char const *inputStr, Data::SourceLocationRecord &sourceLocation);
 
   /// Process all the characters currently waiting in the input buffer.
   private: void processBuffer();
 
   /// Push a character into the input buffer.
-  private: Bool pushChar(WChar ch, Data::SourceLocation const &sl);
+  private: Bool pushChar(WChar ch, Data::SourceLocationRecord const &sl);
 
   /// Process the given input character by updating the states.
   private: Int process();

@@ -69,11 +69,11 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
     //   }
     // );
     // if (!found) {
-    //   state->addNotice(std::make_shared<InvalidBuildArgNotice>(metadata->getSourceLocation()));
+    //   state->addNotice(std::make_shared<InvalidBuildArgNotice>(metadata->findSourceLocation()));
     // }
   } catch (Exception &e) {
     outStream << e.getVerboseErrorMessage() << NEW_LINE;
-    state->addNotice(std::make_shared<InvalidBuildArgNotice>(metadata->getSourceLocation()));
+    state->addNotice(std::make_shared<InvalidBuildArgNotice>(metadata->findSourceLocation()));
   }
 
   state->setData(SharedPtr<TiObject>(0));

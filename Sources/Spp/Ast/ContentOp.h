@@ -41,8 +41,9 @@ class ContentOp : public Core::Data::Node,
   IMPLEMENT_METADATA(ContentOp);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                     (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
+    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  );
 
   IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, operand));
 

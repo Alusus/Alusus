@@ -295,8 +295,9 @@ void Parser::handleNewToken(Data::Token const *token)
   else if (this->states.front()->getTermLevelCount() == 1) {
     // Raise an unexpected token error.
     if (!this->unexpectedTokenNoticeRaised) {
-      this->states.front()->addNotice(
-            SharedPtr<Data::Notice>(new UnexpectedTokenNotice(*token->getSourceLocation())));
+      this->states.front()->addNotice(std::make_shared<UnexpectedTokenNotice>(
+        std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
+      ));
       this->unexpectedTokenNoticeRaised = true;
     }
     return;
@@ -529,7 +530,9 @@ void Parser::processState(const Data::Token * token, StateIterator si)
       // Raise error notification event if we haven't already.
       if ((*si)->getPrevProcessingStatus() != ParserProcessingStatus::ERROR) {
         if (!this->getTopParsingHandler(*si)->onErrorToken(this, *si, token)) {
-          (*si)->addNotice(std::make_shared<SyntaxErrorNotice>(*token->getSourceLocation()));
+          (*si)->addNotice(std::make_shared<SyntaxErrorNotice>(
+            std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
+          ));
         }
         // Move the state to an error sync position.
         while ((*si)->getTermLevelCount() > 1) {
@@ -743,9 +746,9 @@ void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
     ParsingHandler *parsingHandler = this->getTopParsingHandler(*si);
     parsingHandler->onBranching(this, *si, token);
     // Duplicate the state.
-    (*si)->addNotice(
-      SharedPtr<Data::Notice>(new AmbiguityNotice(*token->getSourceLocation()))
-    );
+    (*si)->addNotice(std::make_shared<AmbiguityNotice>(
+      std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
+    ));
     // TODO: Grab the value of tokensToLive from the grammer instead of always using the
     //       default value.
     StateIterator si2 = this->duplicateState(si, token, DEFAULT_TOKENS_TO_LIVE);
@@ -848,9 +851,9 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
         parsingHandler->onBranching(this, *si2, token);
         // Duplicate the state, without the top level since that one is for accessing the
         // other route.
-        (*si2)->addNotice(
-          SharedPtr<Data::Notice>(new AmbiguityNotice(*token->getSourceLocation()))
-        );
+        (*si2)->addNotice(std::make_shared<AmbiguityNotice>(
+          std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
+        ));
         // TODO: Grab the value of tokensToLive from the grammer instead of always using the
         //       default value.
         StateIterator newSi = this->duplicateState(si2, token, DEFAULT_TOKENS_TO_LIVE, (*si2)->getTermLevelCount()-1);
@@ -2126,7 +2129,7 @@ void Parser::processLeadingModifiersExit(ParserState *state)
         --first;
       } else if (level.getMinProdIndex() >= state->getProdLevelCount() - 1) {
         state->addNotice(
-          std::make_shared<UnexpectedModifierNotice>(Data::Ast::getSourceLocation(level.getData().get()))
+          std::make_shared<UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
         );
         state->removeLeadingModifierLevel(first);
         --first;
@@ -2159,7 +2162,7 @@ void Parser::reportMislocatedLeadingModifiers(ParserState *state)
     ParserModifierLevel &level = state->refLeadingModifierLevel(i);
     if (level.getMinProdIndex() == -1) {
       state->addNotice(
-        std::make_shared<UnexpectedModifierNotice>(Data::Ast::getSourceLocation(level.getData().get()))
+        std::make_shared<UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
       );
       state->removeLeadingModifierLevel(i);
       --i;
@@ -2193,7 +2196,7 @@ void Parser::cancelTrailingModifiers(ParserState *state)
   while (state->getTrailingModifierLevelCount() > 0) {
     ParserModifierLevel &level = state->refTrailingModifierLevel(0);
     state->addNotice(
-      std::make_shared<UnexpectedModifierNotice>(Data::Ast::getSourceLocation(level.getData().get()))
+      std::make_shared<UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
     );
     state->popFrontTrailingModifierLevel();
   }

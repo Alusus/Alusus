@@ -28,10 +28,12 @@ class NoticeStore
 
   private: std::vector<SharedPtr<Data::Notice>> notices;
 
+  private: Data::SourceLocationStack prefixSourceLocationStack;
+
   /// A notice store from which this store branches.
   private: NoticeStore *trunkStore = 0;
 
-  /// Count of notices in the trunk shared by this state.
+  /// Count of notices in the trunk shared by this store.
   private: Word trunkSharedCount = 0;
 
 
@@ -46,11 +48,11 @@ class NoticeStore
   //============================================================================
   // Member Functions
 
+  /// @name Notice Functions
+  /// @{
+
   /// Add a notice to the end of the list.
-  public: void add(SharedPtr<Data::Notice> const &notice)
-  {
-    this->notices.push_back(notice);
-  }
+  public: void add(SharedPtr<Data::Notice> const &notice);
 
   /**
    * @brief Get the count of notices in this state.
@@ -87,9 +89,18 @@ class NoticeStore
     this->notices.erase(this->notices.begin(), this->notices.begin()+count);
   }
 
+  /// @}
+
+  /// @name Branching Functions
+  /// @{
+
   protected: void setTrunkStore(NoticeStore *store, Word sharedNoticeCount=0)
   {
     this->trunkStore = store;
+    this->clearPrefixSourceLocationStack();
+    for (Int i = 0; i < store->getPrefixSourceLocationStack().getCount(); ++i) {
+      this->pushPrefixSourceLocation(store->getPrefixSourceLocationStack().get(i).get());
+    }
     this->setTrunkSharedCount(sharedNoticeCount);
   }
 
@@ -119,6 +130,33 @@ class NoticeStore
     this->trunkStore = 0;
     this->trunkSharedCount = 0;
   }
+
+  /// @}
+
+  /// @name Prefix Source Location Stack Functions
+  /// @{
+
+  public: void clearPrefixSourceLocationStack()
+  {
+    this->prefixSourceLocationStack.clear();
+  }
+
+  public: Data::SourceLocationStack const& getPrefixSourceLocationStack() const
+  {
+    return this->prefixSourceLocationStack;
+  }
+
+  public: void pushPrefixSourceLocation(Data::SourceLocation *sl)
+  {
+    this->prefixSourceLocationStack.push(sl);
+  }
+
+  public: void popPrefixSourceLocation(Word count)
+  {
+    this->prefixSourceLocationStack.pop(count);
+  }
+
+  /// @}
 
 }; // class
 

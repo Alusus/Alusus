@@ -166,9 +166,12 @@ Bool LiteralGenerator::_generateIntegerLiteral(
   // Generate the literal.
   llvm::Type *llvmType = 0;
   Ast::Type *astType = 0;
-  literalGenerator->generator->getSourceLocationStack()->push_back(astNode->getSourceLocation());
+  auto sourceLocation = astNode->findSourceLocation().get();
+  literalGenerator->generator->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   Bool result = literalGenerator->getIntegerType(size, astType, llvmType);
-  literalGenerator->generator->getSourceLocationStack()->pop_back();
+  literalGenerator->generator->getNoticeStore()->popPrefixSourceLocation(
+    Core::Data::getSourceLocationRecordCount(sourceLocation)
+  );
   if (!result) return false;
   llvmResult = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, value, true));
   resultType = astType;
@@ -203,9 +206,12 @@ Bool LiteralGenerator::_generateFloatLiteral(
   // Generate the literal.
   llvm::Type *llvmType = 0;
   Ast::Type *astType = 0;
-  literalGenerator->generator->getSourceLocationStack()->push_back(astNode->getSourceLocation());
+  auto sourceLocation = astNode->findSourceLocation().get();
+  literalGenerator->generator->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   Bool result = literalGenerator->getFloatType(size, astType, llvmType);
-  literalGenerator->generator->getSourceLocationStack()->pop_back();
+  literalGenerator->generator->getNoticeStore()->popPrefixSourceLocation(
+    Core::Data::getSourceLocationRecordCount(sourceLocation)
+  );
   if (!result) return false;
   if (size == 32) {
     llvmResult = llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Float)value));

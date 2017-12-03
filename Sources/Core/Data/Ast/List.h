@@ -45,8 +45,9 @@ class List : public SharedList,
   IMPLEMENT_METADATA(List);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                     (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
+    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  );
 
   IMPLEMENT_AST_LIST_CLONABLE(List);
 

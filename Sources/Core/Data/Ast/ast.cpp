@@ -18,11 +18,11 @@ namespace Core { namespace Data { namespace Ast
 //============================================================================
 // Global Functions
 
-SourceLocation getSourceLocation(TiObject *obj)
+SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj)
 {
   auto metadata = ti_cast<Metadata>(obj);
-  if (metadata != 0) return metadata->getSourceLocation();
-  else return SourceLocation();
+  if (metadata != 0) return metadata->findSourceLocation();
+  else return SharedPtr<SourceLocation>::null;
 }
 
 } } } // namespace

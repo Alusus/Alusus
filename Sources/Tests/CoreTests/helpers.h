@@ -95,7 +95,7 @@ class LexerTester : public TiObject
 
   public: void test(Char const *text)
   {
-    Data::SourceLocation sl(std::make_shared<Str>(STR("unittest")), 1, 1);
+    Data::SourceLocationRecord sl(std::make_shared<Str>(STR("unittest")), 1, 1);
     this->lexer->handleNewString(text, sl);
     this->lexer->handleNewChar(FILE_TERMINATOR, sl);
     if (this->errorMsg.size() == 0) {

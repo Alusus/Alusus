@@ -41,7 +41,7 @@ void GenericParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
     dataMeta->setProdId(prod->getId());
     // Set the line and column, if any.
     if (item != 0) {
-      dataMeta->setSourceLocation(item->getSourceLocation());
+      dataMeta->setSourceLocation(item->findSourceLocation());
     }
     // Set the data to this production's state level.
     state->setData(data);
@@ -141,7 +141,7 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
   SharedPtr<TiObject> tokenItem = this->createTokenNode(state, -1, token->getId(), tokenText);
   auto metadata = tokenItem.ti_cast_get<Ast::Metadata>();
   if (metadata) {
-    metadata->setSourceLocation(token->getSourceLocation());
+    metadata->setSourceLocation(std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation()));
   }
   state->setData(tokenItem);
 }
@@ -257,7 +257,7 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
         Ast::Metadata *metadata = data.ti_cast_get<Ast::Metadata>();
         Ast::Metadata *newMetadata = list.ti_cast_get<Ast::Metadata>();
         if (newMetadata != 0 && metadata != 0) {
-          newMetadata->setSourceLocation(metadata->getSourceLocation());
+          newMetadata->setSourceLocation(metadata->findSourceLocation());
         }
         newContainer->add(currentData);
         newContainer->add(data.get());
@@ -283,7 +283,7 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
         ListContainer *newContainer = list.ti_cast_get<ListContainer>();
         Ast::Metadata *newMetadata = list.ti_cast_get<Ast::Metadata>();
         if (newMetadata != 0 && metadata != 0) {
-          newMetadata->setSourceLocation(metadata->getSourceLocation());
+          newMetadata->setSourceLocation(metadata->findSourceLocation());
         }
         newContainer->add(currentData);
         newContainer->add(data.get());

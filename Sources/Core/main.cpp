@@ -19,44 +19,6 @@
  * @brief Contains elements related to the main program.
  */
 
-namespace Core
-{
-
-/**
- * @brief Print the provided notices to the console.
- *
- * Printed notice includes severity, msg code, location, as well as
- * description.
- */
-void printNotice(const SharedPtr<Data::Notice> &msg)
-{
-  // We will only print the error message if we have a source location for it.
-  if (msg->getSourceLocationStack() == 0 || msg->getSourceLocationStack()->size() == 0) return;
-
-  // Print severity.
-  switch (msg->getSeverity()) {
-    case 0: outStream << STR("\033[0;31mBLOCKER "); break;
-    case 1: outStream << STR("\033[0;31mERROR "); break;
-    case 2: case 3: outStream << STR("\033[1;33mWARNING "); break;
-    case 4: outStream << STR("\033[0;34mATTN "); break;
-  }
-  // Print msg code.
-  outStream << msg->getCode() << " @ ";
-  // Print location.
-  auto stack = msg->getSourceLocationStack().get();
-  outStream << stack->at(0).filename->c_str() << " (" << stack->at(0).line << "," << stack->at(0).column << ")";
-  for (Int i = 1; i < stack->size(); ++i) {
-    outStream << NEW_LINE << STR("from ");
-    outStream << stack->at(i).filename->c_str() << " (" << stack->at(i).line << "," << stack->at(i).column << ")";
-  }
-  outStream << STR(": ");
-  // Print description.
-  outStream << msg->getDescription() << STR("\033[0m") << NEW_LINE;
-}
-
-} // namespace
-
-
 using namespace Core;
 
 /**
@@ -157,7 +119,12 @@ int main(int argCount, char * const args[])
     try {
       // Prepare the root object;
       Standard::RootManager root;
-      Slot<void, SharedPtr<Data::Notice> const&> noticeSlot(printNotice);
+      Slot<void, SharedPtr<Data::Notice> const&> noticeSlot(
+        [](SharedPtr<Data::Notice> const &notice)->void
+        {
+          Data::printNotice(notice.get());
+        }
+      );
       root.noticeSignal.connect(noticeSlot);
 
       // Parse the standard input stream.
@@ -172,7 +139,12 @@ int main(int argCount, char * const args[])
     try {
       // Prepare the root object;
       Standard::RootManager root;
-      Slot<void, SharedPtr<Data::Notice> const&> noticeSlot(printNotice);
+      Slot<void, SharedPtr<Data::Notice> const&> noticeSlot(
+        [](SharedPtr<Data::Notice> const &notice)->void
+        {
+          Data::printNotice(notice.get());
+        }
+      );
       root.noticeSignal.connect(noticeSlot);
 
       // Parse the provided filename.

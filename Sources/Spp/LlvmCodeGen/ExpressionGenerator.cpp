@@ -175,11 +175,9 @@ Bool ExpressionGenerator::_generateAssignment(
   )) {
     auto metadata = ti_cast<Core::Data::Ast::Metadata>(val);
     ASSERT(metadata != 0);
-    expGenerator->generator->getSourceLocationStack()->push_back(metadata->getSourceLocation());
-    expGenerator->generator->getParserState()->addNotice(
-      std::make_shared<NotImplicitlyCastableNotice>(expGenerator->generator->getSourceLocationStack())
+    expGenerator->generator->getNoticeStore()->add(
+      std::make_shared<NotImplicitlyCastableNotice>(metadata->findSourceLocation())
     );
-    expGenerator->generator->getSourceLocationStack()->pop_back();
     return false;
   }
 
@@ -509,24 +507,19 @@ Bool ExpressionGenerator::lookupFunction(
   );
   // Did we have a matched function to call?
   if (notice != 0 && (matchCount > 1 || function == 0)) {
-    notice->prependSourceLocationStack(this->generator->getSourceLocationStack());
-    this->generator->getParserState()->addNotice(notice);
+    this->generator->getNoticeStore()->add(notice);
   }
   if (matchCount > 1) {
     auto metadata = ti_cast<Core::Data::Ast::Metadata>(astNode);
-    this->generator->getSourceLocationStack()->push_back(metadata->getSourceLocation());
-    this->generator->getParserState()->addNotice(
-      std::make_shared<MultipleCalleeMatchNotice>(this->generator->getSourceLocationStack())
+    this->generator->getNoticeStore()->add(
+      std::make_shared<MultipleCalleeMatchNotice>(metadata->findSourceLocation())
     );
-    this->generator->getSourceLocationStack()->pop_back();
     return false;
   } else if (function == 0) {
     auto metadata = ti_cast<Core::Data::Ast::Metadata>(astNode);
-    this->generator->getSourceLocationStack()->push_back(metadata->getSourceLocation());
-    this->generator->getParserState()->addNotice(
-      std::make_shared<NoCalleeMatchNotice>(this->generator->getSourceLocationStack())
+    this->generator->getNoticeStore()->add(
+      std::make_shared<NoCalleeMatchNotice>(metadata->findSourceLocation())
     );
-    this->generator->getSourceLocationStack()->pop_back();
     return false;
   }
 

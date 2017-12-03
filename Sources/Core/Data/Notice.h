@@ -38,13 +38,7 @@ class Notice : public TiObject
   // Member Variables
 
   /// The source location at which the message was generated.
-  private: SharedPtr<std::vector<Data::SourceLocation>> sourceLocationStack;
-
-  /**
-   * @brief A temporary buffer to hold the generated message description.
-   * @sa getDescription()
-   */
-  private: static Str tempBuf;
+  private: SharedPtr<SourceLocation> sourceLocation;
 
 
   //============================================================================
@@ -54,21 +48,8 @@ class Notice : public TiObject
   {
   }
 
-  public: Notice(Data::SourceLocation const &l)
+  public: Notice(SharedPtr<Data::SourceLocation> const &sl) : sourceLocation(sl)
   {
-    this->sourceLocationStack = std::make_shared<std::vector<Data::SourceLocation>>(1, l);
-  }
-
-  public: Notice(std::vector<Data::SourceLocation> const &l)
-  {
-    this->sourceLocationStack = std::make_shared<std::vector<Data::SourceLocation>>(l);
-  }
-
-  public: Notice(std::vector<Data::SourceLocation> *l)
-  {
-    if (l != 0) {
-      this->sourceLocationStack = std::make_shared<std::vector<Data::SourceLocation>>(*l);
-    }
   }
 
   public: virtual ~Notice()
@@ -122,38 +103,23 @@ class Notice : public TiObject
   public: virtual void buildDescription(Str &str) const = 0;
 
   /// Get a human readable description of the message.
-  public: Str const& getDescription() const;
-
-  /// Set the source location at which the message was generated.
-  public: void setSourceLocation(Data::SourceLocation const &l)
+  public: Str const& getDescription() const
   {
-    this->sourceLocationStack = std::make_shared<std::vector<Data::SourceLocation>>(1, l);
+    static thread_local Str tempBuf;
+    this->buildDescription(tempBuf);
+    return tempBuf;
   }
 
   /// Set the source location at which the message was generated.
-  public: void setSourceLocationStack(std::vector<Data::SourceLocation> const &l)
+  public: void setSourceLocation(SharedPtr<SourceLocation> const &sl)
   {
-    this->sourceLocationStack = std::make_shared<std::vector<Data::SourceLocation>>(l);
-  }
-
-  public: void prependSourceLocationStack(std::vector<Data::SourceLocation> const *l);
-  
-  public: void prependSourceLocationStack(std::vector<Data::SourceLocation> const &l)
-  {
-    prependSourceLocationStack(&l);
-  }
-
-  public: void appendSourceLocationStack(std::vector<Data::SourceLocation> const *l);
-  
-  public: void appendSourceLocationStack(std::vector<Data::SourceLocation> const &l)
-  {
-    appendSourceLocationStack(&l);
+    this->sourceLocation = sl;
   }
 
   /// Get the source location at which the message was generated.
-  public: SharedPtr<std::vector<Data::SourceLocation>> const& getSourceLocationStack() const
+  public: SharedPtr<SourceLocation> const& getSourceLocation() const
   {
-    return this->sourceLocationStack;
+    return this->sourceLocation;
   }
 
 }; // class
@@ -166,10 +132,7 @@ class Notice : public TiObject
   class name : public Core::Data::Notice \
   { \
     TYPE_INFO(name, Core::Data::Notice, typeNamespace, moduleName, url); \
-    public: name() {} \
-    public: name(Core::Data::SourceLocation const &sl) : Core::Data::Notice(sl) {} \
-    public: name(std::vector<Core::Data::SourceLocation> const &sl) : Core::Data::Notice(sl) {} \
-    public: name(std::vector<Core::Data::SourceLocation> *sl) : Core::Data::Notice(sl) {} \
+    public: using Core::Data::Notice::Notice; \
     public: virtual Str const& getCode() const \
     { \
       static Str _code(code); \

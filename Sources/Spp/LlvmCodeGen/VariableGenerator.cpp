@@ -151,21 +151,17 @@ Bool VariableGenerator::_generateVarAccess(
       } else if (obj->isDerivedFrom<Ast::Function>()) {
         result = true;
       } else {
-        varGenerator->generator->getSourceLocationStack()->push_back(astNode->getSourceLocation());
-        varGenerator->generator->getParserState()->addNotice(
-          std::make_shared<InvalidReferenceNotice>(varGenerator->generator->getSourceLocationStack())
+        varGenerator->generator->getNoticeStore()->add(
+          std::make_shared<InvalidReferenceNotice>(astNode->findSourceLocation())
         );
-        varGenerator->generator->getSourceLocationStack()->pop_back();
       }
       return Core::Data::Seeker::Verb::STOP;
     }
   );
   if (!symbolFound) {
-    varGenerator->generator->getSourceLocationStack()->push_back(astNode->getSourceLocation());
-    varGenerator->generator->getParserState()->addNotice(
-      std::make_shared<UnknownSymbolNotice>(varGenerator->generator->getSourceLocationStack())
+    varGenerator->generator->getNoticeStore()->add(
+      std::make_shared<UnknownSymbolNotice>(astNode->findSourceLocation())
     );
-    varGenerator->generator->getSourceLocationStack()->pop_back();
   }
   return result;
 }
@@ -219,21 +215,17 @@ Bool VariableGenerator::_generateVarReference(
         lastProcessedNode = astNode;
         result = true;
       } else {
-        varGenerator->generator->getSourceLocationStack()->push_back(astNode->getSourceLocation());
-        varGenerator->generator->getParserState()->addNotice(
-          std::make_shared<InvalidReferenceNotice>(varGenerator->generator->getSourceLocationStack())
+        varGenerator->generator->getNoticeStore()->add(
+          std::make_shared<InvalidReferenceNotice>(astNode->findSourceLocation())
         );
-        varGenerator->generator->getSourceLocationStack()->pop_back();
       }
       return Core::Data::Seeker::Verb::STOP;
     }
   );
   if (!symbolFound) {
-    varGenerator->generator->getSourceLocationStack()->push_back(astNode->getSourceLocation());
-    varGenerator->generator->getParserState()->addNotice(
-      std::make_shared<UnknownSymbolNotice>(varGenerator->generator->getSourceLocationStack())
+    varGenerator->generator->getNoticeStore()->add(
+      std::make_shared<UnknownSymbolNotice>(astNode->findSourceLocation())
     );
-    varGenerator->generator->getSourceLocationStack()->pop_back();
   }
   return result;
 }

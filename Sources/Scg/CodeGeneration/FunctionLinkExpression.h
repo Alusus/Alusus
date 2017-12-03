@@ -70,7 +70,7 @@ class FunctionLinkExpression
 {
 private:
   SharedPtr<ValueTypeSpec> retType;
-  Core::Data::SourceLocation sourceLocation;
+  Core::Data::SourceLocationRecord sourceLocation;
   SharedPtr<FunctionalExpression> arguments;
 
 public:

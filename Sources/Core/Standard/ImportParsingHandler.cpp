@@ -31,9 +31,7 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
     if (!this->import(filename, state, errorDetails)) {
       // Create a build msg.
       state->addNotice(
-        SharedPtr<ImportLoadFailedNotice>(
-          new ImportLoadFailedNotice(filename, errorDetails.c_str(), metadata->getSourceLocation())
-        )
+        std::make_shared<ImportLoadFailedNotice>(filename, errorDetails.c_str(), metadata->findSourceLocation())
       );
     }
   } else {

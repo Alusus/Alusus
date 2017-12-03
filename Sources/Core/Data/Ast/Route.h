@@ -67,9 +67,10 @@ class Route : public Node,
   IMPLEMENT_METADATA(Route);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (route, TiInt, VALUE, setRoute(value), &route),
-                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                     (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+    (route, TiInt, VALUE, setRoute(value), &route),
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
+    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  );
 
   IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, data));
 

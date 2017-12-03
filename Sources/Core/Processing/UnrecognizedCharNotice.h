@@ -49,15 +49,8 @@ class UnrecognizedCharNotice : public Data::Notice
   //============================================================================
   // Constructor / Destructor
 
-  public: UnrecognizedCharNotice(Char const *t, Data::SourceLocation const &sl) : Data::Notice(sl), text(t)
-  {
-  }
-
-  public: UnrecognizedCharNotice(Char const *t, std::vector<Data::SourceLocation> const &sl) : Data::Notice(sl), text(t)
-  {
-  }
-
-  public: UnrecognizedCharNotice(Char const *t, std::vector<Data::SourceLocation> *sl) : Data::Notice(sl), text(t)
+  public: UnrecognizedCharNotice(Char const *t, SharedPtr<Data::SourceLocation> const &sl)
+    : Data::Notice(sl), text(t)
   {
   }
 
@@ -115,10 +108,10 @@ class UnrecognizedCharNotice : public Data::Notice
    *           will only be considered if this character is the first in the
    *           buffer.
    */
-  public: void appendText(Char ch, Data::SourceLocation const &sl)
+  public: void appendText(Char ch, Data::SourceLocationRecord const &sl)
   {
-    if (this->getSourceLocationStack() == 0) {
-      this->setSourceLocation(sl);
+    if (this->getSourceLocation() == 0) {
+      this->setSourceLocation(std::make_shared<Data::SourceLocationRecord>(sl));
     }
     this->text.append(1, ch);
   }
@@ -137,11 +130,11 @@ class UnrecognizedCharNotice : public Data::Notice
    *           will only be considered if this character is the first in the
    *           buffer.
    */
-  public: void appendText(Char const *str, Data::SourceLocation const &sl)
+  public: void appendText(Char const *str, Data::SourceLocationRecord const &sl)
   {
     if (str == 0 || str[0] == CHR('\0')) return;
-    if (this->getSourceLocationStack() == 0) {
-      this->setSourceLocation(sl);
+    if (this->getSourceLocation() == 0) {
+      this->setSourceLocation(std::make_shared<Data::SourceLocationRecord>(sl));
     }
     this->text.append(str);
   }
@@ -183,7 +176,7 @@ class UnrecognizedCharNotice : public Data::Notice
   public: void clear()
   {
     this->text.clear();
-    this->setSourceLocation(Data::SourceLocation());
+    this->setSourceLocation(SharedPtr<Data::SourceLocation>::null);
   }
 
 }; // class

@@ -280,15 +280,19 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
       if (notices.getNoticeCount() > 0) msg = notices.getMsg(0);
       CHECK((msg != 0));
       CHECK(msg->getCode().compare("P1001") == 0);
-      CHECK(msg->getSourceLocationStack()->at(0).line == 3);
-      CHECK(msg->getSourceLocationStack()->at(0).column == 10);
+      auto sl = msg->getSourceLocation().ti_cast_get<Core::Data::SourceLocationRecord>();
+      CHECK(sl != 0);
+      CHECK(sl->line == 3);
+      CHECK(sl->column == 10);
 
       msg = SharedPtr<Data::Notice>(0);
       if (notices.getNoticeCount() > 1) msg = notices.getMsg(1);
       CHECK((msg != 0));
       CHECK(msg->getCode().compare("P1001") == 0);
-      CHECK(msg->getSourceLocationStack()->at(0).line == 5);
-      CHECK(msg->getSourceLocationStack()->at(0).column == 13);
+      sl = msg->getSourceLocation().ti_cast_get<Core::Data::SourceLocationRecord>();
+      CHECK(sl != 0);
+      CHECK(sl->line == 5);
+      CHECK(sl->column == 13);
 
       msg = SharedPtr<Data::Notice>(0);
       if (notices.getNoticeCount() > 2) msg = notices.getMsg(2);

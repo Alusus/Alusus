@@ -207,7 +207,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
       auto currentList = state->getData().ti_cast_get<Data::Container>();
       auto returnStatement = Ast::ReturnStatement::create({
         { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->getSourceLocation() }
+        { "sourceLocation", metadata->findSourceLocation() }
       });
       if (currentList != 0) {
         returnStatement->setOperand(getSharedPtr(currentList->get(1)));
@@ -277,7 +277,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
       auto metadata = ti_cast<Data::Ast::Metadata>(currentList);
       auto type = Ast::UserType::create({
         { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->getSourceLocation() }
+        { "sourceLocation", metadata->findSourceLocation() }
       }, {
         { "body", currentList->get(1) }
       });

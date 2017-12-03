@@ -73,7 +73,7 @@ class AstNode : public Core::Data::Node
   protected: bool termInstGenerated = false;
 
   //! The source location at which this expression was produced.
-  private: Core::Data::SourceLocation sourceLocation;
+  private: Core::Data::SourceLocationRecord sourceLocation;
 
 
   //============================================================================
@@ -92,12 +92,12 @@ class AstNode : public Core::Data::Node
   // Member Functions
 
   /// Sets the source location at which this expression was produced.
-  public: void setSourceLocation(Core::Data::SourceLocation const &sl)
+  public: void setSourceLocation(Core::Data::SourceLocationRecord const &sl)
   {
     this->sourceLocation = sl;
   }
 
-  public: Core::Data::SourceLocation const& getSourceLocation() const
+  public: Core::Data::SourceLocationRecord const& getSourceLocation() const
   {
     return this->sourceLocation;
   }

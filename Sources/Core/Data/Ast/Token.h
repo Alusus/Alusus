@@ -60,10 +60,11 @@ class Token : public Node,
   IMPLEMENT_METADATA(Token);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (id, TiWord, VALUE, setId(value), &id),
-                     (text, TiStr, VALUE, setText(value), &text),
-                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                     (sourceLocation, SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+    (id, TiWord, VALUE, setId(value), &id),
+    (text, TiStr, VALUE, setText(value), &text),
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
+    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  );
 
 
   //============================================================================

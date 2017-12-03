@@ -47,7 +47,6 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
 
   private: Core::Processing::ParserState *parserState = 0;
   private: SharedPtr<ExecutionContext> executionContext;
-  private: std::vector<Core::Data::SourceLocation> sourceLocationStack;
   private: SharedPtr<llvm::Module> llvmModule;
   private: SharedPtr<llvm::DataLayout> llvmDataLayout;
 
@@ -161,9 +160,9 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     return this->executionContext;
   }
 
-  public: std::vector<Core::Data::SourceLocation>* getSourceLocationStack()
+  public: Core::Processing::NoticeStore* getNoticeStore() const
   {
-    return &this->sourceLocationStack;
+    return this->parserState->getNoticeStore();
   }
 
   public: SharedPtr<llvm::Module> const& getLlvmModule() const

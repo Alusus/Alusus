@@ -53,8 +53,9 @@ class Template : public Core::Data::Node,
   IMPLEMENT_METADATA(Template);
 
   IMPLEMENT_BINDINGS(Bindings,
-                     (prodId, TiWord, VALUE, setProdId(value), &prodId),
-                     (sourceLocation, Core::Data::SourceLocation, VALUE, setSourceLocation(value), &sourceLocation));
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
+    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  );
 
   IMPLEMENT_MAP_CONTAINER(MapContainer, (Data::Clonable, templateBody));
 
@@ -104,7 +105,7 @@ class Template : public Core::Data::Node,
 
   public: virtual TioSharedPtr const& getDefaultInstance(Core::Data::Seeker *seeker);
   public: virtual Bool matchInstance(TiObject *templateInput, Core::Data::Seeker *seeker, TioSharedPtr &result);
-  
+
   private: Bool matchTemplateVars(
     TiObject *templateInput, Block *instance, Core::Data::Seeker *seeker, SharedPtr<Core::Data::Notice> &notice
   );
