@@ -1,7 +1,7 @@
-ERROR SPP1304 @ (16,5): Multiple matches were found for the given callee.
-ERROR SPP1303 @ (17,5): No matches were found for the given callee.
-ERROR SPP1303 @ (18,5): No matches were found for the given callee.
-ERROR SPP1303 @ (19,5): No matches were found for the given callee.
+ERROR SPP1103 @ (16,5): Multiple matches were found for the given callee.
+ERROR SPP1104 @ (17,5): No matches were found for the given callee.
+ERROR SPP1104 @ (18,5): No matches were found for the given callee.
+ERROR SPP1104 @ (19,5): No matches were found for the given callee.
 ERROR SPP1310 @ (20,5): Unknown symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------

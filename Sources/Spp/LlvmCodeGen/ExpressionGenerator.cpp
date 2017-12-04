@@ -84,7 +84,12 @@ Bool ExpressionGenerator::_generateParamPass(
     }
     // Look for a matching function to call.
     Ast::Function *function = 0;
-    if (!expGenerator->lookupFunction(operand, astNode, &paramTypes, function)) return false;
+    if (!Ast::lookupFunction(
+      operand, astNode, &paramTypes, expGenerator->generator->getExecutionContext().get(),
+      expGenerator->generator->getRootManager(), expGenerator->generator->getNoticeStore(), function
+    )) {
+      return false;
+    }
     // Generate the functionc all.
     Bool result = expGenerator->generateFunctionCall(
       function, &paramTypes, &paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
@@ -128,7 +133,12 @@ Bool ExpressionGenerator::_generateInfixOp(
 
   // Look for a matching function to call.
   Ast::Function *function = 0;
-  if (!expGenerator->lookupFunction(funcName, astNode, &paramTypes, function)) return false;
+  if (!Ast::lookupFunction(
+    funcName, astNode, &paramTypes, expGenerator->generator->getExecutionContext().get(),
+    expGenerator->generator->getRootManager(), expGenerator->generator->getNoticeStore(), function
+  )) {
+    return false;
+  }
 
   // Generate the functionc all.
   Bool result = expGenerator->generateFunctionCall(
@@ -450,79 +460,6 @@ Bool ExpressionGenerator::generateParamList(
     llvmResults->addElement(paramResultCg);
     resultTypes->addElement(paramType);
   }
-  return true;
-}
-
-
-Bool ExpressionGenerator::lookupFunction(
-  Char const *name, Core::Data::Node *astNode, Core::Basic::Container<Core::Basic::TiObject> *types,
-  Ast::Function *&function
-) {
-  Core::Data::Ast::Identifier identifier;
-  identifier.setValue(name);
-  return this->lookupFunction(&identifier, astNode, types, function);
-}
-
-
-Bool ExpressionGenerator::lookupFunction(
-  TiObject *ref, Core::Data::Node *astNode, Core::Basic::Container<Core::Basic::TiObject> *types,
-  Ast::Function *&function
-) {
-  function = 0;
-  using CallMatchStatus = Ast::Function::CallMatchStatus;
-  CallMatchStatus matchStatus = CallMatchStatus::NONE;
-  Int matchCount = 0;
-  SharedPtr<Core::Data::Notice> notice;
-  this->generator->getSeeker()->doForeach(ref, astNode->getOwner(),
-    [=, &function, &matchStatus, &matchCount, &notice]
-      (TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
-      {
-        if (ntc != 0) {
-          notice = getSharedPtr(ntc);
-          return Core::Data::Seeker::Verb::MOVE;
-        }
-
-        if (obj != 0 && obj->isDerivedFrom<Ast::Function>()) {
-          auto f = static_cast<Ast::Function*>(obj);
-          CallMatchStatus ms;
-          ms = f->matchCall(
-            types, this->generator->getExecutionContext().get(), this->generator->getRootManager()
-          );
-          if (ms != CallMatchStatus::NONE && matchStatus == CallMatchStatus::NONE) {
-            function = f;
-            matchStatus = ms;
-            matchCount = 1;
-          } else if (ms == CallMatchStatus::CASTED && matchStatus == CallMatchStatus::CASTED) {
-            matchCount++;
-          } else if (ms == CallMatchStatus::EXACT && matchStatus == CallMatchStatus::CASTED) {
-            function  = f;
-            matchStatus = ms;
-            matchCount = 1;
-          } else if (ms == CallMatchStatus::EXACT && matchStatus == CallMatchStatus::EXACT) {
-            matchCount++;
-          }
-        }
-        return Core::Data::Seeker::Verb::MOVE;
-      }
-  );
-  // Did we have a matched function to call?
-  if (notice != 0 && (matchCount > 1 || function == 0)) {
-    this->generator->getNoticeStore()->add(notice);
-  }
-  if (matchCount > 1) {
-    auto metadata = ti_cast<Core::Data::Ast::Metadata>(astNode);
-    this->generator->getNoticeStore()->add(
-      std::make_shared<MultipleCalleeMatchNotice>(metadata->findSourceLocation())
-    );
-    return false;
-  } else if (function == 0) {
-    auto metadata = ti_cast<Core::Data::Ast::Metadata>(astNode);
-    this->generator->getNoticeStore()->add(
-      std::make_shared<NoCalleeMatchNotice>(metadata->findSourceLocation())
-    );
-    return false;
-  }
-
   return true;
 }
 

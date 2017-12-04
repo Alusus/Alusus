@@ -18,9 +18,9 @@ namespace Spp { namespace Handlers
 {
 
 /**
- * @defgroup spp_parsing_handlers ParsingHandlers
+ * @defgroup spp_handlers Handlers
  * @ingroup spp
- * @brief Classes related to the SPP's paring handlers.
+ * @brief Classes related to the SPP's parsing handlers.
  */
 
 //==============================================================================

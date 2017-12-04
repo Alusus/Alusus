@@ -164,16 +164,6 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
     Core::Basic::ListContainer<Core::Basic::TiObject> *resultTypes, Core::Basic::ListContainer<llvm::Value> *llvmResults
   );
 
-  private: Bool lookupFunction(
-    Char const *name, Core::Data::Node *astNode, Core::Basic::Container<Core::Basic::TiObject> *types,
-    Ast::Function *&function
-  );
-
-  private: Bool lookupFunction(
-    Core::Basic::TiObject *ref, Core::Data::Node *astNode, Core::Basic::Container<Core::Basic::TiObject> *types,
-    Ast::Function *&function
-  );
-
   /// @}
 
 }; // class

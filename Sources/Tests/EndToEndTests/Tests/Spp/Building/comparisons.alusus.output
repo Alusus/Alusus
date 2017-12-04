@@ -1,7 +1,7 @@
-ERROR SPP1303 @ (47,33): No matches were found for the given callee.
-ERROR SPP1303 @ (48,33): No matches were found for the given callee.
-ERROR SPP1303 @ (49,33): No matches were found for the given callee.
-ERROR SPP1303 @ (50,33): No matches were found for the given callee.
+ERROR SPP1104 @ (47,33): No matches were found for the given callee.
+ERROR SPP1104 @ (48,33): No matches were found for the given callee.
+ERROR SPP1104 @ (49,33): No matches were found for the given callee.
+ERROR SPP1104 @ (50,33): No matches were found for the given callee.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

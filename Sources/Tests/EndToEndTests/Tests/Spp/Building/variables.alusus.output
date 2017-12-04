@@ -2,9 +2,9 @@ ERROR SPP1312 @ (24,10): Value is not implicitly castable to target type.
 ERROR SPP1312 @ (27,10): Value is not implicitly castable to target type.
 ERROR SPP1312 @ (31,10): Value is not implicitly castable to target type.
 ERROR SPP1312 @ (34,10): Value is not implicitly castable to target type.
-ERROR SPP1303 @ (45,5): No matches were found for the given callee.
-ERROR SPP1303 @ (46,5): No matches were found for the given callee.
-ERROR SPP1303 @ (47,5): No matches were found for the given callee.
+ERROR SPP1104 @ (45,5): No matches were found for the given callee.
+ERROR SPP1104 @ (46,5): No matches were found for the given callee.
+ERROR SPP1104 @ (47,5): No matches were found for the given callee.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

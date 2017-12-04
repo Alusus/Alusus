@@ -110,11 +110,11 @@ Bool Generator::execute(Core::Data::Ast::Scope *root, Core::Processing::ParserSt
   }
   if (matchCount > 1) {
     auto metadata = ti_cast<Core::Data::Ast::Metadata>(entryRef);
-    state->addNotice(std::make_shared<MultipleCalleeMatchNotice>(metadata->findSourceLocation()));
+    state->addNotice(std::make_shared<Ast::MultipleCalleeMatchNotice>(metadata->findSourceLocation()));
     return false;
   } else if (function == 0) {
     auto metadata = ti_cast<Core::Data::Ast::Metadata>(entryRef);
-    state->addNotice(std::make_shared<NoCalleeMatchNotice>(metadata->findSourceLocation()));
+    state->addNotice(std::make_shared<Ast::NoCalleeMatchNotice>(metadata->findSourceLocation()));
     return false;
   }
 

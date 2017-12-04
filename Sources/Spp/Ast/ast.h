@@ -27,6 +27,7 @@ namespace Spp { namespace Ast
 // Forward Class Definitions
 
 class Type;
+class Function;
 
 
 //==============================================================================
@@ -36,15 +37,33 @@ Type* traceType(TiObject *ref, Core::Data::Seeker *seeker);
 
 Bool isVarDefinition(TiObject *obj);
 
+Bool lookupFunction(
+  Char const *name, Core::Data::Node *astNode, Core::Basic::Container<Core::Basic::TiObject> *types,
+  Spp::ExecutionContext *context, Core::Standard::RootManager *rootManager,
+  Core::Processing::NoticeStore *noticeStore, Ast::Function *&function
+);
+
+Bool lookupFunction(
+  Core::Basic::TiObject *ref, Core::Data::Node *astNode, Core::Basic::Container<Core::Basic::TiObject> *types,
+  Spp::ExecutionContext *context, Core::Standard::RootManager *rootManager,
+  Core::Processing::NoticeStore *noticeStore, Ast::Function *&function
+);
+
 
 //==============================================================================
-// Build Messages
+// Notices
 
-DEFINE_NOTICE(TemplateArgMismatchNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1101", 1,
+DEFINE_NOTICE(TemplateArgMismatchNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1101", 1,
   STR("Template arguments mismatch.")
 );
-DEFINE_NOTICE(InvalidTemplateArgNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1102", 1,
+DEFINE_NOTICE(InvalidTemplateArgNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1102", 1,
   STR("Invalid template argument.")
+);
+DEFINE_NOTICE(MultipleCalleeMatchNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1103", 1,
+  STR("Multiple matches were found for the given callee.")
+);
+DEFINE_NOTICE(NoCalleeMatchNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1104", 1,
+  STR("No matches were found for the given callee.")
 );
 
 } } // namespace
