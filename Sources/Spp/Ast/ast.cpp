@@ -73,8 +73,9 @@ Bool lookupFunction(
   CallMatchStatus matchStatus = CallMatchStatus::NONE;
   Int matchCount = 0;
   SharedPtr<Core::Data::Notice> notice;
+  Bool symbolFound = false;
   rootManager->getSeeker()->doForeach(ref, astNode->getOwner(),
-    [=, &function, &matchStatus, &matchCount, &notice]
+    [=, &function, &matchStatus, &matchCount, &notice, &symbolFound]
       (TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
       {
         if (ntc != 0) {
@@ -82,6 +83,7 @@ Bool lookupFunction(
           return Core::Data::Seeker::Verb::MOVE;
         }
 
+        symbolFound = true;
         if (obj != 0 && obj->isDerivedFrom<Ast::Function>()) {
           auto f = static_cast<Ast::Function*>(obj);
           CallMatchStatus ms;
@@ -113,7 +115,11 @@ Bool lookupFunction(
     return false;
   } else if (function == 0) {
     auto metadata = ti_cast<Core::Data::Ast::Metadata>(astNode);
-    noticeStore->add(std::make_shared<NoCalleeMatchNotice>(metadata->findSourceLocation()));
+    if (symbolFound) {
+      noticeStore->add(std::make_shared<NoCalleeMatchNotice>(metadata->findSourceLocation()));
+    } else {
+      noticeStore->add(std::make_shared<UnknownSymbolNotice>(metadata->findSourceLocation()));
+    }
     return false;
   }
 

@@ -84,7 +84,7 @@ Bool ExpressionGenerator::_generateIdentifierAccess(
   );
   if (!symbolFound) {
     expGenerator->generator->getNoticeStore()->add(
-      std::make_shared<UnknownSymbolNotice>(astNode->findSourceLocation())
+      std::make_shared<Ast::UnknownSymbolNotice>(astNode->findSourceLocation())
     );
   }
   return result;
@@ -125,7 +125,7 @@ Bool ExpressionGenerator::_generateIdentifierReference(
   );
   if (!symbolFound) {
     expGenerator->generator->getNoticeStore()->add(
-      std::make_shared<UnknownSymbolNotice>(astNode->findSourceLocation())
+      std::make_shared<Ast::UnknownSymbolNotice>(astNode->findSourceLocation())
     );
   }
   return result;
@@ -138,37 +138,19 @@ Bool ExpressionGenerator::_generateParamPass(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
   auto operand = astNode->getOperand().get();
-  if (!expGenerator->generator->generatePhrase(
-    operand, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode)
-  ) {
-    return false;
-  }
-  if (resultType != 0) {
-    // TODO: Check for function pointers and arrays.
-    return false;
-  } else {
+
+  using Core::Basic::TiObject;
+  using Core::Basic::PlainList;
+
+  if (operand->isDerivedFrom<Core::Data::Ast::Identifier>()) {
+    // Call a function of the current context.
+
     // Prepare parameters list.
-    using Core::Basic::TiObject;
-    using Core::Basic::PlainList;
     PlainList<llvm::Value, TiObject> paramCgs;
     PlainList<TiObject, TiObject> paramTypes;
     auto param = astNode->getParam().get();
-    if (param != 0) {
-      if (param->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
-        if (!expGenerator->generateParamList(
-          ti_cast<Core::Data::Container>(param), llvmIrBuilder, llvmFunc, &paramTypes, &paramCgs
-        )) return false;
-      } else {
-        llvm::Value *paramResultCg;
-        Ast::Type *paramType;
-        TiObject *paramLastProcessedRef;
-        if (!expGenerator->generator->generatePhrase(
-          param, llvmIrBuilder, llvmFunc, paramType, paramResultCg, paramLastProcessedRef
-        )) return false;
-        paramCgs.add(paramResultCg);
-        paramTypes.add(paramType);
-      }
-    }
+    if (!expGenerator->generateParamList(param, llvmIrBuilder, llvmFunc, &paramTypes, &paramCgs)) return false;
+
     // Look for a matching function to call.
     Ast::Function *function = 0;
     if (!Ast::lookupFunction(
@@ -177,12 +159,24 @@ Bool ExpressionGenerator::_generateParamPass(
     )) {
       return false;
     }
-    // Generate the functionc all.
+
+    // Generate the function call.
     Bool result = expGenerator->generateFunctionCall(
       function, &paramTypes, &paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
     );
     if (result) lastProcessedNode = astNode;
     return result;
+  } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
+    // TODO: Call a member function of a specific object.
+    throw EXCEPTION(GenericException, STR("Not implemented yet."));
+  } else {
+    // TODO: Call a function pointer from a previous expression.
+    // if (!expGenerator->generator->generatePhrase(
+    //   operand, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode)
+    // ) {
+    //   return false;
+    // }
+    throw EXCEPTION(GenericException, STR("Not implemented yet."));
   }
 }
 
@@ -532,6 +526,30 @@ Bool ExpressionGenerator::_generateUserFunctionCall(
 
 //==============================================================================
 // Helper Functions
+
+Bool ExpressionGenerator::generateParamList(
+  Core::Basic::TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Core::Basic::ListContainer<Core::Basic::TiObject> *resultTypes, Core::Basic::ListContainer<llvm::Value> *llvmResults
+) {
+  if (astNode == 0) return true;
+
+  if (astNode->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
+    if (!this->generateParamList(
+      ti_cast<Core::Data::Container>(astNode), llvmIrBuilder, llvmFunc, resultTypes, llvmResults
+    )) return false;
+  } else {
+    llvm::Value *paramResultCg;
+    Ast::Type *paramType;
+    TiObject *paramLastProcessedRef;
+    if (!this->generator->generatePhrase(
+      astNode, llvmIrBuilder, llvmFunc, paramType, paramResultCg, paramLastProcessedRef
+    )) return false;
+    llvmResults->addElement(paramResultCg);
+    resultTypes->addElement(paramType);
+  }
+  return true;
+}
+
 
 Bool ExpressionGenerator::generateParamList(
   Core::Data::Container *astNodes, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,

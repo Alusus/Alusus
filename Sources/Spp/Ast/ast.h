@@ -65,6 +65,9 @@ DEFINE_NOTICE(MultipleCalleeMatchNotice, "Spp.Ast", "Spp", "alusus.net", "SPP110
 DEFINE_NOTICE(NoCalleeMatchNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1104", 1,
   STR("No matches were found for the given callee.")
 );
+DEFINE_NOTICE(UnknownSymbolNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1105", 1,
+  STR("Unknown symbol.")
+);
 
 } } // namespace
 

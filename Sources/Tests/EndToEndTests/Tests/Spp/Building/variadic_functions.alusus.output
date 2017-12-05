@@ -2,7 +2,7 @@ ERROR SPP1103 @ (16,5): Multiple matches were found for the given callee.
 ERROR SPP1104 @ (17,5): No matches were found for the given callee.
 ERROR SPP1104 @ (18,5): No matches were found for the given callee.
 ERROR SPP1104 @ (19,5): No matches were found for the given callee.
-ERROR SPP1310 @ (20,5): Unknown symbol.
+ERROR SPP1105 @ (20,5): Unknown symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -27,6 +27,7 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 @__anonymous16 = private constant [6 x i8] c"again\00", align 1
 @__anonymous17 = private constant [6 x i8] c"hello\00", align 1
 @__anonymous18 = private constant [6 x i8] c"world\00", align 1
+@__anonymous19 = private constant [6 x i8] c"hello\00", align 1
 
 define i32 @Main_main_____Int_32__() {
 __block0:

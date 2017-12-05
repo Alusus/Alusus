@@ -50,13 +50,10 @@ DEFINE_NOTICE(InvalidCastNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP130
 DEFINE_NOTICE(InvalidReturnValueNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1309", 1,
   STR("Invalid return value.")
 );
-DEFINE_NOTICE(UnknownSymbolNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1310", 1,
-  STR("Unknown symbol.")
+DEFINE_NOTICE(InvalidReferenceNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1310", 1,
+  STR("Invalid symbol.")
 );
-DEFINE_NOTICE(InvalidReferenceNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1311", 1,
-  STR("Unknown symbol.")
-);
-DEFINE_NOTICE(NotImplicitlyCastableNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1312", 1,
+DEFINE_NOTICE(NotImplicitlyCastableNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1311", 1,
   STR("Value is not implicitly castable to target type.")
 );
 
