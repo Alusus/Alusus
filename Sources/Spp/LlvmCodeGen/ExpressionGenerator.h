@@ -86,6 +86,18 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
   /// @name Code Generation Functions
   /// @{
 
+  public: METHOD_BINDING_CACHE(generateIdentifierAccess,
+    Bool, (
+      Core::Data::Ast::Identifier*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
+  );
+  public: METHOD_BINDING_CACHE(generateIdentifierReference,
+    Bool, (
+      Core::Data::Ast::Identifier*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
+  );
   public: METHOD_BINDING_CACHE(generateParamPass,
     Bool, (
       Core::Data::Ast::ParamPass*, llvm::IRBuilder<>*, llvm::Function*,
@@ -126,6 +138,14 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
     )
   );
 
+  private: static Bool _generateIdentifierAccess(
+    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+  );
+  private: static Bool _generateIdentifierReference(
+    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+  );
   private: static Bool _generateParamPass(
     TiObject *self, Core::Data::Ast::ParamPass *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode

@@ -103,131 +103,74 @@ Bool VariableGenerator::_generateVarDefinition(TiObject *self, Core::Data::Ast::
 
 
 Bool VariableGenerator::_generateVarAccess(
-  TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+  TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Ast::Type *&resultType, llvm::Value *&llvmResult
 ) {
   PREPARE_SELF(varGenerator, VariableGenerator);
-  resultType = 0;
-  llvmResult = 0;
-  lastProcessedNode = 0;
-  Bool result = false;
-  Bool symbolFound = false;
-  varGenerator->generator->getSeeker()->doForeach(astNode, astNode->getOwner(),
-    [=, &result, &lastProcessedNode, &llvmResult, &resultType, &symbolFound]
-    (TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
-    {
-      symbolFound = true;
-      // Check if the found obj is a variable definition.
-      if (Ast::isVarDefinition(obj)) {
-        // Is it already generated?
-        auto metadata = ti_cast<Core::Data::Ast::Metadata>(obj);
-        auto cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
-        if (cgVar == 0) {
-          // Generate the variable definition.
-          // At this point the variable shouldn't be a function argument.
-          auto varDef = ti_cast<Core::Data::Ast::Definition>(static_cast<Core::Data::Node*>(obj)->getOwner());
-          if (varDef == 0) {
-            throw EXCEPTION(GenericException, STR("Unexpected error while looking for variable definition."));
-          }
-          if (!varGenerator->generateVarDefinition(varDef)) return Core::Data::Seeker::Verb::STOP;
 
-          cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
-          if (cgVar == 0) {
-            throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
-          }
-        }
-        // Generate variable access.
-        if (cgVar->getLlvmAllocaInst() != 0) {
-          llvmResult = llvmIrBuilder->CreateLoad(cgVar->getLlvmAllocaInst());
-        } else if (cgVar->getLlvmGlobalVariable() != 0) {
-          llvmResult = llvmIrBuilder->CreateLoad(cgVar->getLlvmGlobalVariable());
-        } else {
-          throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
-        }
-        // Set return values.
-        resultType = cgVar->getAstType();
-        lastProcessedNode = astNode;
-        result = true;
-      } else if (obj->isDerivedFrom<Ast::Function>()) {
-        result = true;
-      } else {
-        varGenerator->generator->getNoticeStore()->add(
-          std::make_shared<InvalidReferenceNotice>(astNode->findSourceLocation())
-        );
-      }
-      return Core::Data::Seeker::Verb::STOP;
+  auto metadata = ti_cast<Core::Data::Ast::Metadata>(astNode);
+  auto cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
+  if (cgVar == 0) {
+    // Generate the variable definition.
+    auto varDef = ti_cast<Core::Data::Ast::Definition>(static_cast<Core::Data::Node*>(astNode)->getOwner());
+    if (varDef == 0) {
+      throw EXCEPTION(GenericException, STR("Unexpected error while looking for variable definition."));
     }
-  );
-  if (!symbolFound) {
-    varGenerator->generator->getNoticeStore()->add(
-      std::make_shared<UnknownSymbolNotice>(astNode->findSourceLocation())
-    );
+    if (!varGenerator->generateVarDefinition(varDef)) return false;
+
+    cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
+    if (cgVar == 0) {
+      throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
+    }
   }
-  return result;
+
+  // Generate variable access.
+  if (cgVar->getLlvmAllocaInst() != 0) {
+    llvmResult = llvmIrBuilder->CreateLoad(cgVar->getLlvmAllocaInst());
+  } else if (cgVar->getLlvmGlobalVariable() != 0) {
+    llvmResult = llvmIrBuilder->CreateLoad(cgVar->getLlvmGlobalVariable());
+  } else {
+    throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
+  }
+
+  resultType = cgVar->getAstType();
+  return true;
 }
 
 
 Bool VariableGenerator::_generateVarReference(
-  TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+  TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Ast::Type *&resultType, llvm::Value *&llvmResult
 ) {
   PREPARE_SELF(varGenerator, VariableGenerator);
 
-  resultType = 0;
-  llvmResult = 0;
-  lastProcessedNode = 0;
-  Bool result = false;
-  Bool symbolFound = false;
-  varGenerator->generator->getSeeker()->doForeach(astNode, astNode->getOwner(),
-    [=, &result, &lastProcessedNode, &llvmResult, &resultType, &symbolFound]
-    (TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
-    {
-      symbolFound = true;
-      // Check if the found obj is a variable definition.
-      if (Ast::isVarDefinition(obj)) {
-        // Is variable already generated?.
-        auto metadata = ti_cast<Core::Data::Ast::Metadata>(obj);
-        auto cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
-        if (cgVar == 0) {
-          // Generate the variable definition.
-          // At this point the variable should not be a function argument.
-          auto varDef = ti_cast<Core::Data::Ast::Definition>(static_cast<Core::Data::Node*>(obj)->getOwner());
-          if (varDef == 0) {
-            throw EXCEPTION(GenericException, STR("Unexpected error while looking for variable definition."));
-          }
-          if (!varGenerator->generateVarDefinition(varDef)) return Core::Data::Seeker::Verb::STOP;
-
-          cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
-          if (cgVar == 0) {
-            throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
-          }
-        }
-        // Generate variable reference.
-        if (cgVar->getLlvmAllocaInst() != 0) {
-          llvmResult = cgVar->getLlvmAllocaInst();
-        } else if (cgVar->getLlvmGlobalVariable() != 0) {
-          llvmResult = cgVar->getLlvmGlobalVariable();
-        } else {
-          throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
-        }
-        // Set return values.
-        resultType = cgVar->getAstType();
-        lastProcessedNode = astNode;
-        result = true;
-      } else {
-        varGenerator->generator->getNoticeStore()->add(
-          std::make_shared<InvalidReferenceNotice>(astNode->findSourceLocation())
-        );
-      }
-      return Core::Data::Seeker::Verb::STOP;
+  auto metadata = ti_cast<Core::Data::Ast::Metadata>(astNode);
+  auto cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
+  if (cgVar == 0) {
+    // Generate the variable definition.
+    auto varDef = ti_cast<Core::Data::Ast::Definition>(static_cast<Core::Data::Node*>(astNode)->getOwner());
+    if (varDef == 0) {
+      throw EXCEPTION(GenericException, STR("Unexpected error while looking for variable definition."));
     }
-  );
-  if (!symbolFound) {
-    varGenerator->generator->getNoticeStore()->add(
-      std::make_shared<UnknownSymbolNotice>(astNode->findSourceLocation())
-    );
+    if (!varGenerator->generateVarDefinition(varDef)) return false;
+
+    cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
+    if (cgVar == 0) {
+      throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
+    }
   }
-  return result;
+
+  // Generate variable reference.
+  if (cgVar->getLlvmAllocaInst() != 0) {
+    llvmResult = cgVar->getLlvmAllocaInst();
+  } else if (cgVar->getLlvmGlobalVariable() != 0) {
+    llvmResult = cgVar->getLlvmGlobalVariable();
+  } else {
+    throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
+  }
+
+  resultType = cgVar->getAstType();
+  return true;
 }
 
 

@@ -422,7 +422,7 @@ Bool Generator::_generatePhrase(
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
-    return generator->variableGenerator->generateVarAccess(
+    return generator->expressionGenerator->generateIdentifierAccess(
       identifier, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::AssignmentOperator>()) {

@@ -89,14 +89,12 @@ class VariableGenerator : public TiObject, public virtual DynamicBindings, publi
   public: METHOD_BINDING_CACHE(generateVarDefinition, Bool, (Core::Data::Ast::Definition*));
   public: METHOD_BINDING_CACHE(generateVarAccess,
     Bool, (
-      Core::Data::Ast::Identifier*, llvm::IRBuilder<>*, llvm::Function*,
-      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+      TiObject*, llvm::IRBuilder<>*, llvm::Function*, Spp::Ast::Type*&, llvm::Value*&
     )
   );
   public: METHOD_BINDING_CACHE(generateVarReference,
     Bool, (
-      Core::Data::Ast::Identifier*, llvm::IRBuilder<>*, llvm::Function*,
-      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+      TiObject*, llvm::IRBuilder<>*, llvm::Function*, Spp::Ast::Type*&, llvm::Value*&
     )
   );
   public: METHOD_BINDING_CACHE(generateMemberVarAccess,
@@ -108,12 +106,12 @@ class VariableGenerator : public TiObject, public virtual DynamicBindings, publi
 
   private: static Bool _generateVarDefinition(TiObject *self, Core::Data::Ast::Definition *definition);
   private: static Bool _generateVarAccess(
-    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+    TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult
   );
   private: static Bool _generateVarReference(
-    TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+    TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult
   );
   private: static Bool _generateMemberVarAccess(
     TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,

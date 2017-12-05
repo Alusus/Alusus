@@ -21,6 +21,8 @@ namespace Spp { namespace LlvmCodeGen
 void ExpressionGenerator::initBindingCaches()
 {
   Core::Basic::initBindingCaches(this, {
+    &this->generateIdentifierAccess,
+    &this->generateIdentifierReference,
     &this->generateParamPass,
     &this->generateInfixOp,
     &this->generateAssignment,
@@ -33,6 +35,8 @@ void ExpressionGenerator::initBindingCaches()
 
 void ExpressionGenerator::initBindings()
 {
+  this->generateIdentifierAccess = &ExpressionGenerator::_generateIdentifierAccess;
+  this->generateIdentifierReference = &ExpressionGenerator::_generateIdentifierReference;
   this->generateParamPass = &ExpressionGenerator::_generateParamPass;
   this->generateInfixOp = &ExpressionGenerator::_generateInfixOp;
   this->generateAssignment = &ExpressionGenerator::_generateAssignment;
@@ -44,6 +48,89 @@ void ExpressionGenerator::initBindings()
 
 //==============================================================================
 // Code Generation Functions
+
+Bool ExpressionGenerator::_generateIdentifierAccess(
+  TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+  resultType = 0;
+  llvmResult = 0;
+  lastProcessedNode = 0;
+  Bool result = false;
+  Bool symbolFound = false;
+  expGenerator->generator->getSeeker()->doForeach(astNode, astNode->getOwner(),
+    [=, &result, &lastProcessedNode, &llvmResult, &resultType, &symbolFound]
+    (TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
+    {
+      symbolFound = true;
+      // Check if the found obj is a variable definition.
+      if (Ast::isVarDefinition(obj)) {
+        result = expGenerator->generator->getVariableGenerator()->generateVarAccess(
+          obj, llvmIrBuilder, llvmFunc, resultType, llvmResult
+        );
+        if (result) {
+          lastProcessedNode = astNode;
+        }
+      } else if (obj->isDerivedFrom<Ast::Function>()) {
+        result = true;
+      } else {
+        expGenerator->generator->getNoticeStore()->add(
+          std::make_shared<InvalidReferenceNotice>(astNode->findSourceLocation())
+        );
+      }
+      return Core::Data::Seeker::Verb::STOP;
+    }
+  );
+  if (!symbolFound) {
+    expGenerator->generator->getNoticeStore()->add(
+      std::make_shared<UnknownSymbolNotice>(astNode->findSourceLocation())
+    );
+  }
+  return result;
+}
+
+
+Bool ExpressionGenerator::_generateIdentifierReference(
+  TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  resultType = 0;
+  llvmResult = 0;
+  lastProcessedNode = 0;
+  Bool result = false;
+  Bool symbolFound = false;
+  expGenerator->generator->getSeeker()->doForeach(astNode, astNode->getOwner(),
+    [=, &result, &lastProcessedNode, &llvmResult, &resultType, &symbolFound]
+    (TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
+    {
+      symbolFound = true;
+      // Check if the found obj is a variable definition.
+      if (Ast::isVarDefinition(obj)) {
+        result = expGenerator->generator->getVariableGenerator()->generateVarReference(
+          obj, llvmIrBuilder, llvmFunc, resultType, llvmResult
+        );
+        if (result) {
+          lastProcessedNode = astNode;
+        }
+      } else {
+        expGenerator->generator->getNoticeStore()->add(
+          std::make_shared<InvalidReferenceNotice>(astNode->findSourceLocation())
+        );
+      }
+      return Core::Data::Seeker::Verb::STOP;
+    }
+  );
+  if (!symbolFound) {
+    expGenerator->generator->getNoticeStore()->add(
+      std::make_shared<UnknownSymbolNotice>(astNode->findSourceLocation())
+    );
+  }
+  return result;
+}
+
 
 Bool ExpressionGenerator::_generateParamPass(
   TiObject *self, Core::Data::Ast::ParamPass *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
@@ -163,7 +250,7 @@ Bool ExpressionGenerator::_generateAssignment(
   Ast::Type *varAstType;
   llvm::Value *varLlvmPointer;
   TiObject *varLastRef;
-  if (!expGenerator->generator->getVariableGenerator()->generateVarReference(
+  if (!expGenerator->generateIdentifierReference(
     var, llvmIrBuilder, llvmFunc, varAstType, varLlvmPointer, varLastRef
   )) return false;
 
