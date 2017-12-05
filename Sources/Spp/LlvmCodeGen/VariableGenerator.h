@@ -86,34 +86,34 @@ class VariableGenerator : public TiObject, public virtual DynamicBindings, publi
   /// @name Code Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(generateVarDefinition, Bool, (Core::Data::Ast::Definition*));
-  public: METHOD_BINDING_CACHE(generateVarAccess,
+  public: METHOD_BINDING_CACHE(generateDefinition, Bool, (Core::Data::Ast::Definition*));
+  public: METHOD_BINDING_CACHE(generateAccess,
     Bool, (
       TiObject*, llvm::IRBuilder<>*, llvm::Function*, Spp::Ast::Type*&, llvm::Value*&
     )
   );
-  public: METHOD_BINDING_CACHE(generateVarReference,
+  public: METHOD_BINDING_CACHE(generateReference,
     Bool, (
       TiObject*, llvm::IRBuilder<>*, llvm::Function*, Spp::Ast::Type*&, llvm::Value*&
     )
   );
-  public: METHOD_BINDING_CACHE(generateMemberVarAccess,
+  public: METHOD_BINDING_CACHE(generateMemberAccess,
     Bool, (
       Core::Data::Ast::Identifier*, llvm::IRBuilder<>*, llvm::Function*,
       Spp::Ast::Type*&, llvm::Value*&, TiObject*&
     )
   );
 
-  private: static Bool _generateVarDefinition(TiObject *self, Core::Data::Ast::Definition *definition);
-  private: static Bool _generateVarAccess(
+  private: static Bool _generateDefinition(TiObject *self, Core::Data::Ast::Definition *definition);
+  private: static Bool _generateAccess(
     TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Spp::Ast::Type *&resultType, llvm::Value *&llvmResult
   );
-  private: static Bool _generateVarReference(
+  private: static Bool _generateReference(
     TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Spp::Ast::Type *&resultType, llvm::Value *&llvmResult
   );
-  private: static Bool _generateMemberVarAccess(
+  private: static Bool _generateMemberAccess(
     TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );

@@ -178,7 +178,7 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule)
         if (!generator->generateUserType(static_cast<Spp::Ast::UserType*>(obj))) result = false;
       } else {
         // Generate global variable.
-        if (!generator->variableGenerator->generateVarDefinition(def)) {
+        if (!generator->variableGenerator->generateDefinition(def)) {
           result = false;
         }
       }
@@ -322,7 +322,7 @@ Bool Generator::_generateUserType(TiObject *self, Spp::Ast::UserType *astType)
       auto obj = def->getTarget().get();
       if (Ast::isVarDefinition(obj)) {
         // Generate member variable.
-        if (!generator->variableGenerator->generateVarDefinition(def)) {
+        if (!generator->variableGenerator->generateDefinition(def)) {
           result = false;
           continue;
         }
@@ -413,7 +413,7 @@ Bool Generator::_generatePhrase(
       resultType = 0;
       llvmResult = 0;
       lastProcessedNode = 0;
-      return generator->variableGenerator->generateVarDefinition(def);
+      return generator->variableGenerator->generateDefinition(def);
     }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
     auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(astNode);

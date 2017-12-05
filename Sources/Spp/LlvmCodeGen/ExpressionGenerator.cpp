@@ -66,7 +66,7 @@ Bool ExpressionGenerator::_generateIdentifierAccess(
       symbolFound = true;
       // Check if the found obj is a variable definition.
       if (Ast::isVarDefinition(obj)) {
-        result = expGenerator->generator->getVariableGenerator()->generateVarAccess(
+        result = expGenerator->generator->getVariableGenerator()->generateAccess(
           obj, llvmIrBuilder, llvmFunc, resultType, llvmResult
         );
         if (result) {
@@ -109,7 +109,7 @@ Bool ExpressionGenerator::_generateIdentifierReference(
       symbolFound = true;
       // Check if the found obj is a variable definition.
       if (Ast::isVarDefinition(obj)) {
-        result = expGenerator->generator->getVariableGenerator()->generateVarReference(
+        result = expGenerator->generator->getVariableGenerator()->generateReference(
           obj, llvmIrBuilder, llvmFunc, resultType, llvmResult
         );
         if (result) {

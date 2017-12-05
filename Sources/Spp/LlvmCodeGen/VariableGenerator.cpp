@@ -22,27 +22,27 @@ namespace Spp { namespace LlvmCodeGen
 void VariableGenerator::initBindingCaches()
 {
   Core::Basic::initBindingCaches(this, {
-    &this->generateVarDefinition,
-    &this->generateVarAccess,
-    &this->generateVarReference,
-    &this->generateMemberVarAccess
+    &this->generateDefinition,
+    &this->generateAccess,
+    &this->generateReference,
+    &this->generateMemberAccess
   });
 }
 
 
 void VariableGenerator::initBindings()
 {
-  this->generateVarDefinition = &VariableGenerator::_generateVarDefinition;
-  this->generateVarAccess = &VariableGenerator::_generateVarAccess;
-  this->generateVarReference = &VariableGenerator::_generateVarReference;
-  this->generateMemberVarAccess = &VariableGenerator::_generateMemberVarAccess;
+  this->generateDefinition = &VariableGenerator::_generateDefinition;
+  this->generateAccess = &VariableGenerator::_generateAccess;
+  this->generateReference = &VariableGenerator::_generateReference;
+  this->generateMemberAccess = &VariableGenerator::_generateMemberAccess;
 }
 
 
 //==============================================================================
 // Code Generation Functions
 
-Bool VariableGenerator::_generateVarDefinition(TiObject *self, Core::Data::Ast::Definition *definition)
+Bool VariableGenerator::_generateDefinition(TiObject *self, Core::Data::Ast::Definition *definition)
 {
   PREPARE_SELF(varGenerator, VariableGenerator);
 
@@ -102,7 +102,7 @@ Bool VariableGenerator::_generateVarDefinition(TiObject *self, Core::Data::Ast::
 }
 
 
-Bool VariableGenerator::_generateVarAccess(
+Bool VariableGenerator::_generateAccess(
   TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult
 ) {
@@ -116,7 +116,7 @@ Bool VariableGenerator::_generateVarAccess(
     if (varDef == 0) {
       throw EXCEPTION(GenericException, STR("Unexpected error while looking for variable definition."));
     }
-    if (!varGenerator->generateVarDefinition(varDef)) return false;
+    if (!varGenerator->generateDefinition(varDef)) return false;
 
     cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
     if (cgVar == 0) {
@@ -138,7 +138,7 @@ Bool VariableGenerator::_generateVarAccess(
 }
 
 
-Bool VariableGenerator::_generateVarReference(
+Bool VariableGenerator::_generateReference(
   TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult
 ) {
@@ -152,7 +152,7 @@ Bool VariableGenerator::_generateVarReference(
     if (varDef == 0) {
       throw EXCEPTION(GenericException, STR("Unexpected error while looking for variable definition."));
     }
-    if (!varGenerator->generateVarDefinition(varDef)) return false;
+    if (!varGenerator->generateDefinition(varDef)) return false;
 
     cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
     if (cgVar == 0) {
@@ -174,7 +174,7 @@ Bool VariableGenerator::_generateVarReference(
 }
 
 
-Bool VariableGenerator::_generateMemberVarAccess(
+Bool VariableGenerator::_generateMemberAccess(
   TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
