@@ -58,7 +58,7 @@ Bool CommandGenerator::_generateReturn(
     Ast::Type *operandType;
     llvm::Value *operandLlvmResult;
     TiObject *operandLastProcessedRef;
-    if (!cmdGenerator->generator->generatePhrase(
+    if (!cmdGenerator->generator->generateValue(
       operand, llvmIrBuilder, llvmFunc, operandType, operandLlvmResult, operandLastProcessedRef
     )) return false;
     // TODO: Cast the returned value, if needed.
@@ -110,7 +110,7 @@ Bool CommandGenerator::_generateIfStatement(
   // Generate condition.
   Ast::Type *conditionAstType;
   llvm::Value *conditionLlvmValue;
-  if (!cmdGenerator->generator->generatePhrase(
+  if (!cmdGenerator->generator->generateValue(
     astNode->getCondition().get(), llvmIrBuilder, llvmFunc, conditionAstType, conditionLlvmValue, lastProcessedNode
   )) return false;
 
@@ -219,7 +219,7 @@ Bool CommandGenerator::_generateWhileStatement(
   LlvmCodeGen::Block tmpBodyCgBlock;
   auto body = astNode->getBody().get();
   if (body->isDerivedFrom<Ast::Block>()) {
-    // The if body is already a block, so just build it.
+    // The while body is already a block, so just build it.
     if (!cmdGenerator->generator->generateBlock(static_cast<Ast::Block*>(body), llvmFunc)) {
       return false;
     }
@@ -254,7 +254,7 @@ Bool CommandGenerator::_generateWhileStatement(
   // Generate the condition.
   Ast::Type *conditionAstType;
   llvm::Value *conditionLlvmValue;
-  if (!cmdGenerator->generator->generatePhrase(
+  if (!cmdGenerator->generator->generateValue(
     astNode->getCondition().get(), tmpCondCgBlock.getIrBuilder(), llvmFunc,
     conditionAstType, conditionLlvmValue, lastProcessedNode
   )) return false;

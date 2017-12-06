@@ -1,6 +1,6 @@
 ERROR SPP1101 @ (5,28): Template arguments mismatch.
 ERROR SPP1305 @ (5,24): No valid match was found for the given type.
-ERROR SPP1306 @ (8,24): Invalid float bit count. Bit count should be either 32, 64, or 128.
+ERROR SPP1307 @ (8,24): Invalid float bit count. Bit count should be either 32, 64, or 128.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

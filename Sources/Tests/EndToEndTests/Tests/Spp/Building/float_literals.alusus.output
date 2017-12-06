@@ -1,4 +1,4 @@
-ERROR SPP1306 @ (18,34): Invalid float bit count. Bit count should be either 32, 64, or 128.
+ERROR SPP1307 @ (18,34): Invalid float bit count. Bit count should be either 32, 64, or 128.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

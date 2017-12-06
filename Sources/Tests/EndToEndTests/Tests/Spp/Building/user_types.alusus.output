@@ -1,18 +1,56 @@
-ERROR SPP1305 @ (24,12): No valid match was found for the given type.
+ERROR SPP1305 @ (27,12): No valid match was found for the given type.
+ERROR SPP1306 @ (49,7): No valid match was found for the given type member.
+ERROR SPP1312 @ (50,11): Value is not implicitly castable to target type.
+ERROR SPP1312 @ (51,11): Value is not implicitly castable to target type.
+ERROR SPP1312 @ (52,11): Value is not implicitly castable to target type.
+ERROR SPP1306 @ (53,25): No valid match was found for the given type member.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
 
 %Main_Point = type { i32, i32, float }
-%Main_Nested = type { %Main_Point, i32 }
+%Main_Nested = type { %Main_Point, i8, i16 }
 %Main_Empty = type {}
+
+@__anonymous0 = private constant [8 x i8] c"p.x=%d\0A\00", align 1
+@__anonymous1 = private constant [10 x i8] c"n.p.y=%d\0A\00", align 1
+@__anonymous2 = private constant [8 x i8] c"p.i=%d\0A\00", align 1
+
+declare i64 @printf(i8*, ...)
 
 define void @Main_start_____Void_() {
 __block0:
   %p = alloca %Main_Point
   %n = alloca %Main_Nested
   %e = alloca %Main_Empty
-  ret void
+  %0 = getelementptr %Main_Point* %p, i32 0, i32 0
+  store i32 5, i32* %0
+  %1 = getelementptr %Main_Point* %p, i32 0, i32 1
+  store i32 6, i32* %1
+  %2 = getelementptr %Main_Point* %p, i32 0, i32 2
+  store float 1.000000e+00, float* %2
+  %3 = getelementptr %Main_Nested* %n, i32 0, i32 1
+  store i8 8, i8* %3
+  %4 = getelementptr %Main_Nested* %n, i32 0, i32 2
+  store i16 9, i16* %4
+  %5 = getelementptr %Main_Nested* %n, i32 0, i32 0
+  %6 = getelementptr %Main_Point* %5, i32 0, i32 0
+  store i32 3, i32* %6
+  %7 = getelementptr %Main_Nested* %n, i32 0, i32 0
+  %8 = load %Main_Point* %p
+  store %Main_Point %8, %Main_Point* %7
+  %9 = getelementptr %Main_Point* %p, i32 0, i32 0
+  %10 = load i32* %9
+  %11 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous0, i64 0, i64 0), i32 %10)
+  %12 = getelementptr %Main_Nested* %n, i32 0, i32 0
+  %13 = getelementptr %Main_Point* %12, i32 0, i32 1
+  %14 = load i32* %13
+  %15 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([10 x i8]* @__anonymous1, i64 0, i64 0), i32 %14)
+  %16 = getelementptr %Main_Point* %p, i32 0, i32 0
+  %17 = getelementptr %Main_Nested* %n, i32 0, i32 1
+  %18 = getelementptr %Main_Nested* %n, i32 0, i32 1
+  %19 = getelementptr %Main_Point* %p, i32 0, i32 1
+  %20 = load i32* %19
 }
 ------------------------------------------------------------

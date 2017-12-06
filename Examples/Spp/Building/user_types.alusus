@@ -2,6 +2,8 @@ import "libalusus_spp.so";
 
 def Main: module
 {
+  def print: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+
   def Point: type
   {
     def x: Int[32];
@@ -12,7 +14,8 @@ def Main: module
   def Nested: type
   {
     def p: Point;
-    def i: Int[32];
+    def i: Int[8];
+    def j: Int[16];
   };
 
   def Empty: type
@@ -29,6 +32,25 @@ def Main: module
     def p: Point;
     def n: Nested;
     def e: Empty;
+
+    p.x = 5;
+    p.y = 6;
+    p.s = 1.0;
+
+    n.i = 8i8;
+    n.j = 9i8;
+    n.p.x = 3;
+
+    n.p = p;
+
+    print("p.x=%d\n", p.x);
+    print("n.p.y=%d\n", n.p.y);
+
+    p.i = 5;
+    p.x = 1.0;
+    n.i = 10;
+    n.i = p.y;
+    print("p.i=%d\n", p.i);
   }
 };
 

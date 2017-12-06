@@ -23,9 +23,8 @@ void VariableGenerator::initBindingCaches()
 {
   Core::Basic::initBindingCaches(this, {
     &this->generateDefinition,
-    &this->generateAccess,
     &this->generateReference,
-    &this->generateMemberAccess
+    &this->generateMemberReference
   });
 }
 
@@ -33,9 +32,8 @@ void VariableGenerator::initBindingCaches()
 void VariableGenerator::initBindings()
 {
   this->generateDefinition = &VariableGenerator::_generateDefinition;
-  this->generateAccess = &VariableGenerator::_generateAccess;
   this->generateReference = &VariableGenerator::_generateReference;
-  this->generateMemberAccess = &VariableGenerator::_generateMemberAccess;
+  this->generateMemberReference = &VariableGenerator::_generateMemberReference;
 }
 
 
@@ -102,42 +100,6 @@ Bool VariableGenerator::_generateDefinition(TiObject *self, Core::Data::Ast::Def
 }
 
 
-Bool VariableGenerator::_generateAccess(
-  TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult
-) {
-  PREPARE_SELF(varGenerator, VariableGenerator);
-
-  auto metadata = ti_cast<Core::Data::Ast::Metadata>(astNode);
-  auto cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
-  if (cgVar == 0) {
-    // Generate the variable definition.
-    auto varDef = ti_cast<Core::Data::Ast::Definition>(static_cast<Core::Data::Node*>(astNode)->getOwner());
-    if (varDef == 0) {
-      throw EXCEPTION(GenericException, STR("Unexpected error while looking for variable definition."));
-    }
-    if (!varGenerator->generateDefinition(varDef)) return false;
-
-    cgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
-    if (cgVar == 0) {
-      throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
-    }
-  }
-
-  // Generate variable access.
-  if (cgVar->getLlvmAllocaInst() != 0) {
-    llvmResult = llvmIrBuilder->CreateLoad(cgVar->getLlvmAllocaInst());
-  } else if (cgVar->getLlvmGlobalVariable() != 0) {
-    llvmResult = llvmIrBuilder->CreateLoad(cgVar->getLlvmGlobalVariable());
-  } else {
-    throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
-  }
-
-  resultType = cgVar->getAstType();
-  return true;
-}
-
-
 Bool VariableGenerator::_generateReference(
   TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult
@@ -174,13 +136,41 @@ Bool VariableGenerator::_generateReference(
 }
 
 
-Bool VariableGenerator::_generateMemberAccess(
-  TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+Bool VariableGenerator::_generateMemberReference(
+  TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::Value *llvmPtr, Ast::Type *astType,
+  llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Ast::Type *&resultType, llvm::Value *&llvmResult
 ) {
   PREPARE_SELF(varGenerator, VariableGenerator);
 
-  throw EXCEPTION(GenericException, STR("Not implemented yet."));
+  // Find the member variable.
+  auto body = astType->getBody().get();
+  if (body == 0) {
+    varGenerator->generator->getNoticeStore()->add(
+      std::make_shared<InvalidTypeMemberNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  TiObject *memberVarAst;
+  if (!varGenerator->generator->getSeeker()->tryGet(astNode, body, memberVarAst)) {
+    varGenerator->generator->getNoticeStore()->add(
+      std::make_shared<InvalidTypeMemberNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  auto metadata = ti_cast<Core::Data::Ast::Metadata>(memberVarAst);
+  ASSERT(metadata != 0);
+  auto memberCgVar = metadata->getExtra(META_EXTRA_NAME).ti_cast_get<LlvmCodeGen::Variable>();
+  ASSERT(memberCgVar != 0);
+
+  // Generate member access.
+  auto zero = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(32, 0, true));
+  auto index = llvm::ConstantInt::get(
+    llvm::getGlobalContext(), llvm::APInt(32, memberCgVar->getLlvmStructIndex(), true)
+  );
+  llvmResult = llvmIrBuilder->CreateGEP(llvmPtr, llvm::makeArrayRef(std::vector<llvm::Value*>({ zero, index })), "");
+  resultType = memberCgVar->getAstType();
+  return true;
 }
 
 } } // namespace

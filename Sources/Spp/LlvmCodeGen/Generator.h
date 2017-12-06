@@ -205,6 +205,12 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   public: METHOD_BINDING_CACHE(generatePhrase,
     Bool, (TiObject*, llvm::IRBuilder<>*, llvm::Function*, Spp::Ast::Type*&, llvm::Value*&, TiObject*&)
   );
+  public: METHOD_BINDING_CACHE(generateValue,
+    Bool, (TiObject*, llvm::IRBuilder<>*, llvm::Function*, Spp::Ast::Type*&, llvm::Value*&, TiObject*&)
+  );
+  public: METHOD_BINDING_CACHE(generateReference,
+    Bool, (TiObject*, llvm::IRBuilder<>*, llvm::Function*, Spp::Ast::Type*&, llvm::Value*&, TiObject*&)
+  );
 
   private: static Bool _generateModule(TiObject *self, Spp::Ast::Module *astModule);
 
@@ -220,6 +226,14 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     TiObject *self, Spp::Ast::Block *astBlock, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
   );
   private: static Bool _generatePhrase(
+    TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+  );
+  private: static Bool _generateValue(
+    TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+  );
+  private: static Bool _generateReference(
     TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );

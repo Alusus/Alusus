@@ -1,4 +1,4 @@
-ERROR SPP1307 @ (20,36): Invalid integer bit count.
+ERROR SPP1308 @ (20,36): Invalid integer bit count.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

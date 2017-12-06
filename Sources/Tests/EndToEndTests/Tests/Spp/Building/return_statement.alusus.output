@@ -1,6 +1,6 @@
-ERROR SPP1309 @ (52,5): Invalid return value.
-ERROR SPP1309 @ (57,5): Invalid return value.
-ERROR SPP1309 @ (62,5): Invalid return value.
+ERROR SPP1310 @ (52,5): Invalid return value.
+ERROR SPP1310 @ (57,5): Invalid return value.
+ERROR SPP1310 @ (62,5): Invalid return value.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
