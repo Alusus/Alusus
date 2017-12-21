@@ -169,6 +169,7 @@ namespace Core { namespace Basic
  * @brief Expands a variadic macro into sequential elements separated by spaces.
  * @ingroup basic_macros
  */
+#define SEMICOLON_EXPAND_ARGS0()
 #define SEMICOLON_EXPAND_ARGS1(arg1)                               arg1
 #define SEMICOLON_EXPAND_ARGS2(arg1, arg2)                         arg1; arg2
 #define SEMICOLON_EXPAND_ARGS3(arg1, arg2, arg3)                   arg1; arg2; arg3
@@ -182,7 +183,8 @@ namespace Core { namespace Basic
                SEMICOLON_EXPAND_ARGS4, \
                SEMICOLON_EXPAND_ARGS3, \
                SEMICOLON_EXPAND_ARGS2, \
-               SEMICOLON_EXPAND_ARGS1)(__VA_ARGS__)
+               SEMICOLON_EXPAND_ARGS1, \
+               SEMICOLON_EXPAND_ARGS0)(__VA_ARGS__)
 
 /**
  * @def COMMA_EXPAND_ARGS(...)
@@ -256,6 +258,14 @@ namespace Core { namespace Basic
     bool operator !=(x v) const { return this->val != v.val; } \
     bool operator ==(_##x v) const { return this->val == v; } \
     bool operator !=(_##x v) const { return this->val != v; } \
+    bool operator >(x v) const { return this->val > v.val; } \
+    bool operator >=(x v) const { return this->val >= v.val; } \
+    bool operator >(_##x v) const { return this->val > v; } \
+    bool operator >=(_##x v) const { return this->val >= v; } \
+    bool operator <(x v) const { return this->val < v.val; } \
+    bool operator <=(x v) const { return this->val <= v.val; } \
+    bool operator <(_##x v) const { return this->val < v; } \
+    bool operator <=(_##x v) const { return this->val <= v; } \
   }
 
 /**
@@ -277,11 +287,19 @@ namespace Core { namespace Basic
       x() : p(0) {} \
       x(_##x v) : p(v) {} \
       const x& operator=(_##x v) { this->set(v); return *this; } \
-      const x& operator=(x const v) { this->set(v.get()); return *this; } \
-      bool operator ==(x const v) const { return this->get() == v.get(); } \
-      bool operator !=(x const v) const { return this->get() != v.get(); } \
+      const x& operator=(x const &v) { this->set(v.get()); return *this; } \
+      bool operator ==(x const &v) const { return this->get() == v.get(); } \
+      bool operator !=(x const &v) const { return this->get() != v.get(); } \
       bool operator ==(_##x v) const { return this->get() == v; } \
       bool operator !=(_##x v) const { return this->get() != v; } \
+      bool operator >(x const &v) const { return this->get() > v.get(); } \
+      bool operator >=(x const &v) const { return this->get() >= v.get(); } \
+      bool operator >(_##x v) const { return this->get() > v; } \
+      bool operator >=(_##x v) const { return this->get() >= v; } \
+      bool operator <(x const &v) const { return this->get() < v.get(); } \
+      bool operator <=(x const &v) const { return this->get() <= v.get(); } \
+      bool operator <(_##x v) const { return this->get() < v; } \
+      bool operator <=(_##x v) const { return this->get() <= v; } \
       _##x get() const { return static_cast<_##x>(p::get()); } \
   }
 

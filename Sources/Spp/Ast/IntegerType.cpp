@@ -18,13 +18,13 @@ namespace Spp { namespace Ast
 //==============================================================================
 // Member Functions
 
-Word IntegerType::getBitCount(Core::Standard::RootManager *rootManager) const
+Word IntegerType::getBitCount(Helper *helper) const
 {
   if (this->bitCountRef == 0) {
-    this->bitCountRef = rootManager->parseExpression(STR("bitCount"));
+    this->bitCountRef = helper->getRootManager()->parseExpression(STR("bitCount"));
   }
   auto bitCount = ti_cast<Core::Data::Integer>(
-    rootManager->getSeeker()->doGet(this->bitCountRef.get(), this->getOwner())
+    helper->getSeeker()->doGet(this->bitCountRef.get(), this->getOwner())
   );
   if (bitCount == 0) {
     throw EXCEPTION(GenericException, STR("Could not find bitCount value."));
@@ -33,27 +33,26 @@ Word IntegerType::getBitCount(Core::Standard::RootManager *rootManager) const
 }
 
 
-Bool IntegerType::isImplicitlyCastableTo(
-  Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
-) const
+Bool IntegerType::isImplicitlyCastableTo(Type const *type, Helper *helper) const
 {
   if (this == type) return true;
 
   auto integerType = ti_cast<IntegerType>(type);
-  if (integerType != 0 && integerType->getBitCount(rootManager) >= this->getBitCount(rootManager)) return true;
+  if (integerType != 0 && integerType->getBitCount(helper) >= this->getBitCount(helper)) return true;
   else return false;
 }
 
 
-Bool IntegerType::isExplicitlyCastableTo(
-  Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
-) const
+Bool IntegerType::isExplicitlyCastableTo(Type const *type, Helper *helper) const
 {
   if (this == type) return true;
 
   if (type->isDerivedFrom<IntegerType>() || type->isDerivedFrom<FloatType>()) {
     return true;
-  } else if (type->isDerivedFrom<PointerType>() && context->getPointerBitCount() == this->getBitCount(rootManager)) {
+  } else if (
+    type->isDerivedFrom<PointerType>() &&
+    helper->getExecutionContext()->getPointerBitCount() == this->getBitCount(helper)
+  ) {
     return true;
   } else {
     return false;

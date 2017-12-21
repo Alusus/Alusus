@@ -50,7 +50,7 @@ Bool CommandGenerator::_generateReturn(
   if (function == 0) {
     throw EXCEPTION(GenericException, STR("Return statement does not belong to a function."));
   }
-  Ast::Type *retType = function->traceRetType(cmdGenerator->generator->getSeeker());
+  Ast::Type *retType = function->traceRetType(cmdGenerator->generator->getAstHelper());
 
   auto operand = astNode->getOperand().get();
   if (operand != 0) {
@@ -58,15 +58,11 @@ Bool CommandGenerator::_generateReturn(
     Ast::Type *operandType;
     llvm::Value *operandLlvmResult;
     TiObject *operandLastProcessedRef;
-    if (!cmdGenerator->generator->generateValue(
+    if (!cmdGenerator->generator->generatePhrase(
       operand, llvmIrBuilder, llvmFunc, operandType, operandLlvmResult, operandLastProcessedRef
     )) return false;
-    // TODO: Cast the returned value, if needed.
-    if (!operandType->isImplicitlyCastableTo(
-      retType,
-      cmdGenerator->generator->getExecutionContext().get(),
-      cmdGenerator->generator->getRootManager()
-    )) {
+    // Cast the returned value, if needed.
+    if (!operandType->isImplicitlyCastableTo(retType, cmdGenerator->generator->getAstHelper())) {
       cmdGenerator->generator->getNoticeStore()->add(
         std::make_shared<InvalidReturnValueNotice>(astNode->findSourceLocation())
       );
@@ -110,8 +106,11 @@ Bool CommandGenerator::_generateIfStatement(
   // Generate condition.
   Ast::Type *conditionAstType;
   llvm::Value *conditionLlvmValue;
-  if (!cmdGenerator->generator->generateValue(
+  if (!cmdGenerator->generator->generatePhrase(
     astNode->getCondition().get(), llvmIrBuilder, llvmFunc, conditionAstType, conditionLlvmValue, lastProcessedNode
+  )) return false;
+  if (!cmdGenerator->castCondition(
+    llvmIrBuilder, astNode->getCondition().get(), conditionAstType, conditionLlvmValue, conditionLlvmValue
   )) return false;
 
   // Generate ifBody.
@@ -136,7 +135,7 @@ Bool CommandGenerator::_generateIfStatement(
     ifCgBlock = &tmpIfCgBlock;
     Ast::Type *resultType;
     llvm::Value *llvmResult;
-    if (!cmdGenerator->generator->generatePhrase(
+    if (!cmdGenerator->generator->generateStatement(
       ifBody, tmpIfCgBlock.getIrBuilder(), llvmFunc, resultType, llvmResult, lastProcessedNode
     )) {
       return false;
@@ -166,7 +165,7 @@ Bool CommandGenerator::_generateIfStatement(
       elseCgBlock = &tmpElseCgBlock;
       Ast::Type *resultType;
       llvm::Value *llvmResult;
-      if (!cmdGenerator->generator->generatePhrase(
+      if (!cmdGenerator->generator->generateStatement(
         elseBody, tmpElseCgBlock.getIrBuilder(), llvmFunc, resultType, llvmResult, lastProcessedNode
       )) {
         return false;
@@ -236,7 +235,7 @@ Bool CommandGenerator::_generateWhileStatement(
     bodyCgBlock = &tmpBodyCgBlock;
     Ast::Type *resultType;
     llvm::Value *llvmResult;
-    if (!cmdGenerator->generator->generatePhrase(
+    if (!cmdGenerator->generator->generateStatement(
       body, tmpBodyCgBlock.getIrBuilder(), llvmFunc, resultType, llvmResult, lastProcessedNode
     )) {
       return false;
@@ -254,9 +253,12 @@ Bool CommandGenerator::_generateWhileStatement(
   // Generate the condition.
   Ast::Type *conditionAstType;
   llvm::Value *conditionLlvmValue;
-  if (!cmdGenerator->generator->generateValue(
+  if (!cmdGenerator->generator->generatePhrase(
     astNode->getCondition().get(), tmpCondCgBlock.getIrBuilder(), llvmFunc,
     conditionAstType, conditionLlvmValue, lastProcessedNode
+  )) return false;
+  if (!cmdGenerator->castCondition(
+    llvmIrBuilder, astNode->getCondition().get(), conditionAstType, conditionLlvmValue, conditionLlvmValue
   )) return false;
 
   // Create condition branch.
@@ -264,6 +266,34 @@ Bool CommandGenerator::_generateWhileStatement(
 
   // Set insert point.
   llvmIrBuilder->SetInsertPoint(exitLlvmBlock);
+
+  return true;
+}
+
+
+//==============================================================================
+// Helper Functions
+
+Bool CommandGenerator::castCondition(
+  llvm::IRBuilder<> *llvmIrBuilder, Core::Basic::TiObject *astNode, Spp::Ast::Type *astType,
+  llvm::Value *llvmValue, llvm::Value *&resultLlvmValue
+) {
+  if (this->binaryAstType == 0) {
+    auto binaryTypeRef = this->generator->getRootManager()->parseExpression(STR("Int[1]"));
+    this->binaryAstType = ti_cast<Ast::IntegerType>(this->generator->getSeeker()->doGet(
+      binaryTypeRef.get(), this->generator->getRootManager()->getRootScope().get()
+    ));
+    ASSERT(this->binaryAstType != 0);
+  }
+
+  if (!this->generator->getTypeGenerator()->generateCast(
+    llvmIrBuilder, astType, this->binaryAstType, llvmValue, resultLlvmValue
+  )) {
+    this->generator->getNoticeStore()->add(
+      std::make_shared<InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
+    );
+    return false;
+  }
 
   return true;
 }

@@ -29,9 +29,8 @@ void Generator::initBindingCaches()
     &this->prepareBlock,
     &this->generateBlock,
     &this->generateStatements,
-    &this->generatePhrase,
-    &this->generateValue,
-    &this->generateReference
+    &this->generateStatement,
+    &this->generatePhrase
   });
 }
 
@@ -45,9 +44,8 @@ void Generator::initBindings()
   this->prepareBlock = &Generator::_prepareBlock;
   this->generateBlock = &Generator::_generateBlock;
   this->generateStatements = &Generator::_generateStatements;
+  this->generateStatement = &Generator::_generateStatement;
   this->generatePhrase = &Generator::_generatePhrase;
-  this->generateValue = &Generator::_generateValue;
-  this->generateReference = &Generator::_generateReference;
 }
 
 
@@ -74,7 +72,7 @@ Bool Generator::execute(Core::Data::Ast::Scope *root, Core::Processing::ParserSt
 
   // Find the entry function.
   Ast::Function *function = 0;
-  using CallMatchStatus = Ast::Function::CallMatchStatus;
+  using CallMatchStatus = Ast::CallMatchStatus;
   CallMatchStatus matchStatus = CallMatchStatus::NONE;
   Int matchCount = 0;
   SharedPtr<Core::Data::Notice> notice;
@@ -90,7 +88,7 @@ Bool Generator::execute(Core::Data::Ast::Scope *root, Core::Processing::ParserSt
       if (obj != 0 && obj->isDerivedFrom<Ast::Function>()) {
         auto f = static_cast<Ast::Function*>(obj);
         CallMatchStatus ms;
-        ms = f->matchCall(0, this->executionContext.get(), this->getRootManager());
+        ms = f->matchCall(0, this->getAstHelper());
         if (ms != CallMatchStatus::NONE && matchStatus == CallMatchStatus::NONE) {
           function = f;
           matchStatus = ms;
@@ -146,6 +144,7 @@ Bool Generator::generateIr(Core::Data::Ast::Scope *root, Core::Processing::Parse
   this->executionContext = std::make_shared<ExecutionContext>(llvmDataLayout->getPointerSizeInBits());
   this->parserState = state;
   this->getNoticeStore()->clearPrefixSourceLocationStack();
+  this->astHelper->prepare(this->getNoticeStore(), this->getExecutionContext().get());
 
   // Generates code for all modules.
   Bool result = true;
@@ -237,7 +236,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc)
     if (!generator->generateStatements(astBlock, cgBlock->getIrBuilder(), llvmFuncBox->get())) return false;
 
     // Add a void return, if necessary.
-    if (generator->typeGenerator->isVoid(astFunc->getRetType().get())) {
+    if (generator->astHelper->isVoid(astFunc->getRetType().get())) {
       cgBlock->getIrBuilder()->CreateRetVoid();
     }
   }
@@ -324,7 +323,7 @@ Bool Generator::_generateUserType(TiObject *self, Spp::Ast::UserType *astType)
     auto def = ti_cast<Data::Ast::Definition>(body->get(i));
     if (def != 0) {
       auto obj = def->getTarget().get();
-      if (Ast::isVarDefinition(obj)) {
+      if (generator->getAstHelper()->isVarDefinition(obj)) {
         // Generate member variable.
         if (!generator->variableGenerator->generateDefinition(def)) {
           result = false;
@@ -385,7 +384,7 @@ Bool Generator::_generateStatements(
     Ast::Type *resultType;
     llvm::Value *llvmResult;
     TiObject *lastProcessedNode;
-    if (!generator->generatePhrase(astNode, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode)) {
+    if (!generator->generateStatement(astNode, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode)) {
       result = false;
     }
   }
@@ -393,7 +392,7 @@ Bool Generator::_generateStatements(
 }
 
 
-Bool Generator::_generatePhrase(
+Bool Generator::_generateStatement(
   TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
@@ -431,14 +430,14 @@ Bool Generator::_generatePhrase(
       returnStatement, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   } else {
-    return generator->generateValue(
+    return generator->generatePhrase(
       astNode, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   }
 }
 
 
-Bool Generator::_generateValue(
+Bool Generator::_generatePhrase(
   TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
   Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
 ) {
@@ -450,18 +449,14 @@ Bool Generator::_generateValue(
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
-    auto result = generator->expressionGenerator->generateIdentifier(
+    return generator->expressionGenerator->generateIdentifier(
       identifier, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
-    if (result) llvmResult = llvmIrBuilder->CreateLoad(llvmResult);
-    return result;
   } else if (astNode->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     auto linkOperator = static_cast<Core::Data::Ast::LinkOperator*>(astNode);
-    auto result = generator->expressionGenerator->generateLinkOperator(
+    return generator->expressionGenerator->generateLinkOperator(
       linkOperator, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
-    if (result) llvmResult = llvmIrBuilder->CreateLoad(llvmResult);
-    return result;
   } else if (astNode->isDerivedFrom<Core::Data::Ast::AssignmentOperator>()) {
     auto assignmentOp = static_cast<Core::Data::Ast::AssignmentOperator*>(astNode);
     return generator->expressionGenerator->generateAssignment(
@@ -490,36 +485,13 @@ Bool Generator::_generateValue(
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Bracket>()) {
     auto bracket = static_cast<Core::Data::Ast::Bracket*>(astNode);
     if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
-      return generator->generateValue(
+      return generator->generatePhrase(
         bracket->getOperand().get(), llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
       );
     } else {
       generator->parserState->addNotice(std::make_shared<InvalidOperationNotice>(bracket->findSourceLocation()));
       return false;
     }
-  }
-  generator->parserState->addNotice(
-    std::make_shared<UnsupportedOperationNotice>(Core::Data::Ast::findSourceLocation(astNode))
-  );
-  return false;
-}
-
-
-Bool Generator::_generateReference(
-  TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
-) {
-  PREPARE_SELF(generator, Generator);
-  if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-    auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
-    return generator->expressionGenerator->generateIdentifier(
-      identifier, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
-    );
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    auto linkOperator = static_cast<Core::Data::Ast::LinkOperator*>(astNode);
-    return generator->expressionGenerator->generateLinkOperator(
-      linkOperator, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
-    );
   }
   generator->parserState->addNotice(
     std::make_shared<UnsupportedOperationNotice>(Core::Data::Ast::findSourceLocation(astNode))

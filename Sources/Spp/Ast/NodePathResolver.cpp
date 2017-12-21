@@ -1,6 +1,6 @@
 /**
- * @file Spp/NodePathResolver.cpp
- * Contains the implementation of class Spp::NodePathResolver.
+ * @file Spp/Ast/NodePathResolver.cpp
+ * Contains the implementation of class Spp::Ast::NodePathResolver.
  *
  * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
@@ -12,7 +12,7 @@
 
 #include "spp.h"
 
-namespace Spp
+namespace Spp { namespace Ast
 {
 
 //==============================================================================
@@ -86,7 +86,7 @@ void NodePathResolver::_resolveFunction(TiObject *self, Spp::Ast::Function const
   }
   path << STR(")");
   if (func->getRetType() != 0) {
-    auto type = Ast::traceType(func->getRetType().get(), resolver->seeker);
+    auto type = resolver->helper->traceType(func->getRetType().get());
     path << STR("=>(") << resolver->doResolve(type) << STR(")");
   }
 }
@@ -101,12 +101,12 @@ void NodePathResolver::_resolveFunctionArg(TiObject *self, TiObject *arg, StrStr
     if (argPack->getArgType() == 0) {
       path << STR("any");
     } else {
-      auto type = Ast::traceType(argPack->getArgType().get(), resolver->seeker);
+      auto type = resolver->helper->traceType(argPack->getArgType().get());
       path << resolver->doResolve(type);
     }
     path << CHR(',') << argPack->getMin().get() << CHR(',') << argPack->getMax().get() << CHR(']');
   } else {
-    auto type = Ast::traceType(arg, resolver->seeker);
+    auto type = resolver->helper->traceType(arg);
     path << resolver->doResolve(type);
   }
 }
@@ -141,4 +141,4 @@ void NodePathResolver::_resolveTemplateInstance(TiObject *self, Spp::Ast::Block 
   path << CHR(']');
 }
 
-} // namespace
+} } // namespace

@@ -1,6 +1,6 @@
 /**
- * @file Spp/Ast/FloatType.h
- * Contains the header of class Spp::Ast::FloatType.
+ * @file Spp/Ast/ReferenceType.h
+ * Contains the header of class Spp::Ast::ReferenceType.
  *
  * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
@@ -10,44 +10,44 @@
  */
 //==============================================================================
 
-#ifndef SPP_AST_FLOATTYPE_H
-#define SPP_AST_FLOATTYPE_H
+#ifndef SPP_AST_REFERENCETYPE_H
+#define SPP_AST_REFERENCETYPE_H
 
 namespace Spp { namespace Ast
 {
 
-class FloatType : public Type
+class ReferenceType : public Type
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(FloatType, Type, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(ReferenceType, Type, "Spp.Ast", "Spp", "alusus.net");
 
-  IMPLEMENT_AST_MAP_CLONABLE(FloatType);
+  IMPLEMENT_AST_MAP_CLONABLE(ReferenceType);
 
-  IMPLEMENT_AST_MAP_PRINTABLE(FloatType);
+  IMPLEMENT_AST_MAP_PRINTABLE(ReferenceType);
 
 
   //============================================================================
   // Member Variables
 
-  private: mutable TioSharedPtr bitCountRef;
+  private: mutable TioSharedPtr contentTypeRef;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  IMPLEMENT_EMPTY_CONSTRUCTOR(FloatType);
+  IMPLEMENT_EMPTY_CONSTRUCTOR(ReferenceType);
 
-  IMPLEMENT_ATTR_CONSTRUCTOR(FloatType);
+  IMPLEMENT_ATTR_CONSTRUCTOR(ReferenceType);
 
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(FloatType);
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(ReferenceType);
 
 
   //============================================================================
   // Member Functions
 
-  public: Word getBitCount(Helper *helper) const;
+  public: Type* getContentType(Helper *helper) const;
 
   public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper) const;
 

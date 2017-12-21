@@ -47,15 +47,11 @@ class IntegerType : public Type
   //============================================================================
   // Member Functions
 
-  public: Word getBitCount(Core::Standard::RootManager *rootManager) const;
+  public: Word getBitCount(Helper *helper) const;
 
-  public: virtual Bool isImplicitlyCastableTo(
-    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
-  ) const;
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper) const;
 
-  public: virtual Bool isExplicitlyCastableTo(
-    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
-  ) const;
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper) const;
 
 }; // class
 

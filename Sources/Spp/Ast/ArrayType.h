@@ -48,20 +48,16 @@ class ArrayType : public Type
   //============================================================================
   // Member Functions
 
-  public: Type* getContentType(Core::Standard::RootManager *rootManager) const;
+  public: Type* getContentType(Helper *helper) const;
 
-  public: Word getSize(Core::Standard::RootManager *rootManager) const;
+  public: Word getSize(Helper *helper) const;
 
-  public: virtual Bool isImplicitlyCastableTo(
-    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
-  ) const
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper) const
   {
     return this == type;
   }
 
-  public: virtual Bool isExplicitlyCastableTo(
-    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
-  ) const
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper) const
   {
     return this == type;
   }

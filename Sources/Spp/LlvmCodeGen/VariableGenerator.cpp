@@ -24,7 +24,8 @@ void VariableGenerator::initBindingCaches()
   Core::Basic::initBindingCaches(this, {
     &this->generateDefinition,
     &this->generateReference,
-    &this->generateMemberReference
+    &this->generateMemberReference,
+    &this->generateArrayElementReference
   });
 }
 
@@ -34,6 +35,7 @@ void VariableGenerator::initBindings()
   this->generateDefinition = &VariableGenerator::_generateDefinition;
   this->generateReference = &VariableGenerator::_generateReference;
   this->generateMemberReference = &VariableGenerator::_generateMemberReference;
+  this->generateArrayElementReference = &VariableGenerator::_generateArrayElementReference;
 }
 
 
@@ -131,8 +133,8 @@ Bool VariableGenerator::_generateReference(
     throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
   }
 
-  resultType = cgVar->getAstType();
-  return true;
+  resultType = varGenerator->generator->getAstHelper()->getReferenceTypeFor(cgVar->getAstType());
+  return resultType != 0;
 }
 
 
@@ -143,18 +145,25 @@ Bool VariableGenerator::_generateMemberReference(
 ) {
   PREPARE_SELF(varGenerator, VariableGenerator);
 
+  // Find content type.
+  auto refType = ti_cast<Ast::ReferenceType>(astType);
+  if (refType == 0) {
+    throw EXCEPTION(GenericException, STR("Not implemented yet."));
+  }
+  auto contentType = refType->getContentType(varGenerator->generator->getAstHelper());
+
   // Find the member variable.
-  auto body = astType->getBody().get();
+  auto body = contentType->getBody().get();
   if (body == 0) {
     varGenerator->generator->getNoticeStore()->add(
-      std::make_shared<InvalidTypeMemberNotice>(astNode->findSourceLocation())
+      std::make_shared<Ast::InvalidTypeMemberNotice>(astNode->findSourceLocation())
     );
     return false;
   }
   TiObject *memberVarAst;
   if (!varGenerator->generator->getSeeker()->tryGet(astNode, body, memberVarAst)) {
     varGenerator->generator->getNoticeStore()->add(
-      std::make_shared<InvalidTypeMemberNotice>(astNode->findSourceLocation())
+      std::make_shared<Ast::InvalidTypeMemberNotice>(astNode->findSourceLocation())
     );
     return false;
   }
@@ -169,8 +178,36 @@ Bool VariableGenerator::_generateMemberReference(
     llvm::getGlobalContext(), llvm::APInt(32, memberCgVar->getLlvmStructIndex(), true)
   );
   llvmResult = llvmIrBuilder->CreateGEP(llvmPtr, llvm::makeArrayRef(std::vector<llvm::Value*>({ zero, index })), "");
-  resultType = memberCgVar->getAstType();
-  return true;
+  resultType = varGenerator->generator->getAstHelper()->getReferenceTypeFor(memberCgVar->getAstType());
+  return resultType != 0;
+}
+
+
+Bool VariableGenerator::_generateArrayElementReference(
+  TiObject *self, llvm::Value *llvmIndex, llvm::Value *llvmPtr, Ast::Type *astType,
+  llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Ast::Type *&resultType, llvm::Value *&llvmResult
+) {
+  PREPARE_SELF(varGenerator, VariableGenerator);
+
+  // Find content type.
+  auto refType = ti_cast<Ast::ReferenceType>(astType);
+  if (refType == 0) {
+    throw EXCEPTION(GenericException, STR("Not implemented yet."));
+  }
+  auto contentType = ti_cast<Ast::ArrayType>(refType->getContentType(varGenerator->generator->getAstHelper()));
+  if (contentType == 0) {
+    throw EXCEPTION(GenericException, STR("Invalid type for target array."));
+  }
+  auto elementType = contentType->getContentType(varGenerator->generator->getAstHelper());
+
+  // Generate member access.
+  auto zero = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(32, 0, true));
+  llvmResult = llvmIrBuilder->CreateGEP(
+    llvmPtr, llvm::makeArrayRef(std::vector<llvm::Value*>({ zero, llvmIndex })), ""
+  );
+  resultType = varGenerator->generator->getAstHelper()->getReferenceTypeFor(elementType);
+  return resultType != 0;
 }
 
 } } // namespace

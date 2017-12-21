@@ -30,7 +30,6 @@ namespace Spp
 #include "Ast/ast.h"
 
 #include "SeekerExtension.h"
-#include "NodePathResolver.h"
 
 #include "LlvmCodeGen/llvm_code_gen.h"
 #include "Handlers/handlers.h"

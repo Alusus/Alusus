@@ -26,6 +26,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateParamPass,
     &this->generateInfixOp,
     &this->generateAssignment,
+    &this->generateArrayReference,
     &this->generateFunctionCall,
     &this->generateBuiltInFunctionCall,
     &this->generateUserFunctionCall
@@ -40,6 +41,7 @@ void ExpressionGenerator::initBindings()
   this->generateParamPass = &ExpressionGenerator::_generateParamPass;
   this->generateInfixOp = &ExpressionGenerator::_generateInfixOp;
   this->generateAssignment = &ExpressionGenerator::_generateAssignment;
+  this->generateArrayReference = &ExpressionGenerator::_generateArrayReference;
   this->generateFunctionCall = &ExpressionGenerator::_generateFunctionCall;
   this->generateBuiltInFunctionCall = &ExpressionGenerator::_generateBuiltInFunctionCall;
   this->generateUserFunctionCall = &ExpressionGenerator::_generateUserFunctionCall;
@@ -66,7 +68,7 @@ Bool ExpressionGenerator::_generateIdentifier(
     {
       symbolFound = true;
       // Check if the found obj is a variable definition.
-      if (Ast::isVarDefinition(obj)) {
+      if (expGenerator->generator->getAstHelper()->isVarDefinition(obj)) {
         result = expGenerator->generator->getVariableGenerator()->generateReference(
           obj, llvmIrBuilder, llvmFunc, resultType, llvmResult
         );
@@ -111,7 +113,7 @@ Bool ExpressionGenerator::_generateLinkOperator(
   Ast::Type *firstAstType;
   llvm::Value *firstLlvmValue;
   TiObject *dummy;
-  if (!expGenerator->generator->generateReference(
+  if (!expGenerator->generator->generatePhrase(
     first, llvmIrBuilder, llvmFunc, firstAstType, firstLlvmValue, dummy
   )) {
     return false;
@@ -145,41 +147,92 @@ Bool ExpressionGenerator::_generateParamPass(
   using Core::Basic::TiObject;
   using Core::Basic::PlainList;
 
+  // Prepare parameters list.
+  PlainList<llvm::Value, TiObject> paramCgs;
+  PlainList<TiObject, TiObject> paramTypes;
+  auto param = astNode->getParam().get();
+  if (!expGenerator->generateParamList(param, llvmIrBuilder, llvmFunc, &paramTypes, &paramCgs)) return false;
+
   if (operand->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     // Call a function of the current context.
 
-    // Prepare parameters list.
-    PlainList<llvm::Value, TiObject> paramCgs;
-    PlainList<TiObject, TiObject> paramTypes;
-    auto param = astNode->getParam().get();
-    if (!expGenerator->generateParamList(param, llvmIrBuilder, llvmFunc, &paramTypes, &paramCgs)) return false;
-
-    // Look for a matching function to call.
-    Ast::Function *function = 0;
-    if (!Ast::lookupFunction(
-      operand, astNode, &paramTypes, expGenerator->generator->getExecutionContext().get(),
-      expGenerator->generator->getRootManager(), expGenerator->generator->getNoticeStore(), function
+    // Look for a matching callee.
+    TiObject *callee;
+    Ast::Type *calleeType;
+    if (!expGenerator->generator->getAstHelper()->lookupCallee(
+      operand, astNode, &paramTypes, callee, calleeType
     )) {
       return false;
     }
-
-    // Generate the function call.
-    Bool result = expGenerator->generateFunctionCall(
-      function, &paramTypes, &paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
-    );
-    if (result) lastProcessedNode = astNode;
-    return result;
-  } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    // TODO: Call a member function of a specific object.
-    throw EXCEPTION(GenericException, STR("Not implemented yet."));
+    if (callee->isDerivedFrom<Ast::Function>()) {
+      ////
+      //// Call a function.
+      ////
+      // Prepare the arguments to send.
+      expGenerator->prepareFunctionParams(
+        llvmIrBuilder, static_cast<Ast::Function*>(callee), &paramTypes, &paramCgs
+      );
+      // Generate the function call.
+      Bool result = expGenerator->generateFunctionCall(
+        static_cast<Ast::Function*>(callee), &paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
+      );
+      if (result) lastProcessedNode = astNode;
+      return result;
+    } else if (calleeType != 0 && calleeType->isDerivedFrom<Ast::ArrayType>()) {
+      ////
+      //// Reference array element.
+      ////
+      // Get a reference to the array.
+      Ast::Type *arrayAstType;
+      llvm::Value *arrayRefLlvmValue;
+      if (!expGenerator->generator->getVariableGenerator()->generateReference(
+        callee, llvmIrBuilder, llvmFunc, arrayAstType, arrayRefLlvmValue
+      )) return false;
+      // Reference array element.
+      Bool result = expGenerator->generateArrayReference(
+        arrayRefLlvmValue, arrayAstType, paramCgs.getElement(0), static_cast<Ast::Type*>(paramTypes.getElement(0)),
+        llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
+      );
+      if (result) {
+        lastProcessedNode = astNode;
+      }
+      return result;
+    } else {
+      throw EXCEPTION(GenericException, STR("Invalid callee."));
+    }
+  // } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
+  //   ////
+  //   //// TODO: Call a member of a specific object.
+  //   ////
+  //   throw EXCEPTION(GenericException, STR("Not implemented yet."));
   } else {
-    // TODO: Call a function pointer from a previous expression.
-    // if (!expGenerator->generator->generateValue(
-    //   operand, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode)
-    // ) {
-    //   return false;
-    // }
-    throw EXCEPTION(GenericException, STR("Not implemented yet."));
+    ////
+    //// Param pass to the result of a previous expression.
+    ////
+    Ast::Type *prevAstType;
+    llvm::Value *prevLlvmValue;
+    TiObject *dummy;
+    if (!expGenerator->generator->generatePhrase(
+      operand, llvmIrBuilder, llvmFunc, prevAstType, prevLlvmValue, dummy
+    )) {
+      return false;
+    }
+    if (expGenerator->generator->getAstHelper()->isTypeOrRefTypeOf<Ast::ArrayType>(prevAstType)) {
+      ////
+      //// Reference element of an array result of the expression.
+      ////
+      Bool result = expGenerator->generateArrayReference(
+        prevLlvmValue, prevAstType, paramCgs.getElement(0), static_cast<Ast::Type*>(paramTypes.getElement(0)),
+        llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
+      );
+      if (result) {
+        lastProcessedNode = astNode;
+      }
+      return result;
+    } else {
+      // TODO: Call a function pointer from a previous expression.
+      throw EXCEPTION(GenericException, STR("Not implemented yet."));
+    }
   }
 }
 
@@ -206,7 +259,7 @@ Bool ExpressionGenerator::_generateInfixOp(
     throw EXCEPTION(GenericException, STR("Unexpected infix operator."));
   }
 
-  // Prepare parameters list.
+  // Generate parameters list.
   using Core::Basic::TiObject;
   using Core::Basic::PlainList;
   PlainList<llvm::Value, TiObject> paramCgs;
@@ -216,17 +269,27 @@ Bool ExpressionGenerator::_generateInfixOp(
   )) return false;
 
   // Look for a matching function to call.
-  Ast::Function *function = 0;
-  if (!Ast::lookupFunction(
-    funcName, astNode, &paramTypes, expGenerator->generator->getExecutionContext().get(),
-    expGenerator->generator->getRootManager(), expGenerator->generator->getNoticeStore(), function
+  TiObject *callee;
+  Ast::Type *calleeType;
+  if (!expGenerator->generator->getAstHelper()->lookupCalleeByName(
+    funcName, astNode, &paramTypes, callee, calleeType
   )) {
     return false;
   }
+  auto function = ti_cast<Ast::Function>(callee);
+  if (function == 0) {
+    expGenerator->generator->getNoticeStore()->add(
+      std::make_shared<Ast::NoCalleeMatchNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  // Prepare the arguments to send.
+  expGenerator->prepareFunctionParams(llvmIrBuilder, function, &paramTypes, &paramCgs);
 
   // Generate the functionc all.
   Bool result = expGenerator->generateFunctionCall(
-    function, &paramTypes, &paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
+    function, &paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
   );
   if (result) lastProcessedNode = astNode;
   return result;
@@ -247,9 +310,16 @@ Bool ExpressionGenerator::_generateAssignment(
   Ast::Type *varAstType;
   llvm::Value *varLlvmPointer;
   TiObject *varLastRef;
-  if (!expGenerator->generator->generateReference(
+  if (!expGenerator->generator->generatePhrase(
     var, llvmIrBuilder, llvmFunc, varAstType, varLlvmPointer, varLastRef
   )) return false;
+  auto varRefAstType = ti_cast<Ast::ReferenceType>(varAstType);
+  if (varRefAstType == 0) {
+    expGenerator->generator->getNoticeStore()->add(
+      std::make_shared<UnsupportedOperationNotice>(astNode->findSourceLocation())
+    );
+  }
+  varAstType = varRefAstType->getContentType(expGenerator->generator->getAstHelper());
 
   // Generate assignment value.
   auto val = astNode->getSecond().get();
@@ -259,14 +329,12 @@ Bool ExpressionGenerator::_generateAssignment(
   Ast::Type *valAstType;
   llvm::Value *valLlvmValue;
   TiObject *valLastRef;
-  if (!expGenerator->generator->generateValue(val, llvmIrBuilder, llvmFunc, valAstType, valLlvmValue, valLastRef)) {
+  if (!expGenerator->generator->generatePhrase(val, llvmIrBuilder, llvmFunc, valAstType, valLlvmValue, valLastRef)) {
     return false;
   }
 
   // Is value implicitly castable?
-  if (!valAstType->isImplicitlyCastableTo(
-    varAstType, expGenerator->generator->getExecutionContext().get(), expGenerator->generator->getRootManager()
-  )) {
+  if (!valAstType->isImplicitlyCastableTo(varAstType, expGenerator->generator->getAstHelper())) {
     auto metadata = ti_cast<Core::Data::Ast::Metadata>(val);
     ASSERT(metadata != 0);
     expGenerator->generator->getNoticeStore()->add(
@@ -294,38 +362,39 @@ Bool ExpressionGenerator::_generateAssignment(
 }
 
 
+Bool ExpressionGenerator::_generateArrayReference(
+  TiObject *self, llvm::Value *arrayLlvmValue, Ast::Type *arrayAstType,
+  llvm::Value *indexLlvmValue, Ast::Type *indexAstType,
+  llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  llvm::Value *castedIndexLlvmValue;
+  if (!expGenerator->generator->getTypeGenerator()->generateCast(
+    llvmIrBuilder, indexAstType, expGenerator->generator->getAstHelper()->getInt64Type(),
+    indexLlvmValue, castedIndexLlvmValue
+  )) {
+    // This should not happen since non-castable calls should be filtered out earlier.
+    throw EXCEPTION(GenericException, STR("Invalid cast was unexpectedly found."));
+  }
+  // Reference the array element.
+  return expGenerator->generator->getVariableGenerator()->generateArrayElementReference(
+    castedIndexLlvmValue, arrayLlvmValue, arrayAstType, llvmIrBuilder, llvmFunc, resultType, llvmResult
+  );
+}
+
+
 Bool ExpressionGenerator::_generateFunctionCall(
-  TiObject *self, Spp::Ast::Function *callee,
-  Core::Basic::Container<Core::Basic::TiObject> *paramTypes, Core::Basic::Container<llvm::Value> *paramCgs,
+  TiObject *self, Spp::Ast::Function *callee, Core::Basic::Container<llvm::Value> *paramCgs,
   llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc, Spp::Ast::Type *&resultType, llvm::Value *&llvmResult
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  // Cast arguments, if needed.
-  Ast::Function::ArgMatchContext context;
-  for (Int i = 0; i < paramCgs->getElementCount(); ++i) {
-    Ast::Type *srcType = static_cast<Ast::Type*>(paramTypes->getElement(i));
-    auto status = callee->matchNextArg(
-      srcType, context, expGenerator->generator->getExecutionContext().get(),
-      expGenerator->generator->getRootManager()
-    );
-    ASSERT(status != Ast::Function::CallMatchStatus::NONE);
-    if (context.type != 0) {
-      llvm::Value *destValue;
-      if (!expGenerator->generator->getTypeGenerator()->generateCast(
-        llvmIrBuilder, srcType, context.type, paramCgs->getElement(i), destValue)
-      ) {
-        // This should not happen since non-castable calls should be filtered out earlier.
-        throw EXCEPTION(GenericException, STR("Invalid cast was unexpectedly found."));
-      }
-      paramCgs->setElement(i, destValue);
-    }
-  }
-
   // is function built-in?
   if (callee->getName().getStr().size() > 0 && callee->getName().getStr().at(0) == CHR('#')) {
     return expGenerator->generateBuiltInFunctionCall(
-      callee, paramTypes, paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
+      callee, paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
     );
   } else {
     if (callee->getInlined()) {
@@ -333,7 +402,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
       return false;
     } else {
       return expGenerator->generateUserFunctionCall(
-        callee, paramTypes, paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
+        callee, paramCgs, llvmIrBuilder, llvmFunc, resultType, llvmResult
       );
     }
   }
@@ -341,13 +410,12 @@ Bool ExpressionGenerator::_generateFunctionCall(
 
 
 Bool ExpressionGenerator::_generateBuiltInFunctionCall(
-  TiObject *self, Spp::Ast::Function *callee,
-  Core::Basic::Container<Core::Basic::TiObject> *paramTypes, Core::Basic::Container<llvm::Value> *paramCgs,
+  TiObject *self, Spp::Ast::Function *callee, Core::Basic::Container<llvm::Value> *paramCgs,
   llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc, Spp::Ast::Type *&resultType, llvm::Value *&llvmResult
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  resultType = callee->traceRetType(expGenerator->generator->getSeeker());
+  resultType = callee->traceRetType(expGenerator->generator->getAstHelper());
 
   // Binary Math Operations
   if (callee->getName() == STR("#addInt")) {
@@ -505,8 +573,7 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
 
 
 Bool ExpressionGenerator::_generateUserFunctionCall(
-  TiObject *self, Spp::Ast::Function *callee,
-  Core::Basic::Container<Core::Basic::TiObject> *paramTypes, Core::Basic::Container<llvm::Value> *paramCgs,
+  TiObject *self, Spp::Ast::Function *callee, Core::Basic::Container<llvm::Value> *paramCgs,
   llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc, Spp::Ast::Type *&resultType, llvm::Value *&llvmResult
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -522,7 +589,7 @@ Bool ExpressionGenerator::_generateUserFunctionCall(
   auto llvmCall = llvmIrBuilder->CreateCall(llvmFuncBox->get(), args);
   // Assign results.
   llvmResult = llvmCall;
-  resultType = callee->traceRetType(expGenerator->generator->getSeeker());
+  resultType = callee->traceRetType(expGenerator->generator->getAstHelper());
   return true;
 }
 
@@ -544,7 +611,7 @@ Bool ExpressionGenerator::generateParamList(
     llvm::Value *paramResultCg;
     Ast::Type *paramType;
     TiObject *paramLastProcessedRef;
-    if (!this->generator->generateValue(
+    if (!this->generator->generatePhrase(
       astNode, llvmIrBuilder, llvmFunc, paramType, paramResultCg, paramLastProcessedRef
     )) return false;
     llvmResults->addElement(paramResultCg);
@@ -562,13 +629,45 @@ Bool ExpressionGenerator::generateParamList(
     llvm::Value *paramResultCg;
     Ast::Type *paramType;
     TiObject *paramLastProcessedRef;
-    if (!this->generator->generateValue(
+    if (!this->generator->generatePhrase(
       astNodes->get(i), llvmIrBuilder, llvmFunc, paramType, paramResultCg, paramLastProcessedRef
     )) return false;
     llvmResults->addElement(paramResultCg);
     resultTypes->addElement(paramType);
   }
   return true;
+}
+
+
+void ExpressionGenerator::prepareFunctionParams(
+  llvm::IRBuilder<> *llvmIrBuilder, Spp::Ast::Function *callee,
+  Core::Basic::Container<Core::Basic::TiObject> *paramTypes, Core::Basic::Container<llvm::Value> *paramCgs
+) {
+  Ast::Function::ArgMatchContext context;
+  for (Int i = 0; i < paramCgs->getElementCount(); ++i) {
+    Ast::Type *srcType = static_cast<Ast::Type*>(paramTypes->getElement(i));
+    auto status = callee->matchNextArg(srcType, context, this->generator->getAstHelper());
+    ASSERT(status != Ast::CallMatchStatus::NONE);
+
+    // Cast the value if needed.
+    if (context.type != 0) {
+      llvm::Value *destValue;
+      if (!this->generator->getTypeGenerator()->generateCast(
+        llvmIrBuilder, srcType, context.type, paramCgs->getElement(i), destValue)
+      ) {
+        // This should not happen since non-castable calls should be filtered out earlier.
+        throw EXCEPTION(GenericException, STR("Invalid cast was unexpectedly found."));
+      }
+      paramCgs->setElement(i, destValue);
+    } else {
+      // For var args we need to send values, not references.
+      llvm::Value *destValue;
+      this->generator->getTypeGenerator()->dereferenceIfNeeded(
+        llvmIrBuilder, srcType, paramCgs->getElement(i), srcType, destValue
+      );
+      paramCgs->setElement(i, destValue);
+    }
+  }
 }
 
 } } // namespace

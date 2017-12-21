@@ -20,12 +20,13 @@ using namespace std::placeholders;
 //==============================================================================
 // Initialization Functions
 
-SeekerExtension::Overrides* SeekerExtension::extend(Core::Data::Seeker *seeker)
+SeekerExtension::Overrides* SeekerExtension::extend(Core::Data::Seeker *seeker, SharedPtr<Ast::Helper> const &astHelper)
 {
   auto extension = std::make_shared<SeekerExtension>(seeker);
   seeker->addDynamicInterface(extension);
 
   auto overrides = new Overrides();
+  extension->astHelper = astHelper;
   overrides->foreachRef = seeker->foreach.set(&SeekerExtension::_foreach).get();
   overrides->foreachByIdentifier_levelRef =
     seeker->foreachByIdentifier_level.set(&SeekerExtension::_foreachByIdentifier_level).get();
@@ -47,6 +48,7 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
   auto extension = Core::Basic::ti_cast<SeekerExtension>(seeker);
   seeker->foreach.reset(overrides->foreachRef);
   seeker->foreachByIdentifier_level.reset(overrides->foreachByIdentifier_levelRef);
+  extension->astHelper = SharedPtr<Ast::Helper>::null;
   extension->foreachByIdentifier_function.reset(overrides->foreachByIdentifier_functionRef);
   extension->foreachByParamPass.reset(overrides->foreachByParamPassRef);
   extension->foreachByParamPass_routing.reset(overrides->foreachByParamPass_routingRef);
@@ -137,9 +139,9 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_routing(
 Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_template(
   TiObject *self, TiObject *param, Ast::Template *tmplt, Core::Data::Seeker::ForeachCallback const &cb
 ) {
-  PREPARE_SELF(seeker, Core::Data::Seeker);
+  PREPARE_SELF(seekerExtension, SeekerExtension);
   TioSharedPtr result;
-  if (tmplt->matchInstance(param, seeker, result)) {
+  if (tmplt->matchInstance(param, seekerExtension->astHelper, result)) {
     return cb(result.get(), 0);
   } else {
     auto notice = result.ti_cast_get<Core::Data::Notice>();

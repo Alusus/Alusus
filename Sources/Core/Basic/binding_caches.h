@@ -419,9 +419,23 @@ inline void initBindingCaches(TiObject *self, std::initializer_list<BindingCache
 // Macros
 
 #define BINDING_CACHE(name, type) BindingCache<type> name = { #name }
-#define FUNCTION_BINDING_CACHE(name, retType, args) \
+
+#define FUNCTION_BINDING_CACHE_ARGS(name, retType, args) \
   FunctionBindingCache<retType, COMMA_EXPAND_ARGS args> name = { #name }
-#define METHOD_BINDING_CACHE(name, retType, args) \
+#define FUNCTION_BINDING_CACHE_NOARGS(name, retType) \
+  FunctionBindingCache<retType> name = { #name }
+#define FUNCTION_BINDING_CACHE(name, ...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, _, _, _, \
+               FUNCTION_BINDING_CACHE_ARGS, \
+               FUNCTION_BINDING_CACHE_NOARGS)(name, __VA_ARGS__)
+
+#define METHOD_BINDING_CACHE_ARGS(name, retType, args) \
   MethodBindingCache<retType, COMMA_EXPAND_ARGS args> name = { #name }
+#define METHOD_BINDING_CACHE_NOARGS(name, retType) \
+  MethodBindingCache<retType> name = { #name }
+#define METHOD_BINDING_CACHE(name, ...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, _, _, _, \
+               METHOD_BINDING_CACHE_ARGS, \
+               METHOD_BINDING_CACHE_NOARGS)(name, __VA_ARGS__)
 
 #endif

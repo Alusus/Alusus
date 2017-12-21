@@ -31,8 +31,6 @@ set(AlususSpp_SOURCE_FILES
   ExecutionContext.h
   SeekerExtension.h
   SeekerExtension.cpp
-  NodePathResolver.h
-  NodePathResolver.cpp
   main.cpp
   )
 foreach (dir ${AlususSpp_SOURCE_SUBDIRS})

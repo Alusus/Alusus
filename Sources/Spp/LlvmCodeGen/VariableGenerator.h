@@ -87,25 +87,37 @@ class VariableGenerator : public TiObject, public virtual DynamicBindings, publi
   /// @{
 
   public: METHOD_BINDING_CACHE(generateDefinition, Bool, (Core::Data::Ast::Definition*));
+  private: static Bool _generateDefinition(TiObject *self, Core::Data::Ast::Definition *definition);
+
   public: METHOD_BINDING_CACHE(generateReference,
     Bool, (
       TiObject*, llvm::IRBuilder<>*, llvm::Function*, Spp::Ast::Type*&, llvm::Value*&
     )
   );
+  private: static Bool _generateReference(
+    TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult
+  );
+
   public: METHOD_BINDING_CACHE(generateMemberReference,
     Bool, (
       Core::Data::Ast::Identifier*, llvm::Value*, Ast::Type*, llvm::IRBuilder<>*, llvm::Function*,
       Ast::Type*&, llvm::Value*&
     )
   );
-
-  private: static Bool _generateDefinition(TiObject *self, Core::Data::Ast::Definition *definition);
-  private: static Bool _generateReference(
-    TiObject *self, TiObject *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult
-  );
   private: static Bool _generateMemberReference(
     TiObject *self, Core::Data::Ast::Identifier *astNode, llvm::Value *llvmPtr, Ast::Type *astType,
+    llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Ast::Type *&resultType, llvm::Value *&llvmResult
+  );
+
+  public: METHOD_BINDING_CACHE(generateArrayElementReference,
+    Bool, (
+      llvm::Value*, llvm::Value*, Ast::Type*, llvm::IRBuilder<>*, llvm::Function*, Ast::Type*&, llvm::Value*&
+    )
+  );
+  private: static Bool _generateArrayElementReference(
+    TiObject *self, llvm::Value *llvmIndex, llvm::Value *llvmPtr, Ast::Type *astType,
     llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
     Ast::Type *&resultType, llvm::Value *&llvmResult
   );

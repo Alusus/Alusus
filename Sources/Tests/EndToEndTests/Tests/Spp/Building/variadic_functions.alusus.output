@@ -1,8 +1,8 @@
-ERROR SPP1103 @ (16,5): Multiple matches were found for the given callee.
-ERROR SPP1104 @ (17,5): No matches were found for the given callee.
-ERROR SPP1104 @ (18,5): No matches were found for the given callee.
-ERROR SPP1104 @ (19,5): No matches were found for the given callee.
-ERROR SPP1105 @ (20,5): Unknown symbol.
+ERROR SPP1105 @ (16,5): Multiple matches were found for the given callee.
+ERROR SPP1106 @ (17,5): No matches were found for the given callee.
+ERROR SPP1106 @ (18,5): No matches were found for the given callee.
+ERROR SPP1106 @ (19,5): No matches were found for the given callee.
+ERROR SPP1107 @ (20,5): Unknown symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

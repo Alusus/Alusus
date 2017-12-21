@@ -39,6 +39,8 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
 
   private: Generator *generator;
 
+  private: Spp::Ast::IntegerType *binaryAstType = 0;
+
 
   //============================================================================
   // Constructors & Destructor
@@ -112,6 +114,16 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
   );
   private: static Bool _generateWhileStatement(
     TiObject *self, Spp::Ast::WhileStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
+  );
+
+  /// @}
+
+  /// @name Helper Functions
+  /// @{
+
+  private: Bool castCondition(
+    llvm::IRBuilder<> *llvmIrBuilder, Core::Basic::TiObject *astNode, Spp::Ast::Type *astType,
+    llvm::Value *llvmValue, llvm::Value *&resultLlvmValue
   );
 
   /// @}

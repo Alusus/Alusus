@@ -18,6 +18,24 @@ namespace Spp { namespace Ast
 //==============================================================================
 // Member Functions
 
+Type* Function::traceArgType(Int index, Helper *helper) const
+{
+  if (this->argTypes == 0 || this->argTypes->getCount() == 0) {
+    throw EXCEPTION(GenericException, STR("Function takes no arguments."));
+  }
+  if (this->argTypes == 0 || index < 0 || index >= this->argTypes->getCount()) {
+    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+  }
+  return helper->traceType(this->argTypes->get(index));
+}
+
+
+Type* Function::traceRetType(Helper *helper) const
+{
+  return helper->traceType(this->retType.get());
+}
+
+
 Bool Function::isVariadic() const
 {
   return
@@ -27,12 +45,10 @@ Bool Function::isVariadic() const
 }
 
 
-Function::CallMatchStatus Function::matchCall(
-  Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *executionContext,
-  Core::Standard::RootManager *rootManager
-) {
-  if (rootManager == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("rootManager"), STR("Cannot be null."));
+CallMatchStatus Function::matchCall(Core::Basic::Container<Core::Basic::TiObject> *types, Helper *helper)
+{
+  if (helper == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("helper"), STR("Cannot be null."));
   }
 
   Word argCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
@@ -40,11 +56,13 @@ Function::CallMatchStatus Function::matchCall(
     return types == 0 || types->getElementCount() == 0 ? CallMatchStatus::EXACT : CallMatchStatus::NONE;
   } else {
     Bool casted = false;
+    Bool deref = false;
     Function::ArgMatchContext matchContext;
     if (types != 0) {
       for (Int i = 0; i < types->getElementCount(); ++i) {
-        CallMatchStatus status = this->matchNextArg(types->getElement(i), matchContext, executionContext, rootManager);
+        CallMatchStatus status = this->matchNextArg(types->getElement(i), matchContext, helper);
         if (status == CallMatchStatus::NONE) return CallMatchStatus::NONE;
+        else if (status == CallMatchStatus::DEREF) deref = true;
         else if (status == CallMatchStatus::CASTED) casted = true;
       }
     }
@@ -72,26 +90,25 @@ Function::CallMatchStatus Function::matchCall(
         }
       }
     }
-    return casted ? CallMatchStatus::CASTED : CallMatchStatus::EXACT;
+    return casted ? CallMatchStatus::CASTED : (deref ? CallMatchStatus::DEREF : CallMatchStatus::EXACT);
   }
 }
 
 
-Function::CallMatchStatus Function::matchNextArg(
-  Core::Basic::TiObject *nextType, ArgMatchContext &matchContext,
-  ExecutionContext const *executionContext, Core::Standard::RootManager *rootManager
+CallMatchStatus Function::matchNextArg(
+  Core::Basic::TiObject *nextType, ArgMatchContext &matchContext, Helper *helper
 ) {
   if (nextType == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("types"), STR("Cannot be null."));
   }
-  if (rootManager == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("rootManager"), STR("Cannot be null."));
+  if (helper == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("helper"), STR("Cannot be null."));
   }
   if (matchContext.index < -1 || matchContext.subIndex < -1) {
     throw EXCEPTION(InvalidArgumentException, STR("matchContext"), STR("Value is corrupted."));
   }
 
-  Type *providedType = traceType(nextType, rootManager->getSeeker());
+  Type *providedType = helper->traceType(nextType);
   Word argCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
 
   // Check if we are at an arg pack and can add more args to the pack.
@@ -105,7 +122,10 @@ Function::CallMatchStatus Function::matchNextArg(
         if (matchContext.type == providedType || matchContext.type == 0) {
           matchContext.subIndex++;
           return CallMatchStatus::EXACT;
-        } else if (providedType->isImplicitlyCastableTo(matchContext.type, executionContext, rootManager)) {
+        } else if (helper->isReferenceTypeFor(providedType, matchContext.type)) {
+          matchContext.subIndex++;
+          return CallMatchStatus::DEREF;
+        } else if (providedType->isImplicitlyCastableTo(matchContext.type, helper)) {
           matchContext.subIndex++;
           return CallMatchStatus::CASTED;
         } else if (matchContext.subIndex + 1 < currentArgPack->getMin().get()) {
@@ -122,15 +142,18 @@ Function::CallMatchStatus Function::matchNextArg(
     auto nextArg = this->argTypes->get(matchContext.index + steps);
     if (nextArg->isDerivedFrom<ArgPack>()) {
       auto nextArgPack = static_cast<ArgPack*>(nextArg);
-      Type *wantedType = nextArgPack->getArgType() == 0 ?
-        0 :
-        traceType(nextArgPack->getArgType().get(), rootManager->getSeeker());
+      Type *wantedType = nextArgPack->getArgType() == 0 ? 0 : helper->traceType(nextArgPack->getArgType().get());
       if (wantedType == providedType || wantedType == 0) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;
         return CallMatchStatus::EXACT;
-      } else if (providedType->isImplicitlyCastableTo(wantedType, executionContext, rootManager)) {
+      } else if (helper->isReferenceTypeFor(providedType, wantedType)) {
+        matchContext.type = wantedType;
+        matchContext.index += steps;
+        matchContext.subIndex = 0;
+        return CallMatchStatus::DEREF;
+      } else if (providedType->isImplicitlyCastableTo(wantedType, helper)) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;
@@ -141,13 +164,18 @@ Function::CallMatchStatus Function::matchNextArg(
         return CallMatchStatus::NONE;
       }
     } else {
-      Type *wantedType = traceType(nextArg, rootManager->getSeeker());
+      Type *wantedType = helper->traceType(nextArg);
       if (wantedType == providedType) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;
         return CallMatchStatus::EXACT;
-      } else if (providedType->isImplicitlyCastableTo(wantedType, executionContext, rootManager)) {
+      } else if (helper->isReferenceTypeFor(providedType, wantedType)) {
+        matchContext.type = wantedType;
+        matchContext.index += steps;
+        matchContext.subIndex = 0;
+        return CallMatchStatus::DEREF;
+      } else if (providedType->isImplicitlyCastableTo(wantedType, helper)) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;

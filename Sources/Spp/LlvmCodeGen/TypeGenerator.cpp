@@ -30,6 +30,7 @@ void TypeGenerator::initBindingCaches()
     &this->generateArrayType,
     &this->generateUserType,
     &this->generateCast,
+    &this->dereferenceIfNeeded,
     &this->generateDefaultValue
   });
 }
@@ -45,6 +46,7 @@ void TypeGenerator::initBindings()
   this->generateArrayType = &TypeGenerator::_generateArrayType;
   this->generateUserType = &TypeGenerator::_generateUserType;
   this->generateCast = &TypeGenerator::_generateCast;
+  this->dereferenceIfNeeded = &TypeGenerator::_dereferenceIfNeeded;
   this->generateDefaultValue = &TypeGenerator::_generateDefaultValue;
 }
 
@@ -59,7 +61,7 @@ Bool TypeGenerator::getGeneratedType(TiObject *ref, Spp::Ast::Type *&type)
     throw EXCEPTION(GenericException, STR("Reference does not contain metadata."));
   }
 
-  type = this->traceAstType(ref);
+  type = this->generator->getAstHelper()->traceType(ref);
   if (type == 0) return false;
 
   Core::Data::SourceLocation *sourceLocation = 0;
@@ -96,57 +98,6 @@ Bool TypeGenerator::getGeneratedLlvmType(TiObject *ref, llvm::Type *&llvmTypeRes
 }
 
 
-Bool TypeGenerator::isVoid(TiObject *ref)
-{
-  if (ref == 0) return true;
-  auto type = this->traceAstType(ref);
-  if (!type) return false;
-  return type->isA<Spp::Ast::VoidType>();
-}
-
-
-Spp::Ast::Type* TypeGenerator::traceAstType(TiObject *ref)
-{
-  auto metadata = ti_cast<Core::Data::Ast::Metadata>(ref);
-  if (metadata == 0) {
-    throw EXCEPTION(GenericException, STR("Reference does not contain metadata."));
-  }
-
-  SharedPtr<Core::Data::Notice> notice;
-  auto type = ti_cast<Spp::Ast::Type>(ref);
-  if (type == 0) {
-    this->generator->getSeeker()->doForeach(ref, ref,
-      [=, &type, &notice](TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
-      {
-        if (ntc != 0) {
-          notice = getSharedPtr(ntc);
-          return Core::Data::Seeker::Verb::MOVE;
-        }
-
-        type = ti_cast<Spp::Ast::Type>(obj);
-        if (type != 0) {
-          return Core::Data::Seeker::Verb::STOP;
-        }
-        // TODO: Support template defaults.
-        // TODO: Handle aliases.
-        return Core::Data::Seeker::Verb::MOVE;
-      }
-    );
-  }
-  if (type == 0) {
-    if (notice != 0) {
-      this->generator->getNoticeStore()->add(notice);
-    }
-    this->generator->getNoticeStore()->add(
-      std::make_shared<InvalidTypeNotice>(metadata->findSourceLocation())
-    );
-    return 0;
-  }
-
-  return type;
-}
-
-
 //==============================================================================
 // Code Generation Functions
 
@@ -170,7 +121,7 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType)
   } else if (astType->isDerivedFrom<Spp::Ast::UserType>()) {
     return typeGenerator->generateUserType(static_cast<Spp::Ast::UserType*>(astType));
   } else {
-    typeGenerator->generator->getNoticeStore()->add(std::make_shared<InvalidTypeNotice>());
+    typeGenerator->generator->getNoticeStore()->add(std::make_shared<Spp::Ast::InvalidTypeNotice>());
     return false;
   }
 }
@@ -188,7 +139,7 @@ Bool TypeGenerator::_generateVoidType(TiObject *self, Spp::Ast::VoidType *astTyp
 Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
-  auto bitCount = astType->getBitCount(typeGenerator->generator->getRootManager());
+  auto bitCount = astType->getBitCount(typeGenerator->generator->getAstHelper());
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
     typeGenerator->generator->getNoticeStore()->add(std::make_shared<InvalidIntegerBitCountNotice>());
@@ -203,7 +154,7 @@ Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
 Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astType)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
-  auto bitCount = astType->getBitCount(typeGenerator->generator->getRootManager());
+  auto bitCount = astType->getBitCount(typeGenerator->generator->getAstHelper());
   llvm::Type *llvmType;
   switch (bitCount) {
     case 32:
@@ -228,7 +179,7 @@ Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astT
 Bool TypeGenerator::_generatePointerType(TiObject *self, Spp::Ast::PointerType *astType)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
-  auto contentAstType = astType->getContentType(typeGenerator->generator->getRootManager());
+  auto contentAstType = astType->getContentType(typeGenerator->generator->getAstHelper());
   llvm::Type *contentLlvmType;
   if (!typeGenerator->getGeneratedLlvmType(contentAstType, contentLlvmType)) return false;
   auto llvmType = contentLlvmType->getPointerTo();
@@ -240,8 +191,8 @@ Bool TypeGenerator::_generatePointerType(TiObject *self, Spp::Ast::PointerType *
 Bool TypeGenerator::_generateArrayType(TiObject *self, Spp::Ast::ArrayType *astType)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
-  auto contentAstType = astType->getContentType(typeGenerator->generator->getRootManager());
-  auto contentSize = astType->getSize(typeGenerator->generator->getRootManager());
+  auto contentAstType = astType->getContentType(typeGenerator->generator->getAstHelper());
+  auto contentSize = astType->getSize(typeGenerator->generator->getAstHelper());
   llvm::Type *contentLlvmType;
   if (!typeGenerator->getGeneratedLlvmType(contentAstType, contentLlvmType)) return false;
   auto llvmType = llvm::ArrayType::get(contentLlvmType, contentSize);
@@ -292,7 +243,7 @@ Bool TypeGenerator::_generateCast(
       // Cast from integer to pointer.
       auto targetPointerType = static_cast<Spp::Ast::PointerType*>(targetType);
       Word targetBitCount = typeGenerator->generator->getLlvmDataLayout()->getPointerSizeInBits();
-      Word srcBitCount = srcIntegerType->getBitCount(typeGenerator->generator->getRootManager());
+      Word srcBitCount = srcIntegerType->getBitCount(typeGenerator->generator->getAstHelper());
       llvm::Type *targetPointerLlvmType;
       if (!typeGenerator->getGeneratedLlvmType(targetPointerType, targetPointerLlvmType)) return false;
       if (srcBitCount == targetBitCount) {
@@ -313,8 +264,8 @@ Bool TypeGenerator::_generateCast(
     } else if (targetType->isDerivedFrom<Spp::Ast::FloatType>()) {
       // Cast from float to another float.
       auto targetFloatType = static_cast<Spp::Ast::FloatType*>(targetType);
-      Word srcBitCount = srcFloatType->getBitCount(typeGenerator->generator->getRootManager());
-      Word targetBitCount = targetFloatType->getBitCount(typeGenerator->generator->getRootManager());
+      Word srcBitCount = srcFloatType->getBitCount(typeGenerator->generator->getAstHelper());
+      Word targetBitCount = targetFloatType->getBitCount(typeGenerator->generator->getAstHelper());
       llvm::Type *targetFloatLlvmType;
       if (!typeGenerator->getGeneratedLlvmType(targetFloatType, targetFloatLlvmType)) return false;
       if (srcBitCount > targetBitCount) {
@@ -331,7 +282,7 @@ Bool TypeGenerator::_generateCast(
       // Cast pointer to integer.
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
       Word srcBitCount = typeGenerator->generator->getLlvmDataLayout()->getPointerSizeInBits();
-      Word targetBitCount = targetIntegerType->getBitCount(typeGenerator->generator->getRootManager());
+      Word targetBitCount = targetIntegerType->getBitCount(typeGenerator->generator->getAstHelper());
       if (srcBitCount == targetBitCount) {
         llvm::Type *targetIntegerLlvmType;
         if (!typeGenerator->getGeneratedLlvmType(targetIntegerType, targetIntegerLlvmType)) return false;
@@ -346,9 +297,34 @@ Bool TypeGenerator::_generateCast(
       llvmCastedValue = llvmIrBuilder->CreateBitCast(llvmValue, targetPointerLlvmType);
       return true;
     }
+  } else if (srcType->isDerivedFrom<Spp::Ast::ReferenceType>()) {
+    // Casting from reference.
+    auto srcReferenceType = static_cast<Spp::Ast::ReferenceType*>(srcType);
+    auto srcContentType = srcReferenceType->getContentType(typeGenerator->generator->getAstHelper());
+    return typeGenerator->generateCast(
+      llvmIrBuilder, srcContentType, targetType, llvmIrBuilder->CreateLoad(llvmValue), llvmCastedValue
+    );
   }
+
   typeGenerator->generator->getNoticeStore()->add(std::make_shared<InvalidCastNotice>());
   return false;
+}
+
+
+void TypeGenerator::_dereferenceIfNeeded(
+  TiObject *self, llvm::IRBuilder<> *llvmIrBuilder, Spp::Ast::Type *astType, llvm::Value *llvmValue,
+  Spp::Ast::Type *&resultAstType, llvm::Value *&llvmResult
+) {
+  PREPARE_SELF(typeGenerator, TypeGenerator);
+
+  auto refType = ti_cast<Spp::Ast::ReferenceType>(astType);
+  if (refType != 0) {
+    resultAstType = refType->getContentType(typeGenerator->generator->getAstHelper());
+    llvmResult = llvmIrBuilder->CreateLoad(llvmValue);
+  } else {
+    resultAstType = astType;
+    llvmResult = llvmValue;
+  }
 }
 
 
@@ -366,13 +342,13 @@ Bool TypeGenerator::_generateDefaultValue(TiObject *self, Spp::Ast::Type *astTyp
   if (astType->isDerivedFrom<Spp::Ast::IntegerType>()) {
     // Generate integer 0
     auto integerType = static_cast<Spp::Ast::IntegerType*>(astType);
-    auto bitCount = integerType->getBitCount(typeGenerator->generator->getRootManager());
+    auto bitCount = integerType->getBitCount(typeGenerator->generator->getAstHelper());
     result = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(bitCount, 0, true));
     return true;
   } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
     // Generate float 0
     auto floatType = static_cast<Spp::Ast::FloatType*>(astType);
-    auto bitCount = floatType->getBitCount(typeGenerator->generator->getRootManager());
+    auto bitCount = floatType->getBitCount(typeGenerator->generator->getAstHelper());
     if (bitCount == 32) {
       result = llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Float)0));
     } else {

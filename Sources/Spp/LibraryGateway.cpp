@@ -25,30 +25,34 @@ using namespace Core::Processing::Handlers;
 
 void LibraryGateway::initialize(Standard::RootManager *manager)
 {
+  // Create AST helpers.
+  this->astHelper = std::make_shared<Ast::Helper>(manager);
+  this->nodePathResolver = std::make_shared<Ast::NodePathResolver>(this->astHelper.get());
+
   // Extend Seeker.
-  this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker());
+  this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
 
   // Create the generator.
-  this->nodePathResolver = new NodePathResolver(manager->getSeeker());
-  this->llvmTypeGenerator = new LlvmCodeGen::TypeGenerator();
-  this->llvmLiteralGenerator = new LlvmCodeGen::LiteralGenerator();
-  this->llvmExpressionGenerator = new LlvmCodeGen::ExpressionGenerator();
-  this->llvmVariableGenerator = new LlvmCodeGen::VariableGenerator();
-  this->llvmCommandGenerator = new LlvmCodeGen::CommandGenerator();
-  this->llvmGenerator = new LlvmCodeGen::Generator(
+  this->llvmTypeGenerator = std::make_shared<LlvmCodeGen::TypeGenerator>();
+  this->llvmLiteralGenerator = std::make_shared<LlvmCodeGen::LiteralGenerator>();
+  this->llvmExpressionGenerator = std::make_shared<LlvmCodeGen::ExpressionGenerator>();
+  this->llvmVariableGenerator = std::make_shared<LlvmCodeGen::VariableGenerator>();
+  this->llvmCommandGenerator = std::make_shared<LlvmCodeGen::CommandGenerator>();
+  this->llvmGenerator = std::make_shared<LlvmCodeGen::Generator>(
     manager,
-    this->nodePathResolver,
-    this->llvmTypeGenerator,
-    this->llvmLiteralGenerator,
-    this->llvmExpressionGenerator,
-    this->llvmVariableGenerator,
-    this->llvmCommandGenerator
+    this->astHelper.get(),
+    this->nodePathResolver.get(),
+    this->llvmTypeGenerator.get(),
+    this->llvmLiteralGenerator.get(),
+    this->llvmExpressionGenerator.get(),
+    this->llvmVariableGenerator.get(),
+    this->llvmCommandGenerator.get()
   );
-  this->llvmTypeGenerator->setGenerator(this->llvmGenerator);
-  this->llvmLiteralGenerator->setGenerator(this->llvmGenerator);
-  this->llvmExpressionGenerator->setGenerator(this->llvmGenerator);
-  this->llvmVariableGenerator->setGenerator(this->llvmGenerator);
-  this->llvmCommandGenerator->setGenerator(this->llvmGenerator);
+  this->llvmTypeGenerator->setGenerator(this->llvmGenerator.get());
+  this->llvmLiteralGenerator->setGenerator(this->llvmGenerator.get());
+  this->llvmExpressionGenerator->setGenerator(this->llvmGenerator.get());
+  this->llvmVariableGenerator->setGenerator(this->llvmGenerator.get());
+  this->llvmCommandGenerator->setGenerator(this->llvmGenerator.get());
 
   // Create leading commands.
 
@@ -75,7 +79,9 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }
       })
     },
-    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CodeGenParsingHandler>(manager, this->llvmGenerator, false)}
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CodeGenParsingHandler>(
+      manager, this->llvmGenerator.get(), false
+    )}
   }).get());
   this->addReferenceToCommandList(leadingCmdList, STR("module:Build"));
 
@@ -98,7 +104,9 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }
       })
     },
-    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CodeGenParsingHandler>(manager, this->llvmGenerator, true)}
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CodeGenParsingHandler>(
+      manager, this->llvmGenerator.get(), true
+    )}
   }).get());
   this->addReferenceToCommandList(leadingCmdList, STR("module:Run"));
 
@@ -426,14 +434,14 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   SeekerExtension::unextend(manager->getSeeker(), this->seekerExtensionOverrides);
   this->seekerExtensionOverrides = 0;
 
-  delete this->llvmGenerator;
-  this->llvmGenerator = 0;
-  delete this->llvmLiteralGenerator;
-  this->llvmLiteralGenerator = 0;
-  delete this->llvmTypeGenerator;
-  this->llvmTypeGenerator = 0;
-  delete this->nodePathResolver;
-  this->nodePathResolver = 0;
+  this->llvmGenerator.reset();
+  this->llvmVariableGenerator.reset();
+  this->llvmCommandGenerator.reset();
+  this->llvmExpressionGenerator.reset();
+  this->llvmLiteralGenerator.reset();
+  this->llvmTypeGenerator.reset();
+  this->nodePathResolver.reset();
+  this->astHelper.reset();
 
   auto grammarRepository = manager->getGrammarRepository();
   auto leadingCmdList = this->getLeadingCommandsList(grammarRepository);
@@ -595,6 +603,13 @@ void LibraryGateway::createBuiltInTypes(Core::Standard::RootManager *manager)
   identifier.setValue(STR("ptr"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
+  // ref
+  tmplt = Ast::Template::create();
+  tmplt->setVarDefs({{ STR("type"), Ast::Template::VarType::TYPE }});
+  tmplt->setTemplateBody(Ast::ReferenceType::create());
+  identifier.setValue(STR("ref"));
+  manager->getSeeker()->doSet(&identifier, root, tmplt.get());
+
   // array
   tmplt = Ast::Template::create();
   tmplt->setVarDefs({
@@ -622,6 +637,9 @@ void LibraryGateway::removeBuiltInTypes(Core::Standard::RootManager *manager)
   manager->getSeeker()->doRemove(&identifier, root);
 
   identifier.setValue(STR("ptr"));
+  manager->getSeeker()->doRemove(&identifier, root);
+
+  identifier.setValue(STR("ref"));
   manager->getSeeker()->doRemove(&identifier, root);
 
   identifier.setValue(STR("array"));

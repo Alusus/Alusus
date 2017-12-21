@@ -1,9 +1,9 @@
-ERROR SPP1305 @ (27,12): No valid match was found for the given type.
-ERROR SPP1306 @ (49,7): No valid match was found for the given type member.
-ERROR SPP1312 @ (50,11): Value is not implicitly castable to target type.
-ERROR SPP1312 @ (51,11): Value is not implicitly castable to target type.
-ERROR SPP1312 @ (52,11): Value is not implicitly castable to target type.
-ERROR SPP1306 @ (53,25): No valid match was found for the given type member.
+ERROR SPP1103 @ (27,12): No valid match was found for the given type.
+ERROR SPP1104 @ (49,7): No valid match was found for the given type member.
+ERROR SPP1309 @ (50,11): Value is not implicitly castable to target type.
+ERROR SPP1309 @ (51,11): Value is not implicitly castable to target type.
+ERROR SPP1309 @ (52,11): Value is not implicitly castable to target type.
+ERROR SPP1104 @ (53,25): No valid match was found for the given type member.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -51,6 +51,5 @@ __block0:
   %17 = getelementptr %Main_Nested* %n, i32 0, i32 1
   %18 = getelementptr %Main_Nested* %n, i32 0, i32 1
   %19 = getelementptr %Main_Point* %p, i32 0, i32 1
-  %20 = load i32* %19
 }
 ------------------------------------------------------------

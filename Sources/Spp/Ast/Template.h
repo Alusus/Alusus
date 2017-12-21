@@ -103,24 +103,24 @@ class Template : public Core::Data::Node,
     return &this->varDefs;
   }
 
-  public: virtual TioSharedPtr const& getDefaultInstance(Core::Data::Seeker *seeker);
-  public: virtual Bool matchInstance(TiObject *templateInput, Core::Data::Seeker *seeker, TioSharedPtr &result);
+  public: virtual TioSharedPtr const& getDefaultInstance(Helper *helper);
+  public: virtual Bool matchInstance(TiObject *templateInput, Helper *helper, TioSharedPtr &result);
 
   private: Bool matchTemplateVars(
-    TiObject *templateInput, Block *instance, Core::Data::Seeker *seeker, SharedPtr<Core::Data::Notice> &notice
+    TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Data::Notice> &notice
   );
   private: Bool matchTemplateVar(
-    TiObject *templateInput, Block *instance, Int varIndex, Core::Data::Seeker *seeker,
+    TiObject *templateInput, Block *instance, Int varIndex, Helper *helper,
     SharedPtr<Core::Data::Notice> &notice
   );
 
   private: Bool assignTemplateVars(
-    TiObject *templateInput, Block *instance, Core::Data::Seeker *seeker, SharedPtr<Core::Data::Notice> &notice
+    TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Data::Notice> &notice
   );
 
   public: static TiObject* getTemplateVar(Block const *instance, Char const *name);
 
-  private: static TiObject* traceObject(TiObject *ref, VarType varType, Core::Data::Seeker *seeker);
+  private: static TiObject* traceObject(TiObject *ref, VarType varType, Helper *helper);
 
 
   //============================================================================

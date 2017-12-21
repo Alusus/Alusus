@@ -35,8 +35,6 @@ class Function : public Core::Data::Node,
   //============================================================================
   // Types
 
-  public: s_enum(CallMatchStatus, NONE, CASTED, EXACT);
-
   public: struct ArgMatchContext
   {
     Int index;
@@ -137,16 +135,7 @@ class Function : public Core::Data::Node,
     return this->argTypes == 0 ? 0 : this->argTypes->getCount();
   }
 
-  public: Type* traceArgType(Int index, Core::Data::Seeker *seeker) const
-  {
-    if (this->argTypes == 0 || this->argTypes->getCount() == 0) {
-      throw EXCEPTION(GenericException, STR("Function takes no arguments."));
-    }
-    if (this->argTypes == 0 || index < 0 || index >= this->argTypes->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
-    }
-    return traceType(this->argTypes->get(index), seeker);
-  }
+  public: Type* traceArgType(Int index, Helper *helper) const;
 
   public: Bool isVariadic() const;
 
@@ -160,10 +149,7 @@ class Function : public Core::Data::Node,
     return this->retType;
   }
 
-  public: Type* traceRetType(Core::Data::Seeker *seeker) const
-  {
-    return traceType(this->retType.get(), seeker);
-  }
+  public: Type* traceRetType(Helper *helper) const;
 
   public: void setBody(SharedPtr<Block> const &b)
   {
@@ -175,15 +161,9 @@ class Function : public Core::Data::Node,
     return this->body;
   }
 
-  public: CallMatchStatus matchCall(
-    Core::Basic::Container<Core::Basic::TiObject> *types, ExecutionContext const *executionContext,
-    Core::Standard::RootManager *rootManager
-  );
+  public: CallMatchStatus matchCall(Core::Basic::Container<Core::Basic::TiObject> *types, Helper *helper);
 
-  public: CallMatchStatus matchNextArg(
-    Core::Basic::TiObject *nextType, ArgMatchContext &matchContext,
-    ExecutionContext const *executionContext, Core::Standard::RootManager *rootManager
-  );
+  public: CallMatchStatus matchNextArg(Core::Basic::TiObject *nextType, ArgMatchContext &matchContext, Helper *helper);
 
 }; // class
 

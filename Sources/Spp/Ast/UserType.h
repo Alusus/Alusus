@@ -41,17 +41,13 @@ class UserType : public Type
   //============================================================================
   // Member Functions
 
-  public: virtual Bool isImplicitlyCastableTo(
-    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
-  ) const
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper) const
   {
     if (this == type) return true;
     else return false;
   }
 
-  public: virtual Bool isExplicitlyCastableTo(
-    Type const *type, ExecutionContext const *context, Core::Standard::RootManager *rootManager
-  ) const
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper) const
   {
     if (this == type) return true;
     else return false;

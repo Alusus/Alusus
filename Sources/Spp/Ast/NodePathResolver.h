@@ -1,6 +1,6 @@
 /**
- * @file Spp/NodePathResolver.h
- * Contains the header of class Spp::NodePathResolver.
+ * @file Spp/Ast/NodePathResolver.h
+ * Contains the header of class Spp::Ast::NodePathResolver.
  *
  * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
@@ -13,7 +13,7 @@
 #ifndef SPP_NODEPATHRESOLVER_H
 #define SPP_NODEPATHRESOLVER_H
 
-namespace Spp
+namespace Spp { namespace Ast
 {
 
 class NodePathResolver : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
@@ -30,7 +30,7 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
   //============================================================================
   // Member Variables
 
-  private: Core::Data::Seeker *seeker;
+  private: Helper *helper;
 
 
   //============================================================================
@@ -43,7 +43,7 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
   //============================================================================
   // Constructors
 
-  NodePathResolver(Core::Data::Seeker *s) : seeker(s)
+  NodePathResolver(Helper *h) : helper(h)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -54,7 +54,7 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
-    this->seeker = parent->getSeeker();
+    this->helper = parent->getHelper();
   }
 
 
@@ -68,9 +68,9 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
 
   private: void initBindings();
 
-  public: Core::Data::Seeker* getSeeker() const
+  public: Helper* getHelper() const
   {
-    return this->seeker;
+    return this->helper;
   }
 
   /// @}
@@ -111,6 +111,6 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
 
 }; // class
 
-} // namespace
+} } // namespace
 
 #endif

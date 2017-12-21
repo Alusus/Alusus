@@ -50,12 +50,19 @@ class SeekerExtension : public ObjTiInterface
   public: SeekerExtension(TiObject *o) : owner(o)
   {
     initBindingCaches(this->owner, {
+      &this->astHelper,
       &this->foreachByIdentifier_function,
       &this->foreachByParamPass,
       &this->foreachByParamPass_routing,
       &this->foreachByParamPass_template
     });
   }
+
+
+  //============================================================================
+  // Member Properties
+
+  public: BINDING_CACHE(astHelper, Ast::Helper);
 
 
   //============================================================================
@@ -79,7 +86,7 @@ class SeekerExtension : public ObjTiInterface
   /// @name Setup Functions
   /// @{
 
-  public: static Overrides* extend(Core::Data::Seeker *seeker);
+  public: static Overrides* extend(Core::Data::Seeker *seeker, SharedPtr<Ast::Helper> const &astHelper);
   public: static void unextend(Core::Data::Seeker *seeker, Overrides *overrides);
 
   /// @}

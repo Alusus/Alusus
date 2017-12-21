@@ -27,13 +27,14 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   // Member Variables
 
   private: SeekerExtension::Overrides *seekerExtensionOverrides = 0;
-  private: NodePathResolver *nodePathResolver = 0;
-  private: LlvmCodeGen::TypeGenerator *llvmTypeGenerator = 0;
-  private: LlvmCodeGen::LiteralGenerator *llvmLiteralGenerator = 0;
-  private: LlvmCodeGen::ExpressionGenerator *llvmExpressionGenerator = 0;
-  private: LlvmCodeGen::CommandGenerator *llvmCommandGenerator = 0;
-  private: LlvmCodeGen::VariableGenerator *llvmVariableGenerator = 0;
-  private: LlvmCodeGen::Generator *llvmGenerator = 0;
+  private: SharedPtr<Ast::Helper> astHelper;
+  private: SharedPtr<Ast::NodePathResolver> nodePathResolver;
+  private: SharedPtr<LlvmCodeGen::TypeGenerator> llvmTypeGenerator;
+  private: SharedPtr<LlvmCodeGen::LiteralGenerator> llvmLiteralGenerator;
+  private: SharedPtr<LlvmCodeGen::ExpressionGenerator> llvmExpressionGenerator;
+  private: SharedPtr<LlvmCodeGen::CommandGenerator> llvmCommandGenerator;
+  private: SharedPtr<LlvmCodeGen::VariableGenerator> llvmVariableGenerator;
+  private: SharedPtr<LlvmCodeGen::Generator> llvmGenerator;
 
 
   //============================================================================
@@ -45,10 +46,6 @@ class LibraryGateway : public Core::Standard::LibraryGateway
 
   public: virtual ~LibraryGateway()
   {
-    if (this->llvmGenerator != 0) delete this->llvmGenerator;
-    if (this->llvmLiteralGenerator != 0) delete this->llvmLiteralGenerator;
-    if (this->llvmTypeGenerator != 0) delete this->llvmTypeGenerator;
-    if (this->nodePathResolver != 0) delete this->nodePathResolver;
   }
 
 
