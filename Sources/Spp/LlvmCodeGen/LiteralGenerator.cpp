@@ -160,7 +160,7 @@ Bool LiteralGenerator::_generateIntegerLiteral(
   Int size = 32;
   if (*src == CHR('i') || *src == CHR('I')) {
     ++src;
-    size = std::stoi(src);
+    if (getStrLen(src) > 0) size = std::stoi(src);
   }
 
   // Generate the literal.
@@ -200,7 +200,7 @@ Bool LiteralGenerator::_generateFloatLiteral(
   Int size = 32;
   if (*src == CHR('f') || *src == CHR('F')) {
     ++src;
-    size = std::stoi(src);
+    if (getStrLen(src) > 0) size = std::stoi(src);
   }
 
   // Generate the literal.

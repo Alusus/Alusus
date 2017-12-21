@@ -278,16 +278,8 @@ Bool CommandGenerator::castCondition(
   llvm::IRBuilder<> *llvmIrBuilder, Core::Basic::TiObject *astNode, Spp::Ast::Type *astType,
   llvm::Value *llvmValue, llvm::Value *&resultLlvmValue
 ) {
-  if (this->binaryAstType == 0) {
-    auto binaryTypeRef = this->generator->getRootManager()->parseExpression(STR("Int[1]"));
-    this->binaryAstType = ti_cast<Ast::IntegerType>(this->generator->getSeeker()->doGet(
-      binaryTypeRef.get(), this->generator->getRootManager()->getRootScope().get()
-    ));
-    ASSERT(this->binaryAstType != 0);
-  }
-
   if (!this->generator->getTypeGenerator()->generateCast(
-    llvmIrBuilder, astType, this->binaryAstType, llvmValue, resultLlvmValue
+    llvmIrBuilder, astType, this->generator->getAstHelper()->getBoolType(), llvmValue, resultLlvmValue
   )) {
     this->generator->getNoticeStore()->add(
       std::make_shared<InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))

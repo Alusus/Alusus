@@ -39,8 +39,6 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
 
   private: Generator *generator;
 
-  private: Spp::Ast::IntegerType *binaryAstType = 0;
-
 
   //============================================================================
   // Constructors & Destructor
