@@ -147,10 +147,17 @@ Bool VariableGenerator::_generateMemberReference(
 
   // Find content type.
   auto refType = ti_cast<Ast::ReferenceType>(astType);
+  Ast::Type *contentType;
   if (refType == 0) {
-    throw EXCEPTION(GenericException, STR("Not implemented yet."));
+    // We have the type's value, rather than the reference. So we need to store it into a temp variable.
+    llvm::Type *llvmType;
+    varGenerator->generator->getTypeGenerator()->getGeneratedLlvmType(astType, llvmType, &contentType);
+    auto newLlvmPtr = llvmIrBuilder->CreateAlloca(llvmType, 0);
+    llvmIrBuilder->CreateStore(llvmPtr, newLlvmPtr);
+    llvmPtr = newLlvmPtr;
+  } else {
+    contentType = refType->getContentType(varGenerator->generator->getAstHelper());
   }
-  auto contentType = refType->getContentType(varGenerator->generator->getAstHelper());
 
   // Find the member variable.
   auto body = contentType->getBody().get();
@@ -192,10 +199,18 @@ Bool VariableGenerator::_generateArrayElementReference(
 
   // Find content type.
   auto refType = ti_cast<Ast::ReferenceType>(astType);
+  Ast::ArrayType *contentType;
   if (refType == 0) {
-    throw EXCEPTION(GenericException, STR("Not implemented yet."));
+    // We have the type's value, rather than the reference. So we need to store it into a temp variable.
+    llvm::Type *llvmType;
+    varGenerator->generator->getTypeGenerator()->getGeneratedLlvmType(astType, llvmType);
+    auto newLlvmPtr = llvmIrBuilder->CreateAlloca(llvmType, 0);
+    llvmIrBuilder->CreateStore(llvmPtr, newLlvmPtr);
+    llvmPtr = newLlvmPtr;
+    contentType = ti_cast<Ast::ArrayType>(astType);
+  } else {
+    contentType = ti_cast<Ast::ArrayType>(refType->getContentType(varGenerator->generator->getAstHelper()));
   }
-  auto contentType = ti_cast<Ast::ArrayType>(refType->getContentType(varGenerator->generator->getAstHelper()));
   if (contentType == 0) {
     throw EXCEPTION(GenericException, STR("Invalid type for target array."));
   }

@@ -27,6 +27,21 @@ def Main: module
     def w: Invalid
   };
 
+  def getPoint: function(x: Int[32], y: Int[32], s: Float[32])=>Point
+  {
+    def p: Point;
+    p.x = x;
+    p.y = y;
+    p.s = s;
+    return p;
+  };
+
+  def printPoint: function (p: Point)=>Void
+  {
+    print("p.x = %d\n", p.x);
+    print("p.y = %d\n", p.y);
+  };
+
   def start: function ()=>Void
   {
     def p: Point;
@@ -51,6 +66,12 @@ def Main: module
     n.i = 10;
     n.i = p.y;
     print("p.i=%d\n", p.i);
+
+    print("getPoint(1, 2, 3f).y = %d\n", getPoint(1, 2, 3f).y);
+    printPoint(p);
+    printPoint(getPoint(2, 4, 6f));
+    p = getPoint(4, 8, 9f);
+    printPoint(p);
   }
 };
 

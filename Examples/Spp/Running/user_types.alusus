@@ -24,6 +24,7 @@ def Main: module
     def x: Int[32];
     def y: Int[32];
     def s: Float[32];
+    def a: array[Float[64], 5];
   };
 
   def MyNested: type
@@ -31,6 +32,32 @@ def Main: module
     def p: MyPoint;
     def i: Int[8];
     def j: Int[16];
+  };
+
+  def getPoint: function (f: Float[64])=>MyPoint
+  {
+    def p: MyPoint;
+    p.x = 5;
+    p.y = 6;
+    p.s = 1.2;
+    p.a(0) = 0.01 * f;
+    p.a(1) = 0.02 * f;
+    p.a(2) = 0.03 * f;
+    p.a(3) = 0.04 * f;
+    p.a(4) = 0.05 * f;
+    return p;
+  };
+
+  def printPoint: function (p: MyPoint)=>Void
+  {
+    print("p.x = %d\n", p.x);
+    print("p.y = %d\n", p.y);
+    def i: Int[32];
+    i = 0;
+    while i < 5 {
+      print("p.a(%d) = %f\n", i, p.a(i));
+      i = i + 1;
+    }
   };
 
   def start: function ()=>Void
@@ -41,6 +68,11 @@ def Main: module
     p.x = 5;
     p.y = 6;
     p.s = 1.2;
+    p.a(0) = 0.01;
+    p.a(1) = 0.02;
+    p.a(2) = 0.03;
+    p.a(3) = 0.04;
+    p.a(4) = 0.05;
 
     n.i = 8i8;
     n.j = 9i8;
@@ -57,6 +89,12 @@ def Main: module
     print("n.p.s=%f\n", float32ToFloat64(n.p.s));
     print("n.i=%d\n", i8Toi32(n.i));
     print("n.j=%d\n", i16Toi32(n.j));
+
+    print("getPoint(6f).a(3) = %f\n", getPoint(6f).a(3));
+    printPoint(p);
+    printPoint(getPoint(2f));
+    p = getPoint(3f);
+    printPoint(p);
   }
 };
 

@@ -16,6 +16,28 @@ def Main: module
     def ai: array[Int[32], 4];
   };
 
+  def getArray: function (m: Int[32])=>array[Int[32], 5]
+  {
+    def a: array[Int[32], 5];
+    def i: Int[32];
+    i = 0;
+    while i < 5 {
+      a(i) = (i+1) * m;
+      i = i + 1;
+    };
+    return a;
+  };
+
+  def printArray: function (a: array[Int[32], 5])=>Void
+  {
+    def i: Int[32];
+    i = 0;
+    while i < 5 {
+      print("a(%d) = %d\n", i, a(i));
+      i = i + 1;
+    };
+  };
+
   def start: function ()=>Void
   {
     def i: Int[32];
@@ -63,7 +85,14 @@ def Main: module
     while i < 4 {
       print("apc(%d) = %s\n", i, apc(i));
       i = i + 1
-    }
+    };
+
+    print("getArray(2)(3) = %d\n", getArray(2)(3));
+    print("printArray(getArray(3)):\n");
+    printArray(getArray(3));
+    print("getArray => ai => printArray:\n");
+    ai = getArray(4);
+    printArray(ai);
   }
 };
 

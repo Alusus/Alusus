@@ -1,8 +1,8 @@
-ERROR SPP1309 @ (46,13): Value is not implicitly castable to target type.
-ERROR SPP1309 @ (47,14): Value is not implicitly castable to target type.
-ERROR SPP1106 @ (48,5): No matches were found for the given callee.
-ERROR SPP1106 @ (49,5): No matches were found for the given callee.
-ERROR SPP1106 @ (50,5): No matches were found for the given callee.
+ERROR SPP1309 @ (68,13): Value is not implicitly castable to target type.
+ERROR SPP1309 @ (69,14): Value is not implicitly castable to target type.
+ERROR SPP1106 @ (70,5): No matches were found for the given callee.
+ERROR SPP1106 @ (71,5): No matches were found for the given callee.
+ERROR SPP1106 @ (72,5): No matches were found for the given callee.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -11,18 +11,84 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 %Main_T = type { i32, i32 }
 %Main_TA = type { i32, [4 x i32] }
 
-@__anonymous0 = private constant [13 x i8] c"hello world!\00", align 1
-@__anonymous1 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous0 = private constant [12 x i8] c"a(%d) = %d\0A\00", align 1
+@__anonymous1 = private constant [13 x i8] c"hello world!\00", align 1
 @__anonymous2 = private constant [4 x i8] c"%d\0A\00", align 1
-@__anonymous3 = private constant [4 x i8] c"%s\0A\00", align 1
-@__anonymous4 = private constant [4 x i8] c"%f\0A\00", align 1
-@__anonymous5 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous3 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous4 = private constant [4 x i8] c"%s\0A\00", align 1
+@__anonymous5 = private constant [4 x i8] c"%f\0A\00", align 1
 @__anonymous6 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous7 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous8 = private constant [21 x i8] c"getArray(2)(3) = %d\0A\00", align 1
+@__anonymous9 = private constant [26 x i8] c"printArray(getArray(3)):\0A\00", align 1
+@__anonymous10 = private constant [31 x i8] c"getArray => ai => printArray:\0A\00", align 1
 
 declare i64 @printf(i8*, ...)
 
-define void @Main_start_____Void_() {
+define [5 x i32] @Main_getArray_Int_32_____array_Int_32__5__(i32 %m) {
 __block0:
+  %m1 = alloca i32
+  store i32 %m, i32* %m1
+  %a = alloca [5 x i32]
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %__block1
+
+__block1:                                         ; preds = %__block2, %__block0
+  %0 = load i32* %i
+  %1 = icmp slt i32 %0, 5
+  br i1 %1, label %__block2, label %__block3
+
+__block2:                                         ; preds = %__block1
+  %2 = load i32* %i
+  %3 = sext i32 %2 to i64
+  %4 = getelementptr [5 x i32]* %a, i32 0, i64 %3
+  %5 = load i32* %i
+  %6 = add i32 %5, 1
+  %7 = load i32* %m1
+  %8 = mul i32 %6, %7
+  store i32 %8, i32* %4
+  %9 = load i32* %i
+  %10 = add i32 %9, 1
+  store i32 %10, i32* %i
+  br label %__block1
+
+__block3:                                         ; preds = %__block1
+  %11 = load [5 x i32]* %a
+  ret [5 x i32] %11
+}
+
+define void @Main_printArray_array_Int_32__5_____Void_([5 x i32] %a) {
+__block4:
+  %a1 = alloca [5 x i32]
+  store [5 x i32] %a, [5 x i32]* %a1
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %__block5
+
+__block5:                                         ; preds = %__block6, %__block4
+  %0 = load i32* %i
+  %1 = icmp slt i32 %0, 5
+  br i1 %1, label %__block6, label %__block7
+
+__block6:                                         ; preds = %__block5
+  %2 = load i32* %i
+  %3 = sext i32 %2 to i64
+  %4 = getelementptr [5 x i32]* %a1, i32 0, i64 %3
+  %5 = load i32* %i
+  %6 = load i32* %4
+  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous0, i64 0, i64 0), i32 %5, i32 %6)
+  %8 = load i32* %i
+  %9 = add i32 %8, 1
+  store i32 %9, i32* %i
+  br label %__block5
+
+__block7:                                         ; preds = %__block5
+  ret void
+}
+
+define void @Main_start_____Void_() {
+__block8:
   %ai = alloca [5 x i32]
   %aai = alloca [3 x [5 x i32]]
   %apc = alloca [4 x i8*]
@@ -35,7 +101,7 @@ __block0:
   %2 = getelementptr [5 x i32]* %1, i32 0, i64 4
   store i32 23, i32* %2
   %3 = getelementptr [4 x i8*]* %apc, i32 0, i64 1
-  store i8* getelementptr inbounds ([13 x i8]* @__anonymous0, i64 0, i64 0), i8** %3
+  store i8* getelementptr inbounds ([13 x i8]* @__anonymous1, i64 0, i64 0), i8** %3
   %4 = getelementptr [7 x double]* %af, i32 0, i64 0
   store double 0x3FF3333340000000, double* %4
   %5 = getelementptr [9 x %Main_T]* %at, i32 0, i64 7
@@ -46,26 +112,40 @@ __block0:
   store i32 89, i32* %8
   %9 = getelementptr [5 x i32]* %ai, i32 0, i64 2
   %10 = load i32* %9
-  %11 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous1, i64 0, i64 0), i32 %10)
+  %11 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous2, i64 0, i64 0), i32 %10)
   %12 = getelementptr [3 x [5 x i32]]* %aai, i32 0, i64 2
   %13 = getelementptr [5 x i32]* %12, i32 0, i64 4
   %14 = load i32* %13
-  %15 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous2, i64 0, i64 0), i32 %14)
+  %15 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous3, i64 0, i64 0), i32 %14)
   %16 = getelementptr [4 x i8*]* %apc, i32 0, i64 1
   %17 = load i8** %16
-  %18 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous3, i64 0, i64 0), i8* %17)
+  %18 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous4, i64 0, i64 0), i8* %17)
   %19 = getelementptr [7 x double]* %af, i32 0, i64 0
   %20 = load double* %19
-  %21 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous4, i64 0, i64 0), double %20)
+  %21 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous5, i64 0, i64 0), double %20)
   %22 = getelementptr [9 x %Main_T]* %at, i32 0, i64 7
   %23 = getelementptr %Main_T* %22, i32 0, i32 1
   %24 = load i32* %23
-  %25 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous5, i64 0, i64 0), i32 %24)
+  %25 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous6, i64 0, i64 0), i32 %24)
   %26 = getelementptr %Main_TA* %ta, i32 0, i32 1
   %27 = getelementptr [4 x i32]* %26, i32 0, i64 3
   %28 = load i32* %27
-  %29 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous6, i64 0, i64 0), i32 %28)
+  %29 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous7, i64 0, i64 0), i32 %28)
   %30 = getelementptr [5 x i32]* %ai, i32 0, i64 2
   %31 = getelementptr [3 x [5 x i32]]* %aai, i32 0, i64 0
+  %32 = call [5 x i32] @Main_getArray_Int_32_____array_Int_32__5__(i32 2)
+  %33 = alloca [5 x i32]
+  store [5 x i32] %32, [5 x i32]* %33
+  %34 = getelementptr [5 x i32]* %33, i32 0, i64 3
+  %35 = load i32* %34
+  %36 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([21 x i8]* @__anonymous8, i64 0, i64 0), i32 %35)
+  %37 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([26 x i8]* @__anonymous9, i64 0, i64 0))
+  %38 = call [5 x i32] @Main_getArray_Int_32_____array_Int_32__5__(i32 3)
+  call void @Main_printArray_array_Int_32__5_____Void_([5 x i32] %38)
+  %39 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([31 x i8]* @__anonymous10, i64 0, i64 0))
+  %40 = call [5 x i32] @Main_getArray_Int_32_____array_Int_32__5__(i32 4)
+  store [5 x i32] %40, [5 x i32]* %ai
+  %41 = load [5 x i32]* %ai
+  call void @Main_printArray_array_Int_32__5_____Void_([5 x i32] %41)
 }
 ------------------------------------------------------------

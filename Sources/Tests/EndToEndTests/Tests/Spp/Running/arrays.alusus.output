@@ -13,3 +13,16 @@ apc(0) = abc
 apc(1) = def
 apc(2) = ghi
 apc(3) = jkl
+getArray(2)(3) = 8
+printArray(getArray(3)):
+a(0) = 3
+a(1) = 6
+a(2) = 9
+a(3) = 12
+a(4) = 15
+getArray => ai => printArray:
+a(0) = 4
+a(1) = 8
+a(2) = 12
+a(3) = 16
+a(4) = 20
