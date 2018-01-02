@@ -1,0 +1,76 @@
+/**
+ * @file Spp/Handlers/TildeOpParsingHandler.h
+ * Contains the header of class Spp::Handlers::TildeOpParsingHandler
+ *
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ */
+//==============================================================================
+
+#ifndef SPP_HANDLERS_TILDEOPPARSINGHANDLER_H
+#define SPP_HANDLERS_TILDEOPPARSINGHANDLER_H
+
+namespace Spp { namespace Handlers
+{
+
+template<class TYPE> class TildeOpParsingHandler : public Core::Processing::Handlers::GenericParsingHandler
+{
+  //============================================================================
+  // Type Info
+
+  TEMPLATE_TYPE_INFO(
+    TildeOpParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
+    "Spp.Handlers", "Spp", "alusus.net", (TYPE)
+  );
+
+
+  //============================================================================
+  // Constructor
+
+  public: TildeOpParsingHandler()
+  {
+  }
+
+  public: static SharedPtr<TildeOpParsingHandler<TYPE>> create()
+  {
+    return std::make_shared<TildeOpParsingHandler<TYPE>>();
+  }
+
+
+  //============================================================================
+  // Member Functions
+
+  public: virtual void onProdStart(
+    Core::Processing::Parser *parser, Core::Processing::ParserState *state, Core::Data::Token const *token
+  ) {
+    auto data = std::make_shared<TYPE>();
+    data->setSourceLocation(std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation()));
+    state->setData(data);
+  }
+
+  public: virtual void onNewToken(
+    Core::Processing::Parser *parser, Core::Processing::ParserState *state, Core::Data::Token const *token
+  ) {
+  }
+
+  protected: virtual void addData(SharedPtr<TiObject> const &data, Core::Processing::ParserState *state, Int levelIndex)
+  {
+    if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
+      auto currentData = state->getData(levelIndex).ti_cast_get<TYPE>();
+      if (currentData != 0) {
+        // The operand which is at index 0 will be set by the parent production, so we'll skip that.
+        currentData->set(1, data.get());
+        return;
+      }
+    }
+    GenericParsingHandler::addData(data, state, levelIndex);
+  }
+
+}; // class
+
+} } // namespace
+
+#endif

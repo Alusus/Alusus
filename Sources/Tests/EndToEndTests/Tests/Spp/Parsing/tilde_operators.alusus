@@ -1,0 +1,27 @@
+import "libalusus_spp.so";
+
+def main: function ()=>Void
+{
+  def i: Int[32];
+  def pi: ptr[Int[32]];
+  def a: array[Int[32], 5];
+  def pa: ptr[array[Int[32], 5]];
+
+  i~ptr;
+  i~ptr~cnt;
+
+  pi = i~ptr;
+  pi~cnt = 5;
+
+  i = pi~cnt + 3;
+
+  a~ptr~cnt(3) = 3;
+
+  pa = a~ptr;
+  pa~cnt(3) = 4;
+
+  i~p;
+  i~ptr a;
+};
+
+dump main;

@@ -1,7 +1,7 @@
 /**
  * @file Spp/LibraryGateway.cpp
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -59,6 +59,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   auto grammarRepository = manager->getGrammarRepository();
   auto leadingCmdList = this->getLeadingCommandsList(grammarRepository);
   auto innerCmdList = this->getInnerCommandsList(grammarRepository);
+  auto tildeCmdList = this->getTildeCommandsList(grammarRepository);
 
   //// build = "build" + Subject
   grammarRepository->set(STR("root:Main.Build"), SymbolDefinition::create({
@@ -225,7 +226,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
   this->addReferenceToCommandList(leadingCmdList, STR("module:Return"));
 
-  // Create inner command.
+  // Create inner commands.
 
   //// module = "module" + Set
   grammarRepository->set(STR("root:Subject.Module"), SymbolDefinition::create({
@@ -423,6 +424,33 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     })}
   }).get());
 
+  // Create tilde commands.
+
+  // ~ptr
+  grammarRepository->set(STR("root:Expression.Pointer_Tilde"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    {
+      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("ptr"), 0 }, { STR("مؤشر"), 0 } }) },
+        { STR("prms"), Core::Data::SharedList::create({}) }
+      })
+    },
+    { SymbolDefElement::HANDLER, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::PointerOp>::create() }
+  }).get());
+  this->addReferenceToCommandList(tildeCmdList, STR("module:Pointer_Tilde"));
+  // ~cnt
+  grammarRepository->set(STR("root:Expression.Content_Tilde"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    {
+      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("cnt"), 0 }, { STR("محتوى"), 0 } }) },
+        { STR("prms"), Core::Data::SharedList::create({}) }
+      })
+    },
+    { SymbolDefElement::HANDLER, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::ContentOp>::create() }
+  }).get());
+  this->addReferenceToCommandList(tildeCmdList, STR("module:Content_Tilde"));
+
   this->createBuiltInTypes(manager);
   this->createBuiltInFunctions(manager);
 }
@@ -476,6 +504,8 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   grammarRepository->remove(STR("root:BlockSubject"));
   grammarRepository->remove(STR("root:BlockExpression"));
   grammarRepository->remove(STR("root:BlockMain"));
+  grammarRepository->remove(STR("root:Expression.Pointer_Tilde"));
+  grammarRepository->remove(STR("root:Expression.Content_Tilde"));
 
   this->removeBuiltInFunctions(manager);
   this->removeBuiltInTypes(manager);

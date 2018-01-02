@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the
  * Spp::Handlers namespace.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -64,5 +64,6 @@ DEFINE_NOTICE(InvalidIfStatementNotice, "Spp.Handlers", "Spp", "alusus.net", "SP
 #include "IfParsingHandler.h"
 #include "WhileParsingHandler.h"
 #include "CodeGenParsingHandler.h"
+#include "TildeOpParsingHandler.h"
 
 #endif
