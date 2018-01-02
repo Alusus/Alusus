@@ -2,7 +2,7 @@
  * @file Core/Processing/NoticeStore.cpp
  * Contains the implementation of class Core::Processing::NoticeStore.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -44,6 +44,11 @@ void NoticeStore::add(SharedPtr<Data::Notice> const &notice)
  */
 void NoticeStore::setTrunkSharedCount(Word count)
 {
+  if (this->trunkStore == 0 && count == 0) {
+    this->trunkSharedCount = count;
+    return;
+  }
+
   if (this->trunkStore == 0) {
     throw EXCEPTION(GenericException, STR("No trunk store set for this store."));
   }
@@ -66,7 +71,7 @@ void NoticeStore::copyTrunkSharedNotices()
     throw EXCEPTION(GenericException, STR("No trunk store set for this store."));
   }
   ASSERT(this->trunkSharedCount >= 0 &&
-         this->trunkSharedCount <= this->trunkStore->getTrunkSharedCount());
+         this->trunkSharedCount <= this->trunkStore->getCount());
   this->notices.insert(this->notices.begin(),
                          this->trunkStore->notices.begin(),
                          this->trunkStore->notices.begin()+this->trunkSharedCount);

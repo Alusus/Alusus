@@ -2,7 +2,7 @@
  * @file Core/Processing/NoticeStore.h
  * Contains the header of class Core::Processing::NoticeStore.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -97,10 +97,6 @@ class NoticeStore
   protected: void setTrunkStore(NoticeStore *store, Word sharedNoticeCount=0)
   {
     this->trunkStore = store;
-    this->clearPrefixSourceLocationStack();
-    for (Int i = 0; i < store->getPrefixSourceLocationStack().getCount(); ++i) {
-      this->pushPrefixSourceLocation(store->getPrefixSourceLocationStack().get(i).get());
-    }
     this->setTrunkSharedCount(sharedNoticeCount);
   }
 
@@ -154,6 +150,14 @@ class NoticeStore
   public: void popPrefixSourceLocation(Word count)
   {
     this->prefixSourceLocationStack.pop(count);
+  }
+
+  public: void copyPrefixSourceLocationStack(NoticeStore *store)
+  {
+    this->clearPrefixSourceLocationStack();
+    for (Int i = 0; i < store->getPrefixSourceLocationStack().getCount(); ++i) {
+      this->pushPrefixSourceLocation(store->getPrefixSourceLocationStack().get(i).get());
+    }
   }
 
   /// @}

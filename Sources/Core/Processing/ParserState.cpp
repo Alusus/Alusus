@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserState.cpp
  * Contains the implementation of Processing::ParserState.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -640,7 +640,7 @@ void ParserState::setBranchingInfo(ParserState *ts, Int ttl, Int tsi, Int psi)
   } else {
     this->variableStack.setBranchingInfo(0, -1);
   }
-  this->noticeStore.setTrunkStore(ts->getNoticeStore());
+  this->noticeStore.setTrunkStore(ts == 0 ? 0 : ts->getNoticeStore());
   this->tokensToLive = ttl;
 }
 

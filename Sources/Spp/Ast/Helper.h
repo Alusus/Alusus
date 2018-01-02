@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.h
  * Contains the header of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -21,7 +21,7 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Helper, TiObject, "Spp", "Spp", "alusus.net", (
+  TYPE_INFO(Helper, TiObject, "Spp.Ast", "Spp", "alusus.net", (
     INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));

@@ -2,7 +2,7 @@
  * @file Spp/Handlers/IfParsingHandler.h
  * Contains the header of class Spp::Handlers::IfParsingHandler
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,7 +22,7 @@ class IfParsingHandler : public Core::Processing::Handlers::GenericParsingHandle
   // Type Info
 
   TYPE_INFO(IfParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
-            "Core.Processing.Handlers", "Core", "alusus.net");
+            "Spp.Handlers", "Spp", "alusus.net");
 
 
   //============================================================================

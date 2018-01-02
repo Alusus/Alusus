@@ -2,7 +2,7 @@
  * @file Core/Processing/Parser.cpp
  * Contains the implementation of class Core::Processing::Parser.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -1080,7 +1080,7 @@ void Parser::computePossibleMultiplyRoutes(Data::Token const *token, ParserState
     } else {
       success = true;
     }
-    if (success & oneRoute) return;
+    if (success && oneRoute) return;
     if (minOccurances == 0 || static_cast<Int>(state->refTopTermLevel().getPosId()) >= minOccurances->get()) {
       this->computeOuterMultiplyRoute(token, state, multiplyTerm, priority);
     }
@@ -1247,6 +1247,15 @@ Int Parser::testState(Data::Token const *token, ParserState *state)
     while (state->getProcessingStatus() == ParserProcessingStatus::ERROR && state->getTermLevelCount() > 2) {
       // Remove the current level.
       state->popLevel();
+      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Poping a failed level. Back to (") <<
+        (
+          state->getProdLevelCount()==0 ?
+          STR("start") :
+          ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId())
+        )
+        << STR(" - ")
+        << (state->getTopProdTermLevelCount() - 1)
+        << STR(")."));
       // Is this level a multi-route level that has been set during the test?
       if (state->refTopTermLevel().getPosId() & THIS_TESTING_PASS) {
         // This is an intersection set during this testing pass, so we can try a different
@@ -1398,16 +1407,16 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
     ASSERT(maxOccurances == 0 || maxOccurances->get() >= 0);
     // Try moving deeper first.
     if (maxOccurances != 0 && maxOccurances->get() == 0) {
-      state->popLevel();
       this->decisionNodes.addNode(state, 0);
+      state->popLevel();
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Skipping disabled inner multiply route (max == 0)."));
     } else {
       Data::Term *childTerm = multiplyTerm->getTerm().get();
       ASSERT(childTerm != 0);
       state->ownTopLevel();
       state->setTopTermPosId(1|THIS_TESTING_PASS);
-      state->pushTermLevel(childTerm);
       this->decisionNodes.addNode(state, 1);
+      state->pushTermLevel(childTerm);
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying inner multiply route (0 iterations so far)."));
     }
   } else if (state->refTopTermLevel().getPosId() & THIS_TESTING_PASS) {
@@ -1416,15 +1425,16 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
     // match. We'll consider the inner route to fail even if the
     // status is still IN_PROGRESS since we don't want infinite
     // loops.
+    this->decisionNodes.moveToCurrentNode(state);
     count = state->refTopTermLevel().getPosId() & (~THIS_TESTING_PASS);
     // Have we finished at least the minimum count (not counting the attempt that just failed)?
     if (minOccurances == 0 || count > minOccurances->get()) {
       // We can ignore the failing iteration since we have already
       // finished the minimum required.
       state->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
-      state->popLevel();
       this->decisionNodes.removeNode(state);
       this->decisionNodes.addNode(state, 0);
+      state->popLevel();
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying outer multiply route (") <<
           count << STR(" iterations completed)."));
     } else {
@@ -1441,7 +1451,6 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
     // consider this to fail regardless of the status in order to
     // avoid infinite loops.
     state->setProcessingStatus(ParserProcessingStatus::ERROR);
-    this->decisionNodes.removeNode(state);
     LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failed for multiply term (already visited)."));
   } else {
     // We have reached this before, but not during this parsing pass
@@ -1455,8 +1464,8 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
     if (maxOccurances != 0 && count >= maxOccurances->get()) {
       // We reached the max count, so we'll move up instead of
       // trying the inner route again.
-      state->popLevel();
       this->decisionNodes.addNode(state, 0);
+      state->popLevel();
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Max iterations reached for multiply term (") <<
           count << STR(" iterations)."));
     } else {
@@ -1467,8 +1476,8 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
       // Now create the deeper level.
       Data::Term *childTerm = multiplyTerm->getTerm().get();
       ASSERT(childTerm != 0);
-      state->pushTermLevel(childTerm);
       this->decisionNodes.addNode(state, 1);
+      state->pushTermLevel(childTerm);
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying inner multiply route (") <<
           count << STR(" iterations so far)."));
     }
@@ -1507,9 +1516,9 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
       // first route.
       state->ownTopLevel();
       state->setTopTermPosId(1|THIS_TESTING_PASS);
+      this->decisionNodes.addNode(state, 1);
       Data::Term *childTerm = state->useListTermChild(0);
       state->pushTermLevel(childTerm);
-      this->decisionNodes.addNode(state, 1);
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying alternate route (1)."));
     }
   } else if (state->refTopTermLevel().getPosId() & THIS_TESTING_PASS) {
@@ -1529,20 +1538,19 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
     if (state->getProcessingStatus() == ParserProcessingStatus::IN_PROGRESS) {
       emptyLoop = true;
     }
+    this->decisionNodes.moveToCurrentNode(state);
     // If this very attempt was an empty loop, we'll keep the decision made and branch,
     // otherwise we'll delete the decision and try a new one.
-    if (state->getProcessingStatus() == ParserProcessingStatus::IN_PROGRESS) {
-      this->decisionNodes.moveToCurrentNode(state);
-    } else {
+    if (state->getProcessingStatus() != ParserProcessingStatus::IN_PROGRESS) {
       this->decisionNodes.removeNode(state);
     }
     if (static_cast<Word>(index) < termCount) {
       // Try the next route.
       // If we have had an empty loop before, mark that somehow in the index.
       state->setTopTermPosId(((emptyLoop?index+termCount:index)+1)|THIS_TESTING_PASS);
+      this->decisionNodes.addNode(state, index+1);
       Data::Term *childTerm = state->useListTermChild(index);
       state->pushTermLevel(childTerm);
-      this->decisionNodes.addNode(state, index+1);
       // Return the status to IN_PROGRESS to give a chance for the other routes.
       state->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying alternate route (") << (index+1) << STR(")."));
@@ -1552,9 +1560,9 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
       // IN_PROGRESS.
       if (emptyLoop) {
         state->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
-        state->popLevel();
         ASSERT(this->decisionNodes.getChildIndex(state) != -1);
         state->setDecisionNodeIndex(this->decisionNodes.getChildIndex(state));
+        state->popLevel();
         LOG(LogLevel::PARSER_MINOR, STR("Testing State: Alternate route has an empty loop. Try upper route."));
       } else {
         LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failed to match an alternate route."));
@@ -1753,6 +1761,7 @@ Parser::StateIterator Parser::duplicateState(
   (*newSi)->setBranchingInfo(*si, tokensToLive, -1, -1);
   // Set build msg info.
   (*newSi)->getNoticeStore()->setTrunkSharedCount((*si)->getNoticeStore()->getCount());
+  (*newSi)->getNoticeStore()->copyPrefixSourceLocationStack((*si)->getNoticeStore());
   // Copy the processing status.
   (*newSi)->setProcessingStatus((*si)->getProcessingStatus());
   (*newSi)->setPrevProcessingStatus((*si)->getPrevProcessingStatus());

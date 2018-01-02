@@ -2,7 +2,7 @@
  * @file Spp/Handlers/WhileParsingHandler.h
  * Contains the header of class Spp::Handlers::WhileParsingHandler
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,7 +22,7 @@ class WhileParsingHandler : public Core::Processing::Handlers::GenericParsingHan
   // Type Info
 
   TYPE_INFO(WhileParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
-            "Core.Processing.Handlers", "Core", "alusus.net");
+            "Spp.Handlers", "Spp", "alusus.net");
 
 
   //============================================================================

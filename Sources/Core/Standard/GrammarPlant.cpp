@@ -2,7 +2,7 @@
  * @file Core/Standard/GrammarPlant.cpp
  * Contains the implementation of class Core::Standard::GrammarPlant.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -1470,18 +1470,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
     {SymbolDefElement::VARS, SharedMap::create(false, {
       {STR("cmd"), REF_PARSER->parseQualifier(STR("module:DefaultPostfixTildeCmd"))}
     })},
-    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>([](Parser *parser, ParserState *state) {
-       auto currentList = state->getData().tii_cast_get<Data::Container>();
-       auto metadata = ti_cast<Ast::Metadata>(currentList);
-       auto token = tio_cast<Ast::Token>(currentList->get(0));
-       auto linkOp = Ast::LinkOperator::create({
-         { "prodId", metadata->getProdId() },
-         { "sourceLocation", metadata->findSourceLocation() }
-       });
-       linkOp->setType(token->getText());
-       linkOp->setSecond(getSharedPtr(currentList->get(1)));
-       state->setData(linkOp);
-     })}
+    {SymbolDefElement::HANDLER, this->parsingHandler}
   }).get());
   //OpenPostfixTildeCmd : @limit[user.parent==PostfixTildeCmd]
   //    prod (expr:production[Expression], args:list[hash[sbj:valid_subject, min:integer,
@@ -1490,34 +1479,47 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
   //    lexer.Constant(")");
   this->repository.set(STR("root:Expression.OpenPostfixTildeCmd"), SymbolDefinition::create({
     {SymbolDefElement::TERM, ConcatTerm::create({
-       {TermElement::TERM, SharedList::create({
-          TokenTerm::create(0, this->constTokenId, STR("(")),
-          ReferenceTerm::create(STR("args:expr")),
-          ConcatTerm::create({
+      {TermElement::TERM, SharedList::create({
+        TokenTerm::create(0, this->constTokenId, STR("(")),
+        ReferenceTerm::create(STR("args:expr")),
+        ConcatTerm::create({
+          {TermElement::FLAGS, Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+          {TermElement::REF, REF_PARSER->parseQualifier(STR("stack:p"))},
+          {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:prms"))},
+          {TermElement::TERM, MultiplyTerm::create({
+            {TermElement::PRIORITY, REF_PARSER->parseQualifier(STR("stack:p.pty"))},
             {TermElement::FLAGS, Integer::create(ParsingFlags::PASS_ITEMS_UP)},
-            {TermElement::REF, REF_PARSER->parseQualifier(STR("stack:p"))},
-            {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:prms"))},
-            {TermElement::TERM, MultiplyTerm::create({
-               {TermElement::PRIORITY, REF_PARSER->parseQualifier(STR("stack:p.pty"))},
-               {TermElement::FLAGS, Integer::create(ParsingFlags::PASS_ITEMS_UP)},
-               {TermElement::MIN, REF_PARSER->parseQualifier(STR("stack:p.min"))},
-               {TermElement::MAX, REF_PARSER->parseQualifier(STR("stack:p.max"))},
-               {TermElement::TERM, ReferenceTerm::create(STR("stack:p.prd"))}
-             })}
-          }),
-          TokenTerm::create(0, this->constTokenId, STR(")"))
-        })}
-     })},
+            {TermElement::MIN, REF_PARSER->parseQualifier(STR("stack:p.min"))},
+            {TermElement::MAX, REF_PARSER->parseQualifier(STR("stack:p.max"))},
+            {TermElement::TERM, ReferenceTerm::create(STR("stack:p.prd"))}
+          })}
+        }),
+        TokenTerm::create(0, this->constTokenId, STR(")"))
+      })}
+    })},
     {SymbolDefElement::VARS, SharedMap::create(false, {
-       {STR("expr"), REF_PARSER->parseQualifier(STR("root:Expression"))},
-       {STR("prms"), SharedList::create({SharedMap::create(false, {
-                                     {STR("pty"), std::make_shared<Integer>(1)},
-                                     {STR("min"), 0},
-                                     {STR("max"), 0},
-                                     {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))}
-                                   })})}
-     })},
-    {SymbolDefElement::HANDLER, this->parsingHandler}
+      {STR("expr"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+      {STR("prms"), SharedList::create({SharedMap::create(false, {
+        {STR("pty"), std::make_shared<Integer>(1)},
+        {STR("min"), 0},
+        {STR("max"), 0},
+        {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))}
+      })})}
+    })},
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>(
+      [](Parser *parser, ParserState *state)
+      {
+        auto data = state->getData();
+        auto metadata = data.ti_cast_get<Ast::Metadata>();
+        auto linkOp = Ast::LinkOperator::create({
+          { "prodId", metadata->getProdId() },
+          { "sourceLocation", metadata->findSourceLocation() }
+        });
+        linkOp->setType(STR("~"));
+        linkOp->setSecond(data);
+        state->setData(linkOp);
+      }
+    )}
   }).get());
   //DefaultPostfixTildeCmd=>PostfixTildeCmd : prod_group;
   this->repository.set(STR("root:Expression.DefaultPostfixTildeCmd"), SymbolDefinition::create({

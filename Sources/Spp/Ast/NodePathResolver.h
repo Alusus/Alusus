@@ -2,7 +2,7 @@
  * @file Spp/Ast/NodePathResolver.h
  * Contains the header of class Spp::Ast::NodePathResolver.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -21,7 +21,7 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
   //============================================================================
   // Type Info
 
-  TYPE_INFO(NodePathResolver, TiObject, "Spp", "Spp", "alusus.net", (
+  TYPE_INFO(NodePathResolver, TiObject, "Spp.Ast", "Spp", "alusus.net", (
     INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));

@@ -130,4 +130,9 @@ Scope [Main.StatementList]
         first: Identifier: b [Subject.Parameter]
         second: Identifier: c [Subject.Parameter]
   modifiers: NULL
+ AssignmentOperator = [Expression.AssignmentExp]
+  first: Identifier: a [Subject.Parameter]
+  second: LinkOperator ~ [Subject.Parameter]
+   first: Identifier: b [Subject.Parameter]
+   second: Identifier: c [Subject.Parameter]
 ------------------------------------------------------

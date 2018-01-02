@@ -29,7 +29,9 @@ def a: {
     bracketVar = a + (b + c);
 
     do s:10;
-  }
+  };
+
+  a = b~(c);
 };
 
 dump a;
