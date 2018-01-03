@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/Generator.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::Generator.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -466,6 +466,16 @@ Bool Generator::_generatePhrase(
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
     return generator->expressionGenerator->generateInfixOp(
       infixOp, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
+    );
+  } else if (astNode->isDerivedFrom<Spp::Ast::PointerOp>()) {
+    auto pointerOp = static_cast<Spp::Ast::PointerOp*>(astNode);
+    return generator->expressionGenerator->generatePointerOp(
+      pointerOp, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
+    );
+  } else if (astNode->isDerivedFrom<Spp::Ast::ContentOp>()) {
+    auto contentOp = static_cast<Spp::Ast::ContentOp*>(astNode);
+    return generator->expressionGenerator->generateContentOp(
+      contentOp, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);

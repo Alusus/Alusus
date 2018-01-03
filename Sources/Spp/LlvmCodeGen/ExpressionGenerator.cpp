@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/ExpressionGenerator.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -29,7 +29,9 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateArrayReference,
     &this->generateFunctionCall,
     &this->generateBuiltInFunctionCall,
-    &this->generateUserFunctionCall
+    &this->generateUserFunctionCall,
+    &this->generatePointerOp,
+    &this->generateContentOp
   });
 }
 
@@ -45,6 +47,8 @@ void ExpressionGenerator::initBindings()
   this->generateFunctionCall = &ExpressionGenerator::_generateFunctionCall;
   this->generateBuiltInFunctionCall = &ExpressionGenerator::_generateBuiltInFunctionCall;
   this->generateUserFunctionCall = &ExpressionGenerator::_generateUserFunctionCall;
+  this->generatePointerOp = &ExpressionGenerator::_generatePointerOp;
+  this->generateContentOp = &ExpressionGenerator::_generateContentOp;
 }
 
 
@@ -318,6 +322,7 @@ Bool ExpressionGenerator::_generateAssignment(
     expGenerator->generator->getNoticeStore()->add(
       std::make_shared<UnsupportedOperationNotice>(astNode->findSourceLocation())
     );
+    return false;
   }
   varAstType = varRefAstType->getContentType(expGenerator->generator->getAstHelper());
 
@@ -590,6 +595,89 @@ Bool ExpressionGenerator::_generateUserFunctionCall(
   // Assign results.
   llvmResult = llvmCall;
   resultType = callee->traceRetType(expGenerator->generator->getAstHelper());
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generatePointerOp(
+  TiObject *self, Spp::Ast::PointerOp *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  resultType = 0;
+  llvmResult = 0;
+  lastProcessedNode = 0;
+
+  // Generate the operand.
+  auto operand = astNode->getOperand().get();
+  if (operand == 0) {
+    throw EXCEPTION(GenericException, STR("PointerOp operand is missing."));
+  }
+  Ast::Type *operandAstType;
+  llvm::Value *operandLlvmPointer;
+  TiObject *operandLastRef;
+  if (!expGenerator->generator->generatePhrase(
+    operand, llvmIrBuilder, llvmFunc, operandAstType, operandLlvmPointer, operandLastRef
+  )) return false;
+  auto operandRefAstType = ti_cast<Ast::ReferenceType>(operandAstType);
+  if (operandRefAstType == 0) {
+    expGenerator->generator->getNoticeStore()->add(
+      std::make_shared<UnsupportedOperationNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  // Get the pointer type.
+  resultType = expGenerator->generator->getAstHelper()->getPointerTypeForReferenceType(operandRefAstType);
+  if (resultType == 0) return false;
+  llvmResult = operandLlvmPointer;
+  lastProcessedNode = astNode;
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generateContentOp(
+  TiObject *self, Spp::Ast::ContentOp *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  resultType = 0;
+  llvmResult = 0;
+  lastProcessedNode = 0;
+
+  // Generate the operand.
+  auto operand = astNode->getOperand().get();
+  if (operand == 0) {
+    throw EXCEPTION(GenericException, STR("ContentOp operand is missing."));
+  }
+  Ast::Type *operandAstType;
+  llvm::Value *operandLlvmPointer;
+  TiObject *operandLastRef;
+  if (!expGenerator->generator->generatePhrase(
+    operand, llvmIrBuilder, llvmFunc, operandAstType, operandLlvmPointer, operandLastRef
+  )) return false;
+
+  // Get the pointer itself, not a reference to a pointer.
+  expGenerator->generator->getTypeGenerator()->dereferenceIfNeeded(
+    llvmIrBuilder, operandAstType, operandLlvmPointer, operandAstType, operandLlvmPointer
+  );
+
+  // Did we end up with a pointer type?
+  auto operandPtrAstType = ti_cast<Ast::PointerType>(operandAstType);
+  if (operandPtrAstType == 0) {
+    expGenerator->generator->getNoticeStore()->add(
+      std::make_shared<UnsupportedOperationNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  // Get the reference type.
+  resultType = expGenerator->generator->getAstHelper()->getReferenceTypeForPointerType(operandPtrAstType);
+  if (resultType == 0) return false;
+  llvmResult = operandLlvmPointer;
+  lastProcessedNode = astNode;
   return true;
 }
 

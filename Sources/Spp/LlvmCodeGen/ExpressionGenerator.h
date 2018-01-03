@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/ExpressionGenerator.h
  * Contains the header of class Spp::LlvmCodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -185,6 +185,28 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
   private: static Bool _generateUserFunctionCall(
     TiObject *self, Spp::Ast::Function *callee, Core::Basic::Container<llvm::Value> *paramCgs,
     llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc, Spp::Ast::Type *&resultType, llvm::Value *&llvmResult
+  );
+
+  public: METHOD_BINDING_CACHE(generatePointerOp,
+    Bool, (
+      Spp::Ast::PointerOp*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
+  );
+  private: static Bool _generatePointerOp(
+    TiObject *self, Spp::Ast::PointerOp *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+  );
+
+  public: METHOD_BINDING_CACHE(generateContentOp,
+    Bool, (
+      Spp::Ast::ContentOp*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
+  );
+  private: static Bool _generateContentOp(
+    TiObject *self, Spp::Ast::ContentOp *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );
 
   /// @}

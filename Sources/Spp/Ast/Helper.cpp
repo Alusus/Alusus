@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.cpp
  * Contains the implementation of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -29,6 +29,7 @@ void Helper::initBindingCaches()
     &this->isImplicitlyCastableTo,
     &this->isReferenceTypeFor,
     &this->getReferenceTypeFor,
+    &this->getPointerTypeFor,
     &this->getBoolType,
     &this->getInt64Type
   });
@@ -45,6 +46,7 @@ void Helper::initBindings()
   this->isImplicitlyCastableTo = &Helper::_isImplicitlyCastableTo;
   this->isReferenceTypeFor = &Helper::_isReferenceTypeFor;
   this->getReferenceTypeFor = &Helper::_getReferenceTypeFor;
+  this->getPointerTypeFor = &Helper::_getPointerTypeFor;
   this->getBoolType = &Helper::_getBoolType;
   this->getInt64Type = &Helper::_getInt64Type;
 }
@@ -277,6 +279,49 @@ ReferenceType* Helper::_getReferenceTypeFor(TiObject *self, TiObject *type)
 }
 
 
+ReferenceType* Helper::getReferenceTypeForPointerType(PointerType *type)
+{
+  if (type == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("type"), STR("Cannot be null."));
+  }
+
+  return this->getReferenceTypeFor(type->getContentType(this));
+}
+
+
+PointerType* Helper::_getPointerTypeFor(TiObject *self, TiObject *type)
+{
+  PREPARE_SELF(helper, Helper);
+
+  auto tpl = helper->getPointerTemplate();
+
+  TioSharedPtr result;
+  if (tpl->matchInstance(type, helper, result)) {
+    auto refType = result.ti_cast_get<PointerType>();
+    if (refType == 0) {
+      throw EXCEPTION(GenericException, STR("Template for pointer type is invalid."));
+    }
+    return refType;
+  } else {
+    auto notice = result.ti_cast<Core::Data::Notice>();
+    if (notice != 0) {
+      helper->noticeStore->add(notice);
+    }
+    return 0;
+  }
+}
+
+
+PointerType* Helper::getPointerTypeForReferenceType(ReferenceType *type)
+{
+  if (type == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("type"), STR("Cannot be null."));
+  }
+
+  return this->getPointerTypeFor(type->getContentType(this));
+}
+
+
 IntegerType* Helper::_getBoolType(TiObject *self)
 {
   PREPARE_SELF(helper, Helper);
@@ -313,6 +358,22 @@ Template* Helper::getReferenceTemplate()
     throw EXCEPTION(GenericException, STR("Invalid object found for ref template."));
   }
   return this->refTemplate;
+}
+
+
+Template* Helper::getPointerTemplate()
+{
+  if (this->ptrTemplate != 0) return this->ptrTemplate;
+
+  Core::Data::Ast::Identifier identifier;
+  identifier.setValue(STR("ptr"));
+  this->ptrTemplate = ti_cast<Template>(rootManager->getSeeker()->doGet(
+    &identifier, this->rootManager->getRootScope().get())
+  );
+  if (this->ptrTemplate == 0) {
+    throw EXCEPTION(GenericException, STR("Invalid object found for ptr template."));
+  }
+  return this->ptrTemplate;
 }
 
 

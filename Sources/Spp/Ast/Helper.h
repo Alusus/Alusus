@@ -35,6 +35,7 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   private: Core::Processing::NoticeStore *noticeStore = 0;
   private: Spp::ExecutionContext *executionContext = 0;
   private: Template *refTemplate = 0;
+  private: Template *ptrTemplate = 0;
   private: IntegerType *boolType = 0;
   private: IntegerType *int64Type = 0;
 
@@ -154,6 +155,13 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   public: METHOD_BINDING_CACHE(getReferenceTypeFor, ReferenceType*, (TiObject*));
   private: static ReferenceType* _getReferenceTypeFor(TiObject *self, TiObject *type);
 
+  public: ReferenceType* getReferenceTypeForPointerType(PointerType *type);
+
+  public: METHOD_BINDING_CACHE(getPointerTypeFor, PointerType*, (TiObject*));
+  private: static PointerType* _getPointerTypeFor(TiObject *self, TiObject *type);
+
+  public: PointerType* getPointerTypeForReferenceType(ReferenceType *type);
+
   public: METHOD_BINDING_CACHE(getBoolType, IntegerType*);
   private: static IntegerType* _getBoolType(TiObject *self);
 
@@ -182,6 +190,8 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   /// @{
 
   private: Template* getReferenceTemplate();
+
+  private: Template* getPointerTemplate();
 
   private: IntegerType* getIntType(Word bitCount);
 

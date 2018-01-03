@@ -1,0 +1,43 @@
+ERROR SPP1301 @ (22,5): Unsupported operation.
+ERROR SPP1301 @ (23,10): Unsupported operation.
+ERROR SPP1309 @ (24,14): Value is not implicitly castable to target type.
+ERROR SPP1309 @ (25,9): Value is not implicitly castable to target type.
+ERROR SPP1309 @ (26,10): Value is not implicitly castable to target type.
+ERROR SPP1309 @ (29,9): Value is not implicitly castable to target type.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+
+@__anonymous0 = private constant [8 x i8] c"i = %d\0A\00", align 1
+@__anonymous1 = private constant [13 x i8] c"pi~cnt = %d\0A\00", align 1
+
+declare i64 @printf(i8*, ...)
+
+define void @Main_start_____Void_() {
+__block0:
+  %i = alloca i32
+  %pi = alloca i32*
+  %pf = alloca float*
+  %ppi = alloca i32**
+  store i32* %i, i32** %pi
+  %0 = load i32** %pi
+  store i32 5, i32* %0
+  %1 = load i32* %i
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous0, i64 0, i64 0), i32 %1)
+  store i32 10, i32* %i
+  %3 = load i32** %pi
+  %4 = load i32* %3
+  %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([13 x i8]* @__anonymous1, i64 0, i64 0), i32 %4)
+  %6 = load i32* %i
+  %7 = load i32* %i
+  %8 = load float** %pf
+  %9 = load float** %pf
+  store i32** %pi, i32*** %ppi
+  %10 = load i32*** %ppi
+  %11 = load i32*** %ppi
+  %12 = load i32** %11
+  %13 = load i32* %12
+  store i32 %13, i32* %i
+}
+------------------------------------------------------------
