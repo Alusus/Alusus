@@ -427,7 +427,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   // Create tilde commands.
 
   // ~ptr
-  grammarRepository->set(STR("root:Expression.Pointer_Tilde"), SymbolDefinition::create({
+  grammarRepository->set(STR("root:Expression.PointerTilde"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
@@ -437,9 +437,9 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     },
     { SymbolDefElement::HANDLER, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::PointerOp>::create() }
   }).get());
-  this->addReferenceToCommandList(tildeCmdList, STR("module:Pointer_Tilde"));
+  this->addReferenceToCommandList(tildeCmdList, STR("module:PointerTilde"));
   // ~cnt
-  grammarRepository->set(STR("root:Expression.Content_Tilde"), SymbolDefinition::create({
+  grammarRepository->set(STR("root:Expression.ContentTilde"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
@@ -449,7 +449,41 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
     },
     { SymbolDefElement::HANDLER, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::ContentOp>::create() }
   }).get());
-  this->addReferenceToCommandList(tildeCmdList, STR("module:Content_Tilde"));
+  this->addReferenceToCommandList(tildeCmdList, STR("module:ContentTilde"));
+  // ~cast
+  grammarRepository->set(STR("root:Expression.CastTilde"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    {
+      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, {{STR("cast"), 0}, {STR("مثّل"), 0}, {STR("مثل"), 0}}) },
+        {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:CastSubject"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
+            })
+          })
+        }
+      })
+    },
+    { SymbolDefElement::HANDLER, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::CastOp>::create() }
+  }).get());
+  this->addReferenceToCommandList(tildeCmdList, STR("module:CastTilde"));
+  grammarRepository->set(STR("root:CastSubject"), GrammarModule::create({
+    { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Subject")) },
+    { STR("@start"), REF_PARSER->parseQualifier(STR("module:Subject2")) }
+  }).get());
+  grammarRepository->set(STR("root:CastSubject.Subject2"), SymbolDefinition::create({
+   {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:Subject2")) },
+   {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+      {STR("sbj"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+      {STR("fltr"), std::make_shared<Integer>(2)},
+      {STR("frc"), std::make_shared<Integer>(1)}
+    })}
+  }).get());
 
   this->createBuiltInTypes(manager);
   this->createBuiltInFunctions(manager);
@@ -504,8 +538,10 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   grammarRepository->remove(STR("root:BlockSubject"));
   grammarRepository->remove(STR("root:BlockExpression"));
   grammarRepository->remove(STR("root:BlockMain"));
-  grammarRepository->remove(STR("root:Expression.Pointer_Tilde"));
-  grammarRepository->remove(STR("root:Expression.Content_Tilde"));
+  grammarRepository->remove(STR("root:Expression.PointerTilde"));
+  grammarRepository->remove(STR("root:Expression.ContentTilde"));
+  grammarRepository->remove(STR("root:Expression.CastTilde"));
+  grammarRepository->remove(STR("root:CastSubject"));
 
   this->removeBuiltInFunctions(manager);
   this->removeBuiltInTypes(manager);

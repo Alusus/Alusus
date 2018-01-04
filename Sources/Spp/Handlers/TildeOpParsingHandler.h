@@ -61,8 +61,15 @@ template<class TYPE> class TildeOpParsingHandler : public Core::Processing::Hand
     if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
       auto currentData = state->getData(levelIndex).ti_cast_get<TYPE>();
       if (currentData != 0) {
+        TiObject *operand;
+        // Remove the unneeded bracket.
+        if (data->isDerivedFrom<Core::Data::Ast::Bracket>()) {
+          operand = data.s_cast_get<Core::Data::Ast::Bracket>()->getOperand().get();
+        } else {
+          operand = data.get();
+        }
         // The operand which is at index 0 will be set by the parent production, so we'll skip that.
-        currentData->set(1, data.get());
+        currentData->set(1, operand);
         return;
       }
     }

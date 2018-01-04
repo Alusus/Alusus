@@ -22,6 +22,11 @@ def main: function ()=>Void
 
   i~p;
   i~ptr a;
+
+  pi~cast[ptr[Int[16]]] = 5;
+  i~ptr~cast[ptr[Int[16]]]~cnt = 5;
+  pa~cast(ptr[Int[16]]) = 5;
+  pa~cast ptr[Int[16]] = 10;
 };
 
 dump main;
