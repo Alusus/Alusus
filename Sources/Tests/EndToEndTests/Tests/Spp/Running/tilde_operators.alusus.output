@@ -1,4 +1,17 @@
+Testing ~ptr and ~cnt:
 i = 5
 pi~cnt = 10
 ppi~cnt~cnt = 15
 i = 20
+
+Testing ~cast:
+i = 257
+l = i~cast[Int[8]] => l = 1
+f = 0.000000
+f~cast[Float[64]] = 5.600000
+i = 1024
+i = 1025
+i = 1026
+pi~cast[ptr[Int[8]]]~cnt = 2
+l = pi~cnt~cast[Int[8]] => l = 2
+i~ptr -> l -> pi2 => pi2~cnt = 543 => i = 543

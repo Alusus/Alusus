@@ -2,7 +2,7 @@
  * @file Spp/Ast/Template.cpp
  * Contains the implementation of class Spp::Ast::Template.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -248,9 +248,6 @@ TiObject* Template::traceObject(TiObject *ref, VarType varType, Helper *helper)
         return Core::Data::Seeker::Verb::MOVE;
       }
     );
-  }
-  if (result == 0) {
-    throw EXCEPTION(GenericException, STR("Invalid template variable."));
   }
   return result;
 }

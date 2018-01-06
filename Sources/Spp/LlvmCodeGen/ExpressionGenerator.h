@@ -209,6 +209,17 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
     Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
   );
 
+  public: METHOD_BINDING_CACHE(generateCastOp,
+    Bool, (
+      Spp::Ast::CastOp*, llvm::IRBuilder<>*, llvm::Function*,
+      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+    )
+  );
+  private: static Bool _generateCastOp(
+    TiObject *self, Spp::Ast::CastOp *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+  );
+
   /// @}
 
   /// @name Helper Functions

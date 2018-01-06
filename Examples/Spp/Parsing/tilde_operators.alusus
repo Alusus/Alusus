@@ -7,6 +7,10 @@ def main: function ()=>Void
   def a: array[Int[32], 5];
   def pa: ptr[array[Int[32], 5]];
 
+  //
+  // ~ptr & ~cnt
+  //
+
   i~ptr;
   i~ptr~cnt;
 
@@ -22,6 +26,10 @@ def main: function ()=>Void
 
   i~p;
   i~ptr a;
+
+  //
+  // ~cast
+  //
 
   pi~cast[ptr[Int[16]]] = 5;
   i~ptr~cast[ptr[Int[16]]]~cnt = 5;

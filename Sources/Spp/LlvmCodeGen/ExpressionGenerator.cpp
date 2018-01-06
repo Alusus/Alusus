@@ -31,7 +31,8 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateBuiltInFunctionCall,
     &this->generateUserFunctionCall,
     &this->generatePointerOp,
-    &this->generateContentOp
+    &this->generateContentOp,
+    &this->generateCastOp
   });
 }
 
@@ -49,6 +50,7 @@ void ExpressionGenerator::initBindings()
   this->generateUserFunctionCall = &ExpressionGenerator::_generateUserFunctionCall;
   this->generatePointerOp = &ExpressionGenerator::_generatePointerOp;
   this->generateContentOp = &ExpressionGenerator::_generateContentOp;
+  this->generateCastOp = &ExpressionGenerator::_generateCastOp;
 }
 
 
@@ -677,6 +679,51 @@ Bool ExpressionGenerator::_generateContentOp(
   resultType = expGenerator->generator->getAstHelper()->getReferenceTypeForPointerType(operandPtrAstType);
   if (resultType == 0) return false;
   llvmResult = operandLlvmPointer;
+  lastProcessedNode = astNode;
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generateCastOp(
+  TiObject *self, Spp::Ast::CastOp *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+  Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  resultType = 0;
+  llvmResult = 0;
+  lastProcessedNode = 0;
+
+  // Generate the operand.
+  auto operand = astNode->getOperand().get();
+  if (operand == 0) {
+    throw EXCEPTION(GenericException, STR("ContentOp operand is missing."));
+  }
+  Ast::Type *operandAstType;
+  llvm::Value *operandLlvmValue;
+  TiObject *operandLastRef;
+  if (!expGenerator->generator->generatePhrase(
+    operand, llvmIrBuilder, llvmFunc, operandAstType, operandLlvmValue, operandLastRef
+  )) return false;
+
+  // Get the value itself, not a reference to it.
+  expGenerator->generator->getTypeGenerator()->dereferenceIfNeeded(
+    llvmIrBuilder, operandAstType, operandLlvmValue, operandAstType, operandLlvmValue
+  );
+
+  // Get the target type.
+  auto targetAstType = expGenerator->generator->getAstHelper()->traceType(astNode->getTargetType().get());
+  if (targetAstType == 0) return false;
+  if (!operandAstType->isExplicitlyCastableTo(targetAstType, expGenerator->generator->getAstHelper())) {
+    expGenerator->generator->getNoticeStore()->add(std::make_shared<InvalidCastNotice>(astNode->getSourceLocation()));
+    return false;
+  }
+
+  // Cast the value.
+  if (!expGenerator->generator->getTypeGenerator()->generateCast(
+    llvmIrBuilder, operandAstType, targetAstType, operandLlvmValue, llvmResult
+  )) return false;
+  resultType = targetAstType;
   lastProcessedNode = astNode;
   return true;
 }

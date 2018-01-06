@@ -4,7 +4,7 @@ def Main: module
 {
   def print: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
 
-  def start: function ()=>Void
+  def testPtrAndCnt: function ()=>Void
   {
     def i: Int[32];
     def pi: ptr[Int[32]];
@@ -28,6 +28,34 @@ def Main: module
     ppi = pi~ptr;
     i = ppi~cnt;
     i = ppi~cnt~cnt;
+  };
+
+  def testCast: function ()=>Void
+  {
+    def i: Int[32];
+    def l: Int[64];
+    def f: Float[32];
+    def pi: ptr[Int[32]];
+    def d: Float[64];
+
+    pi~cast[ptr[Int[16]]]~cnt = 2i16;
+    f = 30.0;
+    print("f = %f\n", f);
+    print("f~cast[Float[64]] = %f\n", f~cast[Float[64]]);
+    i~ptr~cast[ptr[Int[8]]]~cnt = 1i8;
+
+    pi~cast[ptr[Int16]]~cnt = 2i16;
+    pi~cast[Int[64]] = 10;
+    pi = 10~cast[ptr[Int[32]]];
+    pi = 10i64~cast[ptr[Int[32]]];
+    pi = l~cast[ptr[Int[32]]];
+
+    d = 10.0;
+    f = d~cast[Float[32]];
+    i = f~cast[Int[32]];
+    f = i~cast[Float[32]];
+    pi = f~cast[ptr[Int[32]]];
+    i = f~cast[Invalid];
   };
 };
 

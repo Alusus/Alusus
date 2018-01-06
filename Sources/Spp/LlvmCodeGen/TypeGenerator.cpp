@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/TypeGenerator.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -247,7 +247,7 @@ Bool TypeGenerator::_generateCast(
       llvm::Type *targetPointerLlvmType;
       if (!typeGenerator->getGeneratedLlvmType(targetPointerType, targetPointerLlvmType)) return false;
       if (srcBitCount == targetBitCount) {
-        llvmCastedValue = llvmIrBuilder->CreateBitCast(llvmValue, targetPointerLlvmType);
+        llvmCastedValue = llvmIrBuilder->CreateIntToPtr(llvmValue, targetPointerLlvmType);
         return true;
       }
     }
@@ -286,7 +286,7 @@ Bool TypeGenerator::_generateCast(
       if (srcBitCount == targetBitCount) {
         llvm::Type *targetIntegerLlvmType;
         if (!typeGenerator->getGeneratedLlvmType(targetIntegerType, targetIntegerLlvmType)) return false;
-        llvmCastedValue = llvmIrBuilder->CreateBitCast(llvmValue, targetIntegerLlvmType);
+        llvmCastedValue = llvmIrBuilder->CreatePtrToInt(llvmValue, targetIntegerLlvmType);
         return true;
       }
     } else if (targetType->isDerivedFrom<Spp::Ast::PointerType>()) {

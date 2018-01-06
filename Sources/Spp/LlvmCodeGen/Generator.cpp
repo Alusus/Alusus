@@ -477,6 +477,11 @@ Bool Generator::_generatePhrase(
     return generator->expressionGenerator->generateContentOp(
       contentOp, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
     );
+  } else if (astNode->isDerivedFrom<Spp::Ast::CastOp>()) {
+    auto castOp = static_cast<Spp::Ast::CastOp*>(astNode);
+    return generator->expressionGenerator->generateCastOp(
+      castOp, llvmIrBuilder, llvmFunc, resultType, llvmResult, lastProcessedNode
+    );
   } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);
     return generator->literalGenerator->generateStringLiteral(

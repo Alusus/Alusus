@@ -4,6 +4,12 @@ ERROR SPP1309 @ (24,14): Value is not implicitly castable to target type.
 ERROR SPP1309 @ (25,9): Value is not implicitly castable to target type.
 ERROR SPP1309 @ (26,10): Value is not implicitly castable to target type.
 ERROR SPP1309 @ (29,9): Value is not implicitly castable to target type.
+ERROR SPP1102 @ (47,17): Invalid template argument.
+ERROR SPP1103 @ (47,13): No valid match was found for the given type.
+ERROR SPP1301 @ (48,5): Unsupported operation.
+ERROR SPP1305 @ (49,10): Invalid cast.
+ERROR SPP1305 @ (57,10): Invalid cast.
+ERROR SPP1103 @ (58,16): No valid match was found for the given type.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -11,10 +17,12 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 
 @__anonymous0 = private constant [8 x i8] c"i = %d\0A\00", align 1
 @__anonymous1 = private constant [13 x i8] c"pi~cnt = %d\0A\00", align 1
+@__anonymous2 = private constant [8 x i8] c"f = %f\0A\00", align 1
+@__anonymous3 = private constant [24 x i8] c"f~cast[Float[64]] = %f\0A\00", align 1
 
 declare i64 @printf(i8*, ...)
 
-define void @Main_start_____Void_() {
+define void @Main_testPtrAndCnt_____Void_() {
 __block0:
   %i = alloca i32
   %pi = alloca i32*
@@ -39,5 +47,44 @@ __block0:
   %12 = load i32** %11
   %13 = load i32* %12
   store i32 %13, i32* %i
+}
+
+define void @Main_testCast_____Void_() {
+__block1:
+  %i = alloca i32
+  %l = alloca i64
+  %f = alloca float
+  %pi = alloca i32*
+  %d = alloca double
+  %0 = load i32** %pi
+  %1 = bitcast i32* %0 to i16*
+  store i16 2, i16* %1
+  store float 3.000000e+01, float* %f
+  %2 = load float* %f
+  %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous2, i64 0, i64 0), float %2)
+  %4 = load float* %f
+  %5 = fpext float %4 to double
+  %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([24 x i8]* @__anonymous3, i64 0, i64 0), double %5)
+  %7 = bitcast i32* %i to i8*
+  store i8 1, i8* %7
+  %8 = load i32** %pi
+  %9 = load i32** %pi
+  %10 = ptrtoint i32* %9 to i64
+  store i32* inttoptr (i64 10 to i32*), i32** %pi
+  %11 = load i64* %l
+  %12 = inttoptr i64 %11 to i32*
+  store i32* %12, i32** %pi
+  store double 1.000000e+01, double* %d
+  %13 = load double* %d
+  %14 = fptrunc double %13 to float
+  store float %14, float* %f
+  %15 = load float* %f
+  %16 = fptosi float %15 to i32
+  store i32 %16, i32* %i
+  %17 = load i32* %i
+  %18 = sitofp i32 %17 to float
+  store float %18, float* %f
+  %19 = load float* %f
+  %20 = load float* %f
 }
 ------------------------------------------------------------

@@ -6,6 +6,15 @@ def Main: module
 
   def start: function ()=>Void
   {
+    testPtrAndCnt();
+    print("\n");
+    testCast();
+  };
+
+  def testPtrAndCnt: function ()=>Void
+  {
+    print("Testing ~ptr and ~cnt:\n");
+
     def i: Int[32];
     def pi: ptr[Int[32]];
     def ppi: ptr[ptr[Int[32]]];
@@ -26,6 +35,42 @@ def Main: module
     ppi~cnt~cnt = 20;
     print("i = %d\n", i);
   };
+
+  def testCast: function ()=>Void
+  {
+    print("Testing ~cast:\n");
+
+    def i: Int[32];
+    def l: Int[64];
+    def f: Float[32];
+    def pi: ptr[Int[32]];
+    def pi2: ptr[Int[32]];
+
+    i = 257;
+    print("i = %d\n", i);
+    l = i~cast[Int[8]];
+    print("l = i~cast[Int[8]] => l = %ld\n", l);
+    f = 5.6;
+    print("f = %f\n", f);
+    print("f~cast[Float[64]] = %f\n", f~cast[Float[64]]);
+
+    pi = i~ptr;
+    pi~cnt = 1024;
+    print("i = %d\n", i);
+    pi~cast[ptr[Int[8]]]~cnt = 1i8;
+    print("i = %d\n", i);
+    i~ptr~cast[ptr[Int[8]]]~cnt = 2i8;
+    print("i = %d\n", i);
+    print("pi~cast[ptr[Int[8]]]~cnt = %d\n", pi~cast[ptr[Int[8]]]~cnt);
+    l = pi~cnt~cast[Int[8]];
+    print("l = pi~cnt~cast[Int[8]] => l = %ld\n", l);
+
+    l = pi~cast[Int[64]];
+    pi2 = l~cast[ptr[Int[32]]];
+    pi2~cnt = 543;
+    print("i~ptr -> l -> pi2 => pi2~cnt = 543 => i = %d\n", i);
+  };
 };
 
 run Main.start;
+// build Main;
