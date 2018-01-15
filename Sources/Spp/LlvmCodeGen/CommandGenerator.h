@@ -92,23 +92,24 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
       Spp::Ast::Type*&, llvm::Value*&, TiObject*&
     )
   );
+  private: static Bool _generateReturn(
+    TiObject *self, Spp::Ast::ReturnStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
+    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+  );
+
   public: METHOD_BINDING_CACHE(generateIfStatement,
     Bool, (
       Spp::Ast::IfStatement*, llvm::IRBuilder<>*, llvm::Function*
     )
   );
+  private: static Bool _generateIfStatement(
+    TiObject *self, Spp::Ast::IfStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
+  );
+
   public: METHOD_BINDING_CACHE(generateWhileStatement,
     Bool, (
       Spp::Ast::WhileStatement*, llvm::IRBuilder<>*, llvm::Function*
     )
-  );
-
-  private: static Bool _generateReturn(
-    TiObject *self, Spp::Ast::ReturnStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
-  );
-  private: static Bool _generateIfStatement(
-    TiObject *self, Spp::Ast::IfStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
   );
   private: static Bool _generateWhileStatement(
     TiObject *self, Spp::Ast::WhileStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
