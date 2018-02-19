@@ -2,7 +2,7 @@
  * @file Spp/Ast/FloatType.cpp
  * Contains the implementation of class Spp::Ast::FloatType.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -33,7 +33,7 @@ Word FloatType::getBitCount(Helper *helper) const
 }
 
 
-Bool FloatType::isImplicitlyCastableTo(Type const *type, Helper *helper) const
+Bool FloatType::isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
 {
   if (this == type) return true;
 
@@ -43,7 +43,7 @@ Bool FloatType::isImplicitlyCastableTo(Type const *type, Helper *helper) const
 }
 
 
-Bool FloatType::isExplicitlyCastableTo(Type const *type, Helper *helper) const
+Bool FloatType::isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
 {
   if (this == type) return true;
 

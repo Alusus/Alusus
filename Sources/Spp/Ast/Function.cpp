@@ -2,7 +2,7 @@
  * @file Spp/Ast/Function.cpp
  * Contains the implementation of class Spp::Ast::Function.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -45,8 +45,9 @@ Bool Function::isVariadic() const
 }
 
 
-CallMatchStatus Function::matchCall(Core::Basic::Container<Core::Basic::TiObject> *types, Helper *helper)
-{
+CallMatchStatus Function::matchCall(
+  Core::Basic::Container<Core::Basic::TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
+) {
   if (helper == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("helper"), STR("Cannot be null."));
   }
@@ -60,7 +61,7 @@ CallMatchStatus Function::matchCall(Core::Basic::Container<Core::Basic::TiObject
     Function::ArgMatchContext matchContext;
     if (types != 0) {
       for (Int i = 0; i < types->getElementCount(); ++i) {
-        CallMatchStatus status = this->matchNextArg(types->getElement(i), matchContext, helper);
+        CallMatchStatus status = this->matchNextArg(types->getElement(i), matchContext, helper, ec);
         if (status == CallMatchStatus::NONE) return CallMatchStatus::NONE;
         else if (status == CallMatchStatus::DEREF) deref = true;
         else if (status == CallMatchStatus::CASTED) casted = true;
@@ -96,7 +97,7 @@ CallMatchStatus Function::matchCall(Core::Basic::Container<Core::Basic::TiObject
 
 
 CallMatchStatus Function::matchNextArg(
-  Core::Basic::TiObject *nextType, ArgMatchContext &matchContext, Helper *helper
+  Core::Basic::TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
 ) {
   if (nextType == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("types"), STR("Cannot be null."));
@@ -125,7 +126,7 @@ CallMatchStatus Function::matchNextArg(
         } else if (helper->isReferenceTypeFor(providedType, matchContext.type)) {
           matchContext.subIndex++;
           return CallMatchStatus::DEREF;
-        } else if (providedType->isImplicitlyCastableTo(matchContext.type, helper)) {
+        } else if (providedType->isImplicitlyCastableTo(matchContext.type, helper, ec)) {
           matchContext.subIndex++;
           return CallMatchStatus::CASTED;
         } else if (matchContext.subIndex + 1 < currentArgPack->getMin().get()) {
@@ -153,7 +154,7 @@ CallMatchStatus Function::matchNextArg(
         matchContext.index += steps;
         matchContext.subIndex = 0;
         return CallMatchStatus::DEREF;
-      } else if (providedType->isImplicitlyCastableTo(wantedType, helper)) {
+      } else if (providedType->isImplicitlyCastableTo(wantedType, helper, ec)) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;
@@ -175,7 +176,7 @@ CallMatchStatus Function::matchNextArg(
         matchContext.index += steps;
         matchContext.subIndex = 0;
         return CallMatchStatus::DEREF;
-      } else if (providedType->isImplicitlyCastableTo(wantedType, helper)) {
+      } else if (providedType->isImplicitlyCastableTo(wantedType, helper, ec)) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;

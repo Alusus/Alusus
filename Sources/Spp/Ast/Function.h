@@ -2,7 +2,7 @@
  * @file Spp/Ast/Function.h
  * Contains the header of class Spp::Ast::Function.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -161,9 +161,13 @@ class Function : public Core::Data::Node,
     return this->body;
   }
 
-  public: CallMatchStatus matchCall(Core::Basic::Container<Core::Basic::TiObject> *types, Helper *helper);
+  public: CallMatchStatus matchCall(
+    Core::Basic::Container<Core::Basic::TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
+  );
 
-  public: CallMatchStatus matchNextArg(Core::Basic::TiObject *nextType, ArgMatchContext &matchContext, Helper *helper);
+  public: CallMatchStatus matchNextArg(
+    Core::Basic::TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
+  );
 
 }; // class
 

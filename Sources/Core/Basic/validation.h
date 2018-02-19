@@ -2,7 +2,7 @@
  * @file Core/Basic/validation.h
  * Contains definitions related to validations.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -40,5 +40,19 @@
                _VALIDATE_NOT_NULL3, \
                _VALIDATE_NOT_NULL2, \
                _VALIDATE_NOT_NULL1)(__VA_ARGS__)
+
+// Convert TiObject* to a typed self.
+#define PREPARE_SELF(name, type) \
+  type *name = ti_cast<type>(self); \
+  if (name == 0) { \
+    throw EXCEPTION(InvalidArgumentException, STR("self"), STR("self is null or of invalid type.")); \
+  }
+
+// Convert TiObject* to a typed arg
+#define PREPARE_ARG(argName, varName, type) \
+  type *varName = ti_cast<type>(argName); \
+  if (varName == 0) { \
+    throw EXCEPTION(InvalidArgumentException, STR(#argName), STR("Argument is null or of invalid type.")); \
+  }
 
 #endif

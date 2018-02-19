@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/Variable.h
  * Contains the header of class Spp::LlvmCodeGen::Variable.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,7 +27,6 @@ class Variable : public Core::Basic::TiObject
   //============================================================================
   // Member Variables
 
-  private: Ast::Type *astType = 0;
   private: Int llvmStructIndex = -1;
   private: llvm::AllocaInst *llvmAllocaInst = 0;
   private: llvm::GlobalVariable *llvmGlobalVariable = 0;
@@ -43,16 +42,6 @@ class Variable : public Core::Basic::TiObject
 
   //============================================================================
   // Member Functions
-
-  public: void setAstType(Ast::Type *t)
-  {
-    this->astType = t;
-  }
-
-  public: Ast::Type* getAstType() const
-  {
-    return this->astType;
-  }
 
   public: void setLlvmStructIndex(Int i)
   {

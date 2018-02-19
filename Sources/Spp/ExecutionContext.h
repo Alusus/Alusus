@@ -1,7 +1,7 @@
 /**
 * @file Spp/ExecutionContext.h
 *
-* @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+* @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
 *
 * @license This file is released under Alusus Public License, Version 1.0.
 * For details on usage and copying conditions read the full license in the
@@ -17,18 +17,24 @@ namespace Spp
 
 using namespace Core;
 
-class ExecutionContext
+class ExecutionContext : public TiObject
 {
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(ExecutionContext, TiObject, "Spp", "Spp", "alusus.net");
+
+
   //============================================================================
   // Member Variables
 
-  private: Int pointerBitCount;
+  private: Word pointerBitCount;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: ExecutionContext(Int pointerBits) : pointerBitCount(pointerBits)
+  public: ExecutionContext(Word pointerBits) : pointerBitCount(pointerBits)
   {
   }
 
@@ -36,7 +42,7 @@ class ExecutionContext
   //============================================================================
   // Member Functions
 
-  public: Int getPointerBitCount() const
+  public: Word getPointerBitCount() const
   {
     return this->pointerBitCount;
   }

@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/Block.h
  * Contains the header of class Spp::LlvmCodeGen::Block.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -31,11 +31,13 @@ class Block : public Core::Basic::TiObject
 
   private: llvm::IRBuilder<> *irBuilder;
 
+  private: llvm::Function *llvmFunc;
+
 
   //============================================================================
   // Constructor & Destructor
 
-  public: Block() : llvmBlock(0), irBuilder(0) 
+  public: Block() : llvmBlock(0), irBuilder(0), llvmFunc(0)
   {
   }
 
@@ -59,6 +61,15 @@ class Block : public Core::Basic::TiObject
   public: llvm::IRBuilder<>* getIrBuilder() const
   {
     return this->irBuilder;
+  }
+
+  public: void setLlvmFunction(llvm::Function *f)
+  {
+    this->llvmFunc = f;
+  }
+  public: llvm::Function* getLlvmFunction() const
+  {
+    return this->llvmFunc;
   }
 
 }; // class

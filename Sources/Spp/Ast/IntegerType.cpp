@@ -2,7 +2,7 @@
  * @file Spp/Ast/IntegerType.cpp
  * Contains the implementation of class Spp::Ast::IntegerType.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -33,7 +33,7 @@ Word IntegerType::getBitCount(Helper *helper) const
 }
 
 
-Bool IntegerType::isImplicitlyCastableTo(Type const *type, Helper *helper) const
+Bool IntegerType::isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
 {
   if (this == type) return true;
 
@@ -43,7 +43,7 @@ Bool IntegerType::isImplicitlyCastableTo(Type const *type, Helper *helper) const
 }
 
 
-Bool IntegerType::isExplicitlyCastableTo(Type const *type, Helper *helper) const
+Bool IntegerType::isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
 {
   if (this == type) return true;
 
@@ -51,7 +51,7 @@ Bool IntegerType::isExplicitlyCastableTo(Type const *type, Helper *helper) const
     return true;
   } else if (
     type->isDerivedFrom<PointerType>() &&
-    helper->getExecutionContext()->getPointerBitCount() == this->getBitCount(helper)
+    ec->getPointerBitCount() == this->getBitCount(helper)
   ) {
     return true;
   } else {

@@ -28,12 +28,6 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
 
 
   //============================================================================
-  // Member Variables
-
-  private: Helper *helper;
-
-
-  //============================================================================
   // Implementations
 
   IMPLEMENT_DYNAMIC_BINDINGS(bindingMap);
@@ -43,7 +37,7 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
   //============================================================================
   // Constructors
 
-  NodePathResolver(Helper *h) : helper(h)
+  NodePathResolver()
   {
     this->initBindingCaches();
     this->initBindings();
@@ -54,7 +48,6 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
-    this->helper = parent->getHelper();
   }
 
 
@@ -68,26 +61,21 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
 
   private: void initBindings();
 
-  public: Helper* getHelper() const
-  {
-    return this->helper;
-  }
-
   /// @}
 
   /// @name Helper Functions
   /// @{
 
-  public: Str doResolve(Core::Data::Node const *node)
+  public: Str doResolve(Core::Data::Node const *node, Helper *helper)
   {
     StrStream path;
-    this->doResolve(node, path);
+    this->doResolve(node, helper, path);
     return path.str();
   }
 
-  public: void doResolve(Core::Data::Node const *node, StrStream &path)
+  public: void doResolve(Core::Data::Node const *node, Helper *helper, StrStream &path)
   {
-    this->resolve(node, path);
+    this->resolve(node, helper, path);
   }
 
   /// @}
@@ -95,17 +83,26 @@ class NodePathResolver : public TiObject, public virtual DynamicBindings, public
   /// @name Path Resolving Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(resolve, void, (Core::Data::Node const*, StrStream&));
-  public: METHOD_BINDING_CACHE(resolveDefinition, void, (Core::Data::Ast::Definition const*, StrStream&));
-  public: METHOD_BINDING_CACHE(resolveFunction, void, (Spp::Ast::Function const*, StrStream&));
-  public: METHOD_BINDING_CACHE(resolveFunctionArg, void, (TiObject*, StrStream&));
-  public: METHOD_BINDING_CACHE(resolveTemplateInstance, void, (Spp::Ast::Block const*, StrStream&));
+  public: METHOD_BINDING_CACHE(resolve, void, (Core::Data::Node const*, Helper*, StrStream&));
+  private: static void _resolve(TiObject *self, Core::Data::Node const *node, Helper *helper, StrStream &path);
 
-  private: static void _resolve(TiObject *self, Core::Data::Node const *node, StrStream &path);
-  private: static void _resolveDefinition(TiObject *self, Core::Data::Ast::Definition const *def, StrStream &path);
-  private: static void _resolveFunction(TiObject *self, Spp::Ast::Function const *func, StrStream &path);
-  private: static void _resolveFunctionArg(TiObject *self, TiObject *arg, StrStream &path);
-  private: static void _resolveTemplateInstance(TiObject *self, Spp::Ast::Block const *block, StrStream &path);
+  public: METHOD_BINDING_CACHE(resolveDefinition, void, (Core::Data::Ast::Definition const*, Helper*, StrStream&));
+  private: static void _resolveDefinition(
+    TiObject *self, Core::Data::Ast::Definition const *def, Helper *helper, StrStream &path
+  );
+
+  public: METHOD_BINDING_CACHE(resolveFunction, void, (Spp::Ast::Function const*, Helper*, StrStream&));
+  private: static void _resolveFunction(
+    TiObject *self, Spp::Ast::Function const *func, Helper *helper, StrStream &path
+  );
+
+  public: METHOD_BINDING_CACHE(resolveFunctionArg, void, (TiObject*, Helper*, StrStream&));
+  private: static void _resolveFunctionArg(TiObject *self, TiObject *arg, Helper *helper, StrStream &path);
+
+  public: METHOD_BINDING_CACHE(resolveTemplateInstance, void, (Spp::Ast::Block const*, Helper*, StrStream&));
+  private: static void _resolveTemplateInstance(
+    TiObject *self, Spp::Ast::Block const *block, Helper *helper, StrStream &path
+  );
 
   /// @}
 

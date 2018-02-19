@@ -1,0 +1,370 @@
+/**
+ * @file Spp/LlvmCodeGen/TargetGenerator.h
+ * Contains the header of class Spp::CodeGen::TargetGenerator.
+ *
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ */
+//==============================================================================
+
+#ifndef SPP_LLVMCODEGEN_TARGETGENERATOR_H
+#define SPP_LLVMCODEGEN_TARGETGENERATOR_H
+
+namespace Spp { namespace LlvmCodeGen
+{
+
+class TargetGenerator : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
+{
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(TargetGenerator, TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.net", (
+    INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
+    OBJECT_INTERFACE_LIST(interfaceList)
+  ));
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_DYNAMIC_BINDINGS(bindingMap);
+  IMPLEMENT_DYNAMIC_INTERFACES(interfaceList);
+
+
+  //============================================================================
+  // Member Variables
+
+  private: Core::Processing::NoticeStore *noticeStore = 0;
+  private: SharedPtr<ExecutionContext> executionContext;
+  private: SharedPtr<llvm::Module> llvmModule;
+  private: SharedPtr<llvm::DataLayout> llvmDataLayout;
+  private: Int blockIndex = 0;
+  private: Int anonymousVarIndex = 0;
+
+
+  //============================================================================
+  // Constructors & Destructor
+
+  public: TargetGenerator()
+  {
+    this->addDynamicInterface(std::make_shared<Spp::CodeGen::TargetGeneration>(this));
+    this->initBindings();
+  }
+
+  public: TargetGenerator(TargetGenerator *parent)
+  {
+    this->inheritBindings(parent);
+    this->inheritInterfaces(parent);
+  }
+
+  public: virtual ~TargetGenerator()
+  {
+  }
+
+
+  //============================================================================
+  // Member Functions
+
+  /// @name Initialization Functions
+  /// @{
+
+  private: void initBindings();
+
+  /// @}
+
+  /// @name Main Operation Functions
+  /// @{
+
+  public: void prepareBuild(Core::Processing::NoticeStore *noticeStore);
+
+  public: void dumpIr(Core::Basic::OutStream &out);
+
+  public: void execute(Char const *entry);
+
+  /// @}
+
+  /// @name Property Getters
+  /// @{
+
+  public: Core::Processing::NoticeStore* getNoticeStore() const
+  {
+    return this->noticeStore;
+  }
+
+  public: ExecutionContext const* getExecutionContext()
+  {
+    return this->executionContext.get();
+  }
+
+  /// @}
+
+  /// @name Type Generation Functions
+  /// @{
+
+  public: Bool generateVoidType(TioSharedPtr &type);
+
+  public: Bool generateIntType(Word bitCount, TioSharedPtr &type);
+
+  public: Bool generateFloatType(Word bitCount, TioSharedPtr &type);
+
+  public: Bool generatePointerType(TiObject *contentType, TioSharedPtr &type);
+
+  public: Bool generateArrayType(TiObject *contentType, Word size, TioSharedPtr &type);
+
+  public: Bool generateStructTypeDecl(
+    Char const *name, TioSharedPtr &type
+  );
+
+  public: Bool generateStructTypeBody(
+    TiObject *type, Core::Basic::MapContainer<TiObject> *membersTypes,
+    Core::Basic::SharedList<TiObject, TiObject> *members
+  );
+
+  /// @}
+
+  /// @name Function Generation Functions
+  /// @{
+
+  public: Bool generateFunctionDecl(
+    Char const *name, Core::Basic::MapContainer<TiObject> *argTypes, TiObject *retType, Bool variadic,
+    TioSharedPtr &function
+  );
+
+  public: Bool prepareFunctionBody(
+    TiObject *function, Core::Basic::MapContainer<TiObject> *argTypes, TiObject *retType,
+    Bool variadic, Core::Basic::SharedList<TiObject, TiObject> *args, TioSharedPtr &context
+  );
+
+  public: Bool finishFunctionBody(
+    TiObject *function, Core::Basic::MapContainer<TiObject> *argTypes, TiObject *retType,
+    Bool variadic, Core::Basic::ListContainer<TiObject> *args, TiObject *context
+  );
+
+  /// @}
+
+  /// @name Variable Definition Generation Functions
+  /// @{
+
+  public: Bool generateGlobalVariable(
+    TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
+  );
+
+  public: Bool generateLocalVariable(
+    TiObject *context, TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
+  );
+
+  /// @}
+
+  /// @name Statements Generation Functions
+  /// @{
+
+  public: Bool prepareIfStatement(
+    TiObject *context, TioSharedPtr &conditionContext, TioSharedPtr &bodyContext, TioSharedPtr *elseContext
+  );
+  public: Bool finishIfStatement(
+    TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *bodyContext, TiObject *elseContext
+  );
+
+  public: Bool prepareWhileStatement(
+    TiObject *context, TioSharedPtr &conditionContext, TioSharedPtr &bodyContext
+  );
+  public: Bool finishWhileStatement(
+    TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *bodyContext
+  );
+
+  /// @}
+
+  /// @name Casting Generation Functions
+  /// @{
+
+  public: Bool generateCastIntToInt(
+    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  );
+
+  public: Bool generateCastIntToFloat(
+    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  );
+
+  public: Bool generateCastFloatToInt(
+    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  );
+
+  public: Bool generateCastFloatToFloat(
+    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  );
+
+  public: Bool generateCastIntToPointer(
+    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  );
+
+  public: Bool generateCastPointerToInt(
+    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  );
+
+  public: Bool generateCastPointerToPointer(
+    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  );
+
+  /// @}
+
+  /// @name Operation Generation Functions
+  /// @{
+
+  public: Bool generateVarReference(
+    TiObject *context, TiObject *varType, TiObject *varDefinition, TioSharedPtr &result
+  );
+
+  public: Bool generateMemberVarReference(
+    TiObject *context, TiObject *structType, TiObject *memberType,
+    TiObject *memberVarDef, TiObject *structRef, TioSharedPtr &result
+  );
+
+  public: Bool generateArrayElementReference(
+    TiObject *context, TiObject *arrayType, TiObject *elementType, TiObject *index, TiObject *arrayRef,
+    TioSharedPtr &result
+  );
+
+  public: Bool generateDereference(
+    TiObject *context, TiObject *contentType, TiObject *srcVal, TioSharedPtr &result
+  );
+
+  public: Bool generateAssign(
+    TiObject *context, TiObject *contentType, TiObject *srcVal, TiObject *destRef, TioSharedPtr &result
+  );
+
+  public: Bool generateFunctionCall(
+    TiObject *context, TiObject *function,
+    Core::Basic::Container<Core::Basic::TiObject>* arguments, TioSharedPtr &result
+  );
+
+  public: Bool generateReturn(
+    TiObject *context, TiObject *retType, TiObject *retVal
+  );
+
+  /// @}
+
+  /// @name Math Ops Generation Functions
+  /// @{
+
+  public: Bool generateAddInt(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+  public: Bool generateAddFloat(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateSubInt(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+  public: Bool generateSubFloat(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateMulInt(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+  public: Bool generateMulFloat(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateDivInt(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+  public: Bool generateDivFloat(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateNegInt(
+    TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+  );
+  public: Bool generateNegFloat(
+    TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+  );
+
+  /// @}
+
+  /// @name Comparison Ops Generation Functions
+  /// @{
+
+  public: Bool generateEqualInt(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+  public: Bool generateEqualFloat(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateNotEqualInt(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+  public: Bool generateNotEqualFloat(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateGreaterThanInt(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+  public: Bool generateGreaterThanFloat(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateGreaterThanOrEqualInt(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+  public: Bool generateGreaterThanOrEqualFloat(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateLessThanInt(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+  public: Bool generateLessThanFloat(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateLessThanOrEqualInt(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+  public: Bool generateLessThanOrEqualFloat(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  /// @}
+
+  /// @name Literal Generation Functions
+  /// @{
+
+  public: Bool generateIntLiteral(
+    TiObject *context, Word bitCount, Long value, TioSharedPtr &destVal
+  );
+
+  public: Bool generateFloatLiteral(
+    TiObject *context, Word bitCount, Double value, TioSharedPtr &destVal
+  );
+
+  public: Bool generateStringLiteral(
+    TiObject *context, Char const* value, TiObject *charType, TiObject *strType, TioSharedPtr &destVal
+  );
+
+  public: Bool generateNullPtrLiteral(
+    TiObject *context, TiObject *type, TioSharedPtr &destVal
+  );
+
+  /// @}
+
+  /// @name Helper Functions
+  /// @{
+
+  private: Str getNewBlockName();
+
+  private: Str getAnonymouseVarName();
+
+  /// @}
+
+}; // class
+
+} } // namespace
+
+#endif

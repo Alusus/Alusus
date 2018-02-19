@@ -11,6 +11,7 @@
 //==============================================================================
 
 #include "spp.h"
+#include <regex>
 
 namespace Spp { namespace Ast
 {
@@ -31,7 +32,15 @@ void Helper::initBindingCaches()
     &this->getReferenceTypeFor,
     &this->getPointerTypeFor,
     &this->getBoolType,
-    &this->getInt64Type
+    &this->getCharType,
+    &this->getCharPtrType,
+    &this->getCharArrayType,
+    &this->getInt64Type,
+    &this->getIntType,
+    &this->getFloatType,
+    &this->getVoidType,
+    &this->resolveNodePath,
+    &this->getFunctionName
   });
 }
 
@@ -48,7 +57,15 @@ void Helper::initBindings()
   this->getReferenceTypeFor = &Helper::_getReferenceTypeFor;
   this->getPointerTypeFor = &Helper::_getPointerTypeFor;
   this->getBoolType = &Helper::_getBoolType;
+  this->getCharType = &Helper::_getCharType;
+  this->getCharPtrType = &Helper::_getCharPtrType;
+  this->getCharArrayType = &Helper::_getCharArrayType;
   this->getInt64Type = &Helper::_getInt64Type;
+  this->getIntType = &Helper::_getIntType;
+  this->getFloatType = &Helper::_getFloatType;
+  this->getVoidType = &Helper::_getVoidType;
+  this->resolveNodePath = &Helper::_resolveNodePath;
+  this->getFunctionName = &Helper::_getFunctionName;
 }
 
 
@@ -65,17 +82,18 @@ Bool Helper::_isVarDefinition(TiObject *self, TiObject *obj)
 
 
 Bool Helper::lookupCalleeByName(
-  Char const *name, Core::Data::Node *astNode, Core::Basic::Container<TiObject> *types,
+  Char const *name, Core::Data::Node *astNode, Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
   TiObject *&callee, Type *&calleeType
 ) {
   Core::Data::Ast::Identifier identifier;
   identifier.setValue(name);
-  return this->lookupCallee(&identifier, astNode, types, callee, calleeType);
+  return this->lookupCallee(&identifier, astNode, types, ec, callee, calleeType);
 }
 
 
 Bool Helper::_lookupCallee(
-  TiObject *self, TiObject *ref, Core::Data::Node *astNode, Core::Basic::Container<TiObject> *types,
+  TiObject *self, TiObject *ref, Core::Data::Node *astNode,
+  Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
   TiObject *&callee, Type *&calleeType
 ) {
   PREPARE_SELF(helper, Helper);
@@ -97,7 +115,7 @@ Bool Helper::_lookupCallee(
 
         symbolFound = true;
 
-        return helper->lookupCallee_iteration(obj, types, matchStatus, matchCount, notice, callee, calleeType);
+        return helper->lookupCallee_iteration(obj, types, ec, matchStatus, matchCount, notice, callee, calleeType);
       }
   );
   // Did we have a matched callee?
@@ -105,15 +123,13 @@ Bool Helper::_lookupCallee(
     helper->noticeStore->add(notice);
   }
   if (matchCount > 1) {
-    auto metadata = ti_cast<Core::Data::Ast::Metadata>(astNode);
-    helper->noticeStore->add(std::make_shared<MultipleCalleeMatchNotice>(metadata->findSourceLocation()));
+    helper->noticeStore->add(std::make_shared<MultipleCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(astNode)));
     return false;
   } else if (callee == 0) {
-    auto metadata = ti_cast<Core::Data::Ast::Metadata>(astNode);
     if (symbolFound) {
-      helper->noticeStore->add(std::make_shared<NoCalleeMatchNotice>(metadata->findSourceLocation()));
+      helper->noticeStore->add(std::make_shared<NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(astNode)));
     } else {
-      helper->noticeStore->add(std::make_shared<UnknownSymbolNotice>(metadata->findSourceLocation()));
+      helper->noticeStore->add(std::make_shared<UnknownSymbolNotice>(Core::Data::Ast::findSourceLocation(astNode)));
     }
     return false;
   }
@@ -123,7 +139,7 @@ Bool Helper::_lookupCallee(
 
 
 Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
-  TiObject *self, TiObject *obj, Core::Basic::Container<TiObject> *types,
+  TiObject *self, TiObject *obj, Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
   CallMatchStatus &matchStatus, Int &matchCount, SharedPtr<Core::Data::Notice> &notice,
   TiObject *&callee, Type *&calleeType
 ) {
@@ -132,7 +148,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
   if (obj != 0 && obj->isDerivedFrom<Ast::Function>()) {
     auto f = static_cast<Ast::Function*>(obj);
     CallMatchStatus ms;
-    ms = f->matchCall(types, helper);
+    ms = f->matchCall(types, helper, ec);
     if (ms == CallMatchStatus::NONE) {
       return Core::Data::Seeker::Verb::MOVE;
     } else if (matchStatus == CallMatchStatus::NONE) {
@@ -154,8 +170,8 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
     }
     if (objType->isDerivedFrom<ArrayType>()) {
       if (
-        types->getElementCount() == 1 &&
-        helper->isImplicitlyCastableTo(types->getElement(0), helper->getInt64Type())
+        types != 0 && types->getElementCount() == 1 &&
+        helper->isImplicitlyCastableTo(types->getElement(0), helper->getInt64Type(), ec)
       ) {
         callee = obj;
         calleeType = static_cast<Type*>(objType);
@@ -226,8 +242,9 @@ Bool Helper::_isVoid(TiObject *self, TiObject *ref)
 }
 
 
-Bool Helper::_isImplicitlyCastableTo(TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef)
-{
+Bool Helper::_isImplicitlyCastableTo(
+  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Spp::ExecutionContext const *ec
+) {
   PREPARE_SELF(helper, Helper);
 
   auto srcType = ti_cast<Type>(srcTypeRef);
@@ -242,7 +259,7 @@ Bool Helper::_isImplicitlyCastableTo(TiObject *self, TiObject *srcTypeRef, TiObj
     if (targetType == 0) return false;
   }
 
-  return srcType->isImplicitlyCastableTo(targetType, helper);
+  return srcType->isImplicitlyCastableTo(targetType, helper, ec);
 }
 
 
@@ -332,6 +349,67 @@ IntegerType* Helper::_getBoolType(TiObject *self)
 }
 
 
+IntegerType* Helper::_getCharType(TiObject *self)
+{
+  PREPARE_SELF(helper, Helper);
+  if (helper->charType == 0) {
+    helper->charType = helper->getIntType(8);
+  }
+  return helper->charType;
+}
+
+
+PointerType* Helper::_getCharPtrType(TiObject *self)
+{
+  PREPARE_SELF(helper, Helper);
+  if (helper->charPtrType == 0) {
+    auto typeRef = helper->rootManager->parseExpression(STR("ptr[Int[8]]")).s_cast<Core::Data::Ast::Identifier>();
+    typeRef->setOwner(helper->rootManager->getRootScope().get());
+
+    helper->charPtrType = ti_cast<PointerType>(helper->getSeeker()->doGet(
+      typeRef.get(), helper->rootManager->getRootScope().get()
+    ));
+    if (helper->charPtrType == 0) {
+      throw EXCEPTION(GenericException, STR("Invalid object found for ptr[Int[8]] type."));
+    }
+  }
+  return helper->charPtrType;
+}
+
+
+ArrayType* Helper::_getCharArrayType(TiObject *self, Word size)
+{
+  PREPARE_SELF(helper, Helper);
+
+  // Prepare the reference.
+  if (helper->charArrayTypeRef == 0) {
+    // Create a new reference.
+    StrStream stream;
+    stream << STR("array[Int[8],") << size << STR("]");
+    helper->charArrayTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
+      .s_cast<Core::Data::Ast::ParamPass>();
+    helper->charArrayTypeRef->setOwner(helper->rootManager->getRootScope().get());
+  } else {
+    // Recycle the existing reference.
+    auto intLiteral = helper->charArrayTypeRef
+      ->getParam().ti_cast_get<Core::Data::Ast::ExpressionList>()
+      ->getShared(1).ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+    if (!intLiteral) {
+      throw EXCEPTION(GenericException, STR("Unexpected internal error."));
+    }
+    intLiteral->setValue(std::to_string(size).c_str());
+  }
+  // Seek the requested type.
+  auto astType = ti_cast<Ast::ArrayType>(
+    helper->getSeeker()->doGet(helper->charArrayTypeRef.get(), helper->rootManager->getRootScope().get())
+  );
+  if (astType == 0) {
+    throw EXCEPTION(GenericException, STR("Failed to get char array AST type."));
+  }
+  return astType;
+}
+
+
 IntegerType* Helper::_getInt64Type(TiObject *self)
 {
   PREPARE_SELF(helper, Helper);
@@ -339,6 +417,104 @@ IntegerType* Helper::_getInt64Type(TiObject *self)
     helper->int64Type = helper->getIntType(64);
   }
   return helper->int64Type;
+}
+
+
+IntegerType* Helper::_getIntType(TiObject *self, Word size)
+{
+  PREPARE_SELF(helper, Helper);
+  // Prepare the reference.
+  if (helper->integerTypeRef == 0) {
+    // Create a new reference.
+    StrStream stream;
+    stream << STR("Int[") << size << STR("]");
+    helper->integerTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
+      .s_cast<Core::Data::Ast::ParamPass>();
+    helper->integerTypeRef->setOwner(helper->rootManager->getRootScope().get());
+  } else {
+    // Recycle the existing reference.
+    auto intLiteral = helper->integerTypeRef->getParam().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+    if (!intLiteral) {
+      throw EXCEPTION(GenericException, STR("Unexpected internal error."));
+    }
+    intLiteral->setValue(std::to_string(size).c_str());
+  }
+  // Generate the llvm type.
+  auto astType = ti_cast<Ast::IntegerType>(
+    helper->getSeeker()->doGet(helper->integerTypeRef.get(), helper->rootManager->getRootScope().get())
+  );
+  if (astType == 0) {
+    throw EXCEPTION(GenericException, STR("Failed to get integer AST type."));
+  }
+  return astType;
+}
+
+
+FloatType* Helper::_getFloatType(TiObject *self, Word size)
+{
+  PREPARE_SELF(helper, Helper);
+  // Prepare the reference.
+  if (helper->floatTypeRef == 0) {
+    // Create a new reference.
+    StrStream stream;
+    stream << STR("Float[") << size << STR("]");
+    helper->floatTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
+      .s_cast<Core::Data::Ast::ParamPass>();
+    helper->floatTypeRef->setOwner(helper->rootManager->getRootScope().get());
+  } else {
+    // Recycle the existing reference.
+    auto intLiteral = helper->floatTypeRef->getParam().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+    if (!intLiteral) {
+      throw EXCEPTION(GenericException, STR("Unexpected internal error."));
+    }
+    intLiteral->setValue(std::to_string(size).c_str());
+  }
+  // Generate the llvm type.
+  auto astType = ti_cast<Ast::FloatType>(
+    helper->getSeeker()->doGet(helper->floatTypeRef.get(), helper->rootManager->getRootScope().get())
+  );
+  if (astType == 0) {
+    throw EXCEPTION(GenericException, STR("Failed to get float AST type."));
+  }
+  return astType;
+}
+
+
+VoidType* Helper::_getVoidType(TiObject *self)
+{
+  PREPARE_SELF(helper, Helper);
+  if (helper->voidType == 0) {
+    auto typeRef = helper->rootManager->parseExpression(STR("Void")).s_cast<Core::Data::Ast::Identifier>();
+    typeRef->setOwner(helper->rootManager->getRootScope().get());
+
+    helper->voidType = ti_cast<VoidType>(helper->getSeeker()->doGet(
+      typeRef.get(), helper->rootManager->getRootScope().get()
+    ));
+    if (helper->voidType == 0) {
+      throw EXCEPTION(GenericException, STR("Invalid object found for void type."));
+    }
+  }
+  return helper->voidType;
+}
+
+
+Str Helper::_resolveNodePath(TiObject *self, Core::Data::Node const *node)
+{
+  PREPARE_SELF(helper, Helper);
+  return helper->nodePathResolver->doResolve(node, helper);
+}
+
+
+Str const& Helper::_getFunctionName(TiObject *self, Function *astFunc)
+{
+  if (astFunc->getName().getStr() == STR("")) {
+    PREPARE_SELF(helper, Helper);
+    Str name = helper->nodePathResolver->doResolve(astFunc, helper);
+    // Replace special characters with _.
+    Str formattedName = std::regex_replace(name, std::regex("[^a-zA-Z0-9_]"), STR("_"));
+    astFunc->setName(formattedName.c_str());
+  }
+  return astFunc->getName().getStr();
 }
 
 
@@ -374,22 +550,6 @@ Template* Helper::getPointerTemplate()
     throw EXCEPTION(GenericException, STR("Invalid object found for ptr template."));
   }
   return this->ptrTemplate;
-}
-
-
-IntegerType* Helper::getIntType(Word bitCount)
-{
-  StrStream stream;
-  stream << STR("Int[") << bitCount << STR("]");
-
-  auto typeRef = this->rootManager->parseExpression(stream.str().c_str()).s_cast<Core::Data::Ast::ParamPass>();
-  typeRef->setOwner(this->rootManager->getRootScope().get());
-
-  auto type = ti_cast<IntegerType>(this->getSeeker()->doGet(typeRef.get(), this->rootManager->getRootScope().get()));
-  if (type == 0) {
-    throw EXCEPTION(GenericException, STR("Invalid object found for integer type."));
-  }
-  return type;
 }
 
 } } // namespace

@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Ast
  * namespace.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -26,7 +26,9 @@ namespace Spp { namespace Ast
 //==============================================================================
 // Forward Class Definitions
 
+class NodePathResolver;
 class Helper;
+class Type;
 
 
 //==============================================================================
@@ -100,5 +102,6 @@ DEFINE_NOTICE(UnknownSymbolNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1107", 1,
 // Helpers
 #include "Helper.h"
 #include "NodePathResolver.h"
+#include "metadata_helpers.h"
 
 #endif

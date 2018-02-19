@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Sarmad Khalid Abdullah
+# Copyright (C) 2018 Sarmad Khalid Abdullah
 #
 # This file is released under Alusus Public License, Version 1.0.
 # For details on usage and copying conditions read the full license in the
@@ -23,7 +23,7 @@ llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES core jit native linker)
 include_directories("${AlususSpp_SOURCE_DIR}")
 
 # Create the list of files to be added to the project.
-set(AlususSpp_SOURCE_SUBDIRS Ast Handlers LlvmCodeGen)
+set(AlususSpp_SOURCE_SUBDIRS Ast Handlers CodeGen LlvmCodeGen)
 set(AlususSpp_SOURCE_FILES
   spp.h
   LibraryGateway.h

@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/CodeGenParsingHandler.h
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -28,15 +28,18 @@ class CodeGenParsingHandler : public Core::Processing::Handlers::GenericParsingH
   // Member Variables
 
   Core::Standard::RootManager *rootManager;
-  Spp::LlvmCodeGen::Generator *llvmGenerator;
+  Spp::Ast::Helper *astHelper;
+  Spp::CodeGen::Generator *generator;
+  Spp::LlvmCodeGen::TargetGenerator *targetGenerator;
   Bool execute;
 
 
   //============================================================================
   // Constructor
 
-  public: CodeGenParsingHandler(Core::Standard::RootManager *rm, LlvmCodeGen::Generator *generator, Bool exe)
-    : rootManager(rm), llvmGenerator(generator), execute(exe)
+  public: CodeGenParsingHandler(
+    Core::Standard::RootManager *rm, Ast::Helper *h, CodeGen::Generator *g, LlvmCodeGen::TargetGenerator *tg, Bool exe
+  ) : rootManager(rm), astHelper(h), generator(g), targetGenerator(tg), execute(exe)
   {
   }
 

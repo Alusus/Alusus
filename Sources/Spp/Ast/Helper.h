@@ -31,13 +31,19 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   // Member Variables
 
   private: Core::Standard::RootManager *rootManager;
+  private: NodePathResolver *nodePathResolver;
 
   private: Core::Processing::NoticeStore *noticeStore = 0;
-  private: Spp::ExecutionContext *executionContext = 0;
   private: Template *refTemplate = 0;
   private: Template *ptrTemplate = 0;
   private: IntegerType *boolType = 0;
+  private: IntegerType *charType = 0;
+  private: PointerType *charPtrType = 0;
   private: IntegerType *int64Type = 0;
+  private: VoidType *voidType = 0;
+  private: SharedPtr<Core::Data::Ast::ParamPass> integerTypeRef;
+  private: SharedPtr<Core::Data::Ast::ParamPass> floatTypeRef;
+  private: SharedPtr<Core::Data::Ast::ParamPass> charArrayTypeRef;
 
 
   //============================================================================
@@ -50,7 +56,7 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   //============================================================================
   // Constructor
 
-  Helper(Core::Standard::RootManager *rm) : rootManager(rm)
+  Helper(Core::Standard::RootManager *rm, NodePathResolver *npr) : rootManager(rm), nodePathResolver(npr)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -62,6 +68,7 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->rootManager = parent->getRootManager();
+    this->nodePathResolver = parent->getNodePathResolver();
   }
 
 
@@ -75,10 +82,9 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
 
   private: void initBindings();
 
-  public: void prepare(Core::Processing::NoticeStore *ns, Spp::ExecutionContext *ec)
+  public: void prepare(Core::Processing::NoticeStore *ns)
   {
     this->noticeStore = ns;
-    this->executionContext = ec;
     this->refTemplate = 0;
   }
 
@@ -92,14 +98,14 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
     return this->rootManager;
   }
 
+  public: NodePathResolver* getNodePathResolver() const
+  {
+    return this->nodePathResolver;
+  }
+
   public: Core::Data::Seeker* getSeeker() const
   {
     return this->rootManager->getSeeker();
-  }
-
-  public: Spp::ExecutionContext* getExecutionContext() const
-  {
-    return this->executionContext;
   }
 
   public: Core::Processing::NoticeStore* getNoticeStore() const
@@ -117,25 +123,28 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
 
   public: Bool lookupCalleeByName(
     Char const *name, Core::Data::Node *astNode, Core::Basic::Container<TiObject> *types,
-    TiObject *&callee, Type *&calleeType
+    Spp::ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee,
-    Bool, (TiObject*, Core::Data::Node*, Core::Basic::Container<TiObject>*, TiObject*&, Type*&)
+    Bool, (
+      TiObject*, Core::Data::Node*, Core::Basic::Container<TiObject>*, Spp::ExecutionContext const*, TiObject*&, Type*&
+    )
   );
   private: static Bool _lookupCallee(
-    TiObject *self, TiObject *ref, Core::Data::Node *astNode, Core::Basic::Container<TiObject> *types,
+    TiObject *self, TiObject *ref, Core::Data::Node *astNode,
+    Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
     TiObject *&callee, Type *&calleeType
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee_iteration,
     Core::Data::Seeker::Verb, (
-      TiObject*, Core::Basic::Container<TiObject> *, CallMatchStatus&, Int&,
-      SharedPtr<Core::Data::Notice>&, TiObject*&, Type*&
+      TiObject*, Core::Basic::Container<TiObject> *, Spp::ExecutionContext const*,
+      CallMatchStatus&, Int&, SharedPtr<Core::Data::Notice>&, TiObject*&, Type*&
     )
   );
   private: static Core::Data::Seeker::Verb _lookupCallee_iteration(
-    TiObject *self, TiObject *obj, Core::Basic::Container<TiObject> *types,
+    TiObject *self, TiObject *obj, Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
     CallMatchStatus &matchStatus, Int &matchCount, SharedPtr<Core::Data::Notice> &notice,
     TiObject *&callee, Type *&calleeType
   );
@@ -146,8 +155,10 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   public: METHOD_BINDING_CACHE(isVoid, Bool, (TiObject*));
   private: static Bool _isVoid(TiObject *self, TiObject *ref);
 
-  public: METHOD_BINDING_CACHE(isImplicitlyCastableTo, Bool, (TiObject*, TiObject*));
-  private: static Bool _isImplicitlyCastableTo(TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef);
+  public: METHOD_BINDING_CACHE(isImplicitlyCastableTo, Bool, (TiObject*, TiObject*, Spp::ExecutionContext const*));
+  private: static Bool _isImplicitlyCastableTo(
+    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Spp::ExecutionContext const *ec
+  );
 
   public: METHOD_BINDING_CACHE(isReferenceTypeFor, Bool, (Type*, Type*));
   private: static Bool _isReferenceTypeFor(TiObject *self, Type *refType, Type *contentType);
@@ -165,8 +176,26 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   public: METHOD_BINDING_CACHE(getBoolType, IntegerType*);
   private: static IntegerType* _getBoolType(TiObject *self);
 
+  public: METHOD_BINDING_CACHE(getCharType, IntegerType*);
+  private: static IntegerType* _getCharType(TiObject *self);
+
+  public: METHOD_BINDING_CACHE(getCharPtrType, PointerType*);
+  private: static PointerType* _getCharPtrType(TiObject *self);
+
+  public: METHOD_BINDING_CACHE(getCharArrayType, ArrayType*, (Word));
+  private: static ArrayType* _getCharArrayType(TiObject *self, Word size);
+
   public: METHOD_BINDING_CACHE(getInt64Type, IntegerType*);
   private: static IntegerType* _getInt64Type(TiObject *self);
+
+  public: METHOD_BINDING_CACHE(getIntType, IntegerType*, (Word));
+  private: static IntegerType* _getIntType(TiObject *self, Word size);
+
+  public: METHOD_BINDING_CACHE(getFloatType, FloatType*, (Word));
+  private: static FloatType* _getFloatType(TiObject *self, Word size);
+
+  public: METHOD_BINDING_CACHE(getVoidType, VoidType*);
+  private: static VoidType* _getVoidType(TiObject *self);
 
   public: template<class T> Bool isTypeOrRefTypeOf(TiObject *type)
   {
@@ -184,6 +213,12 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
     }
   }
 
+  public: METHOD_BINDING_CACHE(resolveNodePath, Str, (Core::Data::Node const*));
+  private: static Str _resolveNodePath(TiObject *self, Core::Data::Node const *node);
+
+  public: METHOD_BINDING_CACHE(getFunctionName, Str const&, (Function*));
+  private: static Str const& _getFunctionName(TiObject *self, Function *astFunc);
+
   /// @}
 
   /// @name Helper Functions
@@ -192,8 +227,6 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   private: Template* getReferenceTemplate();
 
   private: Template* getPointerTemplate();
-
-  private: IntegerType* getIntType(Word bitCount);
 
   /// @}
 

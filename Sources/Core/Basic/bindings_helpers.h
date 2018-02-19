@@ -2,7 +2,7 @@
  * @file Core/Basic/bindings_helpers.h
  * Contains Bindings related helper definitions.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -85,13 +85,6 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
 
 //==============================================================================
 // Macros
-
-// Convert Bindings* to a typed self.
-#define PREPARE_SELF(name, type) \
-  type *name = ti_cast<type>(self); \
-  if (name == 0) { \
-    throw EXCEPTION(InvalidArgumentException, STR("self"), STR("self is null or of invalid type.")); \
-  }
 
 // Set a single member
 #define _SET_MEMBER(var) \

@@ -1,8 +1,8 @@
 /**
- * @file Spp/LlvmCodeGen/CommandGenerator.h
- * Contains the header of class Spp::LlvmCodeGen::CommandGenerator.
+ * @file Spp/CodeGen/CommandGenerator.h
+ * Contains the header of class Spp::CodeGen::CommandGenerator.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef SPP_LLVMCODEGEN_COMMANDGENERATOR_H
-#define SPP_LLVMCODEGEN_COMMANDGENERATOR_H
+#ifndef SPP_CODEGEN_COMMANDGENERATOR_H
+#define SPP_CODEGEN_COMMANDGENERATOR_H
 
-namespace Spp { namespace LlvmCodeGen
+namespace Spp { namespace CodeGen
 {
 
 class CommandGenerator : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
@@ -21,7 +21,7 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
   //============================================================================
   // Type Info
 
-  TYPE_INFO(CommandGenerator, TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.net", (
+  TYPE_INFO(CommandGenerator, TiObject, "Spp.CodeGen", "Spp", "alusus.net", (
     INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
@@ -37,13 +37,14 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
   //============================================================================
   // Member Variables
 
-  private: Generator *generator;
+  private: Ast::Helper *astHelper;
+  private: Core::Processing::NoticeStore *noticeStore = 0;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: CommandGenerator(Generator *g = 0) : generator(g)
+  public: CommandGenerator(Ast::Helper *h) : astHelper(h)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -54,7 +55,7 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
-    this->generator = parent->getGenerator();
+    this->astHelper = parent->getAstHelper();
   }
 
   public: virtual ~CommandGenerator()
@@ -71,14 +72,19 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
   private: void initBindingCaches();
   private: void initBindings();
 
-  public: void setGenerator(Generator *g)
+  public: Ast::Helper* getAstHelper() const
   {
-    this->generator = g;
+    return this->astHelper;
   }
 
-  public: Generator* getGenerator() const
+  public: void setNoticeStore(Core::Processing::NoticeStore *ns)
   {
-    return this->generator;
+    this->noticeStore = ns;
+  }
+
+  public: Core::Processing::NoticeStore* getNoticeStore() const
+  {
+    return this->noticeStore;
   }
 
   /// @}
@@ -88,31 +94,29 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
 
   public: METHOD_BINDING_CACHE(generateReturn,
     Bool, (
-      Spp::Ast::ReturnStatement*, llvm::IRBuilder<>*, llvm::Function*,
-      Spp::Ast::Type*&, llvm::Value*&, TiObject*&
+      Spp::Ast::ReturnStatement*, Generation*, TargetGeneration*, TiObject*
     )
   );
   private: static Bool _generateReturn(
-    TiObject *self, Spp::Ast::ReturnStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc,
-    Spp::Ast::Type *&resultType, llvm::Value *&llvmResult, TiObject *&lastProcessedNode
+    TiObject *self, Spp::Ast::ReturnStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
   );
 
   public: METHOD_BINDING_CACHE(generateIfStatement,
     Bool, (
-      Spp::Ast::IfStatement*, llvm::IRBuilder<>*, llvm::Function*
+      Spp::Ast::IfStatement*, Generation*, TargetGeneration*, TiObject*
     )
   );
   private: static Bool _generateIfStatement(
-    TiObject *self, Spp::Ast::IfStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
+    TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
   );
 
   public: METHOD_BINDING_CACHE(generateWhileStatement,
     Bool, (
-      Spp::Ast::WhileStatement*, llvm::IRBuilder<>*, llvm::Function*
+      Spp::Ast::WhileStatement*, Generation*, TargetGeneration*, TiObject*
     )
   );
   private: static Bool _generateWhileStatement(
-    TiObject *self, Spp::Ast::WhileStatement *astNode, llvm::IRBuilder<> *llvmIrBuilder, llvm::Function *llvmFunc
+    TiObject *self, Spp::Ast::WhileStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
   );
 
   /// @}
@@ -121,8 +125,8 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
   /// @{
 
   private: Bool castCondition(
-    llvm::IRBuilder<> *llvmIrBuilder, Core::Basic::TiObject *astNode, Spp::Ast::Type *astType,
-    llvm::Value *llvmValue, llvm::Value *&resultLlvmValue
+    Generation *g, TargetGeneration *tg, TiObject *tgContext, Core::Basic::TiObject *astNode, Spp::Ast::Type *astType,
+    TiObject *tgValue, TioSharedPtr &result
   );
 
   /// @}

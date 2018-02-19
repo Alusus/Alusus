@@ -171,7 +171,7 @@ Bool Template::assignTemplateVars(
         auto strLiteral = static_cast<Core::Data::Ast::StringLiteral*>(var);
         def->setTarget(std::make_shared<Core::Data::String>(strLiteral->getValue().get()));
       } else {
-        def->setTarget(std::make_shared<Core::Basic::TioSharedBox>(getSharedPtr(var)));
+        def->setTarget(std::make_shared<Core::Basic::TioWeakBox>(getWeakPtr(var)));
       }
       instance->add(def);
     }
@@ -190,7 +190,7 @@ Bool Template::assignTemplateVars(
       auto strLiteral = static_cast<Core::Data::Ast::StringLiteral*>(var);
       def->setTarget(std::make_shared<Core::Data::String>(strLiteral->getValue().get()));
     } else {
-      def->setTarget(std::make_shared<Core::Basic::TioSharedBox>(getSharedPtr(var)));
+      def->setTarget(std::make_shared<Core::Basic::TioWeakBox>(getWeakPtr(var)));
     }
   instance->add(def);
   }
@@ -203,8 +203,8 @@ TiObject* Template::getTemplateVar(Block const *instance, Char const *name)
   for (Int i = 0; i < instance->getCount(); ++i) {
     auto def = ti_cast<Core::Data::Ast::Definition>(instance->get(i));
     if (def != 0 && def->getName() == name) {
-      auto box = def->getTarget().ti_cast_get<Core::Basic::TioSharedBox>();
-      if (box != 0) return box->get().get();
+      auto box = def->getTarget().ti_cast_get<Core::Basic::TioWeakBox>();
+      if (box != 0) return box->get().lock().get();
       else return def->getTarget().get();
     }
   }

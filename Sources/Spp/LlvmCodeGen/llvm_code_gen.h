@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the
  * LlvmCodeGen namespace.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,44 +18,10 @@ namespace Spp { namespace LlvmCodeGen
 {
 
 /**
- * @defgroup llvm_code_gen LLVM Code Generation
+ * @defgroup llvm_code_gen Build Operations for LLVM Target
  * @ingroup spp
- * @brief Classes related to the SPP's llvm-based code generation.
+ * @brief Classes for providing an LLVM build target.
  */
-
-constexpr Char const* META_EXTRA_NAME = STR("llvmCodeGen");
-
-
-//==============================================================================
-// Build Messages
-
-DEFINE_NOTICE(UnsupportedOperationNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1301", 1,
-  STR("Unsupported operation.")
-);
-DEFINE_NOTICE(InvalidOperationNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1302", 1,
-  STR("Invalid operation.")
-);
-DEFINE_NOTICE(InvalidFloatBitCountNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1303", 1,
-  STR("Invalid float bit count. Bit count should be either 32, 64, or 128.")
-);
-DEFINE_NOTICE(InvalidIntegerBitCountNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1304", 1,
-  STR("Invalid integer bit count.")
-);
-DEFINE_NOTICE(InvalidCastNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1305", 1,
-  STR("Invalid cast.")
-);
-DEFINE_NOTICE(InvalidReturnValueNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1306", 1,
-  STR("Invalid return value.")
-);
-DEFINE_NOTICE(InvalidConditionValueNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1307", 1,
-  STR("Invalid condition value.")
-);
-DEFINE_NOTICE(InvalidReferenceNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1308", 1,
-  STR("Invalid symbol.")
-);
-DEFINE_NOTICE(NotImplicitlyCastableNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net", "SPP1309", 1,
-  STR("Value is not implicitly castable to target type.")
-);
 
 } } // namespace
 
@@ -63,25 +29,15 @@ DEFINE_NOTICE(NotImplicitlyCastableNotice, "Spp.LlvmCodeGen", "Spp", "alusus.net
 //==============================================================================
 // Classes
 
-namespace Spp { namespace LlvmCodeGen
-{
-
-class Generator;
-
-} }
-
 #include "llvm_dependencies.h"
 
-// Functions
+// Build Data
+#include "Type.h"
 #include "Block.h"
 #include "Variable.h"
+#include "Value.h"
 
 // The Generator
-#include "TypeGenerator.h"
-#include "LiteralGenerator.h"
-#include "ExpressionGenerator.h"
-#include "VariableGenerator.h"
-#include "CommandGenerator.h"
-#include "Generator.h"
+#include "TargetGenerator.h"
 
 #endif

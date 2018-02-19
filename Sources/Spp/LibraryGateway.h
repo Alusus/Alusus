@@ -1,7 +1,7 @@
 /**
  * @file Spp/LibraryGateway.h
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -29,12 +29,11 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   private: SeekerExtension::Overrides *seekerExtensionOverrides = 0;
   private: SharedPtr<Ast::Helper> astHelper;
   private: SharedPtr<Ast::NodePathResolver> nodePathResolver;
-  private: SharedPtr<LlvmCodeGen::TypeGenerator> llvmTypeGenerator;
-  private: SharedPtr<LlvmCodeGen::LiteralGenerator> llvmLiteralGenerator;
-  private: SharedPtr<LlvmCodeGen::ExpressionGenerator> llvmExpressionGenerator;
-  private: SharedPtr<LlvmCodeGen::CommandGenerator> llvmCommandGenerator;
-  private: SharedPtr<LlvmCodeGen::VariableGenerator> llvmVariableGenerator;
-  private: SharedPtr<LlvmCodeGen::Generator> llvmGenerator;
+  private: SharedPtr<CodeGen::TypeGenerator> typeGenerator;
+  private: SharedPtr<CodeGen::ExpressionGenerator> expressionGenerator;
+  private: SharedPtr<CodeGen::CommandGenerator> commandGenerator;
+  private: SharedPtr<CodeGen::Generator> generator;
+  private: SharedPtr<LlvmCodeGen::TargetGenerator> targetGenerator;
 
 
   //============================================================================

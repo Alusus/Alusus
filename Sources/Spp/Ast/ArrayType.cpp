@@ -2,7 +2,7 @@
  * @file Spp/Ast/ArrayType.cpp
  * Contains the implementation of class Spp::Ast::ArrayType.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -23,7 +23,7 @@ Type* ArrayType::getContentType(Helper *helper) const
   if (this->contentTypeRef == 0) {
     this->contentTypeRef = helper->getRootManager()->parseExpression(STR("type"));
   }
-  auto typeBox = ti_cast<Core::Basic::TioSharedBox>(
+  auto typeBox = ti_cast<Core::Basic::TioWeakBox>(
     helper->getSeeker()->doGet(this->contentTypeRef.get(), this->getOwner())
   );
   if (typeBox == 0) return 0;

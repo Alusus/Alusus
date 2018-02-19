@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/CodeGenParsingHandler.cpp
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -30,18 +30,43 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
   ASSERT(metadata != 0);
 
   try {
+    // Build the IR code.
     auto root = this->rootManager->getRootScope().get();
+    this->targetGenerator->prepareBuild(state->getNoticeStore());
+    auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(this->targetGenerator);
+    Bool result = this->generator->generate(root, state, targetGeneration);
 
     if (this->execute) {
-      // Build and execute code.
-      auto container = ti_cast<Core::Data::Container>(data);
-      ASSERT(container != 0);
-      auto entryRef = container->get(1);
-      this->llvmGenerator->execute(root, state, entryRef);
+      // Execute the code if build was successful.
+      if (result) {
+        // Find the entry ref.
+        auto container = ti_cast<Core::Data::Container>(data);
+        ASSERT(container != 0);
+        auto entryRef = ti_cast<Core::Data::Node>(container->get(1));
+        ASSERT(entryRef != 0);
+        // Find the entry function.
+        TiObject *callee = 0;
+        Ast::Type *calleeType = 0;
+        Ast::Function *entryFunction = 0;
+        entryRef->setOwner(root);
+        if (this->astHelper->lookupCallee(
+          entryRef, entryRef, 0, this->targetGenerator->getExecutionContext(),
+          callee, calleeType
+        )) {
+          entryFunction = ti_cast<Ast::Function>(callee);
+        }
+        // Execute if an entry function was found.
+        if (entryFunction == 0) {
+          state->addNotice(std::make_shared<Ast::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(entryRef)));
+        } else {
+          auto funcName = this->astHelper->getFunctionName(entryFunction).c_str();
+          this->targetGenerator->execute(funcName);
+        }
+      }
     } else {
-      // Build and dump IR code.
+      // Dump the IR code.
       Core::Basic::StrStream ir;
-      Bool result = this->llvmGenerator->build(root, state, ir);
+      this->targetGenerator->dumpIr(ir);
       if (result) {
         outStream << STR("-------------------- Generated LLVM IR ---------------------\n");
         outStream << ir.str();

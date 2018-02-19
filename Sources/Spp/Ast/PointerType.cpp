@@ -2,7 +2,7 @@
  * @file Spp/Ast/PointerType.cpp
  * Contains the implementation of class Spp::Ast::PointerType.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -23,7 +23,7 @@ Type* PointerType::getContentType(Helper *helper) const
   if (this->contentTypeRef == 0) {
     this->contentTypeRef = helper->getRootManager()->parseExpression(STR("type"));
   }
-  auto typeBox = ti_cast<Core::Basic::TioSharedBox>(
+  auto typeBox = ti_cast<Core::Basic::TioWeakBox>(
     helper->getSeeker()->doGet(this->contentTypeRef.get(), this->getOwner())
   );
   if (typeBox == 0) return 0;
@@ -35,7 +35,7 @@ Type* PointerType::getContentType(Helper *helper) const
 }
 
 
-Bool PointerType::isImplicitlyCastableTo(Type const *type, Helper *helper) const
+Bool PointerType::isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
 {
   if (this == type) return true;
 
@@ -54,7 +54,7 @@ Bool PointerType::isImplicitlyCastableTo(Type const *type, Helper *helper) const
 }
 
 
-Bool PointerType::isExplicitlyCastableTo(Type const *type, Helper *helper) const
+Bool PointerType::isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
 {
   if (this == type) return true;
 
@@ -62,7 +62,7 @@ Bool PointerType::isExplicitlyCastableTo(Type const *type, Helper *helper) const
 
   if (type->isDerivedFrom<IntegerType>()) {
     auto integerType = static_cast<IntegerType const*>(type);
-    if (integerType->getBitCount(helper) == helper->getExecutionContext()->getPointerBitCount()) return true;
+    if (integerType->getBitCount(helper) == ec->getPointerBitCount()) return true;
   }
 
   return false;

@@ -2,7 +2,7 @@
  * @file Spp/Ast/ArrayType.h
  * Contains the header of class Spp::Ast::ArrayType.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -52,12 +52,12 @@ class ArrayType : public Type
 
   public: Word getSize(Helper *helper) const;
 
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper) const
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
   {
     return this == type;
   }
 
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper) const
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
   {
     return this == type;
   }
