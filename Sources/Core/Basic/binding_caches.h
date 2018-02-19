@@ -2,7 +2,7 @@
  * @file Core/Basic/binding_caches.h
  * Contains the header of interface Core::Basic::binding_caches.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -326,6 +326,16 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   public: void operator=(RT (*fn)(TiObject*, ARGS...))
   {
     this->set(fn);
+  }
+
+  public: template<class C> void operator=(RT (C::*fn)(ARGS...))
+  {
+    this->set(
+      [=](TiObject *self, ARGS... args)->RT {
+        PREPARE_SELF(c, C);
+        return (c->*fn)(args...);
+      }
+    );
   }
 
   public: RT operator()(ARGS... args)
