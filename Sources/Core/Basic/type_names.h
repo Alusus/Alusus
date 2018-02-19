@@ -82,14 +82,20 @@ DEFINE_TYPE_NAME(Core::Basic::Bool, "alusus.net/Core/Core.Basic.Bool");
 DEFINE_TYPE_NAME(Core::Basic::Int, "alusus.net/Core/Core.Basic.Int");
 DEFINE_TYPE_NAME(Core::Basic::Word, "alusus.net/Core/Core.Basic.Word");
 DEFINE_TYPE_NAME(Core::Basic::Float, "alusus.net/Core/Core.Basic.Float");
+DEFINE_TYPE_NAME(Core::Basic::Double, "alusus.net/Core/Core.Basic.Double");
 DEFINE_TYPE_NAME(Core::Basic::Char, "alusus.net/Core/Core.Basic.Char");
+DEFINE_TYPE_NAME(Core::Basic::Str, "alusus.net/Core/Core.Basic.Str");
 DEFINE_TYPE_NAME(Core::Basic::StrStream, "alusus.net/Core/Core.Basic.StrStream");
 
 DEFINE_TEMPLATE_TYPE_NAME(std::shared_ptr, "std::shared_ptr");
 DEFINE_TEMPLATE_TYPE_NAME(std::vector, "std::vector");
 DEFINE_TEMPLATE_TYPE_NAME(std::function, "std::function");
 
-namespace Core { namespace Basic { template<class T> class SharedPtr; } }
+namespace Core { namespace Basic {
+  template<class T> class SharedPtr;
+  template<class T> class WeakPtr;
+} }
 DEFINE_TEMPLATE_TYPE_NAME(Core::Basic::SharedPtr, "alusus.net/Core/Core.Basic.SharedPtr");
+DEFINE_TEMPLATE_TYPE_NAME(Core::Basic::WeakPtr, "alusus.net/Core/Core.Basic.WeakPtr");
 
 #endif

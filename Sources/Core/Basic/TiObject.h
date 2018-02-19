@@ -155,6 +155,39 @@ class TiObject : public std::enable_shared_from_this<TiObject>
     }
   }
 
+  /**
+   * @brief Gets a weak pointer to this.
+   * This function returns a weak pointer that shares ownership of this object
+   * with existing weak pointer.
+   */
+  public: std::weak_ptr<TiObject> getWeakThis()
+  {
+    try
+    {
+      return enable_shared_from_this::weak_from_this();
+    }
+    catch(const std::bad_weak_ptr &e)
+    {
+      return std::weak_ptr<TiObject>();
+    }
+  }
+
+  /**
+   * @brief A const version of getWeakThis.
+   * @sa getWeakThis()
+   */
+  public: std::weak_ptr<TiObject const> getWeakThis() const
+  {
+    try
+    {
+      return enable_shared_from_this::weak_from_this();
+    }
+    catch(const std::bad_weak_ptr &e)
+    {
+      return std::weak_ptr<TiObject>();
+    }
+  }
+
 }; // class
 
 

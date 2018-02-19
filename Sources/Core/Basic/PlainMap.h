@@ -489,11 +489,11 @@ template<class CTYPE, class PTYPE> class PlainMap : public PTYPE, public virtual
 
   public: virtual CTYPE* getElement(Int index) const
   {
-    return this->get(index).get();
+    return this->get(index);
   }
   public: virtual CTYPE* getElement(Char const *key) const
   {
-    return this->get(key).get();
+    return this->get(key);
   }
 
   public: virtual SbStr const& getElementKey(Int index) const

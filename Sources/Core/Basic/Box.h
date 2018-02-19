@@ -69,6 +69,7 @@ template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
 // Default Types
 
 typedef Box<SharedPtr<TiObject>> TioSharedBox;
+typedef Box<WeakPtr<TiObject>> TioWeakBox;
 
 } } // namespace
 
