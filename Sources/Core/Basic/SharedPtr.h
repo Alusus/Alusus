@@ -23,7 +23,10 @@ namespace Core { namespace Basic
 template <class T> class SharedPtr : public std::shared_ptr<T>
 {
   // Inherit constructors.
-  using std::shared_ptr<T>::shared_ptr;
+  public: using std::shared_ptr<T>::shared_ptr;
+
+  public: SharedPtr(std::shared_ptr<T> &p) : std::shared_ptr<T>(p) {}
+  public: SharedPtr(std::shared_ptr<T> &&p) : std::shared_ptr<T>(p) {}
 
 
   //============================================================================
