@@ -51,6 +51,15 @@
    <h3>Singleton and Static Variables</h3>
    Singletons should be implemented as a class with a single instance rather than a static class (class containing only static members). This is because the sequence in which static variables are initialized is not guaranteed and may lead to a race condition. With single global instance, race conditions may be avoided by delaying the initialization of such instance until it's accessed.
 
+   <h3>Access Between Singletons</h3>
+   In case of the need for singletons to interact with each other (by keeping a pointer, or receiving it as a function argument), the following rule is followed:
+   <ul>
+     <li>The more specialized object can keep a pointer to the more generic object, while the more generic should receive a pointer to the more specialized during the operation.</li>
+     <li>The object where an operation is initiated is the one that can keep a pointer to the other, while the latter should receive the pointer to the first as an arg. It's usually the case that the more specialized is where an operation is initiated.</li>
+     <li>In case of composition, the composed object is the one that keeps the pointer to the composing unit, while the unit should receive a pointer to the composed as an arg.</li>
+     <li>Two objects can keep pointers to each other if they are at the same level of specialization and the upper rules do not apply to them.</li>
+   </ul>
+
    <h3>Consistency</h3>
    We should guarantee consistency in code design and naming. Following are some examples:
    <ul>
@@ -67,17 +76,24 @@
     <li>If we add a new linked list member inside some class, then removing that element from the linked list should be done inside the same class.</li>
     <li>If a container class directly accesses variables of a contained class (and not through contained class's functions) then initializing those variables is the responsibility of the container class.</li>
    </ul>
-      
+
    <h3>Plain Pointers and Smart Pointers</h3>
-   Choosing between plain and smart (shared) pointers should be done according to the following criteria:   
+   Choosing between plain and smart (shared) pointers should be done according to the following criteria:
    <ul>
-    <li>Consistency between related classes should be preserved. In other words, these classes should use similar memory management model.</li>
-    <li>The following should be considered when deciding the memory management model:
+    <li>The rule is to use smart pointers for any non-temp variable (temp variables are function args and local variables). Exceptions are allowed in the following cases:
      <ul>
-      <li>Is the data dynamic or static? Smart pointers are prefered for data that is frequently created and destroyed.</li>
-      <li>Can we create and destroy the requested memory centrally? Plain pointers are preferred with memory blocks that can be created and destroyed from a central location.</li>
-      <li>To improve performance, plain pointers are preferred.</li>
+      <li>External pointers, i.e. those obtained from external libs.</li>
+      <li>Performance improvement cases.</li>
+      <li>Pointing to an owner object where the pointer will always be valid because the destruction of the owner leads to the destruction of the owned and because using smart pointers leads to a circular smart pointer.</li>
+      <li>Pointers to singletons.</li>
      </ul>
+    </li>
+    <li>Plain pointers are used for temp variables like function args and local varialbes. Exceptions are allowed in the following cases:
+    <ul>
+      <li>Receiving pointers to keep.</li>
+      <li>Property accessor functions where the property is a smart pointer. In this case a reference to a smart pointer is returned.</li>
+      <li>Returning a just-created object (that will be stored by the caller).</li>
+    </ul>
     </li>
    </ul>
 
@@ -97,7 +113,7 @@
     <li>If the type is related to a class but can be used outside the class independently of it, then it's defined outside the class.</li>
     <li>If the type is a class that can be a parent of another non-internal class then it's defined outside any class.</li>
    </ul>
-   
+
    <h3>Miscellaneous Notes</h3>
    <ul>
     <li>`std::vector` should store pointers when the stored object contains a complex constructor (for example one that allocates memory) in order to avoid repeatedly calling this constructor when the objects are copied during vector resizing.</li>
@@ -116,13 +132,13 @@
    <div>
     <h3>Names of Tokenizing Rules, Parsing Rules, and Character Groups</h3>
     Written with Pascal style, i.e. with an upper case letter at the begining of each word as in: ImportCommand.
-    
+
     <h3>Module Names</h3>
     Written with Pascal style as well, like tokenizing rules. As in: ImportSubject.
 
     <h3>Data Names</h3>
     Data, like string or integer or list or map, is written with camel style, i.e. with an upper case letter at the beginning of each word other than the first word. As in: multipllicationOperators.
-    
+
     <h3>Type Names</h3>
     Types are written with lowe case words separated by underscores, as in: valid_subject.
    </div>
@@ -131,28 +147,29 @@
    <div>
     <h3>Keywords</h3>
     Written with lower case words separated by underscores, as in: my_keyword.
-    
+
     <h3>Classes, Interfaces, Enumerations, and Namespaces</h3>
-    Written in Pascal style, i.e. with an upper case letter at the beginning of each word, as in: MyClass, MyNamespace.
-    
+    Written in Pascal style, i.e. with an upper case letter at the beginning of each word, as in: MyClass, MyNamespace.<br>
+    Interface names use verbal nouns while class names use agent nouns. For example, an interface can be called "Writing" while the class implementing it is named "Writer".
+
     <h3>Variables</h3>
     Written in camel style, as in: myVar.
-    
+
     <h3>Functions</h3>
     Written with the same style as variables, but they should start with a verb, as in: getMyVar.
-    
+
     <h3>Signals</h3>
     Written with the same style as variables, but they end with the word `signal` or `inquirer` or `notifier`. As in: tokenProcessingNotifier, tokenProcessingSignal, tokenProcessed.
-    
+
     <h3>Macros and Constants</h3>
     Written in all upper case words separated by underscores, as in: MY_CONSTANT, MY_MACRO.
-    
+
     <h3>Template Arguments</h3>
     Written similar to constants, i.e. with upper case words separated by underscores. Ex: TEMPLATE_ARG.
-    
+
     <h3>Dependent Elements</h3>
     Dependent elements are elements that should be accessed directly; instead, they should be accessed through other elements. Dependent elements should start with an underscore. For example, the function _getValue should not be called directly, instead the getValue function should be called.
-    
+
     <h3>Miscellaneous Notes</h3>
     <ul>
      <li>Names are not prefixed with any notation. For example, pointers don't start with the letter p and global variables don't start with the letter g or g_.</li>
@@ -190,7 +207,7 @@ String::getStringLength()  // wrong
     </ul>
    </div>
   </div>
-  
+
   <h2 class="foldable">Source Code Layout</h2>
   <div>
    <h3>Classes and Functions</h3>
@@ -366,7 +383,7 @@ class My_Class
     <li>We can drop the blank lines between different sections of a doxygen comment if each of these sections is a single line only.</li>
     <li>The symbol &lt;br&gt; should be used if we want to start a new section in a doxygen comment.</li>
    </ul>
-   
+
    <h3>Miscellaneous Notes</h3>
    <ul>
     <li>Members of a class are defined in the following order: Types followed by member variables followed by constructors and destructors followed by member functions.</li>
