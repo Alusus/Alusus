@@ -23,6 +23,7 @@ void ExpressionGenerator::initBindingCaches()
   Core::Basic::initBindingCaches(this, {
     &this->generate,
     &this->generateIdentifier,
+    &this->generateScopeMemberReference,
     &this->generateLinkOperator,
     &this->generateParamPass,
     &this->generateInfixOp,
@@ -47,6 +48,7 @@ void ExpressionGenerator::initBindings()
 {
   this->generate = &ExpressionGenerator::_generate;
   this->generateIdentifier = &ExpressionGenerator::_generateIdentifier;
+  this->generateScopeMemberReference = &ExpressionGenerator::_generateScopeMemberReference;
   this->generateLinkOperator = &ExpressionGenerator::_generateLinkOperator;
   this->generateParamPass = &ExpressionGenerator::_generateParamPass;
   this->generateInfixOp = &ExpressionGenerator::_generateInfixOp;
@@ -127,10 +129,20 @@ Bool ExpressionGenerator::_generateIdentifier(
   GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
+  return expGenerator->generateScopeMemberReference(astNode->getOwner(), astNode, true, g, tg, tgContext, result);
+}
+
+
+Bool ExpressionGenerator::_generateScopeMemberReference(
+  TiObject *self, TiObject *scope, Core::Data::Ast::Identifier *astNode, Bool searchOwners,
+  Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   Bool retVal = false;
   Bool symbolFound = false;
-  expGenerator->astHelper->getSeeker()->doForeach(astNode, astNode->getOwner(),
+  expGenerator->astHelper->getSeeker()->doForeach(astNode, scope,
     [=, &retVal, &symbolFound, &result]
     (TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
     {
@@ -138,12 +150,17 @@ Bool ExpressionGenerator::_generateIdentifier(
       // Check if the found obj is a variable definition.
       if (expGenerator->astHelper->isVarDefinition(obj)) {
         retVal = expGenerator->generateVarReference(obj, g, tg, tgContext, result);
+      } else if (obj->isDerivedFrom<Ast::Module>()) {
+        result.astNode = obj;
+        retVal = true;
       } else {
         expGenerator->noticeStore->add(std::make_shared<InvalidReferenceNotice>(astNode->findSourceLocation()));
       }
       return Core::Data::Seeker::Verb::STOP;
-    }
+    },
+    searchOwners ? 0 : Core::Data::Seeker::Flags::SKIP_OWNERS
   );
+
   if (!symbolFound) {
     expGenerator->noticeStore->add(std::make_shared<Ast::UnknownSymbolNotice>(astNode->findSourceLocation()));
   }
@@ -170,15 +187,25 @@ Bool ExpressionGenerator::_generateLinkOperator(
   GenResult firstResult;
   if (!expGenerator->generate(first, g, tg, tgContext, firstResult)) return false;
 
-  // Generate the member reference.
+  // Get member identifier.
   auto second = astNode->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
   if (second == 0) {
     expGenerator->noticeStore->add(std::make_shared<InvalidOperationNotice>(astNode->findSourceLocation()));
     return false;
   }
-  return expGenerator->generateMemberReference(
-    firstResult.targetData.get(), firstResult.astType, second, g, tg, tgContext, result
-  );
+
+  if (firstResult.targetData != 0) {
+    // Generate the member reference.
+    return expGenerator->generateMemberReference(
+      firstResult.targetData.get(), firstResult.astType, second, g, tg, tgContext, result
+    );
+  } else if (firstResult.astNode != 0 && firstResult.astNode->isDerivedFrom<Ast::Module>()) {
+    // Generate a reference to a global in another module.
+    return expGenerator->generateScopeMemberReference(firstResult.astNode, second, false, g, tg, tgContext, result);
+  } else {
+    expGenerator->noticeStore->add(std::make_shared<InvalidOperationNotice>(astNode->findSourceLocation()));
+    return false;
+  }
 }
 
 
@@ -206,7 +233,7 @@ Bool ExpressionGenerator::_generateParamPass(
     TiObject *callee;
     Ast::Type *calleeType;
     if (!expGenerator->astHelper->lookupCallee(
-      operand, astNode, &paramAstTypes, tg->getExecutionContext(), callee, calleeType
+      operand, astNode->getOwner(), true, &paramAstTypes, tg->getExecutionContext(), callee, calleeType
     )) return false;
     if (callee->isDerivedFrom<Ast::Function>()) {
       ////
@@ -236,11 +263,83 @@ Bool ExpressionGenerator::_generateParamPass(
     } else {
       throw EXCEPTION(GenericException, STR("Invalid callee."));
     }
-  // } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-  //   ////
-  //   //// TODO: Call a member of a specific object.
-  //   ////
-  //   throw EXCEPTION(GenericException, STR("Not implemented yet."));
+  } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
+    ////
+    //// Call a member of a specific object/scope.
+    ////
+    // Generate the object reference.
+    auto linkOperator = static_cast<Core::Data::Ast::LinkOperator*>(operand);
+    auto first = linkOperator->getFirst().get();
+    if (first == 0) {
+      throw EXCEPTION(GenericException, STR("First AST element missing from link operator."));
+    }
+    GenResult firstResult;
+    if (!expGenerator->generate(first, g, tg, tgContext, firstResult)) return false;
+    // Generate the member identifier.
+    auto second = linkOperator->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
+    if (second == 0) {
+      expGenerator->noticeStore->add(std::make_shared<InvalidOperationNotice>(linkOperator->findSourceLocation()));
+      return false;
+    }
+
+    if (firstResult.targetData != 0) {
+      //// Calling a member of another object instance.
+      GenResult prevResult;
+      if (!expGenerator->generateMemberReference(
+        firstResult.targetData.get(), firstResult.astType, second, g, tg, tgContext, prevResult
+      )) return false;
+      if (expGenerator->astHelper->isTypeOrRefTypeOf<Ast::ArrayType>(prevResult.astType)) {
+        //// Reference element of an array result of the expression.
+        return expGenerator->generateArrayReference(
+          prevResult.targetData.get(), prevResult.astType,
+          paramTgValues.getElement(0), static_cast<Ast::Type*>(paramAstTypes.getElement(0)),
+          g, tg, tgContext, result
+        );
+      } else {
+        // TODO: Call a function pointer from a previous expression.
+        throw EXCEPTION(GenericException, STR("Not implemented yet."));
+      }
+    } else if (firstResult.astNode != 0 && firstResult.astNode->isDerivedFrom<Ast::Module>()) {
+      //// Calling a global in another module.
+      // Look for a matching callee.
+      TiObject *callee;
+      Ast::Type *calleeType;
+      if (!expGenerator->astHelper->lookupCallee(
+        second, static_cast<Ast::Module*>(firstResult.astNode), false, &paramAstTypes, tg->getExecutionContext(),
+        callee, calleeType
+      )) return false;
+      if (callee->isDerivedFrom<Ast::Function>()) {
+        ////
+        //// Call a function.
+        ////
+        // Prepare the arguments to send.
+        expGenerator->prepareFunctionParams(
+          static_cast<Ast::Function*>(callee), g, tg, tgContext, &paramAstTypes, &paramTgValues
+        );
+        // Generate the function call.
+        return expGenerator->generateFunctionCall(
+          static_cast<Ast::Function*>(callee), &paramTgValues, g, tg, tgContext, result
+        );
+      } else if (calleeType != 0 && calleeType->isDerivedFrom<Ast::ArrayType>()) {
+        ////
+        //// Reference array element.
+        ////
+        // Get a reference to the array.
+        GenResult arrayResult;
+        if (!expGenerator->generateVarReference(callee, g, tg, tgContext, arrayResult)) return false;
+        // Reference array element.
+        return expGenerator->generateArrayReference(
+          arrayResult.targetData.get(), arrayResult.astType,
+          paramTgValues.getElement(0), static_cast<Ast::Type*>(paramAstTypes.getElement(0)),
+          g, tg, tgContext, result
+        );
+      } else {
+        throw EXCEPTION(GenericException, STR("Invalid callee."));
+      }
+    } else {
+      expGenerator->noticeStore->add(std::make_shared<InvalidOperationNotice>(linkOperator->findSourceLocation()));
+      return false;
+    }
   } else {
     ////
     //// Param pass to the result of a previous expression.
@@ -300,7 +399,8 @@ Bool ExpressionGenerator::_generateInfixOp(
   TiObject *callee;
   Ast::Type *calleeType;
   if (!expGenerator->astHelper->lookupCalleeByName(
-    funcName, astNode, &paramAstTypes, tg->getExecutionContext(), callee, calleeType
+    funcName, Core::Data::Ast::findSourceLocation(astNode), astNode->getOwner(), true,
+    &paramAstTypes, tg->getExecutionContext(), callee, calleeType
   )) return false;
   auto function = ti_cast<Ast::Function>(callee);
   if (function == 0) {
@@ -329,6 +429,10 @@ Bool ExpressionGenerator::_generateAssignment(
   }
   GenResult varResult;
   if (!expGenerator->generate(var, g, tg, tgContext, varResult)) return false;
+  if (varResult.targetData == 0) {
+    expGenerator->noticeStore->add(std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(var)));
+    return false;
+  }
   auto varRefAstType = ti_cast<Ast::ReferenceType>(varResult.astType);
   if (varRefAstType == 0) {
     expGenerator->noticeStore->add(std::make_shared<UnsupportedOperationNotice>(astNode->findSourceLocation()));
@@ -343,6 +447,10 @@ Bool ExpressionGenerator::_generateAssignment(
   }
   GenResult valResult;
   if (!expGenerator->generate(val, g, tg, tgContext, valResult)) return false;
+  if (valResult.targetData == 0) {
+    expGenerator->noticeStore->add(std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(var)));
+    return false;
+  }
 
   // Is value implicitly castable?
   if (!valResult.astType->isImplicitlyCastableTo(varAstType, expGenerator->astHelper, tg->getExecutionContext())) {
@@ -381,6 +489,12 @@ Bool ExpressionGenerator::_generatePointerOp(
   }
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, tg, tgContext, operandResult)) return false;
+  if (operandResult.targetData == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
+    );
+    return false;
+  }
   auto operandRefAstType = ti_cast<Ast::ReferenceType>(operandResult.astType);
   if (operandRefAstType == 0) {
     expGenerator->noticeStore->add(std::make_shared<UnsupportedOperationNotice>(astNode->findSourceLocation()));
@@ -408,6 +522,12 @@ Bool ExpressionGenerator::_generateContentOp(
   }
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, tg, tgContext, operandResult)) return false;
+  if (operandResult.targetData == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
+    );
+    return false;
+  }
 
   // Get the pointer itself, not a reference to a pointer.
   GenResult derefResult;
@@ -443,6 +563,12 @@ Bool ExpressionGenerator::_generateCastOp(
   }
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, tg, tgContext, operandResult)) return false;
+  if (operandResult.targetData == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
+    );
+    return false;
+  }
 
   // Get the value itself, not a reference to it.
   GenResult derefResult;
@@ -1009,6 +1135,10 @@ Bool ExpressionGenerator::generateParamList(
   } else {
     GenResult result;
     if (!this->generate(astNode, g, tg, tgContext, result)) return false;
+    if (result.targetData == 0) {
+      this->noticeStore->add(std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(astNode)));
+      return false;
+    }
     resultValues->add(result.targetData);
     resultTypes->addElement(result.astType);
   }
@@ -1023,6 +1153,12 @@ Bool ExpressionGenerator::generateParamList(
   for (Int i = 0; i < astNodes->getCount(); ++i) {
     GenResult result;
     if (!this->generate(astNodes->get(i), g, tg, tgContext, result)) return false;
+    if (result.targetData == 0) {
+      this->noticeStore->add(
+        std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(astNodes->get(i)))
+      );
+      return false;
+    }
     resultValues->add(result.targetData);
     resultTypes->addElement(result.astType);
   }

@@ -2,7 +2,7 @@
  * @file Core/Data/Seeker.cpp
  * Contains the implementation of class Core::Data::Seeker.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -86,37 +86,37 @@ void Seeker::initBindings()
 //==============================================================================
 // Helper Functions
 
-Bool Seeker::trySet(TiObject const *ref, TiObject *target, TiObject *val)
+Bool Seeker::trySet(TiObject const *ref, TiObject *target, TiObject *val, Word flags)
 {
   Bool result = false;
   this->doSet(ref, target, [=,&result](TiObject *&obj, Notice*)->Verb {
     obj = val;
     result = true;
     return Verb::PERFORM_AND_MOVE;
-  });
+  }, flags);
   return result;
 }
 
 
-Bool Seeker::tryRemove(TiObject const *ref, TiObject *target)
+Bool Seeker::tryRemove(TiObject const *ref, TiObject *target, Word flags)
 {
   Bool ret = false;
   this->doRemove(ref, target, [&ret](TiObject *o, Notice*)->Verb {
     ret = true;
     return Verb::PERFORM_AND_MOVE;
-  });
+  }, flags);
   return ret;
 }
 
 
-Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal)
+Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal, Word flags)
 {
   Bool ret = false;
   this->doForeach(ref, target, [&ret,&retVal](TiObject *o, Notice*)->Verb {
     retVal = o;
     ret = true;
     return Verb::STOP;
-  });
+  }, flags);
   return ret;
 }
 
@@ -124,39 +124,39 @@ Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal)
 //==============================================================================
 // Main Seek Functions
 
-void Seeker::_set(TiObject *self, TiObject const *ref, TiObject *target, SetCallback const &cb)
+void Seeker::_set(TiObject *self, TiObject const *ref, TiObject *target, SetCallback const &cb, Word flags)
 {
   PREPARE_SELF(seeker, Seeker);
   if (ref->isA<Ast::Identifier>()) {
-    seeker->setByIdentifier(static_cast<Ast::Identifier const*>(ref), target, cb);
+    seeker->setByIdentifier(static_cast<Ast::Identifier const*>(ref), target, cb, flags);
   } else if (ref->isA<Ast::LinkOperator>()) {
-    seeker->setByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb);
+    seeker->setByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
   } else {
     throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Unrecognized reference type."));
   }
 }
 
 
-void Seeker::_remove(TiObject *self, TiObject const *ref, TiObject *target, RemoveCallback const &cb)
+void Seeker::_remove(TiObject *self, TiObject const *ref, TiObject *target, RemoveCallback const &cb, Word flags)
 {
   PREPARE_SELF(seeker, Seeker);
   if (ref->isA<Ast::Identifier>()) {
-    seeker->removeByIdentifier(static_cast<Ast::Identifier const*>(ref), target, cb);
+    seeker->removeByIdentifier(static_cast<Ast::Identifier const*>(ref), target, cb, flags);
   } else if (ref->isA<Ast::LinkOperator>()) {
-    seeker->removeByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb);
+    seeker->removeByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
   } else {
     throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Unrecognized reference type."));
   }
 }
 
 
-void Seeker::_foreach(TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb)
+void Seeker::_foreach(TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags)
 {
   PREPARE_SELF(seeker, Seeker);
   if (ref->isA<Ast::Identifier>()) {
-    seeker->foreachByIdentifier(static_cast<Ast::Identifier const*>(ref), target, cb);
+    seeker->foreachByIdentifier(static_cast<Ast::Identifier const*>(ref), target, cb, flags);
   } else if (ref->isA<Ast::LinkOperator>()) {
-    seeker->foreachByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb);
+    seeker->foreachByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
   } else {
     throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Unrecognized reference type."));
   }
@@ -167,7 +167,7 @@ void Seeker::_foreach(TiObject *self, TiObject const *ref, TiObject *target, For
 // Identifier set
 
 void Seeker::_setByIdentifier(
-  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<SharedRepository>()) {
@@ -175,12 +175,13 @@ void Seeker::_setByIdentifier(
     for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
       auto data = repo->getLevelData(i).get();
       if (data == 0) continue;
-      if (!Seeker::isMove(seeker->setByIdentifier_level(identifier, data, cb))) return;
+      if (!Seeker::isMove(seeker->setByIdentifier_level(identifier, data, cb, flags))) return;
     }
   } else if (data->isDerivedFrom<Node>()) {
     auto node = static_cast<Node*>(data);
     while (node != 0) {
-      if (!Seeker::isMove(seeker->setByIdentifier_level(identifier, node, cb))) return;
+      if (!Seeker::isMove(seeker->setByIdentifier_level(identifier, node, cb, flags))) return;
+      if (flags & Seeker::Flags::SKIP_OWNERS) break;
       node = node->getOwner();
     }
   } else {
@@ -190,11 +191,11 @@ void Seeker::_setByIdentifier(
 
 
 Seeker::Verb Seeker::_setByIdentifier_level(
-  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<Ast::Scope>()) {
-    return seeker->setByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb);
+    return seeker->setByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb, flags);
   } else {
     return Seeker::Verb::MOVE;
   }
@@ -202,7 +203,7 @@ Seeker::Verb Seeker::_setByIdentifier_level(
 
 
 Seeker::Verb Seeker::_setByIdentifier_scope(
-  TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb, Word flags
 ) {
   Seeker::Verb verb = Seeker::Verb::MOVE;
   for (Int i = 0; i < scope->getCount(); ++i) {
@@ -235,7 +236,7 @@ Seeker::Verb Seeker::_setByIdentifier_scope(
 // Identifier remove
 
 void Seeker::_removeByIdentifier(
-  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<SharedRepository>()) {
@@ -243,12 +244,13 @@ void Seeker::_removeByIdentifier(
     for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
       auto data = repo->getLevelData(i).get();
       if (data == 0) continue;
-      if (!Seeker::isMove(seeker->removeByIdentifier_level(identifier, data, cb))) return;
+      if (!Seeker::isMove(seeker->removeByIdentifier_level(identifier, data, cb, flags))) return;
     }
   } else if (data->isDerivedFrom<Node>()) {
     auto node = static_cast<Node*>(data);
     while (node != 0) {
-      if (!Seeker::isMove(seeker->removeByIdentifier_level(identifier, node, cb))) return;
+      if (!Seeker::isMove(seeker->removeByIdentifier_level(identifier, node, cb, flags))) return;
+      if (flags & Seeker::Flags::SKIP_OWNERS) break;
       node = node->getOwner();
     }
   } else {
@@ -258,11 +260,11 @@ void Seeker::_removeByIdentifier(
 
 
 Seeker::Verb Seeker::_removeByIdentifier_level(
-  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<Ast::Scope>()) {
-    return seeker->removeByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb);
+    return seeker->removeByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb, flags);
   } else {
     return Seeker::Verb::MOVE;
   }
@@ -270,7 +272,7 @@ Seeker::Verb Seeker::_removeByIdentifier_level(
 
 
 Seeker::Verb Seeker::_removeByIdentifier_scope(
-  TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, RemoveCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, RemoveCallback const &cb, Word flags
 ) {
   Seeker::Verb verb = Seeker::Verb::MOVE;
   for (Int i = 0; i < scope->getCount(); ++i) {
@@ -293,7 +295,7 @@ Seeker::Verb Seeker::_removeByIdentifier_scope(
 // Identifier foreach
 
 void Seeker::_foreachByIdentifier(
-  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<SharedRepository>()) {
@@ -301,12 +303,13 @@ void Seeker::_foreachByIdentifier(
     for (Int i = repo->getLevelCount() - 1; i >= 0; --i) {
       auto data = repo->getLevelData(i).get();
       if (data == 0) continue;
-      if (!Seeker::isMove(seeker->foreachByIdentifier_level(identifier, data, cb))) return;
+      if (!Seeker::isMove(seeker->foreachByIdentifier_level(identifier, data, cb, flags))) return;
     }
   } else if (data->isDerivedFrom<Node>()) {
     auto node = static_cast<Node*>(data);
     while (node != 0) {
-      if (!Seeker::isMove(seeker->foreachByIdentifier_level(identifier, node, cb))) return;
+      if (!Seeker::isMove(seeker->foreachByIdentifier_level(identifier, node, cb, flags))) return;
+      if (flags & Seeker::Flags::SKIP_OWNERS) break;
       node = node->getOwner();
     }
   } else {
@@ -316,11 +319,11 @@ void Seeker::_foreachByIdentifier(
 
 
 Seeker::Verb Seeker::_foreachByIdentifier_level(
-  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<Ast::Scope>()) {
-    return seeker->foreachByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb);
+    return seeker->foreachByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb, flags);
   } else {
     return Seeker::Verb::MOVE;
   }
@@ -328,7 +331,7 @@ Seeker::Verb Seeker::_foreachByIdentifier_level(
 
 
 Seeker::Verb Seeker::_foreachByIdentifier_scope(
-  TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, ForeachCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, ForeachCallback const &cb, Word flags
 ) {
   Seeker::Verb verb = Seeker::Verb::MOVE;
   for (Int i = 0; i < scope->getCount(); ++i) {
@@ -347,21 +350,22 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
 // LinkOperator set
 
 void Seeker::_setByLinkOperator(
-  TiObject *self, Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb
+  TiObject *self, Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   seeker->doForeach(first, data,
     [=](TiObject *newData, Notice*)->Verb
     {
-      return seeker->setByLinkOperator_routing(link, newData, cb);
-    }
+      return seeker->setByLinkOperator_routing(link, newData, cb, flags);
+    },
+    flags
   );
 }
 
 
 Seeker::Verb Seeker::_setByLinkOperator_routing(
-  TiObject *self, Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb
+  TiObject *self, Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (link->getType() == STR(".")) {
@@ -369,12 +373,12 @@ Seeker::Verb Seeker::_setByLinkOperator_routing(
     if (second->isA<Ast::Identifier>()) {
       if (data->isDerivedFrom<Ast::Scope>()) {
         return seeker->setByLinkOperator_scopeDotIdentifier(
-          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb
+          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
         );
       } else {
         MapContainer *map = ti_cast<MapContainer>(data);
         if (map != 0) {
-          return seeker->setByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb);
+          return seeker->setByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
         } else {
           throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Unrecognized target data type."));
         }
@@ -389,7 +393,7 @@ Seeker::Verb Seeker::_setByLinkOperator_routing(
 
 
 Seeker::Verb Seeker::_setByLinkOperator_scopeDotIdentifier(
-  TiObject *self, Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb
+  TiObject *self, Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb, Word flags
 ) {
   Verb verb = Verb::MOVE;
   for (Int i = 0; i < scope->getCount(); ++i) {
@@ -419,7 +423,7 @@ Seeker::Verb Seeker::_setByLinkOperator_scopeDotIdentifier(
 
 
 Seeker::Verb Seeker::_setByLinkOperator_mapDotIdentifier(
-  TiObject *self, Ast::Identifier const *identifier, MapContainer *map, SetCallback const &cb
+  TiObject *self, Ast::Identifier const *identifier, MapContainer *map, SetCallback const &cb, Word flags
 ) {
   Verb verb = Verb::MOVE;
   auto obj = map->get(identifier->getValue().get());
@@ -435,21 +439,22 @@ Seeker::Verb Seeker::_setByLinkOperator_mapDotIdentifier(
 // LinkOperator remove
 
 void Seeker::_removeByLinkOperator(
-  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   seeker->doForeach(first, data,
     [=](TiObject *newData, Notice*)->Verb
     {
-      return seeker->removeByLinkOperator_routing(link, newData, cb);
-    }
+      return seeker->removeByLinkOperator_routing(link, newData, cb, flags);
+    },
+    flags
   );
 }
 
 
 Seeker::Verb Seeker::_removeByLinkOperator_routing(
-  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (link->getType() == STR(".")) {
@@ -457,12 +462,12 @@ Seeker::Verb Seeker::_removeByLinkOperator_routing(
     if (second->isA<Ast::Identifier>()) {
       if (data->isDerivedFrom<Ast::Scope>()) {
         return seeker->removeByLinkOperator_scopeDotIdentifier(
-          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb
+          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
         );
       } else {
         MapContainer *map = ti_cast<MapContainer>(data);
         if (map != 0) {
-          return seeker->removeByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb);
+          return seeker->removeByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
         } else {
           throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Unrecognized target data type."));
         }
@@ -477,7 +482,7 @@ Seeker::Verb Seeker::_removeByLinkOperator_routing(
 
 
 Seeker::Verb Seeker::_removeByLinkOperator_scopeDotIdentifier(
-  TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, RemoveCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, RemoveCallback const &cb, Word flags
 ) {
   Verb verb = Verb::MOVE;
   for (Int i = 0; i < scope->getCount(); ++i) {
@@ -497,7 +502,7 @@ Seeker::Verb Seeker::_removeByLinkOperator_scopeDotIdentifier(
 
 
 Seeker::Verb Seeker::_removeByLinkOperator_mapDotIdentifier(
-  TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, RemoveCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, RemoveCallback const &cb, Word flags
 ) {
   Verb verb = Verb::MOVE;
   auto index = map->findIndex(identifier->getValue().get());
@@ -516,21 +521,22 @@ Seeker::Verb Seeker::_removeByLinkOperator_mapDotIdentifier(
 // LinkOperator foreach
 
 void Seeker::_foreachByLinkOperator(
-  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   seeker->doForeach(first, data,
     [=](TiObject *newData, Notice*)->Verb
     {
-      return seeker->foreachByLinkOperator_routing(link, newData, cb);
-    }
+      return seeker->foreachByLinkOperator_routing(link, newData, cb, flags);
+    },
+    flags
   );
 }
 
 
 Seeker::Verb Seeker::_foreachByLinkOperator_routing(
-  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (link->getType() == STR(".")) {
@@ -538,12 +544,12 @@ Seeker::Verb Seeker::_foreachByLinkOperator_routing(
     if (second->isA<Ast::Identifier>()) {
       if (data->isDerivedFrom<Ast::Scope>()) {
         return seeker->foreachByLinkOperator_scopeDotIdentifier(
-          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb
+          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
         );
       } else {
         MapContainer *map = ti_cast<MapContainer>(data);
         if (map != 0) {
-          return seeker->foreachByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb);
+          return seeker->foreachByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
         } else {
           throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Unrecognized target data type."));
         }
@@ -558,7 +564,7 @@ Seeker::Verb Seeker::_foreachByLinkOperator_routing(
 
 
 Seeker::Verb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
-  TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, ForeachCallback const &cb
+  TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, ForeachCallback const &cb, Word flags
 ) {
   Verb verb = Verb::MOVE;
   for (Int i = 0; i < scope->getCount(); ++i) {
@@ -574,7 +580,8 @@ Seeker::Verb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
 
 
 Seeker::Verb Seeker::_foreachByLinkOperator_mapDotIdentifier(
-  TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, ForeachCallback const &cb
+  TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, ForeachCallback const &cb,
+  Word flags
 ) {
   auto obj = map->get(identifier->getValue().get());
   return cb(obj, 0);

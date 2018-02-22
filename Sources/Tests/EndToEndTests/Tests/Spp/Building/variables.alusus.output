@@ -5,6 +5,16 @@ ERROR SPP1309 @ (34,10): Value is not implicitly castable to target type.
 ERROR SPP1106 @ (45,5): No matches were found for the given callee.
 ERROR SPP1106 @ (46,5): No matches were found for the given callee.
 ERROR SPP1106 @ (47,5): No matches were found for the given callee.
+ERROR SPP1308 @ (54,5): Invalid symbol.
+ERROR SPP1308 @ (55,5): Invalid symbol.
+ERROR SPP1107 @ (56,11): Unknown symbol.
+ERROR SPP1308 @ (57,5): Invalid symbol.
+ERROR SPP1308 @ (58,5): Invalid symbol.
+ERROR SPP1107 @ (59,16): Unknown symbol.
+ERROR SPP1107 @ (84,11): Unknown symbol.
+ERROR SPP1107 @ (85,25): Unknown symbol.
+ERROR SPP1107 @ (88,18): Unknown symbol.
+ERROR SPP1107 @ (89,32): Unknown symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -19,6 +29,13 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 @__anonymous0 = private constant [4 x i8] c"%d\0A\00", align 1
 @__anonymous1 = private constant [8 x i8] c"%d, %f\0A\00", align 1
 @__anonymous2 = private constant [4 x i8] c"%d\0A\00", align 1
+@Other_gi = global i32 0
+@Other_gf = global double 0.000000e+00
+@__anonymous3 = private constant [8 x i8] c"%d, %f\0A\00", align 1
+@__anonymous4 = private constant [4 x i8] c"%d\0A\00", align 1
+@Other_Nested_gni = global i32 0
+@__anonymous5 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous6 = private constant [4 x i8] c"%f\0A\00", align 1
 
 declare i64 @printf(i8*, ...)
 
@@ -71,6 +88,8 @@ __block0:
   call void @Main_testVarOverride_____Void_()
   %24 = load i32* @Main_gi
   %25 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i64 0, i64 0), i32 %24)
+  call void @Main_testOtherModules_____Void_()
+  ret void
 }
 
 define void @Main_testVars_Int_64__Float_64_____Void_(i64 %ai, double %af) {
@@ -95,6 +114,19 @@ __block2:
   store i32 60, i32* %gi
   %0 = load i32* %gi
   %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous2, i64 0, i64 0), i32 %0)
+  ret void
+}
+
+define void @Main_testOtherModules_____Void_() {
+__block3:
+  store i32 2, i32* @Other_gi
+  store double 0x401D333340000000, double* @Other_gf
+  %0 = load i32* @Other_gi
+  %1 = load double* @Other_gf
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous3, i64 0, i64 0), i32 %0, double %1)
+  store i32 4, i32* @Other_Nested_gni
+  %3 = load i32* @Other_Nested_gni
+  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous5, i64 0, i64 0), i32 %3)
   ret void
 }
 ------------------------------------------------------------

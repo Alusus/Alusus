@@ -4,12 +4,15 @@ ERROR SPP1309 @ (24,14): Value is not implicitly castable to target type.
 ERROR SPP1309 @ (25,9): Value is not implicitly castable to target type.
 ERROR SPP1309 @ (26,10): Value is not implicitly castable to target type.
 ERROR SPP1309 @ (29,9): Value is not implicitly castable to target type.
-ERROR SPP1102 @ (47,17): Invalid template argument.
-ERROR SPP1103 @ (47,13): No valid match was found for the given type.
-ERROR SPP1301 @ (48,5): Unsupported operation.
-ERROR SPP1305 @ (49,10): Invalid cast.
-ERROR SPP1305 @ (57,10): Invalid cast.
-ERROR SPP1103 @ (58,16): No valid match was found for the given type.
+ERROR SPP1308 @ (34,10): Invalid symbol.
+ERROR SPP1308 @ (35,5): Invalid symbol.
+ERROR SPP1102 @ (52,17): Invalid template argument.
+ERROR SPP1103 @ (52,13): No valid match was found for the given type.
+ERROR SPP1301 @ (53,5): Unsupported operation.
+ERROR SPP1305 @ (54,10): Invalid cast.
+ERROR SPP1305 @ (62,10): Invalid cast.
+ERROR SPP1103 @ (63,16): No valid match was found for the given type.
+ERROR SPP1308 @ (66,9): Invalid symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -17,6 +20,8 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 
 @__anonymous0 = private constant [8 x i8] c"i = %d\0A\00", align 1
 @__anonymous1 = private constant [13 x i8] c"pi~cnt = %d\0A\00", align 1
+@Other_i = global i32 0
+@Other_pi = global i32* null
 @__anonymous2 = private constant [8 x i8] c"f = %f\0A\00", align 1
 @__anonymous3 = private constant [24 x i8] c"f~cast[Float[64]] = %f\0A\00", align 1
 
@@ -47,6 +52,10 @@ __block0:
   %12 = load i32** %11
   %13 = load i32* %12
   store i32 %13, i32* %i
+  store i32* @Other_i, i32** %pi
+  %14 = load i32** @Other_pi
+  store i32 10, i32* %14
+  ret void
 }
 
 define void @Main_testCast_____Void_() {
@@ -86,5 +95,9 @@ __block1:
   store float %18, float* %f
   %19 = load float* %f
   %20 = load float* %f
+  %21 = load i32* @Other_i
+  %22 = sitofp i32 %21 to float
+  store float %22, float* %f
+  ret void
 }
 ------------------------------------------------------------

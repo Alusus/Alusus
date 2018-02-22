@@ -2,6 +2,7 @@ ERROR SPP1106 @ (47,33): No matches were found for the given callee.
 ERROR SPP1106 @ (48,33): No matches were found for the given callee.
 ERROR SPP1106 @ (49,33): No matches were found for the given callee.
 ERROR SPP1106 @ (50,33): No matches were found for the given callee.
+ERROR SPP1308 @ (58,8): Invalid symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -84,6 +85,7 @@ __block2:
   %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous25, i64 0, i64 0), i64 -1)
   %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous26, i64 0, i64 0), i64 -1)
   %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous27, i64 0, i64 0), i64 -1)
+  ret void
 }
 
 define void @Main_testIfStatement_Int_64_____Void_(i64 %i) {
@@ -104,10 +106,12 @@ __block5:                                         ; preds = %__block3
 
 __block6:                                         ; preds = %__block5, %__block4
   ret void
+
+__block7:                                         ; No predecessors!
 }
 
 define void @Main_start_____Void_() {
-__block7:
+__block8:
   call void @Main_testInteger_____Void_()
   call void @Main_testFloat_____Void_()
   call void @Main_testMixed_____Void_()

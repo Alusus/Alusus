@@ -68,6 +68,7 @@ __block7:
 
 define void @Main_invalidReturn1_____Void_() {
 __block8:
+  ret void
 }
 
 define i32 @Main_invalidReturn2_____Int_32__() {

@@ -26,5 +26,6 @@ __block0:
   %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([19 x i8]* @__anonymous5, i64 0, i64 0), i16 120)
   %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([19 x i8]* @__anonymous6, i64 0, i64 0), i32 120)
   %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([19 x i8]* @__anonymous7, i64 0, i64 0), i64 120)
+  ret void
 }
 ------------------------------------------------------------

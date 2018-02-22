@@ -103,5 +103,6 @@ __block2:
   store %Main_Point %27, %Main_Point* %p
   %28 = load %Main_Point* %p
   call void @Main_printPoint_Main_Point____Void_(%Main_Point %28)
+  ret void
 }
 ------------------------------------------------------------

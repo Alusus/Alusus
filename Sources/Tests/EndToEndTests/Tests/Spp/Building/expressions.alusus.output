@@ -2,6 +2,9 @@ ERROR SPP1106 @ (45,33): No matches were found for the given callee.
 ERROR SPP1106 @ (46,33): No matches were found for the given callee.
 ERROR SPP1106 @ (47,33): No matches were found for the given callee.
 ERROR SPP1106 @ (48,33): No matches were found for the given callee.
+ERROR SPP1308 @ (57,19): Invalid symbol.
+ERROR SPP1308 @ (58,23): Invalid symbol.
+ERROR SPP1308 @ (59,19): Invalid symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -35,6 +38,9 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 @__anonymous25 = private constant [18 x i8] c"1f32 + 1i32 = %f\0A\00", align 1
 @__anonymous26 = private constant [18 x i8] c"1i64 + 1f32 = %f\0A\00", align 1
 @__anonymous27 = private constant [18 x i8] c"1f32 + 1i64 = %f\0A\00", align 1
+@__anonymous28 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous29 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous30 = private constant [4 x i8] c"%d\0A\00", align 1
 
 declare i64 @printf(i8*, ...)
 
@@ -74,6 +80,7 @@ __block2:
   %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous21, i64 0, i64 0), double 2.000000e+00)
   %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous22, i64 0, i64 0), double 2.000000e+00)
   %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous23, i64 0, i64 0), double 2.000000e+00)
+  ret void
 }
 
 define void @Main_start_____Void_() {

@@ -122,17 +122,19 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   private: static Bool _isVarDefinition(TiObject *self, TiObject *obj);
 
   public: Bool lookupCalleeByName(
-    Char const *name, Core::Data::Node *astNode, Core::Basic::Container<TiObject> *types,
-    Spp::ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
+    Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
+    Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee,
     Bool, (
-      TiObject*, Core::Data::Node*, Core::Basic::Container<TiObject>*, Spp::ExecutionContext const*, TiObject*&, Type*&
+      TiObject* /* ref */, Core::Data::Node* /* astNode */, Bool /* searchOwners */,
+      Core::Basic::Container<TiObject>* /* types */,
+      Spp::ExecutionContext const* /* ec */, TiObject*& /* callee */, Type*& /* calleeType */
     )
   );
   private: static Bool _lookupCallee(
-    TiObject *self, TiObject *ref, Core::Data::Node *astNode,
+    TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
     Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
     TiObject *&callee, Type *&calleeType
   );

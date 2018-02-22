@@ -104,13 +104,24 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
 
   public: METHOD_BINDING_CACHE(generateIdentifier,
     Bool, (
-      Core::Data::Ast::Identifier* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */,
-      GenResult& /* result */
+      Core::Data::Ast::Identifier* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
+      TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateIdentifier(
     TiObject *self, Core::Data::Ast::Identifier *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
     GenResult &result
+  );
+
+  public: METHOD_BINDING_CACHE(generateScopeMemberReference,
+    Bool, (
+      TiObject* /* scope */, Core::Data::Ast::Identifier* /* astNode */, Bool /* searchOwners */,
+      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateScopeMemberReference(
+    TiObject *self, TiObject *scope, Core::Data::Ast::Identifier *astNode, Bool searchOwners,
+    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateLinkOperator,

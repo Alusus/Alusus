@@ -2,7 +2,7 @@
  * @file Core/Data/Seeker.h
  * Contains the header of class Core::Data::Seeker.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -31,32 +31,12 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   // Types
 
   public: ti_s_enum(Verb, Integer, "Core.Data", "Core", "alusus.net",
-                    MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP);
-
+    MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP
+  );
+  public: s_enum(Flags, SKIP_OWNERS = 1);
   public: typedef std::function<Verb(TiObject *&obj, Notice *notice)> SetCallback;
   public: typedef std::function<Verb(TiObject *obj, Notice *notice)> RemoveCallback;
   public: typedef std::function<Verb(TiObject *obj, Notice *notice)> ForeachCallback;
-
-
-  //============================================================================
-  // Types
-
-  private: struct PrecomputedRecord
-  {
-    TiObject const *ref;
-    TiObject *target;
-    TiObject *result;
-    PrecomputedRecord(TiObject const *ref, TiObject *target, TiObject *result)
-      : ref(ref), target(target), result(result)
-    {
-    }
-  };
-
-
-  //============================================================================
-  // Member Variables
-
-  private: std::vector<PrecomputedRecord> precomputedRecords;
 
 
   //============================================================================
@@ -98,66 +78,51 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @name Helper Functions
   /// @{
 
-  public: void doSet(TiObject const *ref, TiObject *target, SetCallback const &cb)
+  public: void doSet(TiObject const *ref, TiObject *target, SetCallback const &cb, Word flags = 0)
   {
-    this->set(ref, target, cb);
+    this->set(ref, target, cb, flags);
   }
 
-  public: void doRemove(TiObject const *ref, TiObject *target, RemoveCallback const &cb)
+  public: void doRemove(TiObject const *ref, TiObject *target, RemoveCallback const &cb, Word flags = 0)
   {
-    this->remove(ref, target, cb);
+    this->remove(ref, target, cb, flags);
   }
 
-  public: void doForeach(TiObject const *ref, TiObject *target, ForeachCallback const &cb)
+  public: void doForeach(TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags = 0)
   {
-    for (PrecomputedRecord &record : this->precomputedRecords) {
-      if (record.ref == ref && record.target == target) {
-        cb(record.result, 0);
-        return;
-      }
-    }
-    this->foreach(ref, target, cb);
+    this->foreach(ref, target, cb, flags);
   }
 
-  public: void doContinueForeach(
-    TiObject const *continueRef, TiObject *continueResult, TiObject const *ref, TiObject *target,
-    ForeachCallback const &cb
-  ) {
-    this->precomputedRecords.push_back(PrecomputedRecord(continueRef, target, continueResult));
-    this->doForeach(ref, target, cb);
-    this->precomputedRecords.pop_back();
-  }
+  public: Bool trySet(TiObject const *ref, TiObject *target, TiObject *val, Word flags = 0);
 
-  public: Bool trySet(TiObject const *ref, TiObject *target, TiObject *val);
-
-  public: void doSet(TiObject const *ref, TiObject *target, TiObject *val)
+  public: void doSet(TiObject const *ref, TiObject *target, TiObject *val, Word flags = 0)
   {
-    if (!this->trySet(ref, target, val)) {
+    if (!this->trySet(ref, target, val, flags)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
   }
 
-  public: Bool tryRemove(TiObject const *ref, TiObject *target);
+  public: Bool tryRemove(TiObject const *ref, TiObject *target, Word flags = 0);
 
-  public: void doRemove(TiObject const *ref, TiObject *target)
+  public: void doRemove(TiObject const *ref, TiObject *target, Word flags = 0)
   {
-    if (!this->tryRemove(ref, target)) {
+    if (!this->tryRemove(ref, target, flags)) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
   }
 
-  public: Bool tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal);
+  public: Bool tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal, Word flags = 0);
 
-  public: TiObject* tryGet(TiObject const *ref, TiObject *target)
+  public: TiObject* tryGet(TiObject const *ref, TiObject *target, Word flags = 0)
   {
     TiObject *result = 0;
-    this->tryGet(ref, target, result);
+    this->tryGet(ref, target, result, flags);
     return result;
   }
 
-  public: TiObject* doGet(TiObject const *ref, TiObject *target)
+  public: TiObject* doGet(TiObject const *ref, TiObject *target, Word flags = 0)
   {
-    TiObject *retVal = this->tryGet(ref, target);
+    TiObject *retVal = this->tryGet(ref, target, flags);
     if (retVal == 0) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
@@ -179,13 +144,19 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @name Main Seek Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(set, void, (TiObject const*, TiObject*, SetCallback const&));
-  public: METHOD_BINDING_CACHE(remove, void, (TiObject const*, TiObject*, RemoveCallback const&));
-  public: METHOD_BINDING_CACHE(foreach, void, (TiObject const*, TiObject*, ForeachCallback const&));
+  public: METHOD_BINDING_CACHE(set, void, (TiObject const*, TiObject*, SetCallback const&, Word));
+  public: METHOD_BINDING_CACHE(remove, void, (TiObject const*, TiObject*, RemoveCallback const&, Word));
+  public: METHOD_BINDING_CACHE(foreach, void, (TiObject const*, TiObject*, ForeachCallback const&, Word));
 
-  private: static void _set(TiObject *self, TiObject const *ref, TiObject *target, SetCallback const &cb);
-  private: static void _remove(TiObject *self, TiObject const *ref, TiObject *target, RemoveCallback const &cb);
-  private: static void _foreach(TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb);
+  private: static void _set(
+    TiObject *self, TiObject const *ref, TiObject *target, SetCallback const &cb, Word flags
+  );
+  private: static void _remove(
+    TiObject *self, TiObject const *ref, TiObject *target, RemoveCallback const &cb, Word flags
+  );
+  private: static void _foreach(
+    TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags
+  );
 
   /// @}
 
@@ -193,63 +164,63 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @{
 
   public: METHOD_BINDING_CACHE(setByIdentifier,
-    void, (Data::Ast::Identifier const*, TiObject*, SetCallback const&)
+    void, (Data::Ast::Identifier const*, TiObject*, SetCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(setByIdentifier_level,
-    Verb, (Data::Ast::Identifier const*, TiObject*, SetCallback const&)
+    Verb, (Data::Ast::Identifier const*, TiObject*, SetCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(setByIdentifier_scope,
-    Verb, (Data::Ast::Identifier const*, Ast::Scope*, SetCallback const&)
+    Verb, (Data::Ast::Identifier const*, Ast::Scope*, SetCallback const&, Word)
   );
 
   private: static void _setByIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb, Word flags
   );
   private: static Verb _setByIdentifier_level(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb, Word flags
   );
   private: static Verb _setByIdentifier_scope(
-    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(removeByIdentifier,
-    void, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&)
+    void, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(removeByIdentifier_level,
-    Verb, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&)
+    Verb, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(removeByIdentifier_scope,
-    Verb, (Data::Ast::Identifier const*, Ast::Scope*, RemoveCallback const&)
+    Verb, (Data::Ast::Identifier const*, Ast::Scope*, RemoveCallback const&, Word)
   );
 
   private: static void _removeByIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb, Word flags
   );
   private: static Verb _removeByIdentifier_level(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb, Word flags
   );
   private: static Verb _removeByIdentifier_scope(
-    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, RemoveCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, RemoveCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreachByIdentifier,
-    void, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&)
+    void, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(foreachByIdentifier_level,
-    Verb, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&)
+    Verb, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(foreachByIdentifier_scope,
-    Verb, (Data::Ast::Identifier const*, Ast::Scope*, ForeachCallback const&)
+    Verb, (Data::Ast::Identifier const*, Ast::Scope*, ForeachCallback const&, Word)
   );
 
   private: static void _foreachByIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb, Word flags
   );
   private: static Verb _foreachByIdentifier_level(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb, Word flags
   );
   private: static Verb _foreachByIdentifier_scope(
-    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, ForeachCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, ForeachCallback const &cb, Word flags
   );
 
   /// @}
@@ -258,81 +229,84 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @{
 
   public: METHOD_BINDING_CACHE(setByLinkOperator,
-    void, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&)
+    void, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(setByLinkOperator_routing,
-    Verb, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&)
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(setByLinkOperator_scopeDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, SetCallback const&)
+    Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, SetCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(setByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, SetCallback const&)
+    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, SetCallback const&, Word)
   );
 
   private: static void _setByLinkOperator(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
   );
   private: static Verb _setByLinkOperator_routing(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
   );
   private: static Verb _setByLinkOperator_scopeDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, SetCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, SetCallback const &cb, Word flags
   );
   private: static Verb _setByLinkOperator_mapDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, SetCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, SetCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(removeByLinkOperator,
-    void, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&)
+    void, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(removeByLinkOperator_routing,
-    Verb, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&)
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(removeByLinkOperator_scopeDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, RemoveCallback const&)
+    Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, RemoveCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(removeByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, RemoveCallback const&)
+    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, RemoveCallback const&, Word)
   );
 
   private: static void _removeByLinkOperator(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
   );
   private: static Verb _removeByLinkOperator_routing(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
   );
   private: static Verb _removeByLinkOperator_scopeDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, RemoveCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, RemoveCallback const &cb,
+    Word flags
   );
   private: static Verb _removeByLinkOperator_mapDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, RemoveCallback const &cb
+    TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, RemoveCallback const &cb,
+    Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreachByLinkOperator,
-    void, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&)
+    void, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(foreachByLinkOperator_routing,
-    Verb, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&)
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(foreachByLinkOperator_scopeDotIdentifier,
-    Verb, (Data::Ast::Identifier*, Data::Ast::Scope*, ForeachCallback const&)
+    Verb, (Data::Ast::Identifier*, Data::Ast::Scope*, ForeachCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(foreachByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, ForeachCallback const&)
+    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, ForeachCallback const&, Word)
   );
 
   private: static void _foreachByLinkOperator(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
   );
   private: static Verb _foreachByLinkOperator_routing(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
   );
   private: static Verb _foreachByLinkOperator_scopeDotIdentifier(
-    TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, ForeachCallback const &cb
+    TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, ForeachCallback const &cb, Word flags
   );
   private: static Verb _foreachByLinkOperator_mapDotIdentifier(
-    TiObject *_self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, ForeachCallback const &cb
+    TiObject *_self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, ForeachCallback const &cb,
+    Word flags
   );
 
   /// @}

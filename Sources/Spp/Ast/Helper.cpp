@@ -82,17 +82,18 @@ Bool Helper::_isVarDefinition(TiObject *self, TiObject *obj)
 
 
 Bool Helper::lookupCalleeByName(
-  Char const *name, Core::Data::Node *astNode, Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
-  TiObject *&callee, Type *&calleeType
+  Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
+  Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
 ) {
   Core::Data::Ast::Identifier identifier;
   identifier.setValue(name);
-  return this->lookupCallee(&identifier, astNode, types, ec, callee, calleeType);
+  identifier.setSourceLocation(sl);
+  return this->lookupCallee(&identifier, astNode, searchOwners, types, ec, callee, calleeType);
 }
 
 
 Bool Helper::_lookupCallee(
-  TiObject *self, TiObject *ref, Core::Data::Node *astNode,
+  TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
   Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
   TiObject *&callee, Type *&calleeType
 ) {
@@ -104,7 +105,7 @@ Bool Helper::_lookupCallee(
   Int matchCount = 0;
   SharedPtr<Core::Data::Notice> notice;
   Bool symbolFound = false;
-  helper->getSeeker()->doForeach(ref, astNode->getOwner(),
+  helper->getSeeker()->doForeach(ref, astNode,
     [=, &callee, &calleeType, &matchStatus, &matchCount, &notice, &symbolFound]
       (TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
       {
@@ -116,20 +117,21 @@ Bool Helper::_lookupCallee(
         symbolFound = true;
 
         return helper->lookupCallee_iteration(obj, types, ec, matchStatus, matchCount, notice, callee, calleeType);
-      }
+      },
+      searchOwners ? 0 : Core::Data::Seeker::Flags::SKIP_OWNERS
   );
   // Did we have a matched callee?
   if (notice != 0 && (matchCount > 1 || callee == 0)) {
     helper->noticeStore->add(notice);
   }
   if (matchCount > 1) {
-    helper->noticeStore->add(std::make_shared<MultipleCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(astNode)));
+    helper->noticeStore->add(std::make_shared<MultipleCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(ref)));
     return false;
   } else if (callee == 0) {
     if (symbolFound) {
-      helper->noticeStore->add(std::make_shared<NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(astNode)));
+      helper->noticeStore->add(std::make_shared<NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(ref)));
     } else {
-      helper->noticeStore->add(std::make_shared<UnknownSymbolNotice>(Core::Data::Ast::findSourceLocation(astNode)));
+      helper->noticeStore->add(std::make_shared<UnknownSymbolNotice>(Core::Data::Ast::findSourceLocation(ref)));
     }
     return false;
   }

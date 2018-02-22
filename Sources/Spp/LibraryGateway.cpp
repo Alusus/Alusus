@@ -736,7 +736,7 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
         hook = this->createBinaryFunction(manager, funcName.c_str(), types[j], types[j], types[j]);
         obj = hook.get();
         return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-      });
+      }, 0);
     }
   }
 
@@ -757,7 +757,7 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
         hook = this->createBinaryFunction(manager, funcName.c_str(), types[j], types[j], STR("Int[1]"));
         obj = hook.get();
         return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-      });
+      }, 0);
     }
   }
 
@@ -774,7 +774,7 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
       hook = this->createUnaryFunction(manager, funcName.c_str(), types[j], types[j]);
       obj = hook.get();
       return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-    });
+    }, 0);
   }
 }
 

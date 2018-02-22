@@ -1,10 +1,16 @@
--------------------- Generated LLVM IR ---------------------
+ERROR SPP1106 @ (12,11): No matches were found for the given callee.
+ERROR SPP1107 @ (13,11): Unknown symbol.
+ERROR SPP1107 @ (15,18): Unknown symbol.
+ERROR SPP1308 @ (16,10): Invalid symbol.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
 
 @__anonymous0 = private constant [12 x i8] c"hello world\00", align 1
 @__anonymous1 = private constant [6 x i8] c"hello\00", align 1
 @__anonymous2 = private constant [6 x i8] c"world\00", align 1
+@__anonymous3 = private constant [6 x i8] c"hello\00", align 1
 
 define i64 @Main_main_Int_64__Float_64_____Int_64__(i64 %a, double %b) {
 __block0:
@@ -15,6 +21,9 @@ __block0:
   %0 = call i32 @Main_g_____Int_32__()
   %1 = call i32 @Main_h_ptr_Int_8______Int_32__(i8* getelementptr inbounds ([12 x i8]* @__anonymous0, i64 0, i64 0))
   %2 = call i32 @hh(i8* getelementptr inbounds ([6 x i8]* @__anonymous1, i64 0, i64 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous2, i64 0, i64 0))
+  %3 = call i64 @Other_f_Int_32_____Int_64__(i32 5)
+  %4 = call i64 @Other_f_ptr_Int_8______Int_64__(i8* getelementptr inbounds ([6 x i8]* @__anonymous3, i64 0, i64 0))
+  call void @Other_Nested_g_____Void_()
 }
 
 define i32 @Main_g_____Int_32__() {
@@ -33,6 +42,23 @@ __block4:
   store i8* %a, i8** %a1
   %b2 = alloca i8*
   store i8* %b, i8** %b2
+}
+
+define i64 @Other_f_Int_32_____Int_64__(i32 %a) {
+__block5:
+  %a1 = alloca i32
+  store i32 %a, i32* %a1
+}
+
+define i64 @Other_f_ptr_Int_8______Int_64__(i8* %a) {
+__block6:
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+}
+
+define void @Other_Nested_g_____Void_() {
+__block7:
+  ret void
 }
 
 define i64 @Main_f_Int_32__Float_32_____Int_64__(i32 %a, float %b) {

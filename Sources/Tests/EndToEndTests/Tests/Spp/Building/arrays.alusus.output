@@ -147,5 +147,6 @@ __block8:
   store [5 x i32] %40, [5 x i32]* %ai
   %41 = load [5 x i32]* %ai
   call void @Main_printArray_array_Int_32__5_____Void_([5 x i32] %41)
+  ret void
 }
 ------------------------------------------------------------

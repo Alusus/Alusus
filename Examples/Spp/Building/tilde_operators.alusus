@@ -28,6 +28,11 @@ def Main: module
     ppi = pi~ptr;
     i = ppi~cnt;
     i = ppi~cnt~cnt;
+
+    pi = Other.i~ptr;
+    Other.pi~cnt = 10;
+    pi = Other~ptr;
+    Other~cnt = 10;
   };
 
   def testCast: function ()=>Void
@@ -56,7 +61,16 @@ def Main: module
     f = i~cast[Float[32]];
     pi = f~cast[ptr[Int[32]]];
     i = f~cast[Invalid];
+
+    f = Other.i~cast[Float[32]];
+    f = Other~cast[Float[32]];
   };
+};
+
+def Other: module
+{
+  def i: Int[32];
+  def pi: ptr[Int[32]];
 };
 
 build Main;

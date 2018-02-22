@@ -48,9 +48,8 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
         TiObject *callee = 0;
         Ast::Type *calleeType = 0;
         Ast::Function *entryFunction = 0;
-        entryRef->setOwner(root);
         if (this->astHelper->lookupCallee(
-          entryRef, entryRef, 0, this->targetGenerator->getExecutionContext(),
+          entryRef, root, true, 0, this->targetGenerator->getExecutionContext(),
           callee, calleeType
         )) {
           entryFunction = ti_cast<Ast::Function>(callee);

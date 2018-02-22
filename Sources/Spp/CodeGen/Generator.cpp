@@ -155,12 +155,14 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
     }
 
     // Generate the function's statements.
-    if (!generation->generateStatements(astBlock, tg, tgContext.get())) return false;
+    auto retVal = generation->generateStatements(astBlock, tg, tgContext.get());
 
     // Finalize the body.
     if (!tg->finishFunctionBody(tgFunc, &tgArgs, tgRetType, astFunc->isVariadic(), &tgVars, tgContext.get())) {
       return false;
     }
+
+    return retVal;
   }
   return true;
 }

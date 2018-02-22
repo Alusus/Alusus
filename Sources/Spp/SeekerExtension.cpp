@@ -2,7 +2,7 @@
  * @file Spp/SeekerExtension.cpp
  * Contains the implementation of class Spp::SeekerExtension.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -64,35 +64,35 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
 
 void SeekerExtension::_foreach(
   TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
-  Core::Data::Seeker::ForeachCallback const &cb
+  Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   if (ref->isA<Data::Ast::ParamPass>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
-    seekerExtension->foreachByParamPass(static_cast<Data::Ast::ParamPass const*>(ref), target, cb);
+    seekerExtension->foreachByParamPass(static_cast<Data::Ast::ParamPass const*>(ref), target, cb, flags);
   } else {
     PREPARE_SELF(seeker, Core::Data::Seeker);
-    seeker->foreach.useCallee(base)(ref, target, cb);
+    seeker->foreach.useCallee(base)(ref, target, cb, flags);
   }
 }
 
 
 Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_level(
   TiFunctionBase *base, TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
-  Core::Data::Seeker::ForeachCallback const &cb
+  Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   if (data->isDerivedFrom<Ast::Function>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
-    return seekerExtension->foreachByIdentifier_function(identifier, static_cast<Ast::Function*>(data), cb);
+    return seekerExtension->foreachByIdentifier_function(identifier, static_cast<Ast::Function*>(data), cb, flags);
   } else {
     PREPARE_SELF(seeker, Core::Data::Seeker);
-    return seeker->foreachByIdentifier_level.useCallee(base)(identifier, data, cb);
+    return seeker->foreachByIdentifier_level.useCallee(base)(identifier, data, cb, flags);
   }
 }
 
 
 Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_function(
   TiObject *self, Data::Ast::Identifier const *identifier, Ast::Function *function,
-  Core::Data::Seeker::ForeachCallback const &cb
+  Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   auto argTypes = function->getArgTypes().get();
   if (argTypes == 0) return Core::Data::Seeker::Verb::MOVE;
@@ -104,7 +104,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_function(
 
 void SeekerExtension::_foreachByParamPass(
   TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
-  Core::Data::Seeker::ForeachCallback const &cb
+  Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Core::Data::Seeker);
   PREPARE_SELF(seekerExtension, SeekerExtension);
@@ -112,21 +112,22 @@ void SeekerExtension::_foreachByParamPass(
   seeker->doForeach(operand, data,
     [=](TiObject *newData, Core::Data::Notice*)->Core::Data::Seeker::Verb
     {
-      return seekerExtension->foreachByParamPass_routing(paramPass, newData, cb);
-    }
+      return seekerExtension->foreachByParamPass_routing(paramPass, newData, cb, flags);
+    },
+    flags
   );
 }
 
 
 Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_routing(
   TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
-  Core::Data::Seeker::ForeachCallback const &cb
+  Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seekerExtension, SeekerExtension);
   if (paramPass->getType() == Core::Data::Ast::BracketType::SQUARE) {
     auto param = paramPass->getParam().get();
     if (data->isDerivedFrom<Ast::Template>()) {
-      return seekerExtension->foreachByParamPass_template(param, static_cast<Ast::Template*>(data), cb);
+      return seekerExtension->foreachByParamPass_template(param, static_cast<Ast::Template*>(data), cb, flags);
     } else {
       throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Unrecognized target data type."));
     }
@@ -137,7 +138,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_routing(
 
 
 Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_template(
-  TiObject *self, TiObject *param, Ast::Template *tmplt, Core::Data::Seeker::ForeachCallback const &cb
+  TiObject *self, TiObject *param, Ast::Template *tmplt, Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seekerExtension, SeekerExtension);
   TioSharedPtr result;

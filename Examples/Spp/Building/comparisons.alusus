@@ -53,7 +53,9 @@ def Main: module
   def testIfStatement: function (i: Int[64])=>Void
   {
     if i >= 0 print("Received positive.\n")
-    else print("Received negative.\n")
+    else print("Received negative.\n");
+
+    if Other1 == 3 print("Wrong\n");
   };
 
   def start: function ()=>Void
@@ -65,6 +67,14 @@ def Main: module
     testIfStatement(5);
     testIfStatement(0-5);
   }
+};
+
+def Other1: module
+{
+};
+
+def Other2: module
+{
 };
 
 build Main.start;

@@ -53,7 +53,19 @@ def Main: module
     testInteger();
     testFloat();
     testMixed();
+
+    print("%d\n", Other1 + Other2);
+    print("%d\n", 5 * Other2);
+    print("%d\n", Other1 / 3);
   }
+};
+
+def Other1: module
+{
+};
+
+def Other2: module
+{
 };
 
 build Main.start;
