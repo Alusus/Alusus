@@ -177,6 +177,10 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     TiObject *self, TiObject *ref, TargetGeneration *tg, TiObject *&targetTypeResult, Ast::Type **astTypeResult
   );
 
+  private: static Bool _getTypeAllocationSize(
+    TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result
+  );
+
   /// @}
 
 }; // class

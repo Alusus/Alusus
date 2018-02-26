@@ -33,8 +33,11 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
 
   // Create the generator.
+  this->noOpTargetGenerator = std::make_shared<CodeGen::NoOpTargetGenerator>();
   this->typeGenerator = std::make_shared<CodeGen::TypeGenerator>(this->astHelper.get());
-  this->expressionGenerator = std::make_shared<CodeGen::ExpressionGenerator>(this->astHelper.get());
+  this->expressionGenerator = std::make_shared<CodeGen::ExpressionGenerator>(
+    this->astHelper.get(), this->noOpTargetGenerator.get()
+  );
   this->commandGenerator = std::make_shared<CodeGen::CommandGenerator>(this->astHelper.get());
   this->generator = std::make_shared<CodeGen::Generator>(
     manager,
@@ -475,6 +478,18 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
       {STR("frc"), std::make_shared<Integer>(1)}
     })}
   }).get());
+  // ~size
+  grammarRepository->set(STR("root:Expression.SizeTilde"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    {
+      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("size"), 0 }, { STR("حجم"), 0 } }) },
+        { STR("prms"), Core::Data::SharedList::create({}) }
+      })
+    },
+    { SymbolDefElement::HANDLER, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::SizeOp>::create() }
+  }).get());
+  this->addReferenceToCommandList(tildeCmdList, STR("module:SizeTilde"));
 
   this->createBuiltInTypes(manager);
   this->createBuiltInFunctions(manager);
@@ -492,12 +507,20 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   this->commandGenerator.reset();
   this->expressionGenerator.reset();
   this->typeGenerator.reset();
+  this->noOpTargetGenerator.reset();
   this->nodePathResolver.reset();
   this->astHelper.reset();
 
   auto grammarRepository = manager->getGrammarRepository();
   auto leadingCmdList = this->getLeadingCommandsList(grammarRepository);
   auto innerCmdList = this->getInnerCommandsList(grammarRepository);
+  auto tildeCmdList = this->getTildeCommandsList(grammarRepository);
+
+  // Remove commands from tilde commands list.
+  this->removeReferenceFromCommandList(tildeCmdList, STR("module:SizeTilde"));
+  this->removeReferenceFromCommandList(tildeCmdList, STR("module:CastTilde"));
+  this->removeReferenceFromCommandList(tildeCmdList, STR("module:ContentTilde"));
+  this->removeReferenceFromCommandList(tildeCmdList, STR("module:PointerTilde"));
 
   // Remove commands from leading commands list.
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Build"));
@@ -530,6 +553,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   grammarRepository->remove(STR("root:BlockMain"));
   grammarRepository->remove(STR("root:Expression.PointerTilde"));
   grammarRepository->remove(STR("root:Expression.ContentTilde"));
+  grammarRepository->remove(STR("root:Expression.SizeTilde"));
   grammarRepository->remove(STR("root:Expression.CastTilde"));
   grammarRepository->remove(STR("root:CastSubject"));
 

@@ -30,7 +30,8 @@ void TypeGenerator::initBindingCaches()
     &this->generateArrayType,
     &this->generateUserType,
     &this->generateCast,
-    &this->generateDefaultValue
+    &this->generateDefaultValue,
+    &this->getTypeAllocationSize
   });
 }
 
@@ -46,6 +47,7 @@ void TypeGenerator::initBindings()
   this->generateUserType = &TypeGenerator::_generateUserType;
   this->generateCast = &TypeGenerator::_generateCast;
   this->generateDefaultValue = &TypeGenerator::_generateDefaultValue;
+  this->getTypeAllocationSize = &TypeGenerator::_getTypeAllocationSize;
 }
 
 
@@ -348,6 +350,16 @@ Bool TypeGenerator::_generateDefaultValue(
   } else {
     throw EXCEPTION(GenericException, STR("Invlid type for generation of default value."));
   }
+}
+
+
+Bool TypeGenerator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result)
+{
+  PREPARE_SELF(typeGenerator, TypeGenerator);
+  TiObject *tgType;
+  if (!typeGenerator->getGeneratedType(astType, tg, tgType, 0)) return false;
+  result = tg->getTypeAllocationSize(tgType);
+  return true;
 }
 
 } } // namespace

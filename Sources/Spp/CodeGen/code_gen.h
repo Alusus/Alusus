@@ -125,6 +125,9 @@ DEFINE_NOTICE(InvalidReferenceNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP13
 DEFINE_NOTICE(NotImplicitlyCastableNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1309", 1,
   STR("Value is not implicitly castable to target type.")
 );
+DEFINE_NOTICE(InvalidSizeOperandNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1310", 1,
+  STR("Invalid operand for ~size operator.")
+);
 
 } } // namespace
 
@@ -150,6 +153,7 @@ class Generator;
 #include "Generation.h"
 
 // The Generator
+#include "NoOpTargetGenerator.h"
 #include "TypeGenerator.h"
 #include "ExpressionGenerator.h"
 #include "CommandGenerator.h"

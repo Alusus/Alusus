@@ -65,6 +65,22 @@ def Main: module
     f = Other.i~cast[Float[32]];
     f = Other~cast[Float[32]];
   };
+
+  def testSize: function ()=>Void
+  {
+    def i: Int[32];
+    def pi: ptr[Int[32]];
+    print("Main~size = %d\n", Main~size);
+    print("unknown~size = %d\n", unknown~size);
+    print("i~size = %d\n", i~size);
+    print("pi~size = %d\n", pi~size);
+    print("5~size = %d\n", 5~size);
+    print("(i + 5i64)~size = %d\n", (i + 5i64)~size);
+    print("Int[32]~size = %d\n", Int[32]~size);
+    print("Int[62]~size = %d\n", Int[62]~size);
+    print("ptr[Int[32]]~size = %d\n", ptr[Int[32]]~size);
+    print("ptr[Int[62]]~size = %d\n", ptr[Int[62]]~size);
+  };
 };
 
 def Other: module

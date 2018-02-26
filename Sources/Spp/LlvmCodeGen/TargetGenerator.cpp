@@ -33,6 +33,7 @@ void TargetGenerator::initBindings()
   targetGeneration->generateArrayType = &TargetGenerator::generateArrayType;
   targetGeneration->generateStructTypeDecl = &TargetGenerator::generateStructTypeDecl;
   targetGeneration->generateStructTypeBody = &TargetGenerator::generateStructTypeBody;
+  targetGeneration->getTypeAllocationSize = &TargetGenerator::getTypeAllocationSize;
 
   // Function Generation Functions
   targetGeneration->generateFunctionDecl = &TargetGenerator::generateFunctionDecl;
@@ -243,6 +244,13 @@ Bool TargetGenerator::generateStructTypeBody(
   }
   static_cast<llvm::StructType*>(tgType->getLlvmType())->setBody(structMembers);
   return true;
+}
+
+
+Word TargetGenerator::getTypeAllocationSize(TiObject *type)
+{
+  PREPARE_ARG(type, tgType, Type);
+  return this->llvmDataLayout->getTypeAllocSize(tgType->getLlvmType());
 }
 
 

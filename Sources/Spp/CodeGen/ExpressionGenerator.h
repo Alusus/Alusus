@@ -38,13 +38,14 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
   // Member Variables
 
   private: Ast::Helper *astHelper;
+  private: NoOpTargetGenerator *noOpTargetGenerator;
   private: Core::Processing::NoticeStore *noticeStore = 0;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: ExpressionGenerator(Ast::Helper *h) : astHelper(h)
+  public: ExpressionGenerator(Ast::Helper *h, NoOpTargetGenerator *noOpTg) : astHelper(h), noOpTargetGenerator(noOpTg)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -56,6 +57,7 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
+    this->noOpTargetGenerator = parent->getNoOpTargetGenerator();
   }
 
   public: virtual ~ExpressionGenerator()
@@ -75,6 +77,11 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
   public: Ast::Helper* getAstHelper() const
   {
     return this->astHelper;
+  }
+
+  public: NoOpTargetGenerator *getNoOpTargetGenerator() const
+  {
+    return this->noOpTargetGenerator;
   }
 
   public: void setNoticeStore(Core::Processing::NoticeStore *ns)
@@ -146,6 +153,28 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
     GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateRoundParamPass,
+    Bool, (
+      Core::Data::Ast::ParamPass* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
+      TiObject* /* tgContext */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateRoundParamPass(
+    TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    GenResult &result
+  );
+
+  public: METHOD_BINDING_CACHE(generateSquareParamPass,
+    Bool, (
+      Core::Data::Ast::ParamPass* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
+      TiObject* /* tgContext */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateSquareParamPass(
+    TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateInfixOp,
     Bool, (
       Core::Data::Ast::InfixOperator* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
@@ -198,6 +227,17 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
   );
   private: static Bool _generateCastOp(
     TiObject *self, Spp::Ast::CastOp *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    GenResult &result
+  );
+
+  public: METHOD_BINDING_CACHE(generateSizeOp,
+    Bool, (
+      Spp::Ast::SizeOp* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
+      TiObject* /* tgContext */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateSizeOp(
+    TiObject *self, Spp::Ast::SizeOp *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
     GenResult &result
   );
 

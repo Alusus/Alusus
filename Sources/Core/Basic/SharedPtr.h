@@ -2,7 +2,7 @@
  * @file Core/Basic/SharedPtr.h
  * Contains definition of Basic::SharedPtr template class.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -429,6 +429,25 @@ SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
 
 
 template <class T,
+          typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
+SharedPtr<T const> getSharedPtr(T const *obj, Bool ownIfUnowned=false)
+{
+  if (obj == 0) {
+    return SharedPtr<T const>();
+  }
+  SharedPtr<TiObject const> sp = obj->getSharedThis();
+  if (sp == 0) {
+    if (ownIfUnowned) return SharedPtr<T const>(obj);
+    else return SharedPtr<T const>();
+  }
+  // Since T is derived from TiObject, casting will result in the same
+  // pointer value, so a reinterpret cast should be enough; creating a new
+  // temporary shared pointer is not necessary.
+  return std::move(*(reinterpret_cast<SharedPtr<T const>*>(&sp)));
+}
+
+
+template <class T,
           typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
 SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
 {
@@ -444,6 +463,25 @@ SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
   // pointer value, so a reinterpret cast should be enough; creating a new
   // temporary shared pointer is not necessary.
   return std::move(*(reinterpret_cast<SharedPtr<T>*>(&sp)));
+}
+
+
+template <class T,
+          typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
+SharedPtr<T const> getSharedPtr(T const *obj, Bool ownIfUnowned=false)
+{
+  if (obj == 0) {
+    return SharedPtr<T const>();
+  }
+  SharedPtr<TiObject const> sp = obj->getTiObject()->getSharedThis();
+  if (sp == 0) {
+    if (ownIfUnowned) return SharedPtr<T const>(obj);
+    else return SharedPtr<T const>();
+  }
+  // Since T is derived from TiObject, casting will result in the same
+  // pointer value, so a reinterpret cast should be enough; creating a new
+  // temporary shared pointer is not necessary.
+  return std::move(*(reinterpret_cast<SharedPtr<T const>*>(&sp)));
 }
 
 

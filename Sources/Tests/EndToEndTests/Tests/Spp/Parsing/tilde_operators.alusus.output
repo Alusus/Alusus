@@ -2,6 +2,7 @@ ERROR P1001 @ (27,5): Parser syntax error.
 ERROR P1001 @ (28,9): Parser syntax error.
 ERROR P1001 @ (36,10): Parser syntax error.
 ERROR P1001 @ (37,11): Parser syntax error.
+ERROR P1001 @ (43,10): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
  argTypes: NULL
@@ -87,4 +88,31 @@ Function  [Subject.Function]
        operand: Identifier: Int [Subject.Parameter]
        param: IntegerLiteral: 16 [Subject.Literal]
    second: IntegerLiteral: 5 [Subject.Literal]
+  AssignmentOperator = [Expression.AssignmentExp]
+   first: Identifier: i [Subject.Parameter]
+   second: SizeOp [Expression.SizeTilde]
+    operand: Identifier: pi [Subject.Parameter]
+  AssignmentOperator = [Expression.AssignmentExp]
+   first: Identifier: i [Subject.Parameter]
+   second: SizeOp [Expression.SizeTilde]
+    operand: IntegerLiteral: 5 [Subject.Literal]
+  AssignmentOperator = [Expression.AssignmentExp]
+   first: Identifier: i [Subject.Parameter]
+   second: AdditionOperator + [Expression.AddExp]
+    first: IntegerLiteral: 5 [Subject.Literal]
+    second: SizeOp [Expression.SizeTilde]
+     operand: Identifier: i [Subject.Parameter]
+  AssignmentOperator = [Expression.AssignmentExp]
+   first: Identifier: i [Subject.Parameter]
+   second: SizeOp [Expression.SizeTilde]
+    operand: Bracket () [Subject.Subject1]
+     operand: AdditionOperator + [Expression.AddExp]
+      first: Identifier: i [Subject.Parameter]
+      second: IntegerLiteral: 5i64 [Subject.Literal]
+  AssignmentOperator = [Expression.AssignmentExp]
+   first: Identifier: i [Subject.Parameter]
+   second: SizeOp [Expression.SizeTilde]
+    operand: ParamPass [] [Expression.ParamPassExp]
+     operand: Identifier: Int [Subject.Parameter]
+     param: IntegerLiteral: 32 [Subject.Literal]
 ------------------------------------------------------

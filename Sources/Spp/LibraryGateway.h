@@ -33,6 +33,7 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   private: SharedPtr<CodeGen::ExpressionGenerator> expressionGenerator;
   private: SharedPtr<CodeGen::CommandGenerator> commandGenerator;
   private: SharedPtr<CodeGen::Generator> generator;
+  private: SharedPtr<CodeGen::NoOpTargetGenerator> noOpTargetGenerator;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> targetGenerator;
 
 

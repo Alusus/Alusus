@@ -46,7 +46,8 @@ class Generation : public ObjTiInterface
       &this->generateStatement,
       &this->generateExpression,
       &this->generateCast,
-      &this->getGeneratedType
+      &this->getGeneratedType,
+      &this->getTypeAllocationSize
     });
   }
 
@@ -113,6 +114,10 @@ class Generation : public ObjTiInterface
       TiObject* /* ref */, TargetGeneration* /* tg */,
       TiObject*& /* targetTypeResult */, Ast::Type** /* astTypeResult */
     )
+  );
+
+  public: METHOD_BINDING_CACHE(getTypeAllocationSize,
+    Bool, (Spp::Ast::Type* /* astType */, TargetGeneration* /* tg */, Word& /* result */)
   );
 
   /// @}

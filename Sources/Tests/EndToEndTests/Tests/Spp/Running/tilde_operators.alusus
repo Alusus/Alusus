@@ -9,6 +9,8 @@ def Main: module
     testPtrAndCnt();
     print("\n");
     testCast();
+    print("\n");
+    testSize();
   };
 
   def testPtrAndCnt: function ()=>Void
@@ -70,7 +72,20 @@ def Main: module
     pi2~cnt = 543;
     print("i~ptr -> l -> pi2 => pi2~cnt = 543 => i = %d\n", i);
   };
+
+  def testSize: function ()=>Void
+  {
+    def i: Int[32];
+    def pi: ptr[Int[32]];
+    print("i~size = %d\n", i~size);
+    print("pi~size = %d\n", pi~size);
+    print("5 + i~size = %d\n", 5 + i~size);
+    print("5~size = %d\n", 5~size);
+    print("(i + 5i64)~size = %d\n", (i + 5i64)~size);
+    print("Int[32]~size = %d\n", Int[32]~size);
+    print("Int[64]~size = %d\n", Int[64]~size);
+    print("ptr[Int[32]]~size = %d\n", ptr[Int[32]]~size);
+  };
 };
 
 run Main.start;
-// build Main;

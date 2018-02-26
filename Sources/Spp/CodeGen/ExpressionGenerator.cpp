@@ -26,11 +26,14 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateScopeMemberReference,
     &this->generateLinkOperator,
     &this->generateParamPass,
+    &this->generateRoundParamPass,
+    &this->generateSquareParamPass,
     &this->generateInfixOp,
     &this->generateAssignment,
     &this->generatePointerOp,
     &this->generateContentOp,
     &this->generateCastOp,
+    &this->generateSizeOp,
     &this->generateStringLiteral,
     &this->generateIntegerLiteral,
     &this->generateFloatLiteral,
@@ -51,11 +54,14 @@ void ExpressionGenerator::initBindings()
   this->generateScopeMemberReference = &ExpressionGenerator::_generateScopeMemberReference;
   this->generateLinkOperator = &ExpressionGenerator::_generateLinkOperator;
   this->generateParamPass = &ExpressionGenerator::_generateParamPass;
+  this->generateRoundParamPass = &ExpressionGenerator::_generateRoundParamPass;
+  this->generateSquareParamPass = &ExpressionGenerator::_generateSquareParamPass;
   this->generateInfixOp = &ExpressionGenerator::_generateInfixOp;
   this->generateAssignment = &ExpressionGenerator::_generateAssignment;
   this->generatePointerOp = &ExpressionGenerator::_generatePointerOp;
   this->generateContentOp = &ExpressionGenerator::_generateContentOp;
   this->generateCastOp = &ExpressionGenerator::_generateCastOp;
+  this->generateSizeOp = &ExpressionGenerator::_generateSizeOp;
   this->generateStringLiteral = &ExpressionGenerator::_generateStringLiteral;
   this->generateIntegerLiteral = &ExpressionGenerator::_generateIntegerLiteral;
   this->generateFloatLiteral = &ExpressionGenerator::_generateFloatLiteral;
@@ -99,6 +105,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Spp::Ast::CastOp>()) {
     auto castOp = static_cast<Spp::Ast::CastOp*>(astNode);
     return expGenerator->generateCastOp(castOp, g, tg, tgContext, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::SizeOp>()) {
+    auto sizeOp = static_cast<Spp::Ast::SizeOp*>(astNode);
+    return expGenerator->generateSizeOp(sizeOp, g, tg, tgContext, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);
     return expGenerator->generateStringLiteral(stringLiteral, g, tg, tgContext, result);
@@ -150,7 +159,9 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
       // Check if the found obj is a variable definition.
       if (expGenerator->astHelper->isVarDefinition(obj)) {
         retVal = expGenerator->generateVarReference(obj, g, tg, tgContext, result);
-      } else if (obj->isDerivedFrom<Ast::Module>()) {
+      } else if (
+        obj->isDerivedFrom<Ast::Module>() || obj->isDerivedFrom<Ast::Type>() || obj->isDerivedFrom<Ast::Template>()
+      ) {
         result.astNode = obj;
         retVal = true;
       } else {
@@ -194,7 +205,7 @@ Bool ExpressionGenerator::_generateLinkOperator(
     return false;
   }
 
-  if (firstResult.targetData != 0) {
+  if (firstResult.astType != 0) {
     // Generate the member reference.
     return expGenerator->generateMemberReference(
       firstResult.targetData.get(), firstResult.astType, second, g, tg, tgContext, result
@@ -210,6 +221,19 @@ Bool ExpressionGenerator::_generateLinkOperator(
 
 
 Bool ExpressionGenerator::_generateParamPass(
+  TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+  if (astNode->getType() == Core::Data::Ast::BracketType::ROUND) {
+    return expGenerator->generateRoundParamPass(astNode, g, tg, tgContext, result);
+  } else {
+    return expGenerator->generateSquareParamPass(astNode, g, tg, tgContext, result);
+  }
+}
+
+
+Bool ExpressionGenerator::_generateRoundParamPass(
   TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
   GenResult &result
 ) {
@@ -282,7 +306,7 @@ Bool ExpressionGenerator::_generateParamPass(
       return false;
     }
 
-    if (firstResult.targetData != 0) {
+    if (firstResult.astType != 0) {
       //// Calling a member of another object instance.
       GenResult prevResult;
       if (!expGenerator->generateMemberReference(
@@ -363,6 +387,28 @@ Bool ExpressionGenerator::_generateParamPass(
 }
 
 
+Bool ExpressionGenerator::_generateSquareParamPass(
+  TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+  auto operand = astNode->getOperand().get();
+
+  GenResult operandResult;
+  if (!expGenerator->generate(operand, g, tg, tgContext, operandResult)) return false;
+  if (operandResult.astNode != 0 && operandResult.astNode->isDerivedFrom<Spp::Ast::Template>()) {
+    auto tpl = static_cast<Spp::Ast::Template*>(operandResult.astNode);
+    TioSharedPtr tplInstance;
+    if (!tpl->matchInstance(astNode->getParam().get(), expGenerator->astHelper, tplInstance)) return false;
+    result.astNode = tplInstance.get();
+    return true;
+  } else {
+    expGenerator->noticeStore->add(std::make_shared<InvalidOperationNotice>(astNode->findSourceLocation()));
+    return false;
+  }
+}
+
+
 Bool ExpressionGenerator::_generateInfixOp(
   TiObject *self, Core::Data::Ast::InfixOperator *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
   GenResult &result
@@ -429,7 +475,7 @@ Bool ExpressionGenerator::_generateAssignment(
   }
   GenResult varResult;
   if (!expGenerator->generate(var, g, tg, tgContext, varResult)) return false;
-  if (varResult.targetData == 0) {
+  if (varResult.astType == 0) {
     expGenerator->noticeStore->add(std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(var)));
     return false;
   }
@@ -447,7 +493,7 @@ Bool ExpressionGenerator::_generateAssignment(
   }
   GenResult valResult;
   if (!expGenerator->generate(val, g, tg, tgContext, valResult)) return false;
-  if (valResult.targetData == 0) {
+  if (valResult.astType == 0) {
     expGenerator->noticeStore->add(std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(var)));
     return false;
   }
@@ -489,7 +535,7 @@ Bool ExpressionGenerator::_generatePointerOp(
   }
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, tg, tgContext, operandResult)) return false;
-  if (operandResult.targetData == 0) {
+  if (operandResult.astType == 0) {
     expGenerator->noticeStore->add(
       std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
@@ -522,7 +568,7 @@ Bool ExpressionGenerator::_generateContentOp(
   }
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, tg, tgContext, operandResult)) return false;
-  if (operandResult.targetData == 0) {
+  if (operandResult.astType == 0) {
     expGenerator->noticeStore->add(
       std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
@@ -563,7 +609,7 @@ Bool ExpressionGenerator::_generateCastOp(
   }
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, tg, tgContext, operandResult)) return false;
-  if (operandResult.targetData == 0) {
+  if (operandResult.astType == 0) {
     expGenerator->noticeStore->add(
       std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
@@ -589,6 +635,55 @@ Bool ExpressionGenerator::_generateCastOp(
     tg, tgContext, derefResult.astType, targetAstType, derefResult.targetData.get(), result.targetData
   )) return false;
   result.astType = targetAstType;
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generateSizeOp(
+  TiObject *self, Spp::Ast::SizeOp *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // Prepare the noop target generator.
+  expGenerator->noOpTargetGenerator->setExecutionContext(getSharedPtr(tg->getExecutionContext()));
+
+  // Get the operand type.
+  auto operand = astNode->getOperand().get();
+  if (operand == 0) {
+    throw EXCEPTION(GenericException, STR("PointerOp operand is missing."));
+  }
+  GenResult operandResult;
+  if (!expGenerator->generate(
+    operand, g, ti_cast<TargetGeneration>(expGenerator->noOpTargetGenerator), 0, operandResult
+  )) return false;
+  Ast::Type *astType = operandResult.astType;
+  if (astType == 0) astType = ti_cast<Ast::Type>(operandResult.astNode);
+  if (astType == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<InvalidSizeOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+    );
+    return false;
+  }
+
+  // Dereference if needed.
+  if (astType->isDerivedFrom<Ast::ReferenceType>()) {
+    astType = static_cast<Ast::ReferenceType*>(astType)->getContentType(expGenerator->astHelper);
+  }
+
+  // Get the allocation size.
+  auto sourceLocation = Core::Data::Ast::findSourceLocation(operand).get();
+  if (sourceLocation != 0) expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation);
+  Word size;
+  auto retVal = g->getTypeAllocationSize(astType, tg, size);
+  if (sourceLocation != 0) {
+    expGenerator->noticeStore->popPrefixSourceLocation(Core::Data::getSourceLocationRecordCount(sourceLocation));
+  }
+  if (!retVal) return false;
+
+  // Generate a constant with that size.
+  if (!tg->generateIntLiteral(tgContext, 64, size, result.targetData)) return false;
+  result.astType = expGenerator->astHelper->getInt64Type();
   return true;
 }
 
@@ -1135,7 +1230,7 @@ Bool ExpressionGenerator::generateParamList(
   } else {
     GenResult result;
     if (!this->generate(astNode, g, tg, tgContext, result)) return false;
-    if (result.targetData == 0) {
+    if (result.astType == 0) {
       this->noticeStore->add(std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(astNode)));
       return false;
     }
@@ -1153,7 +1248,7 @@ Bool ExpressionGenerator::generateParamList(
   for (Int i = 0; i < astNodes->getCount(); ++i) {
     GenResult result;
     if (!this->generate(astNodes->get(i), g, tg, tgContext, result)) return false;
-    if (result.targetData == 0) {
+    if (result.astType == 0) {
       this->noticeStore->add(
         std::make_shared<InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(astNodes->get(i)))
       );

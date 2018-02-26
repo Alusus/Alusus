@@ -13,6 +13,10 @@ ERROR SPP1305 @ (54,10): Invalid cast.
 ERROR SPP1305 @ (62,10): Invalid cast.
 ERROR SPP1103 @ (63,16): No valid match was found for the given type.
 ERROR SPP1308 @ (66,9): Invalid symbol.
+ERROR SPP1310 @ (73,31): Invalid operand for ~size operator.
+ERROR SPP1107 @ (74,34): Unknown symbol.
+ERROR SPP1304 @ (80,34): Invalid integer bit count.
+ERROR SPP1304 @ (82,39): Invalid integer bit count.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -24,6 +28,16 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 @Other_pi = global i32* null
 @__anonymous2 = private constant [8 x i8] c"f = %f\0A\00", align 1
 @__anonymous3 = private constant [24 x i8] c"f~cast[Float[64]] = %f\0A\00", align 1
+@__anonymous4 = private constant [16 x i8] c"Main~size = %d\0A\00", align 1
+@__anonymous5 = private constant [19 x i8] c"unknown~size = %d\0A\00", align 1
+@__anonymous6 = private constant [13 x i8] c"i~size = %d\0A\00", align 1
+@__anonymous7 = private constant [14 x i8] c"pi~size = %d\0A\00", align 1
+@__anonymous8 = private constant [13 x i8] c"5~size = %d\0A\00", align 1
+@__anonymous9 = private constant [22 x i8] c"(i + 5i64)~size = %d\0A\00", align 1
+@__anonymous10 = private constant [19 x i8] c"Int[32]~size = %d\0A\00", align 1
+@__anonymous11 = private constant [19 x i8] c"Int[62]~size = %d\0A\00", align 1
+@__anonymous12 = private constant [24 x i8] c"ptr[Int[32]]~size = %d\0A\00", align 1
+@__anonymous13 = private constant [24 x i8] c"ptr[Int[62]]~size = %d\0A\00", align 1
 
 declare i64 @printf(i8*, ...)
 
@@ -98,6 +112,19 @@ __block1:
   %21 = load i32* @Other_i
   %22 = sitofp i32 %21 to float
   store float %22, float* %f
+  ret void
+}
+
+define void @Main_testSize_____Void_() {
+__block2:
+  %i = alloca i32
+  %pi = alloca i32*
+  %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([13 x i8]* @__anonymous6, i64 0, i64 0), i64 4)
+  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([14 x i8]* @__anonymous7, i64 0, i64 0), i64 8)
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([13 x i8]* @__anonymous8, i64 0, i64 0), i64 4)
+  %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([22 x i8]* @__anonymous9, i64 0, i64 0), i64 8)
+  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([19 x i8]* @__anonymous10, i64 0, i64 0), i64 4)
+  %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([24 x i8]* @__anonymous12, i64 0, i64 0), i64 8)
   ret void
 }
 ------------------------------------------------------------

@@ -2,7 +2,7 @@
  * @file Core/Data/data.cpp
  * Contains the global implementations of Data namespace's declarations.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -286,11 +286,9 @@ void printNotice(Notice const *msg)
 
 Word getSourceLocationRecordCount(SourceLocation const *sl)
 {
-  if (sl == 0 || sl->isA<SourceLocationRecord>()) {
-    return 1;
-  }  else {
-    return static_cast<SourceLocationStack const*>(sl)->getCount();
-  }
+  if (sl == 0) return 0;
+  else if (sl->isA<SourceLocationRecord>())  return 1;
+  else return static_cast<SourceLocationStack const*>(sl)->getCount();
 }
 
 } } // namespace

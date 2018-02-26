@@ -34,6 +34,7 @@ void Generator::initBindings()
   generation->generateExpression = &Generator::_generateExpression;
   generation->generateCast = &Generator::_generateCast;
   generation->getGeneratedType = &Generator::_getGeneratedType;
+  generation->getTypeAllocationSize = &Generator::_getTypeAllocationSize;
 }
 
 
@@ -405,6 +406,13 @@ Bool Generator::_getGeneratedType(
 ) {
   PREPARE_SELF(generator, Generator);
   return generator->typeGenerator->getGeneratedType(ref, tg, targetTypeResult, astTypeResult);
+}
+
+
+Bool Generator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result)
+{
+  PREPARE_SELF(generator, Generator);
+  return generator->typeGenerator->getTypeAllocationSize(astType, tg, result);
 }
 
 } } // namespace

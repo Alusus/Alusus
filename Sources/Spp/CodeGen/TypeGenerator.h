@@ -143,6 +143,11 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
     TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, TiObject *tgContext, TioSharedPtr &result
   );
 
+  public: METHOD_BINDING_CACHE(getTypeAllocationSize, Bool, (Spp::Ast::Type*, TargetGeneration*, Word&));
+  private: static Bool _getTypeAllocationSize(
+    TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result
+  );
+
   /// @}
 
 }; // class

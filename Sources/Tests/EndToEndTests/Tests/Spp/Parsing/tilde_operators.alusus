@@ -35,6 +35,18 @@ def main: function ()=>Void
   i~ptr~cast[ptr[Int[16]]]~cnt = 5;
   pa~cast(ptr[Int[16]]) = 5;
   pa~cast ptr[Int[16]] = 10;
+
+  //
+  // ~size
+  //
+
+  i~size 5;
+
+  i = pi~size;
+  i = 5~size;
+  i = 5 + i~size;
+  i = (i + 5i64)~size;
+  i = Int[32]~size;
 };
 
 dump main;

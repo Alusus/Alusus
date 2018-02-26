@@ -2,7 +2,7 @@
  * @file Core/Basic/WeakPtr.h
  * Contains definition of Basic::WeakPtr template class.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -238,6 +238,21 @@ WeakPtr<T> getWeakPtr(T *obj)
 
 
 template <class T,
+          typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
+WeakPtr<T const> getWeakPtr(T const *obj)
+{
+  if (obj == 0) {
+    return WeakPtr<T const>();
+  }
+  WeakPtr<TiObject const> sp = obj->getWeakThis();
+  // Since T is derived from TiObject, casting will result in the same
+  // pointer value, so a reinterpret cast should be enough; creating a new
+  // temporary shared pointer is not necessary.
+  return std::move(*(reinterpret_cast<WeakPtr<T const>*>(&sp)));
+}
+
+
+template <class T,
           typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
 WeakPtr<T> getWeakPtr(T *obj)
 {
@@ -249,6 +264,21 @@ WeakPtr<T> getWeakPtr(T *obj)
   // pointer value, so a reinterpret cast should be enough; creating a new
   // temporary shared pointer is not necessary.
   return std::move(*(reinterpret_cast<WeakPtr<T>*>(&sp)));
+}
+
+
+template <class T,
+          typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
+WeakPtr<T const> getWeakPtr(T const *obj)
+{
+  if (obj == 0) {
+    return WeakPtr<T const>();
+  }
+  WeakPtr<TiObject const> sp = obj->getTiObject()->getWeakThis();
+  // Since T is derived from TiObject, casting will result in the same
+  // pointer value, so a reinterpret cast should be enough; creating a new
+  // temporary shared pointer is not necessary.
+  return std::move(*(reinterpret_cast<WeakPtr<T const>*>(&sp)));
 }
 
 

@@ -44,6 +44,7 @@ class TargetGeneration : public ObjTiInterface
       &this->generateArrayType,
       &this->generateStructTypeDecl,
       &this->generateStructTypeBody,
+      &this->getTypeAllocationSize,
       &this->generateFunctionDecl,
       &this->prepareFunctionBody,
       &this->finishFunctionBody,
@@ -157,6 +158,8 @@ class TargetGeneration : public ObjTiInterface
       Core::Basic::SharedList<TiObject, TiObject>* /* members */
     )
   );
+
+  public: METHOD_BINDING_CACHE(getTypeAllocationSize, Word, (TiObject* /* type */));
 
   /// @}
 
