@@ -28,7 +28,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateParamPass,
     &this->generateRoundParamPass,
     &this->generateSquareParamPass,
-    &this->generateInfixOp,
+    &this->generateOperator,
     &this->generateAssignment,
     &this->generatePointerOp,
     &this->generateContentOp,
@@ -56,7 +56,7 @@ void ExpressionGenerator::initBindings()
   this->generateParamPass = &ExpressionGenerator::_generateParamPass;
   this->generateRoundParamPass = &ExpressionGenerator::_generateRoundParamPass;
   this->generateSquareParamPass = &ExpressionGenerator::_generateSquareParamPass;
-  this->generateInfixOp = &ExpressionGenerator::_generateInfixOp;
+  this->generateOperator = &ExpressionGenerator::_generateOperator;
   this->generateAssignment = &ExpressionGenerator::_generateAssignment;
   this->generatePointerOp = &ExpressionGenerator::_generatePointerOp;
   this->generateContentOp = &ExpressionGenerator::_generateContentOp;
@@ -95,7 +95,10 @@ Bool ExpressionGenerator::_generate(
     return expGenerator->generateAssignment(assignmentOp, g, tg, tgContext, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
-    return expGenerator->generateInfixOp(infixOp, g, tg, tgContext, result);
+    return expGenerator->generateOperator(infixOp, g, tg, tgContext, result);
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::OutfixOperator>()) {
+    auto outfixOp = static_cast<Core::Data::Ast::OutfixOperator*>(astNode);
+    return expGenerator->generateOperator(outfixOp, g, tg, tgContext, result);
   } else if (astNode->isDerivedFrom<Spp::Ast::PointerOp>()) {
     auto pointerOp = static_cast<Spp::Ast::PointerOp*>(astNode);
     return expGenerator->generatePointerOp(pointerOp, g, tg, tgContext, result);
@@ -269,7 +272,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
       );
       // Generate the function call.
       return expGenerator->generateFunctionCall(
-        static_cast<Ast::Function*>(callee), &paramTgValues, g, tg, tgContext, result
+        static_cast<Ast::Function*>(callee), &paramAstTypes, &paramTgValues, g, tg, tgContext, result
       );
     } else if (calleeType != 0 && calleeType->isDerivedFrom<Ast::ArrayType>()) {
       ////
@@ -342,7 +345,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
         );
         // Generate the function call.
         return expGenerator->generateFunctionCall(
-          static_cast<Ast::Function*>(callee), &paramTgValues, g, tg, tgContext, result
+          static_cast<Ast::Function*>(callee), &paramAstTypes, &paramTgValues, g, tg, tgContext, result
         );
       } else if (calleeType != 0 && calleeType->isDerivedFrom<Ast::ArrayType>()) {
         ////
@@ -409,26 +412,47 @@ Bool ExpressionGenerator::_generateSquareParamPass(
 }
 
 
-Bool ExpressionGenerator::_generateInfixOp(
-  TiObject *self, Core::Data::Ast::InfixOperator *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+Bool ExpressionGenerator::_generateOperator(
+  TiObject *self, Core::Data::Node *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
   GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   // Determine operator function name.
   Char const *funcName;
-  if (astNode->getType() == STR("+")) funcName = STR("__add");
-  else if (astNode->getType() == STR("-")) funcName = STR("__sub");
-  else if (astNode->getType() == STR("*")) funcName = STR("__mul");
-  else if (astNode->getType() == STR("/")) funcName = STR("__div");
-  else if (astNode->getType() == STR("==")) funcName = STR("__equal");
-  else if (astNode->getType() == STR("!=")) funcName = STR("__notEqual");
-  else if (astNode->getType() == STR(">")) funcName = STR("__greaterThan");
-  else if (astNode->getType() == STR(">=")) funcName = STR("__greaterThanOrEqual");
-  else if (astNode->getType() == STR("<")) funcName = STR("__lessThan");
-  else if (astNode->getType() == STR("<=")) funcName = STR("__lessThanOrEqual");
-  else {
-    throw EXCEPTION(GenericException, STR("Unexpected infix operator."));
+  if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
+    auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+    if (infixOp->getType() == STR("+")) funcName = STR("__add");
+    else if (infixOp->getType() == STR("-")) funcName = STR("__sub");
+    else if (infixOp->getType() == STR("*")) funcName = STR("__mul");
+    else if (infixOp->getType() == STR("/")) funcName = STR("__div");
+    else if (infixOp->getType() == STR("==")) funcName = STR("__equal");
+    else if (infixOp->getType() == STR("!=")) funcName = STR("__notEqual");
+    else if (infixOp->getType() == STR(">")) funcName = STR("__greaterThan");
+    else if (infixOp->getType() == STR(">=")) funcName = STR("__greaterThanOrEqual");
+    else if (infixOp->getType() == STR("<")) funcName = STR("__lessThan");
+    else if (infixOp->getType() == STR("<=")) funcName = STR("__lessThanOrEqual");
+    else {
+      throw EXCEPTION(GenericException, STR("Unexpected infix operator."));
+    }
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
+    auto outfixOp = static_cast<Core::Data::Ast::PrefixOperator*>(astNode);
+    if (outfixOp->getType() == STR("+")) funcName = STR("__pos");
+    else if (outfixOp->getType() == STR("-")) funcName = STR("__neg");
+    else if (outfixOp->getType() == STR("++")) funcName = STR("__earlyInc");
+    else if (outfixOp->getType() == STR("--")) funcName = STR("__earlyDec");
+    else {
+      throw EXCEPTION(GenericException, STR("Unexpected prefix operator."));
+    }
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::PostfixOperator>()) {
+    auto outfixOp = static_cast<Core::Data::Ast::PostfixOperator*>(astNode);
+    if (outfixOp->getType() == STR("++")) funcName = STR("__lateInc");
+    else if (outfixOp->getType() == STR("--")) funcName = STR("__lateDec");
+    else {
+      throw EXCEPTION(GenericException, STR("Unexpected postfix operator."));
+    }
+  } else {
+    throw EXCEPTION(GenericException, STR("Unexpected operator type."));
   }
 
   // Generate parameters list.
@@ -450,7 +474,9 @@ Bool ExpressionGenerator::_generateInfixOp(
   )) return false;
   auto function = ti_cast<Ast::Function>(callee);
   if (function == 0) {
-    expGenerator->noticeStore->add(std::make_shared<Ast::NoCalleeMatchNotice>(astNode->findSourceLocation()));
+    expGenerator->noticeStore->add(std::make_shared<Ast::NoCalleeMatchNotice>(
+      Core::Data::Ast::findSourceLocation(astNode)
+    ));
     return false;
   }
 
@@ -458,7 +484,7 @@ Bool ExpressionGenerator::_generateInfixOp(
   expGenerator->prepareFunctionParams(function, g, tg, tgContext, &paramAstTypes, &paramTgValues);
 
   // Generate the functionc all.
-  return expGenerator->generateFunctionCall(function, &paramTgValues, g, tg, tgContext, result);
+  return expGenerator->generateFunctionCall(function, &paramAstTypes, &paramTgValues, g, tg, tgContext, result);
 }
 
 
@@ -467,6 +493,10 @@ Bool ExpressionGenerator::_generateAssignment(
   GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  if (astNode->getType() != STR("=")) {
+    return expGenerator->generateOperator(astNode, g, tg, tgContext, result);
+  }
 
   // Generate assignment target.
   auto var = astNode->getFirst().get();
@@ -951,243 +981,182 @@ Bool ExpressionGenerator::_generateArrayReference(
 
 
 Bool ExpressionGenerator::_generateFunctionCall(
-  TiObject *self, Spp::Ast::Function *callee, Core::Basic::Container<TiObject> *paramTgValues,
+  TiObject *self, Spp::Ast::Function *callee,
+  Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
   Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   // is function built-in?
   if (callee->getName().getStr().size() > 0 && callee->getName().getStr().at(0) == CHR('#')) {
-    return expGenerator->generateBuiltInFunctionCall(callee, paramTgValues, g, tg, tgContext, result);
+    return expGenerator->generateBuiltInFunctionCall(callee, paramAstTypes, paramTgValues, g, tg, tgContext, result);
   } else {
     if (callee->getInlined()) {
       // TODO: Generate inlined function body.
       return false;
     } else {
-      return expGenerator->generateUserFunctionCall(callee, paramTgValues, g, tg, tgContext, result);
+      return expGenerator->generateUserFunctionCall(callee, paramAstTypes, paramTgValues, g, tg, tgContext, result);
     }
   }
 }
 
 
 Bool ExpressionGenerator::_generateBuiltInFunctionCall(
-  TiObject *self, Spp::Ast::Function *callee, Core::Basic::Container<TiObject> *paramTgValues,
+  TiObject *self, Spp::Ast::Function *callee,
+  Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
   Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
+  if (paramAstTypes == 0 || paramAstTypes->getElementCount() == 0) {
+    throw EXCEPTION(GenericException, STR("Param AST types are missing."));
+  }
+
   auto astRetType = callee->traceRetType(expGenerator->astHelper);
-  TiObject *tgRetType;
-  if (!g->getGeneratedType(astRetType, tg, tgRetType, 0)) return false;
+
+  Ast::Type *astType = expGenerator->astHelper->getValueTypeFor(paramAstTypes->getElement(0));
+  TiObject *tgType;
+  if (!g->getGeneratedType(astType, tg, tgType, 0)) return false;
 
   // Binary Math Operations
-  if (callee->getName() == STR("#addInt")) {
+  if (callee->getName() == STR("#add")) {
     if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #addInt built-in function."));
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #add built-in function."));
     }
-    if (!tg->generateAddInt(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    if (!tg->generateAdd(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
     )) return false;
     result.astType = astRetType;
     return true;
-  } else if (callee->getName() == STR("#addFloat")) {
+  } else if (callee->getName() == STR("#sub")) {
     if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #addFloat built-in function."));
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #sub built-in function."));
     }
-    if (!tg->generateAddFloat(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    if (!tg->generateSub(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
     )) return false;
     result.astType = astRetType;
     return true;
-  } else if (callee->getName() == STR("#subInt")) {
+  } else if (callee->getName() == STR("#mul")) {
     if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #subInt built-in function."));
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #mul built-in function."));
     }
-    if (!tg->generateSubInt(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    if (!tg->generateMul(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
     )) return false;
     result.astType = astRetType;
     return true;
-  } else if (callee->getName() == STR("#subFloat")) {
+  } else if (callee->getName() == STR("#div")) {
     if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #subFloat built-in function."));
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #div built-in function."));
     }
-    if (!tg->generateSubFloat(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#mulInt")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #mulInt built-in function."));
-    }
-    if (!tg->generateMulInt(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#mulFloat")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #mulFloat built-in function."));
-    }
-    if (!tg->generateMulFloat(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#divInt")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #divInt built-in function."));
-    }
-    if (!tg->generateDivInt(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#divFloat")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #divFloat built-in function."));
-    }
-    if (!tg->generateDivFloat(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    if (!tg->generateDiv(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
     )) return false;
     result.astType = astRetType;
     return true;
 
   // Unary Operations
-  } else if (callee->getName() == STR("#negInt")) {
+  } else if (callee->getName() == STR("#pos")) {
     if (paramTgValues->getElementCount() != 1) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #negInt built-in function."));
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #pos built-in function."));
     }
-    if (!tg->generateNegInt(tgContext, tgRetType, paramTgValues->getElement(0), result.targetData)) return false;
+    // Unary + operator is a no-op.
+    result.astType = ti_cast<Ast::Type>(paramAstTypes->getElement(0));
+    result.targetData = getSharedPtr(paramTgValues->getElement(0));
+    return true;
+  } else if (callee->getName() == STR("#neg")) {
+    if (paramTgValues->getElementCount() != 1) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #neg built-in function."));
+    }
+    if (!tg->generateNeg(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
     result.astType = astRetType;
     return true;
-  } else if (callee->getName() == STR("#negFloat")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #negFloat built-in function."));
+  } else if (callee->getName() == STR("#earlyInc")) {
+    if (paramTgValues->getElementCount() != 1) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #earlyInc built-in function."));
     }
-    if (!tg->generateNegFloat(tgContext, tgRetType, paramTgValues->getElement(0), result.targetData)) return false;
+    if (!tg->generateEarlyInc(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
     result.astType = astRetType;
     return true;
-
-  // Int Comparison Operations
-  } else if (callee->getName() == STR("#equalInt")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #equalInt built-in function."));
+  } else if (callee->getName() == STR("#earlyDec")) {
+    if (paramTgValues->getElementCount() != 1) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #earlyDec built-in function."));
     }
-    if (!tg->generateEqualInt(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
+    if (!tg->generateEarlyDec(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
     result.astType = astRetType;
     return true;
-  } else if (callee->getName() == STR("#notEqualInt")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #notEqualInt built-in function."));
+  } else if (callee->getName() == STR("#lateInc")) {
+    if (paramTgValues->getElementCount() != 1) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #lateInc built-in function."));
     }
-    if (!tg->generateNotEqualInt(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
+    if (!tg->generateLateInc(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
     result.astType = astRetType;
     return true;
-  } else if (callee->getName() == STR("#greaterThanInt")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #greaterThanInt built-in function."));
+  } else if (callee->getName() == STR("#lateDec")) {
+    if (paramTgValues->getElementCount() != 1) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #lateDec built-in function."));
     }
-    if (!tg->generateGreaterThanInt(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#greaterThanOrEqualInt")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(
-        GenericException, STR("Unexpected argument count in call to #greaterThanOrEqualInt built-in function.")
-      );
-    }
-    if (!tg->generateGreaterThanOrEqualInt(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#lessThanInt")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #lessThanInt built-in function."));
-    }
-    if (!tg->generateLessThanInt(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#lessThanOrEqualInt")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(
-        GenericException, STR("Unexpected argument count in call to #lessThanOrEqualInt built-in function.")
-      );
-    }
-    if (!tg->generateLessThanOrEqualInt(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
+    if (!tg->generateLateDec(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
     result.astType = astRetType;
     return true;
 
-  // Float Comparison Operations
-  } else if (callee->getName() == STR("#equalFloat")) {
+  // Comparison Operations
+  } else if (callee->getName() == STR("#equal")) {
     if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #equalFloat built-in function."));
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #equal built-in function."));
     }
-    if (!tg->generateEqualFloat(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    if (!tg->generateEqual(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
     )) return false;
     result.astType = astRetType;
     return true;
-  } else if (callee->getName() == STR("#notEqualFloat")) {
+  } else if (callee->getName() == STR("#notEqual")) {
     if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #notEqualFloat built-in function."));
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #notEqual built-in function."));
     }
-    if (!tg->generateNotEqualFloat(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    if (!tg->generateNotEqual(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
     )) return false;
     result.astType = astRetType;
     return true;
-  } else if (callee->getName() == STR("#greaterThanFloat")) {
+  } else if (callee->getName() == STR("#greaterThan")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #greaterThan built-in function."));
+    }
+    if (!tg->generateGreaterThan(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#greaterThanOrEqual")) {
     if (paramTgValues->getElementCount() != 2) {
       throw EXCEPTION(
-        GenericException, STR("Unexpected argument count in call to #greaterThanFloat built-in function.")
+        GenericException, STR("Unexpected argument count in call to #greaterThanOrEqual built-in function.")
       );
     }
-    if (!tg->generateGreaterThanFloat(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    if (!tg->generateGreaterThanOrEqual(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
     )) return false;
     result.astType = astRetType;
     return true;
-  } else if (callee->getName() == STR("#greaterThanOrEqualFloat")) {
+  } else if (callee->getName() == STR("#lessThan")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #lessThan built-in function."));
+    }
+    if (!tg->generateLessThan(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#lessThanOrEqual")) {
     if (paramTgValues->getElementCount() != 2) {
       throw EXCEPTION(
-        GenericException, STR("Unexpected argument count in call to #greaterThanOrEqualFloat built-in function.")
+        GenericException, STR("Unexpected argument count in call to #lessThanOrEqual built-in function.")
       );
     }
-    if (!tg->generateGreaterThanOrEqualFloat(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#lessThanFloat")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #lessThanFloat built-in function."));
-    }
-    if (!tg->generateLessThanFloat(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#lessThanOrEqualFloat")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(
-        GenericException, STR("Unexpected argument count in call to #lessThanOrEqualFloat built-in function.")
-      );
-    }
-    if (!tg->generateLessThanOrEqualFloat(
-      tgContext, tgRetType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    if (!tg->generateLessThanOrEqual(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
     )) return false;
     result.astType = astRetType;
     return true;
@@ -1198,7 +1167,8 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
 
 
 Bool ExpressionGenerator::_generateUserFunctionCall(
-    TiObject *self, Spp::Ast::Function *callee, Core::Basic::Container<TiObject> *paramTgValues,
+    TiObject *self, Spp::Ast::Function *callee,
+    Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);

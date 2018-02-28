@@ -69,30 +69,23 @@ void TargetGenerator::initBindings()
   targetGeneration->generateReturn = &TargetGenerator::generateReturn;
 
   // Math Ops Generation Functions
-  targetGeneration->generateAddInt = &TargetGenerator::generateAddInt;
-  targetGeneration->generateAddFloat = &TargetGenerator::generateAddFloat;
-  targetGeneration->generateSubInt = &TargetGenerator::generateSubInt;
-  targetGeneration->generateSubFloat = &TargetGenerator::generateSubFloat;
-  targetGeneration->generateMulInt = &TargetGenerator::generateMulInt;
-  targetGeneration->generateMulFloat = &TargetGenerator::generateMulFloat;
-  targetGeneration->generateDivInt = &TargetGenerator::generateDivInt;
-  targetGeneration->generateDivFloat = &TargetGenerator::generateDivFloat;
-  targetGeneration->generateNegInt = &TargetGenerator::generateNegInt;
-  targetGeneration->generateNegFloat = &TargetGenerator::generateNegFloat;
+  targetGeneration->generateAdd = &TargetGenerator::generateAdd;
+  targetGeneration->generateSub = &TargetGenerator::generateSub;
+  targetGeneration->generateMul = &TargetGenerator::generateMul;
+  targetGeneration->generateDiv = &TargetGenerator::generateDiv;
+  targetGeneration->generateNeg = &TargetGenerator::generateNeg;
+  targetGeneration->generateEarlyInc = &TargetGenerator::generateEarlyInc;
+  targetGeneration->generateEarlyDec = &TargetGenerator::generateEarlyDec;
+  targetGeneration->generateLateInc = &TargetGenerator::generateLateInc;
+  targetGeneration->generateLateDec = &TargetGenerator::generateLateDec;
 
   // Comparison Ops Generation Functions
-  targetGeneration->generateEqualInt = &TargetGenerator::generateEqualInt;
-  targetGeneration->generateEqualFloat = &TargetGenerator::generateEqualFloat;
-  targetGeneration->generateNotEqualInt = &TargetGenerator::generateNotEqualInt;
-  targetGeneration->generateNotEqualFloat = &TargetGenerator::generateNotEqualFloat;
-  targetGeneration->generateGreaterThanInt = &TargetGenerator::generateGreaterThanInt;
-  targetGeneration->generateGreaterThanFloat = &TargetGenerator::generateGreaterThanFloat;
-  targetGeneration->generateGreaterThanOrEqualInt = &TargetGenerator::generateGreaterThanOrEqualInt;
-  targetGeneration->generateGreaterThanOrEqualFloat = &TargetGenerator::generateGreaterThanOrEqualFloat;
-  targetGeneration->generateLessThanInt = &TargetGenerator::generateLessThanInt;
-  targetGeneration->generateLessThanFloat = &TargetGenerator::generateLessThanFloat;
-  targetGeneration->generateLessThanOrEqualInt = &TargetGenerator::generateLessThanOrEqualInt;
-  targetGeneration->generateLessThanOrEqualFloat = &TargetGenerator::generateLessThanOrEqualFloat;
+  targetGeneration->generateEqual = &TargetGenerator::generateEqual;
+  targetGeneration->generateNotEqual = &TargetGenerator::generateNotEqual;
+  targetGeneration->generateGreaterThan = &TargetGenerator::generateGreaterThan;
+  targetGeneration->generateGreaterThanOrEqual = &TargetGenerator::generateGreaterThanOrEqual;
+  targetGeneration->generateLessThan = &TargetGenerator::generateLessThan;
+  targetGeneration->generateLessThanOrEqual = &TargetGenerator::generateLessThanOrEqual;
 
   // Literal Generation Functions
   targetGeneration->generateIntLiteral = &TargetGenerator::generateIntLiteral;
@@ -740,120 +733,234 @@ Bool TargetGenerator::generateReturn(
 //==============================================================================
 // Math Ops Generation Functions
 
-Bool TargetGenerator::generateAddInt(
+Bool TargetGenerator::generateAdd(
   TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
-  auto llvmResult = block->getIrBuilder()->CreateAdd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateAdd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    auto llvmResult = block->getIrBuilder()->CreateFAdd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
 }
 
 
-Bool TargetGenerator::generateAddFloat(
+Bool TargetGenerator::generateSub(
   TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
-  auto llvmResult = block->getIrBuilder()->CreateFAdd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateSub(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    auto llvmResult = block->getIrBuilder()->CreateFSub(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
 }
 
 
-Bool TargetGenerator::generateSubInt(
+Bool TargetGenerator::generateMul(
   TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
-  auto llvmResult = block->getIrBuilder()->CreateSub(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateMul(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    auto llvmResult = block->getIrBuilder()->CreateFMul(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
 }
 
 
-Bool TargetGenerator::generateSubFloat(
+Bool TargetGenerator::generateDiv(
   TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
-  auto llvmResult = block->getIrBuilder()->CreateFSub(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateSDiv(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    auto llvmResult = block->getIrBuilder()->CreateFDiv(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
 }
 
 
-Bool TargetGenerator::generateMulInt(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(srcVal1, srcVal1Box, Value);
-  PREPARE_ARG(srcVal2, srcVal2Box, Value);
-  auto llvmResult = block->getIrBuilder()->CreateMul(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
-}
-
-
-Bool TargetGenerator::generateMulFloat(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(srcVal1, srcVal1Box, Value);
-  PREPARE_ARG(srcVal2, srcVal2Box, Value);
-  auto llvmResult = block->getIrBuilder()->CreateFMul(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
-}
-
-
-Bool TargetGenerator::generateDivInt(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(srcVal1, srcVal1Box, Value);
-  PREPARE_ARG(srcVal2, srcVal2Box, Value);
-  auto llvmResult = block->getIrBuilder()->CreateSDiv(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
-}
-
-
-Bool TargetGenerator::generateDivFloat(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(srcVal1, srcVal1Box, Value);
-  PREPARE_ARG(srcVal2, srcVal2Box, Value);
-  auto llvmResult = block->getIrBuilder()->CreateFDiv(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
-}
-
-
-Bool TargetGenerator::generateNegInt(
+Bool TargetGenerator::generateNeg(
   TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, srcValBox, Value);
-  auto llvmResult = block->getIrBuilder()->CreateNeg(srcValBox->getLlvmValue());
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateNeg(srcValBox->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    auto llvmResult = block->getIrBuilder()->CreateFNeg(srcValBox->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+}
+
+
+Bool TargetGenerator::generateEarlyInc(
+  TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto size = tgType->getSize();
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateAdd(
+      llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+    );
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    if (size == 32) {
+      llvmResult = block->getIrBuilder()->CreateFAdd(
+        llvmVal, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Float)1))
+      );
+    } else {
+      llvmResult = block->getIrBuilder()->CreateFAdd(
+        llvmVal, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Double)1))
+      );
+    }
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = std::make_shared<Value>(llvmResult, false);
   return true;
 }
 
 
-Bool TargetGenerator::generateNegFloat(
-  TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+Bool TargetGenerator::generateEarlyDec(
+  TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(srcVal, srcValBox, Value);
-  auto llvmResult = block->getIrBuilder()->CreateFNeg(srcValBox->getLlvmValue());
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto size = tgType->getSize();
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateSub(
+      llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+    );
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    if (size == 32) {
+      llvmResult = block->getIrBuilder()->CreateFSub(
+        llvmVal, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Float)1))
+      );
+    } else {
+      llvmResult = block->getIrBuilder()->CreateFSub(
+        llvmVal, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Double)1))
+      );
+    }
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = std::make_shared<Value>(llvmResult, false);
+  return true;
+}
+
+
+Bool TargetGenerator::generateLateInc(
+  TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto size = tgType->getSize();
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateAdd(
+      llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+    );
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    if (size == 32) {
+      llvmResult = block->getIrBuilder()->CreateFAdd(
+        llvmVal, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Float)1))
+      );
+    } else {
+      llvmResult = block->getIrBuilder()->CreateFAdd(
+        llvmVal, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Double)1))
+      );
+    }
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = std::make_shared<Value>(llvmVal, false);
+  return true;
+}
+
+
+Bool TargetGenerator::generateLateDec(
+  TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto size = tgType->getSize();
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateSub(
+      llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+    );
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    if (size == 32) {
+      llvmResult = block->getIrBuilder()->CreateFSub(
+        llvmVal, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Float)1))
+      );
+    } else {
+      llvmResult = block->getIrBuilder()->CreateFSub(
+        llvmVal, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat((Double)1))
+      );
+    }
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = std::make_shared<Value>(llvmVal, false);
   return true;
 }
 
@@ -861,147 +968,129 @@ Bool TargetGenerator::generateNegFloat(
 //==============================================================================
 // Comparison Ops Generation Functions
 
-Bool TargetGenerator::generateEqualInt(
+Bool TargetGenerator::generateEqual(
   TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
   PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateICmpEQ(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateICmpEQ(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    auto llvmResult = block->getIrBuilder()->CreateFCmpOEQ(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
 }
 
 
-Bool TargetGenerator::generateEqualFloat(
+Bool TargetGenerator::generateNotEqual(
   TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
   PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateFCmpOEQ(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateICmpNE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    auto llvmResult = block->getIrBuilder()->CreateFCmpONE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
 }
 
 
-Bool TargetGenerator::generateNotEqualInt(
+Bool TargetGenerator::generateGreaterThan(
   TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
   PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateICmpNE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateICmpSGT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    auto llvmResult = block->getIrBuilder()->CreateFCmpOGT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
 }
 
 
-Bool TargetGenerator::generateNotEqualFloat(
+Bool TargetGenerator::generateGreaterThanOrEqual(
   TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
   PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateFCmpONE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateICmpSGE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    auto llvmResult = block->getIrBuilder()->CreateFCmpOGE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
 }
 
 
-Bool TargetGenerator::generateGreaterThanInt(
+Bool TargetGenerator::generateLessThan(
   TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
   PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateICmpSGT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateICmpSLT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    auto llvmResult = block->getIrBuilder()->CreateFCmpOLT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
 }
 
 
-Bool TargetGenerator::generateGreaterThanFloat(
+Bool TargetGenerator::generateLessThanOrEqual(
   TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
   PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateFCmpOGT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
-}
-
-
-Bool TargetGenerator::generateGreaterThanOrEqualInt(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(srcVal1, srcValBox1, Value);
-  PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateICmpSGE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
-}
-
-
-Bool TargetGenerator::generateGreaterThanOrEqualFloat(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(srcVal1, srcValBox1, Value);
-  PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateFCmpOGE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
-}
-
-
-Bool TargetGenerator::generateLessThanInt(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(srcVal1, srcValBox1, Value);
-  PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateICmpSLT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
-}
-
-
-Bool TargetGenerator::generateLessThanFloat(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(srcVal1, srcValBox1, Value);
-  PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateFCmpOLT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
-}
-
-
-Bool TargetGenerator::generateLessThanOrEqualInt(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(srcVal1, srcValBox1, Value);
-  PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateICmpSLE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
-}
-
-
-Bool TargetGenerator::generateLessThanOrEqualFloat(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(srcVal1, srcValBox1, Value);
-  PREPARE_ARG(srcVal2, srcValBox2, Value);
-  auto llvmResult = block->getIrBuilder()->CreateFCmpOLE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateICmpSLE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    auto llvmResult = block->getIrBuilder()->CreateFCmpOLE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
 }
 
 

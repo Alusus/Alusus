@@ -230,10 +230,11 @@ Bool TypeGenerator::_generateCast(
   } else if (srcType->isDerivedFrom<Spp::Ast::IntegerType>()) {
     // Casting from integer.
     auto srcIntegerType = static_cast<Spp::Ast::IntegerType*>(srcType);
+    TiObject *srcTgType;
+    if (!typeGenerator->getGeneratedType(srcIntegerType, tg, srcTgType, 0)) return false;
     if (targetType->isDerivedFrom<Spp::Ast::IntegerType>()) {
       // Cast from integer to another integer.
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
-      auto srcTgType = getCodeGenData<TiObject>(srcIntegerType);
       TiObject *targetTgType;
       if (!typeGenerator->getGeneratedType(targetIntegerType, tg, targetTgType, 0)) return false;
       if (!tg->generateCastIntToInt(tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
@@ -241,7 +242,6 @@ Bool TypeGenerator::_generateCast(
     } else if (targetType->isDerivedFrom<Spp::Ast::FloatType>()) {
       // Cast from integer to float.
       auto targetFloatType = static_cast<Spp::Ast::FloatType*>(targetType);
-      auto srcTgType = getCodeGenData<TiObject>(srcIntegerType);
       TiObject *targetTgType;
       if (!typeGenerator->getGeneratedType(targetFloatType, tg, targetTgType, 0)) return false;
       if (!tg->generateCastIntToFloat(tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
@@ -251,7 +251,6 @@ Bool TypeGenerator::_generateCast(
       auto targetPointerType = static_cast<Spp::Ast::PointerType*>(targetType);
       Word srcBitCount = srcIntegerType->getBitCount(typeGenerator->astHelper);
       if (tg->getExecutionContext()->getPointerBitCount() == srcBitCount) {
-        auto srcTgType = getCodeGenData<TiObject>(srcIntegerType);
         TiObject *targetTgType;
         if (!typeGenerator->getGeneratedType(targetPointerType, tg, targetTgType, 0)) return false;
         if (!tg->generateCastIntToPointer(tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
@@ -261,10 +260,11 @@ Bool TypeGenerator::_generateCast(
   } else if (srcType->isDerivedFrom<Spp::Ast::FloatType>()) {
     // Casting from float.
     auto srcFloatType = static_cast<Spp::Ast::FloatType*>(srcType);
+    TiObject *srcTgType;
+    if (!typeGenerator->getGeneratedType(srcFloatType, tg, srcTgType, 0)) return false;
     if (targetType->isDerivedFrom<Spp::Ast::IntegerType>()) {
       // Cast from float to integer.
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
-      auto srcTgType = getCodeGenData<TiObject>(srcFloatType);
       TiObject *targetTgType;
       if (!typeGenerator->getGeneratedType(targetIntegerType, tg, targetTgType, 0)) return false;
       if (!tg->generateCastFloatToInt(tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
@@ -272,7 +272,6 @@ Bool TypeGenerator::_generateCast(
     } else if (targetType->isDerivedFrom<Spp::Ast::FloatType>()) {
       // Cast from float to another float.
       auto targetFloatType = static_cast<Spp::Ast::FloatType*>(targetType);
-      auto srcTgType = getCodeGenData<TiObject>(srcFloatType);
       TiObject *targetTgType;
       if (!typeGenerator->getGeneratedType(targetFloatType, tg, targetTgType, 0)) return false;
       if (!tg->generateCastFloatToFloat(tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
@@ -285,7 +284,8 @@ Bool TypeGenerator::_generateCast(
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
       Word targetBitCount = targetIntegerType->getBitCount(typeGenerator->astHelper);
       if (tg->getExecutionContext()->getPointerBitCount() == targetBitCount) {
-        auto srcTgType = getCodeGenData<TiObject>(srcType);
+        TiObject *srcTgType;
+        if (!typeGenerator->getGeneratedType(srcType, tg, srcTgType, 0)) return false;
         TiObject *targetTgType;
         if (!typeGenerator->getGeneratedType(targetIntegerType, tg, targetTgType, 0)) return false;
         if (!tg->generateCastPointerToInt(tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
@@ -294,7 +294,8 @@ Bool TypeGenerator::_generateCast(
     } else if (targetType->isDerivedFrom<Spp::Ast::PointerType>()) {
       // Cast pointer to another pointer.
       auto targetPointerType = static_cast<Spp::Ast::PointerType*>(targetType);
-      auto srcTgType = getCodeGenData<TiObject>(srcType);
+      TiObject *srcTgType;
+      if (!typeGenerator->getGeneratedType(srcType, tg, srcTgType, 0)) return false;
       TiObject *targetTgType;
       if (!typeGenerator->getGeneratedType(targetPointerType, tg, targetTgType, 0)) return false;
       if (!tg->generateCastPointerToPointer(tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) {

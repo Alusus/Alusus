@@ -68,28 +68,21 @@ class TargetGeneration : public ObjTiInterface
       &this->generateAssign,
       &this->generateFunctionCall,
       &this->generateReturn,
-      &this->generateAddInt,
-      &this->generateAddFloat,
-      &this->generateSubInt,
-      &this->generateSubFloat,
-      &this->generateMulInt,
-      &this->generateMulFloat,
-      &this->generateDivInt,
-      &this->generateDivFloat,
-      &this->generateNegInt,
-      &this->generateNegFloat,
-      &this->generateEqualInt,
-      &this->generateEqualFloat,
-      &this->generateNotEqualInt,
-      &this->generateNotEqualFloat,
-      &this->generateGreaterThanInt,
-      &this->generateGreaterThanFloat,
-      &this->generateGreaterThanOrEqualInt,
-      &this->generateGreaterThanOrEqualFloat,
-      &this->generateLessThanInt,
-      &this->generateLessThanFloat,
-      &this->generateLessThanOrEqualInt,
-      &this->generateLessThanOrEqualFloat,
+      &this->generateAdd,
+      &this->generateSub,
+      &this->generateMul,
+      &this->generateDiv,
+      &this->generateNeg,
+      &this->generateEarlyInc,
+      &this->generateEarlyDec,
+      &this->generateLateInc,
+      &this->generateLateDec,
+      &this->generateEqual,
+      &this->generateNotEqual,
+      &this->generateGreaterThan,
+      &this->generateGreaterThanOrEqual,
+      &this->generateLessThan,
+      &this->generateLessThanOrEqual,
       &this->generateIntLiteral,
       &this->generateFloatLiteral,
       &this->generateStringLiteral,
@@ -356,68 +349,66 @@ class TargetGeneration : public ObjTiInterface
   /// @name Math Ops Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(generateAddInt,
-    Bool, (
-      TiObject* /* context */, TiObject* /* type */,
-      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
-    )
-  );
-  public: METHOD_BINDING_CACHE(generateAddFloat,
+  public: METHOD_BINDING_CACHE(generateAdd,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
     )
   );
 
-  public: METHOD_BINDING_CACHE(generateSubInt,
-    Bool, (
-      TiObject* /* context */, TiObject* /* type */,
-      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
-    )
-  );
-  public: METHOD_BINDING_CACHE(generateSubFloat,
+  public: METHOD_BINDING_CACHE(generateSub,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
     )
   );
 
-  public: METHOD_BINDING_CACHE(generateMulInt,
-    Bool, (
-      TiObject* /* context */, TiObject* /* type */,
-      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
-    )
-  );
-  public: METHOD_BINDING_CACHE(generateMulFloat,
+  public: METHOD_BINDING_CACHE(generateMul,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
     )
   );
 
-  public: METHOD_BINDING_CACHE(generateDivInt,
-    Bool, (
-      TiObject* /* context */, TiObject* /* type */,
-      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
-    )
-  );
-  public: METHOD_BINDING_CACHE(generateDivFloat,
+  public: METHOD_BINDING_CACHE(generateDiv,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
     )
   );
 
-  public: METHOD_BINDING_CACHE(generateNegInt,
+  public: METHOD_BINDING_CACHE(generateNeg,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* srcVal */, TioSharedPtr& /* result */
     )
   );
-  public: METHOD_BINDING_CACHE(generateNegFloat,
+
+  public: METHOD_BINDING_CACHE(generateEarlyInc,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
-      TiObject* /* srcVal */, TioSharedPtr& /* result */
+      TiObject* /* destVar */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateEarlyDec,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateLateInc,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateLateDec,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TioSharedPtr& /* result */
     )
   );
 
@@ -426,78 +417,42 @@ class TargetGeneration : public ObjTiInterface
   /// @name Comparison Ops Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(generateEqualInt,
-    Bool, (
-      TiObject* /* context */, TiObject* /* type */,
-      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
-    )
-  );
-  public: METHOD_BINDING_CACHE(generateEqualFloat,
+  public: METHOD_BINDING_CACHE(generateEqual,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
     )
   );
 
-  public: METHOD_BINDING_CACHE(generateNotEqualInt,
-    Bool, (
-      TiObject* /* context */, TiObject* /* type */,
-      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
-    )
-  );
-  public: METHOD_BINDING_CACHE(generateNotEqualFloat,
+  public: METHOD_BINDING_CACHE(generateNotEqual,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
     )
   );
 
-  public: METHOD_BINDING_CACHE(generateGreaterThanInt,
-    Bool, (
-      TiObject* /* context */, TiObject* /* type */,
-      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
-    )
-  );
-  public: METHOD_BINDING_CACHE(generateGreaterThanFloat,
+  public: METHOD_BINDING_CACHE(generateGreaterThan,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
     )
   );
 
-  public: METHOD_BINDING_CACHE(generateGreaterThanOrEqualInt,
-    Bool, (
-      TiObject* /* context */, TiObject* /* type */,
-      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
-    )
-  );
-  public: METHOD_BINDING_CACHE(generateGreaterThanOrEqualFloat,
+  public: METHOD_BINDING_CACHE(generateGreaterThanOrEqual,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
     )
   );
 
-  public: METHOD_BINDING_CACHE(generateLessThanInt,
-    Bool, (
-      TiObject* /* context */, TiObject* /* type */,
-      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
-    )
-  );
-  public: METHOD_BINDING_CACHE(generateLessThanFloat,
+  public: METHOD_BINDING_CACHE(generateLessThan,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
     )
   );
 
-  public: METHOD_BINDING_CACHE(generateLessThanOrEqualInt,
-    Bool, (
-      TiObject* /* context */, TiObject* /* type */,
-      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
-    )
-  );
-  public: METHOD_BINDING_CACHE(generateLessThanOrEqualFloat,
+  public: METHOD_BINDING_CACHE(generateLessThanOrEqual,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */

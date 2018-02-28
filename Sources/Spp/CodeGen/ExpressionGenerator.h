@@ -175,14 +175,14 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
     GenResult &result
   );
 
-  public: METHOD_BINDING_CACHE(generateInfixOp,
+  public: METHOD_BINDING_CACHE(generateOperator,
     Bool, (
-      Core::Data::Ast::InfixOperator* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
+      Core::Data::Node* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
       TiObject* /* tgContext */, GenResult& /* result */
     )
   );
-  private: static Bool _generateInfixOp(
-    TiObject *self, Core::Data::Ast::InfixOperator *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  private: static Bool _generateOperator(
+    TiObject *self, Core::Data::Node *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
     GenResult &result
   );
 
@@ -313,34 +313,40 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
 
   public: METHOD_BINDING_CACHE(generateFunctionCall,
     Bool, (
-      Spp::Ast::Function* /* callee */, Core::Basic::Container<TiObject>* /* paramTgValues */,
+      Spp::Ast::Function* /* callee */,
+      Core::Basic::Container<TiObject>* /* paramAstTypes */, Core::Basic::Container<TiObject>* /* paramTgValues */,
       Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateFunctionCall(
-    TiObject *self, Spp::Ast::Function *callee, Core::Basic::Container<TiObject> *paramTgValues,
+    TiObject *self, Spp::Ast::Function *callee,
+    Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateBuiltInFunctionCall,
     Bool, (
-      Spp::Ast::Function* /* callee */, Core::Basic::Container<TiObject>* /* paramTgValues */,
+      Spp::Ast::Function* /* callee */,
+      Core::Basic::Container<TiObject>* /* paramAstTypes */, Core::Basic::Container<TiObject>* /* paramTgValues */,
       Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateBuiltInFunctionCall(
-    TiObject *self, Spp::Ast::Function *callee, Core::Basic::Container<TiObject> *paramTgValues,
+    TiObject *self, Spp::Ast::Function *callee,
+    Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateUserFunctionCall,
     Bool, (
-      Spp::Ast::Function* /* callee */, Core::Basic::Container<TiObject>* /* paramTgValues */,
+      Spp::Ast::Function* /* callee */,
+      Core::Basic::Container<TiObject>* /* paramAstTypes */, Core::Basic::Container<TiObject>* /* paramTgValues */,
       Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateUserFunctionCall(
-    TiObject *self, Spp::Ast::Function *callee, Core::Basic::Container<TiObject> *paramTgValues,
+    TiObject *self, Spp::Ast::Function *callee,
+    Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
 

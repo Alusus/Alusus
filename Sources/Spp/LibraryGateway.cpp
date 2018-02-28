@@ -739,8 +739,21 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
     STR("greaterThan"), STR("greaterThanOrEqual"),
     STR("lessThan"), STR("lessThanOrEqual")
   };
+  Char const *assignmentOps[] = {
+    STR("addAssign"), STR("subAssign"), STR("mulAssign"), STR("divAssign")
+  };
+  Char const *unaryValOps[] = {
+    STR("neg"), STR("pos")
+  };
+  Char const *unaryVarOps[] = {
+    STR("earlyInc"), STR("earlyDec"), STR("lateInc"), STR("lateDec")
+  };
   Char const *types[] = {
     STR("Int[8]"), STR("Int[16]"), STR("Int[32]"), STR("Int[64]"), STR("Float[32]"), STR("Float[64]")
+  };
+  Char const *refTypes[] = {
+    STR("ref[Int[8]]"), STR("ref[Int[16]]"), STR("ref[Int[32]]"), STR("ref[Int[64]]"),
+    STR("ref[Float[32]]"), STR("ref[Float[64]]")
   };
 
   // Add binary math operators.
@@ -750,10 +763,8 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
     identifier.setValue(path.c_str());
 
     for (Int j = 0; j < sizeof(types) / sizeof(types[0]); ++j) {
-      Int length = SBSTR(types[j]).findPos(CHR('['));
       Str funcName = STR("#");
       funcName += binaryOps[i];
-      funcName.append(types[j], length);
 
       manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
         if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
@@ -771,10 +782,8 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
     identifier.setValue(path.c_str());
 
     for (Int j = 0; j < sizeof(types) / sizeof(types[0]); ++j) {
-      Int length = SBSTR(types[j]).findPos(CHR('['));
       Str funcName = STR("#");
       funcName += comparisonOps[i];
-      funcName.append(types[j], length);
 
       manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
         if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
@@ -785,20 +794,61 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
     }
   }
 
-  // Add unary math operators.
-  identifier.setValue(STR("__neg"));
-  for (Int j = 0; j < sizeof(types) / sizeof(types[0]); ++j) {
-    Int length = SBSTR(types[j]).findPos(CHR('['));
-    Str funcName = STR("#");
-    funcName += STR("neg");
-    funcName.append(types[j], length);
+  // Add assignment operators.
+  for (Int i = 0; i < sizeof(assignmentOps) / sizeof(assignmentOps[0]); ++i) {
+    Str path = STR("__");
+    path += assignmentOps[i];
+    identifier.setValue(path.c_str());
 
-    manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
-      if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
-      hook = this->createUnaryFunction(manager, funcName.c_str(), types[j], types[j]);
-      obj = hook.get();
-      return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-    }, 0);
+    for (Int j = 0; j < sizeof(types) / sizeof(types[0]); ++j) {
+      Str funcName = STR("#");
+      funcName += assignmentOps[i];
+
+      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
+        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+        hook = this->createBinaryFunction(manager, funcName.c_str(), refTypes[j], types[j], types[j]);
+        obj = hook.get();
+        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+      }, 0);
+    }
+  }
+
+  // Add unary val operators.
+  for (Int i = 0; i < sizeof(unaryValOps) / sizeof(unaryValOps[0]); ++i) {
+    Str path = STR("__");
+    path += unaryValOps[i];
+    identifier.setValue(path.c_str());
+
+    for (Int j = 0; j < sizeof(types) / sizeof(types[0]); ++j) {
+      Str funcName = STR("#");
+      funcName += unaryValOps[i];
+
+      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
+        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+        hook = this->createUnaryFunction(manager, funcName.c_str(), types[j], types[j]);
+        obj = hook.get();
+        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+      }, 0);
+    }
+  }
+
+  // Add unary var operators.
+  for (Int i = 0; i < sizeof(unaryVarOps) / sizeof(unaryVarOps[0]); ++i) {
+    Str path = STR("__");
+    path += unaryVarOps[i];
+    identifier.setValue(path.c_str());
+
+    for (Int j = 0; j < sizeof(types) / sizeof(types[0]); ++j) {
+      Str funcName = STR("#");
+      funcName += unaryVarOps[i];
+
+      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
+        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+        hook = this->createUnaryFunction(manager, funcName.c_str(), refTypes[j], types[j]);
+        obj = hook.get();
+        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+      }, 0);
+    }
   }
 }
 
@@ -808,38 +858,20 @@ void LibraryGateway::removeBuiltInFunctions(Core::Standard::RootManager *manager
   Core::Data::Ast::Identifier identifier;
   auto root = manager->getRootScope().get();
 
-  identifier.setValue(STR("__add"));
-  manager->getSeeker()->doRemove(&identifier, root);
+  Char const *operations[] = {
+    STR("__add"), STR("__sub"), STR("__mul"), STR("__div"),
+    STR("__equal"), STR("__notEqual"),
+    STR("__greaterThan"), STR("__greaterThanOrEqual"),
+    STR("__lessThan"), STR("__lessThanOrEqual"),
+    STR("__addAssign"), STR("__subAssign"), STR("__mulAssign"), STR("__divAssign"),
+    STR("__neg"), STR("__pos"),
+    STR("__earlyInc"), STR("__earlyDec"), STR("__lateInc"), STR("__lateDec")
+  };
 
-  identifier.setValue(STR("__sub"));
-  manager->getSeeker()->doRemove(&identifier, root);
-
-  identifier.setValue(STR("__mul"));
-  manager->getSeeker()->doRemove(&identifier, root);
-
-  identifier.setValue(STR("__div"));
-  manager->getSeeker()->doRemove(&identifier, root);
-
-  identifier.setValue(STR("__neg"));
-  manager->getSeeker()->doRemove(&identifier, root);
-
-  identifier.setValue(STR("__equal"));
-  manager->getSeeker()->doRemove(&identifier, root);
-
-  identifier.setValue(STR("__notEqual"));
-  manager->getSeeker()->doRemove(&identifier, root);
-
-  identifier.setValue(STR("__greaterThan"));
-  manager->getSeeker()->doRemove(&identifier, root);
-
-  identifier.setValue(STR("__greaterThanOrEqual"));
-  manager->getSeeker()->doRemove(&identifier, root);
-
-  identifier.setValue(STR("__lessThan"));
-  manager->getSeeker()->doRemove(&identifier, root);
-
-  identifier.setValue(STR("__lessThanOrEqual"));
-  manager->getSeeker()->doRemove(&identifier, root);
+  for (Int i = 0; i < sizeof(operations) / sizeof(operations[0]); ++i) {
+    identifier.setValue(operations[i]);
+    manager->getSeeker()->doRemove(&identifier, root);
+  }
 }
 
 

@@ -251,39 +251,40 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
   /// @name Math Ops Generation Functions
   /// @{
 
-  public: Bool generateAddInt(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-  );
-  public: Bool generateAddFloat(
+  public: Bool generateAdd(
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateSubInt(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-  );
-  public: Bool generateSubFloat(
+  public: Bool generateSub(
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateMulInt(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-  );
-  public: Bool generateMulFloat(
+  public: Bool generateMul(
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateDivInt(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-  );
-  public: Bool generateDivFloat(
+  public: Bool generateDiv(
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateNegInt(
+  public: Bool generateNeg(
     TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
   );
-  public: Bool generateNegFloat(
-    TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+
+  public: Bool generateEarlyInc(
+    TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+  );
+
+  public: Bool generateEarlyDec(
+    TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+  );
+
+  public: Bool generateLateInc(
+    TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+  );
+
+  public: Bool generateLateDec(
+    TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
   );
 
   /// @}
@@ -291,45 +292,27 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
   /// @name Comparison Ops Generation Functions
   /// @{
 
-  public: Bool generateEqualInt(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-  );
-  public: Bool generateEqualFloat(
+  public: Bool generateEqual(
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateNotEqualInt(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-  );
-  public: Bool generateNotEqualFloat(
+  public: Bool generateNotEqual(
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateGreaterThanInt(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-  );
-  public: Bool generateGreaterThanFloat(
+  public: Bool generateGreaterThan(
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateGreaterThanOrEqualInt(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-  );
-  public: Bool generateGreaterThanOrEqualFloat(
+  public: Bool generateGreaterThanOrEqual(
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateLessThanInt(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-  );
-  public: Bool generateLessThanFloat(
+  public: Bool generateLessThan(
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateLessThanOrEqualInt(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
-  );
-  public: Bool generateLessThanOrEqualFloat(
+  public: Bool generateLessThanOrEqual(
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 

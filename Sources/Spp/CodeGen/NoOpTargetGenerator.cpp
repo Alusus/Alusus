@@ -69,30 +69,23 @@ void NoOpTargetGenerator::initBindings()
   targetGeneration->generateReturn = &NoOpTargetGenerator::generateReturn;
 
   // Math Ops Generation Functions
-  targetGeneration->generateAddInt = &NoOpTargetGenerator::generateAddInt;
-  targetGeneration->generateAddFloat = &NoOpTargetGenerator::generateAddFloat;
-  targetGeneration->generateSubInt = &NoOpTargetGenerator::generateSubInt;
-  targetGeneration->generateSubFloat = &NoOpTargetGenerator::generateSubFloat;
-  targetGeneration->generateMulInt = &NoOpTargetGenerator::generateMulInt;
-  targetGeneration->generateMulFloat = &NoOpTargetGenerator::generateMulFloat;
-  targetGeneration->generateDivInt = &NoOpTargetGenerator::generateDivInt;
-  targetGeneration->generateDivFloat = &NoOpTargetGenerator::generateDivFloat;
-  targetGeneration->generateNegInt = &NoOpTargetGenerator::generateNegInt;
-  targetGeneration->generateNegFloat = &NoOpTargetGenerator::generateNegFloat;
+  targetGeneration->generateAdd = &NoOpTargetGenerator::generateAdd;
+  targetGeneration->generateSub = &NoOpTargetGenerator::generateSub;
+  targetGeneration->generateMul = &NoOpTargetGenerator::generateMul;
+  targetGeneration->generateDiv = &NoOpTargetGenerator::generateDiv;
+  targetGeneration->generateNeg = &NoOpTargetGenerator::generateNeg;
+  targetGeneration->generateEarlyInc = &NoOpTargetGenerator::generateEarlyInc;
+  targetGeneration->generateEarlyDec = &NoOpTargetGenerator::generateEarlyDec;
+  targetGeneration->generateLateInc = &NoOpTargetGenerator::generateLateInc;
+  targetGeneration->generateLateDec = &NoOpTargetGenerator::generateLateDec;
 
   // Comparison Ops Generation Functions
-  targetGeneration->generateEqualInt = &NoOpTargetGenerator::generateEqualInt;
-  targetGeneration->generateEqualFloat = &NoOpTargetGenerator::generateEqualFloat;
-  targetGeneration->generateNotEqualInt = &NoOpTargetGenerator::generateNotEqualInt;
-  targetGeneration->generateNotEqualFloat = &NoOpTargetGenerator::generateNotEqualFloat;
-  targetGeneration->generateGreaterThanInt = &NoOpTargetGenerator::generateGreaterThanInt;
-  targetGeneration->generateGreaterThanFloat = &NoOpTargetGenerator::generateGreaterThanFloat;
-  targetGeneration->generateGreaterThanOrEqualInt = &NoOpTargetGenerator::generateGreaterThanOrEqualInt;
-  targetGeneration->generateGreaterThanOrEqualFloat = &NoOpTargetGenerator::generateGreaterThanOrEqualFloat;
-  targetGeneration->generateLessThanInt = &NoOpTargetGenerator::generateLessThanInt;
-  targetGeneration->generateLessThanFloat = &NoOpTargetGenerator::generateLessThanFloat;
-  targetGeneration->generateLessThanOrEqualInt = &NoOpTargetGenerator::generateLessThanOrEqualInt;
-  targetGeneration->generateLessThanOrEqualFloat = &NoOpTargetGenerator::generateLessThanOrEqualFloat;
+  targetGeneration->generateEqual = &NoOpTargetGenerator::generateEqual;
+  targetGeneration->generateNotEqual = &NoOpTargetGenerator::generateNotEqual;
+  targetGeneration->generateGreaterThan = &NoOpTargetGenerator::generateGreaterThan;
+  targetGeneration->generateGreaterThanOrEqual = &NoOpTargetGenerator::generateGreaterThanOrEqual;
+  targetGeneration->generateLessThan = &NoOpTargetGenerator::generateLessThan;
+  targetGeneration->generateLessThanOrEqual = &NoOpTargetGenerator::generateLessThanOrEqual;
 
   // Literal Generation Functions
   targetGeneration->generateIntLiteral = &NoOpTargetGenerator::generateIntLiteral;

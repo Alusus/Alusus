@@ -10,11 +10,28 @@ def Main: module
     print("5-2=%d\n", 5-2);
     print("7*3=%d\n", 7*3);
     print("10/2=%d\n", 10/2);
+    print("-34=%d\n", -34);
+    print("+34=%d\n", +34);
 
     print("1+2*3=%d\n", 1+2*3);
     print("10-6/2=%d\n", 10-6/2);
     print("(1+2)*3=%d\n", (1+2)*3);
     print("(10-6)/2=%d\n", (10-6)/2);
+    print("-(10 * 2)=%d\n", -(10*2));
+    print("+(10 * 2)=%d\n", +(10*2));
+
+    def i32: Int[32];
+    def i64: Int[64];
+    i32 = 3;
+    i64 = 4;
+    print("++i32 = %d\n", ++i32);
+    print("++i64 = %d\n", ++i64);
+    print("--i32 = %d\n", --i32);
+    print("--i64 = %d\n", --i64);
+    print("i32++ = %d\n", i32++);
+    print("i64++ = %d\n", i64++);
+    print("i32-- = %d\n", i32--);
+    print("i64-- = %d\n", i64--);
   };
 
   def testFloat: function ()=>Void
@@ -23,11 +40,28 @@ def Main: module
     print("5.5-2.5=%f\n", 5.5-2.5);
     print("7.2*3.5=%f\n", 7.2*3.5);
     print("10.4/2.0=%f\n", 10.4/2.0);
+    print("-3.4=%f\n", -3.4);
+    print("+3.4=%f\n", +3.4);
 
     print("1.0+2.0*3.0=%f\n", 1.0+2.0*3.0);
     print("10.0-6.0/2.0=%f\n", 10.0-6.0/2.0);
     print("(1.0+2.0)*3.0=%f\n", (1.0+2.0)*3.0);
     print("(10.0-6.0)/2.0=%f\n", (10.0-6.0)/2.0);
+    print("-(10.0 * 2.3)=%d\n", -(10.0*2.3));
+    print("+(10.0 * 2.3)=%d\n", +(10.0*2.3));
+
+    def f32: Float[32];
+    def f64: Float[64];
+    f32 = 5.0;
+    f64 = 6.0;
+    print("++f32 = %f\n", ++f32);
+    print("++f64 = %f\n", ++f64);
+    print("--f32 = %f\n", --f32);
+    print("--f64 = %f\n", --f64);
+    print("f32++ = %f\n", f32++);
+    print("f64++ = %f\n", f64++);
+    print("f32-- = %f\n", f32--);
+    print("f64-- = %f\n", f64--);
   };
 
   def testMixed: function ()=>Void

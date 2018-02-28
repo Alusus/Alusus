@@ -20,6 +20,29 @@ def Main: module
     print("1f64 + 1f64 = %f\n", 1f64 + 1f64);
     print("1f64 + 1f32 = %f\n", 1f64 + 1f32);
     print("1f32 + 1f64 = %f\n", 1f32 + 1f64);
+
+    def f32: Float[32];
+    def f64: Float[64];
+    f32 = 5.0;
+    f64 = 8.0;
+
+    print("++f32 = %f\n", ++f32);
+    print("++f32 = %f\n", ++f32);
+    print("--f32 = %f\n", --f32);
+    print("--f32 = %f\n", --f32);
+    print("f32++ = %f\n", f32++);
+    print("f32++ = %f\n", f32++);
+    print("f32-- = %f\n", f32--);
+    print("f32-- = %f\n", f32--);
+
+    print("++f64 = %f\n", ++f64);
+    print("++f64 = %f\n", ++f64);
+    print("--f64 = %f\n", --f64);
+    print("--f64 = %f\n", --f64);
+    print("f64++ = %f\n", f64++);
+    print("f64++ = %f\n", f64++);
+    print("f64-- = %f\n", f64--);
+    print("f64-- = %f\n", f64--);
   }
 };
 

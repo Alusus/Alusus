@@ -175,6 +175,9 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
 
   public: PointerType* getPointerTypeForReferenceType(ReferenceType *type);
 
+  public: METHOD_BINDING_CACHE(getValueTypeFor, Type*, (TiObject*));
+  private: static Type* _getValueTypeFor(TiObject *self, TiObject *type);
+
   public: METHOD_BINDING_CACHE(getBoolType, IntegerType*);
   private: static IntegerType* _getBoolType(TiObject *self);
 

@@ -31,6 +31,7 @@ void Helper::initBindingCaches()
     &this->isReferenceTypeFor,
     &this->getReferenceTypeFor,
     &this->getPointerTypeFor,
+    &this->getValueTypeFor,
     &this->getBoolType,
     &this->getCharType,
     &this->getCharPtrType,
@@ -56,6 +57,7 @@ void Helper::initBindings()
   this->isReferenceTypeFor = &Helper::_isReferenceTypeFor;
   this->getReferenceTypeFor = &Helper::_getReferenceTypeFor;
   this->getPointerTypeFor = &Helper::_getPointerTypeFor;
+  this->getValueTypeFor = &Helper::_getValueTypeFor;
   this->getBoolType = &Helper::_getBoolType;
   this->getCharType = &Helper::_getCharType;
   this->getCharPtrType = &Helper::_getCharPtrType;
@@ -338,6 +340,19 @@ PointerType* Helper::getPointerTypeForReferenceType(ReferenceType *type)
   }
 
   return this->getPointerTypeFor(type->getContentType(this));
+}
+
+
+Type* Helper::_getValueTypeFor(TiObject *self, TiObject *typeRef)
+{
+  PREPARE_SELF(helper, Helper);
+
+  Type *type = helper->traceType(typeRef);
+  if (type->isDerivedFrom<ReferenceType>()) {
+    return static_cast<ReferenceType*>(type)->getContentType(helper);
+  } else {
+    return type;
+  }
 }
 
 

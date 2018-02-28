@@ -20,6 +20,29 @@ def Main: module
     print("1i64 + 1i64 = %d\n", 1i64 + 1i64);
     print("1i8 + 1i64 = %d\n", 1i8 + 1i64);
     print("1i64 + 1i8 = %d\n", 1i64 + 1i8);
+
+    def i32: Int[32];
+    def i64: Int[64];
+    i32 = 3;
+    i64 = 6;
+
+    print("++i32 = %d\n", ++i32);
+    print("++i32 = %d\n", ++i32);
+    print("--i32 = %d\n", --i32);
+    print("--i32 = %d\n", --i32);
+    print("i32++ = %d\n", i32++);
+    print("i32++ = %d\n", i32++);
+    print("i32-- = %d\n", i32--);
+    print("i32-- = %d\n", i32--);
+
+    print("++i64 = %d\n", ++i64);
+    print("++i64 = %d\n", ++i64);
+    print("--i64 = %d\n", --i64);
+    print("--i64 = %d\n", --i64);
+    print("i64++ = %d\n", i64++);
+    print("i64++ = %d\n", i64++);
+    print("i64-- = %d\n", i64--);
+    print("i64-- = %d\n", i64--);
   }
 };
 
