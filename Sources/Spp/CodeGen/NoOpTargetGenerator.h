@@ -271,6 +271,22 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBindings, pub
     TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
   ) { return true; }
 
+  public: Bool generateAddAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateSubAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateMulAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateDivAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  ) { return true; }
+
   /// @}
 
   /// @name Comparison Ops Generation Functions

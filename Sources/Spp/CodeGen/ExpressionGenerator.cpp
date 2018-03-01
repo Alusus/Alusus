@@ -432,6 +432,10 @@ Bool ExpressionGenerator::_generateOperator(
     else if (infixOp->getType() == STR(">=")) funcName = STR("__greaterThanOrEqual");
     else if (infixOp->getType() == STR("<")) funcName = STR("__lessThan");
     else if (infixOp->getType() == STR("<=")) funcName = STR("__lessThanOrEqual");
+    else if (infixOp->getType() == STR("+=")) funcName = STR("__addAssign");
+    else if (infixOp->getType() == STR("-=")) funcName = STR("__subAssign");
+    else if (infixOp->getType() == STR("*=")) funcName = STR("__mulAssign");
+    else if (infixOp->getType() == STR("/=")) funcName = STR("__divAssign");
     else {
       throw EXCEPTION(GenericException, STR("Unexpected infix operator."));
     }
@@ -1051,6 +1055,42 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #div built-in function."));
     }
     if (!tg->generateDiv(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#addAssign")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #addAssign built-in function."));
+    }
+    if (!tg->generateAddAssign(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#subAssign")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #subAssign built-in function."));
+    }
+    if (!tg->generateSubAssign(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#mulAssign")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #mulAssign built-in function."));
+    }
+    if (!tg->generateMulAssign(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#divAssign")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #divAssign built-in function."));
+    }
+    if (!tg->generateDivAssign(
       tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
     )) return false;
     result.astType = astRetType;

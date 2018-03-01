@@ -77,6 +77,10 @@ class TargetGeneration : public ObjTiInterface
       &this->generateEarlyDec,
       &this->generateLateInc,
       &this->generateLateDec,
+      &this->generateAddAssign,
+      &this->generateSubAssign,
+      &this->generateMulAssign,
+      &this->generateDivAssign,
       &this->generateEqual,
       &this->generateNotEqual,
       &this->generateGreaterThan,
@@ -409,6 +413,34 @@ class TargetGeneration : public ObjTiInterface
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* destVar */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateAddAssign,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateSubAssign,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateMulAssign,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateDivAssign,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
     )
   );
 

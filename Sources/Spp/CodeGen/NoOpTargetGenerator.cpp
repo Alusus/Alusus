@@ -78,6 +78,10 @@ void NoOpTargetGenerator::initBindings()
   targetGeneration->generateEarlyDec = &NoOpTargetGenerator::generateEarlyDec;
   targetGeneration->generateLateInc = &NoOpTargetGenerator::generateLateInc;
   targetGeneration->generateLateDec = &NoOpTargetGenerator::generateLateDec;
+  targetGeneration->generateAddAssign = &NoOpTargetGenerator::generateAddAssign;
+  targetGeneration->generateSubAssign = &NoOpTargetGenerator::generateSubAssign;
+  targetGeneration->generateMulAssign = &NoOpTargetGenerator::generateMulAssign;
+  targetGeneration->generateDivAssign = &NoOpTargetGenerator::generateDivAssign;
 
   // Comparison Ops Generation Functions
   targetGeneration->generateEqual = &NoOpTargetGenerator::generateEqual;

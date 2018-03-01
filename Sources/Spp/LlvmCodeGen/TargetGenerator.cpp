@@ -78,6 +78,10 @@ void TargetGenerator::initBindings()
   targetGeneration->generateEarlyDec = &TargetGenerator::generateEarlyDec;
   targetGeneration->generateLateInc = &TargetGenerator::generateLateInc;
   targetGeneration->generateLateDec = &TargetGenerator::generateLateDec;
+  targetGeneration->generateAddAssign = &TargetGenerator::generateAddAssign;
+  targetGeneration->generateSubAssign = &TargetGenerator::generateSubAssign;
+  targetGeneration->generateMulAssign = &TargetGenerator::generateMulAssign;
+  targetGeneration->generateDivAssign = &TargetGenerator::generateDivAssign;
 
   // Comparison Ops Generation Functions
   targetGeneration->generateEqual = &TargetGenerator::generateEqual;
@@ -961,6 +965,94 @@ Bool TargetGenerator::generateLateDec(
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = std::make_shared<Value>(llvmVal, false);
+  return true;
+}
+
+
+Bool TargetGenerator::generateAddAssign(
+  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateAdd(llvmVal, srcValBox->getLlvmValue());
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    llvmResult = block->getIrBuilder()->CreateFAdd(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = getSharedPtr(destVar);
+  return true;
+}
+
+
+Bool TargetGenerator::generateSubAssign(
+  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateSub(llvmVal, srcValBox->getLlvmValue());
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    llvmResult = block->getIrBuilder()->CreateFSub(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = getSharedPtr(destVar);
+  return true;
+}
+
+
+Bool TargetGenerator::generateMulAssign(
+  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateMul(llvmVal, srcValBox->getLlvmValue());
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    llvmResult = block->getIrBuilder()->CreateFMul(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = getSharedPtr(destVar);
+  return true;
+}
+
+
+Bool TargetGenerator::generateDivAssign(
+  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateSDiv(llvmVal, srcValBox->getLlvmValue());
+  } else if (tgType->getCategory() == Type::Category::FLOAT) {
+    llvmResult = block->getIrBuilder()->CreateFDiv(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = getSharedPtr(destVar);
   return true;
 }
 

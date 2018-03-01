@@ -32,6 +32,18 @@ def Main: module
     print("i64++ = %d\n", i64++);
     print("i32-- = %d\n", i32--);
     print("i64-- = %d\n", i64--);
+
+    i32 = 5;
+    i32 += 7; print("i32 += 7 => %d\n", i32);
+    i32 -= 2; print("i32 -= 2 => %d\n", i32);
+    i32 *= 2; print("i32 *= 2 => %d\n", i32);
+    i32 /= 5; print("i32 /= 5 => %d\n", i32);
+
+    i64 = 15;
+    i64 += 7; print("i64 += 7 => %d\n", i64);
+    i64 -= 2; print("i64 -= 2 => %d\n", i64);
+    i64 *= 2; print("i64 *= 2 => %d\n", i64);
+    i64 /= 5; print("i64 /= 5 => %d\n", i64);
   };
 
   def testFloat: function ()=>Void
@@ -62,6 +74,18 @@ def Main: module
     print("f64++ = %f\n", f64++);
     print("f32-- = %f\n", f32--);
     print("f64-- = %f\n", f64--);
+
+    f32 = 0.5;
+    f32 += 0.7; print("f32 += 0.7 => %f\n", f32);
+    f32 -= 0.2; print("f32 -= 0.2 => %f\n", f32);
+    f32 *= 2.0; print("f32 *= 2.0 => %f\n", f32);
+    f32 /= 0.05; print("f32 /= 0.05 => %f\n", f32);
+
+    f64 = 0.15;
+    f64 += 0.07; print("f64 += 0.07 => %f\n", f64);
+    f64 -= 0.02; print("f64 -= 0.02 => %f\n", f64);
+    f64 *= 2.0; print("f64 *= 2.0 => %f\n", f64);
+    f64 /= 0.5; print("f64 /= 0.5 => %f\n", f64);
   };
 
   def testMixed: function ()=>Void
