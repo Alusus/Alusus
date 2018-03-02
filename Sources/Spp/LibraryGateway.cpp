@@ -734,6 +734,9 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
   TioSharedPtr hook;
 
   Char const *binaryOps[] = { STR("add"), STR("sub"), STR("mul"), STR("div") };
+  Char const *intBinaryOps[] = {
+    STR("rem"), STR("shr"), STR("shl"), STR("and"), STR("or"), STR("xor")
+  };
   Char const *comparisonOps[] = {
     STR("equal"), STR("notEqual"),
     STR("greaterThan"), STR("greaterThanOrEqual"),
@@ -742,18 +745,31 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
   Char const *assignmentOps[] = {
     STR("addAssign"), STR("subAssign"), STR("mulAssign"), STR("divAssign")
   };
+  Char const *intAssignmentOps[] = {
+    STR("remAssign"), STR("shrAssign"), STR("shlAssign"), STR("andAssign"), STR("orAssign"), STR("xorAssign")
+  };
   Char const *unaryValOps[] = {
     STR("neg"), STR("pos")
+  };
+  Char const *intUnaryValOps[] = {
+    STR("not")
   };
   Char const *unaryVarOps[] = {
     STR("earlyInc"), STR("earlyDec"), STR("lateInc"), STR("lateDec")
   };
+
   Char const *types[] = {
     STR("Int[8]"), STR("Int[16]"), STR("Int[32]"), STR("Int[64]"), STR("Float[32]"), STR("Float[64]")
   };
   Char const *refTypes[] = {
     STR("ref[Int[8]]"), STR("ref[Int[16]]"), STR("ref[Int[32]]"), STR("ref[Int[64]]"),
     STR("ref[Float[32]]"), STR("ref[Float[64]]")
+  };
+  Char const *intTypes[] = {
+    STR("Int[8]"), STR("Int[16]"), STR("Int[32]"), STR("Int[64]")
+  };
+  Char const *intRefTypes[] = {
+    STR("ref[Int[8]]"), STR("ref[Int[16]]"), STR("ref[Int[32]]"), STR("ref[Int[64]]")
   };
 
   // Add binary math operators.
@@ -769,6 +785,25 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
       manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
         if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
         hook = this->createBinaryFunction(manager, funcName.c_str(), types[j], types[j], types[j]);
+        obj = hook.get();
+        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+      }, 0);
+    }
+  }
+
+  // Add int-only binary math operators.
+  for (Int i = 0; i < sizeof(intBinaryOps) / sizeof(intBinaryOps[0]); ++i) {
+    Str path = STR("__");
+    path += intBinaryOps[i];
+    identifier.setValue(path.c_str());
+
+    for (Int j = 0; j < sizeof(intTypes) / sizeof(intTypes[0]); ++j) {
+      Str funcName = STR("#");
+      funcName += intBinaryOps[i];
+
+      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
+        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+        hook = this->createBinaryFunction(manager, funcName.c_str(), intTypes[j], intTypes[j], intTypes[j]);
         obj = hook.get();
         return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
       }, 0);
@@ -806,7 +841,26 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
 
       manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
         if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
-        hook = this->createBinaryFunction(manager, funcName.c_str(), refTypes[j], types[j], types[j]);
+        hook = this->createBinaryFunction(manager, funcName.c_str(), refTypes[j], types[j], refTypes[j]);
+        obj = hook.get();
+        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+      }, 0);
+    }
+  }
+
+  // Add int-only assignment operators.
+  for (Int i = 0; i < sizeof(intAssignmentOps) / sizeof(intAssignmentOps[0]); ++i) {
+    Str path = STR("__");
+    path += intAssignmentOps[i];
+    identifier.setValue(path.c_str());
+
+    for (Int j = 0; j < sizeof(intTypes) / sizeof(intTypes[0]); ++j) {
+      Str funcName = STR("#");
+      funcName += intAssignmentOps[i];
+
+      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
+        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+        hook = this->createBinaryFunction(manager, funcName.c_str(), intRefTypes[j], intTypes[j], intRefTypes[j]);
         obj = hook.get();
         return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
       }, 0);
@@ -826,6 +880,25 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
       manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
         if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
         hook = this->createUnaryFunction(manager, funcName.c_str(), types[j], types[j]);
+        obj = hook.get();
+        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+      }, 0);
+    }
+  }
+
+  // Add int-only unary val operators.
+  for (Int i = 0; i < sizeof(intUnaryValOps) / sizeof(intUnaryValOps[0]); ++i) {
+    Str path = STR("__");
+    path += intUnaryValOps[i];
+    identifier.setValue(path.c_str());
+
+    for (Int j = 0; j < sizeof(intTypes) / sizeof(intTypes[0]); ++j) {
+      Str funcName = STR("#");
+      funcName += intUnaryValOps[i];
+
+      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
+        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+        hook = this->createUnaryFunction(manager, funcName.c_str(), intTypes[j], intTypes[j]);
         obj = hook.get();
         return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
       }, 0);
@@ -859,17 +932,22 @@ void LibraryGateway::removeBuiltInFunctions(Core::Standard::RootManager *manager
   auto root = manager->getRootScope().get();
 
   Char const *operations[] = {
-    STR("__add"), STR("__sub"), STR("__mul"), STR("__div"),
-    STR("__equal"), STR("__notEqual"),
-    STR("__greaterThan"), STR("__greaterThanOrEqual"),
-    STR("__lessThan"), STR("__lessThanOrEqual"),
-    STR("__addAssign"), STR("__subAssign"), STR("__mulAssign"), STR("__divAssign"),
-    STR("__neg"), STR("__pos"),
-    STR("__earlyInc"), STR("__earlyDec"), STR("__lateInc"), STR("__lateDec")
+    STR("add"), STR("sub"), STR("mul"), STR("div"),
+    STR("rem"), STR("shr"), STR("shl"), STR("and"), STR("or"), STR("xor"),
+    STR("equal"), STR("notEqual"),
+    STR("greaterThan"), STR("greaterThanOrEqual"),
+    STR("lessThan"), STR("lessThanOrEqual"),
+    STR("addAssign"), STR("subAssign"), STR("mulAssign"), STR("divAssign"),
+    STR("remAssign"), STR("shrAssign"), STR("shlAssign"), STR("andAssign"), STR("orAssign"), STR("xorAssign"),
+    STR("neg"), STR("pos"),
+    STR("not"),
+    STR("earlyInc"), STR("earlyDec"), STR("lateInc"), STR("lateDec")
   };
 
   for (Int i = 0; i < sizeof(operations) / sizeof(operations[0]); ++i) {
-    identifier.setValue(operations[i]);
+    Str name = STR("__");
+    name += operations[i];
+    identifier.setValue(name.c_str());
     manager->getSeeker()->doRemove(&identifier, root);
   }
 }

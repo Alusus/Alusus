@@ -73,6 +73,13 @@ void TargetGenerator::initBindings()
   targetGeneration->generateSub = &TargetGenerator::generateSub;
   targetGeneration->generateMul = &TargetGenerator::generateMul;
   targetGeneration->generateDiv = &TargetGenerator::generateDiv;
+  targetGeneration->generateRem = &TargetGenerator::generateRem;
+  targetGeneration->generateShr = &TargetGenerator::generateShr;
+  targetGeneration->generateShl = &TargetGenerator::generateShl;
+  targetGeneration->generateAnd = &TargetGenerator::generateAnd;
+  targetGeneration->generateOr = &TargetGenerator::generateOr;
+  targetGeneration->generateXor = &TargetGenerator::generateXor;
+  targetGeneration->generateNot = &TargetGenerator::generateNot;
   targetGeneration->generateNeg = &TargetGenerator::generateNeg;
   targetGeneration->generateEarlyInc = &TargetGenerator::generateEarlyInc;
   targetGeneration->generateEarlyDec = &TargetGenerator::generateEarlyDec;
@@ -82,6 +89,12 @@ void TargetGenerator::initBindings()
   targetGeneration->generateSubAssign = &TargetGenerator::generateSubAssign;
   targetGeneration->generateMulAssign = &TargetGenerator::generateMulAssign;
   targetGeneration->generateDivAssign = &TargetGenerator::generateDivAssign;
+  targetGeneration->generateRemAssign = &TargetGenerator::generateRemAssign;
+  targetGeneration->generateShrAssign = &TargetGenerator::generateShrAssign;
+  targetGeneration->generateShlAssign = &TargetGenerator::generateShlAssign;
+  targetGeneration->generateAndAssign = &TargetGenerator::generateAndAssign;
+  targetGeneration->generateOrAssign = &TargetGenerator::generateOrAssign;
+  targetGeneration->generateXorAssign = &TargetGenerator::generateXorAssign;
 
   // Comparison Ops Generation Functions
   targetGeneration->generateEqual = &TargetGenerator::generateEqual;
@@ -821,6 +834,124 @@ Bool TargetGenerator::generateDiv(
 }
 
 
+Bool TargetGenerator::generateRem(
+  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(srcVal1, srcVal1Box, Value);
+  PREPARE_ARG(srcVal2, srcVal2Box, Value);
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateSRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+}
+
+
+Bool TargetGenerator::generateShr(
+  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(srcVal1, srcVal1Box, Value);
+  PREPARE_ARG(srcVal2, srcVal2Box, Value);
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateAShr(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+}
+
+
+Bool TargetGenerator::generateShl(
+  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(srcVal1, srcVal1Box, Value);
+  PREPARE_ARG(srcVal2, srcVal2Box, Value);
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateShl(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+}
+
+
+Bool TargetGenerator::generateAnd(
+  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(srcVal1, srcVal1Box, Value);
+  PREPARE_ARG(srcVal2, srcVal2Box, Value);
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateAnd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+}
+
+
+Bool TargetGenerator::generateOr(
+  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(srcVal1, srcVal1Box, Value);
+  PREPARE_ARG(srcVal2, srcVal2Box, Value);
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateOr(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+}
+
+
+Bool TargetGenerator::generateXor(
+  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(srcVal1, srcVal1Box, Value);
+  PREPARE_ARG(srcVal2, srcVal2Box, Value);
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateXor(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+}
+
+
+Bool TargetGenerator::generateNot(
+  TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  if (tgType->getCategory() == Type::Category::INT) {
+    auto llvmResult = block->getIrBuilder()->CreateNot(srcValBox->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+}
+
+
 Bool TargetGenerator::generateNeg(
   TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
 ) {
@@ -1048,6 +1179,126 @@ Bool TargetGenerator::generateDivAssign(
     llvmResult = block->getIrBuilder()->CreateSDiv(llvmVal, srcValBox->getLlvmValue());
   } else if (tgType->getCategory() == Type::Category::FLOAT) {
     llvmResult = block->getIrBuilder()->CreateFDiv(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = getSharedPtr(destVar);
+  return true;
+}
+
+
+Bool TargetGenerator::generateRemAssign(
+  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateSRem(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = getSharedPtr(destVar);
+  return true;
+}
+
+
+Bool TargetGenerator::generateShrAssign(
+  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateAShr(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = getSharedPtr(destVar);
+  return true;
+}
+
+
+Bool TargetGenerator::generateShlAssign(
+  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateShl(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = getSharedPtr(destVar);
+  return true;
+}
+
+
+Bool TargetGenerator::generateAndAssign(
+  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateAnd(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = getSharedPtr(destVar);
+  return true;
+}
+
+
+Bool TargetGenerator::generateOrAssign(
+  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateOr(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid operation."));
+  }
+  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
+  result = getSharedPtr(destVar);
+  return true;
+}
+
+
+Bool TargetGenerator::generateXorAssign(
+  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(destVar, destVarBox, Value);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->getCategory() == Type::Category::INT) {
+    llvmResult = block->getIrBuilder()->CreateXor(llvmVal, srcValBox->getLlvmValue());
   } else {
     throw EXCEPTION(GenericException, STR("Invalid operation."));
   }

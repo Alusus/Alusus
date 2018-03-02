@@ -267,6 +267,34 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
+  public: Bool generateRem(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateShr(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateShl(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateAnd(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateOr(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateXor(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  );
+
+  public: Bool generateNot(
+    TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+  );
+
   public: Bool generateNeg(
     TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
   );
@@ -300,6 +328,30 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
   );
 
   public: Bool generateDivAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  );
+
+  public: Bool generateRemAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  );
+
+  public: Bool generateShrAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  );
+
+  public: Bool generateShlAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  );
+
+  public: Bool generateAndAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  );
+
+  public: Bool generateOrAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  );
+
+  public: Bool generateXorAssign(
     TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
   );
 

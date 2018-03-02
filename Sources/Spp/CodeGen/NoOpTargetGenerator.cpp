@@ -73,6 +73,13 @@ void NoOpTargetGenerator::initBindings()
   targetGeneration->generateSub = &NoOpTargetGenerator::generateSub;
   targetGeneration->generateMul = &NoOpTargetGenerator::generateMul;
   targetGeneration->generateDiv = &NoOpTargetGenerator::generateDiv;
+  targetGeneration->generateRem = &NoOpTargetGenerator::generateRem;
+  targetGeneration->generateShr = &NoOpTargetGenerator::generateShr;
+  targetGeneration->generateShl = &NoOpTargetGenerator::generateShl;
+  targetGeneration->generateAnd = &NoOpTargetGenerator::generateAnd;
+  targetGeneration->generateOr = &NoOpTargetGenerator::generateOr;
+  targetGeneration->generateXor = &NoOpTargetGenerator::generateXor;
+  targetGeneration->generateNot = &NoOpTargetGenerator::generateNot;
   targetGeneration->generateNeg = &NoOpTargetGenerator::generateNeg;
   targetGeneration->generateEarlyInc = &NoOpTargetGenerator::generateEarlyInc;
   targetGeneration->generateEarlyDec = &NoOpTargetGenerator::generateEarlyDec;
@@ -82,6 +89,12 @@ void NoOpTargetGenerator::initBindings()
   targetGeneration->generateSubAssign = &NoOpTargetGenerator::generateSubAssign;
   targetGeneration->generateMulAssign = &NoOpTargetGenerator::generateMulAssign;
   targetGeneration->generateDivAssign = &NoOpTargetGenerator::generateDivAssign;
+  targetGeneration->generateRemAssign = &NoOpTargetGenerator::generateRemAssign;
+  targetGeneration->generateShrAssign = &NoOpTargetGenerator::generateShrAssign;
+  targetGeneration->generateShlAssign = &NoOpTargetGenerator::generateShlAssign;
+  targetGeneration->generateAndAssign = &NoOpTargetGenerator::generateAndAssign;
+  targetGeneration->generateOrAssign = &NoOpTargetGenerator::generateOrAssign;
+  targetGeneration->generateXorAssign = &NoOpTargetGenerator::generateXorAssign;
 
   // Comparison Ops Generation Functions
   targetGeneration->generateEqual = &NoOpTargetGenerator::generateEqual;

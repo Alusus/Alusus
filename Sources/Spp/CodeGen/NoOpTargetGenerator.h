@@ -251,6 +251,34 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBindings, pub
     TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   ) { return true; }
 
+  public: Bool generateRem(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateShr(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateShl(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateAnd(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateOr(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateXor(
+    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateNot(
+    TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+  ) { return true; }
+
   public: Bool generateNeg(
     TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
   ) { return true; }
@@ -284,6 +312,30 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBindings, pub
   ) { return true; }
 
   public: Bool generateDivAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateRemAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateShrAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateShlAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateAndAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateOrAssign(
+    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateXorAssign(
     TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
   ) { return true; }
 

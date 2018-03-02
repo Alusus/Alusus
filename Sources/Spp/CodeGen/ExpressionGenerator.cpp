@@ -426,6 +426,12 @@ Bool ExpressionGenerator::_generateOperator(
     else if (infixOp->getType() == STR("-")) funcName = STR("__sub");
     else if (infixOp->getType() == STR("*")) funcName = STR("__mul");
     else if (infixOp->getType() == STR("/")) funcName = STR("__div");
+    else if (infixOp->getType() == STR("%")) funcName = STR("__rem");
+    else if (infixOp->getType() == STR(">>")) funcName = STR("__shr");
+    else if (infixOp->getType() == STR("<<")) funcName = STR("__shl");
+    else if (infixOp->getType() == STR("&")) funcName = STR("__and");
+    else if (infixOp->getType() == STR("|")) funcName = STR("__or");
+    else if (infixOp->getType() == STR("$")) funcName = STR("__xor");
     else if (infixOp->getType() == STR("==")) funcName = STR("__equal");
     else if (infixOp->getType() == STR("!=")) funcName = STR("__notEqual");
     else if (infixOp->getType() == STR(">")) funcName = STR("__greaterThan");
@@ -436,6 +442,12 @@ Bool ExpressionGenerator::_generateOperator(
     else if (infixOp->getType() == STR("-=")) funcName = STR("__subAssign");
     else if (infixOp->getType() == STR("*=")) funcName = STR("__mulAssign");
     else if (infixOp->getType() == STR("/=")) funcName = STR("__divAssign");
+    else if (infixOp->getType() == STR("%=")) funcName = STR("__remAssign");
+    else if (infixOp->getType() == STR(">>=")) funcName = STR("__shrAssign");
+    else if (infixOp->getType() == STR("<<=")) funcName = STR("__shlAssign");
+    else if (infixOp->getType() == STR("&=")) funcName = STR("__andAssign");
+    else if (infixOp->getType() == STR("|=")) funcName = STR("__orAssign");
+    else if (infixOp->getType() == STR("$=")) funcName = STR("__xorAssign");
     else {
       throw EXCEPTION(GenericException, STR("Unexpected infix operator."));
     }
@@ -443,6 +455,7 @@ Bool ExpressionGenerator::_generateOperator(
     auto outfixOp = static_cast<Core::Data::Ast::PrefixOperator*>(astNode);
     if (outfixOp->getType() == STR("+")) funcName = STR("__pos");
     else if (outfixOp->getType() == STR("-")) funcName = STR("__neg");
+    else if (outfixOp->getType() == STR("!")) funcName = STR("__not");
     else if (outfixOp->getType() == STR("++")) funcName = STR("__earlyInc");
     else if (outfixOp->getType() == STR("--")) funcName = STR("__earlyDec");
     else {
@@ -1059,6 +1072,60 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
     )) return false;
     result.astType = astRetType;
     return true;
+  } else if (callee->getName() == STR("#rem")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #rem built-in function."));
+    }
+    if (!tg->generateRem(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#shr")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #shr built-in function."));
+    }
+    if (!tg->generateShr(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#shl")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #shl built-in function."));
+    }
+    if (!tg->generateShl(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#and")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #and built-in function."));
+    }
+    if (!tg->generateAnd(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#or")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #or built-in function."));
+    }
+    if (!tg->generateOr(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#xor")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #xor built-in function."));
+    }
+    if (!tg->generateXor(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
   } else if (callee->getName() == STR("#addAssign")) {
     if (paramTgValues->getElementCount() != 2) {
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #addAssign built-in function."));
@@ -1095,6 +1162,60 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
     )) return false;
     result.astType = astRetType;
     return true;
+  } else if (callee->getName() == STR("#remAssign")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #remAssign built-in function."));
+    }
+    if (!tg->generateRemAssign(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#shrAssign")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #shrAssign built-in function."));
+    }
+    if (!tg->generateShrAssign(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#shlAssign")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #shlAssign built-in function."));
+    }
+    if (!tg->generateShlAssign(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#andAssign")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #andAssign built-in function."));
+    }
+    if (!tg->generateAndAssign(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#orAssign")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #orAssign built-in function."));
+    }
+    if (!tg->generateOrAssign(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#xorAssign")) {
+    if (paramTgValues->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #xorAssign built-in function."));
+    }
+    if (!tg->generateXorAssign(
+      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
+    )) return false;
+    result.astType = astRetType;
+    return true;
 
   // Unary Operations
   } else if (callee->getName() == STR("#pos")) {
@@ -1110,6 +1231,13 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
       throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #neg built-in function."));
     }
     if (!tg->generateNeg(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
+    result.astType = astRetType;
+    return true;
+  } else if (callee->getName() == STR("#not")) {
+    if (paramTgValues->getElementCount() != 1) {
+      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #not built-in function."));
+    }
+    if (!tg->generateNot(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
     result.astType = astRetType;
     return true;
   } else if (callee->getName() == STR("#earlyInc")) {

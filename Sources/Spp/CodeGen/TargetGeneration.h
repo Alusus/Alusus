@@ -72,6 +72,13 @@ class TargetGeneration : public ObjTiInterface
       &this->generateSub,
       &this->generateMul,
       &this->generateDiv,
+      &this->generateRem,
+      &this->generateShr,
+      &this->generateShl,
+      &this->generateAnd,
+      &this->generateOr,
+      &this->generateXor,
+      &this->generateNot,
       &this->generateNeg,
       &this->generateEarlyInc,
       &this->generateEarlyDec,
@@ -81,6 +88,12 @@ class TargetGeneration : public ObjTiInterface
       &this->generateSubAssign,
       &this->generateMulAssign,
       &this->generateDivAssign,
+      &this->generateRemAssign,
+      &this->generateShrAssign,
+      &this->generateShlAssign,
+      &this->generateAndAssign,
+      &this->generateOrAssign,
+      &this->generateXorAssign,
       &this->generateEqual,
       &this->generateNotEqual,
       &this->generateGreaterThan,
@@ -381,6 +394,55 @@ class TargetGeneration : public ObjTiInterface
     )
   );
 
+  public: METHOD_BINDING_CACHE(generateRem,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateShr,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateShl,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateAnd,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateOr,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateXor,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* srcVal1 */, TiObject* /* srcVal2 */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateNot,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* srcVal */, TioSharedPtr& /* result */
+    )
+  );
+
   public: METHOD_BINDING_CACHE(generateNeg,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
@@ -438,6 +500,48 @@ class TargetGeneration : public ObjTiInterface
   );
 
   public: METHOD_BINDING_CACHE(generateDivAssign,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateRemAssign,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateShrAssign,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateShlAssign,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateAndAssign,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateOrAssign,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */,
+      TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateXorAssign,
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
