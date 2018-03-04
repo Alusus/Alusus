@@ -107,7 +107,7 @@ Bool Helper::_lookupCallee(
   Int matchCount = 0;
   SharedPtr<Core::Data::Notice> notice;
   Bool symbolFound = false;
-  helper->getSeeker()->doForeach(ref, astNode,
+  helper->getSeeker()->foreach(ref, astNode,
     [=, &callee, &calleeType, &matchStatus, &matchCount, &notice, &symbolFound]
       (TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
       {
@@ -208,7 +208,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     if (refNode == 0) {
       throw EXCEPTION(GenericException, STR("Invalid type reference."));
     }
-    helper->getSeeker()->doForeach(ref, refNode->getOwner(),
+    helper->getSeeker()->foreach(ref, refNode->getOwner(),
       [=, &type, &notice](TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
       {
         if (ntc != 0) {
@@ -223,7 +223,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
         // TODO: Support template defaults.
         // TODO: Handle aliases.
         return Core::Data::Seeker::Verb::MOVE;
-      }
+      }, 0
     );
   }
   if (type == 0) {

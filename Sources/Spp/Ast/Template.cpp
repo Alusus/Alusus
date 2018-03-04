@@ -228,7 +228,7 @@ TiObject* Template::traceObject(TiObject *ref, VarType varType, Helper *helper)
   } else if (varType == VarType::FUNCTION && ref->isDerivedFrom<Spp::Ast::Function>()) {
     return ref;
   } else {
-    helper->getSeeker()->doForeach(ref, refNode->getOwner(),
+    helper->getSeeker()->foreach(ref, refNode->getOwner(),
       [=, &result](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
       {
         if (varType == VarType::INTEGER && obj->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
@@ -246,7 +246,7 @@ TiObject* Template::traceObject(TiObject *ref, VarType varType, Helper *helper)
         }
         // TODO: Recurse if the object is an Alias.
         return Core::Data::Seeker::Verb::MOVE;
-      }
+      }, 0
     );
   }
   return result;

@@ -80,7 +80,7 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
     }
 
     // Bool found = false;
-    // this->rootManager->getSeeker()->doForeach(data, state->getDataStack(),
+    // this->rootManager->getSeeker()->foreach(data, state->getDataStack(),
     //   [=, &found](TiObject *obj)->SeekVerb
     //   {
     //     if (obj != 0) {

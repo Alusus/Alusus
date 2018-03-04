@@ -62,16 +62,16 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
 //==============================================================================
 // Seek Functions
 
-void SeekerExtension::_foreach(
+Core::Data::Seeker::Verb SeekerExtension::_foreach(
   TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
   Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   if (ref->isA<Data::Ast::ParamPass>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
-    seekerExtension->foreachByParamPass(static_cast<Data::Ast::ParamPass const*>(ref), target, cb, flags);
+    return seekerExtension->foreachByParamPass(static_cast<Data::Ast::ParamPass const*>(ref), target, cb, flags);
   } else {
     PREPARE_SELF(seeker, Core::Data::Seeker);
-    seeker->foreach.useCallee(base)(ref, target, cb, flags);
+    return seeker->foreach.useCallee(base)(ref, target, cb, flags);
   }
 }
 
@@ -102,14 +102,14 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_function(
 }
 
 
-void SeekerExtension::_foreachByParamPass(
+Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass(
   TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
   Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Core::Data::Seeker);
   PREPARE_SELF(seekerExtension, SeekerExtension);
   auto operand = paramPass->getOperand().get();
-  seeker->doForeach(operand, data,
+  return seeker->foreach(operand, data,
     [=](TiObject *newData, Core::Data::Notice*)->Core::Data::Seeker::Verb
     {
       return seekerExtension->foreachByParamPass_routing(paramPass, newData, cb, flags);

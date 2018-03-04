@@ -1674,7 +1674,9 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
        {TermElement::DATA, REF_PARSER->parseQualifier(STR("args:cmds"))},
        {TermElement::TERM, ReferenceTerm::create(STR("stack:cmd"))}
      })},
-    {SymbolDefElement::VARS, SharedMap::create(false, {{ STR("cmds"), SharedList::create({}) }} )},
+    {SymbolDefElement::VARS, SharedMap::create(false, {{ STR("cmds"), SharedList::create({
+      REF_PARSER->parseQualifier(STR("module:Alias")),
+    }) }} )},
     {SymbolDefElement::HANDLER, this->parsingHandler}
   }).get());
 
@@ -1730,6 +1732,40 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
      })},
     {SymbolDefElement::VARS, SharedMap::create(false, {{ STR("fltr"), 0 }} )},
     {SymbolDefElement::HANDLER, this->parsingHandler}
+  }).get());
+
+  //// Alias = "alias" + Subject
+  this->repository.set(STR("root:Subject.Alias"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    {
+      SymbolDefElement::VARS, SharedMap::create(false, {
+        { STR("kwd"), SharedMap::create(false, { { STR("alias"), 0 }, { STR("لقب"), 0 } }) },
+        {
+          STR("prms"), SharedList::create({
+            SharedMap::create(false, {
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
+            })
+          })
+        }
+      })
+    },
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CustomParsingHandler>(
+      [](Parser *parser, ParserState *state)
+      {
+        auto currentList = state->getData().ti_cast_get<Data::Container>();
+        auto metadata = ti_cast<Ast::Metadata>(currentList);
+        auto alias = Ast::Alias::create({
+          { "prodId", metadata->getProdId() },
+          { "sourceLocation", metadata->findSourceLocation() }
+        });
+        alias->setReference(getSharedPtr(currentList->get(1)));
+        state->setData(alias);
+      }
+    )}
   }).get());
 
 

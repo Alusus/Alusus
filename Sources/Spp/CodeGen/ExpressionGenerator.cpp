@@ -154,7 +154,7 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
 
   Bool retVal = false;
   Bool symbolFound = false;
-  expGenerator->astHelper->getSeeker()->doForeach(astNode, scope,
+  expGenerator->astHelper->getSeeker()->foreach(astNode, scope,
     [=, &retVal, &symbolFound, &result]
     (TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
     {

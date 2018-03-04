@@ -84,6 +84,7 @@ Bool Generator::_generateModules(TiObject *self, Core::Data::Ast::Scope *root, T
 Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, TargetGeneration *tg)
 {
   PREPARE_SELF(generation, Generation);
+  PREPARE_SELF(generator, Generator);
   Bool result = true;
   for (Int i = 0; i < astModule->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(astModule->get(i));
@@ -95,7 +96,7 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Tar
         if (!generation->generateFunction(static_cast<Spp::Ast::Function*>(obj), tg)) result = false;
       } else if (obj->isDerivedFrom<Spp::Ast::UserType>()) {
         if (!generation->generateUserTypeBody(static_cast<Spp::Ast::UserType*>(obj), tg)) result = false;
-      } else {
+      } else if (generator->getAstHelper()->isVarDefinition(obj)) {
         // Generate global variable.
         if (!generation->generateVarDef(def, tg)) {
           result = false;

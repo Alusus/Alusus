@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Data::Ast
  * namespace.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -104,6 +104,7 @@ SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj);
 #include "Bracket.h"
 #include "Definition.h"
 #include "GenericCommand.h"
+#include "Alias.h"
 
 namespace Core { namespace Data { namespace Ast
 {

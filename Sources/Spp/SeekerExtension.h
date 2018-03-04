@@ -94,7 +94,7 @@ class SeekerExtension : public ObjTiInterface
   /// @name Seek Functions
   /// @{
 
-  private: static void _foreach(
+  private: static Core::Data::Seeker::Verb _foreach(
     TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
@@ -115,9 +115,9 @@ class SeekerExtension : public ObjTiInterface
   );
 
   public: METHOD_BINDING_CACHE(foreachByParamPass,
-    void, (Data::Ast::ParamPass const*, TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
+    Core::Data::Seeker::Verb, (Data::Ast::ParamPass const*, TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
   );
-  private: static void _foreachByParamPass(
+  private: static Core::Data::Seeker::Verb _foreachByParamPass(
     TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );

@@ -78,21 +78,6 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @name Helper Functions
   /// @{
 
-  public: void doSet(TiObject const *ref, TiObject *target, SetCallback const &cb, Word flags = 0)
-  {
-    this->set(ref, target, cb, flags);
-  }
-
-  public: void doRemove(TiObject const *ref, TiObject *target, RemoveCallback const &cb, Word flags = 0)
-  {
-    this->remove(ref, target, cb, flags);
-  }
-
-  public: void doForeach(TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags = 0)
-  {
-    this->foreach(ref, target, cb, flags);
-  }
-
   public: Bool trySet(TiObject const *ref, TiObject *target, TiObject *val, Word flags = 0);
 
   public: void doSet(TiObject const *ref, TiObject *target, TiObject *val, Word flags = 0)
@@ -144,17 +129,17 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @name Main Seek Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(set, void, (TiObject const*, TiObject*, SetCallback const&, Word));
-  public: METHOD_BINDING_CACHE(remove, void, (TiObject const*, TiObject*, RemoveCallback const&, Word));
-  public: METHOD_BINDING_CACHE(foreach, void, (TiObject const*, TiObject*, ForeachCallback const&, Word));
+  public: METHOD_BINDING_CACHE(set, Verb, (TiObject const*, TiObject*, SetCallback const&, Word));
+  public: METHOD_BINDING_CACHE(remove, Verb, (TiObject const*, TiObject*, RemoveCallback const&, Word));
+  public: METHOD_BINDING_CACHE(foreach, Verb, (TiObject const*, TiObject*, ForeachCallback const&, Word));
 
-  private: static void _set(
+  private: static Verb _set(
     TiObject *self, TiObject const *ref, TiObject *target, SetCallback const &cb, Word flags
   );
-  private: static void _remove(
+  private: static Verb _remove(
     TiObject *self, TiObject const *ref, TiObject *target, RemoveCallback const &cb, Word flags
   );
-  private: static void _foreach(
+  private: static Verb _foreach(
     TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags
   );
 
@@ -164,7 +149,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @{
 
   public: METHOD_BINDING_CACHE(setByIdentifier,
-    void, (Data::Ast::Identifier const*, TiObject*, SetCallback const&, Word)
+    Verb, (Data::Ast::Identifier const*, TiObject*, SetCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(setByIdentifier_level,
     Verb, (Data::Ast::Identifier const*, TiObject*, SetCallback const&, Word)
@@ -173,7 +158,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     Verb, (Data::Ast::Identifier const*, Ast::Scope*, SetCallback const&, Word)
   );
 
-  private: static void _setByIdentifier(
+  private: static Verb _setByIdentifier(
     TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb, Word flags
   );
   private: static Verb _setByIdentifier_level(
@@ -184,7 +169,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   );
 
   public: METHOD_BINDING_CACHE(removeByIdentifier,
-    void, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&, Word)
+    Verb, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(removeByIdentifier_level,
     Verb, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&, Word)
@@ -193,7 +178,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     Verb, (Data::Ast::Identifier const*, Ast::Scope*, RemoveCallback const&, Word)
   );
 
-  private: static void _removeByIdentifier(
+  private: static Verb _removeByIdentifier(
     TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb, Word flags
   );
   private: static Verb _removeByIdentifier_level(
@@ -204,7 +189,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   );
 
   public: METHOD_BINDING_CACHE(foreachByIdentifier,
-    void, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&, Word)
+    Verb, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(foreachByIdentifier_level,
     Verb, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&, Word)
@@ -213,7 +198,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     Verb, (Data::Ast::Identifier const*, Ast::Scope*, ForeachCallback const&, Word)
   );
 
-  private: static void _foreachByIdentifier(
+  private: static Verb _foreachByIdentifier(
     TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb, Word flags
   );
   private: static Verb _foreachByIdentifier_level(
@@ -229,7 +214,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   /// @{
 
   public: METHOD_BINDING_CACHE(setByLinkOperator,
-    void, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&, Word)
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(setByLinkOperator_routing,
     Verb, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&, Word)
@@ -241,7 +226,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     Verb, (Data::Ast::Identifier const*, Data::MapContainer*, SetCallback const&, Word)
   );
 
-  private: static void _setByLinkOperator(
+  private: static Verb _setByLinkOperator(
     TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
   );
   private: static Verb _setByLinkOperator_routing(
@@ -255,7 +240,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   );
 
   public: METHOD_BINDING_CACHE(removeByLinkOperator,
-    void, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&, Word)
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(removeByLinkOperator_routing,
     Verb, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&, Word)
@@ -267,7 +252,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     Verb, (Data::Ast::Identifier const*, Data::MapContainer*, RemoveCallback const&, Word)
   );
 
-  private: static void _removeByLinkOperator(
+  private: static Verb _removeByLinkOperator(
     TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
   );
   private: static Verb _removeByLinkOperator_routing(
@@ -283,7 +268,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   );
 
   public: METHOD_BINDING_CACHE(foreachByLinkOperator,
-    void, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&, Word)
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(foreachByLinkOperator_routing,
     Verb, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&, Word)
@@ -295,7 +280,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     Verb, (Data::Ast::Identifier const*, Data::MapContainer*, ForeachCallback const&, Word)
   );
 
-  private: static void _foreachByLinkOperator(
+  private: static Verb _foreachByLinkOperator(
     TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
   );
   private: static Verb _foreachByLinkOperator_routing(

@@ -2,7 +2,7 @@
  * @file Core/Standard/DumpParsingHandler.cpp
  * Contains the implementation of Core::Standard::DumpParsingHandler.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -31,7 +31,7 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
 
   try {
     Bool found = false;
-    this->rootManager->getSeeker()->doForeach(data, state->getDataStack(),
+    this->rootManager->getSeeker()->foreach(data, state->getDataStack(),
       [=, &found](TiObject *obj, Notice*)->SeekVerb
       {
         if (obj != 0) {
@@ -41,7 +41,7 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
           found = true;
         }
         return SeekVerb::MOVE;
-      }
+      }, 0
     );
     if (!found) {
       state->addNotice(std::make_shared<InvalidDumpArgNotice>(metadata->findSourceLocation()));
