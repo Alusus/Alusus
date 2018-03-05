@@ -119,6 +119,15 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
     TiObject *self, Spp::Ast::WhileStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
   );
 
+  public: METHOD_BINDING_CACHE(generateForStatement,
+    Bool, (
+      Spp::Ast::ForStatement*, Generation*, TargetGeneration*, TiObject*
+    )
+  );
+  private: static Bool _generateForStatement(
+    TiObject *self, Spp::Ast::ForStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+  );
+
   /// @}
 
   /// @name Helper Functions

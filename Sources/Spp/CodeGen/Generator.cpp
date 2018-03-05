@@ -375,6 +375,9 @@ Bool Generator::_generateStatement(
   } else if (astNode->isDerivedFrom<Spp::Ast::WhileStatement>()) {
     auto whileStatement = static_cast<Spp::Ast::WhileStatement*>(astNode);
     return generator->commandGenerator->generateWhileStatement(whileStatement, generation, tg, tgContext);
+  } else if (astNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
+    auto forStatement = static_cast<Spp::Ast::ForStatement*>(astNode);
+    return generator->commandGenerator->generateForStatement(forStatement, generation, tg, tgContext);
   } else if (astNode->isDerivedFrom<Spp::Ast::ReturnStatement>()) {
     auto returnStatement = static_cast<Spp::Ast::ReturnStatement*>(astNode);
     return generator->commandGenerator->generateReturn(returnStatement, generation, tg, tgContext);

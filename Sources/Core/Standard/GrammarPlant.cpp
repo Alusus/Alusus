@@ -1324,14 +1324,14 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
       {TermElement::TERM, SharedList::create({
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
-           {TermElement::FLAGS, Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+           {TermElement::FLAGS, Integer::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable1"))},
            {TermElement::TERM, ReferenceTerm::create(STR("module:PrefixOp"))}
          }),
          ReferenceTerm::create(STR("module:FunctionalExp")),
          MultiplyTerm::create({
            {TermElement::PRIORITY, std::make_shared<Integer>(1)},
-           {TermElement::FLAGS, Integer::create(ParsingFlags::PASS_ITEMS_UP)},
+           {TermElement::FLAGS, Integer::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
            {TermElement::MAX, REF_PARSER->parseQualifier(STR("args:enable2"))},
            {TermElement::TERM, ReferenceTerm::create(STR("module:PostfixOp"))}
          })

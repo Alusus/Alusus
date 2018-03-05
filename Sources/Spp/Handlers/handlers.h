@@ -53,6 +53,9 @@ DEFINE_NOTICE(InvalidWhileStatementNotice, "Spp.Handlers", "Spp", "alusus.net", 
 DEFINE_NOTICE(InvalidIfStatementNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1009", 1,
   STR("Invalid if statement.")
 );
+DEFINE_NOTICE(InvalidForStatementNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1010", 1,
+  STR("Invalid for statement.")
+);
 
 } } // namespace
 
@@ -63,6 +66,7 @@ DEFINE_NOTICE(InvalidIfStatementNotice, "Spp.Handlers", "Spp", "alusus.net", "SP
 #include "FunctionParsingHandler.h"
 #include "IfParsingHandler.h"
 #include "WhileParsingHandler.h"
+#include "ForParsingHandler.h"
 #include "CodeGenParsingHandler.h"
 #include "TildeOpParsingHandler.h"
 

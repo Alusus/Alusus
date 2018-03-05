@@ -2,7 +2,7 @@
  * @file Spp/Ast/ForStatement.h
  * Contains the header of class Spp::Ast::ForStatement.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -38,7 +38,7 @@ class ForStatement : public Core::Data::Node,
   private: TioSharedPtr initializer;
   private: TioSharedPtr condition;
   private: TioSharedPtr updater;
-  private: SharedPtr<Block> body;
+  private: TioSharedPtr body;
 
 
   //============================================================================
@@ -55,7 +55,7 @@ class ForStatement : public Core::Data::Node,
                           (TiObject, initializer),
                           (TiObject, condition),
                           (TiObject, updater),
-                          (Block, body));
+                          (TiObject, body));
 
   IMPLEMENT_AST_CLONABLE(ForStatement);
 
@@ -113,12 +113,12 @@ class ForStatement : public Core::Data::Node,
     return this->updater;
   }
 
-  public: void setBody(SharedPtr<Block> const &b)
+  public: void setBody(TioSharedPtr const &b)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
   }
 
-  public: SharedPtr<Block> const& getBody() const
+  public: TioSharedPtr const& getBody() const
   {
     return this->body;
   }

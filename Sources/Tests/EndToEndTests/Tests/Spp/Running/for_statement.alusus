@@ -1,0 +1,21 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+
+  def start: function () => Void
+  {
+    def i: Int[32];
+    def j: Int[32];
+
+    for i = 0, i < 10, ++i print("%d\n", i);
+
+    for (i = 0, j = 1), i < 5, (++i, j *= 2) {
+      print("%d: ", i);
+      print("%d\n", j);
+    };
+  };
+};
+
+run Main.start;

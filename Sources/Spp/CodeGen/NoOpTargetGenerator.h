@@ -161,6 +161,15 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBindings, pub
     TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *bodyContext
   ) { return true; }
 
+  public: Bool prepareForStatement(
+    TiObject *context, TioSharedPtr &conditionContext, TioSharedPtr &updateContext, TioSharedPtr &bodyContext
+  ) { return true; }
+
+  public: Bool finishForStatement(
+    TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *updateContext,
+    TiObject *bodyContext
+  ) { return true; }
+
   /// @}
 
   /// @name Casting Generation Functions

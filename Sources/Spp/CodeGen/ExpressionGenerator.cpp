@@ -22,6 +22,7 @@ void ExpressionGenerator::initBindingCaches()
 {
   Core::Basic::initBindingCaches(this, {
     &this->generate,
+    &this->generateList,
     &this->generateIdentifier,
     &this->generateScopeMemberReference,
     &this->generateLinkOperator,
@@ -50,6 +51,7 @@ void ExpressionGenerator::initBindingCaches()
 void ExpressionGenerator::initBindings()
 {
   this->generate = &ExpressionGenerator::_generate;
+  this->generateList = &ExpressionGenerator::_generateList;
   this->generateIdentifier = &ExpressionGenerator::_generateIdentifier;
   this->generateScopeMemberReference = &ExpressionGenerator::_generateScopeMemberReference;
   this->generateLinkOperator = &ExpressionGenerator::_generateLinkOperator;
@@ -81,7 +83,10 @@ Bool ExpressionGenerator::_generate(
   TiObject *self, TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
-  if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
+  if (astNode->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
+    auto expList = static_cast<Core::Data::Ast::ExpressionList*>(astNode);
+    return expGenerator->generateList(expList, g, tg, tgContext, result);
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
     return expGenerator->generateIdentifier(identifier, g, tg, tgContext, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
@@ -133,6 +138,26 @@ Bool ExpressionGenerator::_generate(
     std::make_shared<UnsupportedOperationNotice>(Core::Data::Ast::findSourceLocation(astNode))
   );
   return false;
+}
+
+
+Bool ExpressionGenerator::_generateList(
+  TiObject *self, Core::Data::Ast::ExpressionList *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  GenResult innerResult;
+  for (Int i = 0; i < astNode->getCount(); ++i) {
+    auto innerNode = astNode->get(i);
+    if (innerNode == 0) {
+      expGenerator->noticeStore->add(std::make_shared<InvalidExpressionListNotice>(astNode->findSourceLocation()));
+      return false;
+    }
+    if (!expGenerator->generate(innerNode, g, tg, tgContext, innerResult)) return false;
+  }
+  result = innerResult;
+  return true;
 }
 
 

@@ -182,10 +182,39 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
         }
       })
     },
-    {SymbolDefElement::HANDLER,
-      std::make_shared<Handlers::WhileParsingHandler>()}
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::WhileParsingHandler>()}
   }).get());
   this->addReferenceToCommandList(leadingCmdList, STR("module:While"));
+
+  //// for = "for" + Exp + Statement
+  grammarRepository->set(STR("root:Main.For"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    {
+      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("for"), 0 }, { STR("لكل"), 0 } }) },
+        {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
+            }),
+            Core::Data::SharedMap::create(false, {
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockMain.Statement"))},
+              {STR("min"), std::make_shared<Integer>(1)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
+            })
+          })
+        }
+      })
+    },
+    {SymbolDefElement::HANDLER, std::make_shared<Handlers::ForParsingHandler>()}
+  }).get());
+  this->addReferenceToCommandList(leadingCmdList, STR("module:For"));
 
   //// return = "return" + Expression
   grammarRepository->set(STR("root:Main.Return"), SymbolDefinition::create({
@@ -527,6 +556,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Run"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:If"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:While"));
+  this->removeReferenceFromCommandList(leadingCmdList, STR("module:For"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Return"));
 
   // Remove command from inner commands list.
@@ -539,6 +569,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   grammarRepository->remove(STR("root:Main.Run"));
   grammarRepository->remove(STR("root:Main.If"));
   grammarRepository->remove(STR("root:Main.While"));
+  grammarRepository->remove(STR("root:Main.For"));
   grammarRepository->remove(STR("root:Main.Return"));
   grammarRepository->remove(STR("root:Main.ModuleStatementList"));
   grammarRepository->remove(STR("root:Main.BlockStatementList"));

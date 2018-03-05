@@ -128,6 +128,9 @@ DEFINE_NOTICE(NotImplicitlyCastableNotice, "Spp.CodeGen", "Spp", "alusus.net", "
 DEFINE_NOTICE(InvalidSizeOperandNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1310", 1,
   STR("Invalid operand for ~size operator.")
 );
+DEFINE_NOTICE(InvalidExpressionListNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1311", 1,
+  STR("Invalid expression list.")
+);
 
 } } // namespace
 

@@ -54,6 +54,8 @@ class TargetGeneration : public ObjTiInterface
       &this->finishIfStatement,
       &this->prepareWhileStatement,
       &this->finishWhileStatement,
+      &this->prepareForStatement,
+      &this->finishForStatement,
       &this->generateCastIntToInt,
       &this->generateCastIntToFloat,
       &this->generateCastFloatToInt,
@@ -250,6 +252,24 @@ class TargetGeneration : public ObjTiInterface
       TiObject* /* context */,
       TiObject* /* conditionContext */,
       TiObject* /* conditionVal */,
+      TiObject* /* bodyContext */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(prepareForStatement,
+    Bool, (
+      TiObject* /* context */,
+      TioSharedPtr& /* conditionContext */,
+      TioSharedPtr& /* updateContext */,
+      TioSharedPtr& /* bodyContext */
+    )
+  );
+  public: METHOD_BINDING_CACHE(finishForStatement,
+    Bool, (
+      TiObject* /* context */,
+      TiObject* /* conditionContext */,
+      TiObject* /* conditionVal */,
+      TiObject* /* updateContext */,
       TiObject* /* bodyContext */
     )
   );

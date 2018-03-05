@@ -177,6 +177,15 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
     TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *bodyContext
   );
 
+  public: Bool prepareForStatement(
+    TiObject *context, TioSharedPtr &conditionContext, TioSharedPtr &updateContext, TioSharedPtr &bodyContext
+  );
+
+  public: Bool finishForStatement(
+    TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *updateContext,
+    TiObject *bodyContext
+  );
+
   /// @}
 
   /// @name Casting Generation Functions

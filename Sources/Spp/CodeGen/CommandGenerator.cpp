@@ -23,7 +23,8 @@ void CommandGenerator::initBindingCaches()
   Core::Basic::initBindingCaches(this, {
     &this->generateReturn,
     &this->generateIfStatement,
-    &this->generateWhileStatement
+    &this->generateWhileStatement,
+    &this->generateForStatement
   });
 }
 
@@ -33,6 +34,7 @@ void CommandGenerator::initBindings()
   this->generateReturn = &CommandGenerator::_generateReturn;
   this->generateIfStatement = &CommandGenerator::_generateIfStatement;
   this->generateWhileStatement = &CommandGenerator::_generateWhileStatement;
+  this->generateForStatement = &CommandGenerator::_generateForStatement;
 }
 
 
@@ -189,6 +191,56 @@ Bool CommandGenerator::_generateWhileStatement(
 }
 
 
+Bool CommandGenerator::_generateForStatement(
+  TiObject *self, Spp::Ast::ForStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+) {
+  PREPARE_SELF(cmdGenerator, CommandGenerator);
+
+  if (astNode->getInitializer().get() != 0) {
+    if (!g->generateStatement(astNode->getInitializer().get(), tg, tgContext)) return false;
+  }
+
+  TioSharedPtr conditionTgContext;
+  TioSharedPtr updateTgContext;
+  TioSharedPtr bodyTgContext;
+  if (!tg->prepareForStatement(tgContext, conditionTgContext, updateTgContext, bodyTgContext)) return false;
+
+  // Generate the condition.
+  GenResult conditionResult;
+  if (!g->generateExpression(
+    astNode->getCondition().get(), tg, conditionTgContext.get(), conditionResult
+  )) return false;
+  TioSharedPtr castResult;
+  if (!cmdGenerator->castCondition(
+    g, tg, conditionTgContext.get(), astNode->getCondition().get(), conditionResult.astType,
+    conditionResult.targetData.get(), castResult
+  )) return false;
+
+  // Generate the updater.
+  GenResult updateResult;
+  if (!g->generateExpression(
+    astNode->getUpdater().get(), tg, updateTgContext.get(), updateResult
+  )) return false;
+
+  // Generate body.
+  auto body = astNode->getBody().get();
+  if (body->isDerivedFrom<Ast::Block>()) {
+    setCodeGenData(body, bodyTgContext);
+    if (!g->generateStatements(static_cast<Ast::Block*>(body), tg, bodyTgContext.get())) {
+      return false;
+    }
+  } else {
+    if (!g->generateStatement(body, tg, bodyTgContext.get())) {
+      return false;
+    }
+  }
+
+  return tg->finishForStatement(
+    tgContext, conditionTgContext.get(), castResult.get(), updateTgContext.get(), bodyTgContext.get()
+  );
+}
+
+
 //==============================================================================
 // Helper Functions
 
@@ -196,6 +248,13 @@ Bool CommandGenerator::castCondition(
   Generation *g, TargetGeneration *tg, TiObject *tgContext, Core::Basic::TiObject *astNode, Spp::Ast::Type *astType,
   TiObject *tgValue, TioSharedPtr &result
 ) {
+  auto boolType = this->astHelper->getBoolType();
+  if (!astType->isImplicitlyCastableTo(boolType, this->astHelper, tg->getExecutionContext())) {
+    this->noticeStore->add(
+      std::make_shared<InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
+    );
+    return false;
+  }
   if (!g->generateCast(tg, tgContext, astType, this->astHelper->getBoolType(), tgValue, result)) {
     this->noticeStore->add(
       std::make_shared<InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))

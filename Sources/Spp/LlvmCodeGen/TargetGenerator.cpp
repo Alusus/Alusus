@@ -49,6 +49,8 @@ void TargetGenerator::initBindings()
   targetGeneration->finishIfStatement = &TargetGenerator::finishIfStatement;
   targetGeneration->prepareWhileStatement = &TargetGenerator::prepareWhileStatement;
   targetGeneration->finishWhileStatement = &TargetGenerator::finishWhileStatement;
+  targetGeneration->prepareForStatement = &TargetGenerator::prepareForStatement;
+  targetGeneration->finishForStatement = &TargetGenerator::finishForStatement;
 
   // Casting Generation Functions
   targetGeneration->generateCastIntToInt = &TargetGenerator::generateCastIntToInt;
@@ -502,6 +504,76 @@ Bool TargetGenerator::finishWhileStatement(
 
   // Jump from body to condition block.
   bodyBlock->getIrBuilder()->CreateBr(condBlock->getLlvmBlock());
+
+  // Create exit block.
+  auto exitLlvmBlock = llvm::BasicBlock::Create(
+    llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction()
+  );
+
+  // Create condition branch.
+  condBlock->getIrBuilder()->CreateCondBr(valWrapper->getLlvmValue(), bodyBlock->getLlvmBlock(), exitLlvmBlock);
+
+  // Set insert point.
+  block->getIrBuilder()->SetInsertPoint(exitLlvmBlock);
+  block->setLlvmBlock(exitLlvmBlock);
+
+  return true;
+}
+
+
+Bool TargetGenerator::prepareForStatement(
+  TiObject *context, TioSharedPtr &conditionContext, TioSharedPtr &updateContext, TioSharedPtr &bodyContext
+) {
+  PREPARE_ARG(context, block, Block);
+
+  // Prepare condition context.
+  auto condBlock = std::make_shared<Block>();
+  condBlock->setLlvmBlock(
+    llvm::BasicBlock::Create(llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction())
+  );
+  condBlock->setIrBuilder(new llvm::IRBuilder<>(condBlock->getLlvmBlock()));
+  condBlock->setLlvmFunction(block->getLlvmFunction());
+  conditionContext = condBlock;
+
+  // Prepare increment context.
+  auto updateBlock = std::make_shared<Block>();
+  updateBlock->setLlvmBlock(
+    llvm::BasicBlock::Create(llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction())
+  );
+  updateBlock->setIrBuilder(new llvm::IRBuilder<>(updateBlock->getLlvmBlock()));
+  updateBlock->setLlvmFunction(block->getLlvmFunction());
+  updateContext = updateBlock;
+
+  // Prepare body context.
+  auto bodyBlock = std::make_shared<Block>();
+  bodyBlock->setLlvmBlock(
+    llvm::BasicBlock::Create(llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction())
+  );
+  bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
+  bodyBlock->setLlvmFunction(block->getLlvmFunction());
+  bodyContext = bodyBlock;
+
+  return true;
+}
+
+
+Bool TargetGenerator::finishForStatement(
+  TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *updateContext, TiObject *bodyContext
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(conditionContext, condBlock, Block);
+  PREPARE_ARG(updateContext, updateBlock, Block);
+  PREPARE_ARG(bodyContext, bodyBlock, Block);
+  PREPARE_ARG(conditionVal, valWrapper, Value);
+
+  // Jump to condition block.
+  block->getIrBuilder()->CreateBr(condBlock->getLlvmBlock());
+
+  // Jump from body to update block.
+  bodyBlock->getIrBuilder()->CreateBr(updateBlock->getLlvmBlock());
+
+  // Jump from update to condition block.
+  updateBlock->getIrBuilder()->CreateBr(condBlock->getLlvmBlock());
 
   // Create exit block.
   auto exitLlvmBlock = llvm::BasicBlock::Create(
