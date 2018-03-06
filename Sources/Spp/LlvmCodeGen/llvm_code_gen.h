@@ -36,6 +36,8 @@ namespace Spp { namespace LlvmCodeGen
 #include "Block.h"
 #include "Variable.h"
 #include "Value.h"
+#include "IfContext.h"
+#include "LoopContext.h"
 
 // The Generator
 #include "TargetGenerator.h"

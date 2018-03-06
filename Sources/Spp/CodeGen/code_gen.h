@@ -151,6 +151,10 @@ class Generator;
 
 } }
 
+// Data
+#include "IfTgContext.h"
+#include "LoopTgContext.h"
+
 // Interfaces
 #include "TargetGeneration.h"
 #include "Generation.h"

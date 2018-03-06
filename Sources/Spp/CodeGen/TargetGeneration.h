@@ -223,55 +223,24 @@ class TargetGeneration : public ObjTiInterface
   /// @{
 
   public: METHOD_BINDING_CACHE(prepareIfStatement,
-    Bool, (
-      TiObject* /* context */,
-      TioSharedPtr& /* conditionContext */,
-      TioSharedPtr& /* bodyContext */,
-      TioSharedPtr* /* elseContext */
-    )
+    Bool, (TiObject* /* context */, Bool /* withElse */, SharedPtr<CodeGen::IfTgContext>& /* ifTgContext */)
   );
   public: METHOD_BINDING_CACHE(finishIfStatement,
-    Bool, (
-      TiObject* /* context */,
-      TiObject* /* conditionContext */,
-      TiObject* /* conditionVal */,
-      TiObject* /* bodyContext */,
-      TiObject* /* elseContext */
-    )
+    Bool, (TiObject* /* context */, CodeGen::IfTgContext* /* ifTgContext */, TiObject* /* conditionVal */)
   );
 
   public: METHOD_BINDING_CACHE(prepareWhileStatement,
-    Bool, (
-      TiObject* /* context */,
-      TioSharedPtr& /* conditionContext */,
-      TioSharedPtr& /* bodyContext */
-    )
+    Bool, (TiObject* /* context */, SharedPtr<CodeGen::LoopTgContext>& /* loopTgContext */)
   );
   public: METHOD_BINDING_CACHE(finishWhileStatement,
-    Bool, (
-      TiObject* /* context */,
-      TiObject* /* conditionContext */,
-      TiObject* /* conditionVal */,
-      TiObject* /* bodyContext */
-    )
+    Bool, (TiObject* /* context */, CodeGen::LoopTgContext* /* loopTgContext */, TiObject* /* conditionVal */)
   );
 
   public: METHOD_BINDING_CACHE(prepareForStatement,
-    Bool, (
-      TiObject* /* context */,
-      TioSharedPtr& /* conditionContext */,
-      TioSharedPtr& /* updateContext */,
-      TioSharedPtr& /* bodyContext */
-    )
+    Bool, (TiObject* /* context */, SharedPtr<CodeGen::LoopTgContext>& /* loopTgContext */)
   );
   public: METHOD_BINDING_CACHE(finishForStatement,
-    Bool, (
-      TiObject* /* context */,
-      TiObject* /* conditionContext */,
-      TiObject* /* conditionVal */,
-      TiObject* /* updateContext */,
-      TiObject* /* bodyContext */
-    )
+    Bool, (TiObject* /* context */, CodeGen::LoopTgContext* /* loopTgContext */, TiObject* /* conditionVal */)
   );
 
   /// @}

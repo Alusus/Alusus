@@ -100,34 +100,28 @@ Bool CommandGenerator::_generateIfStatement(
   auto ifBody = astNode->getIfBody().get();
   auto elseBody = astNode->getElseBody().get();
 
-  TioSharedPtr conditionTgContext;
-  TioSharedPtr ifTgContext;
-  TioSharedPtr elseTgContext;
-  if (elseBody != 0) {
-    if (!tg->prepareIfStatement(tgContext, conditionTgContext, ifTgContext, &elseTgContext)) return false;
-  } else {
-    if (!tg->prepareIfStatement(tgContext, conditionTgContext, ifTgContext, 0)) return false;
-  }
+  SharedPtr<IfTgContext> ifTgContext;
+  if (!tg->prepareIfStatement(tgContext, elseBody != 0, ifTgContext)) return false;
+  setCodeGenData(astNode, ifTgContext);
 
   // Generate condition.
   GenResult conditionResult;
   if (!g->generateExpression(
-    astNode->getCondition().get(), tg, conditionTgContext.get(), conditionResult
+    astNode->getCondition().get(), tg, ifTgContext->getConditionContext(), conditionResult
   )) return false;
   TioSharedPtr castResult;
   if (!cmdGenerator->castCondition(
-    g, tg, conditionTgContext.get(), astNode->getCondition().get(), conditionResult.astType,
+    g, tg, ifTgContext->getConditionContext(), astNode->getCondition().get(), conditionResult.astType,
     conditionResult.targetData.get(), castResult
   )) return false;
 
   // Generate ifBody.
   if (ifBody->isDerivedFrom<Ast::Block>()) {
-    setCodeGenData(ifBody, ifTgContext);
-    if (!g->generateStatements(static_cast<Ast::Block*>(ifBody), tg, ifTgContext.get())) {
+    if (!g->generateStatements(static_cast<Ast::Block*>(ifBody), tg, ifTgContext->getBodyContext())) {
       return false;
     }
   } else {
-    if (!g->generateStatement(ifBody, tg, ifTgContext.get())) {
+    if (!g->generateStatement(ifBody, tg, ifTgContext->getBodyContext())) {
       return false;
     }
   }
@@ -135,20 +129,17 @@ Bool CommandGenerator::_generateIfStatement(
   // Generate elseBody, if needed.
   if (elseBody != 0) {
     if (elseBody->isDerivedFrom<Ast::Block>()) {
-      setCodeGenData(elseBody, elseTgContext);
-      if (!g->generateStatements(static_cast<Ast::Block*>(elseBody), tg, elseTgContext.get())) {
+      if (!g->generateStatements(static_cast<Ast::Block*>(elseBody), tg, ifTgContext->getElseContext())) {
         return false;
       }
     } else {
-      if (!g->generateStatement(elseBody, tg, elseTgContext.get())) {
+      if (!g->generateStatement(elseBody, tg, ifTgContext->getElseContext())) {
         return false;
       }
     }
   }
 
-  return tg->finishIfStatement(
-    tgContext, conditionTgContext.get(), castResult.get(), ifTgContext.get(), elseTgContext.get()
-  );
+  return tg->finishIfStatement(tgContext, ifTgContext.get(), castResult.get());
 }
 
 
@@ -157,37 +148,34 @@ Bool CommandGenerator::_generateWhileStatement(
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
-  TioSharedPtr conditionTgContext;
-  TioSharedPtr bodyTgContext;
-  if (!tg->prepareWhileStatement(tgContext, conditionTgContext, bodyTgContext)) return false;
+  SharedPtr<LoopTgContext> loopTgContext;
+  if (!tg->prepareWhileStatement(tgContext, loopTgContext)) return false;
+  setCodeGenData(astNode, loopTgContext);
 
   // Generate the condition.
   GenResult conditionResult;
   if (!g->generateExpression(
-    astNode->getCondition().get(), tg, conditionTgContext.get(), conditionResult
+    astNode->getCondition().get(), tg, loopTgContext->getConditionContext(), conditionResult
   )) return false;
   TioSharedPtr castResult;
   if (!cmdGenerator->castCondition(
-    g, tg, conditionTgContext.get(), astNode->getCondition().get(), conditionResult.astType,
+    g, tg, loopTgContext->getConditionContext(), astNode->getCondition().get(), conditionResult.astType,
     conditionResult.targetData.get(), castResult
   )) return false;
 
   // Generate body.
   auto body = astNode->getBody().get();
   if (body->isDerivedFrom<Ast::Block>()) {
-    setCodeGenData(body, bodyTgContext);
-    if (!g->generateStatements(static_cast<Ast::Block*>(body), tg, bodyTgContext.get())) {
+    if (!g->generateStatements(static_cast<Ast::Block*>(body), tg, loopTgContext->getBodyContext())) {
       return false;
     }
   } else {
-    if (!g->generateStatement(body, tg, bodyTgContext.get())) {
+    if (!g->generateStatement(body, tg, loopTgContext->getBodyContext())) {
       return false;
     }
   }
 
-  return tg->finishWhileStatement(
-    tgContext, conditionTgContext.get(), castResult.get(), bodyTgContext.get()
-  );
+  return tg->finishWhileStatement(tgContext, loopTgContext.get(), castResult.get());
 }
 
 
@@ -200,44 +188,40 @@ Bool CommandGenerator::_generateForStatement(
     if (!g->generateStatement(astNode->getInitializer().get(), tg, tgContext)) return false;
   }
 
-  TioSharedPtr conditionTgContext;
-  TioSharedPtr updateTgContext;
-  TioSharedPtr bodyTgContext;
-  if (!tg->prepareForStatement(tgContext, conditionTgContext, updateTgContext, bodyTgContext)) return false;
+  SharedPtr<LoopTgContext> loopTgContext;
+  if (!tg->prepareForStatement(tgContext, loopTgContext)) return false;
+  setCodeGenData(astNode, loopTgContext);
 
   // Generate the condition.
   GenResult conditionResult;
   if (!g->generateExpression(
-    astNode->getCondition().get(), tg, conditionTgContext.get(), conditionResult
+    astNode->getCondition().get(), tg, loopTgContext->getConditionContext(), conditionResult
   )) return false;
   TioSharedPtr castResult;
   if (!cmdGenerator->castCondition(
-    g, tg, conditionTgContext.get(), astNode->getCondition().get(), conditionResult.astType,
+    g, tg, loopTgContext->getConditionContext(), astNode->getCondition().get(), conditionResult.astType,
     conditionResult.targetData.get(), castResult
   )) return false;
 
   // Generate the updater.
   GenResult updateResult;
   if (!g->generateExpression(
-    astNode->getUpdater().get(), tg, updateTgContext.get(), updateResult
+    astNode->getUpdater().get(), tg, loopTgContext->getUpdaterContext(), updateResult
   )) return false;
 
   // Generate body.
   auto body = astNode->getBody().get();
   if (body->isDerivedFrom<Ast::Block>()) {
-    setCodeGenData(body, bodyTgContext);
-    if (!g->generateStatements(static_cast<Ast::Block*>(body), tg, bodyTgContext.get())) {
+    if (!g->generateStatements(static_cast<Ast::Block*>(body), tg, loopTgContext->getBodyContext())) {
       return false;
     }
   } else {
-    if (!g->generateStatement(body, tg, bodyTgContext.get())) {
+    if (!g->generateStatement(body, tg, loopTgContext->getBodyContext())) {
       return false;
     }
   }
 
-  return tg->finishForStatement(
-    tgContext, conditionTgContext.get(), castResult.get(), updateTgContext.get(), bodyTgContext.get()
-  );
+  return tg->finishForStatement(tgContext, loopTgContext.get(), castResult.get());
 }
 
 

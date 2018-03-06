@@ -400,13 +400,14 @@ Bool TargetGenerator::generateLocalVariable(
 //==============================================================================
 // Statements Generation Functions
 
-Bool TargetGenerator::prepareIfStatement(
-  TiObject *context, TioSharedPtr &conditionContext, TioSharedPtr &bodyContext, TioSharedPtr *elseContext
-) {
+Bool TargetGenerator::prepareIfStatement(TiObject *context, Bool withElse, SharedPtr<CodeGen::IfTgContext> &ifTgContext)
+{
   PREPARE_ARG(context, block, Block);
 
+  SharedPtr<IfContext> ifContext = std::make_shared<IfContext>();
+
   // Prepare condition context.
-  conditionContext = Core::Basic::getSharedPtr(context);
+  ifContext->setConditionBlock(Core::Basic::getSharedPtr(block));
 
   // Prepare body context.
   auto bodyBlock = std::make_shared<Block>();
@@ -415,45 +416,44 @@ Bool TargetGenerator::prepareIfStatement(
   );
   bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
   bodyBlock->setLlvmFunction(block->getLlvmFunction());
-  bodyContext = bodyBlock;
+  ifContext->setBodyBlock(bodyBlock);
 
   // Prepare else context.
-  if (elseContext != 0) {
+  if (withElse) {
     auto elseBlock = std::make_shared<Block>();
     elseBlock->setLlvmBlock(
       llvm::BasicBlock::Create(llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction())
     );
     elseBlock->setIrBuilder(new llvm::IRBuilder<>(elseBlock->getLlvmBlock()));
     elseBlock->setLlvmFunction(block->getLlvmFunction());
-    *elseContext = elseBlock;
+    ifContext->setElseBlock(elseBlock);
   }
 
+  ifTgContext = ifContext;
   return true;
 }
 
 
-Bool TargetGenerator::finishIfStatement(
-  TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *bodyContext, TiObject *elseContext
-) {
+Bool TargetGenerator::finishIfStatement(TiObject *context, CodeGen::IfTgContext *ifTgContext, TiObject *conditionVal)
+ {
   PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(bodyContext, bodyBlock, Block);
+  PREPARE_ARG(ifTgContext, ifContext, IfContext);
   PREPARE_ARG(conditionVal, valWrapper, Value);
-  auto elseBlock = ti_cast<Block>(elseContext);
 
   // Create a merge block and jump to it from if and else bodies.
   auto mergeLlvmBlock = llvm::BasicBlock::Create(
     llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction()
   );
-  bodyBlock->getIrBuilder()->CreateBr(mergeLlvmBlock);
-  if (elseBlock != 0) {
-    elseBlock->getIrBuilder()->CreateBr(mergeLlvmBlock);
+  ifContext->getBodyBlock()->getIrBuilder()->CreateBr(mergeLlvmBlock);
+  if (ifContext->getElseBlock() != 0) {
+    ifContext->getElseBlock()->getIrBuilder()->CreateBr(mergeLlvmBlock);
   }
 
   // Create the if statement.
   block->getIrBuilder()->CreateCondBr(
     valWrapper->getLlvmValue(),
-    bodyBlock->getLlvmBlock(),
-    elseBlock != 0 ? elseBlock->getLlvmBlock() : mergeLlvmBlock
+    ifContext->getBodyBlock()->getLlvmBlock(),
+    ifContext->getElseBlock() != 0 ? ifContext->getElseBlock()->getLlvmBlock() : mergeLlvmBlock
   );
 
   // Set insert point to the merge body.
@@ -464,10 +464,11 @@ Bool TargetGenerator::finishIfStatement(
 }
 
 
-Bool TargetGenerator::prepareWhileStatement(
-  TiObject *context, TioSharedPtr &conditionContext, TioSharedPtr &bodyContext
-) {
+Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext)
+{
   PREPARE_ARG(context, block, Block);
+
+  SharedPtr<LoopContext> loopContext = std::make_shared<LoopContext>();
 
   // Prepare condition context.
   auto condBlock = std::make_shared<Block>();
@@ -476,7 +477,7 @@ Bool TargetGenerator::prepareWhileStatement(
   );
   condBlock->setIrBuilder(new llvm::IRBuilder<>(condBlock->getLlvmBlock()));
   condBlock->setLlvmFunction(block->getLlvmFunction());
-  conditionContext = condBlock;
+  loopContext->setConditionBlock(condBlock);
 
   // Prepare body context.
   auto bodyBlock = std::make_shared<Block>();
@@ -485,46 +486,52 @@ Bool TargetGenerator::prepareWhileStatement(
   );
   bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
   bodyBlock->setLlvmFunction(block->getLlvmFunction());
-  bodyContext = bodyBlock;
+  loopContext->setBodyBlock(bodyBlock);
 
+  // Prepare exit block.
+  auto exitBlock = std::make_shared<Block>();
+  exitBlock->setLlvmBlock(
+    llvm::BasicBlock::Create(llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction())
+  );
+  exitBlock->setLlvmFunction(block->getLlvmFunction());
+  loopContext->setExitBlock(exitBlock);
+
+  loopTgContext = loopContext;
   return true;
 }
 
 
 Bool TargetGenerator::finishWhileStatement(
-  TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *bodyContext
+  TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal
 ) {
   PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(conditionContext, condBlock, Block);
-  PREPARE_ARG(bodyContext, bodyBlock, Block);
+  PREPARE_ARG(loopTgContext, loopContext, LoopContext);
   PREPARE_ARG(conditionVal, valWrapper, Value);
 
   // Jump to condition block.
-  block->getIrBuilder()->CreateBr(condBlock->getLlvmBlock());
+  block->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmBlock());
 
   // Jump from body to condition block.
-  bodyBlock->getIrBuilder()->CreateBr(condBlock->getLlvmBlock());
-
-  // Create exit block.
-  auto exitLlvmBlock = llvm::BasicBlock::Create(
-    llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction()
-  );
+  loopContext->getBodyBlock()->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmBlock());
 
   // Create condition branch.
-  condBlock->getIrBuilder()->CreateCondBr(valWrapper->getLlvmValue(), bodyBlock->getLlvmBlock(), exitLlvmBlock);
+  loopContext->getConditionBlock()->getIrBuilder()->CreateCondBr(
+    valWrapper->getLlvmValue(), loopContext->getBodyBlock()->getLlvmBlock(), loopContext->getExitBlock()->getLlvmBlock()
+  );
 
   // Set insert point.
-  block->getIrBuilder()->SetInsertPoint(exitLlvmBlock);
-  block->setLlvmBlock(exitLlvmBlock);
+  block->getIrBuilder()->SetInsertPoint(loopContext->getExitBlock()->getLlvmBlock());
+  block->setLlvmBlock(loopContext->getExitBlock()->getLlvmBlock());
 
   return true;
 }
 
 
-Bool TargetGenerator::prepareForStatement(
-  TiObject *context, TioSharedPtr &conditionContext, TioSharedPtr &updateContext, TioSharedPtr &bodyContext
-) {
+Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext)
+{
   PREPARE_ARG(context, block, Block);
+
+  SharedPtr<LoopContext> loopContext = std::make_shared<LoopContext>();
 
   // Prepare condition context.
   auto condBlock = std::make_shared<Block>();
@@ -533,16 +540,16 @@ Bool TargetGenerator::prepareForStatement(
   );
   condBlock->setIrBuilder(new llvm::IRBuilder<>(condBlock->getLlvmBlock()));
   condBlock->setLlvmFunction(block->getLlvmFunction());
-  conditionContext = condBlock;
+  loopContext->setConditionBlock(condBlock);
 
   // Prepare increment context.
-  auto updateBlock = std::make_shared<Block>();
-  updateBlock->setLlvmBlock(
+  auto updaterBlock = std::make_shared<Block>();
+  updaterBlock->setLlvmBlock(
     llvm::BasicBlock::Create(llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction())
   );
-  updateBlock->setIrBuilder(new llvm::IRBuilder<>(updateBlock->getLlvmBlock()));
-  updateBlock->setLlvmFunction(block->getLlvmFunction());
-  updateContext = updateBlock;
+  updaterBlock->setIrBuilder(new llvm::IRBuilder<>(updaterBlock->getLlvmBlock()));
+  updaterBlock->setLlvmFunction(block->getLlvmFunction());
+  loopContext->setUpdaterBlock(updaterBlock);
 
   // Prepare body context.
   auto bodyBlock = std::make_shared<Block>();
@@ -551,41 +558,45 @@ Bool TargetGenerator::prepareForStatement(
   );
   bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
   bodyBlock->setLlvmFunction(block->getLlvmFunction());
-  bodyContext = bodyBlock;
+  loopContext->setBodyBlock(bodyBlock);
 
+  // Prepare exit block.
+  auto exitBlock = std::make_shared<Block>();
+  exitBlock->setLlvmBlock(
+    llvm::BasicBlock::Create(llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction())
+  );
+  exitBlock->setLlvmFunction(block->getLlvmFunction());
+  loopContext->setExitBlock(exitBlock);
+
+  loopTgContext = loopContext;
   return true;
 }
 
 
 Bool TargetGenerator::finishForStatement(
-  TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *updateContext, TiObject *bodyContext
+  TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal
 ) {
   PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(conditionContext, condBlock, Block);
-  PREPARE_ARG(updateContext, updateBlock, Block);
-  PREPARE_ARG(bodyContext, bodyBlock, Block);
+  PREPARE_ARG(loopTgContext, loopContext, LoopContext);
   PREPARE_ARG(conditionVal, valWrapper, Value);
 
   // Jump to condition block.
-  block->getIrBuilder()->CreateBr(condBlock->getLlvmBlock());
+  block->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmBlock());
 
   // Jump from body to update block.
-  bodyBlock->getIrBuilder()->CreateBr(updateBlock->getLlvmBlock());
+  loopContext->getBodyBlock()->getIrBuilder()->CreateBr(loopContext->getUpdaterBlock()->getLlvmBlock());
 
   // Jump from update to condition block.
-  updateBlock->getIrBuilder()->CreateBr(condBlock->getLlvmBlock());
-
-  // Create exit block.
-  auto exitLlvmBlock = llvm::BasicBlock::Create(
-    llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction()
-  );
+  loopContext->getUpdaterBlock()->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmBlock());
 
   // Create condition branch.
-  condBlock->getIrBuilder()->CreateCondBr(valWrapper->getLlvmValue(), bodyBlock->getLlvmBlock(), exitLlvmBlock);
+  loopContext->getConditionBlock()->getIrBuilder()->CreateCondBr(
+    valWrapper->getLlvmValue(), loopContext->getBodyBlock()->getLlvmBlock(), loopContext->getExitBlock()->getLlvmBlock()
+  );
 
   // Set insert point.
-  block->getIrBuilder()->SetInsertPoint(exitLlvmBlock);
-  block->setLlvmBlock(exitLlvmBlock);
+  block->getIrBuilder()->SetInsertPoint(loopContext->getExitBlock()->getLlvmBlock());
+  block->setLlvmBlock(loopContext->getExitBlock()->getLlvmBlock());
 
   return true;
 }

@@ -147,28 +147,32 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBindings, pub
   /// @name Statements Generation Functions
   /// @{
 
-  public: Bool prepareIfStatement(
-    TiObject *context, TioSharedPtr &conditionContext, TioSharedPtr &bodyContext, TioSharedPtr *elseContext
-  ) { return true; }
-  public: Bool finishIfStatement(
-    TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *bodyContext, TiObject *elseContext
-  ) { return true; }
+  public: Bool prepareIfStatement(TiObject *context, Bool withElse, SharedPtr<CodeGen::IfTgContext> &ifTgContext)
+  {
+    return true;
+  }
+  public: Bool finishIfStatement(TiObject *context, CodeGen::IfTgContext *ifTgContext, TiObject *conditionVal)
+  {
+    return true;
+  }
 
-  public: Bool prepareWhileStatement(
-    TiObject *context, TioSharedPtr &conditionContext, TioSharedPtr &bodyContext
-  ) { return true; }
-  public: Bool finishWhileStatement(
-    TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *bodyContext
-  ) { return true; }
+  public: Bool prepareWhileStatement(TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext)
+  {
+    return true;
+  }
+  public: Bool finishWhileStatement(TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal)
+  {
+    return true;
+  }
 
-  public: Bool prepareForStatement(
-    TiObject *context, TioSharedPtr &conditionContext, TioSharedPtr &updateContext, TioSharedPtr &bodyContext
-  ) { return true; }
-
-  public: Bool finishForStatement(
-    TiObject *context, TiObject *conditionContext, TiObject *conditionVal, TiObject *updateContext,
-    TiObject *bodyContext
-  ) { return true; }
+  public: Bool prepareForStatement(TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext)
+  {
+    return true;
+  }
+  public: Bool finishForStatement(TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal)
+  {
+    return true;
+  }
 
   /// @}
 
