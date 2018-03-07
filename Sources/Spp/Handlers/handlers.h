@@ -56,6 +56,12 @@ DEFINE_NOTICE(InvalidIfStatementNotice, "Spp.Handlers", "Spp", "alusus.net", "SP
 DEFINE_NOTICE(InvalidForStatementNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1010", 1,
   STR("Invalid for statement.")
 );
+DEFINE_NOTICE(InvalidContinueStatementNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1011", 1,
+  STR("Invalid continue statement.")
+);
+DEFINE_NOTICE(InvalidBreakStatementNotice, "Spp.Handlers", "Spp", "alusus.net", "SPP1012", 1,
+  STR("Invalid break statement.")
+);
 
 } } // namespace
 

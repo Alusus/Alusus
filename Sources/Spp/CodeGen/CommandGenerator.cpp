@@ -21,27 +21,31 @@ namespace Spp { namespace CodeGen
 void CommandGenerator::initBindingCaches()
 {
   Core::Basic::initBindingCaches(this, {
-    &this->generateReturn,
+    &this->generateReturnStatement,
     &this->generateIfStatement,
     &this->generateWhileStatement,
-    &this->generateForStatement
+    &this->generateForStatement,
+    &this->generateContinueStatement,
+    &this->generateBreakStatement
   });
 }
 
 
 void CommandGenerator::initBindings()
 {
-  this->generateReturn = &CommandGenerator::_generateReturn;
+  this->generateReturnStatement = &CommandGenerator::_generateReturnStatement;
   this->generateIfStatement = &CommandGenerator::_generateIfStatement;
   this->generateWhileStatement = &CommandGenerator::_generateWhileStatement;
   this->generateForStatement = &CommandGenerator::_generateForStatement;
+  this->generateContinueStatement = &CommandGenerator::_generateContinueStatement;
+  this->generateBreakStatement = &CommandGenerator::_generateBreakStatement;
 }
 
 
 //==============================================================================
 // Code Generation Functions
 
-Bool CommandGenerator::_generateReturn(
+Bool CommandGenerator::_generateReturnStatement(
   TiObject *self, Spp::Ast::ReturnStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
@@ -222,6 +226,70 @@ Bool CommandGenerator::_generateForStatement(
   }
 
   return tg->finishForStatement(tgContext, loopTgContext.get(), castResult.get());
+}
+
+
+Bool CommandGenerator::_generateContinueStatement(
+  TiObject *self, Spp::Ast::ContinueStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+) {
+  PREPARE_SELF(cmdGenerator, CommandGenerator);
+
+  // Get the steps.
+  auto stepsNode = ti_cast<Core::Data::Ast::IntegerLiteral>(astNode->getSteps().get());
+  auto steps = stepsNode == 0 ? 1 : std::stoi(stepsNode->getValue().get());
+  if (steps <= 0) {
+    cmdGenerator->noticeStore->add(std::make_shared<InvalidContinueStepsNotice>(astNode->findSourceLocation()));
+    return false;
+  }
+
+  // Find the loop statement.
+  Core::Data::Node *loopNode = astNode;
+  while (steps > 0) {
+    loopNode = loopNode->getOwner();
+    while (!loopNode->isDerivedFrom<Spp::Ast::WhileStatement>() && !loopNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
+      if (loopNode->isDerivedFrom<Spp::Ast::Function>()) {
+        cmdGenerator->noticeStore->add(std::make_shared<InvalidContinueStepsNotice>(astNode->findSourceLocation()));
+        return false;
+      }
+      loopNode = loopNode->getOwner();
+    }
+    --steps;
+  }
+
+  auto loopTgContext = getCodeGenData<LoopTgContext>(loopNode);
+  return tg->generateContinue(tgContext, loopTgContext);
+}
+
+
+Bool CommandGenerator::_generateBreakStatement(
+  TiObject *self, Spp::Ast::BreakStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+) {
+  PREPARE_SELF(cmdGenerator, CommandGenerator);
+
+  // Get the steps.
+  auto stepsNode = ti_cast<Core::Data::Ast::IntegerLiteral>(astNode->getSteps().get());
+  auto steps = stepsNode == 0 ? 1 : std::stoi(stepsNode->getValue().get());
+  if (steps <= 0) {
+    cmdGenerator->noticeStore->add(std::make_shared<InvalidBreakStepsNotice>(astNode->findSourceLocation()));
+    return false;
+  }
+
+  // Find the loop statement.
+  Core::Data::Node *loopNode = astNode;
+  while (steps > 0) {
+    loopNode = loopNode->getOwner();
+    while (!loopNode->isDerivedFrom<Spp::Ast::WhileStatement>() && !loopNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
+      if (loopNode->isDerivedFrom<Spp::Ast::Function>()) {
+        cmdGenerator->noticeStore->add(std::make_shared<InvalidBreakStepsNotice>(astNode->findSourceLocation()));
+        return false;
+      }
+      loopNode = loopNode->getOwner();
+    }
+    --steps;
+  }
+
+  auto loopTgContext = getCodeGenData<LoopTgContext>(loopNode);
+  return tg->generateBreak(tgContext, loopTgContext);
 }
 
 

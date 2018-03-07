@@ -1,0 +1,25 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def start: function ()=>Void
+  {
+    def i: Int[32];
+
+    while i > 0 {
+      break;
+      break 2;
+      break "abc";
+      break abc;
+    };
+
+    for i = 0, i < 5, ++i {
+      break;
+      break 2;
+      break "abc";
+      break abc;
+    }
+  };
+};
+
+dump Main;

@@ -216,6 +216,84 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   }).get());
   this->addReferenceToCommandList(leadingCmdList, STR("module:For"));
 
+  //// continue = "continue" + Subject.Literal
+  grammarRepository->set(STR("root:Main.Continue"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("continue"), 0 }, { STR("أكمل"), 0 } }) },
+        {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject.Parameter"))},
+              {STR("min"), std::make_shared<Integer>(0)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
+            })
+          })
+        }
+      })
+    },
+    { SymbolDefElement::HANDLER, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+      auto metadata = state->getData().ti_cast_get<Data::Ast::Metadata>();
+      auto currentList = state->getData().ti_cast_get<Data::Container>();
+      auto continueStatement = Ast::ContinueStatement::create({
+        { "prodId", metadata->getProdId() },
+        { "sourceLocation", metadata->findSourceLocation() }
+      });
+      if (currentList != 0) {
+        auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->get(1));
+        if (currentList->get(1) != 0 && intLiteral == 0) {
+          state->addNotice(std::make_shared<Handlers::InvalidContinueStatementNotice>(metadata->findSourceLocation()));
+          state->setData(SharedPtr<TiObject>(0));
+          return;
+        }
+        continueStatement->setSteps(getSharedPtr(intLiteral));
+      }
+      state->setData(continueStatement);
+    })}
+  }).get());
+  this->addReferenceToCommandList(leadingCmdList, STR("module:Continue"));
+
+  //// break = "break" + Subject.Literal
+  grammarRepository->set(STR("root:Main.Break"), SymbolDefinition::create({
+    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
+    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("break"), 0 }, { STR("اقطع"), 0 } }) },
+        {
+          STR("prms"), Core::Data::SharedList::create({
+            Core::Data::SharedMap::create(false, {
+              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject.Parameter"))},
+              {STR("min"), std::make_shared<Integer>(0)},
+              {STR("max"), std::make_shared<Integer>(1)},
+              {STR("pty"), std::make_shared<Integer>(1)},
+              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
+            })
+          })
+        }
+      })
+    },
+    { SymbolDefElement::HANDLER, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+      auto metadata = state->getData().ti_cast_get<Data::Ast::Metadata>();
+      auto currentList = state->getData().ti_cast_get<Data::Container>();
+      auto breakStatement = Ast::BreakStatement::create({
+        { "prodId", metadata->getProdId() },
+        { "sourceLocation", metadata->findSourceLocation() }
+      });
+      if (currentList != 0) {
+        auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->get(1));
+        if (currentList->get(1) != 0 && intLiteral == 0) {
+          state->addNotice(std::make_shared<Handlers::InvalidBreakStatementNotice>(metadata->findSourceLocation()));
+          state->setData(SharedPtr<TiObject>(0));
+          return;
+        }
+        breakStatement->setSteps(getSharedPtr(intLiteral));
+      }
+      state->setData(breakStatement);
+    })}
+  }).get());
+  this->addReferenceToCommandList(leadingCmdList, STR("module:Break"));
+
   //// return = "return" + Expression
   grammarRepository->set(STR("root:Main.Return"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
@@ -557,6 +635,8 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:If"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:While"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:For"));
+  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Continue"));
+  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Break"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Return"));
 
   // Remove command from inner commands list.
@@ -570,6 +650,8 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   grammarRepository->remove(STR("root:Main.If"));
   grammarRepository->remove(STR("root:Main.While"));
   grammarRepository->remove(STR("root:Main.For"));
+  grammarRepository->remove(STR("root:Main.Continue"));
+  grammarRepository->remove(STR("root:Main.Break"));
   grammarRepository->remove(STR("root:Main.Return"));
   grammarRepository->remove(STR("root:Main.ModuleStatementList"));
   grammarRepository->remove(STR("root:Main.BlockStatementList"));

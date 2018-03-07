@@ -90,6 +90,8 @@ DEFINE_NOTICE(UnknownSymbolNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1107", 1,
 #include "ForStatement.h"
 #include "IfStatement.h"
 #include "WhileStatement.h"
+#include "ContinueStatement.h"
+#include "BreakStatement.h"
 #include "ReturnStatement.h"
 // Operators
 #include "PointerOp.h"

@@ -51,6 +51,8 @@ void TargetGenerator::initBindings()
   targetGeneration->finishWhileStatement = &TargetGenerator::finishWhileStatement;
   targetGeneration->prepareForStatement = &TargetGenerator::prepareForStatement;
   targetGeneration->finishForStatement = &TargetGenerator::finishForStatement;
+  targetGeneration->generateContinue = &TargetGenerator::generateContinue;
+  targetGeneration->generateBreak = &TargetGenerator::generateBreak;
 
   // Casting Generation Functions
   targetGeneration->generateCastIntToInt = &TargetGenerator::generateCastIntToInt;
@@ -444,16 +446,18 @@ Bool TargetGenerator::finishIfStatement(TiObject *context, CodeGen::IfTgContext 
   auto mergeLlvmBlock = llvm::BasicBlock::Create(
     llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction()
   );
-  ifContext->getBodyBlock()->getIrBuilder()->CreateBr(mergeLlvmBlock);
-  if (ifContext->getElseBlock() != 0) {
+  if (!ifContext->getBodyBlock()->isTerminated()) {
+    ifContext->getBodyBlock()->getIrBuilder()->CreateBr(mergeLlvmBlock);
+  }
+  if (ifContext->getElseBlock() != 0 && !ifContext->getElseBlock()->isTerminated()) {
     ifContext->getElseBlock()->getIrBuilder()->CreateBr(mergeLlvmBlock);
   }
 
   // Create the if statement.
   block->getIrBuilder()->CreateCondBr(
     valWrapper->getLlvmValue(),
-    ifContext->getBodyBlock()->getLlvmBlock(),
-    ifContext->getElseBlock() != 0 ? ifContext->getElseBlock()->getLlvmBlock() : mergeLlvmBlock
+    ifContext->getBodyBlock()->getLlvmEntryBlock(),
+    ifContext->getElseBlock() != 0 ? ifContext->getElseBlock()->getLlvmEntryBlock() : mergeLlvmBlock
   );
 
   // Set insert point to the merge body.
@@ -509,14 +513,17 @@ Bool TargetGenerator::finishWhileStatement(
   PREPARE_ARG(conditionVal, valWrapper, Value);
 
   // Jump to condition block.
-  block->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmBlock());
+  block->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmEntryBlock());
 
   // Jump from body to condition block.
-  loopContext->getBodyBlock()->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmBlock());
+  if (!loopContext->getBodyBlock()->isTerminated()) {
+    loopContext->getBodyBlock()->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmEntryBlock());
+  }
 
   // Create condition branch.
   loopContext->getConditionBlock()->getIrBuilder()->CreateCondBr(
-    valWrapper->getLlvmValue(), loopContext->getBodyBlock()->getLlvmBlock(), loopContext->getExitBlock()->getLlvmBlock()
+    valWrapper->getLlvmValue(), loopContext->getBodyBlock()->getLlvmEntryBlock(),
+    loopContext->getExitBlock()->getLlvmEntryBlock()
   );
 
   // Set insert point.
@@ -581,23 +588,52 @@ Bool TargetGenerator::finishForStatement(
   PREPARE_ARG(conditionVal, valWrapper, Value);
 
   // Jump to condition block.
-  block->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmBlock());
+  block->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmEntryBlock());
 
   // Jump from body to update block.
-  loopContext->getBodyBlock()->getIrBuilder()->CreateBr(loopContext->getUpdaterBlock()->getLlvmBlock());
+  if (!loopContext->getBodyBlock()->isTerminated()) {
+    loopContext->getBodyBlock()->getIrBuilder()->CreateBr(loopContext->getUpdaterBlock()->getLlvmEntryBlock());
+  }
 
   // Jump from update to condition block.
-  loopContext->getUpdaterBlock()->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmBlock());
+  loopContext->getUpdaterBlock()->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmEntryBlock());
 
   // Create condition branch.
   loopContext->getConditionBlock()->getIrBuilder()->CreateCondBr(
-    valWrapper->getLlvmValue(), loopContext->getBodyBlock()->getLlvmBlock(), loopContext->getExitBlock()->getLlvmBlock()
+    valWrapper->getLlvmValue(), loopContext->getBodyBlock()->getLlvmEntryBlock(),
+    loopContext->getExitBlock()->getLlvmEntryBlock()
   );
 
   // Set insert point.
   block->getIrBuilder()->SetInsertPoint(loopContext->getExitBlock()->getLlvmBlock());
   block->setLlvmBlock(loopContext->getExitBlock()->getLlvmBlock());
 
+  return true;
+}
+
+
+Bool TargetGenerator::generateContinue(TiObject *context, CodeGen::LoopTgContext *loopTgContext)
+{
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(loopTgContext, loopContext, LoopContext);
+
+  if (loopContext->getUpdaterBlock() != 0) {
+    block->getIrBuilder()->CreateBr(loopContext->getUpdaterBlock()->getLlvmEntryBlock());
+  } else {
+    block->getIrBuilder()->CreateBr(loopContext->getConditionBlock()->getLlvmEntryBlock());
+  }
+  block->setTerminated(true);
+  return true;
+}
+
+
+Bool TargetGenerator::generateBreak(TiObject *context, CodeGen::LoopTgContext *loopTgContext)
+{
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(loopTgContext, loopContext, LoopContext);
+
+  block->getIrBuilder()->CreateBr(loopContext->getExitBlock()->getLlvmEntryBlock());
+  block->setTerminated(true);
   return true;
 }
 

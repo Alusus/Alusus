@@ -27,17 +27,20 @@ class Block : public Core::Basic::TiObject
   //============================================================================
   // Member Variables
 
+  private: llvm::BasicBlock *llvmEntryBlock;
   private: llvm::BasicBlock *llvmBlock;
 
   private: llvm::IRBuilder<> *irBuilder;
 
   private: llvm::Function *llvmFunc;
 
+  private: Bool terminated;
+
 
   //============================================================================
   // Constructor & Destructor
 
-  public: Block() : llvmBlock(0), irBuilder(0), llvmFunc(0)
+  public: Block() : llvmEntryBlock(0), llvmBlock(0), irBuilder(0), llvmFunc(0), terminated(false)
   {
   }
 
@@ -47,11 +50,16 @@ class Block : public Core::Basic::TiObject
 
   public: void setLlvmBlock(llvm::BasicBlock *block)
   {
+    if (this->llvmEntryBlock == 0) this->llvmEntryBlock = block;
     this->llvmBlock = block;
   }
   public: llvm::BasicBlock* getLlvmBlock() const
   {
     return this->llvmBlock;
+  }
+  public: llvm::BasicBlock* getLlvmEntryBlock() const
+  {
+    return this->llvmEntryBlock;
   }
 
   public: void setIrBuilder(llvm::IRBuilder<> *builder)
@@ -70,6 +78,15 @@ class Block : public Core::Basic::TiObject
   public: llvm::Function* getLlvmFunction() const
   {
     return this->llvmFunc;
+  }
+
+  public: void setTerminated(Bool t = true)
+  {
+    this->terminated = t;
+  }
+  public: Bool isTerminated() const
+  {
+    return this->terminated;
   }
 
 }; // class

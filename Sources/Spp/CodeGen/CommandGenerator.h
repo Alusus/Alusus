@@ -92,12 +92,12 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
   /// @name Code Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(generateReturn,
+  public: METHOD_BINDING_CACHE(generateReturnStatement,
     Bool, (
       Spp::Ast::ReturnStatement*, Generation*, TargetGeneration*, TiObject*
     )
   );
-  private: static Bool _generateReturn(
+  private: static Bool _generateReturnStatement(
     TiObject *self, Spp::Ast::ReturnStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
   );
 
@@ -126,6 +126,26 @@ class CommandGenerator : public TiObject, public virtual DynamicBindings, public
   );
   private: static Bool _generateForStatement(
     TiObject *self, Spp::Ast::ForStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+  );
+
+  public: METHOD_BINDING_CACHE(generateContinueStatement,
+    Bool, (
+      Spp::Ast::ContinueStatement* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
+      TiObject* /* tgContext */
+    )
+  );
+  private: static Bool _generateContinueStatement(
+    TiObject *self, Spp::Ast::ContinueStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+  );
+
+  public: METHOD_BINDING_CACHE(generateBreakStatement,
+    Bool, (
+      Spp::Ast::BreakStatement* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
+      TiObject* /* tgContext */
+    )
+  );
+  private: static Bool _generateBreakStatement(
+    TiObject *self, Spp::Ast::BreakStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
   );
 
   /// @}

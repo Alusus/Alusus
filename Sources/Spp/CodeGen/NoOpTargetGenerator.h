@@ -174,6 +174,16 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBindings, pub
     return true;
   }
 
+  public: Bool generateContinue(TiObject *context, CodeGen::LoopTgContext *loopTgContext)
+  {
+    return true;
+  }
+
+  public: Bool generateBreak(TiObject *context, CodeGen::LoopTgContext *loopTgContext)
+  {
+    return true;
+  }
+
   /// @}
 
   /// @name Casting Generation Functions

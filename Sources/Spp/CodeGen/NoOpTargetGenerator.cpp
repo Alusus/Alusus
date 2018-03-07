@@ -51,6 +51,8 @@ void NoOpTargetGenerator::initBindings()
   targetGeneration->finishWhileStatement = &NoOpTargetGenerator::finishWhileStatement;
   targetGeneration->prepareForStatement = &NoOpTargetGenerator::prepareForStatement;
   targetGeneration->finishForStatement = &NoOpTargetGenerator::finishForStatement;
+  targetGeneration->generateContinue = &NoOpTargetGenerator::generateContinue;
+  targetGeneration->generateBreak = &NoOpTargetGenerator::generateBreak;
 
   // Casting Generation Functions
   targetGeneration->generateCastIntToInt = &NoOpTargetGenerator::generateCastIntToInt;

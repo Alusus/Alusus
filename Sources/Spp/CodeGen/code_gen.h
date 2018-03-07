@@ -131,6 +131,12 @@ DEFINE_NOTICE(InvalidSizeOperandNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP
 DEFINE_NOTICE(InvalidExpressionListNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1311", 1,
   STR("Invalid expression list.")
 );
+DEFINE_NOTICE(InvalidContinueStepsNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1312", 1,
+  STR("Invalid continue steps.")
+);
+DEFINE_NOTICE(InvalidBreakStepsNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1313", 1,
+  STR("Invalid break steps.")
+);
 
 } } // namespace
 

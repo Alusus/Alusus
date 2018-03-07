@@ -1,0 +1,274 @@
+ERROR SPP1312 @ (58,21): Invalid continue steps.
+ERROR SPP1312 @ (59,21): Invalid continue steps.
+ERROR SPP1312 @ (71,21): Invalid continue steps.
+ERROR SPP1312 @ (72,21): Invalid continue steps.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+
+@__anonymous0 = private constant [3 x i8] c"%d\00", align 1
+@__anonymous1 = private constant [2 x i8] c"\0A\00", align 1
+@__anonymous2 = private constant [3 x i8] c"%d\00", align 1
+@__anonymous3 = private constant [2 x i8] c"\0A\00", align 1
+@__anonymous4 = private constant [3 x i8] c"%d\00", align 1
+@__anonymous5 = private constant [2 x i8] c"\0A\00", align 1
+@__anonymous6 = private constant [3 x i8] c"%d\00", align 1
+@__anonymous7 = private constant [2 x i8] c"\0A\00", align 1
+
+declare i64 @printf(i8*, ...)
+
+define void @Main_start_____Void_() {
+__block0:
+  %i = alloca i32
+  %j = alloca i32
+  store i32 0, i32* %i
+  br label %__block1
+
+__block1:                                         ; preds = %__block6, %__block0, %__block14
+  %0 = load i32* %i
+  %1 = icmp slt i32 %0, 10
+  br i1 %1, label %__block2, label %__block3
+
+__block2:                                         ; preds = %__block1
+  store i32 0, i32* %j
+  br label %__block4
+
+__block3:                                         ; preds = %__block1
+  store i32 0, i32* %i
+  br label %__block17
+
+__block4:                                         ; preds = %__block16, %__block2, %__block10, %__block8
+  %2 = load i32* %j
+  %3 = load i32* %i
+  %4 = icmp sle i32 %2, %3
+  br i1 %4, label %__block5, label %__block6
+
+__block5:                                         ; preds = %__block4
+  %5 = load i32* %i
+  %6 = icmp eq i32 %5, 5
+  br i1 %6, label %__block7, label %__block12
+
+__block6:                                         ; preds = %__block4
+  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous1, i64 0, i64 0))
+  %8 = load i32* %i
+  %9 = add i32 %8, 1
+  store i32 %9, i32* %i
+  br label %__block1
+
+__block7:                                         ; preds = %__block5
+  %10 = load i32* %j
+  %11 = icmp eq i32 %10, 2
+  br i1 %11, label %__block8, label %__block9
+
+__block8:                                         ; preds = %__block7
+  %12 = load i32* %j
+  %13 = add i32 %12, 1
+  store i32 %13, i32* %j
+  br label %__block4
+
+__block9:                                         ; preds = %__block7
+  %14 = load i32* %j
+  %15 = icmp eq i32 %14, 4
+  br i1 %15, label %__block10, label %__block11
+
+__block10:                                        ; preds = %__block9
+  %16 = load i32* %j
+  %17 = add i32 %16, 1
+  store i32 %17, i32* %j
+  br label %__block4
+
+__block11:                                        ; preds = %__block9
+  br label %__block12
+
+__block12:                                        ; preds = %__block5, %__block11
+  %18 = load i32* %i
+  %19 = icmp eq i32 %18, 8
+  br i1 %19, label %__block13, label %__block16
+
+__block13:                                        ; preds = %__block12
+  %20 = load i32* %j
+  %21 = icmp eq i32 %20, 4
+  br i1 %21, label %__block14, label %__block15
+
+__block14:                                        ; preds = %__block13
+  %22 = load i32* %i
+  %23 = add i32 %22, 1
+  store i32 %23, i32* %i
+  br label %__block1
+
+__block15:                                        ; preds = %__block13
+  br label %__block16
+
+__block16:                                        ; preds = %__block12, %__block15
+  %24 = load i32* %j
+  %25 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous0, i64 0, i64 0), i32 %24)
+  %26 = load i32* %j
+  %27 = add i32 %26, 1
+  store i32 %27, i32* %j
+  br label %__block4
+
+__block17:                                        ; preds = %__block18, %__block3
+  %28 = load i32* %i
+  %29 = icmp slt i32 %28, 10
+  br i1 %29, label %__block19, label %__block20
+
+__block18:                                        ; preds = %__block24, %__block32
+  %30 = load i32* %i
+  %31 = add i32 %30, 1
+  store i32 %31, i32* %i
+  br label %__block17
+
+__block19:                                        ; preds = %__block17
+  store i32 0, i32* %j
+  br label %__block21
+
+__block20:                                        ; preds = %__block17
+  store i32 0, i32* %i
+  store i32 0, i32* %i
+  ret void
+
+__block21:                                        ; preds = %__block22, %__block19
+  %32 = load i32* %j
+  %33 = load i32* %i
+  %34 = icmp sle i32 %32, %33
+  br i1 %34, label %__block23, label %__block24
+
+__block22:                                        ; preds = %__block34, %__block28, %__block26
+  %35 = load i32* %j
+  %36 = add i32 %35, 1
+  store i32 %36, i32* %j
+  br label %__block21
+
+__block23:                                        ; preds = %__block21
+  %37 = load i32* %i
+  %38 = icmp eq i32 %37, 5
+  br i1 %38, label %__block25, label %__block30
+
+__block24:                                        ; preds = %__block21
+  %39 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous3, i64 0, i64 0))
+  br label %__block18
+
+__block25:                                        ; preds = %__block23
+  %40 = load i32* %j
+  %41 = icmp eq i32 %40, 2
+  br i1 %41, label %__block26, label %__block27
+
+__block26:                                        ; preds = %__block25
+  br label %__block22
+
+__block27:                                        ; preds = %__block25
+  %42 = load i32* %j
+  %43 = icmp eq i32 %42, 4
+  br i1 %43, label %__block28, label %__block29
+
+__block28:                                        ; preds = %__block27
+  br label %__block22
+
+__block29:                                        ; preds = %__block27
+  br label %__block30
+
+__block30:                                        ; preds = %__block23, %__block29
+  %44 = load i32* %i
+  %45 = icmp eq i32 %44, 8
+  br i1 %45, label %__block31, label %__block34
+
+__block31:                                        ; preds = %__block30
+  %46 = load i32* %j
+  %47 = icmp eq i32 %46, 4
+  br i1 %47, label %__block32, label %__block33
+
+__block32:                                        ; preds = %__block31
+  br label %__block18
+
+__block33:                                        ; preds = %__block31
+  br label %__block34
+
+__block34:                                        ; preds = %__block30, %__block33
+  %48 = load i32* %j
+  %49 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous2, i64 0, i64 0), i32 %48)
+  br label %__block22
+
+__block35:                                        ; No predecessors!
+  %50 = load i32* %i
+  %51 = icmp slt i32 %50, 10
+
+__block36:                                        ; No predecessors!
+  store i32 0, i32* %j
+  %52 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous5, i64 0, i64 0))
+  %53 = load i32* %i
+  %54 = add i32 %53, 1
+  store i32 %54, i32* %i
+
+__block37:                                        ; No predecessors!
+
+__block38:                                        ; No predecessors!
+  %55 = load i32* %j
+  %56 = load i32* %i
+  %57 = icmp sle i32 %55, %56
+
+__block39:                                        ; No predecessors!
+  %58 = load i32* %i
+  %59 = icmp eq i32 %58, 8
+  %60 = load i32* %j
+  %61 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous4, i64 0, i64 0), i32 %60)
+  %62 = load i32* %j
+  %63 = add i32 %62, 1
+  store i32 %63, i32* %j
+
+__block40:                                        ; No predecessors!
+
+__block41:                                        ; No predecessors!
+  %64 = load i32* %j
+  %65 = icmp eq i32 %64, 8
+  %66 = load i32* %j
+  %67 = icmp eq i32 %66, 9
+
+__block42:                                        ; No predecessors!
+
+__block43:                                        ; No predecessors!
+
+__block44:                                        ; No predecessors!
+  %68 = load i32* %i
+  %69 = icmp slt i32 %68, 10
+
+__block45:                                        ; No predecessors!
+  %70 = load i32* %i
+  %71 = add i32 %70, 1
+  store i32 %71, i32* %i
+
+__block46:                                        ; No predecessors!
+  store i32 0, i32* %j
+  %72 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous7, i64 0, i64 0))
+
+__block47:                                        ; No predecessors!
+
+__block48:                                        ; No predecessors!
+  %73 = load i32* %j
+  %74 = load i32* %i
+  %75 = icmp sle i32 %73, %74
+
+__block49:                                        ; No predecessors!
+  %76 = load i32* %j
+  %77 = add i32 %76, 1
+  store i32 %77, i32* %j
+
+__block50:                                        ; No predecessors!
+  %78 = load i32* %i
+  %79 = icmp eq i32 %78, 8
+  %80 = load i32* %j
+  %81 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous6, i64 0, i64 0), i32 %80)
+
+__block51:                                        ; No predecessors!
+
+__block52:                                        ; No predecessors!
+  %82 = load i32* %j
+  %83 = icmp eq i32 %82, 8
+  %84 = load i32* %j
+  %85 = icmp eq i32 %84, 9
+
+__block53:                                        ; No predecessors!
+
+__block54:                                        ; No predecessors!
+}
+------------------------------------------------------------

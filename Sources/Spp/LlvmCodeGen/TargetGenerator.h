@@ -172,6 +172,9 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
   public: Bool prepareForStatement(TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext);
   public: Bool finishForStatement(TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal);
 
+  public: Bool generateContinue(TiObject *context, CodeGen::LoopTgContext *loopTgContext);
+  public: Bool generateBreak(TiObject *context, CodeGen::LoopTgContext *loopTgContext);
+
   /// @}
 
   /// @name Casting Generation Functions

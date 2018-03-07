@@ -378,9 +378,15 @@ Bool Generator::_generateStatement(
   } else if (astNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
     auto forStatement = static_cast<Spp::Ast::ForStatement*>(astNode);
     return generator->commandGenerator->generateForStatement(forStatement, generation, tg, tgContext);
+  } else if (astNode->isDerivedFrom<Spp::Ast::ContinueStatement>()) {
+    auto continueStatement = static_cast<Spp::Ast::ContinueStatement*>(astNode);
+    return generator->commandGenerator->generateContinueStatement(continueStatement, generation, tg, tgContext);
+  } else if (astNode->isDerivedFrom<Spp::Ast::BreakStatement>()) {
+    auto breakStatement = static_cast<Spp::Ast::BreakStatement*>(astNode);
+    return generator->commandGenerator->generateBreakStatement(breakStatement, generation, tg, tgContext);
   } else if (astNode->isDerivedFrom<Spp::Ast::ReturnStatement>()) {
     auto returnStatement = static_cast<Spp::Ast::ReturnStatement*>(astNode);
-    return generator->commandGenerator->generateReturn(returnStatement, generation, tg, tgContext);
+    return generator->commandGenerator->generateReturnStatement(returnStatement, generation, tg, tgContext);
   } else {
     GenResult result;
     return generation->generateExpression(astNode, tg, tgContext, result);
