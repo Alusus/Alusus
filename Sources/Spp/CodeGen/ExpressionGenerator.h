@@ -197,6 +197,17 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
     GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateLogicalOperator,
+    Bool, (
+      Core::Data::Ast::InfixOperator* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
+      TiObject* /* tgContext */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateLogicalOperator(
+    TiObject *self, Core::Data::Ast::InfixOperator *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateAssignment,
     Bool, (
       Core::Data::Ast::AssignmentOperator* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
@@ -383,6 +394,11 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
 
   private: Bool dereferenceIfNeeded(
     TargetGeneration *tg, TiObject *tgContext, Spp::Ast::Type *astType, TiObject *tgValue, GenResult &result
+  );
+
+  private: Bool castLogicalOperand(
+    Generation *g, TargetGeneration *tg, TiObject *tgContext, Core::Basic::TiObject *astNode, Spp::Ast::Type *astType,
+    TiObject *tgValue, TioSharedPtr &result
   );
 
   /// @}

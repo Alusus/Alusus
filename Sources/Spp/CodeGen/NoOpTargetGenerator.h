@@ -255,6 +255,22 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBindings, pub
 
   /// @}
 
+  /// @name Logical Ops Generation Functions
+  /// @{
+
+  public: Bool prepareLogicalOp(TiObject *context, TioSharedPtr &secondContext)
+  { return true; }
+
+  public: Bool finishLogicalOr(
+    TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool finishLogicalAnd(
+    TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
+  ) { return true; }
+
+  /// @}
+
   /// @name Math Ops Generation Functions
   /// @{
 

@@ -1,0 +1,110 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def printf: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+
+  def print: function (str: ptr[Int[8]]) => Void
+  {
+    printf("%s\n", str);
+  };
+
+  def check: function (name: ptr[Int[8]], val: Int[32])=>Int[1]
+  {
+    printf("Checking %s...\n", name);
+    return val > 10;
+  };
+
+  def start: function () => Void
+  {
+    testOr();
+    print(" ");
+    testAnd();
+    print(" ");
+    testMixed();
+  };
+
+  def testOr: function () => Void
+  {
+    def i: Int[32];
+    def j: Int[32];
+    def b: Int[1];
+
+    print("Testing Or:");
+
+    i = 5;
+    j = 10;
+
+    if check("i", i) || check("j", j) print("Error: both false.");
+
+    i = 11; j = 10;
+    if check("i", i) || check("j", j) print("First true.");
+
+    i = 10; j = 11;
+    if check("i", i) || check("j", j) print("Second true.");
+
+    i = 11; j = 11;
+    if check("i", i) || check("j", j) print("Both true.");
+
+    b = 1i1;
+    i = 15;
+    if b || check("i", i) print("Bool type true.");
+    b = 0i1;
+    if b || check("i", i) print("Bool type false.");
+
+    i = 0; j = 2; b = 0i1;
+    if check("i", i) || check("j", j) || b print("Error: False triple check.");
+    b = 1i1;
+    if check("i", i) || check("j", j) || b print("True triple check.");
+  };
+
+  def testAnd: function () => Void
+  {
+    def i: Int[32];
+    def j: Int[32];
+    def b: Int[1];
+
+    print("Testing And:");
+
+    i = 5;
+    j = 10;
+
+    if check("i", i) && check("j", j) print("Error: both false.");
+
+    i = 11; j = 10;
+    if check("i", i) && check("j", j) print("Error: first true.");
+
+    i = 10; j = 11;
+    if check("i", i) && check("j", j) print("Error: second true.");
+
+    i = 11; j = 11;
+    if check("i", i) && check("j", j) print("Both true.");
+
+    b = 1i1;
+    i = 15;
+    if b && check("i", i) print("Bool type true.");
+    b = 0i1;
+    if b && check("i", i) print("Error: bool type false.");
+
+    i = 11; j = 12; b = 0i1;
+    if check("i", i) && check("j", j) && b print("Error: False triple check.");
+    b = 1i1;
+    if check("i", i) && check("j", j) && b print("True triple check.");
+  };
+
+  def testMixed: function () => Void
+  {
+    def i: Int[32];
+    def j: Int[32];
+
+    print("Testing Mixed:");
+
+    i = 4;
+    j = 11;
+
+    if (i > 10 && j > 10) || (i < 5 && j < 5) print("Error: Or of two false ands.");
+    if (i > 10 || j > 10) && (i < 5 || j < 5) print("And of two true ors.");
+  };
+};
+
+run Main.start;

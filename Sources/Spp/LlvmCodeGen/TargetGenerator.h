@@ -246,6 +246,21 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
 
   /// @}
 
+  /// @name Logical Ops Generation Functions
+  /// @{
+
+  public: Bool prepareLogicalOp(TiObject *context, TioSharedPtr &secondContext);
+
+  public: Bool finishLogicalOr(
+    TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
+  );
+
+  public: Bool finishLogicalAnd(
+    TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
+  );
+
+  /// @}
+
   /// @name Math Ops Generation Functions
   /// @{
 

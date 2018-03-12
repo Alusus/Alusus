@@ -72,6 +72,11 @@ void NoOpTargetGenerator::initBindings()
   targetGeneration->generateFunctionCall = &NoOpTargetGenerator::generateFunctionCall;
   targetGeneration->generateReturn = &NoOpTargetGenerator::generateReturn;
 
+  // Logical Ops Generation Functions
+  targetGeneration->prepareLogicalOp = &NoOpTargetGenerator::prepareLogicalOp;
+  targetGeneration->finishLogicalOr = &NoOpTargetGenerator::finishLogicalOr;
+  targetGeneration->finishLogicalAnd = &NoOpTargetGenerator::finishLogicalAnd;
+
   // Math Ops Generation Functions
   targetGeneration->generateAdd = &NoOpTargetGenerator::generateAdd;
   targetGeneration->generateSub = &NoOpTargetGenerator::generateSub;

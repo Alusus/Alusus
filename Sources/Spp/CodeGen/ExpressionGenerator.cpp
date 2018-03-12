@@ -30,6 +30,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateRoundParamPass,
     &this->generateSquareParamPass,
     &this->generateOperator,
+    &this->generateLogicalOperator,
     &this->generateAssignment,
     &this->generatePointerOp,
     &this->generateContentOp,
@@ -59,6 +60,7 @@ void ExpressionGenerator::initBindings()
   this->generateRoundParamPass = &ExpressionGenerator::_generateRoundParamPass;
   this->generateSquareParamPass = &ExpressionGenerator::_generateSquareParamPass;
   this->generateOperator = &ExpressionGenerator::_generateOperator;
+  this->generateLogicalOperator = &ExpressionGenerator::_generateLogicalOperator;
   this->generateAssignment = &ExpressionGenerator::_generateAssignment;
   this->generatePointerOp = &ExpressionGenerator::_generatePointerOp;
   this->generateContentOp = &ExpressionGenerator::_generateContentOp;
@@ -473,7 +475,11 @@ Bool ExpressionGenerator::_generateOperator(
     else if (infixOp->getType() == STR("&=")) funcName = STR("__andAssign");
     else if (infixOp->getType() == STR("|=")) funcName = STR("__orAssign");
     else if (infixOp->getType() == STR("$=")) funcName = STR("__xorAssign");
-    else {
+    else if (infixOp->getType() == STR("||")) {
+      return expGenerator->generateLogicalOperator(infixOp, g, tg, tgContext, result);
+    } else if (infixOp->getType() == STR("&&")) {
+      return expGenerator->generateLogicalOperator(infixOp, g, tg, tgContext, result);
+    } else {
       throw EXCEPTION(GenericException, STR("Unexpected infix operator."));
     }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
@@ -527,6 +533,56 @@ Bool ExpressionGenerator::_generateOperator(
 
   // Generate the functionc all.
   return expGenerator->generateFunctionCall(function, &paramAstTypes, &paramTgValues, g, tg, tgContext, result);
+}
+
+
+Bool ExpressionGenerator::_generateLogicalOperator(
+  TiObject *self, Core::Data::Ast::InfixOperator *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // Prepare the operator.
+  TioSharedPtr secondContext;
+  if (!tg->prepareLogicalOp(tgContext, secondContext)) return false;
+
+  // Generate 1st operand.
+  GenResult firstResult;
+  if (!expGenerator->generate(astNode->getFirst().get(), g, tg, tgContext, firstResult)) return false;
+
+  // Cast 1st operand to boolean.
+  TioSharedPtr firstCastedResult;
+  if (!expGenerator->castLogicalOperand(
+    g, tg, tgContext, astNode->getFirst().get(), firstResult.astType, firstResult.targetData.get(), firstCastedResult
+  )) return false;
+
+  // Generate 2nd operand.
+  GenResult secondResult;
+  if (!expGenerator->generate(astNode->getSecond().get(), g, tg, secondContext.get(), secondResult)) return false;
+
+  // Cast 2nd operand to boolean.
+  TioSharedPtr secondCastedResult;
+  if (!expGenerator->castLogicalOperand(
+    g, tg, secondContext.get(), astNode->getSecond().get(), secondResult.astType, secondResult.targetData.get(),
+    secondCastedResult
+  )) return false;
+
+  // Finalize the operator.
+  if (astNode->getType() == STR("||")) {
+    if (!tg->finishLogicalOr(
+      tgContext, secondContext.get(), firstCastedResult.get(), secondCastedResult.get(), result.targetData
+    )) return false;
+    result.astType = expGenerator->astHelper->getBoolType();
+    return true;
+  } else if (astNode->getType() == STR("&&")) {
+    if (!tg->finishLogicalAnd(
+      tgContext, secondContext.get(), firstCastedResult.get(), secondCastedResult.get(), result.targetData
+    )) return false;
+    result.astType = expGenerator->astHelper->getBoolType();
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, STR("Invalid logical operator."));
+  }
 }
 
 
@@ -1467,6 +1523,28 @@ Bool ExpressionGenerator::dereferenceIfNeeded(
     result.targetData = getSharedPtr(tgValue);
     return true;
   }
+}
+
+
+Bool ExpressionGenerator::castLogicalOperand(
+  Generation *g, TargetGeneration *tg, TiObject *tgContext, Core::Basic::TiObject *astNode, Spp::Ast::Type *astType,
+  TiObject *tgValue, TioSharedPtr &result
+) {
+  auto boolType = this->astHelper->getBoolType();
+  if (astType == 0 || !astType->isImplicitlyCastableTo(boolType, this->astHelper, tg->getExecutionContext())) {
+    this->noticeStore->add(
+      std::make_shared<InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
+    );
+    return false;
+  }
+  if (!g->generateCast(tg, tgContext, astType, this->astHelper->getBoolType(), tgValue, result)) {
+    this->noticeStore->add(
+      std::make_shared<InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
+    );
+    return false;
+  }
+
+  return true;
 }
 
 } } // namespace

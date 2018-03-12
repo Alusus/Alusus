@@ -137,6 +137,9 @@ DEFINE_NOTICE(InvalidContinueStepsNotice, "Spp.CodeGen", "Spp", "alusus.net", "S
 DEFINE_NOTICE(InvalidBreakStepsNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1313", 1,
   STR("Invalid break steps.")
 );
+DEFINE_NOTICE(InvalidLogicalOperandNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1314", 1,
+  STR("Invalid operand of logical operator.")
+);
 
 } } // namespace
 

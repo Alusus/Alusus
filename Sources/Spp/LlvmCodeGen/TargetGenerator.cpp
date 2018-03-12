@@ -72,6 +72,11 @@ void TargetGenerator::initBindings()
   targetGeneration->generateFunctionCall = &TargetGenerator::generateFunctionCall;
   targetGeneration->generateReturn = &TargetGenerator::generateReturn;
 
+  // Logical Ops Generation Functions
+  targetGeneration->prepareLogicalOp = &TargetGenerator::prepareLogicalOp;
+  targetGeneration->finishLogicalOr = &TargetGenerator::finishLogicalOr;
+  targetGeneration->finishLogicalAnd = &TargetGenerator::finishLogicalAnd;
+
   // Math Ops Generation Functions
   targetGeneration->generateAdd = &TargetGenerator::generateAdd;
   targetGeneration->generateSub = &TargetGenerator::generateSub;
@@ -862,6 +867,91 @@ Bool TargetGenerator::generateReturn(
   } else {
     block->getIrBuilder()->CreateRetVoid();
   }
+  return true;
+}
+
+
+//==============================================================================
+// Logical Ops Generation Functions
+
+Bool TargetGenerator::prepareLogicalOp(TiObject *context, TioSharedPtr &secondContext)
+{
+  PREPARE_ARG(context, block, Block);
+
+  auto block2 = std::make_shared<Block>();
+  block2->setLlvmBlock(
+    llvm::BasicBlock::Create(llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction())
+  );
+  block2->setIrBuilder(new llvm::IRBuilder<>(block2->getLlvmBlock()));
+  block2->setLlvmFunction(block->getLlvmFunction());
+  secondContext = block2;
+
+  return true;
+}
+
+
+Bool TargetGenerator::finishLogicalOr(
+  TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(secondContext, block2, Block);
+  PREPARE_ARG(val1, val1Wrapper, Value);
+  PREPARE_ARG(val2, val2Wrapper, Value);
+
+  // Create the merge block and jump to it.
+  auto mergeLlvmBlock = llvm::BasicBlock::Create(
+    llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction()
+  );
+  block2->getIrBuilder()->CreateBr(mergeLlvmBlock);
+
+  // Create the if statement.
+  block->getIrBuilder()->CreateCondBr(val1Wrapper->getLlvmValue(), mergeLlvmBlock, block2->getLlvmEntryBlock());
+
+  // Set insert point to the merge body.
+  auto block1 = block->getLlvmBlock();
+  block->getIrBuilder()->SetInsertPoint(mergeLlvmBlock);
+  block->setLlvmBlock(mergeLlvmBlock);
+
+  // Generate phi value.
+  auto boolType = llvm::Type::getIntNTy(llvm::getGlobalContext(), 1);
+  llvm::PHINode *phi = block->getIrBuilder()->CreatePHI(boolType, 0);
+  phi->addIncoming(val1Wrapper->getLlvmValue(), block1);
+  phi->addIncoming(val2Wrapper->getLlvmValue(), block2->getLlvmBlock());
+
+  result = std::make_shared<Value>(phi);
+  return true;
+}
+
+
+Bool TargetGenerator::finishLogicalAnd(
+  TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(secondContext, block2, Block);
+  PREPARE_ARG(val1, val1Wrapper, Value);
+  PREPARE_ARG(val2, val2Wrapper, Value);
+
+  // Create the merge block and jump to it.
+  auto mergeLlvmBlock = llvm::BasicBlock::Create(
+    llvm::getGlobalContext(), this->getNewBlockName(), block->getLlvmFunction()
+  );
+  block2->getIrBuilder()->CreateBr(mergeLlvmBlock);
+
+  // Create the if statement.
+  block->getIrBuilder()->CreateCondBr(val1Wrapper->getLlvmValue(), block2->getLlvmEntryBlock(), mergeLlvmBlock);
+
+  // Set insert point to the merge body.
+  auto block1 = block->getLlvmBlock();
+  block->getIrBuilder()->SetInsertPoint(mergeLlvmBlock);
+  block->setLlvmBlock(mergeLlvmBlock);
+
+  // Generate phi value.
+  auto boolType = llvm::Type::getIntNTy(llvm::getGlobalContext(), 1);
+  llvm::PHINode *phi = block->getIrBuilder()->CreatePHI(boolType, 0);
+  phi->addIncoming(val1Wrapper->getLlvmValue(), block1);
+  phi->addIncoming(val2Wrapper->getLlvmValue(), block2->getLlvmBlock());
+
+  result = std::make_shared<Value>(phi);
   return true;
 }
 

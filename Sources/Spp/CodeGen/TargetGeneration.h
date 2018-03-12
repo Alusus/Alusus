@@ -72,6 +72,9 @@ class TargetGeneration : public ObjTiInterface
       &this->generateAssign,
       &this->generateFunctionCall,
       &this->generateReturn,
+      &this->prepareLogicalOp,
+      &this->finishLogicalOr,
+      &this->finishLogicalAnd,
       &this->generateAdd,
       &this->generateSub,
       &this->generateMul,
@@ -356,6 +359,29 @@ class TargetGeneration : public ObjTiInterface
   public: METHOD_BINDING_CACHE(generateReturn,
     Bool, (
       TiObject* /* context */, TiObject* /* retType */, TiObject* /* retVal */
+    )
+  );
+
+  /// @}
+
+  /// @name Logical Ops Generation Functions
+  /// @{
+
+  public: METHOD_BINDING_CACHE(prepareLogicalOp,
+    Bool, (TiObject* /* context */, TioSharedPtr& /* secondContext */)
+  );
+
+  public: METHOD_BINDING_CACHE(finishLogicalOr,
+    Bool, (
+      TiObject* /* context */, TiObject* /* secondContext */, TiObject* /* val1 */, TiObject* /* val2 */,
+      TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(finishLogicalAnd,
+    Bool, (
+      TiObject* /* context */, TiObject* /* secondContext */, TiObject* /* val1 */, TiObject* /* val2 */,
+      TioSharedPtr& /* result */
     )
   );
 
