@@ -28,5 +28,5 @@ def a: {
   @<test do "start trailing";
 };
 
-dump a;
+dump_ast a;
 

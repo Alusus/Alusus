@@ -49,4 +49,4 @@ def main: function ()=>Void
   i = Int[32]~size;
 };
 
-dump main;
+dump_ast main;

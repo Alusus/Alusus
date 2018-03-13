@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Standard
  * namespace.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -134,7 +134,7 @@ DEFINE_NOTICE(InvalidDumpArgNotice, "Core.Standard", "Core", "alusus.net", "DMP1
 // TODO:
 // #include "NumberLiteralTokenizingHandler.h"
 #include "ImportParsingHandler.h"
-#include "DumpParsingHandler.h"
+#include "DumpAstParsingHandler.h"
 
 #include "RedefinitionNotice.h"
 

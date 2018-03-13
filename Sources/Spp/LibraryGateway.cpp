@@ -55,12 +55,12 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   auto innerCmdList = this->getInnerCommandsList(grammarRepository);
   auto tildeCmdList = this->getTildeCommandsList(grammarRepository);
 
-  //// build = "build" + Subject
-  grammarRepository->set(STR("root:Main.Build"), SymbolDefinition::create({
+  //// DumpIr = "dump_ir" + Subject
+  grammarRepository->set(STR("root:Main.DumpLlvmIr"), SymbolDefinition::create({
     { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
     {
       SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("build"), 0 }, { STR("أنشئ"), 0 } }) },
+        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("dump_llvm_ir"), 0 }, { STR("أدرج_ت_و"), 0 } }) },
         {
           STR("prms"), Core::Data::SharedList::create({
             Core::Data::SharedMap::create(false, {
@@ -78,7 +78,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
       manager, this->astHelper.get(), this->generator.get(), this->targetGenerator.get(), false
     )}
   }).get());
-  this->addReferenceToCommandList(leadingCmdList, STR("module:Build"));
+  this->addReferenceToCommandList(leadingCmdList, STR("module:DumpLlvmIr"));
 
   //// run = "run" + Subject
   grammarRepository->set(STR("root:Main.Run"), SymbolDefinition::create({
@@ -630,7 +630,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   this->removeReferenceFromCommandList(tildeCmdList, STR("module:PointerTilde"));
 
   // Remove commands from leading commands list.
-  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Build"));
+  this->removeReferenceFromCommandList(leadingCmdList, STR("module:DumpLlvmIr"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:Run"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:If"));
   this->removeReferenceFromCommandList(leadingCmdList, STR("module:While"));
@@ -645,7 +645,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   this->removeReferenceFromCommandList(innerCmdList, STR("module:Function"));
 
   // Delete definitions.
-  grammarRepository->remove(STR("root:Main.Build"));
+  grammarRepository->remove(STR("root:Main.DumpLlvmIr"));
   grammarRepository->remove(STR("root:Main.Run"));
   grammarRepository->remove(STR("root:Main.If"));
   grammarRepository->remove(STR("root:Main.While"));

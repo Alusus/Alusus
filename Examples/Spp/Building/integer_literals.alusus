@@ -17,8 +17,8 @@ def Main: module
     print("32bit integer: %d\n", 120i32);
     print("64bit integer: %d\n", 120i64);
 
-    print("invalid integer: %d\n", 120i10);    
+    print("invalid integer: %d\n", 120i10);
   }
 };
 
-build Main.start;
+dump_llvm_ir Main.start;

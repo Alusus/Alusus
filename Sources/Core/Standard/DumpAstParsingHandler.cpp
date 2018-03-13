@@ -1,6 +1,6 @@
 /**
- * @file Core/Standard/DumpParsingHandler.cpp
- * Contains the implementation of Core::Standard::DumpParsingHandler.
+ * @file Core/Standard/DumpAstParsingHandler.cpp
+ * Contains the implementation of Core::Standard::DumpAstParsingHandler.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -20,7 +20,7 @@ using namespace Core::Data;
 //==============================================================================
 // Overloaded Abstract Functions
 
-void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
+void DumpAstParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
   using SeekVerb = Data::Seeker::Verb;
 

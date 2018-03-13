@@ -15,8 +15,8 @@ def Main: module
     print("32bit float: %f\n", 1.0f32);
     print("64bit float: %f\n", 1.0f64);
 
-    print("invalid float: %f\n", 1.0f10);    
+    print("invalid float: %f\n", 1.0f10);
   }
 };
 
-build Main.start;
+dump_llvm_ir Main.start;

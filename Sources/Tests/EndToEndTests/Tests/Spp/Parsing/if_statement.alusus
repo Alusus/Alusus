@@ -40,4 +40,4 @@ def main: function ()=>Void
   if (getSomething4()) (doSomething4());
 };
 
-dump main;
+dump_ast main;

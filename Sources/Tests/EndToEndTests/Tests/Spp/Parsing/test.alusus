@@ -11,8 +11,8 @@ def b: module {
     def x: float;
     def y: float;
   };
-  dump a;
-  dump t;
+  dump_ast a;
+  dump_ast t;
 };
 
 def f: function (x:int, y:int)=>int {
@@ -27,8 +27,8 @@ def f: function (x:int, y:int)=>int {
 def t: type {
   def i: float;
   def j: float;
-  dump b.t;
+  dump_ast b.t;
 };
 
-dump f;
-dump t;
+dump_ast f;
+dump_ast t;

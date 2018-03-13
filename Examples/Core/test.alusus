@@ -34,4 +34,4 @@ def a: {
   a = b~(c);
 };
 
-dump a;
+dump_ast a;

@@ -23,4 +23,4 @@ def Main: module
   }
 };
 
-dump Main;
+dump_ast Main;

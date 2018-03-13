@@ -18,6 +18,6 @@ def y: {
   }
 };
 
-dump y.a1;
-dump y.a2.x22;
-dump y.y1.y2;
+dump_ast y.a1;
+dump_ast y.a2.x22;
+dump_ast y.y1.y2;

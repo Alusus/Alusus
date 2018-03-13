@@ -152,4 +152,4 @@ def Other2: module
 {
 };
 
-build Main.start;
+dump_llvm_ir Main.start;

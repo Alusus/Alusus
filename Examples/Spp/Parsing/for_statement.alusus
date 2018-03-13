@@ -28,4 +28,4 @@ def main: function ()=>Void
   for i = 0, i < 10, { doSomething(i) };
 };
 
-dump main;
+dump_ast main;

@@ -49,4 +49,4 @@ def Main: module
   };
 };
 
-build Main;
+dump_llvm_ir Main;

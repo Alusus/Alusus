@@ -36,7 +36,7 @@ void GrammarPlant::createGrammar(RootManager *root, Bool exprOnly)
   this->constTokenHandler = std::make_shared<ConstTokenizingHandler>(this->constTokenId);
   this->parsingHandler = std::make_shared<Handlers::GenericParsingHandler>();
   this->importHandler = std::make_shared<ImportParsingHandler>(root);
-  this->dumpParsingHandler = std::make_shared<DumpParsingHandler>(root);
+  this->dumpAstParsingHandler = std::make_shared<DumpAstParsingHandler>(root);
   this->leadingModifierHandler = std::make_shared<Handlers::ModifierParsingHandler>(true);
   this->trailingModifierHandler = std::make_shared<Handlers::ModifierParsingHandler>(false);
   this->doCommandParsingHandler = std::make_shared<Handlers::GenericCommandParsingHandler>(STR("do"));
@@ -823,7 +823,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
            REF_PARSER->parseQualifier(STR("module:Do")),
            REF_PARSER->parseQualifier(STR("module:Import")),
            REF_PARSER->parseQualifier(STR("module:Def")),
-           REF_PARSER->parseQualifier(STR("module:Dump"))
+           REF_PARSER->parseQualifier(STR("module:DumpAst"))
          })}
       })},
      {SymbolDefElement::HANDLER, this->parsingHandler}
@@ -888,11 +888,11 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
     }).get());
 
     //// dump = "dump" + Subject
-    this->repository.set(STR("root:Main.Dump"), SymbolDefinition::create({
+    this->repository.set(STR("root:Main.DumpAst"), SymbolDefinition::create({
       { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
       {
         SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-          { STR("kwd"), SharedMap::create(false, { { STR("dump"), 0 }, { STR("فرّغ"), 0 } }) },
+          { STR("kwd"), SharedMap::create(false, { { STR("dump_ast"), 0 }, { STR("أدرج_ش_ب_م"), 0 } }) },
           {
             STR("prms"), Core::Data::SharedList::create({
               Core::Data::SharedMap::create(false, {
@@ -906,7 +906,7 @@ void GrammarPlant::createProductionDefinitions(Bool exprOnly)
           }
         })
       },
-      { SymbolDefElement::HANDLER, this->dumpParsingHandler }
+      { SymbolDefElement::HANDLER, this->dumpAstParsingHandler }
     }).get());
   }
 

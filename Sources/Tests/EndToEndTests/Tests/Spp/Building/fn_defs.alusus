@@ -8,11 +8,11 @@ def Main: module
 
   def f: function (a: Int[32], b: Float[32])=>Int[64] {
   };
-  
+
   def g: function (a: ptr[Int[32]])=>Int[32] {
   };
 
   def h: function (a: ptr[Int[32]])=>Int[32];
 };
 
-build Main;
+dump_llvm_ir Main;

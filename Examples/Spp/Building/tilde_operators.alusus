@@ -89,4 +89,4 @@ def Other: module
   def pi: ptr[Int[32]];
 };
 
-build Main;
+dump_llvm_ir Main;

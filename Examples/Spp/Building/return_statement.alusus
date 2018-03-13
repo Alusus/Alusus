@@ -42,7 +42,7 @@ def Main: module
   {
     return;
   };
-  
+
   def voidFunc: function ()=>Void
   {
   };
@@ -63,4 +63,4 @@ def Main: module
   };
 };
 
-build Main;
+dump_llvm_ir Main;
