@@ -2,7 +2,7 @@
  * @file Core/Data/ReferenceParser.cpp
  * Contains the implementation of class Core::Data::ReferenceParser.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -37,41 +37,41 @@ ReferenceParser::CharGroupStorage* ReferenceParser::getSharedCharGroupStorage()
 //==============================================================================
 // Char Group Functions
 
-void ReferenceParser::setSharedLetterCharGroup(SharedPtr<CharGroupUnit> const group)
+void ReferenceParser::setSharedLetterCharGroup(SharedPtr<Grammar::CharGroupUnit> const group)
 {
   ReferenceParser::CharGroupStorage *storage = ReferenceParser::getSharedCharGroupStorage();
   storage->letterCharGroup = group;
 }
 
 
-void ReferenceParser::setSharedNumberCharGroup(SharedPtr<CharGroupUnit> const group)
+void ReferenceParser::setSharedNumberCharGroup(SharedPtr<Grammar::CharGroupUnit> const group)
 {
   ReferenceParser::CharGroupStorage *storage = ReferenceParser::getSharedCharGroupStorage();
   storage->numberCharGroup = group;
 }
 
 
-CharGroupUnit* ReferenceParser::getLetterCharGroup() const
+Grammar::CharGroupUnit* ReferenceParser::getLetterCharGroup() const
 {
   ReferenceParser::CharGroupStorage *storage = ReferenceParser::getSharedCharGroupStorage();
   if (storage->letterCharGroup == 0) {
     storage->letterCharGroup =
-      UnionCharGroupUnit::create({
-        SequenceCharGroupUnit::create(STR("a"), STR("z")),
-        SequenceCharGroupUnit::create(STR("A"), STR("Z")),
-        SequenceCharGroupUnit::create(STR("_"), STR("_"))
+      Grammar::UnionCharGroupUnit::create({
+        Grammar::SequenceCharGroupUnit::create(STR("a"), STR("z")),
+        Grammar::SequenceCharGroupUnit::create(STR("A"), STR("Z")),
+        Grammar::SequenceCharGroupUnit::create(STR("_"), STR("_"))
       });
   }
   return storage->letterCharGroup.get();
 }
 
 
-CharGroupUnit* ReferenceParser::getNumberCharGroup() const
+Grammar::CharGroupUnit* ReferenceParser::getNumberCharGroup() const
 {
   ReferenceParser::CharGroupStorage *storage = ReferenceParser::getSharedCharGroupStorage();
   if (storage->numberCharGroup == 0) {
     storage->numberCharGroup =
-      SequenceCharGroupUnit::create(STR("0"), STR("9"));
+      Grammar::SequenceCharGroupUnit::create(STR("0"), STR("9"));
   }
   return storage->numberCharGroup.get();
 }
@@ -243,7 +243,7 @@ SharedPtr<Reference> ReferenceParser::_parseQualifierSegment(Char const *qualifi
     pos += this->parseInt(qualifier+pos, j);
     seg = this->createIndexReference(j);
     seg->setUsageCriteria(this->usageCriteria);
-  } else if (matchCharGroup(wc, this->getLetterCharGroup())) {
+  } else if (Grammar::matchCharGroup(wc, this->getLetterCharGroup())) {
     //
     // StrKeyReference or ScopeReference or SelfReference
     //
@@ -254,8 +254,8 @@ SharedPtr<Reference> ReferenceParser::_parseQualifierSegment(Char const *qualifi
       if (processedOut == 0) {
         throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
       }
-    } while (matchCharGroup(wc, this->getLetterCharGroup()) ||
-             matchCharGroup(wc, this->getNumberCharGroup()));
+    } while (Grammar::matchCharGroup(wc, this->getLetterCharGroup()) ||
+             Grammar::matchCharGroup(wc, this->getNumberCharGroup()));
     if (qualifier[pos+i] == CHR(':')) {
       seg = this->createScopeReference(qualifier+pos, i);
     } else if (i == ReferenceParser::SELF_KEYWORD_LEN &&
@@ -328,7 +328,7 @@ Reference const& ReferenceParser::parseQualifierSegmentToTemp(Char const *&quali
     throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
   }
 
-  if (matchCharGroup(wc, this->getLetterCharGroup())) {
+  if (Grammar::matchCharGroup(wc, this->getLetterCharGroup())) {
     //
     // StrKeyReference or ScopeReference or SelfReference
     //
@@ -339,8 +339,8 @@ Reference const& ReferenceParser::parseQualifierSegmentToTemp(Char const *&quali
       if (processedOut == 0) {
         throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
       }
-    } while (matchCharGroup(wc, this->getLetterCharGroup()) ||
-             matchCharGroup(wc, this->getNumberCharGroup()));
+    } while (Grammar::matchCharGroup(wc, this->getLetterCharGroup()) ||
+             Grammar::matchCharGroup(wc, this->getNumberCharGroup()));
     if (qualifier[i] == CHR(':')) {
       Reference const &ref = this->prepareTempScopeReference(qualifier, i);
       qualifier += i;
@@ -495,7 +495,7 @@ Bool ReferenceParser::_validateQualifierSegment(Char const *&qualifier, Bool abs
   } else if (*qualifier >= CHR('0') && *qualifier <= CHR('9')) {
     // IndexReference.
     while (*qualifier >= CHR('0') && *qualifier <= CHR('9')) ++qualifier;
-  } else if (matchCharGroup(wc, this->getLetterCharGroup())) {
+  } else if (Grammar::matchCharGroup(wc, this->getLetterCharGroup())) {
     // StrKeyReference or ScopeReference
     do {
       qualifier += processedIn;
@@ -503,8 +503,8 @@ Bool ReferenceParser::_validateQualifierSegment(Char const *&qualifier, Bool abs
       if (processedOut == 0) {
         throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
       }
-    } while (matchCharGroup(wc, this->getLetterCharGroup()) ||
-             matchCharGroup(wc, this->getNumberCharGroup()));
+    } while (Grammar::matchCharGroup(wc, this->getLetterCharGroup()) ||
+             Grammar::matchCharGroup(wc, this->getNumberCharGroup()));
   } else if (compareStr(qualifier, ReferenceParser::FIND_KEYWORD, ReferenceParser::FIND_KEYWORD_LEN) == 0 &&
              absolute == false) {
     // SearchReference.

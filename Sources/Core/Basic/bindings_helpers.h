@@ -118,56 +118,56 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
   HoldMode::VARHOLDMODE_FROM_TUPLE var
 
 // Cases for setMember(key)
-#define _IMPLEMENT_BINDINGS_KEYSET_CASE(varIndex, varNameStr, var) \
+#define _IMPLEMENT_BINDINGS_KEYSET_CASE(parent, varIndex, varNameStr, var) \
   if (SBSTR(key) == varNameStr) { \
-    _SET_MEMBER(var); return varIndex; \
+    _SET_MEMBER(var); return varIndex + parent::getMemberCount(); \
   }
-#define _IMPLEMENT_BINDINGS_KEYSET1(var1) \
-  _IMPLEMENT_BINDINGS_KEYSET_CASE(0, VARNAMESTR_FROM_TUPLE var1, var1)
-#define _IMPLEMENT_BINDINGS_KEYSET2(var1, var2) \
-  _IMPLEMENT_BINDINGS_KEYSET_CASE(0, VARNAMESTR_FROM_TUPLE var1, var1) \
-  _IMPLEMENT_BINDINGS_KEYSET_CASE(1, VARNAMESTR_FROM_TUPLE var2, var2)
-#define _IMPLEMENT_BINDINGS_KEYSET3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_KEYSET2(var1, var2) \
-  _IMPLEMENT_BINDINGS_KEYSET_CASE(2, VARNAMESTR_FROM_TUPLE var3, var3)
-#define _IMPLEMENT_BINDINGS_KEYSET4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_KEYSET3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_KEYSET_CASE(3, VARNAMESTR_FROM_TUPLE var4, var4)
-#define _IMPLEMENT_BINDINGS_KEYSET5(var1, var2, var3, var4, var5) \
-  _IMPLEMENT_BINDINGS_KEYSET4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_KEYSET_CASE(4, VARNAMESTR_FROM_TUPLE var5, var5)
-#define _IMPLEMENT_BINDINGS_KEYSET(...) \
+#define _IMPLEMENT_BINDINGS_KEYSET1(parent, var1) \
+  _IMPLEMENT_BINDINGS_KEYSET_CASE(parent, 0, VARNAMESTR_FROM_TUPLE var1, var1)
+#define _IMPLEMENT_BINDINGS_KEYSET2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_KEYSET_CASE(parent, 0, VARNAMESTR_FROM_TUPLE var1, var1) \
+  _IMPLEMENT_BINDINGS_KEYSET_CASE(parent, 1, VARNAMESTR_FROM_TUPLE var2, var2)
+#define _IMPLEMENT_BINDINGS_KEYSET3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_KEYSET2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_KEYSET_CASE(parent, 2, VARNAMESTR_FROM_TUPLE var3, var3)
+#define _IMPLEMENT_BINDINGS_KEYSET4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_KEYSET3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_KEYSET_CASE(parent, 3, VARNAMESTR_FROM_TUPLE var4, var4)
+#define _IMPLEMENT_BINDINGS_KEYSET5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_BINDINGS_KEYSET4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_KEYSET_CASE(parent, 4, VARNAMESTR_FROM_TUPLE var5, var5)
+#define _IMPLEMENT_BINDINGS_KEYSET(parent, ...) \
   SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
                _IMPLEMENT_BINDINGS_KEYSET5, \
                _IMPLEMENT_BINDINGS_KEYSET4, \
                _IMPLEMENT_BINDINGS_KEYSET3, \
                _IMPLEMENT_BINDINGS_KEYSET2, \
-               _IMPLEMENT_BINDINGS_KEYSET1)(__VA_ARGS__)
+               _IMPLEMENT_BINDINGS_KEYSET1)(parent, __VA_ARGS__)
 
 // Cases for setMember(index)
-#define _IMPLEMENT_BINDINGS_INDEXSET_CASE(varIndex, var) \
-  if (index == varIndex) { _SET_MEMBER(var); return; }
-#define _IMPLEMENT_BINDINGS_INDEXSET1(var1) \
-  _IMPLEMENT_BINDINGS_INDEXSET_CASE(0, var1)
-#define _IMPLEMENT_BINDINGS_INDEXSET2(var1, var2) \
-  _IMPLEMENT_BINDINGS_INDEXSET_CASE(0, var1) \
-  _IMPLEMENT_BINDINGS_INDEXSET_CASE(1, var2)
-#define _IMPLEMENT_BINDINGS_INDEXSET3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_INDEXSET2(var1, var2) \
-  _IMPLEMENT_BINDINGS_INDEXSET_CASE(2, var3)
-#define _IMPLEMENT_BINDINGS_INDEXSET4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_INDEXSET3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_INDEXSET_CASE(3, var4)
-#define _IMPLEMENT_BINDINGS_INDEXSET5(var1, var2, var3, var4, var5) \
-  _IMPLEMENT_BINDINGS_INDEXSET4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_INDEXSET_CASE(4, var5)
-#define _IMPLEMENT_BINDINGS_INDEXSET(...) \
+#define _IMPLEMENT_BINDINGS_INDEXSET_CASE(parent, varIndex, var) \
+  if (index == parent::getMemberCount() + varIndex) { _SET_MEMBER(var); return; }
+#define _IMPLEMENT_BINDINGS_INDEXSET1(parent, var1) \
+  _IMPLEMENT_BINDINGS_INDEXSET_CASE(parent, 0, var1)
+#define _IMPLEMENT_BINDINGS_INDEXSET2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_INDEXSET_CASE(parent, 0, var1) \
+  _IMPLEMENT_BINDINGS_INDEXSET_CASE(parent, 1, var2)
+#define _IMPLEMENT_BINDINGS_INDEXSET3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_INDEXSET2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_INDEXSET_CASE(parent, 2, var3)
+#define _IMPLEMENT_BINDINGS_INDEXSET4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_INDEXSET3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_INDEXSET_CASE(parent, 3, var4)
+#define _IMPLEMENT_BINDINGS_INDEXSET5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_BINDINGS_INDEXSET4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_INDEXSET_CASE(parent, 4, var5)
+#define _IMPLEMENT_BINDINGS_INDEXSET(parent, ...) \
   SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
                _IMPLEMENT_BINDINGS_INDEXSET5, \
                _IMPLEMENT_BINDINGS_INDEXSET4, \
                _IMPLEMENT_BINDINGS_INDEXSET3, \
                _IMPLEMENT_BINDINGS_INDEXSET2, \
-               _IMPLEMENT_BINDINGS_INDEXSET1)(__VA_ARGS__)
+               _IMPLEMENT_BINDINGS_INDEXSET1)(parent, __VA_ARGS__)
 
 // Cases for removeMember(key)
 #define _IMPLEMENT_BINDINGS_KEYREMOVE_CASE(varIndex, varNameStr, var) \
@@ -197,29 +197,29 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
                _IMPLEMENT_BINDINGS_KEYREMOVE1)(__VA_ARGS__)
 
 // Cases for removeMember(index)
-#define _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(varIndex, var) \
-  if (index == varIndex) { _REMOVE_MEMBER(var); return; }
-#define _IMPLEMENT_BINDINGS_INDEXREMOVE1(var1) \
-  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(0, var1)
-#define _IMPLEMENT_BINDINGS_INDEXREMOVE2(var1, var2) \
-  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(0, var1) \
-  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(1, var2)
-#define _IMPLEMENT_BINDINGS_INDEXREMOVE3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_INDEXREMOVE2(var1, var2) \
-  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(2, var3)
-#define _IMPLEMENT_BINDINGS_INDEXREMOVE4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_INDEXREMOVE3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(3, var4)
-#define _IMPLEMENT_BINDINGS_INDEXREMOVE5(var1, var2, var3, var4, var5) \
-  _IMPLEMENT_BINDINGS_INDEXREMOVE4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(4, var5)
-#define _IMPLEMENT_BINDINGS_INDEXREMOVE(...) \
+#define _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(parent, varIndex, var) \
+  if (index == parent::getMemberCount() + varIndex) { _REMOVE_MEMBER(var); return; }
+#define _IMPLEMENT_BINDINGS_INDEXREMOVE1(parent, var1) \
+  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(parent, 0, var1)
+#define _IMPLEMENT_BINDINGS_INDEXREMOVE2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(parent, 0, var1) \
+  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(parent, 1, var2)
+#define _IMPLEMENT_BINDINGS_INDEXREMOVE3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_INDEXREMOVE2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(parent, 2, var3)
+#define _IMPLEMENT_BINDINGS_INDEXREMOVE4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_INDEXREMOVE3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(parent, 3, var4)
+#define _IMPLEMENT_BINDINGS_INDEXREMOVE5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_BINDINGS_INDEXREMOVE4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_INDEXREMOVE_CASE(parent, 4, var5)
+#define _IMPLEMENT_BINDINGS_INDEXREMOVE(parent, ...) \
   SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
                _IMPLEMENT_BINDINGS_INDEXREMOVE5, \
                _IMPLEMENT_BINDINGS_INDEXREMOVE4, \
                _IMPLEMENT_BINDINGS_INDEXREMOVE3, \
                _IMPLEMENT_BINDINGS_INDEXREMOVE2, \
-               _IMPLEMENT_BINDINGS_INDEXREMOVE1)(__VA_ARGS__)
+               _IMPLEMENT_BINDINGS_INDEXREMOVE1)(parent, __VA_ARGS__)
 
 // Cases for getMember(key)
 #define _IMPLEMENT_BINDINGS_KEYGET_CASE(varIndex, varNameStr, var) \
@@ -247,29 +247,29 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
                _IMPLEMENT_BINDINGS_KEYGET1)(__VA_ARGS__)
 
 // Cases for getMember(index)
-#define _IMPLEMENT_BINDINGS_INDEXGET_CASE(varIndex, var) \
-  if (index == varIndex) { return const_cast<_GET_MEMBER_TYPE(var)*>(_GET_MEMBER(var)); }
-#define _IMPLEMENT_BINDINGS_INDEXGET1(var1) \
-  _IMPLEMENT_BINDINGS_INDEXGET_CASE(0, var1)
-#define _IMPLEMENT_BINDINGS_INDEXGET2(var1, var2) \
-  _IMPLEMENT_BINDINGS_INDEXGET_CASE(0, var1) \
-  _IMPLEMENT_BINDINGS_INDEXGET_CASE(1, var2)
-#define _IMPLEMENT_BINDINGS_INDEXGET3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_INDEXGET2(var1, var2) \
-  _IMPLEMENT_BINDINGS_INDEXGET_CASE(2, var3)
-#define _IMPLEMENT_BINDINGS_INDEXGET4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_INDEXGET3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_INDEXGET_CASE(3, var4)
-#define _IMPLEMENT_BINDINGS_INDEXGET5(var1, var2, var3, var4, var5) \
-  _IMPLEMENT_BINDINGS_INDEXGET4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_INDEXGET_CASE(4, var5)
-#define _IMPLEMENT_BINDINGS_INDEXGET(...) \
+#define _IMPLEMENT_BINDINGS_INDEXGET_CASE(parent, varIndex, var) \
+  if (index == parent::getMemberCount() + varIndex) { return const_cast<_GET_MEMBER_TYPE(var)*>(_GET_MEMBER(var)); }
+#define _IMPLEMENT_BINDINGS_INDEXGET1(parent, var1) \
+  _IMPLEMENT_BINDINGS_INDEXGET_CASE(parent, 0, var1)
+#define _IMPLEMENT_BINDINGS_INDEXGET2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_INDEXGET_CASE(parent, 0, var1) \
+  _IMPLEMENT_BINDINGS_INDEXGET_CASE(parent, 1, var2)
+#define _IMPLEMENT_BINDINGS_INDEXGET3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_INDEXGET2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_INDEXGET_CASE(parent, 2, var3)
+#define _IMPLEMENT_BINDINGS_INDEXGET4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_INDEXGET3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_INDEXGET_CASE(parent, 3, var4)
+#define _IMPLEMENT_BINDINGS_INDEXGET5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_BINDINGS_INDEXGET4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_INDEXGET_CASE(parent, 4, var5)
+#define _IMPLEMENT_BINDINGS_INDEXGET(parent, ...) \
   SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
                _IMPLEMENT_BINDINGS_INDEXGET5, \
                _IMPLEMENT_BINDINGS_INDEXGET4, \
                _IMPLEMENT_BINDINGS_INDEXGET3, \
                _IMPLEMENT_BINDINGS_INDEXGET2, \
-               _IMPLEMENT_BINDINGS_INDEXGET1)(__VA_ARGS__)
+               _IMPLEMENT_BINDINGS_INDEXGET1)(parent, __VA_ARGS__)
 
 // Cases for getMemberNeededType(key)
 #define _IMPLEMENT_BINDINGS_KEYGETTYPE_CASE(varIndex, varNameStr, var) \
@@ -297,29 +297,29 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
                _IMPLEMENT_BINDINGS_KEYGETTYPE1)(__VA_ARGS__)
 
 // Cases for getMemberNeededType(index)
-#define _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(varIndex, var) \
-  if (index == varIndex) { return _GET_MEMBER_TYPE_INFO(var); }
-#define _IMPLEMENT_BINDINGS_INDEXGETTYPE1(var1) \
-  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(0, var1)
-#define _IMPLEMENT_BINDINGS_INDEXGETTYPE2(var1, var2) \
-  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(0, var1) \
-  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(1, var2)
-#define _IMPLEMENT_BINDINGS_INDEXGETTYPE3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_INDEXGETTYPE2(var1, var2) \
-  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(2, var3)
-#define _IMPLEMENT_BINDINGS_INDEXGETTYPE4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_INDEXGETTYPE3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(3, var4)
-#define _IMPLEMENT_BINDINGS_INDEXGETTYPE5(var1, var2, var3, var4, var5) \
-  _IMPLEMENT_BINDINGS_INDEXGETTYPE4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(4, var5)
-#define _IMPLEMENT_BINDINGS_INDEXGETTYPE(...) \
+#define _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(parent, varIndex, var) \
+  if (index == parent::getMemberCount() + varIndex) { return _GET_MEMBER_TYPE_INFO(var); }
+#define _IMPLEMENT_BINDINGS_INDEXGETTYPE1(parent, var1) \
+  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(parent, 0, var1)
+#define _IMPLEMENT_BINDINGS_INDEXGETTYPE2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(parent, 0, var1) \
+  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(parent, 1, var2)
+#define _IMPLEMENT_BINDINGS_INDEXGETTYPE3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_INDEXGETTYPE2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(parent, 2, var3)
+#define _IMPLEMENT_BINDINGS_INDEXGETTYPE4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_INDEXGETTYPE3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(parent, 3, var4)
+#define _IMPLEMENT_BINDINGS_INDEXGETTYPE5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_BINDINGS_INDEXGETTYPE4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_INDEXGETTYPE_CASE(parent, 4, var5)
+#define _IMPLEMENT_BINDINGS_INDEXGETTYPE(parent, ...) \
   SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
                _IMPLEMENT_BINDINGS_INDEXGETTYPE5, \
                _IMPLEMENT_BINDINGS_INDEXGETTYPE4, \
                _IMPLEMENT_BINDINGS_INDEXGETTYPE3, \
                _IMPLEMENT_BINDINGS_INDEXGETTYPE2, \
-               _IMPLEMENT_BINDINGS_INDEXGETTYPE1)(__VA_ARGS__)
+               _IMPLEMENT_BINDINGS_INDEXGETTYPE1)(parent, __VA_ARGS__)
 
 // Cases for getMemberHoldMode(key)
 #define _IMPLEMENT_BINDINGS_KEYGETHOLDMODE_CASE(varIndex, varNameStr, var) \
@@ -347,91 +347,91 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
                _IMPLEMENT_BINDINGS_KEYGETHOLDMODE1)(__VA_ARGS__)
 
 // Cases for getMemberHoldMode(index)
-#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(varIndex, var) \
-  if (index == varIndex) { return _GET_MEMBER_HOLDMODE(var); }
-#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE1(var1) \
-  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(0, var1)
-#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE2(var1, var2) \
-  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(0, var1) \
-  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(1, var2)
-#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE2(var1, var2) \
-  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(2, var3)
-#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(3, var4)
-#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE5(var1, var2, var3, var4, var5) \
-  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(4, var5)
-#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE(...) \
+#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(parent, varIndex, var) \
+  if (index == parent::getMemberCount() + varIndex) { return _GET_MEMBER_HOLDMODE(var); }
+#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE1(parent, var1) \
+  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(parent, 0, var1)
+#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(parent, 0, var1) \
+  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(parent, 1, var2)
+#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(parent, 2, var3)
+#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(parent, 3, var4)
+#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE_CASE(parent, 4, var5)
+#define _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE(parent, ...) \
   SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
                _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE5, \
                _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE4, \
                _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE3, \
                _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE2, \
-               _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE1)(__VA_ARGS__)
+               _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE1)(parent, __VA_ARGS__)
 
 // Cases for getMemberKey
-#define _IMPLEMENT_BINDINGS_GETKEY_CASE(varIndex, varNameStr) \
-  if (varIndex == index) return SBSTR(varNameStr);
-#define _IMPLEMENT_BINDINGS_GETKEY1(var1) \
-  _IMPLEMENT_BINDINGS_GETKEY_CASE(0, VARNAMESTR_FROM_TUPLE var1)
-#define _IMPLEMENT_BINDINGS_GETKEY2(var1, var2) \
-  _IMPLEMENT_BINDINGS_GETKEY_CASE(0, VARNAMESTR_FROM_TUPLE var1) \
-  _IMPLEMENT_BINDINGS_GETKEY_CASE(1, VARNAMESTR_FROM_TUPLE var2)
-#define _IMPLEMENT_BINDINGS_GETKEY3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_GETKEY2(var1, var2) \
-  _IMPLEMENT_BINDINGS_GETKEY_CASE(2, VARNAMESTR_FROM_TUPLE var3)
-#define _IMPLEMENT_BINDINGS_GETKEY4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_GETKEY3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_GETKEY_CASE(3, VARNAMESTR_FROM_TUPLE var4)
-#define _IMPLEMENT_BINDINGS_GETKEY5(var1, var2, var3, var4, var5) \
-  _IMPLEMENT_BINDINGS_GETKEY4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_GETKEY_CASE(4, VARNAMESTR_FROM_TUPLE var5)
-#define _IMPLEMENT_BINDINGS_GETKEY(...) \
+#define _IMPLEMENT_BINDINGS_GETKEY_CASE(parent, varIndex, varNameStr) \
+  if (parent::getMemberCount() + varIndex == index) return SBSTR(varNameStr);
+#define _IMPLEMENT_BINDINGS_GETKEY1(parent, var1) \
+  _IMPLEMENT_BINDINGS_GETKEY_CASE(parent, 0, VARNAMESTR_FROM_TUPLE var1)
+#define _IMPLEMENT_BINDINGS_GETKEY2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_GETKEY_CASE(parent, 0, VARNAMESTR_FROM_TUPLE var1) \
+  _IMPLEMENT_BINDINGS_GETKEY_CASE(parent, 1, VARNAMESTR_FROM_TUPLE var2)
+#define _IMPLEMENT_BINDINGS_GETKEY3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_GETKEY2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_GETKEY_CASE(parent, 2, VARNAMESTR_FROM_TUPLE var3)
+#define _IMPLEMENT_BINDINGS_GETKEY4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_GETKEY3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_GETKEY_CASE(parent, 3, VARNAMESTR_FROM_TUPLE var4)
+#define _IMPLEMENT_BINDINGS_GETKEY5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_BINDINGS_GETKEY4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_GETKEY_CASE(parent, 4, VARNAMESTR_FROM_TUPLE var5)
+#define _IMPLEMENT_BINDINGS_GETKEY(parent, ...) \
   SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
                _IMPLEMENT_BINDINGS_GETKEY5, \
                _IMPLEMENT_BINDINGS_GETKEY4, \
                _IMPLEMENT_BINDINGS_GETKEY3, \
                _IMPLEMENT_BINDINGS_GETKEY2, \
-               _IMPLEMENT_BINDINGS_GETKEY1)(__VA_ARGS__)
+               _IMPLEMENT_BINDINGS_GETKEY1)(parent, __VA_ARGS__)
 
 // Cases for findMemberIndex
-#define _IMPLEMENT_BINDINGS_FINDINDEX_CASE(varIndex, varNameStr) \
-  if (SBSTR(key) == varNameStr) return varIndex;
-#define _IMPLEMENT_BINDINGS_FINDINDEX1(var1) \
-  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(0, VARNAMESTR_FROM_TUPLE var1)
-#define _IMPLEMENT_BINDINGS_FINDINDEX2(var1, var2) \
-  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(0, VARNAMESTR_FROM_TUPLE var1) \
-  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(1, VARNAMESTR_FROM_TUPLE var2)
-#define _IMPLEMENT_BINDINGS_FINDINDEX3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_FINDINDEX2(var1, var2) \
-  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(2, VARNAMESTR_FROM_TUPLE var3)
-#define _IMPLEMENT_BINDINGS_FINDINDEX4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_FINDINDEX3(var1, var2, var3) \
-  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(3, VARNAMESTR_FROM_TUPLE var4)
-#define _IMPLEMENT_BINDINGS_FINDINDEX5(var1, var2, var3, var4, var5) \
-  _IMPLEMENT_BINDINGS_FINDINDEX4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(4, VARNAMESTR_FROM_TUPLE var5)
-#define _IMPLEMENT_BINDINGS_FINDINDEX(...) \
+#define _IMPLEMENT_BINDINGS_FINDINDEX_CASE(parent, varIndex, varNameStr) \
+  if (SBSTR(key) == varNameStr) return parent::getMemberCount() + varIndex;
+#define _IMPLEMENT_BINDINGS_FINDINDEX1(parent, var1) \
+  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(parent, 0, VARNAMESTR_FROM_TUPLE var1)
+#define _IMPLEMENT_BINDINGS_FINDINDEX2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(parent, 0, VARNAMESTR_FROM_TUPLE var1) \
+  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(parent, 1, VARNAMESTR_FROM_TUPLE var2)
+#define _IMPLEMENT_BINDINGS_FINDINDEX3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_FINDINDEX2(parent, var1, var2) \
+  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(parent, 2, VARNAMESTR_FROM_TUPLE var3)
+#define _IMPLEMENT_BINDINGS_FINDINDEX4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_FINDINDEX3(parent, var1, var2, var3) \
+  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(parent, 3, VARNAMESTR_FROM_TUPLE var4)
+#define _IMPLEMENT_BINDINGS_FINDINDEX5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_BINDINGS_FINDINDEX4(parent, var1, var2, var3, var4) \
+  _IMPLEMENT_BINDINGS_FINDINDEX_CASE(parent, 4, VARNAMESTR_FROM_TUPLE var5)
+#define _IMPLEMENT_BINDINGS_FINDINDEX(parent, ...) \
   SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
                _IMPLEMENT_BINDINGS_FINDINDEX5, \
                _IMPLEMENT_BINDINGS_FINDINDEX4, \
                _IMPLEMENT_BINDINGS_FINDINDEX3, \
                _IMPLEMENT_BINDINGS_FINDINDEX2, \
-               _IMPLEMENT_BINDINGS_FINDINDEX1)(__VA_ARGS__)
+               _IMPLEMENT_BINDINGS_FINDINDEX1)(parent, __VA_ARGS__)
 
-// MapContainer Implementation Macro
+// Bindings Implementation Macro
 #define IMPLEMENT_BINDINGS(parent, ...) \
   public: using Bindings::setMember; \
   public: virtual Int setMember(Char const *key, TiObject *val) \
   { \
-    _IMPLEMENT_BINDINGS_KEYSET(__VA_ARGS__); \
+    _IMPLEMENT_BINDINGS_KEYSET(parent, __VA_ARGS__); \
     return parent::setMember(key, val); \
   } \
   public: virtual void setMember(Int index, TiObject *val) \
   { \
-    _IMPLEMENT_BINDINGS_INDEXSET(__VA_ARGS__); \
+    _IMPLEMENT_BINDINGS_INDEXSET(parent, __VA_ARGS__); \
     parent::setMember(index, val); \
   } \
   public: virtual void removeMember(Char const *key) \
@@ -441,7 +441,7 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
   } \
   public: virtual void removeMember(Int index) \
   { \
-    _IMPLEMENT_BINDINGS_INDEXREMOVE(__VA_ARGS__); \
+    _IMPLEMENT_BINDINGS_INDEXREMOVE(parent, __VA_ARGS__); \
     parent::removeMember(index); \
   } \
   public: virtual Word getMemberCount() const \
@@ -456,7 +456,7 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
   } \
   public: virtual TiObject* getMember(Int index) const \
   { \
-    _IMPLEMENT_BINDINGS_INDEXGET(__VA_ARGS__); \
+    _IMPLEMENT_BINDINGS_INDEXGET(parent, __VA_ARGS__); \
     return parent::getMember(index); \
   } \
   public: virtual TypeInfo* getMemberNeededType(Char const *key) const \
@@ -466,7 +466,7 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
   } \
   public: virtual TypeInfo* getMemberNeededType(Int index) const \
   { \
-    _IMPLEMENT_BINDINGS_INDEXGETTYPE(__VA_ARGS__); \
+    _IMPLEMENT_BINDINGS_INDEXGETTYPE(parent, __VA_ARGS__); \
     return parent::getMemberNeededType(index); \
   } \
   public: virtual HoldMode getMemberHoldMode(Char const *key) const \
@@ -476,12 +476,12 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
   } \
   public: virtual HoldMode getMemberHoldMode(Int index) const \
   { \
-    _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE(__VA_ARGS__); \
+    _IMPLEMENT_BINDINGS_INDEXGETHOLDMODE(parent, __VA_ARGS__); \
     return parent::getMemberHoldMode(index); \
   } \
   public: virtual const SbStr& getMemberKey(Int index) const \
   { \
-    _IMPLEMENT_BINDINGS_GETKEY(__VA_ARGS__); \
+    _IMPLEMENT_BINDINGS_GETKEY(parent, __VA_ARGS__); \
     return parent::getMemberKey(index); \
   } \
   public: virtual Int findMemberIndex(Char const *key) const \
@@ -489,7 +489,7 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
     if (key == 0) { \
       throw EXCEPTION(InvalidArgumentException, STR("key"), STR("key is null")); \
     } \
-    _IMPLEMENT_BINDINGS_FINDINDEX(__VA_ARGS__); \
+    _IMPLEMENT_BINDINGS_FINDINDEX(parent, __VA_ARGS__); \
     return parent::findMemberIndex(key); \
   }
 

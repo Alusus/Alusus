@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/ParamPass.h
  * Contains the header of class Core::Data::Ast::ParamPass.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class ParamPass : public Node,
-                  public virtual Bindings, public virtual MapContainer, public virtual Metadata,
+                  public virtual Bindings, public virtual Basic::MapContainer<TiObject>, public virtual Metadata,
                   public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ParamPass, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Bindings, MapContainer, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Bindings, Basic::MapContainer<TiObject>, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -48,9 +48,10 @@ class ParamPass : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer,
-                          (TiObject, operand),
-                          (TiObject, param));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+    (operand, TiObject, setOperand(value), operand.get()),
+    (param, TiObject, setParam(value), param.get())
+  );
 
   IMPLEMENT_AST_MAP_PRINTABLE(ParamPass, << (this->type == BracketType::ROUND ? STR("()") : STR("[]")));
 
@@ -92,6 +93,10 @@ class ParamPass : public Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->operand, o);
   }
+  private: void setOperand(TiObject *o)
+  {
+    this->setOperand(getSharedPtr(o));
+  }
 
   public: TioSharedPtr const& getOperand() const
   {
@@ -101,6 +106,10 @@ class ParamPass : public Node,
   public: void setParam(TioSharedPtr const &p)
   {
     UPDATE_OWNED_SHAREDPTR(this->param, p);
+  }
+  private: void setParam(TiObject *p)
+  {
+    this->setParam(getSharedPtr(p));
   }
 
   public: TioSharedPtr const& getParam() const

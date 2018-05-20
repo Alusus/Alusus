@@ -2,7 +2,7 @@
  * @file Core/main.cpp
  * Contains the program's entry point.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -119,10 +119,10 @@ int main(int argCount, char * const args[])
     try {
       // Prepare the root object;
       Standard::RootManager root;
-      Slot<void, SharedPtr<Data::Notice> const&> noticeSlot(
-        [](SharedPtr<Data::Notice> const &notice)->void
+      Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
+        [](SharedPtr<Notices::Notice> const &notice)->void
         {
-          Data::printNotice(notice.get());
+          Notices::printNotice(notice.get());
         }
       );
       root.noticeSignal.connect(noticeSlot);
@@ -139,10 +139,10 @@ int main(int argCount, char * const args[])
     try {
       // Prepare the root object;
       Standard::RootManager root;
-      Slot<void, SharedPtr<Data::Notice> const&> noticeSlot(
-        [](SharedPtr<Data::Notice> const &notice)->void
+      Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
+        [](SharedPtr<Notices::Notice> const &notice)->void
         {
-          Data::printNotice(notice.get());
+          Notices::printNotice(notice.get());
         }
       );
       root.noticeSignal.connect(noticeSlot);

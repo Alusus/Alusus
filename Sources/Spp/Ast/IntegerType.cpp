@@ -23,7 +23,7 @@ Word IntegerType::getBitCount(Helper *helper) const
   if (this->bitCountRef == 0) {
     this->bitCountRef = helper->getRootManager()->parseExpression(STR("bitCount"));
   }
-  auto bitCount = ti_cast<Core::Data::Integer>(
+  auto bitCount = ti_cast<Core::Basic::TiInt>(
     helper->getSeeker()->doGet(this->bitCountRef.get(), this->getOwner())
   );
   if (bitCount == 0) {

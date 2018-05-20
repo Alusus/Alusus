@@ -43,7 +43,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
   private: CommandGenerator *commandGenerator;
   private: ExpressionGenerator *expressionGenerator;
 
-  private: Core::Processing::NoticeStore *noticeStore = 0;
+  private: Core::Notices::Store *noticeStore = 0;
 
 
   //============================================================================
@@ -125,7 +125,7 @@ class Generator : public TiObject, public virtual DynamicBindings, public virtua
     return this->expressionGenerator;
   }
 
-  public: Core::Processing::NoticeStore* getNoticeStore() const
+  public: Core::Notices::Store* getNoticeStore() const
   {
     return this->noticeStore;
   }

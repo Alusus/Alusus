@@ -130,7 +130,7 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Targe
   } else if (astType->isDerivedFrom<Spp::Ast::UserType>()) {
     return typeGenerator->generateUserType(static_cast<Spp::Ast::UserType*>(astType), tg);
   } else {
-    typeGenerator->noticeStore->add(std::make_shared<Spp::Ast::InvalidTypeNotice>());
+    typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidTypeNotice>());
     return false;
   }
 }
@@ -152,7 +152,7 @@ Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
   auto bitCount = astType->getBitCount(typeGenerator->astHelper);
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
-    typeGenerator->noticeStore->add(std::make_shared<InvalidIntegerBitCountNotice>());
+    typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidIntegerBitCountNotice>());
     return false;
   }
   TioSharedPtr tgType;
@@ -168,7 +168,7 @@ Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astT
   auto bitCount = astType->getBitCount(typeGenerator->astHelper);
   // TODO: Support 128 bits?
   if (bitCount != 32 && bitCount != 64) {
-    typeGenerator->noticeStore->add(std::make_shared<InvalidFloatBitCountNotice>());
+    typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidFloatBitCountNotice>());
     return false;
   }
   TioSharedPtr tgType;
@@ -315,7 +315,7 @@ Bool TypeGenerator::_generateCast(
     );
   }
 
-  typeGenerator->noticeStore->add(std::make_shared<InvalidCastNotice>());
+  typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidCastNotice>());
   return false;
 }
 

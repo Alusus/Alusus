@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/ListParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::ListParsingHandler
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -61,7 +61,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
           typedCurrentData = state->getData(levelIndex).tio_cast_get<TYPE>();
           ASSERT(typedCurrentData != 0);
           auto posId = state->refTermLevel(levelIndex).getPosId();
-          typedCurrentData->set(this->startIndex + posId - 1, data.get());
+          typedCurrentData->setElement(this->startIndex + posId - 1, data.get());
         } else {
           // At this point, posId must be 1 since the list is not enforced and the current data is
           // not null, meaning we've already set data at this level.
@@ -70,9 +70,9 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
           if (metadata != 0) {
             list.s_cast_get<TYPE>()->setSourceLocation(metadata->findSourceLocation());
           }
-          auto newContainer = list.tii_cast_get<Data::Container>();
-          newContainer->set(this->startIndex + 0, currentData);
-          newContainer->set(this->startIndex + 1, data.get());
+          auto newContainer = list.ti_cast_get<Basic::Container<TiObject>>();
+          newContainer->setElement(this->startIndex + 0, currentData);
+          newContainer->setElement(this->startIndex + 1, data.get());
           state->setData(list, levelIndex);
         }
         return;
@@ -82,9 +82,9 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
         if (metadata != 0) {
           list.s_cast_get<TYPE>()->setSourceLocation(metadata->findSourceLocation());
         }
-        auto newContainer = list.tii_cast_get<Data::Container>();
-        newContainer->set(this->startIndex + 0, currentData);
-        newContainer->set(this->startIndex + 1, data.get());
+        auto newContainer = list.ti_cast_get<Basic::Container<TiObject>>();
+        newContainer->setElement(this->startIndex + 0, currentData);
+        newContainer->setElement(this->startIndex + 1, data.get());
         state->setData(list, levelIndex);
       }
     }

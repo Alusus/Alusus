@@ -20,7 +20,7 @@ UserType [Subject.Type]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
- argTypes: alusus.net#Core#Core.Data.SharedMap
+ argTypes: Map
   x: Identifier: int [Subject.Parameter]
   y: Identifier: int [Subject.Parameter]
  retType: Identifier: int [Subject.Parameter]

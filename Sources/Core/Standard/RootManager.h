@@ -2,7 +2,7 @@
  * @file Core/Standard/RootManager.h
  * Contains the header of class Core::Standard::RootManager.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,7 +13,7 @@
 #ifndef CORE_STANDARD_ROOTMANAGER_H
 #define CORE_STANDARD_ROOTMANAGER_H
 
-namespace Core { namespace Standard
+namespace Core::Standard
 {
 
 // TODO: DOC
@@ -29,23 +29,22 @@ class RootManager : public TiObject
   //============================================================================
   // Member Variables
 
-  private: GrammarPlant grammarPlant;
-  private: GrammarPlant exprGrammarPlant;
+  private: SharedPtr<Data::Ast::Scope> rootScope;
+  private: SharedPtr<Data::Ast::Scope> exprRootScope;
 
   private: LibraryManager libraryManager;
 
-  private: SharedPtr<Data::Ast::Scope> rootScope;
-  private: Data::Seeker seeker;
-
   private: std::vector<Str> searchPaths;
   private: std::vector<Int> searchPathCounts;
+
+  private: Data::Seeker seeker;
 
 
   //============================================================================
   // Signals
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: SignalRelay<void, SharedPtr<Data::Notice> const&> noticeSignal;
+  public: SignalRelay<void, SharedPtr<Notices::Notice> const&> noticeSignal;
 
 
   //============================================================================
@@ -62,34 +61,19 @@ class RootManager : public TiObject
   //============================================================================
   // Member Functions
 
-  public: GrammarPlant* getGrammarPlant()
+  public: virtual SharedPtr<Data::Ast::Scope> const& getRootScope()
   {
-    return &this->grammarPlant;
+    return this->rootScope;
   }
 
-  public: virtual Data::GrammarRepository* getGrammarRepository()
+  public: virtual SharedPtr<Data::Ast::Scope> const& getExprRootScope()
   {
-    return this->grammarPlant.getRepository();
-  }
-
-  public: GrammarPlant* getExprGrammarPlant()
-  {
-    return &this->exprGrammarPlant;
-  }
-
-  public: virtual Data::GrammarRepository* getExprGrammarRepository()
-  {
-    return this->exprGrammarPlant.getRepository();
+    return this->exprRootScope;
   }
 
   public: virtual LibraryManager* getLibraryManager()
   {
     return &this->libraryManager;
-  }
-
-  public: virtual SharedPtr<Data::Ast::Scope> const& getRootScope()
-  {
-    return this->rootScope;
   }
 
   public: virtual Data::Seeker* getSeeker()
@@ -113,6 +97,6 @@ class RootManager : public TiObject
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

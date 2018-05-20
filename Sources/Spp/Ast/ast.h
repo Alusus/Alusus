@@ -24,7 +24,7 @@ namespace Spp { namespace Ast
  */
 
 //==============================================================================
-// Forward Class Definitions
+// Forward Class Declarations
 
 class NodePathResolver;
 class Helper;
@@ -38,32 +38,6 @@ class Type;
  * @ingroup spp_ast
  */
 ti_s_enum(CallMatchStatus, TiInt, "Spp.Ast", "Spp", "alusus.net", NONE = 0, CASTED = 1, DEREF = 2, EXACT = 3);
-
-
-//==============================================================================
-// Notices
-
-DEFINE_NOTICE(TemplateArgMismatchNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1101", 1,
-  STR("Template arguments mismatch.")
-);
-DEFINE_NOTICE(InvalidTemplateArgNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1102", 1,
-  STR("Invalid template argument.")
-);
-DEFINE_NOTICE(InvalidTypeNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1103", 1,
-  STR("No valid match was found for the given type.")
-);
-DEFINE_NOTICE(InvalidTypeMemberNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1104", 1,
-  STR("No valid match was found for the given type member.")
-);
-DEFINE_NOTICE(MultipleCalleeMatchNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1105", 1,
-  STR("Multiple matches were found for the given callee.")
-);
-DEFINE_NOTICE(NoCalleeMatchNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1106", 1,
-  STR("No matches were found for the given callee.")
-);
-DEFINE_NOTICE(UnknownSymbolNotice, "Spp.Ast", "Spp", "alusus.net", "SPP1107", 1,
-  STR("Unknown symbol.")
-);
 
 } } // namespace
 

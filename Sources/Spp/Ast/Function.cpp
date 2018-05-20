@@ -26,7 +26,7 @@ Type* Function::traceArgType(Int index, Helper *helper) const
   if (this->argTypes == 0 || index < 0 || index >= this->argTypes->getCount()) {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
   }
-  return helper->traceType(this->argTypes->get(index));
+  return helper->traceType(this->argTypes->getElement(index));
 }
 
 
@@ -73,7 +73,7 @@ CallMatchStatus Function::matchCall(
       matchContext.subIndex = -1;
     }
     while (matchContext.index < argCount) {
-      auto argType = this->argTypes->get(matchContext.index);
+      auto argType = this->argTypes->getElement(matchContext.index);
       if (argType->isDerivedFrom<ArgPack>()) {
         auto argPack = static_cast<ArgPack*>(argType);
         if (matchContext.subIndex + 1 >= argPack->getMin().get()) {
@@ -116,7 +116,7 @@ CallMatchStatus Function::matchNextArg(
   if (matchContext.index >= 0) {
     ASSERT(matchContext.subIndex >= 0);
     if (matchContext.index >= argCount) return CallMatchStatus::NONE;
-    auto currentArg = this->argTypes->get(matchContext.index);
+    auto currentArg = this->argTypes->getElement(matchContext.index);
     if (currentArg->isDerivedFrom<ArgPack>()) {
       auto currentArgPack = static_cast<ArgPack*>(currentArg);
       if (currentArgPack->getMax() == 0 || matchContext.subIndex + 1 < currentArgPack->getMax().get()) {
@@ -140,7 +140,7 @@ CallMatchStatus Function::matchNextArg(
   Int steps = 1;
   while (true) {
     if (matchContext.index + steps >= argCount) return CallMatchStatus::NONE;
-    auto nextArg = this->argTypes->get(matchContext.index + steps);
+    auto nextArg = this->argTypes->getElement(matchContext.index + steps);
     if (nextArg->isDerivedFrom<ArgPack>()) {
       auto nextArgPack = static_cast<ArgPack*>(nextArg);
       Type *wantedType = nextArgPack->getArgType() == 0 ? 0 : helper->traceType(nextArgPack->getArgType().get());

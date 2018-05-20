@@ -2,7 +2,7 @@
  * @file Core/Basic/SharedMap.h
  * Contains the header of class Core::Basic::SharedMap.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -65,10 +65,10 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
   public: Signal<void, SharedMap<CTYPE, PTYPE>*> destroyNotifier;
   public: Signal<void, SharedMap<CTYPE, PTYPE>*, ContentChangeOp, Int> changeNotifier;
 
-  private: Slot<void, SharedMap<CTYPE, PTYPE>*> parentDestroySlot = {
+  private: Slot<void, SharedMap<CTYPE, PTYPE>*> baseDestroySlot = {
     this, &SharedMap<CTYPE, PTYPE>::onBaseDestroyed
   };
-  private: Slot<void, SharedMap<CTYPE, PTYPE>*, ContentChangeOp, Int> parentChangeSlot = {
+  private: Slot<void, SharedMap<CTYPE, PTYPE>*, ContentChangeOp, Int> baseChangeSlot = {
     this, &SharedMap<CTYPE, PTYPE>::onBaseContentChanged
   };
 
@@ -89,13 +89,13 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
   }
 
   /// Initialize the map and create the index, if required.
-  public: SharedMap(const std::initializer_list<Argument<Char const*>> &args, Bool useIndex = false)
+  public: SharedMap(const std::initializer_list<Argument> &args, Bool useIndex = false)
     : inherited(0), base(0)
   {
     if (useIndex) this->index = new Index(&this->list);
     else this->index = 0;
 
-    for (auto arg : args) this->add(arg.id, arg.tiShared);
+    for (auto arg : args) this->add(arg.id, arg.shared);
   }
 
   /// Delete the index created in the constructor, if any.
@@ -107,7 +107,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
   }
 
   public: static SharedPtr<SharedMap<CTYPE, PTYPE>> create(
-    Bool useIndex, const std::initializer_list<Argument<Char const*>> &args)
+    Bool useIndex, const std::initializer_list<Argument> &args)
   {
     return std::make_shared<SharedMap<CTYPE, PTYPE>>(useIndex, args);
   }
@@ -141,8 +141,8 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
     ASSERT(this->base == 0);
     ASSERT(this->inherited == 0);
     this->base = b;
-    this->base->changeNotifier.connect(this->parentChangeSlot);
-    this->base->destroyNotifier.connect(this->parentDestroySlot);
+    this->base->changeNotifier.connect(this->baseChangeSlot);
+    this->base->destroyNotifier.connect(this->baseDestroySlot);
     this->inherited = new std::vector<Bool>(this->list.size(), false);
     this->inheritFromBase();
   }
@@ -152,8 +152,8 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
     this->removeInheritted();
-    this->base->changeNotifier.disconnect(this->parentChangeSlot);
-    this->base->destroyNotifier.disconnect(this->parentDestroySlot);
+    this->base->changeNotifier.disconnect(this->baseChangeSlot);
+    this->base->destroyNotifier.disconnect(this->baseDestroySlot);
     this->base = 0;
     delete this->inherited;
     this->inherited = 0;
@@ -328,7 +328,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
     this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
   }
 
-  public: void remove(Char const *key)
+  public: Int remove(Char const *key)
   {
     Int idx = this->findIndex(key);
     if (idx == -1 || (this->inherited != 0 && this->inherited->at(idx) == true)) {
@@ -348,6 +348,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
       if (this->index != 0) this->index->remove(idx);
       this->changeNotifier.emit(this, ContentChangeOp::REMOVED, idx);
     }
+    return idx;
   }
 
   public: void remove(Int index)
@@ -477,9 +478,9 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
   {
     this->remove(index);
   }
-  public: virtual void removeElement(Char const *key)
+  public: virtual Int removeElement(Char const *key)
   {
-    this->remove(key);
+    return this->remove(key);
   }
 
   public: virtual Word getElementCount() const

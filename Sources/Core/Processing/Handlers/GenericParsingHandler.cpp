@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/GenericParsingHandler.cpp
  * Contains the implementation of class Core::Processing::Handlers::GenericParsingHandler.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -23,7 +23,7 @@ using namespace Data;
 void GenericParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
   Ast::Metadata *item = state->getData().ti_cast_get<Ast::Metadata>();
-  SymbolDefinition *prod = state->refTopProdLevel().getProd();
+  Grammar::SymbolDefinition *prod = state->refTopProdLevel().getProd();
   if (item != 0 && item->getProdId() == UNKNOWN_ID) {
     // We need to set the production id now.
     this->prepareToModifyData(state, -1);
@@ -92,7 +92,7 @@ void GenericParsingHandler::onTermEnd(Processing::Parser *parser, Processing::Pa
 void GenericParsingHandler::onLevelExit(Processing::Parser *parser, Processing::ParserState *state,
                                         SharedPtr<TiObject> const &data)
 {
-  if (state->refTopTermLevel().getTerm()->isA<ReferenceTerm>()) {
+  if (state->refTopTermLevel().getTerm()->isA<Grammar::ReferenceTerm>()) {
     ASSERT(state->getData() == 0);
     state->setData(data);
   }
@@ -103,16 +103,16 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
                                        const Token *token)
 {
   // Get the term object.
-  TokenTerm *term = static_cast<TokenTerm*>(state->refTopTermLevel().getTerm());
-  ASSERT(term->isA<TokenTerm>());
+  Grammar::TokenTerm *term = static_cast<Grammar::TokenTerm*>(state->refTopTermLevel().getTerm());
+  ASSERT(term->isA<Grammar::TokenTerm>());
 
   TiObject *matchText = state->getTokenTermText();
   // Skip if the term should be omitted.
-  Data::Integer *flags = state->getTermFlags();
+  TiInt *flags = state->getTermFlags();
   if ((flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_TOKEN_OMIT) return;
   else if (
     !((flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_TOKEN_OBJ) &&
-    matchText != 0 && matchText->isA<Data::String>()
+    matchText != 0 && matchText->isA<TiStr>()
   ) {
     return;
   }
@@ -125,10 +125,10 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
   // If the token term defines a map as its match criteria then we'll use the value of the matched
   // entry as the value of our Ast::Token text, otherwise we'll just use the actual token text
   // captured by the lexer.
-  if (matchText != 0 && matchText->isA<Data::SharedMap>()) {
-    TiObject *mappedText = static_cast<Data::SharedMap*>(matchText)->get(token->getText().c_str());
-    if (mappedText != 0 && mappedText->isA<Data::String>()) {
-      tokenText = static_cast<Data::String*>(mappedText)->get();
+  if (matchText != 0 && matchText->isA<Data::Grammar::Map>()) {
+    TiObject *mappedText = static_cast<Data::Grammar::Map*>(matchText)->getElement(token->getText().c_str());
+    if (mappedText != 0 && mappedText->isA<TiStr>()) {
+      tokenText = static_cast<TiStr*>(mappedText)->get();
     } else {
       tokenText = token->getText().c_str();
     }
@@ -183,8 +183,8 @@ void GenericParsingHandler::onAlternateRouteDecision(Processing::Parser *parser,
 void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
                                                     Int route, Data::Token const *token)
 {
-  Integer *min = state->getMultiplyTermMin();
-  Integer *max = state->getMultiplyTermMax();
+  TiInt *min = state->getMultiplyTermMin();
+  TiInt *max = state->getMultiplyTermMax();
   if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
     // This is an optional term, so we'll just treat it the same way as alternate terms.
     this->onAlternateRouteDecision(parser, state, route, token);
@@ -229,13 +229,13 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
 {
   if (this->isRouteTerm(state, levelIndex)) {
     TiObject *currentData = state->getData(levelIndex).get();
-    Container *container= tii_cast<Container>(currentData);
+    auto container= ti_cast<Basic::Container<TiObject>>(currentData);
     if (currentData == 0) {
       state->setData(data, levelIndex);
-    } else if (container != 0 && container->get(0) == 0) {
+    } else if (container != 0 && container->getElement(0) == 0) {
       this->prepareToModifyData(state, levelIndex);
-      container = state->getData(levelIndex).tii_cast_get<Container>();
-      container->set(0, data.get());
+      container = state->getData(levelIndex).ti_cast_get<Basic::Container<TiObject>>();
+      container->setElement(0, data.get());
     } else {
       throw EXCEPTION(GenericException,
                       STR("Trying to set data to an alternative or optional term that already has"
@@ -253,14 +253,14 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
         // We have an enforced-item list, and this is not the first item in the list, so we'll create
         // a list whose first item is null.
         SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
-        ListContainer *newContainer = list.tii_cast_get<ListContainer>();
+        auto newContainer = list.ti_cast_get<Basic::ListContainer<TiObject>>();
         Ast::Metadata *metadata = data.ti_cast_get<Ast::Metadata>();
         Ast::Metadata *newMetadata = list.ti_cast_get<Ast::Metadata>();
         if (newMetadata != 0 && metadata != 0) {
           newMetadata->setSourceLocation(metadata->findSourceLocation());
         }
-        newContainer->add(currentData);
-        newContainer->add(data.get());
+        newContainer->addElement(currentData);
+        newContainer->addElement(data.get());
         state->setData(list, levelIndex);
       } else {
         state->setData(data, levelIndex);
@@ -269,24 +269,24 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
       // There is three possible situations at this point: Either the list was enforced, or
       // a child data was set into this level, or this level was visited more than once causing
       // a list to be created.
-      ListContainer *container = ti_cast<ListContainer>(currentData);
+      auto container = ti_cast<Basic::ListContainer<TiObject>>(currentData);
       Ast::Metadata *metadata = ti_cast<Ast::Metadata>(currentData);
       if (container != 0 && (metadata == 0 || metadata->getProdId() == UNKNOWN_ID)) {
         // This level already has a list that belongs to this production, so we can just add the new data
         // to this list.
         this->prepareToModifyData(state, levelIndex);
-        auto container = state->getData(levelIndex).tii_cast_get<ListContainer>();
-        container->add(data.get());
+        auto container = state->getData(levelIndex).ti_cast_get<Basic::ListContainer<TiObject>>();
+        container->addElement(data.get());
       } else {
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
         SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
-        ListContainer *newContainer = list.ti_cast_get<ListContainer>();
+        auto newContainer = list.ti_cast_get<Basic::ListContainer<TiObject>>();
         Ast::Metadata *newMetadata = list.ti_cast_get<Ast::Metadata>();
         if (newMetadata != 0 && metadata != 0) {
           newMetadata->setSourceLocation(metadata->findSourceLocation());
         }
-        newContainer->add(currentData);
-        newContainer->add(data.get());
+        newContainer->addElement(currentData);
+        newContainer->addElement(data.get());
         state->setData(list, levelIndex);
       }
     }
@@ -299,35 +299,35 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
 
 Bool GenericParsingHandler::isListObjEnforced(ParserState *state, Int levelIndex)
 {
-  Data::Integer *flags = state->getTermFlags(levelIndex);
+  TiInt *flags = state->getTermFlags(levelIndex);
   return (flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_LIST_OBJ;
 }
 
 
 Bool GenericParsingHandler::isListItemEnforced(ParserState *state, Int levelIndex)
 {
-  Data::Integer *flags = state->getTermFlags(levelIndex);
+  TiInt *flags = state->getTermFlags(levelIndex);
   return (flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_LIST_ITEM;
 }
 
 
 Bool GenericParsingHandler::isRouteObjEnforced(ParserState *state, Int levelIndex)
 {
-  Data::Integer *flags = state->getTermFlags(levelIndex);
+  TiInt *flags = state->getTermFlags(levelIndex);
   return (flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_ROUTE_OBJ;
 }
 
 
 Bool GenericParsingHandler::isPassUpList(ParserState *state, Int levelIndex)
 {
-  Data::Integer *flags = state->getTermFlags(levelIndex);
+  TiInt *flags = state->getTermFlags(levelIndex);
   return (flags == 0 ? 0 : flags->get()) & ParsingFlags::PASS_ITEMS_UP;
 }
 
 
 Bool GenericParsingHandler::isProdObjEnforced(ParserState *state)
 {
-  Data::Integer *flags = state->getProdFlags();
+  TiInt *flags = state->getProdFlags();
   return (flags == 0 ? 0 : flags->get()) & ParsingFlags::ENFORCE_PROD_OBJ;
 }
 
@@ -360,13 +360,13 @@ SharedPtr<TiObject> GenericParsingHandler::createEnforcedProdNode(ParserState *s
 {
   // We need to create a container data object for this production root.
   SharedPtr<TiObject> data;
-  Term *term = state->refTopTermLevel().getTerm();
-  if (term->isA<AlternateTerm>()) {
+  Grammar::Term *term = state->refTopTermLevel().getTerm();
+  if (term->isA<Grammar::AlternateTerm>()) {
     data = this->createRouteNode(state, -1, -1);
     data.s_cast_get<Ast::Route>()->setData(state->getData());
-  } else if (term->isA<MultiplyTerm>()) {
-    Integer *min = state->getMultiplyTermMin();
-    Integer *max = state->getMultiplyTermMax();
+  } else if (term->isA<Grammar::MultiplyTerm>()) {
+    TiInt *min = state->getMultiplyTermMin();
+    TiInt *max = state->getMultiplyTermMax();
     if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
       // Optional term.
       data = this->createRouteNode(state, -1, -1);
@@ -378,12 +378,12 @@ SharedPtr<TiObject> GenericParsingHandler::createEnforcedProdNode(ParserState *s
         data.s_cast_get<Ast::List>()->add(state->getData());
       }
     }
-  } else if (term->isA<ConcatTerm>()) {
+  } else if (term->isA<Grammar::ConcatTerm>()) {
     data = this->createListNode(state, -1);
     if (state->getData() != 0 || this->isListItemEnforced(state, -1)) {
       data.s_cast_get<Ast::List>()->add(state->getData());
     }
-  } else if (term->isA<ReferenceTerm>()) {
+  } else if (term->isA<Grammar::ReferenceTerm>()) {
     throw EXCEPTION(GenericException,
                     STR("Enforcing a production object on an alias production (a production that is merely a "
                         "reference to another production) is not allowed."));
@@ -398,8 +398,8 @@ SharedPtr<TiObject> GenericParsingHandler::createEnforcedProdNode(ParserState *s
 Bool GenericParsingHandler::isRouteTerm(ParserState *state, Int levelIndex)
 {
   ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
-  return termLevel.getTerm()->isA<AlternateTerm>() ||
-         (termLevel.getTerm()->isA<MultiplyTerm>() &&
+  return termLevel.getTerm()->isA<Grammar::AlternateTerm>() ||
+         (termLevel.getTerm()->isA<Grammar::MultiplyTerm>() &&
           (state->getMultiplyTermMin(levelIndex) == 0 || state->getMultiplyTermMin(levelIndex)->get() == 0) &&
           (state->getMultiplyTermMax(levelIndex) != 0 && state->getMultiplyTermMax(levelIndex)->get() == 1));
 }
@@ -408,7 +408,7 @@ Bool GenericParsingHandler::isRouteTerm(ParserState *state, Int levelIndex)
 Bool GenericParsingHandler::isListTerm(ParserState *state, Int levelIndex)
 {
   ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
-  return termLevel.getTerm()->isA<MultiplyTerm>() || termLevel.getTerm()->isA<ConcatTerm>();
+  return termLevel.getTerm()->isA<Grammar::MultiplyTerm>() || termLevel.getTerm()->isA<Grammar::ConcatTerm>();
 }
 
 

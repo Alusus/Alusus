@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Bracket.h
  * Contains the header of class Core::Data::Ast::Bracket.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class Bracket : public Node,
-                public virtual Bindings, public virtual MapContainer, public virtual Metadata,
+                public virtual Bindings, public virtual Basic::MapContainer<TiObject>, public virtual Metadata,
                 public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Bracket, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Bindings, MapContainer, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Bindings, Basic::MapContainer<TiObject>, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -47,7 +47,7 @@ class Bracket : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, operand));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>, (operand, TiObject, setOperand(value), operand.get()));
 
   IMPLEMENT_AST_MAP_PRINTABLE(Bracket, << (this->type == BracketType::ROUND ? STR("()") : STR("[]")));
 
@@ -87,6 +87,10 @@ class Bracket : public Node,
   public: void setOperand(TioSharedPtr const &o)
   {
     UPDATE_OWNED_SHAREDPTR(this->operand, o);
+  }
+  private: void setOperand(TiObject *o)
+  {
+    this->setOperand(getSharedPtr(o));
   }
 
   public: TioSharedPtr const& getOperand() const

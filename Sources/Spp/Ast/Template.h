@@ -2,7 +2,7 @@
  * @file Spp/Ast/Template.h
  * Contains the header of class Spp::Ast::Template.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -17,7 +17,7 @@ namespace Spp { namespace Ast
 {
 
 class Template : public Core::Data::Node,
-                 public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
+                 public virtual Core::Basic::Bindings, public virtual Core::Basic::MapContainer<TiObject>,
                  public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                  public virtual Core::Data::Printable
 {
@@ -25,8 +25,8 @@ class Template : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(Template, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Data::MapContainer, Core::Data::Ast::Metadata,
-                                         Core::Data::Clonable, Core::Data::Printable);
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Basic::MapContainer<TiObject>,
+                                         Core::Data::Ast::Metadata, Core::Data::Clonable, Core::Data::Printable);
 
 
   //============================================================================
@@ -57,7 +57,9 @@ class Template : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer, (Data::Clonable, templateBody));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+    (templateBody, Data::Clonable, setTemplateBody(value), templateBody.get())
+  );
 
 
   //============================================================================
@@ -81,6 +83,10 @@ class Template : public Core::Data::Node,
   public: void setTemplateBody(SharedPtr<Data::Clonable> const &body)
   {
     UPDATE_OWNED_SHAREDPTR(this->templateBody, body);
+  }
+  private: void setTemplateBody(Data::Clonable *body)
+  {
+    this->setTemplateBody(getSharedPtr(body));
   }
 
   public: SharedPtr<Data::Clonable> const& getTemplateBody() const
@@ -107,15 +113,15 @@ class Template : public Core::Data::Node,
   public: virtual Bool matchInstance(TiObject *templateInput, Helper *helper, TioSharedPtr &result);
 
   private: Bool matchTemplateVars(
-    TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Data::Notice> &notice
+    TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
   );
   private: Bool matchTemplateVar(
     TiObject *templateInput, Block *instance, Int varIndex, Helper *helper,
-    SharedPtr<Core::Data::Notice> &notice
+    SharedPtr<Core::Notices::Notice> &notice
   );
 
   private: Bool assignTemplateVars(
-    TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Data::Notice> &notice
+    TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
   );
 
   public: static TiObject* getTemplateVar(Block const *instance, Char const *name);

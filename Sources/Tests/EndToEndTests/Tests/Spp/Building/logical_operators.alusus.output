@@ -1,7 +1,7 @@
-ERROR SPP1314 @ (39,8): Invalid operand of logical operator.
-ERROR SPP1314 @ (40,17): Invalid operand of logical operator.
-ERROR SPP1314 @ (63,8): Invalid operand of logical operator.
-ERROR SPP1314 @ (64,17): Invalid operand of logical operator.
+ERROR SPPG1014 @ (39,8): Invalid operand of logical operator.
+ERROR SPPG1014 @ (40,17): Invalid operand of logical operator.
+ERROR SPPG1014 @ (63,8): Invalid operand of logical operator.
+ERROR SPPG1014 @ (64,17): Invalid operand of logical operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

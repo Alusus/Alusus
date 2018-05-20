@@ -50,58 +50,58 @@ void unsetIndexes(TiObject *obj, Int from, Int to)
 }
 
 
-void setTreeIds(TiObject *obj)
+void setTreeIds(TiObject *obj, Node *root)
 {
   StrStream stream;
   Node *node = tio_cast<Node>(obj);
-  if (node != 0) generateId(node, stream);
-  setTreeIds(obj, stream.str().c_str());
+  if (node != 0) generateId(node, root, stream);
+  setTreeIds(obj, root, stream.str().c_str());
 }
 
 
-void setTreeIds(TiObject *obj, const Char *id)
+void setTreeIds(TiObject *obj, Node *root, const Char *id)
 {
   IdHolder *idh = tii_cast<IdHolder>(obj);
   if (idh != 0) idh->setId(ID_GENERATOR->getId(id));
 
   StrStream childId;
-  MapContainer *map; Container *list;
-  if ((map = tii_cast<MapContainer>(obj)) != 0) {
-    for (Int i = 0; static_cast<Word>(i) < map->getCount(); ++i) {
+  Basic::MapContainer<TiObject> *map; Basic::Container<TiObject> *list;
+  if ((map = tii_cast<Basic::MapContainer<TiObject>>(obj)) != 0) {
+    for (Int i = 0; static_cast<Word>(i) < map->getElementCount(); ++i) {
       childId.str(Str());
       childId << id;
       if (childId.tellp() != 0) childId << CHR('.');
-      childId << map->getKey(i).c_str();
-      setTreeIds(map->get(i), childId.str().c_str());
+      childId << map->getElementKey(i).c_str();
+      setTreeIds(map->getElement(i), root, childId.str().c_str());
     }
-  } else if ((list = tii_cast<Container>(obj)) != 0) {
-    for (Int i = 0; static_cast<Word>(i) < list->getCount(); ++i) {
+  } else if ((list = tii_cast<Basic::Container<TiObject>>(obj)) != 0) {
+    for (Int i = 0; static_cast<Word>(i) < list->getElementCount(); ++i) {
       childId.str(Str());
       childId << id;
       if (childId.tellp() != 0) childId << CHR('.');
       childId << i;
-      setTreeIds(list->get(i), childId.str().c_str());
+      setTreeIds(list->getElement(i), root, childId.str().c_str());
     }
   }
 }
 
 
-void generateId(Node *obj, StrStream &id)
+void generateId(Node *obj, Node *root, StrStream &id)
 {
   if (obj == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("obj"), STR("Value is null."));
   }
   Node *owner = obj->getOwner();
-  if (owner == 0) return;
-  generateId(owner, id);
+  if (owner == 0 || obj == root) return;
+  generateId(owner, root, id);
   if (id.tellp() != 0) id << CHR('.');
-  Container *container = owner->getInterface<Container>();
+  auto container = owner->getInterface<Basic::Container<TiObject>>();
   if (container != 0) {
-    for (Int i = 0; i < container->getCount(); ++i) {
-      if (container->get(i) == obj) {
-        MapContainer *mapContainer = owner->getInterface<MapContainer>();
+    for (Int i = 0; i < container->getElementCount(); ++i) {
+      if (container->getElement(i) == obj) {
+        auto mapContainer = owner->getInterface<Basic::MapContainer<TiObject>>();
         if (mapContainer != 0) {
-          id << mapContainer->getKey(i).c_str();
+          id << mapContainer->getElementKey(i).c_str();
         } else {
           id << i;
         }
@@ -125,54 +125,6 @@ Node* findOwner(Node *obj, TypeInfo *typeInfo)
 }
 
 
-Bool matchCharGroup(WChar ch, CharGroupUnit *unit)
-{
-  ASSERT(unit);
-
-  if (unit->isA<SequenceCharGroupUnit>()) {
-    SequenceCharGroupUnit *u = static_cast<SequenceCharGroupUnit*>(unit);
-    if (u->getStartCode() == 0 && u->getEndCode() == 0) {
-      throw EXCEPTION(GenericException, STR("Sequence char group unit is not configured yet."));
-    }
-    if (ch >= u->getStartCode() && ch <= u->getEndCode()) return true;
-    else return false;
-  } else if (unit->isA<RandomCharGroupUnit>()) {
-    RandomCharGroupUnit *u = static_cast<RandomCharGroupUnit*>(unit);
-    if (u->getCharList() == 0) {
-      throw EXCEPTION(GenericException, STR("Random char group unit is not configured yet."));
-    }
-    for (Int i = 0; i < u->getCharListSize(); i++) {
-      if (u->getCharList()[i] == ch) return true;
-    }
-    return false;
-  } else if (unit->isA<UnionCharGroupUnit>()) {
-    UnionCharGroupUnit *u = static_cast<UnionCharGroupUnit*>(unit);
-    if (u->getCharGroupUnits()->size() == 0) {
-      throw EXCEPTION(GenericException, STR("Union char group unit is not configured yet."));
-    }
-    for (Int i = 0; i < static_cast<Int>(u->getCharGroupUnits()->size()); i++) {
-      if (matchCharGroup(ch, u->getCharGroupUnits()->at(i).get()) == true) {
-        return true;
-      }
-    }
-    return false;
-  } else if (unit->isA<InvertCharGroupUnit>()) {
-    InvertCharGroupUnit *u = static_cast<InvertCharGroupUnit*>(unit);
-    if (u->getChildCharGroupUnit() == 0) {
-      throw EXCEPTION(GenericException, STR("Invert char group unit is not configured yet."));
-    }
-    if (matchCharGroup(ch, u->getChildCharGroupUnit().get()) == true) {
-      return false;
-    } else {
-      return true;
-    }
-  } else {
-    throw EXCEPTION(GenericException, STR("Invalid char group type."));
-  }
-  return false; // just to prevent warnings
-}
-
-
 void dumpData(OutStream &stream, TiObject *ptr, int indents)
 {
   if (ptr == 0) {
@@ -192,28 +144,20 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
         stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");
       }
     }
-    ListContainer *listContainer;
-    MapContainer *mapContainer;
-    NamedListContainer *namedListContainer;
-    if ((listContainer = ptr->getInterface<ListContainer>()) != 0) {
-      for (Word i = 0; i < listContainer->getCount(); ++i) {
+    Basic::ListContainer<TiObject> *listContainer;
+    Basic::MapContainer<TiObject> *mapContainer;
+    if ((listContainer = ptr->getInterface<Basic::ListContainer<TiObject>>()) != 0) {
+      for (Word i = 0; i < listContainer->getElementCount(); ++i) {
         stream << STR("\n");
         printIndents(stream, indents + 1);
-        dumpData(stream, listContainer->get(i), indents+1);
+        dumpData(stream, listContainer->getElement(i), indents+1);
       }
-    } else if ((mapContainer = ptr->getInterface<MapContainer>()) != 0) {
-      for (Word i = 0; i < mapContainer->getCount(); ++i) {
+    } else if ((mapContainer = ptr->getInterface<Basic::MapContainer<TiObject>>()) != 0) {
+      for (Word i = 0; i < mapContainer->getElementCount(); ++i) {
         stream << STR("\n");
         printIndents(stream, indents+1);
-        stream << mapContainer->getKey(i).c_str() << STR(": ");
-        dumpData(stream, mapContainer->get(i), indents+1);
-      }
-    } else if ((namedListContainer = ptr->getInterface<NamedListContainer>()) != 0) {
-      for (Word i = 0; i < namedListContainer->getCount(); ++i) {
-        stream << STR("\n");
-        printIndents(stream, indents+1);
-        stream << STR("[") << namedListContainer->getName(i).c_str() << STR("] ");
-        dumpData(stream, namedListContainer->get(i), indents+1);
+        stream << mapContainer->getElementKey(i).c_str() << STR(": ");
+        dumpData(stream, mapContainer->getElement(i), indents+1);
       }
     } else if (ptr->isA<TioSharedBox>()) {
       TioSharedBox *sharedBox = static_cast<TioSharedBox*>(ptr);
@@ -234,53 +178,13 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
     } else if (ptr->isA<TiFloat>()) {
       auto tiFloat = static_cast<TiFloat*>(ptr);
       stream << STR(": ") << tiFloat->get();
-    } else if (ptr->isA<Integer>()) {
-      auto num = static_cast<Integer*>(ptr);
-      stream << STR(": ") << num->get();
     } else if (ptr->isA<TiStr>()) {
       auto tiStr = static_cast<TiStr*>(ptr);
       stream << STR("\n");
       printIndents(stream, indents+1);
       stream << tiStr->get();
-    } else if (ptr->isA<String>()) {
-      auto str = static_cast<String*>(ptr);
-      stream << STR("\n");
-      printIndents(stream, indents+1);
-      stream << str->get();
     }
   }
-}
-
-
-void printNotice(Notice const *msg)
-{
-  // We will only print the error message if we have a source location for it.
-  if (Data::getSourceLocationRecordCount(msg->getSourceLocation().get()) == 0) return;
-
-  // Print severity.
-  switch (msg->getSeverity()) {
-    case 0: outStream << STR("\033[0;31mBLOCKER "); break;
-    case 1: outStream << STR("\033[0;31mERROR "); break;
-    case 2: case 3: outStream << STR("\033[1;33mWARNING "); break;
-    case 4: outStream << STR("\033[0;34mATTN "); break;
-  }
-  // Print msg code.
-  outStream << msg->getCode() << " @ ";
-  // Print location.
-  auto sl = msg->getSourceLocation().get();
-  if (sl->isDerivedFrom<Data::SourceLocationRecord>()) {
-    auto slRecord = static_cast<Data::SourceLocationRecord*>(sl);
-    outStream << slRecord->filename->c_str() << " (" << slRecord->line << "," << slRecord->column << ")";
-  } else {
-    auto stack = static_cast<Data::SourceLocationStack*>(sl);
-    for (Int i = stack->getCount() - 1; i >= 0; --i) {
-      if (i < stack->getCount() -1) outStream << NEW_LINE << STR("from ");
-      outStream << stack->get(i)->filename->c_str() << " (" << stack->get(i)->line << "," << stack->get(i)->column << ")";
-    }
-  }
-  outStream << STR(": ");
-  // Print description.
-  outStream << msg->getDescription() << STR("\033[0m") << NEW_LINE;
 }
 
 

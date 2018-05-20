@@ -3,7 +3,7 @@
  * Contains the definitions and include statements for all types used for
  * processing.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,23 +18,13 @@ namespace Core { namespace Processing
 {
 
 /**
- * @defgroup processing Processing
+ * @defgroup core_processing Processing
  * @ingroup core
  */
 
 /**
- * @defgroup processing_lexer Lexer
- * @ingroup processing
- */
-
-/**
- * @defgroup processing_parser Parser
- * @ingroup processing
- */
-
-/**
  * @brief The state level index flag for this processing pass.
- * @ingroup processing
+ * @ingroup core_processing
  *
  * This flag is set in the state level's index to specify that the route has
  * been visited during this parsing pass.
@@ -43,7 +33,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief The state level index flag for this testing pass.
- * @ingroup processing
+ * @ingroup core_processing
  *
  * This flag is set in the state level's index to specify that the route has
  * been visited during this testing pass, i.e. the operation that determines
@@ -53,7 +43,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief The number of preallocated parser state variable levels.
- * @ingroup processing
+ * @ingroup core_processing
  *
  * These state variable levels are preallocated when the state is instantiated.
  * It's done for performance purposes.
@@ -62,7 +52,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief The number of parser's preallocated variable stack records.
- * @ingroup processing
+ * @ingroup core_processing
  *
  * This value is used for state variable stacks.
  */
@@ -70,7 +60,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief The maximum number of characters allowed for variable names.
- * @ingroup processing
+ * @ingroup core_processing
  *
  * This value is used for state variable stacks.
  */
@@ -82,7 +72,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief The maximum number of characters in the input buffer.
- * @ingroup processing_lexer
+ * @ingroup core_processing
  *
  * The number of characters in the characters buffer of InputBuffer will not
  * exceed this number.
@@ -91,7 +81,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief The maximum number of character groups in the input buffer.
- * @ingroup processing_lexer
+ * @ingroup core_processing
  *
  * The number of characters groups in InputBuffer will not exceed this number.
  */
@@ -99,13 +89,13 @@ namespace Core { namespace Processing
 
 /**
  * @brief The maximum number of entries in the states array.
- * @ingroup processing_lexer
+ * @ingroup core_processing
  */
 #define LEXER_STATES_ARRAY_MAX_SIZE	128
 
 /**
  * @brief The maximum number of characters in the error buffer.
- * @ingroup processing_lexer
+ * @ingroup core_processing
  *
  * If the error text is larger than this value, it will be clipped to this
  * number of characters.
@@ -114,7 +104,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief Compute the next position based on the given character.
- * @ingroup processing_lexer
+ * @ingroup core_processing
  *
  * Update a given line number and column values based on the value of the given
  * char. The character is checked for a new line or carriage return values to
@@ -137,7 +127,7 @@ void computeNextCharPosition(WChar ch, Int &line, Int &column);
 
 /**
  * @brief The default value for tokensToLive.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * When parsing branches, the branch with the lower priority is given a number
  * of tokens to live before it's forced to die, if none of the two branches
@@ -149,7 +139,7 @@ void computeNextCharPosition(WChar ch, Int &line, Int &column);
 
 /**
  * @brief The number of preallocated parser state term levels.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * These state term levels are preallocated when the state is instantiated. It's
  * done for performance purposes.
@@ -158,7 +148,7 @@ void computeNextCharPosition(WChar ch, Int &line, Int &column);
 
 /**
  * @brief The number of preallocated parser state production levels.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * These state production levels are preallocated when the state is instantiated.
  * It's done for performance purposes.
@@ -167,7 +157,7 @@ void computeNextCharPosition(WChar ch, Int &line, Int &column);
 
 /**
  * @brief The temporary processing status of the state object.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * Before the processing of a new token, the processing status of all current
  * states gets reset to IN_PROGRESS, which indicates that these states are
@@ -190,7 +180,7 @@ s_enum(ParserProcessingStatus, IN_PROGRESS = 0, COMPLETE, ERROR);
 
 /**
  * @brief The cause of termination for a given state.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * The meaning for those values are as follows:<br>
  * SYNTAX_ERROR: Obviously, parsing couldn't find a matching path.<br>
@@ -211,7 +201,7 @@ s_enum(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHE
 
 /**
  * @brief A set of parsing flags to use with grammar terms by parsing handlers.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * ENFORCE_LIST_OBJ: For list items (concat and duplicate). This flag will force
  *                   the creation of a list item even if there is only one item
@@ -249,39 +239,6 @@ s_enum(ParsingFlags,
        ENFORCE_TOKEN_OMIT = 32,
        PASS_ITEMS_UP = 64);
 
-
-//==============================================================================
-// Notices
-
-DEFINE_NOTICE(UnrecognizedErrorNotice, "Core.Processing", "Core", "alusus.net", "G1001", 1,
-  STR("Unrecognized error.")
-);
-// Lexer Build Messages
-DEFINE_NOTICE(BufferFullNotice, "Core.Processing", "Core", "alusus.net", "L1002", 1,
-  STR("Lexer Error: Input buffer is full. A single token is too long to fit in the input buffer. "
-      "The token may have been broken into more than one token.")
-);
-DEFINE_NOTICE(TokenClampedNotice, "Core.Processing", "Core", "alusus.net", "L2001", 2,
-  STR("Warning: Input buffer is full. A single token is too long to fit in the input buffer. "
-      "Some characters that are part of the token has been ignored.")
-);
-// Parser Build Messages
-DEFINE_NOTICE(SyntaxErrorNotice, "Core.Processing", "Core", "alusus.net", "P1001", 1,
-  STR("Parser syntax error.")
-);
-DEFINE_NOTICE(UnexpectedEofNotice, "Core.Processing", "Core", "alusus.net", "P1002", 1,
-  STR("Parsing exited while needing more tokens.")
-);
-DEFINE_NOTICE(UnexpectedTokenNotice, "Core.Processing", "Core", "alusus.net", "P1003", 1,
-  STR("Parsing has already folded out to completion.")
-);
-DEFINE_NOTICE(AmbiguityNotice, "Core.Processing", "Core", "alusus.net", "P2001", 2,
-  STR("Ambiguity is causing state branching.")
-);
-DEFINE_NOTICE(UnexpectedModifierNotice, "Core.Processing", "Core", "alusus.net", "P1004", 1,
-  STR("Unexpected modifier encountered.")
-);
-
 } } // namespace
 
 
@@ -289,15 +246,12 @@ DEFINE_NOTICE(UnexpectedModifierNotice, "Core.Processing", "Core", "alusus.net",
 // Classes
 
 // Lexer
-#include "UnrecognizedCharNotice.h"
 #include "InputBuffer.h"
 #include "LexerState.h"
 #include "TokenizingHandler.h"
-#include "ConstTokenizingHandler.h"
 #include "Lexer.h"
 
 // Parser
-#include "NoticeStore.h"
 #include "ParserTermLevel.h"
 #include "ParserProdLevel.h"
 #include "ParserModifierLevel.h"

@@ -29,6 +29,8 @@ namespace Spp
 
 #include "Ast/ast.h"
 
+#include "Notices/notices.h"
+
 #include "SeekerExtension.h"
 
 #include "CodeGen/code_gen.h"
@@ -36,4 +38,5 @@ namespace Spp
 
 #include "Handlers/handlers.h"
 
+#include "GrammarFactory.h"
 #include "LibraryGateway.h"

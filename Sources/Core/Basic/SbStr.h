@@ -2,7 +2,7 @@
  * @file Core/Basic/SbStr.h
  * Contains the header of class Core::Basic::SbStr.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -148,7 +148,7 @@ class SbStr
   /// @name Other Functions
   /// @{
 
-  public: Char const*  find(Char c) const
+  public: Char const* find(Char c) const
   {
     return strchr(this->c_str(), c);
   }
@@ -160,12 +160,14 @@ class SbStr
 
   public: Int findPos(Char c) const
   {
-    return strchr(this->c_str(), c) - this->c_str();
+    auto found = strchr(this->c_str(), c);
+    return found == 0 ? -1 : found - this->c_str();
   }
 
   public: Int findPos(Char const *str) const
   {
-    return strstr(this->c_str(), str) - this->c_str();
+    auto found = strstr(this->c_str(), str);
+    return found == 0 ? -1 : found - this->c_str();
   }
 
   public: Word size() const

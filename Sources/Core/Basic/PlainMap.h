@@ -2,7 +2,7 @@
  * @file Core/Basic/PlainMap.h
  * Contains the header of class Core::Basic::PlainMap.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -65,10 +65,10 @@ template<class CTYPE, class PTYPE> class PlainMap : public PTYPE, public virtual
   public: Signal<void, PlainMap<CTYPE, PTYPE>*> destroyNotifier;
   public: Signal<void, PlainMap<CTYPE, PTYPE>*, ContentChangeOp, Int> changeNotifier;
 
-  private: Slot<void, PlainMap<CTYPE, PTYPE>*> parentDestroySlot = {
+  private: Slot<void, PlainMap<CTYPE, PTYPE>*> baseDestroySlot = {
     this, &PlainMap<CTYPE, PTYPE>::onBaseDestroyed
   };
-  private: Slot<void, PlainMap<CTYPE, PTYPE>*, ContentChangeOp, Int> parentChangeSlot = {
+  private: Slot<void, PlainMap<CTYPE, PTYPE>*, ContentChangeOp, Int> baseChangeSlot = {
     this, &PlainMap<CTYPE, PTYPE>::onBaseContentChanged
   };
 
@@ -89,13 +89,13 @@ template<class CTYPE, class PTYPE> class PlainMap : public PTYPE, public virtual
   }
 
   /// Initialize the map and create the index, if required.
-  public: PlainMap(const std::initializer_list<Argument<Char const*>> &args, Bool useIndex = false)
+  public: PlainMap(const std::initializer_list<Argument> &args, Bool useIndex = false)
     : inherited(0), base(0)
   {
     if (useIndex) this->index = new Index(&this->list);
     else this->index = 0;
 
-    for (auto arg : args) this->add(arg.id, arg.tiShared);
+    for (auto arg : args) this->add(arg.id, arg.ptr);
   }
 
   /// Delete the index created in the constructor, if any.
@@ -107,7 +107,7 @@ template<class CTYPE, class PTYPE> class PlainMap : public PTYPE, public virtual
   }
 
   public: static SharedPtr<PlainMap<CTYPE, PTYPE>> create(
-    Bool useIndex, const std::initializer_list<Argument<Char const*>> &args)
+    Bool useIndex, const std::initializer_list<Argument> &args)
   {
     return std::make_shared<PlainMap<CTYPE, PTYPE>>(useIndex, args);
   }
@@ -141,8 +141,8 @@ template<class CTYPE, class PTYPE> class PlainMap : public PTYPE, public virtual
     ASSERT(this->base == 0);
     ASSERT(this->inherited == 0);
     this->base = b;
-    this->base->changeNotifier.connect(this->parentChangeSlot);
-    this->base->destroyNotifier.connect(this->parentDestroySlot);
+    this->base->changeNotifier.connect(this->baseChangeSlot);
+    this->base->destroyNotifier.connect(this->baseDestroySlot);
     this->inherited = new std::vector<Bool>(this->list.size(), false);
     this->inheritFromBase();
   }
@@ -152,8 +152,8 @@ template<class CTYPE, class PTYPE> class PlainMap : public PTYPE, public virtual
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
     this->removeInheritted();
-    this->base->changeNotifier.disconnect(this->parentChangeSlot);
-    this->base->destroyNotifier.disconnect(this->parentDestroySlot);
+    this->base->changeNotifier.disconnect(this->baseChangeSlot);
+    this->base->destroyNotifier.disconnect(this->baseDestroySlot);
     this->base = 0;
     delete this->inherited;
     this->inherited = 0;
@@ -328,7 +328,7 @@ template<class CTYPE, class PTYPE> class PlainMap : public PTYPE, public virtual
     this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
   }
 
-  public: void remove(Char const *key)
+  public: Int remove(Char const *key)
   {
     Int idx = this->findIndex(key);
     if (idx == -1 || (this->inherited != 0 && this->inherited->at(idx) == true)) {
@@ -348,6 +348,7 @@ template<class CTYPE, class PTYPE> class PlainMap : public PTYPE, public virtual
       if (this->index != 0) this->index->remove(idx);
       this->changeNotifier.emit(this, ContentChangeOp::REMOVED, idx);
     }
+    return idx;
   }
 
   public: void remove(Int index)
@@ -477,9 +478,9 @@ template<class CTYPE, class PTYPE> class PlainMap : public PTYPE, public virtual
   {
     this->remove(index);
   }
-  public: virtual void removeElement(Char const *key)
+  public: virtual Int removeElement(Char const *key)
   {
-    this->remove(key);
+    return this->remove(key);
   }
 
   public: virtual Word getElementCount() const

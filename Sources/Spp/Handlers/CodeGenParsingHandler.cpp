@@ -40,9 +40,9 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
       // Execute the code if build was successful.
       if (result) {
         // Find the entry ref.
-        auto container = ti_cast<Core::Data::Container>(data);
+        auto container = ti_cast<Core::Basic::Container<TiObject>>(data);
         ASSERT(container != 0);
-        auto entryRef = ti_cast<Core::Data::Node>(container->get(1));
+        auto entryRef = ti_cast<Core::Data::Node>(container->getElement(1));
         ASSERT(entryRef != 0);
         // Find the entry function.
         TiObject *callee = 0;
@@ -56,7 +56,9 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
         }
         // Execute if an entry function was found.
         if (entryFunction == 0) {
-          state->addNotice(std::make_shared<Ast::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(entryRef)));
+          state->addNotice(
+            std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(entryRef))
+          );
         } else {
           auto funcName = this->astHelper->getFunctionName(entryFunction).c_str();
           this->targetGenerator->execute(funcName);
@@ -97,7 +99,7 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
     // }
   } catch (Exception &e) {
     outStream << e.getVerboseErrorMessage() << NEW_LINE;
-    state->addNotice(std::make_shared<InvalidBuildArgNotice>(metadata->findSourceLocation()));
+    state->addNotice(std::make_shared<Spp::Notices::InvalidBuildArgNotice>(metadata->findSourceLocation()));
   }
 
   state->setData(SharedPtr<TiObject>(0));

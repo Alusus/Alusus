@@ -13,13 +13,13 @@
 #ifndef SPP_AST_TYPE_H
 #define SPP_AST_TYPE_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 using namespace Core;
 
 class Type : public Core::Data::Node,
-             public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
+             public virtual Core::Basic::Bindings, public virtual Core::Basic::MapContainer<TiObject>,
              public virtual Core::Data::Ast::Metadata,
              public virtual Core::Data::Clonable, public virtual Core::Data::Printable
 {
@@ -29,7 +29,7 @@ class Type : public Core::Data::Node,
   TYPE_INFO(Type, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net", (
     INHERITANCE_INTERFACES(
       Core::Basic::Bindings,
-      Core::Data::MapContainer,
+      Core::Basic::MapContainer<TiObject>,
       Core::Data::Ast::Metadata,
       Core::Data::Clonable,
       Core::Data::Printable
@@ -53,7 +53,7 @@ class Type : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer, (Block, body));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>, (body, Block, setBody(value), body.get()));
 
   IMPLEMENT_AST_MAP_PRINTABLE(Type);
 
@@ -74,6 +74,10 @@ class Type : public Core::Data::Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
   }
+  private: void setBody(Block *b)
+  {
+    this->setBody(getSharedPtr(b));
+  }
 
   public: SharedPtr<Block> const& getBody() const
   {
@@ -86,6 +90,6 @@ class Type : public Core::Data::Node,
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

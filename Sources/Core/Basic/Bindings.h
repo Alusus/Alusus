@@ -2,7 +2,7 @@
  * @file Core/Basic/Bindings.h
  * Contains the header of interface Basic::Bindings.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -113,13 +113,13 @@ class Bindings : public TiInterface
   {
     Int index = this->findMemberIndex(name);
     if (index == -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."));
+      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
     }
     if (this->getMemberHoldMode(index) != HoldMode::VALUE) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by value."));
+      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by value."), name);
     }
     if (!val.isDerivedFrom(this->getMemberNeededType(index))) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Object type doesn't match needed type."));
+      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Object type doesn't match needed type."), name);
     }
     this->setMember(index, const_cast<TiObject*>(&val));
   }
@@ -128,15 +128,15 @@ class Bindings : public TiInterface
   {
     Int index = this->findMemberIndex(name);
     if (index == -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."));
+      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
     }
     if (this->getMemberHoldMode(index) != HoldMode::SHARED_REF &&
         this->getMemberHoldMode(index) != HoldMode::WEAK_REF)
     {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by shared or weak ptr."));
+      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by shared or weak ptr."), name);
     }
     if (val != 0 && !val->isDerivedFrom(this->getMemberNeededType(index))) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Object type doesn't match needed type."));
+      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Object type doesn't match needed type."), name);
     }
     this->setMember(index, val.get());
   }
@@ -145,13 +145,13 @@ class Bindings : public TiInterface
   {
     Int index = this->findMemberIndex(name);
     if (index == -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."));
+      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
     }
     if (this->getMemberHoldMode(index) != HoldMode::VALUE) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by value."));
+      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by value."), name);
     }
     if (T::getTypeInfo() != this->getMemberNeededType(index)) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Object type doesn't match needed type."));
+      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Object type doesn't match needed type."), name);
     }
     ASSERT(this->getMember(index) != 0);
     return *static_cast<T*>(this->getMember(index));
@@ -166,12 +166,12 @@ class Bindings : public TiInterface
   {
     Int index = this->findMemberIndex(name);
     if (index == -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."));
+      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
     }
     if (this->getMemberHoldMode(index) != HoldMode::SHARED_REF &&
         this->getMemberHoldMode(index) != HoldMode::WEAK_REF)
     {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by shared or weak ptr."));
+      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by shared or weak ptr."), name);
     }
     return getSharedPtr<T>(this->getMember(index));
   }

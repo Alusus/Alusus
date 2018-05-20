@@ -56,16 +56,6 @@ class LibraryGateway : public Core::Standard::LibraryGateway
 
   public: virtual void uninitialize(Core::Standard::RootManager *manager);
 
-  private: Core::Data::SharedList* getLeadingCommandsList(Core::Data::GrammarRepository *grammarRepository);
-
-  private: Core::Data::SharedList* getInnerCommandsList(Core::Data::GrammarRepository *grammarRepository);
-
-  private: Core::Data::SharedList* getTildeCommandsList(Core::Data::GrammarRepository *grammarRepository);
-
-  private: void addReferenceToCommandList(Core::Data::SharedList *cmdList, Char const *qualifier);
-
-  private: void removeReferenceFromCommandList(Core::Data::SharedList *cmdList, Char const *qualifier);
-
   private: void createBuiltInTypes(Core::Standard::RootManager *manager);
 
   private: void removeBuiltInTypes(Core::Standard::RootManager *manager);

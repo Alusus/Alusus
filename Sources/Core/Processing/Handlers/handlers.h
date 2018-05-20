@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the
  * Core::Processing::Handlers namespace.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,29 +18,21 @@ namespace Core { namespace Processing { namespace Handlers
 {
 
 /**
- * @defgroup core_parsing_handlers ParsingHandlers
- * @ingroup processing
+ * @defgroup core_processing_handlers ParsingHandlers
+ * @ingroup core_processing
  * @brief Classes related to the Core's paring handlers.
  */
-
-//==============================================================================
-// Notices
-
-DEFINE_NOTICE(MissingDefLinkNotice, "Core.Processing.Handlers", "Core", "alusus.net", "DEF1001", 1,
-  STR("Missing link expression in 'def' command.")
-);
-DEFINE_NOTICE(MissingDefNameNotice, "Core.Processing.Handlers", "Core", "alusus.net", "DEF1002", 1,
-  STR("Missing definition name in 'def' command.")
-);
-DEFINE_NOTICE(InvalidDefCommandNotice, "Core.Processing.Handlers", "Core", "alusus.net", "DEF1003", 1,
-  STR("Invalid 'def' command.")
-);
 
 } } } // namespace
 
 
 //==============================================================================
 // Classes
+
+#include "ConstTokenizingHandler.h"
+#include "StringLiteralTokenizingHandler.h"
+// TODO:
+// #include "NumberLiteralTokenizingHandler.h"
 
 #include "GenericParsingHandler.h"
 #include "ScopeParsingHandler.h"
@@ -56,5 +48,8 @@ DEFINE_NOTICE(InvalidDefCommandNotice, "Core.Processing.Handlers", "Core", "alus
 #include "ModifierParsingHandler.h"
 #include "GenericCommandParsingHandler.h"
 #include "CustomParsingHandler.h"
+
+#include "ImportParsingHandler.h"
+#include "DumpAstParsingHandler.h"
 
 #endif

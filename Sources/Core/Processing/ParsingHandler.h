@@ -2,7 +2,7 @@
  * @file Core/Processing/ParsingHandler.h
  * Contains the header of class Core::Processing::ParsingHandler.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,7 +20,7 @@ class Parser;
 
 /**
  * @brief The root class of all parsing handlers.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * Parsing handlers are the classes responsible for handling different parsing
  * events. Each production can be associated with its own parsing handler that
@@ -29,12 +29,12 @@ class Parser;
  * generators can also include their own parsing handlers that they associate
  * with the desired production.
  */
-class ParsingHandler : public Data::BuildHandler
+class ParsingHandler : public Data::Grammar::BuildHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ParsingHandler, Data::BuildHandler, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(ParsingHandler, Data::Grammar::BuildHandler, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
@@ -370,7 +370,7 @@ class ParsingHandler : public Data::BuildHandler
 
   /**
    * @brief Called when there is an incoming modifier for this prod level.
-   * 
+   *
    * This event is raised whenever there is an incoming modifier. This may be
    * called either at the beginning of a prod, immediately after onProdStart is
    * called, or at the end of a prod after onProdEnd is called. The parsing
@@ -380,7 +380,7 @@ class ParsingHandler : public Data::BuildHandler
    * hold onto them and try sending them again on production exit. This gives
    * the parsing handler the option of either taking the modifier on entry, or
    * delay that until the production is fully parsed.
-   * 
+   *
    * @param parser The parser that fired the event.
    * @param state The subject state.
    * @param modifierData The data of the incoming modifier.

@@ -97,7 +97,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_function(
   auto argTypes = function->getArgTypes().get();
   if (argTypes == 0) return Core::Data::Seeker::Verb::MOVE;
   auto index = argTypes->findIndex(identifier->getValue().get());
-  if (index >= 0) return cb(argTypes->get(index), 0);
+  if (index >= 0) return cb(argTypes->getElement(index), 0);
   return Core::Data::Seeker::Verb::MOVE;
 }
 
@@ -110,7 +110,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass(
   PREPARE_SELF(seekerExtension, SeekerExtension);
   auto operand = paramPass->getOperand().get();
   return seeker->foreach(operand, data,
-    [=](TiObject *newData, Core::Data::Notice*)->Core::Data::Seeker::Verb
+    [=](TiObject *newData, Core::Notices::Notice*)->Core::Data::Seeker::Verb
     {
       return seekerExtension->foreachByParamPass_routing(paramPass, newData, cb, flags);
     },
@@ -145,7 +145,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_template(
   if (tmplt->matchInstance(param, seekerExtension->astHelper, result)) {
     return cb(result.get(), 0);
   } else {
-    auto notice = result.ti_cast_get<Core::Data::Notice>();
+    auto notice = result.ti_cast_get<Core::Notices::Notice>();
     if (notice != 0) return cb(0, notice);
     else return Core::Data::Seeker::Verb::MOVE;
   }

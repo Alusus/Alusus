@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/GenericParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::GenericParsingHandler.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,7 +18,7 @@ namespace Core { namespace Processing { namespace Handlers
 
 /**
  * @brief Creates a data tree for parsed data.
- * @ingroup processing_parser
+ * @ingroup core_processing_handlers
  *
  * This generic parsing handler simply creates a data tree that represents the
  * parsed code in a generic way. This is the default parsing handler that will

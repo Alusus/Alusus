@@ -2,7 +2,7 @@
  * @file Spp/Ast/ArgPack.h
  * Contains the header of class Spp::Ast::ArgPack.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,13 +13,13 @@
 #ifndef SPP_AST_ARGPACK_H
 #define SPP_AST_ARGPACK_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 // TODO: DOC
 
 class ArgPack : public Core::Data::Node,
-                public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
+                public virtual Core::Basic::Bindings, public virtual Core::Basic::MapContainer<TiObject>,
                 public virtual Core::Data::Ast::Metadata,
                 public virtual Core::Data::Clonable, public virtual Core::Data::Printable
 {
@@ -27,8 +27,8 @@ class ArgPack : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(ArgPack, Core::Data::Node, "Spp.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Data::MapContainer, Core::Data::Ast::Metadata,
-                                         Core::Data::Clonable, Core::Data::Printable);
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Basic::MapContainer<TiObject>,
+                                         Core::Data::Ast::Metadata, Core::Data::Clonable, Core::Data::Printable);
 
 
   //============================================================================
@@ -51,7 +51,7 @@ class ArgPack : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, argType));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>, (argType, TiObject, setArgType(value), argType.get()));
 
   IMPLEMENT_AST_CLONABLE(ArgPack);
 
@@ -79,6 +79,10 @@ class ArgPack : public Core::Data::Node,
   public: void setArgType(TioSharedPtr const &t)
   {
     UPDATE_OWNED_SHAREDPTR(this->argType, t);
+  }
+  private: void setArgType(TiObject *t)
+  {
+    this->setArgType(getSharedPtr(t));
   }
 
   public: TioSharedPtr const& getArgType() const
@@ -116,6 +120,6 @@ class ArgPack : public Core::Data::Node,
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

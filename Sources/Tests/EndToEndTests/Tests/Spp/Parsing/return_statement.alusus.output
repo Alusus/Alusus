@@ -1,4 +1,4 @@
-ERROR P1001 @ (32,14): Parser syntax error.
+ERROR CP1001 @ (32,14): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatementList]
  Definition [Main.Def] getInt: Function  [Subject.Function]

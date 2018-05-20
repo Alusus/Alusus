@@ -39,7 +39,7 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
 
   private: Ast::Helper *astHelper;
   private: NoOpTargetGenerator *noOpTargetGenerator;
-  private: Core::Processing::NoticeStore *noticeStore = 0;
+  private: Core::Notices::Store *noticeStore = 0;
 
 
   //============================================================================
@@ -84,12 +84,12 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
     return this->noOpTargetGenerator;
   }
 
-  public: void setNoticeStore(Core::Processing::NoticeStore *ns)
+  public: void setNoticeStore(Core::Notices::Store *ns)
   {
     this->noticeStore = ns;
   }
 
-  public: Core::Processing::NoticeStore* getNoticeStore() const
+  public: Core::Notices::Store* getNoticeStore() const
   {
     return this->noticeStore;
   }
@@ -383,7 +383,7 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
   );
 
   private: Bool generateParamList(
-    Core::Data::Container *astNodes, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    Core::Basic::Container<TiObject> *astNodes, Generation *g, TargetGeneration *tg, TiObject *tgContext,
     Core::Basic::ListContainer<TiObject> *resultTypes, Core::Basic::SharedList<TiObject, TiObject> *resultValues
   );
 

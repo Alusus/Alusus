@@ -1,22 +1,22 @@
-ERROR SPP1301 @ (22,5): Unsupported operation.
-ERROR SPP1301 @ (23,10): Unsupported operation.
-ERROR SPP1309 @ (24,14): Value is not implicitly castable to target type.
-ERROR SPP1309 @ (25,9): Value is not implicitly castable to target type.
-ERROR SPP1309 @ (26,10): Value is not implicitly castable to target type.
-ERROR SPP1309 @ (29,9): Value is not implicitly castable to target type.
-ERROR SPP1308 @ (34,10): Invalid symbol.
-ERROR SPP1308 @ (35,5): Invalid symbol.
-ERROR SPP1102 @ (52,17): Invalid template argument.
-ERROR SPP1103 @ (52,13): No valid match was found for the given type.
-ERROR SPP1301 @ (53,5): Unsupported operation.
-ERROR SPP1305 @ (54,10): Invalid cast.
-ERROR SPP1305 @ (62,10): Invalid cast.
-ERROR SPP1103 @ (63,16): No valid match was found for the given type.
-ERROR SPP1308 @ (66,9): Invalid symbol.
-ERROR SPP1310 @ (73,31): Invalid operand for ~size operator.
-ERROR SPP1107 @ (74,34): Unknown symbol.
-ERROR SPP1304 @ (80,34): Invalid integer bit count.
-ERROR SPP1304 @ (82,39): Invalid integer bit count.
+ERROR SPPG1001 @ (22,5): Unsupported operation.
+ERROR SPPG1001 @ (23,10): Unsupported operation.
+ERROR SPPG1009 @ (24,14): Value is not implicitly castable to target type.
+ERROR SPPG1009 @ (25,9): Value is not implicitly castable to target type.
+ERROR SPPG1009 @ (26,10): Value is not implicitly castable to target type.
+ERROR SPPG1009 @ (29,9): Value is not implicitly castable to target type.
+ERROR SPPG1008 @ (34,10): Invalid symbol.
+ERROR SPPG1008 @ (35,5): Invalid symbol.
+ERROR SPPA1002 @ (52,17): Invalid template argument.
+ERROR SPPA1003 @ (52,13): No valid match was found for the given type.
+ERROR SPPG1001 @ (53,5): Unsupported operation.
+ERROR SPPG1005 @ (54,10): Invalid cast.
+ERROR SPPG1005 @ (62,10): Invalid cast.
+ERROR SPPA1003 @ (63,16): No valid match was found for the given type.
+ERROR SPPG1008 @ (66,9): Invalid symbol.
+ERROR SPPG1010 @ (73,31): Invalid operand for ~size operator.
+ERROR SPPA1007 @ (74,34): Unknown symbol.
+ERROR SPPG1004 @ (80,34): Invalid integer bit count.
+ERROR SPPG1004 @ (82,39): Invalid integer bit count.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

@@ -1,7 +1,7 @@
-ERROR SPP1012 @ (12,7): Invalid break statement.
-ERROR SPP1012 @ (13,7): Invalid break statement.
-ERROR SPP1012 @ (19,7): Invalid break statement.
-ERROR SPP1012 @ (20,7): Invalid break statement.
+ERROR SPPH1012 @ (12,7): Invalid break statement.
+ERROR SPPH1012 @ (13,7): Invalid break statement.
+ERROR SPPH1012 @ (19,7): Invalid break statement.
+ERROR SPPH1012 @ (20,7): Invalid break statement.
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatementList]
  Definition [Main.Def] start: Function  [Subject.Function]

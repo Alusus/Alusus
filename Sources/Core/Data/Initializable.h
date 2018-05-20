@@ -2,7 +2,7 @@
  * @file Core/Data/Initializable.h
  * Contains the header of interface Data::Initializable.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -29,7 +29,7 @@ class Initializable : public TiInterface
   //============================================================================
   // Abstract Functions
 
-  public: virtual void initialize(TiObject *owner) = 0;
+  public: virtual void initialize(TiObject *context) = 0;
 
 }; // class
 

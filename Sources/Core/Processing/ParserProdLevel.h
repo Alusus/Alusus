@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserProdLevel.h
  * Contains the header of class Core::Processing::ParserProdLevel.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -29,11 +29,11 @@ class ParserProdLevel
   //============================================================================
   // Member Variables
 
-  private: Data::Module *module;
+  private: Data::Grammar::GrammarModule *module;
 
-  private: Data::SymbolDefinition *prod;
+  private: Data::Grammar::SymbolDefinition *prod;
 
-  private: Data::Integer *flags;
+  private: TiInt *flags;
 
   private: Int termStackIndex;
 
@@ -60,22 +60,22 @@ class ParserProdLevel
   //============================================================================
   // Member Functions
 
-  protected: void setModule(Data::Module *m)
+  protected: void setModule(Data::Grammar::GrammarModule *m)
   {
     this->module = m;
   }
 
-  public: Data::Module* getModule() const
+  public: Data::Grammar::GrammarModule* getModule() const
   {
     return this->module;
   }
 
-  protected: void setProd(Data::SymbolDefinition *p)
+  protected: void setProd(Data::Grammar::SymbolDefinition *p)
   {
     this->prod = p;
   }
 
-  public: Data::SymbolDefinition* getProd() const
+  public: Data::Grammar::SymbolDefinition* getProd() const
   {
     return this->prod;
   }
@@ -90,12 +90,12 @@ class ParserProdLevel
     return this->termStackIndex;
   }
 
-  protected: void setFlags(Data::Integer *f)
+  protected: void setFlags(TiInt *f)
   {
     this->flags = f;
   }
 
-  public: Data::Integer* getFlags() const
+  public: TiInt* getFlags() const
   {
     return this->flags;
   }

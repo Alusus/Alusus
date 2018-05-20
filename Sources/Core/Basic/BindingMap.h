@@ -2,7 +2,7 @@
  * @file Core/Basic/BindingMap.h
  * Contains the header of class Core::Basic::BindingMap.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -47,7 +47,7 @@ class BindingMap : public BindingMapBase
   {
   }
 
-  public: BindingMap(const std::initializer_list<Argument<Char const*>> &args) : BindingMapBase(args, true)
+  public: BindingMap(const std::initializer_list<Argument> &args) : BindingMapBase(args, true)
   {
   }
 

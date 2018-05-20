@@ -2,7 +2,7 @@
  * @file Core/Data/SourceLocationRecord.h
  * Contains the header of class Core::Data::SourceLocationRecord.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,7 +18,7 @@ namespace Core { namespace Data
 
 /**
  * @brief The base of source code location classes.
- * @ingroup data
+ * @ingroup core_data
  */
 class SourceLocation : public TiObject
 {
@@ -28,7 +28,7 @@ class SourceLocation : public TiObject
 
 /**
  * @brief The location within the source code.
- * @ingroup data
+ * @ingroup core_data
  *
  * This class holds the location data within the source code of a token or
  * a parsed data object. This includes, the name of the source file, and the
@@ -84,7 +84,7 @@ typedef Basic::SharedList<SourceLocationRecord, SourceLocation> _SourceLocationS
 
 /**
  * @brief A stack of SourceLocationRecord objects.
- * @ingroup data
+ * @ingroup core_data
  */
 class SourceLocationStack : public _SourceLocationStackBase
 {

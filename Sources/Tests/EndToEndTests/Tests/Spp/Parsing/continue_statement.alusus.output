@@ -1,7 +1,7 @@
-ERROR SPP1011 @ (12,7): Invalid continue statement.
-ERROR SPP1011 @ (13,7): Invalid continue statement.
-ERROR SPP1011 @ (19,7): Invalid continue statement.
-ERROR SPP1011 @ (20,7): Invalid continue statement.
+ERROR SPPH1011 @ (12,7): Invalid continue statement.
+ERROR SPPH1011 @ (13,7): Invalid continue statement.
+ERROR SPPH1011 @ (19,7): Invalid continue statement.
+ERROR SPPH1011 @ (20,7): Invalid continue statement.
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatementList]
  Definition [Main.Def] start: Function  [Subject.Function]

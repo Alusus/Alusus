@@ -46,7 +46,7 @@ class IfParsingHandler : public Core::Processing::Handlers::GenericParsingHandle
     ASSERT(exprMetadata != 0);
 
     if (expr->getCount() != 3 && expr->getCount() != 5) {
-      state->addNotice(std::make_shared<InvalidIfStatementNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(std::make_shared<Spp::Notices::InvalidIfStatementNotice>(exprMetadata->findSourceLocation()));
       state->setData(SharedPtr<TiObject>(0));
       return;
     }
@@ -54,9 +54,9 @@ class IfParsingHandler : public Core::Processing::Handlers::GenericParsingHandle
     auto newObj = std::make_shared<Spp::Ast::IfStatement>();
     newObj->setSourceLocation(exprMetadata->findSourceLocation());
     newObj->setProdId(exprMetadata->getProdId());
-    newObj->setCondition(expr->getShared(1));
-    newObj->setIfBody(expr->getShared(2));
-    if (expr->getCount() == 5) newObj->setElseBody(expr->getShared(4));
+    newObj->setCondition(expr->get(1));
+    newObj->setIfBody(expr->get(2));
+    if (expr->getCount() == 5) newObj->setElseBody(expr->get(4));
 
     state->setData(newObj);
   }

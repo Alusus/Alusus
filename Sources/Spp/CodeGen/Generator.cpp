@@ -68,7 +68,7 @@ Bool Generator::_generateModules(TiObject *self, Core::Data::Ast::Scope *root, T
 
   Bool result = true;
   for (Int i = 0; i < root->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(root->get(i));
+    auto def = ti_cast<Data::Ast::Definition>(root->getElement(i));
     if (def != 0) {
       auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
       if (module != 0) {
@@ -87,7 +87,7 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Tar
   PREPARE_SELF(generator, Generator);
   Bool result = true;
   for (Int i = 0; i < astModule->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(astModule->get(i));
+    auto def = ti_cast<Data::Ast::Definition>(astModule->getElement(i));
     if (def != 0) {
       auto obj = def->getTarget().get();
       if (obj->isDerivedFrom<Spp::Ast::Module>()) {
@@ -126,7 +126,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
     // Prepare list of args.
     Core::Basic::PlainMap<TiObject, TiObject> tgArgs;
     for (Int i = 0; i < argCount; ++i) {
-      auto argType = astArgs->get(i);
+      auto argType = astArgs->getElement(i);
       if (argType->isDerivedFrom<Ast::ArgPack>()) break;
       auto argAstType = Ast::getAstType(argType);
       tgArgs.add(astArgs->getKey(i).c_str(), getCodeGenData<TiObject>(argAstType));
@@ -152,7 +152,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
     // Store the generated data.
     setCodeGenData(astBlock, tgContext);
     for (Int i = 0; i < tgVars.getCount(); ++i) {
-      auto argType = astArgs->get(i);
+      auto argType = astArgs->getElement(i);
       setCodeGenData(argType, tgVars.get(i));
     }
 
@@ -183,7 +183,7 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   auto argCount = astArgs == 0 ? 0 : astArgs->getCount();
   Core::Basic::PlainMap<TiObject, TiObject> tgArgs;
   for (Int i = 0; i < argCount; ++i) {
-    auto argType = astArgs->get(i);
+    auto argType = astArgs->getElement(i);
     if (argType->isDerivedFrom<Ast::ArgPack>()) break;
     TiObject *tgType;
     Ast::Type *astType;
@@ -240,7 +240,7 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   Core::Basic::PlainMap<TiObject, TiObject> tgMemberTypes;
   Core::Basic::SharedList<TiObject, TiObject> tgMembers;
   for (Int i = 0; i < body->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(body->get(i));
+    auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
     if (def != 0) {
       auto obj = def->getTarget().get();
       if (generator->getAstHelper()->isVarDefinition(obj)) {
@@ -338,7 +338,7 @@ Bool Generator::_generateStatements(
   PREPARE_SELF(generation, Generation);
   Bool result = true;
   for (Int i = 0; i < astBlock->getCount(); ++i) {
-    auto astNode = astBlock->get(i);
+    auto astNode = astBlock->getElement(i);
     if (!generation->generateStatement(astNode, tg, tgContext)) result = false;
   }
   return result;
@@ -355,15 +355,19 @@ Bool Generator::_generateStatement(
     auto def = static_cast<Core::Data::Ast::Definition*>(astNode);
     auto target = def->getTarget().get();
     if (target->isDerivedFrom<Spp::Ast::Module>()) {
-      generator->noticeStore->add(std::make_shared<InvalidOperationNotice>(def->findSourceLocation()));
+      generator->noticeStore->add(std::make_shared<Spp::Notices::InvalidOperationNotice>(def->findSourceLocation()));
       return false;
     } else if (target->isDerivedFrom<Spp::Ast::Function>()) {
       // TODO: Generate function.
-      generator->noticeStore->add(std::make_shared<UnsupportedOperationNotice>(def->findSourceLocation()));
+      generator->noticeStore->add(
+        std::make_shared<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
+      );
       return false;
     } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
       // TODO: Generate type.
-      generator->noticeStore->add(std::make_shared<UnsupportedOperationNotice>(def->findSourceLocation()));
+      generator->noticeStore->add(
+        std::make_shared<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
+      );
       return false;
     } else {
       // Generate local variable.

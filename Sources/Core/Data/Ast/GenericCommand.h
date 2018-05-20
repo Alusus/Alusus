@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/GenericCommand.h
  * Contains the header of class Core::Data::Ast::GenericCommand.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -17,14 +17,14 @@ namespace Core { namespace Data { namespace Ast
 {
 
 class GenericCommand : public Node,
-                       public virtual Bindings, public virtual MapContainer, public virtual Metadata,
+                       public virtual Bindings, public virtual Basic::MapContainer<TiObject>, public virtual Metadata,
                        public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(GenericCommand, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Bindings, MapContainer, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Bindings, Basic::MapContainer<TiObject>, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -46,7 +46,10 @@ class GenericCommand : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer, (List, args), (List, modifiers));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+    (args, List, setArgs(value), args.get()),
+    (modifiers, List, setModifiers(value), modifiers.get())
+  );
 
   IMPLEMENT_AST_MAP_CLONABLE(GenericCommand);
 
@@ -90,6 +93,10 @@ class GenericCommand : public Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->args, a);
   }
+  private: void setArgs(List *a)
+  {
+    this->setArgs(getSharedPtr(a));
+  }
 
   public: void addArg(TioSharedPtr const &arg)
   {
@@ -108,6 +115,10 @@ class GenericCommand : public Node,
   public: void setModifiers(SharedPtr<List> const &m)
   {
     UPDATE_OWNED_SHAREDPTR(this->modifiers, m);
+  }
+  private: void setModifiers(List *m)
+  {
+    this->setModifiers(getSharedPtr(m));
   }
 
   public: void addModifier(TioSharedPtr const &modifier)

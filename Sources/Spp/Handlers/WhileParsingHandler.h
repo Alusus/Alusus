@@ -46,7 +46,7 @@ class WhileParsingHandler : public Core::Processing::Handlers::GenericParsingHan
     ASSERT(exprMetadata != 0);
 
     if (expr->getCount() != 3) {
-      state->addNotice(std::make_shared<InvalidWhileStatementNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(std::make_shared<Spp::Notices::InvalidWhileStatementNotice>(exprMetadata->findSourceLocation()));
       state->setData(SharedPtr<TiObject>(0));
       return;
     }
@@ -55,7 +55,7 @@ class WhileParsingHandler : public Core::Processing::Handlers::GenericParsingHan
     newObj->setSourceLocation(exprMetadata->findSourceLocation());
     newObj->setProdId(exprMetadata->getProdId());
     for (Int i = 0; i < expr->getCount() - 1; ++i) {
-      newObj->set(i, expr->get(i + 1));
+      newObj->setElement(i, expr->getElement(i + 1));
     }
 
     state->setData(newObj);

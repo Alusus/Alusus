@@ -2,7 +2,7 @@
  * @file Core/Processing/InputBuffer.h
  * Contains the header of class Core::Processing::InputBuffer.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,7 +18,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief A buffer for input characters with character positions.
- * @ingroup processing_lexer
+ * @ingroup core_processing
  *
  * This class contains a buffer for input characters and manages the positions
  * of the characters within the source code. The class doesn't store the

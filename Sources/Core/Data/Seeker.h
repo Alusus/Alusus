@@ -30,13 +30,13 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
   //============================================================================
   // Types
 
-  public: ti_s_enum(Verb, Integer, "Core.Data", "Core", "alusus.net",
+  public: ti_s_enum(Verb, TiInt, "Core.Data", "Core", "alusus.net",
     MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP
   );
   public: s_enum(Flags, SKIP_OWNERS = 1);
-  public: typedef std::function<Verb(TiObject *&obj, Notice *notice)> SetCallback;
-  public: typedef std::function<Verb(TiObject *obj, Notice *notice)> RemoveCallback;
-  public: typedef std::function<Verb(TiObject *obj, Notice *notice)> ForeachCallback;
+  public: typedef std::function<Verb(TiObject *&obj, Notices::Notice *notice)> SetCallback;
+  public: typedef std::function<Verb(TiObject *obj, Notices::Notice *notice)> RemoveCallback;
+  public: typedef std::function<Verb(TiObject *obj, Notices::Notice *notice)> ForeachCallback;
 
 
   //============================================================================
@@ -223,7 +223,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, SetCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(setByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, SetCallback const&, Word)
+    Verb, (Data::Ast::Identifier const*, Basic::MapContainer<TiObject>*, SetCallback const&, Word)
   );
 
   private: static Verb _setByLinkOperator(
@@ -236,7 +236,8 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, SetCallback const &cb, Word flags
   );
   private: static Verb _setByLinkOperator_mapDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, SetCallback const &cb, Word flags
+    TiObject *self, Data::Ast::Identifier const *identifier, Basic::MapContainer<TiObject> *map, SetCallback const &cb,
+    Word flags
   );
 
   public: METHOD_BINDING_CACHE(removeByLinkOperator,
@@ -249,7 +250,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, RemoveCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(removeByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, RemoveCallback const&, Word)
+    Verb, (Data::Ast::Identifier const*, Basic::MapContainer<TiObject>*, RemoveCallback const&, Word)
   );
 
   private: static Verb _removeByLinkOperator(
@@ -263,8 +264,8 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     Word flags
   );
   private: static Verb _removeByLinkOperator_mapDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, RemoveCallback const &cb,
-    Word flags
+    TiObject *self, Data::Ast::Identifier const *identifier, Basic::MapContainer<TiObject> *map,
+    RemoveCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreachByLinkOperator,
@@ -277,7 +278,7 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     Verb, (Data::Ast::Identifier*, Data::Ast::Scope*, ForeachCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(foreachByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Data::MapContainer*, ForeachCallback const&, Word)
+    Verb, (Data::Ast::Identifier const*, Basic::MapContainer<TiObject>*, ForeachCallback const&, Word)
   );
 
   private: static Verb _foreachByLinkOperator(
@@ -290,8 +291,8 @@ class Seeker : public TiObject, public virtual DynamicBindings, public virtual D
     TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, ForeachCallback const &cb, Word flags
   );
   private: static Verb _foreachByLinkOperator_mapDotIdentifier(
-    TiObject *_self, Data::Ast::Identifier const *identifier, Data::MapContainer *map, ForeachCallback const &cb,
-    Word flags
+    TiObject *_self, Data::Ast::Identifier const *identifier, Basic::MapContainer<TiObject> *map,
+    ForeachCallback const &cb, Word flags
   );
 
   /// @}

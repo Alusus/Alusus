@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserState.h
  * Contains the header of class Core::Processing::ParserState.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,7 +20,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief Contains information describing current parsing status.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * The information contained specify where within the formula's terms
  * hierarchy the state is at. The object contains a stack of index entries,
@@ -32,16 +32,6 @@ class ParserState
 {
   friend class Parser;
   friend class DecisionNodePool;
-
-  //============================================================================
-  // Data Types
-
-  /**
-   * @brief An enumeration that specifies the repository index of each scope.
-   * Each of the scopes will have a fixed index within the context repository.
-   */
-  private: s_enum(GrammarScopeIndex, ROOT=0, MODULE=1, PMODULE=2, STACK=3, ARGS=4);
-
 
   //============================================================================
   // Member Variables
@@ -62,11 +52,11 @@ class ParserState
 
   private: Data::VariableStack variableStack;
 
-  private: Data::SharedRepository dataStack;
+  private: Data::DataStack dataStack;
 
-  private: Data::GrammarContext grammarContext;
+  private: Data::Grammar::Context grammarContext;
 
-  private: NoticeStore noticeStore;
+  private: Notices::Store noticeStore;
 
   /**
    * @brief A cached pointer to the top state level.
@@ -139,7 +129,7 @@ class ParserState
 
   private: Int decisionNodeIndex;
 
-  private: Data::SharedList *errorSyncBlockPairs;
+  private: Data::Grammar::List *errorSyncBlockPairs;
 
   private: std::vector<Int> errorSyncBlockStack;
 
@@ -150,10 +140,10 @@ class ParserState
   protected: ParserState();
 
   protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                         Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule);
+                         Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::GrammarModule *rootModule);
 
   protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                         Word reservedVarCount, Word reservedVarLevelCount, const Data::GrammarContext *context);
+                         Word reservedVarCount, Word reservedVarLevelCount, const Data::Grammar::Context *context);
 
   public: ~ParserState()
   {
@@ -170,11 +160,11 @@ class ParserState
 
   protected: void initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                              Word reservedVarCount, Word reservedVarLevelCount,
-                             Data::GrammarModule *rootModule);
+                             Data::Grammar::GrammarModule *rootModule);
 
   protected: void initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                              Word reservedVarCount, Word reservedVarLevelCount,
-                             const Data::GrammarContext *context);
+                             const Data::Grammar::Context *context);
 
   /// Reset the object to an empty state.
   protected: void reset();
@@ -309,7 +299,7 @@ class ParserState
   }
 
   /// Push a new level into the top of the level stack.
-  protected: void pushTermLevel(Data::Term *term);
+  protected: void pushTermLevel(Data::Grammar::Term *term);
 
   /// Pop a level from the top of the level stack.
   protected: void popTermLevel();
@@ -376,7 +366,7 @@ class ParserState
     return const_cast<ParserState*>(this)->refTopProdLevel();
   }
 
-  protected: void pushProdLevel(Data::Module *module, Data::SymbolDefinition *prod);
+  protected: void pushProdLevel(Data::Grammar::GrammarModule *module, Data::Grammar::SymbolDefinition *prod);
 
   protected: void popProdLevel();
 
@@ -385,7 +375,7 @@ class ParserState
     return this->prodStack.capacity();
   }
 
-  public: Data::Integer* getProdFlags(Int levelOffset = -1) const;
+  public: TiInt* getProdFlags(Int levelOffset = -1) const;
 
   /// @}
 
@@ -426,7 +416,7 @@ class ParserState
    * @brief Get the stack of parsing data.
    * This is arbitrary data cretaed and used by parsing handlers.
    */
-  public: Data::SharedRepository* getDataStack()
+  public: Data::DataStack* getDataStack()
   {
     return &this->dataStack;
   }
@@ -437,17 +427,7 @@ class ParserState
    */
   public: void setData(SharedPtr<TiObject> const &data, Int levelOffset = -1)
   {
-    this->dataStack.setLevel(data, levelOffset);
-  }
-
-  /**
-   * @brief Set the parsing data associated with a term level.
-   * This is an arbitrary data created and used by the parsing handler. This
-   * function also sets the scope for this level.
-   */
-  public: void setData(Char const *scope, SharedPtr<TiObject> const &data, Int levelOffset = -1)
-  {
-    this->dataStack.setLevel(scope, data, levelOffset);
+    this->dataStack.set(data, levelOffset);
   }
 
   /**
@@ -456,7 +436,7 @@ class ParserState
    */
   public: SharedPtr<TiObject> const& getData(Int levelOffset = -1) const
   {
-    return this->dataStack.getLevelData(levelOffset);
+    return this->dataStack.getShared(levelOffset);
   }
 
   /// Checks whether another SharedPtr is sharing the data at a given level.
@@ -525,34 +505,35 @@ class ParserState
 
     public: Word getListTermChildCount(Int levelOffset = -1) const;
 
-  protected: Data::Term* useListTermChild(Int index, Int levelOffset = -1);
+  protected: Data::Grammar::Term* useListTermChild(Int index, Int levelOffset = -1);
 
-  public: Data::Integer* getTokenTermId(Int levelOffset = -1) const;
+  public: TiInt* getTokenTermId(Int levelOffset = -1) const;
 
   public: TiObject* getTokenTermText(Int levelOffset = -1) const;
 
-  public: void getReferencedSymbol(Data::Module *&module, Data::SymbolDefinition *&definition,
-                                   Int levelOffset = -1);
+  public: void getReferencedSymbol(
+    Data::Grammar::GrammarModule *&module, Data::Grammar::SymbolDefinition *&definition, Int levelOffset = -1
+  );
 
-  public: Data::Integer* getMultiplyTermMax(Int levelOffset = -1) const;
+  public: TiInt* getMultiplyTermMax(Int levelOffset = -1) const;
 
-  public: Data::Integer* getMultiplyTermMin(Int levelOffset = -1) const;
+  public: TiInt* getMultiplyTermMin(Int levelOffset = -1) const;
 
-  public: Data::Integer* getMultiplyTermPriority(Int levelOffset = -1) const;
+  public: TiInt* getMultiplyTermPriority(Int levelOffset = -1) const;
 
-  public: Data::Integer* getTermFlags(Int levelOffset = -1) const;
+  public: TiInt* getTermFlags(Int levelOffset = -1) const;
 
   /// @}
 
   /// @name Other Functions
   /// @{
 
-  protected: Data::GrammarContext* getGrammarContext()
+  protected: Data::Grammar::Context* getGrammarContext()
   {
     return &this->grammarContext;
   }
 
-  public: const Data::GrammarContext* getGrammarContext() const
+  public: const Data::Grammar::Context* getGrammarContext() const
   {
     return &this->grammarContext;
   }
@@ -563,7 +544,7 @@ class ParserState
     else this->popTermLevel();
   }
 
-  public: Data::SharedList* getErrorSyncBlockPairs() const
+  public: Data::Grammar::List* getErrorSyncBlockPairs() const
   {
     return this->errorSyncBlockPairs;
   }
@@ -659,12 +640,12 @@ class ParserState
   /// @{
 
   /// Add a build message to the end of the list.
-  public: void addNotice(SharedPtr<Data::Notice> const &msg)
+  public: void addNotice(SharedPtr<Notices::Notice> const &msg)
   {
     this->noticeStore.add(msg);
   }
 
-  public: NoticeStore* getNoticeStore()
+  public: Notices::Store* getNoticeStore()
   {
     return &this->noticeStore;
   }

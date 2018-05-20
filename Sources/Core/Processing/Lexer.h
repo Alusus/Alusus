@@ -2,7 +2,7 @@
  * @file Core/Processing/Lexer.h
  * Contains the header of class Core::Processing::Lexer.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,7 +20,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief Contains all the functionality of the state machine.
- * @ingroup processing_lexer
+ * @ingroup core_processing
  *
  * This class contains all the member variables and functions of the state
  * machine.
@@ -68,11 +68,10 @@ class Lexer : public TiObject
   //============================================================================
   // Member Variables
 
-  /// A pointer to the repository that contains token and chargroup definitions.
-  private: Data::GrammarRepository *grammarRepository;
+  private: SharedPtr<Data::Grammar::GrammarModule> grammarRoot;
 
   /// The context used to tracer through the grammar.
-  private: Data::GrammarContext grammarContext;
+  private: Data::Grammar::Context grammarContext;
 
   /**
    * @brief The array of current states.
@@ -154,14 +153,14 @@ class Lexer : public TiObject
    * buffer also holds the position of the first error character, which will
    * later be used as the error position when the error is raised.
    */
-  private: UnrecognizedCharNotice errorBuffer;
+  private: Notices::UnrecognizedCharNotice errorBuffer;
 
 
   //============================================================================
   // Signals
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: Signal<void, SharedPtr<Data::Notice> const&> noticeSignal;
+  public: Signal<void, SharedPtr<Notices::Notice> const&> noticeSignal;
 
   /**
    * @brief A signal to inform targets of a newly generated token.
@@ -177,7 +176,6 @@ class Lexer : public TiObject
   // Constructor / Destructor
 
   public: Lexer() :
-    grammarRepository(0),
     errorBuffer(STR(""), 0),
     disabledStateIndex(-1),
     tempByteCharCount(0),
@@ -197,19 +195,15 @@ class Lexer : public TiObject
   /// @name Initialization Related Functions
   /// @{
 
-  /// Set the repository containing token and chargroup definitions.
-  public: void setGrammarRepository(Data::GrammarRepository *grammarRepo);
-
-  public: Data::GrammarRepository* getGrammarRepository() const
-  {
-    return this->grammarRepository;
-  }
+  public: void initialize(SharedPtr<Data::Ast::Scope> rootScope);
 
   /// Release all data including parsing data and definitions data.
   public: void release()
   {
     this->clear();
-    this->setGrammarRepository(0);
+    this->grammarRoot.reset();
+    this->grammarContext.setRoot(0);
+    this->grammarContext.setModule(0);
   }
 
   /// @}
@@ -239,7 +233,7 @@ class Lexer : public TiObject
   private: void processNextChar(WChar inputChar);
 
   /// Recursively apply the given character on the temp state.
-  private: NextAction processTempState(WChar inputChar, Data::Term *currentTerm,
+  private: NextAction processTempState(WChar inputChar, Data::Grammar::Term *currentTerm,
                                        Int currentLevel);
 
   /// Select the best token among the detected tokens.
@@ -263,10 +257,12 @@ class Lexer : public TiObject
   private: void defragStatesList();
 
   /// Get the symbol definition at the specified index.
-  public: Data::SymbolDefinition* getSymbolDefinition(Int index)
+  public: Data::Grammar::SymbolDefinition* getSymbolDefinition(Int index)
   {
-    Data::SymbolDefinition *def = static_cast<Data::SymbolDefinition*>(this->grammarContext.getModule()->get(index));
-    ASSERT(def->isA<Data::SymbolDefinition>());
+    Data::Grammar::SymbolDefinition *def = static_cast<Data::Grammar::SymbolDefinition*>(
+      this->grammarContext.getModule()->getElement(index)
+    );
+    ASSERT(def->isA<Data::Grammar::SymbolDefinition>());
     return def;
   }
 

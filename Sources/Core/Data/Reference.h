@@ -2,7 +2,7 @@
  * @file Core/Data/Reference.h
  * Contains the header of class Core::Data::Reference.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,7 +22,7 @@ namespace Core { namespace Data
  * single node within a reference chain. Instances of classes derived from this
  * class can be chained together to reach objects within other objects in a
  * hierarchical way.
- * @ingroup data
+ * @ingroup core_data
  */
 class Reference : public Node, public virtual DataOwner
 {

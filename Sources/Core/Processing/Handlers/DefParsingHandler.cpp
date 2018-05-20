@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/DefParsingHandler.cpp
  * Contains the implementation of Core::Processing::Handlers::DefParsingHandler.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -33,10 +33,10 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
 
   Core::Data::Ast::LinkOperator *linkOp = 0;
   if (expr->getCount() == 2) {
-    linkOp = ti_cast<Core::Data::Ast::LinkOperator>(expr->get(1));
+    linkOp = ti_cast<Core::Data::Ast::LinkOperator>(expr->getElement(1));
   }
   if (linkOp == 0) {
-    state->addNotice(std::make_shared<MissingDefLinkNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(std::make_shared<Notices::MissingDefLinkNotice>(exprMetadata->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -44,7 +44,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   // Get the name of the definition.
   auto nameToken = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
   if (nameToken == 0) {
-    state->addNotice(std::make_shared<MissingDefNameNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(std::make_shared<Notices::MissingDefNameNotice>(exprMetadata->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -55,7 +55,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   if (val == 0) {
     // TODO: We need to choose terms for the parts of a define command, e.g.
     // definition name, definition, etc.
-    state->addNotice(std::make_shared<InvalidDefCommandNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(std::make_shared<Notices::InvalidDefCommandNotice>(exprMetadata->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }

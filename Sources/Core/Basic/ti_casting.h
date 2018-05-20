@@ -2,7 +2,7 @@
  * @file Core/Basic/ti_casting.h
  * Contains casting functions for TiObject and TiInterface.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,7 +20,8 @@ namespace Core { namespace Basic
 // Casting from TiObject to TiObject
 
 template <class DT, class ST,
-          typename std::enable_if<std::is_base_of<TiObject, ST>::value &&
+          typename std::enable_if<!std::is_base_of<DT, ST>::value &&
+                                  std::is_base_of<TiObject, ST>::value &&
                                   std::is_base_of<TiObject, DT>::value, int>::type = 0>
 inline DT* ti_cast(ST *object)
 {
@@ -28,11 +29,30 @@ inline DT* ti_cast(ST *object)
 }
 
 template <class DT, class ST,
-          typename std::enable_if<std::is_base_of<TiObject, ST>::value &&
+          typename std::enable_if<!std::is_base_of<DT, ST>::value &&
+                                  std::is_base_of<TiObject, ST>::value &&
                                   std::is_base_of<TiObject, DT>::value, int>::type = 0>
 inline DT const* ti_cast(ST const *object)
 {
   return static_cast<DT const*>(object==0?0:object->isDerivedFrom(DT::getTypeInfo())?object:0);
+}
+
+template <class DT, class ST,
+          typename std::enable_if<std::is_base_of<DT, ST>::value &&
+                                  std::is_base_of<TiObject, ST>::value &&
+                                  std::is_base_of<TiObject, DT>::value, int>::type = 0>
+inline DT* ti_cast(ST *object)
+{
+  return static_cast<DT*>(object==0 ? 0 : object);
+}
+
+template <class DT, class ST,
+          typename std::enable_if<std::is_base_of<DT, ST>::value &&
+                                  std::is_base_of<TiObject, ST>::value &&
+                                  std::is_base_of<TiObject, DT>::value, int>::type = 0>
+inline DT const* ti_cast(ST const *object)
+{
+  return static_cast<DT const*>(object==0? 0 : object);
 }
 
 

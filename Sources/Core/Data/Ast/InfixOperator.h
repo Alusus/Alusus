@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/InfixOperator.h
  * Contains the header of class Core::Data::Ast::InfixOperator.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class InfixOperator : public Node,
-                      public virtual Bindings, public virtual MapContainer, public virtual Metadata,
+                      public virtual Bindings, public virtual Basic::MapContainer<TiObject>, public virtual Metadata,
                       public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(InfixOperator, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Bindings, MapContainer, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Bindings, Basic::MapContainer<TiObject>, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -48,7 +48,10 @@ class InfixOperator : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, first), (TiObject, second));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+    (first, TiObject, setFirst(value), first.get()),
+    (second, TiObject, setSecond(value), second.get())
+  );
 
   IMPLEMENT_AST_MAP_PRINTABLE(InfixOperator, << this->type.get());
 
@@ -90,6 +93,10 @@ class InfixOperator : public Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->first, f);
   }
+  private: void setFirst(TiObject *f)
+  {
+    this->setFirst(getSharedPtr(f));
+  }
 
   public: TioSharedPtr const& getFirst() const
   {
@@ -99,6 +106,10 @@ class InfixOperator : public Node,
   public: void setSecond(TioSharedPtr const &s)
   {
     UPDATE_OWNED_SHAREDPTR(this->second, s);
+  }
+  private: void setSecond(TiObject *s)
+  {
+    this->setSecond(getSharedPtr(s));
   }
 
   public: TioSharedPtr const& getSecond() const
@@ -131,8 +142,8 @@ class InfixOperator : public Node,
     { \
       SharedPtr<X> newObject = std::make_shared<X>(); \
       newObject->setProdId(this->getProdId()); \
-      for (Word i = 0; i < this->getCount(); ++i) { \
-        newObject->set(i, this->get(i)); \
+      for (Word i = 0; i < this->getElementCount(); ++i) { \
+        newObject->setElement(i, this->getElement(i)); \
       } \
       newObject->setType(this->type); \
       newObject->setSourceLocation(this->getSourceLocation()); \

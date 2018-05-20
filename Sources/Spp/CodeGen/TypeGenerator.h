@@ -38,7 +38,7 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
   // Member Variables
 
   private: Ast::Helper *astHelper;
-  private: Core::Processing::NoticeStore *noticeStore = 0;
+  private: Core::Notices::Store *noticeStore = 0;
 
 
   //============================================================================
@@ -77,12 +77,12 @@ class TypeGenerator : public TiObject, public virtual DynamicBindings, public vi
     return this->astHelper;
   }
 
-  public: void setNoticeStore(Core::Processing::NoticeStore *ns)
+  public: void setNoticeStore(Core::Notices::Store *ns)
   {
     this->noticeStore = ns;
   }
 
-  public: Core::Processing::NoticeStore* getNoticeStore() const
+  public: Core::Notices::Store* getNoticeStore() const
   {
     return this->noticeStore;
   }

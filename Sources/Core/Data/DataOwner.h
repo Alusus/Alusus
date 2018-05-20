@@ -2,7 +2,7 @@
  * @file Core/Data/DataOwner.h
  * Contains the header of interface Data::DataOwner.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,7 +20,7 @@ namespace Core { namespace Data
 
 /**
  * @brief An interface to provide tree management functions.
- * @ingroup data
+ * @ingroup core_data
  *
  * Classes that owns children need to implement this class to provide those
  * functionalitites.

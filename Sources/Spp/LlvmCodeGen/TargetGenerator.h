@@ -37,7 +37,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
   //============================================================================
   // Member Variables
 
-  private: Core::Processing::NoticeStore *noticeStore = 0;
+  private: Core::Notices::Store *noticeStore = 0;
   private: SharedPtr<ExecutionContext> executionContext;
   private: SharedPtr<llvm::Module> llvmModule;
   private: SharedPtr<llvm::DataLayout> llvmDataLayout;
@@ -78,7 +78,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
   /// @name Main Operation Functions
   /// @{
 
-  public: void prepareBuild(Core::Processing::NoticeStore *noticeStore);
+  public: void prepareBuild(Core::Notices::Store *noticeStore);
 
   public: void dumpIr(Core::Basic::OutStream &out);
 
@@ -89,7 +89,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
   /// @name Property Getters
   /// @{
 
-  public: Core::Processing::NoticeStore* getNoticeStore() const
+  public: Core::Notices::Store* getNoticeStore() const
   {
     return this->noticeStore;
   }

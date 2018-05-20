@@ -23,7 +23,7 @@ llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES core jit native linker)
 include_directories("${AlususSpp_SOURCE_DIR}")
 
 # Create the list of files to be added to the project.
-set(AlususSpp_SOURCE_SUBDIRS Ast Handlers CodeGen LlvmCodeGen)
+set(AlususSpp_SOURCE_SUBDIRS Ast Notices Handlers CodeGen LlvmCodeGen)
 set(AlususSpp_SOURCE_FILES
   spp.h
   LibraryGateway.h
@@ -31,6 +31,8 @@ set(AlususSpp_SOURCE_FILES
   ExecutionContext.h
   SeekerExtension.h
   SeekerExtension.cpp
+  GrammarFactory.h
+  GrammarFactory.cpp
   main.cpp
   )
 foreach (dir ${AlususSpp_SOURCE_SUBDIRS})

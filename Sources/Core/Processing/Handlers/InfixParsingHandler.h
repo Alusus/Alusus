@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/InfixParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::InfixParsingHandler
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -99,7 +99,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     auto obj = std::make_shared<TYPE>();
     obj->setFirst(currentData);
     obj->setType(token->getText());
-    obj->setSecond(getSharedPtr(list->get(1)));
+    obj->setSecond(list->get(1));
 
     auto metadata = currentData.ti_cast_get<Data::Ast::Metadata>();
     if (metadata != 0) {

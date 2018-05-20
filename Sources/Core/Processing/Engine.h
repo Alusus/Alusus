@@ -2,7 +2,7 @@
  * @file Core/Processing/Engine.h
  * Contains the header of class Core::Processing::Engine.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -38,7 +38,7 @@ class Engine : public TiObject
   // Signals
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: SignalRelay<void, SharedPtr<Data::Notice> const&> noticeSignal;
+  public: SignalRelay<void, SharedPtr<Notices::Notice> const&> noticeSignal;
 
 
   //============================================================================
@@ -48,9 +48,9 @@ class Engine : public TiObject
   {
   }
 
-  public: Engine(Data::GrammarRepository *grammarRepo, SharedPtr<Data::Ast::Scope> const &rootScope)
+  public: Engine(SharedPtr<Data::Ast::Scope> const &rootScope)
   {
-    this->initialize(grammarRepo, rootScope);
+    this->initialize(rootScope);
   }
 
   public: virtual ~Engine()
@@ -61,7 +61,7 @@ class Engine : public TiObject
   //============================================================================
   // Member Functions
 
-  public: void initialize(Data::GrammarRepository *grammarRepo, SharedPtr<Data::Ast::Scope> const &rootScope);
+  public: void initialize(SharedPtr<Data::Ast::Scope> const &rootScope);
 
   /// Parse the given string and return any resulting parsing data.
   public: SharedPtr<TiObject> processString(Char const *str, Char const *name);

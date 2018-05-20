@@ -17,6 +17,13 @@
 namespace Core { namespace Data { namespace Ast
 {
 
+/**
+ * @defgroup core_data_ast AST Classes
+ * @ingroup core_data
+ * @brief Abstract Syntax Tree classes.
+ */
+
+
 //==============================================================================
 // Macros
 
@@ -27,18 +34,18 @@ namespace Core { namespace Data { namespace Ast
     for (Word i = 0; i < this->getMemberCount(); ++i) { \
       newObj->setMember(this->getMemberKey(i).c_str(), this->getMember(i)); \
     } \
-    for (Int i = 0; i < this->getCount(); ++i) { \
+    for (Int i = 0; i < this->getElementCount(); ++i) { \
       copyStmt; \
     } \
     return newObj; \
   }
 
 #define IMPLEMENT_AST_CLONABLE(type) \
-  _IMPLEMENT_AST_CLONABLE(type, newObj->set(i, this->get(i)))
+  _IMPLEMENT_AST_CLONABLE(type, newObj->setElement(i, this->getElement(i)))
 #define IMPLEMENT_AST_LIST_CLONABLE(type) \
-  _IMPLEMENT_AST_CLONABLE(type, newObj->add(this->get(i)))
+  _IMPLEMENT_AST_CLONABLE(type, newObj->addElement(this->getElement(i)))
 #define IMPLEMENT_AST_MAP_CLONABLE(type) \
-  _IMPLEMENT_AST_CLONABLE(type, newObj->set(this->getKey(i).c_str(), this->get(i)))
+  _IMPLEMENT_AST_CLONABLE(type, newObj->setElement(this->getElementKey(i).c_str(), this->getElement(i)))
 
 #define _PRINT_AST_TYPE_NAME1(type) stream << STR(#type)
 #define _PRINT_AST_TYPE_NAME2(type, extra) stream << STR(#type " ") extra
@@ -53,11 +60,11 @@ namespace Core { namespace Data { namespace Ast
     if (id != UNKNOWN_ID) { \
       stream << STR(" [") << ID_GENERATOR->getDesc(id) << STR("]"); \
     } \
-    for (Word i = 0; i < this->getCount(); ++i) { \
+    for (Word i = 0; i < this->getElementCount(); ++i) { \
       stream << STR("\n"); \
       printIndents(stream, indents+1); \
-      stream << this->getKey(i).c_str() << STR(": "); \
-      Core::Data::dumpData(stream, this->get(i), indents+1); \
+      stream << this->getElementKey(i).c_str() << STR(": "); \
+      Core::Data::dumpData(stream, this->getElement(i), indents+1); \
     } \
   }
 
@@ -69,10 +76,10 @@ namespace Core { namespace Data { namespace Ast
     if (id != UNKNOWN_ID) { \
       stream << STR(" [") << ID_GENERATOR->getDesc(id) << STR("]"); \
     } \
-    for (Word i = 0; i < this->getCount(); ++i) { \
+    for (Word i = 0; i < this->getElementCount(); ++i) { \
       stream << STR("\n"); \
       printIndents(stream, indents+1); \
-      Core::Data::dumpData(stream, this->get(i), indents+1); \
+      Core::Data::dumpData(stream, this->getElement(i), indents+1); \
     } \
   }
 
@@ -80,7 +87,7 @@ namespace Core { namespace Data { namespace Ast
 //==============================================================================
 // Data Types
 
-ti_s_enum(BracketType, Integer, "Core.Data.Ast", "Core", "alusus.net", ROUND, SQUARE);
+ti_s_enum(BracketType, TiInt, "Core.Data.Ast", "Core", "alusus.net", ROUND, SQUARE);
 
 
 //==============================================================================
@@ -91,9 +98,13 @@ SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj);
 } } } // namespace
 
 #include "Metadata.h"
+
+#include "List.h"
+#include "Map.h"
+
 #include "Token.h"
 #include "Route.h"
-#include "List.h"
+
 #include "ExpressionList.h"
 #include "StatementList.h"
 #include "Scope.h"

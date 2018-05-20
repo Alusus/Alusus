@@ -105,11 +105,11 @@ Bool Helper::_lookupCallee(
   calleeType = 0;
   CallMatchStatus matchStatus = CallMatchStatus::NONE;
   Int matchCount = 0;
-  SharedPtr<Core::Data::Notice> notice;
+  SharedPtr<Core::Notices::Notice> notice;
   Bool symbolFound = false;
   helper->getSeeker()->foreach(ref, astNode,
     [=, &callee, &calleeType, &matchStatus, &matchCount, &notice, &symbolFound]
-      (TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
+      (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
       {
         if (ntc != 0) {
           notice = getSharedPtr(ntc);
@@ -127,13 +127,19 @@ Bool Helper::_lookupCallee(
     helper->noticeStore->add(notice);
   }
   if (matchCount > 1) {
-    helper->noticeStore->add(std::make_shared<MultipleCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(ref)));
+    helper->noticeStore->add(
+      std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(ref))
+    );
     return false;
   } else if (callee == 0) {
     if (symbolFound) {
-      helper->noticeStore->add(std::make_shared<NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(ref)));
+      helper->noticeStore->add(
+        std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(ref))
+      );
     } else {
-      helper->noticeStore->add(std::make_shared<UnknownSymbolNotice>(Core::Data::Ast::findSourceLocation(ref)));
+      helper->noticeStore->add(
+        std::make_shared<Spp::Notices::UnknownSymbolNotice>(Core::Data::Ast::findSourceLocation(ref))
+      );
     }
     return false;
   }
@@ -144,7 +150,7 @@ Bool Helper::_lookupCallee(
 
 Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
   TiObject *self, TiObject *obj, Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
-  CallMatchStatus &matchStatus, Int &matchCount, SharedPtr<Core::Data::Notice> &notice,
+  CallMatchStatus &matchStatus, Int &matchCount, SharedPtr<Core::Notices::Notice> &notice,
   TiObject *&callee, Type *&calleeType
 ) {
   PREPARE_SELF(helper, Helper);
@@ -170,7 +176,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
   } else if (obj != 0 && helper->isVarDefinition(obj)) {
     auto objType = helper->getSeeker()->tryGet(obj, obj);
     if (objType == 0) {
-      notice = std::make_shared<InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(obj));
+      notice = std::make_shared<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(obj));
     }
     if (objType->isDerivedFrom<ArrayType>()) {
       if (
@@ -201,7 +207,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
 {
   PREPARE_SELF(helper, Helper);
 
-  SharedPtr<Core::Data::Notice> notice;
+  SharedPtr<Core::Notices::Notice> notice;
   auto type = ti_cast<Spp::Ast::Type>(ref);
   if (type == 0) {
     auto *refNode = ti_cast<Core::Data::Node>(ref);
@@ -209,7 +215,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
       throw EXCEPTION(GenericException, STR("Invalid type reference."));
     }
     helper->getSeeker()->foreach(ref, refNode->getOwner(),
-      [=, &type, &notice](TiObject *obj, Core::Data::Notice *ntc)->Core::Data::Seeker::Verb
+      [=, &type, &notice](TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
       {
         if (ntc != 0) {
           notice = getSharedPtr(ntc);
@@ -228,7 +234,9 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
   }
   if (type == 0) {
     if (notice != 0) helper->noticeStore->add(notice);
-    helper->noticeStore->add(std::make_shared<InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref)));
+    helper->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
+    );
   }
 
   return type;
@@ -291,7 +299,7 @@ ReferenceType* Helper::_getReferenceTypeFor(TiObject *self, TiObject *type)
     }
     return refType;
   } else {
-    auto notice = result.ti_cast<Core::Data::Notice>();
+    auto notice = result.ti_cast<Core::Notices::Notice>();
     if (notice != 0) {
       helper->noticeStore->add(notice);
     }
@@ -324,7 +332,7 @@ PointerType* Helper::_getPointerTypeFor(TiObject *self, TiObject *type)
     }
     return refType;
   } else {
-    auto notice = result.ti_cast<Core::Data::Notice>();
+    auto notice = result.ti_cast<Core::Notices::Notice>();
     if (notice != 0) {
       helper->noticeStore->add(notice);
     }
@@ -410,7 +418,7 @@ ArrayType* Helper::_getCharArrayType(TiObject *self, Word size)
     // Recycle the existing reference.
     auto intLiteral = helper->charArrayTypeRef
       ->getParam().ti_cast_get<Core::Data::Ast::ExpressionList>()
-      ->getShared(1).ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+      ->get(1).ti_cast_get<Core::Data::Ast::IntegerLiteral>();
     if (!intLiteral) {
       throw EXCEPTION(GenericException, STR("Unexpected internal error."));
     }

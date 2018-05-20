@@ -67,7 +67,7 @@ Bool CommandGenerator::_generateReturnStatement(
       retType, cmdGenerator->astHelper, tg->getExecutionContext()
     )) {
       cmdGenerator->noticeStore->add(
-        std::make_shared<InvalidReturnValueNotice>(astNode->findSourceLocation())
+        std::make_shared<Spp::Notices::InvalidReturnValueNotice>(astNode->findSourceLocation())
       );
       return false;
     }
@@ -84,7 +84,7 @@ Bool CommandGenerator::_generateReturnStatement(
     // Make sure return type is void.
     if (!retType->isA<Ast::VoidType>()) {
       cmdGenerator->noticeStore->add(
-        std::make_shared<InvalidReturnValueNotice>(astNode->findSourceLocation())
+        std::make_shared<Spp::Notices::InvalidReturnValueNotice>(astNode->findSourceLocation())
       );
       return false;
     }
@@ -238,7 +238,9 @@ Bool CommandGenerator::_generateContinueStatement(
   auto stepsNode = ti_cast<Core::Data::Ast::IntegerLiteral>(astNode->getSteps().get());
   auto steps = stepsNode == 0 ? 1 : std::stoi(stepsNode->getValue().get());
   if (steps <= 0) {
-    cmdGenerator->noticeStore->add(std::make_shared<InvalidContinueStepsNotice>(astNode->findSourceLocation()));
+    cmdGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidContinueStepsNotice>(astNode->findSourceLocation())
+    );
     return false;
   }
 
@@ -248,7 +250,9 @@ Bool CommandGenerator::_generateContinueStatement(
     loopNode = loopNode->getOwner();
     while (!loopNode->isDerivedFrom<Spp::Ast::WhileStatement>() && !loopNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
       if (loopNode->isDerivedFrom<Spp::Ast::Function>()) {
-        cmdGenerator->noticeStore->add(std::make_shared<InvalidContinueStepsNotice>(astNode->findSourceLocation()));
+        cmdGenerator->noticeStore->add(
+          std::make_shared<Spp::Notices::InvalidContinueStepsNotice>(astNode->findSourceLocation())
+        );
         return false;
       }
       loopNode = loopNode->getOwner();
@@ -270,7 +274,9 @@ Bool CommandGenerator::_generateBreakStatement(
   auto stepsNode = ti_cast<Core::Data::Ast::IntegerLiteral>(astNode->getSteps().get());
   auto steps = stepsNode == 0 ? 1 : std::stoi(stepsNode->getValue().get());
   if (steps <= 0) {
-    cmdGenerator->noticeStore->add(std::make_shared<InvalidBreakStepsNotice>(astNode->findSourceLocation()));
+    cmdGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidBreakStepsNotice>(astNode->findSourceLocation())
+    );
     return false;
   }
 
@@ -280,7 +286,9 @@ Bool CommandGenerator::_generateBreakStatement(
     loopNode = loopNode->getOwner();
     while (!loopNode->isDerivedFrom<Spp::Ast::WhileStatement>() && !loopNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
       if (loopNode->isDerivedFrom<Spp::Ast::Function>()) {
-        cmdGenerator->noticeStore->add(std::make_shared<InvalidBreakStepsNotice>(astNode->findSourceLocation()));
+        cmdGenerator->noticeStore->add(
+          std::make_shared<Spp::Notices::InvalidBreakStepsNotice>(astNode->findSourceLocation())
+        );
         return false;
       }
       loopNode = loopNode->getOwner();
@@ -303,13 +311,13 @@ Bool CommandGenerator::castCondition(
   auto boolType = this->astHelper->getBoolType();
   if (!astType->isImplicitlyCastableTo(boolType, this->astHelper, tg->getExecutionContext())) {
     this->noticeStore->add(
-      std::make_shared<InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      std::make_shared<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );
     return false;
   }
   if (!g->generateCast(tg, tgContext, astType, this->astHelper->getBoolType(), tgValue, result)) {
     this->noticeStore->add(
-      std::make_shared<InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      std::make_shared<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );
     return false;
   }

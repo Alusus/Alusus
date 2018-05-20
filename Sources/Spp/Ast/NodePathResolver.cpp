@@ -82,7 +82,7 @@ void NodePathResolver::_resolveFunction(TiObject *self, Spp::Ast::Function const
   if (argTypes != 0) {
     for (Int i = 0; i < argTypes->getCount(); ++i) {
       if (i > 0) path << CHR(',');
-      resolver->resolveFunctionArg(argTypes->get(i), helper, path);
+      resolver->resolveFunctionArg(argTypes->getElement(i), helper, path);
     }
   }
   path << STR(")");
@@ -125,13 +125,13 @@ void NodePathResolver::_resolveTemplateInstance(
     if (i > 0) path << CHR(',');
     auto obj = Ast::Template::getTemplateVar(block, varDefs->at(i).first.c_str());
     if (varDefs->at(i).second == Ast::Template::VarType::INTEGER) {
-      auto integer = ti_cast<Core::Data::Integer>(obj);
+      auto integer = ti_cast<Core::Basic::TiInt>(obj);
       if (integer == 0) {
         throw EXCEPTION(GenericException, STR("Invalid template argument."));
       }
       path << integer->get();
     } else if (varDefs->at(i).second == Ast::Template::VarType::STRING) {
-      auto str = ti_cast<Core::Data::String>(obj);
+      auto str = ti_cast<TiStr>(obj);
       if (str == 0) {
         throw EXCEPTION(GenericException, STR("Invalid template argument."));
       }

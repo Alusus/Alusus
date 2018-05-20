@@ -1,7 +1,7 @@
-ERROR SPP1106 @ (12,11): No matches were found for the given callee.
-ERROR SPP1107 @ (13,11): Unknown symbol.
-ERROR SPP1107 @ (15,18): Unknown symbol.
-ERROR SPP1308 @ (16,10): Invalid symbol.
+ERROR SPPA1006 @ (12,11): No matches were found for the given callee.
+ERROR SPPA1007 @ (13,11): Unknown symbol.
+ERROR SPPA1007 @ (15,18): Unknown symbol.
+ERROR SPPG1008 @ (16,10): Invalid symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

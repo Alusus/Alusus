@@ -2,7 +2,7 @@
  * @file Core/Data/SharedMap.h
  * Contains the header of class Core::Data::SharedMap.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,7 +16,10 @@
 namespace Core { namespace Data
 {
 
-class Reference;
+namespace Grammar
+{
+  class Reference;
+}
 
 // TODO: DOC
 
@@ -24,7 +27,6 @@ class Reference;
 
 /**
  * @brief An identifiable object that holds an associative array.
- * @ingroup data_containers
  *
  * This TiObject derived class is used to hold a map of identifiable
  * objects. This class is used mainly to store data used by the grammar. This
@@ -62,8 +64,8 @@ class SharedMap : public Node,
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<Reference> parentReference;
-  private: SharedMap *parent;
+  private: SharedPtr<Grammar::Reference> baseRef;
+  private: SharedMap *base;
 
   /// The vector in which the list of key/value pairs are stored.
   private: std::vector<Entry> list;
@@ -100,19 +102,19 @@ class SharedMap : public Node,
    * searching, otherwise the object will use sequential searching instead of
    * binary search.
    */
-  public: SharedMap(Bool useIndex=false) : inherited(0), parent(0)
+  public: SharedMap(Bool useIndex=false) : inherited(0), base(0)
   {
     if (useIndex) this->index = new Index(&this->list);
     else this->index = 0;
   }
 
   /// Initialize the map and create the index, if required.
-  public: SharedMap(Bool useIndex, const std::initializer_list<Argument<Char const*>> &args);
+  public: SharedMap(Bool useIndex, const std::initializer_list<Argument> &args);
 
   /// Delete the index created in the constructor, if any.
   public: virtual ~SharedMap();
 
-  public: static SharedPtr<SharedMap> create(Bool useIndex, const std::initializer_list<Argument<Char const*>> &args)
+  public: static SharedPtr<SharedMap> create(Bool useIndex, const std::initializer_list<Argument> &args)
   {
     return std::make_shared<SharedMap>(useIndex, args);
   }
@@ -124,36 +126,36 @@ class SharedMap : public Node,
   /// @name Inheritance Functions
   /// @{
 
-  public: void setParentReference(SharedPtr<Reference> const &p)
+  public: void setBaseRef(SharedPtr<Grammar::Reference> const &p)
   {
-    this->parentReference = p;
+    this->baseRef = p;
   }
 
-  public: SharedPtr<Reference> const& getParentReference() const
+  public: SharedPtr<Grammar::Reference> const& getBaseRef() const
   {
-    return this->parentReference;
+    return this->baseRef;
   }
 
-  public: void setParent(SharedMap *p)
+  public: void setBase(SharedMap *p)
   {
-    if (this->parent != 0) this->detachFromParent();
-    if (p != 0) this->attachToParent(p);
+    if (this->base != 0) this->detachFromBase();
+    if (p != 0) this->attachToBase(p);
   }
 
-  public: SharedMap* getParent() const
+  public: SharedMap* getBase() const
   {
-    return this->parent;
+    return this->base;
   }
 
   private: Word getParentDefCount() const
   {
-    if (this->parent != 0) return this->parent->getCount();
+    if (this->base != 0) return this->base->getCount();
     else return 0;
   }
 
-  private: void attachToParent(SharedMap *p);
+  private: void attachToBase(SharedMap *p);
 
-  private: void detachFromParent();
+  private: void detachFromBase();
 
   private: void inheritFromParent();
 
@@ -169,7 +171,7 @@ class SharedMap : public Node,
 
   private: void onParentDestroyed(SharedMap *obj)
   {
-    this->detachFromParent();
+    this->detachFromBase();
   }
 
   /// @}
@@ -210,7 +212,7 @@ class SharedMap : public Node,
   /// @name Initializable Implementation
   /// @{
 
-  public: virtual void initialize(TiObject *owner);
+  public: virtual void initialize(TiObject *context);
 
   /// @}
 

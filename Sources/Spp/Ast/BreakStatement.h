@@ -13,11 +13,11 @@
 #ifndef SPP_AST_BREAKSTATEMENT_H
 #define SPP_AST_BREAKSTATEMENT_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 class BreakStatement : public Core::Data::Node,
-                       public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
+                       public virtual Core::Basic::Bindings, public virtual Core::Basic::MapContainer<TiObject>,
                        public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                        public virtual Core::Data::Printable
 {
@@ -25,7 +25,7 @@ class BreakStatement : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(BreakStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Data::MapContainer,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Basic::MapContainer<TiObject>,
                                          Core::Data::Ast::Metadata, Core::Data::Clonable,
                                          Core::Data::Printable);
 
@@ -46,7 +46,9 @@ class BreakStatement : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer, (Core::Data::Ast::IntegerLiteral, steps));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+    (steps, Core::Data::Ast::IntegerLiteral, setSteps(value), steps.get())
+  );
 
   IMPLEMENT_AST_CLONABLE(BreakStatement);
 
@@ -75,6 +77,10 @@ class BreakStatement : public Core::Data::Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->steps, s);
   }
+  private: void setSteps(Core::Data::Ast::IntegerLiteral *s)
+  {
+    this->setSteps(getSharedPtr(s));
+  }
 
   public: SharedPtr<Core::Data::Ast::IntegerLiteral> const& getSteps() const
   {
@@ -83,6 +89,6 @@ class BreakStatement : public Core::Data::Node,
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

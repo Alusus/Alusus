@@ -1,7 +1,7 @@
-ERROR SPP1313 @ (53,21): Invalid break steps.
-ERROR SPP1313 @ (54,21): Invalid break steps.
-ERROR SPP1313 @ (66,21): Invalid break steps.
-ERROR SPP1313 @ (67,21): Invalid break steps.
+ERROR SPPG1013 @ (53,21): Invalid break steps.
+ERROR SPPG1013 @ (54,21): Invalid break steps.
+ERROR SPPG1013 @ (66,21): Invalid break steps.
+ERROR SPPG1013 @ (67,21): Invalid break steps.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

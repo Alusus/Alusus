@@ -2,7 +2,7 @@
  * @file Core/Processing/TokenizingHandler.h
  * Contains the header of class Core::Processing::TokenizingHandler.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,18 +20,18 @@ class Parser;
 
 /**
  * @brief The root class of all tokenizing handlers.
- * @ingroup processing_lexer
+ * @ingroup core_processing
  *
  * Tokenizing handlers are associated with token definitions to receive lexer
  * events that can be used for custom operations on the generated tokens.
  * Assigning tokenizing handlers to token definitions is optional.
  */
-class TokenizingHandler : public Data::BuildHandler
+class TokenizingHandler : public Data::Grammar::BuildHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(TokenizingHandler, Data::BuildHandler, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(TokenizingHandler, Data::Grammar::BuildHandler, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================

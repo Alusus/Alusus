@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/FunctionParsingHandler.h
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -43,10 +43,10 @@ class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsing
   );
 
   private: Bool parseArgs(Core::Processing::ParserState *state, Core::Data::Ast::Bracket *bracket,
-                          SharedPtr<Core::Data::SharedMap> &result);
+                          SharedPtr<Core::Data::Ast::Map> &result);
 
   private: Bool parseArg(Core::Processing::ParserState *state, Core::Data::Ast::LinkOperator *link,
-                         SharedPtr<Core::Data::SharedMap> const &result);
+                         SharedPtr<Core::Data::Ast::Map> const &result);
 
   private: Bool parseNumber(Core::Processing::ParserState *state, TiObject *ast, TiWord &result,
                             Core::Data::Ast::Metadata *parentMetadata);

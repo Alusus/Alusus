@@ -243,13 +243,13 @@ void SharedRepository::set(Reference const *ref, SeekerSetLambda handler)
         // We can't call setTreeIds until the object is set to the tree, so we will cache the
         // pointer to be set later. If we already have an object from a previous iteration then
         // it's safe to set it now.
-        if (objToSet != 0) setTreeIds(objToSet);
+        if (objToSet != 0) setTreeIds(objToSet, 0);
         objToSet = obj;
       }
       return ret;
     });
     // If we have a cached object we'll set its id now.
-    if (objToSet != 0) setTreeIds(objToSet);
+    if (objToSet != 0) setTreeIds(objToSet, 0);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
@@ -263,7 +263,7 @@ void SharedRepository::set(Reference const *ref, SeekerSetLambda handler)
           // We can't call setTreeIds until the object is set to the tree, so we will cache the
           // pointer to be set later. If we already have an object from a previous iteration then
           // it's safe to set it now.
-          if (objToSet != 0) setTreeIds(objToSet);
+          if (objToSet != 0) setTreeIds(objToSet, 0);
           objToSet = obj;
         }
         return ret;
@@ -271,7 +271,7 @@ void SharedRepository::set(Reference const *ref, SeekerSetLambda handler)
       if (!isMove(ret)) break;
     }
     // If we have a cached object we'll set its id now.
-    if (objToSet != 0) setTreeIds(objToSet);
+    if (objToSet != 0) setTreeIds(objToSet, 0);
   }
 }
 
@@ -292,13 +292,13 @@ void SharedRepository::set(Char const *qualifier, SeekerSetLambda handler)
         // We can't call setTreeIds until the object is set to the tree, so we will cache the
         // pointer to be set later. If we already have an object from a previous iteration then
         // it's safe to set it now.
-        if (objToSet != 0) setTreeIds(objToSet);
+        if (objToSet != 0) setTreeIds(objToSet, 0);
         objToSet = obj;
       }
       return ret;
     });
     // If we have a cached object we'll set its id now.
-    if (objToSet != 0) setTreeIds(objToSet);
+    if (objToSet != 0) setTreeIds(objToSet, 0);
   } else {
     // The default is to go downward through the stack.
     for (Int i = this->stack.getCount()-1; i>=0; --i) {
@@ -312,7 +312,7 @@ void SharedRepository::set(Char const *qualifier, SeekerSetLambda handler)
           // We can't call setTreeIds until the object is set to the tree, so we will cache the
           // pointer to be set later. If we already have an object from a previous iteration then
           // it's safe to set it now.
-          if (objToSet != 0) setTreeIds(objToSet);
+          if (objToSet != 0) setTreeIds(objToSet, 0);
           objToSet = obj;
         }
         return ret;
@@ -320,7 +320,7 @@ void SharedRepository::set(Char const *qualifier, SeekerSetLambda handler)
       if (!isMove(ret)) break;
     }
     // If we have a cached object we'll set its id now.
-    if (objToSet != 0) setTreeIds(objToSet);
+    if (objToSet != 0) setTreeIds(objToSet, 0);
   }
 }
 

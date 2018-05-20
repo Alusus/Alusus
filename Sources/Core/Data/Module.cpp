@@ -2,7 +2,7 @@
  * @file Core/Data/Module.cpp
  * Contains the implementation of class Core::Data::Module.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,12 +18,12 @@ namespace Core { namespace Data
 //==============================================================================
 // Constructors
 
-Module::Module(const std::initializer_list<Argument<Char const*>> &args) : definitions(true)
+Module::Module(const std::initializer_list<Argument> &args) : definitions(true)
 {
   this->contentChangeNotifier.relay(this->definitions.contentChangeNotifier);
 
   for (auto arg : args) {
-    this->add(arg.id, arg.tiShared);
+    this->add(arg.id, arg.shared);
   }
 }
 

@@ -1,20 +1,20 @@
-ERROR SPP1309 @ (24,10): Value is not implicitly castable to target type.
-ERROR SPP1309 @ (27,10): Value is not implicitly castable to target type.
-ERROR SPP1309 @ (31,10): Value is not implicitly castable to target type.
-ERROR SPP1309 @ (34,10): Value is not implicitly castable to target type.
-ERROR SPP1106 @ (45,5): No matches were found for the given callee.
-ERROR SPP1106 @ (46,5): No matches were found for the given callee.
-ERROR SPP1106 @ (47,5): No matches were found for the given callee.
-ERROR SPP1308 @ (54,5): Invalid symbol.
-ERROR SPP1308 @ (55,5): Invalid symbol.
-ERROR SPP1107 @ (56,11): Unknown symbol.
-ERROR SPP1308 @ (57,5): Invalid symbol.
-ERROR SPP1308 @ (58,5): Invalid symbol.
-ERROR SPP1107 @ (59,16): Unknown symbol.
-ERROR SPP1107 @ (84,11): Unknown symbol.
-ERROR SPP1107 @ (85,25): Unknown symbol.
-ERROR SPP1107 @ (88,18): Unknown symbol.
-ERROR SPP1107 @ (89,32): Unknown symbol.
+ERROR SPPG1009 @ (24,10): Value is not implicitly castable to target type.
+ERROR SPPG1009 @ (27,10): Value is not implicitly castable to target type.
+ERROR SPPG1009 @ (31,10): Value is not implicitly castable to target type.
+ERROR SPPG1009 @ (34,10): Value is not implicitly castable to target type.
+ERROR SPPA1006 @ (45,5): No matches were found for the given callee.
+ERROR SPPA1006 @ (46,5): No matches were found for the given callee.
+ERROR SPPA1006 @ (47,5): No matches were found for the given callee.
+ERROR SPPG1008 @ (54,5): Invalid symbol.
+ERROR SPPG1008 @ (55,5): Invalid symbol.
+ERROR SPPA1007 @ (56,11): Unknown symbol.
+ERROR SPPG1008 @ (57,5): Invalid symbol.
+ERROR SPPG1008 @ (58,5): Invalid symbol.
+ERROR SPPA1007 @ (59,16): Unknown symbol.
+ERROR SPPA1007 @ (84,11): Unknown symbol.
+ERROR SPPA1007 @ (85,25): Unknown symbol.
+ERROR SPPA1007 @ (88,18): Unknown symbol.
+ERROR SPPA1007 @ (89,32): Unknown symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

@@ -1,6 +1,6 @@
-ERROR P1001 @ (26,25): Parser syntax error.
-ERROR SPP1010 @ (27,3): Invalid for statement.
-ERROR P1001 @ (28,40): Parser syntax error.
+ERROR CP1001 @ (26,25): Parser syntax error.
+ERROR SPPH1010 @ (27,3): Invalid for statement.
+ERROR CP1001 @ (28,40): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
  argTypes: NULL

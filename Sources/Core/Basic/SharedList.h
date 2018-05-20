@@ -2,7 +2,7 @@
  * @file Core/Basic/SharedList.h
  * Contains the header of class Core::Basic::SharedList.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -43,10 +43,10 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE, public virtu
   public: Signal<void, SharedList<CTYPE, PTYPE>*> destroyNotifier;
   public: Signal<void, SharedList<CTYPE, PTYPE>*, ContentChangeOp, Int> changeNotifier;
 
-  private: Slot<void, SharedList<CTYPE, PTYPE>*> parentDestroySlot = {
+  private: Slot<void, SharedList<CTYPE, PTYPE>*> baseDestroySlot = {
     this, &SharedList<CTYPE, PTYPE>::onBaseDestroyed
   };
-  private: Slot<void, SharedList<CTYPE, PTYPE>*, ContentChangeOp, Int> parentChangeSlot = {
+  private: Slot<void, SharedList<CTYPE, PTYPE>*, ContentChangeOp, Int> baseChangeSlot = {
     this, &SharedList<CTYPE, PTYPE>::onBaseContentChanged
   };
 
@@ -103,8 +103,8 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE, public virtu
     ASSERT(this->base == 0);
     ASSERT(this->inherited == 0);
     this->base = b;
-    this->base->changeNotifier.connect(this->parentChangeSlot);
-    this->base->destroyNotifier.connect(this->parentDestroySlot);
+    this->base->changeNotifier.connect(this->baseChangeSlot);
+    this->base->destroyNotifier.connect(this->baseDestroySlot);
     this->inherited = new std::vector<Bool>(this->list.size(), false);
     this->inheritFromBase();
   }
@@ -114,8 +114,8 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE, public virtu
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
     this->removeInheritted();
-    this->base->changeNotifier.disconnect(this->parentChangeSlot);
-    this->base->destroyNotifier.disconnect(this->parentDestroySlot);
+    this->base->changeNotifier.disconnect(this->baseChangeSlot);
+    this->base->destroyNotifier.disconnect(this->baseDestroySlot);
     this->base = 0;
     delete this->inherited;
     this->inherited = 0;

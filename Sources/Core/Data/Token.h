@@ -2,7 +2,7 @@
  * @file Core/Data/Token.h
  * Contains the header of class Core::Data::Token.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,7 +20,7 @@ namespace Core { namespace Data
 
 /**
  * @brief Contains information about a single token.
- * @ingroup data
+ * @ingroup core_data
  *
  * Contains the information that defines a single token. This information is
  * composed of the token definition and the token text.

@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/FunctionParsingHandler.cpp
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,15 +27,17 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   ASSERT(exprMetadata != 0);
 
   if (expr->getCount() < 2) {
-    state->addNotice(std::make_shared<MissingFunctionSigNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(std::make_shared<Spp::Notices::MissingFunctionSigNotice>(exprMetadata->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
 
   // Prepare function signature.
-  auto signature = expr->get(1);
+  auto signature = expr->getElement(1);
   if (signature == 0) {
-    state->addNotice(std::make_shared<InvalidFunctionSignatureNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(
+      std::make_shared<Spp::Notices::InvalidFunctionSignatureNotice>(exprMetadata->findSourceLocation())
+    );
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -49,11 +51,13 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     bracket = ti_cast<Core::Data::Ast::Bracket>(signature);
   }
   if (bracket == 0) {
-    state->addNotice(std::make_shared<InvalidFunctionSignatureNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(
+      std::make_shared<Spp::Notices::InvalidFunctionSignatureNotice>(exprMetadata->findSourceLocation())
+    );
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
-  SharedPtr<Core::Data::SharedMap> args;
+  SharedPtr<Core::Data::Ast::Map> args;
   if (!this->parseArgs(state, bracket, args)) {
     state->setData(SharedPtr<TiObject>(0));
     return;
@@ -62,9 +66,9 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   // Prepare function body.
   Spp::Ast::Block *body = 0;
   if (expr->getCount() == 3) {
-    body = ti_cast<Spp::Ast::Block>(expr->get(2));
+    body = ti_cast<Spp::Ast::Block>(expr->getElement(2));
     if (body == 0) {
-      state->addNotice(std::make_shared<InvalidFunctionBodyNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionBodyNotice>(exprMetadata->findSourceLocation()));
       state->setData(SharedPtr<TiObject>(0));
       return;
     }
@@ -111,24 +115,24 @@ Bool FunctionParsingHandler::onIncomingModifier(
 
 Bool FunctionParsingHandler::parseArgs(Processing::ParserState *state,
                                        Core::Data::Ast::Bracket *bracket,
-                                       SharedPtr<Core::Data::SharedMap> &result)
+                                       SharedPtr<Core::Data::Ast::Map> &result)
 {
   auto args = bracket->getOperand().get();
   if (args == 0) {
     return true;
   } else if (args->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
     auto argsList = static_cast<Core::Data::Ast::ExpressionList*>(args);
-    result = std::make_shared<Core::Data::SharedMap>();
+    result = std::make_shared<Core::Data::Ast::Map>();
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i);
       if (arg == 0) {
-        state->addNotice(std::make_shared<InvalidFunctionArgNotice>(bracket->findSourceLocation()));
+        state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNotice>(bracket->findSourceLocation()));
         return false;
       }
-      auto link = ti_cast<Core::Data::Ast::LinkOperator>(argsList->get(i));
+      auto link = ti_cast<Core::Data::Ast::LinkOperator>(argsList->getElement(i));
       if (link == 0) {
-        auto metadata = ti_cast<Core::Data::Ast::Metadata>(argsList->get(i));
-        state->addNotice(std::make_shared<InvalidFunctionArgNotice>(
+        auto metadata = ti_cast<Core::Data::Ast::Metadata>(argsList->getElement(i));
+        state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNotice>(
           metadata == 0 ? bracket->findSourceLocation() : metadata->findSourceLocation()));
         return false;
       }
@@ -137,11 +141,11 @@ Bool FunctionParsingHandler::parseArgs(Processing::ParserState *state,
     return true;
   } else if (args->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     auto link = static_cast<Core::Data::Ast::LinkOperator*>(args);
-    result = std::make_shared<Core::Data::SharedMap>();
+    result = std::make_shared<Core::Data::Ast::Map>();
     if (!this->parseArg(state, link, result)) return false;
     return true;
   } else {
-    state->addNotice(std::make_shared<InvalidFunctionSignatureNotice>(bracket->findSourceLocation()));
+    state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionSignatureNotice>(bracket->findSourceLocation()));
     return false;
   }
 }
@@ -149,22 +153,22 @@ Bool FunctionParsingHandler::parseArgs(Processing::ParserState *state,
 
 Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
                                       Core::Data::Ast::LinkOperator *link,
-                                      SharedPtr<Core::Data::SharedMap> const &result)
+                                      SharedPtr<Core::Data::Ast::Map> const &result)
 {
   auto name = link->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
   if (name == 0) {
-    state->addNotice(std::make_shared<InvalidFunctionArgNameNotice>(link->findSourceLocation()));
+    state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNameNotice>(link->findSourceLocation()));
     return false;
   }
   auto type = link->getSecond();
   if (type == 0) {
-    state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(link->findSourceLocation()));
+    state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(link->findSourceLocation()));
     return false;
   }
   if (type->isA<Core::Data::Ast::PrefixOperator>()) {
     auto prefixOp = type.s_cast<Core::Data::Ast::PrefixOperator>();
     if (prefixOp->getType() != STR("...")) {
-      state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(prefixOp->findSourceLocation()));
+      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(prefixOp->findSourceLocation()));
       return false;
     }
     TioSharedPtr packType;
@@ -174,26 +178,28 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
     if (operand->isA<Core::Data::Ast::Bracket>()) {
       auto bracket = operand.s_cast<Core::Data::Ast::Bracket>();
       if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
-        state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(bracket->findSourceLocation()));
+        state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation()));
         return false;
       }
       auto bracketOperand = bracket->getOperand();
       if (bracketOperand == 0) {
-        state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(bracket->findSourceLocation()));
+        state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation()));
         return false;
       }
       if (bracketOperand->isA<Core::Data::Ast::ExpressionList>()) {
         auto bracketList = bracketOperand.s_cast<Core::Data::Ast::ExpressionList>();
         if (bracketList->getCount() == 0 || bracketList->getCount() > 3) {
-          state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(bracketList->findSourceLocation()));
+          state->addNotice(
+            std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(bracketList->findSourceLocation())
+          );
           return false;
         }
-        packType = bracketList->getShared(0);
+        packType = bracketList->get(0);
         if (bracketList->getCount() > 1) {
-          if (!this->parseNumber(state, bracketList->get(1), packMin, bracketList.get())) return false;
+          if (!this->parseNumber(state, bracketList->getElement(1), packMin, bracketList.get())) return false;
         }
         if (bracketList->getCount() > 2) {
-          if (!this->parseNumber(state, bracketList->get(2), packMax, bracketList.get())) return false;
+          if (!this->parseNumber(state, bracketList->getElement(2), packMax, bracketList.get())) return false;
         }
       } else {
         packType = bracketOperand;
@@ -218,7 +224,7 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
     for (Int i = 0; i < result->getCount(); ++i) {
       if (result->get(i)->isDerivedFrom<Ast::ArgPack>()) {
         // We cannot have a normal argument following an arg pack.
-        state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(link->findSourceLocation()));
+        state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(link->findSourceLocation()));
         return false;
       }
     }
@@ -237,9 +243,11 @@ Bool FunctionParsingHandler::parseNumber(Core::Processing::ParserState *state, T
     return true;
   } else {
     if (metadata) {
-      state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(metadata->findSourceLocation()));
+      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(metadata->findSourceLocation()));
     } else {
-      state->addNotice(std::make_shared<InvalidFunctionArgTypeNotice>(parentMetadata->findSourceLocation()));
+      state->addNotice(
+        std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(parentMetadata->findSourceLocation())
+      );
     }
     return false;
   }

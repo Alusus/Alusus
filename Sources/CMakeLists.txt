@@ -89,7 +89,6 @@ endif()
 
 # Add projects
 add_subdirectory(Core)
-add_subdirectory(Tests/CoreTests)
 add_subdirectory(Spp)
 #add_subdirectory(Srt)
 add_subdirectory(Tests/EndToEndTests)

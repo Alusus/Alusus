@@ -2,7 +2,7 @@
  * @file Core/Data/ReferenceParser.h
  * Contains the header of class Core::Data::ReferenceParser.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -12,6 +12,11 @@
 
 #ifndef CORE_DATA_REFERENCEPARSER_H
 #define CORE_DATA_REFERENCEPARSER_H
+
+namespace Core::Data::Grammar
+{
+  class CharGroupUnit;
+}
 
 namespace Core { namespace Data
 {
@@ -47,8 +52,8 @@ class ReferenceParser
 
   private: struct CharGroupStorage
   {
-    SharedPtr<CharGroupUnit> letterCharGroup;
-    SharedPtr<CharGroupUnit> numberCharGroup;
+    SharedPtr<Grammar::CharGroupUnit> letterCharGroup;
+    SharedPtr<Grammar::CharGroupUnit> numberCharGroup;
   };
 
 
@@ -106,13 +111,13 @@ class ReferenceParser
   /// @name Char Group Functions
   /// @{
 
-  public: static void setSharedLetterCharGroup(SharedPtr<CharGroupUnit> const group);
+  public: static void setSharedLetterCharGroup(SharedPtr<Grammar::CharGroupUnit> const group);
 
-  public: static void setSharedNumberCharGroup(SharedPtr<CharGroupUnit> const group);
+  public: static void setSharedNumberCharGroup(SharedPtr<Grammar::CharGroupUnit> const group);
 
-  protected: virtual CharGroupUnit* getLetterCharGroup() const;
+  protected: virtual Grammar::CharGroupUnit* getLetterCharGroup() const;
 
-  protected: virtual CharGroupUnit* getNumberCharGroup() const;
+  protected: virtual Grammar::CharGroupUnit* getNumberCharGroup() const;
 
   /// @}
 
@@ -273,7 +278,7 @@ class ReferenceParser
 
 /**
  * @brief A shortcut to access the reference parser singleton.
- * @ingroup data
+ * @ingroup core_data
  */
 #define REF_PARSER Core::Data::ReferenceParser::getSharedInstance()
 

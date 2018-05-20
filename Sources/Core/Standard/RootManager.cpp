@@ -2,7 +2,7 @@
  * @file Core/Standard/RootManager.cpp
  * Contains the implementation of class Core::Standard::RootManager.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,9 +18,14 @@ namespace Core { namespace Standard
 //==============================================================================
 // Constructor
 
-RootManager::RootManager() : grammarPlant(this, false), exprGrammarPlant(this, true), libraryManager(this)
+RootManager::RootManager() : libraryManager(this)
 {
   this->rootScope = Data::Ast::Scope::create();
+  this->exprRootScope = Data::Ast::Scope::create();
+
+  Data::Grammar::StandardFactory factory;
+  factory.createGrammar(this->rootScope.get(), this, false);
+  factory.createGrammar(this->exprRootScope.get(), this, true);
 
   // Initialize current paths.
   this->pushSearchPath(getModuleDirectory().c_str());
@@ -51,7 +56,7 @@ RootManager::RootManager() : grammarPlant(this, false), exprGrammarPlant(this, t
 
 SharedPtr<TiObject> RootManager::parseExpression(Char const *str)
 {
-  Processing::Engine engine(this->exprGrammarPlant.getRepository(), SharedPtr<Data::Ast::Scope>::null);
+  Processing::Engine engine(this->exprRootScope);
   auto result = engine.processString(str, str);
 
   if (result == 0) {
@@ -69,7 +74,7 @@ SharedPtr<TiObject> RootManager::parseExpression(Char const *str)
 
 SharedPtr<TiObject> RootManager::processString(Char const *str, Char const *name)
 {
-  Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
+  Processing::Engine engine(this->rootScope);
   this->noticeSignal.relay(engine.noticeSignal);
   return engine.processString(str, name);
 }
@@ -90,7 +95,7 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename)
     this->pushSearchPath(searchPath.c_str());
   }
   // Process the file
-  Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
+  Processing::Engine engine(this->rootScope);
   this->noticeSignal.relay(engine.noticeSignal);
   auto result = engine.processFile(fullPath.c_str());
   // Remove the added path, if any.
@@ -104,7 +109,7 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename)
 
 SharedPtr<TiObject> RootManager::processStream(InStream *is, Char const *streamName)
 {
-  Processing::Engine engine(this->grammarPlant.getRepository(), this->rootScope);
+  Processing::Engine engine(this->rootScope);
   this->noticeSignal.relay(engine.noticeSignal);
   return engine.processStream(is, streamName);
 }

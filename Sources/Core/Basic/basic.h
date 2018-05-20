@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Basic
  * namespace.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,7 +18,7 @@ namespace Core { namespace Basic
 {
 
 /**
- * @defgroup basic Basic
+ * @defgroup core_basic Basic
  * @ingroup core
  * @brief Basic types and definitions used throughout the core.
  * This namespace contains definitions for basic datatypes and other definitions
@@ -31,7 +31,7 @@ namespace Core { namespace Basic
 
 /**
  * @defgroup basic_constants Basic Constants
- * @ingroup basic
+ * @ingroup core_basic
  * @brief Wrapper definitions for basic constants.
  */
 
@@ -97,7 +97,7 @@ namespace Core { namespace Basic
 
 /**
  * @defgroup basic_macros Basic Macros
- * @ingroup basic
+ * @ingroup core_basic
  * @brief Wrapper definitions for basic macros.
  */
 
@@ -222,18 +222,30 @@ namespace Core { namespace Basic
 #define VARHOLDMODE_FROM_TUPLE(name, type, holdMode, ...) holdMode
 
 /**
+ * @def VARSETTER_FROM_TUPLE(...)
  * @brief Selects the variable's setter from a var tuple.
  * The tuple consists of: type, name, setter, getter, hold method.
  * @ingroup basic_macros
  */
-#define VARSETTER_FROM_TUPLE(name, type, holdMode, setter, ...) setter
+#define VARSETTER_FROM_TUPLE_WITH_HOLD(name, type, holdMode, setter, ...) setter
+#define VARSETTER_FROM_TUPLE_WITHOUT_HOLD(name, type, setter, ...) setter
+#define VARSETTER_FROM_TUPLE(name, type, ...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, _, _, \
+               VARSETTER_FROM_TUPLE_WITH_HOLD, \
+               VARSETTER_FROM_TUPLE_WITHOUT_HOLD)(name, type, __VA_ARGS__)
 
 /**
+ * @def VARGETTER_FROM_TUPLE(...)
  * @brief Selects the variable's getter from a var tuple.
  * The tuple consists of: type, name, setter, getter, hold method.
  * @ingroup basic_macros
  */
-#define VARGETTER_FROM_TUPLE(name, type, holdMode, setter, getter) getter
+#define VARGETTER_FROM_TUPLE_WITH_HOLD(name, type, holdMode, setter, getter) getter
+#define VARGETTER_FROM_TUPLE_WITHOUT_HOLD(name, type, setter, getter) getter
+#define VARGETTER_FROM_TUPLE(name, type, ...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, _, _, \
+               VARGETTER_FROM_TUPLE_WITH_HOLD, \
+               VARGETTER_FROM_TUPLE_WITHOUT_HOLD)(name, type, __VA_ARGS__)
 
 /**
  * @brief Defines an enumeration.
@@ -408,7 +420,7 @@ s_enum(LogLevel,
 
 /**
  * @defgroup basic_datatypes Basic Datatypes
- * @ingroup basic
+ * @ingroup core_basic
  * @brief Wrapper definitions for basic datatypes.
  */
 
@@ -477,7 +489,7 @@ s_enum(ContentChangeOp, ADDED, WILL_UPDATE, UPDATED, WILL_REMOVE, REMOVED);
 
 /**
  * @defgroup basic_functions Basic Functions
- * @ingroup basic
+ * @ingroup core_basic
  * @brief Wrapper definitions for basic functions.
  */
 
@@ -632,7 +644,7 @@ void printIndents(OutStream &stream, int indents);
 
 /**
  * @brief A reference to std::cout to use to output to the console.
- * @ingroup basic
+ * @ingroup core_basic
  *
  * This should be used to output to the console instead of directly using
  * std::cout, in order to minimize the needed changes in case we needed to
@@ -643,7 +655,7 @@ extern std::ostream &outStream;
 
 /**
  * @brief A reference to std::cin to use to input from the console.
- * @ingroup basic
+ * @ingroup core_basic
  *
  * This should be used to input from the console instead of directly using
  * std::cin, in order to minimize the needed changes in case we needed to
@@ -657,13 +669,13 @@ extern std::istream &inStream;
 
 /**
  * @defgroup basic_utils Basic Utilities
- * @ingroup basic
+ * @ingroup core_basic
  * @brief Wrapper definitions for basic utility classes.
  */
 
 /**
  * @defgroup basic_exceptions Basic Exceptions
- * @ingroup basic
+ * @ingroup core_basic
  * @brief Wrapper definitions for basic exception classes.
  */
 
@@ -708,6 +720,7 @@ extern std::istream &inStream;
 #include "Container.h"
 #include "ListContainer.h"
 #include "MapContainer.h"
+#include "containing_helpers.h"
 
 #include "SharedList.h"
 #include "PlainList.h"
@@ -717,6 +730,7 @@ extern std::istream &inStream;
 
 #include "TiNumber.h"
 #include "TiStr.h"
+#include "TiWStr.h"
 #include "TiBool.h"
 #include "ti_functions.h"
 
@@ -728,5 +742,7 @@ extern std::istream &inStream;
 
 #include "ObjTiInterfaceList.h"
 #include "DynamicInterfaces.h"
+
+#include "constructor_helpers.h"
 
 #endif

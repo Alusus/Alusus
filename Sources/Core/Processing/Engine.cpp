@@ -2,7 +2,7 @@
  * @file Core/Processing/Engine.cpp
  * Contains the implementation of class Core::Processing::Engine.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,14 +18,14 @@ namespace Core { namespace Processing
 //==============================================================================
 // Member Functions
 
-void Engine::initialize(Data::GrammarRepository *grammarRepo, SharedPtr<Data::Ast::Scope> const &rootScope)
+void Engine::initialize(SharedPtr<Data::Ast::Scope> const &rootScope)
 {
   // Prepare the lexer.
-  this->lexer.setGrammarRepository(grammarRepo);
+  this->lexer.initialize(rootScope);
   this->noticeSignal.relay(this->lexer.noticeSignal);
 
   // Prepare the parser.
-  this->parser.initialize(grammarRepo, rootScope);
+  this->parser.initialize(rootScope);
   this->noticeSignal.relay(this->parser.noticeSignal);
   this->lexer.tokenGenerated.connect(this->parser.handleNewTokenSlot);
 }

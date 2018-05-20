@@ -1,7 +1,7 @@
-ERROR P1001 @ (4,11): Parser syntax error.
-ERROR P1001 @ (9,12): Parser syntax error.
-ERROR P1001 @ (17,7): Parser syntax error.
-ERROR P1001 @ (31,9): Parser syntax error.
+ERROR CP1001 @ (4,11): Parser syntax error.
+ERROR CP1001 @ (9,12): Parser syntax error.
+ERROR CP1001 @ (17,7): Parser syntax error.
+ERROR CP1001 @ (31,9): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Scope [Main.StatementList]
  ParamPass () [Expression.ParamPassExp]

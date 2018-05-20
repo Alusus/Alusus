@@ -27,7 +27,7 @@ TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
   // Do we already have a default instance?
   for (Int i = 0; i < this->instances.size(); ++i) {
     if (this->instances[i]->getCount() == 1) {
-      return this->instances[i]->getShared(0);
+      return this->instances[i]->get(0);
     }
   }
   // No default instance was found, create a new one.
@@ -35,7 +35,7 @@ TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
   block->add(this->templateBody->clone());
   this->instances.push_back(block);
   block->setOwner(this);
-  return this->instances.back()->getShared(0);
+  return this->instances.back()->get(0);
 }
 
 
@@ -45,12 +45,12 @@ Bool Template::matchInstance(TiObject *templateInput, Helper *helper, TioSharedP
     throw EXCEPTION(GenericException, STR("Template body is not set."));
   }
 
-  SharedPtr<Core::Data::Notice> notice;
+  SharedPtr<Core::Notices::Notice> notice;
 
   // Do we already have an instance?
   for (Int i = 0; i < this->instances.size(); ++i) {
     if (this->matchTemplateVars(templateInput, this->instances[i].get(), helper, notice)) {
-      result = this->instances[i]->getShared(0);
+      result = this->instances[i]->get(0);
       return true;
     } else {
       if (notice != 0) {
@@ -68,26 +68,30 @@ Bool Template::matchInstance(TiObject *templateInput, Helper *helper, TioSharedP
   }
   this->instances.push_back(block);
   block->setOwner(this);
-  result = this->instances.back()->getShared(0);
+  result = this->instances.back()->get(0);
   return true;
 }
 
 
 Bool Template::matchTemplateVars(
-  TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Data::Notice> &notice
+  TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
 ) {
   if (templateInput->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
     auto list = static_cast<Core::Data::Ast::ExpressionList*>(templateInput);
     if (this->varDefs.size() != list->getCount()) {
-      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::findSourceLocation(templateInput));
+      notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
+        Core::Data::Ast::findSourceLocation(templateInput)
+      );
       return false;
     }
     for (Int i = 0; i < list->getCount(); ++i) {
-      if (!this->matchTemplateVar(list->get(i), instance, i, helper, notice)) return false;
+      if (!this->matchTemplateVar(list->getElement(i), instance, i, helper, notice)) return false;
     }
   } else {
     if (this->varDefs.size() != 1) {
-      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::findSourceLocation(templateInput));
+      notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
+        Core::Data::Ast::findSourceLocation(templateInput)
+      );
       return false;
     }
     if (!this->matchTemplateVar(templateInput, instance, 0, helper, notice)) return false;
@@ -98,11 +102,11 @@ Bool Template::matchTemplateVars(
 
 Bool Template::matchTemplateVar(
   TiObject *templateInput, Block *instance, Int varIndex, Helper *helper,
-  SharedPtr<Core::Data::Notice> &notice
+  SharedPtr<Core::Notices::Notice> &notice
 ) {
   switch (this->varDefs[varIndex].second.val) {
     case VarType::INTEGER: {
-      auto var = ti_cast<Core::Data::Integer>(
+      auto var = ti_cast<Core::Basic::TiInt>(
         Template::getTemplateVar(instance, this->varDefs[varIndex].first.c_str())
       );
       if (var == 0) {
@@ -112,14 +116,16 @@ Bool Template::matchTemplateVar(
         Template::traceObject(templateInput, VarType::INTEGER, helper)
       );
       if (newVar == 0) {
-        notice = std::make_shared<InvalidTemplateArgNotice>(Core::Data::Ast::findSourceLocation(templateInput));
+        notice = std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(
+          Core::Data::Ast::findSourceLocation(templateInput)
+        );
         return false;
       }
       return std::stol(newVar->getValue().get()) == var->get();
     }
 
     case VarType::STRING: {
-      auto var = ti_cast<Core::Data::String>(
+      auto var = ti_cast<TiStr>(
         Template::getTemplateVar(instance, this->varDefs[varIndex].first.c_str())
       );
       if (var == 0) {
@@ -129,7 +135,9 @@ Bool Template::matchTemplateVar(
         Template::traceObject(templateInput, VarType::STRING, helper)
       );
       if (newVar == 0) {
-        notice = std::make_shared<InvalidTemplateArgNotice>(Core::Data::Ast::findSourceLocation(templateInput));
+        notice = std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(
+          Core::Data::Ast::findSourceLocation(templateInput)
+        );
         return false;
       }
       return newVar->getValue() == var->get();
@@ -142,7 +150,9 @@ Bool Template::matchTemplateVar(
       }
       auto newVar = Template::traceObject(templateInput, this->varDefs[varIndex].second, helper);
       if (newVar == 0) {
-        notice = std::make_shared<InvalidTemplateArgNotice>(Core::Data::Ast::findSourceLocation(templateInput));
+        notice = std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(
+          Core::Data::Ast::findSourceLocation(templateInput)
+        );
         return false;
       }
       return newVar == var;
@@ -152,24 +162,26 @@ Bool Template::matchTemplateVar(
 
 
 Bool Template::assignTemplateVars(
-  TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Data::Notice> &notice
+  TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
 ) {
   if (templateInput->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
     auto list = static_cast<Core::Data::Ast::ExpressionList*>(templateInput);
     if (this->varDefs.size() != list->getCount()) {
-      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::findSourceLocation(templateInput));
+      notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
+        Core::Data::Ast::findSourceLocation(templateInput)
+      );
       return false;
     }
     for (Int i = 0; i < list->getCount(); ++i) {
-      auto var = Template::traceObject(list->get(i), this->varDefs[i].second, helper);
+      auto var = Template::traceObject(list->getElement(i), this->varDefs[i].second, helper);
       auto def = Core::Data::Ast::Definition::create();
       def->setName(this->varDefs[i].first.c_str());
       if (this->varDefs[i].second == VarType::INTEGER) {
         auto intLiteral = static_cast<Core::Data::Ast::IntegerLiteral*>(var);
-        def->setTarget(Core::Data::Integer::create(std::stol(intLiteral->getValue().get())));
+        def->setTarget(Core::Basic::TiInt::create(std::stol(intLiteral->getValue().get())));
       } else if (this->varDefs[i].second == VarType::STRING) {
         auto strLiteral = static_cast<Core::Data::Ast::StringLiteral*>(var);
-        def->setTarget(std::make_shared<Core::Data::String>(strLiteral->getValue().get()));
+        def->setTarget(std::make_shared<TiStr>(strLiteral->getValue().get()));
       } else {
         def->setTarget(std::make_shared<Core::Basic::TioWeakBox>(getWeakPtr(var)));
       }
@@ -177,7 +189,9 @@ Bool Template::assignTemplateVars(
     }
   } else {
     if (this->varDefs.size() != 1) {
-      notice = std::make_shared<TemplateArgMismatchNotice>(Core::Data::Ast::findSourceLocation(templateInput));
+      notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
+        Core::Data::Ast::findSourceLocation(templateInput)
+      );
       return false;
     }
     auto var = Template::traceObject(templateInput, this->varDefs[0].second, helper);
@@ -185,10 +199,10 @@ Bool Template::assignTemplateVars(
     def->setName(this->varDefs[0].first.c_str());
     if (this->varDefs[0].second == VarType::INTEGER) {
       auto intLiteral = static_cast<Core::Data::Ast::IntegerLiteral*>(var);
-      def->setTarget(Core::Data::Integer::create(std::stol(intLiteral->getValue().get())));
+      def->setTarget(Core::Basic::TiInt::create(std::stol(intLiteral->getValue().get())));
     } else if (this->varDefs[0].second == VarType::STRING) {
       auto strLiteral = static_cast<Core::Data::Ast::StringLiteral*>(var);
-      def->setTarget(std::make_shared<Core::Data::String>(strLiteral->getValue().get()));
+      def->setTarget(std::make_shared<TiStr>(strLiteral->getValue().get()));
     } else {
       def->setTarget(std::make_shared<Core::Basic::TioWeakBox>(getWeakPtr(var)));
     }
@@ -201,7 +215,7 @@ Bool Template::assignTemplateVars(
 TiObject* Template::getTemplateVar(Block const *instance, Char const *name)
 {
   for (Int i = 0; i < instance->getCount(); ++i) {
-    auto def = ti_cast<Core::Data::Ast::Definition>(instance->get(i));
+    auto def = ti_cast<Core::Data::Ast::Definition>(instance->getElement(i));
     if (def != 0 && def->getName() == name) {
       auto box = def->getTarget().ti_cast_get<Core::Basic::TioWeakBox>();
       if (box != 0) return box->get().lock().get();
@@ -229,7 +243,7 @@ TiObject* Template::traceObject(TiObject *ref, VarType varType, Helper *helper)
     return ref;
   } else {
     helper->getSeeker()->foreach(ref, refNode->getOwner(),
-      [=, &result](TiObject *obj, Core::Data::Notice*)->Core::Data::Seeker::Verb
+      [=, &result](TiObject *obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb
       {
         if (varType == VarType::INTEGER && obj->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
           result = obj;
@@ -288,8 +302,8 @@ void Template::print(OutStream &stream, Int indents) const
     printIndents(stream, indents+2);
     stream << this->varDefs[i].first << STR(": ");
     switch (this->varDefs[i].second.val) {
-      case VarType::INTEGER: stream << STR("Integer"); break;
-      case VarType::STRING: stream << STR("String"); break;
+      case VarType::INTEGER: stream << STR("TiInt"); break;
+      case VarType::STRING: stream << STR("TiStr"); break;
       case VarType::TYPE: stream << STR("Type"); break;
       case VarType::FUNCTION: stream << STR("Function"); break;
     }

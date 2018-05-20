@@ -2,7 +2,7 @@
  * @file Core/Basic/TiStr.h
  * Contains the header of class Core::Basic::TiStr.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -49,6 +49,25 @@ template <class P> class TiStrBase : public P
   {
   }
 
+  public: TiStrBase(WChar const *v, Word c) : value(v, c)
+  {
+  }
+
+  public: static SharedPtr<TiStrBase<P>> create(Char const *v)
+  {
+    return std::make_shared<TiStrBase<P>>(v);
+  }
+
+  public: static SharedPtr<TiStrBase<P>> create(Char const *v, Word c)
+  {
+    return std::make_shared<TiStrBase<P>>(v, c);
+  }
+
+  public: static SharedPtr<TiStrBase<P>> create(WChar const *v, Word c)
+  {
+    return std::make_shared<TiStrBase<P>>(v, c);
+  }
+
 
   //============================================================================
   // Operators
@@ -60,6 +79,12 @@ template <class P> class TiStrBase : public P
   }
 
   public: TiStrBase<P>& operator=(Char const *v)
+  {
+    this->value = v;
+    return *this;
+  }
+
+  public: TiStrBase<P>& operator=(WChar const *v)
   {
     this->value = v;
     return *this;

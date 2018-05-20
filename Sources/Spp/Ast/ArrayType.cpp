@@ -40,7 +40,7 @@ Word ArrayType::getSize(Helper *helper) const
   if (this->sizeRef == 0) {
     this->sizeRef = helper->getRootManager()->parseExpression(STR("size"));
   }
-  auto size = ti_cast<Core::Data::Integer>(
+  auto size = ti_cast<Core::Basic::TiInt>(
     helper->getSeeker()->doGet(this->sizeRef.get(), this->getOwner())
   );
   if (size == 0) {

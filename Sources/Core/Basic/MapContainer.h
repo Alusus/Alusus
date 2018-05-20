@@ -2,7 +2,7 @@
  * @file Core/Basic/MapContainer.h
  * Contains the header of interface Basic::MapContainer.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -40,7 +40,7 @@ template<class CTYPE> class MapContainer : public Container<CTYPE>
   {
     throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
   }
-  public: virtual void removeElement(Char const *key)
+  public: virtual Int removeElement(Char const *key)
   {
     throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key);
   }

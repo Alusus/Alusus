@@ -2,7 +2,7 @@
  * @file Core/Processing/LexerState.h
  * Contains the header of class Core::Processing::LexerState.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,7 +18,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief Contains state information used by the state machine.
- * @ingroup processing_lexer
+ * @ingroup core_processing
  *
  * This class contains information that defines a single state in the state
  * machine. The information contained specify where within the formula's terms

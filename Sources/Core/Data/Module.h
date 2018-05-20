@@ -2,7 +2,7 @@
  * @file Core/Data/Module.h
  * Contains the header of class Core::Data::Module.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -56,7 +56,7 @@ class Module : public Node,
     this->contentChangeNotifier.relay(this->definitions.contentChangeNotifier);
   }
 
-  public: Module(const std::initializer_list<Argument<Char const*>> &args);
+  public: Module(const std::initializer_list<Argument> &args);
 
   public: virtual ~Module();
 
@@ -65,7 +65,7 @@ class Module : public Node,
     return std::make_shared<Module>();
   }
 
-  public: static SharedPtr<Module> create(const std::initializer_list<Argument<Char const*>> &args)
+  public: static SharedPtr<Module> create(const std::initializer_list<Argument> &args)
   {
     return std::make_shared<Module>(args);
   }

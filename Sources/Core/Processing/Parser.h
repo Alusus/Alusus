@@ -2,7 +2,7 @@
  * @file Core/Processing/Parser.h
  * Contains the header of class Core::Processing::Parser.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,7 +20,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief Contains all the functionality of the parser's state machine.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * This class contains all the member variables and functions of the state
  * machine.
@@ -55,11 +55,10 @@ class Parser : public TiObject
    */
   public: const Int EOF_TOKEN;
 
-  private: Data::GrammarRepository *grammarRepository;
-
-  private: std::vector<Data::ParsingDimension*> parsingDimensions;
-
   private: SharedPtr<Data::Ast::Scope> rootScope;
+  private: SharedPtr<Data::Grammar::GrammarModule> grammarRoot;
+
+  private: std::vector<Data::Grammar::ParsingDimension*> parsingDimensions;
 
   /**
    * @brief The array of current states.
@@ -97,7 +96,7 @@ class Parser : public TiObject
   // Signals & Slots
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: Signal<void, SharedPtr<Data::Notice> const&> noticeSignal;
+  public: Signal<void, SharedPtr<Notices::Notice> const&> noticeSignal;
 
   /**
      * @brief Emitted when parsing has folded out of the grammar tree.
@@ -114,8 +113,7 @@ class Parser : public TiObject
   //============================================================================
   // Constructor / Destructor
 
-  public: Parser() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")),
-                     grammarRepository(0), rootScope(0), preCloseCompleteLevels(false)
+  public: Parser() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")), preCloseCompleteLevels(false)
   {
   }
 
@@ -130,25 +128,24 @@ class Parser : public TiObject
   /// @name Initialization Related Functions
   /// @{
 
-  public: void initialize(Data::GrammarRepository *grammarRepo,
-                          SharedPtr<Data::Ast::Scope> rootScope);
+  public: void initialize(SharedPtr<Data::Ast::Scope> rootScope);
 
   public: void release()
   {
     this->clear();
-    this->grammarRepository = 0;
-    this->parsingDimensions.clear();
     this->rootScope.reset();
-  }
-
-  public: Data::GrammarRepository* getGrammarRepository() const
-  {
-    return this->grammarRepository;
+    this->grammarRoot.reset();
+    this->parsingDimensions.clear();
   }
 
   public: SharedPtr<Data::Ast::Scope> const& getRootScope() const
   {
     return this->rootScope;
+  }
+
+  public: SharedPtr<Data::Grammar::GrammarModule> const& getGrammarRoot() const
+  {
+    return this->grammarRoot;
   }
 
   public: void setCompleteLevelsPreClosing(Bool v)
@@ -211,8 +208,12 @@ class Parser : public TiObject
 
   /// Compute the list of possible routes to take at a duplicate term.
   private: void computePossibleMultiplyRoutes(Data::Token const *token, ParserState *state);
-  private: Bool computeInnerMultiplyRoute(Data::Token const *token, ParserState *state, Data::MultiplyTerm *multiplyTerm);
-  private: Bool computeOuterMultiplyRoute(Data::Token const *token, ParserState *state, Data::MultiplyTerm *multiplyTerm, Data::Integer *priority);
+  private: Bool computeInnerMultiplyRoute(
+    Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm
+  );
+  private: Bool computeOuterMultiplyRoute(
+    Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm, TiInt *priority
+  );
 
 
   /// Compute the list of possible routes to take at an alternative term.
@@ -259,10 +260,10 @@ class Parser : public TiObject
   /// Delete a state from the states stack.
   private: void deleteState(StateIterator si, ParserStateTerminationCause stc);
 
-  private: void pushStateTermLevel(ParserState *state, Data::Term *term, Word posId, Data::Token const *token);
+  private: void pushStateTermLevel(ParserState *state, Data::Grammar::Term *term, Word posId, Data::Token const *token);
 
-  private: void pushStateProdLevel(ParserState *state, Data::Module *module,
-                                   Data::SymbolDefinition *prod, Data::Token const *token);
+  private: void pushStateProdLevel(ParserState *state, Data::Grammar::GrammarModule *module,
+                                   Data::Grammar::SymbolDefinition *prod, Data::Token const *token);
 
   /// Pop the top level from a specific state.
   private: void popStateLevel(ParserState *state, Bool success);
@@ -277,9 +278,9 @@ class Parser : public TiObject
   }
 
   /// Check whether the production with the given id is currently in use.
-  public: Bool isDefinitionInUse(Data::SymbolDefinition *definition) const;
+  public: Bool isDefinitionInUse(Data::Grammar::SymbolDefinition *definition) const;
 
-  private: Bool matchToken(Data::Integer *matchId, TiObject *matchText, Data::Token const *token)
+  private: Bool matchToken(TiInt *matchId, TiObject *matchText, Data::Token const *token)
   {
     return this->matchToken(matchId==0?0:matchId->get(), matchText, token);
   }

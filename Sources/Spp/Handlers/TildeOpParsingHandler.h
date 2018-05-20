@@ -69,7 +69,7 @@ template<class TYPE> class TildeOpParsingHandler : public Core::Processing::Hand
           operand = data.get();
         }
         // The operand which is at index 0 will be set by the parent production, so we'll skip that.
-        currentData->set(1, operand);
+        currentData->setElement(1, operand);
         return;
       }
     }

@@ -17,14 +17,14 @@ namespace Core { namespace Data { namespace Ast
 {
 
 class Alias : public Node,
-                public virtual Bindings, public virtual MapContainer, public virtual Metadata,
-                public virtual Clonable, public virtual Printable
+              public virtual Bindings, public virtual Basic::MapContainer<TiObject>, public virtual Metadata,
+              public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Alias, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Bindings, MapContainer, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Bindings, Basic::MapContainer<TiObject>, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -43,7 +43,7 @@ class Alias : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, reference));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>, (reference, TiObject, setReference(value), reference.get()));
 
   IMPLEMENT_AST_LIST_CLONABLE(Scope);
 
@@ -69,6 +69,10 @@ class Alias : public Node,
   public: void setReference(TioSharedPtr const &r)
   {
     UPDATE_OWNED_SHAREDPTR(this->reference, r);
+  }
+  private: void setReference(TiObject *r)
+  {
+    this->setReference(getSharedPtr(r));
   }
 
   public: TioSharedPtr const& getReference() const

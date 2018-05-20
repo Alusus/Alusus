@@ -46,20 +46,20 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
     ASSERT(exprMetadata != 0);
 
     if (expr->getCount() != 3) {
-      state->addNotice(std::make_shared<InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(std::make_shared<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
       state->setData(SharedPtr<TiObject>(0));
       return;
     }
 
-    auto head = ti_cast<Core::Data::Ast::ExpressionList>(expr->get(1));
+    auto head = ti_cast<Core::Data::Ast::ExpressionList>(expr->getElement(1));
     if (head == 0 || head->getCount() != 3) {
-      state->addNotice(std::make_shared<InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(std::make_shared<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
       state->setData(SharedPtr<TiObject>(0));
       return;
     }
     for (Int i = 1; i < head->getCount(); ++i) {
       if (head->get(i) == 0) {
-        state->addNotice(std::make_shared<InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
+        state->addNotice(std::make_shared<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
         state->setData(SharedPtr<TiObject>(0));
         return;
       }
@@ -68,10 +68,10 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
     auto newObj = std::make_shared<Spp::Ast::ForStatement>();
     newObj->setSourceLocation(exprMetadata->findSourceLocation());
     newObj->setProdId(exprMetadata->getProdId());
-    newObj->setInitializer(head->getShared(0));
-    newObj->setCondition(head->getShared(1));
-    newObj->setUpdater(head->getShared(2));
-    newObj->setBody(expr->getShared(2));
+    newObj->setInitializer(head->get(0));
+    newObj->setCondition(head->get(1));
+    newObj->setUpdater(head->get(2));
+    newObj->setBody(expr->get(2));
 
     state->setData(newObj);
   }

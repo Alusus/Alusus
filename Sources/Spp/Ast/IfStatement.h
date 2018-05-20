@@ -2,7 +2,7 @@
  * @file Spp/Ast/IfStatement.h
  * Contains the header of class Spp::Ast::IfStatement.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,11 +13,11 @@
 #ifndef SPP_AST_IFSTATEMENT_H
 #define SPP_AST_IFSTATEMENT_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 class IfStatement : public Core::Data::Node,
-                    public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
+                    public virtual Core::Basic::Bindings, public virtual Core::Basic::MapContainer<TiObject>,
                     public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                     public virtual Core::Data::Printable
 {
@@ -25,7 +25,7 @@ class IfStatement : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(IfStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Data::MapContainer,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Basic::MapContainer<TiObject>,
                                          Core::Data::Ast::Metadata, Core::Data::Clonable,
                                          Core::Data::Printable);
 
@@ -48,10 +48,10 @@ class IfStatement : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer,
-    (Core::Basic::TiObject, condition),
-    (Core::Basic::TiObject, ifBody),
-    (Core::Basic::TiObject, elseBody)
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+    (condition, Core::Basic::TiObject, setCondition(value), condition.get()),
+    (ifBody, Core::Basic::TiObject, setIfBody(value), ifBody.get()),
+    (elseBody, Core::Basic::TiObject, setElseBody(value), elseBody.get())
   );
 
   IMPLEMENT_AST_CLONABLE(IfStatement);
@@ -83,6 +83,10 @@ class IfStatement : public Core::Data::Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->condition, cond);
   }
+  private: void setCondition(TiObject *cond)
+  {
+    this->setCondition(getSharedPtr(cond));
+  }
 
   public: Core::Basic::TioSharedPtr const& getCondition() const
   {
@@ -92,6 +96,10 @@ class IfStatement : public Core::Data::Node,
   public: void setIfBody(Core::Basic::TioSharedPtr const &body)
   {
     UPDATE_OWNED_SHAREDPTR(this->ifBody, body);
+  }
+  private: void setIfBody(TiObject *body)
+  {
+    this->setIfBody(getSharedPtr(body));
   }
 
   public: Core::Basic::TioSharedPtr const& getIfBody() const
@@ -103,6 +111,10 @@ class IfStatement : public Core::Data::Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->elseBody, body);
   }
+  private: void setElseBody(TiObject *body)
+  {
+    this->setElseBody(getSharedPtr(body));
+  }
 
   public: Core::Basic::TioSharedPtr const& getElseBody() const
   {
@@ -111,6 +123,6 @@ class IfStatement : public Core::Data::Node,
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

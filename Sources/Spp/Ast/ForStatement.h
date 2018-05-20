@@ -13,13 +13,13 @@
 #ifndef SPP_AST_FORSTATEMENT_H
 #define SPP_AST_FORSTATEMENT_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 using namespace Core;
 
 class ForStatement : public Core::Data::Node,
-                     public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
+                     public virtual Core::Basic::Bindings, public virtual Core::Basic::MapContainer<TiObject>,
                      public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                      public virtual Core::Data::Printable
 {
@@ -27,7 +27,7 @@ class ForStatement : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(ForStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Data::MapContainer,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Basic::MapContainer<TiObject>,
                                          Core::Data::Ast::Metadata, Core::Data::Clonable,
                                          Core::Data::Printable);
 
@@ -51,11 +51,12 @@ class ForStatement : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer,
-                          (TiObject, initializer),
-                          (TiObject, condition),
-                          (TiObject, updater),
-                          (TiObject, body));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+    (initializer, TiObject, setInitializer(value), initializer.get()),
+    (condition, TiObject, setCondition(value), condition.get()),
+    (updater, TiObject, setUpdater(value), updater.get()),
+    (body, TiObject, setBody(value), body.get())
+  );
 
   IMPLEMENT_AST_CLONABLE(ForStatement);
 
@@ -87,6 +88,10 @@ class ForStatement : public Core::Data::Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->initializer, init);
   }
+  private: void setInitializer(TiObject *init)
+  {
+    this->setInitializer(getSharedPtr(init));
+  }
 
   public: TioSharedPtr const& getInitializer() const
   {
@@ -96,6 +101,10 @@ class ForStatement : public Core::Data::Node,
   public: void setCondition(TioSharedPtr const &cond)
   {
     UPDATE_OWNED_SHAREDPTR(this->condition, cond);
+  }
+  private: void setCondition(TiObject *cond)
+  {
+    this->setCondition(getSharedPtr(cond));
   }
 
   public: TioSharedPtr const& getCondition() const
@@ -107,6 +116,10 @@ class ForStatement : public Core::Data::Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->updater, updtr);
   }
+  private: void setUpdater(TiObject *updtr)
+  {
+    this->setUpdater(getSharedPtr(updtr));
+  }
 
   public: TioSharedPtr const& getUpdater() const
   {
@@ -117,6 +130,10 @@ class ForStatement : public Core::Data::Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
   }
+  private: void setBody(TiObject *b)
+  {
+    this->setBody(getSharedPtr(b));
+  }
 
   public: TioSharedPtr const& getBody() const
   {
@@ -125,6 +142,6 @@ class ForStatement : public Core::Data::Node,
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

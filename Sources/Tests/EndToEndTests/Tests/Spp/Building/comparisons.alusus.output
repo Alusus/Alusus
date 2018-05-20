@@ -1,8 +1,8 @@
-ERROR SPP1106 @ (47,33): No matches were found for the given callee.
-ERROR SPP1106 @ (48,33): No matches were found for the given callee.
-ERROR SPP1106 @ (49,33): No matches were found for the given callee.
-ERROR SPP1106 @ (50,33): No matches were found for the given callee.
-ERROR SPP1308 @ (58,8): Invalid symbol.
+ERROR SPPA1006 @ (47,33): No matches were found for the given callee.
+ERROR SPPA1006 @ (48,33): No matches were found for the given callee.
+ERROR SPPA1006 @ (49,33): No matches were found for the given callee.
+ERROR SPPA1006 @ (50,33): No matches were found for the given callee.
+ERROR SPPG1008 @ (58,8): Invalid symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

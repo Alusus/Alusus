@@ -1,7 +1,7 @@
-ERROR SPP1312 @ (58,21): Invalid continue steps.
-ERROR SPP1312 @ (59,21): Invalid continue steps.
-ERROR SPP1312 @ (71,21): Invalid continue steps.
-ERROR SPP1312 @ (72,21): Invalid continue steps.
+ERROR SPPG1012 @ (58,21): Invalid continue steps.
+ERROR SPPG1012 @ (59,21): Invalid continue steps.
+ERROR SPPG1012 @ (71,21): Invalid continue steps.
+ERROR SPPG1012 @ (72,21): Invalid continue steps.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

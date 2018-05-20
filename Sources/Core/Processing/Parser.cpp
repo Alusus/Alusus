@@ -20,7 +20,7 @@ namespace Core { namespace Processing
 //==============================================================================
 // Member Functions
 
-void Parser::initialize(Data::GrammarRepository *grammarRepo, SharedPtr<Data::Ast::Scope> rootScope)
+void Parser::initialize(SharedPtr<Data::Ast::Scope> rootScope)
 {
   // Before we can change the production list, we need to make sure we have no outstanding
   // states.
@@ -34,31 +34,32 @@ void Parser::initialize(Data::GrammarRepository *grammarRepo, SharedPtr<Data::As
   //}
 
   // Set the repositories.
-  this->grammarRepository = grammarRepo;
   this->rootScope = rootScope;
+  if (this->rootScope == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("rootScope"), STR("Cannot be null."));
+  }
+
+  this->grammarRoot = getSharedPtr(Data::Grammar::getGrammarRoot(rootScope.get()));
+  if (this->grammarRoot == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("rootScope"), STR("Root scope does not contain a grammar."));
+  }
 
   // TODO: If we have a new manager, we need to set the production_in_use_inquirer signal.
   //if (this->production_definitions != 0) {
   //    this->production_definitions->production_in_use_inquirer.connect(this, &Parser::is_production_in_use);
   //}
 
-  Data::GrammarModule *root = this->grammarRepository->getPlainRoot();
-  if (root == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("mgr"),
-                    STR("Provided manager doesn't contain a GrammarModule root."));
-  }
-
   // Lookup parsing dimensions.
   this->parsingDimensions.clear();
-  for (Int i = 0; i < root->getCount(); ++i) {
-    Data::ParsingDimension *dim = ti_cast<Data::ParsingDimension>(root->get(i));
+  for (Int i = 0; i < this->grammarRoot->getCount(); ++i) {
+    Data::Grammar::ParsingDimension *dim = ti_cast<Data::Grammar::ParsingDimension>(this->grammarRoot->getElement(i));
     if (dim != 0) this->parsingDimensions.push_back(dim);
   }
 
   // Initialize the tempState used for path testing.
   this->tempState.initialize(RESERVED_PARSER_TERM_LEVEL_COUNT, RESERVED_PARSER_PRODUCTION_LEVEL_COUNT,
                              VARIABLE_NAME_MAX_LENGTH, RESERVED_VARIABLE_COUNT, RESERVED_VARIABLE_LEVEL_COUNT,
-                             root);
+                             this->grammarRoot.get());
 }
 
 
@@ -80,14 +81,10 @@ void Parser::initialize(Data::GrammarRepository *grammarRepo, SharedPtr<Data::As
 void Parser::beginParsing()
 {
   // Validation.
-  if (this->grammarRepository == 0) {
-    throw EXCEPTION(GenericException, STR("Grammar repository is not set."));
+  if (this->grammarRoot == 0) {
+    throw EXCEPTION(GenericException, STR("Grammar root is not set."));
   }
-  Data::GrammarModule *rootModule = this->grammarRepository->getPlainRoot();
-  if (rootModule == 0) {
-    throw EXCEPTION(GenericException, STR("No root grammar module is found."));
-  }
-  if (rootModule->getStartRef() == 0) {
+  if (this->grammarRoot->getStartRef() == 0) {
     throw EXCEPTION(GenericException, STR("Grammar root production is not set."));
   }
 
@@ -100,16 +97,16 @@ void Parser::beginParsing()
   // Initialize the main level.
   (*si)->pushTermLevel(0);
   // Initialize the program root level.
-  Data::Module *module;
-  Data::SymbolDefinition *prod;
-  (*si)->getGrammarContext()->getReferencedSymbol(rootModule->getStartRef().get(), module, prod);
-  if (!prod->isA<Data::SymbolDefinition>()) {
+  Data::Grammar::GrammarModule *module;
+  Data::Grammar::SymbolDefinition *prod;
+  (*si)->getGrammarContext()->getReferencedSymbol(this->grammarRoot->getStartRef().get(), module, prod);
+  if (!prod->isA<Data::Grammar::SymbolDefinition>()) {
     throw EXCEPTION(GenericException, STR("Reference term is pointing to a target of a wrong type."));
   }
   if (prod->getTerm() == 0) {
     throw EXCEPTION(GenericException, STR("Formula of root production isn't set yet."));
   }
-  this->pushStateProdLevel(*si, module, static_cast<Data::SymbolDefinition*>(prod), 0);
+  this->pushStateProdLevel(*si, module, static_cast<Data::Grammar::SymbolDefinition*>(prod), 0);
 
   this->unexpectedTokenNoticeRaised = false;
 }
@@ -192,16 +189,16 @@ SharedPtr<TiObject> Parser::endParsing()
       // Raise error notification event, but only if state has been waiting for more tokens.
       if ((*si)->getTermLevelCount() > 1) {
         if (!this->getTopParsingHandler(*si)->onErrorToken(this, *si, 0)) {
-          (*si)->addNotice(SharedPtr<Data::Notice>(new UnexpectedEofNotice()));
+          (*si)->addNotice(SharedPtr<Notices::Notice>(new Notices::UnexpectedEofNotice()));
         }
       }
       // First, move the state to an error sync position.
       // Note that here we'll move to the position immediately after the error sync position
       // because we dont want to wait for the sync token.
       while ((*si)->getTermLevelCount() > 1) {
-        if ((*si)->refTopTermLevel().getTerm()->isA<Data::ConcatTerm>()) {
-          Data::ConcatTerm *concatTerm =
-              static_cast<Data::ConcatTerm*>((*si)->refTopTermLevel().getTerm());
+        if ((*si)->refTopTermLevel().getTerm()->isA<Data::Grammar::ConcatTerm>()) {
+          Data::Grammar::ConcatTerm *concatTerm =
+              static_cast<Data::Grammar::ConcatTerm*>((*si)->refTopTermLevel().getTerm());
           Int errorSyncPosId = concatTerm->getErrorSyncPosId();
           if (errorSyncPosId >= static_cast<Int>((*si)->refTopTermLevel().getPosId())) {
             // Here there is no point in waiting for tokens, so we'll jump to the end of the concat list
@@ -209,8 +206,8 @@ SharedPtr<TiObject> Parser::endParsing()
             (*si)->setTopTermPosId((*si)->getListTermChildCount());
             break;
           } else {
-            Data::Integer *flags = (*si)->getTermFlags();
-            if ((flags == 0 ? 0 : flags->get()) & Data::TermFlags::ERROR_SYNC_TERM) {
+            TiInt *flags = (*si)->getTermFlags();
+            if ((flags == 0 ? 0 : flags->get()) & Data::Grammar::TermFlags::ERROR_SYNC_TERM) {
               break;
             }
           }
@@ -295,7 +292,7 @@ void Parser::handleNewToken(Data::Token const *token)
   else if (this->states.front()->getTermLevelCount() == 1) {
     // Raise an unexpected token error.
     if (!this->unexpectedTokenNoticeRaised) {
-      this->states.front()->addNotice(std::make_shared<UnexpectedTokenNotice>(
+      this->states.front()->addNotice(std::make_shared<Notices::UnexpectedTokenNotice>(
         std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
       ));
       this->unexpectedTokenNoticeRaised = true;
@@ -502,16 +499,16 @@ void Parser::processState(const Data::Token * token, StateIterator si)
         this->enterParsingDimension(token, parseDimIndex, si);
         (*si)->setProcessingStatus(ParserProcessingStatus::COMPLETE);
       } else {
-        Data::Term *term = (*si)->refTopTermLevel().getTerm();
-        if (term->isA<Data::TokenTerm>()) {
+        Data::Grammar::Term *term = (*si)->refTopTermLevel().getTerm();
+        if (term->isA<Data::Grammar::TokenTerm>()) {
           this->processTokenTerm(token, si);
-        } else if (term->isA<Data::MultiplyTerm>()) {
+        } else if (term->isA<Data::Grammar::MultiplyTerm>()) {
           this->processMultiplyTerm(token, si);
-        } else if (term->isA<Data::AlternateTerm>()) {
+        } else if (term->isA<Data::Grammar::AlternateTerm>()) {
           this->processAlternateTerm(token, si);
-        } else if (term->isA<Data::ConcatTerm>()) {
+        } else if (term->isA<Data::Grammar::ConcatTerm>()) {
           this->processConcatTerm(token, si);
-        } else if (term->isA<Data::ReferenceTerm>()) {
+        } else if (term->isA<Data::Grammar::ReferenceTerm>()) {
           this->processReferenceTerm(token, si);
         } else {
           // Invalid state type.
@@ -530,7 +527,7 @@ void Parser::processState(const Data::Token * token, StateIterator si)
       // Raise error notification event if we haven't already.
       if ((*si)->getPrevProcessingStatus() != ParserProcessingStatus::ERROR) {
         if (!this->getTopParsingHandler(*si)->onErrorToken(this, *si, token)) {
-          (*si)->addNotice(std::make_shared<SyntaxErrorNotice>(
+          (*si)->addNotice(std::make_shared<Notices::SyntaxErrorNotice>(
             std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
           ));
         }
@@ -539,9 +536,9 @@ void Parser::processState(const Data::Token * token, StateIterator si)
           LOG(LogLevel::PARSER_MINOR, STR("Error Synching: Checking prod (") <<
               ID_GENERATOR->getDesc((*si)->refTopProdLevel().getProd()->getId()) <<
               STR(") at level ") << ((*si)->getTopProdTermLevelCount() - 1));
-          if ((*si)->refTopTermLevel().getTerm()->isA<Data::ConcatTerm>()) {
+          if ((*si)->refTopTermLevel().getTerm()->isA<Data::Grammar::ConcatTerm>()) {
             Int errorSyncPosId =
-                static_cast<Data::ConcatTerm*>
+                static_cast<Data::Grammar::ConcatTerm*>
                 ((*si)->refTopTermLevel().getTerm())->getErrorSyncPosId();
             if (errorSyncPosId >= static_cast<Int>((*si)->refTopTermLevel().getPosId() & (~THIS_PROCESSING_PASS))) {
               Int cnt = (*si)->getListTermChildCount();
@@ -550,8 +547,8 @@ void Parser::processState(const Data::Token * token, StateIterator si)
               break;
             }
           } else {
-            Data::Integer *flags = (*si)->getTermFlags();
-            if ((flags == 0 ? 0 : flags->get()) & Data::TermFlags::ERROR_SYNC_TERM) {
+            TiInt *flags = (*si)->getTermFlags();
+            if ((flags == 0 ? 0 : flags->get()) & Data::Grammar::TermFlags::ERROR_SYNC_TERM) {
               break;
             }
           }
@@ -594,14 +591,14 @@ void Parser::processState(const Data::Token * token, StateIterator si)
       while ((*si)->getTermLevelCount() > 1) {
         // Determine if this level is complete.
         bool levelComplete = false;
-        Data::Term *term = (*si)->refTopTermLevel().getTerm();
-        if (term->isA<Data::ConcatTerm>()) {
+        Data::Grammar::Term *term = (*si)->refTopTermLevel().getTerm();
+        if (term->isA<Data::Grammar::ConcatTerm>()) {
           if (static_cast<Int>((*si)->refTopTermLevel().getPosId()) >=
               (*si)->getListTermChildCount()) {
             levelComplete = true;
           }
-        } else if (term->isA<Data::MultiplyTerm>()) {
-          Data::Integer *maxOccurances = (*si)->getMultiplyTermMax();
+        } else if (term->isA<Data::Grammar::MultiplyTerm>()) {
+          TiInt *maxOccurances = (*si)->getMultiplyTermMax();
           if (maxOccurances != 0 &&
               static_cast<Int>((*si)->refTopTermLevel().getPosId()) >= maxOccurances->get()) {
             levelComplete = true;
@@ -638,7 +635,7 @@ void Parser::processState(const Data::Token * token, StateIterator si)
  */
 void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
 {
-  ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::TokenTerm>());
+  ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::Grammar::TokenTerm>());
   // Are we starting with this token, or are we done with it?
   if ((*si)->refTopTermLevel().getPosId() == 0) {
     // Make sure we have some token id.
@@ -663,7 +660,7 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
       // Processing of this state has errored out.
       (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
       #ifdef USE_LOGS
-        Data::String *matchStr = tio_cast<Data::String>(matchText);
+        TiStr *matchStr = tio_cast<TiStr>(matchText);
       #endif
       LOG(LogLevel::PARSER_MID, STR("Process State: Token failed (") <<
           ID_GENERATOR->getDesc(matchId) << STR(":") <<
@@ -695,12 +692,12 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
  */
 void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
 {
-  ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::MultiplyTerm>());
-  Data::MultiplyTerm *multiplyTerm =
-      static_cast<Data::MultiplyTerm*>((*si)->refTopTermLevel().getTerm());
-  Data::Integer *priority = (*si)->getMultiplyTermPriority();
+  ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::Grammar::MultiplyTerm>());
+  Data::Grammar::MultiplyTerm *multiplyTerm =
+      static_cast<Data::Grammar::MultiplyTerm*>((*si)->refTopTermLevel().getTerm());
+  TiInt *priority = (*si)->getMultiplyTermPriority();
   // Make sure we have a child term.
-  Data::Term *childTerm = multiplyTerm->getTerm().get();
+  Data::Grammar::Term *childTerm = multiplyTerm->getTerm().get();
   if (childTerm == 0) {
     throw EXCEPTION(GenericException, STR("Multiply term's child term isn't set yet."));
   }
@@ -746,7 +743,7 @@ void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
     ParsingHandler *parsingHandler = this->getTopParsingHandler(*si);
     parsingHandler->onBranching(this, *si, token);
     // Duplicate the state.
-    (*si)->addNotice(std::make_shared<AmbiguityNotice>(
+    (*si)->addNotice(std::make_shared<Notices::AmbiguityNotice>(
       std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
     ));
     // TODO: Grab the value of tokensToLive from the grammer instead of always using the
@@ -804,7 +801,7 @@ void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
  */
 void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
 {
-  ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::AlternateTerm>());
+  ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::Grammar::AlternateTerm>());
   // Make sure we have some child terms attached.
   if ((*si)->getListTermChildCount() < 1) {
     throw EXCEPTION(GenericException, STR("Alternate term doesn't have any branches yet (zero children)."));
@@ -825,7 +822,7 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
       this->getTopParsingHandler(*si)->onAlternateRouteDecision(this, *si, successRoute-1, token);
       // Take the selected route.
       (*si)->setTopTermPosId(successRoute|THIS_PROCESSING_PASS);
-      Data::Term *childTerm = (*si)->useListTermChild(successRoute-1);
+      Data::Grammar::Term *childTerm = (*si)->useListTermChild(successRoute-1);
       this->pushStateTermLevel(*si, childTerm, 0, token);
       (*si)->setDecisionNodeIndex(this->decisionNodes.getChildIndex(decisionIndex));
       LOG(LogLevel::PARSER_MID, STR("Process State: Taking only one alternate route (") <<
@@ -851,7 +848,7 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
         parsingHandler->onBranching(this, *si2, token);
         // Duplicate the state, without the top level since that one is for accessing the
         // other route.
-        (*si2)->addNotice(std::make_shared<AmbiguityNotice>(
+        (*si2)->addNotice(std::make_shared<Notices::AmbiguityNotice>(
           std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
         ));
         // TODO: Grab the value of tokensToLive from the grammer instead of always using the
@@ -870,7 +867,7 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
         parsingHandler->onAlternateRouteDecision(this, *newSi, branchRoute-1, token);
         // Set the new state to take this route.
         (*newSi)->setTopTermPosId(branchRoute|THIS_PROCESSING_PASS);
-        Data::Term *childTerm = (*si)->useListTermChild(branchRoute-1);
+        Data::Grammar::Term *childTerm = (*si)->useListTermChild(branchRoute-1);
         this->pushStateTermLevel(*newSi, childTerm, 0, token);
         (*newSi)->setDecisionNodeIndex(this->decisionNodes.getChildIndex(nextDecisionIndex));
         // This state should be the trunk of the next one.
@@ -883,7 +880,7 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
       parsingHandler->onAlternateRouteDecision(this, *si, successRoute-1, token);
       // Set the current state to take the first route.
       (*si)->setTopTermPosId(successRoute|THIS_PROCESSING_PASS);
-      Data::Term *childTerm = (*si)->useListTermChild(successRoute-1);
+      Data::Grammar::Term *childTerm = (*si)->useListTermChild(successRoute-1);
       this->pushStateTermLevel(*si, childTerm, 0, token);
       (*si)->setDecisionNodeIndex(this->decisionNodes.getChildIndex(decisionIndex));
     }
@@ -908,7 +905,7 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
  */
 void Parser::processConcatTerm(Data::Token const *token, StateIterator si)
 {
-  ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::ConcatTerm>());
+  ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::Grammar::ConcatTerm>());
   // Make sure we have a child term.
   Word termCount = (*si)->getListTermChildCount();
   /*if (termCount == 0) {
@@ -922,7 +919,7 @@ void Parser::processConcatTerm(Data::Token const *token, StateIterator si)
     // Increment the position id of this level.
     (*si)->setTopTermPosId((posId+1)|THIS_PROCESSING_PASS);
     // Move to the term pointed by position id.
-    Data::Term *childTerm = (*si)->useListTermChild(posId);
+    Data::Grammar::Term *childTerm = (*si)->useListTermChild(posId);
     this->pushStateTermLevel(*si, childTerm, 0, token);
     LOG(LogLevel::PARSER_MID, STR("Process State: Processing concat term (") << (posId+1) << STR(")."));
   } else {
@@ -951,22 +948,22 @@ void Parser::processConcatTerm(Data::Token const *token, StateIterator si)
  */
 void Parser::processReferenceTerm(Data::Token const *token, StateIterator si)
 {
-  ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::ReferenceTerm>());
+  ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::Grammar::ReferenceTerm>());
   // Are we starting with this term, or are we done with it?
   if ((*si)->refTopTermLevel().getPosId() == 0) {
     // We are starting with this token.
     // Get the referenced module and definition.
-    Data::Module *module;
-    Data::SymbolDefinition *definition;
+    Data::Grammar::GrammarModule *module;
+    Data::Grammar::SymbolDefinition *definition;
     (*si)->getReferencedSymbol(module, definition);
-    if (!definition->isA<Data::SymbolDefinition>()) {
+    if (!definition->isA<Data::Grammar::SymbolDefinition>()) {
       throw EXCEPTION(GenericException, STR("Reference term is pointing to a target of a wrong type."));
     }
     if (definition->getTerm() != 0) {
       // Update the current level's position id.
       (*si)->setTopTermPosId(1|THIS_PROCESSING_PASS);
       // Create the new state level.
-      this->pushStateProdLevel(*si, module, static_cast<Data::SymbolDefinition*>(definition), token);
+      this->pushStateProdLevel(*si, module, static_cast<Data::Grammar::SymbolDefinition*>(definition), token);
       LOG(LogLevel::PARSER_MID, STR("Process State: Processing referenced production (") <<
           ID_GENERATOR->getDesc(definition->getId()) << STR(")."));
     } else {
@@ -988,13 +985,13 @@ void Parser::processReferenceTerm(Data::Token const *token, StateIterator si)
 
 void Parser::enterParsingDimension(Data::Token const *token, Int parseDimIndex, StateIterator si)
 {
-  Data::Module *module;
-  Data::SymbolDefinition *prodDef;
+  Data::Grammar::GrammarModule *module;
+  Data::Grammar::SymbolDefinition *prodDef;
   auto ref = this->parsingDimensions[parseDimIndex]->getStartRef().get();
   (*si)->getGrammarContext()->getReferencedSymbol(ref, module, prodDef);
   if (prodDef->getTerm() != 0) {
     (*si)->setParsingDimensionInfo(parseDimIndex, (*si)->getProdLevelCount());
-    this->pushStateProdLevel(*si, module, static_cast<Data::SymbolDefinition*>(prodDef), token);
+    this->pushStateProdLevel(*si, module, static_cast<Data::Grammar::SymbolDefinition*>(prodDef), token);
     LOG(LogLevel::PARSER_MID, STR("Process State: Entering parsing dimension (") <<
         ID_GENERATOR->getDesc(prodDef->getId()) << STR(")."));
   } else {
@@ -1035,14 +1032,14 @@ void Parser::clear()
 void Parser::computePossibleMultiplyRoutes(Data::Token const *token, ParserState *state)
 {
   // Get the multiply term.
-  Data::MultiplyTerm *multiplyTerm =
-      static_cast<Data::MultiplyTerm*>(state->refTopTermLevel().getTerm());
-  ASSERT(multiplyTerm->isA<Data::MultiplyTerm>());
-  Data::Integer *minOccurances = state->getMultiplyTermMin();
-  Data::Integer *maxOccurances = state->getMultiplyTermMax();
-  Data::Integer *priority = state->getMultiplyTermPriority();
-  Data::Integer *flags = state->getTermFlags();
-  Bool oneRoute = ((flags == 0 ? 0 : flags->get()) & Data::TermFlags::ONE_ROUTE_TERM);
+  Data::Grammar::MultiplyTerm *multiplyTerm =
+      static_cast<Data::Grammar::MultiplyTerm*>(state->refTopTermLevel().getTerm());
+  ASSERT(multiplyTerm->isA<Data::Grammar::MultiplyTerm>());
+  TiInt *minOccurances = state->getMultiplyTermMin();
+  TiInt *maxOccurances = state->getMultiplyTermMax();
+  TiInt *priority = state->getMultiplyTermPriority();
+  TiInt *flags = state->getTermFlags();
+  Bool oneRoute = ((flags == 0 ? 0 : flags->get()) & Data::Grammar::TermFlags::ONE_ROUTE_TERM);
 
   // NOTE: An empty inner route is treated as an error. So, if the inner route
   //       was found empty and the minimum occurances haven't been met yet the
@@ -1088,7 +1085,7 @@ void Parser::computePossibleMultiplyRoutes(Data::Token const *token, ParserState
 }
 
 
-Bool Parser::computeInnerMultiplyRoute(Data::Token const *token, ParserState *state, Data::MultiplyTerm *multiplyTerm)
+Bool Parser::computeInnerMultiplyRoute(Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm)
 {
   // Initialize the temp state.
   this->tempState.reset();
@@ -1112,7 +1109,7 @@ Bool Parser::computeInnerMultiplyRoute(Data::Token const *token, ParserState *st
 
 
 Bool Parser::computeOuterMultiplyRoute(
-  Data::Token const *token, ParserState *state, Data::MultiplyTerm *multiplyTerm, Data::Integer *priority
+  Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm, TiInt *priority
 ) {
   // Initialize the temp state.
   this->tempState.reset();
@@ -1159,10 +1156,10 @@ Bool Parser::computeOuterMultiplyRoute(
  */
 void Parser::computePossibleAlternativeRoutes(Data::Token const *token, ParserState *state)
 {
-  ASSERT(state->refTopTermLevel().getTerm()->isA<Data::AlternateTerm>());
+  ASSERT(state->refTopTermLevel().getTerm()->isA<Data::Grammar::AlternateTerm>());
 
-  Data::Integer *flags = state->getTermFlags();
-  Bool oneTerm = ((flags == 0 ? 0 : flags->get()) & Data::TermFlags::ONE_ROUTE_TERM);
+  TiInt *flags = state->getTermFlags();
+  Bool oneTerm = ((flags == 0 ? 0 : flags->get()) & Data::Grammar::TermFlags::ONE_ROUTE_TERM);
 
   Int testedRoute = 0;
   Int decisionIndex = state->getDecisionNodeIndex();
@@ -1300,16 +1297,16 @@ void Parser::testStateLevel(Data::Token const *token, ParserState *state)
   }
 
   // check the term type
-  Data::Term *term = state->refTopTermLevel().getTerm();
-  if (term->isA<Data::TokenTerm>()) {
+  Data::Grammar::Term *term = state->refTopTermLevel().getTerm();
+  if (term->isA<Data::Grammar::TokenTerm>()) {
     this->testTokenTerm(token, state);
-  } else if (term->isA<Data::MultiplyTerm>()) {
+  } else if (term->isA<Data::Grammar::MultiplyTerm>()) {
     this->testMultiplyTerm(token, state);
-  } else if (term->isA<Data::AlternateTerm>()) {
+  } else if (term->isA<Data::Grammar::AlternateTerm>()) {
     this->testAlternateTerm(token, state);
-  } else if (term->isA<Data::ConcatTerm>()) {
+  } else if (term->isA<Data::Grammar::ConcatTerm>()) {
     this->testConcatTerm(token, state);
-  } else if (term->isA<Data::ReferenceTerm>()) {
+  } else if (term->isA<Data::Grammar::ReferenceTerm>()) {
     this->testReferenceTerm(token, state);
   } else {
     // Invalid state type.
@@ -1337,7 +1334,7 @@ void Parser::testStateLevel(Data::Token const *token, ParserState *state)
  */
 void Parser::testTokenTerm(Data::Token const *token, ParserState *state)
 {
-  ASSERT(state->refTopTermLevel().getTerm()->isA<Data::TokenTerm>());
+  ASSERT(state->refTopTermLevel().getTerm()->isA<Data::Grammar::TokenTerm>());
   // Are we starting with this token, or are we done with it?
   if (state->refTopTermLevel().getPosId() == 0) {
     // We are checking this token.
@@ -1360,7 +1357,7 @@ void Parser::testTokenTerm(Data::Token const *token, ParserState *state)
       // Processing of this state has errored out.
       state->setProcessingStatus(ParserProcessingStatus::ERROR);
       #ifdef USE_LOGS
-        Data::String *matchStr = tio_cast<Data::String>(matchText);
+        TiStr *matchStr = tio_cast<TiStr>(matchText);
       #endif
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failed for token (") <<
           ID_GENERATOR->getDesc(matchId) << STR(":") <<
@@ -1395,11 +1392,11 @@ void Parser::testTokenTerm(Data::Token const *token, ParserState *state)
  */
 void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
 {
-  Data::MultiplyTerm *multiplyTerm =
-      static_cast<Data::MultiplyTerm*>(state->refTopTermLevel().getTerm());
-  ASSERT(multiplyTerm->isA<Data::MultiplyTerm>());
-  Data::Integer *minOccurances = state->getMultiplyTermMin();
-  Data::Integer *maxOccurances = state->getMultiplyTermMax();
+  Data::Grammar::MultiplyTerm *multiplyTerm =
+      static_cast<Data::Grammar::MultiplyTerm*>(state->refTopTermLevel().getTerm());
+  ASSERT(multiplyTerm->isA<Data::Grammar::MultiplyTerm>());
+  TiInt *minOccurances = state->getMultiplyTermMin();
+  TiInt *maxOccurances = state->getMultiplyTermMax();
 
   Int count;
   if (state->refTopTermLevel().getPosId() == 0) {
@@ -1411,7 +1408,7 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
       state->popLevel();
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Skipping disabled inner multiply route (max == 0)."));
     } else {
-      Data::Term *childTerm = multiplyTerm->getTerm().get();
+      Data::Grammar::Term *childTerm = multiplyTerm->getTerm().get();
       ASSERT(childTerm != 0);
       state->ownTopLevel();
       state->setTopTermPosId(1|THIS_TESTING_PASS);
@@ -1474,7 +1471,7 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
       state->ownTopLevel();
       state->setTopTermPosId((posId+1)|THIS_TESTING_PASS);
       // Now create the deeper level.
-      Data::Term *childTerm = multiplyTerm->getTerm().get();
+      Data::Grammar::Term *childTerm = multiplyTerm->getTerm().get();
       ASSERT(childTerm != 0);
       this->decisionNodes.addNode(state, 1);
       state->pushTermLevel(childTerm);
@@ -1504,7 +1501,7 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
  */
 void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
 {
-  ASSERT(state->refTopTermLevel().getTerm()->isA<Data::AlternateTerm>());
+  ASSERT(state->refTopTermLevel().getTerm()->isA<Data::Grammar::AlternateTerm>());
   if (state->refTopTermLevel().getPosId() == 0) {
     // If we don't have any terms we should treat this as a failed route.
     if (state->getListTermChildCount() == 0) {
@@ -1517,7 +1514,7 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
       state->ownTopLevel();
       state->setTopTermPosId(1|THIS_TESTING_PASS);
       this->decisionNodes.addNode(state, 1);
-      Data::Term *childTerm = state->useListTermChild(0);
+      Data::Grammar::Term *childTerm = state->useListTermChild(0);
       state->pushTermLevel(childTerm);
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying alternate route (1)."));
     }
@@ -1549,7 +1546,7 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
       // If we have had an empty loop before, mark that somehow in the index.
       state->setTopTermPosId(((emptyLoop?index+termCount:index)+1)|THIS_TESTING_PASS);
       this->decisionNodes.addNode(state, index+1);
-      Data::Term *childTerm = state->useListTermChild(index);
+      Data::Grammar::Term *childTerm = state->useListTermChild(index);
       state->pushTermLevel(childTerm);
       // Return the status to IN_PROGRESS to give a chance for the other routes.
       state->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
@@ -1593,7 +1590,7 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
  */
 void Parser::testConcatTerm(Data::Token const *token, ParserState *state)
 {
-  ASSERT(state->refTopTermLevel().getTerm()->isA<Data::ConcatTerm>());
+  ASSERT(state->refTopTermLevel().getTerm()->isA<Data::Grammar::ConcatTerm>());
   Word termCount = state->getListTermChildCount();
   //ASSERT(termCount > 0);
   Int index;
@@ -1622,7 +1619,7 @@ void Parser::testConcatTerm(Data::Token const *token, ParserState *state)
     // Move to the term pointed by level index.
     state->ownTopLevel();
     state->setTopTermPosId(index | THIS_TESTING_PASS);
-    Data::Term *childTerm = state->useListTermChild(index-1);
+    Data::Grammar::Term *childTerm = state->useListTermChild(index-1);
     state->pushTermLevel(childTerm);
     LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying concat term (") << index << STR(")."));
   }
@@ -1651,10 +1648,10 @@ void Parser::testReferenceTerm(Data::Token const *token, ParserState *state)
   if (state->refTopTermLevel().getPosId() == 0) {
     // We are starting with this token.
     // Get the referenced module and definition.
-    Data::Module *module;
-    Data::SymbolDefinition *definition;
+    Data::Grammar::GrammarModule *module;
+    Data::Grammar::SymbolDefinition *definition;
     state->getReferencedSymbol(module, definition);
-    if (!definition->isA<Data::SymbolDefinition>()) {
+    if (!definition->isA<Data::Grammar::SymbolDefinition>()) {
       throw EXCEPTION(GenericException, STR("Reference term is pointing to a target of a wrong type."));
     }
     if (definition->getTerm() != 0) {
@@ -1662,7 +1659,7 @@ void Parser::testReferenceTerm(Data::Token const *token, ParserState *state)
       state->ownTopLevel();
       state->setTopTermPosId(1|THIS_TESTING_PASS);
       // Create the new state level.
-      state->pushProdLevel(module, static_cast<Data::SymbolDefinition*>(definition));
+      state->pushProdLevel(module, static_cast<Data::Grammar::SymbolDefinition*>(definition));
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying referenced production (") <<
           ID_GENERATOR->getDesc(definition->getId()) << STR(")."));
     } else {
@@ -1694,13 +1691,13 @@ void Parser::testReferenceTerm(Data::Token const *token, ParserState *state)
 
 void Parser::testParsingDimension(Data::Token const *token, Int parseDimIndex, ParserState *state)
 {
-  Data::Module *module;
-  Data::SymbolDefinition *prodDef;
+  Data::Grammar::GrammarModule *module;
+  Data::Grammar::SymbolDefinition *prodDef;
   auto ref = this->parsingDimensions[parseDimIndex]->getStartRef().get();
   state->getGrammarContext()->getReferencedSymbol(ref, module, prodDef);
   if (prodDef->getTerm() != 0) {
     state->setParsingDimensionInfo(parseDimIndex, state->getProdLevelCount());
-    state->pushProdLevel(module, static_cast<Data::SymbolDefinition*>(prodDef));
+    state->pushProdLevel(module, static_cast<Data::Grammar::SymbolDefinition*>(prodDef));
     LOG(LogLevel::PARSER_MID, STR("Testing State: Entering parsing dimension (") <<
         ID_GENERATOR->getDesc(prodDef->getId()) << STR(")."));
   } else {
@@ -1718,10 +1715,9 @@ void Parser::testParsingDimension(Data::Token const *token, Int parseDimIndex, P
  */
 Parser::StateIterator Parser::createState()
 {
-  Data::GrammarModule *root = this->grammarRepository->getPlainRoot();
   ParserState *state = new ParserState(RESERVED_PARSER_TERM_LEVEL_COUNT, RESERVED_PARSER_PRODUCTION_LEVEL_COUNT,
                                        VARIABLE_NAME_MAX_LENGTH,
-                                       RESERVED_VARIABLE_COUNT, RESERVED_VARIABLE_LEVEL_COUNT, root);
+                                       RESERVED_VARIABLE_COUNT, RESERVED_VARIABLE_LEVEL_COUNT, this->grammarRoot.get());
   if (state == 0) {
     throw EXCEPTION(GenericException, STR("Out of memory."));
   }
@@ -1886,7 +1882,7 @@ void Parser::deleteState(StateIterator si, ParserStateTerminationCause stc)
 }
 
 
-void Parser::pushStateTermLevel(ParserState *state, Data::Term *term, Word posId, Data::Token const *token)
+void Parser::pushStateTermLevel(ParserState *state, Data::Grammar::Term *term, Word posId, Data::Token const *token)
 {
   state->pushTermLevel(term);
   state->setTopTermPosId(posId);
@@ -1895,7 +1891,8 @@ void Parser::pushStateTermLevel(ParserState *state, Data::Term *term, Word posId
 
 
 void Parser::pushStateProdLevel(
-  ParserState *state, Data::Module *module, Data::SymbolDefinition *prod, Data::Token const *token
+  ParserState *state, Data::Grammar::GrammarModule *module, Data::Grammar::SymbolDefinition *prod,
+  Data::Token const *token
 ) {
   state->pushProdLevel(module, prod);
   this->getTopParsingHandler(state)->onProdStart(this, state, token);
@@ -1983,12 +1980,12 @@ Bool Parser::compareStates(ParserState *s1, ParserState *s2)
  * Loops through all the levels of all the states to check whether any of them
  * use the production with the given id.
  */
-Bool Parser::isDefinitionInUse(Data::SymbolDefinition *definition) const
+Bool Parser::isDefinitionInUse(Data::Grammar::SymbolDefinition *definition) const
 {
   if (definition == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("definition"), STR("Should not be null."));
   }
-  if (this->grammarRepository == 0) return false;
+  if (this->grammarRoot == 0) return false;
   for (ConstStateIterator si = this->states.begin(); si != this->states.end(); si++) {
     for (Int i = 0; i < (*si)->getProdLevelCount(); i++) {
       if ((*si)->refProdLevel(i).getProd() == definition) return true;
@@ -2001,16 +1998,16 @@ Bool Parser::isDefinitionInUse(Data::SymbolDefinition *definition) const
 Bool Parser::matchToken(Word matchId, TiObject *matchText, Data::Token const *token)
 {
   Bool matched = true;
-  Data::String *matchStr = 0;
+  TiStr *matchStr = 0;
   if (matchId != 0 && matchId != token->getId()) {
     matched = false;
   }
   if (matched == true && matchText != 0) {
-    if (matchText->isA<Data::String>()) {
-      matchStr = static_cast<Data::String*>(matchText);
+    if (matchText->isA<TiStr>()) {
+      matchStr = static_cast<TiStr*>(matchText);
       if (matchStr->getStr() != token->getText()) matched = false;
-    } else if (matchText->isA<Data::SharedMap>()) {
-      if (static_cast<Data::SharedMap*>(matchText)->findIndex(token->getText().c_str()) == -1) matched = false;
+    } else if (matchText->isA<Data::Grammar::Map>()) {
+      if (static_cast<Data::Grammar::Map*>(matchText)->findIndex(token->getText().c_str()) == -1) matched = false;
     }
   }
   return matched;
@@ -2024,12 +2021,12 @@ Bool Parser::matchErrorSyncBlockPairs(ParserState *state, Data::Token const *tok
   //       on each token received.
   // The odd entries in the match pairs list are for block start, the even entries are for block end.
   for (Int i = 0; i < state->getErrorSyncBlockPairs()->getCount(); i += 2) {
-    Data::TokenTerm *term = tio_cast<Data::TokenTerm>(state->getErrorSyncBlockPairs()->get(i));
+    Data::Grammar::TokenTerm *term = ti_cast<Data::Grammar::TokenTerm>(state->getErrorSyncBlockPairs()->getElement(i));
     if (term == 0) {
       throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
                                             "Pair entries must be of type TokenTerm."));
     }
-    Data::Integer *matchId = term->getTokenId().tio_cast_get<Data::Integer>();
+    TiInt *matchId = term->getTokenId().tio_cast_get<TiInt>();
     TiObject *matchText = term->getTokenText().get();
     if (this->matchToken(matchId, matchText, token)) {
       state->getErrorSyncBlockStack().push_back(i);
@@ -2047,12 +2044,14 @@ Bool Parser::matchErrorSyncBlockPairs(ParserState *state, Data::Token const *tok
     throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
                                           "There must be an even number of entries in this list."));
   }
-  Data::TokenTerm *term = tio_cast<Data::TokenTerm>(state->getErrorSyncBlockPairs()->get(closingIndex));
+  Data::Grammar::TokenTerm *term = ti_cast<Data::Grammar::TokenTerm>(
+    state->getErrorSyncBlockPairs()->getElement(closingIndex)
+  );
   if (term == 0) {
     throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
                                           "Pair entries must be of type TokenTerm."));
   }
-  Data::Integer *matchId = term->getTokenId().tio_cast_get<Data::Integer>();
+  TiInt *matchId = term->getTokenId().tio_cast_get<TiInt>();
   TiObject *matchText = term->getTokenText().get();
   if (this->matchToken(matchId, matchText, token)) {
     state->getErrorSyncBlockStack().pop_back();
@@ -2138,7 +2137,7 @@ void Parser::processLeadingModifiersExit(ParserState *state)
         --first;
       } else if (level.getMinProdIndex() >= state->getProdLevelCount() - 1) {
         state->addNotice(
-          std::make_shared<UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
+          std::make_shared<Notices::UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
         );
         state->removeLeadingModifierLevel(first);
         --first;
@@ -2171,7 +2170,7 @@ void Parser::reportMislocatedLeadingModifiers(ParserState *state)
     ParserModifierLevel &level = state->refLeadingModifierLevel(i);
     if (level.getMinProdIndex() == -1) {
       state->addNotice(
-        std::make_shared<UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
+        std::make_shared<Notices::UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
       );
       state->removeLeadingModifierLevel(i);
       --i;
@@ -2205,7 +2204,7 @@ void Parser::cancelTrailingModifiers(ParserState *state)
   while (state->getTrailingModifierLevelCount() > 0) {
     ParserModifierLevel &level = state->refTrailingModifierLevel(0);
     state->addNotice(
-      std::make_shared<UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
+      std::make_shared<Notices::UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
     );
     state->popFrontTrailingModifierLevel();
   }

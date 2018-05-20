@@ -2,7 +2,7 @@
  * @file Spp/Ast/ReturnStatement.h
  * Contains the header of class Spp::Ast::ReturnStatement.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,11 +13,11 @@
 #ifndef SPP_AST_RETURNSTATEMENT_H
 #define SPP_AST_RETURNSTATEMENT_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 class ReturnStatement : public Core::Data::Node,
-                        public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
+                        public virtual Core::Basic::Bindings, public virtual Core::Basic::MapContainer<TiObject>,
                         public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                         public virtual Core::Data::Printable
 {
@@ -25,7 +25,7 @@ class ReturnStatement : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(ReturnStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Data::MapContainer,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Basic::MapContainer<TiObject>,
                                          Core::Data::Ast::Metadata, Core::Data::Clonable,
                                          Core::Data::Printable);
 
@@ -46,7 +46,7 @@ class ReturnStatement : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, operand));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>, (operand, TiObject, setOperand(value), operand.get()));
 
   IMPLEMENT_AST_CLONABLE(ReturnStatement);
 
@@ -75,6 +75,10 @@ class ReturnStatement : public Core::Data::Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->operand, o);
   }
+  private: void setOperand(TiObject *o)
+  {
+    this->setOperand(getSharedPtr(o));
+  }
 
   public: TioSharedPtr const& getOperand() const
   {
@@ -83,6 +87,6 @@ class ReturnStatement : public Core::Data::Node,
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

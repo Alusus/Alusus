@@ -13,13 +13,13 @@
 #ifndef SPP_AST_FUNCTION_H
 #define SPP_AST_FUNCTION_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 class Type;
 
 class Function : public Core::Data::Node,
-                 public virtual Core::Basic::Bindings, public virtual Core::Data::MapContainer,
+                 public virtual Core::Basic::Bindings, public virtual Core::Basic::MapContainer<TiObject>,
                  public virtual Core::Data::Ast::Metadata,
                  public virtual Core::Data::Clonable, public virtual Core::Data::Printable
 {
@@ -27,7 +27,7 @@ class Function : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(Function, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Data::MapContainer,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Basic::MapContainer<TiObject>,
                                          Core::Data::Ast::Metadata,
                                          Core::Data::Clonable, Core::Data::Printable);
 
@@ -49,7 +49,7 @@ class Function : public Core::Data::Node,
 
   private: TiStr name;
   private: TiBool inlined;
-  private: SharedPtr<Core::Data::SharedMap> argTypes;
+  private: SharedPtr<Core::Data::Ast::Map> argTypes;
   private: TioSharedPtr retType;
   private: SharedPtr<Block> body;
 
@@ -66,10 +66,11 @@ class Function : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer,
-                          (Core::Data::SharedMap, argTypes),
-                          (TiObject, retType),
-                          (Block, body));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+    (argTypes, Core::Data::Ast::Map, setArgTypes(value), argTypes.get()),
+    (retType, TiObject, setRetType(value), retType.get()),
+    (body, Block, setBody(value), body.get())
+  );
 
   IMPLEMENT_AST_MAP_PRINTABLE(Function, << this->name.get());
 
@@ -120,12 +121,16 @@ class Function : public Core::Data::Node,
     return this->inlined;
   }
 
-  public: void setArgTypes(SharedPtr<Core::Data::SharedMap> const &args)
+  public: void setArgTypes(SharedPtr<Core::Data::Ast::Map> const &args)
   {
     UPDATE_OWNED_SHAREDPTR(this->argTypes, args);
   }
+  private: void setArgTypes(Core::Data::Ast::Map *args)
+  {
+    this->setArgTypes(getSharedPtr(args));
+  }
 
-  public: SharedPtr<Core::Data::SharedMap> const& getArgTypes() const
+  public: SharedPtr<Core::Data::Ast::Map> const& getArgTypes() const
   {
     return this->argTypes;
   }
@@ -143,6 +148,10 @@ class Function : public Core::Data::Node,
   {
     UPDATE_OWNED_SHAREDPTR(this->retType, ret);
   }
+  private: void setRetType(TiObject *ret)
+  {
+    this->setRetType(getSharedPtr(ret));
+  }
 
   public: TioSharedPtr const& getRetType() const
   {
@@ -154,6 +163,10 @@ class Function : public Core::Data::Node,
   public: void setBody(SharedPtr<Block> const &b)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
+  }
+  private: void setBody(Block *b)
+  {
+    this->setBody(getSharedPtr(b));
   }
 
   public: SharedPtr<Block> const& getBody() const
@@ -171,6 +184,6 @@ class Function : public Core::Data::Node,
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

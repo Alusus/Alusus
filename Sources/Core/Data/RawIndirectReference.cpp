@@ -2,7 +2,7 @@
  * @file Core/Data/RawIndirectReference.cpp
  * Contains the implementation of class Core::Data::RawIndirectReference.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -58,14 +58,14 @@ void RawIndirectReference::setValue(Provider *provider, TiObject *parent,
   if (!provider->tryGet(this->getQualifier(), ref)) return;
   if (ref == 0) return;
 
-  if (ref->isA<String>()) {
+  if (ref->isA<TiStr>()) {
     MapContainer *container = parent->getInterface<MapContainer>();
     if (container == 0) return;
-    Int index = container->findIndex(static_cast<String*>(ref)->get());
+    Int index = container->findIndex(static_cast<TiStr*>(ref)->get());
     if (index == -1) {
       TiObject *obj = 0;
       if (isPerform(handler(0, obj))) {
-        container->set(static_cast<String*>(ref)->get(), obj);
+        container->set(static_cast<TiStr*>(ref)->get(), obj);
       }
     } else {
       TiObject *obj = container->get(index);
@@ -73,8 +73,8 @@ void RawIndirectReference::setValue(Provider *provider, TiObject *parent,
         container->set(index, obj);
       }
     }
-  } else if (ref->isA<Integer>()) {
-    Int index = static_cast<Integer*>(ref)->get();
+  } else if (ref->isA<TiInt>()) {
+    Int index = static_cast<TiInt*>(ref)->get();
     Container *container = parent->getInterface<Container>();
     if (container == 0) return;
     if (index >= 0 && index < container->getCount()) {
@@ -114,17 +114,17 @@ void RawIndirectReference::removeValue(Provider *provider, TiObject *parent,
   if (!provider->tryGet(this->getQualifier(), ref)) return;
   if (ref == 0) return;
 
-  if (ref->isA<String>()) {
+  if (ref->isA<TiStr>()) {
     MapContainer *container;
     if ((container = parent->getInterface<MapContainer>()) != 0) {
-      Int index = container->findIndex(static_cast<String*>(ref)->get());
+      Int index = container->findIndex(static_cast<TiStr*>(ref)->get());
       if (index == -1) return;
       if (isPerform(handler(0, container->get(index)))) {
         container->remove(index);
       }
     }
-  } else if (ref->isA<Integer>()) {
-    Int index = static_cast<Integer*>(ref)->get();
+  } else if (ref->isA<TiInt>()) {
+    Int index = static_cast<TiInt*>(ref)->get();
     Container *container;
     if ((container = parent->getInterface<Container>()) != 0) {
       if (index >= 0 && index < container->getCount()) {
@@ -156,15 +156,15 @@ void RawIndirectReference::forEachValue(Provider *provider, TiObject *parent,
   if (!provider->tryGet(this->getQualifier(), ref)) return;
   if (ref == 0) return;
 
-  if (ref->isA<String>()) {
+  if (ref->isA<TiStr>()) {
     MapContainer const *container;
     if ((container = parent->getInterface<MapContainer>()) != 0) {
-      Int index = container->findIndex(static_cast<String*>(ref)->get());
+      Int index = container->findIndex(static_cast<TiStr*>(ref)->get());
       if (index == -1) return;
       handler(0, container->get(index));
     }
-  } else if (ref->isA<Integer>()) {
-    Int index = static_cast<Integer*>(ref)->get();
+  } else if (ref->isA<TiInt>()) {
+    Int index = static_cast<TiInt*>(ref)->get();
     Container const *container;
     if ((container = parent->getInterface<Container>()) != 0) {
       if (index >= 0 && index < container->getCount()) {

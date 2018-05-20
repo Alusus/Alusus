@@ -2,7 +2,7 @@
  * @file Core/Standard/standard.cpp
  * Contains the global implementations of Standard namespace's declarations.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -63,66 +63,6 @@ std::string getModuleDirectory()
 
   Int pos = path.rfind(CHR('/'));
   return std::string(path, 0, pos+1);
-}
-
-
-Bool mergeContainers(TiObject *dest, TiObject *src, Processing::ParserState *state)
-{
-  if (!dest->isA(src->getMyTypeInfo())) return false;
-
-  MapContainer *destMap, *srcMap;
-  ListContainer *destList, *srcList;
-  if ((destMap = dest->getInterface<MapContainer>()) != 0) {
-    srcMap = src->getInterface<MapContainer>();
-    for (Int i = 0; i < srcMap->getCount(); ++i) {
-      // Merge if it already exists, otherwise set the new value.
-      Int di = destMap->findIndex(srcMap->getKey(i).c_str());
-      if (di == -1 || destMap->get(di) == 0) {
-        destMap->set(srcMap->getKey(i).c_str(), srcMap->get(i));
-      } else if (!mergeContainers(destMap->get(di), srcMap->get(i), state)) {
-        // Generate a build message.
-        Char const *name;
-        IdHolder *idHolder = srcMap->get(i)->getInterface<IdHolder>();
-        if (idHolder != 0) name = ID_GENERATOR->getDesc(idHolder->getId()).c_str();
-        else name = srcMap->getKey(i).c_str();
-        Ast::Metadata *itemMeta = ti_cast<Ast::Metadata>(srcMap->get(i));
-        SharedPtr<Data::SourceLocation> sl;
-        if (itemMeta != 0) sl = itemMeta->findSourceLocation();
-        state->addNotice(std::make_shared<RedefinitionNotice>(name, sl));
-        // Overwrite old data.
-        destMap->set(srcMap->getKey(i).c_str(), srcMap->get(i));
-      }
-    }
-  } else if ((destList = dest->getInterface<ListContainer>()) != 0) {
-    srcList = src->getInterface<ListContainer>();
-    for (Int i = 0; i < srcList->getCount(); ++i) {
-      destList->add(srcList->get(i));
-    }
-  } else {
-    return false;
-  }
-  return true;
-}
-
-
-void mergeDefinition(Char const *qualifier, TiObject *obj, Processing::ParserState *state)
-{
-  auto repository = state->getDataStack();
-  TiObject *dest;
-  Bool ret = repository->tryGet(qualifier, dest);
-  if (ret == false || dest == 0) {
-    repository->set(qualifier, obj);
-  } else {
-    if (!mergeContainers(dest, obj, state)) {
-      // Generate a build message.
-      Ast::Metadata *itemMeta = ti_cast<Ast::Metadata>(obj);
-      SharedPtr<Data::SourceLocation> sl;
-      if (itemMeta != 0) sl = itemMeta->findSourceLocation();
-      state->addNotice(std::make_shared<RedefinitionNotice>(qualifier, sl));
-      // Overwrite old data.
-      repository->set(qualifier, obj);
-    }
-  }
 }
 
 } } // namespace

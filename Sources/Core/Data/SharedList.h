@@ -2,7 +2,7 @@
  * @file Core/Data/SharedList.h
  * Contains the header of class Core::Data::SharedList.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,7 +22,6 @@ namespace Core { namespace Data
 
 /**
  * @brief An identifiable object that holds a list.
- * @ingroup data_containers
  *
  * This TiObject derived class is used to hold a list of identifiable
  * objects. This class is used mainly to store data used by the grammar. This
@@ -52,7 +51,7 @@ class SharedList : public Node, public virtual DataOwner, public virtual ListCon
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(SharedList);
 
-  IMPLEMENT_LIST_CONSTRUCTOR(SharedList);
+  // IMPLEMENT_LIST_CONSTRUCTOR(SharedList);
 
   public: virtual ~SharedList();
 

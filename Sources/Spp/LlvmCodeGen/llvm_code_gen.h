@@ -18,7 +18,7 @@ namespace Spp { namespace LlvmCodeGen
 {
 
 /**
- * @defgroup llvm_code_gen Build Operations for LLVM Target
+ * @defgroup spp_llvmcodegen Build Operations for LLVM Target
  * @ingroup spp
  * @brief Classes for providing an LLVM build target.
  */

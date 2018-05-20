@@ -124,7 +124,7 @@ void TargetGenerator::initBindings()
 //==============================================================================
 // Main Operation Functions
 
-void TargetGenerator::prepareBuild(Core::Processing::NoticeStore *noticeStore)
+void TargetGenerator::prepareBuild(Core::Notices::Store *noticeStore)
 {
   llvm::InitializeNativeTarget();
 
@@ -177,7 +177,7 @@ Bool TargetGenerator::generateIntType(Word bitCount, TioSharedPtr &type)
 {
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
-    this->noticeStore->add(std::make_shared<CodeGen::InvalidIntegerBitCountNotice>());
+    this->noticeStore->add(std::make_shared<Spp::Notices::InvalidIntegerBitCountNotice>());
     return false;
   }
   auto llvmType = llvm::Type::getIntNTy(llvm::getGlobalContext(), bitCount);
@@ -201,7 +201,7 @@ Bool TargetGenerator::generateFloatType(Word bitCount, TioSharedPtr &type)
     //   llvmType = llvm::Type::getFP128Ty(llvm::getGlobalContext());
     //   break;
     default:
-      this->noticeStore->add(std::make_shared<CodeGen::InvalidFloatBitCountNotice>());
+      this->noticeStore->add(std::make_shared<Spp::Notices::InvalidFloatBitCountNotice>());
       return false;
   }
   type = std::make_shared<Type>(Type::Category::FLOAT, llvmType, bitCount);

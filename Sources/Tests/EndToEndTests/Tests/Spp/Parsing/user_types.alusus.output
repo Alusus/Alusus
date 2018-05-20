@@ -1,4 +1,4 @@
-ERROR P1001 @ (15,22): Parser syntax error.
+ERROR CP1001 @ (15,22): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatementList]
  Definition [Main.Def] EmptyType: UserType [Subject.Type]

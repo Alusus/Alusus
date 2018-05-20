@@ -1,9 +1,9 @@
-ERROR SPP1103 @ (27,12): No valid match was found for the given type.
-ERROR SPP1104 @ (64,7): No valid match was found for the given type member.
-ERROR SPP1309 @ (65,11): Value is not implicitly castable to target type.
-ERROR SPP1309 @ (66,11): Value is not implicitly castable to target type.
-ERROR SPP1309 @ (67,11): Value is not implicitly castable to target type.
-ERROR SPP1104 @ (68,25): No valid match was found for the given type member.
+ERROR SPPA1003 @ (27,12): No valid match was found for the given type.
+ERROR SPPA1004 @ (64,7): No valid match was found for the given type member.
+ERROR SPPG1009 @ (65,11): Value is not implicitly castable to target type.
+ERROR SPPG1009 @ (66,11): Value is not implicitly castable to target type.
+ERROR SPPG1009 @ (67,11): Value is not implicitly castable to target type.
+ERROR SPPA1004 @ (68,25): No valid match was found for the given type member.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

@@ -1,0 +1,93 @@
+/**
+ * @file Core/Data/Grammar/Term.h
+ * Contains the header of class Core::Data::Grammar::Term.
+ *
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ */
+//==============================================================================
+
+#ifndef CORE_DATA_GRAMMAR_TERM_H
+#define CORE_DATA_GRAMMAR_TERM_H
+
+namespace Core::Data::Grammar
+{
+
+/**
+ * @brief The base of grammar term classes.
+ * @ingroup core_data_grammar
+ *
+ * The base class of all grammar term classes. Term classes are used to
+ * construct a grammar formulas.
+ */
+class Term : public Node, public virtual Bindings
+{
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(Term, Node, "Core.Data.Grammar", "Core", "alusus.net", (
+    INHERITANCE_INTERFACES(Bindings)
+  ));
+
+
+  //============================================================================
+  // Member Variables
+
+  /**
+   * @brief Flags for parsing and code generation features.
+   *
+   * These flags helps the parser and parsing handler determine different
+   * features associated with this term.
+   */
+  protected: TioSharedPtr flags;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_BINDINGS(Bindings,
+    (flags, TiObject, SHARED_REF, setFlags(value), flags.get())
+  );
+
+
+  //============================================================================
+  // Constructor / Destructor
+
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Term);
+
+  IMPLEMENT_ATTR_CONSTRUCTOR(Term);
+
+  public: virtual ~Term()
+  {
+  }
+
+
+  //============================================================================
+  // Member Functions
+
+  public: void setFlags(TioSharedPtr const &f)
+  {
+    if (f != 0 && !f->isA<TiInt>() && !f->isDerivedFrom<Reference>()) {
+      throw EXCEPTION(InvalidArgumentException, STR("f"), STR("Must be of type TiInt or Reference."));
+    }
+    this->flags = f;
+  }
+
+  private: void setFlags(TiObject *f)
+  {
+    this->setFlags(getSharedPtr(f));
+  }
+
+  public: TioSharedPtr const& getFlags() const
+  {
+    return this->flags;
+  }
+
+}; // class
+
+} // namespace
+
+#endif

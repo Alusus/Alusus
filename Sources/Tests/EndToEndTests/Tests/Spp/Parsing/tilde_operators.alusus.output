@@ -1,8 +1,8 @@
-ERROR P1001 @ (27,5): Parser syntax error.
-ERROR P1001 @ (28,9): Parser syntax error.
-ERROR P1001 @ (36,10): Parser syntax error.
-ERROR P1001 @ (37,11): Parser syntax error.
-ERROR P1001 @ (43,10): Parser syntax error.
+ERROR CP1001 @ (27,5): Parser syntax error.
+ERROR CP1001 @ (28,9): Parser syntax error.
+ERROR CP1001 @ (36,10): Parser syntax error.
+ERROR CP1001 @ (37,11): Parser syntax error.
+ERROR CP1001 @ (43,10): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
  argTypes: NULL

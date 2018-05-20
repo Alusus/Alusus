@@ -3,7 +3,7 @@
  * Contains the declarations of different helper functions and classes that are
  * used by unit tests.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -119,15 +119,15 @@ class NoticeReceiver : public TiObject
 {
   TYPE_INFO(NoticeReceiver, TiObject, "Core.Test", "Core", "alusus.net");
 
-  private: vector<SharedPtr<Data::Notice> > notices;
-  private: Slot<void, SharedPtr<Data::Notice> const&> noticeSlot = {this, &NoticeReceiver::receiveNotice};
+  private: vector<SharedPtr<Notices::Notice> > notices;
+  private: Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot = {this, &NoticeReceiver::receiveNotice};
 
   public: NoticeReceiver(Processing::Engine *engine)
   {
     engine->noticeSignal.connect(this->noticeSlot);
   }
 
-  public: void receiveNotice(SharedPtr<Data::Notice> const &msg)
+  public: void receiveNotice(SharedPtr<Notices::Notice> const &msg)
   {
     this->notices.push_back(msg);
   }
@@ -137,7 +137,7 @@ class NoticeReceiver : public TiObject
     return this->notices.size();
   }
 
-  public: const SharedPtr<Data::Notice>& getMsg(Int i)
+  public: const SharedPtr<Notices::Notice>& getMsg(Int i)
   {
     return this->notices[i];
   }

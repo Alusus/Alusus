@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserTermLevel.h
  * Contains the header of class Core::Processing::ParserTermLevel.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,7 +18,7 @@ namespace Core { namespace Processing
 
 /**
  * @brief Defines one level in the state's hierarchy position stack.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * The ParserState object has a stack that defines the current parsing position within
  * the terms hierarchy. Each level in this stack is represented by a single
@@ -43,7 +43,7 @@ class ParserTermLevel
   private: Word posId;
 
   /// Pointer to the current level's term object.
-  private: Data::Term *term;
+  private: Data::Grammar::Term *term;
 
   /// @sa setParam1()
   private: Data::PlainPairedPtr param1;
@@ -105,13 +105,13 @@ class ParserTermLevel
   }
 
   /// Set the term object of this level.
-  protected: void setTerm(Data::Term *t)
+  protected: void setTerm(Data::Grammar::Term *t)
   {
     this->term = t;
   }
 
   /// Get the term object of this level.
-  public: Data::Term* getTerm() const
+  public: Data::Grammar::Term* getTerm() const
   {
     return this->term;
   }

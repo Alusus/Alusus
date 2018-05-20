@@ -18,7 +18,7 @@ namespace Spp { namespace CodeGen
 {
 
 /**
- * @defgroup code_gen Code Generation
+ * @defgroup spp_codegen Code Generation
  * @ingroup spp
  * @brief Classes for code generation.
  */
@@ -93,53 +93,6 @@ inline void setCodeGenData(OT *object, Core::Basic::SharedPtr<DT> const &data)
   }
   metadata->setExtra(META_EXTRA_CODE_GEN, data);
 }
-
-
-//==============================================================================
-// Build Messages
-
-DEFINE_NOTICE(UnsupportedOperationNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1301", 1,
-  STR("Unsupported operation.")
-);
-DEFINE_NOTICE(InvalidOperationNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1302", 1,
-  STR("Invalid operation.")
-);
-DEFINE_NOTICE(InvalidFloatBitCountNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1303", 1,
-  STR("Invalid float bit count. Bit count should be either 32, 64, or 128.")
-);
-DEFINE_NOTICE(InvalidIntegerBitCountNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1304", 1,
-  STR("Invalid integer bit count.")
-);
-DEFINE_NOTICE(InvalidCastNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1305", 1,
-  STR("Invalid cast.")
-);
-DEFINE_NOTICE(InvalidReturnValueNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1306", 1,
-  STR("Invalid return value.")
-);
-DEFINE_NOTICE(InvalidConditionValueNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1307", 1,
-  STR("Invalid condition value.")
-);
-DEFINE_NOTICE(InvalidReferenceNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1308", 1,
-  STR("Invalid symbol.")
-);
-DEFINE_NOTICE(NotImplicitlyCastableNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1309", 1,
-  STR("Value is not implicitly castable to target type.")
-);
-DEFINE_NOTICE(InvalidSizeOperandNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1310", 1,
-  STR("Invalid operand for ~size operator.")
-);
-DEFINE_NOTICE(InvalidExpressionListNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1311", 1,
-  STR("Invalid expression list.")
-);
-DEFINE_NOTICE(InvalidContinueStepsNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1312", 1,
-  STR("Invalid continue steps.")
-);
-DEFINE_NOTICE(InvalidBreakStepsNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1313", 1,
-  STR("Invalid break steps.")
-);
-DEFINE_NOTICE(InvalidLogicalOperandNotice, "Spp.CodeGen", "Spp", "alusus.net", "SPP1314", 1,
-  STR("Invalid operand of logical operator.")
-);
 
 } } // namespace
 

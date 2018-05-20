@@ -2,7 +2,7 @@
  * @file Core/Data/VariableStack.cpp
  * Contains the implementation of class Core::Data::VariableStack.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Data
+namespace Core::Data
 {
 
 //==============================================================================
@@ -428,7 +428,7 @@ Int VariableStack::findIndex(Char const *key, Int start, Int end) const
 //==============================================================================
 // MapContainer Implementation
 
-void VariableStack::set(Int index, TiObject *val)
+void VariableStack::setElement(Int index, TiObject *val)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
@@ -448,7 +448,7 @@ void VariableStack::set(Int index, TiObject *val)
 }
 
 
-void VariableStack::remove(Int index)
+void VariableStack::removeElement(Int index)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
@@ -470,7 +470,7 @@ void VariableStack::remove(Int index)
 }
 
 
-void VariableStack::remove(Char const *key)
+Int VariableStack::removeElement(Char const *key)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
@@ -490,6 +490,7 @@ void VariableStack::remove(Char const *key)
   Byte *src = dest + this->getRecordSize();
   Int count = this->levels.back() - (start + index);
   memmove(dest, src, this->getRecordSize()*count);
+  return index;
 }
 
-} } // namespace
+} // namespace

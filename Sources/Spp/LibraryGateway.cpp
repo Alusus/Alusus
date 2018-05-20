@@ -48,556 +48,13 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
   );
   this->targetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>();
 
-  // Create leading commands.
+  // Add the grammar.
+  GrammarFactory factory;
+  factory.createGrammar(
+    manager->getRootScope().get(), manager, this->astHelper.get(), this->generator.get(), this->targetGenerator.get()
+  );
 
-  auto grammarRepository = manager->getGrammarRepository();
-  auto leadingCmdList = this->getLeadingCommandsList(grammarRepository);
-  auto innerCmdList = this->getInnerCommandsList(grammarRepository);
-  auto tildeCmdList = this->getTildeCommandsList(grammarRepository);
-
-  //// DumpIr = "dump_ir" + Subject
-  grammarRepository->set(STR("root:Main.DumpLlvmIr"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("dump_llvm_ir"), 0 }, { STR("أدرج_ت_و"), 0 } }) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CodeGenParsingHandler>(
-      manager, this->astHelper.get(), this->generator.get(), this->targetGenerator.get(), false
-    )}
-  }).get());
-  this->addReferenceToCommandList(leadingCmdList, STR("module:DumpLlvmIr"));
-
-  //// run = "run" + Subject
-  grammarRepository->set(STR("root:Main.Run"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("run"), 0 }, { STR("نفّذ"), 0 } }) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    {SymbolDefElement::HANDLER, std::make_shared<Handlers::CodeGenParsingHandler>(
-      manager, this->astHelper.get(), this->generator.get(), this->targetGenerator.get(), true
-    )}
-  }).get());
-  this->addReferenceToCommandList(leadingCmdList, STR("module:Run"));
-
-  //// if = "if" + Expression + Statement + ("else" + Statement)*(0, 1)
-  grammarRepository->set(STR("root:Main.If"), SymbolDefinition::create({
-    {SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:MultiCmd"))},
-    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-      {STR("sections"), Core::Data::SharedList::create({
-        Core::Data::SharedMap::create(false, {
-          {STR("min"), std::make_shared<Integer>(1)},
-          {STR("max"), std::make_shared<Integer>(1)},
-          {STR("pty"), std::make_shared<Integer>(1)},
-          {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
-          {STR("kwd"), Core::Data::SharedMap::create(false, { { STR("if"), 0 }, { STR("إذا"), 0 } })},
-          {STR("args"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))}
-            }),
-            Core::Data::SharedMap::create(false, {
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockMain.Statement"))}
-            })
-          })}
-        }),
-        Core::Data::SharedMap::create(false, {
-          {STR("min"), std::make_shared<Integer>(0)},
-          {STR("max"), std::make_shared<Integer>(1)},
-          {STR("pty"), std::make_shared<Integer>(1)},
-          {STR("flags"), Integer::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
-          {STR("kwd"), Core::Data::SharedMap::create(false, { { STR("else"), 0 }, { STR("وإلا"), 0 } })},
-          {STR("args"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)},
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockMain.Statement"))}
-            })
-          })}
-        })
-      })}
-    })},
-    {SymbolDefElement::HANDLER,
-      std::make_shared<Handlers::IfParsingHandler>()}
-  }).get());
-  this->addReferenceToCommandList(leadingCmdList, STR("module:If"));
-
-  //// while = "while" + Expression + Statement
-  grammarRepository->set(STR("root:Main.While"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("while"), 0 }, { STR("بينما"), 0 } }) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            }),
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockMain.Statement"))},
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    {SymbolDefElement::HANDLER, std::make_shared<Handlers::WhileParsingHandler>()}
-  }).get());
-  this->addReferenceToCommandList(leadingCmdList, STR("module:While"));
-
-  //// for = "for" + Exp + Statement
-  grammarRepository->set(STR("root:Main.For"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("for"), 0 }, { STR("لكل"), 0 } }) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            }),
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockMain.Statement"))},
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    {SymbolDefElement::HANDLER, std::make_shared<Handlers::ForParsingHandler>()}
-  }).get());
-  this->addReferenceToCommandList(leadingCmdList, STR("module:For"));
-
-  //// continue = "continue" + Subject.Literal
-  grammarRepository->set(STR("root:Main.Continue"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("continue"), 0 }, { STR("أكمل"), 0 } }) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject.Parameter"))},
-              {STR("min"), std::make_shared<Integer>(0)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    { SymbolDefElement::HANDLER, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Data::Ast::Metadata>();
-      auto currentList = state->getData().ti_cast_get<Data::Container>();
-      auto continueStatement = Ast::ContinueStatement::create({
-        { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->findSourceLocation() }
-      });
-      if (currentList != 0) {
-        auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->get(1));
-        if (currentList->get(1) != 0 && intLiteral == 0) {
-          state->addNotice(std::make_shared<Handlers::InvalidContinueStatementNotice>(metadata->findSourceLocation()));
-          state->setData(SharedPtr<TiObject>(0));
-          return;
-        }
-        continueStatement->setSteps(getSharedPtr(intLiteral));
-      }
-      state->setData(continueStatement);
-    })}
-  }).get());
-  this->addReferenceToCommandList(leadingCmdList, STR("module:Continue"));
-
-  //// break = "break" + Subject.Literal
-  grammarRepository->set(STR("root:Main.Break"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("break"), 0 }, { STR("اقطع"), 0 } }) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Subject.Parameter"))},
-              {STR("min"), std::make_shared<Integer>(0)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    { SymbolDefElement::HANDLER, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Data::Ast::Metadata>();
-      auto currentList = state->getData().ti_cast_get<Data::Container>();
-      auto breakStatement = Ast::BreakStatement::create({
-        { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->findSourceLocation() }
-      });
-      if (currentList != 0) {
-        auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->get(1));
-        if (currentList->get(1) != 0 && intLiteral == 0) {
-          state->addNotice(std::make_shared<Handlers::InvalidBreakStatementNotice>(metadata->findSourceLocation()));
-          state->setData(SharedPtr<TiObject>(0));
-          return;
-        }
-        breakStatement->setSteps(getSharedPtr(intLiteral));
-      }
-      state->setData(breakStatement);
-    })}
-  }).get());
-  this->addReferenceToCommandList(leadingCmdList, STR("module:Break"));
-
-  //// return = "return" + Expression
-  grammarRepository->set(STR("root:Main.Return"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("return"), 0 }, { STR("أرجع"), 0 } }) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Expression"))},
-              {STR("min"), std::make_shared<Integer>(0)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    { SymbolDefElement::HANDLER, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Data::Ast::Metadata>();
-      auto currentList = state->getData().ti_cast_get<Data::Container>();
-      auto returnStatement = Ast::ReturnStatement::create({
-        { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->findSourceLocation() }
-      });
-      if (currentList != 0) {
-        returnStatement->setOperand(getSharedPtr(currentList->get(1)));
-      }
-      state->setData(returnStatement);
-    })}
-  }).get());
-  this->addReferenceToCommandList(leadingCmdList, STR("module:Return"));
-
-  // Create inner commands.
-
-  //// module = "module" + Set
-  grammarRepository->set(STR("root:Subject.Module"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("module"), 0 }, { STR("حزمة"), 0 } }) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:ModuleBody"))},
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    { SymbolDefElement::HANDLER, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-       auto currentList = state->getData().tii_cast_get<Data::Container>();
-       state->setData(getSharedPtr(currentList->get(1)));
-    })}
-  }).get());
-  this->addReferenceToCommandList(innerCmdList, STR("module:Module"));
-  grammarRepository->set(STR("root:ModuleBody"), SymbolDefinition::create({
-    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("root:Set")) },
-    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-      {STR("stmt"), REF_PARSER->parseQualifier(STR("root:Main.ModuleStatementList"))}
-    })}
-  }).get());
-  grammarRepository->set(STR("root:Main.ModuleStatementList"), SymbolDefinition::create({
-    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("module:StatementList")) },
-    { SymbolDefElement::HANDLER, ScopeParsingHandler<Spp::Ast::Module>::create(-1) }
-  }).get());
-
-  //// type = "type" + Set
-  grammarRepository->set(STR("root:Subject.Type"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("type"), 0 }, { STR("صنف"), 0 } }) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Block"))},
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    { SymbolDefElement::HANDLER, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto currentList = state->getData().ti_cast_get<Data::Container>();
-      auto metadata = ti_cast<Data::Ast::Metadata>(currentList);
-      auto type = Ast::UserType::create({
-        { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->findSourceLocation() }
-      }, {
-        { "body", currentList->get(1) }
-      });
-      state->setData(type);
-    })}
-  }).get());
-  this->addReferenceToCommandList(innerCmdList, STR("module:Type"));
-
-  // Function
-  grammarRepository->set(STR("root:Subject.Function"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("function"), 0 }, { STR("دالّة"), 0 } }) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:FuncSigExpression"))},
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            }),
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:Block"))},
-              {STR("min"), std::make_shared<Integer>(0)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    { SymbolDefElement::HANDLER, std::make_shared<Handlers::FunctionParsingHandler>() }
-  }).get());
-  this->addReferenceToCommandList(innerCmdList, STR("module:Function"));
-
-  // FuncSigExpression
-  grammarRepository->set(STR("root:FuncSigExpression"), GrammarModule::create({
-    { STR("@start"), REF_PARSER->parseQualifier(STR("module:LowLinkExp")) },
-    { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Expression")) }
-  }).get());
-  grammarRepository->set(STR("root:FuncSigExpression.LowLinkExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:LowLinkExp"))},
-    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(1)}})},
-  }).get());
-  grammarRepository->set(STR("root:FuncSigExpression.AddExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:AddExp"))},
-    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  grammarRepository->set(STR("root:FuncSigExpression.MulExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:MulExp"))},
-    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  grammarRepository->set(STR("root:FuncSigExpression.BitwiseExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:BitwiseExp"))},
-    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {{STR("enable"), std::make_shared<Integer>(0)}})},
-  }).get());
-  grammarRepository->set(STR("root:FuncSigExpression.UnaryExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:UnaryExp"))},
-    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-      {STR("enable1"), std::make_shared<Integer>(0)},
-      {STR("enable2"), std::make_shared<Integer>(0)}
-    })},
-  }).get());
-  grammarRepository->set(STR("root:FuncSigExpression.FunctionalExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:FunctionalExp")) },
-    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-      {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP | TermFlags::ONE_ROUTE_TERM)},
-      {STR("operand"), REF_PARSER->parseQualifier(STR("root:Subject"))},
-      {STR("pty2"), std::make_shared<Integer>(1)},
-      {STR("dup"), 0},
-      {STR("fltr2"), 0}
-    })}
-  }).get());
-
-  // Block
-  grammarRepository->set(STR("root:Block"), SymbolDefinition::create({
-    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("root:Set")) },
-    { SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-      {STR("stmt"), REF_PARSER->parseQualifier(STR("root:Main.BlockStatementList"))}
-    })}
-  }).get());
-  grammarRepository->set(STR("root:Main.BlockStatementList"), SymbolDefinition::create({
-    { SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("module:StatementList")) },
-    { SymbolDefElement::HANDLER, ScopeParsingHandler<Spp::Ast::Block>::create(-1) }
-  }).get());
-
-  // Block based statement.
-  grammarRepository->set(STR("root:BlockSubject"), GrammarModule::create({
-    { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Subject")) }
-  }).get());
-  grammarRepository->set(STR("root:BlockSubject.Subject1"), SymbolDefinition::create({
-   {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:Subject1")) },
-   {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-      {STR("sbj1"), Core::Data::SharedList::create({
-        REF_PARSER->parseQualifier(STR("module:SubjectCmdGrp")),
-        REF_PARSER->parseQualifier(STR("module:Parameter")),
-        REF_PARSER->parseQualifier(STR("root:Block"))
-      })},
-      {STR("sbj2"), Core::Data::SharedList::create({REF_PARSER->parseQualifier(STR("root:Expression"))})},
-      {STR("sbj3"), Core::Data::SharedList::create({REF_PARSER->parseQualifier(STR("root:Expression"))})},
-      {STR("frc2"), 0},
-      {STR("frc3"), 0}
-    })}
-  }).get());
-  grammarRepository->set(STR("root:BlockExpression"), GrammarModule::create({
-    { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Expression")) }
-  }).get());
-  grammarRepository->set(STR("root:BlockExpression.FunctionalExp"), SymbolDefinition::create({
-    {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:FunctionalExp")) },
-    {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-      {STR("flags"), Integer::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
-      {STR("operand"), REF_PARSER->parseQualifier(STR("root:BlockSubject"))},
-      {STR("pty2"), std::make_shared<Integer>(1)},
-      {STR("dup"), 0},
-      {STR("fltr2"), 0}
-    })}
-  }).get());
-  grammarRepository->set(STR("root:BlockMain"), GrammarModule::create({
-    { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Main")) }
-  }).get());
-  grammarRepository->set(STR("root:BlockMain.ExpPhrase"), SymbolDefinition::create({
-   {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:ExpPhrase")) },
-   {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-      {STR("subjects"), Core::Data::SharedList::create({
-         Core::Data::SharedMap::create(false, {
-           {STR("prd"), REF_PARSER->parseQualifier(STR("root:BlockExpression"))},
-           {STR("min"), std::make_shared<Integer>(1)},
-           {STR("max"), std::make_shared<Integer>(1)},
-           {STR("pty"), std::make_shared<Integer>(1)}
-         })
-       })}
-    })}
-  }).get());
-
-  // Create tilde commands.
-
-  // ~ptr
-  grammarRepository->set(STR("root:Expression.PointerTilde"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("ptr"), 0 }, { STR("مؤشر"), 0 } }) },
-        { STR("prms"), Core::Data::SharedList::create({}) }
-      })
-    },
-    { SymbolDefElement::HANDLER, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::PointerOp>::create() }
-  }).get());
-  this->addReferenceToCommandList(tildeCmdList, STR("module:PointerTilde"));
-  // ~cnt
-  grammarRepository->set(STR("root:Expression.ContentTilde"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("cnt"), 0 }, { STR("محتوى"), 0 } }) },
-        { STR("prms"), Core::Data::SharedList::create({}) }
-      })
-    },
-    { SymbolDefElement::HANDLER, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::ContentOp>::create() }
-  }).get());
-  this->addReferenceToCommandList(tildeCmdList, STR("module:ContentTilde"));
-  // ~cast
-  grammarRepository->set(STR("root:Expression.CastTilde"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, {{STR("cast"), 0}, {STR("مثّل"), 0}, {STR("مثل"), 0}}) },
-        {
-          STR("prms"), Core::Data::SharedList::create({
-            Core::Data::SharedMap::create(false, {
-              {STR("prd"), REF_PARSER->parseQualifier(STR("root:CastSubject"))},
-              {STR("min"), std::make_shared<Integer>(1)},
-              {STR("max"), std::make_shared<Integer>(1)},
-              {STR("pty"), std::make_shared<Integer>(1)},
-              {STR("flags"), Integer::create(ParsingFlags::PASS_ITEMS_UP)}
-            })
-          })
-        }
-      })
-    },
-    { SymbolDefElement::HANDLER, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::CastOp>::create() }
-  }).get());
-  this->addReferenceToCommandList(tildeCmdList, STR("module:CastTilde"));
-  grammarRepository->set(STR("root:CastSubject"), GrammarModule::create({
-    { STR("@parent"), REF_PARSER->parseQualifier(STR("root:Subject")) },
-    { STR("@start"), REF_PARSER->parseQualifier(STR("module:Subject2")) }
-  }).get());
-  grammarRepository->set(STR("root:CastSubject.Subject2"), SymbolDefinition::create({
-   {SymbolDefElement::PARENT_REF, REF_PARSER->parseQualifier(STR("pmodule:Subject2")) },
-   {SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-      {STR("sbj"), REF_PARSER->parseQualifier(STR("root:Expression"))},
-      {STR("fltr"), std::make_shared<Integer>(2)},
-      {STR("frc"), std::make_shared<Integer>(1)}
-    })}
-  }).get());
-  // ~size
-  grammarRepository->set(STR("root:Expression.SizeTilde"), SymbolDefinition::create({
-    { SymbolDefElement::TERM, REF_PARSER->parseQualifier(STR("root:Cmd")) },
-    {
-      SymbolDefElement::VARS, Core::Data::SharedMap::create(false, {
-        { STR("kwd"), Core::Data::SharedMap::create(false, { { STR("size"), 0 }, { STR("حجم"), 0 } }) },
-        { STR("prms"), Core::Data::SharedList::create({}) }
-      })
-    },
-    { SymbolDefElement::HANDLER, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::SizeOp>::create() }
-  }).get());
-  this->addReferenceToCommandList(tildeCmdList, STR("module:SizeTilde"));
-
+  // Add built-in types and functions.
   this->createBuiltInTypes(manager);
   this->createBuiltInFunctions(manager);
 }
@@ -609,6 +66,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   SeekerExtension::unextend(manager->getSeeker(), this->seekerExtensionOverrides);
   this->seekerExtensionOverrides = 0;
 
+  // Reset generators.
   this->targetGenerator.reset();
   this->generator.reset();
   this->commandGenerator.reset();
@@ -618,150 +76,13 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
   this->nodePathResolver.reset();
   this->astHelper.reset();
 
-  auto grammarRepository = manager->getGrammarRepository();
-  auto leadingCmdList = this->getLeadingCommandsList(grammarRepository);
-  auto innerCmdList = this->getInnerCommandsList(grammarRepository);
-  auto tildeCmdList = this->getTildeCommandsList(grammarRepository);
+  // Clean the grammar.
+  GrammarFactory factory;
+  factory.cleanGrammar(manager->getRootScope().get());
 
-  // Remove commands from tilde commands list.
-  this->removeReferenceFromCommandList(tildeCmdList, STR("module:SizeTilde"));
-  this->removeReferenceFromCommandList(tildeCmdList, STR("module:CastTilde"));
-  this->removeReferenceFromCommandList(tildeCmdList, STR("module:ContentTilde"));
-  this->removeReferenceFromCommandList(tildeCmdList, STR("module:PointerTilde"));
-
-  // Remove commands from leading commands list.
-  this->removeReferenceFromCommandList(leadingCmdList, STR("module:DumpLlvmIr"));
-  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Run"));
-  this->removeReferenceFromCommandList(leadingCmdList, STR("module:If"));
-  this->removeReferenceFromCommandList(leadingCmdList, STR("module:While"));
-  this->removeReferenceFromCommandList(leadingCmdList, STR("module:For"));
-  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Continue"));
-  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Break"));
-  this->removeReferenceFromCommandList(leadingCmdList, STR("module:Return"));
-
-  // Remove command from inner commands list.
-  this->removeReferenceFromCommandList(innerCmdList, STR("module:Module"));
-  this->removeReferenceFromCommandList(innerCmdList, STR("module:Type"));
-  this->removeReferenceFromCommandList(innerCmdList, STR("module:Function"));
-
-  // Delete definitions.
-  grammarRepository->remove(STR("root:Main.DumpLlvmIr"));
-  grammarRepository->remove(STR("root:Main.Run"));
-  grammarRepository->remove(STR("root:Main.If"));
-  grammarRepository->remove(STR("root:Main.While"));
-  grammarRepository->remove(STR("root:Main.For"));
-  grammarRepository->remove(STR("root:Main.Continue"));
-  grammarRepository->remove(STR("root:Main.Break"));
-  grammarRepository->remove(STR("root:Main.Return"));
-  grammarRepository->remove(STR("root:Main.ModuleStatementList"));
-  grammarRepository->remove(STR("root:Main.BlockStatementList"));
-  grammarRepository->remove(STR("root:Subject.Module"));
-  grammarRepository->remove(STR("root:ModuleBody"));
-  grammarRepository->remove(STR("root:Subject.Type"));
-  grammarRepository->remove(STR("root:Subject.Function"));
-  grammarRepository->remove(STR("root:FuncSigExpression"));
-  grammarRepository->remove(STR("root:Block"));
-  grammarRepository->remove(STR("root:BlockSubject"));
-  grammarRepository->remove(STR("root:BlockExpression"));
-  grammarRepository->remove(STR("root:BlockMain"));
-  grammarRepository->remove(STR("root:Expression.PointerTilde"));
-  grammarRepository->remove(STR("root:Expression.ContentTilde"));
-  grammarRepository->remove(STR("root:Expression.SizeTilde"));
-  grammarRepository->remove(STR("root:Expression.CastTilde"));
-  grammarRepository->remove(STR("root:CastSubject"));
-
+  // Remove built-in types and functions.
   this->removeBuiltInFunctions(manager);
   this->removeBuiltInTypes(manager);
-}
-
-
-Core::Data::SharedList* LibraryGateway::getLeadingCommandsList(GrammarRepository *grammarRepository)
-{
-  PlainPairedPtr retVal;
-  grammarRepository->get(STR("root:Main.LeadingCmdGrp"), retVal.object,
-                         Core::Data::Module::getTypeInfo(), &retVal.parent);
-  SymbolDefinition *def = tio_cast<SymbolDefinition>(retVal.object);
-
-  if (def == 0) {
-    throw EXCEPTION(GenericException, STR("Could not find leading command group."));
-  }
-
-  GrammarContext context;
-  context.setRoot(grammarRepository->getRoot().get());
-  Core::Data::SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
-  Core::Data::SharedList *cmd_list = ti_cast<Core::Data::SharedList>(vars->get(STR("cmds")));
-
-  if (cmd_list == 0) {
-    throw EXCEPTION(GenericException, STR("Could not find leading command group's command list."));
-  }
-
-  return cmd_list;
-}
-
-
-Core::Data::SharedList* LibraryGateway::getInnerCommandsList(GrammarRepository *grammarRepository)
-{
-  PlainPairedPtr retVal;
-  grammarRepository->get(STR("root:Subject.SubjectCmdGrp"), retVal.object,
-                         Core::Data::Module::getTypeInfo(), &retVal.parent);
-  SymbolDefinition *def = tio_cast<SymbolDefinition>(retVal.object);
-
-  if (def == 0) {
-    throw EXCEPTION(GenericException, STR("Could not find inner command group."));
-  }
-
-  GrammarContext context;
-  context.setRoot(grammarRepository->getRoot().get());
-  Core::Data::SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
-  Core::Data::SharedList *cmd_list = ti_cast<Core::Data::SharedList>(vars->get(STR("cmds")));
-
-  if (cmd_list == 0) {
-    throw EXCEPTION(GenericException, STR("Could not find inner command group's command list."));
-  }
-
-  return cmd_list;
-}
-
-
-Core::Data::SharedList* LibraryGateway::getTildeCommandsList(GrammarRepository *grammarRepository)
-{
-  PlainPairedPtr retVal;
-  grammarRepository->get(STR("root:Expression.DefaultPostfixTildeCmd"), retVal.object,
-                         Core::Data::Module::getTypeInfo(), &retVal.parent);
-  SymbolDefinition *def = tio_cast<SymbolDefinition>(retVal.object);
-
-  if (def == 0) {
-    throw EXCEPTION(GenericException, STR("Could not find tilde command group."));
-  }
-
-  GrammarContext context;
-  context.setRoot(grammarRepository->getRoot().get());
-  Core::Data::SharedMap *vars = context.getSymbolVars(def, static_cast<Core::Data::Module*>(retVal.parent));
-  Core::Data::SharedList *cmd_list = tio_cast<Core::Data::SharedList>(vars->get(STR("cmds")));
-
-  if (cmd_list == 0) {
-    throw EXCEPTION(GenericException, STR("Could not find inner command group's command list."));
-  }
-
-  return cmd_list;
-}
-
-
-void LibraryGateway::addReferenceToCommandList(Core::Data::SharedList *cmdList, Char const *qualifier)
-{
-  cmdList->add(REF_PARSER->parseQualifier(qualifier));
-}
-
-
-void LibraryGateway::removeReferenceFromCommandList(Core::Data::SharedList *cmdList, Char const *qualifier)
-{
-  for (Int i = 0; i < cmdList->getCount(); ++i) {
-    auto reference = ti_cast<Core::Data::Reference>(cmdList->get(i));
-    if (REF_PARSER->getQualifier(reference) == qualifier) {
-      cmdList->remove(i);
-      return;
-    }
-  }
 }
 
 
@@ -821,22 +142,22 @@ void LibraryGateway::removeBuiltInTypes(Core::Standard::RootManager *manager)
   auto root = manager->getRootScope().get();
 
   identifier.setValue(STR("Void"));
-  manager->getSeeker()->doRemove(&identifier, root);
+  manager->getSeeker()->tryRemove(&identifier, root);
 
   identifier.setValue(STR("Int"));
-  manager->getSeeker()->doRemove(&identifier, root);
+  manager->getSeeker()->tryRemove(&identifier, root);
 
   identifier.setValue(STR("Float"));
-  manager->getSeeker()->doRemove(&identifier, root);
+  manager->getSeeker()->tryRemove(&identifier, root);
 
   identifier.setValue(STR("ptr"));
-  manager->getSeeker()->doRemove(&identifier, root);
+  manager->getSeeker()->tryRemove(&identifier, root);
 
   identifier.setValue(STR("ref"));
-  manager->getSeeker()->doRemove(&identifier, root);
+  manager->getSeeker()->tryRemove(&identifier, root);
 
   identifier.setValue(STR("array"));
-  manager->getSeeker()->doRemove(&identifier, root);
+  manager->getSeeker()->tryRemove(&identifier, root);
 }
 
 
@@ -895,12 +216,14 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
       Str funcName = STR("#");
       funcName += binaryOps[i];
 
-      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
-        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
-        hook = this->createBinaryFunction(manager, funcName.c_str(), types[j], types[j], types[j]);
-        obj = hook.get();
-        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-      }, 0);
+      manager->getSeeker()->set(&identifier, root,
+        [=,&hook](TiObject *&obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
+          if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+          hook = this->createBinaryFunction(manager, funcName.c_str(), types[j], types[j], types[j]);
+          obj = hook.get();
+          return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+        }, 0
+      );
     }
   }
 
@@ -914,12 +237,14 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
       Str funcName = STR("#");
       funcName += intBinaryOps[i];
 
-      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
-        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
-        hook = this->createBinaryFunction(manager, funcName.c_str(), intTypes[j], intTypes[j], intTypes[j]);
-        obj = hook.get();
-        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-      }, 0);
+      manager->getSeeker()->set(&identifier, root,
+        [=,&hook](TiObject *&obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
+          if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+          hook = this->createBinaryFunction(manager, funcName.c_str(), intTypes[j], intTypes[j], intTypes[j]);
+          obj = hook.get();
+          return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+        }, 0
+      );
     }
   }
 
@@ -933,12 +258,14 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
       Str funcName = STR("#");
       funcName += comparisonOps[i];
 
-      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
-        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
-        hook = this->createBinaryFunction(manager, funcName.c_str(), types[j], types[j], STR("Int[1]"));
-        obj = hook.get();
-        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-      }, 0);
+      manager->getSeeker()->set(&identifier, root,
+        [=,&hook](TiObject *&obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
+          if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+          hook = this->createBinaryFunction(manager, funcName.c_str(), types[j], types[j], STR("Int[1]"));
+          obj = hook.get();
+          return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+        }, 0
+      );
     }
   }
 
@@ -952,12 +279,14 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
       Str funcName = STR("#");
       funcName += assignmentOps[i];
 
-      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
-        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
-        hook = this->createBinaryFunction(manager, funcName.c_str(), refTypes[j], types[j], refTypes[j]);
-        obj = hook.get();
-        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-      }, 0);
+      manager->getSeeker()->set(&identifier, root,
+        [=,&hook](TiObject *&obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
+          if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+          hook = this->createBinaryFunction(manager, funcName.c_str(), refTypes[j], types[j], refTypes[j]);
+          obj = hook.get();
+          return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+        }, 0
+      );
     }
   }
 
@@ -971,12 +300,14 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
       Str funcName = STR("#");
       funcName += intAssignmentOps[i];
 
-      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
-        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
-        hook = this->createBinaryFunction(manager, funcName.c_str(), intRefTypes[j], intTypes[j], intRefTypes[j]);
-        obj = hook.get();
-        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-      }, 0);
+      manager->getSeeker()->set(&identifier, root,
+        [=,&hook](TiObject *&obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
+          if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+          hook = this->createBinaryFunction(manager, funcName.c_str(), intRefTypes[j], intTypes[j], intRefTypes[j]);
+          obj = hook.get();
+          return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+        }, 0
+      );
     }
   }
 
@@ -990,12 +321,14 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
       Str funcName = STR("#");
       funcName += unaryValOps[i];
 
-      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
-        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
-        hook = this->createUnaryFunction(manager, funcName.c_str(), types[j], types[j]);
-        obj = hook.get();
-        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-      }, 0);
+      manager->getSeeker()->set(&identifier, root,
+        [=,&hook](TiObject *&obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
+          if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+          hook = this->createUnaryFunction(manager, funcName.c_str(), types[j], types[j]);
+          obj = hook.get();
+          return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+        }, 0
+      );
     }
   }
 
@@ -1009,12 +342,14 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
       Str funcName = STR("#");
       funcName += intUnaryValOps[i];
 
-      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
-        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
-        hook = this->createUnaryFunction(manager, funcName.c_str(), intTypes[j], intTypes[j]);
-        obj = hook.get();
-        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-      }, 0);
+      manager->getSeeker()->set(&identifier, root,
+        [=,&hook](TiObject *&obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
+          if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+          hook = this->createUnaryFunction(manager, funcName.c_str(), intTypes[j], intTypes[j]);
+          obj = hook.get();
+          return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+        }, 0
+      );
     }
   }
 
@@ -1028,12 +363,14 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
       Str funcName = STR("#");
       funcName += unaryVarOps[i];
 
-      manager->getSeeker()->set(&identifier, root, [=,&hook](TiObject *&obj, Notice*)->Core::Data::Seeker::Verb {
-        if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
-        hook = this->createUnaryFunction(manager, funcName.c_str(), refTypes[j], types[j]);
-        obj = hook.get();
-        return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
-      }, 0);
+      manager->getSeeker()->set(&identifier, root,
+        [=,&hook](TiObject *&obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
+          if (obj != 0) return Core::Data::Seeker::Verb::MOVE;
+          hook = this->createUnaryFunction(manager, funcName.c_str(), refTypes[j], types[j]);
+          obj = hook.get();
+          return Core::Data::Seeker::Verb::PERFORM_AND_MOVE;
+        }, 0
+      );
     }
   }
 }
@@ -1061,7 +398,7 @@ void LibraryGateway::removeBuiltInFunctions(Core::Standard::RootManager *manager
     Str name = STR("__");
     name += operations[i];
     identifier.setValue(name.c_str());
-    manager->getSeeker()->doRemove(&identifier, root);
+    manager->getSeeker()->tryRemove(&identifier, root);
   }
 }
 
@@ -1070,7 +407,7 @@ SharedPtr<Ast::Function> LibraryGateway::createBinaryFunction(
   Core::Standard::RootManager *manager, Char const *name, Char const *in1, Char const *in2, Char const *out
 ) {
   auto retType = manager->parseExpression(out);
-  auto argTypes = Core::Data::SharedMap::create(false, {
+  auto argTypes = Core::Data::Ast::Map::create(false, {}, {
     { STR("in1"), manager->parseExpression(in1) },
     { STR("in2"), manager->parseExpression(in2) }
   });
@@ -1087,7 +424,7 @@ SharedPtr<Ast::Function> LibraryGateway::createUnaryFunction(
   Core::Standard::RootManager *manager, Char const *name, Char const *in, Char const *out
 ) {
   auto retType = manager->parseExpression(out);
-  auto argTypes = Core::Data::SharedMap::create(false, {
+  auto argTypes = Core::Data::Ast::Map::create(false, {}, {
     { STR("in"), manager->parseExpression(in) }
   });
   return Ast::Function::create({

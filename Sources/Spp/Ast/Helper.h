@@ -33,7 +33,7 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   private: Core::Standard::RootManager *rootManager;
   private: NodePathResolver *nodePathResolver;
 
-  private: Core::Processing::NoticeStore *noticeStore = 0;
+  private: Core::Notices::Store *noticeStore = 0;
   private: Template *refTemplate = 0;
   private: Template *ptrTemplate = 0;
   private: IntegerType *boolType = 0;
@@ -82,7 +82,7 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
 
   private: void initBindings();
 
-  public: void prepare(Core::Processing::NoticeStore *ns)
+  public: void prepare(Core::Notices::Store *ns)
   {
     this->noticeStore = ns;
     this->refTemplate = 0;
@@ -108,7 +108,7 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
     return this->rootManager->getSeeker();
   }
 
-  public: Core::Processing::NoticeStore* getNoticeStore() const
+  public: Core::Notices::Store* getNoticeStore() const
   {
     return this->noticeStore;
   }
@@ -142,12 +142,12 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
   public: METHOD_BINDING_CACHE(lookupCallee_iteration,
     Core::Data::Seeker::Verb, (
       TiObject*, Core::Basic::Container<TiObject> *, Spp::ExecutionContext const*,
-      CallMatchStatus&, Int&, SharedPtr<Core::Data::Notice>&, TiObject*&, Type*&
+      CallMatchStatus&, Int&, SharedPtr<Core::Notices::Notice>&, TiObject*&, Type*&
     )
   );
   private: static Core::Data::Seeker::Verb _lookupCallee_iteration(
     TiObject *self, TiObject *obj, Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
-    CallMatchStatus &matchStatus, Int &matchCount, SharedPtr<Core::Data::Notice> &notice,
+    CallMatchStatus &matchStatus, Int &matchCount, SharedPtr<Core::Notices::Notice> &notice,
     TiObject *&callee, Type *&calleeType
   );
 

@@ -1,9 +1,9 @@
-ERROR P1004 @ (11,10): Unexpected modifier encountered.
-ERROR P1004 @ (15,10): Unexpected modifier encountered.
-ERROR P1004 @ (19,10): Unexpected modifier encountered.
+ERROR CP1005 @ (11,10): Unexpected modifier encountered.
+ERROR CP1005 @ (15,10): Unexpected modifier encountered.
+ERROR CP1005 @ (19,10): Unexpected modifier encountered.
 ------------------ Parsed Data Dump ------------------
 Function f1 [Subject.Function]
- argTypes: alusus.net#Core#Core.Data.SharedMap
+ argTypes: Map
   x: Identifier: Int [Subject.Parameter]
   args: ArgPack 0 0
    argType: Identifier: Int [Subject.Parameter]
@@ -12,7 +12,7 @@ Function f1 [Subject.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
- argTypes: alusus.net#Core#Core.Data.SharedMap
+ argTypes: Map
   x: Identifier: Int [Subject.Parameter]
   args: ArgPack 0 0
    argType: Identifier: Int [Subject.Parameter]
@@ -21,7 +21,7 @@ Function  [Subject.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
- argTypes: alusus.net#Core#Core.Data.SharedMap
+ argTypes: Map
   x: Identifier: Int [Subject.Parameter]
   args: ArgPack 0 0
    argType: Identifier: Int [Subject.Parameter]
@@ -30,7 +30,7 @@ Function  [Subject.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
- argTypes: alusus.net#Core#Core.Data.SharedMap
+ argTypes: Map
   x: Identifier: Int [Subject.Parameter]
   args: ArgPack 0 0
    argType: Identifier: Int [Subject.Parameter]
@@ -39,7 +39,7 @@ Function  [Subject.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
- argTypes: alusus.net#Core#Core.Data.SharedMap
+ argTypes: Map
   x: Identifier: Int [Subject.Parameter]
   args: ArgPack 0 0
    argType: Identifier: Int [Subject.Parameter]
@@ -48,7 +48,7 @@ Function  [Subject.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
- argTypes: alusus.net#Core#Core.Data.SharedMap
+ argTypes: Map
   X: Identifier: Int [Subject.Parameter]
   args: ArgPack 0 0
    argType: NULL
@@ -57,7 +57,7 @@ Function  [Subject.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function f7 [Subject.Function]
- argTypes: alusus.net#Core#Core.Data.SharedMap
+ argTypes: Map
   X: ParamPass [] [Expression.ParamPassExp]
    operand: Identifier: ptr [Subject.Parameter]
    param: ParamPass [] [Expression.ParamPassExp]

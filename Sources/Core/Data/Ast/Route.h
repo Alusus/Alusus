@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Route.h
  * Contains the header of class Core::Data::Ast::Route.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,7 +20,7 @@ namespace Core { namespace Data { namespace Ast
 
 /**
  * @brief Contains parsed information of a single route in a PRT.
- * @ingroup data
+ * @ingroup core_data
  *
  * A decision made at an alternative or optional term is recorded in this object
  * by the GenericParsingHandler along with the child data resulting from
@@ -28,14 +28,14 @@ namespace Core { namespace Data { namespace Ast
  * compose the Parsing Representation Tree (PRT).
  */
 class Route : public Node,
-              public virtual Bindings, public virtual MapContainer, public virtual Metadata,
+              public virtual Bindings, public virtual Basic::MapContainer<TiObject>, public virtual Metadata,
               public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Route, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Bindings, MapContainer, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Bindings, Basic::MapContainer<TiObject>, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -72,7 +72,7 @@ class Route : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, data));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>, (data, TiObject, setData(value), data.get()));
 
   IMPLEMENT_AST_LIST_PRINTABLE(Route, << this->route.get());
 
@@ -131,6 +131,10 @@ class Route : public Node,
   public: void setData(SharedPtr<TiObject> const &d)
   {
     UPDATE_OWNED_SHAREDPTR(this->data, d);
+  }
+  private: void setData(TiObject *d)
+  {
+    this->setData(getSharedPtr(d));
   }
 
   /**

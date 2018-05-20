@@ -2,7 +2,7 @@
  * @file Tests/EndToEndTests/main.cpp
  * Contains the end-to-end test's main program.
  *
- * @copyright Copyright (C) 2014 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2018 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,11 +20,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-using Core::Data::Notice;
+using Core::Notices::Notice;
 using Core::Data::Ast::List;
 using Core::Standard::RootManager;
 
-namespace Tests { namespace EndToEndTests
+namespace Tests::EndToEndTests
 {
 
 Str resultFilename;
@@ -92,7 +92,7 @@ Bool compareStringEnd(Str const &str, Char const *end)
  *
  * @return Returns @c true if the function succeeds, otherwise @c false.
  */
-Bool RunSourceFile(Str const &fileName)
+Bool runSourceFile(Str const &fileName)
 {
   // Redirect stdout to a file.
   fpos_t pos;
@@ -104,7 +104,7 @@ Bool RunSourceFile(Str const &fileName)
   {
     // Prepare the root object;
     RootManager root;
-    Slot<void, SharedPtr<Core::Data::Notice> const&> noticeSlot(printNotice);
+    Slot<void, SharedPtr<Core::Notices::Notice> const&> noticeSlot(printNotice);
     root.noticeSignal.connect(noticeSlot);
 
     // Parse the provided filename.
@@ -160,7 +160,7 @@ Bool RunSourceFile(Str const &fileName)
  * @return Returns @c true if the run result matches the expected result,
  * otherwise @c false.
  */
-Bool CheckRunResult(Str const &fileName)
+Bool checkRunResult(Str const &fileName)
 {
   std::ifstream runResult(resultFilename);
   std::string runResultContent((std::istreambuf_iterator<char>(runResult)),
@@ -188,6 +188,24 @@ Bool CheckRunResult(Str const &fileName)
 
 
 /**
+ * Update the test snapshot with the result from the prev execution.
+ *
+ * @param[in] fileName  The name of Alusus source file name.
+ */
+void updateTestSnapshot(Str const &fileName)
+{
+  std::ifstream runResult(resultFilename);
+  std::string runResultContent((std::istreambuf_iterator<char>(runResult)),
+      std::istreambuf_iterator<char>());
+
+  std::ofstream expectedResult(fileName + ".output");
+  expectedResult << runResultContent;
+
+  std::cout << ">>> Test updated: " << fileName << std::endl;
+}
+
+
+/**
  * Runs the given Alusus source file and checks the result against an expected
  * content file. The expected result is stored in a file having the same name
  * of the source file followed by ".output" post-fix.
@@ -197,11 +215,16 @@ Bool CheckRunResult(Str const &fileName)
  * @return Returns @c true if the run result matches the expected result,
  * otherwise @c false.
  */
-Bool RunAndCheckSourceFile(Str const &fileName)
+Bool runAndCheckSourceFile(Str const &fileName)
 {
-  if (!RunSourceFile(fileName))
+  if (!runSourceFile(fileName))
     return false;
-  return CheckRunResult(fileName);
+  if (getenv(STR("ALUSUS_TEST_UPDATE")) != 0) {
+    updateTestSnapshot(fileName);
+    return true;
+  } else {
+    return checkRunResult(fileName);
+  }
 }
 
 
@@ -210,7 +233,7 @@ Bool RunAndCheckSourceFile(Str const &fileName)
  *
  * @return Returns @c true if all test succeeds, otherwise @c false.
  */
-Bool RunEndToEndTests(Str const &dirPath)
+Bool runEndToEndTests(Str const &dirPath)
 {
   DIR *dir;
   dirent *ent;
@@ -222,12 +245,12 @@ Bool RunEndToEndTests(Str const &dirPath)
       Str fileName(ent->d_name);
       Str filePath = dirPath + "/" + fileName;
       if (isDirectory(filePath.c_str()) && fileName != "." && fileName != "..") {
-        if (!RunEndToEndTests(filePath)) ret = false;
+        if (!runEndToEndTests(filePath)) ret = false;
       } else if (
         fileName.compare("common.alusus") != 0 && fileName.find("ignore.alusus") == std::string::npos &&
         (compareStringEnd(fileName, ".alusus") || compareStringEnd(fileName, ".أسس"))
       ) {
-        if (!RunAndCheckSourceFile(filePath)) ret = false;
+        if (!runAndCheckSourceFile(filePath)) ret = false;
       }
     }
     closedir(dir);
@@ -240,7 +263,7 @@ Bool RunEndToEndTests(Str const &dirPath)
   }
 }
 
-} } // namespace
+} // namespace
 
 
 using namespace Tests::EndToEndTests;
@@ -265,15 +288,15 @@ int main(int argc, char **argv)
   resultFilename += "AlususEndToEndTest.txt";
 
   auto ret = EXIT_SUCCESS;
-  //  if (!RunEndToEndTests("./Tests/General"))
+  //  if (!runEndToEndTests("./Tests/General"))
   //    ret = EXIT_FAILURE;
-  //  if (!RunEndToEndTests("./Tests/Arabic"))
+  //  if (!runEndToEndTests("./Tests/Arabic"))
   //    ret = EXIT_FAILURE;
-  //  if (!RunEndToEndTests("./Tests/Ported_C_Examples"))
+  //  if (!runEndToEndTests("./Tests/Ported_C_Examples"))
   //    ret = EXIT_FAILURE;
-  if (!RunEndToEndTests("./Tests/Core"))
+  if (!runEndToEndTests("./Tests/Core"))
     ret = EXIT_FAILURE;
-  if (!RunEndToEndTests("./Tests/Spp"))
+  if (!runEndToEndTests("./Tests/Spp"))
     ret = EXIT_FAILURE;
 
   std::remove(resultFilename.c_str());

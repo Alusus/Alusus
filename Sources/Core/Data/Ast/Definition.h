@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Definition.h
  * Contains the header of class Core::Data::Ast::Definition.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class Definition : public Node,
-                   public virtual Bindings, public virtual MapContainer, public virtual Metadata,
+                   public virtual Bindings, public virtual Basic::MapContainer<TiObject>, public virtual Metadata,
                    public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Definition, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Bindings, MapContainer, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Bindings, Basic::MapContainer<TiObject>, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -47,7 +47,7 @@ class Definition : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINER(MapContainer, (TiObject, target));
+  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>, (target, TiObject, setTarget(value), target.get()));
 
 
   //============================================================================
@@ -85,6 +85,10 @@ class Definition : public Node,
   public: void setTarget(TioSharedPtr const &t)
   {
     UPDATE_OWNED_SHAREDPTR(this->target, t);
+  }
+  private: void setTarget(TiObject *t)
+  {
+    this->setTarget(getSharedPtr(t));
   }
 
   public: TioSharedPtr const& getTarget() const

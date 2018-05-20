@@ -2,7 +2,7 @@
  * @file Tests/CoreTests/Main_tests.h
  * Contain's the Core::Main namespace's unit tests.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -276,7 +276,7 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
     }
     SECTION("s2", "Error msgs correct.")
     {
-      SharedPtr<Data::Notice> msg;
+      SharedPtr<Notices::Notice> msg;
       if (notices.getNoticeCount() > 0) msg = notices.getMsg(0);
       CHECK((msg != 0));
       CHECK(msg->getCode().compare("P1001") == 0);
@@ -285,7 +285,7 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
       CHECK(sl->line == 3);
       CHECK(sl->column == 10);
 
-      msg = SharedPtr<Data::Notice>(0);
+      msg = SharedPtr<Notices::Notice>(0);
       if (notices.getNoticeCount() > 1) msg = notices.getMsg(1);
       CHECK((msg != 0));
       CHECK(msg->getCode().compare("P1001") == 0);
@@ -294,7 +294,7 @@ TEST_CASE("Core::Main/error", "Multiple Statements With Syntax Error Test")
       CHECK(sl->line == 5);
       CHECK(sl->column == 13);
 
-      msg = SharedPtr<Data::Notice>(0);
+      msg = SharedPtr<Notices::Notice>(0);
       if (notices.getNoticeCount() > 2) msg = notices.getMsg(2);
       CHECK((msg != 0));
       CHECK(msg->getCode().compare("P1002") == 0);

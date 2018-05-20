@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Data
  * namespace.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -14,11 +14,8 @@
 #ifndef CORE_DATA_DATA_H
 #define CORE_DATA_DATA_H
 
-namespace Core { namespace Data
-{
-
 /**
- * @defgroup data Data
+ * @defgroup core_data Data
  * @ingroup core
  * @brief Classes that contains definitions data.
  *
@@ -26,33 +23,30 @@ namespace Core { namespace Data
  * hold the data used in definitions.
  */
 
-/**
- * @defgroup data_containers Container Classes
- * @ingroup data
- * @brief Classes for objects that contain other data objects.
- */
 
-/**
- * @defgroup data_terms Term Classes
- * @ingroup data
- * @brief Terms of symbol formulas.
- */
+//==============================================================================
+// Forward Class Definitions
 
-/**
- * @defgroup data_ast AST Classes
- * @ingroup data
- * @brief Abstract Syntax Tree classes.
- */
+namespace Core::Data
+{
+  class Node;
+  class Module;
+  class Provider;
+  class Seeker;
+  class SourceLocation;
+}
+
+namespace Core::Notices
+{
+  class Notice;
+}
 
 
 //==============================================================================
 // Data Types
 
-/**
- * @brief Specifies the repository index of each grammar scope.
- * Each of the scopes will have a fixed index within the repository.
- */
-s_enum(GrammarScopeIndex, ROOT=0, MODULE=1, PMODULE=2, STACK=3, ARGS=4);
+namespace Core::Data
+{
 
 /**
  * @brief An enumeration that specifies the usage criteria of references.
@@ -68,6 +62,7 @@ s_enum(GrammarScopeIndex, ROOT=0, MODULE=1, PMODULE=2, STACK=3, ARGS=4);
  *                          data repository, but can match multiple targets.
  * MULTI_DATA: The reference can be used against different data repositories.
  */
+// OBSOLETE:
 s_enum(ReferenceUsageCriteria, SINGLE_DATA_SINGLE_MATCH, SINGLE_DATA_MULTI_MATCH, MULTI_DATA);
 
 /**
@@ -83,36 +78,12 @@ s_enum(ReferenceUsageCriteria, SINGLE_DATA_SINGLE_MATCH, SINGLE_DATA_MULTI_MATCH
  * PERFORM_AND_STOP: Perform the requested operation on this match, then stop
  *                   and ignore other possible matches.
  */
+// OBSOLETE:
 s_enum(RefOp, MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP);
 
 /**
- * @brief An enumeration used to define term flags.
- * @ingroup data
- *
- * ERROR_SYNC_TERM: Specifies that the given term is an error sync term, which
- *                  means that in the case of syntax errors the parser should
- *                  wait at that term for a sync token.
- * ONE_ROUTE_TERM: Specifies that the given multi-route term (alternate or
- *                 multiply terms) only allows one route to be accepted. If a
- *                 route is found the state machine will not try to test the
- *                 lower priority routes.
- */
-s_enum(TermFlags, ERROR_SYNC_TERM=(1<<16), ONE_ROUTE_TERM=(1<<17));
-
-/**
- * @brief An enumeration used to define symbol flags.
- * @ingroup data
- *
- * ROOT_TOKEN: Specifies that the symbol is a root token that should be checked
- *             by the lexer when it starts a new token. The lexer loops through
- *             all symbols in the lexer module that has this flag set and skips
- *             other symbol definitions.
- */
-s_enum(SymbolFlags, ROOT_TOKEN=(1<<16), IGNORED_TOKEN=(1<<17));
-
-/**
  * @brief An enumeration for change operation of Containers' contents.
- * @ingroup data
+ * @ingroup core_data
  *
  * This enumeration is used to specifiy the type of the operation happneing on
  * Containers. This is used by containers' contentChangeNotifier.
@@ -121,80 +92,33 @@ s_enum(SymbolFlags, ROOT_TOKEN=(1<<16), IGNORED_TOKEN=(1<<17));
  * UPDATE: The operation is an update of an existing element.
  * REMOVE: The operation is a removal of an existing element.
  */
+// OBSOLETE:
 s_enum(ContentChangeOp, ADD, UPDATE, REMOVE);
 
-/**
- * @brief An enumeration for metadata elements of GrammarModule.
- * @ingroup data
- *
- * This enumeration is used to refer to an element within GrammarModule's
- * meta data. It's needed by GrammarModule::metaChangeNotifier.
- */
-s_enum(GrammarModuleMetaElement, START_REF=1,
-                                 LEXER_MODULE_REF=2,
-                                 ERROR_SYNC_BLOCK_PAIRS_REF=4,
-                                 ALL=static_cast<Word>(-1));
-
-/**
- * @brief An enumeration for change operations of SymbolDefinition.
- * @ingroup data
- *
- * This enumration is used to specify the type of the operation happening on
- * SymbolDefinition. This is used by SymbolDefinition::changeNotifier.
- *
- * UPDATE: An element is being updated.
- * DESTROY: The entire Symbol is being destroyed.
- */
-s_enum(SymbolDefChangeOp, UPDATE, DESTROY);
-
-/**
- * @brief An enumeration for the different member elements in SymbolDefinition.
- * @ingroup data
- *
- * This enumeration is used to refer to an element within SymbolDefinition.
- * This is needed by SymbolDefinition::changeNotifier as well as the
- * constructors.
- */
-s_enum(SymbolDefElement, PARENT_REF=1, TERM=2, VAR_DEFS=4, VARS=8, HANDLER=16, PRIORITY=32, FLAGS=64,
-                         ATTRIBUTES=128, ALL=static_cast<Word>(-1));
-
-/**
- * @brief An enumeration for the different member elements of Term objects.
- * @ingroup data
- */
-s_enum(TermElement, FLAGS=1, REF=2, DATA=4, TERM=8, ESPI=16, PRIORITY=32, MIN=64, MAX=128, ID=256, TEXT=512);
-
-
-//==============================================================================
-// Forward Class Definitions
-
-class Node;
-class Module;
-class Provider;
-class CharGroupUnit;
-class Seeker;
-class Notice;
-class SourceLocation;
+} // namespace
 
 
 //==============================================================================
 // Functions
 
+namespace Core::Data
+{
+
 /**
  * A helper function to check whether 'op' is any of the perform values.
- * @ingroup data
+ * @ingroup core_data
  */
 Bool isPerform(RefOp op);
 
 /**
  * A helper function to check whether 'op' is any of the move values.
- * @ingroup data
+ * @ingroup core_data
  */
 Bool isMove(RefOp op);
 
 /**
  * Reset the indexes of all references in a specific range within a tree.
- * @ingroup data
+ * @ingroup core_data
  * Call the unsetIndexes method of DataOwner interface, if implemented by
  * the object.
  */
@@ -202,37 +126,37 @@ void unsetIndexes(TiObject *obj, Int from, Int to);
 
 /**
  * @brief Set the IDs of all elements in a given tree.
- * @ingroup data
+ * @ingroup core_data
  * Sets the ID of the given object, and the IDs of any objects contained within
  * the given object if the given object is a container. The ids will be the
  * concatenated container keys that lead to the given object from the root.
  * @sa generateId()
  */
-void setTreeIds(TiObject *obj);
+void setTreeIds(TiObject *obj, Node *root);
 
 /**
  * @brief Set the IDs of all elements in a given tree.
- * @ingroup data
+ * @ingroup core_data
  * Sets the ID of the given object, and the IDs of any objects contained within
  * the given object if the given object is a container. The IDs of inner
  * objects will have the format: <id>.<childName>
  */
-void setTreeIds(TiObject *obj, const Char *id);
+void setTreeIds(TiObject *obj, Node *root, const Char *id);
 
 /**
  * @brief Generate an ID for the given object.
- * @ingroup data
+ * @ingroup core_data
  * This function will generate the ID by tracing the owners of the given object
  * all the way to the root and generate the ID from the concatenated keys that
  * leads to the given object.
  * @param obj The object for which to generate the ID.
  * @param id A string stream to hold the generated ID.
  */
-void generateId(Node *obj, StrStream &id);
+void generateId(Node *obj, Node *root, StrStream &id);
 
 /**
  * @brief Find an object in the chain of owners with the given type.
- * @ingroup data
+ * @ingroup core_data
  * If the given object is of the given type, it will be returned.
  */
 Node* findOwner(Node *obj, TypeInfo *typeInfo);
@@ -243,22 +167,8 @@ template <class T> T* findOwner(Node *obj)
 }
 
 /**
- * @brief Match a given character to a character group hierarchy.
- * @ingroup data
- * Recursively matches the given character to the given character group. This
- * recursive function will descend into the entire character group tree to
- * match the given character.
- *
- * @param ch The character to match.
- * @param unit A pointer to the character group unit object to match. This
- *             object can be a the head of a tree of CharGroupUnit objects.
- * @return Returns true if the character matches, false otherwise.
- */
-Bool matchCharGroup(WChar ch, CharGroupUnit *unit);
-
-/**
  * @brief Print the given object to the given stream.
- * @ingroup data
+ * @ingroup core_data
  *
  * If the object implements the Printable interface, it will pass the call to
  * that interface, otherwise it will print the object type and the production
@@ -266,22 +176,18 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit);
  */
 void dumpData(OutStream &stream, TiObject *ptr, int indents);
 
-/**
- * @brief Print the provided notices to the console.
- * @ingroup data
- *
- * Printed notice includes severity, msg code, location, as well as
- * description.
- */
-void printNotice(Notice const *msg);
-
 Word getSourceLocationRecordCount(SourceLocation const *sl);
 
 // TODO: Find module for other dimensions.
 
+} // namespace
+
 
 //==============================================================================
 // Function Signature Definitions
+
+namespace Core::Data
+{
 
 typedef std::function<RefOp(Int index, TiObject *&obj)> ReferenceSetLambda;
 typedef std::function<RefOp(Int index, TiObject *obj)> ReferenceRemoveLambda;
@@ -291,13 +197,15 @@ typedef std::function<RefOp(Int index, TiObject *&obj)> SeekerSetLambda;
 typedef std::function<RefOp(Int index, TiObject *obj)> SeekerRemoveLambda;
 typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerForeachLambda;
 
+} // namespace
+
 
 //==============================================================================
 // Macros
 
 /**
  * @brief Set the owner of ptr to this if ptr is of type Node.
- * @ingroup data
+ * @ingroup core_data
  */
 #define OWN_SHAREDPTR(ptr) \
   { \
@@ -309,7 +217,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 
 /**
  * @brief A plain pointer version of OWN_SHAREDPTR.
- * @ingroup data
+ * @ingroup core_data
  * @sa OWN_SHAREDPTR()
  */
 #define OWN_PLAINPTR(ptr) \
@@ -322,7 +230,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 
 /**
  * @brief Reset the owner of ptr if ptr is of type Node.
- * @ingroup data
+ * @ingroup core_data
  */
 #define DISOWN_SHAREDPTR(ptr) \
   { \
@@ -334,7 +242,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 
 /**
  * @brief A plain pointer version of DIWOWN_SHAREDPTR.
- * @ingroup data
+ * @ingroup core_data
  * @sa DISOWN_SHAREDPTR()
  */
 #define DISOWN_PLAINPTR(ptr) \
@@ -347,7 +255,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 
 /**
  * @brief A macro to make it easy to set and update owned object pointers.
- * @ingroup data
+ * @ingroup core_data
  * This macro will first reset the owner of the current object before setting
  * the new object and setting the owner of the new object.
  */
@@ -360,7 +268,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 
 /**
  * @brief A plain pointer version of UPDATED_OWNED_SHAREDPTR.
- * @ingroup data
+ * @ingroup core_data
  * @sa UPDATED_OWNED_SHARED_PTR()
  */
 #define UPDATE_OWNED_PLAINPTR(ptr, val) \
@@ -372,7 +280,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 
 /**
  * @brief A macro to simplify resetting a pointer to an owned object.
- * @ingroup data
+ * @ingroup core_data
  * This macro will first reset the owner of the object before resetting the
  * pointer.
  */
@@ -384,7 +292,7 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 
 /**
  * @brief A plain pointer version of RESET_OWNED_SHAREDPTR.
- * @ingroup data
+ * @ingroup core_data
  * @sa RESET_OWNED_SHAREDPTR()
  */
 #define RESET_OWNED_PLAINPTR(ptr) \
@@ -393,29 +301,16 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
     (ptr) = 0; \
   }
 
-} } // namespace
-
 
 //==============================================================================
 // Classes
 
 #include "Node.h"
 
-namespace Core { namespace Data
-{
-
-typedef TiNumber<Int, Node> Integer;
-typedef TiStrBase<Node> String;
-
-} } // namespace
-
 // Helpers
-#include "constructor_helpers.h"
 #include "paired_pointers.h"
 #include "IdGenerator.h"
 #include "source_location.h"
-#include "Notice.h"
-#include "CustomNotice.h"
 
 // Generic Data Interfaces
 #include "DataOwner.h"
@@ -423,6 +318,10 @@ typedef TiStrBase<Node> String;
 #include "IdHolder.h"
 #include "Clonable.h"
 #include "Printable.h"
+
+// Containers
+#include "NbList.h"
+#include "NbMap.h"
 
 // Container Interfaces
 #include "Container.h"
@@ -459,42 +358,21 @@ typedef TiStrBase<Node> String;
 #include "PlainNamedList.h"
 #include "Module.h"
 #include "VariableStack.h"
+#include "DataStack.h"
 #include "SharedRepository.h"
 #include "PlainRepository.h"
 
 // Grammar Classes
 //----------------
 #include "Token.h"
-// Character Groups
-#include "CharGroupUnit.h"
-#include "SequenceCharGroupUnit.h"
-#include "RandomCharGroupUnit.h"
-#include "UnionCharGroupUnit.h"
-#include "InvertCharGroupUnit.h"
-#include "CharGroupDefinition.h"
-// Terms
-#include "Term.h"
-#include "ConstTerm.h"
-#include "CharGroupTerm.h"
-#include "ListTerm.h"
-#include "ConcatTerm.h"
-#include "AlternateTerm.h"
-#include "MultiplyTerm.h"
-#include "ReferenceTerm.h"
-#include "TokenTerm.h"
-// Other Grammar Classes
-#include "BuildHandler.h"
-#include "SymbolDefinition.h"
-// TODO: #include "SymbolGroup.h"
-#include "GrammarModule.h"
-#include "ParsingDimension.h"
 #include "Tracer.h"
-#include "GrammarRepository.h"
-#include "GrammarContext.h"
-#include "GrammarPlant.h"
 // TODO: #include "ExtensionManager.h"
 // TODO: ExtensionManager manages extensions to grammar (loaded using import for example). And it automatically
 //       manages the IDs of those extension definitions (rather than the IDs remain invalid until merged with DataStore).
+
+// Grammar
+//--------
+#include "Grammar/grammar.h"
 
 // Abstract Syntax Tree
 //---------------------
