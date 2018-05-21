@@ -32,7 +32,7 @@ class DataStack : public TiObject, public virtual ListContainer
   //============================================================================
   // Member Variables
 
-  private: Basic::SharedList<TiObject, TiObject> stack;
+  private: Basic::SharedList<TiObject> stack;
 
   private: DataStack *trunkStack;
   private: Int trunkIndex;

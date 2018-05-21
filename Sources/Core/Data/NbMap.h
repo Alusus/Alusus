@@ -29,18 +29,18 @@ class NbMap : public Node, public virtual Basic::MapContainer<TiObject>, public 
   //============================================================================
   // Member Variables
 
-  private: Basic::SharedMap<TiObject, TiObject> map;
+  private: Basic::SharedMap<TiObject> map;
   private: NbMap *base = 0;
 
 
   //============================================================================
-  // Member Variables
+  // Signals and Slots
 
   public: Signal<void, NbMap*> destroyNotifier;
   public: Signal<void, NbMap*, Basic::ContentChangeOp, Int> changeNotifier;
 
-  private: Slot<void, Basic::SharedMap<TiObject, TiObject>*, Basic::ContentChangeOp, Int> contentChangeSlot = {
-    [=](Basic::SharedMap<TiObject, TiObject>* map, Basic::ContentChangeOp changeOp, Int index)->void
+  private: Slot<void, Basic::SharedMap<TiObject>*, Basic::ContentChangeOp, Int> contentChangeSlot = {
+    [=](Basic::SharedMap<TiObject>* map, Basic::ContentChangeOp changeOp, Int index)->void
     {
       this->changeNotifier.emit(this, changeOp, index);
     }
@@ -105,7 +105,7 @@ class NbMap : public Node, public virtual Basic::MapContainer<TiObject>, public 
   /// @name Data Access Functions
   /// @{
 
-  protected: Basic::SharedMap<TiObject, TiObject>* getSharedMap()
+  protected: Basic::SharedMap<TiObject>* getSharedMap()
   {
     return &this->map;
   }

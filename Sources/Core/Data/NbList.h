@@ -29,18 +29,18 @@ class NbList : public Node, public virtual Basic::ListContainer<TiObject>, publi
   //============================================================================
   // Member Variables
 
-  private: Basic::SharedList<TiObject, TiObject> list;
+  private: Basic::SharedList<TiObject> list;
   private: NbList *base = 0;
 
 
   //============================================================================
-  // Member Variables
+  // Signals and Slots
 
   public: Signal<void, NbList*> destroyNotifier;
   public: Signal<void, NbList*, Basic::ContentChangeOp, Int> changeNotifier;
 
-  private: Slot<void, SharedList<TiObject, TiObject>*, Basic::ContentChangeOp, Int> contentChangeSlot = {
-    [=](SharedList<TiObject, TiObject>* map, Basic::ContentChangeOp changeOp, Int index)->void
+  private: Slot<void, SharedList<TiObject>*, Basic::ContentChangeOp, Int> contentChangeSlot = {
+    [=](SharedList<TiObject>* l, Basic::ContentChangeOp changeOp, Int index)->void
     {
       this->changeNotifier.emit(this, changeOp, index);
     }
@@ -97,7 +97,7 @@ class NbList : public Node, public virtual Basic::ListContainer<TiObject>, publi
   /// @name Data Access Functions
   /// @{
 
-  protected: SharedList<TiObject, TiObject>* getSharedList()
+  protected: SharedList<TiObject>* getSharedList()
   {
     return &this->list;
   }

@@ -16,7 +16,7 @@
 namespace Core { namespace Basic
 {
 
-typedef SharedMap<TiObject, TiObject> BindingMapBase;
+typedef SharedMap<TiObject> BindingMapBase;
 
 class BindingMap : public BindingMapBase
 {

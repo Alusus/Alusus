@@ -16,7 +16,7 @@
 namespace Core { namespace Basic
 {
 
-template<class CTYPE, class PTYPE> class SharedList : public PTYPE, public virtual ListContainer<CTYPE>
+template<class CTYPE, class PTYPE=TiObject> class SharedList : public PTYPE, public virtual ListContainer<CTYPE>
 {
   //============================================================================
   // Type Info
@@ -98,7 +98,7 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE, public virtu
     return this->base != 0 ? this->base->getCount() : 0;
   }
 
-  private: virtual void attachToBase(SharedList<CTYPE, PTYPE> *b)
+  private: void attachToBase(SharedList<CTYPE, PTYPE> *b)
   {
     ASSERT(this->base == 0);
     ASSERT(this->inherited == 0);
@@ -109,7 +109,7 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE, public virtu
     this->inheritFromBase();
   }
 
-  private: virtual void detachFromBase()
+  private: void detachFromBase()
   {
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
@@ -137,12 +137,12 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE, public virtu
     }
   }
 
-  private: virtual SharedPtr<CTYPE> getFromBase(Int index)
+  private: SharedPtr<CTYPE> getFromBase(Int index)
   {
     return this->base->get(index);
   }
 
-  private: virtual void onAdded(Int index)
+  private: void onAdded(Int index)
   {
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
@@ -152,7 +152,7 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE, public virtu
     this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
   }
 
-  private: virtual void onUpdated(Int index)
+  private: void onUpdated(Int index)
   {
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
@@ -163,7 +163,7 @@ template<class CTYPE, class PTYPE> class SharedList : public PTYPE, public virtu
     }
   }
 
-  private: virtual void onRemoved(Int index)
+  private: void onRemoved(Int index)
   {
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);

@@ -144,9 +144,9 @@ class GrammarModule : public NbMap, public virtual Bindings, public virtual Init
     return this->base;
   }
 
-  private: virtual void attachToBase(GrammarModule *p);
+  private: void attachToBase(GrammarModule *p);
 
-  private: virtual void detachFromBase();
+  private: void detachFromBase();
 
   private: void onBaseDestroyed(GrammarModule *obj)
   {

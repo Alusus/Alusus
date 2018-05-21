@@ -16,7 +16,7 @@
 namespace Core { namespace Basic
 {
 
-template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtual MapContainer<CTYPE>
+template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, public virtual MapContainer<CTYPE>
 {
   //============================================================================
   // Type Info
@@ -136,7 +136,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
     else return 0;
   }
 
-  private: virtual void attachToBase(SharedMap<CTYPE, PTYPE> *b)
+  private: void attachToBase(SharedMap<CTYPE, PTYPE> *b)
   {
     ASSERT(this->base == 0);
     ASSERT(this->inherited == 0);
@@ -147,7 +147,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
     this->inheritFromBase();
   }
 
-  private: virtual void detachFromBase()
+  private: void detachFromBase()
   {
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
@@ -175,17 +175,17 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
     }
   }
 
-  private: virtual SharedPtr<CTYPE> getFromBase(Int index)
+  private: SharedPtr<CTYPE> getFromBase(Int index)
   {
     return this->base->get(index);
   }
 
-  private: virtual SbStr const& getKeyFromBase(Int index)
+  private: SbStr const& getKeyFromBase(Int index)
   {
     return this->base->getKey(index);
   }
 
-  private: virtual void onAdded(Int index)
+  private: void onAdded(Int index)
   {
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
@@ -210,7 +210,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
     this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
   }
 
-  private: virtual void onUpdated(Int index)
+  private: void onUpdated(Int index)
   {
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
@@ -221,7 +221,7 @@ template<class CTYPE, class PTYPE> class SharedMap : public PTYPE, public virtua
     }
   }
 
-  private: virtual void onRemoved(Int index)
+  private: void onRemoved(Int index)
   {
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
