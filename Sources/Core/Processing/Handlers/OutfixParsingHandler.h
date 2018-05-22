@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/OutfixParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::OutfixParsingHandler
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -90,7 +90,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
     obj->setOperand(data);
     obj->setType(token->getText());
 
-    auto metadata = currentData.ti_cast_get<Data::Ast::Metadata>();
+    auto metadata = currentData.ti_cast_get<Data::Ast::MetaHaving>();
     if (metadata != 0) {
       obj->setSourceLocation(metadata->findSourceLocation());
     }
@@ -110,7 +110,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
     obj->setOperand(currentData);
     obj->setType(token->getText());
 
-    auto metadata = currentData.ti_cast_get<Data::Ast::Metadata>();
+    auto metadata = currentData.ti_cast_get<Data::Ast::MetaHaving>();
     if (metadata != 0) {
       obj->setSourceLocation(metadata->findSourceLocation());
     }

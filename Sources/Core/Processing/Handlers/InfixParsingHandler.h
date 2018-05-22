@@ -101,7 +101,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     obj->setType(token->getText());
     obj->setSecond(list->get(1));
 
-    auto metadata = currentData.ti_cast_get<Data::Ast::Metadata>();
+    auto metadata = currentData.ti_cast_get<Data::Ast::MetaHaving>();
     if (metadata != 0) {
       obj->setSourceLocation(metadata->findSourceLocation());
     }

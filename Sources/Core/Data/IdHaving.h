@@ -1,8 +1,8 @@
 /**
- * @file Core/Data/IdHolder.h
- * Contains the header of interface Data::IdHolder.
+ * @file Core/Data/IdHaving.h
+ * Contains the header of interface Data::IdHaving.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,20 +10,20 @@
  */
 //==============================================================================
 
-#ifndef CORE_DATA_IDHOLDER_H
-#define CORE_DATA_IDHOLDER_H
+#ifndef CORE_DATA_IDHAVING_H
+#define CORE_DATA_IDHAVING_H
 
-namespace Core { namespace Data
+namespace Core::Data
 {
 
 // TODO: DOC
 
-class IdHolder : public TiInterface
+class IdHaving : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(IdHolder, TiInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(IdHaving, TiInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
@@ -49,9 +49,9 @@ class IdHolder : public TiInterface
 //==============================================================================
 // Macros
 
-#define IMPLEMENT_IDHOLDER(type) \
+#define IMPLEMENT_IDHAVING(type) \
   private: Core::Basic::TiWord id = UNKNOWN_ID; \
-  using Core::Data::IdHolder::setId; \
+  using Core::Data::IdHaving::setId; \
   public: virtual void setId(Word id) \
   { \
     this->id = id; \
@@ -65,6 +65,6 @@ class IdHolder : public TiInterface
     return this->id; \
   }
 
-} } // namespace
+} // namespace
 
 #endif

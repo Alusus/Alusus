@@ -19,13 +19,13 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class OutfixOperator : public Node,
-                       public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual Metadata
+                       public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual MetaHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(OutfixOperator, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, Metadata);
+  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, MetaHaving);
 
 
   //============================================================================
@@ -38,7 +38,7 @@ class OutfixOperator : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METADATA(OutfixOperator);
+  IMPLEMENT_METAHAVING(OutfixOperator);
 
   IMPLEMENT_BINDING(Binding,
     (type, TiStr, VALUE, setType(value), &type),

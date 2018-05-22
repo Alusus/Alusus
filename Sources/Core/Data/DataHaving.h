@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/DataOwner.h
- * Contains the header of interface Data::DataOwner.
+ * @file Core/Data/DataHaving.h
+ * Contains the header of interface Data::DataHaving.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef CORE_DATA_DATAOWNER_H
-#define CORE_DATA_DATAOWNER_H
+#ifndef CORE_DATA_DATAHAVING_H
+#define CORE_DATA_DATAHAVING_H
 
-namespace Core { namespace Data
+namespace Core::Data
 {
 
 // TODO: DOC
@@ -25,12 +25,12 @@ namespace Core { namespace Data
  * Classes that owns children need to implement this class to provide those
  * functionalitites.
  */
-class DataOwner : public TiInterface
+class DataHaving : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(DataOwner, TiInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(DataHaving, TiInterface, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
@@ -40,6 +40,6 @@ class DataOwner : public TiInterface
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

@@ -25,7 +25,7 @@ void unsetIndexes(TiObject *obj, Int from, Int to)
   if (obj == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("obj"), STR("Obj is null."));
   }
-  DataOwner *mt = obj->getInterface<DataOwner>();
+  DataHaving *mt = obj->getInterface<DataHaving>();
   if (mt != 0) mt->unsetIndexes(from, to);
 }
 
@@ -41,7 +41,7 @@ void setTreeIds(TiObject *obj, Node *root)
 
 void setTreeIds(TiObject *obj, Node *root, const Char *id)
 {
-  IdHolder *idh = tii_cast<IdHolder>(obj);
+  IdHaving *idh = tii_cast<IdHaving>(obj);
   if (idh != 0) idh->setId(ID_GENERATOR->getId(id));
 
   StrStream childId;
@@ -117,7 +117,7 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
     printable->print(stream, indents);
   } else {
     stream << ptr->getMyTypeInfo()->getUniqueName();
-    auto metadata = ti_cast<Ast::Metadata>(ptr);
+    auto metadata = ti_cast<Ast::MetaHaving>(ptr);
     if (metadata) {
       Word id = metadata->getProdId();
       if (id != UNKNOWN_ID) {

@@ -42,7 +42,7 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
 
     auto expr = state->getData().ti_cast_get<Core::Data::Ast::List>();
     ASSERT(expr != 0);
-    auto exprMetadata = ti_cast<Core::Data::Ast::Metadata>(expr);
+    auto exprMetadata = ti_cast<Core::Data::Ast::MetaHaving>(expr);
     ASSERT(exprMetadata != 0);
 
     if (expr->getCount() != 3) {

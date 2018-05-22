@@ -47,17 +47,17 @@ constexpr Char const* META_EXTRA_CODE_GEN = STR("codeGen");
 // tryGetCodeGenData
 
 template <class DT, class OT,
-          typename std::enable_if<std::is_base_of<Core::Data::Ast::Metadata, OT>::value, int>::type = 0>
+          typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline DT* tryGetCodeGenData(OT *object)
 {
   return object->getExtra(META_EXTRA_CODE_GEN).template ti_cast_get<DT>();
 }
 
 template <class DT, class OT,
-          typename std::enable_if<!std::is_base_of<Core::Data::Ast::Metadata, OT>::value, int>::type = 0>
+          typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline DT* tryGetCodeGenData(OT *object)
 {
-  auto metadata = ti_cast<Core::Data::Ast::Metadata>(object);
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) return 0;
   return metadata->getExtra(META_EXTRA_CODE_GEN).template ti_cast_get<DT>();
 }
@@ -77,19 +77,19 @@ inline DT* getCodeGenData(OT *object)
 // setCodeGenData
 
 template <class DT, class OT,
-          typename std::enable_if<std::is_base_of<Core::Data::Ast::Metadata, OT>::value, int>::type = 0>
+          typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline void setCodeGenData(OT *object, Core::Basic::SharedPtr<DT> const &data)
 {
   object->setExtra(META_EXTRA_CODE_GEN, data);
 }
 
 template <class DT, class OT,
-          typename std::enable_if<!std::is_base_of<Core::Data::Ast::Metadata, OT>::value, int>::type = 0>
+          typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline void setCodeGenData(OT *object, Core::Basic::SharedPtr<DT> const &data)
 {
-  auto metadata = ti_cast<Core::Data::Ast::Metadata>(object);
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the Metadata interface."));
+    throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the MetaHaving interface."));
   }
   metadata->setExtra(META_EXTRA_CODE_GEN, data);
 }

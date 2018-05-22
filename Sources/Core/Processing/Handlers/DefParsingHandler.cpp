@@ -28,7 +28,7 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
 
   auto expr = state->getData().ti_cast_get<Core::Data::Ast::List>();
   ASSERT(expr != 0);
-  auto exprMetadata = ti_cast<Core::Data::Ast::Metadata>(expr);
+  auto exprMetadata = ti_cast<Core::Data::Ast::MetaHaving>(expr);
   ASSERT(exprMetadata != 0);
 
   Core::Data::Ast::LinkOperator *linkOp = 0;

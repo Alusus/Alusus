@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Ast/Metadata.h
- * Contains the header of interface Data::Ast::Metadata.
+ * @file Core/Data/Ast/MetaHaving.h
+ * Contains the header of interface Data::Ast::MetaHaving.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,20 +10,20 @@
  */
 //==============================================================================
 
-#ifndef CORE_DATA_AST_METADATA_H
-#define CORE_DATA_AST_METADATA_H
+#ifndef CORE_DATA_AST_METAHAVING_H
+#define CORE_DATA_AST_METAHAVING_H
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
 // TODO: DOC
 
-class Metadata : public TiInterface
+class MetaHaving : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(Metadata, TiInterface, "Core.Data.Ast", "Core", "alusus.net");
+  INTERFACE_INFO(MetaHaving, TiInterface, "Core.Data.Ast", "Core", "alusus.net");
 
 
   //============================================================================
@@ -89,7 +89,7 @@ class Metadata : public TiInterface
       Containing<TiObject> const *container = this->getTiObject()->getInterface<Containing<TiObject> const>();
       if (container != 0) {
         for (Int i = 0; i < container->getElementCount(); ++i) {
-          Metadata *ptr = ti_cast<Metadata>(container->getElement(i));
+          MetaHaving *ptr = ti_cast<MetaHaving>(container->getElement(i));
           if (ptr != 0) {
             SharedPtr<SourceLocation> const &sl2 = ptr->findSourceLocation();
             if (sl2 != 0) return sl2;
@@ -109,11 +109,11 @@ class Metadata : public TiInterface
 //==============================================================================
 // Macros
 
-#define IMPLEMENT_METADATA(type) \
+#define IMPLEMENT_METAHAVING(type) \
   private: Core::Basic::TiWord prodId = UNKNOWN_ID; \
   private: Core::Basic::SharedPtr<Core::Data::SourceLocation> sourceLocation; \
   private: Core::Basic::SharedMap<Core::Basic::TiObject, Core::Basic::TiObject> extras; \
-  public: using Metadata::setProdId; \
+  public: using MetaHaving::setProdId; \
   public: virtual void setProdId(Word id) \
   { \
     this->prodId = id; \
@@ -126,7 +126,7 @@ class Metadata : public TiInterface
   { \
     return this->prodId; \
   } \
-  public: using Metadata::setSourceLocation; \
+  public: using MetaHaving::setSourceLocation; \
   public: virtual void setSourceLocation(Core::Basic::SharedPtr<Core::Data::SourceLocation> const &loc) \
   { \
     this->sourceLocation = loc; \
@@ -146,6 +146,6 @@ class Metadata : public TiInterface
     else return this->extras.get(index); \
   }
 
-} } } // namespace
+} // namespace
 
 #endif

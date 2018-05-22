@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Text.h
  * Contains the header of class Core::Data::Ast::Text.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -19,13 +19,13 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class Text : public Node,
-             public virtual Binding, public virtual Metadata, public virtual Clonable, public virtual Printable
+             public virtual Binding, public virtual MetaHaving, public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Text, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MetaHaving, Clonable, Printable);
 
 
   //============================================================================
@@ -43,7 +43,7 @@ class Text : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METADATA(Text);
+  IMPLEMENT_METAHAVING(Text);
 
   IMPLEMENT_BINDING(Binding,
     (value, TiStr, VALUE, setValue(value), &value),

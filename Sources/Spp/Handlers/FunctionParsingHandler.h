@@ -49,7 +49,7 @@ class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsing
                          SharedPtr<Core::Data::Ast::Map> const &result);
 
   private: Bool parseNumber(Core::Processing::ParserState *state, TiObject *ast, TiWord &result,
-                            Core::Data::Ast::Metadata *parentMetadata);
+                            Core::Data::Ast::MetaHaving *parentMetadata);
 
 }; // class
 

@@ -18,13 +18,13 @@ namespace Core::Data::Grammar
 
 // TODO: DOC
 
-class TokenTerm : public Term, public virtual DataOwner
+class TokenTerm : public Term, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(TokenTerm, Term, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(DataOwner)
+    INHERITANCE_INTERFACES(DataHaving)
   ));
 
 
@@ -98,9 +98,9 @@ class TokenTerm : public Term, public virtual DataOwner
 
 
   //============================================================================
-  // DataOwner Implementation
+  // DataHaving Implementation
 
-  /// @sa DataOwner::unsetIndexes()
+  /// @sa DataHaving::unsetIndexes()
   public: virtual void unsetIndexes(Int from, Int to)
   {
     if (this->tokenId != 0) Data::unsetIndexes(this->tokenId.get(), from, to);

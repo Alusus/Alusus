@@ -1522,7 +1522,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
     {STR("vars"), Map::create(false, {}, {{STR("operand"), PARSE_REF(STR("root.Subject"))}})},
     {STR("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
       auto currentList = state->getData().ti_cast_get<Basic::Containing<TiObject>>();
-      auto metadata = ti_cast<Ast::Metadata>(currentList);
+      auto metadata = ti_cast<Ast::MetaHaving>(currentList);
       auto token = tio_cast<Ast::Token>(currentList->getElement(0));
       auto linkOp = Ast::LinkOperator::create({
         { "prodId", metadata->getProdId() },
@@ -1667,7 +1667,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
       [](Parser *parser, ParserState *state)
       {
         auto data = state->getData();
-        auto metadata = data.ti_cast_get<Ast::Metadata>();
+        auto metadata = data.ti_cast_get<Ast::MetaHaving>();
         auto linkOp = Ast::LinkOperator::create({
           { "prodId", metadata->getProdId() },
           { "sourceLocation", metadata->findSourceLocation() }
@@ -1957,7 +1957,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
       [](Parser *parser, ParserState *state)
       {
         auto currentList = state->getData().ti_cast_get<Basic::Containing<TiObject>>();
-        auto metadata = ti_cast<Ast::Metadata>(currentList);
+        auto metadata = ti_cast<Ast::MetaHaving>(currentList);
         auto alias = Ast::Alias::create({
           { "prodId", metadata->getProdId() },
           { "sourceLocation", metadata->findSourceLocation() }

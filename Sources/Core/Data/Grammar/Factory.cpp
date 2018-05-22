@@ -183,7 +183,7 @@ Word Factory::addConstToken(Char const *text)
     this->set(path.c_str(), constTokenDef.get());
     return constTokenDef->getId();
   } else {
-    auto idHolder = ti_cast<IdHolder>(dummyObj);
+    auto idHolder = ti_cast<IdHaving>(dummyObj);
     return idHolder->getId();
   }
 }

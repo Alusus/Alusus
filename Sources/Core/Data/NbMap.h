@@ -16,13 +16,13 @@
 namespace Core::Data
 {
 
-class NbMap : public Node, public virtual Basic::MapContaining<TiObject>, public virtual DataOwner
+class NbMap : public Node, public virtual Basic::MapContaining<TiObject>, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(NbMap, Node, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Basic::MapContaining<TiObject>, DataOwner)
+    INHERITANCE_INTERFACES(Basic::MapContaining<TiObject>, DataHaving)
   ));
 
 
@@ -261,10 +261,10 @@ class NbMap : public Node, public virtual Basic::MapContaining<TiObject>, public
 
   /// @}
 
-  /// @name DataOwner Implementation
+  /// @name DataHaving Implementation
   /// @{
 
-  /// @sa DataOwner::unsetIndexes()void
+  /// @sa DataHaving::unsetIndexes()void
   public: virtual void unsetIndexes(Int from, Int to)
   {
     for (Word i = 0; i < this->getCount(); ++i) {

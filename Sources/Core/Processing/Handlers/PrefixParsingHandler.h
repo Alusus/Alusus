@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/PrefixParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::PrefixParsingHandler
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -69,7 +69,7 @@ template <class TYPE> class PrefixParsingHandler : public GenericParsingHandler
     obj->setOperand(data);
     obj->setType(token->getText());
 
-    auto metadata = currentData.ti_cast_get<Data::Ast::Metadata>();
+    auto metadata = currentData.ti_cast_get<Data::Ast::MetaHaving>();
     if (metadata != 0) {
       obj->setSourceLocation(metadata->findSourceLocation());
     }

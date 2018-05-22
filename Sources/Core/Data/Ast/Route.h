@@ -28,14 +28,14 @@ namespace Core { namespace Data { namespace Ast
  * compose the Parsing Representation Tree (PRT).
  */
 class Route : public Node,
-              public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual Metadata,
+              public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual MetaHaving,
               public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Route, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, MetaHaving, Clonable, Printable);
 
 
   //============================================================================
@@ -64,7 +64,7 @@ class Route : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METADATA(Route);
+  IMPLEMENT_METAHAVING(Route);
 
   IMPLEMENT_BINDING(Binding,
     (route, TiInt, VALUE, setRoute(value), &route),

@@ -16,13 +16,13 @@
 namespace Core::Data::Grammar
 {
 
-class Reference : public Node, public virtual DataOwner
+class Reference : public Node, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Reference, Node, "Core.Data.Grammar", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(Node, DataOwner);
+  IMPLEMENT_INTERFACES_1(Node, DataHaving);
 
 
   //============================================================================
@@ -100,7 +100,7 @@ class Reference : public Node, public virtual DataOwner
 
   public: Bool isEqual(Reference *ref);
 
-  /// @sa DataOwner::unsetIndexes()
+  /// @sa DataHaving::unsetIndexes()
   public: virtual void unsetIndexes(Int from, Int to)
   {
     if (this->cachedIndex >= from && this->cachedIndex <= to) this->cachedIndex = -1;

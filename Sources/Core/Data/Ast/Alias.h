@@ -17,14 +17,14 @@ namespace Core { namespace Data { namespace Ast
 {
 
 class Alias : public Node,
-              public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual Metadata,
+              public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual MetaHaving,
               public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Alias, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, MetaHaving, Clonable, Printable);
 
 
   //============================================================================
@@ -36,7 +36,7 @@ class Alias : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METADATA(Alias);
+  IMPLEMENT_METAHAVING(Alias);
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),

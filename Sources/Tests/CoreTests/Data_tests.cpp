@@ -542,7 +542,7 @@ TEST_CASE("Core::Data/initializables", "Initializable objects are initialized co
       repository.set(STR("mod1.mod3"), childMod.get());
       CHECK(childMod->getParent() != 0);
       TiObject *parent = childMod->getParent();
-      IdHolder *idHolder = parent->getInterface<IdHolder>();
+      IdHaving *idHolder = parent->getInterface<IdHaving>();
       CHECK(idHolder != 0);
       CHECK(idHolder->getId() == ID_GENERATOR->getId(STR("mod1.mod2")));
     }

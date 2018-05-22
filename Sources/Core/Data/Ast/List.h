@@ -17,20 +17,20 @@ namespace Core::Data::Ast
 {
 
 class List : public NbList,
-             public virtual Binding, public virtual Metadata, public virtual Clonable, public virtual Printable
+             public virtual Binding, public virtual MetaHaving, public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(List, NbList, "Core.Data.Ast", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Binding, Metadata, Clonable, Printable)
+    INHERITANCE_INTERFACES(Binding, MetaHaving, Clonable, Printable)
   ));
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METADATA(List);
+  IMPLEMENT_METAHAVING(List);
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),

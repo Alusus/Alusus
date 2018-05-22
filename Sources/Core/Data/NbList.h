@@ -16,13 +16,13 @@
 namespace Core::Data
 {
 
-class NbList : public Node, public virtual Basic::ListContaining<TiObject>, public virtual DataOwner
+class NbList : public Node, public virtual Basic::ListContaining<TiObject>, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(NbList, Node, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Basic::ListContaining<TiObject>, DataOwner)
+    INHERITANCE_INTERFACES(Basic::ListContaining<TiObject>, DataHaving)
   ));
 
 
@@ -205,10 +205,10 @@ class NbList : public Node, public virtual Basic::ListContaining<TiObject>, publ
 
   /// @}
 
-  /// @name DataOwner Implementation
+  /// @name DataHaving Implementation
   /// @{
 
-  /// @sa DataOwner::unsetIndexes()void
+  /// @sa DataHaving::unsetIndexes()void
   public: virtual void unsetIndexes(Int from, Int to)
   {
     for (Word i = 0; i < this->getCount(); ++i) {

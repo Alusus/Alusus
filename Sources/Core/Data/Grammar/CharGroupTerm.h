@@ -24,13 +24,13 @@ namespace Core::Data::Grammar
  *
  * This class handles instances of character groups in grammar formulas.
  */
-class CharGroupTerm : public Term, public virtual DataOwner
+class CharGroupTerm : public Term, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(CharGroupTerm, Term, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(DataOwner)
+    INHERITANCE_INTERFACES(DataHaving)
   ));
 
 
@@ -80,9 +80,9 @@ class CharGroupTerm : public Term, public virtual DataOwner
 
 
   //============================================================================
-  // DataOwner Implementation
+  // DataHaving Implementation
 
-  /// @sa DataOwner::unsetIndexes()
+  /// @sa DataHaving::unsetIndexes()
   public: virtual void unsetIndexes(Int from, Int to)
   {
     if (this->charGroupReference != 0) Data::unsetIndexes(this->charGroupReference.get(), from, to);

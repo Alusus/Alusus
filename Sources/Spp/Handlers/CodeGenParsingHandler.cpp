@@ -26,7 +26,7 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
 
   auto data = state->getData().get();
   ASSERT(data != 0);
-  auto metadata = ti_cast<Core::Data::Ast::Metadata>(data);
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(data);
   ASSERT(metadata != 0);
 
   try {

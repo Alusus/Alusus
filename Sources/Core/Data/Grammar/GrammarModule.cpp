@@ -113,7 +113,7 @@ void GrammarModule::initialize(TiObject *context)
 
 
 //==============================================================================
-// DataOwner Implementation
+// DataHaving Implementation
 
 void GrammarModule::unsetIndexes(Int from, Int to)
 {

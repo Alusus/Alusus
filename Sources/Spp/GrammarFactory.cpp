@@ -195,7 +195,7 @@ void GrammarFactory::createGrammar(
       })}
     })},
     {STR("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Data::Ast::Metadata>();
+      auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
       auto currentList = state->getData().ti_cast_get<Basic::Containing<TiObject>>();
       auto continueStatement = Ast::ContinueStatement::create({
         { STR("prodId"), metadata->getProdId() },
@@ -233,7 +233,7 @@ void GrammarFactory::createGrammar(
       })}
     })},
     {STR("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Data::Ast::Metadata>();
+      auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
       auto currentList = state->getData().ti_cast_get<Basic::Containing<TiObject>>();
       auto breakStatement = Ast::BreakStatement::create({
         { "prodId", metadata->getProdId() },
@@ -269,7 +269,7 @@ void GrammarFactory::createGrammar(
       })}
     })},
     {STR("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Data::Ast::Metadata>();
+      auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
       auto currentList = state->getData().ti_cast_get<Basic::Containing<TiObject>>();
       auto returnStatement = Ast::ReturnStatement::create({
         { "prodId", metadata->getProdId() },
@@ -336,7 +336,7 @@ void GrammarFactory::createGrammar(
     })},
     {STR("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
       auto currentList = state->getData().ti_cast_get<Basic::Containing<TiObject>>();
-      auto metadata = ti_cast<Data::Ast::Metadata>(currentList);
+      auto metadata = ti_cast<Data::Ast::MetaHaving>(currentList);
       auto type = Ast::UserType::create({
         { "prodId", metadata->getProdId()},
         { "sourceLocation", metadata->findSourceLocation() }

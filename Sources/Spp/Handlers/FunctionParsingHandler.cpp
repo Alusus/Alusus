@@ -23,7 +23,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
 
   auto expr = state->getData().ti_cast_get<Core::Data::Ast::List>();
   ASSERT(expr != 0);
-  auto exprMetadata = ti_cast<Core::Data::Ast::Metadata>(expr);
+  auto exprMetadata = ti_cast<Core::Data::Ast::MetaHaving>(expr);
   ASSERT(exprMetadata != 0);
 
   if (expr->getCount() < 2) {
@@ -131,7 +131,7 @@ Bool FunctionParsingHandler::parseArgs(Processing::ParserState *state,
       }
       auto link = ti_cast<Core::Data::Ast::LinkOperator>(argsList->getElement(i));
       if (link == 0) {
-        auto metadata = ti_cast<Core::Data::Ast::Metadata>(argsList->getElement(i));
+        auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(argsList->getElement(i));
         state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNotice>(
           metadata == 0 ? bracket->findSourceLocation() : metadata->findSourceLocation()));
         return false;
@@ -235,9 +235,9 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
 
 
 Bool FunctionParsingHandler::parseNumber(Core::Processing::ParserState *state, TiObject *ast, TiWord &result,
-                                         Core::Data::Ast::Metadata *parentMetadata)
+                                         Core::Data::Ast::MetaHaving *parentMetadata)
 {
-  auto metadata = ti_cast<Core::Data::Ast::Metadata>(ast);
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(ast);
   if (ast->isA<Core::Data::Ast::IntegerLiteral>()) {
     result = std::stol(static_cast<Core::Data::Ast::IntegerLiteral*>(ast)->getValue().get());
     return true;

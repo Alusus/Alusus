@@ -83,7 +83,7 @@ Bool TypeGenerator::getGeneratedVoidType(
 
 Bool TypeGenerator::_getGeneratedType(TiObject *ref, TargetGeneration *tg, Spp::Ast::Type *&type)
 {
-  auto metadata = ti_cast<Core::Data::Ast::Metadata>(ref);
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(ref);
   if (metadata == 0) {
     throw EXCEPTION(GenericException, STR("Reference does not contain metadata."));
   }

@@ -122,7 +122,7 @@ SharedPtr<Term> ListTerm::getTerm(Int index) const
 
 
 //==============================================================================
-// DataOwner Implementation
+// DataHaving Implementation
 
 void ListTerm::unsetIndexes(Int from, Int to)
 {

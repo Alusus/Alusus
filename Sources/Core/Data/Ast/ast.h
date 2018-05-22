@@ -97,7 +97,7 @@ SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj);
 
 } } } // namespace
 
-#include "Metadata.h"
+#include "MetaHaving.h"
 
 #include "List.h"
 #include "Map.h"

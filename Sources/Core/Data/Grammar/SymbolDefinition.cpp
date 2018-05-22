@@ -117,7 +117,7 @@ void SymbolDefinition::initialize(TiObject *context)
 
 
 //==============================================================================
-// DataOwner Implementation
+// DataHaving Implementation
 
 void SymbolDefinition::unsetIndexes(Int from, Int to)
 {

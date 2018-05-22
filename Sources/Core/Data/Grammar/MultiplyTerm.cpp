@@ -68,7 +68,7 @@ void MultiplyTerm::setPriority(SharedPtr<TiObject> const &p)
 
 
 //==============================================================================
-// DataOwner Implementation
+// DataHaving Implementation
 
 void MultiplyTerm::unsetIndexes(Int from, Int to)
 {

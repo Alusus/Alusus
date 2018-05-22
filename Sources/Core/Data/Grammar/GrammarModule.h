@@ -18,13 +18,13 @@ namespace Core::Data::Grammar
 
 // TODO: DOC
 
-class GrammarModule : public NbMap, public virtual Binding, public virtual Initializable, public virtual IdHolder
+class GrammarModule : public NbMap, public virtual Binding, public virtual Initializable, public virtual IdHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(GrammarModule, NbMap, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Binding, Initializable, IdHolder)
+    INHERITANCE_INTERFACES(Binding, Initializable, IdHaving)
   ));
 
 
@@ -76,7 +76,7 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
   //============================================================================
   // Implementations
 
-  IMPLEMENT_IDHOLDER(GrammarModule);
+  IMPLEMENT_IDHAVING(GrammarModule);
 
   IMPLEMENT_BINDING(Binding,
     (id, TiWord, VALUE, setId(value), &id),
@@ -241,10 +241,10 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
 
   /// @}
 
-  /// @name DataOwner Implementation
+  /// @name DataHaving Implementation
   /// @{
 
-  /// @sa DataOwner::unsetIndexes()
+  /// @sa DataHaving::unsetIndexes()
   public: virtual void unsetIndexes(Int from, Int to);
 
   /// @}

@@ -23,7 +23,7 @@ using namespace Data;
 
 void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
-  auto metadata = state->getData().ti_cast<Ast::Metadata>();
+  auto metadata = state->getData().ti_cast<Ast::MetaHaving>();
   auto stringLiteral = ti_cast<Ast::StringLiteral>(
     state->getData().ti_cast_get<Basic::Containing<TiObject>>()->getElement(1)
   );

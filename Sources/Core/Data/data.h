@@ -49,7 +49,7 @@ namespace Core::Data
 /**
  * Reset the indexes of all references in a specific range within a tree.
  * @ingroup core_data
- * Call the unsetIndexes method of DataOwner interface, if implemented by
+ * Call the unsetIndexes method of DataHaving interface, if implemented by
  * the object.
  */
 void unsetIndexes(TiObject *obj, Int from, Int to);
@@ -226,9 +226,9 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
 #include "source_location.h"
 
 // Generic Data Interfaces
-#include "DataOwner.h"
+#include "DataHaving.h"
 #include "Initializable.h"
-#include "IdHolder.h"
+#include "IdHaving.h"
 #include "Clonable.h"
 #include "Printable.h"
 

@@ -27,7 +27,7 @@ constexpr Char const* META_EXTRA_AST_TYPE = STR("astType");
 // tryGetAstType
 
 template <class OT,
-          typename std::enable_if<std::is_base_of<Core::Data::Ast::Metadata, OT>::value, int>::type = 0>
+          typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline Type* tryGetAstType(OT *object)
 {
   auto box = object->getExtra(META_EXTRA_AST_TYPE).template ti_cast_get<Box<WeakPtr<Type>>>();
@@ -36,10 +36,10 @@ inline Type* tryGetAstType(OT *object)
 }
 
 template <class OT,
-          typename std::enable_if<!std::is_base_of<Core::Data::Ast::Metadata, OT>::value, int>::type = 0>
+          typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline Type* tryGetAstType(OT *object)
 {
-  auto metadata = ti_cast<Core::Data::Ast::Metadata>(object);
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) return 0;
   auto box = metadata->getExtra(META_EXTRA_AST_TYPE).template ti_cast_get<Box<WeakPtr<Type>>>();
   if (box == 0) return 0;
@@ -61,37 +61,37 @@ inline Type* getAstType(OT *object)
 // setAstType
 
 template <class OT,
-          typename std::enable_if<std::is_base_of<Core::Data::Ast::Metadata, OT>::value, int>::type = 0>
+          typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline void setAstType(OT *object, Core::Basic::SharedPtr<Type> const &type)
 {
   object->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr(type)));
 }
 
 template <class OT,
-          typename std::enable_if<!std::is_base_of<Core::Data::Ast::Metadata, OT>::value, int>::type = 0>
+          typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline void setAstType(OT *object, Core::Basic::SharedPtr<Type> const &type)
 {
-  auto metadata = ti_cast<Core::Data::Ast::Metadata>(object);
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the Metadata interface."));
+    throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the MetaHaving interface."));
   }
   metadata->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr(type)));
 }
 
 template <class OT,
-          typename std::enable_if<std::is_base_of<Core::Data::Ast::Metadata, OT>::value, int>::type = 0>
+          typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline void setAstType(OT *object, Type *type)
 {
   object->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(getWeakPtr(type)));
 }
 
 template <class OT,
-          typename std::enable_if<!std::is_base_of<Core::Data::Ast::Metadata, OT>::value, int>::type = 0>
+          typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline void setAstType(OT *object, Type *type)
 {
-  auto metadata = ti_cast<Core::Data::Ast::Metadata>(object);
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the Metadata interface."));
+    throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the MetaHaving interface."));
   }
   metadata->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(getWeakPtr(type)));
 }

@@ -35,8 +35,8 @@ void ChainOpParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState
       }
       container->setElement(0, state->getData(levelIndex).get());
 
-      auto myMetadata = myData.ti_cast_get<Data::Ast::Metadata>();
-      auto srcMetadata = ti_cast<Data::Ast::Metadata>(container->getElement(0));
+      auto myMetadata = myData.ti_cast_get<Data::Ast::MetaHaving>();
+      auto srcMetadata = ti_cast<Data::Ast::MetaHaving>(container->getElement(0));
       if (myMetadata != 0 && srcMetadata != 0) {
         myMetadata->setSourceLocation(srcMetadata->findSourceLocation());
       }

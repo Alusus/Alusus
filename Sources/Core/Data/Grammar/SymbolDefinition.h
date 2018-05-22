@@ -20,13 +20,13 @@ namespace Core::Data::Grammar
 
 class SymbolDefinition : public Node,
                          public virtual Binding, public virtual Basic::MapContaining<TiObject>,
-                         public virtual Initializable, public virtual IdHolder, public virtual DataOwner
+                         public virtual Initializable, public virtual IdHaving, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SymbolDefinition, Node, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Binding, Basic::MapContaining<TiObject>, Initializable, IdHolder, DataOwner)
+    INHERITANCE_INTERFACES(Binding, Basic::MapContaining<TiObject>, Initializable, IdHaving, DataHaving)
   ));
 
 
@@ -94,7 +94,7 @@ class SymbolDefinition : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_IDHOLDER(SymbolDefinition);
+  IMPLEMENT_IDHAVING(SymbolDefinition);
 
   IMPLEMENT_BINDING(Binding,
     (id, TiWord, VALUE, setId(value), &id),
@@ -392,9 +392,9 @@ class SymbolDefinition : public Node,
 
 
   //============================================================================
-  // DataOwner Implementation
+  // DataHaving Implementation
 
-  /// @sa DataOwner::unsetIndexes()
+  /// @sa DataHaving::unsetIndexes()
   public: virtual void unsetIndexes(Int from, Int to);
 
 }; // class

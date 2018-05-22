@@ -32,13 +32,13 @@ namespace Core::Data::Grammar
  * either be done through a list of boolean flags, a flag for each term, or
  * through a single index number that specifies the single enabled term.
  */
-class ListTerm : public Term, public virtual DataOwner, public virtual Core::Basic::MapContaining<TiObject>
+class ListTerm : public Term, public virtual DataHaving, public virtual Core::Basic::MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ListTerm, Term, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(DataOwner, Core::Basic::MapContaining<TiObject>)
+    INHERITANCE_INTERFACES(DataHaving, Core::Basic::MapContaining<TiObject>)
   ));
 
 
@@ -169,9 +169,9 @@ class ListTerm : public Term, public virtual DataOwner, public virtual Core::Bas
 
 
   //============================================================================
-  // DataOwner Implementation
+  // DataHaving Implementation
 
-  /// @sa DataOwner::unsetIndexes()
+  /// @sa DataHaving::unsetIndexes()
   public: virtual void unsetIndexes(Int from, Int to);
 
 }; // class

@@ -33,7 +33,7 @@ void findProdData(Word prodId, SharedPtr<TiObject> ptr,
 {
   if (ptr == 0) return;
 
-  Data::Ast::Metadata *metadata = ptr->getInterface<Data::Ast::Metadata>();
+  Data::Ast::MetaHaving *metadata = ptr->getInterface<Data::Ast::MetaHaving>();
   if (metadata == 0) return;
 
   if (metadata->getProdId() == prodId) {

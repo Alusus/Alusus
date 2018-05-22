@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class Bracket : public Node,
-                public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual Metadata,
+                public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual MetaHaving,
                 public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Bracket, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, MetaHaving, Clonable, Printable);
 
 
   //============================================================================
@@ -39,7 +39,7 @@ class Bracket : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METADATA(Bracket);
+  IMPLEMENT_METAHAVING(Bracket);
 
   IMPLEMENT_BINDING(Binding,
     (type, BracketType, VALUE, setType(value), &type),
