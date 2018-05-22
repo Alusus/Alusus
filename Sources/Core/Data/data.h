@@ -322,42 +322,25 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 // Containers
 #include "NbList.h"
 #include "NbMap.h"
+#include "VariableStack.h"
+#include "DataStack.h"
 
 // Container Interfaces
 #include "Container.h"
 #include "ListContainer.h"
 #include "NamedListContainer.h"
 #include "MapContainer.h"
-#include "container_helpers.h"
-#include "Provider.h"
 
-// Generic Containers
-//-------------------
-#include "SharedMap.h"
-#include "SharedList.h"
-#include "SharedNamedList.h"
-#include "PlainNamedList.h"
-#include "Module.h"
-#include "VariableStack.h"
-#include "DataStack.h"
-
-// Grammar Classes
-//----------------
+// Other Classes
 #include "Token.h"
-// TODO: #include "ExtensionManager.h"
-// TODO: ExtensionManager manages extensions to grammar (loaded using import for example). And it automatically
-//       manages the IDs of those extension definitions (rather than the IDs remain invalid until merged with DataStore).
 
 // Grammar
-//--------
 #include "Grammar/grammar.h"
 
 // Abstract Syntax Tree
-//---------------------
 #include "Ast/ast.h"
 
 // Operations
-//-----------
 #include "Seeker.h"
 
 #endif

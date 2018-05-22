@@ -13,7 +13,7 @@
 #ifndef CORE_BASIC_SHAREDLIST_H
 #define CORE_BASIC_SHAREDLIST_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 template<class CTYPE, class PTYPE=TiObject> class SharedList : public PTYPE, public virtual ListContainer<CTYPE>
@@ -352,6 +352,6 @@ template<class CTYPE, class PTYPE=TiObject> class SharedList : public PTYPE, pub
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

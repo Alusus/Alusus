@@ -13,7 +13,7 @@
 #ifndef CORE_BASIC_SHAREDMAP_H
 #define CORE_BASIC_SHAREDMAP_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, public virtual MapContainer<CTYPE>
@@ -511,6 +511,6 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

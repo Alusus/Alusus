@@ -176,7 +176,7 @@ Seeker::Verb Seeker::_setByIdentifier(
   if (data->isDerivedFrom<DataStack>()) {
     auto stack = static_cast<DataStack*>(data);
     for (Int i = stack->getCount() - 1; i >= 0; --i) {
-      auto data = stack->get(i);
+      auto data = stack->getElement(i);
       if (data == 0) continue;
       retVal = seeker->setByIdentifier_level(identifier, data, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
@@ -249,7 +249,7 @@ Seeker::Verb Seeker::_removeByIdentifier(
   if (data->isDerivedFrom<DataStack>()) {
     auto stack = static_cast<DataStack*>(data);
     for (Int i = stack->getCount() - 1; i >= 0; --i) {
-      auto data = stack->get(i);
+      auto data = stack->getElement(i);
       if (data == 0) continue;
       retVal = seeker->removeByIdentifier_level(identifier, data, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
@@ -312,7 +312,7 @@ Seeker::Verb Seeker::_foreachByIdentifier(
   if (data->isDerivedFrom<DataStack>()) {
     auto stack = static_cast<DataStack*>(data);
     for (Int i = stack->getCount() - 1; i >= 0; --i) {
-      auto data = stack->get(i);
+      auto data = stack->getElement(i);
       if (data == 0) continue;
       retVal = seeker->foreachByIdentifier_level(identifier, data, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;

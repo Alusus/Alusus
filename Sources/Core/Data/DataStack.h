@@ -19,13 +19,13 @@ namespace Core::Data
 /**
  * @brief A stack of TiObject derived data objects.
  */
-class DataStack : public TiObject, public virtual ListContainer
+class DataStack : public TiObject, public virtual Basic::ListContainer<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(DataStack, TiObject, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(ListContainer)
+    INHERITANCE_INTERFACES(Basic::ListContainer<TiObject>)
   ));
 
 
@@ -65,7 +65,12 @@ class DataStack : public TiObject, public virtual ListContainer
 
   public: void set(SharedPtr<TiObject> const &obj, Int index = -1);
 
-  public: SharedPtr<TiObject> const& getShared(Int index = -1) const;
+  public: SharedPtr<TiObject> const& get(Int index = -1) const;
+
+  public: Word getCount() const
+  {
+    return this->trunkIndex + 1 + this->stack.getCount();
+  }
 
   /**
    * @brief Copy the content of another stack into this stack.
@@ -102,29 +107,29 @@ class DataStack : public TiObject, public virtual ListContainer
   /// @name ListContainer Implementation
   /// @{
 
-  public: virtual void set(Int index, TiObject *val)
+  public: virtual void setElement(Int index, TiObject *val)
   {
     this->set(getSharedPtr(val), index);
   }
 
-  public: virtual void remove(Int index);
+  public: virtual void removeElement(Int index);
 
-  public: virtual Word getCount() const
+  public: virtual Word getElementCount() const
   {
-    return this->trunkIndex + 1 + this->stack.getCount();
+    return this->getCount();
   }
 
-  public: virtual TiObject* get(Int index) const
+  public: virtual TiObject* getElement(Int index) const
   {
-    return this->getShared(index).get();
+    return this->get(index).get();
   }
 
-  public: virtual Int add(TiObject *val)
+  public: virtual Int addElement(TiObject *val)
   {
     return this->stack.addElement(val);
   }
 
-  public: virtual void insert(Int index, TiObject *val);
+  public: virtual void insertElement(Int index, TiObject *val);
 
   /// @}
 

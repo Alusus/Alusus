@@ -62,7 +62,7 @@ void DataStack::set(SharedPtr<TiObject> const &obj, Int index)
 }
 
 
-SharedPtr<TiObject> const& DataStack::getShared(Int index) const
+SharedPtr<TiObject> const& DataStack::get(Int index) const
 {
   if (this->getCount() == 0) {
     throw EXCEPTION(GenericException, STR("Stack is empty."));
@@ -81,7 +81,7 @@ SharedPtr<TiObject> const& DataStack::getShared(Int index) const
   if (this->trunkIndex >= 0) {
     ASSERT(this->trunkStack != 0);
     if (index <= this->trunkIndex) {
-      return this->trunkStack->getShared(index);
+      return this->trunkStack->get(index);
     } else {
       return this->stack.get(index-(this->trunkIndex+1));
     }
@@ -100,7 +100,7 @@ void DataStack::copyFrom(DataStack const *src)
   }
   this->clear();
   for (Int i = 0; i < src->getCount(); ++i) {
-    this->push(src->getShared(i));
+    this->push(src->get(i));
   }
 }
 
@@ -162,7 +162,7 @@ void DataStack::ownTop()
   if (static_cast<Int>(this->trunkStack->getCount()) <= this->trunkIndex) {
     throw EXCEPTION(GenericException, STR("Trunk stack has been modified."));
   }
-  auto srcData = this->trunkStack->getShared(this->trunkIndex);
+  auto srcData = this->trunkStack->get(this->trunkIndex);
   this->trunkIndex--;
   this->stack.add(srcData);
 }
@@ -171,7 +171,7 @@ void DataStack::ownTop()
 //==============================================================================
 // ListContainer Implementation
 
-void DataStack::remove(Int index)
+void DataStack::removeElement(Int index)
 {
   if (this->getCount() == 0) {
     throw EXCEPTION(GenericException, STR("Stack is empty."));
@@ -201,7 +201,7 @@ void DataStack::remove(Int index)
 }
 
 
-void DataStack::insert(Int index, TiObject *val)
+void DataStack::insertElement(Int index, TiObject *val)
 {
   if (this->getCount() == 0) {
     throw EXCEPTION(GenericException, STR("Stack is empty."));

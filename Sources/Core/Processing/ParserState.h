@@ -436,7 +436,7 @@ class ParserState
    */
   public: SharedPtr<TiObject> const& getData(Int levelOffset = -1) const
   {
-    return this->dataStack.getShared(levelOffset);
+    return this->dataStack.get(levelOffset);
   }
 
   /// Checks whether another SharedPtr is sharing the data at a given level.
