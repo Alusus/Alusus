@@ -2,7 +2,7 @@
  * @file Core/Data/IdGenerator.cpp
  * Contains the implementation of class Core::Data::IdGenerator.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,7 +22,6 @@ Word IdGenerator::getId(Char const *desc)
 {
   Int id = this->index.find(Str(desc));
   if (id == -1) {
-    REF_PARSER->validateQualifier(desc, true);
     this->ids.push_back(Desc());
     this->ids.back().str = desc;
     this->index.add();

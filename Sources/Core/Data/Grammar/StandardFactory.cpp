@@ -131,7 +131,6 @@ void StandardFactory::createCharGroupDefinitions()
     SequenceCharGroupUnit::create(STR("ٮ"), STR("ۜ"))
   });
   this->set(STR("root.LexerDefs.Letter"), CharGroupDefinition::create(letterCharGroup));
-  ReferenceParser::setSharedLetterCharGroup(letterCharGroup);
 
   // AnyCharNoEs : char !('\\');
   this->set(STR("root.LexerDefs.AnyCharNoEs"), CharGroupDefinition::create(

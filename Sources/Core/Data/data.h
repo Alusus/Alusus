@@ -331,25 +331,6 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 #include "container_helpers.h"
 #include "Provider.h"
 
-// References Subsystem Classes
-//-----------------------------
-// Validators
-#include "Validator.h"
-#include "StrAttributeValidator.h"
-// References
-#include "Reference.h"
-#include "IndexReference.h"
-#include "StrKeyReference.h"
-#include "IndirectReference.h"
-#include "RawIndirectReference.h"
-#include "ScopeReference.h"
-#include "SearchReference.h"
-#include "SelfReference.h"
-#include "ReferenceParser.h"
-// Seekers and Data Providers
-#include "ReferenceSeeker.h"
-#include "QualifierSeeker.h"
-
 // Generic Containers
 //-------------------
 #include "SharedMap.h"
@@ -359,13 +340,10 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 #include "Module.h"
 #include "VariableStack.h"
 #include "DataStack.h"
-#include "SharedRepository.h"
-#include "PlainRepository.h"
 
 // Grammar Classes
 //----------------
 #include "Token.h"
-#include "Tracer.h"
 // TODO: #include "ExtensionManager.h"
 // TODO: ExtensionManager manages extensions to grammar (loaded using import for example). And it automatically
 //       manages the IDs of those extension definitions (rather than the IDs remain invalid until merged with DataStore).
