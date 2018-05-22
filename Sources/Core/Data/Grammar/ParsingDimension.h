@@ -16,13 +16,13 @@
 namespace Core::Data::Grammar
 {
 
-class ParsingDimension : public Node, public virtual Bindings
+class ParsingDimension : public Node, public virtual Binding
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ParsingDimension, Node, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Bindings)
+    INHERITANCE_INTERFACES(Binding)
   ));
 
 
@@ -39,7 +39,7 @@ class ParsingDimension : public Node, public virtual Bindings
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDINGS(Bindings,
+  IMPLEMENT_BINDING(Binding,
     (entryTokenId, TiInt, SHARED_REF, setEntryTokenId(value), entryTokenId.get()),
     (entryTokenText, TiStr, SHARED_REF, setEntryTokenText(value), entryTokenText.get()),
     (startRef, Reference, SHARED_REF, setStartRef(value), startRef.get())

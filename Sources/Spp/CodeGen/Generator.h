@@ -16,13 +16,13 @@
 namespace Spp { namespace CodeGen
 {
 
-class Generator : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
+class Generator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfaces
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Generator, TiObject, "Spp.CodeGen", "Spp", "alusus.net", (
-    INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
+    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfaces),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
 

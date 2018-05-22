@@ -43,7 +43,7 @@ class ConcatTerm : public ListTerm
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDINGS(ListTerm,
+  IMPLEMENT_BINDING(ListTerm,
     (errorSyncPosId, TiInt, VALUE, setErrorSyncPosId(value), &errorSyncPosId)
   );
 

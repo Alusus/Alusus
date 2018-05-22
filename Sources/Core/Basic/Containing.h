@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/Container.h
- * Contains the header of interface Basic::Container.
+ * @file Core/Basic/Containing.h
+ * Contains the header of interface Basic::Containing.
  *
  * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
  *
@@ -10,18 +10,18 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_CONTAINER_H
-#define CORE_BASIC_CONTAINER_H
+#ifndef CORE_BASIC_CONTAINING_H
+#define CORE_BASIC_CONTAINING_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
-template<class CTYPE> class Container : public TiInterface
+template<class CTYPE> class Containing : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  TEMPLATE_INTERFACE_INFO(Container, TiInterface, "Core.Basic", "Core", "alusus.net", (CTYPE));
+  TEMPLATE_INTERFACE_INFO(Containing, TiInterface, "Core.Basic", "Core", "alusus.net", (CTYPE));
 
 
   //============================================================================
@@ -37,6 +37,6 @@ template<class CTYPE> class Container : public TiInterface
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/MapContainer.h
- * Contains the header of interface Basic::MapContainer.
+ * @file Core/Basic/MapContaining.h
+ * Contains the header of interface Basic::MapContaining.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,18 +10,18 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_MAPCONTAINER_H
-#define CORE_BASIC_MAPCONTAINER_H
+#ifndef CORE_BASIC_MAPCONTAINING_H
+#define CORE_BASIC_MAPCONTAINING_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
-template<class CTYPE> class MapContainer : public Container<CTYPE>
+template<class CTYPE> class MapContaining : public Containing<CTYPE>
 {
   //============================================================================
   // Type Info
 
-  TEMPLATE_INTERFACE_INFO(MapContainer, Container<CTYPE>, "Core.Data", "Core", "alusus.net", (CTYPE));
+  TEMPLATE_INTERFACE_INFO(MapContaining, Containing<CTYPE>, "Core.Data", "Core", "alusus.net", (CTYPE));
 
 
   //============================================================================
@@ -75,6 +75,6 @@ template<class CTYPE> class MapContainer : public Container<CTYPE>
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

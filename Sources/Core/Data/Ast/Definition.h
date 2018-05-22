@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class Definition : public Node,
-                   public virtual Bindings, public virtual Basic::MapContainer<TiObject>, public virtual Metadata,
+                   public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual Metadata,
                    public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Definition, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Bindings, Basic::MapContainer<TiObject>, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -41,13 +41,13 @@ class Definition : public Node,
 
   IMPLEMENT_METADATA(Definition);
 
-  IMPLEMENT_BINDINGS(Bindings,
+  IMPLEMENT_BINDING(Binding,
     (name, TiStr, VALUE, setName(value), &name),
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>, (target, TiObject, setTarget(value), target.get()));
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (target, TiObject, setTarget(value), target.get()));
 
 
   //============================================================================

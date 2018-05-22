@@ -23,7 +23,7 @@ void ChainOpParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState
   if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
     if (state->refTermLevel(levelIndex).getPosId() > 1) {
       auto myData = this->prepareToModifyData(data, state, levelIndex);
-      auto container = myData.ti_cast_get<Basic::Container<TiObject>>();
+      auto container = myData.ti_cast_get<Basic::Containing<TiObject>>();
       if (container == 0) {
         throw EXCEPTION(InvalidArgumentException, STR("data"),
                         STR("Invalid object type received from chain op production"),

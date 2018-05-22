@@ -103,10 +103,10 @@ template<class T> class BindingCache : public BindingCacheBase
 
   public: virtual void init(TiObject *owner)
   {
-    auto bindings = ti_cast<DynamicBindings>(owner);
+    auto bindings = ti_cast<DynamicBinding>(owner);
     if (bindings == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("owner"),
-                      STR("Provided object does not implement DynamicBindings."));
+                      STR("Provided object does not implement DynamicBinding."));
     }
     this->bindingMap = bindings->getBindingMap();
     this->bindingChangeSlot.disconnect();

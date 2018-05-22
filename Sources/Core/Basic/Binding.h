@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/Bindings.h
- * Contains the header of interface Basic::Bindings.
+ * @file Core/Basic/Binding.h
+ * Contains the header of interface Basic::Binding.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,18 +10,18 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_BINDINGS_H
-#define CORE_BASIC_BINDINGS_H
+#ifndef CORE_BASIC_BINDING_H
+#define CORE_BASIC_BINDING_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 //==============================================================================
 // Forward Declarations
 
-class Bindings;
+class Binding;
 template <class RT, class ...ARGS> RT call(TiObject *callee, ARGS ...args);
-template <class RT, class ...ARGS> RT call(Bindings *self, Char const *name, ARGS... args);
+template <class RT, class ...ARGS> RT call(Binding *self, Char const *name, ARGS... args);
 
 
 //==============================================================================
@@ -31,14 +31,14 @@ s_enum(HoldMode, SHARED_REF, WEAK_REF, PLAIN_REF, OWNER, VALUE);
 
 
 //==============================================================================
-// Bindings Interface
+// Binding Interface
 
-class Bindings : public TiInterface
+class Binding : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(Bindings, TiInterface, "Core.Basic", "Core", "alusus.net");
+  INTERFACE_INFO(Binding, TiInterface, "Core.Basic", "Core", "alusus.net");
 
 
   //============================================================================
@@ -159,7 +159,7 @@ class Bindings : public TiInterface
 
   public: template <class T> T const& refMember(Char const *name) const
   {
-    return const_cast<Bindings*>(this)->refMember<T>(name);
+    return const_cast<Binding*>(this)->refMember<T>(name);
   }
 
   public: template <class T> SharedPtr<T> getSharedMember(Char const *name) const
@@ -193,6 +193,6 @@ class Bindings : public TiInterface
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

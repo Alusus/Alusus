@@ -46,7 +46,7 @@ Bool Function::isVariadic() const
 
 
 CallMatchStatus Function::matchCall(
-  Core::Basic::Container<Core::Basic::TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
+  Core::Basic::Containing<Core::Basic::TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
 ) {
   if (helper == 0) {
     throw EXCEPTION(InvalidArgumentException, STR("helper"), STR("Cannot be null."));

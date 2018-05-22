@@ -237,7 +237,7 @@ Bool TargetGenerator::generateStructTypeDecl(
 
 
 Bool TargetGenerator::generateStructTypeBody(
-  TiObject *type, Core::Basic::MapContainer<TiObject> *membersTypes,
+  TiObject *type, Core::Basic::MapContaining<TiObject> *membersTypes,
   Core::Basic::SharedList<TiObject, TiObject> *members
 ) {
   VALIDATE_NOT_NULL(membersTypes, members);
@@ -277,7 +277,7 @@ Word TargetGenerator::getTypeAllocationSize(TiObject *type)
 // Function Generation Functions
 
 Bool TargetGenerator::generateFunctionDecl(
-  Char const *name, Core::Basic::MapContainer<TiObject>* argTypes, TiObject *retType, Bool variadic,
+  Char const *name, Core::Basic::MapContaining<TiObject>* argTypes, TiObject *retType, Bool variadic,
   TioSharedPtr &function
 ) {
   VALIDATE_NOT_NULL(name, argTypes, retType);
@@ -314,7 +314,7 @@ Bool TargetGenerator::generateFunctionDecl(
 
 
 Bool TargetGenerator::prepareFunctionBody(
-  TiObject *function, Core::Basic::MapContainer<TiObject>* argTypes, TiObject *retType,
+  TiObject *function, Core::Basic::MapContaining<TiObject>* argTypes, TiObject *retType,
   Bool variadic, Core::Basic::SharedList<TiObject, TiObject> *args, TioSharedPtr &context
 ) {
   VALIDATE_NOT_NULL(function, argTypes, retType, args);
@@ -354,8 +354,8 @@ Bool TargetGenerator::prepareFunctionBody(
 
 
 Bool TargetGenerator::finishFunctionBody(
-  TiObject *function, Core::Basic::MapContainer<TiObject> *argTypes, TiObject *retType,
-  Bool variadic, Core::Basic::ListContainer<TiObject> *args, TiObject *context
+  TiObject *function, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType,
+  Bool variadic, Core::Basic::ListContaining<TiObject> *args, TiObject *context
 ) {
   PREPARE_ARG(retType, type, Type);
   if (type->getCategory() == Type::Category::VOID) {
@@ -837,7 +837,7 @@ Bool TargetGenerator::generateAssign(
 
 Bool TargetGenerator::generateFunctionCall(
   TiObject *context, TiObject *function,
-  Core::Basic::Container<Core::Basic::TiObject>* arguments, TioSharedPtr &result
+  Core::Basic::Containing<Core::Basic::TiObject>* arguments, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(function, llvmFuncBox, Core::Basic::Box<llvm::Function*>);

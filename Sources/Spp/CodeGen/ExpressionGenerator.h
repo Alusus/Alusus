@@ -16,13 +16,13 @@
 namespace Spp { namespace CodeGen
 {
 
-class ExpressionGenerator : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
+class ExpressionGenerator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfaces
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ExpressionGenerator, TiObject, "Spp.CodeGen", "Spp", "alusus.net", (
-    INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
+    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfaces),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
 
@@ -336,39 +336,39 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
   public: METHOD_BINDING_CACHE(generateFunctionCall,
     Bool, (
       Spp::Ast::Function* /* callee */,
-      Core::Basic::Container<TiObject>* /* paramAstTypes */, Core::Basic::Container<TiObject>* /* paramTgValues */,
+      Core::Basic::Containing<TiObject>* /* paramAstTypes */, Core::Basic::Containing<TiObject>* /* paramTgValues */,
       Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateFunctionCall(
     TiObject *self, Spp::Ast::Function *callee,
-    Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
+    Core::Basic::Containing<TiObject> *paramAstTypes, Core::Basic::Containing<TiObject> *paramTgValues,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateBuiltInFunctionCall,
     Bool, (
       Spp::Ast::Function* /* callee */,
-      Core::Basic::Container<TiObject>* /* paramAstTypes */, Core::Basic::Container<TiObject>* /* paramTgValues */,
+      Core::Basic::Containing<TiObject>* /* paramAstTypes */, Core::Basic::Containing<TiObject>* /* paramTgValues */,
       Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateBuiltInFunctionCall(
     TiObject *self, Spp::Ast::Function *callee,
-    Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
+    Core::Basic::Containing<TiObject> *paramAstTypes, Core::Basic::Containing<TiObject> *paramTgValues,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateUserFunctionCall,
     Bool, (
       Spp::Ast::Function* /* callee */,
-      Core::Basic::Container<TiObject>* /* paramAstTypes */, Core::Basic::Container<TiObject>* /* paramTgValues */,
+      Core::Basic::Containing<TiObject>* /* paramAstTypes */, Core::Basic::Containing<TiObject>* /* paramTgValues */,
       Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateUserFunctionCall(
     TiObject *self, Spp::Ast::Function *callee,
-    Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
+    Core::Basic::Containing<TiObject> *paramAstTypes, Core::Basic::Containing<TiObject> *paramTgValues,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
 
@@ -379,17 +379,17 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
 
   private: Bool generateParamList(
     Core::Basic::TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    Core::Basic::ListContainer<TiObject> *resultTypes, Core::Basic::SharedList<TiObject, TiObject> *resultValues
+    Core::Basic::ListContaining<TiObject> *resultTypes, Core::Basic::SharedList<TiObject, TiObject> *resultValues
   );
 
   private: Bool generateParamList(
-    Core::Basic::Container<TiObject> *astNodes, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    Core::Basic::ListContainer<TiObject> *resultTypes, Core::Basic::SharedList<TiObject, TiObject> *resultValues
+    Core::Basic::Containing<TiObject> *astNodes, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    Core::Basic::ListContaining<TiObject> *resultTypes, Core::Basic::SharedList<TiObject, TiObject> *resultValues
   );
 
   private: void prepareFunctionParams(
     Spp::Ast::Function *callee, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    Core::Basic::ListContainer<TiObject> *paramAstTypes, Core::Basic::SharedList<TiObject, TiObject> *paramTgVals
+    Core::Basic::ListContaining<TiObject> *paramAstTypes, Core::Basic::SharedList<TiObject, TiObject> *paramTgVals
   );
 
   private: Bool dereferenceIfNeeded(

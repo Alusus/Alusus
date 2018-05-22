@@ -383,7 +383,7 @@ List* Context::getAssociatedErrorSyncBlockPairs(GrammarModule *module)
 
 
 //==============================================================================
-// MapContainer Implementation
+// MapContaining Implementation
 
 void Context::setElement(Int index, TiObject *val)
 {

@@ -31,13 +31,13 @@ namespace Core::Data::Grammar
  * Priority can be specified manually, but by default it's for taking the
  * branch rather than quiting the branch.
  */
-class MultiplyTerm : public Term, public virtual DataOwner, public virtual Core::Basic::MapContainer<TiObject>
+class MultiplyTerm : public Term, public virtual DataOwner, public virtual Core::Basic::MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(MultiplyTerm, Term, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(DataOwner, Core::Basic::MapContainer<TiObject>)
+    INHERITANCE_INTERFACES(DataOwner, Core::Basic::MapContaining<TiObject>)
   ));
 
 
@@ -56,13 +56,13 @@ class MultiplyTerm : public Term, public virtual DataOwner, public virtual Core:
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDINGS(Term,
+  IMPLEMENT_BINDING(Term,
     (min, TiObject, SHARED_REF, setMin(value), min.get()),
     (max, TiObject, SHARED_REF, setMax(value), max.get()),
     (priority, TiObject, SHARED_REF, setPriority(value), priority.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (term, Term, setTerm(value), term.get())
   );
 

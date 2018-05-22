@@ -19,7 +19,7 @@ namespace Spp::Ast
 using namespace Core;
 
 class Type : public Core::Data::Node,
-             public virtual Core::Basic::Bindings, public virtual Core::Basic::MapContainer<TiObject>,
+             public virtual Core::Basic::Binding, public virtual Core::Basic::MapContaining<TiObject>,
              public virtual Core::Data::Ast::Metadata,
              public virtual Core::Data::Clonable, public virtual Core::Data::Printable
 {
@@ -28,8 +28,8 @@ class Type : public Core::Data::Node,
 
   TYPE_INFO(Type, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net", (
     INHERITANCE_INTERFACES(
-      Core::Basic::Bindings,
-      Core::Basic::MapContainer<TiObject>,
+      Core::Basic::Binding,
+      Core::Basic::MapContaining<TiObject>,
       Core::Data::Ast::Metadata,
       Core::Data::Clonable,
       Core::Data::Printable
@@ -48,12 +48,12 @@ class Type : public Core::Data::Node,
 
   IMPLEMENT_METADATA(Type);
 
-  IMPLEMENT_BINDINGS(Bindings,
+  IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>, (body, Block, setBody(value), body.get()));
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (body, Block, setBody(value), body.get()));
 
   IMPLEMENT_AST_MAP_PRINTABLE(Type);
 

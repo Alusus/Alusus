@@ -16,13 +16,13 @@
 namespace Spp { namespace Ast
 {
 
-class Helper : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
+class Helper : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfaces
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Helper, TiObject, "Spp.Ast", "Spp", "alusus.net", (
-    INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
+    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfaces),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
 
@@ -123,30 +123,30 @@ class Helper : public TiObject, public virtual DynamicBindings, public virtual D
 
   public: Bool lookupCalleeByName(
     Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
-    Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
+    Core::Basic::Containing<TiObject> *types, Spp::ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee,
     Bool, (
       TiObject* /* ref */, Core::Data::Node* /* astNode */, Bool /* searchOwners */,
-      Core::Basic::Container<TiObject>* /* types */,
+      Core::Basic::Containing<TiObject>* /* types */,
       Spp::ExecutionContext const* /* ec */, TiObject*& /* callee */, Type*& /* calleeType */
     )
   );
   private: static Bool _lookupCallee(
     TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
-    Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
+    Core::Basic::Containing<TiObject> *types, Spp::ExecutionContext const *ec,
     TiObject *&callee, Type *&calleeType
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee_iteration,
     Core::Data::Seeker::Verb, (
-      TiObject*, Core::Basic::Container<TiObject> *, Spp::ExecutionContext const*,
+      TiObject*, Core::Basic::Containing<TiObject> *, Spp::ExecutionContext const*,
       CallMatchStatus&, Int&, SharedPtr<Core::Notices::Notice>&, TiObject*&, Type*&
     )
   );
   private: static Core::Data::Seeker::Verb _lookupCallee_iteration(
-    TiObject *self, TiObject *obj, Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
+    TiObject *self, TiObject *obj, Core::Basic::Containing<TiObject> *types, Spp::ExecutionContext const *ec,
     CallMatchStatus &matchStatus, Int &matchCount, SharedPtr<Core::Notices::Notice> &notice,
     TiObject *&callee, Type *&calleeType
   );

@@ -85,7 +85,7 @@ Bool Helper::_isVarDefinition(TiObject *self, TiObject *obj)
 
 Bool Helper::lookupCalleeByName(
   Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
-  Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
+  Core::Basic::Containing<TiObject> *types, Spp::ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
 ) {
   Core::Data::Ast::Identifier identifier;
   identifier.setValue(name);
@@ -96,7 +96,7 @@ Bool Helper::lookupCalleeByName(
 
 Bool Helper::_lookupCallee(
   TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
-  Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
+  Core::Basic::Containing<TiObject> *types, Spp::ExecutionContext const *ec,
   TiObject *&callee, Type *&calleeType
 ) {
   PREPARE_SELF(helper, Helper);
@@ -149,7 +149,7 @@ Bool Helper::_lookupCallee(
 
 
 Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
-  TiObject *self, TiObject *obj, Core::Basic::Container<TiObject> *types, Spp::ExecutionContext const *ec,
+  TiObject *self, TiObject *obj, Core::Basic::Containing<TiObject> *types, Spp::ExecutionContext const *ec,
   CallMatchStatus &matchStatus, Int &matchCount, SharedPtr<Core::Notices::Notice> &notice,
   TiObject *&callee, Type *&calleeType
 ) {

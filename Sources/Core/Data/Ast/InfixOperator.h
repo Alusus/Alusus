@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class InfixOperator : public Node,
-                      public virtual Bindings, public virtual Basic::MapContainer<TiObject>, public virtual Metadata,
+                      public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual Metadata,
                       public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(InfixOperator, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Bindings, Basic::MapContainer<TiObject>, Metadata, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, Metadata, Clonable, Printable);
 
 
   //============================================================================
@@ -42,13 +42,13 @@ class InfixOperator : public Node,
 
   IMPLEMENT_METADATA(InfixOperator);
 
-  IMPLEMENT_BINDINGS(Bindings,
+  IMPLEMENT_BINDING(Binding,
     (type, TiStr, VALUE, setType(value), &type),
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (first, TiObject, setFirst(value), first.get()),
     (second, TiObject, setSecond(value), second.get())
   );

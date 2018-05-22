@@ -171,7 +171,7 @@ class TargetGeneration : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateStructTypeBody,
     Bool, (
-      TiObject* /* type */, Core::Basic::MapContainer<Core::Basic::TiObject>* /* membersTypes */,
+      TiObject* /* type */, Core::Basic::MapContaining<Core::Basic::TiObject>* /* membersTypes */,
       Core::Basic::SharedList<TiObject, TiObject>* /* members */
     )
   );
@@ -185,22 +185,22 @@ class TargetGeneration : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateFunctionDecl,
     Bool, (
-      Char const* /* name */, Core::Basic::MapContainer<TiObject>* /* argTypes */, TiObject* /* retType */,
+      Char const* /* name */, Core::Basic::MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
       Bool /* variadic */, TioSharedPtr& /* function */
     )
   );
 
   public: METHOD_BINDING_CACHE(prepareFunctionBody,
     Bool, (
-      TiObject* /* function */, Core::Basic::MapContainer<TiObject>* /* argTypes */, TiObject* /* retType */,
+      TiObject* /* function */, Core::Basic::MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
       Bool /* variadic */, Core::Basic::SharedList<TiObject, TiObject>* /* args */, TioSharedPtr& /* context */
     )
   );
 
   public: METHOD_BINDING_CACHE(finishFunctionBody,
     Bool, (
-      TiObject* /* function */, Core::Basic::MapContainer<TiObject>* /* argTypes */, TiObject* /* retType */,
-      Bool /* variadic */, Core::Basic::ListContainer<TiObject>* /* args */, TiObject* /* context */
+      TiObject* /* function */, Core::Basic::MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
+      Bool /* variadic */, Core::Basic::ListContaining<TiObject>* /* args */, TiObject* /* context */
     )
   );
 
@@ -352,7 +352,7 @@ class TargetGeneration : public ObjTiInterface
   public: METHOD_BINDING_CACHE(generateFunctionCall,
     Bool, (
       TiObject* /* context */, TiObject* /* function */,
-      Core::Basic::Container<Core::Basic::TiObject>* /* arguments */, TioSharedPtr& /* result */
+      Core::Basic::Containing<Core::Basic::TiObject>* /* arguments */, TioSharedPtr& /* result */
     )
   );
 

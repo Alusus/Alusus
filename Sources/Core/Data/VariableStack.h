@@ -18,13 +18,13 @@ namespace Core::Data
 
 // TODO: DOC
 
-class VariableStack : public TiObject, public virtual Basic::MapContainer<TiObject>
+class VariableStack : public TiObject, public virtual Basic::MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(VariableStack, TiObject, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Basic::MapContainer<TiObject>)
+    INHERITANCE_INTERFACES(Basic::MapContaining<TiObject>)
   ));
 
 
@@ -175,7 +175,7 @@ class VariableStack : public TiObject, public virtual Basic::MapContainer<TiObje
 
 
   //============================================================================
-  // MapContainer Implementation
+  // MapContaining Implementation
 
   public: virtual void setElement(Int index, TiObject *val);
 

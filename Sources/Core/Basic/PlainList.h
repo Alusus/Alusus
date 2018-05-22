@@ -16,13 +16,13 @@
 namespace Core { namespace Basic
 {
 
-template<class CTYPE, class PTYPE> class PlainList : public PTYPE, public virtual ListContainer<CTYPE>
+template<class CTYPE, class PTYPE> class PlainList : public PTYPE, public virtual ListContaining<CTYPE>
 {
   //============================================================================
   // Type Info
 
   TEMPLATE_TYPE_INFO(PlainList, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE), (
-    INHERITANCE_INTERFACES(ListContainer<CTYPE>)
+    INHERITANCE_INTERFACES(ListContaining<CTYPE>)
   ));
 
 
@@ -315,7 +315,7 @@ template<class CTYPE, class PTYPE> class PlainList : public PTYPE, public virtua
 
   /// @}
 
-  /// @name Container Implementation
+  /// @name Containing Implementation
   /// @{
 
   public: virtual void setElement(Int index, CTYPE *val)

@@ -89,7 +89,7 @@ namespace Core::Data::Grammar
 
 SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPtr<Reference>> *referenceCache = 0);
 
-GrammarModule* getGrammarRoot(Basic::ListContainer<TiObject> *rootScope, Bool createIfMissing = false);
+GrammarModule* getGrammarRoot(Basic::ListContaining<TiObject> *rootScope, Bool createIfMissing = false);
 
 /**
  * @brief Match a given character to a character group hierarchy.

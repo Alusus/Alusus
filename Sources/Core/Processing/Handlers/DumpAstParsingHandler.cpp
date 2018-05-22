@@ -24,7 +24,7 @@ void DumpAstParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
 {
   using SeekVerb = Data::Seeker::Verb;
 
-  auto data = state->getData().ti_cast_get<Basic::Container<TiObject>>()->getElement(1);
+  auto data = state->getData().ti_cast_get<Basic::Containing<TiObject>>()->getElement(1);
   ASSERT(data != 0);
   auto metadata = ti_cast<Core::Data::Ast::Metadata>(data);
   ASSERT(metadata != 0);

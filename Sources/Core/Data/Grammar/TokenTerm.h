@@ -39,7 +39,7 @@ class TokenTerm : public Term, public virtual DataOwner
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDINGS(Term,
+  IMPLEMENT_BINDING(Term,
     (tokenId, TiObject, SHARED_REF, setTokenId(value), tokenId.get()),
     (tokenText, TiObject, SHARED_REF, setTokenText(value), tokenText.get())
   );

@@ -18,13 +18,13 @@ namespace Core::Data::Grammar
 
 // TODO: DOC
 
-class GrammarModule : public NbMap, public virtual Bindings, public virtual Initializable, public virtual IdHolder
+class GrammarModule : public NbMap, public virtual Binding, public virtual Initializable, public virtual IdHolder
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(GrammarModule, NbMap, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Bindings, Initializable, IdHolder)
+    INHERITANCE_INTERFACES(Binding, Initializable, IdHolder)
   ));
 
 
@@ -78,7 +78,7 @@ class GrammarModule : public NbMap, public virtual Bindings, public virtual Init
 
   IMPLEMENT_IDHOLDER(GrammarModule);
 
-  IMPLEMENT_BINDINGS(Bindings,
+  IMPLEMENT_BINDING(Binding,
     (id, TiWord, VALUE, setId(value), &id),
     (baseRef, Reference, SHARED_REF, setBaseRef(value), baseRef.get()),
     (startRef, Reference, SHARED_REF, setStartRef(value), startRef.get()),

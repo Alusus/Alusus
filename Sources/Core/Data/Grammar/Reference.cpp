@@ -20,7 +20,7 @@ Bool Reference::setValue(TiObject *parent, TiObject *value) const
   VALIDATE_NOT_NULL(parent);
 
   if (this->next == 0) {
-    Basic::MapContainer<TiObject> *container = parent->getInterface<Basic::MapContainer<TiObject>>();
+    Basic::MapContaining<TiObject> *container = parent->getInterface<Basic::MapContaining<TiObject>>();
     if (container == 0) return false;
 
     if (this->cachedIndex < 0 || this->cachedIndex >= container->getElementCount()) {
@@ -47,7 +47,7 @@ Bool Reference::removeValue(TiObject *parent) const
   VALIDATE_NOT_NULL(parent);
 
   if (this->next == 0) {
-    Basic::MapContainer<TiObject> *container = parent->getInterface<Basic::MapContainer<TiObject>>();
+    Basic::MapContaining<TiObject> *container = parent->getInterface<Basic::MapContaining<TiObject>>();
     if (container == 0) return false;
 
     if (this->cachedIndex < 0 || this->cachedIndex >= container->getElementCount()) {
@@ -89,7 +89,7 @@ Bool Reference::_getValue(TiObject *parent, TiObject *&value, GrammarModule **ow
 {
   VALIDATE_NOT_NULL(parent);
 
-  Basic::MapContainer<TiObject> *container = parent->getInterface<Basic::MapContainer<TiObject>>();
+  Basic::MapContaining<TiObject> *container = parent->getInterface<Basic::MapContaining<TiObject>>();
   if (container == 0) return false;
 
   if (this->cachedIndex < 0 || this->cachedIndex >= container->getElementCount()) {

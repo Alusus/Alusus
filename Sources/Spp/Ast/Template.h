@@ -17,7 +17,7 @@ namespace Spp { namespace Ast
 {
 
 class Template : public Core::Data::Node,
-                 public virtual Core::Basic::Bindings, public virtual Core::Basic::MapContainer<TiObject>,
+                 public virtual Core::Basic::Binding, public virtual Core::Basic::MapContaining<TiObject>,
                  public virtual Core::Data::Ast::Metadata, public virtual Core::Data::Clonable,
                  public virtual Core::Data::Printable
 {
@@ -25,7 +25,7 @@ class Template : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(Template, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Basic::MapContainer<TiObject>,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Binding, Core::Basic::MapContaining<TiObject>,
                                          Core::Data::Ast::Metadata, Core::Data::Clonable, Core::Data::Printable);
 
 
@@ -52,12 +52,12 @@ class Template : public Core::Data::Node,
 
   IMPLEMENT_METADATA(Template);
 
-  IMPLEMENT_BINDINGS(Bindings,
+  IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (templateBody, Data::Clonable, setTemplateBody(value), templateBody.get())
   );
 

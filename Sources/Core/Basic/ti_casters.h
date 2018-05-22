@@ -1,5 +1,5 @@
 /**
- * @file Core/Basic/ti_casting.h
+ * @file Core/Basic/ti_casters.h
  * Contains casting functions for TiObject and TiInterface.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_TICASTING_H
-#define CORE_BASIC_TICASTING_H
+#ifndef CORE_BASIC_TICASTERS_H
+#define CORE_BASIC_TICASTERS_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 //==============================================================================
@@ -184,6 +184,6 @@ template <class T> inline T* tii2tio_cast(TiInterface *interface)
   return tio_cast<T>(interface==0 ? 0 : interface->getTiObject());
 }
 
-} } // namespace
+} // namespace
 
 #endif

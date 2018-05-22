@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/validation.h
- * Contains definitions related to validations.
+ * @file Core/Basic/validators.h
+ * Contains definitions related to validatorss.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_VALIDATION_H
-#define CORE_BASIC_VALIDATION_H
+#ifndef CORE_BASIC_VALIDATORS_H
+#define CORE_BASIC_VALIDATORS_H
 
 #define _VALIDATE_NOT_NULL1(name) \
   if (name == 0) { \

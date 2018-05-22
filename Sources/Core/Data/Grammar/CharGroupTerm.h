@@ -43,7 +43,7 @@ class CharGroupTerm : public Term, public virtual DataOwner
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDINGS(Term,
+  IMPLEMENT_BINDING(Term,
     (charGroupReference, Grammar::Reference, SHARED_REF, setCharGroupReference(value), charGroupReference.get())
   );
 

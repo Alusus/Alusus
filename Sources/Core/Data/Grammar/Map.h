@@ -16,13 +16,13 @@
 namespace Core::Data::Grammar
 {
 
-class Map : public NbMap, public virtual Bindings, public virtual Initializable
+class Map : public NbMap, public virtual Binding, public virtual Initializable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Map, NbMap, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Bindings, Initializable)
+    INHERITANCE_INTERFACES(Binding, Initializable)
   ));
 
 
@@ -35,7 +35,7 @@ class Map : public NbMap, public virtual Bindings, public virtual Initializable
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDINGS(Bindings,
+  IMPLEMENT_BINDING(Binding,
     (baseRef, Reference, SHARED_REF, setBaseRef(value), baseRef.get())
   );
 

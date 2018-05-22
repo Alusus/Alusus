@@ -41,7 +41,7 @@ class ConstTerm : public Term
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDINGS(Term,
+  IMPLEMENT_BINDING(Term,
     (matchString, TiWStr, VALUE, setMatchString(value), &matchString)
   );
 

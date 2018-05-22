@@ -25,7 +25,7 @@ void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 {
   auto metadata = state->getData().ti_cast<Ast::Metadata>();
   auto stringLiteral = ti_cast<Ast::StringLiteral>(
-    state->getData().ti_cast_get<Basic::Container<TiObject>>()->getElement(1)
+    state->getData().ti_cast_get<Basic::Containing<TiObject>>()->getElement(1)
   );
   if (stringLiteral) {
     auto filename = stringLiteral->getValue().get();

@@ -37,7 +37,7 @@ class ReferenceTerm : public Term, public virtual DataOwner
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDINGS(Term,
+  IMPLEMENT_BINDING(Term,
     (reference, Reference, SHARED_REF, setReference(value), reference.get())
   );
 

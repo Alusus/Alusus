@@ -40,7 +40,7 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
       // Execute the code if build was successful.
       if (result) {
         // Find the entry ref.
-        auto container = ti_cast<Core::Basic::Container<TiObject>>(data);
+        auto container = ti_cast<Core::Basic::Containing<TiObject>>(data);
         ASSERT(container != 0);
         auto entryRef = ti_cast<Core::Data::Node>(container->getElement(1));
         ASSERT(entryRef != 0);

@@ -16,13 +16,13 @@
 namespace Core::Data
 {
 
-class NbMap : public Node, public virtual Basic::MapContainer<TiObject>, public virtual DataOwner
+class NbMap : public Node, public virtual Basic::MapContaining<TiObject>, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(NbMap, Node, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Basic::MapContainer<TiObject>, DataOwner)
+    INHERITANCE_INTERFACES(Basic::MapContaining<TiObject>, DataOwner)
   ));
 
 
@@ -210,7 +210,7 @@ class NbMap : public Node, public virtual Basic::MapContainer<TiObject>, public 
 
   /// @}
 
-  /// @name MapContainer Implementation
+  /// @name MapContaining Implementation
   /// @{
 
   public: virtual void setElement(Int index, TiObject *val)

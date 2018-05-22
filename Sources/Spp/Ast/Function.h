@@ -19,7 +19,7 @@ namespace Spp::Ast
 class Type;
 
 class Function : public Core::Data::Node,
-                 public virtual Core::Basic::Bindings, public virtual Core::Basic::MapContainer<TiObject>,
+                 public virtual Core::Basic::Binding, public virtual Core::Basic::MapContaining<TiObject>,
                  public virtual Core::Data::Ast::Metadata,
                  public virtual Core::Data::Clonable, public virtual Core::Data::Printable
 {
@@ -27,7 +27,7 @@ class Function : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(Function, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Bindings, Core::Basic::MapContainer<TiObject>,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Binding, Core::Basic::MapContaining<TiObject>,
                                          Core::Data::Ast::Metadata,
                                          Core::Data::Clonable, Core::Data::Printable);
 
@@ -59,14 +59,14 @@ class Function : public Core::Data::Node,
 
   IMPLEMENT_METADATA(Function);
 
-  IMPLEMENT_BINDINGS(Bindings,
+  IMPLEMENT_BINDING(Binding,
     (name, TiStr, VALUE, setName(value), &name),
     (inlined, TiBool, VALUE, setInlined(value), &inlined),
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContainer<TiObject>,
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (argTypes, Core::Data::Ast::Map, setArgTypes(value), argTypes.get()),
     (retType, TiObject, setRetType(value), retType.get()),
     (body, Block, setBody(value), body.get())
@@ -175,7 +175,7 @@ class Function : public Core::Data::Node,
   }
 
   public: CallMatchStatus matchCall(
-    Core::Basic::Container<Core::Basic::TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
+    Core::Basic::Containing<Core::Basic::TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
   );
 
   public: CallMatchStatus matchNextArg(

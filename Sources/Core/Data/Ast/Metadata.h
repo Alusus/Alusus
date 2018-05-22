@@ -86,7 +86,7 @@ class Metadata : public TiInterface
   {
     SharedPtr<SourceLocation> const &sl = this->getSourceLocation();
     if (sl == 0) {
-      Container<TiObject> const *container = this->getTiObject()->getInterface<Container<TiObject> const>();
+      Containing<TiObject> const *container = this->getTiObject()->getInterface<Containing<TiObject> const>();
       if (container != 0) {
         for (Int i = 0; i < container->getElementCount(); ++i) {
           Metadata *ptr = ti_cast<Metadata>(container->getElement(i));

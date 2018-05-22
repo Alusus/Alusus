@@ -692,7 +692,7 @@ extern std::istream &inStream;
 
 #include "Logger.h"
 #include "exceptions.h"
-#include "validation.h"
+#include "validators.h"
 
 #include "SortedIndex.h"
 #include "default_sorted_indices.h"
@@ -705,7 +705,7 @@ extern std::istream &inStream;
 #include "TiObject.h"
 #include "TiInterface.h"
 #include "ObjTiInterface.h"
-#include "ti_casting.h"
+#include "ti_casters.h"
 
 #include "SharedPtr.h"
 #include "WeakPtr.h"
@@ -717,9 +717,9 @@ extern std::istream &inStream;
 
 #include "Argument.h"
 
-#include "Container.h"
-#include "ListContainer.h"
-#include "MapContainer.h"
+#include "Containing.h"
+#include "ListContaining.h"
+#include "MapContaining.h"
 #include "containing_helpers.h"
 
 #include "SharedList.h"
@@ -734,10 +734,10 @@ extern std::istream &inStream;
 #include "TiBool.h"
 #include "ti_functions.h"
 
-#include "Bindings.h"
+#include "Binding.h"
 #include "BindingMap.h"
-#include "bindings_helpers.h"
-#include "DynamicBindings.h"
+#include "binding_helpers.h"
+#include "DynamicBinding.h"
 #include "binding_caches.h"
 
 #include "ObjTiInterfaceList.h"

@@ -24,13 +24,13 @@ namespace Core::Data::Grammar
  * definition includes the CharGroupUnit tree and the identifier of the char
  * group.
  */
-class CharGroupDefinition : public Node, public virtual Bindings, public virtual IdHolder
+class CharGroupDefinition : public Node, public virtual Binding, public virtual IdHolder
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(CharGroupDefinition, Node, "Core.Data.Grammar", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Bindings, IdHolder);
+  IMPLEMENT_INTERFACES(Node, Binding, IdHolder);
 
 
   //============================================================================
@@ -49,7 +49,7 @@ class CharGroupDefinition : public Node, public virtual Bindings, public virtual
 
   IMPLEMENT_IDHOLDER(CharGroupDefinition);
 
-  IMPLEMENT_BINDINGS(Bindings, (id, TiWord, VALUE, setId(value), &id));
+  IMPLEMENT_BINDING(Binding, (id, TiWord, VALUE, setId(value), &id));
 
 
   //============================================================================

@@ -16,13 +16,13 @@
 namespace Spp { namespace Ast
 {
 
-class NodePathResolver : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
+class NodePathResolver : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfaces
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(NodePathResolver, TiObject, "Spp.Ast", "Spp", "alusus.net", (
-    INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
+    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfaces),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
 

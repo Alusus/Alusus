@@ -528,7 +528,7 @@ Bool ExpressionGenerator::_generateOperator(
   SharedList<TiObject, TiObject> paramTgValues;
   PlainList<TiObject, TiObject> paramAstTypes;
   if (!expGenerator->generateParamList(
-    ti_cast<Core::Basic::Container<TiObject>>(astNode), g, tg, tgContext, &paramAstTypes, &paramTgValues
+    ti_cast<Core::Basic::Containing<TiObject>>(astNode), g, tg, tgContext, &paramAstTypes, &paramTgValues
   )) return false;
 
   // Look for a matching function to call.
@@ -1112,7 +1112,7 @@ Bool ExpressionGenerator::_generateArrayReference(
 
 Bool ExpressionGenerator::_generateFunctionCall(
   TiObject *self, Spp::Ast::Function *callee,
-  Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
+  Core::Basic::Containing<TiObject> *paramAstTypes, Core::Basic::Containing<TiObject> *paramTgValues,
   Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1133,7 +1133,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
 
 Bool ExpressionGenerator::_generateBuiltInFunctionCall(
   TiObject *self, Spp::Ast::Function *callee,
-  Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
+  Core::Basic::Containing<TiObject> *paramAstTypes, Core::Basic::Containing<TiObject> *paramTgValues,
   Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1449,7 +1449,7 @@ Bool ExpressionGenerator::_generateBuiltInFunctionCall(
 
 Bool ExpressionGenerator::_generateUserFunctionCall(
     TiObject *self, Spp::Ast::Function *callee,
-    Core::Basic::Container<TiObject> *paramAstTypes, Core::Basic::Container<TiObject> *paramTgValues,
+    Core::Basic::Containing<TiObject> *paramAstTypes, Core::Basic::Containing<TiObject> *paramTgValues,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1470,13 +1470,13 @@ Bool ExpressionGenerator::_generateUserFunctionCall(
 
 Bool ExpressionGenerator::generateParamList(
   Core::Basic::TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-  Core::Basic::ListContainer<TiObject> *resultTypes, Core::Basic::SharedList<TiObject, TiObject> *resultValues
+  Core::Basic::ListContaining<TiObject> *resultTypes, Core::Basic::SharedList<TiObject, TiObject> *resultValues
 ) {
   if (astNode == 0) return true;
 
   if (astNode->isDerivedFrom<Core::Data::Ast::List>()) {
     if (!this->generateParamList(
-      ti_cast<Core::Basic::Container<TiObject>>(astNode), g, tg, tgContext, resultTypes, resultValues
+      ti_cast<Core::Basic::Containing<TiObject>>(astNode), g, tg, tgContext, resultTypes, resultValues
     )) return false;
   } else {
     GenResult result;
@@ -1495,8 +1495,8 @@ Bool ExpressionGenerator::generateParamList(
 
 
 Bool ExpressionGenerator::generateParamList(
-  Core::Basic::Container<TiObject> *astNodes, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-  Core::Basic::ListContainer<TiObject> *resultTypes, Core::Basic::SharedList<TiObject, TiObject> *resultValues
+  Core::Basic::Containing<TiObject> *astNodes, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  Core::Basic::ListContaining<TiObject> *resultTypes, Core::Basic::SharedList<TiObject, TiObject> *resultValues
 ) {
   for (Int i = 0; i < astNodes->getElementCount(); ++i) {
     GenResult result;
@@ -1516,7 +1516,7 @@ Bool ExpressionGenerator::generateParamList(
 
 void ExpressionGenerator::prepareFunctionParams(
   Spp::Ast::Function *callee, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-  Core::Basic::ListContainer<TiObject> *paramAstTypes, Core::Basic::SharedList<TiObject, TiObject> *paramTgVals
+  Core::Basic::ListContaining<TiObject> *paramAstTypes, Core::Basic::SharedList<TiObject, TiObject> *paramTgVals
 ) {
   Ast::Function::ArgMatchContext context;
   for (Int i = 0; i < paramTgVals->getElementCount(); ++i) {

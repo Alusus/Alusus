@@ -16,13 +16,13 @@
 namespace Core::Data
 {
 
-class NbList : public Node, public virtual Basic::ListContainer<TiObject>, public virtual DataOwner
+class NbList : public Node, public virtual Basic::ListContaining<TiObject>, public virtual DataOwner
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(NbList, Node, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Basic::ListContainer<TiObject>, DataOwner)
+    INHERITANCE_INTERFACES(Basic::ListContaining<TiObject>, DataOwner)
   ));
 
 
@@ -170,7 +170,7 @@ class NbList : public Node, public virtual Basic::ListContainer<TiObject>, publi
 
   /// @}
 
-  /// @name ListContainer Implementation
+  /// @name ListContaining Implementation
   /// @{
 
   public: virtual void setElement(Int index, TiObject *val)

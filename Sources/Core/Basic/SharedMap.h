@@ -16,13 +16,13 @@
 namespace Core::Basic
 {
 
-template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, public virtual MapContainer<CTYPE>
+template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, public virtual MapContaining<CTYPE>
 {
   //============================================================================
   // Type Info
 
   TEMPLATE_TYPE_INFO(SharedMap, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE), (
-    INHERITANCE_INTERFACES(MapContainer<CTYPE>)
+    INHERITANCE_INTERFACES(MapContaining<CTYPE>)
   ));
 
 
@@ -462,7 +462,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
 
   /// @}
 
-  /// @name Container Implementation
+  /// @name Containing Implementation
   /// @{
 
   public: virtual void setElement(Int index, CTYPE *val)

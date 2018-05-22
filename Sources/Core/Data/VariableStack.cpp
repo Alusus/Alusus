@@ -426,7 +426,7 @@ Int VariableStack::findIndex(Char const *key, Int start, Int end) const
 
 
 //==============================================================================
-// MapContainer Implementation
+// MapContaining Implementation
 
 void VariableStack::setElement(Int index, TiObject *val)
 {

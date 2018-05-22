@@ -23,13 +23,13 @@ namespace Core::Data::Grammar
  * The base class of all grammar term classes. Term classes are used to
  * construct a grammar formulas.
  */
-class Term : public Node, public virtual Bindings
+class Term : public Node, public virtual Binding
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Term, Node, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Bindings)
+    INHERITANCE_INTERFACES(Binding)
   ));
 
 
@@ -48,7 +48,7 @@ class Term : public Node, public virtual Bindings
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDINGS(Bindings,
+  IMPLEMENT_BINDING(Binding,
     (flags, TiObject, SHARED_REF, setFlags(value), flags.get())
   );
 

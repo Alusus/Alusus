@@ -229,12 +229,12 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
 {
   if (this->isRouteTerm(state, levelIndex)) {
     TiObject *currentData = state->getData(levelIndex).get();
-    auto container= ti_cast<Basic::Container<TiObject>>(currentData);
+    auto container= ti_cast<Basic::Containing<TiObject>>(currentData);
     if (currentData == 0) {
       state->setData(data, levelIndex);
     } else if (container != 0 && container->getElement(0) == 0) {
       this->prepareToModifyData(state, levelIndex);
-      container = state->getData(levelIndex).ti_cast_get<Basic::Container<TiObject>>();
+      container = state->getData(levelIndex).ti_cast_get<Basic::Containing<TiObject>>();
       container->setElement(0, data.get());
     } else {
       throw EXCEPTION(GenericException,
@@ -253,7 +253,7 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
         // We have an enforced-item list, and this is not the first item in the list, so we'll create
         // a list whose first item is null.
         SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
-        auto newContainer = list.ti_cast_get<Basic::ListContainer<TiObject>>();
+        auto newContainer = list.ti_cast_get<Basic::ListContaining<TiObject>>();
         Ast::Metadata *metadata = data.ti_cast_get<Ast::Metadata>();
         Ast::Metadata *newMetadata = list.ti_cast_get<Ast::Metadata>();
         if (newMetadata != 0 && metadata != 0) {
@@ -269,18 +269,18 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
       // There is three possible situations at this point: Either the list was enforced, or
       // a child data was set into this level, or this level was visited more than once causing
       // a list to be created.
-      auto container = ti_cast<Basic::ListContainer<TiObject>>(currentData);
+      auto container = ti_cast<Basic::ListContaining<TiObject>>(currentData);
       Ast::Metadata *metadata = ti_cast<Ast::Metadata>(currentData);
       if (container != 0 && (metadata == 0 || metadata->getProdId() == UNKNOWN_ID)) {
         // This level already has a list that belongs to this production, so we can just add the new data
         // to this list.
         this->prepareToModifyData(state, levelIndex);
-        auto container = state->getData(levelIndex).ti_cast_get<Basic::ListContainer<TiObject>>();
+        auto container = state->getData(levelIndex).ti_cast_get<Basic::ListContaining<TiObject>>();
         container->addElement(data.get());
       } else {
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
         SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
-        auto newContainer = list.ti_cast_get<Basic::ListContainer<TiObject>>();
+        auto newContainer = list.ti_cast_get<Basic::ListContaining<TiObject>>();
         Ast::Metadata *newMetadata = list.ti_cast_get<Ast::Metadata>();
         if (newMetadata != 0 && metadata != 0) {
           newMetadata->setSourceLocation(metadata->findSourceLocation());

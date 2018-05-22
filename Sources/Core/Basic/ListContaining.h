@@ -1,8 +1,8 @@
 /**
- * @file Core/Basic/ListContainer.h
- * Contains the header of interface Basic::ListContainer.
+ * @file Core/Basic/ListContaining.h
+ * Contains the header of interface Basic::ListContaining.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,18 +10,18 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_LISTCONTAINER_H
-#define CORE_BASIC_LISTCONTAINER_H
+#ifndef CORE_BASIC_LISTCONTAINING_H
+#define CORE_BASIC_LISTCONTAINING_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
-template<class CTYPE> class ListContainer : public virtual Container<CTYPE>
+template<class CTYPE> class ListContaining : public virtual Containing<CTYPE>
 {
   //============================================================================
   // Type Info
 
-  TEMPLATE_INTERFACE_INFO(ListContainer, Container<CTYPE>, "Core.Data", "Core", "alusus.net", (CTYPE));
+  TEMPLATE_INTERFACE_INFO(ListContaining, Containing<CTYPE>, "Core.Data", "Core", "alusus.net", (CTYPE));
 
 
   //============================================================================
@@ -33,6 +33,6 @@ template<class CTYPE> class ListContainer : public virtual Container<CTYPE>
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

@@ -16,13 +16,13 @@
 namespace Spp { namespace CodeGen
 {
 
-class NoOpTargetGenerator : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
+class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfaces
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(NoOpTargetGenerator, TiObject, "Spp.CodeGen", "Spp", "alusus.net", (
-    INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
+    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfaces),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
 
@@ -103,7 +103,7 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBindings, pub
   ) { return true; }
 
   public: Bool generateStructTypeBody(
-    TiObject *type, Core::Basic::MapContainer<TiObject> *membersTypes,
+    TiObject *type, Core::Basic::MapContaining<TiObject> *membersTypes,
     Core::Basic::SharedList<TiObject, TiObject> *members
   ) { return true; }
 
@@ -115,18 +115,18 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBindings, pub
   /// @{
 
   public: Bool generateFunctionDecl(
-    Char const *name, Core::Basic::MapContainer<TiObject> *argTypes, TiObject *retType, Bool variadic,
+    Char const *name, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType, Bool variadic,
     TioSharedPtr &function
   ) { return true; }
 
   public: Bool prepareFunctionBody(
-    TiObject *function, Core::Basic::MapContainer<TiObject> *argTypes, TiObject *retType,
+    TiObject *function, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType,
     Bool variadic, Core::Basic::SharedList<TiObject, TiObject> *args, TioSharedPtr &context
   ) { return true; }
 
   public: Bool finishFunctionBody(
-    TiObject *function, Core::Basic::MapContainer<TiObject> *argTypes, TiObject *retType,
-    Bool variadic, Core::Basic::ListContainer<TiObject> *args, TiObject *context
+    TiObject *function, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType,
+    Bool variadic, Core::Basic::ListContaining<TiObject> *args, TiObject *context
   ) { return true; }
 
   /// @}
@@ -246,7 +246,7 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBindings, pub
 
   public: Bool generateFunctionCall(
     TiObject *context, TiObject *function,
-    Core::Basic::Container<Core::Basic::TiObject>* arguments, TioSharedPtr &result
+    Core::Basic::Containing<Core::Basic::TiObject>* arguments, TioSharedPtr &result
   ) { return true; }
 
   public: Bool generateReturn(

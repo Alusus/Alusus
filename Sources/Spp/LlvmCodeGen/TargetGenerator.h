@@ -16,13 +16,13 @@
 namespace Spp { namespace LlvmCodeGen
 {
 
-class TargetGenerator : public TiObject, public virtual DynamicBindings, public virtual DynamicInterfaces
+class TargetGenerator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfaces
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(TargetGenerator, TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.net", (
-    INHERITANCE_INTERFACES(DynamicBindings, DynamicInterfaces),
+    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfaces),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
 
@@ -119,7 +119,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
   );
 
   public: Bool generateStructTypeBody(
-    TiObject *type, Core::Basic::MapContainer<TiObject> *membersTypes,
+    TiObject *type, Core::Basic::MapContaining<TiObject> *membersTypes,
     Core::Basic::SharedList<TiObject, TiObject> *members
   );
 
@@ -131,18 +131,18 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
   /// @{
 
   public: Bool generateFunctionDecl(
-    Char const *name, Core::Basic::MapContainer<TiObject> *argTypes, TiObject *retType, Bool variadic,
+    Char const *name, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType, Bool variadic,
     TioSharedPtr &function
   );
 
   public: Bool prepareFunctionBody(
-    TiObject *function, Core::Basic::MapContainer<TiObject> *argTypes, TiObject *retType,
+    TiObject *function, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType,
     Bool variadic, Core::Basic::SharedList<TiObject, TiObject> *args, TioSharedPtr &context
   );
 
   public: Bool finishFunctionBody(
-    TiObject *function, Core::Basic::MapContainer<TiObject> *argTypes, TiObject *retType,
-    Bool variadic, Core::Basic::ListContainer<TiObject> *args, TiObject *context
+    TiObject *function, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType,
+    Bool variadic, Core::Basic::ListContaining<TiObject> *args, TiObject *context
   );
 
   /// @}
@@ -237,7 +237,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBindings, public 
 
   public: Bool generateFunctionCall(
     TiObject *context, TiObject *function,
-    Core::Basic::Container<Core::Basic::TiObject>* arguments, TioSharedPtr &result
+    Core::Basic::Containing<Core::Basic::TiObject>* arguments, TioSharedPtr &result
   );
 
   public: Bool generateReturn(

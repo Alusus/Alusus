@@ -1,8 +1,8 @@
 /**
- * @file Core/Basic/DynamicBindings.h
- * Contains the header of interface Core::Basic::DynamicBindings.
+ * @file Core/Basic/DynamicBinding.h
+ * Contains the header of interface Core::Basic::DynamicBinding.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,24 +10,24 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_DYNAMICBINDINGS_H
-#define CORE_BASIC_DYNAMICBINDINGS_H
+#ifndef CORE_BASIC_DYNAMICBINDING_H
+#define CORE_BASIC_DYNAMICBINDING_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
-class DynamicBindings : public Bindings
+class DynamicBinding : public Binding
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(DynamicBindings, Bindings, "Core.Basic", "Core", "alusus.net");
+  INTERFACE_INFO(DynamicBinding, Binding, "Core.Basic", "Core", "alusus.net");
 
 
   //============================================================================
   // Member Functions
 
-  /// @name Bindings Overrides
+  /// @name Binding Overrides
   /// @{
 
   public: virtual Int setMember(Char const *name, TiObject *val)
@@ -97,17 +97,17 @@ class DynamicBindings : public Bindings
 
   /// @}
 
-  /// @name DynamicBindings Functions
+  /// @name DynamicBinding Functions
   /// @{
 
   public: virtual BindingMap* getBindingMap() = 0;
 
   public: virtual BindingMap const* getBindingMap() const
   {
-    return const_cast<DynamicBindings*>(this)->getBindingMap();
+    return const_cast<DynamicBinding*>(this)->getBindingMap();
   }
 
-  public: virtual void inheritBindings(DynamicBindings *base)
+  public: virtual void inheritBindings(DynamicBinding *base)
   {
     this->getBindingMap()->setBase(base->getBindingMap());
   }
@@ -219,6 +219,6 @@ class DynamicBindings : public Bindings
     return &this->bindingMap; \
   }
 
-} } // namespace
+} // namespace
 
 #endif

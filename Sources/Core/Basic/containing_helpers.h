@@ -1,6 +1,6 @@
 /**
  * @file Core/Basic/containing_helpers.h
- * Contains MapContainer related helper definitions.
+ * Contains MapContaining related helper definitions.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -246,9 +246,9 @@ namespace Core { namespace Basic
                _IMPLEMENT_MAP_CONTAINING_FINDINDEX2, \
                _IMPLEMENT_MAP_CONTAINING_FINDINDEX1)(parent, __VA_ARGS__)
 
-// MapContainer Implementation Macro
+// MapContaining Implementation Macro
 #define IMPLEMENT_MAP_CONTAINING(parent, ...) \
-  public: using MapContainer::setElement; \
+  public: using MapContaining::setElement; \
   public: virtual Int setElement(Char const *key, TiObject *val) \
   { \
     _IMPLEMENT_MAP_CONTAINING_KEYSET(parent, __VA_ARGS__); \
@@ -273,7 +273,7 @@ namespace Core { namespace Basic
   { \
     return SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, 5, 4, 3, 2, 1) + parent::getElementCount(); \
   } \
-  public: using MapContainer::getElement; \
+  public: using MapContaining::getElement; \
   public: virtual TiObject* getElement(Char const *key) const \
   { \
     _IMPLEMENT_MAP_CONTAINING_KEYGET(__VA_ARGS__); \

@@ -16,13 +16,13 @@
 namespace Core::Data::Grammar
 {
 
-class List : public NbList, public virtual Bindings, public virtual Initializable
+class List : public NbList, public virtual Binding, public virtual Initializable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(List, NbList, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Bindings, Initializable)
+    INHERITANCE_INTERFACES(Binding, Initializable)
   ));
 
 
@@ -35,7 +35,7 @@ class List : public NbList, public virtual Bindings, public virtual Initializabl
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDINGS(Bindings,
+  IMPLEMENT_BINDING(Binding,
     (baseRef, Reference, SHARED_REF, setBaseRef(value), baseRef.get())
   );
 

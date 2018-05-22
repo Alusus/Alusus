@@ -43,7 +43,7 @@ class Factory
   //============================================================================
   // Member Functions
 
-  protected: void setRootScope(Basic::ListContainer<TiObject> *rootScope);
+  protected: void setRootScope(Basic::ListContaining<TiObject> *rootScope);
 
   protected: void set(Char const* qualifier, TiObject *val);
   protected: void set(Char const* qualifier, TioSharedPtr const &val)
@@ -62,11 +62,11 @@ class Factory
   /// Search the entire grammar for const token to generate.
   protected: void generateConstTokenDefinitions()
   {
-    this->generateConstTokenDefinitions(this->context.getRoot()->getInterface<Basic::Container<TiObject>>());
+    this->generateConstTokenDefinitions(this->context.getRoot()->getInterface<Basic::Containing<TiObject>>());
   }
 
   /// Generate lexer definitions for constant tokens used in a container tree.
-  protected: void generateConstTokenDefinitions(Basic::Container<TiObject> *container);
+  protected: void generateConstTokenDefinitions(Basic::Containing<TiObject> *container);
 
   /// Generate lexer definitions for constant tokens used in a term tree.
   protected: void generateConstTokenDefinitions(Term *term);
