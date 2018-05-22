@@ -30,8 +30,6 @@
 namespace Core::Data
 {
   class Node;
-  class Module;
-  class Provider;
   class Seeker;
   class SourceLocation;
 }
@@ -43,78 +41,10 @@ namespace Core::Notices
 
 
 //==============================================================================
-// Data Types
-
-namespace Core::Data
-{
-
-/**
- * @brief An enumeration that specifies the usage criteria of references.
- * The usage criteria is used by references to determine caching criteria.
- * References can cache the indexes of referenced data to avoid repeating
- * the search. By knowing the usage criteria references will be able to
- * determine whether the indexes can be cached.
- *
- * SINGLE_DATA_SINGLE_MATCH: The reference will always be used against the same
- *                           data repository, and will only be used to match a
- *                           single target.
- * SINGLE_DATA_MULTI_MATCH: The reference will always be used against the same
- *                          data repository, but can match multiple targets.
- * MULTI_DATA: The reference can be used against different data repositories.
- */
-// OBSOLETE:
-s_enum(ReferenceUsageCriteria, SINGLE_DATA_SINGLE_MATCH, SINGLE_DATA_MULTI_MATCH, MULTI_DATA);
-
-/**
- * @brief An enumeration for the list of operations for references.
- * References use lambdas to determine the operation to perform.and those
- * lambdas can return one of the values in this enumeration to tell the
- * Reference object what operation to perform.
- *
- * MOVE: Move to the next element matched by this reference.
- * STOP: Stop the matching and ignore any other possible matches.
- * PERFORM_AND_MOVE: Perform the requested operation on this match, then move
- *                   to the next match.
- * PERFORM_AND_STOP: Perform the requested operation on this match, then stop
- *                   and ignore other possible matches.
- */
-// OBSOLETE:
-s_enum(RefOp, MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP);
-
-/**
- * @brief An enumeration for change operation of Containers' contents.
- * @ingroup core_data
- *
- * This enumeration is used to specifiy the type of the operation happneing on
- * Containers. This is used by containers' contentChangeNotifier.
- *
- * ADD: The operation is an addition of a new element.
- * UPDATE: The operation is an update of an existing element.
- * REMOVE: The operation is a removal of an existing element.
- */
-// OBSOLETE:
-s_enum(ContentChangeOp, ADD, UPDATE, REMOVE);
-
-} // namespace
-
-
-//==============================================================================
 // Functions
 
 namespace Core::Data
 {
-
-/**
- * A helper function to check whether 'op' is any of the perform values.
- * @ingroup core_data
- */
-Bool isPerform(RefOp op);
-
-/**
- * A helper function to check whether 'op' is any of the move values.
- * @ingroup core_data
- */
-Bool isMove(RefOp op);
 
 /**
  * Reset the indexes of all references in a specific range within a tree.
@@ -179,23 +109,6 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents);
 Word getSourceLocationRecordCount(SourceLocation const *sl);
 
 // TODO: Find module for other dimensions.
-
-} // namespace
-
-
-//==============================================================================
-// Function Signature Definitions
-
-namespace Core::Data
-{
-
-typedef std::function<RefOp(Int index, TiObject *&obj)> ReferenceSetLambda;
-typedef std::function<RefOp(Int index, TiObject *obj)> ReferenceRemoveLambda;
-typedef std::function<RefOp(Int index, TiObject *obj)> ReferenceForeachLambda;
-
-typedef std::function<RefOp(Int index, TiObject *&obj)> SeekerSetLambda;
-typedef std::function<RefOp(Int index, TiObject *obj)> SeekerRemoveLambda;
-typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerForeachLambda;
 
 } // namespace
 
@@ -324,12 +237,6 @@ typedef std::function<RefOp(Int index, TiObject *obj, TiObject *parent)> SeekerF
 #include "NbMap.h"
 #include "VariableStack.h"
 #include "DataStack.h"
-
-// Container Interfaces
-#include "Container.h"
-#include "ListContainer.h"
-#include "NamedListContainer.h"
-#include "MapContainer.h"
 
 // Other Classes
 #include "Token.h"

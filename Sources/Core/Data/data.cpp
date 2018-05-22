@@ -20,26 +20,6 @@ namespace Core { namespace Data
 //============================================================================
 // Global Functions
 
-Bool isPerform(RefOp op)
-{
-  if (op == RefOp::PERFORM_AND_STOP || op == RefOp::PERFORM_AND_MOVE) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-
-Bool isMove(RefOp op)
-{
-  if (op == RefOp::MOVE || op == RefOp::PERFORM_AND_MOVE) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-
 void unsetIndexes(TiObject *obj, Int from, Int to)
 {
   if (obj == 0) {

@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Metadata.h
  * Contains the header of interface Data::Ast::Metadata.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -86,10 +86,10 @@ class Metadata : public TiInterface
   {
     SharedPtr<SourceLocation> const &sl = this->getSourceLocation();
     if (sl == 0) {
-      Container const *container = this->getTiObject()->getInterface<Container const>();
+      Container<TiObject> const *container = this->getTiObject()->getInterface<Container<TiObject> const>();
       if (container != 0) {
-        for (Int i = 0; i < container->getCount(); ++i) {
-          Metadata *ptr = ti_cast<Metadata>(container->get(i));
+        for (Int i = 0; i < container->getElementCount(); ++i) {
+          Metadata *ptr = ti_cast<Metadata>(container->getElement(i));
           if (ptr != 0) {
             SharedPtr<SourceLocation> const &sl2 = ptr->findSourceLocation();
             if (sl2 != 0) return sl2;
