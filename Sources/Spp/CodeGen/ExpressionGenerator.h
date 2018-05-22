@@ -111,12 +111,12 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBindings, pub
 
   public: METHOD_BINDING_CACHE(generateList,
     Bool, (
-      Core::Data::Ast::ExpressionList* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
+      Core::Data::Ast::List* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
       TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateList(
-    TiObject *self, Core::Data::Ast::ExpressionList *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    TiObject *self, Core::Data::Ast::List *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
     GenResult &result
   );
 

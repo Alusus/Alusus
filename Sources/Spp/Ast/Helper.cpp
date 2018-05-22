@@ -417,7 +417,7 @@ ArrayType* Helper::_getCharArrayType(TiObject *self, Word size)
   } else {
     // Recycle the existing reference.
     auto intLiteral = helper->charArrayTypeRef
-      ->getParam().ti_cast_get<Core::Data::Ast::ExpressionList>()
+      ->getParam().ti_cast_get<Core::Data::Ast::List>()
       ->get(1).ti_cast_get<Core::Data::Ast::IntegerLiteral>();
     if (!intLiteral) {
       throw EXCEPTION(GenericException, STR("Unexpected internal error."));

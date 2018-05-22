@@ -51,7 +51,7 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
       return;
     }
 
-    auto head = ti_cast<Core::Data::Ast::ExpressionList>(expr->getElement(1));
+    auto head = ti_cast<Core::Data::Ast::List>(expr->getElement(1));
     if (head == 0 || head->getCount() != 3) {
       state->addNotice(std::make_shared<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
       state->setData(SharedPtr<TiObject>(0));

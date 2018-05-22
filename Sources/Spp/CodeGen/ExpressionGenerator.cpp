@@ -85,8 +85,8 @@ Bool ExpressionGenerator::_generate(
   TiObject *self, TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
-  if (astNode->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
-    auto expList = static_cast<Core::Data::Ast::ExpressionList*>(astNode);
+  if (astNode->isDerivedFrom<Core::Data::Ast::List>()) {
+    auto expList = static_cast<Core::Data::Ast::List*>(astNode);
     return expGenerator->generateList(expList, g, tg, tgContext, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
@@ -146,7 +146,7 @@ Bool ExpressionGenerator::_generate(
 
 
 Bool ExpressionGenerator::_generateList(
-  TiObject *self, Core::Data::Ast::ExpressionList *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  TiObject *self, Core::Data::Ast::List *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
   GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1474,7 +1474,7 @@ Bool ExpressionGenerator::generateParamList(
 ) {
   if (astNode == 0) return true;
 
-  if (astNode->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
+  if (astNode->isDerivedFrom<Core::Data::Ast::List>()) {
     if (!this->generateParamList(
       ti_cast<Core::Basic::Container<TiObject>>(astNode), g, tg, tgContext, resultTypes, resultValues
     )) return false;

@@ -76,8 +76,8 @@ Bool Template::matchInstance(TiObject *templateInput, Helper *helper, TioSharedP
 Bool Template::matchTemplateVars(
   TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
 ) {
-  if (templateInput->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
-    auto list = static_cast<Core::Data::Ast::ExpressionList*>(templateInput);
+  if (templateInput->isDerivedFrom<Core::Data::Ast::List>()) {
+    auto list = static_cast<Core::Data::Ast::List*>(templateInput);
     if (this->varDefs.size() != list->getCount()) {
       notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
         Core::Data::Ast::findSourceLocation(templateInput)
@@ -164,8 +164,8 @@ Bool Template::matchTemplateVar(
 Bool Template::assignTemplateVars(
   TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
 ) {
-  if (templateInput->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
-    auto list = static_cast<Core::Data::Ast::ExpressionList*>(templateInput);
+  if (templateInput->isDerivedFrom<Core::Data::Ast::List>()) {
+    auto list = static_cast<Core::Data::Ast::List*>(templateInput);
     if (this->varDefs.size() != list->getCount()) {
       notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
         Core::Data::Ast::findSourceLocation(templateInput)

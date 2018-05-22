@@ -1214,7 +1214,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
       })}
     })},
     {STR("vars"), Map::create(false, {}, {{STR("enable"), std::make_shared<TiInt>(1)}})},
-    {STR("handler"), std::make_shared<ListParsingHandler<Ast::ExpressionList>>(-1, false)}
+    {STR("handler"), std::make_shared<ListParsingHandler<Ast::List>>(-1, false)}
   }));
 
   // LowerLinkExp : @single @prefix(heap.Modifiers.LowerLinkModifierCmd)

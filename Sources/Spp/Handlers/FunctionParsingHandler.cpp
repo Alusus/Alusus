@@ -120,8 +120,8 @@ Bool FunctionParsingHandler::parseArgs(Processing::ParserState *state,
   auto args = bracket->getOperand().get();
   if (args == 0) {
     return true;
-  } else if (args->isDerivedFrom<Core::Data::Ast::ExpressionList>()) {
-    auto argsList = static_cast<Core::Data::Ast::ExpressionList*>(args);
+  } else if (args->isDerivedFrom<Core::Data::Ast::List>()) {
+    auto argsList = static_cast<Core::Data::Ast::List*>(args);
     result = std::make_shared<Core::Data::Ast::Map>();
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i);
@@ -186,8 +186,8 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
         state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation()));
         return false;
       }
-      if (bracketOperand->isA<Core::Data::Ast::ExpressionList>()) {
-        auto bracketList = bracketOperand.s_cast<Core::Data::Ast::ExpressionList>();
+      if (bracketOperand->isA<Core::Data::Ast::List>()) {
+        auto bracketList = bracketOperand.s_cast<Core::Data::Ast::List>();
         if (bracketList->getCount() == 0 || bracketList->getCount() > 3) {
           state->addNotice(
             std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(bracketList->findSourceLocation())

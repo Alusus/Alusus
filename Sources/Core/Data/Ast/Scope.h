@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Scope.h
  * Contains the header of class Core::Data::Ast::Scope.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,15 +13,15 @@
 #ifndef CORE_DATA_AST_SCOPE_H
 #define CORE_DATA_AST_SCOPE_H
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
-class Scope : public StatementList
+class Scope : public List
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Scope, StatementList, "Core.Data.Ast", "Core", "alusus.net");
+  TYPE_INFO(Scope, List, "Core.Data.Ast", "Core", "alusus.net");
 
   IMPLEMENT_AST_LIST_CLONABLE(Scope);
 
@@ -39,6 +39,6 @@ class Scope : public StatementList
 
 }; // class
 
-} } } // namespace
+} // namespace
 
 #endif
