@@ -32,14 +32,6 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${Alu
                                                            ALUSUS_RELEASE_DATE="${AlususReleaseDate}"
                                                            ALUSUS_HIJRI_RELEASE_DATE="${AlususHijriReleaseDate}")
 
-# CATCH path
-set (CATCH_PATH "" CACHE PATH "Path to CATCH library root folder.")
-if (NOT EXISTS "${CATCH_PATH}")
-  message(SEND_ERROR "Please specify the path to CATCH Library in CATCH_PATH.")
-else()
-  message(STATUS "The following CATCH path was provided: " ${CATCH_PATH} ".")
-endif()
-
 # LLVM path
 set(LLVM_PATH "" CACHE PATH "Path to LLVM root folder.")
 if (NOT EXISTS "${LLVM_PATH}/include/llvm")
@@ -91,4 +83,4 @@ endif()
 add_subdirectory(Core)
 add_subdirectory(Spp)
 #add_subdirectory(Srt)
-add_subdirectory(Tests/EndToEndTests)
+add_subdirectory(Tests)

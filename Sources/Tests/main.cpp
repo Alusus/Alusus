@@ -1,5 +1,5 @@
 /**
- * @file Tests/EndToEndTests/main.cpp
+ * @file Tests/main.cpp
  * Contains the end-to-end test's main program.
  *
  * @copyright Copyright (C) 2018 Rafid Khalid Abdullah
@@ -24,7 +24,7 @@ using Core::Notices::Notice;
 using Core::Data::Ast::List;
 using Core::Main::RootManager;
 
-namespace Tests::EndToEndTests
+namespace Tests
 {
 
 Str resultFilename;
@@ -229,7 +229,7 @@ Bool runAndCheckSourceFile(Str const &fileName)
 
 
 /**
- * Runs all the end-to-end tests under the folder EndToEndTests.
+ * Runs all the end-to-end tests under given folder.
  *
  * @return Returns @c true if all test succeeds, otherwise @c false.
  */
@@ -266,7 +266,7 @@ Bool runEndToEndTests(Str const &dirPath)
 } // namespace
 
 
-using namespace Tests::EndToEndTests;
+using namespace Tests;
 
 int main(int argc, char **argv)
 {
@@ -288,15 +288,15 @@ int main(int argc, char **argv)
   resultFilename += "AlususEndToEndTest.txt";
 
   auto ret = EXIT_SUCCESS;
-  //  if (!runEndToEndTests("./Tests/General"))
+  //  if (!runEndToEndTests("./General"))
   //    ret = EXIT_FAILURE;
-  //  if (!runEndToEndTests("./Tests/Arabic"))
+  //  if (!runEndToEndTests("./Arabic"))
   //    ret = EXIT_FAILURE;
-  //  if (!runEndToEndTests("./Tests/Ported_C_Examples"))
+  //  if (!runEndToEndTests("./Ported_C_Examples"))
   //    ret = EXIT_FAILURE;
-  if (!runEndToEndTests("./Tests/Core"))
+  if (!runEndToEndTests("./Core"))
     ret = EXIT_FAILURE;
-  if (!runEndToEndTests("./Tests/Spp"))
+  if (!runEndToEndTests("./Spp"))
     ret = EXIT_FAILURE;
 
   std::remove(resultFilename.c_str());

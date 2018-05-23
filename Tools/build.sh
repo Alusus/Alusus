@@ -3,8 +3,6 @@
 # Dependencies
 LLVM_SRC_URL="http://llvm.org/releases/3.3/llvm-3.3.src.tar.gz"
 LLVM_NAME="llvm-3.3"
-CATCH_SRC_URL="https://github.com/philsquared/Catch/archive/v1.3.0.tar.gz"
-CATCH_SRC_NAME="Catch2-1.3.0"
 
 # Paths
 ALUSUS_ROOT="$(pwd)/.."
@@ -109,13 +107,6 @@ else
   InformationMessage "LLVM sources is already available."
 fi
 
-if [[ ! -e ${CATCH_SRC_NAME} ]]; then
-  wget ${CATCH_SRC_URL}
-  tar -xvf $(basename ${CATCH_SRC_URL})
-else
-  InformationMessage "CATCH is already available."
-fi
-
 if [[ ! -e ${LLVM_NAME}.install ]]; then
   mkdir ${LLVM_NAME}.install
   if [[ ! -e ${LLVM_NAME}.build ]]; then
@@ -139,7 +130,7 @@ InformationMessage "Building Alusus..."
 
 cd $BUILD_PATH
 
-cmake $ALUSUS_ROOT/Sources -DCATCH_PATH=$DEPS_PATH/$CATCH_SRC_NAME/single_include -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DLLVM_PATH=$DEPS_PATH/${LLVM_NAME}.install
+cmake $ALUSUS_ROOT/Sources -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DLLVM_PATH=$DEPS_PATH/${LLVM_NAME}.install
 
 make -j${MAKE_THREAD_COUNT} || { FailMessage "Building Alusus."; exit 1; }
 
