@@ -118,7 +118,7 @@ int main(int argCount, char * const args[])
 
     try {
       // Prepare the root object;
-      Standard::RootManager root;
+      Main::RootManager root;
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
         {
@@ -138,7 +138,7 @@ int main(int argCount, char * const args[])
     // Parse the provided source file.
     try {
       // Prepare the root object;
-      Standard::RootManager root;
+      Main::RootManager root;
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
         {

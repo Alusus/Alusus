@@ -37,7 +37,7 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
   //============================================================================
   // Member Variables
 
-  private: Core::Standard::RootManager *rootManager;
+  private: Core::Main::RootManager *rootManager;
   private: Ast::Helper *astHelper;
   private: TypeGenerator *typeGenerator;
   private: CommandGenerator *commandGenerator;
@@ -50,7 +50,7 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
   // Constructors & Destructor
 
   public: Generator(
-    Core::Standard::RootManager *manager,
+    Core::Main::RootManager *manager,
     Ast::Helper *ah,
     TypeGenerator *tg,
     CommandGenerator *cg,
@@ -95,7 +95,7 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
   /// @name Property Getters
   /// @{
 
-  public: Core::Standard::RootManager* getRootManager() const
+  public: Core::Main::RootManager* getRootManager() const
   {
     return this->rootManager;
   }

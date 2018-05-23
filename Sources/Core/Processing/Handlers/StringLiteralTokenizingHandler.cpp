@@ -1,6 +1,7 @@
 /**
- * @file Core/Standard/StringLiteralTokenizingHandler.cpp
- * Contains the implementation of class Core::Standard::StringLiteralTokenizingHandler.
+ * @file Core/Processing/Handlers/StringLiteralTokenizingHandler.cpp
+ * Contains the implementation of class
+ * Core::Processing::Handlers::StringLiteralTokenizingHandler.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *

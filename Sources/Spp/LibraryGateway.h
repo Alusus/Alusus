@@ -15,12 +15,12 @@
 namespace Spp
 {
 
-class LibraryGateway : public Core::Standard::LibraryGateway
+class LibraryGateway : public Core::Main::LibraryGateway
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(LibraryGateway, Core::Standard::LibraryGateway, "Spp", "Spp", "alusus.net");
+  TYPE_INFO(LibraryGateway, Core::Main::LibraryGateway, "Spp", "Spp", "alusus.net");
 
 
   //============================================================================
@@ -52,24 +52,24 @@ class LibraryGateway : public Core::Standard::LibraryGateway
   //============================================================================
   // Member Functions
 
-  public: virtual void initialize(Core::Standard::RootManager *manager);
+  public: virtual void initialize(Core::Main::RootManager *manager);
 
-  public: virtual void uninitialize(Core::Standard::RootManager *manager);
+  public: virtual void uninitialize(Core::Main::RootManager *manager);
 
-  private: void createBuiltInTypes(Core::Standard::RootManager *manager);
+  private: void createBuiltInTypes(Core::Main::RootManager *manager);
 
-  private: void removeBuiltInTypes(Core::Standard::RootManager *manager);
+  private: void removeBuiltInTypes(Core::Main::RootManager *manager);
 
-  private: void createBuiltInFunctions(Core::Standard::RootManager *manager);
+  private: void createBuiltInFunctions(Core::Main::RootManager *manager);
 
-  private: void removeBuiltInFunctions(Core::Standard::RootManager *manager);
+  private: void removeBuiltInFunctions(Core::Main::RootManager *manager);
 
   private: SharedPtr<Ast::Function> createBinaryFunction(
-    Core::Standard::RootManager *manager, Char const *name, Char const *in1, Char const *in2, Char const *out
+    Core::Main::RootManager *manager, Char const *name, Char const *in1, Char const *in2, Char const *out
   );
 
   private: SharedPtr<Ast::Function> createUnaryFunction(
-    Core::Standard::RootManager *manager, Char const *name, Char const *in, Char const *out
+    Core::Main::RootManager *manager, Char const *name, Char const *in, Char const *out
   );
 
 }; // class

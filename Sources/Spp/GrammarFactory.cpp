@@ -24,7 +24,7 @@ using namespace Core::Processing::Handlers;
 // Overloaded Abstract Functions
 
 void GrammarFactory::createGrammar(
-  Core::Data::Ast::Scope *rootScope, Standard::RootManager *manager, Ast::Helper *astHelper,
+  Core::Data::Ast::Scope *rootScope, Main::RootManager *manager, Ast::Helper *astHelper,
   CodeGen::Generator *generator, LlvmCodeGen::TargetGenerator *targetGenerator
 ) {
   this->setRootScope(rootScope);

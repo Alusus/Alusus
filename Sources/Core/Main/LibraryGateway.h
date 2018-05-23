@@ -1,8 +1,8 @@
 /**
- * @file Core/Standard/LibraryGateway.h
- * Contains the header of class Core::Standard::LibraryGateway.
+ * @file Core/Main/LibraryGateway.h
+ * Contains the header of class Core::Main::LibraryGateway.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef CORE_STANDARD_LIBRARY_GATEWAY_H
-#define CORE_STANDARD_LIBRARY_GATEWAY_H
+#ifndef CORE_MAIN_LIBRARYGATEWAY_H
+#define CORE_MAIN_LIBRARYGATEWAY_H
 
-namespace Core { namespace Standard
+namespace Core::Main
 {
 
 // TODO: DOC
@@ -23,7 +23,7 @@ class LibraryGateway : public TiObject
   //============================================================================
   // Type Info
 
-  TYPE_INFO(LibraryGateway, TiObject, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(LibraryGateway, TiObject, "Core.Main", "Core", "alusus.net");
 
 
   //============================================================================
@@ -58,6 +58,6 @@ class LibraryGateway : public TiObject
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

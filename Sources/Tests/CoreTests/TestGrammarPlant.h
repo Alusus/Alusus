@@ -33,7 +33,7 @@ class TestGrammarPlant : public Data::GrammarPlant
 
   private: SharedPtr<Processing::ConstTokenizingHandler> constTokenHandler;
 
-  private: SharedPtr<Standard::StringLiteralTokenizingHandler> stringLiteralHandler;
+  private: SharedPtr<Main::StringLiteralTokenizingHandler> stringLiteralHandler;
 
   private: SharedPtr<Processing::Handlers::GenericParsingHandler> parsingHandler;
 

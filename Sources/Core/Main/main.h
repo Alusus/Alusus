@@ -1,6 +1,6 @@
 /**
- * @file Core/Standard/standard.h
- * Contains the definitions and include statements of all types in the Standard
+ * @file Core/Main/main.h
+ * Contains the definitions and include statements of all types in the Main
  * namespace.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
@@ -11,14 +11,14 @@
  */
 //==============================================================================
 
-#ifndef CORE_STANDARD_STANDARD_H
-#define CORE_STANDARD_STANDARD_H
+#ifndef CORE_MAIN_MAIN_H
+#define CORE_MAIN_MAIN_H
 
-namespace Core { namespace Standard
+namespace Core::Main
 {
 
 /**
- * @defgroup core_standard Standard
+ * @defgroup core_standard Main
  * @ingroup core
  * @brief Classes related to the Core's standard grammar.
  *
@@ -61,7 +61,7 @@ typedef LibraryGateway* (*LibraryGatewayGetter)();
  * This function gets the singleton library gateway that every dynamic library
  * should implement.
  */
-#define LIBRARY_GATEWAY_GETTER_DEF Core::Standard::LibraryGateway* get_library_gateway()
+#define LIBRARY_GATEWAY_GETTER_DEF Core::Main::LibraryGateway* get_library_gateway()
 
 
 //==============================================================================
@@ -87,7 +87,7 @@ std::string getWorkingDirectory();
  */
 std::string getModuleDirectory();
 
-} } // namespace
+} // namespace
 
 
 //==============================================================================

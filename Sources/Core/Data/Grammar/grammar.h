@@ -41,7 +41,7 @@ namespace Core::Processing::Handlers
   class GenericCommandParsingHandler;
 }
 
-namespace Core::Standard
+namespace Core::Main
 {
   class RootManager;
 }

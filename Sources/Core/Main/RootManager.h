@@ -1,6 +1,6 @@
 /**
- * @file Core/Standard/RootManager.h
- * Contains the header of class Core::Standard::RootManager.
+ * @file Core/Main/RootManager.h
+ * Contains the header of class Core::Main::RootManager.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef CORE_STANDARD_ROOTMANAGER_H
-#define CORE_STANDARD_ROOTMANAGER_H
+#ifndef CORE_MAIN_ROOTMANAGER_H
+#define CORE_MAIN_ROOTMANAGER_H
 
-namespace Core::Standard
+namespace Core::Main
 {
 
 // TODO: DOC
@@ -23,7 +23,7 @@ class RootManager : public TiObject
   //============================================================================
   // Type Info
 
-  TYPE_INFO(RootManager, TiObject, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(RootManager, TiObject, "Core.Main", "Core", "alusus.net");
 
 
   //============================================================================

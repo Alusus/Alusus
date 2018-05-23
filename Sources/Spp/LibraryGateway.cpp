@@ -23,7 +23,7 @@ using namespace Core::Processing::Handlers;
 //==============================================================================
 // Overloaded Abstract Functions
 
-void LibraryGateway::initialize(Standard::RootManager *manager)
+void LibraryGateway::initialize(Main::RootManager *manager)
 {
   // Create AST helpers.
   this->nodePathResolver = std::make_shared<Ast::NodePathResolver>();
@@ -60,7 +60,7 @@ void LibraryGateway::initialize(Standard::RootManager *manager)
 }
 
 
-void LibraryGateway::uninitialize(Standard::RootManager *manager)
+void LibraryGateway::uninitialize(Main::RootManager *manager)
 {
   // Unextend Seeker.
   SeekerExtension::unextend(manager->getSeeker(), this->seekerExtensionOverrides);
@@ -86,7 +86,7 @@ void LibraryGateway::uninitialize(Standard::RootManager *manager)
 }
 
 
-void LibraryGateway::createBuiltInTypes(Core::Standard::RootManager *manager)
+void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
 {
   Core::Data::Ast::Identifier identifier;
   auto root = manager->getRootScope().get();
@@ -136,7 +136,7 @@ void LibraryGateway::createBuiltInTypes(Core::Standard::RootManager *manager)
 }
 
 
-void LibraryGateway::removeBuiltInTypes(Core::Standard::RootManager *manager)
+void LibraryGateway::removeBuiltInTypes(Core::Main::RootManager *manager)
 {
   Core::Data::Ast::Identifier identifier;
   auto root = manager->getRootScope().get();
@@ -161,7 +161,7 @@ void LibraryGateway::removeBuiltInTypes(Core::Standard::RootManager *manager)
 }
 
 
-void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager)
+void LibraryGateway::createBuiltInFunctions(Core::Main::RootManager *manager)
 {
   Core::Data::Ast::Identifier identifier;
   auto root = manager->getRootScope().get();
@@ -376,7 +376,7 @@ void LibraryGateway::createBuiltInFunctions(Core::Standard::RootManager *manager
 }
 
 
-void LibraryGateway::removeBuiltInFunctions(Core::Standard::RootManager *manager)
+void LibraryGateway::removeBuiltInFunctions(Core::Main::RootManager *manager)
 {
   Core::Data::Ast::Identifier identifier;
   auto root = manager->getRootScope().get();
@@ -404,7 +404,7 @@ void LibraryGateway::removeBuiltInFunctions(Core::Standard::RootManager *manager
 
 
 SharedPtr<Ast::Function> LibraryGateway::createBinaryFunction(
-  Core::Standard::RootManager *manager, Char const *name, Char const *in1, Char const *in2, Char const *out
+  Core::Main::RootManager *manager, Char const *name, Char const *in1, Char const *in2, Char const *out
 ) {
   auto retType = manager->parseExpression(out);
   auto argTypes = Core::Data::Ast::Map::create(false, {}, {
@@ -421,7 +421,7 @@ SharedPtr<Ast::Function> LibraryGateway::createBinaryFunction(
 
 
 SharedPtr<Ast::Function> LibraryGateway::createUnaryFunction(
-  Core::Standard::RootManager *manager, Char const *name, Char const *in, Char const *out
+  Core::Main::RootManager *manager, Char const *name, Char const *in, Char const *out
 ) {
   auto retType = manager->parseExpression(out);
   auto argTypes = Core::Data::Ast::Map::create(false, {}, {

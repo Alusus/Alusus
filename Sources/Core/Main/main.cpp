@@ -1,6 +1,6 @@
 /**
- * @file Core/Standard/standard.cpp
- * Contains the global implementations of Standard namespace's declarations.
+ * @file Core/Main/main.cpp
+ * Contains the global implementations of Main namespace's declarations.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -20,7 +20,7 @@
   #include <limits.h>
 #endif
 
-namespace Core { namespace Standard
+namespace Core::Main
 {
 
 using namespace Data;
@@ -65,4 +65,4 @@ std::string getModuleDirectory()
   return std::string(path, 0, pos+1);
 }
 
-} } // namespace
+} // namespace

@@ -29,13 +29,13 @@ class ImportParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Variables
 
-  private: Standard::RootManager *rootManager;
+  private: Main::RootManager *rootManager;
 
 
   //============================================================================
   // Constructor
 
-  public: ImportParsingHandler(Standard::RootManager *r) : rootManager(r)
+  public: ImportParsingHandler(Main::RootManager *r) : rootManager(r)
   {
   }
 

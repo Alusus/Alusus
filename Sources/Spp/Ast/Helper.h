@@ -30,7 +30,7 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   //============================================================================
   // Member Variables
 
-  private: Core::Standard::RootManager *rootManager;
+  private: Core::Main::RootManager *rootManager;
   private: NodePathResolver *nodePathResolver;
 
   private: Core::Notices::Store *noticeStore = 0;
@@ -56,7 +56,7 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   //============================================================================
   // Constructor
 
-  Helper(Core::Standard::RootManager *rm, NodePathResolver *npr) : rootManager(rm), nodePathResolver(npr)
+  Helper(Core::Main::RootManager *rm, NodePathResolver *npr) : rootManager(rm), nodePathResolver(npr)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -93,7 +93,7 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   /// @name Property Getters
   /// @{
 
-  public: Core::Standard::RootManager* getRootManager() const
+  public: Core::Main::RootManager* getRootManager() const
   {
     return this->rootManager;
   }

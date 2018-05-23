@@ -1,8 +1,8 @@
 /**
- * @file Core/Standard/LibraryManager.cpp
- * Contains the implementation of class Core::Standard::LibraryManager.
+ * @file Core/Main/LibraryManager.cpp
+ * Contains the implementation of class Core::Main::LibraryManager.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,7 +13,7 @@
 #include "core.h"
 #include <dlfcn.h>
 
-namespace Core { namespace Standard
+namespace Core::Main
 {
 
 void LibraryManager::addLibrary(PtrWord id, LibraryGateway *gateway)
@@ -133,4 +133,4 @@ void LibraryManager::unloadAll()
   }
 }
 
-} } // namespace
+} // namespace

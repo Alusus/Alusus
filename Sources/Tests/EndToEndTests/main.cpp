@@ -22,7 +22,7 @@
 
 using Core::Notices::Notice;
 using Core::Data::Ast::List;
-using Core::Standard::RootManager;
+using Core::Main::RootManager;
 
 namespace Tests::EndToEndTests
 {

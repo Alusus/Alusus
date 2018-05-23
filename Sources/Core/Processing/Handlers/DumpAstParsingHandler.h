@@ -27,13 +27,13 @@ class DumpAstParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Variables
 
-  Standard::RootManager *rootManager;
+  Main::RootManager *rootManager;
 
 
   //============================================================================
   // Constructor
 
-  public: DumpAstParsingHandler(Standard::RootManager *rm) : rootManager(rm)
+  public: DumpAstParsingHandler(Main::RootManager *rm) : rootManager(rm)
   {
   }
 

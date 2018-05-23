@@ -1,8 +1,8 @@
 /**
- * @file Core/Standard/LibraryManager.h
- * Contains the header of class Core::Standard::LibraryManager.
+ * @file Core/Main/LibraryManager.h
+ * Contains the header of class Core::Main::LibraryManager.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef CORE_STANDARD_LIBRARY_MANAGER_H
-#define CORE_STANDARD_LIBRARY_MANAGER_H
+#ifndef CORE_MAIN_LIBRARYMANAGER_H
+#define CORE_MAIN_LIBRARYMANAGER_H
 
-namespace Core { namespace Standard
+namespace Core::Main
 {
 
 // TODO: DOC
@@ -23,7 +23,7 @@ class LibraryManager : public TiObject
   //============================================================================
   // Type Info
 
-  TYPE_INFO(LibraryManager, TiObject, "Core.Standard", "Core", "alusus.net");
+  TYPE_INFO(LibraryManager, TiObject, "Core.Main", "Core", "alusus.net");
 
 
   //============================================================================
@@ -80,6 +80,6 @@ class LibraryManager : public TiObject
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

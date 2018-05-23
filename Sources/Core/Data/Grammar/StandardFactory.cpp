@@ -28,7 +28,7 @@ using namespace Core::Processing::Handlers;
  * grammar definitions with all the required handlers.
  */
 void StandardFactory::createGrammar(
-  Basic::ListContaining<TiObject> *rootScope, Standard::RootManager *root, Bool exprOnly
+  Basic::ListContaining<TiObject> *rootScope, Main::RootManager *root, Bool exprOnly
 ) {
   this->setRootScope(rootScope);
 

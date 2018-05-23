@@ -155,7 +155,7 @@ namespace Core::Notices
 DEFINE_NOTICE(UnrecognizedErrorNotice, "Core.Notices", "Core", "alusus.net", "CG1001", 1,
   STR("Unrecognized error.")
 );
-DEFINE_NOTICE(InvalidDumpArgNotice, "Core.Standard", "Core", "alusus.net", "CG1002", 1,
+DEFINE_NOTICE(InvalidDumpArgNotice, "Core.Notices", "Core", "alusus.net", "CG1002", 1,
   STR("Invalid argument for 'dump' command.")
 );
 

@@ -1,6 +1,7 @@
 /**
- * @file Core/Standard/StringLiteralTokenizingHandler.h
- * Contains the header of class Core::Standard::StringLiteralTokenizingHandler.
+ * @file Core/Processing/Handlers/StringLiteralTokenizingHandler.h
+ * Contains the header of class
+ * Core::Processing::Handlers::StringLiteralTokenizingHandler.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *

@@ -1,6 +1,6 @@
 /**
- * @file Core/Standard/RootManager.cpp
- * Contains the implementation of class Core::Standard::RootManager.
+ * @file Core/Main/RootManager.cpp
+ * Contains the implementation of class Core::Main::RootManager.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Standard
+namespace Core::Main
 {
 
 //==============================================================================
@@ -194,4 +194,4 @@ Str RootManager::findAbsolutePath(Char const *filename)
   return Str();
 }
 
-} } // namespace
+} // namespace
