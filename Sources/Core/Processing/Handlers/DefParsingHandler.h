@@ -35,7 +35,7 @@ class DefParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
+  public: virtual void onProdEnd(Parser *parser, ParserState *state);
 
 }; // class
 

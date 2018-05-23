@@ -20,11 +20,11 @@ using namespace Core::Data;
 //==============================================================================
 // Overloaded Abstract Functions
 
-void DumpAstParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
+void DumpAstParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 {
   using SeekVerb = Data::Seeker::Verb;
 
-  auto data = state->getData().ti_cast_get<Basic::Containing<TiObject>>()->getElement(1);
+  auto data = state->getData().ti_cast_get<Containing<TiObject>>()->getElement(1);
   ASSERT(data != 0);
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(data);
   ASSERT(metadata != 0);

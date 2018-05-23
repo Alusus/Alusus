@@ -20,7 +20,7 @@ namespace Spp { namespace CodeGen
 
 void CommandGenerator::initBindingCaches()
 {
-  Core::Basic::initBindingCaches(this, {
+  Basic::initBindingCaches(this, {
     &this->generateReturnStatement,
     &this->generateIfStatement,
     &this->generateWhileStatement,
@@ -305,7 +305,7 @@ Bool CommandGenerator::_generateBreakStatement(
 // Helper Functions
 
 Bool CommandGenerator::castCondition(
-  Generation *g, TargetGeneration *tg, TiObject *tgContext, Core::Basic::TiObject *astNode, Spp::Ast::Type *astType,
+  Generation *g, TargetGeneration *tg, TiObject *tgContext, TiObject *astNode, Spp::Ast::Type *astType,
   TiObject *tgValue, TioSharedPtr &result
 ) {
   auto boolType = this->astHelper->getBoolType();

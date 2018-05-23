@@ -17,7 +17,7 @@ namespace Spp::Ast
 {
 
 class WhileStatement : public Core::Data::Node,
-                       public virtual Core::Basic::Binding, public virtual Core::Basic::MapContaining<TiObject>,
+                       public virtual Binding, public virtual MapContaining<TiObject>,
                        public virtual Core::Data::Ast::MetaHaving, public virtual Core::Data::Clonable,
                        public virtual Core::Data::Printable
 {
@@ -25,7 +25,7 @@ class WhileStatement : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(WhileStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Binding, Core::Basic::MapContaining<TiObject>,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, MapContaining<TiObject>,
                                          Core::Data::Ast::MetaHaving, Core::Data::Clonable,
                                          Core::Data::Printable);
 
@@ -33,8 +33,8 @@ class WhileStatement : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: Core::Basic::TioSharedPtr condition;
-  private: Core::Basic::TioSharedPtr body;
+  private: TioSharedPtr condition;
+  private: TioSharedPtr body;
 
 
   //============================================================================
@@ -43,13 +43,13 @@ class WhileStatement : public Core::Data::Node,
   IMPLEMENT_METAHAVING(WhileStatement);
 
   IMPLEMENT_BINDING(Binding,
-    (prodId, Core::Basic::TiWord, VALUE, setProdId(value), &prodId),
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (condition, Core::Basic::TiObject, setCondition(value), condition.get()),
-    (body, Core::Basic::TiObject, setBody(value), body.get())
+    (condition, TiObject, setCondition(value), condition.get()),
+    (body, TiObject, setBody(value), body.get())
   );
 
   IMPLEMENT_AST_CLONABLE(WhileStatement);
@@ -76,7 +76,7 @@ class WhileStatement : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setCondition(Core::Basic::TioSharedPtr const &cond)
+  public: void setCondition(TioSharedPtr const &cond)
   {
     UPDATE_OWNED_SHAREDPTR(this->condition, cond);
   }
@@ -85,12 +85,12 @@ class WhileStatement : public Core::Data::Node,
     this->setCondition(getSharedPtr(cond));
   }
 
-  public: Core::Basic::TioSharedPtr const& getCondition() const
+  public: TioSharedPtr const& getCondition() const
   {
     return this->condition;
   }
 
-  public: void setBody(Core::Basic::TioSharedPtr const &b)
+  public: void setBody(TioSharedPtr const &b)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
   }
@@ -99,7 +99,7 @@ class WhileStatement : public Core::Data::Node,
     this->setBody(getSharedPtr(b));
   }
 
-  public: Core::Basic::TioSharedPtr const& getBody() const
+  public: TioSharedPtr const& getBody() const
   {
     return this->body;
   }

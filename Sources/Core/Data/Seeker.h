@@ -223,7 +223,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
     Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, SetCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(setByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Basic::MapContaining<TiObject>*, SetCallback const&, Word)
+    Verb, (Data::Ast::Identifier const*, MapContaining<TiObject>*, SetCallback const&, Word)
   );
 
   private: static Verb _setByLinkOperator(
@@ -236,7 +236,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
     TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, SetCallback const &cb, Word flags
   );
   private: static Verb _setByLinkOperator_mapDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Basic::MapContaining<TiObject> *map, SetCallback const &cb,
+    TiObject *self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map, SetCallback const &cb,
     Word flags
   );
 
@@ -250,7 +250,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
     Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, RemoveCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(removeByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Basic::MapContaining<TiObject>*, RemoveCallback const&, Word)
+    Verb, (Data::Ast::Identifier const*, MapContaining<TiObject>*, RemoveCallback const&, Word)
   );
 
   private: static Verb _removeByLinkOperator(
@@ -264,7 +264,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
     Word flags
   );
   private: static Verb _removeByLinkOperator_mapDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Basic::MapContaining<TiObject> *map,
+    TiObject *self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map,
     RemoveCallback const &cb, Word flags
   );
 
@@ -278,7 +278,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
     Verb, (Data::Ast::Identifier*, Data::Ast::Scope*, ForeachCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(foreachByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Basic::MapContaining<TiObject>*, ForeachCallback const&, Word)
+    Verb, (Data::Ast::Identifier const*, MapContaining<TiObject>*, ForeachCallback const&, Word)
   );
 
   private: static Verb _foreachByLinkOperator(
@@ -291,7 +291,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
     TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, ForeachCallback const &cb, Word flags
   );
   private: static Verb _foreachByLinkOperator_mapDotIdentifier(
-    TiObject *_self, Data::Ast::Identifier const *identifier, Basic::MapContaining<TiObject> *map,
+    TiObject *_self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map,
     ForeachCallback const &cb, Word flags
   );
 

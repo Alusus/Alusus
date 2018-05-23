@@ -16,12 +16,12 @@
 namespace Spp { namespace CodeGen
 {
 
-class LoopTgContext : public Core::Basic::TiObject
+class LoopTgContext : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(LoopTgContext, Core::Basic::TiObject, "Spp.CodeGen", "Spp", "alusus.net");
+  TYPE_INFO(LoopTgContext, TiObject, "Spp.CodeGen", "Spp", "alusus.net");
 
 
   //============================================================================

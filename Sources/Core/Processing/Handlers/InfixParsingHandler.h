@@ -109,7 +109,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
   }
 
   /// Copy the entire infix list tree, not just its root.
-  private: void prepareToModifyInfixTree(Processing::ParserState *state, Int levelIndex)
+  private: void prepareToModifyInfixTree(ParserState *state, Int levelIndex)
   {
     if (state->isDataShared(levelIndex)) {
       // Duplicate the data.

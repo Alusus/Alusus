@@ -136,7 +136,7 @@ void TargetGenerator::prepareBuild(Core::Notices::Store *noticeStore)
 }
 
 
-void TargetGenerator::dumpIr(Core::Basic::OutStream &out)
+void TargetGenerator::dumpIr(OutStream &out)
 {
   if (this->llvmModule == 0) {
     throw EXCEPTION(GenericException, STR("LLVM module is not generated yet."));
@@ -237,8 +237,8 @@ Bool TargetGenerator::generateStructTypeDecl(
 
 
 Bool TargetGenerator::generateStructTypeBody(
-  TiObject *type, Core::Basic::MapContaining<TiObject> *membersTypes,
-  Core::Basic::SharedList<TiObject, TiObject> *members
+  TiObject *type, MapContaining<TiObject> *membersTypes,
+  SharedList<TiObject, TiObject> *members
 ) {
   VALIDATE_NOT_NULL(membersTypes, members);
   PREPARE_ARG(type, tgType, Type);
@@ -277,7 +277,7 @@ Word TargetGenerator::getTypeAllocationSize(TiObject *type)
 // Function Generation Functions
 
 Bool TargetGenerator::generateFunctionDecl(
-  Char const *name, Core::Basic::MapContaining<TiObject>* argTypes, TiObject *retType, Bool variadic,
+  Char const *name, MapContaining<TiObject>* argTypes, TiObject *retType, Bool variadic,
   TioSharedPtr &function
 ) {
   VALIDATE_NOT_NULL(name, argTypes, retType);
@@ -308,19 +308,19 @@ Bool TargetGenerator::generateFunctionDecl(
   auto llvmFunc = llvm::Function::Create(
     llvmFuncType, llvm::Function::ExternalLinkage, name, this->llvmModule.get()
   );
-  function = Core::Basic::Box<llvm::Function*>::create(llvmFunc);
+  function = Box<llvm::Function*>::create(llvmFunc);
   return true;
 }
 
 
 Bool TargetGenerator::prepareFunctionBody(
-  TiObject *function, Core::Basic::MapContaining<TiObject>* argTypes, TiObject *retType,
-  Bool variadic, Core::Basic::SharedList<TiObject, TiObject> *args, TioSharedPtr &context
+  TiObject *function, MapContaining<TiObject>* argTypes, TiObject *retType,
+  Bool variadic, SharedList<TiObject, TiObject> *args, TioSharedPtr &context
 ) {
   VALIDATE_NOT_NULL(function, argTypes, retType, args);
 
   // Create the block
-  PREPARE_ARG(function, funcWrapper, Core::Basic::Box<llvm::Function*>);
+  PREPARE_ARG(function, funcWrapper, Box<llvm::Function*>);
   auto llvmFunc = funcWrapper->get();
   auto block = std::make_shared<Block>();
   block->setLlvmBlock(llvm::BasicBlock::Create(llvm::getGlobalContext(), this->getNewBlockName(), llvmFunc));
@@ -354,8 +354,8 @@ Bool TargetGenerator::prepareFunctionBody(
 
 
 Bool TargetGenerator::finishFunctionBody(
-  TiObject *function, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType,
-  Bool variadic, Core::Basic::ListContaining<TiObject> *args, TiObject *context
+  TiObject *function, MapContaining<TiObject> *argTypes, TiObject *retType,
+  Bool variadic, ListContaining<TiObject> *args, TiObject *context
 ) {
   PREPARE_ARG(retType, type, Type);
   if (type->getCategory() == Type::Category::VOID) {
@@ -414,7 +414,7 @@ Bool TargetGenerator::prepareIfStatement(TiObject *context, Bool withElse, Share
   SharedPtr<IfContext> ifContext = std::make_shared<IfContext>();
 
   // Prepare condition context.
-  ifContext->setConditionBlock(Core::Basic::getSharedPtr(block));
+  ifContext->setConditionBlock(getSharedPtr(block));
 
   // Prepare body context.
   auto bodyBlock = std::make_shared<Block>();
@@ -837,10 +837,10 @@ Bool TargetGenerator::generateAssign(
 
 Bool TargetGenerator::generateFunctionCall(
   TiObject *context, TiObject *function,
-  Core::Basic::Containing<Core::Basic::TiObject>* arguments, TioSharedPtr &result
+  Containing<TiObject>* arguments, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(function, llvmFuncBox, Core::Basic::Box<llvm::Function*>);
+  PREPARE_ARG(function, llvmFuncBox, Box<llvm::Function*>);
 
   // Create function call.
   std::vector<llvm::Value*> args;
@@ -1678,7 +1678,7 @@ Bool TargetGenerator::generateStringLiteral(
   PREPARE_ARG(charType, cgCharType, Type);
   PREPARE_ARG(strType, cgStrType, Type);
 
-  Word len = Core::Basic::getStrLen(value);
+  Word len = getStrLen(value);
 
   // Prepare the llvm constant array.
   std::vector<llvm::Constant*> llvmCharArray;

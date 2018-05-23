@@ -19,7 +19,7 @@ namespace Spp::Ast
 using namespace Core;
 
 class Type : public Core::Data::Node,
-             public virtual Core::Basic::Binding, public virtual Core::Basic::MapContaining<TiObject>,
+             public virtual Binding, public virtual MapContaining<TiObject>,
              public virtual Core::Data::Ast::MetaHaving,
              public virtual Core::Data::Clonable, public virtual Core::Data::Printable
 {
@@ -28,8 +28,8 @@ class Type : public Core::Data::Node,
 
   TYPE_INFO(Type, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net", (
     INHERITANCE_INTERFACES(
-      Core::Basic::Binding,
-      Core::Basic::MapContaining<TiObject>,
+      Binding,
+      MapContaining<TiObject>,
       Core::Data::Ast::MetaHaving,
       Core::Data::Clonable,
       Core::Data::Printable

@@ -17,7 +17,7 @@ namespace Spp::Ast
 {
 
 class IfStatement : public Core::Data::Node,
-                    public virtual Core::Basic::Binding, public virtual Core::Basic::MapContaining<TiObject>,
+                    public virtual Binding, public virtual MapContaining<TiObject>,
                     public virtual Core::Data::Ast::MetaHaving, public virtual Core::Data::Clonable,
                     public virtual Core::Data::Printable
 {
@@ -25,7 +25,7 @@ class IfStatement : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(IfStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Binding, Core::Basic::MapContaining<TiObject>,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, MapContaining<TiObject>,
                                          Core::Data::Ast::MetaHaving, Core::Data::Clonable,
                                          Core::Data::Printable);
 
@@ -33,9 +33,9 @@ class IfStatement : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: Core::Basic::TioSharedPtr condition;
-  private: Core::Basic::TioSharedPtr ifBody;
-  private: Core::Basic::TioSharedPtr elseBody;
+  private: TioSharedPtr condition;
+  private: TioSharedPtr ifBody;
+  private: TioSharedPtr elseBody;
 
 
   //============================================================================
@@ -44,14 +44,14 @@ class IfStatement : public Core::Data::Node,
   IMPLEMENT_METAHAVING(IfStatement);
 
   IMPLEMENT_BINDING(Binding,
-    (prodId, Core::Basic::TiWord, VALUE, setProdId(value), &prodId),
+    (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (condition, Core::Basic::TiObject, setCondition(value), condition.get()),
-    (ifBody, Core::Basic::TiObject, setIfBody(value), ifBody.get()),
-    (elseBody, Core::Basic::TiObject, setElseBody(value), elseBody.get())
+    (condition, TiObject, setCondition(value), condition.get()),
+    (ifBody, TiObject, setIfBody(value), ifBody.get()),
+    (elseBody, TiObject, setElseBody(value), elseBody.get())
   );
 
   IMPLEMENT_AST_CLONABLE(IfStatement);
@@ -79,7 +79,7 @@ class IfStatement : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setCondition(Core::Basic::TioSharedPtr const &cond)
+  public: void setCondition(TioSharedPtr const &cond)
   {
     UPDATE_OWNED_SHAREDPTR(this->condition, cond);
   }
@@ -88,12 +88,12 @@ class IfStatement : public Core::Data::Node,
     this->setCondition(getSharedPtr(cond));
   }
 
-  public: Core::Basic::TioSharedPtr const& getCondition() const
+  public: TioSharedPtr const& getCondition() const
   {
     return this->condition;
   }
 
-  public: void setIfBody(Core::Basic::TioSharedPtr const &body)
+  public: void setIfBody(TioSharedPtr const &body)
   {
     UPDATE_OWNED_SHAREDPTR(this->ifBody, body);
   }
@@ -102,12 +102,12 @@ class IfStatement : public Core::Data::Node,
     this->setIfBody(getSharedPtr(body));
   }
 
-  public: Core::Basic::TioSharedPtr const& getIfBody() const
+  public: TioSharedPtr const& getIfBody() const
   {
     return this->ifBody;
   }
 
-  public: void setElseBody(Core::Basic::TioSharedPtr const &body)
+  public: void setElseBody(TioSharedPtr const &body)
   {
     UPDATE_OWNED_SHAREDPTR(this->elseBody, body);
   }
@@ -116,7 +116,7 @@ class IfStatement : public Core::Data::Node,
     this->setElseBody(getSharedPtr(body));
   }
 
-  public: Core::Basic::TioSharedPtr const& getElseBody() const
+  public: TioSharedPtr const& getElseBody() const
   {
     return this->elseBody;
   }

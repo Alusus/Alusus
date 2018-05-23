@@ -45,7 +45,7 @@ SeekerExtension::Overrides* SeekerExtension::extend(Core::Data::Seeker *seeker, 
 
 void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
 {
-  auto extension = Core::Basic::ti_cast<SeekerExtension>(seeker);
+  auto extension = ti_cast<SeekerExtension>(seeker);
   seeker->foreach.reset(overrides->foreachRef);
   seeker->foreachByIdentifier_level.reset(overrides->foreachByIdentifier_levelRef);
   extension->astHelper = SharedPtr<Ast::Helper>::null;

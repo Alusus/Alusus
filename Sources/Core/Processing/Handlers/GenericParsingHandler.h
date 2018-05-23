@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_HANDLERS_GENERICPARSINGHANDLER_H
 #define CORE_PROCESSING_HANDLERS_GENERICPARSINGHANDLER_H
 
-namespace Core { namespace Processing { namespace Handlers
+namespace Core::Processing::Handlers
 {
 
 /**
@@ -64,7 +64,7 @@ class GenericParsingHandler : public ParsingHandler
    *
    * @sa ParsingHandler::onProdEnd()
    */
-  public: virtual void onProdEnd(Processing::Parser *parser, Processing::ParserState *state);
+  public: virtual void onProdEnd(Parser *parser, ParserState *state);
 
   /**
    * @brief Called when parsing exits a term level.
@@ -75,7 +75,7 @@ class GenericParsingHandler : public ParsingHandler
    *
    * @sa ParsingHandler::onTermEnd()
    */
-  public: virtual void onTermEnd(Processing::Parser *parser, Processing::ParserState *state);
+  public: virtual void onTermEnd(Parser *parser, ParserState *state);
 
   /**
    * @brief Called after parsing exists a state level.
@@ -85,7 +85,7 @@ class GenericParsingHandler : public ParsingHandler
    *
    * @sa ParsingHandler::onLevelExit()
    */
-  public: virtual void onLevelExit(Processing::Parser *parser, Processing::ParserState *state,
+  public: virtual void onLevelExit(Parser *parser, ParserState *state,
                                    SharedPtr<TiObject> const &data);
 
   /**
@@ -96,7 +96,7 @@ class GenericParsingHandler : public ParsingHandler
    *
    * @sa ParsingHandler::onNewToken()
    */
-  public: virtual void onNewToken(Processing::Parser *parser, Processing::ParserState *state,
+  public: virtual void onNewToken(Parser *parser, ParserState *state,
                                   Data::Token const *token);
 
   /**
@@ -107,7 +107,7 @@ class GenericParsingHandler : public ParsingHandler
    *
    * @sa ParsingHandler::onConcatStep()
    */
-  public: virtual void onConcatStep(Processing::Parser *parser, Processing::ParserState *state,
+  public: virtual void onConcatStep(Parser *parser, ParserState *state,
                                     Int newPos, Data::Token const *token);
 
   /**
@@ -117,7 +117,7 @@ class GenericParsingHandler : public ParsingHandler
    *
    * @sa ParsingHandler::onAlternateRouteDecision()
    */
-  public: virtual void onAlternateRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
+  public: virtual void onAlternateRouteDecision(Parser *parser, ParserState *state,
                                                 Int route, Data::Token const *token);
 
   /**
@@ -133,7 +133,7 @@ class GenericParsingHandler : public ParsingHandler
    *
    * @sa ParsingHandler::onMultiplyRouteDecision()
    */
-  public: virtual void onMultiplyRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
+  public: virtual void onMultiplyRouteDecision(Parser *parser, ParserState *state,
                                                Int route, Data::Token const *token);
 
   /**
@@ -141,7 +141,7 @@ class GenericParsingHandler : public ParsingHandler
    * Wipe out any generated data from the canceled term level.
    * @sa ParsingHandler::onTermCancelling()
    */
-  public: virtual void onTermCancelling(Processing::Parser *parser, Processing::ParserState *state);
+  public: virtual void onTermCancelling(Parser *parser, ParserState *state);
 
   /**
    * @brief Wipe out any generated data from the canceled top level.
@@ -149,7 +149,7 @@ class GenericParsingHandler : public ParsingHandler
    * This function will simply call onTermCancelling.
    * @sa ParsingHandler::onProdCancelling()
    */
-  public: virtual void onProdCancelling(Processing::Parser *parser, Processing::ParserState *state);
+  public: virtual void onProdCancelling(Parser *parser, ParserState *state);
 
   /// @}
 
@@ -179,12 +179,12 @@ class GenericParsingHandler : public ParsingHandler
    * If the top level is shared (the shared pointer is not unique) this function
    * will duplicate that term.
    */
-  protected: virtual void prepareToModifyData(Processing::ParserState *state, Int levelIndex);
+  protected: virtual void prepareToModifyData(ParserState *state, Int levelIndex);
 
   /// @}
 
 }; // class
 
-} } } // namespace
+} // namespace
 
 #endif

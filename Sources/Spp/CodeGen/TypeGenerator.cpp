@@ -21,7 +21,7 @@ namespace Spp { namespace CodeGen
 
 void TypeGenerator::initBindingCaches()
 {
-  Core::Basic::initBindingCaches(this, {
+  Basic::initBindingCaches(this, {
     &this->generateType,
     &this->generateVoidType,
     &this->generateIntegerType,

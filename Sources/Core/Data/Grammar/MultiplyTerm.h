@@ -31,13 +31,13 @@ namespace Core::Data::Grammar
  * Priority can be specified manually, but by default it's for taking the
  * branch rather than quiting the branch.
  */
-class MultiplyTerm : public Term, public virtual DataHaving, public virtual Core::Basic::MapContaining<TiObject>
+class MultiplyTerm : public Term, public virtual DataHaving, public virtual MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(MultiplyTerm, Term, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(DataHaving, Core::Basic::MapContaining<TiObject>)
+    INHERITANCE_INTERFACES(DataHaving, MapContaining<TiObject>)
   ));
 
 

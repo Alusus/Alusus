@@ -53,7 +53,7 @@ void GenericCommandParsingHandler::addData(SharedPtr<TiObject> const &data, Pars
 }
 
 
-void GenericCommandParsingHandler::prepareToModifyData(Processing::ParserState *state, Int levelIndex)
+void GenericCommandParsingHandler::prepareToModifyData(ParserState *state, Int levelIndex)
 {
   if (state->isAProdRoot(levelIndex)) {
     if (state->isDataShared(levelIndex)) {

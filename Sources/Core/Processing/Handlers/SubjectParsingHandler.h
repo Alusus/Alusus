@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/SubjectParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::SubjectParsingHandler
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_HANDLERS_SUBJECTPARSINGHANDLER_H
 #define CORE_PROCESSING_HANDLERS_SUBJECTPARSINGHANDLER_H
 
-namespace Core { namespace Processing { namespace Handlers
+namespace Core::Processing::Handlers
 {
 
 // TODO: DOC
@@ -38,7 +38,7 @@ class SubjectParsingHandler : public GenericParsingHandler
   // Member Functions
 
   public: virtual void onAlternateRouteDecision(
-    Processing::Parser *parser, Processing::ParserState *state, Int route, Data::Token const *token)
+    Parser *parser, ParserState *state, Int route, Data::Token const *token)
   {
     if (state->isAProdRoot(-1)) {
       if (token->getText() == STR("(")) {
@@ -62,6 +62,6 @@ class SubjectParsingHandler : public GenericParsingHandler
 
 }; // class
 
-} } } // namespace
+} // namespace
 
 #endif

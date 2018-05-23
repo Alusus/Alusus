@@ -16,20 +16,20 @@
 namespace Core::Data
 {
 
-class NbMap : public Node, public virtual Basic::MapContaining<TiObject>, public virtual DataHaving
+class NbMap : public Node, public virtual MapContaining<TiObject>, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(NbMap, Node, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Basic::MapContaining<TiObject>, DataHaving)
+    INHERITANCE_INTERFACES(MapContaining<TiObject>, DataHaving)
   ));
 
 
   //============================================================================
   // Member Variables
 
-  private: Basic::SharedMap<TiObject> map;
+  private: SharedMap<TiObject> map;
   private: NbMap *base = 0;
 
 
@@ -37,10 +37,10 @@ class NbMap : public Node, public virtual Basic::MapContaining<TiObject>, public
   // Signals and Slots
 
   public: Signal<void, NbMap*> destroyNotifier;
-  public: Signal<void, NbMap*, Basic::ContentChangeOp, Int> changeNotifier;
+  public: Signal<void, NbMap*, ContentChangeOp, Int> changeNotifier;
 
-  private: Slot<void, Basic::SharedMap<TiObject>*, Basic::ContentChangeOp, Int> contentChangeSlot = {
-    [=](Basic::SharedMap<TiObject>* map, Basic::ContentChangeOp changeOp, Int index)->void
+  private: Slot<void, SharedMap<TiObject>*, ContentChangeOp, Int> contentChangeSlot = {
+    [=](SharedMap<TiObject>* map, ContentChangeOp changeOp, Int index)->void
     {
       this->changeNotifier.emit(this, changeOp, index);
     }
@@ -105,7 +105,7 @@ class NbMap : public Node, public virtual Basic::MapContaining<TiObject>, public
   /// @name Data Access Functions
   /// @{
 
-  protected: Basic::SharedMap<TiObject>* getSharedMap()
+  protected: SharedMap<TiObject>* getSharedMap()
   {
     return &this->map;
   }
@@ -138,7 +138,7 @@ class NbMap : public Node, public virtual Basic::MapContaining<TiObject>, public
     return index;
   }
 
-  public: void set(Int index, Basic::SharedPtr<TiObject> const &val)
+  public: void set(Int index, SharedPtr<TiObject> const &val)
   {
     TiObject *old = this->map.getElement(index);
     DISOWN_PLAINPTR(old);

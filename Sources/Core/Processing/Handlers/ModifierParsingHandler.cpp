@@ -15,7 +15,7 @@
 namespace Core { namespace Processing { namespace Handlers
 {
 
-void ModifierParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
+void ModifierParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 {
   GenericParsingHandler::onProdEnd(parser, state);
 

@@ -40,7 +40,7 @@ void Definition::print(OutStream &stream, Int indents) const
     stream << STR(" [") << ID_GENERATOR->getDesc(id) << STR("]");
   }
   stream << STR(" ") << this->name << STR(": ");
-  Core::Data::dumpData(stream, this->target.get(), indents);
+  dumpData(stream, this->target.get(), indents);
 }
 
 } } } // namespace

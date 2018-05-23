@@ -12,7 +12,7 @@
 
 #include "spp.h"
 
-namespace Spp { namespace CodeGen
+namespace Spp::CodeGen
 {
 
 //==============================================================================
@@ -20,7 +20,7 @@ namespace Spp { namespace CodeGen
 
 void NoOpTargetGenerator::initBindings()
 {
-  auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(this);
+  auto targetGeneration = ti_cast<TargetGeneration>(this);
 
   // Property Getters
   targetGeneration->getExecutionContext = &NoOpTargetGenerator::getExecutionContext;
@@ -120,4 +120,4 @@ void NoOpTargetGenerator::initBindings()
   targetGeneration->generateNullPtrLiteral = &NoOpTargetGenerator::generateNullPtrLiteral;
 }
 
-} } // namespace
+} // namespace

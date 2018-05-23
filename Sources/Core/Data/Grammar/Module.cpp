@@ -95,7 +95,7 @@ void Module::onBaseMetaChanged(Module *obj, Word element)
 void Module::initialize(TiObject *context)
 {
   if (this->baseRef != 0) {
-    auto grammarContext = ti_cast<Grammar::Context>(context);
+    auto grammarContext = ti_cast<Context>(context);
     if (grammarContext == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("context"), STR("Must be of type Core::Data::Grammar::Context."));
     }

@@ -21,11 +21,11 @@ using namespace Data;
 //==============================================================================
 // Overloaded Abstract Functions
 
-void ImportParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
+void ImportParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 {
   auto metadata = state->getData().ti_cast<Ast::MetaHaving>();
   auto stringLiteral = ti_cast<Ast::StringLiteral>(
-    state->getData().ti_cast_get<Basic::Containing<TiObject>>()->getElement(1)
+    state->getData().ti_cast_get<Containing<TiObject>>()->getElement(1)
   );
   if (stringLiteral) {
     auto filename = stringLiteral->getValue().get();
@@ -52,7 +52,7 @@ Bool compareStringEnd(Str const &str, Char const *end)
 }
 
 
-Bool ImportParsingHandler::import(Char const *filename, Processing::ParserState *state, Str &errorDetails)
+Bool ImportParsingHandler::import(Char const *filename, ParserState *state, Str &errorDetails)
 {
   // Check the file type.
   if (compareStringEnd(filename, STR(".source")) || compareStringEnd(filename, STR(".alusus")) ||

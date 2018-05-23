@@ -23,7 +23,7 @@ Type* ArrayType::getContentType(Helper *helper) const
   if (this->contentTypeRef == 0) {
     this->contentTypeRef = helper->getRootManager()->parseExpression(STR("type"));
   }
-  auto typeBox = ti_cast<Core::Basic::TioWeakBox>(
+  auto typeBox = ti_cast<TioWeakBox>(
     helper->getSeeker()->doGet(this->contentTypeRef.get(), this->getOwner())
   );
   if (typeBox == 0) return 0;
@@ -40,7 +40,7 @@ Word ArrayType::getSize(Helper *helper) const
   if (this->sizeRef == 0) {
     this->sizeRef = helper->getRootManager()->parseExpression(STR("size"));
   }
-  auto size = ti_cast<Core::Basic::TiInt>(
+  auto size = ti_cast<TiInt>(
     helper->getSeeker()->doGet(this->sizeRef.get(), this->getOwner())
   );
   if (size == 0) {

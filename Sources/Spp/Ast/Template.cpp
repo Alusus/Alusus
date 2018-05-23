@@ -106,7 +106,7 @@ Bool Template::matchTemplateVar(
 ) {
   switch (this->varDefs[varIndex].second.val) {
     case VarType::INTEGER: {
-      auto var = ti_cast<Core::Basic::TiInt>(
+      auto var = ti_cast<TiInt>(
         Template::getTemplateVar(instance, this->varDefs[varIndex].first.c_str())
       );
       if (var == 0) {
@@ -178,12 +178,12 @@ Bool Template::assignTemplateVars(
       def->setName(this->varDefs[i].first.c_str());
       if (this->varDefs[i].second == VarType::INTEGER) {
         auto intLiteral = static_cast<Core::Data::Ast::IntegerLiteral*>(var);
-        def->setTarget(Core::Basic::TiInt::create(std::stol(intLiteral->getValue().get())));
+        def->setTarget(TiInt::create(std::stol(intLiteral->getValue().get())));
       } else if (this->varDefs[i].second == VarType::STRING) {
         auto strLiteral = static_cast<Core::Data::Ast::StringLiteral*>(var);
         def->setTarget(std::make_shared<TiStr>(strLiteral->getValue().get()));
       } else {
-        def->setTarget(std::make_shared<Core::Basic::TioWeakBox>(getWeakPtr(var)));
+        def->setTarget(std::make_shared<TioWeakBox>(getWeakPtr(var)));
       }
       instance->add(def);
     }
@@ -199,12 +199,12 @@ Bool Template::assignTemplateVars(
     def->setName(this->varDefs[0].first.c_str());
     if (this->varDefs[0].second == VarType::INTEGER) {
       auto intLiteral = static_cast<Core::Data::Ast::IntegerLiteral*>(var);
-      def->setTarget(Core::Basic::TiInt::create(std::stol(intLiteral->getValue().get())));
+      def->setTarget(TiInt::create(std::stol(intLiteral->getValue().get())));
     } else if (this->varDefs[0].second == VarType::STRING) {
       auto strLiteral = static_cast<Core::Data::Ast::StringLiteral*>(var);
       def->setTarget(std::make_shared<TiStr>(strLiteral->getValue().get()));
     } else {
-      def->setTarget(std::make_shared<Core::Basic::TioWeakBox>(getWeakPtr(var)));
+      def->setTarget(std::make_shared<TioWeakBox>(getWeakPtr(var)));
     }
   instance->add(def);
   }
@@ -217,7 +217,7 @@ TiObject* Template::getTemplateVar(Block const *instance, Char const *name)
   for (Int i = 0; i < instance->getCount(); ++i) {
     auto def = ti_cast<Core::Data::Ast::Definition>(instance->getElement(i));
     if (def != 0 && def->getName() == name) {
-      auto box = def->getTarget().ti_cast_get<Core::Basic::TioWeakBox>();
+      auto box = def->getTarget().ti_cast_get<TioWeakBox>();
       if (box != 0) return box->get().lock().get();
       else return def->getTarget().get();
     }

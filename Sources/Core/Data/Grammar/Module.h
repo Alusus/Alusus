@@ -46,12 +46,12 @@ class Module : public NbMap, public virtual Binding, public virtual Initializabl
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<Grammar::Reference> baseRef;
+  private: SharedPtr<Reference> baseRef;
   private: Module *base = 0;
 
-  private: SharedPtr<Grammar::Reference> startRef;
-  private: SharedPtr<Grammar::Reference> lexerModuleRef;
-  private: SharedPtr<Grammar::Reference> errorSyncBlockPairsRef;
+  private: SharedPtr<Reference> startRef;
+  private: SharedPtr<Reference> lexerModuleRef;
+  private: SharedPtr<Reference> errorSyncBlockPairsRef;
 
   private: Word ownership = 0;
 
@@ -119,7 +119,7 @@ class Module : public NbMap, public virtual Binding, public virtual Initializabl
   /// @name Inheritance Functions
   /// @{
 
-  public: void setBaseRef(const SharedPtr<Grammar::Reference> &ref)
+  public: void setBaseRef(const SharedPtr<Reference> &ref)
   {
     UPDATE_OWNED_SHAREDPTR(this->baseRef, ref);
   }
@@ -128,7 +128,7 @@ class Module : public NbMap, public virtual Binding, public virtual Initializabl
     this->setBaseRef(getSharedPtr(ref));
   }
 
-  public: const SharedPtr<Grammar::Reference>& getBaseRef() const
+  public: const SharedPtr<Reference>& getBaseRef() const
   {
     return this->baseRef;
   }
@@ -227,7 +227,7 @@ class Module : public NbMap, public virtual Binding, public virtual Initializabl
     this->metaChangeNotifier.emit(this, Module::MetaElement::START_REF);
   }
 
-  public: const SharedPtr<Grammar::Reference>& getStartRef() const
+  public: const SharedPtr<Reference>& getStartRef() const
   {
     return this->startRef;
   }

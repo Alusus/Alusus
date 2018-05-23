@@ -49,7 +49,7 @@ class SeekerExtension : public ObjTiInterface
 
   public: SeekerExtension(TiObject *o) : owner(o)
   {
-    initBindingCaches(this->owner, {
+    Basic::initBindingCaches(this->owner, {
       &this->astHelper,
       &this->foreachByIdentifier_function,
       &this->foreachByParamPass,

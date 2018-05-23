@@ -154,7 +154,7 @@ class CommandGenerator : public TiObject, public virtual DynamicBinding, public 
   /// @{
 
   private: Bool castCondition(
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, Core::Basic::TiObject *astNode, Spp::Ast::Type *astType,
+    Generation *g, TargetGeneration *tg, TiObject *tgContext, TiObject *astNode, Spp::Ast::Type *astType,
     TiObject *tgValue, TioSharedPtr &result
   );
 

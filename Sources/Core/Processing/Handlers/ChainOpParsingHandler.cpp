@@ -23,7 +23,7 @@ void ChainOpParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState
   if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
     if (state->refTermLevel(levelIndex).getPosId() > 1) {
       auto myData = this->prepareToModifyData(data, state, levelIndex);
-      auto container = myData.ti_cast_get<Basic::Containing<TiObject>>();
+      auto container = myData.ti_cast_get<Containing<TiObject>>();
       if (container == 0) {
         throw EXCEPTION(InvalidArgumentException, STR("data"),
                         STR("Invalid object type received from chain op production"),
@@ -50,7 +50,7 @@ void ChainOpParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState
 
 
 TioSharedPtr ChainOpParsingHandler::prepareToModifyData(
-  TioSharedPtr const &data, Processing::ParserState *state, Int levelIndex
+  TioSharedPtr const &data, ParserState *state, Int levelIndex
 ) {
   // There is an edge case in which this is not accurate. If the state is shared at this level
   // but not at the level where data is originated then we'll be unnecessarily cloning data.

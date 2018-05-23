@@ -13,7 +13,7 @@
 #ifndef CORE_BASIC_OBJTIINTERFACELIST_H
 #define CORE_BASIC_OBJTIINTERFACELIST_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 class ObjTiInterfaceList : public TiObject
@@ -28,7 +28,7 @@ class ObjTiInterfaceList : public TiObject
   // Member Variables
 
   private: TiObject *obj;
-  private: Basic::SharedList<ObjTiInterface> list;
+  private: SharedList<ObjTiInterface> list;
   private: std::vector<Bool> *inherited = 0;
   private: ObjTiInterfaceList *base = 0;
 
@@ -37,10 +37,10 @@ class ObjTiInterfaceList : public TiObject
   // Signals and Slots
 
   public: Signal<void, ObjTiInterfaceList*> destroyNotifier;
-  public: Signal<void, ObjTiInterfaceList*, Basic::ContentChangeOp, Int> changeNotifier;
+  public: Signal<void, ObjTiInterfaceList*, ContentChangeOp, Int> changeNotifier;
 
-  private: Slot<void, SharedList<ObjTiInterface>*, Basic::ContentChangeOp, Int> contentChangeSlot = {
-    [=](SharedList<ObjTiInterface>* l, Basic::ContentChangeOp changeOp, Int index)->void
+  private: Slot<void, SharedList<ObjTiInterface>*, ContentChangeOp, Int> contentChangeSlot = {
+    [=](SharedList<ObjTiInterface>* l, ContentChangeOp changeOp, Int index)->void
     {
       this->changeNotifier.emit(this, changeOp, index);
     }
@@ -282,6 +282,6 @@ class ObjTiInterfaceList : public TiObject
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

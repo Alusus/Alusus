@@ -19,20 +19,20 @@ namespace Core::Data
 /**
  * @brief A stack of TiObject derived data objects.
  */
-class DataStack : public TiObject, public virtual Basic::ListContaining<TiObject>
+class DataStack : public TiObject, public virtual ListContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(DataStack, TiObject, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Basic::ListContaining<TiObject>)
+    INHERITANCE_INTERFACES(ListContaining<TiObject>)
   ));
 
 
   //============================================================================
   // Member Variables
 
-  private: Basic::SharedList<TiObject> stack;
+  private: SharedList<TiObject> stack;
 
   private: DataStack *trunkStack;
   private: Int trunkIndex;

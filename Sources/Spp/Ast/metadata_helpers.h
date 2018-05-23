@@ -62,14 +62,14 @@ inline Type* getAstType(OT *object)
 
 template <class OT,
           typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void setAstType(OT *object, Core::Basic::SharedPtr<Type> const &type)
+inline void setAstType(OT *object, SharedPtr<Type> const &type)
 {
   object->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr(type)));
 }
 
 template <class OT,
           typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void setAstType(OT *object, Core::Basic::SharedPtr<Type> const &type)
+inline void setAstType(OT *object, SharedPtr<Type> const &type)
 {
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) {

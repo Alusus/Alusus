@@ -17,14 +17,14 @@ namespace Core { namespace Data { namespace Ast
 {
 
 class GenericCommand : public Node,
-                       public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual MetaHaving,
+                       public virtual Binding, public virtual MapContaining<TiObject>, public virtual MetaHaving,
                        public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(GenericCommand, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
 
 
   //============================================================================

@@ -35,7 +35,7 @@ class Generation : public ObjTiInterface
 
   public: Generation(TiObject *o) : owner(o)
   {
-    initBindingCaches(this->owner, {
+    Basic::initBindingCaches(this->owner, {
       &this->generateModules,
       &this->generateModule,
       &this->generateFunction,

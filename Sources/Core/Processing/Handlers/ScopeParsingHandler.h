@@ -67,7 +67,7 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
     GenericParsingHandler::onLevelExit(parser, state, data);
   }
 
-  protected: virtual void prepareToModifyData(Processing::ParserState *state, Int levelIndex)
+  protected: virtual void prepareToModifyData(ParserState *state, Int levelIndex)
   {
     if (this->rootScopeIndex == state->getProdLevelCount() - 1) return;
     GenericParsingHandler::prepareToModifyData(state, levelIndex);

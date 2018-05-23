@@ -124,7 +124,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
   auto astBlock = astFunc->getBody().get();
   if (astBlock != 0) {
     // Prepare list of args.
-    Core::Basic::PlainMap<TiObject, TiObject> tgArgs;
+    PlainMap<TiObject, TiObject> tgArgs;
     for (Int i = 0; i < argCount; ++i) {
       auto argType = astArgs->getElement(i);
       if (argType->isDerivedFrom<Ast::ArgPack>()) break;
@@ -142,7 +142,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
     }
 
     // Prepare the funciton body.
-    Core::Basic::SharedList<TiObject, TiObject> tgVars;
+    SharedList<TiObject, TiObject> tgVars;
     TioSharedPtr tgContext;
     if (!tg->prepareFunctionBody(tgFunc, &tgArgs, tgRetType, astFunc->isVariadic(), &tgVars, tgContext)) return false;
     if (tgArgs.getCount() != tgVars.getCount()) {
@@ -181,7 +181,7 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   // TODO: Support functions that take no args.
   auto astArgs = astFunc->getArgTypes().get();
   auto argCount = astArgs == 0 ? 0 : astArgs->getCount();
-  Core::Basic::PlainMap<TiObject, TiObject> tgArgs;
+  PlainMap<TiObject, TiObject> tgArgs;
   for (Int i = 0; i < argCount; ++i) {
     auto argType = astArgs->getElement(i);
     if (argType->isDerivedFrom<Ast::ArgPack>()) break;
@@ -236,9 +236,9 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
     throw EXCEPTION(GenericException, STR("User type missing body block."));
   }
   Bool result = true;
-  Core::Basic::PlainList<TiObject, TiObject> members;
-  Core::Basic::PlainMap<TiObject, TiObject> tgMemberTypes;
-  Core::Basic::SharedList<TiObject, TiObject> tgMembers;
+  PlainList<TiObject, TiObject> members;
+  PlainMap<TiObject, TiObject> tgMemberTypes;
+  SharedList<TiObject, TiObject> tgMembers;
   for (Int i = 0; i < body->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
     if (def != 0) {

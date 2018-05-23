@@ -70,7 +70,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
           if (metadata != 0) {
             list.s_cast_get<TYPE>()->setSourceLocation(metadata->findSourceLocation());
           }
-          auto newContainer = list.ti_cast_get<Basic::Containing<TiObject>>();
+          auto newContainer = list.ti_cast_get<Containing<TiObject>>();
           newContainer->setElement(this->startIndex + 0, currentData);
           newContainer->setElement(this->startIndex + 1, data.get());
           state->setData(list, levelIndex);
@@ -82,7 +82,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
         if (metadata != 0) {
           list.s_cast_get<TYPE>()->setSourceLocation(metadata->findSourceLocation());
         }
-        auto newContainer = list.ti_cast_get<Basic::Containing<TiObject>>();
+        auto newContainer = list.ti_cast_get<Containing<TiObject>>();
         newContainer->setElement(this->startIndex + 0, currentData);
         newContainer->setElement(this->startIndex + 1, data.get());
         state->setData(list, levelIndex);

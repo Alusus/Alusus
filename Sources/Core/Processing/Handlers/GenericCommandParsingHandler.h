@@ -49,7 +49,7 @@ class GenericCommandParsingHandler : public GenericParsingHandler
 
   protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex);
 
-  protected: virtual void prepareToModifyData(Processing::ParserState *state, Int levelIndex);
+  protected: virtual void prepareToModifyData(ParserState *state, Int levelIndex);
 
 }; // class
 

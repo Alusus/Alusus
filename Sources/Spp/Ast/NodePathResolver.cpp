@@ -20,7 +20,7 @@ namespace Spp { namespace Ast
 
 void NodePathResolver::initBindingCaches()
 {
-  Core::Basic::initBindingCaches(this, {
+  Basic::initBindingCaches(this, {
     &this->resolve,
     &this->resolveDefinition,
     &this->resolveFunction,
@@ -54,7 +54,7 @@ void NodePathResolver::_resolve(TiObject *self, Core::Data::Node const *node, He
     auto func = static_cast<Spp::Ast::Function const*>(node);
     resolver->resolveFunction(func, helper, path);
   } else if (node->isDerivedFrom<Spp::Ast::Block>() &&
-             Core::Basic::isDerivedFrom<Spp::Ast::Template>(node->getOwner())) {
+             Basic::isDerivedFrom<Spp::Ast::Template>(node->getOwner())) {
     auto block = static_cast<Spp::Ast::Block const*>(node);
     resolver->resolveTemplateInstance(block, helper, path);
   } else {
@@ -125,7 +125,7 @@ void NodePathResolver::_resolveTemplateInstance(
     if (i > 0) path << CHR(',');
     auto obj = Ast::Template::getTemplateVar(block, varDefs->at(i).first.c_str());
     if (varDefs->at(i).second == Ast::Template::VarType::INTEGER) {
-      auto integer = ti_cast<Core::Basic::TiInt>(obj);
+      auto integer = ti_cast<TiInt>(obj);
       if (integer == 0) {
         throw EXCEPTION(GenericException, STR("Invalid template argument."));
       }

@@ -16,20 +16,20 @@
 namespace Core::Data
 {
 
-class NbList : public Node, public virtual Basic::ListContaining<TiObject>, public virtual DataHaving
+class NbList : public Node, public virtual ListContaining<TiObject>, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(NbList, Node, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Basic::ListContaining<TiObject>, DataHaving)
+    INHERITANCE_INTERFACES(ListContaining<TiObject>, DataHaving)
   ));
 
 
   //============================================================================
   // Member Variables
 
-  private: Basic::SharedList<TiObject> list;
+  private: SharedList<TiObject> list;
   private: NbList *base = 0;
 
 
@@ -37,10 +37,10 @@ class NbList : public Node, public virtual Basic::ListContaining<TiObject>, publ
   // Signals and Slots
 
   public: Signal<void, NbList*> destroyNotifier;
-  public: Signal<void, NbList*, Basic::ContentChangeOp, Int> changeNotifier;
+  public: Signal<void, NbList*, ContentChangeOp, Int> changeNotifier;
 
-  private: Slot<void, SharedList<TiObject>*, Basic::ContentChangeOp, Int> contentChangeSlot = {
-    [=](SharedList<TiObject>* l, Basic::ContentChangeOp changeOp, Int index)->void
+  private: Slot<void, SharedList<TiObject>*, ContentChangeOp, Int> contentChangeSlot = {
+    [=](SharedList<TiObject>* l, ContentChangeOp changeOp, Int index)->void
     {
       this->changeNotifier.emit(this, changeOp, index);
     }

@@ -18,7 +18,7 @@ namespace Core::Data::Grammar
 //==============================================================================
 // Member Functions
 
-void Factory::setRootScope(Basic::ListContaining<TiObject> *rootScope)
+void Factory::setRootScope(ListContaining<TiObject> *rootScope)
 {
   Module *grammarRoot = getGrammarRoot(rootScope, true);
   this->context.setRoot(grammarRoot);
@@ -86,7 +86,7 @@ void Factory::initializeObject(TiObject *obj)
 }
 
 
-void Factory::generateConstTokenDefinitions(Basic::Containing<TiObject> *container)
+void Factory::generateConstTokenDefinitions(Containing<TiObject> *container)
 {
   for (Int i = 0; static_cast<Word>(i) < container->getElementCount(); ++i) {
     TiObject *obj = container->getElement(i);
@@ -104,7 +104,7 @@ void Factory::generateConstTokenDefinitions(Basic::Containing<TiObject> *contain
         parseDim->setEntryTokenId(TiInt::create(id));
       }
     }
-    auto childContainer = obj->getInterface<Basic::Containing<TiObject>>();
+    auto childContainer = obj->getInterface<Containing<TiObject>>();
     if (childContainer != 0) {
       this->generateConstTokenDefinitions(childContainer);
     }
@@ -155,7 +155,7 @@ void Factory::generateConstTokensForStrings(TiObject *obj)
       this->generateConstTokensForStrings(map->getElement(i));
     }
   } else {
-    auto container = obj->getInterface<Basic::Containing<TiObject>>();
+    auto container = obj->getInterface<Containing<TiObject>>();
     if (container != 0) {
       for (Word i = 0; i < container->getElementCount(); ++i) {
         this->generateConstTokensForStrings(container->getElement(i));

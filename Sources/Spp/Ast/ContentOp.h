@@ -17,7 +17,7 @@ namespace Spp::Ast
 {
 
 class ContentOp : public Core::Data::Node,
-                  public virtual Core::Basic::Binding, public virtual Core::Basic::MapContaining<TiObject>,
+                  public virtual Binding, public virtual MapContaining<TiObject>,
                   public virtual Core::Data::Ast::MetaHaving, public virtual Core::Data::Clonable,
                   public virtual Core::Data::Printable
 {
@@ -25,7 +25,7 @@ class ContentOp : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(ContentOp, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Core::Basic::Binding, Core::Basic::MapContaining<TiObject>,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, MapContaining<TiObject>,
                                          Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable);
 
 

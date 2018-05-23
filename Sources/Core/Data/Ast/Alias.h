@@ -17,14 +17,14 @@ namespace Core { namespace Data { namespace Ast
 {
 
 class Alias : public Node,
-              public virtual Binding, public virtual Basic::MapContaining<TiObject>, public virtual MetaHaving,
+              public virtual Binding, public virtual MapContaining<TiObject>, public virtual MetaHaving,
               public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Alias, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, Basic::MapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
 
 
   //============================================================================
@@ -88,7 +88,7 @@ class Alias : public Node,
   {
     stream << STR("Alias");
     stream << STR(": ");
-    Core::Data::dumpData(stream, this->reference.get(), indents);
+    dumpData(stream, this->reference.get(), indents);
     Word id = this->getProdId();
     if (id != UNKNOWN_ID) {
       stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");

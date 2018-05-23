@@ -123,30 +123,30 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
 
   public: Bool lookupCalleeByName(
     Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
-    Core::Basic::Containing<TiObject> *types, Spp::ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
+    Containing<TiObject> *types, Spp::ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee,
     Bool, (
       TiObject* /* ref */, Core::Data::Node* /* astNode */, Bool /* searchOwners */,
-      Core::Basic::Containing<TiObject>* /* types */,
+      Containing<TiObject>* /* types */,
       Spp::ExecutionContext const* /* ec */, TiObject*& /* callee */, Type*& /* calleeType */
     )
   );
   private: static Bool _lookupCallee(
     TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
-    Core::Basic::Containing<TiObject> *types, Spp::ExecutionContext const *ec,
+    Containing<TiObject> *types, Spp::ExecutionContext const *ec,
     TiObject *&callee, Type *&calleeType
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee_iteration,
     Core::Data::Seeker::Verb, (
-      TiObject*, Core::Basic::Containing<TiObject> *, Spp::ExecutionContext const*,
+      TiObject*, Containing<TiObject> *, Spp::ExecutionContext const*,
       CallMatchStatus&, Int&, SharedPtr<Core::Notices::Notice>&, TiObject*&, Type*&
     )
   );
   private: static Core::Data::Seeker::Verb _lookupCallee_iteration(
-    TiObject *self, TiObject *obj, Core::Basic::Containing<TiObject> *types, Spp::ExecutionContext const *ec,
+    TiObject *self, TiObject *obj, Containing<TiObject> *types, Spp::ExecutionContext const *ec,
     CallMatchStatus &matchStatus, Int &matchCount, SharedPtr<Core::Notices::Notice> &notice,
     TiObject *&callee, Type *&calleeType
   );

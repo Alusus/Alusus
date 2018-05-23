@@ -29,7 +29,7 @@ class Map : public NbMap, public virtual Binding, public virtual Initializable
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<Grammar::Reference> baseRef;
+  private: SharedPtr<Reference> baseRef;
 
 
   //============================================================================

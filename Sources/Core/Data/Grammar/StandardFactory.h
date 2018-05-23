@@ -53,7 +53,7 @@ class StandardFactory : public Factory
   // Member Functions
 
   /// Create the entire core grammar.
-  public: void createGrammar(Basic::ListContaining<TiObject> *rootScope, Main::RootManager *root, Bool exprOnly);
+  public: void createGrammar(ListContaining<TiObject> *rootScope, Main::RootManager *root, Bool exprOnly);
 
   /// Create the list of char group definitions for the Core's grammar.
   private: void createCharGroupDefinitions();
@@ -65,7 +65,7 @@ class StandardFactory : public Factory
   private: void createProductionDefinitions(Bool exprOnly);
 
   /// Create a const token that uses the ConstTokenizingHandler.
-  protected: virtual SharedPtr<Data::Grammar::SymbolDefinition> createConstTokenDef(Char const *text);
+  protected: virtual SharedPtr<SymbolDefinition> createConstTokenDef(Char const *text);
 
 }; // class
 

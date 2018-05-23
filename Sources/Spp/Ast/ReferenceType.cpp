@@ -23,7 +23,7 @@ Type* ReferenceType::getContentType(Helper *helper) const
   if (this->contentTypeRef == 0) {
     this->contentTypeRef = helper->getRootManager()->parseExpression(STR("type"));
   }
-  auto typeBox = ti_cast<Core::Basic::TioWeakBox>(
+  auto typeBox = ti_cast<TioWeakBox>(
     helper->getSeeker()->doGet(this->contentTypeRef.get(), this->getOwner())
   );
   if (typeBox == 0) return 0;

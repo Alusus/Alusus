@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Processing { namespace Handlers
+namespace Core::Processing::Handlers
 {
 
 using namespace Data;
@@ -20,7 +20,7 @@ using namespace Data;
 //==============================================================================
 // Overloaded Abstract Functions
 
-void GenericParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
+void GenericParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 {
   Ast::MetaHaving *item = state->getData().ti_cast_get<Ast::MetaHaving>();
   Grammar::SymbolDefinition *prod = state->refTopProdLevel().getProd();
@@ -49,7 +49,7 @@ void GenericParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
 }
 
 
-void GenericParsingHandler::onTermEnd(Processing::Parser *parser, Processing::ParserState *state)
+void GenericParsingHandler::onTermEnd(Parser *parser, ParserState *state)
 {
   // Skip if this term passes its data up.
   if (this->isRouteTerm(state, -1)) {
@@ -89,7 +89,7 @@ void GenericParsingHandler::onTermEnd(Processing::Parser *parser, Processing::Pa
 }
 
 
-void GenericParsingHandler::onLevelExit(Processing::Parser *parser, Processing::ParserState *state,
+void GenericParsingHandler::onLevelExit(Parser *parser, ParserState *state,
                                         SharedPtr<TiObject> const &data)
 {
   if (state->refTopTermLevel().getTerm()->isA<Grammar::ReferenceTerm>()) {
@@ -99,7 +99,7 @@ void GenericParsingHandler::onLevelExit(Processing::Parser *parser, Processing::
 }
 
 
-void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::ParserState *state,
+void GenericParsingHandler::onNewToken(Parser *parser, ParserState *state,
                                        const Token *token)
 {
   // Get the term object.
@@ -147,7 +147,7 @@ void GenericParsingHandler::onNewToken(Processing::Parser *parser, Processing::P
 }
 
 
-void GenericParsingHandler::onConcatStep(Processing::Parser *parser, Processing::ParserState *state,
+void GenericParsingHandler::onConcatStep(Parser *parser, ParserState *state,
                                          Int newPos, Data::Token const *token)
 {
   // If this term pass data up we can skip.
@@ -169,7 +169,7 @@ void GenericParsingHandler::onConcatStep(Processing::Parser *parser, Processing:
 }
 
 
-void GenericParsingHandler::onAlternateRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
+void GenericParsingHandler::onAlternateRouteDecision(Parser *parser, ParserState *state,
                                                      Int route, Data::Token const *token)
 {
   ASSERT(this->isRouteTerm(state, -1));
@@ -180,7 +180,7 @@ void GenericParsingHandler::onAlternateRouteDecision(Processing::Parser *parser,
 }
 
 
-void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *parser, Processing::ParserState *state,
+void GenericParsingHandler::onMultiplyRouteDecision(Parser *parser, ParserState *state,
                                                     Int route, Data::Token const *token)
 {
   TiInt *min = state->getMultiplyTermMin();
@@ -209,13 +209,13 @@ void GenericParsingHandler::onMultiplyRouteDecision(Processing::Parser *parser, 
 }
 
 
-void GenericParsingHandler::onTermCancelling(Processing::Parser *parser, Processing::ParserState *state)
+void GenericParsingHandler::onTermCancelling(Parser *parser, ParserState *state)
 {
   state->setData(SharedPtr<TiObject>(0));
 }
 
 
-void GenericParsingHandler::onProdCancelling(Processing::Parser *parser, Processing::ParserState *state)
+void GenericParsingHandler::onProdCancelling(Parser *parser, ParserState *state)
 {
   this->onTermCancelling(parser, state);
 }
@@ -224,17 +224,17 @@ void GenericParsingHandler::onProdCancelling(Processing::Parser *parser, Process
 //==============================================================================
 // Member Functions
 
-void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing::ParserState *state,
+void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState *state,
                                     Int levelIndex)
 {
   if (this->isRouteTerm(state, levelIndex)) {
     TiObject *currentData = state->getData(levelIndex).get();
-    auto container= ti_cast<Basic::Containing<TiObject>>(currentData);
+    auto container= ti_cast<Containing<TiObject>>(currentData);
     if (currentData == 0) {
       state->setData(data, levelIndex);
     } else if (container != 0 && container->getElement(0) == 0) {
       this->prepareToModifyData(state, levelIndex);
-      container = state->getData(levelIndex).ti_cast_get<Basic::Containing<TiObject>>();
+      container = state->getData(levelIndex).ti_cast_get<Containing<TiObject>>();
       container->setElement(0, data.get());
     } else {
       throw EXCEPTION(GenericException,
@@ -253,7 +253,7 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
         // We have an enforced-item list, and this is not the first item in the list, so we'll create
         // a list whose first item is null.
         SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
-        auto newContainer = list.ti_cast_get<Basic::ListContaining<TiObject>>();
+        auto newContainer = list.ti_cast_get<ListContaining<TiObject>>();
         Ast::MetaHaving *metadata = data.ti_cast_get<Ast::MetaHaving>();
         Ast::MetaHaving *newMetadata = list.ti_cast_get<Ast::MetaHaving>();
         if (newMetadata != 0 && metadata != 0) {
@@ -269,18 +269,18 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, Processing:
       // There is three possible situations at this point: Either the list was enforced, or
       // a child data was set into this level, or this level was visited more than once causing
       // a list to be created.
-      auto container = ti_cast<Basic::ListContaining<TiObject>>(currentData);
+      auto container = ti_cast<ListContaining<TiObject>>(currentData);
       Ast::MetaHaving *metadata = ti_cast<Ast::MetaHaving>(currentData);
       if (container != 0 && (metadata == 0 || metadata->getProdId() == UNKNOWN_ID)) {
         // This level already has a list that belongs to this production, so we can just add the new data
         // to this list.
         this->prepareToModifyData(state, levelIndex);
-        auto container = state->getData(levelIndex).ti_cast_get<Basic::ListContaining<TiObject>>();
+        auto container = state->getData(levelIndex).ti_cast_get<ListContaining<TiObject>>();
         container->addElement(data.get());
       } else {
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
         SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
-        auto newContainer = list.ti_cast_get<Basic::ListContaining<TiObject>>();
+        auto newContainer = list.ti_cast_get<ListContaining<TiObject>>();
         Ast::MetaHaving *newMetadata = list.ti_cast_get<Ast::MetaHaving>();
         if (newMetadata != 0 && metadata != 0) {
           newMetadata->setSourceLocation(metadata->findSourceLocation());
@@ -412,7 +412,7 @@ Bool GenericParsingHandler::isListTerm(ParserState *state, Int levelIndex)
 }
 
 
-void GenericParsingHandler::prepareToModifyData(Processing::ParserState *state, Int levelIndex)
+void GenericParsingHandler::prepareToModifyData(ParserState *state, Int levelIndex)
 {
   if (state->isDataShared(levelIndex)) {
     // Duplicate the data.
@@ -428,4 +428,4 @@ void GenericParsingHandler::prepareToModifyData(Processing::ParserState *state, 
   }
 }
 
-} } } // namespace
+} // namespace

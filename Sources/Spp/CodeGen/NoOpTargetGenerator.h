@@ -13,7 +13,7 @@
 #ifndef SPP_CODEGEN_NOOPTARGETGENERATOR_H
 #define SPP_CODEGEN_NOOPTARGETGENERATOR_H
 
-namespace Spp { namespace CodeGen
+namespace Spp::CodeGen
 {
 
 class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfaces
@@ -45,7 +45,7 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
 
   public: NoOpTargetGenerator()
   {
-    this->addDynamicInterface(std::make_shared<Spp::CodeGen::TargetGeneration>(this));
+    this->addDynamicInterface(std::make_shared<TargetGeneration>(this));
     this->initBindings();
   }
 
@@ -103,8 +103,8 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
   ) { return true; }
 
   public: Bool generateStructTypeBody(
-    TiObject *type, Core::Basic::MapContaining<TiObject> *membersTypes,
-    Core::Basic::SharedList<TiObject, TiObject> *members
+    TiObject *type, MapContaining<TiObject> *membersTypes,
+    SharedList<TiObject, TiObject> *members
   ) { return true; }
 
   public: Word getTypeAllocationSize(TiObject *type) { return 0; }
@@ -115,18 +115,18 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
   /// @{
 
   public: Bool generateFunctionDecl(
-    Char const *name, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType, Bool variadic,
+    Char const *name, MapContaining<TiObject> *argTypes, TiObject *retType, Bool variadic,
     TioSharedPtr &function
   ) { return true; }
 
   public: Bool prepareFunctionBody(
-    TiObject *function, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType,
-    Bool variadic, Core::Basic::SharedList<TiObject, TiObject> *args, TioSharedPtr &context
+    TiObject *function, MapContaining<TiObject> *argTypes, TiObject *retType,
+    Bool variadic, SharedList<TiObject, TiObject> *args, TioSharedPtr &context
   ) { return true; }
 
   public: Bool finishFunctionBody(
-    TiObject *function, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType,
-    Bool variadic, Core::Basic::ListContaining<TiObject> *args, TiObject *context
+    TiObject *function, MapContaining<TiObject> *argTypes, TiObject *retType,
+    Bool variadic, ListContaining<TiObject> *args, TiObject *context
   ) { return true; }
 
   /// @}
@@ -147,39 +147,39 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
   /// @name Statements Generation Functions
   /// @{
 
-  public: Bool prepareIfStatement(TiObject *context, Bool withElse, SharedPtr<CodeGen::IfTgContext> &ifTgContext)
+  public: Bool prepareIfStatement(TiObject *context, Bool withElse, SharedPtr<IfTgContext> &ifTgContext)
   {
     return true;
   }
-  public: Bool finishIfStatement(TiObject *context, CodeGen::IfTgContext *ifTgContext, TiObject *conditionVal)
-  {
-    return true;
-  }
-
-  public: Bool prepareWhileStatement(TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext)
-  {
-    return true;
-  }
-  public: Bool finishWhileStatement(TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal)
+  public: Bool finishIfStatement(TiObject *context, IfTgContext *ifTgContext, TiObject *conditionVal)
   {
     return true;
   }
 
-  public: Bool prepareForStatement(TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext)
+  public: Bool prepareWhileStatement(TiObject *context, SharedPtr<LoopTgContext> &loopTgContext)
   {
     return true;
   }
-  public: Bool finishForStatement(TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal)
-  {
-    return true;
-  }
-
-  public: Bool generateContinue(TiObject *context, CodeGen::LoopTgContext *loopTgContext)
+  public: Bool finishWhileStatement(TiObject *context, LoopTgContext *loopTgContext, TiObject *conditionVal)
   {
     return true;
   }
 
-  public: Bool generateBreak(TiObject *context, CodeGen::LoopTgContext *loopTgContext)
+  public: Bool prepareForStatement(TiObject *context, SharedPtr<LoopTgContext> &loopTgContext)
+  {
+    return true;
+  }
+  public: Bool finishForStatement(TiObject *context, LoopTgContext *loopTgContext, TiObject *conditionVal)
+  {
+    return true;
+  }
+
+  public: Bool generateContinue(TiObject *context, LoopTgContext *loopTgContext)
+  {
+    return true;
+  }
+
+  public: Bool generateBreak(TiObject *context, LoopTgContext *loopTgContext)
   {
     return true;
   }
@@ -246,7 +246,7 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
 
   public: Bool generateFunctionCall(
     TiObject *context, TiObject *function,
-    Core::Basic::Containing<Core::Basic::TiObject>* arguments, TioSharedPtr &result
+    Containing<TiObject>* arguments, TioSharedPtr &result
   ) { return true; }
 
   public: Bool generateReturn(
@@ -432,6 +432,6 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

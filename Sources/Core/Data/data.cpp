@@ -45,8 +45,8 @@ void setTreeIds(TiObject *obj, Node *root, const Char *id)
   if (idh != 0) idh->setId(ID_GENERATOR->getId(id));
 
   StrStream childId;
-  Basic::MapContaining<TiObject> *map; Basic::Containing<TiObject> *list;
-  if ((map = tii_cast<Basic::MapContaining<TiObject>>(obj)) != 0) {
+  MapContaining<TiObject> *map; Containing<TiObject> *list;
+  if ((map = tii_cast<MapContaining<TiObject>>(obj)) != 0) {
     for (Int i = 0; static_cast<Word>(i) < map->getElementCount(); ++i) {
       childId.str(Str());
       childId << id;
@@ -54,7 +54,7 @@ void setTreeIds(TiObject *obj, Node *root, const Char *id)
       childId << map->getElementKey(i).c_str();
       setTreeIds(map->getElement(i), root, childId.str().c_str());
     }
-  } else if ((list = tii_cast<Basic::Containing<TiObject>>(obj)) != 0) {
+  } else if ((list = tii_cast<Containing<TiObject>>(obj)) != 0) {
     for (Int i = 0; static_cast<Word>(i) < list->getElementCount(); ++i) {
       childId.str(Str());
       childId << id;
@@ -75,11 +75,11 @@ void generateId(Node *obj, Node *root, StrStream &id)
   if (owner == 0 || obj == root) return;
   generateId(owner, root, id);
   if (id.tellp() != 0) id << CHR('.');
-  auto container = owner->getInterface<Basic::Containing<TiObject>>();
+  auto container = owner->getInterface<Containing<TiObject>>();
   if (container != 0) {
     for (Int i = 0; i < container->getElementCount(); ++i) {
       if (container->getElement(i) == obj) {
-        auto mapContainer = owner->getInterface<Basic::MapContaining<TiObject>>();
+        auto mapContainer = owner->getInterface<MapContaining<TiObject>>();
         if (mapContainer != 0) {
           id << mapContainer->getElementKey(i).c_str();
         } else {
@@ -124,15 +124,15 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
         stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");
       }
     }
-    Basic::ListContaining<TiObject> *listContainer;
-    Basic::MapContaining<TiObject> *mapContainer;
-    if ((listContainer = ptr->getInterface<Basic::ListContaining<TiObject>>()) != 0) {
+    ListContaining<TiObject> *listContainer;
+    MapContaining<TiObject> *mapContainer;
+    if ((listContainer = ptr->getInterface<ListContaining<TiObject>>()) != 0) {
       for (Word i = 0; i < listContainer->getElementCount(); ++i) {
         stream << STR("\n");
         printIndents(stream, indents + 1);
         dumpData(stream, listContainer->getElement(i), indents+1);
       }
-    } else if ((mapContainer = ptr->getInterface<Basic::MapContaining<TiObject>>()) != 0) {
+    } else if ((mapContainer = ptr->getInterface<MapContaining<TiObject>>()) != 0) {
       for (Word i = 0; i < mapContainer->getElementCount(); ++i) {
         stream << STR("\n");
         printIndents(stream, indents+1);

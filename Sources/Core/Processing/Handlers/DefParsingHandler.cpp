@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Processing { namespace Handlers
+namespace Core::Processing::Handlers
 {
 
 using namespace Core;
@@ -22,7 +22,7 @@ using namespace Core::Data;
 //==============================================================================
 // Overloaded Abstract Functions
 
-void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
+void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 {
   GenericParsingHandler::onProdEnd(parser, state);
 
@@ -71,4 +71,4 @@ void DefParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   state->setData(def);
 }
 
-} } } // namespace
+} // namespace

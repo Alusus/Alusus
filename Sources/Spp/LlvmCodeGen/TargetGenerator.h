@@ -80,7 +80,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
 
   public: void prepareBuild(Core::Notices::Store *noticeStore);
 
-  public: void dumpIr(Core::Basic::OutStream &out);
+  public: void dumpIr(OutStream &out);
 
   public: void execute(Char const *entry);
 
@@ -119,8 +119,8 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
   );
 
   public: Bool generateStructTypeBody(
-    TiObject *type, Core::Basic::MapContaining<TiObject> *membersTypes,
-    Core::Basic::SharedList<TiObject, TiObject> *members
+    TiObject *type, MapContaining<TiObject> *membersTypes,
+    SharedList<TiObject, TiObject> *members
   );
 
   public: Word getTypeAllocationSize(TiObject *type);
@@ -131,18 +131,18 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
   /// @{
 
   public: Bool generateFunctionDecl(
-    Char const *name, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType, Bool variadic,
+    Char const *name, MapContaining<TiObject> *argTypes, TiObject *retType, Bool variadic,
     TioSharedPtr &function
   );
 
   public: Bool prepareFunctionBody(
-    TiObject *function, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType,
-    Bool variadic, Core::Basic::SharedList<TiObject, TiObject> *args, TioSharedPtr &context
+    TiObject *function, MapContaining<TiObject> *argTypes, TiObject *retType,
+    Bool variadic, SharedList<TiObject, TiObject> *args, TioSharedPtr &context
   );
 
   public: Bool finishFunctionBody(
-    TiObject *function, Core::Basic::MapContaining<TiObject> *argTypes, TiObject *retType,
-    Bool variadic, Core::Basic::ListContaining<TiObject> *args, TiObject *context
+    TiObject *function, MapContaining<TiObject> *argTypes, TiObject *retType,
+    Bool variadic, ListContaining<TiObject> *args, TiObject *context
   );
 
   /// @}
@@ -237,7 +237,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
 
   public: Bool generateFunctionCall(
     TiObject *context, TiObject *function,
-    Core::Basic::Containing<Core::Basic::TiObject>* arguments, TioSharedPtr &result
+    Containing<TiObject>* arguments, TioSharedPtr &result
   );
 
   public: Bool generateReturn(

@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_ENGINE_H
 #define CORE_PROCESSING_ENGINE_H
 
-namespace Core { namespace Processing
+namespace Core::Processing
 {
 
 // TODO: DOC
@@ -29,9 +29,9 @@ class Engine : public TiObject
   //============================================================================
   // Member Variables
 
-  private: Processing::Lexer lexer;
+  private: Lexer lexer;
 
-  private: Processing::Parser parser;
+  private: Parser parser;
 
 
   //============================================================================
@@ -74,6 +74,6 @@ class Engine : public TiObject
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

@@ -28,7 +28,7 @@ using namespace Core::Processing::Handlers;
  * grammar definitions with all the required handlers.
  */
 void StandardFactory::createGrammar(
-  Basic::ListContaining<TiObject> *rootScope, Main::RootManager *root, Bool exprOnly
+  ListContaining<TiObject> *rootScope, Main::RootManager *root, Bool exprOnly
 ) {
   this->setRootScope(rootScope);
 
@@ -1521,7 +1521,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
      })},
     {STR("vars"), Map::create(false, {}, {{STR("operand"), PARSE_REF(STR("root.Subject"))}})},
     {STR("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto currentList = state->getData().ti_cast_get<Basic::Containing<TiObject>>();
+      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
       auto metadata = ti_cast<Ast::MetaHaving>(currentList);
       auto token = tio_cast<Ast::Token>(currentList->getElement(0));
       auto linkOp = Ast::LinkOperator::create({
@@ -1956,7 +1956,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
     {STR("handler"), std::make_shared<CustomParsingHandler>(
       [](Parser *parser, ParserState *state)
       {
-        auto currentList = state->getData().ti_cast_get<Basic::Containing<TiObject>>();
+        auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
         auto metadata = ti_cast<Ast::MetaHaving>(currentList);
         auto alias = Ast::Alias::create({
           { "prodId", metadata->getProdId() },
@@ -2073,7 +2073,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
 }
 
 
-SharedPtr<Data::Grammar::SymbolDefinition> StandardFactory::createConstTokenDef(Char const *text)
+SharedPtr<SymbolDefinition> StandardFactory::createConstTokenDef(Char const *text)
 {
   if (SBSTR(text) == STR("@") || SBSTR(text) == STR("@<")) {
     return SymbolDefinition::create({

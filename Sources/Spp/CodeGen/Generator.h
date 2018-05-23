@@ -62,7 +62,7 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
     commandGenerator(cg),
     expressionGenerator(eg)
   {
-    this->addDynamicInterface(std::make_shared<Spp::CodeGen::Generation>(this));
+    this->addDynamicInterface(std::make_shared<Generation>(this));
     this->initBindings();
   }
 

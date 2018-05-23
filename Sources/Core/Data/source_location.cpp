@@ -24,7 +24,7 @@ void SourceLocationStack::push(SourceLocation *sl)
     throw EXCEPTION(InvalidArgumentException, STR("sl"), STR("Cannot be null."));
   }
   if (sl->isA<SourceLocationRecord>()) {
-    auto sharedSl = Basic::getSharedPtr(static_cast<SourceLocationRecord*>(sl));
+    auto sharedSl = getSharedPtr(static_cast<SourceLocationRecord*>(sl));
     if (sharedSl == 0) {
       sharedSl = std::make_shared<SourceLocationRecord>(*static_cast<SourceLocationRecord*>(sl));
     }

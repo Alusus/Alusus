@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Data
+namespace Core::Data
 {
 
 //==============================================================================
@@ -396,7 +396,7 @@ Seeker::Verb Seeker::_setByLinkOperator_routing(
           static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
         );
       } else {
-        auto map = ti_cast<Basic::MapContaining<TiObject>>(data);
+        auto map = ti_cast<MapContaining<TiObject>>(data);
         if (map != 0) {
           return seeker->setByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
         } else {
@@ -443,7 +443,7 @@ Seeker::Verb Seeker::_setByLinkOperator_scopeDotIdentifier(
 
 
 Seeker::Verb Seeker::_setByLinkOperator_mapDotIdentifier(
-  TiObject *self, Ast::Identifier const *identifier, Basic::MapContaining<TiObject> *map,
+  TiObject *self, Ast::Identifier const *identifier, MapContaining<TiObject> *map,
   SetCallback const &cb, Word flags
 ) {
   Verb verb = Verb::MOVE;
@@ -486,7 +486,7 @@ Seeker::Verb Seeker::_removeByLinkOperator_routing(
           static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
         );
       } else {
-        auto map = ti_cast<Basic::MapContaining<TiObject>>(data);
+        auto map = ti_cast<MapContaining<TiObject>>(data);
         if (map != 0) {
           return seeker->removeByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
         } else {
@@ -523,7 +523,7 @@ Seeker::Verb Seeker::_removeByLinkOperator_scopeDotIdentifier(
 
 
 Seeker::Verb Seeker::_removeByLinkOperator_mapDotIdentifier(
-  TiObject *self, Data::Ast::Identifier const *identifier, Basic::MapContaining<TiObject> *map,
+  TiObject *self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map,
   RemoveCallback const &cb, Word flags
 ) {
   Verb verb = Verb::MOVE;
@@ -569,7 +569,7 @@ Seeker::Verb Seeker::_foreachByLinkOperator_routing(
           static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
         );
       } else {
-        auto map = ti_cast<Basic::MapContaining<TiObject>>(data);
+        auto map = ti_cast<MapContaining<TiObject>>(data);
         if (map != 0) {
           return seeker->foreachByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
         } else {
@@ -608,7 +608,7 @@ Seeker::Verb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
 
 
 Seeker::Verb Seeker::_foreachByLinkOperator_mapDotIdentifier(
-  TiObject *self, Data::Ast::Identifier const *identifier, Basic::MapContaining<TiObject> *map, ForeachCallback const &cb,
+  TiObject *self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map, ForeachCallback const &cb,
   Word flags
 ) {
   auto obj = map->getElement(identifier->getValue().get());
@@ -621,4 +621,4 @@ Seeker::Verb Seeker::_foreachByLinkOperator_mapDotIdentifier(
   }
 }
 
-} } // namespace
+} // namespace

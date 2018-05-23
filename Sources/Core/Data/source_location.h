@@ -79,7 +79,7 @@ class SourceLocationRecord : public SourceLocation
 }; // class
 
 
-typedef Basic::SharedList<SourceLocationRecord, SourceLocation> _SourceLocationStackBase;
+typedef SharedList<SourceLocationRecord, SourceLocation> _SourceLocationStackBase;
 
 
 /**

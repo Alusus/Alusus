@@ -16,12 +16,12 @@
 namespace Spp { namespace LlvmCodeGen
 {
 
-class Type : public Core::Basic::TiObject
+class Type : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Type, Core::Basic::TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.net");
+  TYPE_INFO(Type, TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.net");
 
 
   //============================================================================

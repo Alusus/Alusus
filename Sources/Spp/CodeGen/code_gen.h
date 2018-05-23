@@ -78,14 +78,14 @@ inline DT* getCodeGenData(OT *object)
 
 template <class DT, class OT,
           typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void setCodeGenData(OT *object, Core::Basic::SharedPtr<DT> const &data)
+inline void setCodeGenData(OT *object, SharedPtr<DT> const &data)
 {
   object->setExtra(META_EXTRA_CODE_GEN, data);
 }
 
 template <class DT, class OT,
           typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void setCodeGenData(OT *object, Core::Basic::SharedPtr<DT> const &data)
+inline void setCodeGenData(OT *object, SharedPtr<DT> const &data)
 {
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) {

@@ -13,7 +13,7 @@
 #ifndef SPP_CODEGEN_TARGETGENERATION_H
 #define SPP_CODEGEN_TARGETGENERATION_H
 
-namespace Spp { namespace CodeGen
+namespace Spp::CodeGen
 {
 
 class TargetGeneration : public ObjTiInterface
@@ -171,8 +171,8 @@ class TargetGeneration : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateStructTypeBody,
     Bool, (
-      TiObject* /* type */, Core::Basic::MapContaining<Core::Basic::TiObject>* /* membersTypes */,
-      Core::Basic::SharedList<TiObject, TiObject>* /* members */
+      TiObject* /* type */, MapContaining<TiObject>* /* membersTypes */,
+      SharedList<TiObject, TiObject>* /* members */
     )
   );
 
@@ -185,22 +185,22 @@ class TargetGeneration : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateFunctionDecl,
     Bool, (
-      Char const* /* name */, Core::Basic::MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
+      Char const* /* name */, MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
       Bool /* variadic */, TioSharedPtr& /* function */
     )
   );
 
   public: METHOD_BINDING_CACHE(prepareFunctionBody,
     Bool, (
-      TiObject* /* function */, Core::Basic::MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
-      Bool /* variadic */, Core::Basic::SharedList<TiObject, TiObject>* /* args */, TioSharedPtr& /* context */
+      TiObject* /* function */, MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
+      Bool /* variadic */, SharedList<TiObject, TiObject>* /* args */, TioSharedPtr& /* context */
     )
   );
 
   public: METHOD_BINDING_CACHE(finishFunctionBody,
     Bool, (
-      TiObject* /* function */, Core::Basic::MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
-      Bool /* variadic */, Core::Basic::ListContaining<TiObject>* /* args */, TiObject* /* context */
+      TiObject* /* function */, MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
+      Bool /* variadic */, ListContaining<TiObject>* /* args */, TiObject* /* context */
     )
   );
 
@@ -228,31 +228,31 @@ class TargetGeneration : public ObjTiInterface
   /// @{
 
   public: METHOD_BINDING_CACHE(prepareIfStatement,
-    Bool, (TiObject* /* context */, Bool /* withElse */, SharedPtr<CodeGen::IfTgContext>& /* ifTgContext */)
+    Bool, (TiObject* /* context */, Bool /* withElse */, SharedPtr<IfTgContext>& /* ifTgContext */)
   );
   public: METHOD_BINDING_CACHE(finishIfStatement,
-    Bool, (TiObject* /* context */, CodeGen::IfTgContext* /* ifTgContext */, TiObject* /* conditionVal */)
+    Bool, (TiObject* /* context */, IfTgContext* /* ifTgContext */, TiObject* /* conditionVal */)
   );
 
   public: METHOD_BINDING_CACHE(prepareWhileStatement,
-    Bool, (TiObject* /* context */, SharedPtr<CodeGen::LoopTgContext>& /* loopTgContext */)
+    Bool, (TiObject* /* context */, SharedPtr<LoopTgContext>& /* loopTgContext */)
   );
   public: METHOD_BINDING_CACHE(finishWhileStatement,
-    Bool, (TiObject* /* context */, CodeGen::LoopTgContext* /* loopTgContext */, TiObject* /* conditionVal */)
+    Bool, (TiObject* /* context */, LoopTgContext* /* loopTgContext */, TiObject* /* conditionVal */)
   );
 
   public: METHOD_BINDING_CACHE(prepareForStatement,
-    Bool, (TiObject* /* context */, SharedPtr<CodeGen::LoopTgContext>& /* loopTgContext */)
+    Bool, (TiObject* /* context */, SharedPtr<LoopTgContext>& /* loopTgContext */)
   );
   public: METHOD_BINDING_CACHE(finishForStatement,
-    Bool, (TiObject* /* context */, CodeGen::LoopTgContext* /* loopTgContext */, TiObject* /* conditionVal */)
+    Bool, (TiObject* /* context */, LoopTgContext* /* loopTgContext */, TiObject* /* conditionVal */)
   );
 
   public: METHOD_BINDING_CACHE(generateContinue,
-    Bool, (TiObject* /* context */, CodeGen::LoopTgContext* /* loopTgContext */)
+    Bool, (TiObject* /* context */, LoopTgContext* /* loopTgContext */)
   );
   public: METHOD_BINDING_CACHE(generateBreak,
-    Bool, (TiObject* /* context */, CodeGen::LoopTgContext* /* loopTgContext */)
+    Bool, (TiObject* /* context */, LoopTgContext* /* loopTgContext */)
   );
 
   /// @}
@@ -352,7 +352,7 @@ class TargetGeneration : public ObjTiInterface
   public: METHOD_BINDING_CACHE(generateFunctionCall,
     Bool, (
       TiObject* /* context */, TiObject* /* function */,
-      Core::Basic::Containing<Core::Basic::TiObject>* /* arguments */, TioSharedPtr& /* result */
+      Containing<TiObject>* /* arguments */, TioSharedPtr& /* result */
     )
   );
 
@@ -653,6 +653,6 @@ class TargetGeneration : public ObjTiInterface
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif
