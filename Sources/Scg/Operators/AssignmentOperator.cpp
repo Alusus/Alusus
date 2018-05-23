@@ -32,7 +32,7 @@ AstNode::CodeGenerationStage AssignmentOperator::generateCode(CodeGenUnit *codeG
   auto irb = this->findOwner<Block>()->getIRBuilder();
 
   // TODO: Don't use dynamic_cast.
-  auto lhs = getLHS().tio_cast_get<Content>();
+  auto lhs = getLHS().ti_cast_get<Content>();
 
   if (lhs == nullptr)
     throw EXCEPTION(InvalidOperationException, "The left-hand side of an "

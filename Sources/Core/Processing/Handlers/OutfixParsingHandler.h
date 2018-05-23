@@ -80,7 +80,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
   private: SharedPtr<PREFIXTYPE> createPrefixObj(TioSharedPtr const &currentData,
                                                  TioSharedPtr const &data)
   {
-    auto token = currentData.tio_cast_get<Data::Ast::Token>();
+    auto token = currentData.ti_cast_get<Data::Ast::Token>();
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("currentData"), STR("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());
@@ -100,7 +100,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
   private: SharedPtr<POSTFIXTYPE> createPostfixObj(TioSharedPtr const &currentData,
                                                    TioSharedPtr const &data)
   {
-    auto token = data.tio_cast_get<Data::Ast::Token>();
+    auto token = data.ti_cast_get<Data::Ast::Token>();
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());

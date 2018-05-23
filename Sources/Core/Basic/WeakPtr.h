@@ -203,15 +203,9 @@ template <class T> SharedPtr<T>& c_cast(const std::weak_ptr<T> &src)
 }
 
 
-template <class T, class T2> SharedPtr<T>& tio_cast(const std::weak_ptr<T2> &src)
+template <class T, class T2> SharedPtr<T>& ti_cast(const std::weak_ptr<T2> &src)
 {
-  return tio_cast<T>(src.lock());
-}
-
-
-template <class T, class T2> SharedPtr<T>& tii_cast(const std::weak_ptr<T2> &src)
-{
-  return tii_cast<T>(src.lock());
+  return ti_cast<T>(src.lock());
 }
 
 

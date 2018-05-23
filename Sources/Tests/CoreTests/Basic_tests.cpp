@@ -72,9 +72,9 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
     }
     SECTION("s3", "TiObject Cast")
     {
-      SharedPtr<Ast::Token> testToken1 = tio_cast<Ast::Token>(getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())));
+      SharedPtr<Ast::Token> testToken1 = ti_cast<Ast::Token>(getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())));
       SharedPtr<TiObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
-      SharedPtr<Ast::Token> testToken2 = tio_cast<Ast::Token>(testTok);
+      SharedPtr<Ast::Token> testToken2 = ti_cast<Ast::Token>(testTok);
       CHECK(testToken1.get() != 0);
       CHECK(testToken2.get() == testToken1.get());
       CHECK(testToken1.use_count() > 1);
@@ -102,9 +102,9 @@ TEST_CASE("Core::Basic/shared_pointer_casting", "Test casting of shared pointers
     }
     SECTION("s6", "Member TiObject Cast")
     {
-      SharedPtr<Ast::Token> testToken1 = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())).tio_cast<Ast::Token>();
+      SharedPtr<Ast::Token> testToken1 = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get())).ti_cast<Ast::Token>();
       SharedPtr<TiObject> testTok = getSharedPtr(seeker.tryGet(STR("{find prodId=parent.3}"), data.get()));
-      SharedPtr<Ast::Token> testToken2 = testTok.tio_cast<Ast::Token>();
+      SharedPtr<Ast::Token> testToken2 = testTok.ti_cast<Ast::Token>();
       CHECK(testToken1.get() != 0);
       CHECK(testToken2.get() == testToken1.get());
       CHECK(testToken1.use_count() > 1);

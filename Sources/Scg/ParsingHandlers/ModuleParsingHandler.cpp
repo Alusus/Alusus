@@ -41,7 +41,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
   ASSERT(metadata != 0);
 
   // Find the statement list in the subject.
-  auto statementList = tio_cast<Ast::List>(seeker.tryGet(statementListReference.get(), item.get()));
+  auto statementList = ti_cast<Ast::List>(seeker.tryGet(statementListReference.get(), item.get()));
 
   if (statementList == 0) {
     // Create a build error msg.
@@ -98,9 +98,9 @@ void ModuleParsingHandler::addDefinitionToModule(Processing::ParserState *state,
             "0~where(prodId=Subject.Subject1)."
             "0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto metadata = def.tii_cast_get<Ast::MetadataHolder>();
+  auto metadata = def.ti_cast_get<Ast::MetadataHolder>();
   ASSERT(metadata != 0);
-  auto nameToken = tio_cast<Ast::Token>(seeker.tryGet(nameReference.get(), def.get()));
+  auto nameToken = ti_cast<Ast::Token>(seeker.tryGet(nameReference.get(), def.get()));
 
   if (nameToken == nullptr || nameToken->getId() != identifierTokenId) {
     state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(
@@ -134,7 +134,7 @@ void ModuleParsingHandler::addLinkToModule(Processing::ParserState *state,
         STR("0~where(prodId=Expression.Exp)"),
         ReferenceUsageCriteria::MULTI_DATA);
 
-  auto list = tio_cast<Ast::List>(seeker.tryGet(listReference.get(), link.get()));
+  auto list = ti_cast<Ast::List>(seeker.tryGet(listReference.get(), link.get()));
 
   if (list != 0) {
     for (auto i = 0; i < list->getCount(); i++) {
@@ -146,7 +146,7 @@ void ModuleParsingHandler::addLinkToModule(Processing::ParserState *state,
       }
     }
   } else {
-    auto expr = tio_cast<Ast::List>(seeker.tryGet(exprReference.get(), link.get()));
+    auto expr = ti_cast<Ast::List>(seeker.tryGet(exprReference.get(), link.get()));
 
     if (expr != 0) {
       // auto name = this->getLinkName(expr);
@@ -178,16 +178,16 @@ Char const* ModuleParsingHandler::getLinkName(TiObject *link)
         ReferenceUsageCriteria::MULTI_DATA);
   static Word identifierTokenId = Core::Data::IdGenerator::getSingleton()->getId(STR("LexerDefs.Identifier"));
 
-  auto funcExp = tio_cast<Ast::List>(seeker.tryGet(funcExpNoRetReference.get(), link));
+  auto funcExp = ti_cast<Ast::List>(seeker.tryGet(funcExpNoRetReference.get(), link));
 
   if (funcExp == 0) {
-    funcExp = tio_cast<Ast::List>(seeker.tryGet(funcExpReference.get(), link));
+    funcExp = ti_cast<Ast::List>(seeker.tryGet(funcExpReference.get(), link));
 
     if (funcExp == 0)
       throw EXCEPTION(InvalidArgumentException, "Invalid function link expression.");
   }
 
-  auto nameToken = tio_cast<Ast::Token>(seeker.tryGet(nameReference.get(), funcExp));
+  auto nameToken = ti_cast<Ast::Token>(seeker.tryGet(nameReference.get(), funcExp));
 
   if (nameToken == 0 || nameToken->getId() != identifierTokenId)
     throw EXCEPTION(InvalidArgumentException,

@@ -39,7 +39,7 @@ ParamPassExp::ParamPassExp(CodeGenerator *gen,
   SharedPtr<Ast::List> listExprItem;
 
   if ((listExprItem = getSharedPtr(seeker.tryGet(multiParamReference.get(), astBlockRoot.get()))
-                      .tio_cast<Ast::List>()) != 0) {
+                      .ti_cast<Ast::List>()) != 0) {
     auto listExpr = ListExpression(gen, listExprItem);
 
     for (auto i = 0; i < listExpr.getItemCount(); i++)

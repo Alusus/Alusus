@@ -77,7 +77,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     TYPE *leaf = 0;
     while (obj != 0 && obj->getProdId() == UNKNOWN_ID) {
       leaf = obj;
-      obj = obj->getSecond().template tio_cast_get<TYPE>();
+      obj = obj->getSecond().template ti_cast_get<TYPE>();
     }
     return leaf;
   }
@@ -85,12 +85,12 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
   private: SharedPtr<TYPE> createInfixObj(SharedPtr<TiObject> const &currentData,
                                           SharedPtr<TiObject> const &data)
   {
-    Data::Ast::List *list = data.tio_cast_get<Data::Ast::List>();
+    Data::Ast::List *list = data.ti_cast_get<Data::Ast::List>();
     if (list == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid object type received."),
                       data->getMyTypeInfo()->getUniqueName());
     }
-    auto token = tio_cast<Data::Ast::Token>(list->get(0));
+    auto token = ti_cast<Data::Ast::Token>(list->getElement(0));
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("data[0]"), STR("Invalid op token object received."),
                       list->get(0)->getMyTypeInfo()->getUniqueName());
@@ -120,7 +120,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
 
   private: SharedPtr<TiObject> cloneInfixTree(SharedPtr<TiObject> const &obj)
   {
-    TYPE *infixObj = obj.tio_cast_get<TYPE>();
+    TYPE *infixObj = obj.ti_cast_get<TYPE>();
     if (infixObj == 0 || infixObj->getProdId() != UNKNOWN_ID) return obj;
 
     SharedPtr<TYPE> newObj = std::make_shared<TYPE>();

@@ -25,7 +25,7 @@ ListExpression::ListExpression(CodeGenerator *gen,
   // currently used by Function class to parse the body of the function, but I don't
   // think this is correct. Instead, we should have a separate class to
   // parse a list of statements.
-  auto metadata = item.tii_cast_get<Ast::MetadataHolder>();
+  auto metadata = item.ti_cast_get<Ast::MetadataHolder>();
 
   if (metadata != nullptr && (metadata->getProdId() == gen->getListExpId() ||
                               metadata->getProdId() == gen->getStatementListId())) {
@@ -49,7 +49,7 @@ StringArray ListExpression::parseTokenList() const
 
   for (auto i = 0; i < getItemCount(); i++) {
     auto item = getItem(i);
-    auto token = tio_cast<Ast::Token>(seeker.tryGet(tokenReference.get(), item.get()));
+    auto token = ti_cast<Ast::Token>(seeker.tryGet(tokenReference.get(), item.get()));
 
     if (token == 0)
       // TODO: Add the index of the non-token to the exception message.

@@ -59,7 +59,7 @@ template <class TYPE> class PostfixParsingHandler : public GenericParsingHandler
   private: SharedPtr<TYPE> createPostfixObj(TioSharedPtr const &currentData,
                                             TioSharedPtr const &data)
   {
-    auto token = data.tio_cast_get<Data::Ast::Token>();
+    auto token = data.ti_cast_get<Data::Ast::Token>();
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());

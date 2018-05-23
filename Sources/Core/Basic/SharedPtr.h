@@ -154,58 +154,6 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
   /**
    * @brief Cast this shared pointer to a shared pointer of another data type.
    *
-   * Casting is done using tio_cast.
-   *
-   * @tparam TO The requested type of the subject, not the pointer. In other
-   *            words, if you want to cast the pointer to SharedPtr<My_Type>,
-   *            TO must be My_Type, not SharedPtr<My_Type>.
-   */
-  public: template <class TO> inline SharedPtr<TO> tio_cast() const &
-  {
-    return SharedPtr<TO>(*this, Core::Basic::tio_cast<TO>(this->get()));
-  }
-
-  /// @sa tio_cast()
-  public: template <class TO> inline SharedPtr<TO> tio_cast() &&
-  {
-    if (this->get() != 0 && this->get()->isDerivedFrom(TO::getTypeInfo())) {
-      return std::move(*(reinterpret_cast<SharedPtr<TO>*>(this)));
-    } else {
-      return SharedPtr<TO>();
-    }
-  }
-
-  /**
-   * @brief Cast this shared pointer to a shared pointer of another data type.
-   *
-   * Casting is done using tii_cast.
-   *
-   * @tparam TO The requested type of the subject, not the pointer. In other
-   *            words, if you want to cast the pointer to SharedPtr<My_Type>,
-   *            TO must be My_Type, not SharedPtr<My_Type>.
-   */
-  public: template <class TO> inline SharedPtr<TO> tii_cast() const
-  {
-    return SharedPtr<TO>(*this, Core::Basic::tii_cast<TO>(this->get()));
-  }
-
-  /**
-   * @brief Cast this shared pointer to a shared pointer of another data type.
-   *
-   * Casting is done using tii2tio_cast.
-   *
-   * @tparam TO The requested type of the subject, not the pointer. In other
-   *            words, if you want to cast the pointer to SharedPtr<My_Type>,
-   *            TO must be My_Type, not SharedPtr<My_Type>.
-   */
-  public: template <class TO> inline SharedPtr<TO> tii2tio_cast() const
-  {
-    return SharedPtr<TO>(*this, Core::Basic::tii2tio_cast<TO>(this->get()));
-  }
-
-  /**
-   * @brief Cast this shared pointer to a shared pointer of another data type.
-   *
    * Casting is done using ti_cast.
    *
    * @tparam TO The requested type of the subject, not the pointer. In other
@@ -257,48 +205,6 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
   public: template <class TO> inline TO* c_cast_get() const
   {
     return const_cast<TO*>(this->get());
-  }
-
-  /**
-   * @brief Cast and return the subject of this shared pointer.
-   *
-   * Casting is done using tio_cast.
-   *
-   * @tparam TO The requested type of the subject, not the pointer. In other
-   *            words, if you want to cast the pointer to My_Type,
-   *            TO must be My_Type, not My_Type*.
-   */
-  public: template <class TO> inline TO* tio_cast_get() const
-  {
-    return Core::Basic::tio_cast<TO>(this->get());
-  }
-
-  /**
-   * @brief Cast and return the subject of this shared pointer.
-   *
-   * Casting is done using tii_cast.
-   *
-   * @tparam TO The requested type of the subject, not the pointer. In other
-   *            words, if you want to cast the pointer to My_Type,
-   *            TO must be My_Type, not My_Type*.
-   */
-  public: template <class TO> inline TO* tii_cast_get() const
-  {
-    return Core::Basic::tii_cast<TO>(this->get());
-  }
-
-  /**
-   * @brief Cast and return the subject of this shared pointer.
-   *
-   * Casting is done using tii2tio_cast.
-   *
-   * @tparam TO The requested type of the subject, not the pointer. In other
-   *            words, if you want to cast the pointer to My_Type,
-   *            TO must be My_Type, not My_Type*.
-   */
-  public: template <class TO> inline TO* tii2tio_cast_get() const
-  {
-    return Core::Basic::tii2tio_cast<TO>(this->get());
   }
 
   /**
@@ -370,31 +276,9 @@ template <class T> inline SharedPtr<T> c_cast(std::shared_ptr<const T> &&src)
 }
 
 
-template <class T, class T2> inline SharedPtr<T> tio_cast(std::shared_ptr<T2> const &src)
+template <class T, class T2> SharedPtr<T> ti_cast(std::shared_ptr<T2> const &src)
 {
-  return SharedPtr<T>(src, Core::Basic::tio_cast<T>(src.get()));
-}
-
-
-template <class T, class T2> inline SharedPtr<T> tio_cast(std::shared_ptr<T2> &&src)
-{
-  if (src.get() != 0 && src.get()->isDerivedFrom(T::getTypeInfo())) {
-    return std::move(*(reinterpret_cast<SharedPtr<T>*>(&src)));
-  } else {
-    return SharedPtr<T>();
-  }
-}
-
-
-template <class T, class T2> SharedPtr<T> tii_cast(std::shared_ptr<T2> const &src)
-{
-  return SharedPtr<T>(src, Core::Basic::tii_cast<T*>(src.get()));
-}
-
-
-template <class T, class T2> SharedPtr<T> tii2tio_cast(std::shared_ptr<T2> const &src)
-{
-  return SharedPtr<T>(src, Core::Basic::tii2tio_cast<T*>(src.get()));
+  return SharedPtr<T>(src, Core::Basic::ti_cast<T>(src.get()));
 }
 
 

@@ -34,7 +34,7 @@ void DumpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
         ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
-  auto name = tio_cast<Ast::Token>(seeker.tryGet(nameReference.get(), item.get()));
+  auto name = ti_cast<Ast::Token>(seeker.tryGet(nameReference.get(), item.get()));
   TiObject *def = 0;
 
   if (name != 0) {

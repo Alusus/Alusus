@@ -86,7 +86,7 @@ DefineFunction *Module::findDefineFunction(const std::string &name,
   for (Int i = 0; i < this->children.getCount(); ++i) {
     auto expr = static_cast<AstNode*>(this->children.get(i));
     // TODO: Don't use dynamic_cast.
-    auto defFunc = tio_cast<DefineFunction>(expr);
+    auto defFunc = ti_cast<DefineFunction>(expr);
 
     if (defFunc == nullptr)
       continue;
@@ -107,7 +107,7 @@ DeclareExtFunction *Module::findDeclareFunction(const std::string &name,
   for (Int i = 0; i < this->children.getCount(); ++i) {
     auto expr = static_cast<AstNode*>(this->children.get(i));
     // TODO: Don't use dynamic_cast.
-    auto declFunc = tio_cast<DeclareExtFunction>(expr);
+    auto declFunc = ti_cast<DeclareExtFunction>(expr);
 
     if (declFunc == nullptr)
       continue;

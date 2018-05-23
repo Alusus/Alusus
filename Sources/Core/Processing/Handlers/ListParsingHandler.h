@@ -53,12 +53,12 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
         // There is three possible situations at this point: Either the list was enforced, or
         // a child data was set into this level, or this level was visited more than once causing
         // a list to be created.
-        TYPE *typedCurrentData = tio_cast<TYPE>(currentData);
+        TYPE *typedCurrentData = ti_cast<TYPE>(currentData);
         if (typedCurrentData != 0 && typedCurrentData->getProdId() == UNKNOWN_ID) {
           // This level already has a list that belongs to this production, so we can just add the new data
           // to this list.
           this->prepareToModifyData(state, levelIndex);
-          typedCurrentData = state->getData(levelIndex).tio_cast_get<TYPE>();
+          typedCurrentData = state->getData(levelIndex).ti_cast_get<TYPE>();
           ASSERT(typedCurrentData != 0);
           auto posId = state->refTermLevel(levelIndex).getPosId();
           typedCurrentData->setElement(this->startIndex + posId - 1, data.get());

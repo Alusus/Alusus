@@ -262,7 +262,7 @@ Int Lexer::process()
           this->currentTokenClamped = false;
         }
         // Set token properties.
-        TokenizingHandler *handler = tio_cast<TokenizingHandler>(def->getBuildHandler().get());
+        TokenizingHandler *handler = ti_cast<TokenizingHandler>(def->getBuildHandler().get());
         if (handler == 0) {
           this->lastToken.setId(def->getId());
           this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
@@ -312,7 +312,7 @@ Int Lexer::process()
         this->currentTokenClamped = false;
       }
       // Set token properties.
-      TokenizingHandler *handler = tio_cast<TokenizingHandler>(def->getBuildHandler().get());
+      TokenizingHandler *handler = ti_cast<TokenizingHandler>(def->getBuildHandler().get());
       if (handler == 0) {
         this->lastToken.setId(def->getId());
         this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
@@ -624,7 +624,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
 
     Int iterationIndex = 0;
     Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(currentTerm);
-    if (multiplyTerm->getTerm().tio_cast_get<Data::Grammar::Term>() == 0) {
+    if (multiplyTerm->getTerm().ti_cast_get<Data::Grammar::Term>() == 0) {
       Str excMsg = STR("Multiply term with null or invalid child is found at definition: ");
       excMsg += ID_GENERATOR->getDesc(
         this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
@@ -889,7 +889,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
       termIndex = this->tempState.getIndexStack()->at(currentLevel);
     }
     // get the next term object
-    Data::Grammar::Term *term = tio_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
+    Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
     if (term == 0) {
       Str excMsg = STR("Concat term's child term is null. Token def: ");
       excMsg += ID_GENERATOR->getDesc(
@@ -926,7 +926,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
             // update the term index on the stack
             termIndex++;
             this->tempState.getIndexStack()->at(currentLevel) = termIndex;
-            term = tio_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
+            term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
             if (term == 0) {
               Str excMsg = STR("Concat term's child term is null. Token def: ");
               excMsg += ID_GENERATOR->getDesc(

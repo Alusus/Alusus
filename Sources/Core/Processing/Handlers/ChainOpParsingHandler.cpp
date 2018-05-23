@@ -58,7 +58,7 @@ TioSharedPtr ChainOpParsingHandler::prepareToModifyData(
   // still be valid.
   if (state->isDataShared(levelIndex)) {
     // Duplicate the data, if possible.
-    auto clonable = data.tii_cast_get<Data::Clonable>();
+    auto clonable = data.ti_cast_get<Data::Clonable>();
     if (clonable != 0) return clonable->clone();
   }
   return data;

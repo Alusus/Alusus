@@ -141,7 +141,7 @@ SharedPtr<AstNode> FunctionalExpression::toExpression()
       expr = std::make_shared<MemberFieldReference>(expr, fieldName);
       expr->setSourceLocation(thisExprAstMeta->getSourceLocation());
     } else if (thisExprAstMeta->getProdId() == this->gen->getPostfixTildeExpId()) {
-      auto child = tii_cast<Ast::MetadataHolder>(thisExprAst.s_cast<Ast::List>()->get(0));
+      auto child = ti_cast<Ast::MetadataHolder>(thisExprAst.s_cast<Ast::List>()->get(0));
 
       if (child->getProdId() == this->gen->getContentTildeId()) {
         // ~cnt

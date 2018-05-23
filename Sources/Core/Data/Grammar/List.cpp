@@ -26,7 +26,7 @@ void List::initialize(TiObject *context)
     if (p == 0) {
       throw EXCEPTION(GenericException, STR("Parent reference points to missing definition."));
     }
-    List *pm = tio_cast<List>(p);
+    List *pm = ti_cast<List>(p);
     if (pm == 0) {
       throw EXCEPTION(GenericException, STR("Parent reference points to an object of an invalid type."));
     }

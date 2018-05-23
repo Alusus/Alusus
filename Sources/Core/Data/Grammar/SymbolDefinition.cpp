@@ -107,7 +107,7 @@ void SymbolDefinition::initialize(TiObject *context)
     if (p == 0) {
       throw EXCEPTION(GenericException, STR("Parent reference points to missing definition."));
     }
-    SymbolDefinition *psd = tio_cast<SymbolDefinition>(p);
+    SymbolDefinition *psd = ti_cast<SymbolDefinition>(p);
     if (psd == 0) {
       throw EXCEPTION(GenericException, STR("Parent reference points to an object of an invalid type."));
     }

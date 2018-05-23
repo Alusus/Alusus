@@ -301,7 +301,7 @@ void GrammarFactory::createGrammar(
       })}
     })},
     {STR("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto currentList = state->getData().tii_cast_get<Containing<TiObject>>();
+      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
       state->setData(getSharedPtr(currentList->getElement(1)));
     })}
   }).get());
@@ -614,7 +614,7 @@ List* GrammarFactory::getLeadingCommandsList()
   if (!this->tryGet(STR("root.Main.LeadingCmdGrp"), obj, &module)) {
     throw EXCEPTION(GenericException, STR("Could not find leading command group."));
   }
-  SymbolDefinition *def = tio_cast<SymbolDefinition>(obj);
+  SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);
   if (def == 0) {
     throw EXCEPTION(GenericException, STR("Could not find leading command group."));
   }
@@ -636,7 +636,7 @@ List* GrammarFactory::getInnerCommandsList()
   if (!this->tryGet(STR("root.Subject.SubjectCmdGrp"), obj, &module)) {
     throw EXCEPTION(GenericException, STR("Could not find inner command group."));
   }
-  SymbolDefinition *def = tio_cast<SymbolDefinition>(obj);
+  SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);
   if (def == 0) {
     throw EXCEPTION(GenericException, STR("Could not find inner command group."));
   }
@@ -658,7 +658,7 @@ List* GrammarFactory::getTildeCommandsList()
   if (!this->tryGet(STR("root.Expression.DefaultPostfixTildeCmd"), obj, &module)) {
     throw EXCEPTION(GenericException, STR("Could not find tilde command group."));
   }
-  SymbolDefinition *def = tio_cast<SymbolDefinition>(obj);
+  SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);
   if (def == 0) {
     throw EXCEPTION(GenericException, STR("Could not find tilde command group."));
   }

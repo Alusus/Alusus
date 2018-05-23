@@ -34,12 +34,12 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
         ReferenceUsageCriteria::MULTI_DATA);
 
   // Find the name of the module to execute.
-  auto name = tio_cast<Ast::Token>(seeker.tryGet(nameReference.get(), item.get()));
+  auto name = ti_cast<Ast::Token>(seeker.tryGet(nameReference.get(), item.get()));
 
   /*SharedPtr<Module> statementList;
   if (name != 0) {
   statementList = this->rootManager->getDefinitionsStore()->getValue(name->getText().c_str())
-  .tio_cast<Module>();
+  .ti_cast<Module>();
   }*/
   if (true /*statementList != 0*/) {
     // Execute a list of statements.
@@ -48,10 +48,10 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
       LlvmContainer::initialize();
       CodeGenUnit program;
       program.setBuildMsgStore(state->getBuildMsgStore());
-      auto *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).tio_cast_get<Data::Module>();
+      auto *rootModule = this->rootManager->getDefinitionsRepository()->getLevelData(0).ti_cast_get<Data::Module>();
 
       for (auto i = 0; i < rootModule->getCount(); i++) {
-        auto module = rootModule->getShared(i).tio_cast_get<Module>();
+        auto module = rootModule->getShared(i).ti_cast_get<Module>();
         if (module == 0) continue;
         program.addModule(module);
       }
@@ -82,7 +82,7 @@ void BuildParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
     // Create a build message.
     Str message = "Couldn't find module: ";
     message += name->getText();
-    auto metadata = item.tii_cast_get<Ast::MetadataHolder>();
+    auto metadata = item.ti_cast_get<Ast::MetadataHolder>();
 
     if (metadata != nullptr) {
       state->addBuildMsg(std::make_shared<Processing::CustomBuildMsg>(message.c_str(), metadata->getSourceLocation()));

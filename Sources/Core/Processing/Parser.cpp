@@ -660,7 +660,7 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
       // Processing of this state has errored out.
       (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
       #ifdef USE_LOGS
-        TiStr *matchStr = tio_cast<TiStr>(matchText);
+        TiStr *matchStr = ti_cast<TiStr>(matchText);
       #endif
       LOG(LogLevel::PARSER_MID, STR("Process State: Token failed (") <<
           ID_GENERATOR->getDesc(matchId) << STR(":") <<
@@ -1357,7 +1357,7 @@ void Parser::testTokenTerm(Data::Token const *token, ParserState *state)
       // Processing of this state has errored out.
       state->setProcessingStatus(ParserProcessingStatus::ERROR);
       #ifdef USE_LOGS
-        TiStr *matchStr = tio_cast<TiStr>(matchText);
+        TiStr *matchStr = ti_cast<TiStr>(matchText);
       #endif
       LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failed for token (") <<
           ID_GENERATOR->getDesc(matchId) << STR(":") <<
@@ -2026,7 +2026,7 @@ Bool Parser::matchErrorSyncBlockPairs(ParserState *state, Data::Token const *tok
       throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
                                             "Pair entries must be of type TokenTerm."));
     }
-    TiInt *matchId = term->getTokenId().tio_cast_get<TiInt>();
+    TiInt *matchId = term->getTokenId().ti_cast_get<TiInt>();
     TiObject *matchText = term->getTokenText().get();
     if (this->matchToken(matchId, matchText, token)) {
       state->getErrorSyncBlockStack().push_back(i);
@@ -2051,7 +2051,7 @@ Bool Parser::matchErrorSyncBlockPairs(ParserState *state, Data::Token const *tok
     throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
                                           "Pair entries must be of type TokenTerm."));
   }
-  TiInt *matchId = term->getTokenId().tio_cast_get<TiInt>();
+  TiInt *matchId = term->getTokenId().ti_cast_get<TiInt>();
   TiObject *matchText = term->getTokenText().get();
   if (this->matchToken(matchId, matchText, token)) {
     state->getErrorSyncBlockStack().pop_back();

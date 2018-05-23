@@ -63,7 +63,7 @@ AstNode::CodeGenerationStage AstNode::callPreGenerateCode(CodeGenUnit *codeGenUn
     auto children = this->getInterface<Core::Data::Container>();
     if (children != 0) {
       for (Int i = 0; i < children->getCount(); ++i) {
-        auto child = tio_cast<AstNode>(children->get(i));
+        auto child = ti_cast<AstNode>(children->get(i));
         if (child == 0) continue;
         try {
           this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
@@ -115,7 +115,7 @@ AstNode::CodeGenerationStage AstNode::callGenerateCode(CodeGenUnit *codeGenUnit)
     auto children = this->getInterface<Core::Data::Container>();
     if (children != 0) {
       for (Int i = 0; i < children->getCount(); ++i) {
-        auto child = tio_cast<AstNode>(children->get(i));
+        auto child = ti_cast<AstNode>(children->get(i));
         if (child == 0) continue;
         try {
           this->childrenCodeGenStage = std::min(this->childrenCodeGenStage,
@@ -169,7 +169,7 @@ AstNode::CodeGenerationStage AstNode::callPostGenerateCode(CodeGenUnit *codeGenU
     auto children = this->getInterface<Core::Data::Container>();
     if (children != 0) {
       for (Int i = 0; i < children->getCount(); ++i) {
-        auto child = tio_cast<AstNode>(children->get(i));
+        auto child = ti_cast<AstNode>(children->get(i));
         if (child == 0) continue;
         try {
           this->childrenCodeGenStage = std::max(this->childrenCodeGenStage,

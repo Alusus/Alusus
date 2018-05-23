@@ -105,7 +105,7 @@ void ListTerm::reset()
  */
 SharedPtr<Term> ListTerm::getTerm(Int index) const
 {
-  List const *list = tio_cast<List>(this->terms.get());
+  List const *list = ti_cast<List>(this->terms.get());
   if (list) {
     if (static_cast<Word>(index) >= list->getCount()) {
       throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);

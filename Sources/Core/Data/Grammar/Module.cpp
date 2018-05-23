@@ -103,7 +103,7 @@ void Module::initialize(TiObject *context)
     if (p == 0) {
       throw EXCEPTION(GenericException, STR("Base reference points to missing definition."));
     }
-    Module *pm = tio_cast<Module>(p);
+    Module *pm = ti_cast<Module>(p);
     if (pm == 0) {
       throw EXCEPTION(GenericException, STR("Base reference points to an object of an invalid type."));
     }

@@ -1523,7 +1523,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
     {STR("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
       auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
       auto metadata = ti_cast<Ast::MetaHaving>(currentList);
-      auto token = tio_cast<Ast::Token>(currentList->getElement(0));
+      auto token = ti_cast<Ast::Token>(currentList->getElement(0));
       auto linkOp = Ast::LinkOperator::create({
         { "prodId", metadata->getProdId() },
         { "sourceLocation", metadata->findSourceLocation() }
@@ -1590,7 +1590,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
       {STR("expr"), PARSE_REF(STR("root.Expression"))},
       {STR("fltr"), 0}})},
     {STR("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto currentRoute = state->getData().tio_cast_get<Ast::Route>();
+      auto currentRoute = state->getData().ti_cast_get<Ast::Route>();
       auto paramPass = Ast::ParamPass::create({
         { "prodId", currentRoute->getProdId() },
         { "sourceLocation", currentRoute->findSourceLocation() }
@@ -1898,7 +1898,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
     })},
     {STR("vars"), Map::create(false, {}, {{ STR("fltr"), 0 }} )},
     {STR("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto current = state->getData().tio_cast_get<Ast::Token>();
+      auto current = state->getData().ti_cast_get<Ast::Token>();
       SharedPtr<Ast::Text> newObj;
       if (current->getId() == ID_GENERATOR->getId(STR("LexerDefs.Identifier"))) {
         newObj = std::make_shared<Ast::Identifier>();

@@ -37,7 +37,7 @@ Bool FloatType::isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::Ex
 {
   if (this == type) return true;
 
-  auto floatType = tio_cast<FloatType>(type);
+  auto floatType = ti_cast<FloatType>(type);
   if (floatType != 0 && floatType->getBitCount(helper) >= this->getBitCount(helper)) return true;
   else return false;
 }

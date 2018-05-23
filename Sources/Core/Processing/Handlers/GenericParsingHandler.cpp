@@ -417,7 +417,7 @@ void GenericParsingHandler::prepareToModifyData(ParserState *state, Int levelInd
   if (state->isDataShared(levelIndex)) {
     // Duplicate the data.
     auto data = state->getData(levelIndex).get();
-    auto clonable = tii_cast<Clonable>(data);
+    auto clonable = ti_cast<Clonable>(data);
     if (data != 0 && clonable == 0) {
       throw EXCEPTION(GenericException,
                       STR("State branching requires that state data is Clonable."));

@@ -36,7 +36,7 @@ AstNode::CodeGenerationStage UnaryOperator::generateCode(CodeGenUnit *codeGenUni
   // Special case '=' because we don't want to emit the LHS as an expression.
   auto irb = this->findOwner<Block>()->getIRBuilder();
 
-  auto operand = getOperand().tio_cast_get<Content>();
+  auto operand = getOperand().ti_cast_get<Content>();
 
   if (operand == nullptr)
     throw EXCEPTION(InvalidOperationException, "The operand of a unary "

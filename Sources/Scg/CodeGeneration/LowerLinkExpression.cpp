@@ -26,7 +26,7 @@ using namespace Core::Data;
 LowerLinkExpression::LowerLinkExpression(CodeGenerator *gen,
     const SharedPtr<TiObject> &item)
 {
-  auto metadata = item.tii_cast_get<Ast::MetadataHolder>();
+  auto metadata = item.ti_cast_get<Ast::MetadataHolder>();
 
   if (metadata == nullptr || metadata->getProdId() != gen->getLowerLinkExpId())
     throw EXCEPTION(InvalidArgumentException,

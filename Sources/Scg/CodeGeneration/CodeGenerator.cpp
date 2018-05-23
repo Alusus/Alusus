@@ -100,7 +100,7 @@ void CodeGenerator::initializeIds()
 
 AstNodeSharedArray CodeGenerator::generateStatement(SharedPtr<TiObject> const &item)
 {
-  auto metadata = item.tii_cast_get<Ast::MetadataHolder>();
+  auto metadata = item.ti_cast_get<Ast::MetadataHolder>();
 
   if (metadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid object type in def command.");
@@ -166,7 +166,7 @@ SharedPtr<Block> CodeGenerator::generateInnerSet(SharedPtr<TiObject> const &item
     // Creates the block representing the inner set and sets its line and
     // column number.
     auto block = std::make_shared<Block>(blockExprs);
-    auto metadata = item.tii_cast_get<Ast::MetadataHolder>();
+    auto metadata = item.ti_cast_get<Ast::MetadataHolder>();
 
     if (metadata != nullptr) {
       block->setSourceLocation(metadata->getSourceLocation());
@@ -208,7 +208,7 @@ AstNodeSharedArray CodeGenerator::generateDefine(SharedPtr<TiObject> const &item
             "0~where(prodId=Subject.Subject1)."
             "0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto nameToken = tio_cast<Ast::Token>(seeker.tryGet(nameReference.get(), item.get()));
+  auto nameToken = ti_cast<Ast::Token>(seeker.tryGet(nameReference.get(), item.get()));
 
   if (nameToken == nullptr || nameToken->getId() != identifierTokenId) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -357,7 +357,7 @@ SharedPtr<DefineStruct> CodeGenerator::generateDefineStructure(Char const *name,
   // Generate function body.
   static SharedPtr<Reference> structBodyReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Main.StatementList)"), ReferenceUsageCriteria::MULTI_DATA);
-  auto bodyStmtList = getSharedPtr(seeker.tryGet(structBodyReference.get(), item.get())).tio_cast<Ast::List>();
+  auto bodyStmtList = getSharedPtr(seeker.tryGet(structBodyReference.get(), item.get())).ti_cast<Ast::List>();
 
   if (bodyStmtList == 0) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -371,12 +371,12 @@ SharedPtr<DefineStruct> CodeGenerator::generateDefineStructure(Char const *name,
   // Extract members names and types from structBody and ignore the body.
   VariableDefinitionArray fields;
   for (Int i = 0; i < structBody->getCount(); ++i) {
-    auto child = tio_cast<AstNode>(structBody->get(i));
+    auto child = ti_cast<AstNode>(structBody->get(i));
     if (child == 0) {
       throw EXCEPTION(GenericException, STR("Invalid node type found."));
     }
 
-    auto field = tio_cast<DefineVariable>(child);
+    auto field = ti_cast<DefineVariable>(child);
 
     if (field == nullptr) {
       this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -402,7 +402,7 @@ SharedPtr<DefineStruct> CodeGenerator::generateDefineStructure(Char const *name,
 SharedPtr<Return> CodeGenerator::generateReturn(SharedPtr<TiObject> const &item)
 {
   static ReferenceSeeker seeker;
-  auto itemMetadata = item.tii_cast_get<Ast::MetadataHolder>();
+  auto itemMetadata = item.ti_cast_get<Ast::MetadataHolder>();
 
   if (itemMetadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid return argument.");
@@ -680,7 +680,7 @@ SharedPtr<AstNode> CodeGenerator::generateUnaryOperator(const SharedPtr<Ast::Lis
 SharedPtr<IfStatement> CodeGenerator::generateIfStatement(SharedPtr<TiObject> const &command)
 {
   static ReferenceSeeker seeker;
-  auto commandMetadata = command.tii_cast_get<Ast::MetadataHolder>();
+  auto commandMetadata = command.ti_cast_get<Ast::MetadataHolder>();
 
   if (commandMetadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid if command data.");
@@ -690,7 +690,7 @@ SharedPtr<IfStatement> CodeGenerator::generateIfStatement(SharedPtr<TiObject> co
   static SharedPtr<Reference> expReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
 
-  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).tio_cast<Ast::List>();
+  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).ti_cast<Ast::List>();
 
   if (exp == 0) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -728,7 +728,7 @@ SharedPtr<ForStatement> CodeGenerator::generateForStatement(SharedPtr<TiObject> 
 {
   static ReferenceSeeker seeker;
 
-  auto commandMetadata = command.tii_cast_get<Ast::MetadataHolder>();
+  auto commandMetadata = command.ti_cast_get<Ast::MetadataHolder>();
 
   if (commandMetadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid for command data.");
@@ -737,7 +737,7 @@ SharedPtr<ForStatement> CodeGenerator::generateForStatement(SharedPtr<TiObject> 
   // The condition of the for statement.
   static SharedPtr<Reference> expReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
-  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).tio_cast<Ast::List>();
+  auto exp = getSharedPtr(seeker.tryGet(expReference.get(), command.get())).ti_cast<Ast::List>();
 
   if (exp == 0) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -757,7 +757,7 @@ SharedPtr<ForStatement> CodeGenerator::generateForStatement(SharedPtr<TiObject> 
     return 0;
   }
 
-  auto initCondLoopAsList = initCondLoop.tio_cast_get<List>();
+  auto initCondLoopAsList = initCondLoop.ti_cast_get<List>();
 
   if (initCondLoopAsList->getCount() != 3) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -799,7 +799,7 @@ SharedPtr<WhileStatement> CodeGenerator::generateWhileStatement(SharedPtr<TiObje
 {
   static ReferenceSeeker seeker;
 
-  auto commandMetadata = command.tii_cast_get<Ast::MetadataHolder>();
+  auto commandMetadata = command.ti_cast_get<Ast::MetadataHolder>();
 
   if (commandMetadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid 'while' command data.");
@@ -808,7 +808,7 @@ SharedPtr<WhileStatement> CodeGenerator::generateWhileStatement(SharedPtr<TiObje
   // The condition of the while statement.
   static SharedPtr<Reference> condReference = REF_PARSER->parseQualifier(
         STR("1~where(prodId=Expression.Exp)"), ReferenceUsageCriteria::MULTI_DATA);
-  auto condAST = getSharedPtr(seeker.tryGet(condReference.get(), command.get())).tio_cast<Ast::List>();
+  auto condAST = getSharedPtr(seeker.tryGet(condReference.get(), command.get())).ti_cast<Ast::List>();
 
   if (exp == nullptr) {
     this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -849,7 +849,7 @@ Char const* CodeGenerator::parseToken(SharedPtr<TiObject> const &item)
   static SharedPtr<Reference> tokenReference = REF_PARSER->parseQualifier(
         STR("self~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
         ReferenceUsageCriteria::MULTI_DATA);
-  auto token = tio_cast<Ast::Token>(seeker.tryGet(tokenReference.get(), item.get()));
+  auto token = ti_cast<Ast::Token>(seeker.tryGet(tokenReference.get(), item.get()));
 
   if (token == nullptr)
     // TODO: Add the index of the non-token to the exception message.
@@ -884,7 +884,7 @@ SharedPtr<ValueTypeSpec> CodeGenerator::parseVariableType(Core::Basic::SharedPtr
     static SharedPtr<Reference> modifierReference = REF_PARSER->parseQualifier(
           STR("0~where(prodId=Subject.Subject1).0~where(prodId=Subject.Parameter)"),
           ReferenceUsageCriteria::MULTI_DATA);
-    auto funcName = tio_cast<Ast::Token>(seeker.tryGet(modifierReference.get(), item.get()));
+    auto funcName = ti_cast<Ast::Token>(seeker.tryGet(modifierReference.get(), item.get()));
 
     if (funcName == nullptr) {
       this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -932,7 +932,7 @@ SharedPtr<ValueTypeSpec> CodeGenerator::parseVariableType(Core::Basic::SharedPtr
         return std::make_shared<ValueTypeSpecByName>(STR("__INVALID__"));
       }
 
-      auto arraySizeAst = tio_cast<Ast::Token>(seeker.tryGet(arraySizeReference.get(), item.get()));
+      auto arraySizeAst = ti_cast<Ast::Token>(seeker.tryGet(arraySizeReference.get(), item.get()));
 
       if (arraySizeAst == nullptr) {
         this->buildMsgStore->add(std::make_shared<Processing::CustomBuildMsg>(
@@ -974,7 +974,7 @@ VariableDefinition CodeGenerator::parseVariableDefinition(SharedPtr<TiObject> co
 
   static ReferenceSeeker seeker;
 
-  auto metadata = astBlockRoot.tii_cast_get<Ast::MetadataHolder>();
+  auto metadata = astBlockRoot.ti_cast_get<Ast::MetadataHolder>();
 
   if (metadata == 0) {
     throw EXCEPTION(SyntaxErrorException, "Invalid variable definition data.");

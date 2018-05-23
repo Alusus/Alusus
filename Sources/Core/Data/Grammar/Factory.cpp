@@ -116,7 +116,7 @@ void Factory::generateConstTokenDefinitions(Term *term)
 {
   if (term->isDerivedFrom<TokenTerm>()) {
     TokenTerm *tokenTerm = static_cast<TokenTerm*>(term);
-    TiInt *pid = tokenTerm->getTokenId().tio_cast_get<TiInt>();
+    TiInt *pid = tokenTerm->getTokenId().ti_cast_get<TiInt>();
     if (pid != 0 && pid->get() == this->constTokenId) {
       TiObject *text = tokenTerm->getTokenText().get();
       if (text == 0) {

@@ -41,7 +41,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen, SharedPtr<Ast::List> cons
         ReferenceUsageCriteria::MULTI_DATA);
 
   // Parses the arguments and return types of the function.
-  auto sigWithRet = getSharedPtr(seeker.tryGet(sigWithRetReference.get(), astRoot.get())).tio_cast<Ast::List>();
+  auto sigWithRet = getSharedPtr(seeker.tryGet(sigWithRetReference.get(), astRoot.get())).ti_cast<Ast::List>();
 
   if (sigWithRet != nullptr) {
     // The function has return value.
@@ -64,7 +64,7 @@ FunctionAstBlock::FunctionAstBlock(CodeGenerator *gen, SharedPtr<Ast::List> cons
   }
 
   // Parses the body of the function.
-  auto bodyRoot = getSharedPtr(seeker.tryGet(bodyReference.get(), astRoot.get())).tio_cast<Ast::List>();
+  auto bodyRoot = getSharedPtr(seeker.tryGet(bodyReference.get(), astRoot.get())).ti_cast<Ast::List>();
 
   if (bodyRoot != nullptr) {
     auto bodyAstBlock = ListExpression(gen, bodyRoot);

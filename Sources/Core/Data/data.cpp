@@ -33,7 +33,7 @@ void unsetIndexes(TiObject *obj, Int from, Int to)
 void setTreeIds(TiObject *obj, Node *root)
 {
   StrStream stream;
-  Node *node = tio_cast<Node>(obj);
+  Node *node = ti_cast<Node>(obj);
   if (node != 0) generateId(node, root, stream);
   setTreeIds(obj, root, stream.str().c_str());
 }
@@ -41,12 +41,12 @@ void setTreeIds(TiObject *obj, Node *root)
 
 void setTreeIds(TiObject *obj, Node *root, const Char *id)
 {
-  IdHaving *idh = tii_cast<IdHaving>(obj);
+  IdHaving *idh = ti_cast<IdHaving>(obj);
   if (idh != 0) idh->setId(ID_GENERATOR->getId(id));
 
   StrStream childId;
   MapContaining<TiObject> *map; Containing<TiObject> *list;
-  if ((map = tii_cast<MapContaining<TiObject>>(obj)) != 0) {
+  if ((map = ti_cast<MapContaining<TiObject>>(obj)) != 0) {
     for (Int i = 0; static_cast<Word>(i) < map->getElementCount(); ++i) {
       childId.str(Str());
       childId << id;
@@ -54,7 +54,7 @@ void setTreeIds(TiObject *obj, Node *root, const Char *id)
       childId << map->getElementKey(i).c_str();
       setTreeIds(map->getElement(i), root, childId.str().c_str());
     }
-  } else if ((list = tii_cast<Containing<TiObject>>(obj)) != 0) {
+  } else if ((list = ti_cast<Containing<TiObject>>(obj)) != 0) {
     for (Int i = 0; static_cast<Word>(i) < list->getElementCount(); ++i) {
       childId.str(Str());
       childId << id;
@@ -112,7 +112,7 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
     return;
   }
 
-  auto printable = tii_cast<Printable>(ptr);
+  auto printable = ti_cast<Printable>(ptr);
   if (printable) {
     printable->print(stream, indents);
   } else {

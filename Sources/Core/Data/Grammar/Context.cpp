@@ -338,18 +338,18 @@ Module* Context::getAssociatedLexerModule(Module *module)
 
   // Find the reference to the lexer module of the current module.
   if (module == 0) module = this->getModule();
-  Module *grammarModule = tio_cast<Module>(module);
+  Module *grammarModule = ti_cast<Module>(module);
   if (grammarModule != 0) lmr = grammarModule->getLexerModuleRef().get();
 
   // If we can't find a lexer module, we'll grab the root's lexer module.
   if (lmr == 0) {
-    grammarModule = tio_cast<Module>(this->getRoot());
+    grammarModule = ti_cast<Module>(this->getRoot());
     if (grammarModule != 0) lmr = grammarModule->getLexerModuleRef().get();
   }
 
   // Find the module itself.
   if (lmr == 0) return 0;
-  Module *lm = tio_cast<Module>(this->traceValue(lmr, grammarModule));
+  Module *lm = ti_cast<Module>(this->traceValue(lmr, grammarModule));
   if (lm == 0) {
     throw EXCEPTION(GenericException, STR("The module has an invalid lexer module reference."));
   }
@@ -363,18 +363,18 @@ List* Context::getAssociatedErrorSyncBlockPairs(Module *module)
 
   // Find the reference to the sync pairs of the current module.
   if (module == 0) module = this->getModule();
-  Module *grammarModule = tio_cast<Module>(module);
+  Module *grammarModule = ti_cast<Module>(module);
   if (grammarModule != 0) spr = grammarModule->getErrorSyncBlockPairsRef().get();
 
   // If we can't find the sync pairs, we'll grab the root's sync pairs.
   if (spr == 0) {
-    grammarModule = tio_cast<Module>(this->getRoot());
+    grammarModule = ti_cast<Module>(this->getRoot());
     if (grammarModule != 0) spr = grammarModule->getErrorSyncBlockPairsRef().get();
   }
 
   // Find the list itself.
   if (spr == 0) return 0;
-  List *sp = tio_cast<List>(this->traceValue(spr, grammarModule));
+  List *sp = ti_cast<List>(this->traceValue(spr, grammarModule));
   if (sp == 0) {
     throw EXCEPTION(GenericException, STR("The module has an invalid error sync pairs reference."));
   }

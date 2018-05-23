@@ -44,7 +44,7 @@ FunctionLinkExpression::FunctionLinkExpression(CodeGenerator *gen,
   // Try to parse a function link with no return value.
   SharedPtr<Ast::List> item;
 
-  if ((item = getSharedPtr(seeker.tryGet(funcExpReference.get(), astRoot.get())).tio_cast<Ast::List>()) != nullptr) {
+  if ((item = getSharedPtr(seeker.tryGet(funcExpReference.get(), astRoot.get())).ti_cast<Ast::List>()) != nullptr) {
     auto argsAndRet = LowLinkExpression(gen, item);
 
     if (argsAndRet.getSeparator().compare("=>") != 0) {
@@ -58,7 +58,7 @@ FunctionLinkExpression::FunctionLinkExpression(CodeGenerator *gen,
     this->arguments = std::make_shared<FunctionalExpression>(gen, argsAndRet.getLHS().s_cast<Ast::List>());
     this->retType = gen->parseVariableType(argsAndRet.getRHS());
   } else if ((item = getSharedPtr(seeker.tryGet(funcExpNoRetReference.get(),
-                                  astRoot.get())).tio_cast<Ast::List>()) != nullptr)
+                                  astRoot.get())).ti_cast<Ast::List>()) != nullptr)
     this->arguments = std::make_shared<FunctionalExpression>(gen, item);
 
   // Stores the line and column numbers.
