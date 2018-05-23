@@ -140,7 +140,7 @@ class ParserState
   protected: ParserState();
 
   protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                         Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::GrammarModule *rootModule);
+                         Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::Module *rootModule);
 
   protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                          Word reservedVarCount, Word reservedVarLevelCount, const Data::Grammar::Context *context);
@@ -160,7 +160,7 @@ class ParserState
 
   protected: void initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                              Word reservedVarCount, Word reservedVarLevelCount,
-                             Data::Grammar::GrammarModule *rootModule);
+                             Data::Grammar::Module *rootModule);
 
   protected: void initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                              Word reservedVarCount, Word reservedVarLevelCount,
@@ -366,7 +366,7 @@ class ParserState
     return const_cast<ParserState*>(this)->refTopProdLevel();
   }
 
-  protected: void pushProdLevel(Data::Grammar::GrammarModule *module, Data::Grammar::SymbolDefinition *prod);
+  protected: void pushProdLevel(Data::Grammar::Module *module, Data::Grammar::SymbolDefinition *prod);
 
   protected: void popProdLevel();
 
@@ -512,7 +512,7 @@ class ParserState
   public: TiObject* getTokenTermText(Int levelOffset = -1) const;
 
   public: void getReferencedSymbol(
-    Data::Grammar::GrammarModule *&module, Data::Grammar::SymbolDefinition *&definition, Int levelOffset = -1
+    Data::Grammar::Module *&module, Data::Grammar::SymbolDefinition *&definition, Int levelOffset = -1
   );
 
   public: TiInt* getMultiplyTermMax(Int levelOffset = -1) const;

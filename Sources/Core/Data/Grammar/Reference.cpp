@@ -65,11 +65,11 @@ Bool Reference::removeValue(TiObject *parent) const
 }
 
 
-Bool Reference::getValue(TiObject *parent, TiObject *&value, GrammarModule **ownerModule) const
+Bool Reference::getValue(TiObject *parent, TiObject *&value, Module **ownerModule) const
 {
   VALIDATE_NOT_NULL(parent);
 
-  GrammarModule *tempOwnerModule;
+  Module *tempOwnerModule;
   if (!this->_getValue(parent, value, &tempOwnerModule)) return false;
 
   if (this->next == 0) {
@@ -85,7 +85,7 @@ Bool Reference::getValue(TiObject *parent, TiObject *&value, GrammarModule **own
 }
 
 
-Bool Reference::_getValue(TiObject *parent, TiObject *&value, GrammarModule **ownerModule) const
+Bool Reference::_getValue(TiObject *parent, TiObject *&value, Module **ownerModule) const
 {
   VALIDATE_NOT_NULL(parent);
 
@@ -110,7 +110,7 @@ Bool Reference::_getValue(TiObject *parent, TiObject *&value, GrammarModule **ow
       parent = pairedPtr->parent;
     }
   }
-  if (ownerModule != 0) *ownerModule = ti_cast<GrammarModule>(parent);
+  if (ownerModule != 0) *ownerModule = ti_cast<Module>(parent);
 
   return true;
 }

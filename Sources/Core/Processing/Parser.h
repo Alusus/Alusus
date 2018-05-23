@@ -56,7 +56,7 @@ class Parser : public TiObject
   public: const Int EOF_TOKEN;
 
   private: SharedPtr<Data::Ast::Scope> rootScope;
-  private: SharedPtr<Data::Grammar::GrammarModule> grammarRoot;
+  private: SharedPtr<Data::Grammar::Module> grammarRoot;
 
   private: std::vector<Data::Grammar::ParsingDimension*> parsingDimensions;
 
@@ -143,7 +143,7 @@ class Parser : public TiObject
     return this->rootScope;
   }
 
-  public: SharedPtr<Data::Grammar::GrammarModule> const& getGrammarRoot() const
+  public: SharedPtr<Data::Grammar::Module> const& getGrammarRoot() const
   {
     return this->grammarRoot;
   }
@@ -262,7 +262,7 @@ class Parser : public TiObject
 
   private: void pushStateTermLevel(ParserState *state, Data::Grammar::Term *term, Word posId, Data::Token const *token);
 
-  private: void pushStateProdLevel(ParserState *state, Data::Grammar::GrammarModule *module,
+  private: void pushStateProdLevel(ParserState *state, Data::Grammar::Module *module,
                                    Data::Grammar::SymbolDefinition *prod, Data::Token const *token);
 
   /// Pop the top level from a specific state.

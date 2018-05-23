@@ -26,7 +26,7 @@
 namespace Core::Data::Grammar
 {
   class Reference;
-  class GrammarModule;
+  class Module;
   class CharGroupUnit;
 }
 
@@ -89,7 +89,7 @@ namespace Core::Data::Grammar
 
 SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPtr<Reference>> *referenceCache = 0);
 
-GrammarModule* getGrammarRoot(Basic::ListContaining<TiObject> *rootScope, Bool createIfMissing = false);
+Module* getGrammarRoot(Basic::ListContaining<TiObject> *rootScope, Bool createIfMissing = false);
 
 /**
  * @brief Match a given character to a character group hierarchy.
@@ -122,7 +122,7 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit);
 // Containers
 #include "List.h"
 #include "Map.h"
-#include "GrammarModule.h"
+#include "Module.h"
 
 // Character Groups
 #include "CharGroupUnit.h"

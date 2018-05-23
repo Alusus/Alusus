@@ -39,7 +39,7 @@ ParserState::ParserState() :
 
 
 ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-             Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::GrammarModule *rootModule) :
+             Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::Module *rootModule) :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
@@ -94,7 +94,7 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
 
 void ParserState::initialize(
   Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-  Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::GrammarModule *rootModule
+  Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::Module *rootModule
 ) {
   ASSERT(reservedTermLevelCount > 0);
   ASSERT(reservedProdLevelCount > 0);
@@ -337,9 +337,9 @@ ParserProdLevel& ParserState::refProdLevel(Int i)
 }
 
 
-void ParserState::pushProdLevel(Data::Grammar::GrammarModule *module, Data::Grammar::SymbolDefinition *prod)
+void ParserState::pushProdLevel(Data::Grammar::Module *module, Data::Grammar::SymbolDefinition *prod)
 {
-  // TODO: Once we switch to exclusively using GrammarModule in the grammar, change the following
+  // TODO: Once we switch to exclusively using Module in the grammar, change the following
   //       code to update the error sync block pairs everytime the module changes and the new
   //       module has a different value for errorSyncBlockPairsRef.
   if (this->topProdLevelCache == 0) {
@@ -452,7 +452,7 @@ TiObject* ParserState::getTokenTermText(Int levelOffset) const
 
 
 void ParserState::getReferencedSymbol(
-  Data::Grammar::GrammarModule *&module, Data::Grammar::SymbolDefinition *&definition, Int levelOffset
+  Data::Grammar::Module *&module, Data::Grammar::SymbolDefinition *&definition, Int levelOffset
 ) {
   Data::Grammar::Reference *ref;
   if (levelOffset == -1) {

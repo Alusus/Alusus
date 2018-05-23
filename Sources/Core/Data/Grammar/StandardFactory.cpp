@@ -46,7 +46,7 @@ void StandardFactory::createGrammar(
   this->doCommandParsingHandler = std::make_shared<GenericCommandParsingHandler>(STR("do"));
 
   // Create lexer definitions.
-  this->set(STR("root.LexerDefs"), GrammarModule::create({}));
+  this->set(STR("root.LexerDefs"), Module::create({}));
   this->createCharGroupDefinitions();
   this->createTokenDefinitions();
 
@@ -82,7 +82,7 @@ void StandardFactory::createGrammar(
   }));
 
   // Set start production and lexer module.
-  GrammarModule *rootModule = this->context.getRoot();
+  Module *rootModule = this->context.getRoot();
   rootModule->setStartRef(PARSE_REF(STR("module.Program")));
   rootModule->setLexerModuleRef(PARSE_REF(STR("root.LexerDefs")));
   rootModule->setErrorSyncBlockPairsRef(PARSE_REF(STR("root.ErrorSyncBlockPairs")));
@@ -609,7 +609,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
 {
   //// TokenData module.
 
-  this->set(STR("root.TokenData"), GrammarModule::create({}));
+  this->set(STR("root.TokenData"), Module::create({}));
   // assignmentOpList : keywords = ("=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "<<=", ">>=");
   this->set(STR("root.TokenData.assignmentOpList"), Map::create(true, {}, {
    {STR("="), 0},
@@ -737,7 +737,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
     }));
   }
 
-  this->set(STR("root.Main"), GrammarModule::create({}));
+  this->set(STR("root.Main"), Module::create({}));
 
   //// StatementList : Statement { ";" Statement }.
   // StatementList : prod (stmt:production[Statement]) as
@@ -1073,7 +1073,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
   // operand {FunctionalOp}.
   this->set(
     STR("root.Expression"),
-    GrammarModule::create({{STR("startRef"), PARSE_REF(STR("module.Exp"))}}).get()
+    Module::create({{STR("startRef"), PARSE_REF(STR("module.Exp"))}}).get()
   );
 
   // Exp : @single prod as LowestLinkExp + (@priority(in,0) lexer.Constant("\\")*(0,1));
@@ -1715,7 +1715,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
   // Subject : Parameter | Command | Expression | Statement | Set.
   this->set(
     STR("root.Subject"),
-    GrammarModule::create({{STR("startRef"), PARSE_REF(STR("module.Subject1"))}}).get()
+    Module::create({{STR("startRef"), PARSE_REF(STR("module.Subject1"))}}).get()
   );
 
   // Subject1 : @single prod (sbj1:list[production[Parameter||Command||Expression||Statement||Set]]
@@ -1997,9 +1997,9 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
 
 
   // Modifiers
-  this->set(STR("root.Modifier"), GrammarModule::create({}));
+  this->set(STR("root.Modifier"), Module::create({}));
   // Modifier.Subject
-  this->set(STR("root.Modifier.Subject"), GrammarModule::create({
+  this->set(STR("root.Modifier.Subject"), Module::create({
     { STR("baseRef"), PARSE_REF(STR("root.Subject")) }
   }));
   this->set(STR("root.Modifier.Subject.SubjectCmdGrp"), SymbolDefinition::create({
@@ -2008,7 +2008,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
     {STR("vars"), Map::create(false, {}, {{ STR("cmds"), List::create() }} )},
   }));
   // Modifier.Expression
-  this->set(STR("root.Modifier.Expression"), GrammarModule::create({
+  this->set(STR("root.Modifier.Expression"), Module::create({
     { STR("startRef"), PARSE_REF(STR("module.FunctionalExp")) },
     { STR("baseRef"), PARSE_REF(STR("root.Expression")) }
   }));

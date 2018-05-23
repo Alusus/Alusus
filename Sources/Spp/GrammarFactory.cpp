@@ -375,7 +375,7 @@ void GrammarFactory::createGrammar(
   innerCmdList->add(PARSE_REF(STR("module.Function")));
 
   // FuncSigExpression
-  this->set(STR("root.FuncSigExpression"), GrammarModule::create({
+  this->set(STR("root.FuncSigExpression"), Module::create({
     {STR("startRef"), PARSE_REF(STR("module.LowLinkExp"))},
     {STR("baseRef"), PARSE_REF(STR("root.Expression")) }
   }).get());
@@ -434,7 +434,7 @@ void GrammarFactory::createGrammar(
   }).get());
 
   // Block based statement.
-  this->set(STR("root.BlockSubject"), GrammarModule::create({
+  this->set(STR("root.BlockSubject"), Module::create({
     {STR("baseRef"), PARSE_REF(STR("root.Subject")) }
   }).get());
   this->set(STR("root.BlockSubject.Subject1"), SymbolDefinition::create({
@@ -452,7 +452,7 @@ void GrammarFactory::createGrammar(
       {STR("frc3"), 0}
     })}
   }).get());
-  this->set(STR("root.BlockExpression"), GrammarModule::create({
+  this->set(STR("root.BlockExpression"), Module::create({
     {STR("baseRef"), PARSE_REF(STR("root.Expression")) }
   }).get());
   this->set(STR("root.BlockExpression.FunctionalExp"), SymbolDefinition::create({
@@ -466,7 +466,7 @@ void GrammarFactory::createGrammar(
       {STR("fltr2"), 0}
     })}
   }).get());
-  this->set(STR("root.BlockMain"), GrammarModule::create({
+  this->set(STR("root.BlockMain"), Module::create({
     {STR("baseRef"), PARSE_REF(STR("root.Main")) }
   }).get());
   this->set(STR("root.BlockMain.ExpPhrase"), SymbolDefinition::create({
@@ -524,7 +524,7 @@ void GrammarFactory::createGrammar(
     {STR("handler"), Spp::Handlers::TildeOpParsingHandler<Spp::Ast::CastOp>::create() }
   }).get());
   tildeCmdList->add(PARSE_REF(STR("module.CastTilde")));
-  this->set(STR("root.CastSubject"), GrammarModule::create({
+  this->set(STR("root.CastSubject"), Module::create({
     {STR("baseRef"), PARSE_REF(STR("root.Subject"))},
     {STR("startRef"), PARSE_REF(STR("module.Subject2")) }
   }).get());
@@ -610,7 +610,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
 List* GrammarFactory::getLeadingCommandsList()
 {
   TiObject *obj;
-  Core::Data::Grammar::GrammarModule *module;
+  Core::Data::Grammar::Module *module;
   if (!this->tryGet(STR("root.Main.LeadingCmdGrp"), obj, &module)) {
     throw EXCEPTION(GenericException, STR("Could not find leading command group."));
   }
@@ -632,7 +632,7 @@ List* GrammarFactory::getLeadingCommandsList()
 List* GrammarFactory::getInnerCommandsList()
 {
   TiObject *obj;
-  Core::Data::Grammar::GrammarModule *module;
+  Core::Data::Grammar::Module *module;
   if (!this->tryGet(STR("root.Subject.SubjectCmdGrp"), obj, &module)) {
     throw EXCEPTION(GenericException, STR("Could not find inner command group."));
   }
@@ -654,7 +654,7 @@ List* GrammarFactory::getInnerCommandsList()
 List* GrammarFactory::getTildeCommandsList()
 {
   TiObject *obj;
-  Core::Data::Grammar::GrammarModule *module;
+  Core::Data::Grammar::Module *module;
   if (!this->tryGet(STR("root.Expression.DefaultPostfixTildeCmd"), obj, &module)) {
     throw EXCEPTION(GenericException, STR("Could not find tilde command group."));
   }

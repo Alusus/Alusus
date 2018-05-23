@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Grammar/GrammarModule.cpp
- * Contains the implementation of class Core::Data::Grammar::GrammarModule.
+ * @file Core/Data/Grammar/Module.cpp
+ * Contains the implementation of class Core::Data::Grammar::Module.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -18,7 +18,7 @@ namespace Core::Data::Grammar
 //==============================================================================
 // Destructor
 
-GrammarModule::~GrammarModule()
+Module::~Module()
 {
   if (this->base != 0) this->detachFromBase();
   this->destroyNotifier.emit(this);
@@ -32,7 +32,7 @@ GrammarModule::~GrammarModule()
 //==============================================================================
 // Inheritance Functions
 
-void GrammarModule::attachToBase(GrammarModule *b)
+void Module::attachToBase(Module *b)
 {
   ASSERT(this->base == 0);
   NbMap::setBase(b);
@@ -41,32 +41,32 @@ void GrammarModule::attachToBase(GrammarModule *b)
   this->base->destroyNotifier.connect(this->baseDestroySlot);
   this->base->metaChangeNotifier.connect(this->baseMetaChangeSlot);
 
-  if ((this->ownership & GrammarModule::MetaElement::START_REF) == 0) {
+  if ((this->ownership & Module::MetaElement::START_REF) == 0) {
     this->startRef = this->base->getStartRef();
   }
-  if ((this->ownership & GrammarModule::MetaElement::LEXER_MODULE_REF) == 0) {
+  if ((this->ownership & Module::MetaElement::LEXER_MODULE_REF) == 0) {
     this->lexerModuleRef = this->base->getLexerModuleRef();
   }
-  if ((this->ownership & GrammarModule::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
+  if ((this->ownership & Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
     this->errorSyncBlockPairsRef = this->base->getErrorSyncBlockPairsRef();
   }
 }
 
 
-void GrammarModule::detachFromBase()
+void Module::detachFromBase()
 {
   ASSERT(this->base != 0);
 
   this->base->metaChangeNotifier.disconnect(this->baseMetaChangeSlot);
   this->base->destroyNotifier.disconnect(this->baseDestroySlot);
 
-  if ((this->ownership & GrammarModule::MetaElement::START_REF) == 0) {
+  if ((this->ownership & Module::MetaElement::START_REF) == 0) {
     this->startRef.reset();
   }
-  if ((this->ownership & GrammarModule::MetaElement::LEXER_MODULE_REF) == 0) {
+  if ((this->ownership & Module::MetaElement::LEXER_MODULE_REF) == 0) {
     this->lexerModuleRef.reset();
   }
-  if ((this->ownership & GrammarModule::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
+  if ((this->ownership & Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
     this->errorSyncBlockPairsRef.reset();
   }
 
@@ -75,15 +75,15 @@ void GrammarModule::detachFromBase()
 }
 
 
-void GrammarModule::onBaseMetaChanged(GrammarModule *obj, Word element)
+void Module::onBaseMetaChanged(Module *obj, Word element)
 {
-  if ((element & GrammarModule::MetaElement::START_REF) == 0) {
+  if ((element & Module::MetaElement::START_REF) == 0) {
     this->startRef = obj->getStartRef();
   }
-  if ((element & GrammarModule::MetaElement::LEXER_MODULE_REF) == 0) {
+  if ((element & Module::MetaElement::LEXER_MODULE_REF) == 0) {
     this->lexerModuleRef = obj->getLexerModuleRef();
   }
-  if ((element & GrammarModule::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
+  if ((element & Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
     this->errorSyncBlockPairsRef = obj->getErrorSyncBlockPairsRef();
   }
 }
@@ -92,7 +92,7 @@ void GrammarModule::onBaseMetaChanged(GrammarModule *obj, Word element)
 //==============================================================================
 // Initializable Implementation
 
-void GrammarModule::initialize(TiObject *context)
+void Module::initialize(TiObject *context)
 {
   if (this->baseRef != 0) {
     auto grammarContext = ti_cast<Grammar::Context>(context);
@@ -103,7 +103,7 @@ void GrammarModule::initialize(TiObject *context)
     if (p == 0) {
       throw EXCEPTION(GenericException, STR("Base reference points to missing definition."));
     }
-    GrammarModule *pm = tio_cast<GrammarModule>(p);
+    Module *pm = tio_cast<Module>(p);
     if (pm == 0) {
       throw EXCEPTION(GenericException, STR("Base reference points to an object of an invalid type."));
     }
@@ -115,19 +115,19 @@ void GrammarModule::initialize(TiObject *context)
 //==============================================================================
 // DataHaving Implementation
 
-void GrammarModule::unsetIndexes(Int from, Int to)
+void Module::unsetIndexes(Int from, Int to)
 {
   if (this->baseRef != 0) {
     Data::unsetIndexes(this->baseRef.get(), from, to);
   }
-  if (this->startRef != 0 && (this->ownership & GrammarModule::MetaElement::START_REF) != 0) {
+  if (this->startRef != 0 && (this->ownership & Module::MetaElement::START_REF) != 0) {
     Data::unsetIndexes(this->startRef.get(), from, to);
   }
-  if (this->lexerModuleRef != 0 && (this->ownership & GrammarModule::MetaElement::LEXER_MODULE_REF) != 0) {
+  if (this->lexerModuleRef != 0 && (this->ownership & Module::MetaElement::LEXER_MODULE_REF) != 0) {
     Data::unsetIndexes(this->lexerModuleRef.get(), from, to);
   }
   if (
-    this->errorSyncBlockPairsRef != 0 && (this->ownership & GrammarModule::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) != 0
+    this->errorSyncBlockPairsRef != 0 && (this->ownership & Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) != 0
   ) {
     Data::unsetIndexes(this->errorSyncBlockPairsRef.get(), from, to);
   }

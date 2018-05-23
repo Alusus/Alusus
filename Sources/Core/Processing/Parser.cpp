@@ -97,7 +97,7 @@ void Parser::beginParsing()
   // Initialize the main level.
   (*si)->pushTermLevel(0);
   // Initialize the program root level.
-  Data::Grammar::GrammarModule *module;
+  Data::Grammar::Module *module;
   Data::Grammar::SymbolDefinition *prod;
   (*si)->getGrammarContext()->getReferencedSymbol(this->grammarRoot->getStartRef().get(), module, prod);
   if (!prod->isA<Data::Grammar::SymbolDefinition>()) {
@@ -953,7 +953,7 @@ void Parser::processReferenceTerm(Data::Token const *token, StateIterator si)
   if ((*si)->refTopTermLevel().getPosId() == 0) {
     // We are starting with this token.
     // Get the referenced module and definition.
-    Data::Grammar::GrammarModule *module;
+    Data::Grammar::Module *module;
     Data::Grammar::SymbolDefinition *definition;
     (*si)->getReferencedSymbol(module, definition);
     if (!definition->isA<Data::Grammar::SymbolDefinition>()) {
@@ -985,7 +985,7 @@ void Parser::processReferenceTerm(Data::Token const *token, StateIterator si)
 
 void Parser::enterParsingDimension(Data::Token const *token, Int parseDimIndex, StateIterator si)
 {
-  Data::Grammar::GrammarModule *module;
+  Data::Grammar::Module *module;
   Data::Grammar::SymbolDefinition *prodDef;
   auto ref = this->parsingDimensions[parseDimIndex]->getStartRef().get();
   (*si)->getGrammarContext()->getReferencedSymbol(ref, module, prodDef);
@@ -1648,7 +1648,7 @@ void Parser::testReferenceTerm(Data::Token const *token, ParserState *state)
   if (state->refTopTermLevel().getPosId() == 0) {
     // We are starting with this token.
     // Get the referenced module and definition.
-    Data::Grammar::GrammarModule *module;
+    Data::Grammar::Module *module;
     Data::Grammar::SymbolDefinition *definition;
     state->getReferencedSymbol(module, definition);
     if (!definition->isA<Data::Grammar::SymbolDefinition>()) {
@@ -1691,7 +1691,7 @@ void Parser::testReferenceTerm(Data::Token const *token, ParserState *state)
 
 void Parser::testParsingDimension(Data::Token const *token, Int parseDimIndex, ParserState *state)
 {
-  Data::Grammar::GrammarModule *module;
+  Data::Grammar::Module *module;
   Data::Grammar::SymbolDefinition *prodDef;
   auto ref = this->parsingDimensions[parseDimIndex]->getStartRef().get();
   state->getGrammarContext()->getReferencedSymbol(ref, module, prodDef);
@@ -1891,7 +1891,7 @@ void Parser::pushStateTermLevel(ParserState *state, Data::Grammar::Term *term, W
 
 
 void Parser::pushStateProdLevel(
-  ParserState *state, Data::Grammar::GrammarModule *module, Data::Grammar::SymbolDefinition *prod,
+  ParserState *state, Data::Grammar::Module *module, Data::Grammar::SymbolDefinition *prod,
   Data::Token const *token
 ) {
   state->pushProdLevel(module, prod);

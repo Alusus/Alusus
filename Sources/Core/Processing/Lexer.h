@@ -68,7 +68,7 @@ class Lexer : public TiObject
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<Data::Grammar::GrammarModule> grammarRoot;
+  private: SharedPtr<Data::Grammar::Module> grammarRoot;
 
   /// The context used to tracer through the grammar.
   private: Data::Grammar::Context grammarContext;

@@ -18,16 +18,16 @@ namespace Core::Data::Grammar
 //==============================================================================
 // Misc Functions
 
-void Context::traceValue(TiObject *val, GrammarModule *module, TiObject *&retVal, GrammarModule *&retModule)
+void Context::traceValue(TiObject *val, Module *module, TiObject *&retVal, Module *&retModule)
 {
   retVal = val;
   retModule = module;
   if (retVal == 0 || !retVal->isDerivedFrom<Reference>()) return;
-  GrammarModule *oldModule = this->getModule();
-  GrammarModule *curModule = oldModule;
+  Module *oldModule = this->getModule();
+  Module *curModule = oldModule;
   do {
     if (retModule != 0 && retModule != curModule) {
-      this->setModule(static_cast<GrammarModule*>(retModule));
+      this->setModule(static_cast<Module*>(retModule));
       curModule = retModule;
     }
     if (!static_cast<Reference*>(retVal)->getValue(this, retVal, &retModule)) {
@@ -41,9 +41,9 @@ void Context::traceValue(TiObject *val, GrammarModule *module, TiObject *&retVal
 //==============================================================================
 // Term Helper Functions
 
-void Context::getListTermData(ListTerm *term, PlainPairedPtr &retVal, GrammarModule *module)
+void Context::getListTermData(ListTerm *term, PlainPairedPtr &retVal, Module *module)
 {
-  GrammarModule *retModule;
+  Module *retModule;
   this->traceValue(term->getData().get(), module, retVal.object, retModule);
   if (retVal.object != 0 && !retVal.object->isA<List>() && !retVal.object->isA<TiInt>()) {
     throw EXCEPTION(GenericException, STR("Type of list term data is invalid"));
@@ -141,7 +141,7 @@ void Context::useListTermChild(
 }
 
 
-TiInt* Context::getTokenTermId(TokenTerm *term, GrammarModule *module)
+TiInt* Context::getTokenTermId(TokenTerm *term, Module *module)
 {
   TiObject *id = this->traceValue(term->getTokenId().get(), module);
   if (id == 0 || !id->isA<TiInt>()) {
@@ -151,7 +151,7 @@ TiInt* Context::getTokenTermId(TokenTerm *term, GrammarModule *module)
 }
 
 
-TiObject* Context::getTokenTermText(TokenTerm *term, GrammarModule *module)
+TiObject* Context::getTokenTermText(TokenTerm *term, Module *module)
 {
   TiObject *text = this->traceValue(term->getTokenText().get(), module);
   if (text != 0 && !text->isA<TiStr>() && !text->isA<Map>()) {
@@ -161,7 +161,7 @@ TiObject* Context::getTokenTermText(TokenTerm *term, GrammarModule *module)
 }
 
 
-void Context::getReferencedCharGroup(Reference const *ref, CharGroupDefinition *&charGroupDef, GrammarModule *module)
+void Context::getReferencedCharGroup(Reference const *ref, CharGroupDefinition *&charGroupDef, Module *module)
 {
   TiObject *obj = this->traceValue(const_cast<Reference*>(ref), module);
   if (obj == 0 || !obj->isA<CharGroupDefinition>()) {
@@ -172,25 +172,25 @@ void Context::getReferencedCharGroup(Reference const *ref, CharGroupDefinition *
 
 
 void Context::getReferencedSymbol(
-  Reference const *ref, GrammarModule *&retModule, SymbolDefinition *&retDef, GrammarModule *module
+  Reference const *ref, Module *&retModule, SymbolDefinition *&retDef, Module *module
 ) {
-  GrammarModule *oldModule = this->getModule();
-  GrammarModule *curModule = oldModule;
+  Module *oldModule = this->getModule();
+  Module *curModule = oldModule;
   PlainPairedPtr retVal(const_cast<Reference*>(ref), module);
   do {
     if (retVal.parent != 0 && retVal.parent != curModule) {
-      this->setModule(static_cast<GrammarModule*>(retVal.parent));
-      curModule = static_cast<GrammarModule*>(retVal.parent);
+      this->setModule(static_cast<Module*>(retVal.parent));
+      curModule = static_cast<Module*>(retVal.parent);
     }
     if (!static_cast<Reference*>(retVal.object)->getValue(
-      this, retVal.object, reinterpret_cast<GrammarModule**>(&retVal.parent)
+      this, retVal.object, reinterpret_cast<Module**>(&retVal.parent)
     )) {
       throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
     }
     // If the reference points to a grammar module, then the reference wants the module's start (default) definition.
-    if (retVal.object != 0 && retVal.object->isA<GrammarModule>()) {
+    if (retVal.object != 0 && retVal.object->isA<Module>()) {
       retVal.parent = retVal.object;
-      retVal.object = static_cast<GrammarModule*>(retVal.object)->getStartRef().get();
+      retVal.object = static_cast<Module*>(retVal.object)->getStartRef().get();
     }
   } while (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>());
   if (retVal.object == 0 || !retVal.object->isDerivedFrom<SymbolDefinition>()) {
@@ -198,11 +198,11 @@ void Context::getReferencedSymbol(
   }
   if (curModule != oldModule) this->setModule(oldModule);
   retDef = static_cast<SymbolDefinition*>(retVal.object);
-  retModule = static_cast<GrammarModule*>(retVal.parent);
+  retModule = static_cast<Module*>(retVal.parent);
 }
 
 
-TiInt* Context::getMultiplyTermMax(MultiplyTerm *term, GrammarModule *module)
+TiInt* Context::getMultiplyTermMax(MultiplyTerm *term, Module *module)
 {
   TiObject *max = this->traceValue(term->getMax().get(), module);
   if (max != 0 && !max->isA<TiInt>()) {
@@ -212,7 +212,7 @@ TiInt* Context::getMultiplyTermMax(MultiplyTerm *term, GrammarModule *module)
 }
 
 
-TiInt* Context::getMultiplyTermMin(MultiplyTerm *term, GrammarModule *module)
+TiInt* Context::getMultiplyTermMin(MultiplyTerm *term, Module *module)
 {
   TiObject *min = this->traceValue(term->getMin().get(), module);
   if (min != 0 && !min->isA<TiInt>()) {
@@ -222,7 +222,7 @@ TiInt* Context::getMultiplyTermMin(MultiplyTerm *term, GrammarModule *module)
 }
 
 
-TiInt* Context::getMultiplyTermPriority(MultiplyTerm *term, GrammarModule *module)
+TiInt* Context::getMultiplyTermPriority(MultiplyTerm *term, Module *module)
 {
   TiObject *priority = this->traceValue(term->getPriority().get(), module);
   if (priority != 0 && !priority->isA<TiInt>()) {
@@ -232,7 +232,7 @@ TiInt* Context::getMultiplyTermPriority(MultiplyTerm *term, GrammarModule *modul
 }
 
 
-TiInt* Context::getTermFlags(Term *term, GrammarModule *module)
+TiInt* Context::getTermFlags(Term *term, Module *module)
 {
   TiObject *flags = this->traceValue(term->getFlags().get(), module);
   if (flags != 0 && !flags->isA<TiInt>()) {
@@ -245,19 +245,19 @@ TiInt* Context::getTermFlags(Term *term, GrammarModule *module)
 //==============================================================================
 // Symbol Definition Helper Functions
 
-Term* Context::getSymbolTerm(SymbolDefinition const *definition, GrammarModule *module)
+Term* Context::getSymbolTerm(SymbolDefinition const *definition, Module *module)
 {
-  GrammarModule *oldModule = this->getModule();
-  GrammarModule *curModule = oldModule;
+  Module *oldModule = this->getModule();
+  Module *curModule = oldModule;
   PlainPairedPtr retVal(definition->getTerm().get(), module);
   if (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>()) {
     do {
       if (retVal.parent != 0 && retVal.parent != curModule) {
-        this->setModule(static_cast<GrammarModule*>(retVal.parent));
-        curModule = static_cast<GrammarModule*>(retVal.parent);
+        this->setModule(static_cast<Module*>(retVal.parent));
+        curModule = static_cast<Module*>(retVal.parent);
       }
       if (!static_cast<Reference*>(retVal.object)->getValue(
-        this, retVal.object, reinterpret_cast<GrammarModule**>(&retVal.parent)
+        this, retVal.object, reinterpret_cast<Module**>(&retVal.parent)
       )) {
         throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
       }
@@ -277,19 +277,19 @@ Term* Context::getSymbolTerm(SymbolDefinition const *definition, GrammarModule *
 }
 
 
-Map* Context::getSymbolVars(const SymbolDefinition *definition, GrammarModule *module)
+Map* Context::getSymbolVars(const SymbolDefinition *definition, Module *module)
 {
-  GrammarModule *oldModule = this->getModule();
-  GrammarModule *curModule = oldModule;
+  Module *oldModule = this->getModule();
+  Module *curModule = oldModule;
   PlainPairedPtr retVal(definition->getVars().get(), module);
   if (retVal.object != 0 && retVal.object->isDerivedFrom<Reference>()) {
     do {
       if (retVal.parent != 0 && retVal.parent != curModule) {
-        this->setModule(static_cast<GrammarModule*>(retVal.parent));
-        curModule = static_cast<GrammarModule*>(retVal.parent);
+        this->setModule(static_cast<Module*>(retVal.parent));
+        curModule = static_cast<Module*>(retVal.parent);
       }
       if (!static_cast<Reference*>(retVal.object)->getValue(
-        this, retVal.object, reinterpret_cast<GrammarModule**>(&retVal.parent)
+        this, retVal.object, reinterpret_cast<Module**>(&retVal.parent)
       )) {
         throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
       }
@@ -309,7 +309,7 @@ Map* Context::getSymbolVars(const SymbolDefinition *definition, GrammarModule *m
 }
 
 
-TiInt* Context::getSymbolPriority(SymbolDefinition const *definition, GrammarModule *module)
+TiInt* Context::getSymbolPriority(SymbolDefinition const *definition, Module *module)
 {
   TiObject *priority = this->traceValue(definition->getPriority().get(), module);
   if (priority != 0 && !priority->isA<TiInt>()) {
@@ -319,7 +319,7 @@ TiInt* Context::getSymbolPriority(SymbolDefinition const *definition, GrammarMod
 }
 
 
-TiInt* Context::getSymbolFlags(SymbolDefinition const *definition, GrammarModule *module)
+TiInt* Context::getSymbolFlags(SymbolDefinition const *definition, Module *module)
 {
   TiObject *flags = this->traceValue(definition->getFlags().get(), module);
   if (flags != 0 && !flags->isA<TiInt>()) {
@@ -332,24 +332,24 @@ TiInt* Context::getSymbolFlags(SymbolDefinition const *definition, GrammarModule
 //==============================================================================
 // Other Helper Functions
 
-GrammarModule* Context::getAssociatedLexerModule(GrammarModule *module)
+Module* Context::getAssociatedLexerModule(Module *module)
 {
   Reference *lmr = 0;
 
   // Find the reference to the lexer module of the current module.
   if (module == 0) module = this->getModule();
-  GrammarModule *grammarModule = tio_cast<GrammarModule>(module);
+  Module *grammarModule = tio_cast<Module>(module);
   if (grammarModule != 0) lmr = grammarModule->getLexerModuleRef().get();
 
   // If we can't find a lexer module, we'll grab the root's lexer module.
   if (lmr == 0) {
-    grammarModule = tio_cast<GrammarModule>(this->getRoot());
+    grammarModule = tio_cast<Module>(this->getRoot());
     if (grammarModule != 0) lmr = grammarModule->getLexerModuleRef().get();
   }
 
   // Find the module itself.
   if (lmr == 0) return 0;
-  GrammarModule *lm = tio_cast<GrammarModule>(this->traceValue(lmr, grammarModule));
+  Module *lm = tio_cast<Module>(this->traceValue(lmr, grammarModule));
   if (lm == 0) {
     throw EXCEPTION(GenericException, STR("The module has an invalid lexer module reference."));
   }
@@ -357,18 +357,18 @@ GrammarModule* Context::getAssociatedLexerModule(GrammarModule *module)
 }
 
 
-List* Context::getAssociatedErrorSyncBlockPairs(GrammarModule *module)
+List* Context::getAssociatedErrorSyncBlockPairs(Module *module)
 {
   Reference *spr = 0;
 
   // Find the reference to the sync pairs of the current module.
   if (module == 0) module = this->getModule();
-  GrammarModule *grammarModule = tio_cast<GrammarModule>(module);
+  Module *grammarModule = tio_cast<Module>(module);
   if (grammarModule != 0) spr = grammarModule->getErrorSyncBlockPairsRef().get();
 
   // If we can't find the sync pairs, we'll grab the root's sync pairs.
   if (spr == 0) {
-    grammarModule = tio_cast<GrammarModule>(this->getRoot());
+    grammarModule = tio_cast<Module>(this->getRoot());
     if (grammarModule != 0) spr = grammarModule->getErrorSyncBlockPairsRef().get();
   }
 
@@ -389,17 +389,17 @@ void Context::setElement(Int index, TiObject *val)
 {
   switch(index) {
     case 0: {
-      if (val != 0 && !val->isDerivedFrom<GrammarModule>()) {
-        throw EXCEPTION(InvalidArgumentException, STR("val"), STR("Must be of type GrammarModule."));
+      if (val != 0 && !val->isDerivedFrom<Module>()) {
+        throw EXCEPTION(InvalidArgumentException, STR("val"), STR("Must be of type Module."));
       }
-      this->root = static_cast<GrammarModule*>(val);
+      this->root = static_cast<Module*>(val);
       break;
     }
     case 1: {
-      if (val != 0 && !val->isDerivedFrom<GrammarModule>()) {
-        throw EXCEPTION(InvalidArgumentException, STR("val"), STR("Must be of type GrammarModule."));
+      if (val != 0 && !val->isDerivedFrom<Module>()) {
+        throw EXCEPTION(InvalidArgumentException, STR("val"), STR("Must be of type Module."));
       }
-      this->module = static_cast<GrammarModule*>(val);
+      this->module = static_cast<Module*>(val);
       this->bmodule = this->module->getBase();
       break;
     }
@@ -428,16 +428,16 @@ Int Context::setElement(Char const *key, TiObject *val)
 {
   auto name = SBSTR(key);
   if (name == STR("root")) {
-    if (val != 0 && !val->isDerivedFrom<GrammarModule>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("val"), STR("Must be of type GrammarModule."));
+    if (val != 0 && !val->isDerivedFrom<Module>()) {
+      throw EXCEPTION(InvalidArgumentException, STR("val"), STR("Must be of type Module."));
     }
-    this->root = static_cast<GrammarModule*>(val);
+    this->root = static_cast<Module*>(val);
     return 0;
   } else if (name == STR("module")) {
-    if (val != 0 && !val->isDerivedFrom<GrammarModule>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("val"), STR("Must be of type GrammarModule."));
+    if (val != 0 && !val->isDerivedFrom<Module>()) {
+      throw EXCEPTION(InvalidArgumentException, STR("val"), STR("Must be of type Module."));
     }
-    this->module = static_cast<GrammarModule*>(val);
+    this->module = static_cast<Module*>(val);
     this->bmodule = this->module->getBase();
     return 1;
   } else if (name == STR("bmodule")) {

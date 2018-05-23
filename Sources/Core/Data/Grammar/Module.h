@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Grammar/GrammarModule.h
- * Contains the header of class Core::Data::Grammar::GrammarModule.
+ * @file Core/Data/Grammar/Module.h
+ * Contains the header of class Core::Data::Grammar::Module.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,20 +10,20 @@
  */
 //==============================================================================
 
-#ifndef CORE_DATA_GRAMMAR_GRAMMARMODULE_H
-#define CORE_DATA_GRAMMAR_GRAMMARMODULE_H
+#ifndef CORE_DATA_GRAMMAR_MODULE_H
+#define CORE_DATA_GRAMMAR_MODULE_H
 
 namespace Core::Data::Grammar
 {
 
 // TODO: DOC
 
-class GrammarModule : public NbMap, public virtual Binding, public virtual Initializable, public virtual IdHaving
+class Module : public NbMap, public virtual Binding, public virtual Initializable, public virtual IdHaving
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(GrammarModule, NbMap, "Core.Data.Grammar", "Core", "alusus.net", (
+  TYPE_INFO(Module, NbMap, "Core.Data.Grammar", "Core", "alusus.net", (
     INHERITANCE_INTERFACES(Binding, Initializable, IdHaving)
   ));
 
@@ -32,11 +32,11 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
   // Types
 
   /**
-   * @brief An enumeration for metadata elements of GrammarModule.
+   * @brief An enumeration for metadata elements of Module.
    * @ingroup core_data
    *
-   * This enumeration is used to refer to an element within GrammarModule's
-   * meta data. It's needed by GrammarModule::metaChangeNotifier.
+   * This enumeration is used to refer to an element within Module's
+   * meta data. It's needed by Module::metaChangeNotifier.
    */
   protected: s_enum(MetaElement,
     START_REF=1, LEXER_MODULE_REF=2, ERROR_SYNC_BLOCK_PAIRS_REF=4, ALL=static_cast<Word>(-1)
@@ -47,7 +47,7 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
   // Member Variables
 
   private: SharedPtr<Grammar::Reference> baseRef;
-  private: GrammarModule *base = 0;
+  private: Module *base = 0;
 
   private: SharedPtr<Grammar::Reference> startRef;
   private: SharedPtr<Grammar::Reference> lexerModuleRef;
@@ -61,22 +61,22 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
   //============================================================================
   // Signals & Slots
 
-  public: Signal<void, GrammarModule*> destroyNotifier;
-  public: Signal<void, GrammarModule*, Word> metaChangeNotifier;
+  public: Signal<void, Module*> destroyNotifier;
+  public: Signal<void, Module*, Word> metaChangeNotifier;
 
-  public: Slot<void, GrammarModule*> baseDestroySlot = {
-    this, &GrammarModule::onBaseDestroyed
+  public: Slot<void, Module*> baseDestroySlot = {
+    this, &Module::onBaseDestroyed
   };
 
-  public: Slot<void, GrammarModule*, Word> baseMetaChangeSlot = {
-    this, &GrammarModule::onBaseMetaChanged
+  public: Slot<void, Module*, Word> baseMetaChangeSlot = {
+    this, &Module::onBaseMetaChanged
   };
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_IDHAVING(GrammarModule);
+  IMPLEMENT_IDHAVING(Module);
 
   IMPLEMENT_BINDING(Binding,
     (id, TiWord, VALUE, setId(value), &id),
@@ -90,13 +90,13 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
   //============================================================================
   // Constructor & Destructor
 
-  IMPLEMENT_EMPTY_CONSTRUCTOR(GrammarModule);
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Module);
 
-  IMPLEMENT_ATTR_CONSTRUCTOR(GrammarModule);
+  IMPLEMENT_ATTR_CONSTRUCTOR(Module);
 
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(GrammarModule);
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(Module);
 
-  public: GrammarModule(
+  public: Module(
     Bool useIndex, std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements
   ) : NbMap(useIndex)
   {
@@ -104,12 +104,12 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
     MAP_ELEMENT_INITIALIZATION_LOOP(elements)
   }
 
-  public: virtual ~GrammarModule();
+  public: virtual ~Module();
 
-  public: static SharedPtr<GrammarModule> create(
+  public: static SharedPtr<Module> create(
     Bool useIndex, std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements
   ) {
-    return std::make_shared<GrammarModule>(useIndex, attrs, elements);
+    return std::make_shared<Module>(useIndex, attrs, elements);
   }
 
 
@@ -133,27 +133,27 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
     return this->baseRef;
   }
 
-  public: void setBase(GrammarModule *b)
+  public: void setBase(Module *b)
   {
     if (this->base != 0) this->detachFromBase();
     if (b != 0) this->attachToBase(b);
   }
 
-  public: GrammarModule* getBase() const
+  public: Module* getBase() const
   {
     return this->base;
   }
 
-  private: void attachToBase(GrammarModule *p);
+  private: void attachToBase(Module *p);
 
   private: void detachFromBase();
 
-  private: void onBaseDestroyed(GrammarModule *obj)
+  private: void onBaseDestroyed(Module *obj)
   {
     this->detachFromBase();
   }
 
-  private: void onBaseMetaChanged(GrammarModule *obj, Word element);
+  private: void onBaseMetaChanged(Module *obj, Word element);
 
   /// @}
 
@@ -163,8 +163,8 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
   public: void setLexerModuleRef(const SharedPtr<Reference> &lmr)
   {
     UPDATE_OWNED_SHAREDPTR(this->lexerModuleRef, lmr);
-    this->ownership |= GrammarModule::MetaElement::LEXER_MODULE_REF;
-    this->metaChangeNotifier.emit(this, GrammarModule::MetaElement::LEXER_MODULE_REF);
+    this->ownership |= Module::MetaElement::LEXER_MODULE_REF;
+    this->metaChangeNotifier.emit(this, Module::MetaElement::LEXER_MODULE_REF);
   }
   private: void setLexerModuleRef(Reference *lmr)
   {
@@ -175,8 +175,8 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
   {
     RESET_OWNED_SHAREDPTR(this->lexerModuleRef);
     if (this->base != 0) this->lexerModuleRef = this->base->getLexerModuleRef();
-    this->ownership &= ~GrammarModule::MetaElement::LEXER_MODULE_REF;
-    this->metaChangeNotifier.emit(this, GrammarModule::MetaElement::LEXER_MODULE_REF);
+    this->ownership &= ~Module::MetaElement::LEXER_MODULE_REF;
+    this->metaChangeNotifier.emit(this, Module::MetaElement::LEXER_MODULE_REF);
   }
 
   public: const SharedPtr<Reference>& getLexerModuleRef() const
@@ -187,8 +187,8 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
   public: void setErrorSyncBlockPairsRef(const SharedPtr<Reference> &ref)
   {
     UPDATE_OWNED_SHAREDPTR(this->errorSyncBlockPairsRef, ref);
-    this->ownership |= GrammarModule::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF;
-    this->metaChangeNotifier.emit(this, GrammarModule::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF);
+    this->ownership |= Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF;
+    this->metaChangeNotifier.emit(this, Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF);
   }
   private: void setErrorSyncBlockPairsRef(Reference *ref)
   {
@@ -199,8 +199,8 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
   {
     RESET_OWNED_SHAREDPTR(this->errorSyncBlockPairsRef);
     if (this->base != 0) this->errorSyncBlockPairsRef = this->base->getErrorSyncBlockPairsRef();
-    this->ownership &= ~GrammarModule::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF;
-    this->metaChangeNotifier.emit(this, GrammarModule::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF);
+    this->ownership &= ~Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF;
+    this->metaChangeNotifier.emit(this, Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF);
   }
 
   public: const SharedPtr<Reference>& getErrorSyncBlockPairsRef() const
@@ -211,8 +211,8 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
   public: void setStartRef(const SharedPtr<Reference> &sr)
   {
     UPDATE_OWNED_SHAREDPTR(this->startRef, sr);
-    this->ownership |= GrammarModule::MetaElement::START_REF;
-    this->metaChangeNotifier.emit(this, GrammarModule::MetaElement::START_REF);
+    this->ownership |= Module::MetaElement::START_REF;
+    this->metaChangeNotifier.emit(this, Module::MetaElement::START_REF);
   }
   private: void setStartRef(Reference *sr)
   {
@@ -223,8 +223,8 @@ class GrammarModule : public NbMap, public virtual Binding, public virtual Initi
   {
     RESET_OWNED_SHAREDPTR(this->startRef);
     if (this->base != 0) this->startRef = this->base->getStartRef();
-    this->ownership &= ~GrammarModule::MetaElement::START_REF;
-    this->metaChangeNotifier.emit(this, GrammarModule::MetaElement::START_REF);
+    this->ownership &= ~Module::MetaElement::START_REF;
+    this->metaChangeNotifier.emit(this, Module::MetaElement::START_REF);
   }
 
   public: const SharedPtr<Grammar::Reference>& getStartRef() const

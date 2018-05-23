@@ -29,9 +29,9 @@ class Context : public TiObject, public virtual Basic::MapContaining<TiObject>
   //============================================================================
   // Member Variables
 
-  private: GrammarModule *root = 0;
-  private: GrammarModule *module = 0;
-  private: GrammarModule *bmodule = 0;
+  private: Module *root = 0;
+  private: Module *module = 0;
+  private: Module *bmodule = 0;
   private: VariableStack *stack = 0;
   private: TiObject *args = 0;
 
@@ -59,29 +59,29 @@ class Context : public TiObject, public virtual Basic::MapContaining<TiObject>
     this->args = context->getArgs();
   }
 
-  public: void setRoot(GrammarModule *r)
+  public: void setRoot(Module *r)
   {
     this->root = r;
   }
 
-  public: GrammarModule* getRoot() const
+  public: Module* getRoot() const
   {
     return this->root;
   }
 
-  public: void setModule(GrammarModule *m)
+  public: void setModule(Module *m)
   {
     this->module = m;
     if (this->module != 0) this->bmodule = m->getBase();
     else this->bmodule = 0;
   }
 
-  public: GrammarModule* getModule() const
+  public: Module* getModule() const
   {
     return this->module;
   }
 
-  public: GrammarModule* getBmodule() const
+  public: Module* getBmodule() const
   {
     return this->bmodule;
   }
@@ -114,32 +114,32 @@ class Context : public TiObject, public virtual Basic::MapContaining<TiObject>
   public: TiObject* traceValue(TiObject *val)
   {
     TiObject *retVal;
-    GrammarModule *retModule;
+    Module *retModule;
     this->traceValue(val, retVal, retModule);
     return retVal;
   }
 
-  public: void traceValue(TiObject *val, TiObject *&retVal, GrammarModule *&retModule)
+  public: void traceValue(TiObject *val, TiObject *&retVal, Module *&retModule)
   {
     this->traceValue(val, 0, retVal, retModule);
   }
 
-  public: TiObject* traceValue(TiObject *val, GrammarModule *module)
+  public: TiObject* traceValue(TiObject *val, Module *module)
   {
     TiObject *retVal;
-    GrammarModule *retModule;
+    Module *retModule;
     this->traceValue(val, module, retVal, retModule);
     return retVal;
   }
 
-  public: void traceValue(TiObject *val, GrammarModule *module, TiObject *&retVal, GrammarModule *&retModule);
+  public: void traceValue(TiObject *val, Module *module, TiObject *&retVal, Module *&retModule);
 
   /// @}
 
   /// @name Term Helper Functions
   /// @{
 
-  public: void getListTermData(ListTerm *term, PlainPairedPtr &retVal, GrammarModule *module=0);
+  public: void getListTermData(ListTerm *term, PlainPairedPtr &retVal, Module *module=0);
 
   public: Word getListTermChildCount(ListTerm *term, PlainPairedPtr const &listData) const;
 
@@ -149,44 +149,44 @@ class Context : public TiObject, public virtual Basic::MapContaining<TiObject>
   public: void useListTermChild(ListTerm *term, Int index, PlainPairedPtr &listData,
                                 Term *&retTerm, PlainPairedPtr *retData);
 
-  public: TiInt* getTokenTermId(TokenTerm *term, GrammarModule *module=0);
+  public: TiInt* getTokenTermId(TokenTerm *term, Module *module=0);
 
-  public: TiObject* getTokenTermText(TokenTerm *term, GrammarModule *module=0);
+  public: TiObject* getTokenTermText(TokenTerm *term, Module *module=0);
 
-  public: void getReferencedCharGroup(Reference const *ref, CharGroupDefinition *&charGroupDef, GrammarModule *module=0);
+  public: void getReferencedCharGroup(Reference const *ref, CharGroupDefinition *&charGroupDef, Module *module=0);
 
-  public: void getReferencedSymbol(Reference const *ref, GrammarModule *&retModule, SymbolDefinition *&retDef,
-                                   GrammarModule *module=0);
+  public: void getReferencedSymbol(Reference const *ref, Module *&retModule, SymbolDefinition *&retDef,
+                                   Module *module=0);
 
-  public: TiInt* getMultiplyTermMax(MultiplyTerm *term, GrammarModule *module=0);
+  public: TiInt* getMultiplyTermMax(MultiplyTerm *term, Module *module=0);
 
-  public: TiInt* getMultiplyTermMin(MultiplyTerm *term, GrammarModule *module=0);
+  public: TiInt* getMultiplyTermMin(MultiplyTerm *term, Module *module=0);
 
-  public: TiInt* getMultiplyTermPriority(MultiplyTerm *term, GrammarModule *module=0);
+  public: TiInt* getMultiplyTermPriority(MultiplyTerm *term, Module *module=0);
 
-  public: TiInt* getTermFlags(Term *term, GrammarModule *module=0);
+  public: TiInt* getTermFlags(Term *term, Module *module=0);
 
   /// @}
 
   /// @name Symbol Definition Helper Functions
   /// @{
 
-  public: Term* getSymbolTerm(SymbolDefinition const *definition, GrammarModule *module=0);
+  public: Term* getSymbolTerm(SymbolDefinition const *definition, Module *module=0);
 
-  public: Map* getSymbolVars(SymbolDefinition const *definition, GrammarModule *module=0);
+  public: Map* getSymbolVars(SymbolDefinition const *definition, Module *module=0);
 
-  public: TiInt* getSymbolPriority(SymbolDefinition const *definition, GrammarModule *module=0);
+  public: TiInt* getSymbolPriority(SymbolDefinition const *definition, Module *module=0);
 
-  public: TiInt* getSymbolFlags(SymbolDefinition const *definition, GrammarModule *module=0);
+  public: TiInt* getSymbolFlags(SymbolDefinition const *definition, Module *module=0);
 
   /// @}
 
   /// @name Other Helper Functions
   /// @{
 
-  public: GrammarModule* getAssociatedLexerModule(GrammarModule *module=0);
+  public: Module* getAssociatedLexerModule(Module *module=0);
 
-  public: List* getAssociatedErrorSyncBlockPairs(GrammarModule *module=0);
+  public: List* getAssociatedErrorSyncBlockPairs(Module *module=0);
 
   /// @}
 

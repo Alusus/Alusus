@@ -29,7 +29,7 @@ class ParserProdLevel
   //============================================================================
   // Member Variables
 
-  private: Data::Grammar::GrammarModule *module;
+  private: Data::Grammar::Module *module;
 
   private: Data::Grammar::SymbolDefinition *prod;
 
@@ -60,12 +60,12 @@ class ParserProdLevel
   //============================================================================
   // Member Functions
 
-  protected: void setModule(Data::Grammar::GrammarModule *m)
+  protected: void setModule(Data::Grammar::Module *m)
   {
     this->module = m;
   }
 
-  public: Data::Grammar::GrammarModule* getModule() const
+  public: Data::Grammar::Module* getModule() const
   {
     return this->module;
   }

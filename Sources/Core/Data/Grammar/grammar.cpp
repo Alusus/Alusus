@@ -57,16 +57,16 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
 }
 
 
-GrammarModule* getGrammarRoot(Basic::ListContaining<TiObject> *rootScope, Bool createIfMissing)
+Module* getGrammarRoot(Basic::ListContaining<TiObject> *rootScope, Bool createIfMissing)
 {
   VALIDATE_NOT_NULL(rootScope);
 
   // Find grammar root.
-  GrammarModule *grammarRoot = 0;
+  Module *grammarRoot = 0;
   for (Int i = 0; i < rootScope->getElementCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(rootScope->getElement(i));
     if (def != 0 && def->getName() == STR("grammar")) {
-      grammarRoot = def->getTarget().ti_cast_get<GrammarModule>();
+      grammarRoot = def->getTarget().ti_cast_get<Module>();
       break;
     }
   }
@@ -75,9 +75,9 @@ GrammarModule* getGrammarRoot(Basic::ListContaining<TiObject> *rootScope, Bool c
   if (grammarRoot == 0 && createIfMissing) {
     auto grammarDef = Data::Ast::Definition::create();
     grammarDef->setName(STR("grammar"));
-    grammarDef->setTarget(GrammarModule::create({}));
+    grammarDef->setTarget(Module::create({}));
     rootScope->addElement(grammarDef.get());
-    grammarRoot = grammarDef->getTarget().s_cast_get<GrammarModule>();
+    grammarRoot = grammarDef->getTarget().s_cast_get<Module>();
   }
 
   return grammarRoot;

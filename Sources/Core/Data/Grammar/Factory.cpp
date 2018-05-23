@@ -20,7 +20,7 @@ namespace Core::Data::Grammar
 
 void Factory::setRootScope(Basic::ListContaining<TiObject> *rootScope)
 {
-  GrammarModule *grammarRoot = getGrammarRoot(rootScope, true);
+  Module *grammarRoot = getGrammarRoot(rootScope, true);
   this->context.setRoot(grammarRoot);
   this->context.setModule(grammarRoot);
 }
@@ -64,7 +64,7 @@ TiObject* Factory::get(Char const* qualifier)
 }
 
 
-Bool Factory::tryGet(Char const* qualifier, TiObject *&result, GrammarModule **ownerModule)
+Bool Factory::tryGet(Char const* qualifier, TiObject *&result, Module **ownerModule)
 {
   auto ref = createReference(qualifier, &this->referenceCache);
   return ref->getValue(&this->context, result, ownerModule);
@@ -78,7 +78,7 @@ void Factory::initializeObject(TiObject *obj)
   if (initializable != 0) {
     auto oldModule = this->context.getModule();
     Node *node = ti_cast<Node>(obj);
-    GrammarModule *ownerModule = (node == 0 ? 0 : node->findOwner<GrammarModule>());
+    Module *ownerModule = (node == 0 ? 0 : node->findOwner<Module>());
     this->context.setModule(ownerModule);
     initializable->initialize(&this->context);
     this->context.setModule(oldModule);

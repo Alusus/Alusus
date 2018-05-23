@@ -94,9 +94,9 @@ class Reference : public Node, public virtual DataHaving
 
   public: Bool removeValue(TiObject *parent) const;
 
-  public: Bool getValue(TiObject *parent, TiObject *&value, GrammarModule **ownerModule = 0) const;
+  public: Bool getValue(TiObject *parent, TiObject *&value, Module **ownerModule = 0) const;
 
-  private: Bool _getValue(TiObject *parent, TiObject *&value, GrammarModule **ownerModule = 0) const;
+  private: Bool _getValue(TiObject *parent, TiObject *&value, Module **ownerModule = 0) const;
 
   public: Bool isEqual(Reference *ref);
 

@@ -39,7 +39,7 @@ void Lexer::initialize(SharedPtr<Data::Ast::Scope> rootScope)
 
   // Prepare the context.
   this->grammarContext.setRoot(this->grammarRoot.get());
-  Data::Grammar::GrammarModule *lexerModule = this->grammarContext.getAssociatedLexerModule();
+  Data::Grammar::Module *lexerModule = this->grammarContext.getAssociatedLexerModule();
   if (lexerModule == 0) {
     throw EXCEPTION(GenericException, STR("Couldn't find a lexer module in the given grammar repository."));
   }
@@ -948,7 +948,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     // Pass the call to the referenced term.
     Data::Grammar::ReferenceTerm *referenceTerm = static_cast<Data::Grammar::ReferenceTerm*>(currentTerm);
     Data::Grammar::SymbolDefinition *def;
-    Data::Grammar::GrammarModule *retModule;
+    Data::Grammar::Module *retModule;
     Data::Grammar::Reference *ref = referenceTerm->getReference().get();
     if (ref == 0) {
       Str excMsg = STR("Reference is null for ReferenceTerm at token definition: ");
