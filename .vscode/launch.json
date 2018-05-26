@@ -1,0 +1,75 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C++ Launch",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/Bin/alusus.dbg",
+      "args": ["Sources/Tests/EndToEndTests/Tests/Spp/Running/hello_world.alusus", "--log", "0"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "environment": [],
+      "externalConsole": false,
+      "linux": {
+        "MIMode": "gdb",
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ]
+      },
+      "osx": {
+        "MIMode": "lldb"
+      },
+      "windows": {
+        "MIMode": "gdb",
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "C++ Test",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/Builds/debug/Tests/alusus_tests.dbg",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}/Sources/Tests/",
+      "environment": [
+        {"name": "LD_LIBRARY_PATH", "value": "${workspaceRoot}/Lib"}
+      ],
+      "externalConsole": false,
+      "linux": {
+        "MIMode": "gdb",
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ]
+      },
+      "osx": {
+        "MIMode": "lldb"
+      },
+      "windows": {
+        "MIMode": "gdb",
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ]
+      }
+    }
+  ]
+}

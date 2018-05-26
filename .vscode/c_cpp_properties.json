@@ -1,0 +1,95 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "/usr/include",
+                "/usr/local/include",
+                "${workspaceRoot}"
+            ],
+            "defines": [],
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "/usr/include",
+                    "/usr/local/include",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ]
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "/usr/include/x86_64-linux-gnu/c++/6",
+                "/usr/include/c++/6",
+                "/usr/local/include",
+                "/usr/include/x86_64-linux-gnu",
+                "/usr/include",
+                "${workspaceRoot}/Sources",
+                "${workspaceRoot}/Sources/Core",
+                "${workspaceRoot}/Sources/Core/Basic",
+                "${workspaceRoot}/Sources/Core/Data",
+                "${workspaceRoot}/Sources/Core/Data/Grammar",
+                "${workspaceRoot}/Sources/Core/Data/Ast",
+                "${workspaceRoot}/Sources/Core/Notices",
+                "${workspaceRoot}/Sources/Core/Processing",
+                "${workspaceRoot}/Sources/Core/Processing/Handlers",
+                "${workspaceRoot}/Sources/Core/Main",
+                "${workspaceRoot}/Sources/Spp",
+                "${workspaceRoot}/Sources/Spp/Notices",
+                "${workspaceRoot}/Sources/Spp/Ast",
+                "${workspaceRoot}/Sources/Spp/Handlers",
+                "${workspaceRoot}/Sources/Spp/CodeGen",
+                "${workspaceRoot}/Sources/Spp/LlvmCodeGen",
+                "${workspaceRoot}/Builds/Dependencies/llvm-3.3.install/include",
+                "/usr/include/c++/7",
+                "/usr/include/x86_64-linux-gnu/c++/7",
+                "/usr/include/linux"
+            ],
+            "defines": [],
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "/usr/include/x86_64-linux-gnu/c++/6",
+                    "/usr/include/c++/6",
+                    "/usr/local/include",
+                    "/usr/include/x86_64-linux-gnu",
+                    "/usr/include",
+                    "${workspaceRoot}/Sources"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include",
+                "${workspaceRoot}"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "browse": {
+                "path": [
+                    "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include/*",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        }
+    ],
+    "version": 4
+}
