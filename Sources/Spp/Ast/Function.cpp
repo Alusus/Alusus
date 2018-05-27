@@ -32,7 +32,11 @@ Type* Function::traceArgType(Int index, Helper *helper) const
 
 Type* Function::traceRetType(Helper *helper) const
 {
-  return helper->traceType(this->retType.get());
+  if (this->retType == 0) {
+    return helper->getVoidType();
+  } else {
+    return helper->traceType(this->retType.get());
+  }
 }
 
 
