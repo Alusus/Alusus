@@ -243,12 +243,12 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
 }
 
 
-Bool Helper::_isVoid(TiObject *self, TiObject *ref)
+Bool Helper::_isVoid(TiObject *self, TiObject const *ref)
 {
   PREPARE_SELF(helper, Helper);
 
   if (ref == 0) return true;
-  auto type = helper->traceType(ref);
+  auto type = helper->traceType(const_cast<TiObject*>(ref));
   if (type == 0) return false;
   return type->isA<VoidType>();
 }

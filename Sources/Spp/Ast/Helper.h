@@ -154,8 +154,8 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   public: METHOD_BINDING_CACHE(traceType, Type*, (TiObject*));
   private: static Type* _traceType(TiObject *self, TiObject *ref);
 
-  public: METHOD_BINDING_CACHE(isVoid, Bool, (TiObject*));
-  private: static Bool _isVoid(TiObject *self, TiObject *ref);
+  public: METHOD_BINDING_CACHE(isVoid, Bool, (TiObject const*));
+  private: static Bool _isVoid(TiObject *self, TiObject const *ref);
 
   public: METHOD_BINDING_CACHE(isImplicitlyCastableTo, Bool, (TiObject*, TiObject*, Spp::ExecutionContext const*));
   private: static Bool _isImplicitlyCastableTo(

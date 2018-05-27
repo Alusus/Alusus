@@ -44,6 +44,7 @@ Bool PointerType::isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::
   else {
     Type const *contentType = pointerType->getContentType(helper);
     if (contentType == 0) return true;
+    if (helper->isVoid(contentType)) return true;
     else {
       Type const *thisContentType = this->getContentType(helper);
       if (thisContentType == 0) return false;
