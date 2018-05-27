@@ -287,6 +287,16 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       return false;
     }
 
+    // Also generate the reference type of this type.
+    Ast::Type *astRefType = generator->astHelper->getPointerTypeFor(astType);
+    if (astRefType == 0) {
+      throw EXCEPTION(GenericException, STR("Could not find reference type for the given var type."));
+    }
+    TiObject *tgRefType;
+    if (!generator->typeGenerator->getGeneratedType(astRefType, tg, tgRefType, 0)) {
+      throw EXCEPTION(GenericException, STR("Failed to generate pointer type for the given var type."));
+    }
+
     Ast::setAstType(astVar, astType);
 
     auto astBlock = Core::Data::findOwner<Ast::Block>(definition);

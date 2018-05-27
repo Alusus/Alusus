@@ -802,6 +802,13 @@ Bool ExpressionGenerator::_generateSizeOp(
   // Prepare the noop target generator.
   expGenerator->noOpTargetGenerator->setExecutionContext(getSharedPtr(tg->getExecutionContext()));
 
+  // Generate the Int64 type needed for the result.
+  auto astInt64Type = expGenerator->astHelper->getInt64Type();
+  TiObject *tgInt64Type;
+  if (!g->getGeneratedType(astInt64Type, tg, tgInt64Type, 0)) {
+    throw EXCEPTION(GenericException, STR("Failed to generate Int64 type."));
+  }
+
   // Get the operand type.
   auto operand = astNode->getOperand().get();
   if (operand == 0) {
@@ -837,7 +844,7 @@ Bool ExpressionGenerator::_generateSizeOp(
 
   // Generate a constant with that size.
   if (!tg->generateIntLiteral(tgContext, 64, size, result.targetData)) return false;
-  result.astType = expGenerator->astHelper->getInt64Type();
+  result.astType = astInt64Type;
   return true;
 }
 
