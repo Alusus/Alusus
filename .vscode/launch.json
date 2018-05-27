@@ -6,7 +6,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/Bin/alusus.dbg",
-      "args": ["Sources/Tests/EndToEndTests/Tests/Spp/Running/hello_world.alusus", "--log", "0"],
+      "args": ["Sources/Tests/Srt/hello_world.alusus", "--log", "0"],
       "stopAtEntry": false,
       "cwd": "${workspaceRoot}",
       "environment": [],
