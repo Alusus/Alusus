@@ -182,6 +182,9 @@ Bool TypeGenerator::_generatePointerType(TiObject *self, Spp::Ast::PointerType *
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto contentAstType = astType->getContentType(typeGenerator->astHelper);
+  if (typeGenerator->astHelper->isVoid(contentAstType)) {
+    contentAstType = typeGenerator->astHelper->getCharType();
+  }
   if (!typeGenerator->generateType(contentAstType, tg)) return false;
   TiObject *contentTgType = getCodeGenData<TiObject>(contentAstType);
   TioSharedPtr tgType;
