@@ -294,10 +294,9 @@ int main(int argc, char **argv)
   //    ret = EXIT_FAILURE;
   //  if (!runEndToEndTests("./Ported_C_Examples"))
   //    ret = EXIT_FAILURE;
-  if (!runEndToEndTests("./Core"))
-    ret = EXIT_FAILURE;
-  if (!runEndToEndTests("./Spp"))
-    ret = EXIT_FAILURE;
+  if (!runEndToEndTests("./Core")) ret = EXIT_FAILURE;
+  if (!runEndToEndTests("./Spp")) ret = EXIT_FAILURE;
+  if (!runEndToEndTests("./Srt")) ret = EXIT_FAILURE;
 
   std::remove(resultFilename.c_str());
 

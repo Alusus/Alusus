@@ -82,5 +82,5 @@ endif()
 # Add projects
 add_subdirectory(Core)
 add_subdirectory(Spp)
-#add_subdirectory(Srt)
+add_subdirectory(Srt)
 add_subdirectory(Tests)

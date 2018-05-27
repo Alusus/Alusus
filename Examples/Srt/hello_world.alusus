@@ -1,0 +1,11 @@
+import "common.alusus";
+
+def Main: module
+{
+  def start: function () => Void
+  {
+    Srt.print("Hello World!!\n");
+  };
+};
+
+run Main.start;

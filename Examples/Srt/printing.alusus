@@ -1,0 +1,19 @@
+import "common.alusus";
+
+def Main: module
+{
+  def start: function () => Void
+  {
+    Srt.print("Hello World!!\n");
+
+    def str: ptr[Int[8]];
+    str = "abcdefgh";
+    def i: Int[32];
+    for i = 0, i < 8, ++i {
+      Srt.putChar(str~cast[ptr[array[Int[8], 0]]]~cnt(i));
+    };
+    Srt.putChar('\n');
+  };
+};
+
+run Main.start;
