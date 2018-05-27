@@ -28,9 +28,21 @@ class StringLiteralTokenizingHandler : public TokenizingHandler
 
 
   //============================================================================
+  // Types
+
+  public: s_enum(OuterQuoteType, SINGLE, DOUBLE);
+
+
+  //============================================================================
+  // Member Variables
+
+  private: OuterQuoteType outerQuoteType;
+
+
+  //============================================================================
   // Constructor
 
-  public: StringLiteralTokenizingHandler()
+  public: StringLiteralTokenizingHandler(OuterQuoteType oqt) : outerQuoteType(oqt)
   {
   }
 

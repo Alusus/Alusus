@@ -36,6 +36,16 @@ void StringLiteralTokenizingHandler::prepareToken(
   static WChar taaLetterChar = getWideCharFromUtf8(STR("ت"));
   static WChar doubleQuoteChar = getWideCharFromUtf8(STR("\""));
   static WChar singleQuoteChar = getWideCharFromUtf8(STR("'"));
+
+  WChar outerQuoteChar, innerQuoteChar;
+  if (outerQuoteType == OuterQuoteType::DOUBLE) {
+    outerQuoteChar = doubleQuoteChar;
+    innerQuoteChar = singleQuoteChar;
+  } else {
+    outerQuoteChar = singleQuoteChar;
+    innerQuoteChar = doubleQuoteChar;
+  }
+
   // Set the token text after parsing control sequences and removing quotes.
   Word i = 0;
   Bool inStr = false;
@@ -43,14 +53,14 @@ void StringLiteralTokenizingHandler::prepareToken(
   Word bufferLength = 0;
   while (i < tokenTextLength) {
     if (inStr) {
-      if (tokenText[i] == doubleQuoteChar) inStr = false;
+      if (tokenText[i] == outerQuoteChar) inStr = false;
       else if (tokenText[i] == backSlashChar) {
         ++i;
-        if (tokenText[i] == doubleQuoteChar) {
-          buffer[bufferLength] = doubleQuoteChar;
+        if (tokenText[i] == outerQuoteChar) {
+          buffer[bufferLength] = outerQuoteChar;
           ++bufferLength;
-        } else if (tokenText[i] == singleQuoteChar) {
-            buffer[bufferLength] = singleQuoteChar;
+        } else if (tokenText[i] == innerQuoteChar) {
+            buffer[bufferLength] = innerQuoteChar;
             ++bufferLength;
         } else if (tokenText[i] == backSlashChar) {
             buffer[bufferLength] = backSlashChar;
@@ -71,7 +81,7 @@ void StringLiteralTokenizingHandler::prepareToken(
         ++bufferLength;
       }
     } else {
-      if (tokenText[i] == doubleQuoteChar) inStr = true;
+      if (tokenText[i] == outerQuoteChar) inStr = true;
     }
     ++i;
   }

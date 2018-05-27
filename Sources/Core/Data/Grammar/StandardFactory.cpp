@@ -36,7 +36,12 @@ void StandardFactory::createGrammar(
   this->constTokenId = ID_GENERATOR->getId(STR("CONSTTOKEN"));
 
   // Instantiate handlers.
-  this->stringLiteralHandler = std::make_shared<StringLiteralTokenizingHandler>();
+  this->stringLiteralHandler = std::make_shared<StringLiteralTokenizingHandler>(
+    StringLiteralTokenizingHandler::OuterQuoteType::DOUBLE
+  );
+  this->charLiteralHandler = std::make_shared<StringLiteralTokenizingHandler>(
+    StringLiteralTokenizingHandler::OuterQuoteType::SINGLE
+  );
   this->constTokenHandler = std::make_shared<ConstTokenizingHandler>(this->constTokenId);
   this->parsingHandler = std::make_shared<GenericParsingHandler>();
   this->importHandler = std::make_shared<ImportParsingHandler>(root);
@@ -424,7 +429,8 @@ void StandardFactory::createTokenDefinitions()
          ReferenceTerm::create({{ STR("reference"), PARSE_REF(STR("module.EsCharWithDoubleQuote")) }}),
          ConstTerm::create({{ STR("matchString"), TiWStr(STR("'")) }})
        })}
-    })}
+    })},
+    {STR("handler"), this->charLiteralHandler.s_cast<TiObject>()}
   }));
 
   // StringLiteral : trule as {

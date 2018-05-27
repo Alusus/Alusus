@@ -24,6 +24,7 @@ class StandardFactory : public Factory
   private: SharedPtr<Processing::Handlers::ConstTokenizingHandler> constTokenHandler;
 
   private: SharedPtr<Processing::Handlers::StringLiteralTokenizingHandler> stringLiteralHandler;
+  private: SharedPtr<Processing::Handlers::StringLiteralTokenizingHandler> charLiteralHandler;
 
   private: SharedPtr<Processing::Handlers::GenericParsingHandler> parsingHandler;
 

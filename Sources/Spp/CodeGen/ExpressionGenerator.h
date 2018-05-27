@@ -274,6 +274,17 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBinding, publ
     GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateCharLiteral,
+    Bool, (
+      Core::Data::Ast::CharLiteral* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
+      TiObject* /* tgContext */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateCharLiteral(
+    TiObject *self, Core::Data::Ast::CharLiteral *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateIntegerLiteral,
     Bool, (
       Core::Data::Ast::IntegerLiteral* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,

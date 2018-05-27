@@ -37,6 +37,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateCastOp,
     &this->generateSizeOp,
     &this->generateStringLiteral,
+    &this->generateCharLiteral,
     &this->generateIntegerLiteral,
     &this->generateFloatLiteral,
     &this->generateVarReference,
@@ -67,6 +68,7 @@ void ExpressionGenerator::initBindings()
   this->generateCastOp = &ExpressionGenerator::_generateCastOp;
   this->generateSizeOp = &ExpressionGenerator::_generateSizeOp;
   this->generateStringLiteral = &ExpressionGenerator::_generateStringLiteral;
+  this->generateCharLiteral = &ExpressionGenerator::_generateCharLiteral;
   this->generateIntegerLiteral = &ExpressionGenerator::_generateIntegerLiteral;
   this->generateFloatLiteral = &ExpressionGenerator::_generateFloatLiteral;
   this->generateVarReference = &ExpressionGenerator::_generateVarReference;
@@ -121,6 +123,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);
     return expGenerator->generateStringLiteral(stringLiteral, g, tg, tgContext, result);
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::CharLiteral>()) {
+    auto charLiteral = static_cast<Core::Data::Ast::CharLiteral*>(astNode);
+    return expGenerator->generateCharLiteral(charLiteral, g, tg, tgContext, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
     auto integerLiteral = static_cast<Core::Data::Ast::IntegerLiteral*>(astNode);
     return expGenerator->generateIntegerLiteral(integerLiteral, g, tg, tgContext, result);
@@ -859,6 +864,26 @@ Bool ExpressionGenerator::_generateStringLiteral(
 
   if (!tg->generateStringLiteral(tgContext, value->c_str(), charTgType, strTgType, result.targetData)) return false;
   result.astType = charPtrAstType;
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generateCharLiteral(
+  TiObject *self, Core::Data::Ast::CharLiteral *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  auto value = astNode->getValue().getStr()[0];
+
+  auto charAstType = expGenerator->astHelper->getCharType();
+  TiObject *charTgType;
+  if (!g->getGeneratedType(charAstType, tg, charTgType, 0)) return false;
+
+  auto bitCount = charAstType->getBitCount(expGenerator->astHelper);
+
+  if (!tg->generateIntLiteral(tgContext, bitCount, value, result.targetData)) return false;
+  result.astType = charAstType;
   return true;
 }
 
