@@ -16,13 +16,13 @@
 namespace Core { namespace Data
 {
 
-class Seeker : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfaces
+class Seeker : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Seeker, TiObject, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfaces),
+    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfacing),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
 
@@ -43,7 +43,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
   // Implementations
 
   IMPLEMENT_DYNAMIC_BINDINGS(bindingMap);
-  IMPLEMENT_DYNAMIC_INTERFACES(interfaceList);
+  IMPLEMENT_DYNAMIC_INTERFACING(interfaceList);
 
 
   //============================================================================

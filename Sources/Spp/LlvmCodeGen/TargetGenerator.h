@@ -16,13 +16,13 @@
 namespace Spp { namespace LlvmCodeGen
 {
 
-class TargetGenerator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfaces
+class TargetGenerator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(TargetGenerator, TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.net", (
-    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfaces),
+    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfacing),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
 
@@ -31,7 +31,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
   // Implementations
 
   IMPLEMENT_DYNAMIC_BINDINGS(bindingMap);
-  IMPLEMENT_DYNAMIC_INTERFACES(interfaceList);
+  IMPLEMENT_DYNAMIC_INTERFACING(interfaceList);
 
 
   //============================================================================

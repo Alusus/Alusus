@@ -741,7 +741,7 @@ extern std::istream &inStream;
 #include "binding_caches.h"
 
 #include "ObjTiInterfaceList.h"
-#include "DynamicInterfaces.h"
+#include "DynamicInterfacing.h"
 
 #include "constructor_helpers.h"
 

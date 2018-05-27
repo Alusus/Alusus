@@ -16,13 +16,13 @@
 namespace Spp { namespace CodeGen
 {
 
-class ExpressionGenerator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfaces
+class ExpressionGenerator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ExpressionGenerator, TiObject, "Spp.CodeGen", "Spp", "alusus.net", (
-    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfaces),
+    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfacing),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
 
@@ -31,7 +31,7 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBinding, publ
   // Implementations
 
   IMPLEMENT_DYNAMIC_BINDINGS(bindingMap);
-  IMPLEMENT_DYNAMIC_INTERFACES(interfaceList);
+  IMPLEMENT_DYNAMIC_INTERFACING(interfaceList);
 
 
   //============================================================================

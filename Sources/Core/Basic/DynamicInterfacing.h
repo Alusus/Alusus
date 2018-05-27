@@ -1,8 +1,8 @@
 /**
- * @file Core/Basic/DynamicInterfaces.h
- * Contains the header of interface Core::Basic::DynamicInterfaces.
+ * @file Core/Basic/DynamicInterfacing.h
+ * Contains the header of interface Core::Basic::DynamicInterfacing.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,18 +10,18 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_DYNAMICINTERFACES_H
-#define CORE_BASIC_DYNAMICINTERFACES_H
+#ifndef CORE_BASIC_DYNAMICINTERFACING_H
+#define CORE_BASIC_DYNAMICINTERFACING_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
-class DynamicInterfaces : public TiInterface
+class DynamicInterfacing : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(DynamicInterfaces, TiInterface, "Core.Basic", "Core", "alusus.net");
+  INTERFACE_INFO(DynamicInterfacing, TiInterface, "Core.Basic", "Core", "alusus.net");
 
 
   //============================================================================
@@ -31,10 +31,10 @@ class DynamicInterfaces : public TiInterface
 
   public: virtual ObjTiInterfaceList const* getDynamicInterfaceList() const
   {
-    return const_cast<DynamicInterfaces*>(this)->getDynamicInterfaceList();
+    return const_cast<DynamicInterfacing*>(this)->getDynamicInterfaceList();
   }
 
-  public: virtual void inheritInterfaces(DynamicInterfaces *base)
+  public: virtual void inheritInterfaces(DynamicInterfacing *base)
   {
     this->getDynamicInterfaceList()->setBase(base->getDynamicInterfaceList());
   }
@@ -70,13 +70,13 @@ class DynamicInterfaces : public TiInterface
 //==============================================================================
 // Macros
 
-#define IMPLEMENT_DYNAMIC_INTERFACES(interfaceList) \
+#define IMPLEMENT_DYNAMIC_INTERFACING(interfaceList) \
   private: Core::Basic::ObjTiInterfaceList interfaceList = { this }; \
   public: virtual ObjTiInterfaceList* getDynamicInterfaceList() \
   { \
     return &this->interfaceList; \
   }
 
-} } // namespace
+} // namespace
 
 #endif
