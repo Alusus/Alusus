@@ -60,11 +60,28 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
     }
   }
 
+  public: virtual void onProdEnd(Parser *parser, ParserState *state)
+  {
+    if (this->rootScopeIndex == state->getProdLevelCount() - 1) return;
+    GenericParsingHandler::onProdEnd(parser, state);
+  }
+
   public: virtual void onLevelExit(Parser *parser, ParserState *state, SharedPtr<TiObject> const &data)
   {
     // TODO: Merge definitions.
     // TODO: Merge StatementLists into the scope.
     GenericParsingHandler::onLevelExit(parser, state, data);
+  }
+
+  protected: void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
+  {
+    if (state->isAProdRoot(levelIndex)) {
+      auto listContainer = state->getData(levelIndex).ti_cast_get<ListContaining<TiObject>>();
+      ASSERT(listContainer);
+      listContainer->addElement(data.get());
+    } else {
+      GenericParsingHandler::addData(data, state, levelIndex);
+    }
   }
 
   protected: virtual void prepareToModifyData(ParserState *state, Int levelIndex)

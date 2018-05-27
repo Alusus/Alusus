@@ -94,6 +94,7 @@ void Parser::beginParsing()
   // Create the new state.
   StateIterator si = this->createState();
   (*si)->setPrevProcessingStatus(ParserProcessingStatus::COMPLETE);
+  (*si)->setProcessingStatus(ParserProcessingStatus::COMPLETE);
   // Initialize the main level.
   (*si)->pushTermLevel(0);
   // Initialize the program root level.

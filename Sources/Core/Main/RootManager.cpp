@@ -21,7 +21,9 @@ namespace Core::Main
 RootManager::RootManager() : libraryManager(this)
 {
   this->rootScope = Data::Ast::Scope::create();
+  this->rootScope->setProdId(ID_GENERATOR->getId("Root"));
   this->exprRootScope = Data::Ast::Scope::create();
+  this->exprRootScope->setProdId(ID_GENERATOR->getId("Root"));
 
   Data::Grammar::StandardFactory factory;
   factory.createGrammar(this->rootScope.get(), this, false);
