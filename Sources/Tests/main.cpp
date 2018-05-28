@@ -288,15 +288,10 @@ int main(int argc, char **argv)
   resultFilename += "AlususEndToEndTest.txt";
 
   auto ret = EXIT_SUCCESS;
-  //  if (!runEndToEndTests("./General"))
-  //    ret = EXIT_FAILURE;
-  //  if (!runEndToEndTests("./Arabic"))
-  //    ret = EXIT_FAILURE;
-  //  if (!runEndToEndTests("./Ported_C_Examples"))
-  //    ret = EXIT_FAILURE;
   if (!runEndToEndTests("./Core")) ret = EXIT_FAILURE;
   if (!runEndToEndTests("./Spp")) ret = EXIT_FAILURE;
   if (!runEndToEndTests("./Srt")) ret = EXIT_FAILURE;
+  if (!runEndToEndTests("./Arabic")) ret = EXIT_FAILURE;
 
   std::remove(resultFilename.c_str());
 
