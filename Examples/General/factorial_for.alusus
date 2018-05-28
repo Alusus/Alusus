@@ -1,18 +1,17 @@
 import "common.alusus";
 
-def FactorialForLoop : module {
-  def factorial : function(i:Int) => Int {
+def FactorialForLoop: module {
+  def factorial: function (i:Int[32]) => Int[32] {
     if i<=0 return 1;
-    def f : Int;
+    def f: Int[32];
     f = i;
-    for i=i-1, i>=2, i=i-1 f=f*i;
+    for i=i-1, i>=2, --i f=f*i;
     return f;
   };
 
-  def main : function() {
-    printf("Factorial of 5 is %d\n", factorial(5));
-    return 0 
+  def start: function () {
+    Srt.print("Factorial of 5 is %d\n", factorial(5));
   };
 };
 
-run FactorialForLoop;
+run FactorialForLoop.start;

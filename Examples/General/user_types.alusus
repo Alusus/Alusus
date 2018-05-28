@@ -1,0 +1,19 @@
+import "common.alusus";
+
+def UserTypes: module {
+  def Point: type
+  {
+    def x: Int[32];
+    def y: Int[32];
+  };
+
+  def start: function ()
+  {
+    def p : Point;
+    p.x = 10;
+    p.y = 5;
+    Srt.print("x = %d, y = %d\n", p.x, p.y);
+  }
+};
+
+run UserTypes.start;

@@ -1,0 +1,17 @@
+import "common.alusus";
+
+def UserInput: module {
+  def start: function() {
+    def eof: Int[32];
+    eof = -1;
+
+    def c : Int[32];
+    c = Srt.getChar();
+    while c != eof {
+      Srt.putChar(c);
+      c = Srt.getChar();
+    };
+  }
+};
+
+run UserInput.start;
