@@ -355,7 +355,7 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
       if (obj->isDerivedFrom<Ast::Alias>()) {
         PREPARE_SELF(seeker, Seeker);
         auto alias = static_cast<Ast::Alias*>(obj);
-        return seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags);
+        return seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags & ~Seeker::Flags::SKIP_OWNERS);
       } else {
         verb = cb(obj, 0);
         if (!Seeker::isMove(verb)) return verb;
@@ -596,7 +596,7 @@ Seeker::Verb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
       if (obj->isDerivedFrom<Ast::Alias>()) {
         PREPARE_SELF(seeker, Seeker);
         auto alias = static_cast<Ast::Alias*>(obj);
-        return seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags);
+        return seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags & ~Seeker::Flags::SKIP_OWNERS);
       } else {
         verb = cb(obj, 0);
         if (!Seeker::isMove(verb)) break;
@@ -615,7 +615,7 @@ Seeker::Verb Seeker::_foreachByLinkOperator_mapDotIdentifier(
   if (obj->isDerivedFrom<Ast::Alias>()) {
     PREPARE_SELF(seeker, Seeker);
     auto alias = static_cast<Ast::Alias*>(obj);
-    return seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags);
+    return seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags & ~Seeker::Flags::SKIP_OWNERS);
   } else {
     return cb(obj, 0);
   }
