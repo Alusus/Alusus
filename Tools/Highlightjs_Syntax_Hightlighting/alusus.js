@@ -13,8 +13,9 @@ function(hljs) {
       'do return goto auto void enum else break new extern using true class case typeid ' +
       'short reinterpret_cast default double register explicit signed typename try this ' +
       'switch continue inline delete alignof finally ' +
-      'noexcept nullptr static_assert thread_local restrict alias run build link ' +
-      'اشمل عرّف حزمة دالّة هيكل إذا بينما لكل أرجع مؤشر محتوى مصفوفة أي عدد_حقيقي عدد_حقيقي64 سلسلة_محارف لقب نفّذ ';
+      'noexcept nullptr static_assert thread_local restrict alias run dump_ast dump_llvm_ir ' +
+      'اشمل عرف عرّف حزمة دالة دالّة هيكل إذا بينما لكل أرجع مؤشر محتوى مصفوفة أي  لقب نفذ نفّذ ' +
+      'صنف وإلا اقطع أكمل أدرج_ش_ب_م أدرج_ت_و';
   return {
     aliases: ['alusus'],
     keywords: KEYWORDS,
@@ -30,7 +31,7 @@ function(hljs) {
       },
       {
         className: 'number',
-        begin: '\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)'
+        begin: '\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|i|I|ui|UI|f|F|ط|ص|طص|ع)?[0-9]*'
       },
       {
         className: 'attribute',
@@ -55,11 +56,7 @@ function(hljs) {
       },
       {
         className: 'type',
-        begin: '[\u0620-\u065F\u066E-\u06DC_0-9]+_ال[\u0620-\u065F\u066E-\u06DC_0-9]+'
-      },
-      {	
-        className: 'type',
-        begin: '[^\u0620-\u065F\u066E-\u06DC_0-9]ال[\u0620-\u065F\u066E-\u06DC_0-9]+'
+        begin: 'ـ[\u0620-\u065F\u066E-\u06DC_0-9]+'
       }
     ]
   };
