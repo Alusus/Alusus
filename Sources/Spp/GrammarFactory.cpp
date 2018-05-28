@@ -60,7 +60,7 @@ void GrammarFactory::createGrammar(
   this->set(STR("root.Main.Run"), SymbolDefinition::create({}, {
     {STR("term"), PARSE_REF(STR("root.Cmd"))},
     {STR("vars"), Map::create(false, {}, {
-      {STR("kwd"), Map::create(false, {}, { { STR("run"), 0 }, { STR("نفّذ"), 0 } })},
+      {STR("kwd"), Map::create(false, {}, { { STR("run"), 0 }, { STR("نفّذ"), 0 }, { STR("نفذ"), 0 } })},
       {STR("prms"), List::create({}, {
         Map::create(false, {}, {
           {STR("prd"), PARSE_REF(STR("root.Expression"))},
@@ -352,7 +352,7 @@ void GrammarFactory::createGrammar(
   this->set(STR("root.Subject.Function"), SymbolDefinition::create({}, {
     {STR("term"), PARSE_REF(STR("root.Cmd"))},
     {STR("vars"), Map::create(false, {}, {
-      {STR("kwd"), Map::create(false, {}, { { STR("function"), 0 }, { STR("دالّة"), 0 } })},
+      {STR("kwd"), Map::create(false, {}, { { STR("function"), 0 }, { STR("دالّة"), 0 }, { STR("دالة"), 0 } })},
       {STR("prms"), List::create({}, {
         Map::create(false, {}, {
           {STR("prd"), PARSE_REF(STR("root.FuncSigExpression"))},

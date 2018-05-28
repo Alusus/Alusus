@@ -220,7 +220,8 @@ void StandardFactory::createTokenDefinitions()
           {STR("term"), AlternateTerm::create({}, {
             {STR("terms"), List::create({}, {
               ConstTerm::create({{ STR("matchString"), TiWStr(STR("u")) }}),
-              ConstTerm::create({{ STR("matchString"), TiWStr(STR("U")) }})
+              ConstTerm::create({{ STR("matchString"), TiWStr(STR("U")) }}),
+              ConstTerm::create({{ STR("matchString"), TiWStr(STR("ط")) }})
             })}
           })}
         }),
@@ -232,7 +233,8 @@ void StandardFactory::createTokenDefinitions()
               AlternateTerm::create({}, {
                 {STR("terms"), List::create({}, {
                   ConstTerm::create({{ STR("matchString"), TiWStr(STR("i")) }}),
-                  ConstTerm::create({{ STR("matchString"), TiWStr(STR("I")) }})
+                  ConstTerm::create({{ STR("matchString"), TiWStr(STR("I")) }}),
+                  ConstTerm::create({{ STR("matchString"), TiWStr(STR("ص")) }})
                 })}
               }),
               ReferenceTerm::create({{ STR("reference"), PARSE_REF(STR("module.DecIntLiteral")) }})
@@ -259,7 +261,8 @@ void StandardFactory::createTokenDefinitions()
         AlternateTerm::create({}, {
           {STR("terms"), List::create({}, {
             ConstTerm::create({{ STR("matchString"), TiWStr(STR("0b")) }}),
-            ConstTerm::create({{ STR("matchString"), TiWStr(STR("0B")) }})
+            ConstTerm::create({{ STR("matchString"), TiWStr(STR("0B")) }}),
+            ConstTerm::create({{ STR("matchString"), TiWStr(STR("0ن")) }})
           })}
         }),
         MultiplyTerm::create({
@@ -278,7 +281,8 @@ void StandardFactory::createTokenDefinitions()
         AlternateTerm::create({}, {
           {STR("terms"), List::create({}, {
             ConstTerm::create({{ STR("matchString"), TiWStr(STR("0o")) }}),
-            ConstTerm::create({{ STR("matchString"), TiWStr(STR("0O")) }})
+            ConstTerm::create({{ STR("matchString"), TiWStr(STR("0O")) }}),
+            ConstTerm::create({{ STR("matchString"), TiWStr(STR("0م")) }})
           })}
         }),
         MultiplyTerm::create({
@@ -408,7 +412,8 @@ void StandardFactory::createTokenDefinitions()
          AlternateTerm::create({}, {
            {STR("terms"), List::create({}, {
               ConstTerm::create({{ STR("matchString"), TiWStr(STR("f")) }}),
-              ConstTerm::create({{ STR("matchString"), TiWStr(STR("F")) }})
+              ConstTerm::create({{ STR("matchString"), TiWStr(STR("F")) }}),
+              ConstTerm::create({{ STR("matchString"), TiWStr(STR("ع")) }})
            })}
          }),
          MultiplyTerm::create({}, {
@@ -945,7 +950,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
       { STR("term"), PARSE_REF(STR("root.Cmd")) },
       {
         STR("vars"), Map::create(false, {}, {
-          { STR("kwd"), Map::create(false, {}, { { STR("def"), 0 }, { STR("عرّف"), 0 } }) },
+          { STR("kwd"), Map::create(false, {}, { { STR("def"), 0 }, { STR("عرّف"), 0 }, { STR("عرف"), 0 } }) },
           {
             STR("prms"), List::create({}, {
               Map::create(false, {}, {

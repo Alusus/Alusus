@@ -911,9 +911,15 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   if (compareStr(src, STR("0b"), 2) == 0 || compareStr(src, STR("0B"), 2) == 0) {
     base = 2;
     src += 2;
+  } else if (compareStr(src, STR("0ن"), 3) == 0) {
+    base = 2;
+    src += 3;
   } else if (compareStr(src, STR("0o"), 2) == 0 || compareStr(src, STR("0O"), 2) == 0) {
     base = 8;
     src += 2;
+  } else if (compareStr(src, STR("0م"), 3) == 0) {
+    base = 8;
+    src += 3;
   } else if (compareStr(src, STR("0h"), 2) == 0 || compareStr(src, STR("0H"), 2) == 0) {
     base = 16;
     src += 2;
@@ -939,12 +945,18 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   if (*src == CHR('u') || *src == CHR('U')) {
     // signedNum = false;
     ++src;
+  } else if (compareStr(src, STR("ط"), 2) == 0) {
+    // signedNum = false;
+    src += 2;
   }
 
   // Determine integer size.
   Int size = 32;
   if (*src == CHR('i') || *src == CHR('I')) {
     ++src;
+    if (getStrLen(src) > 0) size = std::stoi(src);
+  } else if (compareStr(src, STR("ص"), 2) == 0) {
+    src += 2;
     if (getStrLen(src) > 0) size = std::stoi(src);
   }
 
@@ -986,6 +998,9 @@ Bool ExpressionGenerator::_generateFloatLiteral(
   Int size = 32;
   if (*src == CHR('f') || *src == CHR('F')) {
     ++src;
+    if (getStrLen(src) > 0) size = std::stoi(src);
+  } else if (compareStr(src, STR("ع"), 2) == 0) {
+    src += 2;
     if (getStrLen(src) > 0) size = std::stoi(src);
   }
 
