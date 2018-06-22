@@ -120,7 +120,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
 
   public: Bool generateStructTypeBody(
     TiObject *type, MapContaining<TiObject> *membersTypes,
-    SharedList<TiObject, TiObject> *members
+    SharedList<TiObject> *members
   );
 
   public: Word getTypeAllocationSize(TiObject *type);
@@ -130,19 +130,20 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
   /// @name Function Generation Functions
   /// @{
 
+  public: Bool generateFunctionType(
+    MapContaining<TiObject>* argTypes, TiObject *retType, Bool variadic, TioSharedPtr &functionType
+  );
+
   public: Bool generateFunctionDecl(
-    Char const *name, MapContaining<TiObject> *argTypes, TiObject *retType, Bool variadic,
-    TioSharedPtr &function
+    Char const *name, TiObject *functionType, TioSharedPtr &function
   );
 
   public: Bool prepareFunctionBody(
-    TiObject *function, MapContaining<TiObject> *argTypes, TiObject *retType,
-    Bool variadic, SharedList<TiObject, TiObject> *args, TioSharedPtr &context
+    TiObject *function, TiObject *functionType, SharedList<TiObject> *args, TioSharedPtr &context
   );
 
   public: Bool finishFunctionBody(
-    TiObject *function, MapContaining<TiObject> *argTypes, TiObject *retType,
-    Bool variadic, ListContaining<TiObject> *args, TiObject *context
+    TiObject *function, TiObject *functionType, ListContaining<TiObject> *args, TiObject *context
   );
 
   /// @}
@@ -235,8 +236,17 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
     TiObject *context, TiObject *contentType, TiObject *srcVal, TiObject *destRef, TioSharedPtr &result
   );
 
+  public: Bool generateFunctionPointer(
+    TiObject *context, TiObject *function, TiObject *functionPtrType, TioSharedPtr &result
+  );
+
   public: Bool generateFunctionCall(
     TiObject *context, TiObject *function,
+    Containing<TiObject>* arguments, TioSharedPtr &result
+  );
+
+  public: Bool generateFunctionPtrCall(
+    TiObject *context, TiObject *functionPtr, TiObject *functionPtrType,
     Containing<TiObject>* arguments, TioSharedPtr &result
   );
 

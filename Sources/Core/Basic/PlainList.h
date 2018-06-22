@@ -16,7 +16,7 @@
 namespace Core { namespace Basic
 {
 
-template<class CTYPE, class PTYPE> class PlainList : public PTYPE, public virtual ListContaining<CTYPE>
+template<class CTYPE, class PTYPE=TiObject> class PlainList : public PTYPE, public virtual ListContaining<CTYPE>
 {
   //============================================================================
   // Type Info

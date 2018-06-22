@@ -4,8 +4,9 @@ ERROR CP1001 @ (39,29): Parser syntax error.
 ERROR CP1001 @ (40,40): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
- argTypes: NULL
- retType: Identifier: Void [Subject.Parameter]
+ type: FunctionType [Subject.Function]
+  argTypes: NULL
+  retType: Identifier: Void [Subject.Parameter]
  body: Block [Main.BlockStatementList]
   IfStatement [Main.If]
    condition: ComparisonOperator == [Expression.ComparisonExp]

@@ -13,15 +13,15 @@
 #ifndef SPP_AST_INTEGERTYPE_H
 #define SPP_AST_INTEGERTYPE_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
-class IntegerType : public Type
+class IntegerType : public DataType
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(IntegerType, Type, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(IntegerType, DataType, "Spp.Ast", "Spp", "alusus.net");
 
   IMPLEMENT_AST_MAP_CLONABLE(IntegerType);
 
@@ -49,12 +49,14 @@ class IntegerType : public Type
 
   public: Word getBitCount(Helper *helper) const;
 
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const;
+  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const;
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
+
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

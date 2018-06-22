@@ -94,7 +94,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_function(
   TiObject *self, Data::Ast::Identifier const *identifier, Ast::Function *function,
   Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
-  auto argTypes = function->getArgTypes().get();
+  auto argTypes = function->getType()->getArgTypes().get();
   if (argTypes == 0) return Core::Data::Seeker::Verb::MOVE;
   auto index = argTypes->findIndex(identifier->getValue().get());
   if (index >= 0) return cb(argTypes->getElement(index), 0);

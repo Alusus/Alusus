@@ -1,8 +1,8 @@
 ERROR SPPG1009 @ (68,13): Value is not implicitly castable to target type.
 ERROR SPPG1009 @ (69,14): Value is not implicitly castable to target type.
-ERROR SPPA1006 @ (70,5): No matches were found for the given callee.
-ERROR SPPA1006 @ (71,5): No matches were found for the given callee.
-ERROR SPPA1006 @ (72,5): No matches were found for the given callee.
+ERROR SPPA1008 @ (70,5): Provided arguments do not match signature.
+ERROR SPPA1008 @ (71,5): Provided arguments do not match signature.
+ERROR SPPA1008 @ (72,5): Provided arguments do not match signature.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

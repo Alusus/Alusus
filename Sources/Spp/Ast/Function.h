@@ -16,7 +16,7 @@
 namespace Spp::Ast
 {
 
-class Type;
+class FunctionType;
 
 class Function : public Core::Data::Node,
                  public virtual Binding, public virtual MapContaining<TiObject>,
@@ -33,24 +33,11 @@ class Function : public Core::Data::Node,
 
 
   //============================================================================
-  // Types
-
-  public: struct ArgMatchContext
-  {
-    Int index;
-    Int subIndex;
-    Type *type;
-    ArgMatchContext() : index(-1), subIndex(-1), type(0) {}
-  };
-
-
-  //============================================================================
   // Member Variables
 
   private: TiStr name;
   private: TiBool inlined;
-  private: SharedPtr<Core::Data::Ast::Map> argTypes;
-  private: TioSharedPtr retType;
+  private: SharedPtr<FunctionType> type;
   private: SharedPtr<Block> body;
 
 
@@ -67,8 +54,7 @@ class Function : public Core::Data::Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (argTypes, Core::Data::Ast::Map, setArgTypes(value), argTypes.get()),
-    (retType, TiObject, setRetType(value), retType.get()),
+    (type, FunctionType, setType(value), type.get()),
     (body, Block, setBody(value), body.get())
   );
 
@@ -88,8 +74,7 @@ class Function : public Core::Data::Node,
 
   public: virtual ~Function()
   {
-    DISOWN_SHAREDPTR(this->argTypes);
-    DISOWN_SHAREDPTR(this->retType);
+    DISOWN_SHAREDPTR(this->type);
     DISOWN_SHAREDPTR(this->body);
   }
 
@@ -121,44 +106,19 @@ class Function : public Core::Data::Node,
     return this->inlined;
   }
 
-  public: void setArgTypes(SharedPtr<Core::Data::Ast::Map> const &args)
+  public: void setType(SharedPtr<FunctionType> const &t)
   {
-    UPDATE_OWNED_SHAREDPTR(this->argTypes, args);
+    UPDATE_OWNED_SHAREDPTR(this->type, t);
   }
-  private: void setArgTypes(Core::Data::Ast::Map *args)
+  public: void setType(FunctionType *t)
   {
-    this->setArgTypes(getSharedPtr(args));
-  }
-
-  public: SharedPtr<Core::Data::Ast::Map> const& getArgTypes() const
-  {
-    return this->argTypes;
+    this->setType(getSharedPtr(t));
   }
 
-  public: Word getArgCount() const
+  public: SharedPtr<FunctionType> const& getType() const
   {
-    return this->argTypes == 0 ? 0 : this->argTypes->getCount();
+    return this->type;
   }
-
-  public: Type* traceArgType(Int index, Helper *helper) const;
-
-  public: Bool isVariadic() const;
-
-  public: void setRetType(TioSharedPtr const &ret)
-  {
-    UPDATE_OWNED_SHAREDPTR(this->retType, ret);
-  }
-  private: void setRetType(TiObject *ret)
-  {
-    this->setRetType(getSharedPtr(ret));
-  }
-
-  public: TioSharedPtr const& getRetType() const
-  {
-    return this->retType;
-  }
-
-  public: Type* traceRetType(Helper *helper) const;
 
   public: void setBody(SharedPtr<Block> const &b)
   {
@@ -173,14 +133,6 @@ class Function : public Core::Data::Node,
   {
     return this->body;
   }
-
-  public: CallMatchStatus matchCall(
-    Containing<TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
-  );
-
-  public: CallMatchStatus matchNextArg(
-    TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
-  );
 
 }; // class
 

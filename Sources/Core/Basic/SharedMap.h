@@ -95,7 +95,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
     if (useIndex) this->index = new Index(&this->list);
     else this->index = 0;
 
-    for (auto arg : args) this->add(arg.id, arg.shared);
+    for (auto arg : args) this->add(arg.id, arg.shared.ti_cast<CTYPE>());
   }
 
   /// Delete the index created in the constructor, if any.
@@ -107,9 +107,9 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
   }
 
   public: static SharedPtr<SharedMap<CTYPE, PTYPE>> create(
-    Bool useIndex, const std::initializer_list<Argument> &args)
-  {
-    return std::make_shared<SharedMap<CTYPE, PTYPE>>(useIndex, args);
+    const std::initializer_list<Argument> &args, Bool useIndex = false
+  ) {
+    return std::make_shared<SharedMap<CTYPE, PTYPE>>(args, useIndex);
   }
 
 

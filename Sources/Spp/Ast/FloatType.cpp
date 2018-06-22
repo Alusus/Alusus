@@ -33,7 +33,17 @@ Word FloatType::getBitCount(Helper *helper) const
 }
 
 
-Bool FloatType::isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+Bool FloatType::isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+{
+  if (this == type) return true;
+
+  auto floatType = ti_cast<FloatType>(type);
+  if (floatType != 0 && floatType->getBitCount(helper) == this->getBitCount(helper)) return true;
+  else return false;
+}
+
+
+Bool FloatType::isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
 {
   if (this == type) return true;
 
@@ -43,7 +53,7 @@ Bool FloatType::isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::Ex
 }
 
 
-Bool FloatType::isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+Bool FloatType::isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
 {
   if (this == type) return true;
 

@@ -13,15 +13,15 @@
 #ifndef SPP_AST_REFERENCETYPE_H
 #define SPP_AST_REFERENCETYPE_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
-class ReferenceType : public Type
+class ReferenceType : public DataType
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ReferenceType, Type, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(ReferenceType, DataType, "Spp.Ast", "Spp", "alusus.net");
 
   IMPLEMENT_AST_MAP_CLONABLE(ReferenceType);
 
@@ -47,14 +47,16 @@ class ReferenceType : public Type
   //============================================================================
   // Member Functions
 
-  public: Type* getContentType(Helper *helper) const;
+  public: DataType* getContentType(Helper *helper) const;
 
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const;
+  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const;
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
+
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

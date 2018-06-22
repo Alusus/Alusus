@@ -1,7 +1,7 @@
-ERROR SPPA1006 @ (47,33): No matches were found for the given callee.
-ERROR SPPA1006 @ (48,33): No matches were found for the given callee.
-ERROR SPPA1006 @ (49,33): No matches were found for the given callee.
-ERROR SPPA1006 @ (50,33): No matches were found for the given callee.
+ERROR SPPA1008 @ (47,33): Provided arguments do not match signature.
+ERROR SPPA1008 @ (48,33): Provided arguments do not match signature.
+ERROR SPPA1008 @ (49,33): Provided arguments do not match signature.
+ERROR SPPA1008 @ (50,33): Provided arguments do not match signature.
 ERROR SPPG1008 @ (58,8): Invalid symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------

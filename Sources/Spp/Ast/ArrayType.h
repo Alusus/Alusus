@@ -13,15 +13,15 @@
 #ifndef SPP_AST_ARRAYTYPE_H
 #define SPP_AST_ARRAYTYPE_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
-class ArrayType : public Type
+class ArrayType : public DataType
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ArrayType, Type, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(ArrayType, DataType, "Spp.Ast", "Spp", "alusus.net");
 
   IMPLEMENT_AST_MAP_CLONABLE(ArrayType);
 
@@ -52,18 +52,20 @@ class ArrayType : public Type
 
   public: Word getSize(Helper *helper) const;
 
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const;
+
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
   {
-    return this == type;
+    return this->isEqual(type, helper, ec);
   }
 
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
   {
-    return this == type;
+    return this->isEqual(type, helper, ec);
   }
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

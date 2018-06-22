@@ -104,7 +104,7 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
 
   public: Bool generateStructTypeBody(
     TiObject *type, MapContaining<TiObject> *membersTypes,
-    SharedList<TiObject, TiObject> *members
+    SharedList<TiObject> *members
   ) { return true; }
 
   public: Word getTypeAllocationSize(TiObject *type) { return 0; }
@@ -114,19 +114,20 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
   /// @name Function Generation Functions
   /// @{
 
+  public: Bool generateFunctionType(
+    MapContaining<TiObject>* argTypes, TiObject *retType, Bool variadic, TioSharedPtr &functionType
+  ) { return true; }
+
   public: Bool generateFunctionDecl(
-    Char const *name, MapContaining<TiObject> *argTypes, TiObject *retType, Bool variadic,
-    TioSharedPtr &function
+    Char const *name, TiObject *functionType, TioSharedPtr &function
   ) { return true; }
 
   public: Bool prepareFunctionBody(
-    TiObject *function, MapContaining<TiObject> *argTypes, TiObject *retType,
-    Bool variadic, SharedList<TiObject, TiObject> *args, TioSharedPtr &context
+    TiObject *function, TiObject *functionType, SharedList<TiObject> *args, TioSharedPtr &context
   ) { return true; }
 
   public: Bool finishFunctionBody(
-    TiObject *function, MapContaining<TiObject> *argTypes, TiObject *retType,
-    Bool variadic, ListContaining<TiObject> *args, TiObject *context
+    TiObject *function, TiObject *functionType, ListContaining<TiObject> *args, TiObject *context
   ) { return true; }
 
   /// @}
@@ -244,8 +245,17 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
     TiObject *context, TiObject *contentType, TiObject *srcVal, TiObject *destRef, TioSharedPtr &result
   ) { return true; }
 
+  public: Bool generateFunctionPointer(
+    TiObject *context, TiObject *function, TiObject *functionPtrType, TioSharedPtr &result
+  ) { return true; }
+
   public: Bool generateFunctionCall(
     TiObject *context, TiObject *function,
+    Containing<TiObject>* arguments, TioSharedPtr &result
+  ) { return true; }
+
+  public: Bool generateFunctionPtrCall(
+    TiObject *context, TiObject *functionPtr, TiObject *functionPtrType,
     Containing<TiObject>* arguments, TioSharedPtr &result
   ) { return true; }
 

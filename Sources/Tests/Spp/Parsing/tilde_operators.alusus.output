@@ -5,8 +5,9 @@ ERROR CP1001 @ (37,11): Parser syntax error.
 ERROR CP1001 @ (43,10): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
- argTypes: NULL
- retType: Identifier: Void [Subject.Parameter]
+ type: FunctionType [Subject.Function]
+  argTypes: NULL
+  retType: Identifier: Void [Subject.Parameter]
  body: Block [Main.BlockStatementList]
   Definition [Main.Def] i: ParamPass [] [Expression.ParamPassExp]
    operand: Identifier: Int [Subject.Parameter]

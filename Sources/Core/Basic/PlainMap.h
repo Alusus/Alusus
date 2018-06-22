@@ -16,7 +16,7 @@
 namespace Core { namespace Basic
 {
 
-template<class CTYPE, class PTYPE> class PlainMap : public PTYPE, public virtual MapContaining<CTYPE>
+template<class CTYPE, class PTYPE=TiObject> class PlainMap : public PTYPE, public virtual MapContaining<CTYPE>
 {
   //============================================================================
   // Type Info

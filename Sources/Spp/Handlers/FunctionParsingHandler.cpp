@@ -74,14 +74,22 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     }
   }
 
-  auto function = std::make_shared<Spp::Ast::Function>();
-  function->setArgTypes(args);
-  function->setRetType(retType);
-  function->setBody(getSharedPtr(body));
-  function->setSourceLocation(exprMetadata->findSourceLocation());
-  function->setProdId(exprMetadata->getProdId());
+  auto functionType = std::make_shared<Spp::Ast::FunctionType>();
+  functionType->setArgTypes(args);
+  functionType->setRetType(retType);
+  functionType->setSourceLocation(exprMetadata->findSourceLocation());
+  functionType->setProdId(exprMetadata->getProdId());
 
-  state->setData(function);
+  if (body == 0) {
+    state->setData(functionType);
+  } else {
+    auto function = std::make_shared<Spp::Ast::Function>();
+    function->setType(functionType);
+    function->setBody(getSharedPtr(body));
+    function->setSourceLocation(exprMetadata->findSourceLocation());
+    function->setProdId(exprMetadata->getProdId());
+    state->setData(function);
+  }
 }
 
 
@@ -91,14 +99,7 @@ Bool FunctionParsingHandler::onIncomingModifier(
 ) {
   if (!prodProcessingComplete) return false;
 
-  Int levelOffset = -state->getTopProdTermLevelCount();
-  auto function = state->getData(levelOffset).ti_cast_get<Spp::Ast::Function>();
-  ASSERT(function != 0);
-  this->prepareToModifyData(state, levelOffset);
-  function = state->getData(levelOffset).ti_cast_get<Spp::Ast::Function>();
-  ASSERT(function != 0);
-
-  // Set the function name.
+  // Look for expname modifier.
   auto paramPass = modifierData.ti_cast_get<Core::Data::Ast::ParamPass>();
   if (paramPass == 0) return false;
   if (paramPass->getType() != Core::Data::Ast::BracketType::SQUARE) return false;
@@ -107,7 +108,27 @@ Bool FunctionParsingHandler::onIncomingModifier(
   if (operand->getValue() != STR("expname")) return false;
   auto param = paramPass->getParam().ti_cast_get<Core::Data::Ast::Identifier>();
   if (param == 0) return false;
-  function->setName(param->getValue());
+
+  // Set the function name.
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  auto data = state->getData(levelOffset).get();
+  auto function = ti_cast<Spp::Ast::Function>(data);
+  if (function == 0) {
+    // The data isn't a function, so it must be a FunctionType.
+    auto functionType = ti_cast<Spp::Ast::FunctionType>(data);
+    ASSERT(functionType != 0);
+    auto newFunction = std::make_shared<Spp::Ast::Function>();
+    newFunction->setType(functionType);
+    newFunction->setSourceLocation(functionType->findSourceLocation());
+    newFunction->setProdId(functionType->getProdId());
+    newFunction->setName(param->getValue());
+    state->setData(newFunction, levelOffset);
+  } else {
+    this->prepareToModifyData(state, levelOffset);
+    function = state->getData(levelOffset).ti_cast_get<Spp::Ast::Function>();
+    function->setName(param->getValue());
+    ASSERT(function != 0);
+  }
 
   return true;
 }

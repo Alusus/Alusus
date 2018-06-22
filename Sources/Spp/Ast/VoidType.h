@@ -13,15 +13,15 @@
 #ifndef SPP_AST_VOIDTYPE_H
 #define SPP_AST_VOIDTYPE_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
-class VoidType : public Type
+class VoidType : public DataType
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(VoidType, Type, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(VoidType, DataType, "Spp.Ast", "Spp", "alusus.net");
 
   IMPLEMENT_AST_MAP_CLONABLE(VoidType);
 
@@ -41,20 +41,26 @@ class VoidType : public Type
   //============================================================================
   // Member Functions
 
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
   {
-    if (type == this) return true;
+    if (this == type || type->isDerivedFrom<VoidType>()) return true;
     else return false;
   }
 
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
   {
-    if (type == this) return true;
+    if (this == type || type->isDerivedFrom<VoidType>()) return true;
+    else return false;
+  }
+
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
+  {
+    if (this == type || type->isDerivedFrom<VoidType>()) return true;
     else return false;
   }
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

@@ -24,6 +24,7 @@ void NodePathResolver::initBindingCaches()
     &this->resolve,
     &this->resolveDefinition,
     &this->resolveFunction,
+    &this->resolveFunctionType,
     &this->resolveFunctionArg,
     &this->resolveTemplateInstance
   });
@@ -35,6 +36,7 @@ void NodePathResolver::initBindings()
   this->resolve = &NodePathResolver::_resolve;
   this->resolveDefinition = &NodePathResolver::_resolveDefinition;
   this->resolveFunction = &NodePathResolver::_resolveFunction;
+  this->resolveFunctionType = &NodePathResolver::_resolveFunctionType;
   this->resolveFunctionArg = &NodePathResolver::_resolveFunctionArg;
   this->resolveTemplateInstance = &NodePathResolver::_resolveTemplateInstance;
 }
@@ -53,6 +55,9 @@ void NodePathResolver::_resolve(TiObject *self, Core::Data::Node const *node, He
   } else if (node->isDerivedFrom<Spp::Ast::Function>()) {
     auto func = static_cast<Spp::Ast::Function const*>(node);
     resolver->resolveFunction(func, helper, path);
+  } else if (node->isDerivedFrom<Spp::Ast::FunctionType>()) {
+    auto funcType = static_cast<Spp::Ast::FunctionType const*>(node);
+    resolver->resolveFunctionType(funcType, helper, path);
   } else if (node->isDerivedFrom<Spp::Ast::Block>() &&
              Basic::isDerivedFrom<Spp::Ast::Template>(node->getOwner())) {
     auto block = static_cast<Spp::Ast::Block const*>(node);
@@ -77,8 +82,16 @@ void NodePathResolver::_resolveFunction(TiObject *self, Spp::Ast::Function const
 {
   PREPARE_SELF(resolver, NodePathResolver);
   resolver->resolve(func->getOwner(), helper, path);
+  resolver->resolveFunctionType(func->getType().get(), helper, path);
+}
+
+
+void NodePathResolver::_resolveFunctionType(
+  TiObject *self, Spp::Ast::FunctionType const *funcType, Helper *helper, StrStream &path
+) {
+  PREPARE_SELF(resolver, NodePathResolver);
   path << CHR('(');
-  auto argTypes = func->getArgTypes().get();
+  auto argTypes = funcType->getArgTypes().get();
   if (argTypes != 0) {
     for (Int i = 0; i < argTypes->getCount(); ++i) {
       if (i > 0) path << CHR(',');
@@ -86,8 +99,8 @@ void NodePathResolver::_resolveFunction(TiObject *self, Spp::Ast::Function const
     }
   }
   path << STR(")");
-  if (func->getRetType() != 0) {
-    auto type = helper->traceType(func->getRetType().get());
+  if (funcType->getRetType() != 0) {
+    auto type = helper->traceType(funcType->getRetType().get());
     path << STR("=>(") << resolver->doResolve(type, helper) << STR(")");
   }
 }

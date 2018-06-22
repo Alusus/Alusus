@@ -119,35 +119,18 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
     tgFunc = getCodeGenData<TiObject>(astFunc);
   }
 
-  auto astArgs = astFunc->getArgTypes().get();
-  auto argCount = astArgs == 0 ? 0 : astArgs->getCount();
+  auto astFuncType = astFunc->getType().get();
+  auto tgFuncType = tryGetCodeGenData<TiObject>(astFuncType);
+  ASSERT(tgFuncType != 0);
+
   auto astBlock = astFunc->getBody().get();
   if (astBlock != 0) {
-    // Prepare list of args.
-    PlainMap<TiObject, TiObject> tgArgs;
-    for (Int i = 0; i < argCount; ++i) {
-      auto argType = astArgs->getElement(i);
-      if (argType->isDerivedFrom<Ast::ArgPack>()) break;
-      auto argAstType = Ast::getAstType(argType);
-      tgArgs.add(astArgs->getKey(i).c_str(), getCodeGenData<TiObject>(argAstType));
-    }
-
-    // Prepare return type.
-    TiObject *tgRetType = 0;
-    if (astFunc->getRetType() != 0) {
-      auto astRetType = Ast::getAstType(astFunc->getRetType().get());
-      tgRetType = getCodeGenData<TiObject>(astRetType);
-    } else {
-      if (!generator->typeGenerator->getGeneratedVoidType(tg, tgRetType, 0)) return false;
-    }
+    auto astArgs = astFuncType->getArgTypes().get();
 
     // Prepare the funciton body.
-    SharedList<TiObject, TiObject> tgVars;
+    SharedList<TiObject> tgVars;
     TioSharedPtr tgContext;
-    if (!tg->prepareFunctionBody(tgFunc, &tgArgs, tgRetType, astFunc->isVariadic(), &tgVars, tgContext)) return false;
-    if (tgArgs.getCount() != tgVars.getCount()) {
-      throw EXCEPTION(GenericException, STR("Unexpected error in target generator during function body preparation."));
-    }
+    if (!tg->prepareFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext)) return false;
 
     // Store the generated data.
     setCodeGenData(astBlock, tgContext);
@@ -160,7 +143,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
     auto retVal = generation->generateStatements(astBlock, tg, tgContext.get());
 
     // Finalize the body.
-    if (!tg->finishFunctionBody(tgFunc, &tgArgs, tgRetType, astFunc->isVariadic(), &tgVars, tgContext.get())) {
+    if (!tg->finishFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext.get())) {
       return false;
     }
 
@@ -177,39 +160,16 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   auto tgFunc = tryGetCodeGenData<TiObject>(astFunc);
   if (tgFunc != 0) return true;
 
-  // Construct the list of argument TG types.
-  // TODO: Support functions that take no args.
-  auto astArgs = astFunc->getArgTypes().get();
-  auto argCount = astArgs == 0 ? 0 : astArgs->getCount();
-  PlainMap<TiObject, TiObject> tgArgs;
-  for (Int i = 0; i < argCount; ++i) {
-    auto argType = astArgs->getElement(i);
-    if (argType->isDerivedFrom<Ast::ArgPack>()) break;
-    TiObject *tgType;
-    Ast::Type *astType;
-    if (!generator->typeGenerator->getGeneratedType(argType, tg, tgType, &astType)) {
-      return false;
-    }
-    tgArgs.add(astArgs->getKey(i).c_str(), tgType);
-    Ast::setAstType(argType, astType);
-  }
-
-  // Get the return LLVM type.
-  TiObject *tgRetType = 0;
-  if (astFunc->getRetType() != 0) {
-    Ast::Type *astRetType;
-    if (!generator->typeGenerator->getGeneratedType(astFunc->getRetType().get(), tg, tgRetType, &astRetType)) {
-      return false;
-    }
-    Ast::setAstType(astFunc->getRetType().get(), astRetType);
-  } else {
-    if (!generator->typeGenerator->getGeneratedVoidType(tg, tgRetType, 0)) return false;
+  // Generate function type.
+  TiObject *tgFunctionType;
+  if (!generator->typeGenerator->getGeneratedType(astFunc->getType().get(), tg, tgFunctionType, 0)) {
+    return false;
   }
 
   // Generate the function object.
   Str name = generator->astHelper->getFunctionName(astFunc);
   TioSharedPtr tgFuncResult;
-  if (!tg->generateFunctionDecl(name.c_str(), &tgArgs, tgRetType, astFunc->isVariadic(), tgFuncResult)) return false;
+  if (!tg->generateFunctionDecl(name.c_str(), tgFunctionType, tgFuncResult)) return false;
   setCodeGenData(astFunc, tgFuncResult);
 
   // TODO: Do we need these attributes?
@@ -235,10 +195,24 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   if (body == 0) {
     throw EXCEPTION(GenericException, STR("User type missing body block."));
   }
+  auto prevInProgress = tryGetCodeGenData<TiBool>(body);
+  if (prevInProgress != 0) {
+    if (prevInProgress->get()) {
+      generator->noticeStore->add(
+        std::make_shared<Spp::Notices::CircularUserTypeDefinitionsNotice>(astType->findSourceLocation())
+      );
+      return false;
+    } else {
+      return true;
+    }
+  }
+  auto inProgress = TiBool::create(true);
+  setCodeGenData(body, inProgress);
+
   Bool result = true;
-  PlainList<TiObject, TiObject> members;
-  PlainMap<TiObject, TiObject> tgMemberTypes;
-  SharedList<TiObject, TiObject> tgMembers;
+  PlainList<TiObject> members;
+  PlainMap<TiObject> tgMemberTypes;
+  SharedList<TiObject> tgMembers;
   for (Int i = 0; i < body->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
     if (def != 0) {
@@ -267,6 +241,7 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   for (Int i = 0; i < tgMemberTypes.getElementCount(); ++i) {
     setCodeGenData(members.get(i), tgMembers.get(i));
   }
+  inProgress->set(false);
 
   return true;
 }
@@ -295,6 +270,11 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
     TiObject *tgRefType;
     if (!generator->typeGenerator->getGeneratedType(astRefType, tg, tgRefType, 0)) {
       throw EXCEPTION(GenericException, STR("Failed to generate pointer type for the given var type."));
+    }
+
+    if (astType->isDerivedFrom<Ast::UserType>()) {
+      PREPARE_SELF(generation, Generation);
+      if (!generation->generateUserTypeBody(static_cast<Ast::UserType*>(astType), tg)) return false;
     }
 
     Ast::setAstType(astVar, astType);

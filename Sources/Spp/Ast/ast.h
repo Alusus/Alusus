@@ -46,13 +46,10 @@ ti_s_enum(CallMatchStatus, TiInt, "Spp.Ast", "Spp", "alusus.net", NONE = 0, CAST
 // Classes
 
 //// AST Classes
-// Containers
 #include "Block.h"
-#include "Module.h"
-#include "Template.h"
-#include "Function.h"
 // Types
 #include "Type.h"
+#include "DataType.h"
 #include "VoidType.h"
 #include "IntegerType.h"
 #include "FloatType.h"
@@ -60,6 +57,11 @@ ti_s_enum(CallMatchStatus, TiInt, "Spp.Ast", "Spp", "alusus.net", NONE = 0, CAST
 #include "ReferenceType.h"
 #include "ArrayType.h"
 #include "UserType.h"
+#include "FunctionType.h"
+// Containers
+#include "Module.h"
+#include "Template.h"
+#include "Function.h"
 // Control Statements
 #include "ForStatement.h"
 #include "IfStatement.h"

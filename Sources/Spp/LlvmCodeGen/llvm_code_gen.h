@@ -32,7 +32,7 @@ namespace Spp { namespace LlvmCodeGen
 #include "llvm_dependencies.h"
 
 // Build Data
-#include "Type.h"
+#include "types.h"
 #include "Block.h"
 #include "Variable.h"
 #include "Value.h"

@@ -174,10 +174,10 @@ Bool checkRunResult(Str const &fileName)
   // reason, editors seem to append 0A at the end of the file!
   auto ret =  runResultContent.compare(expectedResultContent) == 0;
   if (ret == true)
-    std::cout << ">>> Test successful: " << fileName << std::endl;
+    std::cout << "Successful." << std::endl;
   else
   {
-    std::cout << ">>> Test failed: " << fileName << std::endl;
+    std::cout << "Failed." << std::endl;
     std::cout << "Expected Result (Length = " << expectedResultContent.size() << "): " << std::endl;
     std::cout << expectedResultContent << std::endl;
     std::cout << "Received Result (Length = " << runResultContent.size() << "): " << std::endl;
@@ -201,7 +201,7 @@ void updateTestSnapshot(Str const &fileName)
   std::ofstream expectedResult(fileName + ".output");
   expectedResult << runResultContent;
 
-  std::cout << ">>> Test updated: " << fileName << std::endl;
+  std::cout << "Done. " << std::endl;
 }
 
 
@@ -217,6 +217,11 @@ void updateTestSnapshot(Str const &fileName)
  */
 Bool runAndCheckSourceFile(Str const &fileName)
 {
+  if (getenv(STR("ALUSUS_TEST_UPDATE")) != 0) {
+    std::cout << ">>> Updating " << fileName << ": ";
+  } else {
+    std::cout << ">>> Testing " << fileName << ": ";
+  }
   if (!runSourceFile(fileName))
     return false;
   if (getenv(STR("ALUSUS_TEST_UPDATE")) != 0) {

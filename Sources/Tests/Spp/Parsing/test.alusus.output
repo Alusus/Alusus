@@ -20,10 +20,11 @@ UserType [Subject.Type]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
- argTypes: Map
-  x: Identifier: int [Subject.Parameter]
-  y: Identifier: int [Subject.Parameter]
- retType: Identifier: int [Subject.Parameter]
+ type: FunctionType [Subject.Function]
+  argTypes: Map
+   x: Identifier: int [Subject.Parameter]
+   y: Identifier: int [Subject.Parameter]
+  retType: Identifier: int [Subject.Parameter]
  body: Block [Main.BlockStatementList]
   AdditionOperator + [Expression.AddExp]
    first: Identifier: x [Subject.Parameter]

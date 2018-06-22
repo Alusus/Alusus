@@ -36,6 +36,7 @@ void NoOpTargetGenerator::initBindings()
   targetGeneration->getTypeAllocationSize = &NoOpTargetGenerator::getTypeAllocationSize;
 
   // Function Generation Functions
+  targetGeneration->generateFunctionType = &NoOpTargetGenerator::generateFunctionType;
   targetGeneration->generateFunctionDecl = &NoOpTargetGenerator::generateFunctionDecl;
   targetGeneration->prepareFunctionBody = &NoOpTargetGenerator::prepareFunctionBody;
   targetGeneration->finishFunctionBody = &NoOpTargetGenerator::finishFunctionBody;
@@ -69,7 +70,9 @@ void NoOpTargetGenerator::initBindings()
   targetGeneration->generateArrayElementReference = &NoOpTargetGenerator::generateArrayElementReference;
   targetGeneration->generateDereference = &NoOpTargetGenerator::generateDereference;
   targetGeneration->generateAssign = &NoOpTargetGenerator::generateAssign;
+  targetGeneration->generateFunctionPointer = &NoOpTargetGenerator::generateFunctionPointer;
   targetGeneration->generateFunctionCall = &NoOpTargetGenerator::generateFunctionCall;
+  targetGeneration->generateFunctionPtrCall = &NoOpTargetGenerator::generateFunctionPtrCall;
   targetGeneration->generateReturn = &NoOpTargetGenerator::generateReturn;
 
   // Logical Ops Generation Functions

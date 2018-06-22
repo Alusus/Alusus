@@ -1,6 +1,6 @@
 /**
- * @file Spp/Ast/Function.cpp
- * Contains the implementation of class Spp::Ast::Function.
+ * @file Spp/Ast/FunctionType.cpp
+ * Contains the implementation of class Spp::Ast::FunctionType.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -12,13 +12,105 @@
 
 #include "spp.h"
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 //==============================================================================
 // Member Functions
 
-Type* Function::traceArgType(Int index, Helper *helper) const
+Bool FunctionType::isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+{
+  VALIDATE_NOT_NULL(type, helper);
+  if (this == type) return true;
+
+  auto functionType = ti_cast<FunctionType>(type);
+  if (functionType == 0) return false;
+
+  // Check return type.
+  auto thisRetType = this->traceRetType(helper);
+  auto retType = functionType->traceRetType(helper);
+  if (!thisRetType->isEqual(retType, helper, ec)) return false;
+
+  // Check args.
+  Word thisArgCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
+  Word argCount = functionType->argTypes == 0 ? 0 : functionType->argTypes->getCount();
+  if (thisArgCount != argCount) return false;
+  else if (thisArgCount == 0) return true;
+  else {
+    for (Int i = 0; i < argCount; ++i) {
+      auto thisArg = this->argTypes->getElement(i);
+      auto arg = functionType->argTypes->getElement(i);
+      auto thisArgPack = ti_cast<ArgPack>(thisArg);
+      auto argPack = ti_cast<ArgPack>(arg);
+
+      if ((thisArgPack == 0 && argPack != 0) || (thisArgPack != 0 && argPack == 0)) return false;
+      else if (argPack != 0) {
+        // Check arg packs.
+        if (thisArgPack->getMin() != argPack->getMin() || thisArgPack->getMax() != argPack->getMax()) return false;
+        Type *thisArgType = thisArgPack->getArgType() == 0 ? 0 : helper->traceType(thisArgPack->getArgType().get());
+        Type *argType = argPack->getArgType() == 0 ? 0 : helper->traceType(argPack->getArgType().get());
+        if ((thisArgType == 0 && argType != 0) || (thisArgType != 0 && argType == 0)) return false;
+        else if (thisArgType != 0 && !thisArgType->isEqual(argType, helper, ec)) return false;
+      } else {
+        // Check regular args.
+        Type *thisArgType = thisArg == 0 ? 0 : helper->traceType(thisArg);
+        Type *argType = arg == 0 ? 0 : helper->traceType(arg);
+        ASSERT(thisArgType != 0 && argType != 0);
+        if (!thisArgType->isEqual(argType, helper, ec)) return false;
+      }
+    }
+    return true;
+  }
+}
+
+
+Bool FunctionType::isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
+{
+  VALIDATE_NOT_NULL(type, helper);
+  if (this == type) return true;
+
+  auto functionType = ti_cast<FunctionType>(type);
+  if (functionType == 0) return false;
+
+  // Check return type.
+  auto thisRetType = this->traceRetType(helper);
+  auto retType = functionType->traceRetType(helper);
+  if (!thisRetType->isEqual(retType, helper, ec)) return false;
+
+  // Check args.
+  Word thisArgCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
+  Word argCount = functionType->argTypes == 0 ? 0 : functionType->argTypes->getCount();
+  if (thisArgCount != argCount) return false;
+  else if (thisArgCount == 0) return true;
+  else {
+    for (Int i = 0; i < argCount; ++i) {
+      auto thisArg = this->argTypes->getElement(i);
+      auto arg = functionType->argTypes->getElement(i);
+      auto thisArgPack = ti_cast<ArgPack>(thisArg);
+      auto argPack = ti_cast<ArgPack>(arg);
+
+      if ((thisArgPack == 0 && argPack != 0) || (thisArgPack != 0 && argPack == 0)) return false;
+      else if (argPack != 0) {
+        // Check arg packs.
+        if (thisArgPack->getMin() <= argPack->getMin() || thisArgPack->getMax() >= argPack->getMax()) return false;
+        Type *thisArgType = thisArgPack->getArgType() == 0 ? 0 : helper->traceType(thisArgPack->getArgType().get());
+        Type *argType = argPack->getArgType() == 0 ? 0 : helper->traceType(argPack->getArgType().get());
+        if ((thisArgType == 0 && argType != 0) || (thisArgType != 0 && argType == 0)) return false;
+        else if (thisArgType != 0 && !thisArgType->isEqual(argType, helper, ec)) return false;
+      } else {
+        // Check regular args.
+        Type *thisArgType = thisArg == 0 ? 0 : helper->traceType(thisArg);
+        Type *argType = arg == 0 ? 0 : helper->traceType(arg);
+        ASSERT(thisArgType != 0 && argType != 0);
+        if (!thisArgType->isEqual(argType, helper, ec)) return false;
+      }
+    }
+    return true;
+  }
+}
+
+
+Type* FunctionType::traceArgType(Int index, Helper *helper) const
 {
   if (this->argTypes == 0 || this->argTypes->getCount() == 0) {
     throw EXCEPTION(GenericException, STR("Function takes no arguments."));
@@ -30,7 +122,16 @@ Type* Function::traceArgType(Int index, Helper *helper) const
 }
 
 
-Type* Function::traceRetType(Helper *helper) const
+Bool FunctionType::isVariadic() const
+{
+  return
+    this->argTypes != 0 &&
+    this->argTypes->getCount() > 0 &&
+    this->argTypes->get(this->argTypes->getCount() - 1)->isDerivedFrom<ArgPack>();
+}
+
+
+Type* FunctionType::traceRetType(Helper *helper) const
 {
   if (this->retType == 0) {
     return helper->getVoidType();
@@ -40,16 +141,7 @@ Type* Function::traceRetType(Helper *helper) const
 }
 
 
-Bool Function::isVariadic() const
-{
-  return
-    this->argTypes != 0 &&
-    this->argTypes->getCount() > 0 &&
-    this->argTypes->get(this->argTypes->getCount() - 1)->isDerivedFrom<ArgPack>();
-}
-
-
-CallMatchStatus Function::matchCall(
+CallMatchStatus FunctionType::matchCall(
   Containing<TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
 ) {
   if (helper == 0) {
@@ -62,7 +154,7 @@ CallMatchStatus Function::matchCall(
   } else {
     Bool casted = false;
     Bool deref = false;
-    Function::ArgMatchContext matchContext;
+    FunctionType::ArgMatchContext matchContext;
     if (types != 0) {
       for (Int i = 0; i < types->getElementCount(); ++i) {
         CallMatchStatus status = this->matchNextArg(types->getElement(i), matchContext, helper, ec);
@@ -100,7 +192,7 @@ CallMatchStatus Function::matchCall(
 }
 
 
-CallMatchStatus Function::matchNextArg(
+CallMatchStatus FunctionType::matchNextArg(
   TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
 ) {
   if (nextType == 0) {
@@ -124,10 +216,10 @@ CallMatchStatus Function::matchNextArg(
     if (currentArg->isDerivedFrom<ArgPack>()) {
       auto currentArgPack = static_cast<ArgPack*>(currentArg);
       if (currentArgPack->getMax() == 0 || matchContext.subIndex + 1 < currentArgPack->getMax().get()) {
-        if (matchContext.type == providedType || matchContext.type == 0) {
+        if (matchContext.type == 0 || matchContext.type->isEqual(providedType, helper, ec)) {
           matchContext.subIndex++;
           return CallMatchStatus::EXACT;
-        } else if (helper->isReferenceTypeFor(providedType, matchContext.type)) {
+        } else if (helper->isReferenceTypeFor(providedType, matchContext.type, ec)) {
           matchContext.subIndex++;
           return CallMatchStatus::DEREF;
         } else if (providedType->isImplicitlyCastableTo(matchContext.type, helper, ec)) {
@@ -148,12 +240,12 @@ CallMatchStatus Function::matchNextArg(
     if (nextArg->isDerivedFrom<ArgPack>()) {
       auto nextArgPack = static_cast<ArgPack*>(nextArg);
       Type *wantedType = nextArgPack->getArgType() == 0 ? 0 : helper->traceType(nextArgPack->getArgType().get());
-      if (wantedType == providedType || wantedType == 0) {
+      if (wantedType == 0 || wantedType->isEqual(providedType, helper, ec)) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;
         return CallMatchStatus::EXACT;
-      } else if (helper->isReferenceTypeFor(providedType, wantedType)) {
+      } else if (helper->isReferenceTypeFor(providedType, wantedType, ec)) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;
@@ -170,12 +262,12 @@ CallMatchStatus Function::matchNextArg(
       }
     } else {
       Type *wantedType = helper->traceType(nextArg);
-      if (wantedType == providedType) {
+      if (wantedType->isEqual(providedType, helper, ec)) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;
         return CallMatchStatus::EXACT;
-      } else if (helper->isReferenceTypeFor(providedType, wantedType)) {
+      } else if (helper->isReferenceTypeFor(providedType, wantedType, ec)) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;
@@ -192,4 +284,4 @@ CallMatchStatus Function::matchNextArg(
   }
 }
 
-} } // namespace
+} // namespace

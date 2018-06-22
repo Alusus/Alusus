@@ -29,6 +29,7 @@ void TypeGenerator::initBindingCaches()
     &this->generatePointerType,
     &this->generateArrayType,
     &this->generateUserType,
+    &this->generateFunctionType,
     &this->generateCast,
     &this->generateDefaultValue,
     &this->getTypeAllocationSize
@@ -45,6 +46,7 @@ void TypeGenerator::initBindings()
   this->generatePointerType = &TypeGenerator::_generatePointerType;
   this->generateArrayType = &TypeGenerator::_generateArrayType;
   this->generateUserType = &TypeGenerator::_generateUserType;
+  this->generateFunctionType = &TypeGenerator::_generateFunctionType;
   this->generateCast = &TypeGenerator::_generateCast;
   this->generateDefaultValue = &TypeGenerator::_generateDefaultValue;
   this->getTypeAllocationSize = &TypeGenerator::_getTypeAllocationSize;
@@ -88,16 +90,18 @@ Bool TypeGenerator::_getGeneratedType(TiObject *ref, TargetGeneration *tg, Spp::
     throw EXCEPTION(GenericException, STR("Reference does not contain metadata."));
   }
 
+  Bool shouldPushSl = ref->isDerivedFrom<Spp::Ast::Type>() ? false : true;
+
   type = this->astHelper->traceType(ref);
   if (type == 0) return false;
 
   Core::Data::SourceLocation *sourceLocation = 0;
-  if (metadata->findSourceLocation() != 0) {
+  if (shouldPushSl && metadata->findSourceLocation() != 0) {
     sourceLocation = metadata->findSourceLocation().get();
     this->noticeStore->pushPrefixSourceLocation(sourceLocation);
   }
   Bool result = this->generateType(type, tg);
-  if (sourceLocation != 0) {
+  if (shouldPushSl && sourceLocation != 0) {
     this->noticeStore->popPrefixSourceLocation(
       Core::Data::getSourceLocationRecordCount(sourceLocation)
     );
@@ -129,6 +133,8 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Targe
     return typeGenerator->generateArrayType(static_cast<Spp::Ast::ArrayType*>(astType), tg);
   } else if (astType->isDerivedFrom<Spp::Ast::UserType>()) {
     return typeGenerator->generateUserType(static_cast<Spp::Ast::UserType*>(astType), tg);
+  } else if (astType->isDerivedFrom<Spp::Ast::FunctionType>()) {
+    return typeGenerator->generateFunctionType(static_cast<Spp::Ast::FunctionType*>(astType), tg);
   } else {
     typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidTypeNotice>());
     return false;
@@ -221,12 +227,52 @@ Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astTyp
 }
 
 
+Bool TypeGenerator::_generateFunctionType(TiObject *self, Spp::Ast::FunctionType *astType, TargetGeneration *tg)
+{
+  PREPARE_SELF(typeGenerator, TypeGenerator);
+
+  // Construct the list of argument TG types.
+  auto astArgs = astType->getArgTypes().get();
+  auto argCount = astArgs == 0 ? 0 : astArgs->getCount();
+  PlainMap<TiObject> tgArgs;
+  for (Int i = 0; i < argCount; ++i) {
+    auto argType = astArgs->getElement(i);
+    if (argType->isDerivedFrom<Ast::ArgPack>()) break;
+    TiObject *tgType;
+    Ast::Type *astType;
+    if (!typeGenerator->getGeneratedType(argType, tg, tgType, &astType)) {
+      return false;
+    }
+    tgArgs.add(astArgs->getKey(i).c_str(), tgType);
+    Ast::setAstType(argType, astType);
+  }
+
+  // Get the return TG type.
+  TiObject *tgRetType = 0;
+  if (astType->getRetType() != 0) {
+    Ast::Type *astRetType;
+    if (!typeGenerator->getGeneratedType(astType->getRetType().get(), tg, tgRetType, &astRetType)) {
+      return false;
+    }
+    Ast::setAstType(astType->getRetType().get(), astRetType);
+  } else {
+    if (!typeGenerator->getGeneratedVoidType(tg, tgRetType, 0)) return false;
+  }
+
+  // Generate the type.
+  TioSharedPtr tgFuncType;
+  if (!tg->generateFunctionType(&tgArgs, tgRetType, astType->isVariadic(), tgFuncType)) return false;
+  setCodeGenData(astType, tgFuncType);
+  return true;
+}
+
+
 Bool TypeGenerator::_generateCast(
     TiObject *self, TargetGeneration *tg, TiObject *tgContext, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
     TiObject *tgValue, TioSharedPtr &tgCastedValue
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
-  if (srcType == targetType) {
+  if (srcType->isEqual(targetType, typeGenerator->astHelper, tg->getExecutionContext())) {
     // Same type, return value as is.
     tgCastedValue = getSharedPtr(tgValue);
     return true;

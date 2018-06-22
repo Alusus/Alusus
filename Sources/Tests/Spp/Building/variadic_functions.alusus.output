@@ -1,7 +1,7 @@
 ERROR SPPA1005 @ (16,5): Multiple matches were found for the given callee.
-ERROR SPPA1006 @ (17,5): No matches were found for the given callee.
-ERROR SPPA1006 @ (18,5): No matches were found for the given callee.
-ERROR SPPA1006 @ (19,5): No matches were found for the given callee.
+ERROR SPPA1008 @ (17,5): Provided arguments do not match signature.
+ERROR SPPA1008 @ (18,5): Provided arguments do not match signature.
+ERROR SPPA1008 @ (19,5): Provided arguments do not match signature.
 ERROR SPPA1007 @ (20,5): Unknown symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------

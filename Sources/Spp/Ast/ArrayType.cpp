@@ -49,4 +49,21 @@ Word ArrayType::getSize(Helper *helper) const
   return size->get();
 }
 
+
+Bool ArrayType::isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+{
+  if (this == type) return true;
+
+  auto arrayType = ti_cast<ArrayType>(type);
+  if (arrayType == 0) return false;
+  else {
+    auto thisSize = this->getSize(helper);
+    auto size = arrayType->getSize(helper);
+    if (thisSize != size) return false;
+    auto thisContentType = this->getContentType(helper);
+    auto contentType = arrayType->getContentType(helper);
+    return thisContentType->isEqual(contentType, helper, ec);
+  }
+}
+
 } } // namespace

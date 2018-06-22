@@ -52,6 +52,12 @@ DEFINE_NOTICE(NoCalleeMatchNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1006
 DEFINE_NOTICE(UnknownSymbolNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1007", 1,
   STR("Unknown symbol.")
 );
+DEFINE_NOTICE(ArgsMismatchNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1008", 1,
+  STR("Provided arguments do not match signature.")
+);
+DEFINE_NOTICE(ConflictingDefinitionsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1009", 1,
+  STR("Multiple conflicting definitions were found for the given callee.")
+);
 
 } /// namespace
 
@@ -149,6 +155,9 @@ DEFINE_NOTICE(InvalidBreakStepsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG
 );
 DEFINE_NOTICE(InvalidLogicalOperandNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1014", 1,
   STR("Invalid operand of logical operator.")
+);
+DEFINE_NOTICE(CircularUserTypeDefinitionsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1015", 1,
+  STR("Circular user type definitions.")
 );
 
 } // namespace

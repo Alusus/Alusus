@@ -96,6 +96,11 @@ class NodePathResolver : public TiObject, public virtual DynamicBinding, public 
     TiObject *self, Spp::Ast::Function const *func, Helper *helper, StrStream &path
   );
 
+  public: METHOD_BINDING_CACHE(resolveFunctionType, void, (Spp::Ast::FunctionType const*, Helper*, StrStream&));
+  private: static void _resolveFunctionType(
+    TiObject *self, Spp::Ast::FunctionType const *funcType, Helper *helper, StrStream &path
+  );
+
   public: METHOD_BINDING_CACHE(resolveFunctionArg, void, (TiObject*, Helper*, StrStream&));
   private: static void _resolveFunctionArg(TiObject *self, TiObject *arg, Helper *helper, StrStream &path);
 

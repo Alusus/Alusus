@@ -5,8 +5,9 @@ ERROR SPPH1011 @ (20,7): Invalid continue statement.
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatementList]
  Definition [Main.Def] start: Function  [Subject.Function]
-  argTypes: NULL
-  retType: Identifier: Void [Subject.Parameter]
+  type: FunctionType [Subject.Function]
+   argTypes: NULL
+   retType: Identifier: Void [Subject.Parameter]
   body: Block [Main.BlockStatementList]
    Definition [Main.Def] i: ParamPass [] [Expression.ParamPassExp]
     operand: Identifier: Int [Subject.Parameter]

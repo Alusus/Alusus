@@ -1,7 +1,7 @@
-ERROR SPPA1006 @ (129,33): No matches were found for the given callee.
-ERROR SPPA1006 @ (130,33): No matches were found for the given callee.
-ERROR SPPA1006 @ (131,33): No matches were found for the given callee.
-ERROR SPPA1006 @ (132,33): No matches were found for the given callee.
+ERROR SPPA1008 @ (129,33): Provided arguments do not match signature.
+ERROR SPPA1008 @ (130,33): Provided arguments do not match signature.
+ERROR SPPA1008 @ (131,33): Provided arguments do not match signature.
+ERROR SPPA1008 @ (132,33): Provided arguments do not match signature.
 ERROR SPPG1008 @ (141,19): Invalid symbol.
 ERROR SPPG1008 @ (142,23): Invalid symbol.
 ERROR SPPG1008 @ (143,19): Invalid symbol.

@@ -12,8 +12,9 @@ Module [Main.ModuleStatementList]
     operand: Identifier: Int [Subject.Parameter]
     param: IntegerLiteral: 32 [Subject.Literal]
  Definition [Main.Def] start: Function  [Subject.Function]
-  argTypes: NULL
-  retType: Identifier: Void [Subject.Parameter]
+  type: FunctionType [Subject.Function]
+   argTypes: NULL
+   retType: Identifier: Void [Subject.Parameter]
   body: Block [Main.BlockStatementList]
    Definition [Main.Def] v: Identifier: MyType [Subject.Parameter]
    Definition [Main.Def] e: Identifier: EmptyType [Subject.Parameter]

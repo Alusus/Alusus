@@ -123,31 +123,31 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
 
   public: Bool lookupCalleeByName(
     Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
-    Containing<TiObject> *types, Spp::ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
+    Containing<TiObject> *types, ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee,
     Bool, (
       TiObject* /* ref */, Core::Data::Node* /* astNode */, Bool /* searchOwners */,
       Containing<TiObject>* /* types */,
-      Spp::ExecutionContext const* /* ec */, TiObject*& /* callee */, Type*& /* calleeType */
+      ExecutionContext const* /* ec */, TiObject*& /* callee */, Type*& /* calleeType */
     )
   );
   private: static Bool _lookupCallee(
     TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
-    Containing<TiObject> *types, Spp::ExecutionContext const *ec,
+    Containing<TiObject> *types, ExecutionContext const *ec,
     TiObject *&callee, Type *&calleeType
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee_iteration,
     Core::Data::Seeker::Verb, (
-      TiObject*, Containing<TiObject> *, Spp::ExecutionContext const*,
-      CallMatchStatus&, Int&, SharedPtr<Core::Notices::Notice>&, TiObject*&, Type*&
+      TiObject*, Containing<TiObject> *, ExecutionContext const*,
+      CallMatchStatus&, SharedPtr<Core::Notices::Notice>&, TiObject*&, Type*&
     )
   );
   private: static Core::Data::Seeker::Verb _lookupCallee_iteration(
-    TiObject *self, TiObject *obj, Containing<TiObject> *types, Spp::ExecutionContext const *ec,
-    CallMatchStatus &matchStatus, Int &matchCount, SharedPtr<Core::Notices::Notice> &notice,
+    TiObject *self, TiObject *obj, Containing<TiObject> *types, ExecutionContext const *ec,
+    CallMatchStatus &matchStatus, SharedPtr<Core::Notices::Notice> &notice,
     TiObject *&callee, Type *&calleeType
   );
 
@@ -157,13 +157,15 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   public: METHOD_BINDING_CACHE(isVoid, Bool, (TiObject const*));
   private: static Bool _isVoid(TiObject *self, TiObject const *ref);
 
-  public: METHOD_BINDING_CACHE(isImplicitlyCastableTo, Bool, (TiObject*, TiObject*, Spp::ExecutionContext const*));
+  public: METHOD_BINDING_CACHE(isImplicitlyCastableTo, Bool, (TiObject*, TiObject*, ExecutionContext const*));
   private: static Bool _isImplicitlyCastableTo(
-    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Spp::ExecutionContext const *ec
+    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
   );
 
-  public: METHOD_BINDING_CACHE(isReferenceTypeFor, Bool, (Type*, Type*));
-  private: static Bool _isReferenceTypeFor(TiObject *self, Type *refType, Type *contentType);
+  public: METHOD_BINDING_CACHE(isReferenceTypeFor, Bool, (Type*, Type*, ExecutionContext const*));
+  private: static Bool _isReferenceTypeFor(
+    TiObject *self, Type *refType, Type *contentType, ExecutionContext const *ec
+  );
 
   public: METHOD_BINDING_CACHE(getReferenceTypeFor, ReferenceType*, (TiObject*));
   private: static ReferenceType* _getReferenceTypeFor(TiObject *self, TiObject *type);
@@ -216,6 +218,17 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
       auto contentType = refType->getContentType(this);
       return contentType->isDerivedFrom<T>();
     }
+  }
+
+  public: template<class T> T* tryGetPointerContentType(TiObject *type)
+  {
+    if (!type->isDerivedFrom<Type>()) {
+      return this->tryGetPointerContentType<T>(this->traceType(type));
+    }
+
+    auto ptrType = ti_cast<PointerType>(type);
+    if (ptrType == 0) return 0;
+    else return ti_cast<T>(ptrType->getContentType(this));
   }
 
   public: METHOD_BINDING_CACHE(resolveNodePath, Str, (Core::Data::Node const*));

@@ -1,4 +1,4 @@
-ERROR SPPA1006 @ (12,11): No matches were found for the given callee.
+ERROR SPPA1008 @ (12,11): Provided arguments do not match signature.
 ERROR SPPA1007 @ (13,11): Unknown symbol.
 ERROR SPPA1007 @ (15,18): Unknown symbol.
 ERROR SPPG1008 @ (16,10): Invalid symbol.
@@ -45,19 +45,19 @@ __block4:
 }
 
 define i64 @Other_f_Int_32_____Int_64__(i32 %a) {
-__block5:
+__block7:
   %a1 = alloca i32
   store i32 %a, i32* %a1
 }
 
 define i64 @Other_f_ptr_Int_8______Int_64__(i8* %a) {
-__block6:
+__block8:
   %a1 = alloca i8*
   store i8* %a, i8** %a1
 }
 
 define void @Other_Nested_g_____Void_() {
-__block7:
+__block9:
   ret void
 }
 
@@ -67,5 +67,16 @@ __block1:
   store i32 %a, i32* %a1
   %b2 = alloca float
   store float %b, float* %b2
+}
+
+define void @Main_subModule_start_____Void_() {
+__block5:
+  %0 = call i32 @Main_subModule_g_____Int_32__()
+  ret void
+}
+
+define i32 @Main_subModule_g_____Int_32__() {
+__block6:
+  ret i32 20
 }
 ------------------------------------------------------------

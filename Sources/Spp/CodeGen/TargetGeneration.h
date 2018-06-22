@@ -45,6 +45,7 @@ class TargetGeneration : public ObjTiInterface
       &this->generateStructTypeDecl,
       &this->generateStructTypeBody,
       &this->getTypeAllocationSize,
+      &this->generateFunctionType,
       &this->generateFunctionDecl,
       &this->prepareFunctionBody,
       &this->finishFunctionBody,
@@ -70,7 +71,9 @@ class TargetGeneration : public ObjTiInterface
       &this->generateArrayElementReference,
       &this->generateDereference,
       &this->generateAssign,
+      &this->generateFunctionPointer,
       &this->generateFunctionCall,
+      &this->generateFunctionPtrCall,
       &this->generateReturn,
       &this->prepareLogicalOp,
       &this->finishLogicalOr,
@@ -172,7 +175,7 @@ class TargetGeneration : public ObjTiInterface
   public: METHOD_BINDING_CACHE(generateStructTypeBody,
     Bool, (
       TiObject* /* type */, MapContaining<TiObject>* /* membersTypes */,
-      SharedList<TiObject, TiObject>* /* members */
+      SharedList<TiObject>* /* members */
     )
   );
 
@@ -183,24 +186,30 @@ class TargetGeneration : public ObjTiInterface
   /// @name Function Generation Functions
   /// @{
 
+  public: METHOD_BINDING_CACHE(generateFunctionType,
+    Bool, (
+      MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */, Bool /* variadic */,
+      TioSharedPtr& /* functionType */
+    )
+  );
+
   public: METHOD_BINDING_CACHE(generateFunctionDecl,
     Bool, (
-      Char const* /* name */, MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
-      Bool /* variadic */, TioSharedPtr& /* function */
+      Char const* /* name */, TiObject* /* functionType */, TioSharedPtr& /* function */
     )
   );
 
   public: METHOD_BINDING_CACHE(prepareFunctionBody,
     Bool, (
-      TiObject* /* function */, MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
-      Bool /* variadic */, SharedList<TiObject, TiObject>* /* args */, TioSharedPtr& /* context */
+      TiObject* /* function */, TiObject* /* functionType */,
+      SharedList<TiObject>* /* args */, TioSharedPtr& /* context */
     )
   );
 
   public: METHOD_BINDING_CACHE(finishFunctionBody,
     Bool, (
-      TiObject* /* function */, MapContaining<TiObject>* /* argTypes */, TiObject* /* retType */,
-      Bool /* variadic */, ListContaining<TiObject>* /* args */, TiObject* /* context */
+      TiObject* /* function */, TiObject* /* functionType */,
+      ListContaining<TiObject>* /* args */, TiObject* /* context */
     )
   );
 
@@ -349,9 +358,22 @@ class TargetGeneration : public ObjTiInterface
     )
   );
 
+  public: METHOD_BINDING_CACHE(generateFunctionPointer,
+    Bool, (
+      TiObject* /* context */, TiObject* /* function */, TiObject* /* functionPtrType */, TioSharedPtr& /* result */
+    )
+  );
+
   public: METHOD_BINDING_CACHE(generateFunctionCall,
     Bool, (
       TiObject* /* context */, TiObject* /* function */,
+      Containing<TiObject>* /* arguments */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateFunctionPtrCall,
+    Bool, (
+      TiObject* /* context */, TiObject* /* functionPtr */, TiObject* /* functionPtrType */,
       Containing<TiObject>* /* arguments */, TioSharedPtr& /* result */
     )
   );

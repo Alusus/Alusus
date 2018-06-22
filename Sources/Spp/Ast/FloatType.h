@@ -13,15 +13,15 @@
 #ifndef SPP_AST_FLOATTYPE_H
 #define SPP_AST_FLOATTYPE_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
-class FloatType : public Type
+class FloatType : public DataType
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(FloatType, Type, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(FloatType, DataType, "Spp.Ast", "Spp", "alusus.net");
 
   IMPLEMENT_AST_MAP_CLONABLE(FloatType);
 
@@ -49,12 +49,14 @@ class FloatType : public Type
 
   public: Word getBitCount(Helper *helper) const;
 
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const;
+  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const;
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
+
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

@@ -13,15 +13,15 @@
 #ifndef SPP_AST_POINTERTYPE_H
 #define SPP_AST_POINTERTYPE_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
-class PointerType : public Type
+class PointerType : public DataType
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(PointerType, Type, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(PointerType, DataType, "Spp.Ast", "Spp", "alusus.net");
 
   IMPLEMENT_AST_MAP_CLONABLE(PointerType);
 
@@ -49,12 +49,14 @@ class PointerType : public Type
 
   public: Type* getContentType(Helper *helper) const;
 
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const;
+  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const;
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
+
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

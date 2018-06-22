@@ -414,8 +414,10 @@ SharedPtr<Ast::Function> LibraryGateway::createBinaryFunction(
   return Ast::Function::create({
     { STR("name"), TiStr(name) }
   }, {
-    { STR("argTypes"), argTypes },
-    { STR("retType"), retType }
+    { STR("type"), Ast::FunctionType::create({}, {
+      { STR("argTypes"), argTypes },
+      { STR("retType"), retType }
+    })}
   });
 }
 
@@ -430,8 +432,10 @@ SharedPtr<Ast::Function> LibraryGateway::createUnaryFunction(
   return Ast::Function::create({
     { STR("name"), TiStr(name) }
   }, {
-    { STR("argTypes"), argTypes },
-    { STR("retType"), retType }
+    { STR("type"), Ast::FunctionType::create({}, {
+      { STR("argTypes"), argTypes },
+      { STR("retType"), retType }
+    })}
   });
 }
 

@@ -48,7 +48,12 @@
     "cstddef": "cpp",
     "iomanip": "cpp",
     "string_view": "cpp",
-    "optional": "cpp"
+    "optional": "cpp",
+    "deque": "cpp",
+    "list": "cpp",
+    "unordered_map": "cpp",
+    "vector": "cpp",
+    "cinttypes": "cpp"
   },
   "files.exclude": {
     "**/.git": true,

@@ -13,15 +13,15 @@
 #ifndef SPP_AST_USERTYPE_H
 #define SPP_AST_USERTYPE_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
-class UserType : public Type
+class UserType : public DataType
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(UserType, Type, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(UserType, DataType, "Spp.Ast", "Spp", "alusus.net");
 
   IMPLEMENT_AST_MAP_CLONABLE(UserType);
 
@@ -41,13 +41,19 @@ class UserType : public Type
   //============================================================================
   // Member Functions
 
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
   {
     if (this == type) return true;
     else return false;
   }
 
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
+  {
+    if (this == type) return true;
+    else return false;
+  }
+
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
   {
     if (this == type) return true;
     else return false;
@@ -55,6 +61,6 @@ class UserType : public Type
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

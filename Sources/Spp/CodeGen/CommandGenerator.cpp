@@ -55,7 +55,7 @@ Bool CommandGenerator::_generateReturnStatement(
   if (function == 0) {
     throw EXCEPTION(GenericException, STR("Return statement does not belong to a function."));
   }
-  Ast::Type *retType = function->traceRetType(cmdGenerator->astHelper);
+  Ast::Type *retType = function->getType()->traceRetType(cmdGenerator->astHelper);
 
   auto operand = astNode->getOperand().get();
   if (operand != 0) {

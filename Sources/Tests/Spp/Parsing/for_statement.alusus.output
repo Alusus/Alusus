@@ -3,8 +3,9 @@ ERROR SPPH1010 @ (27,3): Invalid for statement.
 ERROR CP1001 @ (28,40): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Function  [Subject.Function]
- argTypes: NULL
- retType: Identifier: Void [Subject.Parameter]
+ type: FunctionType [Subject.Function]
+  argTypes: NULL
+  retType: Identifier: Void [Subject.Parameter]
  body: Block [Main.BlockStatementList]
   ForStatement [Main.For]
    initializer: AssignmentOperator = [Expression.AssignmentExp]

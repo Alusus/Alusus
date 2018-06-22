@@ -33,7 +33,17 @@ Word IntegerType::getBitCount(Helper *helper) const
 }
 
 
-Bool IntegerType::isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+Bool IntegerType::isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+{
+  if (this == type) return true;
+
+  auto integerType = ti_cast<IntegerType>(type);
+  if (integerType != 0 && integerType->getBitCount(helper) == this->getBitCount(helper)) return true;
+  else return false;
+}
+
+
+Bool IntegerType::isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
 {
   if (this == type) return true;
 
@@ -43,7 +53,7 @@ Bool IntegerType::isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::
 }
 
 
-Bool IntegerType::isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+Bool IntegerType::isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
 {
   if (this == type) return true;
 

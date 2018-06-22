@@ -128,6 +128,9 @@ class TypeGenerator : public TiObject, public virtual DynamicBinding, public vir
   public: METHOD_BINDING_CACHE(generateUserType, Bool, (Spp::Ast::UserType*, TargetGeneration*));
   private: static Bool _generateUserType(TiObject *self, Spp::Ast::UserType *astType, TargetGeneration *tg);
 
+  public: METHOD_BINDING_CACHE(generateFunctionType, Bool, (Spp::Ast::FunctionType*, TargetGeneration*));
+  private: static Bool _generateFunctionType(TiObject *self, Spp::Ast::FunctionType *astType, TargetGeneration *tg);
+
   public: METHOD_BINDING_CACHE(generateCast,
     Bool, (TargetGeneration*, TiObject*, Spp::Ast::Type*, Spp::Ast::Type*, TiObject*, TioSharedPtr&)
   );

@@ -35,7 +35,22 @@ Type* PointerType::getContentType(Helper *helper) const
 }
 
 
-Bool PointerType::isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+Bool PointerType::isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+{
+  if (this == type) return true;
+
+  auto pointerType = ti_cast<PointerType>(type);
+  if (pointerType == 0) return false;
+  else {
+    Type const *contentType = pointerType->getContentType(helper);
+    Type const *thisContentType = this->getContentType(helper);
+    if (contentType == 0 && thisContentType == 0) return true;
+    else return thisContentType->isEqual(contentType, helper, ec);
+  }
+}
+
+
+Bool PointerType::isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
 {
   if (this == type) return true;
 
@@ -48,14 +63,14 @@ Bool PointerType::isImplicitlyCastableTo(Type const *type, Helper *helper, Spp::
     else {
       Type const *thisContentType = this->getContentType(helper);
       if (thisContentType == 0) return false;
-      else return thisContentType == contentType;
+      else return thisContentType->isEqual(contentType, helper, ec);
       // TODO: Allow for contents of same size and no-op casting.
     }
   }
 }
 
 
-Bool PointerType::isExplicitlyCastableTo(Type const *type, Helper *helper, Spp::ExecutionContext const *ec) const
+Bool PointerType::isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
 {
   if (this == type) return true;
 
