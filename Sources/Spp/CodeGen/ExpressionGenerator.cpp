@@ -33,8 +33,16 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateRoundParamPassOnMember,
     &this->generateSquareParamPass,
     &this->generateOperator,
-    &this->generateLogicalOperator,
-    &this->generateAssignment,
+    &this->generateLogicalOp,
+    &this->generateArithmeticOp,
+    &this->generateBinaryOp,
+    &this->generateComparisonOp,
+    &this->generateAssignOp,
+    &this->generateArithmeticAssignOp,
+    &this->generateBinaryAssignOp,
+    &this->generateUnaryValOp,
+    &this->generateIntUnaryValOp,
+    &this->generateUnaryVarOp,
     &this->generatePointerOp,
     &this->generateContentOp,
     &this->generateCastOp,
@@ -46,9 +54,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateVarReference,
     &this->generateMemberReference,
     &this->generateArrayReference,
-    &this->generateFunctionCall,
-    &this->generateBuiltInFunctionCall,
-    &this->generateUserFunctionCall
+    &this->generateFunctionCall
   });
 }
 
@@ -67,8 +73,16 @@ void ExpressionGenerator::initBindings()
   this->generateRoundParamPassOnMember = &ExpressionGenerator::_generateRoundParamPassOnMember;
   this->generateSquareParamPass = &ExpressionGenerator::_generateSquareParamPass;
   this->generateOperator = &ExpressionGenerator::_generateOperator;
-  this->generateLogicalOperator = &ExpressionGenerator::_generateLogicalOperator;
-  this->generateAssignment = &ExpressionGenerator::_generateAssignment;
+  this->generateLogicalOp = &ExpressionGenerator::_generateLogicalOp;
+  this->generateArithmeticOp = &ExpressionGenerator::_generateArithmeticOp;
+  this->generateBinaryOp = &ExpressionGenerator::_generateBinaryOp;
+  this->generateComparisonOp = &ExpressionGenerator::_generateComparisonOp;
+  this->generateAssignOp = &ExpressionGenerator::_generateAssignOp;
+  this->generateArithmeticAssignOp = &ExpressionGenerator::_generateArithmeticAssignOp;
+  this->generateBinaryAssignOp = &ExpressionGenerator::_generateBinaryAssignOp;
+  this->generateUnaryValOp = &ExpressionGenerator::_generateUnaryValOp;
+  this->generateIntUnaryValOp = &ExpressionGenerator::_generateIntUnaryValOp;
+  this->generateUnaryVarOp = &ExpressionGenerator::_generateUnaryVarOp;
   this->generatePointerOp = &ExpressionGenerator::_generatePointerOp;
   this->generateContentOp = &ExpressionGenerator::_generateContentOp;
   this->generateCastOp = &ExpressionGenerator::_generateCastOp;
@@ -81,8 +95,6 @@ void ExpressionGenerator::initBindings()
   this->generateMemberReference = &ExpressionGenerator::_generateMemberReference;
   this->generateArrayReference = &ExpressionGenerator::_generateArrayReference;
   this->generateFunctionCall = &ExpressionGenerator::_generateFunctionCall;
-  this->generateBuiltInFunctionCall = &ExpressionGenerator::_generateBuiltInFunctionCall;
-  this->generateUserFunctionCall = &ExpressionGenerator::_generateUserFunctionCall;
 }
 
 
@@ -105,9 +117,6 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
     auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(astNode);
     return expGenerator->generateParamPass(paramPass, g, tg, tgContext, result);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::AssignmentOperator>()) {
-    auto assignmentOp = static_cast<Core::Data::Ast::AssignmentOperator*>(astNode);
-    return expGenerator->generateAssignment(assignmentOp, g, tg, tgContext, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
     return expGenerator->generateOperator(infixOp, g, tg, tgContext, result);
@@ -306,9 +315,13 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     ////
     TiObject *callee;
     Ast::Type *calleeType;
+    SharedPtr<Core::Notices::Notice> notice;
     if (!expGenerator->astHelper->lookupCallee(
-      operand, astNode->getOwner(), true, &paramAstTypes, tg->getExecutionContext(), callee, calleeType
-    )) return false;
+      operand, astNode->getOwner(), true, &paramAstTypes, tg->getExecutionContext(), callee, calleeType, notice
+    )) {
+      expGenerator->noticeStore->add(notice);
+      return false;
+    }
     return expGenerator->generateRoundParamPassOnCallee(
       callee, calleeType, &paramTgValues, &paramAstTypes, g, tg, tgContext, result
     );
@@ -347,10 +360,14 @@ Bool ExpressionGenerator::_generateRoundParamPass(
       // Look for a matching callee.
       TiObject *callee;
       Ast::Type *calleeType;
+      SharedPtr<Core::Notices::Notice> notice;
       if (!expGenerator->astHelper->lookupCallee(
         second, static_cast<Ast::Module*>(firstResult.astNode), false, &paramAstTypes, tg->getExecutionContext(),
-        callee, calleeType
-      )) return false;
+        callee, calleeType, notice
+      )) {
+        expGenerator->noticeStore->add(notice);
+        return false;
+      }
       return expGenerator->generateRoundParamPassOnCallee(
         callee, calleeType, &paramTgValues, &paramAstTypes, g, tg, tgContext, result
       );
@@ -455,7 +472,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnResult(
       // Validate parameters.
       if (astFuncType->matchCall(
         paramAstTypes, expGenerator->astHelper, tg->getExecutionContext()
-      ) == Ast::CallMatchStatus::NONE) {
+      ) == Ast::TypeMatchStatus::NONE) {
         expGenerator->noticeStore->add(
           std::make_shared<Spp::Notices::ArgsMismatchNotice>(astNode->findSourceLocation())
         );
@@ -505,7 +522,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnMember(
       // Validate and prepare parameters.
       if (astFuncType->matchCall(
         paramAstTypes, expGenerator->astHelper, tg->getExecutionContext()
-      ) == Ast::CallMatchStatus::NONE) {
+      ) == Ast::TypeMatchStatus::NONE) {
         expGenerator->noticeStore->add(
           std::make_shared<Spp::Notices::ArgsMismatchNotice>(linkOperator->findSourceLocation())
         );
@@ -559,57 +576,64 @@ Bool ExpressionGenerator::_generateOperator(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
+  s_enum(OpType,
+    INVALID, ASSIGN, ARITHMETIC, BINARY, COMPARISON, ARITHMETIC_ASSIGN, BINARY_ASSIGN,
+    UNARY_VAL, INT_UNARY_VAL, UNARY_VAR
+  );
+
   // Determine operator function name.
   Char const *funcName;
+  OpType opType = OpType::INVALID;
   if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
-    if (infixOp->getType() == STR("+")) funcName = STR("__add");
-    else if (infixOp->getType() == STR("-")) funcName = STR("__sub");
-    else if (infixOp->getType() == STR("*")) funcName = STR("__mul");
-    else if (infixOp->getType() == STR("/")) funcName = STR("__div");
-    else if (infixOp->getType() == STR("%")) funcName = STR("__rem");
-    else if (infixOp->getType() == STR(">>")) funcName = STR("__shr");
-    else if (infixOp->getType() == STR("<<")) funcName = STR("__shl");
-    else if (infixOp->getType() == STR("&")) funcName = STR("__and");
-    else if (infixOp->getType() == STR("|")) funcName = STR("__or");
-    else if (infixOp->getType() == STR("$")) funcName = STR("__xor");
-    else if (infixOp->getType() == STR("==")) funcName = STR("__equal");
-    else if (infixOp->getType() == STR("!=")) funcName = STR("__notEqual");
-    else if (infixOp->getType() == STR(">")) funcName = STR("__greaterThan");
-    else if (infixOp->getType() == STR(">=")) funcName = STR("__greaterThanOrEqual");
-    else if (infixOp->getType() == STR("<")) funcName = STR("__lessThan");
-    else if (infixOp->getType() == STR("<=")) funcName = STR("__lessThanOrEqual");
-    else if (infixOp->getType() == STR("+=")) funcName = STR("__addAssign");
-    else if (infixOp->getType() == STR("-=")) funcName = STR("__subAssign");
-    else if (infixOp->getType() == STR("*=")) funcName = STR("__mulAssign");
-    else if (infixOp->getType() == STR("/=")) funcName = STR("__divAssign");
-    else if (infixOp->getType() == STR("%=")) funcName = STR("__remAssign");
-    else if (infixOp->getType() == STR(">>=")) funcName = STR("__shrAssign");
-    else if (infixOp->getType() == STR("<<=")) funcName = STR("__shlAssign");
-    else if (infixOp->getType() == STR("&=")) funcName = STR("__andAssign");
-    else if (infixOp->getType() == STR("|=")) funcName = STR("__orAssign");
-    else if (infixOp->getType() == STR("$=")) funcName = STR("__xorAssign");
+    if (infixOp->getType() == STR("+")) { funcName = STR("__add"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == STR("-")) { funcName = STR("__sub"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == STR("*")) { funcName = STR("__mul"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == STR("/")) { funcName = STR("__div"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == STR("%")) { funcName = STR("__rem"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == STR(">>")) { funcName = STR("__shr"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == STR("<<")) { funcName = STR("__shl"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == STR("&")) { funcName = STR("__and"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == STR("|")) { funcName = STR("__or"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == STR("$")) { funcName = STR("__xor"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == STR("==")) { funcName = STR("__equal"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == STR("!=")) { funcName = STR("__notEqual"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == STR(">")) { funcName = STR("__greaterThan"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == STR(">=")) { funcName = STR("__greaterThanOrEqual"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == STR("<")) { funcName = STR("__lessThan"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == STR("<=")) { funcName = STR("__lessThanOrEqual"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == STR("=")) { funcName = STR("__assign"); opType = OpType::ASSIGN; }
+    else if (infixOp->getType() == STR("+=")) { funcName = STR("__addAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == STR("-=")) { funcName = STR("__subAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == STR("*=")) { funcName = STR("__mulAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == STR("/=")) { funcName = STR("__divAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == STR("%=")) { funcName = STR("__remAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == STR(">>=")) { funcName = STR("__shrAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == STR("<<=")) { funcName = STR("__shlAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == STR("&=")) { funcName = STR("__andAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == STR("|=")) { funcName = STR("__orAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == STR("$=")) { funcName = STR("__xorAssign"); opType = OpType::BINARY_ASSIGN; }
     else if (infixOp->getType() == STR("||")) {
-      return expGenerator->generateLogicalOperator(infixOp, g, tg, tgContext, result);
+      return expGenerator->generateLogicalOp(infixOp, g, tg, tgContext, result);
     } else if (infixOp->getType() == STR("&&")) {
-      return expGenerator->generateLogicalOperator(infixOp, g, tg, tgContext, result);
+      return expGenerator->generateLogicalOp(infixOp, g, tg, tgContext, result);
     } else {
       throw EXCEPTION(GenericException, STR("Unexpected infix operator."));
     }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
     auto outfixOp = static_cast<Core::Data::Ast::PrefixOperator*>(astNode);
-    if (outfixOp->getType() == STR("+")) funcName = STR("__pos");
-    else if (outfixOp->getType() == STR("-")) funcName = STR("__neg");
-    else if (outfixOp->getType() == STR("!")) funcName = STR("__not");
-    else if (outfixOp->getType() == STR("++")) funcName = STR("__earlyInc");
-    else if (outfixOp->getType() == STR("--")) funcName = STR("__earlyDec");
+    if (outfixOp->getType() == STR("+")) { funcName = STR("__pos"); opType = OpType::UNARY_VAL; }
+    else if (outfixOp->getType() == STR("-")) { funcName = STR("__neg"); opType = OpType::UNARY_VAL; }
+    else if (outfixOp->getType() == STR("!")) { funcName = STR("__not"); opType = OpType::INT_UNARY_VAL; }
+    else if (outfixOp->getType() == STR("++")) { funcName = STR("__earlyInc"); opType = OpType::UNARY_VAR; }
+    else if (outfixOp->getType() == STR("--")) { funcName = STR("__earlyDec"); opType = OpType::UNARY_VAR; }
     else {
       throw EXCEPTION(GenericException, STR("Unexpected prefix operator."));
     }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::PostfixOperator>()) {
     auto outfixOp = static_cast<Core::Data::Ast::PostfixOperator*>(astNode);
-    if (outfixOp->getType() == STR("++")) funcName = STR("__lateInc");
-    else if (outfixOp->getType() == STR("--")) funcName = STR("__lateDec");
+    if (outfixOp->getType() == STR("++")) { funcName = STR("__lateInc"); opType = OpType::UNARY_VAR; }
+    else if (outfixOp->getType() == STR("--")) { funcName = STR("__lateDec"); opType = OpType::UNARY_VAR; }
     else {
       throw EXCEPTION(GenericException, STR("Unexpected postfix operator."));
     }
@@ -627,27 +651,68 @@ Bool ExpressionGenerator::_generateOperator(
   // Look for a matching function to call.
   TiObject *callee;
   Ast::Type *calleeType;
-  if (!expGenerator->astHelper->lookupCalleeByName(
+  Ast::Function *function = 0;
+  SharedPtr<Core::Notices::Notice> notice;
+  if (expGenerator->astHelper->lookupCalleeByName(
     funcName, Core::Data::Ast::findSourceLocation(astNode), astNode->getOwner(), true,
-    &paramAstTypes, tg->getExecutionContext(), callee, calleeType
-  )) return false;
-  auto function = ti_cast<Ast::Function>(callee);
-  if (function == 0) {
-    expGenerator->noticeStore->add(std::make_shared<Spp::Notices::NoCalleeMatchNotice>(
-      Core::Data::Ast::findSourceLocation(astNode)
-    ));
-    return false;
+    &paramAstTypes, tg->getExecutionContext(), callee, calleeType, notice
+  )) function = ti_cast<Ast::Function>(callee);
+
+  if (function != 0) {
+    // Prepare the arguments to send.
+    expGenerator->prepareFunctionParams(function->getType().get(), g, tg, tgContext, &paramAstTypes, &paramTgValues);
+
+    // Generate the functionc all.
+    return expGenerator->generateFunctionCall(function, &paramAstTypes, &paramTgValues, g, tg, tgContext, result);
+  } else {
+    // We have no function for this op, so fall back to default implementation.
+    if (opType == OpType::ASSIGN) {
+      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      return expGenerator->generateAssignOp(infixOp, &paramTgValues, &paramAstTypes, g, tg, tgContext, result);
+    } else if (opType == OpType::ARITHMETIC) {
+      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      return expGenerator->generateArithmeticOp(infixOp, &paramTgValues, &paramAstTypes, g, tg, tgContext, result);
+    } else if (opType == OpType::BINARY) {
+      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      return expGenerator->generateBinaryOp(infixOp, &paramTgValues, &paramAstTypes, g, tg, tgContext, result);
+    } else if (opType == OpType::COMPARISON) {
+      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      return expGenerator->generateComparisonOp(infixOp, &paramTgValues, &paramAstTypes, g, tg, tgContext, result);
+    } else if (opType == OpType::ASSIGN) {
+      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      return expGenerator->generateAssignOp(infixOp, &paramTgValues, &paramAstTypes, g, tg, tgContext, result);
+    } else if (opType == OpType::ARITHMETIC_ASSIGN) {
+      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      return expGenerator->generateArithmeticAssignOp(
+        infixOp, &paramTgValues, &paramAstTypes, g, tg, tgContext, result
+      );
+    } else if (opType == OpType::BINARY_ASSIGN) {
+      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      return expGenerator->generateBinaryAssignOp(infixOp, &paramTgValues, &paramAstTypes, g, tg, tgContext, result);
+    } else if (opType == OpType::UNARY_VAL) {
+      auto outfixOp = static_cast<Core::Data::Ast::OutfixOperator*>(astNode);
+      return expGenerator->generateUnaryValOp(outfixOp, &paramTgValues, &paramAstTypes, g, tg, tgContext, result);
+    } else if (opType == OpType::INT_UNARY_VAL) {
+      auto outfixOp = static_cast<Core::Data::Ast::OutfixOperator*>(astNode);
+      return expGenerator->generateIntUnaryValOp(outfixOp, &paramTgValues, &paramAstTypes, g, tg, tgContext, result);
+    } else if (opType == OpType::UNARY_VAR) {
+      auto outfixOp = static_cast<Core::Data::Ast::OutfixOperator*>(astNode);
+      return expGenerator->generateUnaryVarOp(outfixOp, &paramTgValues, &paramAstTypes, g, tg, tgContext, result);
+    } else {
+      if (notice != 0) {
+        expGenerator->noticeStore->add(notice);
+      } else {
+        expGenerator->noticeStore->add(std::make_shared<Spp::Notices::NoCalleeMatchNotice>(
+          Core::Data::Ast::findSourceLocation(astNode)
+        ));
+      }
+      return false;
+    }
   }
-
-  // Prepare the arguments to send.
-  expGenerator->prepareFunctionParams(function->getType().get(), g, tg, tgContext, &paramAstTypes, &paramTgValues);
-
-  // Generate the functionc all.
-  return expGenerator->generateFunctionCall(function, &paramAstTypes, &paramTgValues, g, tg, tgContext, result);
 }
 
 
-Bool ExpressionGenerator::_generateLogicalOperator(
+Bool ExpressionGenerator::_generateLogicalOp(
   TiObject *self, Core::Data::Ast::InfixOperator *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
   GenResult &result
 ) {
@@ -697,73 +762,709 @@ Bool ExpressionGenerator::_generateLogicalOperator(
 }
 
 
-Bool ExpressionGenerator::_generateAssignment(
-  TiObject *self, Core::Data::Ast::AssignmentOperator *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-  GenResult &result
+Bool ExpressionGenerator::_generateArithmeticOp(
+  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
-
-  if (astNode->getType() != STR("=")) {
-    return expGenerator->generateOperator(astNode, g, tg, tgContext, result);
-  }
-
-  // Generate assignment target.
-  auto var = astNode->getFirst().get();
-  if (var == 0) {
-    throw EXCEPTION(GenericException, STR("Assignment target is missing."));
-  }
-  GenResult varResult;
-  if (!expGenerator->generate(var, g, tg, tgContext, varResult)) return false;
-  if (varResult.astType == 0) {
-    expGenerator->noticeStore->add(
-      std::make_shared<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(var))
+  VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
+  if (paramAstTypes->getCount() != 2) {
+    throw EXCEPTION(InvalidArgumentException,
+      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
     );
-    return false;
-  }
-  auto varRefAstType = ti_cast<Ast::ReferenceType>(varResult.astType);
-  if (varRefAstType == 0) {
-    expGenerator->noticeStore->add(
-      std::make_shared<Spp::Notices::UnsupportedOperationNotice>(astNode->findSourceLocation())
-    );
-    return false;
-  }
-  auto varAstType = varRefAstType->getContentType(expGenerator->astHelper);
-
-  // Generate assignment value.
-  auto val = astNode->getSecond().get();
-  if (val == 0) {
-    throw EXCEPTION(GenericException, STR("Assignment value is missing."));
-  }
-  GenResult valResult;
-  if (!expGenerator->generate(val, g, tg, tgContext, valResult)) return false;
-  if (valResult.astType == 0) {
-    expGenerator->noticeStore->add(
-      std::make_shared<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(var))
-    );
-    return false;
   }
 
-  // Is value implicitly castable?
-  if (!valResult.astType->isImplicitlyCastableTo(varAstType, expGenerator->astHelper, tg->getExecutionContext())) {
-    expGenerator->noticeStore->add(
-      std::make_shared<Spp::Notices::NotImplicitlyCastableNotice>(Core::Data::Ast::findSourceLocation(val))
-    );
-    return false;
-  }
-
-  // Cast the generated value.
-  TioSharedPtr castedTgVal;
-  if (!g->generateCast(tg, tgContext, valResult.astType, varAstType, valResult.targetData.get(), castedTgVal)) {
-    return false;
-  }
-
-  // Create the store instruction.
-  TioSharedPtr assignOp;
-  if (!tg->generateAssign(
-    tgContext, getCodeGenData<TiObject>(varAstType), castedTgVal.get(), varResult.targetData.get(), assignOp
+  GenResult param1, param2;
+  if (!expGenerator->dereferenceIfNeeded(
+    tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), param1
   )) return false;
-  result = varResult;
-  return true;
+  if (!expGenerator->dereferenceIfNeeded(
+    tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), param2
+  )) return false;
+  Ast::Type *astTargetType = 0;
+
+  if (param1.astType->isDerivedFrom<Ast::FloatType>() && param2.astType->isDerivedFrom<Ast::FloatType>()) {
+    // Two floats.
+    auto floatType1 = static_cast<Ast::FloatType*>(param1.astType);
+    auto floatType2 = static_cast<Ast::FloatType*>(param2.astType);
+    auto bitCount1 = floatType1->getBitCount(expGenerator->astHelper);
+    auto bitCount2 = floatType2->getBitCount(expGenerator->astHelper);
+    astTargetType = bitCount1 >= bitCount2 ? floatType1 : floatType2;
+  } else if (param1.astType->isDerivedFrom<Ast::FloatType>() && param2.astType->isDerivedFrom<Ast::IntegerType>()) {
+    // Float and int.
+    astTargetType = param1.astType;
+  } else if (param1.astType->isDerivedFrom<Ast::IntegerType>() && param2.astType->isDerivedFrom<Ast::FloatType>()) {
+    // Int and float.
+    astTargetType = param2.astType;
+  } else if (param1.astType->isDerivedFrom<Ast::IntegerType>() && param2.astType->isDerivedFrom<Ast::IntegerType>()) {
+    // Two integers.
+    auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
+    auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
+    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper);
+    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
+    auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
+    if (targetBitCount < 32) targetBitCount = 32;
+    if (!integerType1->isSigned() && !integerType2->isSigned()) {
+      astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
+    } else {
+      astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
+    }
+  } else {
+    // Error.
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  if (!g->generateCast(tg, tgContext, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
+    return false;
+  }
+  if (!g->generateCast(tg, tgContext, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
+    return false;
+  }
+
+  TiObject *tgTargetType;
+  if (!g->getGeneratedType(astTargetType, tg, tgTargetType, 0)) {
+    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+  }
+
+  if (astNode->getType() == STR("+")) {
+    if (!tg->generateAdd(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astTargetType;
+    return true;
+  } else if (astNode->getType() == STR("-")) {
+    if (!tg->generateSub(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astTargetType;
+    return true;
+  } else if (astNode->getType() == STR("*")) {
+    if (!tg->generateMul(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astTargetType;
+    return true;
+  } else if (astNode->getType() == STR("/")) {
+    if (!tg->generateDiv(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astTargetType;
+    return true;
+  } else {
+    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+  }
+}
+
+
+Bool ExpressionGenerator::_generateBinaryOp(
+  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+  VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
+  if (paramAstTypes->getCount() != 2) {
+    throw EXCEPTION(InvalidArgumentException,
+      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
+    );
+  }
+
+  GenResult param1, param2;
+  if (!expGenerator->dereferenceIfNeeded(
+    tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), param1
+  )) return false;
+  if (!expGenerator->dereferenceIfNeeded(
+    tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), param2
+  )) return false;
+  Ast::Type *astTargetType = 0;
+
+  if (param1.astType->isDerivedFrom<Ast::IntegerType>() && param2.astType->isDerivedFrom<Ast::IntegerType>()) {
+    // Two integers.
+    auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
+    auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
+    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper);
+    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
+    auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
+    if (!integerType1->isSigned() && !integerType2->isSigned()) {
+      astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
+    } else {
+      astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
+    }
+  } else {
+    // Error.
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  if (!g->generateCast(tg, tgContext, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
+    return false;
+  }
+  if (!g->generateCast(tg, tgContext, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
+    return false;
+  }
+
+  TiObject *tgTargetType;
+  if (!g->getGeneratedType(astTargetType, tg, tgTargetType, 0)) {
+    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+  }
+
+  if (astNode->getType() == STR("%")) {
+    if (!tg->generateRem(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astTargetType;
+    return true;
+  } else if (astNode->getType() == STR(">>")) {
+    if (!tg->generateShr(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astTargetType;
+    return true;
+  } else if (astNode->getType() == STR("<<")) {
+    if (!tg->generateShl(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astTargetType;
+    return true;
+  } else if (astNode->getType() == STR("&")) {
+    if (!tg->generateAnd(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astTargetType;
+    return true;
+  } else if (astNode->getType() == STR("|")) {
+    if (!tg->generateOr(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astTargetType;
+    return true;
+  } else if (astNode->getType() == STR("$")) {
+    if (!tg->generateXor(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astTargetType;
+    return true;
+  } else {
+    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+  }
+}
+
+
+Bool ExpressionGenerator::_generateComparisonOp(
+  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+  VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
+  if (paramAstTypes->getCount() != 2) {
+    throw EXCEPTION(InvalidArgumentException,
+      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
+    );
+  }
+
+  GenResult param1, param2;
+  if (!expGenerator->dereferenceIfNeeded(
+    tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), param1
+  )) return false;
+  if (!expGenerator->dereferenceIfNeeded(
+    tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), param2
+  )) return false;
+  Ast::Type *astTargetType = 0;
+
+  if (param1.astType->isDerivedFrom<Ast::FloatType>() && param2.astType->isDerivedFrom<Ast::FloatType>()) {
+    // Two floats.
+    auto floatType1 = static_cast<Ast::FloatType*>(param1.astType);
+    auto floatType2 = static_cast<Ast::FloatType*>(param2.astType);
+    auto bitCount1 = floatType1->getBitCount(expGenerator->astHelper);
+    auto bitCount2 = floatType2->getBitCount(expGenerator->astHelper);
+    astTargetType = bitCount1 >= bitCount2 ? floatType1 : floatType2;
+  } else if (param1.astType->isDerivedFrom<Ast::FloatType>() && param2.astType->isDerivedFrom<Ast::IntegerType>()) {
+    // Float and int.
+    astTargetType = param1.astType;
+  } else if (param1.astType->isDerivedFrom<Ast::IntegerType>() && param2.astType->isDerivedFrom<Ast::FloatType>()) {
+    // Int and float.
+    astTargetType = param2.astType;
+  } else if (param1.astType->isDerivedFrom<Ast::IntegerType>() && param2.astType->isDerivedFrom<Ast::IntegerType>()) {
+    // Two integers.
+    auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
+    auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
+    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper);
+    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
+    auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
+    if (!integerType1->isSigned() && !integerType2->isSigned()) {
+      astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
+    } else if (integerType1->isSigned() && integerType2->isSigned()) {
+      astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
+    } else if (bitCount2 == 1) {
+      astTargetType = integerType1;
+    } else if (bitCount1 == 1) {
+      astTargetType = integerType2;
+    } else {
+      // error
+      expGenerator->noticeStore->add(
+        std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      );
+      return false;
+    }
+  } else {
+    // Error.
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  if (!g->generateCast(tg, tgContext, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
+    return false;
+  }
+  if (!g->generateCast(tg, tgContext, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
+    return false;
+  }
+
+  TiObject *tgTargetType;
+  if (!g->getGeneratedType(astTargetType, tg, tgTargetType, 0)) {
+    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+  }
+
+  if (astNode->getType() == STR("==")) {
+    if (!tg->generateEqual(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = expGenerator->astHelper->getBoolType();
+    return true;
+  } else if (astNode->getType() == STR("!=")) {
+    if (!tg->generateNotEqual(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = expGenerator->astHelper->getBoolType();
+    return true;
+  } else if (astNode->getType() == STR(">")) {
+    if (!tg->generateGreaterThan(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = expGenerator->astHelper->getBoolType();
+    return true;
+  } else if (astNode->getType() == STR(">=")) {
+    if (!tg->generateGreaterThanOrEqual(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = expGenerator->astHelper->getBoolType();
+    return true;
+  } else if (astNode->getType() == STR("<")) {
+    if (!tg->generateLessThan(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = expGenerator->astHelper->getBoolType();
+    return true;
+  } else if (astNode->getType() == STR("<=")) {
+    if (!tg->generateLessThanOrEqual(
+      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+    )) return false;
+    result.astType = expGenerator->astHelper->getBoolType();
+    return true;
+  } else {
+    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent a comparison operator."));
+  }
+}
+
+
+Bool ExpressionGenerator::_generateAssignOp(
+  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+  VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
+  if (paramAstTypes->getCount() != 2) {
+    throw EXCEPTION(InvalidArgumentException,
+      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
+    );
+  }
+
+  auto astRefType = ti_cast<Ast::ReferenceType>(paramAstTypes->get(0));
+  if (astRefType == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  GenResult param;
+  if (!expGenerator->dereferenceIfNeeded(
+    tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), param
+  )) return false;
+  Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
+
+  if (
+    (!astContentType->isDerivedFrom<Ast::FloatType>() && !astContentType->isDerivedFrom<Ast::IntegerType>()) ||
+    (!param.astType->isDerivedFrom<Ast::FloatType>() && !param.astType->isDerivedFrom<Ast::IntegerType>())
+  ) {
+    if (!param.astType->isImplicitlyCastableTo(astContentType, expGenerator->astHelper, tg->getExecutionContext())) {
+      expGenerator->noticeStore->add(
+        std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      );
+      return false;
+    }
+  }
+
+  if (!g->generateCast(tg, tgContext, param.astType, astContentType, param.targetData.get(), param.targetData)) {
+    return false;
+  }
+
+  TiObject *tgContentType;
+  if (!g->getGeneratedType(astContentType, tg, tgContentType, 0)) {
+    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+  }
+
+  if (astNode->getType() == STR("=")) {
+    if (!tg->generateAssign(
+      tgContext, tgContentType, param.targetData.get(), paramTgValues->getElement(0), result.targetData
+    )) return false;
+    result.astType = astRefType;
+    return true;
+  } else {
+    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+  }
+}
+
+
+Bool ExpressionGenerator::_generateArithmeticAssignOp(
+  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+  VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
+  if (paramAstTypes->getCount() != 2) {
+    throw EXCEPTION(InvalidArgumentException,
+      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
+    );
+  }
+
+  auto astRefType = ti_cast<Ast::ReferenceType>(paramAstTypes->get(0));
+  if (astRefType == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  GenResult param;
+  if (!expGenerator->dereferenceIfNeeded(
+    tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), param
+  )) return false;
+  Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
+
+  if (
+    (!astContentType->isDerivedFrom<Ast::FloatType>() && !astContentType->isDerivedFrom<Ast::IntegerType>()) ||
+    (!param.astType->isDerivedFrom<Ast::FloatType>() && !param.astType->isDerivedFrom<Ast::IntegerType>())
+  ) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  if (!g->generateCast(tg, tgContext, param.astType, astContentType, param.targetData.get(), param.targetData)) {
+    return false;
+  }
+
+  TiObject *tgContentType;
+  if (!g->getGeneratedType(astContentType, tg, tgContentType, 0)) {
+    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+  }
+
+  if (astNode->getType() == STR("+=")) {
+    if (!tg->generateAddAssign(
+      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astRefType;
+    return true;
+  } else if (astNode->getType() == STR("-=")) {
+    if (!tg->generateSubAssign(
+      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astRefType;
+    return true;
+  } else if (astNode->getType() == STR("*=")) {
+    if (!tg->generateMulAssign(
+      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astRefType;
+    return true;
+  } else if (astNode->getType() == STR("/=")) {
+    if (!tg->generateDivAssign(
+      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astRefType;
+    return true;
+  } else {
+    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+  }
+}
+
+
+Bool ExpressionGenerator::_generateBinaryAssignOp(
+  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+  VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
+  if (paramAstTypes->getCount() != 2) {
+    throw EXCEPTION(InvalidArgumentException,
+      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
+    );
+  }
+
+  auto astRefType = ti_cast<Ast::ReferenceType>(paramAstTypes->get(0));
+  if (astRefType == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  GenResult param;
+  if (!expGenerator->dereferenceIfNeeded(
+    tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), param
+  )) return false;
+  Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
+
+  if (!astContentType->isDerivedFrom<Ast::IntegerType>() || !param.astType->isDerivedFrom<Ast::IntegerType>()) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  if (!g->generateCast(tg, tgContext, param.astType, astContentType, param.targetData.get(), param.targetData)) {
+    return false;
+  }
+
+  TiObject *tgContentType;
+  if (!g->getGeneratedType(astContentType, tg, tgContentType, 0)) {
+    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+  }
+
+  if (astNode->getType() == STR("%=")) {
+    if (!tg->generateRemAssign(
+      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astRefType;
+    return true;
+  } else if (astNode->getType() == STR(">>=")) {
+    if (!tg->generateShrAssign(
+      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astRefType;
+    return true;
+  } else if (astNode->getType() == STR("<<=")) {
+    if (!tg->generateShlAssign(
+      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astRefType;
+    return true;
+  } else if (astNode->getType() == STR("&=")) {
+    if (!tg->generateAndAssign(
+      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astRefType;
+    return true;
+  } else if (astNode->getType() == STR("|=")) {
+    if (!tg->generateOrAssign(
+      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astRefType;
+    return true;
+  } else if (astNode->getType() == STR("$=")) {
+    if (!tg->generateXorAssign(
+      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+    )) return false;
+    result.astType = astRefType;
+    return true;
+  } else {
+    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+  }
+}
+
+
+Bool ExpressionGenerator::_generateUnaryValOp(
+  TiObject *self, Core::Data::Ast::OutfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+  VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
+  if (paramAstTypes->getCount() != 1) {
+    throw EXCEPTION(InvalidArgumentException,
+      STR("paramAstTypes"), STR("Must contain exactly one element."), paramAstTypes->getCount()
+    );
+  }
+
+  GenResult param;
+  if (!expGenerator->dereferenceIfNeeded(
+    tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), param
+  )) return false;
+  if (astNode->getType() == STR("+")) {
+    // This is a no-op.
+    result = param;
+    return true;
+  }
+
+  Ast::Type *astTargetType = 0;
+  if (param.astType->isDerivedFrom<Ast::FloatType>()) {
+    astTargetType = static_cast<Ast::FloatType*>(param.astType);
+  } else if (param.astType->isDerivedFrom<Ast::IntegerType>()) {
+    auto integerType = static_cast<Ast::IntegerType*>(param.astType);
+    auto bitCount = integerType->getBitCount(expGenerator->astHelper);
+    astTargetType = expGenerator->astHelper->getIntType(bitCount);
+  } else {
+    // Error.
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  if (!g->generateCast(tg, tgContext, param.astType, astTargetType, param.targetData.get(), param.targetData)) {
+    return false;
+  }
+
+  TiObject *tgTargetType;
+  if (!g->getGeneratedType(astTargetType, tg, tgTargetType, 0)) {
+    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+  }
+
+  if (astNode->getType() == STR("-")) {
+    if (!tg->generateNeg(tgContext, tgTargetType, param.targetData.get(), result.targetData)) return false;
+    result.astType = astTargetType;
+    return true;
+  } else {
+    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+  }
+}
+
+
+Bool ExpressionGenerator::_generateIntUnaryValOp(
+  TiObject *self, Core::Data::Ast::OutfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+  VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
+  if (paramAstTypes->getCount() != 1) {
+    throw EXCEPTION(InvalidArgumentException,
+      STR("paramAstTypes"), STR("Must contain exactly one element."), paramAstTypes->getCount()
+    );
+  }
+
+  GenResult param;
+  if (!expGenerator->dereferenceIfNeeded(
+    tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), param
+  )) return false;
+
+  Ast::Type *astTargetType = 0;
+  if (param.astType->isDerivedFrom<Ast::IntegerType>()) {
+    astTargetType = static_cast<Ast::IntegerType*>(param.astType);
+  } else {
+    // Error.
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  if (!g->generateCast(tg, tgContext, param.astType, astTargetType, param.targetData.get(), param.targetData)) {
+    return false;
+  }
+
+  TiObject *tgTargetType;
+  if (!g->getGeneratedType(astTargetType, tg, tgTargetType, 0)) {
+    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+  }
+
+  if (astNode->getType() == STR("!")) {
+    if (!tg->generateNot(tgContext, tgTargetType, param.targetData.get(), result.targetData)) return false;
+    result.astType = astTargetType;
+    return true;
+  } else {
+    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+  }
+}
+
+
+Bool ExpressionGenerator::_generateUnaryVarOp(
+  TiObject *self, Core::Data::Ast::OutfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+  VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
+  if (paramAstTypes->getCount() != 1) {
+    throw EXCEPTION(InvalidArgumentException,
+      STR("paramAstTypes"), STR("Must contain exactly one element."), paramAstTypes->getCount()
+    );
+  }
+
+  auto astRefType = ti_cast<Ast::ReferenceType>(paramAstTypes->get(0));
+  if (astRefType == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
+
+  if (!astContentType->isDerivedFrom<Ast::IntegerType>() && !astContentType->isDerivedFrom<Ast::FloatType>()) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  TiObject *tgContentType;
+  if (!g->getGeneratedType(astContentType, tg, tgContentType, 0)) {
+    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+  }
+
+  if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
+    if (astNode->getType() == STR("--")) {
+      if (!tg->generateEarlyDec(
+        tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+      )) return false;
+      result.astType = astContentType;
+      return true;
+    } else if (astNode->getType() == STR("++")) {
+      if (!tg->generateEarlyInc(
+        tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+      )) return false;
+      result.astType = astContentType;
+      return true;
+    } else {
+      throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+    }
+  } else {
+    if (astNode->getType() == STR("--")) {
+      if (!tg->generateLateDec(
+        tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+      )) return false;
+      result.astType = astContentType;
+      return true;
+    } else if (astNode->getType() == STR("++")) {
+      if (!tg->generateLateInc(
+        tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+      )) return false;
+      result.astType = astContentType;
+      return true;
+    } else {
+      throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+    }
+  }
 }
 
 
@@ -915,13 +1616,6 @@ Bool ExpressionGenerator::_generateSizeOp(
   // Prepare the noop target generator.
   expGenerator->noOpTargetGenerator->setExecutionContext(getSharedPtr(tg->getExecutionContext()));
 
-  // Generate the Int64 type needed for the result.
-  auto astInt64Type = expGenerator->astHelper->getInt64Type();
-  TiObject *tgInt64Type;
-  if (!g->getGeneratedType(astInt64Type, tg, tgInt64Type, 0)) {
-    throw EXCEPTION(GenericException, STR("Failed to generate Int64 type."));
-  }
-
   // Get the operand type.
   auto operand = astNode->getOperand().get();
   if (operand == 0) {
@@ -955,9 +1649,14 @@ Bool ExpressionGenerator::_generateSizeOp(
   }
   if (!retVal) return false;
 
+  // Generate the Word64 type needed for the result.
+  auto bitCount = expGenerator->astHelper->getNeededWordSize(size);
+  if (bitCount < 8) bitCount = 8;
+  auto astWordType = expGenerator->astHelper->getWordType(bitCount);
+
   // Generate a constant with that size.
-  if (!tg->generateIntLiteral(tgContext, 64, size, result.targetData)) return false;
-  result.astType = astInt64Type;
+  if (!tg->generateIntLiteral(tgContext, bitCount, false, size, result.targetData)) return false;
+  result.astType = astWordType;
   return true;
 }
 
@@ -1002,7 +1701,7 @@ Bool ExpressionGenerator::_generateCharLiteral(
 
   auto bitCount = charAstType->getBitCount(expGenerator->astHelper);
 
-  if (!tg->generateIntLiteral(tgContext, bitCount, value, result.targetData)) return false;
+  if (!tg->generateIntLiteral(tgContext, bitCount, false, value, result.targetData)) return false;
   result.astType = charAstType;
   return true;
 }
@@ -1037,7 +1736,7 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
     base = 16;
     src += 2;
   }
-  Long value = 0;
+  LongWord value = 0;
   while (
     (*src >= CHR('0') && *src <= CHR('9')) ||
     (*src >= CHR('a') && *src <= CHR('f')) ||
@@ -1054,17 +1753,20 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   }
 
   // Is it a signed number?
-  // Bool signedNum = true;
+  // Give special treatment to 0 and 1 and consider it unsigned.
+  Bool signedNum = value == 0 || value == 1 ? false : true;
   if (*src == CHR('u') || *src == CHR('U')) {
-    // signedNum = false;
+    signedNum = false;
     ++src;
   } else if (compareStr(src, STR("ط"), 2) == 0) {
-    // signedNum = false;
+    signedNum = false;
     src += 2;
   }
 
   // Determine integer size.
-  Int size = 32;
+  Int size = signedNum ?
+    expGenerator->astHelper->getNeededIntSize((LongInt)value) :
+    expGenerator->astHelper->getNeededWordSize(value);
   if (*src == CHR('i') || *src == CHR('I')) {
     ++src;
     if (getStrLen(src) > 0) size = std::stoi(src);
@@ -1074,7 +1776,12 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   }
 
   // Get the requested int type.
-  auto intAstType = expGenerator->astHelper->getIntType(size);
+  Ast::IntegerType *intAstType;
+  if (signedNum) {
+    intAstType = expGenerator->astHelper->getIntType(size);
+  } else {
+    intAstType = expGenerator->astHelper->getWordType(size);
+  }
   auto sourceLocation = astNode->findSourceLocation().get();
   expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation);
   TiObject *intTgType;
@@ -1085,7 +1792,7 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   if (!retVal) return false;
 
   // Generate the literal.
-  if (!tg->generateIntLiteral(tgContext, size, value, result.targetData)) return false;
+  if (!tg->generateIntLiteral(tgContext, size, signedNum, value, result.targetData)) return false;
   result.astType = intAstType;
   return true;
 }
@@ -1276,351 +1983,19 @@ Bool ExpressionGenerator::_generateFunctionCall(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  // is function built-in?
-  if (callee->getName().getStr().size() > 0 && callee->getName().getStr().at(0) == CHR('#')) {
-    return expGenerator->generateBuiltInFunctionCall(callee, paramAstTypes, paramTgValues, g, tg, tgContext, result);
+  if (callee->getInlined()) {
+    // TODO: Generate inlined function body.
+    return false;
   } else {
-    if (callee->getInlined()) {
-      // TODO: Generate inlined function body.
-      return false;
-    } else {
-      return expGenerator->generateUserFunctionCall(callee, paramAstTypes, paramTgValues, g, tg, tgContext, result);
-    }
-  }
-}
+    // Build funcion declaration.
+    if (!g->generateFunctionDecl(callee, tg)) return false;
+    auto tgFunction = getCodeGenData<TiObject>(callee);
 
-
-Bool ExpressionGenerator::_generateBuiltInFunctionCall(
-  TiObject *self, Spp::Ast::Function *callee,
-  Containing<TiObject> *paramAstTypes, Containing<TiObject> *paramTgValues,
-  Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
-) {
-  PREPARE_SELF(expGenerator, ExpressionGenerator);
-
-  if (paramAstTypes == 0 || paramAstTypes->getElementCount() == 0) {
-    throw EXCEPTION(GenericException, STR("Param AST types are missing."));
-  }
-
-  auto astRetType = callee->getType()->traceRetType(expGenerator->astHelper);
-
-  Ast::Type *astType = expGenerator->astHelper->getValueTypeFor(paramAstTypes->getElement(0));
-  TiObject *tgType;
-  if (!g->getGeneratedType(astType, tg, tgType, 0)) return false;
-
-  // Binary Math Operations
-  if (callee->getName() == STR("#add")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #add built-in function."));
-    }
-    if (!tg->generateAdd(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#sub")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #sub built-in function."));
-    }
-    if (!tg->generateSub(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#mul")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #mul built-in function."));
-    }
-    if (!tg->generateMul(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#div")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #div built-in function."));
-    }
-    if (!tg->generateDiv(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#rem")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #rem built-in function."));
-    }
-    if (!tg->generateRem(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#shr")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #shr built-in function."));
-    }
-    if (!tg->generateShr(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#shl")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #shl built-in function."));
-    }
-    if (!tg->generateShl(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#and")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #and built-in function."));
-    }
-    if (!tg->generateAnd(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#or")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #or built-in function."));
-    }
-    if (!tg->generateOr(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#xor")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #xor built-in function."));
-    }
-    if (!tg->generateXor(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#addAssign")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #addAssign built-in function."));
-    }
-    if (!tg->generateAddAssign(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#subAssign")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #subAssign built-in function."));
-    }
-    if (!tg->generateSubAssign(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#mulAssign")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #mulAssign built-in function."));
-    }
-    if (!tg->generateMulAssign(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#divAssign")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #divAssign built-in function."));
-    }
-    if (!tg->generateDivAssign(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#remAssign")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #remAssign built-in function."));
-    }
-    if (!tg->generateRemAssign(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#shrAssign")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #shrAssign built-in function."));
-    }
-    if (!tg->generateShrAssign(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#shlAssign")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #shlAssign built-in function."));
-    }
-    if (!tg->generateShlAssign(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#andAssign")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #andAssign built-in function."));
-    }
-    if (!tg->generateAndAssign(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#orAssign")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #orAssign built-in function."));
-    }
-    if (!tg->generateOrAssign(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#xorAssign")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #xorAssign built-in function."));
-    }
-    if (!tg->generateXorAssign(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-
-  // Unary Operations
-  } else if (callee->getName() == STR("#pos")) {
-    if (paramTgValues->getElementCount() != 1) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #pos built-in function."));
-    }
-    // Unary + operator is a no-op.
-    result.astType = ti_cast<Ast::Type>(paramAstTypes->getElement(0));
-    result.targetData = getSharedPtr(paramTgValues->getElement(0));
-    return true;
-  } else if (callee->getName() == STR("#neg")) {
-    if (paramTgValues->getElementCount() != 1) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #neg built-in function."));
-    }
-    if (!tg->generateNeg(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#not")) {
-    if (paramTgValues->getElementCount() != 1) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #not built-in function."));
-    }
-    if (!tg->generateNot(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#earlyInc")) {
-    if (paramTgValues->getElementCount() != 1) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #earlyInc built-in function."));
-    }
-    if (!tg->generateEarlyInc(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#earlyDec")) {
-    if (paramTgValues->getElementCount() != 1) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #earlyDec built-in function."));
-    }
-    if (!tg->generateEarlyDec(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#lateInc")) {
-    if (paramTgValues->getElementCount() != 1) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #lateInc built-in function."));
-    }
-    if (!tg->generateLateInc(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#lateDec")) {
-    if (paramTgValues->getElementCount() != 1) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #lateDec built-in function."));
-    }
-    if (!tg->generateLateDec(tgContext, tgType, paramTgValues->getElement(0), result.targetData)) return false;
-    result.astType = astRetType;
-    return true;
-
-  // Comparison Operations
-  } else if (callee->getName() == STR("#equal")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #equal built-in function."));
-    }
-    if (!tg->generateEqual(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#notEqual")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #notEqual built-in function."));
-    }
-    if (!tg->generateNotEqual(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#greaterThan")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #greaterThan built-in function."));
-    }
-    if (!tg->generateGreaterThan(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#greaterThanOrEqual")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(
-        GenericException, STR("Unexpected argument count in call to #greaterThanOrEqual built-in function.")
-      );
-    }
-    if (!tg->generateGreaterThanOrEqual(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#lessThan")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, STR("Unexpected argument count in call to #lessThan built-in function."));
-    }
-    if (!tg->generateLessThan(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
-    return true;
-  } else if (callee->getName() == STR("#lessThanOrEqual")) {
-    if (paramTgValues->getElementCount() != 2) {
-      throw EXCEPTION(
-        GenericException, STR("Unexpected argument count in call to #lessThanOrEqual built-in function.")
-      );
-    }
-    if (!tg->generateLessThanOrEqual(
-      tgContext, tgType, paramTgValues->getElement(0), paramTgValues->getElement(1), result.targetData
-    )) return false;
-    result.astType = astRetType;
+    // Create function call.
+    if (!tg->generateFunctionCall(tgContext, tgFunction, paramTgValues, result.targetData)) return false;
+    result.astType = callee->getType()->traceRetType(expGenerator->astHelper);
     return true;
   }
-
-  throw EXCEPTION(GenericException, STR("Unexpected built-in function."));
-}
-
-
-Bool ExpressionGenerator::_generateUserFunctionCall(
-    TiObject *self, Spp::Ast::Function *callee,
-    Containing<TiObject> *paramAstTypes, Containing<TiObject> *paramTgValues,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
-) {
-  PREPARE_SELF(expGenerator, ExpressionGenerator);
-
-  // Build funcion declaration.
-  if (!g->generateFunctionDecl(callee, tg)) return false;
-  auto tgFunction = getCodeGenData<TiObject>(callee);
-
-  // Create function call.
-  if (!tg->generateFunctionCall(tgContext, tgFunction, paramTgValues, result.targetData)) return false;
-  result.astType = callee->getType()->traceRetType(expGenerator->astHelper);
-  return true;
 }
 
 
@@ -1681,7 +2056,7 @@ void ExpressionGenerator::prepareFunctionParams(
   for (Int i = 0; i < paramTgVals->getElementCount(); ++i) {
     Ast::Type *srcType = static_cast<Ast::Type*>(paramAstTypes->getElement(i));
     auto status = calleeType->matchNextArg(srcType, context, this->astHelper, tg->getExecutionContext());
-    ASSERT(status != Ast::CallMatchStatus::NONE);
+    ASSERT(status != Ast::TypeMatchStatus::NONE);
 
     // Cast the value if needed.
     if (context.type != 0) {

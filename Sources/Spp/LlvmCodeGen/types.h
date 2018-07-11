@@ -87,12 +87,13 @@ class IntegerType : public Type
 
   private: llvm::IntegerType *llvmType;
   private: Word size;
+  private: Bool withSign;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: IntegerType(llvm::IntegerType *t, Word s) : llvmType(t), size(s)
+  public: IntegerType(llvm::IntegerType *t, Word s, Bool ws) : llvmType(t), size(s), withSign(ws)
   {
   }
 
@@ -108,6 +109,11 @@ class IntegerType : public Type
   public: Word getSize() const
   {
     return this->size;
+  }
+
+  public: Bool isSigned() const
+  {
+    return this->withSign;
   }
 
 }; // class

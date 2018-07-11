@@ -138,26 +138,26 @@ DEFINE_NOTICE(InvalidConditionValueNotice, "Spp.Notices", "Spp", "alusus.net", "
 DEFINE_NOTICE(InvalidReferenceNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1008", 1,
   STR("Invalid symbol.")
 );
-DEFINE_NOTICE(NotImplicitlyCastableNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1009", 1,
-  STR("Value is not implicitly castable to target type.")
-);
-DEFINE_NOTICE(InvalidSizeOperandNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1010", 1,
+DEFINE_NOTICE(InvalidSizeOperandNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1009", 1,
   STR("Invalid operand for ~size operator.")
 );
-DEFINE_NOTICE(InvalidExpressionListNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1011", 1,
+DEFINE_NOTICE(InvalidExpressionListNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1010", 1,
   STR("Invalid expression list.")
 );
-DEFINE_NOTICE(InvalidContinueStepsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1012", 1,
+DEFINE_NOTICE(InvalidContinueStepsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1011", 1,
   STR("Invalid continue steps.")
 );
-DEFINE_NOTICE(InvalidBreakStepsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1013", 1,
+DEFINE_NOTICE(InvalidBreakStepsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1012", 1,
   STR("Invalid break steps.")
 );
-DEFINE_NOTICE(InvalidLogicalOperandNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1014", 1,
+DEFINE_NOTICE(InvalidLogicalOperandNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1013", 1,
   STR("Invalid operand of logical operator.")
 );
-DEFINE_NOTICE(CircularUserTypeDefinitionsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1015", 1,
+DEFINE_NOTICE(CircularUserTypeDefinitionsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1014", 1,
   STR("Circular user type definitions.")
+);
+DEFINE_NOTICE(IncompatibleOperatorTypesNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1015", 1,
+  STR("Incompatible types for the given operator.")
 );
 
 } // namespace

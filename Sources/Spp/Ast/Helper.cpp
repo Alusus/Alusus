@@ -38,10 +38,14 @@ void Helper::initBindingCaches()
     &this->getCharArrayType,
     &this->getInt64Type,
     &this->getIntType,
+    &this->getWord64Type,
+    &this->getWordType,
     &this->getFloatType,
     &this->getVoidType,
     &this->resolveNodePath,
-    &this->getFunctionName
+    &this->getFunctionName,
+    &this->getNeededIntSize,
+    &this->getNeededWordSize
   });
 }
 
@@ -64,10 +68,14 @@ void Helper::initBindings()
   this->getCharArrayType = &Helper::_getCharArrayType;
   this->getInt64Type = &Helper::_getInt64Type;
   this->getIntType = &Helper::_getIntType;
+  this->getWord64Type = &Helper::_getWord64Type;
+  this->getWordType = &Helper::_getWordType;
   this->getFloatType = &Helper::_getFloatType;
   this->getVoidType = &Helper::_getVoidType;
   this->resolveNodePath = &Helper::_resolveNodePath;
   this->getFunctionName = &Helper::_getFunctionName;
+  this->getNeededIntSize = &Helper::_getNeededIntSize;
+  this->getNeededWordSize = &Helper::_getNeededWordSize;
 }
 
 
@@ -85,26 +93,26 @@ Bool Helper::_isVarDefinition(TiObject *self, TiObject *obj)
 
 Bool Helper::lookupCalleeByName(
   Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
-  Containing<TiObject> *types, ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
+  Containing<TiObject> *types, ExecutionContext const *ec,
+  TiObject *&callee, Type *&calleeType, SharedPtr<Core::Notices::Notice> &notice
 ) {
   Core::Data::Ast::Identifier identifier;
   identifier.setValue(name);
   identifier.setSourceLocation(sl);
-  return this->lookupCallee(&identifier, astNode, searchOwners, types, ec, callee, calleeType);
+  return this->lookupCallee(&identifier, astNode, searchOwners, types, ec, callee, calleeType, notice);
 }
 
 
 Bool Helper::_lookupCallee(
   TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
   Containing<TiObject> *types, ExecutionContext const *ec,
-  TiObject *&callee, Type *&calleeType
+  TiObject *&callee, Type *&calleeType, SharedPtr<Core::Notices::Notice> &notice
 ) {
   PREPARE_SELF(helper, Helper);
 
   callee = 0;
   calleeType = 0;
-  CallMatchStatus matchStatus = CallMatchStatus::NONE;
-  SharedPtr<Core::Notices::Notice> notice;
+  TypeMatchStatus matchStatus = TypeMatchStatus::NONE;
   helper->getSeeker()->foreach(ref, astNode,
     [=, &callee, &calleeType, &matchStatus, &notice]
       (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
@@ -119,17 +127,13 @@ Bool Helper::_lookupCallee(
       searchOwners ? 0 : Core::Data::Seeker::Flags::SKIP_OWNERS
   );
   // Did we have a matched callee?
-  // TODO:
   if (callee != 0) {
     return true;
   } else {
     if (notice != 0) {
       if (notice->getSourceLocation() == 0) notice->setSourceLocation(Core::Data::Ast::findSourceLocation(ref));
-      helper->noticeStore->add(notice);
     } else {
-      helper->noticeStore->add(
-        std::make_shared<Spp::Notices::UnknownSymbolNotice>(Core::Data::Ast::findSourceLocation(ref))
-      );
+      notice = std::make_shared<Spp::Notices::UnknownSymbolNotice>(Core::Data::Ast::findSourceLocation(ref));
     }
     return false;
   }
@@ -138,7 +142,7 @@ Bool Helper::_lookupCallee(
 
 Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
   TiObject *self, TiObject *obj, Containing<TiObject> *types, ExecutionContext const *ec,
-  CallMatchStatus &matchStatus, SharedPtr<Core::Notices::Notice> &notice,
+  TypeMatchStatus &matchStatus, SharedPtr<Core::Notices::Notice> &notice,
   TiObject *&callee, Type *&calleeType
 ) {
   PREPARE_SELF(helper, Helper);
@@ -146,11 +150,11 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
   if (obj != 0 && obj->isDerivedFrom<Ast::Function>()) {
     // Match functions.
     auto f = static_cast<Ast::Function*>(obj);
-    CallMatchStatus ms;
+    TypeMatchStatus ms;
     ms = f->getType()->matchCall(types, helper, ec);
-    if (ms == CallMatchStatus::NONE && matchStatus == CallMatchStatus::NONE) {
+    if (ms == TypeMatchStatus::NONE && matchStatus == TypeMatchStatus::NONE) {
       notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
-    } else if (ms != CallMatchStatus::NONE && matchStatus == CallMatchStatus::NONE) {
+    } else if (ms >= TypeMatchStatus::IMPLICIT_CAST && matchStatus == TypeMatchStatus::NONE) {
       notice.reset();
       callee = f;
       calleeType = f->getType().get();
@@ -161,7 +165,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
         notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
       }
       // If this was an exact match there is no point in searching more.
-      if (ms == CallMatchStatus::EXACT) return Core::Data::Seeker::Verb::STOP;
+      if (ms == TypeMatchStatus::EXACT) return Core::Data::Seeker::Verb::STOP;
     } else if (ms > matchStatus) {
       notice.reset();
       callee  = f;
@@ -171,7 +175,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
     return Core::Data::Seeker::Verb::MOVE;
   } else if (obj != 0 && helper->isVarDefinition(obj)) {
     // Match variables
-    if (matchStatus != CallMatchStatus::NONE) {
+    if (matchStatus >= TypeMatchStatus::IMPLICIT_CAST) {
       if (
         Core::Data::findOwner<Block>(static_cast<Core::Data::Node*>(callee)) ==
         Core::Data::findOwner<Block>(static_cast<Core::Data::Node*>(obj))
@@ -192,7 +196,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
         notice.reset();
         callee = obj;
         calleeType = objType;
-        matchStatus = CallMatchStatus::EXACT;
+        matchStatus = TypeMatchStatus::EXACT;
       } else {
         notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
       }
@@ -201,7 +205,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
       if (funcType != 0) {
         // We have a function pointer.
         auto ms = funcType->matchCall(types, helper, ec);
-        if (funcType->matchCall(types, helper, ec) != CallMatchStatus::NONE) {
+        if (funcType->matchCall(types, helper, ec) >= TypeMatchStatus::IMPLICIT_CAST) {
           notice.reset();
           callee = obj;
           calleeType = objType;
@@ -216,7 +220,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
     return Core::Data::Seeker::Verb::STOP;
   } else {
     // Invalid
-    if (matchStatus != CallMatchStatus::NONE) {
+    if (matchStatus >= TypeMatchStatus::IMPLICIT_CAST) {
       if (
         Core::Data::findOwner<Block>(static_cast<Core::Data::Node*>(callee)) ==
         Core::Data::findOwner<Block>(static_cast<Core::Data::Node*>(obj))
@@ -398,7 +402,7 @@ IntegerType* Helper::_getBoolType(TiObject *self)
 {
   PREPARE_SELF(helper, Helper);
   if (helper->boolType == 0) {
-    helper->boolType = helper->getIntType(1);
+    helper->boolType = helper->getWordType(1);
   }
   return helper->boolType;
 }
@@ -408,7 +412,7 @@ IntegerType* Helper::_getCharType(TiObject *self)
 {
   PREPARE_SELF(helper, Helper);
   if (helper->charType == 0) {
-    helper->charType = helper->getIntType(8);
+    helper->charType = helper->getWordType(8);
   }
   return helper->charType;
 }
@@ -418,14 +422,14 @@ PointerType* Helper::_getCharPtrType(TiObject *self)
 {
   PREPARE_SELF(helper, Helper);
   if (helper->charPtrType == 0) {
-    auto typeRef = helper->rootManager->parseExpression(STR("ptr[Int[8]]")).s_cast<Core::Data::Ast::Identifier>();
+    auto typeRef = helper->rootManager->parseExpression(STR("ptr[Word[8]]")).s_cast<Core::Data::Ast::Identifier>();
     typeRef->setOwner(helper->rootManager->getRootScope().get());
 
     helper->charPtrType = ti_cast<PointerType>(helper->getSeeker()->doGet(
       typeRef.get(), helper->rootManager->getRootScope().get()
     ));
     if (helper->charPtrType == 0) {
-      throw EXCEPTION(GenericException, STR("Invalid object found for ptr[Int[8]] type."));
+      throw EXCEPTION(GenericException, STR("Invalid object found for ptr[Word[8]] type."));
     }
   }
   return helper->charPtrType;
@@ -440,7 +444,7 @@ ArrayType* Helper::_getCharArrayType(TiObject *self, Word size)
   if (helper->charArrayTypeRef == 0) {
     // Create a new reference.
     StrStream stream;
-    stream << STR("array[Int[8],") << size << STR("]");
+    stream << STR("array[Word[8],") << size << STR("]");
     helper->charArrayTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
       .s_cast<Core::Data::Ast::ParamPass>();
     helper->charArrayTypeRef->setOwner(helper->rootManager->getRootScope().get());
@@ -497,6 +501,46 @@ IntegerType* Helper::_getIntType(TiObject *self, Word size)
   // Generate the llvm type.
   auto astType = ti_cast<Ast::IntegerType>(
     helper->getSeeker()->doGet(helper->integerTypeRef.get(), helper->rootManager->getRootScope().get())
+  );
+  if (astType == 0) {
+    throw EXCEPTION(GenericException, STR("Failed to get integer AST type."));
+  }
+  return astType;
+}
+
+
+IntegerType* Helper::_getWord64Type(TiObject *self)
+{
+  PREPARE_SELF(helper, Helper);
+  if (helper->word64Type == 0) {
+    helper->word64Type = helper->getWordType(64);
+  }
+  return helper->word64Type;
+}
+
+
+IntegerType* Helper::_getWordType(TiObject *self, Word size)
+{
+  PREPARE_SELF(helper, Helper);
+  // Prepare the reference.
+  if (helper->wordTypeRef == 0) {
+    // Create a new reference.
+    StrStream stream;
+    stream << STR("Word[") << size << STR("]");
+    helper->wordTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
+      .s_cast<Core::Data::Ast::ParamPass>();
+    helper->wordTypeRef->setOwner(helper->rootManager->getRootScope().get());
+  } else {
+    // Recycle the existing reference.
+    auto intLiteral = helper->wordTypeRef->getParam().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+    if (!intLiteral) {
+      throw EXCEPTION(GenericException, STR("Unexpected internal error."));
+    }
+    intLiteral->setValue(std::to_string(size).c_str());
+  }
+  // Generate the llvm type.
+  auto astType = ti_cast<Ast::IntegerType>(
+    helper->getSeeker()->doGet(helper->wordTypeRef.get(), helper->rootManager->getRootScope().get())
   );
   if (astType == 0) {
     throw EXCEPTION(GenericException, STR("Failed to get integer AST type."));
@@ -570,6 +614,37 @@ Str const& Helper::_getFunctionName(TiObject *self, Function *astFunc)
     astFunc->setName(formattedName.c_str());
   }
   return astFunc->getName().getStr();
+}
+
+
+Word Helper::_getNeededIntSize(TiObject *self, LongInt value)
+{
+  if (value == 0 || value == -1) return 1;
+  else {
+    Word bitCount = 8;
+    for (Int i = 0; i < 7; ++i) {
+      value >>= 7;
+      if (value == 0 || value == -1) break;
+      value >>= 1;
+      bitCount += 8;
+    }
+    return bitCount;
+  }
+}
+
+
+Word Helper::_getNeededWordSize(TiObject *self, LongWord value)
+{
+  if (value == 0 || value == 1) return 1;
+  else {
+    Word bitCount = 8;
+    for (Int i = 0; i < 7; ++i) {
+      value >>= 8;
+      if (value == 0) break;
+      bitCount += 8;
+    }
+    return bitCount;
+  }
 }
 
 

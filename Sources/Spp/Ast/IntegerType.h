@@ -31,7 +31,17 @@ class IntegerType : public DataType
   //============================================================================
   // Member Variables
 
+  private: TiBool withSign;
+
   private: mutable TioSharedPtr bitCountRef;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_BINDING(DataType,
+    (withSign, TiBool, VALUE, setSigned(value), &withSign)
+  );
 
 
   //============================================================================
@@ -47,13 +57,23 @@ class IntegerType : public DataType
   //============================================================================
   // Member Functions
 
+  public: void setSigned(Bool s)
+  {
+    this->withSign = s;
+  }
+  public: void setSigned(TiBool const *s)
+  {
+    this->setSigned(s == 0 ? false : s->get());
+  }
+
+  public: Bool isSigned() const
+  {
+    return this->withSign.get();
+  }
+
   public: Word getBitCount(Helper *helper) const;
 
-  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const;
-
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
-
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
+  public: virtual TypeMatchStatus matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
 }; // class
 

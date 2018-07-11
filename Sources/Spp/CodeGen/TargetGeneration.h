@@ -151,7 +151,7 @@ class TargetGeneration : public ObjTiInterface
   );
 
   public: METHOD_BINDING_CACHE(generateIntType,
-    Bool, (Word /* bitCount */, TioSharedPtr& /* type */)
+    Bool, (Word /* bitCount */, Bool /* withSign */, TioSharedPtr& /* type */)
   );
 
   public: METHOD_BINDING_CACHE(generateFloatType,
@@ -648,7 +648,7 @@ class TargetGeneration : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateIntLiteral,
     Bool, (
-      TiObject* /* context */, Word /* bitCount */, Long /* value */, TioSharedPtr& /* destVal */
+      TiObject* /* context */, Word /* bitCount */, Bool /* withSign */, LongInt /* value */, TioSharedPtr& /* destVal */
     )
   );
 

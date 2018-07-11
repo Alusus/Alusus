@@ -18,94 +18,53 @@ namespace Spp::Ast
 //==============================================================================
 // Member Functions
 
-Bool FunctionType::isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus FunctionType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
 {
   VALIDATE_NOT_NULL(type, helper);
-  if (this == type) return true;
+  if (this == type) return TypeMatchStatus::EXACT;
 
   auto functionType = ti_cast<FunctionType>(type);
-  if (functionType == 0) return false;
+  if (functionType == 0) return TypeMatchStatus::NONE;
 
   // Check return type.
   auto thisRetType = this->traceRetType(helper);
   auto retType = functionType->traceRetType(helper);
-  if (!thisRetType->isEqual(retType, helper, ec)) return false;
+  if (!thisRetType->isEqual(retType, helper, ec)) return TypeMatchStatus::NONE;
 
   // Check args.
   Word thisArgCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
   Word argCount = functionType->argTypes == 0 ? 0 : functionType->argTypes->getCount();
-  if (thisArgCount != argCount) return false;
-  else if (thisArgCount == 0) return true;
+  if (thisArgCount != argCount) return TypeMatchStatus::NONE;
+  else if (thisArgCount == 0) return TypeMatchStatus::EXACT;
   else {
+    auto result = TypeMatchStatus::EXACT;
     for (Int i = 0; i < argCount; ++i) {
       auto thisArg = this->argTypes->getElement(i);
       auto arg = functionType->argTypes->getElement(i);
       auto thisArgPack = ti_cast<ArgPack>(thisArg);
       auto argPack = ti_cast<ArgPack>(arg);
 
-      if ((thisArgPack == 0 && argPack != 0) || (thisArgPack != 0 && argPack == 0)) return false;
+      if ((thisArgPack == 0 && argPack != 0) || (thisArgPack != 0 && argPack == 0)) return TypeMatchStatus::NONE;
       else if (argPack != 0) {
         // Check arg packs.
-        if (thisArgPack->getMin() != argPack->getMin() || thisArgPack->getMax() != argPack->getMax()) return false;
+        if (thisArgPack->getMin() <= argPack->getMin() || thisArgPack->getMax() >= argPack->getMax()) {
+          return TypeMatchStatus::NONE;
+        } else if (thisArgPack->getMin() != argPack->getMin() || thisArgPack->getMax() != argPack->getMax()) {
+          result = TypeMatchStatus::IMPLICIT_CAST;
+        }
         Type *thisArgType = thisArgPack->getArgType() == 0 ? 0 : helper->traceType(thisArgPack->getArgType().get());
         Type *argType = argPack->getArgType() == 0 ? 0 : helper->traceType(argPack->getArgType().get());
-        if ((thisArgType == 0 && argType != 0) || (thisArgType != 0 && argType == 0)) return false;
-        else if (thisArgType != 0 && !thisArgType->isEqual(argType, helper, ec)) return false;
+        if ((thisArgType == 0 && argType != 0) || (thisArgType != 0 && argType == 0)) return TypeMatchStatus::NONE;
+        else if (thisArgType != 0 && !thisArgType->isEqual(argType, helper, ec)) return TypeMatchStatus::NONE;
       } else {
         // Check regular args.
         Type *thisArgType = thisArg == 0 ? 0 : helper->traceType(thisArg);
         Type *argType = arg == 0 ? 0 : helper->traceType(arg);
         ASSERT(thisArgType != 0 && argType != 0);
-        if (!thisArgType->isEqual(argType, helper, ec)) return false;
+        if (!thisArgType->isEqual(argType, helper, ec)) return TypeMatchStatus::NONE;
       }
     }
-    return true;
-  }
-}
-
-
-Bool FunctionType::isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
-{
-  VALIDATE_NOT_NULL(type, helper);
-  if (this == type) return true;
-
-  auto functionType = ti_cast<FunctionType>(type);
-  if (functionType == 0) return false;
-
-  // Check return type.
-  auto thisRetType = this->traceRetType(helper);
-  auto retType = functionType->traceRetType(helper);
-  if (!thisRetType->isEqual(retType, helper, ec)) return false;
-
-  // Check args.
-  Word thisArgCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
-  Word argCount = functionType->argTypes == 0 ? 0 : functionType->argTypes->getCount();
-  if (thisArgCount != argCount) return false;
-  else if (thisArgCount == 0) return true;
-  else {
-    for (Int i = 0; i < argCount; ++i) {
-      auto thisArg = this->argTypes->getElement(i);
-      auto arg = functionType->argTypes->getElement(i);
-      auto thisArgPack = ti_cast<ArgPack>(thisArg);
-      auto argPack = ti_cast<ArgPack>(arg);
-
-      if ((thisArgPack == 0 && argPack != 0) || (thisArgPack != 0 && argPack == 0)) return false;
-      else if (argPack != 0) {
-        // Check arg packs.
-        if (thisArgPack->getMin() <= argPack->getMin() || thisArgPack->getMax() >= argPack->getMax()) return false;
-        Type *thisArgType = thisArgPack->getArgType() == 0 ? 0 : helper->traceType(thisArgPack->getArgType().get());
-        Type *argType = argPack->getArgType() == 0 ? 0 : helper->traceType(argPack->getArgType().get());
-        if ((thisArgType == 0 && argType != 0) || (thisArgType != 0 && argType == 0)) return false;
-        else if (thisArgType != 0 && !thisArgType->isEqual(argType, helper, ec)) return false;
-      } else {
-        // Check regular args.
-        Type *thisArgType = thisArg == 0 ? 0 : helper->traceType(thisArg);
-        Type *argType = arg == 0 ? 0 : helper->traceType(arg);
-        ASSERT(thisArgType != 0 && argType != 0);
-        if (!thisArgType->isEqual(argType, helper, ec)) return false;
-      }
-    }
-    return true;
+    return result;
   }
 }
 
@@ -141,7 +100,7 @@ Type* FunctionType::traceRetType(Helper *helper) const
 }
 
 
-CallMatchStatus FunctionType::matchCall(
+TypeMatchStatus FunctionType::matchCall(
   Containing<TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
 ) {
   if (helper == 0) {
@@ -150,20 +109,18 @@ CallMatchStatus FunctionType::matchCall(
 
   Word argCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
   if (argCount == 0) {
-    return types == 0 || types->getElementCount() == 0 ? CallMatchStatus::EXACT : CallMatchStatus::NONE;
+    return types == 0 || types->getElementCount() == 0 ? TypeMatchStatus::EXACT : TypeMatchStatus::NONE;
   } else {
-    Bool casted = false;
-    Bool deref = false;
+    TypeMatchStatus result = TypeMatchStatus::EXACT;
     FunctionType::ArgMatchContext matchContext;
     if (types != 0) {
       for (Int i = 0; i < types->getElementCount(); ++i) {
-        CallMatchStatus status = this->matchNextArg(types->getElement(i), matchContext, helper, ec);
-        if (status == CallMatchStatus::NONE) return CallMatchStatus::NONE;
-        else if (status == CallMatchStatus::DEREF) deref = true;
-        else if (status == CallMatchStatus::CASTED) casted = true;
+        TypeMatchStatus status = this->matchNextArg(types->getElement(i), matchContext, helper, ec);
+        if (status <= TypeMatchStatus::EXPLICIT_CAST) return TypeMatchStatus::NONE;
+        else if (status < result) result = status;
       }
     }
-    // Make sure there is nore more needed args.
+    // Make sure there is no more needed args.
     if (matchContext.index == -1) {
       matchContext.index = 0;
       matchContext.subIndex = -1;
@@ -176,23 +133,23 @@ CallMatchStatus FunctionType::matchCall(
           matchContext.index++;
           matchContext.subIndex = -1;
         } else {
-          return CallMatchStatus::NONE;
+          return TypeMatchStatus::NONE;
         }
       } else {
         if (matchContext.subIndex == 0) {
           matchContext.index++;
           matchContext.subIndex = -1;
         } else {
-          return CallMatchStatus::NONE;
+          return TypeMatchStatus::NONE;
         }
       }
     }
-    return casted ? CallMatchStatus::CASTED : (deref ? CallMatchStatus::DEREF : CallMatchStatus::EXACT);
+    return result;
   }
 }
 
 
-CallMatchStatus FunctionType::matchNextArg(
+TypeMatchStatus FunctionType::matchNextArg(
   TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
 ) {
   if (nextType == 0) {
@@ -211,22 +168,22 @@ CallMatchStatus FunctionType::matchNextArg(
   // Check if we are at an arg pack and can add more args to the pack.
   if (matchContext.index >= 0) {
     ASSERT(matchContext.subIndex >= 0);
-    if (matchContext.index >= argCount) return CallMatchStatus::NONE;
+    if (matchContext.index >= argCount) return TypeMatchStatus::NONE;
     auto currentArg = this->argTypes->getElement(matchContext.index);
     if (currentArg->isDerivedFrom<ArgPack>()) {
       auto currentArgPack = static_cast<ArgPack*>(currentArg);
       if (currentArgPack->getMax() == 0 || matchContext.subIndex + 1 < currentArgPack->getMax().get()) {
         if (matchContext.type == 0 || matchContext.type->isEqual(providedType, helper, ec)) {
           matchContext.subIndex++;
-          return CallMatchStatus::EXACT;
-        } else if (helper->isReferenceTypeFor(providedType, matchContext.type, ec)) {
-          matchContext.subIndex++;
-          return CallMatchStatus::DEREF;
-        } else if (providedType->isImplicitlyCastableTo(matchContext.type, helper, ec)) {
-          matchContext.subIndex++;
-          return CallMatchStatus::CASTED;
-        } else if (matchContext.subIndex + 1 < currentArgPack->getMin().get()) {
-          return CallMatchStatus::NONE;
+          return TypeMatchStatus::EXACT;
+        } else {
+          auto status = providedType->matchTargetType(matchContext.type, helper, ec);
+          if (status >= TypeMatchStatus::IMPLICIT_CAST) {
+            matchContext.subIndex++;
+            return status;
+          } else if (matchContext.subIndex + 1 < currentArgPack->getMin().get()) {
+            return TypeMatchStatus::NONE;
+          }
         }
       }
     }
@@ -235,50 +192,39 @@ CallMatchStatus FunctionType::matchNextArg(
   // If we have more than one arg pack in the function we might be able to skip an arg pack entirely.
   Int steps = 1;
   while (true) {
-    if (matchContext.index + steps >= argCount) return CallMatchStatus::NONE;
+    if (matchContext.index + steps >= argCount) return TypeMatchStatus::NONE;
     auto nextArg = this->argTypes->getElement(matchContext.index + steps);
     if (nextArg->isDerivedFrom<ArgPack>()) {
       auto nextArgPack = static_cast<ArgPack*>(nextArg);
       Type *wantedType = nextArgPack->getArgType() == 0 ? 0 : helper->traceType(nextArgPack->getArgType().get());
-      if (wantedType == 0 || wantedType->isEqual(providedType, helper, ec)) {
+      if (wantedType == 0) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;
-        return CallMatchStatus::EXACT;
-      } else if (helper->isReferenceTypeFor(providedType, wantedType, ec)) {
-        matchContext.type = wantedType;
-        matchContext.index += steps;
-        matchContext.subIndex = 0;
-        return CallMatchStatus::DEREF;
-      } else if (providedType->isImplicitlyCastableTo(wantedType, helper, ec)) {
-        matchContext.type = wantedType;
-        matchContext.index += steps;
-        matchContext.subIndex = 0;
-        return CallMatchStatus::CASTED;
-      } else if (nextArgPack->getMin() == 0) {
-        steps++;
+        return TypeMatchStatus::EXACT;
       } else {
-        return CallMatchStatus::NONE;
+        auto status = providedType->matchTargetType(wantedType, helper, ec);
+        if (status >= TypeMatchStatus::IMPLICIT_CAST) {
+          matchContext.type = wantedType;
+          matchContext.index += steps;
+          matchContext.subIndex = 0;
+          return status;
+        } else if (nextArgPack->getMin() == 0) {
+          steps++;
+        } else {
+          return TypeMatchStatus::NONE;
+        }
       }
     } else {
       Type *wantedType = helper->traceType(nextArg);
-      if (wantedType->isEqual(providedType, helper, ec)) {
+      auto status = providedType->matchTargetType(wantedType, helper, ec);
+      if (status >= TypeMatchStatus::IMPLICIT_CAST) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;
-        return CallMatchStatus::EXACT;
-      } else if (helper->isReferenceTypeFor(providedType, wantedType, ec)) {
-        matchContext.type = wantedType;
-        matchContext.index += steps;
-        matchContext.subIndex = 0;
-        return CallMatchStatus::DEREF;
-      } else if (providedType->isImplicitlyCastableTo(wantedType, helper, ec)) {
-        matchContext.type = wantedType;
-        matchContext.index += steps;
-        matchContext.subIndex = 0;
-        return CallMatchStatus::CASTED;
+        return status;
       } else {
-        return CallMatchStatus::NONE;
+        return TypeMatchStatus::NONE;
       }
     }
   }

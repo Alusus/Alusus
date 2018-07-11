@@ -2,7 +2,7 @@ import "libalusus_spp.so";
 
 def Main: module
 {
-  def print: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 
   def T: type
   {
@@ -43,16 +43,18 @@ def Main: module
     // array declarations.
     def ai: array[Int[32], 5];
     def aai: array[array[Int[32], 5], 3];
-    def apc: array[ptr[Int[8]], 4];
+    def apc: array[ptr[Word[8]], 4];
     def af: array[Float[64], 7];
     def at: array[T, 9];
     def ta: TA;
 
     // storing into array elements.
     ai(2) = 5;
+    ai(2) = 5.0;
     aai(2)(4) = 23;
     apc(1) = "hello world!";
     af(0) = 1.2;
+    af(0) = 1;
     at(7).y = 43;
     ta.ai(3) = 89;
 
@@ -65,9 +67,8 @@ def Main: module
     print("%d\n", ta.ai(3));
 
     // invalid access of array elements.
-    ai(2) = 5.0f32;
+    ai(2) = 1i64~cast[ptr[Int[32]]];
     aai(0) = 1;
-    ai(1.2) = 0;
     ai(1, 0) = 0;
     ai() = 0;
 

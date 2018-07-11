@@ -50,19 +50,24 @@ Word ArrayType::getSize(Helper *helper) const
 }
 
 
-Bool ArrayType::isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus ArrayType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
 {
-  if (this == type) return true;
+  if (this == type) return TypeMatchStatus::EXACT;
 
-  auto arrayType = ti_cast<ArrayType>(type);
-  if (arrayType == 0) return false;
+  auto arrayType = ti_cast<ArrayType const>(type);
+  if (arrayType == 0) return TypeMatchStatus::NONE;
   else {
-    auto thisSize = this->getSize(helper);
-    auto size = arrayType->getSize(helper);
-    if (thisSize != size) return false;
     auto thisContentType = this->getContentType(helper);
-    auto contentType = arrayType->getContentType(helper);
-    return thisContentType->isEqual(contentType, helper, ec);
+    auto targetContentType = arrayType->getContentType(helper);
+    if (thisContentType->isEqual(targetContentType, helper, ec)) {
+      auto thisSize = this->getSize(helper);
+      auto targetSize = arrayType->getSize(helper);
+      return thisSize == targetSize ? TypeMatchStatus::EXACT : (
+        thisSize < targetSize ? TypeMatchStatus::PROMOTION : TypeMatchStatus::AGGREGATION
+      );
+    } else {
+      return TypeMatchStatus::NONE;
+    }
   }
 }
 

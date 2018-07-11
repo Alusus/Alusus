@@ -41,22 +41,10 @@ class VoidType : public DataType
   //============================================================================
   // Member Functions
 
-  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+  public: virtual TypeMatchStatus matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
   {
-    if (this == type || type->isDerivedFrom<VoidType>()) return true;
-    else return false;
-  }
-
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
-  {
-    if (this == type || type->isDerivedFrom<VoidType>()) return true;
-    else return false;
-  }
-
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
-  {
-    if (this == type || type->isDerivedFrom<VoidType>()) return true;
-    else return false;
+    if (this == type || type->isDerivedFrom<VoidType>()) return TypeMatchStatus::EXACT;
+    else return TypeMatchStatus::NONE;
   }
 
 }; // class

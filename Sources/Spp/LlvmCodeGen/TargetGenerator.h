@@ -106,7 +106,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
 
   public: Bool generateVoidType(TioSharedPtr &type);
 
-  public: Bool generateIntType(Word bitCount, TioSharedPtr &type);
+  public: Bool generateIntType(Word bitCount, Bool withSign, TioSharedPtr &type);
 
   public: Bool generateFloatType(Word bitCount, TioSharedPtr &type);
 
@@ -413,7 +413,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
   /// @{
 
   public: Bool generateIntLiteral(
-    TiObject *context, Word bitCount, Long value, TioSharedPtr &destVal
+    TiObject *context, Word bitCount, Bool withSign, LongInt value, TioSharedPtr &destVal
   );
 
   public: Bool generateFloatLiteral(

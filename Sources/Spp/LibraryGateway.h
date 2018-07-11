@@ -60,18 +60,6 @@ class LibraryGateway : public Core::Main::LibraryGateway
 
   private: void removeBuiltInTypes(Core::Main::RootManager *manager);
 
-  private: void createBuiltInFunctions(Core::Main::RootManager *manager);
-
-  private: void removeBuiltInFunctions(Core::Main::RootManager *manager);
-
-  private: SharedPtr<Ast::Function> createBinaryFunction(
-    Core::Main::RootManager *manager, Char const *name, Char const *in1, Char const *in2, Char const *out
-  );
-
-  private: SharedPtr<Ast::Function> createUnaryFunction(
-    Core::Main::RootManager *manager, Char const *name, Char const *in, Char const *out
-  );
-
 }; // class
 
 } // namespace

@@ -162,7 +162,7 @@ Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
     return false;
   }
   TioSharedPtr tgType;
-  if (!tg->generateIntType(bitCount, tgType)) return false;
+  if (!tg->generateIntType(bitCount, astType->isSigned(), tgType)) return false;
   setCodeGenData(astType, tgType);
   return true;
 }
@@ -384,7 +384,7 @@ Bool TypeGenerator::_generateDefaultValue(
     // Generate integer 0
     auto integerType = static_cast<Spp::Ast::IntegerType*>(astType);
     auto bitCount = integerType->getBitCount(typeGenerator->astHelper);
-    return tg->generateIntLiteral(tgContext, bitCount, 0, result);
+    return tg->generateIntLiteral(tgContext, bitCount, integerType->isSigned(), 0, result);
   } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
     // Generate float 0
     auto floatType = static_cast<Spp::Ast::FloatType*>(astType);

@@ -2,20 +2,20 @@ import "libalusus_spp.so";
 
 def Main: module
 {
-  def printf: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+  def printf: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 
-  def print: function (str: ptr[Int[8]]) => Void
+  def print: function (str: ptr[Word[8]]) => Void
   {
     printf("%s\n", str);
   };
 
   def main: function () => Void
   {
-    testIf(0i1);
-    testIf(1i1);
+    testIf(0);
+    testIf(1);
   };
 
-  def testIf: function (i: Int[1]) => Void
+  def testIf: function (i: Word[1]) => Void
   {
     if i print("if-statement/no-else");
 

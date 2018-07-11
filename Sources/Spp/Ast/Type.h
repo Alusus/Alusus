@@ -57,11 +57,24 @@ class Type : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const = 0;
+  public: virtual TypeMatchStatus matchTargetType(
+    Type const *type, Helper *helper, ExecutionContext const *ec
+  ) const = 0;
 
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const = 0;
+  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+  {
+    return this->matchTargetType(type, helper, ec) == TypeMatchStatus::EXACT;
+  }
 
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const = 0;
+  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
+  {
+    return this->matchTargetType(type, helper, ec) >= TypeMatchStatus::IMPLICIT_CAST;
+  }
+
+  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
+  {
+    return this->matchTargetType(type, helper, ec) >= TypeMatchStatus::EXPLICIT_CAST;
+  }
 
 }; // class
 

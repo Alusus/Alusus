@@ -1,7 +1,7 @@
-ERROR SPPA1008 @ (29,19): Provided arguments do not match signature.
 ERROR SPPA1008 @ (30,19): Provided arguments do not match signature.
 ERROR SPPA1008 @ (31,19): Provided arguments do not match signature.
 ERROR SPPA1008 @ (32,19): Provided arguments do not match signature.
+ERROR SPPA1008 @ (33,19): Provided arguments do not match signature.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -31,6 +31,7 @@ define void @Main_start_____Void_() {
 __block0:
   %pget = alloca i32 ()*
   %pmul = alloca i32 (i32)*
+  %pf = alloca float*
   %r = alloca %Main_Rec
   %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i64 0, i64 0), i32 ()* @Main_getNum1_____Int_32__)
   store i32 ()* @Main_getNum1_____Int_32__, i32 ()** %pget
@@ -98,7 +99,7 @@ __block7:
   %n1 = alloca i32
   store i32 %n, i32* %n1
   %0 = load i32* %n1
-  %1 = mul i32 %0, 2
+  %1 = mul nsw i32 %0, 2
   ret i32 %1
 }
 
@@ -107,7 +108,7 @@ __block8:
   %n1 = alloca i32
   store i32 %n, i32* %n1
   %0 = load i32* %n1
-  %1 = mul i32 %0, 3
+  %1 = mul nsw i32 %0, 3
   ret i32 %1
 }
 
@@ -116,7 +117,7 @@ __block9:
   %n1 = alloca i32
   store i32 %n, i32* %n1
   %0 = load i32* %n1
-  %1 = mul i32 %0, 4
+  %1 = mul nsw i32 %0, 4
   ret i32 %1
 }
 
@@ -135,7 +136,7 @@ __block10:
   %n1 = alloca i32
   store i32 %n, i32* %n1
   %0 = load i32* %n1
-  %1 = mul i32 %0, 5
+  %1 = mul nsw i32 %0, 5
   ret i32 %1
 }
 ------------------------------------------------------------

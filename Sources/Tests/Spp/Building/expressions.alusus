@@ -2,7 +2,7 @@ import "libalusus_spp.so";
 
 def Main: module
 {
-  def print: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 
   def testInteger: function ()=>Void
   {
@@ -130,6 +130,8 @@ def Main: module
     print("1f32 + 1i32 = %f\n", 1f32 + 1i32);
     print("1i64 + 1f32 = %f\n", 1i64 + 1f32);
     print("1f32 + 1i64 = %f\n", 1f32 + 1i64);
+
+    print("1i32 + ptr = %f\n", 1i32 + 1i64~cast[ptr[Int[32]]]);
   };
 
   def start: function ()=>Void

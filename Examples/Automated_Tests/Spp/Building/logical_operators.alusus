@@ -2,9 +2,9 @@ import "libalusus_spp.so";
 
 def Main: module
 {
-  def printf: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+  def printf: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 
-  def print: function (str: ptr[Int[8]]) => Void
+  def print: function (str: ptr[Word[8]]) => Void
   {
     printf("%s\n", str);
   };
@@ -20,11 +20,11 @@ def Main: module
   {
     def i: Int[32];
     def j: Int[32];
-    def b: Int[1];
+    def b: Word[1];
 
     i = 5;
     j = 10;
-    b = 1i1;
+    b = 1;
 
     if i > 6 || j > 10 print("dual check");
 
@@ -44,11 +44,11 @@ def Main: module
   {
     def i: Int[32];
     def j: Int[32];
-    def b: Int[1];
+    def b: Word[1];
 
     i = 5;
     j = 10;
-    b = 1i1;
+    b = 1;
 
     if i > 6 && j > 10 print("dual check");
 

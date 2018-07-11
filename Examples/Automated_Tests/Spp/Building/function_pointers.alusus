@@ -2,12 +2,13 @@ import "libalusus_spp.so";
 
 def Main: module
 {
-  def print: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 
   def start: function ()=>Void {
     def pget: ptr[function ()=>Int[32]];
     def pmul: ptr[function (n: Int[32])=>Int[32]];
-    def r: Record;
+    def pf: ptr[Float[32]];
+    def r: Rec;
     print("%d\n", getNum1~ptr);
 
     pget = getNum1~ptr;
@@ -26,13 +27,13 @@ def Main: module
     print("%d\n", r.pmul(3));
     print("%d\n", getFunc2()(3));
 
-    print("%d\n", pmul(3f));
-    print("%d\n", pmul2(3f));
-    print("%d\n", r.pmul(3f));
-    print("%d\n", getFunc2()(3f));
+    print("%d\n", pmul(pf));
+    print("%d\n", pmul2(pf));
+    print("%d\n", r.pmul(pf));
+    print("%d\n", getFunc2()(pf));
   };
 
-  def Record: type
+  def Rec: type
   {
     def pget: ptr[function ()=>Int[32]];
     def pmul: ptr[function (n: Int[32])=>Int[32]];

@@ -4,14 +4,14 @@ def Srt : module {
   def alloc: @expname[malloc] function (size: Int[64]) => ptr[Void];
   def free: @expname[free] function (pointer: ptr[Void]);
 
-  def print: @expname[printf] function (format: ptr[Int[8]], args: ...any) => Int[32];
+  def print: @expname[printf] function (format: ptr[Word[8]], args: ...any) => Int[32];
   def getChar: @expname[getchar] function () => Int[32];
   def putChar: @expname[putchar] function (character: Int[32]) => Int[32];
 
-  def openFile: @expname[fopen] function (filename: ptr[Int[8]], mode: ptr[Int[8]]) => ptr[Void];
+  def openFile: @expname[fopen] function (filename: ptr[Word[8]], mode: ptr[Word[8]]) => ptr[Void];
   def closeFile: @expname[fclose] function (file: ptr[Void]) => Int[32];
-  def printToFile: @expname[fprintf] function (file: ptr[Void], format: ptr[Int[8]], args: ...any) => Int[32];
-  def scanFromFile: @expname[fscanf] function (file: ptr[Void], format: ptr[Int[8]], args: ...any) => Int[32];
+  def printToFile: @expname[fprintf] function (file: ptr[Void], format: ptr[Word[8]], args: ...any) => Int[32];
+  def scanFromFile: @expname[fscanf] function (file: ptr[Void], format: ptr[Word[8]], args: ...any) => Int[32];
   def writeToFile:
     @expname[fwrite] function (content: ptr[Void], size: Int[32], count:Int[32], file: ptr[Void]) => Int[32];
   def readFromFile:

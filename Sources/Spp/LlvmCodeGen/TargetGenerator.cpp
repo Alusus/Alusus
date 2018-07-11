@@ -176,7 +176,7 @@ Bool TargetGenerator::generateVoidType(TioSharedPtr &type)
 }
 
 
-Bool TargetGenerator::generateIntType(Word bitCount, TioSharedPtr &type)
+Bool TargetGenerator::generateIntType(Word bitCount, Bool withSign, TioSharedPtr &type)
 {
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
@@ -184,7 +184,7 @@ Bool TargetGenerator::generateIntType(Word bitCount, TioSharedPtr &type)
     return false;
   }
   auto llvmType = llvm::Type::getIntNTy(llvm::getGlobalContext(), bitCount);
-  type = std::make_shared<IntegerType>(llvmType, bitCount);
+  type = std::make_shared<IntegerType>(llvmType, bitCount, withSign);
   return true;
 }
 
@@ -662,9 +662,10 @@ Bool TargetGenerator::generateCastIntToInt(
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
-  PREPARE_ARG(destType, typeWrapper, Type);
+  PREPARE_ARG(srcType, srcTypeWrapper, IntegerType);
+  PREPARE_ARG(destType, destTypeWrapper, IntegerType);
   auto llvmCastedValue = block->getIrBuilder()->CreateIntCast(
-    cgSrcVal->getLlvmValue(), typeWrapper->getLlvmType(), true
+    cgSrcVal->getLlvmValue(), destTypeWrapper->getLlvmType(), srcTypeWrapper->isSigned()
   );
   destVal = std::make_shared<Value>(llvmCastedValue, false);
   return true;
@@ -676,8 +677,14 @@ Bool TargetGenerator::generateCastIntToFloat(
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
-  PREPARE_ARG(destType, typeWrapper, Type);
-  auto llvmCastedValue = block->getIrBuilder()->CreateSIToFP(cgSrcVal->getLlvmValue(), typeWrapper->getLlvmType());
+  PREPARE_ARG(srcType, srcTypeWrapper, IntegerType);
+  PREPARE_ARG(destType, destTypeWrapper, Type);
+  llvm::Value *llvmCastedValue;
+  if (srcTypeWrapper->isSigned()) {
+    llvmCastedValue = block->getIrBuilder()->CreateSIToFP(cgSrcVal->getLlvmValue(), destTypeWrapper->getLlvmType());
+  } else {
+    llvmCastedValue = block->getIrBuilder()->CreateUIToFP(cgSrcVal->getLlvmValue(), destTypeWrapper->getLlvmType());
+  }
   destVal = std::make_shared<Value>(llvmCastedValue, false);
   return true;
 }
@@ -688,8 +695,13 @@ Bool TargetGenerator::generateCastFloatToInt(
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
-  PREPARE_ARG(destType, typeWrapper, Type);
-  auto llvmCastedValue = block->getIrBuilder()->CreateFPToSI(cgSrcVal->getLlvmValue(), typeWrapper->getLlvmType());
+  PREPARE_ARG(destType, destTypeWrapper, IntegerType);
+  llvm::Value *llvmCastedValue;
+  if (destTypeWrapper->isSigned()) {
+    llvmCastedValue = block->getIrBuilder()->CreateFPToSI(cgSrcVal->getLlvmValue(), destTypeWrapper->getLlvmType());
+  } else {
+    llvmCastedValue = block->getIrBuilder()->CreateFPToUI(cgSrcVal->getLlvmValue(), destTypeWrapper->getLlvmType());
+  }
   destVal = std::make_shared<Value>(llvmCastedValue, false);
   return true;
 }
@@ -1014,7 +1026,12 @@ Bool TargetGenerator::generateAdd(
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
   PREPARE_ARG(type, tgType, Type);
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto llvmResult = block->getIrBuilder()->CreateAdd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    llvm::Value *llvmResult;
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateNSWAdd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateAdd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    }
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
@@ -1035,7 +1052,12 @@ Bool TargetGenerator::generateSub(
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
   PREPARE_ARG(type, tgType, Type);
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto llvmResult = block->getIrBuilder()->CreateSub(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    llvm::Value *llvmResult;
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateNSWSub(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateSub(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    }
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
@@ -1056,7 +1078,12 @@ Bool TargetGenerator::generateMul(
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
   PREPARE_ARG(type, tgType, Type);
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto llvmResult = block->getIrBuilder()->CreateMul(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    llvm::Value *llvmResult;
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateNSWMul(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateMul(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    }
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
@@ -1077,7 +1104,12 @@ Bool TargetGenerator::generateDiv(
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
   PREPARE_ARG(type, tgType, Type);
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto llvmResult = block->getIrBuilder()->CreateSDiv(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    llvm::Value *llvmResult;
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateSDiv(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateUDiv(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    }
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
@@ -1098,7 +1130,12 @@ Bool TargetGenerator::generateRem(
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
   PREPARE_ARG(type, tgType, IntegerType);
 
-  auto llvmResult = block->getIrBuilder()->CreateSRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->isSigned()) {
+    llvmResult = block->getIrBuilder()->CreateSRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+  } else {
+    llvmResult = block->getIrBuilder()->CreateURem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+  }
   result = std::make_shared<Value>(llvmResult, false);
   return true;
 }
@@ -1112,7 +1149,12 @@ Bool TargetGenerator::generateShr(
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
   PREPARE_ARG(type, tgType, IntegerType);
 
-  auto llvmResult = block->getIrBuilder()->CreateAShr(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+  llvm::Value *llvmResult;
+  if (tgType->isSigned()) {
+    llvmResult = block->getIrBuilder()->CreateAShr(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+  } else {
+    llvmResult = block->getIrBuilder()->CreateLShr(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+  }
   result = std::make_shared<Value>(llvmResult, false);
   return true;
 }
@@ -1216,10 +1258,17 @@ Bool TargetGenerator::generateEarlyInc(
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto size = static_cast<IntegerType*>(tgType)->getSize();
-    llvmResult = block->getIrBuilder()->CreateAdd(
-      llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
-    );
+    auto integerType = static_cast<IntegerType*>(tgType);
+    auto size = integerType->getSize();
+    if (integerType->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateNSWAdd(
+        llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+      );
+    } else {
+      llvmResult = block->getIrBuilder()->CreateAdd(
+        llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+      );
+    }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     if (size == 32) {
@@ -1249,10 +1298,17 @@ Bool TargetGenerator::generateEarlyDec(
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto size = static_cast<IntegerType*>(tgType)->getSize();
-    llvmResult = block->getIrBuilder()->CreateSub(
-      llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
-    );
+    auto integerType = static_cast<IntegerType*>(tgType);
+    auto size = integerType->getSize();
+    if (integerType->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateNSWSub(
+        llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+      );
+    } else {
+      llvmResult = block->getIrBuilder()->CreateSub(
+        llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+      );
+    }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     if (size == 32) {
@@ -1282,10 +1338,17 @@ Bool TargetGenerator::generateLateInc(
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto size = static_cast<IntegerType*>(tgType)->getSize();
-    llvmResult = block->getIrBuilder()->CreateAdd(
-      llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
-    );
+    auto integerType = static_cast<IntegerType*>(tgType);
+    auto size = integerType->getSize();
+    if (integerType->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateNSWAdd(
+        llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+      );
+    } else {
+      llvmResult = block->getIrBuilder()->CreateAdd(
+        llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+      );
+    }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     if (size == 32) {
@@ -1315,10 +1378,17 @@ Bool TargetGenerator::generateLateDec(
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto size = static_cast<IntegerType*>(tgType)->getSize();
-    llvmResult = block->getIrBuilder()->CreateSub(
-      llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
-    );
+    auto integerType = static_cast<IntegerType*>(tgType);
+    auto size = integerType->getSize();
+    if (integerType->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateNSWSub(
+        llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+      );
+    } else {
+      llvmResult = block->getIrBuilder()->CreateSub(
+        llvmVal, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(size, 1, true))
+      );
+    }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     if (size == 32) {
@@ -1349,7 +1419,11 @@ Bool TargetGenerator::generateAddAssign(
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
-    llvmResult = block->getIrBuilder()->CreateAdd(llvmVal, srcValBox->getLlvmValue());
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateNSWAdd(llvmVal, srcValBox->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateAdd(llvmVal, srcValBox->getLlvmValue());
+    }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     llvmResult = block->getIrBuilder()->CreateFAdd(llvmVal, srcValBox->getLlvmValue());
   } else {
@@ -1371,7 +1445,11 @@ Bool TargetGenerator::generateSubAssign(
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
-    llvmResult = block->getIrBuilder()->CreateSub(llvmVal, srcValBox->getLlvmValue());
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateNSWSub(llvmVal, srcValBox->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateSub(llvmVal, srcValBox->getLlvmValue());
+    }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     llvmResult = block->getIrBuilder()->CreateFSub(llvmVal, srcValBox->getLlvmValue());
   } else {
@@ -1393,7 +1471,11 @@ Bool TargetGenerator::generateMulAssign(
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
-    llvmResult = block->getIrBuilder()->CreateMul(llvmVal, srcValBox->getLlvmValue());
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateNSWMul(llvmVal, srcValBox->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateMul(llvmVal, srcValBox->getLlvmValue());
+    }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     llvmResult = block->getIrBuilder()->CreateFMul(llvmVal, srcValBox->getLlvmValue());
   } else {
@@ -1415,7 +1497,11 @@ Bool TargetGenerator::generateDivAssign(
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
-    llvmResult = block->getIrBuilder()->CreateSDiv(llvmVal, srcValBox->getLlvmValue());
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateSDiv(llvmVal, srcValBox->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateUDiv(llvmVal, srcValBox->getLlvmValue());
+    }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     llvmResult = block->getIrBuilder()->CreateFDiv(llvmVal, srcValBox->getLlvmValue());
   } else {
@@ -1436,7 +1522,11 @@ Bool TargetGenerator::generateRemAssign(
   PREPARE_ARG(type, tgType, IntegerType);
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
-  llvmResult = block->getIrBuilder()->CreateSRem(llvmVal, srcValBox->getLlvmValue());
+  if (tgType->isSigned()) {
+    llvmResult = block->getIrBuilder()->CreateSRem(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    llvmResult = block->getIrBuilder()->CreateURem(llvmVal, srcValBox->getLlvmValue());
+  }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = getSharedPtr(destVar);
   return true;
@@ -1452,7 +1542,11 @@ Bool TargetGenerator::generateShrAssign(
   PREPARE_ARG(type, tgType, IntegerType);
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
-  llvmResult = block->getIrBuilder()->CreateAShr(llvmVal, srcValBox->getLlvmValue());
+  if (tgType->isSigned()) {
+    llvmResult = block->getIrBuilder()->CreateAShr(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    llvmResult = block->getIrBuilder()->CreateLShr(llvmVal, srcValBox->getLlvmValue());
+  }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = getSharedPtr(destVar);
   return true;
@@ -1576,7 +1670,12 @@ Bool TargetGenerator::generateGreaterThan(
   PREPARE_ARG(srcVal2, srcValBox2, Value);
   PREPARE_ARG(type, tgType, Type);
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto llvmResult = block->getIrBuilder()->CreateICmpSGT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    llvm::Value *llvmResult;
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateICmpSGT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateICmpUGT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    }
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
@@ -1597,7 +1696,12 @@ Bool TargetGenerator::generateGreaterThanOrEqual(
   PREPARE_ARG(srcVal2, srcValBox2, Value);
   PREPARE_ARG(type, tgType, Type);
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto llvmResult = block->getIrBuilder()->CreateICmpSGE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    llvm::Value *llvmResult;
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateICmpSGE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateICmpUGE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    }
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
@@ -1618,7 +1722,12 @@ Bool TargetGenerator::generateLessThan(
   PREPARE_ARG(srcVal2, srcValBox2, Value);
   PREPARE_ARG(type, tgType, Type);
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto llvmResult = block->getIrBuilder()->CreateICmpSLT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    llvm::Value *llvmResult;
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateICmpSLT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateICmpULT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    }
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
@@ -1639,7 +1748,12 @@ Bool TargetGenerator::generateLessThanOrEqual(
   PREPARE_ARG(srcVal2, srcValBox2, Value);
   PREPARE_ARG(type, tgType, Type);
   if (tgType->isDerivedFrom<IntegerType>()) {
-    auto llvmResult = block->getIrBuilder()->CreateICmpSLE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    llvm::Value *llvmResult;
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateICmpSLE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateICmpULE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
+    }
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
@@ -1656,9 +1770,9 @@ Bool TargetGenerator::generateLessThanOrEqual(
 // Literal Generation Functions
 
 Bool TargetGenerator::generateIntLiteral(
-  TiObject *context, Word bitCount, Long value, TioSharedPtr &destVal
+  TiObject *context, Word bitCount, Bool withSign, LongInt value, TioSharedPtr &destVal
 ) {
-  auto llvmResult = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(bitCount, value, true));
+  auto llvmResult = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(bitCount, value, withSign));
   destVal = std::make_shared<Value>(llvmResult, true);
   return true;
 }

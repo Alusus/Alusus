@@ -90,7 +90,7 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
 
   public: Bool generateVoidType(TioSharedPtr &type) { return true; }
 
-  public: Bool generateIntType(Word bitCount, TioSharedPtr &type) { return true; }
+  public: Bool generateIntType(Word bitCount, Bool withSign, TioSharedPtr &type) { return true; }
 
   public: Bool generateFloatType(Word bitCount, TioSharedPtr &type) { return true; }
 
@@ -423,7 +423,7 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
   /// @{
 
   public: Bool generateIntLiteral(
-    TiObject *context, Word bitCount, Long value, TioSharedPtr &destVal
+    TiObject *context, Word bitCount, Bool withSign, LongInt value, TioSharedPtr &destVal
   ) { return true; }
 
   public: Bool generateFloatLiteral(

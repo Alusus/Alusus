@@ -75,7 +75,7 @@ define i32 @Main_invalidReturn2_____Int_32__() {
 __block9:
 }
 
-define float @Main_invalidReturn3_____Float_32__() {
+define float* @Main_invalidReturn3_____ptr_Float_32___() {
 __block10:
 }
 ------------------------------------------------------------

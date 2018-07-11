@@ -79,14 +79,7 @@ class FunctionType : public Type, public virtual MapContaining<TiObject>
   //============================================================================
   // Member Functions
 
-  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const;
-
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
-
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
-  {
-    return this->isImplicitlyCastableTo(type, helper, ec);
-  }
+  public: virtual TypeMatchStatus matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
   public: void setArgTypes(SharedPtr<Core::Data::Ast::Map> const &args)
   {
@@ -127,11 +120,11 @@ class FunctionType : public Type, public virtual MapContaining<TiObject>
 
   public: Type* traceRetType(Helper *helper) const;
 
-  public: CallMatchStatus matchCall(
+  public: TypeMatchStatus matchCall(
     Containing<TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
   );
 
-  public: CallMatchStatus matchNextArg(
+  public: TypeMatchStatus matchNextArg(
     TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
   );
 

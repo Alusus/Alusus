@@ -1,15 +1,8 @@
-ERROR SPPG1009 @ (24,10): Value is not implicitly castable to target type.
-ERROR SPPG1009 @ (27,10): Value is not implicitly castable to target type.
-ERROR SPPG1009 @ (31,10): Value is not implicitly castable to target type.
-ERROR SPPG1009 @ (34,10): Value is not implicitly castable to target type.
-ERROR SPPA1008 @ (45,5): Provided arguments do not match signature.
-ERROR SPPA1008 @ (46,5): Provided arguments do not match signature.
-ERROR SPPA1008 @ (47,5): Provided arguments do not match signature.
 ERROR SPPG1008 @ (54,5): Invalid symbol.
 ERROR SPPG1008 @ (55,5): Invalid symbol.
 ERROR SPPA1007 @ (56,11): Unknown symbol.
-ERROR SPPG1008 @ (57,5): Invalid symbol.
-ERROR SPPG1008 @ (58,5): Invalid symbol.
+ERROR SPPG1008 @ (57,10): Invalid symbol.
+ERROR SPPG1008 @ (58,10): Invalid symbol.
 ERROR SPPA1007 @ (59,16): Unknown symbol.
 ERROR SPPA1007 @ (84,11): Unknown symbol.
 ERROR SPPA1007 @ (85,25): Unknown symbol.
@@ -48,12 +41,16 @@ __block0:
   %lpf = alloca float*
   %lbf = alloca double
   store i32 1, i32* @Main_gi
+  store i32 2, i32* @Main_gi
   store i64 3, i64* @Main_gbi
   store float 4.000000e+00, float* @Main_gf
+  store float 5.000000e+00, float* @Main_gf
   store double 6.000000e+00, double* @Main_gbf
   store i32 7, i32* %li
+  store i32 8, i32* %li
   store i64 9, i64* %lbi
   store float 1.000000e+01, float* %lf
+  store float 1.100000e+01, float* %lf
   store double 1.200000e+01, double* %lbf
   %0 = load i32* @Main_gi
   %1 = sext i32 %0 to i64
@@ -72,22 +69,37 @@ __block0:
   %11 = load double* %lbf
   call void @Main_testVars_Int_64__Float_64_____Void_(i64 %10, double %11)
   %12 = load i32* @Main_gi
-  %13 = add i32 %12, 100
+  %13 = add nsw i32 %12, 100
   %14 = load float* @Main_gf
   %15 = fadd float %14, 1.000000e+02
   %16 = sext i32 %13 to i64
   %17 = fpext float %15 to double
   call void @Main_testVars_Int_64__Float_64_____Void_(i64 %16, double %17)
   %18 = load i32* %li
-  %19 = add i32 %18, 200
+  %19 = add nsw i32 %18, 200
   %20 = load float* %lf
   %21 = fadd float %20, 2.000000e+02
   %22 = sext i32 %19 to i64
   %23 = fpext float %21 to double
   call void @Main_testVars_Int_64__Float_64_____Void_(i64 %22, double %23)
+  %24 = load float* @Main_gf
+  %25 = fptosi float %24 to i64
+  %26 = load i32* @Main_gi
+  %27 = sitofp i32 %26 to double
+  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %25, double %27)
+  %28 = load i32* @Main_gi
+  %29 = sext i32 %28 to i64
+  %30 = load i32* @Main_gi
+  %31 = sitofp i32 %30 to double
+  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %29, double %31)
+  %32 = load float* @Main_gf
+  %33 = fptosi float %32 to i64
+  %34 = load float* @Main_gf
+  %35 = fpext float %34 to double
+  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %33, double %35)
   call void @Main_testVarOverride_____Void_()
-  %24 = load i32* @Main_gi
-  %25 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i64 0, i64 0), i32 %24)
+  %36 = load i32* @Main_gi
+  %37 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i64 0, i64 0), i32 %36)
   call void @Main_testOtherModules_____Void_()
   ret void
 }

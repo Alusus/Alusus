@@ -35,38 +35,29 @@ DataType* ReferenceType::getContentType(Helper *helper) const
 }
 
 
-Bool ReferenceType::isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus ReferenceType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
 {
-  if (this == type) return true;
+  if (this == type) return TypeMatchStatus::EXACT;
 
-  auto referenceType = ti_cast<ReferenceType>(type);
-  if (referenceType == 0) return false;
-  else {
-    Type const *contentType = referenceType->getContentType(helper);
-    Type const *thisContentType = this->getContentType(helper);
-    if (contentType == 0 || thisContentType == 0) {
+  Type const *thisContentType = this->getContentType(helper);
+  if (thisContentType == 0) {
+    throw EXCEPTION(GenericException, STR("Reference type is missing the content type."));
+  }
+
+  auto referenceType = ti_cast<ReferenceType const>(type);
+  if (referenceType != 0) {
+    Type const *targetContentType = referenceType->getContentType(helper);
+    if (targetContentType == 0) {
       throw EXCEPTION(GenericException, STR("Reference type is missing the content type."));
     }
-    else return thisContentType->isEqual(contentType, helper, ec);
+    auto status = thisContentType->matchTargetType(targetContentType, helper, ec);
+    if (status == TypeMatchStatus::EXACT) return TypeMatchStatus::EXACT;
+    else if (status == TypeMatchStatus::AGGREGATION) return TypeMatchStatus::IMPLICIT_CAST;
   }
-}
 
-
-Bool ReferenceType::isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
-{
-  if (type == this) return true;
-
-  auto contentType = this->getContentType(helper);
-  return contentType->isImplicitlyCastableTo(type, helper, ec);
-}
-
-
-Bool ReferenceType::isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
-{
-  if (type == this) return true;
-
-  auto contentType = this->getContentType(helper);
-  return contentType->isExplicitlyCastableTo(type, helper, ec);
+  auto matchStatus = thisContentType->matchTargetType(type, helper, ec);
+  if (matchStatus >= TypeMatchStatus::DEREFERENCE) return TypeMatchStatus::DEREFERENCE;
+  else return matchStatus;
 }
 
 } // namespace

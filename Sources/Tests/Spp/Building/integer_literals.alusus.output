@@ -18,10 +18,10 @@ declare i64 @printf(i8*, ...)
 
 define void @Main_start_____Void_() {
 __block0:
-  %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous0, i64 0, i64 0), i32 2)
-  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous1, i64 0, i64 0), i32 2)
-  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous2, i64 0, i64 0), i32 8)
-  %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous3, i64 0, i64 0), i32 16)
+  %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous0, i64 0, i64 0), i8 2)
+  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous1, i64 0, i64 0), i8 2)
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous2, i64 0, i64 0), i8 8)
+  %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous3, i64 0, i64 0), i8 16)
   %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous4, i64 0, i64 0), i8 120)
   %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([19 x i8]* @__anonymous5, i64 0, i64 0), i16 120)
   %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([19 x i8]* @__anonymous6, i64 0, i64 0), i32 120)

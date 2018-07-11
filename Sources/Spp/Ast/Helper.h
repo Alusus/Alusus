@@ -40,8 +40,10 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   private: IntegerType *charType = 0;
   private: PointerType *charPtrType = 0;
   private: IntegerType *int64Type = 0;
+  private: IntegerType *word64Type = 0;
   private: VoidType *voidType = 0;
   private: SharedPtr<Core::Data::Ast::ParamPass> integerTypeRef;
+  private: SharedPtr<Core::Data::Ast::ParamPass> wordTypeRef;
   private: SharedPtr<Core::Data::Ast::ParamPass> floatTypeRef;
   private: SharedPtr<Core::Data::Ast::ParamPass> charArrayTypeRef;
 
@@ -123,31 +125,32 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
 
   public: Bool lookupCalleeByName(
     Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
-    Containing<TiObject> *types, ExecutionContext const *ec, TiObject *&callee, Type *&calleeType
+    Containing<TiObject> *types, ExecutionContext const *ec,
+    TiObject *&callee, Type *&calleeType, SharedPtr<Core::Notices::Notice> &notice
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee,
     Bool, (
       TiObject* /* ref */, Core::Data::Node* /* astNode */, Bool /* searchOwners */,
-      Containing<TiObject>* /* types */,
-      ExecutionContext const* /* ec */, TiObject*& /* callee */, Type*& /* calleeType */
+      Containing<TiObject>* /* types */, ExecutionContext const* /* ec */,
+      TiObject*& /* callee */, Type*& /* calleeType */, SharedPtr<Core::Notices::Notice>& /* notice */
     )
   );
   private: static Bool _lookupCallee(
     TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
     Containing<TiObject> *types, ExecutionContext const *ec,
-    TiObject *&callee, Type *&calleeType
+    TiObject *&callee, Type *&calleeType, SharedPtr<Core::Notices::Notice> &notice
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee_iteration,
     Core::Data::Seeker::Verb, (
       TiObject*, Containing<TiObject> *, ExecutionContext const*,
-      CallMatchStatus&, SharedPtr<Core::Notices::Notice>&, TiObject*&, Type*&
+      TypeMatchStatus&, SharedPtr<Core::Notices::Notice>&, TiObject*&, Type*&
     )
   );
   private: static Core::Data::Seeker::Verb _lookupCallee_iteration(
     TiObject *self, TiObject *obj, Containing<TiObject> *types, ExecutionContext const *ec,
-    CallMatchStatus &matchStatus, SharedPtr<Core::Notices::Notice> &notice,
+    TypeMatchStatus &matchStatus, SharedPtr<Core::Notices::Notice> &notice,
     TiObject *&callee, Type *&calleeType
   );
 
@@ -198,6 +201,12 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   public: METHOD_BINDING_CACHE(getIntType, IntegerType*, (Word));
   private: static IntegerType* _getIntType(TiObject *self, Word size);
 
+  public: METHOD_BINDING_CACHE(getWord64Type, IntegerType*);
+  private: static IntegerType* _getWord64Type(TiObject *self);
+
+  public: METHOD_BINDING_CACHE(getWordType, IntegerType*, (Word));
+  private: static IntegerType* _getWordType(TiObject *self, Word size);
+
   public: METHOD_BINDING_CACHE(getFloatType, FloatType*, (Word));
   private: static FloatType* _getFloatType(TiObject *self, Word size);
 
@@ -236,6 +245,12 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
 
   public: METHOD_BINDING_CACHE(getFunctionName, Str const&, (Function*));
   private: static Str const& _getFunctionName(TiObject *self, Function *astFunc);
+
+  public: METHOD_BINDING_CACHE(getNeededIntSize, Word, (LongInt));
+  private: static Word _getNeededIntSize(TiObject *self, LongInt value);
+
+  public: METHOD_BINDING_CACHE(getNeededWordSize, Word, (LongWord));
+  private: static Word _getNeededWordSize(TiObject *self, LongWord value);
 
   /// @}
 

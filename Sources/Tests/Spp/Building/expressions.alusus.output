@@ -1,10 +1,7 @@
-ERROR SPPA1008 @ (129,33): Provided arguments do not match signature.
-ERROR SPPA1008 @ (130,33): Provided arguments do not match signature.
-ERROR SPPA1008 @ (131,33): Provided arguments do not match signature.
-ERROR SPPA1008 @ (132,33): Provided arguments do not match signature.
-ERROR SPPG1008 @ (141,19): Invalid symbol.
-ERROR SPPG1008 @ (142,23): Invalid symbol.
+ERROR SPPG1015 @ (134,32): Incompatible types for the given operator.
 ERROR SPPG1008 @ (143,19): Invalid symbol.
+ERROR SPPG1008 @ (144,23): Invalid symbol.
+ERROR SPPG1008 @ (145,19): Invalid symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -104,9 +101,10 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 @__anonymous91 = private constant [18 x i8] c"1f32 + 1i32 = %f\0A\00", align 1
 @__anonymous92 = private constant [18 x i8] c"1i64 + 1f32 = %f\0A\00", align 1
 @__anonymous93 = private constant [18 x i8] c"1f32 + 1i64 = %f\0A\00", align 1
-@__anonymous94 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous94 = private constant [17 x i8] c"1i32 + ptr = %f\0A\00", align 1
 @__anonymous95 = private constant [4 x i8] c"%d\0A\00", align 1
 @__anonymous96 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous97 = private constant [4 x i8] c"%d\0A\00", align 1
 
 declare i64 @printf(i8*, ...)
 
@@ -116,15 +114,15 @@ __block0:
   %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous1, i64 0, i64 0), i32 3)
   %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous2, i64 0, i64 0), i32 21)
   %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous3, i64 0, i64 0), i32 5)
-  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous4, i64 0, i64 0), i32 1)
-  %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous5, i64 0, i64 0), i32 2)
-  %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous6, i64 0, i64 0), i32 32)
-  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous7, i64 0, i64 0), i32 2)
-  %8 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous8, i64 0, i64 0), i32 6)
-  %9 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous9, i64 0, i64 0), i32 11)
-  %10 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([7 x i8]* @__anonymous10, i64 0, i64 0), i32 -2)
-  %11 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous11, i64 0, i64 0), i32 -34)
-  %12 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous12, i64 0, i64 0), i32 34)
+  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous4, i64 0, i64 0), i8 1)
+  %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous5, i64 0, i64 0), i8 2)
+  %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous6, i64 0, i64 0), i8 32)
+  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous7, i64 0, i64 0), i8 2)
+  %8 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous8, i64 0, i64 0), i8 6)
+  %9 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous9, i64 0, i64 0), i8 11)
+  %10 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([7 x i8]* @__anonymous10, i64 0, i64 0), i1 false)
+  %11 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous11, i64 0, i64 0), i8 -34)
+  %12 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous12, i64 0, i64 0), i8 34)
   %13 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([10 x i8]* @__anonymous13, i64 0, i64 0), i32 7)
   %14 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([11 x i8]* @__anonymous14, i64 0, i64 0), i32 7)
   %15 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous15, i64 0, i64 0), i32 9)
@@ -143,50 +141,50 @@ __block0:
   store i32 3, i32* %i32
   store i64 4, i64* %i64
   %26 = load i32* %i32
-  %27 = add i32 %26, 1
+  %27 = add nsw i32 %26, 1
   store i32 %27, i32* %i32
   %28 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous26, i64 0, i64 0), i32 %27)
   %29 = load i64* %i64
-  %30 = add i64 %29, 1
+  %30 = add nsw i64 %29, 1
   store i64 %30, i64* %i64
   %31 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous27, i64 0, i64 0), i64 %30)
   %32 = load i32* %i32
-  %33 = sub i32 %32, 1
+  %33 = sub nsw i32 %32, 1
   store i32 %33, i32* %i32
   %34 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous28, i64 0, i64 0), i32 %33)
   %35 = load i64* %i64
-  %36 = sub i64 %35, 1
+  %36 = sub nsw i64 %35, 1
   store i64 %36, i64* %i64
   %37 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous29, i64 0, i64 0), i64 %36)
   %38 = load i32* %i32
-  %39 = add i32 %38, 1
+  %39 = add nsw i32 %38, 1
   store i32 %39, i32* %i32
   %40 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous30, i64 0, i64 0), i32 %38)
   %41 = load i64* %i64
-  %42 = add i64 %41, 1
+  %42 = add nsw i64 %41, 1
   store i64 %42, i64* %i64
   %43 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous31, i64 0, i64 0), i64 %41)
   %44 = load i32* %i32
-  %45 = sub i32 %44, 1
+  %45 = sub nsw i32 %44, 1
   store i32 %45, i32* %i32
   %46 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous32, i64 0, i64 0), i32 %44)
   %47 = load i64* %i64
-  %48 = sub i64 %47, 1
+  %48 = sub nsw i64 %47, 1
   store i64 %48, i64* %i64
   %49 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous33, i64 0, i64 0), i64 %47)
   store i32 5, i32* %i32
   %50 = load i32* %i32
-  %51 = add i32 %50, 7
+  %51 = add nsw i32 %50, 7
   store i32 %51, i32* %i32
   %52 = load i32* %i32
   %53 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous34, i64 0, i64 0), i32 %52)
   %54 = load i32* %i32
-  %55 = sub i32 %54, 2
+  %55 = sub nsw i32 %54, 2
   store i32 %55, i32* %i32
   %56 = load i32* %i32
   %57 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous35, i64 0, i64 0), i32 %56)
   %58 = load i32* %i32
-  %59 = mul i32 %58, 2
+  %59 = mul nsw i32 %58, 2
   store i32 %59, i32* %i32
   %60 = load i32* %i32
   %61 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous36, i64 0, i64 0), i32 %60)
@@ -233,17 +231,17 @@ __block0:
   %89 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([17 x i8]* @__anonymous43, i64 0, i64 0), i32 %88)
   store i64 15, i64* %i64
   %90 = load i64* %i64
-  %91 = add i64 %90, 7
+  %91 = add nsw i64 %90, 7
   store i64 %91, i64* %i64
   %92 = load i64* %i64
   %93 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous44, i64 0, i64 0), i64 %92)
   %94 = load i64* %i64
-  %95 = sub i64 %94, 2
+  %95 = sub nsw i64 %94, 2
   store i64 %95, i64* %i64
   %96 = load i64* %i64
   %97 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous45, i64 0, i64 0), i64 %96)
   %98 = load i64* %i64
-  %99 = mul i64 %98, 2
+  %99 = mul nsw i64 %98, 2
   store i64 %99, i64* %i64
   %100 = load i64* %i64
   %101 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous46, i64 0, i64 0), i64 %100)
@@ -388,7 +386,7 @@ __block1:
 
 define void @Main_testMixed_____Void_() {
 __block2:
-  %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous82, i64 0, i64 0), i8 2)
+  %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous82, i64 0, i64 0), i32 2)
   %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous83, i64 0, i64 0), i64 2)
   %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([17 x i8]* @__anonymous84, i64 0, i64 0), i64 2)
   %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([17 x i8]* @__anonymous85, i64 0, i64 0), i64 2)
@@ -396,6 +394,10 @@ __block2:
   %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous87, i64 0, i64 0), double 2.000000e+00)
   %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous88, i64 0, i64 0), double 2.000000e+00)
   %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous89, i64 0, i64 0), double 2.000000e+00)
+  %8 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous90, i64 0, i64 0), float 2.000000e+00)
+  %9 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous91, i64 0, i64 0), float 2.000000e+00)
+  %10 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous92, i64 0, i64 0), float 2.000000e+00)
+  %11 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous93, i64 0, i64 0), float 2.000000e+00)
   ret void
 }
 

@@ -2,14 +2,14 @@ import "libalusus_spp.so";
 
 def Main: module
 {
-  def printf: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+  def printf: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 
-  def print: function (str: ptr[Int[8]]) => Void
+  def print: function (str: ptr[Word[8]]) => Void
   {
     printf("%s\n", str);
   };
 
-  def check: function (name: ptr[Int[8]], val: Int[32])=>Int[1]
+  def check: function (name: ptr[Word[8]], val: Int[32])=>Word[1]
   {
     printf("Checking %s...\n", name);
     return val > 10;
@@ -28,7 +28,7 @@ def Main: module
   {
     def i: Int[32];
     def j: Int[32];
-    def b: Int[1];
+    def b: Word[1];
 
     print("Testing Or:");
 
@@ -46,15 +46,15 @@ def Main: module
     i = 11; j = 11;
     if check("i", i) || check("j", j) print("Both true.");
 
-    b = 1i1;
+    b = 1;
     i = 15;
     if b || check("i", i) print("Bool type true.");
-    b = 0i1;
+    b = 0;
     if b || check("i", i) print("Bool type false.");
 
-    i = 0; j = 2; b = 0i1;
+    i = 0; j = 2; b = 0;
     if check("i", i) || check("j", j) || b print("Error: False triple check.");
-    b = 1i1;
+    b = 1;
     if check("i", i) || check("j", j) || b print("True triple check.");
   };
 
@@ -62,7 +62,7 @@ def Main: module
   {
     def i: Int[32];
     def j: Int[32];
-    def b: Int[1];
+    def b: Word[1];
 
     print("Testing And:");
 
@@ -80,15 +80,15 @@ def Main: module
     i = 11; j = 11;
     if check("i", i) && check("j", j) print("Both true.");
 
-    b = 1i1;
+    b = 1;
     i = 15;
     if b && check("i", i) print("Bool type true.");
-    b = 0i1;
+    b = 0;
     if b && check("i", i) print("Error: bool type false.");
 
-    i = 11; j = 12; b = 0i1;
+    i = 11; j = 12; b = 0;
     if check("i", i) && check("j", j) && b print("Error: False triple check.");
-    b = 1i1;
+    b = 1;
     if check("i", i) && check("j", j) && b print("True triple check.");
   };
 

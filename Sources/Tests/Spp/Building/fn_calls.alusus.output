@@ -19,10 +19,10 @@ __block0:
   %b2 = alloca double
   store double %b, double* %b2
   %0 = call i32 @Main_g_____Int_32__()
-  %1 = call i32 @Main_h_ptr_Int_8______Int_32__(i8* getelementptr inbounds ([12 x i8]* @__anonymous0, i64 0, i64 0))
+  %1 = call i32 @Main_h_ptr_Word_8______Int_32__(i8* getelementptr inbounds ([12 x i8]* @__anonymous0, i64 0, i64 0))
   %2 = call i32 @hh(i8* getelementptr inbounds ([6 x i8]* @__anonymous1, i64 0, i64 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous2, i64 0, i64 0))
   %3 = call i64 @Other_f_Int_32_____Int_64__(i32 5)
-  %4 = call i64 @Other_f_ptr_Int_8______Int_64__(i8* getelementptr inbounds ([6 x i8]* @__anonymous3, i64 0, i64 0))
+  %4 = call i64 @Other_f_ptr_Word_8______Int_64__(i8* getelementptr inbounds ([6 x i8]* @__anonymous3, i64 0, i64 0))
   call void @Other_Nested_g_____Void_()
 }
 
@@ -30,7 +30,7 @@ define i32 @Main_g_____Int_32__() {
 __block2:
 }
 
-define i32 @Main_h_ptr_Int_8______Int_32__(i8* %a) {
+define i32 @Main_h_ptr_Word_8______Int_32__(i8* %a) {
 __block3:
   %a1 = alloca i8*
   store i8* %a, i8** %a1
@@ -50,7 +50,7 @@ __block7:
   store i32 %a, i32* %a1
 }
 
-define i64 @Other_f_ptr_Int_8______Int_64__(i8* %a) {
+define i64 @Other_f_ptr_Word_8______Int_64__(i8* %a) {
 __block8:
   %a1 = alloca i8*
   store i8* %a, i8** %a1

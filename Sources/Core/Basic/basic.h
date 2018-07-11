@@ -437,10 +437,10 @@ typedef wchar_t WChar;
 typedef int Int;
 
 /// @ingroup basic_datatypes
-typedef long long int Long;
+typedef short ShortInt;
 
 /// @ingroup basic_datatypes
-typedef short ShortInt;
+typedef long long int LongInt;
 
 /**
  * @brief An integer of the same size as pointers.
@@ -463,6 +463,9 @@ typedef unsigned int Word;
 
 /// @ingroup basic_datatypes
 typedef unsigned short ShortWord;
+
+/// @ingroup basic_datatypes
+typedef unsigned long long int LongWord;
 
 /**
  * @brief A word of the same size as pointers.

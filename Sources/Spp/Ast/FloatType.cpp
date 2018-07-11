@@ -33,32 +33,23 @@ Word FloatType::getBitCount(Helper *helper) const
 }
 
 
-Bool FloatType::isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus FloatType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
 {
-  if (this == type) return true;
-
-  auto floatType = ti_cast<FloatType>(type);
-  if (floatType != 0 && floatType->getBitCount(helper) == this->getBitCount(helper)) return true;
-  else return false;
-}
-
-
-Bool FloatType::isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
-{
-  if (this == type) return true;
-
-  auto floatType = ti_cast<FloatType>(type);
-  if (floatType != 0 && floatType->getBitCount(helper) >= this->getBitCount(helper)) return true;
-  else return false;
-}
-
-
-Bool FloatType::isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
-{
-  if (this == type) return true;
-
-  if (type->isDerivedFrom<IntegerType>() || type->isDerivedFrom<FloatType>()) return true;
-  else return false;
+  if (this == type) return TypeMatchStatus::EXACT;
+  else {
+    auto floatType = ti_cast<FloatType const>(type);
+    if (floatType != 0) {
+      auto thisBitCount = this->getBitCount(helper);
+      auto targetBitCount = floatType->getBitCount(helper);
+      if (thisBitCount == targetBitCount) return TypeMatchStatus::EXACT;
+      else if (targetBitCount > thisBitCount) return TypeMatchStatus::PROMOTION;
+      else return TypeMatchStatus::IMPLICIT_CAST;
+    } else if (type->isDerivedFrom<IntegerType>()) {
+      return TypeMatchStatus::IMPLICIT_CAST;
+    } else {
+      return TypeMatchStatus::NONE;
+    }
+  }
 }
 
 } } // namespace

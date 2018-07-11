@@ -49,11 +49,7 @@ class ReferenceType : public DataType
 
   public: DataType* getContentType(Helper *helper) const;
 
-  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const;
-
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
-
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const;
+  public: virtual TypeMatchStatus matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
 }; // class
 

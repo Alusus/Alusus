@@ -1,7 +1,7 @@
-ERROR SPPG1013 @ (53,21): Invalid break steps.
-ERROR SPPG1013 @ (54,21): Invalid break steps.
-ERROR SPPG1013 @ (66,21): Invalid break steps.
-ERROR SPPG1013 @ (67,21): Invalid break steps.
+ERROR SPPG1012 @ (53,21): Invalid break steps.
+ERROR SPPG1012 @ (54,21): Invalid break steps.
+ERROR SPPG1012 @ (66,21): Invalid break steps.
+ERROR SPPG1012 @ (67,21): Invalid break steps.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -52,7 +52,7 @@ __block5:                                         ; preds = %__block4
 __block6:                                         ; preds = %__block4, %__block12, %__block8
   %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous1, i64 0, i64 0))
   %8 = load i32* %i
-  %9 = add i32 %8, 1
+  %9 = add nsw i32 %8, 1
   store i32 %9, i32* %i
   br label %__block1
 
@@ -103,7 +103,7 @@ __block18:                                        ; preds = %__block14, %__block
   %20 = load i32* %j
   %21 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous0, i64 0, i64 0), i32 %20)
   %22 = load i32* %j
-  %23 = add i32 %22, 1
+  %23 = add nsw i32 %22, 1
   store i32 %23, i32* %j
   br label %__block4
 
@@ -114,7 +114,7 @@ __block19:                                        ; preds = %__block20, %__block
 
 __block20:                                        ; preds = %__block26
   %26 = load i32* %i
-  %27 = add i32 %26, 1
+  %27 = add nsw i32 %26, 1
   store i32 %27, i32* %i
   br label %__block19
 
@@ -135,7 +135,7 @@ __block23:                                        ; preds = %__block24, %__block
 
 __block24:                                        ; preds = %__block38
   %31 = load i32* %j
-  %32 = add i32 %31, 1
+  %32 = add nsw i32 %31, 1
   store i32 %32, i32* %j
   br label %__block23
 
@@ -204,7 +204,7 @@ __block40:                                        ; No predecessors!
   store i32 0, i32* %j
   %50 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous5, i64 0, i64 0))
   %51 = load i32* %i
-  %52 = add i32 %51, 1
+  %52 = add nsw i32 %51, 1
   store i32 %52, i32* %i
 
 __block41:                                        ; No predecessors!
@@ -220,7 +220,7 @@ __block43:                                        ; No predecessors!
   %58 = load i32* %j
   %59 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous4, i64 0, i64 0), i32 %58)
   %60 = load i32* %j
-  %61 = add i32 %60, 1
+  %61 = add nsw i32 %60, 1
   store i32 %61, i32* %j
 
 __block44:                                        ; No predecessors!
@@ -241,7 +241,7 @@ __block48:                                        ; No predecessors!
 
 __block49:                                        ; No predecessors!
   %68 = load i32* %i
-  %69 = add i32 %68, 1
+  %69 = add nsw i32 %68, 1
   store i32 %69, i32* %i
 
 __block50:                                        ; No predecessors!
@@ -257,7 +257,7 @@ __block52:                                        ; No predecessors!
 
 __block53:                                        ; No predecessors!
   %74 = load i32* %j
-  %75 = add i32 %74, 1
+  %75 = add nsw i32 %74, 1
   store i32 %75, i32* %j
 
 __block54:                                        ; No predecessors!

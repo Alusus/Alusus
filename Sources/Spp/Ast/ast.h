@@ -37,7 +37,10 @@ class Type;
 /**
  * @ingroup spp_ast
  */
-ti_s_enum(CallMatchStatus, TiInt, "Spp.Ast", "Spp", "alusus.net", NONE = 0, CASTED = 1, DEREF = 2, EXACT = 3);
+ti_s_enum(TypeMatchStatus,
+  TiInt, "Spp.Ast", "Spp", "alusus.net",
+  NONE = 0, EXPLICIT_CAST = 1, IMPLICIT_CAST = 2, PROMOTION = 3, AGGREGATION = 4, DEREFERENCE = 5, EXACT = 6
+);
 
 } } // namespace
 

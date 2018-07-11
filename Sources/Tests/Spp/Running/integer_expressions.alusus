@@ -2,7 +2,7 @@ import "libalusus_spp.so";
 
 def Main: module
 {
-  def print: @expname[printf] function (fmt: ptr[Int[8]], args: ...any)=>Int[64];
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 
   def start: function ()=>Void
   {
@@ -17,7 +17,7 @@ def Main: module
     print("4|2=%d\n", 4|2);
     print("7$12=%d\n", 7$12);
     print("!1=%d\n", !1);
-    print("-34=%d\n", -34);
+    print("-34=%d\n", -34i32);
     print("+34=%d\n", +34);
 
     print("1+2*3=%d\n", 1+2*3);

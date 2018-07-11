@@ -9,7 +9,7 @@ def Main: module
     h("hello", "world");
     Other.f(5);
     Other.f("hello");
-    Other.f(5.3);
+    Other.f(5i64~cast[ptr[Int[32]]]);
     Other.invalid();
     Other.Nested.g();
     Other.Nested.f();
@@ -22,10 +22,10 @@ def Main: module
   def g: function ()=>Int[32] {
   };
 
-  def h: function (a: ptr[Int[8]])=>Int[32] {
+  def h: function (a: ptr[Word[8]])=>Int[32] {
   };
 
-  def h: @expname[hh] function (a: ptr[Int[8]], b: ptr[Int[8]])=>Int[32] {
+  def h: @expname[hh] function (a: ptr[Word[8]], b: ptr[Word[8]])=>Int[32] {
   };
 
   def subModule: module
@@ -45,7 +45,7 @@ def Other: module
   {
   };
 
-  def f: function (a: ptr[Int[8]]) => Int[64]
+  def f: function (a: ptr[Word[8]]) => Int[64]
   {
   };
 

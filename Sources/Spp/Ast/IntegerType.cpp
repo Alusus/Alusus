@@ -33,39 +33,34 @@ Word IntegerType::getBitCount(Helper *helper) const
 }
 
 
-Bool IntegerType::isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus IntegerType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
 {
-  if (this == type) return true;
-
-  auto integerType = ti_cast<IntegerType>(type);
-  if (integerType != 0 && integerType->getBitCount(helper) == this->getBitCount(helper)) return true;
-  else return false;
-}
-
-
-Bool IntegerType::isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
-{
-  if (this == type) return true;
-
-  auto integerType = ti_cast<IntegerType>(type);
-  if (integerType != 0 && integerType->getBitCount(helper) >= this->getBitCount(helper)) return true;
-  else return false;
-}
-
-
-Bool IntegerType::isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
-{
-  if (this == type) return true;
-
-  if (type->isDerivedFrom<IntegerType>() || type->isDerivedFrom<FloatType>()) {
-    return true;
-  } else if (
-    type->isDerivedFrom<PointerType>() &&
-    ec->getPointerBitCount() == this->getBitCount(helper)
-  ) {
-    return true;
-  } else {
-    return false;
+  if (this == type) return TypeMatchStatus::EXACT;
+  else {
+    auto integerType = ti_cast<IntegerType const>(type);
+    if (integerType != 0) {
+      auto thisBitCount = this->getBitCount(helper);
+      auto targetBitCount = integerType->getBitCount(helper);
+      if (thisBitCount == targetBitCount && this->isSigned() == integerType->isSigned()) {
+        return TypeMatchStatus::EXACT;
+      } else if (targetBitCount == 1 && thisBitCount == 1) {
+        return TypeMatchStatus::PROMOTION;
+      } else if (integerType->isSigned() == this->isSigned() && targetBitCount > thisBitCount) {
+        return TypeMatchStatus::PROMOTION;
+      } else if (integerType->isSigned() && targetBitCount > thisBitCount) {
+        return TypeMatchStatus::PROMOTION;
+      } else if (thisBitCount > 1 && targetBitCount == 1) {
+        return TypeMatchStatus::NONE;
+      } else {
+        return TypeMatchStatus::IMPLICIT_CAST;
+      }
+    } else if (type->isDerivedFrom<FloatType>()) {
+      return TypeMatchStatus::IMPLICIT_CAST;
+    } else if (type->isDerivedFrom<PointerType>() && ec->getPointerBitCount() == this->getBitCount(helper)) {
+      return TypeMatchStatus::EXPLICIT_CAST;
+    } else {
+      return TypeMatchStatus::NONE;
+    }
   }
 }
 

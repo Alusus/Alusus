@@ -1,7 +1,7 @@
-ERROR SPPG1012 @ (58,21): Invalid continue steps.
-ERROR SPPG1012 @ (59,21): Invalid continue steps.
-ERROR SPPG1012 @ (71,21): Invalid continue steps.
-ERROR SPPG1012 @ (72,21): Invalid continue steps.
+ERROR SPPG1011 @ (58,21): Invalid continue steps.
+ERROR SPPG1011 @ (59,21): Invalid continue steps.
+ERROR SPPG1011 @ (71,21): Invalid continue steps.
+ERROR SPPG1011 @ (72,21): Invalid continue steps.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -52,7 +52,7 @@ __block5:                                         ; preds = %__block4
 __block6:                                         ; preds = %__block4
   %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous1, i64 0, i64 0))
   %8 = load i32* %i
-  %9 = add i32 %8, 1
+  %9 = add nsw i32 %8, 1
   store i32 %9, i32* %i
   br label %__block1
 
@@ -63,7 +63,7 @@ __block7:                                         ; preds = %__block5
 
 __block8:                                         ; preds = %__block7
   %12 = load i32* %j
-  %13 = add i32 %12, 1
+  %13 = add nsw i32 %12, 1
   store i32 %13, i32* %j
   br label %__block4
 
@@ -74,7 +74,7 @@ __block9:                                         ; preds = %__block7
 
 __block10:                                        ; preds = %__block9
   %16 = load i32* %j
-  %17 = add i32 %16, 1
+  %17 = add nsw i32 %16, 1
   store i32 %17, i32* %j
   br label %__block4
 
@@ -93,7 +93,7 @@ __block13:                                        ; preds = %__block12
 
 __block14:                                        ; preds = %__block13
   %22 = load i32* %i
-  %23 = add i32 %22, 1
+  %23 = add nsw i32 %22, 1
   store i32 %23, i32* %i
   br label %__block1
 
@@ -104,7 +104,7 @@ __block16:                                        ; preds = %__block12, %__block
   %24 = load i32* %j
   %25 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous0, i64 0, i64 0), i32 %24)
   %26 = load i32* %j
-  %27 = add i32 %26, 1
+  %27 = add nsw i32 %26, 1
   store i32 %27, i32* %j
   br label %__block4
 
@@ -115,7 +115,7 @@ __block17:                                        ; preds = %__block18, %__block
 
 __block18:                                        ; preds = %__block24, %__block32
   %30 = load i32* %i
-  %31 = add i32 %30, 1
+  %31 = add nsw i32 %30, 1
   store i32 %31, i32* %i
   br label %__block17
 
@@ -136,7 +136,7 @@ __block21:                                        ; preds = %__block22, %__block
 
 __block22:                                        ; preds = %__block34, %__block28, %__block26
   %35 = load i32* %j
-  %36 = add i32 %35, 1
+  %36 = add nsw i32 %35, 1
   store i32 %36, i32* %j
   br label %__block21
 
@@ -197,7 +197,7 @@ __block36:                                        ; No predecessors!
   store i32 0, i32* %j
   %52 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous5, i64 0, i64 0))
   %53 = load i32* %i
-  %54 = add i32 %53, 1
+  %54 = add nsw i32 %53, 1
   store i32 %54, i32* %i
 
 __block37:                                        ; No predecessors!
@@ -213,7 +213,7 @@ __block39:                                        ; No predecessors!
   %60 = load i32* %j
   %61 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous4, i64 0, i64 0), i32 %60)
   %62 = load i32* %j
-  %63 = add i32 %62, 1
+  %63 = add nsw i32 %62, 1
   store i32 %63, i32* %j
 
 __block40:                                        ; No predecessors!
@@ -234,7 +234,7 @@ __block44:                                        ; No predecessors!
 
 __block45:                                        ; No predecessors!
   %70 = load i32* %i
-  %71 = add i32 %70, 1
+  %71 = add nsw i32 %70, 1
   store i32 %71, i32* %i
 
 __block46:                                        ; No predecessors!
@@ -250,7 +250,7 @@ __block48:                                        ; No predecessors!
 
 __block49:                                        ; No predecessors!
   %76 = load i32* %j
-  %77 = add i32 %76, 1
+  %77 = add nsw i32 %76, 1
   store i32 %77, i32* %j
 
 __block50:                                        ; No predecessors!

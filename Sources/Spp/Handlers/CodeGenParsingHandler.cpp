@@ -48,17 +48,22 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
         TiObject *callee = 0;
         Ast::Type *calleeType = 0;
         Ast::Function *entryFunction = 0;
+        SharedPtr<Core::Notices::Notice> notice;
         if (this->astHelper->lookupCallee(
           entryRef, root, true, 0, this->targetGenerator->getExecutionContext(),
-          callee, calleeType
+          callee, calleeType, notice
         )) {
           entryFunction = ti_cast<Ast::Function>(callee);
         }
         // Execute if an entry function was found.
         if (entryFunction == 0) {
-          state->addNotice(
-            std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(entryRef))
-          );
+          if (notice != 0) {
+            state->addNotice(notice);
+          } else {
+            state->addNotice(
+              std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(entryRef))
+            );
+          }
         } else {
           auto funcName = this->astHelper->getFunctionName(entryFunction).c_str();
           this->targetGenerator->execute(funcName);
