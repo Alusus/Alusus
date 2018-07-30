@@ -2,10 +2,10 @@ import "common.alusus";
 
 def UserInput: module {
   def start: function() {
-    def eof: Int[32];
+    def eof: Int;
     eof = -1;
 
-    def c : Int[32];
+    def c : Int;
     c = Srt.getChar();
     while c != eof {
       Srt.putChar(c);

@@ -37,14 +37,14 @@ __block4:                                         ; preds = %__block5, %__block2
 
 __block5:                                         ; preds = %__block4
   %5 = load i32* %j
-  %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous0, i64 0, i64 0), i32 %5)
+  %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous0, i32 0, i32 0), i32 %5)
   %7 = load i32* %j
   %8 = add nsw i32 %7, 1
   store i32 %8, i32* %j
   br label %__block4
 
 __block6:                                         ; preds = %__block4
-  %9 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous1, i64 0, i64 0))
+  %9 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous1, i32 0, i32 0))
   %10 = load i32* %i
   %11 = add nsw i32 %10, 1
   store i32 %11, i32* %i
@@ -82,11 +82,11 @@ __block12:                                        ; preds = %__block13
 
 __block13:                                        ; preds = %__block11
   %21 = load i32* %j
-  %22 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous2, i64 0, i64 0), i32 %21)
+  %22 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous2, i32 0, i32 0), i32 %21)
   br label %__block12
 
 __block14:                                        ; preds = %__block11
-  %23 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous3, i64 0, i64 0))
+  %23 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous3, i32 0, i32 0))
   br label %__block8
 }
 ------------------------------------------------------------

@@ -136,14 +136,14 @@ void NodePathResolver::_resolveTemplateInstance(
   auto varDefs = tmplt->getVarDefs();
   for (Int i = 0; i < varDefs->size(); ++i) {
     if (i > 0) path << CHR(',');
-    auto obj = Ast::Template::getTemplateVar(block, varDefs->at(i).first.c_str());
-    if (varDefs->at(i).second == Ast::Template::VarType::INTEGER) {
+    auto obj = Ast::Template::getTemplateVar(block, varDefs->at(i).name.c_str());
+    if (varDefs->at(i).type == Ast::Template::VarType::INTEGER) {
       auto integer = ti_cast<TiInt>(obj);
       if (integer == 0) {
         throw EXCEPTION(GenericException, STR("Invalid template argument."));
       }
       path << integer->get();
-    } else if (varDefs->at(i).second == Ast::Template::VarType::STRING) {
+    } else if (varDefs->at(i).type == Ast::Template::VarType::STRING) {
       auto str = ti_cast<TiStr>(obj);
       if (str == 0) {
         throw EXCEPTION(GenericException, STR("Invalid template argument."));

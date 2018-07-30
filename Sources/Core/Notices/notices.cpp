@@ -38,7 +38,8 @@ void printNotice(Notice const *msg)
     auto stack = static_cast<Data::SourceLocationStack*>(sl);
     for (Int i = stack->getCount() - 1; i >= 0; --i) {
       if (i < stack->getCount() -1) outStream << NEW_LINE << STR("from ");
-      outStream << stack->get(i)->filename->c_str() << " (" << stack->get(i)->line << "," << stack->get(i)->column << ")";
+      outStream << stack->get(i)->filename->c_str()
+        << " (" << stack->get(i)->line << "," << stack->get(i)->column << ")";
     }
   }
   outStream << STR(": ");

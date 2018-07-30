@@ -1,9 +1,9 @@
 import "common.alusus";
 
 def FactorialWhileLoop: module {
-  def factorial: function (i:Int[32]) => Int[32] {
+  def factorial: function (i:Int) => Int {
     if i<=0 return 1;
-    def f: Int[32];
+    def f: Int;
     f = i;
     while i >= 2 {
       --i;

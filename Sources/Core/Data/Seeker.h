@@ -114,6 +114,13 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
     return retVal;
   }
 
+  public: Bool find(TiObject const *ref, TiObject *target, TypeInfo const *ti, TiObject *&retVal, Word flags);
+
+  public: template<class T> Bool find(TiObject const *ref, TiObject *target, TiObject *&retVal, Word flags)
+  {
+    return this->find(ref, target, T::getTypeInfo(), retVal, flags);
+  }
+
   public: static Bool isPerform(Verb verb)
   {
     return verb == Verb::PERFORM_AND_STOP || verb == Verb::PERFORM_AND_MOVE;

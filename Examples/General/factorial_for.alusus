@@ -1,9 +1,9 @@
 import "common.alusus";
 
 def FactorialForLoop: module {
-  def factorial: function (i:Int[32]) => Int[32] {
+  def factorial: function (i:Int) => Int {
     if i<=0 return 1;
-    def f: Int[32];
+    def f: Int;
     f = i;
     for i=i-1, i>=2, --i f=f*i;
     return f;

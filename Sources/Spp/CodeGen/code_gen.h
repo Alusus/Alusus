@@ -39,6 +39,7 @@ struct GenResult
 // Global Constants
 
 constexpr Char const* META_EXTRA_CODE_GEN = STR("codeGen");
+constexpr Char const* META_EXTRA_CODE_GEN_FAILED = STR("codeGenFailed");
 
 
 //==============================================================================
@@ -92,6 +93,42 @@ inline void setCodeGenData(OT *object, SharedPtr<DT> const &data)
     throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the MetaHaving interface."));
   }
   metadata->setExtra(META_EXTRA_CODE_GEN, data);
+}
+
+// didCodeGenFail
+
+template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline Bool didCodeGenFail(OT *object)
+{
+  auto f = object->getExtra(META_EXTRA_CODE_GEN_FAILED).template ti_cast_get<TiBool>();
+  return f && f->get();
+}
+
+template <class OT, typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline Bool didCodeGenFail(OT *object)
+{
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
+  if (metadata == 0) return false;
+  auto f = metadata->getExtra(META_EXTRA_CODE_GEN_FAILED).template ti_cast_get<TiBool>();
+  return f && f->get();
+}
+
+// setCodeGenFailed
+
+template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline void setCodeGenFailed(OT *object, Bool f)
+{
+  object->setExtra(META_EXTRA_CODE_GEN_FAILED, TiBool::create(f));
+}
+
+template <class OT, typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline void setCodeGenFailed(OT *object, Bool f)
+{
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
+  if (metadata == 0) {
+    throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the MetaHaving interface."));
+  }
+  metadata->setExtra(META_EXTRA_CODE_GEN_FAILED, TiBool::create(f));
 }
 
 } } // namespace

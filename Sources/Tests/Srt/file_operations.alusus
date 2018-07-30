@@ -4,7 +4,7 @@ def Main: module
 {
   def start: function () => Void
   {
-    def filename: ptr[Word[8]];
+    def filename: ptr[Char];
     filename = "/tmp/alususfileoperationtest.txt";
 
     testWritingText(filename);
@@ -13,7 +13,7 @@ def Main: module
     testReadingBinary(filename);
   };
 
-  def testWritingText: function (filename: ptr[Word[8]])=>Void
+  def testWritingText: function (filename: ptr[Char])=>Void
   {
     def file: ptr[Void];
     file = Srt.openFile(filename, "w");
@@ -21,40 +21,40 @@ def Main: module
     Srt.closeFile(file);
   };
 
-  def testReadingText: function (filename: ptr[Word[8]])=>Void
+  def testReadingText: function (filename: ptr[Char])=>Void
   {
     def file: ptr[Void];
-    def buffer: array[Word[8], 100];
+    def buffer: array[Char, 100];
     file = Srt.openFile(filename, "r");
     Srt.scanFromFile(file, "%[^0-9]", buffer~ptr);
     Srt.print(buffer(0)~ptr);
-    def num: Int[32];
+    def num: Int;
     Srt.scanFromFile(file, "%i", num~ptr);
     Srt.print("%d\n", num);
     Srt.closeFile(file);
   };
 
-  def testWritingBinary: function (filename: ptr[Word[8]])=>Void
+  def testWritingBinary: function (filename: ptr[Char])=>Void
   {
     def file: ptr[Void];
-    def arr: array[Int[32], 8];
-    def i: Int[32];
+    def arr: array[Int, 8];
+    def i: Int;
     for i = 0, i < 8, ++i {
       arr(i) = i * i;
     };
     file = Srt.openFile(filename, "w");
-    Srt.writeToFile(arr~ptr, arr(0)~size~cast[Int[32]], 8, file);
+    Srt.writeToFile(arr~ptr, arr(0)~size~cast[Int], 8, file);
     Srt.closeFile(file);
   };
 
-  def testReadingBinary: function (filename: ptr[Word[8]])=>Void
+  def testReadingBinary: function (filename: ptr[Char])=>Void
   {
     def file: ptr[Void];
-    def newArr: array[Int[32], 8];
+    def newArr: array[Int, 8];
     file = Srt.openFile(filename, "r");
-    Srt.readFromFile(newArr~ptr, newArr(0)~size~cast[Int[32]], 8, file);
+    Srt.readFromFile(newArr~ptr, newArr(0)~size~cast[Int], 8, file);
     Srt.closeFile(file);
-    def i: Int[32];
+    def i: Int;
     for i = 0, i < 8, ++i {
       Srt.print("element %d: %d\n", i, newArr(i));
     }

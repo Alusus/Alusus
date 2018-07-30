@@ -34,7 +34,13 @@ class Template : public Core::Data::Node,
 
   public: s_enum(VarType, INTEGER, STRING, TYPE, FUNCTION);
 
-  public: typedef std::pair<Str, VarType> VarDef;
+  public: struct VarDef
+  {
+    Str name;
+    VarType type;
+    TioSharedPtr defaultVal;
+    VarDef(Char const *n, VarType t, TioSharedPtr const &v = TioSharedPtr()) : name(n), type(t), defaultVal(v) {}
+  };
 
 
   //============================================================================

@@ -3,8 +3,8 @@ import "common.alusus";
 def UserTypes: module {
   def Point: type
   {
-    def x: Int[32];
-    def y: Int[32];
+    def x: Int;
+    def y: Int;
   };
 
   def start: function ()

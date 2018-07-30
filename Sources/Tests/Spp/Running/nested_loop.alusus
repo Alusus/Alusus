@@ -6,8 +6,8 @@ def Main: module
 
   def start: function () => Void
   {
-    def i: Int[32];
-    def j: Int[32];
+    def i: Int;
+    def j: Int;
 
     i = 0;
     while i < 10 {

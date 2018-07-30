@@ -50,7 +50,7 @@ __block5:                                         ; preds = %__block4
   br i1 %6, label %__block7, label %__block12
 
 __block6:                                         ; preds = %__block4
-  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous1, i64 0, i64 0))
+  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous1, i32 0, i32 0))
   %8 = load i32* %i
   %9 = add nsw i32 %8, 1
   store i32 %9, i32* %i
@@ -102,7 +102,7 @@ __block15:                                        ; preds = %__block13
 
 __block16:                                        ; preds = %__block12, %__block15
   %24 = load i32* %j
-  %25 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous0, i64 0, i64 0), i32 %24)
+  %25 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous0, i32 0, i32 0), i32 %24)
   %26 = load i32* %j
   %27 = add nsw i32 %26, 1
   store i32 %27, i32* %j
@@ -146,7 +146,7 @@ __block23:                                        ; preds = %__block21
   br i1 %38, label %__block25, label %__block30
 
 __block24:                                        ; preds = %__block21
-  %39 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous3, i64 0, i64 0))
+  %39 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous3, i32 0, i32 0))
   br label %__block18
 
 __block25:                                        ; preds = %__block23
@@ -186,7 +186,7 @@ __block33:                                        ; preds = %__block31
 
 __block34:                                        ; preds = %__block30, %__block33
   %48 = load i32* %j
-  %49 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous2, i64 0, i64 0), i32 %48)
+  %49 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous2, i32 0, i32 0), i32 %48)
   br label %__block22
 
 __block35:                                        ; No predecessors!
@@ -195,7 +195,7 @@ __block35:                                        ; No predecessors!
 
 __block36:                                        ; No predecessors!
   store i32 0, i32* %j
-  %52 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous5, i64 0, i64 0))
+  %52 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous5, i32 0, i32 0))
   %53 = load i32* %i
   %54 = add nsw i32 %53, 1
   store i32 %54, i32* %i
@@ -211,7 +211,7 @@ __block39:                                        ; No predecessors!
   %58 = load i32* %i
   %59 = icmp eq i32 %58, 8
   %60 = load i32* %j
-  %61 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous4, i64 0, i64 0), i32 %60)
+  %61 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous4, i32 0, i32 0), i32 %60)
   %62 = load i32* %j
   %63 = add nsw i32 %62, 1
   store i32 %63, i32* %j
@@ -239,7 +239,7 @@ __block45:                                        ; No predecessors!
 
 __block46:                                        ; No predecessors!
   store i32 0, i32* %j
-  %72 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous7, i64 0, i64 0))
+  %72 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous7, i32 0, i32 0))
 
 __block47:                                        ; No predecessors!
 
@@ -257,7 +257,7 @@ __block50:                                        ; No predecessors!
   %78 = load i32* %i
   %79 = icmp eq i32 %78, 8
   %80 = load i32* %j
-  %81 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous6, i64 0, i64 0), i32 %80)
+  %81 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous6, i32 0, i32 0), i32 %80)
 
 __block51:                                        ; No predecessors!
 

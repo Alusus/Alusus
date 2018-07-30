@@ -121,6 +121,22 @@ Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal, Wo
 }
 
 
+Bool Seeker::find(TiObject const *ref, TiObject *target, TypeInfo const *ti, TiObject *&retVal, Word flags)
+{
+  Bool ret = false;
+  this->foreach(ref, target, [ti, &ret, &retVal](TiObject *o, Notices::Notice*)->Verb {
+    if (o->isDerivedFrom(ti)) {
+      retVal = o;
+      ret = true;
+      return Verb::STOP;
+    } else {
+      return Verb::MOVE;
+    }
+  }, flags);
+  return ret;
+}
+
+
 //==============================================================================
 // Main Seek Functions
 

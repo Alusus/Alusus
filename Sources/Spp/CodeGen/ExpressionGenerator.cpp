@@ -211,7 +211,7 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
     {
       symbolFound = true;
       // Check if the found obj is a variable definition.
-      if (expGenerator->astHelper->isVarDefinition(obj)) {
+      if (expGenerator->astHelper->isAstReference(obj)) {
         retVal = expGenerator->generateVarReference(obj, g, tg, tgContext, result);
       } else if (
         obj->isDerivedFrom<Ast::Module>() || obj->isDerivedFrom<Ast::Type>() ||
@@ -306,8 +306,11 @@ Bool ExpressionGenerator::_generateRoundParamPass(
   // Prepare parameters list.
   SharedList<TiObject> paramTgValues;
   PlainList<TiObject> paramAstTypes;
+  PlainList<TiObject> paramAstNodes;
   auto param = astNode->getParam().get();
-  if (!expGenerator->generateParamList(param, g, tg, tgContext, &paramAstTypes, &paramTgValues)) return false;
+  if (!expGenerator->generateParamList(param, g, tg, tgContext, &paramAstNodes, &paramAstTypes, &paramTgValues)) {
+    return false;
+  }
 
   if (operand->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     ////
@@ -323,7 +326,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
       return false;
     }
     return expGenerator->generateRoundParamPassOnCallee(
-      callee, calleeType, &paramTgValues, &paramAstTypes, g, tg, tgContext, result
+      callee, calleeType, &paramTgValues, &paramAstTypes, &paramAstNodes, g, tg, tgContext, result
     );
   } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     ////
@@ -353,7 +356,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
         firstResult.targetData.get(), firstResult.astType, second, g, tg, tgContext, prevResult
       )) return false;
       return expGenerator->generateRoundParamPassOnMember(
-        linkOperator, &prevResult, &paramTgValues, &paramAstTypes, g, tg, tgContext, result
+        linkOperator, &prevResult, &paramTgValues, &paramAstTypes, &paramAstNodes, g, tg, tgContext, result
       );
     } else if (firstResult.astNode != 0 && firstResult.astNode->isDerivedFrom<Ast::Module>()) {
       //// Calling a global in another module.
@@ -369,7 +372,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
         return false;
       }
       return expGenerator->generateRoundParamPassOnCallee(
-        callee, calleeType, &paramTgValues, &paramAstTypes, g, tg, tgContext, result
+        callee, calleeType, &paramTgValues, &paramAstTypes, &paramAstNodes, g, tg, tgContext, result
       );
     } else {
       expGenerator->noticeStore->add(
@@ -384,7 +387,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     GenResult prevResult;
     if (!expGenerator->generate(operand, g, tg, tgContext, prevResult)) return false;
     return expGenerator->generateRoundParamPassOnResult(
-      astNode, &prevResult, &paramTgValues, &paramAstTypes, g, tg, tgContext, result
+      astNode, &prevResult, &paramTgValues, &paramAstTypes, &paramAstNodes, g, tg, tgContext, result
     );
   }
 }
@@ -392,7 +395,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
 
 Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
   TiObject *self, TiObject *callee, Ast::Type *calleeType,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
   Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -401,9 +404,10 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
     //// Call a function.
     ////
     // Prepare the arguments to send.
-    expGenerator->prepareFunctionParams(
-      static_cast<Ast::Function*>(callee)->getType().get(), g, tg, tgContext, paramAstTypes, paramTgValues
-    );
+    if (!expGenerator->prepareFunctionParams(
+      static_cast<Ast::Function*>(callee)->getType().get(), g, tg, tgContext,
+      paramAstNodes, paramAstTypes, paramTgValues
+    )) return false;
     // Generate the function call.
     return expGenerator->generateFunctionCall(
       static_cast<Ast::Function*>(callee), paramAstTypes, paramTgValues, g, tg, tgContext, result
@@ -417,7 +421,9 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
       throw EXCEPTION(GenericException, STR("Invalid callee type."));
     }
     // Prepare the arguments to send.
-    expGenerator->prepareFunctionParams(astFuncType, g, tg, tgContext, paramAstTypes, paramTgValues);
+    if (!expGenerator->prepareFunctionParams(
+      astFuncType, g, tg, tgContext, paramAstNodes, paramAstTypes, paramTgValues
+    )) return false;
     // Get the target data of the pointer and its type.
     GenResult funcPtrResult;
     if (!expGenerator->generateVarReference(callee, g, tg, tgContext, funcPtrResult)) return false;
@@ -452,7 +458,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
 
 Bool ExpressionGenerator::_generateRoundParamPassOnResult(
   TiObject *self, Core::Data::Ast::ParamPass *astNode, GenResult *prevResult,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
   Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -479,7 +485,9 @@ Bool ExpressionGenerator::_generateRoundParamPassOnResult(
         return false;
       }
       // Call a function pointer from a previous expression.
-      expGenerator->prepareFunctionParams(astFuncType, g, tg, tgContext, paramAstTypes, paramTgValues);
+      if (!expGenerator->prepareFunctionParams(
+        astFuncType, g, tg, tgContext, paramAstNodes, paramAstTypes, paramTgValues
+      )) return false;
       TiObject *tgFuncPtrType;
       if (!g->getGeneratedType(prevResult->astType, tg, tgFuncPtrType, 0)) return false;
       if (!tg->generateFunctionPtrCall(
@@ -499,7 +507,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnResult(
 
 Bool ExpressionGenerator::_generateRoundParamPassOnMember(
   TiObject *self, Core::Data::Ast::LinkOperator *linkOperator, GenResult *prevResult,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
   Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -528,7 +536,9 @@ Bool ExpressionGenerator::_generateRoundParamPassOnMember(
         );
         return false;
       }
-      expGenerator->prepareFunctionParams(astFuncType, g, tg, tgContext, paramAstTypes, paramTgValues);
+      if (!expGenerator->prepareFunctionParams(
+        astFuncType, g, tg, tgContext, paramAstNodes, paramAstTypes, paramTgValues
+      )) return false;
       // Generate the call.
       TiObject *tgFuncPtrType = getCodeGenData<TiObject>(derefResult.astType);
       if (!tg->generateFunctionPtrCall(
@@ -644,8 +654,9 @@ Bool ExpressionGenerator::_generateOperator(
   // Generate parameters list.
   SharedList<TiObject> paramTgValues;
   PlainList<TiObject> paramAstTypes;
+  PlainList<TiObject> paramAstNodes;
   if (!expGenerator->generateParamList(
-    ti_cast<Containing<TiObject>>(astNode), g, tg, tgContext, &paramAstTypes, &paramTgValues
+    ti_cast<Containing<TiObject>>(astNode), g, tg, tgContext, &paramAstNodes, &paramAstTypes, &paramTgValues
   )) return false;
 
   // Look for a matching function to call.
@@ -660,7 +671,9 @@ Bool ExpressionGenerator::_generateOperator(
 
   if (function != 0) {
     // Prepare the arguments to send.
-    expGenerator->prepareFunctionParams(function->getType().get(), g, tg, tgContext, &paramAstTypes, &paramTgValues);
+    if (!expGenerator->prepareFunctionParams(
+      function->getType().get(), g, tg, tgContext, &paramAstNodes, &paramAstTypes, &paramTgValues
+    )) return false;
 
     // Generate the functionc all.
     return expGenerator->generateFunctionCall(function, &paramAstTypes, &paramTgValues, g, tg, tgContext, result);
@@ -1113,9 +1126,14 @@ Bool ExpressionGenerator::_generateAssignOp(
     }
   }
 
-  if (!g->generateCast(tg, tgContext, param.astType, astContentType, param.targetData.get(), param.targetData)) {
-    return false;
-  }
+  // Cast the value to the destination type.
+  auto sourceLocation = Core::Data::Ast::findSourceLocation(astNode);
+  expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation.get());
+  auto retVal = g->generateCast(tg, tgContext, param.astType, astContentType, param.targetData.get(), param.targetData);
+  expGenerator->noticeStore->popPrefixSourceLocation(
+    Core::Data::getSourceLocationRecordCount(sourceLocation.get())
+  );
+  if (!retVal) return false;
 
   TiObject *tgContentType;
   if (!g->getGeneratedType(astContentType, tg, tgContentType, 0)) {
@@ -1626,7 +1644,18 @@ Bool ExpressionGenerator::_generateSizeOp(
     operand, g, ti_cast<TargetGeneration>(expGenerator->noOpTargetGenerator), 0, operandResult
   )) return false;
   Ast::Type *astType = operandResult.astType;
-  if (astType == 0) astType = ti_cast<Ast::Type>(operandResult.astNode);
+  if (astType == 0) {
+    if (operandResult.astNode->isDerivedFrom<Spp::Ast::Type>()) {
+      astType = static_cast<Spp::Ast::Type*>(operandResult.astNode);
+    } else if (operandResult.astNode->isDerivedFrom<Spp::Ast::Template>()) {
+      auto tpl = static_cast<Spp::Ast::Template*>(operandResult.astNode);
+      Core::Data::Ast::List list;
+      TioSharedPtr matchResult;
+      if (tpl->matchInstance(&list, expGenerator->getAstHelper(), matchResult)) {
+        astType = matchResult.ti_cast_get<Spp::Ast::Type>();
+      }
+    }
+  }
   if (astType == 0) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidSizeOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
@@ -1673,16 +1702,16 @@ Bool ExpressionGenerator::_generateStringLiteral(
   TiObject *charTgType;
   if (!g->getGeneratedType(charAstType, tg, charTgType, 0)) return false;
 
-  auto charPtrAstType = expGenerator->astHelper->getCharPtrType();
-  TiObject *charPtrTgType;
-  if (!g->getGeneratedType(charPtrAstType, tg, charPtrTgType, 0)) return false;
-
   auto strAstType = expGenerator->astHelper->getCharArrayType(value->size() + 1);
   TiObject *strTgType;
   if (!g->getGeneratedType(strAstType, tg, strTgType, 0)) return false;
 
+  auto strPtrAstType = expGenerator->astHelper->getPointerTypeFor(strAstType);
+  TiObject *strPtrTgType;
+  if (!g->getGeneratedType(strPtrAstType, tg, strPtrTgType, 0)) return false;
+
   if (!tg->generateStringLiteral(tgContext, value->c_str(), charTgType, strTgType, result.targetData)) return false;
-  result.astType = charPtrAstType;
+  result.astType =  strPtrAstType;
   return true;
 }
 
@@ -2004,13 +2033,13 @@ Bool ExpressionGenerator::_generateFunctionCall(
 
 Bool ExpressionGenerator::generateParamList(
   TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-  ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
+  ListContaining<TiObject> *resultAstNodes, ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
 ) {
   if (astNode == 0) return true;
 
   if (astNode->isDerivedFrom<Core::Data::Ast::List>()) {
     if (!this->generateParamList(
-      ti_cast<Containing<TiObject>>(astNode), g, tg, tgContext, resultTypes, resultValues
+      ti_cast<Containing<TiObject>>(astNode), g, tg, tgContext, resultAstNodes, resultTypes, resultValues
     )) return false;
   } else {
     GenResult result;
@@ -2023,6 +2052,7 @@ Bool ExpressionGenerator::generateParamList(
     }
     resultValues->add(result.targetData);
     resultTypes->addElement(result.astType);
+    resultAstNodes->addElement(astNode);
   }
   return true;
 }
@@ -2030,7 +2060,7 @@ Bool ExpressionGenerator::generateParamList(
 
 Bool ExpressionGenerator::generateParamList(
   Containing<TiObject> *astNodes, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-  ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
+  ListContaining<TiObject> *resultAstNodes, ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
 ) {
   for (Int i = 0; i < astNodes->getElementCount(); ++i) {
     GenResult result;
@@ -2043,14 +2073,15 @@ Bool ExpressionGenerator::generateParamList(
     }
     resultValues->add(result.targetData);
     resultTypes->addElement(result.astType);
+    resultAstNodes->addElement(astNodes->getElement(i));
   }
   return true;
 }
 
 
-void ExpressionGenerator::prepareFunctionParams(
+Bool ExpressionGenerator::prepareFunctionParams(
   Spp::Ast::FunctionType *calleeType, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-  ListContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
+  ListContaining<TiObject> *paramAstNodes, ListContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
 ) {
   Ast::FunctionType::ArgMatchContext context;
   for (Int i = 0; i < paramTgVals->getElementCount(); ++i) {
@@ -2060,11 +2091,14 @@ void ExpressionGenerator::prepareFunctionParams(
 
     // Cast the value if needed.
     if (context.type != 0) {
+      auto sourceLocation = Core::Data::Ast::findSourceLocation(paramAstNodes->getElement(i));
+      this->noticeStore->pushPrefixSourceLocation(sourceLocation.get());
       TioSharedPtr tgCastedVal;
-      if (!g->generateCast(tg, tgContext, srcType, context.type, paramTgVals->getElement(i), tgCastedVal)) {
-        // This should not happen since non-castable calls should be filtered out earlier.
-        throw EXCEPTION(GenericException, STR("Invalid cast was unexpectedly found."));
-      }
+      auto castRes = g->generateCast(tg, tgContext, srcType, context.type, paramTgVals->getElement(i), tgCastedVal);
+      this->noticeStore->popPrefixSourceLocation(
+        Core::Data::getSourceLocationRecordCount(sourceLocation.get())
+      );
+      if (!castRes) return false;
       paramTgVals->set(i, tgCastedVal);
     } else {
       // For var args we need to send values, not references.
@@ -2075,6 +2109,7 @@ void ExpressionGenerator::prepareFunctionParams(
       paramTgVals->set(i, result.targetData);
     }
   }
+  return true;
 }
 
 

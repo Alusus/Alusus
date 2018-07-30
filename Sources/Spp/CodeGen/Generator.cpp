@@ -96,7 +96,7 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Tar
         if (!generation->generateFunction(static_cast<Spp::Ast::Function*>(obj), tg)) result = false;
       } else if (obj->isDerivedFrom<Spp::Ast::UserType>()) {
         if (!generation->generateUserTypeBody(static_cast<Spp::Ast::UserType*>(obj), tg)) result = false;
-      } else if (generator->getAstHelper()->isVarDefinition(obj)) {
+      } else if (generator->getAstHelper()->isAstReference(obj)) {
         // Generate global variable.
         if (!generation->generateVarDef(def, tg)) {
           result = false;
@@ -217,7 +217,7 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
     auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
     if (def != 0) {
       auto obj = def->getTarget().get();
-      if (generator->getAstHelper()->isVarDefinition(obj)) {
+      if (generator->getAstHelper()->isAstReference(obj)) {
         TiObject *tgType;
         Ast::Type *astMemberType;
         if (!generator->typeGenerator->getGeneratedType(obj, tg, tgType, &astMemberType)) {
@@ -255,10 +255,14 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
   TiObject *tgVar = tryGetCodeGenData<TiObject>(astVar);
 
   if (tgVar == 0) {
+    // Have we previously tried to build this var?
+    if (didCodeGenFail(astVar)) return false;
+
     // Generate the type of the variable.
     Ast::Type *astType;
     TiObject *tgType;
     if (!generator->typeGenerator->getGeneratedType(astVar, tg, tgType, &astType)) {
+      setCodeGenFailed(astVar, true);
       return false;
     }
 
@@ -274,7 +278,10 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
     if (astType->isDerivedFrom<Ast::UserType>()) {
       PREPARE_SELF(generation, Generation);
-      if (!generation->generateUserTypeBody(static_cast<Ast::UserType*>(astType), tg)) return false;
+      if (!generation->generateUserTypeBody(static_cast<Ast::UserType*>(astType), tg)) {
+        setCodeGenFailed(astVar, true);
+        return false;
+      }
     }
 
     Ast::setAstType(astVar, astType);
@@ -288,10 +295,16 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       );
       // Generate the default value.
       TioSharedPtr tgDefaultValue;
-      if (!generator->typeGenerator->generateDefaultValue(astType, tg, 0, tgDefaultValue)) return false;
+      if (!generator->typeGenerator->generateDefaultValue(astType, tg, 0, tgDefaultValue)) {
+        setCodeGenFailed(astVar, true);
+        return false;
+      }
       // Create the llvm global var.
       TioSharedPtr tgGlobalVar;
-      if (!tg->generateGlobalVariable(tgType, name.c_str(), tgDefaultValue.get(), tgGlobalVar)) return false;
+      if (!tg->generateGlobalVariable(tgType, name.c_str(), tgDefaultValue.get(), tgGlobalVar)) {
+        setCodeGenFailed(astVar, true);
+        return false;
+      }
       setCodeGenData(astVar, tgGlobalVar);
     } else {
       if (ti_cast<Ast::Type>(astBlock->getOwner()) != 0) {
@@ -312,13 +325,16 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         TioSharedPtr tgLocalVar;
         if (!tg->generateLocalVariable(
           tgContext, tgType, definition->getName().get(), 0, tgLocalVar
-        )) return false;
+        )) {
+          setCodeGenFailed(astVar, true);
+          return false;
+        }
         setCodeGenData(astVar, tgLocalVar);
       }
     }
   }
 
-  return true;
+    return true;
 }
 
 

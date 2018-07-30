@@ -4,14 +4,14 @@ def Main: module
 {
   def start: function () => Void
   {
-    def buf: ptr[Int[32]];
-    buf = Srt.alloc(Int[32]~size * 10)~cast[ptr[Int[32]]];
+    def buf: ptr[array[Int]];
+    buf = Srt.alloc(Int~size * 10)~cast[ptr[array[Int]]];
 
-    def i: Int[32];
-    for i = 0, i < 10, ++i buf~cast[ptr[array[Int[32], 0]]]~cnt(i) = i * i;
+    def i: Int;
+    for i = 0, i < 10, ++i buf~cnt(i) = i * i;
 
     for i = 0, i < 10, ++i {
-      Srt.print("Element %d: %d\n", i, buf~cast[ptr[array[Int[32], 0]]]~cnt(i));
+      Srt.print("Element %d: %d\n", i, buf~cnt(i));
     };
 
     Srt.free(buf);

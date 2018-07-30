@@ -1,5 +1,7 @@
 import "libalusus_spp.so";
 
+def Char: alias Word[8];
+
 def Srt : module {
   def alloc: @expname[malloc] function (size: Int[64]) => ptr[Void];
   def free: @expname[free] function (pointer: ptr[Void]);

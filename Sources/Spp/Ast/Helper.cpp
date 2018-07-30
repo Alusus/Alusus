@@ -22,7 +22,7 @@ namespace Spp { namespace Ast
 void Helper::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
-    &this->isVarDefinition,
+    &this->isAstReference,
     &this->lookupCallee,
     &this->lookupCallee_iteration,
     &this->traceType,
@@ -34,7 +34,6 @@ void Helper::initBindingCaches()
     &this->getValueTypeFor,
     &this->getBoolType,
     &this->getCharType,
-    &this->getCharPtrType,
     &this->getCharArrayType,
     &this->getInt64Type,
     &this->getIntType,
@@ -52,7 +51,7 @@ void Helper::initBindingCaches()
 
 void Helper::initBindings()
 {
-  this->isVarDefinition = &Helper::_isVarDefinition;
+  this->isAstReference = &Helper::_isAstReference;
   this->lookupCallee = &Helper::_lookupCallee;
   this->lookupCallee_iteration = &Helper::_lookupCallee_iteration;
   this->traceType = &Helper::_traceType;
@@ -64,7 +63,6 @@ void Helper::initBindings()
   this->getValueTypeFor = &Helper::_getValueTypeFor;
   this->getBoolType = &Helper::_getBoolType;
   this->getCharType = &Helper::_getCharType;
-  this->getCharPtrType = &Helper::_getCharPtrType;
   this->getCharArrayType = &Helper::_getCharArrayType;
   this->getInt64Type = &Helper::_getInt64Type;
   this->getIntType = &Helper::_getIntType;
@@ -82,7 +80,7 @@ void Helper::initBindings()
 //==============================================================================
 // Main Functions
 
-Bool Helper::_isVarDefinition(TiObject *self, TiObject *obj)
+Bool Helper::_isAstReference(TiObject *self, TiObject *obj)
 {
   return
     obj->isDerivedFrom<Core::Data::Ast::ParamPass>() ||
@@ -173,7 +171,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
       matchStatus = ms;
     }
     return Core::Data::Seeker::Verb::MOVE;
-  } else if (obj != 0 && helper->isVarDefinition(obj)) {
+  } else if (obj != 0 && helper->isAstReference(obj)) {
     // Match variables
     if (matchStatus >= TypeMatchStatus::IMPLICIT_CAST) {
       if (
@@ -242,8 +240,19 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
   PREPARE_SELF(helper, Helper);
 
   SharedPtr<Core::Notices::Notice> notice;
-  auto type = ti_cast<Spp::Ast::Type>(ref);
-  if (type == 0) {
+  Spp::Ast::Type *type = 0;
+  if (ref->isDerivedFrom<Spp::Ast::Type>()) {
+    type = static_cast<Spp::Ast::Type*>(ref);
+  } else if (ref->isDerivedFrom<Spp::Ast::Template>()) {
+    auto tpl = static_cast<Spp::Ast::Template*>(ref);
+    Core::Data::Ast::List list;
+    TioSharedPtr result;
+    if (tpl->matchInstance(&list, helper, result)) {
+      type = result.ti_cast_get<Spp::Ast::Type>();
+    } else {
+      if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
+    }
+  } else if (helper->isAstReference(ref)) {
     auto *refNode = ti_cast<Core::Data::Node>(ref);
     if (refNode == 0) {
       throw EXCEPTION(GenericException, STR("Invalid type reference."));
@@ -256,16 +265,32 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
           return Core::Data::Seeker::Verb::MOVE;
         }
 
+        // Do we have a type?
         type = ti_cast<Spp::Ast::Type>(obj);
         if (type != 0) {
           return Core::Data::Seeker::Verb::STOP;
         }
-        // TODO: Support template defaults.
-        // TODO: Handle aliases.
+
+        // If we have a template then try to get a default instance.
+        auto tpl = ti_cast<Spp::Ast::Template>(obj);
+        if (tpl != 0) {
+          Core::Data::Ast::List list;
+          TioSharedPtr result;
+          if (tpl->matchInstance(&list, helper, result)) {
+            type = result.ti_cast_get<Spp::Ast::Type>();
+            if (type != 0) {
+              return Core::Data::Seeker::Verb::STOP;
+            }
+          } else {
+            if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
+          }
+        }
+
         return Core::Data::Seeker::Verb::MOVE;
       }, 0
     );
   }
+
   if (type == 0) {
     if (notice != 0) helper->noticeStore->add(notice);
     helper->noticeStore->add(
@@ -415,24 +440,6 @@ IntegerType* Helper::_getCharType(TiObject *self)
     helper->charType = helper->getWordType(8);
   }
   return helper->charType;
-}
-
-
-PointerType* Helper::_getCharPtrType(TiObject *self)
-{
-  PREPARE_SELF(helper, Helper);
-  if (helper->charPtrType == 0) {
-    auto typeRef = helper->rootManager->parseExpression(STR("ptr[Word[8]]")).s_cast<Core::Data::Ast::Identifier>();
-    typeRef->setOwner(helper->rootManager->getRootScope().get());
-
-    helper->charPtrType = ti_cast<PointerType>(helper->getSeeker()->doGet(
-      typeRef.get(), helper->rootManager->getRootScope().get()
-    ));
-    if (helper->charPtrType == 0) {
-      throw EXCEPTION(GenericException, STR("Invalid object found for ptr[Word[8]] type."));
-    }
-  }
-  return helper->charPtrType;
 }
 
 

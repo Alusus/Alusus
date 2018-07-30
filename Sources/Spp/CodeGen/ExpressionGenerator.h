@@ -177,40 +177,41 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBinding, publ
 
   public: METHOD_BINDING_CACHE(generateRoundParamPassOnCallee,
     Bool, (
-      TiObject* /* callee */, Ast::Type* /* calleeType */,
-      SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
+      TiObject* /* callee */, Ast::Type* /* calleeType */, SharedList<TiObject>* /* paramTgValues */,
+      PlainList<TiObject>* /* paramAstTypes */, PlainList<TiObject>* /* paramAstNodes */,
       Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateRoundParamPassOnCallee(
     TiObject *self, TiObject *callee, Ast::Type *calleeType,
-    SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+    SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateRoundParamPassOnResult,
     Bool, (
-      Core::Data::Ast::ParamPass* /* astNode */, GenResult* /* prevResult */,
-      SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
+      Core::Data::Ast::ParamPass* /* astNode */, GenResult* /* prevResult */, SharedList<TiObject>* /* paramTgValues */,
+      PlainList<TiObject>* /* paramAstTypes */, PlainList<TiObject>* /* paramAstNodes */,
       Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateRoundParamPassOnResult(
     TiObject *self, Core::Data::Ast::ParamPass *astNode, GenResult *prevResult,
-    SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+    SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateRoundParamPassOnMember,
     Bool, (
       Core::Data::Ast::LinkOperator* /* linkOperator */, GenResult* /* prevResult */,
-      SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
+      SharedList<TiObject>* /* paramTgValues */,
+      PlainList<TiObject>* /* paramAstTypes */, PlainList<TiObject>* /* paramAstNodes */,
       Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateRoundParamPassOnMember(
     TiObject *self, Core::Data::Ast::LinkOperator *linkOperator, GenResult *prevResult,
-    SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+    SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
 
@@ -509,17 +510,17 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBinding, publ
 
   private: Bool generateParamList(
     TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
+    ListContaining<TiObject> *resultAstNodes, ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
   );
 
   private: Bool generateParamList(
     Containing<TiObject> *astNodes, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
+    ListContaining<TiObject> *resultAstNodes, ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
   );
 
-  private: void prepareFunctionParams(
+  private: Bool prepareFunctionParams(
     Spp::Ast::FunctionType *calleeType, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    ListContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
+    ListContaining<TiObject> *paramAstNodes, ListContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
   );
 
   private: Bool dereferenceIfNeeded(

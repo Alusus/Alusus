@@ -31,11 +31,11 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 
 define i32 @Main_main_____Int_32__() {
 __block0:
-  %0 = call i32 (i8*, ...)* @Main_f0_ptr_Word_8___ArgPack_Int_32__0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous0, i64 0, i64 0))
-  %1 = call i32 (i8*, ...)* @Main_f1_ptr_Word_8___ArgPack_any_0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous1, i64 0, i64 0), i8* getelementptr inbounds ([7 x i8]* @__anonymous2, i64 0, i64 0))
-  %2 = call i32 (i8*, ...)* @Main_f1_ptr_Word_8___ArgPack_any_0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous3, i64 0, i64 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous4, i64 0, i64 0), i8* getelementptr inbounds ([4 x i8]* @__anonymous5, i64 0, i64 0))
-  %3 = call i32 (i8*, ...)* @Main_f2_ptr_Word_8___ArgPack_any_1_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous6, i64 0, i64 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous7, i64 0, i64 0))
-  %4 = call i32 (i8*, ...)* @Main_f3_ptr_Word_8___ArgPack_ptr_Word_8___1_2_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous8, i64 0, i64 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous9, i64 0, i64 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous10, i64 0, i64 0))
+  %0 = call i32 (i8*, ...)* @Main_f0_ptr_Word_8___ArgPack_Int_32__0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous0, i32 0, i32 0))
+  %1 = call i32 (i8*, ...)* @Main_f1_ptr_Word_8___ArgPack_any_0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous1, i32 0, i32 0), [7 x i8]* @__anonymous2)
+  %2 = call i32 (i8*, ...)* @Main_f1_ptr_Word_8___ArgPack_any_0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous3, i32 0, i32 0), [6 x i8]* @__anonymous4, [4 x i8]* @__anonymous5)
+  %3 = call i32 (i8*, ...)* @Main_f2_ptr_Word_8___ArgPack_any_1_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous6, i32 0, i32 0), [6 x i8]* @__anonymous7)
+  %4 = call i32 (i8*, ...)* @Main_f3_ptr_Word_8___ArgPack_ptr_Word_8___1_2_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous8, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous9, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous10, i32 0, i32 0))
 }
 
 define i32 @Main_f0_ptr_Word_8___ArgPack_Int_32__0_0_____Int_32__(i8* %a, ...) {

@@ -55,8 +55,11 @@ TypeMatchStatus ArrayType::matchTargetType(Type const *type, Helper *helper, Exe
   if (this == type) return TypeMatchStatus::EXACT;
 
   auto arrayType = ti_cast<ArrayType const>(type);
-  if (arrayType == 0) return TypeMatchStatus::NONE;
-  else {
+  if (arrayType == 0) {
+    auto thisContentType = this->getContentType(helper);
+    if (thisContentType->isEqual(type, helper, ec)) return TypeMatchStatus::AGGREGATION;
+    else return TypeMatchStatus::NONE;
+  } else {
     auto thisContentType = this->getContentType(helper);
     auto targetContentType = arrayType->getContentType(helper);
     if (thisContentType->isEqual(targetContentType, helper, ec)) {

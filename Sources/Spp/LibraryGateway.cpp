@@ -93,22 +93,25 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   manager->getSeeker()->doSet(&identifier, root, Ast::VoidType::create().get());
 
   // Int
+  auto defaultIntBitCount = Core::Data::Ast::IntegerLiteral::create({{ STR("value"), TiStr(STR("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER }});
+  tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER, defaultIntBitCount }});
   tmplt->setTemplateBody(Ast::IntegerType::create({ { STR("withSign"), TiBool(true) } }));
   identifier.setValue(STR("Int"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // Word
+  auto defaultWordBitCount = Core::Data::Ast::IntegerLiteral::create({{ STR("value"), TiStr(STR("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER }});
+  tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER, defaultWordBitCount }});
   tmplt->setTemplateBody(Ast::IntegerType::create({ { STR("withSign"), TiBool(false) } }));
   identifier.setValue(STR("Word"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // Float
+  auto defaultFloatBitCount = Core::Data::Ast::IntegerLiteral::create({{ STR("value"), TiStr(STR("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER }});
+  tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER, defaultFloatBitCount }});
   tmplt->setTemplateBody(Ast::FloatType::create());
   identifier.setValue(STR("Float"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
@@ -128,10 +131,11 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // array
+  auto defaultArraySize = Core::Data::Ast::IntegerLiteral::create({{ STR("value"), TiStr(STR("1")) }});
   tmplt = Ast::Template::create();
   tmplt->setVarDefs({
     { STR("type"), Ast::Template::VarType::TYPE },
-    { STR("size"), Ast::Template::VarType::INTEGER }
+    { STR("size"), Ast::Template::VarType::INTEGER, defaultArraySize }
   });
   tmplt->setTemplateBody(Ast::ArrayType::create());
   identifier.setValue(STR("array"));

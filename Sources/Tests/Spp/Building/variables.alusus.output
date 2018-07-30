@@ -99,7 +99,7 @@ __block0:
   call void @Main_testVars_Int_64__Float_64_____Void_(i64 %33, double %35)
   call void @Main_testVarOverride_____Void_()
   %36 = load i32* @Main_gi
-  %37 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i64 0, i64 0), i32 %36)
+  %37 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i32 0, i32 0), i32 %36)
   call void @Main_testOtherModules_____Void_()
   ret void
 }
@@ -114,7 +114,7 @@ __block1:
   %lf = alloca float
   %0 = load i64* %ai1
   %1 = load double* %af2
-  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous1, i64 0, i64 0), i64 %0, double %1)
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous1, i32 0, i32 0), i64 %0, double %1)
   store i64 123, i64* %ai1
   store double 4.560000e+02, double* %af2
   ret void
@@ -125,7 +125,7 @@ __block2:
   %gi = alloca i32
   store i32 60, i32* %gi
   %0 = load i32* %gi
-  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous2, i64 0, i64 0), i32 %0)
+  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous2, i32 0, i32 0), i32 %0)
   ret void
 }
 
@@ -135,10 +135,10 @@ __block3:
   store double 0x401D333340000000, double* @Other_gf
   %0 = load i32* @Other_gi
   %1 = load double* @Other_gf
-  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous3, i64 0, i64 0), i32 %0, double %1)
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous3, i32 0, i32 0), i32 %0, double %1)
   store i32 4, i32* @Other_Nested_gni
   %3 = load i32* @Other_Nested_gni
-  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous5, i64 0, i64 0), i32 %3)
+  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous5, i32 0, i32 0), i32 %3)
   ret void
 }
 ------------------------------------------------------------

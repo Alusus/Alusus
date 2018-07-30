@@ -302,6 +302,9 @@ void GrammarFactory::createGrammar(
     })},
     {STR("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
       auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+      // We'll use the source location of the "module" keyword, rather than of the first statement.
+      auto metaHaving = ti_cast<Core::Data::Ast::MetaHaving>(currentList->getElement(1));
+      metaHaving->setSourceLocation(Core::Data::Ast::findSourceLocation(currentList->getElement(0)));
       state->setData(getSharedPtr(currentList->getElement(1)));
     })}
   }).get());

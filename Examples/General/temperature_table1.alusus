@@ -2,11 +2,11 @@ import "common.alusus";
 
 def TemperatureTable1: module {
   def start: function () {
-    def fahr : Int[32];
-    def celsius : Int[32];
-    def lower : Int[32];
-    def upper : Int[32];
-    def step : Int[32];
+    def fahr : Int;
+    def celsius : Int;
+    def lower : Int;
+    def upper : Int;
+    def step : Int;
     lower = 0;
     upper = 300;
     step = 20;

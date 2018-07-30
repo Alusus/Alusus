@@ -6,11 +6,11 @@ def Main: module
   {
     Srt.print("Hello World!!\n");
 
-    def str: ptr[Word[8]];
+    def str: ptr[array[Char]];
     str = "abcdefgh";
-    def i: Int[32];
+    def i: Int;
     for i = 0, i < 8, ++i {
-      Srt.putChar(str~cast[ptr[array[Word[8], 0]]]~cnt(i));
+      Srt.putChar(str~cnt(i));
     };
     Srt.putChar('\n');
   };

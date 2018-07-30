@@ -38,7 +38,6 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   private: Template *ptrTemplate = 0;
   private: IntegerType *boolType = 0;
   private: IntegerType *charType = 0;
-  private: PointerType *charPtrType = 0;
   private: IntegerType *int64Type = 0;
   private: IntegerType *word64Type = 0;
   private: VoidType *voidType = 0;
@@ -120,8 +119,8 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   /// @name Main Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(isVarDefinition, Bool, (TiObject*));
-  private: static Bool _isVarDefinition(TiObject *self, TiObject *obj);
+  public: METHOD_BINDING_CACHE(isAstReference, Bool, (TiObject*));
+  private: static Bool _isAstReference(TiObject *self, TiObject *obj);
 
   public: Bool lookupCalleeByName(
     Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
@@ -188,9 +187,6 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
 
   public: METHOD_BINDING_CACHE(getCharType, IntegerType*);
   private: static IntegerType* _getCharType(TiObject *self);
-
-  public: METHOD_BINDING_CACHE(getCharPtrType, PointerType*);
-  private: static PointerType* _getCharPtrType(TiObject *self);
 
   public: METHOD_BINDING_CACHE(getCharArrayType, ArrayType*, (Word));
   private: static ArrayType* _getCharArrayType(TiObject *self, Word size);

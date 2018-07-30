@@ -1816,14 +1816,7 @@ Bool TargetGenerator::generateStringLiteral(
   );
   llvmVar->setAlignment(1);
 
-  // Get a pointer to the global variable and return it as the value of the string.
-  std::vector<llvm::Constant*> indices;
-  llvm::ConstantInt *zero = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0));
-  indices.push_back(zero);
-  indices.push_back(zero);
-  auto llvmResult = llvm::ConstantExpr::getGetElementPtr(llvmVar, indices);
-
-  destVal = std::make_shared<Value>(llvmResult, true);
+  destVal = std::make_shared<Value>(llvmVar, true);
   return true;
 }
 
