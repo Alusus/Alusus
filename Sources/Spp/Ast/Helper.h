@@ -36,6 +36,7 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   private: Core::Notices::Store *noticeStore = 0;
   private: Template *refTemplate = 0;
   private: Template *ptrTemplate = 0;
+  private: IntegerType *nullType = 0;
   private: IntegerType *boolType = 0;
   private: IntegerType *charType = 0;
   private: IntegerType *int64Type = 0;
@@ -181,6 +182,9 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
 
   public: METHOD_BINDING_CACHE(getValueTypeFor, Type*, (TiObject*));
   private: static Type* _getValueTypeFor(TiObject *self, TiObject *type);
+
+  public: METHOD_BINDING_CACHE(getNullType, IntegerType*);
+  private: static IntegerType* _getNullType(TiObject *self);
 
   public: METHOD_BINDING_CACHE(getBoolType, IntegerType*);
   private: static IntegerType* _getBoolType(TiObject *self);

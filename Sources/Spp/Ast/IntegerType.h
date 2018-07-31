@@ -31,6 +31,8 @@ class IntegerType : public DataType
   //============================================================================
   // Member Variables
 
+  private: TiBool nullLiteral;
+
   private: TiBool withSign;
 
   private: mutable TioSharedPtr bitCountRef;
@@ -40,6 +42,7 @@ class IntegerType : public DataType
   // Implementations
 
   IMPLEMENT_BINDING(DataType,
+    (nullLiteral, TiBool, VALUE, setNullLiteral(value), &nullLiteral),
     (withSign, TiBool, VALUE, setSigned(value), &withSign)
   );
 
@@ -56,6 +59,20 @@ class IntegerType : public DataType
 
   //============================================================================
   // Member Functions
+
+  public: void setNullLiteral(Bool nl)
+  {
+    this->nullLiteral = nl;
+  }
+  public: void setNullLiteral(TiBool const *nl)
+  {
+    this->setNullLiteral(nl == 0 ? false : nl->get());
+  }
+
+  public: Bool isNullLiteral() const
+  {
+    return this->nullLiteral.get();
+  }
 
   public: void setSigned(Bool s)
   {

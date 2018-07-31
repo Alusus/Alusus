@@ -982,6 +982,7 @@ Bool ExpressionGenerator::_generateComparisonOp(
     );
   }
 
+  Bool equality = astNode->getType() == STR("==") || astNode->getType() == STR("!=");
   GenResult param1, param2;
   if (!expGenerator->dereferenceIfNeeded(
     tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), param1
@@ -1026,6 +1027,22 @@ Bool ExpressionGenerator::_generateComparisonOp(
       );
       return false;
     }
+  } else if (
+    equality &&
+    param1.astType->isDerivedFrom<Ast::IntegerType>() && param2.astType->isDerivedFrom<Ast::PointerType>() &&
+    static_cast<Ast::IntegerType*>(param1.astType)->isNullLiteral()
+  ) {
+    astTargetType = param2.astType;
+  } else if (
+    equality &&
+    param2.astType->isDerivedFrom<Ast::IntegerType>() && param1.astType->isDerivedFrom<Ast::PointerType>() &&
+    static_cast<Ast::IntegerType*>(param2.astType)->isNullLiteral()
+  ) {
+    astTargetType = param1.astType;
+  } else if (
+    equality && param1.astType->isDerivedFrom<Ast::PointerType>() && param2.astType->isDerivedFrom<Ast::PointerType>()
+  ) {
+    astTargetType = param1.astType;
   } else {
     // Error.
     expGenerator->noticeStore->add(
@@ -1793,28 +1810,33 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   }
 
   // Determine integer size.
+  Bool typeRequested = false;
   Int size = signedNum ?
     expGenerator->astHelper->getNeededIntSize((LongInt)value) :
     expGenerator->astHelper->getNeededWordSize(value);
   if (*src == CHR('i') || *src == CHR('I')) {
+    typeRequested = true;
     ++src;
     if (getStrLen(src) > 0) size = std::stoi(src);
   } else if (compareStr(src, STR("ص"), 2) == 0) {
+    typeRequested = true;
     src += 2;
     if (getStrLen(src) > 0) size = std::stoi(src);
   }
 
-  // Get the requested int type.
-  Ast::IntegerType *intAstType;
-  if (signedNum) {
-    intAstType = expGenerator->astHelper->getIntType(size);
+  // Get the requested type.
+  Ast::Type *astType;
+  if (!typeRequested && value == 0) {
+    astType = expGenerator->astHelper->getNullType();
+  } else if (signedNum) {
+    astType = expGenerator->astHelper->getIntType(size);
   } else {
-    intAstType = expGenerator->astHelper->getWordType(size);
+    astType = expGenerator->astHelper->getWordType(size);
   }
   auto sourceLocation = astNode->findSourceLocation().get();
   expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation);
   TiObject *intTgType;
-  Bool retVal = g->getGeneratedType(intAstType, tg, intTgType, 0);
+  Bool retVal = g->getGeneratedType(astType, tg, intTgType, 0);
   expGenerator->noticeStore->popPrefixSourceLocation(
     Core::Data::getSourceLocationRecordCount(sourceLocation)
   );
@@ -1822,7 +1844,7 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
 
   // Generate the literal.
   if (!tg->generateIntLiteral(tgContext, size, signedNum, value, result.targetData)) return false;
-  result.astType = intAstType;
+  result.astType = astType;
   return true;
 }
 

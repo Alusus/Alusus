@@ -144,7 +144,6 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Targe
 
 Bool TypeGenerator::_generateVoidType(TiObject *self, Spp::Ast::VoidType *astType, TargetGeneration *tg)
 {
-  PREPARE_SELF(typeGenerator, TypeGenerator);
   TioSharedPtr tgType;
   if (!tg->generateVoidType(tgType)) return false;
   setCodeGenData(astType, tgType);
@@ -298,8 +297,10 @@ Bool TypeGenerator::_generateCast(
     } else if (targetType->isDerivedFrom<Spp::Ast::PointerType>()) {
       // Cast from integer to pointer.
       auto targetPointerType = static_cast<Spp::Ast::PointerType*>(targetType);
-      Word srcBitCount = srcIntegerType->getBitCount(typeGenerator->astHelper);
-      if (tg->getExecutionContext()->getPointerBitCount() == srcBitCount) {
+      if (
+        srcIntegerType->isNullLiteral() || 
+        srcIntegerType->getBitCount(typeGenerator->astHelper) == tg->getExecutionContext()->getPointerBitCount()
+      ) {
         TiObject *targetTgType;
         if (!typeGenerator->getGeneratedType(targetPointerType, tg, targetTgType, 0)) return false;
         if (!tg->generateCastIntToPointer(tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;

@@ -45,6 +45,21 @@ def Main: module
     print("1f32 == 1f64: %d\n", 1f32 == 1f64);
   };
 
+  def testPointers: function ()=>Void
+  {
+    def i: ptr[Word[8]];
+    def j: ptr[Word[8]];
+    def n: ptr[Word[8]];
+    i = "hello";
+    j = "world";
+    n = 0;
+
+    print("ptr1 == ptr2: %d\n", i == j);
+    print("ptr1 != ptr2: %d\n", i != j);
+    print("non-null ptr == 0: %d\n", i == 0);
+    print("null ptr == 0: %d\n", n == 0);
+  };
+
   def testIfStatement: function (i: Int[64])=>Void
   {
     if i >= 0 print("Received positive.\n")
@@ -56,6 +71,7 @@ def Main: module
     testInteger();
     testFloat();
     testMixed();
+    testPointers();
 
     testIfStatement(5);
     testIfStatement(0-5);

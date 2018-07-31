@@ -20,6 +20,8 @@ namespace Spp { namespace Ast
 
 Word IntegerType::getBitCount(Helper *helper) const
 {
+  if (this->isNullLiteral()) return 1;
+
   if (this->bitCountRef == 0) {
     this->bitCountRef = helper->getRootManager()->parseExpression(STR("bitCount"));
   }
@@ -37,8 +39,8 @@ TypeMatchStatus IntegerType::matchTargetType(Type const *type, Helper *helper, E
 {
   if (this == type) return TypeMatchStatus::EXACT;
   else {
-    auto integerType = ti_cast<IntegerType const>(type);
-    if (integerType != 0) {
+    if (type->isDerivedFrom<IntegerType>()) {
+      auto integerType = static_cast<IntegerType const*>(type);
       auto thisBitCount = this->getBitCount(helper);
       auto targetBitCount = integerType->getBitCount(helper);
       if (thisBitCount == targetBitCount && this->isSigned() == integerType->isSigned()) {
@@ -56,8 +58,14 @@ TypeMatchStatus IntegerType::matchTargetType(Type const *type, Helper *helper, E
       }
     } else if (type->isDerivedFrom<FloatType>()) {
       return TypeMatchStatus::IMPLICIT_CAST;
-    } else if (type->isDerivedFrom<PointerType>() && ec->getPointerBitCount() == this->getBitCount(helper)) {
-      return TypeMatchStatus::EXPLICIT_CAST;
+    } else if (type->isDerivedFrom<PointerType>()) {
+      if (this->isNullLiteral()) {
+        return TypeMatchStatus::IMPLICIT_CAST;
+      } else if (ec->getPointerBitCount() == this->getBitCount(helper)) {
+        return TypeMatchStatus::EXPLICIT_CAST;
+      } else {
+        return TypeMatchStatus::NONE;
+      }
     } else {
       return TypeMatchStatus::NONE;
     }

@@ -26,5 +26,9 @@
 1f64 == 1f64: 1
 1f64 == 1f32: 1
 1f32 == 1f64: 1
+ptr1 == ptr2: 0
+ptr1 != ptr2: 1
+non-null ptr == 0: 0
+null ptr == 0: 1
 Received positive.
 Received negative.

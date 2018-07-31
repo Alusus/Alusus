@@ -92,6 +92,16 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   identifier.setValue(STR("Void"));
   manager->getSeeker()->doSet(&identifier, root, Ast::VoidType::create().get());
 
+  // Null
+  identifier.setValue(STR("Null"));
+  manager->getSeeker()->doSet(
+    &identifier, root,
+    Ast::IntegerType::create({
+      { STR("withSign"), TiBool(false) },
+      { STR("nullLiteral"), TiBool(true) }
+    }).get()
+  );
+
   // Int
   auto defaultIntBitCount = Core::Data::Ast::IntegerLiteral::create({{ STR("value"), TiStr(STR("32")) }});
   tmplt = Ast::Template::create();
@@ -149,6 +159,9 @@ void LibraryGateway::removeBuiltInTypes(Core::Main::RootManager *manager)
   auto root = manager->getRootScope().get();
 
   identifier.setValue(STR("Void"));
+  manager->getSeeker()->tryRemove(&identifier, root);
+
+  identifier.setValue(STR("Null"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
   identifier.setValue(STR("Int"));

@@ -32,6 +32,7 @@ void Helper::initBindingCaches()
     &this->getReferenceTypeFor,
     &this->getPointerTypeFor,
     &this->getValueTypeFor,
+    &this->getNullType,
     &this->getBoolType,
     &this->getCharType,
     &this->getCharArrayType,
@@ -61,6 +62,7 @@ void Helper::initBindings()
   this->getReferenceTypeFor = &Helper::_getReferenceTypeFor;
   this->getPointerTypeFor = &Helper::_getPointerTypeFor;
   this->getValueTypeFor = &Helper::_getValueTypeFor;
+  this->getNullType = &Helper::_getNullType;
   this->getBoolType = &Helper::_getBoolType;
   this->getCharType = &Helper::_getCharType;
   this->getCharArrayType = &Helper::_getCharArrayType;
@@ -420,6 +422,26 @@ Type* Helper::_getValueTypeFor(TiObject *self, TiObject *typeRef)
   } else {
     return type;
   }
+}
+
+
+IntegerType* Helper::_getNullType(TiObject *self)
+{
+  PREPARE_SELF(helper, Helper);
+  // Prepare the reference.
+  if (helper->nullType == 0) {
+    // Create a new reference.
+    auto typeRef = helper->rootManager->parseExpression(STR("Null")).s_cast<Core::Data::Ast::Identifier>();
+    typeRef->setOwner(helper->rootManager->getRootScope().get());
+
+    helper->nullType = ti_cast<Ast::IntegerType>(
+      helper->getSeeker()->doGet(typeRef.get(), helper->rootManager->getRootScope().get())
+    );
+    if (helper->nullType == 0) {
+      throw EXCEPTION(GenericException, STR("Failed to get null AST type."));
+    }
+  }
+  return helper->nullType;
 }
 
 

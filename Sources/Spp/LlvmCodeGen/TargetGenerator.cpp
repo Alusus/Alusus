@@ -1627,7 +1627,7 @@ Bool TargetGenerator::generateEqual(
   PREPARE_ARG(srcVal1, srcValBox1, Value);
   PREPARE_ARG(srcVal2, srcValBox2, Value);
   PREPARE_ARG(type, tgType, Type);
-  if (tgType->isDerivedFrom<IntegerType>()) {
+  if (tgType->isDerivedFrom<IntegerType>() || tgType->isDerivedFrom<PointerType>()) {
     auto llvmResult = block->getIrBuilder()->CreateICmpEQ(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
     result = std::make_shared<Value>(llvmResult, false);
     return true;
@@ -1648,7 +1648,7 @@ Bool TargetGenerator::generateNotEqual(
   PREPARE_ARG(srcVal1, srcValBox1, Value);
   PREPARE_ARG(srcVal2, srcValBox2, Value);
   PREPARE_ARG(type, tgType, Type);
-  if (tgType->isDerivedFrom<IntegerType>()) {
+  if (tgType->isDerivedFrom<IntegerType>() || tgType->isDerivedFrom<PointerType>()) {
     auto llvmResult = block->getIrBuilder()->CreateICmpNE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
     result = std::make_shared<Value>(llvmResult, false);
     return true;
