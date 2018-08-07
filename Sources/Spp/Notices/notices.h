@@ -69,10 +69,10 @@ namespace Spp::Notices
 {
 
 DEFINE_NOTICE(InvalidBuildArgNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1001", 1,
-  STR("Invalid argument for 'build' command.")
+  STR("Invalid argument for build command.")
 );
 DEFINE_NOTICE(MissingFunctionSigNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1002", 1,
-  STR("Missing signature in 'function' command.")
+  STR("Missing signature in function definition.")
 );
 DEFINE_NOTICE(InvalidFunctionSignatureNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1003", 1,
   STR("Invalid function signature.")
@@ -121,7 +121,7 @@ DEFINE_NOTICE(InvalidOperationNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1
   STR("Invalid operation.")
 );
 DEFINE_NOTICE(InvalidFloatBitCountNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1003", 1,
-  STR("Invalid float bit count. Bit count should be either 32, 64, or 128.")
+  STR("Invalid float bit count. Bit count should be either 32 or 64.")
 );
 DEFINE_NOTICE(InvalidIntegerBitCountNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1004", 1,
   STR("Invalid integer bit count.")

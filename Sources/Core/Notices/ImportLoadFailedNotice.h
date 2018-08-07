@@ -66,7 +66,10 @@ class ImportLoadFailedNotice : public Notice
   /// @sa Notice::getCode()
   public: virtual void buildDescription(Str &str) const
   {
-    str = STR("Importing Failed. Could not load requested file: ") + fileName + STR(".");
+    auto format = L18nDictionary::getSingleton()->get(
+      this->getCode().c_str(), STR("Importing failed. Could not load requested file: %s.")
+    );
+    str = formatString(format, this->fileName.c_str());
     if (!this->errorDetails.empty()) {
       str += STR("\n");
       str += this->errorDetails;

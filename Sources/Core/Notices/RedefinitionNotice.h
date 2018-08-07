@@ -70,9 +70,8 @@ class RedefinitionNotice : public Notice
   /// @sa Notice::getCode()
   public: virtual void buildDescription(Str &str) const
   {
-    str = STR("Duplicate definition. [");
-    str += this->name;
-    str += "]";
+    auto format = L18nDictionary::getSingleton()->get(this->getCode().c_str(), STR("Duplicate definition. [%s]."));
+    str = formatString(format, this->name.c_str());
   }
 
 }; // class

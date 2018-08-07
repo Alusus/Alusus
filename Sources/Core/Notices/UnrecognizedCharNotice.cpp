@@ -20,8 +20,10 @@ namespace Core::Notices
 
 void UnrecognizedCharNotice::buildDescription(Str &str) const
 {
-  str = STR("Lexer Error [Unrecognized Character(s)]: ");
-  str += this->getText();
+  auto format = L18nDictionary::getSingleton()->get(
+    this->getCode().c_str(), STR("Lexer Error [Unrecognized Character(s)]: %s")
+  );
+  str = formatString(format, this->getText().c_str());
 }
 
 } // namespace

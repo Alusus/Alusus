@@ -65,9 +65,9 @@
     "**/.hg": true,
     "**/CVS": true,
     "**/.DS_Store": true,
-    "Include/**/*": true,
-    "Lib/**/*": true,
-    "Builds/**/*": true,
-    "Bin/**/*": true
+    "Include": true,
+    "Lib": true,
+    "Builds": true,
+    "Bin": true
   }
 }

@@ -119,7 +119,7 @@ namespace Core { namespace Basic
  * allow easy conversion of the program from ascii to unicode. Every character
  * literal in the source code should be wrapped by this macro.
  */
-#define CHR(x)	x
+#define CHR(x)	u8##x
 
 /**
  * @brief Wrapper for wide character literals.
@@ -640,6 +640,18 @@ WChar getWideCharFromUtf8(Char const *s);
 
 /// Print 'indents' number of spaces.
 void printIndents(OutStream &stream, int indents);
+
+/**
+ * @brief Generate an Str from the given format and args.
+ * @ingroup basic_functions
+ */
+template<typename ... Args> std::string formatString(Char const *format, Args ...args )
+{
+  std::size_t size = std::snprintf(nullptr, 0, format, args...) + 1;
+  std::unique_ptr<char[]> buf(new char[size]);
+  snprintf(buf.get(), size, format, args...);
+  return std::string(buf.get(), buf.get() + size - 1);
+}
 
 
 //==============================================================================

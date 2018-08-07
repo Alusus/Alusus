@@ -156,6 +156,7 @@ sudo make install
 cd $ALUSUS_ROOT
 
 sudo cp -r Doc ${INSTALL_PATH}/
+sudo cp -r Notices_L18n ${INSTALL_PATH}/
 sudo mkdir -p ${INSTALL_PATH}/Tools/Gtk_Syntax_Highlighting
 sudo cp Tools/Gtk_Syntax_Highlighting/alusus.lang ${INSTALL_PATH}/Tools/Gtk_Syntax_Highlighting/
 sudo cp changelog.en.txt ${INSTALL_PATH}/

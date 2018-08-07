@@ -54,6 +54,11 @@ int main(int argCount, char * const args[])
 #endif
   }
 
+  if (!english) {
+    // TODO: Support other locales.
+    Core::Notices::L18nDictionary::getSingleton()->initialize(STR("ar"));
+  }
+
   if (help) {
     Char alususReleaseYear[5];
     Char alususHijriReleaseYear[5];

@@ -50,7 +50,7 @@ namespace Core::Notices
     } \
     public: virtual void buildDescription(Str &str) const \
     { \
-      str = msg; \
+      str = Core::Notices::L18nDictionary::getSingleton()->get(this->getCode().c_str(), msg); \
     } \
   }
 
@@ -76,6 +76,8 @@ void printNotice(Notice const *msg);
 //==============================================================================
 // Main Classes
 
+#include "L18nDictionary.h"
+
 #include "Notice.h"
 #include "Store.h"
 
@@ -91,11 +93,11 @@ namespace Core::Notices
 {
 
 DEFINE_NOTICE(BufferFullNotice, "Core.Notices", "Core", "alusus.net", "CL1002", 1,
-  STR("Lexer Error: Input buffer is full. A single token is too long to fit in the input buffer. "
+  STR("Input buffer is full. A single token is too long to fit in the input buffer. "
       "The token may have been broken into more than one token.")
 );
 DEFINE_NOTICE(TokenClampedNotice, "Core.Notices", "Core", "alusus.net", "CL2003", 2,
-  STR("Warning: Input buffer is full. A single token is too long to fit in the input buffer. "
+  STR("Input buffer is full. A single token is too long to fit in the input buffer. "
       "Some characters that are part of the token has been ignored.")
 );
 
@@ -156,7 +158,7 @@ DEFINE_NOTICE(UnrecognizedErrorNotice, "Core.Notices", "Core", "alusus.net", "CG
   STR("Unrecognized error.")
 );
 DEFINE_NOTICE(InvalidDumpArgNotice, "Core.Notices", "Core", "alusus.net", "CG1002", 1,
-  STR("Invalid argument for 'dump' command.")
+  STR("Invalid argument for 'dump_ast' command.")
 );
 
 } // namespace

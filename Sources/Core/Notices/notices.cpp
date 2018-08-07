@@ -22,10 +22,19 @@ void printNotice(Notice const *msg)
 
   // Print severity.
   switch (msg->getSeverity()) {
-    case 0: outStream << STR("\033[0;31mBLOCKER "); break;
-    case 1: outStream << STR("\033[0;31mERROR "); break;
-    case 2: case 3: outStream << STR("\033[1;33mWARNING "); break;
-    case 4: outStream << STR("\033[0;34mATTN "); break;
+    case 0:
+      outStream << STR("\033[0;31m") << L18nDictionary::getSingleton()->get(STR("BLOCKER"), STR("BLOCKER")) << STR(" ");
+      break;
+    case 1:
+      outStream << STR("\033[0;31m") << L18nDictionary::getSingleton()->get(STR("ERROR"), STR("ERROR")) << STR(" ");
+      break;
+    case 2:
+    case 3:
+      outStream << STR("\033[1;33m") << L18nDictionary::getSingleton()->get(STR("WARNING"), STR("WARNING")) << STR(" ");
+      break;
+    case 4:
+      outStream << STR("\033[0;34m") << L18nDictionary::getSingleton()->get(STR("ATTN"), STR("ATTN")) << STR(" ");
+      break;
   }
   // Print msg code.
   outStream << msg->getCode() << " @ ";
@@ -37,7 +46,9 @@ void printNotice(Notice const *msg)
   } else {
     auto stack = static_cast<Data::SourceLocationStack*>(sl);
     for (Int i = stack->getCount() - 1; i >= 0; --i) {
-      if (i < stack->getCount() -1) outStream << NEW_LINE << STR("from ");
+      if (i < stack->getCount() -1) {
+        outStream << NEW_LINE << L18nDictionary::getSingleton()->get(STR("FROM"), STR("from")) << STR(" ");
+      }
       outStream << stack->get(i)->filename->c_str()
         << " (" << stack->get(i)->line << "," << stack->get(i)->column << ")";
     }
