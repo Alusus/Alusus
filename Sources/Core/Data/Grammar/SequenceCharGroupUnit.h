@@ -53,7 +53,7 @@ class SequenceCharGroupUnit : public CharGroupUnit
     this->setStartCode(s);
     this->setEndCode(e);
     if (this->endCode < this->startCode) {
-      throw EXCEPTION(InvalidArgumentException, STR("s,e"), STR("e should be >= s."));
+      throw EXCEPTION(InvalidArgumentException, S("s,e"), S("e should be >= s."));
     }
   }
 

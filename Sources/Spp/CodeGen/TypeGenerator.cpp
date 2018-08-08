@@ -87,7 +87,7 @@ Bool TypeGenerator::_getGeneratedType(TiObject *ref, TargetGeneration *tg, Spp::
 {
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(ref);
   if (metadata == 0) {
-    throw EXCEPTION(GenericException, STR("Reference does not contain metadata."));
+    throw EXCEPTION(GenericException, S("Reference does not contain metadata."));
   }
 
   Bool shouldPushSl = ref->isDerivedFrom<Spp::Ast::Type>() ? false : true;
@@ -217,7 +217,7 @@ Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astTyp
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   Str name = std::regex_replace(
-    typeGenerator->astHelper->resolveNodePath(astType), std::regex("[^a-zA-Z0-9_]"), STR("_")
+    typeGenerator->astHelper->resolveNodePath(astType), std::regex("[^a-zA-Z0-9_]"), S("_")
   );
   TioSharedPtr tgType;
   if (!tg->generateStructTypeDecl(name.c_str(), tgType)) return false;
@@ -298,7 +298,7 @@ Bool TypeGenerator::_generateCast(
       // Cast from integer to pointer.
       auto targetPointerType = static_cast<Spp::Ast::PointerType*>(targetType);
       if (
-        srcIntegerType->isNullLiteral() || 
+        srcIntegerType->isNullLiteral() ||
         srcIntegerType->getBitCount(typeGenerator->astHelper) == tg->getExecutionContext()->getPointerBitCount()
       ) {
         TiObject *targetTgType;
@@ -395,11 +395,11 @@ Bool TypeGenerator::_generateDefaultValue(
     // Generate pointer null
     return tg->generateNullPtrLiteral(tgContext, tgType, result);
   } else if (astType->isDerivedFrom<Spp::Ast::ArrayType>()) {
-    throw EXCEPTION(GenericException, STR("Array default values are not implemented yet."));
+    throw EXCEPTION(GenericException, S("Array default values are not implemented yet."));
   } else if (astType->isDerivedFrom<Spp::Ast::UserType>()) {
-    throw EXCEPTION(GenericException, STR("Struct default values are not implemented yet."));
+    throw EXCEPTION(GenericException, S("Struct default values are not implemented yet."));
   } else {
-    throw EXCEPTION(GenericException, STR("Invlid type for generation of default value."));
+    throw EXCEPTION(GenericException, S("Invlid type for generation of default value."));
   }
 }
 

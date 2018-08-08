@@ -51,7 +51,7 @@ class RedefinitionNotice : public Notice
   /// @sa Notice::getCode()
   public: virtual Str const& getCode() const
   {
-    static Str code("CG1004");
+    static Str code(S("CG1004"));
     return code;
   }
 
@@ -70,7 +70,7 @@ class RedefinitionNotice : public Notice
   /// @sa Notice::getCode()
   public: virtual void buildDescription(Str &str) const
   {
-    auto format = L18nDictionary::getSingleton()->get(this->getCode().c_str(), STR("Duplicate definition. [%s]."));
+    auto format = L18nDictionary::getSingleton()->get(this->getCode().c_str(), S("Duplicate definition. [%s]."));
     str = formatString(format, this->name.c_str());
   }
 

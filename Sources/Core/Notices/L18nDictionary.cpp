@@ -22,7 +22,7 @@ void L18nDictionary::initialize(Char const *locale)
 {
   this->dictionary.clear();
   std::string filename = Main::getModuleDirectory();
-  filename += STR("../Notices_L18n/");
+  filename += S("../Notices_L18n/");
   filename += locale;
   filename += ".txt";
   std::ifstream fin(filename);
@@ -30,7 +30,7 @@ void L18nDictionary::initialize(Char const *locale)
     while (!fin.eof()) {
       std::string line;
       std::getline(fin, line);
-      Int pos = line.find(CHR(':'));
+      Int pos = line.find(C(':'));
       if (pos != -1) {
         Str key(line.c_str(), pos);
         auto value = TiStr::create(line.c_str() + pos + 1);
@@ -53,10 +53,10 @@ L18nDictionary* L18nDictionary::getSingleton()
 {
   static L18nDictionary *l18nDictionary=0;
   if (l18nDictionary == 0) {
-    l18nDictionary = reinterpret_cast<L18nDictionary*>(GLOBAL_STORAGE->getObject(STR("Core::Notices::L18nDictionary")));
+    l18nDictionary = reinterpret_cast<L18nDictionary*>(GLOBAL_STORAGE->getObject(S("Core::Notices::L18nDictionary")));
     if (l18nDictionary == 0) {
       l18nDictionary = new L18nDictionary;
-      GLOBAL_STORAGE->setObject(STR("Core::Notices::L18nDictionary"), reinterpret_cast<void*>(l18nDictionary));
+      GLOBAL_STORAGE->setObject(S("Core::Notices::L18nDictionary"), reinterpret_cast<void*>(l18nDictionary));
     }
   }
   return l18nDictionary;

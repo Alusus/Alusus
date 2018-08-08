@@ -71,10 +71,10 @@ class ConstTerm : public Term
   public: void setMatchString(Char const *str)
   {
     if (str == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("str"), STR("Argument should not be null."), str);
+      throw EXCEPTION(InvalidArgumentException, S("str"), S("Argument should not be null."), str);
     }
     if (this->matchString.getWStr().size() > 0) {
-      throw EXCEPTION(GenericException, STR("Modifying an already set match string is not allowed."));
+      throw EXCEPTION(GenericException, S("Modifying an already set match string is not allowed."));
     }
     this->matchString = str;
   }
@@ -82,10 +82,10 @@ class ConstTerm : public Term
   public: void setMatchString(TiWStr *str)
   {
     if (str == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("str"), STR("Argument should not be null."), str);
+      throw EXCEPTION(InvalidArgumentException, S("str"), S("Argument should not be null."), str);
     }
     if (this->matchString.getWStr().size() > 0) {
-      throw EXCEPTION(GenericException, STR("Modifying an already set match string is not allowed."));
+      throw EXCEPTION(GenericException, S("Modifying an already set match string is not allowed."));
     }
     this->matchString = *str;
   }

@@ -83,7 +83,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
   public: void doSet(TiObject const *ref, TiObject *target, TiObject *val, Word flags = 0)
   {
     if (!this->trySet(ref, target, val, flags)) {
-      throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
+      throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
     }
   }
 
@@ -92,7 +92,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
   public: void doRemove(TiObject const *ref, TiObject *target, Word flags = 0)
   {
     if (!this->tryRemove(ref, target, flags)) {
-      throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
+      throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
     }
   }
 
@@ -109,7 +109,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
   {
     TiObject *retVal = this->tryGet(ref, target, flags);
     if (retVal == 0) {
-      throw EXCEPTION(GenericException, STR("Reference pointing to a missing element/tree."));
+      throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
     }
     return retVal;
   }

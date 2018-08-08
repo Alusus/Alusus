@@ -97,15 +97,15 @@ void Module::initialize(TiObject *context)
   if (this->baseRef != 0) {
     auto grammarContext = ti_cast<Context>(context);
     if (grammarContext == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("context"), STR("Must be of type Core::Data::Grammar::Context."));
+      throw EXCEPTION(InvalidArgumentException, S("context"), S("Must be of type Core::Data::Grammar::Context."));
     }
     TiObject *p = grammarContext->traceValue(this->baseRef.get());
     if (p == 0) {
-      throw EXCEPTION(GenericException, STR("Base reference points to missing definition."));
+      throw EXCEPTION(GenericException, S("Base reference points to missing definition."));
     }
     Module *pm = ti_cast<Module>(p);
     if (pm == 0) {
-      throw EXCEPTION(GenericException, STR("Base reference points to an object of an invalid type."));
+      throw EXCEPTION(GenericException, S("Base reference points to an object of an invalid type."));
     }
     this->setBase(pm);
   }

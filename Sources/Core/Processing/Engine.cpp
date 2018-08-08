@@ -34,7 +34,7 @@ void Engine::initialize(SharedPtr<Data::Ast::Scope> const &rootScope)
 SharedPtr<TiObject> Engine::processString(Char const *str, Char const *name)
 {
   if (str == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("str"), STR("Cannot be null."), str);
+    throw EXCEPTION(InvalidArgumentException, S("str"), S("Cannot be null."), str);
   }
 
   parser.beginParsing();
@@ -57,7 +57,7 @@ SharedPtr<TiObject> Engine::processFile(Char const *filename)
   // Open the file.
   std::ifstream fin(filename);
   if (fin.fail()) {
-    throw EXCEPTION(InvalidArgumentException, STR("filename"), STR("Could not open file."), filename);
+    throw EXCEPTION(InvalidArgumentException, S("filename"), S("Could not open file."), filename);
   }
   return this->processStream(&fin, filename);
 }
@@ -67,7 +67,7 @@ SharedPtr<TiObject> Engine::processStream(InStream *is, Char const *streamName)
 {
   // Open the file.
   if (is == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("is"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("is"), S("Cannot be null."));
   }
 
   parser.beginParsing();

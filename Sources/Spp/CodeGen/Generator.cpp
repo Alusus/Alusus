@@ -193,7 +193,7 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   // Prepare struct members.
   auto body = astType->getBody().get();
   if (body == 0) {
-    throw EXCEPTION(GenericException, STR("User type missing body block."));
+    throw EXCEPTION(GenericException, S("User type missing body block."));
   }
   auto prevInProgress = tryGetCodeGenData<TiBool>(body);
   if (prevInProgress != 0) {
@@ -236,7 +236,7 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
 
   if (!tg->generateStructTypeBody(tgType, &tgMemberTypes, &tgMembers)) return false;
   if (tgMemberTypes.getElementCount() != tgMembers.getCount()) {
-    throw EXCEPTION(GenericException, STR("Unexpected error while generating struct body."));
+    throw EXCEPTION(GenericException, S("Unexpected error while generating struct body."));
   }
   for (Int i = 0; i < tgMemberTypes.getElementCount(); ++i) {
     setCodeGenData(members.get(i), tgMembers.get(i));
@@ -269,11 +269,11 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
     // Also generate the reference type of this type.
     Ast::Type *astRefType = generator->astHelper->getPointerTypeFor(astType);
     if (astRefType == 0) {
-      throw EXCEPTION(GenericException, STR("Could not find reference type for the given var type."));
+      throw EXCEPTION(GenericException, S("Could not find reference type for the given var type."));
     }
     TiObject *tgRefType;
     if (!generator->typeGenerator->getGeneratedType(astRefType, tg, tgRefType, 0)) {
-      throw EXCEPTION(GenericException, STR("Failed to generate pointer type for the given var type."));
+      throw EXCEPTION(GenericException, S("Failed to generate pointer type for the given var type."));
     }
 
     if (astType->isDerivedFrom<Ast::UserType>()) {
@@ -291,7 +291,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       // Generate a global variable.
       // Generate global name.
       Str name = std::regex_replace(
-        generator->getAstHelper()->resolveNodePath(definition), std::regex("[^a-zA-Z0-9_]"), STR("_")
+        generator->getAstHelper()->resolveNodePath(definition), std::regex("[^a-zA-Z0-9_]"), S("_")
       );
       // Generate the default value.
       TioSharedPtr tgDefaultValue;
@@ -309,7 +309,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
     } else {
       if (ti_cast<Ast::Type>(astBlock->getOwner()) != 0) {
         // This should never happen.
-        throw EXCEPTION(GenericException, STR("Unexpected error while generating variable."));
+        throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
       } else {
         // Generate a local variable.
         // At this point we should already have a TG context.

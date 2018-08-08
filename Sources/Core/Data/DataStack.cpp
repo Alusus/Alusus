@@ -27,7 +27,7 @@ void DataStack::pop()
       this->trunkIndex--;
     } else {
       // This should never be reached.
-      throw EXCEPTION(GenericException, STR("Stack is empty."));
+      throw EXCEPTION(GenericException, S("Stack is empty."));
     }
   }
 }
@@ -36,15 +36,15 @@ void DataStack::pop()
 void DataStack::set(SharedPtr<TiObject> const &obj, Int index)
 {
   if (this->getCount() == 0) {
-    throw EXCEPTION(GenericException, STR("Stack is empty."));
+    throw EXCEPTION(GenericException, S("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is out of range."), index);
     }
     index = this->getCount() + index;
   }
@@ -65,15 +65,15 @@ void DataStack::set(SharedPtr<TiObject> const &obj, Int index)
 SharedPtr<TiObject> const& DataStack::get(Int index) const
 {
   if (this->getCount() == 0) {
-    throw EXCEPTION(GenericException, STR("Stack is empty."));
+    throw EXCEPTION(GenericException, S("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is out of range."), index);
     }
     index = this->getCount() + index;
   }
@@ -96,7 +96,7 @@ SharedPtr<TiObject> const& DataStack::get(Int index) const
 void DataStack::copyFrom(DataStack const *src)
 {
   if (src == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("src"), STR("Argument cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("src"), S("Argument cannot be null."));
   }
   this->clear();
   for (Int i = 0; i < src->getCount(); ++i) {
@@ -108,15 +108,15 @@ void DataStack::copyFrom(DataStack const *src)
 Bool DataStack::isShared(Int index) const
 {
   if (this->getCount() == 0) {
-    throw EXCEPTION(GenericException, STR("Stack is empty."));
+    throw EXCEPTION(GenericException, S("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is out of range."), index);
     }
     index = this->getCount() + index;
   }
@@ -144,8 +144,8 @@ void DataStack::setBranchingInfo(DataStack *ds, Int ti)
 {
   if (ds == 0) ti = -1;
   else if (ti < -1 || ti >= static_cast<Int>(ds->getCount())) {
-    throw EXCEPTION(InvalidArgumentException, STR("ti"),
-                    STR("Must be between -1 and ds->getCount()-1 when ds is not null."), ti);
+    throw EXCEPTION(InvalidArgumentException, S("ti"),
+                    S("Must be between -1 and ds->getCount()-1 when ds is not null."), ti);
   }
   this->clear();
   this->trunkStack = ds;
@@ -160,7 +160,7 @@ void DataStack::ownTop()
   ASSERT(this->trunkStack != 0);
   ASSERT(this->trunkIndex > -1);
   if (static_cast<Int>(this->trunkStack->getCount()) <= this->trunkIndex) {
-    throw EXCEPTION(GenericException, STR("Trunk stack has been modified."));
+    throw EXCEPTION(GenericException, S("Trunk stack has been modified."));
   }
   auto srcData = this->trunkStack->get(this->trunkIndex);
   this->trunkIndex--;
@@ -174,15 +174,15 @@ void DataStack::ownTop()
 void DataStack::removeElement(Int index)
 {
   if (this->getCount() == 0) {
-    throw EXCEPTION(GenericException, STR("Stack is empty."));
+    throw EXCEPTION(GenericException, S("Stack is empty."));
   }
   if (index >= 0) {
     if (index >= this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is out of range."), index);
     }
     index = this->getCount() + index;
   }
@@ -191,7 +191,7 @@ void DataStack::removeElement(Int index)
     ASSERT(this->trunkStack != 0);
     if (index <= this->trunkIndex) {
       // This level is shared with the trunk state.
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index refers to a level from a trunk state."));
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index refers to a level from a trunk state."));
     } else {
       this->stack.remove(index-(this->trunkIndex+1));
     }
@@ -204,15 +204,15 @@ void DataStack::removeElement(Int index)
 void DataStack::insertElement(Int index, TiObject *val)
 {
   if (this->getCount() == 0) {
-    throw EXCEPTION(GenericException, STR("Stack is empty."));
+    throw EXCEPTION(GenericException, S("Stack is empty."));
   }
   if (index >= 0) {
     if (index > this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is out of range."), index);
     }
   } else {
     if ((-index) > this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is out of range."), index);
     }
     index = this->getCount() + index;
   }
@@ -221,7 +221,7 @@ void DataStack::insertElement(Int index, TiObject *val)
     ASSERT(this->trunkStack != 0);
     if (index <= this->trunkIndex) {
       // This level is shared with the trunk state.
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index is within the range of the trunk state."));
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is within the range of the trunk state."));
     } else {
       this->stack.insertElement(index-(this->trunkIndex+1), val);
     }

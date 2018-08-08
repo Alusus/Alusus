@@ -2,7 +2,7 @@
  * @file Core/Basic/BindingMap.cpp
  * Contains the implementation of class Core::Basic::BindingMap.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -72,19 +72,19 @@ void BindingMap::updateFunctionChain(Char const *name, TiFunctionBase *currentTi
   VALIDATE_NOT_NULL(name, newTifn);
   auto index = this->findIndex(name);
   if (index == -1) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Not found."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Not found."), name);
   }
   auto tifn = this->get(index).ti_cast_get<TiFunctionBase>();
   if (tifn == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("No function override is defined at this key."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("No function override is defined at this key."), name);
   }
   if (tifn == currentTifn) {
     this->set(index, newTifn);
   } else {
     while (tifn != 0 && tifn->getSuper() != currentTifn) tifn = tifn->getSuper();
     if (tifn == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"),
-                      STR("Provided funciton override is not found at the given key."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"),
+                      S("Provided funciton override is not found at the given key."), name);
     }
     tifn->setSuper(newTifn.get());
   }
@@ -96,11 +96,11 @@ void BindingMap::resetFunction(Char const *name, TiFunctionBase *currentTifn)
   VALIDATE_NOT_NULL(name, currentTifn);
   auto index = this->findIndex(name);
   if (index == -1) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Not found."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Not found."), name);
   }
   auto tifn = this->get(index).ti_cast_get<TiFunctionBase>();
   if (tifn == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("No function override is defined at this key."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("No function override is defined at this key."), name);
   }
   if (tifn == currentTifn) {
     if (currentTifn->getSuper() == 0) {
@@ -111,8 +111,8 @@ void BindingMap::resetFunction(Char const *name, TiFunctionBase *currentTifn)
   } else {
     while (tifn != 0 && tifn->getSuper() != currentTifn) tifn = tifn->getSuper();
     if (tifn == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"),
-                      STR("Provided funciton override is not found at the given key."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"),
+                      S("Provided funciton override is not found at the given key."), name);
     }
     tifn->setSuper(currentTifn->getSuper());
   }
@@ -124,19 +124,19 @@ void BindingMap::resetFunctionChain(Char const *name, TiFunctionBase *currentTif
   VALIDATE_NOT_NULL(name, currentTifn);
   auto index = this->findIndex(name);
   if (index == -1) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Not found."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Not found."), name);
   }
   auto tifn = this->get(index).ti_cast_get<TiFunctionBase>();
   if (tifn == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("No function override is defined at this key."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("No function override is defined at this key."), name);
   }
   if (tifn == currentTifn) {
     this->remove(index);
   } else {
     while (tifn != 0 && tifn->getSuper() != currentTifn) tifn = tifn->getSuper();
     if (tifn == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"),
-                      STR("Provided funciton override is not found at the given key."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"),
+                      S("Provided funciton override is not found at the given key."), name);
     }
     tifn->setSuper(0);
   }

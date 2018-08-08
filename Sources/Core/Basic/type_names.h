@@ -20,32 +20,32 @@ template <typename TYPE, typename... REST> struct TypeName<TYPE, REST...>
 {
   static std::string get()
   {
-    return TypeName<TYPE>::get() + "," + TypeName<REST...>::get();
+    return TypeName<TYPE>::get() + S(",") + TypeName<REST...>::get();
   }
 };
 
 // Pointer type.
 template <class T> struct TypeName<T*>
 {
-    static std::string get() { return TypeName<T>::get() + "*"; }
+    static std::string get() { return TypeName<T>::get() + S("*"); }
 };
 
 // Reference type.
 template <class T> struct TypeName<T&>
 {
-    static std::string get() { return TypeName<T>::get() + "&"; }
+    static std::string get() { return TypeName<T>::get() + S("&"); }
 };
 
 // Const type.
 template <class T> struct TypeName<T const>
 {
-    static std::string get() { return TypeName<T>::get() + " const"; }
+    static std::string get() { return TypeName<T>::get() + S(" const"); }
 };
 
 // Function type.
 template <class T, class ...R> struct TypeName<T(R...)>
 {
-  static std::string get() { return TypeName<T>::get() + "(" + TypeName<R...>::get() + ")"; }
+  static std::string get() { return TypeName<T>::get() + S("(") + TypeName<R...>::get() + S(")"); }
 };
 
 // Default, assume TiObject
@@ -66,12 +66,12 @@ template <> struct TypeName<>
 #define DEFINE_TYPE_NAME(type, name) \
   template <> struct TypeName<type> \
   { \
-    static std::string get() { return name; } \
+    static std::string get() { return S(name); } \
   }
 #define DEFINE_TEMPLATE_TYPE_NAME(type, name) \
   template <class T> struct TypeName<type<T>> \
   { \
-      static std::string get() { return name "<" + TypeName<T>::get() + ">"; } \
+      static std::string get() { return S(name) S("<") + TypeName<T>::get() + S(">"); } \
   }
 
 DEFINE_TYPE_NAME(void, "void");

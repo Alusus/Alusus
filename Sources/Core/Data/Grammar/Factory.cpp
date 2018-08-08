@@ -30,7 +30,7 @@ void Factory::set(Char const* qualifier, TiObject *val)
 {
   auto ref = createReference(qualifier, &this->referenceCache);
   if (!ref->setValue(&this->context, val)) {
-    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, S("qualifier"), S("Invalid qualifier."), qualifier);
   }
   if (val != 0) setTreeIds(val, this->context.getRoot());
   this->initializeObject(val);
@@ -41,7 +41,7 @@ void Factory::remove(Char const* qualifier)
 {
   auto ref = createReference(qualifier, &this->referenceCache);
   if (!ref->removeValue(&this->context)) {
-    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, S("qualifier"), S("Invalid qualifier."), qualifier);
   }
 }
 
@@ -58,7 +58,7 @@ TiObject* Factory::get(Char const* qualifier)
   auto ref = createReference(qualifier, &this->referenceCache);
   TiObject *result = 0;
   if (!ref->getValue(&this->context, result)) {
-    throw EXCEPTION(InvalidArgumentException, STR("qualifier"), STR("Invalid qualifier."), qualifier);
+    throw EXCEPTION(InvalidArgumentException, S("qualifier"), S("Invalid qualifier."), qualifier);
   }
   return result;
 }
@@ -120,7 +120,7 @@ void Factory::generateConstTokenDefinitions(Term *term)
     if (pid != 0 && pid->get() == this->constTokenId) {
       TiObject *text = tokenTerm->getTokenText().get();
       if (text == 0) {
-        throw EXCEPTION(GenericException, STR("Token term has null id and text."));
+        throw EXCEPTION(GenericException, S("Token term has null id and text."));
       }
       this->generateConstTokensForStrings(text);
     }
@@ -134,7 +134,7 @@ void Factory::generateConstTokenDefinitions(Term *term)
       for (Int i = 0; static_cast<Word>(i) < static_cast<List*>(terms)->getCount(); ++i) {
         TiObject *child = static_cast<List*>(terms)->getElement(i);
         if (!child->isDerivedFrom<Term>()) {
-          throw EXCEPTION(GenericException, STR("ListTerm has a non-Term child."));
+          throw EXCEPTION(GenericException, S("ListTerm has a non-Term child."));
         }
         this->generateConstTokenDefinitions(static_cast<Term*>(child));
       }
@@ -171,9 +171,9 @@ Word Factory::addConstToken(Char const *text)
   Str key;
   Factory::generateKey(text, key);
   // Compute full path.
-  Str path = STR("root.");
+  Str path = S("root.");
   path += this->constTokenPrefix;
-  path += STR(".");
+  path += S(".");
   path += key;
   // If the same constant is already created, skip.
   TiObject *dummyObj;
@@ -192,9 +192,9 @@ Word Factory::addConstToken(Char const *text)
 SharedPtr<SymbolDefinition> Factory::createConstTokenDef(Char const *text)
 {
   return SymbolDefinition::create({
-    {STR("flags"), TiInt::create(SymbolFlags::ROOT_TOKEN)}
+    {S("flags"), TiInt::create(SymbolFlags::ROOT_TOKEN)}
   }, {
-    {STR("term"), ConstTerm::create({{ STR("matchString"), TiStr(text) }})}
+    {S("term"), ConstTerm::create({{ S("matchString"), TiStr(text) }})}
   });
 }
 
@@ -202,15 +202,15 @@ SharedPtr<SymbolDefinition> Factory::createConstTokenDef(Char const *text)
 void Factory::generateKey(Char const *text, Str &result)
 {
   StrStream stream;
-  stream << STR("__");
-  while (*text != CHR('\0')) {
-    if ((*text >= CHR('a') && *text <= CHR('z')) ||
-        (*text >= CHR('A') && *text <= CHR('Z')) ||
-        (*text >= CHR('0') && *text <= CHR('9')) ||
-        *text == CHR('_')) {
+  stream << S("__");
+  while (*text != C('\0')) {
+    if ((*text >= C('a') && *text <= C('z')) ||
+        (*text >= C('A') && *text <= C('Z')) ||
+        (*text >= C('0') && *text <= C('9')) ||
+        *text == C('_')) {
       stream << *text;
     } else {
-      stream << CHR('_') << std::hex << static_cast<Int>(static_cast<Byte>(*text));
+      stream << C('_') << std::hex << static_cast<Int>(static_cast<Byte>(*text));
     }
     ++text;
   }

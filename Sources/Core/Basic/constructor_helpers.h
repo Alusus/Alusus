@@ -23,7 +23,7 @@
       } else if (attr.type == Argument::Type::SHARED) { \
         this->setMember(attr.id, attr.shared); \
       } else { \
-        throw EXCEPTION(InvalidArgumentException, attr.id, STR("Invalid argument type.")); \
+        throw EXCEPTION(InvalidArgumentException, attr.id, S("Invalid argument type.")); \
       } \
     } \
   }
@@ -36,7 +36,7 @@
       } else if (element.type == Argument::Type::SHARED) { \
         this->setElement(element.id, element.shared.get()); \
       } else { \
-        throw EXCEPTION(InvalidArgumentException, element.id, STR("Invalid argument type.")); \
+        throw EXCEPTION(InvalidArgumentException, element.id, S("Invalid argument type.")); \
       } \
     } \
   }

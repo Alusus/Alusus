@@ -38,8 +38,8 @@ struct GenResult
 //==============================================================================
 // Global Constants
 
-constexpr Char const* META_EXTRA_CODE_GEN = STR("codeGen");
-constexpr Char const* META_EXTRA_CODE_GEN_FAILED = STR("codeGenFailed");
+constexpr Char const* META_EXTRA_CODE_GEN = S("codeGen");
+constexpr Char const* META_EXTRA_CODE_GEN_FAILED = S("codeGenFailed");
 
 
 //==============================================================================
@@ -70,7 +70,7 @@ inline DT* getCodeGenData(OT *object)
 {
   auto result = tryGetCodeGenData<DT>(object);
   if (result == 0) {
-    throw EXCEPTION(GenericException, STR("Object is missing the generated data."));
+    throw EXCEPTION(GenericException, S("Object is missing the generated data."));
   }
   return result;
 }
@@ -90,7 +90,7 @@ inline void setCodeGenData(OT *object, SharedPtr<DT> const &data)
 {
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the MetaHaving interface."));
+    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
   }
   metadata->setExtra(META_EXTRA_CODE_GEN, data);
 }
@@ -126,7 +126,7 @@ inline void setCodeGenFailed(OT *object, Bool f)
 {
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the MetaHaving interface."));
+    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
   }
   metadata->setExtra(META_EXTRA_CODE_GEN_FAILED, TiBool::create(f));
 }

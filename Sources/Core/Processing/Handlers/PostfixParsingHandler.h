@@ -61,7 +61,7 @@ template <class TYPE> class PostfixParsingHandler : public GenericParsingHandler
   {
     auto token = data.ti_cast_get<Data::Ast::Token>();
     if (token == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid op token object received."),
+      throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());
     }
 

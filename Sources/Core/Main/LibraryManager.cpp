@@ -49,8 +49,8 @@ void LibraryManager::removeLibrary(PtrWord id)
       return;
     }
   }
-  throw EXCEPTION(InvalidArgumentException, STR("id"),
-                  STR("ID not found among loaded libraries."));
+  throw EXCEPTION(InvalidArgumentException, S("id"),
+                  S("ID not found among loaded libraries."));
 }
 
 
@@ -70,8 +70,8 @@ LibraryGateway* LibraryManager::getGateway(PtrWord id)
   for (Word i = 0; i < this->entries.size(); ++i) {
     if (this->entries[i].id == id) return this->entries[i].gateway;
   }
-  throw EXCEPTION(InvalidArgumentException, STR("id"),
-                  STR("ID not found among loaded libraries."));
+  throw EXCEPTION(InvalidArgumentException, S("id"),
+                  S("ID not found among loaded libraries."));
 }
 
 
@@ -82,8 +82,8 @@ LibraryGateway* LibraryManager::getGateway(Char const *libId)
       if (this->entries[i].gateway->getLibraryId() == libId) return this->entries[i].gateway;
     }
   }
-  throw EXCEPTION(InvalidArgumentException, STR("libId"),
-                  STR("ID not found among loaded libraries."), libId);
+  throw EXCEPTION(InvalidArgumentException, S("libId"),
+                  S("ID not found among loaded libraries."), libId);
 }
 
 
@@ -94,9 +94,9 @@ PtrWord LibraryManager::load(Char const *path, Str &error)
 
   void *handle = dlopen(fullPath.c_str(), RTLD_NOW|RTLD_GLOBAL);
   if (handle == 0) {
-    if (!error.empty()) error += STR("\n");
+    if (!error.empty()) error += S("\n");
     error += path;
-    error += STR(": ");
+    error += S(": ");
     error += dlerror();
     return 0;
   }

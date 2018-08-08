@@ -142,7 +142,7 @@ void TargetGenerator::prepareBuild(Core::Notices::Store *noticeStore)
 void TargetGenerator::dumpIr(OutStream &out)
 {
   if (this->llvmModule == 0) {
-    throw EXCEPTION(GenericException, STR("LLVM module is not generated yet."));
+    throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
   }
 
   llvm::raw_os_ostream ostream(out);
@@ -155,7 +155,7 @@ void TargetGenerator::dumpIr(OutStream &out)
 void TargetGenerator::execute(Char const *entry)
 {
   if (this->llvmModule == 0) {
-    throw EXCEPTION(GenericException, STR("LLVM module is not generated yet."));
+    throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
   }
 
   auto ee = llvm::ExecutionEngine::createJIT(this->llvmModule.get());
@@ -252,7 +252,7 @@ Bool TargetGenerator::generateStructTypeBody(
     auto contentTypeWrapper = ti_cast<Type>(membersTypes->getElement(i));
     if (contentTypeWrapper == 0) {
       throw EXCEPTION(
-        InvalidArgumentException, STR("membersTypes"), STR("Not all elements are instances of LlvmCodeGen::Type")
+        InvalidArgumentException, S("membersTypes"), S("Not all elements are instances of LlvmCodeGen::Type")
       );
     }
     structMembers.push_back(contentTypeWrapper->getLlvmType());
@@ -289,7 +289,7 @@ Bool TargetGenerator::generateFunctionType(
     auto contentTypeWrapper = ti_cast<Type>(argTypes->getElement(i));
     if (contentTypeWrapper == 0) {
       throw EXCEPTION(
-        InvalidArgumentException, STR("argTypes"), STR("Not all elements are instances of LlvmCodeGen::Type")
+        InvalidArgumentException, S("argTypes"), S("Not all elements are instances of LlvmCodeGen::Type")
       );
     }
     args->add(argTypes->getElementKey(i).c_str(), getSharedPtr(contentTypeWrapper));
@@ -300,7 +300,7 @@ Bool TargetGenerator::generateFunctionType(
   auto retTypeWrapper = ti_cast<Type>(retType);
   if (retTypeWrapper == 0) {
     throw EXCEPTION(
-      InvalidArgumentException, STR("retType"), STR("Not an instance of LlvmCodeGen::Type")
+      InvalidArgumentException, S("retType"), S("Not an instance of LlvmCodeGen::Type")
     );
   }
 
@@ -774,7 +774,7 @@ Bool TargetGenerator::generateVarReference(
   } else if (var->getLlvmGlobalVariable() != 0) {
     result = std::make_shared<Value>(var->getLlvmGlobalVariable(), false);
   } else {
-    throw EXCEPTION(GenericException, STR("Variable definition was not generated correctly."));
+    throw EXCEPTION(GenericException, S("Variable definition was not generated correctly."));
   }
   return true;
 }
@@ -882,7 +882,7 @@ Bool TargetGenerator::generateFunctionCall(
   for (Int i = 0; i < arguments->getElementCount(); ++i) {
     auto llvmValBox = ti_cast<Value>(arguments->getElement(i));
     if (llvmValBox == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("arguments"), STR("Some elements are null or of invalid type."));
+      throw EXCEPTION(InvalidArgumentException, S("arguments"), S("Some elements are null or of invalid type."));
     }
     args.push_back(llvmValBox->getLlvmValue());
   }
@@ -906,7 +906,7 @@ Bool TargetGenerator::generateFunctionPtrCall(
   for (Int i = 0; i < arguments->getElementCount(); ++i) {
     auto llvmValBox = ti_cast<Value>(arguments->getElement(i));
     if (llvmValBox == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("arguments"), STR("Some elements are null or of invalid type."));
+      throw EXCEPTION(InvalidArgumentException, S("arguments"), S("Some elements are null or of invalid type."));
     }
     args.push_back(llvmValBox->getLlvmValue());
   }
@@ -1039,7 +1039,7 @@ Bool TargetGenerator::generateAdd(
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 }
 
@@ -1065,7 +1065,7 @@ Bool TargetGenerator::generateSub(
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 }
 
@@ -1091,7 +1091,7 @@ Bool TargetGenerator::generateMul(
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 }
 
@@ -1117,7 +1117,7 @@ Bool TargetGenerator::generateDiv(
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 }
 
@@ -1244,7 +1244,7 @@ Bool TargetGenerator::generateNeg(
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 }
 
@@ -1281,7 +1281,7 @@ Bool TargetGenerator::generateEarlyInc(
       );
     }
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = std::make_shared<Value>(llvmResult, false);
@@ -1321,7 +1321,7 @@ Bool TargetGenerator::generateEarlyDec(
       );
     }
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = std::make_shared<Value>(llvmResult, false);
@@ -1361,7 +1361,7 @@ Bool TargetGenerator::generateLateInc(
       );
     }
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = std::make_shared<Value>(llvmVal, false);
@@ -1401,7 +1401,7 @@ Bool TargetGenerator::generateLateDec(
       );
     }
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = std::make_shared<Value>(llvmVal, false);
@@ -1427,7 +1427,7 @@ Bool TargetGenerator::generateAddAssign(
   } else if (tgType->isDerivedFrom<FloatType>()) {
     llvmResult = block->getIrBuilder()->CreateFAdd(llvmVal, srcValBox->getLlvmValue());
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = getSharedPtr(destVar);
@@ -1453,7 +1453,7 @@ Bool TargetGenerator::generateSubAssign(
   } else if (tgType->isDerivedFrom<FloatType>()) {
     llvmResult = block->getIrBuilder()->CreateFSub(llvmVal, srcValBox->getLlvmValue());
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = getSharedPtr(destVar);
@@ -1479,7 +1479,7 @@ Bool TargetGenerator::generateMulAssign(
   } else if (tgType->isDerivedFrom<FloatType>()) {
     llvmResult = block->getIrBuilder()->CreateFMul(llvmVal, srcValBox->getLlvmValue());
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = getSharedPtr(destVar);
@@ -1505,7 +1505,7 @@ Bool TargetGenerator::generateDivAssign(
   } else if (tgType->isDerivedFrom<FloatType>()) {
     llvmResult = block->getIrBuilder()->CreateFDiv(llvmVal, srcValBox->getLlvmValue());
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = getSharedPtr(destVar);
@@ -1636,7 +1636,7 @@ Bool TargetGenerator::generateEqual(
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 }
 
@@ -1657,7 +1657,7 @@ Bool TargetGenerator::generateNotEqual(
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 }
 
@@ -1683,7 +1683,7 @@ Bool TargetGenerator::generateGreaterThan(
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 }
 
@@ -1709,7 +1709,7 @@ Bool TargetGenerator::generateGreaterThanOrEqual(
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 }
 
@@ -1735,7 +1735,7 @@ Bool TargetGenerator::generateLessThan(
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 }
 
@@ -1761,7 +1761,7 @@ Bool TargetGenerator::generateLessThanOrEqual(
     result = std::make_shared<Value>(llvmResult, false);
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid operation."));
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 }
 

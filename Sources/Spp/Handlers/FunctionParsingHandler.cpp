@@ -105,7 +105,7 @@ Bool FunctionParsingHandler::onIncomingModifier(
   if (paramPass->getType() != Core::Data::Ast::BracketType::SQUARE) return false;
   auto operand = paramPass->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
   if (operand == 0) return false;
-  if (operand->getValue() != STR("expname")) return false;
+  if (operand->getValue() != S("expname")) return false;
   auto param = paramPass->getParam().ti_cast_get<Core::Data::Ast::Identifier>();
   if (param == 0) return false;
 
@@ -188,7 +188,7 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
   }
   if (type->isA<Core::Data::Ast::PrefixOperator>()) {
     auto prefixOp = type.s_cast<Core::Data::Ast::PrefixOperator>();
-    if (prefixOp->getType() != STR("...")) {
+    if (prefixOp->getType() != S("...")) {
       state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(prefixOp->findSourceLocation()));
       return false;
     }
@@ -230,15 +230,15 @@ Bool FunctionParsingHandler::parseArg(Core::Processing::ParserState *state,
     }
     if (packType->isA<Core::Data::Ast::Identifier>()) {
       auto packIdentifier = packType.s_cast<Core::Data::Ast::Identifier>();
-      if (packIdentifier->getValue() == STR("any")) {
+      if (packIdentifier->getValue() == S("any")) {
         packType = 0;
       }
     }
     type = Ast::ArgPack::create({
-      { STR("min"), &packMin },
-      { STR("max"), &packMax }
+      { S("min"), &packMin },
+      { S("max"), &packMax }
     }, {
-      { STR("argType"), packType }
+      { S("argType"), packType }
     });
   } else {
     // Do we have an arg pack prior to this arg?

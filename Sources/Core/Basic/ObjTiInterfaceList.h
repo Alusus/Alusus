@@ -272,7 +272,7 @@ class ObjTiInterfaceList : public TiObject
   public: Bool isInherited(Int index) const
   {
     if (static_cast<Word>(index) >= this->list.getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     if (this->inherited == 0) return false;
     else return this->inherited->at(index);

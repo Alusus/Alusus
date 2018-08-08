@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/GenericCommandParsingHandler.cpp
  * Contains the implementation of Core::Processing::Handlers::GenericCommandParsingHandler.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -17,7 +17,7 @@ namespace Core { namespace Processing { namespace Handlers
 
 void GenericCommandParsingHandler::onProdStart(Parser *parser, ParserState *state, Data::Token const *token)
 {
-  auto command = Data::Ast::GenericCommand::create({ {STR("type"), &this->type} });
+  auto command = Data::Ast::GenericCommand::create({ {S("type"), &this->type} });
   command->setSourceLocation(std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation()));
   state->setData(command);
 }

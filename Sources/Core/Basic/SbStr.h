@@ -211,8 +211,8 @@ template <class T> SbStr& sbstr_cast(T *b)
  *
  * This wrapper is needed for future purposes. The main purpose of this is to
  * allow easy conversion of the program from ascii to unicode. This macro can
- * be thought as a combination of the STR macro and sbstr_cast.
- * Usage: SBSTR("hello") == STR("hello")
+ * be thought as a combination of the S macro and sbstr_cast.
+ * Usage: SBSTR("hello") == S("hello")
  */
 #define SBSTR(x)    Core::Basic::sbstr_cast(x)
 

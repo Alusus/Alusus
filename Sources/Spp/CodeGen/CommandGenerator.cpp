@@ -53,7 +53,7 @@ Bool CommandGenerator::_generateReturnStatement(
   // Get this function's return type.
   Ast::Function *function = Core::Data::findOwner<Ast::Function>(astNode);
   if (function == 0) {
-    throw EXCEPTION(GenericException, STR("Return statement does not belong to a function."));
+    throw EXCEPTION(GenericException, S("Return statement does not belong to a function."));
   }
   Ast::Type *retType = function->getType()->traceRetType(cmdGenerator->astHelper);
 
@@ -76,7 +76,7 @@ Bool CommandGenerator::_generateReturnStatement(
       tg, tgContext, operandResult.astType, retType, operandResult.targetData.get(), tgCastedValue)
     ) {
       // This should not happen since non-castable calls should be filtered out earlier.
-      throw EXCEPTION(GenericException, STR("Invalid cast was unexpectedly found."));
+      throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
     }
     // Generate the return statement.
     tg->generateReturn(tgContext, getCodeGenData<TiObject>(retType), tgCastedValue.get());

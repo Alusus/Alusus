@@ -242,7 +242,7 @@ Bool ExpressionGenerator::_generateLinkOperator(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  if (astNode->getType() != STR(".")) {
+  if (astNode->getType() != S(".")) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidOperationNotice>(astNode->findSourceLocation())
     );
@@ -252,7 +252,7 @@ Bool ExpressionGenerator::_generateLinkOperator(
   // Generate the object reference.
   auto first = astNode->getFirst().get();
   if (first == 0) {
-    throw EXCEPTION(GenericException, STR("First AST element missing from link operator."));
+    throw EXCEPTION(GenericException, S("First AST element missing from link operator."));
   }
   GenResult firstResult;
   if (!expGenerator->generate(first, g, tg, tgContext, firstResult)) return false;
@@ -336,7 +336,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     auto linkOperator = static_cast<Core::Data::Ast::LinkOperator*>(operand);
     auto first = linkOperator->getFirst().get();
     if (first == 0) {
-      throw EXCEPTION(GenericException, STR("First AST element missing from link operator."));
+      throw EXCEPTION(GenericException, S("First AST element missing from link operator."));
     }
     GenResult firstResult;
     if (!expGenerator->generate(first, g, tg, tgContext, firstResult)) return false;
@@ -418,7 +418,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
     // Get function type.
     auto astFuncType = expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(calleeType);
     if (astFuncType == 0) {
-      throw EXCEPTION(GenericException, STR("Invalid callee type."));
+      throw EXCEPTION(GenericException, S("Invalid callee type."));
     }
     // Prepare the arguments to send.
     if (!expGenerator->prepareFunctionParams(
@@ -451,7 +451,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
       g, tg, tgContext, result
     );
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid callee."));
+    throw EXCEPTION(GenericException, S("Invalid callee."));
   }
 }
 
@@ -596,59 +596,59 @@ Bool ExpressionGenerator::_generateOperator(
   OpType opType = OpType::INVALID;
   if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
-    if (infixOp->getType() == STR("+")) { funcName = STR("__add"); opType = OpType::ARITHMETIC; }
-    else if (infixOp->getType() == STR("-")) { funcName = STR("__sub"); opType = OpType::ARITHMETIC; }
-    else if (infixOp->getType() == STR("*")) { funcName = STR("__mul"); opType = OpType::ARITHMETIC; }
-    else if (infixOp->getType() == STR("/")) { funcName = STR("__div"); opType = OpType::ARITHMETIC; }
-    else if (infixOp->getType() == STR("%")) { funcName = STR("__rem"); opType = OpType::BINARY; }
-    else if (infixOp->getType() == STR(">>")) { funcName = STR("__shr"); opType = OpType::BINARY; }
-    else if (infixOp->getType() == STR("<<")) { funcName = STR("__shl"); opType = OpType::BINARY; }
-    else if (infixOp->getType() == STR("&")) { funcName = STR("__and"); opType = OpType::BINARY; }
-    else if (infixOp->getType() == STR("|")) { funcName = STR("__or"); opType = OpType::BINARY; }
-    else if (infixOp->getType() == STR("$")) { funcName = STR("__xor"); opType = OpType::BINARY; }
-    else if (infixOp->getType() == STR("==")) { funcName = STR("__equal"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == STR("!=")) { funcName = STR("__notEqual"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == STR(">")) { funcName = STR("__greaterThan"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == STR(">=")) { funcName = STR("__greaterThanOrEqual"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == STR("<")) { funcName = STR("__lessThan"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == STR("<=")) { funcName = STR("__lessThanOrEqual"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == STR("=")) { funcName = STR("__assign"); opType = OpType::ASSIGN; }
-    else if (infixOp->getType() == STR("+=")) { funcName = STR("__addAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
-    else if (infixOp->getType() == STR("-=")) { funcName = STR("__subAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
-    else if (infixOp->getType() == STR("*=")) { funcName = STR("__mulAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
-    else if (infixOp->getType() == STR("/=")) { funcName = STR("__divAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
-    else if (infixOp->getType() == STR("%=")) { funcName = STR("__remAssign"); opType = OpType::BINARY_ASSIGN; }
-    else if (infixOp->getType() == STR(">>=")) { funcName = STR("__shrAssign"); opType = OpType::BINARY_ASSIGN; }
-    else if (infixOp->getType() == STR("<<=")) { funcName = STR("__shlAssign"); opType = OpType::BINARY_ASSIGN; }
-    else if (infixOp->getType() == STR("&=")) { funcName = STR("__andAssign"); opType = OpType::BINARY_ASSIGN; }
-    else if (infixOp->getType() == STR("|=")) { funcName = STR("__orAssign"); opType = OpType::BINARY_ASSIGN; }
-    else if (infixOp->getType() == STR("$=")) { funcName = STR("__xorAssign"); opType = OpType::BINARY_ASSIGN; }
-    else if (infixOp->getType() == STR("||")) {
+    if (infixOp->getType() == S("+")) { funcName = S("__add"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == S("-")) { funcName = S("__sub"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == S("*")) { funcName = S("__mul"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == S("/")) { funcName = S("__div"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == S("%")) { funcName = S("__rem"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S(">>")) { funcName = S("__shr"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S("<<")) { funcName = S("__shl"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S("&")) { funcName = S("__and"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S("|")) { funcName = S("__or"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S("$")) { funcName = S("__xor"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S("==")) { funcName = S("__equal"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S("!=")) { funcName = S("__notEqual"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S(">")) { funcName = S("__greaterThan"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S(">=")) { funcName = S("__greaterThanOrEqual"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S("<")) { funcName = S("__lessThan"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S("<=")) { funcName = S("__lessThanOrEqual"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S("=")) { funcName = S("__assign"); opType = OpType::ASSIGN; }
+    else if (infixOp->getType() == S("+=")) { funcName = S("__addAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == S("-=")) { funcName = S("__subAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == S("*=")) { funcName = S("__mulAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == S("/=")) { funcName = S("__divAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == S("%=")) { funcName = S("__remAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == S(">>=")) { funcName = S("__shrAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == S("<<=")) { funcName = S("__shlAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == S("&=")) { funcName = S("__andAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == S("|=")) { funcName = S("__orAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == S("$=")) { funcName = S("__xorAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == S("||")) {
       return expGenerator->generateLogicalOp(infixOp, g, tg, tgContext, result);
-    } else if (infixOp->getType() == STR("&&")) {
+    } else if (infixOp->getType() == S("&&")) {
       return expGenerator->generateLogicalOp(infixOp, g, tg, tgContext, result);
     } else {
-      throw EXCEPTION(GenericException, STR("Unexpected infix operator."));
+      throw EXCEPTION(GenericException, S("Unexpected infix operator."));
     }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
     auto outfixOp = static_cast<Core::Data::Ast::PrefixOperator*>(astNode);
-    if (outfixOp->getType() == STR("+")) { funcName = STR("__pos"); opType = OpType::UNARY_VAL; }
-    else if (outfixOp->getType() == STR("-")) { funcName = STR("__neg"); opType = OpType::UNARY_VAL; }
-    else if (outfixOp->getType() == STR("!")) { funcName = STR("__not"); opType = OpType::INT_UNARY_VAL; }
-    else if (outfixOp->getType() == STR("++")) { funcName = STR("__earlyInc"); opType = OpType::UNARY_VAR; }
-    else if (outfixOp->getType() == STR("--")) { funcName = STR("__earlyDec"); opType = OpType::UNARY_VAR; }
+    if (outfixOp->getType() == S("+")) { funcName = S("__pos"); opType = OpType::UNARY_VAL; }
+    else if (outfixOp->getType() == S("-")) { funcName = S("__neg"); opType = OpType::UNARY_VAL; }
+    else if (outfixOp->getType() == S("!")) { funcName = S("__not"); opType = OpType::INT_UNARY_VAL; }
+    else if (outfixOp->getType() == S("++")) { funcName = S("__earlyInc"); opType = OpType::UNARY_VAR; }
+    else if (outfixOp->getType() == S("--")) { funcName = S("__earlyDec"); opType = OpType::UNARY_VAR; }
     else {
-      throw EXCEPTION(GenericException, STR("Unexpected prefix operator."));
+      throw EXCEPTION(GenericException, S("Unexpected prefix operator."));
     }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::PostfixOperator>()) {
     auto outfixOp = static_cast<Core::Data::Ast::PostfixOperator*>(astNode);
-    if (outfixOp->getType() == STR("++")) { funcName = STR("__lateInc"); opType = OpType::UNARY_VAR; }
-    else if (outfixOp->getType() == STR("--")) { funcName = STR("__lateDec"); opType = OpType::UNARY_VAR; }
+    if (outfixOp->getType() == S("++")) { funcName = S("__lateInc"); opType = OpType::UNARY_VAR; }
+    else if (outfixOp->getType() == S("--")) { funcName = S("__lateDec"); opType = OpType::UNARY_VAR; }
     else {
-      throw EXCEPTION(GenericException, STR("Unexpected postfix operator."));
+      throw EXCEPTION(GenericException, S("Unexpected postfix operator."));
     }
   } else {
-    throw EXCEPTION(GenericException, STR("Unexpected operator type."));
+    throw EXCEPTION(GenericException, S("Unexpected operator type."));
   }
 
   // Generate parameters list.
@@ -757,20 +757,20 @@ Bool ExpressionGenerator::_generateLogicalOp(
   )) return false;
 
   // Finalize the operator.
-  if (astNode->getType() == STR("||")) {
+  if (astNode->getType() == S("||")) {
     if (!tg->finishLogicalOr(
       tgContext, secondContext.get(), firstCastedResult.get(), secondCastedResult.get(), result.targetData
     )) return false;
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
-  } else if (astNode->getType() == STR("&&")) {
+  } else if (astNode->getType() == S("&&")) {
     if (!tg->finishLogicalAnd(
       tgContext, secondContext.get(), firstCastedResult.get(), secondCastedResult.get(), result.targetData
     )) return false;
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
   } else {
-    throw EXCEPTION(GenericException, STR("Invalid logical operator."));
+    throw EXCEPTION(GenericException, S("Invalid logical operator."));
   }
 }
 
@@ -784,7 +784,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
   VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
   if (paramAstTypes->getCount() != 2) {
     throw EXCEPTION(InvalidArgumentException,
-      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
+      S("paramAstTypes"), S("Must contain exactly two elements."), paramAstTypes->getCount()
     );
   }
 
@@ -840,35 +840,35 @@ Bool ExpressionGenerator::_generateArithmeticOp(
 
   TiObject *tgTargetType;
   if (!g->getGeneratedType(astTargetType, tg, tgTargetType, 0)) {
-    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+    throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == STR("+")) {
+  if (astNode->getType() == S("+")) {
     if (!tg->generateAdd(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == STR("-")) {
+  } else if (astNode->getType() == S("-")) {
     if (!tg->generateSub(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == STR("*")) {
+  } else if (astNode->getType() == S("*")) {
     if (!tg->generateMul(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == STR("/")) {
+  } else if (astNode->getType() == S("/")) {
     if (!tg->generateDiv(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = astTargetType;
     return true;
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+    throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
   }
 }
 
@@ -882,7 +882,7 @@ Bool ExpressionGenerator::_generateBinaryOp(
   VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
   if (paramAstTypes->getCount() != 2) {
     throw EXCEPTION(InvalidArgumentException,
-      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
+      S("paramAstTypes"), S("Must contain exactly two elements."), paramAstTypes->getCount()
     );
   }
 
@@ -924,47 +924,47 @@ Bool ExpressionGenerator::_generateBinaryOp(
 
   TiObject *tgTargetType;
   if (!g->getGeneratedType(astTargetType, tg, tgTargetType, 0)) {
-    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+    throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == STR("%")) {
+  if (astNode->getType() == S("%")) {
     if (!tg->generateRem(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == STR(">>")) {
+  } else if (astNode->getType() == S(">>")) {
     if (!tg->generateShr(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == STR("<<")) {
+  } else if (astNode->getType() == S("<<")) {
     if (!tg->generateShl(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == STR("&")) {
+  } else if (astNode->getType() == S("&")) {
     if (!tg->generateAnd(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == STR("|")) {
+  } else if (astNode->getType() == S("|")) {
     if (!tg->generateOr(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == STR("$")) {
+  } else if (astNode->getType() == S("$")) {
     if (!tg->generateXor(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = astTargetType;
     return true;
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+    throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
   }
 }
 
@@ -978,11 +978,11 @@ Bool ExpressionGenerator::_generateComparisonOp(
   VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
   if (paramAstTypes->getCount() != 2) {
     throw EXCEPTION(InvalidArgumentException,
-      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
+      S("paramAstTypes"), S("Must contain exactly two elements."), paramAstTypes->getCount()
     );
   }
 
-  Bool equality = astNode->getType() == STR("==") || astNode->getType() == STR("!=");
+  Bool equality = astNode->getType() == S("==") || astNode->getType() == S("!=");
   GenResult param1, param2;
   if (!expGenerator->dereferenceIfNeeded(
     tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), param1
@@ -1060,47 +1060,47 @@ Bool ExpressionGenerator::_generateComparisonOp(
 
   TiObject *tgTargetType;
   if (!g->getGeneratedType(astTargetType, tg, tgTargetType, 0)) {
-    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+    throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == STR("==")) {
+  if (astNode->getType() == S("==")) {
     if (!tg->generateEqual(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
-  } else if (astNode->getType() == STR("!=")) {
+  } else if (astNode->getType() == S("!=")) {
     if (!tg->generateNotEqual(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
-  } else if (astNode->getType() == STR(">")) {
+  } else if (astNode->getType() == S(">")) {
     if (!tg->generateGreaterThan(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
-  } else if (astNode->getType() == STR(">=")) {
+  } else if (astNode->getType() == S(">=")) {
     if (!tg->generateGreaterThanOrEqual(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
-  } else if (astNode->getType() == STR("<")) {
+  } else if (astNode->getType() == S("<")) {
     if (!tg->generateLessThan(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
-  } else if (astNode->getType() == STR("<=")) {
+  } else if (astNode->getType() == S("<=")) {
     if (!tg->generateLessThanOrEqual(
       tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
     )) return false;
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent a comparison operator."));
+    throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent a comparison operator."));
   }
 }
 
@@ -1114,7 +1114,7 @@ Bool ExpressionGenerator::_generateAssignOp(
   VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
   if (paramAstTypes->getCount() != 2) {
     throw EXCEPTION(InvalidArgumentException,
-      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
+      S("paramAstTypes"), S("Must contain exactly two elements."), paramAstTypes->getCount()
     );
   }
 
@@ -1154,17 +1154,17 @@ Bool ExpressionGenerator::_generateAssignOp(
 
   TiObject *tgContentType;
   if (!g->getGeneratedType(astContentType, tg, tgContentType, 0)) {
-    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+    throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == STR("=")) {
+  if (astNode->getType() == S("=")) {
     if (!tg->generateAssign(
       tgContext, tgContentType, param.targetData.get(), paramTgValues->getElement(0), result.targetData
     )) return false;
     result.astType = astRefType;
     return true;
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+    throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
   }
 }
 
@@ -1178,7 +1178,7 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
   if (paramAstTypes->getCount() != 2) {
     throw EXCEPTION(InvalidArgumentException,
-      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
+      S("paramAstTypes"), S("Must contain exactly two elements."), paramAstTypes->getCount()
     );
   }
 
@@ -1211,35 +1211,35 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
 
   TiObject *tgContentType;
   if (!g->getGeneratedType(astContentType, tg, tgContentType, 0)) {
-    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+    throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == STR("+=")) {
+  if (astNode->getType() == S("+=")) {
     if (!tg->generateAddAssign(
       tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
     )) return false;
     result.astType = astRefType;
     return true;
-  } else if (astNode->getType() == STR("-=")) {
+  } else if (astNode->getType() == S("-=")) {
     if (!tg->generateSubAssign(
       tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
     )) return false;
     result.astType = astRefType;
     return true;
-  } else if (astNode->getType() == STR("*=")) {
+  } else if (astNode->getType() == S("*=")) {
     if (!tg->generateMulAssign(
       tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
     )) return false;
     result.astType = astRefType;
     return true;
-  } else if (astNode->getType() == STR("/=")) {
+  } else if (astNode->getType() == S("/=")) {
     if (!tg->generateDivAssign(
       tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
     )) return false;
     result.astType = astRefType;
     return true;
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+    throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
   }
 }
 
@@ -1253,7 +1253,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
   if (paramAstTypes->getCount() != 2) {
     throw EXCEPTION(InvalidArgumentException,
-      STR("paramAstTypes"), STR("Must contain exactly two elements."), paramAstTypes->getCount()
+      S("paramAstTypes"), S("Must contain exactly two elements."), paramAstTypes->getCount()
     );
   }
 
@@ -1283,47 +1283,47 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
 
   TiObject *tgContentType;
   if (!g->getGeneratedType(astContentType, tg, tgContentType, 0)) {
-    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+    throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == STR("%=")) {
+  if (astNode->getType() == S("%=")) {
     if (!tg->generateRemAssign(
       tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
     )) return false;
     result.astType = astRefType;
     return true;
-  } else if (astNode->getType() == STR(">>=")) {
+  } else if (astNode->getType() == S(">>=")) {
     if (!tg->generateShrAssign(
       tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
     )) return false;
     result.astType = astRefType;
     return true;
-  } else if (astNode->getType() == STR("<<=")) {
+  } else if (astNode->getType() == S("<<=")) {
     if (!tg->generateShlAssign(
       tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
     )) return false;
     result.astType = astRefType;
     return true;
-  } else if (astNode->getType() == STR("&=")) {
+  } else if (astNode->getType() == S("&=")) {
     if (!tg->generateAndAssign(
       tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
     )) return false;
     result.astType = astRefType;
     return true;
-  } else if (astNode->getType() == STR("|=")) {
+  } else if (astNode->getType() == S("|=")) {
     if (!tg->generateOrAssign(
       tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
     )) return false;
     result.astType = astRefType;
     return true;
-  } else if (astNode->getType() == STR("$=")) {
+  } else if (astNode->getType() == S("$=")) {
     if (!tg->generateXorAssign(
       tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
     )) return false;
     result.astType = astRefType;
     return true;
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+    throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
   }
 }
 
@@ -1337,7 +1337,7 @@ Bool ExpressionGenerator::_generateUnaryValOp(
   VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
   if (paramAstTypes->getCount() != 1) {
     throw EXCEPTION(InvalidArgumentException,
-      STR("paramAstTypes"), STR("Must contain exactly one element."), paramAstTypes->getCount()
+      S("paramAstTypes"), S("Must contain exactly one element."), paramAstTypes->getCount()
     );
   }
 
@@ -1345,7 +1345,7 @@ Bool ExpressionGenerator::_generateUnaryValOp(
   if (!expGenerator->dereferenceIfNeeded(
     tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), param
   )) return false;
-  if (astNode->getType() == STR("+")) {
+  if (astNode->getType() == S("+")) {
     // This is a no-op.
     result = param;
     return true;
@@ -1372,15 +1372,15 @@ Bool ExpressionGenerator::_generateUnaryValOp(
 
   TiObject *tgTargetType;
   if (!g->getGeneratedType(astTargetType, tg, tgTargetType, 0)) {
-    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+    throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == STR("-")) {
+  if (astNode->getType() == S("-")) {
     if (!tg->generateNeg(tgContext, tgTargetType, param.targetData.get(), result.targetData)) return false;
     result.astType = astTargetType;
     return true;
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+    throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
   }
 }
 
@@ -1394,7 +1394,7 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
   VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
   if (paramAstTypes->getCount() != 1) {
     throw EXCEPTION(InvalidArgumentException,
-      STR("paramAstTypes"), STR("Must contain exactly one element."), paramAstTypes->getCount()
+      S("paramAstTypes"), S("Must contain exactly one element."), paramAstTypes->getCount()
     );
   }
 
@@ -1420,15 +1420,15 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
 
   TiObject *tgTargetType;
   if (!g->getGeneratedType(astTargetType, tg, tgTargetType, 0)) {
-    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+    throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == STR("!")) {
+  if (astNode->getType() == S("!")) {
     if (!tg->generateNot(tgContext, tgTargetType, param.targetData.get(), result.targetData)) return false;
     result.astType = astTargetType;
     return true;
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+    throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
   }
 }
 
@@ -1442,7 +1442,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
   VALIDATE_NOT_NULL(astNode, paramTgValues, paramAstTypes);
   if (paramAstTypes->getCount() != 1) {
     throw EXCEPTION(InvalidArgumentException,
-      STR("paramAstTypes"), STR("Must contain exactly one element."), paramAstTypes->getCount()
+      S("paramAstTypes"), S("Must contain exactly one element."), paramAstTypes->getCount()
     );
   }
 
@@ -1464,40 +1464,40 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
 
   TiObject *tgContentType;
   if (!g->getGeneratedType(astContentType, tg, tgContentType, 0)) {
-    throw EXCEPTION(GenericException, STR("Unexpected error while generating arithmetic op result target type."));
+    throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
   if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
-    if (astNode->getType() == STR("--")) {
+    if (astNode->getType() == S("--")) {
       if (!tg->generateEarlyDec(
         tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
       )) return false;
       result.astType = astContentType;
       return true;
-    } else if (astNode->getType() == STR("++")) {
+    } else if (astNode->getType() == S("++")) {
       if (!tg->generateEarlyInc(
         tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
       )) return false;
       result.astType = astContentType;
       return true;
     } else {
-      throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+      throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
     }
   } else {
-    if (astNode->getType() == STR("--")) {
+    if (astNode->getType() == S("--")) {
       if (!tg->generateLateDec(
         tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
       )) return false;
       result.astType = astContentType;
       return true;
-    } else if (astNode->getType() == STR("++")) {
+    } else if (astNode->getType() == S("++")) {
       if (!tg->generateLateInc(
         tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
       )) return false;
       result.astType = astContentType;
       return true;
     } else {
-      throw EXCEPTION(InvalidArgumentException, STR("astNode"), STR("Does not represent an arithmetic operator."));
+      throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
     }
   }
 }
@@ -1512,7 +1512,7 @@ Bool ExpressionGenerator::_generatePointerOp(
   // Generate the operand.
   auto operand = astNode->getOperand().get();
   if (operand == 0) {
-    throw EXCEPTION(GenericException, STR("PointerOp operand is missing."));
+    throw EXCEPTION(GenericException, S("PointerOp operand is missing."));
   }
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, tg, tgContext, operandResult)) return false;
@@ -1532,7 +1532,7 @@ Bool ExpressionGenerator::_generatePointerOp(
     auto astFunctionPointerType = expGenerator->astHelper->getPointerTypeFor(astFunction->getType().get());
     TiObject *tgFunctionPointerType;
     if (!g->getGeneratedType(astFunctionPointerType, tg, tgFunctionPointerType, 0)) {
-      throw EXCEPTION(GenericException, STR("Failed to generate function pointer type."));
+      throw EXCEPTION(GenericException, S("Failed to generate function pointer type."));
     }
     if (!tg->generateFunctionPointer(tgContext, tgFunction, tgFunctionPointerType, result.targetData)) return false;
     result.astType = astFunctionPointerType;
@@ -1565,7 +1565,7 @@ Bool ExpressionGenerator::_generateContentOp(
   // Generate the operand.
   auto operand = astNode->getOperand().get();
   if (operand == 0) {
-    throw EXCEPTION(GenericException, STR("ContentOp operand is missing."));
+    throw EXCEPTION(GenericException, S("ContentOp operand is missing."));
   }
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, tg, tgContext, operandResult)) return false;
@@ -1608,7 +1608,7 @@ Bool ExpressionGenerator::_generateCastOp(
   // Generate the operand.
   auto operand = astNode->getOperand().get();
   if (operand == 0) {
-    throw EXCEPTION(GenericException, STR("ContentOp operand is missing."));
+    throw EXCEPTION(GenericException, S("ContentOp operand is missing."));
   }
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, tg, tgContext, operandResult)) return false;
@@ -1654,7 +1654,7 @@ Bool ExpressionGenerator::_generateSizeOp(
   // Get the operand type.
   auto operand = astNode->getOperand().get();
   if (operand == 0) {
-    throw EXCEPTION(GenericException, STR("PointerOp operand is missing."));
+    throw EXCEPTION(GenericException, S("PointerOp operand is missing."));
   }
   GenResult operandResult;
   if (!expGenerator->generate(
@@ -1766,32 +1766,32 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
 
   // Parse the given value.
   Int base = 10;
-  if (compareStr(src, STR("0b"), 2) == 0 || compareStr(src, STR("0B"), 2) == 0) {
+  if (compareStr(src, S("0b"), 2) == 0 || compareStr(src, S("0B"), 2) == 0) {
     base = 2;
     src += 2;
-  } else if (compareStr(src, STR("0ن"), 3) == 0) {
+  } else if (compareStr(src, S("0ن"), 3) == 0) {
     base = 2;
     src += 3;
-  } else if (compareStr(src, STR("0o"), 2) == 0 || compareStr(src, STR("0O"), 2) == 0) {
+  } else if (compareStr(src, S("0o"), 2) == 0 || compareStr(src, S("0O"), 2) == 0) {
     base = 8;
     src += 2;
-  } else if (compareStr(src, STR("0م"), 3) == 0) {
+  } else if (compareStr(src, S("0م"), 3) == 0) {
     base = 8;
     src += 3;
-  } else if (compareStr(src, STR("0h"), 2) == 0 || compareStr(src, STR("0H"), 2) == 0) {
+  } else if (compareStr(src, S("0h"), 2) == 0 || compareStr(src, S("0H"), 2) == 0) {
     base = 16;
     src += 2;
   }
   LongWord value = 0;
   while (
-    (*src >= CHR('0') && *src <= CHR('9')) ||
-    (*src >= CHR('a') && *src <= CHR('f')) ||
-    (*src >= CHR('A') && *src <= CHR('F'))
+    (*src >= C('0') && *src <= C('9')) ||
+    (*src >= C('a') && *src <= C('f')) ||
+    (*src >= C('A') && *src <= C('F'))
   ) {
     Int digit = 0;
-    if (*src >= CHR('0') && *src <= CHR('9')) digit = *src - CHR('0');
-    else if (*src >= CHR('a') && *src <= CHR('f')) digit = *src - CHR('a') + 10;
-    else if (*src >= CHR('A') && *src <= CHR('F')) digit = *src - CHR('A') + 10;
+    if (*src >= C('0') && *src <= C('9')) digit = *src - C('0');
+    else if (*src >= C('a') && *src <= C('f')) digit = *src - C('a') + 10;
+    else if (*src >= C('A') && *src <= C('F')) digit = *src - C('A') + 10;
     ASSERT(digit < base);
     value *= base;
     value += digit;
@@ -1801,10 +1801,10 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   // Is it a signed number?
   // Give special treatment to 0 and 1 and consider it unsigned.
   Bool signedNum = value == 0 || value == 1 ? false : true;
-  if (*src == CHR('u') || *src == CHR('U')) {
+  if (*src == C('u') || *src == C('U')) {
     signedNum = false;
     ++src;
-  } else if (compareStr(src, STR("ط"), 2) == 0) {
+  } else if (compareStr(src, S("ط"), 2) == 0) {
     signedNum = false;
     src += 2;
   }
@@ -1814,11 +1814,11 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   Int size = signedNum ?
     expGenerator->astHelper->getNeededIntSize((LongInt)value) :
     expGenerator->astHelper->getNeededWordSize(value);
-  if (*src == CHR('i') || *src == CHR('I')) {
+  if (*src == C('i') || *src == C('I')) {
     typeRequested = true;
     ++src;
     if (getStrLen(src) > 0) size = std::stoi(src);
-  } else if (compareStr(src, STR("ص"), 2) == 0) {
+  } else if (compareStr(src, S("ص"), 2) == 0) {
     typeRequested = true;
     src += 2;
     if (getStrLen(src) > 0) size = std::stoi(src);
@@ -1867,10 +1867,10 @@ Bool ExpressionGenerator::_generateFloatLiteral(
 
   // Determine float size.
   Int size = 32;
-  if (*src == CHR('f') || *src == CHR('F')) {
+  if (*src == C('f') || *src == C('F')) {
     ++src;
     if (getStrLen(src) > 0) size = std::stoi(src);
-  } else if (compareStr(src, STR("ع"), 2) == 0) {
+  } else if (compareStr(src, S("ع"), 2) == 0) {
     src += 2;
     if (getStrLen(src) > 0) size = std::stoi(src);
   }
@@ -1906,7 +1906,7 @@ Bool ExpressionGenerator::_generateVarReference(
     // Generate the variable definition.
     auto varDef = ti_cast<Core::Data::Ast::Definition>(static_cast<Core::Data::Node*>(astNode)->getOwner());
     if (varDef == 0) {
-      throw EXCEPTION(GenericException, STR("Unexpected error while looking for variable definition."));
+      throw EXCEPTION(GenericException, S("Unexpected error while looking for variable definition."));
     }
     if (!g->generateVarDef(varDef, tg)) return false;
 
@@ -1992,7 +1992,7 @@ Bool ExpressionGenerator::_generateArrayReference(
     tg, tgContext, astIndexType, expGenerator->astHelper->getInt64Type(), tgIndexVal, tgCastedIndex
   )) {
     // This should not happen since non-castable calls should be filtered out earlier.
-    throw EXCEPTION(GenericException, STR("Invalid cast was unexpectedly found."));
+    throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
   }
 
   // Prepare the array type.
@@ -2009,7 +2009,7 @@ Bool ExpressionGenerator::_generateArrayReference(
   }
   auto astArrayType = ti_cast<Ast::ArrayType>(astType);
   if (astArrayType == 0) {
-    throw EXCEPTION(GenericException, STR("Unexpected type for array reference."));
+    throw EXCEPTION(GenericException, S("Unexpected type for array reference."));
   }
 
   // Find element type.
@@ -2126,7 +2126,7 @@ Bool ExpressionGenerator::prepareFunctionParams(
       // For var args we need to send values, not references.
       GenResult result;
       if (!this->dereferenceIfNeeded(tg, tgContext, srcType, paramTgVals->getElement(i), result)) {
-        throw EXCEPTION(GenericException, STR("Unexpected error."));
+        throw EXCEPTION(GenericException, S("Unexpected error."));
       }
       paramTgVals->set(i, result.targetData);
     }

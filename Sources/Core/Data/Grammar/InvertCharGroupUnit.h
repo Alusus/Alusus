@@ -82,10 +82,10 @@ class InvertCharGroupUnit : public CharGroupUnit
   public: void setChildCharGroupUnit(SharedPtr<CharGroupUnit> const &u)
   {
     if (u == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("u"), STR("Should not be null."));
+      throw EXCEPTION(InvalidArgumentException, S("u"), S("Should not be null."));
     }
     if (this->childCharGroupUnit != 0) {
-      throw EXCEPTION(GenericException, STR("Modifying an already set child char group unit is not allowed."));
+      throw EXCEPTION(GenericException, S("Modifying an already set child char group unit is not allowed."));
     }
     this->childCharGroupUnit = u;
     this->childCharGroupUnit->setOwner(this);

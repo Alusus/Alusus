@@ -41,11 +41,11 @@ std::string getWorkingDirectory()
 
   if (!_getWorkingDirectory(currentPath.data(), currentPath.size()))
   {
-    throw EXCEPTION(GenericException, STR("Couldn't obtain the current working directory."));
+    throw EXCEPTION(GenericException, S("Couldn't obtain the current working directory."));
   }
 
   std::string path(currentPath.data());
-  if (path.back() != CHR('/')) path += CHR('/');
+  if (path.back() != C('/')) path += C('/');
   return path;
 }
 
@@ -61,7 +61,7 @@ std::string getModuleDirectory()
     std::string path(currentPath.data(), (count > 0) ? count : 0);
   #endif
 
-  Int pos = path.rfind(CHR('/'));
+  Int pos = path.rfind(C('/'));
   return std::string(path, 0, pos+1);
 }
 

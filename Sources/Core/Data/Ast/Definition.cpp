@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Definition.cpp
  * Contains the implementation of class Core::Data::Ast::Definition.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -34,12 +34,12 @@ SharedPtr<TiObject> Definition::clone() const
 
 void Definition::print(OutStream &stream, Int indents) const
 {
-  stream << STR("Definition");
+  stream << S("Definition");
   Word id = this->getProdId();
   if (id != UNKNOWN_ID) {
-    stream << STR(" [") << ID_GENERATOR->getDesc(id) << STR("]");
+    stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]");
   }
-  stream << STR(" ") << this->name << STR(": ");
+  stream << S(" ") << this->name << S(": ");
   dumpData(stream, this->target.get(), indents);
 }
 

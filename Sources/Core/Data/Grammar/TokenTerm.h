@@ -63,7 +63,7 @@ class TokenTerm : public Term, public virtual DataHaving
   public: void setTokenId(SharedPtr<TiObject> const &id)
   {
     if (id != 0 && !id->isA<TiInt>() && !id->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("s"), STR("Must be of type TiInt or Reference."));
+      throw EXCEPTION(InvalidArgumentException, S("s"), S("Must be of type TiInt or Reference."));
     }
     this->tokenId = id;
   }
@@ -81,7 +81,7 @@ class TokenTerm : public Term, public virtual DataHaving
   public: void setTokenText(SharedPtr<TiObject> const &text)
   {
     if (text != 0 && !text->isA<TiStr>() && !text->isA<Map>() && !text->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("text"), STR("Must be of type TiStr or Reference."));
+      throw EXCEPTION(InvalidArgumentException, S("text"), S("Must be of type TiStr or Reference."));
     }
     this->tokenText = text;
   }

@@ -55,11 +55,11 @@ void printNotice(const SharedPtr<Notice> &msg)
     } else {
       auto stack = static_cast<Core::Data::SourceLocationStack*>(sl);
       for (Int i = stack->getCount() - 1; i >= 0; --i) {
-        if (i < stack->getCount() -1) outStream << NEW_LINE << STR("from ");
+        if (i < stack->getCount() -1) outStream << NEW_LINE << S("from ");
         outStream << "(" << stack->get(i)->line << "," << stack->get(i)->column << ")";
       }
     }
-    outStream << STR(": ");
+    outStream << S(": ");
   } else {
     std::cout << "unknown location: ";
   }
@@ -217,14 +217,14 @@ void updateTestSnapshot(Str const &fileName)
  */
 Bool runAndCheckSourceFile(Str const &fileName)
 {
-  if (getenv(STR("ALUSUS_TEST_UPDATE")) != 0) {
+  if (getenv(S("ALUSUS_TEST_UPDATE")) != 0) {
     std::cout << ">>> Updating " << fileName << ": ";
   } else {
     std::cout << ">>> Testing " << fileName << ": ";
   }
   if (!runSourceFile(fileName))
     return false;
-  if (getenv(STR("ALUSUS_TEST_UPDATE")) != 0) {
+  if (getenv(S("ALUSUS_TEST_UPDATE")) != 0) {
     updateTestSnapshot(fileName);
     return true;
   } else {

@@ -53,7 +53,7 @@ class ParamPass : public Node,
     (param, TiObject, setParam(value), param.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(ParamPass, << (this->type == BracketType::ROUND ? STR("()") : STR("[]")));
+  IMPLEMENT_AST_MAP_PRINTABLE(ParamPass, << (this->type == BracketType::ROUND ? S("()") : S("[]")));
 
 
   //============================================================================

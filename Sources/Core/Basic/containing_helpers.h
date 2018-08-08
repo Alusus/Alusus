@@ -23,10 +23,10 @@ namespace Core { namespace Basic
 #define _SET_ELEMENT(var) \
   auto value = ti_cast<VARTYPE_FROM_TUPLE var>(val); \
   if (value == 0 && val != 0) { \
-    Str msg = STR("Invalid argument type for element `"); \
+    Str msg = S("Invalid argument type for element `"); \
     msg += VARNAMESTR_FROM_TUPLE var; \
-    msg += STR("`"); \
-    throw EXCEPTION(InvalidArgumentException, STR("val"), msg.c_str(), val->getMyTypeInfo()->getUniqueName()); \
+    msg += S("`"); \
+    throw EXCEPTION(InvalidArgumentException, S("val"), msg.c_str(), val->getMyTypeInfo()->getUniqueName()); \
   } \
   VARSETTER_FROM_TUPLE var
 
@@ -292,7 +292,7 @@ namespace Core { namespace Basic
   public: virtual Int findElementIndex(Char const *key) const \
   { \
     if (key == 0) { \
-      throw EXCEPTION(InvalidArgumentException, STR("key"), STR("key is null")); \
+      throw EXCEPTION(InvalidArgumentException, S("key"), S("key is null")); \
     } \
     _IMPLEMENT_MAP_CONTAINING_FINDINDEX(parent, __VA_ARGS__); \
     return parent::findElementIndex(key); \

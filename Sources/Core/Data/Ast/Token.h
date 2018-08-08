@@ -152,12 +152,12 @@ class Token : public Node,
 
   public: virtual void print(OutStream &stream, Int indents=0) const
   {
-    stream << STR("Token: ");
+    stream << S("Token: ");
     stream << IdGenerator::getSingleton()->getDesc(this->getId());
-    stream << STR(" (\"") << this->getText() << STR("\")");
+    stream << S(" (\"") << this->getText() << S("\")");
     Word id = this->getProdId();
     if (id != UNKNOWN_ID) {
-      stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("] ");
+      stream << S(" [") << IdGenerator::getSingleton()->getDesc(id) << S("] ");
     }
   }
 

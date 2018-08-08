@@ -126,7 +126,7 @@ class NbList : public Node, public virtual ListContaining<TiObject>, public virt
   public: void set(Int index, TioSharedPtr const &val)
   {
     if (static_cast<Word>(index) >= this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
     }
     auto old = this->get(index);
     this->list.set(index, val);
@@ -137,7 +137,7 @@ class NbList : public Node, public virtual ListContaining<TiObject>, public virt
   public: void remove(Int index)
   {
     if (static_cast<Word>(index) >= this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
     }
     DISOWN_SHAREDPTR(this->get(index));
     this->list.remove(index);

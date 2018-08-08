@@ -28,7 +28,7 @@ template <class RT, class ...ARGS> RT call(TiObject *callee, ARGS... args)
   } else {
     auto tifn2 = ti_cast<TiFunction<RT(ARGS...)>>(callee);
     if (tifn2 == 0) {
-      throw EXCEPTION(GenericException, STR("Function signature does not match the call."));
+      throw EXCEPTION(GenericException, S("Function signature does not match the call."));
     }
     return tifn2->fn(args...);
   }
@@ -40,15 +40,15 @@ template <class RT, class ...ARGS> RT call(Binding *self, Char const *name, ARGS
   VALIDATE_NOT_NULL(self, name);
   auto index = self->findMemberIndex(name);
   if (index == -1) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
   }
   auto obj = self->getMember(index);
   if (obj == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
   }
   auto tifnBase = ti_cast<TiFunctionBase>(obj);
   if (tifnBase == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not a function."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member is not a function."), name);
   }
   return call<RT, ARGS...>(tifnBase, args...);
 }
@@ -59,15 +59,15 @@ template <class RT, class ...ARGS> RT call(BindingMap *bindingMap, Char const *n
   VALIDATE_NOT_NULL(bindingMap, name);
   auto index = bindingMap->findIndex(name);
   if (index == -1) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
   }
   auto obj = bindingMap->get(index).get();
   if (obj == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
   }
   auto tifnBase = ti_cast<TiFunctionBase>(obj);
   if (tifnBase == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not a function."), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member is not a function."), name);
   }
   return call<RT, ARGS...>(tifnBase, args...);
 }
@@ -90,10 +90,10 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
 #define _SET_MEMBER(var) \
   auto value = ti_cast<VARTYPE_FROM_TUPLE var>(val); \
   if (value == 0 && val != 0) { \
-    Str msg = STR("Invalid argument type for member `"); \
+    Str msg = S("Invalid argument type for member `"); \
     msg += VARNAMESTR_FROM_TUPLE var; \
-    msg += STR("`"); \
-    throw EXCEPTION(InvalidArgumentException, STR("val"), msg.c_str(), val->getMyTypeInfo()->getUniqueName()); \
+    msg += S("`"); \
+    throw EXCEPTION(InvalidArgumentException, S("val"), msg.c_str(), val->getMyTypeInfo()->getUniqueName()); \
   } \
   VARSETTER_FROM_TUPLE var
 
@@ -487,7 +487,7 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
   public: virtual Int findMemberIndex(Char const *key) const \
   { \
     if (key == 0) { \
-      throw EXCEPTION(InvalidArgumentException, STR("key"), STR("key is null")); \
+      throw EXCEPTION(InvalidArgumentException, S("key"), S("key is null")); \
     } \
     _IMPLEMENT_BINDING_FINDINDEX(parent, __VA_ARGS__); \
     return parent::findMemberIndex(key); \

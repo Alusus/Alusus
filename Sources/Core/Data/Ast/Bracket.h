@@ -49,7 +49,7 @@ class Bracket : public Node,
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (operand, TiObject, setOperand(value), operand.get()));
 
-  IMPLEMENT_AST_MAP_PRINTABLE(Bracket, << (this->type == BracketType::ROUND ? STR("()") : STR("[]")));
+  IMPLEMENT_AST_MAP_PRINTABLE(Bracket, << (this->type == BracketType::ROUND ? S("()") : S("[]")));
 
 
   //============================================================================

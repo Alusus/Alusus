@@ -257,7 +257,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
   } else if (helper->isAstReference(ref)) {
     auto *refNode = ti_cast<Core::Data::Node>(ref);
     if (refNode == 0) {
-      throw EXCEPTION(GenericException, STR("Invalid type reference."));
+      throw EXCEPTION(GenericException, S("Invalid type reference."));
     }
     helper->getSeeker()->foreach(ref, refNode->getOwner(),
       [=, &type, &notice](TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
@@ -356,7 +356,7 @@ ReferenceType* Helper::_getReferenceTypeFor(TiObject *self, TiObject *type)
   if (tpl->matchInstance(type, helper, result)) {
     auto refType = result.ti_cast_get<ReferenceType>();
     if (refType == 0) {
-      throw EXCEPTION(GenericException, STR("Template for reference type is invalid."));
+      throw EXCEPTION(GenericException, S("Template for reference type is invalid."));
     }
     return refType;
   } else {
@@ -372,7 +372,7 @@ ReferenceType* Helper::_getReferenceTypeFor(TiObject *self, TiObject *type)
 ReferenceType* Helper::getReferenceTypeForPointerType(PointerType *type)
 {
   if (type == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("type"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("type"), S("Cannot be null."));
   }
 
   return this->getReferenceTypeFor(type->getContentType(this));
@@ -389,7 +389,7 @@ PointerType* Helper::_getPointerTypeFor(TiObject *self, TiObject *type)
   if (tpl->matchInstance(type, helper, result)) {
     auto refType = result.ti_cast_get<PointerType>();
     if (refType == 0) {
-      throw EXCEPTION(GenericException, STR("Template for pointer type is invalid."));
+      throw EXCEPTION(GenericException, S("Template for pointer type is invalid."));
     }
     return refType;
   } else {
@@ -405,7 +405,7 @@ PointerType* Helper::_getPointerTypeFor(TiObject *self, TiObject *type)
 PointerType* Helper::getPointerTypeForReferenceType(ReferenceType *type)
 {
   if (type == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("type"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("type"), S("Cannot be null."));
   }
 
   return this->getPointerTypeFor(type->getContentType(this));
@@ -431,14 +431,14 @@ IntegerType* Helper::_getNullType(TiObject *self)
   // Prepare the reference.
   if (helper->nullType == 0) {
     // Create a new reference.
-    auto typeRef = helper->rootManager->parseExpression(STR("Null")).s_cast<Core::Data::Ast::Identifier>();
+    auto typeRef = helper->rootManager->parseExpression(S("Null")).s_cast<Core::Data::Ast::Identifier>();
     typeRef->setOwner(helper->rootManager->getRootScope().get());
 
     helper->nullType = ti_cast<Ast::IntegerType>(
       helper->getSeeker()->doGet(typeRef.get(), helper->rootManager->getRootScope().get())
     );
     if (helper->nullType == 0) {
-      throw EXCEPTION(GenericException, STR("Failed to get null AST type."));
+      throw EXCEPTION(GenericException, S("Failed to get null AST type."));
     }
   }
   return helper->nullType;
@@ -473,7 +473,7 @@ ArrayType* Helper::_getCharArrayType(TiObject *self, Word size)
   if (helper->charArrayTypeRef == 0) {
     // Create a new reference.
     StrStream stream;
-    stream << STR("array[Word[8],") << size << STR("]");
+    stream << S("array[Word[8],") << size << S("]");
     helper->charArrayTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
       .s_cast<Core::Data::Ast::ParamPass>();
     helper->charArrayTypeRef->setOwner(helper->rootManager->getRootScope().get());
@@ -483,7 +483,7 @@ ArrayType* Helper::_getCharArrayType(TiObject *self, Word size)
       ->getParam().ti_cast_get<Core::Data::Ast::List>()
       ->get(1).ti_cast_get<Core::Data::Ast::IntegerLiteral>();
     if (!intLiteral) {
-      throw EXCEPTION(GenericException, STR("Unexpected internal error."));
+      throw EXCEPTION(GenericException, S("Unexpected internal error."));
     }
     intLiteral->setValue(std::to_string(size).c_str());
   }
@@ -492,7 +492,7 @@ ArrayType* Helper::_getCharArrayType(TiObject *self, Word size)
     helper->getSeeker()->doGet(helper->charArrayTypeRef.get(), helper->rootManager->getRootScope().get())
   );
   if (astType == 0) {
-    throw EXCEPTION(GenericException, STR("Failed to get char array AST type."));
+    throw EXCEPTION(GenericException, S("Failed to get char array AST type."));
   }
   return astType;
 }
@@ -515,7 +515,7 @@ IntegerType* Helper::_getIntType(TiObject *self, Word size)
   if (helper->integerTypeRef == 0) {
     // Create a new reference.
     StrStream stream;
-    stream << STR("Int[") << size << STR("]");
+    stream << S("Int[") << size << S("]");
     helper->integerTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
       .s_cast<Core::Data::Ast::ParamPass>();
     helper->integerTypeRef->setOwner(helper->rootManager->getRootScope().get());
@@ -523,7 +523,7 @@ IntegerType* Helper::_getIntType(TiObject *self, Word size)
     // Recycle the existing reference.
     auto intLiteral = helper->integerTypeRef->getParam().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
     if (!intLiteral) {
-      throw EXCEPTION(GenericException, STR("Unexpected internal error."));
+      throw EXCEPTION(GenericException, S("Unexpected internal error."));
     }
     intLiteral->setValue(std::to_string(size).c_str());
   }
@@ -532,7 +532,7 @@ IntegerType* Helper::_getIntType(TiObject *self, Word size)
     helper->getSeeker()->doGet(helper->integerTypeRef.get(), helper->rootManager->getRootScope().get())
   );
   if (astType == 0) {
-    throw EXCEPTION(GenericException, STR("Failed to get integer AST type."));
+    throw EXCEPTION(GenericException, S("Failed to get integer AST type."));
   }
   return astType;
 }
@@ -555,7 +555,7 @@ IntegerType* Helper::_getWordType(TiObject *self, Word size)
   if (helper->wordTypeRef == 0) {
     // Create a new reference.
     StrStream stream;
-    stream << STR("Word[") << size << STR("]");
+    stream << S("Word[") << size << S("]");
     helper->wordTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
       .s_cast<Core::Data::Ast::ParamPass>();
     helper->wordTypeRef->setOwner(helper->rootManager->getRootScope().get());
@@ -563,7 +563,7 @@ IntegerType* Helper::_getWordType(TiObject *self, Word size)
     // Recycle the existing reference.
     auto intLiteral = helper->wordTypeRef->getParam().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
     if (!intLiteral) {
-      throw EXCEPTION(GenericException, STR("Unexpected internal error."));
+      throw EXCEPTION(GenericException, S("Unexpected internal error."));
     }
     intLiteral->setValue(std::to_string(size).c_str());
   }
@@ -572,7 +572,7 @@ IntegerType* Helper::_getWordType(TiObject *self, Word size)
     helper->getSeeker()->doGet(helper->wordTypeRef.get(), helper->rootManager->getRootScope().get())
   );
   if (astType == 0) {
-    throw EXCEPTION(GenericException, STR("Failed to get integer AST type."));
+    throw EXCEPTION(GenericException, S("Failed to get integer AST type."));
   }
   return astType;
 }
@@ -585,7 +585,7 @@ FloatType* Helper::_getFloatType(TiObject *self, Word size)
   if (helper->floatTypeRef == 0) {
     // Create a new reference.
     StrStream stream;
-    stream << STR("Float[") << size << STR("]");
+    stream << S("Float[") << size << S("]");
     helper->floatTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
       .s_cast<Core::Data::Ast::ParamPass>();
     helper->floatTypeRef->setOwner(helper->rootManager->getRootScope().get());
@@ -593,7 +593,7 @@ FloatType* Helper::_getFloatType(TiObject *self, Word size)
     // Recycle the existing reference.
     auto intLiteral = helper->floatTypeRef->getParam().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
     if (!intLiteral) {
-      throw EXCEPTION(GenericException, STR("Unexpected internal error."));
+      throw EXCEPTION(GenericException, S("Unexpected internal error."));
     }
     intLiteral->setValue(std::to_string(size).c_str());
   }
@@ -602,7 +602,7 @@ FloatType* Helper::_getFloatType(TiObject *self, Word size)
     helper->getSeeker()->doGet(helper->floatTypeRef.get(), helper->rootManager->getRootScope().get())
   );
   if (astType == 0) {
-    throw EXCEPTION(GenericException, STR("Failed to get float AST type."));
+    throw EXCEPTION(GenericException, S("Failed to get float AST type."));
   }
   return astType;
 }
@@ -612,14 +612,14 @@ VoidType* Helper::_getVoidType(TiObject *self)
 {
   PREPARE_SELF(helper, Helper);
   if (helper->voidType == 0) {
-    auto typeRef = helper->rootManager->parseExpression(STR("Void")).s_cast<Core::Data::Ast::Identifier>();
+    auto typeRef = helper->rootManager->parseExpression(S("Void")).s_cast<Core::Data::Ast::Identifier>();
     typeRef->setOwner(helper->rootManager->getRootScope().get());
 
     helper->voidType = ti_cast<VoidType>(helper->getSeeker()->doGet(
       typeRef.get(), helper->rootManager->getRootScope().get()
     ));
     if (helper->voidType == 0) {
-      throw EXCEPTION(GenericException, STR("Invalid object found for void type."));
+      throw EXCEPTION(GenericException, S("Invalid object found for void type."));
     }
   }
   return helper->voidType;
@@ -635,11 +635,11 @@ Str Helper::_resolveNodePath(TiObject *self, Core::Data::Node const *node)
 
 Str const& Helper::_getFunctionName(TiObject *self, Function *astFunc)
 {
-  if (astFunc->getName().getStr() == STR("")) {
+  if (astFunc->getName().getStr() == S("")) {
     PREPARE_SELF(helper, Helper);
     Str name = helper->nodePathResolver->doResolve(astFunc, helper);
     // Replace special characters with _.
-    Str formattedName = std::regex_replace(name, std::regex("[^a-zA-Z0-9_]"), STR("_"));
+    Str formattedName = std::regex_replace(name, std::regex("[^a-zA-Z0-9_]"), S("_"));
     astFunc->setName(formattedName.c_str());
   }
   return astFunc->getName().getStr();
@@ -685,12 +685,12 @@ Template* Helper::getReferenceTemplate()
   if (this->refTemplate != 0) return this->refTemplate;
 
   Core::Data::Ast::Identifier identifier;
-  identifier.setValue(STR("ref"));
+  identifier.setValue(S("ref"));
   this->refTemplate = ti_cast<Template>(rootManager->getSeeker()->doGet(
     &identifier, this->rootManager->getRootScope().get())
   );
   if (this->refTemplate == 0) {
-    throw EXCEPTION(GenericException, STR("Invalid object found for ref template."));
+    throw EXCEPTION(GenericException, S("Invalid object found for ref template."));
   }
   return this->refTemplate;
 }
@@ -701,12 +701,12 @@ Template* Helper::getPointerTemplate()
   if (this->ptrTemplate != 0) return this->ptrTemplate;
 
   Core::Data::Ast::Identifier identifier;
-  identifier.setValue(STR("ptr"));
+  identifier.setValue(S("ptr"));
   this->ptrTemplate = ti_cast<Template>(rootManager->getSeeker()->doGet(
     &identifier, this->rootManager->getRootScope().get())
   );
   if (this->ptrTemplate == 0) {
-    throw EXCEPTION(GenericException, STR("Invalid object found for ptr template."));
+    throw EXCEPTION(GenericException, S("Invalid object found for ptr template."));
   }
   return this->ptrTemplate;
 }

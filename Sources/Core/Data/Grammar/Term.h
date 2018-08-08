@@ -71,7 +71,7 @@ class Term : public Node, public virtual Binding
   public: void setFlags(TioSharedPtr const &f)
   {
     if (f != 0 && !f->isA<TiInt>() && !f->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("f"), STR("Must be of type TiInt or Reference."));
+      throw EXCEPTION(InvalidArgumentException, S("f"), S("Must be of type TiInt or Reference."));
     }
     this->flags = f;
   }

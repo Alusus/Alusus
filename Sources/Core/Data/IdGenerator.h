@@ -56,7 +56,7 @@ class IdGenerator
   /// Prevent the singleton class from being inistantiated.
   private: IdGenerator() : index(&ids)
   {
-    this->getId(STR("UNKNOWN"));
+    this->getId(S("UNKNOWN"));
   }
 
 

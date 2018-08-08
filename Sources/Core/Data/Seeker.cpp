@@ -148,7 +148,7 @@ Seeker::Verb Seeker::_set(TiObject *self, TiObject const *ref, TiObject *target,
   } else if (ref->isA<Ast::LinkOperator>()) {
     return seeker->setByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Unrecognized reference type."));
+    throw EXCEPTION(InvalidArgumentException, S("ref"), S("Unrecognized reference type."));
   }
 }
 
@@ -162,7 +162,7 @@ Seeker::Verb Seeker::_remove(
   } else if (ref->isA<Ast::LinkOperator>()) {
     return seeker->removeByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Unrecognized reference type."));
+    throw EXCEPTION(InvalidArgumentException, S("ref"), S("Unrecognized reference type."));
   }
 }
 
@@ -176,7 +176,7 @@ Seeker::Verb Seeker::_foreach(
   } else if (ref->isA<Ast::LinkOperator>()) {
     return seeker->foreachByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Unrecognized reference type."));
+    throw EXCEPTION(InvalidArgumentException, S("ref"), S("Unrecognized reference type."));
   }
 }
 
@@ -206,7 +206,7 @@ Seeker::Verb Seeker::_setByIdentifier(
       node = node->getOwner();
     }
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid data type."));
+    throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
   }
   return retVal;
 }
@@ -279,7 +279,7 @@ Seeker::Verb Seeker::_removeByIdentifier(
       node = node->getOwner();
     }
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid data type."));
+    throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
   }
   return retVal;
 }
@@ -342,7 +342,7 @@ Seeker::Verb Seeker::_foreachByIdentifier(
       node = node->getOwner();
     }
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid data type."));
+    throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
   }
   return retVal;
 }
@@ -404,7 +404,7 @@ Seeker::Verb Seeker::_setByLinkOperator_routing(
   TiObject *self, Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
-  if (link->getType() == STR(".")) {
+  if (link->getType() == S(".")) {
     auto second = link->getSecond().get();
     if (second->isA<Ast::Identifier>()) {
       if (data->isDerivedFrom<Ast::Scope>()) {
@@ -416,14 +416,14 @@ Seeker::Verb Seeker::_setByLinkOperator_routing(
         if (map != 0) {
           return seeker->setByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
         } else {
-          throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Unrecognized target data type."));
+          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
         }
       }
     } else {
-      throw EXCEPTION(InvalidArgumentException, STR("link"), STR("Unrecognized type for link operator's second part."));
+      throw EXCEPTION(InvalidArgumentException, S("link"), S("Unrecognized type for link operator's second part."));
     }
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("link"), STR("Unknown link operator type."), link->getType());
+    throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
   }
 }
 
@@ -494,7 +494,7 @@ Seeker::Verb Seeker::_removeByLinkOperator_routing(
   TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
-  if (link->getType() == STR(".")) {
+  if (link->getType() == S(".")) {
     auto second = link->getSecond().get();
     if (second->isA<Ast::Identifier>()) {
       if (data->isDerivedFrom<Ast::Scope>()) {
@@ -506,14 +506,14 @@ Seeker::Verb Seeker::_removeByLinkOperator_routing(
         if (map != 0) {
           return seeker->removeByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
         } else {
-          throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Unrecognized target data type."));
+          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
         }
       }
     } else {
-      throw EXCEPTION(InvalidArgumentException, STR("link"), STR("Unrecognized type for link operator's second part."));
+      throw EXCEPTION(InvalidArgumentException, S("link"), S("Unrecognized type for link operator's second part."));
     }
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("link"), STR("Unknown link operator type."), link->getType());
+    throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
   }
 }
 
@@ -577,7 +577,7 @@ Seeker::Verb Seeker::_foreachByLinkOperator_routing(
   TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
-  if (link->getType() == STR(".")) {
+  if (link->getType() == S(".")) {
     auto second = link->getSecond().get();
     if (second->isA<Ast::Identifier>()) {
       if (data->isDerivedFrom<Ast::Scope>()) {
@@ -589,14 +589,14 @@ Seeker::Verb Seeker::_foreachByLinkOperator_routing(
         if (map != 0) {
           return seeker->foreachByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
         } else {
-          throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Unrecognized target data type."));
+          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
         }
       }
     } else {
-      throw EXCEPTION(InvalidArgumentException, STR("link"), STR("Unrecognized type for link operator's second part."));
+      throw EXCEPTION(InvalidArgumentException, S("link"), S("Unrecognized type for link operator's second part."));
     }
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("link"), STR("Unknown link operator type."), link->getType());
+    throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
   }
 }
 

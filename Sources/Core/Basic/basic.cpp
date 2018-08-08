@@ -2,7 +2,7 @@
  * @file Core/Basic/basic.cpp
  * Contains the global implementations of Basic namespace's declarations.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -72,7 +72,7 @@ WChar getWideCharFromUtf8(Char const *s)
 void printIndents(OutStream &stream, int indents)
 {
   for (Int i=0; i < indents; ++i) {
-    stream << STR(" ");
+    stream << S(" ");
   }
 }
 

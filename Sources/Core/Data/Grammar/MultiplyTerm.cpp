@@ -26,8 +26,8 @@ namespace Core::Data::Grammar
 void MultiplyTerm::setMin(SharedPtr<TiObject> const &m)
 {
   if (min != 0 && !min->isA<TiInt>() && !min->isDerivedFrom<Reference>()) {
-    throw EXCEPTION(InvalidArgumentException, STR("min"),
-                    STR("Must be of type TiInt or Reference."),
+    throw EXCEPTION(InvalidArgumentException, S("min"),
+                    S("Must be of type TiInt or Reference."),
                     min->getMyTypeInfo()->getUniqueName());
   }
   this->min = m;
@@ -42,8 +42,8 @@ void MultiplyTerm::setMin(SharedPtr<TiObject> const &m)
 void MultiplyTerm::setMax(SharedPtr<TiObject> const &m)
 {
   if (max != 0 && !max->isA<TiInt>() && !max->isDerivedFrom<Reference>()) {
-    throw EXCEPTION(InvalidArgumentException, STR("max"),
-                    STR("Must be of type TiInt or Reference."),
+    throw EXCEPTION(InvalidArgumentException, S("max"),
+                    S("Must be of type TiInt or Reference."),
                     max->getMyTypeInfo()->getUniqueName());
   }
   this->max = m;
@@ -59,8 +59,8 @@ void MultiplyTerm::setMax(SharedPtr<TiObject> const &m)
 void MultiplyTerm::setPriority(SharedPtr<TiObject> const &p)
 {
   if (p != 0 && !p->isA<TiInt>() && !p->isDerivedFrom<Reference>()) {
-    throw EXCEPTION(InvalidArgumentException, STR("p"),
-                    STR("Must be of type TiInt or Reference."),
+    throw EXCEPTION(InvalidArgumentException, S("p"),
+                    S("Must be of type TiInt or Reference."),
                     p->getMyTypeInfo()->getUniqueName());
   }
   this->priority = p;

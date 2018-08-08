@@ -41,7 +41,7 @@ namespace Core::Notices
     public: using Core::Notices::Notice::Notice; \
     public: virtual Str const& getCode() const \
     { \
-      static Str _code(code); \
+      static Str _code(S(code)); \
       return _code; \
     } \
     public: virtual Int getSeverity() const \
@@ -50,7 +50,7 @@ namespace Core::Notices
     } \
     public: virtual void buildDescription(Str &str) const \
     { \
-      str = Core::Notices::L18nDictionary::getSingleton()->get(this->getCode().c_str(), msg); \
+      str = Core::Notices::L18nDictionary::getSingleton()->get(this->getCode().c_str(), S(msg)); \
     } \
   }
 
@@ -93,12 +93,12 @@ namespace Core::Notices
 {
 
 DEFINE_NOTICE(BufferFullNotice, "Core.Notices", "Core", "alusus.net", "CL1002", 1,
-  STR("Input buffer is full. A single token is too long to fit in the input buffer. "
-      "The token may have been broken into more than one token.")
+  "Input buffer is full. A single token is too long to fit in the input buffer. "
+  "The token may have been broken into more than one token."
 );
 DEFINE_NOTICE(TokenClampedNotice, "Core.Notices", "Core", "alusus.net", "CL2003", 2,
-  STR("Input buffer is full. A single token is too long to fit in the input buffer. "
-      "Some characters that are part of the token has been ignored.")
+  "Input buffer is full. A single token is too long to fit in the input buffer. "
+  "Some characters that are part of the token has been ignored."
 );
 
 } /// namespace
@@ -111,19 +111,19 @@ namespace Core::Notices
 {
 
 DEFINE_NOTICE(SyntaxErrorNotice, "Core.Notices", "Core", "alusus.net", "CP1001", 1,
-  STR("Parser syntax error.")
+  "Parser syntax error."
 );
 DEFINE_NOTICE(UnexpectedEofNotice, "Core.Notices", "Core", "alusus.net", "CP1002", 1,
-  STR("Parsing exited while needing more tokens.")
+  "Parsing exited while needing more tokens."
 );
 DEFINE_NOTICE(UnexpectedTokenNotice, "Core.Notices", "Core", "alusus.net", "CP1003", 1,
-  STR("Parsing has already folded out to completion.")
+  "Parsing has already folded out to completion."
 );
 DEFINE_NOTICE(AmbiguityNotice, "Core.Notices", "Core", "alusus.net", "CP2004", 2,
-  STR("Ambiguity is causing state branching.")
+  "Ambiguity is causing state branching."
 );
 DEFINE_NOTICE(UnexpectedModifierNotice, "Core.Notices", "Core", "alusus.net", "CP1005", 1,
-  STR("Unexpected modifier encountered.")
+  "Unexpected modifier encountered."
 );
 
 } // namespace
@@ -136,13 +136,13 @@ namespace Core::Notices
 {
 
 DEFINE_NOTICE(MissingDefLinkNotice, "Core.Notices", "Core", "alusus.net", "CH1001", 1,
-  STR("Missing link expression in 'def' command.")
+  "Missing link expression in 'def' command."
 );
 DEFINE_NOTICE(MissingDefNameNotice, "Core.Notices", "Core", "alusus.net", "CH1002", 1,
-  STR("Missing definition name in 'def' command.")
+  "Missing definition name in 'def' command."
 );
 DEFINE_NOTICE(InvalidDefCommandNotice, "Core.Notices", "Core", "alusus.net", "CH1003", 1,
-  STR("Invalid 'def' command.")
+  "Invalid 'def' command."
 );
 
 } // namespace
@@ -155,10 +155,10 @@ namespace Core::Notices
 {
 
 DEFINE_NOTICE(UnrecognizedErrorNotice, "Core.Notices", "Core", "alusus.net", "CG1001", 1,
-  STR("Unrecognized error.")
+  "Unrecognized error."
 );
 DEFINE_NOTICE(InvalidDumpArgNotice, "Core.Notices", "Core", "alusus.net", "CG1002", 1,
-  STR("Invalid argument for 'dump_ast' command.")
+  "Invalid argument for 'dump_ast' command."
 );
 
 } // namespace

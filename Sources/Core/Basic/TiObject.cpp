@@ -27,11 +27,11 @@ ObjectTypeInfo * TiObject::getTypeInfo()
 {
   static ObjectTypeInfo *type_info = 0;
   if (type_info == 0) {
-    Char const *my_type = STR("TiObject");
-    Char const *typeNamespace = STR("Core.Basic");
-    Char const *moduleName = STR("Core");
-    Char const *url = STR("alusus.net");
-    Char const *uniqueName = STR("alusus.net#Core#Core.Basic.TiObject");
+    Char const *my_type = S("TiObject");
+    Char const *typeNamespace = S("Core.Basic");
+    Char const *moduleName = S("Core");
+    Char const *url = S("alusus.net");
+    Char const *uniqueName = S("alusus.net#Core#Core.Basic.TiObject");
     type_info = reinterpret_cast<ObjectTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (type_info == 0) {
       type_info = new ObjectTypeInfo(my_type, typeNamespace, moduleName, url, 0, 0);

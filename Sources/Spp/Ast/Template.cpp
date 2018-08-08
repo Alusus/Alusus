@@ -21,7 +21,7 @@ namespace Spp { namespace Ast
 TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
 {
   if (this->templateBody == 0) {
-    throw EXCEPTION(GenericException, STR("Template body is not set."));
+    throw EXCEPTION(GenericException, S("Template body is not set."));
   }
 
   // Do we already have a default instance?
@@ -42,7 +42,7 @@ TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
 Bool Template::matchInstance(TiObject *templateInput, Helper *helper, TioSharedPtr &result)
 {
   if (this->templateBody == 0) {
-    throw EXCEPTION(GenericException, STR("Template body is not set."));
+    throw EXCEPTION(GenericException, S("Template body is not set."));
   }
 
   SharedPtr<Core::Notices::Notice> notice;
@@ -110,7 +110,7 @@ Bool Template::matchTemplateVar(
         Template::getTemplateVar(instance, this->varDefs[varIndex].name.c_str())
       );
       if (var == 0) {
-        throw EXCEPTION(GenericException, STR("Missing variable in template instance."));
+        throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
       auto newVar = ti_cast<Core::Data::Ast::IntegerLiteral>(
         Template::traceObject(templateInput, VarType::INTEGER, helper)
@@ -129,7 +129,7 @@ Bool Template::matchTemplateVar(
         Template::getTemplateVar(instance, this->varDefs[varIndex].name.c_str())
       );
       if (var == 0) {
-        throw EXCEPTION(GenericException, STR("Missing variable in template instance."));
+        throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
       auto newVar = ti_cast<Core::Data::Ast::StringLiteral>(
         Template::traceObject(templateInput, VarType::STRING, helper)
@@ -146,7 +146,7 @@ Bool Template::matchTemplateVar(
     default: {
       auto var = Template::getTemplateVar(instance, this->varDefs[varIndex].name.c_str());
       if (var == 0) {
-        throw EXCEPTION(GenericException, STR("Missing variable in template instance."));
+        throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
       auto newVar = Template::traceObject(templateInput, this->varDefs[varIndex].type, helper);
       if (newVar == 0) {
@@ -210,7 +210,7 @@ TiObject* Template::getTemplateVar(Block const *instance, Char const *name)
       else return def->getTarget().get();
     }
   }
-  throw EXCEPTION(GenericException, STR("Template var not found."));
+  throw EXCEPTION(GenericException, S("Template var not found."));
 }
 
 
@@ -219,7 +219,7 @@ TiObject* Template::traceObject(TiObject *ref, VarType varType, Helper *helper)
   TiObject *result = 0;
   Node *refNode = ti_cast<Node>(ref);
   if (refNode == 0) {
-    throw EXCEPTION(GenericException, STR("Invalid template variable."));
+    throw EXCEPTION(GenericException, S("Invalid template variable."));
   }
   if (varType == VarType::INTEGER) {
     if (ref->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) result = ref;
@@ -268,38 +268,38 @@ SharedPtr<TiObject> Template::clone() const
 
 void Template::print(OutStream &stream, Int indents) const
 {
-  stream << STR("Template") ;
+  stream << S("Template") ;
   Word id = this->getProdId();
   if (id != UNKNOWN_ID) {
-    stream << STR(" [") << ID_GENERATOR->getDesc(id) << STR("]");
+    stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]");
   }
   // dump var defs
-  stream << STR("\n");
+  stream << S("\n");
   printIndents(stream, indents+1);
-  stream << STR("-varDefs:");
+  stream << S("-varDefs:");
   for (Word i = 0; i < this->varDefs.size(); ++i) {
-    stream << STR("\n");
+    stream << S("\n");
     printIndents(stream, indents+2);
-    stream << this->varDefs[i].name << STR(": ");
+    stream << this->varDefs[i].name << S(": ");
     switch (this->varDefs[i].type.val) {
-      case VarType::INTEGER: stream << STR("TiInt"); break;
-      case VarType::STRING: stream << STR("TiStr"); break;
-      case VarType::TYPE: stream << STR("Type"); break;
-      case VarType::FUNCTION: stream << STR("Function"); break;
+      case VarType::INTEGER: stream << S("TiInt"); break;
+      case VarType::STRING: stream << S("TiStr"); break;
+      case VarType::TYPE: stream << S("Type"); break;
+      case VarType::FUNCTION: stream << S("Function"); break;
     }
   }
   // dump body
-  stream << STR("\n");
+  stream << S("\n");
   printIndents(stream, indents+1);
-  stream << STR("-templateBody:\n");
+  stream << S("-templateBody:\n");
   printIndents(stream, indents+2);
   Core::Data::dumpData(stream, this->templateBody->getTiObject(), indents+2);
   // dump instances
-  stream << STR("\n");
+  stream << S("\n");
   printIndents(stream, indents+1);
-  stream << STR("-instances:");
+  stream << S("-instances:");
   for (Word i = 0; i < this->instances.size(); ++i) {
-    stream << STR("\n");
+    stream << S("\n");
     printIndents(stream, indents+2);
     Core::Data::dumpData(stream, this->instances[i].get(), indents+2);
   }

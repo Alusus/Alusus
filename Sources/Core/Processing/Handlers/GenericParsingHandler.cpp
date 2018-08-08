@@ -36,7 +36,7 @@ void GenericParsingHandler::onProdEnd(Parser *parser, ParserState *state)
     Ast::MetaHaving *dataMeta = data.ti_cast_get<Ast::MetaHaving>();
     if (dataMeta == 0) {
       throw EXCEPTION(GenericException,
-                      STR("Production root objects must implement Ast::MetaHaving interface."));
+                      S("Production root objects must implement Ast::MetaHaving interface."));
     }
     dataMeta->setProdId(prod->getId());
     // Set the line and column, if any.
@@ -75,7 +75,7 @@ void GenericParsingHandler::onTermEnd(Parser *parser, ParserState *state)
         // This data should be passed up.
         // But we shouldn't be at the root level already.
         if (state->isAProdRoot(levelIndex)) {
-          throw EXCEPTION(GenericException, STR("Pass-up list terms are not allowed at produciton roots."));
+          throw EXCEPTION(GenericException, S("Pass-up list terms are not allowed at produciton roots."));
         }
         ASSERT(state->getData(levelIndex) == 0);
         --levelIndex;
@@ -121,7 +121,7 @@ void GenericParsingHandler::onNewToken(Parser *parser, ParserState *state,
   ASSERT(state->getData() == 0);
   // Create a new item.
 
-  Char const *tokenText = STR("");
+  Char const *tokenText = S("");
   // If the token term defines a map as its match criteria then we'll use the value of the matched
   // entry as the value of our Ast::Token text, otherwise we'll just use the actual token text
   // captured by the lexer.
@@ -154,10 +154,10 @@ void GenericParsingHandler::onConcatStep(Parser *parser, ParserState *state,
   if (this->isPassUpList(state, -1)) {
     // We shouldn't be at the root level.
     if (state->isAtProdRoot()) {
-      throw EXCEPTION(GenericException, STR("Passing items up is not allowed for produciton root list terms."));
+      throw EXCEPTION(GenericException, S("Passing items up is not allowed for produciton root list terms."));
     }
     if (this->isListObjEnforced(state, -1)) {
-      throw EXCEPTION(GenericException, STR("Enforcing list object cannot be used with pass-up terms."));
+      throw EXCEPTION(GenericException, S("Enforcing list object cannot be used with pass-up terms."));
     }
     return;
   }
@@ -193,10 +193,10 @@ void GenericParsingHandler::onMultiplyRouteDecision(Parser *parser, ParserState 
     if (this->isPassUpList(state, -1)) {
       // We shouldn't be at the root level.
       if (state->isAtProdRoot()) {
-        throw EXCEPTION(GenericException, STR("Passing terms up is not allowed for produciton root list terms."));
+        throw EXCEPTION(GenericException, S("Passing terms up is not allowed for produciton root list terms."));
       }
       if (this->isListObjEnforced(state, -1)) {
-        throw EXCEPTION(GenericException, STR("Enforcing list object cannot be used with pass-up terms."));
+        throw EXCEPTION(GenericException, S("Enforcing list object cannot be used with pass-up terms."));
       }
       return;
     }
@@ -238,9 +238,9 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState
       container->setElement(0, data.get());
     } else {
       throw EXCEPTION(GenericException,
-                      STR("Trying to set data to an alternative or optional term that already has"
-                          " data. Is a concat or duplicate term trying to pass-up multiple data "
-                          "to an upper alternative or optional term?"));
+                      S("Trying to set data to an alternative or optional term that already has"
+                        " data. Is a concat or duplicate term trying to pass-up multiple data "
+                        "to an upper alternative or optional term?"));
     }
   } else if (this->isListTerm(state, levelIndex)) {
     // Add the given data to this list term.
@@ -385,8 +385,8 @@ SharedPtr<TiObject> GenericParsingHandler::createEnforcedProdNode(ParserState *s
     }
   } else if (term->isA<Grammar::ReferenceTerm>()) {
     throw EXCEPTION(GenericException,
-                    STR("Enforcing a production object on an alias production (a production that is merely a "
-                        "reference to another production) is not allowed."));
+                    S("Enforcing a production object on an alias production (a production that is merely a "
+                      "reference to another production) is not allowed."));
   } else {
     // This should never be reachable.
     ASSERT(false);
@@ -420,7 +420,7 @@ void GenericParsingHandler::prepareToModifyData(ParserState *state, Int levelInd
     auto clonable = ti_cast<Clonable>(data);
     if (data != 0 && clonable == 0) {
       throw EXCEPTION(GenericException,
-                      STR("State branching requires that state data is Clonable."));
+                      S("State branching requires that state data is Clonable."));
     }
     if (clonable) {
       state->setData(clonable->clone(), levelIndex);

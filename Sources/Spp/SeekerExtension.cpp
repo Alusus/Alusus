@@ -129,10 +129,10 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_routing(
     if (data->isDerivedFrom<Ast::Template>()) {
       return seekerExtension->foreachByParamPass_template(param, static_cast<Ast::Template*>(data), cb, flags);
     } else {
-      throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Unrecognized target data type."));
+      throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
     }
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("paramPass"), STR("Invalid bracket type."), paramPass->getType());
+    throw EXCEPTION(InvalidArgumentException, S("paramPass"), S("Invalid bracket type."), paramPass->getType());
   }
 }
 

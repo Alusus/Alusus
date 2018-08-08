@@ -27,11 +27,11 @@ InterfaceTypeInfo * TiInterface::getTypeInfo()
 {
   static InterfaceTypeInfo *typeInfo = 0;
   if (typeInfo == 0) {
-    Char const *myType = STR("TiInterface");
-    Char const *typeNamespace = STR("Core.Basic");
-    Char const *moduleName = STR("Core");
-    Char const *url = STR("alusus.net");
-    Char const *uniqueName = STR("alusus.net#Core#Core.Basic.TiInterface");
+    Char const *myType = S("TiInterface");
+    Char const *typeNamespace = S("Core.Basic");
+    Char const *moduleName = S("Core");
+    Char const *url = S("alusus.net");
+    Char const *uniqueName = S("alusus.net#Core#Core.Basic.TiInterface");
     typeInfo = reinterpret_cast<InterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (typeInfo == 0) {
       typeInfo = new InterfaceTypeInfo(myType, typeNamespace, moduleName, url, 0);

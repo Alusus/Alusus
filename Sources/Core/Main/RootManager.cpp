@@ -31,17 +31,17 @@ RootManager::RootManager() : libraryManager(this)
 
   // Initialize current paths.
   this->pushSearchPath(getModuleDirectory().c_str());
-  this->pushSearchPath((getModuleDirectory()+STR("../Lib/")).c_str());
+  this->pushSearchPath((getModuleDirectory()+S("../Lib/")).c_str());
   this->pushSearchPath(getWorkingDirectory().c_str());
   // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':'.
-  Char *alususLibs = getenv(STR("ALUSUS_LIBS"));
+  Char *alususLibs = getenv(S("ALUSUS_LIBS"));
   if (alususLibs != nullptr) {
     Str envPath = alususLibs;
     Int endPos = -1;
     Str path;
     while (endPos < static_cast<Int>(envPath.size())) {
       Int startPos = endPos+1;
-      endPos = envPath.find(CHR(':'), startPos);
+      endPos = envPath.find(C(':'), startPos);
       if (endPos == Str::npos) endPos = envPath.size();
       path.assign(envPath, startPos, endPos-startPos);
       if (path.size() > 0) {
@@ -64,8 +64,8 @@ SharedPtr<TiObject> RootManager::parseExpression(Char const *str)
   if (result == 0) {
     throw EXCEPTION(
       InvalidArgumentException,
-      STR("str"),
-      STR("Parsing did not result in a valid expression"),
+      S("str"),
+      S("Parsing did not result in a valid expression"),
       str
     );
   }
@@ -87,12 +87,12 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename)
   // Find the absolute path of the file.
   Str fullPath = this->findAbsolutePath(filename);
   if (fullPath.empty()) {
-    throw EXCEPTION(InvalidArgumentException, STR("filename"), STR("File not found."), filename);
+    throw EXCEPTION(InvalidArgumentException, S("filename"), S("File not found."), filename);
   }
   // Extract the directory part and add it to the current paths.
   Int pos;
   Str searchPath;
-  if ((pos = fullPath.rfind(CHR('/'))) != Str::npos) {
+  if ((pos = fullPath.rfind(C('/'))) != Str::npos) {
     searchPath = Str(fullPath, 0, pos+1);
     this->pushSearchPath(searchPath.c_str());
   }
@@ -119,15 +119,15 @@ SharedPtr<TiObject> RootManager::processStream(InStream *is, Char const *streamN
 
 void RootManager::pushSearchPath(Char const *path)
 {
-  if (path == 0 || *path == CHR('\0')) {
-    throw EXCEPTION(InvalidArgumentException, STR("path"), STR("Argument is null or empty string."));
+  if (path == 0 || *path == C('\0')) {
+    throw EXCEPTION(InvalidArgumentException, S("path"), S("Argument is null or empty string."));
   }
   // Only accept absolute paths.
-  if (*path != CHR('/')) {
-    throw EXCEPTION(InvalidArgumentException, STR("path"), STR("Path must be an absolute path."));
+  if (*path != C('/')) {
+    throw EXCEPTION(InvalidArgumentException, S("path"), S("Path must be an absolute path."));
   }
   Str fullPath(path);
-  if (fullPath.back() != CHR('/')) fullPath += CHR('/');
+  if (fullPath.back() != C('/')) fullPath += C('/');
   // Only add the path if it doesn't already exists.
   // We will only check the top of the stack. If this path exists deeper in the stack then we'll
   // add it again to make it available at the top of the stack. We won't remove the other copy
@@ -143,15 +143,15 @@ void RootManager::pushSearchPath(Char const *path)
 
 void RootManager::popSearchPath(Char const *path)
 {
-  if (path == 0 || *path == CHR('\0')) {
-    throw EXCEPTION(InvalidArgumentException, STR("path"), STR("Argument is null or empty string."));
+  if (path == 0 || *path == C('\0')) {
+    throw EXCEPTION(InvalidArgumentException, S("path"), S("Argument is null or empty string."));
   }
   // Only accept absolute paths.
-  if (*path != CHR('/')) {
-    throw EXCEPTION(InvalidArgumentException, STR("path"), STR("Path must be an absolute path."), path);
+  if (*path != C('/')) {
+    throw EXCEPTION(InvalidArgumentException, S("path"), S("Path must be an absolute path."), path);
   }
   Str fullPath(path);
-  if (fullPath.back() != CHR('/')) fullPath += CHR('/');
+  if (fullPath.back() != C('/')) fullPath += C('/');
   // Search for the path to pop.
   for (Int i = this->searchPaths.size()-1; i >= 0; ++i) {
     if (this->searchPaths[i] == fullPath) {
@@ -164,25 +164,25 @@ void RootManager::popSearchPath(Char const *path)
       return;
     }
   }
-  throw EXCEPTION(InvalidArgumentException, STR("path"), STR("Path was not found in the stack."), path);
+  throw EXCEPTION(InvalidArgumentException, S("path"), S("Path was not found in the stack."), path);
 }
 
 
 Str RootManager::findAbsolutePath(Char const *filename)
 {
-  if (filename == 0 || *filename == CHR('\0')) {
-    throw EXCEPTION(InvalidArgumentException, STR("filename"), STR("Argument is null or empty string."));
+  if (filename == 0 || *filename == C('\0')) {
+    throw EXCEPTION(InvalidArgumentException, S("filename"), S("Argument is null or empty string."));
   }
 
   // Is the filename an absolute path already?
-  if (filename[0] == CHR('/')) return Str(filename);
+  if (filename[0] == C('/')) return Str(filename);
 
   // Try all current paths.
   Str fullPath;
   std::ifstream fin;
   for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
     fullPath = this->searchPaths[i];
-    if (fullPath.back() != CHR('/')) fullPath += CHR('/');
+    if (fullPath.back() != C('/')) fullPath += C('/');
     fullPath += filename;
 
     // Check if the file exists.

@@ -65,7 +65,7 @@ class UnrecognizedCharNotice : public Notice
   /// @sa Notice::getCode()
   public: virtual Str const& getCode() const
   {
-    static Str code("CL1001");
+    static Str code(S("CL1001"));
     return code;
   }
 
@@ -132,7 +132,7 @@ class UnrecognizedCharNotice : public Notice
    */
   public: void appendText(Char const *str, Data::SourceLocationRecord const &sl)
   {
-    if (str == 0 || str[0] == CHR('\0')) return;
+    if (str == 0 || str[0] == C('\0')) return;
     if (this->getSourceLocation() == 0) {
       this->setSourceLocation(std::make_shared<Data::SourceLocationRecord>(sl));
     }

@@ -52,7 +52,7 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
     if (this->rootScopeIndex == state->getProdLevelCount() - 1) {
       auto scope = parser->getRootScope();
       if (scope == 0) {
-        throw EXCEPTION(GenericException, STR("Root scope is null."));
+        throw EXCEPTION(GenericException, S("Root scope is null."));
       }
       state->setData(scope);
     } else {

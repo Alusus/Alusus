@@ -25,7 +25,7 @@ void Parser::initialize(SharedPtr<Data::Ast::Scope> rootScope)
   // Before we can change the production list, we need to make sure we have no outstanding
   // states.
   if (!this->states.empty()) {
-    throw EXCEPTION(GenericException, STR("Grammar manager can't be changed while being in use."));
+    throw EXCEPTION(GenericException, S("Grammar manager can't be changed while being in use."));
   }
 
   // TODO: If we currently have a grammar manager, we need to unset it first.
@@ -36,12 +36,12 @@ void Parser::initialize(SharedPtr<Data::Ast::Scope> rootScope)
   // Set the repositories.
   this->rootScope = rootScope;
   if (this->rootScope == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("rootScope"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("rootScope"), S("Cannot be null."));
   }
 
   this->grammarRoot = getSharedPtr(Data::Grammar::getGrammarRoot(rootScope.get()));
   if (this->grammarRoot == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("rootScope"), STR("Root scope does not contain a grammar."));
+    throw EXCEPTION(InvalidArgumentException, S("rootScope"), S("Root scope does not contain a grammar."));
   }
 
   // TODO: If we have a new manager, we need to set the production_in_use_inquirer signal.
@@ -82,10 +82,10 @@ void Parser::beginParsing()
 {
   // Validation.
   if (this->grammarRoot == 0) {
-    throw EXCEPTION(GenericException, STR("Grammar root is not set."));
+    throw EXCEPTION(GenericException, S("Grammar root is not set."));
   }
   if (this->grammarRoot->getStartRef() == 0) {
-    throw EXCEPTION(GenericException, STR("Grammar root production is not set."));
+    throw EXCEPTION(GenericException, S("Grammar root production is not set."));
   }
 
   // Delete all states, if any.
@@ -102,10 +102,10 @@ void Parser::beginParsing()
   Data::Grammar::SymbolDefinition *prod;
   (*si)->getGrammarContext()->getReferencedSymbol(this->grammarRoot->getStartRef().get(), module, prod);
   if (!prod->isA<Data::Grammar::SymbolDefinition>()) {
-    throw EXCEPTION(GenericException, STR("Reference term is pointing to a target of a wrong type."));
+    throw EXCEPTION(GenericException, S("Reference term is pointing to a target of a wrong type."));
   }
   if (prod->getTerm() == 0) {
-    throw EXCEPTION(GenericException, STR("Formula of root production isn't set yet."));
+    throw EXCEPTION(GenericException, S("Formula of root production isn't set yet."));
   }
   this->pushStateProdLevel(*si, module, static_cast<Data::Grammar::SymbolDefinition*>(prod), 0);
 
@@ -142,7 +142,7 @@ SharedPtr<TiObject> Parser::endParsing()
 {
   // Validation.
   if (this->states.empty()) {
-    throw EXCEPTION(GenericException, STR("There isn't any state currently."));
+    throw EXCEPTION(GenericException, S("There isn't any state currently."));
   }
 
   // Fold out the levels stack of existing states.
@@ -283,13 +283,13 @@ void Parser::handleNewToken(Data::Token const *token)
 {
   // Validation.
   if (token == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("token"), STR("token is null."));
+    throw EXCEPTION(InvalidArgumentException, S("token"), S("token is null."));
   }
 
   // The caller should call beginParsing before calling handleNewToken, and should not call handleNewToken
   // after parsing folds out of the production tree.
   if (this->states.empty() || this->states.front()->getTermLevelCount() == 0)
-    throw EXCEPTION(GenericException, STR("Parser::beginParsing should be called before calling handleNewToken"));
+    throw EXCEPTION(GenericException, S("Parser::beginParsing should be called before calling handleNewToken"));
   else if (this->states.front()->getTermLevelCount() == 1) {
     // Raise an unexpected token error.
     if (!this->unexpectedTokenNoticeRaised) {
@@ -335,7 +335,7 @@ void Parser::handleNewToken(Data::Token const *token)
         StateIterator si2 = si;
         --si;
         this->deleteState(si2, ParserStateTerminationCause::SYNTAX_ERROR);
-        LOG(LogLevel::PARSER_MID, STR("Deleting unneeded error state."));
+        LOG(LogLevel::PARSER_MID, S("Deleting unneeded error state."));
       }
     }
     if (this->states.front()->getProcessingStatus() == ParserProcessingStatus::ERROR) {
@@ -353,7 +353,7 @@ void Parser::handleNewToken(Data::Token const *token)
         StateIterator si2 = si;
         --si;
         this->deleteState(si2, ParserStateTerminationCause::NOT_NEEDED_ANYMORE);
-        LOG(LogLevel::PARSER_MID, STR("Deleting unneeded successful state."));
+        LOG(LogLevel::PARSER_MID, S("Deleting unneeded successful state."));
       }
     } else {
       // The highest priority state is still in processing, so we don't
@@ -364,7 +364,7 @@ void Parser::handleNewToken(Data::Token const *token)
           StateIterator si2 = si;
           --si;
           this->deleteState(si2, ParserStateTerminationCause::FOLDED_OUT_TOO_SOON);
-          LOG(LogLevel::PARSER_MID, STR("Deleting unneeded successful state."));
+          LOG(LogLevel::PARSER_MID, S("Deleting unneeded successful state."));
         }
       }
     }
@@ -377,7 +377,7 @@ void Parser::handleNewToken(Data::Token const *token)
       StateIterator si2 = si;
       --si;
       this->deleteState(si2, ParserStateTerminationCause::CONSUMED_TOKENS_TO_LIVE);
-      LOG(LogLevel::PARSER_MID, STR("Deleting expired successful state."));
+      LOG(LogLevel::PARSER_MID, S("Deleting expired successful state."));
     }
   }
 
@@ -392,7 +392,7 @@ void Parser::handleNewToken(Data::Token const *token)
         StateIterator si3 = si2;
         --si2;
         this->deleteState(si3, ParserStateTerminationCause::MERGED_WITH_HIGHER_PRIORITY_STATE);
-        LOG(LogLevel::PARSER_MID, STR("Deleting duplicate successful state."));
+        LOG(LogLevel::PARSER_MID, S("Deleting duplicate successful state."));
       }
     }
   }
@@ -465,13 +465,13 @@ void Parser::processState(const Data::Token * token, StateIterator si)
   // production.
   if ((*si)->getTermLevelCount() == 1) {
     (*si)->setProcessingStatus(ParserProcessingStatus::COMPLETE);
-    LOG(LogLevel::PARSER_MID, STR("Start Processing State: State already folded out to completion."));
+    LOG(LogLevel::PARSER_MID, S("Start Processing State: State already folded out to completion."));
     return;
   }
 
-  LOG(LogLevel::PARSER_MID, STR("Start Processing State: At production ") <<
+  LOG(LogLevel::PARSER_MID, S("Start Processing State: At production ") <<
       ID_GENERATOR->getDesc((*si)->refTopProdLevel().getProd()->getId()) <<
-      STR(", level ") << (*si)->getTopProdTermLevelCount());
+      S(", level ") << (*si)->getTopProdTermLevelCount());
 
   Bool error = false;
 
@@ -514,9 +514,9 @@ void Parser::processState(const Data::Token * token, StateIterator si)
         } else {
           // Invalid state type.
           StrStream stream;
-          stream << STR("Invalid term type while processing ")
+          stream << S("Invalid term type while processing ")
                  << ID_GENERATOR->getDesc((*si)->refTopProdLevel().getProd()->getId())
-                 << STR(". Found Term Type: ")
+                 << S(". Found Term Type: ")
                  << term->getTypeInfo()->getTypeName();
           throw EXCEPTION(GenericException, stream.str().c_str());
         }
@@ -534,9 +534,9 @@ void Parser::processState(const Data::Token * token, StateIterator si)
         }
         // Move the state to an error sync position.
         while ((*si)->getTermLevelCount() > 1) {
-          LOG(LogLevel::PARSER_MINOR, STR("Error Synching: Checking prod (") <<
+          LOG(LogLevel::PARSER_MINOR, S("Error Synching: Checking prod (") <<
               ID_GENERATOR->getDesc((*si)->refTopProdLevel().getProd()->getId()) <<
-              STR(") at level ") << ((*si)->getTopProdTermLevelCount() - 1));
+              S(") at level ") << ((*si)->getTopProdTermLevelCount() - 1));
           if ((*si)->refTopTermLevel().getTerm()->isA<Data::Grammar::ConcatTerm>()) {
             Int errorSyncPosId =
                 static_cast<Data::Grammar::ConcatTerm*>
@@ -555,9 +555,9 @@ void Parser::processState(const Data::Token * token, StateIterator si)
           }
           this->popStateLevel(*si, false);
         }
-        LOG(LogLevel::PARSER_MINOR, STR("Error Synching: Synched at prod (") <<
+        LOG(LogLevel::PARSER_MINOR, S("Error Synching: Synched at prod (") <<
             ID_GENERATOR->getDesc((*si)->refTopProdLevel().getProd()->getId()) <<
-            STR(") at level ") << ((*si)->getTopProdTermLevelCount() - 1));
+            S(") at level ") << ((*si)->getTopProdTermLevelCount() - 1));
         // We need to match the error block pairs in case the error token itself is the opening of
         // a block (a bracket for example).
         this->matchErrorSyncBlockPairs(*si, token);
@@ -643,7 +643,7 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
     Word matchId = (*si)->getTokenTermId()->get();
     TiObject *matchText = (*si)->getTokenTermText();
     if (matchId == UNKNOWN_ID && matchText == 0) {
-      throw EXCEPTION(GenericException, STR("Token term's match id isn't assigned yet."));
+      throw EXCEPTION(GenericException, S("Token term's match id isn't assigned yet."));
     }
     // Match this token with the token term.
     Bool matched = this->matchToken(matchId, matchText, token);
@@ -653,9 +653,9 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
       // Processing of this state is complete.
       (*si)->setTopTermPosId(1|THIS_PROCESSING_PASS);
       (*si)->setProcessingStatus(ParserProcessingStatus::COMPLETE);
-      LOG(LogLevel::PARSER_MID, STR("Process State: Token accepted (") <<
-          ID_GENERATOR->getDesc(matchId) << STR(":") <<
-          token->getText() << STR(")"));
+      LOG(LogLevel::PARSER_MID, S("Process State: Token accepted (") <<
+          ID_GENERATOR->getDesc(matchId) << S(":") <<
+          token->getText() << S(")"));
     }
     if (!matched) {
       // Processing of this state has errored out.
@@ -663,11 +663,11 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
       #ifdef USE_LOGS
         TiStr *matchStr = ti_cast<TiStr>(matchText);
       #endif
-      LOG(LogLevel::PARSER_MID, STR("Process State: Token failed (") <<
-          ID_GENERATOR->getDesc(matchId) << STR(":") <<
-          (matchStr==0?"":matchStr->get()) << STR(") -- Received (") <<
-          ID_GENERATOR->getDesc(token->getId()) << STR(":") <<
-          token->getText() << STR(")"));
+      LOG(LogLevel::PARSER_MID, S("Process State: Token failed (") <<
+          ID_GENERATOR->getDesc(matchId) << S(":") <<
+          (matchStr==0?"":matchStr->get()) << S(") -- Received (") <<
+          ID_GENERATOR->getDesc(token->getId()) << S(":") <<
+          token->getText() << S(")"));
     }
   } else {
     // We are already done with this token, so move back to the upper level after
@@ -700,7 +700,7 @@ void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
   // Make sure we have a child term.
   Data::Grammar::Term *childTerm = multiplyTerm->getTerm().get();
   if (childTerm == 0) {
-    throw EXCEPTION(GenericException, STR("Multiply term's child term isn't set yet."));
+    throw EXCEPTION(GenericException, S("Multiply term's child term isn't set yet."));
   }
   // Compute the possible routes to take from here.
   this->computePossibleMultiplyRoutes(token, *si);
@@ -716,7 +716,7 @@ void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
   if (successCount == 0) {
     // Processing of this state has errored out.
     (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
-    LOG(LogLevel::PARSER_MID, STR("Process State: No possible routes at multiply term."));
+    LOG(LogLevel::PARSER_MID, S("Process State: No possible routes at multiply term."));
   } else if (successCount == 1 || (*si)->getTermLevelCount() == 2) {
     // If we are at the root level and we have more than one possible route, we only need to take the higher
     // priority one since the other route would be dropped at the handleNewToken() function anyway.
@@ -732,11 +732,11 @@ void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
       (*si)->setTopTermPosId(((*si)->refTopTermLevel().getPosId()+1)|THIS_PROCESSING_PASS);
       // Take the inner route.
       this->pushStateTermLevel(*si, childTerm, 0, token);
-      LOG(LogLevel::PARSER_MID, STR("Process State: Taking multiply route."));
+      LOG(LogLevel::PARSER_MID, S("Process State: Taking multiply route."));
     } else {
       // Take the up route.
       this->popStateLevel(*si, true);
-      LOG(LogLevel::PARSER_MID, STR("Process State: Rejecting multiply route."));
+      LOG(LogLevel::PARSER_MID, S("Process State: Rejecting multiply route."));
     }
     (*si)->setDecisionNodeIndex(this->decisionNodes.getChildIndex(decisionIndex1));
   } else if (successCount == 2) {
@@ -775,7 +775,7 @@ void Parser::processMultiplyTerm(const Data::Token * token, StateIterator si)
     // Update the decision nodes.
     (*si)->setDecisionNodeIndex(this->decisionNodes.getChildIndex(decisionIndex1));
     (*si2)->setDecisionNodeIndex(this->decisionNodes.getChildIndex(decisionIndex2));
-    LOG(LogLevel::PARSER_MID, STR("Process State: Taking both inner and outer routes for multiply term."));
+    LOG(LogLevel::PARSER_MID, S("Process State: Taking both inner and outer routes for multiply term."));
   } else {
     // There shouldn't be more than 2 routes at all.
     ASSERT(false);
@@ -805,7 +805,7 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
   ASSERT((*si)->refTopTermLevel().getTerm()->isA<Data::Grammar::AlternateTerm>());
   // Make sure we have some child terms attached.
   if ((*si)->getListTermChildCount() < 1) {
-    throw EXCEPTION(GenericException, STR("Alternate term doesn't have any branches yet (zero children)."));
+    throw EXCEPTION(GenericException, S("Alternate term doesn't have any branches yet (zero children)."));
   }
   if ((*si)->refTopTermLevel().getPosId() == 0) {
     // We are entering the term for the first time.
@@ -817,7 +817,7 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
     if (successRoute == -1) {
       // Processing of this state has errored out.
       (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
-      LOG(LogLevel::PARSER_MID, STR("Process State: No possible routes at alternate term."));
+      LOG(LogLevel::PARSER_MID, S("Process State: No possible routes at alternate term."));
     } else if (nextDecisionIndex == -1) {
       // Fire parsing handler event.
       this->getTopParsingHandler(*si)->onAlternateRouteDecision(this, *si, successRoute-1, token);
@@ -826,8 +826,8 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
       Data::Grammar::Term *childTerm = (*si)->useListTermChild(successRoute-1);
       this->pushStateTermLevel(*si, childTerm, 0, token);
       (*si)->setDecisionNodeIndex(this->decisionNodes.getChildIndex(decisionIndex));
-      LOG(LogLevel::PARSER_MID, STR("Process State: Taking only one alternate route (") <<
-          successRoute << STR(")."));
+      LOG(LogLevel::PARSER_MID, S("Process State: Taking only one alternate route (") <<
+          successRoute << S(")."));
     } else {
       #ifdef USE_LOGS
         Int routeCount = 1;
@@ -836,8 +836,8 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
           ++routeCount;
           loopDecisionIndex = this->decisionNodes.getSiblingIndex(loopDecisionIndex);
         }
-        LOG(LogLevel::PARSER_MID, STR("Process State: Taking ") << routeCount <<
-            STR(" alternate routes."));
+        LOG(LogLevel::PARSER_MID, S("Process State: Taking ") << routeCount <<
+            S(" alternate routes."));
       #endif
       // Grab the parsing handler.
       ParsingHandler *parsingHandler = this->getTopParsingHandler(*si);
@@ -873,8 +873,8 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
         (*newSi)->setDecisionNodeIndex(this->decisionNodes.getChildIndex(nextDecisionIndex));
         // This state should be the trunk of the next one.
         si2 = newSi;
-        LOG(LogLevel::PARSER_MID, STR("Process State: Alternate route (") <<
-            branchRoute << STR(" )."));
+        LOG(LogLevel::PARSER_MID, S("Process State: Alternate route (") <<
+            branchRoute << S(" )."));
         nextDecisionIndex = this->decisionNodes.getSiblingIndex(nextDecisionIndex);
       }
       // Fire parsing handler event for the current state.
@@ -889,7 +889,7 @@ void Parser::processAlternateTerm(Data::Token const *token, StateIterator si)
     // We are already done with this term, so move back to the upper level after
     // removing the current state level.
     this->popStateLevel(*si, true);
-    LOG(LogLevel::PARSER_MID, STR("Process State: Finished alternate term."));
+    LOG(LogLevel::PARSER_MID, S("Process State: Finished alternate term."));
   }
 }
 
@@ -910,7 +910,7 @@ void Parser::processConcatTerm(Data::Token const *token, StateIterator si)
   // Make sure we have a child term.
   Word termCount = (*si)->getListTermChildCount();
   /*if (termCount == 0) {
-    throw EXCEPTION(GenericException, STR("Concat term's child terms aren't set yet."));
+    throw EXCEPTION(GenericException, S("Concat term's child terms aren't set yet."));
   }*/
   Int posId = (*si)->refTopTermLevel().getPosId() & (~THIS_PROCESSING_PASS);
   // Did we finish all the terms in this list?
@@ -922,11 +922,11 @@ void Parser::processConcatTerm(Data::Token const *token, StateIterator si)
     // Move to the term pointed by position id.
     Data::Grammar::Term *childTerm = (*si)->useListTermChild(posId);
     this->pushStateTermLevel(*si, childTerm, 0, token);
-    LOG(LogLevel::PARSER_MID, STR("Process State: Processing concat term (") << (posId+1) << STR(")."));
+    LOG(LogLevel::PARSER_MID, S("Process State: Processing concat term (") << (posId+1) << S(")."));
   } else {
     // We are done with this list, so move to the upper level.
     this->popStateLevel(*si, true);
-    LOG(LogLevel::PARSER_MID, STR("Process State: Finished concat term."));
+    LOG(LogLevel::PARSER_MID, S("Process State: Finished concat term."));
   }
 }
 
@@ -958,28 +958,28 @@ void Parser::processReferenceTerm(Data::Token const *token, StateIterator si)
     Data::Grammar::SymbolDefinition *definition;
     (*si)->getReferencedSymbol(module, definition);
     if (!definition->isA<Data::Grammar::SymbolDefinition>()) {
-      throw EXCEPTION(GenericException, STR("Reference term is pointing to a target of a wrong type."));
+      throw EXCEPTION(GenericException, S("Reference term is pointing to a target of a wrong type."));
     }
     if (definition->getTerm() != 0) {
       // Update the current level's position id.
       (*si)->setTopTermPosId(1|THIS_PROCESSING_PASS);
       // Create the new state level.
       this->pushStateProdLevel(*si, module, static_cast<Data::Grammar::SymbolDefinition*>(definition), token);
-      LOG(LogLevel::PARSER_MID, STR("Process State: Processing referenced production (") <<
-          ID_GENERATOR->getDesc(definition->getId()) << STR(")."));
+      LOG(LogLevel::PARSER_MID, S("Process State: Processing referenced production (") <<
+          ID_GENERATOR->getDesc(definition->getId()) << S(")."));
     } else {
       // An empty production is encountered.
       (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
-      LOG(LogLevel::PARSER_MID, STR("Process State: Erroring on empty referenced production (") <<
-          ID_GENERATOR->getDesc(definition->getId()) << STR(")."));
+      LOG(LogLevel::PARSER_MID, S("Process State: Erroring on empty referenced production (") <<
+          ID_GENERATOR->getDesc(definition->getId()) << S(")."));
     }
   } else {
     // We are already done with this token, so move back to the upper level after
     // removing the current state level.
     this->popStateLevel(*si, true);
-    LOG(LogLevel::PARSER_MID, STR("Process State: Done with referenced production. Back to (") <<
+    LOG(LogLevel::PARSER_MID, S("Process State: Done with referenced production. Back to (") <<
         ID_GENERATOR->getDesc((*si)->refTopProdLevel().getProd()->getId())
-        << STR(")."));
+        << S(")."));
   }
 }
 
@@ -993,13 +993,13 @@ void Parser::enterParsingDimension(Data::Token const *token, Int parseDimIndex, 
   if (prodDef->getTerm() != 0) {
     (*si)->setParsingDimensionInfo(parseDimIndex, (*si)->getProdLevelCount());
     this->pushStateProdLevel(*si, module, static_cast<Data::Grammar::SymbolDefinition*>(prodDef), token);
-    LOG(LogLevel::PARSER_MID, STR("Process State: Entering parsing dimension (") <<
-        ID_GENERATOR->getDesc(prodDef->getId()) << STR(")."));
+    LOG(LogLevel::PARSER_MID, S("Process State: Entering parsing dimension (") <<
+        ID_GENERATOR->getDesc(prodDef->getId()) << S(")."));
   } else {
     // An empty production is encountered.
     (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
-    LOG(LogLevel::PARSER_MID, STR("Process State: Erroring on empty parsing dimension production (") <<
-        ID_GENERATOR->getDesc(prodDef->getId()) << STR(")."));
+    LOG(LogLevel::PARSER_MID, S("Process State: Erroring on empty parsing dimension production (") <<
+        ID_GENERATOR->getDesc(prodDef->getId()) << S(")."));
   }
 }
 
@@ -1245,15 +1245,15 @@ Int Parser::testState(Data::Token const *token, ParserState *state)
     while (state->getProcessingStatus() == ParserProcessingStatus::ERROR && state->getTermLevelCount() > 2) {
       // Remove the current level.
       state->popLevel();
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Poping a failed level. Back to (") <<
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Poping a failed level. Back to (") <<
         (
           state->getProdLevelCount()==0 ?
-          STR("start") :
+          S("start") :
           ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId())
         )
-        << STR(" - ")
+        << S(" - ")
         << (state->getTopProdTermLevelCount() - 1)
-        << STR(")."));
+        << S(")."));
       // Is this level a multi-route level that has been set during the test?
       if (state->refTopTermLevel().getPosId() & THIS_TESTING_PASS) {
         // This is an intersection set during this testing pass, so we can try a different
@@ -1312,9 +1312,9 @@ void Parser::testStateLevel(Data::Token const *token, ParserState *state)
   } else {
     // Invalid state type.
     StrStream stream;
-    stream << STR("Invalid term type while testing ")
+    stream << S("Invalid term type while testing ")
            << ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId())
-           << STR(". Found Term Type: ")
+           << S(". Found Term Type: ")
            << term->getTypeInfo()->getTypeName();
     throw EXCEPTION(GenericException, stream.str().c_str());
   }
@@ -1342,7 +1342,7 @@ void Parser::testTokenTerm(Data::Token const *token, ParserState *state)
     Word matchId = state->getTokenTermId()->get();
     TiObject *matchText = state->getTokenTermText();
     if (matchId == UNKNOWN_ID && matchText == 0) {
-      throw EXCEPTION(GenericException, STR("Token term's match id isn't assigned yet."));
+      throw EXCEPTION(GenericException, S("Token term's match id isn't assigned yet."));
     }
     Bool matched = this->matchToken(matchId, matchText, token);
     if (matched) {
@@ -1350,9 +1350,9 @@ void Parser::testTokenTerm(Data::Token const *token, ParserState *state)
       state->ownTopLevel();
       state->setTopTermPosId(1|THIS_TESTING_PASS);
       state->setProcessingStatus(ParserProcessingStatus::COMPLETE);
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Matched for token (") <<
-          ID_GENERATOR->getDesc(matchId) << STR(":") <<
-          token->getText() << STR(")"));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Matched for token (") <<
+          ID_GENERATOR->getDesc(matchId) << S(":") <<
+          token->getText() << S(")"));
     }
     if (!matched) {
       // Processing of this state has errored out.
@@ -1360,11 +1360,11 @@ void Parser::testTokenTerm(Data::Token const *token, ParserState *state)
       #ifdef USE_LOGS
         TiStr *matchStr = ti_cast<TiStr>(matchText);
       #endif
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failed for token (") <<
-          ID_GENERATOR->getDesc(matchId) << STR(":") <<
-          (matchStr==0?"":matchStr->get()) << STR(") -- Received (") <<
-          ID_GENERATOR->getDesc(token->getId()) << STR(":") <<
-          token->getText() << STR(")"));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Failed for token (") <<
+          ID_GENERATOR->getDesc(matchId) << S(":") <<
+          (matchStr==0?"":matchStr->get()) << S(") -- Received (") <<
+          ID_GENERATOR->getDesc(token->getId()) << S(":") <<
+          token->getText() << S(")"));
     }
   } else {
     // We are already done with this token, so move back to the upper level after
@@ -1407,7 +1407,7 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
     if (maxOccurances != 0 && maxOccurances->get() == 0) {
       this->decisionNodes.addNode(state, 0);
       state->popLevel();
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Skipping disabled inner multiply route (max == 0)."));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Skipping disabled inner multiply route (max == 0)."));
     } else {
       Data::Grammar::Term *childTerm = multiplyTerm->getTerm().get();
       ASSERT(childTerm != 0);
@@ -1415,7 +1415,7 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
       state->setTopTermPosId(1|THIS_TESTING_PASS);
       this->decisionNodes.addNode(state, 1);
       state->pushTermLevel(childTerm);
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying inner multiply route (0 iterations so far)."));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Trying inner multiply route (0 iterations so far)."));
     }
   } else if (state->refTopTermLevel().getPosId() & THIS_TESTING_PASS) {
     // We have reached this before during this testing pass, which
@@ -1433,15 +1433,15 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
       this->decisionNodes.removeNode(state);
       this->decisionNodes.addNode(state, 0);
       state->popLevel();
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying outer multiply route (") <<
-          count << STR(" iterations completed)."));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Trying outer multiply route (") <<
+          count << S(" iterations completed)."));
     } else {
       // We haven't finished the minimum required iterations, so
       // we'll fail this state.
       state->setProcessingStatus(ParserProcessingStatus::ERROR);
       this->decisionNodes.removeNode(state);
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failed for multiply term (") <<
-          count << STR(" iterations completed)."));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Failed for multiply term (") <<
+          count << S(" iterations completed)."));
     }
   } else if (state->refTopTermLevel().getPosId() & THIS_PROCESSING_PASS) {
     // We have reached this before during this parsing pass, which
@@ -1449,7 +1449,7 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
     // consider this to fail regardless of the status in order to
     // avoid infinite loops.
     state->setProcessingStatus(ParserProcessingStatus::ERROR);
-    LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failed for multiply term (already visited)."));
+    LOG(LogLevel::PARSER_MINOR, S("Testing State: Failed for multiply term (already visited)."));
   } else {
     // We have reached this before, but not during this parsing pass
     // so we'll try running through the inner route again if
@@ -1464,8 +1464,8 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
       // trying the inner route again.
       this->decisionNodes.addNode(state, 0);
       state->popLevel();
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Max iterations reached for multiply term (") <<
-          count << STR(" iterations)."));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Max iterations reached for multiply term (") <<
+          count << S(" iterations)."));
     } else {
       // We will need to own the top level so we don't modify the trunk state's level.
       Int posId = state->refTopTermLevel().getPosId();
@@ -1476,8 +1476,8 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
       ASSERT(childTerm != 0);
       this->decisionNodes.addNode(state, 1);
       state->pushTermLevel(childTerm);
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying inner multiply route (") <<
-          count << STR(" iterations so far)."));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Trying inner multiply route (") <<
+          count << S(" iterations so far)."));
     }
   }
 }
@@ -1508,7 +1508,7 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
     if (state->getListTermChildCount() == 0) {
       // Processing of this state has errored out.
       state->setProcessingStatus(ParserProcessingStatus::ERROR);
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failing an empty alternate term."));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Failing an empty alternate term."));
     } else {
       // We are entering this term for the first time, so try the
       // first route.
@@ -1517,7 +1517,7 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
       this->decisionNodes.addNode(state, 1);
       Data::Grammar::Term *childTerm = state->useListTermChild(0);
       state->pushTermLevel(childTerm);
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying alternate route (1)."));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Trying alternate route (1)."));
     }
   } else if (state->refTopTermLevel().getPosId() & THIS_TESTING_PASS) {
     // We have visited this term during the testing pass, we'll try
@@ -1551,7 +1551,7 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
       state->pushTermLevel(childTerm);
       // Return the status to IN_PROGRESS to give a chance for the other routes.
       state->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying alternate route (") << (index+1) << STR(")."));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Trying alternate route (") << (index+1) << S(")."));
     } else {
       // We are out of routes, so return to the upper level.
       // If we have had an emptyLoop, we should set the status to
@@ -1561,9 +1561,9 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
         ASSERT(this->decisionNodes.getChildIndex(state) != -1);
         state->setDecisionNodeIndex(this->decisionNodes.getChildIndex(state));
         state->popLevel();
-        LOG(LogLevel::PARSER_MINOR, STR("Testing State: Alternate route has an empty loop. Try upper route."));
+        LOG(LogLevel::PARSER_MINOR, S("Testing State: Alternate route has an empty loop. Try upper route."));
       } else {
-        LOG(LogLevel::PARSER_MINOR, STR("Testing State: Failed to match an alternate route."));
+        LOG(LogLevel::PARSER_MINOR, S("Testing State: Failed to match an alternate route."));
       }
     }
   } else {
@@ -1572,7 +1572,7 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
     // level.
     ASSERT(state->getProcessingStatus() == ParserProcessingStatus::IN_PROGRESS);
     state->popLevel();
-    LOG(LogLevel::PARSER_MINOR, STR("Testing State: Exiting alternate term (not tested in this pass)."));
+    LOG(LogLevel::PARSER_MINOR, S("Testing State: Exiting alternate term (not tested in this pass)."));
   }
 }
 
@@ -1615,14 +1615,14 @@ void Parser::testConcatTerm(Data::Token const *token, ParserState *state)
   if (static_cast<Word>(index) > termCount) {
     // We are done with this list, so move to the upper level.
     state->popLevel();
-    LOG(LogLevel::PARSER_MINOR, STR("Testing State: Finished all concat terms (") << index << STR(")."));
+    LOG(LogLevel::PARSER_MINOR, S("Testing State: Finished all concat terms (") << index << S(")."));
   } else {
     // Move to the term pointed by level index.
     state->ownTopLevel();
     state->setTopTermPosId(index | THIS_TESTING_PASS);
     Data::Grammar::Term *childTerm = state->useListTermChild(index-1);
     state->pushTermLevel(childTerm);
-    LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying concat term (") << index << STR(")."));
+    LOG(LogLevel::PARSER_MINOR, S("Testing State: Trying concat term (") << index << S(")."));
   }
 }
 
@@ -1653,7 +1653,7 @@ void Parser::testReferenceTerm(Data::Token const *token, ParserState *state)
     Data::Grammar::SymbolDefinition *definition;
     state->getReferencedSymbol(module, definition);
     if (!definition->isA<Data::Grammar::SymbolDefinition>()) {
-      throw EXCEPTION(GenericException, STR("Reference term is pointing to a target of a wrong type."));
+      throw EXCEPTION(GenericException, S("Reference term is pointing to a target of a wrong type."));
     }
     if (definition->getTerm() != 0) {
       // Update the current level's position id.
@@ -1661,13 +1661,13 @@ void Parser::testReferenceTerm(Data::Token const *token, ParserState *state)
       state->setTopTermPosId(1|THIS_TESTING_PASS);
       // Create the new state level.
       state->pushProdLevel(module, static_cast<Data::Grammar::SymbolDefinition*>(definition));
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Trying referenced production (") <<
-          ID_GENERATOR->getDesc(definition->getId()) << STR(")."));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Trying referenced production (") <<
+          ID_GENERATOR->getDesc(definition->getId()) << S(")."));
     } else {
       // An empty production is encountered.
       state->setProcessingStatus(ParserProcessingStatus::ERROR);
-      LOG(LogLevel::PARSER_MINOR, STR("Testing State: Erroring on empty referenced production (") <<
-          ID_GENERATOR->getDesc(definition->getId()) << STR(")."));
+      LOG(LogLevel::PARSER_MINOR, S("Testing State: Erroring on empty referenced production (") <<
+          ID_GENERATOR->getDesc(definition->getId()) << S(")."));
     }
   } else {
     // This might get called during an ERROR status in an attempt to search the stack
@@ -1679,13 +1679,13 @@ void Parser::testReferenceTerm(Data::Token const *token, ParserState *state)
     // We are already done with this token, so move back to the upper level after
     // removing the current state level.
     state->popLevel();
-    LOG(LogLevel::PARSER_MINOR, STR("Testing State: Done with referenced production. Back to (") <<
+    LOG(LogLevel::PARSER_MINOR, S("Testing State: Done with referenced production. Back to (") <<
       (
         state->getProdLevelCount()==0 ?
-        STR("start") :
+        S("start") :
         ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId())
       )
-      << STR(")."));
+      << S(")."));
   }
 }
 
@@ -1699,13 +1699,13 @@ void Parser::testParsingDimension(Data::Token const *token, Int parseDimIndex, P
   if (prodDef->getTerm() != 0) {
     state->setParsingDimensionInfo(parseDimIndex, state->getProdLevelCount());
     state->pushProdLevel(module, static_cast<Data::Grammar::SymbolDefinition*>(prodDef));
-    LOG(LogLevel::PARSER_MID, STR("Testing State: Entering parsing dimension (") <<
-        ID_GENERATOR->getDesc(prodDef->getId()) << STR(")."));
+    LOG(LogLevel::PARSER_MID, S("Testing State: Entering parsing dimension (") <<
+        ID_GENERATOR->getDesc(prodDef->getId()) << S(")."));
   } else {
     // An empty production is encountered.
     state->setProcessingStatus(ParserProcessingStatus::ERROR);
-    LOG(LogLevel::PARSER_MID, STR("Testing State: Erroring on empty parsing dimension production (") <<
-        ID_GENERATOR->getDesc(prodDef->getId()) << STR(")."));
+    LOG(LogLevel::PARSER_MID, S("Testing State: Erroring on empty parsing dimension production (") <<
+        ID_GENERATOR->getDesc(prodDef->getId()) << S(")."));
   }
 }
 
@@ -1720,7 +1720,7 @@ Parser::StateIterator Parser::createState()
                                        VARIABLE_NAME_MAX_LENGTH,
                                        RESERVED_VARIABLE_COUNT, RESERVED_VARIABLE_LEVEL_COUNT, this->grammarRoot.get());
   if (state == 0) {
-    throw EXCEPTION(GenericException, STR("Out of memory."));
+    throw EXCEPTION(GenericException, S("Out of memory."));
   }
   StateIterator si = this->states.insert(this->states.end(), state);
   return si;
@@ -1745,7 +1745,7 @@ Parser::StateIterator Parser::duplicateState(
 ) {
   ASSERT(levelCount <= (*si)->getTermLevelCount());
   ASSERT((*si)->getProdLevelCount() > 0);
-  LOG(LogLevel::PARSER_MID, STR("Duplicating state."));
+  LOG(LogLevel::PARSER_MID, S("Duplicating state."));
   // Create the new state.
   StateIterator newSi = si;
   newSi++;
@@ -1984,7 +1984,7 @@ Bool Parser::compareStates(ParserState *s1, ParserState *s2)
 Bool Parser::isDefinitionInUse(Data::Grammar::SymbolDefinition *definition) const
 {
   if (definition == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("definition"), STR("Should not be null."));
+    throw EXCEPTION(InvalidArgumentException, S("definition"), S("Should not be null."));
   }
   if (this->grammarRoot == 0) return false;
   for (ConstStateIterator si = this->states.begin(); si != this->states.end(); si++) {
@@ -2024,8 +2024,8 @@ Bool Parser::matchErrorSyncBlockPairs(ParserState *state, Data::Token const *tok
   for (Int i = 0; i < state->getErrorSyncBlockPairs()->getCount(); i += 2) {
     Data::Grammar::TokenTerm *term = ti_cast<Data::Grammar::TokenTerm>(state->getErrorSyncBlockPairs()->getElement(i));
     if (term == 0) {
-      throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
-                                            "Pair entries must be of type TokenTerm."));
+      throw EXCEPTION(GenericException, S("Invalid error-sync-block-pair data. "
+                                          "Pair entries must be of type TokenTerm."));
     }
     TiInt *matchId = term->getTokenId().ti_cast_get<TiInt>();
     TiObject *matchText = term->getTokenText().get();
@@ -2042,15 +2042,15 @@ Bool Parser::matchErrorSyncBlockPairs(ParserState *state, Data::Token const *tok
   // We are inside a block already. Let's check block end.
   Int closingIndex = state->getErrorSyncBlockStack().back()+1;
   if (closingIndex >= state->getErrorSyncBlockPairs()->getCount()) {
-    throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
-                                          "There must be an even number of entries in this list."));
+    throw EXCEPTION(GenericException, S("Invalid error-sync-block-pair data. "
+                                        "There must be an even number of entries in this list."));
   }
   Data::Grammar::TokenTerm *term = ti_cast<Data::Grammar::TokenTerm>(
     state->getErrorSyncBlockPairs()->getElement(closingIndex)
   );
   if (term == 0) {
-    throw EXCEPTION(GenericException, STR("Invalid error-sync-block-pair data. "
-                                          "Pair entries must be of type TokenTerm."));
+    throw EXCEPTION(GenericException, S("Invalid error-sync-block-pair data. "
+                                        "Pair entries must be of type TokenTerm."));
   }
   TiInt *matchId = term->getTokenId().ti_cast_get<TiInt>();
   TiObject *matchText = term->getTokenText().get();
@@ -2226,8 +2226,8 @@ Bool Parser::canStateDominate(ParserState *state) const
     }
   }
   // Passed state is incorrect.
-  throw EXCEPTION(InvalidArgumentException, STR("state"),
-                  STR("The given state was not found among the current list of states."));
+  throw EXCEPTION(InvalidArgumentException, S("state"),
+                  S("The given state was not found among the current list of states."));
 }
 
 
@@ -2241,8 +2241,8 @@ Bool Parser::canAbandonState(ParserState *state) const
     }
   }
   // Passed state is incorrect.
-  throw EXCEPTION(InvalidArgumentException, STR("state"),
-                  STR("The given state was not found among the current list of states."));
+  throw EXCEPTION(InvalidArgumentException, S("state"),
+                  S("The given state was not found among the current list of states."));
 }
 
 

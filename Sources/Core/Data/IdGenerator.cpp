@@ -35,7 +35,7 @@ Word IdGenerator::getId(Char const *desc)
 Str const& IdGenerator::getDesc(Word id) const
 {
   if (id >= this->ids.size()) {
-    throw EXCEPTION(InvalidArgumentException, STR("id"), STR("No desc available for this id."), id);
+    throw EXCEPTION(InvalidArgumentException, S("id"), S("No desc available for this id."), id);
   }
   return this->ids[id].str;
 }
@@ -45,10 +45,10 @@ IdGenerator* IdGenerator::getSingleton()
 {
   static IdGenerator *idGenerator=0;
   if (idGenerator == 0) {
-    idGenerator = reinterpret_cast<IdGenerator*>(GLOBAL_STORAGE->getObject(STR("Core::Data::IdGenerator")));
+    idGenerator = reinterpret_cast<IdGenerator*>(GLOBAL_STORAGE->getObject(S("Core::Data::IdGenerator")));
     if (idGenerator == 0) {
       idGenerator = new IdGenerator;
-      GLOBAL_STORAGE->setObject(STR("Core::Data::IdGenerator"), reinterpret_cast<void*>(idGenerator));
+      GLOBAL_STORAGE->setObject(S("Core::Data::IdGenerator"), reinterpret_cast<void*>(idGenerator));
     }
   }
   return idGenerator;

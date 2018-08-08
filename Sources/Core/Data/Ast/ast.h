@@ -47,8 +47,8 @@ namespace Core { namespace Data { namespace Ast
 #define IMPLEMENT_AST_MAP_CLONABLE(type) \
   _IMPLEMENT_AST_CLONABLE(type, newObj->setElement(this->getElementKey(i).c_str(), this->getElement(i)))
 
-#define _PRINT_AST_TYPE_NAME1(type) stream << STR(#type)
-#define _PRINT_AST_TYPE_NAME2(type, extra) stream << STR(#type " ") extra
+#define _PRINT_AST_TYPE_NAME1(type) stream << S(#type)
+#define _PRINT_AST_TYPE_NAME2(type, extra) stream << S(#type " ") extra
 #define _PRINT_AST_TYPE_NAME(...) \
   SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, _, _, _, _PRINT_AST_TYPE_NAME2, _PRINT_AST_TYPE_NAME1)(__VA_ARGS__)
 
@@ -58,12 +58,12 @@ namespace Core { namespace Data { namespace Ast
     _PRINT_AST_TYPE_NAME(__VA_ARGS__); \
     Word id = this->getProdId(); \
     if (id != UNKNOWN_ID) { \
-      stream << STR(" [") << ID_GENERATOR->getDesc(id) << STR("]"); \
+      stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]"); \
     } \
     for (Word i = 0; i < this->getElementCount(); ++i) { \
-      stream << STR("\n"); \
+      stream << S("\n"); \
       printIndents(stream, indents+1); \
-      stream << this->getElementKey(i).c_str() << STR(": "); \
+      stream << this->getElementKey(i).c_str() << S(": "); \
       Core::Data::dumpData(stream, this->getElement(i), indents+1); \
     } \
   }
@@ -74,10 +74,10 @@ namespace Core { namespace Data { namespace Ast
     _PRINT_AST_TYPE_NAME(__VA_ARGS__); \
     Word id = this->getProdId(); \
     if (id != UNKNOWN_ID) { \
-      stream << STR(" [") << ID_GENERATOR->getDesc(id) << STR("]"); \
+      stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]"); \
     } \
     for (Word i = 0; i < this->getElementCount(); ++i) { \
-      stream << STR("\n"); \
+      stream << S("\n"); \
       printIndents(stream, indents+1); \
       Core::Data::dumpData(stream, this->getElement(i), indents+1); \
     } \

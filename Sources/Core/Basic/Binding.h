@@ -46,20 +46,20 @@ class Binding : public TiInterface
 
   public: virtual Int setMember(Char const *name, TiObject *val)
   {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found"), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found"), name);
   }
   public: virtual void setMember(Int index, TiObject *val)
   {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
 
   public: virtual void removeMember(Char const *name)
   {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found"), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found"), name);
   }
   public: virtual void removeMember(Int index)
   {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
 
   public: virtual Word getMemberCount() const
@@ -69,34 +69,34 @@ class Binding : public TiInterface
 
   public: virtual TiObject* getMember(Char const *name) const
   {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found"), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found"), name);
   }
   public: virtual TiObject* getMember(Int index) const
   {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
 
   public: virtual TypeInfo* getMemberNeededType(Char const *name) const
   {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found"), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found"), name);
   }
   public: virtual TypeInfo* getMemberNeededType(Int index) const
   {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
 
   public: virtual HoldMode getMemberHoldMode(Char const *name) const
   {
-    throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found"), name);
+    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found"), name);
   }
   public: virtual HoldMode getMemberHoldMode(Int index) const
   {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
 
   public: virtual SbStr const& getMemberKey(Int index) const
   {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
   public: virtual Int findMemberIndex(Char const *name) const
   {
@@ -113,13 +113,13 @@ class Binding : public TiInterface
   {
     Int index = this->findMemberIndex(name);
     if (index == -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
     }
     if (this->getMemberHoldMode(index) != HoldMode::VALUE) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by value."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Member is not held by value."), name);
     }
     if (!val.isDerivedFrom(this->getMemberNeededType(index))) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Object type doesn't match needed type."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Object type doesn't match needed type."), name);
     }
     this->setMember(index, const_cast<TiObject*>(&val));
   }
@@ -128,15 +128,15 @@ class Binding : public TiInterface
   {
     Int index = this->findMemberIndex(name);
     if (index == -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
     }
     if (this->getMemberHoldMode(index) != HoldMode::SHARED_REF &&
         this->getMemberHoldMode(index) != HoldMode::WEAK_REF)
     {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by shared or weak ptr."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Member is not held by shared or weak ptr."), name);
     }
     if (val != 0 && !val->isDerivedFrom(this->getMemberNeededType(index))) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Object type doesn't match needed type."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Object type doesn't match needed type."), name);
     }
     this->setMember(index, val.get());
   }
@@ -145,13 +145,13 @@ class Binding : public TiInterface
   {
     Int index = this->findMemberIndex(name);
     if (index == -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
     }
     if (this->getMemberHoldMode(index) != HoldMode::VALUE) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by value."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Member is not held by value."), name);
     }
     if (T::getTypeInfo() != this->getMemberNeededType(index)) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Object type doesn't match needed type."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Object type doesn't match needed type."), name);
     }
     ASSERT(this->getMember(index) != 0);
     return *static_cast<T*>(this->getMember(index));
@@ -166,12 +166,12 @@ class Binding : public TiInterface
   {
     Int index = this->findMemberIndex(name);
     if (index == -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member not found."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
     }
     if (this->getMemberHoldMode(index) != HoldMode::SHARED_REF &&
         this->getMemberHoldMode(index) != HoldMode::WEAK_REF)
     {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Member is not held by shared or weak ptr."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Member is not held by shared or weak ptr."), name);
     }
     return getSharedPtr<T>(this->getMember(index));
   }

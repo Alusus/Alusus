@@ -73,7 +73,7 @@ void NodePathResolver::_resolveDefinition(
 ) {
   PREPARE_SELF(resolver, NodePathResolver);
   resolver->resolve(def->getOwner(), helper, path);
-  if (path.rdbuf()->in_avail() != 0) path << CHR('.');
+  if (path.rdbuf()->in_avail() != 0) path << C('.');
   path << def->getName().get();
 }
 
@@ -90,18 +90,18 @@ void NodePathResolver::_resolveFunctionType(
   TiObject *self, Spp::Ast::FunctionType const *funcType, Helper *helper, StrStream &path
 ) {
   PREPARE_SELF(resolver, NodePathResolver);
-  path << CHR('(');
+  path << C('(');
   auto argTypes = funcType->getArgTypes().get();
   if (argTypes != 0) {
     for (Int i = 0; i < argTypes->getCount(); ++i) {
-      if (i > 0) path << CHR(',');
+      if (i > 0) path << C(',');
       resolver->resolveFunctionArg(argTypes->getElement(i), helper, path);
     }
   }
-  path << STR(")");
+  path << S(")");
   if (funcType->getRetType() != 0) {
     auto type = helper->traceType(funcType->getRetType().get());
-    path << STR("=>(") << resolver->doResolve(type, helper) << STR(")");
+    path << S("=>(") << resolver->doResolve(type, helper) << S(")");
   }
 }
 
@@ -111,14 +111,14 @@ void NodePathResolver::_resolveFunctionArg(TiObject *self, TiObject *arg, Helper
   PREPARE_SELF(resolver, NodePathResolver);
   if (arg->isDerivedFrom<Ast::ArgPack>()) {
     auto argPack = static_cast<Ast::ArgPack const*>(arg);
-    path << STR("ArgPack[");
+    path << S("ArgPack[");
     if (argPack->getArgType() == 0) {
-      path << STR("any");
+      path << S("any");
     } else {
       auto type = helper->traceType(argPack->getArgType().get());
       path << resolver->doResolve(type, helper);
     }
-    path << CHR(',') << argPack->getMin().get() << CHR(',') << argPack->getMax().get() << CHR(']');
+    path << C(',') << argPack->getMin().get() << C(',') << argPack->getMax().get() << C(']');
   } else {
     auto type = helper->traceType(arg);
     path << resolver->doResolve(type, helper);
@@ -132,28 +132,28 @@ void NodePathResolver::_resolveTemplateInstance(
   PREPARE_SELF(resolver, NodePathResolver);
   auto tmplt = static_cast<Spp::Ast::Template*>(block->getOwner());
   resolver->resolve(tmplt->getOwner(), helper, path);
-  path << CHR('[');
+  path << C('[');
   auto varDefs = tmplt->getVarDefs();
   for (Int i = 0; i < varDefs->size(); ++i) {
-    if (i > 0) path << CHR(',');
+    if (i > 0) path << C(',');
     auto obj = Ast::Template::getTemplateVar(block, varDefs->at(i).name.c_str());
     if (varDefs->at(i).type == Ast::Template::VarType::INTEGER) {
       auto integer = ti_cast<TiInt>(obj);
       if (integer == 0) {
-        throw EXCEPTION(GenericException, STR("Invalid template argument."));
+        throw EXCEPTION(GenericException, S("Invalid template argument."));
       }
       path << integer->get();
     } else if (varDefs->at(i).type == Ast::Template::VarType::STRING) {
       auto str = ti_cast<TiStr>(obj);
       if (str == 0) {
-        throw EXCEPTION(GenericException, STR("Invalid template argument."));
+        throw EXCEPTION(GenericException, S("Invalid template argument."));
       }
       path << str->get();
     } else {
       path << resolver->doResolve(ti_cast<Core::Data::Node>(obj), helper);
     }
   }
-  path << CHR(']');
+  path << C(']');
 }
 
 } } // namespace

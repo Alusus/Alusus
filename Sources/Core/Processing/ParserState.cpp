@@ -186,11 +186,11 @@ ParserTermLevel& ParserState::refTermLevel(Int i)
   // Validate i and convert it into positive indexing if it's currently negative.
   if (i >= 0) {
     if (i >= this->getTermLevelCount()) {
-      throw EXCEPTION(GenericException, STR("This state has an empty term stack, or i is out of range."));
+      throw EXCEPTION(GenericException, S("This state has an empty term stack, or i is out of range."));
     }
   } else {
     if (-(i) > this->getTermLevelCount()) {
-      throw EXCEPTION(GenericException, STR("Given state has an empty term stack, or i is out of range."));
+      throw EXCEPTION(GenericException, S("Given state has an empty term stack, or i is out of range."));
     }
     i = this->getTermLevelCount() + i;
   }
@@ -216,7 +216,7 @@ Int ParserState::getTopProdTermLevelCount() const
 {
   // The first level does not belong to any production, so we need at least 2 levels.
   if (this->getTermLevelCount() <= 1) {
-    throw EXCEPTION(GenericException, STR("This state has an empty term stack."));
+    throw EXCEPTION(GenericException, S("This state has an empty term stack."));
   }
   ASSERT(this->getProdLevelCount() > 0);
   // Find the production root, then get its data.
@@ -315,11 +315,11 @@ ParserProdLevel& ParserState::refProdLevel(Int i)
   // Validate i and convert it into positive indexing if it's currently negative.
   if (i >= 0) {
     if (i >= this->getProdLevelCount()) {
-      throw EXCEPTION(GenericException, STR("This state has an empty production stack, or i is out of range."));
+      throw EXCEPTION(GenericException, S("This state has an empty production stack, or i is out of range."));
     }
   } else {
     if (-(i) > this->getProdLevelCount()) {
-      throw EXCEPTION(GenericException, STR("Given state has an empty production stack, or i is out of range."));
+      throw EXCEPTION(GenericException, S("Given state has an empty production stack, or i is out of range."));
     }
     i = this->getProdLevelCount() + i;
   }
@@ -511,7 +511,7 @@ TiInt* ParserState::getTermFlags(Int levelOffset) const
 void ParserState::popFrontLeadingModifierLevel()
 {
   if (this->leadingModifierStack.empty()) {
-    throw EXCEPTION(GenericException, STR("Leading modifier stack is empty."));
+    throw EXCEPTION(GenericException, S("Leading modifier stack is empty."));
   }
   this->leadingModifierStack.erase(this->leadingModifierStack.begin());
 }
@@ -520,7 +520,7 @@ void ParserState::popFrontLeadingModifierLevel()
 void ParserState::popFrontTrailingModifierLevel()
 {
   if (this->trailingModifierStack.empty()) {
-    throw EXCEPTION(GenericException, STR("Trailing modifier stack is empty."));
+    throw EXCEPTION(GenericException, S("Trailing modifier stack is empty."));
   }
   this->trailingModifierStack.erase(this->trailingModifierStack.begin());
 }
@@ -529,7 +529,7 @@ void ParserState::popFrontTrailingModifierLevel()
 void ParserState::popBackLeadingModifierLevel()
 {
   if (this->leadingModifierStack.empty()) {
-    throw EXCEPTION(GenericException, STR("Leading modifier stack is empty."));
+    throw EXCEPTION(GenericException, S("Leading modifier stack is empty."));
   }
   this->leadingModifierStack.pop_back();
 }
@@ -538,7 +538,7 @@ void ParserState::popBackLeadingModifierLevel()
 void ParserState::popBackTrailingModifierLevel()
 {
   if (this->trailingModifierStack.empty()) {
-    throw EXCEPTION(GenericException, STR("Trailing modifier stack is empty."));
+    throw EXCEPTION(GenericException, S("Trailing modifier stack is empty."));
   }
   this->trailingModifierStack.pop_back();
 }
@@ -547,7 +547,7 @@ void ParserState::popBackTrailingModifierLevel()
 void ParserState::removeLeadingModifierLevel(Int index)
 {
   if (index < 0 || index >= this->leadingModifierStack.size()) {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."));
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."));
   }
   this->leadingModifierStack.erase(this->leadingModifierStack.begin() + index);
 }
@@ -556,7 +556,7 @@ void ParserState::removeLeadingModifierLevel(Int index)
 void ParserState::removeTrailingModifierLevel(Int index)
 {
   if (index < 0 || index >= this->trailingModifierStack.size()) {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."));
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."));
   }
   this->trailingModifierStack.erase(this->trailingModifierStack.begin() + index);
 }
@@ -566,7 +566,7 @@ ParserModifierLevel& ParserState::refLeadingModifierLevel(Int index)
 {
   if (index < 0) index += this->leadingModifierStack.size();
   if (index < 0 || index >= this->leadingModifierStack.size()) {
-    throw EXCEPTION(GenericException, STR("Out of range"));
+    throw EXCEPTION(GenericException, S("Out of range"));
   }
   return this->leadingModifierStack[index];
 }
@@ -576,7 +576,7 @@ ParserModifierLevel& ParserState::refTrailingModifierLevel(Int index)
 {
   if (index < 0) index += this->trailingModifierStack.size();
   if (index < 0 || index >= this->trailingModifierStack.size()) {
-    throw EXCEPTION(GenericException, STR("Out of range"));
+    throw EXCEPTION(GenericException, S("Out of range"));
   }
   return this->trailingModifierStack[index];
 }
@@ -668,7 +668,7 @@ void ParserState::ownTopTermLevel()
   ASSERT(this->trunkState != 0);
   ASSERT(this->tempTrunkTermStackIndex >= 0);
   if (static_cast<Int>(this->trunkState->getTermLevelCount()) <= this->tempTrunkTermStackIndex) {
-    throw EXCEPTION(GenericException, STR("Trunk state has been modified."));
+    throw EXCEPTION(GenericException, S("Trunk state has been modified."));
   }
   ParserTermLevel &srcLevel = this->trunkState->refTermLevel(this->tempTrunkTermStackIndex);
   this->tempTrunkTermStackIndex--;

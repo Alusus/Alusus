@@ -87,12 +87,12 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
   {
     Data::Ast::List *list = data.ti_cast_get<Data::Ast::List>();
     if (list == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid object type received."),
+      throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid object type received."),
                       data->getMyTypeInfo()->getUniqueName());
     }
     auto token = ti_cast<Data::Ast::Token>(list->getElement(0));
     if (token == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("data[0]"), STR("Invalid op token object received."),
+      throw EXCEPTION(InvalidArgumentException, S("data[0]"), S("Invalid op token object received."),
                       list->get(0)->getMyTypeInfo()->getUniqueName());
     }
 

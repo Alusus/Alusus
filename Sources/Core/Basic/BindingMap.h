@@ -92,21 +92,21 @@ class BindingMap : public BindingMapBase
     VALIDATE_NOT_NULL(name);
     auto index = this->findIndex(name);
     if (index == -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("Not found."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("Not found."), name);
     }
     auto newTifn = TiFunctionOverride<RT(ARGS...)>::create(fn,
       currentTifn == 0 ? SharedPtr<TiFunctionBase>() : getSharedPtr(currentTifn->getSuper(), true));
     auto tifn = this->get(index).ti_cast_get<TiFunctionBase>();
     if (tifn == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("name"), STR("No function override is defined at this key."), name);
+      throw EXCEPTION(InvalidArgumentException, S("name"), S("No function override is defined at this key."), name);
     }
     if (tifn == currentTifn) {
       this->set(index, newTifn);
     } else {
       while (tifn != 0 && tifn->getSuper() != currentTifn) tifn = tifn->getSuper();
       if (tifn == 0) {
-        throw EXCEPTION(InvalidArgumentException, STR("name"),
-                        STR("Provided funciton override is not found at the given key."), name);
+        throw EXCEPTION(InvalidArgumentException, S("name"),
+                        S("Provided funciton override is not found at the given key."), name);
       }
       tifn->setSuper(newTifn);
     }

@@ -23,7 +23,7 @@ namespace Core { namespace Data
 void unsetIndexes(TiObject *obj, Int from, Int to)
 {
   if (obj == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("obj"), STR("Obj is null."));
+    throw EXCEPTION(InvalidArgumentException, S("obj"), S("Obj is null."));
   }
   DataHaving *mt = obj->getInterface<DataHaving>();
   if (mt != 0) mt->unsetIndexes(from, to);
@@ -50,7 +50,7 @@ void setTreeIds(TiObject *obj, Node *root, const Char *id)
     for (Int i = 0; static_cast<Word>(i) < map->getElementCount(); ++i) {
       childId.str(Str());
       childId << id;
-      if (childId.tellp() != 0) childId << CHR('.');
+      if (childId.tellp() != 0) childId << C('.');
       childId << map->getElementKey(i).c_str();
       setTreeIds(map->getElement(i), root, childId.str().c_str());
     }
@@ -58,7 +58,7 @@ void setTreeIds(TiObject *obj, Node *root, const Char *id)
     for (Int i = 0; static_cast<Word>(i) < list->getElementCount(); ++i) {
       childId.str(Str());
       childId << id;
-      if (childId.tellp() != 0) childId << CHR('.');
+      if (childId.tellp() != 0) childId << C('.');
       childId << i;
       setTreeIds(list->getElement(i), root, childId.str().c_str());
     }
@@ -69,12 +69,12 @@ void setTreeIds(TiObject *obj, Node *root, const Char *id)
 void generateId(Node *obj, Node *root, StrStream &id)
 {
   if (obj == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("obj"), STR("Value is null."));
+    throw EXCEPTION(InvalidArgumentException, S("obj"), S("Value is null."));
   }
   Node *owner = obj->getOwner();
   if (owner == 0 || obj == root) return;
   generateId(owner, root, id);
-  if (id.tellp() != 0) id << CHR('.');
+  if (id.tellp() != 0) id << C('.');
   auto container = owner->getInterface<Containing<TiObject>>();
   if (container != 0) {
     for (Int i = 0; i < container->getElementCount(); ++i) {
@@ -88,9 +88,9 @@ void generateId(Node *obj, Node *root, StrStream &id)
         return;
       }
     }
-    throw EXCEPTION(GenericException, STR("The provided object has an invalid owner."));
+    throw EXCEPTION(GenericException, S("The provided object has an invalid owner."));
   } else {
-    id << STR("_");
+    id << S("_");
   }
 }
 
@@ -108,7 +108,7 @@ Node* findOwner(Node *obj, TypeInfo *typeInfo)
 void dumpData(OutStream &stream, TiObject *ptr, int indents)
 {
   if (ptr == 0) {
-    stream << STR("NULL");
+    stream << S("NULL");
     return;
   }
 
@@ -121,46 +121,46 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
     if (metadata) {
       Word id = metadata->getProdId();
       if (id != UNKNOWN_ID) {
-        stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");
+        stream << S(" [") << IdGenerator::getSingleton()->getDesc(id) << S("]");
       }
     }
     ListContaining<TiObject> *listContainer;
     MapContaining<TiObject> *mapContainer;
     if ((listContainer = ptr->getInterface<ListContaining<TiObject>>()) != 0) {
       for (Word i = 0; i < listContainer->getElementCount(); ++i) {
-        stream << STR("\n");
+        stream << S("\n");
         printIndents(stream, indents + 1);
         dumpData(stream, listContainer->getElement(i), indents+1);
       }
     } else if ((mapContainer = ptr->getInterface<MapContaining<TiObject>>()) != 0) {
       for (Word i = 0; i < mapContainer->getElementCount(); ++i) {
-        stream << STR("\n");
+        stream << S("\n");
         printIndents(stream, indents+1);
-        stream << mapContainer->getElementKey(i).c_str() << STR(": ");
+        stream << mapContainer->getElementKey(i).c_str() << S(": ");
         dumpData(stream, mapContainer->getElement(i), indents+1);
       }
     } else if (ptr->isA<TioSharedBox>()) {
       TioSharedBox *sharedBox = static_cast<TioSharedBox*>(ptr);
-      stream << STR("\n");
+      stream << S("\n");
       printIndents(stream, indents+1);
       dumpData(stream, sharedBox->get().get(), indents+1);
     } else if (ptr->isA<TioWeakBox>()) {
       TioWeakBox *weakBox = static_cast<TioWeakBox*>(ptr);
-      stream << STR("\n");
+      stream << S("\n");
       printIndents(stream, indents+1);
       dumpData(stream, weakBox->get().lock().get(), indents+1);
     } else if (ptr->isA<TiWord>()) {
       auto tiWord = static_cast<TiWord*>(ptr);
-      stream << STR(": ") << tiWord->get();
+      stream << S(": ") << tiWord->get();
     } else if (ptr->isA<TiInt>()) {
       auto tiInt = static_cast<TiInt*>(ptr);
-      stream << STR(": ") << tiInt->get();
+      stream << S(": ") << tiInt->get();
     } else if (ptr->isA<TiFloat>()) {
       auto tiFloat = static_cast<TiFloat*>(ptr);
-      stream << STR(": ") << tiFloat->get();
+      stream << S(": ") << tiFloat->get();
     } else if (ptr->isA<TiStr>()) {
       auto tiStr = static_cast<TiStr*>(ptr);
-      stream << STR("\n");
+      stream << S("\n");
       printIndents(stream, indents+1);
       stream << tiStr->get();
     }

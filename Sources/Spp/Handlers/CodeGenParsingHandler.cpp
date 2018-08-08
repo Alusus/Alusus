@@ -74,15 +74,15 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
       StrStream ir;
       this->targetGenerator->dumpIr(ir);
       if (result) {
-        outStream << STR("-------------------- Generated LLVM IR ---------------------\n");
+        outStream << S("-------------------- Generated LLVM IR ---------------------\n");
         outStream << ir.str();
-        outStream << STR("------------------------------------------------------------\n");
+        outStream << S("------------------------------------------------------------\n");
       } else {
         parser->flushApprovedNotices();
-        outStream << STR("Build Failed...\n");
-        outStream << STR("--------------------- Partial LLVM IR ----------------------\n");
+        outStream << S("Build Failed...\n");
+        outStream << S("--------------------- Partial LLVM IR ----------------------\n");
         outStream << ir.str();
-        outStream << STR("------------------------------------------------------------\n");
+        outStream << S("------------------------------------------------------------\n");
       }
     }
 
@@ -91,9 +91,9 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
     //   [=, &found](TiObject *obj)->SeekVerb
     //   {
     //     if (obj != 0) {
-    //       outStream << STR("------------------ Generated LLVM IR ------------------\n");
+    //       outStream << S("------------------ Generated LLVM IR ------------------\n");
     //       // TODO: Generate IR for the requested element.
-    //       outStream << STR("\n------------------------------------------------------\n");
+    //       outStream << S("\n------------------------------------------------------\n");
     //       found = true;
     //     }
     //     return SeekVerb::MOVE;

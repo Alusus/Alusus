@@ -21,7 +21,7 @@ namespace Spp { namespace Ast
 Type* PointerType::getContentType(Helper *helper) const
 {
   if (this->contentTypeRef == 0) {
-    this->contentTypeRef = helper->getRootManager()->parseExpression(STR("type"));
+    this->contentTypeRef = helper->getRootManager()->parseExpression(S("type"));
   }
   auto typeBox = ti_cast<TioWeakBox>(
     helper->getSeeker()->doGet(this->contentTypeRef.get(), this->getOwner())
@@ -29,7 +29,7 @@ Type* PointerType::getContentType(Helper *helper) const
   if (typeBox == 0) return 0;
   auto type = typeBox->get().ti_cast_get<Spp::Ast::Type>();
   if (type == 0) {
-    throw EXCEPTION(GenericException, STR("Invalid pointer content type found."));
+    throw EXCEPTION(GenericException, S("Invalid pointer content type found."));
   }
   return type;
 }

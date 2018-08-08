@@ -268,7 +268,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
         this->inherited->at(i) = false;
         this->changeNotifier.emit(this, ContentChangeOp::UPDATED, i);
       } else {
-        throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Already exists."), key);
+        throw EXCEPTION(InvalidArgumentException, S("key"), S("Already exists."), key);
       }
     } else {
       i = this->list.size();
@@ -283,11 +283,11 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
   public: void insert(Int index, Char const *key, SharedPtr<CTYPE> const &val)
   {
     if (this->findIndex(key) != -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Already exists."), key);
+      throw EXCEPTION(InvalidArgumentException, S("key"), S("Already exists."), key);
     }
     if (static_cast<Word>(index) < this->getBaseDefCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"),
-                      STR("Cannot insert at a position that breaks base's sequence."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"),
+                      S("Cannot insert at a position that breaks base's sequence."), index);
     }
     this->list.insert(this->list.begin()+index, Entry(key, val));
     if (this->inherited != 0) this->inherited->insert(this->inherited->begin()+index, false);
@@ -306,7 +306,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
         if (this->index != 0) this->index->add();
         this->changeNotifier.emit(this, ContentChangeOp::ADDED, idx);
       } else {
-        throw EXCEPTION(InvalidArgumentException, STR("key"),STR("Not found."), key);
+        throw EXCEPTION(InvalidArgumentException, S("key"),S("Not found."), key);
       }
     } else {
       this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, idx);
@@ -320,7 +320,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
   public: void set(Int index, SharedPtr<CTYPE> const &val)
   {
     if (static_cast<Word>(index) >= this->list.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, index);
     this->list[index].second = val;
@@ -332,7 +332,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
   {
     Int idx = this->findIndex(key);
     if (idx == -1 || (this->inherited != 0 && this->inherited->at(idx) == true)) {
-      throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Not found."), key);
+      throw EXCEPTION(InvalidArgumentException, S("key"), S("Not found."), key);
     }
     if (static_cast<Word>(idx) < this->getBaseDefCount()) {
       ASSERT(this->base != 0);
@@ -354,10 +354,10 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
   public: void remove(Int index)
   {
     if (static_cast<Word>(index) >= this->list.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     if (this->inherited != 0 && this->inherited->at(index)) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Given entry belongs to base."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Given entry belongs to base."), index);
     }
     if (static_cast<Word>(index) < this->getBaseDefCount()) {
       ASSERT(this->base != 0);
@@ -384,7 +384,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
   {
     Int idx = this->findIndex(key);
     if (idx == -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Not found in the map."), key);
+      throw EXCEPTION(InvalidArgumentException, S("key"), S("Not found in the map."), key);
     }
     return this->list[idx].second;
   }
@@ -392,7 +392,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
   public: SharedPtr<CTYPE> const& get(Int index) const
   {
     if (static_cast<Word>(index) >= this->list.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     return this->list[index].second;
   }
@@ -400,7 +400,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
   public: SbStr const& getKey(Int index) const
   {
     if (static_cast<Word>(index) >= this->list.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     return this->list[index].first.sbstr();
   }
@@ -409,7 +409,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
   {
     Int idx = this->findIndex(key);
     if (idx == -1) {
-      throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Not found in the map."), key);
+      throw EXCEPTION(InvalidArgumentException, S("key"), S("Not found in the map."), key);
     }
     return idx;
   }
@@ -417,7 +417,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
   public: Int findIndex(Char const *key) const
   {
     if (key == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Cannot be null."));
+      throw EXCEPTION(InvalidArgumentException, S("key"), S("Cannot be null."));
     }
     // Do we have an index to speed up search?
     if (this->index != 0) {
@@ -454,7 +454,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
   public: Bool isInherited(Int index) const
   {
     if (static_cast<Word>(index) >= this->list.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     if (this->inherited == 0) return false;
     else return this->inherited->at(index);

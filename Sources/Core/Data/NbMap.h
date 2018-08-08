@@ -155,14 +155,14 @@ class NbMap : public Node, public virtual MapContaining<TiObject>, public virtua
       this->map.remove(index);
       return index;
     } else {
-      throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Element not found."), key);
+      throw EXCEPTION(InvalidArgumentException, S("key"), S("Element not found."), key);
     }
   }
 
   public: void remove(Int index)
   {
     if (static_cast<Word>(index) >= this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
     }
     DISOWN_SHAREDPTR(this->get(index));
     this->map.remove(index);

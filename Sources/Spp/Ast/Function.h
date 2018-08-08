@@ -88,7 +88,7 @@ class Function : public Core::Data::Node,
   }
   public: void setName(TiStr const *n)
   {
-    this->setName(n == 0 ? STR("") : n->get());
+    this->setName(n == 0 ? S("") : n->get());
   }
 
   public: TiStr const& getName() const

@@ -72,10 +72,10 @@ TypeMatchStatus FunctionType::matchTargetType(Type const *type, Helper *helper, 
 Type* FunctionType::traceArgType(Int index, Helper *helper) const
 {
   if (this->argTypes == 0 || this->argTypes->getCount() == 0) {
-    throw EXCEPTION(GenericException, STR("Function takes no arguments."));
+    throw EXCEPTION(GenericException, S("Function takes no arguments."));
   }
   if (this->argTypes == 0 || index < 0 || index >= this->argTypes->getCount()) {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
   }
   return helper->traceType(this->argTypes->getElement(index));
 }
@@ -104,7 +104,7 @@ TypeMatchStatus FunctionType::matchCall(
   Containing<TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
 ) {
   if (helper == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("helper"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("helper"), S("Cannot be null."));
   }
 
   Word argCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
@@ -153,13 +153,13 @@ TypeMatchStatus FunctionType::matchNextArg(
   TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
 ) {
   if (nextType == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("types"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("types"), S("Cannot be null."));
   }
   if (helper == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("helper"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("helper"), S("Cannot be null."));
   }
   if (matchContext.index < -1 || matchContext.subIndex < -1) {
-    throw EXCEPTION(InvalidArgumentException, STR("matchContext"), STR("Value is corrupted."));
+    throw EXCEPTION(InvalidArgumentException, S("matchContext"), S("Value is corrupted."));
   }
 
   Type *providedType = helper->traceType(nextType);

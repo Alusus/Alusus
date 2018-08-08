@@ -224,7 +224,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedList : public PTYPE, pub
   public: void insert(Int index, SharedPtr<CTYPE> const &val)
   {
     if (static_cast<Word>(index) > this->list.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
     }
     this->list.insert(this->list.begin()+index, val);
     if (this->inherited != 0) this->inherited->insert(this->inherited->begin()+index, false);
@@ -234,7 +234,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedList : public PTYPE, pub
   public: void set(Int index, SharedPtr<CTYPE> const &val)
   {
     if (static_cast<Word>(index) >= this->list.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
     }
     this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, index);
     this->list[index] = val;
@@ -245,10 +245,10 @@ template<class CTYPE, class PTYPE=TiObject> class SharedList : public PTYPE, pub
   public: void remove(Int index)
   {
     if (static_cast<Word>(index) >= this->list.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
     }
     if (this->inherited != 0 && this->inherited->at(index)) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Given entry belongs to base."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Given entry belongs to base."), index);
     }
     if (static_cast<Word>(index) < this->getBaseDefCount()) {
       ASSERT(this->base != 0);
@@ -273,7 +273,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedList : public PTYPE, pub
   public: SharedPtr<CTYPE> const& get(Int index) const
   {
     if (static_cast<Word>(index) >= this->list.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Index out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
     }
     return this->list[index];
   }
@@ -302,7 +302,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedList : public PTYPE, pub
   public: Bool isInherited(Int index) const
   {
     if (static_cast<Word>(index) >= this->list.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     if (this->inherited == 0) return false;
     else return this->inherited->at(index);

@@ -58,7 +58,7 @@ class Value : public TiObject
     if (this->constant) {
       return static_cast<llvm::Constant*>(this->llvmValue);
     } else {
-      throw EXCEPTION(GenericException, STR("Value is not a constant."));
+      throw EXCEPTION(GenericException, S("Value is not a constant."));
     }
   }
 

@@ -29,20 +29,20 @@ template<class CTYPE> class MapContaining : public Containing<CTYPE>
 
   public: virtual void setElement(Int index, CTYPE *val)
   {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
   public: virtual Int setElement(Char const *key, CTYPE *val)
   {
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key);
+    throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found"), key);
   }
 
   public: virtual void removeElement(Int index)
   {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
   public: virtual Int removeElement(Char const *key)
   {
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key);
+    throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found"), key);
   }
 
   public: virtual Word getElementCount() const
@@ -52,16 +52,16 @@ template<class CTYPE> class MapContaining : public Containing<CTYPE>
 
   public: virtual CTYPE* getElement(Int index) const
   {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
   public: virtual CTYPE* getElement(Char const *key) const
   {
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found"), key);
+    throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found"), key);
   }
 
   public: virtual SbStr const& getElementKey(Int index) const
   {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range"), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
 
   /**

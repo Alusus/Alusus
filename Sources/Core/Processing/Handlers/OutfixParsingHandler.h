@@ -63,7 +63,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
             state->setData(this->createPostfixObj(currentData, data), levelIndex);
           }
         } else {
-          throw EXCEPTION(GenericException, STR("Unexpected term length"));
+          throw EXCEPTION(GenericException, S("Unexpected term length"));
         }
         return;
       }
@@ -82,7 +82,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
   {
     auto token = currentData.ti_cast_get<Data::Ast::Token>();
     if (token == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("currentData"), STR("Invalid op token object received."),
+      throw EXCEPTION(InvalidArgumentException, S("currentData"), S("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());
     }
 
@@ -102,7 +102,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
   {
     auto token = data.ti_cast_get<Data::Ast::Token>();
     if (token == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Invalid op token object received."),
+      throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());
     }
 

@@ -55,7 +55,7 @@ class ArgPack : public Core::Data::Node,
 
   IMPLEMENT_AST_CLONABLE(ArgPack);
 
-  IMPLEMENT_AST_MAP_PRINTABLE(ArgPack, << this->min.get() << STR(" ") << this->max.get());
+  IMPLEMENT_AST_MAP_PRINTABLE(ArgPack, << this->min.get() << S(" ") << this->max.get());
 
 
   //============================================================================

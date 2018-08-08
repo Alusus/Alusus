@@ -2,7 +2,7 @@
  * @file Core/Processing/LexerState.cpp
  * Contains the implementation of Processing::LexerState.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -28,7 +28,7 @@ void LexerState::copyFrom(const LexerState *src)
 {
   // Validation.
   if (src == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("src"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("src"), S("Cannot be null."));
   }
   // Copy from the given state.
   this->tokenLength = src->getTokenLength();

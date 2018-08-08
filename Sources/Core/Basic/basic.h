@@ -54,7 +54,7 @@ namespace Core { namespace Basic
  * This constant is needed for future purposes. The main purpose of this is to
  * allow easy conversion of the program from ascii to unicode.
  */
-#define NEW_LINE            '\n'
+#define NEW_LINE            u8'\n'
 
 /**
  * @brief Defines a generic unknown identifier.
@@ -109,7 +109,7 @@ namespace Core { namespace Basic
  * allow easy conversion of the program from ascii to unicode. Every string
  * literal in the source code should be wrapped by this macro.
  */
-#define STR(x)	u8##x
+#define S(x)	u8##x
 
 /**
  * @brief Wrapper for character literals.
@@ -119,13 +119,13 @@ namespace Core { namespace Basic
  * allow easy conversion of the program from ascii to unicode. Every character
  * literal in the source code should be wrapped by this macro.
  */
-#define CHR(x)	u8##x
+#define C(x)	u8##x
 
 /**
  * @brief Wrapper for wide character literals.
  * @ingroup basic_macros
  */
-#define WCHR(x) U##x
+#define WC(x) U##x
 
 /**
  * @brief Maps to the standard C++ assert function.
@@ -205,7 +205,7 @@ namespace Core { namespace Basic
  * The tuple consists of: type, name, setter, getter, hold type.
  * @ingroup basic_macros
  */
-#define VARNAMESTR_FROM_TUPLE(name, ...) #name
+#define VARNAMESTR_FROM_TUPLE(name, ...) S(#name)
 
 /**
  * @brief Selects the variable type from a var tuple.
@@ -378,7 +378,7 @@ namespace Core { namespace Basic
  * @param x The value to be logged. This can be a combination of values using the
  *          &lt;&lt; operator. Ex: LOG(1, "error: " &lt;&lt; code);
  */
-#define LOG(l,x)  Logger(l) << __FILE__ << "(" << __LINE__ << "): " << x << NEW_LINE
+#define LOG(l,x)  Logger(l) << __FILE__ << S("(") << __LINE__ << S("): ") << x << NEW_LINE
 
 /**
  * @brief Constant definitions for different levels of log messages.

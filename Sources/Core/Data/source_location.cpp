@@ -2,7 +2,7 @@
  * @file Core/Data/source_location.cpp
  * Contains the implementation of source location classes.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -21,7 +21,7 @@ namespace Core { namespace Data
 void SourceLocationStack::push(SourceLocation *sl)
 {
   if (sl == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("sl"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("sl"), S("Cannot be null."));
   }
   if (sl->isA<SourceLocationRecord>()) {
     auto sharedSl = getSharedPtr(static_cast<SourceLocationRecord*>(sl));

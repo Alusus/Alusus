@@ -53,7 +53,7 @@ class ImportLoadFailedNotice : public Notice
   /// @sa Notice::getCode()
   public: virtual Str const& getCode() const
   {
-    static Str code("CG1003");
+    static Str code(S("CG1003"));
     return code;
   }
 
@@ -67,11 +67,11 @@ class ImportLoadFailedNotice : public Notice
   public: virtual void buildDescription(Str &str) const
   {
     auto format = L18nDictionary::getSingleton()->get(
-      this->getCode().c_str(), STR("Importing failed. Could not load requested file: %s.")
+      this->getCode().c_str(), S("Importing failed. Could not load requested file: %s.")
     );
     str = formatString(format, this->fileName.c_str());
     if (!this->errorDetails.empty()) {
-      str += STR("\n");
+      str += S("\n");
       str += this->errorDetails;
     }
   }

@@ -50,10 +50,10 @@ void Store::setTrunkSharedCount(Word count)
   }
 
   if (this->trunkStore == 0) {
-    throw EXCEPTION(GenericException, STR("No trunk store set for this store."));
+    throw EXCEPTION(GenericException, S("No trunk store set for this store."));
   }
   if (count < 0 || count > this->trunkStore->getCount()) {
-    throw EXCEPTION(InvalidArgumentException, STR("count"), STR("Out of range."), count);
+    throw EXCEPTION(InvalidArgumentException, S("count"), S("Out of range."), count);
   }
   this->trunkSharedCount = count;
 }
@@ -68,7 +68,7 @@ void Store::setTrunkSharedCount(Word count)
 void Store::copyTrunkSharedNotices()
 {
   if (this->trunkStore == 0) {
-    throw EXCEPTION(GenericException, STR("No trunk store set for this store."));
+    throw EXCEPTION(GenericException, S("No trunk store set for this store."));
   }
   ASSERT(this->trunkSharedCount >= 0 &&
          this->trunkSharedCount <= this->trunkStore->getCount());

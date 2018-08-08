@@ -18,7 +18,7 @@ namespace Spp { namespace Ast
 //==============================================================================
 // Global Constants
 
-constexpr Char const* META_EXTRA_AST_TYPE = STR("astType");
+constexpr Char const* META_EXTRA_AST_TYPE = S("astType");
 
 
 //==============================================================================
@@ -53,7 +53,7 @@ inline Type* getAstType(OT *object)
 {
   auto result = tryGetAstType(object);
   if (result == 0) {
-    throw EXCEPTION(GenericException, STR("Object is missing the AST type."));
+    throw EXCEPTION(GenericException, S("Object is missing the AST type."));
   }
   return result;
 }
@@ -73,7 +73,7 @@ inline void setAstType(OT *object, SharedPtr<Type> const &type)
 {
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the MetaHaving interface."));
+    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
   }
   metadata->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr(type)));
 }
@@ -91,7 +91,7 @@ inline void setAstType(OT *object, Type *type)
 {
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("object"), STR("Object does not implement the MetaHaving interface."));
+    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
   }
   metadata->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(getWeakPtr(type)));
 }

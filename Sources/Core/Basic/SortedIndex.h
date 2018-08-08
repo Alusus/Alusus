@@ -2,7 +2,7 @@
  * @file Core/Basic/SortedIndex.h
  * Contains definition of Basic::SortedIndex template class.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -102,7 +102,7 @@ template<class RECORD, class FIELD, const FIELD& (*ACCESSOR)(RECORD const *r)> c
       this->findPos(v, pos);
       this->indices.insert(this->indices.begin()+pos, index);
     } else {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
   }
 
@@ -115,7 +115,7 @@ template<class RECORD, class FIELD, const FIELD& (*ACCESSOR)(RECORD const *r)> c
   public: void remove(Int index)
   {
     if (static_cast<Word>(index) >= this->indices.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     for (Word i = 0; i < this->indices.size(); ++i) {
       if (this->indices[i] == index) {

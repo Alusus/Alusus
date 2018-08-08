@@ -35,9 +35,9 @@ void DumpAstParsingHandler::onProdEnd(Parser *parser, ParserState *state)
       [=, &found](TiObject *obj, Notices::Notice*)->SeekVerb
       {
         if (obj != 0) {
-          outStream << STR("------------------ Parsed Data Dump ------------------\n");
+          outStream << S("------------------ Parsed Data Dump ------------------\n");
           dumpData(outStream, obj, 0);
-          outStream << STR("\n------------------------------------------------------\n");
+          outStream << S("\n------------------------------------------------------\n");
           found = true;
         }
         return SeekVerb::MOVE;

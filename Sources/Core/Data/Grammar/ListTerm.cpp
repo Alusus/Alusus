@@ -21,22 +21,22 @@ namespace Core::Data::Grammar
 void ListTerm::validate() const
 {
   if (this->terms == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("term"), STR("Must not be null."));
+    throw EXCEPTION(InvalidArgumentException, S("term"), S("Must not be null."));
   } else if (this->terms->isDerivedFrom<List>()) {
     if (this->data != 0 && !this->data->isDerivedFrom<List>() && this->data->isDerivedFrom<TiInt>() &&
         !this->data->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Filters must be of type List, TiInt or Reference."));
+      throw EXCEPTION(InvalidArgumentException, S("data"), S("Filters must be of type List, TiInt or Reference."));
     }
   } else if (this->terms->isDerivedFrom<Term>()) {
     if (this->data == 0 || (!this->data->isDerivedFrom<List>() &&
                             !this->data->isDerivedFrom<Reference>())) {
-      throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Data must be of type List or Reference."));
+      throw EXCEPTION(InvalidArgumentException, S("data"), S("Data must be of type List or Reference."));
     }
     if (this->targetRef == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("ref"),  STR("Target variable must be provided with data lists."));
+      throw EXCEPTION(InvalidArgumentException, S("ref"),  S("Target variable must be provided with data lists."));
     }
   } else {
-    throw EXCEPTION(InvalidArgumentException, STR("term"), STR("Provided object is of an invalid type."),
+    throw EXCEPTION(InvalidArgumentException, S("term"), S("Provided object is of an invalid type."),
                     this->terms->getMyTypeInfo()->getUniqueName());
   }
 }
@@ -52,13 +52,13 @@ void ListTerm::validate() const
 void ListTerm::setStatic(SharedPtr<List> const &terms, SharedPtr<Node> const &filter)
 {
   if (terms == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("terms"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("terms"), S("Cannot be null."));
   }
   if (filter != 0 && !filter->isA<List>() &&
       !filter->isA<TiInt>() &&
       !filter->isDerivedFrom<Reference>()) {
-    throw EXCEPTION(InvalidArgumentException, STR("filter"),
-                    STR("Must be either List, TiInt, or a Reference."));
+    throw EXCEPTION(InvalidArgumentException, S("filter"),
+                    S("Must be either List, TiInt, or a Reference."));
   }
   UPDATE_OWNED_SHAREDPTR(this->terms, terms);
   UPDATE_OWNED_SHAREDPTR(this->data, filter);
@@ -76,13 +76,13 @@ void ListTerm::setDynamic(const SharedPtr<Term> &term, SharedPtr<Node> const &da
                           const SharedPtr<Reference> &ref)
 {
   if (term == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("term"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("term"), S("Cannot be null."));
   }
   if (data == 0 || (!data->isA<List>() && !data->isDerivedFrom<Reference>())) {
-    throw EXCEPTION(InvalidArgumentException, STR("data"), STR("Must be of type List or Reference."));
+    throw EXCEPTION(InvalidArgumentException, S("data"), S("Must be of type List or Reference."));
   }
   if (ref == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("ref"), STR("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("ref"), S("Cannot be null."));
   }
   UPDATE_OWNED_SHAREDPTR(this->terms, terms);
   UPDATE_OWNED_SHAREDPTR(this->data, data);
@@ -108,11 +108,11 @@ SharedPtr<Term> ListTerm::getTerm(Int index) const
   List const *list = ti_cast<List>(this->terms.get());
   if (list) {
     if (static_cast<Word>(index) >= list->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     SharedPtr<Term> term = list->get(index).s_cast<Term>();
     if (!term->isDerivedFrom<Term>()) {
-      throw EXCEPTION(GenericException, STR("List contains a non-Term object."));
+      throw EXCEPTION(GenericException, S("List contains a non-Term object."));
     }
     return term;
   } else {

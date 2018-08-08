@@ -25,13 +25,13 @@ void ChainOpParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState
       auto myData = this->prepareToModifyData(data, state, levelIndex);
       auto container = myData.ti_cast_get<Containing<TiObject>>();
       if (container == 0) {
-        throw EXCEPTION(InvalidArgumentException, STR("data"),
-                        STR("Invalid object type received from chain op production"),
+        throw EXCEPTION(InvalidArgumentException, S("data"),
+                        S("Invalid object type received from chain op production"),
                         data->getMyTypeInfo()->getUniqueName());
       }
       if (container->getElement(0) != 0) {
-        throw EXCEPTION(InvalidArgumentException, STR("data"),
-                        STR("Data is found at index 0."));
+        throw EXCEPTION(InvalidArgumentException, S("data"),
+                        S("Data is found at index 0."));
       }
       container->setElement(0, state->getData(levelIndex).get());
 

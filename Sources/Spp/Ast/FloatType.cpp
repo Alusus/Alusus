@@ -21,13 +21,13 @@ namespace Spp { namespace Ast
 Word FloatType::getBitCount(Helper *helper) const
 {
   if (this->bitCountRef == 0) {
-    this->bitCountRef = helper->getRootManager()->parseExpression(STR("bitCount"));
+    this->bitCountRef = helper->getRootManager()->parseExpression(S("bitCount"));
   }
   auto bitCount = ti_cast<TiInt>(
     helper->getSeeker()->doGet(this->bitCountRef.get(), this->getOwner())
   );
   if (bitCount == 0) {
-    throw EXCEPTION(GenericException, STR("Could not find bitCount value."));
+    throw EXCEPTION(GenericException, S("Could not find bitCount value."));
   }
   return bitCount->get();
 }

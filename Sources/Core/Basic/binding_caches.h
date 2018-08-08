@@ -105,8 +105,8 @@ template<class T> class BindingCache : public BindingCacheBase
   {
     auto bindings = ti_cast<DynamicBinding>(owner);
     if (bindings == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("owner"),
-                      STR("Provided object does not implement DynamicBinding."));
+      throw EXCEPTION(InvalidArgumentException, S("owner"),
+                      S("Provided object does not implement DynamicBinding."));
     }
     this->bindingMap = bindings->getBindingMap();
     this->bindingChangeSlot.disconnect();
@@ -146,7 +146,7 @@ template<class T> class BindingCache : public BindingCacheBase
   public: SharedPtr<T> const& get() const
   {
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     if (this->index == -1) return SharedPtr<T>::null;
     else return this->bindingMap->get(this->index);
@@ -156,7 +156,7 @@ template<class T> class BindingCache : public BindingCacheBase
   {
     if (this->index == -1) {
       if (this->bindingMap == 0) {
-        throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+        throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
       }
       this->index = this->bindingMap->set(this->name, o);
     } else {
@@ -213,7 +213,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -222,7 +222,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -231,7 +231,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -241,7 +241,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   ) {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -250,7 +250,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     return this->bindingMap->updateFunction(this->name, currentTifn, fn);
   }
@@ -259,7 +259,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(newTifn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     this->bindingMap->updateFunctionChain(this->name, currentTifn, newTifn);
   }
@@ -268,7 +268,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(currentTifn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     this->bindingMap->resetFunction(this->name, currentTifn);
   }
@@ -277,7 +277,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(currentTifn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     this->bindingMap->resetFunctionChain(this->name, currentTifn);
   }
@@ -350,7 +350,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   public: virtual void init(TiObject *owner)
   {
     if (owner == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("owner"), STR("Argument is null."));
+      throw EXCEPTION(InvalidArgumentException, S("owner"), S("Argument is null."));
     }
     this->self = owner;
     FunctionBindingCache<RT, ARGS...>::init(owner);
@@ -360,7 +360,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -370,7 +370,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   ) {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -379,7 +379,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -389,7 +389,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   ) {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -399,7 +399,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, STR("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
     }
     return this->bindingMap->updateFunction(this->name, currentTifn, fn);
   }
@@ -428,10 +428,10 @@ inline void initBindingCaches(TiObject *self, std::initializer_list<BindingCache
 //==============================================================================
 // Macros
 
-#define BINDING_CACHE(name, type) BindingCache<type> name = { #name }
+#define BINDING_CACHE(name, type) BindingCache<type> name = { S(#name) }
 
 #define FUNCTION_BINDING_CACHE_ARGS(name, retType, args) \
-  FunctionBindingCache<retType, COMMA_EXPAND_ARGS args> name = { #name }
+  FunctionBindingCache<retType, COMMA_EXPAND_ARGS args> name = { S(#name) }
 #define FUNCTION_BINDING_CACHE_NOARGS(name, retType) \
   FunctionBindingCache<retType> name = { #name }
 #define FUNCTION_BINDING_CACHE(name, ...) \
@@ -440,9 +440,9 @@ inline void initBindingCaches(TiObject *self, std::initializer_list<BindingCache
                FUNCTION_BINDING_CACHE_NOARGS)(name, __VA_ARGS__)
 
 #define METHOD_BINDING_CACHE_ARGS(name, retType, args) \
-  MethodBindingCache<retType, COMMA_EXPAND_ARGS args> name = { #name }
+  MethodBindingCache<retType, COMMA_EXPAND_ARGS args> name = { S(#name) }
 #define METHOD_BINDING_CACHE_NOARGS(name, retType) \
-  MethodBindingCache<retType> name = { #name }
+  MethodBindingCache<retType> name = { S(#name) }
 #define METHOD_BINDING_CACHE(name, ...) \
   SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, _, _, _, \
                METHOD_BINDING_CACHE_ARGS, \

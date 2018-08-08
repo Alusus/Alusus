@@ -15,7 +15,7 @@
 
 #define _VALIDATE_NOT_NULL1(name) \
   if (name == 0) { \
-    throw EXCEPTION(InvalidArgumentException, STR(#name), STR("Should not be null.")); \
+    throw EXCEPTION(InvalidArgumentException, S(#name), S("Should not be null.")); \
   }
 #define _VALIDATE_NOT_NULL2(name1, name2) \
   _VALIDATE_NOT_NULL1(name1); \
@@ -45,14 +45,14 @@
 #define PREPARE_SELF(name, type) \
   type *name = ti_cast<type>(self); \
   if (name == 0) { \
-    throw EXCEPTION(InvalidArgumentException, STR("self"), STR("self is null or of invalid type.")); \
+    throw EXCEPTION(InvalidArgumentException, S("self"), S("self is null or of invalid type.")); \
   }
 
 // Convert TiObject* to a typed arg
 #define PREPARE_ARG(argName, varName, type) \
   type *varName = ti_cast<type>(argName); \
   if (varName == 0) { \
-    throw EXCEPTION(InvalidArgumentException, STR(#argName), STR("Argument is null or of invalid type.")); \
+    throw EXCEPTION(InvalidArgumentException, S(#argName), S("Argument is null or of invalid type.")); \
   }
 
 #endif

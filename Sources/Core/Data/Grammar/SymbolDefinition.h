@@ -173,7 +173,7 @@ class SymbolDefinition : public Node,
   public: void setPriority(TioSharedPtr const &p)
   {
     if (p != 0 && !p->isA<TiInt>() && !p->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("p"), STR("Must be of type TiInt or Reference."));
+      throw EXCEPTION(InvalidArgumentException, S("p"), S("Must be of type TiInt or Reference."));
     }
     this->priority = p;
     this->ownership |= SymbolDefinition::Element::PRIORITY;
@@ -207,7 +207,7 @@ class SymbolDefinition : public Node,
   public: void setFlags(TioSharedPtr const &f)
   {
     if (f != 0 && !f->isA<TiInt>() && !f->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("f"), STR("Must be of type TiInt or Reference."));
+      throw EXCEPTION(InvalidArgumentException, S("f"), S("Must be of type TiInt or Reference."));
     }
     this->flags = f;
     this->ownership |= SymbolDefinition::Element::FLAGS;
@@ -239,7 +239,7 @@ class SymbolDefinition : public Node,
   public: void setTerm(SharedPtr<Node> const &t)
   {
     if (!t->isDerivedFrom<Term>() && !t->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("t"), STR("Must be of type Term or Reference."));
+      throw EXCEPTION(InvalidArgumentException, S("t"), S("Must be of type Term or Reference."));
     }
     UPDATE_OWNED_SHAREDPTR(this->term, t);
     this->ownership |= SymbolDefinition::Element::TERM;
@@ -267,7 +267,7 @@ class SymbolDefinition : public Node,
   public: void setVarDefs(SharedPtr<Node> const &vd)
   {
     if (vd != 0 && !vd->isA<Map>() && !vd->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("vd"), STR("Must be of type Map or Reference."));
+      throw EXCEPTION(InvalidArgumentException, S("vd"), S("Must be of type Map or Reference."));
     }
     UPDATE_OWNED_SHAREDPTR(this->varDefs, vd);
     this->ownership |= SymbolDefinition::Element::VAR_DEFS;
@@ -295,7 +295,7 @@ class SymbolDefinition : public Node,
   public: void setVars(SharedPtr<Node> const &v)
   {
     if (v != 0 && !v->isA<Map>() && !v->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, STR("v"), STR("Must be of type Map or Reference."));
+      throw EXCEPTION(InvalidArgumentException, S("v"), S("Must be of type Map or Reference."));
     }
     UPDATE_OWNED_SHAREDPTR(this->vars, v);
     this->ownership |= SymbolDefinition::Element::VARS;

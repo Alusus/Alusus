@@ -176,7 +176,7 @@ class Lexer : public TiObject
   // Constructor / Destructor
 
   public: Lexer() :
-    errorBuffer(STR(""), 0),
+    errorBuffer(S(""), 0),
     disabledStateIndex(-1),
     tempByteCharCount(0),
     currentProcessingIndex(0),

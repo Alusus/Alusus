@@ -62,7 +62,7 @@ class CharGroupDefinition : public Node, public virtual Binding, public virtual 
   public: CharGroupDefinition(SharedPtr<CharGroupUnit> const &u) : charGroupUnit(u)
   {
     if (u == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("u"), STR("Argument is null"));
+      throw EXCEPTION(InvalidArgumentException, S("u"), S("Argument is null"));
     }
     u->setOwner(this);
   }
@@ -91,10 +91,10 @@ class CharGroupDefinition : public Node, public virtual Binding, public virtual 
   public: void setCharGroupUnit(SharedPtr<CharGroupUnit> const &u)
   {
     if (u == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("u"), STR("Argument is null."));
+      throw EXCEPTION(InvalidArgumentException, S("u"), S("Argument is null."));
     }
     if (this->charGroupUnit != 0) {
-      throw EXCEPTION(GenericException, STR("Modifying an already set char group unit is not allowed."));
+      throw EXCEPTION(GenericException, S("Modifying an already set char group unit is not allowed."));
     }
     this->charGroupUnit = u;
     this->charGroupUnit->setOwner(this);

@@ -21,7 +21,7 @@ namespace Spp::Ast
 DataType* ReferenceType::getContentType(Helper *helper) const
 {
   if (this->contentTypeRef == 0) {
-    this->contentTypeRef = helper->getRootManager()->parseExpression(STR("type"));
+    this->contentTypeRef = helper->getRootManager()->parseExpression(S("type"));
   }
   auto typeBox = ti_cast<TioWeakBox>(
     helper->getSeeker()->doGet(this->contentTypeRef.get(), this->getOwner())
@@ -29,7 +29,7 @@ DataType* ReferenceType::getContentType(Helper *helper) const
   if (typeBox == 0) return 0;
   auto type = typeBox->get().ti_cast_get<Spp::Ast::DataType>();
   if (type == 0) {
-    throw EXCEPTION(GenericException, STR("Invalid reference content type found."));
+    throw EXCEPTION(GenericException, S("Invalid reference content type found."));
   }
   return type;
 }
@@ -41,14 +41,14 @@ TypeMatchStatus ReferenceType::matchTargetType(Type const *type, Helper *helper,
 
   Type const *thisContentType = this->getContentType(helper);
   if (thisContentType == 0) {
-    throw EXCEPTION(GenericException, STR("Reference type is missing the content type."));
+    throw EXCEPTION(GenericException, S("Reference type is missing the content type."));
   }
 
   auto referenceType = ti_cast<ReferenceType const>(type);
   if (referenceType != 0) {
     Type const *targetContentType = referenceType->getContentType(helper);
     if (targetContentType == 0) {
-      throw EXCEPTION(GenericException, STR("Reference type is missing the content type."));
+      throw EXCEPTION(GenericException, S("Reference type is missing the content type."));
     }
     auto status = thisContentType->matchTargetType(targetContentType, helper, ec);
     if (status == TypeMatchStatus::EXACT) return TypeMatchStatus::EXACT;

@@ -24,18 +24,18 @@ void StringLiteralTokenizingHandler::prepareToken(
   Data::SourceLocationRecord const &sourceLocation
 ) {
   // Precomputed wide characters values.
-  static WChar backSlashChar = getWideCharFromUtf8(STR("\\"));
-  static WChar newLineChar = getWideCharFromUtf8(STR("\n"));
-  static WChar carriageReturnChar = getWideCharFromUtf8(STR("\r"));
-  static WChar tabChar = getWideCharFromUtf8(STR("\t"));
-  static WChar nLetterChar = getWideCharFromUtf8(STR("n"));
-  static WChar rLetterChar = getWideCharFromUtf8(STR("r"));
-  static WChar tLetterChar = getWideCharFromUtf8(STR("t"));
-  static WChar jeemLetterChar = getWideCharFromUtf8(STR("ج"));
-  static WChar raaLetterChar = getWideCharFromUtf8(STR("ر"));
-  static WChar taaLetterChar = getWideCharFromUtf8(STR("ت"));
-  static WChar doubleQuoteChar = getWideCharFromUtf8(STR("\""));
-  static WChar singleQuoteChar = getWideCharFromUtf8(STR("'"));
+  static WChar backSlashChar = getWideCharFromUtf8(S("\\"));
+  static WChar newLineChar = getWideCharFromUtf8(S("\n"));
+  static WChar carriageReturnChar = getWideCharFromUtf8(S("\r"));
+  static WChar tabChar = getWideCharFromUtf8(S("\t"));
+  static WChar nLetterChar = getWideCharFromUtf8(S("n"));
+  static WChar rLetterChar = getWideCharFromUtf8(S("r"));
+  static WChar tLetterChar = getWideCharFromUtf8(S("t"));
+  static WChar jeemLetterChar = getWideCharFromUtf8(S("ج"));
+  static WChar raaLetterChar = getWideCharFromUtf8(S("ر"));
+  static WChar taaLetterChar = getWideCharFromUtf8(S("ت"));
+  static WChar doubleQuoteChar = getWideCharFromUtf8(S("\""));
+  static WChar singleQuoteChar = getWideCharFromUtf8(S("'"));
 
   WChar outerQuoteChar, innerQuoteChar;
   if (outerQuoteType == OuterQuoteType::DOUBLE) {

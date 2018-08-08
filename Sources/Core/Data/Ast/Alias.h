@@ -86,12 +86,12 @@ class Alias : public Node,
 
   public: virtual void print(OutStream &stream, Int indents=0) const
   {
-    stream << STR("Alias");
-    stream << STR(": ");
+    stream << S("Alias");
+    stream << S(": ");
     dumpData(stream, this->reference.get(), indents);
     Word id = this->getProdId();
     if (id != UNKNOWN_ID) {
-      stream << STR(" [") << IdGenerator::getSingleton()->getDesc(id) << STR("]");
+      stream << S(" [") << IdGenerator::getSingleton()->getDesc(id) << S("]");
     }
   }
 

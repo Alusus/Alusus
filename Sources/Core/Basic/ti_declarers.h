@@ -2,7 +2,7 @@
  * @file Core/Basic/ti_declarers.h
  * Contains declaration macros for TI classes and interfaces.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -95,10 +95,10 @@
 #define _GET_TYPE_INFO_BODY(myType, baseType, typeNamespace, moduleName, url) \
   static Core::Basic::ObjectTypeInfo *typeInfo = 0; \
   if (typeInfo == 0) { \
-    Char const* uniqueName = url "/" moduleName "/" typeNamespace "." #myType; \
+    Char const* uniqueName = S(url) S("/") S(moduleName) S("/") S(typeNamespace) S(".") S(#myType); \
     typeInfo = reinterpret_cast<Core::Basic::ObjectTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
     if (typeInfo == 0) { \
-      typeInfo = new Core::Basic::ObjectTypeInfo(#myType, typeNamespace, moduleName, url, \
+      typeInfo = new Core::Basic::ObjectTypeInfo(S(#myType), S(typeNamespace), S(moduleName), S(url), \
       baseType::getTypeInfo(), myType::_getFactory(0)); \
       GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
     } \
@@ -157,11 +157,11 @@
 #define _GET_TYPE_INFO_TEMPLATE_BODY(myType, baseType, typeNamespace, moduleName, url, templateArgs) \
   static Core::Basic::ObjectTypeInfo *typeInfo = 0; \
   if (typeInfo == 0) { \
-    Str typeName = Str(#myType) + "<" + TypeName<COMMA_EXPAND_ARGS templateArgs>::get() + ">"; \
-    Str uniqueName = Str(url "/" moduleName "/" typeNamespace ".") + typeName; \
+    Str typeName = Str(S(#myType)) + S("<") + TypeName<COMMA_EXPAND_ARGS templateArgs>::get() + S(">"); \
+    Str uniqueName = Str(S(url) S("/") S(moduleName) S("/") S(typeNamespace) S(".")) + typeName; \
     typeInfo = reinterpret_cast<Core::Basic::ObjectTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName.c_str())); \
     if (typeInfo == 0) { \
-      typeInfo = new Core::Basic::ObjectTypeInfo(typeName.c_str(), typeNamespace, moduleName, url, \
+      typeInfo = new Core::Basic::ObjectTypeInfo(typeName.c_str(), S(typeNamespace), S(moduleName), S(url), \
                                                  baseType::getTypeInfo(), myType::_getFactory(0)); \
       GLOBAL_STORAGE->setObject(uniqueName.c_str(), reinterpret_cast<void*>(typeInfo)); \
     } \
@@ -204,10 +204,10 @@
     static Core::Basic::InterfaceTypeInfo* getTypeInfo() {   \
       static Core::Basic::InterfaceTypeInfo *typeInfo = 0; \
       if (typeInfo == 0) { \
-        Char const* uniqueName = url "/" moduleName "/" typeNamespace "." #myType; \
+        Char const* uniqueName = S(url) S("/") S(moduleName) S("/") S(typeNamespace) S(".") S(#myType); \
         typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
-          typeInfo = new Core::Basic::InterfaceTypeInfo(#myType, typeNamespace, moduleName, url, \
+          typeInfo = new Core::Basic::InterfaceTypeInfo(S(#myType), S(typeNamespace), S(moduleName), S(url), \
             baseType::getTypeInfo()); \
           GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
         } \
@@ -233,11 +233,11 @@
     static Core::Basic::InterfaceTypeInfo* getTypeInfo() {   \
       static Core::Basic::InterfaceTypeInfo *typeInfo = 0; \
       if (typeInfo == 0) { \
-        Str typeName = Str(#myType) + "<" + TypeName<COMMA_EXPAND_ARGS templateArgs>::get() + ">"; \
-        Str uniqueName = Str(url "/" moduleName "/" typeNamespace ".") + typeName; \
+        Str typeName = Str(S(#myType)) + S("<") + TypeName<COMMA_EXPAND_ARGS templateArgs>::get() + S(">"); \
+        Str uniqueName = Str(S(url) S("/") S(moduleName) S("/") S(typeNamespace) S(".")) + typeName; \
         typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName.c_str())); \
         if (typeInfo == 0) { \
-          typeInfo = new Core::Basic::InterfaceTypeInfo(typeName.c_str(), typeNamespace, moduleName, url, \
+          typeInfo = new Core::Basic::InterfaceTypeInfo(typeName.c_str(), S(typeNamespace), S(moduleName), S(url), \
             baseType::getTypeInfo()); \
           GLOBAL_STORAGE->setObject(uniqueName.c_str(), reinterpret_cast<void*>(typeInfo)); \
         } \
@@ -264,10 +264,10 @@
     static Core::Basic::ObjInterfaceTypeInfo* getTypeInfo() {   \
       static Core::Basic::ObjInterfaceTypeInfo *typeInfo = 0; \
       if (typeInfo == 0) { \
-        Char const* uniqueName = url "#" moduleName "#" typeNamespace "." #myType; \
+        Char const* uniqueName = S(url) S("#") S(moduleName) S("#") S(typeNamespace) S(".") S(#myType); \
         typeInfo = reinterpret_cast<Core::Basic::ObjInterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
-          typeInfo = new Core::Basic::ObjInterfaceTypeInfo(#myType, typeNamespace, moduleName, url, \
+          typeInfo = new Core::Basic::ObjInterfaceTypeInfo(S(#myType), S(typeNamespace), S(moduleName), S(url), \
             baseType::getTypeInfo(), myType::_getFactory(0)); \
           GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
         } \

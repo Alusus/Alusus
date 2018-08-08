@@ -268,7 +268,7 @@ class ParserState
   public: ParserTermLevel& refTopTermLevel()
   {
     if (this->topTermLevelCache == 0) {
-      throw EXCEPTION(GenericException, STR("This state has an empty level stack."));
+      throw EXCEPTION(GenericException, S("This state has an empty level stack."));
     }
     return *(this->topTermLevelCache);
   }
@@ -287,7 +287,7 @@ class ParserState
   {
     // The first level does not belong to any production, so we need at least 2 levels.
     if (this->getTermLevelCount() <= 1) {
-      throw EXCEPTION(GenericException, STR("This state has an empty level stack."));
+      throw EXCEPTION(GenericException, S("This state has an empty level stack."));
     }
     return this->refTermLevel(-this->getTopProdTermLevelCount());
   }
@@ -356,7 +356,7 @@ class ParserState
   public: ParserProdLevel& refTopProdLevel()
   {
     if (this->topProdLevelCache == 0) {
-      throw EXCEPTION(GenericException, STR("This state has an empty stack."));
+      throw EXCEPTION(GenericException, S("This state has an empty stack."));
     }
     return *(this->topProdLevelCache);
   }

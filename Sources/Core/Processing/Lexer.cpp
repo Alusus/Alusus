@@ -23,7 +23,7 @@ void Lexer::initialize(SharedPtr<Data::Ast::Scope> rootScope)
   // Before we can change the token list, we need to make sure we have no outstanding
   // states.
   if (!this->states.empty()) {
-    throw EXCEPTION(GenericException, STR("Token definitions list can't be changed while being in use."));
+    throw EXCEPTION(GenericException, S("Token definitions list can't be changed while being in use."));
   }
 
   // TODO: If we currently have a grammar, we need to unset it first.
@@ -34,14 +34,14 @@ void Lexer::initialize(SharedPtr<Data::Ast::Scope> rootScope)
   // Set the new repository.
   this->grammarRoot = getSharedPtr(Data::Grammar::getGrammarRoot(rootScope.get()));
   if (this->grammarRoot == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("rootScope"), STR("Root scope does not contain a grammar."));
+    throw EXCEPTION(InvalidArgumentException, S("rootScope"), S("Root scope does not contain a grammar."));
   }
 
   // Prepare the context.
   this->grammarContext.setRoot(this->grammarRoot.get());
   Data::Grammar::Module *lexerModule = this->grammarContext.getAssociatedLexerModule();
   if (lexerModule == 0) {
-    throw EXCEPTION(GenericException, STR("Couldn't find a lexer module in the given grammar repository."));
+    throw EXCEPTION(GenericException, S("Couldn't find a lexer module in the given grammar repository."));
   }
   this->grammarContext.setModule(lexerModule);
 
@@ -78,7 +78,7 @@ void Lexer::handleNewChar(Char inputChar, Data::SourceLocationRecord &sourceLoca
     this->tempByteCharCount = 0;
   } else if (this->tempByteCharCount == 4) {
     throw EXCEPTION(GenericException,
-                    STR("Invalid input character sequence. Sequence could not be converted to wide characters."));
+                    S("Invalid input character sequence. Sequence could not be converted to wide characters."));
   }
 }
 
@@ -108,8 +108,8 @@ void Lexer::processBuffer()
     Int r = this->process();
 
     if (r & 1) {
-      LOG(LogLevel::LEXER_MAJOR, STR("Emitting token. ID: ") << ID_GENERATOR->getDesc(this->getLastToken()->getId())
-          << STR(", Text: ") << this->getLastToken()->getText());
+      LOG(LogLevel::LEXER_MAJOR, S("Emitting token. ID: ") << ID_GENERATOR->getDesc(this->getLastToken()->getId())
+          << S(", Text: ") << this->getLastToken()->getText());
       this->tokenGenerated.emit(this->getLastToken());
     }
     if (r & 2) break;
@@ -206,7 +206,7 @@ Int Lexer::process()
 {
   // Make sure the token definition list is defined.
   if (this->grammarContext.getModule() == 0) {
-    throw EXCEPTION(GenericException, STR("Lexer module is not set."));
+    throw EXCEPTION(GenericException, S("Lexer module is not set."));
   }
 
   // Make sure there are characters in the input buffer.
@@ -394,7 +394,7 @@ void Lexer::processStartChar(WChar inputChar)
   // There must not be any state currently in the stack.
   ASSERT(this->states.size() == 0);
 
-  LOG(LogLevel::LEXER_MID, STR("Starting a new token. New char: '") << inputChar << STR("'"));
+  LOG(LogLevel::LEXER_MID, S("Starting a new token. New char: '") << inputChar << S("'"));
 
   for (Word i = 0; i < this->grammarContext.getModule()->getCount(); i++) {
     // Skip non tokens and non-root tokens.
@@ -405,13 +405,13 @@ void Lexer::processStartChar(WChar inputChar)
     if (!((flags == 0 ? 0 : flags->get()) & Data::Grammar::SymbolFlags::ROOT_TOKEN)) continue;
     // Validation.
     if (def->getTerm() == 0) {
-      Str excMsg = STR("Invalid token definition (");
+      Str excMsg = S("Invalid token definition (");
       excMsg += ID_GENERATOR->getDesc(def->getId());
-      excMsg += STR("). The definition formula is not set yet.");
+      excMsg += S("). The definition formula is not set yet.");
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
     if (!(def->getTerm()->isDerivedFrom<Data::Grammar::Term>())) {
-      Str excMsg = STR("Data driven token definitions are not supported by the lexer yet. Token def: ");
+      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
       excMsg += ID_GENERATOR->getDesc(def->getId());
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
@@ -438,7 +438,7 @@ void Lexer::processStartChar(WChar inputChar)
     for (Int i = 0; i < static_cast<Int>(this->states.size()); ++i) {
       Int index = this->states[i].getIndexStack()->at(0);
       Int id = this->getSymbolDefinition(index)->getId();
-      LOG(LogLevel::LEXER_MID, STR("Starting Token: ") << ID_GENERATOR->getDesc(id));
+      LOG(LogLevel::LEXER_MID, S("Starting Token: ") << ID_GENERATOR->getDesc(id));
     }
   #endif
 }
@@ -458,7 +458,7 @@ void Lexer::processNextChar(WChar inputChar)
   // There must be some states currently in the stack.
   ASSERT(this->states.size() != 0);
 
-  LOG(LogLevel::LEXER_MID, STR("Processing new character: '") << inputChar << STR("'"));
+  LOG(LogLevel::LEXER_MID, S("Processing new character: '") << inputChar << S("'"));
 
   // Make sure not to process newly created states by limiting the loop to the
   // current states count.
@@ -505,7 +505,7 @@ void Lexer::processNextChar(WChar inputChar)
     for (Int i = 0; i < static_cast<Int>(this->states.size()); ++i) {
       Int index = this->states[i].getIndexStack()->at(0);
       Int id = this->getSymbolDefinition(index)->getId();
-      LOG(LogLevel::LEXER_MID, STR("Keeping Token: ") << ID_GENERATOR->getDesc(id));
+      LOG(LogLevel::LEXER_MID, S("Keeping Token: ") << ID_GENERATOR->getDesc(id));
     }
   #endif
 }
@@ -539,7 +539,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     Int charIndex;
     Data::Grammar::ConstTerm *constTerm = static_cast<Data::Grammar::ConstTerm*>(currentTerm);
     if (constTerm->getMatchString().size() == 0) {
-      throw EXCEPTION(GenericException, STR("Const term match string is not set yet."));
+      throw EXCEPTION(GenericException, S("Const term match string is not set yet."));
     }
     // this type of terms is always the deepest level.
     ASSERT(currentLevel >= static_cast<Int>(this->tempState.getIndexStack()->size())-1);
@@ -584,7 +584,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     Data::Grammar::CharGroupDefinition *def;
     Data::Grammar::Reference *ref = charGroupTerm->getCharGroupReference().get();
     if (ref == 0) {
-      Str excMsg = STR("Reference is null for CharGroupTerm at token definition: ");
+      Str excMsg = S("Reference is null for CharGroupTerm at token definition: ");
       excMsg += ID_GENERATOR->getDesc(
         this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
       );
@@ -592,9 +592,9 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     }
     this->grammarContext.getReferencedCharGroup(ref, def);
     if (def->getCharGroupUnit() == 0) {
-      Str excMsg = STR("Invalid character group (");
+      Str excMsg = S("Invalid character group (");
       excMsg += ID_GENERATOR->getDesc(def->getId());
-      excMsg += STR("). The definition formula is not set yet.");
+      excMsg += S("). The definition formula is not set yet.");
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
     if (Data::Grammar::matchCharGroup(inputChar, def->getCharGroupUnit().get())) {
@@ -625,7 +625,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     Int iterationIndex = 0;
     Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(currentTerm);
     if (multiplyTerm->getTerm().ti_cast_get<Data::Grammar::Term>() == 0) {
-      Str excMsg = STR("Multiply term with null or invalid child is found at definition: ");
+      Str excMsg = S("Multiply term with null or invalid child is found at definition: ");
       excMsg += ID_GENERATOR->getDesc(
         this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
       );
@@ -775,7 +775,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     Int termIndex;
     Data::Grammar::AlternateTerm *alternateTerm = static_cast<Data::Grammar::AlternateTerm*>(currentTerm);
     if (alternateTerm->isDynamic()) {
-      Str excMsg = STR("Data driven token definitions are not supported by the lexer yet. Token def: ");
+      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
       excMsg += ID_GENERATOR->getDesc(
         this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
       );
@@ -783,7 +783,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     }
     auto alternateList = alternateTerm->getTerms().s_cast_get<Data::Grammar::List>();
     if (alternateList->getCount() < 2) {
-      Str excMsg = STR("Alternative term doesn't have enough branches yet (less than two). Token def: ");
+      Str excMsg = S("Alternative term doesn't have enough branches yet (less than two). Token def: ");
       excMsg += ID_GENERATOR->getDesc(
         this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
       );
@@ -799,7 +799,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
       for (Int i = 0; i < alternateList->getCount(); ++i) {
         Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(alternateList->getElement(i));
         if (term == 0) {
-          Str excMsg = STR("Null term found in an alternate branch. Token def: ");
+          Str excMsg = S("Null term found in an alternate branch. Token def: ");
           excMsg += ID_GENERATOR->getDesc(
             this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
           );
@@ -867,7 +867,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     Int termIndex;
     Data::Grammar::ConcatTerm *concatTerm = static_cast<Data::Grammar::ConcatTerm*>(currentTerm);
     if (concatTerm->isDynamic()) {
-      Str excMsg = STR("Data driven token definitions are not supported by the lexer yet. Token def: ");
+      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
       excMsg += ID_GENERATOR->getDesc(
         this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
       );
@@ -875,7 +875,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     }
     auto concatList = concatTerm->getTerms().s_cast_get<Data::Grammar::List>();
     if (concatList->getCount() == 0) {
-      Str excMsg = STR("Concat term's child terms aren't set yet. Token def: ");
+      Str excMsg = S("Concat term's child terms aren't set yet. Token def: ");
       excMsg += ID_GENERATOR->getDesc(
         this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
       );
@@ -891,7 +891,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     // get the next term object
     Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
     if (term == 0) {
-      Str excMsg = STR("Concat term's child term is null. Token def: ");
+      Str excMsg = S("Concat term's child term is null. Token def: ");
       excMsg += ID_GENERATOR->getDesc(
         this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
       );
@@ -928,7 +928,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
             this->tempState.getIndexStack()->at(currentLevel) = termIndex;
             term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
             if (term == 0) {
-              Str excMsg = STR("Concat term's child term is null. Token def: ");
+              Str excMsg = S("Concat term's child term is null. Token def: ");
               excMsg += ID_GENERATOR->getDesc(
                 this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
               );
@@ -951,7 +951,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     Data::Grammar::Module *retModule;
     Data::Grammar::Reference *ref = referenceTerm->getReference().get();
     if (ref == 0) {
-      Str excMsg = STR("Reference is null for ReferenceTerm at token definition: ");
+      Str excMsg = S("Reference is null for ReferenceTerm at token definition: ");
       excMsg += ID_GENERATOR->getDesc(
         this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
       );
@@ -959,30 +959,30 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
     }
     this->grammarContext.getReferencedSymbol(ref, retModule, def);
     if (retModule != this->grammarContext.getModule()) {
-      Str excMsg = STR("Lexer doesn't yet support referencing terms in a different module. Token definition: ");
+      Str excMsg = S("Lexer doesn't yet support referencing terms in a different module. Token definition: ");
       excMsg += ID_GENERATOR->getDesc(
         this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
     if (def->getTerm() == 0) {
-      Str excMsg = STR("Invalid referenced token definition. (");
+      Str excMsg = S("Invalid referenced token definition. (");
       excMsg += ID_GENERATOR->getDesc(def->getId());
-      excMsg += STR("). The definition formula is not set yet.");
+      excMsg += S("). The definition formula is not set yet.");
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
     if (!(def->getTerm()->isDerivedFrom<Data::Grammar::Term>())) {
-      Str excMsg = STR("Data driven token definitions are not supported by the lexer yet. Token def: ");
+      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
       excMsg += ID_GENERATOR->getDesc(def->getId());
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
     return this->processTempState(inputChar, def->getTerm().s_cast_get<Data::Grammar::Term>(), currentLevel);
   } else {
-    Str excMsg = STR("Invalid token type found. Token definition: ");
+    Str excMsg = S("Invalid token type found. Token definition: ");
     excMsg += ID_GENERATOR->getDesc(
       this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
     );
-    excMsg += STR(". Object type: ");
+    excMsg += S(". Object type: ");
     excMsg += currentTerm->getMyTypeInfo()->getTypeName();
     throw EXCEPTION(GenericException, excMsg.c_str());
   }
@@ -1098,7 +1098,7 @@ Int Lexer::createState()
     r = this->states.size();
     // Limit the size of the array to a maximum value.
     if (r >= LEXER_STATES_ARRAY_MAX_SIZE) {
-      throw EXCEPTION(GenericException, STR("States array maximum size exceeded."));
+      throw EXCEPTION(GenericException, S("States array maximum size exceeded."));
     }
     // Create the new state.
     this->states.push_back(this->tempState);

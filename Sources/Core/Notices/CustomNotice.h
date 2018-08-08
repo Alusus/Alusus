@@ -39,7 +39,7 @@ class CustomNotice : public Notice
   // Constructor / Destructor
 
   public: CustomNotice(Char const *msg, SharedPtr<Data::SourceLocation> const &sl, Char const *p=0) :
-    Notice(sl), msg(msg), code(STR("G1002")), severity(1)
+    Notice(sl), msg(msg), code(S("G1002")), severity(1)
   {
     if (p) this->param = p;
   }
@@ -76,7 +76,7 @@ class CustomNotice : public Notice
   {
     str = L18nDictionary::getSingleton()->get(this->getCode().c_str(), this->msg.c_str());
     if (this->param.size() > 0) {
-      str += STR(": ");
+      str += S(": ");
       str += param;
     }
   }

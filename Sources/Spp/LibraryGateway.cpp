@@ -89,66 +89,66 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   SharedPtr<Ast::Template> tmplt;
 
   // Void
-  identifier.setValue(STR("Void"));
+  identifier.setValue(S("Void"));
   manager->getSeeker()->doSet(&identifier, root, Ast::VoidType::create().get());
 
   // Null
-  identifier.setValue(STR("Null"));
+  identifier.setValue(S("Null"));
   manager->getSeeker()->doSet(
     &identifier, root,
     Ast::IntegerType::create({
-      { STR("withSign"), TiBool(false) },
-      { STR("nullLiteral"), TiBool(true) }
+      { S("withSign"), TiBool(false) },
+      { S("nullLiteral"), TiBool(true) }
     }).get()
   );
 
   // Int
-  auto defaultIntBitCount = Core::Data::Ast::IntegerLiteral::create({{ STR("value"), TiStr(STR("32")) }});
+  auto defaultIntBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER, defaultIntBitCount }});
-  tmplt->setTemplateBody(Ast::IntegerType::create({ { STR("withSign"), TiBool(true) } }));
-  identifier.setValue(STR("Int"));
+  tmplt->setVarDefs({{ S("bitCount"), Ast::Template::VarType::INTEGER, defaultIntBitCount }});
+  tmplt->setTemplateBody(Ast::IntegerType::create({ { S("withSign"), TiBool(true) } }));
+  identifier.setValue(S("Int"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // Word
-  auto defaultWordBitCount = Core::Data::Ast::IntegerLiteral::create({{ STR("value"), TiStr(STR("32")) }});
+  auto defaultWordBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER, defaultWordBitCount }});
-  tmplt->setTemplateBody(Ast::IntegerType::create({ { STR("withSign"), TiBool(false) } }));
-  identifier.setValue(STR("Word"));
+  tmplt->setVarDefs({{ S("bitCount"), Ast::Template::VarType::INTEGER, defaultWordBitCount }});
+  tmplt->setTemplateBody(Ast::IntegerType::create({ { S("withSign"), TiBool(false) } }));
+  identifier.setValue(S("Word"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // Float
-  auto defaultFloatBitCount = Core::Data::Ast::IntegerLiteral::create({{ STR("value"), TiStr(STR("32")) }});
+  auto defaultFloatBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ STR("bitCount"), Ast::Template::VarType::INTEGER, defaultFloatBitCount }});
+  tmplt->setVarDefs({{ S("bitCount"), Ast::Template::VarType::INTEGER, defaultFloatBitCount }});
   tmplt->setTemplateBody(Ast::FloatType::create());
-  identifier.setValue(STR("Float"));
+  identifier.setValue(S("Float"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // ptr
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ STR("type"), Ast::Template::VarType::TYPE }});
+  tmplt->setVarDefs({{ S("type"), Ast::Template::VarType::TYPE }});
   tmplt->setTemplateBody(Ast::PointerType::create());
-  identifier.setValue(STR("ptr"));
+  identifier.setValue(S("ptr"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // ref
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ STR("type"), Ast::Template::VarType::TYPE }});
+  tmplt->setVarDefs({{ S("type"), Ast::Template::VarType::TYPE }});
   tmplt->setTemplateBody(Ast::ReferenceType::create());
-  identifier.setValue(STR("ref"));
+  identifier.setValue(S("ref"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // array
-  auto defaultArraySize = Core::Data::Ast::IntegerLiteral::create({{ STR("value"), TiStr(STR("1")) }});
+  auto defaultArraySize = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }});
   tmplt = Ast::Template::create();
   tmplt->setVarDefs({
-    { STR("type"), Ast::Template::VarType::TYPE },
-    { STR("size"), Ast::Template::VarType::INTEGER, defaultArraySize }
+    { S("type"), Ast::Template::VarType::TYPE },
+    { S("size"), Ast::Template::VarType::INTEGER, defaultArraySize }
   });
   tmplt->setTemplateBody(Ast::ArrayType::create());
-  identifier.setValue(STR("array"));
+  identifier.setValue(S("array"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 }
 
@@ -158,28 +158,28 @@ void LibraryGateway::removeBuiltInTypes(Core::Main::RootManager *manager)
   Core::Data::Ast::Identifier identifier;
   auto root = manager->getRootScope().get();
 
-  identifier.setValue(STR("Void"));
+  identifier.setValue(S("Void"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
-  identifier.setValue(STR("Null"));
+  identifier.setValue(S("Null"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
-  identifier.setValue(STR("Int"));
+  identifier.setValue(S("Int"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
-  identifier.setValue(STR("Word"));
+  identifier.setValue(S("Word"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
-  identifier.setValue(STR("Float"));
+  identifier.setValue(S("Float"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
-  identifier.setValue(STR("ptr"));
+  identifier.setValue(S("ptr"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
-  identifier.setValue(STR("ref"));
+  identifier.setValue(S("ref"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
-  identifier.setValue(STR("array"));
+  identifier.setValue(S("array"));
   manager->getSeeker()->tryRemove(&identifier, root);
 }
 

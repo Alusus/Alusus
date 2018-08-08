@@ -61,7 +61,7 @@ template <class TYPE> class PrefixParsingHandler : public GenericParsingHandler
   {
     auto token = currentData.ti_cast_get<Data::Ast::Token>();
     if (token == 0) {
-      throw EXCEPTION(InvalidArgumentException, STR("currentData"), STR("Invalid op token object received."),
+      throw EXCEPTION(InvalidArgumentException, S("currentData"), S("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());
     }
 

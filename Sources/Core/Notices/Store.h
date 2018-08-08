@@ -71,7 +71,7 @@ class Store
   public: SharedPtr<Notice> const& get(Int i) const
   {
     if (static_cast<Word>(i) >= this->notices.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("i"), STR("Index out of range."), i);
+      throw EXCEPTION(InvalidArgumentException, S("i"), S("Index out of range."), i);
     }
     return this->notices[i];
   }
@@ -80,8 +80,8 @@ class Store
   public: void flush(Word count)
   {
     if (count <= 0 || static_cast<Word>(count) > this->notices.size()) {
-      throw EXCEPTION(InvalidArgumentException, STR("count"),
-                      STR("Count is less than 0, or exceeds the total number of notices."), count);
+      throw EXCEPTION(InvalidArgumentException, S("count"),
+                      S("Count is less than 0, or exceeds the total number of notices."), count);
     }
     this->notices.erase(this->notices.begin(), this->notices.begin()+count);
   }
