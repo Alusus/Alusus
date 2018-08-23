@@ -1,7 +1,9 @@
-import "common.alusus";
+import "srt.alusus";
 
-def TemperatureTable1: module {
-  def start: function () {
+def TemperatureTable1: module
+{
+  def start: function ()
+  {
     def fahr : Int;
     def celsius : Int;
     def lower : Int;
@@ -14,7 +16,7 @@ def TemperatureTable1: module {
     fahr = lower;
     while fahr <= upper {
       celsius = 5 * (fahr - 32) / 9;
-      Srt.print("%d\t%d\n", fahr, celsius);
+      Srt.Console.print("%d\t%d\n", fahr, celsius);
       fahr = fahr + step;
     }
   }

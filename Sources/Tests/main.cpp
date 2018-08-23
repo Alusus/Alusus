@@ -252,7 +252,7 @@ Bool runEndToEndTests(Str const &dirPath)
       if (isDirectory(filePath.c_str()) && fileName != "." && fileName != "..") {
         if (!runEndToEndTests(filePath)) ret = false;
       } else if (
-        fileName.compare("common.alusus") != 0 && fileName.find("ignore.alusus") == std::string::npos &&
+        fileName.compare("srt.alusus") != 0 && fileName.find("ignore.alusus") == std::string::npos &&
         (compareStringEnd(fileName, ".alusus") || compareStringEnd(fileName, ".أسس"))
       ) {
         if (!runAndCheckSourceFile(filePath)) ret = false;

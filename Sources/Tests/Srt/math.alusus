@@ -1,0 +1,119 @@
+import "srt.alusus";
+
+def Main: module
+{
+  def start: function () => Void
+  {
+    Srt.Console.print(Srt.Math.abs(-10i32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.abs(-10i64)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.abs(-10.0f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.abs(-10.0f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.mod(11.3f32, 3.0f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.mod(11.3f64, 3.0f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.exp(11.3f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.exp(11.3f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.exp2(11.3f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.exp2(11.3f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.log(11.3f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.log(11.3f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.log2(11.3f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.log2(11.3f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.log10(11.3f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.log10(11.3f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.sqrt(9.0f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.sqrt(9.0f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.cbrt(8.0f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.cbrt(8.0f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.pow(2.0f32, 3.0f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.pow(2.0f64, 3.0f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.sin(1.57f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.sin(1.57f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.asin(1f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.asin(1f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.sinh(1.57f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.sinh(1.57f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.asinh(2.299f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.asinh(2.299f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.cos(1.57f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.cos(1.57f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.acos(0f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.acos(0f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.cosh(1.57f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.cosh(1.57f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.acosh(2.5f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.acosh(2.5f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.tan(1.57f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.tan(1.57f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.atan(1255f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.atan(1255f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.atan2(2f32, 3f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.atan2(2f64, 3f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.tanh(1f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.tanh(1f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.atanh(0.76f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.atanh(0.76f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.ceil(1.76f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.ceil(1.76f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.floor(1.76f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.floor(1.76f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Console.print(Srt.Math.round(1.76f32)); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.round(1.76f64)); Srt.Console.putChar('\n');
+    Srt.Console.putChar('\n');
+
+    Srt.Math.seedRandom(1000000);
+    Srt.Console.print(Srt.Math.random()); Srt.Console.putChar('\n');
+    Srt.Console.print(Srt.Math.random()); Srt.Console.putChar('\n');
+  }
+};
+
+run Main.start;

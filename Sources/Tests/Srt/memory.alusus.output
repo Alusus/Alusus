@@ -1,10 +1,50 @@
+Testing alloc:
 Element 0: 0
-Element 1: 1
+Element 1: 2
 Element 2: 4
+Element 3: 6
+Element 4: 8
+Element 5: 10
+Element 6: 12
+Element 7: 14
+Element 8: 16
+Element 9: 18
+
+Testing realloc:
+Element 0: 0
+Element 1: 2
+Element 2: 4
+Element 3: 6
+Element 4: 8
+Element 5: 10
+Element 6: 12
+Element 7: 14
+Element 8: 16
+Element 9: 18
+Element 10: 20
+Element 11: 22
+Element 12: 24
+Element 13: 26
+Element 14: 28
+Element 15: 30
+Element 16: 32
+Element 17: 34
+Element 18: 36
+Element 19: 38
+
+Testing allocAligned:
+Element 0: 0
+Element 1: 3
+Element 2: 6
 Element 3: 9
-Element 4: 16
-Element 5: 25
-Element 6: 36
-Element 7: 49
-Element 8: 64
-Element 9: 81
+Element 4: 12
+Element 5: 15
+Element 6: 18
+Element 7: 21
+Element 8: 24
+Element 9: 27
+
+Testing set, copy, and compare:
+compare array to zeros: 2
+compare zeros to array: -2
+comparing equal arrays: 0

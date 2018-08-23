@@ -1,7 +1,9 @@
-import "common.alusus";
+import "srt.alusus";
 
-def ArraysFibonacci : module {
-  def start : function() {
+def ArraysFibonacci : module
+{
+  def start : function()
+  {
     def i : Int;
 
     // Generates an array whose elements contains Fibonacci sequence.
@@ -15,7 +17,7 @@ def ArraysFibonacci : module {
 
     // Prints the elements of the array.
     for i = 0, i < 10, ++i {
-      Srt.print("%d\n", testArray(i));
+      Srt.Console.print("%d\n", testArray(i));
     };
   }
 };

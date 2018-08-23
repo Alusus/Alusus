@@ -1,7 +1,9 @@
-import "common.alusus";
+import "srt.alusus";
 
-def FactorialForLoop: module {
-  def factorial: function (i:Int) => Int {
+def FactorialForLoop: module
+{
+  def factorial: function (i:Int) => Int
+  {
     if i<=0 return 1;
     def f: Int;
     f = i;
@@ -9,8 +11,9 @@ def FactorialForLoop: module {
     return f;
   };
 
-  def start: function () {
-    Srt.print("Factorial of 5 is %d\n", factorial(5));
+  def start: function ()
+  {
+    Srt.Console.print("Factorial of 5 is %d\n", factorial(5));
   };
 };
 

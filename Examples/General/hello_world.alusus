@@ -1,8 +1,10 @@
-import "common.alusus";
+import "srt.alusus";
 
-def HelloWorld: module {
-  def start: function () {
-    Srt.print("Hello World!\n");
+def HelloWorld: module
+{
+  def start: function ()
+  {
+    Srt.Console.print("Hello World!\n");
   };
 };
 

@@ -1,13 +1,16 @@
-import "common.alusus";
+import "srt.alusus";
 
-def FactorialRecursive: module {
-  def factorial : function (i:Int) => Int {
+def FactorialRecursive: module
+{
+  def factorial : function (i:Int) => Int
+  {
     if i<=0 return 1;
     return i*factorial(i-1);
   };
 
-  def start: function () {
-    Srt.print("Factorial of 5 is %d\n", factorial(5));
+  def start: function ()
+  {
+    Srt.Console.print("Factorial of 5 is %d\n", factorial(5));
   }
 };
 

@@ -1,10 +1,12 @@
-import "common.alusus";
+import "srt.alusus";
 
-def TemperatureTable2 : module {
-  def start: function() {
+def TemperatureTable2 : module
+{
+  def start: function()
+  {
     def fahr : Int;
     for fahr = 0, fahr <= 300, fahr = fahr + 20 {
-      Srt.print("%3d %6.1f\n", fahr, (5f64 / 9.0) * (fahr~cast[Float] - 32.0));
+      Srt.Console.print("%3d %6.1f\n", fahr, (5f64 / 9.0) * (fahr~cast[Float] - 32.0));
     };
   }
 };

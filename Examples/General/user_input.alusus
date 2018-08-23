@@ -1,15 +1,29 @@
-import "common.alusus";
+import "srt.alusus";
 
-def UserInput: module {
-  def start: function() {
+def UserInput: module
+{
+  def start: function()
+  {
     def eof: Int;
     eof = -1;
 
-    def c : Int;
-    c = Srt.getChar();
+    Srt.Console.print("Enter some chars then press CTRL+D: ");
+    def c: Int;
+    c = Srt.Console.getChar();
     while c != eof {
-      Srt.putChar(c);
-      c = Srt.getChar();
+      Srt.Console.putChar(c);
+      c = Srt.Console.getChar();
+    };
+
+    def f: Float;
+    Srt.Console.print("Enter a float: ");
+    f = Srt.Console.getFloat();
+    Srt.Console.print("Enter duplications: ");
+    c = Srt.Console.getInt();
+    while c > 0 {
+      Srt.Console.print(f);
+      Srt.Console.putChar('\n');
+      --c;
     };
   }
 };

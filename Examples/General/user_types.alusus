@@ -1,6 +1,7 @@
-import "common.alusus";
+import "srt.alusus";
 
-def UserTypes: module {
+def UserTypes: module
+{
   def Point: type
   {
     def x: Int;
@@ -12,7 +13,7 @@ def UserTypes: module {
     def p : Point;
     p.x = 10;
     p.y = 5;
-    Srt.print("x = %d, y = %d\n", p.x, p.y);
+    Srt.Console.print("x = %d, y = %d\n", p.x, p.y);
   }
 };
 

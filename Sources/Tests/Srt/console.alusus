@@ -1,0 +1,25 @@
+import "srt.alusus";
+
+def Main: module
+{
+  def start: function () => Void
+  {
+    Srt.Console.print("Hello World!!\n");
+
+    def str: ptr[array[Char]];
+    str = "abcdefgh";
+    def i: Int;
+    for i = 0, i < 8, ++i {
+      Srt.Console.putChar(str~cnt(i));
+    };
+    Srt.Console.putChar('\n');
+    Srt.Console.print(416);
+    Srt.Console.putChar('\n');
+    Srt.Console.print(23.67);
+    Srt.Console.putChar('\n');
+    Srt.Console.print(23.67, 3);
+    Srt.Console.putChar('\n');
+  };
+};
+
+run Main.start;

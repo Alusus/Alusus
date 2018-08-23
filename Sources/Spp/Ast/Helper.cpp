@@ -657,7 +657,10 @@ Word Helper::_getNeededIntSize(TiObject *self, LongInt value)
       value >>= 1;
       bitCount += 8;
     }
-    return bitCount;
+    if (bitCount <= 16) return bitCount;
+    else if (bitCount <= 32) return 32;
+    else if (bitCount <= 64) return 64;
+    else return 128;
   }
 }
 
@@ -672,7 +675,10 @@ Word Helper::_getNeededWordSize(TiObject *self, LongWord value)
       if (value == 0) break;
       bitCount += 8;
     }
-    return bitCount;
+    if (bitCount <= 16) return bitCount;
+    else if (bitCount <= 32) return 32;
+    else if (bitCount <= 64) return 64;
+    else return 128;
   }
 }
 
