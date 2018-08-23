@@ -52,9 +52,6 @@ llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES core jit native)
 # Finally, we link Alusus libraries to our UnitTests project.
 target_link_libraries(AlususTests AlususCoreLib AlususStorage "dl")
 
-# Copy test files to the Examples directory.
-install(DIRECTORY "./" DESTINATION "Examples/Automated_Test_Samples" FILES_MATCHING PATTERN "*.alusus" PATTERN "*.أسس")
-
 add_test(NAME AlususTests
   COMMAND AlususTests
   WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
