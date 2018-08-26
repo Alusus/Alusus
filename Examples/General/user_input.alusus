@@ -25,6 +25,18 @@ def UserInput: module
       Srt.Console.putChar('\n');
       --c;
     };
+
+    Srt.Console.getChar(); // remove the \n from the input buffer.
+    Srt.Console.print("Enter string to duplicate: ");
+    def s: array[Char, 100];
+    Srt.Console.getString(s~ptr, 100);
+    Srt.Console.print("Enter duplications: ");
+    c = Srt.Console.getInt();
+    while c > 0 {
+      Srt.Console.print(s~ptr);
+      Srt.Console.putChar('\n');
+      --c;
+    };
   }
 };
 

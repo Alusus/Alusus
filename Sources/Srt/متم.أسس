@@ -50,6 +50,7 @@
     عرّف افحص: لقب Srt.Console.scan؛
     عرّف أدخل_صحيح: لقب Srt.Console.getInt؛
     عرّف أدخل_عائم: لقب Srt.Console.getFloat؛
+    عرّف أدخل_محارف: لقب Srt.Console.getString؛
   }؛
 
   عرّف ـرياضيات: حزمة

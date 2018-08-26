@@ -75,7 +75,22 @@ def Srt : module
       i = 0;
       scan("%f", i~ptr);
       return i;
-    }
+    };
+    def getString: function (str: ptr[array[Char]], count: Word) => Void
+    {
+      def i: Word;
+      def c: Char;
+      i = 0;
+      c = 0;
+      while c != '\n' {
+        c = getChar();
+        if c != '\n' && i < count - 1 {
+          str~cnt(i) = c;
+          ++i;
+        };
+      };
+      str~cnt(i) = 0;
+    };
   };
 
   def Math: module
