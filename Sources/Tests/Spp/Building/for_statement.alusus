@@ -8,12 +8,19 @@ def Main: module
   {
     def i: Int[32];
     def j: Int[32];
+    def k: Int[32];
 
     for i = 0, i < 10, ++i print("%d\n", i);
 
     for (i = 0, j = 0), i < 5, (++i, j *= 2) {
+      def k: Int[32];
       print("%d: ", i);
       print("%d\n", j);
+
+      for k = 0, k < 5, ++k {
+        def k: Int;
+        k = 1;
+      }
     };
 
     for i = 0, i, ++i print("%d\n", i);

@@ -10,6 +10,7 @@ declare i64 @printf(i8*, ...)
 define void @Main_start_____Void_() {
 __block0:
   %i = alloca i32
+  %j = alloca i32
   store i32 10, i32* %i
   br label %__block1
 
@@ -24,6 +25,7 @@ __block2:                                         ; preds = %__block1
   br label %__block1
 
 __block3:                                         ; preds = %__block1
+  %j1 = alloca i32
   br label %__block4
 
 __block4:                                         ; preds = %__block5, %__block3

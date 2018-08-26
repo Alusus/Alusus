@@ -7,13 +7,15 @@ def Main: module
   def start: function () => Void
   {
     def i: Int[32];
+    def j: Int;
     i = 10;
 
     while i > 0 print("while-statement: %d\n", i);
 
     while i > 0 {
       print("while-block: %d\n", i);
-      i = i - 1
+      i = i - 1;
+      def j: Int;
     };
   };
 };

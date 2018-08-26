@@ -100,6 +100,23 @@ __block17:                                        ; preds = %__block15
   br label %__block18
 
 __block18:                                        ; preds = %__block17, %__block16
+  %j = alloca i32
+  %6 = load i1* %i1
+  %j2 = alloca i32
+  %i3 = alloca i32
+  %j4 = alloca i32
+  %i5 = alloca i32
+  br i1 %6, label %__block19, label %__block20
+
+__block19:                                        ; preds = %__block18
+  store i32 2, i32* %i3
+  br label %__block21
+
+__block20:                                        ; preds = %__block18
+  store i32 3, i32* %i5
+  br label %__block21
+
+__block21:                                        ; preds = %__block20, %__block19
   ret void
 }
 ------------------------------------------------------------

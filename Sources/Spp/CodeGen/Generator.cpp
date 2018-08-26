@@ -312,6 +312,15 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
       } else {
         // Generate a local variable.
+
+        // To avoid stack overflows we need to allocate at the function level rather than any inner block.
+        while (astBlock != 0 && ti_cast<Ast::Function>(astBlock->getOwner()) == 0) {
+          astBlock = Core::Data::findOwner<Ast::Block>(astBlock->getOwner());
+        }
+        if (astBlock == 0) {
+          throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
+        }
+
         // At this point we should already have a TG context.
         auto tgContext = getCodeGenData<TiObject>(astBlock);
 

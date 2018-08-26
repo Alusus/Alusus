@@ -32,6 +32,17 @@ def Main: module
 
     if i { print("if-block/else-block") }
     else { print("else-block") };
+
+    def j: Int;
+    if i {
+      def j: Int;
+      def i: Int;
+      i = 2;
+    } else {
+      def j: Int;
+      def i: Int;
+      i = 3;
+    };
   };
 };
 
