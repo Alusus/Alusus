@@ -38,7 +38,8 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
 
     if (this->execute) {
       // Execute the code if build was successful.
-      if (result) {
+      auto minSeverity = state->getNoticeStore()->getMinEncounteredSeverity();
+      if (result && (minSeverity == -1 || minSeverity > 1)) {
         // Find the entry ref.
         auto container = ti_cast<Containing<TiObject>>(data);
         ASSERT(container != 0);
@@ -68,6 +69,10 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
           auto funcName = this->astHelper->getFunctionName(entryFunction).c_str();
           this->targetGenerator->execute(funcName);
         }
+      } else {
+        state->addNotice(
+          std::make_shared<Spp::Notices::ExecutionAbortedNotice>(metadata->findSourceLocation())
+        );
       }
     } else {
       // Dump the IR code.

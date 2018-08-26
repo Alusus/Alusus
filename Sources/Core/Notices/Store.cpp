@@ -33,6 +33,9 @@ void Store::add(SharedPtr<Notice> const &notice)
     notice->setSourceLocation(this->prefixSourceLocationStack.get(0));
   }
   this->notices.push_back(notice);
+  if (this->minEncounteredSeverity == -1 || notice->getSeverity() < this->minEncounteredSeverity) {
+    this->minEncounteredSeverity = notice->getSeverity();
+  }
 }
 
 

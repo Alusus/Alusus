@@ -33,6 +33,8 @@ class Store
   /// Count of notices in the trunk shared by this store.
   private: Word trunkSharedCount = 0;
 
+  private: Int minEncounteredSeverity = -1;
+
 
   //============================================================================
   // Constructor / Destructor
@@ -84,6 +86,12 @@ class Store
                       S("Count is less than 0, or exceeds the total number of notices."), count);
     }
     this->notices.erase(this->notices.begin(), this->notices.begin()+count);
+  }
+
+  // Get the minimum severity (most severe) that has been encountered so far.
+  public: Int getMinEncounteredSeverity() const
+  {
+    return this->minEncounteredSeverity;
   }
 
   /// @}

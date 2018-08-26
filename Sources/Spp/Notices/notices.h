@@ -159,6 +159,9 @@ DEFINE_NOTICE(CircularUserTypeDefinitionsNotice, "Spp.Notices", "Spp", "alusus.n
 DEFINE_NOTICE(IncompatibleOperatorTypesNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1015", 1,
   "Incompatible types for the given operator."
 );
+DEFINE_NOTICE(ExecutionAbortedNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1016", 1,
+  "Execution aborted due to previous errors."
+);
 
 } // namespace
 
