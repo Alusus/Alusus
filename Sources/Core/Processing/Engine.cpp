@@ -37,7 +37,7 @@ SharedPtr<TiObject> Engine::processString(Char const *str, Char const *name)
     throw EXCEPTION(InvalidArgumentException, S("str"), S("Cannot be null."), str);
   }
 
-  parser.beginParsing();
+  this->parser.beginParsing();
 
   // Start passing characters to the lexer.
 
@@ -48,7 +48,7 @@ SharedPtr<TiObject> Engine::processString(Char const *str, Char const *name)
   lexer.handleNewString(str, sourceLocation);
   lexer.handleNewChar(FILE_TERMINATOR, sourceLocation);
 
-  return parser.endParsing();
+  return this->parser.endParsing();
 }
 
 

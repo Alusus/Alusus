@@ -39,12 +39,23 @@ class RootManager : public TiObject
 
   private: Data::Seeker seeker;
 
+  private: Int minNoticeSeverityEncountered = -1;
+
 
   //============================================================================
   // Signals
 
   /// Emitted when a build msg (error or warning) is generated.
   public: SignalRelay<void, SharedPtr<Notices::Notice> const&> noticeSignal;
+
+  private: Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot = {
+    [=](SharedPtr<Notices::Notice> const &notice)->void
+    {
+      if (this->minNoticeSeverityEncountered == -1 || notice->getSeverity() < this->minNoticeSeverityEncountered) {
+        this->minNoticeSeverityEncountered = notice->getSeverity();
+      }
+    }
+  };
 
 
   //============================================================================
@@ -94,6 +105,11 @@ class RootManager : public TiObject
   public: virtual void popSearchPath(Char const *path);
 
   public: virtual Str findAbsolutePath(Char const *filename);
+
+  public: Int getMinNoticeSeverityEncountered() const
+  {
+    return this->minNoticeSeverityEncountered;
+  }
 
 }; // class
 

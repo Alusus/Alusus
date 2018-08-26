@@ -38,8 +38,9 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
 
     if (this->execute) {
       // Execute the code if build was successful.
-      auto minSeverity = state->getNoticeStore()->getMinEncounteredSeverity();
-      if (result && (minSeverity == -1 || minSeverity > 1)) {
+      auto minSeverity = this->rootManager->getMinNoticeSeverityEncountered();
+      auto thisMinSeverity = state->getNoticeStore()->getMinEncounteredSeverity();
+      if (result && (minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
         // Find the entry ref.
         auto container = ti_cast<Containing<TiObject>>(data);
         ASSERT(container != 0);
