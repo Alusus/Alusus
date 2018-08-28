@@ -61,8 +61,12 @@ namespace Core { namespace Basic
 #define _IMPLEMENT_MAP_CONTAINING_KEYSET5(parent, var1, var2, var3, var4, var5) \
   _IMPLEMENT_MAP_CONTAINING_KEYSET4(parent, var1, var2, var3, var4) \
   _IMPLEMENT_MAP_CONTAINING_KEYSET_CASE(parent, 4, VARNAMESTR_FROM_TUPLE var5, var5)
+#define _IMPLEMENT_MAP_CONTAINING_KEYSET6(parent, var1, var2, var3, var4, var5, var6) \
+  _IMPLEMENT_MAP_CONTAINING_KEYSET5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_MAP_CONTAINING_KEYSET_CASE(parent, 5, VARNAMESTR_FROM_TUPLE var6, var6)
 #define _IMPLEMENT_MAP_CONTAINING_KEYSET(parent, ...) \
-  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               _IMPLEMENT_MAP_CONTAINING_KEYSET6, \
                _IMPLEMENT_MAP_CONTAINING_KEYSET5, \
                _IMPLEMENT_MAP_CONTAINING_KEYSET4, \
                _IMPLEMENT_MAP_CONTAINING_KEYSET3, \
@@ -86,8 +90,12 @@ namespace Core { namespace Basic
 #define _IMPLEMENT_MAP_CONTAINING_INDEXSET5(parent, var1, var2, var3, var4, var5) \
   _IMPLEMENT_MAP_CONTAINING_INDEXSET4(parent, var1, var2, var3, var4) \
   _IMPLEMENT_MAP_CONTAINING_INDEXSET_CASE(parent, 4, var5)
+#define _IMPLEMENT_MAP_CONTAINING_INDEXSET6(parent, var1, var2, var3, var4, var5, var6) \
+  _IMPLEMENT_MAP_CONTAINING_INDEXSET5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_MAP_CONTAINING_INDEXSET_CASE(parent, 5, var6)
 #define _IMPLEMENT_MAP_CONTAINING_INDEXSET(parent, ...) \
-  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               _IMPLEMENT_MAP_CONTAINING_INDEXSET6, \
                _IMPLEMENT_MAP_CONTAINING_INDEXSET5, \
                _IMPLEMENT_MAP_CONTAINING_INDEXSET4, \
                _IMPLEMENT_MAP_CONTAINING_INDEXSET3, \
@@ -113,8 +121,12 @@ namespace Core { namespace Basic
 #define _IMPLEMENT_MAP_CONTAINING_KEYREMOVE5(var1, var2, var3, var4, var5) \
   _IMPLEMENT_MAP_CONTAINING_KEYREMOVE4(var1, var2, var3, var4) \
   _IMPLEMENT_MAP_CONTAINING_KEYREMOVE_CASE(4, VARNAMESTR_FROM_TUPLE var5, var5)
+#define _IMPLEMENT_MAP_CONTAINING_KEYREMOVE6(var1, var2, var3, var4, var5, var6) \
+  _IMPLEMENT_MAP_CONTAINING_KEYREMOVE5(var1, var2, var3, var4, var5) \
+  _IMPLEMENT_MAP_CONTAINING_KEYREMOVE_CASE(5, VARNAMESTR_FROM_TUPLE var6, var6)
 #define _IMPLEMENT_MAP_CONTAINING_KEYREMOVE(...) \
-  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               _IMPLEMENT_MAP_CONTAINING_KEYREMOVE6, \
                _IMPLEMENT_MAP_CONTAINING_KEYREMOVE5, \
                _IMPLEMENT_MAP_CONTAINING_KEYREMOVE4, \
                _IMPLEMENT_MAP_CONTAINING_KEYREMOVE3, \
@@ -138,8 +150,12 @@ namespace Core { namespace Basic
 #define _IMPLEMENT_MAP_CONTAINING_INDEXREMOVE5(parent, var1, var2, var3, var4, var5) \
   _IMPLEMENT_MAP_CONTAINING_INDEXREMOVE4(parent, var1, var2, var3, var4) \
   _IMPLEMENT_MAP_CONTAINING_INDEXREMOVE_CASE(parent, 4, var5)
+#define _IMPLEMENT_MAP_CONTAINING_INDEXREMOVE6(parent, var1, var2, var3, var4, var5, var6) \
+  _IMPLEMENT_MAP_CONTAINING_INDEXREMOVE5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_MAP_CONTAINING_INDEXREMOVE_CASE(parent, 5, var6)
 #define _IMPLEMENT_MAP_CONTAINING_INDEXREMOVE(parent, ...) \
-  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               _IMPLEMENT_MAP_CONTAINING_INDEXREMOVE6, \
                _IMPLEMENT_MAP_CONTAINING_INDEXREMOVE5, \
                _IMPLEMENT_MAP_CONTAINING_INDEXREMOVE4, \
                _IMPLEMENT_MAP_CONTAINING_INDEXREMOVE3, \
@@ -163,8 +179,12 @@ namespace Core { namespace Basic
 #define _IMPLEMENT_MAP_CONTAINING_KEYGET5(var1, var2, var3, var4, var5) \
   _IMPLEMENT_MAP_CONTAINING_KEYGET4(var1, var2, var3, var4) \
   _IMPLEMENT_MAP_CONTAINING_KEYGET_CASE(4, VARNAMESTR_FROM_TUPLE var5, var5)
+#define _IMPLEMENT_MAP_CONTAINING_KEYGET6(var1, var2, var3, var4, var5, var6) \
+  _IMPLEMENT_MAP_CONTAINING_KEYGET5(var1, var2, var3, var4, var5) \
+  _IMPLEMENT_MAP_CONTAINING_KEYGET_CASE(5, VARNAMESTR_FROM_TUPLE var6, var6)
 #define _IMPLEMENT_MAP_CONTAINING_KEYGET(...) \
-  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               _IMPLEMENT_MAP_CONTAINING_KEYGET6, \
                _IMPLEMENT_MAP_CONTAINING_KEYGET5, \
                _IMPLEMENT_MAP_CONTAINING_KEYGET4, \
                _IMPLEMENT_MAP_CONTAINING_KEYGET3, \
@@ -188,8 +208,12 @@ namespace Core { namespace Basic
 #define _IMPLEMENT_MAP_CONTAINING_INDEXGET5(parent, var1, var2, var3, var4, var5) \
   _IMPLEMENT_MAP_CONTAINING_INDEXGET4(parent, var1, var2, var3, var4) \
   _IMPLEMENT_MAP_CONTAINING_INDEXGET_CASE(parent, 4, var5)
+#define _IMPLEMENT_MAP_CONTAINING_INDEXGET6(parent, var1, var2, var3, var4, var5, var6) \
+  _IMPLEMENT_MAP_CONTAINING_INDEXGET5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_MAP_CONTAINING_INDEXGET_CASE(parent, 5, var6)
 #define _IMPLEMENT_MAP_CONTAINING_INDEXGET(parent, ...) \
-  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               _IMPLEMENT_MAP_CONTAINING_INDEXGET6, \
                _IMPLEMENT_MAP_CONTAINING_INDEXGET5, \
                _IMPLEMENT_MAP_CONTAINING_INDEXGET4, \
                _IMPLEMENT_MAP_CONTAINING_INDEXGET3, \
@@ -213,8 +237,12 @@ namespace Core { namespace Basic
 #define _IMPLEMENT_MAP_CONTAINING_GETKEY5(parent, var1, var2, var3, var4, var5) \
   _IMPLEMENT_MAP_CONTAINING_GETKEY4(parent, var1, var2, var3, var4) \
   _IMPLEMENT_MAP_CONTAINING_GETKEY_CASE(parent, 4, VARNAMESTR_FROM_TUPLE var5)
+#define _IMPLEMENT_MAP_CONTAINING_GETKEY6(parent, var1, var2, var3, var4, var5, var6) \
+  _IMPLEMENT_MAP_CONTAINING_GETKEY5(parent, var1, var2, var3, var5, var5) \
+  _IMPLEMENT_MAP_CONTAINING_GETKEY_CASE(parent, 5, VARNAMESTR_FROM_TUPLE var5)
 #define _IMPLEMENT_MAP_CONTAINING_GETKEY(parent, ...) \
-  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               _IMPLEMENT_MAP_CONTAINING_GETKEY6, \
                _IMPLEMENT_MAP_CONTAINING_GETKEY5, \
                _IMPLEMENT_MAP_CONTAINING_GETKEY4, \
                _IMPLEMENT_MAP_CONTAINING_GETKEY3, \
@@ -238,8 +266,12 @@ namespace Core { namespace Basic
 #define _IMPLEMENT_MAP_CONTAINING_FINDINDEX5(parent, var1, var2, var3, var4, var5) \
   _IMPLEMENT_MAP_CONTAINING_FINDINDEX4(parent, var1, var2, var3, var4) \
   _IMPLEMENT_MAP_CONTAINING_FINDINDEX_CASE(parent, 4, VARNAMESTR_FROM_TUPLE var5)
+#define _IMPLEMENT_MAP_CONTAINING_FINDINDEX6(parent, var1, var2, var3, var4, var5, var6) \
+  _IMPLEMENT_MAP_CONTAINING_FINDINDEX5(parent, var1, var2, var3, var4, var5) \
+  _IMPLEMENT_MAP_CONTAINING_FINDINDEX_CASE(parent, 5, VARNAMESTR_FROM_TUPLE var6)
 #define _IMPLEMENT_MAP_CONTAINING_FINDINDEX(parent, ...) \
-  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               _IMPLEMENT_MAP_CONTAINING_FINDINDEX6, \
                _IMPLEMENT_MAP_CONTAINING_FINDINDEX5, \
                _IMPLEMENT_MAP_CONTAINING_FINDINDEX4, \
                _IMPLEMENT_MAP_CONTAINING_FINDINDEX3, \
@@ -271,7 +303,7 @@ namespace Core { namespace Basic
   } \
   public: virtual Word getElementCount() const \
   { \
-    return SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, 5, 4, 3, 2, 1) + parent::getElementCount(); \
+    return SELECT_MACRO(__VA_ARGS__, _, _, _, _, 6, 5, 4, 3, 2, 1) + parent::getElementCount(); \
   } \
   public: using MapContaining::getElement; \
   public: virtual TiObject* getElement(Char const *key) const \

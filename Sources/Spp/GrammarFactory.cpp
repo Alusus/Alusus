@@ -373,6 +373,9 @@ void GrammarFactory::createGrammar(
         })
       })}
     })},
+    {S("modifierTranslations"), Map::create({}, {
+      {S("تصدير"), TiStr::create(S("expname"))}
+    })},
     {S("handler"), std::make_shared<Handlers::FunctionParsingHandler>() }
   }).get());
   innerCmdList->add(PARSE_REF(S("module.Function")));

@@ -105,7 +105,8 @@ Bool FunctionParsingHandler::onIncomingModifier(
   if (paramPass->getType() != Core::Data::Ast::BracketType::SQUARE) return false;
   auto operand = paramPass->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
   if (operand == 0) return false;
-  if (operand->getValue() != S("expname")) return false;
+  auto symbolDef = state->refTopProdLevel().getProd();
+  if (symbolDef->getTranslatedModifierKeyword(operand->getValue().get()) != S("expname")) return false;
   auto param = paramPass->getParam().ti_cast_get<Core::Data::Ast::Identifier>();
   if (param == 0) return false;
 

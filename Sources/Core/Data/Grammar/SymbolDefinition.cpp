@@ -26,6 +26,7 @@ SymbolDefinition::~SymbolDefinition()
   RESET_OWNED_SHAREDPTR(this->varDefs);
   RESET_OWNED_SHAREDPTR(this->vars);
   RESET_OWNED_SHAREDPTR(this->attributes);
+  RESET_OWNED_SHAREDPTR(this->modifierTranslations);
   RESET_OWNED_SHAREDPTR(this->handler);
 }
 
@@ -62,6 +63,9 @@ void SymbolDefinition::inheritFromParent()
   if ((this->ownership & SymbolDefinition::Element::PRIORITY) == 0) this->priority = this->base->getPriority();
   if ((this->ownership & SymbolDefinition::Element::FLAGS) == 0) this->flags = this->base->getFlags();
   if ((this->ownership & SymbolDefinition::Element::ATTRIBUTES) == 0) this->attributes = this->base->getAttributes();
+  if ((this->ownership & SymbolDefinition::Element::MODIFIER_TRANS) == 0) {
+    this->modifierTranslations = this->base->getModifierTranslations();
+  }
 }
 
 
@@ -74,6 +78,7 @@ void SymbolDefinition::removeInheritted()
   if ((this->ownership & SymbolDefinition::Element::PRIORITY) == 0) this->priority.reset();
   if ((this->ownership & SymbolDefinition::Element::FLAGS) == 0) this->flags.reset();
   if ((this->ownership & SymbolDefinition::Element::ATTRIBUTES) == 0) this->attributes.reset();
+  if ((this->ownership & SymbolDefinition::Element::MODIFIER_TRANS) == 0) this->modifierTranslations.reset();
 }
 
 
@@ -89,6 +94,22 @@ void SymbolDefinition::onParentElementChanged(SymbolDefinition *obj, SymbolDefin
     if ((elmt & SymbolDefinition::Element::PRIORITY) == 0) this->priority = this->base->getPriority();
     if ((elmt & SymbolDefinition::Element::FLAGS) == 0) this->flags = this->base->getFlags();
     if ((elmt & SymbolDefinition::Element::ATTRIBUTES) == 0) this->attributes = this->base->getAttributes();
+    if ((elmt & SymbolDefinition::Element::MODIFIER_TRANS) == 0) {
+      this->modifierTranslations = this->base->getModifierTranslations();
+    }
+  }
+}
+
+
+SbStr const& SymbolDefinition::getTranslatedModifierKeyword(Char const *keyword) const
+{
+  if (this->modifierTranslations == 0) return sbstr_cast(keyword);
+  auto index = this->modifierTranslations->findIndex(keyword);
+  if (index == -1) return sbstr_cast(keyword);
+  else {
+    auto str = this->modifierTranslations->get(index).ti_cast_get<TiStr>();
+    if (str == 0) return sbstr_cast(keyword);
+    else return sbstr_cast(str->get());
   }
 }
 

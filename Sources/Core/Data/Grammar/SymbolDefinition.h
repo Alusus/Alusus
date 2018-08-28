@@ -42,7 +42,7 @@ class SymbolDefinition : public Node,
    * constructors.
    */
   public: s_enum(Element,
-    PARENT_REF=1, TERM=2, VAR_DEFS=4, VARS=8, HANDLER=16, PRIORITY=32, FLAGS=64, ATTRIBUTES=128,
+    PARENT_REF=1, TERM=2, VAR_DEFS=4, VARS=8, HANDLER=16, PRIORITY=32, FLAGS=64, ATTRIBUTES=128, MODIFIER_TRANS=256,
     ALL=static_cast<Word>(-1)
   );
 
@@ -84,6 +84,8 @@ class SymbolDefinition : public Node,
 
   private: SharedPtr<Node> attributes;
 
+  private: SharedPtr<Map> modifierTranslations;
+
   private: SharedPtr<BuildHandler> handler;
 
   private: Word ownership = 0;
@@ -108,6 +110,7 @@ class SymbolDefinition : public Node,
     (varDefs, Node, setVarDefs(value), varDefs.get()),
     (vars, Node, setVars(value), vars.get()),
     (attributes, Node, setAttributes(value), attributes.get()),
+    (modifierTranslations, Map, setModifierTranslations(value), modifierTranslations.get()),
     (handler, BuildHandler, setBuildHandler(value), handler.get())
   );
 
@@ -344,6 +347,33 @@ class SymbolDefinition : public Node,
   {
     return this->attributes;
   }
+
+  public: void setModifierTranslations(SharedPtr<Map> const &t)
+  {
+    UPDATE_OWNED_SHAREDPTR(this->modifierTranslations, t);
+    this->ownership |= SymbolDefinition::Element::MODIFIER_TRANS;
+    this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::MODIFIER_TRANS);
+  }
+
+  private: void setModifierTranslations(Map *t)
+  {
+    this->setModifierTranslations(getSharedPtr(t));
+  }
+
+  public: void resetModifierTranslations()
+  {
+    RESET_OWNED_SHAREDPTR(this->modifierTranslations);
+    if (this->base != 0) this->modifierTranslations = this->base->getModifierTranslations();
+    this->ownership &= ~SymbolDefinition::Element::MODIFIER_TRANS;
+    this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::MODIFIER_TRANS);
+  }
+
+  public: SharedPtr<Map> const& getModifierTranslations() const
+  {
+    return this->modifierTranslations;
+  }
+
+  public: SbStr const& getTranslatedModifierKeyword(Char const *keyword) const;
 
   /**
      * @brief Set the operation handler object.

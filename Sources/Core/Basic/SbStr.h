@@ -63,14 +63,29 @@ class SbStr
     return compareStr(this->c_str(), s) == 0;
   }
 
+  public: Bool operator!=(Char const *s) const
+  {
+    return compareStr(this->c_str(), s) != 0;
+  }
+
   public: Bool operator==(const std::string &s) const
   {
     return compareStr(this->c_str(), s.c_str()) == 0;
   }
 
+  public: Bool operator!=(const std::string &s) const
+  {
+    return compareStr(this->c_str(), s.c_str()) != 0;
+  }
+
   public: Bool operator==(const SbStr &s) const
   {
     return compareStr(this->c_str(), s.c_str()) == 0;
+  }
+
+  public: Bool operator!=(const SbStr &s) const
+  {
+    return compareStr(this->c_str(), s.c_str()) != 0;
   }
 
   public: Bool operator>(Char const *s) const
