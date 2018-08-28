@@ -24,7 +24,7 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 
 declare i64 @printf(i8*, ...)
 
-define [5 x i32] @Main_getArray_Int_32_____array_Int_32__5__(i32 %m) {
+define [5 x i32] @"Main.getArray(Int[32])=>(array[Int[32],5])"(i32 %m) {
 __block0:
   %m1 = alloca i32
   store i32 %m, i32* %m1
@@ -57,7 +57,7 @@ __block3:                                         ; preds = %__block1
   ret [5 x i32] %11
 }
 
-define void @Main_printArray_array_Int_32__5_____Void_([5 x i32] %a) {
+define void @"Main.printArray(array[Int[32],5])=>(Void)"([5 x i32] %a) {
 __block4:
   %a1 = alloca [5 x i32]
   store [5 x i32] %a, [5 x i32]* %a1
@@ -86,7 +86,7 @@ __block7:                                         ; preds = %__block5
   ret void
 }
 
-define void @Main_start_____Void_() {
+define void @"Main.start()=>(Void)"() {
 __block8:
   %ai = alloca [5 x i32]
   %aai = alloca [3 x [5 x i32]]
@@ -136,20 +136,20 @@ __block8:
   %31 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous7, i32 0, i32 0), i32 %30)
   %32 = getelementptr [5 x i32]* %ai, i32 0, i64 2
   %33 = getelementptr [3 x [5 x i32]]* %aai, i32 0, i64 0
-  %34 = call [5 x i32] @Main_getArray_Int_32_____array_Int_32__5__(i32 2)
+  %34 = call [5 x i32] @"Main.getArray(Int[32])=>(array[Int[32],5])"(i32 2)
   %35 = alloca [5 x i32]
   store [5 x i32] %34, [5 x i32]* %35
   %36 = getelementptr [5 x i32]* %35, i32 0, i64 3
   %37 = load i32* %36
   %38 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([21 x i8]* @__anonymous8, i32 0, i32 0), i32 %37)
   %39 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([26 x i8]* @__anonymous9, i32 0, i32 0))
-  %40 = call [5 x i32] @Main_getArray_Int_32_____array_Int_32__5__(i32 3)
-  call void @Main_printArray_array_Int_32__5_____Void_([5 x i32] %40)
+  %40 = call [5 x i32] @"Main.getArray(Int[32])=>(array[Int[32],5])"(i32 3)
+  call void @"Main.printArray(array[Int[32],5])=>(Void)"([5 x i32] %40)
   %41 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([31 x i8]* @__anonymous10, i32 0, i32 0))
-  %42 = call [5 x i32] @Main_getArray_Int_32_____array_Int_32__5__(i32 4)
+  %42 = call [5 x i32] @"Main.getArray(Int[32])=>(array[Int[32],5])"(i32 4)
   store [5 x i32] %42, [5 x i32]* %ai
   %43 = load [5 x i32]* %ai
-  call void @Main_printArray_array_Int_32__5_____Void_([5 x i32] %43)
+  call void @"Main.printArray(array[Int[32],5])=>(Void)"([5 x i32] %43)
   ret void
 }
 ------------------------------------------------------------

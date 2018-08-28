@@ -32,7 +32,7 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 
 declare i64 @printf(i8*, ...)
 
-define void @Main_main_____Void_() {
+define void @"Main.main()=>(Void)"() {
 __block0:
   %li = alloca i32
   %lpi = alloca i32*
@@ -56,55 +56,55 @@ __block0:
   %1 = sext i32 %0 to i64
   %2 = load float* @Main_gf
   %3 = fpext float %2 to double
-  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %1, double %3)
+  call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %1, double %3)
   %4 = load i64* @Main_gbi
   %5 = load double* @Main_gbf
-  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %4, double %5)
+  call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %4, double %5)
   %6 = load i32* %li
   %7 = sext i32 %6 to i64
   %8 = load float* %lf
   %9 = fpext float %8 to double
-  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %7, double %9)
+  call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %7, double %9)
   %10 = load i64* %lbi
   %11 = load double* %lbf
-  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %10, double %11)
+  call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %10, double %11)
   %12 = load i32* @Main_gi
   %13 = add nsw i32 %12, 100
   %14 = load float* @Main_gf
   %15 = fadd float %14, 1.000000e+02
   %16 = sext i32 %13 to i64
   %17 = fpext float %15 to double
-  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %16, double %17)
+  call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %16, double %17)
   %18 = load i32* %li
   %19 = add nsw i32 %18, 200
   %20 = load float* %lf
   %21 = fadd float %20, 2.000000e+02
   %22 = sext i32 %19 to i64
   %23 = fpext float %21 to double
-  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %22, double %23)
+  call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %22, double %23)
   %24 = load float* @Main_gf
   %25 = fptosi float %24 to i64
   %26 = load i32* @Main_gi
   %27 = sitofp i32 %26 to double
-  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %25, double %27)
+  call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %25, double %27)
   %28 = load i32* @Main_gi
   %29 = sext i32 %28 to i64
   %30 = load i32* @Main_gi
   %31 = sitofp i32 %30 to double
-  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %29, double %31)
+  call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %29, double %31)
   %32 = load float* @Main_gf
   %33 = fptosi float %32 to i64
   %34 = load float* @Main_gf
   %35 = fpext float %34 to double
-  call void @Main_testVars_Int_64__Float_64_____Void_(i64 %33, double %35)
-  call void @Main_testVarOverride_____Void_()
+  call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %33, double %35)
+  call void @"Main.testVarOverride()=>(Void)"()
   %36 = load i32* @Main_gi
   %37 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i32 0, i32 0), i32 %36)
-  call void @Main_testOtherModules_____Void_()
+  call void @"Main.testOtherModules()=>(Void)"()
   ret void
 }
 
-define void @Main_testVars_Int_64__Float_64_____Void_(i64 %ai, double %af) {
+define void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %ai, double %af) {
 __block1:
   %ai1 = alloca i64
   store i64 %ai, i64* %ai1
@@ -120,7 +120,7 @@ __block1:
   ret void
 }
 
-define void @Main_testVarOverride_____Void_() {
+define void @"Main.testVarOverride()=>(Void)"() {
 __block2:
   %gi = alloca i32
   store i32 60, i32* %gi
@@ -129,7 +129,7 @@ __block2:
   ret void
 }
 
-define void @Main_testOtherModules_____Void_() {
+define void @"Main.testOtherModules()=>(Void)"() {
 __block3:
   store i32 2, i32* @Other_gi
   store double 0x401D333340000000, double* @Other_gf

@@ -40,7 +40,7 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 
 declare i64 @printf(i8*, ...)
 
-define void @Main_testPtrAndCnt_____Void_() {
+define void @"Main.testPtrAndCnt()=>(Void)"() {
 __block0:
   %i = alloca i32
   %pi = alloca i32*
@@ -79,7 +79,7 @@ __block0:
   ret void
 }
 
-define void @Main_testCast_____Void_() {
+define void @"Main.testCast()=>(Void)"() {
 __block1:
   %i = alloca i32
   %l = alloca i64
@@ -122,7 +122,7 @@ __block1:
   ret void
 }
 
-define void @Main_testSize_____Void_() {
+define void @"Main.testSize()=>(Void)"() {
 __block2:
   %i = alloca i32
   %pi = alloca i32*

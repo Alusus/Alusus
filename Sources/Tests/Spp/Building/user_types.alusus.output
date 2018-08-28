@@ -19,7 +19,7 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 
 declare i64 @printf(i8*, ...)
 
-define %Main_Point @Main_getPoint_Int_32__Int_32__Float_32_____Main_Point_(i32 %x, i32 %y, float %s) {
+define %Main_Point @"Main.getPoint(Int[32],Int[32],Float[32])=>(Main.Point)"(i32 %x, i32 %y, float %s) {
 __block0:
   %x1 = alloca i32
   store i32 %x, i32* %x1
@@ -41,7 +41,7 @@ __block0:
   ret %Main_Point %6
 }
 
-define void @Main_printPoint_Main_Point____Void_(%Main_Point %p) {
+define void @"Main.printPoint(Main.Point)=>(Void)"(%Main_Point %p) {
 __block1:
   %p1 = alloca %Main_Point
   store %Main_Point %p, %Main_Point* %p1
@@ -54,7 +54,7 @@ __block1:
   ret void
 }
 
-define void @Main_start_____Void_() {
+define void @"Main.start()=>(Void)"() {
 __block2:
   %p = alloca %Main_Point
   %n = alloca %Main_Nested
@@ -91,20 +91,20 @@ __block2:
   %20 = load i32* %19
   %21 = trunc i32 %20 to i8
   store i8 %21, i8* %18
-  %22 = call %Main_Point @Main_getPoint_Int_32__Int_32__Float_32_____Main_Point_(i32 1, i32 2, float 3.000000e+00)
+  %22 = call %Main_Point @"Main.getPoint(Int[32],Int[32],Float[32])=>(Main.Point)"(i32 1, i32 2, float 3.000000e+00)
   %23 = alloca %Main_Point
   store %Main_Point %22, %Main_Point* %23
   %24 = getelementptr %Main_Point* %23, i32 0, i32 1
   %25 = load i32* %24
   %26 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([27 x i8]* @__anonymous5, i32 0, i32 0), i32 %25)
   %27 = load %Main_Point* %p
-  call void @Main_printPoint_Main_Point____Void_(%Main_Point %27)
-  %28 = call %Main_Point @Main_getPoint_Int_32__Int_32__Float_32_____Main_Point_(i32 2, i32 4, float 6.000000e+00)
-  call void @Main_printPoint_Main_Point____Void_(%Main_Point %28)
-  %29 = call %Main_Point @Main_getPoint_Int_32__Int_32__Float_32_____Main_Point_(i32 4, i32 8, float 9.000000e+00)
+  call void @"Main.printPoint(Main.Point)=>(Void)"(%Main_Point %27)
+  %28 = call %Main_Point @"Main.getPoint(Int[32],Int[32],Float[32])=>(Main.Point)"(i32 2, i32 4, float 6.000000e+00)
+  call void @"Main.printPoint(Main.Point)=>(Void)"(%Main_Point %28)
+  %29 = call %Main_Point @"Main.getPoint(Int[32],Int[32],Float[32])=>(Main.Point)"(i32 4, i32 8, float 9.000000e+00)
   store %Main_Point %29, %Main_Point* %p
   %30 = load %Main_Point* %p
-  call void @Main_printPoint_Main_Point____Void_(%Main_Point %30)
+  call void @"Main.printPoint(Main.Point)=>(Void)"(%Main_Point %30)
   ret void
 }
 ------------------------------------------------------------

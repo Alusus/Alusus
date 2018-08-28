@@ -108,7 +108,7 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 
 declare i64 @printf(i8*, ...)
 
-define void @Main_testInteger_____Void_() {
+define void @"Main.testInteger()=>(Void)"() {
 __block0:
   %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous0, i32 0, i32 0), i32 2)
   %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous1, i32 0, i32 0), i32 3)
@@ -289,7 +289,7 @@ __block0:
   ret void
 }
 
-define void @Main_testFloat_____Void_() {
+define void @"Main.testFloat()=>(Void)"() {
 __block1:
   %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous54, i32 0, i32 0), float 0x4003333340000000)
   %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous55, i32 0, i32 0), float 3.000000e+00)
@@ -384,7 +384,7 @@ __block1:
   ret void
 }
 
-define void @Main_testMixed_____Void_() {
+define void @"Main.testMixed()=>(Void)"() {
 __block2:
   %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous82, i32 0, i32 0), i32 2)
   %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous83, i32 0, i32 0), i64 2)
@@ -401,11 +401,11 @@ __block2:
   ret void
 }
 
-define void @Main_start_____Void_() {
+define void @"Main.start()=>(Void)"() {
 __block3:
-  call void @Main_testInteger_____Void_()
-  call void @Main_testFloat_____Void_()
-  call void @Main_testMixed_____Void_()
+  call void @"Main.testInteger()=>(Void)"()
+  call void @"Main.testFloat()=>(Void)"()
+  call void @"Main.testMixed()=>(Void)"()
   ret void
 }
 ------------------------------------------------------------

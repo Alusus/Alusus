@@ -11,7 +11,6 @@
 //==============================================================================
 
 #include "spp.h"
-#include <regex>
 
 namespace Spp { namespace Ast
 {
@@ -638,9 +637,7 @@ Str const& Helper::_getFunctionName(TiObject *self, Function *astFunc)
   if (astFunc->getName().getStr() == S("")) {
     PREPARE_SELF(helper, Helper);
     Str name = helper->nodePathResolver->doResolve(astFunc, helper);
-    // Replace special characters with _.
-    Str formattedName = std::regex_replace(name, std::regex("[^a-zA-Z0-9_]"), S("_"));
-    astFunc->setName(formattedName.c_str());
+    astFunc->setName(name.c_str());
   }
   return astFunc->getName().getStr();
 }

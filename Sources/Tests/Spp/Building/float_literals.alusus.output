@@ -14,7 +14,7 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 
 declare i64 @printf(i8*, ...)
 
-define void @Main_start_____Void_() {
+define void @"Main.start()=>(Void)"() {
 __block0:
   %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous0, i32 0, i32 0), float 0x4003333340000000)
   %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([10 x i8]* @__anonymous1, i32 0, i32 0), float 1.000000e+02)

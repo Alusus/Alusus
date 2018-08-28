@@ -2,7 +2,7 @@
 ; ModuleID = 'AlususProgram'
 target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
 
-define i64 @Main_main_Int_64__Float_64_____Int_64__(i64 %a, double %b) {
+define i64 @"Main.main(Int[64],Float[64])=>(Int[64])"(i64 %a, double %b) {
 __block0:
   %a1 = alloca i64
   store i64 %a, i64* %a1
@@ -10,7 +10,7 @@ __block0:
   store double %b, double* %b2
 }
 
-define i64 @Main_f_Int_32__Float_32_____Int_64__(i32 %a, float %b) {
+define i64 @"Main.f(Int[32],Float[32])=>(Int[64])"(i32 %a, float %b) {
 __block1:
   %a1 = alloca i32
   store i32 %a, i32* %a1
@@ -18,7 +18,7 @@ __block1:
   store float %b, float* %b2
 }
 
-define i32 @Main_g_ptr_Int_32______Int_32__(i32* %a) {
+define i32 @"Main.g(ptr[Int[32]])=>(Int[32])"(i32* %a) {
 __block2:
   %a1 = alloca i32*
   store i32* %a, i32** %a1

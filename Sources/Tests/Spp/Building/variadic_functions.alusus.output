@@ -29,52 +29,52 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 @__anonymous18 = private constant [6 x i8] c"world\00", align 1
 @__anonymous19 = private constant [6 x i8] c"hello\00", align 1
 
-define i32 @Main_main_____Int_32__() {
+define i32 @"Main.main()=>(Int[32])"() {
 __block0:
-  %0 = call i32 (i8*, ...)* @Main_f0_ptr_Word_8___ArgPack_Int_32__0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous0, i32 0, i32 0))
-  %1 = call i32 (i8*, ...)* @Main_f1_ptr_Word_8___ArgPack_any_0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous1, i32 0, i32 0), [7 x i8]* @__anonymous2)
-  %2 = call i32 (i8*, ...)* @Main_f1_ptr_Word_8___ArgPack_any_0_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous3, i32 0, i32 0), [6 x i8]* @__anonymous4, [4 x i8]* @__anonymous5)
-  %3 = call i32 (i8*, ...)* @Main_f2_ptr_Word_8___ArgPack_any_1_0_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous6, i32 0, i32 0), [6 x i8]* @__anonymous7)
-  %4 = call i32 (i8*, ...)* @Main_f3_ptr_Word_8___ArgPack_ptr_Word_8___1_2_____Int_32__(i8* getelementptr inbounds ([6 x i8]* @__anonymous8, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous9, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous10, i32 0, i32 0))
+  %0 = call i32 (i8*, ...)* @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8]* @__anonymous0, i32 0, i32 0))
+  %1 = call i32 (i8*, ...)* @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8]* @__anonymous1, i32 0, i32 0), [7 x i8]* @__anonymous2)
+  %2 = call i32 (i8*, ...)* @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8]* @__anonymous3, i32 0, i32 0), [6 x i8]* @__anonymous4, [4 x i8]* @__anonymous5)
+  %3 = call i32 (i8*, ...)* @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8]* @__anonymous6, i32 0, i32 0), [6 x i8]* @__anonymous7)
+  %4 = call i32 (i8*, ...)* @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8]* @__anonymous8, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous9, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous10, i32 0, i32 0))
 }
 
-define i32 @Main_f0_ptr_Word_8___ArgPack_Int_32__0_0_____Int_32__(i8* %a, ...) {
+define i32 @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])=>(Int[32])"(i8* %a, ...) {
 __block1:
   %a1 = alloca i8*
   store i8* %a, i8** %a1
 }
 
-define i32 @Main_f1_ptr_Word_8___ArgPack_any_0_0_____Int_32__(i8* %a, ...) {
+define i32 @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])=>(Int[32])"(i8* %a, ...) {
 __block3:
   %a1 = alloca i8*
   store i8* %a, i8** %a1
 }
 
-define i32 @Main_f2_ptr_Word_8___ArgPack_any_1_0_____Int_32__(i8* %a, ...) {
+define i32 @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])=>(Int[32])"(i8* %a, ...) {
 __block5:
   %a1 = alloca i8*
   store i8* %a, i8** %a1
 }
 
-define i32 @Main_f3_ptr_Word_8___ArgPack_ptr_Word_8___1_2_____Int_32__(i8* %a, ...) {
+define i32 @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])=>(Int[32])"(i8* %a, ...) {
 __block6:
   %a1 = alloca i8*
   store i8* %a, i8** %a1
 }
 
-define i32 @Main_f1_ptr_Word_8___ArgPack_Int_32__0_0_____Int_32__(i8* %a, ...) {
+define i32 @"Main.f1(ptr[Word[8]],ArgPack[Int[32],0,0])=>(Int[32])"(i8* %a, ...) {
 __block2:
   %a1 = alloca i8*
   store i8* %a, i8** %a1
 }
 
-define i32 @Main_f1_Int_32__ArgPack_any_0_0_____Int_32__(i32 %a, ...) {
+define i32 @"Main.f1(Int[32],ArgPack[any,0,0])=>(Int[32])"(i32 %a, ...) {
 __block4:
   %a1 = alloca i32
   store i32 %a, i32* %a1
 }
 
-define i32 @Main_f4_ptr_Word_8___ArgPack_Word_8__0_0_____Int_32__(i8* %a, ...) {
+define i32 @"Main.f4(ptr[Word[8]],ArgPack[Word[8],0,0])=>(Int[32])"(i8* %a, ...) {
 __block7:
   %a1 = alloca i8*
   store i8* %a, i8** %a1

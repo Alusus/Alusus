@@ -59,7 +59,7 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 
 declare i64 @printf(i8*, ...)
 
-define void @Main_testInteger_____Void_() {
+define void @"Main.testInteger()=>(Void)"() {
 __block0:
   %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous0, i32 0, i32 0), i64 1)
   %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([12 x i8]* @__anonymous1, i32 0, i32 0), i64 0)
@@ -74,7 +74,7 @@ __block0:
   ret void
 }
 
-define void @Main_testFloat_____Void_() {
+define void @"Main.testFloat()=>(Void)"() {
 __block1:
   %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous10, i32 0, i32 0), i64 1)
   %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous11, i32 0, i32 0), i64 0)
@@ -89,7 +89,7 @@ __block1:
   ret void
 }
 
-define void @Main_testMixed_____Void_() {
+define void @"Main.testMixed()=>(Void)"() {
 __block2:
   %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([16 x i8]* @__anonymous20, i32 0, i32 0), i64 1)
   %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous21, i32 0, i32 0), i64 1)
@@ -106,7 +106,7 @@ __block2:
   ret void
 }
 
-define void @Main_testPointers_____Void_() {
+define void @"Main.testPointers()=>(Void)"() {
 __block3:
   %i = alloca i8*
   %j = alloca i8*
@@ -144,7 +144,7 @@ __block3:
   ret void
 }
 
-define void @Main_testIfStatement_Int_64_____Void_(i64 %i) {
+define void @"Main.testIfStatement(Int[64])=>(Void)"(i64 %i) {
 __block4:
   %i1 = alloca i64
   store i64 %i, i64* %i1
@@ -166,14 +166,14 @@ __block7:                                         ; preds = %__block6, %__block5
 __block8:                                         ; No predecessors!
 }
 
-define void @Main_start_____Void_() {
+define void @"Main.start()=>(Void)"() {
 __block9:
-  call void @Main_testInteger_____Void_()
-  call void @Main_testFloat_____Void_()
-  call void @Main_testMixed_____Void_()
-  call void @Main_testPointers_____Void_()
-  call void @Main_testIfStatement_Int_64_____Void_(i64 5)
-  call void @Main_testIfStatement_Int_64_____Void_(i64 -5)
+  call void @"Main.testInteger()=>(Void)"()
+  call void @"Main.testFloat()=>(Void)"()
+  call void @"Main.testMixed()=>(Void)"()
+  call void @"Main.testPointers()=>(Void)"()
+  call void @"Main.testIfStatement(Int[64])=>(Void)"(i64 5)
+  call void @"Main.testIfStatement(Int[64])=>(Void)"(i64 -5)
   ret void
 }
 ------------------------------------------------------------
