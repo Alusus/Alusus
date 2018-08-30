@@ -623,9 +623,9 @@ Bool ExpressionGenerator::_generateOperator(
     else if (infixOp->getType() == S("&=")) { funcName = S("__andAssign"); opType = OpType::BINARY_ASSIGN; }
     else if (infixOp->getType() == S("|=")) { funcName = S("__orAssign"); opType = OpType::BINARY_ASSIGN; }
     else if (infixOp->getType() == S("$=")) { funcName = S("__xorAssign"); opType = OpType::BINARY_ASSIGN; }
-    else if (infixOp->getType() == S("||")) {
+    else if (infixOp->getType() == S("||") || infixOp->getType() == S("or")) {
       return expGenerator->generateLogicalOp(infixOp, g, tg, tgContext, result);
-    } else if (infixOp->getType() == S("&&")) {
+    } else if (infixOp->getType() == S("&&") || infixOp->getType() == S("and")) {
       return expGenerator->generateLogicalOp(infixOp, g, tg, tgContext, result);
     } else {
       throw EXCEPTION(GenericException, S("Unexpected infix operator."));
@@ -757,13 +757,13 @@ Bool ExpressionGenerator::_generateLogicalOp(
   )) return false;
 
   // Finalize the operator.
-  if (astNode->getType() == S("||")) {
+  if (astNode->getType() == S("||") || astNode->getType() == S("or")) {
     if (!tg->finishLogicalOr(
       tgContext, secondContext.get(), firstCastedResult.get(), secondCastedResult.get(), result.targetData
     )) return false;
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
-  } else if (astNode->getType() == S("&&")) {
+  } else if (astNode->getType() == S("&&") || astNode->getType() == S("and")) {
     if (!tg->finishLogicalAnd(
       tgContext, secondContext.get(), firstCastedResult.get(), secondCastedResult.get(), result.targetData
     )) return false;
