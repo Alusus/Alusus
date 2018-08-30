@@ -34,6 +34,7 @@ class Definition : public Node,
 
   private: TiStr name;
   private: TioSharedPtr target;
+  private: TiBool toMerge;
 
 
   //============================================================================
@@ -43,6 +44,7 @@ class Definition : public Node,
 
   IMPLEMENT_BINDING(Binding,
     (name, TiStr, VALUE, setName(value), &name),
+    (toMerge, TiBool, VALUE, setToMerge(value), &toMerge),
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
@@ -94,6 +96,20 @@ class Definition : public Node,
   public: TioSharedPtr const& getTarget() const
   {
     return this->target;
+  }
+
+  public: void setToMerge(Bool tm)
+  {
+    this->toMerge = tm;
+  }
+  public: void setToMerge(TiBool const *tm)
+  {
+    this->toMerge = tm == 0 ? false : tm->get();
+  }
+
+  public: Bool isToMerge() const
+  {
+    return this->toMerge.get();
   }
 
 

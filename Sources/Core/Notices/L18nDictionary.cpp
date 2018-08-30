@@ -18,11 +18,16 @@ namespace Core::Notices
 //==============================================================================
 // Member Function
 
-void L18nDictionary::initialize(Char const *locale)
+void L18nDictionary::initialize(Char const *locale, Char const *l18nPath)
 {
   this->dictionary.clear();
-  std::string filename = Main::getModuleDirectory();
-  filename += S("../Notices_L18n/");
+  std::string filename;
+  if (l18nPath != 0) {
+    filename = l18nPath;
+  } else {
+    filename = Main::getModuleDirectory();
+    filename += S("../Notices_L18n/");
+  }
   filename += locale;
   filename += ".txt";
   std::ifstream fin(filename);

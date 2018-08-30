@@ -71,4 +71,28 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   state->setData(def);
 }
 
+
+Bool DefParsingHandler::onIncomingModifier(
+  Core::Processing::Parser *parser, Core::Processing::ParserState *state,
+  TioSharedPtr const &modifierData, Bool prodProcessingComplete
+) {
+  if (!prodProcessingComplete) return false;
+
+  // Look for merge modifier.
+  auto identifier = modifierData.ti_cast_get<Core::Data::Ast::Identifier>();
+  if (identifier == 0) return false;
+  auto symbolDef = state->refTopProdLevel().getProd();
+  if (symbolDef->getTranslatedModifierKeyword(identifier->getValue().get()) == S("merge")) {
+    // Set toMerge in the definition.
+    Int levelOffset = -state->getTopProdTermLevelCount();
+    this->prepareToModifyData(state, levelOffset);
+    auto data = state->getData(levelOffset).get();
+    auto definition = ti_cast<Core::Data::Ast::Definition>(data);
+    definition->setToMerge(true);
+    return true;
+  }
+
+  return false;
+}
+
 } // namespace

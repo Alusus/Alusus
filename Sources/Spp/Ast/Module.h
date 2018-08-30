@@ -2,7 +2,7 @@
  * @file Spp/Ast/Module.h
  * Contains the header of class Spp::Ast::Module.
  *
- * @copyright Copyright (C) 2016 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,17 +13,19 @@
 #ifndef SPP_AST_MODULE_H
 #define SPP_AST_MODULE_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 using namespace Core;
 
-class Module : public Block
+class Module : public Block, public virtual Core::Data::Ast::Mergeable
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Module, Block, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(Module, Block, "Spp.Ast", "Spp", "alusus.net", (
+    INHERITANCE_INTERFACES(Core::Data::Ast::Mergeable)
+  ));
 
   IMPLEMENT_AST_LIST_CLONABLE(Module);
 
@@ -39,8 +41,14 @@ class Module : public Block
 
   IMPLEMENT_ATTR_LIST_CONSTRUCTOR(Module);
 
+
+  //============================================================================
+  // Mergeable Implementation
+
+  public: virtual Bool merge(TiObject *src, Core::Notices::Store *noticeStore);
+
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

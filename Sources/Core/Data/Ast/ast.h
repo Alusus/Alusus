@@ -14,7 +14,7 @@
 #ifndef CORE_DATA_AST_AST_H
 #define CORE_DATA_AST_AST_H
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
 /**
@@ -91,13 +91,26 @@ ti_s_enum(BracketType, TiInt, "Core.Data.Ast", "Core", "alusus.net", ROUND, SQUA
 
 
 //==============================================================================
+// Forward Defnitions
+
+class Definition;
+
+
+//==============================================================================
 // Global Functions
 
 SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj);
 
-} } } // namespace
+Bool mergeDefinition(Definition *def, ListContaining<TiObject> *target, Notices::Store *noticeStore);
+Bool addPossiblyMergeableElement(TiObject *src, ListContaining<TiObject> *target, Notices::Store *noticeStore);
+Bool addPossiblyMergeableElements(
+  Containing<TiObject> *src, ListContaining<TiObject> *target, Notices::Store *noticeStore
+);
+
+} // namespace
 
 #include "MetaHaving.h"
+#include "Mergeable.h"
 
 #include "List.h"
 #include "Map.h"
@@ -115,7 +128,7 @@ SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj);
 #include "GenericCommand.h"
 #include "Alias.h"
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
 DEFINE_AST_OUTFIX_OPERATOR(PrefixOperator);
@@ -136,6 +149,6 @@ DEFINE_AST_TEXT_ELEMENT(FloatLiteral);
 DEFINE_AST_TEXT_ELEMENT(CharLiteral);
 DEFINE_AST_TEXT_ELEMENT(StringLiteral);
 
-} } } // namespace
+} // namespace
 
 #endif

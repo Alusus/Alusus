@@ -16,12 +16,14 @@
 namespace Spp::Ast
 {
 
-class UserType : public DataType
+class UserType : public DataType, public virtual Core::Data::Ast::Mergeable
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(UserType, DataType, "Spp.Ast", "Spp", "alusus.net");
+  TYPE_INFO(UserType, DataType, "Spp.Ast", "Spp", "alusus.net", (
+    INHERITANCE_INTERFACES(Core::Data::Ast::Mergeable)
+  ));
 
   IMPLEMENT_AST_MAP_CLONABLE(UserType);
 
@@ -46,6 +48,12 @@ class UserType : public DataType
     if (this == type) return TypeMatchStatus::EXACT;
     else return TypeMatchStatus::NONE;
   }
+
+
+  //============================================================================
+  // Mergeable Implementation
+
+  public: virtual Bool merge(TiObject *src, Core::Notices::Store *noticeStore);
 
 }; // class
 

@@ -964,6 +964,9 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
           }
         })
       },
+      {S("modifierTranslations"), Map::create({}, {
+        {S("دمج"), TiStr::create(S("merge"))}
+      })},
       {S("handler"), std::make_shared<DefParsingHandler>()}
     }));
 

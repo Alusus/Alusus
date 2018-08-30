@@ -1,0 +1,34 @@
+import "libalusus_spp.so";
+
+def Module1: module {
+  def a1: 1;
+};
+
+def Module1: module {
+  def b1: 2;
+};
+
+def Module2: module {
+  def a2: 1;
+};
+
+@merge def Module2: module {
+  def b2: 2;
+};
+
+@merge def Module2: {
+  def c2: 3;
+};
+
+@merge def Module2: type {
+  def d2: 4;
+};
+
+@merge def Module3: module {
+  def a3: 1;
+  def b3: 2;
+};
+
+dump_ast Module1;
+dump_ast Module2;
+dump_ast Module3;

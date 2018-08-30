@@ -36,7 +36,7 @@ class L18nDictionary
   //============================================================================
   // Member Functions
 
-  public: void initialize(Char const *locale);
+  public: void initialize(Char const *locale, Char const *l18nPath = 0);
 
   public: Char const* get(Char const *key) const;
 

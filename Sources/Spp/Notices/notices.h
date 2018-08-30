@@ -58,6 +58,9 @@ DEFINE_NOTICE(ArgsMismatchNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1008"
 DEFINE_NOTICE(ConflictingDefinitionsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1009", 1,
   "Multiple conflicting definitions were found for the given callee."
 );
+DEFINE_NOTICE(TypeMergeConflictNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1010", 1,
+  "Trying to merge possibly incompatible types. Types can only be extended by anonymous blocks."
+);
 
 } /// namespace
 

@@ -37,6 +37,7 @@ namespace Core::Data
 namespace Core::Notices
 {
   class Notice;
+  class Store;
 }
 
 

@@ -20,7 +20,26 @@ def Main: module
     def e: EmptyType;
 
     print("x, y = %d, %d", v.x, v.y)
-  }
+  };
+
+  def MergeType: type
+  {
+    def x: Int;
+  };
+
+  @merge def MergeType: type
+  {
+    def xx: Int;
+  };
+
+  @merge def MergeType: module
+  {
+    def xxx: Int;
+  };
+
+  @merge def MergeType: {
+    def y: Int;
+  };
 };
 
 dump_ast Main;

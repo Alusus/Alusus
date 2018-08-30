@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
 //============================================================================
@@ -25,4 +25,53 @@ SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj)
   else return SharedPtr<SourceLocation>::null;
 }
 
-} } } // namespace
+
+Bool mergeDefinition(Definition *def, ListContaining<TiObject> *target, Notices::Store *noticeStore)
+{
+  VALIDATE_NOT_NULL(def, target, noticeStore);
+  for (Int i = 0; i < target->getElementCount(); ++i) {
+    auto targetDef = ti_cast<Definition>(target->getElement(i));
+    if (targetDef != 0 && targetDef->getName() == def->getName()) {
+      auto targetObj = targetDef->getTarget().ti_cast<Mergeable>();
+      if (targetObj == 0) {
+        noticeStore->add(
+          std::make_shared<Core::Notices::IncompatibleDefMergeNotice>(findSourceLocation(def))
+        );
+        return false;
+      }
+      return targetObj->merge(def->getTarget().get(), noticeStore);
+    }
+  }
+  target->addElement(def);
+  return true;
+}
+
+
+Bool addPossiblyMergeableElement(TiObject *src, ListContaining<TiObject> *target, Notices::Store *noticeStore)
+{
+  VALIDATE_NOT_NULL(src, target, noticeStore);
+  if (src->isDerivedFrom<Definition>()) {
+    auto def = static_cast<Definition*>(src);
+    if (def->isToMerge()) {
+      return mergeDefinition(def, target, noticeStore);
+    } else {
+      target->addElement(src);
+    }
+  } else {
+    target->addElement(src);
+  }
+  return true;
+}
+
+
+Bool addPossiblyMergeableElements(Containing<TiObject> *src, ListContaining<TiObject> *target, Notices::Store *noticeStore)
+{
+  VALIDATE_NOT_NULL(src, target, noticeStore);
+  Bool result = true;
+  for (Int i = 0; i < src->getElementCount(); ++i) {
+    if (!addPossiblyMergeableElement(src->getElement(i), target, noticeStore)) result = false;
+  }
+  return result;
+}
+
+} // namespace

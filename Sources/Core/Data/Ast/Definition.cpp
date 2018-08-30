@@ -25,6 +25,7 @@ SharedPtr<TiObject> Definition::clone() const
   newDefinition->setSourceLocation(this->getSourceLocation());
   newDefinition->setTarget(this->target);
   newDefinition->setName(this->name.get());
+  newDefinition->setToMerge(this->isToMerge());
   return newDefinition;
 }
 
@@ -39,7 +40,11 @@ void Definition::print(OutStream &stream, Int indents) const
   if (id != UNKNOWN_ID) {
     stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]");
   }
-  stream << S(" ") << this->name << S(": ");
+  stream << S(" ") << this->name;
+  if (this->isToMerge()) {
+    stream << S(" <to merge>");
+  }
+  stream << S(": ");
   dumpData(stream, this->target.get(), indents);
 }
 

@@ -130,19 +130,22 @@ DEFINE_NOTICE(UnexpectedModifierNotice, "Core.Notices", "Core", "alusus.net", "C
 
 
 //==============================================================================
-// Parser Notices
+// Data Notices
 
 namespace Core::Notices
 {
 
-DEFINE_NOTICE(MissingDefLinkNotice, "Core.Notices", "Core", "alusus.net", "CH1001", 1,
+DEFINE_NOTICE(MissingDefLinkNotice, "Core.Notices", "Core", "alusus.net", "CD1001", 1,
   "Missing link expression in 'def' command."
 );
-DEFINE_NOTICE(MissingDefNameNotice, "Core.Notices", "Core", "alusus.net", "CH1002", 1,
+DEFINE_NOTICE(MissingDefNameNotice, "Core.Notices", "Core", "alusus.net", "CD1002", 1,
   "Missing definition name in 'def' command."
 );
-DEFINE_NOTICE(InvalidDefCommandNotice, "Core.Notices", "Core", "alusus.net", "CH1003", 1,
+DEFINE_NOTICE(InvalidDefCommandNotice, "Core.Notices", "Core", "alusus.net", "CD1003", 1,
   "Invalid 'def' command."
+);
+DEFINE_NOTICE(IncompatibleDefMergeNotice, "Core.Notices", "Core", "alusus.net", "CD1004", 1,
+  "Incompatible 'def' merge."
 );
 
 } // namespace

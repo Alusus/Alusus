@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_HANDLERS_SCOPEPARSINGHANDLER_H
 #define CORE_PROCESSING_HANDLERS_SCOPEPARSINGHANDLER_H
 
-namespace Core { namespace Processing { namespace Handlers
+namespace Core::Processing::Handlers
 {
 
 template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
@@ -68,7 +68,6 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
 
   public: virtual void onLevelExit(Parser *parser, ParserState *state, SharedPtr<TiObject> const &data)
   {
-    // TODO: Merge definitions.
     // TODO: Merge StatementLists into the scope.
     GenericParsingHandler::onLevelExit(parser, state, data);
   }
@@ -78,7 +77,7 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
     if (state->isAProdRoot(levelIndex)) {
       auto listContainer = state->getData(levelIndex).ti_cast_get<ListContaining<TiObject>>();
       ASSERT(listContainer);
-      listContainer->addElement(data.get());
+      Core::Data::Ast::addPossiblyMergeableElement(data.get(), listContainer, state->getNoticeStore());
     } else {
       GenericParsingHandler::addData(data, state, levelIndex);
     }
@@ -92,6 +91,6 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
 
 }; // class
 
-} } } // namespace
+} // namespace
 
 #endif
