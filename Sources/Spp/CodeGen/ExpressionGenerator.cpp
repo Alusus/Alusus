@@ -1958,7 +1958,17 @@ Bool ExpressionGenerator::_generateMemberReference(
     return false;
   }
   TiObject *astMemberVar;
-  if (!expGenerator->astHelper->getSeeker()->tryGet(astNode, body, astMemberVar)) {
+  if (!expGenerator->astHelper->getSeeker()->tryGet(
+    astNode, body, astMemberVar, Core::Data::Seeker::Flags::SKIP_OWNERS
+  )) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidTypeMemberNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  auto astMemberVarNode = ti_cast<Core::Data::Node>(astMemberVar);
+  if (astMemberVarNode == 0 || astMemberVarNode->getOwner() == 0 || astMemberVarNode->getOwner()->getOwner() != body) {
+    // The found member was probably an alias to a non member.
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidTypeMemberNotice>(astNode->findSourceLocation())
     );

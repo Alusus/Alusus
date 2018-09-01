@@ -3,12 +3,16 @@ import "libalusus_spp.so";
 def Main: module
 {
   def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+  def i: Int;
 
   def Point: type
   {
     def x: Int[32];
     def y: Int[32];
     def s: Float[32];
+    def xref: alias x;
+    def iref: alias i;
+    def wrongRef: alias wrong;
   };
 
   def Nested: type
@@ -63,6 +67,9 @@ def Main: module
 
     p.i = 5;
     p.x = 1.0;
+    p.xref = 1.0;
+    p.iref = 5;
+    p.wrongRef = 5;
     n.i = 10;
     n.i = p.y;
     print("p.i=%d\n", p.i);

@@ -25,6 +25,8 @@ def Main: module
     def y: Int[32];
     def s: Float[32];
     def a: array[Float[64], 5];
+    def xref: alias x;
+    def yref: alias y;
   };
 
   def MyNested: type
@@ -95,6 +97,9 @@ def Main: module
     printPoint(getPoint(2f));
     p = getPoint(3f);
     printPoint(p);
+
+    print("p.xref=%d\n", p.xref);
+    print("p.yref=%d\n", p.yref);
   }
 };
 
