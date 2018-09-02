@@ -1,24 +1,24 @@
-import "srt.alusus";
+import "Srl/Console.alusus";
 
 def Main: module
 {
   def start: function () => Void
   {
-    Srt.Console.print("Hello World!!\n");
+    Srl.Console.print("Hello World!!\n");
 
     def str: ptr[array[Char]];
     str = "abcdefgh";
     def i: Int;
     for i = 0, i < 8, ++i {
-      Srt.Console.putChar(str~cnt(i));
+      Srl.Console.putChar(str~cnt(i));
     };
-    Srt.Console.putChar('\n');
-    Srt.Console.print(416);
-    Srt.Console.putChar('\n');
-    Srt.Console.print(23.67);
-    Srt.Console.putChar('\n');
-    Srt.Console.print(23.67, 3);
-    Srt.Console.putChar('\n');
+    Srl.Console.putChar('\n');
+    Srl.Console.print(416);
+    Srl.Console.putChar('\n');
+    Srl.Console.print(23.67);
+    Srl.Console.putChar('\n');
+    Srl.Console.print(23.67, 3);
+    Srl.Console.putChar('\n');
   };
 };
 

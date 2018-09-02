@@ -1,4 +1,5 @@
-import "srt.alusus";
+import "Srl/Console.alusus";
+import "Srl/Memory.alusus";
 
 def Main: module
 {
@@ -8,45 +9,45 @@ def Main: module
     def i: Int;
 
     // Test alloc.
-    Srt.Console.print("Testing alloc:\n");
-    buf = Srt.Memory.alloc(Int~size * 10)~cast[ptr[array[Int]]];
+    Srl.Console.print("Testing alloc:\n");
+    buf = Srl.Memory.alloc(Int~size * 10)~cast[ptr[array[Int]]];
     for i = 0, i < 10, ++i buf~cnt(i) = i * 2;
     for i = 0, i < 10, ++i {
-      Srt.Console.print("Element %d: %d\n", i, buf~cnt(i));
+      Srl.Console.print("Element %d: %d\n", i, buf~cnt(i));
     };
 
     // Test realloc.
-    Srt.Console.print("\nTesting realloc:\n");
-    buf = Srt.Memory.realloc(buf, Int~size * 20)~cast[ptr[array[Int]]];
+    Srl.Console.print("\nTesting realloc:\n");
+    buf = Srl.Memory.realloc(buf, Int~size * 20)~cast[ptr[array[Int]]];
     for i = 0, i < 20, ++i buf~cnt(i) = i * 2;
     for i = 0, i < 20, ++i {
-      Srt.Console.print("Element %d: %d\n", i, buf~cnt(i));
+      Srl.Console.print("Element %d: %d\n", i, buf~cnt(i));
     };
 
-    Srt.Memory.free(buf);
+    Srl.Memory.free(buf);
 
     // Test allocAligned.
-    Srt.Console.print("\nTesting allocAligned:\n");
-    buf = Srt.Memory.allocAligned(Int~size, Int~size * 10)~cast[ptr[array[Int]]];
+    Srl.Console.print("\nTesting allocAligned:\n");
+    buf = Srl.Memory.allocAligned(Int~size, Int~size * 10)~cast[ptr[array[Int]]];
     for i = 0, i < 10, ++i buf~cnt(i) = i * 3;
     for i = 0, i < 10, ++i {
-      Srt.Console.print("Element %d: %d\n", i, buf~cnt(i));
+      Srl.Console.print("Element %d: %d\n", i, buf~cnt(i));
     };
-    Srt.Memory.free(buf);
+    Srl.Memory.free(buf);
 
     // Test set, copy, and compare.
-    Srt.Console.print("\nTesting set, copy, and compare:\n");
-    buf = Srt.Memory.alloc(Int~size * 10)~cast[ptr[array[Int]]];
+    Srl.Console.print("\nTesting set, copy, and compare:\n");
+    buf = Srl.Memory.alloc(Int~size * 10)~cast[ptr[array[Int]]];
     for i = 0, i < 10, ++i buf~cnt(i) = i * 2;
     def buf2: ptr[array[Int]];
-    buf2 = Srt.Memory.alloc(Int~size * 10)~cast[ptr[array[Int]]];
-    Srt.Memory.set(buf2, 0, Int~size * 10);
-    Srt.Console.print("compare array to zeros: %d\n", Srt.Memory.compare(buf, buf2, Int~size * 10));
-    Srt.Console.print("compare zeros to array: %d\n", Srt.Memory.compare(buf2, buf, Int~size * 10));
-    Srt.Memory.copy(buf2, buf, Int~size * 10);
-    Srt.Console.print("comparing equal arrays: %d\n", Srt.Memory.compare(buf, buf2, Int~size * 10));
-    Srt.Memory.free(buf);
-    Srt.Memory.free(buf2);
+    buf2 = Srl.Memory.alloc(Int~size * 10)~cast[ptr[array[Int]]];
+    Srl.Memory.set(buf2, 0, Int~size * 10);
+    Srl.Console.print("compare array to zeros: %d\n", Srl.Memory.compare(buf, buf2, Int~size * 10));
+    Srl.Console.print("compare zeros to array: %d\n", Srl.Memory.compare(buf2, buf, Int~size * 10));
+    Srl.Memory.copy(buf2, buf, Int~size * 10);
+    Srl.Console.print("comparing equal arrays: %d\n", Srl.Memory.compare(buf, buf2, Int~size * 10));
+    Srl.Memory.free(buf);
+    Srl.Memory.free(buf2);
   };
 };
 

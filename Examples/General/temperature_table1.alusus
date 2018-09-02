@@ -1,4 +1,4 @@
-import "srt.alusus";
+import "Srl/Console.alusus";
 
 def TemperatureTable1: module
 {
@@ -16,7 +16,7 @@ def TemperatureTable1: module
     fahr = lower;
     while fahr <= upper {
       celsius = 5 * (fahr - 32) / 9;
-      Srt.Console.print("%d\t%d\n", fahr, celsius);
+      Srl.Console.print("%d\t%d\n", fahr, celsius);
       fahr = fahr + step;
     }
   }

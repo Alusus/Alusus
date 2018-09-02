@@ -1,4 +1,4 @@
-import "srt.alusus";
+import "Srl/Console.alusus";
 
 def UserTypes: module
 {
@@ -13,7 +13,7 @@ def UserTypes: module
     def p : Point;
     p.x = 10;
     p.y = 5;
-    Srt.Console.print("x = %d, y = %d\n", p.x, p.y);
+    Srl.Console.print("x = %d, y = %d\n", p.x, p.y);
   }
 };
 

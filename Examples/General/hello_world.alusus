@@ -1,10 +1,10 @@
-import "srt.alusus";
+import "Srl/Console.alusus";
 
 def HelloWorld: module
 {
   def start: function ()
   {
-    Srt.Console.print("Hello World!\n");
+    Srl.Console.print("Hello World!\n");
   };
 };
 

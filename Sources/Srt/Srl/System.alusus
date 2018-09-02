@@ -1,0 +1,28 @@
+import "globals.alusus";
+
+@merge def Srl : module
+{
+  def System: module
+  {
+    def Time: type
+    {
+      def second: Int;
+      def minute: Int;
+      def hour: Int;
+      def day: Int;
+      def month: Int;
+      def year: Int;
+      def weekDay: Int;
+      def yearDay: Int;
+      def daylightSaving: Int;
+      def utcOffset: Int[64];
+      def tiemzone: ptr[array[Char]];
+    };
+
+    def exec: @expname[system] function (filename: ptr[Word[8]]) => Int;
+    def sleep: @expname[usleep] function (d: Word) => Void;
+    def getTimestamp: @expname[time] function () => Word[64];
+    def getDetailedTime: @expname[localtime] function (ts: ptr[Word[64]]) => ptr[Time];
+    def getDetailedTime: @expname[localtime] function (ts: ptr[Word[64]], dt: ptr[Time]) => ptr[Time];
+  };
+};

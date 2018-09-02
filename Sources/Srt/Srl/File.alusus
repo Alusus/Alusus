@@ -1,0 +1,16 @@
+import "globals.alusus";
+
+@merge def Srl : module
+{
+  def File: module
+  {
+    def openFile: @expname[fopen] function (filename: ptr[Word[8]], mode: ptr[Word[8]]) => ptr[Void];
+    def closeFile: @expname[fclose] function (file: ptr[Void]) => Int[32];
+    def printToFile: @expname[fprintf] function (file: ptr[Void], format: ptr[Word[8]], args: ...any) => Int[32];
+    def scanFromFile: @expname[fscanf] function (file: ptr[Void], format: ptr[Word[8]], args: ...any) => Int[32];
+    def writeToFile: @expname[fwrite] function
+      (content: ptr[Void], size: Int[32], count:Int[32], file: ptr[Void]) => Int[32];
+    def readFromFile: @expname[fread] function
+      (content: ptr[Void], size: Int[32], count:Int[32], file: ptr[Void]) => Int[32];
+  };
+};

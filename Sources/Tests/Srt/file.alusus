@@ -1,4 +1,5 @@
-import "srt.alusus";
+import "Srl/Console.alusus";
+import "Srl/File.alusus";
 
 def Main: module
 {
@@ -16,22 +17,22 @@ def Main: module
   def testWritingText: function (filename: ptr[Char])=>Void
   {
     def file: ptr[Void];
-    file = Srt.File.openFile(filename, "w");
-    Srt.File.printToFile(file, "Num of days in a week: %d", 7);
-    Srt.File.closeFile(file);
+    file = Srl.File.openFile(filename, "w");
+    Srl.File.printToFile(file, "Num of days in a week: %d", 7);
+    Srl.File.closeFile(file);
   };
 
   def testReadingText: function (filename: ptr[Char])=>Void
   {
     def file: ptr[Void];
     def buffer: array[Char, 100];
-    file = Srt.File.openFile(filename, "r");
-    Srt.File.scanFromFile(file, "%[^0-9]", buffer~ptr);
-    Srt.Console.print(buffer(0)~ptr);
+    file = Srl.File.openFile(filename, "r");
+    Srl.File.scanFromFile(file, "%[^0-9]", buffer~ptr);
+    Srl.Console.print(buffer(0)~ptr);
     def num: Int;
-    Srt.File.scanFromFile(file, "%i", num~ptr);
-    Srt.Console.print("%d\n", num);
-    Srt.File.closeFile(file);
+    Srl.File.scanFromFile(file, "%i", num~ptr);
+    Srl.Console.print("%d\n", num);
+    Srl.File.closeFile(file);
   };
 
   def testWritingBinary: function (filename: ptr[Char])=>Void
@@ -42,21 +43,21 @@ def Main: module
     for i = 0, i < 8, ++i {
       arr(i) = i * i;
     };
-    file = Srt.File.openFile(filename, "w");
-    Srt.File.writeToFile(arr~ptr, arr(0)~size~cast[Int], 8, file);
-    Srt.File.closeFile(file);
+    file = Srl.File.openFile(filename, "w");
+    Srl.File.writeToFile(arr~ptr, arr(0)~size~cast[Int], 8, file);
+    Srl.File.closeFile(file);
   };
 
   def testReadingBinary: function (filename: ptr[Char])=>Void
   {
     def file: ptr[Void];
     def newArr: array[Int, 8];
-    file = Srt.File.openFile(filename, "r");
-    Srt.File.readFromFile(newArr~ptr, newArr(0)~size~cast[Int], 8, file);
-    Srt.File.closeFile(file);
+    file = Srl.File.openFile(filename, "r");
+    Srl.File.readFromFile(newArr~ptr, newArr(0)~size~cast[Int], 8, file);
+    Srl.File.closeFile(file);
     def i: Int;
     for i = 0, i < 8, ++i {
-      Srt.Console.print("element %d: %d\n", i, newArr(i));
+      Srl.Console.print("element %d: %d\n", i, newArr(i));
     }
   }
 };

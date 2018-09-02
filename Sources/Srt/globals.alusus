@@ -1,0 +1,4 @@
+import "libalusus_spp.so";
+
+def Bool: alias Word[1];
+def Char: alias Word[8];

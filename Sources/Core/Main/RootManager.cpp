@@ -11,6 +11,8 @@
 //==============================================================================
 
 #include "core.h"
+#include <stdlib.h>
+#include <limits.h>
 
 namespace Core::Main
 {
@@ -18,7 +20,7 @@ namespace Core::Main
 //==============================================================================
 // Constructor
 
-RootManager::RootManager() : libraryManager(this)
+RootManager::RootManager() : libraryManager(this), processedFiles(true)
 {
   this->rootScope = Data::Ast::Scope::create();
   this->rootScope->setProdId(ID_GENERATOR->getId("Root"));
@@ -84,13 +86,20 @@ SharedPtr<TiObject> RootManager::processString(Char const *str, Char const *name
 }
 
 
-SharedPtr<TiObject> RootManager::processFile(Char const *filename)
+SharedPtr<TiObject> RootManager::processFile(Char const *filename, Bool allowReprocess)
 {
   // Find the absolute path of the file.
   Str fullPath = this->findAbsolutePath(filename);
   if (fullPath.empty()) {
     throw EXCEPTION(InvalidArgumentException, S("filename"), S("File not found."), filename);
   }
+
+  // Do not reprocess if already processed.
+  if (!allowReprocess) {
+    if (this->processedFiles.findIndex(fullPath.c_str()) != -1) return TioSharedPtr::null;
+  }
+  this->processedFiles.add(fullPath.c_str(), TioSharedPtr::null);
+
   // Extract the directory part and add it to the current paths.
   Int pos;
   Str searchPath;
@@ -177,7 +186,11 @@ Str RootManager::findAbsolutePath(Char const *filename)
   }
 
   // Is the filename an absolute path already?
-  if (filename[0] == C('/')) return Str(filename);
+  if (filename[0] == C('/')) {
+    Char canonicalPath[PATH_MAX];
+    realpath(filename, canonicalPath);
+    return Str(canonicalPath);
+  }
 
   // Try all current paths.
   Str fullPath;
@@ -190,7 +203,9 @@ Str RootManager::findAbsolutePath(Char const *filename)
     // Check if the file exists.
     fin.open(fullPath);
     if (!fin.fail()) {
-      return fullPath;
+      Char canonicalPath[PATH_MAX];
+      realpath(fullPath.c_str(), canonicalPath);
+      return Str(canonicalPath);
     }
   }
 

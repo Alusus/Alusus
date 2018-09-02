@@ -1,4 +1,4 @@
-import "srt.alusus";
+import "Srl/Console.alusus";
 
 def FactorialRecursive: module
 {
@@ -10,7 +10,7 @@ def FactorialRecursive: module
 
   def start: function ()
   {
-    Srt.Console.print("Factorial of 5 is %d\n", factorial(5));
+    Srl.Console.print("Factorial of 5 is %d\n", factorial(5));
   }
 };
 

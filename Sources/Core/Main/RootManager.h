@@ -34,6 +34,8 @@ class RootManager : public TiObject
 
   private: LibraryManager libraryManager;
 
+  private: SharedMap<TiObject> processedFiles;
+
   private: std::vector<Str> searchPaths;
   private: std::vector<Int> searchPathCounts;
 
@@ -96,7 +98,7 @@ class RootManager : public TiObject
 
   public: virtual SharedPtr<TiObject> processString(Char const *str, Char const *name);
 
-  public: virtual SharedPtr<TiObject> processFile(Char const *filename);
+  public: virtual SharedPtr<TiObject> processFile(Char const *filename, Bool allowReprocess = false);
 
   public: virtual SharedPtr<TiObject> processStream(InStream *is, Char const *streamName);
 

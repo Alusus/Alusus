@@ -1,4 +1,4 @@
-import "srt.alusus";
+import "Srl/Console.alusus";
 
 def FactorialWhileLoop: module
 {
@@ -16,7 +16,7 @@ def FactorialWhileLoop: module
 
   def start: function()
   {
-    Srt.Console.print("Factorial of 5 is %d\n", factorial(5));
+    Srl.Console.print("Factorial of 5 is %d\n", factorial(5));
   }
 };
 
