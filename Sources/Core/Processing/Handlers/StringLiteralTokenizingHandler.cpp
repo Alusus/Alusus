@@ -85,6 +85,7 @@ void StringLiteralTokenizingHandler::prepareToken(
     }
     ++i;
   }
+  buffer[bufferLength] = WC('\0');
   token->setText(buffer, bufferLength);
   SFREE(buffer);
   // Set other token info.
