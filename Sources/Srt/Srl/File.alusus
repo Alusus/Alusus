@@ -4,13 +4,14 @@ import "globals.alusus";
 {
   def File: module
   {
-    def openFile: @expname[fopen] function (filename: ptr[Word[8]], mode: ptr[Word[8]]) => ptr[Void];
-    def closeFile: @expname[fclose] function (file: ptr[Void]) => Int[32];
-    def printToFile: @expname[fprintf] function (file: ptr[Void], format: ptr[Word[8]], args: ...any) => Int[32];
-    def scanFromFile: @expname[fscanf] function (file: ptr[Void], format: ptr[Word[8]], args: ...any) => Int[32];
-    def writeToFile: @expname[fwrite] function
+    def open: @expname[fopen] function (filename: ptr[Word[8]], mode: ptr[Word[8]]) => ptr[Void];
+    def close: @expname[fclose] function (file: ptr[Void]) => Int[32];
+    def print: @expname[fprintf] function (file: ptr[Void], format: ptr[Word[8]], args: ...any) => Int[32];
+    def scan: @expname[fscanf] function (file: ptr[Void], format: ptr[Word[8]], args: ...any) => Int[32];
+    def write: @expname[fwrite] function
       (content: ptr[Void], size: Int[32], count:Int[32], file: ptr[Void]) => Int[32];
-    def readFromFile: @expname[fread] function
+    def read: @expname[fread] function
       (content: ptr[Void], size: Int[32], count:Int[32], file: ptr[Void]) => Int[32];
+    def flush: @expname[fflush] function (file: ptr[Void]) => Int[32];
   };
 };
