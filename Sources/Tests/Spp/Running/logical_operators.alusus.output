@@ -35,3 +35,6 @@ True triple check.
  
 Testing Mixed:
 And of two true ors.
+ 
+b is false... 1
+b is false... 2

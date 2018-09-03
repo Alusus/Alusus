@@ -635,7 +635,9 @@ Bool ExpressionGenerator::_generateOperator(
     if (outfixOp->getType() == S("+")) { funcName = S("__pos"); opType = OpType::UNARY_VAL; }
     else if (outfixOp->getType() == S("-")) { funcName = S("__neg"); opType = OpType::UNARY_VAL; }
     else if (outfixOp->getType() == S("!")) { funcName = S("__not"); opType = OpType::INT_UNARY_VAL; }
-    else if (outfixOp->getType() == S("++")) { funcName = S("__earlyInc"); opType = OpType::UNARY_VAR; }
+    else if (outfixOp->getType() == S("!!") || outfixOp->getType() == S("not")) {
+      funcName = S("__logNot"); opType = OpType::INT_UNARY_VAL;
+    } else if (outfixOp->getType() == S("++")) { funcName = S("__earlyInc"); opType = OpType::UNARY_VAR; }
     else if (outfixOp->getType() == S("--")) { funcName = S("__earlyDec"); opType = OpType::UNARY_VAR; }
     else {
       throw EXCEPTION(GenericException, S("Unexpected prefix operator."));
@@ -1403,10 +1405,22 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
     tg, tgContext, static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), param
   )) return false;
 
-  Ast::Type *astTargetType = 0;
+  Ast::IntegerType *astTargetType = 0;
   if (param.astType->isDerivedFrom<Ast::IntegerType>()) {
     astTargetType = static_cast<Ast::IntegerType*>(param.astType);
   } else {
+    // Error.
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+
+  // Limit logical not to boolean types.
+  if (
+    (astNode->getType() == S("!!") || astNode->getType() == S("not")) &&
+    astTargetType->getBitCount(expGenerator->astHelper) != 1
+  ) {
     // Error.
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
@@ -1423,7 +1437,7 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == S("!")) {
+  if (astNode->getType() == S("!") || astNode->getType() == S("!!") || astNode->getType() == S("not")) {
     if (!tg->generateNot(tgContext, tgTargetType, param.targetData.get(), result.targetData)) return false;
     result.astType = astTargetType;
     return true;

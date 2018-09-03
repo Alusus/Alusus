@@ -86,6 +86,7 @@
       <keyword>alias</keyword>
       <keyword>and</keyword>
       <keyword>or</keyword>
+      <keyword>not</keyword>
     </context>
 
     <context id="ar_keyword" style-ref="keyword">
@@ -113,6 +114,7 @@
       <keyword>لقب</keyword>
       <keyword>و</keyword>
       <keyword>أو</keyword>
+      <keyword>ليس</keyword>
     </context>
 
     <context id="type" style-ref="type">

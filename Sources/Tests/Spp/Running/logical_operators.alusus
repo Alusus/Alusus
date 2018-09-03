@@ -22,6 +22,8 @@ def Main: module
     testAnd();
     print(" ");
     testMixed();
+    print(" ");
+    testNot();
   };
 
   def testOr: function () => Void
@@ -104,6 +106,17 @@ def Main: module
 
     if (i > 10 && j > 10) || (i < 5 && j < 5) print("Error: Or of two false ands.");
     if (i > 10 || j > 10) && (i < 5 || j < 5) print("And of two true ors.");
+  };
+
+  def testNot: function () => Void
+  {
+    def b: Word[1];
+    b = 0;
+    if not b print("b is false... 1");
+    if !!b print("b is false... 2");
+    b = 1;
+    if not b print("b is false... 3");
+    if !!b print("b is false... 4");
   };
 };
 
