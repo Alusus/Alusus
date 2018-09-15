@@ -56,8 +56,20 @@ function(hljs) {
       },
       {
         className: 'type',
-        begin: 'ـ[\u0620-\u065F\u066E-\u06DC_0-9]+'
-      }
+        begin: '\\b[اورزدذ]*[\u0620-\u065F_0-9]ـ[\u0620-\u065F_0-9]*'
+      },
+      {
+        className: 'type',
+        beginKeywords: 'int word float bool char void صحيح طبيعي عائم ثنائي محرف فراغ'
+      },
+      {
+        className: 'string',
+        begin: '\\b[A-Z]+'
+      },
+      {
+        className: 'string',
+        begin: '\\b_[\u0620-\u065F_0-9]+_'
+      },
     ]
   };
 }

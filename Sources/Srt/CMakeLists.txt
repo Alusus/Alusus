@@ -7,7 +7,7 @@
 project(AlususSrt)
 cmake_minimum_required(VERSION 2.8)
 
-file(GLOB AlususSrt_Source_Files *.alusus *.أسس Srl/*.alusus ـمتم/*.أسس)
+file(GLOB AlususSrt_Source_Files *.alusus *.أسس Srl/*.alusus مـتم/*.أسس)
 source_group("SourceFiles\\General" FILES ${AlususSrt_Source_Files})
 add_custom_target(AlususSrt SOURCES ${AlususSrt_Source_Files})
 install(DIRECTORY "./" DESTINATION "Lib" FILES_MATCHING PATTERN "*.alusus" PATTERN "*.أسس")

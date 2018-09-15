@@ -13,7 +13,12 @@ def System: module
     Srl.Console.print("%llu\n", ts);
 
     // exec
-    Srl.System.exec("LANG=en_US date -d @0");
+    Srl.System.exec("TZ=UTC LANG=en_US date -d @0");
+
+    // Set & get env.
+    Srl.System.setEnv("TZ", "UTC", 1);
+    Srl.Console.print(Srl.System.getEnv("TZ"));
+    Srl.Console.print("\n");
 
     // getDetailedTime
     def dt: Srl.System.Time;

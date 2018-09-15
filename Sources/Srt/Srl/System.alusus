@@ -24,5 +24,7 @@ import "globals.alusus";
     def getTimestamp: @expname[time] function (r: ptr[Word[64]]) => Word[64];
     def getDetailedTime: @expname[localtime] function (ts: ptr[Word[64]]) => ptr[Time];
     def getDetailedTime: @expname[localtime_r] function (ts: ptr[Word[64]], dt: ptr[Time]) => ptr[Time];
+    def setEnv: @expname[setenv] function (name: ptr[Word[8]], value: ptr[Word[8]], overwrite: Int) => Int;
+    def getEnv: @expname[getenv] function (name: ptr[Word[8]]) => ptr[Word[8]];
   };
 };

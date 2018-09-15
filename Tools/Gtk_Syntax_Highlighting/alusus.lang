@@ -19,6 +19,7 @@
     <style id="keyword"           _name="Keyword"                   map-to="def:keyword"/>
     <style id="type"              _name="Data Type"                 map-to="def:type"/>
     <style id="modifier"          _name="Modifier"                  map-to="def:preprocessor"/>
+    <style id="constant"          _name="Constant"                  map-to="def:constant"/>
   </styles>
 
   <definitions>
@@ -117,16 +118,44 @@
       <keyword>ليس</keyword>
     </context>
 
+    <context id="constant" style-ref="constant">
+      <match extended="true">
+        (\b[A-Z_]+\b)
+      </match>
+    </context>
+
+    <context id="ar_constant" style-ref="constant">
+      <match extended="true">
+        (\b_[\x{0620}-\x{065F}0-9_]+_\b)
+      </match>
+    </context>
+
     <context id="type" style-ref="type">
       <match extended="true">
         (\b[A-Z][a-zA-Z0-9_]*\b)
       </match>
     </context>
+    <context id="predef_type" style-ref="type">
+      <keyword>int</keyword>
+      <keyword>word</keyword>
+      <keyword>float</keyword>
+      <keyword>bool</keyword>
+      <keyword>char</keyword>
+      <keyword>void</keyword>
+    </context>
 
     <context id="ar_type" style-ref="type">
       <match extended="true">
-        (ـ[\x{0620}-\x{065F}0-9_]+)
+        (\b[اورزدذ]*[\x{0620}-\x{065F}0-9_]ـ[\x{0620}-\x{065F}0-9_]*\b)
       </match>
+    </context>
+    <context id="predef_ar_type" style-ref="type">
+      <keyword>صحيح</keyword>
+      <keyword>طبيعي</keyword>
+      <keyword>عائم</keyword>
+      <keyword>ثنائي</keyword>
+      <keyword>محرف</keyword>
+      <keyword>فراغ</keyword>
     </context>
 
     <context id="tilde" style-ref="keyword">
@@ -153,10 +182,14 @@
         <context ref="boolean"/>
         <context ref="null-value"/>
 
+        <context ref="constant"/>
+        <context ref="ar_constant"/>
         <context ref="keyword"/>
         <context ref="ar_keyword"/>
         <context ref="type"/>
+        <context ref="predef_type"/>
         <context ref="ar_type"/>
+        <context ref="predef_ar_type"/>
         <context ref="tilde"/>
         <context ref="modifier"/>
       </include>
