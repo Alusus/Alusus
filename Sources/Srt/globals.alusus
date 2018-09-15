@@ -7,3 +7,5 @@ def bool: alias Word[1];
 def Bool: alias Word[1];
 def char: alias Word[8];
 def Char: alias Word[8];
+def void: alias Void;
+
