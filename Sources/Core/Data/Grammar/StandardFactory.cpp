@@ -127,7 +127,7 @@ void StandardFactory::createCharGroupDefinitions()
     })
   ));
 
-  // Letter : char 'a'..'z', 'A'..'Z', '_';
+  // Letter : char 'a'..'z', 'A'..'Z', '_', 0h0620..0h065F, 0h066E..0h06DC;
   SharedPtr<CharGroupUnit> letterCharGroup = UnionCharGroupUnit::create({
     SequenceCharGroupUnit::create(S("a"), S("z")),
     SequenceCharGroupUnit::create(S("A"), S("Z")),
@@ -522,7 +522,7 @@ void StandardFactory::createTokenDefinitions()
   //   '\\' + ('c' + HexDigit*(2,2) ||
   //           'u' + HexDigit*(4,4) ||
   //           'w' + HexDigit*(8,8) ||
-  //           'n' || 't' || 'r' || '"' || '\'' || '\\')
+  //           'n' || 't' || 'r' || '"' || '\'' || '\\' || 'ج' || 'ت' || 'ر')
   // };
   this->set(S("root.LexerDefs.EsSequence"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
