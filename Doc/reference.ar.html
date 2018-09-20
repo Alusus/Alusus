@@ -36,7 +36,7 @@
  <div style="width: 100%; height: 100px; padding-top:10px; text-align:center;">
   <div style="float:right;"><img src="Resources/logo.gif" style="border:0;"/></div>
   <img src="Resources/title.gif" style="border:0;"/>
-  <div style="padding: 10px 15px; width:120px; float:left; text-align:left;"><a style="text-decoration:none; color:black;" href="design.en.html"><b>English</b></a></div>
+  <div style="padding: 10px 15px; width:120px; float:left; text-align:left;"></div>
  </div>
  <div class="menu">
   <span class="menuItem"><a href="http://alusus.net?lang=ar">لغة الأسُس</a> &#x276f; <a href="http://alusus.net/documentation?lang=ar">الوثائق</a></span>
@@ -45,7 +45,7 @@
  <h1>مرجع استخدام لغة الأسُس</h1>
  <a href='#' onclick='openAllFolds()'>إفتح الكل</a>&nbsp;&nbsp;&nbsp;<a href='#' onclick='closeAllFolds()'>أغلق الكل</a>
  <p>
- يضم هذا المرجع تعليمات البرمجة الإجرائية باستخدام مكتبة البناء المعيارية (Standard Code Generator).
+ يضم هذا المرجع تعليمات البرمجة الإجرائية باستخدام مكتبة نمط البرمجة المعياري (Standard Programming Paradigm).
  </p>
 
  <!-- ********************************************************************** -->
@@ -80,17 +80,17 @@
 </pre>
 
   <h3>الهيكل العام للبرنامج</h3>
-  كل برنامج بلغة الأسُس يجب أن يشمل المكتبة "libalusus_scg.so" إما بشكل مباشر أو بشكل غير مباشر وذلك لأن هذه المكتبة هي التي تحتوي على تعريفات الأوامر الأساسية المتعلقة بالبرمجة الإجرائية. لذلك يبدأ كل برنامج بالأمر "اشمل" أو "import".
+  كل برنامج بلغة الأسُس يجب أن يشمل المكتبة "libalusus_spp.so" إما بشكل مباشر أو بشكل غير مباشر وذلك لأن هذه المكتبة هي التي تحتوي على تعريفات الأوامر الأساسية المتعلقة بالبرمجة الإجرائية. لذلك يبدأ كل برنامج بالأمر "اشمل" أو "import".
 <pre class="code" dir=ltr>
-  import "libalusus_scg.so";
+  import "libalusus_spp.so";
 </pre>
   غالباً لن تحتاج لشمل مكتبة البناء المعيارية مباشرة، وإنما تشمل ملفات تعريفية أخرى تقوم بدورها بشمل مكتبة البناء المعيارية. على سبيل المثال:
 <pre class="code" dir=ltr>
-  import "srt.alusus";
+  import "Srl/Console.alusus";
 </pre>
-  أو بشمل ملف التعريفات العربية العامة:
+  أو:
 <pre class="code" dir=rtl style="text-align:right;">
-  اشمل "متم.أسس"؛
+  اشمل "مـتم/طـرفية.أسس"؛
 </pre>
   يحتوي كل برنامج على تعريف لحزمة وهذه الحزمة هي التي تحتوي على تعريفات البرنامج.
 <pre dir=ltr class="samplecode">
@@ -100,21 +100,18 @@
   }
 </pre>
 <pre dir=rtl class="samplecode" style="text-align:right;">
-  عرّف البسملة : حزمة
+  عرّف الـبسملة : حزمة
   {
     ...
   }
 </pre>
 بعد ذلك يجب أن يضم البرنامج الأمر نفّذ (run) لتنفيذ البرنامج. السبب في ذلك يكمن في قدرة المبرمج على الاختيار بين التنفيذ المباشر (JIT compilation) أو التحويل إلى ملف تشغيلي (عبر الأمر build). خاصية التحويل إلى ملف تنفيذي ليست مكتملة بعد وسيتم إكمالها في إصدار آخر. الأمر "نفّذ" يكتب بالشكل التالي:
-<pre dir=ltr class="code">
-  run &lt;module_name&gt;
-</pre>
 <pre dir=rtl class="code" style="text-align:right;">
-  نفّذ &lt;اسم_حزمة&gt;
+  نفّذ &lt;اسم_حزمة&gt.&lt;اسم_الدالة&gt؛
 </pre>
-  الحزمة المعطاة للأمر "نفّذ" يجب أن تحتوي على دالّة باسم "إبدأ" أو "main". بدون هذه الدالة لا يمكن تنفيذ البرنامج.<br>
-  <b>ملاحظة: </b>
-  في الوقت الحالي الحزم المختلفة ليست معزولة عن بعض. أي أن المترجم يدمج جميع الحزم عند التنفيذ. في إصدار لاحق ستعمل الحزم كمجالات تسمية بحيث لا تستطيع استدعاء دالة من حزمة أخرى إلا بكتابة اسم الحزمة أيضاً عند الإشارة إلى تلك الدالة.
+<pre dir=ltr class="code">
+  run &lt;module_name&gt;.&lt;function_name&gt;
+</pre>
 
   <h3>التعليقات</h3>
   التعليقات في لغة الأسُس تبدأ بالرمز // وتنتهي عند نهاية السطر، أي أنها مشابهة للتعليقات مفردة السطر (single line comment) في لغة سي++ أو جافا.
@@ -125,21 +122,95 @@
  <h2 class="foldable">الأصناف الأساسية للمتغيرات</h2>
  <div>
   <ul>
-   <li><b>العدد_الصحيح (Int)</b><br/>
-  عدد صحيح من 32 بت.</li>
+   <li><b>صـحيح (Int)</b><br/>
+  عدد صحيح. يتم تحديد عدد البتات بين أقواس معقوفة. تحديد عدد البتات اختياري وبدونه يكون العدد الافتراضي للبتات 32.
+<pre dir=rtl class="code" style="text-align:right;">
+صـحيح // 32 بتة
+صـحيح[1]
+صـحيح[8]
+صـحيح[16]
+صـحيح[32]
+صـحيح[64]
+</pre>
+<pre dir=ltr class="code">
+Int // 32 bits
+Int[1]
+Int[8]
+Int[16]
+Int[32]
+Int[64]
+</pre>
+   </li>
    <br/>
 
-   <li><b>العدد_الحقيقي (Float)</b><br/>
-  عدد حقيقي من 32 بت باستخدام الفاصلة العائمة.</li>
+   <li><b>طـبيعي (Word)</b><br/>
+    عدد صحيح موجب. يتم تحديد عدد البتات بين أقواس معقوفة. تحديد عدد البتات اختياري وبدونه يكون العدد الافتراضي للبتات 32.
+<pre dir=rtl class="code" style="text-align:right;">
+طـبيعي // 32 بتة
+طـبيعي[1]
+طـبيعي[8]
+طـبيعي[16]
+طـبيعي[32]
+طـبيعي[64]
+</pre>
+<pre dir=ltr class="code">
+Word // 32 bits
+Word[1]
+Word[8]
+Word[16]
+Word[32]
+Word[64]
+</pre>
+     </li>
    <br/>
 
-   <li><b>العدد_الحقيقي64 (Double)</b><br/>
-  عدد حقيقي من 64 بت باستخدام الفاصلة العائمة.</li>
+   <li><b>عـائم (Float)</b><br/>
+    عدد عائم. يتم تحديد عدد البتات بين أقواس معقوفة. تحديد عدد البتات اختياري وبدونه يكون العدد الافتراضي للبتات 32.
+<pre dir=rtl class="code" style="text-align:right;">
+عـائم // 32 بتة
+عـائم[32]
+عـائم[64]
+</pre>
+<pre dir=ltr class="code">
+Float // 32 bits
+Float[32]
+Float[64]
+</pre>
+   </li>
    <br/>
 
-   <li><b>المحارف (String)</b><br/>
-  مؤشر إلى سلسلة محارف بصيغة UTF8.</li>
+   <li><b>مـحرف (Char)</b><br/>
+  محرف، وهو مجرد لقب للصنف `طـبيعي[8]`.
+   </li>
    <br/>
+
+   <li><b>ثـنائي (Bool)</b><br/>
+  قيمية ثنائية، وهو مجرب لقب للصنف `طـبيعي[1]`.
+   </li>
+   <br/>
+
+   <li><b>مصفوفة (array)</b><br/>
+    مصفوفة من المتغيرات. تُعرف بتحديد صنف المتغيرات وعدد الخانات بين أقواس معقوفة كما يلي:
+<pre dir=rtl class="code" style="text-align:right;">
+مصفوفة[الصنف، عدد_الخانات]
+</pre>
+<pre dir=ltr class="code">
+array[the_type, element_count]
+</pre>
+   </li>
+   <br/>
+
+   <li><b>مؤشر (ptr)</b><br/>
+    مؤشر إلى متغير. صنف المتغير يحدد بين أقواس معقوفة، كما يلي:
+<pre dir=rtl class="code" style="text-align:right;">
+مؤشر[الصنف]
+</pre>
+<pre dir=ltr class="code">
+ptr[the_type]
+</pre>
+   </li>
+   <br/>
+
   </ul>
  </div>
 
@@ -168,6 +239,8 @@
     </li>
     <li><b>مؤثرات العمليات المنطقية</b><br/>
      <table class="dict">
+      <tr><td dir=ltr>و</td><td>عملية `و` المنطقية، ويمكن كتابتها and ايضاً</td></tr>
+      <tr><td dir=ltr>أو</td><td>عملية `أو` المنطقية، ويمكن كتابتها or أيضاً</td></tr>
       <tr><td dir=ltr>||</td><td>صيغة رمزية ل or</td></tr>
       <tr><td dir=ltr>&&</td><td>صيغة رمزية ل and</td></tr>
      </table>
@@ -263,38 +336,33 @@
  <div>
   <h3>الجمل الشرطية</h3>
   تكتب الجمل الشرطية بالصيغة التالية:
-<pre class="code" dir=ltr>
-  if &lt;condition expression&gt; &lt;statement&gt;
-  if &lt;condition expression&gt; { &lt;group of statements&gt; }
-</pre>
 <pre class="code" dir=rtl style="text-align:right;">
   إذا &lt;تركيب شرطي&gt; &lt;جملة&gt;
   إذا &lt;تركيب شرطي&gt; { &lt;مجموعة جمل&gt; }
+  إذا &lt;تركيب شرطي&gt; &lt;جملة_أو_كتلة&gt; وإلا &lt;جملة_أو_كتلة&gt;
+</pre>
+<pre class="code" dir=ltr>
+  if &lt;condition expression&gt; &lt;statement&gt;
+  if &lt;condition expression&gt; { &lt;group of statements&gt; }
+  if &lt;condition expression&gt; &lt;statement_or_block&gt; else &lt;statement_or_block&gt;
 </pre>
   ليس مشروطاً حصر تركيب الشرط بأقواس هلالية لكن ذلك متاح.
 
   <h3>الحلقات</h3>
   تكتب الحلقات بالصيغ التالية:
-<pre class="code" dir=ltr>
-  while &lt;condition expression&gt; &lt;statement&gt;
-  while &lt;condition expression&gt; { &lt;group of statements&gt; }
-  for &lt;counter initialization&gt;, &lt;condition expression&gt;, &lt;counter update&gt; &lt;statement&gt;
-  for &lt;counter initialization&gt;, &lt;condition expression&gt;, &lt;counter update&gt; { &lt;group of statement&gt; }
-</pre>
 <pre class="code" dir=rtl style="text-align:right;">
   بينما &lt;تركيب شرطي&gt; &lt;جملة&gt;
   بينما &lt;تركيب شرطي&gt; { &lt;مجموعة جمل&gt; }
   لكل &lt;تهيئة عداد&gt;، &lt;تركيب شرطي&gt;، &lt;تحديث عداد&gt; &lt;جملة&gt;
   لكل &lt;تهيئة عداد&gt;، &lt;تركيب شرطي&gt;، &lt;تحديث عداد&gt; { &lt;مجموعة جمل&gt; }
 </pre>
-  مثلما هو الحال مع الجمل الشرطية، ليس مشترطاً حصر التركيب الشرطي في "بينما" أو التراكيب الثلاث المتعلقة بالعداد في "لكل" بأقواس هلالية، لكن ذلك متاح. مثال:
-<pre class="samplecode" dir=ltr>
-  while r!=0 r=performOperation();
-  while r!=0 { r = performOperation() }
-  for i=0, i&lt;10, i++ print("%d\n", i);
-  for (i=0, i&lt;10, i++) print("%d\n", i);
-  for i=0, i&lt;10, i++ { print("%d\n", i) };
+<pre class="code" dir=ltr>
+  while &lt;condition expression&gt; &lt;statement&gt;
+  while &lt;condition expression&gt; { &lt;group of statements&gt; }
+  for &lt;counter initialization&gt;, &lt;condition expression&gt;, &lt;counter update&gt; &lt;statement&gt;
+  for &lt;counter initialization&gt;, &lt;condition expression&gt;, &lt;counter update&gt; { &lt;group of statement&gt; }
 </pre>
+  مثلما هو الحال مع الجمل الشرطية، ليس مشترطاً حصر التركيب الشرطي في "بينما" أو التراكيب الثلاث المتعلقة بالعداد في "لكل" بأقواس هلالية، لكن ذلك متاح. مثال:
 <pre class="samplecode" dir=rtl style="text-align:right;">
   بينما ن!=0 ن=قم_بعملية()؛
   بينما ن!=0 { ن = قم_بعملية() }؛
@@ -302,33 +370,55 @@
   لكل (ع=0، ع<10، ع++) اطبع("%d\ج"، ع)؛
   لكل ع=0، ع<10، ع++ { اطبع("%d\ج"، ع) }؛
 </pre>
+<pre class="samplecode" dir=ltr>
+  while r!=0 r=performOperation();
+  while r!=0 { r = performOperation() }
+  for i=0, i&lt;10, i++ print("%d\n", i);
+  for (i=0, i&lt;10, i++) print("%d\n", i);
+  for i=0, i&lt;10, i++ { print("%d\n", i) };
+</pre>
+
+  <h3>الأمر `أكمل` (continue)</h3>
+  يستخدم لتجاوز ما تبقى من الدورة الحالية للحلقة والبدء بدورة جديدة. يمكن تحديد رقم الحلقة المراد تجاوز دورتها في حالة الحلقات المتداخلة.
+<pre class="code" dir=rtl style="text-align:right;">
+  أكمل؛ // بدء دورة جديدة من الحلقة الحالية.
+  أكمل 2؛ // الخروج من الحلقة الحالية وبدء دورة جديدة من الحلقة الخارجية.
+</pre>
+<pre class="code" dir=ltr>
+  continue;
+  continue 2;
+</pre>
+
+  <h3>الأمر `اقطع` (break)</h3>
+  الخروج من الحلقة. يمكن تحديد رقم الحلقة المراد الخروج منها في حالة الحلقات المتداخلة.
+<pre class="code" dir=rtl style="text-align:right;">
+  اقطع؛ // الخروج من الحلقة الحالية.
+  اقطع 2؛ // الخروج من الحلقة الحالية والخارجية
+</pre>
+<pre class="code" dir=ltr>
+  break;
+  break 2;
+</pre>
  </div>
 
  <!-- ********************************************************************** -->
  <h2 class="foldable">الدالّات</h2>
  <div>
   تعرّف الدالات باستخدام الأمر "دالّة" كتعريف في الأمر "عرّف":
-<pre class="code" dir=ltr>
-  def &lt;func name&gt; : function (&lt;arguments&gt;) =&gt; &lt;return type&gt; { &lt;function body&gt; }
-</pre>
 <pre class="code" dir=rtl style="text-align:right;">
-  عرّف &lt;اسم ـالدالة&gt; : دالّة (&lt;معطيات&gt;) =&gt; &lt;صنف ـالنتيجة&gt; { &lt;متن ـالدالة&gt; }
+  عرّف &lt;اسم_الدالة&gt; : دالّة (&lt;معطيات&gt;) =&gt; &lt;صنف_النتيجة&gt; { &lt;متن_الدالة&gt; }
+</pre>
+<pre class="code" dir=ltr>
+  def &lt;func name&gt; : function (&lt;arguments&gt;) =&gt; &lt;return_type&gt; { &lt;function_body&gt; }
 </pre>
   وتكون المعطيات بالصيغة التالية:
-<pre class="code" dir=ltr>
-  &lt;arg name&gt;:&lt;arg type&gt;, &lt;arg name&gt;:&lt;arg type&gt; ...
-</pre>
 <pre class="code" dir=rtl style="text-align:right;">
-  &lt;اسم ـالمعطى&gt;:&lt;نوع ـالمعطى&gt;، &lt;اسم ـالمعطى&gt;:&lt;نوع ـالمعطى&gt; ...
+  &lt;اسم_المعطى&gt;:&lt;نوع_المعطى&gt;، &lt;اسم_المعطى&gt;:&lt;نوع_المعطى&gt; ...
+</pre>
+<pre class="code" dir=ltr>
+  &lt;arg_name&gt;:&lt;arg_type&gt;, &lt;arg_name&gt;:&lt;arg_type&gt; ...
 </pre>
   كما في المثال التالي:
-<pre class="samplecode" dir=ltr>
-  def factorial : function (i:Int) => Int
-  {
-    if i==1 return 1;
-    return i*factorial(i-1);
-  }
-</pre>
 <pre class="samplecode" dir=rtl style="text-align:right;">
   عرف مضروب : دالّة (ع:العدد_الصحيح) => العدد_الصحيح
   {
@@ -336,43 +426,39 @@
     أرجع ع * مضروب(ع-1)؛
   }
 </pre>
-  استدعاء الدوال يتم باستخدام اسم الدالة يليه قائمة المعطيات بين قوسين هلاليين. إن لم تكن للدالة أي معطيات فيجب إتباع اسمها بقوسين هلاليين فارغين.
 <pre class="samplecode" dir=ltr>
-  x = readNumber();
-  y = readNumber();
-  drawPoint(x, y);
+  def factorial : function (i:Int) => Int
+  {
+    if i==1 return 1;
+    return i*factorial(i-1);
+  }
 </pre>
+  استدعاء الدوال يتم باستخدام اسم الدالة يليه قائمة المعطيات بين قوسين هلاليين. إن لم تكن للدالة أي معطيات فيجب إتباع اسمها بقوسين هلاليين فارغين.
 <pre class="samplecode" dir=rtl style="text-align:right;">
   س = إقرأ_رقماً()؛
   ص = إقرأ_رقماً()؛
   ارسم_نقطة(س، ص)؛
 </pre>
+<pre class="samplecode" dir=ltr>
+  x = readNumber();
+  y = readNumber();
+  drawPoint(x, y);
+</pre>
  </div>
 
  <!-- ********************************************************************** -->
- <h2 class="foldable">الهياكل</h2>
+ <h2 class="foldable">أصناف المستخدم</h2>
  <div>
-  تعرّف الهياكل باستخدام الأمر "هيكل" كتعريف في الأمر "عرّف":
-<pre class="code" dir=ltr>
-  def &lt;structure name&gt; : struct { &lt;definition statements&gt; }
-</pre>
+  تعرّف الهياكل باستخدام الأمر "صنف" كتعريف في الأمر "عرّف":
 <pre class="code" dir=rtl style="text-align:right;">
-  عرّف &lt;اسم ـالهيكل&gt; : هيكل { &lt;مجموعة تعريفات&gt; }
+  عرّف &lt;اسم_الصنف&gt; : صنف { &lt;مجموعة_تعريفات&gt; }
 </pre>
-  بعد تعريف الهيكل يصبح الهيكل متوفراً كصنف جديد. الولوج إلى عناصر الهيكل يتم باستخدام مؤثر النقطة. مثال:
-<pre class="samplecode" dir=ltr>
-  def Point : struct {
-    def x : Float;
-    def y : Float
-  };
-  .
-  .
-  def p : Point;
-  p.x = readValue();
-  p.y = readValue();
+<pre class="code" dir=ltr>
+  def &lt;type_name&gt; : type { &lt;definition_statements&gt; }
 </pre>
+  بعد تعريف الصنف يصبح الصنف متوفراً لتعريف المتغيرات. الولوج إلى عناصر الهيكل يتم باستخدام مؤثر النقطة. مثال:
 <pre class="samplecode" dir=rtl style="text-align:right;">
-  عرّف النقطة : هيكل {
+  عرّف النقطة : صنف {
     عرّف س : العدد_الحقيقي؛
     عرّف ص : العدد_الحقيقي؛
   }؛
@@ -382,27 +468,30 @@
   ن.س = إقرأ_قيمة()؛
   ن.ص = إقرأ_قيمة()؛
 </pre>
+<pre class="samplecode" dir=ltr>
+  def Point : type {
+    def x : Float;
+    def y : Float
+  };
+  .
+  .
+  def p : Point;
+  p.x = readValue();
+  p.y = readValue();
+</pre>
  </div>
 
  <!-- ********************************************************************** -->
  <h2 class="foldable">المؤشرات</h2>
  <div>
   المؤشرات تستخدم للإشارة إلى مواقع في الذاكرة والتحكم بمحتويات تلك المواقع. تُعرّف المؤشرات باستخدام الصنف "مؤشر" (ptr) متبوعاً بقوسين معقوفين بينهما صنف محتوى الذاكرة المشار إليه بالمؤشر:
-<pre class="code" dir=ltr>
-  def &lt;ptr name&gt; : ptr[&lt;content type&gt;]
-</pre>
 <pre class="code" dir=rtl style="text-align:right;">
-  عرّف &lt;اسم ـالمؤشر&gt; : مؤشر[&lt;صنف ـالمحتوى&gt;]
+  عرّف &lt;اسم_المؤشر&gt; : مؤشر[&lt;صنف_المحتوى&gt;]
+</pre>
+<pre class="code" dir=ltr>
+  def &lt;ptr_name&gt; : ptr[&lt;content_type&gt;]
 </pre>
   يمكن الولوج إلى المحتوى المشار إليه بالمؤشر عن طريق المؤثر "~محتوى" (~cnt) ويمكن الحصول على موقع أي متغير عن طريق المؤثر "~مؤشر" (~ptr) كما في المثال التالي:
-<pre class="samplecode" dir=ltr>
-  def p : ptr[Int];
-  def x : Int;
-  x = 5;
-  p = x~ptr;
-  p~cnt = 1;
-  // x is now equal to 1, not 5.
-</pre>
 <pre class="samplecode" dir=rtl style="text-align:right;">
   عرّف م : مؤشر[العدد_الصحيح]؛
   عرّف س : العدد_الصحيح؛
@@ -411,31 +500,39 @@
   م~محتوى = 1؛
   // قيمة س الآن 1 وليس 5.
 </pre>
+<pre class="samplecode" dir=ltr>
+  def p : ptr[Int];
+  def x : Int;
+  x = 5;
+  p = x~ptr;
+  p~cnt = 1;
+  // x is now equal to 1, not 5.
+</pre>
  </div>
 
  <!-- ********************************************************************** -->
  <h2 class="foldable">المصفوفات</h2>
  <div>
-  تعرّف المصفوفات باستخدام الصنف "مصفوفة" (ary) متبوعاً بأقواس معقوفة تحتوي صنف عناصر المصفوفة وعددها:
-<pre class="code" dir=ltr>
-  def &lt;array name&gt; : ary[&lt;element type&gt;, &lt;element count&gt;]
-</pre>
+  تعرّف المصفوفات باستخدام الصنف "مصفوفة" (array) متبوعاً بأقواس معقوفة تحتوي صنف عناصر المصفوفة وعددها:
 <pre class="code" dir=rtl style="text-align:right;">
-  عرّف &lt;اسم ـالمصفوفة&gt; : مصفوفة[&lt;صنف ـالعناصر&gt;، &lt;عدد ـالعناصر&gt;]
+  عرّف &lt;اسم_المصفوفة&gt; : مصفوفة[&lt;صنف_العناصر&gt;، &lt;عدد_العناصر&gt;]
+</pre>
+<pre class="code" dir=ltr>
+  def &lt;array_name&gt; : array[&lt;element_type&gt;, &lt;element_count&gt;]
 </pre>
   يمكن الدخول إلى عناصر المصفوفة بإعطاء رقم العنصر المعني بين قوسين معقوفين. مثال:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  عرّف مصفوفتي : مصفوفة[صحيح، 10]؛
+  عرّف ع : صحيح؛
+  لكل ع=0، ع&lt;10، ع++ {
+    مصفوفتي[ع] = مضروب(ع)
+  }
+</pre>
 <pre class="samplecode" dir=ltr>
-  def myArray : ary[Int, 10];
+  def myArray : array[Int, 10];
   def i : Int;
   for i=0, i&lt;10, i++ {
     myArray[i] = factorial(i)
-  }
-</pre>
-<pre class="samplecode" dir=rtl style="text-align:right;">
-  عرّف مصفوفتي : مصفوفة[العدد_الصحيح، 10]؛
-  عرّف ع : العدد_الصحيح؛
-  لكل ع=0، ع&lt;10، ع++ {
-    مصفوفتي[ع] = مضروب(ع)
   }
 </pre>
  </div>
@@ -444,13 +541,13 @@
  <h2 class="foldable">تمثيل الأصناف</h2>
  <div>
   يمكن تمثيل المتغيرات بصنف غير صنفها الحقيقي باستخدام المؤثر "~مثّل" (~cast) متبوعاً بقوسين معقوفين بينهما الصنف المراد تمثيله، كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  عرّف ح : عـائم؛
+  إطبع_عددا_صحيحا(ح~مثّل[صحيح])؛
+</pre>
 <pre class="samplecode" dir=ltr>
   def f : Float;
   printInteger(f~cast[Int]);
-</pre>
-<pre class="samplecode" dir=rtl style="text-align:right;">
-  عرّف ح : العدد_الحقيقي؛
-  إطبع_عددا_صحيحا(ح~مثّل[العدد_الصحيح])؛
 </pre>
   في الوقت الحالي عملية التمثيل محدودة ومازالت قيد التطوير، لكنها قريباً ستدعم تمثيل الأصناف دون قيود، مثل تمثيل عدد صحيح كمؤشر أو تمثيل مؤشر لصنف ما كمؤشر لصنف آخر.
  </div>
@@ -469,31 +566,705 @@
  <!-- ********************************************************************** -->
  <h2 class="foldable">شمل مكتبات أو ملفات مصدرية</h2>
  <div>
-  الأمر "اشمل" (import) يستخدم لتحميل ملف مصدري أو مكتبة واستخدامها في البرنامج. الأمر يميز تلقائياً بين الملف المصدري والمكتبة. في الوقت الحالي يدعم هذا الأمر ثلاث أنواع من الملفات: ملفات مصدرية ومكتبات متحركة (dynamic) عامة ومكتبات بناء مثل libalusus_scg. يمكن تحميل أي مكتبة متحركة مهما كانت اللغة التي كتبت بها وعند تحميلها تكون كل دالّاتها العمومية متوفرة للاستخدام من داخل برنامج الأسُس، لكن ستحتاج لتعريف تلك الدوال يدوياً باستخدام الأمر "ربط" (link) كما هو مبين في المثال التالي:
+  الأمر "اشمل" (import) يستخدم لتحميل ملف مصدري أو مكتبة واستخدامها في البرنامج. الأمر يميز تلقائياً بين الملف المصدري والمكتبة. في الوقت الحالي يدعم هذا الأمر ثلاث أنواع من الملفات: ملفات مصدرية ومكتبات متحركة (dynamic) عامة ومكتبات بناء مثل libalusus_scg. يمكن تحميل أي مكتبة متحركة مهما كانت اللغة التي كتبت بها وعند تحميلها تكون كل دالّاتها العمومية متوفرة للاستخدام من داخل برنامج الأسُس، لكن ستحتاج لتعريف تلك الدوال يدوياً باستخدام الأمر `دالة` مع إضافة المبدل `@تصدير` (@import) كما هو مبين في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  اشمل "libmath.so"؛
+  عرف جا: @تصدير[sin] دالة (ر: عـائم) => عـائم؛
+  .
+  .
+  ج = جا(ز)؛
+</pre>
 <pre class="samplecode" dir=ltr>
   import "libmath.so";
-  link {
-    sin(Float) => Float
-  }
+  def sin: @expname[sin] function (f: Float) => Float;
   .
   .
   s = sin(r);
 </pre>
-<pre class="samplecode" dir=rtl style="text-align:right;">
-  اشمل "libmath.so"؛
-  ربط {
-    sin(Float) => Float
-  }
-  عرّف جيب : لقب sin؛
-  .
-  .
-  ج = جيب(ز)؛
+ </div>
+
+ <h2 class="foldable">دليل مكتبة التنفيذ المعيارية</h2>
+ <div>
+  مكتبة التنفيذ المعيارية تتكون من حزمة واحدة اسمها `مـتم` (Srl) وتحتوي هذه الحزمة على الحزم التالية:
+
+  <h3 class="foldable">طـرفية (Console)</h3>
+  <div>
+  تحتوي حزمة `طـرفية` على الدالات التالية:
+  <ul>
+    <li>
+    <b>أدخل_محرفا (getChar)</b><br/>
+<pre class="code" dir=ltr>
+def getChar: @expname[getchar] function () => Int[32]
 </pre>
+    مطابقة لدالة getchar من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>أخرج_محرفا (putChar)</b><br/>
+<pre class="code" dir=ltr>
+def putChar: @expname[putchar] function (character: Int[32]) => Int[32]
+</pre>
+    مطابقة لدالة putchar من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>اطبع (print)</b><br/>
+<pre class="code" dir=ltr>
+1: def print: @expname[printf] function (format: ptr[Word[8]], args: ...any) => Int[32]
+2: def print: function (i: Int[64])
+3: def print: function (f: Float[64])
+4: def print: function (f: Float[64], d: Int)
+</pre>
+    1: مطابقة لدالة printf من POSIX.<br>
+    2: تطبع عدداً صحيحاً.<br>
+    3: تطبع عدداً عائماً.<br>
+    4: تطبع عدداً عائماً مع تحكم بعدد الأصفار على يمين الفاصلة.
+    </li>
+    <br>
+
+    <li>
+    <b>افحص (scan)</b><br/>
+<pre class="code" dir=ltr>
+def scan: @expname[scanf] function (format: ptr[Word[8]], args: ...any) => Int[32]
+</pre>
+    مطابقة لدالة scanf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>أدخل_صحيح (getInt)</b><br/>
+<pre class="code" dir=ltr>
+def getInt: function () => Int
+</pre>
+    تطلب من المستخدم إدخال عدد صحيح.
+    </li>
+    <br>
+
+    <li>
+    <b>أدخل_عائم (getFloat)</b><br/>
+<pre class="code" dir=ltr>
+def getFloat: function () => Float
+</pre>
+    تطلب من المستخدم إدخال عدد بفاصلة عائمة.
+    </li>
+    <br>
+
+    <li>
+    <b>أدخل_محارف (getString)</b><br/>
+<pre class="code" dir=ltr>
+def getString: function (str: ptr[array[Char]], count: Word) => Void
+</pre>
+    تطلب من المستخدم إدخال سلسلة محارف.
+    </li>
+    <br>
+
+  </ul>
+  </div>
+
+  <h3 class="foldable">نـظام (System)</h3>
+  <div>
+  تحتوي حزمة `نـظام` على التعريفات التالية:
+  <ul>
+    <li>
+    <b>وقـت (Time)</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+عرف وقـت: صنف
+{
+  عرف ثانية: صـحيح؛
+  عرف دقيقة: صـحيح؛
+  عرف ساعة: صـحيح؛
+  عرف يوم: صـحيح؛
+  عرف شهر: صـحيح؛
+  عرف سنة: صـحيح؛
+  عرف يوم_اسبوعي: صـحيح؛
+  عرف يوم_سنوي: صـحيح؛
+  عرف إزاحة_زمنية: صـحيح؛
+  عرف منطقة_زمنية: صـحيح؛
+}
+</pre>
+<pre class="code" dir=ltr>
+def Time: type
+{
+  def second: Int;
+  def minute: Int;
+  def hour: Int;
+  def day: Int;
+  def month: Int;
+  def year: Int;
+  def weekDay: Int;
+  def yearDay: Int;
+  def daylightSaving: Int;
+  def timezoneOffset: Int[64];
+  def timezone: ptr[array[Char]];
+};
+</pre>
+    سجل لحمل معلومات الوقت والتاريخ.
+    </li>
+    <br>
+
+    <li>
+    <b>هات_الوقت_المفصل (getDetailedTime)</b><br/>
+<pre class="code" dir=ltr>
+1: def getDetailedTime: @expname[localtime] function (ts: ptr[Word[64]]) => ptr[Time];
+2: def getDetailedTime: @expname[localtime_r] function (ts: ptr[Word[64]], dt: ptr[Time]) => ptr[Time];
+</pre>
+    1. مطابقة لدالة localtime من POSIX.<br>
+    2. مطابقة لدالة localtime_r من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>هات_الختم_الزمني (getTimestamp)</b><br/>
+<pre class="code" dir=ltr>
+def getTimestamp: @expname[time] function (r: ptr[Word[64]]) => Word[64];
+</pre>
+    مطابقة لدالة time من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>هات_الختم_الزمني (getTimestamp)</b><br/>
+<pre class="code" dir=ltr>
+def sleep: @expname[usleep] function (d: Word) => Void;
+</pre>
+    مطابقة لدالة usleep من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>اضبط_متغير_محيطي (setEnv)</b><br/>
+<pre class="code" dir=ltr>
+def setEnv: @expname[setenv] function (name: ptr[Word[8]], value: ptr[Word[8]], overwrite: Int) => Int;
+</pre>
+    مطابقة لدالة setenv من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>هات_متغير_محيطي (getEnv)</b><br/>
+<pre class="code" dir=ltr>
+def getEnv: @expname[getenv] function (name: ptr[Word[8]]) => ptr[Word[8]];
+</pre>
+    مطابقة لدالة getenv من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>شغل (exec)</b><br/>
+<pre class="code" dir=ltr>
+def exec: @expname[system] function (filename: ptr[Word[8]]) => Int;
+</pre>
+    مطابقة لدالة system من POSIX.
+    </li>
+  </ul>
+  </div>
+
+  <h3 class="foldable">ذاكـرة (Memory)</h3>
+  <div>
+  تحتوي حزمة `ذاكـرة` على الدالات التالية:
+  <ul>
+    <li>
+    <b>احجز (alloc)</b><br/>
+<pre class="code" dir=ltr>
+def alloc: @expname[malloc] function (size: Int[64]) => ptr[Void];
+</pre>
+    مطابقة لدالة malloc من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>أعد_الحجز (realloc)</b><br/>
+<pre class="code" dir=ltr>
+def realloc: @expname[realloc] function (p: ptr[Void], newSize: Int[64]) => ptr[Void];
+</pre>
+    مطابقة لدالة realloc من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>احجز_مرصوف (allocAligned)</b><br/>
+<pre class="code" dir=ltr>
+def allocAligned: @expname[aligned_alloc] function (alignment: Int[64], size: Int[64]) => ptr[Void];
+</pre>
+    مطابقة لدالة aligned_alloc من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>حرر (free)</b><br/>
+<pre class="code" dir=ltr>
+def free: @expname[free] function (pointer: ptr[Void]);
+</pre>
+    مطابقة لدالة free من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>انسخ (copy)</b><br/>
+<pre class="code" dir=ltr>
+def copy: @expname[memcpy] function (dest: ptr[Void], src: ptr[Void], n: Int[64]) => ptr[Void];
+</pre>
+    مطابقة لدالة memcpy من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>قارن (compare)</b><br/>
+<pre class="code" dir=ltr>
+def compare: @expname[memcmp] function (s1: ptr[Void], s2: ptr[Void], n: Int[64]) => Int;
+</pre>
+    مطابقة لدالة memcmp من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>اضبط (set)</b><br/>
+<pre class="code" dir=ltr>
+def set: @expname[memset] function (s: ptr[Void], c: Int, n: Int[64]) => ptr[Void];
+</pre>
+    مطابقة لدالة memset من POSIX.
+    </li>
+  </ul>
+  </div>
+
+  <h3 class="foldable">مـحارف (String)</h3>
+  <div>
+  تحتوي حزمة `مـحارف` على الدالات التالية:
+  <ul>
+    <li>
+    <b>جد_محرف (findChar)</b><br/>
+<pre class="code" dir=ltr>
+1: def findChar: @expname[strchr] function (s: ptr[Char], c: Int) => ptr[Char];
+2: def findChar: @expname[memchr] function (s: ptr[Void], c: Int, n: Int[64]) => ptr[Void];
+</pre>
+    1. مطابقة لدالة strchr من POSIX.<br>
+    2. مطابقة لدالة memchr من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جد_آخر_محرف (findLastChar)</b><br/>
+<pre class="code" dir=ltr>
+def findLastChar: @expname[strrchr] function (s: ptr[Char], c: Int) => ptr[Char];
+</pre>
+    مطابقة لدالة strrchr من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جد_محارف (findString)</b><br/>
+<pre class="code" dir=ltr>
+def findString: @expname[strstr] function (haystack: ptr[Char], needle: ptr[Char]) => ptr[Char];
+</pre>
+    مطابقة لدالة strstr من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>قارن (compare)</b><br/>
+<pre class="code" dir=ltr>
+1: def compare: @expname[strcmp] function (s1: ptr[Char], s2: ptr[Char]) => Int;
+2: def compare: @expname[strncmp] function (s1: ptr[Char], s2: ptr[Char], n: Int[64]) => Int;
+</pre>
+    1. مطابقة لدالة strcmp من POSIX.<br>
+    2. مطابقة لدالة strncmp من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>انسخ (copy)</b><br/>
+<pre class="code" dir=ltr>
+1: def copy: @expname[strcpy] function (dest: ptr[Char], src: ptr[Char]) => ptr[Void];
+2: def copy: @expname[strncpy] function (dest: ptr[Char], src: ptr[Char], n: Int[64]) => ptr[Void];
+</pre>
+    1. مطابقة لدالة strcpy من POSIX.<br>
+    2. مطابقة لدالة strncpy من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>سلسل (concat)</b><br/>
+<pre class="code" dir=ltr>
+1: def concat: @expname[strcat] function (dest: ptr[Char], src: ptr[Char]) => ptr[Char];
+2: def concat: @expname[strncat] function (dest: ptr[Char], src: ptr[Char], n: Int[64]) => ptr[Char];
+</pre>
+    1. مطابقة لدالة strcat من POSIX.<br>
+    2. مطابقة لدالة strncat من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جد_طول (getLength)</b><br/>
+<pre class="code" dir=ltr>
+def getLength: @expname[strlen] function (s: ptr[Char]) => Int[64];
+</pre>
+    مطابقة لدالة strlen من POSIX.
+    </li>
+
+  </ul>
+  </div>
+
+  <h3 class="foldable">مـلف (File)</h3>
+  <div>
+  تحتوي حزمة `تـلف` على الدالات التالية:
+  <ul>
+    <li>
+    <b>افتح (open)</b><br/>
+<pre class="code" dir=ltr>
+def open: @expname[fopen] function (filename: ptr[Word[8]], mode: ptr[Word[8]]) => ptr[Void];
+</pre>
+    مطابقة لدالة fopen من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>أغلق (close)</b><br/>
+<pre class="code" dir=ltr>
+def close: @expname[fclose] function (file: ptr[Void]) => Int[32];
+</pre>
+    مطابقة لدالة fclose من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>اطبع (print)</b><br/>
+<pre class="code" dir=ltr>
+def print: @expname[fprintf] function (file: ptr[Void], format: ptr[Word[8]], args: ...any) => Int[32];
+</pre>
+    مطابقة لدالة fprintf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>تفحص (scan)</b><br/>
+<pre class="code" dir=ltr>
+def scan: @expname[fscanf] function (file: ptr[Void], format: ptr[Word[8]], args: ...any) => Int[32];
+</pre>
+    مطابقة لدالة fscanf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>اكتب (write)</b><br/>
+<pre class="code" dir=ltr>
+def write: @expname[fwrite] function (content: ptr[Void], size: Int[32], count:Int[32], file: ptr[Void]) => Int[32];
+</pre>
+    مطابقة لدالة fwrite من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>اقرأ (read)</b><br/>
+<pre class="code" dir=ltr>
+def read: @expname[fread] function (content: ptr[Void], size: Int[32], count:Int[32], file: ptr[Void]) => Int[32];
+</pre>
+    مطابقة لدالة fread من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>اطلق (flush)</b><br/>
+<pre class="code" dir=ltr>
+def flush: @expname[fflush] function (file: ptr[Void]) => Int[32];
+</pre>
+    مطابقة لدالة fflush من POSIX.
+    </li>
+
+  </ul>
+  </div>
+
+  <h3 class="foldable">ريـاضيات (Math)</h3>
+  <div>
+  تحتوي حزمة `ريـاضيات` على الدالات التالية:
+  <ul>
+    <li>
+    <b>مطلق (abs)</b><br/>
+<pre class="code" dir=ltr>
+def abs: @expname[abs] function (n: Int[32]) => Int[32];
+def abs: @expname[llabs] function (n: Int[64]) => Int[64];
+def abs: @expname[fabsf] function (n: Float[32]) => Float[32];
+def abs: @expname[fabs] function (n: Float[64]) => Float[64];
+</pre>
+    للحصول على القيمة المطلقة لرقم.
+    </li>
+    <br>
+
+    <li>
+    <b>باقي (mod)</b><br/>
+<pre class="code" dir=ltr>
+def mod: @expname[fmodf] function (x: Float[32], y: Float[32]) => Float[32];
+def mod: @expname[fmod] function (x: Float[64], y: Float[64]) => Float[64];
+</pre>
+    للحصول على باقي قسمة رقمين حقيقيين.
+    </li>
+    <br>
+
+    <li>
+    <b>أس_طبيعي (exp)</b><br/>
+<pre class="code" dir=ltr>
+def exp: @expname[expf] function (x: Float[32]) => Float[32];
+def exp: @expname[exp] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي exp و expf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>أس_طبيعي2 (exp2)</b><br/>
+<pre class="code" dir=ltr>
+def exp2: @expname[exp2f] function (x: Float[32]) => Float[32];
+def exp2: @expname[exp2] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي exp2 و exp2f من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>لو (log)</b><br/>
+<pre class="code" dir=ltr>
+def log: @expname[logf] function (x: Float[32]) => Float[32];
+def log: @expname[log] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي log و logf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>لو2 (log2)</b><br/>
+<pre class="code" dir=ltr>
+def log2: @expname[log2f] function (x: Float[32]) => Float[32];
+def log2: @expname[log2] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي log2 و log2f من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>لو10 (log10)</b><br/>
+<pre class="code" dir=ltr>
+def log10: @expname[log10f] function (x: Float[32]) => Float[32];
+def log10: @expname[log10] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي log10 و log10f من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جذر (sqrt)</b><br/>
+<pre class="code" dir=ltr>
+def sqrt: @expname[sqrtf] function (x: Float[32]) => Float[32];
+def sqrt: @expname[sqrt] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي sqrt و sqrtf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جذر3 (cbrt)</b><br/>
+<pre class="code" dir=ltr>
+def cbrt: @expname[cbrtf] function (x: Float[32]) => Float[32];
+def cbrt: @expname[cbrt] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي cbrt و cbrtf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>أس (pow)</b><br/>
+<pre class="code" dir=ltr>
+def pow: @expname[powf] function (b: Float[32], e: Float[32]) => Float[32];
+def pow: @expname[pow] function (b: Float[64], e: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي pow و powf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جا (sin)</b><br/>
+<pre class="code" dir=ltr>
+def sin: @expname[sinf] function (x: Float[32]) => Float[32];
+def sin: @expname[sin] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي sin و sinf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جا_عكسي (asin)</b><br/>
+<pre class="code" dir=ltr>
+def asin: @expname[asinf] function (x: Float[32]) => Float[32];
+def asin: @expname[asin] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي asin و asinf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جا_زائدي (sinh)</b><br/>
+<pre class="code" dir=ltr>
+def sinh: @expname[sinhf] function (x: Float[32]) => Float[32];
+def sinh: @expname[sinh] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي sinh و sinhf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جا_زائدي_عكسي (asinh)</b><br/>
+<pre class="code" dir=ltr>
+def asinh: @expname[asinhf] function (x: Float[32]) => Float[32];
+def asinh: @expname[asinh] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي asinh و asinhf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جتا (cos)</b><br/>
+<pre class="code" dir=ltr>
+def cos: @expname[cosf] function (x: Float[32]) => Float[32];
+def cos: @expname[cos] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي cos و cosf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جتا_عكسي (acos)</b><br/>
+<pre class="code" dir=ltr>
+def acos: @expname[acosf] function (x: Float[32]) => Float[32];
+def acos: @expname[acos] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي acos و acosf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جتا_زائدي (cosh)</b><br/>
+<pre class="code" dir=ltr>
+def cosh: @expname[coshf] function (x: Float[32]) => Float[32];
+def cosh: @expname[cosh] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي cosh و coshf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جتا_زائجي_عكسي (acosh)</b><br/>
+<pre class="code" dir=ltr>
+def acosh: @expname[acoshf] function (x: Float[32]) => Float[32];
+def acosh: @expname[acosh] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي acosh و acoshf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>ظل (tan)</b><br/>
+<pre class="code" dir=ltr>
+def tan: @expname[tanf] function (x: Float[32]) => Float[32];
+def tan: @expname[tan] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي tan و tanf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>ظل_عكسي (atan)</b><br/>
+<pre class="code" dir=ltr>
+def atan: @expname[atanf] function (x: Float[32]) => Float[32];
+def atan: @expname[atan] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي atan و atanf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>ظل_عكسي2 (atan2)</b><br/>
+<pre class="code" dir=ltr>
+def atan2: @expname[atan2f] function (y: Float[32], x: Float[32]) => Float[32];
+def atan2: @expname[atan2] function (y: Float[64], x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي atan2 و atan2f من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>ظل_زائدي (tanh)</b><br/>
+<pre class="code" dir=ltr>
+def tanh: @expname[tanhf] function (x: Float[32]) => Float[32];
+def tanh: @expname[tanh] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي tanh و tanhf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>ظل_زائدي_عكسي (atanh)</b><br/>
+<pre class="code" dir=ltr>
+def atanh: @expname[atanhf] function (x: Float[32]) => Float[32];
+def atanh: @expname[atanh] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي atanh و atanhf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>سقف (ceil)</b><br/>
+<pre class="code" dir=ltr>
+def ceil: @expname[ceilf] function (x: Float[32]) => Float[32];
+def ceil: @expname[ceil] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي ceil و ceilf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جزء_صحيح (floor)</b><br/>
+<pre class="code" dir=ltr>
+def floor: @expname[floorf] function (x: Float[32]) => Float[32];
+def floor: @expname[floor] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي floor و floorf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>تقريب (round)</b><br/>
+<pre class="code" dir=ltr>
+def round: @expname[roundf] function (x: Float[32]) => Float[32];
+def round: @expname[round] function (x: Float[64]) => Float[64];
+</pre>
+    مطابقة لدالتي round و roundf من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>عشوائي (random)</b><br/>
+<pre class="code" dir=ltr>
+def random: @expname[rand] function () => Int;
+</pre>
+    مطابقة لدالة rand من POSIX.
+    </li>
+    <br>
+
+    <li>
+    <b>جهز_العشوائية (seedRandom)</b><br/>
+<pre class="code" dir=ltr>
+def seedRandom: @expname[srand] function (s: Word);
+</pre>
+    مطابقة لدالة srand من POSIX.
+    </li>
+
+  </ul>
+  </div>
  </div>
 
  </div>
  <div style="border-top: solid 1px; text-align: right; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2015م \ 1436هـ.<br/>
+  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2018م \ 1440هـ.<br/>
 نُشر هذا الملف برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0، والمضمّنة مع هذا الملف
 والمتوفرة أيضاً على الرابط <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>. يرجى قراءة الرخصة للتعرف على شروط الاستخدام والنسخ.</p>
  </div>

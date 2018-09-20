@@ -36,10 +36,10 @@
  <h2 class="foldable">Introduction</h2>
  <div>
   Alusus Language is designed to be a comprehensive language that can be used to write any program regardless of the field, environment, or execution mechanism. This comprehensiveness required designing the language from a philosophical perspective rather than practical perspective that is often linked to a certain field or environment. This comprehensiveness also requires making the language expandable by the user or the community instead of limiting the development of the language to a central team. The design also needs to allow the programmer (the user) to reach and control the compiler itself. Also, expanding or modifying the language should be doable dynamically, i.e. without needing to rebuild the compiler.
-  
+
   <h3>Alusus' Definition of a Computer Program</h3>
   Alusus Language's definition of a computer program is irrelevant of the field of this program or its execution environment. Alusus defines a computer program to be a set of statements; each statement consists of one or more subjects; each subject can be a literal, an identifier, an expression, a command, another statement, or a set of other statements. Based on this high level definition, a base grammar is created and is made dynamic and an ability was added to Alusus to create new grammar rules that inherits from the base grammar. This allows the language to be expandable without breaking the general guidelines and consistency of the grammar and without causing parsing ambiguity.
-  
+
   <h3>An Open, Flexible, and Decentralied Compilation System</h3>
   Instead of creating a closed monolithic compiler that understands a predefined set of programming paradigms and a predefined execution mechanism, Alusus adopted a different design that allows the compilation to be done by a system that is open and modularized with a central component that manages the compilation process and provides the foundation on which the different components of the system is based on. This allows modifying or expanding the language and the compilation proces by replacing certain parts or adding new parts. The system also allows any programmer to reach its internal components and data entities in order to develop new compilation modules and that makes it possible for the community to develop the language rather than being limited to a small central group. It also allows developing different aspects of the language simultaneously by different teams. The following graph compares a traditional compilation method to the one adopted by Alusus:
 
@@ -71,8 +71,8 @@
    <li>Grammar Inheritance: It's possible to derive new grammar definitions from other definitions using grammar inheritance which allows the new grammar to inherit and override the properties of the parent grammar. This feature also allows building grammar templates.</li>
    <li>Grammar Templates: Alusus' grammar contains predefined grammar templates that can be used by programmers (whether build library writers or not) to add their own grammar definitions that are consistent with the rest of the grammar.</li>
    <li>Modular Grammar: Alusus allows the creation of grammar modules to group related grammar together and simplify grammar inheritance. For example, all grammar definitions related to expressions are grouped in one module which makes it easy to create specialized expressions by inheriting the expression module.</li>
-  </ul> 
-  
+  </ul>
+
   These grammar features enables the creation of generic base grammar definitions upon which the rest of the grammar is built, which guarantees the consistency of the grammar built by different independent teams. The <b>Base Grammar</b> in Alusus is simplified and generic and it directly matches Alusus' definition of a computer program:
   <ul>
    <li><b>Program:</b> A set of statements.</li>
@@ -91,7 +91,7 @@
  <h2 class="foldable">Grammar and Parsing Techniques</h2>
  <div>
   In addition to the common techniques in writig grammars and parsers, Alusus uses the following techniques:
-  
+
   <h3>Using Data in Grammar Definitions</h3>
   Grammar definitions can use data passed as parameters to the definition, or stored globally. The following example shows a command definition that keeps the keyword data driven:
 <pre dir=ltr class="code">
@@ -140,7 +140,7 @@ MyExpression -&gt; Expression {
 </pre>
 
   <h3>Multi-Dimensional Parsing</h3>
-  Multi-dimensional parsing allows marking certain grammar productions to be parsed in parallel to the main parsing thread. On each step of the main parsing thread, the parser can jump into the parallel parsing thread and once it's done parsing the parallel thread it goes back to the same point where it left in the main parsing thread. The following figure shows how the operation works:  
+  Multi-dimensional parsing allows marking certain grammar productions to be parsed in parallel to the main parsing thread. On each step of the main parsing thread, the parser can jump into the parallel parsing thread and once it's done parsing the parallel thread it goes back to the same point where it left in the main parsing thread. The following figure shows how the operation works:
   <p align="middle"><img src="design.resources/multidimensional_parsing.en.gif" /></p>
   This technique is used to simplify the defintion of productions that can appear in many places across the grammar, instead of having to manually reference that production everywhere. The following example clarifies the benefit of this technique:
 <pre dir=ltr class="code">
@@ -232,7 +232,7 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
    <li>Ability to choose between interpretation, compilation to intermediate language, or compilation to machine code, with the ability to mix between the different methods and the ability to choose the target platform of the compilation.</li>
   </ul>
  </div>
- 
+
  <!-- ********************************************************************** -->
  <h2 class="foldable">Overview of the Syntax</h2>
  <div>
@@ -276,9 +276,9 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
   Function Definition:
   <pre dir=ltr class="code">"def" name ":" "function" "(" Input_List ")" "=>" "(" Output_List ")" Block.</pre>
   Class Definition:
-  <pre dir=ltr class="code">"def" name ":" "class" [Inheritance_Specifier] Block.</pre>
-  Namespace Definition:
-  <pre dir=ltr class="code">"def" name ":" "namespace" Block.</pre>
+  <pre dir=ltr class="code">"def" name ":" "type" [Inheritance_Specifier] Block.</pre>
+  Module Definition:
+  <pre dir=ltr class="code">"def" name ":" "module" Block.</pre>
   The `def` command is also used in other definitions like arrays and pointers as explained below.
 
   <h3>Arrays</h3>
@@ -304,13 +304,18 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
   It's possible to mix between definition types using `def`. For example, you can define a pointer to an array, or a pointer to a function, or an array of pointers, etc. The following example shows how to define an array of pointers to functions:
   <pre dir=ltr class="code">"def" name ":" "array" "[" "ptr" "[" "function" "(" Params ")" "]" "]".</pre>
 
+  <h3>Merging Definitions</h3>
+  Definitions can be merged with an existing definition using the def command by adding the @merge modifier, as follows:
+  <pre dir=ltr class="code">"@merge" "def" name ":" "module" "{" Definitions "}".</pre>
+  <pre dir=ltr class="code">"@merge" "def" name ":" "{" Definitions "}".</pre>
+
   <h3>Modifiers</h3>
   Modifiers can appear almost anywhere in the program and not necessarily at the beginning of a statement. Modifiers have the following syntax:
   <pre dir=ltr class="code">"@" name [ Expression ].</pre>
 
   <h3>Regular Brackets and Square Brackets</h3>
   Regular brackets are used for runtime operations like grouping subjects in an expression or passing arguments in function calls. On the other hand square brackets are used for compile-time operations like defining the type of a pointer or an array. In other words, if the info is to be sent to the compiler itself the square brackets are used, otherwise regular brackets are used.
-  
+
   <h3>Curly Brackets {}</h3>
   Curly brackets are used to group multiple statements into a block. These blocks are used in conditional statements for example or in bodies of functions, classes, or namespaces.
 <pre dir=ltr class="code">
@@ -331,78 +336,74 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
    <li>Regular brackets are used to access array members instead of square brackets because the latter is used for compile time arguments. For the same reason regular brackets are used to dynamically specify array sizes while square brackets are used to define array types which is a compile time info.</li>
   </ul>
  </div>
- 
+
  <!-- ********************************************************************** -->
  <h2 class="foldable">Examples</h2>
  <div>
   Some of these examples are implemented already like the Hello World and the factorial examples, while other examples will be implemented in upcoming releases like class definition examples.
 <pre dir=ltr class="samplecode">
-import "System";
+import "Srl/Console.alusus";
 
-def HelloWorld : namespace
+def HelloWorld : module
 {
   def main : function
   {
-    print("Hello World!");
-    return 0
+    Srl.Console.print("Hello World!");
   }
 }
 </pre>
 <br/>
 <pre dir=ltr class="samplecode">
-import "System";
+import "Srl/Console.alusus";
 
-def Factorial : namespace
+def Factorial : module
 {
   def factorial : function (i:int)=>(int)
   {
     if i == 0 return 1 else return i * factorial(i-1)
   };
-  
+
   def main : function
   {
-    print("Factorial of %d is %d", 5, factorial(5));
-    return 0
+    Srl.Console.print("Factorial of %d is %d", 5, factorial(5));
   }
 }
 </pre>
 <br/>
 <pre dir=ltr class="samplecode">
-import "System";
+import "Srl/Console.alusus";
 
-def While : namespace
+def While : module
 {
   def main : function
   {
     def i : int = 1;
     while i < 10 {
-      print("%d\n", i);
+      Srl.Coneole.print("%d\n", i);
       ++i;
     };
-    return 0
   }
 }
 </pre>
 <br/>
 <pre dir=ltr class="samplecode">
-import "System";
+import "Srl/Console.alusus";
 
-def Arrays : namespace
+def Arrays : module
 {
   def main : function
   {
     def a : array[int](10);
     for i:int=0, i<10, ++i a(i) = i;
-    for i:int=0, i<10, ++i print("%d\n", a(i));
-    return 0
+    for i:int=0, i<10, ++i Srl.Console.print("%d\n", a(i));
   }
 }
 </pre>
 <br/>
 <pre dir=ltr class="samplecode">
-import "System";
+import "Srl/Console.alusus";
 
-def Pointers : namespace
+def Pointers : module
 {
   def main : function
   {
@@ -411,15 +412,14 @@ def Pointers : namespace
     p = i~ptr;
     print("%d\n", p);     // prints the address of i.
     print("%d\n", p~cnt); // prints the value of i.
-    return 0
   }
 }
 </pre>
 <br/>
 <pre dir=ltr class="samplecode">
-import "System";
+import "Srl/Console.alusus";
 
-def Casting : namespace
+def Casting : module
 {
   def main : function
   {
@@ -430,18 +430,17 @@ def Casting : namespace
     // then cast the pointer to a pointer of float,
     // then take the contents of that float pointer.
     f = i~ptr~cast[ptr[float]]~cnt;
-    print("%f\n", f);
-    return 0
+    Srl.Console.print("%f\n", f);
   }
 }
 </pre>
 <br/>
 <pre dir=ltr class="samplecode">
-import "System";
+import "Srl.alusus";
 
-def ClassDefinition : namespace
+def ClassDefinition : module
 {
-  def BaseClass : class
+  def BaseClass : type
   {
     @private def i : int;
     @private def j : int;
@@ -453,8 +452,8 @@ def ClassDefinition : namespace
     @public def getI : function ()=>(int) { return this.i };
     @public def getJ : function ()=>(int) { return this.j }
   };
-  
-  def ChildClass : class inherits BaseClass
+
+  def ChildClass : type inherits BaseClass
   {
     @private def k : int;
     @public def constructor : function (a:int, b:int, c:int)
@@ -470,7 +469,7 @@ def ClassDefinition : namespace
 
  </div>
  <div style="border-top: solid 1px; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>Copyright (C) 2015 <a href="http://sarmad-khalid.info" target="__blank">Sarmad Khalid Abdullah</a>.<br/>
+  <p>Copyright (C) 2018 <a href="http://sarmad-khalid.info" target="__blank">Sarmad Khalid Abdullah</a>.<br/>
   This file is released under Alusus Public License, Version 1.0. For details on usage and copying conditions
   read the full license in the accompanying license file or at <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>.
   </p>

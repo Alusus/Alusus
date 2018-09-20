@@ -146,7 +146,7 @@
 
     <context id="ar_type" style-ref="type">
       <match extended="true">
-        (\b[اورزدذ]*[\x{0620}-\x{065F}0-9_]ـ[\x{0620}-\x{065F}0-9_]*\b)
+        (\b[اأإورزدذ]*[\x{0620}-\x{065F}]ـ[\x{0620}-\x{065F}0-9_]*\b)
       </match>
     </context>
     <context id="predef_ar_type" style-ref="type">

@@ -32,24 +32,20 @@
  <h1>Alusus Building and Running Instructions</h1>
 
  <span style="color:red;">Note: Build scripts depends on GIT tags to determine the version number. If you copy the source files outside the GIT repository and build from there you'll get a version number of 0.0.0-DEV.</span>
-  
+
  <!-- ********************************************************************** -->
  <h2>External Dependencies</h2>
  Following is the list of dependencies you'll need to build the project from the source code.
 
  <p><a href="http://llvm.org/releases/download.html#3.3" target="__blank">LLVM 3.3</a></p>
 
- <p><a href="http://www.boost.org/users/history/version_1_55_0.html" target="__blank">Boost 1.55.0</a></p>
-
- <p><a href="http://alusus.net/Downloads/CATCH.tar.gz">CATCH</a></p>
-
- The release of CATCH used by Alusus' source code is old, therefore you need to download CATCH from the link above and not from their official page which includes a newer release that might not be compatible with Alusus' source code. In addition to the libraries mentioned above, you'll need GCC (4.8), CMake, Gawk, and PHP to be able to build the binaries from the source code. LLVM also has its own dependencies like valgrind for example.
+ In addition to the dependencies mentioned above, you'll need GCC (version 7 or above), CMake, Gawk, and PHP to be able to build the binaries from the source code. LLVM also has its own dependencies like valgrind for example.
   To install the build tools in Ubuntu use the following command:
-<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake gawk php5</pre>
+<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake gawk php-cli</pre>
   And for Fedora use the following:
-<pre dir=ltr class="code nohighlight">$ sudo yum install gcc gcc-c++ cmake gawk php valgrind valgrind-devel</pre>
+<pre dir=ltr class="code nohighlight">$ sudo dnf install gcc gcc-c++ cmake gawk php valgrind valgrind-devel</pre>
   Notice the need to install valgrind in Fedora in order to be able to build LLVM. We didn't need to install valgrind in Ubuntu. You might also need to install other packages if you are using distros other than the above. Visit LLVM's website for more details on how to build it.<br/>
-  <span style="color:red;">Note: You'll need GCC version 4.8 or newer. You won't be able to build Alusus code with older versions.</span>
+  <span style="color:red;">Note: You'll need GCC version 7 or newer. You won't be able to build Alusus code with older versions.</span>
 
  <!-- ********************************************************************** -->
  <h2>Building Using build.sh</h2>
@@ -73,7 +69,7 @@ $ ./build.sh
   <li>Install build tools as explained in the previous section.</li>
 
   <li>Download the source code for the versions mentioned above of LLVM, Boost, and CATCH, and extract their files.</li>
-  
+
   <li>Build and install LLVM:
    <ul>
     <li>Create a build folder with any name. For example: llvm.build.</li>
@@ -99,7 +95,7 @@ $ make install
     <li>CD into that folder and complete the build:
 <pre dir=ltr class="code nohighlight">
 $ cd &lt;path-to-Builds&gt;
-$ cmake &lt;path-to-Alusus-root&gt;/Sources -DBOOST_PATH=&lt;path-to-Boost-source&gt; -DCATCH_PATH=&lt;path-to-CATCH&gt; -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=&lt;path-to-Alusus-root&gt; -DLLVM_PATH=&lt;path-to-LLVM-install&gt;
+$ cmake &lt;path-to-Alusus-root&gt;/Sources -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=&lt;path-to-Alusus-root&gt; -DLLVM_PATH=&lt;path-to-LLVM-install&gt;
 $ make
 $ make install
 </pre>
@@ -115,7 +111,6 @@ $ make install
 <pre dir=ltr class="code nohighlight">
 $ make test
 </pre>
- This command will run three tests. You can run each of these tests individually by changing into its directory under Builds/Tests and manually running its executable. The test CoreTests can be controlled through command line arguments which you can get details on by passing the --help argument.
 
  <!-- ********************************************************************** -->
  <h2>Using Alusus</h2>
@@ -123,12 +118,12 @@ $ make test
 <pre dir=ltr class="code nohighlight">
 $ export PATH=&lt;path-to-Alusus&gt;/Bin:$PATH
 $ cd &lt;path-to-Alusus&gt;/Examples
-$ alusus.dbg hello_world.alusus
+$ alusus hello_world.alusus
 </pre>
  The Core's executalbe's name when building in debug mode will be alusus.dbg. If the build is in release mode the name will be alusus, i.e. without the dbg extension.
  <p>If the Core is built in debug mode logging can be enabled using the --log command line argument, which accepts a number representing the details level of the log as in the following example:
 <pre dir=ltr class="code nohighlight">
-$ alusus.dbg helloworld.alusus --log 16
+$ alusus helloworld.alusus --log 16
 </pre>
  The details level is determined through binary flags representing each different details level with the least significant bit representing the lowest level. A value of 1 for each level means details for that level will be logged to the screen. The following table explains the different levels:<br/>
  Lexer, low level = 1<br/>
@@ -138,11 +133,9 @@ $ alusus.dbg helloworld.alusus --log 16
  Parser, mid level = 16<br/>
  Parser, high level = 32<br/>
  The flags can be combined to display more than one level at the same time. For example, a value of 7 means logging all levels for the lexer.</p>
- <p>It's also possible to enable logging in the same way for CoreTests.</p>
-
  </div>
  <div style="border-top: solid 1px; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>Copyright (C) 2015 <a href="http://sarmad-khalid.info" target="__blank">Sarmad Khalid Abdullah</a>.<br/>
+  <p>Copyright (C) 2018 <a href="http://sarmad-khalid.info" target="__blank">Sarmad Khalid Abdullah</a>.<br/>
   This file is released under Alusus Public License, Version 1.0. For details on usage and copying conditions
   read the full license in the accompanying license file or at <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>.
   </p>
