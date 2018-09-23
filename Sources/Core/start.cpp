@@ -163,6 +163,13 @@ int main(int argCount, char * const args[])
         Data::dumpData(outStream, ptr.get(), 0);
         outStream << NEW_LINE;
       }
+    } catch (FileException &e) {
+      if (english) {
+        outStream << S("File not found: ") << e.getFileName() << NEW_LINE;
+      } else {
+        outStream << S("الملف مفقود: ") << e.getFileName() << NEW_LINE;
+      }
+      return EXIT_FAILURE;
     } catch (Exception &e) {
       outStream << e.getVerboseErrorMessage() << NEW_LINE;
       return EXIT_FAILURE;

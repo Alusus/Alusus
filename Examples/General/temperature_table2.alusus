@@ -2,7 +2,7 @@ import "Srl/Console.alusus";
 
 def TemperatureTable2 : module
 {
-  def start: function()
+  def start: function
   {
     def fahr : Int;
     for fahr = 0, fahr <= 300, fahr = fahr + 20 {

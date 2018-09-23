@@ -4,7 +4,7 @@ def Main: module
 {
   def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 
-  def start: function () => Void
+  def start: function
   {
     def i: Int;
     def j: Int;

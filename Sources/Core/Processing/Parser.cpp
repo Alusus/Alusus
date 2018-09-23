@@ -138,7 +138,7 @@ void Parser::beginParsing()
  *         parsing is complete. This can be 0 if the parsing handlers chose
  *         to remove all parsing data upon level/production end.
  */
-SharedPtr<TiObject> Parser::endParsing()
+SharedPtr<TiObject> Parser::endParsing(Data::SourceLocationRecord &endSourceLocation)
 {
   // Validation.
   if (this->states.empty()) {
@@ -186,11 +186,20 @@ SharedPtr<TiObject> Parser::endParsing()
     // fold out successfully.
     (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
     // We'll keep looping and raising errors until we fold out of the grammar tree completely.
+    Bool unexpectedEofRaised = false;
     do {
       // Raise error notification event, but only if state has been waiting for more tokens.
       if ((*si)->getTermLevelCount() > 1) {
         if (!this->getTopParsingHandler(*si)->onErrorToken(this, *si, 0)) {
-          (*si)->addNotice(SharedPtr<Notices::Notice>(new Notices::UnexpectedEofNotice()));
+          // We don't want to create duplicates of this error message.
+          if (!unexpectedEofRaised) {
+            auto sourceLocation = std::make_shared<Data::SourceLocationRecord>();
+            sourceLocation->filename = endSourceLocation.filename;
+            sourceLocation->line = endSourceLocation.line;
+            sourceLocation->column = endSourceLocation.column;
+            (*si)->addNotice(SharedPtr<Notices::Notice>(new Notices::UnexpectedEofNotice(sourceLocation)));
+            unexpectedEofRaised = true;
+          }
         }
       }
       // First, move the state to an error sync position.
@@ -202,9 +211,9 @@ SharedPtr<TiObject> Parser::endParsing()
               static_cast<Data::Grammar::ConcatTerm*>((*si)->refTopTermLevel().getTerm());
           Int errorSyncPosId = concatTerm->getErrorSyncPosId();
           if (errorSyncPosId >= static_cast<Int>((*si)->refTopTermLevel().getPosId())) {
-            // Here there is no point in waiting for tokens, so we'll jump to the end of the concat list
+            // Here there is no point in waiting for tokens, so we'll jump out of the concat list
             // regardless of the sync pos id.
-            (*si)->setTopTermPosId((*si)->getListTermChildCount());
+            this->popStateLevel(*si, false);
             break;
           } else {
             TiInt *flags = (*si)->getTermFlags();

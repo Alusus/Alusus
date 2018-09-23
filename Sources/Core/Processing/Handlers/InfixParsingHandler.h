@@ -86,11 +86,8 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
                                           SharedPtr<TiObject> const &data)
   {
     Data::Ast::List *list = data.ti_cast_get<Data::Ast::List>();
-    if (list == 0) {
-      throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid object type received."),
-                      data->getMyTypeInfo()->getUniqueName());
-    }
-    auto token = ti_cast<Data::Ast::Token>(list->getElement(0));
+    // `list` may be null in cases of errors causing drop of levels.
+    auto token = ti_cast<Data::Ast::Token>(list != 0 ? list->getElement(0) : data.get());
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, S("data[0]"), S("Invalid op token object received."),
                       list->get(0)->getMyTypeInfo()->getUniqueName());
@@ -99,7 +96,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     auto obj = std::make_shared<TYPE>();
     obj->setFirst(currentData);
     obj->setType(token->getText());
-    obj->setSecond(list->get(1));
+    obj->setSecond(list != 0 ? list->get(1) : TioSharedPtr::null);
 
     auto metadata = currentData.ti_cast_get<Data::Ast::MetaHaving>();
     if (metadata != 0) {

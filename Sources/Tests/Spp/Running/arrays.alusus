@@ -38,7 +38,7 @@ def Main: module
     };
   };
 
-  def start: function ()=>Void
+  def start: function
   {
     def i: Int[32];
 

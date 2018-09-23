@@ -91,7 +91,7 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename, Bool allowRep
   // Find the absolute path of the file.
   Str fullPath = this->findAbsolutePath(filename);
   if (fullPath.empty()) {
-    throw EXCEPTION(InvalidArgumentException, S("filename"), S("File not found."), filename);
+    throw EXCEPTION(FileException, filename, C('r'));
   }
 
   // Do not reprocess if already processed.

@@ -15,7 +15,7 @@ def Main: module
     return val > 10;
   };
 
-  def start: function () => Void
+  def start: function
   {
     testOr();
     print(" ");
@@ -26,7 +26,7 @@ def Main: module
     testNot();
   };
 
-  def testOr: function () => Void
+  def testOr: function
   {
     def i: Int[32];
     def j: Int[32];
@@ -60,7 +60,7 @@ def Main: module
     if check("i", i) || check("j", j) || b print("True triple check.");
   };
 
-  def testAnd: function () => Void
+  def testAnd: function
   {
     def i: Int[32];
     def j: Int[32];
@@ -94,7 +94,7 @@ def Main: module
     if check("i", i) && check("j", j) && b print("True triple check.");
   };
 
-  def testMixed: function () => Void
+  def testMixed: function
   {
     def i: Int[32];
     def j: Int[32];

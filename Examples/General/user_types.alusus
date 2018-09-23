@@ -8,7 +8,7 @@ def UserTypes: module
     def y: Int;
   };
 
-  def start: function ()
+  def start: function
   {
     def p : Point;
     p.x = 10;

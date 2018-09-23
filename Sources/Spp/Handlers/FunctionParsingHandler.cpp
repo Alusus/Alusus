@@ -26,51 +26,37 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   auto exprMetadata = ti_cast<Core::Data::Ast::MetaHaving>(expr);
   ASSERT(exprMetadata != 0);
 
-  if (expr->getCount() < 2) {
-    state->addNotice(std::make_shared<Spp::Notices::MissingFunctionSigNotice>(exprMetadata->findSourceLocation()));
-    state->setData(SharedPtr<TiObject>(0));
-    return;
-  }
-
   // Prepare function signature.
-  auto signature = expr->getElement(1);
-  if (signature == 0) {
-    state->addNotice(
-      std::make_shared<Spp::Notices::InvalidFunctionSignatureNotice>(exprMetadata->findSourceLocation())
-    );
-    state->setData(SharedPtr<TiObject>(0));
-    return;
-  }
-  Core::Data::Ast::Bracket *bracket;
-  TioSharedPtr retType;
-  auto linkOp = ti_cast<Core::Data::Ast::LinkOperator>(signature);
-  if (linkOp != 0) {
-    retType = linkOp->getSecond();
-    bracket = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Bracket>();
-  } else {
-    bracket = ti_cast<Core::Data::Ast::Bracket>(signature);
-  }
-  if (bracket == 0) {
-    state->addNotice(
-      std::make_shared<Spp::Notices::InvalidFunctionSignatureNotice>(exprMetadata->findSourceLocation())
-    );
-    state->setData(SharedPtr<TiObject>(0));
-    return;
-  }
   SharedPtr<Core::Data::Ast::Map> args;
-  if (!this->parseArgs(state, bracket, args)) {
-    state->setData(SharedPtr<TiObject>(0));
-    return;
-  }
+  TioSharedPtr retType;
+  TiObject *signature = expr->getElementCount() >= 2 ? expr->getElement(1) : 0;
+  Spp::Ast::Block *body = ti_cast<Spp::Ast::Block>(signature);
 
-  // Prepare function body.
-  Spp::Ast::Block *body = 0;
-  if (expr->getCount() == 3) {
-    body = ti_cast<Spp::Ast::Block>(expr->getElement(2));
-    if (body == 0) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionBodyNotice>(exprMetadata->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
+  if (body == 0) {
+    // We have a signature, let's parse it.
+    Core::Data::Ast::Bracket *bracket;
+    auto linkOp = ti_cast<Core::Data::Ast::LinkOperator>(signature);
+    if (linkOp != 0) {
+      retType = linkOp->getSecond();
+      bracket = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Bracket>();
+    } else {
+      bracket = ti_cast<Core::Data::Ast::Bracket>(signature);
+    }
+    if (bracket != 0) {
+      if (!this->parseArgs(state, bracket, args)) {
+        state->setData(SharedPtr<TiObject>(0));
+        return;
+      }
+    }
+
+    // Do we have a body after the signature?
+    if (expr->getCount() == 3) {
+      body = ti_cast<Spp::Ast::Block>(expr->getElement(2));
+      if (body == 0) {
+        state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionBodyNotice>(exprMetadata->findSourceLocation()));
+        state->setData(SharedPtr<TiObject>(0));
+        return;
+      }
     }
   }
 

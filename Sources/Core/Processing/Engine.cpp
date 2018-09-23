@@ -46,9 +46,16 @@ SharedPtr<TiObject> Engine::processString(Char const *str, Char const *name)
   sourceLocation.line = 1;
   sourceLocation.column = 1;
   lexer.handleNewString(str, sourceLocation);
+
+  auto endLine = sourceLocation.line;
+  auto endColumn = sourceLocation.column;
+
   lexer.handleNewChar(FILE_TERMINATOR, sourceLocation);
 
-  return this->parser.endParsing();
+  sourceLocation.line = endLine;
+  sourceLocation.column = endColumn;
+
+  return this->parser.endParsing(sourceLocation);
 }
 
 
@@ -78,13 +85,21 @@ SharedPtr<TiObject> Engine::processStream(InStream *is, Char const *streamName)
   sourceLocation.line = 1;
   sourceLocation.column = 1;
   Char c;
+  is->get(c);
   while (!is->eof()) {
-    is->get(c);
     lexer.handleNewChar(c, sourceLocation);
+    is->get(c);
   }
+
+  auto endLine = sourceLocation.line;
+  auto endColumn = sourceLocation.column;
+
   lexer.handleNewChar(FILE_TERMINATOR, sourceLocation);
 
-  return parser.endParsing();
+  sourceLocation.line = endLine;
+  sourceLocation.column = endColumn;
+
+  return parser.endParsing(sourceLocation);
 }
 
 } } // namespace

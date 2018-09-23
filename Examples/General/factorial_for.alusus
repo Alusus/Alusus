@@ -11,7 +11,7 @@ def FactorialForLoop: module
     return f;
   };
 
-  def start: function ()
+  def start: function () => Void
   {
     Srl.Console.print("Factorial of 5 is %d\n", factorial(5));
   };

@@ -167,7 +167,7 @@ class Parser : public TiObject
   public: void beginParsing();
 
   /// Finalize the parsing process.
-  public: SharedPtr<TiObject> endParsing();
+  public: SharedPtr<TiObject> endParsing(Data::SourceLocationRecord &endSourceLocation);
 
   /// Try to fold out of the grammar tree.
   public: void tryCompleteFoldout(StateIterator si);

@@ -359,10 +359,10 @@ void GrammarFactory::createGrammar(
       {S("prms"), List::create({}, {
         Map::create(false, {}, {
           {S("prd"), PARSE_REF(S("root.FuncSigExpression"))},
-          {S("min"), std::make_shared<TiInt>(1)},
+          {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
         }),
         Map::create(false, {}, {
           {S("prd"), PARSE_REF(S("root.Block"))},
@@ -418,10 +418,27 @@ void GrammarFactory::createGrammar(
   }, {
     {S("vars"), Map::create(false, {}, {
       {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP | TermFlags::ONE_ROUTE_TERM)},
-      {S("operand"), PARSE_REF(S("root.Subject"))},
+      {S("operand"), PARSE_REF(S("root.FuncSigSubject"))},
       {S("pty2"), std::make_shared<TiInt>(1)},
       {S("dup"), 0},
       {S("fltr2"), 0}
+    })}
+  }).get());
+
+  this->set(S("root.FuncSigSubject"), Module::create({
+    {S("baseRef"), PARSE_REF(S("root.Subject")) }
+  }).get());
+  this->set(S("root.FuncSigSubject.Subject1"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("bmodule.Subject1"))},
+  }, {
+    {S("vars"), Map::create(false, {}, {
+      {S("sbj1"), List::create({}, {
+        PARSE_REF(S("module.Parameter")),
+      })},
+      {S("sbj2"), List::create({}, {PARSE_REF(S("root.Expression"))})},
+      {S("sbj3"), List::create({}, {PARSE_REF(S("root.Expression"))})},
+      {S("frc2"), 0},
+      {S("frc3"), 0}
     })}
   }).get());
 
@@ -601,6 +618,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Subject.Type"));
   this->tryRemove(S("root.Subject.Function"));
   this->tryRemove(S("root.FuncSigExpression"));
+  this->tryRemove(S("root.FuncSigSubject"));
   this->tryRemove(S("root.Block"));
   this->tryRemove(S("root.BlockSubject"));
   this->tryRemove(S("root.BlockExpression"));
