@@ -1,0 +1,142 @@
+ERROR SPPA1008 @ (30,19): Provided arguments do not match signature.
+ERROR SPPA1008 @ (31,19): Provided arguments do not match signature.
+ERROR SPPA1008 @ (32,19): Provided arguments do not match signature.
+ERROR SPPA1008 @ (33,19): Provided arguments do not match signature.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+
+%Main_Rec = type { i32 ()*, i32 (i32)* }
+
+@__anonymous0 = private constant [4 x i8] c"%d\0A\00", align 1
+@Main_pget2 = global i32 ()* null
+@__anonymous1 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous2 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous3 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous4 = private constant [4 x i8] c"%d\0A\00", align 1
+@Main_pmul2 = global i32 (i32)* null
+@__anonymous5 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous6 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous7 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous8 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous9 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous10 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous11 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous12 = private constant [4 x i8] c"%d\0A\00", align 1
+
+declare i64 @printf(i8*, ...)
+
+define void @"Main.start()=>(Void)"() {
+__block0:
+  %pget = alloca i32 ()*
+  %pmul = alloca i32 (i32)*
+  %pf = alloca float*
+  %r = alloca %Main_Rec
+  %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i32 0, i32 0), i32 ()* @"Main.getNum1()=>(Int[32])")
+  store i32 ()* @"Main.getNum1()=>(Int[32])", i32 ()** %pget
+  store i32 ()* @"Main.getNum2()=>(Int[32])", i32 ()** @Main_pget2
+  %1 = getelementptr %Main_Rec* %r, i32 0, i32 0
+  store i32 ()* @"Main.getNum3()=>(Int[32])", i32 ()** %1
+  %2 = load i32 ()** %pget
+  %3 = call i32 %2()
+  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous1, i32 0, i32 0), i32 %3)
+  %5 = load i32 ()** @Main_pget2
+  %6 = call i32 %5()
+  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous2, i32 0, i32 0), i32 %6)
+  %8 = getelementptr %Main_Rec* %r, i32 0, i32 0
+  %9 = load i32 ()** %8
+  %10 = call i32 %9()
+  %11 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous3, i32 0, i32 0), i32 %10)
+  %12 = call i32 ()* ()* @"Main.getFunc1()=>(ptr[()=>(Int[32])])"()
+  %13 = call i32 %12()
+  %14 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous4, i32 0, i32 0), i32 %13)
+  store i32 (i32)* @"Main.mulX2(Int[32])=>(Int[32])", i32 (i32)** %pmul
+  store i32 (i32)* @"Main.mulX3(Int[32])=>(Int[32])", i32 (i32)** @Main_pmul2
+  %15 = getelementptr %Main_Rec* %r, i32 0, i32 1
+  store i32 (i32)* @"Main.mulX4(Int[32])=>(Int[32])", i32 (i32)** %15
+  %16 = load i32 (i32)** %pmul
+  %17 = call i32 %16(i32 3)
+  %18 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous5, i32 0, i32 0), i32 %17)
+  %19 = load i32 (i32)** @Main_pmul2
+  %20 = call i32 %19(i32 3)
+  %21 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous6, i32 0, i32 0), i32 %20)
+  %22 = getelementptr %Main_Rec* %r, i32 0, i32 1
+  %23 = load i32 (i32)** %22
+  %24 = call i32 %23(i32 3)
+  %25 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous7, i32 0, i32 0), i32 %24)
+  %26 = call i32 (i32)* ()* @"Main.getFunc2()=>(ptr[(Int[32])=>(Int[32])])"()
+  %27 = call i32 %26(i32 3)
+  %28 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous8, i32 0, i32 0), i32 %27)
+  %29 = getelementptr %Main_Rec* %r, i32 0, i32 1
+  %30 = load i32 (i32)** %29
+  %31 = call i32 (i32)* ()* @"Main.getFunc2()=>(ptr[(Int[32])=>(Int[32])])"()
+  ret void
+}
+
+define i32 @"Main.getNum1()=>(Int[32])"() {
+__block3:
+  ret i32 5
+}
+
+define i32 @"Main.getNum2()=>(Int[32])"() {
+__block4:
+  ret i32 7
+}
+
+define i32 @"Main.getNum3()=>(Int[32])"() {
+__block5:
+  ret i32 13
+}
+
+define i32 ()* @"Main.getFunc1()=>(ptr[()=>(Int[32])])"() {
+__block1:
+  ret i32 ()* @"Main.getNum4()=>(Int[32])"
+}
+
+define i32 @"Main.mulX2(Int[32])=>(Int[32])"(i32 %n) {
+__block7:
+  %n1 = alloca i32
+  store i32 %n, i32* %n1
+  %0 = load i32* %n1
+  %1 = mul nsw i32 %0, 2
+  ret i32 %1
+}
+
+define i32 @"Main.mulX3(Int[32])=>(Int[32])"(i32 %n) {
+__block8:
+  %n1 = alloca i32
+  store i32 %n, i32* %n1
+  %0 = load i32* %n1
+  %1 = mul nsw i32 %0, 3
+  ret i32 %1
+}
+
+define i32 @"Main.mulX4(Int[32])=>(Int[32])"(i32 %n) {
+__block9:
+  %n1 = alloca i32
+  store i32 %n, i32* %n1
+  %0 = load i32* %n1
+  %1 = mul nsw i32 %0, 4
+  ret i32 %1
+}
+
+define i32 (i32)* @"Main.getFunc2()=>(ptr[(Int[32])=>(Int[32])])"() {
+__block2:
+  ret i32 (i32)* @"Main.mulX5(Int[32])=>(Int[32])"
+}
+
+define i32 @"Main.getNum4()=>(Int[32])"() {
+__block6:
+  ret i32 17
+}
+
+define i32 @"Main.mulX5(Int[32])=>(Int[32])"(i32 %n) {
+__block10:
+  %n1 = alloca i32
+  store i32 %n, i32* %n1
+  %0 = load i32* %n1
+  %1 = mul nsw i32 %0, 5
+  ret i32 %1
+}
+------------------------------------------------------------

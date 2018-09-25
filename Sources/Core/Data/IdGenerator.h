@@ -2,7 +2,7 @@
  * @file Core/Data/IdGenerator.h
  * Contains the header of class Core::Data::IdGenerator.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_IDGENERATOR_H
-#define DATA_IDGENERATOR_H
+#ifndef CORE_DATA_IDGENERATOR_H
+#define CORE_DATA_IDGENERATOR_H
 
 namespace Core { namespace Data
 {
@@ -22,7 +22,7 @@ namespace Core { namespace Data
 
 /**
  * @brief A generator of unique IDs.
- * @ingroup data
+ * @ingroup core_data
  *
  * This singleton class generates unique Word ids for any use. Using this class
  * to generate the required ids guarantees that no two objects will have the
@@ -56,7 +56,7 @@ class IdGenerator
   /// Prevent the singleton class from being inistantiated.
   private: IdGenerator() : index(&ids)
   {
-    this->getId(STR("UNKNOWN"));
+    this->getId(S("UNKNOWN"));
   }
 
 
@@ -81,7 +81,7 @@ class IdGenerator
 
 /**
  * @brief A shortcut to access the ID generator singleton.
- * @ingroup data
+ * @ingroup core_data
  */
 #define ID_GENERATOR Core::Data::IdGenerator::getSingleton()
 

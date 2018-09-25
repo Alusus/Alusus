@@ -42,8 +42,13 @@
  </div>
  <div id='rootdiv' style="padding-top:5px; padding-left:20px; padding-right:20px; padding-bottom:35px;">
  <h1>معايير لغة الأسُس البرمجية</h1>
+
+ <p>
+ <span style="color:red;">ملاحظة: الإصدار الحالي من لغة الأسس متوافق مع هذه المعايير بشكل غير كامل. هذه المعايير فيها بعض التفاصيل التي ما زالت نظرية ولم تطبق بعد.</span>
+ </p>
+
  <a href='#' onclick='openAllFolds()'>إفتح الكل</a>&nbsp;&nbsp;&nbsp;<a href='#' onclick='closeAllFolds()'>أغلق الكل</a>
- 
+
  <!-- ********************************************************************** -->
  <h2 class="foldable numbering">معايير القلب القواعدية</h2>
  <div>
@@ -71,35 +76,35 @@
 keywords : type list[string]
 </pre>
    </p>
-    
+
    <p><span class="kwd">filter</span><br/>
    تعريف لصنف يُستخدم لحمل قيمة المرشّحات في متن القواعد. يمكن للقيمة أما أن تكون عدداً صحيحاً، أو مصفوفة من الأعداد الصحيحة.
 <pre dir=ltr class="code">
 filter : type integer || list[integer]
 </pre>
    </p>
-       
+
    <p><span class="kwd">valid_subject</span><br/>
    تعريف لصنف المؤشرات المسموح بها كحد من حدود التركيب أو الأمر أو الجملة.
 <pre dir=ltr class="code">
-valid_subject : type prule[Subject||Subject.Parameter||Command||Expression||Main.Statement||Set]
+valid_subject : type prule[Subject || Subject.Parameter || Command || Expression || Main.Statement || Set]
 </pre>
    </p>
-   
+
    <p><span class="kwd">Keyword</span><br/>
    القاعدة الإعرابية للكلمة التعريفية. تستخدم هذه الكلمات التعريفية في تعريف الأوامر.
 <pre dir=ltr class="code">
 Keyword : prule as (@unique kwd:string)=>{ lexer.Identifier(kwd) }
 </pre>
    </p>
-   
+
    <p><span class="kwd">KeywordGroup</span><br/>
    القاعدة الإعرابية لمجموعة من الكلمات التعريفية. تستخدم هذه القاعدة لتمكين الأمر الواحد من التبديل بين أكثر من كلمة تعريفية واحدة. على سبيل المثال يمكن للأمر أن يستخدم ترجمات مختلفة لنفس الكلمة التعريفية.
 <pre dir=ltr class="code">
 KeywordGroup : prule as (kwds:keywords)=>{ alternate (kwds:k)->( Keyword(k) ) }
 </pre>
    </p>
-   
+
    <p><span class="kwd">Constants</span><br/>
    قاعدة إعرابية لعملية تبادل بين مجموعة من الثوابت. تستخدم هذه القاعدة من قبل القواعد التي تسمح بأكثر من ثابت واحد في موضع معين. على سبيل المثال العمليات الرياضية تسمح بأكثر من مؤثر واحد بين الحدّين.
 <pre dir=ltr class="code">
@@ -114,7 +119,7 @@ Constants : prule as (kwds:keywords)=>{ alternate (kwds:k)->( lexer.Constant(k) 
    <div>
     تُكتب البرامج المصدرية بالترميز الموحد (unicode) باستخدام صيغة UTF-8.  والمرمز حساس لحالة الأحرف (case sensitive) لذلك فإن كلمة command تختلف عن المرمز عن Command. وبصورة عالمة، فإن المرمز يميز المحارف باستخدام قيمتها الترميزية وبالتالي فإن حرفين بقيمتين مختلفتين يعاملان كحرفين مختلفين حتى وإن رُسما بنفس الشكل.
    </div>
-   
+
    <h3 class="foldable numbering">عملية الترميز</h3>
    <div>
     <h3>اختيار الترميز الملائم</h3>
@@ -148,7 +153,7 @@ BinDigit : char '0'..'1';
 OctDigit : char '0'..'7';
 DecDigit : char '0'..'9';
 HexDigit : char '0'..'9', 'a'..'f', 'A'..'F';
-Letter : char 'a'..'z', 'A'..'Z', '_';
+Letter : char 'a'..'z', 'A'..'Z', '_', 0h0620..0h065F, 0h066E..0h06DC;
 AnyCharNoEs : char !('\\');
 AnyCharNoEsOrSingleQuote : char !("\\'");
 AnyCharNoEsOrDoubleQuote : char !("\\\"");
@@ -160,10 +165,12 @@ Spacing : char " \n\r\t";
 
    <h3 class="foldable numbering">المحارف المهملة</h3>
    <div>
-    يُهمل المرمّز المحارف الغير مرئية كمحارف المسافة ونهاية السطر، وهي المحارف التي تحتويها مجموعة المحارف Spacing وحسب القاعدة التالية:
+    يُهمل المرمّز المحارف الغير مرئية كمحارف المسافة ونهاية السطر، وهي المحارف التي تحتويها مجموعة المحارف Spacing بالإضافة للملاحظات، وحسب القاعدة التالية:
 <pre dir=ltr class="code">
 Spacing : char " \n\r\t";
 ignore { Spacing * (1,endless) };
+@minimum ignore { "/*" + any*(0,endless) + "*/" };
+@minimum ignore { "//" + any*(0,endless) + "\n" }
 </pre>
    </div>
 
@@ -177,6 +184,9 @@ ignore { Spacing * (1,endless) };
       <tr><td dir=ltr>\t</td><td>علامة التبويب (tab)</td></tr>
       <tr><td dir=ltr>\b</td><td>مسح للخلف (backspace)</td></tr>
       <tr><td dir=ltr>\0</td><td>نهاية سلسلة محارف (string terminator)</td></tr>
+      <tr><td dir=ltr>\ج</td><td>سطر جديد (linefeed)</td></tr>
+      <tr><td dir=ltr>\ر</td><td>رجوع إلى بداية السطر (carriage return)</td></tr>
+      <tr><td dir=ltr>\ت</td><td>علامة التبويب (tab)</td></tr>
      </table>
      </p>
 
@@ -229,21 +239,22 @@ AnyCharNoEs : char !('\\');
 AnyCharNoEsOrSingleQuote : char !("\\'");
 AnyCharNoEsOrDoubleQuote : char !("\\\"");
 
-@inner EsCharWithSingleQuote : token as {
+@inner EsCharWithSingleQuote : trule as {
   AnyCharNoEsOrDoubleQuote || EsCodeSequence ||
   alternate (escapeSequences:es)->( es )
 };
-@inner EsCharWithDoubleQuote : token as {
+@inner EsCharWithDoubleQuote : trule as {
   AnyCharNoEsOrSingleQuote || EsCodeSequence ||
   alternate (escapeSequences:es)->( es )
 };
-@inner EsCharWithQuotes : token as {
+@inner EsCharWithQuotes : trule as {
   AnyCharNoEs || EsCodeSequence || alternate (escapeSequences:es)->( es )
 };
-@inner EsCodeSequence : token as {
+@inner EsCodeSequence : trule as {
   '\\' + ('c' + HexDigit*(2,2) ||
           'u' + HexDigit*(4,4) ||
-          'w' + HexDigit*(8,8))
+          'w' + HexDigit*(8,8) ||
+          'n' || 't' || 'r' || '"' || '\'' || '\\' || 'ج' || 'ت' || 'ر')
 };
 </pre>
    </div>
@@ -258,14 +269,14 @@ AnyCharNoEsOrDoubleQuote : char !("\\\"");
      <h3>التركيب النحوي</h3>
 <pre dir=ltr class="code">
 identifier : letter { letter | decDigit }.
-letter : 'a'..'z' | 'A' .. 'Z' | '_'.
+letter : 'a'..'z' | 'A'..'Z' | '_' | 0h0620..0h065F | 0h066E..0h06DC.
 decDigit : '0'..'9'.
 </pre>
 
      <h3>التعريف القواعدي</h3>
 <pre dir=ltr class="code">
 Identifier : trule as { Letter + (Letter || DecDigit)*(0,endless) };
-Letter : char 'a'..'z', 'A'..'Z', '_';
+Letter : char 'a'..'z', 'A'..'Z', '_', 0h0620..0h065F, 0h066E..0h06DC;
 DecDigit : char '0'..'9';
 </pre>
     </div>
@@ -394,7 +405,8 @@ CharLiteral : trule as { "'" + EsCharWithDoubleQuote + "'" + CharCodePostfix*(0,
 @inner EsCodeSequence : trule as {
   '\\' + ('c' + HexDigit*(2,2) ||
           'u' + HexDigit*(4,4) ||
-          'w' + HexDigit*(8,8))
+          'w' + HexDigit*(8,8) ||
+          'n' || 't' || 'r' || '"' || '\'' || '\\' || 'ج' || 'ت' || 'ر')
 };
 </pre>
      </div>
@@ -437,10 +449,11 @@ StringLiteral : trule as {
 @inner EsCharWithSingleQuote : trule as {
   AnyCharNoEsOrDoubleQuote || EsCodeSequence || alternate (escapeSequences:es)->( es )
 };
-@inner EsCodeSequence : trule as {
+@inner EsCodeSequence : token as {
   '\\' + ('c' + HexDigit*(2,2) ||
           'u' + HexDigit*(4,4) ||
-          'w' + HexDigit*(8,8))
+          'w' + HexDigit*(8,8) ||
+          'n' || 't' || 'r' || '"' || '\'' || '\\' || 'ج' || 'ت' || 'ر')
 };
 </pre>
      </div>
@@ -477,14 +490,15 @@ CustomLiteral : trule as (@unique prefix:keywords,postfix:keywords)=>{
 @inner EsCodeSequence : trule as {
   '\\' + ('c' + HexDigit*(2,2) ||
           'u' + HexDigit*(4,4) ||
-          'w' + HexDigit*(8,8))
+          'w' + HexDigit*(8,8) ||
+          'n' || 't' || 'r' || '"' || '\'' || '\\' || 'ج' || 'ت' || 'ر')
 };
 </pre>
      </div>
     </div>
    </div>
   </div>
-  
+
   <h3 class="foldable numbering">المعايير الإعرابية</h3>
   <div>
    <h3 class="foldable numbering">البرامج والجمل</h3>
@@ -498,7 +512,7 @@ CustomLiteral : trule as (@unique prefix:keywords,postfix:keywords)=>{
      <li><b>CmdPhrase:</b> تبدأ هذه العبارة بأمر افتتاحي تليه سلسلة غير محددة من الأوامر الذيلية. الأوامر الافتتاحية هي مجموعة الأوامر التي تظهر في بداية الجملة ولا تظهر في مكان آخر.</li>
      <li><b>SoloCmdPhrase:</b> تحتوي هذه العبارة على أمر منفرد واحد. الأوامر المنفردة هي التي تظهر فقط وحيدة في الجملة.</li>
     </ul>
-    
+
     <h3>التركيب النحوي</h3>
 <pre dir=ltr class="code">
 Program : StatementList.
@@ -537,12 +551,12 @@ Main : module {
 }
 </pre>
    </div>
-   
+
    <h3 class="foldable numbering">التراكيب</h3>
    <div>
    التركيب هو مجموعة من الحدود مرتبطة هرمياً بمؤثرات. هناك نوعين من المؤثرات: أحادية وثنائية. المؤثرات الأحادية تُطبَّق على حد واحد بينما تربط المؤثرات الثنائية بين حدين. المؤثرات الأحادية تسبق أو تلي الحد بينما تقع المؤثرات الثنائية وسط حدين. أغلب هذه المؤثرات لها معنى مسبق التعريف، لكن ليس هناك من الناحية التقنية ما يمنع استخدامها بشكل مختلف في القواعد المشتقة أو عند إنشاء الشفرة التنفيذية، أي أن القلب يتعامل مع كل هذه المؤثرات بشكل مشابه وهي لا تختلف عنده عن بعضها إلا بشفرتها.<br/>
    جُمعت القواعد الإعرابية المتعلقة بالتراكيب في حزمة واحدة لتسهيل الإشتقاق القواعدي لإنشاء أنواع جديدة ومخصصة من المؤثرات.
-   
+
    <h3>التركيب النحوي</h3>
    للمؤثرات التراكيب النحوية التالية:
 <pre dir=ltr class="code">
@@ -550,7 +564,7 @@ Main : module {
 operand [unaryOp].
 operand1 {binaryOp operand2}.
 </pre>
-   
+
    <h3>المؤثرات</h3>
      كل المؤثرات لها نفس التركيب النحوي المذكور أعلاه لكنها تختلف في أسبقياتها التي تحدد كيفية إعراب التركيب وتحويله إلى شجرة بيانية. على سبيل المثال المؤثر * له الأسبقية دائماً على المؤثر + وبالتالي يكون ظهوره في شجرة البيانات أعمق من المؤثر +. الأسبقيات بين المؤثرات ثابتة في لغة الأسُس التي تفرض هذه الأسبقية على من يشتق تراكيبه الخاصة. فيما يلي قائمة المؤثرات مرتبة تصاعدياً حسب الأسبقية:
     <ul>
@@ -585,6 +599,7 @@ operand1 {binaryOp operand2}.
         <tr><td dir=ltr>-=</td><td>طرح قيمة من القيمة الحالية</td></tr>
         <tr><td dir=ltr>*=</td><td>ضرب القيمة الحالية بقيمة أخرى</td></tr>
         <tr><td dir=ltr>/=</td><td>تقسيم القيمة الحالية على قيمة أخرى</td></tr>
+        <tr><td dir=ltr>÷=</td><td>تقسيم القيمة الحالية على قيمة أخرى</td></tr>
         <tr><td dir=ltr>%=</td><td>تقسيم القيمة الحالية على قيمة أخرى والاحتفاظ بالباقي بدل نتيجة القسمة</td></tr>
         <tr><td dir=ltr>&=</td><td>تطبيق عملية 'و' المنطقية على القيمة الحالية</td></tr>
         <tr><td dir=ltr>|=</td><td>تطبيق عملية 'أو' المنطقية على القيمة الحالية</td></tr>
@@ -595,12 +610,14 @@ operand1 {binaryOp operand2}.
       </li>
       <li><b>مؤثرات العمليات المنطقية</b><br/>
        <table class="dict">
+        <tr><td dir=ltr>أو</td><td>عملية 'أو'</td></tr>
         <tr><td dir=ltr>or</td><td>عملية 'أو'</td></tr>
         <tr><td dir=ltr>||</td><td>صيغة رمزية ل or</td></tr>
         <tr><td dir=ltr>nor</td><td>عملية 'أو' معكوسة</td></tr>
         <tr><td dir=ltr>xor</td><td>عملية xor</td></tr>
         <tr><td dir=ltr>$$</td><td>صيغة رمزية ل xor</td></tr>
         <tr><td dir=ltr>xnor</td><td>عملية xor معكوسة</td></tr>
+        <tr><td dir=ltr>و</td><td>عملية 'و'</td></tr>
         <tr><td dir=ltr>and</td><td>عملية 'و'</td></tr>
         <tr><td dir=ltr>&&</td><td>صيغة رمزية ل and</td></tr>
         <tr><td dir=ltr>nand</td><td>عملية 'و' معكوسة</td></tr>
@@ -691,7 +708,7 @@ operand "[" [expression] ")"
 2) myvar(params).mysubvar
 </pre>
    في المثال الأول أعلاه الجزء '(params)' يُطبق على ناتج 'myvar.mysubvar' بينما في المثال الثاني الجزء '<span dir=ltr>.mysubvar</span>' يُطبق على ناتج '<span dir=ltr>myvar(params)</span>'.
-   
+
    <h3>رمز نهاية التركيب</h3>
        الرمز \ اختياري ويستخدم لتحديد نهاية التركيب. الغرض منه إزالة الغموض إن وجد حول النقطة التي ينتهي عندها التركيب. المثال التالي يوضح حالة غموض تتطلب استخدام هذا الرمز:
 <pre dir=ltr class="samplecode">
@@ -712,13 +729,13 @@ a = (b + c) * d;
 <pre dir=ltr class="code">
 TokenData : module {
   // Predefined Operator Lists
-  assignmentOpList : keywords = ("=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=",
-                                  "&lt;&lt;=", "&gt;&gt;=");
+  assignmentOpList : keywords = ("=", "+=", "-=", "*=", "/=", "÷=", "%=", "&=", "|=", "$=",
+                                 "&lt;&lt;=", "&gt;&gt;=");
   comparisonOpList : keywords = ("==", "!=", "&lt;", "&gt;", "&lt;=", "&gt;=");
   addOpList : keywords = ("+", "-");
   mulOpList : keywords = ("*", "/", "%");
   bitwiseOpList : keywords = ("|", "$", "&", "&lt;&lt;", "&gt;&gt;");
-  logOpList : keywords = ("||", "$$", "&&", "or", "nor", "xor", "xnor", "and", "nand");
+  logOpList : keywords = ("||", "$$", "&&", "أو", "or", "nor", "xor", "xnor", "و", "and", "nand");
   prefixOpList : keywords = ("++", "--", "+", "-", "!", "!!", "not");
   postfixOpList : keywords = ("++", "--");
   linkOpList : keywords = ("-&gt;", ".", ".&gt;", "&lt;.");
@@ -738,63 +755,66 @@ Expression : module {
 
   Exp : prule as { LowestLinkExp + (@priority(in,0) lexer.Constant("\\")*(0,1)) };
   LowestLinkExp : prule prefix self.id as (enable:integer=endless)=&gt;{
-      ConditionalExp + (@priority(in,0) (LowestLinkOp + ConditionalExp)*(0,enable))
-    };
+    ConditionalExp + (@priority(in,0) (LowestLinkOp + ConditionalExp)*(0,enable))
+  };
   ConditionalExp : prule prefix self.id  as (enable:integer[0&lt;=n&lt;=1]=1)=&gt;{
-      ListExp + (@priority(in,0) (lexer.Constant("?") + ListExp)*(0,enable))
-    };
+    ListExp + (@priority(in,0) (lexer.Constant("?") + ListExp)*(0,enable))
+  };
   ListExp : prule prefix self.id as (enable:integer=endless)=&gt;{
-      (@priority(in,0) lexer.Constant(",")*(0,enable)) + LowerLinkExp +
-      (@priority(in,0) (lexer.Constant(",") + LowerLinkExp*(0,1))*(0,enable))
-    };
+    (@priority(in,0) lexer.Constant(",")*(0,enable)) + LowerLinkExp +
+    (@priority(in,0) (lexer.Constant(",") + LowerLinkExp*(0,1))*(0,enable))
+  };
   LowerLinkExp : prule prefix self.id as (enable:integer=endless)=&gt;{
-      AssignmentExp + (@priority(in,0) (LowerLinkOp + AssignmentExp)*(0,enable))
-    };
+    AssignmentExp + (@priority(in,0) (LowerLinkOp + AssignmentExp)*(0,enable))
+  };
   AssignmentExp : prule prefix self.id as (enable:integer=endless)=&gt;{
-      LogExp + (@priority(in,0) (AssignmentOp + LogExp)*(0,enable))
-    };
+    LogExp + (@priority(in,0) (AssignmentOp + LogExp)*(0,enable))
+  };
   LogExp : prule prefix self.id as (enable:integer=endless)=&gt;{
-      ComparisonExp + (@priority(in,0) (LogOp + ComparisonExp)*(0,enable))
-    };
+    ComparisonExp + (@priority(in,0) (LogOp + ComparisonExp)*(0,enable))
+  };
   ComparisonExp : prule prefix self.id as (enable:integer=endless)=&gt;{
-      LowLinkExp + (@priority(in,0) (ComparisonOp + LowLinkExp)*(0,enable))
-    };
+    LowLinkExp + (@priority(in,0) (ComparisonOp + LowLinkExp)*(0,enable))
+  };
   LowLinkExp : prule prefix self.id as (enable:integer=endless)=&gt;{
-      AddExp + (@priority(in,0) (LowLinkOp + AddExp)*(0,enable))
-    };
+    AddExp + (@priority(in,0) (LowLinkOp + AddExp)*(0,enable))
+  };
   AddExp : prule prefix self.id as (enable:integer=endless)=&gt;{
-      MulExp + (@priority(in,0) (AddOp + MulExp)*(0,enable))
-    };
+    MulExp + (@priority(in,0) (AddOp + MulExp)*(0,enable))
+  };
   MulExp : prule prefix self.id as (enable:integer=endless)=&gt;{
-      BitwiseExp + (@priority(in,0) (MulOp + BitwiseExp)*(0,enable))
-    };
+    BitwiseExp + (@priority(in,0) (MulOp + BitwiseExp)*(0,enable))
+  };
   BitwiseExp : prule prefix self.id as (enable:integer=endless)=&gt;{
-      UnaryExp + (@priority(in,0) (BitwiseOp + UnaryExp)*(0,enable))
-    };
-  UnaryExp : prule prefix self.id as (enable1:integer[0&lt;=n&lt;=1]=1,
-                                      enable2:integer[0&lt;=n&lt;=1]=1)=&gt;{
-      (@priority(in,0) PrefixOp*(0,enable1)) + FunctionalExp +
-      (@priority(in,0) PostfixOp*(0,enable2))
-    };
-  FunctionalExp : prule prefix self.id
-    as (operand:valid_subject=root.Subject, fltr:filter=null, dup:integer=endless,
-        pty:integer=in)=&gt;{
-      operand + (@priority(pty,0) (@filter(fltr) ParamPassExp ||
-                                                 TildeExp ||
-                                                 LinkExp(operand))*(0,dup))
-    };
+    UnaryExp + (@priority(in,0) (BitwiseOp + UnaryExp)*(0,enable))
+  };
+  UnaryExp : prule prefix self.id as (
+    enable1:integer[0&lt;=n&lt;=1]=1, enable2:integer[0&lt;=n&lt;=1]=1
+  )=&gt;{
+    (@priority(in,0) PrefixOp*(0,enable1)) + FunctionalExp +
+    (@priority(in,0) PostfixOp*(0,enable2))
+  };
+  FunctionalExp : prule prefix self.id as (
+    operand:valid_subject=root.Subject, fltr:filter=null, dup:integer=endless,
+    pty:integer=in
+  )=&gt;{
+    operand + (@priority(pty,0) (@filter(fltr) ParamPassExp ||
+                                               TildeExp ||
+                                               LinkExp(operand))*(0,dup))
+  };
 
   // ParamPassExp : "(" [Expression] ")" | "[" [Expression] "]".
-  ParamPassExp : prule as (expr:prule[Expression||Statement]=root.Expression,
-                           fltr:filter=null)=&gt;{
+  ParamPassExp : prule as (
+    expr:prule[Expression||Statement]=root.Expression, fltr:filter=null
+  )=&gt;{
     @filter(fltr) lexer.Constant("(") + expr*(0,1) + lexer.Constant(")") ||
                   lexer.Constant("[") + expr*(0,1) + lexer.Constant("]")
   };
 
   // TildeExp : "~" Subject.
   TildeExp : prule as (operand:valid_subject=root.TildeSubject)=&gt;{
-      lexer.Constant("~") + operand
-    };
+    lexer.Constant("~") + operand
+  };
 
   // LinkExp : LinkOp operand.
   LinkExp : prule as (operand:valid_subject=root.Subject)=&gt;{ LinkOp + operand };
@@ -814,7 +834,7 @@ Expression : module {
   LowestLinkOp : prule as { root.Constants(root.TokenData.lowestLinkOpList) }
 };
 </pre>
-   
+
     <h3>تعريفات تراكيب مخصصة</h3>
     القلب يعرّف أيضاً مجموعة من التراكيب المخصصة لبعض الأغراض العامة والمتاحة لمطوري مكتبات البناء:
 <pre dir=ltr class="code">
@@ -854,21 +874,21 @@ statement:        a = myclass.myfunction(5, 2)
 translates into:  store(a, bracketOp(dot(myclass, myfunction), list(5, 2)))
 </pre>
    </div>
-   
+
    <h3 class="foldable numbering">الأوامر</h3>
    <div>
     الأوامر تبدأ بكلمة تعريفية تُستخدم لتمييز الأوامر عن بعضها، تليها إختيارياً معطياتٌ. الأوامر تُشتق من أحد قالبين معرفين مسبقاً في القلب، ويُترك لكاتب مكتبة البناء اختيار القالب الأنسب.
-    
+
     <h3>التركيب النحوي</h3>
 <pre dir=ltr class="code">
 Cmd : keyword {Subject}.
 MultiCmd : {keyword {Subject}}.
 </pre>
     القالب Cmd يبدأ بكلمة تعريفية يليها عدد غير محدد من الحدود. يمكن التحكم عن طريق معطيات القالب بخيارات التكرار لكل حد من هذه الحدود. القالب MultiCmd عبارة عن سلسلة مقاطع كل منها مشابه للقالب Cmd ويمكن التحكم بخيارات التكرار لكل مقطع من هذه المقاطع، بالإضافة لإمكانية التحكم لكل حد في كل من هذه المقاطع. في حقيقة الأمر، القالب Cmd عبارة عن نسخة مبسطة من القالب MultiCmd، أي أن بالإمكان الاستعاضة عن Cmd ب MultiCmd.
-    
+
     <p><b>ملاحظة:</b> تجنب الغموض الإعرابي من مسؤولية كاتب مكتبة البناء. الغموض قد ينتج من استخدام نفس الكلمة التعريفية في أكثر من أمر وقد ينتج أيضاً بسبب الحدود الاختيارية. على سبيل المثال، قد ينتج الغموض من حدّي تراكيب متتاليين أولهما اختياري.
     </p>
-    
+
     <h3>التعريفات القواعدية</h3>
 <pre dir=ltr class="code">
 // Root Command
@@ -901,7 +921,7 @@ MultiCmd : @limit[user.parent==root.Command] prule
      <li><b>pty:</b> الأسبقية في عملية التكرار. قيمة 1 تعني أن الأسبقية للتكرار بينما قيمة 0 تعطي الأسبقية للإهمال.</li>
      <li><b>prd:</b> مؤشر للتعريف القواعدي للحد.</li>
     </ul>
-    
+
     <h3>أمثلة</h3>
     <p><b>1</b><br/>
 <pre dir=ltr class="samplecode">
@@ -928,7 +948,7 @@ ifCmd
 
    <h3 class="foldable numbering">الحدود</h3>
    <div>
-   الحدّ يمكن أن يكون قيمة ثابتة أو اسم متغير أو تركيب أو أمر أو جملة أو مجموعة من الجمل. يمكن للحد أن يُحصر بين أقواس اعتيادية أو أقواس معقوفة. جُمعت التعريفات القواعدية للحدّ في حزمة واحدة يمكن الاشتقاق منها للتحكم فيما يُسمح به من أصناف في ذلك الحد والتحكم فيما إن كانت الأقواس مسموحة أو مفروضة أو ممنوعة. 
+   الحدّ يمكن أن يكون قيمة ثابتة أو اسم متغير أو تركيب أو أمر أو جملة أو مجموعة من الجمل. يمكن للحد أن يُحصر بين أقواس اعتيادية أو أقواس معقوفة. جُمعت التعريفات القواعدية للحدّ في حزمة واحدة يمكن الاشتقاق منها للتحكم فيما يُسمح به من أصناف في ذلك الحد والتحكم فيما إن كانت الأقواس مسموحة أو مفروضة أو ممنوعة.
     <h3>التركيب النحوي</h3>
 <pre dir=ltr class="code">
 Subject : (Parameter | Command | Expression | Statement | Set) |
@@ -944,38 +964,43 @@ Subject : module {
   prefix self.id, DefaultModifier;
   start Subject1;
 
-  Subject1 : prule as (sbj1:list[prule[Parameter||root.Command||root.Expression||
-                                       root.Main.Statement||root.Set]]
-                           =(Parameter, SubjectCommandGroup, root.Set),
-                       sbj2:list[prule[Parameter||root.Command||root.Expression||
-                                       root.Main.Statement||root.Set]]
-                           =(root.Expression),
-                       sbj3:list[prule[Parameter||root.Command||root.Expression||
-                                       root.Main.Statement||root.Set]]
-                           =(root.Expression),
-                      fltr:filter, frc2:integer=0, frc3:integer=0)=>{
+  Subject1 : prule as (
+    sbj1:list[prule[
+      Parameter||root.Command||root.Expression||root.Main.Statement||root.Set
+    ]] = (Parameter, SubjectCommandGroup, root.Set),
+    sbj2:list[prule[
+      Parameter||root.Command||root.Expression||root.Main.Statement||root.Set
+    ]] = (root.Expression),
+    sbj3:list[prule[
+      Parameter||root.Command||root.Expression||root.Main.Statement||root.Set
+    ]] = (root.Expression),
+    fltr:filter,
+    frc2:integer = 0,
+    frc3:integer = 0
+  )=>{
     @filter(fltr)
       alternate (sbj1:s)->( s ) ||
       lexer.Constant("(") + (alternate (sbj2:s)->( s ))*(frc2,1) + lexer.Constant(")") ||
       lexer.Constant("[") + (alternate (sbj3:s)->( s ))*(frc3,1) + lexer.Constant("]")
   };
-  Subject2 : @limit[user.owner==Subject] prule
-    as (sbj:prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set],
-        fltr:filter, frc:integer)=>{
-        @filter(fltr) sbj ||
-                      lexer.Constant("(") + sbj*(frc,1) + lexer.Constant(")") ||
-                      lexer.Constant("[") + sbj*(frc,1) + lexer.Constant("]")
-    };
+  Subject2 : @limit[user.owner==Subject] prule as (
+    sbj:prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set],
+    fltr:filter,
+    frc:integer
+  )=>{
+    @filter(fltr) sbj ||
+                  lexer.Constant("(") + sbj*(frc,1) + lexer.Constant(")") ||
+                  lexer.Constant("[") + sbj*(frc,1) + lexer.Constant("]")
+  };
 
   // Commands
   SubjectCommand : prule inherits root.Command prefix self.id;
   SubjectCommandGroup : prule_group[SubjectCommand];
 
   // Parameter
-  Parameter : prule prefix self.id
-    as (fltr:filter=null, cnsts:keywords=null)=>{
-      @filter(fltr) lexer.Identifier || Literal || root.Constants(cnsts)
-    };
+  Parameter : prule prefix self.id as (fltr:filter=null, cnsts:keywords=null)=>{
+    @filter(fltr) lexer.Identifier || Literal || root.Constants(cnsts)
+  };
 
   // Literal
   Literal : prule as (fltr:filter=null)=>{
@@ -990,7 +1015,7 @@ Subject : module {
      <li><b>frc, frc2, frc3:</b> تحديد ما إذا كان الصنف الذي داخل الأقواس اختيارياً. يُسمح بالقيم 0 و 1 في هذا المتغير. قيمة 1 تعني أن ما بين الأقواس ليس اختيارياً.</li>
      <li><b>fltr:</b> مرشّح لنوع الأقواس المسموح، وفي حالة Parameter و Literal فمرشح للأصناف المسموح بها.</li>
     </ul>
-    
+
     <h3>تعريفات حدود مخصصة</h3>
     القلب يعرّف أيضاً مجموعة من الحدود المخصصة لبعض الأغراض العامة والمتاحة لمطوري مكتبات البناء:
 <pre dir=ltr class="code">
@@ -1047,7 +1072,7 @@ ModifierSubject : module inherits Subject {
    <h3 class="foldable numbering">المجموعات</h3>
    <div>
     المجموعة، أو مجموعة الجمل، هي مجموعة من عدد غير محدد من الجمل محاطة بقوسين حاصرين. الجمل مفصولة عن بعضها بفارزة منقوطة. يمكن للمجموعة أن لا تحتوي على أي جملة فتكون عبارة عن قوسين حاصرين فارغين. المجموعة تستقبل مُعطى يشير إلى الجملة أو قائمة الجمل المضمنة وبالتالي يمكن إنشاء أنواع مختلفة من المجموعات للتعامل مع أنواع مختلفة من الجمل.
-    
+
     <h3>التركيب النحوي</h3>
 <pre dir=ltr class="code">
 Set : "{" StatementList "}".
@@ -1055,12 +1080,14 @@ Set : "{" StatementList "}".
 
     <h3>التعريف القواعدي</h3>
 <pre dir=ltr class="code">
-Set : @limit[child.terms==self,user.parent==self] prule
-  prefix DefaultModifier
-  as (stmt:prule[StatementList]=root.Main)=>{ lexer.Constant("{") + stmt + lexer.Constant("}") };
+Set : @limit[child.terms==self,user.parent==self] prule prefix DefaultModifier as (
+  stmt:prule[StatementList]=root.Main
+)=>{
+  lexer.Constant("{") + stmt + lexer.Constant("}")
+};
 </pre>
    </div>
-   
+
    <h3 class="foldable numbering">المبدّلات</h3>
    <div>
     المبدّلات عناصر قواعدية تحمل معلومات وصفية تُضاف إلى ما يأتي بعدها وتستخدم من قبل مكتبات البناء لأغراض مختلفة. عرّفت المبدلات كقواعد موازية وبالتالي فقد عُرفت بشكل منفصل عن القواعد التي تستخدمها. المبدّلات عبارة عن الرمز @ يليه حدّ واحد (ModifierSubject). يشير هذا الحدّ إلى:
@@ -1069,63 +1096,89 @@ Set : @limit[child.terms==self,user.parent==self] prule
      <li>قوسين اعتياديين أو مربعين يحتويان على تركيب.</li>
     </ul>
     تم تعريف البعد الإعرابي الخاص بالمبدّلات ليتفرع عن بداية أي قاعدة إعرابية، أي يفحص قاعدة المبدلات عن مدخل كل قاعدة إعرابية. عند الإنتهاء من إعراب المبدل يتم تنفيذ دالّة تعمل على إضافة المعلومات الوصفية إلى طابور المعلومات الوصفية مع تحديد قيمة targets وهي القيمة التي تستخدم لمزاوجة المعلومات الوصفية مع القواعد الإعرابية المعنية بها. تُقرأ قيمة targets من معلومات وصفية مرتبطة بالتعريف الإعرابي لأمر المبدّل وفي حالة المبدلات ذات التراكيب فتُستخدم القيمة DefaultModifier. تحدد الحزم والقواعد الإعرابية المعلومات الوصفية المرغوب استلامها باستخدام الأمر prefix والذي يظهر في الكثير من التعريفات القواعدية. التعريفات التي لا تحتوي على الأمر prefix لا تستلم أي معلومات وصفية. في القواعد المسبقة التعريف يُستخدم الاسم التعريفي للقاعدة الإعرابية كقيمة للأمر prefix.
-    
+
     <h3>التركيب النحوي</h3>
 <pre dir=ltr class="code">
 Modifier : "@" Subject |
-           "@>" Subject |
            "@<" Subject.
 </pre>
-    هناك ثلاث صيغ لكتابة المبدّل. الصيغتان الأولى والثانية متطابقتان وتعنيان أن الأسبقية في مزاوجة المعلومات الوصفية مع قاعدة إعرابية تكون للقاعدة الإعرابية الداخلية بينما تعطي الصيغة الثالثة الأسبقية للقاعدة الخارجية. على سبيل المثال، لو كانت القاعدة Subject تشير إلى القاعدة Parameter وكلتا القاعدتين تقبلان مبدّلاً معيناً فإن استخدام الصيغتين الأولى والثانية يُعطي المبدّل للقاعدة Parameter بينما تعطي الصيغة الثالثة المبدّل للقاعدة Subject.
-    
+    هناك صيغتان لكتابة المبدّل. الصيفة الأولى تعني أن الأسبقية في مزاوجة المعلومات الوصفية مع قاعدة إعرابية تكون للقاعدة الإعرابية الداخلية بينما تعطي الصيغة الثانية الأسبقية للقاعدة الخارجية. على سبيل المثال، لو كانت القاعدة Subject تشير إلى القاعدة Parameter وكلتا القاعدتين تقبلان مبدّلاً معيناً فإن استخدام الصيغة الأولى يُعطي المبدّل للقاعدة Parameter بينما تعطي الصيغة الثانية المبدّل للقاعدة Subject.
+
     <h3>التعريفات القواعدية</h3>
 <pre dir=ltr class="code">
 Modifiers : module {
-  start Modifier;
+  Expression: module inherits root.Expression {
+    start FunctionalExp;
 
-  // Modifier :
-  // "@" Subject.
-  // "@>" Subject.
-  // "@<" Subject.
-  Modifier : prule as { InnerModifier || OuterModifier };
-
-  InnerModifier : prule as (operand:valid_subject=root.ModifierSubject)=>{
-    root.Constants(("@", "@>")) + operand
+    FunctionalExp.vars.{
+      operand = root.Modifiers.Subject;
+      dup = 1;
+      filter2 = 2;
+    };
   };
 
-  OuterModifier : prule as (operand:valid_subject=root.ModifierSubject)=>{
-    lexer.Constant("@<") + operand
-  }
+  Subject : module inherits root.Subject {
+    SubjectCommandGroup = ();
+  };
+
+  CmdGroup : prule_group[LeadingCommand];
+
+  Phrase: prule as {
+    module.CmdGroup || module.Expression
+  };
+
+  LeadingModifier: prule inherits module.Phrase;
+  TrailingModifier: prule inherits module.Phrase;
 };
 
 dimension {
-  start : Modifiers;
+  entryTokenText: "@";
   diverge : atRuleEntry;
+  start: root.Modifiers.LeadingModifier;
   onExit : function (dt:ParsingData) {
     if dt.data.data.id == root.ModifierSubject.UseModifierCmd
       // Grammar overriding modifier.
       override dt.data.data.data
-    else if dt.data.data.route == 0
+    else if dt.route == 0
       // Command based modifiers (specifies their own targets).
-      addPrefix data=dt.data.data.data, type=dt.data.data.id,
-                targets=prule(dt.data.data.id).targets, priority=(dt.route==0?inner,outer)
+      addPrefix data=dt.data, type=dt.data.id,
+                targets=prule(dt.data.id).targets
     else
       // Expression based modifiers (uses a default target).
-      addPrefix data=dt.data.data.data, type=dt.data.data.id,
-                targets=DefaultModifier, priority=(dt.route==0?inner,outer)
+      addPrefix data=dt.data, type=dt.data.id,
+                targets=DefaultModifier
   }
-}
+};
+
+dimension {
+  entryTokenText: "@<";
+  diverge : atRuleEntry;
+  start: root.Modifiers.TrailingModifier;
+  onExit : function (dt:ParsingData) {
+    if dt.route == 0
+      // Command based modifiers (specifies their own targets).
+      addPostfix data=dt.data, type=dt.data.id,
+                targets=prule(dt.data.id).targets
+    else
+      // Expression based modifiers (uses a default target).
+      addPostfix data=dt.data, type=dt.data.id,
+                targets=DefaultModifier
+  }
+};
 </pre>
    </div>
   </div>
-  
+
   <h3 class="foldable numbering">الأوامر الأساسية</h3>
   <div>
-   <h3 class="foldable numbering">import</h3>
+   <h3 class="foldable numbering">اشمل (import)</h3>
    <div>
     يستخدم هذا الأمر لكل أنواع الاستيراد سواء استيراد ملف شفرة مصدرية أو مكتبة ساكنة أو مكتبة فعّالة. يسمح القلب بإضافة سوائس جديدة لعملية الاستيراد تسمح باستيراد أنواع أخرى من الملفات.
-    
+
     <h3>التركيب النحوي</h3>
+<pre dir=rtl class="code" style="text-align: right">
+اشـمل: "اشمل" تـركيب.
+</pre>
 <pre dir=ltr class="code">
 Import : "import" Expression.
 </pre>
@@ -1133,14 +1186,36 @@ Import : "import" Expression.
     <h3>التعريف القواعدي</h3>
 <pre dir=ltr class="code">
 ImportCmd : prule inherits SoloCommand
-  ref root.Cmd(kwd=("use"), args=((prd=root.Expression, min=1, max=1, pty=in)));
+  ref root.Cmd(kwd=("import", "اشمل"), args=((prd=root.Expression, min=1, max=1, pty=in)));
 </pre>
    </div>
-   
+
+   <h3 class="foldable numbering">عرف (def)</h3>
+   <div>
+    يستخدم هذا الأمر لإنشاء تعريف جديد يتكون من اسم وقيمته.
+
+    <h3>التركيب النحوي</h3>
+<pre dir=rtl class="code" style="text-align: right">
+عـرف: ("عرف" | "عرّف") تـركيب.
+</pre>
+<pre dir=ltr class="code">
+Def : "def" Expression.
+</pre>
+
+    <h3>المبدّلات المقبولة</h3>
+    يتقبل الأمر "عرف" المبدل <b>@دمج</b> (<b>@merge</b>) الذي يؤدي إلى دمج التعريف بأي تعريف مسبق بنفس الإسم في نفس المجال.
+
+    <h3>التعريف القواعدي</h3>
+<pre dir=ltr class="code">
+DefCmd : prule inherits SoloCommand
+  ref root.Cmd(kwd=("def", "عرف", "عرّف"), args=((prd=root.Expression, min=1, max=1, pty=in)));
+</pre>
+   </div>
+
    <h3 class="foldable numbering">use</h3>
    <div>
     يستخدم هذا الأمر لتفعيل مجموعة من القواعد في المجال الذي يظهر فيه. بمعنى آخر، يمكن تحميل مجموعة من القواعد دون المباشرة بتفعيلها حتى يصادف المترجم هذا الأمر. يتوفر هذا الأمر أيضاً بصيغة مبدّل يسمح بتفعيل مجموعة القواعد فقط على الجملة التي يطبَّق عليها المبدّل.
-    
+
     <h3>التركيب النحوي</h3>
 <pre dir=ltr class="code">
 UseCmd : "use" FullIdSubject [IdSubject].
@@ -1182,7 +1257,7 @@ use myGrammar g;
 </pre>
    </div>
   </div>
-  
+
   <h3 class="foldable numbering">الإشعارات</h3>
   <div>
    يُطلق القلب إشعارات مختلفة للإشعار عن أخطاء أو ماشابه. يحتوي الإشعار على المعلومات التالية:
@@ -1202,7 +1277,7 @@ use myGrammar g;
     <li><b>Line:</b> رقم السطرِ مصدرِ الإشار.</li>
     <li><b>Column:</b> رقم العمودِ مصدرِ الإشعار.</li>
    </ul>
-   
+
    فيما يلي قائمة بالإشعارات التي يطلقها القلب أثناء عملية الترجمة:
    <table class="dict">
     <tr>
@@ -1211,58 +1286,78 @@ use myGrammar g;
      <th>الوصف</th>
     </tr>
     <tr>
-     <td>L1001</td>
+     <td>CL1001</td>
      <td>1</td>
      <td>يطلق هذا الإشعار عند مصادفة المرمّز لمحارف لا تنتمي لأي قاعدة ترميزية.</td>
     </tr>
     <tr>
-     <td>L1002</td>
+     <td>CL1002</td>
      <td>1</td>
      <td>صوان المحارف المدخلة ممتلئ. الرمز أطول من سعة الصوان وقد يتم تقسيم الرمز إلى عدة رموز.</td>
     </tr>
     <tr>
-     <td>L2001</td>
+     <td>CL2001</td>
      <td>2</td>
      <td>صوان المحارف المدخلة ممتلئ. الرمز أطول من سعة الصوان ما يؤدي إلى إقتطاع بعض المحارف من الرمز.</td>
     </tr>
     <tr>
-     <td>P1001</td>
+     <td>CP1001</td>
      <td>1</td>
      <td>خطأ إعرابي. سيتم تجاوز الجملة الخاطئة إلى التي تليها.</td>
     </tr>
     <tr>
-     <td>P1002</td>
+     <td>CP1002</td>
      <td>1</td>
      <td>المعرب أنهى عملية الإعراب قبل إكمال القاعدة الإعرابية الجذرية.</td>
     </tr>
     <tr>
-     <td>P1003</td>
+     <td>CP1003</td>
      <td>1</td>
      <td>المعرب استلم رمزاً بعد أن أنهى عملية الإعراب بإكمال القاعدة الإعرابية الجذرية.</td>
     </tr>
     <tr>
-     <td>P2001</td>
+     <td>CP2004</td>
      <td>2</td>
      <td>الغموض الإعرابي يتسبب في تشعب المعرب إلى وضعيات متعددة.</td>
     </tr>
     <tr>
-     <td>S1001</td>
+     <td>CP1005</td>
      <td>1</td>
-     <td>تعريف مكرر. الشفرة المصدرية تحتوي تعريفين بنفس الإسم. التعريف الثاني سيهمَل.</td>
+     <td>مبدّل غير متوقع. واجه المعرب مبدّلاً يم تتقبله أي قاعدة إعرابية.</td>
     </tr>
     <tr>
-     <td>IMP1001</td>
+     <td>CD1001</td>
      <td>1</td>
-     <td>فشل الاستيراد. فشل تحميل الملف المعني.</td>
+     <td>التعريف يفتقر إلى التركيب الصحيح. لم يجد المعرب تركيب الربط بـ":" المطلوب للتعريف.</td>
     </tr>
     <tr>
-     <td>G1001</td>
+     <td>CD1002</td>
+     <td>1</td>
+     <td>التعريف يفتقر إلى اسم.</td>
+    </tr>
+    <tr>
+     <td>CD1003</td>
+     <td>1</td>
+     <td>أمر تعريف غير صالح.</td>
+    </tr>
+    <tr>
+     <td>CD1004</td>
+     <td>1</td>
+     <td>محاولة دمج تعريفين غير متوافقين.</td>
+    </tr>
+    <tr>
+     <td>CG1001</td>
      <td>1</td>
      <td>خطأ مجهول.</td>
     </tr>
+    <tr>
+     <td>CG1003</td>
+     <td>1</td>
+     <td>فشل الاستيراد. فشل تحميل الملف المعني.</td>
+    </tr>
    </table>
   </div>
-  
+
   <h3 class="foldable numbering">المتن القواعدي الكامل</h3>
   <div>
 <pre dir=ltr class="code">
@@ -1276,7 +1371,7 @@ keywords : type list[string];
 filter : type integer || list[integer];
 
 // A list of productions that can be used as subjects.
-valid_subject : type prule[Subject||Subject.Parameter||Command||Expression||Main.Statement||Set];
+valid_subject : type prule[Subject || Subject.Parameter || Command || Expression || Main.Statement || Set];
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1297,13 +1392,13 @@ TokenData : module {
     "\\.", "\\?", "\\|", "\\^", "\\$");
 
   // Predefined Operator Lists
-  assignmentOpList : keywords = ("=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=",
-                                  "<<=", ">>=");
+  assignmentOpList : keywords = ("=", "+=", "-=", "*=", "/=", "÷=", "%=", "&=", "|=", "$=",
+                                 "<<=", ">>=");
   comparisonOpList : keywords = ("==", "!=", "<", ">", "<=", ">=");
   addOpList : keywords = ("+", "-");
   mulOpList : keywords = ("*", "/", "%");
   bitwiseOpList : keywords = ("|", "$", "&", "<<", ">>");
-  logOpList : keywords = ("||", "$$", "&&", "or", "nor", "xor", "xnor", "and", "nand");
+  logOpList : keywords = ("||", "$$", "&&", "أو", "or", "nor", "xor", "xnor", "و", "and", "nand");
   prefixOpList : keywords = ("++", "--", "+", "-", "!", "!!", "not");
   postfixOpList : keywords = ("++", "--");
   linkOpList : keywords = ("->", ".", ".>", "<.");
@@ -1326,7 +1421,7 @@ LexerDefs : module {
   OctDigit : char '0'..'7';
   DecDigit : char '0'..'9';
   HexDigit : char '0'..'9', 'a'..'f', 'A'..'F';
-  Letter : char 'a'..'z', 'A'..'Z', '_';
+  Letter : char 'a'..'z', 'A'..'Z', '_', 0h0620..0h065F, 0h066E..0h06DC;
   AnyCharNoEs : char !('\\');
   AnyCharNoEsOrSingleQuote : char !("\\'");
   AnyCharNoEsOrDoubleQuote : char !("\\\"");
@@ -1395,7 +1490,8 @@ LexerDefs : module {
   @inner EsCodeSequence : trule as {
     '\\' + ('c' + HexDigit*(2,2) ||
             'u' + HexDigit*(4,4) ||
-            'w' + HexDigit*(8,8))
+            'w' + HexDigit*(8,8) ||
+            'n' || 't' || 'r' || '"' || '\'' || '\\' || 'ج' || 'ت' || 'ر')
   };
 
   // Constants
@@ -1445,8 +1541,9 @@ Main : module {
     };
 
   // Phrase : { Subject }.
-  Phrase : prule as (subjects:list[map[prd:valid_subject, min:integer, max:integer,
-                                       pty:integer]])=>{
+  Phrase : prule as (
+    subjects:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]]
+  )=>{
     concat (subjects:s)->( @priority(s.pty,0) s.prd*(s.min,s.max) )
   };
 
@@ -1465,11 +1562,15 @@ Main : module {
   // Default Command Groups
   LeadingCmdGroup : prule_group[LeadingCommand];
   TrailingCmdGroup : prule_group[TrailingCommand];
-  SoloCmdGroup : prule_group[SoloCommand] = (ImportCmd, UseCmd);
+  SoloCmdGroup : prule_group[SoloCommand] = (ImportCmd, DefCmd, UseCmd);
 
   // 'import' command.
   ImportCmd : prule inherits SoloCommand
-    ref root.Cmd(kwd=("use"), args=((prd=root.Expression, min=1, max=1, pty=in)));
+    ref root.Cmd(kwd=("import", "اشمل"), args=((prd=root.Expression, min=1, max=1, pty=in)));
+
+  // 'def' command.
+  DefCmd : prule inherits SoloCommand
+    ref root.Cmd(kwd=("def", "عرف", "عرّف"), args=((prd=root.Expression, min=1, max=1, pty=in)));
 
   // 'use' command.
   UseCmd : prule inherits SoloCommand
@@ -1490,16 +1591,16 @@ Command : @limit[child.terms==(Cmd||MultiCmd)] prule
   prefix self.id, DefaultModifier;
 
 // Cmd : keyword {Subject}.
-Cmd : @limit[user.parent==root.Command] prule
-  as (kwd:keywords, args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
+Cmd : @limit[user.parent==root.Command] prule as
+  (kwd:keywords, args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
     root.KeywordGroup(kwd) + concat (args:a)->( @priority(a.pty,0) a.prd*(a.min,a.max) )
   };
 
 // MultiCmd : {keyword {Subject}}.
-MultiCmd : @limit[user.parent==root.Command] prule
-  as (sections:list[map[kwd:keywords, min:integer, max:integer, pty:integer,
-                        args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]]
-                       ]])=>{
+MultiCmd : @limit[user.parent==root.Command] prule as
+  (sections:list[map[kwd:keywords, min:integer, max:integer, pty:integer,
+                     args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]]
+                     ]])=>{
     concat (sections:s)->(
       @priority(s.pty,0) (root.KeywordGroup(s.kwd) + concat (s.args:a)->(
         @priority(a.pty,0) a.arg*(a.min, a.max)
@@ -1557,13 +1658,13 @@ Expression : module {
     (@priority(in,0) PrefixOp*(0,enable1)) + FunctionalExp +
     (@priority(in,0) PostfixOp*(0,enable2))
   };
-  FunctionalExp : prule prefix self.id
-    as (operand:valid_subject=root.Subject, fltr:filter=null, dup:integer=endless,
-        pty:integer=in)=>{
-      operand + (@priority(pty,0) (@filter(fltr) ParamPassExp ||
-                                                 TildeExp ||
-                                                 LinkExp(operand))*(0,dup))
-    };
+  FunctionalExp : prule prefix self.id as (
+    operand:valid_subject=root.Subject, fltr:filter=null, dup:integer=endless, pty:integer=in
+  )=>{
+    operand + (@priority(pty,0) (@filter(fltr) ParamPassExp ||
+                                               TildeExp ||
+                                               LinkExp(operand))*(0,dup))
+  };
 
   // ParamPassExp : "(" [Expression] ")" | "[" [Expression] "]".
   ParamPassExp : prule as (expr:prule[Expression||Statement]=root.Expression, fltr:filter=null)=>{
@@ -1620,38 +1721,43 @@ Subject : module {
   prefix self.id, DefaultModifier;
   start Subject1;
 
-  Subject1 : prule as (sbj1:list[prule[Parameter||root.Command||root.Expression||
-                                       root.Main.Statement||root.Set]]
-                           =(Parameter, SubjectCommandGroup, root.Set),
-                       sbj2:list[prule[Parameter||root.Command||root.Expression||
-                                       root.Main.Statement||root.Set]]
-                           =(root.Expression),
-                       sbj3:list[prule[Parameter||root.Command||root.Expression||
-                                       root.Main.Statement||root.Set]]
-                           =(root.Expression),
-                       fltr:filter=null, frc2:integer=0, frc3:integer=0)=>{
+  Subject1 : prule as (
+    sbj1:list[prule[
+      Parameter||root.Command||root.Expression||root.Main.Statement||root.Set
+    ]] = (Parameter, SubjectCommandGroup, root.Set),
+    sbj2:list[prule[
+      Parameter||root.Command||root.Expression||root.Main.Statement||root.Set
+    ]] = (root.Expression),
+    sbj3:list[prule[
+      Parameter||root.Command||root.Expression||root.Main.Statement||root.Set
+    ]] = (root.Expression),
+    fltr:filter=null,
+    frc2:integer = 0,
+    frc3:integer = 0
+  )=>{
     @filter(fltr)
       alternate (sbj1:s)->( s ) ||
       lexer.Constant("(") + (alternate (sbj2:s)->( s ))*(frc2,1) + lexer.Constant(")") ||
       lexer.Constant("[") + (alternate (sbj3:s)->( s ))*(frc3,1) + lexer.Constant("]")
   };
-  Subject2 : @limit[user.owner==Subject] prule
-    as (sbj:prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set],
-        fltr:filter, frc:integer)=>{
-        @filter(fltr) sbj ||
-                      lexer.Constant("(") + sbj*(frc,1) + lexer.Constant(")") ||
-                      lexer.Constant("[") + sbj*(frc,1) + lexer.Constant("]")
-    };
+  Subject2 : @limit[user.owner==Subject] prule as (
+    sbj:prule[Parameter||root.Command||root.Expression||root.Main.Statement||root.Set],
+    fltr:filter,
+    frc:integer
+  )=>{
+    @filter(fltr) sbj ||
+                  lexer.Constant("(") + sbj*(frc,1) + lexer.Constant(")") ||
+                  lexer.Constant("[") + sbj*(frc,1) + lexer.Constant("]")
+  };
 
   // Commands
   SubjectCommand : prule inherits root.Command prefix self.id;
   SubjectCommandGroup : prule_group[SubjectCommand];
 
   // Parameter: Identifier | Literal.
-  Parameter : prule prefix self.id
-    as (fltr:filter=null, cnsts:keywords=null)=>{
-      @filter(fltr) lexer.Identifier || Literal || root.Constants(cnsts)
-    };
+  Parameter : prule prefix self.id as (fltr:filter=null, cnsts:keywords=null)=>{
+    @filter(fltr) lexer.Identifier || Literal || root.Constants(cnsts)
+  };
 
   // Literal: IntLiteral | FloatLiteral | CharLiteral | StringLiteral | CustomLiteral.
   Literal : prule as (fltr:filter=null)=>{
@@ -1711,47 +1817,73 @@ ModifierSubject : module inherits Subject {
 //////****** Sets ******//////
 
 // Set : "{" StatementList "}".
-Set : @limit[child.terms==self,user.parent==self] prule
-  prefix DefaultModifier
-  as (stmt:prule[StatementList]=root.Main)=>{ lexer.Constant("{") + stmt + lexer.Constant("}") };
+Set : @limit[child.terms==self,user.parent==self] prule prefix DefaultModifier as (
+  stmt:prule[StatementList]=root.Main
+)=>{
+  lexer.Constant("{") + stmt + lexer.Constant("}")
+};
 
 //////****** Modifiers ******//////
 
 Modifiers : module {
-  start Modifier;
+  Expression: module inherits root.Expression {
+    start FunctionalExp;
 
-  // Modifier :
-  // "@" Subject.
-  // "@>" Subject.
-  // "@<" Subject.
-  Modifier : prule as { InnerModifier || OuterModifier };
-
-  InnerModifier : prule as (operand:valid_subject=root.ModifierSubject)=>{
-    root.Constants(("@", "@>")) + operand
+    FunctionalExp.vars.{
+      operand = root.Modifiers.Subject;
+      dup = 1;
+      filter2 = 2;
+    };
   };
 
-  OuterModifier : prule as (operand:valid_subject=root.ModifierSubject)=>{
-    lexer.Constant("@<") + operand
-  }
+  Subject : module inherits root.Subject {
+    SubjectCommandGroup = ();
+  };
+
+  CmdGroup : prule_group[LeadingCommand];
+
+  Phrase: prule as {
+    module.CmdGroup || module.Expression
+  };
+
+  LeadingModifier: prule inherits module.Phrase;
+  TrailingModifier: prule inherits module.Phrase;
 };
 
 dimension {
-  start : Modifiers;
+  entryTokenText: "@";
   diverge : atRuleEntry;
+  start: root.Modifiers.LeadingModifier;
   onExit : function (dt:ParsingData) {
     if dt.data.data.id == root.ModifierSubject.UseModifierCmd
       // Grammar overriding modifier.
       override dt.data.data.data
-    else if dt.data.data.route == 0
+    else if dt.route == 0
       // Command based modifiers (specifies their own targets).
-      addPrefix data=dt.data.data.data, type=dt.data.data.id,
-                targets=prule(dt.data.data.id).targets, priority=(dt.route==0?inner,outer)
+      addPrefix data=dt.data, type=dt.data.id,
+                targets=prule(dt.data.id).targets
     else
       // Expression based modifiers (uses a default target).
-      addPrefix data=dt.data.data.data, type=dt.data.data.id,
-                targets=DefaultModifier, priority=(dt.route==0?inner,outer)
+      addPrefix data=dt.data, type=dt.data.id,
+                targets=DefaultModifier
   }
-}
+};
+
+dimension {
+  entryTokenText: "@<";
+  diverge : atRuleEntry;
+  start: root.Modifiers.TrailingModifier;
+  onExit : function (dt:ParsingData) {
+    if dt.route == 0
+      // Command based modifiers (specifies their own targets).
+      addPostfix data=dt.data, type=dt.data.id,
+                targets=prule(dt.data.id).targets
+    else
+      // Expression based modifiers (uses a default target).
+      addPostfix data=dt.data, type=dt.data.id,
+                targets=DefaultModifier
+  }
+};
 </pre>
   </div>
  </div>
@@ -1761,20 +1893,20 @@ dimension {
  <div>
  <span style="color:red;">قيد الإنشاء</span>
  </div>
- 
+
  <!-- ********************************************************************** -->
  <h2 class="foldable">ملحق: صيغ التدوين</h2>
  <div>
   هذا الفصل يحتوي على شرح لصيغ التدوين في هذه الوثيقة.
-  
+
   <h3 class="foldable">أقسام ورموز الوثيقة</h3>
   <div>
   <p><b>الكلمات التمييزية: </b>تكتب <span class="kwd">الكلمات التمييزية</span> باللون الأزرق.</p>
- 
+
   <p><b>الشفرات المصدرية: </b>تكتب الشفرات المصدرية داخل مستطيل بخلفية غامقة اللون.</p>
- 
+
   <p><b>الأمثلة: </b>تكتب الأمثلة داخل مستطيل مشابه للشفرات المصدرية ولكنه بخلفية بيضاء.</p>
- 
+
   <h3>فصول شرح المعايير</h3>
   تقسم فصول شرح معايير اللغة إلى عدة أقسام:
   <p><b>مقدمة: </b>يحتوي على شرح مبسّط وسريع للعنصر المعني.</p>
@@ -1790,7 +1922,7 @@ var' = var + 1
   <p><b>الردود: </b> يحتوي على كافة الردود الممكنة من قبل المترجم أو المعرِب لكل حالة من الحالات.</p>
   لا يحتوي كل فصل على كل هذه الأقسام بالضرورة، بل قد يحتوي على بعضها فقط حسب الحاجة.
   </div>
-  
+
   <h3 class="foldable">تدوين التراكيب النحوية</h3>
   <div>
   التراكيب في هذه الوثيقة تتبع صيغة EBNF وكما يلي:
@@ -1813,12 +1945,12 @@ a b c | d
 (a b c) | d
 </pre>
   </div>
-  
+
   <h3 class="foldable">تدوين القواعد</h3>
   <div>
    تقنيات القواعد والتحليل المتبعة في لغة الأسُس لا تُغطّيها صيغ تعريف القواعد الشائعة مثل EBNF ولذلك فإن هذه الوثيقة تتبع صيغة تدوين خاصّة تستطيع شرح هذه القواعد بدقّة، فبينما يبين التدوين المذكور في الفصل السابق الشكل العام للجملة، فإن التدوين في هذا الفصل يشرح بدقة كيفية تمثيل هذه القواعد في الهياكل البيانية للقلب.
    هذا التدوين في الحقيقة يستخدم القوالب القواعدية للغة الأسُس نفسها، ما يثبت أن اللغة قادرة على تمثيل أي شفرة كانت.
-  
+
    <h3>التدوين</h3>
    <table class="dict">
    <tr><td>العناصر</td><td>تُكتب بكلمات مفصولة بشارحة سفلية، مع تكبير (capitalize) الحرف الأول من كلّ كلمة. يُستخدم هذا التدوين لتمثيل العناصر النهائية وغير النهائية بالإضافة إلى مجموعات المحارف.</td></tr>
@@ -1843,7 +1975,7 @@ a + b + c || d
 (a + b + c) || d
 </pre>
    </p>
-   
+
    <h3>التعريفات</h3>
    قواعد لغة الأسُس تتكون من سلسلة من التعريفات مفصولة بفارزة منقوطة. كل تعريف من هذه التعريفات يأخذ الصيغة التالية:
 <pre dir=ltr class="code">
@@ -1861,7 +1993,7 @@ keyword : type string || list[string];
 </pre>
    المثال أعلاه يعرّف الصنف ليكون أما سلسلة محارف أو مصفوفة من سلاسل المحارف. راجع قسم القواعد ذات المعطيات أدناه لمزيد من المعلومات عن الأصناف الجائزة.
    </p>
-   
+
    <p><span class="kwd">integer, string, list, map</span><br/>
    هذه الأوامر التعريفية تقوم بتعريف بيانات من نوع رقم صحيح (integer) أو سلسلة محارف (string) أو مصفوفة (list) أو قاموس (map).<br/>
    تحديد صنف عناصر المصفوفة يتم بين قوسين مربّعين. ويُمكن أيضاً التخيير بين أكثر من صنف باستخدام ||. فيما يلي مثالان توضيحيان:
@@ -1876,7 +2008,7 @@ map[kwd:string||list[string], count:integer]
 </pre>
    راجع قسم القواعد ذات المعطيات أدناه لمزيد من المعلومات حول الأصناف الجائزة للمصفوفة والقاموس.
    </p>
-   
+
    <p><span class="kwd">char</span><br/>
    يعرّف هذا الأمر مجموعة محارف ويُتبع الأمر char بتعريف لمجموعة المحارف المشمولة بهذا التعريف وبكون بأحد الصيغ التالية:
 <pre dir=ltr class="code">
@@ -1896,7 +2028,7 @@ map[kwd:string||list[string], count:integer]
    6. تُستخدم للإستثناء، أي تعريف مجموعة تشمل كل المحارف باستثناء المجموعة المحددة بين القوسين.<br/>
    يمكن استخدام الأمر char كصنف لمعطى يجعل هذا المعطى مؤشراً على قاعدة مجموعة محارف.
    </p>
-   
+
    <p><span class="kwd">trule</span><br/>
    يُستخدم لتعريف قاعدة ترميزية (tokenizing rule) وهو ما يُستخدم من قبل المعرِب. يُمكن للرمز أن يرث رمزا آخراً ما يجعله يحمل نفس المعرّف للمورّث، أي عندما يُطابق المرمز المدخلات مع قاعدة الرمز الوارث فإنه يُعطي الناتج قيمة المورث التعريفية بدل قيمة الوارث. لتعريف رمز يُستخدم التدوين التالي:
 <pre dir=ltr class="code">
@@ -1921,7 +2053,7 @@ Id ":" ["inherits" ParentId] "trule" ";".
 consts : list[trule[Constant]];
 </pre>
    </p>
-   
+
    <p><span class="kwd">prule</span><br/>
    يُستخدم لتعريف قاعدة إعرابية (parsing rule). يُمكن للقاعدة الإعرابية أن ترث قاعدة أخرى ما يُعطيها كل صفاتها باستثناء ما تقوم القاعدة الوارثة بتعريفه بنفسها، أي أن التعريفات في القاعدة الوارثة تطغى على مثيلاتها في القاعدة المورّثة كما هو الحال مع الاشتقاق في البرمجة كائنية المنحى. تعريف القاعدة الإعرابية يكون بالصيغة التالية:
 <pre dir=ltr class="code">
@@ -1954,7 +2086,7 @@ Statement : prule as { Expression || CmdGroup };
 </pre>
    في المثال أعلاه CmdGroup تمثل مجموعة من الأوامر ويُسمح للقاعدة Command أو أي وريث لها بالإنضمام لهذه المجموعة. القاعدة Statement تشير إلى المجموعة فيقوم المعرب بالبحث بين عناصر هذه المجموعة عن قاعدة متوافقة مع الرمز المعطى.
    </p>
-   
+
    <p><span class="kwd">module</span><br/>
    يُستخدم لتعريف حزمة من التعريفات. يُمكن للحزم أن ترث بعضها فتحتوي الحزمة الوارثة على كل تعريفات الحزمة المورّثة. تعريفات الحزمة الوارثة تطغى على التعريفات الموروثة كما هو الحال مع الاشتقاق في البرمجة كائنية المنحى. تعريف الحزمة يكون بالصيغة التالية:
 <pre dir=ltr class="code">
@@ -1974,7 +2106,7 @@ Exp : module {
    <p><span class="kwd">null</span><br/>
    الأمر null يُستخدم عند التوريث لإلغاء تعريف موروث عن طريق إعادة تعريفه بnull.
    </p>
-   
+
    <h3>القواعد ذات المعطيات</h3>
    تعرّف قائمة المعطيات بالصيغة التالية:
 <pre dir=ltr class="code">
@@ -2064,14 +2196,14 @@ C : module inherits P {
 </pre>
    <h3>أوامر وكلمات تعريفية أخرى</h3>
    بالإضافة إلى التعريفات هناك أوامر أخرى يمكن أن تظهر إلى جانب التعريفات، أي داخل متن الحزم أو ضمن المجال الرئيسي خارج الحزم:
-   
+
    <p><span class="kwd">ignore</span><br/>
    يستخدم الأمر ignore لتعريف الرموز المهملة، أي لتعريف قاعدة ترميزية لرموز يتم إهمالها ولا تُرسل إلى المعرِب كما في تعريف الفراغات التي لا تدخل ضمن الإعراب وتأخذ الصيغة التالية:
 <pre dir=ltr class="code">
 "ignore" "{" TokenBody "}".
 </pre>
    </p>
-   
+
    <p><span class="kwd">start</span><br/>
    الأمر start يُعرّف نقطة البداية في الإعراب بتحديد اسم القاعدة الإعرابية التي يبدأ منها المعرِب. عند ظهور هذا الأمر داخل حزمة فإنه يحدد نقطة البداية لتلك الحزمة، أي عندما يُشار داخل متن قاعدة إعرابية إلى حزمة فإن المعرب ينتقل إلى القاعدة الإعرابية المُشار إليها بالإمر start داخل الحزمة.
    </p>
@@ -2079,7 +2211,7 @@ C : module inherits P {
    <p><span class="kwd">lexer</span><br/>
    هذا الأمر يشير إلى الحزمة التي تحتوي على القواعد الترميزية. تُتبع الكلمة lexer باسم الحزمة التي تحتوي على القواعد الترميزية. يتعامل المرمّز فقط مع القواعد التي داخل الحزمة المعنية ويهمل القواعد التي خارجها. يجب وجود هذا الأمر في المجال الرئيسي لتحديد الحزمة الترميزية الرئيسية أما داخل الحزم فإن وجوده أختياري ويؤدي إلى استخدام  حزمة ترميزية مختلفة حال دخول المُعرب الحزمة المحتوية على هذا الأمر، والعودة إلى الحزمة الترميزية السابقة حال الخروج من تلك الحزمة والعودة للمجال السابق.
    </p>
-   
+
    <p><span class="kwd">self</span><br/>
    الكلمة التعريفية self تستخدم للإشارة إلى القاعدة المحتوية على هذه الكلمة. على سبيل المثال، التعريفان التاليان متساويان:
 <pre dir=ltr class="samplecode">
@@ -2087,10 +2219,10 @@ Multiply : prule as { Operand + (lexer.Constant("*") + self)*(0,1) };
 Multiply : prule as { Operand + (lexer.Constant("*") + Multiply)*(0,1) }
 </pre>
    </p>
-   
+
    <h3>المبدّلات</h3>
    بالإضافة إلى الأوامر، هناك مبدّلات تُضاف إلى القواعد لتحديد ميّزات معينة لما تُضاف إليه. هذه المبّدلات تظهر فقط مرتبطة بأوامر أخرى ولا تظهر لوحدها في الجملة.
-   
+
    <p><span dir=ltr class="kwd">@filter</span><br/>
    هذا المبدل يُستخدم كمرشّح لعناصر قائمة داخلة في عملية التبادل أو التسلسل. يأخذ هذا المبدل أحد هاتين الصيغتين:
 <pre dir=ltr class="code">
@@ -2108,7 +2240,7 @@ Exp2 || Exp1 || Exp4
 </pre>
    وفي هذا المثال القاعدتان متطابقتان.
    </p>
-   
+
    <p><span dir=ltr class="kwd">@priority</span><br/>
    يُستخدم هذا المبدل لتحديد الأسبقية في أماكن التفرّع الإعرابي ويأخذ الصيغة التالية:
 <pre dir=ltr class="code">
@@ -2132,7 +2264,7 @@ Command : @limit[child.terms==(CmdTemplate||CmdTemplate2)] prule;
 </pre>
    في المثال أعلاه يشترط على أي مستخدم للقالب CmdTemplate أن يكون وريثاً للقاعدة Command. ويُشترط على ورثة Command أن يستخدموا أحد القالبين CmdTemplate و CmdTemplate2.
    </p>
-   
+
    <P><span dir=ltr class="kwd">@unique</span><br/>
    يُستخدم في تعريف معطيات القوالب القواعدية للإشارة إلى فرادة ذلك المعطى. يُمنع تكرار القيمة نفسها لذات المتغير في طبعات مختلفة من ذلك القالب. مثال:
 <pre dir=ltr class="samplecode">
@@ -2144,7 +2276,11 @@ Command : prule as (@unique kwd:string)=>{ kwd + Expression + ";" }
    <p><span dir=ltr class="kwd">@inner</span><br/>
    يُستخدم مع تعريفات القواعد الترميزية للإشارة إلى قواعد داخلية لا تُستخدم من قبل المرمّز منفردة وإنما فقط عندما يُشار إليها من متن قاعدة أخرى.
    </p>
-   
+
+   <p><span dir=ltr class="kwd">@minimum</span><br/>
+   تستخدم مع الرموز لتحدد أن على المرمز الاكتفاء بأقصر رمز يطابق القاعدة بدل محاولة الحصول على أطول رمز.
+   </p>
+
    <h3>القواعد الموازية</h3>
    لتعريف قواعد موازية يُستخدم الأمر <span class="kwd">dimension</span> ويأخذ الصيغة التالية:
 <pre dir=ltr class="code">
@@ -2162,7 +2298,7 @@ dimension {
  </div>
  </div>
  <div style="border-top: solid 1px; text-align: right; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2015م \ 1436هـ.<br/>
+  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2018م \ 1440هـ.<br/>
 نُشر هذا الملف برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0، والمضمّنة مع هذا الملف
 والمتوفرة أيضاً على الرابط <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>. يرجى قراءة الرخصة للتعرف على شروط الاستخدام والنسخ.</p>
  </div>

@@ -1,0 +1,81 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+  def start: function ()=>Void {
+    def pget: ptr[function ()=>Int[32]];
+    def pmul: ptr[function (n: Int[32])=>Int[32]];
+    def r: Record;
+
+    pget = getNum1~ptr;
+    pget2 = getNum2~ptr;
+    r.pget = getNum3~ptr;
+    print("%d\n", pget());
+    print("%d\n", pget2());
+    print("%d\n", r.pget());
+    print("%d\n", getFunc1()());
+
+    pmul = mulX2~ptr;
+    pmul2 = mulX3~ptr;
+    r.pmul = mulX4~ptr;
+    print("%d\n", pmul(3));
+    print("%d\n", pmul2(3));
+    print("%d\n", r.pmul(3));
+    print("%d\n", getFunc2()(3));
+  };
+
+  def Record: type
+  {
+    def pget: ptr[function ()=>Int[32]];
+    def pmul: ptr[function (n: Int[32])=>Int[32]];
+  };
+
+  def pget2: ptr[function ()=>Int[32]];
+  def pmul2: ptr[function (n: Int[32])=>Int[32]];
+
+  def getFunc1: function ()=>ptr[function ()=>Int[32]]
+  {
+    return getNum4~ptr
+  };
+
+  def getFunc2: function ()=>ptr[function (n: Int[32])=>Int[32]]
+  {
+    return mulX5~ptr
+  };
+
+  def getNum1: function ()=>Int[32] {
+    return 5
+  };
+
+  def getNum2: function ()=>Int[32] {
+    return 7
+  };
+
+  def getNum3: function ()=>Int[32] {
+    return 13
+  };
+
+  def getNum4: function ()=>Int[32] {
+    return 17
+  };
+
+  def mulX2: function (n: Int[32])=>Int[32] {
+    return n * 2;
+  };
+
+  def mulX3: function (n: Int[32])=>Int[32] {
+    return n * 3;
+  };
+
+  def mulX4: function (n: Int[32])=>Int[32] {
+    return n * 4;
+  };
+
+  def mulX5: function (n: Int[32])=>Int[32] {
+    return n * 5;
+  };
+};
+
+run Main.start

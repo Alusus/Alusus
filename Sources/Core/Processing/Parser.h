@@ -2,7 +2,7 @@
  * @file Core/Processing/Parser.h
  * Contains the header of class Core::Processing::Parser.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_PARSER_H
-#define PROCESSING_PARSER_H
+#ifndef CORE_PROCESSING_PARSER_H
+#define CORE_PROCESSING_PARSER_H
 
 namespace Core { namespace Processing
 {
@@ -20,17 +20,17 @@ namespace Core { namespace Processing
 
 /**
  * @brief Contains all the functionality of the parser's state machine.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * This class contains all the member variables and functions of the state
  * machine.
  */
-class Parser : public SignalReceiver
+class Parser : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Parser, SignalReceiver, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(Parser, TiObject, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
@@ -55,9 +55,10 @@ class Parser : public SignalReceiver
    */
   public: const Int EOF_TOKEN;
 
-  private: Data::GrammarRepository *grammarRepository;
+  private: SharedPtr<Data::Ast::Scope> rootScope;
+  private: SharedPtr<Data::Grammar::Module> grammarRoot;
 
-  private: Data::SharedRepository *definitionsRepository;
+  private: std::vector<Data::Grammar::ParsingDimension*> parsingDimensions;
 
   /**
    * @brief The array of current states.
@@ -78,22 +79,24 @@ class Parser : public SignalReceiver
   private: DecisionNodePool decisionNodes;
 
   /**
-   * @brief Specifies whether an UnexpectedTokenMsg has already been raised.
+   * @brief Specifies whether an UnexpectedTokenNotice has already been raised.
    *
-   * During a single parsing process, an UnexpectedTokenMsg (raised when a
+   * During a single parsing process, an UnexpectedTokenNotice (raised when a
    * a token is received after parsing folds completely out of the grammar
    * tree) should only be raised once since the user will know that from that
    * token onwards all tokens are unexpected and there is no need to raise a
    * separate msg for each of them.
    */
-  private: Bool unexpectedTokenMsgRaised;
+  private: Bool unexpectedTokenNoticeRaised;
+
+  private: Bool preCloseCompleteLevels;
 
 
   //============================================================================
-  // Signals
+  // Signals & Slots
 
   /// Emitted when a build msg (error or warning) is generated.
-  public: SIGNAL(buildMsgNotifier, (const SharedPtr<Processing::BuildMsg> &msg), (msg));
+  public: Signal<void, SharedPtr<Notices::Notice> const&> noticeSignal;
 
   /**
      * @brief Emitted when parsing has folded out of the grammar tree.
@@ -102,15 +105,15 @@ class Parser : public SignalReceiver
      * such a way to allow that. When this signal is received, the caller should
      * call endParsing and should stop sending more tokens.
      */
-  public: SIGNAL(parsingCompleted, (), ());
+  public: Signal<void> parsingCompleted;
+
+  public: Slot<void, Data::Token const*> handleNewTokenSlot = {this, &Parser::handleNewToken};
 
 
   //============================================================================
   // Constructor / Destructor
 
-  public: Parser() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")),
-                     grammarRepository(0),
-                     definitionsRepository(0)
+  public: Parser() : EOF_TOKEN(Data::IdGenerator::getSingleton()->getId("EOF_TOKEN")), preCloseCompleteLevels(false)
   {
   }
 
@@ -125,23 +128,34 @@ class Parser : public SignalReceiver
   /// @name Initialization Related Functions
   /// @{
 
-  public: void initialize(Data::GrammarRepository *grammarRepo, Data::SharedRepository *definitionsRepo);
+  public: void initialize(SharedPtr<Data::Ast::Scope> rootScope);
 
   public: void release()
   {
     this->clear();
-    this->grammarRepository = 0;
-    this->definitionsRepository = 0;
+    this->rootScope.reset();
+    this->grammarRoot.reset();
+    this->parsingDimensions.clear();
   }
 
-  public: Data::GrammarRepository* getGrammarRepository() const
+  public: SharedPtr<Data::Ast::Scope> const& getRootScope() const
   {
-    return this->grammarRepository;
+    return this->rootScope;
   }
 
-  public: Data::SharedRepository* getDefinitionsRepository() const
+  public: SharedPtr<Data::Grammar::Module> const& getGrammarRoot() const
   {
-    return this->definitionsRepository;
+    return this->grammarRoot;
+  }
+
+  public: void setCompleteLevelsPreClosing(Bool v)
+  {
+    this->preCloseCompleteLevels = v;
+  }
+
+  public: Bool getCompleteLevelsPreClosing() const
+  {
+    return this->preCloseCompleteLevels;
   }
 
   /// @}
@@ -153,34 +167,36 @@ class Parser : public SignalReceiver
   public: void beginParsing();
 
   /// Finalize the parsing process.
-  public: SharedPtr<IdentifiableObject> endParsing();
+  public: SharedPtr<TiObject> endParsing(Data::SourceLocationRecord &endSourceLocation);
 
   /// Try to fold out of the grammar tree.
   public: void tryCompleteFoldout(StateIterator si);
 
   /// Process the given token by updating the states.
-  public: void handleNewToken(const Data::Token *token);
+  public: void handleNewToken(Data::Token const *token);
 
   /// Raise build msgs that are approved and remove them from the buffer.
-  private: void flushApprovedBuildMsgs();
+  public: void flushApprovedNotices();
 
   /// Apply the received token on a specific state.
-  private: void processState(const Data::Token *token, StateIterator si);
+  private: void processState(Data::Token const *token, StateIterator si);
 
   /// Apply the received token on a token term.
-  private: void processTokenTerm(const Data::Token *token, StateIterator si);
+  private: void processTokenTerm(Data::Token const *token, StateIterator si);
 
   /// Apply the received token on a duplicate term.
-  private: void processMultiplyTerm(const Data::Token *token, StateIterator si);
+  private: void processMultiplyTerm(Data::Token const *token, StateIterator si);
 
   /// Apply the received token on an alternative term.
-  private: void processAlternateTerm(const Data::Token *token, StateIterator si);
+  private: void processAlternateTerm(Data::Token const *token, StateIterator si);
 
   /// Apply the received token on a concat term.
-  private: void processConcatTerm(const Data::Token *token, StateIterator si);
+  private: void processConcatTerm(Data::Token const *token, StateIterator si);
 
   /// Apply the received token on a reference term.
-  private: void processReferenceTerm(const Data::Token *token, StateIterator si);
+  private: void processReferenceTerm(Data::Token const *token, StateIterator si);
+
+  private: void enterParsingDimension(Data::Token const *token, Int parseDimIndex, StateIterator si);
 
   /// Release all states and their data, but not the definitions.
   public: void clear();
@@ -191,34 +207,42 @@ class Parser : public SignalReceiver
   /// @{
 
   /// Compute the list of possible routes to take at a duplicate term.
-  private: void computePossibleMultiplyRoutes(const Data::Token *token, ParserState *state);
-  private: Bool computeInnerMultiplyRoute(const Data::Token *token, ParserState *state, Data::MultiplyTerm *multiplyTerm);
-  private: Bool computeOuterMultiplyRoute(const Data::Token *token, ParserState *state, Data::MultiplyTerm *multiplyTerm, Data::Integer *priority);
+  private: void computePossibleMultiplyRoutes(Data::Token const *token, ParserState *state);
+  private: Bool computeInnerMultiplyRoute(
+    Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm
+  );
+  private: Bool computeOuterMultiplyRoute(
+    Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm, TiInt *priority
+  );
 
 
   /// Compute the list of possible routes to take at an alternative term.
-  private: void computePossibleAlternativeRoutes(const Data::Token *token, ParserState *state);
+  private: void computePossibleAlternativeRoutes(Data::Token const *token, ParserState *state);
+
+  private: Int matchParsingDimensionEntry(Data::Token const *token);
 
   /// Test the route taken by the given state.
-  private: Int testState(const Data::Token *token, ParserState *state);
+  private: Int testState(Data::Token const *token, ParserState *state);
 
   /// Test the given token against a single level within the test state.
-  private: void testStateLevel(const Data::Token *token, ParserState *state);
+  private: void testStateLevel(Data::Token const *token, ParserState *state);
 
   /// Test the given token against a token term within the test state.
-  private: void testTokenTerm(const Data::Token *token, ParserState *state);
+  private: void testTokenTerm(Data::Token const *token, ParserState *state);
 
   /// Test against a duplicate term within the test state.
-  private: void testMultiplyTerm(const Data::Token *token, ParserState *state);
+  private: void testMultiplyTerm(Data::Token const *token, ParserState *state);
 
   /// Test against an alternative term within the test state.
-  private: void testAlternateTerm(const Data::Token *token, ParserState *state);
+  private: void testAlternateTerm(Data::Token const *token, ParserState *state);
 
   /// Test against a concat term within the test state.
-  private: void testConcatTerm(const Data::Token *token, ParserState *state);
+  private: void testConcatTerm(Data::Token const *token, ParserState *state);
 
   /// Test against a reference term within the test state.
-  private: void testReferenceTerm(const Data::Token *token, ParserState *state);
+  private: void testReferenceTerm(Data::Token const *token, ParserState *state);
+
+  private: void testParsingDimension(Data::Token const *token, Int parseDimIndex, ParserState *state);
 
   /// @}
 
@@ -229,39 +253,58 @@ class Parser : public SignalReceiver
   private: StateIterator createState();
 
   /// Duplicate the given state.
-  private: StateIterator duplicateState(StateIterator si, Int tokensToLive, Int levelCount=-1);
+  private: StateIterator duplicateState(
+    StateIterator si, Data::Token const *token, Int tokensToLive, Int levelCount=-1
+  );
 
   /// Delete a state from the states stack.
   private: void deleteState(StateIterator si, ParserStateTerminationCause stc);
 
-  private: void pushStateTermLevel(ParserState *state, Data::Term *term, Word posId);
+  private: void pushStateTermLevel(ParserState *state, Data::Grammar::Term *term, Word posId, Data::Token const *token);
 
-  private: void pushStateProdLevel(ParserState *state, Data::Module *module,
-                                   Data::SymbolDefinition *prod);
+  private: void pushStateProdLevel(ParserState *state, Data::Grammar::Module *module,
+                                   Data::Grammar::SymbolDefinition *prod, Data::Token const *token);
 
   /// Pop the top level from a specific state.
   private: void popStateLevel(ParserState *state, Bool success);
 
   /// Compare two states to see if they are at the same spot in the grammar.
-  private: bool compareStates(ParserState *s1, ParserState *s2);
+  private: Bool compareStates(ParserState *s1, ParserState *s2);
 
   /// Get the parsing handler for the top production level in a state.
   private: ParsingHandler* getTopParsingHandler(ParserState *state)
   {
-    return state->refTopProdLevel().getProd()->getOperationHandler().s_cast_get<ParsingHandler>();
+    return state->refTopProdLevel().getProd()->getBuildHandler().s_cast_get<ParsingHandler>();
   }
 
   /// Check whether the production with the given id is currently in use.
-  public: Bool isDefinitionInUse(Data::SymbolDefinition *definition) const;
+  public: Bool isDefinitionInUse(Data::Grammar::SymbolDefinition *definition) const;
 
-  private: Bool matchToken(Data::Integer *matchId, IdentifiableObject *matchText, Data::Token const *token)
+  private: Bool matchToken(TiInt *matchId, TiObject *matchText, Data::Token const *token)
   {
     return this->matchToken(matchId==0?0:matchId->get(), matchText, token);
   }
 
-  private: Bool matchToken(Word matchId, IdentifiableObject *matchText, Data::Token const *token);
+  private: Bool matchToken(Word matchId, TiObject *matchText, Data::Token const *token);
 
   private: Bool matchErrorSyncBlockPairs(ParserState *state, Data::Token const *token);
+
+  /// @}
+
+  /// @name Modifier Functions
+  /// @{
+
+  private: void processLeadingModifierEntry(ParserState *state);
+
+  private: void markLeadingModifiersMaxIndex(ParserState *state);
+
+  private: void processLeadingModifiersExit(ParserState *state);
+
+  private: void reportMislocatedLeadingModifiers(ParserState *state);
+
+  private: void processTrailingModifiers(ParserState *state);
+
+  private: void cancelTrailingModifiers(ParserState *state);
 
   /// @}
 

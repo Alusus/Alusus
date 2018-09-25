@@ -32,22 +32,6 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${Alu
                                                            ALUSUS_RELEASE_DATE="${AlususReleaseDate}"
                                                            ALUSUS_HIJRI_RELEASE_DATE="${AlususHijriReleaseDate}")
 
-# Boost path
-set (BOOST_PATH "" CACHE PATH "Path to Boost libraries root folder.")
-if (NOT EXISTS "${BOOST_PATH}/boost")
-  message(SEND_ERROR "Please specify the path to boost libraries in BOOST_PATH.")
-else()
-  message(STATUS "The following Boost path was provided: " ${BOOST_PATH} ".")
-endif()
-
-# CATCH path
-set (CATCH_PATH "" CACHE PATH "Path to CATCH library root folder.")
-if (NOT EXISTS "${CATCH_PATH}")
-  message(SEND_ERROR "Please specify the path to CATCH Library in CATCH_PATH.")
-else()
-  message(STATUS "The following CATCH path was provided: " ${CATCH_PATH} ".")
-endif()
-
 # LLVM path
 set(LLVM_PATH "" CACHE PATH "Path to LLVM root folder.")
 if (NOT EXISTS "${LLVM_PATH}/include/llvm")
@@ -58,11 +42,11 @@ endif()
 
 # Prepare compile and link flags.
 STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
-set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable")
+set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -fno-rtti")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++1y")
+  set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
 else()
-  set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++1y")
+  set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
 endif()
 set(CMAKE_SKIP_RPATH TRUE)
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,'$ORIGIN',--enable-new-dtags")
@@ -97,8 +81,6 @@ endif()
 
 # Add projects
 add_subdirectory(Core)
-add_subdirectory(Tests/CoreTests)
-add_subdirectory(Scg)
+add_subdirectory(Spp)
 add_subdirectory(Srt)
-add_subdirectory(Tests/ScgTests)
-add_subdirectory(Tests/EndToEndTests)
+add_subdirectory(Tests)

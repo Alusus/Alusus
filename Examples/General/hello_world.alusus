@@ -1,10 +1,11 @@
-import "common.alusus";
+import "Srl/Console.alusus";
 
-def HelloWorld : module {
-  def main : function() => Int {
-    print("Hello World!\n");
-    return 0;
+def HelloWorld: module
+{
+  def start: function
+  {
+    Srl.Console.print("Hello World!\n");
   };
 };
 
-run HelloWorld;
+run HelloWorld.start;

@@ -2,7 +2,7 @@
  * @file Core/Basic/exceptions.cpp
  * Contains the implementation of exception classes.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,8 +20,8 @@ namespace Core { namespace Basic
 
 Str Exception::getVerboseErrorMessage() const throw()
 {
-  return this->getErrorMessage() + STR("\nLocation:\n") + this->functionName + STR("\n") +
-      this->sourceFile += STR(" : ") + this->lineNumber;
+  return this->getErrorMessage() + S("\nLocation:\n") + this->functionName + S("\n") +
+      this->sourceFile + S(" : ") + std::to_string(this->lineNumber);
 }
 
 
@@ -31,19 +31,19 @@ Str Exception::getVerboseErrorMessage() const throw()
 Str FileException::getErrorMessage() const throw()
 {
   StrStream msg;
-  msg << STR("File Exception: ");
+  msg << S("File Exception: ");
   switch (this->operation) {
-    case CHR('o'):
-      msg << STR("Couldn't open file: ");
+    case C('o'):
+      msg << S("Couldn't open file: ");
       break;
-    case CHR('c'):
-      msg << STR("Couldn't close file: ");
+    case C('c'):
+      msg << S("Couldn't close file: ");
       break;
-    case CHR('r'):
-      msg << STR("Couldn't read from file: ");
+    case C('r'):
+      msg << S("Couldn't read from file: ");
       break;
-    case CHR('w'):
-      msg << STR("Couldn't write to file: ");
+    case C('w'):
+      msg << S("Couldn't write to file: ");
       break;
     default:
       // this should never be reached
@@ -51,9 +51,9 @@ Str FileException::getErrorMessage() const throw()
       break;
   }
   msg << this->fileName;
-  msg << STR(".");
+  msg << S(".");
   if (this->comment.size() > 0) {
-    msg << STR(".\n");
+    msg << S(".\n");
     msg << this->comment;
   }
   return msg.str();
@@ -65,13 +65,13 @@ Str FileException::getErrorMessage() const throw()
  */
 Str MemoryException::getErrorMessage() const throw()
 {
-  Str msg = STR("Memory Exception: ");
+  Str msg = S("Memory Exception: ");
   switch (this->operation) {
-    case CHR('a'):
-      msg += STR("Couldn't allocate memory block.");
+    case C('a'):
+      msg += S("Couldn't allocate memory block.");
       break;
-    case CHR('f'):
-      msg += STR("Couldn't free memory block.");
+    case C('f'):
+      msg += S("Couldn't free memory block.");
       break;
     default:
       // this should never be reached
@@ -79,7 +79,7 @@ Str MemoryException::getErrorMessage() const throw()
       break;
   }
   if (this->comment.size() > 0) {
-    msg += STR("\n");
+    msg += S("\n");
     msg += this->comment;
   }
   return msg;
@@ -91,14 +91,14 @@ Str MemoryException::getErrorMessage() const throw()
  */
 Str InvalidArgumentException::getErrorMessage() const throw()
 {
-  Str msg = STR("Invalid Argument Exception (") + this->argumentName;
+  Str msg = S("Invalid Argument Exception (") + this->argumentName;
   if (this->argumentValue.size() > 0) {
-    msg += STR(" = ");
+    msg += S(" = ");
     msg += this->argumentValue;
   }
-  msg += STR(")");
+  msg += S(")");
   if (this->comment.size() > 0) {
-    msg += STR("\n");
+    msg += S("\n");
     msg += this->comment;
   }
   return msg;

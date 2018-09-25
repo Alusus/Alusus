@@ -3,7 +3,7 @@
  * The main header file of the core. Contains include statements for the entire
  * core.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,6 +24,9 @@
 #include <cassert>
 #include <exception>
 #include <string.h>
+#include <type_traits>
+#include <atomic>
+#include <functional>
 
 // Include global storage functions.
 #include "core_global_storage.h"
@@ -44,5 +47,6 @@ namespace Core
 using namespace Core::Basic;
 
 #include "Data/data.h"
+#include "Notices/notices.h"
 #include "Processing/processing.h"
-#include "Standard/standard.h"
+#include "Main/main.h"

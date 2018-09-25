@@ -1,0 +1,10 @@
+Other.f(Int[32]): i = 5
+Other.f(Float[64]): f = 6.000000
+Other.i = 3
+Other.pi~cnt = 1
+Other.Nested.f(Int[32]): i = 7
+Other.Nested.f(Float[64]): f = 8.000000
+Other.Nested.i = 4
+Other.Nested.pi~cnt = 2
+Other.f(Int[32]): i = 2
+Other.f(Float[64]): f = 4.000000

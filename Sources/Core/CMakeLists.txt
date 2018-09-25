@@ -1,4 +1,4 @@
-# Copyright (C) 2014 Sarmad Khalid Abdullah
+# Copyright (C) 2018 Sarmad Khalid Abdullah
 #
 # This file is released under Alusus Public License, Version 1.0.
 # For details on usage and copying conditions read the full license in the
@@ -23,9 +23,9 @@ set(CMAKE_MODULE_PATH "${AlususCore_SOURCE_DIR}")
 set(AlususStorage_Source_Files core_global_storage.cpp core_global_storage.h)
 add_library(AlususStorage SHARED ${AlususStorage_Source_Files})
 set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}")
- 
+
 # Add a target for Alusus core library.
-set(AlususCoreLib_Source_Subdirs Basic Data Processing Standard)
+set(AlususCoreLib_Source_Subdirs Basic Data Data/Grammar Data/Ast Notices Processing Processing/Handlers Main)
 set(AlususCoreLib_Source_Files core.h)
 foreach (DIR ${AlususCoreLib_Source_Subdirs})
   file(GLOB headers ${DIR}/*.h)
@@ -39,7 +39,7 @@ set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore
 ADD_PRECOMPILED_HEADER(AlususCoreLib "core.h")
 
 # Add a target for Alusus core executable.
-set(AlususCore_Source_Files main.cpp)
+set(AlususCore_Source_Files start.cpp)
 add_executable(AlususCore ${AlususCore_Source_Files})
 set_target_properties(AlususCore PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
 ADD_PRECOMPILED_HEADER(AlususCore "core.h")

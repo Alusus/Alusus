@@ -34,23 +34,20 @@
  فيما يلي المكتبات التي يستخدمها المشروع والتي ستحتاج لتحميلها على نظامك قبل التمكن من بناء الشفرة المصدرية:
  <p><a href="http://llvm.org/releases/download.html#3.3" target="__blank">LLVM 3.3</a></p>
 
- <p><a href="http://www.boost.org/users/history/version_1_55_0.html" target="__blank">Boost 1.55.0</a></p>
-
- <p><a href="http://alusus.net/Downloads/CATCH.tar.gz">CATCH</a></p>
- إصدار مكتبة CATCH الذي تستخدمه شفرة الأسُس قديم لذا يُرجى تحميلها من الرابط أعلاه وليس من موقعهم الرسمي الذي يحتوي على إصدار أحدث قد لا يتوافق مع شفرة الأسُس الحالية. بالإضافة إلى المكتبات أعلاه، ستحتاج إلى GCC و CMake و Gawk و PHP لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل valgrind.<br/>
+ بالإضافة إلى المكتبات أعلاه، ستحتاج إلى GCC و CMake و Gawk و PHP لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل valgrind.<br/>
   لتنصيب أدوات البناء في توزيعة أوبونتو استخدم الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake gawk php5</pre>
+<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake gawk php-cli</pre>
   وفي توزيعة فيدورا استخدم الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ sudo yum install gcc gcc-c++ cmake gawk php valgrind valgrind-devel</pre>
+<pre dir=ltr class="code nohighlight">$ sudo dnf install gcc gcc-c++ cmake gawk php valgrind valgrind-devel</pre>
   لاحظ حاجتنا لتنصيب valgrind في توزيعة فيدورا للتمكن من بناء LLVM وهو الأمر الذي لم نحتج إليه مع توزيعة أوبونتو. قد تحتاج أيضاً لتنصيب حزم أخرى إن كنت تستخدم توزيعات غير المذكورة أعلاه. راجع موقع LLVM لمعلومات أوفر حول طريقة بنائها.<br/>
-  <span style="color:red;">ملاحظة: ستحتاج إلى الإصدار 4.8 فما فوق من GCC. لن تتمكن من بناء شفرة الأسُس بإصدار أقدم.</span>
+  <span style="color:red;">ملاحظة: ستحتاج إلى الإصدار 7 فما فوق من GCC. لن تتمكن من بناء شفرة الأسُس بإصدار أقدم.</span>
 
  <!-- ********************************************************************** -->
  <h2>البناء باستخدام build.sh</h2>
  هذه هي الطريقة الأيسر للبناء والتي يُنصح بها.
  <ul>
   <li>قم بتنصيب أدوات البناء كما هو مبين في الفقرة السابقة.</li>
-  
+
   <li>لُج إلى مجلّد Tools ونفّذ الملف <span dir=ltr>build.sh</span>.
   سيقوم هذا الملف تلقائيا بتنزيل الاعتماديات وبناء LLVM وسيقوم بعدها ببناء الأسُس وتنصيبها. تنزيل الاعتماديات وبناء LLVM سيستغرق وقتاً طويلاً لكن ذلك يتم فقط عند التشغيل الأول لهذا البرنامج. تشغيله مجدداً لن يعيد تجهيز الاعتماديات وسيكون أسرع بكثير.
 <pre dir=ltr class="code nohighlight">
@@ -66,9 +63,9 @@ $ ./build.sh
  <h2>البناء يدوياً</h2>
  <ul>
   <li>قم بتنصيب أدوات البناء كما هو مبين في الفقرة السابقة.</li>
-  
-  <li>حمل الشفرة المصدرية للإصدارة المبينة أعلاه لكل من Boost و CATCH و LLVM وقم باستخراج ملفاتها.</li>
-  
+
+  <li>حمل الشفرة المصدرية للإصدارة المبينة أعلاه لLLVM وقم باستخراج ملفاتها.</li>
+
   <li>قم ببناء وتثبيت LLVM كما يلي:
    <ul>
     <li>أنشئ مجلداً مخصصاً للبناء وسمّه ما شئت. مثلاً llvm.build.</li>
@@ -87,14 +84,14 @@ $ make install
     </li>
    </ul>
   </li>
-  
+
   <li>قُم ببناء شفرة الأسُس كما يلي:
    <ul>
     <li>أنشئ مجلداً للبناء وسمّه ما شئت. مثلاً Builds.</li>
     <li>لُج إلى ذلك المجلد وأكمل عملية البناء كما يلي:
 <pre dir=ltr class="code nohighlight">
 $ cd &lt;path-to-Builds&gt;
-$ cmake &lt;path-to-Alusus-root&gt;/Sources -DBOOST_PATH=&lt;path-to-Boost-source&gt; -DCATCH_PATH=&lt;path-to-CATCH&gt; -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=&lt;path-to-Alusus-root&gt; -DLLVM_PATH=&lt;path-to-LLVM-install&gt;
+$ cmake &lt;path-to-Alusus-root&gt;/Sources -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=&lt;path-to-Alusus-root&gt; -DLLVM_PATH=&lt;path-to-LLVM-install&gt;
 $ make
 $ make install
 </pre>
@@ -110,7 +107,6 @@ $ make install
 <pre dir=ltr class="code nohighlight">
 $ make test
 </pre>
- سيقوم هذا الأمر بتنفيذ ثلاثة اختبارات مختلفة ويمكن تنفيذ كل من هذه الاختبارات على حدة عبر الولوج إلى مجلد ذلك الاختبار داخل Builds/Tests والقيام بتنفيذ ملفه التشغيلي. يُمكن التحكم في اختبار CoreTests عن طريق إرسال معطيات له على سطر الأوامر. لمعرفة تفاصيل هذه المعطيات يمكن تمرير المعطى help-- في سطر الأوامر.
 
  <!-- ********************************************************************** -->
  <h2>استخدام لغة الأسُس</h2>
@@ -118,12 +114,12 @@ $ make test
 <pre dir=ltr class="code nohighlight">
 $ export PATH=&lt;path-to-Alusus&gt;/Bin:$PATH
 $ cd &lt;path-to-Alusus&gt;/Examples/General
-$ alusus.dbg hello_world.alusus
+$ alusus hello_world.alusus
 </pre>
  اسم الملف التنفيذي عند البناء بصيغة التنقيح (debug) يكون alusus.dbg. لو تم بناؤها بصيغة النشر (release) فإن اسم الملف التنفيذي يكون alusus، أي بدون الإضافة dbg.
- <p>إذا تم بناء القلب بصيغة التنقيح (debug) فإن بالإمكان تدوين الأحداث (logging) وذلك بإضافة معطى log-- إلى البرنامج وإعطائه رقماً يحدد مستوى التفاصيل المرجو كما في المثال التالي: 
+ <p>إذا تم بناء القلب بصيغة التنقيح (debug) فإن بالإمكان تدوين الأحداث (logging) وذلك بإضافة معطى log-- إلى البرنامج وإعطائه رقماً يحدد مستوى التفاصيل المرجو كما في المثال التالي:
 <pre dir=ltr class="code nohighlight">
-$ alusus.dbg helloworld.alusus --log 16
+$ alusus helloworld.alusus --log 16
 </pre>
  مستوى التفاصيل يحدد بمرتبات ثنائية حيث تشير كل مرتبة إلى مستوى معين من التدوين يُمكّن إذا كانت قيمة تلك المرتبة 1 ويُعطّل إذا كانت قيمتها 0. الجدول التالي يوضح تفاصيل هذه المرتبات:<br/>
  المرمّز، المستوى الأدنى = 1،<br/>
@@ -132,12 +128,11 @@ $ alusus.dbg helloworld.alusus --log 16
  المُعرب، المستوى الأدنى = 8،<br/>
  المُعرب، المستوى المتوسط = 16،<br/>
  المُعرب، المستوى العلوي = 32<br/>
- يُمكن دمج أكثر من مستوى في نفس الوقت. على سبيل المثال القيمى 7 تعني تدوين كل مستويات المرمّز.</p>
- <p>يُمكن أيضاً تدوين الأحداث وبنفس الطريقة مع اختبار CoreTests.</p>
+ يُمكن دمج أكثر من مستوى في نفس الوقت. على سبيل المثال القيمة 7 تعني تدوين كل مستويات المرمّز.</p>
 
  </div>
  <div style="border-top: solid 1px; text-align: right; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2015م \ 1436هـ.<br/>
+  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2018م \ 1440هـ.<br/>
 نُشر هذا الملف برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0، والمضمّنة مع هذا الملف
 والمتوفرة أيضاً على الرابط <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>. يرجى قراءة الرخصة للتعرف على شروط الاستخدام والنسخ.</p>
  </div>

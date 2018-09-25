@@ -1,0 +1,104 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...Int[64])=>Int[64];
+
+  def testInteger: function ()=>Void
+  {
+    print("1 == 1: %d\n", 1 == 1);
+    print("1 == 2: %d\n", 1 == 2);
+    print("1 > 1: %d\n", 1 > 1);
+    print("1 > 0: %d\n", 1 > 0);
+    print("1 >= 1: %d\n", 1 >= 1);
+    print("1 >= 2: %d\n", 1 >= 2);
+    print("1 < 1: %d\n", 1 < 1);
+    print("1 < 2: %d\n", 1 < 2);
+    print("1 <= 1: %d\n", 1 <= 1);
+    print("2 <= 1: %d\n", 2 <= 1);
+  };
+
+  def testFloat: function ()=>Void
+  {
+    print("1.0 == 1.0: %d\n", 1.0 == 1.0);
+    print("1.0 == 2.0: %d\n", 1.0 == 2.0);
+    print("1.0 > 1.0: %d\n", 1.0 > 1.0);
+    print("1.0 > 0.0: %d\n", 1.0 > 0.0);
+    print("1.0 >= 1.0: %d\n", 1.0 >= 1.0);
+    print("1.0 >= 2.0: %d\n", 1.0 >= 2.0);
+    print("1.0 < 1.0: %d\n", 1.0 < 1.0);
+    print("1.0 < 2.0: %d\n", 1.0 < 2.0);
+    print("1.0 <= 1.0: %d\n", 1.0 <= 1.0);
+    print("2.0 <= 1.0: %d\n", 2.0 <= 1.0);
+  };
+
+  def testMixed: function ()=>Void
+  {
+    print("1i8 == 1i8: %d\n", 1i8 == 1i8);
+    print("1i64 == 1i64: %d\n", 1i64 == 1i64);
+    print("1i8 == 1i64: %d\n", 1i8 == 1i64);
+    print("1i64 == 1i8: %d\n", 1i64 == 1i8);
+
+    print("1f32 == 1f32: %d\n", 1f32 == 1f32);
+    print("1f64 == 1f64: %d\n", 1f64 == 1f64);
+    print("1f64 == 1f32: %d\n", 1f64 == 1f32);
+    print("1f32 == 1f64: %d\n", 1f32 == 1f64);
+
+    print("1i32 == 1f32: %d\n", 1i32 == 1f32);
+    print("1f32 == 1i32: %d\n", 1f32 == 1i32);
+    print("1i64 == 1f32: %d\n", 1i64 == 1f32);
+    print("1f32 == 1i64: %d\n", 1f32 == 1i64);
+
+    print("1i32 == ptr: %d\n", 1i32 == 1i64~cast[ptr[Int[32]]]);
+  };
+
+  def testPointers: function ()=>Void
+  {
+    def i: ptr[Word[8]];
+    def j: ptr[Word[8]];
+    def n: ptr[Word[8]];
+    i = "hello";
+    j = "world";
+    n = 0;
+
+    print("ptr1 == ptr2: %d\n", i == j);
+    print("ptr1 != ptr2: %d\n", i != j);
+    print("non-null ptr == 0: %d\n", i == 0);
+    print("null ptr == 0: %d\n", n == 0);
+
+    print("ptr > ptr: %d\n", i > j);
+    print("ptr >= ptr: %d\n", i >= j);
+    print("ptr < ptr: %d\n", i < j);
+    print("ptr <= ptr: %d\n", i <= j);
+    print("ptr == i64: %d\n", i == 1);
+  };
+
+  def testIfStatement: function (i: Int[64])=>Void
+  {
+    if i >= 0 print("Received positive.\n")
+    else print("Received negative.\n");
+
+    if Other1 == 3 print("Wrong\n");
+  };
+
+  def start: function ()=>Void
+  {
+    testInteger();
+    testFloat();
+    testMixed();
+    testPointers();
+
+    testIfStatement(5);
+    testIfStatement(0-5);
+  }
+};
+
+def Other1: module
+{
+};
+
+def Other2: module
+{
+};
+
+dump_llvm_ir Main.start;

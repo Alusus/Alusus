@@ -1,0 +1,17 @@
+import "Srl/Console.alusus";
+import "Srl/System.alusus";
+
+def Main: module
+{
+  def start: function ()
+  {
+    def ts: Word[64];
+    ts = Srl.System.getTimestamp(0);
+    def time: ptr[Srl.System.Time];
+    time = Srl.System.getDetailedTime(ts~ptr);
+    Srl.Console.print("Current date: %d-%02d-%02d\n", time~cnt.year + 1900, time~cnt.month + 1, time~cnt.day);
+    Srl.Console.print("Current timezone: %s\n", time~cnt.timezone);
+  };
+};
+
+run Main.start;

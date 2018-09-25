@@ -1,21 +1,23 @@
-import "common.alusus";
+import "Srl/Console.alusus";
 
-def FactorialWhileLoop : module {
-  def factorial : function(i:Int) => Int {
+def FactorialWhileLoop: module
+{
+  def factorial: function (i:Int) => Int
+  {
     if i<=0 return 1;
-    def f : Int;
+    def f: Int;
     f = i;
-    while (i >= 2) {
-      i = i - 1;
+    while i >= 2 {
+      --i;
       f = f*i;
     };
     return f;
   };
 
-  def main : function() {
-    printf("Factorial of 5 is %d\n", factorial(5));
-    return 0 
+  def start: function()
+  {
+    Srl.Console.print("Factorial of 5 is %d\n", factorial(5));
   }
 };
 
-run FactorialWhileLoop;
+run FactorialWhileLoop.start;

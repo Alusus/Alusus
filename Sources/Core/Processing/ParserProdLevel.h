@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserProdLevel.h
  * Contains the header of class Core::Processing::ParserProdLevel.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_PARSERPRODLEVEL_H
-#define PROCESSING_PARSERPRODLEVEL_H
+#ifndef CORE_PROCESSING_PARSERPRODLEVEL_H
+#define CORE_PROCESSING_PARSERPRODLEVEL_H
 
 namespace Core { namespace Processing
 {
@@ -29,9 +29,11 @@ class ParserProdLevel
   //============================================================================
   // Member Variables
 
-  private: Data::Module *module;
+  private: Data::Grammar::Module *module;
 
-  private: Data::SymbolDefinition *prod;
+  private: Data::Grammar::SymbolDefinition *prod;
+
+  private: TiInt *flags;
 
   private: Int termStackIndex;
 
@@ -39,12 +41,13 @@ class ParserProdLevel
   //============================================================================
   // Constructors / Destructor
 
-  public: ParserProdLevel() : module(0), prod(0), termStackIndex(-1)
+  public: ParserProdLevel() : module(0), prod(0), flags(0), termStackIndex(-1)
   {
   }
 
   public: ParserProdLevel(const ParserProdLevel &level) : module(level.module),
     prod(level.prod),
+    flags(level.flags),
     termStackIndex(level.termStackIndex)
   {
   }
@@ -57,22 +60,22 @@ class ParserProdLevel
   //============================================================================
   // Member Functions
 
-  protected: void setModule(Data::Module *m)
+  protected: void setModule(Data::Grammar::Module *m)
   {
     this->module = m;
   }
 
-  public: Data::Module* getModule() const
+  public: Data::Grammar::Module* getModule() const
   {
     return this->module;
   }
 
-  protected: void setProd(Data::SymbolDefinition *p)
+  protected: void setProd(Data::Grammar::SymbolDefinition *p)
   {
     this->prod = p;
   }
 
-  public: Data::SymbolDefinition* getProd() const
+  public: Data::Grammar::SymbolDefinition* getProd() const
   {
     return this->prod;
   }
@@ -85,6 +88,16 @@ class ParserProdLevel
   public: Int getTermStackIndex() const
   {
     return this->termStackIndex;
+  }
+
+  protected: void setFlags(TiInt *f)
+  {
+    this->flags = f;
+  }
+
+  public: TiInt* getFlags() const
+  {
+    return this->flags;
   }
 
 }; // class

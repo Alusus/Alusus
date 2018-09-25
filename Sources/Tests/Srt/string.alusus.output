@@ -1,0 +1,13 @@
+findChar '-': - 456 - 789
+findChar '-', 4: 0
+findChar '-', 5: 1
+findLastChar '-': - 789
+findString "124": 124 - 125
+compare "123" to "123": 0
+compare "123" to "1234": -52
+compare 3 "123" to "1234": 0
+copy: HELLO!
+copy 2: hello 
+concat: hello world
+concat 2: hello world!!
+getLength: 13

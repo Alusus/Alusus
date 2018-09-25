@@ -2,7 +2,7 @@
  * @file Core/Processing/ParsingHandler.h
  * Contains the header of class Core::Processing::ParsingHandler.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_PARSINGHANDLER_H
-#define PROCESSING_PARSINGHANDLER_H
+#ifndef CORE_PROCESSING_PARSINGHANDLER_H
+#define CORE_PROCESSING_PARSINGHANDLER_H
 
 namespace Core { namespace Processing
 {
@@ -20,7 +20,7 @@ class Parser;
 
 /**
  * @brief The root class of all parsing handlers.
- * @ingroup processing_parser
+ * @ingroup core_processing
  *
  * Parsing handlers are the classes responsible for handling different parsing
  * events. Each production can be associated with its own parsing handler that
@@ -29,12 +29,12 @@ class Parser;
  * generators can also include their own parsing handlers that they associate
  * with the desired production.
  */
-class ParsingHandler : public Data::OperationHandler
+class ParsingHandler : public Data::Grammar::BuildHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ParsingHandler, Data::OperationHandler, "Core.Parser", "Core", "alusus.net");
+  TYPE_INFO(ParsingHandler, Data::Grammar::BuildHandler, "Core.Parser", "Core", "alusus.net");
 
 
   //============================================================================
@@ -54,10 +54,10 @@ class ParsingHandler : public Data::OperationHandler
    * This event is raised by the state machine when parsing enters a new
    * production (after the production's state level is entered).
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The state object that entered the given production.
    */
-  public: virtual void onProdStart(Parser *parser, ParserState *state)
+  public: virtual void onProdStart(Parser *parser, ParserState *state, Data::Token const *token)
   {
   }
 
@@ -67,7 +67,7 @@ class ParsingHandler : public Data::OperationHandler
    * This event is raised by the state machine when parsing is about to exit
    * a production (before the production's state level is exit).
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The state object that exited the given production.
    */
   public: virtual void onProdEnd(Parser *parser, ParserState *state)
@@ -80,10 +80,10 @@ class ParsingHandler : public Data::OperationHandler
    * This event is raised by the state machine when parsing enters a new
    * term level (after the new term level is created).
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state.
    */
-  public: virtual void onTermStart(Parser *parser, ParserState *state)
+  public: virtual void onTermStart(Parser *parser, ParserState *state, Data::Token const *token)
   {
   }
 
@@ -93,7 +93,7 @@ class ParsingHandler : public Data::OperationHandler
    * This event is raised by the state machine when parsing is about to exit
    * a term level (before the term level is deleted).
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state.
    */
   public: virtual void onTermEnd(Parser *parser, ParserState *state)
@@ -107,7 +107,7 @@ class ParsingHandler : public Data::OperationHandler
    * This is called whether the deleted level is a production level or a
    * term level.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state.
    * @param data A smart pointer to the data of the level that has just been
    *             deleted. At this point, if this data isn't shared with any
@@ -117,7 +117,7 @@ class ParsingHandler : public Data::OperationHandler
    *             pointer to this data it will end up being deleted once this
    *             call is complete.
    */
-  public: virtual void onLevelExit(Parser *parser, ParserState *state, SharedPtr<IdentifiableObject> const &data)
+  public: virtual void onLevelExit(Parser *parser, ParserState *state, SharedPtr<TiObject> const &data)
   {
   }
 
@@ -129,11 +129,11 @@ class ParsingHandler : public Data::OperationHandler
    * with received tokens and it's completely the responsibility of the
    * parsing handler how to process that token.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state.
    * @param token A pointer to the received token.
    */
-  public: virtual void onNewToken(Parser *parser, ParserState *state, const Data::Token *token)
+  public: virtual void onNewToken(Parser *parser, ParserState *state, Data::Token const *token)
   {
   }
 
@@ -150,7 +150,7 @@ class ParsingHandler : public Data::OperationHandler
    *       to this error. In other words, even if we have existing successful
    *       states, the error states will receive this event.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state.
    * @param token A pointer to the received token. If this value is 0 it means
    *              parsing has ended without satisfying the grammar (more
@@ -163,7 +163,7 @@ class ParsingHandler : public Data::OperationHandler
    *         it wants to raise a more detailed build msg than the generic
    *         syntax error generated by the state machine.
    */
-  public: virtual Bool onErrorToken(Parser *parser, ParserState *state, const Data::Token *token)
+  public: virtual Bool onErrorToken(Parser *parser, ParserState *state, Data::Token const *token)
   {
     return false;
   }
@@ -175,11 +175,11 @@ class ParsingHandler : public Data::OperationHandler
    * on an alternative term. This is called after the decision is made but
    * before the state is updated.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state.
    * @param route The index of the alternative term to be taken.
    */
-  public: virtual void onAlternateRouteDecision(Parser *parser, ParserState *state, Int route)
+  public: virtual void onAlternateRouteDecision(Parser *parser, ParserState *state, Int route, Data::Token const *token)
   {
   }
 
@@ -190,13 +190,13 @@ class ParsingHandler : public Data::OperationHandler
    * on a multiply term. This is called after the decision is made but before
    * the state is updated.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state.
    * @param route Specifies whether the duplicate term is to be taken (1) or
    *              not (0). Naturally, multiple events with a route of 1 can
    *              happen on a duplicate route.
    */
-  public: virtual void onMultiplyRouteDecision(Parser *parser, ParserState *state, Int route)
+  public: virtual void onMultiplyRouteDecision(Parser *parser, ParserState *state, Int route, Data::Token const *token)
   {
   }
 
@@ -207,11 +207,11 @@ class ParsingHandler : public Data::OperationHandler
    * next position within a concat term. It's called before the state is
    * modified.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state.
    * @param newPos The index of the new position within the concat term.
    */
-  public: virtual void onConcatStep(Parser *parser, ParserState *state, Int newPos)
+  public: virtual void onConcatStep(Parser *parser, ParserState *state, Int newPos, Data::Token const *token)
   {
   }
 
@@ -221,10 +221,10 @@ class ParsingHandler : public Data::OperationHandler
    * This event is raised by the state machine when the given state is about
    * to branch into two.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state (state that is about to be duplicated).
    */
-  public: virtual void onBranching(Parser *parser, ParserState *state)
+  public: virtual void onBranching(Parser *parser, ParserState *state, Data::Token const *token)
   {
   }
 
@@ -234,11 +234,11 @@ class ParsingHandler : public Data::OperationHandler
    * This event is raised by the state machine after branching happens to a
    * state.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state1 The branching state that received the higher priority.
    * @param state2 The branching state that received the lower priority.
    */
-  public: virtual void onBranched(Parser *parser, ParserState *state1, ParserState *state2)
+  public: virtual void onBranched(Parser *parser, ParserState *state1, ParserState *state2, Data::Token const *token)
   {
   }
 
@@ -248,14 +248,15 @@ class ParsingHandler : public Data::OperationHandler
    * Unlike onBranching, this event is raised for each level in the state
    * stack whereas onBranching is raised only for the topmost level.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state (state that is about to be duplicated).
    * @param prodOffset The offset of the production level to which the
    *                    duplicating term level belongs.
    * @param termOffset The offset of the term level that is about to be
    *                    duplicated.
    */
-  public: virtual void onTermLevelDuplicating(Parser *parser, ParserState *state, Int prodOffset, Int termOffset)
+  public: virtual void onTermLevelDuplicating(Parser *parser, ParserState *state, Int prodOffset, Int termOffset,
+                                              Data::Token const *token)
   {
   }
 
@@ -265,13 +266,14 @@ class ParsingHandler : public Data::OperationHandler
    * Unlike onBranching, this event is raised for each level in the state
    * stack whereas onBranching is raised only for the topmost level.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state (state that is about to be duplicated).
    * @param prodOffset The offset of the production level that is about to
    *                    be duplicated.
    * @param termOffset The offset of the production level's root term level.
    */
-  public: virtual void onProdLevelDuplicating(Parser *parser, ParserState *state, Int prodOffset, Int termOffset)
+  public: virtual void onProdLevelDuplicating(Parser *parser, ParserState *state, Int prodOffset, Int termOffset,
+                                              Data::Token const *token)
   {
   }
 
@@ -281,7 +283,7 @@ class ParsingHandler : public Data::OperationHandler
    * Unlike onBranched, this event is raised for each level in the state
    * stack whereas onBranched is raised only for the topmost level.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state1 The branching state that received the higher priority.
    * @param state2 The branching state that received the lower priority.
    * @param prodOffset The offset of the production level to which the
@@ -290,7 +292,7 @@ class ParsingHandler : public Data::OperationHandler
    * @note The offset are the same in both states.
    */
   public: virtual void onTermLevelDuplicated(Parser *parser, ParserState *state1, ParserState *state2,
-                                             Int prodOffset, Int termOffset)
+                                             Int prodOffset, Int termOffset, Data::Token const *token)
   {
   }
 
@@ -300,7 +302,7 @@ class ParsingHandler : public Data::OperationHandler
    * Unlike onBranched, this event is raised for each level in the state
    * stack whereas onBranched is raised only for the topmost level.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state1 The branching state that received the higher priority.
    * @param state2 The branching state that received the lower priority.
    * @param prodOffset The offset of the production level that has been
@@ -309,7 +311,7 @@ class ParsingHandler : public Data::OperationHandler
    * @note The offset are the same in both states.
    */
   public: virtual void onProdLevelDuplicated(Parser *parser, ParserState *state1, ParserState *state2,
-                                             Int prodOffset, Int termOffset)
+                                             Int prodOffset, Int termOffset, Data::Token const *token)
   {
   }
 
@@ -322,7 +324,7 @@ class ParsingHandler : public Data::OperationHandler
    * for synchronizing tokens. This event is raised for each of those levels,
    * within each of the error states, that is not a production level.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state.
    */
   public: virtual void onTermCancelling(Parser *parser, ParserState *state)
@@ -338,7 +340,7 @@ class ParsingHandler : public Data::OperationHandler
    * for synchronizing tokens. This event is raised for each of those levels,
    * within each of the error states, that is a production level.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param state The subject state.
    */
   public: virtual void onProdCancelling(Parser *parser, ParserState *state)
@@ -353,7 +355,7 @@ class ParsingHandler : public Data::OperationHandler
    * cancelled in favour of the successful states. This event will be raised
    * for each state level within each one of those error states.
    *
-   * @param machine The parser state machine that fired the event.
+   * @param parser The parser that fired the event.
    * @param canceledState The state being cancelled.
    * @param winnerState The favoured state.
    * @param levelOffset The index of the state level belonging to this
@@ -364,6 +366,33 @@ class ParsingHandler : public Data::OperationHandler
    */
   public: virtual void onStateCancelling(Parser *parser, ParserState *canceledState, ParserState *winnerState)
   {
+  }
+
+  /**
+   * @brief Called when there is an incoming modifier for this prod level.
+   *
+   * This event is raised whenever there is an incoming modifier. This may be
+   * called either at the beginning of a prod, immediately after onProdStart is
+   * called, or at the end of a prod after onProdEnd is called. The parsing
+   * handler will have the option of either accepting the modifier or refusing
+   * it. When new modifiers appear, the parser will try to send them into new
+   * productions on entry. If the modifiers are not accepted the parser will
+   * hold onto them and try sending them again on production exit. This gives
+   * the parsing handler the option of either taking the modifier on entry, or
+   * delay that until the production is fully parsed.
+   *
+   * @param parser The parser that fired the event.
+   * @param state The subject state.
+   * @param modifierData The data of the incoming modifier.
+   * @param prodProcessingComplete If true, it means this production has been
+   *                               fully processed and onProdEnd has already
+   *                               been called, otherwise this is being called
+   *                               right after onProdStart.
+   */
+  public: virtual Bool onIncomingModifier(
+    Parser *parser, ParserState *state, TioSharedPtr const &modifierData, Bool prodProcessingComplete
+  ) {
+    return false;
   }
 
 }; // class

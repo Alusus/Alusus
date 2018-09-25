@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserState.cpp
  * Contains the implementation of Processing::ParserState.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,6 +22,8 @@ ParserState::ParserState() :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
+  parsingDimensionIndex(-1),
+  parsingDimensionStartProdIndex(-1),
   topTermLevelCache(0),
   topProdLevelCache(0),
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
@@ -31,20 +33,21 @@ ParserState::ParserState() :
   decisionNodeIndex(-1)
 {
   this->grammarContext.setRoot(0);
+  this->grammarContext.setModule(0);
   this->grammarContext.setStack(&this->variableStack);
-  this->dataStack.setOwningEnabled(true);
 }
 
 
 ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-             Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule) :
+             Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::Module *rootModule) :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
+  parsingDimensionIndex(-1),
+  parsingDimensionStartProdIndex(-1),
   topTermLevelCache(0),
   topProdLevelCache(0),
   termStack(reservedTermLevelCount),
-  dataStack(maxVarNameLength, reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
@@ -56,20 +59,21 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   this->termStack.resize(0);
   this->prodStack.resize(0);
   this->grammarContext.setRoot(rootModule);
+  this->grammarContext.setModule(rootModule);
   this->grammarContext.setStack(&this->variableStack);
-  this->dataStack.setOwningEnabled(true);
 }
 
 
 ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-             Word reservedVarCount, Word reservedVarLevelCount, const Data::GrammarContext *context) :
+             Word reservedVarCount, Word reservedVarLevelCount, const Data::Grammar::Context *context) :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
+  parsingDimensionIndex(-1),
+  parsingDimensionStartProdIndex(-1),
   topTermLevelCache(0),
   topProdLevelCache(0),
   termStack(reservedTermLevelCount),
-  dataStack(maxVarNameLength, reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
   variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
@@ -82,16 +86,16 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   this->prodStack.resize(0);
   this->grammarContext.copyFrom(context);
   this->grammarContext.setStack(&this->variableStack);
-  this->dataStack.setOwningEnabled(true);
 }
 
 
 //==============================================================================
 // Term Stack Member Functions
 
-void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                       Word reservedVarCount, Word reservedVarLevelCount, Data::GrammarModule *rootModule)
-{
+void ParserState::initialize(
+  Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+  Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::Module *rootModule
+) {
   ASSERT(reservedTermLevelCount > 0);
   ASSERT(reservedProdLevelCount > 0);
   ASSERT(maxVarNameLength > 1);
@@ -100,22 +104,23 @@ void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevel
 
   this->termStack.reserve(reservedTermLevelCount);
   this->prodStack.reserve(reservedProdLevelCount);
-  this->dataStack.initialize(maxVarNameLength, reservedTermLevelCount);
   this->termStack.clear();
   this->dataStack.clear();
   this->prodStack.clear();
   this->errorSyncBlockStack.clear();
   this->variableStack.initialize(maxVarNameLength, reservedVarCount, reservedVarLevelCount);
   this->grammarContext.setRoot(rootModule);
+  this->grammarContext.setModule(rootModule);
   this->grammarContext.setStack(&this->variableStack);
   this->grammarContext.setArgs(0);
 }
 
 
-void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                       Word reservedVarCount, Word reservedVarLevelCount,
-                       const Data::GrammarContext *context)
-{
+void ParserState::initialize(
+  Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+  Word reservedVarCount, Word reservedVarLevelCount,
+  const Data::Grammar::Context *context
+) {
   ASSERT(reservedTermLevelCount > 0);
   ASSERT(reservedProdLevelCount > 0);
   ASSERT(maxVarNameLength > 1);
@@ -124,7 +129,6 @@ void ParserState::initialize(Word reservedTermLevelCount, Word reservedProdLevel
 
   this->termStack.reserve(reservedTermLevelCount);
   this->prodStack.reserve(reservedProdLevelCount);
-  this->dataStack.initialize(maxVarNameLength, reservedTermLevelCount);
   this->termStack.clear();
   this->dataStack.clear();
   this->prodStack.clear();
@@ -146,10 +150,12 @@ void ParserState::reset()
   this->dataStack.clear();
   this->prodStack.clear();
   this->variableStack.clear();
-  this->buildMsgStore.clear();
+  this->noticeStore.clear();
   this->trunkState = 0;
   this->tempTrunkTermStackIndex = -1;
   this->tempTrunkProdStackIndex = -1;
+  this->parsingDimensionIndex = -1;
+  this->parsingDimensionStartProdIndex = -1;
   this->topTermLevelCache = 0;
   this->topProdLevelCache = 0;
   this->errorSyncBlockPairs = 0;
@@ -180,11 +186,11 @@ ParserTermLevel& ParserState::refTermLevel(Int i)
   // Validate i and convert it into positive indexing if it's currently negative.
   if (i >= 0) {
     if (i >= this->getTermLevelCount()) {
-      throw EXCEPTION(GenericException, STR("This state has an empty term stack, or i is out of range."));
+      throw EXCEPTION(GenericException, S("This state has an empty term stack, or i is out of range."));
     }
   } else {
     if (-(i) > this->getTermLevelCount()) {
-      throw EXCEPTION(GenericException, STR("Given state has an empty term stack, or i is out of range."));
+      throw EXCEPTION(GenericException, S("Given state has an empty term stack, or i is out of range."));
     }
     i = this->getTermLevelCount() + i;
   }
@@ -206,11 +212,11 @@ ParserTermLevel& ParserState::refTermLevel(Int i)
  * Get the number of state levels in the top produciton in this state. The
  * level count includes the production root's level.
  */
-Int ParserState::getTopprodTermLevelCount() const
+Int ParserState::getTopProdTermLevelCount() const
 {
   // The first level does not belong to any production, so we need at least 2 levels.
   if (this->getTermLevelCount() <= 1) {
-    throw EXCEPTION(GenericException, STR("This state has an empty term stack."));
+    throw EXCEPTION(GenericException, S("This state has an empty term stack."));
   }
   ASSERT(this->getProdLevelCount() > 0);
   // Find the production root, then get its data.
@@ -222,10 +228,10 @@ Int ParserState::getTopprodTermLevelCount() const
  * Push a new level into the state term stack and initialize its checksum
  * values.
  */
-void ParserState::pushTermLevel(Data::Term *term)
+void ParserState::pushTermLevel(Data::Grammar::Term *term)
 {
   this->termStack.push_back(ParserTermLevel());
-  this->dataStack.pushLevel(SharedPtr<IdentifiableObject>());
+  this->dataStack.push(SharedPtr<TiObject>());
   this->topTermLevelCache = &this->refTermLevel(-1);
 
   // If we don't have any term to set, then we also won't have any related info to cache.
@@ -233,16 +239,17 @@ void ParserState::pushTermLevel(Data::Term *term)
 
   // Set level info.
   this->topTermLevelCache->setTerm(term);
+  this->topTermLevelCache->getFlags()->object = this->grammarContext.getTermFlags(term);
   // Cache term parameters for faster access later.
-  if (term->isA<Data::TokenTerm>()) {
-    Data::TokenTerm *tokenTerm = static_cast<Data::TokenTerm*>(term);
+  if (term->isA<Data::Grammar::TokenTerm>()) {
+    Data::Grammar::TokenTerm *tokenTerm = static_cast<Data::Grammar::TokenTerm*>(term);
     this->topTermLevelCache->getParam1()->object = this->grammarContext.getTokenTermId(tokenTerm);
     this->topTermLevelCache->getParam2()->object = this->grammarContext.getTokenTermText(tokenTerm);
-  } else if (term->isDerivedFrom<Data::ListTerm>()) {
-    Data::ListTerm *list_term = static_cast<Data::ListTerm*>(term);
+  } else if (term->isDerivedFrom<Data::Grammar::ListTerm>()) {
+    Data::Grammar::ListTerm *list_term = static_cast<Data::Grammar::ListTerm*>(term);
     this->grammarContext.getListTermData(list_term, *(this->topTermLevelCache->getParam1()));
-  } else if (term->isA<Data::MultiplyTerm>()) {
-    Data::MultiplyTerm *multiplyTerm = static_cast<Data::MultiplyTerm*>(term);
+  } else if (term->isA<Data::Grammar::MultiplyTerm>()) {
+    Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(term);
     this->topTermLevelCache->getParam1()->object = this->grammarContext.getMultiplyTermMax(multiplyTerm);
     this->topTermLevelCache->getParam2()->object = this->grammarContext.getMultiplyTermMin(multiplyTerm);
     this->topTermLevelCache->getParam3()->object = this->grammarContext.getMultiplyTermPriority(multiplyTerm);
@@ -261,15 +268,11 @@ void ParserState::popTermLevel()
   ASSERT(!this->isAtProdRoot());
   if (this->termStack.size() > 0) {
     this->termStack.pop_back();
-    ASSERT(this->dataStack.getLevelCount() > 0);
-    this->dataStack.popLevel();
+    ASSERT(this->dataStack.getCount() > 0);
+    this->dataStack.pop();
   } else {
-    if (this->tempTrunkTermStackIndex >= 0) {
-      this->tempTrunkTermStackIndex--;
-    } else {
-      // This should never be reached.
-      ASSERT(false);
-    }
+    ASSERT(this->tempTrunkTermStackIndex >= 0);
+    this->tempTrunkTermStackIndex--;
   }
   if (this->getTermLevelCount() > 0) this->topTermLevelCache = &this->refTermLevel(-1);
   else this->topTermLevelCache = 0;
@@ -312,11 +315,11 @@ ParserProdLevel& ParserState::refProdLevel(Int i)
   // Validate i and convert it into positive indexing if it's currently negative.
   if (i >= 0) {
     if (i >= this->getProdLevelCount()) {
-      throw EXCEPTION(GenericException, STR("This state has an empty production stack, or i is out of range."));
+      throw EXCEPTION(GenericException, S("This state has an empty production stack, or i is out of range."));
     }
   } else {
-    if (-(i) > this->getTermLevelCount()) {
-      throw EXCEPTION(GenericException, STR("Given state has an empty production stack, or i is out of range."));
+    if (-(i) > this->getProdLevelCount()) {
+      throw EXCEPTION(GenericException, S("Given state has an empty production stack, or i is out of range."));
     }
     i = this->getProdLevelCount() + i;
   }
@@ -334,9 +337,9 @@ ParserProdLevel& ParserState::refProdLevel(Int i)
 }
 
 
-void ParserState::pushProdLevel(Data::Module *module, Data::SymbolDefinition *prod)
+void ParserState::pushProdLevel(Data::Grammar::Module *module, Data::Grammar::SymbolDefinition *prod)
 {
-  // TODO: Once we switch to exclusively using GrammarModule in the grammar, change the following
+  // TODO: Once we switch to exclusively using Module in the grammar, change the following
   //       code to update the error sync block pairs everytime the module changes and the new
   //       module has a different value for errorSyncBlockPairsRef.
   if (this->topProdLevelCache == 0) {
@@ -348,6 +351,7 @@ void ParserState::pushProdLevel(Data::Module *module, Data::SymbolDefinition *pr
   this->topProdLevelCache->setModule(module);
   this->topProdLevelCache->setProd(prod);
   this->topProdLevelCache->setTermStackIndex(this->getTermLevelCount());
+  this->topProdLevelCache->setFlags(this->grammarContext.getSymbolFlags(prod));
   this->variableStack.pushLevel();
   this->grammarContext.setModule(module);
   this->grammarContext.setArgs(this->grammarContext.getSymbolVars(prod));
@@ -367,25 +371,36 @@ void ParserState::popProdLevel()
   if (this->prodStack.size() > 0) {
     this->prodStack.pop_back();
   } else {
-    if (this->tempTrunkProdStackIndex >= 0) {
-      this->tempTrunkProdStackIndex--;
-    } else {
-      // This should never be reached.
-      ASSERT(false);
-    }
+    ASSERT(this->tempTrunkProdStackIndex >= 0);
+    this->tempTrunkProdStackIndex--;
   }
 
   if (this->getProdLevelCount() > 0) {
     this->topProdLevelCache = &this->refProdLevel(-1);
     this->grammarContext.setModule(this->topProdLevelCache->getModule());
-    Data::SharedMap *vars = this->grammarContext.getSymbolVars(this->topProdLevelCache->getProd());
+    Data::Grammar::Map *vars = this->grammarContext.getSymbolVars(this->topProdLevelCache->getProd());
     this->grammarContext.setArgs(vars);
   }
   else {
     this->topProdLevelCache = 0;
   }
 
+  // Exit parsing dimension, if needed.
+  if (this->parsingDimensionStartProdIndex >= this->getProdLevelCount()) {
+    this->parsingDimensionIndex = -1;
+    this->parsingDimensionStartProdIndex = -1;
+  }
+
   this->popTermLevel();
+}
+
+
+TiInt* ParserState::getProdFlags(Int levelOffset) const
+{
+  const ParserProdLevel *level;
+  if (levelOffset == -1) level = &this->refTopProdLevel();
+  else level = &this->refProdLevel(levelOffset);
+  return static_cast<TiInt*>(level->getFlags());
 }
 
 
@@ -397,92 +412,178 @@ Word ParserState::getListTermChildCount(Int levelOffset) const
   const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
-  ASSERT(level->getTerm()->isDerivedFrom<Data::ListTerm>());
-  return this->grammarContext.getListTermChildCount(static_cast<Data::ListTerm*>(level->getTerm()),
+  ASSERT(level->getTerm()->isDerivedFrom<Data::Grammar::ListTerm>());
+  return this->grammarContext.getListTermChildCount(static_cast<Data::Grammar::ListTerm*>(level->getTerm()),
                                                     *(level->getParam1()));
 }
 
 
-Data::Term* ParserState::useListTermChild(Int index, Int levelOffset)
+Data::Grammar::Term* ParserState::useListTermChild(Int index, Int levelOffset)
 {
   ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
-  ASSERT(level->getTerm()->isDerivedFrom<Data::ListTerm>());
-  Data::Term *term;
-  this->grammarContext.useListTermChild(static_cast<Data::ListTerm*>(level->getTerm()),
+  ASSERT(level->getTerm()->isDerivedFrom<Data::Grammar::ListTerm>());
+  Data::Grammar::Term *term;
+  this->grammarContext.useListTermChild(static_cast<Data::Grammar::ListTerm*>(level->getTerm()),
                                         index, *(level->getParam1()), term, level->getParam2());
   return term;
 }
 
 
-Data::Integer* ParserState::getTokenTermId(Int levelOffset) const
+TiInt* ParserState::getTokenTermId(Int levelOffset) const
 {
   const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
-  ASSERT(level->getTerm()->isA<Data::TokenTerm>());
-  return static_cast<Data::Integer*>(level->getParam1()->object);
+  ASSERT(level->getTerm()->isA<Data::Grammar::TokenTerm>());
+  return static_cast<TiInt*>(level->getParam1()->object);
 }
 
 
-IdentifiableObject* ParserState::getTokenTermText(Int levelOffset) const
+TiObject* ParserState::getTokenTermText(Int levelOffset) const
 {
   const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
-  ASSERT(level->getTerm()->isA<Data::TokenTerm>());
+  ASSERT(level->getTerm()->isA<Data::Grammar::TokenTerm>());
   return level->getParam2()->object;
 }
 
 
-void ParserState::getReferencedSymbol(Data::Module *&module, Data::SymbolDefinition *&definition,
-                                      Int levelOffset)
-{
-  Data::Reference *ref;
+void ParserState::getReferencedSymbol(
+  Data::Grammar::Module *&module, Data::Grammar::SymbolDefinition *&definition, Int levelOffset
+) {
+  Data::Grammar::Reference *ref;
   if (levelOffset == -1) {
-    ASSERT(this->refTopTermLevel().getTerm()->isA<Data::ReferenceTerm>());
-    ref = static_cast<Data::ReferenceTerm*>(this->refTopTermLevel().getTerm())->getReference().get();
+    ASSERT(this->refTopTermLevel().getTerm()->isA<Data::Grammar::ReferenceTerm>());
+    ref = static_cast<Data::Grammar::ReferenceTerm*>(this->refTopTermLevel().getTerm())->getReference().get();
   } else {
-    ASSERT(this->refTermLevel(levelOffset).getTerm()->isA<Data::ReferenceTerm>());
-    ref = static_cast<Data::ReferenceTerm*>(this->refTermLevel(levelOffset).getTerm())->getReference().get();
+    ASSERT(this->refTermLevel(levelOffset).getTerm()->isA<Data::Grammar::ReferenceTerm>());
+    ref = static_cast<Data::Grammar::ReferenceTerm*>(this->refTermLevel(levelOffset).getTerm())->getReference().get();
   }
   this->grammarContext.getReferencedSymbol(ref, module, definition);
 }
 
 
-Data::Integer* ParserState::getMultiplyTermMax(Int levelOffset) const
+TiInt* ParserState::getMultiplyTermMax(Int levelOffset) const
 {
   const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
-  ASSERT(level->getTerm()->isA<Data::MultiplyTerm>());
-  return static_cast<Data::Integer*>(level->getParam1()->object);
+  ASSERT(level->getTerm()->isA<Data::Grammar::MultiplyTerm>());
+  return static_cast<TiInt*>(level->getParam1()->object);
 }
 
 
-Data::Integer* ParserState::getMultiplyTermMin(Int levelOffset) const
+TiInt* ParserState::getMultiplyTermMin(Int levelOffset) const
 {
   const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
-  ASSERT(level->getTerm()->isA<Data::MultiplyTerm>());
-  return static_cast<Data::Integer*>(level->getParam2()->object);
+  ASSERT(level->getTerm()->isA<Data::Grammar::MultiplyTerm>());
+  return static_cast<TiInt*>(level->getParam2()->object);
 }
 
 
-Data::Integer* ParserState::getMultiplyTermPriority(Int levelOffset) const
+TiInt* ParserState::getMultiplyTermPriority(Int levelOffset) const
 {
   const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
-  ASSERT(level->getTerm()->isA<Data::MultiplyTerm>());
-  return static_cast<Data::Integer*>(level->getParam3()->object);
+  ASSERT(level->getTerm()->isA<Data::Grammar::MultiplyTerm>());
+  return static_cast<TiInt*>(level->getParam3()->object);
+}
+
+
+TiInt* ParserState::getTermFlags(Int levelOffset) const
+{
+  const ParserTermLevel *level;
+  if (levelOffset == -1) level = &this->refTopTermLevel();
+  else level = &this->refTermLevel(levelOffset);
+  return static_cast<TiInt*>(level->getFlags()->object);
 }
 
 
 //==============================================================================
-// Other Member Functions
+// Modifier Member Functions
+
+void ParserState::popFrontLeadingModifierLevel()
+{
+  if (this->leadingModifierStack.empty()) {
+    throw EXCEPTION(GenericException, S("Leading modifier stack is empty."));
+  }
+  this->leadingModifierStack.erase(this->leadingModifierStack.begin());
+}
+
+
+void ParserState::popFrontTrailingModifierLevel()
+{
+  if (this->trailingModifierStack.empty()) {
+    throw EXCEPTION(GenericException, S("Trailing modifier stack is empty."));
+  }
+  this->trailingModifierStack.erase(this->trailingModifierStack.begin());
+}
+
+
+void ParserState::popBackLeadingModifierLevel()
+{
+  if (this->leadingModifierStack.empty()) {
+    throw EXCEPTION(GenericException, S("Leading modifier stack is empty."));
+  }
+  this->leadingModifierStack.pop_back();
+}
+
+
+void ParserState::popBackTrailingModifierLevel()
+{
+  if (this->trailingModifierStack.empty()) {
+    throw EXCEPTION(GenericException, S("Trailing modifier stack is empty."));
+  }
+  this->trailingModifierStack.pop_back();
+}
+
+
+void ParserState::removeLeadingModifierLevel(Int index)
+{
+  if (index < 0 || index >= this->leadingModifierStack.size()) {
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."));
+  }
+  this->leadingModifierStack.erase(this->leadingModifierStack.begin() + index);
+}
+
+
+void ParserState::removeTrailingModifierLevel(Int index)
+{
+  if (index < 0 || index >= this->trailingModifierStack.size()) {
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."));
+  }
+  this->trailingModifierStack.erase(this->trailingModifierStack.begin() + index);
+}
+
+
+ParserModifierLevel& ParserState::refLeadingModifierLevel(Int index)
+{
+  if (index < 0) index += this->leadingModifierStack.size();
+  if (index < 0 || index >= this->leadingModifierStack.size()) {
+    throw EXCEPTION(GenericException, S("Out of range"));
+  }
+  return this->leadingModifierStack[index];
+}
+
+
+ParserModifierLevel& ParserState::refTrailingModifierLevel(Int index)
+{
+  if (index < 0) index += this->trailingModifierStack.size();
+  if (index < 0 || index >= this->trailingModifierStack.size()) {
+    throw EXCEPTION(GenericException, S("Out of range"));
+  }
+  return this->trailingModifierStack[index];
+}
+
+
+//==============================================================================
+// Branching Member Functions
 
 /**
  * Set the branching info to make this state a branch of another state.
@@ -529,13 +630,13 @@ void ParserState::setBranchingInfo(ParserState *ts, Int ttl, Int tsi, Int psi)
       this->grammarContext.setStack(&this->variableStack);
     } else {
       this->grammarContext.setModule(this->topProdLevelCache->getModule());
-      Data::SharedMap *vars = this->grammarContext.getSymbolVars(this->topProdLevelCache->getProd());
+      Data::Grammar::Map *vars = this->grammarContext.getSymbolVars(this->topProdLevelCache->getProd());
       this->grammarContext.setArgs(vars);
     }
   } else {
     this->variableStack.setBranchingInfo(0, -1);
   }
-  this->buildMsgStore.setTrunkStore(ts->getBuildMsgStore());
+  this->noticeStore.setTrunkStore(ts == 0 ? 0 : ts->getNoticeStore());
   this->tokensToLive = ttl;
 }
 
@@ -567,7 +668,7 @@ void ParserState::ownTopTermLevel()
   ASSERT(this->trunkState != 0);
   ASSERT(this->tempTrunkTermStackIndex >= 0);
   if (static_cast<Int>(this->trunkState->getTermLevelCount()) <= this->tempTrunkTermStackIndex) {
-    throw EXCEPTION(GenericException, STR("Trunk state has been modified."));
+    throw EXCEPTION(GenericException, S("Trunk state has been modified."));
   }
   ParserTermLevel &srcLevel = this->trunkState->refTermLevel(this->tempTrunkTermStackIndex);
   this->tempTrunkTermStackIndex--;
@@ -595,6 +696,8 @@ void ParserState::ownTopProdLevel()
 
 void ParserState::ownTopLevel()
 {
+  if (!this->termStack.empty()) return;
+
   if (this->isAtProdRoot()) {
     this->ownTopProdLevel();
   }
@@ -612,7 +715,7 @@ void ParserState::copyProdLevel(ParserState *src, Int offset)
   this->topProdLevelCache->setTermStackIndex(this->getTermLevelCount());
   this->variableStack.copyLevel(src->getVariableStack(), offset);
   this->grammarContext.setModule(srcLevel.getModule());
-  Data::SharedMap *vars = this->grammarContext.getSymbolVars(srcLevel.getProd());
+  Data::Grammar::Map *vars = this->grammarContext.getSymbolVars(srcLevel.getProd());
   this->grammarContext.setArgs(vars);
   this->copyTermLevel(src, srcLevel.getTermStackIndex());
 }
@@ -621,7 +724,7 @@ void ParserState::copyProdLevel(ParserState *src, Int offset)
 void ParserState::copyTermLevel(ParserState *src, Int offset)
 {
   this->termStack.push_back(ParserTermLevel());
-  this->dataStack.pushLevel(src->getData(offset));
+  this->dataStack.push(src->getData(offset));
   this->topTermLevelCache = &this->refTermLevel(-1);
   this->topTermLevelCache->copyFrom(&src->refTermLevel(offset));
 }

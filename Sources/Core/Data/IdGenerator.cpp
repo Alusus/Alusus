@@ -2,7 +2,7 @@
  * @file Core/Data/IdGenerator.cpp
  * Contains the implementation of class Core::Data::IdGenerator.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,7 +22,6 @@ Word IdGenerator::getId(Char const *desc)
 {
   Int id = this->index.find(Str(desc));
   if (id == -1) {
-    REF_PARSER->validateQualifier(desc, true);
     this->ids.push_back(Desc());
     this->ids.back().str = desc;
     this->index.add();
@@ -36,7 +35,7 @@ Word IdGenerator::getId(Char const *desc)
 Str const& IdGenerator::getDesc(Word id) const
 {
   if (id >= this->ids.size()) {
-    throw EXCEPTION(InvalidArgumentException, STR("id"), STR("No desc available for this id."), id);
+    throw EXCEPTION(InvalidArgumentException, S("id"), S("No desc available for this id."), id);
   }
   return this->ids[id].str;
 }
@@ -46,10 +45,10 @@ IdGenerator* IdGenerator::getSingleton()
 {
   static IdGenerator *idGenerator=0;
   if (idGenerator == 0) {
-    idGenerator = reinterpret_cast<IdGenerator*>(GLOBAL_STORAGE->getObject(STR("Core::Data::IdGenerator")));
+    idGenerator = reinterpret_cast<IdGenerator*>(GLOBAL_STORAGE->getObject(S("Core::Data::IdGenerator")));
     if (idGenerator == 0) {
       idGenerator = new IdGenerator;
-      GLOBAL_STORAGE->setObject(STR("Core::Data::IdGenerator"), reinterpret_cast<void*>(idGenerator));
+      GLOBAL_STORAGE->setObject(S("Core::Data::IdGenerator"), reinterpret_cast<void*>(idGenerator));
     }
   }
   return idGenerator;

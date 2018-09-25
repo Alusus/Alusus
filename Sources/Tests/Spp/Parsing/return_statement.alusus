@@ -1,0 +1,36 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def getInt: function ()=>Int[32]
+  {
+    return 30;
+  };
+
+  def getFloat: function ()=>Float[32]
+  {
+    return 5.5;
+  };
+
+  def getAddition: function ()=>Int[32]
+  {
+    return 5 + 10;
+  };
+
+  def getIntIndirect: function ()=>Int[32]
+  {
+    return getInt();
+  };
+
+  def retVoid: function ()=>Void
+  {
+    return;
+  };
+
+  def invalidRet: function ()=>Void
+  {
+    return a b;
+  };
+};
+
+dump_ast Main;

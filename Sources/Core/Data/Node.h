@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_NODE_H
-#define DATA_NODE_H
+#ifndef CORE_DATA_NODE_H
+#define CORE_DATA_NODE_H
 
 namespace Core { namespace Data
 {
@@ -21,12 +21,12 @@ namespace Core { namespace Data
  * This class links data objects to their owners. This is needed to allow
  * moving upwards through data trees nodes.
  */
-class Node : public IdentifiableObject
+class Node : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Node, IdentifiableObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(Node, TiObject, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================

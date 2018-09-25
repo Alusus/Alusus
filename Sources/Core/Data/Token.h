@@ -2,7 +2,7 @@
  * @file Core/Data/Token.h
  * Contains the header of class Core::Data::Token.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef DATA_TOKEN_H
-#define DATA_TOKEN_H
+#ifndef CORE_DATA_TOKEN_H
+#define CORE_DATA_TOKEN_H
 
 namespace Core { namespace Data
 {
@@ -20,7 +20,7 @@ namespace Core { namespace Data
 
 /**
  * @brief Contains information about a single token.
- * @ingroup data
+ * @ingroup core_data
  *
  * Contains the information that defines a single token. This information is
  * composed of the token definition and the token text.
@@ -52,7 +52,7 @@ class Token : public Node
   private: Str text;
 
   /// The location of the token in the source code.
-  private: SourceLocation sourceLocation;
+  private: SourceLocationRecord sourceLocation;
 
 
   //============================================================================
@@ -145,13 +145,13 @@ class Token : public Node
   }
 
   /// Set the location of the token within the source code.
-  public: void setSourceLocation(SourceLocation const &loc)
+  public: void setSourceLocation(SourceLocationRecord const &loc)
   {
     this->sourceLocation = loc;
   }
 
   /// Get the location of the token within the source code.
-  public: SourceLocation const& getSourceLocation() const
+  public: SourceLocationRecord const& getSourceLocation() const
   {
     return this->sourceLocation;
   }

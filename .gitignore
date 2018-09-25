@@ -7,3 +7,4 @@ Draft/*
 *~
 Sources/CMakeLists.txt.user
 Sources/.idea/*
+Sources/.vscode/*

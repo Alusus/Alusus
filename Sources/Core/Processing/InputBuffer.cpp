@@ -31,7 +31,7 @@ namespace Core { namespace Processing
  *         call will fail if the buffer is full and the value of 'force' is
  *         false.
  */
-Bool InputBuffer::push(WChar ch, Data::SourceLocation const &sl, Bool force)
+Bool InputBuffer::push(WChar ch, Data::SourceLocationRecord const &sl, Bool force)
 {
   // Check if the buffer is full.
   if (this->isFull() == true) {

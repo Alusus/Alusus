@@ -1,0 +1,19 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+  def start: function () => Void
+  {
+    def i: Int;
+    i = 10;
+
+    while i > 0 {
+      print("while-block: %d\n", i);
+      i = i - 1
+    };
+  };
+};
+
+run Main.start;

@@ -1,0 +1,57 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+  def gi: Int[32];
+  def gbi: Int[64];
+  def gf: Float[32];
+  def gbf: Float[64];
+
+  def start: function () => Void
+  {
+    def li: Int[32];
+    def lbi: Int[64];
+    def lf: Float[32];
+    def lbf: Float[64];
+
+    gi = 1;
+    gbi = 3i32;
+    gf = 4.0;
+    gbf = 6.0f32;
+
+    li = 7;
+    lbi =9i32;
+    lf = 10.0;
+    lbf = 12.0f32;
+
+    testVars(gi, gf);
+    testVars(gbi, gbf);
+    testVars(li, lf);
+    testVars(lbi, lbf);
+
+    testVars(gi + 100, gf + 100.0);
+    testVars(li + 200, lf + 200.0);
+
+    testVarOverride();
+    print("%d\n", gi);
+  };
+
+  def testVars: function (ai: Int[64], af: Float[64]) => Void
+  {
+    def li: Int[32];
+    def lf: Float[32];
+
+    print("%d, %f\n", ai, af);
+  };
+
+  def testVarOverride: function ()=>Void
+  {
+    def gi: Int[32];
+    gi = 60;
+    print("%d\n", gi);
+  }
+};
+
+run Main.start;

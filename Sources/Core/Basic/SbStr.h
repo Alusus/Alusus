@@ -2,7 +2,7 @@
  * @file Core/Basic/SbStr.h
  * Contains the header of class Core::Basic::SbStr.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_SBSTR_H
-#define BASIC_SBSTR_H
+#ifndef CORE_BASIC_SBSTR_H
+#define CORE_BASIC_SBSTR_H
 
 namespace Core { namespace Basic
 {
@@ -63,14 +63,29 @@ class SbStr
     return compareStr(this->c_str(), s) == 0;
   }
 
+  public: Bool operator!=(Char const *s) const
+  {
+    return compareStr(this->c_str(), s) != 0;
+  }
+
   public: Bool operator==(const std::string &s) const
   {
     return compareStr(this->c_str(), s.c_str()) == 0;
   }
 
+  public: Bool operator!=(const std::string &s) const
+  {
+    return compareStr(this->c_str(), s.c_str()) != 0;
+  }
+
   public: Bool operator==(const SbStr &s) const
   {
     return compareStr(this->c_str(), s.c_str()) == 0;
+  }
+
+  public: Bool operator!=(const SbStr &s) const
+  {
+    return compareStr(this->c_str(), s.c_str()) != 0;
   }
 
   public: Bool operator>(Char const *s) const
@@ -148,6 +163,28 @@ class SbStr
   /// @name Other Functions
   /// @{
 
+  public: Char const* find(Char c) const
+  {
+    return strchr(this->c_str(), c);
+  }
+
+  public: Char const* find(Char const *str) const
+  {
+    return strstr(this->c_str(), str);
+  }
+
+  public: Int findPos(Char c) const
+  {
+    auto found = strchr(this->c_str(), c);
+    return found == 0 ? -1 : found - this->c_str();
+  }
+
+  public: Int findPos(Char const *str) const
+  {
+    auto found = strstr(this->c_str(), str);
+    return found == 0 ? -1 : found - this->c_str();
+  }
+
   public: Word size() const
   {
     return getStrLen(this->c_str());
@@ -189,8 +226,8 @@ template <class T> SbStr& sbstr_cast(T *b)
  *
  * This wrapper is needed for future purposes. The main purpose of this is to
  * allow easy conversion of the program from ascii to unicode. This macro can
- * be thought as a combination of the STR macro and sbstr_cast.
- * Usage: SBSTR("hello") == STR("hello")
+ * be thought as a combination of the S macro and sbstr_cast.
+ * Usage: SBSTR("hello") == S("hello")
  */
 #define SBSTR(x)    Core::Basic::sbstr_cast(x)
 

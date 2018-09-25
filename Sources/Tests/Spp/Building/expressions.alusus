@@ -1,0 +1,157 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+  def testInteger: function ()=>Void
+  {
+    print("1+1=%d\n", 1+1);
+    print("5-2=%d\n", 5-2);
+    print("7*3=%d\n", 7*3);
+    print("10/2=%d\n", 10/2);
+    print("9%2=%d\n", 9%2);
+    print("8>>2=%d\n", 8>>2);
+    print("8<<2=%d\n", 8<<2);
+    print("7&2=%d\n", 7&2);
+    print("4|2=%d\n", 4|2);
+    print("7$12=%d\n", 7$12);
+    print("!1=%d\n", !1);
+    print("-34=%d\n", -34);
+    print("+34=%d\n", +34);
+
+    print("1+2*3=%d\n", 1+2*3);
+    print("10-6/2=%d\n", 10-6/2);
+    print("(1+2)*3=%d\n", (1+2)*3);
+    print("(10-6)/2=%d\n", (10-6)/2);
+    print("(10-1)%2=%d\n", (10-1)%2);
+    print("(10-2)>>2=%d\n", (10-2)>>2);
+    print("(10-2)<<2=%d\n", (10-2)<<2);
+    print("(10-3)&2=%d\n", (10-3)&2);
+    print("(10-6)|2=%d\n", (10-6)|2);
+    print("(10-3)$12=%d\n", (10-3)$12);
+    print("!(10-9)=%d\n", !(10-9));
+    print("-(10 * 2)=%d\n", -(10*2));
+    print("+(10 * 2)=%d\n", +(10*2));
+
+    def i32: Int[32];
+    def i64: Int[64];
+    i32 = 3;
+    i64 = 4;
+    print("++i32 = %d\n", ++i32);
+    print("++i64 = %d\n", ++i64);
+    print("--i32 = %d\n", --i32);
+    print("--i64 = %d\n", --i64);
+    print("i32++ = %d\n", i32++);
+    print("i64++ = %d\n", i64++);
+    print("i32-- = %d\n", i32--);
+    print("i64-- = %d\n", i64--);
+
+    i32 = 5;
+    i32 += 7; print("i32 += 7 => %d\n", i32);
+    i32 -= 2; print("i32 -= 2 => %d\n", i32);
+    i32 *= 2; print("i32 *= 2 => %d\n", i32);
+    i32 /= 5; print("i32 /= 5 => %d\n", i32);
+    i32 = 9; i32 %= 2; print("i32 %= 2 => %d\n", i32);
+    i32 = 8; i32 >>= 2; print("i32 >>= 2 => %d\n", i32);
+    i32 = 8; i32 <<= 2; print("i32 <<= 2 => %d\n", i32);
+    i32 = 7; i32 &= 2; print("i32 &= 2 => %d\n", i32);
+    i32 = 4; i32 |= 2; print("i32 |= 2 => %d\n", i32);
+    i32 = 7; i32 $= 12; print("i32 $= 12 => %d\n", i32);
+
+    i64 = 15;
+    i64 += 7; print("i64 += 7 => %d\n", i64);
+    i64 -= 2; print("i64 -= 2 => %d\n", i64);
+    i64 *= 2; print("i64 *= 2 => %d\n", i64);
+    i64 /= 5; print("i64 /= 5 => %d\n", i64);
+    i64 = 9; i64 %= 2; print("i64 %= 2 => %d\n", i64);
+    i64 = 8; i64 >>= 2; print("i64 >>= 2 => %d\n", i64);
+    i64 = 8; i64 <<= 2; print("i64 <<= 2 => %d\n", i64);
+    i64 = 7; i64 &= 2; print("i64 &= 2 => %d\n", i64);
+    i64 = 4; i64 |= 2; print("i64 |= 2 => %d\n", i64);
+    i64 = 7; i64 $= 12; print("i64 $= 12 => %d\n", i64);
+  };
+
+  def testFloat: function ()=>Void
+  {
+    print("1.2+1.2=%f\n", 1.2+1.2);
+    print("5.5-2.5=%f\n", 5.5-2.5);
+    print("7.2*3.5=%f\n", 7.2*3.5);
+    print("10.4/2.0=%f\n", 10.4/2.0);
+    print("-3.4=%f\n", -3.4);
+    print("+3.4=%f\n", +3.4);
+
+    print("1.0+2.0*3.0=%f\n", 1.0+2.0*3.0);
+    print("10.0-6.0/2.0=%f\n", 10.0-6.0/2.0);
+    print("(1.0+2.0)*3.0=%f\n", (1.0+2.0)*3.0);
+    print("(10.0-6.0)/2.0=%f\n", (10.0-6.0)/2.0);
+    print("-(10.0 * 2.3)=%d\n", -(10.0*2.3));
+    print("+(10.0 * 2.3)=%d\n", +(10.0*2.3));
+
+    def f32: Float[32];
+    def f64: Float[64];
+    f32 = 5.0;
+    f64 = 6.0;
+    print("++f32 = %f\n", ++f32);
+    print("++f64 = %f\n", ++f64);
+    print("--f32 = %f\n", --f32);
+    print("--f64 = %f\n", --f64);
+    print("f32++ = %f\n", f32++);
+    print("f64++ = %f\n", f64++);
+    print("f32-- = %f\n", f32--);
+    print("f64-- = %f\n", f64--);
+
+    f32 = 0.5;
+    f32 += 0.7; print("f32 += 0.7 => %f\n", f32);
+    f32 -= 0.2; print("f32 -= 0.2 => %f\n", f32);
+    f32 *= 2.0; print("f32 *= 2.0 => %f\n", f32);
+    f32 /= 0.05; print("f32 /= 0.05 => %f\n", f32);
+
+    f64 = 0.15;
+    f64 += 0.07; print("f64 += 0.07 => %f\n", f64);
+    f64 -= 0.02; print("f64 -= 0.02 => %f\n", f64);
+    f64 *= 2.0; print("f64 *= 2.0 => %f\n", f64);
+    f64 /= 0.5; print("f64 /= 0.5 => %f\n", f64);
+  };
+
+  def testMixed: function ()=>Void
+  {
+    print("1i8 + 1i8 = %d\n", 1i8 + 1i8);
+    print("1i64 + 1i64 = %d\n", 1i64 + 1i64);
+    print("1i8 + 1i64 = %d\n", 1i8 + 1i64);
+    print("1i64 + 1i8 = %d\n", 1i64 + 1i8);
+
+    print("1f32 + 1f32 = %f\n", 1f32 + 1f32);
+    print("1f64 + 1f64 = %f\n", 1f64 + 1f64);
+    print("1f64 + 1f32 = %f\n", 1f64 + 1f32);
+    print("1f32 + 1f64 = %f\n", 1f32 + 1f64);
+
+    print("1i32 + 1f32 = %f\n", 1i32 + 1f32);
+    print("1f32 + 1i32 = %f\n", 1f32 + 1i32);
+    print("1i64 + 1f32 = %f\n", 1i64 + 1f32);
+    print("1f32 + 1i64 = %f\n", 1f32 + 1i64);
+
+    print("1i32 + ptr = %f\n", 1i32 + 1i64~cast[ptr[Int[32]]]);
+  };
+
+  def start: function ()=>Void
+  {
+    testInteger();
+    testFloat();
+    testMixed();
+
+    print("%d\n", Other1 + Other2);
+    print("%d\n", 5 * Other2);
+    print("%d\n", Other1 / 3);
+  }
+};
+
+def Other1: module
+{
+};
+
+def Other2: module
+{
+};
+
+dump_llvm_ir Main.start;

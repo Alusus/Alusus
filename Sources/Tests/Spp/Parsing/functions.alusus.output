@@ -1,0 +1,73 @@
+ERROR CP1005 @ (11,10): Unexpected modifier encountered.
+ERROR CP1005 @ (15,10): Unexpected modifier encountered.
+ERROR CP1005 @ (19,10): Unexpected modifier encountered.
+------------------ Parsed Data Dump ------------------
+Function f1 [Subject.Function]
+ type: FunctionType [Subject.Function]
+  argTypes: Map
+   x: Identifier: Int [Subject.Parameter]
+   args: ArgPack 0 0
+    argType: Identifier: Int [Subject.Parameter]
+  retType: Identifier: void [Subject.Parameter]
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ type: FunctionType [Subject.Function]
+  argTypes: Map
+   x: Identifier: Int [Subject.Parameter]
+   args: ArgPack 0 0
+    argType: Identifier: Int [Subject.Parameter]
+  retType: Identifier: void [Subject.Parameter]
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ type: FunctionType [Subject.Function]
+  argTypes: Map
+   x: Identifier: Int [Subject.Parameter]
+   args: ArgPack 0 0
+    argType: Identifier: Int [Subject.Parameter]
+  retType: Identifier: void [Subject.Parameter]
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ type: FunctionType [Subject.Function]
+  argTypes: Map
+   x: Identifier: Int [Subject.Parameter]
+   args: ArgPack 0 0
+    argType: Identifier: Int [Subject.Parameter]
+  retType: Identifier: void [Subject.Parameter]
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Subject.Function]
+ type: FunctionType [Subject.Function]
+  argTypes: Map
+   x: Identifier: Int [Subject.Parameter]
+   args: ArgPack 0 0
+    argType: Identifier: Int [Subject.Parameter]
+  retType: Identifier: void [Subject.Parameter]
+ body: Block [Main.BlockStatementList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+FunctionType [Subject.Function]
+ argTypes: Map
+  X: Identifier: Int [Subject.Parameter]
+  args: ArgPack 0 0
+   argType: NULL
+ retType: Identifier: void [Subject.Parameter]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function f7 [Subject.Function]
+ type: FunctionType [Subject.Function]
+  argTypes: Map
+   X: ParamPass [] [Expression.ParamPassExp]
+    operand: Identifier: ptr [Subject.Parameter]
+    param: ParamPass [] [Expression.ParamPassExp]
+     operand: Identifier: Int [Subject.Parameter]
+     param: IntegerLiteral: 8 [Subject.Literal]
+  retType: NULL
+ body: NULL
+------------------------------------------------------

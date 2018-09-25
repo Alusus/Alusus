@@ -2,7 +2,7 @@
  * @file Core/Data/VariableStack.h
  * Contains the header of class Core::Data::VariableStack.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,21 +10,22 @@
  */
 //==============================================================================
 
-#ifndef DATA_VARIABLESTACK_H
-#define DATA_VARIABLESTACK_H
+#ifndef CORE_DATA_VARIABLESTACK_H
+#define CORE_DATA_VARIABLESTACK_H
 
-namespace Core { namespace Data
+namespace Core::Data
 {
 
 // TODO: DOC
 
-class VariableStack : public IdentifiableObject, public virtual MapContainer
+class VariableStack : public TiObject, public virtual MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(VariableStack, IdentifiableObject, "Core.Data", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES_1(IdentifiableObject, MapContainer);
+  TYPE_INFO(VariableStack, TiObject, "Core.Data", "Core", "alusus.net", (
+    INHERITANCE_INTERFACES(MapContaining<TiObject>)
+  ));
 
 
   //============================================================================
@@ -144,7 +145,7 @@ class VariableStack : public IdentifiableObject, public virtual MapContainer
 
   public: Bool isEmpty() const
   {
-    return this->getCount() == 0 || (this->getLevelCount() == 1 && this->getCount() == 0);
+    return this->getLevelCount() == 0 || (this->getLevelCount() == 1 && this->getElementCount() == 0);
   }
 
   /// @}
@@ -152,15 +153,15 @@ class VariableStack : public IdentifiableObject, public virtual MapContainer
   /// @name Variable Access Functions
   /// @{
 
-  public: Int add(Char const *key, IdentifiableObject *val);
+  public: Int add(Char const *key, TiObject *val);
 
-  public: Int set(Char const *key, IdentifiableObject *val, Bool insertIfNew);
+  public: Int set(Char const *key, TiObject *val, Bool insertIfNew);
 
   public: Int getCount(Int levelIndex) const;
 
-  public: IdentifiableObject* get(Char const *key, Int levelIndex) const;
+  public: TiObject* get(Char const *key, Int levelIndex) const;
 
-  public: IdentifiableObject* get(Int index, Int levelIndex) const;
+  public: TiObject* get(Int index, Int levelIndex) const;
 
   public: const SbStr& getKey(Int index, Int levelIndex) const;
 
@@ -174,35 +175,35 @@ class VariableStack : public IdentifiableObject, public virtual MapContainer
 
 
   //============================================================================
-  // MapContainer Implementation
+  // MapContaining Implementation
 
-  public: virtual void set(Int index, IdentifiableObject *val);
+  public: virtual void setElement(Int index, TiObject *val);
 
-  public: virtual void remove(Int index);
+  public: virtual void removeElement(Int index);
 
-  public: virtual Word getCount() const
+  public: virtual Word getElementCount() const
   {
     return this->getCount(-1);
   }
 
-  public: virtual IdentifiableObject* get(Int index) const
+  public: virtual TiObject* getElement(Int index) const
   {
     return this->get(index, -1);
   }
 
-  public: virtual Int set(Char const *key, IdentifiableObject *val)
+  public: virtual Int setElement(Char const *key, TiObject *val)
   {
     return this->set(key, val, true);
   }
 
-  public: virtual void remove(Char const *key);
+  public: virtual Int removeElement(Char const *key);
 
-  public: virtual IdentifiableObject* get(Char const *key) const
+  public: virtual TiObject* getElement(Char const *key) const
   {
     return this->get(key, -1);
   }
 
-  public: virtual const SbStr& getKey(Int index) const
+  public: virtual const SbStr& getElementKey(Int index) const
   {
     return this->getKey(index, -1);
   }
@@ -211,13 +212,13 @@ class VariableStack : public IdentifiableObject, public virtual MapContainer
    * @brief Find the index of a specified key.
    * @return The index of the key, or -1 if the key doesn't exist.
    */
-  public: virtual Int findIndex(Char const *key) const
+  public: virtual Int findElementIndex(Char const *key) const
   {
     return this->findIndex(key, -1);
   }
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

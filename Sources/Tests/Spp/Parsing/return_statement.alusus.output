@@ -1,0 +1,56 @@
+ERROR CP1001 @ (32,14): Parser syntax error.
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatementList]
+ Definition [Main.Def] getInt: Function  [Subject.Function]
+  type: FunctionType [Subject.Function]
+   argTypes: NULL
+   retType: ParamPass [] [Expression.ParamPassExp]
+    operand: Identifier: Int [Subject.Parameter]
+    param: IntegerLiteral: 32 [Subject.Literal]
+  body: Block [Main.BlockStatementList]
+   ReturnStatement [Main.Return]
+    operand: IntegerLiteral: 30 [Subject.Literal]
+ Definition [Main.Def] getFloat: Function  [Subject.Function]
+  type: FunctionType [Subject.Function]
+   argTypes: NULL
+   retType: ParamPass [] [Expression.ParamPassExp]
+    operand: Identifier: Float [Subject.Parameter]
+    param: IntegerLiteral: 32 [Subject.Literal]
+  body: Block [Main.BlockStatementList]
+   ReturnStatement [Main.Return]
+    operand: FloatLiteral: 5.5 [Subject.Literal]
+ Definition [Main.Def] getAddition: Function  [Subject.Function]
+  type: FunctionType [Subject.Function]
+   argTypes: NULL
+   retType: ParamPass [] [Expression.ParamPassExp]
+    operand: Identifier: Int [Subject.Parameter]
+    param: IntegerLiteral: 32 [Subject.Literal]
+  body: Block [Main.BlockStatementList]
+   ReturnStatement [Main.Return]
+    operand: AdditionOperator + [Expression.AddExp]
+     first: IntegerLiteral: 5 [Subject.Literal]
+     second: IntegerLiteral: 10 [Subject.Literal]
+ Definition [Main.Def] getIntIndirect: Function  [Subject.Function]
+  type: FunctionType [Subject.Function]
+   argTypes: NULL
+   retType: ParamPass [] [Expression.ParamPassExp]
+    operand: Identifier: Int [Subject.Parameter]
+    param: IntegerLiteral: 32 [Subject.Literal]
+  body: Block [Main.BlockStatementList]
+   ReturnStatement [Main.Return]
+    operand: ParamPass () [Expression.ParamPassExp]
+     operand: Identifier: getInt [Subject.Parameter]
+     param: NULL
+ Definition [Main.Def] retVoid: Function  [Subject.Function]
+  type: FunctionType [Subject.Function]
+   argTypes: NULL
+   retType: Identifier: Void [Subject.Parameter]
+  body: Block [Main.BlockStatementList]
+   ReturnStatement [Main.Return]
+    operand: NULL
+ Definition [Main.Def] invalidRet: Function  [Subject.Function]
+  type: FunctionType [Subject.Function]
+   argTypes: NULL
+   retType: Identifier: Void [Subject.Parameter]
+  body: Block [Main.BlockStatementList]
+------------------------------------------------------

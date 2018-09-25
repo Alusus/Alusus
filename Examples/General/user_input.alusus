@@ -1,0 +1,43 @@
+import "Srl/Console.alusus";
+
+def UserInput: module
+{
+  def start: function
+  {
+    def eof: Int;
+    eof = -1;
+
+    Srl.Console.print("Enter some chars then press CTRL+D: ");
+    def c: Int;
+    c = Srl.Console.getChar();
+    while c != eof {
+      Srl.Console.putChar(c);
+      c = Srl.Console.getChar();
+    };
+
+    def f: Float;
+    Srl.Console.print("Enter a float: ");
+    f = Srl.Console.getFloat();
+    Srl.Console.print("Enter duplications: ");
+    c = Srl.Console.getInt();
+    while c > 0 {
+      Srl.Console.print(f);
+      Srl.Console.putChar('\n');
+      --c;
+    };
+
+    Srl.Console.getChar(); // remove the \n from the input buffer.
+    Srl.Console.print("Enter string to duplicate: ");
+    def s: array[Char, 100];
+    Srl.Console.getString(s~ptr, 100);
+    Srl.Console.print("Enter duplications: ");
+    c = Srl.Console.getInt();
+    while c > 0 {
+      Srl.Console.print(s~ptr);
+      Srl.Console.putChar('\n');
+      --c;
+    };
+  }
+};
+
+run UserInput.start;

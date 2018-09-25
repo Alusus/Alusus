@@ -5,16 +5,17 @@ Author: Sarmad Khalid Abdullah <sarmad@alusus.org>
 
 function(hljs) {
   var KEYWORDS =
-      'trule prule prule_group module type integer string list map lexer start as ref in ' +
-      'prefix inherits self root dimension import def function output use cast cnt ptr ary ' +
-      'null false int float while private char catch export virtual operator sizeof ' +
-      'dynamic_cast typedef const_cast|10 const struct for static_cast union namespace ' +
-      'unsigned long throw volatile static protected bool template mutable if public friend ' +
-      'do return goto auto void enum else break new extern using true class case typeid ' +
-      'short reinterpret_cast default double register explicit signed typename try this ' +
-      'switch continue inline delete alignof finally ' +
-      'noexcept nullptr static_assert thread_local restrict alias run build link ' +
-      'اشمل عرّف حزمة دالّة هيكل إذا بينما لكل أرجع مؤشر محتوى مصفوفة عدد_حقيقي عدد_حقيقي64 سلسلة_محارف لقب نفّذ ';
+    'trule prule prule_group module type integer string list map lexer start as ref in ' +
+    'prefix inherits self root dimension import def function output use cast cnt ptr array any ' +
+    'null false while private catch export virtual operator sizeof ' +
+    'dynamic_cast typedef const_cast|10 const struct for static_cast union namespace ' +
+    'unsigned long throw volatile static protected template mutable if public friend ' +
+    'do return goto auto enum else break new extern using true class case typeid ' +
+    'short reinterpret_cast default double register explicit signed typename try this ' +
+    'switch continue inline delete alignof finally and or not ' +
+    'noexcept nullptr static_assert thread_local restrict alias run dump_ast dump_llvm_ir ' +
+    'اشمل عرف عرّف حزمة دالة دالّة هيكل إذا بينما لكل أرجع مؤشر محتوى مصفوفة أي  لقب نفذ نفّذ ' +
+    'صنف وإلا اقطع أكمل أدرج_ش_ب_م أدرج_ت_و و أو ليس';
   return {
     aliases: ['alusus'],
     keywords: KEYWORDS,
@@ -30,11 +31,15 @@ function(hljs) {
       },
       {
         className: 'number',
-        begin: '\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)'
+        begin: '\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|i|I|ui|UI|f|F|ط|ص|طص|ع)?[0-9]*'
       },
       {
         className: 'attribute',
-        begin: '@[a-zA-Z_][a-zA-Z_0-9]+'
+        begin: '@<?[a-zA-Z_][a-zA-Z_0-9]*'
+      },
+      {
+        className: 'attribute',
+        begin: '@<?[\u0620-\u065F_][\u0620-\u065F_0-9]*'
       },
       hljs.C_NUMBER_MODE,
       {
@@ -51,16 +56,24 @@ function(hljs) {
       },
       {
         className: 'type',
-        begin: '\\b[A-Z][a-zA-Z_0-9]+'
+        begin: '(^|\\W)[A-Z][a-zA-Z_0-9]+'
       },
       {
         className: 'type',
-        begin: '[\u0620-\u065F\u066E-\u06DC_0-9]+_ال[\u0620-\u065F\u066E-\u06DC_0-9]+'
+        begin: '(^|\\W)[اأإورزدذ]*[\u0620-\u065F]ـ[\u0620-\u065F_0-9]*'
       },
-      {	
+      {
         className: 'type',
-        begin: '[^\u0620-\u065F\u066E-\u06DC_0-9]ال[\u0620-\u065F\u066E-\u06DC_0-9]+'
-      }
+        begin: '(^|[^\u0620-\u065F_0-9A-Za-z])(int|word|float|bool|char|void|صحيح|طبيعي|عائم|ثنائي|محرف|فراغ)($|[^\u0620-\u065F_0-9A-Za-z])'
+      },
+      {
+        className: 'string',
+        begin: '(^|\\W)[A-Z]+'
+      },
+      {
+        className: 'string',
+        begin: '(^|[^\u0620-\u065F_0-9])_[\u0620-\u065F_0-9]+_($|[^\u0620-\u065F_0-9])'
+      },
     ]
   };
 }

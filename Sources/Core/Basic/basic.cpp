@@ -2,7 +2,7 @@
  * @file Core/Basic/basic.cpp
  * Contains the global implementations of Basic namespace's declarations.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,6 +20,8 @@ namespace Core { namespace Basic
 // Variables and Types
 
 std::ostream & outStream = std::cout;
+
+std::istream & inStream = std::cin;
 
 typedef std::codecvt<WChar,Char,std::mbstate_t> FacetType;
 
@@ -64,6 +66,14 @@ WChar getWideCharFromUtf8(Char const *s)
   WChar buf[2];
   SBWSTR(buf).assign(s, 2);
   return *buf;
+}
+
+
+void printIndents(OutStream &stream, int indents)
+{
+  for (Int i=0; i < indents; ++i) {
+    stream << S(" ");
+  }
 }
 
 } } // namespace

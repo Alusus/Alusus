@@ -2,7 +2,7 @@
  * @file Core/Data/VariableStack.cpp
  * Contains the implementation of class Core::Data::VariableStack.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Data
+namespace Core::Data
 {
 
 //==============================================================================
@@ -37,7 +37,7 @@ void VariableStack::initialize(Word maxStrSize, Word reservedRecordCount, Word r
 void VariableStack::reinitialize(Word maxStrSize, Word reservedRecordCount, Word reservedLevelCount)
 {
   if (this->buffer == 0) {
-    throw EXCEPTION(GenericException, STR("Stack is not initialized."));
+    throw EXCEPTION(GenericException, S("Stack is not initialized."));
   }
   if (reservedLevelCount > this->levels.capacity()) this->levels.reserve(reservedLevelCount);
   if (this->maxStrSize == maxStrSize && this->reservedRecordCount == reservedRecordCount) return;
@@ -55,8 +55,8 @@ void VariableStack::reinitialize(Word maxStrSize, Word reservedRecordCount, Word
         Byte *destBuf = this->buffer + i*this->getRecordSize();
         Byte *srcBuf = oldBuf + i*VariableStack::getRecordSize(oldStrSize);
         sbstr_cast(destBuf).assign(sbstr_cast(srcBuf).c_str(), this->maxStrSize);
-        *reinterpret_cast<IdentifiableObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
-            *reinterpret_cast<IdentifiableObject**>(srcBuf+sizeof(Char)*oldStrSize);
+        *reinterpret_cast<TiObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
+            *reinterpret_cast<TiObject**>(srcBuf+sizeof(Char)*oldStrSize);
       }
     }
   }
@@ -67,7 +67,7 @@ void VariableStack::reinitialize(Word maxStrSize, Word reservedRecordCount, Word
 void VariableStack::copy(const VariableStack *src)
 {
   if (src->buffer == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("src"), STR("Stack is not initialized."));
+    throw EXCEPTION(InvalidArgumentException, S("src"), S("Stack is not initialized."));
   }
 
   // If we have a small buffer, we can drop it.
@@ -107,13 +107,13 @@ void VariableStack::copy(const VariableStack *src)
 void VariableStack::copyLevel(const VariableStack *src, Int level)
 {
   if (this->buffer == 0) {
-    throw EXCEPTION(GenericException, STR("Stack is not initialized"));
+    throw EXCEPTION(GenericException, S("Stack is not initialized"));
   }
   if (src->buffer == 0) {
-    throw EXCEPTION(InvalidArgumentException, STR("src"), STR("Stack is not initialized."));
+    throw EXCEPTION(InvalidArgumentException, S("src"), S("Stack is not initialized."));
   }
   if (level < 0 || static_cast<Word>(level) >= src->getLevelCount()) {
-    throw EXCEPTION(InvalidArgumentException, STR("level"), STR("Out of range."), level);
+    throw EXCEPTION(InvalidArgumentException, S("level"), S("Out of range."), level);
   }
   this->pushLevel();
   Int count = src->getCount(level);
@@ -145,8 +145,8 @@ void VariableStack::setBranchingInfo(VariableStack *vs, Int tli)
 {
   if (vs == 0) tli = -1;
   else if (tli < -1 || tli >= static_cast<Int>(vs->getLevelCount())) {
-    throw EXCEPTION(InvalidArgumentException, STR("tli"),
-                    STR("Must be between -1 and vs->getLevelCount()-1 when vs is not null."), tli);
+    throw EXCEPTION(InvalidArgumentException, S("tli"),
+                    S("Must be between -1 and vs->getLevelCount()-1 when vs is not null."), tli);
   }
   this->clear();
   this->trunkStack = vs;
@@ -160,7 +160,7 @@ void VariableStack::ownTopLevel()
   ASSERT(this->trunkStack != 0);
   ASSERT(this->trunkLevelIndex > -1);
   if (static_cast<Int>(this->trunkStack->getLevelCount()) <= this->trunkLevelIndex) {
-    throw EXCEPTION(GenericException, STR("Trunk stack has been modified."));
+    throw EXCEPTION(GenericException, S("Trunk stack has been modified."));
   }
 
   Int srcIndex = this->trunkLevelIndex;
@@ -194,8 +194,8 @@ void VariableStack::ownTopLevel()
       Byte *destBuf = this->buffer + i*this->getRecordSize();
       Byte *srcBuf = this->trunkStack->buffer + (srcStart+i)*this->trunkStack->getRecordSize();
       sbstr_cast(destBuf).assign(sbstr_cast(srcBuf).c_str(), this->maxStrSize);
-      *reinterpret_cast<IdentifiableObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
-          *reinterpret_cast<IdentifiableObject**>(srcBuf+sizeof(Char)*this->trunkStack->maxStrSize);
+      *reinterpret_cast<TiObject**>(destBuf+sizeof(Char)*this->maxStrSize) =
+          *reinterpret_cast<TiObject**>(srcBuf+sizeof(Char)*this->trunkStack->maxStrSize);
     }
   }
 }
@@ -217,17 +217,17 @@ void VariableStack::popLevel()
       ASSERT(this->trunkStack != 0);
       this->trunkLevelIndex--;
     } else {
-      throw EXCEPTION(GenericException, STR("Already empty."));
+      throw EXCEPTION(GenericException, S("Already empty."));
     }
   }
 }
 
 
-Int VariableStack::add(Char const *key, IdentifiableObject *val)
+Int VariableStack::add(Char const *key, TiObject *val)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
-      throw EXCEPTION(GenericException, STR("No levels added yet."));
+      throw EXCEPTION(GenericException, S("No levels added yet."));
     } else {
       this->ownTopLevel();
     }
@@ -241,17 +241,17 @@ Int VariableStack::add(Char const *key, IdentifiableObject *val)
   else start = this->levels[this->levels.size()-2];
   Byte *buf = this->buffer + this->levels.back()*this->getRecordSize();
   sbstr_cast(buf).assign(key, this->maxStrSize);
-  *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
+  *reinterpret_cast<TiObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
   this->levels.back()++;
   return this->levels.back() - 1 - start;
 }
 
 
-Int VariableStack::set(Char const *key, IdentifiableObject *val, Bool insertIfNew)
+Int VariableStack::set(Char const *key, TiObject *val, Bool insertIfNew)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
-      throw EXCEPTION(GenericException, STR("No levels added yet."));
+      throw EXCEPTION(GenericException, S("No levels added yet."));
     } else {
       this->ownTopLevel();
     }
@@ -264,12 +264,12 @@ Int VariableStack::set(Char const *key, IdentifiableObject *val, Bool insertIfNe
     if (insertIfNew) {
       return this->add(key, val);
     } else {
-      throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found."), key);
+      throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found."), key);
     }
   }
   Byte *buf = this->buffer + (start+index)*this->getRecordSize();
   sbstr_cast(buf).assign(key, this->maxStrSize);
-  *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
+  *reinterpret_cast<TiObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
   return index;
 }
 
@@ -277,11 +277,11 @@ Int VariableStack::set(Char const *key, IdentifiableObject *val, Bool insertIfNe
 Int VariableStack::getCount(Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
-    throw EXCEPTION(GenericException, STR("No levels added yet."));
+    throw EXCEPTION(GenericException, S("No levels added yet."));
   }
   if (levelIndex >= static_cast<Int>(this->getLevelCount()) ||
       levelIndex < -static_cast<Int>(this->getLevelCount())) {
-    throw EXCEPTION(InvalidArgumentException, STR("levelIndex"), STR("Out of range."), levelIndex);
+    throw EXCEPTION(InvalidArgumentException, S("levelIndex"), S("Out of range."), levelIndex);
   }
   if (levelIndex < 0) levelIndex += this->getLevelCount();
 
@@ -293,14 +293,14 @@ Int VariableStack::getCount(Int levelIndex) const
 }
 
 
-IdentifiableObject* VariableStack::get(Char const *key, Int levelIndex) const
+TiObject* VariableStack::get(Char const *key, Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
-    throw EXCEPTION(GenericException, STR("No levels added yet."));
+    throw EXCEPTION(GenericException, S("No levels added yet."));
   }
   if (levelIndex >= static_cast<Int>(this->getLevelCount()) ||
       levelIndex < -static_cast<Int>(this->getLevelCount())) {
-    throw EXCEPTION(InvalidArgumentException, STR("levelIndex"), STR("Out of range."), levelIndex);
+    throw EXCEPTION(InvalidArgumentException, S("levelIndex"), S("Out of range."), levelIndex);
   }
   if (levelIndex < 0) levelIndex += this->getLevelCount();
 
@@ -312,21 +312,21 @@ IdentifiableObject* VariableStack::get(Char const *key, Int levelIndex) const
   else start = this->levels[levelIndex-1];
   Int index = this->findIndex(key, start, this->levels[levelIndex]-1);
   if (index == -1) {
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found."), key);
+    throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found."), key);
   }
   Byte *buf = this->buffer + this->getRecordSize()*(start+index) + sizeof(Char)*this->maxStrSize;
-  return *reinterpret_cast<IdentifiableObject**>(buf);
+  return *reinterpret_cast<TiObject**>(buf);
 }
 
 
-IdentifiableObject* VariableStack::get(Int index, Int levelIndex) const
+TiObject* VariableStack::get(Int index, Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
-    throw EXCEPTION(GenericException, STR("No levels added yet."));
+    throw EXCEPTION(GenericException, S("No levels added yet."));
   }
   if (levelIndex >= static_cast<Int>(this->getLevelCount()) ||
       levelIndex < -static_cast<Int>(this->getLevelCount())) {
-    throw EXCEPTION(InvalidArgumentException, STR("levelIndex"), STR("Out of range."), levelIndex);
+    throw EXCEPTION(InvalidArgumentException, S("levelIndex"), S("Out of range."), levelIndex);
   }
   if (levelIndex < 0) levelIndex += this->getLevelCount();
 
@@ -337,21 +337,21 @@ IdentifiableObject* VariableStack::get(Int index, Int levelIndex) const
   if (levelIndex == 0) start = 0;
   else start = this->levels[levelIndex-1];
   if (index < 0 || index >= static_cast<Int>(this->levels[levelIndex])-start) {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
   }
   Byte *buf = this->buffer + this->getRecordSize()*(start+index) + sizeof(Char)*this->maxStrSize;
-  return *reinterpret_cast<IdentifiableObject**>(buf);
+  return *reinterpret_cast<TiObject**>(buf);
 }
 
 
 const SbStr& VariableStack::getKey(Int index, Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
-    throw EXCEPTION(GenericException, STR("No levels added yet."));
+    throw EXCEPTION(GenericException, S("No levels added yet."));
   }
   if (levelIndex >= static_cast<Int>(this->getLevelCount()) ||
       levelIndex < -static_cast<Int>(this->getLevelCount())) {
-    throw EXCEPTION(InvalidArgumentException, STR("levelIndex"), STR("Out of range."), levelIndex);
+    throw EXCEPTION(InvalidArgumentException, S("levelIndex"), S("Out of range."), levelIndex);
   }
   if (levelIndex < 0) levelIndex += this->getLevelCount();
 
@@ -362,7 +362,7 @@ const SbStr& VariableStack::getKey(Int index, Int levelIndex) const
   if (levelIndex == 0) start = 0;
   else start = this->levels[levelIndex-1];
   if (index < 0 || index >= static_cast<Int>(this->levels[levelIndex])-start) {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
   }
   return sbstr_cast(this->buffer + this->getRecordSize()*(start+index));
 }
@@ -371,11 +371,11 @@ const SbStr& VariableStack::getKey(Int index, Int levelIndex) const
 Int VariableStack::getIndex(Char const *key, Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
-    throw EXCEPTION(GenericException, STR("No levels added yet."));
+    throw EXCEPTION(GenericException, S("No levels added yet."));
   }
   if (levelIndex >= static_cast<Int>(this->getLevelCount()) ||
       levelIndex < -static_cast<Int>(this->getLevelCount())) {
-    throw EXCEPTION(InvalidArgumentException, STR("levelIndex"), STR("Out of range."), levelIndex);
+    throw EXCEPTION(InvalidArgumentException, S("levelIndex"), S("Out of range."), levelIndex);
   }
   if (levelIndex < 0) levelIndex += this->getLevelCount();
 
@@ -387,7 +387,7 @@ Int VariableStack::getIndex(Char const *key, Int levelIndex) const
   else start = this->levels[levelIndex-1];
   Int idx = this->findIndex(key, start, this->levels[levelIndex]-1);
   if (idx == -1) {
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Not found in the current level."), key);
+    throw EXCEPTION(InvalidArgumentException, S("key"), S("Not found in the current level."), key);
   }
   return idx;
 }
@@ -396,11 +396,11 @@ Int VariableStack::getIndex(Char const *key, Int levelIndex) const
 Int VariableStack::findIndex(Char const *key, Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
-    throw EXCEPTION(GenericException, STR("No levels added yet."));
+    throw EXCEPTION(GenericException, S("No levels added yet."));
   }
   if (levelIndex >= static_cast<Int>(this->getLevelCount()) ||
       levelIndex < -static_cast<Int>(this->getLevelCount())) {
-    throw EXCEPTION(InvalidArgumentException, STR("levelIndex"), STR("Out of range."), levelIndex);
+    throw EXCEPTION(InvalidArgumentException, S("levelIndex"), S("Out of range."), levelIndex);
   }
   if (levelIndex < 0) levelIndex += this->getLevelCount();
 
@@ -426,13 +426,13 @@ Int VariableStack::findIndex(Char const *key, Int start, Int end) const
 
 
 //==============================================================================
-// MapContainer Implementation
+// MapContaining Implementation
 
-void VariableStack::set(Int index, IdentifiableObject *val)
+void VariableStack::setElement(Int index, TiObject *val)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
-      throw EXCEPTION(GenericException, STR("No levels added yet."));
+      throw EXCEPTION(GenericException, S("No levels added yet."));
     } else {
       this->ownTopLevel();
     }
@@ -441,18 +441,18 @@ void VariableStack::set(Int index, IdentifiableObject *val)
   if (this->levels.size() == 1) start = 0;
   else start = this->levels[this->levels.size()-2];
   if (index < 0 || index >= static_cast<Int>(this->levels.back())-start) {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
   }
   Byte *buf = this->buffer + (start+index)*this->getRecordSize();
-  *reinterpret_cast<IdentifiableObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
+  *reinterpret_cast<TiObject**>(buf+sizeof(Char)*this->maxStrSize) = val;
 }
 
 
-void VariableStack::remove(Int index)
+void VariableStack::removeElement(Int index)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
-      throw EXCEPTION(GenericException, STR("No levels added yet."));
+      throw EXCEPTION(GenericException, S("No levels added yet."));
     } else {
       this->ownTopLevel();
     }
@@ -461,7 +461,7 @@ void VariableStack::remove(Int index)
   if (this->levels.size() == 1) start = 0;
   else start = this->levels[this->levels.size()-2];
   if (index < 0 || index >= static_cast<Int>(this->levels.back())-start) {
-    throw EXCEPTION(InvalidArgumentException, STR("index"), STR("Out of range."), index);
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
   }
   Byte *dest = this->buffer + this->getRecordSize()*(start+index);
   Byte *src = dest + this->getRecordSize();
@@ -470,11 +470,11 @@ void VariableStack::remove(Int index)
 }
 
 
-void VariableStack::remove(Char const *key)
+Int VariableStack::removeElement(Char const *key)
 {
   if (this->levels.size() == 0) {
     if (this->trunkStack == 0 || this->trunkLevelIndex == -1) {
-      throw EXCEPTION(GenericException, STR("No levels added yet."));
+      throw EXCEPTION(GenericException, S("No levels added yet."));
     } else {
       this->ownTopLevel();
     }
@@ -484,12 +484,13 @@ void VariableStack::remove(Char const *key)
   else start = this->levels[this->levels.size()-2];
   Int index = this->findIndex(key, start, this->levels.back()-1);
   if (index == -1) {
-    throw EXCEPTION(InvalidArgumentException, STR("key"), STR("Key not found."), key);
+    throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found."), key);
   }
   Byte *dest = this->buffer + this->getRecordSize()*(start+index);
   Byte *src = dest + this->getRecordSize();
   Int count = this->levels.back() - (start + index);
   memmove(dest, src, this->getRecordSize()*count);
+  return index;
 }
 
-} } // namespace
+} // namespace

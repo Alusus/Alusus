@@ -1,0 +1,20 @@
+ERROR CD1004 @ (23,21): Incompatible 'def' merge.
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatementList]
+ Definition [Main.Def] a1: IntegerLiteral: 1 [Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatementList]
+ Definition [Main.Def] b1: IntegerLiteral: 2 [Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatementList]
+ Definition [Main.Def] a2: IntegerLiteral: 1 [Subject.Literal]
+ Definition [Main.Def] b2: IntegerLiteral: 2 [Subject.Literal]
+ Definition [Main.Def] c2: IntegerLiteral: 3 [Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatementList]
+ Definition [Main.Def] a3: IntegerLiteral: 1 [Subject.Literal]
+ Definition [Main.Def] b3: IntegerLiteral: 2 [Subject.Literal]
+------------------------------------------------------

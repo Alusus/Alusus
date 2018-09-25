@@ -1,0 +1,92 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+  def testPtrAndCnt: function ()=>Void
+  {
+    def i: Int[32];
+    def pi: ptr[Int[32]];
+    def pf: ptr[Float[32]];
+    def ppi: ptr[ptr[Int[32]]];
+
+    pi = i~ptr;
+    pi~cnt = 5;
+
+    print("i = %d\n", i);
+
+    i = 10;
+    print("pi~cnt = %d\n", pi~cnt);
+
+    i~cnt = 5;
+    pf = i~cnt;
+    pf~cnt = i;
+    i = pf~cnt;
+    pi = i;
+
+    ppi = pi~ptr;
+    i = ppi~cnt;
+    i = ppi~cnt~cnt;
+
+    pi = Other.i~ptr;
+    Other.pi~cnt = 10;
+    pi = Other~ptr;
+    Other~cnt = 10;
+  };
+
+  def testCast: function ()=>Void
+  {
+    def i: Int[32];
+    def l: Int[64];
+    def f: Float[32];
+    def pi: ptr[Int[32]];
+    def d: Float[64];
+
+    pi~cast[ptr[Int[16]]]~cnt = 2i16;
+    f = 30.0;
+    print("f = %f\n", f);
+    print("f~cast[Float[64]] = %f\n", f~cast[Float[64]]);
+    i~ptr~cast[ptr[Int[8]]]~cnt = 1i8;
+
+    pi~cast[ptr[Int16]]~cnt = 2i16;
+    pi~cast[Int[64]] = 10;
+    pi = 10~cast[ptr[Int[32]]];
+    pi = 10i64~cast[ptr[Int[32]]];
+    pi = l~cast[ptr[Int[32]]];
+
+    d = 10.0;
+    f = d~cast[Float[32]];
+    i = f~cast[Int[32]];
+    f = i~cast[Float[32]];
+    pi = f~cast[ptr[Int[32]]];
+    i = f~cast[Invalid];
+
+    f = Other.i~cast[Float[32]];
+    f = Other~cast[Float[32]];
+  };
+
+  def testSize: function ()=>Void
+  {
+    def i: Int[32];
+    def pi: ptr[Int[32]];
+    print("Main~size = %d\n", Main~size);
+    print("unknown~size = %d\n", unknown~size);
+    print("i~size = %d\n", i~size);
+    print("pi~size = %d\n", pi~size);
+    print("5~size = %d\n", 5~size);
+    print("(i + 5i64)~size = %d\n", (i + 5i64)~size);
+    print("Int[32]~size = %d\n", Int[32]~size);
+    print("Int[62]~size = %d\n", Int[62]~size);
+    print("ptr[Int[32]]~size = %d\n", ptr[Int[32]]~size);
+    print("ptr[Int[62]]~size = %d\n", ptr[Int[62]]~size);
+  };
+};
+
+def Other: module
+{
+  def i: Int[32];
+  def pi: ptr[Int[32]];
+};
+
+dump_llvm_ir Main;

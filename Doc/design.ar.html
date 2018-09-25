@@ -37,10 +37,10 @@
  <h2 class="foldable">المقدمة</h2>
  <div>
   صُممت لغة الأسُس لتكون لغة شاملة يمكن استخدامها لبناء أي برنامج كان مهما كان اختصاصه أو بيئة عمله أو طريقة تنفيذه، وهذه الشمولية تتطلب تصميم قواعد اللغة بناءاً على معايير فلسفية بدل المعايير العملية المبنية على بيئة عمل أو مجال محدد، وجعلها لغة قابلة للتطوير من قبل المستخدم أو المجتمع بدلاً من حصر عملية التطوير في فريق محدد، إضافة إلى تمكين المبرمج من الوصول إلى المترجم نفسه والتحكم فيه. كذلك فإن عملية التطوير يجب أن تكون ممكنة دون الحاجة لإعادة بناء المترجم. تصميم اللغة يعتمد على المفاهيم التالية:
-  
+
   <h3>مفهوم لغة الأسُس لبرمجيات الحاسوب</h3>
   لغة الأسُس تعرّف برنامج الحاسوب تعريفاً لا يرتبط بطبيعة عمل البرنامج أو بيئته التنفيذية، وإنما تعرفه على أنه مجموعة من الجمل تتكون كل منها من حدّ أو مجموعة من الحدود وكل حدّ عبارة عن قيمة ثابتة أو اسم متغير أو تركيب أو أمر أو جملة أخرى أو مجموعة من الجمل. بُنيت على هذا التعريف وبصورته الشمولية قواعد أساسية للغة الأسُس وجُعلت هذه القواعد ديناميكية وأضيفت للغة الأسُس إمكانية إنشاء قواعد مشتقة منها وهو ما يجعل قواعد اللغة قابلة للتوسيع دون الإضرار بالشكل العام لقواعدها ودون التسبب بغموض الإعراب.
-  
+
   <h3>نظام ترجمة مفتوح ومرن ولامركزي</h3>
   بدل إنتاج مترجم مغلق يفهم أنماط البرمجة المرجوّة وكيفية إنشاء الشفرة التنفيذية، استبدلت لغة الأسُس هذا التصميم بتصميم مختلف يجعل الترجمة تتم بنظام مفتوح متعدد الأجزاء مع وجود جزء مركزي يعمل عملاً إدارياً ويوفّر الأسُس التي تُبنى عليها الأجزاء الأخرى. يتيح هذا الأسلوب توسيع اللغة وتطوير عملية الترجمة عن طريق استبدال أجزاء بأخرى أو إضافة أجزاء جديدة. هذا النظام صُمم بأسلوب مفتوح يتيح لأي مبرمج الوصول إلى الوحدات والبيانات الداخلية لنظام الترجمة لتطوير وحدات ترجمة جديدة وهو ما يجعل اللغة قابلة للتطوير من قبل مجتمع المبرمجين بدل أن تكون عملية التطوير حصراً على مجموعة محددة. يتيح هذا التصميم أيضاً إمكانية تطوير اللغة آنياً على عدة جبهات من قبل فرق مختلفة. الشكل التالي يوضح الفرق بين أسلوب الترجمة التقليدي وأسلوب الترجمة في لغة الأسُس:
   <p align="middle"><img src="design.resources/compilation_method_comparison.ar.gif"/></p>
@@ -137,7 +137,7 @@ MyExpression -&gt; Expression {
   Operand : Identifier | Literal | "(" Add ")".
 }.
 </pre>
-  
+
   <h3>الإعراب متعدد الأبعاد</h3>
   الإعراب متعدّد الأبعاد يعني إمكانية تعريف قواعد معينة وتمييزها ليتم إعرابها بشكل موازٍ لعملية الإعراب الرئيسية. بمعنى آخر، يمكن للمُعرِب عند كل خطوة من خطوات الإعراب الرئيسي الخروج منه لإعراب القاعدة الموازية ومن ثم العودة إلى النقطة التي كان فيها من الإعراب الرئيسي. الشكل التالي يوضح هذه العملية.
   <p align="middle"><img src="design.resources/multidimensional_parsing.ar.gif" /></p>
@@ -174,7 +174,7 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
     <li>تمكين المبرمج من العمل على كافة المستويات بدءاً من التحكم المباشر بالعتاد وانتهاءاً بأعلى مستويات البرمجة.</li>
     <li>الحفاظ على مستوى واحد داخل المكتبة الواحدة: عند تصميم المكتبات المعيارية يجب تجنب الخلط بين المستويات داخل المكتبة الواحدة.</li>
     <li>دعم الخواص بأخفض مستوى ممكن: كلما كانت الخاصية متوفرة بمستوى منخفض أكثر كلما توسع نطاق توفرها.</li>
-    <li>تمكين التحكم المركزي بأمن الخواص: انفتاح اللغة على كل شيء يولد الحاجة للتحكم مركزيا بما يُسمح للفريق باستخدامه. على سبيل المثال يستطيع مدير الفريق أن يمنع استخدام المؤشرات في مجال محدد أو يحصر مجالاً معيناً على استخدام مكتبات معينة دون غيرها.</li>  
+    <li>تمكين التحكم المركزي بأمن الخواص: انفتاح اللغة على كل شيء يولد الحاجة للتحكم مركزيا بما يُسمح للفريق باستخدامه. على سبيل المثال يستطيع مدير الفريق أن يمنع استخدام المؤشرات في مجال محدد أو يحصر مجالاً معيناً على استخدام مكتبات معينة دون غيرها.</li>
    <li>تجنب اتخاذ خطوات وقرارات نيابة عن المبرمج: يجب أن يعلم المبرمج كيف سيتم التعامل مع برنامجه من قبل نظام الترجمة. على سبيل المثال، من غير الملائم أن تقرر مكتبة البناء أسلوب إدارة الذاكرة دون إعطاء المبرمج القدرة على التحكم بذلك القرار.</li>
    <li>تجنب الحدود المصطنعة: على سبيل المثال، لا تحرم المبرمج إمكانية استخدام المؤشرات المباشرة في سياق معين إذا كان استخدامها ممكناً في ذلك السياق. حرمان المبرمج من خاصية معينة فقط لأن هذه الخاصية قد يُساء استخدامها عذر غير مقبول.</li>
   </ul>
@@ -230,7 +230,7 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
    <li>حرية الإختيار بين التنفيذ التلقائي (interpretation)، أو الترجمة إلى شفرة وسطية أو الترجمة مباشرة إلى لغة الآلة، مع حرية الدمج بين هذه الخيارات وحرية اختيار الآلة التي يُترجم لها البرنامج.</li>
   </ul>
  </div>
- 
+
  <!-- ********************************************************************** -->
  <h2 class="foldable">نظرة على القواعد</h2>
  <div>
@@ -251,6 +251,11 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
  تجميع الحدود يتم باستخدام الأقواس الإعتيادية: ()<br/>
 
  <h3>الحلقات</h3>
+<pre dir=rtl class="code" style="text-align:right;">
+  لـكل: "لكل" الـتركيب_الـاستهلالي "،" الـتركيب_الـشرطي "،" تـركيب_الـتحديث (جـملة|كـتلة).
+  بـينما: "بينما" تـركيب (جـملة|كـتلة).
+  افـعل-بـينما: "افعل" (جـملة|كـتلة) "بينما" تـركيب.
+</pre>
 <pre dir=ltr class="code">
  For: "for" Initial_Expression "," Condition_Expression "," Update_Expression (Statement|Block).
  While: "while" Expression (Statement|Block).
@@ -258,51 +263,78 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
 </pre>
 
  <h3>الجمل الشرطية</h3>
+<pre dir=rtl class="code" style="text-align:right;">
+  "إذا" تـركيب (جـملة|كـتلة) ["وإلا" (جـملة|كـتلة)].
+</pre>
 <pre dir=ltr class="code">
  "if" Expression (Statement|Block) ["else" (Statement|Block)].
 </pre>
 
  <h3>التعريفات</h3>
  كل التعريفات في اللغة تتم باستخدام أمر def بما في ذلك تعريف متغيرات أو ثوابت أو دالّات أو أصناف أو غيرها. والصيغة العامة كالتالي:
+ <pre dir=rtl class="code" style="text-align:right;">"عرف" اسم ":" متن.</pre>
  <pre dir=ltr class="code">"def" name ":" body.</pre>
  قيمة body يمكن أن تكون دالّة أو صنفا أو مجالا أو أسم صنف أو غيرها وذلك موضح فيما يلي:<br/>
  تعريف متغير:
+ <pre dir=rtl class="code" style="text-align:right;">"عرف" اسم ":" صنف.</pre>
  <pre dir=ltr class="code">"def" name ":" type.</pre>
  تعريف ثابت:
+ <pre dir=rtl class="code" style="text-align:right;">"عرف" اسم ":" @ثابت صنف.</pre>
  <pre dir=ltr class="code">"def" name ":" @const type.</pre>
  تعريف دالة:
+ <pre dir=rtl class="code" style="text-align:right;">"عرف" اسم ":" "دالة" "(" قـائمة_الـمدخلات ")" "=>" "(" قـائمة_الـنتائج ")" كـتلة.</pre>
  <pre dir=ltr class="code">"def" name ":" "function" "(" Input_List ")" "=>" "(" Output_List ")" Block.</pre>
  تعريف صنف:
- <pre dir=ltr class="code">"def" name ":" "class" [Inheritance_Specifier] Block.</pre>
- تعريف مجال:
- <pre dir=ltr class="code">"def" name ":" "namespace" Block.</pre>
+ <pre dir=rtl class="code" style="text-align:right;">"عرف" اسم ":" "صنف" [مـعرف_الـوراثة] كـتلة.</pre>
+ <pre dir=ltr class="code">"def" name ":" "type" [Inheritance_Specifier] Block.</pre>
+ تعريف حزمة:
+ <pre dir=rtl class="code" style="text-align:right;">"عرف" اسم ":" "حزمة" كتلة.</pre>
+ <pre dir=ltr class="code">"def" name ":" "module" Block.</pre>
  ويستخدم إيعاز def أيضا لكافة التعريفات الأخرى ومن بينها المصفوفات والمؤشرات المبينة أدناه.
 
  <h3>المصفوفات</h3>
  تعرّف المصفوفات باستخدام أمر def وبالشكل التالي:
+ <pre dir=rtl class="code" style="text-align:right;">"عرف" اسم ":" "مصفوفة" "[" صنف، رقم "]".</pre>
  <pre dir=ltr class="code">"def" name ":" "array" "[" type, number "]".</pre>
  ولتحديد حجم المصفوفة ديناميكياً تستخدم الصيغة التالية:
+<pre dir=rtl class="code" style="text-align:right;">
+ "عرف" اسم ":" "مصفوفة" "[" صنف "]" "(" رقم ")".
+ "عرف" اسم "=" "مصفوفة" "[" صنف "]" "~جديد" "(" رقم ")".
+</pre>
 <pre dir=ltr class="code">
  "def" name ":" "array" "[" type "]" "(" number ")".
  "def" name "=" "array" "[" type "]" "~new" "(" number ")".
 </pre>
  استخدام المصفوفات:
+ <pre dir=rtl class="code" style="text-align:right;">اسم "(" رقم ")".</pre>
  <pre dir=ltr class="code">name "(" number ")".</pre>
 
  <h3>المؤشرات</h3>
  تعّرف المؤشرات باستخدام أمر def أيضا وبالشكل التالي:
+ <pre dir=rtl class="code" style="text-align:right;">"عرف" اسم ":" "مؤشر" "[" صنف "]".</pre>
  <pre dir=ltr class="code">"def" name ":" "ptr" "[" type "]".</pre>
  وللدخول إلى الموقع الموُشَّر يستخدم مؤثر cnt~ بعد اسم المؤشر:
+ <pre dir=rtl class="code" style="text-align:right;">اسم "~محتوى".</pre>
  <pre dir=ltr class="code">name "~cnt".</pre>
  وللحصول على موقع متغير معين يستخدم مؤثر ptr~ بعد اسم المتغير:
+ <pre dir=rtl class="code" style="text-align:right;">اسم "~مؤشر".</pre>
  <pre dir=ltr class="code">name "~ptr".</pre>
 
- <h3>الدمج في التعريفات</h3>
+ <h3>العريفات المتداخلة</h3>
  يمكن أيضا الدمج بين التعريفات باستخدام def. مثلا يمكن تعريف مؤشر على مصفوفة، أو مؤشر على دالة, أو مصفوفة من المؤشرات، إلى أخره. مثلا تعريف مصفوفة من مؤشرات الدالّات يتم بالشكل التالي:
+ <pre dir=rtl class="code" style="text-align:right;">"عرف" اسم ":" "مصفوفة" "[" "مؤشر" "[" "دالة" "(" مـدخلات ")" "]" "]".</pre>
  <pre dir=ltr class="code">"def" name ":" "array" "[" "ptr" "[" "function" "(" Params ")" "]" "]".</pre>
+
+ <h3>الدمج بين التعريفات</h3>
+ يمكن دمج تعريف مع تريف مسبق بنفس الأسم باستخدام الأمر عرف (def) مع المبدل @دمج (@merge). الدمج جائز مع الحزم (module) ومع أصناف المستخدم (type) ويكون بالشكل التالي:
+ <pre dir=rtl class="code" style="text-align:right;">"@دمج" "عرف" اسم ":" "حزمة" "{" تـعريفات "}".</pre>
+ <pre dir=rtl class="code" style="text-align:right;">"@دمج" "عرف" اسم ":" "{" تـعريفات "}".</pre>
+ <pre dir=ltr class="code">"@merge" "def" name ":" "module" "{" Definitions "}".</pre>
+ <pre dir=ltr class="code">"@merge" "def" name ":" "{" Definitions "}".</pre>
 
  <h3>المبدّلات</h3>
  يمكن للمبدّلات أن تظهر في أي مكان في البرنامج وليس بالضرورة في بداية الجملة. وتعرّف المبدّلات بهذا الشكل:
+ <pre dir=rtl class="code" style="text-align:right;">"@" اسم "[" تـركيب "]".</pre>
  <pre dir=ltr class="code">"@" name [ Expression ].</pre>
 
  <h3>الأقواس الهلالية والأقواس المعقوفة</h3>
@@ -310,6 +342,10 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
 
  <h3>الأقواس الحاصرة {}</h3>
  تستخدم الأقواس الحاصرة لحصر مجموعة من الجمل في كتلة واحدة. وتستخدم هذه الكتل في جواب الجمل الشرطية على سبيل المثال أو في متن الدالّات أو الأصناف أو المجالات.
+<pre dir=rtl class="code" style="text-align:right;">
+ كـتلة: "{" [ مـجموعة_جـمل ] "}".
+ مـجموعة_جـمل: جـملة { "؛" [جـملة] }.
+</pre>
 <pre dir=ltr class="code">
  Block: "{" [ Statement_List ] "}".
  Statement_List: Statement { ";" [Statement] }.
@@ -317,7 +353,7 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
 
  <h3>الفصل بين الجمل</h3>
  تستخدم الفاصلة المنقوطة للفصل بين الجمل بطريقة مشابهة للفاصلة الإعتيادية التي تفصل بين الحدود داخل القوائم. بمعنى آخر فإن الفاصلة المنقوطة ليست جزءاً من الجملة ويُمكن إهمالها إن لم يأت بعدها جملة أخرى.
- 
+
  <h3>المنطق في بعض الخيارات النحوية</h3>
  <ul>
   <li>أقواس الدالّات:أُستخدمت الأقواس الاعتيادية مع الدالّات في الرياضيات منذ القدم، لذا تم الالتزام بذات الاسلوب مع دالّات لغة الأسُس.</li>
@@ -328,78 +364,147 @@ DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [Par
   <li>استخدمت الأقواس الهلالية للولوج إلى عناصر المصفوفة بدل الأقواس المعقوفة لأن الأخيرة تستخدم لمعطيات الترجمة. ولنفس السبب استخدمت الأقواس الاعتيادية لتحديد حجم المصفوفة ديناميكياً بينما استخدمت الأقواس المعقوفة لتحديد نوع المصفوفة وهو ما يندرج ضمن معطيات الترجمة.</li>
  </ul>
  </div>
- 
+
  <!-- ********************************************************************** -->
  <h2 class="foldable">أمثلة</h2>
  <div>
   بعض هذه الأمثلة مُنجزٌ فعلاً مثل برنامج الترحيب وبرنامج حساب المضروب، والبعض الآخر سيُنجز في إصدارات لاحقة مثل تعريف الفئات.
-<pre dir=ltr class="samplecode">
-import "System";
+<pre dir=rtl class="samplecode" style="text-align:right;">
+اشمل "مـتم/طـرفية.أسس"؛
 
-def HelloWorld : namespace
+عرف بـسملة: حزمة
+{
+  عرف بداية: دالة
+  {
+    مـتم.طـرفية.اطبع("بسم الله الرحمن الرحيم")؛
+  }
+}
+</pre>
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def HelloWorld : module
 {
   def main : function
   {
-    print("Hello World!");
-    return 0
+    Srl.Console.print("Hello World!");
   }
 }
 </pre>
 <br/>
-<pre dir=ltr class="samplecode">
-import "System";
+<pre dir=rtl class="samplecode" style="text-align:right;">
+اشمل "مـتم/طـرفية.أسس"؛
 
-def Factorial : namespace
+عرف مـضروب: حزمة
+{
+  عرف مضروب: دالة (س:صحيح) => (صحيح)
+  {
+    إذا س == 0 أرجع 1 وإلا أرجع س * مضروب(س - 1)؛
+  }؛
+
+  عرف بداية: دالة
+  {
+    مـتم.طـرفية.اطبع("مضروب ")؛
+    مـتم.طـرفية.اطبع(5)؛
+    مـتم.طـرفية.اطبع(" = ")؛
+    مـتم.طـرفية.اطبع(مضروب(5))؛
+  }
+}
+</pre>
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def Factorial : module
 {
   def factorial : function (i:int)=>(int)
   {
     if i == 0 return 1 else return i * factorial(i-1)
   };
-  
+
   def main : function
   {
-    print("Factorial of %d is %d", 5, factorial(5));
-    return 0
+    Srl.Console.print("Factorial of %d is %d", 5, factorial(5));
   }
 }
 </pre>
 <br/>
-<pre dir=ltr class="samplecode">
-import "System";
+<pre dir=rtl class="samplecode" style="text-align:right;">
+اشمل "مـتم/طـرفية.أسس"؛
 
-def While : namespace
+عرف بـينما: حزمة
+{
+  عرف بداية: دالة
+  {
+    عرف س: صحيح = 1؛
+    بينما س < 10 {
+      مـتم.طـرفية.اطبع(س)؛
+      ++س؛
+    }
+  }
+}
+</pre>
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def While : module
 {
   def main : function
   {
     def i : int = 1;
     while i < 10 {
-      print("%d\n", i);
+      Srl.Coneole.print("%d\n", i);
       ++i;
     };
-    return 0
   }
 }
 </pre>
 <br/>
-<pre dir=ltr class="samplecode">
-import "System";
+<pre dir=rtl class="samplecode" style="text-align:right;">
+اشمل "مـتم/طـرفية.أسس"؛
 
-def Arrays : namespace
+عرف مـصفوفات: حزمة
+{
+  عرف بداية: دالة
+  {
+    عرف م: مصفوفة[صحيح](10)؛
+    لكل ع:صحيح=0، ع<10، ++ع م(ع) = ع؛
+    لكل ع:صحيح=0، ع<10، ++ع مـتم.طـرفية.اطبع(م(ع))؛
+  }
+}
+</pre>
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def Arrays : module
 {
   def main : function
   {
     def a : array[int](10);
     for i:int=0, i<10, ++i a(i) = i;
-    for i:int=0, i<10, ++i print("%d\n", a(i));
-    return 0
+    for i:int=0, i<10, ++i Srl.Console.print("%d\n", a(i));
   }
 }
 </pre>
 <br/>
-<pre dir=ltr class="samplecode">
-import "System";
+<pre dir=rtl class="samplecode" style="text-align:right;">
+اشمل "مـتم/طـرفية.أسس"؛
 
-def Pointers : namespace
+عرف مـؤشرات: حزمة
+{
+  عرف بداية: دالة
+  {
+    عرف م: مؤشر[صحيح]، ع: صحيح؛
+    ع = 10؛
+    م = ع~مؤشر؛
+    مـتم.طـرفية.اطبع(م)؛ // اطب عنوان ع.
+    مـتم.طـرفية.اطبع(م~محتوى)؛ // اطبع قيمة ع.
+  }
+}
+</pre>
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def Pointers : module
 {
   def main : function
   {
@@ -408,15 +513,32 @@ def Pointers : namespace
     p = i~ptr;
     print("%d\n", p);     // prints the address of i.
     print("%d\n", p~cnt); // prints the value of i.
-    return 0
   }
 }
 </pre>
 <br/>
-<pre dir=ltr class="samplecode">
-import "System";
+<pre dir=rtl class="samplecode" style="text-align:right;">
+اشمل "مـتم/طـرفية.أسس"؛
 
-def Casting : namespace
+عرف تـمثيل: حزمة
+{
+  عرف بداية: دالة
+  {
+    عرف ص: صحيح، ع: عائم؛
+    ص = 10؛
+    // عامل بتّات ص كمتغير فاصلة عائمة بفعل التالي:
+    // جلب عنوان ص،
+    // تمثيل عنوان ص كعنوان رقم عائم الفاصلة،
+    // جلب محتوى ذلك الرقم العائم.
+    ع = ص~مؤشر~مثل[مؤشر[عائم]]~محتوى؛
+    مـتم.طـرفية.اطبع(ع)؛
+  }
+}
+</pre>
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def Casting : module
 {
   def main : function
   {
@@ -427,18 +549,48 @@ def Casting : namespace
     // then cast the pointer to a pointer of float,
     // then take the contents of that float pointer.
     f = i~ptr~cast[ptr[float]]~cnt;
-    print("%f\n", f);
-    return 0
+    Srl.Console.print("%f\n", f);
   }
 }
 </pre>
 <br/>
-<pre dir=ltr class="samplecode">
-import "System";
+<pre dir=rtl class="samplecode" style="text-align:right;">
+اشمل "مـتم.أسس"؛
 
-def ClassDefinition : namespace
+عرف تـعريف_أصـناف: حزمة
 {
-  def BaseClass : class
+  عرف الـجذر: صنف
+  {
+    @خاص عرف س: صحيح؛
+    @خاص عرف ص: صحيح؛
+
+    @عام عرف هيئ: دالة (ا: صحيح، ب: صحيح)
+    {
+      هذا.س = ا؛
+      هذا.ص = ب؛
+    }؛
+    @عام عرف هات_س: دالة ()=>(صحيح) { أرجع هذا.س؛ }؛
+    @عام عرف هات_ص: دالة ()=>(صحيح) { أرجع هذا.ص؛ }؛
+  }؛
+
+  عرف الـثانوي: صنف يرث الـجذر
+  {
+    @خاص ع: صحيح؛
+    @عام عرف هيئ: دالة (ا: صحيح، ب: صحيح، ت: صحيح)
+    {
+      الموروث.هيئ(ا، ب)؛
+      هذا.ع = ت؛
+    }؛
+    @عام عرف هات_ع: دالة ()=>(صحيح) { أرجع هذا.ع؛ }؛
+  }
+}
+</pre>
+<pre dir=ltr class="samplecode">
+import "Srl.alusus";
+
+def ClassDefinition : module
+{
+  def BaseClass : type
   {
     @private def i : int;
     @private def j : int;
@@ -450,8 +602,8 @@ def ClassDefinition : namespace
     @public def getI : function ()=>(int) { return this.i };
     @public def getJ : function ()=>(int) { return this.j }
   };
-  
-  def ChildClass : class inherits BaseClass
+
+  def ChildClass : type inherits BaseClass
   {
     @private def k : int;
     @public def constructor : function (a:int, b:int, c:int)
@@ -467,7 +619,7 @@ def ClassDefinition : namespace
 
  </div>
  <div style="border-top: solid 1px; text-align: right; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2015م \ 1436هـ.<br/>
+  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2018م \ 1440هـ.<br/>
 نُشر هذا الملف برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0، والمضمّنة مع هذا الملف
 والمتوفرة أيضاً على الرابط <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>. يرجى قراءة الرخصة للتعرف على شروط الاستخدام والنسخ.</p>
  </div>

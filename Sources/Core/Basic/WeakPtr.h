@@ -2,7 +2,7 @@
  * @file Core/Basic/WeakPtr.h
  * Contains definition of Basic::WeakPtr template class.
  *
- * @copyright Copyright (C) 2014 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_WEAK_PTR_H
-#define BASIC_WEAK_PTR_H
+#ifndef CORE_BASIC_WEAK_PTR_H
+#define CORE_BASIC_WEAK_PTR_H
 
 namespace Core { namespace Basic
 {
@@ -80,6 +80,20 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
   }
 
   /**
+   * @brief Cast and return the subject of this shared pointer.
+   *
+   * Casting is done using static_cast.
+   *
+   * @tparam TO The requested type of the subject, not the pointer. In other
+   *            words, if you want to cast the pointer to My_Type,
+   *            TO must be My_Type, not My_Type*.
+   */
+  public: template <class TO> inline TO* s_cast_get() const
+  {
+    return static_cast<TO*>(this->lock().get());
+  }
+
+  /**
    * @brief Cast this weak pointer to a shared pointer of another data type.
    *
    * Casting is done using reinterpret_cast.
@@ -91,6 +105,20 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
   public: template <class TO> inline SharedPtr<TO> r_cast() const
   {
     return r_cast<TO>(this->lock());
+  }
+
+  /**
+   * @brief Cast and return the subject of this shared pointer.
+   *
+   * Casting is done using reinterpret_cast.
+   *
+   * @tparam TO The requested type of the subject, not the pointer. In other
+   *            words, if you want to cast the pointer to My_Type,
+   *            TO must be My_Type, not My_Type*.
+   */
+  public: template <class TO> inline TO* r_cast_get() const
+  {
+    return reinterpret_cast<TO*>(this->lock().get());
   }
 
   /**
@@ -108,37 +136,54 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
   }
 
   /**
-   * @brief Cast this weak pointer to a shared pointer of another data type.
+   * @brief Cast and return the subject of this shared pointer.
    *
-   * Casting is done using io_cast.
+   * Casting is done using const_cast.
    *
    * @tparam TO The requested type of the subject, not the pointer. In other
-   *            words, if you want to cast the pointer to WeakPtr<My_Type>,
-   *            TO must be My_Type, not WeakPtr<My_Type>.
+   *            words, if you want to cast the pointer to My_Type,
+   *            TO must be My_Type, not My_Type*.
    */
-  public: template <class TO> inline SharedPtr<TO> io_cast() const
+  public: template <class TO> inline TO* c_cast_get() const
   {
-    return io_cast<TO>(this->lock());
+    return const_cast<TO*>(this->lock().get());
   }
 
   /**
    * @brief Cast this weak pointer to a shared pointer of another data type.
    *
-   * Casting is done using ii_cast.
+   * Casting is done using ti_cast.
    *
    * @tparam TO The requested type of the subject, not the pointer. In other
    *            words, if you want to cast the pointer to WeakPtr<My_Type>,
    *            TO must be My_Type, not WeakPtr<My_Type>.
    */
-  public: template <class TO> inline SharedPtr<TO> ii_cast() const
+  public: template <class TO> inline SharedPtr<TO> ti_cast() const
   {
-    return ii_cast<TO>(this->lock());
+    return ti_cast<TO>(this->lock());
+  }
+
+  /**
+   * @brief Cast and return the subject of this shared pointer.
+   *
+   * Casting is done using ti_cast.
+   *
+   * @tparam TO The requested type of the subject, not the pointer. In other
+   *            words, if you want to cast the pointer to My_Type,
+   *            TO must be My_Type, not My_Type*.
+   */
+  public: template <class TO> inline TO* ti_cast_get() const
+  {
+    return Core::Basic::ti_cast<TO>(this->lock().get());
   }
 
   /// @}
 
 }; // class
 
+
+//==============================================================================
+// Helper Definitions
 
 template <class T, class T2> SharedPtr<T> s_cast(const std::weak_ptr<T2> &src)
 {
@@ -158,16 +203,80 @@ template <class T> SharedPtr<T>& c_cast(const std::weak_ptr<T> &src)
 }
 
 
-template <class T, class T2> SharedPtr<T>& io_cast(const std::weak_ptr<T2> &src)
+template <class T, class T2> SharedPtr<T>& ti_cast(const std::weak_ptr<T2> &src)
 {
-  return io_cast<T>(src.lock());
+  return ti_cast<T>(src.lock());
 }
 
 
-template <class T, class T2> SharedPtr<T>& ii_cast(const std::weak_ptr<T2> &src)
+/**
+ * @brief Get a weak pointer to the given TiObject based pointer.
+ * The function will get a weak pointer that shares ownership with existing
+ * shared pointers to this object. It will automatically cast it to the type of
+ * the passed pointer.
+ * @param obj A pointer to an object derived from TiObject.
+ */
+template <class T,
+          typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
+WeakPtr<T> getWeakPtr(T *obj)
 {
-  return ii_cast<T>(src.lock());
+  if (obj == 0) {
+    return WeakPtr<T>();
+  }
+  WeakPtr<TiObject> sp = obj->getWeakThis();
+  // Since T is derived from TiObject, casting will result in the same
+  // pointer value, so a reinterpret cast should be enough; creating a new
+  // temporary shared pointer is not necessary.
+  return std::move(*(reinterpret_cast<WeakPtr<T>*>(&sp)));
 }
+
+
+template <class T,
+          typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
+WeakPtr<T const> getWeakPtr(T const *obj)
+{
+  if (obj == 0) {
+    return WeakPtr<T const>();
+  }
+  WeakPtr<TiObject const> sp = obj->getWeakThis();
+  // Since T is derived from TiObject, casting will result in the same
+  // pointer value, so a reinterpret cast should be enough; creating a new
+  // temporary shared pointer is not necessary.
+  return std::move(*(reinterpret_cast<WeakPtr<T const>*>(&sp)));
+}
+
+
+template <class T,
+          typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
+WeakPtr<T> getWeakPtr(T *obj)
+{
+  if (obj == 0) {
+    return WeakPtr<T>();
+  }
+  WeakPtr<TiObject> sp = obj->getTiObject()->getWeakThis();
+  // Since T is derived from TiObject, casting will result in the same
+  // pointer value, so a reinterpret cast should be enough; creating a new
+  // temporary shared pointer is not necessary.
+  return std::move(*(reinterpret_cast<WeakPtr<T>*>(&sp)));
+}
+
+
+template <class T,
+          typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
+WeakPtr<T const> getWeakPtr(T const *obj)
+{
+  if (obj == 0) {
+    return WeakPtr<T const>();
+  }
+  WeakPtr<TiObject const> sp = obj->getTiObject()->getWeakThis();
+  // Since T is derived from TiObject, casting will result in the same
+  // pointer value, so a reinterpret cast should be enough; creating a new
+  // temporary shared pointer is not necessary.
+  return std::move(*(reinterpret_cast<WeakPtr<T const>*>(&sp)));
+}
+
+
+typedef WeakPtr<TiObject> TioWeakPtr;
 
 } } // namespace
 

@@ -1,0 +1,38 @@
+import "Srl/Console.alusus";
+import "Srl/String.alusus";
+
+def Main: module
+{
+  def start: function () => Void
+  {
+    // Search
+    Srl.Console.print("findChar '-': %s\n", Srl.String.findChar("123 - 456 - 789", '-'));
+    Srl.Console.print("findChar '-', 4: %d\n", Srl.String.findChar("123 - 456 - 789", '-', 4)~cast[Int[64]] != 0);
+    Srl.Console.print("findChar '-', 5: %d\n", Srl.String.findChar("123 - 456 - 789", '-', 5)~cast[Int[64]] != 0);
+    Srl.Console.print("findLastChar '-': %s\n", Srl.String.findLastChar("123 - 456 - 789", '-'));
+    Srl.Console.print("findString \"124\": %s\n", Srl.String.findString("123 - 124 - 125", "124"));
+
+    // Compare
+    Srl.Console.print("compare \"123\" to \"123\": %d\n", Srl.String.compare("123", "123"));
+    Srl.Console.print("compare \"123\" to \"1234\": %d\n", Srl.String.compare("123", "1234"));
+    Srl.Console.print("compare 3 \"123\" to \"1234\": %d\n", Srl.String.compare("123", "1234", 3));
+
+    // Copy
+    def buf: array[Char, 100];
+    Srl.String.copy(buf~ptr, "HELLO!");
+    Srl.Console.print("copy: %s\n", buf~ptr);
+    Srl.String.copy(buf~ptr, "hello world!", 6);
+    Srl.Console.print("copy 2: %s\n", buf~ptr);
+
+    // Concat
+    Srl.String.concat(buf~ptr, "world");
+    Srl.Console.print("concat: %s\n", buf~ptr);
+    Srl.String.concat(buf~ptr, "!!!!!", 2);
+    Srl.Console.print("concat 2: %s\n", buf~ptr);
+
+    // Lenght
+    Srl.Console.print("getLength: %d\n", Srl.String.getLength(buf~ptr));
+  };
+};
+
+run Main.start;

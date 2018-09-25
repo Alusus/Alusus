@@ -1,0 +1,25 @@
+import "Srl/Console.alusus";
+
+def Main: module
+{
+  def start: function () => Void
+  {
+    Srl.Console.print("Hello World!!\n");
+
+    def str: ptr[array[Char]];
+    str = "abcdefgh";
+    def i: Int;
+    for i = 0, i < 8, ++i {
+      Srl.Console.putChar(str~cnt(i));
+    };
+    Srl.Console.putChar('\n');
+    Srl.Console.print(416);
+    Srl.Console.putChar('\n');
+    Srl.Console.print(23.67);
+    Srl.Console.putChar('\n');
+    Srl.Console.print(23.67, 3);
+    Srl.Console.putChar('\n');
+  };
+};
+
+run Main.start;

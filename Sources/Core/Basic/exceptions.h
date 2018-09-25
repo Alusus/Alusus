@@ -2,7 +2,7 @@
  * @file Core/Basic/exceptions.h
  * Contains the declarations of all exception classes used by the core.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_EXCEPTIONS_H
-#define BASIC_EXCEPTIONS_H
+#ifndef CORE_BASIC_EXCEPTIONS_H
+#define CORE_BASIC_EXCEPTIONS_H
 
 namespace Core { namespace Basic
 {
@@ -86,7 +86,7 @@ class Exception : public std::exception
   /// Get the error message.
   public: virtual Str getErrorMessage() const throw()
   {
-    return STR("Unknown Exception");
+    return S("Unknown Exception");
   }
 
   /// Get an error message that includes error location details.
@@ -133,7 +133,7 @@ class GenericException : public Exception
 
   public: virtual Str getErrorMessage() const throw()
   {
-    return STR("Generic Exception: ") + this->comment;
+    return S("Generic Exception: ") + this->comment;
   }
 
 }; // class
@@ -336,9 +336,8 @@ class InvalidArgumentException : public Exception
 
 }; // class
 
-
-
 } } // namespace
+
 
 //==============================================================================
 // Exception Macros
@@ -370,7 +369,7 @@ class InvalidArgumentException : public Exception
     } \
     virtual Core::Basic::Str getErrorMessage() const throw() \
     { \
-      return Core::Basic::Str(title) + STR(": ") + this->getComment(); \
+      return Core::Basic::Str(S(title)) + S(": ") + this->getComment(); \
     } \
   }
 

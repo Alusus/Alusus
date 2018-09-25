@@ -1,0 +1,23 @@
+def x: {
+  def x1: {
+
+  };
+
+  def x2: {
+    def x21: "hello";
+    def x22: "world"
+  };
+};
+
+def y: {
+  def a1: alias x.x2.x21;
+  def a2: alias x.x2;
+
+  def y1: {
+    def y2: alias a1;
+  }
+};
+
+dump_ast y.a1;
+dump_ast y.a2.x22;
+dump_ast y.y1.y2;

@@ -1,0 +1,56 @@
+import "libalusus_spp.so";
+
+def f1: function (x:Int, args:...Int)=>void
+{
+};
+
+def f2: function (x:Int, args:...any)=>void
+{
+};
+
+def f3: function (x:Int, args:...[Int])=>void
+{
+};
+
+def f4: function (x:Int, args:...[any])=>void
+{
+};
+
+def f5: function (x:Int, args:...[Int, 1, 5])=>void
+{
+};
+
+def f6: function (x:Int, args:...[any, 1, 5])=>void
+{
+};
+
+def e1: function (x:Int, args:++Int)=>void
+{
+};
+
+def e2: function (x:Int, args:...[])=>void
+{
+};
+
+def e3: function (x:Int, args:...[Int, 1, 5, 3])=>void
+{
+};
+
+def e4: function (x:Int, args:...(Int, 1, 5))=>void
+{
+};
+
+def e5: function (x:Int, args:...[Int, "1", "5"])=>void
+{
+};
+
+def e6: function (x:Int, args:...any, y:Int)=>void
+{
+};
+
+dump_ast f1;
+dump_ast f2;
+dump_ast f3;
+dump_ast f4;
+dump_ast f5;
+dump_ast f6;

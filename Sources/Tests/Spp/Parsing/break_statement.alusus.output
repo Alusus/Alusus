@@ -1,0 +1,38 @@
+ERROR SPPH1012 @ (12,7): Invalid break statement.
+ERROR SPPH1012 @ (13,7): Invalid break statement.
+ERROR SPPH1012 @ (19,7): Invalid break statement.
+ERROR SPPH1012 @ (20,7): Invalid break statement.
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatementList]
+ Definition [Main.Def] start: Function  [Subject.Function]
+  type: FunctionType [Subject.Function]
+   argTypes: NULL
+   retType: Identifier: Void [Subject.Parameter]
+  body: Block [Main.BlockStatementList]
+   Definition [Main.Def] i: ParamPass [] [Expression.ParamPassExp]
+    operand: Identifier: Int [Subject.Parameter]
+    param: IntegerLiteral: 32 [Subject.Literal]
+   WhileStatement [Main.While]
+    condition: ComparisonOperator > [Expression.ComparisonExp]
+     first: Identifier: i [Subject.Parameter]
+     second: IntegerLiteral: 0 [Subject.Literal]
+    body: Block [Main.BlockStatementList]
+     BreakStatement [Main.Break]
+      steps: NULL
+     BreakStatement [Main.Break]
+      steps: IntegerLiteral: 2 [Subject.Literal]
+   ForStatement [Main.For]
+    initializer: AssignmentOperator = [Expression.AssignmentExp]
+     first: Identifier: i [Subject.Parameter]
+     second: IntegerLiteral: 0 [Subject.Literal]
+    condition: ComparisonOperator < [Expression.ComparisonExp]
+     first: Identifier: i [Subject.Parameter]
+     second: IntegerLiteral: 5 [Subject.Literal]
+    updater: PrefixOperator ++ [Expression.UnaryExp]
+     operand: Identifier: i [Subject.Parameter]
+    body: Block [Main.BlockStatementList]
+     BreakStatement [Main.Break]
+      steps: NULL
+     BreakStatement [Main.Break]
+      steps: IntegerLiteral: 2 [Subject.Literal]
+------------------------------------------------------

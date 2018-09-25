@@ -1,0 +1,99 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+  def T1: type
+  {
+    def x: Int[32];
+    def y: Int[32];
+  };
+
+  def TA1: type
+  {
+    def i: Int[32];
+    def ai: array[Int[32], 4];
+  };
+
+  def getArray: function (m: Int[32])=>array[Int[32], 5]
+  {
+    def a: array[Int[32], 5];
+    def i: Int[32];
+    i = 0;
+    while i < 5 {
+      a(i) = (i+1) * m;
+      i = i + 1;
+    };
+    return a;
+  };
+
+  def printArray: function (a: array[Int[32], 5])=>Void
+  {
+    def i: Int[32];
+    i = 0;
+    while i < 5 {
+      print("a(%d) = %d\n", i, a(i));
+      i = i + 1;
+    };
+  };
+
+  def start: function
+  {
+    def i: Int[32];
+
+    // array declarations.
+    def ai: array[Int[32], 5];
+    def aai: array[array[Int[32], 5], 3];
+    def apc: array[ptr[Word[8]], 4];
+    def af: array[Float[64], 7];
+    def at: array[T1, 9];
+    def ta: TA1;
+
+    // storing into array elements.
+    ai(2) = 5;
+    aai(2)(4) = 23;
+    apc(1) = "hello world!";
+    af(0) = 1.2;
+    at(7).y = 43;
+    ta.ai(3) = 89;
+
+    // reading array elements.
+    print("ai(2) = %d\n", ai(2));
+    print("aai(2)(4) = %d\n", aai(2)(4));
+    print("apc(1) = %s\n", apc(1));
+    print("af(0) = %f\n", af(0));
+    print("at(7).y = %d\n", at(7).y);
+    print("ta.ai(3) = %d\n", ta.ai(3));
+
+    i = 0;
+    while i < 5 {
+      ai(i) = i * i;
+      i = i + 1
+    };
+
+    while i > 0 {
+      i = i - 1;
+      print("ai(%d) = %d\n", i, ai(i))
+    };
+
+    apc(0) = "abc";
+    apc(1) = "def";
+    apc(2) = "ghi";
+    apc(3) = "jkl";
+
+    while i < 4 {
+      print("apc(%d) = %s\n", i, apc(i));
+      i = i + 1
+    };
+
+    print("getArray(2)(3) = %d\n", getArray(2)(3));
+    print("printArray(getArray(3)):\n");
+    printArray(getArray(3));
+    print("getArray => ai => printArray:\n");
+    ai = getArray(4);
+    printArray(ai);
+  }
+};
+
+run Main.start;

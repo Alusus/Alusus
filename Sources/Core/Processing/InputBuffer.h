@@ -2,7 +2,7 @@
  * @file Core/Processing/InputBuffer.h
  * Contains the header of class Core::Processing::InputBuffer.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,15 +10,15 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_INPUTBUFFER_H
-#define PROCESSING_INPUTBUFFER_H
+#ifndef CORE_PROCESSING_INPUTBUFFER_H
+#define CORE_PROCESSING_INPUTBUFFER_H
 
 namespace Core { namespace Processing
 {
 
 /**
  * @brief A buffer for input characters with character positions.
- * @ingroup processing_lexer
+ * @ingroup core_processing
  *
  * This class contains a buffer for input characters and manages the positions
  * of the characters within the source code. The class doesn't store the
@@ -41,7 +41,7 @@ class InputBuffer
   private: struct CharacterGroup
   {
     /// The location of the first character in the group.
-    Data::SourceLocation sourceLocation;
+    Data::SourceLocationRecord sourceLocation;
 
     /// The number of characters in the group.
     Int length;
@@ -92,7 +92,7 @@ class InputBuffer
   /// @{
 
   /// Push a new character to the end of the buffer.
-  public: Bool push(WChar ch, Data::SourceLocation const &sl, Bool force=false);
+  public: Bool push(WChar ch, Data::SourceLocationRecord const &sl, Bool force=false);
 
   /// Remove a group of characters from the beginning of the buffer.
   public: void remove(Int count);
@@ -121,9 +121,9 @@ class InputBuffer
   }
 
   /// Get the source location of the first character in the buffer.
-  public: Data::SourceLocation const& getSourceLocation() const
+  public: Data::SourceLocationRecord const& getSourceLocation() const
   {
-    static Data::SourceLocation nullSL;
+    static Data::SourceLocationRecord nullSL;
     if (this->charGroups.size() == 0) return nullSL;
     else return this->charGroups.at(0).sourceLocation;
   }

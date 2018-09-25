@@ -1,0 +1,37 @@
+def a: {
+  func("test");
+  i = b.i :: 5;
+  strVar := "Hello World";
+  intVar += 5;
+  --intVar;
+  intVar++;
+  --intVar++;
+  intVar+++;
+  opVar = i + j * k;
+
+  listVar = (1, 2, 3, 4, 5);
+  hashVar = (a:1, b:2, c:3);
+  bracketVar = a + (b + c);
+
+  @test do "mylib.so";
+  do s:10;
+  do (s:10) @<test;
+  do [s:10];
+
+  do {
+    strVar = "Hello World";
+    intVar = 5;
+    intVar--;
+    opVar = i + j * k;
+
+    listVar = (1, 2, 3, 4, 5);
+    hashVar = (a:1, b:2, c:3);
+    bracketVar = a + (b + c);
+
+    do s:10;
+  };
+
+  a = b~(c);
+};
+
+dump_ast a;

@@ -1,0 +1,19 @@
+import "globals.alusus";
+
+@merge def Srl : module
+{
+  def String: module
+  {
+    def findChar: @expname[strchr] function (s: ptr[Char], c: Int) => ptr[Char];
+    def findChar: @expname[memchr] function (s: ptr[Void], c: Int, n: Int[64]) => ptr[Void];
+    def findLastChar: @expname[strrchr] function (s: ptr[Char], c: Int) => ptr[Char];
+    def findString: @expname[strstr] function (haystack: ptr[Char], needle: ptr[Char]) => ptr[Char];
+    def compare: @expname[strcmp] function (s1: ptr[Char], s2: ptr[Char]) => Int;
+    def compare: @expname[strncmp] function (s1: ptr[Char], s2: ptr[Char], n: Int[64]) => Int;
+    def copy: @expname[strcpy] function (dest: ptr[Char], src: ptr[Char]) => ptr[Void];
+    def copy: @expname[strncpy] function (dest: ptr[Char], src: ptr[Char], n: Int[64]) => ptr[Void];
+    def concat: @expname[strcat] function (dest: ptr[Char], src: ptr[Char]) => ptr[Char];
+    def concat: @expname[strncat] function (dest: ptr[Char], src: ptr[Char], n: Int[64]) => ptr[Char];
+    def getLength: @expname[strlen] function (s: ptr[Char]) => Int[64];
+  };
+};

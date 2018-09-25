@@ -1,0 +1,11 @@
+import "Srl/System.alusus";
+
+def Main: module
+{
+  def start: function
+  {
+    Srl.System.exec("ls");
+  };
+};
+
+run Main.start;

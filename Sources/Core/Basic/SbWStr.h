@@ -2,7 +2,7 @@
  * @file Core/Basic/SbWStr.h
  * Contains the header of class Core::Basic::SbWStr.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef BASIC_SBWSTR_H
-#define BASIC_SBWSTR_H
+#ifndef CORE_BASIC_SBWSTR_H
+#define CORE_BASIC_SBWSTR_H
 
 namespace Core { namespace Basic
 {
@@ -189,8 +189,8 @@ template <class T> SbWStr& sbwstr_cast(T *b)
  *
  * This wrapper is needed for future purposes. The main purpose of this is to
  * allow easy conversion of the program from ascii to unicode. This macro can
- * be thought as a combination of the STR macro and sbwstr_cast.
- * Usage: SBWSTR("hello") == STR("hello")
+ * be thought as a combination of the S macro and sbwstr_cast.
+ * Usage: SBWSTR("hello") == S("hello")
  */
 #define SBWSTR(x)    Core::Basic::sbwstr_cast(x)
 

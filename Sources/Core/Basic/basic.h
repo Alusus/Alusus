@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Basic
  * namespace.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -11,14 +11,14 @@
  */
 //==============================================================================
 
-#ifndef BASIC_BASIC_H
-#define BASIC_BASIC_H
+#ifndef CORE_BASIC_BASIC_H
+#define CORE_BASIC_BASIC_H
 
 namespace Core { namespace Basic
 {
 
 /**
- * @defgroup basic Basic
+ * @defgroup core_basic Basic
  * @ingroup core
  * @brief Basic types and definitions used throughout the core.
  * This namespace contains definitions for basic datatypes and other definitions
@@ -27,65 +27,11 @@ namespace Core { namespace Basic
 
 
 //==============================================================================
-// Basic Datatypes
-
-/**
- * @defgroup basic_datatypes Basic Datatypes
- * @ingroup basic
- * @brief Wrapper definitions for basic datatypes.
- */
-
-/// @ingroup basic_datatypes
-typedef unsigned char Byte;
-
-/// @ingroup basic_datatypes
-typedef char Char;
-
-/// @ingroup basic_datatypes
-typedef wchar_t WChar;
-
-/// @ingroup basic_datatypes
-typedef int Int;
-
-/// @ingroup basic_datatypes
-typedef short ShortInt;
-
-/**
- * @brief An integer of the same size as pointers.
- * This is used for pointer arithmetics.
- * @ingroup basic_datatypes
- */
-typedef long long int PtrInt;
-
-/// @ingroup basic_datatypes
-typedef float Float;
-
-/// @ingroup basic_datatypes
-typedef bool Bool;
-
-/// @ingroup basic_datatypes
-typedef unsigned int Word;
-
-/// @ingroup basic_datatypes
-typedef unsigned short ShortWord;
-
-/**
- * @brief A word of the same size as pointers.
- * This is used for things lik IDs that need to be the same size as pointers.
- * @ingroup basic_datatypes
- */
-typedef unsigned long long int PtrWord;
-
-/// @ingroup basic_datatypes
-typedef std::stringstream StrStream;
-
-
-//==============================================================================
 // Basic Constants
 
 /**
  * @defgroup basic_constants Basic Constants
- * @ingroup basic
+ * @ingroup core_basic
  * @brief Wrapper definitions for basic constants.
  */
 
@@ -108,7 +54,7 @@ typedef std::stringstream StrStream;
  * This constant is needed for future purposes. The main purpose of this is to
  * allow easy conversion of the program from ascii to unicode.
  */
-#define NEW_LINE            '\n'
+#define NEW_LINE            u8'\n'
 
 /**
  * @brief Defines a generic unknown identifier.
@@ -151,7 +97,7 @@ typedef std::stringstream StrStream;
 
 /**
  * @defgroup basic_macros Basic Macros
- * @ingroup basic
+ * @ingroup core_basic
  * @brief Wrapper definitions for basic macros.
  */
 
@@ -163,7 +109,7 @@ typedef std::stringstream StrStream;
  * allow easy conversion of the program from ascii to unicode. Every string
  * literal in the source code should be wrapped by this macro.
  */
-#define STR(x)	u8##x
+#define S(x)	u8##x
 
 /**
  * @brief Wrapper for character literals.
@@ -173,19 +119,133 @@ typedef std::stringstream StrStream;
  * allow easy conversion of the program from ascii to unicode. Every character
  * literal in the source code should be wrapped by this macro.
  */
-#define CHR(x)	x
+#define C(x)	u8##x
 
 /**
  * @brief Wrapper for wide character literals.
  * @ingroup basic_macros
  */
-#define WCHR(x) U##x
+#define WC(x) U##x
 
 /**
  * @brief Maps to the standard C++ assert function.
  * @ingroup basic_macros
  */
 #define ASSERT(x) assert(x)
+
+/**
+ * @brief Select a macro based on number of arguments.
+ * @ingroup basic_macros
+ *
+ * This helper macro selects one of ten provided macros based on the number of
+ * arguments provided in a variable-args macro.
+ *
+ * Usage: SELECT_MACRO(__VA_ARGS__, macro10, macro9, macro8 ...)
+ */
+#define SELECT_MACRO(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, macro, ...) macro
+
+/**
+ * @def SPACE_EXPAND_ARGS(...)
+ * @brief Expands a variadic macro into sequential elements separated by spaces.
+ * @ingroup basic_macros
+ */
+#define SPACE_EXPAND_ARGS1(arg1)                               arg1
+#define SPACE_EXPAND_ARGS2(arg1, arg2)                         arg1 arg2
+#define SPACE_EXPAND_ARGS3(arg1, arg2, arg3)                   arg1 arg2 arg3
+#define SPACE_EXPAND_ARGS4(arg1, arg2, arg3, arg4)             arg1 arg2 arg3 arg4
+#define SPACE_EXPAND_ARGS5(arg1, arg2, arg3, arg4, arg5)       arg1 arg2 arg3 arg4 arg5
+#define SPACE_EXPAND_ARGS6(arg1, arg2, arg3, arg4, arg5, arg6) arg1 arg2 arg3 arg4 arg5 arg6
+#define SPACE_EXPAND_ARGS(...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               SPACE_EXPAND_ARGS6, \
+               SPACE_EXPAND_ARGS5, \
+               SPACE_EXPAND_ARGS4, \
+               SPACE_EXPAND_ARGS3, \
+               SPACE_EXPAND_ARGS2, \
+               SPACE_EXPAND_ARGS1)(__VA_ARGS__)
+
+/**
+ * @def SEMICOLON_EXPAND_ARGS(...)
+ * @brief Expands a variadic macro into sequential elements separated by spaces.
+ * @ingroup basic_macros
+ */
+#define SEMICOLON_EXPAND_ARGS0()
+#define SEMICOLON_EXPAND_ARGS1(arg1)                               arg1
+#define SEMICOLON_EXPAND_ARGS2(arg1, arg2)                         arg1; arg2
+#define SEMICOLON_EXPAND_ARGS3(arg1, arg2, arg3)                   arg1; arg2; arg3
+#define SEMICOLON_EXPAND_ARGS4(arg1, arg2, arg3, arg4)             arg1; arg2; arg3; arg4
+#define SEMICOLON_EXPAND_ARGS5(arg1, arg2, arg3, arg4, arg5)       arg1; arg2; arg3; arg4; arg5
+#define SEMICOLON_EXPAND_ARGS6(arg1, arg2, arg3, arg4, arg5, arg6) arg1; arg2; arg3; arg4; arg5; arg6
+#define SEMICOLON_EXPAND_ARGS(...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, \
+               SEMICOLON_EXPAND_ARGS6, \
+               SEMICOLON_EXPAND_ARGS5, \
+               SEMICOLON_EXPAND_ARGS4, \
+               SEMICOLON_EXPAND_ARGS3, \
+               SEMICOLON_EXPAND_ARGS2, \
+               SEMICOLON_EXPAND_ARGS1, \
+               SEMICOLON_EXPAND_ARGS0)(__VA_ARGS__)
+
+/**
+ * @def COMMA_EXPAND_ARGS(...)
+ * @brief Expands a variadic macro into sequential elements separated by commas.
+ * @ingroup basic_macros
+ */
+#define COMMA_EXPAND_ARGS(...) __VA_ARGS__
+
+/**
+ * @brief Selects the variable name from a var tuple.
+ * The tuple consists of: type, name, setter, getter, hold method.
+ * @ingroup basic_macros
+ */
+#define VARNAME_FROM_TUPLE(name, ...) name
+
+/**
+ * @brief Selects the variable name as a string from a type/name pair.
+ * The tuple consists of: type, name, setter, getter, hold type.
+ * @ingroup basic_macros
+ */
+#define VARNAMESTR_FROM_TUPLE(name, ...) S(#name)
+
+/**
+ * @brief Selects the variable type from a var tuple.
+ * The tuple consists of: type, name, setter, getter, hold method.
+ * @ingroup basic_macros
+ */
+#define VARTYPE_FROM_TUPLE(name, type, ...) type
+
+/**
+ * @brief Selects the variable hold type from a var tuple.
+ * The tuple consists of: type, name, setter, getter, hold method.
+ * @ingroup basic_macros
+ */
+#define VARHOLDMODE_FROM_TUPLE(name, type, holdMode, ...) holdMode
+
+/**
+ * @def VARSETTER_FROM_TUPLE(...)
+ * @brief Selects the variable's setter from a var tuple.
+ * The tuple consists of: type, name, setter, getter, hold method.
+ * @ingroup basic_macros
+ */
+#define VARSETTER_FROM_TUPLE_WITH_HOLD(name, type, holdMode, setter, ...) setter
+#define VARSETTER_FROM_TUPLE_WITHOUT_HOLD(name, type, setter, ...) setter
+#define VARSETTER_FROM_TUPLE(name, type, ...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, _, _, \
+               VARSETTER_FROM_TUPLE_WITH_HOLD, \
+               VARSETTER_FROM_TUPLE_WITHOUT_HOLD)(name, type, __VA_ARGS__)
+
+/**
+ * @def VARGETTER_FROM_TUPLE(...)
+ * @brief Selects the variable's getter from a var tuple.
+ * The tuple consists of: type, name, setter, getter, hold method.
+ * @ingroup basic_macros
+ */
+#define VARGETTER_FROM_TUPLE_WITH_HOLD(name, type, holdMode, setter, getter) getter
+#define VARGETTER_FROM_TUPLE_WITHOUT_HOLD(name, type, setter, getter) getter
+#define VARGETTER_FROM_TUPLE(name, type, ...) \
+  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, _, _, \
+               VARGETTER_FROM_TUPLE_WITH_HOLD, \
+               VARGETTER_FROM_TUPLE_WITHOUT_HOLD)(name, type, __VA_ARGS__)
 
 /**
  * @brief Defines an enumeration.
@@ -197,9 +257,9 @@ typedef std::stringstream StrStream;
  * <br>
  * Usage: this macro takes the type name in the first argument, followed by
  * a variable list of arguments defining the enum values. Ex:<br>
- * enumeration(My_Type, VAL1, VAL2=8, V3);
+ * s_enum(My_Type, VAL1, VAL2=8, V3);
  */
-#define enumeration(x,...) \
+#define s_enum(x,...) \
   struct x \
   { \
     enum _##x {__VA_ARGS__} val; \
@@ -210,6 +270,49 @@ typedef std::stringstream StrStream;
     bool operator !=(x v) const { return this->val != v.val; } \
     bool operator ==(_##x v) const { return this->val == v; } \
     bool operator !=(_##x v) const { return this->val != v; } \
+    bool operator >(x v) const { return this->val > v.val; } \
+    bool operator >=(x v) const { return this->val >= v.val; } \
+    bool operator >(_##x v) const { return this->val > v; } \
+    bool operator >=(_##x v) const { return this->val >= v; } \
+    bool operator <(x v) const { return this->val < v.val; } \
+    bool operator <=(x v) const { return this->val <= v.val; } \
+    bool operator <(_##x v) const { return this->val < v; } \
+    bool operator <=(_##x v) const { return this->val <= v; } \
+  }
+
+/**
+ * @brief Defines an RttiObject based enumeration.
+ * @ingroup basic_macros
+ *
+ * This is similar to s_enum, but it derives the new type from RttiObject or one
+ * of its children.
+ *
+ * @sa s_enum
+ * @sa RttiObject
+ */
+#define ti_s_enum(x, p, typeNamespace, moduleName, url, ...) \
+  class x : public p \
+  { \
+    TYPE_INFO(x, p, typeNamespace, moduleName, url); \
+    public: \
+      enum _##x {__VA_ARGS__}; \
+      x() : p(0) {} \
+      x(_##x v) : p(v) {} \
+      const x& operator=(_##x v) { this->set(v); return *this; } \
+      const x& operator=(x const &v) { this->set(v.get()); return *this; } \
+      bool operator ==(x const &v) const { return this->get() == v.get(); } \
+      bool operator !=(x const &v) const { return this->get() != v.get(); } \
+      bool operator ==(_##x v) const { return this->get() == v; } \
+      bool operator !=(_##x v) const { return this->get() != v; } \
+      bool operator >(x const &v) const { return this->get() > v.get(); } \
+      bool operator >=(x const &v) const { return this->get() >= v.get(); } \
+      bool operator >(_##x v) const { return this->get() > v; } \
+      bool operator >=(_##x v) const { return this->get() >= v; } \
+      bool operator <(x const &v) const { return this->get() < v.get(); } \
+      bool operator <=(x const &v) const { return this->get() <= v.get(); } \
+      bool operator <(_##x v) const { return this->get() < v; } \
+      bool operator <=(_##x v) const { return this->get() <= v; } \
+      _##x get() const { return static_cast<_##x>(p::get()); } \
   }
 
 /**
@@ -275,7 +378,7 @@ typedef std::stringstream StrStream;
  * @param x The value to be logged. This can be a combination of values using the
  *          &lt;&lt; operator. Ex: LOG(1, "error: " &lt;&lt; code);
  */
-#define LOG(l,x)  Logger(l) << __FILE__ << "(" << __LINE__ << "): " << x << NEW_LINE
+#define LOG(l,x)  Logger(l) << __FILE__ << S("(") << __LINE__ << S("): ") << x << NEW_LINE
 
 /**
  * @brief Constant definitions for different levels of log messages.
@@ -296,7 +399,7 @@ typedef std::stringstream StrStream;
  * &lt;x&gt;_MAJOR: Refers to major events. This should be used for messages
  *                 that can give the reader simple high level info.
  */
-enumeration(LogLevel,
+s_enum(LogLevel,
     LEXER_MINOR = 1,
     LEXER_MID = 2,
     LEXER_MAJOR = 4,
@@ -313,11 +416,83 @@ enumeration(LogLevel,
 
 
 //==============================================================================
+// Basic Datatypes
+
+/**
+ * @defgroup basic_datatypes Basic Datatypes
+ * @ingroup core_basic
+ * @brief Wrapper definitions for basic datatypes.
+ */
+
+/// @ingroup basic_datatypes
+typedef unsigned char Byte;
+
+/// @ingroup basic_datatypes
+typedef char Char;
+
+/// @ingroup basic_datatypes
+typedef wchar_t WChar;
+
+/// @ingroup basic_datatypes
+typedef int Int;
+
+/// @ingroup basic_datatypes
+typedef short ShortInt;
+
+/// @ingroup basic_datatypes
+typedef long long int LongInt;
+
+/**
+ * @brief An integer of the same size as pointers.
+ * This is used for pointer arithmetics.
+ * @ingroup basic_datatypes
+ */
+typedef long long int PtrInt;
+
+/// @ingroup basic_datatypes
+typedef float Float;
+
+/// @ingroup basic_datatypes
+typedef double Double;
+
+/// @ingroup basic_datatypes
+typedef bool Bool;
+
+/// @ingroup basic_datatypes
+typedef unsigned int Word;
+
+/// @ingroup basic_datatypes
+typedef unsigned short ShortWord;
+
+/// @ingroup basic_datatypes
+typedef unsigned long long int LongWord;
+
+/**
+ * @brief A word of the same size as pointers.
+ * This is used for things lik IDs that need to be the same size as pointers.
+ * @ingroup basic_datatypes
+ */
+typedef unsigned long long int PtrWord;
+
+/// @ingroup basic_datatypes
+typedef std::stringstream StrStream;
+
+/// @ingroup basic_datatypes
+typedef std::ostream OutStream;
+
+/// @ingroup basic_datatypes
+typedef std::istream InStream;
+
+/// @ingroup basic_datatypes
+s_enum(ContentChangeOp, ADDED, WILL_UPDATE, UPDATED, WILL_REMOVE, REMOVED);
+
+
+//==============================================================================
 // Function Definitions
 
 /**
  * @defgroup basic_functions Basic Functions
- * @ingroup basic
+ * @ingroup core_basic
  * @brief Wrapper definitions for basic functions.
  */
 
@@ -463,13 +638,28 @@ void convertStr(WChar const *input, int inputLength, Char *output, int outputSiz
  */
 WChar getWideCharFromUtf8(Char const *s);
 
+/// Print 'indents' number of spaces.
+void printIndents(OutStream &stream, int indents);
+
+/**
+ * @brief Generate an Str from the given format and args.
+ * @ingroup basic_functions
+ */
+template<typename ... Args> std::string formatString(Char const *format, Args ...args )
+{
+  std::size_t size = std::snprintf(nullptr, 0, format, args...) + 1;
+  std::unique_ptr<char[]> buf(new char[size]);
+  snprintf(buf.get(), size, format, args...);
+  return std::string(buf.get(), buf.get() + size - 1);
+}
+
 
 //==============================================================================
 // Global Variable Definitions
 
 /**
  * @brief A reference to std::cout to use to output to the console.
- * @ingroup basic
+ * @ingroup core_basic
  *
  * This should be used to output to the console instead of directly using
  * std::cout, in order to minimize the needed changes in case we needed to
@@ -478,18 +668,29 @@ WChar getWideCharFromUtf8(Char const *s);
 extern std::ostream &outStream;
 
 
+/**
+ * @brief A reference to std::cin to use to input from the console.
+ * @ingroup core_basic
+ *
+ * This should be used to input from the console instead of directly using
+ * std::cin, in order to minimize the needed changes in case we needed to
+ * support wide characters in the input stream.
+ */
+extern std::istream &inStream;
+
+
 //==============================================================================
 // Other Group Definitions
 
 /**
  * @defgroup basic_utils Basic Utilities
- * @ingroup basic
+ * @ingroup core_basic
  * @brief Wrapper definitions for basic utility classes.
  */
 
 /**
  * @defgroup basic_exceptions Basic Exceptions
- * @ingroup basic
+ * @ingroup core_basic
  * @brief Wrapper definitions for basic exception classes.
  */
 
@@ -503,19 +704,60 @@ extern std::ostream &outStream;
 #include "SbWStr.h"
 #include "Str.h"
 #include "WStr.h"
+
 #include "Logger.h"
 #include "exceptions.h"
+#include "validators.h"
+
 #include "SortedIndex.h"
 #include "default_sorted_indices.h"
+
 #include "GlobalStorage.h"
-#include "TypeInfo.h"
-#include "IdentifiableObject.h"
-#include "IdentifiableInterface.h"
+
+#include "type_names.h"
+#include "type_info.h"
+#include "ti_declarers.h"
+#include "TiObject.h"
+#include "TiInterface.h"
+#include "ObjTiInterface.h"
+#include "ti_casters.h"
+
 #include "SharedPtr.h"
 #include "WeakPtr.h"
-#include "SignalReverseConnector.h"
-#include "SignalReceiver.h"
+
+#include "ti_object_factories.h"
+
+#include "Finally.h"
 #include "signals.h"
-#include "arguments.h"
+
+#include "Argument.h"
+
+#include "Containing.h"
+#include "ListContaining.h"
+#include "MapContaining.h"
+#include "containing_helpers.h"
+
+#include "SharedList.h"
+#include "PlainList.h"
+#include "SharedMap.h"
+#include "PlainMap.h"
+#include "Box.h"
+
+#include "TiNumber.h"
+#include "TiStr.h"
+#include "TiWStr.h"
+#include "TiBool.h"
+#include "ti_functions.h"
+
+#include "Binding.h"
+#include "BindingMap.h"
+#include "binding_helpers.h"
+#include "DynamicBinding.h"
+#include "binding_caches.h"
+
+#include "ObjTiInterfaceList.h"
+#include "DynamicInterfacing.h"
+
+#include "constructor_helpers.h"
 
 #endif

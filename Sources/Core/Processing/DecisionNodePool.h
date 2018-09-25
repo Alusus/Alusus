@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef PROCESSING_DECISIONNODEPOOL_H
-#define PROCESSING_DECISIONNODEPOOL_H
+#ifndef CORE_PROCESSING_DECISIONNODEPOOL_H
+#define CORE_PROCESSING_DECISIONNODEPOOL_H
 
 namespace Core { namespace Processing
 {
