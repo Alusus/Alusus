@@ -8,20 +8,8 @@ source code.
 COPYRIGHT
 =========
 
-Copyright (C) 2015
-The copyright for this project is owned by the following persons:
-
-Sarmad Khalid Abdullah owns the copyright to the files under:
-/Doc
-/Source/Core
-/Source/Tests/CoreTests
-
-Rafid Khalid Abdullah owns the copyright to the files under:
-/Source/Scg
-/Source/Tests/ScgTests
-/Source/Tests/EndToEndTests
-
-The copyright of each file is also mentioned in that file.
+Copyright (C) 2018.
+The copyright for this project is owned by Sarmad Khalid Abdullah.
 
 
 LICENSE
@@ -60,16 +48,19 @@ Directory Structure
                 the language specifications, implementation documentation,
                 and source code inline documentation.
 
-/Source         Contains the entire source code.
-/Source/Core    Contains the source code of the Core.
-/Source/SCG     Contains the source code of the Standard Code Generators.
-/Source/Tests   Contains automated test projects for both the Core and the
-                SCG.
+/Sources        Contains the entire source code.
+/Sources/Core   Contains the source code of the Core.
+/Sources/Spp    Contains the source code of the Standard Programming Paradigm
+                library.
+/Sources/Srt    Contains the source for the Standard Runtime Library.
+/Sources/Tests  Contains automated test projects for Core and the standard
+                libraries.
 
-/Examples       Contains sample code including an example code generator and
-                some Alusus examples.
+/Notices_L18n   Contains localizations for build notices.
 
-/Scripts        Contains various development helper scripts.
+/Examples       Contains examples written in Alusus.
+
+/Tools          Contains various development helper scripts.
 
 
 File Name Language Extension
