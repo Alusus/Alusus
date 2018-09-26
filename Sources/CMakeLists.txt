@@ -42,7 +42,7 @@ endif()
 
 # Prepare compile and link flags.
 STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
-set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -fno-rtti")
+set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wno-unused-result -fno-rtti")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
 else()

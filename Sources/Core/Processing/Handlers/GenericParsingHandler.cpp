@@ -102,10 +102,6 @@ void GenericParsingHandler::onLevelExit(Parser *parser, ParserState *state,
 void GenericParsingHandler::onNewToken(Parser *parser, ParserState *state,
                                        const Token *token)
 {
-  // Get the term object.
-  Grammar::TokenTerm *term = static_cast<Grammar::TokenTerm*>(state->refTopTermLevel().getTerm());
-  ASSERT(term->isA<Grammar::TokenTerm>());
-
   TiObject *matchText = state->getTokenTermText();
   // Skip if the term should be omitted.
   TiInt *flags = state->getTermFlags();
