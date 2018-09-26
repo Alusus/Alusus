@@ -1,6 +1,80 @@
 Alusus Changelog
 ================
 
+Version 0.3.0 (2018-09-26)
+--------------------------
+
+What's New:
+
+  * Improved the support for basic data types. The list now includes:
+    - 8, 16, 32, and 64 bit integers.
+    - 8, 16, 32, and 64 bit words (unsigned ints).
+    - 32 and 64 bit floats.
+    - boolean.
+  * Basic types are now templates that take the size as argument. e.g. Int[16],
+    Float[64]. Default size is considered if no params are provided.
+  * Added support for function pointers.
+  * Enabled pointer comparisons and casting between pointers and integers.
+  * Added support for `else` clause in if statements.
+  * Added support for `break` command in loops.
+  * Added support for `continue` command in loops.
+  * Added support for modifiers.
+  * Added proper support for namespacing.
+  * Enable merging definitions through the @merge modifier. This will allow
+    adding more definitions into existing modules or types.
+  * Signature can be omitted now from function definitions if it has no args and
+    return void.
+  * Added a Standard Runtime Library which includes the following sub modules:
+    - Console: Functions used in the terminal.
+    - System: Misc system functions.
+    - Memory: Memory allocation and other related functions.
+    - String: Manipulating and accessing strings.
+    - File: File access functions.
+    - Math: Math functions.
+  * Removed the `link` command and replaced it with a modifier on normal
+    function definitions.
+  * Declaring user types is now done with the `type` keyword instead of
+    `struct`.
+  * Referencing arrays is now done with parenthesis instead of square brackets.
+  * Renamed SCG (Standard Code Generator) into SPP (Standard Programming
+    Paradigm).
+  * Added `dump_ast` command to dump the AST tree of a certain element.
+  * Renamed the `build` command, which only dumped the LLVM IR code, to
+    `dump_llvm_ir`.
+  * The `run` command now takes a reference to the entry point function, which
+    now can be named anything.
+  * Supported internationalization in build notices.
+  * Improvements to implicit casting.
+  * Various small improvements in expressions.
+  * Added a simple interactive mode, though this is mostly useful for Alusus
+    compiler or code generator developers rather than end users.
+
+Fixes:
+
+  * Improved build error messages.
+  * Fixed issues where build error location was not reported correctly.
+  * Fixed an issue in generating functions with non-ascii names.
+  * Improved automated test coverage and unified all tests around simpler E2E
+    tests.
+  * Many bug fixes.
+
+Internal Changes:
+
+  * Complete re-write of the standard library to streamline it and make it more
+    maintainable.
+  * Major refactoring in the Core to simplify the code base.
+  * Split target specific code in the standard library (SPP) from the rest of
+    the library, making it easier in the future to target platforms other than
+    LLVM.
+  * Added support for template interfaces.
+  * Implemented dynamic interfaces.
+  * Standard libraries can now be dynamically modified at run time.
+  * Removed dependency on Boost and Catch.
+  * Switched the build to C++17.
+  * Few changes in naming conventions.
+  * Disabled RTTI, which is no longer needed.
+
+
 Version 0.2.1 (2015-11-28)
 --------------------------
 
@@ -16,7 +90,7 @@ What's New:
     to store compiled code. This work is a preparation to start implementing
     namespaces and other object-oriented features.
   * Improved performance of the parser.
-  
+
 Fixes:
 
   * Fixed the naming convention of the SCG source code.
