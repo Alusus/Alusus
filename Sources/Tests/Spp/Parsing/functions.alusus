@@ -24,6 +24,10 @@ def f6: function (X:Int, args:...any)=>void;
 
 def f7: @expname[f7] function (X:ptr[Int[8]]);
 
+def f8: function (x)=>void
+{
+};
+
 dump_ast f1;
 dump_ast f2;
 dump_ast f3;

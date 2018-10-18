@@ -1,6 +1,6 @@
 /**
- * @file Core/Processing/Handlers/ListParsingHandler.h
- * Contains the header of class Core::Processing::Handlers::ListParsingHandler
+ * @file Core/Processing/Handlers/SequenceParsingHandler.h
+ * Contains the header of class Core::Processing::Handlers::SequenceParsingHandler
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,20 +10,20 @@
  */
 //==============================================================================
 
-#ifndef CORE_PROCESSING_HANDLERS_LISTPARSINGHANDLER_H
-#define CORE_PROCESSING_HANDLERS_LISTPARSINGHANDLER_H
+#ifndef CORE_PROCESSING_HANDLERS_SEQUENCEPARSINGHANDLER_H
+#define CORE_PROCESSING_HANDLERS_SEQUENCEPARSINGHANDLER_H
 
-namespace Core { namespace Processing { namespace Handlers
+namespace Core::Processing::Handlers
 {
 
 // TODO: DOC
 
-template <class TYPE> class ListParsingHandler : public GenericParsingHandler
+template <class TYPE> class SequenceParsingHandler : public GenericParsingHandler
 {
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(ListParsingHandler, GenericParsingHandler, "Core.Processing.Handlers", "Core", "alusus.net",
+  TEMPLATE_TYPE_INFO(SequenceParsingHandler, GenericParsingHandler, "Core.Processing.Handlers", "Core", "alusus.net",
                      (TYPE));
 
 
@@ -37,7 +37,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
   //============================================================================
   // Constructor
 
-  public: ListParsingHandler(Int sIndex = -1, Bool ro = true) : startIndex(sIndex), rootOnly(ro)
+  public: SequenceParsingHandler(Int sIndex = -1, Bool ro = true) : startIndex(sIndex), rootOnly(ro)
   {
   }
 
@@ -86,6 +86,7 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
         newContainer->setElement(this->startIndex + 0, currentData);
         newContainer->setElement(this->startIndex + 1, data.get());
         state->setData(list, levelIndex);
+        return;
       }
     }
     GenericParsingHandler::addData(data, state, levelIndex);
@@ -107,6 +108,6 @@ template <class TYPE> class ListParsingHandler : public GenericParsingHandler
 
 }; // class
 
-} } } // namespace
+} // namespace
 
 #endif

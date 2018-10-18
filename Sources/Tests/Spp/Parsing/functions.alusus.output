@@ -1,6 +1,8 @@
 ERROR CP1005 @ (11,10): Unexpected modifier encountered.
 ERROR CP1005 @ (15,10): Unexpected modifier encountered.
 ERROR CP1005 @ (19,10): Unexpected modifier encountered.
+ERROR SPPH1003 @ (27,18): Invalid function signature.
+ERROR CD1003 @ (27,1): Invalid 'def' command.
 ------------------ Parsed Data Dump ------------------
 Function f1 [Subject.Function]
  type: FunctionType [Subject.Function]

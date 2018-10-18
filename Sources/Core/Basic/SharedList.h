@@ -233,6 +233,10 @@ template<class CTYPE, class PTYPE=TiObject> class SharedList : public PTYPE, pub
 
   public: void set(Int index, SharedPtr<CTYPE> const &val)
   {
+    if (index == this->getCount()) {
+      this->add(val);
+      return;
+    }
     if (static_cast<Word>(index) >= this->list.size()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
     }

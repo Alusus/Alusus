@@ -1,0 +1,96 @@
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  NULL
+  NULL
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  NULL
+  NULL
+  NULL
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  NULL
+  IntegerLiteral: 1 [Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  NULL
+  NULL
+  IntegerLiteral: 1 [Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  IntegerLiteral: 1 [Subject.Literal]
+  IntegerLiteral: 2 [Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  IntegerLiteral: 1 [Subject.Literal]
+  IntegerLiteral: 2 [Subject.Literal]
+  IntegerLiteral: 3 [Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  IntegerLiteral: 1 [Subject.Literal]
+  NULL
+  IntegerLiteral: 3 [Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  IntegerLiteral: 1 [Subject.Literal]
+  NULL
+  NULL
+  IntegerLiteral: 3 [Subject.Literal]
+  NULL
+  IntegerLiteral: 4 [Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  IntegerLiteral: 1 [Subject.Literal]
+  IntegerLiteral: 2 [Subject.Literal]
+  IntegerLiteral: 3 [Subject.Literal]
+  NULL
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  IntegerLiteral: 1 [Subject.Literal]
+  IntegerLiteral: 2 [Subject.Literal]
+  IntegerLiteral: 3 [Subject.Literal]
+  NULL
+  NULL
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  NULL
+  IntegerLiteral: 1 [Subject.Literal]
+  IntegerLiteral: 2 [Subject.Literal]
+  NULL
+  IntegerLiteral: 4 [Subject.Literal]
+  NULL
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Bracket () [Subject.Subject1]
+ operand: List [Expression.ListExp]
+  NULL
+  NULL
+  IntegerLiteral: 1 [Subject.Literal]
+  IntegerLiteral: 2 [Subject.Literal]
+  NULL
+  NULL
+  IntegerLiteral: 4 [Subject.Literal]
+  NULL
+  NULL
+------------------------------------------------------

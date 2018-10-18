@@ -1176,14 +1176,14 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
       {S("data"), PARSE_REF(S("args.enable"))},
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LowerLinkExp")) }}),
-        ConcatTerm::create({}, {
+        ConcatTerm::create({
+          {S("flags"), TiInt::create(ParsingFlags::ENFORCE_LIST_ITEM)}
+        }, {
           {S("terms"), List::create({}, {
             AlternateTerm::create({}, {
               {S("terms"), List::create({}, {
                 ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LowerLinkExp")) }}),
-                ConcatTerm::create({
-                  {S("flags"), TiInt::create(ParsingFlags::ENFORCE_LIST_ITEM)}
-                }, {
+                ConcatTerm::create({}, {
                   {S("terms"), List::create({}, {
                     TokenTerm::create({
                       {S("flags"), TiInt::create(ParsingFlags::ENFORCE_TOKEN_OMIT)},
@@ -1203,7 +1203,9 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
             }),
             MultiplyTerm::create({
               {S("priority"), std::make_shared<TiInt>(1)},
-              {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)}
+              {S("flags"), TiInt::create(
+                TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP|ParsingFlags::ENFORCE_LIST_ITEM
+              )}
             }, {
               {S("term"), ConcatTerm::create({}, {
                 {S("terms"), List::create({}, {
@@ -1227,7 +1229,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
       })}
     })},
     {S("vars"), Map::create(false, {}, {{S("enable"), std::make_shared<TiInt>(1)}})},
-    {S("handler"), std::make_shared<ListParsingHandler<Ast::List>>(-1, false)}
+    {S("handler"), std::make_shared<ListExpParsingHandler<Ast::List>>()}
   }));
 
   // LowerLinkExp : @single @prefix(heap.Modifiers.LowerLinkModifierCmd)
