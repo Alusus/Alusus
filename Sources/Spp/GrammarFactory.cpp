@@ -442,6 +442,46 @@ void GrammarFactory::createGrammar(
     })}
   }).get());
 
+  // Macro
+  this->set(S("root.Subject.Macro"), SymbolDefinition::create({}, {
+    {S("term"), PARSE_REF(S("root.Cmd"))},
+    {S("vars"), Map::create(false, {}, {
+      {S("kwd"), Map::create(false, {}, { { S("macro"), 0 }, { S("ماكرو"), 0 } })},
+      {S("prms"), List::create({}, {
+        Map::create(false, {}, {
+          {S("prd"), PARSE_REF(S("root.MacroSignature"))},
+          {S("min"), std::make_shared<TiInt>(0)},
+          {S("max"), std::make_shared<TiInt>(1)},
+          {S("pty"), std::make_shared<TiInt>(1)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
+        }),
+        Map::create(false, {}, {
+          {S("prd"), PARSE_REF(S("root.Expression"))},
+          {S("min"), std::make_shared<TiInt>(0)},
+          {S("max"), std::make_shared<TiInt>(1)},
+          {S("pty"), std::make_shared<TiInt>(1)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
+        })
+      })}
+    })},
+    {S("handler"), std::make_shared<Handlers::MacroParsingHandler>() }
+  }).get());
+  innerCmdList->add(PARSE_REF(S("module.Macro")));
+  // Macro Signature
+  this->set(S("root.MacroSignature"), Module::create({
+    {S("baseRef"), PARSE_REF(S("root.Subject")) },
+    {S("startRef"), PARSE_REF(S("module.Subject2")) }
+  }).get());
+  this->set(S("root.MacroSignature.Subject2"), SymbolDefinition::create({
+   {S("baseRef"), PARSE_REF(S("bmodule.Subject2"))},
+  }, {
+    {S("vars"), Map::create(false, {}, {
+      {S("sbj"), PARSE_REF(S("root.Expression"))},
+      {S("fltr"), std::make_shared<TiInt>(2)},
+      {S("frc"), std::make_shared<TiInt>(1)}
+    })}
+  }).get());
+
   // Block
   this->set(S("root.Block"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("root.Set"))},
@@ -601,6 +641,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->removeReferenceFromCommandList(innerCmdList, S("module.Module"));
   this->removeReferenceFromCommandList(innerCmdList, S("module.Type"));
   this->removeReferenceFromCommandList(innerCmdList, S("module.Function"));
+  this->removeReferenceFromCommandList(innerCmdList, S("module.Macro"));
 
   // Delete definitions.
   this->tryRemove(S("root.Main.DumpLlvmIr"));
@@ -619,6 +660,8 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Subject.Function"));
   this->tryRemove(S("root.FuncSigExpression"));
   this->tryRemove(S("root.FuncSigSubject"));
+  this->tryRemove(S("root.Subject.Macro"));
+  this->tryRemove(S("root.MacroSignature"));
   this->tryRemove(S("root.Block"));
   this->tryRemove(S("root.BlockSubject"));
   this->tryRemove(S("root.BlockExpression"));

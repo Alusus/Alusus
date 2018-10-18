@@ -61,6 +61,7 @@ ti_s_enum(TypeMatchStatus,
 #include "ArrayType.h"
 #include "UserType.h"
 #include "FunctionType.h"
+#include "Macro.h"
 // Containers
 #include "Module.h"
 #include "Template.h"

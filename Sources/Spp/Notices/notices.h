@@ -107,6 +107,9 @@ DEFINE_NOTICE(InvalidContinueStatementNotice, "Spp.Notices", "Spp", "alusus.net"
 DEFINE_NOTICE(InvalidBreakStatementNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1012", 1,
   "Invalid break statement."
 );
+DEFINE_NOTICE(InvalidMacroArgNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1013", 1,
+  "Invalid macro argumnet."
+);
 
 } // namespace
 
