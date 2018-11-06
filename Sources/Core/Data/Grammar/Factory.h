@@ -43,7 +43,7 @@ class Factory
   //============================================================================
   // Member Functions
 
-  protected: void setRootScope(ListContaining<TiObject> *rootScope);
+  protected: void setRootScope(DynamicContaining<TiObject> *rootScope);
 
   protected: void set(Char const* qualifier, TiObject *val);
   protected: void set(Char const* qualifier, TioSharedPtr const &val)

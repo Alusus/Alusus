@@ -97,10 +97,6 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
   } \
   VARSETTER_FROM_TUPLE var
 
-// Remove a single member
-#define _REMOVE_MEMBER(var) \
-  auto value = (VARTYPE_FROM_TUPLE var*)0; VARSETTER_FROM_TUPLE var
-
 // Get a single member
 #define _GET_MEMBER(var) \
   VARGETTER_FROM_TUPLE var
@@ -168,58 +164,6 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
                _IMPLEMENT_BINDING_INDEXSET3, \
                _IMPLEMENT_BINDING_INDEXSET2, \
                _IMPLEMENT_BINDING_INDEXSET1)(parent, __VA_ARGS__)
-
-// Cases for removeMember(key)
-#define _IMPLEMENT_BINDING_KEYREMOVE_CASE(varIndex, varNameStr, var) \
-  if (SBSTR(key) == varNameStr) { \
-    _REMOVE_MEMBER(var); return; \
-  }
-#define _IMPLEMENT_BINDING_KEYREMOVE1(var1) \
-  _IMPLEMENT_BINDING_KEYREMOVE_CASE(0, VARNAMESTR_FROM_TUPLE var1, var1)
-#define _IMPLEMENT_BINDING_KEYREMOVE2(var1, var2) \
-  _IMPLEMENT_BINDING_KEYREMOVE_CASE(0, VARNAMESTR_FROM_TUPLE var1, var1) \
-  _IMPLEMENT_BINDING_KEYREMOVE_CASE(1, VARNAMESTR_FROM_TUPLE var2, var2)
-#define _IMPLEMENT_BINDING_KEYREMOVE3(var1, var2, var3) \
-  _IMPLEMENT_BINDING_KEYREMOVE2(var1, var2) \
-  _IMPLEMENT_BINDING_KEYREMOVE_CASE(2, VARNAMESTR_FROM_TUPLE var3, var3)
-#define _IMPLEMENT_BINDING_KEYREMOVE4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDING_KEYREMOVE3(var1, var2, var3) \
-  _IMPLEMENT_BINDING_KEYREMOVE_CASE(3, VARNAMESTR_FROM_TUPLE var4, var4)
-#define _IMPLEMENT_BINDING_KEYREMOVE5(var1, var2, var3, var4, var5) \
-  _IMPLEMENT_BINDING_KEYREMOVE4(var1, var2, var3, var4) \
-  _IMPLEMENT_BINDING_KEYREMOVE_CASE(4, VARNAMESTR_FROM_TUPLE var5, var5)
-#define _IMPLEMENT_BINDING_KEYREMOVE(...) \
-  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
-               _IMPLEMENT_BINDING_KEYREMOVE5, \
-               _IMPLEMENT_BINDING_KEYREMOVE4, \
-               _IMPLEMENT_BINDING_KEYREMOVE3, \
-               _IMPLEMENT_BINDING_KEYREMOVE2, \
-               _IMPLEMENT_BINDING_KEYREMOVE1)(__VA_ARGS__)
-
-// Cases for removeMember(index)
-#define _IMPLEMENT_BINDING_INDEXREMOVE_CASE(parent, varIndex, var) \
-  if (index == parent::getMemberCount() + varIndex) { _REMOVE_MEMBER(var); return; }
-#define _IMPLEMENT_BINDING_INDEXREMOVE1(parent, var1) \
-  _IMPLEMENT_BINDING_INDEXREMOVE_CASE(parent, 0, var1)
-#define _IMPLEMENT_BINDING_INDEXREMOVE2(parent, var1, var2) \
-  _IMPLEMENT_BINDING_INDEXREMOVE_CASE(parent, 0, var1) \
-  _IMPLEMENT_BINDING_INDEXREMOVE_CASE(parent, 1, var2)
-#define _IMPLEMENT_BINDING_INDEXREMOVE3(parent, var1, var2, var3) \
-  _IMPLEMENT_BINDING_INDEXREMOVE2(parent, var1, var2) \
-  _IMPLEMENT_BINDING_INDEXREMOVE_CASE(parent, 2, var3)
-#define _IMPLEMENT_BINDING_INDEXREMOVE4(parent, var1, var2, var3, var4) \
-  _IMPLEMENT_BINDING_INDEXREMOVE3(parent, var1, var2, var3) \
-  _IMPLEMENT_BINDING_INDEXREMOVE_CASE(parent, 3, var4)
-#define _IMPLEMENT_BINDING_INDEXREMOVE5(parent, var1, var2, var3, var4, var5) \
-  _IMPLEMENT_BINDING_INDEXREMOVE4(parent, var1, var2, var3, var4) \
-  _IMPLEMENT_BINDING_INDEXREMOVE_CASE(parent, 4, var5)
-#define _IMPLEMENT_BINDING_INDEXREMOVE(parent, ...) \
-  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, \
-               _IMPLEMENT_BINDING_INDEXREMOVE5, \
-               _IMPLEMENT_BINDING_INDEXREMOVE4, \
-               _IMPLEMENT_BINDING_INDEXREMOVE3, \
-               _IMPLEMENT_BINDING_INDEXREMOVE2, \
-               _IMPLEMENT_BINDING_INDEXREMOVE1)(parent, __VA_ARGS__)
 
 // Cases for getMember(key)
 #define _IMPLEMENT_BINDING_KEYGET_CASE(varIndex, varNameStr, var) \
@@ -433,16 +377,6 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
   { \
     _IMPLEMENT_BINDING_INDEXSET(parent, __VA_ARGS__); \
     parent::setMember(index, val); \
-  } \
-  public: virtual void removeMember(Char const *key) \
-  { \
-    _IMPLEMENT_BINDING_KEYREMOVE(__VA_ARGS__); \
-    parent::removeMember(key); \
-  } \
-  public: virtual void removeMember(Int index) \
-  { \
-    _IMPLEMENT_BINDING_INDEXREMOVE(parent, __VA_ARGS__); \
-    parent::removeMember(index); \
   } \
   public: virtual Word getMemberCount() const \
   { \

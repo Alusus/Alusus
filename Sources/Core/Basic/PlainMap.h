@@ -16,13 +16,13 @@
 namespace Core { namespace Basic
 {
 
-template<class CTYPE, class PTYPE=TiObject> class PlainMap : public PTYPE, public virtual MapContaining<CTYPE>
+template<class CTYPE, class PTYPE=TiObject> class PlainMap : public PTYPE, public virtual DynamicMapContaining<CTYPE>
 {
   //============================================================================
   // Type Info
 
   TEMPLATE_TYPE_INFO(PlainMap, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE), (
-    INHERITANCE_INTERFACES(MapContaining<CTYPE>)
+    INHERITANCE_INTERFACES(DynamicMapContaining<CTYPE>)
   ));
 
 
@@ -464,6 +464,16 @@ template<class CTYPE, class PTYPE=TiObject> class PlainMap : public PTYPE, publi
 
   /// @name Containing Implementation
   /// @{
+
+  public: virtual Int addElement(Char const *key, CTYPE *val)
+  {
+    return this->add(key, val);
+  }
+
+  public: virtual void insertElement(Int index, Char const *key, CTYPE *val)
+  {
+    this->insert(index, key, val);
+  }
 
   public: virtual void setElement(Int index, CTYPE *val)
   {

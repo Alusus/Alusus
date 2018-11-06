@@ -19,14 +19,14 @@ namespace Core::Data::Grammar
 // TODO: DOC
 
 class SymbolDefinition : public Node,
-                         public virtual Binding, public virtual MapContaining<TiObject>,
+                         public virtual Binding, public virtual ExMapContaining<TiObject>,
                          public virtual Initializable, public virtual IdHaving, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SymbolDefinition, Node, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Binding, MapContaining<TiObject>, Initializable, IdHaving, DataHaving)
+    INHERITANCE_INTERFACES(Binding, ExMapContaining<TiObject>, Initializable, IdHaving, DataHaving)
   ));
 
 
@@ -105,13 +105,13 @@ class SymbolDefinition : public Node,
     (flags, TiObject, SHARED_REF, setFlags(value), flags.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (term, Node, setTerm(value), term.get()),
-    (varDefs, Node, setVarDefs(value), varDefs.get()),
-    (vars, Node, setVars(value), vars.get()),
-    (attributes, Node, setAttributes(value), attributes.get()),
-    (modifierTranslations, Map, setModifierTranslations(value), modifierTranslations.get()),
-    (handler, BuildHandler, setBuildHandler(value), handler.get())
+  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>,
+    (term, Node, SHARED_REF, setTerm(value), term.get()),
+    (varDefs, Node, SHARED_REF, setVarDefs(value), varDefs.get()),
+    (vars, Node, SHARED_REF, setVars(value), vars.get()),
+    (attributes, Node, SHARED_REF, setAttributes(value), attributes.get()),
+    (modifierTranslations, Map, SHARED_REF, setModifierTranslations(value), modifierTranslations.get()),
+    (handler, BuildHandler, SHARED_REF, setBuildHandler(value), handler.get())
   );
 
 

@@ -57,7 +57,7 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
 }
 
 
-Module* getGrammarRoot(ListContaining<TiObject> *rootScope, Bool createIfMissing)
+Module* getGrammarRoot(DynamicContaining<TiObject> *rootScope, Bool createIfMissing)
 {
   VALIDATE_NOT_NULL(rootScope);
 

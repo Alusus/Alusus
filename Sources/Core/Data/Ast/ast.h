@@ -101,10 +101,10 @@ class Definition;
 
 SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj);
 
-Bool mergeDefinition(Definition *def, ListContaining<TiObject> *target, Notices::Store *noticeStore);
-Bool addPossiblyMergeableElement(TiObject *src, ListContaining<TiObject> *target, Notices::Store *noticeStore);
+Bool mergeDefinition(Definition *def, DynamicContaining<TiObject> *target, Notices::Store *noticeStore);
+Bool addPossiblyMergeableElement(TiObject *src, DynamicContaining<TiObject> *target, Notices::Store *noticeStore);
 Bool addPossiblyMergeableElements(
-  Containing<TiObject> *src, ListContaining<TiObject> *target, Notices::Store *noticeStore
+  Containing<TiObject> *src, DynamicContaining<TiObject> *target, Notices::Store *noticeStore
 );
 
 } // namespace

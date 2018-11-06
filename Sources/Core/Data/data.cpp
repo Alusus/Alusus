@@ -124,20 +124,20 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
         stream << S(" [") << IdGenerator::getSingleton()->getDesc(id) << S("]");
       }
     }
-    ListContaining<TiObject> *listContainer;
     MapContaining<TiObject> *mapContainer;
-    if ((listContainer = ptr->getInterface<ListContaining<TiObject>>()) != 0) {
-      for (Word i = 0; i < listContainer->getElementCount(); ++i) {
-        stream << S("\n");
-        printIndents(stream, indents + 1);
-        dumpData(stream, listContainer->getElement(i), indents+1);
-      }
-    } else if ((mapContainer = ptr->getInterface<MapContaining<TiObject>>()) != 0) {
+    Containing<TiObject> *container;
+    if ((mapContainer = ptr->getInterface<MapContaining<TiObject>>()) != 0) {
       for (Word i = 0; i < mapContainer->getElementCount(); ++i) {
         stream << S("\n");
         printIndents(stream, indents+1);
         stream << mapContainer->getElementKey(i).c_str() << S(": ");
         dumpData(stream, mapContainer->getElement(i), indents+1);
+      }
+    } else if ((container = ptr->getInterface<Containing<TiObject>>()) != 0) {
+      for (Word i = 0; i < container->getElementCount(); ++i) {
+        stream << S("\n");
+        printIndents(stream, indents + 1);
+        dumpData(stream, container->getElement(i), indents+1);
       }
     } else if (ptr->isA<TioSharedBox>()) {
       TioSharedBox *sharedBox = static_cast<TioSharedBox*>(ptr);

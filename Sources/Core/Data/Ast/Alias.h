@@ -17,14 +17,14 @@ namespace Core { namespace Data { namespace Ast
 {
 
 class Alias : public Node,
-              public virtual Binding, public virtual MapContaining<TiObject>, public virtual MetaHaving,
+              public virtual Binding, public virtual ExMapContaining<TiObject>, public virtual MetaHaving,
               public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Alias, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, ExMapContaining<TiObject>, MetaHaving, Clonable, Printable);
 
 
   //============================================================================
@@ -43,7 +43,9 @@ class Alias : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (reference, TiObject, setReference(value), reference.get()));
+  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>,
+    (reference, TiObject, SHARED_REF, setReference(value), reference.get())
+  );
 
   IMPLEMENT_AST_LIST_CLONABLE(Scope);
 

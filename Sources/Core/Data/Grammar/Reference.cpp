@@ -47,7 +47,7 @@ Bool Reference::removeValue(TiObject *parent) const
   VALIDATE_NOT_NULL(parent);
 
   if (this->next == 0) {
-    MapContaining<TiObject> *container = parent->getInterface<MapContaining<TiObject>>();
+    DynamicMapContaining<TiObject> *container = parent->getInterface<DynamicMapContaining<TiObject>>();
     if (container == 0) return false;
 
     if (this->cachedIndex < 0 || this->cachedIndex >= container->getElementCount()) {

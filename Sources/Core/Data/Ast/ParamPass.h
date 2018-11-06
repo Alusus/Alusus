@@ -19,14 +19,14 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class ParamPass : public Node,
-                  public virtual Binding, public virtual MapContaining<TiObject>, public virtual MetaHaving,
+                  public virtual Binding, public virtual ExMapContaining<TiObject>, public virtual MetaHaving,
                   public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ParamPass, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, ExMapContaining<TiObject>, MetaHaving, Clonable, Printable);
 
 
   //============================================================================
@@ -48,9 +48,9 @@ class ParamPass : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (operand, TiObject, setOperand(value), operand.get()),
-    (param, TiObject, setParam(value), param.get())
+  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>,
+    (operand, TiObject, SHARED_REF, setOperand(value), operand.get()),
+    (param, TiObject, SHARED_REF, setParam(value), param.get())
   );
 
   IMPLEMENT_AST_MAP_PRINTABLE(ParamPass, << (this->type == BracketType::ROUND ? S("()") : S("[]")));

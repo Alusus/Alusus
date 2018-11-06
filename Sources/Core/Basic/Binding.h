@@ -25,12 +25,6 @@ template <class RT, class ...ARGS> RT call(Binding *self, Char const *name, ARGS
 
 
 //==============================================================================
-// Types
-
-s_enum(HoldMode, SHARED_REF, WEAK_REF, PLAIN_REF, OWNER, VALUE);
-
-
-//==============================================================================
 // Binding Interface
 
 class Binding : public TiInterface
@@ -49,15 +43,6 @@ class Binding : public TiInterface
     throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found"), name);
   }
   public: virtual void setMember(Int index, TiObject *val)
-  {
-    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
-  }
-
-  public: virtual void removeMember(Char const *name)
-  {
-    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found"), name);
-  }
-  public: virtual void removeMember(Int index)
   {
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }

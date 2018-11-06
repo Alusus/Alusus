@@ -16,13 +16,13 @@
 namespace Core { namespace Basic
 {
 
-template<class CTYPE, class PTYPE=TiObject> class PlainList : public PTYPE, public virtual ListContaining<CTYPE>
+template<class CTYPE, class PTYPE=TiObject> class PlainList : public PTYPE, public virtual DynamicContaining<CTYPE>
 {
   //============================================================================
   // Type Info
 
   TEMPLATE_TYPE_INFO(PlainList, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE), (
-    INHERITANCE_INTERFACES(ListContaining<CTYPE>)
+    INHERITANCE_INTERFACES(DynamicContaining<CTYPE>)
   ));
 
 

@@ -28,14 +28,14 @@ namespace Core { namespace Data { namespace Ast
  * compose the Parsing Representation Tree (PRT).
  */
 class Route : public Node,
-              public virtual Binding, public virtual MapContaining<TiObject>, public virtual MetaHaving,
+              public virtual Binding, public virtual ExMapContaining<TiObject>, public virtual MetaHaving,
               public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Route, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, ExMapContaining<TiObject>, MetaHaving, Clonable, Printable);
 
 
   //============================================================================
@@ -72,7 +72,9 @@ class Route : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (data, TiObject, setData(value), data.get()));
+  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>,
+    (data, TiObject, SHARED_REF, setData(value), data.get())
+  );
 
   IMPLEMENT_AST_LIST_PRINTABLE(Route, << this->route.get());
 

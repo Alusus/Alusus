@@ -365,7 +365,7 @@ Bool TargetGenerator::prepareFunctionBody(
 
 
 Bool TargetGenerator::finishFunctionBody(
-  TiObject *function, TiObject *functionType, ListContaining<TiObject> *args, TiObject *context
+  TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
 ) {
   PREPARE_ARG(functionType, functionTypeWrapper, FunctionType);
   auto voidRetType = functionTypeWrapper->getRetType().ti_cast_get<VoidType>();

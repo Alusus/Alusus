@@ -486,6 +486,9 @@ typedef std::istream InStream;
 /// @ingroup basic_datatypes
 s_enum(ContentChangeOp, ADDED, WILL_UPDATE, UPDATED, WILL_REMOVE, REMOVED);
 
+/// @ingroup basic_datatypes
+s_enum(HoldMode, SHARED_REF, WEAK_REF, PLAIN_REF, VALUE);
+
 
 //==============================================================================
 // Function Definitions
@@ -733,8 +736,10 @@ extern std::istream &inStream;
 #include "Argument.h"
 
 #include "Containing.h"
-#include "ListContaining.h"
+#include "DynamicContaining.h"
 #include "MapContaining.h"
+#include "DynamicMapContaining.h"
+#include "ExMapContaining.h"
 #include "containing_helpers.h"
 
 #include "SharedList.h"

@@ -16,13 +16,13 @@
 namespace Core::Data
 {
 
-class NbList : public Node, public virtual ListContaining<TiObject>, public virtual DataHaving
+class NbList : public Node, public virtual DynamicContaining<TiObject>, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(NbList, Node, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(ListContaining<TiObject>, DataHaving)
+    INHERITANCE_INTERFACES(DynamicContaining<TiObject>, DataHaving)
   ));
 
 
@@ -170,7 +170,7 @@ class NbList : public Node, public virtual ListContaining<TiObject>, public virt
 
   /// @}
 
-  /// @name ListContaining Implementation
+  /// @name DynamicContaining Implementation
   /// @{
 
   public: virtual void setElement(Int index, TiObject *val)

@@ -54,7 +54,7 @@ class StandardFactory : public Factory
   // Member Functions
 
   /// Create the entire core grammar.
-  public: void createGrammar(ListContaining<TiObject> *rootScope, Main::RootManager *root, Bool exprOnly);
+  public: void createGrammar(DynamicContaining<TiObject> *rootScope, Main::RootManager *root, Bool exprOnly);
 
   /// Create the list of char group definitions for the Core's grammar.
   private: void createCharGroupDefinitions();

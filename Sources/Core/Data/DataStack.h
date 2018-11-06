@@ -19,13 +19,13 @@ namespace Core::Data
 /**
  * @brief A stack of TiObject derived data objects.
  */
-class DataStack : public TiObject, public virtual ListContaining<TiObject>
+class DataStack : public TiObject, public virtual DynamicContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(DataStack, TiObject, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(ListContaining<TiObject>)
+    INHERITANCE_INTERFACES(DynamicContaining<TiObject>)
   ));
 
 
@@ -104,7 +104,7 @@ class DataStack : public TiObject, public virtual ListContaining<TiObject>
 
   /// @}
 
-  /// @name ListContaining Implementation
+  /// @name DynamicContaining Implementation
   /// @{
 
   public: virtual void setElement(Int index, TiObject *val)

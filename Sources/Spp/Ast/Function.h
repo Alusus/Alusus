@@ -19,7 +19,7 @@ namespace Spp::Ast
 class FunctionType;
 
 class Function : public Core::Data::Node,
-                 public virtual Binding, public virtual MapContaining<TiObject>,
+                 public virtual Binding, public virtual ExMapContaining<TiObject>,
                  public virtual Core::Data::Ast::MetaHaving,
                  public virtual Core::Data::Clonable, public virtual Core::Data::Printable
 {
@@ -27,7 +27,7 @@ class Function : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(Function, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, MapContaining<TiObject>,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, ExMapContaining<TiObject>,
                                          Core::Data::Ast::MetaHaving,
                                          Core::Data::Clonable, Core::Data::Printable);
 
@@ -53,9 +53,9 @@ class Function : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (type, FunctionType, setType(value), type.get()),
-    (body, Block, setBody(value), body.get())
+  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>,
+    (type, FunctionType, SHARED_REF, setType(value), type.get()),
+    (body, Block, SHARED_REF, setBody(value), body.get())
   );
 
   IMPLEMENT_AST_MAP_PRINTABLE(Function, << this->name.get());

@@ -257,7 +257,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
     Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, RemoveCallback const&, Word)
   );
   public: METHOD_BINDING_CACHE(removeByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, MapContaining<TiObject>*, RemoveCallback const&, Word)
+    Verb, (Data::Ast::Identifier const*, DynamicMapContaining<TiObject>*, RemoveCallback const&, Word)
   );
 
   private: static Verb _removeByLinkOperator(
@@ -271,7 +271,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
     Word flags
   );
   private: static Verb _removeByLinkOperator_mapDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map,
+    TiObject *self, Data::Ast::Identifier const *identifier, DynamicMapContaining<TiObject> *map,
     RemoveCallback const &cb, Word flags
   );
 

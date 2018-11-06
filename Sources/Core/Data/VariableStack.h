@@ -18,13 +18,13 @@ namespace Core::Data
 
 // TODO: DOC
 
-class VariableStack : public TiObject, public virtual MapContaining<TiObject>
+class VariableStack : public TiObject, public virtual DynamicMapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(VariableStack, TiObject, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(MapContaining<TiObject>)
+    INHERITANCE_INTERFACES(DynamicMapContaining<TiObject>)
   ));
 
 
@@ -176,6 +176,17 @@ class VariableStack : public TiObject, public virtual MapContaining<TiObject>
 
   //============================================================================
   // MapContaining Implementation
+
+  public: virtual Int addElement(Char const *key, TiObject *val)
+  {
+    return this->add(key, val);
+  }
+
+  public: virtual void insertElement(Int index, Char const *key, TiObject *val)
+  {
+    // TODO: Do we need to implement this?
+    throw EXCEPTION(GenericException, S("Not implemented."));
+  }
 
   public: virtual void setElement(Int index, TiObject *val);
 

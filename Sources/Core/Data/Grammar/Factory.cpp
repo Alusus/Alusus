@@ -18,7 +18,7 @@ namespace Core::Data::Grammar
 //==============================================================================
 // Member Functions
 
-void Factory::setRootScope(ListContaining<TiObject> *rootScope)
+void Factory::setRootScope(DynamicContaining<TiObject> *rootScope)
 {
   Module *grammarRoot = getGrammarRoot(rootScope, true);
   this->context.setRoot(grammarRoot);

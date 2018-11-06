@@ -17,7 +17,7 @@ namespace Spp::Ast
 {
 
 class Macro : public Core::Data::Node,
-              public virtual Binding, public virtual MapContaining<TiObject>,
+              public virtual Binding, public virtual ExMapContaining<TiObject>,
               public virtual Core::Data::Ast::MetaHaving,
               public virtual Core::Data::Clonable, public virtual Core::Data::Printable
 {
@@ -27,7 +27,7 @@ class Macro : public Core::Data::Node,
   TYPE_INFO(Macro, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net", (
     INHERITANCE_INTERFACES(
       Binding,
-      MapContaining<TiObject>,
+      ExMapContaining<TiObject>,
       Core::Data::Ast::MetaHaving,
       Core::Data::Clonable,
       Core::Data::Printable
@@ -52,9 +52,9 @@ class Macro : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (argTypes, Core::Data::Ast::Map, setArgTypes(value), argTypes.get()),
-    (body, TiObject, setBody(value), body.get())
+  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>,
+    (argTypes, Core::Data::Ast::Map, SHARED_REF, setArgTypes(value), argTypes.get()),
+    (body, TiObject, SHARED_REF, setBody(value), body.get())
   );
 
   IMPLEMENT_AST_MAP_PRINTABLE(Macro);

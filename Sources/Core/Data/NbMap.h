@@ -16,13 +16,13 @@
 namespace Core::Data
 {
 
-class NbMap : public Node, public virtual MapContaining<TiObject>, public virtual DataHaving
+class NbMap : public Node, public virtual DynamicMapContaining<TiObject>, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(NbMap, Node, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(MapContaining<TiObject>, DataHaving)
+    INHERITANCE_INTERFACES(DynamicMapContaining<TiObject>, DataHaving)
   ));
 
 
@@ -212,6 +212,16 @@ class NbMap : public Node, public virtual MapContaining<TiObject>, public virtua
 
   /// @name MapContaining Implementation
   /// @{
+
+  public: virtual Int addElement(Char const *key, TiObject *val)
+  {
+    return this->add(key, getSharedPtr(val));
+  }
+
+  public: virtual void insertElement(Int index, Char const *key, TiObject *val)
+  {
+    this->insert(index, key, getSharedPtr(val));
+  }
 
   public: virtual void setElement(Int index, TiObject *val)
   {

@@ -510,17 +510,17 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBinding, publ
 
   private: Bool generateParamList(
     TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    ListContaining<TiObject> *resultAstNodes, ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
+    DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
   );
 
   private: Bool generateParamList(
     Containing<TiObject> *astNodes, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    ListContaining<TiObject> *resultAstNodes, ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
+    DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
   );
 
   private: Bool prepareFunctionParams(
     Spp::Ast::FunctionType *calleeType, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    ListContaining<TiObject> *paramAstNodes, ListContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
+    DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
   );
 
   private: Bool dereferenceIfNeeded(

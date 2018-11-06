@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/Containing.h
- * Contains the header of interface Basic::Containing.
+ * @file Core/Basic/DynamicContaining.h
+ * Contains the header of interface Basic::DynamicContaining.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,34 +10,34 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_CONTAINING_H
-#define CORE_BASIC_CONTAINING_H
+#ifndef CORE_BASIC_DYNAMICCONTAINING_H
+#define CORE_BASIC_DYNAMICCONTAINING_H
 
 namespace Core::Basic
 {
 
-template<class CTYPE> class Containing : public TiInterface
+template<class CTYPE> class DynamicContaining : public virtual Containing<CTYPE>
 {
   //============================================================================
   // Type Info
 
-  TEMPLATE_INTERFACE_INFO(Containing, TiInterface, "Core.Basic", "Core", "alusus.net", (CTYPE));
+  TEMPLATE_INTERFACE_INFO(DynamicContaining, Containing<CTYPE>, "Core.Data", "Core", "alusus.net", (CTYPE));
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual void setElement(Int index, CTYPE *val)
+  public: virtual Int addElement(CTYPE *val)
+  {
+    throw EXCEPTION(GenericException, S("Not supported."));
+  }
+
+  public: virtual void insertElement(Int index, CTYPE *val)
   {
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
 
-  public: virtual Word getElementCount() const
-  {
-    return 0;
-  }
-
-  public: virtual CTYPE* getElement(Int index) const
+  public: virtual void removeElement(Int index)
   {
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }

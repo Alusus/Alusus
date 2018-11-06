@@ -16,13 +16,13 @@
 namespace Core::Data::Grammar
 {
 
-class Context : public TiObject, public virtual MapContaining<TiObject>
+class Context : public TiObject, public virtual ExMapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Context, TiObject, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(MapContaining<TiObject>)
+    INHERITANCE_INTERFACES(ExMapContaining<TiObject>)
   ));
 
 
@@ -196,9 +196,6 @@ class Context : public TiObject, public virtual MapContaining<TiObject>
   public: virtual void setElement(Int index, TiObject *val);
   public: virtual Int setElement(Char const *key, TiObject *val);
 
-  public: virtual void removeElement(Int index);
-  public: virtual Int removeElement(Char const *key);
-
   public: virtual Word getElementCount() const
   {
     return 5;
@@ -206,6 +203,18 @@ class Context : public TiObject, public virtual MapContaining<TiObject>
 
   public: virtual TiObject* getElement(Int index) const;
   public: virtual TiObject* getElement(Char const *key) const;
+
+  public: virtual TypeInfo* getElementNeededType(Int index) const;
+  public: virtual TypeInfo* getElementNeededType(Char const *key) const;
+
+  public: virtual HoldMode getElementHoldMode(Int index) const
+  {
+    return HoldMode::PLAIN_REF;
+  }
+  public: virtual HoldMode getElementHoldMode(Char const *key) const
+  {
+    return HoldMode::PLAIN_REF;
+  }
 
   public: virtual SbStr const& getElementKey(Int index) const;
 
