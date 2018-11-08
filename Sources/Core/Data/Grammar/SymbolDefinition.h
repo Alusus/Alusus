@@ -19,14 +19,14 @@ namespace Core::Data::Grammar
 // TODO: DOC
 
 class SymbolDefinition : public Node,
-                         public virtual Binding, public virtual ExMapContaining<TiObject>,
+                         public virtual Binding, public virtual MapContaining<TiObject>,
                          public virtual Initializable, public virtual IdHaving, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SymbolDefinition, Node, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Binding, ExMapContaining<TiObject>, Initializable, IdHaving, DataHaving)
+    INHERITANCE_INTERFACES(Binding, MapContaining<TiObject>, Initializable, IdHaving, DataHaving)
   ));
 
 
@@ -105,7 +105,7 @@ class SymbolDefinition : public Node,
     (flags, TiObject, SHARED_REF, setFlags(value), flags.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>,
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (term, Node, SHARED_REF, setTerm(value), term.get()),
     (varDefs, Node, SHARED_REF, setVarDefs(value), varDefs.get()),
     (vars, Node, SHARED_REF, setVars(value), vars.get()),

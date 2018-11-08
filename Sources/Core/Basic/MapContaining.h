@@ -28,17 +28,27 @@ template<class CTYPE> class MapContaining : public Containing<CTYPE>
   // Abstract Functions
 
   using Containing<CTYPE>::setElement;
-
   public: virtual Int setElement(Char const *key, CTYPE *val)
   {
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found"), key);
   }
 
   using Containing<CTYPE>::getElement;
-
   public: virtual CTYPE* getElement(Char const *key) const
   {
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found"), key);
+  }
+
+  using Containing<CTYPE>::getElementNeededType;
+  public: virtual TypeInfo* getElementNeededType(Char const *key) const
+  {
+    throw EXCEPTION(InvalidArgumentException, S("key"), S("Element not found"), key);
+  }
+
+  using Containing<CTYPE>::getElementHoldMode;
+  public: virtual HoldMode getElementHoldMode(Char const *key) const
+  {
+    throw EXCEPTION(InvalidArgumentException, S("key"), S("Element not found"), key);
   }
 
   public: virtual SbStr const& getElementKey(Int index) const

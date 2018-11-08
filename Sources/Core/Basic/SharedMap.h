@@ -517,6 +517,16 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
     return this->findIndex(key);
   }
 
+  public: virtual TypeInfo* getElementsNeededType() const
+  {
+    return CTYPE::getTypeInfo();
+  }
+
+  public: virtual HoldMode getElementsHoldMode() const
+  {
+    throw HoldMode::SHARED_REF;
+  }
+
   /// @}
 
 }; // class

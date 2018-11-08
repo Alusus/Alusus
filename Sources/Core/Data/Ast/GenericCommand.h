@@ -17,14 +17,14 @@ namespace Core { namespace Data { namespace Ast
 {
 
 class GenericCommand : public Node,
-                       public virtual Binding, public virtual ExMapContaining<TiObject>, public virtual MetaHaving,
+                       public virtual Binding, public virtual MapContaining<TiObject>, public virtual MetaHaving,
                        public virtual Clonable, public virtual Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(GenericCommand, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, ExMapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
 
 
   //============================================================================
@@ -46,7 +46,7 @@ class GenericCommand : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>,
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (args, List, SHARED_REF, setArgs(value), args.get()),
     (modifiers, List, SHARED_REF, setModifiers(value), modifiers.get())
   );

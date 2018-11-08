@@ -31,13 +31,13 @@ namespace Core::Data::Grammar
  * Priority can be specified manually, but by default it's for taking the
  * branch rather than quiting the branch.
  */
-class MultiplyTerm : public Term, public virtual DataHaving, public virtual ExMapContaining<TiObject>
+class MultiplyTerm : public Term, public virtual DataHaving, public virtual MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(MultiplyTerm, Term, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(DataHaving, ExMapContaining<TiObject>)
+    INHERITANCE_INTERFACES(DataHaving, MapContaining<TiObject>)
   ));
 
 
@@ -62,7 +62,7 @@ class MultiplyTerm : public Term, public virtual DataHaving, public virtual ExMa
     (priority, TiObject, SHARED_REF, setPriority(value), priority.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>,
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (term, Term, SHARED_REF, setTerm(value), term.get())
   );
 

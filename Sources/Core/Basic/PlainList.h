@@ -348,6 +348,16 @@ template<class CTYPE, class PTYPE=TiObject> class PlainList : public PTYPE, publ
     this->insert(index, val);
   }
 
+  public: virtual TypeInfo* getElementsNeededType() const
+  {
+    return CTYPE::getTypeInfo();
+  }
+
+  public: virtual HoldMode getElementsHoldMode() const
+  {
+    throw HoldMode::PLAIN_REF;
+  }
+
   /// @}
 
 }; // class

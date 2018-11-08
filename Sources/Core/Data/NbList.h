@@ -217,6 +217,16 @@ class NbList : public Node, public virtual DynamicContaining<TiObject>, public v
     }
   }
 
+  public: virtual TypeInfo* getElementsNeededType() const
+  {
+    return TiObject::getTypeInfo();
+  }
+
+  public: virtual HoldMode getElementsHoldMode() const
+  {
+    throw HoldMode::SHARED_REF;
+  }
+
   /// @}
 
 }; // class

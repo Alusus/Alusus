@@ -517,6 +517,16 @@ template<class CTYPE, class PTYPE=TiObject> class PlainMap : public PTYPE, publi
     return this->findIndex(key);
   }
 
+  public: virtual TypeInfo* getElementsNeededType() const
+  {
+    return CTYPE::getTypeInfo();
+  }
+
+  public: virtual HoldMode getElementsHoldMode() const
+  {
+    throw HoldMode::PLAIN_REF;
+  }
+
   /// @}
 
 }; // class

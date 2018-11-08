@@ -16,13 +16,13 @@
 namespace Core::Data::Grammar
 {
 
-class Context : public TiObject, public virtual ExMapContaining<TiObject>
+class Context : public TiObject, public virtual MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Context, TiObject, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(ExMapContaining<TiObject>)
+    INHERITANCE_INTERFACES(MapContaining<TiObject>)
   ));
 
 

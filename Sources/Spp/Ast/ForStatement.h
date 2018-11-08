@@ -19,7 +19,7 @@ namespace Spp::Ast
 using namespace Core;
 
 class ForStatement : public Core::Data::Node,
-                     public virtual Binding, public virtual ExMapContaining<TiObject>,
+                     public virtual Binding, public virtual MapContaining<TiObject>,
                      public virtual Core::Data::Ast::MetaHaving, public virtual Core::Data::Clonable,
                      public virtual Core::Data::Printable
 {
@@ -27,7 +27,7 @@ class ForStatement : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(ForStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, ExMapContaining<TiObject>,
+  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, MapContaining<TiObject>,
                                          Core::Data::Ast::MetaHaving, Core::Data::Clonable,
                                          Core::Data::Printable);
 
@@ -51,7 +51,7 @@ class ForStatement : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>,
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (initializer, TiObject, SHARED_REF, setInitializer(value), initializer.get()),
     (condition, TiObject, SHARED_REF, setCondition(value), condition.get()),
     (updater, TiObject, SHARED_REF, setUpdater(value), updater.get()),

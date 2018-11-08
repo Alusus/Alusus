@@ -131,6 +131,16 @@ class DataStack : public TiObject, public virtual DynamicContaining<TiObject>
 
   public: virtual void insertElement(Int index, TiObject *val);
 
+  public: virtual TypeInfo* getElementsNeededType() const
+  {
+    return TiObject::getTypeInfo();
+  }
+
+  public: virtual HoldMode getElementsHoldMode() const
+  {
+    throw HoldMode::SHARED_REF;
+  }
+
   /// @}
 
 }; // class

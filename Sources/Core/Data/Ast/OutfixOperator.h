@@ -19,13 +19,13 @@ namespace Core::Data::Ast
 // TODO: DOC
 
 class OutfixOperator : public Node,
-                       public virtual Binding, public virtual ExMapContaining<TiObject>, public virtual MetaHaving
+                       public virtual Binding, public virtual MapContaining<TiObject>, public virtual MetaHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(OutfixOperator, Node, "Core.Data.Ast", "Core", "alusus.net");
-  IMPLEMENT_INTERFACES(Node, Binding, ExMapContaining<TiObject>, MetaHaving);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving);
 
 
   //============================================================================
@@ -46,7 +46,7 @@ class OutfixOperator : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>,
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (operand, TiObject, SHARED_REF, setOperand(value), operand.get())
   );
 

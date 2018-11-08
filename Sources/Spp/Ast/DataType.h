@@ -16,14 +16,14 @@
 namespace Spp::Ast
 {
 
-class DataType : public Type, public virtual ExMapContaining<TiObject>
+class DataType : public Type, public virtual MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(DataType, Type, "Spp.Ast", "Spp", "alusus.net", (
     INHERITANCE_INTERFACES(
-      ExMapContaining<TiObject>
+      MapContaining<TiObject>
     )
   ));
 
@@ -37,7 +37,7 @@ class DataType : public Type, public virtual ExMapContaining<TiObject>
   //============================================================================
   // Implementations
 
-  IMPLEMENT_MAP_CONTAINING(ExMapContaining<TiObject>, (body, Block, SHARED_REF, setBody(value), body.get()));
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (body, Block, SHARED_REF, setBody(value), body.get()));
 
 
   //============================================================================

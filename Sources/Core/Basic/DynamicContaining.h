@@ -42,6 +42,26 @@ template<class CTYPE> class DynamicContaining : public virtual Containing<CTYPE>
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
 
+  public: virtual TypeInfo* getElementsNeededType() const
+  {
+    throw EXCEPTION(GenericException, S("Not supported."));
+  }
+
+  public: virtual HoldMode getElementsHoldMode() const
+  {
+    throw EXCEPTION(GenericException, S("Not supported."));
+  }
+
+  public: virtual TypeInfo* getElementNeededType(Int index) const
+  {
+    return this->getElementsNeededType();
+  }
+
+  public: virtual HoldMode getElementHoldMode(Int index) const
+  {
+    return this->getElementsHoldMode();
+  }
+
 }; // class
 
 } // namespace

@@ -739,7 +739,6 @@ extern std::istream &inStream;
 #include "DynamicContaining.h"
 #include "MapContaining.h"
 #include "DynamicMapContaining.h"
-#include "ExMapContaining.h"
 #include "containing_helpers.h"
 
 #include "SharedList.h"

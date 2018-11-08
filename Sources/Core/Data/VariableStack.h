@@ -228,6 +228,16 @@ class VariableStack : public TiObject, public virtual DynamicMapContaining<TiObj
     return this->findIndex(key, -1);
   }
 
+  public: virtual TypeInfo* getElementsNeededType() const
+  {
+    return TiObject::getTypeInfo();
+  }
+
+  public: virtual HoldMode getElementsHoldMode() const
+  {
+    throw HoldMode::PLAIN_REF;
+  }
+
 }; // class
 
 } // namespace

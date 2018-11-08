@@ -46,6 +46,34 @@ template<class CTYPE> class DynamicMapContaining : public MapContaining<CTYPE>
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found"), key);
   }
 
+  public: virtual TypeInfo* getElementsNeededType() const
+  {
+    throw EXCEPTION(GenericException, S("Not supported."));
+  }
+
+  public: virtual HoldMode getElementsHoldMode() const
+  {
+    throw EXCEPTION(GenericException, S("Not supported."));
+  }
+
+  public: virtual TypeInfo* getElementNeededType(Int index) const
+  {
+    return this->getElementsNeededType();
+  }
+  public: virtual TypeInfo* getElementNeededType(Char const *key) const
+  {
+    return this->getElementsNeededType();
+  }
+
+  public: virtual HoldMode getElementHoldMode(Int index) const
+  {
+    return this->getElementsHoldMode();
+  }
+  public: virtual HoldMode getElementHoldMode(Char const *key) const
+  {
+    return this->getElementsHoldMode();
+  }
+
 }; // class
 
 } // namespace

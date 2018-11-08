@@ -269,6 +269,16 @@ class NbMap : public Node, public virtual DynamicMapContaining<TiObject>, public
     return this->findIndex(key);
   }
 
+  public: virtual TypeInfo* getElementsNeededType() const
+  {
+    return TiObject::getTypeInfo();
+  }
+
+  public: virtual HoldMode getElementsHoldMode() const
+  {
+    throw HoldMode::SHARED_REF;
+  }
+
   /// @}
 
   /// @name DataHaving Implementation

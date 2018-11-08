@@ -352,6 +352,16 @@ template<class CTYPE, class PTYPE=TiObject> class SharedList : public PTYPE, pub
     this->insert(index, getSharedPtr(val));
   }
 
+  public: virtual TypeInfo* getElementsNeededType() const
+  {
+    return CTYPE::getTypeInfo();
+  }
+
+  public: virtual HoldMode getElementsHoldMode() const
+  {
+    throw HoldMode::SHARED_REF;
+  }
+
   /// @}
 
 }; // class
