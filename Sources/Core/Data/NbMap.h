@@ -276,7 +276,7 @@ class NbMap : public Node, public virtual DynamicMapContaining<TiObject>, public
 
   public: virtual HoldMode getElementsHoldMode() const
   {
-    throw HoldMode::SHARED_REF;
+    return HoldMode::SHARED_REF;
   }
 
   /// @}

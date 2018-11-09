@@ -224,7 +224,7 @@ class NbList : public Node, public virtual DynamicContaining<TiObject>, public v
 
   public: virtual HoldMode getElementsHoldMode() const
   {
-    throw HoldMode::SHARED_REF;
+    return HoldMode::SHARED_REF;
   }
 
   /// @}

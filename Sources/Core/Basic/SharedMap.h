@@ -524,7 +524,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedMap : public PTYPE, publ
 
   public: virtual HoldMode getElementsHoldMode() const
   {
-    throw HoldMode::SHARED_REF;
+    return HoldMode::SHARED_REF;
   }
 
   /// @}

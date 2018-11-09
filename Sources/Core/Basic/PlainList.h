@@ -355,7 +355,7 @@ template<class CTYPE, class PTYPE=TiObject> class PlainList : public PTYPE, publ
 
   public: virtual HoldMode getElementsHoldMode() const
   {
-    throw HoldMode::PLAIN_REF;
+    return HoldMode::PLAIN_REF;
   }
 
   /// @}

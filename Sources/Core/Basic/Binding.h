@@ -126,6 +126,18 @@ class Binding : public TiInterface
     this->setMember(index, val.get());
   }
 
+  public: template <class T> T& refMember(Int index)
+  {
+    if (this->getMemberHoldMode(index) != HoldMode::VALUE) {
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Member is not held by value."), index);
+    }
+    if (T::getTypeInfo() != this->getMemberNeededType(index)) {
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Object type doesn't match needed type."), index);
+    }
+    ASSERT(this->getMember(index) != 0);
+    return *static_cast<T*>(this->getMember(index));
+  }
+
   public: template <class T> T& refMember(Char const *name)
   {
     Int index = this->findMemberIndex(name);

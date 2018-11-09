@@ -235,7 +235,7 @@ class VariableStack : public TiObject, public virtual DynamicMapContaining<TiObj
 
   public: virtual HoldMode getElementsHoldMode() const
   {
-    throw HoldMode::PLAIN_REF;
+    return HoldMode::PLAIN_REF;
   }
 
 }; // class

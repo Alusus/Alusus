@@ -524,7 +524,7 @@ template<class CTYPE, class PTYPE=TiObject> class PlainMap : public PTYPE, publi
 
   public: virtual HoldMode getElementsHoldMode() const
   {
-    throw HoldMode::PLAIN_REF;
+    return HoldMode::PLAIN_REF;
   }
 
   /// @}

@@ -359,7 +359,7 @@ template<class CTYPE, class PTYPE=TiObject> class SharedList : public PTYPE, pub
 
   public: virtual HoldMode getElementsHoldMode() const
   {
-    throw HoldMode::SHARED_REF;
+    return HoldMode::SHARED_REF;
   }
 
   /// @}

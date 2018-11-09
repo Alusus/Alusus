@@ -138,7 +138,7 @@ class DataStack : public TiObject, public virtual DynamicContaining<TiObject>
 
   public: virtual HoldMode getElementsHoldMode() const
   {
-    throw HoldMode::SHARED_REF;
+    return HoldMode::SHARED_REF;
   }
 
   /// @}
