@@ -25,7 +25,8 @@ using namespace Core::Processing::Handlers;
 
 void GrammarFactory::createGrammar(
   Core::Data::Ast::Scope *rootScope, Main::RootManager *manager, Ast::Helper *astHelper,
-  CodeGen::Generator *generator, LlvmCodeGen::TargetGenerator *targetGenerator
+  CodeGen::MacroProcessor *macroProcessor, CodeGen::Generator *generator,
+  LlvmCodeGen::TargetGenerator *targetGenerator
 ) {
   this->setRootScope(rootScope);
 
@@ -51,7 +52,7 @@ void GrammarFactory::createGrammar(
       })}
     })},
     {S("handler"), std::make_shared<Handlers::CodeGenParsingHandler>(
-      manager, astHelper, generator, targetGenerator, false
+      manager, astHelper, macroProcessor, generator, targetGenerator, false
     )}
   }).get());
   leadingCmdList->add(PARSE_REF(S("module.DumpLlvmIr")));
@@ -72,7 +73,7 @@ void GrammarFactory::createGrammar(
       })}
     })},
     {S("handler"), std::make_shared<Handlers::CodeGenParsingHandler>(
-      manager, astHelper, generator, targetGenerator, true
+      manager, astHelper, macroProcessor, generator, targetGenerator, true
     )}
   }).get());
   leadingCmdList->add(PARSE_REF(S("module.Run")));

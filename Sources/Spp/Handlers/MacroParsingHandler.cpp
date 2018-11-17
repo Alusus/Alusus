@@ -71,7 +71,7 @@ Bool MacroParsingHandler::parseArgs(
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i);
       if (arg == 0) {
-        state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgNotice>(bracket->findSourceLocation()));
+        state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgDefNotice>(bracket->findSourceLocation()));
         return false;
       }
       if (!this->parseArg(state, argsList->getElement(i), result)) return false;
@@ -91,16 +91,16 @@ Bool MacroParsingHandler::parseArg(
   if (arg->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     auto link = static_cast<Core::Data::Ast::LinkOperator*>(arg);
     if (link->getType() != S(":")) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgNotice>(link->findSourceLocation()));
+      state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
       return false;
     }
     auto name = link->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
     if (name == 0) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgNotice>(link->findSourceLocation()));
+      state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
       return false;
     }
     if (!link->getSecond()->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgNotice>(link->findSourceLocation()));
+      state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
       return false;
     }
     result->add(name->getValue().get(), link->getSecond());
@@ -110,7 +110,7 @@ Bool MacroParsingHandler::parseArg(
     result->add(name->getValue().get(), TioSharedPtr::null);
     return true;
   } else {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg)));
+    state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgDefNotice>(Core::Data::Ast::findSourceLocation(arg)));
     return false;
   }
 }

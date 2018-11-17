@@ -32,6 +32,9 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   // Extend Seeker.
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
 
+  // Create the preprocessor.
+  this->macroProcessor = std::make_shared<CodeGen::MacroProcessor>(this->astHelper.get());
+
   // Create the generator.
   this->noOpTargetGenerator = std::make_shared<CodeGen::NoOpTargetGenerator>();
   this->typeGenerator = std::make_shared<CodeGen::TypeGenerator>(this->astHelper.get());
@@ -51,7 +54,8 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   // Add the grammar.
   GrammarFactory factory;
   factory.createGrammar(
-    manager->getRootScope().get(), manager, this->astHelper.get(), this->generator.get(), this->targetGenerator.get()
+    manager->getRootScope().get(), manager, this->astHelper.get(), this->macroProcessor.get(),
+    this->generator.get(), this->targetGenerator.get()
   );
 
   this->createBuiltInTypes(manager);

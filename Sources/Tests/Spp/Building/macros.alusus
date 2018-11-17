@@ -1,0 +1,45 @@
+import "libalusus_spp.so";
+
+def power2: macro [n] n * n;
+def defInt: macro [n] { def n: Int };
+def defGetMin: macro [T] {
+  def getMin: function (a: T, b: T)=>T {
+    if a <= b return a else return b;
+  }
+};
+def loop: macro[counter, start, end, action] {
+  for counter = start, counter <= end, ++counter action;
+};
+def defType: macro[name, var1, var2, Type] {
+  def name: type {
+    def var1: Type;
+    def var2: Type;
+  };
+};
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+  defGetMin[Int];
+  defGetMin[Float];
+  defType[Coordinates, x, y, Float[64]];
+
+  def start: function ()=>Void
+  {
+    defInt[a];
+    a = 5;
+    print("a = %d\n", a);
+    print("a*a = %d\n", power2[a]);
+    print("min of 5 & 7 = %d\n", getMin(5, 7));
+    loop[a, 0, 9, print("%d ", a)];
+    print("\n");
+
+    def p: Coordinates;
+    p.x = 5.5;
+    p.y = 7.3;
+    print("p = (%f, %f)\n", p.x, p.y);
+  }
+};
+
+dump_llvm_ir Main.start;

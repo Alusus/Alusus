@@ -30,65 +30,72 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
   ASSERT(metadata != 0);
 
   try {
-    // Build the IR code.
     auto root = this->rootManager->getRootScope().get();
-    this->targetGenerator->prepareBuild(state->getNoticeStore());
-    auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(this->targetGenerator);
-    Bool result = this->generator->generate(root, state, targetGeneration);
 
-    if (this->execute) {
-      // Execute the code if build was successful.
-      auto minSeverity = this->rootManager->getMinNoticeSeverityEncountered();
-      auto thisMinSeverity = state->getNoticeStore()->getMinEncounteredSeverity();
-      if (result && (minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
-        // Find the entry ref.
-        auto container = ti_cast<Containing<TiObject>>(data);
-        ASSERT(container != 0);
-        auto entryRef = ti_cast<Core::Data::Node>(container->getElement(1));
-        ASSERT(entryRef != 0);
-        // Find the entry function.
-        TiObject *callee = 0;
-        Ast::Type *calleeType = 0;
-        Ast::Function *entryFunction = 0;
-        SharedPtr<Core::Notices::Notice> notice;
-        if (this->astHelper->lookupCallee(
-          entryRef, root, true, 0, this->targetGenerator->getExecutionContext(),
-          callee, calleeType, notice
-        )) {
-          entryFunction = ti_cast<Ast::Function>(callee);
-        }
-        // Execute if an entry function was found.
-        if (entryFunction == 0) {
-          if (notice != 0) {
-            state->addNotice(notice);
+    // Perform macro processing.
+    this->macroProcessor->preparePass(state->getNoticeStore());
+    Bool result = this->macroProcessor->runMacroPass(root);
+
+    if (result) {
+      // Build the IR code.
+      this->targetGenerator->prepareBuild(state->getNoticeStore());
+      auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(this->targetGenerator);
+      result = this->generator->generate(root, state, targetGeneration);
+
+      if (this->execute) {
+        // Execute the code if build was successful.
+        auto minSeverity = this->rootManager->getMinNoticeSeverityEncountered();
+        auto thisMinSeverity = state->getNoticeStore()->getMinEncounteredSeverity();
+        if (result && (minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
+          // Find the entry ref.
+          auto container = ti_cast<Containing<TiObject>>(data);
+          ASSERT(container != 0);
+          auto entryRef = ti_cast<Core::Data::Node>(container->getElement(1));
+          ASSERT(entryRef != 0);
+          // Find the entry function.
+          TiObject *callee = 0;
+          Ast::Type *calleeType = 0;
+          Ast::Function *entryFunction = 0;
+          SharedPtr<Core::Notices::Notice> notice;
+          if (this->astHelper->lookupCallee(
+            entryRef, root, true, 0, this->targetGenerator->getExecutionContext(),
+            callee, calleeType, notice
+          )) {
+            entryFunction = ti_cast<Ast::Function>(callee);
+          }
+          // Execute if an entry function was found.
+          if (entryFunction == 0) {
+            if (notice != 0) {
+              state->addNotice(notice);
+            } else {
+              state->addNotice(
+                std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(entryRef))
+              );
+            }
           } else {
-            state->addNotice(
-              std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(entryRef))
-            );
+            auto funcName = this->astHelper->getFunctionName(entryFunction).c_str();
+            this->targetGenerator->execute(funcName);
           }
         } else {
-          auto funcName = this->astHelper->getFunctionName(entryFunction).c_str();
-          this->targetGenerator->execute(funcName);
+          state->addNotice(
+            std::make_shared<Spp::Notices::ExecutionAbortedNotice>(metadata->findSourceLocation())
+          );
         }
       } else {
-        state->addNotice(
-          std::make_shared<Spp::Notices::ExecutionAbortedNotice>(metadata->findSourceLocation())
-        );
-      }
-    } else {
-      // Dump the IR code.
-      StrStream ir;
-      this->targetGenerator->dumpIr(ir);
-      if (result) {
-        outStream << S("-------------------- Generated LLVM IR ---------------------\n");
-        outStream << ir.str();
-        outStream << S("------------------------------------------------------------\n");
-      } else {
-        parser->flushApprovedNotices();
-        outStream << S("Build Failed...\n");
-        outStream << S("--------------------- Partial LLVM IR ----------------------\n");
-        outStream << ir.str();
-        outStream << S("------------------------------------------------------------\n");
+        // Dump the IR code.
+        StrStream ir;
+        this->targetGenerator->dumpIr(ir);
+        if (result) {
+          outStream << S("-------------------- Generated LLVM IR ---------------------\n");
+          outStream << ir.str();
+          outStream << S("------------------------------------------------------------\n");
+        } else {
+          parser->flushApprovedNotices();
+          outStream << S("Build Failed...\n");
+          outStream << S("--------------------- Partial LLVM IR ----------------------\n");
+          outStream << ir.str();
+          outStream << S("------------------------------------------------------------\n");
+        }
       }
     }
 

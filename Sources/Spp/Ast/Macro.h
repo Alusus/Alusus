@@ -114,6 +114,13 @@ class Macro : public Core::Data::Node,
     return this->body;
   }
 
+  public: Bool matchCall(Containing<TiObject> *args, Helper *helper)
+  {
+    VALIDATE_NOT_NULL(args);
+    // TODO: Match arg types as well.
+    return args->getElementCount() == this->getArgCount();
+  }
+
 }; // class
 
 } // namespace
