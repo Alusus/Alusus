@@ -926,6 +926,7 @@ Bool TargetGenerator::generateReturn(
   } else {
     block->getIrBuilder()->CreateRetVoid();
   }
+  block->setTerminated(true);
   return true;
 }
 

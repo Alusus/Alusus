@@ -2060,7 +2060,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
 
   if (callee->getInlined()) {
     // TODO: Generate inlined function body.
-    return false;
+    throw EXCEPTION(GenericException, S("Inline function generation is not implemented yet."));
   } else {
     // Build funcion declaration.
     if (!g->generateFunctionDecl(callee, tg)) return false;

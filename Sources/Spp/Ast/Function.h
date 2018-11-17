@@ -100,6 +100,10 @@ class Function : public Core::Data::Node,
   {
     this->inlined = i;
   }
+  public: void setInlined(TiBool const *i)
+  {
+    this->setInlined(i == 0 ? false : i->get());
+  }
 
   public: Bool getInlined() const
   {
