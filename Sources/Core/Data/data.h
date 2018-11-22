@@ -56,36 +56,6 @@ namespace Core::Data
 void unsetIndexes(TiObject *obj, Int from, Int to);
 
 /**
- * @brief Set the IDs of all elements in a given tree.
- * @ingroup core_data
- * Sets the ID of the given object, and the IDs of any objects contained within
- * the given object if the given object is a container. The ids will be the
- * concatenated container keys that lead to the given object from the root.
- * @sa generateId()
- */
-void setTreeIds(TiObject *obj, Node *root);
-
-/**
- * @brief Set the IDs of all elements in a given tree.
- * @ingroup core_data
- * Sets the ID of the given object, and the IDs of any objects contained within
- * the given object if the given object is a container. The IDs of inner
- * objects will have the format: <id>.<childName>
- */
-void setTreeIds(TiObject *obj, Node *root, const Char *id);
-
-/**
- * @brief Generate an ID for the given object.
- * @ingroup core_data
- * This function will generate the ID by tracing the owners of the given object
- * all the way to the root and generate the ID from the concatenated keys that
- * leads to the given object.
- * @param obj The object for which to generate the ID.
- * @param id A string stream to hold the generated ID.
- */
-void generateId(Node *obj, Node *root, StrStream &id);
-
-/**
  * @brief Find an object in the chain of owners with the given type.
  * @ingroup core_data
  * If the given object is of the given type, it will be returned.
