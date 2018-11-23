@@ -149,6 +149,7 @@ void generateId(Node *obj, StrStream &id);
 // Classes
 
 #include "Reference.h"
+#include "Inheriting.h"
 
 // Containers
 #include "List.h"

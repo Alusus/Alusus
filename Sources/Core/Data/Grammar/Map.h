@@ -16,13 +16,13 @@
 namespace Core::Data::Grammar
 {
 
-class Map : public NbMap, public virtual Binding, public virtual Initializable
+class Map : public NbMap, public virtual Binding, public virtual Inheriting
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Map, NbMap, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Binding, Initializable)
+    INHERITANCE_INTERFACES(Binding, Inheriting)
   ));
 
 
@@ -86,10 +86,27 @@ class Map : public NbMap, public virtual Binding, public virtual Initializable
 
   /// @}
 
-  /// @name Initializable Implementation
+  /// @name Inheriting Implementation
   /// @{
 
-  public: virtual void initialize(TiObject *context);
+  public: virtual Reference* getBaseReference() const
+  {
+    return this->baseRef.get();
+  }
+
+  public: virtual void setBase(TiObject *base)
+  {
+    Map *baseMap = ti_cast<Map>(base);
+    if (baseMap == 0) {
+      throw EXCEPTION(GenericException, S("Base reference points to an object of an invalid type."));
+    }
+    this->setBase(baseMap);
+  }
+
+  public: virtual TiObject* getBase() const
+  {
+    return NbMap::getBase();
+  }
 
   /// @}
 

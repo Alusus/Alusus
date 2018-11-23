@@ -18,13 +18,13 @@ namespace Core::Data::Grammar
 
 // TODO: DOC
 
-class Module : public NbMap, public virtual Binding, public virtual Initializable, public virtual IdHaving
+class Module : public NbMap, public virtual Binding, public virtual Inheriting, public virtual IdHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Module, NbMap, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Binding, Initializable, IdHaving)
+    INHERITANCE_INTERFACES(Binding, Inheriting, IdHaving)
   ));
 
 
@@ -139,7 +139,7 @@ class Module : public NbMap, public virtual Binding, public virtual Initializabl
     if (b != 0) this->attachToBase(b);
   }
 
-  public: Module* getBase() const
+  public: Module* getBaseModule() const
   {
     return this->base;
   }
@@ -234,10 +234,27 @@ class Module : public NbMap, public virtual Binding, public virtual Initializabl
 
   /// @}
 
-  /// @name Initializable Implementation
+  /// @name Inheriting Implementation
   /// @{
 
-  public: virtual void initialize(TiObject *context);
+  public: virtual Reference* getBaseReference() const
+  {
+    return this->baseRef.get();
+  }
+
+  public: virtual void setBase(TiObject *base)
+  {
+    Module *baseModule = ti_cast<Module>(base);
+    if (baseModule == 0) {
+      throw EXCEPTION(GenericException, S("Base reference points to an object of an invalid type."));
+    }
+    this->setBase(baseModule);
+  }
+
+  public: virtual TiObject* getBase() const
+  {
+    return this->getBaseModule();
+  }
 
   /// @}
 

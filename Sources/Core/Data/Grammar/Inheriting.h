@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/Initializable.h
- * Contains the header of interface Data::Initializable.
+ * @file Core/Data/Grammar/Inheriting.h
+ * Contains the header of interface Core::Data::Grammar::Inheriting.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,29 +10,33 @@
  */
 //==============================================================================
 
-#ifndef CORE_DATA_INITIALIZABLE_H
-#define CORE_DATA_INITIALIZABLE_H
+#ifndef CORE_DATA_GRAMMAR_INHERITING_H
+#define CORE_DATA_GRAMMAR_INHERITING_H
 
-namespace Core { namespace Data
+namespace Core::Data::Grammar
 {
 
 // TODO: DOC
 
-class Initializable : public TiInterface
+class Inheriting : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(Initializable, TiInterface, "Core.Data", "Core", "alusus.net");
+  INTERFACE_INFO(Inheriting, TiInterface, "Core.Data.Grammar", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual void initialize(TiObject *context) = 0;
+  public: virtual Reference* getBaseReference() const = 0;
+
+  public: virtual void setBase(TiObject *base) = 0;
+
+  public: virtual TiObject* getBase() const = 0;
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

@@ -115,29 +115,6 @@ SbStr const& SymbolDefinition::getTranslatedModifierKeyword(Char const *keyword)
 
 
 //==============================================================================
-// Initializable Implementation
-
-void SymbolDefinition::initialize(TiObject *context)
-{
-  if (this->baseRef != 0) {
-    auto grammarContext = ti_cast<Context>(context);
-    if (grammarContext == 0) {
-      throw EXCEPTION(InvalidArgumentException, S("context"), S("Must be of type Core::Data::Grammar::Context."));
-    }
-    TiObject *p = grammarContext->traceValue(this->baseRef.get());
-    if (p == 0) {
-      throw EXCEPTION(GenericException, S("Parent reference points to missing definition."));
-    }
-    SymbolDefinition *psd = ti_cast<SymbolDefinition>(p);
-    if (psd == 0) {
-      throw EXCEPTION(GenericException, S("Parent reference points to an object of an invalid type."));
-    }
-    this->setBase(psd);
-  }
-}
-
-
-//==============================================================================
 // DataHaving Implementation
 
 void SymbolDefinition::unsetIndexes(Int from, Int to)

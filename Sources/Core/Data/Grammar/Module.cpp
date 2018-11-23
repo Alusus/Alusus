@@ -90,29 +90,6 @@ void Module::onBaseMetaChanged(Module *obj, Word element)
 
 
 //==============================================================================
-// Initializable Implementation
-
-void Module::initialize(TiObject *context)
-{
-  if (this->baseRef != 0) {
-    auto grammarContext = ti_cast<Context>(context);
-    if (grammarContext == 0) {
-      throw EXCEPTION(InvalidArgumentException, S("context"), S("Must be of type Core::Data::Grammar::Context."));
-    }
-    TiObject *p = grammarContext->traceValue(this->baseRef.get());
-    if (p == 0) {
-      throw EXCEPTION(GenericException, S("Base reference points to missing definition."));
-    }
-    Module *pm = ti_cast<Module>(p);
-    if (pm == 0) {
-      throw EXCEPTION(GenericException, S("Base reference points to an object of an invalid type."));
-    }
-    this->setBase(pm);
-  }
-}
-
-
-//==============================================================================
 // DataHaving Implementation
 
 void Module::unsetIndexes(Int from, Int to)

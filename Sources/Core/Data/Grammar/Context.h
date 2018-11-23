@@ -72,7 +72,7 @@ class Context : public TiObject, public virtual MapContaining<TiObject>
   public: void setModule(Module *m)
   {
     this->module = m;
-    if (this->module != 0) this->bmodule = m->getBase();
+    if (this->module != 0) this->bmodule = m->getBaseModule();
     else this->bmodule = 0;
   }
 

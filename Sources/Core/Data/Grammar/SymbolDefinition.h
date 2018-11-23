@@ -20,13 +20,13 @@ namespace Core::Data::Grammar
 
 class SymbolDefinition : public Node,
                          public virtual Binding, public virtual MapContaining<TiObject>,
-                         public virtual Initializable, public virtual IdHaving, public virtual DataHaving
+                         public virtual Inheriting, public virtual IdHaving, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SymbolDefinition, Node, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Binding, MapContaining<TiObject>, Initializable, IdHaving, DataHaving)
+    INHERITANCE_INTERFACES(Binding, MapContaining<TiObject>, Inheriting, IdHaving, DataHaving)
   ));
 
 
@@ -158,7 +158,7 @@ class SymbolDefinition : public Node,
     if (p != 0) this->attachToBase(p);
   }
 
-  public: SymbolDefinition* getBase() const
+  public: SymbolDefinition* getBaseSymbolDefinition() const
   {
     return this->base;
   }
@@ -416,9 +416,26 @@ class SymbolDefinition : public Node,
 
 
   //============================================================================
-  // Initializable Implementation
+  // Inheriting Implementation
 
-  public: virtual void initialize(TiObject *context);
+  public: virtual Reference* getBaseReference() const
+  {
+    return this->baseRef.get();
+  }
+
+  public: virtual void setBase(TiObject *base)
+  {
+    SymbolDefinition *baseDef = ti_cast<SymbolDefinition>(base);
+    if (baseDef == 0) {
+      throw EXCEPTION(GenericException, S("Base reference points to an object of an invalid type."));
+    }
+    this->setBase(baseDef);
+  }
+
+  public: virtual TiObject* getBase() const
+  {
+    return this->getBaseSymbolDefinition();
+  }
 
 
   //============================================================================

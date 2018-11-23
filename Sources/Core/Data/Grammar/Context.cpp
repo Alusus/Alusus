@@ -400,7 +400,7 @@ void Context::setElement(Int index, TiObject *val)
         throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type Module."));
       }
       this->module = static_cast<Module*>(val);
-      this->bmodule = this->module->getBase();
+      this->bmodule = this->module->getBaseModule();
       break;
     }
     case 2: {
@@ -438,7 +438,7 @@ Int Context::setElement(Char const *key, TiObject *val)
       throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type Module."));
     }
     this->module = static_cast<Module*>(val);
-    this->bmodule = this->module->getBase();
+    this->bmodule = this->module->getBaseModule();
     return 1;
   } else if (name == S("bmodule")) {
     throw EXCEPTION(GenericException, S("Element cannot be manually set."));
