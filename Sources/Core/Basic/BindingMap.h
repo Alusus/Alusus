@@ -13,27 +13,25 @@
 #ifndef CORE_BASIC_BINDINGMAP_H
 #define CORE_BASIC_BINDINGMAP_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
-typedef SharedMap<TiObject> BindingMapBase;
-
-class BindingMap : public BindingMapBase
+class BindingMap : public SharedMap<TiObject>
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(BindingMap, BindingMapBase, "Core.Basic", "Core", "alusus.net");
+  TYPE_INFO(BindingMap, SharedMap<TiObject>, "Core.Basic", "Core", "alusus.net");
 
 
   //============================================================================
   // Signals & Slots
 
-  private: Slot<void, BindingMapBase*, ContentChangeOp, Int> baseChangeSlot = {
+  private: Slot<void, SharedMapBase<TiObject, TiObject>*, ContentChangeOp, Int> baseChangeSlot = {
     this, &BindingMap::onBaseContentChanged
   };
-  private: Slot<void, BindingMapBase*> baseDestroySlot = {
-    [=](BindingMapBase*)->void
+  private: Slot<void, SharedMapBase<TiObject, TiObject>*> baseDestroySlot = {
+    [=](SharedMapBase<TiObject, TiObject>*)->void
     {
       this->setBase(0);
     }
@@ -43,11 +41,11 @@ class BindingMap : public BindingMapBase
   //============================================================================
   // Constructor & Destructor
 
-  public: BindingMap() : BindingMapBase(true)
+  public: BindingMap() : SharedMap<TiObject>(true)
   {
   }
 
-  public: BindingMap(const std::initializer_list<Argument> &args) : BindingMapBase(args, true)
+  public: BindingMap(const std::initializer_list<Argument> &args) : SharedMap<TiObject>(args, true)
   {
   }
 
@@ -57,7 +55,7 @@ class BindingMap : public BindingMapBase
 
   public: void setBase(BindingMap *base);
 
-  private: void onBaseContentChanged(BindingMapBase *src, ContentChangeOp op, Int index);
+  private: void onBaseContentChanged(SharedMapBase<TiObject, TiObject> *src, ContentChangeOp op, Int index);
 
   private: void onBaseDetached();
 
@@ -131,6 +129,6 @@ class BindingMap : public BindingMapBase
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

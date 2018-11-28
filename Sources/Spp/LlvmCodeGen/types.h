@@ -308,7 +308,7 @@ class FunctionType : public Type
   // Member Variables
 
   private: llvm::FunctionType *llvmType;
-  private: SharedPtr<SharedMap<Type, TiObject>> args;
+  private: SharedPtr<SharedMap<Type>> args;
   private: SharedPtr<Type> retType;
   private: Bool variadic;
 
@@ -317,7 +317,7 @@ class FunctionType : public Type
   // Constructor & Destructor
 
   public: FunctionType(
-    llvm::FunctionType *ft, SharedPtr<SharedMap<Type, TiObject>> const &args, SharedPtr<Type> const &rt, Bool v
+    llvm::FunctionType *ft, SharedPtr<SharedMap<Type>> const &args, SharedPtr<Type> const &rt, Bool v
   ) : llvmType(ft), args(args), retType(rt), variadic(v)
   {
   }
@@ -336,7 +336,7 @@ class FunctionType : public Type
     return this->llvmType;
   }
 
-  public: SharedPtr<SharedMap<Type, TiObject>> const& getArgs() const
+  public: SharedPtr<SharedMap<Type>> const& getArgs() const
   {
     return this->args;
   }

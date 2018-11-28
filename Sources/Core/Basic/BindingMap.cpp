@@ -20,20 +20,20 @@ void BindingMap::setBase(BindingMap *base)
   if (this->getBase() != 0) {
     // Uninherit old.
     this->onBaseDetached();
-    BindingMapBase::setBase(0);
+    SharedMap<TiObject>::setBase(0);
     this->baseChangeSlot.disconnect();
     this->baseDestroySlot.disconnect();
   }
   if (base != 0) {
     // Inheirt new.
     base->destroyNotifier.connect(this->baseDestroySlot);
-    BindingMapBase::setBase(base);
+    SharedMap<TiObject>::setBase(base);
     base->changeNotifier.connect(this->baseChangeSlot);
   }
 }
 
 
-void BindingMap::onBaseContentChanged(BindingMapBase *src, ContentChangeOp op, Int index)
+void BindingMap::onBaseContentChanged(SharedMapBase<TiObject, TiObject> *src, ContentChangeOp op, Int index)
 {
   if (this->isInherited(index)) return;
   if (op == ContentChangeOp::WILL_UPDATE || op == ContentChangeOp::WILL_REMOVE) {

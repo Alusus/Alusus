@@ -282,7 +282,7 @@ Bool TargetGenerator::generateFunctionType(
   VALIDATE_NOT_NULL(argTypes, retType);
 
   // Prepare args
-  auto args = SharedMap<Type, TiObject>::create({});
+  auto args = SharedMap<Type>::create({});
   std::vector<llvm::Type*> llvmArgTypes;
   llvmArgTypes.reserve(argTypes->getElementCount());
   for (Int i = 0; i < argTypes->getElementCount(); ++i) {
