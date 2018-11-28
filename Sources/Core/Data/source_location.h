@@ -13,7 +13,7 @@
 #ifndef CORE_DATA_SOURCELOCATION_H
 #define CORE_DATA_SOURCELOCATION_H
 
-namespace Core { namespace Data
+namespace Core::Data
 {
 
 /**
@@ -79,38 +79,41 @@ class SourceLocationRecord : public SourceLocation
 }; // class
 
 
-typedef SharedList<SourceLocationRecord, SourceLocation> _SourceLocationStackBase;
-
-
-/**
- * @brief A stack of SourceLocationRecord objects.
- * @ingroup core_data
- */
-class SourceLocationStack : public _SourceLocationStackBase
+class SourceLocationStack : public SharedListBase<SourceLocationRecord, SourceLocation>
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(
-    SourceLocationStack, _SourceLocationStackBase, "Core.Data", "Core", "alusus.net"
-  );
+  typedef SharedListBase<SourceLocationRecord, SourceLocation> _MyBase;
+  TYPE_INFO(SourceLocationStack, _MyBase, "Core.Data", "Core", "alusus.net");
 
 
   //============================================================================
   // Constructors
 
-  public: using _SourceLocationStackBase::SharedList;
+  public: using SharedListBase<SourceLocationRecord, SourceLocation>::SharedListBase;
 
 
   //============================================================================
   // Member Functions
 
+  private: virtual SharedPtr<SourceLocationRecord> prepareForSet(
+    Int index, SharedPtr<SourceLocationRecord> const &obj, Bool inherited, Bool newEntry
+  ) {
+    return obj;
+  }
+
+  private: virtual void prepareForUnset(
+    Int index, SharedPtr<SourceLocationRecord> const &obj, Bool inherited
+  ) {
+  }
+
   public: void push(SourceLocation *sl);
 
   public: void pop(Word count = 1);
 
-};
+}; // class
 
-} } // namespace
+} // namespace
 
 #endif

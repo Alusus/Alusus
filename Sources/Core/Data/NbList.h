@@ -16,191 +16,54 @@
 namespace Core::Data
 {
 
-class NbList : public Node, public virtual DynamicContaining<TiObject>, public virtual DataHaving
+class NbList : public SharedListBase<TiObject, Node>, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(NbList, Node, "Core.Data", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(DynamicContaining<TiObject>, DataHaving)
+  typedef SharedListBase<TiObject, Node> _MyBase;
+  TYPE_INFO(NbList, _MyBase, "Core.Data", "Core", "alusus.net", (
+    INHERITANCE_INTERFACES(DataHaving)
   ));
-
-
-  //============================================================================
-  // Member Variables
-
-  private: SharedList<TiObject> list;
-  private: NbList *base = 0;
-
-
-  //============================================================================
-  // Signals and Slots
-
-  public: Signal<void, NbList*> destroyNotifier;
-  public: Signal<void, NbList*, ContentChangeOp, Int> changeNotifier;
-
-  private: Slot<void, SharedList<TiObject>*, ContentChangeOp, Int> contentChangeSlot = {
-    [=](SharedList<TiObject>* l, ContentChangeOp changeOp, Int index)->void
-    {
-      this->changeNotifier.emit(this, changeOp, index);
-    }
-  };
 
 
   //============================================================================
   // Constructors
 
-  IMPLEMENT_EMPTY_CONSTRUCTOR(NbList, this->setupSignals());
+  public: using SharedListBase<TiObject, Node>::SharedListBase;
 
-  IMPLEMENT_LIST_CONSTRUCTOR(NbList, this->setupSignals());
-
-  public: virtual ~NbList()
+  public: static SharedPtr<NbList> create()
   {
-    this->destroyNotifier.emit(this);
-    for (Int i = 0; i < this->getCount(); ++i) {
-      if (!this->isInherited(i)) {
-        DISOWN_SHAREDPTR(this->get(i));
-      }
-    }
+    return std::make_shared<NbList>();
+  }
+
+  public: static SharedPtr<NbList> create(const std::initializer_list<SharedPtr<TiObject>> &args)
+  {
+    return std::make_shared<NbList>(args);
   }
 
 
   //============================================================================
   // Member Functions
 
-  /// @name Initialization Functions
+  /// @name Abstract Function Implementations
   /// @{
 
-  private: void setupSignals()
-  {
-    this->list.changeNotifier.connect(this->contentChangeSlot);
-  }
-
-  /// @}
-
-  /// @name Inheritance Functions
-  /// @{
-
-  public: void setBase(NbList *base)
-  {
-    this->list.setBase(base == 0 ? 0 : base->getSharedList());
-    this->base = base;
-  }
-
-  public: NbList* getBase() const
-  {
-    return this->base;
-  }
-
-  /// @}
-
-  /// @name Data Access Functions
-  /// @{
-
-  protected: SharedList<TiObject>* getSharedList()
-  {
-    return &this->list;
-  }
-
-  public: void add(const std::initializer_list<TioSharedPtr> &objs)
-  {
-    this->list.add(objs);
-    for (auto obj : objs) {
-      OWN_SHAREDPTR(obj);
+  private: virtual SharedPtr<TiObject> prepareForSet(
+    Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
+  ) {
+    if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
+      obj.s_cast_get<Node>()->setOwner(this);
     }
+    return obj;
   }
 
-  public: Int add(TioSharedPtr const &val)
-  {
-    this->list.add(val);
-    OWN_SHAREDPTR(val);
-    return this->list.getCount() - 1;
-  }
-
-  public: void insert(Int index, TioSharedPtr const &val)
-  {
-    this->list.insert(index, val);
-    OWN_SHAREDPTR(val);
-  }
-
-  public: void set(Int index, TioSharedPtr const &val)
-  {
-    if (static_cast<Word>(index) >= this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
+  private: virtual void prepareForUnset(
+    Int index, SharedPtr<TiObject> const &obj, Bool inherited
+  ) {
+    if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
+      obj.s_cast_get<Node>()->setOwner(0);
     }
-    auto old = this->get(index);
-    this->list.set(index, val);
-    DISOWN_SHAREDPTR(this->get(index));
-    OWN_SHAREDPTR(val);
-  }
-
-  public: void remove(Int index)
-  {
-    if (static_cast<Word>(index) >= this->getCount()) {
-      throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
-    }
-    DISOWN_SHAREDPTR(this->get(index));
-    this->list.remove(index);
-  }
-
-  public: Word getCount() const
-  {
-    return this->list.getCount();
-  }
-
-  public: TioSharedPtr const& get(Int index) const
-  {
-    return this->list.get(index);
-  }
-
-  public: void clear()
-  {
-    this->list.clear();
-  }
-
-  public: Bool isInherited(Int index) const
-  {
-    return this->list.isInherited(index);
-  }
-
-  public: void reserve(Int size)
-  {
-    this->list.reserve(size);
-  }
-
-  /// @}
-
-  /// @name DynamicContaining Implementation
-  /// @{
-
-  public: virtual void setElement(Int index, TiObject *val)
-  {
-    this->set(index, getSharedPtr(val));
-  }
-
-  public: virtual void removeElement(Int index)
-  {
-    this->remove(index);
-  }
-
-  public: virtual Word getElementCount() const
-  {
-    return this->getCount();
-  }
-
-  public: virtual TiObject* getElement(Int index) const
-  {
-    return this->get(index).get();
-  }
-
-  public: virtual Int addElement(TiObject *val)
-  {
-    return this->add(getSharedPtr(val));
-  }
-
-  public: virtual void insertElement(Int index, TiObject *val)
-  {
-    this->insert(index, getSharedPtr(val));
   }
 
   /// @}
@@ -215,16 +78,6 @@ class NbList : public Node, public virtual DynamicContaining<TiObject>, public v
       TiObject *obj = this->get(i).get();
       if (obj != 0) Data::unsetIndexes(obj, from, to);
     }
-  }
-
-  public: virtual TypeInfo* getElementsNeededType() const
-  {
-    return TiObject::getTypeInfo();
-  }
-
-  public: virtual HoldMode getElementsHoldMode() const
-  {
-    return HoldMode::SHARED_REF;
   }
 
   /// @}
