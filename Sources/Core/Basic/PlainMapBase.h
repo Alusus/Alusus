@@ -16,8 +16,7 @@
 namespace Core::Basic
 {
 
-template<class CTYPE, class PTYPE=TiObject>
-class PlainMapBase : public PTYPE, public virtual DynamicMapContaining<CTYPE>
+template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public virtual DynamicMapContaining<CTYPE>
 {
   //============================================================================
   // Type Info
@@ -110,6 +109,18 @@ class PlainMapBase : public PTYPE, public virtual DynamicMapContaining<CTYPE>
 
   //============================================================================
   // Member Functions
+
+  /// @name Abstract Functions
+  /// @{
+
+  private: virtual CTYPE* prepareForSet(
+    Char const *key, Int index, CTYPE *obj, Bool inherited, Bool newEntry
+  ) = 0;
+  private: virtual void prepareForUnset(
+    Char const *key, Int index, CTYPE *obj, Bool inherited
+  ) = 0;
+
+  /// @}
 
   /// @name Inheritance Functions
   /// @{
@@ -215,7 +226,7 @@ class PlainMapBase : public PTYPE, public virtual DynamicMapContaining<CTYPE>
     ASSERT(static_cast<Word>(index) < this->getBaseDefCount());
     if (this->inherited->at(index)) {
       Char const *key = this->getKeyFromBase(index).c_str();
-      this->prepareForUnset(key, index, this->list[index].second, this->inherited->at(index));
+      this->prepareForUnset(key, index, this->list[index].second, true);
       auto obj = this->prepareForSet(key, index, this->getFromBase(index), true, false);
       this->list[index].second = obj;
       this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
@@ -317,7 +328,9 @@ class PlainMapBase : public PTYPE, public virtual DynamicMapContaining<CTYPE>
       }
     } else {
       this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, idx);
-      this->prepareForUnset(this->list[idx].first.c_str(), idx, this->list[idx].second, false);
+      this->prepareForUnset(
+        this->list[idx].first.c_str(), idx, this->list[idx].second, this->inherited && this->inherited->at(idx)
+      );
       auto obj = this->prepareForSet(this->list[idx].first.c_str(), idx, val, false, false);
       this->list[idx].second = obj;
       if (this->inherited != 0) this->inherited->at(idx) = false;
@@ -332,7 +345,9 @@ class PlainMapBase : public PTYPE, public virtual DynamicMapContaining<CTYPE>
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, index);
-    this->prepareForUnset(this->list[index].first.c_str(), index, this->list[index].second, false);
+    this->prepareForUnset(
+      this->list[index].first.c_str(), index, this->list[index].second, this->inherited && this->inherited->at(index)
+    );
     auto obj = this->prepareForSet(this->list[index].first.c_str(), index, val, false, false);
     this->list[index].second = obj;
     if (this->inherited != 0) this->inherited->at(index) = false;
@@ -478,13 +493,6 @@ class PlainMapBase : public PTYPE, public virtual DynamicMapContaining<CTYPE>
     if (this->inherited == 0) return false;
     else return this->inherited->at(index);
   }
-
-  private: virtual CTYPE* prepareForSet(
-    Char const *key, Int index, CTYPE *obj, Bool inherited, Bool newEntry
-  ) = 0;
-  private: virtual void prepareForUnset(
-    Char const *key, Int index, CTYPE *obj, Bool inherited
-  ) = 0;
 
   /// @}
 
