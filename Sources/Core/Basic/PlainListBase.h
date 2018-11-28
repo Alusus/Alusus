@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/SharedListBase.h
- * Contains the header of class Core::Basic::SharedListBase.
+ * @file Core/Basic/PlainListBase.h
+ * Contains the header of class Core::Basic::PlainListBase.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,18 +10,18 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_SHAREDLISTBASE_H
-#define CORE_BASIC_SHAREDLISTBASE_H
+#ifndef CORE_BASIC_PLAINLISTBASE_H
+#define CORE_BASIC_PLAINLISTBASE_H
 
 namespace Core::Basic
 {
 
-template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public virtual DynamicContaining<CTYPE>
+template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public virtual DynamicContaining<CTYPE>
 {
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(SharedListBase, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE), (
+  TEMPLATE_TYPE_INFO(PlainListBase, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE), (
     INHERITANCE_INTERFACES(DynamicContaining<CTYPE>)
   ));
 
@@ -29,10 +29,10 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
   //============================================================================
   // Member Variables
 
-  protected: SharedListBase<CTYPE, PTYPE> *base;
+  protected: PlainListBase<CTYPE, PTYPE> *base;
 
   /// The vector in which the object pointers will be stored.
-  private: std::vector<SharedPtr<CTYPE>> list;
+  private: std::vector<CTYPE*> list;
 
   private: std::vector<Bool> *inherited;
 
@@ -40,34 +40,39 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
   //============================================================================
   // Signals & Slots
 
-  public: Signal<void, SharedListBase<CTYPE, PTYPE>*> destroyNotifier;
-  public: Signal<void, SharedListBase<CTYPE, PTYPE>*, ContentChangeOp, Int> changeNotifier;
+  public: Signal<void, PlainListBase<CTYPE, PTYPE>*> destroyNotifier;
+  public: Signal<void, PlainListBase<CTYPE, PTYPE>*, ContentChangeOp, Int> changeNotifier;
 
-  private: Slot<void, SharedListBase<CTYPE, PTYPE>*> baseDestroySlot = {
-    this, &SharedListBase<CTYPE, PTYPE>::onBaseDestroyed
+  private: Slot<void, PlainListBase<CTYPE, PTYPE>*> baseDestroySlot = {
+    this, &PlainListBase<CTYPE, PTYPE>::onBaseDestroyed
   };
-  private: Slot<void, SharedListBase<CTYPE, PTYPE>*, ContentChangeOp, Int> baseChangeSlot = {
-    this, &SharedListBase<CTYPE, PTYPE>::onBaseContentChanged
+  private: Slot<void, PlainListBase<CTYPE, PTYPE>*, ContentChangeOp, Int> baseChangeSlot = {
+    this, &PlainListBase<CTYPE, PTYPE>::onBaseContentChanged
   };
 
 
   //============================================================================
   // Constructors
 
-  public: SharedListBase() : inherited(0), base(0)
+  public: PlainListBase() : inherited(0), base(0)
   {
   }
 
-  public: SharedListBase(const std::initializer_list<SharedPtr<CTYPE>> &args) : inherited(0), base(0)
+  public: PlainListBase(const std::initializer_list<CTYPE*> &args) : inherited(0), base(0)
   {
     this->reserve(args.size());
     for (auto arg : args) this->add(arg);
   }
 
-  public: virtual ~SharedListBase()
+  public: virtual ~PlainListBase()
   {
     this->destroyNotifier.emit(this);
     if (this->base != 0) this->detachFromBase();
+  }
+
+  public: static SharedPtr<PlainListBase> create(const std::initializer_list<CTYPE*> &args)
+  {
+    return std::make_shared<PlainListBase>(args);
   }
 
 
@@ -77,25 +82,22 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
   /// @name Abstract Functions
   /// @{
 
-  private: virtual SharedPtr<CTYPE> prepareForSet(
-    Int index, SharedPtr<CTYPE> const &obj, Bool inherited, Bool newEntry
-  ) = 0;
-  private: virtual void prepareForUnset(
-    Int index, SharedPtr<CTYPE> const &obj, Bool inherited
-  ) = 0;
+  private: virtual CTYPE* prepareForSet(Int index, CTYPE *obj, Bool inherited, Bool newEntry) = 0;
+
+  private: virtual void prepareForUnset(Int index, CTYPE *obj, Bool inherited) = 0;
 
   /// @}
 
   /// @name Inheritance Functions
   /// @{
 
-  public: void setBase(SharedListBase<CTYPE, PTYPE> *b)
+  public: void setBase(PlainListBase<CTYPE, PTYPE> *b)
   {
     if (this->base != 0) this->detachFromBase();
     if (b != 0) this->attachToBase(b);
   }
 
-  public: SharedListBase<CTYPE, PTYPE>* getBase() const
+  public: PlainListBase<CTYPE, PTYPE>* getBase() const
   {
     return this->base;
   }
@@ -105,7 +107,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
     return this->base != 0 ? this->base->getCount() : 0;
   }
 
-  private: void attachToBase(SharedListBase<CTYPE, PTYPE> *b)
+  private: void attachToBase(PlainListBase<CTYPE, PTYPE> *b)
   {
     ASSERT(this->base == 0);
     ASSERT(this->inherited == 0);
@@ -144,7 +146,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
     }
   }
 
-  private: SharedPtr<CTYPE> getFromBase(Int index)
+  private: CTYPE* getFromBase(Int index)
   {
     return this->base->get(index);
   }
@@ -185,7 +187,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
       this->inherited->erase(this->inherited->begin()+index);
       this->changeNotifier.emit(this, ContentChangeOp::REMOVED, index);
     } else {
-      SharedPtr<CTYPE> obj = this->get(index);
+      CTYPE *obj = this->get(index);
       this->prepareForUnset(index, this->list[index], false);
       this->list.erase(this->list.begin()+index);
       this->inherited->erase(this->inherited->begin()+index);
@@ -194,14 +196,14 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
     }
   }
 
-  private: void onBaseContentChanged(SharedListBase<CTYPE, PTYPE> *obj, ContentChangeOp op, Int index)
+  private: void onBaseContentChanged(PlainListBase<CTYPE, PTYPE> *obj, ContentChangeOp op, Int index)
   {
     if (op == ContentChangeOp::ADDED) this->onAdded(index);
     else if (op == ContentChangeOp::UPDATED) this->onUpdated(index);
     else if (op == ContentChangeOp::REMOVED) this->onRemoved(index);
   }
 
-  private: void onBaseDestroyed(SharedListBase<CTYPE, PTYPE> *obj)
+  private: void onBaseDestroyed(PlainListBase<CTYPE, PTYPE> *obj)
   {
     this->detachFromBase();
   }
@@ -216,7 +218,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
    * This is more efficient than individually calling add() on each item
    * because it preallocates any needed memory in advance.
    */
-  public: void add(const std::initializer_list<SharedPtr<CTYPE>> &objs)
+  public: void add(const std::initializer_list<CTYPE*> &objs)
   {
     if (this->list.capacity() < this->list.size() + objs.size()) this->list.reserve(this->list.size() + objs.size());
     for (auto obj : objs) {
@@ -227,7 +229,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
     }
   }
 
-  public: Int add(SharedPtr<CTYPE> const &val)
+  public: Int add(CTYPE *val)
   {
     auto obj = this->prepareForSet(this->list.size(), val, false, true);
     this->list.push_back(obj);
@@ -236,7 +238,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
     return this->list.size() - 1;
   }
 
-  public: void insert(Int index, SharedPtr<CTYPE> const &val)
+  public: void insert(Int index, CTYPE *val)
   {
     if (static_cast<Word>(index) > this->list.size()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
@@ -247,7 +249,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
     this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
   }
 
-  public: void set(Int index, SharedPtr<CTYPE> const &val)
+  public: void set(Int index, CTYPE *val)
   {
     if (index == this->getCount()) {
       this->add(val);
@@ -295,7 +297,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
     return this->list.size();
   }
 
-  public: SharedPtr<CTYPE> const& get(Int index) const
+  public: CTYPE* get(Int index) const
   {
     if (static_cast<Word>(index) >= this->list.size()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
@@ -347,7 +349,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
 
   public: virtual void setElement(Int index, CTYPE *val)
   {
-    this->set(index, getSharedPtr(val));
+    this->set(index, val);
   }
 
   public: virtual void removeElement(Int index)
@@ -362,17 +364,17 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
 
   public: virtual CTYPE* getElement(Int index) const
   {
-    return this->get(index).get();
+    return this->get(index);
   }
 
   public: virtual Int addElement(CTYPE *val)
   {
-    return this->add(getSharedPtr(val));
+    return this->add(val);
   }
 
   public: virtual void insertElement(Int index, CTYPE *val)
   {
-    this->insert(index, getSharedPtr(val));
+    this->insert(index, val);
   }
 
   public: virtual TypeInfo* getElementsNeededType() const
@@ -382,7 +384,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
 
   public: virtual HoldMode getElementsHoldMode() const
   {
-    return HoldMode::SHARED_REF;
+    return HoldMode::PLAIN_REF;
   }
 
   /// @}

@@ -743,6 +743,7 @@ extern std::istream &inStream;
 
 #include "SharedListBase.h"
 #include "SharedList.h"
+#include "PlainListBase.h"
 #include "PlainList.h"
 #include "SharedMapBase.h"
 #include "SharedMap.h"
