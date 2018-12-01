@@ -48,6 +48,11 @@ template<class CTYPE> class SharedList : public SharedListBase<CTYPE, TiObject>
     return obj;
   }
 
+  private: virtual void finalizeSet(
+    Int index, SharedPtr<CTYPE> const &obj, Bool inherited, Bool newEntry
+  ) {
+  }
+
   private: virtual void prepareForUnset(
     Int index, SharedPtr<CTYPE> const &obj, Bool inherited
   ) {

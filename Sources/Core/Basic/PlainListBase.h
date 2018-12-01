@@ -84,6 +84,8 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public vi
 
   private: virtual CTYPE* prepareForSet(Int index, CTYPE *obj, Bool inherited, Bool newEntry) = 0;
 
+  private: virtual void finalizeSet(Int index, CTYPE *obj, Bool inherited, Bool newEntry) = 0;
+
   private: virtual void prepareForUnset(Int index, CTYPE *obj, Bool inherited) = 0;
 
   /// @}
@@ -160,6 +162,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public vi
     obj = this->prepareForSet(index, obj, true, true);
     this->list.insert(this->list.begin()+index, obj);
     this->inherited->insert(this->inherited->begin()+index, true);
+    this->finalizeSet(index, obj, true, true);
     this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
   }
 
@@ -172,6 +175,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public vi
       this->prepareForUnset(index, this->list[index], true);
       auto obj = this->prepareForSet(index, this->getFromBase(index), true, false);
       this->list[index] = obj;
+      this->finalizeSet(index, obj, true, false);
       this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
     }
   }
@@ -225,6 +229,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public vi
       auto preparedObj = this->prepareForSet(this->list.size(), obj, false, true);
       this->list.push_back(preparedObj);
       if (this->inherited != 0) this->inherited->push_back(false);
+      this->finalizeSet(this->list.size() - 1, preparedObj, false, true);
       this->changeNotifier.emit(this, ContentChangeOp::ADDED, this->list.size() - 1);
     }
   }
@@ -234,6 +239,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public vi
     auto obj = this->prepareForSet(this->list.size(), val, false, true);
     this->list.push_back(obj);
     if (this->inherited != 0) this->inherited->push_back(false);
+    this->finalizeSet(this->list.size() - 1, obj, false, true);
     this->changeNotifier.emit(this, ContentChangeOp::ADDED, this->list.size() - 1);
     return this->list.size() - 1;
   }
@@ -243,9 +249,10 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public vi
     if (static_cast<Word>(index) > this->list.size()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
     }
-    auto obj = this->prepareForSet(this->list.size(), val, false, true);
+    auto obj = this->prepareForSet(index, val, false, true);
     this->list.insert(this->list.begin()+index, obj);
     if (this->inherited != 0) this->inherited->insert(this->inherited->begin()+index, false);
+    this->finalizeSet(index, obj, false, true);
     this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
   }
 
@@ -263,6 +270,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public vi
     auto obj = this->prepareForSet(index, val, false, false);
     this->list[index] = obj;
     if (this->inherited != 0) this->inherited->at(index) = false;
+    this->finalizeSet(index, obj, false, false);
     this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
   }
 
@@ -282,6 +290,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public vi
       auto obj = this->prepareForSet(index, this->getFromBase(index), true, false);
       this->list[index] = obj;
       this->inherited->at(index) = true;
+      this->finalizeSet(index, obj, true, false);
       this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
     } else {
       this->changeNotifier.emit(this, ContentChangeOp::WILL_REMOVE, index);
@@ -317,6 +326,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public vi
         auto obj = this->prepareForSet(i, this->getFromBase(i), true, false);
         this->list[i] = obj;
         this->inherited->at(i) = true;
+        this->finalizeSet(i, obj, true, false);
         this->changeNotifier.emit(this, ContentChangeOp::UPDATED, i);
       }
       ++i;

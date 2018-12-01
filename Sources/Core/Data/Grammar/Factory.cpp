@@ -32,7 +32,6 @@ void Factory::set(Char const* qualifier, TiObject *val)
   if (!ref->setValue(&this->context, val)) {
     throw EXCEPTION(InvalidArgumentException, S("qualifier"), S("Invalid qualifier."), qualifier);
   }
-  if (val != 0) setTreeIds(val);
   this->initializeObject(val);
 }
 

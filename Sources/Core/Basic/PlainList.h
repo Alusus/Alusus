@@ -47,6 +47,10 @@ template<class CTYPE> class PlainList : public PlainListBase<CTYPE, TiObject>
     return obj;
   }
 
+  private: virtual void finalizeSet(Int index, CTYPE *obj, Bool inherited, Bool newEntry)
+  {
+  }
+
   private: virtual void prepareForUnset(Int index, CTYPE *obj, Bool inherited)
   {
   }

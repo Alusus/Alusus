@@ -30,6 +30,35 @@ Module::~Module()
 
 
 //==============================================================================
+// Abstract Function Implementations
+
+SharedPtr<TiObject> Module::prepareForSet(
+  Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
+) {
+  return obj;
+}
+
+
+void Module::finalizeSet(
+  Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
+) {
+  if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
+    obj.s_cast_get<Node>()->setOwner(this);
+    setTreeIds(obj.get());
+  }
+}
+
+
+void Module::prepareForUnset(
+  Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited
+) {
+  if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
+    obj.s_cast_get<Node>()->setOwner(0);
+  }
+}
+
+
+//==============================================================================
 // Inheritance Functions
 
 void Module::attachToBase(Module *b)

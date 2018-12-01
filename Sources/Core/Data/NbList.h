@@ -52,10 +52,15 @@ class NbList : public SharedListBase<TiObject, Node>, public virtual DataHaving
   private: virtual SharedPtr<TiObject> prepareForSet(
     Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
   ) {
+    return obj;
+  }
+
+  private: virtual void finalizeSet(
+    Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
+  ) {
     if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
       obj.s_cast_get<Node>()->setOwner(this);
     }
-    return obj;
   }
 
   private: virtual void prepareForUnset(

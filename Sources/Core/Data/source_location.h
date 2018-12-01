@@ -103,6 +103,11 @@ class SourceLocationStack : public SharedListBase<SourceLocationRecord, SourceLo
     return obj;
   }
 
+  private: virtual void finalizeSet(
+    Int index, SharedPtr<SourceLocationRecord> const &obj, Bool inherited, Bool newEntry
+  ) {
+  }
+
   private: virtual void prepareForUnset(
     Int index, SharedPtr<SourceLocationRecord> const &obj, Bool inherited
   ) {

@@ -61,6 +61,11 @@ class ObjTiInterfaceList : public SharedListBase<ObjTiInterface, TiObject>
     }
   }
 
+  private: virtual void finalizeSet(
+    Int index, SharedPtr<ObjTiInterface> const &obj, Bool inherited, Bool newEntry
+  ) {
+  }
+
   private: virtual void prepareForUnset(
     Int index, SharedPtr<ObjTiInterface> const &obj, Bool inherited
   ) {

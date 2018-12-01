@@ -49,6 +49,11 @@ template<class CTYPE> class PlainMap : public PlainMapBase<CTYPE, TiObject>
     return obj;
   }
 
+  private: virtual void finalizeSet(
+    Char const *key, Int index, CTYPE *obj, Bool inherited, Bool newEntry
+  ) {
+  }
+
   private: virtual void prepareForUnset(
     Char const *key, Int index, CTYPE *obj, Bool inherited
   ) {

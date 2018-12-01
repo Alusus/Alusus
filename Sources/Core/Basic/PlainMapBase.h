@@ -116,6 +116,11 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
   private: virtual CTYPE* prepareForSet(
     Char const *key, Int index, CTYPE *obj, Bool inherited, Bool newEntry
   ) = 0;
+
+  private: virtual void finalizeSet(
+    Char const *key, Int index, CTYPE *obj, Bool inherited, Bool newEntry
+  ) = 0;
+
   private: virtual void prepareForUnset(
     Char const *key, Int index, CTYPE *obj, Bool inherited
   ) = 0;
@@ -209,13 +214,16 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
       obj = this->prepareForSet(key, index, obj, true, true);
       this->list.insert(this->list.begin()+index, Entry(key, obj));
       this->inherited->insert(this->inherited->begin()+index, false);
+      if (this->index != 0) this->index->add(index);
+      this->finalizeSet(key, index, obj, true, true);
     } else if (myIndex == -1) {
       obj = this->getFromBase(index);
       obj = this->prepareForSet(key, index, obj, true, true);
       this->list.insert(this->list.begin()+index, Entry(key, obj));
       this->inherited->insert(this->inherited->begin()+index, true);
+      if (this->index != 0) this->index->add(index);
+      this->finalizeSet(key, index, obj, true, true);
     }
-    if (this->index != 0) this->index->add(index);
     this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
   }
 
@@ -229,6 +237,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
       this->prepareForUnset(key, index, this->list[index].second, true);
       auto obj = this->prepareForSet(key, index, this->getFromBase(index), true, false);
       this->list[index].second = obj;
+      this->finalizeSet(key, index, obj, true, false);
       this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
     }
   }
@@ -281,6 +290,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
         auto obj = this->prepareForSet(key, i, val, false, false);
         this->list[i].second = obj;
         this->inherited->at(i) = false;
+        this->finalizeSet(key, i, obj, false, false);
         this->changeNotifier.emit(this, ContentChangeOp::UPDATED, i);
       } else {
         throw EXCEPTION(InvalidArgumentException, S("key"), S("Already exists."), key);
@@ -291,6 +301,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
       this->list.push_back(Entry(key, obj));
       if (this->inherited != 0) this->inherited->push_back(false);
       if (this->index != 0) this->index->add();
+      this->finalizeSet(key, i, obj, false, true);
       this->changeNotifier.emit(this, ContentChangeOp::ADDED, i);
     }
     return i;
@@ -309,6 +320,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
     this->list.insert(this->list.begin()+index, Entry(key, obj));
     if (this->inherited != 0) this->inherited->insert(this->inherited->begin()+index, false);
     if (this->index != 0) this->index->add(index);
+    this->finalizeSet(key, index, obj, false, true);
     this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
   }
 
@@ -322,6 +334,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
         this->list.push_back(Entry(key, obj));
         if (this->inherited != 0) this->inherited->push_back(false);
         if (this->index != 0) this->index->add();
+        this->finalizeSet(key, idx, obj, false, true);
         this->changeNotifier.emit(this, ContentChangeOp::ADDED, idx);
       } else {
         throw EXCEPTION(InvalidArgumentException, S("key"),S("Not found."), key);
@@ -334,6 +347,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
       auto obj = this->prepareForSet(this->list[idx].first.c_str(), idx, val, false, false);
       this->list[idx].second = obj;
       if (this->inherited != 0) this->inherited->at(idx) = false;
+      this->finalizeSet(this->list[idx].first.c_str(), idx, obj, false, false);
       this->changeNotifier.emit(this, ContentChangeOp::UPDATED, idx);
     }
     return idx;
@@ -351,6 +365,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
     auto obj = this->prepareForSet(this->list[index].first.c_str(), index, val, false, false);
     this->list[index].second = obj;
     if (this->inherited != 0) this->inherited->at(index) = false;
+    this->finalizeSet(this->list[index].first.c_str(), index, obj, false, false);
     this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
   }
 
@@ -368,6 +383,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
       auto obj = this->prepareForSet(key, idx, this->getFromBase(idx), true, false);
       this->list[idx].second = obj;
       this->inherited->at(idx) = true;
+      this->finalizeSet(key, idx, obj, true, false);
       this->changeNotifier.emit(this, ContentChangeOp::UPDATED, idx);
     } else {
       this->changeNotifier.emit(this, ContentChangeOp::WILL_REMOVE, idx);
@@ -396,6 +412,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
       auto obj = this->prepareForSet(this->list[index].first.c_str(), index, this->getFromBase(index), true, false);
       this->list[index].second = obj;
       this->inherited->at(index) = true;
+      this->finalizeSet(this->list[index].first.c_str(), index, obj, true, false);
       this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
     } else {
       this->changeNotifier.emit(this, ContentChangeOp::WILL_REMOVE, index);
@@ -474,6 +491,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
         auto obj = this->prepareForSet(this->list[i].first.c_str(), i, this->getFromBase(i), true, false);
         this->list[i].second = obj;
         this->inherited->at(i) = true;
+        this->finalizeSet(this->list[i].first.c_str(), i, obj, true, false);
         this->changeNotifier.emit(this, ContentChangeOp::UPDATED, i);
       }
       ++i;
