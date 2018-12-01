@@ -89,7 +89,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public v
   /// @name Inheritance Functions
   /// @{
 
-  public: void setBase(SharedListBase<CTYPE, PTYPE> *b)
+  protected: void setBase(SharedListBase<CTYPE, PTYPE> *b)
   {
     if (this->base != 0) this->detachFromBase();
     if (b != 0) this->attachToBase(b);

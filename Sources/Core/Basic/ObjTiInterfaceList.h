@@ -68,6 +68,21 @@ class ObjTiInterfaceList : public SharedListBase<ObjTiInterface, TiObject>
 
   /// @}
 
+  /// @name Inheritted Functions
+  /// @{
+
+  public: void setBase(ObjTiInterfaceList *b)
+  {
+    SharedListBase<ObjTiInterface, TiObject>::setBase(b);
+  }
+
+  public: ObjTiInterfaceList* getBase() const
+  {
+    return static_cast<ObjTiInterfaceList*>(this->base);
+  }
+
+  /// @}
+
   /// @name Interface Access Functions
   /// @{
 

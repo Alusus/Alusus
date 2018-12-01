@@ -125,7 +125,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public vir
   /// @name Inheritance Functions
   /// @{
 
-  public: void setBase(PlainMapBase<CTYPE, PTYPE> *b)
+  protected: void setBase(PlainMapBase<CTYPE, PTYPE> *b)
   {
     if (this->base != 0) this->detachFromBase();
     if (b != 0) this->attachToBase(b);

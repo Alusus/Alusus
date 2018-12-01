@@ -125,7 +125,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
   /// @name Inheritance Functions
   /// @{
 
-  public: void setBase(SharedMapBase<CTYPE, PTYPE> *b)
+  protected: void setBase(SharedMapBase<CTYPE, PTYPE> *b)
   {
     if (this->base != 0) this->detachFromBase();
     if (b != 0) this->attachToBase(b);

@@ -63,6 +63,21 @@ class NbMap : public SharedMapBase<TiObject, Node>, public virtual DataHaving
 
   /// @}
 
+  /// @name Inheritted Functions
+  /// @{
+
+  public: void setBase(NbMap *b)
+  {
+    SharedMapBase<TiObject, Node>::setBase(b);
+  }
+
+  public: NbMap* getBase() const
+  {
+    return static_cast<NbMap*>(this->base);
+  }
+
+  /// @}
+
   /// @name DataHaving Implementation
   /// @{
 

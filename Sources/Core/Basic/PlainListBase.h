@@ -91,7 +91,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public vi
   /// @name Inheritance Functions
   /// @{
 
-  public: void setBase(PlainListBase<CTYPE, PTYPE> *b)
+  protected: void setBase(PlainListBase<CTYPE, PTYPE> *b)
   {
     if (this->base != 0) this->detachFromBase();
     if (b != 0) this->attachToBase(b);

@@ -38,7 +38,10 @@ template<class CTYPE> class PlainMap : public PlainMapBase<CTYPE, TiObject>
 
 
   //============================================================================
-  // Abstract Implementations
+  // Member Functions
+
+  /// @name Abstract Implementations
+  /// @{
 
   private: virtual CTYPE* prepareForSet(
     Char const *key, Int index, CTYPE *obj, Bool inherited, Bool newEntry
@@ -50,6 +53,23 @@ template<class CTYPE> class PlainMap : public PlainMapBase<CTYPE, TiObject>
     Char const *key, Int index, CTYPE *obj, Bool inherited
   ) {
   }
+
+  /// @}
+
+  /// @name Inheritted Functions
+  /// @{
+
+  public: void setBase(PlainMap<CTYPE> *b)
+  {
+    PlainMapBase<CTYPE, TiObject>::setBase(b);
+  }
+
+  public: PlainMap<CTYPE>* getBase() const
+  {
+    return static_cast<PlainMap<CTYPE>*>(this->base);
+  }
+
+  /// @}
 
 }; // class
 

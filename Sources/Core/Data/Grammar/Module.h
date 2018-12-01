@@ -18,13 +18,15 @@ namespace Core::Data::Grammar
 
 // TODO: DOC
 
-class Module : public NbMap, public virtual Binding, public virtual Inheriting, public virtual IdHaving
+class Module : public SharedMapBase<TiObject, Node>,
+               public virtual DataHaving, public virtual Binding, public virtual Inheriting, public virtual IdHaving
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Module, NbMap, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Binding, Inheriting, IdHaving)
+  typedef SharedMapBase<TiObject, Node> _MyBase;
+  TYPE_INFO(Module, _MyBase, "Core.Data.Grammar", "Core", "alusus.net", (
+    INHERITANCE_INTERFACES(DataHaving, Binding, Inheriting, IdHaving)
   ));
 
 
@@ -47,7 +49,6 @@ class Module : public NbMap, public virtual Binding, public virtual Inheriting, 
   // Member Variables
 
   private: SharedPtr<Reference> baseRef;
-  private: Module *base = 0;
 
   private: SharedPtr<Reference> startRef;
   private: SharedPtr<Reference> lexerModuleRef;
@@ -61,10 +62,9 @@ class Module : public NbMap, public virtual Binding, public virtual Inheriting, 
   //============================================================================
   // Signals & Slots
 
-  public: Signal<void, Module*> destroyNotifier;
   public: Signal<void, Module*, Word> metaChangeNotifier;
 
-  public: Slot<void, Module*> baseDestroySlot = {
+  public: Slot<void, SharedMapBase<TiObject, Node>*> baseDestroySlot = {
     this, &Module::onBaseDestroyed
   };
 
@@ -98,7 +98,7 @@ class Module : public NbMap, public virtual Binding, public virtual Inheriting, 
 
   public: Module(
     Bool useIndex, std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements
-  ) : NbMap(useIndex)
+  ) : SharedMapBase(useIndex)
   {
     ATTR_INITIALIZATION_LOOP(attrs)
     MAP_ELEMENT_INITIALIZATION_LOOP(elements)
@@ -115,6 +115,28 @@ class Module : public NbMap, public virtual Binding, public virtual Inheriting, 
 
   //============================================================================
   // Member Functions
+
+  /// @name Abstract Function Implementations
+  /// @{
+
+  private: virtual SharedPtr<TiObject> prepareForSet(
+    Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
+  ) {
+    if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
+      obj.s_cast_get<Node>()->setOwner(this);
+    }
+    return obj;
+  }
+
+  private: virtual void prepareForUnset(
+    Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited
+  ) {
+    if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
+      obj.s_cast_get<Node>()->setOwner(0);
+    }
+  }
+
+  /// @}
 
   /// @name Inheritance Functions
   /// @{
@@ -141,14 +163,14 @@ class Module : public NbMap, public virtual Binding, public virtual Inheriting, 
 
   public: Module* getBaseModule() const
   {
-    return this->base;
+    return static_cast<Module*>(this->base);
   }
 
   private: void attachToBase(Module *p);
 
   private: void detachFromBase();
 
-  private: void onBaseDestroyed(Module *obj)
+  private: void onBaseDestroyed(SharedMapBase<TiObject, Node> *obj)
   {
     this->detachFromBase();
   }
@@ -174,7 +196,7 @@ class Module : public NbMap, public virtual Binding, public virtual Inheriting, 
   public: void resetLexerModuleRef()
   {
     RESET_OWNED_SHAREDPTR(this->lexerModuleRef);
-    if (this->base != 0) this->lexerModuleRef = this->base->getLexerModuleRef();
+    if (this->getBaseModule() != 0) this->lexerModuleRef = this->getBaseModule()->getLexerModuleRef();
     this->ownership &= ~Module::MetaElement::LEXER_MODULE_REF;
     this->metaChangeNotifier.emit(this, Module::MetaElement::LEXER_MODULE_REF);
   }
@@ -198,7 +220,7 @@ class Module : public NbMap, public virtual Binding, public virtual Inheriting, 
   public: void resetErrorSyncBlockPairsRef()
   {
     RESET_OWNED_SHAREDPTR(this->errorSyncBlockPairsRef);
-    if (this->base != 0) this->errorSyncBlockPairsRef = this->base->getErrorSyncBlockPairsRef();
+    if (this->getBaseModule() != 0) this->errorSyncBlockPairsRef = this->getBaseModule()->getErrorSyncBlockPairsRef();
     this->ownership &= ~Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF;
     this->metaChangeNotifier.emit(this, Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF);
   }
@@ -222,7 +244,7 @@ class Module : public NbMap, public virtual Binding, public virtual Inheriting, 
   public: void resetStartRef()
   {
     RESET_OWNED_SHAREDPTR(this->startRef);
-    if (this->base != 0) this->startRef = this->base->getStartRef();
+    if (this->getBaseModule() != 0) this->startRef = this->getBaseModule()->getStartRef();
     this->ownership &= ~Module::MetaElement::START_REF;
     this->metaChangeNotifier.emit(this, Module::MetaElement::START_REF);
   }

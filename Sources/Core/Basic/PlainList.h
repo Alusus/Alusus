@@ -37,7 +37,10 @@ template<class CTYPE> class PlainList : public PlainListBase<CTYPE, TiObject>
 
 
   //============================================================================
-  // Abstract Implementations
+  // Member Functions
+
+  /// @name Abstract Implementations
+  /// @{
 
   private: virtual CTYPE* prepareForSet(Int index, CTYPE *obj, Bool inherited, Bool newEntry)
   {
@@ -47,6 +50,23 @@ template<class CTYPE> class PlainList : public PlainListBase<CTYPE, TiObject>
   private: virtual void prepareForUnset(Int index, CTYPE *obj, Bool inherited)
   {
   }
+
+  /// @}
+
+  /// @name Inheritted Functions
+  /// @{
+
+  public: void setBase(PlainList<CTYPE> *b)
+  {
+    PlainListBase<CTYPE, TiObject>::setBase(b);
+  }
+
+  public: PlainList<CTYPE>* getBase() const
+  {
+    return static_cast<PlainList<CTYPE>*>(this->base);
+  }
+
+  /// @}
 
 }; // class
 

@@ -38,7 +38,10 @@ template<class CTYPE> class SharedMap : public SharedMapBase<CTYPE, TiObject>
 
 
   //============================================================================
-  // Abstract Implementations
+  // Member Functions
+
+  /// @name Abstract Functions Implementation
+  /// @{
 
   private: virtual SharedPtr<CTYPE> prepareForSet(
     Char const *key, Int index, SharedPtr<CTYPE> const &obj, Bool inherited, Bool newEntry
@@ -50,6 +53,23 @@ template<class CTYPE> class SharedMap : public SharedMapBase<CTYPE, TiObject>
     Char const *key, Int index, SharedPtr<CTYPE> const &obj, Bool inherited
   ) {
   }
+
+  /// @}
+
+  /// @name Inheritted Functions
+  /// @{
+
+  public: void setBase(SharedMap<CTYPE> *b)
+  {
+    SharedMapBase<CTYPE, TiObject>::setBase(b);
+  }
+
+  public: SharedMap<CTYPE>* getBase() const
+  {
+    return static_cast<SharedMap<CTYPE>*>(this->base);
+  }
+
+  /// @}
 
 }; // class
 

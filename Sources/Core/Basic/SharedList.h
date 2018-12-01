@@ -37,7 +37,10 @@ template<class CTYPE> class SharedList : public SharedListBase<CTYPE, TiObject>
 
 
   //============================================================================
-  // Abstract Implementations
+  // Member Functions
+
+  /// @name Abstract Implementations
+  /// @{
 
   private: virtual SharedPtr<CTYPE> prepareForSet(
     Int index, SharedPtr<CTYPE> const &obj, Bool inherited, Bool newEntry
@@ -49,6 +52,23 @@ template<class CTYPE> class SharedList : public SharedListBase<CTYPE, TiObject>
     Int index, SharedPtr<CTYPE> const &obj, Bool inherited
   ) {
   }
+
+  /// @}
+
+  /// @name Inheritted Functions
+  /// @{
+
+  public: void setBase(SharedList<CTYPE> *b)
+  {
+    SharedListBase<CTYPE, TiObject>::setBase(b);
+  }
+
+  public: SharedList<CTYPE>* getBase() const
+  {
+    return static_cast<SharedList<CTYPE>*>(this->base);
+  }
+
+  /// @}
 
 }; // class
 

@@ -68,6 +68,21 @@ class NbList : public SharedListBase<TiObject, Node>, public virtual DataHaving
 
   /// @}
 
+  /// @name Inheritted Functions
+  /// @{
+
+  public: void setBase(NbList *b)
+  {
+    SharedListBase<TiObject, Node>::setBase(b);
+  }
+
+  public: NbList* getBase() const
+  {
+    return static_cast<NbList*>(this->base);
+  }
+
+  /// @}
+
   /// @name DataHaving Implementation
   /// @{
 
