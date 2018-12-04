@@ -35,7 +35,17 @@ Module::~Module()
 SharedPtr<TiObject> Module::prepareForSet(
   Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
 ) {
-  return obj;
+  if (inherited && obj != 0 && obj->isDerivedFrom<Module>()) {
+    auto module = Module::create();
+    StrStream baseRef;
+    baseRef << S("bmodule.") << key;
+    module->setBaseRef(std::make_shared<Reference>(baseRef.str().c_str()));
+    module->setBase(obj.get());
+    module->setOwner(this);
+    return module;
+  } else {
+    return obj;
+  }
 }
 
 
