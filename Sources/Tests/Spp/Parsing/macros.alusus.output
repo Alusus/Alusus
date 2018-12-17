@@ -13,26 +13,26 @@ ERROR CD1003 @ (19,1): Invalid 'def' command.
 ERROR SPPH1013 @ (20,16): Invalid macro argumnet definition.
 ERROR CD1003 @ (20,1): Invalid 'def' command.
 ------------------ Parsed Data Dump ------------------
-Macro [Subject.Macro]
+Macro [Main.Macro]
  argTypes: Map
   x: NULL
  body: Identifier: x [Subject.Parameter]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Macro [Subject.Macro]
+Macro [Main.Macro]
  argTypes: Map
   x: Identifier: Identifier [Subject.Parameter]
  body: Identifier: x [Subject.Parameter]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Macro [Subject.Macro]
+Macro [Main.Macro]
  argTypes: Map
   x: Identifier: Identifier [Subject.Parameter]
- body: Scope [Main.StatementList]
+ body: Scope [Statements.StmtList]
   Identifier: x [Subject.Parameter]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Macro [Subject.Macro]
+Macro [Main.Macro]
  argTypes: Map
   x: NULL
   y: NULL
@@ -41,7 +41,7 @@ Macro [Subject.Macro]
   Identifier: y [Subject.Parameter]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Macro [Subject.Macro]
+Macro [Main.Macro]
  argTypes: Map
   x: Identifier: Identifier [Subject.Parameter]
   y: Identifier: String [Subject.Parameter]
@@ -50,31 +50,31 @@ Macro [Subject.Macro]
   Identifier: y [Subject.Parameter]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Macro [Subject.Macro]
+Macro [Main.Macro]
  argTypes: Map
   x: Identifier: Identifier [Subject.Parameter]
   y: Identifier: String [Subject.Parameter]
- body: Scope [Main.StatementList]
+ body: Scope [Statements.StmtList]
   List [Expression.ListExp]
    Identifier: x [Subject.Parameter]
    Identifier: y [Subject.Parameter]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Macro [Subject.Macro]
+Macro [Main.Macro]
  argTypes: Map
   x: Identifier: Identifier [Subject.Parameter]
   y: NULL
- body: Scope [Main.StatementList]
+ body: Scope [Statements.StmtList]
   List [Expression.ListExp]
    Identifier: x [Subject.Parameter]
    Identifier: y [Subject.Parameter]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Macro [Subject.Macro]
+Macro [Main.Macro]
  argTypes: Map
   x: NULL
   y: Identifier: String [Subject.Parameter]
- body: Scope [Main.StatementList]
+ body: Scope [Statements.StmtList]
   List [Expression.ListExp]
    Identifier: x [Subject.Parameter]
    Identifier: y [Subject.Parameter]

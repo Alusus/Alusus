@@ -69,15 +69,17 @@ Bool Reference::getValue(TiObject *source, TiObject *&value, Module **ownerModul
 {
   VALIDATE_NOT_NULL(source);
 
+  TiObject *tempValue;
   Module *tempOwnerModule;
-  if (!this->_getValue(source, value, &tempOwnerModule)) return false;
+  if (!this->_getValue(source, tempValue, &tempOwnerModule)) return false;
 
   if (this->next == 0) {
     if (ownerModule != 0) *ownerModule = tempOwnerModule;
+    value = tempValue;
   } else {
     // Recurse into next level, if possible.
-    if (value == 0) return false;
-    if (!this->next->getValue(value, value, ownerModule)) return false;
+    if (tempValue == 0) return false;
+    if (!this->next->getValue(tempValue, value, ownerModule)) return false;
     if (ownerModule != 0 && *ownerModule == 0) *ownerModule = tempOwnerModule;
   }
 

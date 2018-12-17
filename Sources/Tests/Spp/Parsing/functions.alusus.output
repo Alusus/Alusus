@@ -4,57 +4,57 @@ ERROR CP1005 @ (19,10): Unexpected modifier encountered.
 ERROR SPPH1003 @ (27,18): Invalid function signature.
 ERROR CD1003 @ (27,1): Invalid 'def' command.
 ------------------ Parsed Data Dump ------------------
-Function f1 [Subject.Function]
- type: FunctionType [Subject.Function]
+Function f1 [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: Int [Subject.Parameter]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Parameter]
   retType: Identifier: void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: Int [Subject.Parameter]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Parameter]
   retType: Identifier: void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: Int [Subject.Parameter]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Parameter]
   retType: Identifier: void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: Int [Subject.Parameter]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Parameter]
   retType: Identifier: void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: Int [Subject.Parameter]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Parameter]
   retType: Identifier: void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-FunctionType [Subject.Function]
+FunctionType [Main.Function]
  argTypes: Map
   X: Identifier: Int [Subject.Parameter]
   args: ArgPack 0 0
@@ -62,8 +62,8 @@ FunctionType [Subject.Function]
  retType: Identifier: void [Subject.Parameter]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Function f7 [Subject.Function]
- type: FunctionType [Subject.Function]
+Function f7 [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    X: ParamPass [] [Expression.ParamPassExp]
     operand: Identifier: ptr [Subject.Parameter]

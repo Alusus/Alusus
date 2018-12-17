@@ -3,11 +3,11 @@ ERROR CP1001 @ (38,19): Parser syntax error.
 ERROR CP1001 @ (39,29): Parser syntax error.
 ERROR CP1001 @ (40,40): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: NULL
   retType: Identifier: Void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
   IfStatement [Main.If]
    condition: ComparisonOperator == [Expression.ComparisonExp]
     first: Identifier: a [Subject.Parameter]
@@ -20,7 +20,7 @@ Function  [Subject.Function]
    condition: ComparisonOperator == [Expression.ComparisonExp]
     first: Identifier: b [Subject.Parameter]
     second: IntegerLiteral: 2 [Subject.Literal]
-   ifBody: Block [Main.BlockStatementList]
+   ifBody: Block [Main.BlockStatements.StmtList]
     ParamPass () [Expression.ParamPassExp]
      operand: Identifier: doSomething1 [Subject.Parameter]
      param: NULL
@@ -42,14 +42,14 @@ Function  [Subject.Function]
    condition: ComparisonOperator == [Expression.ComparisonExp]
     first: Identifier: d [Subject.Parameter]
     second: IntegerLiteral: 4 [Subject.Literal]
-   ifBody: Block [Main.BlockStatementList]
+   ifBody: Block [Main.BlockStatements.StmtList]
     ParamPass () [Expression.ParamPassExp]
      operand: Identifier: doSomething1 [Subject.Parameter]
      param: NULL
     ParamPass () [Expression.ParamPassExp]
      operand: Identifier: doSomething2 [Subject.Parameter]
      param: NULL
-   elseBody: Block [Main.BlockStatementList]
+   elseBody: Block [Main.BlockStatements.StmtList]
     ParamPass () [Expression.ParamPassExp]
      operand: Identifier: doSomethingElse1 [Subject.Parameter]
      param: NULL
@@ -63,7 +63,7 @@ Function  [Subject.Function]
    ifBody: ParamPass () [Expression.ParamPassExp]
     operand: Identifier: doSomething [Subject.Parameter]
     param: NULL
-   elseBody: Block [Main.BlockStatementList]
+   elseBody: Block [Main.BlockStatements.StmtList]
     ParamPass () [Expression.ParamPassExp]
      operand: Identifier: doSomethingElse1 [Subject.Parameter]
      param: NULL
@@ -74,7 +74,7 @@ Function  [Subject.Function]
    condition: ComparisonOperator == [Expression.ComparisonExp]
     first: Identifier: f [Subject.Parameter]
     second: IntegerLiteral: 6 [Subject.Literal]
-   ifBody: Block [Main.BlockStatementList]
+   ifBody: Block [Main.BlockStatements.StmtList]
     ParamPass () [Expression.ParamPassExp]
      operand: Identifier: doSomething1 [Subject.Parameter]
      param: NULL
@@ -118,7 +118,7 @@ Function  [Subject.Function]
     param: NULL
    elseBody: NULL
   IfStatement [Main.If]
-   condition: Bracket () [Subject.Subject1]
+   condition: Bracket () [Subject.Sbj]
     operand: ParamPass () [Expression.ParamPassExp]
      operand: Identifier: getSomething3 [Subject.Parameter]
      param: NULL
@@ -127,11 +127,11 @@ Function  [Subject.Function]
     param: NULL
    elseBody: NULL
   IfStatement [Main.If]
-   condition: Bracket () [Subject.Subject1]
+   condition: Bracket () [Subject.Sbj]
     operand: ParamPass () [Expression.ParamPassExp]
      operand: Identifier: getSomething4 [Subject.Parameter]
      param: NULL
-   ifBody: Bracket () [BlockSubject.Subject1]
+   ifBody: Bracket () [Subject.Sbj]
     operand: ParamPass () [Expression.ParamPassExp]
      operand: Identifier: doSomething4 [Subject.Parameter]
      param: NULL
@@ -140,14 +140,14 @@ Function  [Subject.Function]
    condition: ParamPass () [Expression.ParamPassExp]
     operand: Identifier: getSomething5 [Subject.Parameter]
     param: NULL
-   ifBody: Bracket () [BlockSubject.Subject1]
+   ifBody: Bracket () [Subject.Sbj]
     operand: ParamPass () [Expression.ParamPassExp]
      operand: Identifier: doSomething5 [Subject.Parameter]
      param: NULL
    elseBody: NULL
   IfStatement [Main.If]
    condition: Identifier: cond [Subject.Parameter]
-   ifBody: Bracket () [BlockSubject.Subject1]
+   ifBody: Bracket () [Subject.Sbj]
     operand: ParamPass () [Expression.ParamPassExp]
      operand: Identifier: doSomething6 [Subject.Parameter]
      param: NULL

@@ -16,6 +16,7 @@
 namespace Core::Data::Grammar
 {
 
+/// A grammar factory for the Core's grammar.
 class StandardFactory : public Factory
 {
   //============================================================================
@@ -56,14 +57,38 @@ class StandardFactory : public Factory
   /// Create the entire core grammar.
   public: void createGrammar(DynamicContaining<TiObject> *rootScope, Main::RootManager *root, Bool exprOnly);
 
-  /// Create the list of char group definitions for the Core's grammar.
+  /// Create char group definitions.
   private: void createCharGroupDefinitions();
 
-  /// Create the list of token definitions for the Core's grammar.
+  /// Create token definitions.
   private: void createTokenDefinitions();
 
-  /// Create the list of produciton definitions for the Core's grammar.
+  /// Create production definitions.
   private: void createProductionDefinitions(Bool exprOnly);
+
+  /// Create token data used by productions.
+  private: void createTokenDataModule();
+
+  /// Create statement template production definitions.
+  private: void createStatementsProductionModule();
+
+  /// Create command template production definitions.
+  private: void createCommandTemplateProductionDefinitions();
+
+  /// Create Expression production module.
+  private: void createExpressionProductionModule();
+
+  /// Create Subject production module.
+  private: void createSubjectProductionModule();
+
+  /// Create Set production definitions.
+  private: void createSetProductionDefinitions();
+
+  /// Create modifier productions.
+  private: void createModifierProductionDefinitions();
+
+  /// Create Main production module.
+  private: void createMainProductionModule(Bool exprOnly);
 
   /// Create a const token that uses the ConstTokenizingHandler.
   protected: virtual SharedPtr<SymbolDefinition> createConstTokenDef(Char const *text);
