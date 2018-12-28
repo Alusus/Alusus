@@ -27,6 +27,7 @@ void MacroProcessor::initBindingCaches()
     &this->applyMacroArgs,
     &this->applyMacroArgsIteration,
     &this->applyMacroArgsIteration_identifier,
+    &this->applyMacroArgsIteration_stringLiteral,
     &this->applyMacroArgsIteration_tiStr,
     &this->applyMacroArgsIteration_clonable,
     &this->applyMacroArgsIteration_binding,
@@ -44,6 +45,7 @@ void MacroProcessor::initBindings()
   this->applyMacroArgs = &MacroProcessor::_applyMacroArgs;
   this->applyMacroArgsIteration = &MacroProcessor::_applyMacroArgsIteration;
   this->applyMacroArgsIteration_identifier = &MacroProcessor::_applyMacroArgsIteration_identifier;
+  this->applyMacroArgsIteration_stringLiteral = &MacroProcessor::_applyMacroArgsIteration_stringLiteral;
   this->applyMacroArgsIteration_tiStr = &MacroProcessor::_applyMacroArgsIteration_tiStr;
   this->applyMacroArgsIteration_clonable = &MacroProcessor::_applyMacroArgsIteration_clonable;
   this->applyMacroArgsIteration_binding = &MacroProcessor::_applyMacroArgsIteration_binding;
@@ -129,11 +131,11 @@ Bool MacroProcessor::_processMacros(TiObject *self, TiObject *owner)
         if (macro != 0) {
           auto sl = paramPass->findSourceLocation();
           macroProcessor->noticeStore->pushPrefixSourceLocation(sl.get());
-          if (!macroProcessor->processMacro(macro, args, owner, i, sl.get())) result = false;
+          if (macroProcessor->processMacro(macro, args, owner, i, sl.get())) --i;
+          else result = false;
           macroProcessor->noticeStore->popPrefixSourceLocation(
             Core::Data::getSourceLocationRecordCount(sl.get())
           );
-          --i;
         }
         continue;
       }
@@ -216,6 +218,11 @@ Bool MacroProcessor::_applyMacroArgsIteration(
     return macroProcessor->applyMacroArgsIteration_identifier(identifier, argTypes, args, sl, result);
   }
 
+  if (obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+    auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(obj);
+    return macroProcessor->applyMacroArgsIteration_stringLiteral(stringLiteral, argTypes, args, sl, result);
+  }
+
   if (obj->isDerivedFrom<TiStr>()) {
     auto str = static_cast<TiStr*>(obj);
     return macroProcessor->applyMacroArgsIteration_tiStr(str, argTypes, args, sl, result);
@@ -237,9 +244,79 @@ Bool MacroProcessor::_applyMacroArgsIteration_identifier(
   Core::Data::SourceLocation *sl, TioSharedPtr &result
 ) {
   PREPARE_SELF(macroProcessor, MacroProcessor);
-  auto index = argTypes->findIndex(obj->getValue().get());
+  Char var[1000];
+  Word prefixSize = 0;
+  Char const *suffix = 0;
+  macroProcessor->parseStringTemplate(obj->getValue().get(), var, 1000, prefixSize, suffix);
+  auto index = argTypes->findIndex(var);
   if (index != -1) {
-    result = macroProcessor->cloneTree(args->getElement(index), sl);
+    auto arg = args->getElement(index);
+    if (prefixSize != 0 || suffix != 0) {
+      // We have an identifier string template, so we need the matching arg to be an identifier as well.
+      if (arg->isDerivedFrom<Core::Data::Ast::Identifier>()) {
+        Char newVar[1000];
+        macroProcessor->generateStringFromTemplate(
+          obj->getValue().get(), prefixSize, static_cast<Core::Data::Ast::Identifier*>(arg)->getValue().get(), suffix,
+          newVar, 1000
+        );
+        result = Core::Data::Ast::Identifier::create({
+          { S("value"), TiStr(newVar) },
+          { S("sourceLocation"), obj->getSourceLocation() }
+        });
+        macroProcessor->addSourceLocation(result.get(), sl);
+      } else {
+        macroProcessor->noticeStore->add(
+          std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+        );
+        return false;
+      }
+    } else {
+      // We don't have an identifier string template, so we'll just copy the arg as is.
+      result = macroProcessor->cloneTree(args->getElement(index), sl);
+    }
+  } else {
+    result = obj->clone();
+    macroProcessor->addSourceLocation(result.get(), sl);
+  }
+  return true;
+}
+
+
+Bool MacroProcessor::_applyMacroArgsIteration_stringLiteral(
+  TiObject *self, Core::Data::Ast::StringLiteral *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  Core::Data::SourceLocation *sl, TioSharedPtr &result
+) {
+  PREPARE_SELF(macroProcessor, MacroProcessor);
+  Char var[1000];
+  Word prefixSize = 0;
+  Char const *suffix = 0;
+  macroProcessor->parseStringTemplate(obj->getValue().get(), var, 1000, prefixSize, suffix, S("{{"), S("}}"));
+  auto index = argTypes->findIndex(var);
+  if (index != -1) {
+    auto arg = args->getElement(index);
+    if (prefixSize != 0 || suffix != 0) {
+      // We have an identifier string template, so we need the matching arg to be an identifier as well.
+      if (arg->isDerivedFrom<Core::Data::Ast::Identifier>() || arg->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+        Char newVar[1000];
+        macroProcessor->generateStringFromTemplate(
+          obj->getValue().get(), prefixSize, static_cast<Core::Data::Ast::Text*>(arg)->getValue().get(), suffix,
+          newVar, 1000
+        );
+        result = Core::Data::Ast::StringLiteral::create({
+          { S("value"), TiStr(newVar) },
+          { S("sourceLocation"), obj->getSourceLocation() }
+        });
+        macroProcessor->addSourceLocation(result.get(), sl);
+      } else {
+        macroProcessor->noticeStore->add(
+          std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+        );
+        return false;
+      }
+    } else {
+      // We don't have an identifier string template, so we'll just copy the arg as is.
+      result = macroProcessor->cloneTree(args->getElement(index), sl);
+    }
   } else {
     result = obj->clone();
     macroProcessor->addSourceLocation(result.get(), sl);
@@ -252,11 +329,23 @@ Bool MacroProcessor::_applyMacroArgsIteration_tiStr(
   TiObject *self, TiStr *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
   Core::Data::SourceLocation *sl, TioSharedPtr &result
 ) {
-  auto index = argTypes->findIndex(obj->get());
+  PREPARE_SELF(macroProcessor, MacroProcessor);
+  Char var[1000];
+  Word prefixSize = 0;
+  Char const *suffix = 0;
+  macroProcessor->parseStringTemplate(obj->get(), var, 1000, prefixSize, suffix);
+  auto index = argTypes->findIndex(var);
   if (index != -1) {
     auto arg = ti_cast<Core::Data::Ast::Identifier>(args->getElement(index));
     if (arg != 0) {
-      result = TiStr::create(arg->getValue().get());
+      Char newVar[1000];
+      macroProcessor->generateStringFromTemplate(obj->get(), prefixSize, arg->getValue().get(), suffix, newVar, 1000);
+      result = TiStr::create(newVar);
+    } else {
+      macroProcessor->noticeStore->add(
+        std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+      );
+      return false;
     }
   } else {
     result = TiStr::create(obj->get());
@@ -301,7 +390,11 @@ Bool MacroProcessor::_applyMacroArgsIteration_binding(
   for (Int i = 0; i < obj->getMemberCount(); ++i) {
     if (obj->getMemberHoldMode(i) == HoldMode::VALUE && obj->getMemberNeededType(i) == TiStr::getTypeInfo()) {
       // replace string, if possible.
-      Int index = argTypes->findElementIndex(obj->refMember<TiStr>(i).get());
+      Char var[1000];
+      Word prefixSize = 0;
+      Char const *suffix = 0;
+      macroProcessor->parseStringTemplate(obj->refMember<TiStr>(i).get(), var, 1000, prefixSize, suffix);
+      Int index = argTypes->findElementIndex(var);
       if (index != -1) {
         auto identifier = ti_cast<Core::Data::Ast::Identifier>(args->getElement(index));
         if (identifier == 0) {
@@ -311,7 +404,11 @@ Bool MacroProcessor::_applyMacroArgsIteration_binding(
           );
           return false;
         }
-        obj->refMember<TiStr>(i) = identifier->getValue();
+        Char newVar[1000];
+        macroProcessor->generateStringFromTemplate(
+          obj->refMember<TiStr>(i).get(), prefixSize, identifier->getValue().get(), suffix, newVar, 1000
+        );
+        obj->refMember<TiStr>(i) = newVar;
       }
     } else if (obj->getMemberHoldMode(i) == HoldMode::SHARED_REF) {
       // Clone the member.
@@ -351,22 +448,35 @@ Bool MacroProcessor::_applyMacroArgsIteration_mapContaining(
   Core::Data::SourceLocation *sl
 ) {
   PREPARE_SELF(macroProcessor, MacroProcessor);
-  for (Int i = 0; i < args->getElementCount(); ++i) {
-    auto arg = ti_cast<Core::Data::Ast::Identifier>(args->getElement(i));
-    if (arg != 0) {
-      auto index = obj->findElementIndex(argTypes->getElementKey(i).c_str());
-      if (index != -1) {
-        // The key can be replaced with the new key.
+  for (Int i = 0; i < obj->getElementCount(); ++i) {
+    Char var[1000];
+    Word prefixSize = 0;
+    Char const *suffix = 0;
+    macroProcessor->parseStringTemplate(obj->getElementKey(i).c_str(), var, 1000, prefixSize, suffix);
+    auto index = argTypes->findElementIndex(var);
+    if (index != -1) {
+      // The key can be replaced with the new key.
+      auto arg = ti_cast<Core::Data::Ast::Identifier>(args->getElement(index));
+      if (arg != 0) {
+        Char newVar[1000];
+        macroProcessor->generateStringFromTemplate(
+          obj->getElementKey(i).c_str(), prefixSize, arg->getValue().get(), suffix, newVar, 1000
+        );
         // Make sure the new key isn't already used.
-        if (obj->findElementIndex(arg->getValue().get()) != -1) {
+        if (obj->findElementIndex(newVar) != -1) {
           macroProcessor->noticeStore->add(
             std::make_shared<Spp::Notices::InvalidMacroArgNotice>(arg->findSourceLocation())
           );
           return false;
         }
         auto value = obj->getElement(index);
-        obj->insertElement(index, arg->getValue().get(), value);
+        obj->insertElement(index, newVar, value);
         obj->removeElement(index + 1);
+      } else {
+        macroProcessor->noticeStore->add(
+          std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+        );
+        return false;
       }
     }
   }
@@ -396,6 +506,37 @@ TioSharedPtr MacroProcessor::cloneTree(TiObject *obj, Core::Data::SourceLocation
   }
 
   return clone;
+}
+
+
+void MacroProcessor::parseStringTemplate(
+  Char const *str, Char *var, Word varBufSize, Word &prefixSize, Char const *&suffix,
+  Char const *varOpening, Char const *varClosing
+) {
+  auto varStart = SBSTR(str).findPos(varOpening) + 2;
+  if (varStart >= 2) {
+    auto varSize = SBSTR(str + varStart).findPos(varClosing);
+    if (varSize > 0) {
+      SBSTR(var).assign(str + varStart, varSize, varBufSize);
+      prefixSize = varStart - 2;
+      suffix = str + varStart + varSize + 2;
+      return;
+    }
+  }
+  SBSTR(var).assign(str, varBufSize);
+  prefixSize = 0;
+  suffix = 0;
+}
+
+
+void MacroProcessor::generateStringFromTemplate(
+  Char const *prefix, Word prefixSize, Char const *var, Char const *suffix, Char *output, Word outputBufSize
+) {
+  SbStr &result = SBSTR(output);
+  result.assign(S(""), outputBufSize);
+  if (prefixSize > 0) result.append(prefix, prefixSize, outputBufSize);
+  result.append(var, outputBufSize);
+  if (suffix != 0) result.append(suffix, outputBufSize);
 }
 
 

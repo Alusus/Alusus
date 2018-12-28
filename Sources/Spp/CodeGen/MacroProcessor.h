@@ -144,6 +144,17 @@ class MacroProcessor : public TiObject, public virtual DynamicBinding, public vi
     Core::Data::SourceLocation *sl, TioSharedPtr &result
   );
 
+  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_stringLiteral,
+    Bool, (
+      Core::Data::Ast::StringLiteral* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
+    )
+  );
+  private: static Bool _applyMacroArgsIteration_stringLiteral(
+    TiObject *self, Core::Data::Ast::StringLiteral *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+    Core::Data::SourceLocation *sl, TioSharedPtr &result
+  );
+
   public: METHOD_BINDING_CACHE(applyMacroArgsIteration_tiStr,
     Bool, (
       TiStr* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
@@ -205,6 +216,15 @@ class MacroProcessor : public TiObject, public virtual DynamicBinding, public vi
   /// @{
 
   private: TioSharedPtr cloneTree(TiObject *obj, Core::Data::SourceLocation *sl);
+
+  private: void parseStringTemplate(
+    Char const *str, Char *var, Word varBufSize, Word &prefixSize, Char const *&suffix,
+    Char const *varOpening = S("__"), Char const *varClosing = S("__")
+  );
+
+  private: void generateStringFromTemplate(
+    Char const *prefix, Word prefixSize, Char const *var, Char const *suffix, Char *output, Word outputBufSize
+  );
 
   private: void addSourceLocation(TiObject *obj, Core::Data::SourceLocation *sl);
 

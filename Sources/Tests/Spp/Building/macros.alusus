@@ -2,11 +2,16 @@ import "libalusus_spp.so";
 
 def power2: macro [n] n * n;
 def defInt: macro [n] { def n: Int };
+def defInts: macro [n] { def __n__1: Int; def __n__2: Int; };
+def defInt2: macro [s] { def __n__: Int };
+def defWrongType: macro [n] { def n: WrongType; };
 def defGetMin: macro [T] {
   def getMin: function (a: T, b: T)=>T {
     if a <= b return a else return b;
   }
 };
+def getString: macro [n] "Hello {{n}}\n";
+def getString2: macro [a] "Hello {{n}}\n";
 def loop: macro[counter, start, end, action] {
   for counter = start, counter <= end, ++counter action;
 };
@@ -28,18 +33,31 @@ def Main: module
   def start: function ()=>Void
   {
     defInt[a];
+    defInts[b];
+    defInt2[c];
     a = 5;
+    b1 = 6;
+    b2 = 7;
+    __n__ = 8;
     print("a = %d\n", a);
+    print("b1 = %d, b2 = %d\n", b1, b2);
+    print("__n__ = %d\n", __n__);
     print("a*a = %d\n", power2[a]);
     print("min of 5 & 7 = %d\n", getMin(5, 7));
     loop[a, 0, 9, print("%d ", a)];
     print("\n");
+    print(getString["Alusus"]);
+    print(getString[Alusus]);
+    print(getString2["Alusus"]);
+    print(getString2[Alusus]);
 
     def p: Coordinates;
     p.x = 5.5;
     p.y = 7.3;
     print("p = (%f, %f)\n", p.x, p.y);
-  }
+
+    defWrongType[a];
+  };
 };
 
 dump_llvm_ir Main.start;
