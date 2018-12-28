@@ -43,7 +43,9 @@ class Alias : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (reference, TiObject, setReference(value), reference.get()));
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
+    (reference, TiObject, SHARED_REF, setReference(value), reference.get())
+  );
 
   IMPLEMENT_AST_LIST_CLONABLE(Scope);
 

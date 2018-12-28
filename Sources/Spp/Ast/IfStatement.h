@@ -49,9 +49,9 @@ class IfStatement : public Core::Data::Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (condition, TiObject, setCondition(value), condition.get()),
-    (ifBody, TiObject, setIfBody(value), ifBody.get()),
-    (elseBody, TiObject, setElseBody(value), elseBody.get())
+    (condition, TiObject, SHARED_REF, setCondition(value), condition.get()),
+    (ifBody, TiObject, SHARED_REF, setIfBody(value), ifBody.get()),
+    (elseBody, TiObject, SHARED_REF, setElseBody(value), elseBody.get())
   );
 
   IMPLEMENT_AST_CLONABLE(IfStatement);

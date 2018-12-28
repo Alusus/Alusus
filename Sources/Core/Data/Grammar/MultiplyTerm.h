@@ -63,7 +63,7 @@ class MultiplyTerm : public Term, public virtual DataHaving, public virtual MapC
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (term, Term, setTerm(value), term.get())
+    (term, Term, SHARED_REF, setTerm(value), term.get())
   );
 
 

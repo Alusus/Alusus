@@ -127,7 +127,7 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
   ) { return true; }
 
   public: Bool finishFunctionBody(
-    TiObject *function, TiObject *functionType, ListContaining<TiObject> *args, TiObject *context
+    TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
   ) { return true; }
 
   /// @}

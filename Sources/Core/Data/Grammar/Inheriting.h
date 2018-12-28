@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/ListContaining.h
- * Contains the header of interface Basic::ListContaining.
+ * @file Core/Data/Grammar/Inheriting.h
+ * Contains the header of interface Core::Data::Grammar::Inheriting.
  *
  * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
@@ -10,26 +10,30 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_LISTCONTAINING_H
-#define CORE_BASIC_LISTCONTAINING_H
+#ifndef CORE_DATA_GRAMMAR_INHERITING_H
+#define CORE_DATA_GRAMMAR_INHERITING_H
 
-namespace Core::Basic
+namespace Core::Data::Grammar
 {
 
-template<class CTYPE> class ListContaining : public virtual Containing<CTYPE>
+// TODO: DOC
+
+class Inheriting : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  TEMPLATE_INTERFACE_INFO(ListContaining, Containing<CTYPE>, "Core.Data", "Core", "alusus.net", (CTYPE));
+  INTERFACE_INFO(Inheriting, TiInterface, "Core.Data.Grammar", "Core", "alusus.net");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual Int addElement(CTYPE *val) = 0;
+  public: virtual Reference* getBaseReference() const = 0;
 
-  public: virtual void insertElement(Int index, CTYPE *val) = 0;
+  public: virtual void setBase(TiObject *base) = 0;
+
+  public: virtual TiObject* getBase() const = 0;
 
 }; // class
 

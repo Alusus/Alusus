@@ -20,13 +20,13 @@ namespace Core::Data::Grammar
 
 class SymbolDefinition : public Node,
                          public virtual Binding, public virtual MapContaining<TiObject>,
-                         public virtual Initializable, public virtual IdHaving, public virtual DataHaving
+                         public virtual Inheriting, public virtual IdHaving, public virtual DataHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SymbolDefinition, Node, "Core.Data.Grammar", "Core", "alusus.net", (
-    INHERITANCE_INTERFACES(Binding, MapContaining<TiObject>, Initializable, IdHaving, DataHaving)
+    INHERITANCE_INTERFACES(Binding, MapContaining<TiObject>, Inheriting, IdHaving, DataHaving)
   ));
 
 
@@ -106,12 +106,12 @@ class SymbolDefinition : public Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (term, Node, setTerm(value), term.get()),
-    (varDefs, Node, setVarDefs(value), varDefs.get()),
-    (vars, Node, setVars(value), vars.get()),
-    (attributes, Node, setAttributes(value), attributes.get()),
-    (modifierTranslations, Map, setModifierTranslations(value), modifierTranslations.get()),
-    (handler, BuildHandler, setBuildHandler(value), handler.get())
+    (term, Node, SHARED_REF, setTerm(value), term.get()),
+    (varDefs, Node, SHARED_REF, setVarDefs(value), varDefs.get()),
+    (vars, Node, SHARED_REF, setVars(value), vars.get()),
+    (attributes, Node, SHARED_REF, setAttributes(value), attributes.get()),
+    (modifierTranslations, Map, SHARED_REF, setModifierTranslations(value), modifierTranslations.get()),
+    (handler, BuildHandler, SHARED_REF, setBuildHandler(value), handler.get())
   );
 
 
@@ -158,7 +158,7 @@ class SymbolDefinition : public Node,
     if (p != 0) this->attachToBase(p);
   }
 
-  public: SymbolDefinition* getBase() const
+  public: SymbolDefinition* getBaseSymbolDefinition() const
   {
     return this->base;
   }
@@ -416,9 +416,26 @@ class SymbolDefinition : public Node,
 
 
   //============================================================================
-  // Initializable Implementation
+  // Inheriting Implementation
 
-  public: virtual void initialize(TiObject *context);
+  public: virtual Reference* getBaseReference() const
+  {
+    return this->baseRef.get();
+  }
+
+  public: virtual void setBase(TiObject *base)
+  {
+    SymbolDefinition *baseDef = ti_cast<SymbolDefinition>(base);
+    if (baseDef == 0) {
+      throw EXCEPTION(GenericException, S("Base reference points to an object of an invalid type."));
+    }
+    this->setBase(baseDef);
+  }
+
+  public: virtual TiObject* getBase() const
+  {
+    return this->getBaseSymbolDefinition();
+  }
 
 
   //============================================================================

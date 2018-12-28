@@ -13,7 +13,7 @@
 #ifndef CORE_DATA_AST_OUTFIXOPERATOR_H
 #define CORE_DATA_AST_OUTFIXOPERATOR_H
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
 // TODO: DOC
@@ -47,7 +47,7 @@ class OutfixOperator : public Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (operand, TiObject, setOperand(value), operand.get())
+    (operand, TiObject, SHARED_REF, setOperand(value), operand.get())
   );
 
 
@@ -125,6 +125,6 @@ class OutfixOperator : public Node,
     } \
   }
 
-} } } // namespace
+} // namespace
 
 #endif

@@ -400,7 +400,7 @@ void Context::setElement(Int index, TiObject *val)
         throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type Module."));
       }
       this->module = static_cast<Module*>(val);
-      this->bmodule = this->module->getBase();
+      this->bmodule = this->module->getBaseModule();
       break;
     }
     case 2: {
@@ -438,7 +438,7 @@ Int Context::setElement(Char const *key, TiObject *val)
       throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type Module."));
     }
     this->module = static_cast<Module*>(val);
-    this->bmodule = this->module->getBase();
+    this->bmodule = this->module->getBaseModule();
     return 1;
   } else if (name == S("bmodule")) {
     throw EXCEPTION(GenericException, S("Element cannot be manually set."));
@@ -457,29 +457,14 @@ Int Context::setElement(Char const *key, TiObject *val)
 }
 
 
-void Context::removeElement(Int index)
+TypeInfo* Context::getElementNeededType(Int index) const
 {
   switch(index) {
-    case 0: {
-      this->root = 0;
-      break;
-    }
-    case 1: {
-      this->module = 0;
-      this->bmodule = 0;
-      break;
-    }
-    case 2: {
-      throw EXCEPTION(GenericException, S("Element cannot be manually removed."));
-    }
-    case 3: {
-      this->stack = 0;
-      break;
-    }
-    case 4: {
-      this->args = 0;
-      break;
-    }
+    case 0: return Module::getTypeInfo();
+    case 1: return Module::getTypeInfo();
+    case 2: return Module::getTypeInfo();
+    case 3: return VariableStack::getTypeInfo();
+    case 4: return TiObject::getTypeInfo();
     default: {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."));
     }
@@ -487,24 +472,19 @@ void Context::removeElement(Int index)
 }
 
 
-Int Context::removeElement(Char const *key)
+TypeInfo* Context::getElementNeededType(Char const *key) const
 {
   auto name = SBSTR(key);
   if (name == S("root")) {
-    this->root = 0;
-    return 0;
+    return Module::getTypeInfo();
   } else if (name == S("module")) {
-    this->module = 0;
-    this->bmodule = 0;
-    return 1;
+    return Module::getTypeInfo();
   } else if (name == S("bmodule")) {
-    throw EXCEPTION(GenericException, S("Element cannot be manually removed."));
+    return Module::getTypeInfo();
   } else if (name == S("stack")) {
-    this->stack = 0;
-    return 3;
+    return VariableStack::getTypeInfo();
   } else if (name == S("args")) {
-    this->args = 0;
-    return 4;
+    return TiObject::getTypeInfo();
   } else {
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Invalid key."));
   }

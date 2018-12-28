@@ -75,7 +75,7 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
   protected: void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex)) {
-      auto listContainer = state->getData(levelIndex).ti_cast_get<ListContaining<TiObject>>();
+      auto listContainer = state->getData(levelIndex).ti_cast_get<DynamicContaining<TiObject>>();
       ASSERT(listContainer);
       Core::Data::Ast::addPossiblyMergeableElement(data.get(), listContainer, state->getNoticeStore());
     } else {

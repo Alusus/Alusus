@@ -27,36 +27,28 @@ template<class CTYPE> class MapContaining : public Containing<CTYPE>
   //============================================================================
   // Abstract Functions
 
-  public: virtual void setElement(Int index, CTYPE *val)
-  {
-    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
-  }
+  using Containing<CTYPE>::setElement;
   public: virtual Int setElement(Char const *key, CTYPE *val)
   {
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found"), key);
   }
 
-  public: virtual void removeElement(Int index)
-  {
-    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
-  }
-  public: virtual Int removeElement(Char const *key)
-  {
-    throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found"), key);
-  }
-
-  public: virtual Word getElementCount() const
-  {
-    return 0;
-  }
-
-  public: virtual CTYPE* getElement(Int index) const
-  {
-    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
-  }
+  using Containing<CTYPE>::getElement;
   public: virtual CTYPE* getElement(Char const *key) const
   {
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Key not found"), key);
+  }
+
+  using Containing<CTYPE>::getElementNeededType;
+  public: virtual TypeInfo* getElementNeededType(Char const *key) const
+  {
+    throw EXCEPTION(InvalidArgumentException, S("key"), S("Element not found"), key);
+  }
+
+  using Containing<CTYPE>::getElementHoldMode;
+  public: virtual HoldMode getElementHoldMode(Char const *key) const
+  {
+    throw EXCEPTION(InvalidArgumentException, S("key"), S("Element not found"), key);
   }
 
   public: virtual SbStr const& getElementKey(Int index) const

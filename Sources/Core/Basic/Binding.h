@@ -25,12 +25,6 @@ template <class RT, class ...ARGS> RT call(Binding *self, Char const *name, ARGS
 
 
 //==============================================================================
-// Types
-
-s_enum(HoldMode, SHARED_REF, WEAK_REF, PLAIN_REF, OWNER, VALUE);
-
-
-//==============================================================================
 // Binding Interface
 
 class Binding : public TiInterface
@@ -49,15 +43,6 @@ class Binding : public TiInterface
     throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found"), name);
   }
   public: virtual void setMember(Int index, TiObject *val)
-  {
-    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
-  }
-
-  public: virtual void removeMember(Char const *name)
-  {
-    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found"), name);
-  }
-  public: virtual void removeMember(Int index)
   {
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
@@ -139,6 +124,18 @@ class Binding : public TiInterface
       throw EXCEPTION(InvalidArgumentException, S("name"), S("Object type doesn't match needed type."), name);
     }
     this->setMember(index, val.get());
+  }
+
+  public: template <class T> T& refMember(Int index)
+  {
+    if (this->getMemberHoldMode(index) != HoldMode::VALUE) {
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Member is not held by value."), index);
+    }
+    if (T::getTypeInfo() != this->getMemberNeededType(index)) {
+      throw EXCEPTION(InvalidArgumentException, S("index"), S("Object type doesn't match needed type."), index);
+    }
+    ASSERT(this->getMember(index) != 0);
+    return *static_cast<T*>(this->getMember(index));
   }
 
   public: template <class T> T& refMember(Char const *name)

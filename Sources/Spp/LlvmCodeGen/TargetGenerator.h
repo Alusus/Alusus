@@ -143,7 +143,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
   );
 
   public: Bool finishFunctionBody(
-    TiObject *function, TiObject *functionType, ListContaining<TiObject> *args, TiObject *context
+    TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
   );
 
   /// @}

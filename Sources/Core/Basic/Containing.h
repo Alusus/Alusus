@@ -2,7 +2,7 @@
  * @file Core/Basic/Containing.h
  * Contains the header of interface Basic::Containing.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,13 +27,30 @@ template<class CTYPE> class Containing : public TiInterface
   //============================================================================
   // Abstract Functions
 
-  public: virtual void setElement(Int index, CTYPE *val) = 0;
+  public: virtual void setElement(Int index, CTYPE *val)
+  {
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
+  }
 
-  public: virtual void removeElement(Int index) = 0;
+  public: virtual Word getElementCount() const
+  {
+    return 0;
+  }
 
-  public: virtual Word getElementCount() const = 0;
+  public: virtual CTYPE* getElement(Int index) const
+  {
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
+  }
 
-  public: virtual CTYPE* getElement(Int index) const = 0;
+  public: virtual TypeInfo* getElementNeededType(Int index) const
+  {
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
+  }
+
+  public: virtual HoldMode getElementHoldMode(Int index) const
+  {
+    throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
+  }
 
 }; // class
 

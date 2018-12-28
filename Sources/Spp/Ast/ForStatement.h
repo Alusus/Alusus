@@ -52,10 +52,10 @@ class ForStatement : public Core::Data::Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (initializer, TiObject, setInitializer(value), initializer.get()),
-    (condition, TiObject, setCondition(value), condition.get()),
-    (updater, TiObject, setUpdater(value), updater.get()),
-    (body, TiObject, setBody(value), body.get())
+    (initializer, TiObject, SHARED_REF, setInitializer(value), initializer.get()),
+    (condition, TiObject, SHARED_REF, setCondition(value), condition.get()),
+    (updater, TiObject, SHARED_REF, setUpdater(value), updater.get()),
+    (body, TiObject, SHARED_REF, setBody(value), body.get())
   );
 
   IMPLEMENT_AST_CLONABLE(ForStatement);

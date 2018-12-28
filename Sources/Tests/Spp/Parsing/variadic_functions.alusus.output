@@ -5,62 +5,62 @@ ERROR SPPH1007 @ (39,34): Invalid function arg type.
 ERROR SPPH1007 @ (43,40): Invalid function arg type.
 ERROR SPPH1007 @ (47,39): Invalid function arg type.
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: Int [Subject.Parameter]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Parameter]
   retType: Identifier: void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: Int [Subject.Parameter]
    args: ArgPack 0 0
     argType: NULL
   retType: Identifier: void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: Int [Subject.Parameter]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Parameter]
   retType: Identifier: void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: Int [Subject.Parameter]
    args: ArgPack 0 0
     argType: NULL
   retType: Identifier: void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: Int [Subject.Parameter]
    args: ArgPack 1 5
     argType: Identifier: Int [Subject.Parameter]
   retType: Identifier: void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: Int [Subject.Parameter]
    args: ArgPack 1 5
     argType: NULL
   retType: Identifier: void [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------

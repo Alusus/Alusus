@@ -90,13 +90,13 @@ class Reference : public Node, public virtual DataHaving
     return this->key;
   }
 
-  public: Bool setValue(TiObject *parent, TiObject *value) const;
+  public: Bool setValue(TiObject *source, TiObject *value) const;
 
-  public: Bool removeValue(TiObject *parent) const;
+  public: Bool removeValue(TiObject *source) const;
 
-  public: Bool getValue(TiObject *parent, TiObject *&value, Module **ownerModule = 0) const;
+  public: Bool getValue(TiObject *source, TiObject *&value, Module **ownerModule = 0) const;
 
-  private: Bool _getValue(TiObject *parent, TiObject *&value, Module **ownerModule = 0) const;
+  private: Bool _getValue(TiObject *source, TiObject *&value, Module **ownerModule = 0) const;
 
   public: Bool isEqual(Reference *ref);
 

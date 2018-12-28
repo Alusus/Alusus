@@ -249,7 +249,7 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState
         // We have an enforced-item list, and this is not the first item in the list, so we'll create
         // a list whose first item is null.
         SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
-        auto newContainer = list.ti_cast_get<ListContaining<TiObject>>();
+        auto newContainer = list.ti_cast_get<DynamicContaining<TiObject>>();
         Ast::MetaHaving *metadata = data.ti_cast_get<Ast::MetaHaving>();
         Ast::MetaHaving *newMetadata = list.ti_cast_get<Ast::MetaHaving>();
         if (newMetadata != 0 && metadata != 0) {
@@ -265,18 +265,18 @@ void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState
       // There is three possible situations at this point: Either the list was enforced, or
       // a child data was set into this level, or this level was visited more than once causing
       // a list to be created.
-      auto container = ti_cast<ListContaining<TiObject>>(currentData);
+      auto container = ti_cast<DynamicContaining<TiObject>>(currentData);
       Ast::MetaHaving *metadata = ti_cast<Ast::MetaHaving>(currentData);
       if (container != 0 && (metadata == 0 || metadata->getProdId() == UNKNOWN_ID)) {
         // This level already has a list that belongs to this production, so we can just add the new data
         // to this list.
         this->prepareToModifyData(state, levelIndex);
-        auto container = state->getData(levelIndex).ti_cast_get<ListContaining<TiObject>>();
+        auto container = state->getData(levelIndex).ti_cast_get<DynamicContaining<TiObject>>();
         container->addElement(data.get());
       } else {
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
         SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
-        auto newContainer = list.ti_cast_get<ListContaining<TiObject>>();
+        auto newContainer = list.ti_cast_get<DynamicContaining<TiObject>>();
         Ast::MetaHaving *newMetadata = list.ti_cast_get<Ast::MetaHaving>();
         if (newMetadata != 0 && metadata != 0) {
           newMetadata->setSourceLocation(metadata->findSourceLocation());

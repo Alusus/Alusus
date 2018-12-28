@@ -48,8 +48,8 @@ class WhileStatement : public Core::Data::Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (condition, TiObject, setCondition(value), condition.get()),
-    (body, TiObject, setBody(value), body.get())
+    (condition, TiObject, SHARED_REF, setCondition(value), condition.get()),
+    (body, TiObject, SHARED_REF, setBody(value), body.get())
   );
 
   IMPLEMENT_AST_CLONABLE(WhileStatement);

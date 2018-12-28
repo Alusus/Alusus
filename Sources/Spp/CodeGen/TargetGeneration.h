@@ -209,7 +209,7 @@ class TargetGeneration : public ObjTiInterface
   public: METHOD_BINDING_CACHE(finishFunctionBody,
     Bool, (
       TiObject* /* function */, TiObject* /* functionType */,
-      ListContaining<TiObject>* /* args */, TiObject* /* context */
+      DynamicContaining<TiObject>* /* args */, TiObject* /* context */
     )
   );
 

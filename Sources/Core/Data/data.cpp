@@ -30,71 +30,6 @@ void unsetIndexes(TiObject *obj, Int from, Int to)
 }
 
 
-void setTreeIds(TiObject *obj, Node *root)
-{
-  StrStream stream;
-  Node *node = ti_cast<Node>(obj);
-  if (node != 0) generateId(node, root, stream);
-  setTreeIds(obj, root, stream.str().c_str());
-}
-
-
-void setTreeIds(TiObject *obj, Node *root, const Char *id)
-{
-  IdHaving *idh = ti_cast<IdHaving>(obj);
-  if (idh != 0) idh->setId(ID_GENERATOR->getId(id));
-
-  StrStream childId;
-  MapContaining<TiObject> *map; Containing<TiObject> *list;
-  if ((map = ti_cast<MapContaining<TiObject>>(obj)) != 0) {
-    for (Int i = 0; static_cast<Word>(i) < map->getElementCount(); ++i) {
-      childId.str(Str());
-      childId << id;
-      if (childId.tellp() != 0) childId << C('.');
-      childId << map->getElementKey(i).c_str();
-      setTreeIds(map->getElement(i), root, childId.str().c_str());
-    }
-  } else if ((list = ti_cast<Containing<TiObject>>(obj)) != 0) {
-    for (Int i = 0; static_cast<Word>(i) < list->getElementCount(); ++i) {
-      childId.str(Str());
-      childId << id;
-      if (childId.tellp() != 0) childId << C('.');
-      childId << i;
-      setTreeIds(list->getElement(i), root, childId.str().c_str());
-    }
-  }
-}
-
-
-void generateId(Node *obj, Node *root, StrStream &id)
-{
-  if (obj == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("obj"), S("Value is null."));
-  }
-  Node *owner = obj->getOwner();
-  if (owner == 0 || obj == root) return;
-  generateId(owner, root, id);
-  if (id.tellp() != 0) id << C('.');
-  auto container = owner->getInterface<Containing<TiObject>>();
-  if (container != 0) {
-    for (Int i = 0; i < container->getElementCount(); ++i) {
-      if (container->getElement(i) == obj) {
-        auto mapContainer = owner->getInterface<MapContaining<TiObject>>();
-        if (mapContainer != 0) {
-          id << mapContainer->getElementKey(i).c_str();
-        } else {
-          id << i;
-        }
-        return;
-      }
-    }
-    throw EXCEPTION(GenericException, S("The provided object has an invalid owner."));
-  } else {
-    id << S("_");
-  }
-}
-
-
 Node* findOwner(Node *obj, TypeInfo *typeInfo)
 {
   while (obj != 0) {
@@ -124,20 +59,20 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
         stream << S(" [") << IdGenerator::getSingleton()->getDesc(id) << S("]");
       }
     }
-    ListContaining<TiObject> *listContainer;
     MapContaining<TiObject> *mapContainer;
-    if ((listContainer = ptr->getInterface<ListContaining<TiObject>>()) != 0) {
-      for (Word i = 0; i < listContainer->getElementCount(); ++i) {
-        stream << S("\n");
-        printIndents(stream, indents + 1);
-        dumpData(stream, listContainer->getElement(i), indents+1);
-      }
-    } else if ((mapContainer = ptr->getInterface<MapContaining<TiObject>>()) != 0) {
+    Containing<TiObject> *container;
+    if ((mapContainer = ptr->getInterface<MapContaining<TiObject>>()) != 0) {
       for (Word i = 0; i < mapContainer->getElementCount(); ++i) {
         stream << S("\n");
         printIndents(stream, indents+1);
         stream << mapContainer->getElementKey(i).c_str() << S(": ");
         dumpData(stream, mapContainer->getElement(i), indents+1);
+      }
+    } else if ((container = ptr->getInterface<Containing<TiObject>>()) != 0) {
+      for (Word i = 0; i < container->getElementCount(); ++i) {
+        stream << S("\n");
+        printIndents(stream, indents + 1);
+        dumpData(stream, container->getElement(i), indents+1);
       }
     } else if (ptr->isA<TioSharedBox>()) {
       TioSharedBox *sharedBox = static_cast<TioSharedBox*>(ptr);

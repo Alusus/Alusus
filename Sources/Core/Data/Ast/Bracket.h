@@ -47,7 +47,9 @@ class Bracket : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (operand, TiObject, setOperand(value), operand.get()));
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
+    (operand, TiObject, SHARED_REF, setOperand(value), operand.get())
+  );
 
   IMPLEMENT_AST_MAP_PRINTABLE(Bracket, << (this->type == BracketType::ROUND ? S("()") : S("[]")));
 

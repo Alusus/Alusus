@@ -57,7 +57,7 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
 }
 
 
-Module* getGrammarRoot(ListContaining<TiObject> *rootScope, Bool createIfMissing)
+Module* getGrammarRoot(DynamicContaining<TiObject> *rootScope, Bool createIfMissing)
 {
   VALIDATE_NOT_NULL(rootScope);
 
@@ -129,6 +129,66 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit)
     throw EXCEPTION(GenericException, S("Invalid char group type."));
   }
   return false; // just to prevent warnings
+}
+
+
+void setTreeIds(TiObject *obj)
+{
+  StrStream stream;
+  Node *node = ti_cast<Node>(obj);
+  if (node != 0) generateId(node, stream);
+  setTreeIds(obj, stream.str().c_str());
+}
+
+
+void setTreeIds(TiObject *obj, const Char *id)
+{
+  IdHaving *idh = ti_cast<IdHaving>(obj);
+  if (idh != 0) idh->setId(ID_GENERATOR->getId(id));
+
+  StrStream childId;
+  MapContaining<TiObject> *map; Containing<TiObject> *list;
+  if ((map = ti_cast<MapContaining<TiObject>>(obj)) != 0) {
+    for (Int i = 0; static_cast<Word>(i) < map->getElementCount(); ++i) {
+      childId.str(Str());
+      childId << id;
+      if (childId.tellp() != 0) childId << C('.');
+      childId << map->getElementKey(i).c_str();
+      setTreeIds(map->getElement(i), childId.str().c_str());
+    }
+  } else if ((list = ti_cast<Containing<TiObject>>(obj)) != 0) {
+    for (Int i = 0; static_cast<Word>(i) < list->getElementCount(); ++i) {
+      childId.str(Str());
+      childId << id;
+      if (childId.tellp() != 0) childId << C('.');
+      childId << i;
+      setTreeIds(list->getElement(i), childId.str().c_str());
+    }
+  }
+}
+
+
+void generateId(Node *obj, StrStream &id)
+{
+  if (obj == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("obj"), S("Value is null."));
+  }
+  auto owner = ti_cast<Module>(obj->getOwner());
+  if (owner == 0) return;
+  generateId(owner, id);
+  if (id.tellp() != 0) id << C('.');
+  for (Int i = 0; i < owner->getElementCount(); ++i) {
+    if (owner->getElement(i) == obj) {
+      auto mapContainer = owner->getInterface<MapContaining<TiObject>>();
+      if (mapContainer != 0) {
+        id << mapContainer->getElementKey(i).c_str();
+      } else {
+        id << i;
+      }
+      return;
+    }
+  }
+  throw EXCEPTION(GenericException, S("The provided object has an invalid owner."));
 }
 
 } // namespace

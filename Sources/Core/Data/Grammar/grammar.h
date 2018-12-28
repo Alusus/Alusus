@@ -89,7 +89,7 @@ namespace Core::Data::Grammar
 
 SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPtr<Reference>> *referenceCache = 0);
 
-Module* getGrammarRoot(ListContaining<TiObject> *rootScope, Bool createIfMissing = false);
+Module* getGrammarRoot(DynamicContaining<TiObject> *rootScope, Bool createIfMissing = false);
 
 /**
  * @brief Match a given character to a character group hierarchy.
@@ -105,6 +105,37 @@ Module* getGrammarRoot(ListContaining<TiObject> *rootScope, Bool createIfMissing
  */
 Bool matchCharGroup(WChar ch, CharGroupUnit *unit);
 
+/**
+ * @brief Set the IDs of all elements in a given tree.
+ * @ingroup core_data
+ * Sets the ID of the given object, and the IDs of any objects contained within
+ * the given object if the given object is a container. The ids will be the
+ * concatenated container keys that lead to the given object from the root
+ * Module.
+ * @sa generateId()
+ */
+void setTreeIds(TiObject *obj);
+
+/**
+ * @brief Set the IDs of all elements in a given tree.
+ * @ingroup core_data
+ * Sets the ID of the given object, and the IDs of any objects contained within
+ * the given object if the given object is a container. The IDs of inner
+ * objects will have the format: <id>.<childName>
+ */
+void setTreeIds(TiObject *obj, const Char *id);
+
+/**
+ * @brief Generate an ID for the given object.
+ * @ingroup core_data
+ * This function will generate the ID by tracing the owners of the given object
+ * all the way to the root Module and generate the ID from the concatenated keys
+ * that leads to the given object.
+ * @param obj The object for which to generate the ID.
+ * @param id A string stream to hold the generated ID.
+ */
+void generateId(Node *obj, StrStream &id);
+
 } // namespace
 
 
@@ -118,6 +149,7 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit);
 // Classes
 
 #include "Reference.h"
+#include "Inheriting.h"
 
 // Containers
 #include "List.h"

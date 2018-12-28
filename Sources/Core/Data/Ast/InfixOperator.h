@@ -49,8 +49,8 @@ class InfixOperator : public Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (first, TiObject, setFirst(value), first.get()),
-    (second, TiObject, setSecond(value), second.get())
+    (first, TiObject, SHARED_REF, setFirst(value), first.get()),
+    (second, TiObject, SHARED_REF, setSecond(value), second.get())
   );
 
   IMPLEMENT_AST_MAP_PRINTABLE(InfixOperator, << this->type.get());

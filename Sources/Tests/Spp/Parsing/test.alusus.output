@@ -1,5 +1,5 @@
 ------------------ Parsed Data Dump ------------------
-Scope [Main.StatementList]
+Scope [Statements.StmtList]
  List [Expression.ListExp]
   StringLiteral: hello [Subject.Literal]
   StringLiteral: world [Subject.Literal]
@@ -7,25 +7,25 @@ Scope [Main.StatementList]
   operand: Identifier: i [Subject.Parameter]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-UserType [Subject.Type]
- body: Block [Main.BlockStatementList]
+UserType [Main.Type]
+ body: Block [Main.BlockStatements.StmtList]
   Definition [Main.Def] x: Identifier: float [Subject.Parameter]
   Definition [Main.Def] y: Identifier: float [Subject.Parameter]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-UserType [Subject.Type]
- body: Block [Main.BlockStatementList]
+UserType [Main.Type]
+ body: Block [Main.BlockStatements.StmtList]
   Definition [Main.Def] x: Identifier: float [Subject.Parameter]
   Definition [Main.Def] y: Identifier: float [Subject.Parameter]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Function  [Subject.Function]
- type: FunctionType [Subject.Function]
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
   argTypes: Map
    x: Identifier: int [Subject.Parameter]
    y: Identifier: int [Subject.Parameter]
   retType: Identifier: int [Subject.Parameter]
- body: Block [Main.BlockStatementList]
+ body: Block [Main.BlockStatements.StmtList]
   AdditionOperator + [Expression.AddExp]
    first: Identifier: x [Subject.Parameter]
    second: Identifier: y [Subject.Parameter]
@@ -40,7 +40,7 @@ Function  [Subject.Function]
    condition: ComparisonOperator == [Expression.ComparisonExp]
     first: Identifier: y [Subject.Parameter]
     second: IntegerLiteral: 3 [Subject.Literal]
-   body: Block [Main.BlockStatementList]
+   body: Block [Main.BlockStatements.StmtList]
     ParamPass () [Expression.ParamPassExp]
      operand: Identifier: doSomething1 [Subject.Parameter]
      param: NULL
@@ -49,8 +49,8 @@ Function  [Subject.Function]
      param: NULL
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-UserType [Subject.Type]
- body: Block [Main.BlockStatementList]
+UserType [Main.Type]
+ body: Block [Main.BlockStatements.StmtList]
   Definition [Main.Def] i: Identifier: float [Subject.Parameter]
   Definition [Main.Def] j: Identifier: float [Subject.Parameter]
 ------------------------------------------------------

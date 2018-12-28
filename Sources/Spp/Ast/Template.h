@@ -64,7 +64,7 @@ class Template : public Core::Data::Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (templateBody, Data::Clonable, setTemplateBody(value), templateBody.get())
+    (templateBody, Data::Clonable, SHARED_REF, setTemplateBody(value), templateBody.get())
   );
 
 

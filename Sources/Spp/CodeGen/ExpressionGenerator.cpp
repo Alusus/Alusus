@@ -2060,7 +2060,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
 
   if (callee->getInlined()) {
     // TODO: Generate inlined function body.
-    return false;
+    throw EXCEPTION(GenericException, S("Inline function generation is not implemented yet."));
   } else {
     // Build funcion declaration.
     if (!g->generateFunctionDecl(callee, tg)) return false;
@@ -2079,7 +2079,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
 
 Bool ExpressionGenerator::generateParamList(
   TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-  ListContaining<TiObject> *resultAstNodes, ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
+  DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
 ) {
   if (astNode == 0) return true;
 
@@ -2106,7 +2106,7 @@ Bool ExpressionGenerator::generateParamList(
 
 Bool ExpressionGenerator::generateParamList(
   Containing<TiObject> *astNodes, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-  ListContaining<TiObject> *resultAstNodes, ListContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
+  DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
 ) {
   for (Int i = 0; i < astNodes->getElementCount(); ++i) {
     GenResult result;
@@ -2127,7 +2127,7 @@ Bool ExpressionGenerator::generateParamList(
 
 Bool ExpressionGenerator::prepareFunctionParams(
   Spp::Ast::FunctionType *calleeType, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-  ListContaining<TiObject> *paramAstNodes, ListContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
+  DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
 ) {
   Ast::FunctionType::ArgMatchContext context;
   for (Int i = 0; i < paramTgVals->getElementCount(); ++i) {

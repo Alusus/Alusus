@@ -158,6 +158,9 @@ class Generator;
 #include "TargetGeneration.h"
 #include "Generation.h"
 
+// Preprocessing
+#include "MacroProcessor.h"
+
 // The Generator
 #include "NoOpTargetGenerator.h"
 #include "TypeGenerator.h"

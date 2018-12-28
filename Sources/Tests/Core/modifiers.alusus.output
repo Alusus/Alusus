@@ -11,7 +11,7 @@ ERROR CP1005 @ (26,7): Unexpected modifier encountered.
 ERROR CP1005 @ (27,8): Unexpected modifier encountered.
 ERROR CP1005 @ (28,5): Unexpected modifier encountered.
 ------------------ Parsed Data Dump ------------------
-Scope [Main.StatementList]
+Scope [Statements.StmtList]
  GenericCommand do [Main.Do]
   args: List
    StringLiteral: leading [Subject.Literal]

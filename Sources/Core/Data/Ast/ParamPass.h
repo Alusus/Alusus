@@ -49,8 +49,8 @@ class ParamPass : public Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (operand, TiObject, setOperand(value), operand.get()),
-    (param, TiObject, setParam(value), param.get())
+    (operand, TiObject, SHARED_REF, setOperand(value), operand.get()),
+    (param, TiObject, SHARED_REF, setParam(value), param.get())
   );
 
   IMPLEMENT_AST_MAP_PRINTABLE(ParamPass, << (this->type == BracketType::ROUND ? S("()") : S("[]")));

@@ -51,7 +51,9 @@ class ArgPack : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (argType, TiObject, setArgType(value), argType.get()));
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
+    (argType, TiObject, SHARED_REF, setArgType(value), argType.get())
+  );
 
   IMPLEMENT_AST_CLONABLE(ArgPack);
 

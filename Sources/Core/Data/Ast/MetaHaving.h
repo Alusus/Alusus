@@ -112,7 +112,7 @@ class MetaHaving : public TiInterface
 #define IMPLEMENT_METAHAVING(type) \
   private: Core::Basic::TiWord prodId = UNKNOWN_ID; \
   private: Core::Basic::SharedPtr<Core::Data::SourceLocation> sourceLocation; \
-  private: Core::Basic::SharedMap<Core::Basic::TiObject, Core::Basic::TiObject> extras; \
+  private: Core::Basic::SharedMap<Core::Basic::TiObject> extras; \
   public: using MetaHaving::setProdId; \
   public: virtual void setProdId(Word id) \
   { \

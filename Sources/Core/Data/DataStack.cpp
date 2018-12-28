@@ -169,7 +169,7 @@ void DataStack::ownTop()
 
 
 //==============================================================================
-// ListContaining Implementation
+// DynamicContaining Implementation
 
 void DataStack::removeElement(Int index)
 {

@@ -1,0 +1,24 @@
+import "libalusus_spp.so";
+
+def power2: macro [n] __n__1 * __n__1;
+def defInt: macro [n] { def n: Int };
+def defInts: macro [n] { def __n__1: Int; def __n__2: Int; };
+def defGetMin: macro [n, T] {
+  def getMin: function (n: T, b: T)=>T {
+    if n <= b return a else return b;
+  }
+};
+
+def Main: module
+{
+  defGetMin[b, Int];
+
+  def start: function ()=>Void
+  {
+    defInt[a.a];
+    defInts[a * a];
+    power2[a(2)];
+  }
+};
+
+dump_llvm_ir Main.start;

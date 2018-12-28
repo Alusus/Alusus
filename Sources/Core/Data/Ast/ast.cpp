@@ -26,7 +26,7 @@ SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj)
 }
 
 
-Bool mergeDefinition(Definition *def, ListContaining<TiObject> *target, Notices::Store *noticeStore)
+Bool mergeDefinition(Definition *def, DynamicContaining<TiObject> *target, Notices::Store *noticeStore)
 {
   VALIDATE_NOT_NULL(def, target, noticeStore);
   for (Int i = 0; i < target->getElementCount(); ++i) {
@@ -47,7 +47,7 @@ Bool mergeDefinition(Definition *def, ListContaining<TiObject> *target, Notices:
 }
 
 
-Bool addPossiblyMergeableElement(TiObject *src, ListContaining<TiObject> *target, Notices::Store *noticeStore)
+Bool addPossiblyMergeableElement(TiObject *src, DynamicContaining<TiObject> *target, Notices::Store *noticeStore)
 {
   VALIDATE_NOT_NULL(src, target, noticeStore);
   if (src->isDerivedFrom<Definition>()) {
@@ -64,7 +64,7 @@ Bool addPossiblyMergeableElement(TiObject *src, ListContaining<TiObject> *target
 }
 
 
-Bool addPossiblyMergeableElements(Containing<TiObject> *src, ListContaining<TiObject> *target, Notices::Store *noticeStore)
+Bool addPossiblyMergeableElements(Containing<TiObject> *src, DynamicContaining<TiObject> *target, Notices::Store *noticeStore)
 {
   VALIDATE_NOT_NULL(src, target, noticeStore);
   Bool result = true;

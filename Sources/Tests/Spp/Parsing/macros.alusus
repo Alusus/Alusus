@@ -1,0 +1,29 @@
+import "libalusus_spp.so";
+
+def m1: macro [x] x;
+def m2: macro [x:Identifier] x;
+def m3: macro [x:Identifier] { x };
+
+def m4: macro [x, y] x, y;
+def m5: macro [x:Identifier, y:String] x, y;
+def m6: macro [x:Identifier, y:String] { x, y };
+
+def m7: macro [x:Identifier, y] { x, y };
+def m8: macro [x, y:String] { x, y };
+
+def m9: macro [x.a] { x, y };
+def m10: macro [x+a] { x, y };
+def m11: macro [x: y+a] { x, y };
+def m12: macro [x, y.a] { x, y };
+def m13: macro [x, y+a] { x, y };
+def m14: macro [x, y:a+b] { x, y };
+def m15: macro [x, , y] { x, y };
+
+dump_ast m1;
+dump_ast m2;
+dump_ast m3;
+dump_ast m4;
+dump_ast m5;
+dump_ast m6;
+dump_ast m7;
+dump_ast m8;

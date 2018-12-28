@@ -107,6 +107,9 @@ DEFINE_NOTICE(InvalidContinueStatementNotice, "Spp.Notices", "Spp", "alusus.net"
 DEFINE_NOTICE(InvalidBreakStatementNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1012", 1,
   "Invalid break statement."
 );
+DEFINE_NOTICE(InvalidMacroArgDefNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1013", 1,
+  "Invalid macro argumnet definition."
+);
 
 } // namespace
 
@@ -164,6 +167,12 @@ DEFINE_NOTICE(IncompatibleOperatorTypesNotice, "Spp.Notices", "Spp", "alusus.net
 );
 DEFINE_NOTICE(ExecutionAbortedNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1016", 1,
   "Execution aborted due to previous errors."
+);
+DEFINE_NOTICE(InvalidMacroArgNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1017", 1,
+  "Invalid macro argument."
+);
+DEFINE_NOTICE(InvalidMacroNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1018", 1,
+  "Invalid macro."
 );
 
 } // namespace

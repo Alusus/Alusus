@@ -37,7 +37,7 @@ class DataType : public Type, public virtual MapContaining<TiObject>
   //============================================================================
   // Implementations
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (body, Block, setBody(value), body.get()));
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (body, Block, SHARED_REF, setBody(value), body.get()));
 
 
   //============================================================================

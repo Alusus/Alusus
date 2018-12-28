@@ -29,6 +29,7 @@ class CodeGenParsingHandler : public Core::Processing::Handlers::GenericParsingH
 
   Core::Main::RootManager *rootManager;
   Spp::Ast::Helper *astHelper;
+  Spp::CodeGen::MacroProcessor *macroProcessor;
   Spp::CodeGen::Generator *generator;
   Spp::LlvmCodeGen::TargetGenerator *targetGenerator;
   Bool execute;
@@ -38,8 +39,9 @@ class CodeGenParsingHandler : public Core::Processing::Handlers::GenericParsingH
   // Constructor
 
   public: CodeGenParsingHandler(
-    Core::Main::RootManager *rm, Ast::Helper *h, CodeGen::Generator *g, LlvmCodeGen::TargetGenerator *tg, Bool exe
-  ) : rootManager(rm), astHelper(h), generator(g), targetGenerator(tg), execute(exe)
+    Core::Main::RootManager *rm, Ast::Helper *h, CodeGen::MacroProcessor *mp,
+    CodeGen::Generator *g, LlvmCodeGen::TargetGenerator *tg, Bool exe
+  ) : rootManager(rm), astHelper(h), macroProcessor(mp), generator(g), targetGenerator(tg), execute(exe)
   {
   }
 

@@ -49,7 +49,9 @@ class Definition : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (target, TiObject, setTarget(value), target.get()));
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
+    (target, TiObject, SHARED_REF, setTarget(value), target.get())
+  );
 
 
   //============================================================================

@@ -45,7 +45,9 @@ class ContentOp : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (operand, TiObject, setOperand(value), operand.get()));
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
+    (operand, TiObject, SHARED_REF, setOperand(value), operand.get())
+  );
 
   IMPLEMENT_AST_CLONABLE(ContentOp);
 

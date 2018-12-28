@@ -61,7 +61,7 @@ template<class T> class BindingCache : public BindingCacheBase
   //============================================================================
   // Slots
 
-  private: Slot<void, BindingMapBase*, ContentChangeOp, Int> bindingChangeSlot = {
+  private: Slot<void, SharedMapBase<TiObject, TiObject>*, ContentChangeOp, Int> bindingChangeSlot = {
     this, &BindingCache::onBindingChanged
   };
 
@@ -114,7 +114,7 @@ template<class T> class BindingCache : public BindingCacheBase
     this->update();
   }
 
-  private: void onBindingChanged(BindingMapBase *src, ContentChangeOp op, Int i)
+  private: void onBindingChanged(SharedMapBase<TiObject, TiObject> *src, ContentChangeOp op, Int i)
   {
     if (op == ContentChangeOp::ADDED) {
       if (this->index == -1) {

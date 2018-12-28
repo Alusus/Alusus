@@ -18,7 +18,7 @@ namespace Core::Data::Grammar
 //==============================================================================
 // Member Functions
 
-void Factory::setRootScope(ListContaining<TiObject> *rootScope)
+void Factory::setRootScope(DynamicContaining<TiObject> *rootScope)
 {
   Module *grammarRoot = getGrammarRoot(rootScope, true);
   this->context.setRoot(grammarRoot);
@@ -32,7 +32,6 @@ void Factory::set(Char const* qualifier, TiObject *val)
   if (!ref->setValue(&this->context, val)) {
     throw EXCEPTION(InvalidArgumentException, S("qualifier"), S("Invalid qualifier."), qualifier);
   }
-  if (val != 0) setTreeIds(val, this->context.getRoot());
   this->initializeObject(val);
 }
 
@@ -74,14 +73,25 @@ Bool Factory::tryGet(Char const* qualifier, TiObject *&result, Module **ownerMod
 void Factory::initializeObject(TiObject *obj)
 {
   if (obj == 0) return;
-  Initializable *initializable = obj->getInterface<Initializable>();
-  if (initializable != 0) {
-    auto oldModule = this->context.getModule();
-    Node *node = ti_cast<Node>(obj);
-    Module *ownerModule = (node == 0 ? 0 : node->findOwner<Module>());
-    this->context.setModule(ownerModule);
-    initializable->initialize(&this->context);
-    this->context.setModule(oldModule);
+  Inheriting *inheriting = obj->getInterface<Inheriting>();
+  if (inheriting != 0) {
+    auto baseRef = inheriting->getBaseReference();
+    if (baseRef != 0) {
+      // Prepare the context.
+      auto oldModule = this->context.getModule();
+      Node *node = ti_cast<Node>(obj);
+      Module *ownerModule = (node == 0 ? 0 : node->findOwner<Module>());
+      this->context.setModule(ownerModule);
+
+      // Lookup the base.
+      TiObject *base = this->context.traceValue(baseRef);
+      if (base == 0) {
+        throw EXCEPTION(GenericException, S("Base reference points to missing definition."));
+      }
+
+      inheriting->setBase(base);
+      this->context.setModule(oldModule);
+    }
   }
 }
 

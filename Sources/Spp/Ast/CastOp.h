@@ -47,8 +47,8 @@ class CastOp : public Core::Data::Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (operand, TiObject, setOperand(value), operand.get()),
-    (targetType, TiObject, setTargetType(value), targetType.get())
+    (operand, TiObject, SHARED_REF, setOperand(value), operand.get()),
+    (targetType, TiObject, SHARED_REF, setTargetType(value), targetType.get())
   );
 
   IMPLEMENT_AST_CLONABLE(PointerOp);

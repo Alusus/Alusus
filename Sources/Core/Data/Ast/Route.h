@@ -72,7 +72,9 @@ class Route : public Node,
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (data, TiObject, setData(value), data.get()));
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
+    (data, TiObject, SHARED_REF, setData(value), data.get())
+  );
 
   IMPLEMENT_AST_LIST_PRINTABLE(Route, << this->route.get());
 

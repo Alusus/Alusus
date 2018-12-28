@@ -51,8 +51,8 @@ class FunctionType : public Type, public virtual MapContaining<TiObject>
   // Implementations
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (argTypes, Core::Data::Ast::Map, setArgTypes(value), argTypes.get()),
-    (retType, TiObject, setRetType(value), retType.get())
+    (argTypes, Core::Data::Ast::Map, SHARED_REF, setArgTypes(value), argTypes.get()),
+    (retType, TiObject, SHARED_REF, setRetType(value), retType.get())
   );
 
   IMPLEMENT_AST_MAP_PRINTABLE(FunctionType);

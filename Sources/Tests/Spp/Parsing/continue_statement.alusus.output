@@ -3,12 +3,12 @@ ERROR SPPH1011 @ (13,7): Invalid continue statement.
 ERROR SPPH1011 @ (19,7): Invalid continue statement.
 ERROR SPPH1011 @ (20,7): Invalid continue statement.
 ------------------ Parsed Data Dump ------------------
-Module [Main.ModuleStatementList]
- Definition [Main.Def] start: Function  [Subject.Function]
-  type: FunctionType [Subject.Function]
+Module [Main.ModuleStatements.StmtList]
+ Definition [Main.Def] start: Function  [Main.Function]
+  type: FunctionType [Main.Function]
    argTypes: NULL
    retType: Identifier: Void [Subject.Parameter]
-  body: Block [Main.BlockStatementList]
+  body: Block [Main.BlockStatements.StmtList]
    Definition [Main.Def] i: ParamPass [] [Expression.ParamPassExp]
     operand: Identifier: Int [Subject.Parameter]
     param: IntegerLiteral: 32 [Subject.Literal]
@@ -16,7 +16,7 @@ Module [Main.ModuleStatementList]
     condition: ComparisonOperator > [Expression.ComparisonExp]
      first: Identifier: i [Subject.Parameter]
      second: IntegerLiteral: 0 [Subject.Literal]
-    body: Block [Main.BlockStatementList]
+    body: Block [Main.BlockStatements.StmtList]
      ContinueStatement [Main.Continue]
       steps: NULL
      ContinueStatement [Main.Continue]
@@ -30,7 +30,7 @@ Module [Main.ModuleStatementList]
      second: IntegerLiteral: 5 [Subject.Literal]
     updater: PrefixOperator ++ [Expression.UnaryExp]
      operand: Identifier: i [Subject.Parameter]
-    body: Block [Main.BlockStatementList]
+    body: Block [Main.BlockStatements.StmtList]
      ContinueStatement [Main.Continue]
       steps: NULL
      ContinueStatement [Main.Continue]

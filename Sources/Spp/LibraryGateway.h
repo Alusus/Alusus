@@ -29,6 +29,7 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SeekerExtension::Overrides *seekerExtensionOverrides = 0;
   private: SharedPtr<Ast::Helper> astHelper;
   private: SharedPtr<Ast::NodePathResolver> nodePathResolver;
+  private: SharedPtr<CodeGen::MacroProcessor> macroProcessor;
   private: SharedPtr<CodeGen::TypeGenerator> typeGenerator;
   private: SharedPtr<CodeGen::ExpressionGenerator> expressionGenerator;
   private: SharedPtr<CodeGen::CommandGenerator> commandGenerator;

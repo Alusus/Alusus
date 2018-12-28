@@ -63,8 +63,8 @@ class ListTerm : public Term, public virtual DataHaving, public virtual MapConta
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (terms, Node, setTerms(value), terms.get()),
-    (data, Node, setData(value), data.get())
+    (terms, Node, SHARED_REF, setTerms(value), terms.get()),
+    (data, Node, SHARED_REF, setData(value), data.get())
   );
 
 

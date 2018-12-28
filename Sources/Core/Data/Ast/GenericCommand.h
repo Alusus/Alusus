@@ -47,8 +47,8 @@ class GenericCommand : public Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (args, List, setArgs(value), args.get()),
-    (modifiers, List, setModifiers(value), modifiers.get())
+    (args, List, SHARED_REF, setArgs(value), args.get()),
+    (modifiers, List, SHARED_REF, setModifiers(value), modifiers.get())
   );
 
   IMPLEMENT_AST_MAP_CLONABLE(GenericCommand);

@@ -282,7 +282,7 @@ Bool TargetGenerator::generateFunctionType(
   VALIDATE_NOT_NULL(argTypes, retType);
 
   // Prepare args
-  auto args = SharedMap<Type, TiObject>::create({});
+  auto args = SharedMap<Type>::create({});
   std::vector<llvm::Type*> llvmArgTypes;
   llvmArgTypes.reserve(argTypes->getElementCount());
   for (Int i = 0; i < argTypes->getElementCount(); ++i) {
@@ -365,7 +365,7 @@ Bool TargetGenerator::prepareFunctionBody(
 
 
 Bool TargetGenerator::finishFunctionBody(
-  TiObject *function, TiObject *functionType, ListContaining<TiObject> *args, TiObject *context
+  TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
 ) {
   PREPARE_ARG(functionType, functionTypeWrapper, FunctionType);
   auto voidRetType = functionTypeWrapper->getRetType().ti_cast_get<VoidType>();
@@ -926,6 +926,7 @@ Bool TargetGenerator::generateReturn(
   } else {
     block->getIrBuilder()->CreateRetVoid();
   }
+  block->setTerminated(true);
   return true;
 }
 

@@ -47,7 +47,7 @@ class ContinueStatement : public Core::Data::Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (steps, Core::Data::Ast::IntegerLiteral, setSteps(value), steps.get())
+    (steps, Core::Data::Ast::IntegerLiteral, SHARED_REF, setSteps(value), steps.get())
   );
 
   IMPLEMENT_AST_CLONABLE(ContinueStatement);
