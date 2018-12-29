@@ -70,6 +70,7 @@
       <keyword>module</keyword>
       <keyword>function</keyword>
       <keyword>type</keyword>
+      <keyword>macro</keyword>
       <keyword>if</keyword>
       <keyword>else</keyword>
       <keyword>do</keyword>
@@ -97,6 +98,7 @@
       <keyword>حزمة</keyword>
       <keyword>دالّة</keyword>
       <keyword>دالة</keyword>
+      <keyword>ماكرو</keyword>
       <keyword>صنف</keyword>
       <keyword>إذا</keyword>
       <keyword>وإلا</keyword>
