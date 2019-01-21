@@ -2,7 +2,7 @@
  * @file Spp/Notices/notices.h
  * Contains the definitions and include statements of all user notices.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -173,6 +173,9 @@ DEFINE_NOTICE(InvalidMacroArgNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG10
 );
 DEFINE_NOTICE(InvalidMacroNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1018", 1,
   "Invalid macro."
+);
+DEFINE_NOTICE(InvalidUseStatementNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1019", 1,
+  "Use statement not pointing to a valid target."
 );
 
 } // namespace

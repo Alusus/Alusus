@@ -181,6 +181,10 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
     TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result
   );
 
+  private: static Bool _validateUseStatement(
+    TiObject *self, Spp::Ast::UseStatement *useStatement
+  );
+
   /// @}
 
 }; // class
