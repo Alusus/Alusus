@@ -33,7 +33,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
   public: ti_s_enum(Verb, TiInt, "Core.Data", "Core", "alusus.net",
     MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP
   );
-  public: s_enum(Flags, SKIP_USES = 1);
+  public: s_enum(Flags, SKIP_OWNERS = 1);
   public: typedef std::function<Verb(TiObject *&obj, Notices::Notice *notice)> SetCallback;
   public: typedef std::function<Verb(TiObject *obj, Notices::Notice *notice)> RemoveCallback;
   public: typedef std::function<Verb(TiObject *obj, Notices::Notice *notice)> ForeachCallback;

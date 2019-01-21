@@ -104,8 +104,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_block(
   Core::Data::Seeker::Verb verb = seeker->foreachByIdentifier_scope(identifier, block, cb, flags);
   if (!Core::Data::Seeker::isMove(verb)) return verb;
 
-  if (!(flags & Core::Data::Seeker::Flags::SKIP_USES)) {
-    PREPARE_SELF(seeker, Core::Data::Seeker);
+  if (!(flags & SeekerExtension::Flags::SKIP_USES)) {
     for (Int i = 0; i < block->getUseStatementCount(); ++i) {
       auto useRef = block->getUseStatement(i);
       // If the thing we are looking for is actually this useRef, then we need to skip, otherwise we end up in
@@ -116,7 +115,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_block(
           if (o != 0) return seeker->foreachByIdentifier_level(identifier, o, cb, flags);
           else return Core::Data::Seeker::Verb::MOVE;
         },
-        flags
+        flags | SeekerExtension::Flags::SKIP_USES
       );
       if (!Core::Data::Seeker::isMove(verb)) return verb;
     }

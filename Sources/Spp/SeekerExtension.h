@@ -38,6 +38,8 @@ class SeekerExtension : public ObjTiInterface
     TiFunctionBase *foreachByParamPass_templateRef;
   };
 
+  public: s_enum(Flags, SKIP_USES = (1<<16), SKIP_OWNERS_AND_USES = (1<<16) | 1);
+
 
   //============================================================================
   // Member Variables

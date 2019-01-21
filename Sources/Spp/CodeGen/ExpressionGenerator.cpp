@@ -226,7 +226,7 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
       }
       return Core::Data::Seeker::Verb::STOP;
     },
-    searchOwners ? 0 : Core::Data::Seeker::Flags::SKIP_USES
+    searchOwners ? 0 : SeekerExtension::Flags::SKIP_OWNERS_AND_USES
   );
 
   if (!symbolFound) {
@@ -1973,7 +1973,7 @@ Bool ExpressionGenerator::_generateMemberReference(
   }
   TiObject *astMemberVar;
   if (!expGenerator->astHelper->getSeeker()->tryGet(
-    astNode, body, astMemberVar, Core::Data::Seeker::Flags::SKIP_USES
+    astNode, body, astMemberVar, SeekerExtension::Flags::SKIP_OWNERS_AND_USES
   )) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidTypeMemberNotice>(astNode->findSourceLocation())
