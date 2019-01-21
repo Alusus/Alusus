@@ -2,7 +2,7 @@
  * @file Core/Basic/SharedMapBase.h
  * Contains the header of class Core::Basic::SharedMapBase.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -82,30 +82,25 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
    * searching, otherwise the object will use sequential searching instead of
    * binary search.
    */
-  public: SharedMapBase(Bool useIndex = false) : inherited(0), base(0)
+  protected: SharedMapBase(Bool useIndex = false) : inherited(0), base(0)
   {
     if (useIndex) this->index = new Index(&this->list);
     else this->index = 0;
-  }
-
-  /// Initialize the map and create the index, if required.
-  public: SharedMapBase(const std::initializer_list<Argument> &args, Bool useIndex = false)
-    : inherited(0), base(0)
-  {
-    if (useIndex) this->index = new Index(&this->list);
-    else this->index = 0;
-
-    for (auto arg : args) this->add(arg.id, arg.shared.ti_cast<CTYPE>());
   }
 
   /// Delete the index created in the constructor, if any.
-  public: virtual ~SharedMapBase()
+  public: virtual ~SharedMapBase() = 0;
+
+  protected: void destruct()
   {
     this->destroyNotifier.emit(this);
-    if (this->index != 0) delete this->index;
     if (this->base != 0) this->detachFromBase();
+    this->clear();
+    if (this->index != 0) {
+      delete this->index;
+      this->index = 0;
+    }
   }
-
 
   //============================================================================
   // Member Functions
@@ -113,17 +108,47 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
   /// @name Abstract Functions
   /// @{
 
-  private: virtual SharedPtr<CTYPE> prepareForSet(
+  protected: virtual SharedPtr<CTYPE> prepareForSet(
     Char const *key, Int index, SharedPtr<CTYPE> const &obj, Bool inherited, Bool newEntry
   ) = 0;
 
-  private: virtual void finalizeSet(
+  protected: virtual void finalizeSet(
     Char const *key, Int index, SharedPtr<CTYPE> const &obj, Bool inherited, Bool newEntry
   ) = 0;
 
-  private: virtual void prepareForUnset(
+  protected: virtual void prepareForUnset(
     Char const *key, Int index, SharedPtr<CTYPE> const &obj, Bool inherited
   ) = 0;
+
+  /// @}
+
+  /// @name Notification Functions
+  /// @{
+
+  protected: virtual void onAdded(Int index)
+  {
+    this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
+  }
+
+  protected: virtual void onWillUpdate(Int index)
+  {
+    this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, index);
+  }
+
+  protected: virtual void onUpdated(Int index)
+  {
+    this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
+  }
+
+  protected: virtual void onWillRemove(Int index)
+  {
+    this->changeNotifier.emit(this, ContentChangeOp::WILL_REMOVE, index);
+  }
+
+  protected: virtual void onRemoved(Int index)
+  {
+    this->changeNotifier.emit(this, ContentChangeOp::REMOVED, index);
+  }
 
   /// @}
 
@@ -173,7 +198,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
   private: void inheritFromBase()
   {
     ASSERT(this->base != 0);
-    for (Int i = 0; static_cast<Word>(i) < this->getBaseDefCount(); ++i) this->onAdded(i);
+    for (Int i = 0; static_cast<Word>(i) < this->getBaseDefCount(); ++i) this->onBaseElementAdded(i);
   }
 
   private: void removeInheritted()
@@ -181,7 +206,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
     ASSERT(this->inherited != 0);
     for (Int i = this->inherited->size()-1; i >= 0; --i) {
       if (this->inherited->at(i)) {
-        this->onRemoved(i);
+        this->onBaseElementRemoved(i);
       }
     }
   }
@@ -196,7 +221,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
     return this->base->getKey(index);
   }
 
-  private: void onAdded(Int index)
+  private: void onBaseElementAdded(Int index)
   {
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
@@ -210,7 +235,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
       this->list.erase(this->list.begin()+myIndex);
       this->inherited->erase(this->inherited->begin()+myIndex);
       if (this->index != 0) this->index->remove(myIndex);
-      this->changeNotifier.emit(this, ContentChangeOp::REMOVED, myIndex);
+      this->onRemoved(myIndex);
       obj = this->prepareForSet(key, index, obj, true, true);
       this->list.insert(this->list.begin()+index, Entry(key, obj));
       this->inherited->insert(this->inherited->begin()+index, false);
@@ -224,10 +249,10 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
       if (this->index != 0) this->index->add(index);
       this->finalizeSet(key, index, obj, true, true);
     }
-    this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
+    this->onAdded(index);
   }
 
-  private: void onUpdated(Int index)
+  private: void onBaseElementUpdated(Int index)
   {
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
@@ -238,11 +263,11 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
       auto obj = this->prepareForSet(key, index, this->getFromBase(index), true, false);
       this->list[index].second = obj;
       this->finalizeSet(key, index, obj, true, false);
-      this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
+      this->onUpdated(index);
     }
   }
 
-  private: void onRemoved(Int index)
+  private: void onBaseElementRemoved(Int index)
   {
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
@@ -252,7 +277,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
       this->list.erase(this->list.begin()+index);
       this->inherited->erase(this->inherited->begin()+index);
       if (this->index != 0) this->index->remove(index);
-      this->changeNotifier.emit(this, ContentChangeOp::REMOVED, index);
+      this->onRemoved(index);
     } else {
       Str key = this->getKey(index);
       SharedPtr<CTYPE> obj = this->get(index);
@@ -260,16 +285,16 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
       this->list.erase(this->list.begin()+index);
       this->inherited->erase(this->inherited->begin()+index);
       if (this->index != 0) this->index->remove(index);
-      this->changeNotifier.emit(this, ContentChangeOp::REMOVED, index);
+      this->onRemoved(index);
       this->add(key.c_str(), obj);
     }
   }
 
   private: void onBaseContentChanged(SharedMapBase<CTYPE, PTYPE> *obj, ContentChangeOp op, Int index)
   {
-    if (op == ContentChangeOp::ADDED) this->onAdded(index);
-    else if (op == ContentChangeOp::UPDATED) this->onUpdated(index);
-    else if (op == ContentChangeOp::REMOVED) this->onRemoved(index);
+    if (op == ContentChangeOp::ADDED) this->onBaseElementAdded(index);
+    else if (op == ContentChangeOp::UPDATED) this->onBaseElementUpdated(index);
+    else if (op == ContentChangeOp::REMOVED) this->onBaseElementRemoved(index);
   }
 
   private: void onBaseDestroyed(SharedMapBase<CTYPE, PTYPE> *obj)
@@ -282,6 +307,11 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
   /// @name Data Access Functions
   /// @{
 
+  public: void add(std::initializer_list<Argument> const &args)
+  {
+    for (auto arg : args) this->add(arg.id, arg.shared.ti_cast<CTYPE>());
+  }
+
   public: Int add(Char const *key, SharedPtr<CTYPE> const &val)
   {
     Int i = this->findIndex(key);
@@ -291,7 +321,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
         this->list[i].second = obj;
         this->inherited->at(i) = false;
         this->finalizeSet(key, i, obj, false, false);
-        this->changeNotifier.emit(this, ContentChangeOp::UPDATED, i);
+        this->onUpdated(i);
       } else {
         throw EXCEPTION(InvalidArgumentException, S("key"), S("Already exists."), key);
       }
@@ -302,7 +332,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
       if (this->inherited != 0) this->inherited->push_back(false);
       if (this->index != 0) this->index->add();
       this->finalizeSet(key, i, obj, false, true);
-      this->changeNotifier.emit(this, ContentChangeOp::ADDED, i);
+      this->onAdded(i);
     }
     return i;
   }
@@ -321,7 +351,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
     if (this->inherited != 0) this->inherited->insert(this->inherited->begin()+index, false);
     if (this->index != 0) this->index->add(index);
     this->finalizeSet(key, index, obj, false, true);
-    this->changeNotifier.emit(this, ContentChangeOp::ADDED, index);
+    this->onAdded(index);
   }
 
   public: Int set(Char const *key, SharedPtr<CTYPE> const &val, Bool insertIfNew=true)
@@ -335,12 +365,12 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
         if (this->inherited != 0) this->inherited->push_back(false);
         if (this->index != 0) this->index->add();
         this->finalizeSet(key, idx, obj, false, true);
-        this->changeNotifier.emit(this, ContentChangeOp::ADDED, idx);
+        this->onAdded(idx);
       } else {
         throw EXCEPTION(InvalidArgumentException, S("key"),S("Not found."), key);
       }
     } else {
-      this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, idx);
+      this->onWillUpdate(idx);
       this->prepareForUnset(
         this->list[idx].first.c_str(), idx, this->list[idx].second, this->inherited && this->inherited->at(idx)
       );
@@ -348,7 +378,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
       this->list[idx].second = obj;
       if (this->inherited != 0) this->inherited->at(idx) = false;
       this->finalizeSet(this->list[idx].first.c_str(), idx, obj, false, false);
-      this->changeNotifier.emit(this, ContentChangeOp::UPDATED, idx);
+      this->onUpdated(idx);
     }
     return idx;
   }
@@ -358,7 +388,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
     if (static_cast<Word>(index) >= this->list.size()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
-    this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, index);
+    this->onWillUpdate(index);
     this->prepareForUnset(
       this->list[index].first.c_str(), index, this->list[index].second, this->inherited && this->inherited->at(index)
     );
@@ -366,7 +396,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
     this->list[index].second = obj;
     if (this->inherited != 0) this->inherited->at(index) = false;
     this->finalizeSet(this->list[index].first.c_str(), index, obj, false, false);
-    this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
+    this->onUpdated(index);
   }
 
   public: Int remove(Char const *key)
@@ -378,20 +408,20 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
     if (static_cast<Word>(idx) < this->getBaseDefCount()) {
       ASSERT(this->base != 0);
       ASSERT(this->inherited != 0);
-      this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, idx);
+      this->onWillUpdate(idx);
       this->prepareForUnset(key, idx, this->list[idx].second, false);
       auto obj = this->prepareForSet(key, idx, this->getFromBase(idx), true, false);
       this->list[idx].second = obj;
       this->inherited->at(idx) = true;
       this->finalizeSet(key, idx, obj, true, false);
-      this->changeNotifier.emit(this, ContentChangeOp::UPDATED, idx);
+      this->onUpdated(idx);
     } else {
-      this->changeNotifier.emit(this, ContentChangeOp::WILL_REMOVE, idx);
+      this->onWillRemove(idx);
       this->prepareForUnset(key, idx, this->list[idx].second, false);
       this->list.erase(this->list.begin()+idx);
       if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+idx);
       if (this->index != 0) this->index->remove(idx);
-      this->changeNotifier.emit(this, ContentChangeOp::REMOVED, idx);
+      this->onRemoved(idx);
     }
     return idx;
   }
@@ -407,20 +437,20 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
     if (static_cast<Word>(index) < this->getBaseDefCount()) {
       ASSERT(this->base != 0);
       ASSERT(this->inherited != 0);
-      this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, index);
+      this->onWillUpdate(index);
       this->prepareForUnset(this->list[index].first.c_str(), index, this->list[index].second, false);
       auto obj = this->prepareForSet(this->list[index].first.c_str(), index, this->getFromBase(index), true, false);
       this->list[index].second = obj;
       this->inherited->at(index) = true;
       this->finalizeSet(this->list[index].first.c_str(), index, obj, true, false);
-      this->changeNotifier.emit(this, ContentChangeOp::UPDATED, index);
+      this->onUpdated(index);
     } else {
-      this->changeNotifier.emit(this, ContentChangeOp::WILL_REMOVE, index);
+      this->onWillRemove(index);
       this->prepareForUnset(this->list[index].first.c_str(), index, this->list[index].second, false);
       this->list.erase(this->list.begin()+index);
       if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+index);
       if (this->index != 0) this->index->remove(index);
-      this->changeNotifier.emit(this, ContentChangeOp::REMOVED, index);
+      this->onRemoved(index);
     }
   }
 
@@ -486,13 +516,13 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
       ASSERT(this->base != 0);
       ASSERT(this->inherited != 0);
       if (!this->inherited->at(i)) {
-        this->changeNotifier.emit(this, ContentChangeOp::WILL_UPDATE, i);
+        this->onWillUpdate(i);
         this->prepareForUnset(this->list[i].first.c_str(), i, this->list[i].second, false);
         auto obj = this->prepareForSet(this->list[i].first.c_str(), i, this->getFromBase(i), true, false);
         this->list[i].second = obj;
         this->inherited->at(i) = true;
         this->finalizeSet(this->list[i].first.c_str(), i, obj, true, false);
-        this->changeNotifier.emit(this, ContentChangeOp::UPDATED, i);
+        this->onUpdated(i);
       }
       ++i;
     }
@@ -582,6 +612,10 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public vi
   /// @}
 
 }; // class
+
+template<class CTYPE, class PTYPE> SharedMapBase<CTYPE, PTYPE>::~SharedMapBase()
+{
+}
 
 } // namespace
 

@@ -2,7 +2,7 @@
  * @file Core/Basic/PlainList.h
  * Contains the header of class Core::Basic::PlainList.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -28,9 +28,21 @@ template<class CTYPE> class PlainList : public PlainListBase<CTYPE, TiObject>
   //============================================================================
   // Constructors
 
-  public: using PlainListBase<CTYPE, TiObject>::PlainListBase;
+  public: PlainList()
+  {
+  }
 
-  public: static SharedPtr<PlainList> create(const std::initializer_list<CTYPE*> &args)
+  public: PlainList(std::initializer_list<CTYPE*> const &args)
+  {
+    this->add(args);
+  }
+
+  public: virtual ~PlainList()
+  {
+    this->destruct();
+  }
+
+  public: static SharedPtr<PlainList> create(std::initializer_list<CTYPE*> const &args)
   {
     return std::make_shared<PlainList>(args);
   }
@@ -42,16 +54,16 @@ template<class CTYPE> class PlainList : public PlainListBase<CTYPE, TiObject>
   /// @name Abstract Implementations
   /// @{
 
-  private: virtual CTYPE* prepareForSet(Int index, CTYPE *obj, Bool inherited, Bool newEntry)
+  protected: virtual CTYPE* prepareForSet(Int index, CTYPE *obj, Bool inherited, Bool newEntry)
   {
     return obj;
   }
 
-  private: virtual void finalizeSet(Int index, CTYPE *obj, Bool inherited, Bool newEntry)
+  protected: virtual void finalizeSet(Int index, CTYPE *obj, Bool inherited, Bool newEntry)
   {
   }
 
-  private: virtual void prepareForUnset(Int index, CTYPE *obj, Bool inherited)
+  protected: virtual void prepareForUnset(Int index, CTYPE *obj, Bool inherited)
   {
   }
 

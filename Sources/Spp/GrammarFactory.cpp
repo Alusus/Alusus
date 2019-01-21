@@ -1,7 +1,7 @@
 /**
  * @file Spp/GrammarFactory.cpp
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -39,10 +39,10 @@ void GrammarFactory::createGrammar(
   //// DumpIr = "dump_ir" + Subject
   this->set(S("root.Main.DumpLlvmIr"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("dump_llvm_ir"), 0 }, { S("أدرج_ت_و"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("dump_llvm_ir"), 0 }, { S("أدرج_ت_و"), 0 } })},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Expression"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -60,10 +60,10 @@ void GrammarFactory::createGrammar(
   //// run = "run" + Subject
   this->set(S("root.Main.Run"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("run"), 0 }, { S("نفّذ"), 0 }, { S("نفذ"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("run"), 0 }, { S("نفّذ"), 0 }, { S("نفذ"), 0 } })},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Expression"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -81,23 +81,23 @@ void GrammarFactory::createGrammar(
   //// if = "if" + Expression + Statement + ("else" + Statement)*(0, 1)
   this->set(S("root.Main.If"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.MultiCmd"))},
-    {S("vars"), Map::create(false, {}, {
+    {S("vars"), Map::create({}, {
       {S("sections"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
           {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-          {S("kwd"), Map::create(false, {}, { { S("if"), 0 }, { S("إذا"), 0 } })},
+          {S("kwd"), Map::create({}, { { S("if"), 0 }, { S("إذا"), 0 } })},
           {S("args"), List::create({}, {
-            Map::create(false, {}, {
+            Map::create({}, {
               {S("min"), std::make_shared<TiInt>(1)},
               {S("max"), std::make_shared<TiInt>(1)},
               {S("pty"), std::make_shared<TiInt>(1)},
               {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
               {S("prd"), PARSE_REF(S("module.Expression"))}
             }),
-            Map::create(false, {}, {
+            Map::create({}, {
               {S("min"), std::make_shared<TiInt>(1)},
               {S("max"), std::make_shared<TiInt>(1)},
               {S("pty"), std::make_shared<TiInt>(1)},
@@ -106,14 +106,14 @@ void GrammarFactory::createGrammar(
             })
           })}
         }),
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
           {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
-          {S("kwd"), Map::create(false, {}, { { S("else"), 0 }, { S("وإلا"), 0 } })},
+          {S("kwd"), Map::create({}, { { S("else"), 0 }, { S("وإلا"), 0 } })},
           {S("args"), List::create({}, {
-            Map::create(false, {}, {
+            Map::create({}, {
               {S("min"), std::make_shared<TiInt>(1)},
               {S("max"), std::make_shared<TiInt>(1)},
               {S("pty"), std::make_shared<TiInt>(1)},
@@ -131,17 +131,17 @@ void GrammarFactory::createGrammar(
   //// while = "while" + Expression + Statement
   this->set(S("root.Main.While"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("while"), 0 }, { S("بينما"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("while"), 0 }, { S("بينما"), 0 } })},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Expression"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
           {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
         }),
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.BlockStatements.Stmt"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -157,17 +157,17 @@ void GrammarFactory::createGrammar(
   //// for = "for" + Exp + Statement
   this->set(S("root.Main.For"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("for"), 0 }, { S("لكل"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("for"), 0 }, { S("لكل"), 0 } })},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Expression"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
           {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
         }),
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.BlockStatements.Stmt"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -183,10 +183,10 @@ void GrammarFactory::createGrammar(
   //// continue = "continue" + Subject.Literal
   this->set(S("root.Main.Continue"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("continue"), 0 }, { S("أكمل"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("continue"), 0 }, { S("أكمل"), 0 } })},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Subject.Parameter"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -221,10 +221,10 @@ void GrammarFactory::createGrammar(
   //// break = "break" + Subject.Literal
   this->set(S("root.Main.Break"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("break"), 0 }, { S("اقطع"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("break"), 0 }, { S("اقطع"), 0 } })},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Subject.Parameter"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -257,10 +257,10 @@ void GrammarFactory::createGrammar(
   //// return = "return" + Expression
   this->set(S("root.Main.Return"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("return"), 0 }, { S("أرجع"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("return"), 0 }, { S("أرجع"), 0 } })},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Expression"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -289,10 +289,10 @@ void GrammarFactory::createGrammar(
   //// module = "module" + Set
   this->set(S("root.Main.Module"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("module"), 0 }, { S("حزمة"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("module"), 0 }, { S("حزمة"), 0 } })},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.ModuleBody"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -313,13 +313,15 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.ModuleBody"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("root.Set"))},
   }, {
-    {S("vars"), Map::create(false, {}, {
+    {S("vars"), Map::create({}, {
       {S("stmt"), PARSE_REF(S("module.ModuleStatements.StmtList"))}
     })}
   }).get());
   this->set(S("root.Main.ModuleStatements"), Module::create({
     {S("baseRef"), PARSE_REF(S("module.Statements"))}
-  }, {}));
+  }, {
+    {S("cmdGrp"), PARSE_REF(S("module.owner.LeadingBlockCmdGrp"))},
+  }));
   this->set(S("root.Main.ModuleStatements.StmtList"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.StmtList"))},
   }, {
@@ -329,10 +331,10 @@ void GrammarFactory::createGrammar(
   //// type = "type" + Set
   this->set(S("root.Main.Type"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("type"), 0 }, { S("صنف"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("type"), 0 }, { S("صنف"), 0 } })},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.BlockSet"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -358,17 +360,17 @@ void GrammarFactory::createGrammar(
   // Function
   this->set(S("root.Main.Function"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("function"), 0 }, { S("دالّة"), 0 }, { S("دالة"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("function"), 0 }, { S("دالّة"), 0 }, { S("دالة"), 0 } })},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.FuncSigExpression"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
           {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
         }),
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.BlockSet"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -394,27 +396,27 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.FuncSigExpression.LowLinkExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.LowLinkExp"))},
   }, {
-    {S("vars"), Map::create(false, {}, {{S("enable"), std::make_shared<TiInt>(1)}})},
+    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(1)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.AddExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.AddExp"))},
   }, {
-    {S("vars"), Map::create(false, {}, {{S("enable"), std::make_shared<TiInt>(0)}})},
+    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.MulExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.MulExp"))},
   }, {
-    {S("vars"), Map::create(false, {}, {{S("enable"), std::make_shared<TiInt>(0)}})},
+    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.BitwiseExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.BitwiseExp"))},
   }, {
-    {S("vars"), Map::create(false, {}, {{S("enable"), std::make_shared<TiInt>(0)}})},
+    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.UnaryExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.UnaryExp"))},
   }, {
-    {S("vars"), Map::create(false, {}, {
+    {S("vars"), Map::create({}, {
       {S("enable1"), std::make_shared<TiInt>(0)},
       {S("enable2"), std::make_shared<TiInt>(0)}
     })},
@@ -426,7 +428,7 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.FuncSigSubject.Sbj"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
   }, {
-    {S("vars"), Map::create(false, {}, {
+    {S("vars"), Map::create({}, {
       {S("sbj1"), PARSE_REF(S("module.Parameter"))},
       {S("sbj2"), PARSE_REF(S("module.expression"))},
       {S("sbj3"), PARSE_REF(S("module.expression"))},
@@ -439,17 +441,17 @@ void GrammarFactory::createGrammar(
   // Macro
   this->set(S("root.Main.Macro"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("macro"), 0 }, { S("ماكرو"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("macro"), 0 }, { S("ماكرو"), 0 } })},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.MacroSignature"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
           {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
         }),
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Expression"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -468,7 +470,7 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.MacroSignature.Sbj"), SymbolDefinition::create({
    {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
   }, {
-    {S("vars"), Map::create(false, {}, {
+    {S("vars"), Map::create({}, {
       {S("sbj1"), PARSE_REF(S("module.expression"))},
       {S("sbj2"), PARSE_REF(S("module.expression"))},
       {S("sbj3"), PARSE_REF(S("module.expression"))},
@@ -482,7 +484,7 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.BlockSet"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("root.Set"))},
   }, {
-    {S("vars"), Map::create(false, {}, {
+    {S("vars"), Map::create({}, {
       {S("stmt"), PARSE_REF(S("module.BlockStatements.StmtList"))}
     })}
   }).get());
@@ -490,6 +492,7 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.BlockStatements"), Module::create({
     {S("baseRef"), PARSE_REF(S("module.Statements"))}
   }, {
+    {S("cmdGrp"), PARSE_REF(S("module.owner.LeadingBlockCmdGrp"))},
     {S("expression"), PARSE_REF(S("module.owner.BlockExpression"))}
   }));
   this->set(S("root.Main.BlockStatements.StmtList"), SymbolDefinition::create({
@@ -510,13 +513,56 @@ void GrammarFactory::createGrammar(
     {S("subject"), PARSE_REF(S("module.owner.BlockSubject"))}
   }).get());
 
+  // Create block leading commands.
+
+  //// use = "use" + Expression
+  this->set(S("root.Main.Use"), SymbolDefinition::create({}, {
+    {S("term"), PARSE_REF(S("root.Cmd"))},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("use"), 0 }, { S("استخدم"), 0 } })},
+      {S("prms"), List::create({}, {
+        Map::create({}, {
+          {S("prd"), PARSE_REF(S("module.Expression"))},
+          {S("min"), std::make_shared<TiInt>(1)},
+          {S("max"), std::make_shared<TiInt>(1)},
+          {S("pty"), std::make_shared<TiInt>(1)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
+        })
+      })}
+    })},
+    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+      auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
+      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+      auto useStatement = Ast::UseStatement::create({
+        { "prodId", metadata->getProdId() },
+        { "sourceLocation", metadata->findSourceLocation() }
+      });
+      useStatement->setTarget(getSharedPtr(currentList->getElement(1)));
+      state->setData(useStatement);
+    })}
+  }).get());
+
+  // LeadingBlockCmdGrp
+  this->set(S("root.Main.LeadingBlockCmdGrp"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("module.LeadingCmdGrp"))}
+  }, {
+    {S("vars"), Map::create({}, {
+      {S("prods"), TioSharedPtr::null}
+    })}
+  }));
+  this->set(S("root.Main.LeadingBlockCmdGrp.vars.prods"), List::create({
+    {S("baseRef"), PARSE_REF(S("module.LeadingCmdGrp.vars.prods"))}
+  }, {
+    PARSE_REF(S("module.Use"))
+  }));
+
   // Create tilde commands.
 
   // ~ptr
   this->set(S("root.Main.PointerTilde"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("ptr"), 0 }, { S("مؤشر"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("ptr"), 0 }, { S("مؤشر"), 0 } })},
       {S("prms"), List::create() }
     })},
     {S("handler"), Spp::Handlers::TildeOpParsingHandler<Spp::Ast::PointerOp>::create() }
@@ -525,8 +571,8 @@ void GrammarFactory::createGrammar(
   // ~cnt
   this->set(S("root.Main.ContentTilde"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("cnt"), 0 }, { S("محتوى"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("cnt"), 0 }, { S("محتوى"), 0 } })},
       {S("prms"), List::create() }
     })},
     {S("handler"), Spp::Handlers::TildeOpParsingHandler<Spp::Ast::ContentOp>::create() }
@@ -535,10 +581,10 @@ void GrammarFactory::createGrammar(
   // ~cast
   this->set(S("root.Main.CastTilde"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, {{S("cast"), 0}, {S("مثّل"), 0}, {S("مثل"), 0}})},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, {{S("cast"), 0}, {S("مثّل"), 0}, {S("مثل"), 0}})},
       {S("prms"), List::create({}, {
-        Map::create(false, {}, {
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.CastSubject"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -556,7 +602,7 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.CastSubject.Sbj"), SymbolDefinition::create({
    {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
   }, {
-    {S("vars"), Map::create(false, {}, {
+    {S("vars"), Map::create({}, {
       {S("sbj1"), PARSE_REF(S("module.expression"))},
       {S("sbj2"), PARSE_REF(S("module.expression"))},
       {S("sbj3"), PARSE_REF(S("module.expression"))},
@@ -568,8 +614,8 @@ void GrammarFactory::createGrammar(
   // ~size
   this->set(S("root.Main.SizeTilde"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create(false, {}, {
-      {S("kwd"), Map::create(false, {}, { { S("size"), 0 }, { S("حجم"), 0 } })},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("size"), 0 }, { S("حجم"), 0 } })},
       {S("prms"), List::create() }
     })},
     {S("handler"), Spp::Handlers::TildeOpParsingHandler<Spp::Ast::SizeOp>::create() }
@@ -641,6 +687,10 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.BlockStatements"));
   this->tryRemove(S("root.Main.BlockSubject"));
   this->tryRemove(S("root.Main.BlockExpression"));
+
+  // Delete block leading commands.
+  this->tryRemove(S("root.Main.LeadingBlockCmdGrp"));
+  this->tryRemove(S("root.Main.Use"));
 }
 
 

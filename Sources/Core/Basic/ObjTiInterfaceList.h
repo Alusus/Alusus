@@ -2,7 +2,7 @@
  * @file Core/Basic/ObjTiInterfaceList.h
  * Contains the header of class Core::Basic::ObjTiInterfaceList.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -39,8 +39,14 @@ class ObjTiInterfaceList : public SharedListBase<ObjTiInterface, TiObject>
   }
 
   public: ObjTiInterfaceList(TiObject *o, std::initializer_list<SharedPtr<ObjTiInterface>> const &args)
-    : obj(o), SharedListBase(args)
+    : obj(o)
   {
+    for (auto arg : args) this->add(arg);
+  }
+
+  public: virtual ~ObjTiInterfaceList()
+  {
+    this->destruct();
   }
 
 
@@ -50,7 +56,7 @@ class ObjTiInterfaceList : public SharedListBase<ObjTiInterface, TiObject>
   /// @name Abstract Function Implementations
   /// @{
 
-  private: virtual SharedPtr<ObjTiInterface> prepareForSet(
+  protected: virtual SharedPtr<ObjTiInterface> prepareForSet(
     Int index, SharedPtr<ObjTiInterface> const &obj, Bool inherited, Bool newEntry
   ) {
     if (inherited && obj != 0) {
@@ -61,12 +67,12 @@ class ObjTiInterfaceList : public SharedListBase<ObjTiInterface, TiObject>
     }
   }
 
-  private: virtual void finalizeSet(
+  protected: virtual void finalizeSet(
     Int index, SharedPtr<ObjTiInterface> const &obj, Bool inherited, Bool newEntry
   ) {
   }
 
-  private: virtual void prepareForUnset(
+  protected: virtual void prepareForUnset(
     Int index, SharedPtr<ObjTiInterface> const &obj, Bool inherited
   ) {
   }

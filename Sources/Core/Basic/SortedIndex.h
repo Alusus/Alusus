@@ -2,7 +2,7 @@
  * @file Core/Basic/SortedIndex.h
  * Contains definition of Basic::SortedIndex template class.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_SORTED_INDEX_H
-#define CORE_BASIC_SORTED_INDEX_H
+#ifndef CORE_BASIC_SORTEDINDEX_H
+#define CORE_BASIC_SORTEDINDEX_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 /**
@@ -234,6 +234,6 @@ template<class RECORD, class FIELD, const FIELD& (*ACCESSOR)(RECORD const *r)> c
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExpressionGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -226,7 +226,7 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
       }
       return Core::Data::Seeker::Verb::STOP;
     },
-    searchOwners ? 0 : Core::Data::Seeker::Flags::SKIP_OWNERS
+    searchOwners ? 0 : Core::Data::Seeker::Flags::SKIP_USES
   );
 
   if (!symbolFound) {
@@ -1973,7 +1973,7 @@ Bool ExpressionGenerator::_generateMemberReference(
   }
   TiObject *astMemberVar;
   if (!expGenerator->astHelper->getSeeker()->tryGet(
-    astNode, body, astMemberVar, Core::Data::Seeker::Flags::SKIP_OWNERS
+    astNode, body, astMemberVar, Core::Data::Seeker::Flags::SKIP_USES
   )) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidTypeMemberNotice>(astNode->findSourceLocation())
