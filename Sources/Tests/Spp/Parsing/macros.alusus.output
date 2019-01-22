@@ -1,17 +1,17 @@
-ERROR SPPH1013 @ (14,16): Invalid macro argumnet definition.
-ERROR CD1003 @ (14,1): Invalid 'def' command.
 ERROR SPPH1013 @ (15,17): Invalid macro argumnet definition.
 ERROR CD1003 @ (15,1): Invalid 'def' command.
 ERROR SPPH1013 @ (16,17): Invalid macro argumnet definition.
 ERROR CD1003 @ (16,1): Invalid 'def' command.
-ERROR SPPH1013 @ (17,20): Invalid macro argumnet definition.
+ERROR SPPH1013 @ (17,17): Invalid macro argumnet definition.
 ERROR CD1003 @ (17,1): Invalid 'def' command.
 ERROR SPPH1013 @ (18,20): Invalid macro argumnet definition.
 ERROR CD1003 @ (18,1): Invalid 'def' command.
 ERROR SPPH1013 @ (19,20): Invalid macro argumnet definition.
 ERROR CD1003 @ (19,1): Invalid 'def' command.
-ERROR SPPH1013 @ (20,16): Invalid macro argumnet definition.
+ERROR SPPH1013 @ (20,20): Invalid macro argumnet definition.
 ERROR CD1003 @ (20,1): Invalid 'def' command.
+ERROR SPPH1013 @ (21,16): Invalid macro argumnet definition.
+ERROR CD1003 @ (21,1): Invalid 'def' command.
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
@@ -78,4 +78,9 @@ Macro [Main.Macro]
   List [Expression.ListExp]
    Identifier: x [Subject.Parameter]
    Identifier: y [Subject.Parameter]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Macro [Main.Macro]
+ argTypes: Map
+ body: StringLiteral: hello [Subject.Literal]
 ------------------------------------------------------

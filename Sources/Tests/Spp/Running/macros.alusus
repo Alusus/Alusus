@@ -11,6 +11,7 @@ def defGetMin: macro [T] {
 };
 def getString: macro [n] "Hello {{n}}\n";
 def getString2: macro [a] "Hello {{n}}\n";
+def getString3: macro "Hello World\n";
 def loop: macro[counter, start, end, action] {
   for counter = start, counter <= end, ++counter action;
 };
@@ -48,6 +49,7 @@ def Main: module
     print(getString[Alusus]);
     print(getString2["Alusus"]);
     print(getString2[Alusus]);
+    print(getString3[]);
 
     def p: MyCoordinates;
     p.x = 5.5;
