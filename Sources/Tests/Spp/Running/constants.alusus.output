@@ -1,0 +1,6 @@
+Hello World
+days-per-week: 7, days-per-month: 30
+pi: 3.141592, planck: 1.200000e-08
+days-per-week/2: 3, days-per-month/2: 15
+pi*2: 6.283184, planck*2: 2.400000e-08
+days-combined: 37, pi-trippled: 9.424776

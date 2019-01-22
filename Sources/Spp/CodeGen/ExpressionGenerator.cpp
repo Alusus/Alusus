@@ -219,6 +219,18 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
       ) {
         result.astNode = obj;
         retVal = true;
+      } else if (obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+        retVal = expGenerator->generateStringLiteral(
+          static_cast<Core::Data::Ast::StringLiteral*>(obj), g, tg, tgContext, result
+        );
+      } else if (obj->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
+        retVal = expGenerator->generateIntegerLiteral(
+          static_cast<Core::Data::Ast::IntegerLiteral*>(obj), g, tg, tgContext, result
+        );
+      } else if (obj->isDerivedFrom<Core::Data::Ast::FloatLiteral>()) {
+        retVal = expGenerator->generateFloatLiteral(
+          static_cast<Core::Data::Ast::FloatLiteral*>(obj), g, tg, tgContext, result
+        );
       } else {
         expGenerator->noticeStore->add(
           std::make_shared<Spp::Notices::InvalidReferenceNotice>(astNode->findSourceLocation())

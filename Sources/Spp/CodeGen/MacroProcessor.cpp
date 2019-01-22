@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/MacroProcessor.cpp
  * Contains the implementation of class Spp::CodeGen::MacroProcessor.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -101,12 +101,13 @@ Bool MacroProcessor::_processMacros(TiObject *self, TiObject *owner)
         // Extract args.
         PlainList<TiObject> argsList;
         auto param = paramPass->getParam().get();
-        Containing<TiObject> *args;
-        if (param->isDerivedFrom<Core::Data::Ast::List>()) {
-          args = static_cast<Core::Data::Ast::List*>(param);
-        } else {
-          argsList.add(param);
-          args = &argsList;
+        Containing<TiObject> *args = &argsList;
+        if (param) {
+          if (param->isDerivedFrom<Core::Data::Ast::List>()) {
+            args = static_cast<Core::Data::Ast::List*>(param);
+          } else {
+            argsList.add(param);
+          }
         }
 
         // Find matching macro.
