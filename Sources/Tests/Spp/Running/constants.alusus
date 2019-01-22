@@ -1,0 +1,37 @@
+import "libalusus_spp.so";
+
+def Std: module
+{
+  def printf: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+  def hello: "Hello";
+  def daysPerWeek: 7;
+  def pi: 3.141592f64;
+};
+
+def Main: module
+{
+  def world: "World";
+  def daysPerMonth: 30;
+  def planck: 1.2e-8f64;
+
+  def start: function ()=>Void
+  {
+    Std.printf("%s %s\n", Std.hello, world);
+    Std.printf("days-per-week: %d, days-per-month: %d\n", Std.daysPerWeek, daysPerMonth);
+    Std.printf("pi: %f, planck: %e\n", Std.pi, planck);
+
+    Std.printf("days-per-week/2: %d, days-per-month/2: %d\n", Std.daysPerWeek / 2, daysPerMonth / 2);
+    Std.printf("pi*2: %f, planck*2: %e\n", Std.pi * 2, planck * 2);
+
+    def daysCombined: Int;
+    def piTrippled: Float[64];
+    daysCombined = Std.daysPerWeek;
+    daysCombined += daysPerMonth;
+    piTrippled = Std.pi;
+    piTrippled *= 3;
+    Std.printf("days-combined: %d, pi-trippled: %f\n", daysCombined, piTrippled);
+  }
+};
+
+run Main.start;
