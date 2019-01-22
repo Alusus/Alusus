@@ -2,7 +2,7 @@
  * @file Core/Data/SourceLocationRecord.h
  * Contains the header of class Core::Data::SourceLocationRecord.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -91,24 +91,36 @@ class SourceLocationStack : public SharedListBase<SourceLocationRecord, SourceLo
   //============================================================================
   // Constructors
 
-  public: using SharedListBase<SourceLocationRecord, SourceLocation>::SharedListBase;
+  public: SourceLocationStack()
+  {
+  }
+
+  public: SourceLocationStack(std::initializer_list<SharedPtr<SourceLocationRecord>> const &args)
+  {
+    this->add(args);
+  }
+
+  public: virtual ~SourceLocationStack()
+  {
+    this->destruct();
+  }
 
 
   //============================================================================
   // Member Functions
 
-  private: virtual SharedPtr<SourceLocationRecord> prepareForSet(
+  protected: virtual SharedPtr<SourceLocationRecord> prepareForSet(
     Int index, SharedPtr<SourceLocationRecord> const &obj, Bool inherited, Bool newEntry
   ) {
     return obj;
   }
 
-  private: virtual void finalizeSet(
+  protected: virtual void finalizeSet(
     Int index, SharedPtr<SourceLocationRecord> const &obj, Bool inherited, Bool newEntry
   ) {
   }
 
-  private: virtual void prepareForUnset(
+  protected: virtual void prepareForUnset(
     Int index, SharedPtr<SourceLocationRecord> const &obj, Bool inherited
   ) {
   }

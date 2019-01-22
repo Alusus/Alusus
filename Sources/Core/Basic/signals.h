@@ -2,7 +2,7 @@
  * @file Core/Basic/signals.h
  * Contains definitions for signal and slot classes.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -160,7 +160,7 @@ template<class RT, class ...ARGS> class _Signal
 
   public: _Signal() : firing(0), scheduledDelete(false) {}
 
-  public: ~_Signal()
+  public: virtual ~_Signal()
   {
     this->disconnectAll();
   }
@@ -304,11 +304,12 @@ template<class RT, class ...ARGS> class SignalRelay : public _Signal<RT, ARGS...
     this->relay(signal);
   }
 
-  public: ~SignalRelay()
+  public: virtual ~SignalRelay()
   {
     while (this->linkSlot.getSignals().size() > 0) {
       this->unrelay(*this->linkSlot.getSignals().back());
     }
+    this->disconnectAll();
   }
 
 

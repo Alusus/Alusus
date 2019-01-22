@@ -2,7 +2,7 @@
  * @file Core/Data/Grammar/Module.h
  * Contains the header of class Core::Data::Grammar::Module.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -97,8 +97,8 @@ class Module : public SharedMapBase<TiObject, Node>,
   IMPLEMENT_ATTR_MAP_CONSTRUCTOR(Module);
 
   public: Module(
-    Bool useIndex, std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements
-  ) : SharedMapBase(useIndex)
+    std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements, Bool useIndex
+  ) : _MyBase(useIndex)
   {
     ATTR_INITIALIZATION_LOOP(attrs)
     MAP_ELEMENT_INITIALIZATION_LOOP(elements)
@@ -107,9 +107,9 @@ class Module : public SharedMapBase<TiObject, Node>,
   public: virtual ~Module();
 
   public: static SharedPtr<Module> create(
-    Bool useIndex, std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements
+    std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements, Bool useIndex
   ) {
-    return std::make_shared<Module>(useIndex, attrs, elements);
+    return std::make_shared<Module>(attrs, elements, useIndex);
   }
 
 
@@ -119,15 +119,15 @@ class Module : public SharedMapBase<TiObject, Node>,
   /// @name Abstract Function Implementations
   /// @{
 
-  private: virtual SharedPtr<TiObject> prepareForSet(
+  protected: virtual SharedPtr<TiObject> prepareForSet(
     Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
   );
 
-  private: virtual void finalizeSet(
+  protected: virtual void finalizeSet(
     Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
   );
 
-  private: virtual void prepareForUnset(
+  protected: virtual void prepareForUnset(
     Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited
   );
 

@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Map.h
  * Contains the header of class Core::Data::Ast::Map.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -52,7 +52,7 @@ class Map : public NbMap,
   IMPLEMENT_ATTR_MAP_CONSTRUCTOR(Map);
 
   public: Map(
-    Bool useIndex, std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements
+    std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements, Bool useIndex
   ) : NbMap(useIndex)
   {
     ATTR_INITIALIZATION_LOOP(attrs)
@@ -60,9 +60,9 @@ class Map : public NbMap,
   }
 
   public: static SharedPtr<Map> create(
-    Bool useIndex, std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements
+    std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements, Bool useIndex
   ) {
-    return std::make_shared<Map>(useIndex, attrs, elements);
+    return std::make_shared<Map>(attrs, elements, useIndex);
   }
 
 }; // class

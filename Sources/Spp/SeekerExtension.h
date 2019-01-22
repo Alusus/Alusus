@@ -2,7 +2,7 @@
  * @file Spp/SeekerExtension.h
  * Contains the header of class Spp::SeekerExtension.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -31,11 +31,14 @@ class SeekerExtension : public ObjTiInterface
   {
     TiFunctionBase *foreachRef;
     TiFunctionBase *foreachByIdentifier_levelRef;
+    TiFunctionBase *foreachByIdentifier_blockRef;
     TiFunctionBase *foreachByIdentifier_functionRef;
     TiFunctionBase *foreachByParamPassRef;
     TiFunctionBase *foreachByParamPass_routingRef;
     TiFunctionBase *foreachByParamPass_templateRef;
   };
+
+  public: s_enum(Flags, SKIP_USES = (1<<16), SKIP_OWNERS_AND_USES = (1<<16) | 1);
 
 
   //============================================================================
@@ -51,6 +54,7 @@ class SeekerExtension : public ObjTiInterface
   {
     Basic::initBindingCaches(this->owner, {
       &this->astHelper,
+      &this->foreachByIdentifier_block,
       &this->foreachByIdentifier_function,
       &this->foreachByParamPass,
       &this->foreachByParamPass_routing,
@@ -101,6 +105,16 @@ class SeekerExtension : public ObjTiInterface
 
   private: static Core::Data::Seeker::Verb _foreachByIdentifier_level(
     TiFunctionBase *base, TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
+    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(foreachByIdentifier_block,
+    Core::Data::Seeker::Verb, (
+      Data::Ast::Identifier const*, Ast::Block*, Core::Data::Seeker::ForeachCallback const&, Word
+    )
+  );
+  private: static Core::Data::Seeker::Verb _foreachByIdentifier_block(
+    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Block *block,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 

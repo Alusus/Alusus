@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.cpp
  * Contains the implementation of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -123,7 +123,7 @@ Bool Helper::_lookupCallee(
 
         return helper->lookupCallee_iteration(obj, types, ec, matchStatus, notice, callee, calleeType);
       },
-      searchOwners ? 0 : Core::Data::Seeker::Flags::SKIP_OWNERS
+      searchOwners ? 0 : SeekerExtension::Flags::SKIP_OWNERS_AND_USES
   );
   // Did we have a matched callee?
   if (callee != 0) {

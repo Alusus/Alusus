@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Ast
  * namespace.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -14,7 +14,7 @@
 #ifndef SPP_AST_AST_H
 #define SPP_AST_AST_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 /**
@@ -29,6 +29,7 @@ namespace Spp { namespace Ast
 class NodePathResolver;
 class Helper;
 class Type;
+class UseStatement;
 
 
 //==============================================================================
@@ -42,7 +43,7 @@ ti_s_enum(TypeMatchStatus,
   NONE = 0, EXPLICIT_CAST = 1, IMPLICIT_CAST = 2, PROMOTION = 3, AGGREGATION = 4, DEREFERENCE = 5, EXACT = 6
 );
 
-} } // namespace
+} // namespace
 
 
 //==============================================================================
@@ -73,6 +74,7 @@ ti_s_enum(TypeMatchStatus,
 #include "ContinueStatement.h"
 #include "BreakStatement.h"
 #include "ReturnStatement.h"
+#include "UseStatement.h"
 // Operators
 #include "PointerOp.h"
 #include "ContentOp.h"

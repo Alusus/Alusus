@@ -1,0 +1,12 @@
+ERROR CP1001 @ (7,5): Parser syntax error.
+ERROR CP1001 @ (11,6): Parser syntax error.
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatements.StmtList]
+ UseStatement [Main.Use]
+  target: Identifier: Other [Subject.Parameter]
+ Definition [Main.Def] start: Function  [Main.Function]
+  type: FunctionType [Main.Function]
+   argTypes: NULL
+   retType: Identifier: Void [Subject.Parameter]
+  body: Block [Main.BlockStatements.StmtList]
+------------------------------------------------------

@@ -2,7 +2,7 @@
  * @file Core/Data/Seeker.cpp
  * Contains the implementation of class Core::Data::Seeker.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -371,7 +371,8 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
       if (obj->isDerivedFrom<Ast::Alias>()) {
         PREPARE_SELF(seeker, Seeker);
         auto alias = static_cast<Ast::Alias*>(obj);
-        return seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags & ~Seeker::Flags::SKIP_OWNERS);
+        verb = seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags & ~Seeker::Flags::SKIP_OWNERS);
+        if (!Seeker::isMove(verb)) return verb;
       } else {
         verb = cb(obj, 0);
         if (!Seeker::isMove(verb)) return verb;
@@ -612,7 +613,8 @@ Seeker::Verb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
       if (obj->isDerivedFrom<Ast::Alias>()) {
         PREPARE_SELF(seeker, Seeker);
         auto alias = static_cast<Ast::Alias*>(obj);
-        return seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags & ~Seeker::Flags::SKIP_OWNERS);
+        verb = seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags & ~Seeker::Flags::SKIP_OWNERS);
+        if (!Seeker::isMove(verb)) break;
       } else {
         verb = cb(obj, 0);
         if (!Seeker::isMove(verb)) break;

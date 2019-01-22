@@ -1,0 +1,64 @@
+import "libalusus_spp.so";
+
+def Std: module
+{
+  def printf: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+  def Inner: module
+  {
+    def printExclamation: function
+    {
+      printf("!")
+    }
+  }
+};
+
+def Other1: module
+{
+  def printUse: function
+  {
+    Std.printf("Use ");
+  }
+};
+
+def Other2: module
+{
+  def printStatement: function
+  {
+    Std.printf("Statement");
+  }
+};
+
+def Main: module
+{
+  def Other3: module {
+    def printNewLine: function
+    {
+      Std.printf("\n");
+    };
+  };
+
+  use Wrong1;
+  use Other1;
+  use Other3;
+
+  def start: function ()=>Void
+  {
+    use Wrong2;
+    use Other2;
+    printf("Use Statement\n");
+    printUse();
+    printStatement();
+    printExclamation();
+    printNewLine();
+  };
+
+  def start2: function
+  {
+    use Std.Inner;
+    printf("Use Statement\n");
+    printExclamation();
+  }
+};
+
+dump_llvm_ir Main;

@@ -35,6 +35,7 @@ void Generator::initBindings()
   generation->generateCast = &Generator::_generateCast;
   generation->getGeneratedType = &Generator::_getGeneratedType;
   generation->getTypeAllocationSize = &Generator::_getTypeAllocationSize;
+  generation->validateUseStatement = &Generator::_validateUseStatement;
 }
 
 
@@ -87,21 +88,24 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Tar
   PREPARE_SELF(generator, Generator);
   Bool result = true;
   for (Int i = 0; i < astModule->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(astModule->getElement(i));
+    auto obj = astModule->getElement(i);
+    auto def = ti_cast<Data::Ast::Definition>(obj);
     if (def != 0) {
-      auto obj = def->getTarget().get();
-      if (obj->isDerivedFrom<Spp::Ast::Module>()) {
-        if (!generation->generateModule(static_cast<Spp::Ast::Module*>(obj), tg)) result = false;
-      } else if (obj->isDerivedFrom<Spp::Ast::Function>()) {
-        if (!generation->generateFunction(static_cast<Spp::Ast::Function*>(obj), tg)) result = false;
-      } else if (obj->isDerivedFrom<Spp::Ast::UserType>()) {
-        if (!generation->generateUserTypeBody(static_cast<Spp::Ast::UserType*>(obj), tg)) result = false;
-      } else if (generator->getAstHelper()->isAstReference(obj)) {
+      auto target = def->getTarget().get();
+      if (target->isDerivedFrom<Spp::Ast::Module>()) {
+        if (!generation->generateModule(static_cast<Spp::Ast::Module*>(target), tg)) result = false;
+      } else if (target->isDerivedFrom<Spp::Ast::Function>()) {
+        if (!generation->generateFunction(static_cast<Spp::Ast::Function*>(target), tg)) result = false;
+      } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
+        if (!generation->generateUserTypeBody(static_cast<Spp::Ast::UserType*>(target), tg)) result = false;
+      } else if (generator->getAstHelper()->isAstReference(target)) {
         // Generate global variable.
         if (!generation->generateVarDef(def, tg)) {
           result = false;
         }
       }
+    } else if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
+      if (!generation->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) result = false;
     }
   }
   return result;
@@ -185,6 +189,7 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
 Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astType, TargetGeneration *tg)
 {
   PREPARE_SELF(generator, Generator);
+  PREPARE_SELF(generation, Generation);
 
   TiObject *tgType;
   if (!generator->typeGenerator->getGeneratedType(astType, tg, tgType, 0)) return false;
@@ -227,6 +232,9 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
         Ast::setAstType(obj, astMemberType);
         tgMemberTypes.add(def->getName().get(), tgType);
         members.add(obj);
+      } else if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
+        if (!generation->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) result = false;
+        continue;
       }
       // TODO: Generate member functions.
       // TODO: Generate subtypes.
@@ -343,7 +351,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
     }
   }
 
-    return true;
+  return true;
 }
 
 
@@ -406,6 +414,8 @@ Bool Generator::_generateStatement(
   } else if (astNode->isDerivedFrom<Spp::Ast::ReturnStatement>()) {
     auto returnStatement = static_cast<Spp::Ast::ReturnStatement*>(astNode);
     return generator->commandGenerator->generateReturnStatement(returnStatement, generation, tg, tgContext);
+  } else if (astNode->isDerivedFrom<Spp::Ast::UseStatement>()) {
+    return generation->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(astNode));
   } else {
     GenResult result;
     return generation->generateExpression(astNode, tg, tgContext, result);
@@ -442,6 +452,34 @@ Bool Generator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, 
 {
   PREPARE_SELF(generator, Generator);
   return generator->typeGenerator->getTypeAllocationSize(astType, tg, result);
+}
+
+
+Bool Generator::_validateUseStatement(TiObject *self, Spp::Ast::UseStatement *useStatement)
+{
+  PREPARE_SELF(generator, Generator);
+  VALIDATE_NOT_NULL(useStatement);
+  if (useStatement->getTarget() == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("useStatement"), S("Use statement has a null target."));
+  }
+  Bool found = false;
+  generator->getSeeker()->foreach(useStatement->getTarget().get(), useStatement->getOwner(),
+    [=, &found] (TiObject *obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb
+    {
+      if (ti_cast<Ast::Module>(obj) != 0) {
+        found = true;
+        return Core::Data::Seeker::Verb::STOP;
+      } else {
+        return Core::Data::Seeker::Verb::MOVE;
+      }
+    }, 0
+  );
+  if (!found) {
+    generator->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidUseStatementNotice>(useStatement->findSourceLocation())
+    );
+  }
+  return found;
 }
 
 } } // namespace

@@ -2,7 +2,7 @@
  * @file Core/Data/Grammar/Module.cpp
  * Contains the implementation of class Core::Data::Grammar::Module.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,8 +20,7 @@ namespace Core::Data::Grammar
 
 Module::~Module()
 {
-  if (this->getBaseModule() != 0) this->detachFromBase();
-  this->destroyNotifier.emit(this);
+  this->destruct();
   RESET_OWNED_SHAREDPTR(this->baseRef);
   RESET_OWNED_SHAREDPTR(this->startRef);
   RESET_OWNED_SHAREDPTR(this->lexerModuleRef);
@@ -62,7 +61,7 @@ void Module::finalizeSet(
 void Module::prepareForUnset(
   Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited
 ) {
-  if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
+  if (!inherited && obj != 0 && obj->isDerivedFrom<Node>() && obj.s_cast_get<Node>()->getOwner() == this) {
     obj.s_cast_get<Node>()->setOwner(0);
   }
 }

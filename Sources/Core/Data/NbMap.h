@@ -2,7 +2,7 @@
  * @file Core/Data/NbMap.h
  * Contains the header of class Core::Data::NbMap.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -30,11 +30,28 @@ class NbMap : public SharedMapBase<TiObject, Node>, public virtual DataHaving
   //============================================================================
   // Constructors
 
-  public: using SharedMapBase<TiObject, Node>::SharedMapBase;
+  public: NbMap(Bool useIndex = false) : _MyBase(useIndex)
+  {
+  }
+
+  public: NbMap(std::initializer_list<Argument> const &args, Bool useIndex = false) : _MyBase(useIndex)
+  {
+    this->add(args);
+  }
+
+  public: virtual ~NbMap()
+  {
+    this->destruct();
+  }
 
   public: static SharedPtr<NbMap> create(Bool useIndex = false)
   {
     return std::make_shared<NbMap>(useIndex);
+  }
+
+  public: static SharedPtr<NbMap> create(std::initializer_list<Argument> const &args, Bool useIndex = false)
+  {
+    return std::make_shared<NbMap>(args, useIndex);
   }
 
 
@@ -44,13 +61,13 @@ class NbMap : public SharedMapBase<TiObject, Node>, public virtual DataHaving
   /// @name Abstract Function Implementations
   /// @{
 
-  private: virtual SharedPtr<TiObject> prepareForSet(
+  protected: virtual SharedPtr<TiObject> prepareForSet(
     Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
   ) {
     return obj;
   }
 
-  private: virtual void finalizeSet(
+  protected: virtual void finalizeSet(
     Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
   ) {
     if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
@@ -58,10 +75,10 @@ class NbMap : public SharedMapBase<TiObject, Node>, public virtual DataHaving
     }
   }
 
-  private: virtual void prepareForUnset(
+  protected: virtual void prepareForUnset(
     Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited
   ) {
-    if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
+    if (!inherited && obj != 0 && obj->isDerivedFrom<Node>() && obj.s_cast_get<Node>()->getOwner() == this) {
       obj.s_cast_get<Node>()->setOwner(0);
     }
   }

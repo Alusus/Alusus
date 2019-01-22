@@ -2,7 +2,7 @@
  * @file Core/Basic/PlainMap.h
  * Contains the header of class Core::Basic::PlainMap.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -28,10 +28,21 @@ template<class CTYPE> class PlainMap : public PlainMapBase<CTYPE, TiObject>
   //============================================================================
   // Constructors & Destructor
 
-  public: using PlainMapBase<CTYPE, TiObject>::PlainMapBase;
+  public: PlainMap(Bool useIndex = false) : _MyBase(useIndex)
+  {
+  }
 
-  public: static SharedPtr<PlainMap<CTYPE>> create(
-    Bool useIndex, const std::initializer_list<Argument> &args)
+  public: PlainMap(std::initializer_list<Argument> const &args, Bool useIndex = false) : _MyBase(useIndex)
+  {
+    this->add(args);
+  }
+
+  public: virtual ~PlainMap()
+  {
+    this->destruct();
+  }
+
+  public: static SharedPtr<PlainMap<CTYPE>> create(std::initializer_list<Argument> const &args, Bool useIndex = false)
   {
     return std::make_shared<PlainMap<CTYPE>>(useIndex, args);
   }
@@ -43,20 +54,17 @@ template<class CTYPE> class PlainMap : public PlainMapBase<CTYPE, TiObject>
   /// @name Abstract Implementations
   /// @{
 
-  private: virtual CTYPE* prepareForSet(
-    Char const *key, Int index, CTYPE *obj, Bool inherited, Bool newEntry
-  ) {
+  protected: virtual CTYPE* prepareForSet(Char const *key, Int index, CTYPE *obj, Bool inherited, Bool newEntry)
+  {
     return obj;
   }
 
-  private: virtual void finalizeSet(
-    Char const *key, Int index, CTYPE *obj, Bool inherited, Bool newEntry
-  ) {
+  protected: virtual void finalizeSet(Char const *key, Int index, CTYPE *obj, Bool inherited, Bool newEntry)
+  {
   }
 
-  private: virtual void prepareForUnset(
-    Char const *key, Int index, CTYPE *obj, Bool inherited
-  ) {
+  protected: virtual void prepareForUnset(Char const *key, Int index, CTYPE *obj, Bool inherited)
+  {
   }
 
   /// @}
