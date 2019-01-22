@@ -89,6 +89,7 @@
       <keyword>and</keyword>
       <keyword>or</keyword>
       <keyword>not</keyword>
+      <keyword>use</keyword>
     </context>
 
     <context id="ar_keyword" style-ref="keyword">
@@ -118,6 +119,7 @@
       <keyword>و</keyword>
       <keyword>أو</keyword>
       <keyword>ليس</keyword>
+      <keyword>استخدم</keyword>
     </context>
 
     <context id="constant" style-ref="constant">
