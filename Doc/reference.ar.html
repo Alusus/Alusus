@@ -65,18 +65,29 @@
 
   <h3>التعريفات</h3>
   كل التعريفات تتم باستخدام الأمر "عرّف" (def) ويأخذ الصيغة التالية:
-<pre dir=ltr class="code">
-  def &lt;identifier&gt; : &lt;definition&gt;
-</pre>
 <pre dir=rtl class="code" style="text-align:right;">
   عرّف &lt;معرِّف&gt; : &lt;تعريف&gt;
 </pre>
+<pre dir=ltr class="code">
+  def &lt;identifier&gt; : &lt;definition&gt;
+</pre>
   التعريف يمكن أن يكون اسم أحد الأصناف وينتج عن التعريف متغير من ذلك الصنف، أو يكون أحد الأوامر التعريفية الأخرى مثل الدالات والهياكل. المثال التالي يعرّف متغيراً من صنف الأعداد الصحيحة:
+<pre dir=rtl class="samplecode" style="text-align:right;">
+  عرّف م : العدد_الصحيح
+</pre>
 <pre dir=ltr class="samplecode">
   def i : Int
 </pre>
+  يمكن أيضاً تعريف الثوابت بنفس الطريقة وذلك بوضع القيمة نفسها بدل الصنف ويمكن هذا مع الأعداد الصحيحة والعائمة بالإضافة إلى سلاسل المحارف، كما في المثال التالي:
 <pre dir=rtl class="samplecode" style="text-align:right;">
-  عرّف م : العدد_الصحيح
+  عرّف البسملة: "بسم الله الرحمن الرحيم"؛
+  عرف النسبة_الثابتة: 3.141592؛
+  عرف عدد_أيام_الاسبوع: 7؛
+</pre>
+<pre dir=ltr class="samplecode">
+  def hello: "Hello World";
+  def pi: 3.141592;
+  def daysPerWeek: 7;
 </pre>
 
   <h3>الهيكل العام للبرنامج</h3>
