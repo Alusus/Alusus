@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/FunctionParsingHandler.h
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -12,7 +12,7 @@
 #ifndef SPP_HANDLERS_FUNCTIONPARSINGHANDLER_H
 #define SPP_HANDLERS_FUNCTIONPARSINGHANDLER_H
 
-namespace Spp { namespace Handlers
+namespace Spp::Handlers
 {
 
 class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsingHandler
@@ -42,17 +42,20 @@ class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsing
     TioSharedPtr const &modifierData, Bool prodProcessingComplete
   );
 
-  private: Bool parseArgs(Core::Processing::ParserState *state, Core::Data::Ast::Bracket *bracket,
-                          SharedPtr<Core::Data::Ast::Map> &result);
+  private: Bool parseArgs(
+    Core::Processing::ParserState *state, Core::Data::Ast::Bracket *bracket, SharedPtr<Core::Data::Ast::Map> &result
+  );
 
-  private: Bool parseArg(Core::Processing::ParserState *state, Core::Data::Ast::LinkOperator *link,
-                         SharedPtr<Core::Data::Ast::Map> const &result);
+  private: Bool parseArg(
+    Core::Processing::ParserState *state, TioSharedPtr astNode, SharedPtr<Core::Data::Ast::Map> const &result
+  );
 
-  private: Bool parseNumber(Core::Processing::ParserState *state, TiObject *ast, TiWord &result,
-                            Core::Data::Ast::MetaHaving *parentMetadata);
+  private: Bool parseNumber(
+    Core::Processing::ParserState *state, TiObject *ast, TiWord &result, Core::Data::Ast::MetaHaving *parentMetadata
+  );
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif
