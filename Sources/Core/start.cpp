@@ -2,7 +2,7 @@
  * @file Core/main.cpp
  * Contains the program's entry point.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -32,7 +32,7 @@ int main(int argCount, char * const args[])
   Bool help = false;
   Bool interactive = false;
   Bool dump = false;
-  Bool english = args[0][0] > 0;
+  Bool english = SBSTR(getenv(S("LANGUAGE"))) != S("ar");
   if (argCount < 2) help = true;
   for (Int i = 1; i < argCount; ++i) {
     if (strcmp(args[i], S("--help")) == 0) help = true;
@@ -76,11 +76,7 @@ int main(int argCount, char * const args[])
                      "<http://alusus.net/alusus_license_1_0>. By using this software you acknowledge\n"
                      "that you have read the terms in the license and agree with and accept all such\n"
                      "terms.\n\n");
-      #if defined(USE_LOGS)
-        outStream << S("Usage: alusus <source> [<options>]\n");
-      #else
-        outStream << S("Usage: alusus <source>\n");
-      #endif
+      outStream << S("Usage: alusus <source> [<options>]\n");
       outStream << S("source = filename.\n");
       outStream << S("\nOptions:\n");
       outStream << S("\t--interactive, -i  Run in interactive mode.\n");
@@ -91,23 +87,27 @@ int main(int argCount, char * const args[])
     } else {
       // Write Arabic help.
       outStream << S("قلب الأسُس\n"
-                     "الإصدار " ALUSUS_VERSION ALUSUS_REVISION "\n (" ALUSUS_RELEASE_DATE "م \\ " ALUSUS_HIJRI_RELEASE_DATE "هـ)\n"
-                     "جميع الحقوق محفوظة لـ سرمد خالد عبدالله " << alususReleaseYear << "م\\" << alususHijriReleaseYear << "هـ\n\n");
-      outStream << S("نُشر هذا البرنامج برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0\n"
-                     "والمتوفرة على الرابط <http://alusus.net/alusus_license_1_0>. يرجى قراءة\n"
-                     "الرخصة قبل استخدام البرنامج. استخدامك لهذا البرنامج أو أي من الملفات\n"
-                     "المرفقة معه إقرار منك أنك قرأت هذه الرخصة ووافقت على جميع فقراتها.\n\n");
-      #if defined(USE_LOGS)
-        outStream << S("طريقة الاستخدام: الأسُس < الشفرة المصدرية > [< خيارات >]\n");
-      #else
-        outStream << S("طريقة الاستخدام: الأسُس < الشفرة المصدرية >\n");
-      #endif
+                     "الإصدار (" ALUSUS_VERSION ALUSUS_REVISION ")\n (" ALUSUS_RELEASE_DATE "م) \\ (" ALUSUS_HIJRI_RELEASE_DATE "هـ)\n"
+                     "جميع الحقوق محفوظة لـ سرمد خالد عبدالله (" << alususReleaseYear << "م) \\ (" << alususHijriReleaseYear << "هـ)\n\n");
+      outStream << S("نُشر هذا البرنامج برخصة الأسُس العامة، الإصدار 1.0، والمتوفرة على الرابط أدناه.\n"
+                     "يرجى قراءة الرخصة قبل استخدام البرنامج. استخدامك لهذا البرنامج أو أي من الملفات\n"
+                     "المرفقة معه إقرار منك أنك قرأت هذه الرخصة ووافقت على جميع فقراتها.\n");
+      outStream << S("\nAlusus Public License: <http://alusus.net/alusus_license_1_0>\n");
+      outStream << S("\nطريقة الاستخدام:\n");
+      outStream << S("الأسُس <الشفرة المصدرية> [<خيارات>]\n");
       outStream << S("الشفرة المصدرية = اسم الملف الحاوي على الشفرة المصدرية\n");
+      outStream << S("alusus <source> [<options>]\n");
+      outStream << S("source = filename.\n");
       outStream << S("\nالخيارات:\n");
-      outStream << S("\t--تفاعلي، -ت  تنفيذ بشكل تفاعلي.\n");
-      outStream << S("\t--إلقاء  تبلغ القلب بإلقاء شجرة AST عند الانتهاء.\n");
+      outStream << S("\t(--تفاعلي)، (-ت)  تنفيذ بشكل تفاعلي.\n");
+      outStream << S("\t(--إلقاء)  تبلغ القلب بإلقاء شجرة AST عند الانتهاء.\n");
       #if defined(USE_LOGS)
-        outStream << S("\t--تدوين  قيمة من 6 بتّات للتحكم بمستوى التدوين.\n");
+        outStream << S("\t(--تدوين)  قيمة من 6 بتّات للتحكم بمستوى التدوين.\n");
+      #endif
+      outStream << S("\t(--interactive), (-i)  Run in interactive mode.\n");
+      outStream << S("\t(--dump)  Tells the Core to dump the resulting AST tree.\n");
+      #if defined(USE_LOGS)
+        outStream << S("\t(--log)  A 6 bit value to control the level of details of the log.\n");
       #endif
     }
     return EXIT_SUCCESS;
