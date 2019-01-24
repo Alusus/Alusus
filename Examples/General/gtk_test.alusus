@@ -1,0 +1,60 @@
+import "gtk.alusus";
+
+def HelloWorld: module
+{
+  def window: ptr[Gtk.Widget.Obj];
+
+  def start: function
+  {
+    def app: ptr[Gtk.App.Obj];
+    def status: Int;
+
+    app = Gtk.App.new("org.alusus.gtktest", 0);
+    Gtk.connectSignal(app, "activate", activate~ptr~cast[ptr[function]], 0, 0, 0);
+    status = Gtk.App.exec(app, 0, 0);
+    Gtk.unref(app);
+  };
+
+  def activate: function (app: ptr[Gtk.App.Obj], data: ptr)
+  {
+    def buttonBox: ptr[Gtk.Widget.Obj];
+    def helloButton: ptr[Gtk.Widget.Obj];
+    def quitButton: ptr[Gtk.Widget.Obj];
+
+    window = Gtk.AppWindow.new(app);
+    Gtk.Window.setTitle(window~cast[ptr[Gtk.Window.Obj]], "Alusus GTK Test");
+    Gtk.Window.setDefaultSize(window~cast[ptr[Gtk.Window.Obj]], 480, 320);
+
+    buttonBox = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL);
+    Gtk.ButtonBox.setLayout(buttonBox~cast[ptr[Gtk.ButtonBox.Obj]], Gtk.ButtonBoxStyle.SPREAD);
+    Gtk.Container.add(window~cast[ptr[Gtk.Container.Obj]], buttonBox);
+
+    helloButton = Gtk.Button.newWithLabel("Say Hello");
+    Gtk.connectSignal(helloButton, "clicked", sayHello~ptr~cast[ptr[function]], 0, 0, 0);
+    Gtk.Container.add(buttonBox~cast[ptr[Gtk.Container.Obj]], helloButton);
+
+    quitButton = Gtk.Button.newWithLabel("Quit");
+    Gtk.connectSignal(quitButton, "clicked", onQuit~ptr~cast[ptr[function]], 0, 0, 0);
+    Gtk.Container.add(buttonBox~cast[ptr[Gtk.Container.Obj]], quitButton);
+
+    Gtk.Widget.showAll(window);
+  };
+
+  def sayHello: function (widget: ptr[Gtk.Widget.Obj], data: ptr)
+  {
+    def dialog: ptr[Gtk.Widget.Obj];
+    dialog = Gtk.MessageDialog.new(
+      window~cast[ptr[Gtk.Window.Obj]], 0, Gtk.MessageType.INFO, Gtk.ButtonsType.CLOSE, "Hello World!"
+    );
+    Gtk.Dialog.exec(dialog~cast[ptr[Gtk.Dialog.Obj]]);
+    Gtk.Widget.destroy(dialog);
+  };
+
+  def onQuit: function (widget: ptr[Gtk.Widget.Obj], data: ptr)
+  {
+    Gtk.Widget.destroy(window);
+  };
+};
+
+run HelloWorld.start;
+

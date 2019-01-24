@@ -1,0 +1,109 @@
+import "globals.alusus";
+import "libgtk-3.so.0";
+
+def Gtk: module
+{
+  def connectSignal: @expname[g_signal_connect_data] function (
+    instance: ptr, detailedSignal: ptr[Char], handler: ptr[function], data: ptr,
+    destroyData: ptr[function], flags: Int
+  ) => Word[64];
+  def unref: @expname[g_object_unref] function (p: ptr);
+
+  def App: module
+  {
+    def Obj: type {};
+
+    def new: @expname[gtk_application_new] function (appId: ptr[Char], flags: Int) => ptr[Obj];
+    def exec: @expname[g_application_run] function (app: ptr[Obj], argc: Int, argv: ptr[ptr[Char]]) => Int;
+  };
+
+  def Widget: module
+  {
+    def Obj: type {};
+
+    def showAll: @expname[gtk_widget_show_all] function (widget: ptr[Obj]);
+    def destroy: @expname[gtk_widget_destroy] function (widget: ptr[Obj]);
+  };
+
+  def Window: module
+  {
+    def Obj: type {};
+
+    def setTitle: @expname[gtk_window_set_title] function (window: ptr[Obj], title: ptr[Char]);
+    def setDefaultSize: @expname[gtk_window_set_default_size] function (window: ptr[Obj], width: Int, height: Int);
+  };
+
+  def AppWindow: module
+  {
+    def new: @expname[gtk_application_window_new] function (app: ptr[App.Obj]) => ptr[Widget.Obj];
+  };
+
+  def Dialog: module
+  {
+    def Obj: type {};
+
+    def exec: @expname[gtk_dialog_run] function (dialog: ptr[Obj]) => Int;
+  };
+
+  def MessageDialog: module
+  {
+    def new: @expname[gtk_message_dialog_new] function (
+      parent: ptr[Window.Obj], flags: Int, dlgType: Int, buttons: Int, msg: ptr[Char], args: ...any
+    ) => ptr[Widget.Obj];
+  };
+
+  def ButtonBox: module
+  {
+    def Obj: type {};
+
+    def new: @expname[gtk_button_box_new] function (orientation: Int) => ptr[Widget.Obj];
+    def setLayout: @expname[gtk_button_box_set_layout] function (widget: ptr[ButtonBox.Obj], style: Int);
+  };
+
+  def Button: module
+  {
+    def newWithLabel: @expname[gtk_button_new_with_label] function (label: ptr[Char]) => ptr[Widget.Obj];
+  };
+
+  def Container: module
+  {
+    def Obj: type {};
+
+    def add: @expname[gtk_container_add] function (container: ptr[Obj], widget: ptr[Widget.Obj]);
+  };
+
+  def Orientation: module
+  {
+    def HORIZONTAL: 0;
+    def VERTICAL: 1;
+  };
+
+  def MessageType: module
+  {
+    def INFO: 0;
+    def WARNING: 1;
+    def QUESTION: 2;
+    def ERROR: 3;
+    def OTHER: 4;
+  };
+
+  def ButtonsType: module
+  {
+    def NONE: 0;
+    def OK: 1;
+    def CLOSE: 2;
+    def CANCEL: 3;
+    def YES_NO: 4;
+    def OK_CANCEL: 5;
+  };
+
+  def ButtonBoxStyle: module
+  {
+    def SPREAD: 1;
+    def EDGE: 2;
+    def START: 3;
+    def END: 4;
+    def CENTER: 5;
+    def EXPAND: 6;
+  };
+};
