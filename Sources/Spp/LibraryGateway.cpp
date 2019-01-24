@@ -132,7 +132,8 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
 
   // ptr
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ S("type"), Ast::Template::VarType::TYPE }});
+  auto defaultPtrType = Core::Data::Ast::Identifier::create({{ S("value"), TiStr(S("Void")) }});
+  tmplt->setVarDefs({{ S("type"), Ast::Template::VarType::TYPE, defaultPtrType }});
   tmplt->setTemplateBody(Ast::PointerType::create());
   identifier.setValue(S("ptr"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());

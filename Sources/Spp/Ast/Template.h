@@ -103,11 +103,13 @@ class Template : public Core::Data::Node,
   public: void setVarDefs(std::vector<VarDef> const *defs)
   {
     this->varDefs = *defs;
+    for (Int i = 0; i < this->varDefs.size(); ++i) OWN_SHAREDPTR(this->varDefs[i].defaultVal);
   }
 
   public: void setVarDefs(std::initializer_list<VarDef> const &vars)
   {
     this->varDefs = vars;
+    for (Int i = 0; i < this->varDefs.size(); ++i) OWN_SHAREDPTR(this->varDefs[i].defaultVal);
   }
 
   public: std::vector<VarDef> const* getVarDefs() const
