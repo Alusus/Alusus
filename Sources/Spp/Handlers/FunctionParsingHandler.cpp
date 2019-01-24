@@ -22,7 +22,19 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   GenericParsingHandler::onProdEnd(parser, state);
 
   auto expr = state->getData().ti_cast_get<Core::Data::Ast::List>();
-  ASSERT(expr != 0);
+
+  if (expr == 0) {
+    // The function type has no args and no body.
+    auto functionType = std::make_shared<Spp::Ast::FunctionType>();
+    auto metadata = state->getData().ti_cast_get<Core::Data::Ast::MetaHaving>();
+    functionType->setArgTypes(SharedPtr<Core::Data::Ast::Map>::null);
+    functionType->setRetType(TioSharedPtr::null);
+    functionType->setSourceLocation(metadata->findSourceLocation());
+    functionType->setProdId(metadata->getProdId());
+    state->setData(functionType);
+    return;
+  }
+
   auto exprMetadata = ti_cast<Core::Data::Ast::MetaHaving>(expr);
   ASSERT(exprMetadata != 0);
 
