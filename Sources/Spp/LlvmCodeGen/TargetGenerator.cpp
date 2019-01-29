@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/TargetGenerator.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::TargetGenerator.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -121,6 +121,8 @@ void TargetGenerator::initBindings()
   targetGeneration->generateFloatLiteral = &TargetGenerator::generateFloatLiteral;
   targetGeneration->generateStringLiteral = &TargetGenerator::generateStringLiteral;
   targetGeneration->generateNullPtrLiteral = &TargetGenerator::generateNullPtrLiteral;
+  targetGeneration->generateStructLiteral = &TargetGenerator::generateStructLiteral;
+  targetGeneration->generateArrayLiteral = &TargetGenerator::generateArrayLiteral;
 }
 
 
@@ -1827,6 +1829,46 @@ Bool TargetGenerator::generateNullPtrLiteral(
 ) {
   PREPARE_ARG(type, tgType, PointerType);
   auto llvmResult = llvm::ConstantPointerNull::get(static_cast<llvm::PointerType*>(tgType->getLlvmType()));
+  destVal = std::make_shared<Value>(llvmResult, true);
+  return true;
+}
+
+
+Bool TargetGenerator::generateStructLiteral(
+  TiObject *context, TiObject *type, MapContaining<TiObject> *membersTypes, Containing<TiObject> *membersVals,
+  TioSharedPtr &destVal
+) {
+  PREPARE_ARG(type, tgType, StructType);
+  VALIDATE_NOT_NULL(membersVals);
+  std::vector<llvm::Constant*> structVals;
+  for (Int i = 0; i < membersVals->getElementCount(); ++i) {
+    auto value = ti_cast<Value>(membersVals->getElement(i));
+    if (value == 0) {
+      throw EXCEPTION(GenericException, S("Unexpected member value received."));
+    }
+    structVals.push_back(value->getLlvmConstant());
+  }
+  auto llvmResult = llvm::ConstantStruct::get(static_cast<llvm::StructType*>(tgType->getLlvmType()), structVals);
+  destVal = std::make_shared<Value>(llvmResult, true);
+  return true;
+}
+
+
+Bool TargetGenerator::generateArrayLiteral(
+  TiObject *context, TiObject *type, Containing<TiObject> *membersVals,
+  TioSharedPtr &destVal
+) {
+  PREPARE_ARG(type, tgType, ArrayType);
+  VALIDATE_NOT_NULL(membersVals);
+  std::vector<llvm::Constant*> arrayVals;
+  for (Int i = 0; i < membersVals->getElementCount(); ++i) {
+    auto value = ti_cast<Value>(membersVals->getElement(i));
+    if (value == 0) {
+      throw EXCEPTION(GenericException, S("Unexpected member value received."));
+    }
+    arrayVals.push_back(value->getLlvmConstant());
+  }
+  auto llvmResult = llvm::ConstantArray::get(static_cast<llvm::ArrayType*>(tgType->getLlvmType()), arrayVals);
   destVal = std::make_shared<Value>(llvmResult, true);
   return true;
 }

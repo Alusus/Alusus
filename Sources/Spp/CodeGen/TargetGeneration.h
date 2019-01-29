@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TargetGeneration.h
  * Contains the header of class Spp::CodeGen::TargetGeneration.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -113,7 +113,9 @@ class TargetGeneration : public ObjTiInterface
       &this->generateIntLiteral,
       &this->generateFloatLiteral,
       &this->generateStringLiteral,
-      &this->generateNullPtrLiteral
+      &this->generateNullPtrLiteral,
+      &this->generateStructLiteral,
+      &this->generateArrayLiteral
     });
   }
 
@@ -668,6 +670,20 @@ class TargetGeneration : public ObjTiInterface
   public: METHOD_BINDING_CACHE(generateNullPtrLiteral,
     Bool, (
       TiObject* /* context */, TiObject* /* type */, TioSharedPtr& /* destVal */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateStructLiteral,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */, MapContaining<TiObject>* /* membersTypes */,
+      Containing<TiObject>* /* membersVals */, TioSharedPtr& /* destVal */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateArrayLiteral,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */, Containing<TiObject>* /* membersVals */,
+      TioSharedPtr& /* destVal */
     )
   );
 

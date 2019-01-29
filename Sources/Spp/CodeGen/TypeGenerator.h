@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TypeGenerator.h
  * Contains the header of class Spp::CodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -144,6 +144,20 @@ class TypeGenerator : public TiObject, public virtual DynamicBinding, public vir
   );
   private: static Bool _generateDefaultValue(
     TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, TiObject *tgContext, TioSharedPtr &result
+  );
+
+  public: METHOD_BINDING_CACHE(generateDefaultArrayValue,
+    Bool, (Spp::Ast::ArrayType*, TargetGeneration*, TiObject*, TioSharedPtr&)
+  );
+  private: static Bool _generateDefaultArrayValue(
+    TiObject *self, Spp::Ast::ArrayType *astType, TargetGeneration *tg, TiObject *tgContext, TioSharedPtr &result
+  );
+
+  public: METHOD_BINDING_CACHE(generateDefaultUserTypeValue,
+    Bool, (Spp::Ast::UserType*, TargetGeneration*, TiObject*, TioSharedPtr&)
+  );
+  private: static Bool _generateDefaultUserTypeValue(
+    TiObject *self, Spp::Ast::UserType *astType, TargetGeneration *tg, TiObject *tgContext, TioSharedPtr &result
   );
 
   public: METHOD_BINDING_CACHE(getTypeAllocationSize, Bool, (Spp::Ast::Type*, TargetGeneration*, Word&));

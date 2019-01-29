@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/NoOpTargetGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::NoOpTargetGenerator.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -121,6 +121,8 @@ void NoOpTargetGenerator::initBindings()
   targetGeneration->generateFloatLiteral = &NoOpTargetGenerator::generateFloatLiteral;
   targetGeneration->generateStringLiteral = &NoOpTargetGenerator::generateStringLiteral;
   targetGeneration->generateNullPtrLiteral = &NoOpTargetGenerator::generateNullPtrLiteral;
+  targetGeneration->generateStructLiteral = &NoOpTargetGenerator::generateStructLiteral;
+  targetGeneration->generateArrayLiteral = &NoOpTargetGenerator::generateArrayLiteral;
 }
 
 } // namespace
