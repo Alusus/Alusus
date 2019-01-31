@@ -12,13 +12,14 @@ def Main: module
   def MyType: type
   {
     def x: Int;
-    @static def y: Int;
+    @shared def y: Int;
 
-    @static def t: MyType;
+    @shared def t: MyType;
 
-    @static def printIt: function
+    @shared def printIt: function
     {
-      @static def z: Int;
+      @shared def z: Int;
+      print("x = %d\n", x);
       print("y = %d\n", y);
       print("t.x = %d\n", t.x);
       print("z = %d\n", z);
@@ -26,14 +27,16 @@ def Main: module
     }
   };
 
+  def t: MyType;
   def start: function ()=>Void
   {
     MyType.y = 4;
     MyType.t.x = 23;
-
+    MyType.x = 3;
+    t.y = 4;
     MyType.printIt();
     MyType.printIt();
   }
 };
 
-run Main.start;
+dump_llvm_ir Main;

@@ -36,8 +36,8 @@ void GrammarFactory::createGrammar(
   auto innerCmdList = this->getInnerCommandsList();
   auto tildeCmdList = this->getTildeCommandsList();
 
-  // Add translation for static modifier.
-  this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("static")));
+  // Add translation for shared modifier.
+  this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("shared")));
 
   //// DumpIr = "dump_ir" + Subject
   this->set(S("root.Main.DumpLlvmIr"), SymbolDefinition::create({}, {

@@ -5,13 +5,13 @@ def Main: module
   def MyType: type
   {
     def x: Int;
-    @static def y: Int;
+    @shared def y: Int;
 
-    @static def t: MyType;
+    @shared def t: MyType;
 
-    @static def printIt: function
+    @shared def printIt: function
     {
-      @static def z: Int;
+      @shared def z: Int;
     }
   };
 };

@@ -713,12 +713,12 @@ DefinitionDomain Helper::_getDefinitionDomain(TiObject *self, TiObject const *ob
     return DefinitionDomain::GLOBAL;
   } else {
     // The definition is either inside a function or a type.
-    // Is it static?
+    // Is it shared?
     auto modifiers = def->getModifiers().get();
     if (modifiers != 0) {
       for (Int i = 0; i < modifiers->getElementCount(); ++i) {
         auto identifier = ti_cast<Core::Data::Ast::Identifier>(modifiers->getElement(i));
-        if (identifier != 0 && identifier->getValue() == S("static")) return DefinitionDomain::GLOBAL;
+        if (identifier != 0 && identifier->getValue() == S("shared")) return DefinitionDomain::GLOBAL;
       }
     }
     // it's not static, so it's either a function local or an object member.
