@@ -9,77 +9,63 @@ def Gtk: module
   ) => Word[64];
   def unref: @expname[g_object_unref] function (p: ptr);
 
-  def App: module
+  def App: type
   {
-    def Obj: type {};
-
-    def new: @expname[gtk_application_new] function (appId: ptr[Char], flags: Int) => ptr[Obj];
-    def exec: @expname[g_application_run] function (app: ptr[Obj], argc: Int, argv: ptr[ptr[Char]]) => Int;
+    @shared def new: @expname[gtk_application_new] function (appId: ptr[Char], flags: Int) => ptr[App];
+    @shared def exec: @expname[g_application_run] function (app: ptr[App], argc: Int, argv: ptr[ptr[Char]]) => Int;
   };
 
-  def Widget: module
+  def Widget: type
   {
-    def Obj: type {};
-
-    def showAll: @expname[gtk_widget_show_all] function (widget: ptr[Obj]);
-    def destroy: @expname[gtk_widget_destroy] function (widget: ptr[Obj]);
+    @shared def showAll: @expname[gtk_widget_show_all] function (widget: ptr[Widget]);
+    @shared def destroy: @expname[gtk_widget_destroy] function (widget: ptr[Widget]);
   };
 
-  def Window: module
+  def Window: type
   {
-    def Obj: type {};
-
-    def setTitle: @expname[gtk_window_set_title] function (window: ptr[Obj], title: ptr[Char]);
-    def setDefaultSize: @expname[gtk_window_set_default_size] function (window: ptr[Obj], width: Int, height: Int);
+    @shared def setTitle: @expname[gtk_window_set_title] function (window: ptr[Window], title: ptr[Char]);
+    @shared def setDefaultSize: @expname[gtk_window_set_default_size] function (window: ptr[Window], width: Int, height: Int);
   };
 
-  def AppWindow: module
+  def AppWindow: type
   {
-    def new: @expname[gtk_application_window_new] function (app: ptr[App.Obj]) => ptr[Widget.Obj];
+    @shared def new: @expname[gtk_application_window_new] function (app: ptr[App]) => ptr[Widget];
   };
 
-  def Dialog: module
+  def Dialog: type
   {
-    def Obj: type {};
-
-    def exec: @expname[gtk_dialog_run] function (dialog: ptr[Obj]) => Int;
+    @shared def exec: @expname[gtk_dialog_run] function (dialog: ptr[Dialog]) => Int;
   };
 
-  def MessageDialog: module
+  def MessageDialog: type
   {
-    def new: @expname[gtk_message_dialog_new] function (
-      parent: ptr[Window.Obj], flags: Int, dlgType: Int, buttons: Int, msg: ptr[Char], args: ...any
-    ) => ptr[Widget.Obj];
+    @shared def new: @expname[gtk_message_dialog_new] function (
+      parent: ptr[Window], flags: Int, dlgType: Int, buttons: Int, msg: ptr[Char], args: ...any
+    ) => ptr[Widget];
   };
 
-  def ButtonBox: module
+  def ButtonBox: type
   {
-    def Obj: type {};
-
-    def new: @expname[gtk_button_box_new] function (orientation: Int) => ptr[Widget.Obj];
-    def setLayout: @expname[gtk_button_box_set_layout] function (widget: ptr[ButtonBox.Obj], style: Int);
+    @shared def new: @expname[gtk_button_box_new] function (orientation: Int) => ptr[Widget];
+    @shared def setLayout: @expname[gtk_button_box_set_layout] function (widget: ptr[ButtonBox], style: Int);
   };
 
-  def Button: module
+  def Button: type
   {
-    def newWithLabel: @expname[gtk_button_new_with_label] function (label: ptr[Char]) => ptr[Widget.Obj];
+    @shared def newWithLabel: @expname[gtk_button_new_with_label] function (label: ptr[Char]) => ptr[Widget];
   };
 
-  def Container: module
+  def Container: type
   {
-    def Obj: type {};
-
-    def add: @expname[gtk_container_add] function (container: ptr[Obj], widget: ptr[Widget.Obj]);
+    @shared def add: @expname[gtk_container_add] function (container: ptr[Container], widget: ptr[Widget]);
   };
 
-  def Orientation: module
-  {
+  def Orientation: {
     def HORIZONTAL: 0;
     def VERTICAL: 1;
   };
 
-  def MessageType: module
-  {
+  def MessageType: {
     def INFO: 0;
     def WARNING: 1;
     def QUESTION: 2;
@@ -87,8 +73,7 @@ def Gtk: module
     def OTHER: 4;
   };
 
-  def ButtonsType: module
-  {
+  def ButtonsType: {
     def NONE: 0;
     def OK: 1;
     def CLOSE: 2;
@@ -97,8 +82,7 @@ def Gtk: module
     def OK_CANCEL: 5;
   };
 
-  def ButtonBoxStyle: module
-  {
+  def ButtonBoxStyle: {
     def SPREAD: 1;
     def EDGE: 2;
     def START: 3;
