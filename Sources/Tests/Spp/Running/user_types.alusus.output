@@ -30,3 +30,5 @@ p.a(3) = 0.120000
 p.a(4) = 0.150000
 p.xref=5
 p.yref=6
+gpoint.x = 0
+gpoing.y = 0

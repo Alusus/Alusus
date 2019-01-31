@@ -469,7 +469,7 @@ Bool TypeGenerator::_generateDefaultUserTypeValue(
   PlainMap<TiObject> memberTypes;
   for (Int i = 0; i < body->getElementCount(); ++i) {
     auto def = ti_cast<Core::Data::Ast::Definition>(body->getElement(i));
-    if (def != 0 && !typeGenerator->getAstHelper()->isStaticDef(def)) {
+    if (def != 0 && typeGenerator->getAstHelper()->getDefinitionDomain(def) == Ast::DefinitionDomain::OBJECT) {
       auto obj = def->getTarget().get();
       if (typeGenerator->getAstHelper()->isAstReference(obj)) {
         TiObject *tgMemberType;

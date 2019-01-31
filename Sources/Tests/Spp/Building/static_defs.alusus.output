@@ -1,0 +1,44 @@
+ERROR SPPG1020 @ (22,25): Invalid access to object member.
+ERROR SPPG1020 @ (35,12): Invalid access to object member.
+ERROR SPPG1021 @ (36,7): Invalid access to global definition.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+
+%Main_MyType.0 = type { i32 }
+
+@Main_MyType_y = global i32 0
+@Main_MyType_t = global %Main_MyType.0 zeroinitializer
+@Main_MyType_printIt___z = global i32 0
+@__anonymous0 = private constant [8 x i8] c"x = %d\0A\00", align 1
+@__anonymous1 = private constant [8 x i8] c"y = %d\0A\00", align 1
+@__anonymous2 = private constant [10 x i8] c"t.x = %d\0A\00", align 1
+@__anonymous3 = private constant [8 x i8] c"z = %d\0A\00", align 1
+@Main_t = global %Main_MyType.0 zeroinitializer
+
+declare i64 @printf(i8*, ...)
+
+define void @"Main.MyType.printIt()"() {
+__block0:
+  %0 = load i32* @Main_MyType_y
+  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous1, i32 0, i32 0), i32 %0)
+  %2 = load i32* getelementptr inbounds (%Main_MyType.0* @Main_MyType_t, i32 0, i32 0)
+  %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([10 x i8]* @__anonymous2, i32 0, i32 0), i32 %2)
+  %4 = load i32* @Main_MyType_printIt___z
+  %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous3, i32 0, i32 0), i32 %4)
+  %6 = load i32* @Main_MyType_printIt___z
+  %7 = add nsw i32 %6, 1
+  store i32 %7, i32* @Main_MyType_printIt___z
+  ret void
+}
+
+define void @"Main.start()=>(Void)"() {
+__block1:
+  store i32 4, i32* @Main_MyType_y
+  store i32 23, i32* getelementptr inbounds (%Main_MyType.0* @Main_MyType_t, i32 0, i32 0)
+  call void @"Main.MyType.printIt()"()
+  call void @"Main.MyType.printIt()"()
+  ret void
+}
+------------------------------------------------------------

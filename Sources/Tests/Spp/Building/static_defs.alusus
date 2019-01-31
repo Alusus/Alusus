@@ -1,0 +1,42 @@
+import "libalusus_spp.so";
+
+def Std: module
+{
+  def printf: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+};
+
+def Main: module
+{
+  def print: alias Std.printf;
+
+  def MyType: type
+  {
+    def x: Int;
+    @static def y: Int;
+
+    @static def t: MyType;
+
+    @static def printIt: function
+    {
+      @static def z: Int;
+      print("x = %d\n", x);
+      print("y = %d\n", y);
+      print("t.x = %d\n", t.x);
+      print("z = %d\n", z);
+      ++z;
+    }
+  };
+
+  def t: MyType;
+  def start: function ()=>Void
+  {
+    MyType.y = 4;
+    MyType.t.x = 23;
+    MyType.x = 3;
+    t.y = 4;
+    MyType.printIt();
+    MyType.printIt();
+  }
+};
+
+dump_llvm_ir Main;

@@ -44,7 +44,8 @@ void Helper::initBindingCaches()
     &this->resolveNodePath,
     &this->getFunctionName,
     &this->getNeededIntSize,
-    &this->getNeededWordSize
+    &this->getNeededWordSize,
+    &this->getDefinitionDomain
   });
 }
 
@@ -75,6 +76,7 @@ void Helper::initBindings()
   this->getFunctionName = &Helper::_getFunctionName;
   this->getNeededIntSize = &Helper::_getNeededIntSize;
   this->getNeededWordSize = &Helper::_getNeededWordSize;
+  this->getDefinitionDomain = &Helper::_getDefinitionDomain;
 }
 
 
@@ -676,6 +678,56 @@ Word Helper::_getNeededWordSize(TiObject *self, LongWord value)
     else if (bitCount <= 32) return 32;
     else if (bitCount <= 64) return 64;
     else return 128;
+  }
+}
+
+
+DefinitionDomain Helper::_getDefinitionDomain(TiObject *self, TiObject const *obj)
+{
+  // Find the definition.
+  auto def = ti_cast<Core::Data::Ast::Definition const>(obj);
+  if (def == 0) {
+    auto node = ti_cast<Core::Data::Node const>(obj);
+    if (node == 0) {
+      throw EXCEPTION(InvalidArgumentException, S("obj"), S("Object is null or of invalid type."), obj);
+    }
+    def = ti_cast<Core::Data::Ast::Definition const>(node->getOwner());
+    if (def == 0) {
+      // This could be a function arg.
+      if (
+        node->getOwner() != 0 && node->getOwner()->getOwner() != 0 &&
+        node->getOwner()->getOwner()->isDerivedFrom<FunctionType>()
+      ) {
+        return DefinitionDomain::FUNCTION;
+      } else {
+        throw EXCEPTION(InvalidArgumentException, S("obj"), S("Object is not a definition."), obj);
+      }
+    }
+  }
+
+  if (def->getOwner() == 0) {
+    throw EXCEPTION(GenericException, S("Definition is not part of any scope."));
+  }
+
+  if (def->getOwner()->isDerivedFrom<Module>()) {
+    return DefinitionDomain::GLOBAL;
+  } else {
+    // The definition is either inside a function or a type.
+    // Is it static?
+    auto modifiers = def->getModifiers().get();
+    if (modifiers != 0) {
+      for (Int i = 0; i < modifiers->getElementCount(); ++i) {
+        auto identifier = ti_cast<Core::Data::Ast::Identifier>(modifiers->getElement(i));
+        if (identifier != 0 && identifier->getValue() == S("static")) return DefinitionDomain::GLOBAL;
+      }
+    }
+    // it's not static, so it's either a function local or an object member.
+    auto owner = def->getOwner()->getOwner();
+    if (owner->isDerivedFrom<Type>()) {
+      return DefinitionDomain::OBJECT;
+    } else {
+      return DefinitionDomain::FUNCTION;
+    }
   }
 }
 

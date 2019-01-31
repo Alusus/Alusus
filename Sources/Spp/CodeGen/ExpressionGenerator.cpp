@@ -212,9 +212,17 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
       symbolFound = true;
       // Check if the found obj is a variable definition.
       if (expGenerator->astHelper->isAstReference(obj)) {
-        retVal = expGenerator->generateVarReference(obj, g, tg, tgContext, result);
+        // Make sure the var is not an object member.
+        if (expGenerator->getAstHelper()->getDefinitionDomain(obj) == Ast::DefinitionDomain::OBJECT) {
+          expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidObjectMemberAccessNotice>(
+            Core::Data::Ast::findSourceLocation(astNode)
+          ));
+          retVal = false;
+        } else {
+          retVal = expGenerator->generateVarReference(obj, g, tg, tgContext, result);
+        }
       } else if (
-        obj->isDerivedFrom<Ast::Module>() || obj->isDerivedFrom<Ast::Type>() ||
+        obj->isDerivedFrom<Core::Data::Ast::Scope>() || obj->isDerivedFrom<Ast::Type>() ||
         obj->isDerivedFrom<Ast::Template>() || obj->isDerivedFrom<Ast::Function>()
       ) {
         result.astNode = obj;
@@ -283,7 +291,7 @@ Bool ExpressionGenerator::_generateLinkOperator(
     return expGenerator->generateMemberReference(
       firstResult.targetData.get(), firstResult.astType, second, g, tg, tgContext, result
     );
-  } else if (firstResult.astNode != 0 && firstResult.astNode->isDerivedFrom<Ast::Module>()) {
+  } else if (firstResult.astNode != 0) {
     // Generate a reference to a global in another module.
     return expGenerator->generateScopeMemberReference(firstResult.astNode, second, false, g, tg, tgContext, result);
   } else {
@@ -337,6 +345,13 @@ Bool ExpressionGenerator::_generateRoundParamPass(
       expGenerator->noticeStore->add(notice);
       return false;
     }
+    // Make sure the var is not an object member.
+    if (expGenerator->getAstHelper()->getDefinitionDomain(callee) == Ast::DefinitionDomain::OBJECT) {
+      expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidObjectMemberAccessNotice>(
+        Core::Data::Ast::findSourceLocation(astNode)
+      ));
+      return false;
+    }
     return expGenerator->generateRoundParamPassOnCallee(
       callee, calleeType, &paramTgValues, &paramAstTypes, &paramAstNodes, g, tg, tgContext, result
     );
@@ -370,7 +385,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
       return expGenerator->generateRoundParamPassOnMember(
         linkOperator, &prevResult, &paramTgValues, &paramAstTypes, &paramAstNodes, g, tg, tgContext, result
       );
-    } else if (firstResult.astNode != 0 && firstResult.astNode->isDerivedFrom<Ast::Module>()) {
+    } else if (firstResult.astNode != 0) {
       //// Calling a global in another module.
       // Look for a matching callee.
       TiObject *callee;
@@ -381,6 +396,13 @@ Bool ExpressionGenerator::_generateRoundParamPass(
         callee, calleeType, notice
       )) {
         expGenerator->noticeStore->add(notice);
+        return false;
+      }
+      // Make sure the var is not an object member.
+      if (expGenerator->getAstHelper()->getDefinitionDomain(callee) == Ast::DefinitionDomain::OBJECT) {
+        expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidObjectMemberAccessNotice>(
+          Core::Data::Ast::findSourceLocation(second)
+        ));
         return false;
       }
       return expGenerator->generateRoundParamPassOnCallee(
@@ -1998,6 +2020,13 @@ Bool ExpressionGenerator::_generateMemberReference(
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidTypeMemberNotice>(astNode->findSourceLocation())
     );
+    return false;
+  }
+  // Make sure the var is an object member.
+  if (expGenerator->getAstHelper()->getDefinitionDomain(astMemberVarNode) != Ast::DefinitionDomain::OBJECT) {
+    expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidGlobalDefAccessNotice>(
+      Core::Data::Ast::findSourceLocation(astNode)
+    ));
     return false;
   }
 

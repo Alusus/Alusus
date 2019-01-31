@@ -34,6 +34,8 @@ SeekerExtension::Overrides* SeekerExtension::extend(Core::Data::Seeker *seeker, 
     extension->foreachByIdentifier_block.set(&SeekerExtension::_foreachByIdentifier_block).get();
   overrides->foreachByIdentifier_functionRef =
     extension->foreachByIdentifier_function.set(&SeekerExtension::_foreachByIdentifier_function).get();
+  overrides->foreachByIdentifier_dataTypeRef =
+    extension->foreachByIdentifier_dataType.set(&SeekerExtension::_foreachByIdentifier_dataType).get();
   overrides->foreachByParamPassRef =
     extension->foreachByParamPass.set(&SeekerExtension::_foreachByParamPass).get();
   overrides->foreachByParamPass_routingRef =
@@ -53,6 +55,7 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
   extension->astHelper = SharedPtr<Ast::Helper>::null;
   extension->foreachByIdentifier_block.reset(overrides->foreachByIdentifier_blockRef);
   extension->foreachByIdentifier_function.reset(overrides->foreachByIdentifier_functionRef);
+  extension->foreachByIdentifier_dataType.reset(overrides->foreachByIdentifier_dataTypeRef);
   extension->foreachByParamPass.reset(overrides->foreachByParamPassRef);
   extension->foreachByParamPass_routing.reset(overrides->foreachByParamPass_routingRef);
   extension->foreachByParamPass_template.reset(overrides->foreachByParamPass_templateRef);
@@ -89,6 +92,9 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_level(
   } else if (data->isDerivedFrom<Ast::Function>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
     return seekerExtension->foreachByIdentifier_function(identifier, static_cast<Ast::Function*>(data), cb, flags);
+  } else if (data->isDerivedFrom<Ast::DataType>()) {
+    PREPARE_SELF(seekerExtension, SeekerExtension);
+    return seekerExtension->foreachByIdentifier_dataType(identifier, static_cast<Ast::DataType*>(data), cb, flags);
   } else {
     PREPARE_SELF(seeker, Core::Data::Seeker);
     return seeker->foreachByIdentifier_level.useCallee(base)(identifier, data, cb, flags);
@@ -133,6 +139,16 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_function(
   auto index = argTypes->findIndex(identifier->getValue().get());
   if (index >= 0) return cb(argTypes->getElement(index), 0);
   return Core::Data::Seeker::Verb::MOVE;
+}
+
+
+Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_dataType(
+  TiObject *self, Data::Ast::Identifier const *identifier, Ast::DataType *type,
+  Core::Data::Seeker::ForeachCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Core::Data::Seeker);
+  auto block = type->getBody().get();
+  return seeker->foreachByIdentifier_level(identifier, block, cb, flags);
 }
 
 

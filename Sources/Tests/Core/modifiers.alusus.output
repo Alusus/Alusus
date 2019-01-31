@@ -100,4 +100,8 @@ Scope [Statements.StmtList]
   args: List
    StringLiteral: start trailing [Subject.Literal]
   modifiers: NULL
+ Definition [Main.Def] p
+  modifiers:
+   Identifier: public [Subject.Parameter]
+  target: IntegerLiteral: 5 [Subject.Literal]
 ------------------------------------------------------

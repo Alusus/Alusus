@@ -15,6 +15,8 @@ def Main: module
     def wrongRef: alias wrong;
   };
 
+  def gpoint: Point;
+
   def Nested: type
   {
     def p: Point;
@@ -79,6 +81,9 @@ def Main: module
     printPoint(getPoint(2, 4, 6f));
     p = getPoint(4, 8, 9f);
     printPoint(p);
+
+    print("gpoint.x = %d\n", gpoint.x);
+    print("gpoing.y = %d\n", gpoint.y);
   }
 };
 

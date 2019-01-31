@@ -1,0 +1,19 @@
+import "libalusus_spp.so";
+
+def Main: module
+{
+  def MyType: type
+  {
+    def x: Int;
+    @static def y: Int;
+
+    @static def t: MyType;
+
+    @static def printIt: function
+    {
+      @static def z: Int;
+    }
+  };
+};
+
+dump_ast Main;

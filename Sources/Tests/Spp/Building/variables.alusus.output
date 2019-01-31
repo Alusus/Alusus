@@ -1,13 +1,13 @@
-ERROR SPPG1008 @ (54,5): Invalid symbol.
-ERROR SPPG1008 @ (55,5): Invalid symbol.
-ERROR SPPA1007 @ (56,11): Unknown symbol.
-ERROR SPPG1008 @ (57,10): Invalid symbol.
-ERROR SPPG1008 @ (58,10): Invalid symbol.
-ERROR SPPA1007 @ (59,16): Unknown symbol.
-ERROR SPPA1007 @ (84,11): Unknown symbol.
-ERROR SPPA1007 @ (85,25): Unknown symbol.
-ERROR SPPA1007 @ (88,18): Unknown symbol.
-ERROR SPPA1007 @ (89,32): Unknown symbol.
+ERROR SPPG1008 @ (57,5): Invalid symbol.
+ERROR SPPG1008 @ (58,5): Invalid symbol.
+ERROR SPPA1007 @ (59,11): Unknown symbol.
+ERROR SPPG1008 @ (60,10): Invalid symbol.
+ERROR SPPG1008 @ (61,10): Invalid symbol.
+ERROR SPPA1007 @ (62,16): Unknown symbol.
+ERROR SPPA1007 @ (97,11): Unknown symbol.
+ERROR SPPA1007 @ (98,25): Unknown symbol.
+ERROR SPPA1007 @ (101,18): Unknown symbol.
+ERROR SPPA1007 @ (102,32): Unknown symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -19,16 +19,20 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 @Main_gf = global float 0.000000e+00
 @Main_gpf = global float* null
 @Main_gbf = global double 0.000000e+00
+@Main_garr = global [10 x i32] zeroinitializer
 @__anonymous0 = private constant [4 x i8] c"%d\0A\00", align 1
 @__anonymous1 = private constant [8 x i8] c"%d, %f\0A\00", align 1
 @__anonymous2 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous3 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous4 = private constant [4 x i8] c"%d \00", align 1
+@__anonymous5 = private constant [2 x i8] c"\0A\00", align 1
 @Other_gi = global i32 0
 @Other_gf = global double 0.000000e+00
-@__anonymous3 = private constant [8 x i8] c"%d, %f\0A\00", align 1
-@__anonymous4 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous6 = private constant [8 x i8] c"%d, %f\0A\00", align 1
+@__anonymous7 = private constant [4 x i8] c"%d\0A\00", align 1
 @Other_Nested_gni = global i32 0
-@__anonymous5 = private constant [4 x i8] c"%d\0A\00", align 1
-@__anonymous6 = private constant [4 x i8] c"%f\0A\00", align 1
+@__anonymous8 = private constant [4 x i8] c"%d\0A\00", align 1
+@__anonymous9 = private constant [4 x i8] c"%f\0A\00", align 1
 
 declare i64 @printf(i8*, ...)
 
@@ -100,6 +104,7 @@ __block0:
   call void @"Main.testVarOverride()=>(Void)"()
   %36 = load i32* @Main_gi
   %37 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i32 0, i32 0), i32 %36)
+  call void @"Main.testGlobals()"()
   call void @"Main.testOtherModules()=>(Void)"()
   ret void
 }
@@ -129,16 +134,51 @@ __block2:
   ret void
 }
 
-define void @"Main.testOtherModules()=>(Void)"() {
+define void @"Main.testGlobals()"() {
 __block3:
+  store i32* @Main_gi, i32** @Main_gpi
+  store i32 10, i32* @Main_gi
+  %0 = load i32** @Main_gpi
+  %1 = load i32* %0
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous3, i32 0, i32 0), i32 %1)
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %__block4
+
+__block4:                                         ; preds = %__block5, %__block3
+  %3 = load i32* %i
+  %4 = icmp slt i32 %3, 10
+  br i1 %4, label %__block6, label %__block7
+
+__block5:                                         ; preds = %__block6
+  %5 = load i32* %i
+  %6 = add nsw i32 %5, 1
+  store i32 %6, i32* %i
+  br label %__block4
+
+__block6:                                         ; preds = %__block4
+  %7 = load i32* %i
+  %8 = sext i32 %7 to i64
+  %9 = getelementptr [10 x i32]* @Main_garr, i32 0, i64 %8
+  %10 = load i32* %9
+  %11 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous4, i32 0, i32 0), i32 %10)
+  br label %__block5
+
+__block7:                                         ; preds = %__block4
+  %12 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous5, i32 0, i32 0))
+  ret void
+}
+
+define void @"Main.testOtherModules()=>(Void)"() {
+__block8:
   store i32 2, i32* @Other_gi
   store double 0x401D333340000000, double* @Other_gf
   %0 = load i32* @Other_gi
   %1 = load double* @Other_gf
-  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous3, i32 0, i32 0), i32 %0, double %1)
+  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous6, i32 0, i32 0), i32 %0, double %1)
   store i32 4, i32* @Other_Nested_gni
   %3 = load i32* @Other_Nested_gni
-  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous5, i32 0, i32 0), i32 %3)
+  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous8, i32 0, i32 0), i32 %3)
   ret void
 }
 ------------------------------------------------------------

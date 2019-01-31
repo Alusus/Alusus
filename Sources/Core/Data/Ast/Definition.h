@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Definition.h
  * Contains the header of class Core::Data::Ast::Definition.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -35,6 +35,7 @@ class Definition : public Node,
   private: TiStr name;
   private: TioSharedPtr target;
   private: TiBool toMerge;
+  private: SharedPtr<List> modifiers;
 
 
   //============================================================================
@@ -50,7 +51,8 @@ class Definition : public Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (target, TiObject, SHARED_REF, setTarget(value), target.get())
+    (target, TiObject, SHARED_REF, setTarget(value), target.get()),
+    (modifiers, List, SHARED_REF, setModifiers(value), modifiers.get())
   );
 
 
@@ -112,6 +114,29 @@ class Definition : public Node,
   public: Bool isToMerge() const
   {
     return this->toMerge.get();
+  }
+
+  public: void setModifiers(SharedPtr<List> const &m)
+  {
+    UPDATE_OWNED_SHAREDPTR(this->modifiers, m);
+  }
+  private: void setModifiers(List *m)
+  {
+    this->setModifiers(getSharedPtr(m));
+  }
+
+  public: void addModifier(TioSharedPtr const &modifier)
+  {
+    if (this->modifiers == 0) {
+      this->modifiers = List::create({}, { modifier });
+    } else {
+      this->modifiers->add(modifier);
+    }
+  }
+
+  public: SharedPtr<List> const& getModifiers() const
+  {
+    return this->modifiers;
   }
 
 
