@@ -714,13 +714,8 @@ DefinitionDomain Helper::_getDefinitionDomain(TiObject *self, TiObject const *ob
   } else {
     // The definition is either inside a function or a type.
     // Is it shared?
-    auto modifiers = def->getModifiers().get();
-    if (modifiers != 0) {
-      for (Int i = 0; i < modifiers->getElementCount(); ++i) {
-        auto identifier = ti_cast<Core::Data::Ast::Identifier>(modifiers->getElement(i));
-        if (identifier != 0 && identifier->getValue() == S("shared")) return DefinitionDomain::GLOBAL;
-      }
-    }
+    PREPARE_SELF(helper, Helper);
+    if (helper->isSharedDef(def)) return DefinitionDomain::GLOBAL;
     // it's not static, so it's either a function local or an object member.
     auto owner = def->getOwner()->getOwner();
     if (owner->isDerivedFrom<Type>()) {
@@ -729,6 +724,19 @@ DefinitionDomain Helper::_getDefinitionDomain(TiObject *self, TiObject const *ob
       return DefinitionDomain::FUNCTION;
     }
   }
+}
+
+
+Bool Helper::isSharedDef(Core::Data::Ast::Definition const *def)
+{
+  auto modifiers = def->getModifiers().get();
+  if (modifiers != 0) {
+    for (Int i = 0; i < modifiers->getElementCount(); ++i) {
+      auto identifier = ti_cast<Core::Data::Ast::Identifier>(modifiers->getElement(i));
+      if (identifier != 0 && identifier->getValue() == S("shared")) return true;
+    }
+  }
+  return false;
 }
 
 

@@ -84,6 +84,11 @@ def Main: module
 
     print("gpoint.x = %d\n", gpoint.x);
     print("gpoing.y = %d\n", gpoint.y);
+
+    def pp: ptr[Point];
+    def pn: ptr[Nested];
+    pp = n~ptr;
+    pn = p~ptr;
   }
 };
 

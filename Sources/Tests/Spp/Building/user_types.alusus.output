@@ -3,6 +3,7 @@ ERROR SPPA1004 @ (70,7): No valid match was found for the given type member.
 ERROR SPPA1004 @ (73,7): No valid match was found for the given type member.
 ERROR SPPA1004 @ (74,7): No valid match was found for the given type member.
 ERROR SPPA1004 @ (77,25): No valid match was found for the given type member.
+ERROR SPPG1015 @ (91,5): Incompatible types for the given operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -117,6 +118,10 @@ __block2:
   %33 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([15 x i8]* @__anonymous6, i32 0, i32 0), i32 %32)
   %34 = load i32* getelementptr inbounds (%Main_Point* @Main_gpoint, i32 0, i32 1)
   %35 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([15 x i8]* @__anonymous7, i32 0, i32 0), i32 %34)
+  %pp = alloca %Main_Point*
+  %pn = alloca %Main_Nested*
+  %36 = bitcast %Main_Nested* %n to %Main_Point*
+  store %Main_Point* %36, %Main_Point** %pp
   ret void
 }
 ------------------------------------------------------------

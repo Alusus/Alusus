@@ -255,6 +255,8 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   public: METHOD_BINDING_CACHE(getDefinitionDomain, DefinitionDomain, (TiObject const*));
   private: static DefinitionDomain _getDefinitionDomain(TiObject *self, TiObject const *def);
 
+  public: Bool isSharedDef(Core::Data::Ast::Definition const *def);
+
   /// @}
 
   /// @name Helper Functions
