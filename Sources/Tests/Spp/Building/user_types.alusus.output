@@ -1,9 +1,11 @@
-ERROR SPPA1003 @ (33,12): No valid match was found for the given type.
-ERROR SPPA1004 @ (70,7): No valid match was found for the given type member.
-ERROR SPPA1004 @ (73,7): No valid match was found for the given type member.
-ERROR SPPA1004 @ (74,7): No valid match was found for the given type member.
-ERROR SPPA1004 @ (77,25): No valid match was found for the given type member.
-ERROR SPPG1015 @ (91,5): Incompatible types for the given operator.
+ERROR SPPA1003 @ (40,12): No valid match was found for the given type.
+ERROR SPPA1004 @ (77,7): No valid match was found for the given type member.
+ERROR SPPA1004 @ (80,7): No valid match was found for the given type member.
+ERROR SPPA1004 @ (81,7): No valid match was found for the given type member.
+ERROR SPPA1004 @ (84,25): No valid match was found for the given type member.
+ERROR SPPG1015 @ (101,5): Incompatible types for the given operator.
+ERROR SPPG1015 @ (103,5): Incompatible types for the given operator.
+ERROR SPPG1015 @ (104,5): Incompatible types for the given operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -12,6 +14,7 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 %Main_Point = type { i32, i32, float }
 %Main_Nested = type { %Main_Point, i8, i16 }
 %Main_Empty = type {}
+%Main_DeepNested = type { %Main_Nested, i8, i16 }
 
 @Main_i = global i32 0
 @Main_gpoint = global %Main_Point zeroinitializer
@@ -120,8 +123,14 @@ __block2:
   %35 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([15 x i8]* @__anonymous7, i32 0, i32 0), i32 %34)
   %pp = alloca %Main_Point*
   %pn = alloca %Main_Nested*
+  %pd = alloca %Main_DeepNested*
+  %d = alloca %Main_DeepNested
   %36 = bitcast %Main_Nested* %n to %Main_Point*
   store %Main_Point* %36, %Main_Point** %pp
+  %37 = bitcast %Main_DeepNested* %d to %Main_Point*
+  store %Main_Point* %37, %Main_Point** %pp
+  %38 = bitcast %Main_DeepNested* %d to %Main_Nested*
+  store %Main_Nested* %38, %Main_Nested** %pn
   ret void
 }
 ------------------------------------------------------------

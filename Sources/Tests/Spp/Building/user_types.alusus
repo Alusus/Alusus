@@ -24,6 +24,13 @@ def Main: module
     def j: Int[16];
   };
 
+  def DeepNested: type
+  {
+    def n: Nested;
+    def k: Int[8];
+    def l: Int[16];
+  };
+
   def Empty: type
   {
   };
@@ -87,8 +94,14 @@ def Main: module
 
     def pp: ptr[Point];
     def pn: ptr[Nested];
+    def pd: ptr[DeepNested];
+    def d: DeepNested;
     pp = n~ptr;
+    pp = d~ptr;
     pn = p~ptr;
+    pn = d~ptr;
+    pd = p~ptr;
+    pd = n~ptr;
   }
 };
 

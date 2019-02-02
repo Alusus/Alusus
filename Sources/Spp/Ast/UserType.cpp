@@ -29,7 +29,10 @@ TypeMatchStatus UserType::matchTargetType(Type const *type, Helper *helper, Exec
           auto obj = def->getTarget().get();
           if (obj != 0 && helper->isAstReference(obj)) {
             auto memberType = helper->traceType(obj);
-            if (memberType->isEqual(type, helper, ec)) return TypeMatchStatus::AGGREGATION;
+            auto memberMatchStatus = memberType->matchTargetType(type, helper, ec);
+            if (memberMatchStatus == TypeMatchStatus::EXACT || memberMatchStatus == TypeMatchStatus::AGGREGATION) {
+              return TypeMatchStatus::AGGREGATION;
+            }
           }
         }
       }
