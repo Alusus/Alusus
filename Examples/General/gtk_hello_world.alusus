@@ -1,0 +1,70 @@
+import "Gtk.alusus";
+
+def HelloWorld: module
+{
+  def window: ptr[Gtk.AppWindow];
+
+  def start: function
+  {
+    def app: ptr[Gtk.App];
+    def status: Int;
+
+    app = Gtk.App.new("org.alusus.gtk-hello-world", 0);
+    Gtk.connectSignal(app, "activate", activate~ptr~cast[ptr[function]], 0, 0, 0);
+    status = Gtk.App.exec(app, 0, 0);
+    Gtk.unref(app);
+  };
+
+  def activate: function (app: ptr[Gtk.App], data: ptr)
+  {
+    def box: ptr[Gtk.Box];
+    def label: ptr[Gtk.Label];
+    def buttonBox: ptr[Gtk.ButtonBox];
+    def aboutButton: ptr[Gtk.Button];
+    def quitButton: ptr[Gtk.Button];
+
+    window = Gtk.AppWindow.new(app);
+    Gtk.Window.setTitle(window, "Alusus GTK Hello World");
+    Gtk.Window.setDefaultSize(window, 480, 320);
+
+    box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 20);
+
+    label = Gtk.Label.new("Hello World!");
+
+    buttonBox = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL);
+    Gtk.ButtonBox.setLayout(buttonBox, Gtk.ButtonBoxStyle.SPREAD);
+
+    aboutButton = Gtk.Button.newWithLabel("About");
+    Gtk.connectSignal(aboutButton, "clicked", onAboutClicked~ptr~cast[ptr[function]], 0, 0, 0);
+    Gtk.Container.add(buttonBox, aboutButton);
+
+    quitButton = Gtk.Button.newWithLabel("Quit");
+    Gtk.connectSignal(quitButton, "clicked", onQuitClicked~ptr~cast[ptr[function]], 0, 0, 0);
+    Gtk.Container.add(buttonBox, quitButton);
+
+    Gtk.Box.packStart(box, label, 1, 0, 0);
+    Gtk.Box.packStart(box, buttonBox, 1, 0, 0);
+
+    Gtk.Container.add(window, box);
+
+    Gtk.Widget.showAll(window);
+  };
+
+  def onAboutClicked: function (widget: ptr[Gtk.Widget], data: ptr)
+  {
+    def dialog: ptr[Gtk.MessageDialog];
+    dialog = Gtk.MessageDialog.new(
+      window~cast[ptr[Gtk.Window]], 0, Gtk.MessageType.INFO, Gtk.ButtonsType.CLOSE, "Alusus GTK Hello World.\nauthor: Sarmad Abdullah"
+    );
+    Gtk.Dialog.exec(dialog);
+    Gtk.Widget.destroy(dialog);
+  };
+
+  def onQuitClicked: function (widget: ptr[Gtk.Widget], data: ptr)
+  {
+    Gtk.Widget.destroy(window);
+  };
+};
+
+run HelloWorld.start;
+
