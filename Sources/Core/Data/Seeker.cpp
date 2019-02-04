@@ -204,6 +204,7 @@ Seeker::Verb Seeker::_setByIdentifier(
       if (!Seeker::isMove(retVal)) return retVal;
       if (flags & Seeker::Flags::SKIP_OWNERS) break;
       node = node->getOwner();
+      flags |= Seeker::Flags::SKIP_OWNED;
     }
   } else {
     throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
@@ -277,6 +278,7 @@ Seeker::Verb Seeker::_removeByIdentifier(
       if (!Seeker::isMove(retVal)) return retVal;
       if (flags & Seeker::Flags::SKIP_OWNERS) break;
       node = node->getOwner();
+      flags |= Seeker::Flags::SKIP_OWNED;
     }
   } else {
     throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
@@ -340,6 +342,7 @@ Seeker::Verb Seeker::_foreachByIdentifier(
       if (!Seeker::isMove(retVal)) return retVal;
       if (flags & Seeker::Flags::SKIP_OWNERS) break;
       node = node->getOwner();
+      flags |= Seeker::Flags::SKIP_OWNED;
     }
   } else {
     throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
@@ -371,7 +374,9 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
       if (obj->isDerivedFrom<Ast::Alias>()) {
         PREPARE_SELF(seeker, Seeker);
         auto alias = static_cast<Ast::Alias*>(obj);
-        verb = seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags & ~Seeker::Flags::SKIP_OWNERS);
+        verb = seeker->foreach(
+          alias->getReference().get(), alias->getOwner(), cb, flags & ~(Flags::SKIP_OWNERS | Flags::SKIP_OWNED)
+        );
         if (!Seeker::isMove(verb)) return verb;
       } else {
         verb = cb(obj, 0);
@@ -613,7 +618,9 @@ Seeker::Verb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
       if (obj->isDerivedFrom<Ast::Alias>()) {
         PREPARE_SELF(seeker, Seeker);
         auto alias = static_cast<Ast::Alias*>(obj);
-        verb = seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags & ~Seeker::Flags::SKIP_OWNERS);
+        verb = seeker->foreach(
+          alias->getReference().get(), alias->getOwner(), cb, flags & ~(Flags::SKIP_OWNERS | Flags::SKIP_OWNED)
+        );
         if (!Seeker::isMove(verb)) break;
       } else {
         verb = cb(obj, 0);
@@ -633,7 +640,9 @@ Seeker::Verb Seeker::_foreachByLinkOperator_mapDotIdentifier(
   if (obj->isDerivedFrom<Ast::Alias>()) {
     PREPARE_SELF(seeker, Seeker);
     auto alias = static_cast<Ast::Alias*>(obj);
-    return seeker->foreach(alias->getReference().get(), alias->getOwner(), cb, flags & ~Seeker::Flags::SKIP_OWNERS);
+    return seeker->foreach(
+      alias->getReference().get(), alias->getOwner(), cb, flags & ~(Flags::SKIP_OWNERS | Flags::SKIP_OWNED)
+    );
   } else {
     return cb(obj, 0);
   }
