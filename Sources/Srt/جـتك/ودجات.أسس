@@ -1,0 +1,177 @@
+اشمل "Gtk/widgets.alusus"؛
+
+@دمج عرف Gtk: حزمة
+{
+  عرف سـلة: لقب Bin؛
+  @دمج عرف Bin:
+  {
+    عرف حاوية: لقب container؛
+    
+    عرف هات_ابن: لقب getChild؛
+  }؛
+  
+  عرف صـندوق: لقب Box؛
+  @دمج عرف Box:
+  {
+    عرف حاوية: لقب container؛
+
+    عرف أنشئ: لقب new؛
+    عرف احشد_في_المقدمة: لقب packStart؛
+    عرف احشد_في_المؤخرة: لقب packEnd؛
+  }؛
+
+  عرف صـندوق_أزرار: لقب ButtonBox؛
+  @دمج عرف ButtonBox:
+  {
+    عرف صندوق: لقب box؛
+
+    عرف أنشئ: لقب new؛
+    عرف عين_النسق: لقب setLayout؛
+  }؛
+  
+  عرف جـانبان: لقب Paned؛
+  @دمج عرف Paned:
+  {
+    عرف حاوية: لقب container؛
+    
+    عرف أنشئ: لقب new؛
+    عرف احشد1: لقب pack1؛
+    عرف احشد2: لقب pack2؛
+    عرف عين_الموقع: لقب setPosition؛
+    عرف هات_الموقع: لقب getPosition؛
+  }؛
+
+  عرف قـائمة: لقب ListBox؛
+  @دمج عرف ListBox:
+  {
+    عرف حاوية: لقب container؛
+    
+    عرف أنشئ: لقب new؛
+    عرف استهل: لقب prepend؛
+    عرف أولج: لقب insert؛
+    عرف هات_الأسطر_المختارة: لقب getSelectedRows؛
+    عرف عين_نمط_الاختيار: لقب setSelectionMode؛
+  }؛
+
+  عرف الـزر: لقب Button؛
+  @دمج عرف Button:
+  {
+    عرف حاوية: لقب container؛
+
+    عرف أنشئ_بلصيقة: لقب newWithLabel؛
+  }؛
+
+  عرف الـزر_الثنائي: لقب ToggleButton؛
+  @دمج عرف ToggleButton:
+  {
+    عرف الزر: لقب button؛
+    
+    عرف أنشئ: لقب new؛
+    عرف اجعله_فعال: لقب setActive؛
+    عرف أهو_فعال: لقب getActive؛
+  }؛
+
+  عرف خـانة_تأشير: لقب CheckButton؛
+  @دمج عرف CheckButton:
+  {
+    عرف الزر: لقب button؛
+    
+    عرف أنشئ: لقب new؛
+  }؛
+
+  عرف مـطلق_القائمة: لقب MenuButton؛
+  @دمج عرف MenuButton:
+  {
+    عرف الزر: لقب button؛
+    
+    عرف أنشئ: لقب new؛
+    عرف عين_منبثق: لقب setPopup؛
+  }؛
+
+  عرف صـدفة_قائمة_أوامر: لقب MenuShell؛
+  @دمج عرف MenuShell:
+  {
+    عرف حاوية: لقب container؛
+    
+    عرف ألحق: لقب append؛
+    عرف استهل: لقب prepend؛
+    عرف أولج: لقب insert؛
+  }؛
+
+  عرف قـائمة_أوامر: لقب Menu؛
+  @دمج عرف Menu:
+  {
+    عرف صدفة_قائمة_الأوامر: لقب menuShell؛
+
+    عرف أنشئ: لقب new؛
+  }؛
+
+  عرف عـنصر_قائمة_أوامر: لقب MenuItem؛
+  @دمج عرف MenuItem:
+  {
+    عرف سلة: لقب bin؛
+    
+    عرف أنشئ: لقب new؛
+  }؛
+
+  عرف صـورة: لقب Image؛
+  @دمج عرف Image:
+  {
+    عرف ودجة: لقب widget؛
+    
+    عرف أنشئ: لقب new؛
+    عرف عين_حجم_البكسل: لقب setPixelSize؛
+  }؛
+
+  عرف لـصيقة: لقب Label؛
+  @دمج عرف Label:
+  {
+    عرف أنشئ: لقب new؛
+    عرف عين_النص: لقب setText؛
+    عرف هات_النص: لقب getText؛
+  }؛
+
+  عرف حـقل: لقب Entry؛
+  @دمج عرف Entry:
+  {
+    عرف ودجة: لقب widget؛
+    
+    عرف أنشئ: لقب new؛
+    عرف عين_النص: لقب setText؛
+    عرف هات_النص: لقب getText؛
+    عرف هات_طول_النص: لقب getTextLength؛
+    عرف عين_المرئية: لقب setVisibility؛
+    عرف عين_المحرف_الخفي: لقب setInvisibleChar؛
+    عرف عين_محارف_العرض: لقب setWidgetChars؛
+    عرف عين_تملك_إطار: لقب setHasFrame؛
+    عرف عين_المحاذاة: لقب setAlignment؛
+    عرف عين_نص_التوضيح: لقب setPlaceholderText؛
+  }؛
+
+  عرف مـساحة_نصية: لقب TextView؛
+  @دمج عرف TextView:
+  {
+    عرف حاوية: لقب container؛
+    
+    عرف أنشئ: لقب new؛
+    عرف عين_نمط_اللف: لقب setWrapMode؛
+    عرف اجعله_قابلا_للتعديل: لقب setEditable؛
+    عرف اجعل_مؤشر_الكتابة_مرئي: لقب setCusrorVisible؛
+    عرف عين_المحاذاة: لقب setJustification؛
+  }؛
+
+  عرف شـريط_الحاشية: لقب HeaderBar؛
+  @دمج عرف HeaderBar:
+  {
+    عرف حاوية: لقب container؛
+    
+    عرف أنشئ: لقب new؛
+    عرف عين_عنوانا: لقب setTitle؛
+    عرف عين_عنوانا_فرعيا: لقب setSubtitle؛
+    عرف عين_عنوانا_مخصصا: لقب setCustomTitle؛
+    عرف احشد_في_المقدمة: لقب packStart؛
+    عرف احشد_في_المؤخرة: لقب packEnd؛
+    عرف أظهر_زر_الإغلاق: لقب setShowCloseButton؛
+  }؛
+}؛
+

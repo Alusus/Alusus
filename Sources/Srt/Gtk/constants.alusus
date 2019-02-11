@@ -1,0 +1,62 @@
+@merge def Gtk: module
+{
+  def Orientation:
+  {
+    def HORIZONTAL: 0;
+    def VERTICAL: 1;
+  };
+
+  def MessageType:
+  {
+    def INFO: 0;
+    def WARNING: 1;
+    def QUESTION: 2;
+    def ERROR: 3;
+    def OTHER: 4;
+  };
+
+  def ButtonsType:
+  {
+    def NONE: 0;
+    def OK: 1;
+    def CLOSE: 2;
+    def CANCEL: 3;
+    def YES_NO: 4;
+    def OK_CANCEL: 5;
+  };
+
+  def ButtonBoxStyle:
+  {
+    def SPREAD: 1;
+    def EDGE: 2;
+    def START: 3;
+    def END: 4;
+    def CENTER: 5;
+    def EXPAND: 6;
+  };
+  
+  def SelectionMode:
+  {
+    def NONE: 0;
+    def SINGLE: 1;
+    def BROWSE: 2;
+    def MULTIPLE: 3;
+  };
+  
+  def WrapMode:
+  {
+    def NONE: 0;
+    def CHAR: 1;
+    def WORD: 2;
+    def WORD_CHAR: 3;
+  };
+  
+  def Justification:
+  {
+    def LEFT: 0;
+    def RIGHT: 1;
+    def CENTER: 2;
+    def FILL: 3;
+  };
+};
+

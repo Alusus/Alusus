@@ -15,5 +15,6 @@ import "globals.alusus";
     def concat: @expname[strcat] function (dest: ptr[Char], src: ptr[Char]) => ptr[Char];
     def concat: @expname[strncat] function (dest: ptr[Char], src: ptr[Char], n: Int[64]) => ptr[Char];
     def getLength: @expname[strlen] function (s: ptr[Char]) => Int[64];
+    def print: @expname[sprintf] function (target: ptr[Char], format: ptr[Word[8]], args: ...any) => Int[32];
   };
 };

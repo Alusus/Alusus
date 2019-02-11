@@ -1,0 +1,74 @@
+@merge def Glib: module
+{
+  def connectSignal: @expname[g_signal_connect_data] function (
+    instance: ptr, detailedSignal: ptr[Char], handler: ptr[function], data: ptr,
+    destroyData: ptr[function], flags: Int
+  ) => Word[64];
+  def unref: @expname[g_object_unref] function (p: ptr);
+
+  def Func: alias ptr[function (data: ptr, userData: ptr)];
+  def CompareFunc: alias ptr[function (ptr, ptr)=>Int];
+  def CompareDataFunc: alias ptr[function (a: ptr, b: ptr, data: ptr) => Int];
+  def CopyFunc: alias ptr[function (src: ptr, data: ptr) => ptr];
+  def DestroyNotify: alias ptr[function (data: ptr)];
+
+  def Type: type
+  {
+    def t: Word[64];
+    
+    @shared def init: @expname[g_type_init] function;
+    
+    def INVALID: 0;
+    def NONE: 4;
+    def INTERFACE: 8;
+    def CHAR: 12;
+    def UCHAR: 16;
+    def BOOL: 20;
+    def INT: 24;
+    def UINT: 28;
+    def LONG: 32;
+    def ULONG: 36;
+    def INT64: 40;
+    def UINT64: 44;
+    def ENUM: 48;
+    def FLAGS: 52;
+    def FLOAT: 56;
+    def DOUBLE: 60;
+    def STRING: 64;
+    def POINTER: 68;
+    def BOXED: 72;
+    def PARAM: 76;
+    def OBJECT: 80;
+    def VARIANT: 84;
+  };
+
+  def Value: type
+  {
+    def t: Type;
+    def v: array[Int[64], 2];
+
+    @shared def init: @expname[g_value_init] function (value: ptr[Value], t: Type) => ptr[Value];
+    @shared def setBool: @expname[g_value_set_boolean] function (value: ptr[Value], v: Bool);
+    @shared def getBool: @expname[g_value_get_boolean] function (value: ptr[Value]) => Bool;
+    @shared def setChar: @expname[g_value_set_char] function (value: ptr[Value], c: Char);
+    @shared def getChar: @expname[g_value_get_char] function (value: ptr[Value]) => Char;
+    @shared def setInt: @expname[g_value_set_int] function (value: ptr[Value], i: Int);
+    @shared def getInt: @expname[g_value_get_int] function (value: ptr[Value]) => Int;
+    @shared def setUint: @expname[g_value_set_uint] function (value: ptr[Value], i: Word);
+    @shared def getUint: @expname[g_value_get_uint] function (value: ptr[Value]) => Word;
+    @shared def setInt64: @expname[g_value_set_int64] function (value: ptr[Value], i: Int[64]);
+    @shared def getInt64: @expname[g_value_get_int64] function (value: ptr[Value]) => Int[64];
+    @shared def setUint64: @expname[g_value_set_uint64] function (value: ptr[Value], i: Word[64]);
+    @shared def getUint64: @expname[g_value_get_uint64] function (value: ptr[Value]) => Word[64];
+    @shared def setFloat: @expname[g_value_set_float] function (value: ptr[Value], f: Float);
+    @shared def getFloat: @expname[g_value_get_float] function (value: ptr[Value]) => Float;
+    @shared def setDouble: @expname[g_value_set_double] function (value: ptr[Value], d: Float[64]);
+    @shared def getDouble: @expname[g_value_get_double] function (value: ptr[Value]) => Float[64];
+    @shared def setString: @expname[g_value_set_string] function (value: ptr[Value], s: ptr[Char]);
+    @shared def setStaticString: @expname[g_value_set_static_string] function (value: ptr[Value], s: ptr[Char]);
+    @shared def getString: @expname[g_value_get_string] function (value: ptr[Value]) => ptr[Char];
+    @shared def setPointer: @expname[g_value_set_pointer] function (value: ptr[Value], p: ptr);
+    @shared def getPointer: @expname[g_value_get_pointer] function (value: ptr[Value]) => ptr;
+  };
+};
+
