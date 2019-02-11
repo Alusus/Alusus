@@ -84,6 +84,10 @@ Bool DefParsingHandler::onIncomingModifier(
   auto data = state->getData(levelOffset).get();
   auto definition = ti_cast<Core::Data::Ast::Definition>(data);
 
+  // If we couldn't find a definition, it's probably because of a syntax error.
+  // We'll just ignore the modifier in this case.
+  if (definition == 0) return false;
+
   // Look for merge modifier.
   auto identifier = modifierData.ti_cast_get<Core::Data::Ast::Identifier>();
   if (identifier == 0) return false;
