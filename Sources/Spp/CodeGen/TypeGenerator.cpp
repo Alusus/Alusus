@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TypeGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -32,6 +32,8 @@ void TypeGenerator::initBindingCaches()
     &this->generateFunctionType,
     &this->generateCast,
     &this->generateDefaultValue,
+    &this->generateDefaultArrayValue,
+    &this->generateDefaultUserTypeValue,
     &this->getTypeAllocationSize
   });
 }
@@ -49,6 +51,8 @@ void TypeGenerator::initBindings()
   this->generateFunctionType = &TypeGenerator::_generateFunctionType;
   this->generateCast = &TypeGenerator::_generateCast;
   this->generateDefaultValue = &TypeGenerator::_generateDefaultValue;
+  this->generateDefaultArrayValue = &TypeGenerator::_generateDefaultArrayValue;
+  this->generateDefaultUserTypeValue = &TypeGenerator::_generateDefaultUserTypeValue;
   this->getTypeAllocationSize = &TypeGenerator::_getTypeAllocationSize;
 }
 
@@ -375,32 +379,110 @@ Bool TypeGenerator::_generateDefaultValue(
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
+  if (astType->isDerivedFrom<Spp::Ast::IntegerType>()) {
+    // Generate integer 0
+    auto tgType = tryGetCodeGenData<TiObject>(astType);
+    if (tgType == 0) {
+      if (!typeGenerator->generateType(astType, tg)) return false;
+      tgType = getCodeGenData<TiObject>(astType);
+    }
+
+    auto integerType = static_cast<Spp::Ast::IntegerType*>(astType);
+    auto bitCount = integerType->getBitCount(typeGenerator->astHelper);
+    return tg->generateIntLiteral(tgContext, bitCount, integerType->isSigned(), 0, result);
+  } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
+    // Generate float 0
+    auto tgType = tryGetCodeGenData<TiObject>(astType);
+    if (tgType == 0) {
+      if (!typeGenerator->generateType(astType, tg)) return false;
+      tgType = getCodeGenData<TiObject>(astType);
+    }
+
+    auto floatType = static_cast<Spp::Ast::FloatType*>(astType);
+    auto bitCount = floatType->getBitCount(typeGenerator->astHelper);
+    return tg->generateFloatLiteral(tgContext, bitCount, (Double)0, result);
+  } else if (astType->isDerivedFrom<Spp::Ast::PointerType>()) {
+    // Generate pointer null
+    auto tgType = tryGetCodeGenData<TiObject>(astType);
+    if (tgType == 0) {
+      if (!typeGenerator->generateType(astType, tg)) return false;
+      tgType = getCodeGenData<TiObject>(astType);
+    }
+
+    return tg->generateNullPtrLiteral(tgContext, tgType, result);
+  } else if (astType->isDerivedFrom<Spp::Ast::ArrayType>()) {
+    // Generate zeroed out array.
+    return typeGenerator->generateDefaultArrayValue(static_cast<Ast::ArrayType*>(astType), tg, tgContext, result);
+  } else if (astType->isDerivedFrom<Spp::Ast::UserType>()) {
+    // Generate zeroed out structure.
+    return typeGenerator->generateDefaultUserTypeValue(static_cast<Ast::UserType*>(astType), tg, tgContext, result);
+  } else {
+    throw EXCEPTION(GenericException, S("Invlid type for generation of default value."));
+  }
+}
+
+
+Bool TypeGenerator::_generateDefaultArrayValue(
+  TiObject *self, Spp::Ast::ArrayType *astType, TargetGeneration *tg, TiObject *tgContext, TioSharedPtr &result
+) {
+  PREPARE_SELF(typeGenerator, TypeGenerator);
+
   auto tgType = tryGetCodeGenData<TiObject>(astType);
   if (tgType == 0) {
     if (!typeGenerator->generateType(astType, tg)) return false;
     tgType = getCodeGenData<TiObject>(astType);
   }
 
-  if (astType->isDerivedFrom<Spp::Ast::IntegerType>()) {
-    // Generate integer 0
-    auto integerType = static_cast<Spp::Ast::IntegerType*>(astType);
-    auto bitCount = integerType->getBitCount(typeGenerator->astHelper);
-    return tg->generateIntLiteral(tgContext, bitCount, integerType->isSigned(), 0, result);
-  } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
-    // Generate float 0
-    auto floatType = static_cast<Spp::Ast::FloatType*>(astType);
-    auto bitCount = floatType->getBitCount(typeGenerator->astHelper);
-    return tg->generateFloatLiteral(tgContext, bitCount, (Double)0, result);
-  } else if (astType->isDerivedFrom<Spp::Ast::PointerType>()) {
-    // Generate pointer null
-    return tg->generateNullPtrLiteral(tgContext, tgType, result);
-  } else if (astType->isDerivedFrom<Spp::Ast::ArrayType>()) {
-    throw EXCEPTION(GenericException, S("Array default values are not implemented yet."));
-  } else if (astType->isDerivedFrom<Spp::Ast::UserType>()) {
-    throw EXCEPTION(GenericException, S("Struct default values are not implemented yet."));
-  } else {
-    throw EXCEPTION(GenericException, S("Invlid type for generation of default value."));
+  auto elementAstType = astType->getContentType(typeGenerator->astHelper);
+  auto elementTgType = tryGetCodeGenData<TiObject>(elementAstType);
+  if (elementTgType == 0) {
+    if (!typeGenerator->generateType(elementAstType, tg)) return false;
+    elementTgType = getCodeGenData<TiObject>(elementAstType);
   }
+
+  TioSharedPtr elementVal;
+  if (!typeGenerator->generateDefaultValue(elementAstType, tg, tgContext, elementVal)) return false;
+
+  auto size = astType->getSize(typeGenerator->astHelper);
+  SharedList<TiObject> memberVals;
+  for (Word i = 0; i < size; ++i) {
+    memberVals.add(elementVal);
+  }
+
+  return tg->generateArrayLiteral(tgContext, tgType, &memberVals, result);
+}
+
+
+Bool TypeGenerator::_generateDefaultUserTypeValue(
+  TiObject *self, Spp::Ast::UserType *astType, TargetGeneration *tg, TiObject *tgContext, TioSharedPtr &result
+) {
+  PREPARE_SELF(typeGenerator, TypeGenerator);
+
+  auto tgType = tryGetCodeGenData<TiObject>(astType);
+  if (tgType == 0) {
+    if (!typeGenerator->generateType(astType, tg)) return false;
+    tgType = getCodeGenData<TiObject>(astType);
+  }
+
+  auto body = astType->getBody().get();
+  SharedList<TiObject> memberVals;
+  PlainMap<TiObject> memberTypes;
+  for (Int i = 0; i < body->getElementCount(); ++i) {
+    auto def = ti_cast<Core::Data::Ast::Definition>(body->getElement(i));
+    if (def != 0 && typeGenerator->getAstHelper()->getDefinitionDomain(def) == Ast::DefinitionDomain::OBJECT) {
+      auto obj = def->getTarget().get();
+      if (typeGenerator->getAstHelper()->isAstReference(obj)) {
+        TiObject *tgMemberType;
+        Ast::Type *astMemberType;
+        if (!typeGenerator->getGeneratedType(obj, tg, tgMemberType, &astMemberType)) return false;
+        memberTypes.addElement(def->getName().get(), tgMemberType);
+        TioSharedPtr memberVal;
+        if (!typeGenerator->generateDefaultValue(astMemberType, tg, tgContext, memberVal)) return false;
+        memberVals.add(memberVal);
+      }
+    }
+  }
+  return tg->generateStructLiteral(tgContext, tgType, &memberTypes, &memberVals, result);
 }
 
 

@@ -1,8 +1,7 @@
 ERROR CP1005 @ (11,10): Unexpected modifier encountered.
 ERROR CP1005 @ (15,10): Unexpected modifier encountered.
 ERROR CP1005 @ (19,10): Unexpected modifier encountered.
-ERROR SPPH1003 @ (27,18): Invalid function signature.
-ERROR CD1003 @ (27,1): Invalid 'def' command.
+ERROR SPPH1006 @ (36,28): Invalid function arg name.
 ------------------ Parsed Data Dump ------------------
 Function f1 [Main.Function]
  type: FunctionType [Main.Function]
@@ -72,4 +71,25 @@ Function f7 [Main.Function]
      param: IntegerLiteral: 8 [Subject.Literal]
   retType: NULL
  body: NULL
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
+  argTypes: Map
+   __0: Identifier: x [Subject.Parameter]
+  retType: Identifier: void [Subject.Parameter]
+ body: Block [Main.BlockStatements.StmtList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
+  argTypes: Map
+   x: LinkOperator . [Expression.LinkExp]
+    first: Identifier: Module [Subject.Parameter]
+    second: Identifier: Type [Subject.Parameter]
+   __1: LinkOperator . [Expression.LinkExp]
+    first: Identifier: Module [Subject.Parameter]
+    second: Identifier: Type [Subject.Parameter]
+  retType: NULL
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------

@@ -35,12 +35,16 @@ class UseStatement;
 //==============================================================================
 // Types
 
-/**
- * @ingroup spp_ast
- */
+/// @ingroup spp_ast
 ti_s_enum(TypeMatchStatus,
   TiInt, "Spp.Ast", "Spp", "alusus.net",
   NONE = 0, EXPLICIT_CAST = 1, IMPLICIT_CAST = 2, PROMOTION = 3, AGGREGATION = 4, DEREFERENCE = 5, EXACT = 6
+);
+
+/// @ingroup spp_ast
+ti_s_enum(DefinitionDomain,
+  TiInt, "Spp.Ast", "Spp", "alusus.net",
+  FUNCTION = 0, OBJECT = 1, GLOBAL = 2
 );
 
 } // namespace

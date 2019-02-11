@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.cpp
  * Contains the implementation of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -214,6 +214,7 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   auto inProgress = TiBool::create(true);
   setCodeGenData(body, inProgress);
 
+  // Generate the structure.
   Bool result = true;
   PlainList<TiObject> members;
   PlainMap<TiObject> tgMemberTypes;
@@ -221,23 +222,25 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   for (Int i = 0; i < body->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
     if (def != 0) {
-      auto obj = def->getTarget().get();
-      if (generator->getAstHelper()->isAstReference(obj)) {
-        TiObject *tgType;
-        Ast::Type *astMemberType;
-        if (!generator->typeGenerator->getGeneratedType(obj, tg, tgType, &astMemberType)) {
-          result = false;
+      if (generator->astHelper->getDefinitionDomain(def) != Ast::DefinitionDomain::GLOBAL) {
+        auto obj = def->getTarget().get();
+        if (generator->getAstHelper()->isAstReference(obj)) {
+          TiObject *tgType;
+          Ast::Type *astMemberType;
+          if (!generator->typeGenerator->getGeneratedType(obj, tg, tgType, &astMemberType)) {
+            result = false;
+            continue;
+          }
+          Ast::setAstType(obj, astMemberType);
+          tgMemberTypes.add(def->getName().get(), tgType);
+          members.add(obj);
+        } else if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
+          if (!generation->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) result = false;
           continue;
         }
-        Ast::setAstType(obj, astMemberType);
-        tgMemberTypes.add(def->getName().get(), tgType);
-        members.add(obj);
-      } else if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
-        if (!generation->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) result = false;
-        continue;
+        // TODO: Generate member functions.
+        // TODO: Generate subtypes.
       }
-      // TODO: Generate member functions.
-      // TODO: Generate subtypes.
     }
   }
   if (!result) return false;
@@ -250,6 +253,21 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
     setCodeGenData(members.get(i), tgMembers.get(i));
   }
   inProgress->set(false);
+
+  // Generate static mbmbers.
+  for (Int i = 0; i < body->getCount(); ++i) {
+    auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
+    if (def != 0) {
+      if (generator->astHelper->getDefinitionDomain(def) == Ast::DefinitionDomain::GLOBAL) {
+        auto obj = def->getTarget().get();
+        if (generator->getAstHelper()->isAstReference(obj)) {
+          if (!generation->generateVarDef(def, tg)) result = false;
+        } else if (obj->isDerivedFrom<Spp::Ast::Function>()) {
+          if (!generation->generateFunction(static_cast<Spp::Ast::Function*>(obj), tg)) result = false;
+        }
+      }
+    }
+  }
 
   return true;
 }
@@ -294,9 +312,8 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
     Ast::setAstType(astVar, astType);
 
-    auto astBlock = Core::Data::findOwner<Ast::Block>(definition);
-    if (ti_cast<Ast::Module>(astBlock) != 0) {
-      // Generate a global variable.
+    if (generator->getAstHelper()->getDefinitionDomain(definition) == Ast::DefinitionDomain::GLOBAL) {
+      // Generate a global or a static variable.
       // Generate global name.
       Str name = std::regex_replace(
         generator->getAstHelper()->resolveNodePath(definition), std::regex("[^a-zA-Z0-9_]"), S("_")
@@ -315,6 +332,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       }
       setCodeGenData(astVar, tgGlobalVar);
     } else {
+      auto astBlock = Core::Data::findOwner<Ast::Block>(definition);
       if (ti_cast<Ast::Type>(astBlock->getOwner()) != 0) {
         // This should never happen.
         throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));

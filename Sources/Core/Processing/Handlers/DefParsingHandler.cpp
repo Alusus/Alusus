@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/DefParsingHandler.cpp
  * Contains the implementation of Core::Processing::Handlers::DefParsingHandler.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -78,21 +78,45 @@ Bool DefParsingHandler::onIncomingModifier(
 ) {
   if (!prodProcessingComplete) return false;
 
+  // Prepare to modify.
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  this->prepareToModifyData(state, levelOffset);
+  auto data = state->getData(levelOffset).get();
+  auto definition = ti_cast<Core::Data::Ast::Definition>(data);
+
+  // If we couldn't find a definition, it's probably because of a syntax error.
+  // We'll just ignore the modifier in this case.
+  if (definition == 0) return false;
+
   // Look for merge modifier.
   auto identifier = modifierData.ti_cast_get<Core::Data::Ast::Identifier>();
   if (identifier == 0) return false;
   auto symbolDef = state->refTopProdLevel().getProd();
   if (symbolDef->getTranslatedModifierKeyword(identifier->getValue().get()) == S("merge")) {
     // Set toMerge in the definition.
-    Int levelOffset = -state->getTopProdTermLevelCount();
-    this->prepareToModifyData(state, levelOffset);
-    auto data = state->getData(levelOffset).get();
-    auto definition = ti_cast<Core::Data::Ast::Definition>(data);
     definition->setToMerge(true);
-    return true;
+  } else {
+    // Add an unknown modifier.
+    this->translateModifier(symbolDef, modifierData.get());
+    definition->addModifier(modifierData);
   }
 
-  return false;
+  return true;
+}
+
+
+void DefParsingHandler::translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *modifier)
+{
+  if (modifier->isDerivedFrom<Data::Ast::Identifier>()) {
+    auto identifier = static_cast<Data::Ast::Identifier*>(modifier);
+    identifier->setValue(symbolDef->getTranslatedModifierKeyword(identifier->getValue().get()).c_str());
+  } else if (modifier->isDerivedFrom<Data::Ast::LinkOperator>()) {
+    auto link = static_cast<Data::Ast::LinkOperator*>(modifier);
+    this->translateModifier(symbolDef, link->getFirst().get());
+  } else if (modifier->isDerivedFrom<Data::Ast::ParamPass>()) {
+    auto paramPass = static_cast<Data::Ast::ParamPass*>(modifier);
+    this->translateModifier(symbolDef, paramPass->getOperand().get());
+  }
 }
 
 } // namespace

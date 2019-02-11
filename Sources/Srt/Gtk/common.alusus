@@ -1,0 +1,71 @@
+@merge def Gtk: module
+{
+  def Callback: alias ptr[function (widget: ptr[Widget], data: ptr)];
+
+  def App: type
+  {
+    @shared def new: @expname[gtk_application_new] function (appId: ptr[Char], flags: Int) => ptr[App];
+    @shared def exec: @expname[g_application_run] function (app: ptr[App], argc: Int, argv: ptr[ptr[Char]]) => Int;
+  };
+
+  def Widget: type
+  {
+    @shared def destroy: @expname[gtk_widget_destroy] function (widget: ptr[Widget]);
+    @shared def show: @expname[gtk_widget_show] function (widget: ptr[Widget]);
+    @shared def showNow: @expname[gtk_widget_show_now] function (widget: ptr[Widget]);
+    @shared def hide: @expname[gtk_widget_hide] function (widget: ptr[Widget]);
+    @shared def showAll: @expname[gtk_widget_show_all] function (widget: ptr[Widget]);
+    @shared def setVisible: @expname[gtk_widget_set_visible] function (widget: ptr[Widget], visible: Bool);
+  };
+
+  def Container: type
+  {
+    def widget: Widget;
+
+    @shared def add: @expname[gtk_container_add] function (container: ptr[Container], widget: ptr[Widget]);
+    @shared def remove: @expname[gtk_container_remove] function (container: ptr[Container], widget: ptr[Widget]);
+    @shared def addWithProperties: @expname[gtk_container_add_with_properties] function (container: ptr[Container], widget: ptr[Widget], firstPropName: ptr[Char], ...any);
+    @shared def foreach: @expname[gtk_container_foreach] function (container: ptr[Container], callback: Callback, data: ptr);
+    @shared def getChildren: @expname[gtk_container_get_children] function (container: ptr[Container]) => ptr[Glib.List];
+    @shared def getFocusChild: @expname[gtk_container_get_focus_child] function (container: ptr[Container]) => ptr[Widget];
+    @shared def setFocusChild: @expname[gtk_container_set_focus_child] function (container: ptr[Container], child: ptr[Widget]);
+    @shared def getChildProps: @expname[gtk_container_child_get] function (container: ptr[Container], child: ptr[Widget], firstPropName: ptr[Char], ...any);
+    @shared def setChildProps: @expname[gtk_container_child_set] function (container: ptr[Container], child: ptr[Widget], firstPropName: ptr[Char], ...any);
+    @shared def getBorderWidth: @expname[gtk_container_get_border_width] function (container: ptr[Container]) => Word;
+    @shared def setBorderWidth: @expname[gtk_container_set_border_width] function (container: ptr[Container], width: Word);
+  };
+
+  def TextBuffer: type
+  {
+    @shared def new: @expname[gtk_text_buffer_new] function (table: ptr) => ptr[TextBuffer];
+    @shared def setText: @expname[gtk_text_buffer_set_text] function (buf: ptr[TextBuffer], text: ptr[Char], len: Int);
+    @shared def getText: @expname[gtk_text_buffer_get_text] function (buf: ptr[TextBuffer], start: ptr[TextIter], end: ptr[TextIter], includeHidden: Bool) => ptr[Char];
+    @shared def getStartIter: @expname[gtk_text_buffer_get_start_iter] function (buf: ptr[TextBuffer], ptr[TextIter]);
+    @shared def getEndIter: @expname[gtk_text_buffer_get_end_iter] function (buf: ptr[TextBuffer], ptr[TextIter]);
+  };
+
+  def TextIter: type
+  {
+    def dummy1: ptr;
+    def dummy2: ptr;
+    def dummy3: Int;
+    def dummy4: Int;
+    def dummy5: Int;
+    def dummy6: Int;
+    def dummy7: Int;
+    def dummy8: Int;
+    def dummy9: ptr;
+    def dummy10: ptr;
+    def dummy11: Int;
+    def dummy12: Int;
+    // padding
+    def dummy13: Int;
+    def dummy14: ptr;
+  };
+
+  def Editable: type
+  {
+    @shared def getChars: @expname[gtk_editable_get_chars] function (editable: ptr[Editable], start: Int, end: Int) => ptr[Char];
+  };
+};
+

@@ -2,7 +2,7 @@
  * @file Core/Basic/binding_caches.h
  * Contains the header of interface Core::Basic::binding_caches.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -146,7 +146,7 @@ template<class T> class BindingCache : public BindingCacheBase
   public: SharedPtr<T> const& get() const
   {
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     if (this->index == -1) return SharedPtr<T>::null;
     else return this->bindingMap->get(this->index);
@@ -156,7 +156,7 @@ template<class T> class BindingCache : public BindingCacheBase
   {
     if (this->index == -1) {
       if (this->bindingMap == 0) {
-        throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+        throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
       }
       this->index = this->bindingMap->set(this->name, o);
     } else {
@@ -213,7 +213,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -222,7 +222,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -231,7 +231,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -241,7 +241,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   ) {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -250,7 +250,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     return this->bindingMap->updateFunction(this->name, currentTifn, fn);
   }
@@ -259,7 +259,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(newTifn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     this->bindingMap->updateFunctionChain(this->name, currentTifn, newTifn);
   }
@@ -268,7 +268,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(currentTifn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     this->bindingMap->resetFunction(this->name, currentTifn);
   }
@@ -277,7 +277,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
   {
     VALIDATE_NOT_NULL(currentTifn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     this->bindingMap->resetFunctionChain(this->name, currentTifn);
   }
@@ -360,7 +360,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -370,7 +370,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   ) {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -379,7 +379,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -389,7 +389,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   ) {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     return this->bindingMap->setFunction(this->name, fn);
   }
@@ -399,7 +399,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Bindign cache not initialized yet."));
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
     return this->bindingMap->updateFunction(this->name, currentTifn, fn);
   }

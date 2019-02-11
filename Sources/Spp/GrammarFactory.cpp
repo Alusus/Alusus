@@ -36,6 +36,9 @@ void GrammarFactory::createGrammar(
   auto innerCmdList = this->getInnerCommandsList();
   auto tildeCmdList = this->getTildeCommandsList();
 
+  // Add translation for shared modifier.
+  this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("shared")));
+
   //// DumpIr = "dump_ir" + Subject
   this->set(S("root.Main.DumpLlvmIr"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
@@ -631,6 +634,9 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   auto leadingCmdList = this->getLeadingCommandsList();
   auto innerCmdList = this->getInnerCommandsList();
   auto tildeCmdList = this->getTildeCommandsList();
+
+  // Add translation for static modifier.
+  this->remove(S("root.Main.Def.modifierTranslations.مشترك"));
 
   // Remove commands from tilde commands list.
   this->removeReferenceFromCommandList(tildeCmdList, S("module.SizeTilde"));

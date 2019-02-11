@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/NoOpTargetGenerator.h
  * Contains the header of class Spp::CodeGen::NoOpTargetGenerator.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -436,6 +436,16 @@ class NoOpTargetGenerator : public TiObject, public virtual DynamicBinding, publ
 
   public: Bool generateNullPtrLiteral(
     TiObject *context, TiObject *type, TioSharedPtr &destVal
+  ) { return true; }
+
+  public: Bool generateStructLiteral(
+    TiObject *context, TiObject *type, MapContaining<TiObject> *membersTypes, Containing<TiObject> *membersVals,
+    TioSharedPtr &destVal
+  ) { return true; }
+
+  public: Bool generateArrayLiteral(
+    TiObject *context, TiObject *type, Containing<TiObject> *membersVals,
+    TioSharedPtr &destVal
   ) { return true; }
 
   /// @}

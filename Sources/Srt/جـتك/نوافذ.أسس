@@ -1,0 +1,47 @@
+اشمل "Gtk/windows.alusus"؛
+
+@دمج عرف Gtk: حزمة
+{
+  عرف نـافذة: لقب Window؛
+  @دمج عرف Window:
+  {
+    عرف حاوية: لقب container؛
+    
+    عرف عين_عنوانا: لقب setTitle؛
+    عرف عين_شريط_عنوان: لقب setTitlebar؛
+    عرف مكن_التحجيم: لقب setResiable؛
+    عرف اجعلها_مودال: لقب setModal؛
+    عرف عين_الحجم_المبدئي: لقب setDefaultSize؛
+    عرف اجعلها_زائلة_لأجل: لقب setTransientFor؛
+    عرف اجعلها_تمزق_مع_مالكها: لقب setDestroyWithParent؛
+    عرف أهي_فعالة: لقب isActive؛
+    عرف هات_النشيط: لقب getFocus؛
+    عرف عين_النشيط: لقب setFocus؛
+    عرف أغلق: لقب close؛
+  }؛
+  
+  عرف نـافذة_تطبيق: لقب AppWindow؛
+  @دمج عرف AppWindow:
+  {
+    عرف نافذة: لقب window؛
+
+    عرف أنشئ: لقب new؛
+  }؛
+  
+  عرف حـوارية: لقب Dialog؛
+  @دمج عرف Dialog:
+  {
+    عرف نافذة: لقب window؛
+
+    عرف شغل: لقب exec؛
+  }؛
+  
+  عرف حـوارية_رسالة: لقب MessageDialog؛
+  @دمج عرف MessageDialog:
+  {
+    عرف حوارية: لقب dialog؛
+
+    عرف أنشئ: لقب new؛
+  }؛
+}؛
+

@@ -177,6 +177,12 @@ DEFINE_NOTICE(InvalidMacroNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1018"
 DEFINE_NOTICE(InvalidUseStatementNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1019", 1,
   "Use statement not pointing to a valid target."
 );
+DEFINE_NOTICE(InvalidObjectMemberAccessNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1020", 1,
+  "Invalid access to object member."
+);
+DEFINE_NOTICE(InvalidGlobalDefAccessNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1021", 1,
+  "Invalid access to global definition."
+);
 
 } // namespace
 

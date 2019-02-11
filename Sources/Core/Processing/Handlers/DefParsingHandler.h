@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/DefParsingHandler.h
  * Contains the header of Core::Processing::Handlers::DefParsingHandler.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -41,6 +41,8 @@ class DefParsingHandler : public GenericParsingHandler
     Core::Processing::Parser *parser, Core::Processing::ParserState *state,
     TioSharedPtr const &modifierData, Bool prodProcessingComplete
   );
+
+  private: void translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *modifier);
 
 }; // class
 

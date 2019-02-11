@@ -29,6 +29,8 @@ def Main: module
     def yref: alias y;
   };
 
+  def gpoint: MyPoint;
+
   def MyNested: type
   {
     def p: MyPoint;
@@ -100,6 +102,9 @@ def Main: module
 
     print("p.xref=%d\n", p.xref);
     print("p.yref=%d\n", p.yref);
+
+    print("gpoint.x = %d\n", gpoint.x);
+    print("gpoing.y = %d\n", gpoint.y);
   }
 };
 

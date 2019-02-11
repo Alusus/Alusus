@@ -10,6 +10,7 @@ def Main: module
   def gf: Float[32];
   def gpf: ptr[Float[32]];
   def gbf: Float[64];
+  def garr: array[Int[32], 10];
 
   def main: function () => Void
   {
@@ -49,6 +50,8 @@ def Main: module
     testVarOverride();
     print("%d\n", gi);
 
+    testGlobals();
+
     testOtherModules();
 
     Other = 5;
@@ -74,6 +77,16 @@ def Main: module
     def gi: Int[32];
     gi = 60;
     print("%d\n", gi);
+  };
+
+  def testGlobals: function
+  {
+    gpi = gi~ptr;
+    gi = 10;
+    print("%d\n", gpi~cnt);
+    def i: Int[32];
+    for i = 0, i < 10, ++i print("%d ", garr(i));
+    print("\n");
   };
 
   def testOtherModules: function ()=>Void

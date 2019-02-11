@@ -1,0 +1,26 @@
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatements.StmtList]
+ Definition [Main.Def] MyType: UserType [Main.Type]
+  body: Block [Main.BlockStatements.StmtList]
+   Definition [Main.Def] x: Identifier: Int [Subject.Parameter]
+   Definition [Main.Def] y
+    modifiers:
+     Identifier: shared [Subject.Parameter]
+    target: Identifier: Int [Subject.Parameter]
+   Definition [Main.Def] t
+    modifiers:
+     Identifier: shared [Subject.Parameter]
+    target: Identifier: MyType [Subject.Parameter]
+   Definition [Main.Def] printIt
+    modifiers:
+     Identifier: shared [Subject.Parameter]
+    target: Function  [Main.Function]
+      type: FunctionType [Main.Function]
+       argTypes: NULL
+       retType: NULL
+      body: Block [Main.BlockStatements.StmtList]
+       Definition [Main.Def] z
+        modifiers:
+         Identifier: shared [Subject.Parameter]
+        target: Identifier: Int [Subject.Parameter]
+------------------------------------------------------

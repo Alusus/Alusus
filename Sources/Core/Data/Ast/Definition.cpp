@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Definition.cpp
  * Contains the implementation of class Core::Data::Ast::Definition.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -44,8 +44,25 @@ void Definition::print(OutStream &stream, Int indents) const
   if (this->isToMerge()) {
     stream << S(" <to merge>");
   }
-  stream << S(": ");
-  dumpData(stream, this->target.get(), indents);
+  if (this->modifiers != 0 && this->modifiers->getCount() > 0) {
+    stream << S("\n");
+    printIndents(stream, indents+1);
+    stream << S("modifiers:\n");
+    for (Int i = 0; i < this->modifiers->getCount(); ++i) {
+      auto modifier = this->modifiers->get(i).ti_cast_get<Printable>();
+      if (modifier != 0) {
+        printIndents(stream, indents+2);
+        modifier->print(stream, indents+2);
+      }
+    }
+    stream << S("\n");
+    printIndents(stream, indents+1);
+    stream << S("target: ");
+    dumpData(stream, this->target.get(), indents+2);
+  } else {
+    stream << S(": ");
+    dumpData(stream, this->target.get(), indents);
+  }
 }
 
 } } } // namespace

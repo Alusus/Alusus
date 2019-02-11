@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.h
  * Contains the header of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -251,6 +251,11 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
 
   public: METHOD_BINDING_CACHE(getNeededWordSize, Word, (LongWord));
   private: static Word _getNeededWordSize(TiObject *self, LongWord value);
+
+  public: METHOD_BINDING_CACHE(getDefinitionDomain, DefinitionDomain, (TiObject const*));
+  private: static DefinitionDomain _getDefinitionDomain(TiObject *self, TiObject const *def);
+
+  public: Bool isSharedDef(Core::Data::Ast::Definition const *def);
 
   /// @}
 
