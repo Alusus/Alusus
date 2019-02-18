@@ -2,6 +2,15 @@
 
 @دمج عرف Gtk: حزمة
 {
+  عرف إشـارة:
+  {
+    عرف _تفعيل_: لقب Signal.ACTIVATE؛
+    عرف _نقر_: لقب Signal.CLICKED؛
+    عرف _اختير_السطر_: لقب Signal.ROW_SELECTED؛
+    عرف _تغير_: لقب Signal.CHANGED؛
+    عرف _بدل_: لقب Signal.TOGGLED؛
+  }؛
+
   عرف اتـجاه:
   {
     عرف _أفقي_: لقب Orientation.HORIZONTAL؛

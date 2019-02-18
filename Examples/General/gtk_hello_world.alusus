@@ -10,7 +10,7 @@ def HelloWorld: module
     def status: Int;
 
     app = Gtk.App.new("org.alusus.gtk-hello-world", 0);
-    Glib.connectSignal(app, "activate", activate~ptr~cast[ptr[function]], 0, 0, 0);
+    Glib.connectSignal(app, Gtk.Signal.ACTIVATE, activate~ptr~cast[ptr[function]], 0, 0, 0);
     status = Gtk.App.exec(app, 0, 0);
     Glib.unref(app);
   };
@@ -35,11 +35,11 @@ def HelloWorld: module
     Gtk.ButtonBox.setLayout(buttonBox, Gtk.ButtonBoxStyle.SPREAD);
 
     aboutButton = Gtk.Button.newWithLabel("About");
-    Glib.connectSignal(aboutButton, "clicked", onAboutClicked~ptr~cast[ptr[function]], 0, 0, 0);
+    Glib.connectSignal(aboutButton, Gtk.Signal.CLICKED, onAboutClicked~ptr~cast[ptr[function]], 0, 0, 0);
     Gtk.Container.add(buttonBox, aboutButton);
 
     quitButton = Gtk.Button.newWithLabel("Quit");
-    Glib.connectSignal(quitButton, "clicked", onQuitClicked~ptr~cast[ptr[function]], 0, 0, 0);
+    Glib.connectSignal(quitButton, Gtk.Signal.CLICKED, onQuitClicked~ptr~cast[ptr[function]], 0, 0, 0);
     Gtk.Container.add(buttonBox, quitButton);
 
     Gtk.Box.packStart(box, label, 1, 0, 0);

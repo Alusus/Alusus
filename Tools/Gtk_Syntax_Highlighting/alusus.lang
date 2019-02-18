@@ -2,7 +2,7 @@
 <!--
  Alusus Language Sytnax Highlighting
  Author: Sarmad Khalid Abdullah <sarmad@alusus.org>
- Copyright (C) 2015 Sarmad Khalid Abdullah <sarmad@alusus.org>
+ Copyright (C) 2019 Sarmad Khalid Abdullah <sarmad@alusus.org>
 -->
 <language id="alusus" _name="Alusus" version="2.0" _section="Sources">
   <metadata>
@@ -20,6 +20,8 @@
     <style id="type"              _name="Data Type"                 map-to="def:type"/>
     <style id="modifier"          _name="Modifier"                  map-to="def:preprocessor"/>
     <style id="constant"          _name="Constant"                  map-to="def:constant"/>
+    <style id="punctuation"       _name="Punctuation"               map-to="def:statement"/>
+    <style id="square-brackets"   _name="Square Brackets"           map-to="def:preprocessor"/>
   </styles>
 
   <definitions>
@@ -31,6 +33,14 @@
       u[0-9]{1,4}       # unicode char
       )
     </define-regex>
+
+    <context id="punctuation" style-ref="punctuation">
+      <match>[\.\(\)\{\},;،؛:+=*/&lt;&gt;-]</match>
+    </context>
+
+    <context id="square-brackets" style-ref="square-brackets">
+      <match>[\[\]]</match>
+    </context>
 
     <context id="string" style-ref="literal" end-at-line-end="true" class="string" class-disabled="no-spell-check">
       <start>"</start>
@@ -177,9 +187,9 @@
     <context id="alusus" class="no-spell-check">
       <include>
         <context ref="def:c-like-comment"/>
-        <context ref="def:c-like-comment-multiline"/>
-        <context ref="def:c-like-close-comment-outside-comment"/>
 
+        <context ref="punctuation"/>
+        <context ref="square-brackets"/>
         <context ref="string"/>
         <context ref="char"/>
         <context ref="numeric"/>

@@ -410,9 +410,12 @@ Bool Generator::_generateStatement(
         std::make_shared<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
       );
       return false;
-    } else {
+    } else if (generator->getAstHelper()->isAstReference(target)) {
       // Generate local variable.
       return generation->generateVarDef(def, tg);
+    } else {
+      // TODO: Make sure the definition is a literal.
+      return true;
     }
   } else if (astNode->isDerivedFrom<Spp::Ast::IfStatement>()) {
     auto ifStatement = static_cast<Spp::Ast::IfStatement*>(astNode);
