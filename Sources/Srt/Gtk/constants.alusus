@@ -1,5 +1,14 @@
 @merge def Gtk: module
 {
+  def Signal:
+  {
+    def ACTIVATE: "activate";
+    def CLICKED: "clicked";
+    def ROW_SELECTED: "row_selected";
+    def CHANGED: "changed";
+    def TOGGLED: "toggled";
+  };
+
   def Orientation:
   {
     def HORIZONTAL: 0;

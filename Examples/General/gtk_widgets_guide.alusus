@@ -11,7 +11,7 @@ def WidgetGuide: module
     def status: Int;
 
     app = Gtk.App.new("org.alusus.gtk-widget-guide", 0);
-    Glib.connectSignal(app, "activate", activate~ptr~cast[ptr[function]], 0, 0, 0);
+    Glib.connectSignal(app, Gtk.Signal.ACTIVATE, activate~ptr~cast[ptr[function]], 0, 0, 0);
     status = Gtk.App.exec(app, 0, 0);
     Glib.unref(app);
   };
@@ -62,12 +62,12 @@ def WidgetGuide: module
 
     def aboutButton: ptr[Gtk.Button];
     aboutButton = Gtk.Button.newWithLabel("About");
-    Glib.connectSignal(aboutButton, "clicked", onAboutClicked~ptr~cast[ptr[function]], 0, 0, 0);
+    Glib.connectSignal(aboutButton, Gtk.Signal.CLICKED, onAboutClicked~ptr~cast[ptr[function]], 0, 0, 0);
     Gtk.HeaderBar.packStart(headerBar, aboutButton);
 
     def quitButton: ptr[Gtk.Button];
     quitButton = Gtk.Button.newWithLabel("Quit");
-    Glib.connectSignal(quitButton, "clicked", onQuitClicked~ptr~cast[ptr[function]], 0, 0, 0);
+    Glib.connectSignal(quitButton, Gtk.Signal.CLICKED, onQuitClicked~ptr~cast[ptr[function]], 0, 0, 0);
     Gtk.HeaderBar.packEnd(headerBar, quitButton);
 
     createMenu(headerBar);
@@ -82,11 +82,11 @@ def WidgetGuide: module
 
     def item: ptr[Gtk.MenuItem];
     item = Gtk.MenuItem.new("About");
-    Glib.connectSignal(item, "activate", onAboutClicked~ptr~cast[ptr[function]], 0, 0, 0);
+    Glib.connectSignal(item, Gtk.Signal.ACTIVATE, onAboutClicked~ptr~cast[ptr[function]], 0, 0, 0);
     Gtk.MenuShell.append(menu, item);
     Gtk.Widget.show(item);
     item = Gtk.MenuItem.new("Quit");
-    Glib.connectSignal(item, "activate", onQuitClicked~ptr~cast[ptr[function]], 0, 0, 0);
+    Glib.connectSignal(item, Gtk.Signal.ACTIVATE, onQuitClicked~ptr~cast[ptr[function]], 0, 0, 0);
     Gtk.MenuShell.append(menu, item);
     Gtk.Widget.show(item);
     
@@ -111,7 +111,7 @@ def WidgetGuide: module
       Gtk.ListBox.insert(listBox, label, -1);
     };
     
-    Glib.connectSignal(listBox, "row-selected", onListBoxSelectionChanged~ptr~cast[ptr[function]], label, 0, 0);
+    Glib.connectSignal(listBox, Gtk.Signal.ROW_SELECTED, onListBoxSelectionChanged~ptr~cast[ptr[function]], label, 0, 0);
   };
 
   def createLogoAndLabel: function (box: ptr[Gtk.Box]) => ptr[Gtk.Label]
@@ -134,7 +134,7 @@ def WidgetGuide: module
     entry = Gtk.Entry.new();
 
     Gtk.Box.packStart(box, entry, 1, 0, 0);
-    Glib.connectSignal(entry, "changed", onEntryChanged~ptr~cast[ptr[function]], label, 0, 0);
+    Glib.connectSignal(entry, Gtk.Signal.CHANGED, onEntryChanged~ptr~cast[ptr[function]], label, 0, 0);
   };
 
   def createTextView: function (box: ptr[Gtk.Box]) => ptr[Gtk.TextBuffer]
@@ -156,10 +156,10 @@ def WidgetGuide: module
     buttonBox = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL);
     Gtk.ButtonBox.setLayout(buttonBox, Gtk.ButtonBoxStyle.SPREAD);
     sayButton = Gtk.Button.newWithLabel("Say");
-    Glib.connectSignal(sayButton, "clicked", onSayClicked~ptr~cast[ptr[function]], buffer, 0, 0);
+    Glib.connectSignal(sayButton, Gtk.Signal.CLICKED, onSayClicked~ptr~cast[ptr[function]], buffer, 0, 0);
     Gtk.Container.add(buttonBox, sayButton);
     clearButton = Gtk.Button.newWithLabel("Clear");
-    Glib.connectSignal(clearButton, "clicked", onClearClicked~ptr~cast[ptr[function]], buffer, 0, 0);
+    Glib.connectSignal(clearButton, Gtk.Signal.CLICKED, onClearClicked~ptr~cast[ptr[function]], buffer, 0, 0);
     Gtk.Container.add(buttonBox, clearButton);
     Gtk.Box.packStart(box, buttonBox, 1, 0, 0);
   };
@@ -169,7 +169,7 @@ def WidgetGuide: module
     def button: ptr[Gtk.ToggleButton];
     button = Gtk.ToggleButton.new("Toggle");
     Gtk.Box.packStart(box, button, 1, 0, 0);
-    Glib.connectSignal(button, "toggled", onToggleChanged~ptr~cast[ptr[function]], label, 0, 0);
+    Glib.connectSignal(button, Gtk.Signal.TOGGLED, onToggleChanged~ptr~cast[ptr[function]], label, 0, 0);
   };
 
   def createCheckButton: function (box: ptr[Gtk.Box], label: ptr[Gtk.Label])
@@ -177,7 +177,7 @@ def WidgetGuide: module
     def button: ptr[Gtk.CheckButton];
     button = Gtk.CheckButton.new("Check");
     Gtk.Box.packStart(box, button, 1, 0, 0);
-    Glib.connectSignal(button, "toggled", onToggleChanged~ptr~cast[ptr[function]], label, 0, 0);
+    Glib.connectSignal(button, Gtk.Signal.TOGGLED, onToggleChanged~ptr~cast[ptr[function]], label, 0, 0);
   };
 
   def onListBoxSelectionChanged: function (listBox: ptr[Gtk.ListBox], item: ptr[Gtk.Bin], label: ptr[Gtk.Label])
