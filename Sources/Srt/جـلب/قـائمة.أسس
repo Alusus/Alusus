@@ -12,9 +12,9 @@
 
     عرف ألحق: لقب append؛
     عرف استهل: لقب prepend؛
-    عرف أولج: لقب insert؛
-    عرف أولج_قبل: لقب insertBefore؛
-    عرف أولج_بترتيب: لقب insertSorted؛
+    عرف احشر: لقب insert؛
+    عرف احشر_قبل: لقب insertBefore؛
+    عرف احشر_بترتيب: لقب insertSorted؛
     عرف أزل: لقب remove؛
     عرف أزل_رابط: لقب removeLink؛
     عرف احذف_رابط: لقب deleteLink؛
