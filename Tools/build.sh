@@ -163,6 +163,8 @@ sudo cp changelog.en.txt ${INSTALL_PATH}/
 sudo cp changelog.ar.txt ${INSTALL_PATH}/
 sudo cp license.pdf ${INSTALL_PATH}/
 sudo cp license.txt ${INSTALL_PATH}/
+sudo chmod -R a+r /opt/Alusus/
+sudo sh -c 'find /opt/Alusus/ -type d | xargs chmod +x'
 
 if [[ ! -e ${PACKAGES_PATH} ]]; then
    mkdir ${PACKAGES_PATH}

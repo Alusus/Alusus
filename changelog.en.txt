@@ -1,6 +1,64 @@
 Alusus Changelog
 ================
 
+Version 0.4.0 (2019-02-25)
+--------------------------
+
+What's New:
+
+  * Added support for macros which allow the programmer to put a group of
+    commands into a macro that can then be reused elsewhere. This feature is
+    conceptuatlly similar to C macros, but its implementation is different.
+    While macros in C are executed as a preprocessor working on characters, in
+    Alusus macros are part of the parsing process, which leads to the following
+    differences:
+    - In Alusus macros are limited to the scope in which they are defined unlike
+      C macros which can't be scoped. In other words, if you define a macro in
+      Alusus within a certain scope (a module for example) then tried to use it
+      outside of that scope the compiler will error out unless you mention the
+      full path leading to that macro.
+    - In Alusus you can define multiple macros with the same name if they are
+      defined in different scopes. In C you can't do that.
+    - In Alusus parsing errors inside macros are detected during the parsing of
+      the macro itself, whereas in C parsing errors won't be detected until the
+      macro is used somewhere.
+    - In Alusus you can't define macros containing partial commands or partial
+      rules like you can in C.
+  * Added the command `use` which allows the programmer to tell the compiler to
+    search for identifiers within a certain scope by default. For example,
+    instead of having to mention `Srl.Console.print` multiple times, the user
+    can type `use Srl.Console` and then elsewhere only type `print`.
+  * Added support for constant definitions, which allow the user to give a name
+    to a certain constant value. For example: `def PI: 3.141592`.
+  * Empty brackets can now be dropped from function definitions if those
+    functions take no args and return nothing.
+  * Definining a pointer without specifying its content type now defaults it to
+    a void pointer.
+  * Allow the definition of global vars and functions inside the bodies of user
+    types. This is similar to the use of `static` keyword in C++ class members.
+  * Pointer to user types are now implicitly casted to pointers of the type of
+    the first member within that user type. For example, if you have a user type
+    whose first element is an Int, then a pointer to that user type will now
+    implicitly be castable to an Int pointer.
+  * Added an experimental GUI library based on GTK. This is still expecimental
+    and it only includes a small subset of GTK, but the user can easily add
+    any missing parts. The included elements are windows, header bars, message
+    dialogs, buttons, toggle buttons, checkboxes, menus, entry fields as well as
+    images. If the user needs anything outside of this it can be added by simply
+    definining the needed functions. The user can refer to Alusus GTK library to
+    know how it's done.
+
+Fixes:
+
+  * Fixed a bug in parsing expression lists.
+  * Fixed a bug in function code generation.
+  * Defining global variables of type array or user types is now possible.
+  * Fixed an issue in detecting the system's display language.
+  * Fixed a problem in parsing function args when those args have no names.
+  * Few other internal fixes.
+
+
+
 Version 0.3.0 (2018-09-26)
 --------------------------
 
@@ -75,6 +133,7 @@ Internal Changes:
   * Disabled RTTI, which is no longer needed.
 
 
+
 Version 0.2.1 (2015-11-28)
 --------------------------
 
@@ -95,6 +154,7 @@ Fixes:
 
   * Fixed the naming convention of the SCG source code.
   * Various cleanup and minor bug fixes.
+
 
 
 Version 0.2.0 (2015-04-27)

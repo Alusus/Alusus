@@ -8,7 +8,7 @@ source code.
 COPYRIGHT
 =========
 
-Copyright (C) 2018.
+Copyright (C) 2019.
 The copyright for this project is owned by Sarmad Khalid Abdullah.
 
 
