@@ -115,7 +115,8 @@ class TargetGeneration : public ObjTiInterface
       &this->generateStringLiteral,
       &this->generateNullPtrLiteral,
       &this->generateStructLiteral,
-      &this->generateArrayLiteral
+      &this->generateArrayLiteral,
+      &this->generatePointerLiteral
     });
   }
 
@@ -685,6 +686,10 @@ class TargetGeneration : public ObjTiInterface
       TiObject* /* context */, TiObject* /* type */, Containing<TiObject>* /* membersVals */,
       TioSharedPtr& /* destVal */
     )
+  );
+
+  public: METHOD_BINDING_CACHE(generatePointerLiteral,
+    Bool, (TiObject* /* context */, TiObject* /* type */, void* /* value */, TioSharedPtr& /* destVal */)
   );
 
   /// @}

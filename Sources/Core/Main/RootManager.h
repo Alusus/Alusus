@@ -2,7 +2,7 @@
  * @file Core/Main/RootManager.h
  * Contains the header of class Core::Main::RootManager.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -42,6 +42,9 @@ class RootManager : public TiObject
   private: Data::Seeker seeker;
 
   private: Int minNoticeSeverityEncountered = -1;
+
+  private: Int processArgCount;
+  private: Char const *const *processArgs;
 
 
   //============================================================================
@@ -111,6 +114,22 @@ class RootManager : public TiObject
   public: Int getMinNoticeSeverityEncountered() const
   {
     return this->minNoticeSeverityEncountered;
+  }
+
+  public: void setProcessArgInfo(Int count, Char const *const *args)
+  {
+    this->processArgCount = count;
+    this->processArgs = args;
+  }
+
+  public: Int getProcessArgCount() const
+  {
+    return this->processArgCount;
+  }
+
+  public: Char const* const* getProcessArgs() const
+  {
+    return this->processArgs;
   }
 
 }; // class

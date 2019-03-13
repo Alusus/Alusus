@@ -30,6 +30,7 @@ void Helper::initBindingCaches()
     &this->isReferenceTypeFor,
     &this->getReferenceTypeFor,
     &this->getPointerTypeFor,
+    &this->getArrayTypeFor,
     &this->getValueTypeFor,
     &this->getNullType,
     &this->getBoolType,
@@ -61,6 +62,7 @@ void Helper::initBindings()
   this->isReferenceTypeFor = &Helper::_isReferenceTypeFor;
   this->getReferenceTypeFor = &Helper::_getReferenceTypeFor;
   this->getPointerTypeFor = &Helper::_getPointerTypeFor;
+  this->getArrayTypeFor = &Helper::_getArrayTypeFor;
   this->getValueTypeFor = &Helper::_getValueTypeFor;
   this->getNullType = &Helper::_getNullType;
   this->getBoolType = &Helper::_getBoolType;
@@ -391,6 +393,29 @@ PointerType* Helper::_getPointerTypeFor(TiObject *self, TiObject *type)
     auto refType = result.ti_cast_get<PointerType>();
     if (refType == 0) {
       throw EXCEPTION(GenericException, S("Template for pointer type is invalid."));
+    }
+    return refType;
+  } else {
+    auto notice = result.ti_cast<Core::Notices::Notice>();
+    if (notice != 0) {
+      helper->noticeStore->add(notice);
+    }
+    return 0;
+  }
+}
+
+
+ArrayType* Helper::_getArrayTypeFor(TiObject *self, TiObject *type)
+{
+  PREPARE_SELF(helper, Helper);
+
+  auto tpl = helper->getArrayTemplate();
+
+  TioSharedPtr result;
+  if (tpl->matchInstance(type, helper, result)) {
+    auto refType = result.ti_cast_get<ArrayType>();
+    if (refType == 0) {
+      throw EXCEPTION(GenericException, S("Template for array type is invalid."));
     }
     return refType;
   } else {
@@ -772,6 +797,22 @@ Template* Helper::getPointerTemplate()
     throw EXCEPTION(GenericException, S("Invalid object found for ptr template."));
   }
   return this->ptrTemplate;
+}
+
+
+Template* Helper::getArrayTemplate()
+{
+  if (this->arrayTemplate != 0) return this->arrayTemplate;
+
+  Core::Data::Ast::Identifier identifier;
+  identifier.setValue(S("array"));
+  this->arrayTemplate = ti_cast<Template>(rootManager->getSeeker()->doGet(
+    &identifier, this->rootManager->getRootScope().get())
+  );
+  if (this->arrayTemplate == 0) {
+    throw EXCEPTION(GenericException, S("Invalid object found for array template."));
+  }
+  return this->arrayTemplate;
 }
 
 } } // namespace
