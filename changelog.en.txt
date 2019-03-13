@@ -1,6 +1,17 @@
 Alusus Changelog
 ================
 
+Version 0.4.1 (2019-03-13)
+--------------------------
+
+What's New:
+
+  * Added support for passing process arguments to the running start function.
+  * If the start function returns a non-zero value the result is used as an exit
+    code for the Core.
+
+
+
 Version 0.4.0 (2019-02-25)
 --------------------------
 
