@@ -36,6 +36,7 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   private: Core::Notices::Store *noticeStore = 0;
   private: Template *refTemplate = 0;
   private: Template *ptrTemplate = 0;
+  private: Template *arrayTemplate = 0;
   private: IntegerType *nullType = 0;
   private: IntegerType *boolType = 0;
   private: IntegerType *charType = 0;
@@ -178,6 +179,9 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   public: METHOD_BINDING_CACHE(getPointerTypeFor, PointerType*, (TiObject*));
   private: static PointerType* _getPointerTypeFor(TiObject *self, TiObject *type);
 
+  public: METHOD_BINDING_CACHE(getArrayTypeFor, ArrayType*, (TiObject*));
+  private: static ArrayType* _getArrayTypeFor(TiObject *self, TiObject *type);
+
   public: PointerType* getPointerTypeForReferenceType(ReferenceType *type);
 
   public: METHOD_BINDING_CACHE(getValueTypeFor, Type*, (TiObject*));
@@ -265,6 +269,8 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
   private: Template* getReferenceTemplate();
 
   private: Template* getPointerTemplate();
+
+  private: Template* getArrayTemplate();
 
   /// @}
 

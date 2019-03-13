@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/CodeGenParsingHandler.h
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -50,6 +50,8 @@ class CodeGenParsingHandler : public Core::Processing::Handlers::GenericParsingH
   // Member Functions
 
   public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
+
+  private: void getEntryArgTypes(DynamicContaining<TiObject> *resultTypes);
 
 }; // class
 

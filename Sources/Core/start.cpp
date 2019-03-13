@@ -137,6 +137,7 @@ int main(int argCount, char * const args[])
     try {
       // Prepare the root object;
       Main::RootManager root;
+      root.setProcessArgInfo(argCount, args);
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
         {
@@ -150,6 +151,8 @@ int main(int argCount, char * const args[])
     } catch (Exception &e) {
       outStream << e.getVerboseErrorMessage() << NEW_LINE;
       return EXIT_FAILURE;
+    } catch (Int v) {
+      return v;
     }
     return EXIT_SUCCESS;
   } else {
@@ -157,6 +160,7 @@ int main(int argCount, char * const args[])
     try {
       // Prepare the root object;
       Main::RootManager root;
+      root.setProcessArgInfo(argCount, args);
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
         {
@@ -186,6 +190,8 @@ int main(int argCount, char * const args[])
     } catch (Exception &e) {
       outStream << e.getVerboseErrorMessage() << NEW_LINE;
       return EXIT_FAILURE;
+    } catch (Int v) {
+      return v;
     }
     return EXIT_SUCCESS;
   }

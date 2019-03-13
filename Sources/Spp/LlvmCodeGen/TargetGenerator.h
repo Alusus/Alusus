@@ -82,7 +82,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
 
   public: void dumpIr(OutStream &out);
 
-  public: void execute(Char const *entry);
+  public: Int execute(Char const *entry, Bool sendArgs, Int argCount, Char const *const *args);
 
   /// @}
 
@@ -437,6 +437,8 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
     TiObject *context, TiObject *type, Containing<TiObject> *membersVals,
     TioSharedPtr &destVal
   );
+
+  public: Bool generatePointerLiteral(TiObject *context, TiObject *type, void *value, TioSharedPtr &destVal);
 
   /// @}
 

@@ -2120,7 +2120,8 @@ Bool ExpressionGenerator::_generateFunctionCall(
 
 Bool ExpressionGenerator::generateParamList(
   TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-  DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
+  DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes,
+  SharedList<TiObject> *resultValues
 ) {
   if (astNode == 0) return true;
 

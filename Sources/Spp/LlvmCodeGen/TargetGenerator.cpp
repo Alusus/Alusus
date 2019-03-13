@@ -123,6 +123,7 @@ void TargetGenerator::initBindings()
   targetGeneration->generateNullPtrLiteral = &TargetGenerator::generateNullPtrLiteral;
   targetGeneration->generateStructLiteral = &TargetGenerator::generateStructLiteral;
   targetGeneration->generateArrayLiteral = &TargetGenerator::generateArrayLiteral;
+  targetGeneration->generatePointerLiteral = &TargetGenerator::generatePointerLiteral;
 }
 
 
@@ -154,7 +155,7 @@ void TargetGenerator::dumpIr(OutStream &out)
 }
 
 
-void TargetGenerator::execute(Char const *entry)
+Int TargetGenerator::execute(Char const *entry, Bool sendArgs, Int argCount, Char const *const *args)
 {
   if (this->llvmModule == 0) {
     throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
@@ -162,8 +163,20 @@ void TargetGenerator::execute(Char const *entry)
 
   auto ee = llvm::ExecutionEngine::createJIT(this->llvmModule.get());
   auto func = ee->FindFunctionNamed(entry);
-  std::vector<llvm::GenericValue> args(0);
-  ee->runFunction(func, args);
+
+  // Prepare function args.
+  std::vector<llvm::GenericValue> argv;
+  if (sendArgs) {
+    llvm::GenericValue genVal1;
+    genVal1.IntVal = llvm::APInt(32, argCount);
+    argv.push_back(genVal1);
+    llvm::GenericValue genVal2;
+    genVal2.PointerVal = (void*)args;
+    argv.push_back(genVal2);
+  }
+
+  auto ret = ee->runFunction(func, argv);
+  return *(ret.IntVal.getRawData());
 }
 
 
@@ -1870,6 +1883,16 @@ Bool TargetGenerator::generateArrayLiteral(
   }
   auto llvmResult = llvm::ConstantArray::get(static_cast<llvm::ArrayType*>(tgType->getLlvmType()), arrayVals);
   destVal = std::make_shared<Value>(llvmResult, true);
+  return true;
+}
+
+
+Bool TargetGenerator::generatePointerLiteral(TiObject *context, TiObject *type, void *value, TioSharedPtr &destVal)
+{
+  PREPARE_ARG(type, tgType, PointerType);
+  auto llvmInt = llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, (uint64_t)value, false));
+  auto llvmPtr = llvm::ConstantExpr::getIntToPtr(llvmInt, tgType->getLlvmType());
+  destVal = std::make_shared<Value>(llvmPtr, true);
   return true;
 }
 
