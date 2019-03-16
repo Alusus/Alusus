@@ -617,7 +617,7 @@ void StandardFactory::createTokenDefinitions()
       {S("terms"), List::create({}, {
          AlternateTerm::create({}, {
            {S("terms"), List::create({}, {
-              ConstTerm::create({{ S("matchString"), TiWStr(S("/8")) }}),
+              ConstTerm::create({{ S("matchString"), TiWStr(S("/*")) }}),
               ConstTerm::create({{ S("matchString"), TiWStr(S("#")) }}),
            })}
          }),
