@@ -609,6 +609,25 @@ void StandardFactory::createTokenDefinitions()
        })}
     })}
   }));
+
+  this->set(S("root.LexerDefs.MultiLineComment"), SymbolDefinition::create({
+    {S("flags"), TiInt::create(SymbolFlags::ROOT_TOKEN|SymbolFlags::IGNORED_TOKEN)}
+  }, {
+    {S("term"), ConcatTerm::create({}, {
+      {S("terms"), List::create({}, {
+         AlternateTerm::create({}, {
+           {S("terms"), List::create({}, {
+              ConstTerm::create({{ S("matchString"), TiWStr(S("/8")) }}),
+              ConstTerm::create({{ S("matchString"), TiWStr(S("#")) }}),
+           })}
+         }),
+         MultiplyTerm::create({}, {
+           {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.AnyChar")) }})}
+         }),
+         ConstTerm::create({{ S("matchString"), TiWStr(S("*/")) }})
+       })}
+    })}
+  }));
 }
 
 
