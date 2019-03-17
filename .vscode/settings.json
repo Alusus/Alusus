@@ -69,5 +69,6 @@
     "Lib": true,
     "Builds": true,
     "Bin": true
-  }
+  },
+  "C_Cpp.errorSquiggles": "Disabled"
 }
