@@ -3,7 +3,7 @@
  * Contains the implementation of class
  * Core::Processing::Handlers::StringLiteralTokenizingHandler.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -36,6 +36,10 @@ void StringLiteralTokenizingHandler::prepareToken(
   static WChar taaLetterChar = getWideCharFromUtf8(S("ت"));
   static WChar doubleQuoteChar = getWideCharFromUtf8(S("\""));
   static WChar singleQuoteChar = getWideCharFromUtf8(S("'"));
+  static WChar xLetterChar = getWideCharFromUtf8(S("x"));
+  static WChar hLetterChar = getWideCharFromUtf8(S("h"));
+  static WChar uLetterChar = getWideCharFromUtf8(S("u"));
+  static WChar bigULetterChar = getWideCharFromUtf8(S("U"));
 
   WChar outerQuoteChar, innerQuoteChar;
   if (outerQuoteType == OuterQuoteType::DOUBLE) {
@@ -73,6 +77,24 @@ void StringLiteralTokenizingHandler::prepareToken(
           ++bufferLength;
         } else if (tokenText[i] == tLetterChar || tokenText[i] == taaLetterChar) {
           buffer[bufferLength] = tabChar;
+          ++bufferLength;
+        } else if (tokenText[i] == xLetterChar || tokenText[i] == hLetterChar) {
+          ++i;
+          WChar val = (WChar)parseHexDigits(tokenText + i, 2);
+          ++i;
+          buffer[bufferLength] = val;
+          ++bufferLength;
+        } else if (tokenText[i] == uLetterChar) {
+          ++i;
+          WChar val = (WChar)parseHexDigits(tokenText + i, 4);
+          i += 3;
+          buffer[bufferLength] = val;
+          ++bufferLength;
+        } else if (tokenText[i] == bigULetterChar) {
+          ++i;
+          WChar val = (WChar)parseHexDigits(tokenText + i, 8);
+          i += 7;
+          buffer[bufferLength] = val;
           ++bufferLength;
         }
         // TODO: Parse other escape sequences.

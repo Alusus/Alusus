@@ -320,7 +320,9 @@ void StandardFactory::createTokenDefinitions()
         AlternateTerm::create({}, {
           {S("terms"), List::create({}, {
             ConstTerm::create({{ S("matchString"), TiWStr(S("0h")) }}),
-            ConstTerm::create({{ S("matchString"), TiWStr(S("0H")) }})
+            ConstTerm::create({{ S("matchString"), TiWStr(S("0H")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("0x")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("0X")) }})
           })}
         }),
         MultiplyTerm::create({
@@ -546,50 +548,55 @@ void StandardFactory::createTokenDefinitions()
   this->set(S("root.LexerDefs.EsSequence"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
-         ConstTerm::create({{ S("matchString"), TiWStr(S("\\")) }}),
-         AlternateTerm::create({}, {
-           {S("terms"), List::create({}, {
-              ConstTerm::create({{ S("matchString"), TiWStr(S("\\")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("\"")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("'")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("n")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("t")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("r")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("ج")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("ت")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("ر")) }}),
-              ConcatTerm::create({}, {
-                {S("terms"), List::create({}, {
-                   ConstTerm::create({{ S("matchString"), TiWStr(S("c")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
-                })}
-              }),
-              ConcatTerm::create({}, {
-                {S("terms"), List::create({}, {
-                   ConstTerm::create({{ S("matchString"), TiWStr(S("u")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
-                })}
-              }),
-              ConcatTerm::create({}, {
-                {S("terms"), List::create({}, {
-                   ConstTerm::create({{ S("matchString"), TiWStr(S("w")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
-                })}
-              })
-           })}
-         })
-       })}
+        ConstTerm::create({{ S("matchString"), TiWStr(S("\\")) }}),
+        AlternateTerm::create({}, {
+          {S("terms"), List::create({}, {
+            ConstTerm::create({{ S("matchString"), TiWStr(S("\\")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("\"")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("'")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("n")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("t")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("r")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("ج")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("ت")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("ر")) }}),
+            ConcatTerm::create({}, {
+              {S("terms"), List::create({}, {
+                AlternateTerm::create({}, {
+                  {S("terms"), List::create({}, {
+                    ConstTerm::create({{ S("matchString"), TiWStr(S("h")) }}),
+                    ConstTerm::create({{ S("matchString"), TiWStr(S("x")) }})
+                  })}
+                }),
+                CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
+              })}
+            }),
+            ConcatTerm::create({}, {
+              {S("terms"), List::create({}, {
+                  ConstTerm::create({{ S("matchString"), TiWStr(S("u")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
+              })}
+            }),
+            ConcatTerm::create({}, {
+              {S("terms"), List::create({}, {
+                  ConstTerm::create({{ S("matchString"), TiWStr(S("U")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
+              })}
+            })
+          })}
+        })
+      })}
     })}
   }));
 

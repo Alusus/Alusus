@@ -641,6 +641,24 @@ void convertStr(WChar const *input, int inputLength, Char *output, int outputSiz
  */
 WChar getWideCharFromUtf8(Char const *s);
 
+/**
+ * @brief Get the wide character for a given ASCII character.
+ * @ingroup basic_functions
+ */
+WChar getWideCharFromUtf8(Char c);
+
+/**
+ * @brief Parse a single hex digit from a wide character.
+ * @ingroup basic functions
+ */
+Int parseHexDigit(WChar wc);
+
+/**
+ * @brief Parse a number of hex digits from a wide character string.
+ * @ingroup basic functions
+ */
+Int parseHexDigits(WChar const *wc, Word count);
+
 /// Print 'indents' number of spaces.
 void printIndents(OutStream &stream, int indents);
 
