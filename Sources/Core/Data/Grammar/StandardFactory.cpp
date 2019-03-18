@@ -137,6 +137,25 @@ void StandardFactory::createCharGroupDefinitions()
   });
   this->set(S("root.LexerDefs.Letter"), CharGroupDefinition::create(letterCharGroup));
 
+  // any characters : char 'a'..'z', 'A'..'Z', 0h0620..0h065F, 0h066E..0h06DC, ' '..@,{..?, \r, \n, \t, `, ؟, _;
+  SharedPtr<CharGroupUnit> anyCharGroup = UnionCharGroupUnit::create({
+    SequenceCharGroupUnit::create(S("a"), S("z")),
+    SequenceCharGroupUnit::create(S("A"), S("Z")),
+    SequenceCharGroupUnit::create(S("_"), S("_")),
+    SequenceCharGroupUnit::create(S("ؠ"), S("ٟ")),
+    SequenceCharGroupUnit::create(S("ٮ"), S("ۜ")),
+    SequenceCharGroupUnit::create(S(" "), S("@")),
+    SequenceCharGroupUnit::create(S("{"), S("¿")),
+    RandomCharGroupUnit::create(S("\r\n\t`؟_"))
+  });
+
+  // AnyChar : char any;
+  this->set(S("root.LexerDefs.AnyChar"), CharGroupDefinition::create(
+    UnionCharGroupUnit::create({
+      anyCharGroup
+    })
+  ));
+
   // AnyCharNoEs : char !('\\');
   this->set(S("root.LexerDefs.AnyCharNoEs"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
@@ -606,6 +625,20 @@ void StandardFactory::createTokenDefinitions()
            {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.AnyCharNoReturn")) }})}
          }),
          ConstTerm::create({{ S("matchString"), TiWStr(S("\n")) }})
+       })}
+    })}
+  }));
+
+  this->set(S("root.LexerDefs.MultilineComment"), SymbolDefinition::create({
+    {S("flags"), TiInt::create(SymbolFlags::ROOT_TOKEN|SymbolFlags::IGNORED_TOKEN)}
+  }, {
+    {S("term"), ConcatTerm::create({}, {
+      {S("terms"), List::create({}, {
+         ConstTerm::create({{ S("matchString"), TiWStr(S("/*")) }}),
+         MultiplyTerm::create({}, {
+           {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.AnyChar")) }})}
+         }),
+         ConstTerm::create({{ S("matchString"), TiWStr(S("*/")) }})
        })}
     })}
   }));
