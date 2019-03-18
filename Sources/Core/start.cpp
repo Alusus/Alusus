@@ -44,6 +44,7 @@ int main(int argCount, char * const args[])
 {
   Bool help = false;
   Bool interactive = false;
+  Char const *sourceFile = 0;
   Bool dump = false;
   auto arabic = isArabic();
   if (argCount < 2) help = true;
@@ -58,19 +59,28 @@ int main(int argCount, char * const args[])
     else if (strcmp(args[i], S("--إلقاء")) == 0) dump = true;
 #ifdef USE_LOGS
     // Parse the log option.
-    if (i < argCount-1) {
-      if (strcmp(args[i], S("--log")) == 0 || strcmp(args[i], S("--تدوين")) == 0) {
-        Logger::filter = atoi(args[i+1]);
-        break;
+    else if (strcmp(args[i], S("--log")) == 0 || strcmp(args[i], S("--تدوين")) == 0) {
+      if (i < argCount-1) {
+        ++i;
+        Logger::filter = atoi(args[i]);
+      } else {
+        Logger::filter = 0;
       }
     }
 #endif
+    else {
+      sourceFile = args[i];
+      break;
+    }
   }
 
   if (arabic) {
     // TODO: Support other locales.
     Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"));
   }
+
+  // We'll show help if now source file is given.
+  if (sourceFile == 0 && !interactive) help = true;
 
   if (help) {
     Char alususReleaseYear[5];
@@ -89,9 +99,9 @@ int main(int argCount, char * const args[])
                      "المرفقة معه إقرار منك أنك قرأت هذه الرخصة ووافقت على جميع فقراتها.\n");
       outStream << S("\nAlusus Public License: <http://alusus.net/alusus_license_1_0>\n");
       outStream << S("\nطريقة الاستخدام:\n");
-      outStream << S("الأسُس <الشفرة المصدرية> [<خيارات>]\n");
+      outStream << S("الأسُس [<خيارات القلب>] <الشفرة المصدرية> [<خيارات البرنامج>]\n");
       outStream << S("الشفرة المصدرية = اسم الملف الحاوي على الشفرة المصدرية\n");
-      outStream << S("alusus <source> [<options>]\n");
+      outStream << S("alusus [<Core options>] <source> [<program options>]\n");
       outStream << S("source = filename.\n");
       outStream << S("\nالخيارات:\n");
       outStream << S("\t(--تفاعلي)، (-ت)  تنفيذ بشكل تفاعلي.\n");
@@ -114,7 +124,7 @@ int main(int argCount, char * const args[])
                      "<http://alusus.net/alusus_license_1_0>. By using this software you acknowledge\n"
                      "that you have read the terms in the license and agree with and accept all such\n"
                      "terms.\n\n");
-      outStream << S("Usage: alusus <source> [<options>]\n");
+      outStream << S("Usage: alusus [<Core options>] <source> [<program options>]\n");
       outStream << S("source = filename.\n");
       outStream << S("\nOptions:\n");
       outStream << S("\t--interactive, -i  Run in interactive mode.\n");
@@ -170,7 +180,7 @@ int main(int argCount, char * const args[])
       root.noticeSignal.connect(noticeSlot);
 
       // Parse the provided filename.
-      TioSharedPtr ptr = root.processFile(args[1]);
+      TioSharedPtr ptr = root.processFile(sourceFile);
       if (ptr == 0) return EXIT_SUCCESS;
 
       // Print the parsed data.
