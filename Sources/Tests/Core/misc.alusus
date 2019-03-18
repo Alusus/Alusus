@@ -19,11 +19,11 @@ def a: {
   do [s:10];
 
   do {
-    strVar = "Hello World";
+    strVar = "Hello World"; // inline comment
     intVar = 5;
     intVar--;
-    opVar = i + j * k;
-
+    opVar = i + j * k;/* multiline
+    comments */
     listVar = (1, 2, 3, 4, 5);
     hashVar = (a:1, b:2, c:3);
     bracketVar = a + (b + c);
