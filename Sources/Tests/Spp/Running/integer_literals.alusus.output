@@ -2,6 +2,9 @@
 0b10=2
 0o10=8
 0h10=16
+0H10=16
+0x10=16
+0X10=16
 8bit integer: 120
 16bit integer: 120
 32bit integer: 120
