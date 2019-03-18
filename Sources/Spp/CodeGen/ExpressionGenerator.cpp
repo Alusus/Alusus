@@ -1826,7 +1826,10 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   } else if (compareStr(src, S("0م"), 3) == 0) {
     base = 8;
     src += 3;
-  } else if (compareStr(src, S("0h"), 2) == 0 || compareStr(src, S("0H"), 2) == 0) {
+  } else if (
+    compareStr(src, S("0h"), 2) == 0 || compareStr(src, S("0H"), 2) == 0 ||
+    compareStr(src, S("0x"), 2) == 0 || compareStr(src, S("0X"), 2) == 0
+  ) {
     base = 16;
     src += 2;
   }
