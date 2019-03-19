@@ -3,7 +3,7 @@
  * Contains the definitions and include statements for all types used for
  * processing.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -231,13 +231,14 @@ s_enum(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHE
  *                the data will be added to that list instead of to a child list.
  */
 s_enum(ParsingFlags,
-       ENFORCE_LIST_OBJ = 1,
-       ENFORCE_LIST_ITEM = 2,
-       ENFORCE_ROUTE_OBJ = 4,
-       ENFORCE_PROD_OBJ = 8,
-       ENFORCE_TOKEN_OBJ = 16,
-       ENFORCE_TOKEN_OMIT = 32,
-       PASS_ITEMS_UP = 64);
+  ENFORCE_LIST_OBJ = 1,
+  ENFORCE_LIST_ITEM = 2,
+  ENFORCE_ROUTE_OBJ = 4,
+  ENFORCE_PROD_OBJ = 8,
+  ENFORCE_TOKEN_OBJ = 16,
+  ENFORCE_TOKEN_OMIT = 32,
+  PASS_ITEMS_UP = 64
+);
 
 } } // namespace
 

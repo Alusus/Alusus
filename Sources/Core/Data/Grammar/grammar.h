@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Data::Grammar
  * namespace.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -75,8 +75,12 @@ s_enum(TermFlags, ERROR_SYNC_TERM=(1<<16), ONE_ROUTE_TERM=(1<<17));
  *             by the lexer when it starts a new token. The lexer loops through
  *             all symbols in the lexer module that has this flag set and skips
  *             other symbol definitions.
+ * IGNORED_TOKEN: Specifies that this token should be ignroed. This is used for
+ *                things like spaces and comments.
+ * PREFER_SHORTER: Prefer the shorter version of a multiple tokens matching a
+ *                 given rule.
  */
-s_enum(SymbolFlags, ROOT_TOKEN=(1<<16), IGNORED_TOKEN=(1<<17));
+s_enum(SymbolFlags, ROOT_TOKEN=(1<<16), IGNORED_TOKEN=(1<<17), PREFER_SHORTER=(1<<18));
 
 } // namespace
 
