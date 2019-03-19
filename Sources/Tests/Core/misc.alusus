@@ -8,6 +8,10 @@ def a: {
   --intVar++;
   intVar+++;
   opVar = i + j * k;
+  true == 1;
+  false == 0;
+  null == 0;
+  null == false;
 
   listVar = (1, 2, 3, 4, 5);
   hashVar = (a:1, b:2, c:3);
