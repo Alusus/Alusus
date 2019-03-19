@@ -9,3 +9,7 @@ def char: alias Word[8];
 def Char: alias Word[8];
 def void: alias Void;
 
+def true: 1;
+def false: 0;
+def null: 0;
+
