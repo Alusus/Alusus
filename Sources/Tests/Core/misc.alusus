@@ -28,6 +28,14 @@ def a: {
     hashVar = (a:1, b:2, c:3);
     bracketVar = a + (b + c);
 
+    /*
+     * another
+     * multiline
+     * comment
+     * تعليق
+     * متعدد
+     * الأسطر
+     */
     do s:10;
   };
 
