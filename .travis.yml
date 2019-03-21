@@ -1,9 +1,46 @@
+language: cpp
 sudo: required
-# before_install:
-#     - eval "${MATRIX_EVAL}"
+
+env:
+  global:
+    # Ubuntu version
+    - LINUX_DIST=trusty
+    - DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
+    # Global build options and C++ flags
+    - CXX_FLAGS="-Wall -pedantic -Werror -Wno-variadic-macros -Wno-long-long -Wno-shadow"
+    # Misc
+    - RUN_TESTS=true
+    - COVERAGE=false
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: true
+      compiler: gcc
+      addons:
+        apt:
+          packages: &precise_latest_boost_packages
+            - gcc-4.8
+            - g++-4.8
+            #- gcov-4.9
+            - clang-3.7
+            - valgrind
+            # Misc
+            - python-yaml
+            - lcov
+            - libopencv-dev
+          sources: &precise_latest_boost_sources
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.7
+
+before_install:
+  # Combine global build options with OS/compiler-dependent options
+  - export CMAKE_OPTIONS=${CMAKE_OPTIONS}" "${ENV_CMAKE_OPTIONS}
+  - export CXX_FLAGS=${CXX_FLAGS}" "${ENV_CXX_FLAGS}
 install:
-    - cd Sources
-    - sudo ../Tools/build.sh
+  - cd Sources
+  - sudo ../Tools/build.sh
 start:
-    - cd ../Builds/debug
-    - sudo make test
+  - cd ../Builds/debug
+  - sudo make test
