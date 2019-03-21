@@ -15,4 +15,5 @@ Module [Main.ModuleStatements.StmtList]
   body: Block [Main.BlockStatements.StmtList]
    Definition [Main.Def] س: Identifier: صـحيح [Subject.Parameter]
    Definition [Main.Def] ع: Identifier: صـحيح [Subject.Parameter]
+ Definition [Main.Def] ن: Identifier: عـائم [Subject.Parameter]
 ------------------------------------------------------
