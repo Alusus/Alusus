@@ -29,6 +29,22 @@ def Module2: module {
   def b3: 2;
 };
 
+module OtherModules
+{
+  module {};
+  module M1;
+  module M2 {
+    1 + 2;
+  };
+  module M3 {
+    def a: 1;
+  };
+  @merge module M3 {
+    def b: 2;
+  };
+};
+
 dump_ast Module1;
 dump_ast Module2;
 dump_ast Module3;
+dump_ast OtherModules;
