@@ -12,4 +12,3 @@ def void: alias Void;
 def true: 1;
 def false: 0;
 def null: 0;
-
