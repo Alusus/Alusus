@@ -48,12 +48,9 @@ Bool UserType::merge(TiObject *src, Core::Notices::Store *noticeStore)
   if (src->isA<Core::Data::Ast::Scope>()) {
     auto scope = static_cast<Core::Data::Ast::Scope*>(src);
     return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), noticeStore);
-  }
-
-  if (src->isDerivedFrom<UserType>()) {
-    noticeStore->add(
-      std::make_shared<Spp::Notices::TypeMergeConflictNotice>(Core::Data::Ast::findSourceLocation(src))
-    );
+  } else if (src->isDerivedFrom<UserType>()) {
+    auto scope = static_cast<UserType*>(src)->getBody().get();
+    return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), noticeStore);
   } else {
     noticeStore->add(
       std::make_shared<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
