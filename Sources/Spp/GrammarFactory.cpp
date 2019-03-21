@@ -296,6 +296,13 @@ void GrammarFactory::createGrammar(
       {S("kwd"), Map::create({}, { { S("module"), 0 }, { S("حزمة"), 0 } })},
       {S("prms"), List::create({}, {
         Map::create({}, {
+          {S("prd"), PARSE_REF(S("module.Subject.Parameter"))},
+          {S("min"), std::make_shared<TiInt>(0)},
+          {S("max"), std::make_shared<TiInt>(1)},
+          {S("pty"), std::make_shared<TiInt>(1)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
+        }),
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.ModuleBody"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -304,13 +311,10 @@ void GrammarFactory::createGrammar(
         })
       })}
     })},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
-      // We'll use the source location of the "module" keyword, rather than of the first statement.
-      auto metaHaving = ti_cast<Core::Data::Ast::MetaHaving>(currentList->getElement(1));
-      metaHaving->setSourceLocation(Core::Data::Ast::findSourceLocation(currentList->getElement(0)));
-      state->setData(getSharedPtr(currentList->getElement(1)));
-    })}
+    {S("modifierTranslations"), Map::create({}, {
+      {S("دمج"), TiStr::create(S("merge"))}
+    })},
+    {S("handler"), std::make_shared<Handlers::ModuleParsingHandler>() }
   }).get());
   innerCmdList->add(PARSE_REF(S("module.Module")));
   this->set(S("root.Main.ModuleBody"), SymbolDefinition::create({
