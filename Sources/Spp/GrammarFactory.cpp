@@ -342,6 +342,13 @@ void GrammarFactory::createGrammar(
       {S("kwd"), Map::create({}, { { S("type"), 0 }, { S("صنف"), 0 } })},
       {S("prms"), List::create({}, {
         Map::create({}, {
+          {S("prd"), PARSE_REF(S("module.Subject.Parameter"))},
+          {S("min"), std::make_shared<TiInt>(0)},
+          {S("max"), std::make_shared<TiInt>(1)},
+          {S("pty"), std::make_shared<TiInt>(1)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
+        }),
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.BlockSet"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -350,17 +357,10 @@ void GrammarFactory::createGrammar(
         })
       })}
     })},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
-      auto metadata = ti_cast<Data::Ast::MetaHaving>(currentList);
-      auto type = Ast::UserType::create({
-        { "prodId", metadata->getProdId()},
-        { "sourceLocation", metadata->findSourceLocation() }
-      }, {
-        { "body", currentList->getElement(1) }
-      });
-      state->setData(type);
-    })}
+    {S("modifierTranslations"), Map::create({}, {
+      {S("دمج"), TiStr::create(S("merge"))}
+    })},
+    {S("handler"), std::make_shared<Handlers::TypeParsingHandler>() }
   }).get());
   innerCmdList->add(PARSE_REF(S("module.Type")));
 

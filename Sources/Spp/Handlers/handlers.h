@@ -37,5 +37,6 @@ namespace Spp { namespace Handlers
 #include "TildeOpParsingHandler.h"
 #include "MacroParsingHandler.h"
 #include "ModuleParsingHandler.h"
+#include "TypeParsingHandler.h"
 
 #endif
