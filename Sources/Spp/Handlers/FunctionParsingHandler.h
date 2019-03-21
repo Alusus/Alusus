@@ -37,11 +37,6 @@ class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsing
 
   public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
-  public: virtual Bool onIncomingModifier(
-    Core::Processing::Parser *parser, Core::Processing::ParserState *state,
-    TioSharedPtr const &modifierData, Bool prodProcessingComplete
-  );
-
   private: Bool parseArgs(
     Core::Processing::ParserState *state, Core::Data::Ast::Bracket *bracket, SharedPtr<Core::Data::Ast::Map> &result
   );
@@ -52,6 +47,19 @@ class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsing
 
   private: Bool parseNumber(
     Core::Processing::ParserState *state, TiObject *ast, TiWord &result, Core::Data::Ast::MetaHaving *parentMetadata
+  );
+
+  public: virtual Bool onIncomingModifier(
+    Core::Processing::Parser *parser, Core::Processing::ParserState *state,
+    TioSharedPtr const &modifierData, Bool prodProcessingComplete
+  );
+
+  private: Bool processExpnameModifier(
+    Core::Processing::ParserState *state, TioSharedPtr const &modifierData
+  );
+
+  private: Bool processUnknownModifier(
+    Core::Processing::ParserState *state, TioSharedPtr const &modifierData
   );
 
 }; // class

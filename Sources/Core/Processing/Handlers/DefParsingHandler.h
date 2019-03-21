@@ -42,8 +42,6 @@ class DefParsingHandler : public GenericParsingHandler
     TioSharedPtr const &modifierData, Bool prodProcessingComplete
   );
 
-  private: void translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *modifier);
-
 }; // class
 
 } } } // namespace

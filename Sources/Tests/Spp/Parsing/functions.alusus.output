@@ -2,6 +2,7 @@ ERROR CP1005 @ (11,10): Unexpected modifier encountered.
 ERROR CP1005 @ (15,10): Unexpected modifier encountered.
 ERROR CP1005 @ (19,10): Unexpected modifier encountered.
 ERROR SPPH1006 @ (36,28): Invalid function arg name.
+ERROR SPPH1003 @ (49,16): Invalid function signature.
 ------------------ Parsed Data Dump ------------------
 Function f1 [Main.Function]
  type: FunctionType [Main.Function]
@@ -92,4 +93,45 @@ Function  [Main.Function]
     second: Identifier: Type [Subject.Parameter]
   retType: NULL
  body: Block [Main.BlockStatements.StmtList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Scope [Statements.StmtList]
+ Definition [Main.Function] f11: FunctionType [Main.Function]
+  argTypes: NULL
+  retType: NULL
+ Definition [Main.Function] f12: FunctionType [Main.Function]
+  argTypes: Map
+   x: Identifier: Int [Subject.Parameter]
+  retType: NULL
+ Definition [Main.Function] f13: FunctionType [Main.Function]
+  argTypes: NULL
+  retType: Identifier: Void [Subject.Parameter]
+ Definition [Main.Function] f14: Function  [Main.Function]
+  type: FunctionType [Main.Function]
+   argTypes: NULL
+   retType: NULL
+  body: Block [Main.BlockStatements.StmtList]
+ Definition [Main.Function] f15: Function  [Main.Function]
+  type: FunctionType [Main.Function]
+   argTypes: Map
+    x: Identifier: Int [Subject.Parameter]
+   retType: Identifier: Int [Subject.Parameter]
+  body: Block [Main.BlockStatements.StmtList]
+ Definition [Main.Function] f16
+  modifiers:
+   Identifier: shared [Subject.Parameter]
+  target: Function F16 [Main.Function]
+    type: FunctionType [Main.Function]
+     argTypes: NULL
+     retType: NULL
+    body: Block [Main.BlockStatements.StmtList]
+ Definition [Main.Function] f17: FunctionType [Main.Function]
+  argTypes: Map
+   __0: Identifier: Int [Subject.Parameter]
+  retType: Identifier: void [Subject.Parameter]
+ LinkOperator => [Expression.LowLinkExp]
+  first: Definition [Main.Function] f18: FunctionType [Main.Function]
+   argTypes: NULL
+   retType: NULL
+  second: Identifier: void [Subject.Parameter]
 ------------------------------------------------------
