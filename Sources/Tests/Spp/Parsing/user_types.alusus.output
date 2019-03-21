@@ -1,6 +1,6 @@
 ERROR CP1001 @ (15,22): Parser syntax error.
-ERROR SPPA1010 @ (30,25): Trying to merge possibly incompatible types. Types can only be extended by anonymous blocks.
 ERROR CD1004 @ (35,25): Incompatible 'def' merge.
+ERROR CP1001 @ (44,18): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] EmptyType: UserType [Main.Type]
@@ -33,5 +33,13 @@ Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] MergeType: UserType [Main.Type]
   body: Block [Main.BlockStatements.StmtList]
    Definition [Main.Def] x: Identifier: Int [Subject.Parameter]
+   Definition [Main.Def] xx: Identifier: Int [Subject.Parameter]
    Definition [Main.Def] y: Identifier: Int [Subject.Parameter]
+ Definition [Main.Type] MyType2: UserType [Main.Type]
+  body: Block [Main.BlockStatements.StmtList]
+   Definition [Main.Def] x: Identifier: Int [Subject.Parameter]
+ Definition [Main.Type] MergeType2: UserType [Main.Type]
+  body: Block [Main.BlockStatements.StmtList]
+   Definition [Main.Def] y: Identifier: Int [Subject.Parameter]
+   Definition [Main.Def] z: Identifier: Int [Subject.Parameter]
 ------------------------------------------------------
