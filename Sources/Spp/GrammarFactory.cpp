@@ -364,8 +364,15 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.Function"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
     {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("function"), 0 }, { S("دالّة"), 0 }, { S("دالة"), 0 } })},
+      {S("kwd"), Map::create({}, { { S("func"), 0 }, { S("function"), 0 }, { S("دالّة"), 0 }, { S("دالة"), 0 } })},
       {S("prms"), List::create({}, {
+        Map::create({}, {
+          {S("prd"), PARSE_REF(S("module.Subject.Parameter"))},
+          {S("min"), std::make_shared<TiInt>(0)},
+          {S("max"), std::make_shared<TiInt>(1)},
+          {S("pty"), std::make_shared<TiInt>(1)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
+        }),
         Map::create({}, {
           {S("prd"), PARSE_REF(S("module.FuncSigExpression"))},
           {S("min"), std::make_shared<TiInt>(0)},
@@ -383,7 +390,8 @@ void GrammarFactory::createGrammar(
       })}
     })},
     {S("modifierTranslations"), Map::create({}, {
-      {S("تصدير"), TiStr::create(S("expname"))}
+      {S("تصدير"), TiStr::create(S("expname"))},
+      {S("مشترك"), TiStr::create(S("shared"))}
     })},
     {S("handler"), std::make_shared<Handlers::FunctionParsingHandler>() }
   }).get());

@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/ast.cpp
  * Contains the global implementations of Data::Ast namespace's declarations.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -72,6 +72,21 @@ Bool addPossiblyMergeableElements(Containing<TiObject> *src, DynamicContaining<T
     if (!addPossiblyMergeableElement(src->getElement(i), target, noticeStore)) result = false;
   }
   return result;
+}
+
+
+void translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *modifier)
+{
+  if (modifier->isDerivedFrom<Data::Ast::Identifier>()) {
+    auto identifier = static_cast<Data::Ast::Identifier*>(modifier);
+    identifier->setValue(symbolDef->getTranslatedModifierKeyword(identifier->getValue().get()).c_str());
+  } else if (modifier->isDerivedFrom<Data::Ast::LinkOperator>()) {
+    auto link = static_cast<Data::Ast::LinkOperator*>(modifier);
+    translateModifier(symbolDef, link->getFirst().get());
+  } else if (modifier->isDerivedFrom<Data::Ast::ParamPass>()) {
+    auto paramPass = static_cast<Data::Ast::ParamPass*>(modifier);
+    translateModifier(symbolDef, paramPass->getOperand().get());
+  }
 }
 
 } // namespace

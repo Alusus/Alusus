@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Data::Ast
  * namespace.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -106,6 +106,7 @@ Bool addPossiblyMergeableElement(TiObject *src, DynamicContaining<TiObject> *tar
 Bool addPossiblyMergeableElements(
   Containing<TiObject> *src, DynamicContaining<TiObject> *target, Notices::Store *noticeStore
 );
+void translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *modifier);
 
 } // namespace
 
