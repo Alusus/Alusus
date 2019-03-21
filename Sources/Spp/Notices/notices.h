@@ -80,8 +80,8 @@ DEFINE_NOTICE(MissingFunctionSigNotice, "Spp.Notices", "Spp", "alusus.net", "SPP
 DEFINE_NOTICE(InvalidFunctionSignatureNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1003", 1,
   "Invalid function signature."
 );
-DEFINE_NOTICE(InvalidFunctionBodyNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1004", 1,
-  "Invalid function body."
+DEFINE_NOTICE(InvalidFunctionElementNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1004", 1,
+  "Invalid function element."
 );
 DEFINE_NOTICE(InvalidFunctionArgNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1005", 1,
   "Invalid function argumnet."

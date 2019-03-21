@@ -37,6 +37,18 @@ def f10: function (x: Int, x: Int)
 {
 };
 
+def funcs: {
+  function f11;
+  function f12 (x: Int);
+  function f13 ()=>Void;
+  function f14 {};
+  function f15 (x:Int)=>Int {};
+  @expname[F16] @shared function f16 {};
+  func f17 (Int)=>void;
+  function f18=>void;
+  function f19 int=>void;
+};
+
 dump_ast f1;
 dump_ast f2;
 dump_ast f3;
@@ -46,3 +58,5 @@ dump_ast f6;
 dump_ast f7;
 dump_ast f8;
 dump_ast f9;
+
+dump_ast funcs;
