@@ -2,7 +2,7 @@
  * @file Core/Basic/basic.cpp
  * Contains the global implementations of Basic namespace's declarations.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -66,6 +66,50 @@ WChar getWideCharFromUtf8(Char const *s)
   WChar buf[2];
   SBWSTR(buf).assign(s, 2);
   return *buf;
+}
+
+
+WChar getWideCharFromUtf8(Char c)
+{
+  Char s[2];
+  WChar buf[2];
+  s[0] = c;
+  s[1] = '\0';
+  SBWSTR(buf).assign(s, 2);
+  return *buf;
+}
+
+
+Int parseHexDigit(WChar wc)
+{
+  static WChar zero = getWideCharFromUtf8('0');
+  static WChar nine = getWideCharFromUtf8('9');
+  static WChar a = getWideCharFromUtf8('a');
+  static WChar f = getWideCharFromUtf8('f');
+  static WChar bigA = getWideCharFromUtf8('A');
+  static WChar bigF = getWideCharFromUtf8('F');
+  if (wc >= a && wc <= f) {
+    return (wc - a) + 10;
+  } else if (wc >= bigA && wc <= bigF) {
+    return (wc - bigA) + 10;
+  } else if (wc >= zero && wc <= nine) {
+    return wc - zero;
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("wc"), S("Invalid hex digit"), wc);
+  }
+}
+
+
+Int parseHexDigits(WChar const *wc, Word count)
+{
+  Int val = 0;
+  while (count > 0) {
+    val *= 16;
+    val += parseHexDigit(*wc);
+    ++wc;
+    --count;
+  }
+  return val;
 }
 
 
