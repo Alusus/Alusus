@@ -404,9 +404,14 @@ void GrammarFactory::createGrammar(
   // FuncSigExpression
   this->set(S("root.Main.FuncSigExpression"), Module::create({
     {S("baseRef"), PARSE_REF(S("module.Expression")) },
-    {S("startRef"), PARSE_REF(S("module.LowLinkExp"))}
+    {S("startRef"), PARSE_REF(S("module.LowerLinkExp"))}
   }, {
     {S("subject"), PARSE_REF(S("module.owner.FuncSigSubject"))}
+  }).get());
+  this->set(S("root.Main.FuncSigExpression.LowerLinkExp"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("bmodule.LowerLinkExp"))},
+  }, {
+    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(1)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.LowLinkExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.LowLinkExp"))},
