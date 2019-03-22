@@ -7,68 +7,68 @@ ERROR SPPH1003 @ (49,16): Invalid function signature.
 Function f1 [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Subject.Parameter]
+   x: Identifier: Int [Subject.Identifier]
    args: ArgPack 0 0
-    argType: Identifier: Int [Subject.Parameter]
-  retType: Identifier: void [Subject.Parameter]
+    argType: Identifier: Int [Subject.Identifier]
+  retType: Identifier: void [Subject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Subject.Parameter]
+   x: Identifier: Int [Subject.Identifier]
    args: ArgPack 0 0
-    argType: Identifier: Int [Subject.Parameter]
-  retType: Identifier: void [Subject.Parameter]
+    argType: Identifier: Int [Subject.Identifier]
+  retType: Identifier: void [Subject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Subject.Parameter]
+   x: Identifier: Int [Subject.Identifier]
    args: ArgPack 0 0
-    argType: Identifier: Int [Subject.Parameter]
-  retType: Identifier: void [Subject.Parameter]
+    argType: Identifier: Int [Subject.Identifier]
+  retType: Identifier: void [Subject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Subject.Parameter]
+   x: Identifier: Int [Subject.Identifier]
    args: ArgPack 0 0
-    argType: Identifier: Int [Subject.Parameter]
-  retType: Identifier: void [Subject.Parameter]
+    argType: Identifier: Int [Subject.Identifier]
+  retType: Identifier: void [Subject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Subject.Parameter]
+   x: Identifier: Int [Subject.Identifier]
    args: ArgPack 0 0
-    argType: Identifier: Int [Subject.Parameter]
-  retType: Identifier: void [Subject.Parameter]
+    argType: Identifier: Int [Subject.Identifier]
+  retType: Identifier: void [Subject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 FunctionType [Main.Function]
  argTypes: Map
-  X: Identifier: Int [Subject.Parameter]
+  X: Identifier: Int [Subject.Identifier]
   args: ArgPack 0 0
    argType: NULL
- retType: Identifier: void [Subject.Parameter]
+ retType: Identifier: void [Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function f7 [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
    X: ParamPass [] [Expression.ParamPassExp]
-    operand: Identifier: ptr [Subject.Parameter]
+    operand: Identifier: ptr [Subject.Identifier]
     param: ParamPass [] [Expression.ParamPassExp]
-     operand: Identifier: Int [Subject.Parameter]
+     operand: Identifier: Int [Subject.Identifier]
      param: IntegerLiteral: 8 [Subject.Literal]
   retType: NULL
  body: NULL
@@ -77,8 +77,8 @@ Function f7 [Main.Function]
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   __0: Identifier: x [Subject.Parameter]
-  retType: Identifier: void [Subject.Parameter]
+   __0: Identifier: x [Subject.Identifier]
+  retType: Identifier: void [Subject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
@@ -86,11 +86,11 @@ Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
    x: LinkOperator . [Expression.LinkExp]
-    first: Identifier: Module [Subject.Parameter]
-    second: Identifier: Type [Subject.Parameter]
+    first: Identifier: Module [Subject.Identifier]
+    second: Identifier: Type [Subject.Identifier]
    __1: LinkOperator . [Expression.LinkExp]
-    first: Identifier: Module [Subject.Parameter]
-    second: Identifier: Type [Subject.Parameter]
+    first: Identifier: Module [Subject.Identifier]
+    second: Identifier: Type [Subject.Identifier]
   retType: NULL
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
@@ -101,11 +101,11 @@ Scope [Statements.StmtList]
   retType: NULL
  Definition [Main.Function] f12: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Subject.Parameter]
+   x: Identifier: Int [Subject.Identifier]
   retType: NULL
  Definition [Main.Function] f13: FunctionType [Main.Function]
   argTypes: NULL
-  retType: Identifier: Void [Subject.Parameter]
+  retType: Identifier: Void [Subject.Identifier]
  Definition [Main.Function] f14: Function  [Main.Function]
   type: FunctionType [Main.Function]
    argTypes: NULL
@@ -114,12 +114,12 @@ Scope [Statements.StmtList]
  Definition [Main.Function] f15: Function  [Main.Function]
   type: FunctionType [Main.Function]
    argTypes: Map
-    x: Identifier: Int [Subject.Parameter]
-   retType: Identifier: Int [Subject.Parameter]
+    x: Identifier: Int [Subject.Identifier]
+   retType: Identifier: Int [Subject.Identifier]
   body: Block [Main.BlockStatements.StmtList]
  Definition [Main.Function] f16
   modifiers:
-   Identifier: shared [Subject.Parameter]
+   Identifier: shared [Subject.Identifier]
   target: Function F16 [Main.Function]
     type: FunctionType [Main.Function]
      argTypes: NULL
@@ -127,11 +127,11 @@ Scope [Statements.StmtList]
     body: Block [Main.BlockStatements.StmtList]
  Definition [Main.Function] f17: FunctionType [Main.Function]
   argTypes: Map
-   __0: Identifier: Int [Subject.Parameter]
-  retType: Identifier: void [Subject.Parameter]
+   __0: Identifier: Int [Subject.Identifier]
+  retType: Identifier: void [Subject.Identifier]
  LinkOperator => [Expression.LowLinkExp]
   first: Definition [Main.Function] f18: FunctionType [Main.Function]
    argTypes: NULL
    retType: NULL
-  second: Identifier: void [Subject.Parameter]
+  second: Identifier: void [Subject.Identifier]
 ------------------------------------------------------

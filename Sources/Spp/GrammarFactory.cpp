@@ -296,7 +296,7 @@ void GrammarFactory::createGrammar(
       {S("kwd"), Map::create({}, { { S("module"), 0 }, { S("حزمة"), 0 } })},
       {S("prms"), List::create({}, {
         Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Subject.Parameter"))},
+          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
@@ -342,7 +342,7 @@ void GrammarFactory::createGrammar(
       {S("kwd"), Map::create({}, { { S("type"), 0 }, { S("صنف"), 0 } })},
       {S("prms"), List::create({}, {
         Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Subject.Parameter"))},
+          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
@@ -371,7 +371,7 @@ void GrammarFactory::createGrammar(
       {S("kwd"), Map::create({}, { { S("func"), 0 }, { S("function"), 0 }, { S("دالّة"), 0 }, { S("دالة"), 0 } })},
       {S("prms"), List::create({}, {
         Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Subject.Parameter"))},
+          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
@@ -465,6 +465,13 @@ void GrammarFactory::createGrammar(
       {S("kwd"), Map::create({}, { { S("macro"), 0 }, { S("ماكرو"), 0 } })},
       {S("prms"), List::create({}, {
         Map::create({}, {
+          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
+          {S("min"), std::make_shared<TiInt>(0)},
+          {S("max"), std::make_shared<TiInt>(1)},
+          {S("pty"), std::make_shared<TiInt>(1)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
+        }),
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.MacroSignature"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -473,7 +480,7 @@ void GrammarFactory::createGrammar(
         }),
         Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Expression"))},
-          {S("min"), std::make_shared<TiInt>(0)},
+          {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
           {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
