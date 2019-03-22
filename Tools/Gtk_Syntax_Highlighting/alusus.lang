@@ -16,12 +16,14 @@
   <styles>
     <style id="escaped-character" _name="Escaped Character"         map-to="def:special-char"/>
     <style id="literal"           _name="Literal"                   map-to="def:string"/>
-    <style id="keyword"           _name="Keyword"                   map-to="def:keyword"/>
+    <style id="keyword"           _name="Keyword"                   map-to="def:comment"/>
+    <style id="def-keyword"       _name="Def Keyword"               map-to="def:keyword"/>
     <style id="type"              _name="Data Type"                 map-to="def:type"/>
     <style id="modifier"          _name="Modifier"                  map-to="def:preprocessor"/>
     <style id="constant"          _name="Constant"                  map-to="def:constant"/>
-    <style id="punctuation"       _name="Punctuation"               map-to="def:statement"/>
+    <style id="punctuation"       _name="Punctuation"               map-to="def:comment"/>
     <style id="square-brackets"   _name="Square Brackets"           map-to="def:preprocessor"/>
+    <style id="comment"           _name="Comment"                   map-to="latex:display-math"/>
   </styles>
 
   <definitions>
@@ -35,7 +37,7 @@
     </define-regex>
 
     <context id="punctuation" style-ref="punctuation">
-      <match>[\.\(\)\{\},;،؛:+=*/&lt;&gt;-]</match>
+      <match>[\.\(\)\{\},;،؛:+=!*/&lt;&gt;-]</match>
     </context>
 
     <context id="square-brackets" style-ref="square-brackets">
@@ -74,13 +76,17 @@
       <keyword>null</keyword>
     </context>
 
+    <context id="def-keyword" style-ref="def-keyword">
+      <keyword>module</keyword>
+      <keyword>function</keyword>
+      <keyword>func</keyword>
+      <keyword>type</keyword>
+      <keyword>macro</keyword>
+    </context>
+
     <context id="keyword" style-ref="keyword">
       <keyword>import</keyword>
       <keyword>def</keyword>
-      <keyword>module</keyword>
-      <keyword>function</keyword>
-      <keyword>type</keyword>
-      <keyword>macro</keyword>
       <keyword>if</keyword>
       <keyword>else</keyword>
       <keyword>do</keyword>
@@ -102,15 +108,18 @@
       <keyword>use</keyword>
     </context>
 
-    <context id="ar_keyword" style-ref="keyword">
-      <keyword>اشمل</keyword>
-      <keyword>عرّف</keyword>
-      <keyword>عرف</keyword>
+    <context id="ar-def-keyword" style-ref="def-keyword">
       <keyword>حزمة</keyword>
       <keyword>دالّة</keyword>
       <keyword>دالة</keyword>
       <keyword>ماكرو</keyword>
       <keyword>صنف</keyword>
+    </context>
+
+    <context id="ar-keyword" style-ref="keyword">
+      <keyword>اشمل</keyword>
+      <keyword>عرّف</keyword>
+      <keyword>عرف</keyword>
       <keyword>إذا</keyword>
       <keyword>وإلا</keyword>
       <keyword>بينما</keyword>
@@ -186,7 +195,9 @@
 
     <context id="alusus" class="no-spell-check">
       <include>
-        <context ref="def:c-like-comment"/>
+        <context ref="def:c-like-comment" style-ref="comment"/>
+        <context ref="def:c-like-comment-multiline" style-ref="comment"/>
+        <context ref="def:c-like-close-comment-outside-comment" style-ref="comment"/>
 
         <context ref="punctuation"/>
         <context ref="square-brackets"/>
@@ -199,7 +210,9 @@
         <context ref="constant"/>
         <context ref="ar_constant"/>
         <context ref="keyword"/>
-        <context ref="ar_keyword"/>
+        <context ref="def-keyword"/>
+        <context ref="ar-keyword"/>
+        <context ref="ar-def-keyword"/>
         <context ref="type"/>
         <context ref="predef_type"/>
         <context ref="ar_type"/>
