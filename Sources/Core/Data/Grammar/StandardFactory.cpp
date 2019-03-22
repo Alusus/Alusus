@@ -1720,27 +1720,22 @@ void StandardFactory::createSubjectProductionModule()
     }, {
       {S("data"), PARSE_REF(S("args.fltr"))},
       {S("terms"), List::create({}, {
-        TokenTerm::create({
-          {S("tokenId"), std::make_shared<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))}
-        }),
+        ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Identifier")) }}),
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Literal")) }})
       })}
     })},
     {S("vars"), Map::create({}, {{ S("fltr"), 0 }} )},
+    {S("handler"), this->parsingHandler}
+  }));
+
+  // Identifier: lexer.Identifier
+  this->set(S("root.Subject.Identifier"), SymbolDefinition::create({}, {
+    {S("term"), TokenTerm::create({
+      {S("tokenId"), std::make_shared<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))}
+    })},
     {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
       auto current = state->getData().ti_cast_get<Ast::Token>();
-      SharedPtr<Ast::Text> newObj;
-      if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.Identifier"))) {
-        newObj = std::make_shared<Ast::Identifier>();
-      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.IntLiteral"))) {
-        newObj = std::make_shared<Ast::IntegerLiteral>();
-      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.FloatLiteral"))) {
-        newObj = std::make_shared<Ast::FloatLiteral>();
-      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.CharLiteral"))) {
-        newObj = std::make_shared<Ast::CharLiteral>();
-      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.StringLiteral"))) {
-        newObj = std::make_shared<Ast::StringLiteral>();
-      }
+      SharedPtr<Ast::Text> newObj = std::make_shared<Ast::Identifier>();
       newObj->setValue(current->getText());
       newObj->setProdId(current->getProdId());
       newObj->setSourceLocation(current->findSourceLocation());
@@ -1765,7 +1760,23 @@ void StandardFactory::createSubjectProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{ S("fltr"), 0 }} )},
-    {S("handler"), this->parsingHandler}
+    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+      auto current = state->getData().ti_cast_get<Ast::Token>();
+      SharedPtr<Ast::Text> newObj;
+      if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.IntLiteral"))) {
+        newObj = std::make_shared<Ast::IntegerLiteral>();
+      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.FloatLiteral"))) {
+        newObj = std::make_shared<Ast::FloatLiteral>();
+      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.CharLiteral"))) {
+        newObj = std::make_shared<Ast::CharLiteral>();
+      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.StringLiteral"))) {
+        newObj = std::make_shared<Ast::StringLiteral>();
+      }
+      newObj->setValue(current->getText());
+      newObj->setProdId(current->getProdId());
+      newObj->setSourceLocation(current->findSourceLocation());
+      state->setData(newObj);
+    })}
   }));
 
   this->set(S("root.Subject.expression"), TioSharedPtr::null);

@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/MacroParsingHandler.cpp
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -28,14 +28,34 @@ void MacroParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
   }
 
   // Prepare macro signature and body.
+  Core::Data::Ast::Identifier *defName = 0;
   SharedPtr<Core::Data::Ast::Map> args;
   TiObject *body;
   if (expr->getElementCount() == 2) {
+    // We have just a body.
     body = expr->getElement(1);
     args = Core::Data::Ast::Map::create();
-  } else {
+  } else if (expr->getElementCount() == 3) {
+    // We have a body plus either a name or a signature.
     body = expr->getElement(2);
-    auto signature = ti_cast<Core::Data::Ast::Bracket>(expr->getElement(1));
+    defName = ti_cast<Core::Data::Ast::Identifier>(expr->getElement(1));
+    if (defName == 0) {
+      auto signature = ti_cast<Core::Data::Ast::Bracket>(expr->getElement(1));
+      if (signature == 0) {
+        throw EXCEPTION(GenericException, S("Invalid macro signature."));
+      }
+      if (!this->parseArgs(state, signature, args)) {
+        state->setData(SharedPtr<TiObject>(0));
+        return;
+      }
+    } else {
+      args = Core::Data::Ast::Map::create();
+    }
+  } else {
+    // We have a name, a signature, and a body.
+    defName = ti_cast<Core::Data::Ast::Identifier>(expr->getElement(1));
+    body = expr->getElement(3);
+    auto signature = ti_cast<Core::Data::Ast::Bracket>(expr->getElement(2));
     if (signature == 0) {
       throw EXCEPTION(GenericException, S("Invalid macro signature."));
     }
@@ -54,7 +74,19 @@ void MacroParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
     { S("body"), body }
   });
 
-  state->setData(macro);
+  // Do we have just a macro, or a full definition?
+  if (defName == 0) {
+    state->setData(macro);
+  } else {
+    auto def = Core::Data::Ast::Definition::create({
+      { S("name"), defName->getValue() },
+      { S("prodId"), exprMetadata->getProdId() },
+      { S("sourceLocation"), exprMetadata->findSourceLocation() }
+    }, {
+      { S("target"), macro }
+    });
+    state->setData(def);
+  }
 }
 
 
@@ -113,6 +145,29 @@ Bool MacroParsingHandler::parseArg(
     state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgDefNotice>(Core::Data::Ast::findSourceLocation(arg)));
     return false;
   }
+}
+
+
+Bool MacroParsingHandler::onIncomingModifier(
+  Core::Processing::Parser *parser, Core::Processing::ParserState *state,
+  TioSharedPtr const &modifierData, Bool prodProcessingComplete
+) {
+  if (!prodProcessingComplete) return false;
+
+  // Prepare to modify.
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  this->prepareToModifyData(state, levelOffset);
+  auto data = state->getData(levelOffset).get();
+  auto definition = ti_cast<Core::Data::Ast::Definition>(data);
+
+  if (definition == 0) return false;
+
+  // Add an unknown modifier.
+  auto symbolDef = state->refTopProdLevel().getProd();
+  Core::Data::Ast::translateModifier(symbolDef, modifierData.get());
+  definition->addModifier(modifierData);
+
+  return true;
 }
 
 } // namespace
