@@ -16,75 +16,75 @@ Scope [Statements.StmtList]
   args: List
    StringLiteral: leading [Subject.Literal]
   modifiers: List
-   Identifier: test [Subject.Parameter]
+   Identifier: test [Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
    StringLiteral: trailing [Subject.Literal]
   modifiers: List
-   Identifier: test [Subject.Parameter]
+   Identifier: test [Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
    StringLiteral: leading 2 [Subject.Literal]
   modifiers: List
-   Identifier: test1 [Subject.Parameter]
-   Identifier: test2 [Subject.Parameter]
+   Identifier: test1 [Subject.Identifier]
+   Identifier: test2 [Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
    StringLiteral: trailing 2 [Subject.Literal]
   modifiers: List
-   Identifier: test1 [Subject.Parameter]
-   Identifier: test2 [Subject.Parameter]
+   Identifier: test1 [Subject.Identifier]
+   Identifier: test2 [Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
    StringLiteral: leading parens [Subject.Literal]
   modifiers: List
    ParamPass () [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Parameter]
+    operand: Identifier: test [Subject.Identifier]
     param: IntegerLiteral: 1 [Subject.Literal]
  GenericCommand do [Main.Do]
   args: List
    StringLiteral: trailing parens [Subject.Literal]
   modifiers: List
    ParamPass () [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Parameter]
+    operand: Identifier: test [Subject.Identifier]
     param: IntegerLiteral: 1 [Subject.Literal]
  GenericCommand do [Main.Do]
   args: List
    StringLiteral: leading square brackets 2 [Subject.Literal]
   modifiers: List
    ParamPass [] [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Parameter]
+    operand: Identifier: test [Subject.Identifier]
     param: IntegerLiteral: 1 [Subject.Literal]
    ParamPass [] [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Parameter]
+    operand: Identifier: test [Subject.Identifier]
     param: IntegerLiteral: 2 [Subject.Literal]
  GenericCommand do [Main.Do]
   args: List
    StringLiteral: trailing square brackets 2 [Subject.Literal]
   modifiers: List
    ParamPass [] [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Parameter]
+    operand: Identifier: test [Subject.Identifier]
     param: IntegerLiteral: 1 [Subject.Literal]
    ParamPass [] [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Parameter]
+    operand: Identifier: test [Subject.Identifier]
     param: IntegerLiteral: 2 [Subject.Literal]
  AssignmentOperator = [Expression.AssignmentExp]
-  first: Identifier: a [Subject.Parameter]
+  first: Identifier: a [Subject.Identifier]
   second: AdditionOperator + [Expression.AddExp]
    first: IntegerLiteral: 1 [Subject.Literal]
    second: IntegerLiteral: 2 [Subject.Literal]
  AssignmentOperator = [Expression.AssignmentExp]
-  first: Identifier: a [Subject.Parameter]
+  first: Identifier: a [Subject.Identifier]
   second: AdditionOperator + [Expression.AddExp]
    first: IntegerLiteral: 1 [Subject.Literal]
    second: IntegerLiteral: 2 [Subject.Literal]
  AssignmentOperator = [Expression.AssignmentExp]
-  first: Identifier: a [Subject.Parameter]
+  first: Identifier: a [Subject.Identifier]
   second: AdditionOperator + [Expression.AddExp]
    first: IntegerLiteral: 1 [Subject.Literal]
    second: IntegerLiteral: 2 [Subject.Literal]
  AssignmentOperator = [Expression.AssignmentExp]
-  first: Identifier: a [Subject.Parameter]
+  first: Identifier: a [Subject.Identifier]
   second: AdditionOperator + [Expression.AddExp]
    first: IntegerLiteral: 1 [Subject.Literal]
    second: IntegerLiteral: 2 [Subject.Literal]
@@ -102,6 +102,6 @@ Scope [Statements.StmtList]
   modifiers: NULL
  Definition [Main.Def] p
   modifiers:
-   Identifier: public [Subject.Parameter]
+   Identifier: public [Subject.Identifier]
   target: IntegerLiteral: 5 [Subject.Literal]
 ------------------------------------------------------

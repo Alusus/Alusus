@@ -40,6 +40,17 @@ def Main: module
   @merge def MergeType: {
     def y: Int;
   };
+
+  type WrongType2;
+  type MyType2 {
+    def x: Int;
+  };
+  type MergeType2 {
+    def y: Int;
+  };
+  @merge type MergeType2 {
+    def z: Int;
+  };
 };
 
 dump_ast Main;

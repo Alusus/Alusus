@@ -296,6 +296,13 @@ void GrammarFactory::createGrammar(
       {S("kwd"), Map::create({}, { { S("module"), 0 }, { S("حزمة"), 0 } })},
       {S("prms"), List::create({}, {
         Map::create({}, {
+          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
+          {S("min"), std::make_shared<TiInt>(0)},
+          {S("max"), std::make_shared<TiInt>(1)},
+          {S("pty"), std::make_shared<TiInt>(1)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
+        }),
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.ModuleBody"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -304,13 +311,10 @@ void GrammarFactory::createGrammar(
         })
       })}
     })},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
-      // We'll use the source location of the "module" keyword, rather than of the first statement.
-      auto metaHaving = ti_cast<Core::Data::Ast::MetaHaving>(currentList->getElement(1));
-      metaHaving->setSourceLocation(Core::Data::Ast::findSourceLocation(currentList->getElement(0)));
-      state->setData(getSharedPtr(currentList->getElement(1)));
-    })}
+    {S("modifierTranslations"), Map::create({}, {
+      {S("دمج"), TiStr::create(S("merge"))}
+    })},
+    {S("handler"), std::make_shared<Handlers::ModuleParsingHandler>() }
   }).get());
   innerCmdList->add(PARSE_REF(S("module.Module")));
   this->set(S("root.Main.ModuleBody"), SymbolDefinition::create({
@@ -338,6 +342,13 @@ void GrammarFactory::createGrammar(
       {S("kwd"), Map::create({}, { { S("type"), 0 }, { S("صنف"), 0 } })},
       {S("prms"), List::create({}, {
         Map::create({}, {
+          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
+          {S("min"), std::make_shared<TiInt>(0)},
+          {S("max"), std::make_shared<TiInt>(1)},
+          {S("pty"), std::make_shared<TiInt>(1)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
+        }),
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.BlockSet"))},
           {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -346,17 +357,10 @@ void GrammarFactory::createGrammar(
         })
       })}
     })},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
-      auto metadata = ti_cast<Data::Ast::MetaHaving>(currentList);
-      auto type = Ast::UserType::create({
-        { "prodId", metadata->getProdId()},
-        { "sourceLocation", metadata->findSourceLocation() }
-      }, {
-        { "body", currentList->getElement(1) }
-      });
-      state->setData(type);
-    })}
+    {S("modifierTranslations"), Map::create({}, {
+      {S("دمج"), TiStr::create(S("merge"))}
+    })},
+    {S("handler"), std::make_shared<Handlers::TypeParsingHandler>() }
   }).get());
   innerCmdList->add(PARSE_REF(S("module.Type")));
 
@@ -364,8 +368,15 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.Function"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
     {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("function"), 0 }, { S("دالّة"), 0 }, { S("دالة"), 0 } })},
+      {S("kwd"), Map::create({}, { { S("func"), 0 }, { S("function"), 0 }, { S("دالّة"), 0 }, { S("دالة"), 0 } })},
       {S("prms"), List::create({}, {
+        Map::create({}, {
+          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
+          {S("min"), std::make_shared<TiInt>(0)},
+          {S("max"), std::make_shared<TiInt>(1)},
+          {S("pty"), std::make_shared<TiInt>(1)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
+        }),
         Map::create({}, {
           {S("prd"), PARSE_REF(S("module.FuncSigExpression"))},
           {S("min"), std::make_shared<TiInt>(0)},
@@ -383,7 +394,8 @@ void GrammarFactory::createGrammar(
       })}
     })},
     {S("modifierTranslations"), Map::create({}, {
-      {S("تصدير"), TiStr::create(S("expname"))}
+      {S("تصدير"), TiStr::create(S("expname"))},
+      {S("مشترك"), TiStr::create(S("shared"))}
     })},
     {S("handler"), std::make_shared<Handlers::FunctionParsingHandler>() }
   }).get());
@@ -392,9 +404,14 @@ void GrammarFactory::createGrammar(
   // FuncSigExpression
   this->set(S("root.Main.FuncSigExpression"), Module::create({
     {S("baseRef"), PARSE_REF(S("module.Expression")) },
-    {S("startRef"), PARSE_REF(S("module.LowLinkExp"))}
+    {S("startRef"), PARSE_REF(S("module.LowerLinkExp"))}
   }, {
     {S("subject"), PARSE_REF(S("module.owner.FuncSigSubject"))}
+  }).get());
+  this->set(S("root.Main.FuncSigExpression.LowerLinkExp"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("bmodule.LowerLinkExp"))},
+  }, {
+    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(1)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.LowLinkExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.LowLinkExp"))},
@@ -448,6 +465,13 @@ void GrammarFactory::createGrammar(
       {S("kwd"), Map::create({}, { { S("macro"), 0 }, { S("ماكرو"), 0 } })},
       {S("prms"), List::create({}, {
         Map::create({}, {
+          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
+          {S("min"), std::make_shared<TiInt>(0)},
+          {S("max"), std::make_shared<TiInt>(1)},
+          {S("pty"), std::make_shared<TiInt>(1)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
+        }),
+        Map::create({}, {
           {S("prd"), PARSE_REF(S("module.MacroSignature"))},
           {S("min"), std::make_shared<TiInt>(0)},
           {S("max"), std::make_shared<TiInt>(1)},
@@ -456,7 +480,7 @@ void GrammarFactory::createGrammar(
         }),
         Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Expression"))},
-          {S("min"), std::make_shared<TiInt>(0)},
+          {S("min"), std::make_shared<TiInt>(1)},
           {S("max"), std::make_shared<TiInt>(1)},
           {S("pty"), std::make_shared<TiInt>(1)},
           {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}

@@ -1,8 +1,8 @@
 import "Srl/Console.alusus";
 
-def HelloWorld: module
+module HelloWorld
 {
-  def start: function
+  function start
   {
     Srl.Console.print("Hello World!\n");
   };

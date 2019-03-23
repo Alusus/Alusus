@@ -1,11 +1,11 @@
 import "Gtk/gtk.alusus";
 import "Srl/String.alusus";
 
-def WidgetGuide: module
+module WidgetGuide
 {
   def window: ptr[Gtk.AppWindow];
 
-  def start: function
+  function start
   {
     def app: ptr[Gtk.App];
     def status: Int;
@@ -16,7 +16,7 @@ def WidgetGuide: module
     Glib.unref(app);
   };
 
-  def activate: function (app: ptr[Gtk.App], data: ptr)
+  function activate (app: ptr[Gtk.App], data: ptr)
   {
     // Create the main window.
     window = Gtk.AppWindow.new(app);
@@ -54,7 +54,7 @@ def WidgetGuide: module
     Gtk.Widget.showAll(window);
   };
 
-  def createHeaderBar: function () => ptr[Gtk.HeaderBar]
+  function createHeaderBar () => ptr[Gtk.HeaderBar]
   {
     def headerBar: ptr[Gtk.HeaderBar];
     headerBar = Gtk.HeaderBar.new();
@@ -75,18 +75,18 @@ def WidgetGuide: module
     return headerBar;
   };
 
-  def createMenu: function (headerBar: ptr[Gtk.HeaderBar])
+  function createMenu (headerBar: ptr[Gtk.HeaderBar])
   {
     def menu: ptr[Gtk.Menu];
     menu = Gtk.Menu.new();
 
     def item: ptr[Gtk.MenuItem];
     item = Gtk.MenuItem.new("About");
-    Glib.connectSignal(item, Gtk.Signal.ACTIVATE, onAboutClicked~ptr~cast[ptr[function]], 0, 0, 0);
+    Glib.connectSignal(item, Gtk.Signal.ACTIVATE, onAboutClicked~ptr~cast[ptr[func]], 0, 0, 0);
     Gtk.MenuShell.append(menu, item);
     Gtk.Widget.show(item);
     item = Gtk.MenuItem.new("Quit");
-    Glib.connectSignal(item, Gtk.Signal.ACTIVATE, onQuitClicked~ptr~cast[ptr[function]], 0, 0, 0);
+    Glib.connectSignal(item, Gtk.Signal.ACTIVATE, onQuitClicked~ptr~cast[ptr[func]], 0, 0, 0);
     Gtk.MenuShell.append(menu, item);
     Gtk.Widget.show(item);
     
@@ -96,7 +96,7 @@ def WidgetGuide: module
     Gtk.HeaderBar.packEnd(headerBar, button);
   };
 
-  def createListBox: function (paned: ptr[Gtk.Paned], label: ptr[Gtk.Label])
+  function createListBox (paned: ptr[Gtk.Paned], label: ptr[Gtk.Label])
   {
     def listBox: ptr[Gtk.ListBox];
     listBox = Gtk.ListBox.new();
@@ -114,7 +114,7 @@ def WidgetGuide: module
     Glib.connectSignal(listBox, Gtk.Signal.ROW_SELECTED, onListBoxSelectionChanged~ptr~cast[ptr[function]], label, 0, 0);
   };
 
-  def createLogoAndLabel: function (box: ptr[Gtk.Box]) => ptr[Gtk.Label]
+  function createLogoAndLabel (box: ptr[Gtk.Box]) => ptr[Gtk.Label]
   {
     def hBox: ptr[Gtk.Box];
     def image: ptr[Gtk.Image];
@@ -128,7 +128,7 @@ def WidgetGuide: module
     return label;
   };
 
-  def createEntry: function (box: ptr[Gtk.Box], label: ptr[Gtk.Label])
+  function createEntry (box: ptr[Gtk.Box], label: ptr[Gtk.Label])
   {
     def entry: ptr[Gtk.Entry];
     entry = Gtk.Entry.new();
@@ -137,7 +137,7 @@ def WidgetGuide: module
     Glib.connectSignal(entry, Gtk.Signal.CHANGED, onEntryChanged~ptr~cast[ptr[function]], label, 0, 0);
   };
 
-  def createTextView: function (box: ptr[Gtk.Box]) => ptr[Gtk.TextBuffer]
+  function createTextView (box: ptr[Gtk.Box]) => ptr[Gtk.TextBuffer]
   {
     def textView: ptr[Gtk.TextView];
     def textBuffer: ptr[Gtk.TextBuffer];
@@ -148,7 +148,7 @@ def WidgetGuide: module
     return textBuffer;
   };
 
-  def createTextViewButtons: function (box: ptr[Gtk.Box], buffer: ptr[Gtk.TextBuffer])
+  function createTextViewButtons (box: ptr[Gtk.Box], buffer: ptr[Gtk.TextBuffer])
   {
     def buttonBox: ptr[Gtk.ButtonBox];
     def sayButton: ptr[Gtk.Button];
@@ -164,7 +164,7 @@ def WidgetGuide: module
     Gtk.Box.packStart(box, buttonBox, 1, 0, 0);
   };
 
-  def createToggleButton: function (box: ptr[Gtk.Box], label: ptr[Gtk.Label])
+  function createToggleButton (box: ptr[Gtk.Box], label: ptr[Gtk.Label])
   {
     def button: ptr[Gtk.ToggleButton];
     button = Gtk.ToggleButton.new("Toggle");
@@ -172,7 +172,7 @@ def WidgetGuide: module
     Glib.connectSignal(button, Gtk.Signal.TOGGLED, onToggleChanged~ptr~cast[ptr[function]], label, 0, 0);
   };
 
-  def createCheckButton: function (box: ptr[Gtk.Box], label: ptr[Gtk.Label])
+  function createCheckButton (box: ptr[Gtk.Box], label: ptr[Gtk.Label])
   {
     def button: ptr[Gtk.CheckButton];
     button = Gtk.CheckButton.new("Check");
@@ -180,21 +180,21 @@ def WidgetGuide: module
     Glib.connectSignal(button, Gtk.Signal.TOGGLED, onToggleChanged~ptr~cast[ptr[function]], label, 0, 0);
   };
 
-  def onListBoxSelectionChanged: function (listBox: ptr[Gtk.ListBox], item: ptr[Gtk.Bin], label: ptr[Gtk.Label])
+  function onListBoxSelectionChanged (listBox: ptr[Gtk.ListBox], item: ptr[Gtk.Bin], label: ptr[Gtk.Label])
   {
     def str: array[Char, 100];
     Srl.String.print(str~ptr, "Selected item: %s", Gtk.Label.getText(Gtk.Bin.getChild(item)~cast[ptr[Gtk.Label]]));
     Gtk.Label.setText(label, str~ptr);
   };
 
-  def onEntryChanged: function (editable: ptr[Gtk.Editable], label: ptr[Gtk.Label])
+  function onEntryChanged (editable: ptr[Gtk.Editable], label: ptr[Gtk.Label])
   {
     def str: array[Char, 100];
     Srl.String.print(str~ptr, "Entered text: %s", Gtk.Editable.getChars(editable, 0, -1));
     Gtk.Label.setText(label, str~ptr);
   };
 
-  def onAboutClicked: function (widget: ptr[Gtk.Widget], data: ptr)
+  function onAboutClicked (widget: ptr[Gtk.Widget], data: ptr)
   {
     def dialog: ptr[Gtk.MessageDialog];
     dialog = Gtk.MessageDialog.new(
@@ -204,7 +204,7 @@ def WidgetGuide: module
     Gtk.Widget.destroy(dialog);
   };
 
-  def onSayClicked: function (widget: ptr[Gtk.Widget], textBuffer: ptr[Gtk.TextBuffer])
+  function onSayClicked (widget: ptr[Gtk.Widget], textBuffer: ptr[Gtk.TextBuffer])
   {
     // Get the text from the buffer.
     def text: ptr[Char];
@@ -222,12 +222,12 @@ def WidgetGuide: module
     Gtk.Widget.destroy(dialog);
   };
 
-  def onClearClicked: function (widget: ptr[Gtk.Widget], textBuffer: ptr[Gtk.TextBuffer])
+  function onClearClicked (widget: ptr[Gtk.Widget], textBuffer: ptr[Gtk.TextBuffer])
   {
     Gtk.TextBuffer.setText(textBuffer, "", 0);
   };
 
-  def onToggleChanged: function (toggle: ptr[Gtk.ToggleButton], label: ptr[Gtk.Label])
+  function onToggleChanged (toggle: ptr[Gtk.ToggleButton], label: ptr[Gtk.Label])
   {
     def active: Bool;
     active = Gtk.ToggleButton.getActive(toggle);
@@ -235,7 +235,7 @@ def WidgetGuide: module
     else Gtk.Label.setText(label, "Toggle is now OFF");
   };
 
-  def onQuitClicked: function (widget: ptr[Gtk.Widget], data: ptr)
+  function onQuitClicked (widget: ptr[Gtk.Widget], data: ptr)
   {
     Gtk.Widget.destroy(window);
   };

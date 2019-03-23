@@ -1,5 +1,5 @@
 /**
- * @file Spp/Handlers/FunctionParsingHandler.h
+ * @file Spp/Handlers/ModuleParsingHandler.h
  *
  * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
@@ -9,25 +9,25 @@
  */
 //==============================================================================
 
-#ifndef SPP_HANDLERS_FUNCTIONPARSINGHANDLER_H
-#define SPP_HANDLERS_FUNCTIONPARSINGHANDLER_H
+#ifndef SPP_HANDLERS_MODULEPARSINGHANDLER_H
+#define SPP_HANDLERS_MODULEPARSINGHANDLER_H
 
 namespace Spp::Handlers
 {
 
-class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsingHandler
+class ModuleParsingHandler : public Core::Processing::Handlers::GenericParsingHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(FunctionParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
+  TYPE_INFO(ModuleParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
             "Spp.Handlers", "Spp", "alusus.net");
 
 
   //============================================================================
   // Constructor
 
-  public: FunctionParsingHandler()
+  public: ModuleParsingHandler()
   {
   }
 
@@ -37,29 +37,9 @@ class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsing
 
   public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
-  private: Bool parseArgs(
-    Core::Processing::ParserState *state, Core::Data::Ast::Bracket *bracket, SharedPtr<Core::Data::Ast::Map> &result
-  );
-
-  private: Bool parseArg(
-    Core::Processing::ParserState *state, TioSharedPtr astNode, SharedPtr<Core::Data::Ast::Map> const &result
-  );
-
-  private: Bool parseNumber(
-    Core::Processing::ParserState *state, TiObject *ast, TiWord &result, Core::Data::Ast::MetaHaving *parentMetadata
-  );
-
   public: virtual Bool onIncomingModifier(
     Core::Processing::Parser *parser, Core::Processing::ParserState *state,
     TioSharedPtr const &modifierData, Bool prodProcessingComplete
-  );
-
-  private: Bool processExpnameModifier(
-    Core::Processing::ParserState *state, TioSharedPtr const &modifierData
-  );
-
-  private: Bool processUnknownModifier(
-    Core::Processing::ParserState *state, TioSharedPtr const &modifierData
   );
 
 }; // class
