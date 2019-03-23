@@ -97,26 +97,11 @@ Bool DefParsingHandler::onIncomingModifier(
     definition->setToMerge(true);
   } else {
     // Add an unknown modifier.
-    this->translateModifier(symbolDef, modifierData.get());
+    Core::Data::Ast::translateModifier(symbolDef, modifierData.get());
     definition->addModifier(modifierData);
   }
 
   return true;
-}
-
-
-void DefParsingHandler::translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *modifier)
-{
-  if (modifier->isDerivedFrom<Data::Ast::Identifier>()) {
-    auto identifier = static_cast<Data::Ast::Identifier*>(modifier);
-    identifier->setValue(symbolDef->getTranslatedModifierKeyword(identifier->getValue().get()).c_str());
-  } else if (modifier->isDerivedFrom<Data::Ast::LinkOperator>()) {
-    auto link = static_cast<Data::Ast::LinkOperator*>(modifier);
-    this->translateModifier(symbolDef, link->getFirst().get());
-  } else if (modifier->isDerivedFrom<Data::Ast::ParamPass>()) {
-    auto paramPass = static_cast<Data::Ast::ParamPass*>(modifier);
-    this->translateModifier(symbolDef, paramPass->getOperand().get());
-  }
 }
 
 } // namespace

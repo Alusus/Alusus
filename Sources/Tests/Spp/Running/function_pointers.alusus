@@ -35,7 +35,7 @@ def Main: module
   def pget2: ptr[function ()=>Int[32]];
   def pmul2: ptr[function (n: Int[32])=>Int[32]];
 
-  def getFunc1: function ()=>ptr[function ()=>Int[32]]
+  def getFunc1: function (): ptr[function ():Int[32]]
   {
     return getNum4~ptr
   };

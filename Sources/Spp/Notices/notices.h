@@ -58,9 +58,6 @@ DEFINE_NOTICE(ArgsMismatchNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1008"
 DEFINE_NOTICE(ConflictingDefinitionsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1009", 1,
   "Multiple conflicting definitions were found for the given callee."
 );
-DEFINE_NOTICE(TypeMergeConflictNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1010", 1,
-  "Trying to merge possibly incompatible types. Types can only be extended by anonymous blocks."
-);
 
 } /// namespace
 
@@ -80,8 +77,8 @@ DEFINE_NOTICE(MissingFunctionSigNotice, "Spp.Notices", "Spp", "alusus.net", "SPP
 DEFINE_NOTICE(InvalidFunctionSignatureNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1003", 1,
   "Invalid function signature."
 );
-DEFINE_NOTICE(InvalidFunctionBodyNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1004", 1,
-  "Invalid function body."
+DEFINE_NOTICE(InvalidFunctionElementNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1004", 1,
+  "Invalid function element."
 );
 DEFINE_NOTICE(InvalidFunctionArgNotice, "Spp.Notices", "Spp", "alusus.net", "SPPH1005", 1,
   "Invalid function argumnet."
