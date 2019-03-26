@@ -542,6 +542,7 @@ void StandardFactory::createTokenDefinitions()
             ConstTerm::create({{ S("matchString"), TiWStr(S("'")) }}),
             ConstTerm::create({{ S("matchString"), TiWStr(S("n")) }}),
             ConstTerm::create({{ S("matchString"), TiWStr(S("t")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("f")) }}),
             ConstTerm::create({{ S("matchString"), TiWStr(S("r")) }}),
             ConstTerm::create({{ S("matchString"), TiWStr(S("ج")) }}),
             ConstTerm::create({{ S("matchString"), TiWStr(S("ت")) }}),
