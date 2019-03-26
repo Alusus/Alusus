@@ -19,7 +19,7 @@ def a: {
   do [s:10];
 
   do {
-    strVar = "Hello World. \x41 \h42\h43 \u26D4 \u24D6\u2D64"; // inline comment
+    strVar = "Hello\f World. \x41 \h42\h43 \u26D4 \u24D6\u2D64"; // inline comment
     intVar = 5;
     intVar--;
     opVar = i + j * k;/* multiline

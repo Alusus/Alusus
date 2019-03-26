@@ -27,10 +27,12 @@ void StringLiteralTokenizingHandler::prepareToken(
   static WChar backSlashChar = getWideCharFromUtf8(S("\\"));
   static WChar newLineChar = getWideCharFromUtf8(S("\n"));
   static WChar carriageReturnChar = getWideCharFromUtf8(S("\r"));
+  static WChar formFeedChar = getWideCharFromUtf8(S("\f"));
   static WChar tabChar = getWideCharFromUtf8(S("\t"));
   static WChar nLetterChar = getWideCharFromUtf8(S("n"));
   static WChar rLetterChar = getWideCharFromUtf8(S("r"));
   static WChar tLetterChar = getWideCharFromUtf8(S("t"));
+  static WChar fLetterChar = getWideCharFromUtf8(S("f"));
   static WChar jeemLetterChar = getWideCharFromUtf8(S("ج"));
   static WChar raaLetterChar = getWideCharFromUtf8(S("ر"));
   static WChar taaLetterChar = getWideCharFromUtf8(S("ت"));
@@ -78,6 +80,9 @@ void StringLiteralTokenizingHandler::prepareToken(
         } else if (tokenText[i] == tLetterChar || tokenText[i] == taaLetterChar) {
           buffer[bufferLength] = tabChar;
           ++bufferLength;
+        } else if (tokenText[i] == fLetterChar) {
+            buffer[bufferLength] = formFeedChar;
+            ++bufferLength;
         } else if (tokenText[i] == xLetterChar || tokenText[i] == hLetterChar) {
           ++i;
           WChar val = (WChar)parseHexDigits(tokenText + i, 2);
