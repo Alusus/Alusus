@@ -69,16 +69,16 @@ def Main: module
   {
     def file: ptr[Srl.Fs.File];
     file = Srl.Fs.openFile(filename, "r");
-    Srl.Fs.seek(file, 10, Srl.Fs.Seek.set);
+    Srl.Fs.seek(file, 10, Srl.Fs.Seek.SET);
     def pos: Int;
     pos = Srl.Fs.tell(file);
     Srl.Console.print("%d\n", pos);
-    Srl.Fs.seek(file, 10, Srl.Fs.Seek.end);
+    Srl.Fs.seek(file, 10, Srl.Fs.Seek.END);
     pos = Srl.Fs.tell(file);
     Srl.Console.print("%d\n", pos);
     Srl.Fs.closeFile(file);
   };
-  
+
   def testCreatingEntireFile: function (filename: ptr[array[Char]])
   {
     def content: ptr[array[Char]];
@@ -89,7 +89,7 @@ def Main: module
     buffer = Srl.Fs.readFile(filename, size~ptr);
     Srl.Console.print("%s%d\n", buffer, size);
   };
-  
+
   def testOpenDir: function (dirname: ptr[array[Char]])
   {
     def dir: ptr[Srl.Fs.Dir];
