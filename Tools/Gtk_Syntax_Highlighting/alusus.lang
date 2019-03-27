@@ -16,9 +16,9 @@
   <styles>
     <style id="escaped-character" _name="Escaped Character"         map-to="def:special-char"/>
     <style id="literal"           _name="Literal"                   map-to="def:string"/>
-    <style id="keyword"           _name="Keyword"                   map-to="def:comment"/>
+    <style id="keyword"           _name="Keyword"                   map-to="def:type"/>
     <style id="def-keyword"       _name="Def Keyword"               map-to="def:keyword"/>
-    <style id="type"              _name="Data Type"                 map-to="def:type"/>
+    <style id="type"              _name="Data Type"                 map-to="def:comment"/>
     <style id="modifier"          _name="Modifier"                  map-to="def:preprocessor"/>
     <style id="constant"          _name="Constant"                  map-to="def:constant"/>
     <style id="punctuation"       _name="Punctuation"               map-to="def:comment"/>
