@@ -22,9 +22,9 @@ import "Srl/Memory.alusus";
     };
 
     def Seek: {
-      def set: 0;
-      def cur: 1;
-      def end: 2;
+      def SET: 0;
+      def CUR: 1;
+      def END: 2;
     };
 
     // DIRECTORY & FILE FUNCTIONS
@@ -81,10 +81,10 @@ import "Srl/Memory.alusus";
       def buffer: ptr[array[Char]];
       if exists(filename) {
         file = openFile(filename, "rb");
-        seek(file, 0, Seek.end);
+        seek(file, 0, Seek.END);
         size~cnt = tell(file);
         buffer = Srl.Memory.alloc(size~cnt + 1)~cast[ptr[array[Char]]];
-        seek(file, 0, Seek.set);
+        seek(file, 0, Seek.SET);
         read(buffer, size~cnt, 1, file);
         closeFile(file);
         buffer~cnt(size~cnt) = 0;
