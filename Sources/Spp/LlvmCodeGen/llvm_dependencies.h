@@ -13,21 +13,27 @@
 #ifndef SCG_CODEGENUNIT_H
 #define SCG_CODEGENUNIT_H
 
-#include <llvm/Assembly/PrintModulePass.h>
+#undef C
+
+#include <llvm/IR/IRPrintingPasses.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
-#include <llvm/ExecutionEngine/JIT.h>
+#include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/GlobalVariable.h>
-#include <llvm/Linker.h>
-#include <llvm/PassManager.h>
+#include <llvm/Linker/Linker.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/raw_os_ostream.h>
+
+#undef C
+#define C(x)	u8##x
+
 
 DEFINE_TYPE_NAME(llvm::Module, "llvm.org/LLVM/llvm.Module");
 DEFINE_TYPE_NAME(llvm::Function, "llvm.org/LLVM/llvm.Function");

@@ -18,6 +18,7 @@ add_definitions(${LLVM_DEFINITIONS})
 # Make sure the compiler finds the source files.
 include_directories("${AlususCore_SOURCE_DIR}")
 include_directories("${AlususTests_SOURCE_DIR}")
+link_directories("${CMAKE_INSTALL_PREFIX}/Libs")
 
 # Place files in folders for IDEs (though I only tried Visual Studio at the moment.)
 file(GLOB AlususTests_Source_Files *.cpp)
@@ -47,7 +48,7 @@ set_target_properties(AlususTests PROPERTIES OUTPUT_NAME alusus_tests)
 set_target_properties(AlususTests PROPERTIES DEBUG_OUTPUT_NAME alusus_tests.dbg)
 set_target_properties(AlususTests PROPERTIES VERSION ${AlususVersion})
 
-llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES core jit native)
+llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES core mcjit native)
 
 # Finally, we link Alusus libraries to our UnitTests project.
 target_link_libraries(AlususTests AlususCoreLib AlususStorage "dl")
