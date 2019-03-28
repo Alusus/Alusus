@@ -1,5 +1,6 @@
 ALUSUS_ROOT=/opt/Alusus
 
+ls /opt > /home/falhumai96/temp.txt
 
 # Copy symbolic link to PATH reachable dir.
 
@@ -13,8 +14,8 @@ if [ -L "${LINK_DIR}/الأسس" ]; then
    unlink ${LINK_DIR}/الأسس
 fi
 
-ln -s $(readlink -f ${ALUSUS_ROOT}/Bin/alusus) ${LINK_DIR}/alusus
-ln -s $(readlink -f ${ALUSUS_ROOT}/Bin/الأسس) ${LINK_DIR}/الأسس
+ln -sf $(readlink -f ${ALUSUS_ROOT}/Bin/alusus) ${LINK_DIR}/alusus
+ln -sf $(readlink -f ${ALUSUS_ROOT}/Bin/الأسس) ${LINK_DIR}/الأسس
 
 
 # Copy GTK syntax highlighting specs to gtksourceview folder.
