@@ -29,7 +29,6 @@ install_dep.install_package('colorama'); import colorama
 # Dependencies.
 LLVM_SRC_URL = "http://releases.llvm.org/7.0.1/llvm-7.0.1.src.tar.xz"
 LLVM_NAME = "llvm-7.0.1"
-DLFCN_WIN32_NAME = "dlfcn-win32"
 
 # Build Args
 MAKE_THREAD_COUNT = multiprocessing.cpu_count()
@@ -55,7 +54,7 @@ CREATE_PACKAGES = "no"
 ARCHITECTURE = "native"
 PACKAGE_NAME = "alusus"
 PACKAGE_DESCRIPTION = "Alusus Programming Language's core compilation system and standard libraries."
-PACKAGE_MAINTAINER = "hicham OUALI ALAMI<hicham@oualialami.com>"
+PACKAGE_MAINTAINER = "Sarmad Khalid Abdullah <sarmad@alusus.org>"
 PACKAGE_URL = "http://alusus.net"
 
 # Current system.
@@ -72,7 +71,6 @@ def process_args():
     global DEPS_PATH
     global PACKAGES_PATH
     global PRODUCT_PATH
-    global RELEASE_INSTALL_PATH
 
     parser = argparse.ArgumentParser(add_help=False,
                                      formatter_class=argparse.RawTextHelpFormatter)
@@ -300,7 +298,6 @@ def build_alusus():
     except (OSError, subprocess.CalledProcessError):
         failMsg("Building Alusus.")
         exit(1)
-    copy_other_installation_files()
     os.chdir(old_path)
     successMsg("Building Alusus.")
 
@@ -375,7 +372,7 @@ def create_packages():
     infoMsg("Creating installation packages...")
     shutil.rmtree(PACKAGES_PATH, ignore_errors=True)
     os.makedirs(PACKAGES_PATH)
-
+    copy_other_installation_files()
     if THIS_SYSTEM == "Windows":
         create_packages_windows()
     elif THIS_SYSTEM == "Linux" or THIS_SYSTEM == "Darwin":

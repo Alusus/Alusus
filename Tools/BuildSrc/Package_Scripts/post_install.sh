@@ -1,7 +1,5 @@
 ALUSUS_ROOT=/opt/Alusus
 
-ls /opt > /home/falhumai96/temp.txt
-
 # Copy symbolic link to PATH reachable dir.
 
 LINK_DIR=/usr/local/bin
@@ -28,4 +26,3 @@ elif [ -e "/usr/local/share/gtksourceview-3.0/language-specs" ]; then
 fi
 
 cp -f ${ALUSUS_ROOT}/Tools/Gtk_Syntax_Highlighting/alusus.lang ${LANG_SPEC_DIR}/
-
