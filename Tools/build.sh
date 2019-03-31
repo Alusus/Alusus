@@ -3,6 +3,8 @@
 # Dependencies
 LLVM_SRC_URL="http://llvm.org/releases/3.3/llvm-3.3.src.tar.gz"
 LLVM_NAME="llvm-3.3"
+LIBCURL_SRC_URL="https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.gz"
+LIBCURL_NAME="curl-7.64.1"
 
 # Paths
 ALUSUS_ROOT="$(pwd)/.."
@@ -120,6 +122,22 @@ else
   InformationMessage "LLVM is already built."
 fi
 
+if [[ ! -e ${LIBCURL_NAME} ]]; then
+  wget ${LIBCURL_SRC_URL}
+  tar -xvf ${LIBCURL_NAME}.tar.gz
+else
+  InformationMessage "libcurl sources is already available."
+fi
+
+if [[ ! -e ${ALUSUS_ROOT}/Lib/libcurl.so ]]; then
+  cd ${LIBCURL_NAME}
+  ./configure
+  make
+  cp lib/.libs/libcurl.so ${ALUSUS_ROOT}/Lib/
+else
+  InformationMessage "libcurl is already built."
+fi
+
 SuccessMessage "Preparing dependencies."
 
 
@@ -163,6 +181,7 @@ sudo cp changelog.en.txt ${INSTALL_PATH}/
 sudo cp changelog.ar.txt ${INSTALL_PATH}/
 sudo cp license.pdf ${INSTALL_PATH}/
 sudo cp license.txt ${INSTALL_PATH}/
+sudo cp Lib/libcurl.so ${INSTALL_PATH}/Lib/
 sudo chmod -R a+r /opt/Alusus/
 sudo sh -c 'find /opt/Alusus/ -type d | xargs chmod +x'
 

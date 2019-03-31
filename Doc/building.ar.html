@@ -34,11 +34,11 @@
  فيما يلي المكتبات التي يستخدمها المشروع والتي ستحتاج لتحميلها على نظامك قبل التمكن من بناء الشفرة المصدرية:
  <p><a href="http://llvm.org/releases/download.html#3.3" target="__blank">LLVM 3.3</a></p>
 
- بالإضافة إلى المكتبات أعلاه، ستحتاج إلى GCC و CMake و Gawk و PHP لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل valgrind.<br/>
+ بالإضافة إلى المكتبات أعلاه، ستحتاج إلى GCC و CMake و Gawk و PHP لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل valgrind. ولاستخدام https في مكتبة التنفيذ المعيارية ستحتاج أيضاً إلى libssl-dev.<br/>
   لتنصيب أدوات البناء في توزيعة أوبونتو استخدم الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake gawk php-cli</pre>
+<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake gawk php-cli libssl-dev</pre>
   وفي توزيعة فيدورا استخدم الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ sudo dnf install gcc gcc-c++ cmake gawk php valgrind valgrind-devel</pre>
+<pre dir=ltr class="code nohighlight">$ sudo dnf install gcc gcc-c++ cmake gawk php valgrind valgrind-devel libssl-dev</pre>
   لاحظ حاجتنا لتنصيب valgrind في توزيعة فيدورا للتمكن من بناء LLVM وهو الأمر الذي لم نحتج إليه مع توزيعة أوبونتو. قد تحتاج أيضاً لتنصيب حزم أخرى إن كنت تستخدم توزيعات غير المذكورة أعلاه. راجع موقع LLVM لمعلومات أوفر حول طريقة بنائها.<br/>
   <span style="color:red;">ملاحظة: ستحتاج إلى الإصدار 7 فما فوق من GCC. لن تتمكن من بناء شفرة الأسُس بإصدار أقدم.</span>
 
@@ -132,7 +132,7 @@ $ alusus helloworld.alusus --log 16
 
  </div>
  <div style="border-top: solid 1px; text-align: right; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2018م \ 1440هـ.<br/>
+  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2019م \ 1440هـ.<br/>
 نُشر هذا الملف برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0، والمضمّنة مع هذا الملف
 والمتوفرة أيضاً على الرابط <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>. يرجى قراءة الرخصة للتعرف على شروط الاستخدام والنسخ.</p>
  </div>

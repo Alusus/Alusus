@@ -143,7 +143,7 @@
 
     <context id="constant" style-ref="constant">
       <match extended="true">
-        (\b[A-Z_]+\b)
+        (\b[A-Z_][A-Z_0-9]+\b)
       </match>
     </context>
 

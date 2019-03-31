@@ -39,11 +39,11 @@
 
  <p><a href="http://llvm.org/releases/download.html#3.3" target="__blank">LLVM 3.3</a></p>
 
- In addition to the dependencies mentioned above, you'll need GCC (version 7 or above), CMake, Gawk, and PHP to be able to build the binaries from the source code. LLVM also has its own dependencies like valgrind for example.
+ In addition to the dependencies mentioned above, you'll need GCC (version 7 or above), CMake, Gawk, and PHP to be able to build the binaries from the source code. LLVM also has its own dependencies like valgrind for example. You'll also need libssl-dev to be able to use https in the Standard Runtime Library.<br/>
   To install the build tools in Ubuntu use the following command:
-<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake gawk php-cli</pre>
+<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake gawk php-cli libssl-dev</pre>
   And for Fedora use the following:
-<pre dir=ltr class="code nohighlight">$ sudo dnf install gcc gcc-c++ cmake gawk php valgrind valgrind-devel</pre>
+<pre dir=ltr class="code nohighlight">$ sudo dnf install gcc gcc-c++ cmake gawk php valgrind valgrind-devel libssl-dev</pre>
   Notice the need to install valgrind in Fedora in order to be able to build LLVM. We didn't need to install valgrind in Ubuntu. You might also need to install other packages if you are using distros other than the above. Visit LLVM's website for more details on how to build it.<br/>
   <span style="color:red;">Note: You'll need GCC version 7 or newer. You won't be able to build Alusus code with older versions.</span>
 
@@ -135,7 +135,7 @@ $ alusus helloworld.alusus --log 16
  The flags can be combined to display more than one level at the same time. For example, a value of 7 means logging all levels for the lexer.</p>
  </div>
  <div style="border-top: solid 1px; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>Copyright (C) 2018 <a href="http://sarmad-khalid.info" target="__blank">Sarmad Khalid Abdullah</a>.<br/>
+  <p>Copyright (C) 2019 <a href="http://sarmad-khalid.info" target="__blank">Sarmad Khalid Abdullah</a>.<br/>
   This file is released under Alusus Public License, Version 1.0. For details on usage and copying conditions
   read the full license in the accompanying license file or at <a style="white-space:nowrap;" href="http://alusus.net/alusus_license_1_0">http://alusus.net/alusus_license_1_0</a>.
   </p>
