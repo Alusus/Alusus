@@ -6,8 +6,9 @@
     {
       "taskName": "build",
       "command": "${workspaceRoot}/Tools/build.sh",
+      "args": ["--bloc", ".", "--iloc", "."],
       "options": {
-        "cwd": "${workspaceRoot}/Tools/"
+        "cwd": "${workspaceRoot}/"
       },
       "isBuildCommand": true,
       "showOutput": "always",
