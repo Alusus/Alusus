@@ -39,7 +39,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
 
   private: Core::Notices::Store *noticeStore = 0;
   private: SharedPtr<ExecutionContext> executionContext;
-  private: SharedPtr<llvm::Module> llvmModule;
+  private: std::unique_ptr<llvm::Module> llvmModule;
   private: SharedPtr<llvm::DataLayout> llvmDataLayout;
   private: Int blockIndex = 0;
   private: Int anonymousVarIndex = 0;
