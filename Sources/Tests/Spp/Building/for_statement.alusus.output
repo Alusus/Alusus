@@ -2,7 +2,7 @@ ERROR SPPG1007 @ (26,16): Invalid condition value.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
-target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+source_filename = "AlususProgram"
 
 @__anonymous0 = private constant [4 x i8] c"%d\0A\00", align 1
 @__anonymous1 = private constant [5 x i8] c"%d: \00", align 1
@@ -19,19 +19,19 @@ __block0:
   br label %__block1
 
 __block1:                                         ; preds = %__block2, %__block0
-  %0 = load i32* %i
+  %0 = load i32, i32* %i
   %1 = icmp slt i32 %0, 10
   br i1 %1, label %__block3, label %__block4
 
 __block2:                                         ; preds = %__block3
-  %2 = load i32* %i
+  %2 = load i32, i32* %i
   %3 = add nsw i32 %2, 1
   store i32 %3, i32* %i
   br label %__block1
 
 __block3:                                         ; preds = %__block1
-  %4 = load i32* %i
-  %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i32 0, i32 0), i32 %4)
+  %4 = load i32, i32* %i
+  %5 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous0, i32 0, i32 0), i32 %4)
   br label %__block2
 
 __block4:                                         ; preds = %__block1
@@ -42,24 +42,24 @@ __block4:                                         ; preds = %__block1
   br label %__block5
 
 __block5:                                         ; preds = %__block6, %__block4
-  %6 = load i32* %i
+  %6 = load i32, i32* %i
   %7 = icmp slt i32 %6, 5
   br i1 %7, label %__block7, label %__block8
 
 __block6:                                         ; preds = %__block12
-  %8 = load i32* %i
+  %8 = load i32, i32* %i
   %9 = add nsw i32 %8, 1
   store i32 %9, i32* %i
-  %10 = load i32* %j
+  %10 = load i32, i32* %j
   %11 = mul nsw i32 %10, 2
   store i32 %11, i32* %j
   br label %__block5
 
 __block7:                                         ; preds = %__block5
-  %12 = load i32* %i
-  %13 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([5 x i8]* @__anonymous1, i32 0, i32 0), i32 %12)
-  %14 = load i32* %j
-  %15 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous2, i32 0, i32 0), i32 %14)
+  %12 = load i32, i32* %i
+  %13 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @__anonymous1, i32 0, i32 0), i32 %12)
+  %14 = load i32, i32* %j
+  %15 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous2, i32 0, i32 0), i32 %14)
   store i32 0, i32* %k1
   br label %__block9
 
@@ -68,12 +68,12 @@ __block8:                                         ; preds = %__block5
   ret void
 
 __block9:                                         ; preds = %__block10, %__block7
-  %16 = load i32* %k1
+  %16 = load i32, i32* %k1
   %17 = icmp slt i32 %16, 5
   br i1 %17, label %__block11, label %__block12
 
 __block10:                                        ; preds = %__block11
-  %18 = load i32* %k1
+  %18 = load i32, i32* %k1
   %19 = add nsw i32 %18, 1
   store i32 %19, i32* %k1
   br label %__block9

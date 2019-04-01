@@ -1,6 +1,6 @@
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
-target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+source_filename = "AlususProgram"
 
 @__anonymous0 = private constant [3 x i8] c"%d\00", align 1
 @__anonymous1 = private constant [2 x i8] c"\0A\00", align 1
@@ -17,7 +17,7 @@ __block0:
   br label %__block1
 
 __block1:                                         ; preds = %__block6, %__block0
-  %0 = load i32* %i
+  %0 = load i32, i32* %i
   %1 = icmp slt i32 %0, 10
   br i1 %1, label %__block2, label %__block3
 
@@ -30,33 +30,33 @@ __block3:                                         ; preds = %__block1
   br label %__block7
 
 __block4:                                         ; preds = %__block5, %__block2
-  %2 = load i32* %j
-  %3 = load i32* %i
+  %2 = load i32, i32* %j
+  %3 = load i32, i32* %i
   %4 = icmp sle i32 %2, %3
   br i1 %4, label %__block5, label %__block6
 
 __block5:                                         ; preds = %__block4
-  %5 = load i32* %j
-  %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous0, i32 0, i32 0), i32 %5)
-  %7 = load i32* %j
+  %5 = load i32, i32* %j
+  %6 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @__anonymous0, i32 0, i32 0), i32 %5)
+  %7 = load i32, i32* %j
   %8 = add nsw i32 %7, 1
   store i32 %8, i32* %j
   br label %__block4
 
 __block6:                                         ; preds = %__block4
-  %9 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous1, i32 0, i32 0))
-  %10 = load i32* %i
+  %9 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @__anonymous1, i32 0, i32 0))
+  %10 = load i32, i32* %i
   %11 = add nsw i32 %10, 1
   store i32 %11, i32* %i
   br label %__block1
 
 __block7:                                         ; preds = %__block8, %__block3
-  %12 = load i32* %i
+  %12 = load i32, i32* %i
   %13 = icmp slt i32 %12, 10
   br i1 %13, label %__block9, label %__block10
 
 __block8:                                         ; preds = %__block14
-  %14 = load i32* %i
+  %14 = load i32, i32* %i
   %15 = add nsw i32 %14, 1
   store i32 %15, i32* %i
   br label %__block7
@@ -69,24 +69,24 @@ __block10:                                        ; preds = %__block7
   ret void
 
 __block11:                                        ; preds = %__block12, %__block9
-  %16 = load i32* %j
-  %17 = load i32* %i
+  %16 = load i32, i32* %j
+  %17 = load i32, i32* %i
   %18 = icmp sle i32 %16, %17
   br i1 %18, label %__block13, label %__block14
 
 __block12:                                        ; preds = %__block13
-  %19 = load i32* %j
+  %19 = load i32, i32* %j
   %20 = add nsw i32 %19, 1
   store i32 %20, i32* %j
   br label %__block11
 
 __block13:                                        ; preds = %__block11
-  %21 = load i32* %j
-  %22 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @__anonymous2, i32 0, i32 0), i32 %21)
+  %21 = load i32, i32* %j
+  %22 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @__anonymous2, i32 0, i32 0), i32 %21)
   br label %__block12
 
 __block14:                                        ; preds = %__block11
-  %23 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous3, i32 0, i32 0))
+  %23 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @__anonymous3, i32 0, i32 0))
   br label %__block8
 }
 ------------------------------------------------------------
