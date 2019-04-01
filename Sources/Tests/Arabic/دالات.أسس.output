@@ -1,6 +1,6 @@
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
-target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+source_filename = "AlususProgram"
 
 define void @"\D8\B1\D8\A6\D9\80\D9\8A\D8\B3\D9\8A.\D8\A5\D8\A8\D8\AF\D8\A3()"() {
 __block0:
