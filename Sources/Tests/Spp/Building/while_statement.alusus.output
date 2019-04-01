@@ -1,6 +1,6 @@
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
-target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+source_filename = "AlususProgram"
 
 @__anonymous0 = private constant [21 x i8] c"while-statement: %d\0A\00", align 1
 @__anonymous1 = private constant [17 x i8] c"while-block: %d\0A\00", align 1
@@ -15,13 +15,13 @@ __block0:
   br label %__block1
 
 __block1:                                         ; preds = %__block2, %__block0
-  %0 = load i32* %i
+  %0 = load i32, i32* %i
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %__block2, label %__block3
 
 __block2:                                         ; preds = %__block1
-  %2 = load i32* %i
-  %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([21 x i8]* @__anonymous0, i32 0, i32 0), i32 %2)
+  %2 = load i32, i32* %i
+  %3 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__anonymous0, i32 0, i32 0), i32 %2)
   br label %__block1
 
 __block3:                                         ; preds = %__block1
@@ -29,14 +29,14 @@ __block3:                                         ; preds = %__block1
   br label %__block4
 
 __block4:                                         ; preds = %__block5, %__block3
-  %4 = load i32* %i
+  %4 = load i32, i32* %i
   %5 = icmp sgt i32 %4, 0
   br i1 %5, label %__block5, label %__block6
 
 __block5:                                         ; preds = %__block4
-  %6 = load i32* %i
-  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([17 x i8]* @__anonymous1, i32 0, i32 0), i32 %6)
-  %8 = load i32* %i
+  %6 = load i32, i32* %i
+  %7 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__anonymous1, i32 0, i32 0), i32 %6)
+  %8 = load i32, i32* %i
   %9 = sub nsw i32 %8, 1
   store i32 %9, i32* %i
   br label %__block4
