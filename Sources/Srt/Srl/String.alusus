@@ -17,5 +17,59 @@ import "globals.alusus";
     def getLength: @expname[strlen] function (s: ptr[Char]) => Int[64];
     def print: @expname[sprintf] function (target: ptr[Char], format: ptr[Word[8]], args: ...any) => Int[32];
     def scan: @expname[sscanf] function (target: ptr[Char], format: ptr[Word[8]], args: ...any) => Int[32];
+
+    def _maxChars: alias array[Char, 16000];
+
+    def RegexMatches: type {
+      def count: Int;
+      def match: array[_maxChars];
+    };
+
+    def regex_t: type { 
+      def buffer: ptr[Char];
+      def allocated: Word[64];
+      def used: Word[64];
+      def syntax: Word[64];
+      def fastmap: ptr[Char];
+      def translate: ptr[Char];
+      def re_nsub: Int;
+      def flags: Word[8];
+    };
+
+    def regoff_t: type {};
+    def regmatch_t: type {
+        def rm_so: int;  // Byte offset from string's start to substring's start.
+        def rm_eo: int;  // Byte offset from string's start to substring's end.
+    };
+    def regcomp: @expname[regcomp] function (preg: ptr[regex_t], pattern: ptr[array[Char]], cflags: Int) => Int[32];
+    def regexec: @expname[regexec] function (preg: ptr[regex_t], pattern: ptr[array[Char]], size: Int, match: ptr[array[regmatch_t]], cflags: Int) => Int[32];
+    def regfree: @expname[regfree] function (preg: ptr[regex_t]);
+
+
+     def regex: function(pattern: ptr[array[Char]], string: ptr[array[Char]], mode: Int) => ptr[RegexMatches] {
+      def i: Int;
+      def len: int;
+      def reg: regex_t;
+      def results: array[_maxChars, 100];
+      def regmatch: array[regmatch_t, 255];
+
+      regcomp(reg~ptr, pattern, 1);
+      regexec(reg~ptr, string, String.getLength(string), regmatch~ptr, 1);
+
+      for i = 0, regmatch(i).rm_so != -1, i++ {
+      len = regmatch(i).rm_eo - regmatch(i).rm_so;
+      Memory.copy(results(i)~ptr, string~cnt(regmatch(i).rm_so)~ptr, len);
+      results(i)(len) = 0;
+      };
+
+      def matches: ptr[RegexMatches];
+      matches = Memory.alloc(Int~size + (_maxChars~size * i))~cast[ptr[RegexMatches]];
+      matches~cnt.count = i;
+      Memory.copy(matches~cnt.match~ptr, results~ptr, i * _maxChars~size);
+
+      regfree(reg~ptr);
+
+      return matches;
+     };
   };
 };
