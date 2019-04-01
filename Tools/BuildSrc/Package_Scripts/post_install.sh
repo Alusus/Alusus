@@ -1,6 +1,5 @@
 ALUSUS_ROOT=/opt/Alusus
 
-
 # Copy symbolic link to PATH reachable dir.
 
 LINK_DIR=/usr/local/bin
@@ -13,8 +12,8 @@ if [ -L "${LINK_DIR}/الأسس" ]; then
    unlink ${LINK_DIR}/الأسس
 fi
 
-ln -s $(readlink -f ${ALUSUS_ROOT}/Bin/alusus) ${LINK_DIR}/alusus
-ln -s $(readlink -f ${ALUSUS_ROOT}/Bin/الأسس) ${LINK_DIR}/الأسس
+ln -sf $(readlink -f ${ALUSUS_ROOT}/Bin/alusus) ${LINK_DIR}/alusus
+ln -sf $(readlink -f ${ALUSUS_ROOT}/Bin/الأسس) ${LINK_DIR}/الأسس
 
 
 # Copy GTK syntax highlighting specs to gtksourceview folder.
@@ -27,4 +26,3 @@ elif [ -e "/usr/local/share/gtksourceview-3.0/language-specs" ]; then
 fi
 
 cp -f ${ALUSUS_ROOT}/Tools/Gtk_Syntax_Highlighting/alusus.lang ${LANG_SPEC_DIR}/
-

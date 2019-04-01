@@ -3,11 +3,11 @@
 # accompanying license file or at <http://alusus.net/alusus_license_1_0>.
 
 project(Alusus)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
 # Read version info from version file.
-execute_process(COMMAND bash version_info.sh
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/
+execute_process(COMMAND python version_info.py
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/BuildSrc
                 OUTPUT_VARIABLE VersionInfo)
 string(REGEX MATCH "VERSION: ([0-9]+\\.[0-9]+\\.[0-9]+)" _dummy_ ${VersionInfo})
 set(AlususVersion ${CMAKE_MATCH_1})
@@ -43,11 +43,7 @@ endif()
 # Prepare compile and link flags.
 STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
 set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wno-unused-result -fno-rtti")
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
-else()
-  set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
-endif()
+set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
 set(CMAKE_SKIP_RPATH TRUE)
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,'$ORIGIN',--enable-new-dtags")
 
@@ -58,7 +54,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "")
 set(CMAKE_CXX_FLAGS "")
 
 # Incorporate the CMake features provided by LLVM:
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${LLVM_PATH}/share/llvm/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${LLVM_PATH}/lib/cmake/llvm")
 include(LLVMConfig)
 
 # Macro for generating pre-compiled headers.

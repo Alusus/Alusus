@@ -20,4 +20,3 @@ elif [ -e "/usr/local/share/gtksourceview-3.0/language-specs/alusus.lang" ]; the
 elif [ -e "/usr/share/gtksourceview-3.0/language-specs/alusus.lang" ]; then
   rm "/usr/share/gtksourceview-3.0/language-specs/alusus.lang"
 fi
-
