@@ -1,0 +1,90 @@
+import "globals.alusus";
+
+@merge def Srl : module
+{
+  def Math: module
+  {
+    def abs: @expname[abs] function (n: Int[32]) => Int[32];
+    def abs: @expname[llabs] function (n: Int[64]) => Int[64];
+    def abs: @expname[fabsf] function (n: Float[32]) => Float[32];
+    def abs: @expname[fabs] function (n: Float[64]) => Float[64];
+
+    def mod: @expname[fmodf] function (x: Float[32], y: Float[32]) => Float[32];
+    def mod: @expname[fmod] function (x: Float[64], y: Float[64]) => Float[64];
+
+    def exp: @expname[expf] function (x: Float[32]) => Float[32];
+    def exp: @expname[exp] function (x: Float[64]) => Float[64];
+
+    def exp2: @expname[exp2f] function (x: Float[32]) => Float[32];
+    def exp2: @expname[exp2] function (x: Float[64]) => Float[64];
+
+    def log: @expname[logf] function (x: Float[32]) => Float[32];
+    def log: @expname[log] function (x: Float[64]) => Float[64];
+
+    def log2: @expname[log2f] function (x: Float[32]) => Float[32];
+    def log2: @expname[log2] function (x: Float[64]) => Float[64];
+
+    def log10: @expname[log10f] function (x: Float[32]) => Float[32];
+    def log10: @expname[log10] function (x: Float[64]) => Float[64];
+
+    def sqrt: @expname[sqrtf] function (x: Float[32]) => Float[32];
+    def sqrt: @expname[sqrt] function (x: Float[64]) => Float[64];
+
+    def cbrt: @expname[cbrtf] function (x: Float[32]) => Float[32];
+    def cbrt: @expname[cbrt] function (x: Float[64]) => Float[64];
+
+    def pow: @expname[powf] function (b: Float[32], e: Float[32]) => Float[32];
+    def pow: @expname[pow] function (b: Float[64], e: Float[64]) => Float[64];
+
+    def sin: @expname[sinf] function (x: Float[32]) => Float[32];
+    def sin: @expname[sin] function (x: Float[64]) => Float[64];
+
+    def asin: @expname[asinf] function (x: Float[32]) => Float[32];
+    def asin: @expname[asin] function (x: Float[64]) => Float[64];
+
+    def sinh: @expname[sinhf] function (x: Float[32]) => Float[32];
+    def sinh: @expname[sinh] function (x: Float[64]) => Float[64];
+
+    def asinh: @expname[asinhf] function (x: Float[32]) => Float[32];
+    def asinh: @expname[asinh] function (x: Float[64]) => Float[64];
+
+    def cos: @expname[cosf] function (x: Float[32]) => Float[32];
+    def cos: @expname[cos] function (x: Float[64]) => Float[64];
+
+    def acos: @expname[acosf] function (x: Float[32]) => Float[32];
+    def acos: @expname[acos] function (x: Float[64]) => Float[64];
+
+    def cosh: @expname[coshf] function (x: Float[32]) => Float[32];
+    def cosh: @expname[cosh] function (x: Float[64]) => Float[64];
+
+    def acosh: @expname[acoshf] function (x: Float[32]) => Float[32];
+    def acosh: @expname[acosh] function (x: Float[64]) => Float[64];
+
+    def tan: @expname[tanf] function (x: Float[32]) => Float[32];
+    def tan: @expname[tan] function (x: Float[64]) => Float[64];
+
+    def atan: @expname[atanf] function (x: Float[32]) => Float[32];
+    def atan: @expname[atan] function (x: Float[64]) => Float[64];
+
+    def atan2: @expname[atan2f] function (y: Float[32], x: Float[32]) => Float[32];
+    def atan2: @expname[atan2] function (y: Float[64], x: Float[64]) => Float[64];
+
+    def tanh: @expname[tanhf] function (x: Float[32]) => Float[32];
+    def tanh: @expname[tanh] function (x: Float[64]) => Float[64];
+
+    def atanh: @expname[atanhf] function (x: Float[32]) => Float[32];
+    def atanh: @expname[atanh] function (x: Float[64]) => Float[64];
+
+    def ceil: @expname[ceilf] function (x: Float[32]) => Float[32];
+    def ceil: @expname[ceil] function (x: Float[64]) => Float[64];
+
+    def floor: @expname[floorf] function (x: Float[32]) => Float[32];
+    def floor: @expname[floor] function (x: Float[64]) => Float[64];
+
+    def round: @expname[roundf] function (x: Float[32]) => Float[32];
+    def round: @expname[round] function (x: Float[64]) => Float[64];
+
+    def random: @expname[rand] function () => Int;
+    def seedRandom: @expname[srand] function (s: Word);
+  };
+};

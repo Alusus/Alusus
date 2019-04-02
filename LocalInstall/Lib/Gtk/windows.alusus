@@ -1,0 +1,43 @@
+@merge def Gtk: module
+{
+  def Window: type
+  {
+    def container: Container;
+
+    @shared def setTitle: @expname[gtk_window_set_title] function (window: ptr[Window], title: ptr[Char]);
+    @shared def setTitlebar: @expname[gtk_window_set_titlebar] function (window: ptr[Window], titlebar: ptr[Widget]);
+    @shared def setResizable: @expname[gtk_window_set_resizable] function (window: ptr[Window], resiable: Bool);
+    @shared def setModal: @expname[gtk_window_set_modal] function (window: ptr[Window], modal: Bool);
+    @shared def setDefaultSize: @expname[gtk_window_set_default_size] function (window: ptr[Window], width: Int, height: Int);
+    @shared def setTransientFor: @expname[gtk_window_set_transient_for] function (window: ptr[Window], parent: ptr[Window]);
+    @shared def setDestroyWithParent: @expname[gtk_window_set_destroy_with_parent] function (window: ptr[Window], setting: Bool);
+    @shared def isActive: @expname[gtk_window_is_active] function (window: ptr[Window]) => Bool;
+    @shared def getFocus: @expname[gtk_window_get_focus] function (window: ptr[Window]) => ptr[Widget];
+    @shared def setFocus: @expname[gtk_window_set_focus] function (window: ptr[Window], widget: ptr[Widget]);
+    @shared def close: @expname[gtk_window_close] function (window: ptr[Window]);
+  };
+
+  def AppWindow: type
+  {
+    def window: Window;
+
+    @shared def new: @expname[gtk_application_window_new] function (app: ptr[App]) => ptr[AppWindow];
+  };
+
+  def Dialog: type
+  {
+    def window: Window;
+
+    @shared def exec: @expname[gtk_dialog_run] function (dialog: ptr[Dialog]) => Int;
+  };
+
+  def MessageDialog: type
+  {
+    def dialog: Dialog;
+
+    @shared def new: @expname[gtk_message_dialog_new] function (
+      parent: ptr[Window], flags: Int, dlgType: Int, buttons: Int, msg: ptr[Char], args: ...any
+    ) => ptr[MessageDialog];
+  };
+};
+

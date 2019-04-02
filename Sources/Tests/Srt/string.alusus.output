@@ -11,3 +11,4 @@ copy 2: hello
 concat: hello world
 concat 2: hello world!!
 getLength: 13
+regex number from string ("phone: 050000000") with pattern ("([0-9]+)"): 050000000
