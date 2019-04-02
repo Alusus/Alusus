@@ -2,6 +2,7 @@ Bin/*
 Lib/*
 Include/*
 Builds/*
+LocalInstall/*
 Examples/*.log
 Draft/*
 *~
