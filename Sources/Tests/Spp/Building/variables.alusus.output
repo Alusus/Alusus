@@ -11,7 +11,7 @@ ERROR SPPA1007 @ (102,32): Unknown symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
-target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+source_filename = "AlususProgram"
 
 @Main_gi = global i32 0
 @Main_gpi = global i32* null
@@ -56,54 +56,54 @@ __block0:
   store float 1.000000e+01, float* %lf
   store float 1.100000e+01, float* %lf
   store double 1.200000e+01, double* %lbf
-  %0 = load i32* @Main_gi
+  %0 = load i32, i32* @Main_gi
   %1 = sext i32 %0 to i64
-  %2 = load float* @Main_gf
+  %2 = load float, float* @Main_gf
   %3 = fpext float %2 to double
   call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %1, double %3)
-  %4 = load i64* @Main_gbi
-  %5 = load double* @Main_gbf
+  %4 = load i64, i64* @Main_gbi
+  %5 = load double, double* @Main_gbf
   call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %4, double %5)
-  %6 = load i32* %li
+  %6 = load i32, i32* %li
   %7 = sext i32 %6 to i64
-  %8 = load float* %lf
+  %8 = load float, float* %lf
   %9 = fpext float %8 to double
   call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %7, double %9)
-  %10 = load i64* %lbi
-  %11 = load double* %lbf
+  %10 = load i64, i64* %lbi
+  %11 = load double, double* %lbf
   call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %10, double %11)
-  %12 = load i32* @Main_gi
+  %12 = load i32, i32* @Main_gi
   %13 = add nsw i32 %12, 100
-  %14 = load float* @Main_gf
+  %14 = load float, float* @Main_gf
   %15 = fadd float %14, 1.000000e+02
   %16 = sext i32 %13 to i64
   %17 = fpext float %15 to double
   call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %16, double %17)
-  %18 = load i32* %li
+  %18 = load i32, i32* %li
   %19 = add nsw i32 %18, 200
-  %20 = load float* %lf
+  %20 = load float, float* %lf
   %21 = fadd float %20, 2.000000e+02
   %22 = sext i32 %19 to i64
   %23 = fpext float %21 to double
   call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %22, double %23)
-  %24 = load float* @Main_gf
+  %24 = load float, float* @Main_gf
   %25 = fptosi float %24 to i64
-  %26 = load i32* @Main_gi
+  %26 = load i32, i32* @Main_gi
   %27 = sitofp i32 %26 to double
   call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %25, double %27)
-  %28 = load i32* @Main_gi
+  %28 = load i32, i32* @Main_gi
   %29 = sext i32 %28 to i64
-  %30 = load i32* @Main_gi
+  %30 = load i32, i32* @Main_gi
   %31 = sitofp i32 %30 to double
   call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %29, double %31)
-  %32 = load float* @Main_gf
+  %32 = load float, float* @Main_gf
   %33 = fptosi float %32 to i64
-  %34 = load float* @Main_gf
+  %34 = load float, float* @Main_gf
   %35 = fpext float %34 to double
   call void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %33, double %35)
   call void @"Main.testVarOverride()=>(Void)"()
-  %36 = load i32* @Main_gi
-  %37 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous0, i32 0, i32 0), i32 %36)
+  %36 = load i32, i32* @Main_gi
+  %37 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous0, i32 0, i32 0), i32 %36)
   call void @"Main.testGlobals()"()
   call void @"Main.testOtherModules()=>(Void)"()
   ret void
@@ -117,9 +117,9 @@ __block1:
   store double %af, double* %af2
   %li = alloca i32
   %lf = alloca float
-  %0 = load i64* %ai1
-  %1 = load double* %af2
-  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous1, i32 0, i32 0), i64 %0, double %1)
+  %0 = load i64, i64* %ai1
+  %1 = load double, double* %af2
+  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__anonymous1, i32 0, i32 0), i64 %0, double %1)
   store i64 123, i64* %ai1
   store double 4.560000e+02, double* %af2
   ret void
@@ -129,8 +129,8 @@ define void @"Main.testVarOverride()=>(Void)"() {
 __block2:
   %gi = alloca i32
   store i32 60, i32* %gi
-  %0 = load i32* %gi
-  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous2, i32 0, i32 0), i32 %0)
+  %0 = load i32, i32* %gi
+  %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous2, i32 0, i32 0), i32 %0)
   ret void
 }
 
@@ -138,34 +138,34 @@ define void @"Main.testGlobals()"() {
 __block3:
   store i32* @Main_gi, i32** @Main_gpi
   store i32 10, i32* @Main_gi
-  %0 = load i32** @Main_gpi
-  %1 = load i32* %0
-  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous3, i32 0, i32 0), i32 %1)
+  %0 = load i32*, i32** @Main_gpi
+  %1 = load i32, i32* %0
+  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous3, i32 0, i32 0), i32 %1)
   %i = alloca i32
   store i32 0, i32* %i
   br label %__block4
 
 __block4:                                         ; preds = %__block5, %__block3
-  %3 = load i32* %i
+  %3 = load i32, i32* %i
   %4 = icmp slt i32 %3, 10
   br i1 %4, label %__block6, label %__block7
 
 __block5:                                         ; preds = %__block6
-  %5 = load i32* %i
+  %5 = load i32, i32* %i
   %6 = add nsw i32 %5, 1
   store i32 %6, i32* %i
   br label %__block4
 
 __block6:                                         ; preds = %__block4
-  %7 = load i32* %i
+  %7 = load i32, i32* %i
   %8 = sext i32 %7 to i64
-  %9 = getelementptr [10 x i32]* @Main_garr, i32 0, i64 %8
-  %10 = load i32* %9
-  %11 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous4, i32 0, i32 0), i32 %10)
+  %9 = getelementptr [10 x i32], [10 x i32]* @Main_garr, i32 0, i64 %8
+  %10 = load i32, i32* %9
+  %11 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous4, i32 0, i32 0), i32 %10)
   br label %__block5
 
 __block7:                                         ; preds = %__block4
-  %12 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([2 x i8]* @__anonymous5, i32 0, i32 0))
+  %12 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @__anonymous5, i32 0, i32 0))
   ret void
 }
 
@@ -173,12 +173,12 @@ define void @"Main.testOtherModules()=>(Void)"() {
 __block8:
   store i32 2, i32* @Other_gi
   store double 0x401D333340000000, double* @Other_gf
-  %0 = load i32* @Other_gi
-  %1 = load double* @Other_gf
-  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous6, i32 0, i32 0), i32 %0, double %1)
+  %0 = load i32, i32* @Other_gi
+  %1 = load double, double* @Other_gf
+  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__anonymous6, i32 0, i32 0), i32 %0, double %1)
   store i32 4, i32* @Other_Nested_gni
-  %3 = load i32* @Other_Nested_gni
-  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @__anonymous8, i32 0, i32 0), i32 %3)
+  %3 = load i32, i32* @Other_Nested_gni
+  %4 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous8, i32 0, i32 0), i32 %3)
   ret void
 }
 ------------------------------------------------------------
