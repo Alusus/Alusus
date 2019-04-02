@@ -6,7 +6,7 @@ ERROR SPPA1007 @ (20,5): Unknown symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
-target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+source_filename = "AlususProgram"
 
 @__anonymous0 = private constant [6 x i8] c"hello\00", align 1
 @__anonymous1 = private constant [6 x i8] c"hello\00", align 1
@@ -31,11 +31,11 @@ target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64
 
 define i32 @"Main.main()=>(Int[32])"() {
 __block0:
-  %0 = call i32 (i8*, ...)* @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8]* @__anonymous0, i32 0, i32 0))
-  %1 = call i32 (i8*, ...)* @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8]* @__anonymous1, i32 0, i32 0), [7 x i8]* @__anonymous2)
-  %2 = call i32 (i8*, ...)* @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8]* @__anonymous3, i32 0, i32 0), [6 x i8]* @__anonymous4, [4 x i8]* @__anonymous5)
-  %3 = call i32 (i8*, ...)* @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8]* @__anonymous6, i32 0, i32 0), [6 x i8]* @__anonymous7)
-  %4 = call i32 (i8*, ...)* @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8]* @__anonymous8, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous9, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8]* @__anonymous10, i32 0, i32 0))
+  %0 = call i32 (i8*, ...) @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous0, i32 0, i32 0))
+  %1 = call i32 (i8*, ...) @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous1, i32 0, i32 0), [7 x i8]* @__anonymous2)
+  %2 = call i32 (i8*, ...) @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous3, i32 0, i32 0), [6 x i8]* @__anonymous4, [4 x i8]* @__anonymous5)
+  %3 = call i32 (i8*, ...) @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous6, i32 0, i32 0), [6 x i8]* @__anonymous7)
+  %4 = call i32 (i8*, ...) @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])=>(Int[32])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous8, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous9, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous10, i32 0, i32 0))
 }
 
 define i32 @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])=>(Int[32])"(i8* %a, ...) {
