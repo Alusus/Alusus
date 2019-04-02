@@ -19,7 +19,7 @@ import "Srl/Memory.alusus";
     def print: @expname[sprintf] function (target: ptr[Char], format: ptr[Word[8]], args: ...any) => Int[32];
     def scan: @expname[sscanf] function (target: ptr[Char], format: ptr[Word[8]], args: ...any) => Int[32];
 
-    def _maxChars: alias array[Char, 16000];
+    def _maxChars: alias array[Char, 10240];
 
     def RegexMatches: type {
       def count: Int;
@@ -37,7 +37,6 @@ import "Srl/Memory.alusus";
       def flags: Word[8];
     };
 
-    def regoff_t: type {};
     def regmatch_t: type {
         def rm_so: int;  // Byte offset from string's start to substring's start.
         def rm_eo: int;  // Byte offset from string's start to substring's end.
