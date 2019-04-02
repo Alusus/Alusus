@@ -1,8 +1,0 @@
-import "globals.alusus";
-import "libgtk-3.so.0";
-import "Glib/List.alusus";
-import "common.alusus";
-import "constants.alusus";
-import "widgets.alusus";
-import "windows.alusus";
-
