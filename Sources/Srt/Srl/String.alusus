@@ -23,7 +23,7 @@ import "Srl/Memory.alusus";
 
     def RegexMatches: type {
       def count: Int;
-      def match: array[_maxChars];
+      def matches: array[_maxChars];
     };
 
     def regex_t: type { 
@@ -66,7 +66,7 @@ import "Srl/Memory.alusus";
       def matches: ptr[RegexMatches];
       matches = Memory.alloc(Int~size + (_maxChars~size * i))~cast[ptr[RegexMatches]];
       matches~cnt.count = i;
-      Memory.copy(matches~cnt.match~ptr, results~ptr, i * _maxChars~size);
+      Memory.copy(matches~cnt.matches~ptr, results~ptr, i * _maxChars~size);
 
       regfree(reg~ptr);
 

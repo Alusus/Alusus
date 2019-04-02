@@ -34,7 +34,7 @@ def Main: module
     Srl.Console.print("getLength: %d\n", Srl.String.getLength(buf~ptr));
 
     // Regex
-    Srl.Console.print("regex number from string (\"phone: 050000000\") with pattern (\"([0-9]+)\"): %s\n", Srl.String.regex("([0-9]+)", "phone: 050000000", 1)~cnt.match(1)~ptr);
+    Srl.Console.print("regex number from string (\"phone: 050000000\") with pattern (\"([0-9]+)\"): %s\n", Srl.String.regex("([0-9]+)", "phone: 050000000", 1)~cnt.matches(1)~ptr);
   };
 };
 
