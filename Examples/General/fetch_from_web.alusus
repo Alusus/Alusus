@@ -1,0 +1,20 @@
+import "Srl/Net.alusus";
+import "Srl/Console.alusus";
+
+module Main
+{
+  function start
+  {
+    def data: ptr;
+    def size: Int;
+    if Srl.Net.get("https://alusus.net/Releases/info", data~ptr, size~ptr) {
+      Srl.Console.print("%s\n", data);
+      Srl.Memory.free(data);
+    } else {
+      Srl.Console.print("Error!\n");
+    };
+  };
+};
+
+run Main.start;
+

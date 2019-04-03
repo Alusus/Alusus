@@ -1,0 +1,340 @@
+import "Srl/Memory.alusus";
+import "Srl/Fs.alusus";
+import "libcurl.so";
+
+@merge def Srl : module
+{
+  def Net: module
+  {
+    def Curl: type {};
+    def CurlInfo: type {};
+    def CurlOpt: {
+      def WRITEDATA: 10001;
+      def URL: 10002;
+      def PORT: 3;
+      def PROXY: 10004;
+      def USERPWD: 10005;
+      def PROXYUSERPWD: 10006;
+      def RANGE: 10007;
+      def READDATA: 10009;
+      def ERRORBUFFER: 10010;
+      def WRITEFUNCTION: 20011;
+      def READFUNCTION: 20012;
+      def TIMEOUT: 13;
+      def INFILESIZE: 14;
+      def POSTFIELDS: 10015;
+      def REFERER: 10016;
+      def FTPPORT: 10017;
+      def USERAGENT: 10018;
+      def LOW_SPEED_LIMIT: 19;
+      def LOW_SPEED_TIME: 20;
+      def RESUME_FROM: 21;
+      def COOKIE: 10022;
+      def HTTPHEADER: 10023;
+      def HTTPPOST: 10024;
+      def SSLCERT: 10025;
+      def KEYPASSWD: 10026;
+      def CRLF: 27;
+      def QUOTE: 10028;
+      def HEADERDATA: 10029;
+      def COOKIEFILE: 10031;
+      def SSLVERSION: 32;
+      def TIMECONDITION: 33;
+      def TIMEVALUE: 34;
+      def CUSTOMREQUEST: 10036;
+      def STDERR: 10037;
+      def VERBOSE: 41;
+      def POSTQUOTE: 10039;
+      def OBSOLETE40: 10040; 
+      def HEADER: 42;     
+      def NOPROGRESS: 43; 
+      def NOBODY: 44;     
+      def FAILONERROR: 45;
+      def UPLOAD: 46;     
+      def POST: 47;       
+      def DIRLISTONLY: 48;  
+      def NETRC: 51;
+      def FOLLOWLOCATION: 52;
+      def PUT: 54;
+      def PROGRESSFUNCTION: 20056;
+      def PROGRESSDATA: 10057;
+      def XFERINFODATA: 10057;  
+      def AUTOREFERER: 58;
+      def PROXYPORT: 59;
+      def POSTFIELDSIZE: 60;
+      def HTTPPROXYTUNNEL: 61;
+      def INTERFACE: 10062;
+      def KRBLEVEL: 10063;
+      def SSL_VERIFYPEER: 64;
+      def CAINFO: 10065;
+      def MAXREDIRS: 68;
+      def FILETIME: 69;
+      def TELNETOPTIONS: 10070;
+      def MAXCONNECTS: 71;
+      def OBSOLETE72: 72;
+      def FRESH_CONNECT: 74;
+      def FORBID_REUSE: 75;
+      def RANDOM_FILE: 10076;
+      def EGDSOCKET: 10077;
+      def CONNECTTIMEOUT: 78;
+      def HEADERFUNCTION: 20079;
+      def HTTPGET: 80;
+      def SSL_VERIFYHOST: 81;
+      def COOKIEJAR: 10082;
+      def SSL_CIPHER_LIST: 10083;
+      def HTTP_VERSION: 84;
+      def FTP_USE_EPSV: 85;
+      def SSLCERTTYPE: 10086;
+      def SSLKEY: 10087;
+      def SSLKEYTYPE: 10088;
+      def SSLENGINE: 10089;
+      def SSLENGINE_DEFAULT: 90;
+      def DNS_USE_GLOBAL_CACHE: 91; 
+      def DNS_CACHE_TIMEOUT: 92;
+      def PREQUOTE: 10093;
+      def DEBUGFUNCTION: 20094;
+      def DEBUGDATA: 10095;
+      def COOKIESESSION: 96;
+      def CAPATH: 10097;
+      def BUFFERSIZE: 98;
+      def NOSIGNAL: 99;
+      def SHARE: 10100;
+      def PROXYTYPE: 101;
+      def ACCEPT_ENCODING: 10102;
+      def PRIVATE: 10103;
+      def HTTP200ALIASES: 10104;
+      def UNRESTRICTED_AUTH: 105;
+      def FTP_USE_EPRT: 106;
+      def HTTPAUTH: 107;
+      def SSL_CTX_FUNCTION: 20108;
+      def SSL_CTX_DATA: 10109;
+      def FTP_CREATE_MISSING_DIRS: 110;
+      def PROXYAUTH: 111;
+      def FTP_RESPONSE_TIMEOUT: 112;
+      def SERVER_RESPONSE_TIMEOUT: 112;
+      def IPRESOLVE: 113;
+      def MAXFILESIZE: 114;
+      def INFILESIZE_LARGE: 30115;
+      def RESUME_FROM_LARGE: 30116;
+      def MAXFILESIZE_LARGE: 30117;
+      def NETRC_FILE: 10118;
+      def USE_SSL: 119;
+      def POSTFIELDSIZE_LARGE: 30120;
+      def TCP_NODELAY: 121;
+      def FTPSSLAUTH: 129;
+      def IOCTLFUNCTION: 20130;
+      def IOCTLDATA: 10131;
+      def FTP_ACCOUNT: 10134;
+      def COOKIELIST: 10135;
+      def IGNORE_CONTENT_LENGTH: 136;
+      def FTP_SKIP_PASV_IP: 137;
+      def FTP_FILEMETHOD: 138;
+      def LOCALPORT: 139;
+      def LOCALPORTRANGE: 140;
+      def CONNECT_ONLY: 141;
+      def CONV_FROM_NETWORK_FUNCTION: 20142;
+      def CONV_TO_NETWORK_FUNCTION: 20143;
+      def CONV_FROM_UTF8_FUNCTION: 20144;
+      def MAX_SEND_SPEED_LARGE: 30145;
+      def MAX_RECV_SPEED_LARGE: 30146;
+      def FTP_ALTERNATIVE_TO_USER: 10147;
+      def SOCKOPTFUNCTION: 20148;
+      def SOCKOPTDATA: 10149;
+      def SSL_SESSIONID_CACHE: 150;
+      def SSH_AUTH_TYPES: 151;
+      def SSH_PUBLIC_KEYFILE: 10152;
+      def SSH_PRIVATE_KEYFILE: 10153;
+      def FTP_SSL_CCC: 154;
+      def TIMEOUT_MS: 155;
+      def CONNECTTIMEOUT_MS: 156;
+      def HTTP_TRANSFER_DECODING: 157;
+      def HTTP_CONTENT_DECODING: 158;
+      def NEW_FILE_PERMS: 159;
+      def NEW_DIRECTORY_PERMS: 160;
+      def POSTREDIR: 161;
+      def SSH_HOST_PUBLIC_KEY_MD5: 10162;
+      def OPENSOCKETFUNCTION: 20163;
+      def OPENSOCKETDATA: 10164;
+      def COPYPOSTFIELDS: 10165;
+      def PROXY_TRANSFER_MODE: 166;
+      def SEEKFUNCTION: 20167;
+      def SEEKDATA: 10168;
+      def CRLFILE: 10169;
+      def ISSUERCERT: 10170;
+      def ADDRESS_SCOPE: 171;
+      def CERTINFO: 172;
+      def USERNAME: 10173;
+      def PASSWORD: 10174;  
+      def PROXYUSERNAME: 10175;
+      def PROXYPASSWORD: 10176;
+      def NOPROXY: 10177;
+      def TFTP_BLKSIZE: 178;
+      def SOCKS5_GSSAPI_SERVICE: 10179; 
+      def SOCKS5_GSSAPI_NEC: 180;
+      def PROTOCOLS: 181;
+      def REDIR_PROTOCOLS: 182;
+      def SSH_KNOWNHOSTS: 10183;
+      def SSH_KEYFUNCTION: 20184;
+      def SSH_KEYDATA: 10185;
+      def MAIL_FROM: 10186;
+      def MAIL_RCPT: 10187;
+      def FTP_USE_PRET: 188;
+      def RTSP_REQUEST: 189;
+      def RTSP_SESSION_ID: 10190;
+      def RTSP_STREAM_URI: 10191;
+      def RTSP_TRANSPORT: 10192;
+      def RTSP_CLIENT_CSEQ: 193;
+      def RTSP_SERVER_CSEQ: 194;
+      def INTERLEAVEDATA: 10195;
+      def INTERLEAVEFUNCTION: 20196;
+      def WILDCARDMATCH: 197;
+      def CHUNK_BGN_FUNCTION: 20198;
+      def CHUNK_END_FUNCTION: 20199;
+      def FNMATCH_FUNCTION: 20200;
+      def CHUNK_DATA: 10201;
+      def FNMATCH_DATA: 10202;
+      def RESOLVE: 10203;
+      def TLSAUTH_USERNAME: 10204;
+      def TLSAUTH_PASSWORD: 10205;
+      def TLSAUTH_TYPE: 10206;
+      def TRANSFER_ENCODING: 207;
+      def CLOSESOCKETFUNCTION: 20208;
+      def CLOSESOCKETDATA: 10209;
+      def GSSAPI_DELEGATION: 210;
+      def DNS_SERVERS: 10211;
+      def ACCEPTTIMEOUT_MS: 212;
+      def TCP_KEEPALIVE: 213;
+      def TCP_KEEPIDLE: 214;
+      def TCP_KEEPINTVL: 215;
+      def SSL_OPTIONS: 216;
+      def MAIL_AUTH: 10217;
+      def SASL_IR: 218;
+      def XFERINFOFUNCTION: 20219;
+      def XOAUTH2_BEARER: 10220;
+      def DNS_INTERFACE: 10221;
+      def DNS_LOCAL_IP4: 10222;
+      def DNS_LOCAL_IP6: 10223;
+      def LOGIN_OPTIONS: 10224;
+      def SSL_ENABLE_NPN: 225;
+      def SSL_ENABLE_ALPN: 226;
+      def EXPECT_100_TIMEOUT_MS: 227;
+      def PROXYHEADER: 10228;
+      def HEADEROPT: 229;
+      def PINNEDPUBLICKEY: 10230;
+      def UNIX_SOCKET_PATH: 10231;
+      def SSL_VERIFYSTATUS: 232;
+      def SSL_FALSESTART: 233;
+      def PATH_AS_IS: 234;
+      def PROXY_SERVICE_NAME: 10235;
+      def SERVICE_NAME: 10236;
+      def PIPEWAIT: 237;
+      def DEFAULT_PROTOCOL: 10238;
+      def STREAM_WEIGHT: 239;
+      def STREAM_DEPENDS: 10240;
+      def STREAM_DEPENDS_E: 10241;
+      def TFTP_NO_OPTIONS: 242;
+      def CONNECT_TO: 10243;
+      def TCP_FASTOPEN: 244;
+    };
+
+    def CurlCode: {
+      def OK: 0;
+    };
+
+    def CurlGlobal: module
+    {
+      def init: @expname[curl_global_init] function (flags: Int[64]) => Int;
+      def cleanup: @expname[curl_global_cleanup] function;
+    };
+
+    def CurlEasy: module
+    {
+      def init: @expname[curl_easy_init] function () => ptr[Curl];
+      def cleanup: @expname[curl_easy_cleanup] function (curl: ptr[Curl]) => Int;
+      def setOpt: @expname[curl_easy_setopt] function (curl: ptr[Curl], option: Int, parameter: ...any) => Int;
+      def perform: @expname[curl_easy_perform] function (curl: ptr[Curl]) => Int;
+      def getInfo: @expname[curl_easy_getinfo] function (curl: ptr[Curl], info: CurlInfo, arguments: ...any) => Int;
+      def reset: @expname[curl_easy_reset] function (curl: ptr[Curl]);
+    };
+
+    def _Content: type
+    {
+      def data: ptr[array[Word[8]]];
+      def size: Int;
+    };
+
+    def _getCallbackFunction: function(chunk: ptr, size: Int, count: Int, content: ptr[_Content]) => Int {
+      def newSize: Word;
+      newSize = content~cnt.size + size * count;
+      if content~cnt.data == 0 {
+        content~cnt.data = Srl.Memory.alloc(newSize)~cast[ptr[array[Word[8]]]];
+      } else {
+        content~cnt.data = Srl.Memory.realloc(content~cnt.data, newSize)~cast[ptr[array[Word[8]]]];
+      };
+      Srl.Memory.copy(content~cnt.data~cnt(content~cnt.size)~ptr, chunk, size * count);
+      content~cnt.size = newSize;
+      return size * count;
+    };
+
+    def get: function (url: ptr[array[Char]], result: ptr[ptr], resultCount: ptr[Int]) => Bool
+    {
+      def curlHandle: ptr[Curl];
+      def resultCode: Int;
+
+      result~cnt = 0;
+      resultCount~cnt = 0;
+
+      def content: _Content;
+      content.data = 0;
+      content.size = 0;
+
+      curlHandle = CurlEasy.init();
+      if (curlHandle == 0) return false;
+
+      CurlEasy.setOpt(curlHandle, CurlOpt.URL, url);
+      CurlEasy.setOpt(curlHandle, CurlOpt.HTTPGET, 1);
+      CurlEasy.setOpt(curlHandle, CurlOpt.WRITEFUNCTION, _getCallbackFunction~ptr);
+      CurlEasy.setOpt(curlHandle, CurlOpt.WRITEDATA, content~ptr);
+      CurlEasy.setOpt(curlHandle, CurlOpt.USERAGENT, "ALUSUS NETWORK LIBRARY");
+      CurlEasy.setOpt(curlHandle, CurlOpt.FOLLOWLOCATION, 1);
+      resultCode = CurlEasy.perform(curlHandle);
+      CurlEasy.cleanup(curlHandle);
+      if resultCode == CurlCode.OK {
+        // Zero terminate the data.
+        result~cnt = Srl.Memory.realloc(content.data, content.size + 1);
+        result~cast[ptr[array[Word[8]]]]~cnt(content.size) = 0;
+        resultCount~cnt = content.size;
+        return true;
+      } else {
+        return false;
+      };
+    };
+
+    def get: function (url: ptr[array[Char]], filename: ptr[array[Char]]) => Bool
+    {
+      def curlHandle: ptr[Curl];
+      def resultCode: Int;
+
+      curlHandle = CurlEasy.init();
+      if curlHandle == 0 return false;
+
+      def file: ptr[Srl.Fs.File];
+      file = Srl.Fs.openFile(filename, "wb");
+      if file == 0 {
+        CurlEasy.cleanup(curlHandle);
+        return false;
+      };
+      CurlEasy.setOpt(curlHandle, CurlOpt.URL, url);
+      CurlEasy.setOpt(curlHandle, CurlOpt.HTTPGET, 1);
+      CurlEasy.setOpt(curlHandle, CurlOpt.WRITEDATA, file);
+      CurlEasy.setOpt(curlHandle, CurlOpt.USERAGENT, "ALUSUS NETWORK LIBRARY");
+      CurlEasy.setOpt(curlHandle, CurlOpt.FOLLOWLOCATION, 1);
+      resultCode = CurlEasy.perform(curlHandle);
+      CurlEasy.cleanup(curlHandle);
+      Srl.Fs.closeFile(file);
+      if resultCode == CurlCode.OK return true
+      else return false;
+    };
+  };
+};
+
