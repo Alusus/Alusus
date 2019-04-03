@@ -2,9 +2,14 @@ Bin/*
 Lib/*
 Include/*
 Builds/*
+LocalInstall/*
 Examples/*.log
 Draft/*
 *~
 Sources/CMakeLists.txt.user
 Sources/.idea/*
 Sources/.vscode/*
+__pycache__
+*.DS_Store
+*.pyc
+.vscode/ipch

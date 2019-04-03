@@ -2,7 +2,7 @@ ERROR SPPG1004 @ (20,36): Invalid integer bit count.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
-target datalayout = "E-p:64:64:64-S0-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f16:16:16-f32:32:32-f64:64:64-f128:128:128-v64:64:64-v128:128:128-a0:0:64"
+source_filename = "AlususProgram"
 
 @__anonymous0 = private constant [8 x i8] c"1+1=%d\0A\00", align 1
 @__anonymous1 = private constant [9 x i8] c"0b10=%d\0A\00", align 1
@@ -18,14 +18,14 @@ declare i64 @printf(i8*, ...)
 
 define void @"Main.start()=>(Void)"() {
 __block0:
-  %0 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([8 x i8]* @__anonymous0, i32 0, i32 0), i8 2)
-  %1 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous1, i32 0, i32 0), i8 2)
-  %2 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous2, i32 0, i32 0), i8 8)
-  %3 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([9 x i8]* @__anonymous3, i32 0, i32 0), i8 16)
-  %4 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([18 x i8]* @__anonymous4, i32 0, i32 0), i8 120)
-  %5 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([19 x i8]* @__anonymous5, i32 0, i32 0), i16 120)
-  %6 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([19 x i8]* @__anonymous6, i32 0, i32 0), i32 120)
-  %7 = call i64 (i8*, ...)* @printf(i8* getelementptr inbounds ([19 x i8]* @__anonymous7, i32 0, i32 0), i64 120)
+  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__anonymous0, i32 0, i32 0), i8 2)
+  %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__anonymous1, i32 0, i32 0), i8 2)
+  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__anonymous2, i32 0, i32 0), i8 8)
+  %3 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__anonymous3, i32 0, i32 0), i8 16)
+  %4 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__anonymous4, i32 0, i32 0), i8 120)
+  %5 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__anonymous5, i32 0, i32 0), i16 120)
+  %6 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__anonymous6, i32 0, i32 0), i32 120)
+  %7 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__anonymous7, i32 0, i32 0), i64 120)
   ret void
 }
 ------------------------------------------------------------

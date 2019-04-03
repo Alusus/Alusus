@@ -1,0 +1,19 @@
+import "Srl/Fs.alusus";
+import "Srl/Console.alusus";
+
+module Main
+{
+  function start
+  {
+    def filenames: ptr[Srl.Fs.FileNames];
+    filenames = Srl.Fs.readDir(".");
+    def i: Int;
+    for i = 0, i < filenames~cnt.count, ++i {
+      Srl.Console.print("%s\n", filenames~cnt.names(i)~ptr);
+    };
+    Srl.Memory.free(filenames);
+  };
+};
+
+run Main.start;
+

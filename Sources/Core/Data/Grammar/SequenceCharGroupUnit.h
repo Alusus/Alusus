@@ -2,7 +2,7 @@
  * @file Core/Data/Grammar/SequenceCharGroupUnit.h
  * Contains the header of class Core::Data::Grammar::SequenceCharGroupUnit.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -48,6 +48,10 @@ class SequenceCharGroupUnit : public CharGroupUnit
   {
   }
 
+  public: SequenceCharGroupUnit(WChar s, WChar e) : startCode(s), endCode(e)
+  {
+  }
+
   public: SequenceCharGroupUnit(Char const *s, Char const *e)
   {
     this->setStartCode(s);
@@ -59,6 +63,11 @@ class SequenceCharGroupUnit : public CharGroupUnit
 
   public: virtual ~SequenceCharGroupUnit()
   {
+  }
+
+  public: static SharedPtr<SequenceCharGroupUnit> create(WChar s, WChar e)
+  {
+    return std::make_shared<SequenceCharGroupUnit>(s, e);
   }
 
   public: static SharedPtr<SequenceCharGroupUnit> create(Char const *s, Char const *e)

@@ -2,7 +2,7 @@ import "libalusus_spp.so";
 
 def power2: macro [n] n * n;
 def defInt: macro [n] { def n: Int };
-def defInts: macro [n] { def __n__1: Int; def __n__2: Int; };
+macro defInts [n] { def __n__1: Int; def __n__2: Int; };
 def defInt2: macro [s] { def __n__: Int };
 def defGetMin: macro [T] {
   def getMin: function (a: T, b: T)=>T {
@@ -12,6 +12,7 @@ def defGetMin: macro [T] {
 def getString: macro [n] "Hello {{n}}\n";
 def getString2: macro [a] "Hello {{n}}\n";
 def getString3: macro "Hello World\n";
+macro getString4 "Hello World, Again\n";
 def loop: macro[counter, start, end, action] {
   for counter = start, counter <= end, ++counter action;
 };
@@ -50,6 +51,7 @@ def Main: module
     print(getString2["Alusus"]);
     print(getString2[Alusus]);
     print(getString3[]);
+    print(getString4[]);
 
     def p: MyCoordinates;
     p.x = 5.5;

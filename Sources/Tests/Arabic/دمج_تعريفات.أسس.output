@@ -1,4 +1,3 @@
-ERROR SPPA1010 @ (20,19): محاولة دمج صنفي مستخدم. يمكن لصنف المستخدم أن يوسع فقط بمتن مجهول.
 ERROR CD1004 @ (35,23): محاولة دمج تعريفات غير متوافقة.
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
@@ -9,10 +8,12 @@ Module [Main.ModuleStatements.StmtList]
   body: Block [Main.BlockStatements.StmtList]
  Definition [Main.Def] ـصنفي2: UserType [Main.Type]
   body: Block [Main.BlockStatements.StmtList]
-   Definition [Main.Def] س: Identifier: مـحرف [Subject.Parameter]
-   Definition [Main.Def] ص: Identifier: مـحرف [Subject.Parameter]
+   Definition [Main.Def] س: Identifier: مـحرف [Subject.Identifier]
+   Definition [Main.Def] ص: Identifier: مـحرف [Subject.Identifier]
  Definition [Main.Def] ـصنفي: UserType [Main.Type]
   body: Block [Main.BlockStatements.StmtList]
-   Definition [Main.Def] س: Identifier: صـحيح [Subject.Parameter]
-   Definition [Main.Def] ع: Identifier: صـحيح [Subject.Parameter]
+   Definition [Main.Def] س: Identifier: صـحيح [Subject.Identifier]
+   Definition [Main.Def] ص: Identifier: صـحيح [Subject.Identifier]
+   Definition [Main.Def] ع: Identifier: صـحيح [Subject.Identifier]
+ Definition [Main.Def] ن: Identifier: عـائم [Subject.Identifier]
 ------------------------------------------------------

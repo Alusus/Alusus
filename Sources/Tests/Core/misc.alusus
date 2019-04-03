@@ -19,15 +19,23 @@ def a: {
   do [s:10];
 
   do {
-    strVar = "Hello World";
+    strVar = "Hello\f World. \x41 \h42\h43 \u26D4 \u24D6\u2D64"; // inline comment
     intVar = 5;
     intVar--;
-    opVar = i + j * k;
-
+    opVar = i + j * k;/* multiline
+    comments */
     listVar = (1, 2, 3, 4, 5);
     hashVar = (a:1, b:2, c:3);
     bracketVar = a + (b + c);
 
+    /*
+     * another
+     * multiline
+     * comment
+     * تعليق
+     * متعدد
+     * الأسطر
+     */
     do s:10;
   };
 

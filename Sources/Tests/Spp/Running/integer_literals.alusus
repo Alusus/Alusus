@@ -11,6 +11,9 @@ def Main: module
     print("0b10=%d\n", 0b10);
     print("0o10=%d\n", 0o10);
     print("0h10=%d\n", 0h10);
+    print("0H10=%d\n", 0H10);
+    print("0x10=%d\n", 0x10);
+    print("0X10=%d\n", 0X10);
 
     print("8bit integer: %d\n", 120i8);
     print("16bit integer: %d\n", 120i16);

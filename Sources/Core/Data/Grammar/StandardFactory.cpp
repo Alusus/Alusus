@@ -137,6 +137,11 @@ void StandardFactory::createCharGroupDefinitions()
   });
   this->set(S("root.LexerDefs.Letter"), CharGroupDefinition::create(letterCharGroup));
 
+  // AnyChar : char any;
+  this->set(S("root.LexerDefs.AnyChar"), CharGroupDefinition::create(
+    SequenceCharGroupUnit::create(WCHAR_MIN, WCHAR_MAX)
+  ));
+
   // AnyCharNoEs : char !('\\');
   this->set(S("root.LexerDefs.AnyCharNoEs"), CharGroupDefinition::create(
     InvertCharGroupUnit::create(
@@ -301,7 +306,9 @@ void StandardFactory::createTokenDefinitions()
         AlternateTerm::create({}, {
           {S("terms"), List::create({}, {
             ConstTerm::create({{ S("matchString"), TiWStr(S("0h")) }}),
-            ConstTerm::create({{ S("matchString"), TiWStr(S("0H")) }})
+            ConstTerm::create({{ S("matchString"), TiWStr(S("0H")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("0x")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("0X")) }})
           })}
         }),
         MultiplyTerm::create({
@@ -527,50 +534,56 @@ void StandardFactory::createTokenDefinitions()
   this->set(S("root.LexerDefs.EsSequence"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
-         ConstTerm::create({{ S("matchString"), TiWStr(S("\\")) }}),
-         AlternateTerm::create({}, {
-           {S("terms"), List::create({}, {
-              ConstTerm::create({{ S("matchString"), TiWStr(S("\\")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("\"")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("'")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("n")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("t")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("r")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("ج")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("ت")) }}),
-              ConstTerm::create({{ S("matchString"), TiWStr(S("ر")) }}),
-              ConcatTerm::create({}, {
-                {S("terms"), List::create({}, {
-                   ConstTerm::create({{ S("matchString"), TiWStr(S("c")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
-                })}
-              }),
-              ConcatTerm::create({}, {
-                {S("terms"), List::create({}, {
-                   ConstTerm::create({{ S("matchString"), TiWStr(S("u")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
-                })}
-              }),
-              ConcatTerm::create({}, {
-                {S("terms"), List::create({}, {
-                   ConstTerm::create({{ S("matchString"), TiWStr(S("w")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
-                   CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
-                })}
-              })
-           })}
-         })
-       })}
+        ConstTerm::create({{ S("matchString"), TiWStr(S("\\")) }}),
+        AlternateTerm::create({}, {
+          {S("terms"), List::create({}, {
+            ConstTerm::create({{ S("matchString"), TiWStr(S("\\")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("\"")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("'")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("n")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("t")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("f")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("r")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("ج")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("ت")) }}),
+            ConstTerm::create({{ S("matchString"), TiWStr(S("ر")) }}),
+            ConcatTerm::create({}, {
+              {S("terms"), List::create({}, {
+                AlternateTerm::create({}, {
+                  {S("terms"), List::create({}, {
+                    ConstTerm::create({{ S("matchString"), TiWStr(S("h")) }}),
+                    ConstTerm::create({{ S("matchString"), TiWStr(S("x")) }})
+                  })}
+                }),
+                CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
+              })}
+            }),
+            ConcatTerm::create({}, {
+              {S("terms"), List::create({}, {
+                  ConstTerm::create({{ S("matchString"), TiWStr(S("u")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
+              })}
+            }),
+            ConcatTerm::create({}, {
+              {S("terms"), List::create({}, {
+                  ConstTerm::create({{ S("matchString"), TiWStr(S("U")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }}),
+                  CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})
+              })}
+            })
+          })}
+        })
+      })}
     })}
   }));
 
@@ -606,6 +619,21 @@ void StandardFactory::createTokenDefinitions()
            {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.AnyCharNoReturn")) }})}
          }),
          ConstTerm::create({{ S("matchString"), TiWStr(S("\n")) }})
+       })}
+    })}
+  }));
+
+  // ignore { "/*" + any*(0,endless) + "*/" }
+  this->set(S("root.LexerDefs.MultilineComment"), SymbolDefinition::create({
+    {S("flags"), TiInt::create(SymbolFlags::ROOT_TOKEN|SymbolFlags::IGNORED_TOKEN|SymbolFlags::PREFER_SHORTER)}
+  }, {
+    {S("term"), ConcatTerm::create({}, {
+      {S("terms"), List::create({}, {
+         ConstTerm::create({{ S("matchString"), TiWStr(S("/*")) }}),
+         MultiplyTerm::create({}, {
+           {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.AnyChar")) }})}
+         }),
+         ConstTerm::create({{ S("matchString"), TiWStr(S("*/")) }})
        })}
     })}
   }));
@@ -1693,27 +1721,22 @@ void StandardFactory::createSubjectProductionModule()
     }, {
       {S("data"), PARSE_REF(S("args.fltr"))},
       {S("terms"), List::create({}, {
-        TokenTerm::create({
-          {S("tokenId"), std::make_shared<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))}
-        }),
+        ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Identifier")) }}),
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Literal")) }})
       })}
     })},
     {S("vars"), Map::create({}, {{ S("fltr"), 0 }} )},
+    {S("handler"), this->parsingHandler}
+  }));
+
+  // Identifier: lexer.Identifier
+  this->set(S("root.Subject.Identifier"), SymbolDefinition::create({}, {
+    {S("term"), TokenTerm::create({
+      {S("tokenId"), std::make_shared<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))}
+    })},
     {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
       auto current = state->getData().ti_cast_get<Ast::Token>();
-      SharedPtr<Ast::Text> newObj;
-      if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.Identifier"))) {
-        newObj = std::make_shared<Ast::Identifier>();
-      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.IntLiteral"))) {
-        newObj = std::make_shared<Ast::IntegerLiteral>();
-      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.FloatLiteral"))) {
-        newObj = std::make_shared<Ast::FloatLiteral>();
-      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.CharLiteral"))) {
-        newObj = std::make_shared<Ast::CharLiteral>();
-      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.StringLiteral"))) {
-        newObj = std::make_shared<Ast::StringLiteral>();
-      }
+      SharedPtr<Ast::Text> newObj = std::make_shared<Ast::Identifier>();
       newObj->setValue(current->getText());
       newObj->setProdId(current->getProdId());
       newObj->setSourceLocation(current->findSourceLocation());
@@ -1738,7 +1761,23 @@ void StandardFactory::createSubjectProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{ S("fltr"), 0 }} )},
-    {S("handler"), this->parsingHandler}
+    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+      auto current = state->getData().ti_cast_get<Ast::Token>();
+      SharedPtr<Ast::Text> newObj;
+      if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.IntLiteral"))) {
+        newObj = std::make_shared<Ast::IntegerLiteral>();
+      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.FloatLiteral"))) {
+        newObj = std::make_shared<Ast::FloatLiteral>();
+      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.CharLiteral"))) {
+        newObj = std::make_shared<Ast::CharLiteral>();
+      } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.StringLiteral"))) {
+        newObj = std::make_shared<Ast::StringLiteral>();
+      }
+      newObj->setValue(current->getText());
+      newObj->setProdId(current->getProdId());
+      newObj->setSourceLocation(current->findSourceLocation());
+      state->setData(newObj);
+    })}
   }));
 
   this->set(S("root.Subject.expression"), TioSharedPtr::null);

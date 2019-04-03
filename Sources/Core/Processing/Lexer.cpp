@@ -2,7 +2,7 @@
  * @file Core/Processing/Lexer.cpp
  * Contains the implementation of Processing::Lexer.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -281,18 +281,39 @@ Int Lexer::process()
       this->currentProcessingIndex = -1;
       // Delete all the states.
       this->states.clear();
-    } else if (closedStateCount > 1) {
-      // Keep only the best closed state to conserve memory.
-      // Select a token among the closed states.
+    } else if (closedStateCount > 0) {
       Int bestToken = this->selectBestToken();
-      // Remove all closed tokens except for the selected one.
-      for (Int i = 0; i < static_cast<Int>(this->states.size()); i++) {
-        if (this->states[i].getTokenLength() != 0 && i != bestToken) {
-          // Remove this unselected closed token.
-          this->disabledStateIndex = i;
-          this->defragStatesList();
-          // Check if the moved state was actually the selected one.
-          if (bestToken >= static_cast<Int>(this->states.size())) bestToken = i;
+      if (closedStateCount > 1) {
+        // Keep only the best closed state to conserve memory.
+        // Select a token among the closed states.
+
+        // Remove all closed tokens except for the selected one.
+        for (Int i = 0; i < static_cast<Int>(this->states.size()); i++) {
+          if (this->states[i].getTokenLength() != 0 && i != bestToken) {
+            // Remove this unselected closed token.
+            this->disabledStateIndex = i;
+            this->defragStatesList();
+            // Check if the moved state was actually the selected one.
+            if (bestToken >= static_cast<Int>(this->states.size())) bestToken = i;
+            --i;
+          }
+        }
+      }
+      // Remove any open states belonging to a PREFERE_SHORTER rule that happens to be the same rule as the
+      // chosen closed state.
+      auto bestTokenDefIndex = this->states[bestToken].getIndexStack()->at(0);
+      auto def = this->getSymbolDefinition(bestTokenDefIndex);
+      TiInt *flags = this->grammarContext.getSymbolFlags(def);
+      if (flags != 0 && flags->get() & Data::Grammar::SymbolFlags::PREFER_SHORTER) {
+        for (Int i = 0; i < static_cast<Int>(this->states.size()); i++) {
+          if (i == bestToken) continue;
+          if (this->states[i].getIndexStack()->at(0) == bestTokenDefIndex) {
+            this->disabledStateIndex = i;
+            this->defragStatesList();
+            // Check if the moved state was actually the selected one.
+            if (bestToken >= static_cast<Int>(this->states.size())) bestToken = i;
+            else --i;
+          }
         }
       }
     }
