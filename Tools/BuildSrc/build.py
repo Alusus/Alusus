@@ -29,6 +29,8 @@ install_dep.install_package('colorama'); import colorama
 # Dependencies.
 LLVM_SRC_URL = "http://releases.llvm.org/7.0.1/llvm-7.0.1.src.tar.xz"
 LLVM_NAME = "llvm-7.0.1"
+LIBCURL_SRC_URL="https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.xz"
+LIBCURL_NAME="curl-7.64.1"
 
 # Build Args
 MAKE_THREAD_COUNT = multiprocessing.cpu_count()
@@ -141,7 +143,6 @@ def build_llvm():
     if not os.path.exists(os.path.join(LLVM_NAME + ".src", "EXTRACTED")):
         if not os.path.exists(LLVM_NAME + ".src.tar.xz"):
             wget.download(LLVM_SRC_URL)
-            print("")
         with lzma.open(LLVM_NAME + ".src.tar.xz") as fd:
             with tarfile.open(fileobj=fd) as tar:
                 infoMsg("Extracting LLVM sources...")
@@ -203,9 +204,80 @@ def build_llvm():
     os.chdir(old_path)
 
 
+def build_libcurl():
+    global BUILD_PATH
+    global DEPS_PATH
+    global LIBCURL_NAME
+    global LIBCURL_SRC_URL
+    global MAKE_THREAD_COUNT
+    global INSTALL_PATH
+
+    try:
+        os.makedirs(BUILD_PATH)
+    except OSError:
+        pass
+
+    try:
+        os.makedirs(DEPS_PATH)
+    except OSError:
+        pass
+
+    old_path = os.path.realpath(os.getcwd())
+    os.chdir(DEPS_PATH)
+
+    if not os.path.exists(os.path.join(LIBCURL_NAME, "EXTRACTED")):
+        if not os.path.exists(LIBCURL_NAME + ".tar.xz"):
+            wget.download(LIBCURL_SRC_URL)
+        with lzma.open(LIBCURL_NAME + ".tar.xz") as fd:
+            with tarfile.open(fileobj=fd) as tar:
+                infoMsg("Extracting libcurl sources...")
+                tar.extractall()
+        os.remove(LIBCURL_NAME + ".tar.xz")
+        with open(os.path.join(LIBCURL_NAME, "EXTRACTED"), "w") as fd:
+            fd.write("LIBCURL EXTRACTED CHECKER")
+        infoMsg("Finished extracting libcurl sources.")
+    else:
+        infoMsg("libcurl sources are already available.")
+
+    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", "libcurl.so")):
+        infoMsg("libcurl is already built and installed.")
+        successMsg("Building libcurl.")
+        return
+
+    os.chdir(LIBCURL_NAME)
+
+    try:
+        if THIS_SYSTEM == "Windows":
+            # TODO: Build libcurl for windows.
+            raise NotImplementedError("Building libcurl for Windows OS is not implemented yet!")
+        else:
+            ret = subprocess.call("./configure")
+            if ret != 0:
+                failMsg("Building libcurl.")
+                exit(1)
+            ret = subprocess.call("make -j{}".format(MAKE_THREAD_COUNT).split())
+            if ret != 0:
+                failMsg("Building libcurl.")
+                exit(1)
+            shutil.copy2(
+                os.path.join("lib", ".libs", "libcurl.so"),
+                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", "libcurl.so")
+            )
+            if ret != 0:
+                failMsg("Building libcurl.")
+                exit(1)
+
+    except (OSError, subprocess.CalledProcessError):
+        failMsg("Building libcurl.")
+        exit(1)
+    successMsg("Building libcurl.")
+    os.chdir(old_path)
+
+
 def prep_debs():
     infoMsg("Preparing dependencies...")
     build_llvm()
+    build_libcurl()
     successMsg("Building dependencies.")
 
 
