@@ -25,7 +25,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install wget; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install colorama; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install lzma; fi
-\
+
 script:
   - sudo ./Tools/build.sh --bloc .
   - cd Build/Debug
