@@ -21,7 +21,11 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install cmake gcc curl gawk python3 || true; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install ummalqura; fi
-
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install termcolor; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install wget; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install colorama; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install lzma; fi
+\
 script:
   - sudo ./Tools/build.sh --bloc .
   - cd Build/Debug
