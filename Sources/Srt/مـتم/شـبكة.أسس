@@ -1,0 +1,137 @@
+اشمل "عامة.أسس"؛
+اشمل "Srl/Net.alusus"؛
+
+@دمج عرف Srl: حزمة
+{
+  عرف شـبكة: لقب Net؛
+  @دمج عرف Net: حزمة
+  {
+    عرف كـرل: لقب Curl؛
+    عرف مـعلومات_كرل: لقب CurlInfo؛
+    عرف خـيارات_كرل: {
+      عرف _معلومات_الكتابة_: لقب CurlOpt.WRITEDATA؛
+      عرف _الرابط_: لقب CurlOpt.URL؛
+      عرف _المنفذ_: لقب CurlOpt.PORT؛
+      عرف _الوسيط_: لقب CurlOpt.PROXY؛
+      عرف _كلمة_سر_المستخدم_: لقب CurlOpt.USERPWD؛
+      عرف _كلمة_سر_مستخدم_الوسيط_: لقب CurlOpt.PROXYUSERPWD؛
+      عرف _معلومات_القراءة_: لقب CurlOpt.READDATA؛
+      عرف _صوان_الخطأ_: لقب CurlOpt.ERRORBUFFER؛
+      عرف _صوان_الخطا_: لقب CurlOpt.ERRORBUFFER؛
+      عرف _دالة_الكتابة_: لقب CurlOpt.WRITEFUNCTION؛
+      عرف _دالة_القراءة_: لقب CurlOpt.READFUNCTION؛
+      عرف _المهلة_الزمنية_: لقب CurlOpt.TIMEOUT؛
+      عرف _حقول_الايداع_: لقب CurlOpt.POSTFIELDS؛
+      عرف _المحيل_: لقب CurlOpt.REFERER؛
+      عرف _منفذ_اف_تي_بي_: لقب CurlOpt.FTPPORT؛
+      عرف _وكيل_المستخدم_: لقب CurlOpt.USERAGENT؛
+      عرف _حد_السرعة_الدنيا_: لقب CurlOpt.LOW_SPEED_LIMIT؛
+      عرف _وقت_السرعة_الدنيا_: لقب CurlOpt.LOW_SPEED_TIME؛
+      عرف _استئنف_من_: لقب CurlOpt.RESUME_FROM؛
+      عرف _تعريف_ارتباط_: لقب CurlOpt.COOKIE؛
+      عرف _حقل_بننت_رأسي_: لقب CurlOpt.HTTPHEADER؛
+      عرف _ايداع_بننت_: لقب CurlOpt.HTTPPOST؛
+      عرف _شهادة_طما_: لقب CurlOpt.SSLCERT؛
+      عرف _كلمة_سر_مفتاح_: لقب CurlOpt.KEYPASSWD؛
+      عرف _المعلومات_الرأسية_: لقب CurlOpt.HEADERDATA؛
+      عرف _ملف_تعريف_الارتباط_: لقب CurlOpt.COOKIEFILE؛
+      عرف _إصدار_طما_: لقب CurlOpt.SSLVERSION؛
+      عرف _اصدار_طما_: لقب CurlOpt.SSLVERSION؛
+      عرف _شرط_وقتي_: لقب CurlOpt.TIMECONDITION؛
+      عرف _قيمة_وقتية_: لقب CurlOpt.TIMEVALUE؛
+      عرف _طلب_مخصص_: لقب CurlOpt.CUSTOMREQUEST؛
+      عرف _دفق_الخطأ_المعياري_: لقب CurlOpt.STDERR؛
+      عرف _إسهاب_: لقب CurlOpt.VERBOSE؛
+      عرف _اسهاب_: لقب CurlOpt.VERBOSE؛
+      عرف _حقل_رأسي_: لقب CurlOpt.HEADER؛
+      عرف _لا_تقدم_: لقب CurlOpt.NOPROGRESS؛
+      عرف _لا_متن_: لقب CurlOpt.NOBODY؛
+      عرف _تخلى_عند_الخطأ_: لقب CurlOpt.FAILONERROR؛
+      عرف _تحميل_: لقب CurlOpt.UPLOAD؛
+      عرف _ايداع_: لقب CurlOpt.POST؛
+      عرف _ادراج_مجلد_فقط_: لقب CurlOpt.DIRLISTONLY؛
+      عرف _إدراج_مجلد_فقط_: لقب CurlOpt.DIRLISTONLY؛
+      عرف _تتبع_الموقع_: لقب CurlOpt.FOLLOWLOCATION؛
+      عرف _وضع_: لقب CurlOpt.PUT؛
+      عرف _دالة_تقدم_: لقب CurlOpt.PROGRESSFUNCTIONP؛
+      عرف _معلومات_تقدم_: لقب CurlOpt.PROGRESSDATA؛
+      عرف _محيل_تلقائي_: لقب CurlOpt.AUTOREFERER؛
+      عرف _منفذ_الوسيط_: لقب CurlOpt.PROXYPORT؛
+      عرف _حجم_حقل_الايداع_: لقب CurlOpt.POSTFIELDSIZE؛
+      عرف _نفق_الوسيط_: لقب CurlOpt.HTTPPROXYTUNNEL؛
+      عرف _واجهة_: لقب CurlOpt.INTERFACE؛
+      عرف _فحص_قرين_طما_: لقب CurlOpt.SSL_VERIFYPEER؛
+      عرف _حد_اعادات_التوجيه_: لقب CurlOpt.MAXREDIRS؛
+      عرف _وقت_الملف_: لقب CurlOpt.FILETIME؛
+      عرف _خيارات_تلنت_: لقب CurlOpt.TELNETOPTIONS؛
+      عرف _حد_الاتصالات_: لقب CurlOpt.MAXCONNECTS؛
+      عرف _امنع_اعادة_الاستخدام_: لقب ِCurlOpt.FORBID_REUSE؛
+      عرف _ملف_عشوائي_: لقب CurlOpt.RANDOM_FILE؛
+      عرف _مهلة_الاتصال_الزمنية_: لقب CurlOpt.CONNECTTIMEOUT؛
+      عرف _دالة_حقل_رأسي_: لقب CurlOpt.HEADERFUNCTION؛
+      عرف _جلب_بننت_: لقب CurlOpt.HTTPGET؛
+      عرف _فحص_مضيف_طما_: لقب CurlOpt.SSL_VERIFYHOST؛
+      عرف _جرة_تعريفات_ارتباط_: لقب CurlOpt.COOKIEJAR؛
+      عرف _قائمة_تشفير_طما_: لقب CurlOpt.SSL_CIPHER_LIST؛
+      عرف _اصدار_بننت_: لقب CurlOpt.HTTP_VERSION؛
+      عرف _صنف_شهادة_طما_: لقب CurlOpt.SSLCERTTYPE؛
+      عرف _مفتاح_طما_: لقب CurlOpt.SSLKEY؛
+      عرف _صنف_مفتاح_طما_: لقب CurlOpt.SSLKEYTYPE؛
+      عرف _محرك_طما_: لقب CurlOpt.SSLENGINE؛
+      عرف _محرك_طما_الافتراضي_: لقب CurlOpt.SSLENGINE_DEFAULT؛
+      عرف _جلسة_تعريفات_ارتباط_: لقب CurlOpt.COOKIESESSION؛
+      عرف _حجم_الصوان_: لقب CurlOpt.BUFFERSIZE؛
+      عرف _لا_اشارة_: لقب CurlOpt.NOSIGNAL؛
+      عرف _نوع_الوسيط_: لقب CurlOpt.PROXYTYPE؛
+      عرف _اقبل_ترميز_: لقب CurlOpt.ACCEPT_ENCODING؛
+      عرف _مصادقة_بننت_: لقب CurlOpt.HTTPAUTH؛
+      عرف _انشئ_المجلدات_المفقودة_اف_تي_بي_: لقب CurlOpt.FTP_CREATE_MISSING_DIRS؛
+      عرف _مصادقة_الوسيط_: لقب CurlOpt.PROXYAUTH؛
+      عرف _مهلة_اف_تي_بي_الزمنية_: لقب CurlOpt.FTP_RESPONSE_TIMEOUT؛
+      عرف _مهلة_الخادم_الزمنية_: لقب CurlOpt.SERVER_RESPONSE_TIMEOUT؛
+      عرف _حجم_الملف_الأقصى_: لقب CurlOpt.MAXFILESIZE؛
+      عرف _استخدم_طما_: لقب CurlOpt.USE_SSL؛
+      عرف _حساب_اف_تي_بي_: لقب CurlOpt.FTP_ACCOUNT؛
+      عرف _قائمة_تعريفات_الارتباط_: لقب CurlOpt.COOKIELIST؛
+      عرف _تجاهل_طول_المحتوى_: لقب CurlOpt.IGNORE_CONTENT_LENGTH؛
+      عرف _المنفذ_المحلي_: لقب CurlOpt.LOCALPORT؛
+      عرف _اتصل_فقط_: لقب CurlOpt.CONNECT_ONLY؛
+      عرف _دالة_الانتقال_: لقب CurlOpt.SEEKFUNCTION؛
+      عرف _معلومات_الانتقال_: لقب CurlOpt.SEEKDATA؛
+      عرف _اسم_المستخدم_: لقب CurlOpt.USERNAME؛
+      عرف _كلمة_السر_: لقب CurlOpt.PASSWORD؛
+      عرف _اسم_مستخدم_الوسيط_: لقب CutlOpt.PROXYUSERNAME؛
+      عرف _كلمة_سر_الوسيط_: لقب CurlOpt.PROXYPASSWORD؛
+      عرف _لا_وسيط_: لقب CurlOpt.NOPROXY؛
+      عرف _ترميز_النقل_: لقب CurlOpt.TRANSFER_ENCODING؛
+      عرف _خيارات_طما_: لقب CurlOpt.SSL_OPTIONS؛
+      عرف _حقل_رأسي_لوسيط_: لقب CurlOpt.PROXYHEADER؛
+      عرف _حالة_تحقق_طما_: لقب CutlOpt.SSL_VERIFYSTATUS؛
+    }؛
+
+    عرف رمـز_كرل: {
+      عرف _اوكي_: لقب CurlCode.OK؛
+    }؛
+
+    عرف كـرل_شامل: لقب CurlGlobal؛
+    @دمج عرف CurlGlobal: حزمة
+    {
+      عرف هيئ: لقب init؛
+      عرف نظف: لقب cleanup؛
+    }؛
+
+    عرف كـرل_سهل: لقب CurlEasy؛
+    @دمج عرف CurlEasy: حزمة
+    {
+      عرف هيئ: لقب init؛
+      عرف نظف: لقب cleanup؛
+      عرف اضبط_خيار: لقب setOpt؛
+      عرف انجز: لقب perform؛
+      عرف هات_معلومة: لقب getInfo؛
+      عرف صفر: لقب reset؛
+    }؛
+
+    عرف هات: لقب get؛
+  }؛
+}؛
+
