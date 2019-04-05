@@ -251,7 +251,7 @@ def build_libcurl():
             # TODO: Build libcurl for windows.
             raise NotImplementedError("Building libcurl for Windows OS is not implemented yet!")
         else:
-            ret = subprocess.call("./configure")
+            ret = subprocess.call("./configure --with-darwinssl")
             if ret != 0:
                 failMsg("Building libcurl.")
                 exit(1)
@@ -276,8 +276,8 @@ def build_libcurl():
 
 def prep_debs():
     infoMsg("Preparing dependencies...")
-    build_llvm()
     build_libcurl()
+    # build_llvm()
     successMsg("Building dependencies.")
 
 
