@@ -1,8 +1,7 @@
 ------------------ Parsed Data Dump ------------------
 Scope [Statements.StmtList]
- List [Expression.ListExp]
-  StringLiteral: hello [Subject.Literal]
-  StringLiteral: world [Subject.Literal]
+ StringLiteral: hello [Subject.Literal]
+ StringLiteral: world [Subject.Literal]
  PostfixOperator ++ [Expression.UnaryExp]
   operand: Identifier: i [Subject.Identifier]
 ------------------------------------------------------

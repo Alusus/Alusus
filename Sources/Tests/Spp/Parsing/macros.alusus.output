@@ -55,9 +55,8 @@ Macro [Main.Macro]
   x: Identifier: Identifier [Subject.Identifier]
   y: Identifier: String [Subject.Identifier]
  body: Scope [Statements.StmtList]
-  List [Expression.ListExp]
-   Identifier: x [Subject.Identifier]
-   Identifier: y [Subject.Identifier]
+  Identifier: x [Subject.Identifier]
+  Identifier: y [Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
@@ -65,9 +64,8 @@ Macro [Main.Macro]
   x: Identifier: Identifier [Subject.Identifier]
   y: NULL
  body: Scope [Statements.StmtList]
-  List [Expression.ListExp]
-   Identifier: x [Subject.Identifier]
-   Identifier: y [Subject.Identifier]
+  Identifier: x [Subject.Identifier]
+  Identifier: y [Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
@@ -75,9 +73,8 @@ Macro [Main.Macro]
   x: NULL
   y: Identifier: String [Subject.Identifier]
  body: Scope [Statements.StmtList]
-  List [Expression.ListExp]
-   Identifier: x [Subject.Identifier]
-   Identifier: y [Subject.Identifier]
+  Identifier: x [Subject.Identifier]
+  Identifier: y [Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]

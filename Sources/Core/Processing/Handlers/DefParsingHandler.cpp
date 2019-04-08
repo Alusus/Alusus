@@ -50,7 +50,7 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   }
   auto name = nameToken->getValue();
 
-  // Get the definee (after the colon).
+  // Get the define (after the colon).
   auto val = linkOp->getSecond();
   if (val == 0) {
     // TODO: We need to choose terms for the parts of a define command, e.g.
@@ -60,15 +60,41 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
     return;
   }
 
-  // Create the definition.
-  auto def = Core::Data::Ast::Definition::create({
-    { "prodId", exprMetadata->getProdId() },
-    { "sourceLocation", exprMetadata->findSourceLocation() },
-    { "name", name }
-  }, {
-    { "target", val }
-  });
-  state->setData(def);
+  if(val->isDerivedFrom<Core::Data::Ast::AssignmentOperator>()) {
+    auto def = Core::Data::Ast::Definition::create({
+      { "prodId", exprMetadata->getProdId() },
+      { "sourceLocation", exprMetadata->findSourceLocation() },
+      { "name", name }
+    }, {
+      { "target", static_cast<Core::Data::Ast::AssignmentOperator*>(val.get())->getFirst() }
+    });
+
+    auto assignment = Core::Data::Ast::AssignmentOperator::create({
+      { "prodId", exprMetadata->getProdId() },
+      { "sourceLocation", exprMetadata->findSourceLocation() },
+      { "type", TiStr("=") }
+    }, {
+      { "first", nameToken },
+      { "second", static_cast<Core::Data::Ast::AssignmentOperator*>(val.get())->getSecond() }
+    });
+    
+    // Create the definition.
+    state->setData(Core::Data::Ast::List::create({}, {
+      def,
+      assignment
+    }));
+  } else {
+    auto def = Core::Data::Ast::Definition::create({
+      { "prodId", exprMetadata->getProdId() },
+      { "sourceLocation", exprMetadata->findSourceLocation() },
+      { "name", name }
+    }, {
+      { "target", val }
+    });
+
+    // Create the definition.
+    state->setData(def);
+  }
 }
 
 
