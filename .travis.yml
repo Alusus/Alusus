@@ -28,5 +28,5 @@ before_install:
 
 script:
   - sudo ./Tools/build.sh --bloc .
-  - cd Build/Debug
+  - cd Builds/Debug
   - make test
