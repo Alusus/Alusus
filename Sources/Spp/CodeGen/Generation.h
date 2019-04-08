@@ -90,11 +90,16 @@ class Generation : public ObjTiInterface
   public: METHOD_BINDING_CACHE(generateVarDef, Bool, (Core::Data::Ast::Definition*, TargetGeneration* /* tg */));
 
   public: METHOD_BINDING_CACHE(generateStatements,
-    Bool, (Spp::Ast::Block* /* astBlock */, TargetGeneration* /* tg */, TiObject* /* tgContext */)
+    Bool, (
+      Spp::Ast::Block* /* astBlock */, TargetGeneration* /* tg */, TiObject* /* tgContext */,
+      TerminalStatement& /* terminal */
+    )
   );
 
   public: METHOD_BINDING_CACHE(generateStatement,
-    Bool, (TiObject* /* astNode */, TargetGeneration* /* tg */, TiObject* /* tgContext */)
+    Bool, (
+      TiObject* /* astNode */, TargetGeneration* /* tg */, TiObject* /* tgContext */, TerminalStatement& /* terminal */
+    )
   );
 
   public: METHOD_BINDING_CACHE(generateExpression,

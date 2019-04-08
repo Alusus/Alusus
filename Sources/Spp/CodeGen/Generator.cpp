@@ -120,9 +120,9 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
 
   auto astBlock = astFunc->getBody().get();
   if (astBlock != 0 && tryGetCodeGenData<TiObject>(astBlock) == 0) {
-  auto astFuncType = astFunc->getType().get();
-  auto tgFuncType = tryGetCodeGenData<TiObject>(astFuncType);
-  ASSERT(tgFuncType != 0);
+    auto astFuncType = astFunc->getType().get();
+    auto tgFuncType = tryGetCodeGenData<TiObject>(astFuncType);
+    ASSERT(tgFuncType != 0);
 
     auto astArgs = astFuncType->getArgTypes().get();
 
@@ -139,7 +139,19 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
     }
 
     // Generate the function's statements.
-    auto retVal = generation->generateStatements(astBlock, tg, tgContext.get());
+    TerminalStatement terminal;
+    auto retVal = generation->generateStatements(astBlock, tg, tgContext.get(), terminal);
+
+    // Does this function need to return a value?
+    auto astRetType = astFuncType->traceRetType(generator->astHelper);
+    if (!generator->astHelper->isVoid(astRetType) && terminal == TerminalStatement::NO) {
+      // A block could have been terminated by a block or continue statement instead of a return, but that's fine
+      // since top level breaks and returns will raise an error anyway.
+      generator->noticeStore->add(
+        std::make_shared<Spp::Notices::MissingReturnStatementNotice>(astFunc->findSourceLocation())
+      );
+      return false;
+    }
 
     // Finalize the body.
     if (!tg->finishFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext.get())) {
@@ -203,12 +215,12 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
     if (obj != 0) {
       if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
         if (!generator->astHelper->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) result = false;
-            continue;
-          }
-        // TODO: Generate member functions.
-        // TODO: Generate subtypes.
+        continue;
       }
+      // TODO: Generate member functions.
+      // TODO: Generate subtypes.
     }
+  }
   if (!result) return false;
 
   // Generate static members.
@@ -323,23 +335,34 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
 
 Bool Generator::_generateStatements(
-  TiObject *self, Spp::Ast::Block *astBlock, TargetGeneration *tg, TiObject *tgContext
+  TiObject *self, Spp::Ast::Block *astBlock, TargetGeneration *tg, TiObject *tgContext, TerminalStatement &terminal
 ) {
   PREPARE_SELF(generation, Generation);
   Bool result = true;
+  terminal = TerminalStatement::UNKNOWN;
   for (Int i = 0; i < astBlock->getCount(); ++i) {
     auto astNode = astBlock->getElement(i);
-    if (!generation->generateStatement(astNode, tg, tgContext)) result = false;
+    if (terminal == TerminalStatement::YES) {
+      // Unreachable code.
+      PREPARE_SELF(generator, Generator);
+      generator->noticeStore->add(
+        std::make_shared<Spp::Notices::UnreachableCodeNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      );
+      return false;
+    }
+    if (!generation->generateStatement(astNode, tg, tgContext, terminal)) result = false;
   }
   return result;
 }
 
 
 Bool Generator::_generateStatement(
-  TiObject *self, TiObject *astNode, TargetGeneration *tg, TiObject *tgContext
+  TiObject *self, TiObject *astNode, TargetGeneration *tg, TiObject *tgContext, TerminalStatement &terminal
 ) {
   PREPARE_SELF(generator, Generator);
   auto generation = ti_cast<Generation>(generator);
+
+  terminal = TerminalStatement::NO;
 
   if (astNode->isDerivedFrom<Core::Data::Ast::Definition>()) {
     auto def = static_cast<Core::Data::Ast::Definition*>(astNode);
@@ -368,7 +391,7 @@ Bool Generator::_generateStatement(
     }
   } else if (astNode->isDerivedFrom<Spp::Ast::IfStatement>()) {
     auto ifStatement = static_cast<Spp::Ast::IfStatement*>(astNode);
-    return generator->commandGenerator->generateIfStatement(ifStatement, generation, tg, tgContext);
+    return generator->commandGenerator->generateIfStatement(ifStatement, generation, tg, tgContext, terminal);
   } else if (astNode->isDerivedFrom<Spp::Ast::WhileStatement>()) {
     auto whileStatement = static_cast<Spp::Ast::WhileStatement*>(astNode);
     return generator->commandGenerator->generateWhileStatement(whileStatement, generation, tg, tgContext);
@@ -376,16 +399,19 @@ Bool Generator::_generateStatement(
     auto forStatement = static_cast<Spp::Ast::ForStatement*>(astNode);
     return generator->commandGenerator->generateForStatement(forStatement, generation, tg, tgContext);
   } else if (astNode->isDerivedFrom<Spp::Ast::ContinueStatement>()) {
+    terminal = TerminalStatement::YES;
     auto continueStatement = static_cast<Spp::Ast::ContinueStatement*>(astNode);
     return generator->commandGenerator->generateContinueStatement(continueStatement, generation, tg, tgContext);
   } else if (astNode->isDerivedFrom<Spp::Ast::BreakStatement>()) {
+    terminal = TerminalStatement::YES;
     auto breakStatement = static_cast<Spp::Ast::BreakStatement*>(astNode);
     return generator->commandGenerator->generateBreakStatement(breakStatement, generation, tg, tgContext);
   } else if (astNode->isDerivedFrom<Spp::Ast::ReturnStatement>()) {
+    terminal = TerminalStatement::YES;
     auto returnStatement = static_cast<Spp::Ast::ReturnStatement*>(astNode);
     return generator->commandGenerator->generateReturnStatement(returnStatement, generation, tg, tgContext);
   } else if (astNode->isDerivedFrom<Spp::Ast::UseStatement>()) {
-    return generation->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(astNode));
+    return generator->astHelper->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(astNode));
   } else {
     GenResult result;
     return generation->generateExpression(astNode, tg, tgContext, result);

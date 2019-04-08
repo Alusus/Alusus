@@ -479,14 +479,21 @@ Bool TargetGenerator::finishIfStatement(TiObject *context, CodeGen::IfTgContext 
   PREPARE_ARG(conditionVal, valWrapper, Value);
 
   // Create a merge block and jump to it from if and else bodies.
-  auto mergeLlvmBlock = llvm::BasicBlock::Create(
-    myContext, this->getNewBlockName(), block->getLlvmFunction()
-  );
-  if (!ifContext->getBodyBlock()->isTerminated()) {
-    ifContext->getBodyBlock()->getIrBuilder()->CreateBr(mergeLlvmBlock);
-  }
-  if (ifContext->getElseBlock() != 0 && !ifContext->getElseBlock()->isTerminated()) {
-    ifContext->getElseBlock()->getIrBuilder()->CreateBr(mergeLlvmBlock);
+  llvm::BasicBlock *mergeLlvmBlock = 0;
+  if (
+    !ifContext->getBodyBlock()->isTerminated() ||
+    ifContext->getElseBlock() == 0 ||
+    !ifContext->getElseBlock()->isTerminated()
+  ) {
+    mergeLlvmBlock = llvm::BasicBlock::Create(
+      myContext, this->getNewBlockName(), block->getLlvmFunction()
+    );
+    if (!ifContext->getBodyBlock()->isTerminated()) {
+      ifContext->getBodyBlock()->getIrBuilder()->CreateBr(mergeLlvmBlock);
+    }
+    if (ifContext->getElseBlock() != 0 && !ifContext->getElseBlock()->isTerminated()) {
+      ifContext->getElseBlock()->getIrBuilder()->CreateBr(mergeLlvmBlock);
+    }
   }
 
   // Create the if statement.
@@ -497,8 +504,10 @@ Bool TargetGenerator::finishIfStatement(TiObject *context, CodeGen::IfTgContext 
   );
 
   // Set insert point to the merge body.
-  block->getIrBuilder()->SetInsertPoint(mergeLlvmBlock);
-  block->setLlvmBlock(mergeLlvmBlock);
+  if (mergeLlvmBlock != 0) {
+    block->getIrBuilder()->SetInsertPoint(mergeLlvmBlock);
+    block->setLlvmBlock(mergeLlvmBlock);
+  }
 
   return true;
 }

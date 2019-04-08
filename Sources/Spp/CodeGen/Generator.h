@@ -157,11 +157,11 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
   );
 
   private: static Bool _generateStatements(
-    TiObject *self, Spp::Ast::Block *astBlock, TargetGeneration *tg, TiObject *tgContext
+    TiObject *self, Spp::Ast::Block *astBlock, TargetGeneration *tg, TiObject *tgContext, TerminalStatement &terminal
   );
 
   private: static Bool _generateStatement(
-    TiObject *self, TiObject *astNode, TargetGeneration *tg, TiObject *tgContext
+    TiObject *self, TiObject *astNode, TargetGeneration *tg, TiObject *tgContext, TerminalStatement &terminal
   );
 
   private: static Bool _generateExpression(

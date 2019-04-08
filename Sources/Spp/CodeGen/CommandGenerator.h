@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/CommandGenerator.h
  * Contains the header of class Spp::CodeGen::CommandGenerator.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -103,11 +103,12 @@ class CommandGenerator : public TiObject, public virtual DynamicBinding, public 
 
   public: METHOD_BINDING_CACHE(generateIfStatement,
     Bool, (
-      Spp::Ast::IfStatement*, Generation*, TargetGeneration*, TiObject*
+      Spp::Ast::IfStatement*, Generation*, TargetGeneration*, TiObject*, TerminalStatement&
     )
   );
   private: static Bool _generateIfStatement(
-    TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+    TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    TerminalStatement &terminal
   );
 
   public: METHOD_BINDING_CACHE(generateWhileStatement,

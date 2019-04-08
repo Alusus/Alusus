@@ -180,6 +180,12 @@ DEFINE_NOTICE(InvalidObjectMemberAccessNotice, "Spp.Notices", "Spp", "alusus.net
 DEFINE_NOTICE(InvalidGlobalDefAccessNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1020", 1,
   "Invalid access to global definition."
 );
+DEFINE_NOTICE(UnreachableCodeNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1021", 1,
+  "Unreachable code."
+);
+DEFINE_NOTICE(MissingReturnStatementNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1022", 1,
+  "Missing a return statement for a non-void function."
+);
 
 } // namespace
 
