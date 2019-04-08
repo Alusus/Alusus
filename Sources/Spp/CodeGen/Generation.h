@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generation.h
  * Contains the header of class Spp::CodeGen::Generation.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -47,8 +47,7 @@ class Generation : public ObjTiInterface
       &this->generateExpression,
       &this->generateCast,
       &this->getGeneratedType,
-      &this->getTypeAllocationSize,
-      &this->validateUseStatement
+      &this->getTypeAllocationSize
     });
   }
 
@@ -119,10 +118,6 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(getTypeAllocationSize,
     Bool, (Spp::Ast::Type* /* astType */, TargetGeneration* /* tg */, Word& /* result */)
-  );
-
-  public: METHOD_BINDING_CACHE(validateUseStatement,
-    Bool, (Spp::Ast::UseStatement* /* useStatement */)
   );
 
   /// @}

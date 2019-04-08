@@ -1575,7 +1575,7 @@ Bool ExpressionGenerator::_generatePointerOp(
       return false;
     }
     // Generate a function pointer.
-    if (!g->generateFunctionDecl(astFunction, tg)) return false;
+    if (!g->generateFunction(astFunction, tg)) return false;
     auto tgFunction = getCodeGenData<TiObject>(astFunction);
     auto astFunctionPointerType = expGenerator->astHelper->getPointerTypeFor(astFunction->getType().get());
     TiObject *tgFunctionPointerType;
@@ -2106,8 +2106,8 @@ Bool ExpressionGenerator::_generateFunctionCall(
     // TODO: Generate inlined function body.
     throw EXCEPTION(GenericException, S("Inline function generation is not implemented yet."));
   } else {
-    // Build funcion declaration.
-    if (!g->generateFunctionDecl(callee, tg)) return false;
+    // Build called funcion.
+    if (!g->generateFunction(callee, tg)) return false;
     auto tgFunction = getCodeGenData<TiObject>(callee);
 
     // Create function call.

@@ -78,7 +78,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
   /// @name Main Operation Functions
   /// @{
 
-  public: void prepareBuild(Core::Notices::Store *noticeStore);
+  public: void prepareBuild();
 
   public: void dumpIr(OutStream &out);
 
@@ -88,6 +88,11 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
 
   /// @name Property Getters
   /// @{
+
+  public: void setNoticeStore(Core::Notices::Store *ns)
+  {
+    this->noticeStore = ns;
+  }
 
   public: Core::Notices::Store* getNoticeStore() const
   {

@@ -58,6 +58,9 @@ DEFINE_NOTICE(ArgsMismatchNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1008"
 DEFINE_NOTICE(ConflictingDefinitionsNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1009", 1,
   "Multiple conflicting definitions were found for the given callee."
 );
+DEFINE_NOTICE(InvalidUseStatementNotice, "Spp.Notices", "Spp", "alusus.net", "SPPA1010", 1,
+  "Use statement not pointing to a valid target."
+);
 
 } /// namespace
 
@@ -171,13 +174,10 @@ DEFINE_NOTICE(InvalidMacroArgNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG10
 DEFINE_NOTICE(InvalidMacroNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1018", 1,
   "Invalid macro."
 );
-DEFINE_NOTICE(InvalidUseStatementNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1019", 1,
-  "Use statement not pointing to a valid target."
-);
-DEFINE_NOTICE(InvalidObjectMemberAccessNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1020", 1,
+DEFINE_NOTICE(InvalidObjectMemberAccessNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1019", 1,
   "Invalid access to object member."
 );
-DEFINE_NOTICE(InvalidGlobalDefAccessNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1021", 1,
+DEFINE_NOTICE(InvalidGlobalDefAccessNotice, "Spp.Notices", "Spp", "alusus.net", "SPPG1020", 1,
   "Invalid access to global definition."
 );
 

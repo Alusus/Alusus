@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/llvm_dependencies.h
  * Contains include statement for LLVM dependencies.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -30,6 +30,7 @@
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/raw_os_ostream.h>
+#include <llvm/Transforms/Utils/Cloning.h>
 
 #undef C
 #define C(x)	u8##x

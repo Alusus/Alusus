@@ -35,17 +35,15 @@ void Generator::initBindings()
   generation->generateCast = &Generator::_generateCast;
   generation->getGeneratedType = &Generator::_getGeneratedType;
   generation->getTypeAllocationSize = &Generator::_getTypeAllocationSize;
-  generation->validateUseStatement = &Generator::_validateUseStatement;
 }
 
 
 //==============================================================================
 // Main Operation Functions
 
-Bool Generator::generate(
-  Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, TargetGeneration *tg
-) {
-  VALIDATE_NOT_NULL(root, state, tg);
+void Generator::prepareBuild(Core::Processing::ParserState *state)
+{
+  VALIDATE_NOT_NULL(state);
 
   this->noticeStore = state->getNoticeStore();
   this->noticeStore->clearPrefixSourceLocationStack();
@@ -54,9 +52,6 @@ Bool Generator::generate(
   this->typeGenerator->setNoticeStore(this->noticeStore);
   this->commandGenerator->setNoticeStore(this->noticeStore);
   this->expressionGenerator->setNoticeStore(this->noticeStore);
-
-  auto generation = ti_cast<Generation>(this);
-  return generation->generateModules(root, tg);
 }
 
 
@@ -105,7 +100,7 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Tar
         }
       }
     } else if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
-      if (!generation->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) result = false;
+      if (!generator->astHelper->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) result = false;
     }
   }
   return result;
@@ -123,12 +118,12 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
     tgFunc = getCodeGenData<TiObject>(astFunc);
   }
 
+  auto astBlock = astFunc->getBody().get();
+  if (astBlock != 0 && tryGetCodeGenData<TiObject>(astBlock) == 0) {
   auto astFuncType = astFunc->getType().get();
   auto tgFuncType = tryGetCodeGenData<TiObject>(astFuncType);
   ASSERT(tgFuncType != 0);
 
-  auto astBlock = astFunc->getBody().get();
-  if (astBlock != 0) {
     auto astArgs = astFuncType->getArgTypes().get();
 
     // Prepare the funciton body.
@@ -200,61 +195,23 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   if (body == 0) {
     throw EXCEPTION(GenericException, S("User type missing body block."));
   }
-  auto prevInProgress = tryGetCodeGenData<TiBool>(body);
-  if (prevInProgress != 0) {
-    if (prevInProgress->get()) {
-      generator->noticeStore->add(
-        std::make_shared<Spp::Notices::CircularUserTypeDefinitionsNotice>(astType->findSourceLocation())
-      );
-      return false;
-    } else {
-      return true;
-    }
-  }
-  auto inProgress = TiBool::create(true);
-  setCodeGenData(body, inProgress);
 
-  // Generate the structure.
+  // Generate member functions and sub types.
   Bool result = true;
-  PlainList<TiObject> members;
-  PlainMap<TiObject> tgMemberTypes;
-  SharedList<TiObject> tgMembers;
   for (Int i = 0; i < body->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
-    if (def != 0) {
-      if (generator->astHelper->getDefinitionDomain(def) != Ast::DefinitionDomain::GLOBAL) {
-        auto obj = def->getTarget().get();
-        if (generator->getAstHelper()->isAstReference(obj)) {
-          TiObject *tgType;
-          Ast::Type *astMemberType;
-          if (!generator->typeGenerator->getGeneratedType(obj, tg, tgType, &astMemberType)) {
-            result = false;
+    auto obj = body->getElement(i);
+    if (obj != 0) {
+      if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
+        if (!generator->astHelper->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) result = false;
             continue;
           }
-          Ast::setAstType(obj, astMemberType);
-          tgMemberTypes.add(def->getName().get(), tgType);
-          members.add(obj);
-        } else if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
-          if (!generation->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) result = false;
-          continue;
-        }
         // TODO: Generate member functions.
         // TODO: Generate subtypes.
       }
     }
-  }
   if (!result) return false;
 
-  if (!tg->generateStructTypeBody(tgType, &tgMemberTypes, &tgMembers)) return false;
-  if (tgMemberTypes.getElementCount() != tgMembers.getCount()) {
-    throw EXCEPTION(GenericException, S("Unexpected error while generating struct body."));
-  }
-  for (Int i = 0; i < tgMemberTypes.getElementCount(); ++i) {
-    setCodeGenData(members.get(i), tgMembers.get(i));
-  }
-  inProgress->set(false);
-
-  // Generate static mbmbers.
+  // Generate static members.
   for (Int i = 0; i < body->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
     if (def != 0) {
@@ -300,14 +257,6 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
     TiObject *tgRefType;
     if (!generator->typeGenerator->getGeneratedType(astRefType, tg, tgRefType, 0)) {
       throw EXCEPTION(GenericException, S("Failed to generate pointer type for the given var type."));
-    }
-
-    if (astType->isDerivedFrom<Ast::UserType>()) {
-      PREPARE_SELF(generation, Generation);
-      if (!generation->generateUserTypeBody(static_cast<Ast::UserType*>(astType), tg)) {
-        setCodeGenFailed(astVar, true);
-        return false;
-      }
     }
 
     Ast::setAstType(astVar, astType);
@@ -473,34 +422,6 @@ Bool Generator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, 
 {
   PREPARE_SELF(generator, Generator);
   return generator->typeGenerator->getTypeAllocationSize(astType, tg, result);
-}
-
-
-Bool Generator::_validateUseStatement(TiObject *self, Spp::Ast::UseStatement *useStatement)
-{
-  PREPARE_SELF(generator, Generator);
-  VALIDATE_NOT_NULL(useStatement);
-  if (useStatement->getTarget() == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("useStatement"), S("Use statement has a null target."));
-  }
-  Bool found = false;
-  generator->getSeeker()->foreach(useStatement->getTarget().get(), useStatement->getOwner(),
-    [=, &found] (TiObject *obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb
-    {
-      if (ti_cast<Ast::Module>(obj) != 0) {
-        found = true;
-        return Core::Data::Seeker::Verb::STOP;
-      } else {
-        return Core::Data::Seeker::Verb::MOVE;
-      }
-    }, 0
-  );
-  if (!found) {
-    generator->noticeStore->add(
-      std::make_shared<Spp::Notices::InvalidUseStatementNotice>(useStatement->findSourceLocation())
-    );
-  }
-  return found;
 }
 
 } } // namespace

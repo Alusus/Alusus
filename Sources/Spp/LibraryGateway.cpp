@@ -1,7 +1,7 @@
 /**
  * @file Spp/LibraryGateway.cpp
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -50,6 +50,9 @@ void LibraryGateway::initialize(Main::RootManager *manager)
     this->expressionGenerator.get()
   );
   this->targetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>();
+
+  // Prepare the target generator.
+  this->targetGenerator->prepareBuild();
 
   // Add the grammar.
   GrammarFactory factory;

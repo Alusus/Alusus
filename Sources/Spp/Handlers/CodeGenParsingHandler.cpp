@@ -38,52 +38,56 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
 
     if (result) {
       // Build the IR code.
-      this->targetGenerator->prepareBuild(state->getNoticeStore());
+      this->targetGenerator->setNoticeStore(state->getNoticeStore());
       auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(this->targetGenerator);
-      result = this->generator->generate(root, state, targetGeneration);
+      this->generator->prepareBuild(state);
+      auto generation = ti_cast<CodeGen::Generation>(this->generator);
+
+      // Find the entry ref.
+      auto container = ti_cast<Containing<TiObject>>(data);
+      ASSERT(container != 0);
+      auto entryRef = ti_cast<Core::Data::Node>(container->getElement(1));
+      ASSERT(entryRef != 0);
 
       if (this->execute) {
-        // Execute the code if build was successful.
-        auto minSeverity = this->rootManager->getMinNoticeSeverityEncountered();
-        auto thisMinSeverity = state->getNoticeStore()->getMinEncounteredSeverity();
-        if (result && (minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
-          // Find the entry ref.
-          auto container = ti_cast<Containing<TiObject>>(data);
-          ASSERT(container != 0);
-          auto entryRef = ti_cast<Core::Data::Node>(container->getElement(1));
-          ASSERT(entryRef != 0);
-          // Generate args.
-          PlainList<TiObject> paramAstTypes;
-          this->getEntryArgTypes(&paramAstTypes);
-          Bool sendArgs;
-          // Find the entry function.
-          TiObject *callee = 0;
-          Ast::Type *calleeType = 0;
-          Ast::Function *entryFunction = 0;
-          SharedPtr<Core::Notices::Notice> notice;
-          if (this->astHelper->lookupCallee(
-            entryRef, root, true, &paramAstTypes, this->targetGenerator->getExecutionContext(),
-            callee, calleeType, notice
-          )) {
-            entryFunction = ti_cast<Ast::Function>(callee);
-            sendArgs = true;
-          } else if (this->astHelper->lookupCallee(
-            entryRef, root, true, 0, this->targetGenerator->getExecutionContext(),
-            callee, calleeType, notice
-          )) {
-            sendArgs = false;
-            entryFunction = ti_cast<Ast::Function>(callee);
-          }
-          // Execute if an entry function was found.
-          if (entryFunction == 0) {
-            if (notice != 0) {
-              state->addNotice(notice);
-            } else {
-              state->addNotice(
-                std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(entryRef))
-              );
-            }
+        // Generate args.
+        PlainList<TiObject> paramAstTypes;
+        this->getEntryArgTypes(&paramAstTypes);
+        Bool sendArgs;
+        // Find the entry function.
+        TiObject *callee = 0;
+        Ast::Type *calleeType = 0;
+        Ast::Function *entryFunction = 0;
+        SharedPtr<Core::Notices::Notice> notice;
+        if (this->astHelper->lookupCallee(
+          entryRef, root, true, &paramAstTypes, this->targetGenerator->getExecutionContext(),
+          callee, calleeType, notice
+        )) {
+          entryFunction = ti_cast<Ast::Function>(callee);
+          sendArgs = true;
+        } else if (this->astHelper->lookupCallee(
+          entryRef, root, true, 0, this->targetGenerator->getExecutionContext(),
+          callee, calleeType, notice
+        )) {
+          sendArgs = false;
+          entryFunction = ti_cast<Ast::Function>(callee);
+        }
+        // Execute if an entry function was found.
+        if (entryFunction == 0) {
+          if (notice != 0) {
+            state->addNotice(notice);
           } else {
+            state->addNotice(
+              std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(entryRef))
+            );
+          }
+        } else {
+          // Generate only for the needed functions.
+          result = generation->generateFunction(entryFunction, targetGeneration);
+          // Execute the code if build was successful.
+          auto minSeverity = this->rootManager->getMinNoticeSeverityEncountered();
+          auto thisMinSeverity = state->getNoticeStore()->getMinEncounteredSeverity();
+          if (result && (minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
             auto funcName = this->astHelper->getFunctionName(entryFunction).c_str();
             auto executionResult = this->targetGenerator->execute(
               funcName, sendArgs, this->rootManager->getProcessArgCount(), this->rootManager->getProcessArgs()
@@ -91,13 +95,25 @@ void CodeGenParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pa
             // If the execution wasn't successful, throw the error and quit.
             auto retType = entryFunction->getType()->traceRetType(this->astHelper);
             if (!this->astHelper->isVoid(retType) && executionResult != 0) throw executionResult;
+          } else {
+            state->addNotice(
+              std::make_shared<Spp::Notices::ExecutionAbortedNotice>(metadata->findSourceLocation())
+            );
           }
-        } else {
-          state->addNotice(
-            std::make_shared<Spp::Notices::ExecutionAbortedNotice>(metadata->findSourceLocation())
-          );
         }
       } else {
+        // Find the element to generate.
+        auto element = this->rootManager->getSeeker()->doGet(entryRef, root);
+        // Generate for all the modules.
+        if (element->isDerivedFrom<Ast::Module>()) {
+          result = generation->generateModule(static_cast<Ast::Module*>(element), targetGeneration);
+        } else if (element->isDerivedFrom<Ast::Function>()) {
+          result = generation->generateFunction(static_cast<Ast::Function*>(element), targetGeneration);
+        } else {
+          state->addNotice(std::make_shared<Spp::Notices::InvalidBuildArgNotice>(metadata->findSourceLocation()));
+          state->setData(SharedPtr<TiObject>(0));
+          return;
+        }
         // Dump the IR code.
         StrStream ir;
         this->targetGenerator->dumpIr(ir);

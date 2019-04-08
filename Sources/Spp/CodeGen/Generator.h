@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.h
  * Contains the header of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -135,7 +135,7 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
   /// @name Main Operation Functions
   /// @{
 
-  public: Bool generate(Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, TargetGeneration *tg);
+  public: void prepareBuild(Core::Processing::ParserState *state);
 
   /// @}
 
@@ -179,10 +179,6 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
 
   private: static Bool _getTypeAllocationSize(
     TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result
-  );
-
-  private: static Bool _validateUseStatement(
-    TiObject *self, Spp::Ast::UseStatement *useStatement
   );
 
   /// @}

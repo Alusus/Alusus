@@ -133,7 +133,7 @@ void TargetGenerator::initBindings()
 //==============================================================================
 // Main Operation Functions
 
-void TargetGenerator::prepareBuild(Core::Notices::Store *noticeStore)
+void TargetGenerator::prepareBuild()
 {
   llvm::InitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
@@ -143,7 +143,6 @@ void TargetGenerator::prepareBuild(Core::Notices::Store *noticeStore)
   this->llvmModule = std::make_unique<llvm::Module>("AlususProgram", myContext);
   this->llvmModule->setDataLayout(this->llvmDataLayout->getStringRepresentation());
   this->executionContext = std::make_shared<ExecutionContext>(llvmDataLayout->getPointerSizeInBits());
-  this->noticeStore = noticeStore;
 }
 
 
@@ -164,7 +163,7 @@ Int TargetGenerator::execute(Char const *entry, Bool sendArgs, Int argCount, Cha
     throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
   }
 
-  auto engineBuilder = llvm::EngineBuilder(std::move(this->llvmModule));
+  auto engineBuilder = llvm::EngineBuilder(llvm::CloneModule(*this->llvmModule));
   std::string errorStr;
   engineBuilder.setErrorStr(&errorStr);
   auto ee = engineBuilder.create();
