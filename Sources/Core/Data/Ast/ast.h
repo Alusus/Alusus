@@ -114,6 +114,7 @@ void translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *mod
 #include "Mergeable.h"
 
 #include "List.h"
+#include "MergeList.h"
 #include "Map.h"
 
 #include "Token.h"

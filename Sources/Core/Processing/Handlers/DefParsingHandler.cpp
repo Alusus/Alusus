@@ -79,7 +79,7 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
     });
     
     // Create the definition.
-    state->setData(Core::Data::Ast::List::create({}, {
+    state->setData(Core::Data::Ast::MergeList::create({}, {
       def,
       assignment
     }));
