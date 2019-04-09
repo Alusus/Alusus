@@ -253,11 +253,11 @@ def build_libcurl():
         else:
             ret = subprocess.call("./configure")
             if ret != 0:
-                failMsg("1 Building libcurl.")
+                failMsg("Building libcurl.")
                 exit(1)
             ret = subprocess.call("make -j{}".format(MAKE_THREAD_COUNT).split())
             if ret != 0:
-                failMsg("2 Building libcurl.")
+                failMsg("Building libcurl.")
                 exit(1)
 
             if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib")):
@@ -271,7 +271,7 @@ def build_libcurl():
                 os.path.join(os.path.realpath(INSTALL_PATH), "Lib", "libcurl.so")
             )
             if ret != 0:
-                failMsg("3 Building libcurl.")
+                failMsg("Building libcurl.")
                 exit(1)
 
     except (OSError, subprocess.CalledProcessError):

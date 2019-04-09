@@ -18,7 +18,6 @@ add_definitions(${LLVM_DEFINITIONS})
 # Make sure the compiler finds the source files.
 include_directories("${AlususCore_SOURCE_DIR}")
 include_directories("${AlususTests_SOURCE_DIR}")
-link_directories("${CMAKE_INSTALL_PREFIX}/Libs")
 
 # Place files in folders for IDEs (though I only tried Visual Studio at the moment.)
 file(GLOB AlususTests_Source_Files *.cpp)
