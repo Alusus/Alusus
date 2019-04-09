@@ -28,6 +28,8 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install wget; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install colorama; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install backports.lzma; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ln -s /usr/bin/gcc-8 /usr/local/bin/gcc; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ln -s /usr/bin/g++-8 /usr/local/bin/g++; fi
 
 script:
   - Tools/build.sh --bloc . --iloc .
