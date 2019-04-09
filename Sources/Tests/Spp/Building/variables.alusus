@@ -20,6 +20,7 @@ def Main: module
     def lf: Float[32];
     def lpf: ptr[Float[32]];
     def lbf: Float[64];
+    def defIntInline: Int = 5;
 
     gi = 1;
     gi = 2i64;

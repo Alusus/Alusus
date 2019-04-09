@@ -1,6 +1,6 @@
 /**
- * @file Spp/CodeGen/LoopTgContext.h
- * Contains the header of class Spp::CodeGen::LoopTgContext.
+ * @file Core/Data/Ast/MergeList.h
+ * Contains the header of class Core::Data::Ast::MergeList.
  *
  * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
@@ -10,37 +10,39 @@
  */
 //==============================================================================
 
-#ifndef SPP_CODEGEN_LOOPTGCONTEXT_H
-#define SPP_CODEGEN_LOOPTGCONTEXT_H
+#ifndef CORE_DATA_AST_MERGELIST_H
+#define CORE_DATA_AST_MERGELIST_H
 
-namespace Spp { namespace CodeGen
+namespace Core::Data::Ast
 {
 
-class LoopTgContext : public TiObject
+class MergeList : public List
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(LoopTgContext, TiObject, "Spp.CodeGen", "Spp", "alusus.net");
+  TYPE_INFO(MergeList, List, "Core.Data.Ast", "Core", "alusus.net");
 
 
   //============================================================================
-  // Constructor & Destructor
+  // Implementations
 
-  public: LoopTgContext()
-  {
-  }
+  IMPLEMENT_AST_LIST_CLONABLE(MergeList);
+
+  IMPLEMENT_AST_LIST_PRINTABLE(MergeList);
 
 
   //============================================================================
-  // Member Functions
+  // Constructor / Destructor
 
-  public: virtual TiObject* getConditionContext() const = 0;
-  public: virtual TiObject* getUpdaterContext() const = 0;
-  public: virtual TiObject* getBodyContext() const = 0;
+  IMPLEMENT_EMPTY_CONSTRUCTOR(MergeList);
+
+  IMPLEMENT_ATTR_CONSTRUCTOR(MergeList);
+
+  IMPLEMENT_ATTR_LIST_CONSTRUCTOR(MergeList);
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

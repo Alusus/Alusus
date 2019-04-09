@@ -2,7 +2,7 @@
  * @file Core/Basic/BindingMap.cpp
  * Contains the implementation of class Core::Basic::BindingMap.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the

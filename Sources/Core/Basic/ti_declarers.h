@@ -2,7 +2,7 @@
  * @file Core/Basic/ti_declarers.h
  * Contains declaration macros for TI classes and interfaces.
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
