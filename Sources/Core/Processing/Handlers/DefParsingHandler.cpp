@@ -50,7 +50,7 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   }
   auto name = nameToken->getValue();
 
-  // Get the define (after the colon).
+  // Get the definition target (after the colon).
   auto val = linkOp->getSecond();
   if (val == 0) {
     // TODO: We need to choose terms for the parts of a define command, e.g.
