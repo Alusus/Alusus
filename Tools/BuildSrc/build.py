@@ -275,7 +275,7 @@ def build_libcurl():
                 exit(1)
 
     except (OSError, subprocess.CalledProcessError):
-        failMsg("4 Building libcurl.")
+        failMsg("Building libcurl.")
         exit(1)
     successMsg("Building libcurl.")
     os.chdir(old_path)
