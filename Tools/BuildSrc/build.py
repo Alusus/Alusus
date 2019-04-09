@@ -253,22 +253,29 @@ def build_libcurl():
         else:
             ret = subprocess.call("./configure")
             if ret != 0:
-                failMsg("Building libcurl.")
+                failMsg("1 Building libcurl.")
                 exit(1)
             ret = subprocess.call("make -j{}".format(MAKE_THREAD_COUNT).split())
             if ret != 0:
-                failMsg("Building libcurl.")
+                failMsg("2 Building libcurl.")
                 exit(1)
+
+            if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib")):
+                try:
+                    os.mkdir(os.path.join(os.path.realpath(INSTALL_PATH), "Lib"))
+                except:
+                    failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), "Lib") + "\" directory.")
+
             shutil.copy2(
-                os.path.join("lib", ".libs", "libcurl.so"),
+                os.path.join(DEPS_PATH, LIBCURL_NAME, "lib", ".libs", "libcurl.so"),
                 os.path.join(os.path.realpath(INSTALL_PATH), "Lib", "libcurl.so")
             )
             if ret != 0:
-                failMsg("Building libcurl.")
+                failMsg("3 Building libcurl.")
                 exit(1)
 
     except (OSError, subprocess.CalledProcessError):
-        failMsg("Building libcurl.")
+        failMsg("4 Building libcurl.")
         exit(1)
     successMsg("Building libcurl.")
     os.chdir(old_path)

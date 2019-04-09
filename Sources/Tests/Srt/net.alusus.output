@@ -1,4 +1,12 @@
-ERROR CG1003 @ (3,1): Importing failed. Could not load requested file: libcurl.so.
-libcurl.dbg.so: libcurl.dbg.so: cannot open shared object file: No such file or directory
-libcurl.so: libcurl.so: cannot open shared object file: No such file or directory
-ERROR SPPG1016 @ (19,1): Execution aborted due to previous errors.
+اشمل "مـتم/طـرفية.أسس"؛
+
+عرف بـسملة: حزمة
+{
+  عرف إبدأ: دالة
+  {
+    مـتم.طـرفية.اطبع("بسم الله الرحمن الرحيم\ج")؛
+  }؛
+}؛
+
+نفذ بـسملة.إبدأ؛
+�ځU

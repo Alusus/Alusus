@@ -27,6 +27,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip3 install backports.lzma; fi
 
 script:
-  - sudo ./Tools/build.sh --bloc .
+  - Tools/build.sh --bloc . --iloc .
   - cd Builds/Debug
   - make test

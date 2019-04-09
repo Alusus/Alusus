@@ -302,7 +302,7 @@ import "libcurl.so";
       if resultCode == CurlCode.OK {
         // Zero terminate the data.
         result~cnt = Srl.Memory.realloc(content.data, content.size + 1);
-        result~cast[ptr[array[Word[8]]]]~cnt(content.size) = 0;
+        result~cnt~cast[ptr[array[Word[8]]]]~cnt(content.size) = 0;
         resultCount~cnt = content.size;
         return true;
       } else {
