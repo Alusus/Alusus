@@ -467,9 +467,11 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
     )) return false;
     TiObject *tgFuncPtrType = getCodeGenData<TiObject>(derefResult.astType);
     // Generate the call.
-    if (!tg->generateFunctionPtrCall(
-      tgContext, derefResult.targetData.get(), tgFuncPtrType, paramTgValues, result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateFunctionPtrCall(
+        tgContext, derefResult.targetData.get(), tgFuncPtrType, paramTgValues, result.targetData
+      )) return false;
+    }
     result.astType = astFuncType->traceRetType(expGenerator->astHelper);
     return true;
   } else if (calleeType != 0 && calleeType->isDerivedFrom<Ast::ArrayType>()) {
@@ -575,9 +577,11 @@ Bool ExpressionGenerator::_generateRoundParamPassOnMember(
       )) return false;
       // Generate the call.
       TiObject *tgFuncPtrType = getCodeGenData<TiObject>(derefResult.astType);
-      if (!tg->generateFunctionPtrCall(
-        tgContext, derefResult.targetData.get(), tgFuncPtrType, paramTgValues, result.targetData
-      )) return false;
+      if (tgContext != 0) {
+        if (!tg->generateFunctionPtrCall(
+          tgContext, derefResult.targetData.get(), tgFuncPtrType, paramTgValues, result.targetData
+        )) return false;
+      }
       result.astType = astFuncType->traceRetType(expGenerator->astHelper);
       return true;
     } else {
@@ -769,7 +773,9 @@ Bool ExpressionGenerator::_generateLogicalOp(
 
   // Prepare the operator.
   TioSharedPtr secondContext;
-  if (!tg->prepareLogicalOp(tgContext, secondContext)) return false;
+  if (tgContext != 0) {
+    if (!tg->prepareLogicalOp(tgContext, secondContext)) return false;
+  }
 
   // Generate 1st operand.
   GenResult firstResult;
@@ -794,15 +800,19 @@ Bool ExpressionGenerator::_generateLogicalOp(
 
   // Finalize the operator.
   if (astNode->getType() == S("||") || astNode->getType() == S("or")) {
-    if (!tg->finishLogicalOr(
-      tgContext, secondContext.get(), firstCastedResult.get(), secondCastedResult.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->finishLogicalOr(
+        tgContext, secondContext.get(), firstCastedResult.get(), secondCastedResult.get(), result.targetData
+      )) return false;
+    }
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
   } else if (astNode->getType() == S("&&") || astNode->getType() == S("and")) {
-    if (!tg->finishLogicalAnd(
-      tgContext, secondContext.get(), firstCastedResult.get(), secondCastedResult.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->finishLogicalAnd(
+        tgContext, secondContext.get(), firstCastedResult.get(), secondCastedResult.get(), result.targetData
+      )) return false;
+    }
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
   } else {
@@ -867,11 +877,13 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     return false;
   }
 
-  if (!g->generateCast(tg, tgContext, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
-    return false;
-  }
-  if (!g->generateCast(tg, tgContext, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
-    return false;
+  if (tgContext != 0) {
+    if (!g->generateCast(tg, tgContext, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
+      return false;
+    }
+    if (!g->generateCast(tg, tgContext, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
+      return false;
+    }
   }
 
   TiObject *tgTargetType;
@@ -880,27 +892,35 @@ Bool ExpressionGenerator::_generateArithmeticOp(
   }
 
   if (astNode->getType() == S("+")) {
-    if (!tg->generateAdd(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateAdd(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else if (astNode->getType() == S("-")) {
-    if (!tg->generateSub(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateSub(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else if (astNode->getType() == S("*")) {
-    if (!tg->generateMul(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateMul(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else if (astNode->getType() == S("/")) {
-    if (!tg->generateDiv(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateDiv(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else {
@@ -951,11 +971,13 @@ Bool ExpressionGenerator::_generateBinaryOp(
     return false;
   }
 
-  if (!g->generateCast(tg, tgContext, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
-    return false;
-  }
-  if (!g->generateCast(tg, tgContext, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
-    return false;
+  if (tgContext != 0) {
+    if (!g->generateCast(tg, tgContext, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
+      return false;
+    }
+    if (!g->generateCast(tg, tgContext, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
+      return false;
+    }
   }
 
   TiObject *tgTargetType;
@@ -964,39 +986,51 @@ Bool ExpressionGenerator::_generateBinaryOp(
   }
 
   if (astNode->getType() == S("%")) {
-    if (!tg->generateRem(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateRem(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else if (astNode->getType() == S(">>")) {
-    if (!tg->generateShr(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateShr(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else if (astNode->getType() == S("<<")) {
-    if (!tg->generateShl(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateShl(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else if (astNode->getType() == S("&")) {
-    if (!tg->generateAnd(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateAnd(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else if (astNode->getType() == S("|")) {
-    if (!tg->generateOr(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateOr(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else if (astNode->getType() == S("$")) {
-    if (!tg->generateXor(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateXor(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else {
@@ -1087,11 +1121,13 @@ Bool ExpressionGenerator::_generateComparisonOp(
     return false;
   }
 
-  if (!g->generateCast(tg, tgContext, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
-    return false;
-  }
-  if (!g->generateCast(tg, tgContext, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
-    return false;
+  if (tgContext != 0) {
+    if (!g->generateCast(tg, tgContext, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
+      return false;
+    }
+    if (!g->generateCast(tg, tgContext, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
+      return false;
+    }
   }
 
   TiObject *tgTargetType;
@@ -1100,39 +1136,51 @@ Bool ExpressionGenerator::_generateComparisonOp(
   }
 
   if (astNode->getType() == S("==")) {
-    if (!tg->generateEqual(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateEqual(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
   } else if (astNode->getType() == S("!=")) {
-    if (!tg->generateNotEqual(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateNotEqual(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
   } else if (astNode->getType() == S(">")) {
-    if (!tg->generateGreaterThan(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateGreaterThan(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
   } else if (astNode->getType() == S(">=")) {
-    if (!tg->generateGreaterThanOrEqual(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateGreaterThanOrEqual(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
   } else if (astNode->getType() == S("<")) {
-    if (!tg->generateLessThan(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateLessThan(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
   } else if (astNode->getType() == S("<=")) {
-    if (!tg->generateLessThanOrEqual(
-      tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateLessThanOrEqual(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = expGenerator->astHelper->getBoolType();
     return true;
   } else {
@@ -1182,7 +1230,12 @@ Bool ExpressionGenerator::_generateAssignOp(
   // Cast the value to the destination type.
   auto sourceLocation = Core::Data::Ast::findSourceLocation(astNode);
   expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation.get());
-  auto retVal = g->generateCast(tg, tgContext, param.astType, astContentType, param.targetData.get(), param.targetData);
+  Bool retVal;
+  if (tgContext != 0) {
+    retVal = g->generateCast(tg, tgContext, param.astType, astContentType, param.targetData.get(), param.targetData);
+  } else {
+    retVal = true;
+  }
   expGenerator->noticeStore->popPrefixSourceLocation(
     Core::Data::getSourceLocationRecordCount(sourceLocation.get())
   );
@@ -1194,9 +1247,11 @@ Bool ExpressionGenerator::_generateAssignOp(
   }
 
   if (astNode->getType() == S("=")) {
-    if (!tg->generateAssign(
-      tgContext, tgContentType, param.targetData.get(), paramTgValues->getElement(0), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateAssign(
+        tgContext, tgContentType, param.targetData.get(), paramTgValues->getElement(0), result.targetData
+      )) return false;
+    }
     result.astType = astRefType;
     return true;
   } else {
@@ -1241,8 +1296,10 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
     return false;
   }
 
-  if (!g->generateCast(tg, tgContext, param.astType, astContentType, param.targetData.get(), param.targetData)) {
-    return false;
+  if (tgContext != 0) {
+    if (!g->generateCast(tg, tgContext, param.astType, astContentType, param.targetData.get(), param.targetData)) {
+      return false;
+    }
   }
 
   TiObject *tgContentType;
@@ -1251,27 +1308,35 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   }
 
   if (astNode->getType() == S("+=")) {
-    if (!tg->generateAddAssign(
-      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateAddAssign(
+        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astRefType;
     return true;
   } else if (astNode->getType() == S("-=")) {
-    if (!tg->generateSubAssign(
-      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateSubAssign(
+        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astRefType;
     return true;
   } else if (astNode->getType() == S("*=")) {
-    if (!tg->generateMulAssign(
-      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateMulAssign(
+        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astRefType;
     return true;
   } else if (astNode->getType() == S("/=")) {
-    if (!tg->generateDivAssign(
-      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateDivAssign(
+        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astRefType;
     return true;
   } else {
@@ -1313,8 +1378,10 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
     return false;
   }
 
-  if (!g->generateCast(tg, tgContext, param.astType, astContentType, param.targetData.get(), param.targetData)) {
-    return false;
+  if (tgContext != 0) {
+    if (!g->generateCast(tg, tgContext, param.astType, astContentType, param.targetData.get(), param.targetData)) {
+      return false;
+    }
   }
 
   TiObject *tgContentType;
@@ -1323,39 +1390,51 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   }
 
   if (astNode->getType() == S("%=")) {
-    if (!tg->generateRemAssign(
-      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateRemAssign(
+        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astRefType;
     return true;
   } else if (astNode->getType() == S(">>=")) {
-    if (!tg->generateShrAssign(
-      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateShrAssign(
+        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astRefType;
     return true;
   } else if (astNode->getType() == S("<<=")) {
-    if (!tg->generateShlAssign(
-      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateShlAssign(
+        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astRefType;
     return true;
   } else if (astNode->getType() == S("&=")) {
-    if (!tg->generateAndAssign(
-      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateAndAssign(
+        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astRefType;
     return true;
   } else if (astNode->getType() == S("|=")) {
-    if (!tg->generateOrAssign(
-      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateOrAssign(
+        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astRefType;
     return true;
   } else if (astNode->getType() == S("$=")) {
-    if (!tg->generateXorAssign(
-      tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
-    )) return false;
+    if (tgContext != 0) {
+      if (!tg->generateXorAssign(
+        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+      )) return false;
+    }
     result.astType = astRefType;
     return true;
   } else {
@@ -1402,8 +1481,10 @@ Bool ExpressionGenerator::_generateUnaryValOp(
     return false;
   }
 
-  if (!g->generateCast(tg, tgContext, param.astType, astTargetType, param.targetData.get(), param.targetData)) {
-    return false;
+  if (tgContext != 0) {
+    if (!g->generateCast(tg, tgContext, param.astType, astTargetType, param.targetData.get(), param.targetData)) {
+      return false;
+    }
   }
 
   TiObject *tgTargetType;
@@ -1412,7 +1493,9 @@ Bool ExpressionGenerator::_generateUnaryValOp(
   }
 
   if (astNode->getType() == S("-")) {
-    if (!tg->generateNeg(tgContext, tgTargetType, param.targetData.get(), result.targetData)) return false;
+    if (tgContext != 0) {
+      if (!tg->generateNeg(tgContext, tgTargetType, param.targetData.get(), result.targetData)) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else {
@@ -1462,8 +1545,10 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
     return false;
   }
 
-  if (!g->generateCast(tg, tgContext, param.astType, astTargetType, param.targetData.get(), param.targetData)) {
-    return false;
+  if (tgContext != 0) {
+    if (!g->generateCast(tg, tgContext, param.astType, astTargetType, param.targetData.get(), param.targetData)) {
+      return false;
+    }
   }
 
   TiObject *tgTargetType;
@@ -1472,7 +1557,9 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
   }
 
   if (astNode->getType() == S("!") || astNode->getType() == S("!!") || astNode->getType() == S("not")) {
-    if (!tg->generateNot(tgContext, tgTargetType, param.targetData.get(), result.targetData)) return false;
+    if (tgContext != 0) {
+      if (!tg->generateNot(tgContext, tgTargetType, param.targetData.get(), result.targetData)) return false;
+    }
     result.astType = astTargetType;
     return true;
   } else {
@@ -1517,15 +1604,19 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
 
   if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
     if (astNode->getType() == S("--")) {
-      if (!tg->generateEarlyDec(
-        tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
-      )) return false;
+      if (tgContext != 0) {
+        if (!tg->generateEarlyDec(
+          tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+        )) return false;
+      }
       result.astType = astContentType;
       return true;
     } else if (astNode->getType() == S("++")) {
-      if (!tg->generateEarlyInc(
-        tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
-      )) return false;
+      if (tgContext != 0) {
+        if (!tg->generateEarlyInc(
+          tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+        )) return false;
+      }
       result.astType = astContentType;
       return true;
     } else {
@@ -1533,15 +1624,19 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
     }
   } else {
     if (astNode->getType() == S("--")) {
-      if (!tg->generateLateDec(
-        tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
-      )) return false;
+      if (tgContext != 0) {
+        if (!tg->generateLateDec(
+          tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+        )) return false;
+      }
       result.astType = astContentType;
       return true;
     } else if (astNode->getType() == S("++")) {
-      if (!tg->generateLateInc(
-        tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
-      )) return false;
+      if (tgContext != 0) {
+        if (!tg->generateLateInc(
+          tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+        )) return false;
+      }
       result.astType = astContentType;
       return true;
     } else {
@@ -1582,7 +1677,9 @@ Bool ExpressionGenerator::_generatePointerOp(
     if (!g->getGeneratedType(astFunctionPointerType, tg, tgFunctionPointerType, 0)) {
       throw EXCEPTION(GenericException, S("Failed to generate function pointer type."));
     }
-    if (!tg->generateFunctionPointer(tgContext, tgFunction, tgFunctionPointerType, result.targetData)) return false;
+    if (tgContext != 0) {
+      if (!tg->generateFunctionPointer(tgContext, tgFunction, tgFunctionPointerType, result.targetData)) return false;
+    }
     result.astType = astFunctionPointerType;
     return true;
   } else {
@@ -1682,9 +1779,11 @@ Bool ExpressionGenerator::_generateCastOp(
   }
 
   // Cast the value.
-  if (!g->generateCast(
-    tg, tgContext, derefResult.astType, targetAstType, derefResult.targetData.get(), result.targetData
-  )) return false;
+  if (tgContext != 0) {
+    if (!g->generateCast(
+      tg, tgContext, derefResult.astType, targetAstType, derefResult.targetData.get(), result.targetData
+    )) return false;
+  }
   result.astType = targetAstType;
   return true;
 }
@@ -1705,9 +1804,7 @@ Bool ExpressionGenerator::_generateSizeOp(
     throw EXCEPTION(GenericException, S("PointerOp operand is missing."));
   }
   GenResult operandResult;
-  if (!expGenerator->generate(
-    operand, g, ti_cast<TargetGeneration>(expGenerator->noOpTargetGenerator), 0, operandResult
-  )) return false;
+  if (!expGenerator->generate(operand, g, tg, 0, operandResult)) return false;
   Ast::Type *astType = operandResult.astType;
   if (astType == 0) {
     if (operandResult.astNode->isDerivedFrom<Spp::Ast::Type>()) {
@@ -1749,7 +1846,9 @@ Bool ExpressionGenerator::_generateSizeOp(
   auto astWordType = expGenerator->astHelper->getWordType(bitCount);
 
   // Generate a constant with that size.
-  if (!tg->generateIntLiteral(tgContext, bitCount, false, size, result.targetData)) return false;
+  if (tgContext != 0) {
+    if (!tg->generateIntLiteral(tgContext, bitCount, false, size, result.targetData)) return false;
+  }
   result.astType = astWordType;
   return true;
 }
@@ -1775,7 +1874,9 @@ Bool ExpressionGenerator::_generateStringLiteral(
   TiObject *strPtrTgType;
   if (!g->getGeneratedType(strPtrAstType, tg, strPtrTgType, 0)) return false;
 
-  if (!tg->generateStringLiteral(tgContext, value->c_str(), charTgType, strTgType, result.targetData)) return false;
+  if (tgContext != 0) {
+    if (!tg->generateStringLiteral(tgContext, value->c_str(), charTgType, strTgType, result.targetData)) return false;
+  }
   result.astType =  strPtrAstType;
   return true;
 }
@@ -1795,7 +1896,9 @@ Bool ExpressionGenerator::_generateCharLiteral(
 
   auto bitCount = charAstType->getBitCount(expGenerator->astHelper);
 
-  if (!tg->generateIntLiteral(tgContext, bitCount, false, value, result.targetData)) return false;
+  if (tgContext != 0) {
+    if (!tg->generateIntLiteral(tgContext, bitCount, false, value, result.targetData)) return false;
+  }
   result.astType = charAstType;
   return true;
 }
@@ -1894,7 +1997,9 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   if (!retVal) return false;
 
   // Generate the literal.
-  if (!tg->generateIntLiteral(tgContext, size, signedNum, value, result.targetData)) return false;
+  if (tgContext != 0) {
+    if (!tg->generateIntLiteral(tgContext, size, signedNum, value, result.targetData)) return false;
+  }
   result.astType = astType;
   return true;
 }
@@ -1938,7 +2043,9 @@ Bool ExpressionGenerator::_generateFloatLiteral(
   if (!retVal) return false;
 
   // Generate the literal.
-  if (!tg->generateFloatLiteral(tgContext, size, value, result.targetData)) return false;
+  if (tgContext != 0) {
+    if (!tg->generateFloatLiteral(tgContext, size, value, result.targetData)) return false;
+  }
   result.astType = floatAstType;
   return true;
 }
@@ -1968,7 +2075,9 @@ Bool ExpressionGenerator::_generateVarReference(
   TiObject *tgType;
   if (!g->getGeneratedType(astType, tg, tgType, 0)) return false;
 
-  if (!tg->generateVarReference(tgContext, tgType, tgVar, result.targetData)) return false;
+  if (tgContext != 0) {
+    if (!tg->generateVarReference(tgContext, tgType, tgVar, result.targetData)) return false;
+  }
   result.astType = expGenerator->astHelper->getReferenceTypeFor(astType);
   return true;
 }
@@ -2040,8 +2149,12 @@ Bool ExpressionGenerator::_generateMemberReference(
   if (!g->getGeneratedType(astMemberType, tg, tgMemberType, 0)) return false;
 
   // Generate member access.
-  if (!tg->generateMemberVarReference(tgContext, tgStructType, tgMemberType, tgMemberVar, tgValue, result.targetData)) {
-    return false;
+  if (tgContext != 0) {
+    if (!tg->generateMemberVarReference(
+      tgContext, tgStructType, tgMemberType, tgMemberVar, tgValue, result.targetData
+    )) {
+      return false;
+    }
   }
   result.astType = expGenerator->astHelper->getReferenceTypeFor(astMemberType);
   return true;
@@ -2056,11 +2169,13 @@ Bool ExpressionGenerator::_generateArrayReference(
 
   // Cast the index to int64.
   TioSharedPtr tgCastedIndex;
-  if (!g->generateCast(
-    tg, tgContext, astIndexType, expGenerator->astHelper->getInt64Type(), tgIndexVal, tgCastedIndex
-  )) {
-    // This should not happen since non-castable calls should be filtered out earlier.
-    throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
+  if (tgContext != 0) {
+    if (!g->generateCast(
+      tg, tgContext, astIndexType, expGenerator->astHelper->getInt64Type(), tgIndexVal, tgCastedIndex
+    )) {
+      // This should not happen since non-castable calls should be filtered out earlier.
+      throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
+    }
   }
 
   // Prepare the array type.
@@ -2086,9 +2201,11 @@ Bool ExpressionGenerator::_generateArrayReference(
   if (!g->getGeneratedType(astElementType, tg, tgElementType, 0)) return false;
 
   // Generate member access.
-  if (!tg->generateArrayElementReference(
-    tgContext, tgArrayType, tgElementType, tgCastedIndex.get(), tgValue, result.targetData)) {
-    return false;
+  if (tgContext != 0) {
+    if (!tg->generateArrayElementReference(
+      tgContext, tgArrayType, tgElementType, tgCastedIndex.get(), tgValue, result.targetData)) {
+      return false;
+    }
   }
   result.astType = expGenerator->astHelper->getReferenceTypeFor(astElementType);
   return true;
@@ -2111,7 +2228,9 @@ Bool ExpressionGenerator::_generateFunctionCall(
     auto tgFunction = getCodeGenData<TiObject>(callee);
 
     // Create function call.
-    if (!tg->generateFunctionCall(tgContext, tgFunction, paramTgValues, result.targetData)) return false;
+    if (tgContext != 0) {
+      if (!tg->generateFunctionCall(tgContext, tgFunction, paramTgValues, result.targetData)) return false;
+    }
     result.astType = callee->getType()->traceRetType(expGenerator->astHelper);
     return true;
   }
@@ -2185,7 +2304,12 @@ Bool ExpressionGenerator::prepareFunctionParams(
       auto sourceLocation = Core::Data::Ast::findSourceLocation(paramAstNodes->getElement(i));
       this->noticeStore->pushPrefixSourceLocation(sourceLocation.get());
       TioSharedPtr tgCastedVal;
-      auto castRes = g->generateCast(tg, tgContext, srcType, context.type, paramTgVals->getElement(i), tgCastedVal);
+      Bool castRes;
+      if (tgContext != 0) {
+        castRes = g->generateCast(tg, tgContext, srcType, context.type, paramTgVals->getElement(i), tgCastedVal);
+      } else {
+        castRes = true;
+      }
       this->noticeStore->popPrefixSourceLocation(
         Core::Data::getSourceLocationRecordCount(sourceLocation.get())
       );
@@ -2211,7 +2335,11 @@ Bool ExpressionGenerator::dereferenceIfNeeded(
   if (refType != 0) {
     result.astType = refType->getContentType(this->astHelper);
     auto tgContentType = getCodeGenData<TiObject>(result.astType);
-    return tg->generateDereference(tgContext, tgContentType, tgValue, result.targetData);
+    if (tgContext != 0) {
+      return tg->generateDereference(tgContext, tgContentType, tgValue, result.targetData);
+    } else {
+      return true;
+    }
   } else {
     result.astType = astType;
     result.targetData = getSharedPtr(tgValue);
@@ -2231,11 +2359,13 @@ Bool ExpressionGenerator::castLogicalOperand(
     );
     return false;
   }
-  if (!g->generateCast(tg, tgContext, astType, this->astHelper->getBoolType(), tgValue, result)) {
-    this->noticeStore->add(
-      std::make_shared<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
-    );
-    return false;
+  if (tgContext != 0) {
+    if (!g->generateCast(tg, tgContext, astType, this->astHelper->getBoolType(), tgValue, result)) {
+      this->noticeStore->add(
+        std::make_shared<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      );
+      return false;
+    }
   }
 
   return true;
