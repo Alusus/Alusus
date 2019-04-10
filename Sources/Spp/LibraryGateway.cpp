@@ -36,11 +36,8 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->macroProcessor = std::make_shared<CodeGen::MacroProcessor>(this->astHelper.get());
 
   // Create the generator.
-  this->noOpTargetGenerator = std::make_shared<CodeGen::NoOpTargetGenerator>();
   this->typeGenerator = std::make_shared<CodeGen::TypeGenerator>(this->astHelper.get());
-  this->expressionGenerator = std::make_shared<CodeGen::ExpressionGenerator>(
-    this->astHelper.get(), this->noOpTargetGenerator.get()
-  );
+  this->expressionGenerator = std::make_shared<CodeGen::ExpressionGenerator>(this->astHelper.get());
   this->commandGenerator = std::make_shared<CodeGen::CommandGenerator>(this->astHelper.get());
   this->generator = std::make_shared<CodeGen::Generator>(
     manager,
@@ -77,7 +74,6 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   this->commandGenerator.reset();
   this->expressionGenerator.reset();
   this->typeGenerator.reset();
-  this->noOpTargetGenerator.reset();
   this->nodePathResolver.reset();
   this->astHelper.reset();
 

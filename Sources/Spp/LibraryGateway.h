@@ -1,7 +1,7 @@
 /**
  * @file Spp/LibraryGateway.h
  *
- * @copyright Copyright (C) 2018 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -34,7 +34,6 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SharedPtr<CodeGen::ExpressionGenerator> expressionGenerator;
   private: SharedPtr<CodeGen::CommandGenerator> commandGenerator;
   private: SharedPtr<CodeGen::Generator> generator;
-  private: SharedPtr<CodeGen::NoOpTargetGenerator> noOpTargetGenerator;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> targetGenerator;
 
 

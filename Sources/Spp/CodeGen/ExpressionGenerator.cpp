@@ -1795,9 +1795,6 @@ Bool ExpressionGenerator::_generateSizeOp(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  // Prepare the noop target generator.
-  expGenerator->noOpTargetGenerator->setExecutionContext(getSharedPtr(tg->getExecutionContext()));
-
   // Get the operand type.
   auto operand = astNode->getOperand().get();
   if (operand == 0) {

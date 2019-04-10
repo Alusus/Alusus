@@ -165,7 +165,6 @@ class Generator;
 #include "MacroProcessor.h"
 
 // The Generator
-#include "NoOpTargetGenerator.h"
 #include "TypeGenerator.h"
 #include "ExpressionGenerator.h"
 #include "CommandGenerator.h"
