@@ -1,6 +1,6 @@
-ERROR SPPG1020 @ (22,25): Invalid access to object member.
-ERROR SPPG1020 @ (35,12): Invalid access to object member.
-ERROR SPPG1021 @ (36,7): Invalid access to global definition.
+ERROR SPPG1019 @ (22,25): Invalid access to object member.
+ERROR SPPG1019 @ (35,12): Invalid access to object member.
+ERROR SPPG1020 @ (36,7): Invalid access to global definition.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -17,8 +17,6 @@ source_filename = "AlususProgram"
 @__anonymous3 = private constant [8 x i8] c"z = %d\0A\00", align 1
 @Main_t = global %Main_MyType.0 zeroinitializer
 
-declare i64 @printf(i8*, ...)
-
 define void @"Main.MyType.printIt()"() {
 __block0:
   %0 = load i32, i32* @Main_MyType_y
@@ -32,6 +30,8 @@ __block0:
   store i32 %7, i32* @Main_MyType_printIt___z
   ret void
 }
+
+declare i64 @printf(i8*, ...)
 
 define void @"Main.start()=>(Void)"() {
 __block1:

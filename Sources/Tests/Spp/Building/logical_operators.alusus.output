@@ -40,10 +40,7 @@ __block0:
 
 define void @"Main.main()=>(Void)"() {
 __block1:
-  call void @"Main.testOr()=>(Void)"()
-  call void @"Main.testAnd()=>(Void)"()
   call void @"Main.testMixed()=>(Void)"()
-  call void @"Main.testNot()=>(Void)"()
   ret void
 }
 

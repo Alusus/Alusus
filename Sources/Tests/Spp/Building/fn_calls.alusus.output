@@ -2,6 +2,7 @@ ERROR SPPA1008 @ (12,11): Provided arguments do not match signature.
 ERROR SPPA1007 @ (13,11): Unknown symbol.
 ERROR SPPA1007 @ (15,18): Unknown symbol.
 ERROR SPPG1008 @ (16,10): Invalid symbol.
+ERROR SPPG1022 @ (5,13): Missing a return statement for a non-void function.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -18,65 +19,71 @@ __block0:
   store i64 %a, i64* %a1
   %b2 = alloca double
   store double %b, double* %b2
-  %0 = call i32 @"Main.g()=>(Int[32])"()
-  %1 = call i32 @"Main.h(ptr[Word[8]])=>(Int[32])"(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @__anonymous0, i32 0, i32 0))
-  %2 = call i32 @hh(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous1, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous2, i32 0, i32 0))
-  %3 = call i64 @"Other.f(Int[32])=>(Int[64])"(i32 5)
-  %4 = call i64 @"Other.f(ptr[Word[8]])=>(Int[64])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous3, i32 0, i32 0))
+  call void @"Main.g()"()
+  call void @"Main.h(ptr[Word[8]])"(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @__anonymous0, i32 0, i32 0))
+  call void @hh(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous1, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous2, i32 0, i32 0))
+  call void @"Other.f(Int[32])"(i32 5)
+  call void @"Other.f(ptr[Word[8]])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous3, i32 0, i32 0))
   call void @"Other.Nested.g()=>(Void)"()
 }
 
-define i32 @"Main.g()=>(Int[32])"() {
-__block2:
+define void @"Main.g()"() {
+__block1:
+  ret void
 }
 
-define i32 @"Main.h(ptr[Word[8]])=>(Int[32])"(i8* %a) {
-__block3:
+define void @"Main.h(ptr[Word[8]])"(i8* %a) {
+__block2:
   %a1 = alloca i8*
   store i8* %a, i8** %a1
+  ret void
 }
 
-define i32 @hh(i8* %a, i8* %b) {
-__block4:
+define void @hh(i8* %a, i8* %b) {
+__block3:
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   %b2 = alloca i8*
   store i8* %b, i8** %b2
-}
-
-define i64 @"Other.f(Int[32])=>(Int[64])"(i32 %a) {
-__block7:
-  %a1 = alloca i32
-  store i32 %a, i32* %a1
-}
-
-define i64 @"Other.f(ptr[Word[8]])=>(Int[64])"(i8* %a) {
-__block8:
-  %a1 = alloca i8*
-  store i8* %a, i8** %a1
-}
-
-define void @"Other.Nested.g()=>(Void)"() {
-__block9:
   ret void
 }
 
-define i64 @"Main.f(Int[32],Float[32])=>(Int[64])"(i32 %a, float %b) {
-__block1:
+define void @"Other.f(Int[32])"(i32 %a) {
+__block4:
+  %a1 = alloca i32
+  store i32 %a, i32* %a1
+  ret void
+}
+
+define void @"Other.f(ptr[Word[8]])"(i8* %a) {
+__block5:
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+  ret void
+}
+
+define void @"Other.Nested.g()=>(Void)"() {
+__block6:
+  ret void
+}
+
+define void @"Main.f(Int[32],Float[32])"(i32 %a, float %b) {
+__block7:
   %a1 = alloca i32
   store i32 %a, i32* %a1
   %b2 = alloca float
   store float %b, float* %b2
+  ret void
 }
 
 define void @"Main.subModule.start()=>(Void)"() {
-__block5:
+__block8:
   %0 = call i32 @"Main.subModule.g()=>(Int[32])"()
   ret void
 }
 
 define i32 @"Main.subModule.g()=>(Int[32])"() {
-__block6:
+__block9:
   ret i32 20
 }
 ------------------------------------------------------------

@@ -20,8 +20,6 @@ source_filename = "AlususProgram"
 @__anonymous8 = private constant [6 x i8] c"Hello\00", align 1
 @__anonymous9 = private constant [6 x i8] c"World\00", align 1
 
-declare i64 @printf(i8*, ...)
-
 define void @"Main.start()=>(Void)"() {
 __block0:
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @__anonymous0, i32 0, i32 0), [6 x i8]* @__anonymous1, [6 x i8]* @__anonymous2)
@@ -45,4 +43,6 @@ __block0:
   %p = alloca i32*
   ret void
 }
+
+declare i64 @printf(i8*, ...)
 ------------------------------------------------------------

@@ -106,10 +106,15 @@ source_filename = "AlususProgram"
 @__anonymous96 = private constant [4 x i8] c"%d\0A\00", align 1
 @__anonymous97 = private constant [4 x i8] c"%d\0A\00", align 1
 
-declare i64 @printf(i8*, ...)
+define void @"Main.start()=>(Void)"() {
+__block0:
+  call void @"Main.testInteger()=>(Void)"()
+  call void @"Main.testFloat()=>(Void)"()
+  ret void
+}
 
 define void @"Main.testInteger()=>(Void)"() {
-__block0:
+__block1:
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__anonymous0, i32 0, i32 0), i32 2)
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__anonymous1, i32 0, i32 0), i32 3)
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__anonymous2, i32 0, i32 0), i32 21)
@@ -289,8 +294,10 @@ __block0:
   ret void
 }
 
+declare i64 @printf(i8*, ...)
+
 define void @"Main.testFloat()=>(Void)"() {
-__block1:
+__block2:
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @__anonymous54, i32 0, i32 0), float 0x4003333340000000)
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @__anonymous55, i32 0, i32 0), float 3.000000e+00)
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @__anonymous56, i32 0, i32 0), float 0x4039333320000000)
@@ -385,7 +392,7 @@ __block1:
 }
 
 define void @"Main.testMixed()=>(Void)"() {
-__block2:
+__block3:
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @__anonymous82, i32 0, i32 0), i32 2)
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__anonymous83, i32 0, i32 0), i64 2)
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__anonymous84, i32 0, i32 0), i64 2)
@@ -398,14 +405,6 @@ __block2:
   %9 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__anonymous91, i32 0, i32 0), float 2.000000e+00)
   %10 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__anonymous92, i32 0, i32 0), float 2.000000e+00)
   %11 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__anonymous93, i32 0, i32 0), float 2.000000e+00)
-  ret void
-}
-
-define void @"Main.start()=>(Void)"() {
-__block3:
-  call void @"Main.testInteger()=>(Void)"()
-  call void @"Main.testFloat()=>(Void)"()
-  call void @"Main.testMixed()=>(Void)"()
   ret void
 }
 ------------------------------------------------------------

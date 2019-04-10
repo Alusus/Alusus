@@ -11,6 +11,12 @@ def Main: module
     print("getFloatCasted: %f", getFloatCasted());
     print("getAddition: %d", getAddition());
     print("getIntIndirect: %d", getIntIndirect());
+    missingReturn1();
+    missingReturn2(1);
+    missingReturn3(2);
+    terminalIf(5);
+    unreachableCode1();
+    unreachableCode2(3);
   };
 
   def getInt: function ()=>Int[32]
@@ -60,6 +66,41 @@ def Main: module
   def invalidReturn3: function ()=>ptr[Float[32]]
   {
     return 5;
+  };
+
+  def missingReturn1: function ()=>Int[32]
+  {
+  };
+
+  def missingReturn2: function (i: Int) => Int[32]
+  {
+    if i == 5 return 3
+    else { }
+  };
+
+  def missingReturn3: function (i: Int) => Int[32]
+  {
+    if i == 5 {}
+    else return 3;
+  };
+
+  def terminalIf: function (i: Int) => Int[32]
+  {
+    if i == 5 return 1
+    else return 3;
+  };
+
+  def unreachableCode1: function () => Int[32]
+  {
+    return 5;
+    return 3;
+  };
+
+  def unreachableCode2: function (i: Int) => Int[32]
+  {
+    if i == 5 return 1
+    else return 3;
+    return 7;
   };
 };
 

@@ -46,6 +46,7 @@ def Main: module
     print("__n__ = %d\n", __n__);
     print("a*a = %d\n", power2[a]);
     print("min of 5 & 7 = %d\n", getMin(5, 7));
+    print("min of 5.0 & 7.0 = %d\n", getMin(5.0, 7.0));
     loop[a, 0, 9, print("%d ", a)];
     print("\n");
     print(getString["Alusus"]);

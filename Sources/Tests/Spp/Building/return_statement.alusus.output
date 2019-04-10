@@ -1,6 +1,11 @@
-ERROR SPPG1006 @ (52,5): Invalid return value.
-ERROR SPPG1006 @ (57,5): Invalid return value.
-ERROR SPPG1006 @ (62,5): Invalid return value.
+ERROR SPPG1022 @ (71,23): Missing a return statement for a non-void function.
+ERROR SPPG1022 @ (75,23): Missing a return statement for a non-void function.
+ERROR SPPG1022 @ (81,23): Missing a return statement for a non-void function.
+ERROR SPPG1021 @ (96,5): Unreachable code.
+ERROR SPPG1021 @ (103,5): Unreachable code.
+ERROR SPPG1006 @ (58,5): Invalid return value.
+ERROR SPPG1006 @ (63,5): Invalid return value.
+ERROR SPPG1006 @ (68,5): Invalid return value.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -26,6 +31,7 @@ __block0:
   %7 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @__anonymous3, i32 0, i32 0), i32 %6)
   %8 = call i32 @"Main.getIntIndirect()=>(Int[32])"()
   %9 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__anonymous4, i32 0, i32 0), i32 %8)
+  %10 = call i32 @"Main.terminalIf(Int[32])=>(Int[32])"(i32 5)
   ret void
 }
 
@@ -55,27 +61,100 @@ __block5:
   ret i32 %0
 }
 
-define void @"Main.retVoid()=>(Void)"() {
+define i32 @"Main.missingReturn1()=>(Int[32])"() {
 __block6:
+}
+
+define i32 @"Main.missingReturn2(Int[32])=>(Int[32])"(i32 %i) {
+__block7:
+  %i1 = alloca i32
+  store i32 %i, i32* %i1
+  %0 = load i32, i32* %i1
+  %1 = icmp eq i32 %0, 5
+  br i1 %1, label %__block8, label %__block9
+
+__block8:                                         ; preds = %__block7
+  ret i32 3
+
+__block9:                                         ; preds = %__block7
+  br label %__block10
+
+__block10:                                        ; preds = %__block9
+}
+
+define i32 @"Main.missingReturn3(Int[32])=>(Int[32])"(i32 %i) {
+__block11:
+  %i1 = alloca i32
+  store i32 %i, i32* %i1
+  %0 = load i32, i32* %i1
+  %1 = icmp eq i32 %0, 5
+  br i1 %1, label %__block12, label %__block13
+
+__block12:                                        ; preds = %__block11
+  br label %__block14
+
+__block13:                                        ; preds = %__block11
+  ret i32 3
+
+__block14:                                        ; preds = %__block12
+}
+
+define i32 @"Main.terminalIf(Int[32])=>(Int[32])"(i32 %i) {
+__block15:
+  %i1 = alloca i32
+  store i32 %i, i32* %i1
+  %0 = load i32, i32* %i1
+  %1 = icmp eq i32 %0, 5
+  br i1 %1, label %__block16, label %__block17
+
+__block16:                                        ; preds = %__block15
+  ret i32 1
+
+__block17:                                        ; preds = %__block15
+  ret i32 3
+}
+
+define i32 @"Main.unreachableCode1()=>(Int[32])"() {
+__block18:
+  ret i32 5
+}
+
+define i32 @"Main.unreachableCode2(Int[32])=>(Int[32])"(i32 %i) {
+__block19:
+  %i1 = alloca i32
+  store i32 %i, i32* %i1
+  %0 = load i32, i32* %i1
+  %1 = icmp eq i32 %0, 5
+  br i1 %1, label %__block20, label %__block21
+
+__block20:                                        ; preds = %__block19
+  ret i32 1
+
+__block21:                                        ; preds = %__block19
+  ret i32 3
+}
+
+define void @"Main.retVoid()=>(Void)"() {
+__block22:
   ret void
   ret void
 }
 
 define void @"Main.voidFunc()=>(Void)"() {
-__block7:
+__block23:
   ret void
 }
 
 define void @"Main.invalidReturn1()=>(Void)"() {
-__block8:
+__block24:
   ret void
 }
 
 define i32 @"Main.invalidReturn2()=>(Int[32])"() {
-__block9:
+__block25:
 }
 
 define float* @"Main.invalidReturn3()=>(ptr[Float[32]])"() {
-__block10:
+__block26:
 }
 ------------------------------------------------------------
