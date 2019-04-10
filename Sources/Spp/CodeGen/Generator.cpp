@@ -144,7 +144,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
 
     // Does this function need to return a value?
     auto astRetType = astFuncType->traceRetType(generator->astHelper);
-    if (!generator->astHelper->isVoid(astRetType) && terminal == TerminalStatement::NO) {
+    if (!generator->astHelper->isVoid(astRetType) && terminal != TerminalStatement::YES) {
       // A block could have been terminated by a block or continue statement instead of a return, but that's fine
       // since top level breaks and returns will raise an error anyway.
       generator->noticeStore->add(
