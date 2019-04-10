@@ -18,7 +18,6 @@ add_definitions(${LLVM_DEFINITIONS})
 # Make sure the compiler finds the source files.
 include_directories("${AlususCore_SOURCE_DIR}")
 include_directories("${AlususTests_SOURCE_DIR}")
-link_directories("${CMAKE_INSTALL_PREFIX}/Libs")
 
 # Place files in folders for IDEs (though I only tried Visual Studio at the moment.)
 file(GLOB AlususTests_Source_Files *.cpp)
@@ -57,4 +56,4 @@ add_test(NAME AlususTests
   COMMAND AlususTests
   WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
 set_tests_properties(AlususTests PROPERTIES
-  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR};ALUSUS_LIBS=${AlususSrt_SOURCE_DIR}")
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/Lib;ALUSUS_LIBS=${AlususSrt_SOURCE_DIR}")

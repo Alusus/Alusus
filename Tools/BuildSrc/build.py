@@ -259,8 +259,15 @@ def build_libcurl():
             if ret != 0:
                 failMsg("Building libcurl.")
                 exit(1)
+
+            if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib")):
+                try:
+                    os.mkdir(os.path.join(os.path.realpath(INSTALL_PATH), "Lib"))
+                except:
+                    failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), "Lib") + "\" directory.")
+
             shutil.copy2(
-                os.path.join("lib", ".libs", "libcurl.so"),
+                os.path.join(DEPS_PATH, LIBCURL_NAME, "lib", ".libs", "libcurl.so"),
                 os.path.join(os.path.realpath(INSTALL_PATH), "Lib", "libcurl.so")
             )
             if ret != 0:
