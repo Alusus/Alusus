@@ -49,6 +49,7 @@ void StandardFactory::createGrammar(
   this->leadingModifierHandler = std::make_shared<ModifierParsingHandler>(true);
   this->trailingModifierHandler = std::make_shared<ModifierParsingHandler>(false);
   this->doCommandParsingHandler = std::make_shared<GenericCommandParsingHandler>(S("do"));
+  this->rootScopeParsingHandler = std::make_shared<RootScopeParsingHandler>(root->getRootScopeHandler());
 
   // Create lexer definitions.
   this->set(S("root.LexerDefs"), Module::create({}));
@@ -655,7 +656,7 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
     }));
   } else {
     this->set(S("root.Program"), SymbolDefinition::create({}, {
-      {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("root.Main.Statements.StmtList")) }})},
+      {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("root.Main.RootStatements.StmtList")) }})},
       {S("handler"), this->parsingHandler}
     }));
   }
@@ -851,7 +852,7 @@ void StandardFactory::createStatementsProductionModule()
         })
       })}
     })},
-    {S("handler"), ScopeParsingHandler<Data::Ast::Scope>::create(1)}
+    {S("handler"), ScopeParsingHandler<Data::Ast::Scope>::create()}
   }));
 
   //// Statement : (Variation | Variation | ...).
@@ -1945,6 +1946,18 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
     })},
    {S("handler"), this->parsingHandler}
   }));
+
+  if (!exprOnly) {
+    this->set(S("root.Main.RootStatements"), Module::create({
+      {S("baseRef"), PARSE_REF(S("module.Statements"))}
+    }, {}));
+
+    this->set(S("root.Main.RootStatements.StmtList"), SymbolDefinition::create({
+      {S("baseRef"), PARSE_REF(S("bmodule.StmtList"))}
+    }, {
+      {S("handler"), this->rootScopeParsingHandler}
+    }));
+  }
 
   // root.Main.Expression : module inherits root.Expression {
   //   paramPassExpr = module.owner.Expression;

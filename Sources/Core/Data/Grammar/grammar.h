@@ -39,6 +39,7 @@ namespace Core::Processing::Handlers
   class DumpAstParsingHandler;
   class ModifierParsingHandler;
   class GenericCommandParsingHandler;
+  class RootScopeParsingHandler;
 }
 
 namespace Core::Main

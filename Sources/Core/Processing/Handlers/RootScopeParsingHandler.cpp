@@ -1,0 +1,33 @@
+/**
+ * @file Core/Processing/Handlers/RootScopeParsingHandler.cpp
+ * Contains the implementation of Core::Processing::Handlers::RootScopeParsingHandler.
+ *
+ * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ */
+//==============================================================================
+
+#include "core.h"
+
+namespace Core::Processing::Handlers
+{
+
+void RootScopeParsingHandler::onProdStart(Parser *parser, ParserState *state, Data::Token const *token)
+{
+  state->setData(this->rootScopeHandler->getRootScope());
+}
+
+
+void RootScopeParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
+{
+  if (state->isAProdRoot(levelIndex)) {
+    this->rootScopeHandler->addNewElement(data, state);
+  } else {
+    GenericParsingHandler::addData(data, state, levelIndex);
+  }
+}
+
+} // namespace

@@ -267,4 +267,10 @@ s_enum(ParsingFlags,
 // Parsing Handlers
 #include "Handlers/handlers.h"
 
+
+//==============================================================================
+// Type Names
+
+DEFINE_TYPE_NAME(Core::Processing::ParserState, "alusus.net/Core/Core.Processing.ParserState");
+
 #endif

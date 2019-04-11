@@ -38,6 +38,8 @@ class StandardFactory : public Factory
 
   private: SharedPtr<Processing::Handlers::GenericCommandParsingHandler> doCommandParsingHandler;
 
+  private: SharedPtr<Processing::Handlers::RootScopeParsingHandler> rootScopeParsingHandler;
+
 
   //============================================================================
   // Constructor & Destructor

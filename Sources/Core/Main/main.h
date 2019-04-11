@@ -95,6 +95,7 @@ std::string getModuleDirectory();
 
 #include "LibraryGateway.h"
 #include "LibraryManager.h"
+#include "RootScopeHandler.h"
 #include "RootManager.h"
 
 #endif
