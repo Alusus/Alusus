@@ -31,6 +31,8 @@ set(AlususSpp_SOURCE_FILES
   ExecutionContext.h
   SeekerExtension.h
   SeekerExtension.cpp
+  RootScopeHandlerExtension.h
+  RootScopeHandlerExtension.cpp
   GrammarFactory.h
   GrammarFactory.cpp
   main.cpp

@@ -743,9 +743,11 @@ DefinitionDomain Helper::_getDefinitionDomain(TiObject *self, TiObject const *ob
     // Is it shared?
     PREPARE_SELF(helper, Helper);
     if (helper->isSharedDef(def)) return DefinitionDomain::GLOBAL;
-    // it's not static, so it's either a function local or an object member.
+    // it's not static, so it's either a function local, an object member, or a global at the root scope.
     auto owner = def->getOwner()->getOwner();
-    if (owner->isDerivedFrom<Type>()) {
+    if (owner == 0) {
+      return DefinitionDomain::GLOBAL;
+    } else if (owner->isDerivedFrom<Type>()) {
       return DefinitionDomain::OBJECT;
     } else {
       return DefinitionDomain::FUNCTION;

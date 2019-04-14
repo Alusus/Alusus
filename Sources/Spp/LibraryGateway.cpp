@@ -29,9 +29,6 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->nodePathResolver = std::make_shared<Ast::NodePathResolver>();
   this->astHelper = std::make_shared<Ast::Helper>(manager, this->nodePathResolver.get());
 
-  // Extend Seeker.
-  this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
-
   // Create the preprocessor.
   this->macroProcessor = std::make_shared<CodeGen::MacroProcessor>(this->astHelper.get());
 
@@ -47,6 +44,13 @@ void LibraryGateway::initialize(Main::RootManager *manager)
     this->expressionGenerator.get()
   );
   this->targetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>();
+
+  // Extend Core singletons.
+  this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
+  this->rootScopeHandlerExtensionOverrides = RootScopeHandlerExtension::extend(
+    manager->getRootScopeHandler(), manager, this->astHelper, this->macroProcessor,
+    this->generator, this->targetGenerator
+  );
 
   // Prepare the target generator.
   this->targetGenerator->prepareBuild();
@@ -67,6 +71,8 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   // Unextend Seeker.
   SeekerExtension::unextend(manager->getSeeker(), this->seekerExtensionOverrides);
   this->seekerExtensionOverrides = 0;
+  RootScopeHandlerExtension::unextend(manager->getRootScopeHandler(), this->rootScopeHandlerExtensionOverrides);
+  this->rootScopeHandlerExtensionOverrides = 0;
 
   // Reset generators.
   this->targetGenerator.reset();
