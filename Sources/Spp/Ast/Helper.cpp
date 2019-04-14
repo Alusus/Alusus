@@ -46,7 +46,8 @@ void Helper::initBindingCaches()
     &this->getFunctionName,
     &this->getNeededIntSize,
     &this->getNeededWordSize,
-    &this->getDefinitionDomain
+    &this->getDefinitionDomain,
+    &this->validateUseStatement
   });
 }
 
@@ -79,6 +80,7 @@ void Helper::initBindings()
   this->getNeededIntSize = &Helper::_getNeededIntSize;
   this->getNeededWordSize = &Helper::_getNeededWordSize;
   this->getDefinitionDomain = &Helper::_getDefinitionDomain;
+  this->validateUseStatement = &Helper::_validateUseStatement;
 }
 
 
@@ -762,6 +764,34 @@ Bool Helper::isSharedDef(Core::Data::Ast::Definition const *def)
     }
   }
   return false;
+}
+
+
+Bool Helper::_validateUseStatement(TiObject *self, Spp::Ast::UseStatement *useStatement)
+{
+  PREPARE_SELF(helper, Helper);
+  VALIDATE_NOT_NULL(useStatement);
+  if (useStatement->getTarget() == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("useStatement"), S("Use statement has a null target."));
+  }
+  Bool found = false;
+  helper->getSeeker()->foreach(useStatement->getTarget().get(), useStatement->getOwner(),
+    [=, &found] (TiObject *obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb
+    {
+      if (ti_cast<Ast::Module>(obj) != 0) {
+        found = true;
+        return Core::Data::Seeker::Verb::STOP;
+      } else {
+        return Core::Data::Seeker::Verb::MOVE;
+      }
+    }, 0
+  );
+  if (!found) {
+    helper->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidUseStatementNotice>(useStatement->findSourceLocation())
+    );
+  }
+  return found;
 }
 
 

@@ -1,0 +1,24 @@
+import "libalusus_spp.so";
+
+def Std: module
+{
+  def printf: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+};
+
+def Main: module
+{
+  def print: alias Std.printf;
+
+  def start1: function ()=>Void
+  {
+    print("Hello ")
+  };
+
+  def start2: function ()=>Void
+  {
+    print("World!\n")
+  }
+};
+
+run Main.start1;
+run Main.start2;

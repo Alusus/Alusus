@@ -47,8 +47,7 @@ class Generation : public ObjTiInterface
       &this->generateExpression,
       &this->generateCast,
       &this->getGeneratedType,
-      &this->getTypeAllocationSize,
-      &this->validateUseStatement
+      &this->getTypeAllocationSize
     });
   }
 
@@ -91,11 +90,16 @@ class Generation : public ObjTiInterface
   public: METHOD_BINDING_CACHE(generateVarDef, Bool, (Core::Data::Ast::Definition*, TargetGeneration* /* tg */));
 
   public: METHOD_BINDING_CACHE(generateStatements,
-    Bool, (Spp::Ast::Block* /* astBlock */, TargetGeneration* /* tg */, TiObject* /* tgContext */)
+    Bool, (
+      Spp::Ast::Block* /* astBlock */, TargetGeneration* /* tg */, TiObject* /* tgContext */,
+      TerminalStatement& /* terminal */
+    )
   );
 
   public: METHOD_BINDING_CACHE(generateStatement,
-    Bool, (TiObject* /* astNode */, TargetGeneration* /* tg */, TiObject* /* tgContext */)
+    Bool, (
+      TiObject* /* astNode */, TargetGeneration* /* tg */, TiObject* /* tgContext */, TerminalStatement& /* terminal */
+    )
   );
 
   public: METHOD_BINDING_CACHE(generateExpression,
@@ -119,10 +123,6 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(getTypeAllocationSize,
     Bool, (Spp::Ast::Type* /* astType */, TargetGeneration* /* tg */, Word& /* result */)
-  );
-
-  public: METHOD_BINDING_CACHE(validateUseStatement,
-    Bool, (Spp::Ast::UseStatement* /* useStatement */)
   );
 
   /// @}

@@ -38,14 +38,13 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBinding, publ
   // Member Variables
 
   private: Ast::Helper *astHelper;
-  private: NoOpTargetGenerator *noOpTargetGenerator;
   private: Core::Notices::Store *noticeStore = 0;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: ExpressionGenerator(Ast::Helper *h, NoOpTargetGenerator *noOpTg) : astHelper(h), noOpTargetGenerator(noOpTg)
+  public: ExpressionGenerator(Ast::Helper *h) : astHelper(h)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -57,7 +56,6 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBinding, publ
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
-    this->noOpTargetGenerator = parent->getNoOpTargetGenerator();
   }
 
   public: virtual ~ExpressionGenerator()
@@ -77,11 +75,6 @@ class ExpressionGenerator : public TiObject, public virtual DynamicBinding, publ
   public: Ast::Helper* getAstHelper() const
   {
     return this->astHelper;
-  }
-
-  public: NoOpTargetGenerator *getNoOpTargetGenerator() const
-  {
-    return this->noOpTargetGenerator;
   }
 
   public: void setNoticeStore(Core::Notices::Store *ns)

@@ -27,6 +27,8 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->exprRootScope = Data::Ast::Scope::create();
   this->exprRootScope->setProdId(ID_GENERATOR->getId("Root"));
 
+  this->rootScopeHandler.setRootScope(this->rootScope);
+
   this->noticeSignal.connect(this->noticeSlot);
 
   Data::Grammar::StandardFactory factory;

@@ -29,6 +29,7 @@ void TypeGenerator::initBindingCaches()
     &this->generatePointerType,
     &this->generateArrayType,
     &this->generateUserType,
+    &this->generateUserTypeMemberVars,
     &this->generateFunctionType,
     &this->generateCast,
     &this->generateDefaultValue,
@@ -48,6 +49,7 @@ void TypeGenerator::initBindings()
   this->generatePointerType = &TypeGenerator::_generatePointerType;
   this->generateArrayType = &TypeGenerator::_generateArrayType;
   this->generateUserType = &TypeGenerator::_generateUserType;
+  this->generateUserTypeMemberVars = &TypeGenerator::_generateUserTypeMemberVars;
   this->generateFunctionType = &TypeGenerator::_generateFunctionType;
   this->generateCast = &TypeGenerator::_generateCast;
   this->generateDefaultValue = &TypeGenerator::_generateDefaultValue;
@@ -226,6 +228,76 @@ Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astTyp
   TioSharedPtr tgType;
   if (!tg->generateStructTypeDecl(name.c_str(), tgType)) return false;
   setCodeGenData(astType, tgType);
+  return typeGenerator->generateUserTypeMemberVars(astType, tg);
+}
+
+
+Bool TypeGenerator::_generateUserTypeMemberVars(TiObject *self, Spp::Ast::UserType *astType, TargetGeneration *tg)
+{
+  PREPARE_SELF(typeGenerator, TypeGenerator);
+
+  TiObject *tgType = tryGetCodeGenData<TiObject>(astType);
+  ASSERT(tgType != 0);
+
+  // Prepare struct members.
+  auto body = astType->getBody().get();
+  if (body == 0) {
+    throw EXCEPTION(GenericException, S("User type missing body block."));
+  }
+  auto prevInProgress = tryGetCodeGenData<TiBool>(body);
+  if (prevInProgress != 0) {
+    if (prevInProgress->get()) {
+      typeGenerator->noticeStore->add(
+        std::make_shared<Spp::Notices::CircularUserTypeDefinitionsNotice>(astType->findSourceLocation())
+      );
+      return false;
+    } else {
+      return true;
+    }
+  }
+  auto inProgress = TiBool::create(true);
+  setCodeGenData(body, inProgress);
+
+  // Generate the structure.
+  Bool result = true;
+  PlainList<TiObject> members;
+  PlainMap<TiObject> tgMemberTypes;
+  SharedList<TiObject> tgMembers;
+  for (Int i = 0; i < body->getCount(); ++i) {
+    auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
+    if (def != 0) {
+      if (typeGenerator->astHelper->getDefinitionDomain(def) != Ast::DefinitionDomain::GLOBAL) {
+        auto obj = def->getTarget().get();
+        if (typeGenerator->astHelper->isAstReference(obj)) {
+          TiObject *tgType;
+          Ast::Type *astMemberType;
+          if (!typeGenerator->getGeneratedType(obj, tg, tgType, &astMemberType)) {
+            result = false;
+            continue;
+          }
+          Ast::setAstType(obj, astMemberType);
+          tgMemberTypes.add(def->getName().get(), tgType);
+          members.add(obj);
+        } else if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
+          if (!typeGenerator->astHelper->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) {
+            result = false;
+          }
+          continue;
+        }
+      }
+    }
+  }
+  if (!result) return false;
+
+  if (!tg->generateStructTypeBody(tgType, &tgMemberTypes, &tgMembers)) return false;
+  if (tgMemberTypes.getElementCount() != tgMembers.getCount()) {
+    throw EXCEPTION(GenericException, S("Unexpected error while generating struct body."));
+  }
+  for (Int i = 0; i < tgMemberTypes.getElementCount(); ++i) {
+    setCodeGenData(members.get(i), tgMembers.get(i));
+  }
+  inProgress->set(false);
+
   return true;
 }
 

@@ -34,6 +34,8 @@ struct GenResult
   TioSharedPtr targetData;
 };
 
+s_enum(TerminalStatement, UNKNOWN, NO, YES);
+
 
 //==============================================================================
 // Global Constants
@@ -138,6 +140,7 @@ inline void setCodeGenFailed(OT *object, Bool f)
 // Type Names
 
 DEFINE_TYPE_NAME(Spp::CodeGen::GenResult, "alusus.net/Spp/Spp.CodeGen.GenResult");
+DEFINE_TYPE_NAME(Spp::CodeGen::TerminalStatement, "alusus.net/Spp/Spp.CodeGen.TerminalStatement");
 
 
 //==============================================================================
@@ -162,7 +165,6 @@ class Generator;
 #include "MacroProcessor.h"
 
 // The Generator
-#include "NoOpTargetGenerator.h"
 #include "TypeGenerator.h"
 #include "ExpressionGenerator.h"
 #include "CommandGenerator.h"

@@ -57,10 +57,16 @@ source_filename = "AlususProgram"
 @__anonymous44 = private constant [20 x i8] c"Received positive.\0A\00", align 1
 @__anonymous45 = private constant [20 x i8] c"Received negative.\0A\00", align 1
 
-declare i64 @printf(i8*, ...)
+define void @"Main.start()=>(Void)"() {
+__block0:
+  call void @"Main.testInteger()=>(Void)"()
+  call void @"Main.testFloat()=>(Void)"()
+  call void @"Main.testIfStatement(Int[64])=>(Void)"(i64 -5)
+  ret void
+}
 
 define void @"Main.testInteger()=>(Void)"() {
-__block0:
+__block1:
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @__anonymous0, i32 0, i32 0), i64 1)
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @__anonymous1, i32 0, i32 0), i64 0)
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @__anonymous2, i32 0, i32 0), i64 0)
@@ -74,8 +80,10 @@ __block0:
   ret void
 }
 
+declare i64 @printf(i8*, ...)
+
 define void @"Main.testFloat()=>(Void)"() {
-__block1:
+__block2:
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @__anonymous10, i32 0, i32 0), i64 1)
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @__anonymous11, i32 0, i32 0), i64 0)
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @__anonymous12, i32 0, i32 0), i64 0)
@@ -90,7 +98,7 @@ __block1:
 }
 
 define void @"Main.testMixed()=>(Void)"() {
-__block2:
+__block3:
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @__anonymous20, i32 0, i32 0), i64 1)
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__anonymous21, i32 0, i32 0), i64 1)
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__anonymous22, i32 0, i32 0), i64 1)
@@ -107,7 +115,7 @@ __block2:
 }
 
 define void @"Main.testPointers()=>(Void)"() {
-__block3:
+__block4:
   %i = alloca i8*
   %j = alloca i8*
   %n = alloca i8*
@@ -145,35 +153,24 @@ __block3:
 }
 
 define void @"Main.testIfStatement(Int[64])=>(Void)"(i64 %i) {
-__block4:
+__block5:
   %i1 = alloca i64
   store i64 %i, i64* %i1
   %0 = load i64, i64* %i1
   %1 = icmp sge i64 %0, 0
-  br i1 %1, label %__block5, label %__block6
+  br i1 %1, label %__block6, label %__block7
 
-__block5:                                         ; preds = %__block4
+__block6:                                         ; preds = %__block5
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__anonymous44, i32 0, i32 0))
-  br label %__block7
+  br label %__block8
 
-__block6:                                         ; preds = %__block4
+__block7:                                         ; preds = %__block5
   %3 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__anonymous45, i32 0, i32 0))
-  br label %__block7
+  br label %__block8
 
-__block7:                                         ; preds = %__block6, %__block5
+__block8:                                         ; preds = %__block7, %__block6
   ret void
 
-__block8:                                         ; No predecessors!
-}
-
-define void @"Main.start()=>(Void)"() {
-__block9:
-  call void @"Main.testInteger()=>(Void)"()
-  call void @"Main.testFloat()=>(Void)"()
-  call void @"Main.testMixed()=>(Void)"()
-  call void @"Main.testPointers()=>(Void)"()
-  call void @"Main.testIfStatement(Int[64])=>(Void)"(i64 5)
-  call void @"Main.testIfStatement(Int[64])=>(Void)"(i64 -5)
-  ret void
+__block9:                                         ; No predecessors!
 }
 ------------------------------------------------------------

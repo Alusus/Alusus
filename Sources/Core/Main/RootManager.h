@@ -32,6 +32,7 @@ class RootManager : public TiObject
   private: SharedPtr<Data::Ast::Scope> rootScope;
   private: SharedPtr<Data::Ast::Scope> exprRootScope;
 
+  private: RootScopeHandler rootScopeHandler;
   private: LibraryManager libraryManager;
 
   private: SharedMap<TiObject> processedFiles;
@@ -85,6 +86,11 @@ class RootManager : public TiObject
   public: virtual SharedPtr<Data::Ast::Scope> const& getExprRootScope()
   {
     return this->exprRootScope;
+  }
+
+  public: virtual RootScopeHandler* getRootScopeHandler()
+  {
+    return &this->rootScopeHandler;
   }
 
   public: virtual LibraryManager* getLibraryManager()

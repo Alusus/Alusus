@@ -12,8 +12,6 @@ source_filename = "AlususProgram"
 @__anonymous5 = private constant [17 x i8] c"64bit float: %f\0A\00", align 1
 @__anonymous6 = private constant [19 x i8] c"invalid float: %f\0A\00", align 1
 
-declare i64 @printf(i8*, ...)
-
 define void @"Main.start()=>(Void)"() {
 __block0:
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @__anonymous0, i32 0, i32 0), float 0x4003333340000000)
@@ -24,4 +22,6 @@ __block0:
   %5 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__anonymous5, i32 0, i32 0), double 1.000000e+00)
   ret void
 }
+
+declare i64 @printf(i8*, ...)
 ------------------------------------------------------------

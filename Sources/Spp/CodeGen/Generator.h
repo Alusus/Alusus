@@ -135,7 +135,7 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
   /// @name Main Operation Functions
   /// @{
 
-  public: Bool generate(Core::Data::Ast::Scope *root, Core::Processing::ParserState *state, TargetGeneration *tg);
+  public: void prepareBuild(Core::Processing::ParserState *state);
 
   /// @}
 
@@ -157,11 +157,11 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
   );
 
   private: static Bool _generateStatements(
-    TiObject *self, Spp::Ast::Block *astBlock, TargetGeneration *tg, TiObject *tgContext
+    TiObject *self, Spp::Ast::Block *astBlock, TargetGeneration *tg, TiObject *tgContext, TerminalStatement &terminal
   );
 
   private: static Bool _generateStatement(
-    TiObject *self, TiObject *astNode, TargetGeneration *tg, TiObject *tgContext
+    TiObject *self, TiObject *astNode, TargetGeneration *tg, TiObject *tgContext, TerminalStatement &terminal
   );
 
   private: static Bool _generateExpression(
@@ -179,10 +179,6 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
 
   private: static Bool _getTypeAllocationSize(
     TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result
-  );
-
-  private: static Bool _validateUseStatement(
-    TiObject *self, Spp::Ast::UseStatement *useStatement
   );
 
   /// @}

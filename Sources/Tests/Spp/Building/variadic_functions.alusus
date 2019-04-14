@@ -20,31 +20,31 @@ def Main: module
     unknown("hello");
   };
 
-  def f0: function (a: ptr[Word[8]], args:...Int[32])=>Int[32]
+  def f0: function (a: ptr[Word[8]], args:...Int[32])
   {
   };
 
-  def f1: function (a: ptr[Word[8]], args:...Int[32])=>Int[32]
+  def f1: function (a: ptr[Word[8]], args:...Int[32])
   {
   };
 
-  def f1: function (a: ptr[Word[8]], args:...any)=>Int[32]
+  def f1: function (a: ptr[Word[8]], args:...any)
   {
   };
 
-  def f1: function (a: Int[32], args:...any)=>Int[32]
+  def f1: function (a: Int[32], args:...any)
   {
   };
 
-  def f2: function (a: ptr[Word[8]], args:...[any, 1])=>Int[32]
+  def f2: function (a: ptr[Word[8]], args:...[any, 1])
   {
   };
 
-  def f3: function (a: ptr[Word[8]], args:...[ptr[Word[8]], 1, 2])=>Int[32]
+  def f3: function (a: ptr[Word[8]], args:...[ptr[Word[8]], 1, 2])
   {
   };
 
-  def f4: function (a: ptr[Word[8]], args:...[Word[8]])=>Int[32]
+  def f4: function (a: ptr[Word[8]], args:...[Word[8]])
   {
   };
 };

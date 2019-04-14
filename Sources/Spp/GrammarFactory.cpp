@@ -332,7 +332,7 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.ModuleStatements.StmtList"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.StmtList"))},
   }, {
-    {S("handler"), ScopeParsingHandler<Spp::Ast::Module>::create(-1)}
+    {S("handler"), ScopeParsingHandler<Spp::Ast::Module>::create()}
   }).get());
 
   //// type = "type" + Set
@@ -525,7 +525,7 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.BlockStatements.StmtList"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.StmtList"))},
   }, {
-    {S("handler"), ScopeParsingHandler<Spp::Ast::Block>::create(-1) }
+    {S("handler"), ScopeParsingHandler<Spp::Ast::Block>::create() }
   }));
   // BlockSubject
   this->set(S("root.Main.BlockSubject"), Module::create({

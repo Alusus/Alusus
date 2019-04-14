@@ -97,12 +97,15 @@ Bool CommandGenerator::_generateReturnStatement(
 
 
 Bool CommandGenerator::_generateIfStatement(
-  TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+  TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  TerminalStatement &terminal
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
   auto ifBody = astNode->getIfBody().get();
   auto elseBody = astNode->getElseBody().get();
+
+  terminal = TerminalStatement::UNKNOWN;
 
   SharedPtr<IfTgContext> ifTgContext;
   if (!tg->prepareIfStatement(tgContext, elseBody != 0, ifTgContext)) return false;
@@ -120,28 +123,34 @@ Bool CommandGenerator::_generateIfStatement(
   )) return false;
 
   // Generate ifBody.
+  TerminalStatement terminalBody = TerminalStatement::UNKNOWN;
   if (ifBody->isDerivedFrom<Ast::Block>()) {
-    if (!g->generateStatements(static_cast<Ast::Block*>(ifBody), tg, ifTgContext->getBodyContext())) {
+    if (!g->generateStatements(static_cast<Ast::Block*>(ifBody), tg, ifTgContext->getBodyContext(), terminalBody)) {
       return false;
     }
   } else {
-    if (!g->generateStatement(ifBody, tg, ifTgContext->getBodyContext())) {
+    if (!g->generateStatement(ifBody, tg, ifTgContext->getBodyContext(), terminalBody)) {
       return false;
     }
   }
 
   // Generate elseBody, if needed.
+  TerminalStatement terminalElse = TerminalStatement::UNKNOWN;
   if (elseBody != 0) {
     if (elseBody->isDerivedFrom<Ast::Block>()) {
-      if (!g->generateStatements(static_cast<Ast::Block*>(elseBody), tg, ifTgContext->getElseContext())) {
+      if (!g->generateStatements(static_cast<Ast::Block*>(elseBody), tg, ifTgContext->getElseContext(), terminalElse)) {
         return false;
       }
     } else {
-      if (!g->generateStatement(elseBody, tg, ifTgContext->getElseContext())) {
+      if (!g->generateStatement(elseBody, tg, ifTgContext->getElseContext(), terminalElse)) {
         return false;
       }
     }
   }
+
+  terminal = terminalBody == TerminalStatement::YES && terminalElse == TerminalStatement::YES ?
+    TerminalStatement::YES :
+    TerminalStatement::NO;
 
   return tg->finishIfStatement(tgContext, ifTgContext.get(), castResult.get());
 }
@@ -170,11 +179,13 @@ Bool CommandGenerator::_generateWhileStatement(
   // Generate body.
   auto body = astNode->getBody().get();
   if (body->isDerivedFrom<Ast::Block>()) {
-    if (!g->generateStatements(static_cast<Ast::Block*>(body), tg, loopTgContext->getBodyContext())) {
+    TerminalStatement terminal;
+    if (!g->generateStatements(static_cast<Ast::Block*>(body), tg, loopTgContext->getBodyContext(), terminal)) {
       return false;
     }
   } else {
-    if (!g->generateStatement(body, tg, loopTgContext->getBodyContext())) {
+    TerminalStatement terminal;
+    if (!g->generateStatement(body, tg, loopTgContext->getBodyContext(), terminal)) {
       return false;
     }
   }
@@ -189,7 +200,8 @@ Bool CommandGenerator::_generateForStatement(
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
   if (astNode->getInitializer().get() != 0) {
-    if (!g->generateStatement(astNode->getInitializer().get(), tg, tgContext)) return false;
+    TerminalStatement terminal;
+    if (!g->generateStatement(astNode->getInitializer().get(), tg, tgContext, terminal)) return false;
   }
 
   SharedPtr<LoopTgContext> loopTgContext;
@@ -216,11 +228,13 @@ Bool CommandGenerator::_generateForStatement(
   // Generate body.
   auto body = astNode->getBody().get();
   if (body->isDerivedFrom<Ast::Block>()) {
-    if (!g->generateStatements(static_cast<Ast::Block*>(body), tg, loopTgContext->getBodyContext())) {
+    TerminalStatement terminal;
+    if (!g->generateStatements(static_cast<Ast::Block*>(body), tg, loopTgContext->getBodyContext(), terminal)) {
       return false;
     }
   } else {
-    if (!g->generateStatement(body, tg, loopTgContext->getBodyContext())) {
+    TerminalStatement terminal;
+    if (!g->generateStatement(body, tg, loopTgContext->getBodyContext(), terminal)) {
       return false;
     }
   }

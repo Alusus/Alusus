@@ -75,27 +75,32 @@ __block0:
 }
 
 define i32 @"Main.getNum1()=>(Int[32])"() {
-__block3:
+__block1:
   ret i32 5
 }
 
 define i32 @"Main.getNum2()=>(Int[32])"() {
-__block4:
+__block2:
   ret i32 7
 }
 
 define i32 @"Main.getNum3()=>(Int[32])"() {
-__block5:
+__block3:
   ret i32 13
 }
 
 define i32 ()* @"Main.getFunc1()=>(ptr[()=>(Int[32])])"() {
-__block1:
+__block4:
   ret i32 ()* @"Main.getNum4()=>(Int[32])"
 }
 
+define i32 @"Main.getNum4()=>(Int[32])"() {
+__block5:
+  ret i32 17
+}
+
 define i32 @"Main.mulX2(Int[32])=>(Int[32])"(i32 %n) {
-__block7:
+__block6:
   %n1 = alloca i32
   store i32 %n, i32* %n1
   %0 = load i32, i32* %n1
@@ -104,7 +109,7 @@ __block7:
 }
 
 define i32 @"Main.mulX3(Int[32])=>(Int[32])"(i32 %n) {
-__block8:
+__block7:
   %n1 = alloca i32
   store i32 %n, i32* %n1
   %0 = load i32, i32* %n1
@@ -113,7 +118,7 @@ __block8:
 }
 
 define i32 @"Main.mulX4(Int[32])=>(Int[32])"(i32 %n) {
-__block9:
+__block8:
   %n1 = alloca i32
   store i32 %n, i32* %n1
   %0 = load i32, i32* %n1
@@ -122,13 +127,8 @@ __block9:
 }
 
 define i32 (i32)* @"Main.getFunc2()=>(ptr[(Int[32])=>(Int[32])])"() {
-__block2:
+__block9:
   ret i32 (i32)* @"Main.mulX5(Int[32])=>(Int[32])"
-}
-
-define i32 @"Main.getNum4()=>(Int[32])"() {
-__block6:
-  ret i32 17
 }
 
 define i32 @"Main.mulX5(Int[32])=>(Int[32])"(i32 %n) {

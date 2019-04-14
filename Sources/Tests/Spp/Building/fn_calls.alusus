@@ -16,16 +16,16 @@ def Main: module
     f(5, Other);
   };
 
-  def f: function (a: Int[32], b: Float[32])=>Int[64] {
+  def f: function (a: Int[32], b: Float[32]) {
   };
 
-  def g: function ()=>Int[32] {
+  def g: function () {
   };
 
-  def h: function (a: ptr[Word[8]])=>Int[32] {
+  def h: function (a: ptr[Word[8]]) {
   };
 
-  def h: @expname[hh] function (a: ptr[Word[8]], b: ptr[Word[8]])=>Int[32] {
+  def h: @expname[hh] function (a: ptr[Word[8]], b: ptr[Word[8]]) {
   };
 
   def subModule: module
@@ -41,11 +41,11 @@ def Main: module
 
 def Other: module
 {
-  def f: function (a: Int[32]) => Int[64]
+  def f: function (a: Int[32])
   {
   };
 
-  def f: function (a: ptr[Word[8]]) => Int[64]
+  def f: function (a: ptr[Word[8]])
   {
   };
 

@@ -58,8 +58,10 @@ Bool addPossiblyMergeableElement(TiObject *src, DynamicContaining<TiObject> *tar
       target->addElement(src);
     }
   } else if(src->isDerivedFrom<MergeList>()){
-    target->addElement(static_cast<MergeList*>(src)->getElement(0));
-    target->addElement(static_cast<MergeList*>(src)->getElement(1));
+    auto mergeList = static_cast<MergeList*>(src);
+    for (Int i = 0; i < mergeList->getElementCount(); ++i) {
+      target->addElement(mergeList->getElement(i));
+    }
   } else {
     target->addElement(src);
   }

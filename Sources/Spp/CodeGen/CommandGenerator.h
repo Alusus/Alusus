@@ -103,11 +103,12 @@ class CommandGenerator : public TiObject, public virtual DynamicBinding, public 
 
   public: METHOD_BINDING_CACHE(generateIfStatement,
     Bool, (
-      Spp::Ast::IfStatement*, Generation*, TargetGeneration*, TiObject*
+      Spp::Ast::IfStatement*, Generation*, TargetGeneration*, TiObject*, TerminalStatement&
     )
   );
   private: static Bool _generateIfStatement(
-    TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+    TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    TerminalStatement &terminal
   );
 
   public: METHOD_BINDING_CACHE(generateWhileStatement,

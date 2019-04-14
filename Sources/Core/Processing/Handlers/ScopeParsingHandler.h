@@ -26,21 +26,15 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
 
 
   //============================================================================
-  // Member Variables
-
-  private: Int rootScopeIndex;
-
-
-  //============================================================================
   // Constructor
 
-  public: ScopeParsingHandler(Int rootIndex) : rootScopeIndex(rootIndex)
+  public: ScopeParsingHandler()
   {
   }
 
-  public: static SharedPtr<ScopeParsingHandler<TYPE>> create(Int rootIndex)
+  public: static SharedPtr<ScopeParsingHandler<TYPE>> create()
   {
-    return std::make_shared<ScopeParsingHandler<TYPE>>(rootIndex);
+    return std::make_shared<ScopeParsingHandler<TYPE>>();
   }
 
 
@@ -49,21 +43,7 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
 
   public: virtual void onProdStart(Parser *parser, ParserState *state, Data::Token const *token)
   {
-    if (this->rootScopeIndex == state->getProdLevelCount() - 1) {
-      auto scope = parser->getRootScope();
-      if (scope == 0) {
-        throw EXCEPTION(GenericException, S("Root scope is null."));
-      }
-      state->setData(scope);
-    } else {
-      state->setData(std::make_shared<TYPE>());
-    }
-  }
-
-  public: virtual void onProdEnd(Parser *parser, ParserState *state)
-  {
-    if (this->rootScopeIndex == state->getProdLevelCount() - 1) return;
-    GenericParsingHandler::onProdEnd(parser, state);
+    state->setData(std::make_shared<TYPE>());
   }
 
   public: virtual void onLevelExit(Parser *parser, ParserState *state, SharedPtr<TiObject> const &data)
@@ -72,7 +52,7 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
     GenericParsingHandler::onLevelExit(parser, state, data);
   }
 
-  protected: void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex)) {
       auto listContainer = state->getData(levelIndex).ti_cast_get<DynamicContaining<TiObject>>();
@@ -81,12 +61,6 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
     } else {
       GenericParsingHandler::addData(data, state, levelIndex);
     }
-  }
-
-  protected: virtual void prepareToModifyData(ParserState *state, Int levelIndex)
-  {
-    if (this->rootScopeIndex == state->getProdLevelCount() - 1) return;
-    GenericParsingHandler::prepareToModifyData(state, levelIndex);
   }
 
 }; // class
