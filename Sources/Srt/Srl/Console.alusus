@@ -8,17 +8,20 @@ import "globals.alusus";
     def putChar: @expname[putchar] function (character: Int[32]) => Int[32];
 
     def print: @expname[printf] function (format: ptr[Word[8]], args: ...any) => Int[32];
-    def print: function (i: Int[64])
+
+    def print: function (i: Int[64])  => Int[32]
     {
-      print("%lld", i);
+      return print("%lld", i);
     };
-    def print: function (f: Float[64])
+
+    def print: function (f: Float[64])  => Int[32]
     {
-      print("%f", f);
+      return print("%f", f);
     };
-    def print: function (f: Float[64], d: Int)
+    
+    def print: function (f: Float[64], d: Int)  => Int[32]
     {
-      print("%.*f", d, f);
+      return print("%.*f", d, f);
     };
 
     def scan: @expname[scanf] function (format: ptr[Word[8]], args: ...any) => Int[32];
