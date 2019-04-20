@@ -52,14 +52,14 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
     GenericParsingHandler::onLevelExit(parser, state, data);
   }
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex)) {
       auto listContainer = state->getData(levelIndex).ti_cast_get<DynamicContaining<TiObject>>();
       ASSERT(listContainer);
       Core::Data::Ast::addPossiblyMergeableElement(data.get(), listContainer, state->getNoticeStore());
     } else {
-      GenericParsingHandler::addData(data, state, levelIndex);
+      GenericParsingHandler::addData(data, parser, state, levelIndex);
     }
   }
 

@@ -45,7 +45,7 @@ template <class TYPE> class SequenceParsingHandler : public GenericParsingHandle
   //============================================================================
   // Member Functions
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex)
   {
     if (this->isEnabled(state, levelIndex) && this->isListTerm(state, levelIndex) && this->startIndex != -1) {
       TiObject *currentData = state->getData(levelIndex).get();
@@ -89,7 +89,7 @@ template <class TYPE> class SequenceParsingHandler : public GenericParsingHandle
         return;
       }
     }
-    GenericParsingHandler::addData(data, state, levelIndex);
+    GenericParsingHandler::addData(data, parser, state, levelIndex);
   }
 
   protected: virtual SharedPtr<TiObject> createListNode(ParserState *state, Int levelIndex)

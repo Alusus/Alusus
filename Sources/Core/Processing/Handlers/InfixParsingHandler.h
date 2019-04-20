@@ -44,7 +44,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
       SharedPtr<TiObject> currentData = state->getData(levelIndex);
@@ -63,7 +63,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
         return;
       }
     }
-    GenericParsingHandler::addData(data, state, levelIndex);
+    GenericParsingHandler::addData(data, parser, state, levelIndex);
   }
 
   protected: virtual Bool isListObjEnforced(ParserState *state, Int levelIndex)

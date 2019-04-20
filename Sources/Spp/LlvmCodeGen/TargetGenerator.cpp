@@ -147,6 +147,13 @@ void TargetGenerator::prepareBuild()
 }
 
 
+void TargetGenerator::resetBuild()
+{
+  this->llvmModule = std::make_unique<llvm::Module>("AlususProgram", myContext);
+  this->llvmModule->setDataLayout(this->llvmDataLayout->getStringRepresentation());
+}
+
+
 void TargetGenerator::dumpIr(OutStream &out)
 {
   if (this->llvmModule == 0) {
@@ -158,7 +165,7 @@ void TargetGenerator::dumpIr(OutStream &out)
 }
 
 
-Int TargetGenerator::execute(Char const *entry, Bool sendArgs, Int argCount, Char const *const *args)
+void TargetGenerator::execute(Char const *entry)
 {
   if (this->llvmModule == 0) {
     throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
@@ -168,21 +175,22 @@ Int TargetGenerator::execute(Char const *entry, Bool sendArgs, Int argCount, Cha
   std::string errorStr;
   engineBuilder.setErrorStr(&errorStr);
   auto ee = engineBuilder.create();
-  auto func = ee->FindFunctionNamed(entry);
 
-  // Prepare function args.
-  std::vector<llvm::GenericValue> argv;
-  if (sendArgs) {
-    llvm::GenericValue genVal1;
-    genVal1.IntVal = llvm::APInt(32, argCount);
-    argv.push_back(genVal1);
-    llvm::GenericValue genVal2;
-    genVal2.PointerVal = (void*)args;
-    argv.push_back(genVal2);
+  // Add global variable mappings.
+  if (this->globalItemRepo != 0) {
+    for (Int i = 0; i < this->globalItemRepo->getItemCount(); ++i) {
+      auto varName = this->globalItemRepo->getItemName(i).c_str();
+      auto varPtr = (uint64_t)this->globalItemRepo->getItemPtr(i);
+      ee->addGlobalMapping(varName, varPtr);
+    }
   }
 
-  auto ret = ee->runFunction(func, argv);
-  return *(ret.IntVal.getRawData());
+  typedef void (*FuncType)();
+  auto funcPtr = (FuncType)ee->getFunctionAddress(entry);
+
+  funcPtr();
+
+  delete ee;
 }
 
 
@@ -413,12 +421,12 @@ Bool TargetGenerator::generateGlobalVariable(
   TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
 ) {
   PREPARE_ARG(type, typeWrapper, Type);
-  PREPARE_ARG(defaultValue, valWrapper, Value);
+  auto valWrapper = ti_cast<Value>(defaultValue);
 
   SharedPtr<Variable> var = std::make_shared<Variable>();
   var->setLlvmGlobalVariable(new llvm::GlobalVariable(
     *(this->llvmModule.get()), typeWrapper->getLlvmType(), false, llvm::GlobalVariable::ExternalLinkage,
-    valWrapper->getLlvmConstant(), name
+    valWrapper != 0 ? valWrapper->getLlvmConstant() : 0, name
   ));
 
   result = var;
@@ -1170,14 +1178,14 @@ Bool TargetGenerator::generateRem(
   PREPARE_ARG(type, tgType, Type);
 
   if (tgType->isDerivedFrom<IntegerType>()) {
-  llvm::Value *llvmResult;
+    llvm::Value *llvmResult;
     if (static_cast<IntegerType*>(tgType)->isSigned()) {
-    llvmResult = block->getIrBuilder()->CreateSRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  } else {
-    llvmResult = block->getIrBuilder()->CreateURem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  }
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
+      llvmResult = block->getIrBuilder()->CreateSRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateURem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    }
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
     result = std::make_shared<Value>(llvmResult, false);
@@ -1571,10 +1579,10 @@ Bool TargetGenerator::generateRemAssign(
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
     if (static_cast<IntegerType*>(tgType)->isSigned()) {
-    llvmResult = block->getIrBuilder()->CreateSRem(llvmVal, srcValBox->getLlvmValue());
-  } else {
-    llvmResult = block->getIrBuilder()->CreateURem(llvmVal, srcValBox->getLlvmValue());
-  }
+      llvmResult = block->getIrBuilder()->CreateSRem(llvmVal, srcValBox->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateURem(llvmVal, srcValBox->getLlvmValue());
+    }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     llvmResult = block->getIrBuilder()->CreateFRem(llvmVal, srcValBox->getLlvmValue());
   } else {

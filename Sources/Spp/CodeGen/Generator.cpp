@@ -41,17 +41,19 @@ void Generator::initBindings()
 //==============================================================================
 // Main Operation Functions
 
-void Generator::prepareBuild(Core::Processing::ParserState *state)
+void Generator::prepareBuild(Core::Notices::Store *noticeStore, Bool offlineExecution)
 {
-  VALIDATE_NOT_NULL(state);
+  VALIDATE_NOT_NULL(noticeStore);
 
-  this->noticeStore = state->getNoticeStore();
+  this->noticeStore = noticeStore;
   this->noticeStore->clearPrefixSourceLocationStack();
 
   this->astHelper->prepare(this->noticeStore);
   this->typeGenerator->setNoticeStore(this->noticeStore);
   this->commandGenerator->setNoticeStore(this->noticeStore);
   this->expressionGenerator->setNoticeStore(this->noticeStore);
+
+  this->offlineExecution = offlineExecution;
 }
 
 
@@ -275,21 +277,35 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
     if (generator->getAstHelper()->getDefinitionDomain(definition) == Ast::DefinitionDomain::GLOBAL) {
       // Generate a global or a static variable.
-      // Generate global name.
       Str name = std::regex_replace(
         generator->getAstHelper()->resolveNodePath(definition), std::regex("[^a-zA-Z0-9_]"), S("_")
       );
-      // Generate the default value.
-      TioSharedPtr tgDefaultValue;
-      if (!generator->typeGenerator->generateDefaultValue(astType, tg, 0, tgDefaultValue)) {
-        setCodeGenFailed(astVar, true);
-        return false;
-      }
-      // Create the llvm global var.
       TioSharedPtr tgGlobalVar;
-      if (!tg->generateGlobalVariable(tgType, name.c_str(), tgDefaultValue.get(), tgGlobalVar)) {
-        setCodeGenFailed(astVar, true);
-        return false;
+      if (generator->offlineExecution) {
+        // Generate the default value.
+        TioSharedPtr tgDefaultValue;
+        if (!generator->typeGenerator->generateDefaultValue(astType, tg, 0, tgDefaultValue)) {
+          setCodeGenFailed(astVar, true);
+          return false;
+        }
+        // Create the llvm global var.
+        if (!tg->generateGlobalVariable(tgType, name.c_str(), tgDefaultValue.get(), tgGlobalVar)) {
+          setCodeGenFailed(astVar, true);
+          return false;
+        }
+      } else {
+        // Create the llvm global var.
+        if (!tg->generateGlobalVariable(tgType, name.c_str(), 0, tgGlobalVar)) {
+          setCodeGenFailed(astVar, true);
+          return false;
+        }
+        // Add an entry for the variable in the repo.
+        Word size;
+        if (!generator->typeGenerator->getTypeAllocationSize(astType, tg, size)) {
+          setCodeGenFailed(astVar, true);
+          return false;
+        }
+        generator->globalItemRepo->addItem(name.c_str(), size);
       }
       setCodeGenData(astVar, tgGlobalVar);
     } else {

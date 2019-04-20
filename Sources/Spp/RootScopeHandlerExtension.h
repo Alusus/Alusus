@@ -30,7 +30,6 @@ class RootScopeHandlerExtension : public ObjTiInterface
   public: struct Overrides
   {
     TiFunctionBase *addNewElementRef;
-    TiFunctionBase *executeElementRef;
   };
 
 
@@ -46,13 +45,7 @@ class RootScopeHandlerExtension : public ObjTiInterface
   public: RootScopeHandlerExtension(TiObject *o) : owner(o)
   {
     Basic::initBindingCaches(this->owner, {
-      &this->executeElement,
-      &this->rootStatementIndex,
       &this->rootManagerBox,
-      &this->astHelper,
-      &this->macroProcessor,
-      &this->generator,
-      &this->targetGenerator
     });
   }
 
@@ -60,12 +53,7 @@ class RootScopeHandlerExtension : public ObjTiInterface
   //============================================================================
   // Member Properties
 
-  public: BINDING_CACHE(rootStatementIndex, TiInt);
   public: BINDING_CACHE(rootManagerBox, Box<Core::Main::RootManager*>);
-  public: BINDING_CACHE(astHelper, Ast::Helper);
-  public: BINDING_CACHE(macroProcessor, CodeGen::MacroProcessor);
-  public: BINDING_CACHE(generator, CodeGen::Generator);
-  public: BINDING_CACHE(targetGenerator, LlvmCodeGen::TargetGenerator);
 
 
   //============================================================================
@@ -90,9 +78,7 @@ class RootScopeHandlerExtension : public ObjTiInterface
   /// @{
 
   public: static Overrides* extend(
-    Core::Main::RootScopeHandler *handler, Core::Main::RootManager *rootManager,
-    SharedPtr<Ast::Helper> const &astHelper, SharedPtr<CodeGen::MacroProcessor> const &macroProcessor,
-    SharedPtr<CodeGen::Generator> const &generator, SharedPtr<LlvmCodeGen::TargetGenerator> const &targetGenerator
+    Core::Main::RootScopeHandler *handler, Core::Main::RootManager *rootManager
   );
   public: static void unextend(Core::Main::RootScopeHandler *handler, Overrides *overrides);
 
@@ -102,14 +88,8 @@ class RootScopeHandlerExtension : public ObjTiInterface
   /// @{
 
   private: static void _addNewElement(
-    TiFunctionBase *base, TiObject *self, TioSharedPtr const &data, Core::Processing::ParserState *state
-  );
-
-  public: METHOD_BINDING_CACHE(executeElement,
-    void, (TioSharedPtr const&, Core::Processing::ParserState*)
-  );
-  private: static void _executeElement(
-    TiObject *self, TioSharedPtr const &element, Core::Processing::ParserState *state
+    TiFunctionBase *base, TiObject *self, TioSharedPtr const &data,
+    Core::Processing::Parser *parser, Core::Processing::ParserState *state
   );
 
   /// @}

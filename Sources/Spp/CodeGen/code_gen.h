@@ -14,7 +14,7 @@
 #ifndef SPP_CODEGEN_CODEGEN_H
 #define SPP_CODEGEN_CODEGEN_H
 
-namespace Spp { namespace CodeGen
+namespace Spp::CodeGen
 {
 
 /**
@@ -97,6 +97,26 @@ inline void setCodeGenData(OT *object, SharedPtr<DT> const &data)
   metadata->setExtra(META_EXTRA_CODE_GEN, data);
 }
 
+// removeCodeGenData
+
+template <class OT,
+          typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline void removeCodeGenData(OT *object)
+{
+  object->removeExtra(META_EXTRA_CODE_GEN);
+}
+
+template <class OT,
+          typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline void removeCodeGenData(OT *object)
+{
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
+  if (metadata == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
+  }
+  metadata->removeExtra(META_EXTRA_CODE_GEN);
+}
+
 // didCodeGenFail
 
 template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
@@ -133,7 +153,25 @@ inline void setCodeGenFailed(OT *object, Bool f)
   metadata->setExtra(META_EXTRA_CODE_GEN_FAILED, TiBool::create(f));
 }
 
-} } // namespace
+// resetCodeGenFailed
+
+template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline void resetCodeGenFailed(OT *object)
+{
+  object->removeExtra(META_EXTRA_CODE_GEN_FAILED);
+}
+
+template <class OT, typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline void resetCodeGenFailed(OT *object)
+{
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
+  if (metadata == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
+  }
+  metadata->removeExtra(META_EXTRA_CODE_GEN_FAILED);
+}
+
+} // namespace
 
 
 //==============================================================================
@@ -146,16 +184,17 @@ DEFINE_TYPE_NAME(Spp::CodeGen::TerminalStatement, "alusus.net/Spp/Spp.CodeGen.Te
 //==============================================================================
 // Classes
 
-namespace Spp { namespace CodeGen
+namespace Spp::CodeGen
 {
 
 class Generator;
 
-} }
+}
 
 // Data
 #include "IfTgContext.h"
 #include "LoopTgContext.h"
+#include "GlobalItemRepo.h"
 
 // Interfaces
 #include "TargetGeneration.h"

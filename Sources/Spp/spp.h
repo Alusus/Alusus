@@ -39,6 +39,7 @@ namespace Spp
 
 #include "SeekerExtension.h"
 #include "RootScopeHandlerExtension.h"
+#include "RootManagerExtension.h"
 
 #include "GrammarFactory.h"
 #include "LibraryGateway.h"

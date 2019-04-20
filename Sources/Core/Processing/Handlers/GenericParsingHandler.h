@@ -157,7 +157,7 @@ class GenericParsingHandler : public ParsingHandler
   /// @{
 
   /// Add the given data to the given state level.
-  protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex);
+  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex);
 
   protected: virtual Bool isListObjEnforced(ParserState *state, Int levelIndex);
   protected: virtual Bool isListItemEnforced(ParserState *state, Int levelIndex);

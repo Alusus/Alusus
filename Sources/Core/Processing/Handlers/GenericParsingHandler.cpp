@@ -63,7 +63,7 @@ void GenericParsingHandler::onTermEnd(Parser *parser, ParserState *state)
   while (true) {
     if (this->isRouteTerm(state, levelIndex)) {
       if (this->isRouteObjEnforced(state, levelIndex) ||  state->isAProdRoot(levelIndex)) {
-        this->addData(data, state, levelIndex);
+        this->addData(data, parser, state, levelIndex);
         return;
       } else {
         --levelIndex;
@@ -81,7 +81,7 @@ void GenericParsingHandler::onTermEnd(Parser *parser, ParserState *state)
         --levelIndex;
         continue;
       } else {
-        this->addData(data, state, levelIndex);
+        this->addData(data, parser, state, levelIndex);
       }
     }
     return;
@@ -220,9 +220,9 @@ void GenericParsingHandler::onProdCancelling(Parser *parser, ParserState *state)
 //==============================================================================
 // Member Functions
 
-void GenericParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState *state,
-                                    Int levelIndex)
-{
+void GenericParsingHandler::addData(
+  SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex
+) {
   if (this->isRouteTerm(state, levelIndex)) {
     TiObject *currentData = state->getData(levelIndex).get();
     auto container= ti_cast<Containing<TiObject>>(currentData);

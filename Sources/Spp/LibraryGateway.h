@@ -28,8 +28,10 @@ class LibraryGateway : public Core::Main::LibraryGateway
 
   private: SeekerExtension::Overrides *seekerExtensionOverrides = 0;
   private: RootScopeHandlerExtension::Overrides *rootScopeHandlerExtensionOverrides = 0;
+  private: RootManagerExtension::Overrides *rootManagerExtensionOverrides = 0;
   private: SharedPtr<Ast::Helper> astHelper;
   private: SharedPtr<Ast::NodePathResolver> nodePathResolver;
+  private: SharedPtr<CodeGen::GlobalItemRepo> globalItemRepo;
   private: SharedPtr<CodeGen::MacroProcessor> macroProcessor;
   private: SharedPtr<CodeGen::TypeGenerator> typeGenerator;
   private: SharedPtr<CodeGen::ExpressionGenerator> expressionGenerator;
@@ -54,12 +56,15 @@ class LibraryGateway : public Core::Main::LibraryGateway
   // Member Functions
 
   public: virtual void initialize(Core::Main::RootManager *manager);
-
   public: virtual void uninitialize(Core::Main::RootManager *manager);
 
   private: void createBuiltInTypes(Core::Main::RootManager *manager);
-
   private: void removeBuiltInTypes(Core::Main::RootManager *manager);
+
+  private: void createGlobalDefs(Core::Main::RootManager *manager);
+  private: void removeGlobalDefs(Core::Main::RootManager *manager);
+
+  private: void initializeGlobalItemRepo(Core::Main::RootManager *manager);
 
 }; // class
 

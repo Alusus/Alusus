@@ -18,7 +18,7 @@ namespace Core { namespace Processing { namespace Handlers
 //==============================================================================
 // Overloaded Abstract Functions
 
-void ChainOpParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
+void ChainOpParsingHandler::addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex)
 {
   if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
     if (state->refTermLevel(levelIndex).getPosId() > 1) {
@@ -45,7 +45,7 @@ void ChainOpParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState
       return;
     }
   }
-  GenericParsingHandler::addData(data, state, levelIndex);
+  GenericParsingHandler::addData(data, parser, state, levelIndex);
 }
 
 

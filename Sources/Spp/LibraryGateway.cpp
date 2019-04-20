@@ -32,6 +32,10 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   // Create the preprocessor.
   this->macroProcessor = std::make_shared<CodeGen::MacroProcessor>(this->astHelper.get());
 
+  // Create and initialize global item repo.
+  this->globalItemRepo = std::make_shared<CodeGen::GlobalItemRepo>();
+  this->initializeGlobalItemRepo(manager);
+
   // Create the generator.
   this->typeGenerator = std::make_shared<CodeGen::TypeGenerator>(this->astHelper.get());
   this->expressionGenerator = std::make_shared<CodeGen::ExpressionGenerator>(this->astHelper.get());
@@ -39,6 +43,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->generator = std::make_shared<CodeGen::Generator>(
     manager,
     this->astHelper.get(),
+    this->globalItemRepo.get(),
     this->typeGenerator.get(),
     this->commandGenerator.get(),
     this->expressionGenerator.get()
@@ -47,9 +52,9 @@ void LibraryGateway::initialize(Main::RootManager *manager)
 
   // Extend Core singletons.
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
-  this->rootScopeHandlerExtensionOverrides = RootScopeHandlerExtension::extend(
-    manager->getRootScopeHandler(), manager, this->astHelper, this->macroProcessor,
-    this->generator, this->targetGenerator
+  this->rootScopeHandlerExtensionOverrides = RootScopeHandlerExtension::extend(manager->getRootScopeHandler(), manager);
+  this->rootManagerExtensionOverrides = RootManagerExtension::extend(
+    manager, this->astHelper, this->macroProcessor, this->generator, this->targetGenerator
   );
 
   // Prepare the target generator.
@@ -63,6 +68,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   );
 
   this->createBuiltInTypes(manager);
+  this->createGlobalDefs(manager);
 }
 
 
@@ -73,6 +79,8 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   this->seekerExtensionOverrides = 0;
   RootScopeHandlerExtension::unextend(manager->getRootScopeHandler(), this->rootScopeHandlerExtensionOverrides);
   this->rootScopeHandlerExtensionOverrides = 0;
+  RootManagerExtension::unextend(manager, this->rootManagerExtensionOverrides);
+  this->rootManagerExtensionOverrides = 0;
 
   // Reset generators.
   this->targetGenerator.reset();
@@ -80,6 +88,7 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   this->commandGenerator.reset();
   this->expressionGenerator.reset();
   this->typeGenerator.reset();
+  this->globalItemRepo.reset();
   this->nodePathResolver.reset();
   this->astHelper.reset();
 
@@ -87,6 +96,7 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   GrammarFactory factory;
   factory.cleanGrammar(manager->getRootScope().get());
 
+  this->removeGlobalDefs(manager);
   this->removeBuiltInTypes(manager);
 }
 
@@ -191,6 +201,56 @@ void LibraryGateway::removeBuiltInTypes(Core::Main::RootManager *manager)
 
   identifier.setValue(S("array"));
   manager->getSeeker()->tryRemove(&identifier, root);
+}
+
+
+void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
+{
+  manager->processString(S(R"SRC(
+    module Process {
+     def argCount: Int;
+     def args: ptr[array[ptr[Word[8]]]];
+    };
+    module Core {
+      def rootManager: ptr;
+      def parser: ptr;
+      def noticeStore: ptr;
+      def _dumpLlvmIrForElement: @expname[RootManager_buildElement] function (
+        rootManager: ptr, element: ptr, noticeStore: ptr, parser: ptr
+      );
+      function dumpLlvmIrForElement (element: ptr) {
+        _dumpLlvmIrForElement(rootManager, element, noticeStore, parser);
+      };
+    };
+  )SRC"), S("spp"));
+}
+
+
+void LibraryGateway::removeGlobalDefs(Core::Main::RootManager *manager)
+{
+  Core::Data::Ast::Identifier identifier;
+  auto root = manager->getRootScope().get();
+
+  identifier.setValue(S("Process"));
+  manager->getSeeker()->tryRemove(&identifier, root);
+
+  identifier.setValue(S("Core"));
+  manager->getSeeker()->tryRemove(&identifier, root);
+}
+
+
+void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
+{
+  auto argCount = manager->getProcessArgCount();
+  auto args = manager->getProcessArgs();
+  this->globalItemRepo->addItem(S("Process_argCount"), sizeof(argCount), &argCount);
+  this->globalItemRepo->addItem(S("Process_args"), sizeof(args), &args);
+  this->globalItemRepo->addItem(S("Core_rootManager"), sizeof(void*), &manager);
+  this->globalItemRepo->addItem(S("Core_parser"), sizeof(void*));
+  this->globalItemRepo->addItem(S("Core_noticeStore"), sizeof(void*));
+  this->globalItemRepo->addItem(
+    S("RootManager_buildElement"), (void*)&RootManagerExtension::_dumpLlvmIrForElement
+  );
 }
 
 } // namespace

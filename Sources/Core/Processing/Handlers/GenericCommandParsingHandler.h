@@ -47,7 +47,7 @@ class GenericCommandParsingHandler : public GenericParsingHandler
     Parser *parser, ParserState *state, TioSharedPtr const &modifierData, Bool prodProcessingComplete
   );
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex);
+  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex);
 
   protected: virtual void prepareToModifyData(ParserState *state, Int levelIndex);
 
