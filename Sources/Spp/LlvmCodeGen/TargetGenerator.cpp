@@ -1167,16 +1167,24 @@ Bool TargetGenerator::generateRem(
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
-  PREPARE_ARG(type, tgType, IntegerType);
+  PREPARE_ARG(type, tgType, Type);
 
+  if (tgType->isDerivedFrom<IntegerType>()) {
   llvm::Value *llvmResult;
-  if (tgType->isSigned()) {
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
     llvmResult = block->getIrBuilder()->CreateSRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
   } else {
     llvmResult = block->getIrBuilder()->CreateURem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
   }
   result = std::make_shared<Value>(llvmResult, false);
   return true;
+  } else if (tgType->isDerivedFrom<FloatType>()) {
+    auto llvmResult = block->getIrBuilder()->CreateFRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else {
+    throw EXCEPTION(GenericException, S("Invalid operation."));
+  }
 }
 
 
@@ -1558,13 +1566,19 @@ Bool TargetGenerator::generateRemAssign(
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(destVar, destVarBox, Value);
   PREPARE_ARG(srcVal, srcValBox, Value);
-  PREPARE_ARG(type, tgType, IntegerType);
+  PREPARE_ARG(type, tgType, Type);
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
-  if (tgType->isSigned()) {
+  if (tgType->isDerivedFrom<IntegerType>()) {
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
     llvmResult = block->getIrBuilder()->CreateSRem(llvmVal, srcValBox->getLlvmValue());
   } else {
     llvmResult = block->getIrBuilder()->CreateURem(llvmVal, srcValBox->getLlvmValue());
+  }
+  } else if (tgType->isDerivedFrom<FloatType>()) {
+    llvmResult = block->getIrBuilder()->CreateFRem(llvmVal, srcValBox->getLlvmValue());
+  } else {
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = getSharedPtr(destVar);

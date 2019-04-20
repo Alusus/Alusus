@@ -643,7 +643,7 @@ Bool ExpressionGenerator::_generateOperator(
     else if (infixOp->getType() == S("-")) { funcName = S("__sub"); opType = OpType::ARITHMETIC; }
     else if (infixOp->getType() == S("*")) { funcName = S("__mul"); opType = OpType::ARITHMETIC; }
     else if (infixOp->getType() == S("/")) { funcName = S("__div"); opType = OpType::ARITHMETIC; }
-    else if (infixOp->getType() == S("%")) { funcName = S("__rem"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S("%")) { funcName = S("__rem"); opType = OpType::ARITHMETIC; }
     else if (infixOp->getType() == S(">>")) { funcName = S("__shr"); opType = OpType::BINARY; }
     else if (infixOp->getType() == S("<<")) { funcName = S("__shl"); opType = OpType::BINARY; }
     else if (infixOp->getType() == S("&")) { funcName = S("__and"); opType = OpType::BINARY; }
@@ -660,7 +660,7 @@ Bool ExpressionGenerator::_generateOperator(
     else if (infixOp->getType() == S("-=")) { funcName = S("__subAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
     else if (infixOp->getType() == S("*=")) { funcName = S("__mulAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
     else if (infixOp->getType() == S("/=")) { funcName = S("__divAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
-    else if (infixOp->getType() == S("%=")) { funcName = S("__remAssign"); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == S("%=")) { funcName = S("__remAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
     else if (infixOp->getType() == S(">>=")) { funcName = S("__shrAssign"); opType = OpType::BINARY_ASSIGN; }
     else if (infixOp->getType() == S("<<=")) { funcName = S("__shlAssign"); opType = OpType::BINARY_ASSIGN; }
     else if (infixOp->getType() == S("&=")) { funcName = S("__andAssign"); opType = OpType::BINARY_ASSIGN; }
@@ -928,6 +928,14 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     }
     result.astType = astTargetType;
     return true;
+  } else if (astNode->getType() == S("%")) {
+    if (tgContext != 0) {
+      if (!tg->generateRem(
+        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
+      )) return false;
+    }
+    result.astType = astTargetType;
+    return true;
   } else {
     throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
   }
@@ -990,15 +998,7 @@ Bool ExpressionGenerator::_generateBinaryOp(
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == S("%")) {
-    if (tgContext != 0) {
-      if (!tg->generateRem(
-        tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
-      )) return false;
-    }
-    result.astType = astTargetType;
-    return true;
-  } else if (astNode->getType() == S(">>")) {
+  if (astNode->getType() == S(">>")) {
     if (tgContext != 0) {
       if (!tg->generateShr(
         tgContext, tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
@@ -1344,6 +1344,14 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
     }
     result.astType = astRefType;
     return true;
+  } else if (astNode->getType() == S("%=")) {
+    if (tgContext != 0) {
+      if (!tg->generateRemAssign(
+        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+      )) return false;
+    }
+    result.astType = astRefType;
+    return true;
   } else {
     throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
   }
@@ -1394,15 +1402,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == S("%=")) {
-    if (tgContext != 0) {
-      if (!tg->generateRemAssign(
-        tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
-      )) return false;
-    }
-    result.astType = astRefType;
-    return true;
-  } else if (astNode->getType() == S(">>=")) {
+  if (astNode->getType() == S(">>=")) {
     if (tgContext != 0) {
       if (!tg->generateShrAssign(
         tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
