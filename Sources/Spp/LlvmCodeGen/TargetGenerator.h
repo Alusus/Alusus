@@ -151,6 +151,8 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
     TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
   );
 
+  public: Bool deleteFunction(TiObject *function);
+
   /// @}
 
   /// @name Variable Definition Generation Functions

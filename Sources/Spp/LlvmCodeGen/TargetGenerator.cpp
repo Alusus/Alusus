@@ -43,6 +43,7 @@ void TargetGenerator::initBindings()
   targetGeneration->generateFunctionDecl = &TargetGenerator::generateFunctionDecl;
   targetGeneration->prepareFunctionBody = &TargetGenerator::prepareFunctionBody;
   targetGeneration->finishFunctionBody = &TargetGenerator::finishFunctionBody;
+  targetGeneration->deleteFunction = &TargetGenerator::deleteFunction;
 
   // Variable Definition Generation Functions
   targetGeneration->generateGlobalVariable = &TargetGenerator::generateGlobalVariable;
@@ -394,6 +395,14 @@ Bool TargetGenerator::finishFunctionBody(
   } else {
     return true;
   }
+}
+
+
+Bool TargetGenerator::deleteFunction(TiObject *function)
+{
+  PREPARE_ARG(function, funcWrapper, Box<llvm::Function*>);
+  funcWrapper->get()->eraseFromParent();
+  return true;
 }
 
 
