@@ -35,6 +35,10 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   factory.createGrammar(this->rootScope.get(), this, false);
   factory.createGrammar(this->exprRootScope.get(), this, true);
 
+  this->interactive = false;
+  this->processArgCount = 0;
+  this->processArgs = 0;
+
   // Initialize current paths.
   this->pushSearchPath(getModuleDirectory().c_str());
   this->pushSearchPath((getModuleDirectory()+S("../Lib/")).c_str());
@@ -122,7 +126,7 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename, Bool allowRep
 }
 
 
-SharedPtr<TiObject> RootManager::processStream(InStream *is, Char const *streamName)
+SharedPtr<TiObject> RootManager::processStream(Processing::CharInStreaming *is, Char const *streamName)
 {
   Processing::Engine engine(this->rootScope);
   this->noticeSignal.relay(engine.noticeSignal);
@@ -166,7 +170,7 @@ void RootManager::popSearchPath(Char const *path)
   Str fullPath(path);
   if (fullPath.back() != C('/')) fullPath += C('/');
   // Search for the path to pop.
-  for (Int i = this->searchPaths.size()-1; i >= 0; ++i) {
+  for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
     if (this->searchPaths[i] == fullPath) {
       // Decrement the count and only remove it when it reaches 0.
       --this->searchPathCounts[i];

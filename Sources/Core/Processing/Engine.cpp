@@ -63,14 +63,16 @@ SharedPtr<TiObject> Engine::processFile(Char const *filename)
 {
   // Open the file.
   std::ifstream fin(filename);
+  StdCharInStream finStream(&fin);
+
   if (fin.fail()) {
     throw EXCEPTION(InvalidArgumentException, S("filename"), S("Could not open file."), filename);
   }
-  return this->processStream(&fin, filename);
+  return this->processStream(&finStream, filename);
 }
 
 
-SharedPtr<TiObject> Engine::processStream(InStream *is, Char const *streamName)
+SharedPtr<TiObject> Engine::processStream(CharInStreaming *is, Char const *streamName)
 {
   // Open the file.
   if (is == 0) {
@@ -84,11 +86,10 @@ SharedPtr<TiObject> Engine::processStream(InStream *is, Char const *streamName)
   sourceLocation.filename = std::make_shared<Str>(streamName);
   sourceLocation.line = 1;
   sourceLocation.column = 1;
-  Char c;
-  is->get(c);
-  while (!is->eof()) {
+  Char c = is->get();
+  while (!is->isEof()) {
     lexer.handleNewChar(c, sourceLocation);
-    is->get(c);
+    c = is->get();
   }
 
   auto endLine = sourceLocation.line;
