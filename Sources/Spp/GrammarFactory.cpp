@@ -648,6 +648,16 @@ void GrammarFactory::createGrammar(
     {S("handler"), Spp::Handlers::TildeOpParsingHandler<Spp::Ast::SizeOp>::create() }
   }).get());
   tildeCmdList->add(PARSE_REF(S("module.SizeTilde")));
+  // ~ptr
+  this->set(S("root.Main.AstRefTilde"), SymbolDefinition::create({}, {
+    {S("term"), PARSE_REF(S("root.Cmd"))},
+    {S("vars"), Map::create({}, {
+      {S("kwd"), Map::create({}, { { S("ast"), 0 }, { S("شبم"), 0 } })},
+      {S("prms"), List::create()}
+    })},
+    {S("handler"), Spp::Handlers::TildeOpParsingHandler<Spp::Ast::AstRefOp>::create() }
+  }).get());
+  tildeCmdList->add(PARSE_REF(S("module.AstRefTilde")));
 }
 
 
@@ -663,6 +673,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->remove(S("root.Main.Def.modifierTranslations.مشترك"));
 
   // Remove commands from tilde commands list.
+  this->removeReferenceFromCommandList(tildeCmdList, S("module.AstRefTilde"));
   this->removeReferenceFromCommandList(tildeCmdList, S("module.SizeTilde"));
   this->removeReferenceFromCommandList(tildeCmdList, S("module.CastTilde"));
   this->removeReferenceFromCommandList(tildeCmdList, S("module.ContentTilde"));
@@ -690,6 +701,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.CastTilde"));
   this->tryRemove(S("root.Main.CastSubject"));
   this->tryRemove(S("root.Main.SizeTilde"));
+  this->tryRemove(S("root.Main.AstRefTilde"));
 
   // Delete leading command definitions.
   this->tryRemove(S("root.Main.DumpLlvmIr"));

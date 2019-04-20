@@ -44,6 +44,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateIntUnaryValOp,
     &this->generateUnaryVarOp,
     &this->generatePointerOp,
+    &this->generateAstRefOp,
     &this->generateContentOp,
     &this->generateCastOp,
     &this->generateSizeOp,
@@ -84,6 +85,7 @@ void ExpressionGenerator::initBindings()
   this->generateIntUnaryValOp = &ExpressionGenerator::_generateIntUnaryValOp;
   this->generateUnaryVarOp = &ExpressionGenerator::_generateUnaryVarOp;
   this->generatePointerOp = &ExpressionGenerator::_generatePointerOp;
+  this->generateAstRefOp = &ExpressionGenerator::_generateAstRefOp;
   this->generateContentOp = &ExpressionGenerator::_generateContentOp;
   this->generateCastOp = &ExpressionGenerator::_generateCastOp;
   this->generateSizeOp = &ExpressionGenerator::_generateSizeOp;
@@ -126,6 +128,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Spp::Ast::PointerOp>()) {
     auto pointerOp = static_cast<Spp::Ast::PointerOp*>(astNode);
     return expGenerator->generatePointerOp(pointerOp, g, tg, tgContext, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::AstRefOp>()) {
+    auto astRefOp = static_cast<Spp::Ast::AstRefOp*>(astNode);
+    return expGenerator->generateAstRefOp(astRefOp, g, tg, tgContext, result);
   } else if (astNode->isDerivedFrom<Spp::Ast::ContentOp>()) {
     auto contentOp = static_cast<Spp::Ast::ContentOp*>(astNode);
     return expGenerator->generateContentOp(contentOp, g, tg, tgContext, result);
@@ -1697,6 +1702,43 @@ Bool ExpressionGenerator::_generatePointerOp(
     if (result.astType == 0) return false;
     result.targetData = operandResult.targetData;
     return true;
+  }
+}
+
+
+Bool ExpressionGenerator::_generateAstRefOp(
+  TiObject *self, Spp::Ast::AstRefOp *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // Generate the operand.
+  auto operand = astNode->getOperand().get();
+  if (operand == 0) {
+    throw EXCEPTION(GenericException, S("AstRefOp operand is missing."));
+  }
+  GenResult operandResult;
+  if (!expGenerator->generate(operand, g, tg, tgContext, operandResult)) return false;
+  if (operandResult.astNode != 0) {
+    // We have an AST node.
+    // Generate pointer to void.
+    auto voidType = expGenerator->astHelper->getVoidType();
+    auto voidPtrType = expGenerator->astHelper->getPointerTypeFor(voidType);
+    TiObject *tgVoidPtrType;
+    if (!g->getGeneratedType(voidPtrType, tg, tgVoidPtrType, 0)) {
+      return false;
+    }
+    // Generate a pointer literal.
+    if (!tg->generatePointerLiteral(tgContext, tgVoidPtrType, operandResult.astNode, result.targetData)) {
+      return false;
+    }
+    result.astType = voidPtrType;
+    return true;
+  } else {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::UnsupportedOperationNotice>(astNode->findSourceLocation())
+    );
+    return false;
   }
 }
 

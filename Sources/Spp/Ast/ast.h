@@ -84,6 +84,7 @@ ti_s_enum(DefinitionDomain,
 #include "ContentOp.h"
 #include "CastOp.h"
 #include "SizeOp.h"
+#include "AstRefOp.h"
 // Misc
 #include "ArgPack.h"
 
