@@ -56,8 +56,10 @@ template<class TYPE> class TildeOpParsingHandler : public Core::Processing::Hand
   ) {
   }
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, Core::Processing::ParserState *state, Int levelIndex)
-  {
+  protected: virtual void addData(
+    SharedPtr<TiObject> const &data, Core::Processing::Parser *parser, Core::Processing::ParserState *state,
+    Int levelIndex
+  ) {
     if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
       auto currentData = state->getData(levelIndex).ti_cast_get<TYPE>();
       if (currentData != 0) {
@@ -73,7 +75,7 @@ template<class TYPE> class TildeOpParsingHandler : public Core::Processing::Hand
         return;
       }
     }
-    GenericParsingHandler::addData(data, state, levelIndex);
+    GenericParsingHandler::addData(data, parser, state, levelIndex);
   }
 
 }; // class

@@ -79,9 +79,11 @@ class RootScopeHandler : public TiObject, public virtual DynamicBinding, public 
   /// @{
 
   public: METHOD_BINDING_CACHE(addNewElement,
-    void, (TioSharedPtr const& /* data */, Processing::ParserState* /* state */)
+    void, (TioSharedPtr const& /* data */, Processing::Parser* /* parser */, Processing::ParserState* /* state */)
   );
-  private: static void _addNewElement(TiObject *self, TioSharedPtr const &data, Processing::ParserState *state);
+  private: static void _addNewElement(TiObject *self, TioSharedPtr const &data,
+    Core::Processing::Parser *parser, Processing::ParserState *state
+  );
 
   /// @}
 

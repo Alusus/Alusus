@@ -82,7 +82,7 @@ template<class T> class BindingCache : public BindingCacheBase
     this->set(o);
   }
 
-  public: operator SharedPtr<T> const&() const
+  public: operator SharedPtr<T>() const
   {
     return this->get();
   }
@@ -143,15 +143,6 @@ template<class T> class BindingCache : public BindingCacheBase
     else this->obj = 0;
   }
 
-  public: SharedPtr<T> const& get() const
-  {
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
-    }
-    if (this->index == -1) return SharedPtr<T>::null;
-    else return this->bindingMap->get(this->index);
-  }
-
   public: void set(SharedPtr<T> const &o)
   {
     if (this->index == -1) {
@@ -163,6 +154,24 @@ template<class T> class BindingCache : public BindingCacheBase
       this->bindingMap->set(this->index, o);
     }
     this->obj = o.get();
+  }
+
+  public: void remove()
+  {
+    if (this->index == -1) {
+      if (this->bindingMap == 0) {
+        throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
+      }
+      this->bindingMap->remove(this->name);
+    } else {
+      this->bindingMap->remove(this->index);
+      this->index = -1;
+    }
+  }
+
+  public: SharedPtr<T> get() const
+  {
+    return getSharedPtr(this->obj);
   }
 
 }; // class BindingCache

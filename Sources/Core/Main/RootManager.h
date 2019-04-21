@@ -18,12 +18,22 @@ namespace Core::Main
 
 // TODO: DOC
 
-class RootManager : public TiObject
+class RootManager : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(RootManager, TiObject, "Core.Main", "Core", "alusus.net");
+  TYPE_INFO(RootManager, TiObject, "Core.Main", "Core", "alusus.net", (
+    INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfacing),
+    OBJECT_INTERFACE_LIST(interfaceList)
+  ));
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_DYNAMIC_BINDINGS(bindingMap);
+  IMPLEMENT_DYNAMIC_INTERFACING(interfaceList);
 
 
   //============================================================================
@@ -44,6 +54,7 @@ class RootManager : public TiObject
 
   private: Int minNoticeSeverityEncountered = -1;
 
+  private: Bool interactive;
   private: Int processArgCount;
   private: Char const *const *processArgs;
 
@@ -109,7 +120,7 @@ class RootManager : public TiObject
 
   public: virtual SharedPtr<TiObject> processFile(Char const *filename, Bool allowReprocess = false);
 
-  public: virtual SharedPtr<TiObject> processStream(InStream *is, Char const *streamName);
+  public: virtual SharedPtr<TiObject> processStream(Processing::CharInStreaming *is, Char const *streamName);
 
   public: virtual void pushSearchPath(Char const *path);
 
@@ -117,9 +128,24 @@ class RootManager : public TiObject
 
   public: virtual Str findAbsolutePath(Char const *filename);
 
+  public: void resetMinNoticeSeverityEncountered()
+  {
+    this->minNoticeSeverityEncountered = -1;
+  }
+
   public: Int getMinNoticeSeverityEncountered() const
   {
     return this->minNoticeSeverityEncountered;
+  }
+
+  public: void setInteractive(Bool i)
+  {
+    this->interactive = i;
+  }
+
+  public: Bool isInteractive() const
+  {
+    return this->interactive;
   }
 
   public: void setProcessArgInfo(Int count, Char const *const *args)

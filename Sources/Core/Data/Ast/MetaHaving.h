@@ -101,6 +101,7 @@ class MetaHaving : public TiInterface
   }
 
   public: virtual void setExtra(Char const *name, TioSharedPtr const &obj) = 0;
+  public: virtual void removeExtra(Char const *name) = 0;
   public: virtual TioSharedPtr const& getExtra(Char const *name) const = 0;
 
 }; // class
@@ -138,6 +139,11 @@ class MetaHaving : public TiInterface
   public: virtual void setExtra(Char const *name, TioSharedPtr const &obj) \
   { \
     this->extras.set(name, obj); \
+  } \
+  public: virtual void removeExtra(Char const *name) \
+  { \
+    auto index = this->extras.findIndex(name); \
+    if (index != -1) this->extras.remove(index); \
   } \
   public: virtual TioSharedPtr const& getExtra(Char const *name) const \
   { \

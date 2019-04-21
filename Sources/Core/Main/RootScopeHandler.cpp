@@ -35,8 +35,9 @@ void RootScopeHandler::initBindings()
 //==============================================================================
 // Main Functions
 
-void RootScopeHandler::_addNewElement(TiObject *self, TioSharedPtr const &data, Processing::ParserState *state)
-{
+void RootScopeHandler::_addNewElement(TiObject *self, TioSharedPtr const &data,
+  Processing::Parser *parser, Processing::ParserState *state
+) {
   PREPARE_SELF(rootScopeHandler, RootScopeHandler);
   if (data != 0) {
     Core::Data::Ast::addPossiblyMergeableElement(

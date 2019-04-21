@@ -17,4 +17,5 @@ def FactorialForLoop: module
   };
 };
 
-run FactorialForLoop.start;
+FactorialForLoop.start();
+

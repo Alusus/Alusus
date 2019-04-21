@@ -261,6 +261,11 @@ s_enum(ParsingFlags,
 #include "DecisionNodePool.h"
 #include "Parser.h"
 
+// Streams
+#include "CharInStreaming.h"
+#include "StdCharInStream.h"
+#include "InteractiveCharInStream.h"
+
 // Main Class
 #include "Engine.h"
 

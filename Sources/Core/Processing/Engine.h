@@ -70,7 +70,7 @@ class Engine : public TiObject
   public: SharedPtr<TiObject> processFile(Char const *filename);
 
   /// Parse the given stream and return any resulting parsing data.
-  public: SharedPtr<TiObject> processStream(InStream *is, Char const *streamName);
+  public: SharedPtr<TiObject> processStream(CharInStreaming *is, Char const *streamName);
 
 }; // class
 

@@ -37,8 +37,9 @@ Bool GenericCommandParsingHandler::onIncomingModifier(
 }
 
 
-void GenericCommandParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
-{
+void GenericCommandParsingHandler::addData(
+  SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex
+) {
   if (state->isAProdRoot(levelIndex)) {
     auto command = state->getData(levelIndex).ti_cast_get<Data::Ast::GenericCommand>();
     ASSERT(command != 0);
@@ -48,7 +49,7 @@ void GenericCommandParsingHandler::addData(SharedPtr<TiObject> const &data, Pars
     ASSERT(command != 0);
     command->addArg(data);
   } else {
-    GenericParsingHandler::addData(data, state, levelIndex);
+    GenericParsingHandler::addData(data, parser, state, levelIndex);
   }
 }
 

@@ -39,11 +39,13 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
 
   private: Core::Main::RootManager *rootManager;
   private: Ast::Helper *astHelper;
+  private: GlobalItemRepo *globalItemRepo;
   private: TypeGenerator *typeGenerator;
   private: CommandGenerator *commandGenerator;
   private: ExpressionGenerator *expressionGenerator;
 
   private: Core::Notices::Store *noticeStore = 0;
+  private: Bool offlineExecution = false;
 
 
   //============================================================================
@@ -52,12 +54,14 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
   public: Generator(
     Core::Main::RootManager *manager,
     Ast::Helper *ah,
+    GlobalItemRepo *vr,
     TypeGenerator *tg,
     CommandGenerator *cg,
     ExpressionGenerator *eg
   ) :
     rootManager(manager),
     astHelper(ah),
+    globalItemRepo(vr),
     typeGenerator(tg),
     commandGenerator(cg),
     expressionGenerator(eg)
@@ -72,6 +76,7 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
     this->inheritInterfaces(parent);
     this->rootManager = parent->getRootManager();
     this->astHelper = parent->getAstHelper();
+    this->globalItemRepo = parent->getGlobalItemRepo();
     this->typeGenerator = parent->getTypeGenerator();
     this->commandGenerator = parent->getCommandGenerator();
     this->expressionGenerator = parent->getExpressionGenerator();
@@ -110,6 +115,11 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
     return this->astHelper;
   }
 
+  public: GlobalItemRepo* getGlobalItemRepo() const
+  {
+    return this->globalItemRepo;
+  }
+
   public: TypeGenerator* getTypeGenerator() const
   {
     return this->typeGenerator;
@@ -135,7 +145,7 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
   /// @name Main Operation Functions
   /// @{
 
-  public: void prepareBuild(Core::Processing::ParserState *state);
+  public: void prepareBuild(Core::Notices::Store *noticeStore, Bool offlineExecution);
 
   /// @}
 

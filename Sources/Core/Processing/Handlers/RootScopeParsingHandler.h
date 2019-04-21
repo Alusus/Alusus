@@ -52,7 +52,7 @@ class RootScopeParsingHandler : public GenericParsingHandler
   {
   }
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex);
+  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex);
 
 }; // class
 

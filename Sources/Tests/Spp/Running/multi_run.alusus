@@ -20,5 +20,5 @@ def Main: module
   }
 };
 
-run Main.start1;
-run Main.start2;
+Main.start1();
+Main.start2();

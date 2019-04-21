@@ -74,6 +74,12 @@ void printNotice(Notice const *msg);
 
 
 //==============================================================================
+// Type Names
+
+DEFINE_TYPE_NAME(Core::Notices::Store, "alusus.net/Core/Core.Notices.Store");
+
+
+//==============================================================================
 // Main Classes
 
 #include "L18nDictionary.h"

@@ -49,6 +49,7 @@ class TargetGeneration : public ObjTiInterface
       &this->generateFunctionDecl,
       &this->prepareFunctionBody,
       &this->finishFunctionBody,
+      &this->deleteFunction,
       &this->generateGlobalVariable,
       &this->generateLocalVariable,
       &this->prepareIfStatement,
@@ -215,6 +216,8 @@ class TargetGeneration : public ObjTiInterface
       DynamicContaining<TiObject>* /* args */, TiObject* /* context */
     )
   );
+
+  public: METHOD_BINDING_CACHE(deleteFunction, Bool, (TiObject* /* function */));
 
   /// @}
 

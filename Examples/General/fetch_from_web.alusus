@@ -16,5 +16,5 @@ module Main
   };
 };
 
-run Main.start;
+Main.start();
 

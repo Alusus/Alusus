@@ -2,14 +2,14 @@ import "Srl/Console.alusus";
 
 def PrintArgs: module
 {
-  def start: function (argCount: Int, argv: ptr[array[ptr[Char]]]) => Int
+  def start: function
   {
     def i: Int;
-    for i = 0, i < argCount, ++i {
-      Srl.Console.print("%s\n", argv~cnt(i));
+    for i = 0, i < Process.argCount, ++i {
+      Srl.Console.print("%s\n", Process.args~cnt(i));
     };
-    return 0;
   };
 };
 
-run PrintArgs.start;
+PrintArgs.start();
+

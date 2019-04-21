@@ -1,0 +1,17 @@
+120
+1
+1
+2
+6
+24
+ERROR SPPA1003 @ (13,10): No valid match was found for the given type.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+define void @"fnWithErrors()"() {
+__block0:
+  ret void
+}
+------------------------------------------------------------

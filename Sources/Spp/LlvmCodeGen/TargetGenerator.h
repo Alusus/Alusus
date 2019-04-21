@@ -37,6 +37,7 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
   //============================================================================
   // Member Variables
 
+  private: CodeGen::GlobalItemRepo *globalItemRepo = 0;
   private: Core::Notices::Store *noticeStore = 0;
   private: SharedPtr<ExecutionContext> executionContext;
   private: std::unique_ptr<llvm::Module> llvmModule;
@@ -80,14 +81,26 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
 
   public: void prepareBuild();
 
+  public: void resetBuild();
+
   public: void dumpIr(OutStream &out);
 
-  public: Int execute(Char const *entry, Bool sendArgs, Int argCount, Char const *const *args);
+  public: void execute(Char const *entry);
 
   /// @}
 
   /// @name Property Getters
   /// @{
+
+  public: void setGlobalItemRepo(CodeGen::GlobalItemRepo *vr)
+  {
+    this->globalItemRepo = vr;
+  }
+
+  public: CodeGen::GlobalItemRepo* getGlobalItemRepo() const
+  {
+    return this->globalItemRepo;
+  }
 
   public: void setNoticeStore(Core::Notices::Store *ns)
   {
@@ -150,6 +163,8 @@ class TargetGenerator : public TiObject, public virtual DynamicBinding, public v
   public: Bool finishFunctionBody(
     TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
   );
+
+  public: Bool deleteFunction(TiObject *function);
 
   /// @}
 

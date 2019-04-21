@@ -22,4 +22,4 @@ def Main: module
   }
 };
 
-run Main.start;
+Main.start();

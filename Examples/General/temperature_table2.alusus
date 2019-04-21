@@ -11,4 +11,5 @@ def TemperatureTable2 : module
   }
 };
 
-run TemperatureTable2.start;
+TemperatureTable2.start();
+

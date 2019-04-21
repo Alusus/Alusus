@@ -21,12 +21,13 @@ void RootScopeParsingHandler::onProdStart(Parser *parser, ParserState *state, Da
 }
 
 
-void RootScopeParsingHandler::addData(SharedPtr<TiObject> const &data, ParserState *state, Int levelIndex)
-{
+void RootScopeParsingHandler::addData(
+  SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex
+) {
   if (state->isAProdRoot(levelIndex)) {
-    this->rootScopeHandler->addNewElement(data, state);
+    this->rootScopeHandler->addNewElement(data, parser, state);
   } else {
-    GenericParsingHandler::addData(data, state, levelIndex);
+    GenericParsingHandler::addData(data, parser, state, levelIndex);
   }
 }
 

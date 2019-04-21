@@ -22,4 +22,5 @@ def ArraysFibonacci : module
   }
 };
 
-run ArraysFibonacci.start;
+ArraysFibonacci.start();
+

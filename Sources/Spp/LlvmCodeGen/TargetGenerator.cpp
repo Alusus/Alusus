@@ -43,6 +43,7 @@ void TargetGenerator::initBindings()
   targetGeneration->generateFunctionDecl = &TargetGenerator::generateFunctionDecl;
   targetGeneration->prepareFunctionBody = &TargetGenerator::prepareFunctionBody;
   targetGeneration->finishFunctionBody = &TargetGenerator::finishFunctionBody;
+  targetGeneration->deleteFunction = &TargetGenerator::deleteFunction;
 
   // Variable Definition Generation Functions
   targetGeneration->generateGlobalVariable = &TargetGenerator::generateGlobalVariable;
@@ -146,6 +147,15 @@ void TargetGenerator::prepareBuild()
 }
 
 
+void TargetGenerator::resetBuild()
+{
+  this->llvmModule = std::make_unique<llvm::Module>("AlususProgram", myContext);
+  this->llvmModule->setDataLayout(this->llvmDataLayout->getStringRepresentation());
+  this->blockIndex = 0;
+  this->anonymousVarIndex = 0;
+}
+
+
 void TargetGenerator::dumpIr(OutStream &out)
 {
   if (this->llvmModule == 0) {
@@ -157,7 +167,7 @@ void TargetGenerator::dumpIr(OutStream &out)
 }
 
 
-Int TargetGenerator::execute(Char const *entry, Bool sendArgs, Int argCount, Char const *const *args)
+void TargetGenerator::execute(Char const *entry)
 {
   if (this->llvmModule == 0) {
     throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
@@ -167,21 +177,22 @@ Int TargetGenerator::execute(Char const *entry, Bool sendArgs, Int argCount, Cha
   std::string errorStr;
   engineBuilder.setErrorStr(&errorStr);
   auto ee = engineBuilder.create();
-  auto func = ee->FindFunctionNamed(entry);
 
-  // Prepare function args.
-  std::vector<llvm::GenericValue> argv;
-  if (sendArgs) {
-    llvm::GenericValue genVal1;
-    genVal1.IntVal = llvm::APInt(32, argCount);
-    argv.push_back(genVal1);
-    llvm::GenericValue genVal2;
-    genVal2.PointerVal = (void*)args;
-    argv.push_back(genVal2);
+  // Add global variable mappings.
+  if (this->globalItemRepo != 0) {
+    for (Int i = 0; i < this->globalItemRepo->getItemCount(); ++i) {
+      auto varName = this->globalItemRepo->getItemName(i).c_str();
+      auto varPtr = (uint64_t)this->globalItemRepo->getItemPtr(i);
+      ee->addGlobalMapping(varName, varPtr);
+    }
   }
 
-  auto ret = ee->runFunction(func, argv);
-  return *(ret.IntVal.getRawData());
+  typedef void (*FuncType)();
+  auto funcPtr = (FuncType)ee->getFunctionAddress(entry);
+
+  funcPtr();
+
+  delete ee;
 }
 
 
@@ -397,6 +408,14 @@ Bool TargetGenerator::finishFunctionBody(
 }
 
 
+Bool TargetGenerator::deleteFunction(TiObject *function)
+{
+  PREPARE_ARG(function, funcWrapper, Box<llvm::Function*>);
+  funcWrapper->get()->eraseFromParent();
+  return true;
+}
+
+
 //==============================================================================
 // Variable Definition Generation Functions
 
@@ -404,12 +423,12 @@ Bool TargetGenerator::generateGlobalVariable(
   TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
 ) {
   PREPARE_ARG(type, typeWrapper, Type);
-  PREPARE_ARG(defaultValue, valWrapper, Value);
+  auto valWrapper = ti_cast<Value>(defaultValue);
 
   SharedPtr<Variable> var = std::make_shared<Variable>();
   var->setLlvmGlobalVariable(new llvm::GlobalVariable(
     *(this->llvmModule.get()), typeWrapper->getLlvmType(), false, llvm::GlobalVariable::ExternalLinkage,
-    valWrapper->getLlvmConstant(), name
+    valWrapper != 0 ? valWrapper->getLlvmConstant() : 0, name
   ));
 
   result = var;
@@ -1158,16 +1177,24 @@ Bool TargetGenerator::generateRem(
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
   PREPARE_ARG(srcVal2, srcVal2Box, Value);
-  PREPARE_ARG(type, tgType, IntegerType);
+  PREPARE_ARG(type, tgType, Type);
 
-  llvm::Value *llvmResult;
-  if (tgType->isSigned()) {
-    llvmResult = block->getIrBuilder()->CreateSRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+  if (tgType->isDerivedFrom<IntegerType>()) {
+    llvm::Value *llvmResult;
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateSRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateURem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    }
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->isDerivedFrom<FloatType>()) {
+    auto llvmResult = block->getIrBuilder()->CreateFRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = std::make_shared<Value>(llvmResult, false);
+    return true;
   } else {
-    llvmResult = block->getIrBuilder()->CreateURem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
-  result = std::make_shared<Value>(llvmResult, false);
-  return true;
 }
 
 
@@ -1549,13 +1576,19 @@ Bool TargetGenerator::generateRemAssign(
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(destVar, destVarBox, Value);
   PREPARE_ARG(srcVal, srcValBox, Value);
-  PREPARE_ARG(type, tgType, IntegerType);
+  PREPARE_ARG(type, tgType, Type);
   auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
   llvm::Value *llvmResult;
-  if (tgType->isSigned()) {
-    llvmResult = block->getIrBuilder()->CreateSRem(llvmVal, srcValBox->getLlvmValue());
+  if (tgType->isDerivedFrom<IntegerType>()) {
+    if (static_cast<IntegerType*>(tgType)->isSigned()) {
+      llvmResult = block->getIrBuilder()->CreateSRem(llvmVal, srcValBox->getLlvmValue());
+    } else {
+      llvmResult = block->getIrBuilder()->CreateURem(llvmVal, srcValBox->getLlvmValue());
+    }
+  } else if (tgType->isDerivedFrom<FloatType>()) {
+    llvmResult = block->getIrBuilder()->CreateFRem(llvmVal, srcValBox->getLlvmValue());
   } else {
-    llvmResult = block->getIrBuilder()->CreateURem(llvmVal, srcValBox->getLlvmValue());
+    throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = getSharedPtr(destVar);

@@ -88,6 +88,12 @@ class Store
     this->notices.erase(this->notices.begin(), this->notices.begin()+count);
   }
 
+  // Reset the minimum severity (most severe) that has been encountered so far.
+  public: void resetMinEncounteredSeverity()
+  {
+    this->minEncounteredSeverity = -1;
+  }
+
   // Get the minimum severity (most severe) that has been encountered so far.
   public: Int getMinEncounteredSeverity() const
   {

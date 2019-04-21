@@ -147,6 +147,7 @@ int main(int argCount, char * const args[])
     try {
       // Prepare the root object;
       Main::RootManager root;
+      root.setInteractive(true);
       root.setProcessArgInfo(argCount, args);
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
@@ -157,7 +158,8 @@ int main(int argCount, char * const args[])
       root.noticeSignal.connect(noticeSlot);
 
       // Parse the standard input stream.
-      root.processStream(&inStream, S("user input"));
+      Processing::InteractiveCharInStream charStream;
+      root.processStream(&charStream, S("user input"));
     } catch (Exception &e) {
       outStream << e.getVerboseErrorMessage() << NEW_LINE;
       return EXIT_FAILURE;

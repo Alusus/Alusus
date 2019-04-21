@@ -100,4 +100,4 @@ def Main: module
   };
 };
 
-dump_llvm_ir Main;
+Core.dumpLlvmIrForElement(Main~ast);
