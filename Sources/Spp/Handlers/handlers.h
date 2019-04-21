@@ -33,7 +33,6 @@ namespace Spp { namespace Handlers
 #include "IfParsingHandler.h"
 #include "WhileParsingHandler.h"
 #include "ForParsingHandler.h"
-#include "CodeGenParsingHandler.h"
 #include "TildeOpParsingHandler.h"
 #include "MacroParsingHandler.h"
 #include "ModuleParsingHandler.h"

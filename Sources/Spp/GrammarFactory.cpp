@@ -39,48 +39,6 @@ void GrammarFactory::createGrammar(
   // Add translation for shared modifier.
   this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("shared")));
 
-  //// DumpIr = "dump_ir" + Subject
-  this->set(S("root.Main.DumpLlvmIr"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("dump_llvm_ir"), 0 }, { S("أدرج_ت_و"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Expression"))},
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("handler"), std::make_shared<Handlers::CodeGenParsingHandler>(
-      manager, astHelper, macroProcessor, generator, targetGenerator, false
-    )}
-  }).get());
-  leadingCmdList->add(PARSE_REF(S("module.DumpLlvmIr")));
-
-  //// run = "run" + Subject
-  this->set(S("root.Main.Run"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("run"), 0 }, { S("نفّذ"), 0 }, { S("نفذ"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Expression"))},
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("handler"), std::make_shared<Handlers::CodeGenParsingHandler>(
-      manager, astHelper, macroProcessor, generator, targetGenerator, true
-    )}
-  }).get());
-  leadingCmdList->add(PARSE_REF(S("module.Run")));
-
   //// if = "if" + Expression + Statement + ("else" + Statement)*(0, 1)
   this->set(S("root.Main.If"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.MultiCmd"))},
@@ -680,8 +638,6 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->removeReferenceFromCommandList(tildeCmdList, S("module.PointerTilde"));
 
   // Remove commands from leading commands list.
-  this->removeReferenceFromCommandList(leadingCmdList, S("module.DumpLlvmIr"));
-  this->removeReferenceFromCommandList(leadingCmdList, S("module.Run"));
   this->removeReferenceFromCommandList(leadingCmdList, S("module.If"));
   this->removeReferenceFromCommandList(leadingCmdList, S("module.While"));
   this->removeReferenceFromCommandList(leadingCmdList, S("module.For"));
@@ -704,8 +660,6 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.AstRefTilde"));
 
   // Delete leading command definitions.
-  this->tryRemove(S("root.Main.DumpLlvmIr"));
-  this->tryRemove(S("root.Main.Run"));
   this->tryRemove(S("root.Main.If"));
   this->tryRemove(S("root.Main.While"));
   this->tryRemove(S("root.Main.For"));
