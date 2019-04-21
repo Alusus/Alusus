@@ -57,14 +57,14 @@ void RootScopeHandlerExtension::_addNewElement(
     auto rootManagerExt = ti_cast<RootManagerExtension>(rootManager);
 
     // Set global noticeStore var.
-    auto globalNoticeStoreIndex = rootManagerExt->generator->getGlobalItemRepo()->findItem(S("Core_noticeStore"));
+    auto globalNoticeStoreIndex = rootManagerExt->generator->getGlobalItemRepo()->findItem(S("Core.noticeStore"));
     if (globalNoticeStoreIndex == -1) {
       throw EXCEPTION(GenericException, S("Core.noticeStore global variable is missing from the global repo."));
     }
     auto globalNoticeStore = rootManagerExt->generator->getGlobalItemRepo()->getItemPtr(globalNoticeStoreIndex);
     *((Core::Notices::Store**)globalNoticeStore) = state->getNoticeStore();
     // Set global parser var.
-    auto globalParserIndex = rootManagerExt->generator->getGlobalItemRepo()->findItem(S("Core_parser"));
+    auto globalParserIndex = rootManagerExt->generator->getGlobalItemRepo()->findItem(S("Core.parser"));
     if (globalParserIndex == -1) {
       throw EXCEPTION(GenericException, S("Core.parser global variable is missing from the global repo."));
     }

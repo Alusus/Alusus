@@ -21,4 +21,4 @@ def Main: module
   }
 };
 
-dump_llvm_ir Main.start;
+Core.dumpLlvmIrForElement(Main.start~ast);

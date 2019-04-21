@@ -1,3 +1,4 @@
+ERROR SPPG1002 @ (3,1): Invalid operation.
 ------------------ Parsed Data Dump ------------------
 Scope [Statements.StmtList]
  List [Expression.ListExp]

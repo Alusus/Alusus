@@ -31,6 +31,7 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   extension->macroProcessor = macroProcessor;
   extension->generator = generator;
   extension->targetGenerator = targetGenerator;
+  extension->rootStmtTgFunc = TioSharedPtr::null;
   overrides->executeRootElementRef = extension->executeRootElement.set(
     &RootManagerExtension::_executeRootElement
   ).get();
@@ -53,6 +54,7 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
   extension->macroProcessor.remove();
   extension->generator.remove();
   extension->targetGenerator.remove();
+  extension->rootStmtTgFunc.remove();
   rootManager->removeDynamicInterface<RootManagerExtension>();
   delete overrides;
 }
@@ -114,15 +116,18 @@ void RootManagerExtension::_executeRootElement(
     if (!rootManagerExt->targetGenerator->generateFunctionDecl(funcName, tgFuncType.get(), tgFunc)) {
       throw EXCEPTION(GenericException, S("Failed to generate function declaration for root scope statement."));
     }
+    rootManagerExt->rootStmtTgFunc = tgFunc;
     SharedList<TiObject> args;
     TioSharedPtr context;
-    if (!rootManagerExt->targetGenerator->prepareFunctionBody(tgFunc.get(), tgFuncType.get(), &args, context)) {
+    if (!rootManagerExt->targetGenerator->prepareFunctionBody(
+      rootManagerExt->rootStmtTgFunc.get().get(), tgFuncType.get(), &args, context)
+    ) {
       throw EXCEPTION(GenericException, S("Failed to generate function body for root scope statement."));
     }
     CodeGen::TerminalStatement terminal;
     result = generation->generateStatement(element.get(), targetGeneration, context.get(), terminal);
     if (!rootManagerExt->targetGenerator->finishFunctionBody(
-      tgFunc.get(), tgFuncType.get(), &args, context.get()
+      rootManagerExt->rootStmtTgFunc.get().get(), tgFuncType.get(), &args, context.get()
     )) {
       throw EXCEPTION(GenericException, S("Failed to finalize function body for root scope statement."));
     }
@@ -134,9 +139,12 @@ void RootManagerExtension::_executeRootElement(
       rootManagerExt->targetGenerator->execute(funcName);
     }
 
-    // Delete the function.
-    if (!rootManagerExt->targetGenerator->deleteFunction(tgFunc.get())) {
-      throw EXCEPTION(GenericException, S("Failed to delete root statement function."));
+    // Delete the function if it wasn't already deleted automatically.
+    if (rootManagerExt->rootStmtTgFunc != 0) {
+      if (!rootManagerExt->targetGenerator->deleteFunction(rootManagerExt->rootStmtTgFunc.get().get())) {
+        throw EXCEPTION(GenericException, S("Failed to delete root statement function."));
+      }
+      rootManagerExt->rootStmtTgFunc = TioSharedPtr::null;
     }
   }
 }
@@ -152,6 +160,7 @@ void RootManagerExtension::_dumpLlvmIrForElement(
   auto root = rootManager->getRootScope().get();
   rootManagerExt->resetBuildData(root);
   rootManagerExt->targetGenerator->resetBuild();
+  rootManagerExt->rootStmtTgFunc = TioSharedPtr::null;
 
   // Preprocessing.
   rootManagerExt->macroProcessor->preparePass(noticeStore);

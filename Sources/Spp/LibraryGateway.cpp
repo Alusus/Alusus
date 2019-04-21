@@ -243,11 +243,11 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
 {
   auto argCount = manager->getProcessArgCount();
   auto args = manager->getProcessArgs();
-  this->globalItemRepo->addItem(S("Process_argCount"), sizeof(argCount), &argCount);
-  this->globalItemRepo->addItem(S("Process_args"), sizeof(args), &args);
-  this->globalItemRepo->addItem(S("Core_rootManager"), sizeof(void*), &manager);
-  this->globalItemRepo->addItem(S("Core_parser"), sizeof(void*));
-  this->globalItemRepo->addItem(S("Core_noticeStore"), sizeof(void*));
+  this->globalItemRepo->addItem(S("Process.argCount"), sizeof(argCount), &argCount);
+  this->globalItemRepo->addItem(S("Process.args"), sizeof(args), &args);
+  this->globalItemRepo->addItem(S("Core.rootManager"), sizeof(void*), &manager);
+  this->globalItemRepo->addItem(S("Core.parser"), sizeof(void*));
+  this->globalItemRepo->addItem(S("Core.noticeStore"), sizeof(void*));
   this->globalItemRepo->addItem(
     S("RootManager_buildElement"), (void*)&RootManagerExtension::_dumpLlvmIrForElement
   );

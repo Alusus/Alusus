@@ -53,7 +53,8 @@ class RootManagerExtension : public ObjTiInterface
       &this->astHelper,
       &this->macroProcessor,
       &this->generator,
-      &this->targetGenerator
+      &this->targetGenerator,
+      &this->rootStmtTgFunc
     });
   }
 
@@ -65,6 +66,7 @@ class RootManagerExtension : public ObjTiInterface
   public: BINDING_CACHE(macroProcessor, CodeGen::MacroProcessor);
   public: BINDING_CACHE(generator, CodeGen::Generator);
   public: BINDING_CACHE(targetGenerator, LlvmCodeGen::TargetGenerator);
+  public: BINDING_CACHE(rootStmtTgFunc, TiObject);
 
 
   //============================================================================

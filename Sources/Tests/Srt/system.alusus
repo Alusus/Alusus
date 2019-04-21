@@ -32,4 +32,4 @@ def System: module
   };
 };
 
-run System.start;
+System.start();

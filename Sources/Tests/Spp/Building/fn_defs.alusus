@@ -15,4 +15,4 @@ def Main: module
   def h: function (a: ptr[Int[32]])=>Int[32];
 };
 
-dump_llvm_ir Main;
+Core.dumpLlvmIrForElement(Main~ast);

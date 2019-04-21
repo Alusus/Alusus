@@ -151,6 +151,8 @@ void TargetGenerator::resetBuild()
 {
   this->llvmModule = std::make_unique<llvm::Module>("AlususProgram", myContext);
   this->llvmModule->setDataLayout(this->llvmDataLayout->getStringRepresentation());
+  this->blockIndex = 0;
+  this->anonymousVarIndex = 0;
 }
 
 

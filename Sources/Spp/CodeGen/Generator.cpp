@@ -277,9 +277,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
     if (generator->getAstHelper()->getDefinitionDomain(definition) == Ast::DefinitionDomain::GLOBAL) {
       // Generate a global or a static variable.
-      Str name = std::regex_replace(
-        generator->getAstHelper()->resolveNodePath(definition), std::regex("[^a-zA-Z0-9_]"), S("_")
-      );
+      Str name = generator->getAstHelper()->resolveNodePath(definition);
       TioSharedPtr tgGlobalVar;
       if (generator->offlineExecution) {
         // Generate the default value.

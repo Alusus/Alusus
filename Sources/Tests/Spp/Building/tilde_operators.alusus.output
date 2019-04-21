@@ -23,8 +23,8 @@ source_filename = "AlususProgram"
 
 @__anonymous0 = private constant [8 x i8] c"i = %d\0A\00", align 1
 @__anonymous1 = private constant [13 x i8] c"pi~cnt = %d\0A\00", align 1
-@Other_i = global i32 0
-@Other_pi = global i32* null
+@Other.i = global i32 0
+@Other.pi = global i32* null
 @__anonymous2 = private constant [8 x i8] c"f = %f\0A\00", align 1
 @__anonymous3 = private constant [24 x i8] c"f~cast[Float[64]] = %f\0A\00", align 1
 @__anonymous4 = private constant [16 x i8] c"Main~size = %d\0A\00", align 1
@@ -73,8 +73,8 @@ __block0:
   %18 = load i32*, i32** %17
   %19 = load i32, i32* %18
   store i32 %19, i32* %i
-  store i32* @Other_i, i32** %pi
-  %20 = load i32*, i32** @Other_pi
+  store i32* @Other.i, i32** %pi
+  %20 = load i32*, i32** @Other.pi
   store i32 10, i32* %20
   ret void
 }
@@ -116,7 +116,7 @@ __block1:
   store float %18, float* %f
   %19 = load float, float* %f
   %20 = load float, float* %f
-  %21 = load i32, i32* @Other_i
+  %21 = load i32, i32* @Other.i
   %22 = sitofp i32 %21 to float
   store float %22, float* %f
   ret void
