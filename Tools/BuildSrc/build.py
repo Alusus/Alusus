@@ -362,8 +362,8 @@ def build_libzip():
             if ret != 0:
                 failMsg("Building libzip.")
                 exit(1)
-    except (OSError, subprocess.CalledProcessError) as Error:
-        failMsg("LIPZIP " + Error.__str__())
+    except (OSError, subprocess.CalledProcessError):
+        failMsg("Building libzip.")
         exit(1)
     successMsg("Building libzip.")
     os.chdir(old_path)
