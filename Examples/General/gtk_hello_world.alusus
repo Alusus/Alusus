@@ -66,5 +66,5 @@ def HelloWorld: module
   };
 };
 
-run HelloWorld.start;
+HelloWorld.start();
 

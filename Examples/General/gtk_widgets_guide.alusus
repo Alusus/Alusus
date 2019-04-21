@@ -241,5 +241,5 @@ module WidgetGuide
   };
 };
 
-run WidgetGuide.start;
+WidgetGuide.start();
 

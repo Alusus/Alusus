@@ -42,4 +42,5 @@ def UserInput: module
   }
 };
 
-run UserInput.start;
+UserInput.start();
+

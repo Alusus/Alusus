@@ -17,4 +17,5 @@ def UserTypes: module
   }
 };
 
-run UserTypes.start;
+UserTypes.start();
+

@@ -20,4 +20,5 @@ def FactorialWhileLoop: module
   }
 };
 
-run FactorialWhileLoop.start;
+FactorialWhileLoop.start();
+

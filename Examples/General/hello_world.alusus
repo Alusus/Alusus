@@ -1,11 +1,3 @@
 import "Srl/Console.alusus";
+Srl.Console.print("Hello World!\n");
 
-module HelloWorld
-{
-  function start
-  {
-    Srl.Console.print("Hello World!\n");
-  };
-};
-
-run HelloWorld.start;

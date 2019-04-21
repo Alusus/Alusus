@@ -22,4 +22,5 @@ def TemperatureTable1: module
   }
 };
 
-run TemperatureTable1.start;
+TemperatureTable1.start();
+
