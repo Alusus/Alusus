@@ -4,6 +4,7 @@ import os
 import multiprocessing
 import shutil
 import tarfile
+from zipfile import ZipFile
 import subprocess
 import platform
 from version_info import get_version_info
@@ -31,6 +32,8 @@ LLVM_SRC_URL = "http://releases.llvm.org/7.0.1/llvm-7.0.1.src.tar.xz"
 LLVM_NAME = "llvm-7.0.1"
 LIBCURL_SRC_URL="https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.xz"
 LIBCURL_NAME="curl-7.64.1"
+LIBZIP_SRC_URL="https://github.com/kuba--/zip/archive/v0.1.14.zip"
+LIBZIP_NAME="zip-0.1.14"
 
 # Build Args
 MAKE_THREAD_COUNT = multiprocessing.cpu_count()
@@ -281,10 +284,96 @@ def build_libcurl():
     os.chdir(old_path)
 
 
+def build_libzip():
+    global BUILD_PATH
+    global DEPS_PATH
+    global LIBZIP_NAME
+    global LIBZIP_SRC_URL
+    global MAKE_THREAD_COUNT
+    global INSTALL_PATH
+
+    try:
+        os.makedirs(BUILD_PATH)
+    except OSError:
+        pass
+
+    try:
+        os.makedirs(DEPS_PATH)
+    except OSError:
+        pass
+
+    old_path = os.path.realpath(os.getcwd())
+    os.chdir(DEPS_PATH)
+
+    if not os.path.exists(os.path.join(LIBZIP_NAME, "EXTRACTED")):
+        if not os.path.exists(LIBZIP_NAME + ".zip"):
+            wget.download(LIBZIP_SRC_URL)
+        with ZipFile(file=LIBZIP_NAME + ".zip", mode="r") as zip:
+            infoMsg("Extracting libzip sources...")
+            zip.extractall()
+        os.remove(LIBZIP_NAME + ".zip")
+        with open(os.path.join(LIBZIP_NAME, "EXTRACTED"), "w") as fd:
+            fd.write("LIBZIP EXTRACTED CHECKER")
+        infoMsg("Finished extracting libzip sources.")
+    else:
+        infoMsg("libzip sources are already available.")
+
+    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", "libzip.so")):
+        infoMsg("libzip is already built and installed.")
+        successMsg("Building libzip.")
+        return
+
+    os.chdir(LIBZIP_NAME)
+
+    try:
+        if THIS_SYSTEM == "Windows":
+            # TODO: Build libzip for windows.
+            raise NotImplementedError("Building libzip for Windows OS is not implemented yet!")
+        else:
+            if not os.path.exists(os.path.join(DEPS_PATH, LIBZIP_NAME, "build")):
+                try:
+                    os.mkdir(os.path.join(DEPS_PATH, LIBZIP_NAME, "build"))
+                except:
+                    failMsg("Cannot make \"" + os.path.join(DEPS_PATH, LIBZIP_NAME, "build") + "\" directory.")
+                    exit(1)
+            
+            os.chdir("build")
+
+            ret = subprocess.call(["cmake", "-DBUILD_SHARED_LIBS=true", ".."])
+            if ret != 0:
+                failMsg("Building libzip.")
+                exit(1)
+            ret = subprocess.call("make -j{}".format(MAKE_THREAD_COUNT).split())
+            if ret != 0:
+                failMsg("Building libzip.")
+                exit(1)
+
+            if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib")):
+                try:
+                    os.mkdir(os.path.join(os.path.realpath(INSTALL_PATH), "Lib"))
+                except:
+                    failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), "Lib") + "\" directory.")
+                    exit(1)
+
+            shutil.copy2(
+                os.path.join(DEPS_PATH, LIBZIP_NAME, "build", "libzip.so"),
+                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", "libzip.so")
+            )
+            if ret != 0:
+                failMsg("Building libzip.")
+                exit(1)
+    except (OSError, subprocess.CalledProcessError) as Error:
+        failMsg("LIPZIP " + Error.__str__())
+        exit(1)
+    successMsg("Building libzip.")
+    os.chdir(old_path)
+
+
 def prep_debs():
     infoMsg("Preparing dependencies...")
     build_llvm()
     build_libcurl()
+    build_libzip()
     successMsg("Building dependencies.")
 
 
