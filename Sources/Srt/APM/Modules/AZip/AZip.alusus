@@ -1,0 +1,33 @@
+import "Srl/Console.alusus";
+import "Srl/Fs.alusus";
+import "libzip.so";
+
+def AZip: module {
+    def zip_t: type {};
+    def _zip_extract: @expname[zip_extract] function(filename: ptr[array[Char]], extractDirectory: ptr[array[Char]], callbackFunction: ptr[function (ptr[array[Char]], Int)], arguments: Int) => Int;
+    def _zip_entry_open: @expname[zip_entry_open] function(archive: ptr[zip_t], filename: ptr[array[Char]]);
+    def _zip_entry_write: @expname[zip_entry_write] function(archive: ptr[zip_t], content: ptr[array[Char]], contentLength: Int);
+    def _zip_entry_close: @expname[zip_entry_close] function(archive: ptr[zip_t]);
+    def _zip_close: @expname[zip_close] function(archive: ptr[zip_t]) => Int;
+    def _zip_open: @expname[zip_open] function(filename: ptr[array[Char]], level: Int, extractType: array[Char]) => ptr[zip_t];
+
+    def extractZipFile: function(filename: ptr[array[Char]], extractDirectory: ptr[array[Char]], callbackFunction: ptr[function (ptr[array[Char]], Int)], arguments: Int) => Int {
+        return _zip_extract(filename, extractDirectory, callbackFunction, arguments);
+    };
+
+    def createZipFile: function(filename: ptr[array[Char]], files: ptr[array[ptr[array[Char]]]], filesCount: Int, extractType: ptr[array[Char]]) => Int {
+        def openZip: ptr[zip_t];
+        openZip = _zip_open(filename, 6, extractType~cnt);
+
+        def i: int;
+        def outFileResult: ptr[array[Char]];
+        def outFileCount: Int;
+        for i=0, i<filesCount, i++ {
+            _zip_entry_open(openZip, files~cnt(i));
+            Srl.Fs.readFile(files~cnt(i), outFileResult~ptr~cast[ptr[ptr]], outFileCount~ptr);
+            _zip_entry_write(openZip, outFileResult, outFileCount);
+            _zip_entry_close(openZip);
+        };
+        return _zip_close(openZip);
+    };
+};

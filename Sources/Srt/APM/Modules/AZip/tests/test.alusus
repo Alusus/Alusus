@@ -1,0 +1,25 @@
+import "Srl/Console.alusus";
+import "../AZip.alusus";
+
+
+def TestModule: module {
+    def start: function {
+        // -- ZIP (compress)
+        // list of files 
+        def arr: array[ptr[array[Char]], 1];
+        arr(0) = "assets/hello_world.md";
+        // AZip.createZipFile(filename: ptr[Char], files: ptr[array[ptr[Char]]], filesCount: Int, extractType: ptr[Char])
+        AZip.createZipFile("./test_archive.zip", arr~ptr, 1, "w");
+
+        // -- UNZIP (uncompress)
+        // extract "./test_archive.zip" archive contents to "./test_output_from_archive" directory
+        // AZip.extractZipFile(filename: ptr[Char], extractDirectory: ptr[Char], callbackFunction: ptr[function (ptr[Char], Int)], arguments: Int)
+        AZip.extractZipFile("./test_archive.zip", "./test_output_from_archive", onExtractZip~ptr, 1);
+    };
+    def onExtractZip: function(filename: ptr[array[Char]], args: Int) {
+        Srl.Console.print(filename);
+        Srl.Console.print("\n");
+    };
+};
+
+run TestModule.start;

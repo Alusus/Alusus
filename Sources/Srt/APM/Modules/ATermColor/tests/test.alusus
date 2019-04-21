@@ -1,0 +1,14 @@
+import "Srl/Console.alusus";
+import "../ATermColor.alusus";
+
+def TestModule: module {
+    def start: function {
+        Srl.Console.print(ATermColor.underscore());
+        Srl.Console.print("%sATerm", ATermColor.bgGreen());
+        Srl.Console.print("%sColor\n", ATermColor.italic());
+        Srl.Console.print(ATermColor.reset());
+        Srl.Console.print("%sHello", ATermColor.bgBlue());
+    };
+};
+
+run TestModule.start;

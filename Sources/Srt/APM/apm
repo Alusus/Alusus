@@ -1,0 +1,129 @@
+#!/usr/bin/env alusus
+import "Srl/Console.alusus";
+import "Srl/System.alusus";
+import "Srl/String.alusus";
+import "Srl/Net.alusus";
+import "Srl/Fs.alusus";
+import "APM/Modules/ATermColor/ATermColor.alusus";
+import "APM/Modules/AZip/AZip.alusus";
+
+module APMModule {
+    use Srl;
+    def moduleName: array[Char, 250];
+    def moduleAuthor: array[Char, 250];
+    def moduleReleaseTag: array[Char, 250];
+
+    func start(argCount: Int, argv: ptr[array[ptr[Char]]]): Int {
+        if (argCount >= 3 && String.compare(argv~cnt(2), "install") == 0) {
+            if(argCount >= 4) {
+                installLatestRelease(argv~cnt(3)~cast[ptr[array[Char]]]);
+            } else {
+                Console.print("%suse: apm install <author>/<package>@<release>\n", ATermColor.fgRed());
+            }
+        }else{
+            Console.print("%sCommands:- \n", ATermColor.fgGreen());
+            Console.print("%sapm install <author>/<package>@<release>\n", ATermColor.fgYellow());
+        };
+
+        return 0;
+    };
+
+    func installLatestRelease(package: ptr[array[Char]]): Void {
+        def result: ptr[array[Char]];
+        def size: Int;
+        if (String.findChar(package,'@') != 0){
+            String.scan(package, "%[^/]/%[^@]@%s", moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr);
+            def requestUrl: array[Char, 500];
+            String.print(requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr);
+            Net.get(requestUrl~ptr, result~ptr, size~ptr);
+            urlRequestCallbackWithoutReleaseName(result, size);
+        }else{
+            String.scan(package, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
+            def requestUrl: array[Char, 500];
+            String.print(requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr);
+            Console.print("%sFetching %s info from: %s\n", ATermColor.fgBlue(), moduleName~ptr, requestUrl~ptr);
+            if Net.get(requestUrl~ptr, result~ptr, size~ptr) {
+              Console.print("%sFetching successful.\n", ATermColor.fgBlue()); 
+            } else {
+              Console.print("%sFetched failed\n", ATermColor.fgRed());
+            };
+            urlRequestCallback(result, size);
+        }
+    };
+
+    func urlRequestCallback(result: ptr[array[Char]], size: Int): Void {
+        def matches: ptr[String.RegexMatches] = String.regex("https://github.com/([^/]*)/([^/].*)/releases/tag/([^\"]*)\",", result, 1);
+        if matches~cnt.count >= 2 {
+            String.print(moduleAuthor~ptr, "%s", matches~cnt.matches(1)~ptr);
+            String.print(moduleName~ptr, "%s", matches~cnt.matches(2)~ptr);
+            String.print(moduleReleaseTag~ptr, "%s", matches~cnt.matches(3)~ptr);
+            downloadToModules(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr);
+        }else{
+            String.print("%scannot find the latest release", ATermColor.fgRed());
+        };
+
+        Memory.free(matches);
+    };
+
+    func urlRequestCallbackWithoutReleaseName(result: ptr, size: Int): Void {
+        def matches: ptr[String.RegexMatches] = String.regex("https://github.com/(.*)/(.*)/releases/tag/(.*)\",", result~cast[ptr[array[Char]]], 1);
+        if matches~cnt.count >= 2 {
+            String.print(moduleAuthor~ptr, "%s", matches~cnt.matches(1)~ptr);
+            String.print(moduleName~ptr, "%s", matches~cnt.matches(2)~ptr);
+            downloadToModules(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr);
+        }else{
+            String.print("%scannot find the latest release", ATermColor.fgRed());
+        };
+
+        Memory.free(matches);
+    };
+
+    func downloadToModules(moduleAuthor: ptr[array[Char]], moduleName: ptr[array[Char]], moduleReleaseTag: ptr[array[Char]]): Bool {
+        def downloadLink: array[Char, 100];
+        def folderInTempDirectory: array[Char, 16000];
+        def outToAPMModulesDirectory: array[Char, 16000];
+        def execCopyCommand: array[Char, 16000];
+        String.print(folderInTempDirectory~ptr, "/tmp/temp_zip/%s-%s", moduleName, moduleReleaseTag);
+        String.print(outToAPMModulesDirectory~ptr, "./APM_MODULES/%s", moduleName);
+        String.print(execCopyCommand~ptr, "cp -rf %s %s", folderInTempDirectory~ptr, outToAPMModulesDirectory~ptr);
+        String.print(downloadLink~ptr, "https://github.com/%s/%s/archive/%s.zip", moduleAuthor, moduleName, moduleReleaseTag);
+        if (Fs.exists(outToAPMModulesDirectory~ptr)){
+            Console.print("%s%s is already installed.\n", ATermColor.fgRed(), outToAPMModulesDirectory~ptr);
+            return 0;
+        };
+        Console.print("%sInstalling %s v%s\n", ATermColor.fgBlue(), moduleName, moduleReleaseTag);
+        Console.print("%sRequest %s\n", ATermColor.fgBlue(), downloadLink~ptr);
+        Console.print("%sDownloading %s to /tmp/temp.zip\n", ATermColor.fgYellow(), downloadLink~ptr);
+        if(Net.get(downloadLink~ptr, "/tmp/temp.zip")){
+            Console.print("%sDownloaded temp.zip\n", ATermColor.fgBlue());
+            Console.print("%sunzip temp.zip to /tmp/temp_zip/\n", ATermColor.fgBlue());
+            if(AZip.extractZipFile("/tmp/temp.zip", "/tmp/temp_zip", onExtractZip~ptr, 1) == 0){
+                Console.print("%stemp.zip extracted.\n", ATermColor.fgBlue());
+                if(Fs.exists("APM_MODULES") || Fs.makeDir("APM_MODULES")){
+                    Console.print("%s/APM_MODULES created.\n", ATermColor.fgBlue());
+                    Console.print("%smove module to APM_MODULES.\n", ATermColor.fgBlue());
+                    Console.print("%scopy from %s to %s.\n", ATermColor.fgYellow(), folderInTempDirectory~ptr, outToAPMModulesDirectory~ptr);
+                    if(System.exec(execCopyCommand~ptr) == 0){
+                        Console.print("%smoved to APM_MODULES.\n", ATermColor.fgGreen());
+                        Console.print("%s%s Installed.\n", ATermColor.fgGreen(), moduleName);
+                    }else{
+                        Console.print("%scannot move module to APM_MODULES.\n", ATermColor.fgRed());
+                    };
+                }else{
+                    Console.print("%scannot create APM_MODULES.\n", ATermColor.fgRed());
+                };
+            }else{
+                Console.print("%scannot extract temp.zip.\n", ATermColor.fgRed());
+            };
+        }else{
+            Console.print("%scannot get %s.\n", ATermColor.fgRed(), downloadLink~ptr);
+        };
+        return 0;
+    };
+
+    func onExtractZip(filename: ptr[array[Char]], args: Int): Void {
+        Console.print("%sextracted %s\n", ATermColor.fgGreen(), filename);
+    };
+};
+
+APMModule.start(Process.argCount,Process.args);
