@@ -26,7 +26,7 @@ namespace Core { namespace Data { namespace Ast
  * GenericParsingHandler to compose the parsed tree.
  */
 class Token : public Node,
-              public virtual Binding, public virtual MetaHaving, public virtual Clonable, public virtual Printable
+              public Binding, public MetaHaving, public Clonable, public Printable
 {
   //============================================================================
   // Type Info

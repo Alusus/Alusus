@@ -16,7 +16,7 @@
 namespace Core { namespace Data
 {
 
-class Seeker : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class Seeker : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info

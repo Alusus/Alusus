@@ -24,7 +24,7 @@ namespace Core::Data::Grammar
  *
  * This class handles instances of character groups in grammar formulas.
  */
-class CharGroupTerm : public Term, public virtual DataHaving
+class CharGroupTerm : public Term, public DataHaving
 {
   //============================================================================
   // Type Info

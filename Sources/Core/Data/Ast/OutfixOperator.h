@@ -19,7 +19,7 @@ namespace Core::Data::Ast
 // TODO: DOC
 
 class OutfixOperator : public Node,
-                       public virtual Binding, public virtual MapContaining<TiObject>, public virtual MetaHaving
+                       public Binding, public MapContaining<TiObject>, public MetaHaving
 {
   //============================================================================
   // Type Info
@@ -104,7 +104,7 @@ class OutfixOperator : public Node,
 // Macros
 
 #define DEFINE_AST_OUTFIX_OPERATOR(X) \
-  class X : public OutfixOperator, public virtual Clonable, public virtual Printable \
+  class X : public OutfixOperator, public Clonable, public Printable \
   { \
     TYPE_INFO(X, OutfixOperator, "Core.Data.Ast", "Core", "alusus.net"); \
     IMPLEMENT_INTERFACES_2(OutfixOperator, Clonable, Printable); \

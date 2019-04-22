@@ -16,7 +16,7 @@
 namespace Core::Data::Grammar
 {
 
-class List : public NbList, public virtual Binding, public virtual Inheriting
+class List : public NbList, public Binding, public Inheriting
 {
   //============================================================================
   // Type Info

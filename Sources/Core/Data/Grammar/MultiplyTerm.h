@@ -31,7 +31,7 @@ namespace Core::Data::Grammar
  * Priority can be specified manually, but by default it's for taking the
  * branch rather than quiting the branch.
  */
-class MultiplyTerm : public Term, public virtual DataHaving, public virtual MapContaining<TiObject>
+class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObject>
 {
   //============================================================================
   // Type Info

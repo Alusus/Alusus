@@ -16,7 +16,7 @@
 namespace Core::Main
 {
 
-class RootScopeHandler : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class RootScopeHandler : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info

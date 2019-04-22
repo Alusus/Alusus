@@ -16,7 +16,7 @@
 namespace Core::Data::Grammar
 {
 
-class ParsingDimension : public Node, public virtual Binding
+class ParsingDimension : public Node, public Binding
 {
   //============================================================================
   // Type Info

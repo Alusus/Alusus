@@ -19,7 +19,7 @@ namespace Core::Data
 /**
  * @brief A stack of TiObject derived data objects.
  */
-class DataStack : public TiObject, public virtual DynamicContaining<TiObject>
+class DataStack : public TiObject, public DynamicContaining<TiObject>
 {
   //============================================================================
   // Type Info

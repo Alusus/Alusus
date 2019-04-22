@@ -16,7 +16,7 @@
 namespace Spp { namespace Ast
 {
 
-class Helper : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info

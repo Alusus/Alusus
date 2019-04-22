@@ -16,7 +16,7 @@
 namespace Core::Data::Grammar
 {
 
-class Map : public NbMap, public virtual Binding, public virtual Inheriting
+class Map : public NbMap, public Binding, public Inheriting
 {
   //============================================================================
   // Type Info

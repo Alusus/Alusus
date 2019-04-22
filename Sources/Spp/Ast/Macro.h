@@ -17,9 +17,9 @@ namespace Spp::Ast
 {
 
 class Macro : public Core::Data::Node,
-              public virtual Binding, public virtual MapContaining<TiObject>,
-              public virtual Core::Data::Ast::MetaHaving,
-              public virtual Core::Data::Clonable, public virtual Core::Data::Printable
+              public Binding, public MapContaining<TiObject>,
+              public Core::Data::Ast::MetaHaving,
+              public Core::Data::Clonable, public Core::Data::Printable
 {
   //============================================================================
   // Type Info

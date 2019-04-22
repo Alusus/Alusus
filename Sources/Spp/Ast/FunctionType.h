@@ -16,7 +16,7 @@
 namespace Spp::Ast
 {
 
-class FunctionType : public Type, public virtual MapContaining<TiObject>
+class FunctionType : public Type, public MapContaining<TiObject>
 {
   //============================================================================
   // Type Info

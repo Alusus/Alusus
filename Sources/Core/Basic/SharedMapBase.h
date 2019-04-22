@@ -16,7 +16,7 @@
 namespace Core::Basic
 {
 
-template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public virtual DynamicMapContaining<CTYPE>
+template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public DynamicMapContaining<CTYPE>
 {
   //============================================================================
   // Type Info

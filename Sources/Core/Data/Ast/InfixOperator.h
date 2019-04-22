@@ -19,8 +19,8 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class InfixOperator : public Node,
-                      public virtual Binding, public virtual MapContaining<TiObject>, public virtual MetaHaving,
-                      public virtual Clonable, public virtual Printable
+                      public Binding, public MapContaining<TiObject>, public MetaHaving,
+                      public Clonable, public Printable
 {
   //============================================================================
   // Type Info
@@ -130,7 +130,7 @@ class InfixOperator : public Node,
 // Macros
 
 #define DEFINE_AST_INFIX_OPERATOR(X) \
-  class X : public InfixOperator, public virtual Clonable, public virtual Printable \
+  class X : public InfixOperator \
   { \
     TYPE_INFO(X, InfixOperator, "Core.Data.Ast", "Core", "alusus.net"); \
     IMPLEMENT_INTERFACES_2(InfixOperator, Clonable, Printable); \

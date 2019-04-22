@@ -16,7 +16,7 @@
 namespace Spp { namespace LlvmCodeGen
 {
 
-class TargetGenerator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class TargetGenerator : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info

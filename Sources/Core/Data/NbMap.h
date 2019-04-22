@@ -16,7 +16,7 @@
 namespace Core::Data
 {
 
-class NbMap : public SharedMapBase<TiObject, Node>, public virtual DataHaving
+class NbMap : public SharedMapBase<TiObject, Node>, public DataHaving
 {
   //============================================================================
   // Type Info

@@ -18,7 +18,7 @@ namespace Core::Data
 
 // TODO: DOC
 
-class VariableStack : public TiObject, public virtual DynamicMapContaining<TiObject>
+class VariableStack : public TiObject, public DynamicMapContaining<TiObject>
 {
   //============================================================================
   // Type Info

@@ -16,7 +16,7 @@
 namespace Spp { namespace Ast
 {
 
-class NodePathResolver : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class NodePathResolver : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info

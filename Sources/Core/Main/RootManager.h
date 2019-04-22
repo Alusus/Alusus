@@ -18,7 +18,7 @@ namespace Core::Main
 
 // TODO: DOC
 
-class RootManager : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class RootManager : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info

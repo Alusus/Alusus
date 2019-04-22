@@ -18,7 +18,7 @@ namespace Spp::Ast
 
 using namespace Core;
 
-class Module : public Block, public virtual Core::Data::Ast::Mergeable
+class Module : public Block, public Core::Data::Ast::Mergeable
 {
   //============================================================================
   // Type Info

@@ -19,8 +19,8 @@ namespace Core::Data::Grammar
 // TODO: DOC
 
 class SymbolDefinition : public Node,
-                         public virtual Binding, public virtual MapContaining<TiObject>,
-                         public virtual Inheriting, public virtual IdHaving, public virtual DataHaving
+                         public Binding, public MapContaining<TiObject>,
+                         public Inheriting, public IdHaving, public DataHaving
 {
   //============================================================================
   // Type Info

@@ -18,7 +18,7 @@ namespace Core::Data::Grammar
 
 // TODO: DOC
 
-class ReferenceTerm : public Term, public virtual DataHaving
+class ReferenceTerm : public Term, public DataHaving
 {
   //============================================================================
   // Type Info

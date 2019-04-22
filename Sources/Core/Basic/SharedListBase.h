@@ -16,7 +16,7 @@
 namespace Core::Basic
 {
 
-template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public virtual DynamicContaining<CTYPE>
+template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public DynamicContaining<CTYPE>
 {
   //============================================================================
   // Type Info

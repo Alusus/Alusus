@@ -17,8 +17,8 @@ namespace Core { namespace Data { namespace Ast
 {
 
 class Alias : public Node,
-              public virtual Binding, public virtual MapContaining<TiObject>, public virtual MetaHaving,
-              public virtual Clonable, public virtual Printable
+              public Binding, public MapContaining<TiObject>, public MetaHaving,
+              public Clonable, public Printable
 {
   //============================================================================
   // Type Info
