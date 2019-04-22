@@ -58,9 +58,10 @@ void NodePathResolver::_resolve(TiObject *self, Core::Data::Node const *node, He
   } else if (node->isDerivedFrom<Spp::Ast::FunctionType>()) {
     auto funcType = static_cast<Spp::Ast::FunctionType const*>(node);
     resolver->resolveFunctionType(funcType, helper, path);
-  } else if (node->isDerivedFrom<Spp::Ast::Block>() &&
-             Basic::isDerivedFrom<Spp::Ast::Template>(node->getOwner())) {
-    auto block = static_cast<Spp::Ast::Block const*>(node);
+  } else if (
+    node->isDerivedFrom<Core::Data::Ast::Scope>() && Basic::isDerivedFrom<Spp::Ast::Template>(node->getOwner())
+  ) {
+    auto block = static_cast<Core::Data::Ast::Scope const*>(node);
     resolver->resolveTemplateInstance(block, helper, path);
   } else {
     NodePathResolver::_resolve(self, node->getOwner(), helper, path);
@@ -127,7 +128,7 @@ void NodePathResolver::_resolveFunctionArg(TiObject *self, TiObject *arg, Helper
 
 
 void NodePathResolver::_resolveTemplateInstance(
-  TiObject *self, Spp::Ast::Block const *block, Helper *helper, StrStream &path
+  TiObject *self, Core::Data::Ast::Scope const *block, Helper *helper, StrStream &path
 ) {
   PREPARE_SELF(resolver, NodePathResolver);
   auto tmplt = static_cast<Spp::Ast::Template*>(block->getOwner());

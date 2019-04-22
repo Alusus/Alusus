@@ -124,8 +124,10 @@ Bool CommandGenerator::_generateIfStatement(
 
   // Generate ifBody.
   TerminalStatement terminalBody = TerminalStatement::UNKNOWN;
-  if (ifBody->isDerivedFrom<Ast::Block>()) {
-    if (!g->generateStatements(static_cast<Ast::Block*>(ifBody), tg, ifTgContext->getBodyContext(), terminalBody)) {
+  if (ifBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    if (!g->generateStatements(
+      static_cast<Core::Data::Ast::Scope*>(ifBody), tg, ifTgContext->getBodyContext(), terminalBody)
+    ) {
       return false;
     }
   } else {
@@ -137,8 +139,10 @@ Bool CommandGenerator::_generateIfStatement(
   // Generate elseBody, if needed.
   TerminalStatement terminalElse = TerminalStatement::UNKNOWN;
   if (elseBody != 0) {
-    if (elseBody->isDerivedFrom<Ast::Block>()) {
-      if (!g->generateStatements(static_cast<Ast::Block*>(elseBody), tg, ifTgContext->getElseContext(), terminalElse)) {
+    if (elseBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
+      if (!g->generateStatements(
+        static_cast<Core::Data::Ast::Scope*>(elseBody), tg, ifTgContext->getElseContext(), terminalElse)
+      ) {
         return false;
       }
     } else {
@@ -178,9 +182,11 @@ Bool CommandGenerator::_generateWhileStatement(
 
   // Generate body.
   auto body = astNode->getBody().get();
-  if (body->isDerivedFrom<Ast::Block>()) {
+  if (body->isDerivedFrom<Core::Data::Ast::Scope>()) {
     TerminalStatement terminal;
-    if (!g->generateStatements(static_cast<Ast::Block*>(body), tg, loopTgContext->getBodyContext(), terminal)) {
+    if (!g->generateStatements(
+      static_cast<Core::Data::Ast::Scope*>(body), tg, loopTgContext->getBodyContext(), terminal)
+    ) {
       return false;
     }
   } else {
@@ -227,9 +233,11 @@ Bool CommandGenerator::_generateForStatement(
 
   // Generate body.
   auto body = astNode->getBody().get();
-  if (body->isDerivedFrom<Ast::Block>()) {
+  if (body->isDerivedFrom<Core::Data::Ast::Scope>()) {
     TerminalStatement terminal;
-    if (!g->generateStatements(static_cast<Ast::Block*>(body), tg, loopTgContext->getBodyContext(), terminal)) {
+    if (!g->generateStatements(
+      static_cast<Core::Data::Ast::Scope*>(body), tg, loopTgContext->getBodyContext(), terminal)
+    ) {
       return false;
     }
   } else {

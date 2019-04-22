@@ -29,6 +29,16 @@ def Other2: module
   }
 };
 
+def Other4: module
+{
+  def printRootUseStatement: function
+  {
+    Std.printf("Root Use Statement\n");
+  }
+};
+
+use Other4;
+
 def Main: module
 {
   def Other3: module {
@@ -50,6 +60,7 @@ def Main: module
     printStatement();
     printExclamation();
     printNewLine();
+    printRootUseStatement();
   };
 };
 

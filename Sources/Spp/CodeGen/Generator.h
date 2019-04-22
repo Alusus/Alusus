@@ -167,7 +167,8 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   );
 
   private: static Bool _generateStatements(
-    TiObject *self, Spp::Ast::Block *astBlock, TargetGeneration *tg, TiObject *tgContext, TerminalStatement &terminal
+    TiObject *self, Core::Data::Ast::Scope *astBlock, TargetGeneration *tg, TiObject *tgContext,
+    TerminalStatement &terminal
   );
 
   private: static Bool _generateStatement(

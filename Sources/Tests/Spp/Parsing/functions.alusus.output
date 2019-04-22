@@ -11,7 +11,7 @@ Function f1 [Main.Function]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Identifier]
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
@@ -21,7 +21,7 @@ Function  [Main.Function]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Identifier]
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
@@ -31,7 +31,7 @@ Function  [Main.Function]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Identifier]
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
@@ -41,7 +41,7 @@ Function  [Main.Function]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Identifier]
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
@@ -51,7 +51,7 @@ Function  [Main.Function]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Identifier]
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 FunctionType [Main.Function]
@@ -79,7 +79,7 @@ Function  [Main.Function]
   argTypes: Map
    __0: Identifier: x [Subject.Identifier]
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
@@ -92,7 +92,7 @@ Function  [Main.Function]
     first: Identifier: Module [Subject.Identifier]
     second: Identifier: Type [Subject.Identifier]
   retType: NULL
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Scope [Statements.StmtList]
@@ -110,13 +110,13 @@ Scope [Statements.StmtList]
   type: FunctionType [Main.Function]
    argTypes: NULL
    retType: NULL
-  body: Block [Main.BlockStatements.StmtList]
+  body: Scope [Statements.StmtList]
  Definition [Main.Function] f15: Function  [Main.Function]
   type: FunctionType [Main.Function]
    argTypes: Map
     x: Identifier: Int [Subject.Identifier]
    retType: Identifier: Int [Subject.Identifier]
-  body: Block [Main.BlockStatements.StmtList]
+  body: Scope [Statements.StmtList]
  Definition [Main.Function] f16
   modifiers:
    Identifier: shared [Subject.Identifier]
@@ -124,7 +124,7 @@ Scope [Statements.StmtList]
     type: FunctionType [Main.Function]
      argTypes: NULL
      retType: NULL
-    body: Block [Main.BlockStatements.StmtList]
+    body: Scope [Statements.StmtList]
  Definition [Main.Function] f17: FunctionType [Main.Function]
   argTypes: Map
    __0: Identifier: Int [Subject.Identifier]

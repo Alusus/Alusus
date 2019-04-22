@@ -31,7 +31,7 @@ TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
     }
   }
   // No default instance was found, create a new one.
-  auto block = std::make_shared<Block>();
+  auto block = std::make_shared<Core::Data::Ast::Scope>();
   block->add(this->templateBody->clone());
   this->instances.push_back(block);
   block->setOwner(this);
@@ -60,7 +60,7 @@ Bool Template::matchInstance(TiObject *templateInput, Helper *helper, TioSharedP
     }
   }
   // No instance was found, create a new one.
-  auto block = std::make_shared<Block>();
+  auto block = std::make_shared<Core::Data::Ast::Scope>();
   block->add(this->templateBody->clone());
   if (!this->assignTemplateVars(templateInput, block.get(), helper, notice)) {
     result = notice;
@@ -74,7 +74,7 @@ Bool Template::matchInstance(TiObject *templateInput, Helper *helper, TioSharedP
 
 
 Bool Template::matchTemplateVars(
-  TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
+  TiObject *templateInput, Core::Data::Ast::Scope *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
 ) {
   auto list = ti_cast<Core::Data::Ast::List>(templateInput);
   if (list != 0 && list->getCount() > this->varDefs.size()) {
@@ -101,7 +101,7 @@ Bool Template::matchTemplateVars(
 
 
 Bool Template::matchTemplateVar(
-  TiObject *templateInput, Block *instance, Int varIndex, Helper *helper,
+  TiObject *templateInput, Core::Data::Ast::Scope *instance, Int varIndex, Helper *helper,
   SharedPtr<Core::Notices::Notice> &notice
 ) {
   switch (this->varDefs[varIndex].type.val) {
@@ -162,7 +162,7 @@ Bool Template::matchTemplateVar(
 
 
 Bool Template::assignTemplateVars(
-  TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
+  TiObject *templateInput, Core::Data::Ast::Scope *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
 ) {
   auto list = ti_cast<Core::Data::Ast::List>(templateInput);
   if (list != 0 && list->getCount() > this->varDefs.size()) {
@@ -200,7 +200,7 @@ Bool Template::assignTemplateVars(
 }
 
 
-TiObject* Template::getTemplateVar(Block const *instance, Char const *name)
+TiObject* Template::getTemplateVar(Core::Data::Ast::Scope const *instance, Char const *name)
 {
   for (Int i = 0; i < instance->getCount(); ++i) {
     auto def = ti_cast<Core::Data::Ast::Definition>(instance->getElement(i));

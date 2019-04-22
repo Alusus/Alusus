@@ -8,7 +8,7 @@ Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: NULL
   retType: Identifier: Void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
   Definition [Main.Def] i: ParamPass [] [Expression.ParamPassExp]
    operand: Identifier: Int [Subject.Identifier]
    param: IntegerLiteral: 32 [Subject.Literal]

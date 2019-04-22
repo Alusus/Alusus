@@ -42,12 +42,12 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   Core::Data::Ast::Identifier *defName = 0;
   SharedPtr<Core::Data::Ast::Map> args;
   TioSharedPtr retType;
-  Spp::Ast::Block *body = 0;
+  Core::Data::Ast::Scope *body = 0;
 
   for (Int i = 1; i < expr->getElementCount(); ++i) {
     auto obj = expr->getElement(i);
-    if (obj->isDerivedFrom<Spp::Ast::Block>()) {
-      body = static_cast<Spp::Ast::Block*>(obj);
+    if (obj->isDerivedFrom<Core::Data::Ast::Scope>()) {
+      body = static_cast<Core::Data::Ast::Scope*>(obj);
     } else if (obj->isDerivedFrom<Core::Data::Ast::Identifier>()) {
       defName = static_cast<Core::Data::Ast::Identifier*>(obj);
     } else if (obj->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {

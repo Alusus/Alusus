@@ -91,7 +91,7 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateStatements,
     Bool, (
-      Spp::Ast::Block* /* astBlock */, TargetGeneration* /* tg */, TiObject* /* tgContext */,
+      Core::Data::Ast::Scope* /* astBlock */, TargetGeneration* /* tg */, TiObject* /* tgContext */,
       TerminalStatement& /* terminal */
     )
   );

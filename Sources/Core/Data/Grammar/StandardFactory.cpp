@@ -2027,6 +2027,7 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
           PARSE_REF(S("module.Do")),
           PARSE_REF(S("module.Import")),
           PARSE_REF(S("module.Def")),
+          PARSE_REF(S("module.Use")),
           PARSE_REF(S("module.DumpAst"))
         })}
       })}
@@ -2088,28 +2089,51 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
 
     //// Def = "def" + Subject
     this->set(S("root.Main.Def"), SymbolDefinition::create({}, {
-      { S("term"), PARSE_REF(S("root.Cmd")) },
-      {
-        S("vars"), Map::create({}, {
-          { S("kwd"), Map::create({}, { { S("def"), 0 }, { S("عرّف"), 0 }, { S("عرف"), 0 } }) },
-          {
-            S("prms"), List::create({}, {
-              Map::create({}, {
-                {S("prd"), PARSE_REF(S("module.Expression"))},
-                {S("min"), std::make_shared<TiInt>(1)},
-                {S("max"), std::make_shared<TiInt>(1)},
-                {S("pty"), std::make_shared<TiInt>(1)},
-                {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-              })
-            })
-          }
-        })
-      },
+      {S("term"), PARSE_REF(S("root.Cmd")) },
+      {S("vars"), Map::create({}, {
+        {S("kwd"), Map::create({}, { { S("def"), 0 }, { S("عرّف"), 0 }, { S("عرف"), 0 } }) },
+        {S("prms"), List::create({}, {
+          Map::create({}, {
+            {S("prd"), PARSE_REF(S("module.Expression"))},
+            {S("min"), std::make_shared<TiInt>(1)},
+            {S("max"), std::make_shared<TiInt>(1)},
+            {S("pty"), std::make_shared<TiInt>(1)},
+            {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
+          })
+        })}
+      })},
       {S("modifierTranslations"), Map::create({}, {
         {S("دمج"), TiStr::create(S("merge"))}
       })},
       {S("handler"), std::make_shared<DefParsingHandler>()}
     }));
+
+    //// use = "use" + Expression
+    this->set(S("root.Main.Use"), SymbolDefinition::create({}, {
+      {S("term"), PARSE_REF(S("root.Cmd"))},
+      {S("vars"), Map::create({}, {
+        {S("kwd"), Map::create({}, { { S("use"), 0 }, { S("استخدم"), 0 } })},
+        {S("prms"), List::create({}, {
+          Map::create({}, {
+            {S("prd"), PARSE_REF(S("module.Expression"))},
+            {S("min"), std::make_shared<TiInt>(1)},
+            {S("max"), std::make_shared<TiInt>(1)},
+            {S("pty"), std::make_shared<TiInt>(1)},
+            {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
+          })
+        })}
+      })},
+      {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+        auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
+        auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+        auto bridge = Data::Ast::Bridge::create({
+          {S("prodId"), metadata->getProdId()},
+          {S("sourceLocation"), metadata->findSourceLocation()}
+        });
+        bridge->setTarget(getSharedPtr(currentList->getElement(1)));
+        state->setData(bridge);
+      })}
+    }).get());
 
     //// dump = "dump" + Subject
     this->set(S("root.Main.DumpAst"), SymbolDefinition::create({}, {

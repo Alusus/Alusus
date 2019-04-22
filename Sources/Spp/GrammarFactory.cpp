@@ -284,8 +284,6 @@ void GrammarFactory::createGrammar(
   }).get());
   this->set(S("root.Main.ModuleStatements"), Module::create({
     {S("baseRef"), PARSE_REF(S("module.Statements"))}
-  }, {
-    {S("cmdGrp"), PARSE_REF(S("module.owner.LeadingBlockCmdGrp"))},
   }));
   this->set(S("root.Main.ModuleStatements.StmtList"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.StmtList"))},
@@ -477,13 +475,7 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.BlockStatements"), Module::create({
     {S("baseRef"), PARSE_REF(S("module.Statements"))}
   }, {
-    {S("cmdGrp"), PARSE_REF(S("module.owner.LeadingBlockCmdGrp"))},
     {S("expression"), PARSE_REF(S("module.owner.BlockExpression"))}
-  }));
-  this->set(S("root.Main.BlockStatements.StmtList"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.StmtList"))},
-  }, {
-    {S("handler"), ScopeParsingHandler<Spp::Ast::Block>::create() }
   }));
   // BlockSubject
   this->set(S("root.Main.BlockSubject"), Module::create({
@@ -497,49 +489,6 @@ void GrammarFactory::createGrammar(
   }, {
     {S("subject"), PARSE_REF(S("module.owner.BlockSubject"))}
   }).get());
-
-  // Create block leading commands.
-
-  //// use = "use" + Expression
-  this->set(S("root.Main.Use"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("use"), 0 }, { S("استخدم"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Expression"))},
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
-      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
-      auto useStatement = Ast::UseStatement::create({
-        { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->findSourceLocation() }
-      });
-      useStatement->setTarget(getSharedPtr(currentList->getElement(1)));
-      state->setData(useStatement);
-    })}
-  }).get());
-
-  // LeadingBlockCmdGrp
-  this->set(S("root.Main.LeadingBlockCmdGrp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("module.LeadingCmdGrp"))}
-  }, {
-    {S("vars"), Map::create({}, {
-      {S("prods"), TioSharedPtr::null}
-    })}
-  }));
-  this->set(S("root.Main.LeadingBlockCmdGrp.vars.prods"), List::create({
-    {S("baseRef"), PARSE_REF(S("module.LeadingCmdGrp.vars.prods"))}
-  }, {
-    PARSE_REF(S("module.Use"))
-  }));
 
   // Create tilde commands.
 
@@ -683,10 +632,6 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.BlockStatements"));
   this->tryRemove(S("root.Main.BlockSubject"));
   this->tryRemove(S("root.Main.BlockExpression"));
-
-  // Delete block leading commands.
-  this->tryRemove(S("root.Main.LeadingBlockCmdGrp"));
-  this->tryRemove(S("root.Main.Use"));
 }
 
 

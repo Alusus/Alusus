@@ -18,12 +18,12 @@ namespace Spp::Ast
 
 using namespace Core;
 
-class Module : public Block, public Core::Data::Ast::Mergeable
+class Module : public Core::Data::Ast::Scope, public Core::Data::Ast::Mergeable
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Module, Block, "Spp.Ast", "Spp", "alusus.net", (
+  TYPE_INFO(Module, Core::Data::Ast::Scope, "Spp.Ast", "Spp", "alusus.net", (
     INHERITANCE_INTERFACES(Core::Data::Ast::Mergeable)
   ));
 

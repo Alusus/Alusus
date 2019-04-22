@@ -384,6 +384,26 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
       }
     }
   }
+
+  PREPARE_SELF(seeker, Seeker);
+
+  if (!(flags & Seeker::Flags::SKIP_USES)) {
+    for (Int i = 0; i < scope->getBridgeCount(); ++i) {
+      auto bridgeRef = scope->getBridge(i);
+      // If the thing we are looking for is actually this bridgeRef, then we need to skip, otherwise we end up in
+      // an infinite loop.
+      if (bridgeRef->getTarget() == identifier) continue;
+      verb = seeker->foreach(bridgeRef->getTarget().get(), scope,
+        [=](TiObject *o, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
+          if (o != 0) return seeker->foreachByIdentifier_level(identifier, o, cb, flags);
+          else return Core::Data::Seeker::Verb::MOVE;
+        },
+        flags | Seeker::Flags::SKIP_USES
+      );
+      if (!Seeker::isMove(verb)) return verb;
+    }
+  }
+
   return verb;
 }
 

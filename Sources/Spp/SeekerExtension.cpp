@@ -30,8 +30,6 @@ SeekerExtension::Overrides* SeekerExtension::extend(Core::Data::Seeker *seeker, 
   overrides->foreachRef = seeker->foreach.set(&SeekerExtension::_foreach).get();
   overrides->foreachByIdentifier_levelRef =
     seeker->foreachByIdentifier_level.set(&SeekerExtension::_foreachByIdentifier_level).get();
-  overrides->foreachByIdentifier_blockRef =
-    extension->foreachByIdentifier_block.set(&SeekerExtension::_foreachByIdentifier_block).get();
   overrides->foreachByIdentifier_functionRef =
     extension->foreachByIdentifier_function.set(&SeekerExtension::_foreachByIdentifier_function).get();
   overrides->foreachByIdentifier_dataTypeRef =
@@ -53,7 +51,6 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
   seeker->foreach.reset(overrides->foreachRef);
   seeker->foreachByIdentifier_level.reset(overrides->foreachByIdentifier_levelRef);
   extension->astHelper = SharedPtr<Ast::Helper>::null;
-  extension->foreachByIdentifier_block.reset(overrides->foreachByIdentifier_blockRef);
   extension->foreachByIdentifier_function.reset(overrides->foreachByIdentifier_functionRef);
   extension->foreachByIdentifier_dataType.reset(overrides->foreachByIdentifier_dataTypeRef);
   extension->foreachByParamPass.reset(overrides->foreachByParamPassRef);
@@ -86,10 +83,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_level(
   TiFunctionBase *base, TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
   Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
-  if (data->isDerivedFrom<Ast::Block>()) {
-    PREPARE_SELF(seekerExtension, SeekerExtension);
-    return seekerExtension->foreachByIdentifier_block(identifier, static_cast<Ast::Block*>(data), cb, flags);
-  } else if (data->isDerivedFrom<Ast::Function>()) {
+  if (data->isDerivedFrom<Ast::Function>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
     return seekerExtension->foreachByIdentifier_function(identifier, static_cast<Ast::Function*>(data), cb, flags);
   } else if (data->isDerivedFrom<Ast::DataType>()) {
@@ -99,34 +93,6 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_level(
     PREPARE_SELF(seeker, Core::Data::Seeker);
     return seeker->foreachByIdentifier_level.useCallee(base)(identifier, data, cb, flags);
   }
-}
-
-
-Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_block(
-  TiObject *self, Data::Ast::Identifier const *identifier, Ast::Block *block,
-  Core::Data::Seeker::ForeachCallback const &cb, Word flags
-) {
-  PREPARE_SELF(seeker, Core::Data::Seeker);
-  Core::Data::Seeker::Verb verb = seeker->foreachByIdentifier_scope(identifier, block, cb, flags);
-  if (!Core::Data::Seeker::isMove(verb)) return verb;
-
-  if (!(flags & SeekerExtension::Flags::SKIP_USES)) {
-    for (Int i = 0; i < block->getUseStatementCount(); ++i) {
-      auto useRef = block->getUseStatement(i);
-      // If the thing we are looking for is actually this useRef, then we need to skip, otherwise we end up in
-      // an infinite loop.
-      if (useRef->getTarget() == identifier) continue;
-      verb = seeker->foreach(useRef->getTarget().get(), block,
-        [=](TiObject *o, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
-          if (o != 0) return seeker->foreachByIdentifier_level(identifier, o, cb, flags);
-          else return Core::Data::Seeker::Verb::MOVE;
-        },
-        flags | SeekerExtension::Flags::SKIP_USES
-      );
-      if (!Core::Data::Seeker::isMove(verb)) return verb;
-    }
-  }
-  return verb;
 }
 
 

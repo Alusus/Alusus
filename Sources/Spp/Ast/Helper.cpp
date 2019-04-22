@@ -165,7 +165,11 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
       calleeType = f->getType().get();
       matchStatus = ms;
     } else if (ms == matchStatus) {
-      if (Core::Data::findOwner<Block>(static_cast<Core::Data::Node*>(callee)) == Core::Data::findOwner<Block>(f)) {
+      if (
+        f != callee &&
+        Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(callee))
+        == Core::Data::findOwner<Core::Data::Ast::Scope>(f)
+      ) {
         callee = 0;
         notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
       }
@@ -182,8 +186,9 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
     // Match variables
     if (matchStatus >= TypeMatchStatus::IMPLICIT_CAST) {
       if (
-        Core::Data::findOwner<Block>(static_cast<Core::Data::Node*>(callee)) ==
-        Core::Data::findOwner<Block>(static_cast<Core::Data::Node*>(obj))
+        obj != callee &&
+        Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(callee)) ==
+        Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(obj))
       ) {
         notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
         callee = 0;
@@ -227,8 +232,9 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
     // Invalid
     if (matchStatus >= TypeMatchStatus::IMPLICIT_CAST) {
       if (
-        Core::Data::findOwner<Block>(static_cast<Core::Data::Node*>(callee)) ==
-        Core::Data::findOwner<Block>(static_cast<Core::Data::Node*>(obj))
+        obj != callee &&
+        Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(callee)) ==
+        Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(obj))
       ) {
         notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
         callee = 0;
@@ -769,15 +775,15 @@ Bool Helper::isSharedDef(Core::Data::Ast::Definition const *def)
 }
 
 
-Bool Helper::_validateUseStatement(TiObject *self, Spp::Ast::UseStatement *useStatement)
+Bool Helper::_validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *bridge)
 {
   PREPARE_SELF(helper, Helper);
-  VALIDATE_NOT_NULL(useStatement);
-  if (useStatement->getTarget() == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("useStatement"), S("Use statement has a null target."));
+  VALIDATE_NOT_NULL(bridge);
+  if (bridge->getTarget() == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("bridge"), S("Use statement has a null target."));
   }
   Bool found = false;
-  helper->getSeeker()->foreach(useStatement->getTarget().get(), useStatement->getOwner(),
+  helper->getSeeker()->foreach(bridge->getTarget().get(), bridge->getOwner(),
     [=, &found] (TiObject *obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb
     {
       if (ti_cast<Ast::Module>(obj) != 0) {
@@ -790,7 +796,7 @@ Bool Helper::_validateUseStatement(TiObject *self, Spp::Ast::UseStatement *useSt
   );
   if (!found) {
     helper->noticeStore->add(
-      std::make_shared<Spp::Notices::InvalidUseStatementNotice>(useStatement->findSourceLocation())
+      std::make_shared<Spp::Notices::InvalidUseStatementNotice>(bridge->findSourceLocation())
     );
   }
   return found;

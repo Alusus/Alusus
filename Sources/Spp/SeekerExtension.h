@@ -31,7 +31,6 @@ class SeekerExtension : public ObjTiInterface
   {
     TiFunctionBase *foreachRef;
     TiFunctionBase *foreachByIdentifier_levelRef;
-    TiFunctionBase *foreachByIdentifier_blockRef;
     TiFunctionBase *foreachByIdentifier_functionRef;
     TiFunctionBase *foreachByIdentifier_dataTypeRef;
     TiFunctionBase *foreachByParamPassRef;
@@ -55,7 +54,6 @@ class SeekerExtension : public ObjTiInterface
   {
     Basic::initBindingCaches(this->owner, {
       &this->astHelper,
-      &this->foreachByIdentifier_block,
       &this->foreachByIdentifier_function,
       &this->foreachByIdentifier_dataType,
       &this->foreachByParamPass,
@@ -107,16 +105,6 @@ class SeekerExtension : public ObjTiInterface
 
   private: static Core::Data::Seeker::Verb _foreachByIdentifier_level(
     TiFunctionBase *base, TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
-  );
-
-  public: METHOD_BINDING_CACHE(foreachByIdentifier_block,
-    Core::Data::Seeker::Verb, (
-      Data::Ast::Identifier const*, Ast::Block*, Core::Data::Seeker::ForeachCallback const&, Word
-    )
-  );
-  private: static Core::Data::Seeker::Verb _foreachByIdentifier_block(
-    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Block *block,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 

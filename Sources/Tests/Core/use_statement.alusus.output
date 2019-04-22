@@ -1,0 +1,10 @@
+ERROR CP1001 @ (9,6): Parser syntax error.
+------------------ Parsed Data Dump ------------------
+Scope [Statements.StmtList]
+ Bridge [Main.Use]
+  target: Identifier: Other [Subject.Identifier]
+ Definition [Main.Def] start: LinkOperator => [Expression.LowLinkExp]
+  first: Bracket () [Subject.Sbj]
+   operand: NULL
+  second: Identifier: Void [Subject.Identifier]
+------------------------------------------------------
