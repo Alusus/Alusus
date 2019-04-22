@@ -1,7 +1,7 @@
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] MyType: UserType [Main.Type]
-  body: Block [Main.BlockStatements.StmtList]
+  body: Scope [Statements.StmtList]
    Definition [Main.Def] x: Identifier: Int [Subject.Identifier]
    Definition [Main.Def] y
     modifiers:
@@ -18,7 +18,7 @@ Module [Main.ModuleStatements.StmtList]
       type: FunctionType [Main.Function]
        argTypes: NULL
        retType: NULL
-      body: Block [Main.BlockStatements.StmtList]
+      body: Scope [Statements.StmtList]
        Definition [Main.Def] z
         modifiers:
          Identifier: shared [Subject.Identifier]

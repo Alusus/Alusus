@@ -16,7 +16,7 @@
 namespace Core { namespace Data
 {
 
-class Seeker : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class Seeker : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info
@@ -33,7 +33,7 @@ class Seeker : public TiObject, public virtual DynamicBinding, public virtual Dy
   public: ti_s_enum(Verb, TiInt, "Core.Data", "Core", "alusus.net",
     MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP
   );
-  public: s_enum(Flags, SKIP_OWNERS = 1, SKIP_OWNED = 2);
+  public: s_enum(Flags, SKIP_OWNERS = 1, SKIP_OWNED = 2, SKIP_USES = 4);
   public: typedef std::function<Verb(TiObject *&obj, Notices::Notice *notice)> SetCallback;
   public: typedef std::function<Verb(TiObject *obj, Notices::Notice *notice)> RemoveCallback;
   public: typedef std::function<Verb(TiObject *obj, Notices::Notice *notice)> ForeachCallback;

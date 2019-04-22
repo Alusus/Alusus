@@ -16,7 +16,7 @@
 namespace Spp::Ast
 {
 
-class UserType : public DataType, public virtual Core::Data::Ast::Mergeable
+class UserType : public DataType, public Core::Data::Ast::Mergeable
 {
   //============================================================================
   // Type Info

@@ -32,7 +32,7 @@ namespace Core::Data::Grammar
  * either be done through a list of boolean flags, a flag for each term, or
  * through a single index number that specifies the single enabled term.
  */
-class ListTerm : public Term, public virtual DataHaving, public virtual MapContaining<TiObject>
+class ListTerm : public Term, public DataHaving, public MapContaining<TiObject>
 {
   //============================================================================
   // Type Info

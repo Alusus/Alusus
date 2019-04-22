@@ -1,0 +1,15 @@
+def Other:
+{
+};
+
+use Other;
+
+def Main:
+{
+  use;
+  use Other;
+
+  def start: ()=>Void;
+};
+
+dump_ast Main;

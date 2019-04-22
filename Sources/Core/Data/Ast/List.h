@@ -17,7 +17,7 @@ namespace Core::Data::Ast
 {
 
 class List : public NbList,
-             public virtual Binding, public virtual MetaHaving, public virtual Clonable, public virtual Printable
+             public Binding, public MetaHaving, public Clonable, public Printable
 {
   //============================================================================
   // Type Info

@@ -2,7 +2,7 @@ import "Srl/Console.alusus";
 
 module SpeedTest {
     def clock: @expname[clock] function (): Int[64];
-    func start(argCount: Int, argv: ptr[array[ptr[Char]]]) {
+    func start {
         def number: int[64] = 6673214311;
         def startTime: int[64] = clock();
         Srl.Console.print("%ld is ", number);
@@ -31,4 +31,5 @@ module SpeedTest {
     };
 };
 
-run SpeedTest.start;
+SpeedTest.start();
+

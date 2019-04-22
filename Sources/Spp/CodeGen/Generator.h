@@ -16,7 +16,7 @@
 namespace Spp { namespace CodeGen
 {
 
-class Generator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class Generator : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info
@@ -167,7 +167,8 @@ class Generator : public TiObject, public virtual DynamicBinding, public virtual
   );
 
   private: static Bool _generateStatements(
-    TiObject *self, Spp::Ast::Block *astBlock, TargetGeneration *tg, TiObject *tgContext, TerminalStatement &terminal
+    TiObject *self, Core::Data::Ast::Scope *astBlock, TargetGeneration *tg, TiObject *tgContext,
+    TerminalStatement &terminal
   );
 
   private: static Bool _generateStatement(

@@ -16,7 +16,7 @@
 namespace Core::Basic
 {
 
-template<class CTYPE> class DynamicContaining : public virtual Containing<CTYPE>
+template<class CTYPE> class DynamicContaining : public Containing<CTYPE>
 {
   //============================================================================
   // Type Info

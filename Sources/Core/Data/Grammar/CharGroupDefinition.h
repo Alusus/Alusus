@@ -24,7 +24,7 @@ namespace Core::Data::Grammar
  * definition includes the CharGroupUnit tree and the identifier of the char
  * group.
  */
-class CharGroupDefinition : public Node, public virtual Binding, public virtual IdHaving
+class CharGroupDefinition : public Node, public Binding, public IdHaving
 {
   //============================================================================
   // Type Info

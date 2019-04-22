@@ -278,8 +278,8 @@ Bool TypeGenerator::_generateUserTypeMemberVars(TiObject *self, Spp::Ast::UserTy
           Ast::setAstType(obj, astMemberType);
           tgMemberTypes.add(def->getName().get(), tgType);
           members.add(obj);
-        } else if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
-          if (!typeGenerator->astHelper->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) {
+        } else if (obj->isDerivedFrom<Core::Data::Ast::Bridge>()) {
+          if (!typeGenerator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(obj))) {
             result = false;
           }
           continue;

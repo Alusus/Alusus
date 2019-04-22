@@ -120,13 +120,14 @@ void translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *mod
 #include "Token.h"
 #include "Route.h"
 
+#include "Definition.h"
+#include "Bridge.h"
 #include "Scope.h"
 #include "ParamPass.h"
 #include "InfixOperator.h"
 #include "OutfixOperator.h"
 #include "Text.h"
 #include "Bracket.h"
-#include "Definition.h"
 #include "GenericCommand.h"
 #include "Alias.h"
 

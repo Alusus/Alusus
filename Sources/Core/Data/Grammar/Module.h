@@ -19,7 +19,7 @@ namespace Core::Data::Grammar
 // TODO: DOC
 
 class Module : public SharedMapBase<TiObject, Node>,
-               public virtual DataHaving, public virtual Binding, public virtual Inheriting, public virtual IdHaving
+               public DataHaving, public Binding, public Inheriting, public IdHaving
 {
   //============================================================================
   // Type Info

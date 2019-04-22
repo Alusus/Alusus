@@ -19,9 +19,9 @@ namespace Spp::Ast
 class FunctionType;
 
 class Function : public Core::Data::Node,
-                 public virtual Binding, public virtual MapContaining<TiObject>,
-                 public virtual Core::Data::Ast::MetaHaving,
-                 public virtual Core::Data::Clonable, public virtual Core::Data::Printable
+                 public Binding, public MapContaining<TiObject>,
+                 public Core::Data::Ast::MetaHaving,
+                 public Core::Data::Clonable, public Core::Data::Printable
 {
   //============================================================================
   // Type Info
@@ -38,7 +38,7 @@ class Function : public Core::Data::Node,
   private: TiStr name;
   private: TiBool inlined;
   private: SharedPtr<FunctionType> type;
-  private: SharedPtr<Block> body;
+  private: SharedPtr<Core::Data::Ast::Scope> body;
 
 
   //============================================================================
@@ -55,7 +55,7 @@ class Function : public Core::Data::Node,
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (type, FunctionType, SHARED_REF, setType(value), type.get()),
-    (body, Block, SHARED_REF, setBody(value), body.get())
+    (body, Core::Data::Ast::Scope, SHARED_REF, setBody(value), body.get())
   );
 
   IMPLEMENT_AST_MAP_PRINTABLE(Function, << this->name.get());
@@ -124,16 +124,16 @@ class Function : public Core::Data::Node,
     return this->type;
   }
 
-  public: void setBody(SharedPtr<Block> const &b)
+  public: void setBody(SharedPtr<Core::Data::Ast::Scope> const &b)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
   }
-  private: void setBody(Block *b)
+  private: void setBody(Core::Data::Ast::Scope *b)
   {
     this->setBody(getSharedPtr(b));
   }
 
-  public: SharedPtr<Block> const& getBody() const
+  public: SharedPtr<Core::Data::Ast::Scope> const& getBody() const
   {
     return this->body;
   }

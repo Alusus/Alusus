@@ -1,6 +1,6 @@
 /**
- * @file Spp/Ast/UseStatement.h
- * Contains the header of class Spp::Ast::UseStatement.
+ * @file Core/Data//Ast/Bridge.h
+ * Contains the header of class Core::Data::Ast::Bridge.
  *
  * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
@@ -10,29 +10,24 @@
  */
 //==============================================================================
 
-#ifndef SPP_AST_USESTATEMENT_H
-#define SPP_AST_USESTATEMENT_H
+#ifndef CORE_DATA_AST_BRIDGE_H
+#define CORE_DATA_AST_BRIDGE_H
 
-namespace Spp::Ast
+namespace Core::Data::Ast
 {
 
-class UseStatement : public Core::Data::Node,
-                     public virtual Binding, public virtual MapContaining<TiObject>,
-                     public virtual Core::Data::Ast::MetaHaving,
-                     public virtual Core::Data::Clonable,
-                     public virtual Core::Data::Printable
+class Bridge : public Node,
+               public Binding, public MapContaining<TiObject>, public Core::Data::Ast::MetaHaving,
+               public Core::Data::Clonable, public Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(UseStatement, Node, "Spp.Ast", "Spp", "alusus.net");
-  IMPLEMENT_INTERFACES(Node,
-    Binding,
-    MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving,
-    Core::Data::Clonable,
-    Core::Data::Printable
-  );
+  TYPE_INFO(Bridge, Node, "Core.Data.Ast", "Core", "alusus.net", (
+    INHERITANCE_INTERFACES(
+      Binding, MapContaining<TiObject>, Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable
+    )
+  ));
 
 
   //============================================================================
@@ -44,7 +39,7 @@ class UseStatement : public Core::Data::Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METAHAVING(UseStatement);
+  IMPLEMENT_METAHAVING(Bridge);
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
@@ -55,21 +50,21 @@ class UseStatement : public Core::Data::Node,
     (target, TiObject, SHARED_REF, setTarget(value), target.get())
   );
 
-  IMPLEMENT_AST_MAP_CLONABLE(UseStatement);
+  IMPLEMENT_AST_MAP_CLONABLE(Bridge);
 
-  IMPLEMENT_AST_MAP_PRINTABLE(UseStatement);
+  IMPLEMENT_AST_MAP_PRINTABLE(Bridge);
 
 
   //============================================================================
   // Constructors & Destructor
 
-  IMPLEMENT_EMPTY_CONSTRUCTOR(UseStatement);
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Bridge);
 
-  IMPLEMENT_ATTR_CONSTRUCTOR(UseStatement);
+  IMPLEMENT_ATTR_CONSTRUCTOR(Bridge);
 
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(UseStatement);
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(Bridge);
 
-  public: virtual ~UseStatement()
+  public: virtual ~Bridge()
   {
     DISOWN_SHAREDPTR(this->target);
   }

@@ -16,7 +16,7 @@
 namespace Spp { namespace Ast
 {
 
-class Helper : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info
@@ -261,8 +261,8 @@ class Helper : public TiObject, public virtual DynamicBinding, public virtual Dy
 
   public: Bool isSharedDef(Core::Data::Ast::Definition const *def);
 
-  public: METHOD_BINDING_CACHE(validateUseStatement, Bool, (Spp::Ast::UseStatement* /* useStatement */));
-  private: static Bool _validateUseStatement(TiObject *self, Spp::Ast::UseStatement *useStatement);
+  public: METHOD_BINDING_CACHE(validateUseStatement, Bool, (Core::Data::Ast::Bridge* /* bridge */));
+  private: static Bool _validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *bridge);
 
   /// @}
 

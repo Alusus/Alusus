@@ -16,7 +16,7 @@
 namespace Spp::CodeGen
 {
 
-class MacroProcessor : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class MacroProcessor : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info

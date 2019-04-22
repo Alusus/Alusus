@@ -16,7 +16,7 @@
 namespace Core::Basic
 {
 
-template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public virtual DynamicContaining<CTYPE>
+template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public DynamicContaining<CTYPE>
 {
   //============================================================================
   // Type Info

@@ -16,7 +16,7 @@
 namespace Spp { namespace Ast
 {
 
-class NodePathResolver : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class NodePathResolver : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info
@@ -104,9 +104,9 @@ class NodePathResolver : public TiObject, public virtual DynamicBinding, public 
   public: METHOD_BINDING_CACHE(resolveFunctionArg, void, (TiObject*, Helper*, StrStream&));
   private: static void _resolveFunctionArg(TiObject *self, TiObject *arg, Helper *helper, StrStream &path);
 
-  public: METHOD_BINDING_CACHE(resolveTemplateInstance, void, (Spp::Ast::Block const*, Helper*, StrStream&));
+  public: METHOD_BINDING_CACHE(resolveTemplateInstance, void, (Core::Data::Ast::Scope const*, Helper*, StrStream&));
   private: static void _resolveTemplateInstance(
-    TiObject *self, Spp::Ast::Block const *block, Helper *helper, StrStream &path
+    TiObject *self, Core::Data::Ast::Scope const *block, Helper *helper, StrStream &path
   );
 
   /// @}

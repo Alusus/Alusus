@@ -29,7 +29,6 @@ namespace Spp::Ast
 class NodePathResolver;
 class Helper;
 class Type;
-class UseStatement;
 
 
 //==============================================================================
@@ -54,7 +53,6 @@ ti_s_enum(DefinitionDomain,
 // Classes
 
 //// AST Classes
-#include "Block.h"
 // Types
 #include "Type.h"
 #include "DataType.h"
@@ -78,7 +76,6 @@ ti_s_enum(DefinitionDomain,
 #include "ContinueStatement.h"
 #include "BreakStatement.h"
 #include "ReturnStatement.h"
-#include "UseStatement.h"
 // Operators
 #include "PointerOp.h"
 #include "ContentOp.h"

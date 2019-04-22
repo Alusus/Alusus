@@ -19,7 +19,7 @@ namespace Core { namespace Data { namespace Ast
 // TODO: DOC
 
 class Text : public Node,
-             public virtual Binding, public virtual MetaHaving, public virtual Clonable, public virtual Printable
+             public Binding, public MetaHaving, public Clonable, public Printable
 {
   //============================================================================
   // Type Info

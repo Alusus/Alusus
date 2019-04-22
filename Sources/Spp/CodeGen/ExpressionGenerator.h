@@ -16,7 +16,7 @@
 namespace Spp { namespace CodeGen
 {
 
-class ExpressionGenerator : public TiObject, public virtual DynamicBinding, public virtual DynamicInterfacing
+class ExpressionGenerator : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info

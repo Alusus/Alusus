@@ -23,7 +23,7 @@ namespace Core::Data::Grammar
  * The base class of all grammar term classes. Term classes are used to
  * construct a grammar formulas.
  */
-class Term : public Node, public virtual Binding
+class Term : public Node, public Binding
 {
   //============================================================================
   // Type Info

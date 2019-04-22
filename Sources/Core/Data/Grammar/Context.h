@@ -16,7 +16,7 @@
 namespace Core::Data::Grammar
 {
 
-class Context : public TiObject, public virtual MapContaining<TiObject>
+class Context : public TiObject, public MapContaining<TiObject>
 {
   //============================================================================
   // Type Info

@@ -16,7 +16,7 @@
 namespace Core::Processing
 {
 
-class InteractiveCharInStream : public TiObject, public virtual CharInStreaming
+class InteractiveCharInStream : public TiObject, public CharInStreaming
 {
   //============================================================================
   // Type Info

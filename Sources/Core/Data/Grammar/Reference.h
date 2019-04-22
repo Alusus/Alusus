@@ -16,7 +16,7 @@
 namespace Core::Data::Grammar
 {
 
-class Reference : public Node, public virtual DataHaving
+class Reference : public Node, public DataHaving
 {
   //============================================================================
   // Type Info

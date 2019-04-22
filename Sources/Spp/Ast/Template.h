@@ -17,9 +17,9 @@ namespace Spp { namespace Ast
 {
 
 class Template : public Core::Data::Node,
-                 public virtual Binding, public virtual MapContaining<TiObject>,
-                 public virtual Core::Data::Ast::MetaHaving, public virtual Core::Data::Clonable,
-                 public virtual Core::Data::Printable
+                 public Binding, public MapContaining<TiObject>,
+                 public Core::Data::Ast::MetaHaving, public Core::Data::Clonable,
+                 public Core::Data::Printable
 {
   //============================================================================
   // Type Info
@@ -48,7 +48,7 @@ class Template : public Core::Data::Node,
 
   private: std::vector<VarDef> varDefs;
 
-  private: std::vector<SharedPtr<Block>> instances;
+  private: std::vector<SharedPtr<Core::Data::Ast::Scope>> instances;
 
   private: SharedPtr<Data::Clonable> templateBody;
 
@@ -121,18 +121,18 @@ class Template : public Core::Data::Node,
   public: virtual Bool matchInstance(TiObject *templateInput, Helper *helper, TioSharedPtr &result);
 
   private: Bool matchTemplateVars(
-    TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
+    TiObject *templateInput, Core::Data::Ast::Scope *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
   );
   private: Bool matchTemplateVar(
-    TiObject *templateInput, Block *instance, Int varIndex, Helper *helper,
+    TiObject *templateInput, Core::Data::Ast::Scope *instance, Int varIndex, Helper *helper,
     SharedPtr<Core::Notices::Notice> &notice
   );
 
   private: Bool assignTemplateVars(
-    TiObject *templateInput, Block *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
+    TiObject *templateInput, Core::Data::Ast::Scope *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
   );
 
-  public: static TiObject* getTemplateVar(Block const *instance, Char const *name);
+  public: static TiObject* getTemplateVar(Core::Data::Ast::Scope const *instance, Char const *name);
 
   private: static TiObject* traceObject(TiObject *ref, VarType varType, Helper *helper);
 

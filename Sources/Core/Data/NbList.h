@@ -16,7 +16,7 @@
 namespace Core::Data
 {
 
-class NbList : public SharedListBase<TiObject, Node>, public virtual DataHaving
+class NbList : public SharedListBase<TiObject, Node>, public DataHaving
 {
   //============================================================================
   // Type Info

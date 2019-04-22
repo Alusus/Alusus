@@ -101,8 +101,8 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Tar
           result = false;
         }
       }
-    } else if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
-      if (!generator->astHelper->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) result = false;
+    } else if (obj->isDerivedFrom<Core::Data::Ast::Bridge>()) {
+      if (!generator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(obj))) result = false;
     }
   }
   return result;
@@ -215,8 +215,8 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   for (Int i = 0; i < body->getCount(); ++i) {
     auto obj = body->getElement(i);
     if (obj != 0) {
-      if (obj->isDerivedFrom<Spp::Ast::UseStatement>()) {
-        if (!generator->astHelper->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(obj))) result = false;
+      if (obj->isDerivedFrom<Core::Data::Ast::Bridge>()) {
+        if (!generator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(obj))) result = false;
         continue;
       }
       // TODO: Generate member functions.
@@ -307,7 +307,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       }
       setCodeGenData(astVar, tgGlobalVar);
     } else {
-      auto astBlock = Core::Data::findOwner<Ast::Block>(definition);
+      auto astBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(definition);
       if (ti_cast<Ast::Type>(astBlock->getOwner()) != 0) {
         // This should never happen.
         throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
@@ -316,7 +316,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
         // To avoid stack overflows we need to allocate at the function level rather than any inner block.
         while (astBlock != 0 && ti_cast<Ast::Function>(astBlock->getOwner()) == 0) {
-          astBlock = Core::Data::findOwner<Ast::Block>(astBlock->getOwner());
+          astBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astBlock->getOwner());
         }
         if (astBlock == 0) {
           throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
@@ -349,7 +349,8 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
 
 Bool Generator::_generateStatements(
-  TiObject *self, Spp::Ast::Block *astBlock, TargetGeneration *tg, TiObject *tgContext, TerminalStatement &terminal
+  TiObject *self, Core::Data::Ast::Scope *astBlock, TargetGeneration *tg, TiObject *tgContext,
+  TerminalStatement &terminal
 ) {
   PREPARE_SELF(generation, Generation);
   Bool result = true;
@@ -424,8 +425,8 @@ Bool Generator::_generateStatement(
     terminal = TerminalStatement::YES;
     auto returnStatement = static_cast<Spp::Ast::ReturnStatement*>(astNode);
     return generator->commandGenerator->generateReturnStatement(returnStatement, generation, tg, tgContext);
-  } else if (astNode->isDerivedFrom<Spp::Ast::UseStatement>()) {
-    return generator->astHelper->validateUseStatement(static_cast<Spp::Ast::UseStatement*>(astNode));
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::Bridge>()) {
+    return generator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(astNode));
   } else {
     GenResult result;
     return generation->generateExpression(astNode, tg, tgContext, result);

@@ -23,6 +23,16 @@ class Scope : public List
 
   TYPE_INFO(Scope, List, "Core.Data.Ast", "Core", "alusus.net");
 
+
+  //============================================================================
+  // Memver Variables
+
+  private: SubsetIndex bridgesIndex;
+
+
+  //============================================================================
+  // Implementations
+
   IMPLEMENT_AST_LIST_CLONABLE(Scope);
 
   IMPLEMENT_AST_LIST_PRINTABLE(Scope);
@@ -36,6 +46,33 @@ class Scope : public List
   IMPLEMENT_ATTR_CONSTRUCTOR(Scope);
 
   IMPLEMENT_ATTR_LIST_CONSTRUCTOR(Scope);
+
+
+  //============================================================================
+  // Member Functions
+
+  /// @name Inheritted Functions
+  /// @{
+
+  protected: virtual void onAdded(Int index);
+
+  protected: virtual void onUpdated(Int index);
+
+  protected: virtual void onRemoved(Int index);
+
+  /// @}
+
+  /// @name Bridge Retrieval Functions
+  /// @{
+
+  public: Word getBridgeCount() const
+  {
+    return this->bridgesIndex.getSize();
+  }
+
+  public: Bridge* getBridge(Int index) const;
+
+  /// @}
 
 }; // class
 

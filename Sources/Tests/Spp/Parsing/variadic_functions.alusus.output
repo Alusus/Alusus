@@ -12,7 +12,7 @@ Function  [Main.Function]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Identifier]
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
@@ -22,7 +22,7 @@ Function  [Main.Function]
    args: ArgPack 0 0
     argType: NULL
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
@@ -32,7 +32,7 @@ Function  [Main.Function]
    args: ArgPack 0 0
     argType: Identifier: Int [Subject.Identifier]
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
@@ -42,7 +42,7 @@ Function  [Main.Function]
    args: ArgPack 0 0
     argType: NULL
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
@@ -52,7 +52,7 @@ Function  [Main.Function]
    args: ArgPack 1 5
     argType: Identifier: Int [Subject.Identifier]
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
@@ -62,5 +62,5 @@ Function  [Main.Function]
    args: ArgPack 1 5
     argType: NULL
   retType: Identifier: void [Subject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
+ body: Scope [Statements.StmtList]
 ------------------------------------------------------
