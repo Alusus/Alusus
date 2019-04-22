@@ -24,7 +24,7 @@ Imagine being able to write your client side code, server side code, DB access c
 Our team needs volunteers to contribute to this project. Join us in making the future better for programmers. Visit the [Development](https://alusus.net/dev) page for more information.
 
 Or help by donating to the project<br/>
-[![PayPal - The safer, easier way to pay online!](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](paypal.me/alusus)
+[![PayPal - The safer, easier way to pay online!](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/alusus)
 
 ## Collaborators
 * [sarmadka](https://github.com/sarmadka) -
