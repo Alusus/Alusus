@@ -10,6 +10,10 @@ if [ -L "${LINK_DIR}/الأسس" ]; then
    unlink ${LINK_DIR}/الأسس
 fi
 
+if [ -L "${LINK_DIR}/apm" ]; then
+   unlink ${LINK_DIR}/apm
+fi
+
 
 # Remove GTK syntax highlighting specs.
 
