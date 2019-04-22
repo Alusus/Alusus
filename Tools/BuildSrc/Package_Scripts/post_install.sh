@@ -14,7 +14,7 @@ fi
 
 ln -sf $(readlink -f ${ALUSUS_ROOT}/Bin/alusus) ${LINK_DIR}/alusus
 ln -sf $(readlink -f ${ALUSUS_ROOT}/Bin/الأسس) ${LINK_DIR}/الأسس
-ln -sf $(readlink -f ${ALUSUS_ROOT}/Lib/APM/apm) ${LINK_DIR}/apm
+ln -sf $(readlink -f ${ALUSUS_ROOT}/Bin/apm) ${LINK_DIR}/apm
 
 
 # Copy GTK syntax highlighting specs to gtksourceview folder.
