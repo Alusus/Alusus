@@ -1,8 +1,7 @@
-import "Srl/Console.alusus";
 import "Srl/Fs.alusus";
 import "libzip.so";
 
-def AZip: module {
+def Zip: module {
     def zip_t: type {};
     def _zip_extract: @expname[zip_extract] function(filename: ptr[array[Char]], extractDirectory: ptr[array[Char]], callbackFunction: ptr[function (ptr[array[Char]], Int)], arguments: Int) => Int;
     def _zip_entry_open: @expname[zip_entry_open] function(archive: ptr[zip_t], filename: ptr[array[Char]]);
