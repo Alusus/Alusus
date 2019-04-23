@@ -1,11 +1,8 @@
-<div style="float: right;">
-  <a href="https://alusus.net/">
-    <img
-      alt="ALUSUS PROGRAMMING LANGUAGE"
-      src="https://alusus.net/Resources/logo.en.gif"
-    />
-  </a>
-</div>
+<img
+  alt="ALUSUS PROGRAMMING LANGUAGE"
+  align="right"
+  src="https://alusus.net/Resources/logo.en.gif"
+/>
 
 # ALUSUS PROGRAMMING LANGUAGE
 Alusus is designed to be a language for everything by making language features hot-pluggable, and on a per-project basis
