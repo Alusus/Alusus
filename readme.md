@@ -28,11 +28,14 @@ Or help by donating to the project<br/>
 
 ## Collaborators
 * [sarmadka](https://github.com/sarmadka) -
-**Sarmad Khalid Abdullah** &lt;sarmad@alusus.org>&gt; *Inventor and lead engineer*
+**Sarmad Khalid Abdullah** &lt;sarmad@alusus.org&gt; *Inventor and lead engineer*
 * [falhumai96](https://github.com/falhumai96) -
 **Faisal Al-Humaimidi** &lt;falhumai96@gmail.com&gt; *Developer*
 * [xlmnxp](https://github.com/xlmnxp) -
 **Salem Yaslem Saleh** &lt;s@sy.sa&gt; *Developer*
+* [rafidka](https://github.com/rafidka) -
+**Rafid K. Al-Humaimidi** &lt;rafidka@gmail.com&gt; *Developer*
+* **Hicham OUALI ALAMI** *Developer*
 
 ## [LICENSE](license.txt)
 ```
