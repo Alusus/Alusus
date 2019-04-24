@@ -37,14 +37,14 @@ Or help by donating to the project<br/>
 [![PayPal - The safer, easier way to pay online!](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/alusus)
 
 ## Collaborators
-* [sarmadka](https://github.com/sarmadka) - **Sarmad Khalid Abdullah**<br/>
-&lt;sarmad@alusus.org&gt; *Inventor and lead engineer*
-* [falhumai96](https://github.com/falhumai96) - **Faisal Al-Humaimidi**<br/>
-&lt;falhumai96@gmail.com&gt; *Developer*
-* [xlmnxp](https://github.com/xlmnxp) - **Salem Yaslem Saleh**<br/>
-&lt;s@sy.sa&gt; *Developer*
-* [rafidka](https://github.com/rafidka) - **Rafid K. Al-Humaimidi**<br/>
-&lt;rafidka@gmail.com&gt; *Developer*
+* [sarmadka](https://github.com/sarmadka) -
+**Sarmad Khalid Abdullah** &lt;sarmad@alusus.org&gt; *Inventor and lead engineer*
+* [falhumai96](https://github.com/falhumai96) -
+**Faisal Al-Humaimidi** &lt;falhumai96@gmail.com&gt; *Developer*
+* [xlmnxp](https://github.com/xlmnxp) -
+**Salem Yaslem Saleh** &lt;s@sy.sa&gt; *Developer*
+* [rafidka](https://github.com/rafidka) -
+**Rafid K. Al-Humaimidi** &lt;rafidka@gmail.com&gt; *Developer*
 * **Hicham OUALI ALAMI** *Developer*
 
 ## [LICENSE](license.txt)
