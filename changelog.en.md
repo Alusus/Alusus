@@ -1,21 +1,18 @@
-Alusus Changelog
-================
+# Alusus Changelog
 
-Version 0.4.1 (2019-03-13)
---------------------------
+## Version 0.4.1 (2019-03-13)
 
-What's New:
+### What's New:
 
   * Added support for passing process arguments to the running start function.
   * If the start function returns a non-zero value the result is used as an exit
     code for the Core.
 
 
+## Version 0.4.0 (2019-02-25)
+<details>
 
-Version 0.4.0 (2019-02-25)
---------------------------
-
-What's New:
+### What's New:
 
   * Added support for macros which allow the programmer to put a group of
     commands into a macro that can then be reused elsewhere. This feature is
@@ -59,7 +56,7 @@ What's New:
     definining the needed functions. The user can refer to Alusus GTK library to
     know how it's done.
 
-Fixes:
+### Fixes:
 
   * Fixed a bug in parsing expression lists.
   * Fixed a bug in function code generation.
@@ -67,13 +64,12 @@ Fixes:
   * Fixed an issue in detecting the system's display language.
   * Fixed a problem in parsing function args when those args have no names.
   * Few other internal fixes.
+</details>
 
+## Version 0.3.0 (2018-09-26)
+<details>
 
-
-Version 0.3.0 (2018-09-26)
---------------------------
-
-What's New:
+### What's New:
 
   * Improved the support for basic data types. The list now includes:
     - 8, 16, 32, and 64 bit integers.
@@ -118,7 +114,7 @@ What's New:
   * Added a simple interactive mode, though this is mostly useful for Alusus
     compiler or code generator developers rather than end users.
 
-Fixes:
+### Fixes:
 
   * Improved build error messages.
   * Fixed issues where build error location was not reported correctly.
@@ -127,7 +123,7 @@ Fixes:
     tests.
   * Many bug fixes.
 
-Internal Changes:
+### Internal Changes:
 
   * Complete re-write of the standard library to streamline it and make it more
     maintainable.
@@ -142,13 +138,12 @@ Internal Changes:
   * Switched the build to C++17.
   * Few changes in naming conventions.
   * Disabled RTTI, which is no longer needed.
+</details>
 
+## Version 0.2.1 (2015-11-28)
+<details>
 
-
-Version 0.2.1 (2015-11-28)
---------------------------
-
-What's New:
+### What's New:
 
   * Support for casting between different pointer types.
   * Support for casting from pointer to integer.
@@ -161,17 +156,16 @@ What's New:
     namespaces and other object-oriented features.
   * Improved performance of the parser.
 
-Fixes:
+### Fixes:
 
   * Fixed the naming convention of the SCG source code.
   * Various cleanup and minor bug fixes.
+</details>
 
+## Version 0.2.0 (2015-04-27)
+<details>
 
-
-Version 0.2.0 (2015-04-27)
---------------------------
-
-What's New:
+### What's New:
 
   * Support for automatic type deduction during variable definition. For example
     this statement will automatically determine the type of i as integer:
@@ -209,9 +203,9 @@ What's New:
     - Removed ParsedDataBrowser and replaced its references with calls to the
       improved data references subsystem.
 
-Fixes:
+### Fixes:
 
   * Expressions with multiple binary operators now work properly.
   * Handling some memory leaks.
   * Various bug fixes.
-
+</details>
