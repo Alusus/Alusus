@@ -5,6 +5,7 @@
 />
 
 # ALUSUS PROGRAMMING LANGUAGE [[عربي]](readme.ar.md)
+
 Alusus is designed to be a language for everything by making language features hot-pluggable, and on a per-project basis
  (rather than per-environment), which allows the language to:
 * Expand vertically to cover low level features like those in C++ as well as high level features like those found in
@@ -22,14 +23,34 @@ is still in an early stage, and as of now Alusus provide low level procedural pr
 Visit [alusus.net](https://alusus.net) for more info.
 
 ## Downloads
+
 Currently Alusus support Linux only. Visit the [downloads](https://alusus.net/download) page for pre-built deb and rpm
 packages.
 
 ## Documentation
+
 Documentation is still lacking, but you can find some high level design documentation and examples on the
 [documentation](https://alusus.net/documentation) page.
 
+## Directory Structure
+
+* `/Doc`: Contains all the documentation of the project, including the language specifications, implementation
+  documentation, and source code inline documentation.
+
+* `/Sources`: Contains the entire source code.
+  - `/Sources/Core`: Contains the source code of the Core.
+  - `/Sources/Spp`: Contains the source code of the Standard Programming Paradigm library.
+  - `/Sources/Srt`: Contains the source for the Standard Runtime Library.
+  - `/Sources/Tests`: Contains automated test projects for Core and the standard libraries.
+
+* `/Notices_L18n`: Contains localizations for build notices.
+
+* `/Examples`: Contains examples written in Alusus.
+
+* `/Tools`: Contains various development helper scripts.
+
 ## Help Us
+
 Our team needs volunteers to contribute to this project. Join us in making the future better for programmers. Visit the
 [development](https://alusus.net/dev) page for more information.
 
@@ -37,6 +58,7 @@ Or help by donating to the project<br/>
 [![PayPal - The safer, easier way to pay online!](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/alusus)
 
 ## Collaborators
+
 * [sarmadka](https://github.com/sarmadka) -
 **Sarmad Khalid Abdullah** &lt;sarmad@alusus.org&gt; *Inventor and lead engineer*
 * [falhumai96](https://github.com/falhumai96) -
@@ -47,9 +69,23 @@ Or help by donating to the project<br/>
 **Rafid K. Al-Humaimidi** &lt;rafidka@gmail.com&gt; *Developer*
 * **Hicham OUALI ALAMI** *Developer*
 
+## Copyright
+
+Copyright (C) 2019.
+The copyright for this project is owned by Sarmad Khalid Abdullah.
+
 ## [LICENSE](license.txt)
+
 Alusus Language specification, documentation, source code, binaries, and examples are published under Alusus Public
 License, Version 1.0, which is included in this repo and is also available online at
 [https://alusus.net/alusus_license_1_0](https://alusus.net/alusus_license_1_0). Please read the license before using
 or copying this software. By using this software you acknowledge that you have read the terms contained in this license
 and agree with and accept all such terms.
+
+Alusus Public License is designed to make the language open source while protecting the language from fragmenting into
+multiple incompatible languages at an early stage. The license allows:
+* Obtaining the language in source code or binary format free of charge and use it to write any program, whether
+  commercial or not.
+* Modify the language and use the modified version to write any program, whether commercial or not.
+* Redistribute the unmodified version of the language in source code or binary format. The license prevents distributing
+  a modified version of the language except with a permission from Alusus Software Ltd.
