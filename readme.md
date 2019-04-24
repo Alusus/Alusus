@@ -4,7 +4,7 @@
   src="https://alusus.net/Resources/logo.en.gif"
 />
 
-# ALUSUS PROGRAMMING LANGUAGE
+# ALUSUS PROGRAMMING LANGUAGE [[عربي]](readme.ar.md)
 Alusus is designed to be a language for everything by making language features hot-pluggable, and on a per-project basis
  (rather than per-environment), which allows the language to:
 * Expand vertically to cover low level features like those in C++ as well as high level features like those found in
