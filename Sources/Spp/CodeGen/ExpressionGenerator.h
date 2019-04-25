@@ -39,6 +39,7 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
   private: Ast::Helper *astHelper;
   private: Core::Notices::Store *noticeStore = 0;
+  private: Bool offlineExecution = false;
 
 
   //============================================================================
@@ -85,6 +86,11 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   public: Core::Notices::Store* getNoticeStore() const
   {
     return this->noticeStore;
+  }
+
+  public: void setOfflineExecution(Bool oe)
+  {
+    this->offlineExecution = oe;
   }
 
   /// @}

@@ -1914,7 +1914,11 @@ Bool ExpressionGenerator::_generateStringLiteral(
   if (!g->getGeneratedType(strPtrAstType, tg, strPtrTgType, 0)) return false;
 
   if (tgContext != 0) {
-    if (!tg->generateStringLiteral(tgContext, value->c_str(), charTgType, strTgType, result.targetData)) return false;
+    if (expGenerator->offlineExecution) {
+      if (!tg->generateStringLiteral(tgContext, value->c_str(), charTgType, strTgType, result.targetData)) return false;
+    } else {
+      if (!tg->generatePointerLiteral(tgContext, strPtrTgType, (void*)value->c_str(), result.targetData)) return false;
+    }
   }
   result.astType =  strPtrAstType;
   return true;

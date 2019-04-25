@@ -134,6 +134,57 @@ SharedPtr<TiObject> RootManager::processStream(Processing::CharInStreaming *is, 
 }
 
 
+Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
+{
+  // Check the file type.
+  if (
+    compareStrSuffix(filename, S(".source")) || compareStrSuffix(filename, S(".alusus")) ||
+    compareStrSuffix(filename, S(".مصدر")) || compareStrSuffix(filename, S(".الأسس")) ||
+    compareStrSuffix(filename, S(".أسس"))
+  ) {
+    try {
+      LOG(LogLevel::PARSER_MAJOR, S("Importing source file: ") << filename);
+
+      this->processFile(filename);
+    } catch (...) {
+      return false;
+    }
+  } else {
+    LOG(LogLevel::PARSER_MAJOR, S("Importing library: ") << filename);
+
+    // Import library and return.
+    PtrWord id = 0;
+
+    #ifndef RELEASE
+      // We are running in debug mode, so we will look first for a debug verion.
+      // Find the first '.' after the last '/'.
+      thread_local static std::array<Char,FILENAME_MAX> dbgFilename;
+      Char const *dotPos = strrchr(filename, C('/'));
+      if (dotPos == 0) dotPos = filename;
+      dotPos = strchr(dotPos, C('.'));
+      if (dotPos == 0) {
+        // The filename has no extension, so we'll attach .dbg to the end.
+        copyStr(filename, dbgFilename.data());
+        copyStr(S(".dbg"), dbgFilename.data()+getStrLen(filename));
+        id = this->getLibraryManager()->load(dbgFilename.data(), errorDetails);
+      } else if (compareStr(dotPos, S(".dbg."), 5) != 0) {
+        // The position of the file's extension is found, and it doesn't already have
+        // the .dbg extension, so we'll attach it.
+        Int dotIndex = dotPos - filename;
+        copyStr(filename, dbgFilename.data(), dotIndex);
+        copyStr(S(".dbg"), dbgFilename.data()+dotIndex);
+        copyStr(dotPos, dbgFilename.data()+dotIndex+4);
+        id = this->getLibraryManager()->load(dbgFilename.data(), errorDetails);
+      }
+    #endif
+    if (id == 0) id = this->getLibraryManager()->load(filename, errorDetails);
+    // Did we fail the loading?
+    if (id == 0) return false;
+  }
+  return true;
+}
+
+
 void RootManager::pushSearchPath(Char const *path)
 {
   if (path == 0 || *path == C('\0')) {

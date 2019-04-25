@@ -39,6 +39,7 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
     &RootManagerExtension::_dumpLlvmIrForElement
   ).get();
   overrides->resetBuildDataRef = extension->resetBuildData.set(&RootManagerExtension::_resetBuildData).get();
+  overrides->importFileRef = extension->importFile.set(&RootManagerExtension::_importFile).get();
 
   return overrides;
 }
@@ -50,6 +51,7 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
   extension->executeRootElement.reset(overrides->executeRootElementRef);
   extension->dumpLlvmIrForElement.reset(overrides->dumpLlvmIrForElementRef);
   extension->resetBuildData.reset(overrides->resetBuildDataRef);
+  extension->importFile.reset(overrides->importFileRef);
   extension->astHelper.remove();
   extension->macroProcessor.remove();
   extension->generator.remove();
@@ -108,6 +110,14 @@ void RootManagerExtension::_executeRootElement(
       throw EXCEPTION(GenericException, S("Failed to generate function type for root scope execution."));
     }
 
+    // If there was a previous root statement function, delete it now.
+    if (rootManagerExt->rootStmtTgFunc != 0) {
+      if (!rootManagerExt->targetGenerator->deleteFunction(rootManagerExt->rootStmtTgFunc.get().get())) {
+        throw EXCEPTION(GenericException, S("Failed to delete root statement function."));
+      }
+      rootManagerExt->rootStmtTgFunc = TioSharedPtr::null;
+    }
+
     // Prepare a function name.
     auto funcName = S("__rootstatement__");
 
@@ -137,14 +147,6 @@ void RootManagerExtension::_executeRootElement(
     auto thisMinSeverity = noticeStore->getMinEncounteredSeverity();
     if (result && (minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
       rootManagerExt->targetGenerator->execute(funcName);
-    }
-
-    // Delete the function if it wasn't already deleted automatically.
-    if (rootManagerExt->rootStmtTgFunc != 0) {
-      if (!rootManagerExt->targetGenerator->deleteFunction(rootManagerExt->rootStmtTgFunc.get().get())) {
-        throw EXCEPTION(GenericException, S("Failed to delete root statement function."));
-      }
-      rootManagerExt->rootStmtTgFunc = TioSharedPtr::null;
     }
   }
 }
@@ -214,6 +216,16 @@ void RootManagerExtension::_resetBuildData(TiObject *self, TiObject *obj)
     for (Int i = 0; i < container->getElementCount(); ++i) {
       rootManagerExt->resetBuildData(container->getElement(i));
     }
+  }
+}
+
+
+void RootManagerExtension::_importFile(TiObject *self, Char const *filename)
+{
+  PREPARE_SELF(rootManager, Core::Main::RootManager);
+  Str error;
+  if (!rootManager->tryImportFile(filename, error)) {
+    throw EXCEPTION(FileException, filename, C('r'), error.c_str());
   }
 }
 
