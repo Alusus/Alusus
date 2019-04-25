@@ -54,6 +54,7 @@ void Generator::prepareBuild(Core::Notices::Store *noticeStore, Bool offlineExec
   this->expressionGenerator->setNoticeStore(this->noticeStore);
 
   this->offlineExecution = offlineExecution;
+  this->expressionGenerator->setOfflineExecution(offlineExecution);
 }
 
 
