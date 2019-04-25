@@ -1,0 +1,3 @@
+import "libalusus_spp.so";
+def filename: ptr[array[Word[8]]] = "hello_world.alusus";
+Core.importFile(filename);

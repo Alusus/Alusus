@@ -122,6 +122,8 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
 
   public: virtual SharedPtr<TiObject> processStream(Processing::CharInStreaming *is, Char const *streamName);
 
+  public: virtual Bool tryImportFile(Char const *filename, Str &errorDetails);
+
   public: virtual void pushSearchPath(Char const *path);
 
   public: virtual void popSearchPath(Char const *path);

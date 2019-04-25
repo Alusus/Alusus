@@ -544,6 +544,15 @@ inline Int compareStr(WChar const *str1, WChar const *str2, Int size)
 }
 
 /**
+ * @brief Compares the end of a string with another string.
+ * @ingroup basic_functions
+ *
+ * This function compares suffix against a portion at the end of str equal in
+ * length to suffix.
+ */
+Bool compareStrSuffix(Char const *str, Char const *suffix);
+
+/**
  * @brief Wrapper for string copy function.
  * @ingroup basic_functions
  *

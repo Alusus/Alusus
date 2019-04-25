@@ -221,6 +221,12 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
       function dumpLlvmIrForElement (element: ptr) {
         _dumpLlvmIrForElement(rootManager, element, noticeStore, parser);
       };
+      def _importFile: @expname[RootManager_importFile] function (
+        rootManager: ptr, filename: ptr[array[Word[8]]]
+      );
+      function importFile(filename: ptr[array[Word[8]]]) {
+        _importFile(rootManager, filename);
+      };
     };
   )SRC"), S("spp"));
 }
@@ -250,6 +256,9 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   this->globalItemRepo->addItem(S("Core.noticeStore"), sizeof(void*));
   this->globalItemRepo->addItem(
     S("RootManager_buildElement"), (void*)&RootManagerExtension::_dumpLlvmIrForElement
+  );
+  this->globalItemRepo->addItem(
+    S("RootManager_importFile"), (void*)&RootManagerExtension::_importFile
   );
 }
 

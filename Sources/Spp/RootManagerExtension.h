@@ -32,6 +32,7 @@ class RootManagerExtension : public ObjTiInterface
     TiFunctionBase *executeRootElementRef;
     TiFunctionBase *dumpLlvmIrForElementRef;
     TiFunctionBase *resetBuildDataRef;
+    TiFunctionBase *importFileRef;
   };
 
 
@@ -50,6 +51,7 @@ class RootManagerExtension : public ObjTiInterface
       &this->executeRootElement,
       &this->dumpLlvmIrForElement,
       &this->resetBuildData,
+      &this->importFile,
       &this->astHelper,
       &this->macroProcessor,
       &this->generator,
@@ -114,6 +116,9 @@ class RootManagerExtension : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(resetBuildData, void, (TiObject*));
   private: static void _resetBuildData(TiObject *self, TiObject *obj);
+
+  public: METHOD_BINDING_CACHE(importFile, void, (Char const*));
+  public: static void _importFile(TiObject *self, Char const *filename);
 
   /// @}
 

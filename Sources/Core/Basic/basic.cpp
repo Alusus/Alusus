@@ -33,8 +33,19 @@ static const FacetType& utf8Facet = std::use_facet<FacetType>(utf8Locale);
 //============================================================================
 // Global Functions
 
-void convertStr(Char const *input, int inputLength, WChar *output, int outputSize, int &processedInputLength, int &resultedOutputLength)
+Bool compareStrSuffix(Char const *str, Char const *suffix)
 {
+  Word strLen = getStrLen(str);
+  Word suffixLen = getStrLen(suffix);
+  if (suffixLen >= strLen) return false;
+  return compareStr(str + strLen - suffixLen, suffix) == 0;
+}
+
+
+void convertStr(
+  Char const *input, int inputLength, WChar *output, int outputSize,
+  int &processedInputLength, int &resultedOutputLength
+) {
   std::mbstate_t mystate = std::mbstate_t();
   Char const *fromNext;
   WChar *toNext;
@@ -47,8 +58,10 @@ void convertStr(Char const *input, int inputLength, WChar *output, int outputSiz
 }
 
 
-void convertStr(WChar const *input, int inputLength, Char *output, int outputSize, int &processedInputLength, int &resultedOutputLength)
-{
+void convertStr(
+  WChar const *input, int inputLength, Char *output, int outputSize,
+  int &processedInputLength, int &resultedOutputLength
+) {
   std::mbstate_t mystate = std::mbstate_t();
   WChar const *fromNext;
   Char *toNext;
