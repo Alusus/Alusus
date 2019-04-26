@@ -8,7 +8,7 @@ import "Apm.alusus";
             if(argCount >= 4) {
                 installLatestReleaseGlobal(argv~cnt(3)~cast[ptr[array[Char]]]);
             } else {
-                Console.print("%suse: apm install <author>/<package>@<release>\n", Console.Color.fgRed());
+                Console.print("%suse: apm install <author>/<package>@<release>\n", Console.Style.fgRed());
             }
         } else if (argCount >= 3 && String.compare(argv~cnt(2), "local") == 0) {
             if (argCount >= 4 && String.compare(argv~cnt(2), "install") == 0) {
