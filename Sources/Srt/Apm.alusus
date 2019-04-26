@@ -10,6 +10,57 @@ module Apm {
     def moduleName: array[Char, 250];
     def moduleAuthor: array[Char, 250];
     def moduleReleaseTag: array[Char, 250];
+    def globalPackageName: ptr[array[Char]] = "";
+    def localPackageName: ptr[array[Char]] = "";
+
+    func importModule(packageName: ptr[array[Char]]): bool {
+        def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
+        def packageWithReleaseTag: bool = 0;
+
+        if (String.findChar(packageName,'@') != 0){
+            String.scan(packageName, "%[^/]/%[^@]@%s", moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr);
+            packageWithReleaseTag = 1;
+        } else {
+            String.scan(packageName, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
+            packageWithReleaseTag = 0;
+        };
+
+        String.assign(globalPackageName, "%s/.apm/%s", homeDir, moduleName);
+        String.assign(localPackageName, ".apm/%s", moduleName);
+
+        fetchPackage(packageWithReleaseTag);
+        return 1;
+    };
+
+    func fetchPackage(releaseTag: bool): Void {
+        if(Fs.exists(localPackageName)){
+            Core.importFile(localPackageName);
+        } else if(Fs.exists(globalPackageName)){
+            Core.importFile(globalPackageName);                
+        } else {
+            def result: ptr[array[Char]];
+            def size: Int;
+            if (releaseTag){
+                def requestUrl: array[Char, 500];
+                String.assign(requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr);
+                Net.get(requestUrl~ptr, result~ptr, size~ptr);
+                urlRequestCallbackWithoutReleaseNameGlobal(result, size);
+            } else {
+                def requestUrl: array[Char, 500];
+                String.assign(requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr);
+                Console.print("%sFetching %s info from: %s\n", Console.Style.fgBlue(), moduleName~ptr, requestUrl~ptr);
+                if Net.get(requestUrl~ptr, result~ptr, size~ptr) {
+                    Console.print("%sFetching successful.\n", Console.Style.fgBlue()); 
+                } else {
+                    Console.print("%sFetched failed\n", Console.Style.fgRed());
+                };
+                urlRequestCallbackGlobal(result, size);
+            };
+
+            Core.importFile(globalPackageName);
+            Memory.free(result);
+        };
+    };
 
     // global install
     func installLatestReleaseGlobal(package: ptr[array[Char]]): Void {
@@ -21,15 +72,15 @@ module Apm {
             String.assign(requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr);
             Net.get(requestUrl~ptr, result~ptr, size~ptr);
             urlRequestCallbackWithoutReleaseNameGlobal(result, size);
-        }else{
+        } else {
             String.scan(package, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
             def requestUrl: array[Char, 500];
             String.assign(requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr);
             Console.print("%sFetching %s info from: %s\n", Console.Style.fgBlue(), moduleName~ptr, requestUrl~ptr);
             if Net.get(requestUrl~ptr, result~ptr, size~ptr) {
-              Console.print("%sFetching successful.\n", Console.Style.fgBlue()); 
+                Console.print("%sFetching successful.\n", Console.Style.fgBlue()); 
             } else {
-              Console.print("%sFetched failed\n", Console.Style.fgRed());
+                Console.print("%sFetched failed\n", Console.Style.fgRed());
             };
             urlRequestCallbackGlobal(result, size);
         };
