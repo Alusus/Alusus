@@ -10,8 +10,8 @@ module Apm {
     def moduleName: array[Char, 250];
     def moduleAuthor: array[Char, 250];
     def moduleReleaseTag: array[Char, 250];
-    def globalPackageName: array[Char];
-    def localPackageName: array[Char];
+    def globalPackageName: ptr[array[Char]];
+    def localPackageName: ptr[array[Char]];
 
     func importModule(packageName: ptr[array[Char]]): bool {
         def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
@@ -25,22 +25,20 @@ module Apm {
             packageWithReleaseTag = 0;
         };
 
-        String.assign(globalPackageName~ptr, "%s/.apm/%s/%s.alusus", homeDir, moduleName~ptr, moduleName~ptr);
-        String.assign(localPackageName~ptr, ".apm/%s/%s.alusus", moduleName~ptr, moduleName~ptr);
+        def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + (String.getLength(moduleName~ptr) * 2);
+        globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
+        localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
+        String.assign(globalPackageName, "%s/.apm/%s/%s.alusus", homeDir, moduleName~ptr, moduleName~ptr);
+        String.assign(localPackageName, ".apm/%s/%s.alusus", moduleName~ptr, moduleName~ptr);
 
-        fetchPackage(packageWithReleaseTag);
-        return 1;
-    };
-
-    func fetchPackage(releaseTag: bool): Void {
-        if(Fs.exists(localPackageName~ptr)){
-            Core.importFile(localPackageName~ptr);
-        } else if(Fs.exists(globalPackageName~ptr)){
-            Core.importFile(globalPackageName~ptr);                
+        if(Fs.exists(localPackageName)){
+            Core.importFile(localPackageName);
+        } else if(Fs.exists(globalPackageName)){
+            Core.importFile(globalPackageName);                
         } else {
             def result: ptr[array[Char]];
             def size: Int;
-            if (releaseTag){
+            if (packageWithReleaseTag){
                 def requestUrl: array[Char, 500];
                 String.assign(requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr);
                 Net.get(requestUrl~ptr, result~ptr, size~ptr);
@@ -57,12 +55,14 @@ module Apm {
                 urlRequestCallbackGlobal(result, size);
             };
 
-            Core.importFile(globalPackageName~ptr);
+            Core.importFile(globalPackageName);
             Memory.free(result);
         };
 
-        Memory.free(globalPackageName~ptr);
-        Memory.free(localPackageName~ptr);
+        Memory.free(globalPackageName);
+        Memory.free(localPackageName);
+
+        return 1;
     };
 
     // global install
