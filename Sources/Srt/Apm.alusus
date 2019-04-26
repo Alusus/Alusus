@@ -10,8 +10,8 @@ module Apm {
     def moduleName: array[Char, 250];
     def moduleAuthor: array[Char, 250];
     def moduleReleaseTag: array[Char, 250];
-    def globalPackageName: ptr[array[Char]] = "";
-    def localPackageName: ptr[array[Char]] = "";
+    def globalPackageName: array[Char];
+    def localPackageName: array[Char];
 
     func importModule(packageName: ptr[array[Char]]): bool {
         def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
@@ -25,18 +25,18 @@ module Apm {
             packageWithReleaseTag = 0;
         };
 
-        String.assign(globalPackageName, "%s/.apm/%s", homeDir, moduleName);
-        String.assign(localPackageName, ".apm/%s", moduleName);
+        String.assign(globalPackageName~ptr, "%s/.apm/%s/%s.alusus", homeDir, moduleName~ptr, moduleName~ptr);
+        String.assign(localPackageName~ptr, ".apm/%s/%s.alusus", moduleName~ptr, moduleName~ptr);
 
         fetchPackage(packageWithReleaseTag);
         return 1;
     };
 
     func fetchPackage(releaseTag: bool): Void {
-        if(Fs.exists(localPackageName)){
-            Core.importFile(localPackageName);
-        } else if(Fs.exists(globalPackageName)){
-            Core.importFile(globalPackageName);                
+        if(Fs.exists(localPackageName~ptr)){
+            Core.importFile(localPackageName~ptr);
+        } else if(Fs.exists(globalPackageName~ptr)){
+            Core.importFile(globalPackageName~ptr);                
         } else {
             def result: ptr[array[Char]];
             def size: Int;
@@ -57,9 +57,12 @@ module Apm {
                 urlRequestCallbackGlobal(result, size);
             };
 
-            Core.importFile(globalPackageName);
+            Core.importFile(globalPackageName~ptr);
             Memory.free(result);
         };
+
+        Memory.free(globalPackageName~ptr);
+        Memory.free(localPackageName~ptr);
     };
 
     // global install
