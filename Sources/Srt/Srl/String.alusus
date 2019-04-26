@@ -60,8 +60,7 @@ import "Srl/Memory.alusus";
         _results(i)(len) = 0;
       };
 
-      def matches: ptr[RegexMatches];
-      matches = Memory.alloc(Int~size + (_maxChars~size * i))~cast[ptr[RegexMatches]];
+      def matches: ptr[RegexMatches] = Memory.alloc(Int~size + (_maxChars~size * i))~cast[ptr[RegexMatches]];
       matches~cnt.count = i;
       Memory.copy(matches~cnt.matches~ptr, _results~ptr, i * _maxChars~size);
 

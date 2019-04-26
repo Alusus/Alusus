@@ -264,8 +264,7 @@ import "libcurl.so";
     };
 
     def _getCallbackFunction: function(chunk: ptr, size: Int[64], count: Int[64], content: ptr[_Content]) => Int {
-      def newSize: Word;
-      newSize = content~cnt.size + size * count;
+      def newSize: Word = content~cnt.size + size * count;
       if content~cnt.data == 0 {
         content~cnt.data = Srl.Memory.alloc(newSize)~cast[ptr[array[Word[8]]]];
       } else {
@@ -278,7 +277,7 @@ import "libcurl.so";
 
     def get: function (url: ptr[array[Char]], result: ptr[ptr], resultCount: ptr[Int]) => Bool
     {
-      def curlHandle: ptr[Curl];
+      def curlHandle: ptr[Curl] = CurlEasy.init();
       def resultCode: Int;
 
       result~cnt = 0;
@@ -288,7 +287,6 @@ import "libcurl.so";
       content.data = 0;
       content.size = 0;
 
-      curlHandle = CurlEasy.init();
       if (curlHandle == 0) return false;
 
       CurlEasy.setOpt(curlHandle, CurlOpt.URL, url);
@@ -312,14 +310,12 @@ import "libcurl.so";
 
     def get: function (url: ptr[array[Char]], filename: ptr[array[Char]]) => Bool
     {
-      def curlHandle: ptr[Curl];
+      def curlHandle: ptr[Curl] = CurlEasy.init();
       def resultCode: Int;
 
-      curlHandle = CurlEasy.init();
       if curlHandle == 0 return false;
 
-      def file: ptr[Srl.Fs.File];
-      file = Srl.Fs.openFile(filename, "wb");
+      def file: ptr[Srl.Fs.File] = Srl.Fs.openFile(filename, "wb");
       if file == 0 {
         CurlEasy.cleanup(curlHandle);
         return false;

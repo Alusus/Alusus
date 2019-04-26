@@ -31,8 +31,7 @@ import "Srl/Memory.alusus";
 
     def exists: function(filename: ptr[array[Char]]) => Bool
     {
-      def file: ptr[File];
-      file = openFile(filename, "rb");
+      def file: ptr[File] = openFile(filename, "rb");
       if file == 0 {
         return false;
       } else {
@@ -67,8 +66,7 @@ import "Srl/Memory.alusus";
 
     def createFile: function (filename: ptr[array[Char]], content: ptr, contentCount: Int) => Bool
     {
-      def file: ptr[File];
-      file = openFile(filename, "wb");
+      def file: ptr[File] = openFile(filename, "wb");
       if file == null return false;
       write(content, 1, contentCount, file);
       closeFile(file);
@@ -132,9 +130,8 @@ import "Srl/Memory.alusus";
     def readDir: @expname[readdir] function (directory: ptr[Dir]) => ptr[DirEnt];
     def readDir: function (directoryName: ptr[array[Char]]) => ptr[FileNames]
     {
-      def dir: ptr[Dir];
+      def dir: ptr[Dir] = openDir(directoryName);
       def dirent: ptr[DirEnt];
-      dir = openDir(directoryName);
       // Count the files in the directory.
       def count: Int;
       count = 0;
@@ -144,8 +141,7 @@ import "Srl/Memory.alusus";
         ++count;
       };
       // Allocate a structure with the appropriate size.
-      def fileNames: ptr[FileNames];
-      fileNames = Srl.Memory.alloc(Int~size + array[Char, FILENAME_LENGTH]~size * count)~cast[ptr[FileNames]];
+      def fileNames: ptr[FileNames] = Srl.Memory.alloc(Int~size + array[Char, FILENAME_LENGTH]~size * count)~cast[ptr[FileNames]];
       fileNames~cnt.count = count;
       // Read the fielnames.
       rewindDir(dir);

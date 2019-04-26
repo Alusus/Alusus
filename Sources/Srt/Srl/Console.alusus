@@ -28,24 +28,20 @@ import "Srl/String.alusus";
     def scan: @expname[scanf] function (format: ptr[Word[8]], args: ...any) => Int[32];
     def getInt: function () => Int
     {
-      def i: Int;
-      i = 0;
+      def i: Int = 0;
       scan("%d", i~ptr);
       return i;
     };
     def getFloat: function () => Float
     {
-      def i: Float;
-      i = 0;
+      def i: Float = 0;
       scan("%f", i~ptr);
       return i;
     };
     def getString: function (str: ptr[array[Char]], count: Word) => Void
     {
-      def i: Word;
-      def c: Char;
-      i = 0;
-      c = 0;
+      def i: Word = 0;
+      def c: Char = 0;
       while c != '\n' {
         c = getChar();
         if c != '\n' && i < count - 1 {
