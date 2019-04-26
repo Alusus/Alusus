@@ -105,7 +105,7 @@ module WidgetGuide
     def str: array[Char, 100];
     def i: Int;
     for i = 1, i <= 10, ++i {
-      Srl.String.print(str~ptr, "Row %d", i);
+      Srl.String.assign(str~ptr, "Row %d", i);
       def label: ptr[Gtk.Label];
       label = Gtk.Label.new(str~ptr);
       Gtk.ListBox.insert(listBox, label, -1);
@@ -183,14 +183,14 @@ module WidgetGuide
   function onListBoxSelectionChanged (listBox: ptr[Gtk.ListBox], item: ptr[Gtk.Bin], label: ptr[Gtk.Label])
   {
     def str: array[Char, 100];
-    Srl.String.print(str~ptr, "Selected item: %s", Gtk.Label.getText(Gtk.Bin.getChild(item)~cast[ptr[Gtk.Label]]));
+    Srl.String.assign(str~ptr, "Selected item: %s", Gtk.Label.getText(Gtk.Bin.getChild(item)~cast[ptr[Gtk.Label]]));
     Gtk.Label.setText(label, str~ptr);
   };
 
   function onEntryChanged (editable: ptr[Gtk.Editable], label: ptr[Gtk.Label])
   {
     def str: array[Char, 100];
-    Srl.String.print(str~ptr, "Entered text: %s", Gtk.Editable.getChars(editable, 0, -1));
+    Srl.String.assign(str~ptr, "Entered text: %s", Gtk.Editable.getChars(editable, 0, -1));
     Gtk.Label.setText(label, str~ptr);
   };
 
