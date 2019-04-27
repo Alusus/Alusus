@@ -33,9 +33,8 @@ module Apm {
         } else if(Fs.exists(globalPackageName)){
             Core.importFile(globalPackageName);                
         } else {
-            installLatestRelease(package, 1);
+            installLatestRelease(packageName, 1);
             Core.importFile(globalPackageName);
-            Memory.free(result);
         };
 
         Memory.free(globalPackageName);
