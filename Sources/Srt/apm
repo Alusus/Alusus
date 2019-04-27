@@ -5,10 +5,10 @@ import "Apm.alusus";
     use Srl;
     func start(argCount: Int, argv: ptr[array[ptr[Char]]]): Int {
         if (argCount >= 3 && String.compare(argv~cnt(2), "install") == 0) {
-            installLatestRelease(argv~cnt(3)~cast[ptr[array[Char]]], 1);
+            installRelease(argv~cnt(3)~cast[ptr[array[Char]]], 1, 1);
         } else if (argCount >= 3 && String.compare(argv~cnt(2), "local") == 0) {
             if (argCount >= 4 && String.compare(argv~cnt(3), "install") == 0) {
-                installLatestRelease(argv~cnt(4)~cast[ptr[array[Char]]], 0);
+                installRelease(argv~cnt(4)~cast[ptr[array[Char]]], 0, 1);
             } else {
                 Console.print("%suse: apm local install <author>/<package>@<release>\n", Console.Style.fgRed());
             }
