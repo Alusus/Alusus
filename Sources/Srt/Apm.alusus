@@ -12,6 +12,7 @@ module Apm {
     def moduleReleaseTag: array[Char, 250];
     def globalPackageName: ptr[array[Char]];
     def localPackageName: ptr[array[Char]];
+    def extractLogs: bool = 1;
 
     func importModule(packageName: ptr[array[Char]]): bool {
         def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
@@ -33,6 +34,7 @@ module Apm {
         } else if(Fs.exists(globalPackageName)){
             Core.importFile(globalPackageName);                
         } else {
+            extractLogs = 0;
             installRelease(packageName, 1, 0);
             Core.importFile(globalPackageName);
         };
@@ -50,8 +52,17 @@ module Apm {
             String.scan(package, "%[^/]/%[^@]@%s", moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr);
             def requestUrl: array[Char, 500];
             String.assign(requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr);
-            Net.get(requestUrl~ptr, result~ptr, size~ptr);
-            urlRequestCallbackWithoutReleaseName(result, size, global, logs);
+            if (Net.get(requestUrl~ptr, result~ptr, size~ptr)){
+                callbackWithRequestResult(result, size, global, logs, 1);
+
+                if (logs){
+                    Console.print("%sFetching successful.\n", Console.Style.fgBlue()); 
+                };
+            } else {
+                if (logs){
+                    Console.print("%sFetch failed\n", Console.Style.fgRed());
+                };
+            };
         } else {
             String.scan(package, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
             def requestUrl: array[Char, 500];
@@ -61,6 +72,8 @@ module Apm {
             };
 
             if Net.get(requestUrl~ptr, result~ptr, size~ptr) {
+                callbackWithRequestResult(result, size, global, logs, 0);
+                
                 if (logs){
                     Console.print("%sFetching successful.\n", Console.Style.fgBlue()); 
                 };
@@ -69,38 +82,34 @@ module Apm {
                     Console.print("%sFetch failed\n", Console.Style.fgRed());
                 };
             };
-            urlRequestCallback(result, size, global, logs);
         };
 
         Memory.free(result);
     };
 
-    func urlRequestCallbackWithoutReleaseName(result: ptr, size: Int, global: bool, logs: bool): Void {
-        def matches: ptr[String.RegexMatches] = String.regex("https://github.com/(.*)/(.*)/releases/tag/(.*)\",", result~cast[ptr[array[Char]]], 1);
-        if matches~cnt.count >= 2 {
-            if (logs){
+    func callbackWithRequestResult(result: ptr, size: Int, global: bool, logs: bool, releaseAvailable: bool): Void {
+        def matches: ptr[String.RegexMatches] = String.regex("https://github.com/([^/]*)/([^/].*)/releases/tag/([^\"]*)\",", result~cast[ptr[array[Char]]], 1);
+        if (releaseAvailable){
+            if matches~cnt.count >= 2 {
                 String.assign(moduleAuthor~ptr, "%s", matches~cnt.matches(1)~ptr);
                 String.assign(moduleName~ptr, "%s", matches~cnt.matches(2)~ptr);
+                downloadModule(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr, global, logs);
+            }else{
+                if (logs){
+                    Console.print("%scannot find latest release", Console.Style.fgRed());
+                };
             };
-            downloadModule(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr, global, logs);
-        }else{
-            if(logs){
-                Console.print("%scannot find latest release", Console.Style.fgRed());
+        } else {
+             if matches~cnt.count >= 3 {
+                String.assign(moduleAuthor~ptr, "%s", matches~cnt.matches(1)~ptr);
+                String.assign(moduleName~ptr, "%s", matches~cnt.matches(2)~ptr);
+                String.assign(moduleReleaseTag~ptr, "%s", matches~cnt.matches(3)~ptr);
+                downloadModule(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr, global, logs);
+            }else{
+                if (logs){
+                    Console.print("%scannot find latest release", Console.Style.fgRed());
+                };
             };
-        };
-
-        Memory.free(matches);
-    };
-
-    func urlRequestCallback(result: ptr, size: Int, global: bool, logs: bool): Void {
-        def matches: ptr[String.RegexMatches] = String.regex("https://github.com/([^/]*)/([^/].*)/releases/tag/([^\"]*)\",", result~cast[ptr[array[Char]]], 1);
-        if matches~cnt.count >= 2 {
-            String.assign(moduleAuthor~ptr, "%s", matches~cnt.matches(1)~ptr);
-            String.assign(moduleName~ptr, "%s", matches~cnt.matches(2)~ptr);
-            String.assign(moduleReleaseTag~ptr, "%s", matches~cnt.matches(3)~ptr);
-            downloadModule(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr, global, logs);
-        }else{
-            Console.print("%scannot find latest release", Console.Style.fgRed());
         };
 
         Memory.free(matches);
@@ -147,7 +156,7 @@ module Apm {
                 Console.print("%sunzip temp.zip to /tmp/temp_zip/\n", Console.Style.fgBlue());
             };
 
-            if(Zip.extractFromFile("/tmp/temp.zip", "/tmp/temp_zip", onExtractZip~ptr, logs) == 0){
+            if(Zip.extractFromFile("/tmp/temp.zip", "/tmp/temp_zip", onExtractZip~ptr, 1) == 0){
                 if (logs) {
                     Console.print("%stemp.zip extracted.\n", Console.Style.fgBlue());
                 };
@@ -188,8 +197,8 @@ module Apm {
         return 0;
     };
   
-    func onExtractZip(filename: ptr[array[Char]], logs: Int): Void {
-        if(logs == 1){
+    func onExtractZip(filename: ptr[array[Char]], args: Int): Void {
+        if(extractLogs){
             Console.print("%sextracted %s\n", Console.Style.fgGreen(), filename);
         };
     };
