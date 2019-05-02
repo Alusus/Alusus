@@ -1,4 +1,6 @@
 #!/usr/bin/env alusus
+def lang_name: "ar"؛
+import "apm.translate.alusus";
 import "Apm.alusus";
 
 Apm.main(Process.argCount, Process.args);
