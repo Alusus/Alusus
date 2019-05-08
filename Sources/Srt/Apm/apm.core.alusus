@@ -15,28 +15,28 @@ module Apm {
     def extractLogs: bool = 1;
 
     func main(argCount: Int, argv: ptr[array[ptr[Char]]]): Int {
-        if (argCount >= 3 && String.compare(argv~cnt(2), lang.cmd_install) == 0) {
+        if (argCount >= 3 && String.compare(argv~cnt(2), language.cmd_install) == 0) {
             installRelease(argv~cnt(3)~cast[ptr[array[Char]]], 1, 1);
-        } else if (argCount >= 3 && String.compare(argv~cnt(2), lang.cmd_local) == 0) {
-            if (argCount >= 4 && String.compare(argv~cnt(3), lang.cmd_install) == 0) {
+        } else if (argCount >= 3 && String.compare(argv~cnt(2), language.cmd_local) == 0) {
+            if (argCount >= 4 && String.compare(argv~cnt(3), language.cmd_install) == 0) {
                 installRelease(argv~cnt(4)~cast[ptr[array[Char]]], 0, 1);
             } else {
-                Console.print(lang.use_apm_local_install, Console.Style.fgRed());
+                Console.print(language.use_apm_local_install, Console.Style.fgRed());
             }
-        } else if(argCount >= 3 && String.compare(argv~cnt(2), lang.cmd_help) == 0) {
+        } else if(argCount >= 3 && String.compare(argv~cnt(2), language.cmd_help) == 0) {
             def homeDirectory: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
             def pwdDirectory: ptr[array[Char]] = System.getEnv("PWD")~cast[ptr[array[Char]]];
-            Console.print(lang.help_commands, Console.Style.fgGreen());
-            Console.print(lang.help_apm_help, Console.Style.fgYellow());
-            Console.print(lang.help_apm_help_tip, Console.Style.fgWhite());
-            Console.print(lang.help_apm_install, Console.Style.fgYellow());
-            Console.print(lang.help_apm_install_tip, Console.Style.fgWhite(), homeDirectory);
-            Console.print(lang.help_apm_install_local, Console.Style.fgYellow());
-            Console.print(lang.help_apm_install_tip, Console.Style.fgWhite(), pwdDirectory);
+            Console.print(language.help_commands, Console.Style.fgGreen());
+            Console.print(language.help_apm_help, Console.Style.fgYellow());
+            Console.print(language.help_apm_help_tip, Console.Style.fgWhite());
+            Console.print(language.help_apm_install, Console.Style.fgYellow());
+            Console.print(language.help_apm_install_tip, Console.Style.fgWhite(), homeDirectory);
+            Console.print(language.help_apm_install_local, Console.Style.fgYellow());
+            Console.print(language.help_apm_install_tip, Console.Style.fgWhite(), pwdDirectory);
         } else if(argCount >= 3) {
-            Console.print(lang.unknown_command, Console.Style.fgRed(), argv~cnt(2));
+            Console.print(language.unknown_command, Console.Style.fgRed(), argv~cnt(2));
         } else {
-            Console.print(lang.use_help_command, Console.Style.fgWhite());
+            Console.print(language.use_help_command, Console.Style.fgWhite());
         };
 
         return 0;
@@ -85,11 +85,11 @@ module Apm {
                 callbackWithRequestResult(result, size, global, logs, 1);
 
                 if (logs){
-                    Console.print(lang.success_fetch, Console.Style.fgBlue()); 
+                    Console.print(language.success_fetch, Console.Style.fgBlue()); 
                 };
             } else {
                 if (logs){
-                    Console.print(lang.error_fetch, Console.Style.fgRed());
+                    Console.print(language.error_fetch, Console.Style.fgRed());
                 };
             };
         } else {
@@ -104,11 +104,11 @@ module Apm {
                 callbackWithRequestResult(result, size, global, logs, 0);
                 
                 if (logs){
-                    Console.print(lang.success_fetch, Console.Style.fgBlue()); 
+                    Console.print(language.success_fetch, Console.Style.fgBlue()); 
                 };
             } else {
                 if (logs){
-                    Console.print(lang.error_fetch, Console.Style.fgRed());
+                    Console.print(language.error_fetch, Console.Style.fgRed());
                 };
             };
         };
@@ -125,7 +125,7 @@ module Apm {
                 downloadModule(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr, global, logs);
             }else{
                 if (logs){
-                    Console.print(lang.cannot_fetch, Console.Style.fgRed());
+                    Console.print(language.cannot_fetch, Console.Style.fgRed());
                 };
             };
         } else {
@@ -136,7 +136,7 @@ module Apm {
                 downloadModule(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr, global, logs);
             }else{
                 if (logs){
-                    Console.print(lang.cannot_fetch, Console.Style.fgRed());
+                    Console.print(language.cannot_fetch, Console.Style.fgRed());
                 };
             };
         };
@@ -167,59 +167,59 @@ module Apm {
 
         if (Fs.exists(outToAPMModulesDirectory~ptr)){
             if (logs) {
-                Console.print(lang.module_already_install, Console.Style.fgRed(), outToAPMModulesDirectory~ptr);
+                Console.print(language.module_already_install, Console.Style.fgRed(), outToAPMModulesDirectory~ptr);
             };
 
             return 0;
         };
 
         if (logs) {
-            Console.print(lang.installing_module, Console.Style.fgBlue(), moduleName, moduleReleaseTag);
-            Console.print(lang.request_module, Console.Style.fgBlue(), downloadLink~ptr);
-            Console.print(lang.downloading_module, Console.Style.fgYellow(), downloadLink~ptr, "/tmp/temp.zip");    
+            Console.print(language.installing_module, Console.Style.fgBlue(), moduleName, moduleReleaseTag);
+            Console.print(language.request_module, Console.Style.fgBlue(), downloadLink~ptr);
+            Console.print(language.downloading_module, Console.Style.fgYellow(), downloadLink~ptr, "/tmp/temp.zip");    
         };
 
         if(Net.get(downloadLink~ptr, "/tmp/temp.zip")){
             if (logs) {
-                Console.print(lang.downloaded_module, Console.Style.fgBlue());
-                Console.print(lang.unzip_to_temp, Console.Style.fgBlue(), "temp.zip", "/tmp/temp_zip/");
+                Console.print(language.downloaded_module, Console.Style.fgBlue());
+                Console.print(language.unzip_to_temp, Console.Style.fgBlue(), "temp.zip", "/tmp/temp_zip/");
             };
 
             if(Zip.extractFromFile("/tmp/temp.zip", "/tmp/temp_zip", onExtractZip~ptr, 1) == 0){
                 if (logs) {
-                    Console.print(lang.archive_extracted, Console.Style.fgBlue());
+                    Console.print(language.archive_extracted, Console.Style.fgBlue());
                 };
 
                 if(Fs.exists(dirOfAPMModulesDirectory~ptr) || Fs.makeDir(dirOfAPMModulesDirectory~ptr)){
                     if (logs) {
-                        Console.print(lang.created, Console.Style.fgBlue(), dirOfAPMModulesDirectory~ptr);
-                        Console.print(lang.move_module, Console.Style.fgBlue(), dirOfAPMModulesDirectory~ptr);
-                        Console.print(lang.copy_module, Console.Style.fgYellow(), folderInTempDirectory~ptr, outToAPMModulesDirectory~ptr);
+                        Console.print(language.created, Console.Style.fgBlue(), dirOfAPMModulesDirectory~ptr);
+                        Console.print(language.move_module, Console.Style.fgBlue(), dirOfAPMModulesDirectory~ptr);
+                        Console.print(language.copy_module, Console.Style.fgYellow(), folderInTempDirectory~ptr, outToAPMModulesDirectory~ptr);
                     };
 
                     if(System.exec(execCopyCommand~ptr) == 0){
                         if (logs) {
-                            Console.print(lang.moved_module, Console.Style.fgGreen(), dirOfAPMModulesDirectory~ptr);
-                            Console.print(lang.module_installed, Console.Style.fgGreen(), moduleName);
+                            Console.print(language.moved_module, Console.Style.fgGreen(), dirOfAPMModulesDirectory~ptr);
+                            Console.print(language.module_installed, Console.Style.fgGreen(), moduleName);
                         };
                     }else{
                         if (logs) {
-                            Console.print(lang.cannot_move_module, Console.Style.fgRed(), dirOfAPMModulesDirectory~ptr);
+                            Console.print(language.cannot_move_module, Console.Style.fgRed(), dirOfAPMModulesDirectory~ptr);
                         };
                     };
                 }else{
                     if (logs) {
-                        Console.print(lang.cannot_create_module, Console.Style.fgRed(), dirOfAPMModulesDirectory~ptr);
+                        Console.print(language.cannot_create_module, Console.Style.fgRed(), dirOfAPMModulesDirectory~ptr);
                     };
                 };
             }else{
                 if (logs) {
-                    Console.print(lang.cannot_extract, Console.Style.fgRed(), "temp.zip");
+                    Console.print(language.cannot_extract, Console.Style.fgRed(), "temp.zip");
                 };
             };
         }else{
             if (logs) {
-                Console.print(lang.cannot_get, Console.Style.fgRed(), downloadLink~ptr);
+                Console.print(language.cannot_get, Console.Style.fgRed(), downloadLink~ptr);
             };
         };
 
@@ -228,7 +228,7 @@ module Apm {
   
     func onExtractZip(filename: ptr[array[Char]], args: Int): Void {
         if(extractLogs){
-            Console.print(lang.file_extracted, Console.Style.fgGreen(), filename);
+            Console.print(language.file_extracted, Console.Style.fgGreen(), filename);
         };
     };
 };

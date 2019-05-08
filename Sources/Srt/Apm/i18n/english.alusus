@@ -1,5 +1,4 @@
-import "Srl/String.alusus";
-module lang {
+module language {
     def use_apm_install: ptr[array[Char]];
     def use_apm_local_install: ptr[array[Char]];
     def help_commands: ptr[array[Char]];
