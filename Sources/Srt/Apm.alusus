@@ -1,2 +1,3 @@
+import "globals.alusus";
 import "Apm/i18n/english.alusus";
 import "Apm/apm.core.alusus";
