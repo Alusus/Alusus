@@ -1,6 +1,5 @@
 #!/usr/bin/env alusus
-عرف lang_name: "ar"؛
-اشمل "apm.translate.alusus"؛
+اشمل "apm.translate.ar.alusus"؛
 اشمل "مـحا.أسس"؛
 
 مـحا.البداية(الـعملية.عدد_المعطيات، الـعملية.المعطيات)؛

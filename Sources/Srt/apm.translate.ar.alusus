@@ -1,0 +1,75 @@
+import "Srl/String.alusus";
+module lang {
+    def use_apm_install: ptr[array[Char]];
+    def use_apm_local_install: ptr[array[Char]];
+    def help_commands: ptr[array[Char]];
+    def help_apm_help: ptr[array[Char]];
+    def help_apm_help_tip: ptr[array[Char]];
+    def help_apm_install: ptr[array[Char]];
+    def help_apm_install_tip: ptr[array[Char]];
+    def help_apm_install_local: ptr[array[Char]];
+    def unknown_command: ptr[array[Char]];
+    def use_help_command: ptr[array[Char]];
+    
+    def cmd_install: ptr[array[Char]];
+    def cmd_local: ptr[array[Char]];
+    def cmd_help: ptr[array[Char]];
+    
+    def success_fetch: ptr[array[Char]];
+    def error_fetch: ptr[array[Char]];
+    def cannot_fetch: ptr[array[Char]];
+    def module_already_install: ptr[array[Char]];
+    def installing_module: ptr[array[Char]];
+    def request_module: ptr[array[Char]];
+    def downloading_module: ptr[array[Char]];
+    def downloaded_module: ptr[array[Char]];
+    def unzip_to_temp: ptr[array[Char]];
+    def archive_extracted: ptr[array[Char]];
+    def created: ptr[array[Char]];
+    def move_module: ptr[array[Char]];
+    def copy_module: ptr[array[Char]];
+    def moved_module: ptr[array[Char]];
+    def module_installed: ptr[array[Char]];
+    def cannot_move_module: ptr[array[Char]];
+    def cannot_create_module: ptr[array[Char]];
+    def cannot_extract: ptr[array[Char]];
+    def cannot_get: ptr[array[Char]];
+    def file_extracted: ptr[array[Char]];
+};
+
+lang.use_apm_install = "%sاستخدم: محا تثبيت <المالك>/<الوحدة>@<الاصدار>\ج";
+lang.use_apm_local_install = "%sاستخدم: محا محلي تثبيت <المالك>/<الوحدة>@<الاصدار>\ج";
+lang.help_commands = " %sالاوامر:- \ج";
+lang.help_apm_help = "   %sمحا مساعدة\t\t\t\t\t\t";
+lang.help_apm_help_tip = "%sقائمة الاوامر\ج";
+lang.help_apm_install = "   %sاستخدم: محا تثبيت <المالك>/<الوحدة>@<الاصدار>\t\t";
+lang.help_apm_install_tip = "%sتثبيت الوحدة في `%s/.apm`\ج";
+lang.help_apm_install_local = "   %sاستخدم: محا محلي تثبيت <المالك>/<الوحدة>@<الاصدار>\t";
+lang.unknown_command = "%الامر التالي غير معرف '%s'. استخدم 'محا مساعدة' للمساعدة.\ج";
+lang.use_help_command = "%sاستخدم 'محا مساعدة' للمساعدة.\ج";
+
+// names of commands
+lang.cmd_install = "تثبيت";
+lang.cmd_local = "محلي";
+lang.cmd_help = "مساعدة";
+
+lang.success_fetch = "%sنجح الجلب.\ج";
+lang.error_fetch = "%sفشل الجلب";
+lang.cannot_fetch = "%sلا يمكن الحصول على اخر اصدار\ج";
+lang.module_already_install = "%s%s مثبت مسبقًا.\ج";
+lang.installing_module = "%sتثبيت %s الاصدار %s\ج";
+lang.request_module = "%sجلب %s\ج";
+lang.downloading_module = "%sتنزيل %s الى %s\ج";
+lang.downloaded_module = "%stemp.zip قد نزل\ج";
+lang.unzip_to_temp = "%sاستخراج %s الى %s\ج";
+lang.archive_extracted = "%stemp.zip قد استخرج.\ج";
+lang.created = "%s`%s` قد تم انشائه.\ج";
+lang.move_module = "%sنقل الوحدة الى `%s`.\ج";
+lang.copy_module = "%sنسخ الوحدة من `%s` الى `%s`.\ج";
+lang.moved_module = "%sنقلت الوحدة الى `%s`.\ج";
+lang.module_installed = "%sالوحدة %s تم تثبيتها.\ج";
+lang.cannot_move_module = "%sلا يمكن نقل الحزمة الى `%s`.\ج";
+lang.cannot_create_module = "%sﻻ يمكن انشاء `%s`.\n";
+lang.cannot_extract = "%sلا يمكن استخراج `%s`.\n";
+lang.cannot_get = "%sلا يمكن جلب %s.\n";
+lang.file_extracted = "%s%s تم استخراجة\n";

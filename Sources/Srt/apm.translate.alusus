@@ -1,43 +1,75 @@
 import "Srl/String.alusus";
-
-if (String.compare(lang_name, "en") == 0){
-    import "Srl/Console.alusus";
+module lang {
+    def use_apm_install: ptr[array[Char]];
+    def use_apm_local_install: ptr[array[Char]];
+    def help_commands: ptr[array[Char]];
+    def help_apm_help: ptr[array[Char]];
+    def help_apm_help_tip: ptr[array[Char]];
+    def help_apm_install: ptr[array[Char]];
+    def help_apm_install_tip: ptr[array[Char]];
+    def help_apm_install_local: ptr[array[Char]];
+    def unknown_command: ptr[array[Char]];
+    def use_help_command: ptr[array[Char]];
     
-    type lang {
-        // commands logs
-        def use_apm_install: "%suse: apm install <author>/<package>@<release>\n";
-        def use_apm_local_install: "%suse: apm local install <author>/<package>@<release>\n";
-        def help_commands: " %sCommands:- \n";
-        def help_apm_help: "   %sapm help\t\t\t\t\t\t";
-        def help_apm_help_tip: "%slist of commands\n";
-        def help_apm_install: "   %sapm install <author>/<package>@<release>\t\t";
-        def help_apm_install_tip: "%sinstall package in `%s/.apm`\n";
-        def help_apm_install_local: "   %sapm local install <author>/<package>@<release>\t";
-        def unknown_command: "%sUnknown command '%s'. Use 'apm help' for help.\n";
-        def use_help_command: "%sUse 'apm help' for help.\n";
-        
-        // names of commands
-        def cmd_install: "install";
-        def cmd_local: "local";
-        def cmd_help: "help";
-    };
-} else if (String.compare(lang_name, "ar") == 0){
-    type lang {
-        // commands logs
-        def use_apm_install: "%sاستخدم: محا تثبيت <المالك>/<الوحدة>@<الاصدار>\n";
-        def use_apm_local_install: "%sاستخدم: محا محلي تثبيت <المالك>/<الوحدة>@<الاصدار>\n";
-        def help_commands: " %sالاوامر:- \n";
-        def help_apm_help: "   %sمحا مساعدة\t\t\t\t\t\t";
-        def help_apm_help_tip: "%sقائمة الاوامر\n";
-        def help_apm_install: "   %sاستخدم: محا تثبيت <المالك>/<الوحدة>@<الاصدار>\t\t";
-        def help_apm_install_tip: "%sتثبيت الوحدة في `%s/.apm`\n";
-        def help_apm_install_local: "   %sاستخدم: محا محلي تثبيت <المالك>/<الوحدة>@<الاصدار>\t";
-        def unknown_command: "%الامر التالي غير معرف '%s'. استخدم 'محا مساعدة' للمساعدة.\n";
-        def use_help_command: "%sاستخدم 'محا مساعدة' للمساعدة.\n";
-
-        // names of commands
-        def cmd_install: "تثبيت";
-        def cmd_local: "محلي";
-        def cmd_help: "مساعدة";
-    };
+    def cmd_install: ptr[array[Char]];
+    def cmd_local: ptr[array[Char]];
+    def cmd_help: ptr[array[Char]];
+    
+    def success_fetch: ptr[array[Char]];
+    def error_fetch: ptr[array[Char]];
+    def cannot_fetch: ptr[array[Char]];
+    def module_already_install: ptr[array[Char]];
+    def installing_module: ptr[array[Char]];
+    def request_module: ptr[array[Char]];
+    def downloading_module: ptr[array[Char]];
+    def downloaded_module: ptr[array[Char]];
+    def unzip_to_temp: ptr[array[Char]];
+    def archive_extracted: ptr[array[Char]];
+    def created: ptr[array[Char]];
+    def move_module: ptr[array[Char]];
+    def copy_module: ptr[array[Char]];
+    def moved_module: ptr[array[Char]];
+    def module_installed: ptr[array[Char]];
+    def cannot_move_module: ptr[array[Char]];
+    def cannot_create_module: ptr[array[Char]];
+    def cannot_extract: ptr[array[Char]];
+    def cannot_get: ptr[array[Char]];
+    def file_extracted: ptr[array[Char]];
 };
+
+lang.use_apm_install = "%suse: apm install <author>/<package>@<release>\n";
+lang.use_apm_local_install = "%suse: apm local install <author>/<package>@<release>\n";
+lang.help_commands = " %sCommands:- \n";
+lang.help_apm_help = "   %sapm help\t\t\t\t\t\t";
+lang.help_apm_help_tip = "%slist of commands\n";
+lang.help_apm_install = "   %sapm install <author>/<package>@<release>\t\t";
+lang.help_apm_install_tip = "%sinstall package in `%s/.apm`\n";
+lang.help_apm_install_local = "   %sapm local install <author>/<package>@<release>\t";
+lang.unknown_command = "%sUnknown command '%s'. Use 'apm help' for help.\n";
+lang.use_help_command = "%sUse 'apm help' for help.\n";
+
+// names of commands
+lang.cmd_install = "install";
+lang.cmd_local = "local";
+lang.cmd_help = "help";
+
+lang.success_fetch = "%sFetching successful.\n";
+lang.error_fetch = "%sFetch failed\n";
+lang.cannot_fetch = "%scannot find latest release";
+lang.module_already_install = "%s%s is already installed.\n";
+lang.installing_module = "%sInstalling %s v%s\n";
+lang.request_module = "%sRequest %s\n";
+lang.downloading_module = "%sDownloading `%s` to `%s\n";
+lang.downloaded_module = "%sDownloaded temp.zip\n";
+lang.unzip_to_temp = "%sunzip `%s` to `%s`\n";
+lang.archive_extracted = "%stemp.zip extracted.\n";
+lang.created = "%s`%s` created.\n";
+lang.move_module = "%smove module to `%s`.\n";
+lang.copy_module = "%scopy module `%s` to `%s`.\n";
+lang.moved_module = "%smoved to `%s`.\n";
+lang.module_installed = "%s%s Installed.\n";
+lang.cannot_move_module = "%scannot move module to `%s`.\n";
+lang.cannot_create_module = "%scannot create `%s`.\n";
+lang.cannot_extract = "%scannot extract `%s`.\n";
+lang.cannot_get = "%scannot get %s.\n";
+lang.file_extracted = "%s%s extracted\n";
