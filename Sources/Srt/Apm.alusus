@@ -1,2 +1,2 @@
-import "apm.translate.alusus";
-import "apm.core.alusus";
+import "Apm/i18n/english.alusus";
+import "Apm/apm.core.alusus";

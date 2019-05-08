@@ -1,5 +1,5 @@
 #!/usr/bin/env alusus
-import "apm.translate.alusus";
-import "apm.core.alusus";
+import "Apm/i18n/english.alusus";
+import "Apm/apm.core.alusus";
 
 Apm.main(Process.argCount, Process.args);

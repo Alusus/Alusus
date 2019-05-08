@@ -1,6 +1,6 @@
 اشمل "عامة.أسس"؛
-اشمل "apm.translate.ar.alusus"؛
-اشمل "apm.core.alusus"؛
+اشمل "Apm/i18n/arabic.alusus"؛
+اشمل "Apm/apm.core.alusus"؛
 
 عرف مـحا: لقب Apm؛
 @دمج حزمة Apm{
