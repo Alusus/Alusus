@@ -1,0 +1,9 @@
+اشمل "عامة.أسس"؛
+اشمل "Apm/i18n/arabic.alusus"؛
+اشمل "Apm/apm.core.alusus"؛
+
+عرف مـحا: لقب Apm؛
+@دمج حزمة Apm{
+    عرف البداية: لقب main؛
+    عرف اشمل_وحدة: لقب importModule؛
+}؛

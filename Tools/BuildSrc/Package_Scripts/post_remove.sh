@@ -14,6 +14,9 @@ if [ -L "${LINK_DIR}/apm" ]; then
    unlink ${LINK_DIR}/apm
 fi
 
+if [ -L "${LINK_DIR}/محا" ]; then
+   unlink ${LINK_DIR}/محا
+fi
 
 # Remove GTK syntax highlighting specs.
 

@@ -1,0 +1,4 @@
+#!/usr/bin/env alusus
+import "Apm.alusus";
+
+Apm.main(Process.argCount, Process.args);

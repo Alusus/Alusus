@@ -1,0 +1,73 @@
+module language {
+    def use_apm_install: ptr[array[Char]];
+    def use_apm_local_install: ptr[array[Char]];
+    def help_commands: ptr[array[Char]];
+    def help_apm_help: ptr[array[Char]];
+    def help_apm_help_tip: ptr[array[Char]];
+    def help_apm_install: ptr[array[Char]];
+    def help_apm_install_tip: ptr[array[Char]];
+    def help_apm_install_local: ptr[array[Char]];
+    def unknown_command: ptr[array[Char]];
+    def use_help_command: ptr[array[Char]];
+    
+    def cmd_install: ptr[array[Char]];
+    def cmd_local: ptr[array[Char]];
+    def cmd_help: ptr[array[Char]];
+    
+    def success_fetch: ptr[array[Char]];
+    def error_fetch: ptr[array[Char]];
+    def cannot_fetch: ptr[array[Char]];
+    def module_already_install: ptr[array[Char]];
+    def installing_module: ptr[array[Char]];
+    def request_module: ptr[array[Char]];
+    def downloading_module: ptr[array[Char]];
+    def downloaded_module: ptr[array[Char]];
+    def unzip_to_temp: ptr[array[Char]];
+    def archive_extracted: ptr[array[Char]];
+    def created: ptr[array[Char]];
+    def move_module: ptr[array[Char]];
+    def copy_module: ptr[array[Char]];
+    def moved_module: ptr[array[Char]];
+    def module_installed: ptr[array[Char]];
+    def cannot_move_module: ptr[array[Char]];
+    def cannot_create_module: ptr[array[Char]];
+    def cannot_extract: ptr[array[Char]];
+    def cannot_get: ptr[array[Char]];
+    def file_extracted: ptr[array[Char]];
+};
+
+language.use_apm_install = "%suse: apm install <author>/<package>@<release>\n";
+language.use_apm_local_install = "%suse: apm local install <author>/<package>@<release>\n";
+language.help_commands = " %sCommands:- \n";
+language.help_apm_help = "   %sapm help\t\t\t\t\t\t";
+language.help_apm_help_tip = "%slist of commands\n";
+language.help_apm_install = "   %sapm install <author>/<package>@<release>\t\t";
+language.help_apm_install_tip = "%sinstall package in `%s/.apm`\n";
+language.help_apm_install_local = "   %sapm local install <author>/<package>@<release>\t";
+language.unknown_command = "%sUnknown command '%s'. Use 'apm help' for help.\n";
+language.use_help_command = "%sUse 'apm help' for help.\n";
+
+language.cmd_install = "install";
+language.cmd_local = "local";
+language.cmd_help = "help";
+
+language.success_fetch = "%sFetching successful.\n";
+language.error_fetch = "%sFetch failed\n";
+language.cannot_fetch = "%scannot find latest release";
+language.module_already_install = "%s%s is already installed.\n";
+language.installing_module = "%sInstalling %s v%s\n";
+language.request_module = "%sRequest %s\n";
+language.downloading_module = "%sDownloading `%s` to `%s\n";
+language.downloaded_module = "%sDownloaded temp.zip\n";
+language.unzip_to_temp = "%sunzip `%s` to `%s`\n";
+language.archive_extracted = "%stemp.zip extracted.\n";
+language.created = "%s`%s` created.\n";
+language.move_module = "%smove module to `%s`.\n";
+language.copy_module = "%scopy module `%s` to `%s`.\n";
+language.moved_module = "%smoved to `%s`.\n";
+language.module_installed = "%s%s Installed.\n";
+language.cannot_move_module = "%scannot move module to `%s`.\n";
+language.cannot_create_module = "%scannot create `%s`.\n";
+language.cannot_extract = "%scannot extract `%s`.\n";
+language.cannot_get = "%scannot get %s.\n";
+language.file_extracted = "%s%s extracted\n";
