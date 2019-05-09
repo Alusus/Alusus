@@ -23,14 +23,20 @@ using namespace Core;
 
 
 /**
- * @brief Checks system language to determine whether we should use Arabic.
+ * @brief Get the system language code from env vars.
  * @ingroup main
+ * This checks the value in LANGUAGE env var if available. If not it checks the
+ * value in LANG env var.
  */
-Bool isArabic()
+Str getSystemLanguage()
 {
   auto langEnv = getenv(S("LANGUAGE"));
-  if (langEnv == 0) return false;
-  else return compareStr(langEnv, S("ar")) == 0 || compareStr(langEnv, S("ar:"), 3) == 0;
+  if (langEnv == 0 || getStrLen(langEnv) == 0) langEnv = getenv(S("LANG"));
+  if (langEnv == 0 || getStrLen(langEnv) == 0) langEnv = S("en");
+
+  Str lang;
+  lang.assign(langEnv, 2);
+  return lang;
 }
 
 
@@ -46,7 +52,7 @@ int main(int argCount, char * const args[])
   Bool interactive = false;
   Char const *sourceFile = 0;
   Bool dump = false;
-  auto arabic = isArabic();
+  auto lang = getSystemLanguage();
   if (argCount < 2) help = true;
   for (Int i = 1; i < argCount; ++i) {
     if (strcmp(args[i], S("--help")) == 0) help = true;
@@ -74,7 +80,7 @@ int main(int argCount, char * const args[])
     }
   }
 
-  if (arabic) {
+  if (lang == S("ar")) {
     // TODO: Support other locales.
     Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"));
   }
@@ -89,11 +95,11 @@ int main(int argCount, char * const args[])
     copyStr(ALUSUS_HIJRI_RELEASE_DATE, alususHijriReleaseYear, 4);
     alususReleaseYear[4] = alususHijriReleaseYear[4] = 0;
     // Check if the command line was in English by detecting if the first character is ASCII.
-    if (arabic) {
+    if (lang == S("ar")) {
       // Write Arabic help.
       outStream << S("قلب الأسُس\n"
-                     "الإصدار (" ALUSUS_VERSION ALUSUS_REVISION ")\n (" ALUSUS_RELEASE_DATE "م) \\ (" ALUSUS_HIJRI_RELEASE_DATE "هـ)\n"
-                     "جميع الحقوق محفوظة لـ سرمد خالد عبدالله (" << alususReleaseYear << "م) \\ (" << alususHijriReleaseYear << "هـ)\n\n");
+                     "الإصدار (" ALUSUS_VERSION ALUSUS_REVISION ")\n(" ALUSUS_RELEASE_DATE " م)\n(" ALUSUS_HIJRI_RELEASE_DATE " هـ)\n"
+                     "جميع الحقوق محفوظة لـ سرمد خالد عبدالله (" << alususReleaseYear << " م) \\ (" << alususHijriReleaseYear << " هـ)\n\n");
       outStream << S("نُشر هذا البرنامج برخصة الأسُس العامة، الإصدار 1.0، والمتوفرة على الرابط أدناه.\n"
                      "يرجى قراءة الرخصة قبل استخدام البرنامج. استخدامك لهذا البرنامج أو أي من الملفات\n"
                      "المرفقة معه إقرار منك أنك قرأت هذه الرخصة ووافقت على جميع فقراتها.\n");
@@ -104,15 +110,18 @@ int main(int argCount, char * const args[])
       outStream << S("alusus [<Core options>] <source> [<program options>]\n");
       outStream << S("source = filename.\n");
       outStream << S("\nالخيارات:\n");
-      outStream << S("\t(--تفاعلي)، (-ت)  تنفيذ بشكل تفاعلي.\n");
-      outStream << S("\t(--إلقاء)  تبلغ القلب بإلقاء شجرة AST عند الانتهاء.\n");
+      outStream << S("\tتنفيذ بشكل تفاعلي:\n");
+      outStream << S("\t\t--تفاعلي\n");
+      outStream << S("\t\t-ت\n");
+      outStream << S("\t\t--interactive\n");
+      outStream << S("\t\t-i\n");
+      outStream << S("\tالقاء شجرة AST عند الانتهاء:\n");
+      outStream << S("\t\t--شجرة\n");
+      outStream << S("\t\t--dump\n");
       #if defined(USE_LOGS)
-        outStream << S("\t(--تدوين)  قيمة من 6 بتّات للتحكم بمستوى التدوين.\n");
-      #endif
-      outStream << S("\t(--interactive), (-i)  Run in interactive mode.\n");
-      outStream << S("\t(--dump)  Tells the Core to dump the resulting AST tree.\n");
-      #if defined(USE_LOGS)
-        outStream << S("\t(--log)  A 6 bit value to control the level of details of the log.\n");
+        outStream << S("\tالتحكم بمستوى التدوين (قيمة من 6 بتات):\n");
+        outStream << S("\t\t--تدوين\n");
+        outStream << S("\t\t--log\n");
       #endif
     } else {
       // Write English help.
@@ -136,7 +145,7 @@ int main(int argCount, char * const args[])
     return EXIT_SUCCESS;
   } else if (interactive) {
     // Run in interactive mode.
-    if (arabic) {
+    if (lang == S("ar")) {
       outStream << S("تنفيذ بشكل تفاعلي.\n");
       outStream << S("إضغط على CTRL+C للخروج.\n\n");
     } else {
@@ -149,6 +158,7 @@ int main(int argCount, char * const args[])
       Main::RootManager root;
       root.setInteractive(true);
       root.setProcessArgInfo(argCount, args);
+      root.setLanguage(lang.c_str());
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
         {
@@ -173,6 +183,7 @@ int main(int argCount, char * const args[])
       // Prepare the root object;
       Main::RootManager root;
       root.setProcessArgInfo(argCount, args);
+      root.setLanguage(lang.c_str());
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
         {
@@ -193,7 +204,7 @@ int main(int argCount, char * const args[])
         outStream << NEW_LINE;
       }
     } catch (FileException &e) {
-      if (arabic) {
+      if (lang == S("ar")) {
         outStream << S("الملف مفقود: ") << e.getFileName() << NEW_LINE;
       } else {
         outStream << S("File not found: ") << e.getFileName() << NEW_LINE;

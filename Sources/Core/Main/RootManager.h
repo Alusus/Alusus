@@ -57,6 +57,7 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
   private: Bool interactive;
   private: Int processArgCount;
   private: Char const *const *processArgs;
+  private: Str language;
 
 
   //============================================================================
@@ -164,6 +165,16 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
   public: Char const* const* getProcessArgs() const
   {
     return this->processArgs;
+  }
+
+  public: void setLanguage(Char const *lang)
+  {
+    this->language = lang;
+  }
+
+  public: Str const& getLanguage() const
+  {
+    return this->language;
   }
 
 }; // class
