@@ -37,14 +37,12 @@
  <h2>External Dependencies</h2>
  Following is the list of dependencies you'll need to build the project from the source code.
 
- <p><a href="http://llvm.org/releases/download.html#3.3" target="__blank">LLVM 3.3</a></p>
+ <p><a href="http://llvm.org/releases/download.html#7.0.1" target="__blank">LLVM 7.0.1</a></p>
 
-  In addition to the dependencies mentioned above, you'll need GCC (version 7 or above), CMake, Gawk, and PHP to be able to build the binaries from the source code. LLVM also has its own dependencies like valgrind for example. You'll also need libssl-dev to be able to use https in the Standard Runtime Library.<br/>
+  In addition to the dependencies mentioned above, you'll need GCC (version 7 or above) CMake, Python3, and Pip to be able to build the binaries from the source code. LLVM also has its own dependencies like zlib and valgrind for example that you might need to install manually. You'll also need libssl-dev to be able to use https in the Standard Runtime Library.<br/>
   To install the build tools in Ubuntu use the following command:
-<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake gawk php-cli libssl-dev</pre>
-  And for Fedora use the following:
-<pre dir=ltr class="code nohighlight">$ sudo dnf install gcc gcc-c++ cmake gawk php valgrind valgrind-devel libssl-dev</pre>
-  Notice the need to install valgrind in Fedora in order to be able to build LLVM. We didn't need to install valgrind in Ubuntu. You might also need to install other packages if you are using distros other than the above. Visit LLVM's website for more details on how to build it.<br/>
+<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake python3 python3-pip zlib1g-dev libssl-dev</pre>
+  For other distros you'll need to check their documentation on how to install these tools. Notice that the build script assumes that the Python executable is named `python3` in the system, which is the case on Ubuntu systems. If you are on other distros you might need to create some sym links or update the `build.sh` script.<br/>
   <span style="color:red;">Note: You'll need GCC version 7 or newer. You won't be able to build Alusus code with older versions.</span>
 
  <!-- ********************************************************************** -->
