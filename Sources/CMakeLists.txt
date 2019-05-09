@@ -6,7 +6,7 @@ project(Alusus)
 cmake_minimum_required(VERSION 3.1)
 
 # Read version info from version file.
-execute_process(COMMAND python version_info.py
+execute_process(COMMAND python3 version_info.py
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/BuildSrc
                 OUTPUT_VARIABLE VersionInfo)
 string(REGEX MATCH "VERSION: ([0-9]+\\.[0-9]+\\.[0-9]+)" _dummy_ ${VersionInfo})

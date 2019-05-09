@@ -4,6 +4,5 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 SCRIPT_DIR="$SCRIPT_DIR"
 shopt -s expand_aliases
-alias python=python3
-python "$SCRIPT_DIR/BuildSrc/build.py" "$@"
+python3 "$SCRIPT_DIR/BuildSrc/build.py" "$@"
 exit $?
