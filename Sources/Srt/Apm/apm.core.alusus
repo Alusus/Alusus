@@ -245,7 +245,7 @@ module Apm {
         fname = Memory.alloc(String.getLength(filename))~cast[ptr[array[Char]]];
         String.assign(fname, filename);
 
-        if(logs){
+        if(logs == 1){
             Console.print(language.file_extracted, Console.Style.fgGreen(), fname);
         };
     };
