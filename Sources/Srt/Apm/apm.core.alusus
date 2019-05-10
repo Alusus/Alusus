@@ -13,7 +13,6 @@ module Apm {
     def globalPackageName: ptr[array[Char]];
     def localPackageName: ptr[array[Char]];
     def _specialModuleName: ptr[array[Char]];
-    def extractLogs: bool = 1;
 
     func main(argCount: Int, argv: ptr[array[ptr[Char]]]): Int {
         if (argCount >= 3 && String.compare(argv~cnt(2), language.cmd_install) == 0) {
@@ -79,7 +78,6 @@ module Apm {
         } else if(Fs.exists(globalPackageName)){
             Core.importFile(globalPackageName);                
         } else {
-            extractLogs = 0;
             installRelease(packageName, 1, 0);
             Core.importFile(globalPackageName);
         };
@@ -201,7 +199,7 @@ module Apm {
                 Console.print(language.unzip_to_temp, Console.Style.fgBlue(), "temp.zip", "/tmp/temp_zip/");
             };
 
-            if(Zip.extractFromFile("/tmp/temp.zip", "/tmp/temp_zip", onExtractZip~ptr, 1) == 0){
+            if(Zip.extractFromFile("/tmp/temp.zip", "/tmp/temp_zip", onExtractZip~ptr, logs) == 0){
                 if (logs) {
                     Console.print(language.archive_extracted, Console.Style.fgBlue());
                 };
@@ -242,12 +240,12 @@ module Apm {
         return 0;
     };
   
-    func onExtractZip(filename: ptr[array[Char]], args: Int): Void {
+    func onExtractZip(filename: ptr[array[Char]], logs: Int): Void {
         def fname: ptr[array[Char]];
         fname = Memory.alloc(String.getLength(filename))~cast[ptr[array[Char]]];
         String.assign(fname, filename);
 
-        if(extractLogs){
+        if(logs){
             Console.print(language.file_extracted, Console.Style.fgGreen(), fname);
         };
     };
