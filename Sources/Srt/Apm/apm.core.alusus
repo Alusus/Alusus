@@ -12,7 +12,6 @@ module Apm {
     def moduleReleaseTag: array[Char, 250];
     def globalPackageName: ptr[array[Char]];
     def localPackageName: ptr[array[Char]];
-    def _specialModuleName: ptr[array[Char]];
 
     func main(argCount: Int, argv: ptr[array[ptr[Char]]]): Int {
         if (argCount >= 3 && String.compare(argv~cnt(2), language.cmd_install) == 0) {
@@ -42,7 +41,7 @@ module Apm {
         return 0;
     };
     
-    func importModule(packageName: ptr[array[Char]], withFileName: bool): bool {
+    func importModule(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]): bool {
         def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
 
         if (String.findChar(packageName,'@') != 0){
@@ -51,12 +50,12 @@ module Apm {
             String.scan(packageName, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
         };
 
-        if (withFileName){
-            def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + String.getLength(_specialModuleName) + String.getLength(moduleName~ptr);
+        if (specialModuleName != 0){
+            def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + String.getLength(specialModuleName) + String.getLength(moduleName~ptr);
             globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
             localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
-            String.assign(globalPackageName, "%s/.apm/%s/%s", homeDir, moduleName~ptr, _specialModuleName);
-            String.assign(localPackageName, ".apm/%s/%s", moduleName~ptr, _specialModuleName);
+            String.assign(globalPackageName, "%s/.apm/%s/%s", homeDir, moduleName~ptr, specialModuleName);
+            String.assign(localPackageName, ".apm/%s/%s", moduleName~ptr, specialModuleName);
         } else {
             def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + (String.getLength(moduleName~ptr) * 2);
             globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
@@ -80,16 +79,12 @@ module Apm {
         return 1;
     };
 
-    func importModule(packageName: ptr[array[Char]]){
-        importModule(packageName, 0);
+    func import(packageName: ptr[array[Char]]): bool {
+        return importModule(packageName, 0);
     };
 
-    func importModule(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]){
-        _specialModuleName = Memory.alloc(String.getLength(specialModuleName))~cast[ptr[array[Char]]];
-        String.assign(_specialModuleName, "%s", specialModuleName);
-        importModule(packageName, 1);
-
-        Memory.free(_specialModuleName);
+    func import(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]): bool {
+        return importModule(packageName, specialModuleName);
     };
 
     func installRelease(package: ptr[array[Char]], global: bool, logs: bool): Void {
