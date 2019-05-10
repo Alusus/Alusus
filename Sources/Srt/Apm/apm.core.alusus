@@ -41,17 +41,6 @@ module Apm {
 
         return 0;
     };
-
-
-    func importModule(packageName: ptr[array[Char]]){
-        importModule(packageName, 0);
-    };
-
-    func importModule(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]){
-        _specialModuleName = Memory.alloc(String.getLength(specialModuleName))~cast[ptr[array[Char]]];;
-        String.assign(_specialModuleName, specialModuleName);
-        importModule(packageName, 1);
-    };
     
     func importModule(packageName: ptr[array[Char]], withFileName: bool): bool {
         def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
@@ -88,6 +77,18 @@ module Apm {
         return 1;
     };
 
+    func importModule(packageName: ptr[array[Char]]){
+        importModule(packageName, 0);
+    };
+
+    func importModule(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]){
+        _specialModuleName = Memory.alloc(String.getLength(specialModuleName))~cast[ptr[array[Char]]];
+        String.assign(_specialModuleName, "%s", specialModuleName);
+        importModule(packageName, 1);
+
+        Memory.free(_specialModuleName);
+    };
+    
     func installRelease(package: ptr[array[Char]], global: bool, logs: bool): Void {
         def result: ptr[array[Char]];
         def size: Int;
