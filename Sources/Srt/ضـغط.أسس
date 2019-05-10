@@ -2,7 +2,7 @@
 اشمل "Zip.alusus"؛
 
 عرف ضـغط: لقب Zip؛
-@دمج عرف Zip: حزمة
+@دمج عرف Zip: وحدة
 {
   عرف استخرج_من_ملف: لقب extractFromFile؛
   عرف اضغط_إلى_ملف: لقب compressToFile؛

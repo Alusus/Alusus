@@ -109,7 +109,7 @@
     </context>
 
     <context id="ar-def-keyword" style-ref="def-keyword">
-      <keyword>حزمة</keyword>
+      <keyword>وحدة</keyword>
       <keyword>دالّة</keyword>
       <keyword>دالة</keyword>
       <keyword>ماكرو</keyword>

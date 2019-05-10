@@ -251,7 +251,7 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.Module"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
     {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("module"), 0 }, { S("حزمة"), 0 } })},
+      {S("kwd"), Map::create({}, { { S("module"), 0 }, { S("وحدة"), 0 } })},
       {S("prms"), List::create({}, {
         Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
