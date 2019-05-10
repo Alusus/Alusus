@@ -30,7 +30,7 @@ using namespace Core;
  */
 Str getSystemLanguage()
 {
-  auto langEnv = getenv(S("LANGUAGE"));
+  Char const *langEnv = getenv(S("LANGUAGE"));
   if (langEnv == 0 || getStrLen(langEnv) == 0) langEnv = getenv(S("LANG"));
   if (langEnv == 0 || getStrLen(langEnv) == 0) langEnv = S("en");
 

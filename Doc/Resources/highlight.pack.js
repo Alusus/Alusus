@@ -686,7 +686,7 @@ hljs.registerLanguage('alusus', function(hljs) {
       'short reinterpret_cast default double register explicit signed typename try this ' +
       'switch continue inline delete alignof finally and or not ' +
       'noexcept nullptr static_assert thread_local restrict alias run dump_ast dump_llvm_ir ' +
-      'اشمل عرف عرّف حزمة دالة دالّة هيكل إذا بينما لكل أرجع مؤشر محتوى مصفوفة أي  لقب نفذ نفّذ ' +
+      'اشمل عرف عرّف وحدة دالة دالّة هيكل إذا بينما لكل أرجع مؤشر محتوى مصفوفة أي  لقب نفذ نفّذ ' +
       'صنف وإلا اقطع أكمل أدرج_ش_ب_م أدرج_ت_و و أو ليس ماكرو استخدم';
   return {
     aliases: ['alusus'],
