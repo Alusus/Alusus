@@ -12,6 +12,7 @@ module Apm {
     def moduleReleaseTag: array[Char, 250];
     def globalPackageName: ptr[array[Char]];
     def localPackageName: ptr[array[Char]];
+    def _specialModuleName: ptr[array[Char]];
     def extractLogs: bool = 1;
 
     func main(argCount: Int, argv: ptr[array[ptr[Char]]]): Int {
@@ -43,7 +44,17 @@ module Apm {
     };
 
 
-    func importModule(packageName: ptr[array[Char]]): bool {
+    func importModule(packageName: ptr[array[Char]]){
+        importModule(packageName, 0);
+    };
+
+    func importModule(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]){
+        _specialModuleName = Memory.alloc(String.getLength(specialModuleName))~cast[ptr[array[Char]]];;
+        String.assign(_specialModuleName, specialModuleName);
+        importModule(packageName, 1);
+    };
+    
+    func importModule(packageName: ptr[array[Char]], withFileName: bool): bool {
         def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
 
         if (String.findChar(packageName,'@') != 0){
@@ -55,8 +66,13 @@ module Apm {
         def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + (String.getLength(moduleName~ptr) * 2);
         globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
         localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
-        String.assign(globalPackageName, "%s/.apm/%s/%s.alusus", homeDir, moduleName~ptr, moduleName~ptr);
-        String.assign(localPackageName, ".apm/%s/%s.alusus", moduleName~ptr, moduleName~ptr);
+        if (withFileName){
+            String.assign(globalPackageName, "%s/.apm/%s/%s", homeDir, moduleName~ptr, _specialModuleName);
+            String.assign(localPackageName, ".apm/%s/%s", moduleName~ptr, _specialModuleName);
+        } else {
+            String.assign(globalPackageName, "%s/.apm/%s/%s.alusus", homeDir, moduleName~ptr, moduleName~ptr);
+            String.assign(localPackageName, ".apm/%s/%s.alusus", moduleName~ptr, moduleName~ptr);
+        };
 
         if(Fs.exists(localPackageName)){
             Core.importFile(localPackageName);
@@ -227,8 +243,12 @@ module Apm {
     };
   
     func onExtractZip(filename: ptr[array[Char]], args: Int): Void {
+        def fname: ptr[array[Char]];
+        fname = Memory.alloc(String.getLength(filename))~cast[ptr[array[Char]]];
+        String.assign(fname, filename);
+
         if(extractLogs){
-            Console.print(language.file_extracted, Console.Style.fgGreen(), filename);
+            Console.print(language.file_extracted, Console.Style.fgGreen(), fname);
         };
     };
 };
