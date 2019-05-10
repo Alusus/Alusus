@@ -51,13 +51,16 @@ module Apm {
             String.scan(packageName, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
         };
 
-        def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + (String.getLength(moduleName~ptr) * 2);
-        globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
-        localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
         if (withFileName){
+            def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + String.getLength(_specialModuleName) + String.getLength(moduleName~ptr);
+            globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
+            localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
             String.assign(globalPackageName, "%s/.apm/%s/%s", homeDir, moduleName~ptr, _specialModuleName);
             String.assign(localPackageName, ".apm/%s/%s", moduleName~ptr, _specialModuleName);
         } else {
+            def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + (String.getLength(moduleName~ptr) * 2);
+            globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
+            localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
             String.assign(globalPackageName, "%s/.apm/%s/%s.alusus", homeDir, moduleName~ptr, moduleName~ptr);
             String.assign(localPackageName, ".apm/%s/%s.alusus", moduleName~ptr, moduleName~ptr);
         };
@@ -88,7 +91,7 @@ module Apm {
 
         Memory.free(_specialModuleName);
     };
-    
+
     func installRelease(package: ptr[array[Char]], global: bool, logs: bool): Void {
         def result: ptr[array[Char]];
         def size: Int;
