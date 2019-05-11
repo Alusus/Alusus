@@ -41,7 +41,7 @@ module Apm {
         return 0;
     };
     
-    func importModule(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]): bool {
+    func importFile(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]): bool {
         def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
 
         if (String.findChar(packageName,'@') != 0){
@@ -79,12 +79,8 @@ module Apm {
         return 1;
     };
 
-    func import(packageName: ptr[array[Char]]): bool {
-        return importModule(packageName, 0);
-    };
-
-    func import(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]): bool {
-        return importModule(packageName, specialModuleName);
+    func importFile(packageName: ptr[array[Char]]): bool {
+        return importFile(packageName, 0);
     };
 
     func installRelease(package: ptr[array[Char]], global: bool, logs: bool): Void {
