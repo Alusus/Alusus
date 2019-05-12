@@ -12,7 +12,6 @@ module Apm {
     def moduleReleaseTag: array[Char, 250];
     def globalPackageName: ptr[array[Char]];
     def localPackageName: ptr[array[Char]];
-    def extractLogs: bool = 1;
 
     func main(argCount: Int, argv: ptr[array[ptr[Char]]]): Int {
         if (argCount >= 3 && String.compare(argv~cnt(2), language.cmd_install) == 0) {
@@ -41,9 +40,8 @@ module Apm {
 
         return 0;
     };
-
-
-    func importModule(packageName: ptr[array[Char]]): bool {
+    
+    func importFile(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]): bool {
         def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
 
         if (String.findChar(packageName,'@') != 0){
@@ -52,18 +50,25 @@ module Apm {
             String.scan(packageName, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
         };
 
-        def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + (String.getLength(moduleName~ptr) * 2);
-        globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
-        localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
-        String.assign(globalPackageName, "%s/.apm/%s/%s.alusus", homeDir, moduleName~ptr, moduleName~ptr);
-        String.assign(localPackageName, ".apm/%s/%s.alusus", moduleName~ptr, moduleName~ptr);
+        if (specialModuleName != 0){
+            def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + String.getLength(specialModuleName) + String.getLength(moduleName~ptr);
+            globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
+            localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
+            String.assign(globalPackageName, "%s/.apm/%s/%s", homeDir, moduleName~ptr, specialModuleName);
+            String.assign(localPackageName, ".apm/%s/%s", moduleName~ptr, specialModuleName);
+        } else {
+            def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + (String.getLength(moduleName~ptr) * 2);
+            globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
+            localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
+            String.assign(globalPackageName, "%s/.apm/%s/%s.alusus", homeDir, moduleName~ptr, moduleName~ptr);
+            String.assign(localPackageName, ".apm/%s/%s.alusus", moduleName~ptr, moduleName~ptr);
+        };
 
         if(Fs.exists(localPackageName)){
             Core.importFile(localPackageName);
         } else if(Fs.exists(globalPackageName)){
             Core.importFile(globalPackageName);                
         } else {
-            extractLogs = 0;
             installRelease(packageName, 1, 0);
             Core.importFile(globalPackageName);
         };
@@ -72,6 +77,10 @@ module Apm {
         Memory.free(localPackageName);
 
         return 1;
+    };
+
+    func importFile(packageName: ptr[array[Char]]): bool {
+        return importFile(packageName, 0);
     };
 
     func installRelease(package: ptr[array[Char]], global: bool, logs: bool): Void {
@@ -185,7 +194,7 @@ module Apm {
                 Console.print(language.unzip_to_temp, Console.Style.fgBlue(), "temp.zip", "/tmp/temp_zip/");
             };
 
-            if(Zip.extractFromFile("/tmp/temp.zip", "/tmp/temp_zip", onExtractZip~ptr, 1) == 0){
+            if(Zip.extractFromFile("/tmp/temp.zip", "/tmp/temp_zip", onExtractZip~ptr, logs) == 0){
                 if (logs) {
                     Console.print(language.archive_extracted, Console.Style.fgBlue());
                 };
@@ -226,9 +235,13 @@ module Apm {
         return 0;
     };
   
-    func onExtractZip(filename: ptr[array[Char]], args: Int): Void {
-        if(extractLogs){
-            Console.print(language.file_extracted, Console.Style.fgGreen(), filename);
+    func onExtractZip(filename: ptr[array[Char]], logs: Int): Void {
+        def fname: ptr[array[Char]];
+        fname = Memory.alloc(String.getLength(filename))~cast[ptr[array[Char]]];
+        String.assign(fname, filename);
+
+        if(logs == 1){
+            Console.print(language.file_extracted, Console.Style.fgGreen(), fname);
         };
     };
 };
