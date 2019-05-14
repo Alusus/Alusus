@@ -1,0 +1,26 @@
+@merge module Apm
+{
+  @merge module Strings {
+    def fetchingInfo: "%sFetching %s info from: %s.\n";
+    def fetchSuccessful: "%sFetching successful.\n";
+    def fetchFailed: "%sFetch failed.\n";
+    def latestTagNotFound: "%sCannot find latest release.";
+    def pkgAlreadyInstalled: "%s%s is already installed.\n";
+    def installingPkg: "%sInstalling %s v%s.\n";
+    def pkgRequest: "%sRequest %s.\n";
+    def downloadingPkg: "%sDownloading `%s` to `%s`.\n";
+    def downloadedPkg: "%sDownloaded temp.zip\n";
+    def unzipToTmp: "%sUnzip `%s` to `%s`.\n";
+    def archiveExtracted: "%stemp.zip extracted.\n";
+    def created: "%s`%s` created.\n";
+    def movePkg: "%sMove module to `%s`.\n";
+    def copyPkg: "%sCopy module `%s` to `%s`.\n";
+    def pkgMoved: "%sMoved to `%s`.\n";
+    def pkgInstalled: "%s%s installed.\n";
+    def cannotMovePkg: "%sCannot move module to `%s`.\n";
+    def cannotCreatePkg: "%sCannot create `%s`.\n";
+    def cannotExtract: "%sCannot extract `%s`.\n";
+    def cannotGet: "%sCannot get %s.\n";
+    def fileExtracted: "%s%s extracted.\n";
+  };
+};

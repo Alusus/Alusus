@@ -1,3 +1,10 @@
-import "globals.alusus";
-import "Apm/i18n/english.alusus";
+import "Srl/String.alusus";
+import "Srl/Console.alusus";
+
+if Srl.String.compare(Process.language, "ar") == 0 {
+  Core.importFile("Apm/i18n/ar.alusus");
+} else {
+  Core.importFile("Apm/i18n/en.alusus");
+};
+
 import "Apm/apm.core.alusus";
