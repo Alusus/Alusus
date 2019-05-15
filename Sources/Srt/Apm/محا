@@ -1,4 +1,6 @@
 #!/usr/bin/env alusus
+اشمل "عامة.أسس"؛
+الـعملية.اللغة = "ar"؛
 اشمل "مـحا.أسس"؛
 
 @merge module Apm {
