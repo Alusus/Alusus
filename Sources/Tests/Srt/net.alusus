@@ -7,7 +7,7 @@ module Main
   {
     def data: ptr;
     def size: Int;
-    if Srl.Net.get("https://alusus.net/Downloads/test.txt", data~ptr, size~ptr) {
+    if Srl.Net.get("https://alusus.org/Downloads/test.txt", data~ptr, size~ptr) {
       Srl.Console.print("%s\n", data);
       Srl.Memory.free(data);
     } else {

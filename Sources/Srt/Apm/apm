@@ -1,4 +1,24 @@
 #!/usr/bin/env alusus
 import "Apm.alusus";
 
+@merge module Apm {
+  @merge module Strings{
+    def use_apm_install: "%suse: apm install <author>/<package>@<release>\n";
+    def use_apm_local_install: "%suse: apm local install <author>/<package>@<release>\n";
+    def help_commands: " %sCommands:- \n";
+    def help_apm_help: "   %sapm help\t\t\t\t\t\t";
+    def help_apm_help_tip: "%slist of commands\n";
+    def help_apm_install: "   %sapm install <author>/<package>@<release>\t\t";
+    def help_apm_install_tip: "%sinstall package in `%s/.apm`\n";
+    def help_apm_install_local: "   %sapm local install <author>/<package>@<release>\t";
+    def unknown_command: "%sUnknown command '%s'. Use 'apm help' for help.\n";
+    def use_help_command: "%sUse 'apm help' for help.\n";
+
+    def cmd_install: "install";
+    def cmd_local: "local";
+    def cmd_help: "help";
+  };
+};
+
+import "Apm/apm.main.alusus";
 Apm.main(Process.argCount, Process.args);

@@ -5,243 +5,200 @@ import "Srl/Net.alusus";
 import "Srl/Fs.alusus";
 import "Zip.alusus";
 
-module Apm {
-    use Srl;
-    def moduleName: array[Char, 250];
-    def moduleAuthor: array[Char, 250];
-    def moduleReleaseTag: array[Char, 250];
-    def globalPackageName: ptr[array[Char]];
-    def localPackageName: ptr[array[Char]];
+@merge module Apm {
+  use Srl;
+  def moduleName: array[Char, 250];
+  def moduleAuthor: array[Char, 250];
+  def moduleReleaseTag: array[Char, 250];
+  def globalPackageName: ptr[array[Char]];
+  def localPackageName: ptr[array[Char]];
 
-    func main(argCount: Int, argv: ptr[array[ptr[Char]]]): Int {
-        if (argCount >= 3 && String.compare(argv~cnt(2), language.cmd_install) == 0) {
-            installRelease(argv~cnt(3)~cast[ptr[array[Char]]], 1, 1);
-        } else if (argCount >= 3 && String.compare(argv~cnt(2), language.cmd_local) == 0) {
-            if (argCount >= 4 && String.compare(argv~cnt(3), language.cmd_install) == 0) {
-                installRelease(argv~cnt(4)~cast[ptr[array[Char]]], 0, 1);
-            } else {
-                Console.print(language.use_apm_local_install, Console.Style.fgRed());
-            }
-        } else if(argCount >= 3 && String.compare(argv~cnt(2), language.cmd_help) == 0) {
-            def homeDirectory: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
-            def pwdDirectory: ptr[array[Char]] = System.getEnv("PWD")~cast[ptr[array[Char]]];
-            Console.print(language.help_commands, Console.Style.fgGreen());
-            Console.print(language.help_apm_help, Console.Style.fgYellow());
-            Console.print(language.help_apm_help_tip, Console.Style.fgWhite());
-            Console.print(language.help_apm_install, Console.Style.fgYellow());
-            Console.print(language.help_apm_install_tip, Console.Style.fgWhite(), homeDirectory);
-            Console.print(language.help_apm_install_local, Console.Style.fgYellow());
-            Console.print(language.help_apm_install_tip, Console.Style.fgWhite(), pwdDirectory);
-        } else if(argCount >= 3) {
-            Console.print(language.unknown_command, Console.Style.fgRed(), argv~cnt(2));
-        } else {
-            Console.print(language.use_help_command, Console.Style.fgWhite());
-        };
+  func importFile(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]): bool {
+    def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
 
-        return 0;
-    };
-    
-    func importFile(packageName: ptr[array[Char]], specialModuleName: ptr[array[Char]]): bool {
-        def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
-
-        if (String.findChar(packageName,'@') != 0){
-            String.scan(packageName, "%[^/]/%[^@]@%s", moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr);
-        } else {
-            String.scan(packageName, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
-        };
-
-        if (specialModuleName != 0){
-            def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + String.getLength(specialModuleName) + String.getLength(moduleName~ptr);
-            globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
-            localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
-            String.assign(globalPackageName, "%s/.apm/%s/%s", homeDir, moduleName~ptr, specialModuleName);
-            String.assign(localPackageName, ".apm/%s/%s", moduleName~ptr, specialModuleName);
-        } else {
-            def newSize: Int = String.getLength(homeDir) + String.getLength(packageName) + (String.getLength(moduleName~ptr) * 2);
-            globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
-            localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
-            String.assign(globalPackageName, "%s/.apm/%s/%s.alusus", homeDir, moduleName~ptr, moduleName~ptr);
-            String.assign(localPackageName, ".apm/%s/%s.alusus", moduleName~ptr, moduleName~ptr);
-        };
-
-        if(Fs.exists(localPackageName)){
-            Core.importFile(localPackageName);
-        } else if(Fs.exists(globalPackageName)){
-            Core.importFile(globalPackageName);                
-        } else {
-            installRelease(packageName, 1, 0);
-            Core.importFile(globalPackageName);
-        };
-
-        Memory.free(globalPackageName);
-        Memory.free(localPackageName);
-
-        return 1;
+    if (String.findChar(packageName,'@') != 0){
+      String.scan(packageName, "%[^/]/%[^@]@%s", moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr);
+    } else {
+      String.scan(packageName, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
     };
 
-    func importFile(packageName: ptr[array[Char]]): bool {
-        return importFile(packageName, 0);
+    if specialModuleName == 0 {
+      specialModuleName = moduleName;
     };
 
-    func installRelease(package: ptr[array[Char]], global: bool, logs: bool): Void {
-        def result: ptr[array[Char]];
-        def size: Int;
-        if (String.findChar(package,'@') != 0){
-            String.scan(package, "%[^/]/%[^@]@%s", moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr);
-            def requestUrl: array[Char, 500];
-            String.assign(requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr);
-            if (Net.get(requestUrl~ptr, result~ptr, size~ptr)){
-                callbackWithRequestResult(result, size, global, logs, 1);
+    def newSize: Int =
+      String.getLength(homeDir) +
+      String.getLength(packageName) +
+      String.getLength(specialModuleName) +
+      String.getLength(moduleName~ptr);
+    globalPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
+    localPackageName = Memory.alloc(newSize)~cast[ptr[array[Char]]];
+    String.assign(globalPackageName, "%s/.apm/%s/%s", homeDir, moduleName~ptr, specialModuleName);
+    String.assign(localPackageName, ".apm/%s/%s", moduleName~ptr, specialModuleName);
 
-                if (logs){
-                    Console.print(language.success_fetch, Console.Style.fgBlue()); 
-                };
-            } else {
-                if (logs){
-                    Console.print(language.error_fetch, Console.Style.fgRed());
-                };
+    if Fs.exists(localPackageName) {
+      Core.importFile(localPackageName);
+    } else if Fs.exists(globalPackageName) {
+      Core.importFile(globalPackageName);
+    } else {
+      installRelease(packageName, 1, 0);
+      Core.importFile(globalPackageName);
+    };
+
+    Memory.free(globalPackageName);
+    Memory.free(localPackageName);
+
+    return 1;
+  };
+
+  func importFile(packageName: ptr[array[Char]]): bool {
+    return importFile(packageName, 0);
+  };
+
+  func installRelease(package: ptr[array[Char]], global: bool, logs: bool): Void {
+    def result: ptr[array[Char]];
+    def size: Int;
+    def useLatestRelease: Bool;
+
+    if (String.findChar(package,'@') != 0) {
+      String.scan(package, "%[^/]/%[^@]@%s", moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr);
+      useLatestRelease = 0;
+    } else {
+      String.scan(package, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
+      useLatestRelease = 1;
+    };
+
+    def requestUrl: array[Char, 500];
+    String.assign(
+      requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr
+    );
+    if logs {
+      Console.print(Strings.fetchingInfo, Console.Style.fgBlue(), moduleName~ptr, requestUrl~ptr);
+    };
+
+    if Net.get(requestUrl~ptr, result~ptr, size~ptr) {
+      callbackWithPackageInfo(result, size, global, useLatestRelease, logs);
+
+      if logs {
+        Console.print(Strings.fetchSuccessful, Console.Style.fgBlue());
+      };
+    } else {
+      if logs {
+        Console.print(Strings.fetchFailed, Console.Style.fgRed());
+      };
+    };
+
+    Memory.free(result);
+  };
+
+  func callbackWithPackageInfo (pkgInfo: ptr, size: Int, global: bool, useLatestRelease: bool, logs: bool) {
+    def matches: ptr[String.RegexMatches] =
+      String.regex("https://github.com/([^/]*)/([^/].*)/releases/tag/([^\"]*)\",", pkgInfo~cast[ptr[array[Char]]], 1);
+    if matches~cnt.count == 4 {
+      String.assign(moduleAuthor~ptr, "%s", matches~cnt.matches(1)~ptr);
+      String.assign(moduleName~ptr, "%s", matches~cnt.matches(2)~ptr);
+      if useLatestRelease {
+        String.assign(moduleReleaseTag~ptr, "%s", matches~cnt.matches(3)~ptr);
+      };
+      downloadModule(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr, global, logs);
+    } else if logs {
+      Console.print(Strings.latestTagNotFound, Console.Style.fgRed());
+    };
+    Memory.free(matches);
+  };
+
+  func downloadModule(
+    moduleAuthor: ptr[array[Char]], moduleName: ptr[array[Char]], moduleReleaseTag: ptr[array[Char]], global: bool,
+    logs: bool
+  ): Bool {
+    def downloadLink: array[Char, 100];
+    def folderInTempDirectory: array[Char, 16000];
+    def outToAPMModulesDirectory: array[Char, 16000];
+    def dirOfAPMModulesDirectory: array[Char, 16000];
+    def execCopyCommand: array[Char, 16000];
+    def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
+
+    if (global){
+      String.assign(folderInTempDirectory~ptr, "/tmp/temp_zip/%s-%s", moduleName, moduleReleaseTag);
+      String.assign(outToAPMModulesDirectory~ptr, "%s/.apm/%s", homeDir, moduleName);
+      String.assign(dirOfAPMModulesDirectory~ptr, "%s/.apm", homeDir);
+    } else {
+      String.assign(folderInTempDirectory~ptr, "/tmp/temp_zip/%s-%s", moduleName, moduleReleaseTag);
+      String.assign(outToAPMModulesDirectory~ptr, "./.apm/%s", moduleName);
+      String.assign(dirOfAPMModulesDirectory~ptr, ".apm");
+    };
+
+    String.assign(execCopyCommand~ptr, "cp -rf %s %s", folderInTempDirectory~ptr, outToAPMModulesDirectory~ptr);
+    String.assign(
+      downloadLink~ptr, "https://github.com/%s/%s/archive/%s.zip", moduleAuthor, moduleName, moduleReleaseTag
+    );
+
+    if (Fs.exists(outToAPMModulesDirectory~ptr)){
+      if logs {
+        Console.print(Strings.pkgAlreadyInstalled, Console.Style.fgRed(), outToAPMModulesDirectory~ptr);
+      };
+
+      return 0;
+    };
+
+    if logs {
+      Console.print(Strings.installingPkg, Console.Style.fgBlue(), moduleName, moduleReleaseTag);
+      Console.print(Strings.pkgRequest, Console.Style.fgBlue(), downloadLink~ptr);
+      Console.print(Strings.downloadingPkg, Console.Style.fgYellow(), downloadLink~ptr, "/tmp/temp.zip");
+    };
+
+    if Net.get(downloadLink~ptr, "/tmp/temp.zip") {
+      if logs {
+        Console.print(Strings.downloadedPkg, Console.Style.fgBlue());
+        Console.print(Strings.unzipToTmp, Console.Style.fgBlue(), "temp.zip", "/tmp/temp_zip/");
+      };
+
+      if Zip.extractFromFile("/tmp/temp.zip", "/tmp/temp_zip", onFileExtracted~ptr, logs~ptr) == 0 {
+        if logs {
+          Console.print(Strings.archiveExtracted, Console.Style.fgBlue());
+        };
+
+        if(Fs.exists(dirOfAPMModulesDirectory~ptr) || Fs.makeDir(dirOfAPMModulesDirectory~ptr)){
+          if logs {
+            Console.print(Strings.created, Console.Style.fgBlue(), dirOfAPMModulesDirectory~ptr);
+            Console.print(Strings.movePkg, Console.Style.fgBlue(), dirOfAPMModulesDirectory~ptr);
+            Console.print(
+              Strings.copyPkg, Console.Style.fgYellow(), folderInTempDirectory~ptr, outToAPMModulesDirectory~ptr
+            );
+          };
+
+          if(System.exec(execCopyCommand~ptr) == 0){
+            if logs {
+              Console.print(Strings.pkgMoved, Console.Style.fgGreen(), dirOfAPMModulesDirectory~ptr);
+              Console.print(Strings.pkgInstalled, Console.Style.fgGreen(), moduleName);
             };
+          } else {
+            if logs {
+              Console.print(Strings.cannotMovePkg, Console.Style.fgRed(), dirOfAPMModulesDirectory~ptr);
+            };
+          };
         } else {
-            String.scan(package, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
-            def requestUrl: array[Char, 500];
-            String.assign(requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr);
-            if (logs){
-                Console.print("%sFetching %s info from: %s\n", Console.Style.fgBlue(), moduleName~ptr, requestUrl~ptr);
-            };
-
-            if Net.get(requestUrl~ptr, result~ptr, size~ptr) {
-                callbackWithRequestResult(result, size, global, logs, 0);
-                
-                if (logs){
-                    Console.print(language.success_fetch, Console.Style.fgBlue()); 
-                };
-            } else {
-                if (logs){
-                    Console.print(language.error_fetch, Console.Style.fgRed());
-                };
-            };
+          if logs {
+            Console.print(Strings.cannotCreatePkg, Console.Style.fgRed(), dirOfAPMModulesDirectory~ptr);
+          };
         };
-
-        Memory.free(result);
+      } else {
+        if logs {
+          Console.print(Strings.cannotExtract, Console.Style.fgRed(), "temp.zip");
+        };
+      };
+    } else {
+      if logs {
+        Console.print(Strings.cannotGet, Console.Style.fgRed(), downloadLink~ptr);
+      };
     };
 
-    func callbackWithRequestResult(result: ptr, size: Int, global: bool, logs: bool, releaseAvailable: bool): Void {
-        def matches: ptr[String.RegexMatches] = String.regex("https://github.com/([^/]*)/([^/].*)/releases/tag/([^\"]*)\",", result~cast[ptr[array[Char]]], 1);
-        if (releaseAvailable){
-            if matches~cnt.count >= 2 {
-                String.assign(moduleAuthor~ptr, "%s", matches~cnt.matches(1)~ptr);
-                String.assign(moduleName~ptr, "%s", matches~cnt.matches(2)~ptr);
-                downloadModule(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr, global, logs);
-            }else{
-                if (logs){
-                    Console.print(language.cannot_fetch, Console.Style.fgRed());
-                };
-            };
-        } else {
-             if matches~cnt.count >= 3 {
-                String.assign(moduleAuthor~ptr, "%s", matches~cnt.matches(1)~ptr);
-                String.assign(moduleName~ptr, "%s", matches~cnt.matches(2)~ptr);
-                String.assign(moduleReleaseTag~ptr, "%s", matches~cnt.matches(3)~ptr);
-                downloadModule(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr, global, logs);
-            }else{
-                if (logs){
-                    Console.print(language.cannot_fetch, Console.Style.fgRed());
-                };
-            };
-        };
+    return 0;
+  };
 
-        Memory.free(matches);
+  func onFileExtracted(filename: ptr[array[Char]], logs: ptr): Void {
+    if(logs~cast[ptr[bool]]~cnt == 1){
+      Console.print(Strings.fileExtracted, Console.Style.fgGreen(), filename);
     };
-    
-    func downloadModule(moduleAuthor: ptr[array[Char]], moduleName: ptr[array[Char]], moduleReleaseTag: ptr[array[Char]], global: bool, logs: bool): Bool {
-        def downloadLink: array[Char, 100];
-        def folderInTempDirectory: array[Char, 16000];
-        def outToAPMModulesDirectory: array[Char, 16000];
-        def dirOfAPMModulesDirectory: array[Char, 16000];
-        def execCopyCommand: array[Char, 16000];
-        def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
-        
-        if (global){
-            String.assign(folderInTempDirectory~ptr, "/tmp/temp_zip/%s-%s", moduleName, moduleReleaseTag);
-            String.assign(outToAPMModulesDirectory~ptr, "%s/.apm/%s", homeDir, moduleName);
-            String.assign(dirOfAPMModulesDirectory~ptr, "%s/.apm", homeDir);
-        } else {
-            String.assign(folderInTempDirectory~ptr, "/tmp/temp_zip/%s-%s", moduleName, moduleReleaseTag);
-            String.assign(outToAPMModulesDirectory~ptr, "./.apm/%s", moduleName);
-            String.assign(dirOfAPMModulesDirectory~ptr, ".apm");
-        };
-        
-        String.assign(execCopyCommand~ptr, "cp -rf %s %s", folderInTempDirectory~ptr, outToAPMModulesDirectory~ptr);
-        String.assign(downloadLink~ptr, "https://github.com/%s/%s/archive/%s.zip", moduleAuthor, moduleName, moduleReleaseTag);
-
-        if (Fs.exists(outToAPMModulesDirectory~ptr)){
-            if (logs) {
-                Console.print(language.module_already_install, Console.Style.fgRed(), outToAPMModulesDirectory~ptr);
-            };
-
-            return 0;
-        };
-
-        if (logs) {
-            Console.print(language.installing_module, Console.Style.fgBlue(), moduleName, moduleReleaseTag);
-            Console.print(language.request_module, Console.Style.fgBlue(), downloadLink~ptr);
-            Console.print(language.downloading_module, Console.Style.fgYellow(), downloadLink~ptr, "/tmp/temp.zip");    
-        };
-
-        if(Net.get(downloadLink~ptr, "/tmp/temp.zip")){
-            if (logs) {
-                Console.print(language.downloaded_module, Console.Style.fgBlue());
-                Console.print(language.unzip_to_temp, Console.Style.fgBlue(), "temp.zip", "/tmp/temp_zip/");
-            };
-
-            if(Zip.extractFromFile("/tmp/temp.zip", "/tmp/temp_zip", onExtractZip~ptr, logs) == 0){
-                if (logs) {
-                    Console.print(language.archive_extracted, Console.Style.fgBlue());
-                };
-
-                if(Fs.exists(dirOfAPMModulesDirectory~ptr) || Fs.makeDir(dirOfAPMModulesDirectory~ptr)){
-                    if (logs) {
-                        Console.print(language.created, Console.Style.fgBlue(), dirOfAPMModulesDirectory~ptr);
-                        Console.print(language.move_module, Console.Style.fgBlue(), dirOfAPMModulesDirectory~ptr);
-                        Console.print(language.copy_module, Console.Style.fgYellow(), folderInTempDirectory~ptr, outToAPMModulesDirectory~ptr);
-                    };
-
-                    if(System.exec(execCopyCommand~ptr) == 0){
-                        if (logs) {
-                            Console.print(language.moved_module, Console.Style.fgGreen(), dirOfAPMModulesDirectory~ptr);
-                            Console.print(language.module_installed, Console.Style.fgGreen(), moduleName);
-                        };
-                    }else{
-                        if (logs) {
-                            Console.print(language.cannot_move_module, Console.Style.fgRed(), dirOfAPMModulesDirectory~ptr);
-                        };
-                    };
-                }else{
-                    if (logs) {
-                        Console.print(language.cannot_create_module, Console.Style.fgRed(), dirOfAPMModulesDirectory~ptr);
-                    };
-                };
-            }else{
-                if (logs) {
-                    Console.print(language.cannot_extract, Console.Style.fgRed(), "temp.zip");
-                };
-            };
-        }else{
-            if (logs) {
-                Console.print(language.cannot_get, Console.Style.fgRed(), downloadLink~ptr);
-            };
-        };
-
-        return 0;
-    };
-  
-    func onExtractZip(filename: ptr[array[Char]], logs: Int): Void {
-        def fname: ptr[array[Char]];
-        fname = Memory.alloc(String.getLength(filename))~cast[ptr[array[Char]]];
-        String.assign(fname, filename);
-
-        if(logs == 1){
-            Console.print(language.file_extracted, Console.Style.fgGreen(), fname);
-        };
-    };
+  };
 };

@@ -1,0 +1,26 @@
+@merge module Apm
+{
+  @merge module Strings {
+    def fetchingInfo: "%sيجلب معلومات %s من: %s.\ج";
+    def fetchSuccessful: "%sنجح الجلب.\ج";
+    def fetchFailed: "%sفشل الجلب.";
+    def latestTagNotFound: "%sلا يمكن الحصول على اخر اصدار.\ج";
+    def pkgAlreadyInstalled: "%s%s مثبت مسبقًا.\ج";
+    def installingPkg: "%sتثبيت %s الاصدار %s.\ج";
+    def pkgRequest: "%sجلب %s.\ج";
+    def downloadingPkg: "%sتنزيل %s الى %s.\ج";
+    def downloadedPkg: "%stemp.zip قد نزل.\ج";
+    def unzipToTmp: "%sاستخراج %s الى %s.\ج";
+    def archiveExtracted: "%stemp.zip قد استخرج.\ج";
+    def created: "%s`%s` قد تم انشاؤه.\ج";
+    def movePkg: "%sنقل الوحدة الى `%s`.\ج";
+    def copyPkg: "%sنسخ الوحدة من `%s` الى `%s`.\ج";
+    def pkgMoved: "%sنقلت الوحدة الى `%s`.\ج";
+    def pkgInstalled: "%sالوحدة %s تم تثبيتها.\ج";
+    def cannotMovePkg: "%sلا يمكن نقل الحزمة الى `%s`.\ج";
+    def cannotCreatePkg: "%sﻻ يمكن انشاء `%s`.\n";
+    def cannotExtract: "%sلا يمكن استخراج `%s`.\n";
+    def cannotGet: "%sلا يمكن جلب %s.\n";
+    def fileExtracted: "%s%s تم استخراجه.\n";
+  };
+};
