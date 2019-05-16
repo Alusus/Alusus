@@ -20,10 +20,14 @@ LIB_DIR = "Bin" if THIS_SYSTEM == "Windows" else "Lib"
 # Dependencies.
 LLVM_SRC_URL = "http://releases.llvm.org/7.0.1/llvm-7.0.1.src.tar.xz"
 LLVM_NAME = "llvm-7.0.1"
+LLVM_SHARED_LIB_NAME = "libLLVM-7"
 LIBCURL_SRC_URL="https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.xz"
 LIBCURL_NAME="curl-7.64.1"
 LIBZIP_SRC_URL="https://github.com/kuba--/zip/archive/v0.1.14.zip"
 LIBZIP_NAME="zip-0.1.14"
+DLFCN_WIN32_URL="https://github.com/dlfcn-win32/dlfcn-win32/archive/v1.1.2.zip"
+DLFCN_WIN32_VERSION="1.1.2"
+DLFCN_WIN32_NAME="dlfcn-win32"
 
 # Build Args
 MAKE_CMD = "mingw32-make" if platform.system() == "Windows" else "make"
@@ -59,6 +63,7 @@ def build_llvm():
     global DEPS_PATH
     global LLVM_NAME
     global LLVM_SRC_URL
+    global LLVM_SHARED_LIB_NAME
     global MAKE_THREAD_COUNT
     global MAKE_CMD
     global LIB_DIR
@@ -131,15 +136,12 @@ def build_llvm():
         if ret != 0:
             failMsg("Building LLVM.")
             exit(1)
-            
-
         shutil.copy2(
-            os.path.join(DEPS_PATH, LLVM_NAME + ".install", "libLLVM.{}".format(SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libLLVM.{}".format(SHARED_LIBS_EXT))
+            os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib" "{0}.{1}".format(LLVM_SHARED_LIB_NAME, SHARED_LIBS_EXT)),
+            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(LLVM_SHARED_LIB_NAME, SHARED_LIBS_EXT))
         )
-
-
-    except (IOError, OSError, subprocess.CalledProcessError):
+    except (IOError, OSError, subprocess.CalledProcessError) as e:
+        failMsg(str(e))
         failMsg("Building LLVM.")
         exit(1)
     os.chdir(old_path)
@@ -212,11 +214,8 @@ def build_libcurl():
             os.path.join(DEPS_PATH, LIBCURL_NAME, "lib", ".libs", "libcurl.{}".format(SHARED_LIBS_EXT)),
             os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libcurl.{}".format(SHARED_LIBS_EXT))
         )
-        if ret != 0:
-            failMsg("Building libcurl.")
-            exit(1)
-
-    except (IOError, OSError, subprocess.CalledProcessError):
+    except (IOError, OSError, subprocess.CalledProcessError) as e:
+        failMsg(str(e))
         failMsg("Building libcurl.")
         exit(1)
     os.chdir(old_path)
@@ -269,63 +268,144 @@ def build_libzip():
     os.chdir(LIBZIP_NAME)
 
     try:
+        if not os.path.exists(os.path.join(DEPS_PATH, LIBZIP_NAME, "build")):
+            try:
+                os.makedirs(os.path.join(DEPS_PATH, LIBZIP_NAME, "build"))
+            except:
+                failMsg("Cannot make \"" + os.path.join(DEPS_PATH, LIBZIP_NAME, "build") + "\" directory.")
+                exit(1)
+
+        os.chdir("build")
+
+        cmake_cmd = ["cmake", "-DBUILD_SHARED_LIBS=ON", ".."]
         if THIS_SYSTEM == "Windows":
-            # TODO: Build libzip for windows.
-            raise NotImplementedError("Building libzip for Windows OS is not implemented yet!")
-        else:
-            if not os.path.exists(os.path.join(DEPS_PATH, LIBZIP_NAME, "build")):
-                try:
-                    os.makedirs(os.path.join(DEPS_PATH, LIBZIP_NAME, "build"))
-                except:
-                    failMsg("Cannot make \"" + os.path.join(DEPS_PATH, LIBZIP_NAME, "build") + "\" directory.")
-                    exit(1)
-            
-            os.chdir("build")
+            cmake_cmd += [
+                "-G", "MinGW Makefiles",
+                "-DCMAKE_SH=CMAKE_SH-NOTFOUND"
+            ]
+        ret = subprocess.call(cmake_cmd)
+        if ret != 0:
+            failMsg("Building libzip.")
+            exit(1)
+        ret = subprocess.call("{0} -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
+        if ret != 0:
+            failMsg("Building libzip.")
+            exit(1)
 
-            cmake_cmd = ["cmake", "-DBUILD_SHARED_LIBS=ON", ".."]
-            if THIS_SYSTEM == "Windows":
-                cmake_cmd += [
-                    "-G", "MinGW Makefiles",
-                    "-DCMAKE_SH=CMAKE_SH-NOTFOUND"
-                ]
-            ret = subprocess.call(cmake_cmd)
-            if ret != 0:
-                failMsg("Building libzip.")
-                exit(1)
-            ret = subprocess.call("{0} -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
-            if ret != 0:
-                failMsg("Building libzip.")
+        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
+            try:
+                os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
+            except:
+                failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
                 exit(1)
 
-            if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
-                try:
-                    os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
-                except:
-                    failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
-                    exit(1)
-
-            shutil.copy2(
-                os.path.join(DEPS_PATH, LIBZIP_NAME, "build", "libzip.{}".format(SHARED_LIBS_EXT)),
-                os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libzip.{}".format(SHARED_LIBS_EXT))
-            )
-
-
-
-            if ret != 0:
-                failMsg("Building libzip.")
-                exit(1)
-    except (IOError, OSError, subprocess.CalledProcessError):
+        shutil.copy2(
+            os.path.join(DEPS_PATH, LIBZIP_NAME, "build", "libzip.{}".format(SHARED_LIBS_EXT)),
+            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libzip.{}".format(SHARED_LIBS_EXT))
+        )
+    except (IOError, OSError, subprocess.CalledProcessError) as e:
+        failMsg(str(e))
         failMsg("Building libzip.")
         exit(1)
     os.chdir(old_path)
     successMsg("Building libzip.")
 
+def build_dlfcn_win32():
+    global BUILD_PATH
+    global DEPS_PATH
+    global DLFCN_WIN32_NAME
+    global DLFCN_WIN32_URL
+    global DLFCN_WIN32_VERSION
+    global MAKE_THREAD_COUNT
+    global INSTALL_PATH
+    global LIB_DIR
+    global SHARED_LIBS_EXT
+    global THIS_SYSTEM
+
+    try:
+        os.makedirs(BUILD_PATH)
+    except OSError:
+        pass
+
+    try:
+        os.makedirs(DEPS_PATH)
+    except OSError:
+        pass
+
+    old_path = os.path.realpath(os.getcwd())
+    os.chdir(DEPS_PATH)
+
+    dlfcn_folder_name = DLFCN_WIN32_NAME + '-' + DLFCN_WIN32_VERSION
+    if not os.path.exists(os.path.join(dlfcn_folder_name + ".src", "EXTRACTED")):
+        if not os.path.exists(("v" + DLFCN_WIN32_VERSION + ".zip")):
+            wget.download(DLFCN_WIN32_URL)
+            print('') # Printing new line after 'wget'.
+        with ZipFile(file=("v" + DLFCN_WIN32_VERSION + ".zip"), mode="r") as zip:
+            infoMsg("Extracting dlfcn-win32 sources...")
+            zip.extractall()
+        os.rename(dlfcn_folder_name, dlfcn_folder_name + ".src")
+        os.remove(("v" + DLFCN_WIN32_VERSION + ".zip"))
+        with open(os.path.join(dlfcn_folder_name + ".src", "EXTRACTED"), "w") as fd:
+            fd.write("DLFCN-WIN32 EXTRACTED CHECKER")
+        infoMsg("Finished extracting dlfcn-win32 sources.")
+    else:
+        infoMsg("dlfcn-win32 sources are already available.")
+
+    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libdl.{}".format(SHARED_LIBS_EXT))):
+        infoMsg("libdl is already built and installed.")
+        successMsg("Building libdl.")
+        return
+
+    try:
+        if not os.path.exists(dlfcn_folder_name + ".build"):
+            os.makedirs(dlfcn_folder_name + ".build")
+        if not os.path.exists(dlfcn_folder_name + ".install"):
+            os.makedirs(dlfcn_folder_name + ".install")
+        os.chdir(dlfcn_folder_name + ".build")
+
+        cmake_cmd = ["cmake", "-DBUILD_SHARED_LIBS=ON", ".."]
+        if THIS_SYSTEM == "Windows":
+            cmake_cmd += [
+                "-G", "MinGW Makefiles",
+                "-DCMAKE_SH=CMAKE_SH-NOTFOUND"
+            ]
+        ret = subprocess.call(cmake_cmd)
+        if ret != 0:
+            failMsg("Building libdl.")
+            exit(1)
+        ret = subprocess.call("{0} -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
+        if ret != 0:
+            failMsg("Building libdl.")
+            exit(1)
+
+        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
+            try:
+                os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
+            except:
+                failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
+                exit(1)
+
+        shutil.copy2(
+            os.path.join(DEPS_PATH, dlfcn_folder_name + ".install", "bin", "libdl.{}".format(SHARED_LIBS_EXT)),
+            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libdl.{}".format(SHARED_LIBS_EXT))
+        )
+    except (IOError, OSError, subprocess.CalledProcessError) as e:
+        failMsg(str(e))
+        failMsg("Building libdl.")
+        exit(1)
+    os.chdir(old_path)
+    successMsg("Building libdl.")
+
 
 def prep_debs():
+    global THIS_SYSTEM
+
     infoMsg("Preparing dependencies...")
     build_llvm()
     build_libcurl()
     build_libzip()
+    if THIS_SYSTEM == "Windows":
+        build_dlfcn_win32()
     successMsg("Building dependencies.")
 
 
@@ -374,9 +454,6 @@ def copy_other_installation_files():
     )
     successMsg("Copying other installation files.")
 
-def copy_external_shared_libraries():
-    pass
-
 def build_alusus():
     global BUILD_PATH
     global ALUSUS_ROOT
@@ -419,7 +496,8 @@ def build_alusus():
             failMsg("Building Alusus.")
             exit(1)
 
-    except (IOError, OSError, subprocess.CalledProcessError):
+    except (IOError, OSError, subprocess.CalledProcessError) as e:
+        failMsg(str(e))
         failMsg("Building Alusus.")
         exit(1)
     os.chdir(old_path)
