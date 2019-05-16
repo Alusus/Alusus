@@ -60,7 +60,7 @@ ARCHITECTURE = "native"
 PACKAGE_NAME = "alusus"
 PACKAGE_DESCRIPTION = "Alusus Programming Language's core compilation system and standard libraries."
 PACKAGE_MAINTAINER = "Sarmad Khalid Abdullah <sarmad@alusus.org>"
-PACKAGE_URL = "http://alusus.net"
+PACKAGE_URL = "https://alusus.org"
 
 # Current system.
 THIS_SYSTEM = platform.system()
@@ -336,7 +336,7 @@ def build_libzip():
                 except:
                     failMsg("Cannot make \"" + os.path.join(DEPS_PATH, LIBZIP_NAME, "build") + "\" directory.")
                     exit(1)
-            
+
             os.chdir("build")
 
             ret = subprocess.call(["cmake", "-DBUILD_SHARED_LIBS=true", ".."])

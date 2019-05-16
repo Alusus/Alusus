@@ -1,7 +1,7 @@
 <img
   alt="ALUSUS PROGRAMMING LANGUAGE"
   align="right"
-  src="https://alusus.net/Resources/logo.en.gif"
+  src="https://alusus.org/Resources/logo.en.gif"
 />
 
 # ALUSUS PROGRAMMING LANGUAGE [[عربي]](readme.ar.md)
@@ -20,17 +20,17 @@ a different language. Imagine writing your program in a high level language whil
 level for performance critical components. The goal of Alusus is to eventually make all that possible, but development
 is still in an early stage, and as of now Alusus provide low level procedural programming features.
 
-Visit [alusus.net](https://alusus.net) for more info.
+Visit [alusus.org](https://alusus.org) for more info.
 
 ## Downloads
 
-Currently Alusus support Linux only. Visit the [downloads](https://alusus.net/download) page for pre-built deb and rpm
+Currently Alusus support Linux only. Visit the [downloads](https://alusus.org/download) page for pre-built deb and rpm
 packages.
 
 ## Documentation
 
 Documentation is still lacking, but you can find some high level design documentation and examples on the
-[documentation](https://alusus.net/documentation) page.
+[documentation](https://alusus.org/documentation) page.
 
 ## Directory Structure
 
@@ -52,7 +52,7 @@ Documentation is still lacking, but you can find some high level design document
 ## Help Us
 
 Our team needs volunteers to contribute to this project. Join us in making the future better for programmers. Visit the
-[development](https://alusus.net/dev) page for more information.
+[development](https://alusus.org/dev) page for more information.
 
 Or help by donating to the project<br/>
 [![PayPal - The safer, easier way to pay online!](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/alusus)
@@ -78,7 +78,7 @@ The copyright for this project is owned by Sarmad Khalid Abdullah.
 
 Alusus Language specification, documentation, source code, binaries, and examples are published under Alusus Public
 License, Version 1.0, which is included in this repo and is also available online at
-[https://alusus.net/alusus_license_1_0](https://alusus.net/alusus_license_1_0). Please read the license before using
+[https://alusus.org/alusus_license_1_0](https://alusus.org/alusus_license_1_0). Please read the license before using
 or copying this software. By using this software you acknowledge that you have read the terms contained in this license
 and agree with and accept all such terms.
 

@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -24,7 +24,7 @@ class Type : public TiObject
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Type, TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.net");
+  TYPE_INFO(Type, TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.org");
 
 
   //============================================================================
@@ -43,7 +43,7 @@ class VoidType : public Type
   //============================================================================
   // Type Info
 
-  TYPE_INFO(VoidType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.net");
+  TYPE_INFO(VoidType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.org");
 
 
   //============================================================================
@@ -79,7 +79,7 @@ class IntegerType : public Type
   //============================================================================
   // Type Info
 
-  TYPE_INFO(IntegerType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.net");
+  TYPE_INFO(IntegerType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.org");
 
 
   //============================================================================
@@ -127,7 +127,7 @@ class FloatType : public Type
   //============================================================================
   // Type Info
 
-  TYPE_INFO(FloatType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.net");
+  TYPE_INFO(FloatType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.org");
 
 
   //============================================================================
@@ -169,7 +169,7 @@ class PointerType : public Type
   //============================================================================
   // Type Info
 
-  TYPE_INFO(PointerType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.net");
+  TYPE_INFO(PointerType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.org");
 
 
   //============================================================================
@@ -211,7 +211,7 @@ class ArrayType : public Type
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ArrayType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.net");
+  TYPE_INFO(ArrayType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.org");
 
 
   //============================================================================
@@ -259,7 +259,7 @@ class StructType : public Type
   //============================================================================
   // Type Info
 
-  TYPE_INFO(StructType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.net");
+  TYPE_INFO(StructType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.org");
 
 
   //============================================================================
@@ -301,7 +301,7 @@ class FunctionType : public Type
   //============================================================================
   // Type Info
 
-  TYPE_INFO(FunctionType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.net");
+  TYPE_INFO(FunctionType, Type, "Spp.LlvmCodeGen", "Spp", "alusus.org");
 
 
   //============================================================================

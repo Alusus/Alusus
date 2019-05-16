@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -21,7 +21,7 @@ class Scope : public List
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Scope, List, "Core.Data.Ast", "Core", "alusus.net");
+  TYPE_INFO(Scope, List, "Core.Data.Ast", "Core", "alusus.org");
 
 
   //============================================================================

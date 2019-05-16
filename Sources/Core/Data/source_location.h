@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -22,7 +22,7 @@ namespace Core::Data
  */
 class SourceLocation : public TiObject
 {
-  TYPE_INFO(SourceLocation, TiObject, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(SourceLocation, TiObject, "Core.Data", "Core", "alusus.org");
 };
 
 
@@ -39,7 +39,7 @@ class SourceLocationRecord : public SourceLocation
   //============================================================================
   // Type Info
 
-  TYPE_INFO(SourceLocationRecord, SourceLocation, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(SourceLocationRecord, SourceLocation, "Core.Data", "Core", "alusus.org");
 
 
   //============================================================================
@@ -85,7 +85,7 @@ class SourceLocationStack : public SharedListBase<SourceLocationRecord, SourceLo
   // Type Info
 
   typedef SharedListBase<SourceLocationRecord, SourceLocation> _MyBase;
-  TYPE_INFO(SourceLocationStack, _MyBase, "Core.Data", "Core", "alusus.net");
+  TYPE_INFO(SourceLocationStack, _MyBase, "Core.Data", "Core", "alusus.org");
 
 
   //============================================================================

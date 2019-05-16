@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -26,7 +26,7 @@ class ArgPack : public Core::Data::Node,
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ArgPack, Core::Data::Node, "Spp.Ast", "Core", "alusus.net");
+  TYPE_INFO(ArgPack, Core::Data::Node, "Spp.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(Core::Data::Node, Binding, MapContaining<TiObject>,
                                          Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable);
 

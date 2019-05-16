@@ -7,7 +7,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -177,8 +177,8 @@ inline void resetCodeGenFailed(OT *object)
 //==============================================================================
 // Type Names
 
-DEFINE_TYPE_NAME(Spp::CodeGen::GenResult, "alusus.net/Spp/Spp.CodeGen.GenResult");
-DEFINE_TYPE_NAME(Spp::CodeGen::TerminalStatement, "alusus.net/Spp/Spp.CodeGen.TerminalStatement");
+DEFINE_TYPE_NAME(Spp::CodeGen::GenResult, "alusus.org/Spp/Spp.CodeGen.GenResult");
+DEFINE_TYPE_NAME(Spp::CodeGen::TerminalStatement, "alusus.org/Spp/Spp.CodeGen.TerminalStatement");
 
 
 //==============================================================================
