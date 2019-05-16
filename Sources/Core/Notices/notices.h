@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -76,7 +76,7 @@ void printNotice(Notice const *msg);
 //==============================================================================
 // Type Names
 
-DEFINE_TYPE_NAME(Core::Notices::Store, "alusus.net/Core/Core.Notices.Store");
+DEFINE_TYPE_NAME(Core::Notices::Store, "alusus.org/Core/Core.Notices.Store");
 
 
 //==============================================================================
@@ -98,11 +98,11 @@ DEFINE_TYPE_NAME(Core::Notices::Store, "alusus.net/Core/Core.Notices.Store");
 namespace Core::Notices
 {
 
-DEFINE_NOTICE(BufferFullNotice, "Core.Notices", "Core", "alusus.net", "CL1002", 1,
+DEFINE_NOTICE(BufferFullNotice, "Core.Notices", "Core", "alusus.org", "CL1002", 1,
   "Input buffer is full. A single token is too long to fit in the input buffer. "
   "The token may have been broken into more than one token."
 );
-DEFINE_NOTICE(TokenClampedNotice, "Core.Notices", "Core", "alusus.net", "CL2003", 2,
+DEFINE_NOTICE(TokenClampedNotice, "Core.Notices", "Core", "alusus.org", "CL2003", 2,
   "Input buffer is full. A single token is too long to fit in the input buffer. "
   "Some characters that are part of the token has been ignored."
 );
@@ -116,19 +116,19 @@ DEFINE_NOTICE(TokenClampedNotice, "Core.Notices", "Core", "alusus.net", "CL2003"
 namespace Core::Notices
 {
 
-DEFINE_NOTICE(SyntaxErrorNotice, "Core.Notices", "Core", "alusus.net", "CP1001", 1,
+DEFINE_NOTICE(SyntaxErrorNotice, "Core.Notices", "Core", "alusus.org", "CP1001", 1,
   "Parser syntax error."
 );
-DEFINE_NOTICE(UnexpectedEofNotice, "Core.Notices", "Core", "alusus.net", "CP1002", 1,
+DEFINE_NOTICE(UnexpectedEofNotice, "Core.Notices", "Core", "alusus.org", "CP1002", 1,
   "Parsing exited while needing more tokens."
 );
-DEFINE_NOTICE(UnexpectedTokenNotice, "Core.Notices", "Core", "alusus.net", "CP1003", 1,
+DEFINE_NOTICE(UnexpectedTokenNotice, "Core.Notices", "Core", "alusus.org", "CP1003", 1,
   "Parsing has already folded out to completion."
 );
-DEFINE_NOTICE(AmbiguityNotice, "Core.Notices", "Core", "alusus.net", "CP2004", 2,
+DEFINE_NOTICE(AmbiguityNotice, "Core.Notices", "Core", "alusus.org", "CP2004", 2,
   "Ambiguity is causing state branching."
 );
-DEFINE_NOTICE(UnexpectedModifierNotice, "Core.Notices", "Core", "alusus.net", "CP1005", 1,
+DEFINE_NOTICE(UnexpectedModifierNotice, "Core.Notices", "Core", "alusus.org", "CP1005", 1,
   "Unexpected modifier encountered."
 );
 
@@ -141,16 +141,16 @@ DEFINE_NOTICE(UnexpectedModifierNotice, "Core.Notices", "Core", "alusus.net", "C
 namespace Core::Notices
 {
 
-DEFINE_NOTICE(MissingDefLinkNotice, "Core.Notices", "Core", "alusus.net", "CD1001", 1,
+DEFINE_NOTICE(MissingDefLinkNotice, "Core.Notices", "Core", "alusus.org", "CD1001", 1,
   "Missing link expression in 'def' command."
 );
-DEFINE_NOTICE(MissingDefNameNotice, "Core.Notices", "Core", "alusus.net", "CD1002", 1,
+DEFINE_NOTICE(MissingDefNameNotice, "Core.Notices", "Core", "alusus.org", "CD1002", 1,
   "Missing definition name in 'def' command."
 );
-DEFINE_NOTICE(InvalidDefCommandNotice, "Core.Notices", "Core", "alusus.net", "CD1003", 1,
+DEFINE_NOTICE(InvalidDefCommandNotice, "Core.Notices", "Core", "alusus.org", "CD1003", 1,
   "Invalid 'def' command."
 );
-DEFINE_NOTICE(IncompatibleDefMergeNotice, "Core.Notices", "Core", "alusus.net", "CD1004", 1,
+DEFINE_NOTICE(IncompatibleDefMergeNotice, "Core.Notices", "Core", "alusus.org", "CD1004", 1,
   "Incompatible 'def' merge."
 );
 
@@ -163,10 +163,10 @@ DEFINE_NOTICE(IncompatibleDefMergeNotice, "Core.Notices", "Core", "alusus.net", 
 namespace Core::Notices
 {
 
-DEFINE_NOTICE(UnrecognizedErrorNotice, "Core.Notices", "Core", "alusus.net", "CG1001", 1,
+DEFINE_NOTICE(UnrecognizedErrorNotice, "Core.Notices", "Core", "alusus.org", "CG1001", 1,
   "Unrecognized error."
 );
-DEFINE_NOTICE(InvalidDumpArgNotice, "Core.Notices", "Core", "alusus.net", "CG1002", 1,
+DEFINE_NOTICE(InvalidDumpArgNotice, "Core.Notices", "Core", "alusus.org", "CG1002", 1,
   "Invalid argument for 'dump_ast' command."
 );
 

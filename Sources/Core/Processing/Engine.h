@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -23,7 +23,7 @@ class Engine : public TiObject
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Engine, TiObject, "Core.Processing", "Core", "alusus.net");
+  TYPE_INFO(Engine, TiObject, "Core.Processing", "Core", "alusus.org");
 
 
   //============================================================================

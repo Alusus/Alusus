@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -25,7 +25,7 @@ template <class P> class TiStrBase : public P
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(TiStrBase, P, "Core.Data", "Core", "alusus.net", (P));
+  TEMPLATE_TYPE_INFO(TiStrBase, P, "Core.Data", "Core", "alusus.org", (P));
 
 
   //============================================================================
