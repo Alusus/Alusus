@@ -14,18 +14,15 @@
 
 
 import os
+import sys
 import subprocess
 import datetime
-try:
-    import install_dep
-except ImportError:
-    import sys
-    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-    import install_dep
-install_dep.install_package('ummalqura'); from ummalqura.hijri_date import HijriDate
+import install_dep
+import platform
+from install_dep import add_local_site_packages_to_path
 
 
-def get_version_info():
+def get_version_info(prefix):
     original_path = os.path.realpath(os.getcwd())
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     release_string = None
@@ -52,14 +49,16 @@ def get_version_info():
         
     now = datetime.datetime.now()
     date = "{0}-{1}-{2}".format(now.year, str(now.month).rjust(2, '0'), str(now.day).rjust(2, '0'))
+    add_local_site_packages_to_path(prefix)
+    from ummalqura.hijri_date import HijriDate
     islamic_date_now = HijriDate(now.year, now.month, now.day, gr=True)
     hijri_date = "{0}-{1}-{2}".format(int(islamic_date_now.year), str(int(islamic_date_now.month)).rjust(2, '0'), str(int(islamic_date_now.day)).rjust(2, '0'))
     os.chdir(original_path)
     return version, revision, date, hijri_date
 
 
-def print_version_info():
-    version, revision, date, hijri_date = get_version_info()
+def print_version_info(prefix):
+    version, revision, date, hijri_date = get_version_info(prefix)
     print("VERSION: {}".format(version))
     print("REVISION: {}".format(revision))
     print("DATE: {}".format(date))
@@ -67,4 +66,4 @@ def print_version_info():
 
 
 if __name__ == "__main__":
-    print_version_info()
+    print_version_info(sys.argv[1])

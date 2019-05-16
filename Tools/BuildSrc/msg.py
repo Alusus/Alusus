@@ -1,12 +1,5 @@
 from __future__ import print_function
-try:
-    import install_dep
-except ImportError:
-    import sys
-    if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
-        sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-    import install_dep
-install_dep.install_package('termcolor'); from termcolor import colored
+from termcolor import colored
 
 def infoMsg(txt, newline=True):
     if newline:
