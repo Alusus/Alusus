@@ -119,7 +119,7 @@ def build_llvm():
                      "-DCMAKE_INSTALL_PREFIX={}".format(
                          os.path.join(DEPS_PATH, LLVM_NAME + ".install")),
                      "-DCMAKE_BUILD_TYPE=MinSizeRel",
-                     "-DBUILD_SHARED_LIBS=ON",
+                     "-DLLVM_BUILD_LLVM_DYLIB=ON",
                      "-DPYTHON_EXECUTABLE={}".format(sys.executable)]
         
         if THIS_SYSTEM == "Windows":
