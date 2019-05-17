@@ -137,7 +137,7 @@ def build_llvm():
             failMsg("Building LLVM.")
             exit(1)
         shutil.copy2(
-            os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib" "{0}.{1}".format(LLVM_SHARED_LIB_NAME, SHARED_LIBS_EXT)),
+            os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib", "{0}.{1}".format(LLVM_SHARED_LIB_NAME, SHARED_LIBS_EXT)),
             os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(LLVM_SHARED_LIB_NAME, SHARED_LIBS_EXT))
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
