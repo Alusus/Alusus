@@ -59,7 +59,7 @@ def _process_args():
         global_args['installPath'] = os.path.join(global_args['productPath'], "LocalInstall")
 
         # Install all deps.
-        install_all_deps(global_args['pythonDepsPath'])
+        install_all_deps(global_args['pythonDepsPath'], True)
     
     if args.g:
         global_args['installPath'] = global_args['releaseInstallPath']

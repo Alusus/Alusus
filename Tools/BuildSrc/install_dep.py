@@ -18,10 +18,9 @@ def add_local_site_packages_to_path(prefix):
     if not os.path.exists(local_deps_path):
         os.makedirs(local_deps_path)
     if local_deps_path not in sys.path:
-        sys.path.append(local_deps_path)
+        sys.path.insert(0, local_deps_path)
 
 def install_pip(prefix, verbose=False):
-    local_deps_path = get_local_site_packages(prefix)
     try:
         add_local_site_packages_to_path(prefix)
         import_module('pip')

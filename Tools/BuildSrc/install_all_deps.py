@@ -1,8 +1,8 @@
 from install_dep import install_package
 
-def install_all_deps(prefix):
+def install_all_deps(prefix, verbose=False):
     # Add your Python dependencies here.
-    install_package('wget', prefix)
-    install_package('colorama', prefix)
-    install_package('termcolor', prefix)
-    install_package('ummalqura', prefix)
+    install_package('wget', prefix, verbose=verbose)
+    install_package('colorama', prefix, verbose=verbose)
+    install_package('termcolor', prefix, verbose=verbose)
+    install_package('ummalqura', prefix, verbose=verbose)
