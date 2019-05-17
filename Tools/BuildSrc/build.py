@@ -98,7 +98,7 @@ def build_llvm():
     else:
         infoMsg("LLVM sources are already available.")
 
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libLLVM.{}".format(SHARED_LIBS_EXT))):
+    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(LLVM_SHARED_LIB_NAME, SHARED_LIBS_EXT))):
         infoMsg("LLVM is already built and installed.")
         successMsg("Building LLVM.")
         return
