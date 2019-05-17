@@ -29,11 +29,14 @@ def install_pip(prefix, verbose=False):
         install_location_args = ['--prefix', prefix]
         script_dir = os.path.dirname(os.path.realpath(__file__))
         cmd = [sys.executable, os.path.join(script_dir, 'get-pip.py'), '--ignore-installed'] + install_location_args
+        ret = 0
         if not verbose:
             with open(os.devnull, "w") as f:
-                subprocess.call(cmd, stdout=f, stderr=subprocess.STDOUT)
+                ret = subprocess.call(cmd, stdout=f, stderr=subprocess.STDOUT)
         else:
-            subprocess.call(cmd)
+            ret = subprocess.call(cmd)
+        if ret != 0:
+            raise subprocess.CalledProcessError(ret, cmd)
         add_local_site_packages_to_path(prefix)
         return False
 
@@ -46,13 +49,20 @@ def install_package(package, prefix, verbose=False):
     except (ModuleNotFoundError, ImportError):
         install_pip(prefix, verbose=verbose)
         install_location_args = ['--prefix', prefix]
+        original_path = os.getcwd()
+        os.chdir(local_deps_path)
         cmd = [sys.executable, '-m', 'pip', 'install', '--ignore-installed'] + install_location_args + [package]
+        ret = 0
         if not verbose:
             with open(os.devnull, "w") as f:
-                p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, env={'PYTHONPATH': local_deps_path})
-                p.wait()
+                p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT)
+                ret = p.wait()
         else:
-            p = subprocess.Popen(cmd, env={'PYTHONPATH': local_deps_path})
-            p.wait()
+            p = subprocess.Popen(cmd)
+            ret = p.wait()
+        if ret != 0:
+            os.chdir(original_path)
+            raise subprocess.CalledProcessError(ret, cmd)
         add_local_site_packages_to_path(prefix)
+        os.chdir(original_path)
         return False
