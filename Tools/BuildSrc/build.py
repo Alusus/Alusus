@@ -136,9 +136,11 @@ def build_llvm():
         if ret != 0:
             failMsg("Building LLVM.")
             exit(1)
+        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
+            os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
             os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib", "{0}.{1}".format(LLVM_SHARED_LIB_NAME, SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(LLVM_SHARED_LIB_NAME, SHARED_LIBS_EXT))
+            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
@@ -209,10 +211,11 @@ def build_libcurl():
                 os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
             except:
                 failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
-
+        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
+            os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
             os.path.join(DEPS_PATH, LIBCURL_NAME, "lib", ".libs", "libcurl.{}".format(SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libcurl.{}".format(SHARED_LIBS_EXT))
+            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
@@ -298,10 +301,11 @@ def build_libzip():
             except:
                 failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
                 exit(1)
-
+        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
+            os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
             os.path.join(DEPS_PATH, LIBZIP_NAME, "build", "libzip.{}".format(SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libzip.{}".format(SHARED_LIBS_EXT))
+            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
@@ -384,10 +388,11 @@ def build_dlfcn_win32():
             except:
                 failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
                 exit(1)
-
+        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
+            os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
             os.path.join(DEPS_PATH, dlfcn_folder_name + ".install", "bin", "libdl.{}".format(SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libdl.{}".format(SHARED_LIBS_EXT))
+            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
