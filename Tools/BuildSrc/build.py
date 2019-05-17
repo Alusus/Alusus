@@ -10,6 +10,7 @@ import platform
 import lzma
 from msg import errMsg, failMsg, infoMsg, successMsg, warnMsg
 import wget
+import sys
 from version_info import get_version_info
 
 # Current system variables.
@@ -118,7 +119,8 @@ def build_llvm():
                      "-DCMAKE_INSTALL_PREFIX={}".format(
                          os.path.join(DEPS_PATH, LLVM_NAME + ".install")),
                      "-DCMAKE_BUILD_TYPE=MinSizeRel",
-                     "-DLLVM_BUILD_LLVM_DYLIB=ON"]
+                     "-DLLVM_BUILD_LLVM_DYLIB=ON",
+                     "-DPYTHON_EXECUTABLE={}".format(sys.executable)]
         
         if THIS_SYSTEM == "Windows":
             cmake_cmd += [
@@ -280,7 +282,11 @@ def build_libzip():
 
         os.chdir("build")
 
-        cmake_cmd = ["cmake", "-DBUILD_SHARED_LIBS=ON", ".."]
+        cmake_cmd = ["cmake",
+                     "-DBUILD_SHARED_LIBS=ON",
+                     "-DCMAKE_BUILD_TYPE=MinSizeRel",
+                     "-DPYTHON_EXECUTABLE={}".format(sys.executable),
+                     ".."]
         if THIS_SYSTEM == "Windows":
             cmake_cmd += [
                 "-G", "MinGW Makefiles",
@@ -367,7 +373,11 @@ def build_dlfcn_win32():
             os.makedirs(dlfcn_folder_name + ".install")
         os.chdir(dlfcn_folder_name + ".build")
 
-        cmake_cmd = ["cmake", "-DBUILD_SHARED_LIBS=ON", ".."]
+        cmake_cmd = ["cmake",
+                     "-DBUILD_SHARED_LIBS=ON",
+                     "-DCMAKE_BUILD_TYPE=MinSizeRel",
+                     "-DPYTHON_EXECUTABLE={}".format(sys.executable),
+                     ".."]
         if THIS_SYSTEM == "Windows":
             cmake_cmd += [
                 "-G", "MinGW Makefiles",
@@ -483,6 +493,7 @@ def build_alusus():
                      "-DCMAKE_BUILD_TYPE={}".format(BUILD_TYPE),
                      "-DCMAKE_INSTALL_PREFIX={}".format(INSTALL_PATH),
                      "-DLLVM_PATH={}".format(os.path.join(DEPS_PATH, LLVM_NAME + ".install")),
+                     "-DPYTHON_EXECUTABLE={}".format(sys.executable),
                      "-DPYTHON_PREFIX={}".format(PYTHON_DEPS_PATH)]
         
         if THIS_SYSTEM == "Windows":
