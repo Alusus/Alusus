@@ -404,12 +404,12 @@ def copy_other_installation_files():
                      "Gtk_Syntax_Highlighting", "alusus.lang")
     )
     shutil.copy2(
-        os.path.join(ALUSUS_ROOT, "changelog.en.txt"),
-        os.path.join(INSTALL_PATH, "changelog.en.txt")
+        os.path.join(ALUSUS_ROOT, "changelog.en.md"),
+        os.path.join(INSTALL_PATH, "changelog.en.md")
     )
     shutil.copy2(
-        os.path.join(ALUSUS_ROOT, "changelog.ar.txt"),
-        os.path.join(INSTALL_PATH, "changelog.ar.txt")
+        os.path.join(ALUSUS_ROOT, "changelog.ar.md"),
+        os.path.join(INSTALL_PATH, "changelog.ar.md")
     )
     shutil.copy2(
         os.path.join(ALUSUS_ROOT, "license.pdf"),
