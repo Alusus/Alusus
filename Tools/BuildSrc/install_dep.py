@@ -43,28 +43,28 @@ def install_pip(prefix, verbose=False):
         return False
 
 def install_package(package, prefix, verbose=False):
-    local_deps_path = get_local_site_packages(prefix)
     try:
         add_local_site_packages_to_path(prefix)
         import_module(package)
         return True
     except (ModuleNotFoundError, ImportError):
         install_pip(prefix, verbose=verbose)
+        new_env = os.environ.copy()
+        if "PYTHONPATH" in new_env:
+            new_env["PYTHONPATH"] += os.pathsep + get_local_site_packages(prefix)
+        else:
+            new_env["PYTHONPATH"] = get_local_site_packages(prefix)
         install_location_args = ['--prefix', prefix]
-        original_path = os.getcwd()
-        os.chdir(local_deps_path)
         cmd = [sys.executable, '-m', 'pip', 'install', '--ignore-installed'] + install_location_args + [package]
         ret = 0
         if not verbose:
             with open(os.devnull, "w") as f:
-                p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT)
+                p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, env=new_env)
                 ret = p.wait()
         else:
-            p = subprocess.Popen(cmd)
+            p = subprocess.Popen(cmd, env=new_env)
             ret = p.wait()
         if ret != 0:
-            os.chdir(original_path)
             raise subprocess.CalledProcessError(ret, cmd)
         add_local_site_packages_to_path(prefix)
-        os.chdir(original_path)
         return False
