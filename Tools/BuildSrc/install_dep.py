@@ -4,10 +4,12 @@ import subprocess
 import site
 import os
 import platform
+import sysconfig
 
 def get_local_site_packages(prefix):
     local_deps_path = os.path.join(prefix, 'Lib','site-packages')
-    if platform.system() != "Windows":
+    # Only default Windows Python installation (not including MinGW installation) install Python module under Lib\site-packages.
+    if platform.system() != "Windows" or sysconfig.get_platform() == "mingw":
         local_deps_path = os.path.join(prefix, 'lib','python{major}.{minor}'.format(
             major=platform.python_version_tuple()[0], minor=platform.python_version_tuple()[1]
         ), 'site-packages')
