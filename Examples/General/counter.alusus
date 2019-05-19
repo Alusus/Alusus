@@ -1,6 +1,6 @@
 import "Srl/Console.alusus";
 import "Srl/System.alusus";
-import "Srl/File.alusus";
+import "Srl/Fs.alusus";
 
 def Main: module
 {
@@ -10,7 +10,7 @@ def Main: module
     j = 0;
     while 1 {
       Srl.Console.print("  %d\r", j);
-      Srl.File.flush(0~cast[ptr[Void]]);
+      Srl.Fs.flush(0~cast[ptr[Srl.Fs.File]]);
       ++j;
       Srl.System.sleep(1 * 1000000);
     }
