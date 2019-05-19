@@ -119,7 +119,6 @@ def build_llvm():
                      "-DCMAKE_INSTALL_PREFIX={}".format(
                          os.path.join(DEPS_PATH, LLVM_NAME + ".install")),
                      "-DCMAKE_BUILD_TYPE=MinSizeRel",
-                     "-DLLVM_LINK_LLVM_DYLIB=ON",
                      "-DPYTHON_EXECUTABLE={}".format(sys.executable)]
         
         if THIS_SYSTEM == "Windows":
@@ -127,6 +126,9 @@ def build_llvm():
                 "-G", "MinGW Makefiles",
                 "-DCMAKE_SH=CMAKE_SH-NOTFOUND"
             ]
+        else:
+            # We will create libLLVM later on Windows MinGW after building it statically.
+            cmake_cmd += ["-DLLVM_LINK_LLVM_DYLIB=ON"]
 
         ret = subprocess.call(cmake_cmd)
         if ret != 0:
@@ -138,6 +140,18 @@ def build_llvm():
         if ret != 0:
             failMsg("Building LLVM.")
             exit(1)
+        
+        # Now we create the "libLLVM" DLL for Windows MinGW.
+        if THIS_SYSTEM == "Windows":
+            infoMsg("Building {llvmDylibName}.{dylibExt} on Windows MinGW...".format(llvmDylibName=LLVM_SHARED_LIB_NAME, dylibExt=SHARED_LIBS_EXT))
+            temp_path = os.getcwd()
+            script_dir = os.path.dirname(os.path.realpath(__file__))
+            os.chdir(os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib"))
+            create_llvm_unix_dir = subprocess.check_output('cygpath', os.path.join(script_dir, 'create_libLLVM_MinGW.sh'))
+            subprocess.call(['bash', '-c', create_llvm_unix_dir, LLVM_SHARED_LIB_NAME])
+            os.chdir(temp_path)
+            infoMsg("Finished building {llvmDylibName}.{dylibExt} on Windows MinGW.".format(llvmDylibName=LLVM_SHARED_LIB_NAME, dylibExt=SHARED_LIBS_EXT))
+
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
