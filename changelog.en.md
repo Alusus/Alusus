@@ -1,12 +1,53 @@
 # Alusus Changelog
 
+## Version 0.5.0 (2019-05-19)
+
+### What's New:
+
+  * Enable execution of code in the root scope outside of modules and functions.
+  * Removed the `run` command which is no longer needed.
+  * Replaced the `dump_llvm_ir` command with a function.
+  * Enabled `use` command in the root scope.
+  * Enabled assigning values in variable definition statements.
+  * Added a simple package manager.
+  * Added a library for sendign network requests.
+  * Added a library for extracing zip files.
+  * Added regular expression functions.
+  * Added `Process.language` global variable to carry the code of the currently
+    selected system language.
+  * Enabled the % operator on float numbers.
+  * Added line numbers to interactive mode.
+  * Raise a build error when return statements are missing.
+  * Raise a build error for unreachable code.
+  * Limit code generation to only the elements needed for the execution rather
+    than building the entire source code.
+  * Improved implicit casting of pointers to pointers.
+
+### Fixes:
+
+  * Fixed an issue with detecting current system language.
+  * Fixed an issue with build script
+
+### Internal Changes:
+
+  * Use version 7.0.1 of LLVM instead of the old version 3.3.
+  * Use regular inheritance instead of virtual inheritance in Alusus classes.
+  * Added RootScopeHandler dynamic class to allow easier overriding the handling
+    of elements added to the root scope.
+
+That's in addition to many other smaller fixes and additions to the standard
+runtime liraries.
+
+
 ## Version 0.4.1 (2019-03-13)
+<details>
 
 ### What's New:
 
   * Added support for passing process arguments to the running start function.
   * If the start function returns a non-zero value the result is used as an exit
     code for the Core.
+</details>
 
 
 ## Version 0.4.0 (2019-02-25)
@@ -65,6 +106,7 @@
   * Fixed a problem in parsing function args when those args have no names.
   * Few other internal fixes.
 </details>
+
 
 ## Version 0.3.0 (2018-09-26)
 <details>
@@ -140,6 +182,7 @@
   * Disabled RTTI, which is no longer needed.
 </details>
 
+
 ## Version 0.2.1 (2015-11-28)
 <details>
 
@@ -161,6 +204,7 @@
   * Fixed the naming convention of the SCG source code.
   * Various cleanup and minor bug fixes.
 </details>
+
 
 ## Version 0.2.0 (2015-04-27)
 <details>
