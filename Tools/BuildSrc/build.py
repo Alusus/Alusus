@@ -276,15 +276,16 @@ def build_libzip():
     old_path = os.path.realpath(os.getcwd())
     os.chdir(DEPS_PATH)
 
-    if not os.path.exists(os.path.join(LIBZIP_NAME, "EXTRACTED")):
+    if not os.path.exists(os.path.join(LIBZIP_NAME + ".src", "EXTRACTED")):
         if not os.path.exists(LIBZIP_NAME + ".zip"):
             wget.download(LIBZIP_SRC_URL)
             print('') # Printing new line after 'wget'.
         with ZipFile(file=LIBZIP_NAME + ".zip", mode="r") as zip:
             infoMsg("Extracting libzip sources...")
             zip.extractall()
+            os.rename(LIBZIP_NAME, LIBZIP_NAME + ".src")
         os.remove(LIBZIP_NAME + ".zip")
-        with open(os.path.join(LIBZIP_NAME, "EXTRACTED"), "w") as fd:
+        with open(os.path.join(LIBZIP_NAME + ".src", "EXTRACTED"), "w") as fd:
             fd.write("LIBZIP EXTRACTED CHECKER")
         infoMsg("Finished extracting libzip sources.")
     else:
@@ -295,23 +296,20 @@ def build_libzip():
         successMsg("Building libzip.")
         return
 
-    os.chdir(LIBZIP_NAME)
-
     try:
-        if not os.path.exists(os.path.join(DEPS_PATH, LIBZIP_NAME, "build")):
-            try:
-                os.makedirs(os.path.join(DEPS_PATH, LIBZIP_NAME, "build"))
-            except:
-                failMsg("Cannot make \"" + os.path.join(DEPS_PATH, LIBZIP_NAME, "build") + "\" directory.")
-                exit(1)
-
-        os.chdir("build")
+        if not os.path.exists(os.path.join(DEPS_PATH, LIBZIP_NAME + ".build")):
+            os.makedirs(os.path.join(DEPS_PATH, LIBZIP_NAME + ".build"))
+        if not os.path.exists(os.path.join(DEPS_PATH, LIBZIP_NAME + ".install")):
+            os.makedirs(os.path.join(DEPS_PATH, LIBZIP_NAME + ".install"))
+        os.chdir(os.path.join(DEPS_PATH, LIBZIP_NAME + ".build"))
 
         cmake_cmd = ["cmake",
                      "-DBUILD_SHARED_LIBS=ON",
                      "-DCMAKE_BUILD_TYPE=MinSizeRel",
+                     "-DCMAKE_DISABLE_TESTING=\"\"",
                      "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-                     ".."]
+                     "-DCMAKE_INSTALL_PREFIX={}".format(os.path.join(DEPS_PATH, LIBZIP_NAME + ".install")),
+                     os.path.join(DEPS_PATH, LIBZIP_NAME + ".src")]
         if THIS_SYSTEM == "Windows":
             cmake_cmd += [
                 "-G", "MinGW Makefiles",
@@ -321,21 +319,14 @@ def build_libzip():
         if ret != 0:
             failMsg("Building libzip.")
             exit(1)
-        ret = subprocess.call("{0} -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
+        ret = subprocess.call("{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
         if ret != 0:
             failMsg("Building libzip.")
             exit(1)
-
-        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
-            try:
-                os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
-            except:
-                failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
-                exit(1)
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
-            os.path.join(DEPS_PATH, LIBZIP_NAME, "build", "libzip.{}".format(SHARED_LIBS_EXT)),
+            os.path.join(DEPS_PATH, LIBZIP_NAME + ".install", "bin", "libzip.{}".format(SHARED_LIBS_EXT)),
             os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
@@ -372,14 +363,14 @@ def build_dlfcn_win32():
 
     dlfcn_folder_name = DLFCN_WIN32_NAME + '-' + DLFCN_WIN32_VERSION
     if not os.path.exists(os.path.join(dlfcn_folder_name + ".src", "EXTRACTED")):
-        if not os.path.exists(("v" + DLFCN_WIN32_VERSION + ".zip")):
+        if not os.path.exists((dlfcn_folder_name + ".zip")):
             wget.download(DLFCN_WIN32_URL)
             print('') # Printing new line after 'wget'.
-        with ZipFile(file=("v" + DLFCN_WIN32_VERSION + ".zip"), mode="r") as zip:
+        with ZipFile(file=(dlfcn_folder_name + ".zip"), mode="r") as zip:
             infoMsg("Extracting dlfcn-win32 sources...")
             zip.extractall()
         os.rename(dlfcn_folder_name, dlfcn_folder_name + ".src")
-        os.remove(("v" + DLFCN_WIN32_VERSION + ".zip"))
+        os.remove((dlfcn_folder_name + ".zip"))
         with open(os.path.join(dlfcn_folder_name + ".src", "EXTRACTED"), "w") as fd:
             fd.write("DLFCN-WIN32 EXTRACTED CHECKER")
         infoMsg("Finished extracting dlfcn-win32 sources.")
@@ -402,7 +393,8 @@ def build_dlfcn_win32():
                      "-DBUILD_SHARED_LIBS=ON",
                      "-DCMAKE_BUILD_TYPE=MinSizeRel",
                      "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-                     ".."]
+                     "-DCMAKE_INSTALL_PREFIX={}".format(os.path.join(DEPS_PATH, dlfcn_folder_name + ".install")),
+                     os.path.join(DEPS_PATH, dlfcn_folder_name + ".src"),]
         if THIS_SYSTEM == "Windows":
             cmake_cmd += [
                 "-G", "MinGW Makefiles",
@@ -412,7 +404,7 @@ def build_dlfcn_win32():
         if ret != 0:
             failMsg("Building libdl.")
             exit(1)
-        ret = subprocess.call("{0} -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
+        ret = subprocess.call("{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
         if ret != 0:
             failMsg("Building libdl.")
             exit(1)
