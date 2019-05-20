@@ -16,12 +16,14 @@ from version_info import get_version_info
 # Current system variables.
 THIS_SYSTEM = platform.system()
 SHARED_LIBS_EXT = "dll" if THIS_SYSTEM == "Windows" else "so"
+if THIS_SYSTEM == "Darwin":
+    SHARED_LIBS_EXT = "dylib"
 LIB_DIR = "Bin" if THIS_SYSTEM == "Windows" else "Lib"
 
 # Dependencies.
 LLVM_SRC_URL = "http://releases.llvm.org/7.0.1/llvm-7.0.1.src.tar.xz"
 LLVM_NAME = "llvm-7.0.1"
-LLVM_SHARED_LIB_NAME = "libLLVM-7"
+LLVM_SHARED_LIB_NAME = "libLLVM-7" if THIS_SYSTEM != "Darwin" else "libLLVM"
 LIBCURL_SRC_URL="https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.xz"
 LIBCURL_NAME="curl-7.64.1"
 LIBZIP_SRC_URL="https://github.com/kuba--/zip/archive/v0.1.14.zip"
