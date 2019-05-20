@@ -327,8 +327,9 @@ def build_libzip():
             exit(1)
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
+        shared_lib_dir = "bin" if THIS_SYSTEM != "Darwin" else "lib"
         shutil.copy2(
-            os.path.join(DEPS_PATH, LIBZIP_NAME + ".install", "bin", "libzip.{}".format(SHARED_LIBS_EXT)),
+            os.path.join(DEPS_PATH, LIBZIP_NAME + ".install", shared_lib_dir, "libzip.{}".format(SHARED_LIBS_EXT)),
             os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
