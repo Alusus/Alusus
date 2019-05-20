@@ -5,11 +5,13 @@
 ### What's New:
 
   * Enable execution of code in the root scope outside of modules and functions.
-  * Removed the `run` command which is no longer needed.
-  * Replaced the `dump_llvm_ir` command with a function.
   * Enabled `use` command in the root scope.
   * Enabled assigning values in variable definition statements.
   * Added a simple package manager.
+  * Enabled shorter syntax for functions, modules, types, and macros. You can now define functions using the `function`
+    keyword directly without the need for `def`. The same applies to modules, types, and macros.
+  * Enabled mult-line comments.
+  * Enabled \u, \U, \x, and \f escape sequences in strings.
   * Added a library for sendign network requests.
   * Added a library for extracing zip files.
   * Added regular expression functions.
@@ -23,6 +25,11 @@
     than building the entire source code.
   * Improved implicit casting of pointers to pointers.
 
+### Backwards Incompatible Changes:
+
+  * Removed the `run` command which is no longer needed.
+  * Replaced the `dump_llvm_ir` command with a function.
+
 ### Fixes:
 
   * Fixed an issue with detecting current system language.
@@ -31,6 +38,7 @@
 ### Internal Changes:
 
   * Use version 7.0.1 of LLVM instead of the old version 3.3.
+  * Migrated build scripts to Python instead of Bash.
   * Use regular inheritance instead of virtual inheritance in Alusus classes.
   * Added RootScopeHandler dynamic class to allow easier overriding the handling
     of elements added to the root scope.
