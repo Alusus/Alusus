@@ -1,6 +1,6 @@
 # Alusus Changelog
 
-## Version 0.5.0 (2019-05-19)
+## Version 0.5.0 (2019-05-20)
 
 ### What's New:
 
