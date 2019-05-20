@@ -7,7 +7,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -87,7 +87,7 @@ namespace Core::Data::Ast
 //==============================================================================
 // Data Types
 
-ti_s_enum(BracketType, TiInt, "Core.Data.Ast", "Core", "alusus.net", ROUND, SQUARE);
+ti_s_enum(BracketType, TiInt, "Core.Data.Ast", "Core", "alusus.org", ROUND, SQUARE);
 
 
 //==============================================================================

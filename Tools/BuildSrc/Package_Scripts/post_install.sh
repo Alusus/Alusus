@@ -21,11 +21,12 @@ ln -sf $(readlink -f ${ALUSUS_ROOT}/Bin/محا) ${LINK_DIR}/محا
 # Copy GTK syntax highlighting specs to gtksourceview folder.
 
 IS_GTKSOURCEVIEW_EXISTS=1
-LANG_SPEC_DIR="/usr/share/gtksourceview-3.0/language-specs"
 if [ -e "/usr/share/gnome/gtksourceview-3.0/language-specs" ]; then
   LANG_SPEC_DIR="/usr/share/gnome/gtksourceview-3.0/language-specs"
 elif [ -e "/usr/local/share/gtksourceview-3.0/language-specs" ]; then
   LANG_SPEC_DIR="/usr/local/share/gtksourceview-3.0/language-specs"
+elif [ -e "/usr/share/gtksourceview-3.0/language-specs" ]; then
+  LANG_SPEC_DIR="/usr/share/gtksourceview-3.0/language-specs"
 else
   IS_GTKSOURCEVIEW_EXISTS=0
 fi

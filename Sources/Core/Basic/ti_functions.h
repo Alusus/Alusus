@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -21,7 +21,7 @@ class TiFunctionBase : public TiObject
   //============================================================================
   // Type Info
 
-  TYPE_INFO(TiFunctionBase, TiObject, "Core.Basic", "Core", "alusus.net");
+  TYPE_INFO(TiFunctionBase, TiObject, "Core.Basic", "Core", "alusus.org");
 
 
   //============================================================================
@@ -44,7 +44,7 @@ template<class FT> class TiFunction : public TiFunctionBase
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(TiFunction, TiFunctionBase, "Core.Basic", "Core", "alusus.net", (FT));
+  TEMPLATE_TYPE_INFO(TiFunction, TiFunctionBase, "Core.Basic", "Core", "alusus.org", (FT));
 
 
   //============================================================================
@@ -81,7 +81,7 @@ template<class FT> class TiFunctionOverride : public TiFunction<FT>
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(TiFunctionOverride, TiFunction<FT>, "Core.Basic", "Core", "alusus.net", (FT));
+  TEMPLATE_TYPE_INFO(TiFunctionOverride, TiFunction<FT>, "Core.Basic", "Core", "alusus.org", (FT));
 
 
   //============================================================================

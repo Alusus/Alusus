@@ -1,4 +1,26 @@
 #!/usr/bin/env alusus
+اشمل "عامة.أسس"؛
+الـعملية.اللغة = "ar"؛
 اشمل "مـحا.أسس"؛
 
-مـحا.البداية(الـعملية.عدد_المعطيات، الـعملية.المعطيات)؛
+@merge module Apm {
+  @merge module Strings{
+    def use_apm_install: "%sاستخدم: محا تثبيت <المالك>/<الوحدة>@<الاصدار>\ج";
+    def use_apm_local_install: "%sاستخدم: محا محلي تثبيت <المالك>/<الوحدة>@<الاصدار>\ج";
+    def help_commands: " %sالاوامر:- \ج";
+    def help_apm_help: "   %sمحا مساعدة\t\t\t\t\t\t";
+    def help_apm_help_tip: "%sقائمة الاوامر\ج";
+    def help_apm_install: "   %sاستخدم: محا تثبيت <المالك>/<الوحدة>@<الاصدار>\t";
+    def help_apm_install_tip: "%sتثبيت الوحدة في `%s/.apm`\ج";
+    def help_apm_install_local: "   %sاستخدم: محا محلي تثبيت <المالك>/<الوحدة>@<الاصدار>\t";
+    def unknown_command: "%الامر التالي غير معرف '%s'. استخدم 'محا مساعدة' للمساعدة.\ج";
+    def use_help_command: "%sاستخدم 'محا مساعدة' للمساعدة.\ج";
+
+    def cmd_install: "تثبيت";
+    def cmd_local: "محلي";
+    def cmd_help: "مساعدة";
+  };
+};
+
+import "Apm/apm.main.alusus";
+Apm.main(Process.argCount, Process.args);

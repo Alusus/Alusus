@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -21,7 +21,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public D
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(SharedListBase, PTYPE, "Core.Basic", "Core", "alusus.net", (CTYPE, PTYPE), (
+  TEMPLATE_TYPE_INFO(SharedListBase, PTYPE, "Core.Basic", "Core", "alusus.org", (CTYPE, PTYPE), (
     INHERITANCE_INTERFACES(DynamicContaining<CTYPE>)
   ));
 

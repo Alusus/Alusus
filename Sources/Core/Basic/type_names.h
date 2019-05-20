@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -76,18 +76,18 @@ template <> struct TypeName<>
 
 DEFINE_TYPE_NAME(void, "void");
 
-DEFINE_TYPE_NAME(Core::Basic::Bool, "alusus.net/Core/Core.Basic.Bool");
-DEFINE_TYPE_NAME(Core::Basic::Int, "alusus.net/Core/Core.Basic.Int");
-DEFINE_TYPE_NAME(Core::Basic::ShortInt, "alusus.net/Core/Core.Basic.ShortInt");
-DEFINE_TYPE_NAME(Core::Basic::LongInt, "alusus.net/Core/Core.Basic.LongInt");
-DEFINE_TYPE_NAME(Core::Basic::Word, "alusus.net/Core/Core.Basic.Word");
-DEFINE_TYPE_NAME(Core::Basic::ShortWord, "alusus.net/Core/Core.Basic.ShortWord");
-DEFINE_TYPE_NAME(Core::Basic::LongWord, "alusus.net/Core/Core.Basic.LongWord");
-DEFINE_TYPE_NAME(Core::Basic::Float, "alusus.net/Core/Core.Basic.Float");
-DEFINE_TYPE_NAME(Core::Basic::Double, "alusus.net/Core/Core.Basic.Double");
-DEFINE_TYPE_NAME(Core::Basic::Char, "alusus.net/Core/Core.Basic.Char");
-DEFINE_TYPE_NAME(Core::Basic::Str, "alusus.net/Core/Core.Basic.Str");
-DEFINE_TYPE_NAME(Core::Basic::StrStream, "alusus.net/Core/Core.Basic.StrStream");
+DEFINE_TYPE_NAME(Core::Basic::Bool, "alusus.org/Core/Core.Basic.Bool");
+DEFINE_TYPE_NAME(Core::Basic::Int, "alusus.org/Core/Core.Basic.Int");
+DEFINE_TYPE_NAME(Core::Basic::ShortInt, "alusus.org/Core/Core.Basic.ShortInt");
+DEFINE_TYPE_NAME(Core::Basic::LongInt, "alusus.org/Core/Core.Basic.LongInt");
+DEFINE_TYPE_NAME(Core::Basic::Word, "alusus.org/Core/Core.Basic.Word");
+DEFINE_TYPE_NAME(Core::Basic::ShortWord, "alusus.org/Core/Core.Basic.ShortWord");
+DEFINE_TYPE_NAME(Core::Basic::LongWord, "alusus.org/Core/Core.Basic.LongWord");
+DEFINE_TYPE_NAME(Core::Basic::Float, "alusus.org/Core/Core.Basic.Float");
+DEFINE_TYPE_NAME(Core::Basic::Double, "alusus.org/Core/Core.Basic.Double");
+DEFINE_TYPE_NAME(Core::Basic::Char, "alusus.org/Core/Core.Basic.Char");
+DEFINE_TYPE_NAME(Core::Basic::Str, "alusus.org/Core/Core.Basic.Str");
+DEFINE_TYPE_NAME(Core::Basic::StrStream, "alusus.org/Core/Core.Basic.StrStream");
 
 DEFINE_TEMPLATE_TYPE_NAME(std::shared_ptr, "std::shared_ptr");
 DEFINE_TEMPLATE_TYPE_NAME(std::vector, "std::vector");
@@ -97,7 +97,7 @@ namespace Core { namespace Basic {
   template<class T> class SharedPtr;
   template<class T> class WeakPtr;
 } }
-DEFINE_TEMPLATE_TYPE_NAME(Core::Basic::SharedPtr, "alusus.net/Core/Core.Basic.SharedPtr");
-DEFINE_TEMPLATE_TYPE_NAME(Core::Basic::WeakPtr, "alusus.net/Core/Core.Basic.WeakPtr");
+DEFINE_TEMPLATE_TYPE_NAME(Core::Basic::SharedPtr, "alusus.org/Core/Core.Basic.SharedPtr");
+DEFINE_TEMPLATE_TYPE_NAME(Core::Basic::WeakPtr, "alusus.org/Core/Core.Basic.WeakPtr");
 
 #endif

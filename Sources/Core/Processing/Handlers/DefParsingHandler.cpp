@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -77,7 +77,7 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
       { "first", nameToken },
       { "second", static_cast<Core::Data::Ast::AssignmentOperator*>(val.get())->getSecond() }
     });
-    
+
     // Create the definition.
     state->setData(Core::Data::Ast::MergeList::create({}, {
       def,

@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -30,8 +30,8 @@ ObjectTypeInfo * TiObject::getTypeInfo()
     Char const *my_type = S("TiObject");
     Char const *typeNamespace = S("Core.Basic");
     Char const *moduleName = S("Core");
-    Char const *url = S("alusus.net");
-    Char const *uniqueName = S("alusus.net#Core#Core.Basic.TiObject");
+    Char const *url = S("alusus.org");
+    Char const *uniqueName = S("alusus.org#Core#Core.Basic.TiObject");
     type_info = reinterpret_cast<ObjectTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (type_info == 0) {
       type_info = new ObjectTypeInfo(my_type, typeNamespace, moduleName, url, 0, 0);

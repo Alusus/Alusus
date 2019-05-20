@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -22,7 +22,7 @@ class NbMap : public SharedMapBase<TiObject, Node>, public DataHaving
   // Type Info
 
   typedef SharedMapBase<TiObject, Node> _MyBase;
-  TYPE_INFO(NbMap, _MyBase, "Core.Data", "Core", "alusus.net", (
+  TYPE_INFO(NbMap, _MyBase, "Core.Data", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(DataHaving)
   ));
 

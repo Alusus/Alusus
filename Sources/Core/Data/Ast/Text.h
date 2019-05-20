@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -24,7 +24,7 @@ class Text : public Node,
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Text, Node, "Core.Data.Ast", "Core", "alusus.net");
+  TYPE_INFO(Text, Node, "Core.Data.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(Node, Binding, MetaHaving, Clonable, Printable);
 
 
@@ -117,7 +117,7 @@ class Text : public Node,
 #define DEFINE_AST_TEXT_ELEMENT(X) \
   class X : public Text \
   { \
-    TYPE_INFO(X, Text, "Core.Data.Ast", "Core", "alusus.net"); \
+    TYPE_INFO(X, Text, "Core.Data.Ast", "Core", "alusus.org"); \
     IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_CONSTRUCTOR(X); \
     public: virtual SharedPtr<TiObject> clone() const \

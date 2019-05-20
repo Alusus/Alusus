@@ -27,7 +27,7 @@ def get_version_info(prefix):
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     release_string = None
     version = None
-    revision = None
+    revision = ""
     date = None
     hijri_date = None
 
@@ -36,6 +36,11 @@ def get_version_info(prefix):
         version = release_string.split("-")[0][1:]
         distance = str(int(release_string.split("-")[1]) + 1)
         commit = release_string.split("-")[2][1:]
+        if release_string.find("-") != -1:
+            distance = str(int(release_string.split("-")[1]) + 1)
+            commit = release_string.split("-")[2][1:]
+        else:
+            distance = None
         if distance:
             current_branch = subprocess.check_output("git rev-parse --abbrev-ref HEAD".split()).decode("utf-8").rstrip()
             if current_branch == "vb{}".format(version):
@@ -46,7 +51,7 @@ def get_version_info(prefix):
     except (FileNotFoundError, subprocess.CalledProcessError):
         version = "0.0.0"
         revision = "DEV"
-        
+
     now = datetime.datetime.now()
     date = "{0}-{1}-{2}".format(now.year, str(now.month).rjust(2, '0'), str(now.day).rjust(2, '0'))
     add_local_site_packages_to_path(prefix)

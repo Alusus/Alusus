@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -30,8 +30,8 @@ InterfaceTypeInfo * TiInterface::getTypeInfo()
     Char const *myType = S("TiInterface");
     Char const *typeNamespace = S("Core.Basic");
     Char const *moduleName = S("Core");
-    Char const *url = S("alusus.net");
-    Char const *uniqueName = S("alusus.net#Core#Core.Basic.TiInterface");
+    Char const *url = S("alusus.org");
+    Char const *uniqueName = S("alusus.org#Core#Core.Basic.TiInterface");
     typeInfo = reinterpret_cast<InterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (typeInfo == 0) {
       typeInfo = new InterfaceTypeInfo(myType, typeNamespace, moduleName, url, 0);

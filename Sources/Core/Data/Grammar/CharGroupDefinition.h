@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
  */
 //==============================================================================
 
@@ -29,7 +29,7 @@ class CharGroupDefinition : public Node, public Binding, public IdHaving
   //============================================================================
   // Type Info
 
-  TYPE_INFO(CharGroupDefinition, Node, "Core.Data.Grammar", "Core", "alusus.net");
+  TYPE_INFO(CharGroupDefinition, Node, "Core.Data.Grammar", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(Node, Binding, IdHaving);
 
 

@@ -297,6 +297,7 @@ import "libcurl.so";
       CurlEasy.setOpt(curlHandle, CurlOpt.WRITEDATA, content~ptr);
       CurlEasy.setOpt(curlHandle, CurlOpt.USERAGENT, "ALUSUS NETWORK LIBRARY");
       CurlEasy.setOpt(curlHandle, CurlOpt.FOLLOWLOCATION, 1);
+      CurlEasy.setOpt(curlHandle, CurlOpt.SSL_VERIFYPEER, 0);
       resultCode = CurlEasy.perform(curlHandle);
       CurlEasy.cleanup(curlHandle);
       if resultCode == CurlCode.OK {
@@ -329,6 +330,7 @@ import "libcurl.so";
       CurlEasy.setOpt(curlHandle, CurlOpt.WRITEDATA, file);
       CurlEasy.setOpt(curlHandle, CurlOpt.USERAGENT, "ALUSUS NETWORK LIBRARY");
       CurlEasy.setOpt(curlHandle, CurlOpt.FOLLOWLOCATION, 1);
+      CurlEasy.setOpt(curlHandle, CurlOpt.SSL_VERIFYPEER, 0);
       resultCode = CurlEasy.perform(curlHandle);
       CurlEasy.cleanup(curlHandle);
       Srl.Fs.closeFile(file);

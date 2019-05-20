@@ -2,7 +2,7 @@
 #
 # This file is released under Alusus Public License, Version 1.0.
 # For details on usage and copying conditions read the full license in the
-# accompanying license file or at <http://alusus.net/alusus_license_1_0>.
+# accompanying license file or at <https://alusus.org/alusus_license_1_0>.
 
 project(AlususCore)
 cmake_minimum_required(VERSION 2.8)
@@ -90,4 +90,4 @@ else()
 endif()
 string(REPLACE "//" "/" AlususArabicLink ${AlususArabicLink})
 string(REPLACE "//" "/" AlususArabicLinkTarget ${AlususArabicLinkTarget})
-install(CODE "execute_process(COMMAND \"ln\" \"-sf\" ${AlususArabicLinkTarget} ${AlususArabicLink})")
+install(CODE "execute_process(COMMAND \"ln\" \"-sfr\" ${AlususArabicLinkTarget} ${AlususArabicLink})")
