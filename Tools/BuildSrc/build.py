@@ -147,8 +147,15 @@ def build_llvm():
             temp_path = os.getcwd()
             script_dir = os.path.dirname(os.path.realpath(__file__))
             os.chdir(os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib"))
-            create_llvm_unix_dir = subprocess.check_output('cygpath', os.path.join(script_dir, 'create_libLLVM_MinGW.sh'))
-            subprocess.call(['bash', '-c', create_llvm_unix_dir, LLVM_SHARED_LIB_NAME])
+            shutil.copy2(
+                os.path.join(script_dir, 'create_libLLVM_MinGW.sh'),
+                'create_libLLVM_MinGW.sh'
+            )
+            ret = subprocess.call(['bash', '-c', '{script} {arg}'.format(script='./create_libLLVM_MinGW.sh', arg=LLVM_SHARED_LIB_NAME)])
+            if ret != 0:
+                failMsg("Building LLVM.")
+                exit(1)
+            os.remove('create_libLLVM_MinGW.sh')
             os.chdir(temp_path)
             infoMsg("Finished building {llvmDylibName}.{dylibExt} on Windows MinGW.".format(llvmDylibName=LLVM_SHARED_LIB_NAME, dylibExt=SHARED_LIBS_EXT))
 
@@ -221,6 +228,10 @@ def build_libcurl():
         if ret != 0:
             failMsg("Building libcurl.")
             exit(1)
+
+        # Now we create the "libcurl.dll" for Windows MinGW.
+        if THIS_SYSTEM == "Windows":
+            subprocess.call(['g++', '-shared', '-o', os.path.join('lib', '.libs', 'libcurl.dll'), os.path.join('lib', '.libs', 'libcurl.a')])
 
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             try:
