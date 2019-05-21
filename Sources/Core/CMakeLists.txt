@@ -45,7 +45,7 @@ set_target_properties(AlususCore PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_
 ADD_PRECOMPILED_HEADER(AlususCore "core.h")
 
 # Finally, we link the executable to the libraries.
-target_link_libraries(AlususCore AlususCoreLib AlususStorage "dl")
+target_link_libraries(AlususCore AlususCoreLib AlususStorage "dl" "LLVM")
 
 # Set library and executable output names.
 # NOTE: For alusus_storage, we'll use the same filename for both debug and

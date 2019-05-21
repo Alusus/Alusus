@@ -101,7 +101,7 @@ def build_llvm():
     else:
         infoMsg("LLVM sources are already available.")
 
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(LLVM_SHARED_LIB_NAME, SHARED_LIBS_EXT))):
+    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format("libLLVM", SHARED_LIBS_EXT))):
         infoMsg("LLVM is already built and installed.")
         successMsg("Building LLVM.")
         return
@@ -165,7 +165,7 @@ def build_llvm():
             os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
             os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib", "{0}.{1}".format(LLVM_SHARED_LIB_NAME, SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
+            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libLLVM.{}".format(SHARED_LIBS_EXT))
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
@@ -327,7 +327,7 @@ def build_libzip():
             exit(1)
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
-        shared_lib_dir = "bin" if THIS_SYSTEM != "Darwin" else "lib"
+        shared_lib_dir = "bin" if THIS_SYSTEM == "Windows" else "lib"
         shutil.copy2(
             os.path.join(DEPS_PATH, LIBZIP_NAME + ".install", shared_lib_dir, "libzip.{}".format(SHARED_LIBS_EXT)),
             os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
@@ -497,6 +497,8 @@ def build_alusus():
     global DEPS_PATH
     global PYTHON_DEPS_PATH
     global LLVM_NAME
+    global DLFCN_WIN32_NAME
+    global DLFCN_WIN32_VERSION
     global MAKE_THREAD_COUNT
     global CREATE_PACKAGES
     global THIS_SYSTEM
@@ -512,14 +514,19 @@ def build_alusus():
                      "{}".format(os.path.join(ALUSUS_ROOT, "Sources")),
                      "-DCMAKE_BUILD_TYPE={}".format(BUILD_TYPE),
                      "-DCMAKE_INSTALL_PREFIX={}".format(INSTALL_PATH),
-                     "-DLLVM_PATH={}".format(os.path.join(DEPS_PATH, LLVM_NAME + ".install")),
+                     "-DLLVM_PATH={}".format(
+                        (os.path.join(DEPS_PATH, LLVM_NAME + ".install").replace('\\', '/') if THIS_SYSTEM == "Windows" else \
+                         os.path.join(DEPS_PATH, LLVM_NAME + ".install"))
+                     ),
                      "-DPYTHON_EXECUTABLE={}".format(sys.executable),
                      "-DPYTHON_PREFIX={}".format(PYTHON_DEPS_PATH)]
         
         if THIS_SYSTEM == "Windows":
+            dlfcn_folder_name = DLFCN_WIN32_NAME + '-' + DLFCN_WIN32_VERSION
             cmake_cmd += [
                 "-G", "MinGW Makefiles",
-                "-DCMAKE_SH=CMAKE_SH-NOTFOUND"
+                "-DCMAKE_SH=CMAKE_SH-NOTFOUND",
+                "-DDLFCN_WIN32_PATH={}".format(os.path.join(DEPS_PATH, dlfcn_folder_name + ".install").replace('\\', '/'))
             ]
 
         ret = subprocess.call(cmake_cmd)
