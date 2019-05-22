@@ -1,4 +1,3 @@
-import "libLLVM.so";
 import "libalusus_spp.so";
 
 def int: alias Int;

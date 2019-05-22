@@ -23,7 +23,8 @@ LIB_DIR = "Bin" if THIS_SYSTEM == "Windows" else "Lib"
 # Dependencies.
 LLVM_SRC_URL = "http://releases.llvm.org/7.0.1/llvm-7.0.1.src.tar.xz"
 LLVM_NAME = "llvm-7.0.1"
-LLVM_SHARED_LIB_NAME = "libLLVM-7" if THIS_SYSTEM != "Darwin" else "libLLVM"
+LLVM_SHARED_LIB_BUILD_NAME = "libLLVM-7" if THIS_SYSTEM != "Darwin" else "libLLVM"
+LLVM_SHARED_LIB_INSTALL_NAME = "libLLVM-7"
 LIBCURL_SRC_URL="https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.xz"
 LIBCURL_NAME="curl-7.64.1"
 LIBZIP_SRC_URL="https://github.com/kuba--/zip/archive/v0.1.14.zip"
@@ -66,7 +67,8 @@ def build_llvm():
     global DEPS_PATH
     global LLVM_NAME
     global LLVM_SRC_URL
-    global LLVM_SHARED_LIB_NAME
+    global LLVM_SHARED_LIB_BUILD_NAME
+    global LLVM_SHARED_LIB_INSTALL_NAME
     global MAKE_THREAD_COUNT
     global MAKE_CMD
     global LIB_DIR
@@ -101,8 +103,8 @@ def build_llvm():
     else:
         infoMsg("LLVM sources are already available.")
 
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format("libLLVM", SHARED_LIBS_EXT))):
-        infoMsg("LLVM is already built and installed.")
+    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))):
+        infoMsg("{} is already built and installed.".format(LLVM_SHARED_LIB_INSTALL_NAME))
         successMsg("Building LLVM.")
         return
     try:
@@ -145,7 +147,7 @@ def build_llvm():
         
         # Now we create the "libLLVM" DLL for Windows MinGW.
         if THIS_SYSTEM == "Windows":
-            infoMsg("Building {llvmDylibName}.{dylibExt} on Windows MinGW...".format(llvmDylibName=LLVM_SHARED_LIB_NAME, dylibExt=SHARED_LIBS_EXT))
+            infoMsg("Building {llvmDylibName}.{dylibExt} on Windows MinGW...".format(llvmDylibName=LLVM_SHARED_LIB_INSTALL_NAME, dylibExt=SHARED_LIBS_EXT))
             temp_path = os.getcwd()
             script_dir = os.path.dirname(os.path.realpath(__file__))
             os.chdir(os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib"))
@@ -153,19 +155,19 @@ def build_llvm():
                 os.path.join(script_dir, 'create_libLLVM_MinGW.sh'),
                 'create_libLLVM_MinGW.sh'
             )
-            ret = subprocess.call(['bash', '-c', '{script} {arg}'.format(script='./create_libLLVM_MinGW.sh', arg=LLVM_SHARED_LIB_NAME)])
+            ret = subprocess.call(['bash', '-c', '{script} {arg}'.format(script='./create_libLLVM_MinGW.sh', arg=LLVM_SHARED_LIB_INSTALL_NAME)])
             if ret != 0:
                 failMsg("Building LLVM.")
                 exit(1)
             os.remove('create_libLLVM_MinGW.sh')
             os.chdir(temp_path)
-            infoMsg("Finished building {llvmDylibName}.{dylibExt} on Windows MinGW.".format(llvmDylibName=LLVM_SHARED_LIB_NAME, dylibExt=SHARED_LIBS_EXT))
+            infoMsg("Finished building {llvmDylibName}.{dylibExt} on Windows MinGW.".format(llvmDylibName=LLVM_SHARED_LIB_INSTALL_NAME, dylibExt=SHARED_LIBS_EXT))
 
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
-            os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib", "{0}.{1}".format(LLVM_SHARED_LIB_NAME, SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libLLVM.{}".format(SHARED_LIBS_EXT))
+            os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib", "{0}.{1}".format(LLVM_SHARED_LIB_BUILD_NAME, SHARED_LIBS_EXT)),
+            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))

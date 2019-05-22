@@ -49,7 +49,7 @@ set_target_properties(AlususTests PROPERTIES VERSION ${AlususVersion})
 
 
 # Finally, we link Alusus libraries to our UnitTests project.
-target_link_libraries(AlususTests AlususCoreLib AlususStorage "dl" "LLVM")
+target_link_libraries(AlususTests AlususCoreLib AlususStorage "dl" "LLVM-7")
 
 add_test(NAME AlususTests
   COMMAND AlususTests
