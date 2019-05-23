@@ -76,8 +76,16 @@ foreach (dir ${AlususSpp_SOURCE_SUBDIRS})
   install_files("/Include/Spp/${dir}" FILES ${headers})
 endforeach(dir)
 
-install(TARGETS AlususSpp
-  RUNTIME DESTINATION Bin
-  LIBRARY DESTINATION Lib
-  ARCHIVE DESTINATION Lib
-)
+if(MINGW)
+  install(TARGETS AlususSpp
+    RUNTIME DESTINATION Bin
+    LIBRARY DESTINATION Bin
+    ARCHIVE DESTINATION Bin
+  )
+else()
+  install(TARGETS AlususSpp
+    RUNTIME DESTINATION Bin
+    LIBRARY DESTINATION Lib
+    ARCHIVE DESTINATION Lib
+  )
+endif()

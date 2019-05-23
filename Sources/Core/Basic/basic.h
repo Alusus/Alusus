@@ -325,7 +325,7 @@ namespace Core { namespace Basic
  * should only be used in cases where the allocated memory is relatively
  * small.
  */
-#ifdef WINDOWS
+#if defined(__MINGW32__) || defined(__MINGW64__)
   #define SALLOC(s) alloca(s)
 #else
   #define SALLOC(s) alloca(s)
@@ -337,7 +337,7 @@ namespace Core { namespace Basic
  * @ingroup basic_macros
  * @sa SALLOC
  */
-#ifdef WINDOWS
+#if defined(__MINGW32__) || defined(__MINGW64__)
   #define SFREE(p) _freea(p);
 #else
   #define SFREE(p)

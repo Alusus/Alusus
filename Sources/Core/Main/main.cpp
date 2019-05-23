@@ -12,7 +12,7 @@
 
 #include "core.h"
 #include <stdio.h>  /* defines FILENAME_MAX */
-#ifdef WINDOWS
+#if defined(__MINGW32__) || defined(__MINGW64__)
   #include <direct.h>
   #include <windows.h>
 #else
@@ -25,7 +25,7 @@ namespace Core::Main
 
 using namespace Data;
 
-#ifdef WINDOWS
+#if defined(__MINGW32__) || defined(__MINGW64__)
   #define _getWorkingDirectory _getcwd
 #else
   #define _getWorkingDirectory getcwd
@@ -54,7 +54,7 @@ std::string getModuleDirectory()
 {
   thread_local static std::array<Char,FILENAME_MAX> currentPath;
 
-  #ifdef WINDOWS
+  #if defined(__MINGW32__) || defined(__MINGW64__)
     std::string path(currentPath.data(), GetModuleFileName(NULL, currentPath.data(), currentPath.size()));
   #else
     ssize_t count = readlink("/proc/self/exe", currentPath.data(), currentPath.size());

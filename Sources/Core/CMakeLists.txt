@@ -74,11 +74,19 @@ foreach (DIR ${AlususCoreLib_Source_Subdirs})
 endforeach(DIR)
 
 # Install library and executable files.
-install(TARGETS AlususStorage AlususCoreLib AlususCore
-  RUNTIME DESTINATION Bin
-  LIBRARY DESTINATION Lib
-  ARCHIVE DESTINATION Lib
-)
+if(MINGW)
+  install(TARGETS AlususStorage AlususCoreLib AlususCore
+    RUNTIME DESTINATION Bin
+    LIBRARY DESTINATION Bin
+    ARCHIVE DESTINATION Bin
+  )
+else()
+  install(TARGETS AlususStorage AlususCoreLib AlususCore
+    RUNTIME DESTINATION Bin
+    LIBRARY DESTINATION Lib
+    ARCHIVE DESTINATION Lib
+  )
+endif()
 
 # Add an install command to create the Arabic symbolic link.
 if ("${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "RELEASE")
