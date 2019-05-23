@@ -62,7 +62,7 @@ set_target_properties(AlususSpp PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
 
 # Finally, we link the LLVM and AlususCore libraries to our library.
-target_link_libraries(AlususSpp ${REQ_LLVM_LIBRARIES})
+target_link_libraries(AlususSpp "LLVM-7")
 target_link_libraries(AlususSpp AlususCoreLib)
 target_link_libraries(AlususSpp AlususStorage)
 
