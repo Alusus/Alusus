@@ -64,7 +64,9 @@ set_target_properties(AlususCoreLib PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususCore PROPERTIES OUTPUT_NAME alusus)
 set_target_properties(AlususCore PROPERTIES DEBUG_OUTPUT_NAME alusus.dbg)
 set_target_properties(AlususCore PROPERTIES VERSION ${AlususVersion})
-set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../Lib/")
+if (NOT MINGW)
+  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../Lib/")
+endif()
 
 # Copy libary header files to installation directory.
 install_files("/Include/Core" FILES core.h core_global_storage.h)
