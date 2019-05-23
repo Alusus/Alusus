@@ -5,6 +5,13 @@
 project(Alusus)
 cmake_minimum_required(VERSION 3.1)
 
+if (MINGW)
+  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Bin")
+else()
+  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Lib")
+endif()
+link_directories(${InstallLibDir})
+
 # Read version info from version file.
 execute_process(COMMAND python3 version_info.py ${PYTHON_PREFIX}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/BuildSrc
