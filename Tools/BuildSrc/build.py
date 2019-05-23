@@ -615,11 +615,13 @@ def create_packages_unix():
 
 def create_packages():
     global PACKAGES_PATH
+    global BUILD_TYPE
     global THIS_SYSTEM
 
     infoMsg("Creating installation packages...")
-    shutil.rmtree(PACKAGES_PATH, ignore_errors=True)
-    os.makedirs(PACKAGES_PATH)
+    packages_path = os.path.join(PACKAGES_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
+    shutil.rmtree(packages_path, ignore_errors=True)
+    os.makedirs(packages_path)
     copy_other_installation_files()
     if THIS_SYSTEM == "Windows":
         create_packages_windows()
