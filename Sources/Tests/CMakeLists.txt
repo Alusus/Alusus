@@ -10,9 +10,15 @@ cmake_minimum_required(VERSION 2.8)
 # Prepare compile flags.
 set(AlususTests_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
 
+if (MINGW)
+  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Bin")
+else()
+  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Lib")
+endif()
+link_directories(${InstallLibDir})
+
 # Header and library files paths for LLVM
 include_directories("${LLVM_INCLUDE_DIRS}")
-link_directories("${LLVM_LIBRARY_DIRS}")
 add_definitions(${LLVM_DEFINITIONS})
 
 # Make sure the compiler finds the source files.

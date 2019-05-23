@@ -15,6 +15,13 @@ else()
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS USE_LOGS)
 endif()
 
+if (MINGW)
+  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Bin")
+else()
+  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Lib")
+endif()
+link_directories(${InstallLibDir})
+
 # Make sure the compiler finds the source files.
 include_directories("${AlususCore_SOURCE_DIR}")
 set(CMAKE_MODULE_PATH "${AlususCore_SOURCE_DIR}")

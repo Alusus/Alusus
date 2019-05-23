@@ -7,9 +7,8 @@
 project(AlususSpp)
 cmake_minimum_required(VERSION 2.8)
 
-# Header and library files paths for LLVM
+# Header paths for LLVM
 include_directories("${LLVM_INCLUDE_DIRS}")
-link_directories("${LLVM_LIBRARY_DIRS}")
 add_definitions(${LLVM_DEFINITIONS})
 
 # Header and library files paths for AlususCore
