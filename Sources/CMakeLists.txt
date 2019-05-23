@@ -5,7 +5,7 @@
 project(Alusus)
 cmake_minimum_required(VERSION 3.1)
 
-if (MINGW)
+if(MINGW)
   set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Bin")
 else()
   set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Lib")
@@ -45,6 +45,11 @@ if (NOT EXISTS "${LLVM_PATH}/include/llvm")
   message(SEND_ERROR "Please specify the path to LLVM root folder in LLVM_PATH.")
 else()
   message(STATUS "The following LLVM path was provided: " ${LLVM_PATH} ".")
+endif()
+
+# DLFCN-32 include directory for Win32
+if(MINGW)
+  include_directories(${DLFCN_WIN32_PATH}/include)
 endif()
 
 # Prepare compile and link flags.
