@@ -5,6 +5,7 @@ from install_all_deps import install_all_deps
 from install_dep import get_local_site_packages
 from threading import Lock
 import sys
+import multiprocessing
 
 global_args = None
 
@@ -15,22 +16,27 @@ def _process_args():
     global_args = dict()
 
     global_args['releaseInstallPath'] = os.path.join('/', 'opt', 'Alusus') if os.name == "posix" else os.path.join('/', 'Alusus')
+
     parser = argparse.ArgumentParser(add_help=False,
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
                         help='Show this help message and exit.')
-    parser.add_argument("--btype", metavar="BUILD_TYPE", help="Set the build type of Alusus:\n" +
-                        "    d [default]: debug build.\n" +
-                        "    r: release build.\n" +
-                        "    p: release and package build.",
-                        choices=["d", "r", "p"], required=False, default="d")
-    parser.add_argument("--bloc", metavar="BUILD_LOCATION", help="Set the build location (default is the sources root directory).",
-                        required=True, default=None)
-    parser.add_argument("--iloc", metavar="INSTALL_LOCATION", help="Set the install location (default is the value of \"--bloc\").",
+    parser.add_argument("--btype", metavar="BUILD_TYPE", help="Set the build type of Alusus. Possible values:\n" +
+                        "    d (default): debug build.\n" +
+                        "    r: release build.",
+                        choices=["d", "r"], required=False, default="d")
+    parser.add_argument("--buildpackages", help="Create installable package(s).",
+                        action="store_true", required=False, default=False)
+    parser.add_argument("bloc", metavar="BUILD_LOCATION", help="Set the build location (default is the sources root directory).",
+                        default=None)
+    parser.add_argument("--iloc", metavar="INSTALL_LOCATION", help="Set the install location (default is the value of \"{}\").".format(os.path.join("[bloc]", "LocalInstall")),
                         required=False, default=None)
+    parser.add_argument("--numthreads", metavar="NUM_THREADS", help="Specify a custom number of threads to use when building dependencies " +
+                                                                    "and Alusus (default is \"{}\" on the current system).".format(multiprocessing.cpu_count()),
+                        type=int, required=False, default=multiprocessing.cpu_count())
     parser.add_argument("-g", action="store_true", help="Set the install location globally on the current system"
                                                         " (located in \"{}\" - MAY REQUIRE ROOT PRIVILEGE)."
-                                                        " This will be overridden by the value of \"--iloc\" option.".format(
+                                                        " This will be overridden by the value of [iloc] option.".format(
                                                             global_args['releaseInstallPath']),
                         required=False, default=False)
     args = parser.parse_args()
@@ -39,8 +45,7 @@ def _process_args():
     global_args['createPackages']  = "no"
     if args.btype == "r":
         global_args['buildType'] = "release"
-    elif args.btype == "p":
-        global_args['buildType'] = "release"
+    if args.buildpackages:
         global_args['createPackages']  = "yes"
 
     if args.bloc:
@@ -68,5 +73,7 @@ def _process_args():
 
     if args.iloc:
         global_args['installPath'] = os.path.realpath(args.iloc)
+    
+    global_args['numThreads'] = args.numthreads
 
 _process_args()

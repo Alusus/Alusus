@@ -35,7 +35,7 @@ DLFCN_WIN32_NAME="dlfcn-win32"
 
 # Build Args
 MAKE_CMD = "mingw32-make" if platform.system() == "Windows" else "make"
-MAKE_THREAD_COUNT = multiprocessing.cpu_count()
+MAKE_THREAD_COUNT = global_args['numThreads']
 BUILD_TYPE = global_args['buildType']
 
 # Paths.
