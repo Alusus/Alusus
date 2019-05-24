@@ -449,6 +449,7 @@ def prep_debs():
 def copy_other_installation_files():
     global ALUSUS_ROOT
     global INSTALL_PATH
+    global THIS_SYSTEM
 
     infoMsg("Copying other installation files...")
     shutil.rmtree(os.path.join(INSTALL_PATH, "Doc"), ignore_errors=True)
@@ -489,6 +490,36 @@ def copy_other_installation_files():
         os.path.join(ALUSUS_ROOT, "license.txt"),
         os.path.join(INSTALL_PATH, "license.txt")
     )
+
+    # Copying MinGW DLL's to make a portable Alusus that does not rely on MinGW.
+    if THIS_SYSTEM == "Windows":
+        minGW_dir = os.path.realpath(os.path.dirname(
+            os.path.dirname(subprocess.check_output(['where', 'gcc']).decode('utf8').split('\r\n')[0])
+        ))
+        mingw_bin_dir = os.path.join(minGW_dir, 'bin')
+        mingw_lib_dir = os.path.join(minGW_dir, 'lib')
+        mingw_bin_dllfiles = [os.path.join(mingw_bin_dir, f) for f in os.listdir(mingw_bin_dir) \
+            if os.path.isfile(os.path.join(mingw_bin_dir, f)) and os.path.splitext(f)[1] == '.dll']
+        mingw_lib_dllfiles = [os.path.join(mingw_lib_dir, f) for f in os.listdir(mingw_lib_dir) \
+            if os.path.isfile(os.path.join(mingw_lib_dir, f)) and os.path.splitext(f)[1] == '.dll']
+        # Copy DLL's found in the 'bin' folder.
+        for dllfile in mingw_bin_dllfiles:
+            installed_dllfile = os.path.realpath(os.path.join(INSTALL_PATH, 'Bin', os.path.basename(dllfile)))
+            if not os.path.exists(installed_dllfile):
+                shutil.copy2(
+                    dllfile,
+                    installed_dllfile
+                )
+        # Copy DLL's found in the 'lib' folder.
+        for dllfile in mingw_lib_dllfiles:
+            installed_dllfile = os.path.realpath(os.path.join(INSTALL_PATH, 'Bin', os.path.basename(dllfile)))
+            if not os.path.exists(installed_dllfile):
+                shutil.copy2(
+                    dllfile,
+                    installed_dllfile
+                )
+        
+
     successMsg("Copying other installation files.")
 
 def build_alusus():
