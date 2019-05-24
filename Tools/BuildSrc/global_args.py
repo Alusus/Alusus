@@ -29,7 +29,7 @@ def _process_args():
                         action="store_true", required=False, default=False)
     parser.add_argument("bloc", metavar="BUILD_LOCATION", help="Set the build location (default is the sources root directory).",
                         default=None)
-    parser.add_argument("--iloc", metavar="INSTALL_LOCATION", help="Set the install location (default is the value of \"{}\").".format(os.path.join("[bloc]", "LocalInstall", "[Debug/Release]")),
+    parser.add_argument("--iloc", metavar="INSTALL_LOCATION", help="Set the install location (default is the value of \"{}\").".format(os.path.join("[bloc]", "LocalInstall", "[Debug | Release]")),
                         required=False, default=None)
     parser.add_argument("--numthreads", metavar="NUM_THREADS", help="Specify a custom number of threads to use when building dependencies " +
                                                                     "and Alusus (default is \"{}\" on the current system).".format(multiprocessing.cpu_count()),
