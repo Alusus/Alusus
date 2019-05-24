@@ -1,4 +1,5 @@
 from install_dep import install_package
+import platform
 
 def install_all_deps(prefix, verbose=False):
     # Add your Python dependencies here.
@@ -6,3 +7,5 @@ def install_all_deps(prefix, verbose=False):
     install_package('colorama', prefix, verbose=verbose)
     install_package('termcolor', prefix, verbose=verbose)
     install_package('ummalqura', prefix, verbose=verbose)
+    if platform.system() == "Windows":
+        install_package('pylddwrap', prefix, verbose=verbose)

@@ -11,6 +11,8 @@ import lzma
 from msg import errMsg, failMsg, infoMsg, successMsg, warnMsg
 import wget
 import sys
+import lddwrap
+import pathlib
 from version_info import get_version_info
 
 # Current system variables.
@@ -445,6 +447,54 @@ def prep_debs():
         build_dlfcn_win32()
     successMsg("Building dependencies.")
 
+def copy_dep(dep_dir, dep_name, to_check_string, mingw_dir):
+    global INSTALL_PATH
+    try:
+        index = dep_dir.index(to_check_string)
+        if index != -1 and (index + len(to_check_string)) == len(dep_dir):
+            dllfile = os.path.join(mingw_dir, dep_name)
+            installed_dllfile = os.path.realpath(os.path.join(INSTALL_PATH, 'Bin', dep_name))
+            if not os.path.exists(installed_dllfile):
+                shutil.copy2(
+                    dllfile,
+                    installed_dllfile
+                )
+    except ValueError:
+        pass
+
+def copy_mingw_dlls():
+    global INSTALL_PATH
+    global THIS_SYSTEM
+
+    # Copying MinGW DLL's to make a portable Alusus that does not rely on MinGW install.
+    if THIS_SYSTEM != "Windows":
+        return
+
+    # Get the paths to all EXE's in the installed "Bin" folder.
+    bin_directory = os.path.join(INSTALL_PATH, 'Bin')
+    exe_paths = [os.path.join(bin_directory, f) for f in os.listdir(bin_directory) \
+        if os.path.isfile(os.path.join(bin_directory, f)) and os.path.splitext(f)[1] == '.exe']
+
+    # Get the path to the used MinGW (DO NOT mix and match MinGW 32 bit and 64 bit packages).
+    minGW_dir = os.path.realpath(os.path.dirname(
+        os.path.dirname(subprocess.check_output(['where', 'gcc']).decode('utf8').split('\r\n')[0])
+    ))
+    mingw_bin_dir = os.path.join(minGW_dir, 'bin')
+    mingw_lib_dir = os.path.join(minGW_dir, 'lib')
+    for exe_path in exe_paths:
+        print(exe_path)
+        exe_pathlib_path = pathlib.Path(os.path.realpath(exe_path))
+        deps = lddwrap.list_dependencies(path=exe_pathlib_path)
+        for dep in deps:
+            dep_path = str(dep.path)
+            dep_dir = os.path.dirname(dep_path)
+            dep_name = os.path.basename(dep_path)
+
+            copy_dep(dep_dir, dep_name, '\\mingw64\\bin', mingw_bin_dir)
+            copy_dep(dep_dir, dep_name, '\\mingw64\\lib', mingw_lib_dir)
+            copy_dep(dep_dir, dep_name, '\\mingw32\\bin', mingw_bin_dir)
+            copy_dep(dep_dir, dep_name, '\\mingw32\\lib', mingw_lib_dir)
+
 
 def copy_other_installation_files():
     global ALUSUS_ROOT
@@ -490,36 +540,7 @@ def copy_other_installation_files():
         os.path.join(ALUSUS_ROOT, "license.txt"),
         os.path.join(INSTALL_PATH, "license.txt")
     )
-
-    # Copying MinGW DLL's to make a portable Alusus that does not rely on MinGW.
-    if THIS_SYSTEM == "Windows":
-        minGW_dir = os.path.realpath(os.path.dirname(
-            os.path.dirname(subprocess.check_output(['where', 'gcc']).decode('utf8').split('\r\n')[0])
-        ))
-        mingw_bin_dir = os.path.join(minGW_dir, 'bin')
-        mingw_lib_dir = os.path.join(minGW_dir, 'lib')
-        mingw_bin_dllfiles = [os.path.join(mingw_bin_dir, f) for f in os.listdir(mingw_bin_dir) \
-            if os.path.isfile(os.path.join(mingw_bin_dir, f)) and os.path.splitext(f)[1] == '.dll']
-        mingw_lib_dllfiles = [os.path.join(mingw_lib_dir, f) for f in os.listdir(mingw_lib_dir) \
-            if os.path.isfile(os.path.join(mingw_lib_dir, f)) and os.path.splitext(f)[1] == '.dll']
-        # Copy DLL's found in the 'bin' folder.
-        for dllfile in mingw_bin_dllfiles:
-            installed_dllfile = os.path.realpath(os.path.join(INSTALL_PATH, 'Bin', os.path.basename(dllfile)))
-            if not os.path.exists(installed_dllfile):
-                shutil.copy2(
-                    dllfile,
-                    installed_dllfile
-                )
-        # Copy DLL's found in the 'lib' folder.
-        for dllfile in mingw_lib_dllfiles:
-            installed_dllfile = os.path.realpath(os.path.join(INSTALL_PATH, 'Bin', os.path.basename(dllfile)))
-            if not os.path.exists(installed_dllfile):
-                shutil.copy2(
-                    dllfile,
-                    installed_dllfile
-                )
-        
-
+    copy_mingw_dlls()
     successMsg("Copying other installation files.")
 
 def build_alusus():
