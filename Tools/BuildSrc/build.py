@@ -11,8 +11,6 @@ import lzma
 from msg import errMsg, failMsg, infoMsg, successMsg, warnMsg
 import wget
 import sys
-import lddwrap
-import pathlib
 from version_info import get_version_info
 
 # Current system variables.
