@@ -1,0 +1,28 @@
+import "globals.alusus";
+import "Srl/Console.alusus";
+import "Srl/String.alusus";
+import "Srl/System.alusus";
+
+if Srl.String.compare(Process.language, "ar") == 0 {
+  Core.importFile("Build/I18n/ar.alusus");
+} else {
+  Core.importFile("Build/I18n/en.alusus");
+};
+
+@merge module Build
+{
+  function genExecutable (element: ptr, outputFilename: ptr[array[Char]]) => Bool
+  {
+    if !Spp.buildObjectFileForElement(element, "/tmp/output.o") {
+      Srl.Console.print(I18n.objectGenerationError, Srl.Console.Style.fgRed(), outputFilename);
+      return false;
+    };
+    def cmd: array[Char, 256];
+    Srl.String.assign(cmd~ptr, "gcc -no-pie /tmp/output.o -o %s", outputFilename);
+    if Srl.System.exec(cmd~ptr) != 0 {
+      Srl.Console.print(I18n.exeGenerationError, Srl.Console.Style.fgRed(), outputFilename);
+      return false;
+    };
+    return true;
+  };
+};

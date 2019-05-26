@@ -1,0 +1,7 @@
+اشمل "Build.alusus"؛
+
+عرف بـناء: لقب Build؛
+@دمج وحدة Build
+{
+    عرف أنشئ_تنفيذي: لقب genExecutable؛
+}؛
