@@ -1,6 +1,6 @@
 @merge module Apm
 {
-  func main(argCount: Int, argv: ptr[array[ptr[Char]]]): Int {
+  func main(argCount: Int, argv: ptr[array[ptr[array[Char]]]]): Int {
     if (argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_install) == 0) {
       installRelease(argv~cnt(3)~cast[ptr[array[Char]]], 1, 1);
     } else if (argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_local) == 0) {

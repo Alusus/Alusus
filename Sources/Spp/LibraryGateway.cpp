@@ -209,7 +209,7 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
   manager->processString(S(R"SRC(
     module Process {
       def argCount: Int;
-      def args: ptr[array[ptr[Word[8]]]];
+      def args: ptr[array[ptr[array[Word[8]]]]];
       def language: ptr[array[Word[8]]];
     };
     module Core {
