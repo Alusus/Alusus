@@ -35,6 +35,7 @@ def Main: module
 
     // Regex
     Srl.Console.print("regex number from string (\"phone: 050000000\") with pattern (\"([0-9]+)\"): %s\n", Srl.String.regex("([0-9]+)", "phone: 050000000", 1)~cnt.matches(1)~ptr);
+    Srl.Console.print("regex count from string (\"phone: 050000000\") with pattern (\"(123)\"): %d\n", Srl.String.regex("(123)", "phone: 050000000", 1)~cnt.count);
   };
 };
 
