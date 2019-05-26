@@ -53,11 +53,14 @@ import "Srl/Memory.alusus";
       def reg: regex_t;
 
       regcomp(reg~ptr, pattern, 1);
-      regexec(reg~ptr, string, _regmatch~size / regmatch_t~size, _regmatch~ptr, 1);
-      for i = 0, _regmatch(i).rm_so != -1, i++ {
-        len = _regmatch(i).rm_eo - _regmatch(i).rm_so;
-        Memory.copy(_results(i)~ptr, string~cnt(_regmatch(i).rm_so)~ptr, len);
-        _results(i)(len) = 0;
+      if regexec(reg~ptr, string, _regmatch~size / regmatch_t~size, _regmatch~ptr, 1) == 0 {
+        for i = 0, _regmatch(i).rm_so != -1, i++ {
+          len = _regmatch(i).rm_eo - _regmatch(i).rm_so;
+          Memory.copy(_results(i)~ptr, string~cnt(_regmatch(i).rm_so)~ptr, len);
+          _results(i)(len) = 0;
+        };
+      } else {
+        i = 0;
       };
 
       def matches: ptr[RegexMatches];
