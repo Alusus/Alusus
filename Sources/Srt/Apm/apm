@@ -2,7 +2,7 @@
 import "Apm.alusus";
 
 @merge module Apm {
-  @merge module Strings{
+  @merge module I18n {
     def use_apm_install: "%suse: apm install <author>/<package>@<release>\n";
     def use_apm_local_install: "%suse: apm local install <author>/<package>@<release>\n";
     def help_commands: " %sCommands:- \n";
