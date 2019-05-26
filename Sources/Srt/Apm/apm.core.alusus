@@ -204,10 +204,11 @@ import "Zip.alusus";
     return 0;
   };
 
-  func onFileExtracted(fname: ptr[array[Char]], logs: ptr): Void
+  func onFileExtracted(fname: ptr[array[Char]], logs: ptr): Int
   {
     if(logs~cast[ptr[bool]]~cnt == 1){
       Console.print(I18n.fileExtracted, Console.Style.fgGreen(), fname);
     };
+    return 0;
   };
 };

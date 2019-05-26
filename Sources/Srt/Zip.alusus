@@ -15,7 +15,7 @@ def Zip: module {
 
   def extractFromFile: @expname[zip_extract] function(
     filename: ptr[array[Char]], extractDirectory: ptr[array[Char]],
-    callbackFunction: ptr[function (ptr[array[Char]], ptr)], arguments: ptr
+    callbackFunction: ptr[function (ptr[array[Char]], ptr)=>Int], arguments: ptr
   ) => Int;
 
   def compressToFile: function(
