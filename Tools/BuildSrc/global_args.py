@@ -27,6 +27,8 @@ def _process_args():
                         choices=["d", "r"], required=False, default="d")
     parser.add_argument("--buildpackages", help="Create installable package(s).",
                         action="store_true", required=False, default=False)
+    parser.add_argument("--reruncmake", help="Re-run CMake on Alusus.",
+                        action="store_true", required=False, default=False)
     parser.add_argument("bloc", metavar="BUILD_LOCATION", help="Set the build location (default is the sources root directory).",
                         default=None)
     parser.add_argument("--iloc", metavar="INSTALL_LOCATION", help="Set the install location (default is the value of \"{}\").".format(os.path.join("[bloc]", "LocalInstall", "[Debug | Release]")),
@@ -47,6 +49,7 @@ def _process_args():
         global_args['buildType'] = "release"
     if args.buildpackages:
         global_args['createPackages']  = "yes"
+    global_args['rerunCMake'] = args.reruncmake
 
     if args.bloc:
         global_args['productPath'] = os.path.realpath(args.bloc)

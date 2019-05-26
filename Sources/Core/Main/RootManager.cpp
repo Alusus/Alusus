@@ -13,6 +13,16 @@
 #include "core.h"
 #include <stdlib.h>
 #include <limits.h>
+#include <filesystem>
+
+// Get the shared library extention by OS.
+#if defined(__MINGW32__) || defined(__MINGW64__) // Windows under MinGW.
+Str SHARED_LIB_EXT = "dll";
+#elif defined(APPLE) // Apple (Mac OS, iOS, Apple Watch).
+Str SHARED_LIB_EXT = "dylib";
+#else // Linux.
+Str SHARED_LIB_EXT = "so";
+#endif
 
 namespace Core::Main
 {
@@ -41,7 +51,7 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
 
   // Initialize current paths.
   this->pushSearchPath(getModuleDirectory().c_str());
-  this->pushSearchPath((getModuleDirectory()+S("../Lib/")).c_str());
+  this->pushSearchPath(((std::filesystem::path(getModuleDirectory()) / ".." / "Lib").string()).c_str());
   this->pushSearchPath(getWorkingDirectory().c_str());
   // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':'.
   Char *alususLibs = getenv(S("ALUSUS_LIBS"));
@@ -109,7 +119,7 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename, Bool allowRep
   // Extract the directory part and add it to the current paths.
   Int pos;
   Str searchPath;
-  if ((pos = fullPath.rfind(C('/'))) != Str::npos) {
+  if ((pos = fullPath.rfind(std::filesystem::path::preferred_separator)) != Str::npos) {
     searchPath = Str(fullPath, 0, pos+1);
     this->pushSearchPath(searchPath.c_str());
   }
@@ -136,21 +146,27 @@ SharedPtr<TiObject> RootManager::processStream(Processing::CharInStreaming *is, 
 
 Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
 {
+  // Convert Unix path to Windows path in Windows OS.
+  Str newFileNameCppStr = std::filesystem::path(filename).make_preferred().string();
+  Char const *newFileName = newFileNameCppStr.c_str();
+
   // Check the file type.
   if (
-    compareStrSuffix(filename, S(".source")) || compareStrSuffix(filename, S(".alusus")) ||
-    compareStrSuffix(filename, S(".مصدر")) || compareStrSuffix(filename, S(".الأسس")) ||
-    compareStrSuffix(filename, S(".أسس"))
+    compareStrSuffix(newFileName, S(".source")) || compareStrSuffix(newFileName, S(".alusus")) ||
+    compareStrSuffix(newFileName, S(".مصدر")) || compareStrSuffix(newFileName, S(".الأسس")) ||
+    compareStrSuffix(newFileName, S(".أسس"))
   ) {
     try {
-      LOG(LogLevel::PARSER_MAJOR, S("Importing source file: ") << filename);
+      LOG(LogLevel::PARSER_MAJOR, S("Importing source file: ") << newFileName);
 
-      this->processFile(filename);
+      this->processFile(newFileName);
     } catch (...) {
       return false;
     }
   } else {
-    LOG(LogLevel::PARSER_MAJOR, S("Importing library: ") << filename);
+    Char const* sharedLibFileName = (newFileName + Str(".") + SHARED_LIB_EXT).c_str();
+
+    LOG(LogLevel::PARSER_MAJOR, S("Importing library: ") << sharedLibFileName);
 
     // Import library and return.
     PtrWord id = 0;
@@ -159,25 +175,25 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
       // We are running in debug mode, so we will look first for a debug verion.
       // Find the first '.' after the last '/'.
       thread_local static std::array<Char,FILENAME_MAX> dbgFilename;
-      Char const *dotPos = strrchr(filename, C('/'));
-      if (dotPos == 0) dotPos = filename;
+      Char const *dotPos = strrchr(sharedLibFileName, std::filesystem::path::preferred_separator);
+      if (dotPos == 0) dotPos = sharedLibFileName;
       dotPos = strchr(dotPos, C('.'));
       if (dotPos == 0) {
         // The filename has no extension, so we'll attach .dbg to the end.
-        copyStr(filename, dbgFilename.data());
-        copyStr(S(".dbg"), dbgFilename.data()+getStrLen(filename));
+        copyStr(sharedLibFileName, dbgFilename.data());
+        copyStr(S(".dbg"), dbgFilename.data()+getStrLen(sharedLibFileName));
         id = this->getLibraryManager()->load(dbgFilename.data(), errorDetails);
       } else if (compareStr(dotPos, S(".dbg."), 5) != 0) {
         // The position of the file's extension is found, and it doesn't already have
         // the .dbg extension, so we'll attach it.
-        Int dotIndex = dotPos - filename;
-        copyStr(filename, dbgFilename.data(), dotIndex);
+        Int dotIndex = dotPos - sharedLibFileName;
+        copyStr(sharedLibFileName, dbgFilename.data(), dotIndex);
         copyStr(S(".dbg"), dbgFilename.data()+dotIndex);
         copyStr(dotPos, dbgFilename.data()+dotIndex+4);
         id = this->getLibraryManager()->load(dbgFilename.data(), errorDetails);
       }
     #endif
-    if (id == 0) id = this->getLibraryManager()->load(filename, errorDetails);
+    if (id == 0) id = this->getLibraryManager()->load(sharedLibFileName, errorDetails);
     // Did we fail the loading?
     if (id == 0) return false;
   }
@@ -190,20 +206,24 @@ void RootManager::pushSearchPath(Char const *path)
   if (path == 0 || *path == C('\0')) {
     throw EXCEPTION(InvalidArgumentException, S("path"), S("Argument is null or empty string."));
   }
+
+  std::filesystem::path thisPath = path;
+
   // Only accept absolute paths.
-  if (*path != C('/')) {
+  if (!thisPath.is_absolute()) {
     throw EXCEPTION(InvalidArgumentException, S("path"), S("Path must be an absolute path."));
   }
-  Str fullPath(path);
-  if (fullPath.back() != C('/')) fullPath += C('/');
+  
+  thisPath /= ""; // Append the directory seperator.
+
   // Only add the path if it doesn't already exists.
   // We will only check the top of the stack. If this path exists deeper in the stack then we'll
   // add it again to make it available at the top of the stack. We won't remove the other copy
   // coz we don't expect any penalties from keeping it there.
-  if (!this->searchPaths.empty() && this->searchPaths.back() == fullPath) {
+  if (!this->searchPaths.empty() && this->searchPaths.back() == thisPath.string()) {
     ++this->searchPathCounts.back();
   } else {
-    this->searchPaths.push_back(fullPath);
+    this->searchPaths.push_back(thisPath.string());
     this->searchPathCounts.push_back(1);
   }
 }
@@ -214,15 +234,19 @@ void RootManager::popSearchPath(Char const *path)
   if (path == 0 || *path == C('\0')) {
     throw EXCEPTION(InvalidArgumentException, S("path"), S("Argument is null or empty string."));
   }
+
+  std::filesystem::path thisPath = path;
+
   // Only accept absolute paths.
-  if (*path != C('/')) {
+  if (!thisPath.is_absolute()) {
     throw EXCEPTION(InvalidArgumentException, S("path"), S("Path must be an absolute path."), path);
   }
-  Str fullPath(path);
-  if (fullPath.back() != C('/')) fullPath += C('/');
+
+  thisPath /= ""; // Append the directory seperator.
+
   // Search for the path to pop.
   for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
-    if (this->searchPaths[i] == fullPath) {
+    if (this->searchPaths[i] == thisPath.string()) {
       // Decrement the count and only remove it when it reaches 0.
       --this->searchPathCounts[i];
       if (this->searchPathCounts[i] == 0) {
@@ -243,7 +267,7 @@ Str RootManager::findAbsolutePath(Char const *filename)
   }
 
   // Is the filename an absolute path already?
-  if (filename[0] == C('/')) {
+  if (std::filesystem::path(filename).is_absolute()) {
     Char canonicalPath[PATH_MAX];
     realpath(filename, canonicalPath);
     return Str(canonicalPath);
@@ -254,7 +278,7 @@ Str RootManager::findAbsolutePath(Char const *filename)
   std::ifstream fin;
   for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
     fullPath = this->searchPaths[i];
-    if (fullPath.back() != C('/')) fullPath += C('/');
+    if (fullPath.back() != std::filesystem::path::preferred_separator) fullPath += std::filesystem::path::preferred_separator;
     fullPath += filename;
 
     // Check if the file exists.

@@ -1,4 +1,4 @@
-import "simple_script.so";
+import "simple_script";
 strVar = "Hello World";
 intVar = 5;
 intVar++;

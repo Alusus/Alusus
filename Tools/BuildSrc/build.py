@@ -616,29 +616,35 @@ def build_alusus():
     os.chdir(BUILD_PATH)
 
     try:
-        cmake_cmd = ["cmake",
-                     "{}".format(os.path.join(ALUSUS_ROOT, "Sources")),
-                     "-DCMAKE_BUILD_TYPE={}".format(BUILD_TYPE),
-                     "-DCMAKE_INSTALL_PREFIX={}".format(INSTALL_PATH),
-                     "-DLLVM_PATH={}".format(
+        # CMake will not run everytime by default to reduce build time.
+        if (not os.path.exists('CMAKE_CHECKER')) or global_args['rerunCMake']:
+            cmake_cmd = ["cmake",
+                    "{}".format(os.path.join(ALUSUS_ROOT, "Sources")),
+                    "-DCMAKE_BUILD_TYPE={}".format(BUILD_TYPE),
+                    "-DCMAKE_INSTALL_PREFIX={}".format(INSTALL_PATH),
+                    "-DLLVM_PATH={}".format(
                         (os.path.join(DEPS_PATH, LLVM_NAME + ".install").replace('\\', '/') if THIS_SYSTEM == "Windows" else \
-                         os.path.join(DEPS_PATH, LLVM_NAME + ".install"))
-                     ),
-                     "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-                     "-DPYTHON_PREFIX={}".format(PYTHON_DEPS_PATH)]
-        
-        if THIS_SYSTEM == "Windows":
-            dlfcn_folder_name = DLFCN_WIN32_NAME + '-' + DLFCN_WIN32_VERSION
-            cmake_cmd += [
-                "-G", "MinGW Makefiles",
-                "-DCMAKE_SH=CMAKE_SH-NOTFOUND",
-                "-DDLFCN_WIN32_PATH={}".format(os.path.join(DEPS_PATH, dlfcn_folder_name + ".install").replace('\\', '/'))
-            ]
+                        os.path.join(DEPS_PATH, LLVM_NAME + ".install"))
+                    ),
+                    "-DPYTHON_EXECUTABLE={}".format(sys.executable),
+                    "-DPYTHON_PREFIX={}".format(PYTHON_DEPS_PATH)]
+            
+            if THIS_SYSTEM == "Windows":
+                dlfcn_folder_name = DLFCN_WIN32_NAME + '-' + DLFCN_WIN32_VERSION
+                cmake_cmd += [
+                    "-G", "Ninja",
+                    "-DCMAKE_SH=CMAKE_SH-NOTFOUND",
+                    "-DDLFCN_WIN32_PATH={}".format(os.path.join(DEPS_PATH, dlfcn_folder_name + ".install").replace('\\', '/'))
+                ]
 
-        ret = subprocess.call(cmake_cmd)
-        if ret != 0:
-            failMsg("Building Alusus.")
-            exit(1)
+            ret = subprocess.call(cmake_cmd)
+            if ret != 0:
+                failMsg("Building Alusus.")
+                exit(1)
+
+            with open('CMAKE_CHECKER', 'w') as fd:
+                fd.write("CMAKE GENERATOR CHECKER")
+        
         ret = subprocess.call(
             "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
         if ret != 0:

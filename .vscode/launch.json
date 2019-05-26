@@ -1,6 +1,19 @@
 {
   "version": "0.2.0",
   "configurations": [
+    // {
+    //   "type": "gdb",
+    //   "request": "attach",
+    //   "name": "Attach to gdbserver",
+    //   "executable": "<path to the elf/exe file relative to workspace root in order to load the symbols>",
+    //   "target": "X.X.X.X:9999",
+    //   "remote": true,
+    //   "cwd": "${workspaceRoot}", 
+    //   "gdbpath": "path/to/your/gdb",
+    //   "autorun": [
+    //           "any gdb commands to initiate your environment, if it is needed"
+    //       ]
+    // },
     {
       "name": "C++ Launch",
       "type": "cppdbg",

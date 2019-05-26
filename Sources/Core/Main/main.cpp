@@ -12,6 +12,7 @@
 
 #include "core.h"
 #include <stdio.h>  /* defines FILENAME_MAX */
+#include <filesystem>
 #if defined(__MINGW32__) || defined(__MINGW64__)
   #include <direct.h>
   #include <windows.h>
@@ -45,7 +46,7 @@ std::string getWorkingDirectory()
   }
 
   std::string path(currentPath.data());
-  if (path.back() != C('/')) path += C('/');
+  if (path.back() != std::filesystem::path::preferred_separator) path += std::filesystem::path::preferred_separator;
   return path;
 }
 
@@ -61,7 +62,7 @@ std::string getModuleDirectory()
     std::string path(currentPath.data(), (count > 0) ? count : 0);
   #endif
 
-  Int pos = path.rfind(C('/'));
+  Int pos = path.rfind(std::filesystem::path::preferred_separator);
   return std::string(path, 0, pos+1);
 }
 

@@ -54,8 +54,8 @@ endif()
 
 # Prepare compile and link flags.
 STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
-set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wno-unused-result -fno-rtti")
-set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
+set(CXX_STD_FLAG "-std=c++17")
+set(Alusus_COMPILE_FLAGS "${CXX_STD_FLAG} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wno-unused-result -fno-rtti")
 set(CMAKE_SKIP_RPATH TRUE)
 if(NOT MINGW)
   set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,'$ORIGIN',--enable-new-dtags")
@@ -73,7 +73,7 @@ include(LLVMConfig)
 
 # Macro for generating pre-compiled headers.
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${Alusus_SOURCE_DIR}")
-include(precompiled_headers.cmake)
+include(cotire.cmake)
 
 # Enable testing
 enable_testing()

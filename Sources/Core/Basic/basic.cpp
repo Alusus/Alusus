@@ -25,7 +25,11 @@ std::istream & inStream = std::cin;
 
 typedef std::codecvt<WChar,Char,std::mbstate_t> FacetType;
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+static std::locale utf8Locale("C");
+#else
 static std::locale utf8Locale("en_US.UTF8");
+#endif
 
 static const FacetType& utf8Facet = std::use_facet<FacetType>(utf8Locale);
 

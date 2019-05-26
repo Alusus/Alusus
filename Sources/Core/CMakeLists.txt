@@ -34,18 +34,27 @@ foreach (DIR ${AlususCoreLib_Source_Subdirs})
   source_group("SourceFiles\\${DIR}" FILES ${sources})
   set(AlususCoreLib_Source_Files ${AlususCoreLib_Source_Files} ${sources} ${headers})
 endforeach(DIR)
-add_library(AlususCoreLib STATIC ${AlususCoreLib_Source_Files})
-set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}")
-ADD_PRECOMPILED_HEADER(AlususCoreLib "core.h")
+add_library(AlususCoreLib SHARED ${AlususCoreLib_Source_Files})
+set_target_properties(AlususCoreLib
+  PROPERTIES
+  COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}"
+  COTIRE_CXX_PREFIX_HEADER_INIT "core.h"
+)
+target_link_libraries(AlususCoreLib AlususStorage "stdc++fs" "dl")
+cotire(AlususCoreLib)
 
 # Add a target for Alusus core executable.
 set(AlususCore_Source_Files start.cpp)
 add_executable(AlususCore ${AlususCore_Source_Files})
-set_target_properties(AlususCore PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
-ADD_PRECOMPILED_HEADER(AlususCore "core.h")
+set_target_properties(AlususCore
+  PROPERTIES
+  COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}"
+  COTIRE_CXX_PREFIX_HEADER_INIT "core.h"
+)
+cotire(AlususCore)
 
 # Finally, we link the executable to the libraries.
-target_link_libraries(AlususCore AlususCoreLib AlususStorage "dl" "LLVM-7")
+target_link_libraries(AlususCore AlususCoreLib "LLVM-7" "stdc++fs")
 
 # Set library and executable output names.
 # NOTE: For alusus_storage, we'll use the same filename for both debug and

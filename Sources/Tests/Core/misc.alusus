@@ -13,7 +13,7 @@ def a: {
   hashVar = (a:1, b:2, c:3);
   bracketVar = a + (b + c);
 
-  @test do "mylib.so";
+  @test do "mylib";
   do s:10;
   do (s:10) @<test;
   do [s:10];
