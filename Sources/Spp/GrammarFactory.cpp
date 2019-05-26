@@ -219,7 +219,7 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.Return"), SymbolDefinition::create({}, {
     {S("term"), PARSE_REF(S("root.Cmd"))},
     {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("return"), 0 }, { S("أرجع"), 0 } })},
+      {S("kwd"), Map::create({}, { { S("return"), 0 }, { S("أرجع"), 0 }, { S("ارجع"), 0 } })},
       {S("prms"), List::create({}, {
         Map::create({}, {
           {S("prd"), PARSE_REF(S("module.Expression"))},

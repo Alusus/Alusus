@@ -13,9 +13,9 @@ function(hljs) {
     'do return goto auto enum else break new extern using true class case typeid ' +
     'short reinterpret_cast default double register explicit signed typename try this ' +
     'switch continue inline delete alignof finally and or not ' +
-    'noexcept nullptr static_assert thread_local restrict alias run dump_ast dump_llvm_ir ' +
-    'اشمل عرف عرّف وحدة دالة دالّة هيكل إذا بينما لكل أرجع مؤشر محتوى مصفوفة أي  لقب نفذ نفّذ ' +
-    'صنف وإلا اقطع أكمل أدرج_ش_ب_م أدرج_ت_و و أو ليس ماكرو استخدم';
+    'noexcept nullptr static_assert thread_local restrict alias dump_ast ' +
+    'اشمل عرف عرّف وحدة دالة دالّة هيكل إذا بينما لكل أرجع ارجع مؤشر محتوى مصفوفة أي  لقب ' +
+    'صنف وإلا اقطع أكمل أدرج_ش_ب_م و أو ليس ماكرو استخدم';
   return {
     aliases: ['alusus'],
     keywords: KEYWORDS,

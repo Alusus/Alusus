@@ -95,9 +95,7 @@
       <keyword>break</keyword>
       <keyword>continue</keyword>
       <keyword>return</keyword>
-      <keyword>run</keyword>
       <keyword>dump_ast</keyword>
-      <keyword>dump_llvm_ir</keyword>
       <keyword>ptr</keyword>
       <keyword>array</keyword>
       <keyword>any</keyword>
@@ -127,10 +125,8 @@
       <keyword>اقطع</keyword>
       <keyword>أكمل</keyword>
       <keyword>أرجع</keyword>
-      <keyword>نفّذ</keyword>
-      <keyword>نفذ</keyword>
+      <keyword>ارجع</keyword>
       <keyword>أدرج_ش_ب_م</keyword>
-      <keyword>أدرج_ت_و</keyword>
       <keyword>مؤشر</keyword>
       <keyword>مصفوفة</keyword>
       <keyword>أي</keyword>
