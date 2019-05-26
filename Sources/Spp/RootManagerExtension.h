@@ -31,6 +31,7 @@ class RootManagerExtension : public ObjTiInterface
   {
     TiFunctionBase *executeRootElementRef;
     TiFunctionBase *dumpLlvmIrForElementRef;
+    TiFunctionBase *buildObjectFileForElementRef;
     TiFunctionBase *resetBuildDataRef;
     TiFunctionBase *importFileRef;
   };
@@ -50,6 +51,7 @@ class RootManagerExtension : public ObjTiInterface
     Basic::initBindingCaches(this->owner, {
       &this->executeRootElement,
       &this->dumpLlvmIrForElement,
+      &this->buildObjectFileForElement,
       &this->resetBuildData,
       &this->importFile,
       &this->astHelper,
@@ -109,9 +111,19 @@ class RootManagerExtension : public ObjTiInterface
     TiObject *self, TioSharedPtr const &element, Core::Notices::Store *noticeStore
   );
 
-  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement, void, (TiObject*, Core::Notices::Store*, Core::Processing::Parser*));
+  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement,
+    void, (TiObject*, Core::Notices::Store*, Core::Processing::Parser*)
+  );
   public: static void _dumpLlvmIrForElement(
     TiObject *self, TiObject *element, Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
+  );
+
+  public: METHOD_BINDING_CACHE(buildObjectFileForElement,
+    void, (TiObject*, Char const*, Core::Notices::Store*, Core::Processing::Parser*)
+  );
+  public: static Bool _buildObjectFileForElement(
+    TiObject *self, TiObject *element, Char const *objectFilename, Core::Notices::Store *noticeStore,
+    Core::Processing::Parser *parser
   );
 
   public: METHOD_BINDING_CACHE(resetBuildData, void, (TiObject*));

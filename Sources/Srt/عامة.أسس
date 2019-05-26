@@ -26,8 +26,14 @@
 عرف الـقلب: لقب Core؛
 @دمج عرف Core: وحدة
 {
-  عرف أدرج_تو_لعنصر: لقب dumpLlvmIrForElement؛
   عرف اشمل_ملف: لقب importFile؛
+}؛
+
+عرف نـبم: لقب Spp؛
+@دمج عرف Spp: وحدة
+{
+  عرف أدرج_تو_لعنصر: لقب dumpLlvmIrForElement؛
+  عرف أنشء_ملفا_رقميا_لعنصر: لقب buildObjectFileForElement؛
 }؛
 
 عرف مـتم: لقب Srl؛

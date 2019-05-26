@@ -21,4 +21,4 @@ def Main: module
   }
 };
 
-Core.dumpLlvmIrForElement(Main.start~ast);
+Spp.dumpLlvmIrForElement(Main.start~ast);

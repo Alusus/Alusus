@@ -38,6 +38,9 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   overrides->dumpLlvmIrForElementRef = extension->dumpLlvmIrForElement.set(
     &RootManagerExtension::_dumpLlvmIrForElement
   ).get();
+  overrides->buildObjectFileForElementRef = extension->buildObjectFileForElement.set(
+    &RootManagerExtension::_buildObjectFileForElement
+  ).get();
   overrides->resetBuildDataRef = extension->resetBuildData.set(&RootManagerExtension::_resetBuildData).get();
   overrides->importFileRef = extension->importFile.set(&RootManagerExtension::_importFile).get();
 
@@ -50,6 +53,7 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
   auto extension = ti_cast<RootManagerExtension>(rootManager);
   extension->executeRootElement.reset(overrides->executeRootElementRef);
   extension->dumpLlvmIrForElement.reset(overrides->dumpLlvmIrForElementRef);
+  extension->buildObjectFileForElement.reset(overrides->buildObjectFileForElementRef);
   extension->resetBuildData.reset(overrides->resetBuildDataRef);
   extension->importFile.reset(overrides->importFileRef);
   extension->astHelper.remove();
@@ -199,6 +203,48 @@ void RootManagerExtension::_dumpLlvmIrForElement(
     outStream << ir.str();
     outStream << S("------------------------------------------------------------\n");
   }
+}
+
+
+Bool RootManagerExtension::_buildObjectFileForElement(
+  TiObject *self, TiObject *element, Char const *objectFilename, Core::Notices::Store *noticeStore,
+  Core::Processing::Parser *parser
+) {
+  VALIDATE_NOT_NULL(element, noticeStore);
+  PREPARE_SELF(rootManager, Core::Main::RootManager);
+  PREPARE_SELF(rootManagerExt, RootManagerExtension);
+
+  auto root = rootManager->getRootScope().get();
+  rootManagerExt->resetBuildData(root);
+  rootManagerExt->targetGenerator->resetBuild();
+  rootManagerExt->rootStmtTgFunc = TioSharedPtr::null;
+
+  // Preprocessing.
+  rootManagerExt->macroProcessor->preparePass(noticeStore);
+  if (!rootManagerExt->macroProcessor->runMacroPass(root)) return false;
+
+  // Prepare for the build.
+  rootManagerExt->targetGenerator->setGlobalItemRepo(rootManagerExt->generator->getGlobalItemRepo());
+  rootManagerExt->targetGenerator->setNoticeStore(noticeStore);
+  auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(rootManagerExt->targetGenerator.get().get());
+  rootManagerExt->generator->prepareBuild(noticeStore, true);
+  auto generation = ti_cast<CodeGen::Generation>(rootManagerExt->generator.get().get());
+
+  // Generate the element.
+  Bool result;
+  if (element->isDerivedFrom<Ast::Module>()) {
+    result = generation->generateModule(static_cast<Ast::Module*>(element), targetGeneration);
+  } else if (element->isDerivedFrom<Ast::Function>()) {
+    result = generation->generateFunction(static_cast<Ast::Function*>(element), targetGeneration);
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("element"), S("Invalid argument type."));
+  }
+
+  if (result) {
+    rootManagerExt->targetGenerator->buildObjectFile(objectFilename);
+  }
+
+  return result;
 }
 
 

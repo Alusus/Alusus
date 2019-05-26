@@ -85,6 +85,8 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   public: void dumpIr(OutStream &out);
 
+  public: void buildObjectFile(Char const *filename);
+
   public: void execute(Char const *entry);
 
   /// @}
