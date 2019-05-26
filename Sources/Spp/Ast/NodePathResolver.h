@@ -109,6 +109,9 @@ class NodePathResolver : public TiObject, public DynamicBinding, public DynamicI
     TiObject *self, Core::Data::Ast::Scope const *block, Helper *helper, StrStream &path
   );
 
+  public: METHOD_BINDING_CACHE(resolveOther, void, (Core::Data::Node const*, Helper*, StrStream&));
+  private: static void _resolveOther(TiObject *self, Core::Data::Node const *node, Helper *helper, StrStream &path);
+
   /// @}
 
 }; // class

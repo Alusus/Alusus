@@ -334,9 +334,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
         // Create the llvm global var.
         TioSharedPtr tgLocalVar;
-        if (!tg->generateLocalVariable(
-          tgContext, tgType, definition->getName().get(), 0, tgLocalVar
-        )) {
+        if (!tg->generateLocalVariable(tgContext, tgType, definition->getName().get(), 0, tgLocalVar)) {
           setCodeGenFailed(astVar, true);
           return false;
         }
