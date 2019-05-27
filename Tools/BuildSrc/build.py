@@ -632,7 +632,7 @@ def build_alusus():
             if THIS_SYSTEM == "Windows":
                 dlfcn_folder_name = DLFCN_WIN32_NAME + '-' + DLFCN_WIN32_VERSION
                 cmake_cmd += [
-                    "-G", "Ninja",
+                    "-G", "MinGW Makefiles",
                     "-DCMAKE_SH=CMAKE_SH-NOTFOUND",
                     "-DDLFCN_WIN32_PATH={}".format(os.path.join(DEPS_PATH, dlfcn_folder_name + ".install").replace('\\', '/'))
                 ]
