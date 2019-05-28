@@ -39,6 +39,17 @@ Bool mergeDefinition(Definition *def, DynamicContaining<TiObject> *target, Notic
         );
         return false;
       }
+      // Merge the definition modifiers.
+      if (def->getModifiers() != 0) {
+        if (targetDef->getModifiers() == 0) {
+          targetDef->setModifiers(def->getModifiers());
+        } else {
+          for (Int i = 0; i < def->getModifiers()->getCount(); ++i) {
+            targetDef->getModifiers()->add(def->getModifiers()->get(i));
+          }
+        }
+      }
+      // Merge the target itself.
       return targetObj->merge(def->getTarget().get(), noticeStore);
     }
   }
