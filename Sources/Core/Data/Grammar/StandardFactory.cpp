@@ -1823,8 +1823,8 @@ void StandardFactory::createModifierProductionDefinitions()
     { S("startRef"), PARSE_REF(S("module.FunctionalExp")) },
     { S("baseRef"), PARSE_REF(S("root.Expression")) }
   }, {
-    { S("paramPassExpr"), PARSE_REF(S("module.owner.Expression")) },
-    { S("openPostfixTildeExpr"), PARSE_REF(S("module.owner.Expression")) },
+    { S("paramPassExpr"), PARSE_REF(S("root.Main.Expression")) },
+    { S("openPostfixTildeExpr"), PARSE_REF(S("root.Main.Expression")) },
     { S("subject"), PARSE_REF(S("module.owner.Subject")) }
   }));
   this->set(S("root.Modifier.Expression.FunctionalExp"), SymbolDefinition::create({
@@ -1841,8 +1841,8 @@ void StandardFactory::createModifierProductionDefinitions()
   this->set(S("root.Modifier.Subject"), Module::create({
     {S("baseRef"), PARSE_REF(S("root.Subject"))}
   }, {
-    {S("expression"), PARSE_REF(S("module.owner.Expression"))},
-    {S("set"), PARSE_REF(S("root.Set"))},
+    {S("expression"), PARSE_REF(S("root.Main.Expression"))},
+    {S("set"), PARSE_REF(S("root.Main.Set"))},
     {S("cmdGrp"), PARSE_REF(S("module.owner.SubjectCmdGrp"))}
   }));
   // Modifier.CmdGroup
