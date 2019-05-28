@@ -9,4 +9,4 @@ def Main: module
   }
 };
 
-Core.dumpLlvmIrForElement(Main~ast);
+Spp.dumpLlvmIrForElement(Main~ast);

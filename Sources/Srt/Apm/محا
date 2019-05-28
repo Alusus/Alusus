@@ -4,7 +4,7 @@
 اشمل "مـحا.أسس"؛
 
 @merge module Apm {
-  @merge module Strings{
+  @merge module I18n {
     def use_apm_install: "%sاستخدم: محا تثبيت <المالك>/<الوحدة>@<الاصدار>\ج";
     def use_apm_local_install: "%sاستخدم: محا محلي تثبيت <المالك>/<الوحدة>@<الاصدار>\ج";
     def help_commands: " %sالاوامر:- \ج";

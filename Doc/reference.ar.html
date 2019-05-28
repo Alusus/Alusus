@@ -1945,13 +1945,13 @@ Apm.importFile("&lt;author&gt;/&gt;pkg name&gt;" [, "&lt;filename&gt;"]);
 <pre class="code" dir=rtl style="text-align:right;">
 عرف استخرج_من_ملف: دالة (
   اسم_الملف: مؤشر[مصفوفة[مـحرف]]، اسم_المجلد: مؤشر[مصفوفة[مـحرف]]،
-  مستلم_الاشعارات: مؤشر[دالة (مؤشر[مصفوفة[مـحرف]]، مؤشر)]، معطيات: مؤشر
+  مستلم_الاشعارات: مؤشر[دالة (مؤشر[مصفوفة[مـحرف]]، مؤشر) => صـحيح]، معطيات: مؤشر
 ) => صـحيح؛
 </pre>
 <pre class="code" dir=ltr>
 def extractFromFile: function(
   filename: ptr[array[Char]], extractDirectory: ptr[array[Char]],
-  callbackFunction: ptr[function (ptr[array[Char]], ptr)], arguments: ptr
+  callbackFunction: ptr[function (ptr[array[Char]], ptr) => Int], arguments: ptr
 ) => Int;
 </pre>
         تستخرج ملفًا مضغوطا إلى المجلد المحدد.

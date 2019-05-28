@@ -1,0 +1,26 @@
+import "Srl/Console.alusus";
+import "Srl/System.alusus";
+import "Build.alusus";
+
+@expname[main] function main {
+  Srl.Console.print("Hello from the compiled file.\n");
+};
+
+@expname[main] function main2 {
+  Srl.Console.print("Hello from the another compiled file.\n");
+};
+
+if !Build.genExecutable(main~ast, "/tmp/alusustest") {
+  Srl.Console.print("Build failed.\n");
+} else {
+  Srl.System.exec("/tmp/alusustest");
+};
+
+def exe: ptr[Build.Exe] = Build.Exe.new(main2~ast, "/tmp/alusustest2");
+if !Build.Exe.generate(exe) {
+  Srl.Console.print("Build failed.\n");
+} else {
+  Srl.System.exec("/tmp/alusustest2");
+};
+Srl.Memory.free(exe);
+

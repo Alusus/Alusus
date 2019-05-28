@@ -11,6 +11,7 @@
 //==============================================================================
 
 #include "spp.h"
+#include <system_error>
 
 namespace Spp { namespace LlvmCodeGen
 {
@@ -164,6 +165,54 @@ void TargetGenerator::dumpIr(OutStream &out)
 
   llvm::raw_os_ostream ostream(out);
   llvm::createPrintModulePass(ostream)->runOnModule(*(this->llvmModule.get()));
+}
+
+
+void TargetGenerator::buildObjectFile(Char const *filename)
+{
+  VALIDATE_NOT_NULL(filename);
+  if (this->llvmModule == 0) {
+    throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
+  }
+
+  auto targetTriple = llvm::sys::getDefaultTargetTriple();
+  this->llvmModule->setTargetTriple(targetTriple);
+
+  std::string error;
+  auto target = llvm::TargetRegistry::lookupTarget(targetTriple, error);
+
+  // Print an error and exit if we couldn't find the requested target.
+  // This generally occurs if we've forgotten to initialise the
+  // TargetRegistry or we have a bogus target triple.
+  if (!target) {
+    throw EXCEPTION(GenericException, error.c_str());
+  }
+
+  auto cpu = "generic";
+  auto features = "";
+
+  llvm::TargetOptions opt;
+  auto rm = llvm::Optional<llvm::Reloc::Model>();
+  auto theTargetMachine = target->createTargetMachine(targetTriple, cpu, features, opt, rm);
+
+  this->llvmModule->setDataLayout(theTargetMachine->createDataLayout());
+
+  std::error_code ec;
+  llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::F_None);
+
+  if (ec) {
+    throw EXCEPTION(FileException, ec.message().c_str(), C('w'));
+  }
+
+  llvm::legacy::PassManager pass;
+  auto fileType = llvm::TargetMachine::CGFT_ObjectFile;
+
+  if (theTargetMachine->addPassesToEmitFile(pass, dest, nullptr, fileType)) {
+    throw EXCEPTION(GenericException, S("TheTargetMachine can't emit a file of this type"));
+  }
+
+  pass.run(*this->llvmModule);
+  dest.flush();
 }
 
 

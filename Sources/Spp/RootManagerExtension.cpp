@@ -38,8 +38,12 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   overrides->dumpLlvmIrForElementRef = extension->dumpLlvmIrForElement.set(
     &RootManagerExtension::_dumpLlvmIrForElement
   ).get();
+  overrides->buildObjectFileForElementRef = extension->buildObjectFileForElement.set(
+    &RootManagerExtension::_buildObjectFileForElement
+  ).get();
   overrides->resetBuildDataRef = extension->resetBuildData.set(&RootManagerExtension::_resetBuildData).get();
   overrides->importFileRef = extension->importFile.set(&RootManagerExtension::_importFile).get();
+  overrides->getModifierStringsRef = extension->getModifierStrings.set(&RootManagerExtension::_getModifierStrings).get();
 
   return overrides;
 }
@@ -50,8 +54,10 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
   auto extension = ti_cast<RootManagerExtension>(rootManager);
   extension->executeRootElement.reset(overrides->executeRootElementRef);
   extension->dumpLlvmIrForElement.reset(overrides->dumpLlvmIrForElementRef);
+  extension->buildObjectFileForElement.reset(overrides->buildObjectFileForElementRef);
   extension->resetBuildData.reset(overrides->resetBuildDataRef);
   extension->importFile.reset(overrides->importFileRef);
+  extension->getModifierStrings.reset(overrides->getModifierStringsRef);
   extension->astHelper.remove();
   extension->macroProcessor.remove();
   extension->generator.remove();
@@ -202,6 +208,48 @@ void RootManagerExtension::_dumpLlvmIrForElement(
 }
 
 
+Bool RootManagerExtension::_buildObjectFileForElement(
+  TiObject *self, TiObject *element, Char const *objectFilename, Core::Notices::Store *noticeStore,
+  Core::Processing::Parser *parser
+) {
+  VALIDATE_NOT_NULL(element, noticeStore);
+  PREPARE_SELF(rootManager, Core::Main::RootManager);
+  PREPARE_SELF(rootManagerExt, RootManagerExtension);
+
+  auto root = rootManager->getRootScope().get();
+  rootManagerExt->resetBuildData(root);
+  rootManagerExt->targetGenerator->resetBuild();
+  rootManagerExt->rootStmtTgFunc = TioSharedPtr::null;
+
+  // Preprocessing.
+  rootManagerExt->macroProcessor->preparePass(noticeStore);
+  if (!rootManagerExt->macroProcessor->runMacroPass(root)) return false;
+
+  // Prepare for the build.
+  rootManagerExt->targetGenerator->setGlobalItemRepo(rootManagerExt->generator->getGlobalItemRepo());
+  rootManagerExt->targetGenerator->setNoticeStore(noticeStore);
+  auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(rootManagerExt->targetGenerator.get().get());
+  rootManagerExt->generator->prepareBuild(noticeStore, true);
+  auto generation = ti_cast<CodeGen::Generation>(rootManagerExt->generator.get().get());
+
+  // Generate the element.
+  Bool result;
+  if (element->isDerivedFrom<Ast::Module>()) {
+    result = generation->generateModule(static_cast<Ast::Module*>(element), targetGeneration);
+  } else if (element->isDerivedFrom<Ast::Function>()) {
+    result = generation->generateFunction(static_cast<Ast::Function*>(element), targetGeneration);
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("element"), S("Invalid argument type."));
+  }
+
+  if (result) {
+    rootManagerExt->targetGenerator->buildObjectFile(objectFilename);
+  }
+
+  return result;
+}
+
+
 void RootManagerExtension::_resetBuildData(TiObject *self, TiObject *obj)
 {
   if (obj == 0) return;
@@ -227,6 +275,55 @@ void RootManagerExtension::_importFile(TiObject *self, Char const *filename)
   if (!rootManager->tryImportFile(filename, error)) {
     throw EXCEPTION(FileException, filename, C('r'), error.c_str());
   }
+}
+
+
+Bool RootManagerExtension::_getModifierStrings(
+  TiObject *self, TiObject *element, Char const *modifierKwd, Char const **resultStrs[], Word *resultCount,
+  Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
+) {
+  auto node = ti_cast<Core::Data::Node>(element);
+  auto def = Core::Data::findOwner<Core::Data::Ast::Definition>(node);
+  if (def == 0 || def->getModifiers() == 0 || def->getModifiers()->getCount() == 0) {
+    *resultCount = 0;
+    *resultStrs = 0;
+    return true;
+  }
+  // Look for the modifier.
+  for (Int i = 0; i < def->getModifiers()->getElementCount(); ++i) {
+    auto modifier = ti_cast<Core::Data::Ast::ParamPass>(def->getModifiers()->getElement(i));
+    if (modifier == 0) continue;
+    auto identifier = modifier->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+    if (identifier != 0 && identifier->getValue() == modifierKwd && modifier->getParam() != 0) {
+      // Found the requested modifier.
+      Core::Basic::PlainList<TiObject> strList;
+      auto strs = modifier->getParam().ti_cast_get<Core::Basic::Containing<TiObject>>();
+      if (strs == 0) {
+        strList.add(modifier->getParam().get());
+        strs = &strList;
+      }
+      *resultCount = strs->getElementCount();
+      *resultStrs = reinterpret_cast<Char const**>(malloc(sizeof(Char*) * (*resultCount)));
+      for (Int j = 0; j < *resultCount; ++j) {
+        auto str = ti_cast<Core::Data::Ast::StringLiteral>(strs->getElement(j));
+        if (str == 0) {
+          noticeStore->add(std::make_shared<Spp::Notices::InvalidModifierDataNotice>(
+            Core::Data::Ast::findSourceLocation(strs->getElement(j))
+          ));
+          parser->flushApprovedNotices();
+          free(*resultStrs);
+          *resultStrs = 0;
+          *resultCount = 0;
+          return false;
+        }
+        (*resultStrs)[j] = str->getValue().get();
+      }
+      return true;
+    }
+  }
+  *resultCount = 0;
+  *resultStrs = 0;
+  return true;
 }
 
 } // namespace

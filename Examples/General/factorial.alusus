@@ -1,0 +1,39 @@
+import "Srl/Console.alusus";
+import "Srl/String.alusus";
+import "Build.alusus";
+
+module Factorial
+{
+  function factorial (i:Int) : Int
+  {
+    if i<=0 return 1;
+    return i*factorial(i-1);
+  };
+
+  @expname[main] function start (argCount: Int, args: ptr[array[ptr[array[Char]]]]) => Int
+  {
+    def i: Int;
+    def lastArg: ptr[Char] = args~cnt(argCount - 1);
+    if lastArg~cnt >= '0' && lastArg~cnt <= '9' {
+      Srl.String.scan(lastArg, "%d", i~ptr);
+      Srl.Console.print("Factorial of %d is %d\n", i, factorial(i));
+    } else {
+      Srl.Console.print("Usage: factorial <number>\n");
+    };
+    return 0;
+  };
+};
+
+if Process.argCount == 3 {
+  def lastArg: ptr[array[Char]] = Process.args~cnt(Process.argCount - 1);
+  if lastArg~cnt(0) >= '0' && lastArg~cnt(0) <= '9' {
+    Factorial.start(Process.argCount, Process.args);
+  } else {
+    if Build.genExecutable(Factorial.start~ast, lastArg) {
+      Srl.Console.print("Compilation complete.\n");
+    };
+  }
+} else {
+  Srl.Console.print("JIT usage: alusus factorial.alusus <number>\n");
+  Srl.Console.print("Generate executable: alusus factorial.alusus <output filename>\n");
+};

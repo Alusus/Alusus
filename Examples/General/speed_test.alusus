@@ -1,34 +1,38 @@
 import "Srl/Console.alusus";
 
-module SpeedTest {
-    def clock: @expname[clock] function (): Int[64];
-    func start {
-        def number: int[64] = 6673214311;
-        def startTime: int[64] = clock();
-        Srl.Console.print("%ld is ", number);
-        if (isPrime(number)){
-            Srl.Console.print("prime\n");
-        } else {
-            Srl.Console.print("not prime\n");
-        };
+module SpeedTest
+{
+  def clock: @expname[clock] function (): Int[64];
 
-        def endTime: int[64] = clock();
-        def elapsed: int[64] = (endTime - startTime);
-        Srl.Console.print("Operation took %d seconds\n", (elapsed/1000000));
+  func start
+  {
+    def number: int[64] = 6673214311;
+    def startTime: int[64] = clock();
+    Srl.Console.print("%ld is ", number);
+    if (isPrime(number)){
+      Srl.Console.print("prime\n");
+    } else {
+      Srl.Console.print("not prime\n");
     };
 
-    func isPrime(number: Int[64]): Bool {
-        def prime: Bool = 1;
-        def i: int[64];
-        for i=2, i<= (number/2), i++ {
-            if((number % i) == 0)  {
-                prime = 0;
-                break;
-            }
-        };
+    def endTime: int[64] = clock();
+    def elapsed: int[64] = (endTime - startTime);
+    Srl.Console.print("Operation took %d seconds\n", (elapsed/1000000));
+  };
 
-        return prime;
+  func isPrime(number: Int[64]): Bool
+  {
+    def prime: Bool = 1;
+    def i: int[64];
+    for i=2, i<= (number/2), i++ {
+      if((number % i) == 0)  {
+        prime = 0;
+        break;
+      }
     };
+
+    return prime;
+  };
 };
 
 SpeedTest.start();

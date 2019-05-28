@@ -738,27 +738,20 @@ DefinitionDomain Helper::_getDefinitionDomain(TiObject *self, TiObject const *ob
     }
   }
 
-  if (def->getOwner() == 0) {
-    throw EXCEPTION(GenericException, S("Definition is not part of any scope."));
-  }
-
-  if (def->getOwner()->isDerivedFrom<Module>()) {
-    return DefinitionDomain::GLOBAL;
-  } else {
-    // The definition is either inside a function or a type.
-    // Is it shared?
-    PREPARE_SELF(helper, Helper);
-    if (helper->isSharedDef(def)) return DefinitionDomain::GLOBAL;
-    // it's not static, so it's either a function local, an object member, or a global at the root scope.
-    auto owner = def->getOwner()->getOwner();
-    if (owner == 0) {
+  auto owner = def->getOwner();
+  while (owner != 0) {
+    if (owner->isDerivedFrom<Module>()) {
       return DefinitionDomain::GLOBAL;
     } else if (owner->isDerivedFrom<Type>()) {
-      return DefinitionDomain::OBJECT;
-    } else {
-      return DefinitionDomain::FUNCTION;
+      PREPARE_SELF(helper, Helper);
+      return helper->isSharedDef(def) ? DefinitionDomain::GLOBAL : DefinitionDomain::OBJECT;
+    } else if (owner->isDerivedFrom<Function>()) {
+      PREPARE_SELF(helper, Helper);
+      return helper->isSharedDef(def) ? DefinitionDomain::GLOBAL : DefinitionDomain::FUNCTION;
     }
+    owner = owner->getOwner();
   }
+  return DefinitionDomain::GLOBAL;
 }
 
 

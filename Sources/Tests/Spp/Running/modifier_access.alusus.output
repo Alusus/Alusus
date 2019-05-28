@@ -1,0 +1,5 @@
+Lib1 has 2 deps. dep1 dep2
+Lib1 has 0 dependencies.
+Lib2 has 0 deps.
+ERROR SPPG1023 @ (6,23): Invalid modifier data.
+Error fetching Lib2 dependencies.

@@ -209,24 +209,45 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
   manager->processString(S(R"SRC(
     module Process {
       def argCount: Int;
-      def args: ptr[array[ptr[Word[8]]]];
+      def args: ptr[array[ptr[array[Word[8]]]]];
       def language: ptr[array[Word[8]]];
     };
     module Core {
       def rootManager: ptr;
       def parser: ptr;
       def noticeStore: ptr;
-      def _dumpLlvmIrForElement: @expname[RootManager_buildElement] function (
-        rootManager: ptr, element: ptr, noticeStore: ptr, parser: ptr
-      );
-      function dumpLlvmIrForElement (element: ptr) {
-        _dumpLlvmIrForElement(rootManager, element, noticeStore, parser);
-      };
       def _importFile: @expname[RootManager_importFile] function (
         rootManager: ptr, filename: ptr[array[Word[8]]]
       );
       function importFile(filename: ptr[array[Word[8]]]) {
         _importFile(rootManager, filename);
+      };
+    };
+    module Spp {
+      def _dumpLlvmIrForElement: @expname[RootManager_dumpLlvmIrForElement] function (
+        rootManager: ptr, element: ptr, noticeStore: ptr, parser: ptr
+      );
+      function dumpLlvmIrForElement (element: ptr) {
+        _dumpLlvmIrForElement(Core.rootManager, element, Core.noticeStore, Core.parser);
+      };
+      def _buildObjectFileForElement: @expname[RootManager_buildObjectFileForElement] function (
+        rootManager: ptr, element: ptr, filename: ptr[array[Word[8]]], noticeStore: ptr, parser: ptr
+      ) => Word[1];
+      function buildObjectFileForElement (element: ptr, filename: ptr[array[Word[8]]]) => Word[1] {
+        return _buildObjectFileForElement(Core.rootManager, element, filename, Core.noticeStore, Core.parser);
+      };
+      def _getModifierStrings: @expname[RootManager_getModifierStrings] function (
+        rootManager: ptr, element: ptr, modifierKwd: ptr[array[Word[8]]],
+        resultStrs: ptr[ptr[array[ptr[array[Word[8]]]]]], resultCount: ptr[Word],
+        noticeStore: ptr, parser: ptr
+      ) => Word[1];
+      function getModifierStrings(
+        element: ptr, modifierKwd: ptr[array[Word[8]]],
+        resultStrs: ptr[ptr[array[ptr[array[Word[8]]]]]], resultCount: ptr[Word]
+      ) => Word[1] {
+        return _getModifierStrings(
+          Core.rootManager, element, modifierKwd, resultStrs, resultCount, Core.noticeStore, Core.parser
+        );
       };
     };
   )SRC"), S("spp"));
@@ -243,6 +264,9 @@ void LibraryGateway::removeGlobalDefs(Core::Main::RootManager *manager)
 
   identifier.setValue(S("Core"));
   manager->getSeeker()->tryRemove(&identifier, root);
+
+  identifier.setValue(S("Spp"));
+  manager->getSeeker()->tryRemove(&identifier, root);
 }
 
 
@@ -258,10 +282,16 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   this->globalItemRepo->addItem(S("Core.parser"), sizeof(void*));
   this->globalItemRepo->addItem(S("Core.noticeStore"), sizeof(void*));
   this->globalItemRepo->addItem(
-    S("RootManager_buildElement"), (void*)&RootManagerExtension::_dumpLlvmIrForElement
+    S("RootManager_dumpLlvmIrForElement"), (void*)&RootManagerExtension::_dumpLlvmIrForElement
+  );
+  this->globalItemRepo->addItem(
+    S("RootManager_buildObjectFileForElement"), (void*)&RootManagerExtension::_buildObjectFileForElement
   );
   this->globalItemRepo->addItem(
     S("RootManager_importFile"), (void*)&RootManagerExtension::_importFile
+  );
+  this->globalItemRepo->addItem(
+    S("RootManager_getModifierStrings"), (void*)&RootManagerExtension::_getModifierStrings
   );
 }
 

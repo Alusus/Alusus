@@ -1,0 +1,7 @@
+@merge module Build
+{
+  @merge module I18n {
+    def objectGenerationError: "%sفشل إنشاء ملف الشفرة الرقمية لـ: %s\ج";
+    def exeGenerationError: "%sفشل إنشاء الملف التنفيذي: %s\ج";
+  };
+};
