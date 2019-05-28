@@ -8,6 +8,7 @@
 عرّف عائم : لقب Float؛
 عرّف مـحرف: لقب Char؛
 عرّف محرف: لقب Char؛
+عرف مـؤشر_محارف: لقب CharsPtr؛
 عرّف ثـنائي: لقب Word[1]؛
 عرّف ثنائي: لقب Word[1]؛
 عرّف فـراغ: لقب Void؛
@@ -34,6 +35,7 @@
 {
   عرف أدرج_تو_لعنصر: لقب dumpLlvmIrForElement؛
   عرف أنشء_ملفا_رقميا_لعنصر: لقب buildObjectFileForElement؛
+  عرف هات_محارف_مبدل: لقب getModifierStrings؛
 }؛
 
 عرف مـتم: لقب Srl؛

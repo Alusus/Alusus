@@ -236,6 +236,19 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
       function buildObjectFileForElement (element: ptr, filename: ptr[array[Word[8]]]) => Word[1] {
         return _buildObjectFileForElement(Core.rootManager, element, filename, Core.noticeStore, Core.parser);
       };
+      def _getModifierStrings: @expname[RootManager_getModifierStrings] function (
+        rootManager: ptr, element: ptr, modifierKwd: ptr[array[Word[8]]],
+        resultStrs: ptr[ptr[array[ptr[array[Word[8]]]]]], resultCount: ptr[Word],
+        noticeStore: ptr, parser: ptr
+      ) => Word[1];
+      function getModifierStrings(
+        element: ptr, modifierKwd: ptr[array[Word[8]]],
+        resultStrs: ptr[ptr[array[ptr[array[Word[8]]]]]], resultCount: ptr[Word]
+      ) => Word[1] {
+        return _getModifierStrings(
+          Core.rootManager, element, modifierKwd, resultStrs, resultCount, Core.noticeStore, Core.parser
+        );
+      };
     };
   )SRC"), S("spp"));
 }
@@ -276,6 +289,9 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   );
   this->globalItemRepo->addItem(
     S("RootManager_importFile"), (void*)&RootManagerExtension::_importFile
+  );
+  this->globalItemRepo->addItem(
+    S("RootManager_getModifierStrings"), (void*)&RootManagerExtension::_getModifierStrings
   );
 }
 

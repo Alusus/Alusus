@@ -34,6 +34,7 @@ class RootManagerExtension : public ObjTiInterface
     TiFunctionBase *buildObjectFileForElementRef;
     TiFunctionBase *resetBuildDataRef;
     TiFunctionBase *importFileRef;
+    TiFunctionBase *getModifierStringsRef;
   };
 
 
@@ -54,6 +55,7 @@ class RootManagerExtension : public ObjTiInterface
       &this->buildObjectFileForElement,
       &this->resetBuildData,
       &this->importFile,
+      &this->getModifierStrings,
       &this->astHelper,
       &this->macroProcessor,
       &this->generator,
@@ -131,6 +133,14 @@ class RootManagerExtension : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(importFile, void, (Char const*));
   public: static void _importFile(TiObject *self, Char const *filename);
+
+  public: METHOD_BINDING_CACHE(getModifierStrings,
+    Bool, (TiObject*, Char const*, Char const***, Word*, Core::Notices::Store*, Core::Processing::Parser*)
+  );
+  public: static Bool _getModifierStrings(
+    TiObject *self, TiObject *element, Char const *modifierKwd, Char const **resultStrs[], Word *resultCount,
+    Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
+  );
 
   /// @}
 
