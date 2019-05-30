@@ -14,6 +14,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#include "win32api.h"
+#endif
+
 /**
  * @defgroup main Main
  * @brief Contains elements related to the main program.
@@ -48,6 +52,23 @@ Str getSystemLanguage()
  */
 int main(int argCount, char * const args[])
 {
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  // Set the console's IO to be UTF8.
+  SetConsoleCP(CP_UTF8);
+  SetConsoleOutputCP(CP_UTF8);
+  
+  // Get args in wide character format, and then convert them back to multibyte format.
+  wchar_t **wArgv = CommandLineToArgvW(GetCommandLineW(), &argCount);
+  std::vector<const char*> toUseArgsContainer;
+  std::vector<std::string> toUseArgsStrings;
+  for (int i = 0; i < argCount; i++) {
+    toUseArgsStrings.push_back(utf8Encode(std::wstring(wArgv[i])));
+    toUseArgsContainer.push_back(toUseArgsStrings[i].c_str());
+  }
+  char const *const *toUseArgs = toUseArgsContainer.data();
+#else
+  char const *const *toUseArgs = args;
+#endif
   Bool help = false;
   Bool interactive = false;
   Char const *sourceFile = 0;
@@ -55,27 +76,27 @@ int main(int argCount, char * const args[])
   auto lang = getSystemLanguage();
   if (argCount < 2) help = true;
   for (Int i = 1; i < argCount; ++i) {
-    if (strcmp(args[i], S("--help")) == 0) help = true;
-    else if (strcmp(args[i], S("--مساعدة")) == 0) help = true;
-    else if (strcmp(args[i], S("--interactive")) == 0) interactive = true;
-    else if (strcmp(args[i], S("--تفاعلي")) == 0) interactive = true;
-    else if (strcmp(args[i], S("-i")) == 0) interactive = true;
-    else if (strcmp(args[i], S("-ت")) == 0) interactive = true;
-    else if (strcmp(args[i], S("--dump")) == 0) dump = true;
-    else if (strcmp(args[i], S("--إلقاء")) == 0) dump = true;
+    if (strcmp(toUseArgs[i], S("--help")) == 0) help = true;
+    else if (strcmp(toUseArgs[i], S("--مساعدة")) == 0) help = true;
+    else if (strcmp(toUseArgs[i], S("--interactive")) == 0) interactive = true;
+    else if (strcmp(toUseArgs[i], S("--تفاعلي")) == 0) interactive = true;
+    else if (strcmp(toUseArgs[i], S("-i")) == 0) interactive = true;
+    else if (strcmp(toUseArgs[i], S("-ت")) == 0) interactive = true;
+    else if (strcmp(toUseArgs[i], S("--dump")) == 0) dump = true;
+    else if (strcmp(toUseArgs[i], S("--إلقاء")) == 0) dump = true;
 #ifdef USE_LOGS
     // Parse the log option.
-    else if (strcmp(args[i], S("--log")) == 0 || strcmp(args[i], S("--تدوين")) == 0) {
+    else if (strcmp(toUseArgs[i], S("--log")) == 0 || strcmp(toUseArgs[i], S("--تدوين")) == 0) {
       if (i < argCount-1) {
         ++i;
-        Logger::filter = atoi(args[i]);
+        Logger::filter = atoi(toUseArgs[i]);
       } else {
         Logger::filter = 0;
       }
     }
 #endif
     else {
-      sourceFile = args[i];
+      sourceFile = toUseArgs[i];
       break;
     }
   }
@@ -157,7 +178,7 @@ int main(int argCount, char * const args[])
       // Prepare the root object;
       Main::RootManager root;
       root.setInteractive(true);
-      root.setProcessArgInfo(argCount, args);
+      root.setProcessArgInfo(argCount, toUseArgs);
       root.setLanguage(lang.c_str());
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
@@ -182,7 +203,7 @@ int main(int argCount, char * const args[])
     try {
       // Prepare the root object;
       Main::RootManager root;
-      root.setProcessArgInfo(argCount, args);
+      root.setProcessArgInfo(argCount, toUseArgs);
       root.setLanguage(lang.c_str());
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void

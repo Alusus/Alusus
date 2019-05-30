@@ -4,6 +4,7 @@
 #define WIN32API_H
 
 #include <string>
+#include <Windows.h>
 
 /*
     Using a modified solution for "utf8Encode" and "utf8Decode" made by "tfinniga" from 
