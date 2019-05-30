@@ -186,6 +186,9 @@ DEFINE_NOTICE(UnreachableCodeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG10
 DEFINE_NOTICE(MissingReturnStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1022", 1,
   "Missing a return statement for a non-void function."
 );
+DEFINE_NOTICE(InvalidModifierDataNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1023", 1,
+  "Invalid modifier data."
+);
 
 } // namespace
 

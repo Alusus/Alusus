@@ -26,7 +26,8 @@ void NodePathResolver::initBindingCaches()
     &this->resolveFunction,
     &this->resolveFunctionType,
     &this->resolveFunctionArg,
-    &this->resolveTemplateInstance
+    &this->resolveTemplateInstance,
+    &this->resolveOther
   });
 }
 
@@ -39,6 +40,7 @@ void NodePathResolver::initBindings()
   this->resolveFunctionType = &NodePathResolver::_resolveFunctionType;
   this->resolveFunctionArg = &NodePathResolver::_resolveFunctionArg;
   this->resolveTemplateInstance = &NodePathResolver::_resolveTemplateInstance;
+  this->resolveOther = &NodePathResolver::_resolveOther;
 }
 
 
@@ -64,7 +66,7 @@ void NodePathResolver::_resolve(TiObject *self, Core::Data::Node const *node, He
     auto block = static_cast<Core::Data::Ast::Scope const*>(node);
     resolver->resolveTemplateInstance(block, helper, path);
   } else {
-    NodePathResolver::_resolve(self, node->getOwner(), helper, path);
+    resolver->resolveOther(node, helper, path);
   }
 }
 
@@ -155,6 +157,29 @@ void NodePathResolver::_resolveTemplateInstance(
     }
   }
   path << C(']');
+}
+
+
+void NodePathResolver::_resolveOther(TiObject *self, Core::Data::Node const *node, Helper *helper, StrStream &path)
+{
+  PREPARE_SELF(resolver, NodePathResolver);
+  auto owner = node->getOwner();
+  resolver->resolve(owner, helper, path);
+  auto ownerContainer = ti_cast<Core::Basic::Containing<TiObject>>(owner);
+  if (
+    ownerContainer != 0 &&
+    !Basic::isDerivedFrom<Core::Data::Ast::Definition>(owner) &&
+    !Basic::isDerivedFrom<Spp::Ast::Function>(owner) &&
+    !Basic::isDerivedFrom<Spp::Ast::Type>(owner) &&
+    !Basic::isDerivedFrom<Spp::Ast::Template>(owner->getOwner())
+  ) {
+    for (Int i = 0; i < ownerContainer->getElementCount(); ++i) {
+      if (ownerContainer->getElement(i) == node) {
+        path << C('.') << i;
+        break;
+      }
+    }
+  }
 }
 
 } } // namespace

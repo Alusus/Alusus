@@ -67,19 +67,21 @@ Bool TypeParsingHandler::onIncomingModifier(
 
   if (definition == 0) return false;
 
+  auto symbolDef = state->refTopProdLevel().getProd();
+
   // Look for merge modifier.
   auto identifier = modifierData.ti_cast_get<Core::Data::Ast::Identifier>();
-  if (identifier == 0) return false;
-  auto symbolDef = state->refTopProdLevel().getProd();
-  if (symbolDef->getTranslatedModifierKeyword(identifier->getValue().get()) == S("merge")) {
-    // Set toMerge in the definition.
-    definition->setToMerge(true);
-  } else {
-    // Add an unknown modifier.
-    Core::Data::Ast::translateModifier(symbolDef, modifierData.get());
-    definition->addModifier(modifierData);
+  if (identifier != 0) {
+    if (symbolDef->getTranslatedModifierKeyword(identifier->getValue().get()) == S("merge")) {
+      // Set toMerge in the definition.
+      definition->setToMerge(true);
+      return true;
+    }
   }
 
+  // Add an unknown modifier.
+  Core::Data::Ast::translateModifier(symbolDef, modifierData.get());
+  definition->addModifier(modifierData);
   return true;
 }
 

@@ -22,4 +22,4 @@ for i = 0, i < 5, ++i {
   print("%d\n", factorial(i));
 };
 
-Core.dumpLlvmIrForElement(fnWithErrors~ast);
+Spp.dumpLlvmIrForElement(fnWithErrors~ast);

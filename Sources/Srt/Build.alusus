@@ -1,0 +1,75 @@
+import "globals.alusus";
+import "Srl/Console.alusus";
+import "Srl/String.alusus";
+import "Srl/System.alusus";
+import "Srl/Memory.alusus";
+
+if Srl.String.compare(Process.language, "ar") == 0 {
+  Core.importFile("Build/I18n/ar.alusus");
+} else {
+  Core.importFile("Build/I18n/en.alusus");
+};
+
+@merge module Build
+{
+  type Exe {
+    def element: ptr;
+    def outputFilename: CharsPtr;
+    def deps: array[Char, 256];
+
+    @shared function new (e: ptr, fn: CharsPtr) => ptr[Exe]
+    {
+      def exe: ptr[Exe] = Srl.Memory.alloc(Exe~size)~cast[ptr[Exe]];
+      exe~cnt.element = e;
+      exe~cnt.outputFilename = fn;
+      exe~cnt.deps(0) = 0;
+      return exe;
+    };
+
+    @shared function addDependency (exe: ptr[Exe], e: ptr) => Bool
+    {
+      def deps: ptr[array[CharsPtr]];
+      def depCount: Word;
+      def i: Word;
+
+      if !Spp.getModifierStrings(e, "deps", deps~ptr, depCount~ptr) return false;
+      for i = 0, i < depCount, ++i {
+        Srl.String.concat(exe~cnt.deps~ptr, " -l:");
+        Srl.String.concat(exe~cnt.deps~ptr, deps~cnt(i));
+      };
+      Srl.Memory.free(deps);
+
+      if !Spp.getModifierStrings(e, "اعتماديات", deps~ptr, depCount~ptr) return false;
+      for i = 0, i < depCount, ++i {
+        Srl.String.concat(exe~cnt.deps~ptr, " -l:");
+        Srl.String.concat(exe~cnt.deps~ptr, deps~cnt(i));
+      };
+      Srl.Memory.free(deps);
+
+      return true;
+    };
+
+    @shared function generate (exe: ptr[Exe]) => Bool
+    {
+      if !Spp.buildObjectFileForElement(exe~cnt.element, "/tmp/output.o") {
+        Srl.Console.print(I18n.objectGenerationError, Srl.Console.Style.fgRed(), exe~cnt.outputFilename);
+        return false;
+      };
+      def cmd: array[Char, 256];
+      Srl.String.assign(cmd~ptr, "gcc -no-pie /tmp/output.o -o %s %s", exe~cnt.outputFilename, exe~cnt.deps~ptr);
+      if Srl.System.exec(cmd~ptr) != 0 {
+        Srl.Console.print(I18n.exeGenerationError, Srl.Console.Style.fgRed(), exe~cnt.outputFilename);
+        return false;
+      };
+      return true;
+    };
+  };
+
+  function genExecutable (element: ptr, outputFilename: CharsPtr) => Bool
+  {
+    def exe: ptr[Exe] = Exe.new(element, outputFilename);
+    def result: Bool = Exe.generate(exe);
+    Srl.Memory.free(exe);
+    return result;
+  };
+};

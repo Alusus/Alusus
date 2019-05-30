@@ -89,4 +89,4 @@ def Other: module
   def pi: ptr[Int[32]];
 };
 
-Core.dumpLlvmIrForElement(Main~ast);
+Spp.dumpLlvmIrForElement(Main~ast);

@@ -1,10 +1,10 @@
 @merge module Apm
 {
-  @merge module Strings {
+  @merge module I18n {
     def fetchingInfo: "%sFetching %s info from: %s.\n";
     def fetchSuccessful: "%sFetching successful.\n";
     def fetchFailed: "%sFetch failed.\n";
-    def latestTagNotFound: "%sCannot find latest release.";
+    def tagNotFound: "%sCannot find requested release.\n";
     def pkgAlreadyInstalled: "%s%s is already installed.\n";
     def installingPkg: "%sInstalling %s v%s.\n";
     def pkgRequest: "%sRequest %s.\n";
