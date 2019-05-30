@@ -1,4 +1,4 @@
-add_library(Win32API SHARED "win32api.c win32api.h")
+add_library(Win32API SHARED "win32api.cpp")
 install(TARGETS Win32API
   RUNTIME DESTINATION Bin
   LIBRARY DESTINATION Bin
