@@ -7,6 +7,7 @@ cmake_minimum_required(VERSION 3.1)
 
 if(MINGW)
   set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Bin")
+  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Win32API")
 else()
   set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Lib")
 endif()
@@ -90,6 +91,9 @@ if (NOT CUSTOM_OUTPUT_PATH STREQUAL "")
 endif()
 
 # Add projects
+if(MINGW)
+  add_subdirectory(Win32API)
+endif()
 add_subdirectory(Core)
 add_subdirectory(Spp)
 add_subdirectory(Srt)

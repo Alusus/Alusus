@@ -268,9 +268,7 @@ Str RootManager::findAbsolutePath(Char const *filename)
 
   // Is the filename an absolute path already?
   if (std::filesystem::path(filename).is_absolute()) {
-    Char canonicalPath[PATH_MAX];
-    realpath(filename, canonicalPath);
-    return Str(canonicalPath);
+    return std::filesystem::canonical(std::filesystem::path(filename)).string();
   }
 
   // Try all current paths.
@@ -284,9 +282,7 @@ Str RootManager::findAbsolutePath(Char const *filename)
     // Check if the file exists.
     fin.open(fullPath);
     if (!fin.fail()) {
-      Char canonicalPath[PATH_MAX];
-      realpath(fullPath.c_str(), canonicalPath);
-      return Str(canonicalPath);
+      return std::filesystem::canonical(std::filesystem::path(fullPath.c_str())).string();
     }
   }
 

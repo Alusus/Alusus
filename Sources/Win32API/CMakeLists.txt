@@ -1,0 +1,6 @@
+add_library(Win32API SHARED "win32api.c win32api.h")
+install(TARGETS Win32API
+  RUNTIME DESTINATION Bin
+  LIBRARY DESTINATION Bin
+  ARCHIVE DESTINATION Bin
+)

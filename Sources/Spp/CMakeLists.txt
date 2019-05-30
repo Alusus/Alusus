@@ -57,7 +57,6 @@ set_target_properties(AlususSpp
   COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}"
   COTIRE_CXX_PREFIX_HEADER_INIT "spp.h"
 )
-cotire(AlususSpp)
 
 # Set output names.
 set_target_properties(AlususSpp PROPERTIES OUTPUT_NAME alusus_spp)
@@ -66,9 +65,13 @@ set_target_properties(AlususSpp PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
 
 # Finally, we link the LLVM and AlususCore libraries to our library.
+if(MINGW)
+  target_link_libraries(AlususSpp Win32API)
+endif()
 target_link_libraries(AlususSpp "LLVM-7")
 target_link_libraries(AlususSpp AlususCoreLib)
 target_link_libraries(AlususSpp AlususStorage)
+cotire(AlususSpp)
 
 # Copy libary header files to installation directory.
 install_files("/Include/Spp" FILES

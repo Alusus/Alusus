@@ -23,6 +23,9 @@ set(CMAKE_MODULE_PATH "${AlususCore_SOURCE_DIR}")
 set(AlususStorage_Source_Files core_global_storage.cpp core_global_storage.h)
 add_library(AlususStorage SHARED ${AlususStorage_Source_Files})
 set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}")
+if(MINGW)
+  target_link_libraries(AlususStorage Win32API)
+endif()
 
 # Add a target for Alusus core library.
 set(AlususCoreLib_Source_Subdirs Basic Data Data/Grammar Data/Ast Notices Processing Processing/Handlers Main)
@@ -40,6 +43,9 @@ set_target_properties(AlususCoreLib
   COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}"
   COTIRE_CXX_PREFIX_HEADER_INIT "core.h"
 )
+if(MINGW)
+  target_link_libraries(AlususCoreLib Win32API)
+endif()
 target_link_libraries(AlususCoreLib AlususStorage "stdc++fs" "dl")
 cotire(AlususCoreLib)
 
@@ -51,10 +57,13 @@ set_target_properties(AlususCore
   COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}"
   COTIRE_CXX_PREFIX_HEADER_INIT "core.h"
 )
-cotire(AlususCore)
 
 # Finally, we link the executable to the libraries.
+if(MINGW)
+  target_link_libraries(AlususCore Win32API)
+endif()
 target_link_libraries(AlususCore AlususCoreLib "LLVM-7" "stdc++fs")
+cotire(AlususCore)
 
 # Set library and executable output names.
 # NOTE: For alusus_storage, we'll use the same filename for both debug and
