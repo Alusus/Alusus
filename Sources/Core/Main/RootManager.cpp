@@ -17,6 +17,7 @@
 
 // Get the shared library extention by OS.
 #if defined(__MINGW32__) || defined(__MINGW64__) // Windows under MinGW.
+#include "win32api.h"
 Str SHARED_LIB_EXT = "dll";
 #elif defined(APPLE) // Apple (Mac OS, iOS, Apple Watch).
 Str SHARED_LIB_EXT = "dylib";
@@ -50,9 +51,9 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->processArgs = 0;
 
   // Initialize current paths.
-  this->pushSearchPath(getModuleDirectory().c_str());
-  this->pushSearchPath(((std::filesystem::u8path(getModuleDirectory()) / ".." / "Lib").string()).c_str());
-  this->pushSearchPath(getWorkingDirectory().c_str());
+  this->pushSearchPath((std::filesystem::u8path(getModuleDirectory().c_str()).string()).c_str());
+  this->pushSearchPath(((std::filesystem::u8path(getModuleDirectory().c_str()) / ".." / "Lib").string()).c_str());
+  this->pushSearchPath((std::filesystem::u8path(getWorkingDirectory().c_str()).string()).c_str());
   // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':'.
   Char *alususLibs = getenv(S("ALUSUS_LIBS"));
   if (alususLibs != nullptr) {
@@ -65,7 +66,7 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
       if (endPos == Str::npos) endPos = envPath.size();
       path.assign(envPath, startPos, endPos-startPos);
       if (path.size() > 0) {
-        this->pushSearchPath(path.c_str());
+        this->pushSearchPath((std::filesystem::u8path(path.c_str()).string()).c_str());
       }
     }
   }
@@ -273,14 +274,18 @@ Str RootManager::findAbsolutePath(Char const *filename)
 
   // Try all current paths.
   Str fullPath;
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  std::wifstream fin;
+#else
   std::ifstream fin;
+#endif
   for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
     fullPath = this->searchPaths[i];
     if (fullPath.back() != std::filesystem::path::preferred_separator) fullPath += std::filesystem::path::preferred_separator;
     fullPath += filename;
 
     // Check if the file exists.
-    fin.open(fullPath);
+    fin.open(fullPath.c_str());
     if (!fin.fail()) {
       return std::filesystem::canonical(std::filesystem::u8path(fullPath.c_str())).string();
     }
