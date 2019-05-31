@@ -11,6 +11,7 @@
 //==============================================================================
 
 #include "core.h"
+#include <filesystem>
 
 namespace Core::Notices
 {
@@ -26,7 +27,7 @@ void L18nDictionary::initialize(Char const *locale, Char const *l18nPath)
     filename = l18nPath;
   } else {
     filename = Main::getModuleDirectory();
-    filename += S("../Notices_L18n/");
+    filename += (std::filesystem::u8path("..") / "Notices_L18n" / "").string();
   }
   filename += locale;
   filename += ".txt";

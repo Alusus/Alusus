@@ -51,7 +51,7 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
 
   // Initialize current paths.
   this->pushSearchPath(getModuleDirectory().c_str());
-  this->pushSearchPath(((std::filesystem::path(getModuleDirectory()) / ".." / "Lib").string()).c_str());
+  this->pushSearchPath(((std::filesystem::u8path(getModuleDirectory()) / ".." / "Lib").string()).c_str());
   this->pushSearchPath(getWorkingDirectory().c_str());
   // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':'.
   Char *alususLibs = getenv(S("ALUSUS_LIBS"));
@@ -147,7 +147,7 @@ SharedPtr<TiObject> RootManager::processStream(Processing::CharInStreaming *is, 
 Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
 {
   // Convert Unix path to Windows path in Windows OS.
-  Str newFileNameCppStr = std::filesystem::path(filename).make_preferred().string();
+  Str newFileNameCppStr = std::filesystem::u8path(filename).make_preferred().string();
   Char const *newFileName = newFileNameCppStr.c_str();
 
   // Check the file type.
@@ -207,7 +207,7 @@ void RootManager::pushSearchPath(Char const *path)
     throw EXCEPTION(InvalidArgumentException, S("path"), S("Argument is null or empty string."));
   }
 
-  std::filesystem::path thisPath = path;
+  std::filesystem::path thisPath = std::filesystem::u8path(path);
 
   // Only accept absolute paths.
   if (!thisPath.is_absolute()) {
@@ -235,7 +235,7 @@ void RootManager::popSearchPath(Char const *path)
     throw EXCEPTION(InvalidArgumentException, S("path"), S("Argument is null or empty string."));
   }
 
-  std::filesystem::path thisPath = path;
+  std::filesystem::path thisPath = std::filesystem::u8path(path);
 
   // Only accept absolute paths.
   if (!thisPath.is_absolute()) {
@@ -267,8 +267,8 @@ Str RootManager::findAbsolutePath(Char const *filename)
   }
 
   // Is the filename an absolute path already?
-  if (std::filesystem::path(filename).is_absolute()) {
-    return std::filesystem::canonical(std::filesystem::path(filename)).string();
+  if (std::filesystem::u8path(filename).is_absolute()) {
+    return std::filesystem::canonical(std::filesystem::u8path(filename)).string();
   }
 
   // Try all current paths.
@@ -282,7 +282,7 @@ Str RootManager::findAbsolutePath(Char const *filename)
     // Check if the file exists.
     fin.open(fullPath);
     if (!fin.fail()) {
-      return std::filesystem::canonical(std::filesystem::path(fullPath.c_str())).string();
+      return std::filesystem::canonical(std::filesystem::u8path(fullPath.c_str())).string();
     }
   }
 

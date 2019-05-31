@@ -55,7 +55,7 @@ std::string getWorkingDirectory()
   std::string path(currentPath.data());
   #endif
   if (path.back() != std::filesystem::path::preferred_separator) path += std::filesystem::path::preferred_separator;
-  return path;
+  return std::filesystem::u8path(path).string();
 }
 
 
@@ -73,7 +73,7 @@ std::string getModuleDirectory()
   #endif
 
   Int pos = path.rfind(std::filesystem::path::preferred_separator);
-  return std::string(path, 0, pos+1);
+  return std::filesystem::u8path(std::string(path, 0, pos+1)).string();
 }
 
 } // namespace
