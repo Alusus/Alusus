@@ -267,26 +267,39 @@ Str RootManager::findAbsolutePath(Char const *filename)
     throw EXCEPTION(InvalidArgumentException, S("filename"), S("Argument is null or empty string."));
   }
 
-  // Is the filename an absolute path already?
-  if (std::filesystem::u8path(filename).is_absolute()) {
-    return std::filesystem::canonical(std::filesystem::u8path(filename)).string();
-  }
-
-  // Try all current paths.
-  Str fullPath;
 #if defined(__MINGW32__) || defined(__MINGW64__)
   std::wifstream fin;
 #else
   std::ifstream fin;
 #endif
+
+  // Is the filename an absolute path already?
+  if (std::filesystem::u8path(filename).is_absolute()) {
+    // Check if the file exists.
+#if defined(__MINGW32__) || defined(__MINGW64__)
+    fin.open(utf8Decode(std::string(filename)).c_str());
+#else
+    fin.open(filename);
+#endif
+    if (fin.is_open()) {
+      return std::filesystem::canonical(std::filesystem::u8path(filename)).string();
+    }
+  }
+
+  // Try all current paths.
+  Str fullPath;
   for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
     fullPath = this->searchPaths[i];
     if (fullPath.back() != std::filesystem::path::preferred_separator) fullPath += std::filesystem::path::preferred_separator;
     fullPath += filename;
 
     // Check if the file exists.
+#if defined(__MINGW32__) || defined(__MINGW64__)
+    fin.open(utf8Decode(fullPath).c_str());
+#else
     fin.open(fullPath.c_str());
-    if (!fin.fail()) {
+#endif
+    if (fin.is_open()) {
       return std::filesystem::canonical(std::filesystem::u8path(fullPath.c_str())).string();
     }
   }
