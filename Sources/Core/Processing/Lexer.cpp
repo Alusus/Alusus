@@ -550,403 +550,17 @@ Lexer::NextAction Lexer::processState(LexerState *state, WChar inputChar, Int cu
   // check the term type
   auto currentTerm = state->refLevel(currentLevel).term;
   if (currentTerm->isA<Data::Grammar::ConstTerm>()) {
-    //
-    // ConstTerm
-    //
-    Int charIndex;
-    Data::Grammar::ConstTerm *constTerm = static_cast<Data::Grammar::ConstTerm*>(currentTerm);
-    if (constTerm->getMatchString().size() == 0) {
-      throw EXCEPTION(GenericException, S("Const term match string is not set yet."));
-    }
-    // this type of terms is always the deepest level.
-    ASSERT(currentLevel == static_cast<Int>(state->getLevelCount())-1);
-    // get the index within the term.
-    charIndex = state->refLevel(currentLevel).posId;
-    // assert that charIndex is not out of the range of the constant.
-    ASSERT(charIndex < static_cast<Int>(constTerm->getMatchString().size()));
-    // check if the next character is accepted.
-    if (constTerm->getMatchString()[charIndex] == inputChar) {
-      charIndex++;
-      // Check if we reached the end of the string.
-      if (charIndex == static_cast<Int>(constTerm->getMatchString().size())) {
-        // Remove level from the stack
-        state->popTermLevel();
-        return CONTINUE_NEW_CHAR; // No more chars is expected on this term object.
-      } else {
-        // Update charIndex on the stack.
-        state->refLevel(currentLevel).posId = charIndex;
-        // Push the temp state onto the states stack.
-        this->duplicateState(state);
-        return STOP; // More chars is expected on this term object.
-      }
-    } else {
-      return STOP; // This term object failed to match.
-    }
+    return this->processConstTerm(state, inputChar, currentLevel);
   } else if (currentTerm->isA<Data::Grammar::CharGroupTerm>()) {
-    //
-    // CharGroupTerm
-    //
-    Data::Grammar::CharGroupTerm *charGroupTerm = static_cast<Data::Grammar::CharGroupTerm*>(currentTerm);
-    Data::Grammar::CharGroupDefinition *def;
-    Data::Grammar::Reference *ref = charGroupTerm->getCharGroupReference().get();
-    if (ref == 0) {
-      Str excMsg = S("Reference is null for CharGroupTerm at token definition: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-      );
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    this->grammarContext.getReferencedCharGroup(ref, def);
-    if (def->getCharGroupUnit() == 0) {
-      Str excMsg = S("Invalid character group (");
-      excMsg += ID_GENERATOR->getDesc(def->getId());
-      excMsg += S("). The definition formula is not set yet.");
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    if (Data::Grammar::matchCharGroup(inputChar, def->getCharGroupUnit().get())) {
-      state->popTermLevel();
-      return CONTINUE_NEW_CHAR;
-    } else {
-      return STOP;
-    }
+    return this->processCharGroupTerm(state, inputChar, currentLevel);
   } else if (currentTerm->isA<Data::Grammar::MultiplyTerm>()) {
-    //
-    // MultiplyTerm
-    //
-    // HOW IT WORKS:
-    // The term index of the duplicate term will contain the iteration
-    // index (starting from 0). Each time parsing finishes going through
-    // the contained term, the iteration index will be incremented and
-    // a new state will be created. Each time parsing starts a new
-    // iteration (determined by whether an index for the deeper level is
-    // created or not), it will determine the return value depending on
-    // whether the iteration index is less than the required minimum
-    // occurances. If the minimum occurances is met (the duplicate term
-    // has appeared for at least the required minimum) the return value
-    // will be CONTINUE_SAME_CHAR to tell the upper level to continue
-    // parsing causing two different paths to go on at the same time. If
-    // the minimum occurances is not met the return value will be STOP
-    // to prevent the upper level from creating an invalid path that
-    // doesn't meet the minimum occurances requirement.
-
-    Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(currentTerm);
-    if (multiplyTerm->getTerm().ti_cast_get<Data::Grammar::Term>() == 0) {
-      Str excMsg = S("Multiply term with null or invalid child is found at definition: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-      );
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    // Get the index within the term.
-    Int iterationIndex = state->refLevel(currentLevel).posId;
-    // Are we standing at the multiply term itself?
-    if (static_cast<Int>(state->getLevelCount()) == currentLevel+1) {
-      // We are standing at the multiply term itself.
-      Data::Grammar::Term *term = multiplyTerm->getTerm().s_cast_get<Data::Grammar::Term>();
-      ASSERT(term != 0);
-      if (
-        multiplyTerm->getMax() == 0 ||
-        this->grammarContext.getMultiplyTermMax(multiplyTerm)->get() > iterationIndex
-      ) {
-        // Try the inner route.
-        state->pushTermLevel(0, term);
-        NextAction ret = this->processState(state, inputChar, currentLevel+1);
-        if (ret == CONTINUE_NEW_CHAR) {
-          state->refLevel(currentLevel).posId = iterationIndex+1;
-          this->duplicateState(state);
-        }
-      }
-      // Check if we have already passed the required minimum number of occurances.
-      if (
-        multiplyTerm->getMin() != 0 && iterationIndex < this->grammarContext.getMultiplyTermMin(multiplyTerm)->get()
-      ) return STOP;
-      else {
-        state->resizeLevels(currentLevel);
-        return CONTINUE_SAME_CHAR;
-      }
-    } else {
-      // We are in the middle of the multiply term.
-      // Call the inner branch.
-      NextAction ret = this->processState(state, inputChar, currentLevel+1);
-      if (ret == CONTINUE_SAME_CHAR) {
-        Int minOccurances = multiplyTerm->getMin() == 0 ?
-                              0 : this->grammarContext.getMultiplyTermMin(multiplyTerm)->get();
-        Int maxOccurances = multiplyTerm->getMax() == 0 ?
-                              0 : this->grammarContext.getMultiplyTermMax(multiplyTerm)->get();
-        // We can continue using the same character. We'll try the multiply branch again using the
-        // same character before moving upward and trying the outer branch with the same character.
-        if (maxOccurances == 0 || maxOccurances > iterationIndex+1) {
-          // The max occurances hasn't been reached, so we can try the multiply branch again.
-          state->refLevel(currentLevel).posId = iterationIndex+1;
-          auto *term = multiplyTerm->getTerm().s_cast_get<Data::Grammar::Term>();
-          state->pushTermLevel(0, term);
-          ret = this->processState(state, inputChar, currentLevel+1);
-          if (ret == CONTINUE_NEW_CHAR) {
-            // The character was consumed in the multiply branch which is now complete, so now
-            // we'll setup to try the next character on both the multiply branch again and the
-            // outer branch.
-            state->refLevel(currentLevel).posId = iterationIndex+2;
-            this->duplicateState(state);
-          }
-          // NOTE: We don't need to check again for the CONTINUE_SAME_CHAR return value
-          //       since that's an illogical infinite loop, so we'll treat that as fail.
-          // Trying the multiply branch with the same character again either was not successful
-          // or is successful but is still pending inside the branch. In both cases we don't
-          // need to do anything at this point.
-        }
-        if (iterationIndex >= minOccurances) {
-          // Now we need to try the outer branch with the same character.
-          state->resizeLevels(currentLevel);
-          return CONTINUE_SAME_CHAR;
-        } else {
-          // The minimum occurances isn't met so we won't try the outer branch.
-          return STOP;
-        }
-      } else if (ret == CONTINUE_NEW_CHAR) {
-        // Branch was completed successfully and the character was consumed, so we'll setup to
-        // try the next character with both the inner and outer branches.
-        state->refLevel(currentLevel).posId = iterationIndex+1;
-        this->duplicateState(state);
-        return STOP;
-      } else {
-        // The multiply term either isn't complete yet or wasn't successful.
-        return STOP;
-      }
-    }
+    return this->processMultiplyTerm(state, inputChar, currentLevel);
   } else if (currentTerm->isA<Data::Grammar::AlternateTerm>()) {
-    //
-    // AlternateTerm
-    //
-    // HOW IT WORKS:
-    // When the parsing reaches the alternative term for the first time
-    // a state will be created for each branch and parsing for the
-    // current state will end. When the parsing reaches the alternative
-    // term later (through one of the states created in the first visit)
-    // the parsing will simply be passed on to the selected branch
-    // without paying any attention to other branches of the alternative
-    // term.
-    // However, when the alternative term is reached for the first time
-    // and the called branches return with a CONTINUE return value
-    // (rather than waiting for more characters), the function will
-    // return CONTINUE as the return value from the alternative term.
-    // Special Case:
-    // In a first visit, when two branches return with values of
-    // CONTINUE_SAME_CHAR and CONTINUE_NEW_CHAR, the function creates
-    // a delayed state and returns CONTINUE_SAME_CHAR. The delayed
-    // state has an index of -1 for the level of the alternative term.
-    // When the alternative term is reached having an index of -1, it
-    // will simply return CONTINUE_SAME_CHAR. The result of this
-    // approach will be returning CONTNUE_SAME_CHAR and waiting until
-    // the next char to return another CONTINUE_SAME_CHAR, which is
-    // similar to returning CONTINUE_NEW_CHAR immediately.
-
-    Data::Grammar::AlternateTerm *alternateTerm = static_cast<Data::Grammar::AlternateTerm*>(currentTerm);
-    if (alternateTerm->isDynamic()) {
-      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-      );
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    auto alternateList = alternateTerm->getTerms().s_cast_get<Data::Grammar::List>();
-    if (alternateList->getCount() < 2) {
-      Str excMsg = S("Alternative term doesn't have enough branches yet (less than two). Token def: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-      );
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    // Get the index within the term.
-    if (currentLevel == static_cast<Int>(state->getLevelCount()) - 1) {
-      // We are standing at the alternate term, which could mean we are entering the alternate term now
-      // or we are already done with it.
-      if (state->refLevel(currentLevel).posId != -1) {
-        // Just entering the term for the first time.
-        // Loop through all the alternatives of the term.
-        NextAction ret = UNKNOWN_ACTION;
-        Bool delayedStateCreated = false;
-        for (Int i = 0; i < alternateList->getCount(); ++i) {
-          state->refLevel(currentLevel).posId = i;
-          Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(alternateList->getElement(i));
-          if (term == 0) {
-            Str excMsg = S("Null term found in an alternate branch. Token def: ");
-            excMsg += ID_GENERATOR->getDesc(
-              this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-            );
-            throw EXCEPTION(GenericException, excMsg.c_str());
-          }
-          // add the current index
-          state->resizeLevels(currentLevel+1);
-          state->pushTermLevel(0, term);
-          switch (this->processState(state, inputChar, currentLevel+1)) {
-            case CONTINUE_NEW_CHAR:
-              if (ret == CONTINUE_SAME_CHAR) {
-                if (!delayedStateCreated) {
-                  // create delayed state
-                  state->refLevel(currentLevel).posId = -1;
-                  this->duplicateState(state);
-                  delayedStateCreated = true;
-                }
-              } else {
-                ret = CONTINUE_NEW_CHAR;
-              }
-              break;
-            case CONTINUE_SAME_CHAR:
-              if (ret == CONTINUE_NEW_CHAR) {
-                if (!delayedStateCreated) {
-                  // create delayed state
-                  state->refLevel(currentLevel).posId = -1;
-                  this->duplicateState(state);
-                  delayedStateCreated = true;
-                }
-              }
-              ret = CONTINUE_SAME_CHAR;
-              break;
-            case STOP:
-              if (ret == UNKNOWN_ACTION) ret = STOP;
-              break;
-          }
-        }
-        // remove the added index
-        if (ret != STOP) state->resizeLevels(currentLevel);
-        return ret;
-      } else {
-        // This is a delayed state, so just return to let the parent branch continue
-        state->popTermLevel();
-        return CONTINUE_SAME_CHAR;
-      }
-    } else {
-      // Returning to a single branch of the term.
-      // Get up to the next term object.
-      NextAction ret = this->processState(state, inputChar, currentLevel+1);
-      if (ret == CONTINUE_NEW_CHAR || ret == CONTINUE_SAME_CHAR) {
-        state->popTermLevel();
-      }
-      return ret;
-    }
+    return this->processAlternateTerm(state, inputChar, currentLevel);
   } else if (currentTerm->isA<Data::Grammar::ConcatTerm>()) {
-    //
-    // ConcatTerm
-    //
-    Data::Grammar::ConcatTerm *concatTerm = static_cast<Data::Grammar::ConcatTerm*>(currentTerm);
-    if (concatTerm->isDynamic()) {
-      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-      );
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    auto concatList = concatTerm->getTerms().s_cast_get<Data::Grammar::List>();
-    if (concatList->getCount() == 0) {
-      Str excMsg = S("Concat term's child terms aren't set yet. Token def: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-      );
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    // get the index within the term
-    Int termIndex = state->refLevel(currentLevel).posId;
-    // If we are just entering the concat state then push the inner level.
-    if (currentLevel == state->getLevelCount() - 1) {
-      Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
-      if (term == 0) {
-        Str excMsg = S("Concat term's child term is null. Token def: ");
-        excMsg += ID_GENERATOR->getDesc(
-          this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-        );
-        throw EXCEPTION(GenericException, excMsg.c_str());
-      }
-      state->pushTermLevel(0, term);
-    }
-    // loop on calling the next level
-    while (true) {
-      switch (this->processState(state, inputChar, currentLevel+1)) {
-        case CONTINUE_NEW_CHAR:
-          // move to the next term and stop
-          if (termIndex >= concatList->getCount()-1) {
-            // we finished all the terms on this level, so return
-            // remove termIndex from the stack
-            state->popTermLevel();
-            return CONTINUE_NEW_CHAR;
-          } else {
-            // update the term index on the stack
-            termIndex++;
-            state->refLevel(currentLevel).posId = termIndex;
-            // save the state on the stack
-            this->duplicateState(state);
-            return STOP;
-          }
-        case CONTINUE_SAME_CHAR:
-          // move to the next term immediately
-          if (termIndex >= concatList->getCount()-1) {
-            // we finished all the terms on this level, so return
-            // remove termIndex from the stack
-            state->popTermLevel();
-            return CONTINUE_SAME_CHAR;
-          } else {
-            // update the term index on the stack
-            termIndex++;
-            state->refLevel(currentLevel).posId = termIndex;
-            auto term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
-            if (term == 0) {
-              Str excMsg = S("Concat term's child term is null. Token def: ");
-              excMsg += ID_GENERATOR->getDesc(
-                this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-              );
-              throw EXCEPTION(GenericException, excMsg.c_str());
-            }
-            state->pushTermLevel(0, term);
-          }
-          break;
-        case STOP:
-          // stop processing
-          return STOP;
-      }
-    }
+    return this->processConcatTerm(state, inputChar, currentLevel);
   } else if (currentTerm->isA<Data::Grammar::ReferenceTerm>()) {
-    //
-    // ReferenceTerm
-    //
-    // Pass the call to the referenced term.
-    Data::Grammar::ReferenceTerm *referenceTerm = static_cast<Data::Grammar::ReferenceTerm*>(currentTerm);
-    Data::Grammar::SymbolDefinition *def;
-    Data::Grammar::Module *retModule;
-    if (currentLevel == state->getLevelCount() - 1) {
-      // We are entering the reference term now.
-      Data::Grammar::Reference *ref = referenceTerm->getReference().get();
-      if (ref == 0) {
-        Str excMsg = S("Reference is null for ReferenceTerm at token definition: ");
-        excMsg += ID_GENERATOR->getDesc(
-          this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-        );
-        throw EXCEPTION(GenericException, excMsg.c_str());
-      }
-      this->grammarContext.getReferencedSymbol(ref, retModule, def);
-      if (retModule != this->grammarContext.getModule()) {
-        Str excMsg = S("Lexer doesn't yet support referencing terms in a different module. Token definition: ");
-        excMsg += ID_GENERATOR->getDesc(
-          this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-        );
-        throw EXCEPTION(GenericException, excMsg.c_str());
-      }
-      if (def->getTerm() == 0) {
-        Str excMsg = S("Invalid referenced token definition. (");
-        excMsg += ID_GENERATOR->getDesc(def->getId());
-        excMsg += S("). The definition formula is not set yet.");
-        throw EXCEPTION(GenericException, excMsg.c_str());
-      }
-      if (!(def->getTerm()->isDerivedFrom<Data::Grammar::Term>())) {
-        Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
-        excMsg += ID_GENERATOR->getDesc(def->getId());
-        throw EXCEPTION(GenericException, excMsg.c_str());
-      }
-      state->pushTermLevel(0, def->getTerm().s_cast_get<Data::Grammar::Term>());
-    }
-    auto ret = this->processState(state, inputChar, currentLevel + 1);
-    if (ret != STOP) {
-      state->popTermLevel();
-    }
-    return ret;
+    return this->processReferenceTerm(state, inputChar, currentLevel);
   } else {
     Str excMsg = S("Invalid token type found. Token definition: ");
     excMsg += ID_GENERATOR->getDesc(
@@ -956,6 +570,421 @@ Lexer::NextAction Lexer::processState(LexerState *state, WChar inputChar, Int cu
     excMsg += currentTerm->getMyTypeInfo()->getTypeName();
     throw EXCEPTION(GenericException, excMsg.c_str());
   }
+}
+
+
+Lexer::NextAction Lexer::processConstTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  auto currentTerm = state->refLevel(currentLevel).term;
+  ASSERT(currentTerm->isA<Data::Grammar::ConstTerm>());
+  Int charIndex;
+  Data::Grammar::ConstTerm *constTerm = static_cast<Data::Grammar::ConstTerm*>(currentTerm);
+  if (constTerm->getMatchString().size() == 0) {
+    throw EXCEPTION(GenericException, S("Const term match string is not set yet."));
+  }
+  // this type of terms is always the deepest level.
+  ASSERT(currentLevel == static_cast<Int>(state->getLevelCount())-1);
+  // get the index within the term.
+  charIndex = state->refLevel(currentLevel).posId;
+  // assert that charIndex is not out of the range of the constant.
+  ASSERT(charIndex < static_cast<Int>(constTerm->getMatchString().size()));
+  // check if the next character is accepted.
+  if (constTerm->getMatchString()[charIndex] == inputChar) {
+    charIndex++;
+    // Check if we reached the end of the string.
+    if (charIndex == static_cast<Int>(constTerm->getMatchString().size())) {
+      // Remove level from the stack
+      state->popTermLevel();
+      return CONTINUE_NEW_CHAR; // No more chars is expected on this term object.
+    } else {
+      // Update charIndex on the stack.
+      state->refLevel(currentLevel).posId = charIndex;
+      // Push the temp state onto the states stack.
+      this->duplicateState(state);
+      return STOP; // More chars is expected on this term object.
+    }
+  } else {
+    return STOP; // This term object failed to match.
+  }
+}
+
+
+Lexer::NextAction Lexer::processCharGroupTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  auto currentTerm = state->refLevel(currentLevel).term;
+  ASSERT(currentTerm->isA<Data::Grammar::CharGroupTerm>());
+  Data::Grammar::CharGroupTerm *charGroupTerm = static_cast<Data::Grammar::CharGroupTerm*>(currentTerm);
+  Data::Grammar::CharGroupDefinition *def;
+  Data::Grammar::Reference *ref = charGroupTerm->getCharGroupReference().get();
+  if (ref == 0) {
+    Str excMsg = S("Reference is null for CharGroupTerm at token definition: ");
+    excMsg += ID_GENERATOR->getDesc(
+      this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+    );
+    throw EXCEPTION(GenericException, excMsg.c_str());
+  }
+  this->grammarContext.getReferencedCharGroup(ref, def);
+  if (def->getCharGroupUnit() == 0) {
+    Str excMsg = S("Invalid character group (");
+    excMsg += ID_GENERATOR->getDesc(def->getId());
+    excMsg += S("). The definition formula is not set yet.");
+    throw EXCEPTION(GenericException, excMsg.c_str());
+  }
+  if (Data::Grammar::matchCharGroup(inputChar, def->getCharGroupUnit().get())) {
+    state->popTermLevel();
+    return CONTINUE_NEW_CHAR;
+  } else {
+    return STOP;
+  }
+}
+
+
+Lexer::NextAction Lexer::processMultiplyTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  // HOW IT WORKS:
+  // The term index of the duplicate term will contain the iteration
+  // index (starting from 0). Each time parsing finishes going through
+  // the contained term, the iteration index will be incremented and
+  // a new state will be created. Each time parsing starts a new
+  // iteration (determined by whether an index for the deeper level is
+  // created or not), it will determine the return value depending on
+  // whether the iteration index is less than the required minimum
+  // occurances. If the minimum occurances is met (the duplicate term
+  // has appeared for at least the required minimum) the return value
+  // will be CONTINUE_SAME_CHAR to tell the upper level to continue
+  // parsing causing two different paths to go on at the same time. If
+  // the minimum occurances is not met the return value will be STOP
+  // to prevent the upper level from creating an invalid path that
+  // doesn't meet the minimum occurances requirement.
+
+  auto currentTerm = state->refLevel(currentLevel).term;
+  ASSERT(currentTerm->isA<Data::Grammar::MultiplyTerm>());
+  Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(currentTerm);
+  if (multiplyTerm->getTerm().ti_cast_get<Data::Grammar::Term>() == 0) {
+    Str excMsg = S("Multiply term with null or invalid child is found at definition: ");
+    excMsg += ID_GENERATOR->getDesc(
+      this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+    );
+    throw EXCEPTION(GenericException, excMsg.c_str());
+  }
+  // Get the index within the term.
+  Int iterationIndex = state->refLevel(currentLevel).posId;
+  // Are we standing at the multiply term itself?
+  if (static_cast<Int>(state->getLevelCount()) == currentLevel+1) {
+    // We are standing at the multiply term itself.
+    Data::Grammar::Term *term = multiplyTerm->getTerm().s_cast_get<Data::Grammar::Term>();
+    ASSERT(term != 0);
+    if (
+      multiplyTerm->getMax() == 0 ||
+      this->grammarContext.getMultiplyTermMax(multiplyTerm)->get() > iterationIndex
+    ) {
+      // Try the inner route.
+      state->pushTermLevel(0, term);
+      NextAction ret = this->processState(state, inputChar, currentLevel+1);
+      if (ret == CONTINUE_NEW_CHAR) {
+        state->refLevel(currentLevel).posId = iterationIndex+1;
+        this->duplicateState(state);
+      }
+    }
+    // Check if we have already passed the required minimum number of occurances.
+    if (
+      multiplyTerm->getMin() != 0 && iterationIndex < this->grammarContext.getMultiplyTermMin(multiplyTerm)->get()
+    ) return STOP;
+    else {
+      state->resizeLevels(currentLevel);
+      return CONTINUE_SAME_CHAR;
+    }
+  } else {
+    // We are in the middle of the multiply term.
+    // Call the inner branch.
+    NextAction ret = this->processState(state, inputChar, currentLevel+1);
+    if (ret == CONTINUE_SAME_CHAR) {
+      Int minOccurances = multiplyTerm->getMin() == 0 ?
+                            0 : this->grammarContext.getMultiplyTermMin(multiplyTerm)->get();
+      Int maxOccurances = multiplyTerm->getMax() == 0 ?
+                            0 : this->grammarContext.getMultiplyTermMax(multiplyTerm)->get();
+      // We can continue using the same character. We'll try the multiply branch again using the
+      // same character before moving upward and trying the outer branch with the same character.
+      if (maxOccurances == 0 || maxOccurances > iterationIndex+1) {
+        // The max occurances hasn't been reached, so we can try the multiply branch again.
+        state->refLevel(currentLevel).posId = iterationIndex+1;
+        auto *term = multiplyTerm->getTerm().s_cast_get<Data::Grammar::Term>();
+        state->pushTermLevel(0, term);
+        ret = this->processState(state, inputChar, currentLevel+1);
+        if (ret == CONTINUE_NEW_CHAR) {
+          // The character was consumed in the multiply branch which is now complete, so now
+          // we'll setup to try the next character on both the multiply branch again and the
+          // outer branch.
+          state->refLevel(currentLevel).posId = iterationIndex+2;
+          this->duplicateState(state);
+        }
+        // NOTE: We don't need to check again for the CONTINUE_SAME_CHAR return value
+        //       since that's an illogical infinite loop, so we'll treat that as fail.
+        // Trying the multiply branch with the same character again either was not successful
+        // or is successful but is still pending inside the branch. In both cases we don't
+        // need to do anything at this point.
+      }
+      if (iterationIndex >= minOccurances) {
+        // Now we need to try the outer branch with the same character.
+        state->resizeLevels(currentLevel);
+        return CONTINUE_SAME_CHAR;
+      } else {
+        // The minimum occurances isn't met so we won't try the outer branch.
+        return STOP;
+      }
+    } else if (ret == CONTINUE_NEW_CHAR) {
+      // Branch was completed successfully and the character was consumed, so we'll setup to
+      // try the next character with both the inner and outer branches.
+      state->refLevel(currentLevel).posId = iterationIndex+1;
+      this->duplicateState(state);
+      return STOP;
+    } else {
+      // The multiply term either isn't complete yet or wasn't successful.
+      return STOP;
+    }
+  }
+}
+
+
+Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  // HOW IT WORKS:
+  // When the parsing reaches the alternative term for the first time
+  // a state will be created for each branch and parsing for the
+  // current state will end. When the parsing reaches the alternative
+  // term later (through one of the states created in the first visit)
+  // the parsing will simply be passed on to the selected branch
+  // without paying any attention to other branches of the alternative
+  // term.
+  // However, when the alternative term is reached for the first time
+  // and the called branches return with a CONTINUE return value
+  // (rather than waiting for more characters), the function will
+  // return CONTINUE as the return value from the alternative term.
+  // Special Case:
+  // In a first visit, when two branches return with values of
+  // CONTINUE_SAME_CHAR and CONTINUE_NEW_CHAR, the function creates
+  // a delayed state and returns CONTINUE_SAME_CHAR. The delayed
+  // state has an index of -1 for the level of the alternative term.
+  // When the alternative term is reached having an index of -1, it
+  // will simply return CONTINUE_SAME_CHAR. The result of this
+  // approach will be returning CONTNUE_SAME_CHAR and waiting until
+  // the next char to return another CONTINUE_SAME_CHAR, which is
+  // similar to returning CONTINUE_NEW_CHAR immediately.
+
+  auto currentTerm = state->refLevel(currentLevel).term;
+  ASSERT(currentTerm->isA<Data::Grammar::AlternateTerm>());
+  Data::Grammar::AlternateTerm *alternateTerm = static_cast<Data::Grammar::AlternateTerm*>(currentTerm);
+  if (alternateTerm->isDynamic()) {
+    Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
+    excMsg += ID_GENERATOR->getDesc(
+      this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+    );
+    throw EXCEPTION(GenericException, excMsg.c_str());
+  }
+  auto alternateList = alternateTerm->getTerms().s_cast_get<Data::Grammar::List>();
+  if (alternateList->getCount() < 2) {
+    Str excMsg = S("Alternative term doesn't have enough branches yet (less than two). Token def: ");
+    excMsg += ID_GENERATOR->getDesc(
+      this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+    );
+    throw EXCEPTION(GenericException, excMsg.c_str());
+  }
+  // Get the index within the term.
+  if (currentLevel == static_cast<Int>(state->getLevelCount()) - 1) {
+    // We are standing at the alternate term, which could mean we are entering the alternate term now
+    // or we are already done with it.
+    if (state->refLevel(currentLevel).posId != -1) {
+      // Just entering the term for the first time.
+      // Loop through all the alternatives of the term.
+      NextAction ret = UNKNOWN_ACTION;
+      Bool delayedStateCreated = false;
+      for (Int i = 0; i < alternateList->getCount(); ++i) {
+        state->refLevel(currentLevel).posId = i;
+        Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(alternateList->getElement(i));
+        if (term == 0) {
+          Str excMsg = S("Null term found in an alternate branch. Token def: ");
+          excMsg += ID_GENERATOR->getDesc(
+            this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+          );
+          throw EXCEPTION(GenericException, excMsg.c_str());
+        }
+        // add the current index
+        state->resizeLevels(currentLevel+1);
+        state->pushTermLevel(0, term);
+        switch (this->processState(state, inputChar, currentLevel+1)) {
+          case CONTINUE_NEW_CHAR:
+            if (ret == CONTINUE_SAME_CHAR) {
+              if (!delayedStateCreated) {
+                // create delayed state
+                state->refLevel(currentLevel).posId = -1;
+                this->duplicateState(state);
+                delayedStateCreated = true;
+              }
+            } else {
+              ret = CONTINUE_NEW_CHAR;
+            }
+            break;
+          case CONTINUE_SAME_CHAR:
+            if (ret == CONTINUE_NEW_CHAR) {
+              if (!delayedStateCreated) {
+                // create delayed state
+                state->refLevel(currentLevel).posId = -1;
+                this->duplicateState(state);
+                delayedStateCreated = true;
+              }
+            }
+            ret = CONTINUE_SAME_CHAR;
+            break;
+          case STOP:
+            if (ret == UNKNOWN_ACTION) ret = STOP;
+            break;
+        }
+      }
+      // remove the added index
+      if (ret != STOP) state->resizeLevels(currentLevel);
+      return ret;
+    } else {
+      // This is a delayed state, so just return to let the parent branch continue
+      state->popTermLevel();
+      return CONTINUE_SAME_CHAR;
+    }
+  } else {
+    // Returning to a single branch of the term.
+    // Get up to the next term object.
+    NextAction ret = this->processState(state, inputChar, currentLevel+1);
+    if (ret == CONTINUE_NEW_CHAR || ret == CONTINUE_SAME_CHAR) {
+      state->popTermLevel();
+    }
+    return ret;
+  }
+}
+
+
+Lexer::NextAction Lexer::processConcatTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  auto currentTerm = state->refLevel(currentLevel).term;
+  ASSERT(currentTerm->isA<Data::Grammar::ConcatTerm>());
+  Data::Grammar::ConcatTerm *concatTerm = static_cast<Data::Grammar::ConcatTerm*>(currentTerm);
+  if (concatTerm->isDynamic()) {
+    Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
+    excMsg += ID_GENERATOR->getDesc(
+      this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+    );
+    throw EXCEPTION(GenericException, excMsg.c_str());
+  }
+  auto concatList = concatTerm->getTerms().s_cast_get<Data::Grammar::List>();
+  if (concatList->getCount() == 0) {
+    Str excMsg = S("Concat term's child terms aren't set yet. Token def: ");
+    excMsg += ID_GENERATOR->getDesc(
+      this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+    );
+    throw EXCEPTION(GenericException, excMsg.c_str());
+  }
+  // get the index within the term
+  Int termIndex = state->refLevel(currentLevel).posId;
+  // If we are just entering the concat state then push the inner level.
+  if (currentLevel == state->getLevelCount() - 1) {
+    Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
+    if (term == 0) {
+      Str excMsg = S("Concat term's child term is null. Token def: ");
+      excMsg += ID_GENERATOR->getDesc(
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+      );
+      throw EXCEPTION(GenericException, excMsg.c_str());
+    }
+    state->pushTermLevel(0, term);
+  }
+  // loop on calling the next level
+  while (true) {
+    switch (this->processState(state, inputChar, currentLevel+1)) {
+      case CONTINUE_NEW_CHAR:
+        // move to the next term and stop
+        if (termIndex >= concatList->getCount()-1) {
+          // we finished all the terms on this level, so return
+          // remove termIndex from the stack
+          state->popTermLevel();
+          return CONTINUE_NEW_CHAR;
+        } else {
+          // update the term index on the stack
+          termIndex++;
+          state->refLevel(currentLevel).posId = termIndex;
+          // save the state on the stack
+          this->duplicateState(state);
+          return STOP;
+        }
+      case CONTINUE_SAME_CHAR:
+        // move to the next term immediately
+        if (termIndex >= concatList->getCount()-1) {
+          // we finished all the terms on this level, so return
+          // remove termIndex from the stack
+          state->popTermLevel();
+          return CONTINUE_SAME_CHAR;
+        } else {
+          // update the term index on the stack
+          termIndex++;
+          state->refLevel(currentLevel).posId = termIndex;
+          auto term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
+          if (term == 0) {
+            Str excMsg = S("Concat term's child term is null. Token def: ");
+            excMsg += ID_GENERATOR->getDesc(
+              this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+            );
+            throw EXCEPTION(GenericException, excMsg.c_str());
+          }
+          state->pushTermLevel(0, term);
+        }
+        break;
+      case STOP:
+        // stop processing
+        return STOP;
+    }
+  }
+}
+
+
+Lexer::NextAction Lexer::processReferenceTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  auto currentTerm = state->refLevel(currentLevel).term;
+  ASSERT(currentTerm->isA<Data::Grammar::ReferenceTerm>());
+  Data::Grammar::ReferenceTerm *referenceTerm = static_cast<Data::Grammar::ReferenceTerm*>(currentTerm);
+  Data::Grammar::SymbolDefinition *def;
+  Data::Grammar::Module *retModule;
+  if (currentLevel == state->getLevelCount() - 1) {
+    // We are entering the reference term now.
+    Data::Grammar::Reference *ref = referenceTerm->getReference().get();
+    if (ref == 0) {
+      Str excMsg = S("Reference is null for ReferenceTerm at token definition: ");
+      excMsg += ID_GENERATOR->getDesc(
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+      );
+      throw EXCEPTION(GenericException, excMsg.c_str());
+    }
+    this->grammarContext.getReferencedSymbol(ref, retModule, def);
+    if (retModule != this->grammarContext.getModule()) {
+      Str excMsg = S("Lexer doesn't yet support referencing terms in a different module. Token definition: ");
+      excMsg += ID_GENERATOR->getDesc(
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+      );
+      throw EXCEPTION(GenericException, excMsg.c_str());
+    }
+    if (def->getTerm() == 0) {
+      Str excMsg = S("Invalid referenced token definition. (");
+      excMsg += ID_GENERATOR->getDesc(def->getId());
+      excMsg += S("). The definition formula is not set yet.");
+      throw EXCEPTION(GenericException, excMsg.c_str());
+    }
+    if (!(def->getTerm()->isDerivedFrom<Data::Grammar::Term>())) {
+      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
+      excMsg += ID_GENERATOR->getDesc(def->getId());
+      throw EXCEPTION(GenericException, excMsg.c_str());
+    }
+    state->pushTermLevel(0, def->getTerm().s_cast_get<Data::Grammar::Term>());
+  }
+  auto ret = this->processState(state, inputChar, currentLevel + 1);
+  if (ret != STOP) {
+    state->popTermLevel();
+  }
+  return ret;
 }
 
 

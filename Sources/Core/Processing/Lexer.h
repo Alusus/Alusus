@@ -235,6 +235,13 @@ class Lexer : public TiObject
   /// Recursively apply the given character on the temp state.
   private: NextAction processState(LexerState *state, WChar inputChar, Int currentLevel);
 
+  private: Lexer::NextAction processConstTerm(LexerState *state, WChar inputChar, Int currentLevel);
+  private: Lexer::NextAction processCharGroupTerm(LexerState *state, WChar inputChar, Int currentLevel);
+  private: Lexer::NextAction processMultiplyTerm(LexerState *state, WChar inputChar, Int currentLevel);
+  private: Lexer::NextAction processAlternateTerm(LexerState *state, WChar inputChar, Int currentLevel);
+  private: Lexer::NextAction processConcatTerm(LexerState *state, WChar inputChar, Int currentLevel);
+  private: Lexer::NextAction processReferenceTerm(LexerState *state, WChar inputChar, Int currentLevel);
+
   /// Select the best token among the detected tokens.
   private: Int selectBestToken();
 
