@@ -28,17 +28,23 @@ namespace Core { namespace Processing
 class LexerState
 {
   //============================================================================
+  // Types
+
+  public: struct Level
+  {
+    public: Int posId;
+    public: Data::Grammar::Term *term;
+    Level() : posId(0), term(0) {}
+    Level(Int id, Data::Grammar::Term *t) : posId(id), term(t) {}
+  };
+
+
+  //============================================================================
   // Member Variables
 
-  /**
-   * @brief The stack of indexes that defines the current state.
-   *
-   * Each entry in this stack defines the position within one level of the
-   * terms hierarchy. The first entry is used to specify the token definition
-   * used by this index (the index within the list of token definitions
-   * defined in the lexer).
-   */
-  private: std::vector<Int> indexStack;
+  private: Int tokenDefIndex;
+
+  private: std::vector<Level> levels;
 
   /**
    * @brief The length of the token.
@@ -52,7 +58,7 @@ class LexerState
   //============================================================================
   // Constructors / Destructor
 
-  public: LexerState() : tokenLength(0)
+  public: LexerState() : tokenLength(0), tokenDefIndex(-1)
   {
   }
 
@@ -81,22 +87,46 @@ class LexerState
   //============================================================================
   // Member Functions
 
-  /// Get the state index stack.
-  public: std::vector<Int> * getIndexStack()
+  public: void setTokenDefIndex(Int i)
   {
-    return &this->indexStack;
+    this->tokenDefIndex = i;
   }
 
-  /// Get the size of the state index stack.
-  public: Int getIndexStackSize() const
+  public: Int getTokenDefIndex() const
   {
-    return this->indexStack.size();
+    return this->tokenDefIndex;
   }
 
-  /// Get an entry in the state index stack
-  public: Int getIndexStackEntry(Int i) const
+  public: void pushTermLevel(Int posId, Data::Grammar::Term *term)
   {
-    return this->indexStack[i];
+    this->levels.push_back(Level(posId, term));
+  }
+
+  public: void popTermLevel()
+  {
+    this->levels.pop_back();
+  }
+
+  public: void resizeLevels(Word size)
+  {
+    this->levels.resize(size);
+  }
+
+  /// Get the size of the levels stack.
+  public: Word getLevelCount() const
+  {
+    return this->levels.size();
+  }
+
+  /// Get an entry in the levels stack.
+  public: Level& refLevel(Int i)
+  {
+    return this->levels[i];
+  }
+
+  public: Level const& refLevel(Int i) const
+  {
+    return this->levels[i];
   }
 
   /// Set the token length.

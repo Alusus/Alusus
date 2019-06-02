@@ -233,8 +233,7 @@ class Lexer : public TiObject
   private: void processNextChar(WChar inputChar);
 
   /// Recursively apply the given character on the temp state.
-  private: NextAction processTempState(WChar inputChar, Data::Grammar::Term *currentTerm,
-                                       Int currentLevel);
+  private: NextAction processTempState(WChar inputChar, Int currentLevel);
 
   /// Select the best token among the detected tokens.
   private: Int selectBestToken();
