@@ -233,7 +233,7 @@ class Lexer : public TiObject
   private: void processNextChar(WChar inputChar);
 
   /// Recursively apply the given character on the temp state.
-  private: NextAction processTempState(WChar inputChar, Int currentLevel);
+  private: NextAction processState(LexerState *state, WChar inputChar, Int currentLevel);
 
   /// Select the best token among the detected tokens.
   private: Int selectBestToken();
@@ -247,7 +247,7 @@ class Lexer : public TiObject
   /// @{
 
   /// Create a new state object.
-  private: Int createState();
+  private: Int duplicateState(LexerState *state);
 
   /// Extract a state from the stack and put it in the temp state.
   private: void extractState(Int index);

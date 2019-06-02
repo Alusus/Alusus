@@ -444,11 +444,11 @@ void Lexer::processStartChar(WChar inputChar)
     // Reset the token length.
     this->tempState.setTokenLength(0);
     // Process the token.
-    switch (this->processTempState(inputChar, 0)) {
+    switch (this->processState(&this->tempState, inputChar, 0)) {
       case CONTINUE_NEW_CHAR:
         // The character was accepted and a full token is formed.
         this->tempState.setTokenLength(1);
-        this->createState();
+        this->duplicateState(&this->tempState);
         break;
       case CONTINUE_SAME_CHAR:
         // This should never be reached.
@@ -491,16 +491,16 @@ void Lexer::processNextChar(WChar inputChar)
     // Extract the state into the temp state.
     this->extractState(i);
     // Process the token.
-    switch (this->processTempState(inputChar, 0)) {
+    switch (this->processState(&this->tempState, inputChar, 0)) {
       case CONTINUE_NEW_CHAR:
         // The character was accepted and a full token is formed.
         this->tempState.setTokenLength(this->currentProcessingIndex+1);
-        this->createState();
+        this->duplicateState(&this->tempState);
         break;
       case CONTINUE_SAME_CHAR:
         // The character was not accepted, but a full token is formed.
         this->tempState.setTokenLength(this->currentProcessingIndex);
-        this->createState();
+        this->duplicateState(&this->tempState);
         break;
     }
     // Check if we need to defrag the stack.
@@ -541,13 +541,14 @@ void Lexer::processNextChar(WChar inputChar)
  *                        stack that is associated with the current term object.
  * @return Returns a NextAction value telling the caller what to do next.
  */
-Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
+Lexer::NextAction Lexer::processState(LexerState *state, WChar inputChar, Int currentLevel)
 {
+  ASSERT(state != 0);
   // make sure the current level isn't out of range
-  ASSERT(currentLevel <= static_cast<Int>(this->tempState.getLevelCount()));
+  ASSERT(currentLevel <= static_cast<Int>(state->getLevelCount()));
 
   // check the term type
-  auto currentTerm = this->tempState.refLevel(currentLevel).term;
+  auto currentTerm = state->refLevel(currentLevel).term;
   if (currentTerm->isA<Data::Grammar::ConstTerm>()) {
     //
     // ConstTerm
@@ -558,9 +559,9 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
       throw EXCEPTION(GenericException, S("Const term match string is not set yet."));
     }
     // this type of terms is always the deepest level.
-    ASSERT(currentLevel == static_cast<Int>(this->tempState.getLevelCount())-1);
+    ASSERT(currentLevel == static_cast<Int>(state->getLevelCount())-1);
     // get the index within the term.
-    charIndex = this->tempState.refLevel(currentLevel).posId;
+    charIndex = state->refLevel(currentLevel).posId;
     // assert that charIndex is not out of the range of the constant.
     ASSERT(charIndex < static_cast<Int>(constTerm->getMatchString().size()));
     // check if the next character is accepted.
@@ -569,13 +570,13 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
       // Check if we reached the end of the string.
       if (charIndex == static_cast<Int>(constTerm->getMatchString().size())) {
         // Remove level from the stack
-        this->tempState.popTermLevel();
+        state->popTermLevel();
         return CONTINUE_NEW_CHAR; // No more chars is expected on this term object.
       } else {
         // Update charIndex on the stack.
-        this->tempState.refLevel(currentLevel).posId = charIndex;
+        state->refLevel(currentLevel).posId = charIndex;
         // Push the temp state onto the states stack.
-        this->createState();
+        this->duplicateState(state);
         return STOP; // More chars is expected on this term object.
       }
     } else {
@@ -591,7 +592,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
     if (ref == 0) {
       Str excMsg = S("Reference is null for CharGroupTerm at token definition: ");
       excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
@@ -603,7 +604,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
     if (Data::Grammar::matchCharGroup(inputChar, def->getCharGroupUnit().get())) {
-      this->tempState.popTermLevel();
+      state->popTermLevel();
       return CONTINUE_NEW_CHAR;
     } else {
       return STOP;
@@ -632,14 +633,14 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
     if (multiplyTerm->getTerm().ti_cast_get<Data::Grammar::Term>() == 0) {
       Str excMsg = S("Multiply term with null or invalid child is found at definition: ");
       excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
     // Get the index within the term.
-    Int iterationIndex = this->tempState.refLevel(currentLevel).posId;
+    Int iterationIndex = state->refLevel(currentLevel).posId;
     // Are we standing at the multiply term itself?
-    if (static_cast<Int>(this->tempState.getLevelCount()) == currentLevel+1) {
+    if (static_cast<Int>(state->getLevelCount()) == currentLevel+1) {
       // We are standing at the multiply term itself.
       Data::Grammar::Term *term = multiplyTerm->getTerm().s_cast_get<Data::Grammar::Term>();
       ASSERT(term != 0);
@@ -648,11 +649,11 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
         this->grammarContext.getMultiplyTermMax(multiplyTerm)->get() > iterationIndex
       ) {
         // Try the inner route.
-        this->tempState.pushTermLevel(0, term);
-        NextAction ret = this->processTempState(inputChar, currentLevel+1);
+        state->pushTermLevel(0, term);
+        NextAction ret = this->processState(state, inputChar, currentLevel+1);
         if (ret == CONTINUE_NEW_CHAR) {
-          this->tempState.refLevel(currentLevel).posId = iterationIndex+1;
-          this->createState();
+          state->refLevel(currentLevel).posId = iterationIndex+1;
+          this->duplicateState(state);
         }
       }
       // Check if we have already passed the required minimum number of occurances.
@@ -660,13 +661,13 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
         multiplyTerm->getMin() != 0 && iterationIndex < this->grammarContext.getMultiplyTermMin(multiplyTerm)->get()
       ) return STOP;
       else {
-        this->tempState.resizeLevels(currentLevel);
+        state->resizeLevels(currentLevel);
         return CONTINUE_SAME_CHAR;
       }
     } else {
       // We are in the middle of the multiply term.
       // Call the inner branch.
-      NextAction ret = this->processTempState(inputChar, currentLevel+1);
+      NextAction ret = this->processState(state, inputChar, currentLevel+1);
       if (ret == CONTINUE_SAME_CHAR) {
         Int minOccurances = multiplyTerm->getMin() == 0 ?
                               0 : this->grammarContext.getMultiplyTermMin(multiplyTerm)->get();
@@ -676,16 +677,16 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
         // same character before moving upward and trying the outer branch with the same character.
         if (maxOccurances == 0 || maxOccurances > iterationIndex+1) {
           // The max occurances hasn't been reached, so we can try the multiply branch again.
-          this->tempState.refLevel(currentLevel).posId = iterationIndex+1;
+          state->refLevel(currentLevel).posId = iterationIndex+1;
           auto *term = multiplyTerm->getTerm().s_cast_get<Data::Grammar::Term>();
-          this->tempState.pushTermLevel(0, term);
-          ret = this->processTempState(inputChar, currentLevel+1);
+          state->pushTermLevel(0, term);
+          ret = this->processState(state, inputChar, currentLevel+1);
           if (ret == CONTINUE_NEW_CHAR) {
             // The character was consumed in the multiply branch which is now complete, so now
             // we'll setup to try the next character on both the multiply branch again and the
             // outer branch.
-            this->tempState.refLevel(currentLevel).posId = iterationIndex+2;
-            this->createState();
+            state->refLevel(currentLevel).posId = iterationIndex+2;
+            this->duplicateState(state);
           }
           // NOTE: We don't need to check again for the CONTINUE_SAME_CHAR return value
           //       since that's an illogical infinite loop, so we'll treat that as fail.
@@ -695,7 +696,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
         }
         if (iterationIndex >= minOccurances) {
           // Now we need to try the outer branch with the same character.
-          this->tempState.resizeLevels(currentLevel);
+          state->resizeLevels(currentLevel);
           return CONTINUE_SAME_CHAR;
         } else {
           // The minimum occurances isn't met so we won't try the outer branch.
@@ -704,8 +705,8 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
       } else if (ret == CONTINUE_NEW_CHAR) {
         // Branch was completed successfully and the character was consumed, so we'll setup to
         // try the next character with both the inner and outer branches.
-        this->tempState.refLevel(currentLevel).posId = iterationIndex+1;
-        this->createState();
+        state->refLevel(currentLevel).posId = iterationIndex+1;
+        this->duplicateState(state);
         return STOP;
       } else {
         // The multiply term either isn't complete yet or wasn't successful.
@@ -743,7 +744,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
     if (alternateTerm->isDynamic()) {
       Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
       excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
@@ -751,39 +752,39 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
     if (alternateList->getCount() < 2) {
       Str excMsg = S("Alternative term doesn't have enough branches yet (less than two). Token def: ");
       excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
     // Get the index within the term.
-    if (currentLevel == static_cast<Int>(this->tempState.getLevelCount()) - 1) {
+    if (currentLevel == static_cast<Int>(state->getLevelCount()) - 1) {
       // We are standing at the alternate term, which could mean we are entering the alternate term now
       // or we are already done with it.
-      if (this->tempState.refLevel(currentLevel).posId != -1) {
+      if (state->refLevel(currentLevel).posId != -1) {
         // Just entering the term for the first time.
         // Loop through all the alternatives of the term.
         NextAction ret = UNKNOWN_ACTION;
         Bool delayedStateCreated = false;
         for (Int i = 0; i < alternateList->getCount(); ++i) {
-          this->tempState.refLevel(currentLevel).posId = i;
+          state->refLevel(currentLevel).posId = i;
           Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(alternateList->getElement(i));
           if (term == 0) {
             Str excMsg = S("Null term found in an alternate branch. Token def: ");
             excMsg += ID_GENERATOR->getDesc(
-              this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+              this->getSymbolDefinition(state->getTokenDefIndex())->getId()
             );
             throw EXCEPTION(GenericException, excMsg.c_str());
           }
           // add the current index
-          this->tempState.resizeLevels(currentLevel+1);
-          this->tempState.pushTermLevel(0, term);
-          switch (this->processTempState(inputChar, currentLevel+1)) {
+          state->resizeLevels(currentLevel+1);
+          state->pushTermLevel(0, term);
+          switch (this->processState(state, inputChar, currentLevel+1)) {
             case CONTINUE_NEW_CHAR:
               if (ret == CONTINUE_SAME_CHAR) {
                 if (!delayedStateCreated) {
                   // create delayed state
-                  this->tempState.refLevel(currentLevel).posId = -1;
-                  this->createState();
+                  state->refLevel(currentLevel).posId = -1;
+                  this->duplicateState(state);
                   delayedStateCreated = true;
                 }
               } else {
@@ -794,8 +795,8 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
               if (ret == CONTINUE_NEW_CHAR) {
                 if (!delayedStateCreated) {
                   // create delayed state
-                  this->tempState.refLevel(currentLevel).posId = -1;
-                  this->createState();
+                  state->refLevel(currentLevel).posId = -1;
+                  this->duplicateState(state);
                   delayedStateCreated = true;
                 }
               }
@@ -807,19 +808,19 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
           }
         }
         // remove the added index
-        if (ret != STOP) this->tempState.resizeLevels(currentLevel);
+        if (ret != STOP) state->resizeLevels(currentLevel);
         return ret;
       } else {
         // This is a delayed state, so just return to let the parent branch continue
-        this->tempState.popTermLevel();
+        state->popTermLevel();
         return CONTINUE_SAME_CHAR;
       }
     } else {
       // Returning to a single branch of the term.
       // Get up to the next term object.
-      NextAction ret = this->processTempState(inputChar, currentLevel+1);
+      NextAction ret = this->processState(state, inputChar, currentLevel+1);
       if (ret == CONTINUE_NEW_CHAR || ret == CONTINUE_SAME_CHAR) {
-        this->tempState.popTermLevel();
+        state->popTermLevel();
       }
       return ret;
     }
@@ -831,7 +832,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
     if (concatTerm->isDynamic()) {
       Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
       excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
@@ -839,40 +840,40 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
     if (concatList->getCount() == 0) {
       Str excMsg = S("Concat term's child terms aren't set yet. Token def: ");
       excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
     // get the index within the term
-    Int termIndex = this->tempState.refLevel(currentLevel).posId;
+    Int termIndex = state->refLevel(currentLevel).posId;
     // If we are just entering the concat state then push the inner level.
-    if (currentLevel == this->tempState.getLevelCount() - 1) {
+    if (currentLevel == state->getLevelCount() - 1) {
       Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
       if (term == 0) {
         Str excMsg = S("Concat term's child term is null. Token def: ");
         excMsg += ID_GENERATOR->getDesc(
-          this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+          this->getSymbolDefinition(state->getTokenDefIndex())->getId()
         );
         throw EXCEPTION(GenericException, excMsg.c_str());
       }
-      this->tempState.pushTermLevel(0, term);
+      state->pushTermLevel(0, term);
     }
     // loop on calling the next level
     while (true) {
-      switch (this->processTempState(inputChar, currentLevel+1)) {
+      switch (this->processState(state, inputChar, currentLevel+1)) {
         case CONTINUE_NEW_CHAR:
           // move to the next term and stop
           if (termIndex >= concatList->getCount()-1) {
             // we finished all the terms on this level, so return
             // remove termIndex from the stack
-            this->tempState.popTermLevel();
+            state->popTermLevel();
             return CONTINUE_NEW_CHAR;
           } else {
             // update the term index on the stack
             termIndex++;
-            this->tempState.refLevel(currentLevel).posId = termIndex;
+            state->refLevel(currentLevel).posId = termIndex;
             // save the state on the stack
-            this->createState();
+            this->duplicateState(state);
             return STOP;
           }
         case CONTINUE_SAME_CHAR:
@@ -880,21 +881,21 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
           if (termIndex >= concatList->getCount()-1) {
             // we finished all the terms on this level, so return
             // remove termIndex from the stack
-            this->tempState.popTermLevel();
+            state->popTermLevel();
             return CONTINUE_SAME_CHAR;
           } else {
             // update the term index on the stack
             termIndex++;
-            this->tempState.refLevel(currentLevel).posId = termIndex;
+            state->refLevel(currentLevel).posId = termIndex;
             auto term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
             if (term == 0) {
               Str excMsg = S("Concat term's child term is null. Token def: ");
               excMsg += ID_GENERATOR->getDesc(
-                this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+                this->getSymbolDefinition(state->getTokenDefIndex())->getId()
               );
               throw EXCEPTION(GenericException, excMsg.c_str());
             }
-            this->tempState.pushTermLevel(0, term);
+            state->pushTermLevel(0, term);
           }
           break;
         case STOP:
@@ -910,13 +911,13 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
     Data::Grammar::ReferenceTerm *referenceTerm = static_cast<Data::Grammar::ReferenceTerm*>(currentTerm);
     Data::Grammar::SymbolDefinition *def;
     Data::Grammar::Module *retModule;
-    if (currentLevel == this->tempState.getLevelCount() - 1) {
+    if (currentLevel == state->getLevelCount() - 1) {
       // We are entering the reference term now.
       Data::Grammar::Reference *ref = referenceTerm->getReference().get();
       if (ref == 0) {
         Str excMsg = S("Reference is null for ReferenceTerm at token definition: ");
         excMsg += ID_GENERATOR->getDesc(
-          this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+          this->getSymbolDefinition(state->getTokenDefIndex())->getId()
         );
         throw EXCEPTION(GenericException, excMsg.c_str());
       }
@@ -924,7 +925,7 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
       if (retModule != this->grammarContext.getModule()) {
         Str excMsg = S("Lexer doesn't yet support referencing terms in a different module. Token definition: ");
         excMsg += ID_GENERATOR->getDesc(
-          this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+          this->getSymbolDefinition(state->getTokenDefIndex())->getId()
         );
         throw EXCEPTION(GenericException, excMsg.c_str());
       }
@@ -939,17 +940,17 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Int currentLevel)
         excMsg += ID_GENERATOR->getDesc(def->getId());
         throw EXCEPTION(GenericException, excMsg.c_str());
       }
-      this->tempState.pushTermLevel(0, def->getTerm().s_cast_get<Data::Grammar::Term>());
+      state->pushTermLevel(0, def->getTerm().s_cast_get<Data::Grammar::Term>());
     }
-    auto ret = this->processTempState(inputChar, currentLevel + 1);
+    auto ret = this->processState(state, inputChar, currentLevel + 1);
     if (ret != STOP) {
-      this->tempState.popTermLevel();
+      state->popTermLevel();
     }
     return ret;
   } else {
     Str excMsg = S("Invalid token type found. Token definition: ");
     excMsg += ID_GENERATOR->getDesc(
-      this->getSymbolDefinition(this->tempState.getTokenDefIndex())->getId()
+      this->getSymbolDefinition(state->getTokenDefIndex())->getId()
     );
     excMsg += S(". Object type: ");
     excMsg += currentTerm->getMyTypeInfo()->getTypeName();
@@ -1055,13 +1056,13 @@ void Lexer::clear()
  *
  * @return Int Returns the index of the new state on the stack.
  */
-Int Lexer::createState()
+Int Lexer::duplicateState(LexerState *state)
 {
   Int r;
   if (this->disabledStateIndex != -1) {
     r = this->disabledStateIndex;
     this->disabledStateIndex = -1;
-    this->states[r] = this->tempState;
+    this->states[r].copyFrom(state);
     return r;
   } else {
     r = this->states.size();
@@ -1070,7 +1071,7 @@ Int Lexer::createState()
       throw EXCEPTION(GenericException, S("States array maximum size exceeded."));
     }
     // Create the new state.
-    this->states.push_back(this->tempState);
+    this->states.push_back(*state);
     return r;
   }
 }

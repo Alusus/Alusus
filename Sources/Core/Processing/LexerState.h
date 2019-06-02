@@ -148,7 +148,7 @@ class LexerState
   }
 
   /// Copies the values of the object from another object.
-  private: void copyFrom(const LexerState *src);
+  public: void copyFrom(LexerState const *src);
 
 }; // class
 
