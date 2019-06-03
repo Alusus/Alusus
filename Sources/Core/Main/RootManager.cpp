@@ -52,9 +52,12 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->processArgs = 0;
 
   // Initialize current paths.
-  this->pushSearchPath((std::filesystem::u8path(getModuleDirectory().c_str()).string()).c_str());
-  this->pushSearchPath(((std::filesystem::u8path(getModuleDirectory().c_str()) / ".." / "Lib").string()).c_str());
-  this->pushSearchPath((std::filesystem::u8path(getWorkingDirectory().c_str()).string()).c_str());
+  Str path1 = std::filesystem::u8path(getModuleDirectory().c_str()).string();
+  Str path2 = (std::filesystem::u8path(getModuleDirectory().c_str()) / ".." / "Lib").string();
+  Str path3 = std::filesystem::u8path(getWorkingDirectory().c_str()).string();
+  this->pushSearchPath(path1.c_str());
+  this->pushSearchPath(path2.c_str());
+  this->pushSearchPath(path3.c_str());
   // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':'.
   Char *alususLibs = getenv(S("ALUSUS_LIBS"));
   if (alususLibs != nullptr) {
@@ -66,8 +69,9 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
       endPos = envPath.find(C(':'), startPos);
       if (endPos == Str::npos) endPos = envPath.size();
       path.assign(envPath, startPos, endPos-startPos);
+      path = std::filesystem::u8path(path.c_str()).string();
       if (path.size() > 0) {
-        this->pushSearchPath((std::filesystem::u8path(path.c_str()).string()).c_str());
+        this->pushSearchPath(path.c_str());
       }
     }
   }
@@ -166,7 +170,8 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
       return false;
     }
   } else {
-    Char const* sharedLibFileName = (newFileName + Str(".") + SHARED_LIB_EXT).c_str();
+    Str tempStr = newFileName + Str(".") + SHARED_LIB_EXT;
+    Char const* sharedLibFileName = tempStr.c_str();
 
     LOG(LogLevel::PARSER_MAJOR, S("Importing library: ") << sharedLibFileName);
 
@@ -278,7 +283,8 @@ Str RootManager::findAbsolutePath(Char const *filename)
   if (std::filesystem::u8path(filename).is_absolute()) {
     // Check if the file exists.
 #if defined(__MINGW32__) || defined(__MINGW64__)
-    fin.open(utf8Decode(std::string(filename)).c_str());
+    WStr tempStr = utf8Decode(std::string(filename));
+    fin.open(tempStr.c_str());
 #else
     fin.open(filename);
 #endif

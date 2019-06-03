@@ -94,7 +94,8 @@ SharedPtr<TiObject> Engine::processFile(Char const *filename)
   // Open the file.
 #if defined(__MINGW32__) || defined(__MINGW64__)
   std::wifstream fin;
-  fin.open(utf8Decode(Str(filename)).c_str());
+  WStr tempStr = utf8Decode(Str(filename));
+  fin.open(tempStr.c_str());
 #else
   std::ifstream fin(filename);
 #endif
