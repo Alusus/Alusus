@@ -16,6 +16,7 @@
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
 #include "win32api.h"
+#include <Windows.h>
 #endif
 
 /**

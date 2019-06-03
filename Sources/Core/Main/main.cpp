@@ -15,6 +15,7 @@
 #include <filesystem>
 #if defined(__MINGW32__) || defined(__MINGW64__)
 #include "win32api.h"
+#include <Windows.h>
 #include <direct.h>
 #else
 #include <unistd.h>

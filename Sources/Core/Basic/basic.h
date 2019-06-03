@@ -484,6 +484,9 @@ typedef std::ostream OutStream;
 typedef std::istream InStream;
 
 /// @ingroup basic_datatypes
+typedef std::wistream WInStream;
+
+/// @ingroup basic_datatypes
 s_enum(ContentChangeOp, ADDED, WILL_UPDATE, UPDATED, WILL_REMOVE, REMOVED);
 
 /// @ingroup basic_datatypes

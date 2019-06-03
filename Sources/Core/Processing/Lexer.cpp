@@ -98,6 +98,38 @@ void Lexer::handleNewString(Char const *inputStr, Data::SourceLocationRecord &so
   }
 }
 
+/**
+ * Add a single wide character to the input buffer and keep processing until no more
+ * wide characters are in the input buffer.
+ *
+ * @param inputChar The wide character to add to the input buffer.
+ * @param sourceLocaiton The source location at which the wide character appeared.
+ *                       This will be updated with the location immediately
+ *                       following this wide character.
+ */
+void Lexer::handleNewChar(WChar inputChar, Data::SourceLocationRecord &sourceLocation)
+{
+  this->pushChar(inputChar, sourceLocation);
+  this->processBuffer();
+  computeNextCharPosition(inputChar, sourceLocation.line, sourceLocation.column);
+}
+
+
+/**
+ * Add a wide string to the input buffer and keep processing until no more wide characters
+ * are in the input buffer.
+ *
+ * @param inputStr The wide string to add to the input buffer.
+ * @param sourceLocation The source location of the first wide character in the
+ *                       string. This will be updated with the new location.
+ */
+void Lexer::handleNewString(WChar const *inputStr, Data::SourceLocationRecord &sourceLocation)
+{
+  for (Int i = 0; i < static_cast<Int>(wcslen(inputStr)); i++) {
+    this->handleNewChar(inputStr[i], sourceLocation);
+  }
+}
+
 
 /**
  * Keep processing the input buffer until it has no more input characters.

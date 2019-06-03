@@ -4,7 +4,6 @@
 #define WIN32API_H
 
 #include <string>
-#include <Windows.h>
 
 /*
     Using a modified solution for "utf8Encode" and "utf8Decode" made by "tfinniga" from 
@@ -17,6 +16,9 @@ std::string utf8Encode(const std::wstring &wstr);
 
 // Convert a UTF8 string to a wide Unicode String.
 std::wstring utf8Decode(const std::string &str);
+
+// Read wchar_t from console.
+wchar_t readWCharTFromConsole();
 
 #endif
 #endif

@@ -29,13 +29,21 @@ class StdCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Member Variables
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  private: WInStream *stream;
+#else
   private: InStream *stream;
+#endif
 
 
   //============================================================================
   // Constructors & Destructor
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  public: StdCharInStream(WInStream *s) : stream(s)
+#else
   public: StdCharInStream(InStream *s) : stream(s)
+#endif
   {
     VALIDATE_NOT_NULL(s);
   }
@@ -48,9 +56,15 @@ class StdCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Member Functions
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  public: virtual WChar get()
+  {
+    WChar c;
+#else
   public: virtual Char get()
   {
     Char c;
+#endif
     this->stream->get(c);
     return c;
   }

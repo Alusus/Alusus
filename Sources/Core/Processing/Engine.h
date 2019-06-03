@@ -66,6 +66,9 @@ class Engine : public TiObject
   /// Parse the given string and return any resulting parsing data.
   public: SharedPtr<TiObject> processString(Char const *str, Char const *name);
 
+  /// Parse the given wide string and return any resulting parsing data.
+  public: SharedPtr<TiObject> processString(WChar const *str, Char const *name);
+
   /// Parse the given file and return any resulting parsing data.
   public: SharedPtr<TiObject> processFile(Char const *filename);
 

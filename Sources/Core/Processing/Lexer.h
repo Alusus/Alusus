@@ -217,6 +217,12 @@ class Lexer : public TiObject
   /// Add a string of input characters to the input buffer and process them.
   public: void handleNewString(Char const *inputStr, Data::SourceLocationRecord &sourceLocation);
 
+  /// Add a single input wide character to the input buffer and process it.
+  public: void handleNewChar(WChar inputChar, Data::SourceLocationRecord &sourceLocation);
+
+  /// Add a wide string of input wide characters to the input buffer and process them.
+  public: void handleNewString(WChar const *inputStr, Data::SourceLocationRecord &sourceLocation);
+
   /// Process all the characters currently waiting in the input buffer.
   private: void processBuffer();
 

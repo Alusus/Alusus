@@ -13,6 +13,10 @@
 #ifndef CORE_PROCESSING_INTERACTIVECHARINSTREAM_H
 #define CORE_PROCESSING_INTERACTIVECHARINSTREAM_H
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#include "win32api.h"
+#endif
+
 namespace Core::Processing
 {
 
@@ -48,11 +52,18 @@ class InteractiveCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Member Functions
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  public: virtual WChar get()
+  {
+    WChar c = readWCharTFromConsole();
+    if (c == L'\n') {
+#else
   public: virtual Char get()
   {
     Char c;
     inStream.get(c);
     if (c == C('\n')) {
+#endif
       outStream << ++this->lineNumber << S("> ");
     }
     return c;

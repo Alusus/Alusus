@@ -27,7 +27,11 @@ class CharInStreaming : public TiInterface
   //============================================================================
   // Member Functions
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  public: virtual WChar get() = 0;
+#else
   public: virtual Char get() = 0;
+#endif
   public: virtual Bool isEof() = 0;
 
 };

@@ -12,6 +12,10 @@
 
 #include "core.h"
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#include "win32api.h"
+#endif
+
 namespace Core { namespace Processing
 {
 
@@ -50,7 +54,7 @@ SharedPtr<TiObject> Engine::processString(Char const *str, Char const *name)
   auto endLine = sourceLocation.line;
   auto endColumn = sourceLocation.column;
 
-  lexer.handleNewChar(FILE_TERMINATOR, sourceLocation);
+  lexer.handleNewChar((Char) FILE_TERMINATOR, sourceLocation);
 
   sourceLocation.line = endLine;
   sourceLocation.column = endColumn;
@@ -58,16 +62,47 @@ SharedPtr<TiObject> Engine::processString(Char const *str, Char const *name)
   return this->parser.endParsing(sourceLocation);
 }
 
+SharedPtr<TiObject> Engine::processString(WChar const *str, Char const *name)
+{
+  if (str == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("str"), S("Cannot be null."), str);
+  }
+
+  this->parser.beginParsing();
+
+  // Start passing characters to the lexer.
+
+  Data::SourceLocationRecord sourceLocation;
+  sourceLocation.filename = std::make_shared<Str>(name);
+  sourceLocation.line = 1;
+  sourceLocation.column = 1;
+  lexer.handleNewString(str, sourceLocation);
+
+  auto endLine = sourceLocation.line;
+  auto endColumn = sourceLocation.column;
+
+  lexer.handleNewChar((Char) FILE_TERMINATOR, sourceLocation);
+
+  sourceLocation.line = endLine;
+  sourceLocation.column = endColumn;
+
+  return this->parser.endParsing(sourceLocation);
+}
 
 SharedPtr<TiObject> Engine::processFile(Char const *filename)
 {
   // Open the file.
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  std::wifstream fin;
+  fin.open(utf8Decode(Str(filename)).c_str());
+#else
   std::ifstream fin(filename);
-  StdCharInStream finStream(&fin);
-
+#endif
   if (fin.fail()) {
     throw EXCEPTION(InvalidArgumentException, S("filename"), S("Could not open file."), filename);
   }
+
+  StdCharInStream finStream(&fin);
   return this->processStream(&finStream, filename);
 }
 
@@ -86,7 +121,11 @@ SharedPtr<TiObject> Engine::processStream(CharInStreaming *is, Char const *strea
   sourceLocation.filename = std::make_shared<Str>(streamName);
   sourceLocation.line = 1;
   sourceLocation.column = 1;
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  WChar c = is->get();
+#else
   Char c = is->get();
+#endif
   while (!is->isEof()) {
     lexer.handleNewChar(c, sourceLocation);
     c = is->get();
@@ -95,7 +134,7 @@ SharedPtr<TiObject> Engine::processStream(CharInStreaming *is, Char const *strea
   auto endLine = sourceLocation.line;
   auto endColumn = sourceLocation.column;
 
-  lexer.handleNewChar(FILE_TERMINATOR, sourceLocation);
+  lexer.handleNewChar((Char) FILE_TERMINATOR, sourceLocation);
 
   sourceLocation.line = endLine;
   sourceLocation.column = endColumn;
