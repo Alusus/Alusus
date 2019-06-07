@@ -33,10 +33,8 @@ void LexerState::copyFrom(const LexerState *src)
   // Copy from the given state.
   this->tokenLength = src->getTokenLength();
   this->tokenDefIndex = src->getTokenDefIndex();
-  this->levels.resize(src->getLevelCount());
-  for (Word i = 0; i < this->levels.size(); i++) {
-    this->levels[i] = src->refLevel(i);
-  }
+  this->levelCount = src->getLevelCount();
+  memcpy(this->levels, src->levels, this->levelCount * sizeof(LexerState::Level));
 }
 
 } // namespace

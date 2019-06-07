@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_LEXERSTATE_H
 #define CORE_PROCESSING_LEXERSTATE_H
 
-namespace Core { namespace Processing
+namespace Core::Processing
 {
 
 /**
@@ -42,9 +42,10 @@ class LexerState
   //============================================================================
   // Member Variables
 
-  private: Int tokenDefIndex;
+  private: Int tokenDefIndex = -1;
 
-  private: std::vector<Level> levels;
+  private: Level levels[LEXER_STATE_LEVEL_MAX_COUNT];
+  private: Word levelCount = 0;
 
   /**
    * @brief The length of the token.
@@ -52,13 +53,13 @@ class LexerState
    * This variable holds the length of the token if the state has reached an
    * end, or 0 if the state is still active.
    */
-  private: Int tokenLength;
+  private: Int tokenLength = 0;
 
 
   //============================================================================
   // Constructors / Destructor
 
-  public: LexerState() : tokenLength(0), tokenDefIndex(-1)
+  public: LexerState()
   {
   }
 
@@ -87,6 +88,13 @@ class LexerState
   //============================================================================
   // Member Functions
 
+  public: void clear()
+  {
+    this->levelCount = 0;
+    this->tokenLength = 0;
+    this->tokenDefIndex = -1;
+  }
+
   public: void setTokenDefIndex(Int i)
   {
     this->tokenDefIndex = i;
@@ -99,23 +107,27 @@ class LexerState
 
   public: void pushTermLevel(Int posId, Data::Grammar::Term *term)
   {
-    this->levels.push_back(Level(posId, term));
+    if (this->levelCount >= LEXER_STATE_LEVEL_MAX_COUNT) {
+      throw EXCEPTION(GenericException, S("LexerState levels stack overflow."));
+    }
+    this->levels[this->levelCount] = Level(posId, term);
+    ++this->levelCount;
   }
 
   public: void popTermLevel()
   {
-    this->levels.pop_back();
+    --this->levelCount;
   }
 
   public: void resizeLevels(Word size)
   {
-    this->levels.resize(size);
+    this->levelCount = size;
   }
 
   /// Get the size of the levels stack.
   public: Word getLevelCount() const
   {
-    return this->levels.size();
+    return this->levelCount;
   }
 
   /// Get an entry in the levels stack.
@@ -152,6 +164,6 @@ class LexerState
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif
