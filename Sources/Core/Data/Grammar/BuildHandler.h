@@ -18,12 +18,12 @@ namespace Core::Data::Grammar
 
 // TODO: DOC
 
-class BuildHandler : public Node
+class BuildHandler : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(BuildHandler, Node, "Core.Data.Grammar", "Core", "alusus.org");
+  TYPE_INFO(BuildHandler, TiObject, "Core.Data.Grammar", "Core", "alusus.org");
 
 
   //============================================================================

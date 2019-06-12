@@ -111,73 +111,51 @@ class Context : public TiObject, public MapContaining<TiObject>
   /// @name Misc Functions
   /// @{
 
-  public: TiObject* traceValue(TiObject *val)
-  {
-    TiObject *retVal;
-    Module *retModule;
-    this->traceValue(val, retVal, retModule);
-    return retVal;
-  }
-
-  public: void traceValue(TiObject *val, TiObject *&retVal, Module *&retModule)
-  {
-    this->traceValue(val, 0, retVal, retModule);
-  }
-
-  public: TiObject* traceValue(TiObject *val, Module *module)
-  {
-    TiObject *retVal;
-    Module *retModule;
-    this->traceValue(val, module, retVal, retModule);
-    return retVal;
-  }
-
-  public: void traceValue(TiObject *val, Module *module, TiObject *&retVal, Module *&retModule);
+  public: TiObject* traceValue(TiObject *val);
 
   /// @}
 
   /// @name Term Helper Functions
   /// @{
 
-  public: void getListTermData(ListTerm *term, PlainPairedPtr &retVal, Module *module=0);
+  public: TiObject* getListTermData(ListTerm *term);
 
-  public: Word getListTermChildCount(ListTerm *term, PlainPairedPtr const &listData) const;
+  public: Word getListTermChildCount(ListTerm *term, TiObject *listData) const;
 
-  public: void getListTermChild(ListTerm *term, Int index, PlainPairedPtr &listData,
-                                Term *&retTerm, PlainPairedPtr &retData) const;
+  public: void getListTermChild(
+    ListTerm *term, Int index, TiObject *listData, Term *&retTerm, TiObject *&retData
+  ) const;
 
-  public: void useListTermChild(ListTerm *term, Int index, PlainPairedPtr &listData,
-                                Term *&retTerm, PlainPairedPtr *retData);
+  public: void useListTermChild(ListTerm *term, Int index, TiObject *listData, Term *&retTerm, TiObject *&retData);
 
-  public: TiInt* getTokenTermId(TokenTerm *term, Module *module=0);
+  public: TiInt* getTokenTermId(TokenTerm *term);
 
-  public: TiObject* getTokenTermText(TokenTerm *term, Module *module=0);
+  public: TiObject* getTokenTermText(TokenTerm *term);
 
-  public: void getReferencedCharGroup(Reference const *ref, CharGroupDefinition *&charGroupDef, Module *module=0);
+  public: CharGroupDefinition* getReferencedCharGroup(Reference const *ref);
 
-  public: void getReferencedSymbol(Reference const *ref, Module *&retModule, SymbolDefinition *&retDef,
-                                   Module *module=0);
+  public: SymbolDefinition* getReferencedSymbol(Reference const *ref);
 
-  public: TiInt* getMultiplyTermMax(MultiplyTerm *term, Module *module=0);
+  public: TiInt* getMultiplyTermMax(MultiplyTerm *term);
 
-  public: TiInt* getMultiplyTermMin(MultiplyTerm *term, Module *module=0);
+  public: TiInt* getMultiplyTermMin(MultiplyTerm *term);
 
-  public: TiInt* getMultiplyTermPriority(MultiplyTerm *term, Module *module=0);
+  public: TiInt* getMultiplyTermPriority(MultiplyTerm *term);
 
-  public: TiInt* getTermFlags(Term *term, Module *module=0);
+  public: TiInt* getTermFlags(Term *term);
 
   /// @}
 
   /// @name Symbol Definition Helper Functions
   /// @{
 
-  public: Term* getSymbolTerm(SymbolDefinition const *definition, Module *module=0);
+  public: Term* getSymbolTerm(SymbolDefinition const *definition);
 
-  public: Map* getSymbolVars(SymbolDefinition const *definition, Module *module=0);
+  public: Map* getSymbolVars(SymbolDefinition const *definition);
 
-  public: TiInt* getSymbolPriority(SymbolDefinition const *definition, Module *module=0);
+  public: TiInt* getSymbolPriority(SymbolDefinition const *definition);
 
-  public: TiInt* getSymbolFlags(SymbolDefinition const *definition, Module *module=0);
+  public: TiInt* getSymbolFlags(SymbolDefinition const *definition);
 
   /// @}
 

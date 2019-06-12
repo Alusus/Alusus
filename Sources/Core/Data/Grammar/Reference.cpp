@@ -24,11 +24,11 @@ Bool Reference::setValue(TiObject *source, TiObject *value) const
     if (container == 0) return false;
 
     if (this->cachedIndex < 0 || this->cachedIndex >= container->getElementCount()) {
-      this->cachedIndex = container->findElementIndex(this->key.c_str());
+      this->cachedIndex = container->findElementIndex(this->key.get());
     }
 
     if (this->cachedIndex == -1) {
-      container->setElement(this->key.c_str(), value);
+      container->setElement(this->key.get(), value);
     } else {
       container->setElement(this->cachedIndex, value);
     }
@@ -51,7 +51,7 @@ Bool Reference::removeValue(TiObject *source) const
     if (container == 0) return false;
 
     if (this->cachedIndex < 0 || this->cachedIndex >= container->getElementCount()) {
-      this->cachedIndex = container->findElementIndex(this->key.c_str());
+      this->cachedIndex = container->findElementIndex(this->key.get());
       if (this->cachedIndex == -1) return false;
     }
 
@@ -100,7 +100,7 @@ Bool Reference::_getValue(TiObject *source, TiObject *&value, Module **ownerModu
       container = source->getInterface<MapContaining<TiObject>>();
       if (container == 0) return false;
 
-      this->cachedIndex = container->findElementIndex(this->key.c_str());
+       this->cachedIndex = container->findElementIndex(this->key.get());
       if (this->cachedIndex == -1) return false;
     }
   }

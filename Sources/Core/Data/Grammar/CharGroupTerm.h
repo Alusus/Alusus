@@ -32,6 +32,7 @@ class CharGroupTerm : public Term, public DataHaving
   TYPE_INFO(CharGroupTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(DataHaving)
   ));
+  OBJECT_FACTORY(CharGroupTerm);
 
 
   //============================================================================
@@ -57,6 +58,7 @@ class CharGroupTerm : public Term, public DataHaving
 
   public: virtual ~CharGroupTerm()
   {
+    RESET_OWNED_SHAREDPTR(this->charGroupReference);
   }
 
 
@@ -65,7 +67,7 @@ class CharGroupTerm : public Term, public DataHaving
 
   public: void setCharGroupReference(SharedPtr<Reference> const &ref)
   {
-    this->charGroupReference = ref;
+    UPDATE_OWNED_SHAREDPTR(this->charGroupReference, ref);
   }
 
   private: void setCharGroupReference(Reference *ref)

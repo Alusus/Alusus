@@ -28,6 +28,7 @@ class SymbolDefinition : public Node,
   TYPE_INFO(SymbolDefinition, Node, "Core.Data.Grammar", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(Binding, MapContaining<TiObject>, Inheriting, IdHaving, DataHaving)
   ));
+  OBJECT_FACTORY(SymbolDefinition);
 
 
   //============================================================================
@@ -140,7 +141,7 @@ class SymbolDefinition : public Node,
 
   public: void setBaseRef(SharedPtr<Reference> const &p)
   {
-    this->baseRef = p;
+    UPDATE_OWNED_SHAREDPTR(this->baseRef, p);
   }
   private: void setBaseRef(Reference *p)
   {
@@ -178,7 +179,7 @@ class SymbolDefinition : public Node,
     if (p != 0 && !p->isA<TiInt>() && !p->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, S("p"), S("Must be of type TiInt or Reference."));
     }
-    this->priority = p;
+    UPDATE_OWNED_SHAREDPTR(this->priority, p);
     this->ownership |= SymbolDefinition::Element::PRIORITY;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::PRIORITY);
   }
@@ -190,7 +191,7 @@ class SymbolDefinition : public Node,
 
   public: void resetPriority()
   {
-    this->priority.reset();
+    RESET_OWNED_SHAREDPTR(this->priority);
     if (this->base != 0) this->priority = this->base->getPriority();
     this->ownership &= ~SymbolDefinition::Element::PRIORITY;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::PRIORITY);
@@ -212,7 +213,7 @@ class SymbolDefinition : public Node,
     if (f != 0 && !f->isA<TiInt>() && !f->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, S("f"), S("Must be of type TiInt or Reference."));
     }
-    this->flags = f;
+    UPDATE_OWNED_SHAREDPTR(this->flags, f);
     this->ownership |= SymbolDefinition::Element::FLAGS;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::FLAGS);
   }
@@ -224,7 +225,7 @@ class SymbolDefinition : public Node,
 
   public: void resetFlags()
   {
-    this->flags.reset();
+    RESET_OWNED_SHAREDPTR(this->flags);
     if (this->base != 0) this->flags = this->base->getFlags();
     this->ownership &= ~SymbolDefinition::Element::FLAGS;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::FLAGS);
@@ -385,7 +386,7 @@ class SymbolDefinition : public Node,
      */
   public: void setBuildHandler(SharedPtr<BuildHandler> const &h)
   {
-    UPDATE_OWNED_SHAREDPTR(this->handler, h);
+    this->handler = h;
     this->ownership |= SymbolDefinition::Element::HANDLER;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::HANDLER);
   }
@@ -397,7 +398,7 @@ class SymbolDefinition : public Node,
 
   public: void resetBuildHandler()
   {
-    RESET_OWNED_SHAREDPTR(this->handler);
+    this->handler.reset();
     if (this->base != 0) this->handler = this->base->getBuildHandler();
     this->ownership &= ~SymbolDefinition::Element::HANDLER;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::HANDLER);

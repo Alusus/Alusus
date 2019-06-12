@@ -26,6 +26,7 @@ class TokenTerm : public Term, public DataHaving
   TYPE_INFO(TokenTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(DataHaving)
   ));
+  OBJECT_FACTORY(TokenTerm);
 
 
   //============================================================================
@@ -54,6 +55,8 @@ class TokenTerm : public Term, public DataHaving
 
   public: virtual ~TokenTerm()
   {
+    RESET_OWNED_SHAREDPTR(this->tokenId);
+    RESET_OWNED_SHAREDPTR(this->tokenText);
   }
 
 
@@ -65,7 +68,7 @@ class TokenTerm : public Term, public DataHaving
     if (id != 0 && !id->isA<TiInt>() && !id->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, S("s"), S("Must be of type TiInt or Reference."));
     }
-    this->tokenId = id;
+    UPDATE_OWNED_SHAREDPTR(this->tokenId, id);
   }
 
   private: void setTokenId(TiObject *id)
@@ -83,7 +86,7 @@ class TokenTerm : public Term, public DataHaving
     if (text != 0 && !text->isA<TiStr>() && !text->isA<Map>() && !text->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, S("text"), S("Must be of type TiStr or Reference."));
     }
-    this->tokenText = text;
+    UPDATE_OWNED_SHAREDPTR(this->tokenText, text);
   }
 
   private: void setTokenText(TiObject *text)

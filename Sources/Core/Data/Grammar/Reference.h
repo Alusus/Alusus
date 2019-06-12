@@ -16,21 +16,32 @@
 namespace Core::Data::Grammar
 {
 
-class Reference : public Node, public DataHaving
+class Reference : public Node, public Binding, public DataHaving
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Reference, Node, "Core.Data.Grammar", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES_1(Node, DataHaving);
+  TYPE_INFO(Reference, Node, "Core.Data.Grammar", "Core", "alusus.org", (
+    INHERITANCE_INTERFACES(Binding, DataHaving)
+  ));
+  OBJECT_FACTORY(Reference);
 
 
   //============================================================================
   // Member Variables
 
   private: SharedPtr<Reference> next;
-  private: Str key;
+  private: TiStr key;
   private: mutable Int cachedIndex;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_BINDING(Binding,
+    (next, Reference, SHARED_REF, setNext(value), next.get()),
+    (key, TiStr, VALUE, setKey(value), &this->key)
+  );
 
 
   //============================================================================
@@ -66,6 +77,10 @@ class Reference : public Node, public DataHaving
   {
     UPDATE_OWNED_SHAREDPTR(this->next, n);
   }
+  public: void setNext(Reference *n)
+  {
+    this->setNext(getSharedPtr(n));
+  }
 
   /// @sa setNext()
   public: SharedPtr<Reference> const& getNext() const
@@ -78,14 +93,18 @@ class Reference : public Node, public DataHaving
     this->key = k;
     this->cachedIndex = -1;
   }
+  public: void setKey(TiStr const *k)
+  {
+    this->key = k == 0 ? "" : k->get();
+  }
 
   public: void setKey(Char const *k, Int s)
   {
-    this->key.assign(k, s);
+    this->key.set(k, s);
     this->cachedIndex = -1;
   }
 
-  public: Str const& getKey() const
+  public: TiStr const& getKey() const
   {
     return this->key;
   }

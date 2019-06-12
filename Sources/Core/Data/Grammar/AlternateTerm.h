@@ -34,6 +34,7 @@ class AlternateTerm : public ListTerm
   // Type Info
 
   TYPE_INFO(AlternateTerm, ListTerm, "Core.Data.Grammar", "Core", "alusus.org");
+  OBJECT_FACTORY(AlternateTerm);
 
 
   //============================================================================

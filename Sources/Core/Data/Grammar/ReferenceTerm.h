@@ -26,6 +26,7 @@ class ReferenceTerm : public Term, public DataHaving
   TYPE_INFO(ReferenceTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(DataHaving)
   ));
+  OBJECT_FACTORY(ReferenceTerm);
 
 
   //============================================================================
@@ -51,6 +52,7 @@ class ReferenceTerm : public Term, public DataHaving
 
   public: virtual ~ReferenceTerm()
   {
+    RESET_OWNED_SHAREDPTR(this->reference);
   }
 
 
@@ -59,7 +61,7 @@ class ReferenceTerm : public Term, public DataHaving
 
   public: void setReference(SharedPtr<Reference> const &ref)
   {
-    this->reference = ref;
+    UPDATE_OWNED_SHAREDPTR(this->reference, ref);
   }
 
   private: void setReference(Reference *ref)

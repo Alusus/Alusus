@@ -94,9 +94,7 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
 #define OWN_SHAREDPTR(ptr) \
   { \
     auto __ptr = (ptr).ti_cast_get<Node>(); \
-    if (__ptr != 0 && __ptr->isDerivedFrom<Node>()) { \
-        __ptr->setOwner(this); \
-    } \
+    if (__ptr != 0) { __ptr->setOwner(this); } \
   }
 
 /**
@@ -106,10 +104,8 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
  */
 #define OWN_PLAINPTR(ptr) \
   { \
-    auto __ptr = ptr; \
-    if (__ptr != 0 && __ptr->isDerivedFrom<Node>()) { \
-        ti_cast<Node>(__ptr)->setOwner(this); \
-    } \
+    auto __ptr = (ptr).ti_cast_get<Node>(); \
+    if (__ptr != 0) { __ptr->setOwner(this); } \
   }
 
 /**
@@ -119,9 +115,7 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
 #define DISOWN_SHAREDPTR(ptr) \
   { \
     auto __ptr = (ptr).ti_cast_get<Node>(); \
-    if (__ptr != 0 && __ptr->isDerivedFrom<Node>() && __ptr->getOwner() == this) { \
-        __ptr->setOwner(0); \
-    } \
+    if (__ptr != 0 && __ptr->getOwner() == this) { __ptr->setOwner(0); } \
   }
 
 /**
@@ -132,9 +126,7 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
 #define DISOWN_PLAINPTR(ptr) \
   { \
     auto __ptr = ti_cast<Node>(ptr); \
-    if (__ptr != 0 && __ptr->isDerivedFrom<Node>() && __ptr->getOwner() == this) { \
-        __ptr->setOwner(0); \
-    } \
+    if (__ptr != 0 && __ptr->getOwner() == this) { __ptr->setOwner(0); } \
   }
 
 /**

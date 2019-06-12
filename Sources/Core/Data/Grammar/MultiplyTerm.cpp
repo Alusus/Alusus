@@ -30,7 +30,7 @@ void MultiplyTerm::setMin(SharedPtr<TiObject> const &m)
                     S("Must be of type TiInt or Reference."),
                     min->getMyTypeInfo()->getUniqueName());
   }
-  this->min = m;
+  UPDATE_OWNED_SHAREDPTR(this->min, m);
 }
 
 
@@ -46,7 +46,7 @@ void MultiplyTerm::setMax(SharedPtr<TiObject> const &m)
                     S("Must be of type TiInt or Reference."),
                     max->getMyTypeInfo()->getUniqueName());
   }
-  this->max = m;
+  UPDATE_OWNED_SHAREDPTR(this->max, m);
 }
 
 
@@ -63,7 +63,7 @@ void MultiplyTerm::setPriority(SharedPtr<TiObject> const &p)
                     S("Must be of type TiInt or Reference."),
                     p->getMyTypeInfo()->getUniqueName());
   }
-  this->priority = p;
+  UPDATE_OWNED_SHAREDPTR(this->priority, p);
 }
 
 

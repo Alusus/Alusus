@@ -31,6 +31,7 @@ class ConcatTerm : public ListTerm
   // Type Info
 
   TYPE_INFO(ConcatTerm, ListTerm, "Core.Data.Grammar", "Core", "alusus.org");
+  OBJECT_FACTORY(ConcatTerm);
 
 
   //============================================================================

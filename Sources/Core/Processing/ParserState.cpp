@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Processing
+namespace Core::Processing
 {
 
 //==============================================================================
@@ -239,20 +239,20 @@ void ParserState::pushTermLevel(Data::Grammar::Term *term)
 
   // Set level info.
   this->topTermLevelCache->setTerm(term);
-  this->topTermLevelCache->getFlags()->object = this->grammarContext.getTermFlags(term);
+  this->topTermLevelCache->setFlags(this->grammarContext.getTermFlags(term));
   // Cache term parameters for faster access later.
   if (term->isA<Data::Grammar::TokenTerm>()) {
     Data::Grammar::TokenTerm *tokenTerm = static_cast<Data::Grammar::TokenTerm*>(term);
-    this->topTermLevelCache->getParam1()->object = this->grammarContext.getTokenTermId(tokenTerm);
-    this->topTermLevelCache->getParam2()->object = this->grammarContext.getTokenTermText(tokenTerm);
+    this->topTermLevelCache->setParam1(this->grammarContext.getTokenTermId(tokenTerm));
+    this->topTermLevelCache->setParam2(this->grammarContext.getTokenTermText(tokenTerm));
   } else if (term->isDerivedFrom<Data::Grammar::ListTerm>()) {
     Data::Grammar::ListTerm *list_term = static_cast<Data::Grammar::ListTerm*>(term);
-    this->grammarContext.getListTermData(list_term, *(this->topTermLevelCache->getParam1()));
+    this->topTermLevelCache->setParam1(this->grammarContext.getListTermData(list_term));
   } else if (term->isA<Data::Grammar::MultiplyTerm>()) {
     Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(term);
-    this->topTermLevelCache->getParam1()->object = this->grammarContext.getMultiplyTermMax(multiplyTerm);
-    this->topTermLevelCache->getParam2()->object = this->grammarContext.getMultiplyTermMin(multiplyTerm);
-    this->topTermLevelCache->getParam3()->object = this->grammarContext.getMultiplyTermPriority(multiplyTerm);
+    this->topTermLevelCache->setParam1(this->grammarContext.getMultiplyTermMax(multiplyTerm));
+    this->topTermLevelCache->setParam2(this->grammarContext.getMultiplyTermMin(multiplyTerm));
+    this->topTermLevelCache->setParam3(this->grammarContext.getMultiplyTermPriority(multiplyTerm));
   }
 }
 
@@ -413,8 +413,9 @@ Word ParserState::getListTermChildCount(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isDerivedFrom<Data::Grammar::ListTerm>());
-  return this->grammarContext.getListTermChildCount(static_cast<Data::Grammar::ListTerm*>(level->getTerm()),
-                                                    *(level->getParam1()));
+  return this->grammarContext.getListTermChildCount(
+    static_cast<Data::Grammar::ListTerm*>(level->getTerm()), level->getParam1()
+  );
 }
 
 
@@ -425,8 +426,11 @@ Data::Grammar::Term* ParserState::useListTermChild(Int index, Int levelOffset)
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isDerivedFrom<Data::Grammar::ListTerm>());
   Data::Grammar::Term *term;
-  this->grammarContext.useListTermChild(static_cast<Data::Grammar::ListTerm*>(level->getTerm()),
-                                        index, *(level->getParam1()), term, level->getParam2());
+  TiObject *data;
+  this->grammarContext.useListTermChild(
+    static_cast<Data::Grammar::ListTerm*>(level->getTerm()), index, level->getParam1(), term, data
+  );
+  level->setParam2(data);
   return term;
 }
 
@@ -437,7 +441,7 @@ TiInt* ParserState::getTokenTermId(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::Grammar::TokenTerm>());
-  return static_cast<TiInt*>(level->getParam1()->object);
+  return static_cast<TiInt*>(level->getParam1());
 }
 
 
@@ -447,7 +451,7 @@ TiObject* ParserState::getTokenTermText(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::Grammar::TokenTerm>());
-  return level->getParam2()->object;
+  return level->getParam2();
 }
 
 
@@ -462,7 +466,8 @@ void ParserState::getReferencedSymbol(
     ASSERT(this->refTermLevel(levelOffset).getTerm()->isA<Data::Grammar::ReferenceTerm>());
     ref = static_cast<Data::Grammar::ReferenceTerm*>(this->refTermLevel(levelOffset).getTerm())->getReference().get();
   }
-  this->grammarContext.getReferencedSymbol(ref, module, definition);
+  definition = this->grammarContext.getReferencedSymbol(ref);
+  module = definition->findOwner<Data::Grammar::Module>();
 }
 
 
@@ -472,7 +477,7 @@ TiInt* ParserState::getMultiplyTermMax(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::Grammar::MultiplyTerm>());
-  return static_cast<TiInt*>(level->getParam1()->object);
+  return static_cast<TiInt*>(level->getParam1());
 }
 
 
@@ -482,7 +487,7 @@ TiInt* ParserState::getMultiplyTermMin(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::Grammar::MultiplyTerm>());
-  return static_cast<TiInt*>(level->getParam2()->object);
+  return static_cast<TiInt*>(level->getParam2());
 }
 
 
@@ -492,7 +497,7 @@ TiInt* ParserState::getMultiplyTermPriority(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::Grammar::MultiplyTerm>());
-  return static_cast<TiInt*>(level->getParam3()->object);
+  return static_cast<TiInt*>(level->getParam3());
 }
 
 
@@ -501,7 +506,7 @@ TiInt* ParserState::getTermFlags(Int levelOffset) const
   const ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
-  return static_cast<TiInt*>(level->getFlags()->object);
+  return static_cast<TiInt*>(level->getFlags());
 }
 
 
@@ -729,4 +734,4 @@ void ParserState::copyTermLevel(ParserState *src, Int offset)
   this->topTermLevelCache->copyFrom(&src->refTermLevel(offset));
 }
 
-} } // namespace
+} // namespace

@@ -56,7 +56,7 @@ namespace Core::Data::Grammar
 
 /**
  * @brief An enumeration used to define term flags.
- * @ingroup core_data
+ * @ingroup core_data_grammar
  *
  * ERROR_SYNC_TERM: Specifies that the given term is an error sync term, which
  *                  means that in the case of syntax errors the parser should
@@ -70,7 +70,7 @@ s_enum(TermFlags, ERROR_SYNC_TERM=(1<<16), ONE_ROUTE_TERM=(1<<17));
 
 /**
  * @brief An enumeration used to define symbol flags.
- * @ingroup core_data
+ * @ingroup core_data_grammar
  *
  * ROOT_TOKEN: Specifies that the symbol is a root token that should be checked
  *             by the lexer when it starts a new token. The lexer loops through
@@ -98,7 +98,7 @@ Module* getGrammarRoot(DynamicContaining<TiObject> *rootScope, Bool createIfMiss
 
 /**
  * @brief Match a given character to a character group hierarchy.
- * @ingroup core_data
+ * @ingroup core_data_grammar
  * Recursively matches the given character to the given character group. This
  * recursive function will descend into the entire character group tree to
  * match the given character.
@@ -112,7 +112,7 @@ Bool matchCharGroup(WChar ch, CharGroupUnit *unit);
 
 /**
  * @brief Set the IDs of all elements in a given tree.
- * @ingroup core_data
+ * @ingroup core_data_grammar
  * Sets the ID of the given object, and the IDs of any objects contained within
  * the given object if the given object is a container. The ids will be the
  * concatenated container keys that lead to the given object from the root
@@ -123,7 +123,7 @@ void setTreeIds(TiObject *obj);
 
 /**
  * @brief Set the IDs of all elements in a given tree.
- * @ingroup core_data
+ * @ingroup core_data_grammar
  * Sets the ID of the given object, and the IDs of any objects contained within
  * the given object if the given object is a container. The IDs of inner
  * objects will have the format: <id>.<childName>
@@ -132,7 +132,7 @@ void setTreeIds(TiObject *obj, const Char *id);
 
 /**
  * @brief Generate an ID for the given object.
- * @ingroup core_data
+ * @ingroup core_data_grammar
  * This function will generate the ID by tracing the owners of the given object
  * all the way to the root Module and generate the ID from the concatenated keys
  * that leads to the given object.
@@ -140,6 +140,24 @@ void setTreeIds(TiObject *obj, const Char *id);
  * @param id A string stream to hold the generated ID.
  */
 void generateId(Node *obj, StrStream &id);
+
+TioSharedPtr _cloneInherited(TioSharedPtr const &obj);
+
+/**
+ * @brief Generate a clone for an object that is inherited from another object.
+ * @ingroup core_data_grammar
+ * This recursive function will generate a clone of the provided tree, and for
+ * each node within the tree it will copy the properties of that object from
+ * the source, or will set that object to inherit from the source (if that
+ * node implements the Inheriting interface).
+ * This function should be used by objects that inherit properties from other
+ * objects so that it inherits a copy of the original rather than share the
+ * original and have a wrong owner pointer.
+ */
+template <class T> SharedPtr<T> cloneInherited(SharedPtr<T> const &obj)
+{
+  return _cloneInherited(obj).template s_cast<T>();
+}
 
 } // namespace
 

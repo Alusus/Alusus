@@ -637,7 +637,7 @@ Lexer::NextAction Lexer::processCharGroupTerm(LexerState *state, WChar inputChar
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
-    this->grammarContext.getReferencedCharGroup(ref, def);
+    def = this->grammarContext.getReferencedCharGroup(ref);
     if (def->getCharGroupUnit() == 0) {
       Str excMsg = S("Invalid character group (");
       excMsg += ID_GENERATOR->getDesc(def->getId());
@@ -869,8 +869,6 @@ Lexer::NextAction Lexer::processReferenceTerm(LexerState *state, WChar inputChar
     auto currentTerm = state->refLevel(currentLevel).term;
     ASSERT(currentTerm->isA<Data::Grammar::ReferenceTerm>());
     Data::Grammar::ReferenceTerm *referenceTerm = static_cast<Data::Grammar::ReferenceTerm*>(currentTerm);
-    Data::Grammar::SymbolDefinition *def;
-    Data::Grammar::Module *retModule;
 
     // We are entering the reference term now.
     Data::Grammar::Reference *ref = referenceTerm->getReference().get();
@@ -881,7 +879,8 @@ Lexer::NextAction Lexer::processReferenceTerm(LexerState *state, WChar inputChar
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
-    this->grammarContext.getReferencedSymbol(ref, retModule, def);
+    auto def = this->grammarContext.getReferencedSymbol(ref);
+    auto retModule = def->findOwner<Data::Grammar::Module>();
     if (retModule != this->grammarContext.getModule()) {
       Str excMsg = S("Lexer doesn't yet support referencing terms in a different module. Token definition: ");
       excMsg += ID_GENERATOR->getDesc(

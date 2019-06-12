@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_PARSERTERMLEVEL_H
 #define CORE_PROCESSING_PARSERTERMLEVEL_H
 
-namespace Core { namespace Processing
+namespace Core::Processing
 {
 
 /**
@@ -45,17 +45,13 @@ class ParserTermLevel
   /// Pointer to the current level's term object.
   private: Data::Grammar::Term *term;
 
-  /// @sa setParam1()
-  private: Data::PlainPairedPtr param1;
+  private: TiObject *param1;
 
-  /// @sa setParam2()
-  private: Data::PlainPairedPtr param2;
+  private: TiObject *param2;
 
-  /// @sa setParam3()
-  private: Data::PlainPairedPtr param3;
+  private: TiObject *param3;
 
-  /// @sa setFlags()
-  private: Data::PlainPairedPtr flags;
+  private: TiObject *flags;
 
 
   //============================================================================
@@ -69,10 +65,10 @@ class ParserTermLevel
   /// Copy the state level and increment data users count.
   public: ParserTermLevel(const ParserTermLevel &level) : posId(level.getPosId()),
     term(level.getTerm()),
-    param1(*(level.getParam1())),
-    param2(*(level.getParam2())),
-    param3(*(level.getParam3())),
-    flags(*(level.getFlags()))
+    param1(level.getParam1()),
+    param2(level.getParam2()),
+    param3(level.getParam3()),
+    flags(level.getFlags())
   {
   }
 
@@ -122,13 +118,13 @@ class ParserTermLevel
    * parameters everytime the level is revisited. This is needed mainly for
    * concat terms, alternate terms, as well as multiply terms.
    */
-  protected: Data::PlainPairedPtr* getParam1()
+  protected: void setParam1(TiObject *p)
   {
-    return &this->param1;
+    this->param1 = p;
   }
-  protected: Data::PlainPairedPtr const* getParam1() const
+  public: TiObject* getParam1() const
   {
-    return &this->param1;
+    return this->param1;
   }
 
   /**
@@ -137,13 +133,13 @@ class ParserTermLevel
    * parameters everytime the level is revisited. This is needed mainly for
    * concat terms, alternate terms, as well as multiply terms.
    */
-  protected: Data::PlainPairedPtr* getParam2()
+  protected: void setParam2(TiObject *p)
   {
-    return &this->param2;
+    this->param2 = p;
   }
-  protected: Data::PlainPairedPtr const* getParam2() const
+  public: TiObject* getParam2() const
   {
-    return &this->param2;
+    return this->param2;
   }
 
   /**
@@ -152,36 +148,36 @@ class ParserTermLevel
    * parameters everytime the level is revisited. This is needed mainly for
    * concat terms, alternate terms, as well as multiply terms.
    */
-  protected: Data::PlainPairedPtr* getParam3()
+  protected: void setParam3(TiObject *p)
   {
-    return &this->param3;
+    this->param3 = p;
   }
-  protected: Data::PlainPairedPtr const* getParam3() const
+  public: TiObject* getParam3() const
   {
-    return &this->param3;
+    return this->param3;
   }
 
-  protected: Data::PlainPairedPtr* getFlags()
+  protected: void setFlags(TiObject *f)
   {
-    return &this->flags;
+    this->flags = f;
   }
-  protected: Data::PlainPairedPtr const* getFlags() const
+  public: TiObject* getFlags() const
   {
-    return &this->flags;
+    return this->flags;
   }
 
   public: void copyFrom(ParserTermLevel *src)
   {
     this->setTerm(src->getTerm());
     this->setPosId(src->getPosId());
-    this->param1 = *src->getParam1();
-    this->param2 = *src->getParam2();
-    this->param3 = *src->getParam3();
-    this->flags = *src->getFlags();
+    this->param1 = src->getParam1();
+    this->param2 = src->getParam2();
+    this->param3 = src->getParam3();
+    this->flags = src->getFlags();
   }
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

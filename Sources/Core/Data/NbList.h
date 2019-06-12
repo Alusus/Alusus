@@ -70,7 +70,7 @@ class NbList : public SharedListBase<TiObject, Node>, public DataHaving
   protected: virtual void finalizeSet(
     Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
   ) {
-    if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
+    if (obj != 0 && obj->isDerivedFrom<Node>()) {
       obj.s_cast_get<Node>()->setOwner(this);
     }
   }
@@ -78,7 +78,7 @@ class NbList : public SharedListBase<TiObject, Node>, public DataHaving
   protected: virtual void prepareForUnset(
     Int index, SharedPtr<TiObject> const &obj, Bool inherited
   ) {
-    if (!inherited && obj != 0 && obj->isDerivedFrom<Node>() && obj.s_cast_get<Node>()->getOwner() == this) {
+    if (obj != 0 && obj->isDerivedFrom<Node>() && obj.s_cast_get<Node>()->getOwner() == this) {
       obj.s_cast_get<Node>()->setOwner(0);
     }
   }

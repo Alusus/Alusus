@@ -39,6 +39,7 @@ class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObje
   TYPE_INFO(MultiplyTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(DataHaving, MapContaining<TiObject>)
   ));
+  OBJECT_FACTORY(MultiplyTerm);
 
 
   //============================================================================
@@ -77,6 +78,9 @@ class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObje
   public: virtual ~MultiplyTerm()
   {
     RESET_OWNED_SHAREDPTR(this->term);
+    RESET_OWNED_SHAREDPTR(this->min);
+    RESET_OWNED_SHAREDPTR(this->max);
+    RESET_OWNED_SHAREDPTR(this->priority);
   }
 
 

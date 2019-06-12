@@ -283,7 +283,7 @@ void GrammarFactory::createGrammar(
     })}
   }).get());
   this->set(S("root.Main.ModuleStatements"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Statements"))}
+    {S("baseRef"), PARSE_REF(S("module.owner.Statements"))}
   }));
   this->set(S("root.Main.ModuleStatements.StmtList"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.StmtList"))},
@@ -359,7 +359,7 @@ void GrammarFactory::createGrammar(
 
   // FuncSigExpression
   this->set(S("root.Main.FuncSigExpression"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Expression")) },
+    {S("baseRef"), PARSE_REF(S("module.owner.Expression")) },
     {S("startRef"), PARSE_REF(S("module.LowerLinkExp"))}
   }, {
     {S("subject"), PARSE_REF(S("module.owner.FuncSigSubject"))}
@@ -399,7 +399,7 @@ void GrammarFactory::createGrammar(
   }).get());
 
   this->set(S("root.Main.FuncSigSubject"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Subject")) }
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
   }).get());
   this->set(S("root.Main.FuncSigSubject.Sbj"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
@@ -448,7 +448,7 @@ void GrammarFactory::createGrammar(
   innerCmdList->add(PARSE_REF(S("module.Macro")));
   // Macro Signature
   this->set(S("root.Main.MacroSignature"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Subject")) }
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
   }).get());
   this->set(S("root.Main.MacroSignature.Sbj"), SymbolDefinition::create({
    {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
@@ -473,19 +473,19 @@ void GrammarFactory::createGrammar(
   }).get());
   // BlockStatements
   this->set(S("root.Main.BlockStatements"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Statements"))}
+    {S("baseRef"), PARSE_REF(S("module.owner.Statements"))}
   }, {
     {S("expression"), PARSE_REF(S("module.owner.BlockExpression"))}
   }));
   // BlockSubject
   this->set(S("root.Main.BlockSubject"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Subject")) }
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
   }, {
     {S("set"), PARSE_REF(S("module.owner.BlockSet"))}
   }).get());
   // BlockExpression
   this->set(S("root.Main.BlockExpression"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Expression")) }
+    {S("baseRef"), PARSE_REF(S("module.owner.Expression")) }
   }, {
     {S("subject"), PARSE_REF(S("module.owner.BlockSubject"))}
   }).get());
@@ -531,7 +531,7 @@ void GrammarFactory::createGrammar(
   }).get());
   tildeCmdList->add(PARSE_REF(S("module.CastTilde")));
   this->set(S("root.Main.CastSubject"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Subject")) }
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
   }).get());
   this->set(S("root.Main.CastSubject.Sbj"), SymbolDefinition::create({
    {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
@@ -647,7 +647,7 @@ List* GrammarFactory::getLeadingCommandsList()
     throw EXCEPTION(GenericException, S("Could not find leading command group."));
   }
 
-  Map *vars = this->context.getSymbolVars(def, module);
+  Map *vars = this->context.getSymbolVars(def);
   List *cmd_list = ti_cast<List>(vars->getElement(S("prods")));
   if (cmd_list == 0) {
     throw EXCEPTION(GenericException, S("Could not find leading command group's command list."));
@@ -669,7 +669,7 @@ List* GrammarFactory::getInnerCommandsList()
     throw EXCEPTION(GenericException, S("Could not find inner command group."));
   }
 
-  Map *vars = this->context.getSymbolVars(def, module);
+  Map *vars = this->context.getSymbolVars(def);
   List *cmd_list = ti_cast<List>(vars->getElement(S("prods")));
   if (cmd_list == 0) {
     throw EXCEPTION(GenericException, S("Could not find inner command group's command list."));
@@ -691,7 +691,7 @@ List* GrammarFactory::getTildeCommandsList()
     throw EXCEPTION(GenericException, S("Could not find tilde command group."));
   }
 
-  Map *vars = this->context.getSymbolVars(def, module);
+  Map *vars = this->context.getSymbolVars(def);
   List *cmd_list = ti_cast<List>(vars->getElement(S("prods")));
   if (cmd_list == 0) {
     throw EXCEPTION(GenericException, S("Could not find inner command group's command list."));

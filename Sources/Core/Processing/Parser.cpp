@@ -98,9 +98,8 @@ void Parser::beginParsing()
   // Initialize the main level.
   (*si)->pushTermLevel(0);
   // Initialize the program root level.
-  Data::Grammar::Module *module;
-  Data::Grammar::SymbolDefinition *prod;
-  (*si)->getGrammarContext()->getReferencedSymbol(this->grammarRoot->getStartRef().get(), module, prod);
+  auto prod = (*si)->getGrammarContext()->getReferencedSymbol(this->grammarRoot->getStartRef().get());
+  auto module = prod->findOwner<Data::Grammar::Module>();
   if (!prod->isA<Data::Grammar::SymbolDefinition>()) {
     throw EXCEPTION(GenericException, S("Reference term is pointing to a target of a wrong type."));
   }
@@ -995,10 +994,9 @@ void Parser::processReferenceTerm(Data::Token const *token, StateIterator si)
 
 void Parser::enterParsingDimension(Data::Token const *token, Int parseDimIndex, StateIterator si)
 {
-  Data::Grammar::Module *module;
-  Data::Grammar::SymbolDefinition *prodDef;
   auto ref = this->parsingDimensions[parseDimIndex]->getStartRef().get();
-  (*si)->getGrammarContext()->getReferencedSymbol(ref, module, prodDef);
+  auto prodDef = (*si)->getGrammarContext()->getReferencedSymbol(ref);
+  auto module = prodDef->findOwner<Data::Grammar::Module>();
   if (prodDef->getTerm() != 0) {
     (*si)->setParsingDimensionInfo(parseDimIndex, (*si)->getProdLevelCount());
     this->pushStateProdLevel(*si, module, static_cast<Data::Grammar::SymbolDefinition*>(prodDef), token);
@@ -1701,10 +1699,9 @@ void Parser::testReferenceTerm(Data::Token const *token, ParserState *state)
 
 void Parser::testParsingDimension(Data::Token const *token, Int parseDimIndex, ParserState *state)
 {
-  Data::Grammar::Module *module;
-  Data::Grammar::SymbolDefinition *prodDef;
   auto ref = this->parsingDimensions[parseDimIndex]->getStartRef().get();
-  state->getGrammarContext()->getReferencedSymbol(ref, module, prodDef);
+  auto prodDef = state->getGrammarContext()->getReferencedSymbol(ref);
+  auto module = prodDef->findOwner<Data::Grammar::Module>();
   if (prodDef->getTerm() != 0) {
     state->setParsingDimensionInfo(parseDimIndex, state->getProdLevelCount());
     state->pushProdLevel(module, static_cast<Data::Grammar::SymbolDefinition*>(prodDef));

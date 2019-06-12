@@ -28,6 +28,7 @@ class Module : public SharedMapBase<TiObject, Node>,
   TYPE_INFO(Module, _MyBase, "Core.Data.Grammar", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(DataHaving, Binding, Inheriting, IdHaving)
   ));
+  OBJECT_FACTORY(Module);
 
 
   //============================================================================

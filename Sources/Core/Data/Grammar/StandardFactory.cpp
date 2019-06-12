@@ -1949,7 +1949,7 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
 
   if (!exprOnly) {
     this->set(S("root.Main.RootStatements"), Module::create({
-      {S("baseRef"), PARSE_REF(S("module.Statements"))}
+      {S("baseRef"), PARSE_REF(S("module.owner.Statements"))}
     }, {}));
 
     this->set(S("root.Main.RootStatements.StmtList"), SymbolDefinition::create({

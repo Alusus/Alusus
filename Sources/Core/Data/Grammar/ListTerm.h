@@ -79,6 +79,7 @@ class ListTerm : public Term, public DataHaving, public MapContaining<TiObject>
   {
     RESET_OWNED_SHAREDPTR(this->terms);
     RESET_OWNED_SHAREDPTR(this->data);
+    RESET_OWNED_SHAREDPTR(this->targetRef);
   }
 
 
