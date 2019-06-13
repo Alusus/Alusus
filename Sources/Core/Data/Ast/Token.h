@@ -33,6 +33,7 @@ class Token : public Node,
 
   TYPE_INFO(Token, Node, "Core.Data.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(Node, Binding, MetaHaving, Clonable, Printable);
+  OBJECT_FACTORY(Token); \
 
 
   //============================================================================

@@ -24,6 +24,7 @@ class UserType : public DataType, public Core::Data::Ast::Mergeable
   TYPE_INFO(UserType, DataType, "Spp.Ast", "Spp", "alusus.org", (
     INHERITANCE_INTERFACES(Core::Data::Ast::Mergeable)
   ));
+  OBJECT_FACTORY(UserType);
 
   IMPLEMENT_AST_MAP_CLONABLE(UserType);
 

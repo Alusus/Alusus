@@ -27,6 +27,7 @@ class InfixOperator : public Node,
 
   TYPE_INFO(InfixOperator, Node, "Core.Data.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  OBJECT_FACTORY(InfixOperator);
 
 
   //============================================================================
@@ -134,6 +135,7 @@ class InfixOperator : public Node,
   { \
     TYPE_INFO(X, InfixOperator, "Core.Data.Ast", "Core", "alusus.org"); \
     IMPLEMENT_INTERFACES_2(InfixOperator, Clonable, Printable); \
+    OBJECT_FACTORY(X); \
     IMPLEMENT_AST_MAP_PRINTABLE(X, << this->type.get()); \
     IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_CONSTRUCTOR(X); \

@@ -33,6 +33,7 @@ class Macro : public Core::Data::Node,
       Core::Data::Printable
     )
   ));
+  OBJECT_FACTORY(Macro);
 
 
   //============================================================================

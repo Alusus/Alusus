@@ -22,6 +22,7 @@ class IntegerType : public DataType
   // Type Info
 
   TYPE_INFO(IntegerType, DataType, "Spp.Ast", "Spp", "alusus.org");
+  OBJECT_FACTORY(IntegerType);
 
   IMPLEMENT_AST_MAP_CLONABLE(IntegerType);
 

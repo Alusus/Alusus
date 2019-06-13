@@ -25,6 +25,7 @@ class Map : public NbMap,
   TYPE_INFO(Map, NbMap, "Core.Data.Ast", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(Binding, MetaHaving, Clonable, Printable)
   ));
+  OBJECT_FACTORY(Map);
 
 
   //============================================================================

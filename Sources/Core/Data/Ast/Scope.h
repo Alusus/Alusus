@@ -22,6 +22,7 @@ class Scope : public List
   // Type Info
 
   TYPE_INFO(Scope, List, "Core.Data.Ast", "Core", "alusus.org");
+  OBJECT_FACTORY(Scope);
 
 
   //============================================================================

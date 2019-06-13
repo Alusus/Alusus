@@ -26,6 +26,7 @@ class FunctionType : public Type, public MapContaining<TiObject>
       MapContaining<TiObject>
     )
   ));
+  OBJECT_FACTORY(FunctionType);
 
 
   //============================================================================

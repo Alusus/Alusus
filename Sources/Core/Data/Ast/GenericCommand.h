@@ -25,6 +25,7 @@ class GenericCommand : public Node,
 
   TYPE_INFO(GenericCommand, Node, "Core.Data.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  OBJECT_FACTORY(GenericCommand);
 
 
   //============================================================================

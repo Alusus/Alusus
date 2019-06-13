@@ -26,6 +26,7 @@ class OutfixOperator : public Node,
 
   TYPE_INFO(OutfixOperator, Node, "Core.Data.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving);
+  OBJECT_FACTORY(OutfixOperator);
 
 
   //============================================================================
@@ -108,6 +109,7 @@ class OutfixOperator : public Node,
   { \
     TYPE_INFO(X, OutfixOperator, "Core.Data.Ast", "Core", "alusus.org"); \
     IMPLEMENT_INTERFACES_2(OutfixOperator, Clonable, Printable); \
+    OBJECT_FACTORY(X); \
     IMPLEMENT_AST_MAP_PRINTABLE(X, << this->type.get()); \
     IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_CONSTRUCTOR(X); \

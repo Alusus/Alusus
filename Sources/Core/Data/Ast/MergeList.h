@@ -22,6 +22,7 @@ class MergeList : public List
   // Type Info
 
   TYPE_INFO(MergeList, List, "Core.Data.Ast", "Core", "alusus.org");
+  OBJECT_FACTORY(MergeList);
 
 
   //============================================================================

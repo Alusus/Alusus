@@ -27,8 +27,11 @@ class ArgPack : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(ArgPack, Core::Data::Node, "Spp.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, MapContaining<TiObject>,
-                                         Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable);
+  IMPLEMENT_INTERFACES(
+    Core::Data::Node, Binding, MapContaining<TiObject>,
+    Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable
+  );
+  OBJECT_FACTORY(ArgPack);
 
 
   //============================================================================

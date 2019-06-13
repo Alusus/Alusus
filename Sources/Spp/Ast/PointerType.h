@@ -22,6 +22,7 @@ class PointerType : public DataType
   // Type Info
 
   TYPE_INFO(PointerType, DataType, "Spp.Ast", "Spp", "alusus.org");
+  OBJECT_FACTORY(PointerType);
 
   IMPLEMENT_AST_MAP_CLONABLE(PointerType);
 

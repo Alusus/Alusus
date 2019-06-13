@@ -27,9 +27,12 @@ class ForStatement : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(ForStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, MapContaining<TiObject>,
-                                         Core::Data::Ast::MetaHaving, Core::Data::Clonable,
-                                         Core::Data::Printable);
+  IMPLEMENT_INTERFACES(
+    Core::Data::Node, Binding, MapContaining<TiObject>,
+    Core::Data::Ast::MetaHaving, Core::Data::Clonable,
+    Core::Data::Printable
+  );
+  OBJECT_FACTORY(ForStatement);
 
 
   //============================================================================

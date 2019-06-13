@@ -26,6 +26,7 @@ class Text : public Node,
 
   TYPE_INFO(Text, Node, "Core.Data.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(Node, Binding, MetaHaving, Clonable, Printable);
+  OBJECT_FACTORY(Text);
 
 
   //============================================================================
@@ -118,6 +119,7 @@ class Text : public Node,
   class X : public Text \
   { \
     TYPE_INFO(X, Text, "Core.Data.Ast", "Core", "alusus.org"); \
+    OBJECT_FACTORY(X); \
     IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_CONSTRUCTOR(X); \
     public: virtual SharedPtr<TiObject> clone() const \

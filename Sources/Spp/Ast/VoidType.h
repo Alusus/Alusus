@@ -22,6 +22,7 @@ class VoidType : public DataType
   // Type Info
 
   TYPE_INFO(VoidType, DataType, "Spp.Ast", "Spp", "alusus.org");
+  OBJECT_FACTORY(VoidType);
 
   IMPLEMENT_AST_MAP_CLONABLE(VoidType);
 

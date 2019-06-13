@@ -25,6 +25,7 @@ class List : public NbList,
   TYPE_INFO(List, NbList, "Core.Data.Ast", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(Binding, MetaHaving, Clonable, Printable)
   ));
+  OBJECT_FACTORY(List);
 
 
   //============================================================================

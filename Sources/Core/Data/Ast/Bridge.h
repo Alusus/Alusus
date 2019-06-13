@@ -28,6 +28,7 @@ class Bridge : public Node,
       Binding, MapContaining<TiObject>, Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable
     )
   ));
+  OBJECT_FACTORY(Bridge);
 
 
   //============================================================================
