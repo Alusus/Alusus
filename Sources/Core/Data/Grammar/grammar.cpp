@@ -212,7 +212,7 @@ TioSharedPtr _cloneInherited(TioSharedPtr const &obj)
       for (Int i = 0; i < bindings->getMemberCount(); ++i) {
         if (bindings->getMemberHoldMode(i) == HoldMode::SHARED_REF) {
           auto childMember = getSharedPtr(bindings->getMember(i));
-          cloneBindings->setMember(i, cloneInherited(childMember).get());
+          cloneBindings->setMember(i, _cloneInherited(childMember).get());
         } else {
           cloneBindings->setMember(i, bindings->getMember(i));
         }
@@ -224,7 +224,9 @@ TioSharedPtr _cloneInherited(TioSharedPtr const &obj)
     if (cloneDynMapContainer != 0) {
       for (Int i = 0; i < dynMapContainer->getElementCount(); ++i) {
         auto childElement = getSharedPtr(dynMapContainer->getElement(i));
-        cloneDynMapContainer->addElement(dynMapContainer->getElementKey(i).c_str(), cloneInherited(childElement).get());
+        cloneDynMapContainer->addElement(
+          dynMapContainer->getElementKey(i).c_str(), _cloneInherited(childElement).get()
+        );
       }
       return clone;
     }
@@ -234,7 +236,7 @@ TioSharedPtr _cloneInherited(TioSharedPtr const &obj)
     if (cloneDynContainer != 0) {
       for (Int i = 0; i < dynContainer->getElementCount(); ++i) {
         auto childElement = getSharedPtr(dynContainer->getElement(i));
-        cloneDynContainer->addElement(cloneInherited(childElement).get());
+        cloneDynContainer->addElement(_cloneInherited(childElement).get());
       }
       return clone;
     }
@@ -244,7 +246,7 @@ TioSharedPtr _cloneInherited(TioSharedPtr const &obj)
     if (cloneMapContainer != 0) {
       for (Int i = 0; i < mapContainer->getElementCount(); ++i) {
         auto childElement = getSharedPtr(mapContainer->getElement(i));
-        cloneMapContainer->setElement(mapContainer->getElementKey(i).c_str(), cloneInherited(childElement).get());
+        cloneMapContainer->setElement(mapContainer->getElementKey(i).c_str(), _cloneInherited(childElement).get());
       }
       return clone;
     }
@@ -254,7 +256,7 @@ TioSharedPtr _cloneInherited(TioSharedPtr const &obj)
     if (cloneContainer != 0) {
       for (Int i = 0; i < container->getElementCount(); ++i) {
         auto childElement = getSharedPtr(container->getElement(i));
-        cloneContainer->setElement(i, cloneInherited(childElement).get());
+        cloneContainer->setElement(i, _cloneInherited(childElement).get());
       }
     }
   }
