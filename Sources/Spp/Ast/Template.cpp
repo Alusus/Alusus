@@ -12,7 +12,7 @@
 
 #include "spp.h"
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 //==============================================================================
@@ -20,7 +20,7 @@ namespace Spp { namespace Ast
 
 TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
 {
-  if (this->templateBody == 0) {
+  if (this->body == 0) {
     throw EXCEPTION(GenericException, S("Template body is not set."));
   }
 
@@ -32,7 +32,7 @@ TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
   }
   // No default instance was found, create a new one.
   auto block = std::make_shared<Core::Data::Ast::Scope>();
-  block->add(this->templateBody->clone());
+  block->add(Core::Data::Ast::clone(this->body));
   this->instances.push_back(block);
   block->setOwner(this);
   return this->instances.back()->get(0);
@@ -41,7 +41,7 @@ TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
 
 Bool Template::matchInstance(TiObject *templateInput, Helper *helper, TioSharedPtr &result)
 {
-  if (this->templateBody == 0) {
+  if (this->body == 0) {
     throw EXCEPTION(GenericException, S("Template body is not set."));
   }
 
@@ -61,7 +61,7 @@ Bool Template::matchInstance(TiObject *templateInput, Helper *helper, TioSharedP
   }
   // No instance was found, create a new one.
   auto block = std::make_shared<Core::Data::Ast::Scope>();
-  block->add(this->templateBody->clone());
+  block->add(Core::Data::Ast::clone(this->body, Core::Data::Ast::findSourceLocation(templateInput).get()));
   if (!this->assignTemplateVars(templateInput, block.get(), helper, notice)) {
     result = notice;
     return false;
@@ -77,43 +77,47 @@ Bool Template::matchTemplateVars(
   TiObject *templateInput, Core::Data::Ast::Scope *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
 ) {
   auto list = ti_cast<Core::Data::Ast::List>(templateInput);
-  if (list != 0 && list->getCount() > this->varDefs.size()) {
+  if (list != 0 && list->getCount() > this->getVarDefCount()) {
     notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
       Core::Data::Ast::findSourceLocation(templateInput)
     );
     return false;
   }
-  for (Int i = 0; i < this->varDefs.size(); ++i) {
+  for (Int i = 0; i < this->getVarDefCount(); ++i) {
     TiObject *var;
+    auto varDef = this->varDefs->get(i).s_cast_get<TemplateVarDef>();
+    if (varDef == 0) {
+      throw EXCEPTION(GenericException, S("Invalid template variable definition."));
+    }
     if (list != 0 && i < list->getCount()) var = list->getElement(i);
     else if (list == 0 && i == 0) var = templateInput;
-    else if (this->varDefs[i].defaultVal != 0) var = this->varDefs[i].defaultVal.get();
+    else if (varDef->getDefaultVal() != 0) var = varDef->getDefaultVal().get();
     else {
       notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
         Core::Data::Ast::findSourceLocation(templateInput)
       );
       return false;
     }
-    if (!this->matchTemplateVar(var, instance, i, helper, notice)) return false;
+    if (!this->matchTemplateVar(var, instance, varDef, helper, notice)) return false;
   }
   return true;
 }
 
 
 Bool Template::matchTemplateVar(
-  TiObject *templateInput, Core::Data::Ast::Scope *instance, Int varIndex, Helper *helper,
+  TiObject *templateInput, Core::Data::Ast::Scope *instance, TemplateVarDef *varDef, Helper *helper,
   SharedPtr<Core::Notices::Notice> &notice
 ) {
-  switch (this->varDefs[varIndex].type.val) {
-    case VarType::INTEGER: {
+  switch (varDef->getType().get()) {
+    case TemplateVarType::INTEGER: {
       auto var = ti_cast<TiInt>(
-        Template::getTemplateVar(instance, this->varDefs[varIndex].name.c_str())
+        Template::getTemplateVar(instance, varDef->getName().get())
       );
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
       auto newVar = ti_cast<Core::Data::Ast::IntegerLiteral>(
-        Template::traceObject(templateInput, VarType::INTEGER, helper)
+        Template::traceObject(templateInput, TemplateVarType::INTEGER, helper)
       );
       if (newVar == 0) {
         notice = std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(
@@ -124,15 +128,15 @@ Bool Template::matchTemplateVar(
       return std::stol(newVar->getValue().get()) == var->get();
     }
 
-    case VarType::STRING: {
+    case TemplateVarType::STRING: {
       auto var = ti_cast<TiStr>(
-        Template::getTemplateVar(instance, this->varDefs[varIndex].name.c_str())
+        Template::getTemplateVar(instance, varDef->getName().get())
       );
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
       auto newVar = ti_cast<Core::Data::Ast::StringLiteral>(
-        Template::traceObject(templateInput, VarType::STRING, helper)
+        Template::traceObject(templateInput, TemplateVarType::STRING, helper)
       );
       if (newVar == 0) {
         notice = std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(
@@ -144,11 +148,11 @@ Bool Template::matchTemplateVar(
     }
 
     default: {
-      auto var = Template::getTemplateVar(instance, this->varDefs[varIndex].name.c_str());
+      auto var = Template::getTemplateVar(instance, varDef->getName().get());
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
-      auto newVar = Template::traceObject(templateInput, this->varDefs[varIndex].type, helper);
+      auto newVar = Template::traceObject(templateInput, varDef->getType(), helper);
       if (newVar == 0) {
         notice = std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(
           Core::Data::Ast::findSourceLocation(templateInput)
@@ -165,30 +169,34 @@ Bool Template::assignTemplateVars(
   TiObject *templateInput, Core::Data::Ast::Scope *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
 ) {
   auto list = ti_cast<Core::Data::Ast::List>(templateInput);
-  if (list != 0 && list->getCount() > this->varDefs.size()) {
+  if (list != 0 && list->getCount() > this->getVarDefCount()) {
     notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
       Core::Data::Ast::findSourceLocation(templateInput)
     );
     return false;
   }
-  for (Int i = 0; i < this->varDefs.size(); ++i) {
+  for (Int i = 0; i < this->getVarDefCount(); ++i) {
     TiObject *input;
+    auto varDef = this->varDefs->get(i).s_cast_get<TemplateVarDef>();
+    if (varDef == 0) {
+      throw EXCEPTION(GenericException, S("Invalid template variable definition."));
+    }
     if (list != 0 && i < list->getCount()) input = list->getElement(i);
     else if (list == 0 && i == 0) input = templateInput;
-    else if (this->varDefs[i].defaultVal != 0) input = this->varDefs[i].defaultVal.get();
+    else if (varDef->getDefaultVal() != 0) input = varDef->getDefaultVal().get();
     else {
       notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
         Core::Data::Ast::findSourceLocation(templateInput)
       );
       return false;
     }
-    auto var = Template::traceObject(input, this->varDefs[i].type, helper);
+    auto var = Template::traceObject(input, varDef->getType(), helper);
     auto def = Core::Data::Ast::Definition::create();
-    def->setName(this->varDefs[i].name.c_str());
-    if (this->varDefs[i].type == VarType::INTEGER) {
+    def->setName(varDef->getName().get());
+    if (varDef->getType() == TemplateVarType::INTEGER) {
       auto intLiteral = static_cast<Core::Data::Ast::IntegerLiteral*>(var);
       def->setTarget(TiInt::create(std::stol(intLiteral->getValue().get())));
-    } else if (this->varDefs[i].type == VarType::STRING) {
+    } else if (varDef->getType() == TemplateVarType::STRING) {
       auto strLiteral = static_cast<Core::Data::Ast::StringLiteral*>(var);
       def->setTarget(std::make_shared<TiStr>(strLiteral->getValue().get()));
     } else {
@@ -214,30 +222,30 @@ TiObject* Template::getTemplateVar(Core::Data::Ast::Scope const *instance, Char 
 }
 
 
-TiObject* Template::traceObject(TiObject *ref, VarType varType, Helper *helper)
+TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *helper)
 {
   TiObject *result = 0;
   Node *refNode = ti_cast<Node>(ref);
   if (refNode == 0) {
     throw EXCEPTION(GenericException, S("Invalid template variable."));
   }
-  if (varType == VarType::INTEGER) {
+  if (varType == TemplateVarType::INTEGER) {
     if (ref->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) result = ref;
     else {
       helper->getSeeker()->find<Core::Data::Ast::IntegerLiteral>(ref, refNode->getOwner(), result, 0);
     }
-  } else if (varType == VarType::STRING) {
+  } else if (varType == TemplateVarType::STRING) {
     if (ref->isDerivedFrom<Core::Data::Ast::StringLiteral>()) result = ref;
     else {
       helper->getSeeker()->find<Core::Data::Ast::StringLiteral>(ref, refNode->getOwner(), result, 0);
     }
-  } else if (varType == VarType::FUNCTION) {
+  } else if (varType == TemplateVarType::FUNCTION) {
     // TODO: Replace with Helper::traceFunction that considers templates.
     if (ref->isDerivedFrom<Spp::Ast::Function>()) result = ref;
     else {
       helper->getSeeker()->find<Spp::Ast::Function>(ref, refNode->getOwner(), result, 0);
     }
-  } else if (varType == VarType::TYPE) {
+  } else if (varType == TemplateVarType::TYPE) {
     if (ref->isDerivedFrom<Spp::Ast::Type>()) result = ref;
     else {
       result = helper->traceType(ref);
@@ -255,10 +263,8 @@ SharedPtr<TiObject> Template::clone() const
   SharedPtr<Template> newTemplate = std::make_shared<Template>();
   newTemplate->setProdId(this->getProdId());
   newTemplate->setSourceLocation(this->getSourceLocation());
-  for (Word i = 0; i < this->varDefs.size(); ++i) {
-    newTemplate->setVarDefs(this->getVarDefs());
-  }
-  newTemplate->setTemplateBody(this->getTemplateBody());
+  newTemplate->setVarDefs(this->getVarDefs());
+  newTemplate->setBody(this->getBody());
   return newTemplate;
 }
 
@@ -277,23 +283,27 @@ void Template::print(OutStream &stream, Int indents) const
   stream << S("\n");
   printIndents(stream, indents+1);
   stream << S("-varDefs:");
-  for (Word i = 0; i < this->varDefs.size(); ++i) {
+  for (Word i = 0; i < this->getVarDefCount(); ++i) {
+    auto varDef = this->varDefs->get(i).s_cast_get<TemplateVarDef>();
+    if (varDef == 0) {
+      throw EXCEPTION(GenericException, S("Invalid template variable definition."));
+    }
     stream << S("\n");
     printIndents(stream, indents+2);
-    stream << this->varDefs[i].name << S(": ");
-    switch (this->varDefs[i].type.val) {
-      case VarType::INTEGER: stream << S("TiInt"); break;
-      case VarType::STRING: stream << S("TiStr"); break;
-      case VarType::TYPE: stream << S("Type"); break;
-      case VarType::FUNCTION: stream << S("Function"); break;
+    stream << varDef->getName() << S(": ");
+    switch (varDef->getType().get()) {
+      case TemplateVarType::INTEGER: stream << S("TiInt"); break;
+      case TemplateVarType::STRING: stream << S("TiStr"); break;
+      case TemplateVarType::TYPE: stream << S("Type"); break;
+      case TemplateVarType::FUNCTION: stream << S("Function"); break;
     }
   }
   // dump body
   stream << S("\n");
   printIndents(stream, indents+1);
-  stream << S("-templateBody:\n");
+  stream << S("-body:\n");
   printIndents(stream, indents+2);
-  Core::Data::dumpData(stream, this->templateBody->getTiObject(), indents+2);
+  Core::Data::dumpData(stream, this->body.get(), indents+2);
   // dump instances
   stream << S("\n");
   printIndents(stream, indents+1);
@@ -305,4 +315,4 @@ void Template::print(OutStream &stream, Int indents) const
   }
 }
 
-} } // namespace
+} // namespace

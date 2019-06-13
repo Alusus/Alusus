@@ -13,7 +13,7 @@
 #ifndef SPP_AST_TEMPLATE_H
 #define SPP_AST_TEMPLATE_H
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 class Template : public Core::Data::Node,
@@ -25,32 +25,20 @@ class Template : public Core::Data::Node,
   // Type Info
 
   TYPE_INFO(Template, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, MapContaining<TiObject>,
-                                         Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable);
-
-
-  //============================================================================
-  // Types
-
-  public: s_enum(VarType, INTEGER, STRING, TYPE, FUNCTION);
-
-  public: struct VarDef
-  {
-    Str name;
-    VarType type;
-    TioSharedPtr defaultVal;
-    VarDef(Char const *n, VarType t, TioSharedPtr const &v = TioSharedPtr()) : name(n), type(t), defaultVal(v) {}
-  };
+  IMPLEMENT_INTERFACES(
+    Core::Data::Node, Binding, MapContaining<TiObject>,
+    Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable
+  );
 
 
   //============================================================================
   // Member Variables
 
-  private: std::vector<VarDef> varDefs;
+  private: SharedPtr<Core::Data::Ast::List> varDefs;
+
+  private: TioSharedPtr body;
 
   private: std::vector<SharedPtr<Core::Data::Ast::Scope>> instances;
-
-  private: SharedPtr<Data::Clonable> templateBody;
 
 
   //============================================================================
@@ -64,7 +52,8 @@ class Template : public Core::Data::Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (templateBody, Data::Clonable, SHARED_REF, setTemplateBody(value), templateBody.get())
+    (varDefs, Core::Data::Ast::List, SHARED_REF, setVarDefs(value), varDefs.get()),
+    (body, TiObject, SHARED_REF, setBody(value), body.get())
   );
 
 
@@ -79,42 +68,45 @@ class Template : public Core::Data::Node,
 
   public: virtual ~Template()
   {
-    DISOWN_SHAREDPTR(this->templateBody);
+    DISOWN_SHAREDPTR(this->varDefs);
+    DISOWN_SHAREDPTR(this->body);
   }
 
 
   //============================================================================
   // Member Functions
 
-  public: void setTemplateBody(SharedPtr<Data::Clonable> const &body)
+  public: void setVarDefs(SharedPtr<Core::Data::Ast::List> const &defs)
   {
-    UPDATE_OWNED_SHAREDPTR(this->templateBody, body);
+    UPDATE_OWNED_SHAREDPTR(this->varDefs, defs);
   }
-  private: void setTemplateBody(Data::Clonable *body)
+  private: void setVarDefs(Core::Data::Ast::List *defs)
   {
-    this->setTemplateBody(getSharedPtr(body));
-  }
-
-  public: SharedPtr<Data::Clonable> const& getTemplateBody() const
-  {
-    return this->templateBody;
+    this->setVarDefs(getSharedPtr(defs));
   }
 
-  public: void setVarDefs(std::vector<VarDef> const *defs)
+  public: SharedPtr<Core::Data::Ast::List> const& getVarDefs() const
   {
-    this->varDefs = *defs;
-    for (Int i = 0; i < this->varDefs.size(); ++i) OWN_SHAREDPTR(this->varDefs[i].defaultVal);
+    return this->varDefs;
   }
 
-  public: void setVarDefs(std::initializer_list<VarDef> const &vars)
+  public: Word getVarDefCount() const
   {
-    this->varDefs = vars;
-    for (Int i = 0; i < this->varDefs.size(); ++i) OWN_SHAREDPTR(this->varDefs[i].defaultVal);
+    return this->varDefs == 0 ? 0 : this->varDefs->getCount();
   }
 
-  public: std::vector<VarDef> const* getVarDefs() const
+  public: void setBody(TioSharedPtr const &b)
   {
-    return &this->varDefs;
+    UPDATE_OWNED_SHAREDPTR(this->body, b);
+  }
+  private: void setBody(TiObject *b)
+  {
+    this->setBody(getSharedPtr(b));
+  }
+
+  public: TioSharedPtr const& getBody() const
+  {
+    return this->body;
   }
 
   public: virtual TioSharedPtr const& getDefaultInstance(Helper *helper);
@@ -124,7 +116,7 @@ class Template : public Core::Data::Node,
     TiObject *templateInput, Core::Data::Ast::Scope *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
   );
   private: Bool matchTemplateVar(
-    TiObject *templateInput, Core::Data::Ast::Scope *instance, Int varIndex, Helper *helper,
+    TiObject *templateInput, Core::Data::Ast::Scope *instance, TemplateVarDef *varDef, Helper *helper,
     SharedPtr<Core::Notices::Notice> &notice
   );
 
@@ -134,7 +126,7 @@ class Template : public Core::Data::Node,
 
   public: static TiObject* getTemplateVar(Core::Data::Ast::Scope const *instance, Char const *name);
 
-  private: static TiObject* traceObject(TiObject *ref, VarType varType, Helper *helper);
+  private: static TiObject* traceObject(TiObject *ref, TemplateVarType varType, Helper *helper);
 
 
   //============================================================================
@@ -150,6 +142,6 @@ class Template : public Core::Data::Node,
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif
