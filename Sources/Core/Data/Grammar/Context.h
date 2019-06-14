@@ -140,8 +140,6 @@ class Context : public TiObject, public MapContaining<TiObject>
   /// @name Symbol Definition Helper Functions
   /// @{
 
-  public: Term* getSymbolTerm(SymbolDefinition const *definition);
-
   public: Map* getSymbolVars(SymbolDefinition const *definition);
 
   public: TiInt* getSymbolPriority(SymbolDefinition const *definition);

@@ -235,81 +235,13 @@ TiInt* Context::getTermFlags(Term *term)
 //==============================================================================
 // Symbol Definition Helper Functions
 
-Term* Context::getSymbolTerm(SymbolDefinition const *definition)
-{
-  TiObject *retVal = definition->getTerm().get();
-  auto ref = ti_cast<Reference>(retVal);
-  if (ref != 0) {
-    if (ref->isValueCacheEnabled() && ref->getCachedValue() != 0) {
-      auto term = ti_cast<Term>(ref->getCachedValue());
-      if (term == 0) {
-        throw EXCEPTION(
-          InvalidArgumentException, S("definition"), S("Symbol's term should be of type Term or Reference to it.")
-        );
-      }
-      return term;
-    }
-    auto originalRef = ref;
-    do {
-      auto module = ref->findOwner<Module>();
-      this->setModule(module);
-      if (!ref->getValue(this, retVal)) {
-        throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
-      }
-      // A definition could have a term reference to another definition which means it wants the terms of that
-      // other definition. This is used in cases where a definition is inheriting from another definition.
-      if (retVal != 0 && retVal->isA<SymbolDefinition>()) {
-        retVal = static_cast<SymbolDefinition*>(retVal)->getTerm().get();
-      }
-      ref = ti_cast<Reference>(retVal);
-    } while (ref != 0);
-    if (originalRef->isValueCacheEnabled()) originalRef->setCachedValue(retVal);
-  }
-  if (retVal == 0 || !retVal->isDerivedFrom<Term>()) {
-    throw EXCEPTION(
-      InvalidArgumentException, S("definition"), S("Symbol's term should be of type Term or Reference to it.")
-    );
-  }
-  return static_cast<Term*>(retVal);
-}
-
-
 Map* Context::getSymbolVars(const SymbolDefinition *definition)
 {
-  TiObject *retVal = definition->getVars().get();
-  auto ref = ti_cast<Reference>(retVal);
-  if (ref != 0) {
-    if (ref->isValueCacheEnabled() && ref->getCachedValue() != 0) {
-      auto map = ti_cast<Map>(ref->getCachedValue());
-      if (map == 0) {
-        throw EXCEPTION(
-          InvalidArgumentException, S("definition"), S("Symbol's vars should be of type Map or Reference to it.")
-        );
-      }
-      return map;
-    }
-    auto originalRef = ref;
-    do {
-      auto module = ref->findOwner<Module>();
-      this->setModule(module);
-      if (!ref->getValue(this, retVal)) {
-        throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
-      }
-      // A definition could have a vars reference to another definition which means it wants the vars of that
-      // other definition. This is used in cases where a definition is inheriting from another definition.
-      if (retVal != 0 && retVal->isA<SymbolDefinition>()) {
-        retVal = static_cast<SymbolDefinition*>(retVal)->getVars().get();
-      }
-      ref = ti_cast<Reference>(retVal);
-    } while (ref != 0);
-    if (originalRef->isValueCacheEnabled()) originalRef->setCachedValue(retVal);
+  TiObject *vars = this->traceValue(definition->getVars().get());
+  if (vars != 0 && !vars->isA<Map>()) {
+    throw EXCEPTION(GenericException, S("Symbol's vars is of invalid type."));
   }
-  if (retVal != 0 && !retVal->isA<Map>()) {
-    throw EXCEPTION(
-      InvalidArgumentException, S("definition"), S("Symbol's vars should be of type Map or Reference to it.")
-    );
-  }
-  return static_cast<Map*>(retVal);
+  return static_cast<Map*>(vars);
 }
 
 

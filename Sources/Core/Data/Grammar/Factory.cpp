@@ -95,10 +95,8 @@ void Factory::generateConstTokenDefinitions(Containing<TiObject> *container)
     if (obj == 0) continue;
     SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);
     if (def != 0) {
-      TiObject *term = def->getTerm().get();
-      if (term->isDerivedFrom<Term>()) {
-        this->generateConstTokenDefinitions(static_cast<Term*>(term));
-      }
+      auto term = def->getTerm().get();
+      this->generateConstTokenDefinitions(term);
     } else {
       auto parseDim = ti_cast<ParsingDimension>(obj);
       if (parseDim != 0) {

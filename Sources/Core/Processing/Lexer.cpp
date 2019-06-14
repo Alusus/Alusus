@@ -449,15 +449,10 @@ void Lexer::processStartChar(WChar inputChar)
       excMsg += S("). The definition formula is not set yet.");
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
-    if (!(def->getTerm()->isDerivedFrom<Data::Grammar::Term>())) {
-      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
-      excMsg += ID_GENERATOR->getDesc(def->getId());
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
     // Set the first entry in the state index stack to the token definition index.
     auto state = this->createState();
     state->setTokenDefIndex(i);
-    state->pushTermLevel(0, def->getTerm().s_cast_get<Data::Grammar::Term>());
+    state->pushTermLevel(0, def->getTerm().get());
     state->setTokenLength(0);
     // Process the token.
     switch (this->processState(state, inputChar, -1)) {
@@ -894,12 +889,7 @@ Lexer::NextAction Lexer::processReferenceTerm(LexerState *state, WChar inputChar
       excMsg += S("). The definition formula is not set yet.");
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
-    if (!(def->getTerm()->isDerivedFrom<Data::Grammar::Term>())) {
-      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
-      excMsg += ID_GENERATOR->getDesc(def->getId());
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    state->pushTermLevel(0, def->getTerm().s_cast_get<Data::Grammar::Term>());
+    state->pushTermLevel(0, def->getTerm().get());
   } else {
     state->popTermLevel();
   }
@@ -943,7 +933,7 @@ Int Lexer::selectBestToken()
         // Check if tokenDefinitionI refers to a const term.
         Data::Grammar::SymbolDefinition *def = this->getSymbolDefinition(tokenDefinitionI);
         ASSERT(def->isA<Data::Grammar::SymbolDefinition>());
-        Data::Grammar::Term *head = def->getTerm().s_cast_get<Data::Grammar::Term>();
+        Data::Grammar::Term *head = def->getTerm().get();
         ASSERT(head->isDerivedFrom<Data::Grammar::Term>());
         if (head->isA<Data::Grammar::ConstTerm>()) isConstantI = true;
         else isConstantI = false;
@@ -951,7 +941,7 @@ Int Lexer::selectBestToken()
         // Check if tokenDeinitionIndex refers to a const term.
         def = this->getSymbolDefinition(tokenDefinitionIndex);
         ASSERT(def->isA<Data::Grammar::SymbolDefinition>());
-        head = def->getTerm().s_cast_get<Data::Grammar::Term>();
+        head = def->getTerm().get();
         ASSERT(head->isDerivedFrom<Data::Grammar::Term>());
         if (head->isA<Data::Grammar::ConstTerm>()) isConstantIndex = true;
         else isConstantIndex = false;

@@ -355,7 +355,11 @@ void ParserState::pushProdLevel(Data::Grammar::Module *module, Data::Grammar::Sy
   this->variableStack.pushLevel();
   this->grammarContext.setModule(module);
   this->grammarContext.setArgs(this->grammarContext.getSymbolVars(prod));
-  this->pushTermLevel(this->grammarContext.getSymbolTerm(prod));
+  auto term = prod->getTerm().get();
+  if (term == 0) {
+    throw EXCEPTION(GenericException, S("Production is missing a term."));
+  }
+  this->pushTermLevel(term);
 }
 
 

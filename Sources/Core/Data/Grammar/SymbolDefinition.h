@@ -77,7 +77,7 @@ class SymbolDefinition : public Node,
      */
   private: TioSharedPtr flags;
 
-  private: SharedPtr<Node> term;
+  private: SharedPtr<Term> term;
 
   private: SharedPtr<Node> varDefs;
 
@@ -107,7 +107,7 @@ class SymbolDefinition : public Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (term, Node, SHARED_REF, setTerm(value), term.get()),
+    (term, Term, SHARED_REF, setTerm(value), term.get()),
     (varDefs, Node, SHARED_REF, setVarDefs(value), varDefs.get()),
     (vars, Node, SHARED_REF, setVars(value), vars.get()),
     (attributes, Node, SHARED_REF, setAttributes(value), attributes.get()),
@@ -240,7 +240,7 @@ class SymbolDefinition : public Node,
     return this->flags;
   }
 
-  public: void setTerm(SharedPtr<Node> const &t)
+  public: void setTerm(SharedPtr<Term> const &t)
   {
     if (!t->isDerivedFrom<Term>() && !t->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, S("t"), S("Must be of type Term or Reference."));
@@ -250,7 +250,7 @@ class SymbolDefinition : public Node,
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::TERM);
   }
 
-  private: void setTerm(Node *t)
+  private: void setTerm(Term *t)
   {
     this->setTerm(getSharedPtr(t));
   }
@@ -263,7 +263,7 @@ class SymbolDefinition : public Node,
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::TERM);
   }
 
-  public: SharedPtr<Node> const& getTerm() const
+  public: SharedPtr<Term> const& getTerm() const
   {
     return this->term;
   }
