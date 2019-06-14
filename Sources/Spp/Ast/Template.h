@@ -18,8 +18,7 @@ namespace Spp::Ast
 
 class Template : public Core::Data::Node,
                  public Binding, public MapContaining<TiObject>,
-                 public Core::Data::Ast::MetaHaving, public Core::Data::Clonable,
-                 public Core::Data::Printable
+                 public Core::Data::Ast::MetaHaving, public Core::Data::Printable
 {
   //============================================================================
   // Type Info
@@ -27,7 +26,7 @@ class Template : public Core::Data::Node,
   TYPE_INFO(Template, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
     Core::Data::Node, Binding, MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable
+    Core::Data::Ast::MetaHaving, Core::Data::Printable
   );
 
 
@@ -127,12 +126,6 @@ class Template : public Core::Data::Node,
   public: static TiObject* getTemplateVar(Core::Data::Ast::Scope const *instance, Char const *name);
 
   private: static TiObject* traceObject(TiObject *ref, TemplateVarType varType, Helper *helper);
-
-
-  //============================================================================
-  // Clonable Implementation
-
-  public: virtual SharedPtr<TiObject> clone() const;
 
 
   //============================================================================

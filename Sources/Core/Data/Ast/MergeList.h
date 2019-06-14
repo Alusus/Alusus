@@ -28,8 +28,6 @@ class MergeList : public List
   //============================================================================
   // Implementations
 
-  IMPLEMENT_AST_LIST_CLONABLE(MergeList);
-
   IMPLEMENT_AST_LIST_PRINTABLE(MergeList);
 
 

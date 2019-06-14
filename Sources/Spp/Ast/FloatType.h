@@ -24,8 +24,6 @@ class FloatType : public DataType
   TYPE_INFO(FloatType, DataType, "Spp.Ast", "Spp", "alusus.org");
   OBJECT_FACTORY(FloatType);
 
-  IMPLEMENT_AST_MAP_CLONABLE(FloatType);
-
   IMPLEMENT_AST_MAP_PRINTABLE(FloatType);
 
 

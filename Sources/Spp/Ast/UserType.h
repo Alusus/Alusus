@@ -26,8 +26,6 @@ class UserType : public DataType, public Core::Data::Ast::Mergeable
   ));
   OBJECT_FACTORY(UserType);
 
-  IMPLEMENT_AST_MAP_CLONABLE(UserType);
-
   IMPLEMENT_AST_MAP_PRINTABLE(UserType);
 
 

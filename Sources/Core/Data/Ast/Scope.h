@@ -34,8 +34,6 @@ class Scope : public List
   //============================================================================
   // Implementations
 
-  IMPLEMENT_AST_LIST_CLONABLE(Scope);
-
   IMPLEMENT_AST_LIST_PRINTABLE(Scope);
 
 

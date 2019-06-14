@@ -13,7 +13,7 @@
 #ifndef CORE_DATA_AST_ROUTE_H
 #define CORE_DATA_AST_ROUTE_H
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
 // TODO: DOC
@@ -28,14 +28,13 @@ namespace Core { namespace Data { namespace Ast
  * compose the Parsing Representation Tree (PRT).
  */
 class Route : public Node,
-              public Binding, public MapContaining<TiObject>, public MetaHaving,
-              public Clonable, public Printable
+              public Binding, public MapContaining<TiObject>, public MetaHaving, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Route, Node, "Core.Data.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Printable);
   OBJECT_FACTORY(Route);
 
 
@@ -151,14 +150,8 @@ class Route : public Node,
     return this->data;
   }
 
-
-  //============================================================================
-  // Clonable Implementation
-
-  public: virtual SharedPtr<TiObject> clone() const;
-
 }; // class
 
-} } } // namespace
+} // namespace
 
 #endif

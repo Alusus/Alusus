@@ -256,20 +256,6 @@ TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *
 
 
 //==============================================================================
-// Clonable Implementation
-
-SharedPtr<TiObject> Template::clone() const
-{
-  SharedPtr<Template> newTemplate = std::make_shared<Template>();
-  newTemplate->setProdId(this->getProdId());
-  newTemplate->setSourceLocation(this->getSourceLocation());
-  newTemplate->setVarDefs(this->getVarDefs());
-  newTemplate->setBody(this->getBody());
-  return newTemplate;
-}
-
-
-//==============================================================================
 // Printable Implementation
 
 void Template::print(OutStream &stream, Int indents) const

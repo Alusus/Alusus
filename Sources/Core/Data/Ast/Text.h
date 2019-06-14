@@ -13,19 +13,18 @@
 #ifndef CORE_DATA_AST_TEXT_H
 #define CORE_DATA_AST_TEXT_H
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
 // TODO: DOC
 
-class Text : public Node,
-             public Binding, public MetaHaving, public Clonable, public Printable
+class Text : public Node, public Binding, public MetaHaving, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Text, Node, "Core.Data.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MetaHaving, Printable);
   OBJECT_FACTORY(Text);
 
 
@@ -84,19 +83,6 @@ class Text : public Node,
 
 
   //============================================================================
-  // Clonable Implementation
-
-  public: virtual SharedPtr<TiObject> clone() const
-  {
-    SharedPtr<Text> newText = std::make_shared<Text>();
-    newText->setProdId(this->getProdId());
-    newText->setValue(this->getValue());
-    newText->setSourceLocation(this->getSourceLocation());
-    return newText;
-  }
-
-
-  //============================================================================
   // Printable Implementation
 
   public: virtual void print(OutStream &stream, Int indents=0) const
@@ -122,14 +108,6 @@ class Text : public Node,
     OBJECT_FACTORY(X); \
     IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_CONSTRUCTOR(X); \
-    public: virtual SharedPtr<TiObject> clone() const \
-    { \
-      SharedPtr<X> newObject = std::make_shared<X>(); \
-      newObject->setProdId(this->getProdId()); \
-      newObject->setValue(this->getValue()); \
-      newObject->setSourceLocation(this->getSourceLocation()); \
-      return newObject; \
-    } \
     public: virtual void print(OutStream &stream, Int indents=0) const \
     { \
       stream << S(#X); \
@@ -141,6 +119,6 @@ class Text : public Node,
     } \
   }
 
-} } } // namespace
+} // namespace
 
 #endif

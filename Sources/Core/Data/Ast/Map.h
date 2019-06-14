@@ -17,13 +17,13 @@ namespace Core::Data::Ast
 {
 
 class Map : public NbMap,
-            public Binding, public MetaHaving, public Clonable, public Printable
+            public Binding, public MetaHaving, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Map, NbMap, "Core.Data.Ast", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding, MetaHaving, Clonable, Printable)
+    INHERITANCE_INTERFACES(Binding, MetaHaving, Printable)
   ));
   OBJECT_FACTORY(Map);
 
@@ -37,8 +37,6 @@ class Map : public NbMap,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
-
-  IMPLEMENT_AST_MAP_CLONABLE(Map);
 
   IMPLEMENT_AST_MAP_PRINTABLE(Map);
 

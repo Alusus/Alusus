@@ -28,8 +28,6 @@ class Module : public Core::Data::Ast::Scope, public Core::Data::Ast::Mergeable
   ));
   OBJECT_FACTORY(Module);
 
-  IMPLEMENT_AST_LIST_CLONABLE(Module);
-
   IMPLEMENT_AST_LIST_PRINTABLE(Module);
 
 

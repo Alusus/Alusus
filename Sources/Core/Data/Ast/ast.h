@@ -27,26 +27,6 @@ namespace Core::Data::Ast
 //==============================================================================
 // Macros
 
-#define _IMPLEMENT_AST_CLONABLE(type, copyStmt) \
-  public: virtual SharedPtr<TiObject> clone() const \
-  { \
-    SharedPtr<type> newObj = std::make_shared<type>(); \
-    for (Word i = 0; i < this->getMemberCount(); ++i) { \
-      newObj->setMember(this->getMemberKey(i).c_str(), this->getMember(i)); \
-    } \
-    for (Int i = 0; i < this->getElementCount(); ++i) { \
-      copyStmt; \
-    } \
-    return newObj; \
-  }
-
-#define IMPLEMENT_AST_CLONABLE(type) \
-  _IMPLEMENT_AST_CLONABLE(type, newObj->setElement(i, this->getElement(i)))
-#define IMPLEMENT_AST_LIST_CLONABLE(type) \
-  _IMPLEMENT_AST_CLONABLE(type, newObj->addElement(this->getElement(i)))
-#define IMPLEMENT_AST_MAP_CLONABLE(type) \
-  _IMPLEMENT_AST_CLONABLE(type, newObj->setElement(this->getElementKey(i).c_str(), this->getElement(i)))
-
 #define _PRINT_AST_TYPE_NAME1(type) stream << S(#type)
 #define _PRINT_AST_TYPE_NAME2(type, extra) stream << S(#type " ") extra
 #define _PRINT_AST_TYPE_NAME(...) \

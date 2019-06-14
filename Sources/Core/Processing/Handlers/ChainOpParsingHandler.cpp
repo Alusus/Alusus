@@ -57,9 +57,7 @@ TioSharedPtr ChainOpParsingHandler::prepareToModifyData(
   // This is ok since it's an edge case and will only result in performance hit; the data will
   // still be valid.
   if (state->isDataShared(levelIndex)) {
-    // Duplicate the data, if possible.
-    auto clonable = data.ti_cast_get<Data::Clonable>();
-    if (clonable != 0) return clonable->clone();
+    return Core::Data::Ast::clone(data);
   }
   return data;
 }

@@ -18,8 +18,7 @@ namespace Spp::Ast
 
 class WhileStatement : public Core::Data::Node,
                        public Binding, public MapContaining<TiObject>,
-                       public Core::Data::Ast::MetaHaving, public Core::Data::Clonable,
-                       public Core::Data::Printable
+                       public Core::Data::Ast::MetaHaving, public Core::Data::Printable
 {
   //============================================================================
   // Type Info
@@ -27,8 +26,7 @@ class WhileStatement : public Core::Data::Node,
   TYPE_INFO(WhileStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
     Core::Data::Node, Binding, MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving, Core::Data::Clonable,
-    Core::Data::Printable
+    Core::Data::Ast::MetaHaving, Core::Data::Printable
   );
   OBJECT_FACTORY(WhileStatement);
 
@@ -54,8 +52,6 @@ class WhileStatement : public Core::Data::Node,
     (condition, TiObject, SHARED_REF, setCondition(value), condition.get()),
     (body, TiObject, SHARED_REF, setBody(value), body.get())
   );
-
-  IMPLEMENT_AST_CLONABLE(WhileStatement);
 
   IMPLEMENT_AST_MAP_PRINTABLE(WhileStatement);
 

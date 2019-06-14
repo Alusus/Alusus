@@ -59,11 +59,9 @@ void GenericCommandParsingHandler::prepareToModifyData(ParserState *state, Int l
   if (state->isAProdRoot(levelIndex)) {
     if (state->isDataShared(levelIndex)) {
       // Duplicate the data.
-      auto command = state->getData(levelIndex).ti_cast_get<Data::Ast::GenericCommand>();
+      auto command = state->getData(levelIndex).ti_cast<Data::Ast::GenericCommand>();
       if (command != 0) {
-        auto newCommand = command->clone().s_cast<Data::Ast::GenericCommand>();
-        newCommand->setArgs(command->getArgs()->clone().ti_cast<Data::Ast::List>());
-        newCommand->setModifiers(command->getModifiers()->clone().ti_cast<Data::Ast::List>());
+        auto newCommand = Core::Data::Ast::clone(command);
         state->setData(newCommand, levelIndex);
       }
     }

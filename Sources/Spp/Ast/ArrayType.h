@@ -24,8 +24,6 @@ class ArrayType : public DataType
   TYPE_INFO(ArrayType, DataType, "Spp.Ast", "Spp", "alusus.org");
   OBJECT_FACTORY(ArrayType);
 
-  IMPLEMENT_AST_MAP_CLONABLE(ArrayType);
-
   IMPLEMENT_AST_MAP_PRINTABLE(ArrayType);
 
 

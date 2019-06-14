@@ -58,8 +58,6 @@ class FunctionType : public Type, public MapContaining<TiObject>
 
   IMPLEMENT_AST_MAP_PRINTABLE(FunctionType);
 
-  IMPLEMENT_AST_MAP_CLONABLE(FunctionType);
-
 
   //============================================================================
   // Constructors & Destructor

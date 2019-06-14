@@ -191,7 +191,6 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
 // Generic Data Interfaces
 #include "DataHaving.h"
 #include "IdHaving.h"
-#include "Clonable.h"
 #include "Printable.h"
 
 // Containers

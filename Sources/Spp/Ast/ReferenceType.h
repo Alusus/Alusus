@@ -24,8 +24,6 @@ class ReferenceType : public DataType
   TYPE_INFO(ReferenceType, DataType, "Spp.Ast", "Spp", "alusus.org");
   OBJECT_FACTORY(ReferenceType);
 
-  IMPLEMENT_AST_MAP_CLONABLE(ReferenceType);
-
   IMPLEMENT_AST_MAP_PRINTABLE(ReferenceType);
 
 

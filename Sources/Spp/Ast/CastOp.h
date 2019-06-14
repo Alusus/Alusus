@@ -18,8 +18,7 @@ namespace Spp::Ast
 
 class CastOp : public Core::Data::Node,
                public Binding, public MapContaining<TiObject>,
-               public Core::Data::Ast::MetaHaving, public Core::Data::Clonable,
-               public Core::Data::Printable
+               public Core::Data::Ast::MetaHaving, public Core::Data::Printable
 {
   //============================================================================
   // Type Info
@@ -27,7 +26,7 @@ class CastOp : public Core::Data::Node,
   TYPE_INFO(CastOp, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
     Core::Data::Node, Binding, MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable
+    Core::Data::Ast::MetaHaving, Core::Data::Printable
   );
   OBJECT_FACTORY(CastOp);
 
@@ -53,8 +52,6 @@ class CastOp : public Core::Data::Node,
     (operand, TiObject, SHARED_REF, setOperand(value), operand.get()),
     (targetType, TiObject, SHARED_REF, setTargetType(value), targetType.get())
   );
-
-  IMPLEMENT_AST_CLONABLE(PointerOp);
 
   IMPLEMENT_AST_MAP_PRINTABLE(CastOp);
 

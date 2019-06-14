@@ -13,7 +13,7 @@
 #ifndef CORE_DATA_AST_TOKEN_H
 #define CORE_DATA_AST_TOKEN_H
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
 /**
@@ -25,14 +25,13 @@ namespace Core { namespace Data { namespace Ast
  * definition and the token text. This object is created by the
  * GenericParsingHandler to compose the parsed tree.
  */
-class Token : public Node,
-              public Binding, public MetaHaving, public Clonable, public Printable
+class Token : public Node, public Binding, public MetaHaving, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Token, Node, "Core.Data.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MetaHaving, Printable);
   OBJECT_FACTORY(Token); \
 
 
@@ -135,20 +134,6 @@ class Token : public Node,
 
 
   //============================================================================
-  // Clonable Implementation
-
-  public: virtual SharedPtr<TiObject> clone() const
-  {
-    SharedPtr<Token> newToken = std::make_shared<Token>();
-    newToken->setProdId(this->getProdId());
-    newToken->setId(this->getId());
-    newToken->setText(this->getText());
-    newToken->setSourceLocation(this->getSourceLocation());
-    return newToken;
-  }
-
-
-  //============================================================================
   // Printable Implementation
 
   public: virtual void print(OutStream &stream, Int indents=0) const
@@ -164,6 +149,6 @@ class Token : public Node,
 
 }; // class
 
-} } } // namespace
+} // namespace
 
 #endif

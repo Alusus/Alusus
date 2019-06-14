@@ -19,8 +19,7 @@ namespace Spp::Ast
 using namespace Core;
 
 class Type : public Core::Data::Node,
-             public Binding, public Core::Data::Ast::MetaHaving,
-             public Core::Data::Clonable, public Core::Data::Printable
+             public Binding, public Core::Data::Ast::MetaHaving, public Core::Data::Printable
 {
   //============================================================================
   // Type Info
@@ -29,7 +28,6 @@ class Type : public Core::Data::Node,
     INHERITANCE_INTERFACES(
       Binding,
       Core::Data::Ast::MetaHaving,
-      Core::Data::Clonable,
       Core::Data::Printable
     )
   ));
