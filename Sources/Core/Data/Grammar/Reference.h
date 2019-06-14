@@ -113,9 +113,9 @@ class Reference : public Node, public Binding, public DataHaving
 
   public: Bool removeValue(TiObject *source) const;
 
-  public: Bool getValue(TiObject *source, TiObject *&value, Module **ownerModule = 0) const;
+  public: Bool getValue(TiObject *source, TiObject *&value) const;
 
-  private: Bool _getValue(TiObject *source, TiObject *&value, Module **ownerModule = 0) const;
+  private: Bool _getValue(TiObject *source, TiObject *&value) const;
 
   public: Bool isEqual(Reference *ref);
 

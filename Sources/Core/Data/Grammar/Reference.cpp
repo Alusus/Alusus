@@ -65,29 +65,26 @@ Bool Reference::removeValue(TiObject *source) const
 }
 
 
-Bool Reference::getValue(TiObject *source, TiObject *&value, Module **ownerModule) const
+Bool Reference::getValue(TiObject *source, TiObject *&value) const
 {
   VALIDATE_NOT_NULL(source);
 
   TiObject *tempValue;
-  Module *tempOwnerModule;
-  if (!this->_getValue(source, tempValue, &tempOwnerModule)) return false;
+  if (!this->_getValue(source, tempValue)) return false;
 
   if (this->next == 0) {
-    if (ownerModule != 0) *ownerModule = tempOwnerModule;
     value = tempValue;
   } else {
     // Recurse into next level, if possible.
     if (tempValue == 0) return false;
-    if (!this->next->getValue(tempValue, value, ownerModule)) return false;
-    if (ownerModule != 0 && *ownerModule == 0) *ownerModule = tempOwnerModule;
+    if (!this->next->getValue(tempValue, value)) return false;
   }
 
   return true;
 }
 
 
-Bool Reference::_getValue(TiObject *source, TiObject *&value, Module **ownerModule) const
+Bool Reference::_getValue(TiObject *source, TiObject *&value) const
 {
   VALIDATE_NOT_NULL(source);
 
@@ -109,7 +106,6 @@ Bool Reference::_getValue(TiObject *source, TiObject *&value, Module **ownerModu
     // Get the owner of the provided source.
     auto node = ti_cast<Node>(source);
     if (node == 0) return false;
-    if (ownerModule != 0) *ownerModule = 0;
     value = node->getOwner();
     return true;
   } else {
@@ -117,19 +113,6 @@ Bool Reference::_getValue(TiObject *source, TiObject *&value, Module **ownerModu
     if (container == 0) container = source->getInterface<MapContaining<TiObject>>();
 
     value = container->getElement(this->cachedIndex);
-
-    if (value != 0) {
-      if (value->isA<SharedPairedPtr>()) {
-        auto *pairedPtr = static_cast<SharedPairedPtr*>(value);
-        value = pairedPtr->object.get();
-        source = pairedPtr->parent.get();
-      } else if (value->isA<PlainPairedPtr>()) {
-        auto *pairedPtr = static_cast<PlainPairedPtr*>(value);
-        value = pairedPtr->object;
-        source = pairedPtr->parent;
-      }
-    }
-    if (ownerModule != 0) *ownerModule = ti_cast<Module>(source);
 
     return true;
   }

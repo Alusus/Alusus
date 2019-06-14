@@ -25,7 +25,7 @@ TiObject* Context::traceValue(TiObject *val)
   do {
     auto module = static_cast<Reference*>(val)->findOwner<Module>();
     this->setModule(module);
-    if (!static_cast<Reference*>(val)->getValue(this, val, &module)) {
+    if (!static_cast<Reference*>(val)->getValue(this, val)) {
       throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
     }
   } while (val != 0 && val->isDerivedFrom<Reference>());
@@ -165,7 +165,7 @@ SymbolDefinition* Context::getReferencedSymbol(Reference const *ref)
   do {
     auto module = static_cast<Reference*>(retVal)->findOwner<Module>();
     this->setModule(module);
-    if (!static_cast<Reference*>(retVal)->getValue(this, retVal, &module)) {
+    if (!static_cast<Reference*>(retVal)->getValue(this, retVal)) {
       throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
     }
     // If the reference points to a grammar module, then the reference wants the module's start (default) definition.
@@ -230,7 +230,7 @@ Term* Context::getSymbolTerm(SymbolDefinition const *definition)
     do {
       auto module = static_cast<Reference*>(retVal)->findOwner<Module>();
       this->setModule(module);
-      if (!static_cast<Reference*>(retVal)->getValue(this, retVal, &module)) {
+      if (!static_cast<Reference*>(retVal)->getValue(this, retVal)) {
         throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
       }
       // A definition could have a term reference to another definition which means it wants the terms of that
@@ -256,7 +256,7 @@ Map* Context::getSymbolVars(const SymbolDefinition *definition)
     do {
       auto module = static_cast<Reference*>(retVal)->findOwner<Module>();
       this->setModule(module);
-      if (!static_cast<Reference*>(retVal)->getValue(this, retVal, &module)) {
+      if (!static_cast<Reference*>(retVal)->getValue(this, retVal)) {
         throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
       }
       // A definition could have a vars reference to another definition which means it wants the vars of that

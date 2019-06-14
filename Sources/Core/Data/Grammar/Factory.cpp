@@ -63,10 +63,10 @@ TiObject* Factory::get(Char const* qualifier)
 }
 
 
-Bool Factory::tryGet(Char const* qualifier, TiObject *&result, Module **ownerModule)
+Bool Factory::tryGet(Char const* qualifier, TiObject *&result)
 {
   auto ref = createReference(qualifier, &this->referenceCache);
-  return ref->getValue(&this->context, result, ownerModule);
+  return ref->getValue(&this->context, result);
 }
 
 

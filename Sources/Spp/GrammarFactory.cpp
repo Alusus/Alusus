@@ -638,8 +638,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
 List* GrammarFactory::getLeadingCommandsList()
 {
   TiObject *obj;
-  Core::Data::Grammar::Module *module;
-  if (!this->tryGet(S("root.Main.LeadingCmdGrp"), obj, &module)) {
+  if (!this->tryGet(S("root.Main.LeadingCmdGrp"), obj)) {
     throw EXCEPTION(GenericException, S("Could not find leading command group."));
   }
   SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);
@@ -660,8 +659,7 @@ List* GrammarFactory::getLeadingCommandsList()
 List* GrammarFactory::getInnerCommandsList()
 {
   TiObject *obj;
-  Core::Data::Grammar::Module *module;
-  if (!this->tryGet(S("root.Main.SubjectCmdGrp"), obj, &module)) {
+  if (!this->tryGet(S("root.Main.SubjectCmdGrp"), obj)) {
     throw EXCEPTION(GenericException, S("Could not find inner command group."));
   }
   SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);
@@ -682,8 +680,7 @@ List* GrammarFactory::getInnerCommandsList()
 List* GrammarFactory::getTildeCommandsList()
 {
   TiObject *obj;
-  Core::Data::Grammar::Module *module;
-  if (!this->tryGet(S("root.Main.PostfixTildeCmdGrp"), obj, &module)) {
+  if (!this->tryGet(S("root.Main.PostfixTildeCmdGrp"), obj)) {
     throw EXCEPTION(GenericException, S("Could not find tilde command group."));
   }
   SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);

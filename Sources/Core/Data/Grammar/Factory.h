@@ -55,7 +55,7 @@ class Factory
   protected: Bool tryRemove(Char const* qualifier);
 
   protected: TiObject* get(Char const* qualifier);
-  protected: Bool tryGet(Char const* qualifier, TiObject *&result, Module **ownerModule = 0);
+  protected: Bool tryGet(Char const* qualifier, TiObject *&result);
 
   protected: void initializeObject(TiObject *obj);
 
