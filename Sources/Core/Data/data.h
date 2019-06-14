@@ -184,7 +184,6 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
 #include "Node.h"
 
 // Helpers
-#include "paired_pointers.h"
 #include "IdGenerator.h"
 #include "source_location.h"
 
