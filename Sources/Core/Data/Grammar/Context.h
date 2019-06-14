@@ -31,7 +31,6 @@ class Context : public TiObject, public MapContaining<TiObject>
 
   private: Module *root = 0;
   private: Module *module = 0;
-  private: Module *bmodule = 0;
   private: VariableStack *stack = 0;
   private: TiObject *args = 0;
 
@@ -54,7 +53,6 @@ class Context : public TiObject, public MapContaining<TiObject>
   {
     this->root = context->getRoot();
     this->module = context->getModule();
-    this->bmodule = context->getBmodule();
     this->stack = context->getStack();
     this->args = context->getArgs();
   }
@@ -72,18 +70,11 @@ class Context : public TiObject, public MapContaining<TiObject>
   public: void setModule(Module *m)
   {
     this->module = m;
-    if (this->module != 0) this->bmodule = m->getBaseModule();
-    else this->bmodule = 0;
   }
 
   public: Module* getModule() const
   {
     return this->module;
-  }
-
-  public: Module* getBmodule() const
-  {
-    return this->bmodule;
   }
 
   public: void setStack(VariableStack *s)
@@ -176,7 +167,7 @@ class Context : public TiObject, public MapContaining<TiObject>
 
   public: virtual Word getElementCount() const
   {
-    return 5;
+    return 4;
   }
 
   public: virtual TiObject* getElement(Int index) const;

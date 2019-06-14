@@ -93,6 +93,8 @@ Bool Reference::_getValue(TiObject *source, TiObject *&value) const
   if (this->cachedIndex == -1) {
     if (this->key == S("owner")) {
       this->cachedIndex = -2;
+    } else if (this->key == S("base")) {
+      this->cachedIndex = -3;
     } else {
       container = source->getInterface<MapContaining<TiObject>>();
       if (container == 0) return false;
@@ -107,6 +109,12 @@ Bool Reference::_getValue(TiObject *source, TiObject *&value) const
     auto node = ti_cast<Node>(source);
     if (node == 0) return false;
     value = node->getOwner();
+    return true;
+  } else if (this->cachedIndex == -3) {
+    // Get the base of the provided source.
+    auto inheriting = ti_cast<Inheriting>(source);
+    if (inheriting == 0) return false;
+    value = inheriting->getBase();
     return true;
   } else {
     // Get an element from the provided container.

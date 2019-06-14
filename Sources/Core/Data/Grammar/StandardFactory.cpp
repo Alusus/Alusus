@@ -1828,7 +1828,7 @@ void StandardFactory::createModifierProductionDefinitions()
     { S("subject"), PARSE_REF(S("module.owner.Subject")) }
   }));
   this->set(S("root.Modifier.Expression.FunctionalExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.FunctionalExp")) }
+    {S("baseRef"), PARSE_REF(S("module.base.FunctionalExp")) }
   }, {
     {S("vars"), Map::create({}, {
       {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP | TermFlags::ONE_ROUTE_TERM)},
@@ -1953,7 +1953,7 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
     }, {}));
 
     this->set(S("root.Main.RootStatements.StmtList"), SymbolDefinition::create({
-      {S("baseRef"), PARSE_REF(S("bmodule.StmtList"))}
+      {S("baseRef"), PARSE_REF(S("module.base.StmtList"))}
     }, {
       {S("handler"), this->rootScopeParsingHandler}
     }));

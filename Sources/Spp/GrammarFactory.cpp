@@ -286,7 +286,7 @@ void GrammarFactory::createGrammar(
     {S("baseRef"), PARSE_REF(S("module.owner.Statements"))}
   }));
   this->set(S("root.Main.ModuleStatements.StmtList"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.StmtList"))},
+    {S("baseRef"), PARSE_REF(S("module.base.StmtList"))},
   }, {
     {S("handler"), ScopeParsingHandler<Spp::Ast::Module>::create()}
   }).get());
@@ -365,32 +365,32 @@ void GrammarFactory::createGrammar(
     {S("subject"), PARSE_REF(S("module.owner.FuncSigSubject"))}
   }).get());
   this->set(S("root.Main.FuncSigExpression.LowerLinkExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.LowerLinkExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.LowerLinkExp"))},
   }, {
     {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(1)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.LowLinkExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.LowLinkExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.LowLinkExp"))},
   }, {
     {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(1)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.AddExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.AddExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.AddExp"))},
   }, {
     {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.MulExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.MulExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.MulExp"))},
   }, {
     {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.BitwiseExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.BitwiseExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.BitwiseExp"))},
   }, {
     {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.UnaryExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.UnaryExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.UnaryExp"))},
   }, {
     {S("vars"), Map::create({}, {
       {S("enable1"), std::make_shared<TiInt>(0)},
@@ -402,7 +402,7 @@ void GrammarFactory::createGrammar(
     {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
   }).get());
   this->set(S("root.Main.FuncSigSubject.Sbj"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
+    {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
   }, {
     {S("vars"), Map::create({}, {
       {S("sbj1"), PARSE_REF(S("module.Parameter"))},
@@ -451,7 +451,7 @@ void GrammarFactory::createGrammar(
     {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
   }).get());
   this->set(S("root.Main.MacroSignature.Sbj"), SymbolDefinition::create({
-   {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
+   {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
   }, {
     {S("vars"), Map::create({}, {
       {S("sbj1"), PARSE_REF(S("module.expression"))},
@@ -534,7 +534,7 @@ void GrammarFactory::createGrammar(
     {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
   }).get());
   this->set(S("root.Main.CastSubject.Sbj"), SymbolDefinition::create({
-   {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
+   {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
   }, {
     {S("vars"), Map::create({}, {
       {S("sbj1"), PARSE_REF(S("module.expression"))},

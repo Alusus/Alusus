@@ -358,20 +358,16 @@ void Context::setElement(Int index, TiObject *val)
         throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type Module."));
       }
       this->module = static_cast<Module*>(val);
-      this->bmodule = this->module->getBaseModule();
       break;
     }
     case 2: {
-      throw EXCEPTION(GenericException, S("Element cannot be manually set."));
-    }
-    case 3: {
       if (val != 0 && !val->isDerivedFrom<VariableStack>()) {
         throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type VariableStack."));
       }
       this->stack = static_cast<VariableStack*>(val);
       break;
     }
-    case 4: {
+    case 3: {
       this->args = val;
       break;
     }
@@ -396,19 +392,16 @@ Int Context::setElement(Char const *key, TiObject *val)
       throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type Module."));
     }
     this->module = static_cast<Module*>(val);
-    this->bmodule = this->module->getBaseModule();
     return 1;
-  } else if (name == S("bmodule")) {
-    throw EXCEPTION(GenericException, S("Element cannot be manually set."));
   } else if (name == S("stack")) {
     if (val != 0 && !val->isDerivedFrom<VariableStack>()) {
       throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type VariableStack."));
     }
     this->stack = static_cast<VariableStack*>(val);
-    return 3;
+    return 2;
   } else if (name == S("args")) {
     this->args = val;
-    return 4;
+    return 3;
   } else {
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Invalid key."));
   }
@@ -420,9 +413,8 @@ TypeInfo* Context::getElementNeededType(Int index) const
   switch(index) {
     case 0: return Module::getTypeInfo();
     case 1: return Module::getTypeInfo();
-    case 2: return Module::getTypeInfo();
-    case 3: return VariableStack::getTypeInfo();
-    case 4: return TiObject::getTypeInfo();
+    case 2: return VariableStack::getTypeInfo();
+    case 3: return TiObject::getTypeInfo();
     default: {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."));
     }
@@ -436,8 +428,6 @@ TypeInfo* Context::getElementNeededType(Char const *key) const
   if (name == S("root")) {
     return Module::getTypeInfo();
   } else if (name == S("module")) {
-    return Module::getTypeInfo();
-  } else if (name == S("bmodule")) {
     return Module::getTypeInfo();
   } else if (name == S("stack")) {
     return VariableStack::getTypeInfo();
@@ -454,9 +444,8 @@ TiObject* Context::getElement(Int index) const
   switch(index) {
     case 0: return this->root;
     case 1: return this->module;
-    case 2: return this->bmodule;
-    case 3: return this->stack;
-    case 4: return this->args;
+    case 2: return this->stack;
+    case 3: return this->args;
     default: {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."));
     }
@@ -471,8 +460,6 @@ TiObject* Context::getElement(Char const *key) const
     return this->root;
   } else if (name == S("module")) {
     return this->module;
-  } else if (name == S("bmodule")) {
-    return this->bmodule;
   } else if (name == S("stack")) {
     return this->stack;
   } else if (name == S("args")) {
@@ -488,9 +475,8 @@ SbStr const& Context::getElementKey(Int index) const
   switch(index) {
     case 0: return SBSTR(S("root"));
     case 1: return SBSTR(S("module"));
-    case 2: return SBSTR(S("bmodule"));
-    case 3: return SBSTR(S("stack"));
-    case 4: return SBSTR(S("args"));
+    case 2: return SBSTR(S("stack"));
+    case 3: return SBSTR(S("args"));
     default: {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."));
     }
@@ -504,12 +490,10 @@ Int Context::findElementIndex(Char const *key) const
     return 0;
   } else if (SBSTR(key) == S("module")) {
     return 1;
-  } else if (SBSTR(key) == S("bmodule")) {
-    return 2;
   } else if (SBSTR(key) == S("stack")) {
-    return 3;
+    return 2;
   } else if (SBSTR(key) == S("args")) {
-    return 4;
+    return 3;
   } else {
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Invalid key."), key);
   }
