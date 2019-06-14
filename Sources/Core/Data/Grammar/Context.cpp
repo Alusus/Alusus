@@ -22,6 +22,8 @@ TiObject* Context::traceValue(TiObject *val)
 {
   auto ref = ti_cast<Reference>(val);
   if (ref == 0) return val;
+  if (ref->isValueCacheEnabled() && ref->getCachedValue() != 0) return ref->getCachedValue();
+  auto originalRef = ref;
   do {
     auto module = static_cast<Reference*>(val)->findOwner<Module>();
     this->setModule(module);
@@ -29,6 +31,7 @@ TiObject* Context::traceValue(TiObject *val)
       throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
     }
   } while (val != 0 && val->isDerivedFrom<Reference>());
+  if (originalRef->isValueCacheEnabled()) originalRef->setCachedValue(val);
   return val;
 }
 
@@ -162,6 +165,14 @@ CharGroupDefinition* Context::getReferencedCharGroup(Reference const *ref)
 SymbolDefinition* Context::getReferencedSymbol(Reference const *ref)
 {
   TiObject *retVal = const_cast<Reference*>(ref);
+  if (ref->isValueCacheEnabled() && ref->getCachedValue() != 0) {
+    auto symbolDef = ti_cast<SymbolDefinition>(ref->getCachedValue());
+    if (symbolDef == 0) {
+      throw EXCEPTION(GenericException, S("Reference does not point to a symbol definition."));
+    }
+    return symbolDef;
+  }
+  auto originalRef = ref;
   do {
     auto module = static_cast<Reference*>(retVal)->findOwner<Module>();
     this->setModule(module);
@@ -176,6 +187,7 @@ SymbolDefinition* Context::getReferencedSymbol(Reference const *ref)
   if (retVal == 0 || !retVal->isDerivedFrom<SymbolDefinition>()) {
     throw EXCEPTION(GenericException, S("Reference does not point to a symbol definition."));
   }
+  if (originalRef->isValueCacheEnabled()) originalRef->setCachedValue(retVal);
   return static_cast<SymbolDefinition*>(retVal);
 }
 
@@ -226,11 +238,22 @@ TiInt* Context::getTermFlags(Term *term)
 Term* Context::getSymbolTerm(SymbolDefinition const *definition)
 {
   TiObject *retVal = definition->getTerm().get();
-  if (retVal != 0 && retVal->isDerivedFrom<Reference>()) {
+  auto ref = ti_cast<Reference>(retVal);
+  if (ref != 0) {
+    if (ref->isValueCacheEnabled() && ref->getCachedValue() != 0) {
+      auto term = ti_cast<Term>(ref->getCachedValue());
+      if (term == 0) {
+        throw EXCEPTION(
+          InvalidArgumentException, S("definition"), S("Symbol's term should be of type Term or Reference to it.")
+        );
+      }
+      return term;
+    }
+    auto originalRef = ref;
     do {
-      auto module = static_cast<Reference*>(retVal)->findOwner<Module>();
+      auto module = ref->findOwner<Module>();
       this->setModule(module);
-      if (!static_cast<Reference*>(retVal)->getValue(this, retVal)) {
+      if (!ref->getValue(this, retVal)) {
         throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
       }
       // A definition could have a term reference to another definition which means it wants the terms of that
@@ -238,7 +261,9 @@ Term* Context::getSymbolTerm(SymbolDefinition const *definition)
       if (retVal != 0 && retVal->isA<SymbolDefinition>()) {
         retVal = static_cast<SymbolDefinition*>(retVal)->getTerm().get();
       }
-    } while (retVal != 0 && retVal->isDerivedFrom<Reference>());
+      ref = ti_cast<Reference>(retVal);
+    } while (ref != 0);
+    if (originalRef->isValueCacheEnabled()) originalRef->setCachedValue(retVal);
   }
   if (retVal == 0 || !retVal->isDerivedFrom<Term>()) {
     throw EXCEPTION(
@@ -252,11 +277,22 @@ Term* Context::getSymbolTerm(SymbolDefinition const *definition)
 Map* Context::getSymbolVars(const SymbolDefinition *definition)
 {
   TiObject *retVal = definition->getVars().get();
-  if (retVal != 0 && retVal->isDerivedFrom<Reference>()) {
+  auto ref = ti_cast<Reference>(retVal);
+  if (ref != 0) {
+    if (ref->isValueCacheEnabled() && ref->getCachedValue() != 0) {
+      auto map = ti_cast<Map>(ref->getCachedValue());
+      if (map == 0) {
+        throw EXCEPTION(
+          InvalidArgumentException, S("definition"), S("Symbol's vars should be of type Map or Reference to it.")
+        );
+      }
+      return map;
+    }
+    auto originalRef = ref;
     do {
-      auto module = static_cast<Reference*>(retVal)->findOwner<Module>();
+      auto module = ref->findOwner<Module>();
       this->setModule(module);
-      if (!static_cast<Reference*>(retVal)->getValue(this, retVal)) {
+      if (!ref->getValue(this, retVal)) {
         throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
       }
       // A definition could have a vars reference to another definition which means it wants the vars of that
@@ -264,7 +300,9 @@ Map* Context::getSymbolVars(const SymbolDefinition *definition)
       if (retVal != 0 && retVal->isA<SymbolDefinition>()) {
         retVal = static_cast<SymbolDefinition*>(retVal)->getVars().get();
       }
-    } while (retVal != 0 && retVal->isDerivedFrom<Reference>());
+      ref = ti_cast<Reference>(retVal);
+    } while (ref != 0);
+    if (originalRef->isValueCacheEnabled()) originalRef->setCachedValue(retVal);
   }
   if (retVal != 0 && !retVal->isA<Map>()) {
     throw EXCEPTION(

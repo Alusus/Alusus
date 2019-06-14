@@ -32,7 +32,9 @@ class Reference : public Node, public Binding, public DataHaving
 
   private: SharedPtr<Reference> next;
   private: TiStr key;
-  private: mutable Int cachedIndex;
+  private: TiBool valueCacheEnabled = false;
+  private: mutable Int cachedIndex = -1;
+  private: mutable TiObject *cachedValue = 0;
 
 
   //============================================================================
@@ -40,22 +42,23 @@ class Reference : public Node, public Binding, public DataHaving
 
   IMPLEMENT_BINDING(Binding,
     (next, Reference, SHARED_REF, setNext(value), next.get()),
-    (key, TiStr, VALUE, setKey(value), &this->key)
+    (key, TiStr, VALUE, setKey(value), &this->key),
+    (valueCacheEnabled, TiBool, VALUE, setValueCacheEnabled(value), &this->valueCacheEnabled)
   );
 
 
   //============================================================================
   // Constructor
 
-  public: Reference() : cachedIndex(-1)
+  public: Reference()
   {
   }
 
-  public: Reference(Char const *k) : key(k), cachedIndex(-1)
+  public: Reference(Char const *k) : key(k)
   {
   }
 
-  public: Reference(Char const *k, Int s) : key(k, s), cachedIndex(-1)
+  public: Reference(Char const *k, Int s) : key(k, s)
   {
   }
 
@@ -109,6 +112,30 @@ class Reference : public Node, public Binding, public DataHaving
     return this->key;
   }
 
+  public: void setValueCacheEnabled(Bool e)
+  {
+    this->valueCacheEnabled = e;
+  }
+  public: void setValueCacheEnabled(TiBool const *e)
+  {
+    this->valueCacheEnabled = e == 0 ? false : e->get();
+  }
+
+  public: Bool isValueCacheEnabled() const
+  {
+    return this->valueCacheEnabled;
+  }
+
+  public: void setCachedValue(TiObject *val) const
+  {
+    this->cachedValue = val;
+  }
+
+  public: TiObject* getCachedValue() const
+  {
+    return this->cachedValue;
+  }
+
   public: Bool setValue(TiObject *source, TiObject *value) const;
 
   public: Bool removeValue(TiObject *source) const;
@@ -123,6 +150,7 @@ class Reference : public Node, public Binding, public DataHaving
   public: virtual void unsetIndexes(Int from, Int to)
   {
     if (this->cachedIndex >= from && this->cachedIndex <= to) this->cachedIndex = -1;
+    this->cachedValue = 0;
   }
 
 }; // class

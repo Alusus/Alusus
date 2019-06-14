@@ -40,8 +40,9 @@ void GrammarFactory::createGrammar(
   this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("shared")));
 
   //// if = "if" + Expression + Statement + ("else" + Statement)*(0, 1)
-  this->set(S("root.Main.If"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.MultiCmd"))},
+  this->set(S("root.Main.If"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.MultiCmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("sections"), List::create({}, {
         Map::create({}, {
@@ -90,8 +91,9 @@ void GrammarFactory::createGrammar(
   leadingCmdList->add(PARSE_REF(S("module.If")));
 
   //// while = "while" + Expression + Statement
-  this->set(S("root.Main.While"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.While"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("while"), 0 }, { S("بينما"), 0 } })},
       {S("prms"), List::create({}, {
@@ -116,8 +118,9 @@ void GrammarFactory::createGrammar(
   leadingCmdList->add(PARSE_REF(S("module.While")));
 
   //// for = "for" + Exp + Statement
-  this->set(S("root.Main.For"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.For"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("for"), 0 }, { S("لكل"), 0 } })},
       {S("prms"), List::create({}, {
@@ -142,8 +145,9 @@ void GrammarFactory::createGrammar(
   leadingCmdList->add(PARSE_REF(S("module.For")));
 
   //// continue = "continue" + Subject.Literal
-  this->set(S("root.Main.Continue"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.Continue"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("continue"), 0 }, { S("أكمل"), 0 } })},
       {S("prms"), List::create({}, {
@@ -180,8 +184,9 @@ void GrammarFactory::createGrammar(
   leadingCmdList->add(PARSE_REF(S("module.Continue")));
 
   //// break = "break" + Subject.Literal
-  this->set(S("root.Main.Break"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.Break"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("break"), 0 }, { S("اقطع"), 0 } })},
       {S("prms"), List::create({}, {
@@ -216,8 +221,9 @@ void GrammarFactory::createGrammar(
   leadingCmdList->add(PARSE_REF(S("module.Break")));
 
   //// return = "return" + Expression
-  this->set(S("root.Main.Return"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.Return"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("return"), 0 }, { S("أرجع"), 0 }, { S("ارجع"), 0 } })},
       {S("prms"), List::create({}, {
@@ -248,8 +254,9 @@ void GrammarFactory::createGrammar(
   // Create inner commands.
 
   //// module = "module" + Set
-  this->set(S("root.Main.Module"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.Module"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("module"), 0 }, { S("وحدة"), 0 } })},
       {S("prms"), List::create({}, {
@@ -292,8 +299,9 @@ void GrammarFactory::createGrammar(
   }).get());
 
   //// type = "type" + Set
-  this->set(S("root.Main.Type"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.Type"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("type"), 0 }, { S("صنف"), 0 } })},
       {S("prms"), List::create({}, {
@@ -321,8 +329,9 @@ void GrammarFactory::createGrammar(
   innerCmdList->add(PARSE_REF(S("module.Type")));
 
   // Function
-  this->set(S("root.Main.Function"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.Function"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("func"), 0 }, { S("function"), 0 }, { S("دالّة"), 0 }, { S("دالة"), 0 } })},
       {S("prms"), List::create({}, {
@@ -415,8 +424,9 @@ void GrammarFactory::createGrammar(
   }).get());
 
   // Macro
-  this->set(S("root.Main.Macro"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.Macro"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("macro"), 0 }, { S("ماكرو"), 0 } })},
       {S("prms"), List::create({}, {
@@ -493,8 +503,9 @@ void GrammarFactory::createGrammar(
   // Create tilde commands.
 
   // ~ptr
-  this->set(S("root.Main.PointerTilde"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.PointerTilde"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("ptr"), 0 }, { S("مؤشر"), 0 } })},
       {S("prms"), List::create() }
@@ -503,8 +514,9 @@ void GrammarFactory::createGrammar(
   }).get());
   tildeCmdList->add(PARSE_REF(S("module.PointerTilde")));
   // ~cnt
-  this->set(S("root.Main.ContentTilde"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.ContentTilde"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("cnt"), 0 }, { S("محتوى"), 0 } })},
       {S("prms"), List::create() }
@@ -513,8 +525,9 @@ void GrammarFactory::createGrammar(
   }).get());
   tildeCmdList->add(PARSE_REF(S("module.ContentTilde")));
   // ~cast
-  this->set(S("root.Main.CastTilde"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.CastTilde"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, {{S("cast"), 0}, {S("مثّل"), 0}, {S("مثل"), 0}})},
       {S("prms"), List::create({}, {
@@ -546,8 +559,9 @@ void GrammarFactory::createGrammar(
     })}
   }).get());
   // ~size
-  this->set(S("root.Main.SizeTilde"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.SizeTilde"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("size"), 0 }, { S("حجم"), 0 } })},
       {S("prms"), List::create() }
@@ -556,8 +570,9 @@ void GrammarFactory::createGrammar(
   }).get());
   tildeCmdList->add(PARSE_REF(S("module.SizeTilde")));
   // ~ptr
-  this->set(S("root.Main.AstRefTilde"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
+  this->set(S("root.Main.AstRefTilde"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+  }, {
     {S("vars"), Map::create({}, {
       {S("kwd"), Map::create({}, { { S("ast"), 0 }, { S("شبم"), 0 } })},
       {S("prms"), List::create()}

@@ -30,6 +30,8 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
         referenceCache->push_back(std::make_shared<Reference>());
       }
       seg = referenceCache->at(cacheIndex);
+      seg->setCachedValue(0);
+      seg->setValueCacheEnabled(false);
       ++cacheIndex;
     } else {
       seg = std::make_shared<Reference>(qualifier + begin, size);
@@ -52,6 +54,9 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
   }
   addSegment(start, SBSTR(qualifier).size() - start);
   ASSERT(ref != 0);
+
+  // Cache any reference that isn't on the stack since the stack is the only place updated inside list terms' loops.
+  if (ref->getKey() != S("stack")) ref->setValueCacheEnabled(true);
 
   return ref;
 }

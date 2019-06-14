@@ -904,9 +904,7 @@ void StandardFactory::createCommandTemplateProductionDefinitions()
   //   as (kwd:keywords, args:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
   //     root.KeywordGroup(kwd) + concat (args:a)->( @priority(a.pty,0) a.prd*(a.min,a.max) )
   //   };
-  this->set(S("root.Cmd"), SymbolDefinition::create({
-    {S("flags"), TiInt::create(ParsingFlags::ENFORCE_PROD_OBJ)}
-  }, {
+  this->set(S("root.Cmd"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         TokenTerm::create({
@@ -943,9 +941,7 @@ void StandardFactory::createCommandTemplateProductionDefinitions()
   //       ))*(s.min, s.max)
   //     )
   //   };
-  this->set(S("root.MultiCmd"), SymbolDefinition::create({
-    {S("flags"), TiInt::create(ParsingFlags::ENFORCE_PROD_OBJ)}
-  }, {
+  this->set(S("root.MultiCmd"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({
       {S("targetRef"), PARSE_REF(S("stack.s"))}
     }, {
@@ -1916,8 +1912,9 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
   }));
 
   // CmdVariation : prule ref Variation(sections=((prd=cmdGrp,min=1,max=1,pty=1)));
-  this->set(S("root.Main.Statements.CmdVariation"), SymbolDefinition::create({}, {
-   {S("term"), PARSE_REF(S("module.Variation"))},
+  this->set(S("root.Main.Statements.CmdVariation"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("module.Variation"))}
+  }, {
    {S("vars"), Map::create({}, {
       {S("subjects"), List::create({}, {
          Map::create({}, {
@@ -1932,8 +1929,9 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
   }));
 
   // ExpVariation : prule ref Variation(sections=((prd=module.expression,min=1,max=1,pty=1)));
-  this->set(S("root.Main.Statements.ExpVariation"), SymbolDefinition::create({}, {
-   {S("term"), PARSE_REF(S("module.Variation"))},
+  this->set(S("root.Main.Statements.ExpVariation"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("module.Variation"))}
+  }, {
    {S("vars"), Map::create({}, {
       {S("subjects"), List::create({}, {
          Map::create({}, {
@@ -2052,8 +2050,9 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
     }));
 
     //// Do = "do" + Subject
-    this->set(S("root.Main.Do"), SymbolDefinition::create({}, {
-      {S("term"), PARSE_REF(S("root.Cmd"))},
+    this->set(S("root.Main.Do"), SymbolDefinition::create({
+      {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+    }, {
       {S("vars"), Map::create({}, {
         {S("kwd"), std::make_shared<TiStr>(S("do"))},
         {S("prms"), List::create({}, {
@@ -2070,8 +2069,9 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
     }));
 
     //// Import = "import" + Subject
-    this->set(S("root.Main.Import"), SymbolDefinition::create({}, {
-      {S("term"), PARSE_REF(S("root.Cmd"))},
+    this->set(S("root.Main.Import"), SymbolDefinition::create({
+      {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+    }, {
       {S("vars"), Map::create({}, {
          {S("kwd"), Map::create({}, {{S("import"),0},{S("اشمل"),0}})},
          {S("prms"), List::create({}, {
@@ -2088,8 +2088,9 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
     }));
 
     //// Def = "def" + Subject
-    this->set(S("root.Main.Def"), SymbolDefinition::create({}, {
-      {S("term"), PARSE_REF(S("root.Cmd")) },
+    this->set(S("root.Main.Def"), SymbolDefinition::create({
+      {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+    }, {
       {S("vars"), Map::create({}, {
         {S("kwd"), Map::create({}, { { S("def"), 0 }, { S("عرّف"), 0 }, { S("عرف"), 0 } }) },
         {S("prms"), List::create({}, {
@@ -2109,8 +2110,9 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
     }));
 
     //// use = "use" + Expression
-    this->set(S("root.Main.Use"), SymbolDefinition::create({}, {
-      {S("term"), PARSE_REF(S("root.Cmd"))},
+    this->set(S("root.Main.Use"), SymbolDefinition::create({
+      {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+    }, {
       {S("vars"), Map::create({}, {
         {S("kwd"), Map::create({}, { { S("use"), 0 }, { S("استخدم"), 0 } })},
         {S("prms"), List::create({}, {
@@ -2136,30 +2138,30 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
     }).get());
 
     //// dump = "dump" + Subject
-    this->set(S("root.Main.DumpAst"), SymbolDefinition::create({}, {
-      { S("term"), PARSE_REF(S("root.Cmd")) },
-      {
-        S("vars"), Map::create({}, {
-          { S("kwd"), Map::create({}, { { S("dump_ast"), 0 }, { S("أدرج_ش_ب_م"), 0 } }) },
-          {
-            S("prms"), List::create({}, {
-              Map::create({}, {
-                {S("prd"), PARSE_REF(S("module.Expression"))},
-                {S("min"), std::make_shared<TiInt>(1)},
-                {S("max"), std::make_shared<TiInt>(1)},
-                {S("pty"), std::make_shared<TiInt>(1)},
-                {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-              })
+    this->set(S("root.Main.DumpAst"), SymbolDefinition::create({
+      {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+    }, {
+      {S("vars"), Map::create({}, {
+        { S("kwd"), Map::create({}, { { S("dump_ast"), 0 }, { S("أدرج_ش_ب_م"), 0 } }) },
+        {
+          S("prms"), List::create({}, {
+            Map::create({}, {
+              {S("prd"), PARSE_REF(S("module.Expression"))},
+              {S("min"), std::make_shared<TiInt>(1)},
+              {S("max"), std::make_shared<TiInt>(1)},
+              {S("pty"), std::make_shared<TiInt>(1)},
+              {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
             })
-          }
-        })
-      },
+          })
+        }
+      })},
       { S("handler"), this->dumpAstParsingHandler }
     }));
 
     //// Alias = "alias" + Subject
-    this->set(S("root.Main.Alias"), SymbolDefinition::create({}, {
-      {S("term"), PARSE_REF(S("root.Cmd"))},
+    this->set(S("root.Main.Alias"), SymbolDefinition::create({
+      {S("baseRef"), PARSE_REF(S("root.Cmd"))}
+    }, {
       {S("vars"), Map::create({}, {
         {S("kwd"), Map::create({}, { { S("alias"), 0 }, { S("لقب"), 0 } }) },
         {S("prms"), List::create({}, {
