@@ -56,7 +56,7 @@ void ListTerm::setStatic(SharedPtr<List> const &terms, SharedPtr<Node> const &fi
   }
   if (filter != 0 && !filter->isA<List>() &&
       !filter->isA<TiInt>() &&
-      !filter->isDerivedFrom<Reference>()) {
+      !filter->isA<Reference>()) {
     throw EXCEPTION(InvalidArgumentException, S("filter"),
                     S("Must be either List, TiInt, or a Reference."));
   }
@@ -78,7 +78,7 @@ void ListTerm::setDynamic(const SharedPtr<Term> &term, SharedPtr<Node> const &da
   if (term == 0) {
     throw EXCEPTION(InvalidArgumentException, S("term"), S("Cannot be null."));
   }
-  if (data == 0 || (!data->isA<List>() && !data->isDerivedFrom<Reference>())) {
+  if (data == 0 || (!data->isA<List>() && !data->isA<Reference>())) {
     throw EXCEPTION(InvalidArgumentException, S("data"), S("Must be of type List or Reference."));
   }
   if (ref == 0) {
@@ -103,20 +103,17 @@ void ListTerm::reset()
  *              singular term, that term will be returned regardless of this
  *              parameter.
  */
-SharedPtr<Term> ListTerm::getTerm(Int index) const
+Term* ListTerm::getTerm(Int index) const
 {
-  List const *list = ti_cast<List>(this->terms.get());
-  if (list) {
+  if (this->terms->isA<List>()) {
+    List const *list = this->terms.s_cast_get<List>();
     if (static_cast<Word>(index) >= list->getCount()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
-    SharedPtr<Term> term = list->get(index).s_cast<Term>();
-    if (!term->isDerivedFrom<Term>()) {
-      throw EXCEPTION(GenericException, S("List contains a non-Term object."));
-    }
+    Term *term = list->get(index).s_cast_get<Term>();
     return term;
   } else {
-    return this->terms.s_cast<Term>();
+    return this->terms.s_cast_get<Term>();
   }
 }
 

@@ -2028,11 +2028,12 @@ Bool Parser::matchErrorSyncBlockPairs(ParserState *state, Data::Token const *tok
   //       on each token received.
   // The odd entries in the match pairs list are for block start, the even entries are for block end.
   for (Int i = 0; i < state->getErrorSyncBlockPairs()->getCount(); i += 2) {
-    Data::Grammar::TokenTerm *term = ti_cast<Data::Grammar::TokenTerm>(state->getErrorSyncBlockPairs()->getElement(i));
-    if (term == 0) {
+    auto element = state->getErrorSyncBlockPairs()->getElement(i);
+    if (!element->isA<Data::Grammar::TokenTerm>()) {
       throw EXCEPTION(GenericException, S("Invalid error-sync-block-pair data. "
                                           "Pair entries must be of type TokenTerm."));
     }
+    Data::Grammar::TokenTerm *term = static_cast<Data::Grammar::TokenTerm*>(element);
     TiInt *matchId = term->getTokenId().ti_cast_get<TiInt>();
     TiObject *matchText = term->getTokenText().get();
     if (this->matchToken(matchId, matchText, token)) {
@@ -2051,13 +2052,12 @@ Bool Parser::matchErrorSyncBlockPairs(ParserState *state, Data::Token const *tok
     throw EXCEPTION(GenericException, S("Invalid error-sync-block-pair data. "
                                         "There must be an even number of entries in this list."));
   }
-  Data::Grammar::TokenTerm *term = ti_cast<Data::Grammar::TokenTerm>(
-    state->getErrorSyncBlockPairs()->getElement(closingIndex)
-  );
-  if (term == 0) {
+  auto element = state->getErrorSyncBlockPairs()->getElement(closingIndex);
+  if (!element->isA<Data::Grammar::TokenTerm>()) {
     throw EXCEPTION(GenericException, S("Invalid error-sync-block-pair data. "
                                         "Pair entries must be of type TokenTerm."));
   }
+  Data::Grammar::TokenTerm *term = static_cast<Data::Grammar::TokenTerm*>(element);
   TiInt *matchId = term->getTokenId().ti_cast_get<TiInt>();
   TiObject *matchText = term->getTokenText().get();
   if (this->matchToken(matchId, matchText, token)) {

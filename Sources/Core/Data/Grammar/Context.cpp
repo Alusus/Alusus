@@ -20,8 +20,8 @@ namespace Core::Data::Grammar
 
 TiObject* Context::traceValue(TiObject *val)
 {
-  auto ref = ti_cast<Reference>(val);
-  if (ref == 0) return val;
+  if (val == 0 || !val->isA<Reference>()) return val;
+  auto ref = static_cast<Reference*>(val);
   if (ref->isValueCacheEnabled() && ref->getCachedValue() != 0) return ref->getCachedValue();
   auto originalRef = ref;
   do {
@@ -30,7 +30,7 @@ TiObject* Context::traceValue(TiObject *val)
     if (!static_cast<Reference*>(val)->getValue(this, val)) {
       throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
     }
-  } while (val != 0 && val->isDerivedFrom<Reference>());
+  } while (val != 0 && val->isA<Reference>());
   if (originalRef->isValueCacheEnabled()) originalRef->setCachedValue(val);
   return val;
 }
@@ -76,19 +76,19 @@ void Context::getListTermChild(
 {
   if (term->isStatic()) {
     if (listData == 0) {
-      retTerm = term->getTerm(index).get();
+      retTerm = term->getTerm(index);
       retData = 0;
     } else if (listData->isA<TiInt>()) {
-      retTerm = term->getTerm(static_cast<TiInt*>(listData)->get()).get();
+      retTerm = term->getTerm(static_cast<TiInt*>(listData)->get());
       retData = 0;
     } else if (listData->isA<List>()) {
-      TiInt *index2 = ti_cast<TiInt>(static_cast<List*>(listData)->getElement(index));
-      if (index2 == 0) {
+      auto index2 = static_cast<List*>(listData)->getElement(index);
+      if (index2 == 0 || !index2->isA<TiInt>()) {
         throw EXCEPTION(
           InvalidArgumentException, S("listData"), S("List must contain Integers for static list terms.")
         );
       }
-      retTerm = term->getTerm(index2->get()).get();
+      retTerm = term->getTerm(static_cast<TiInt*>(index2)->get());
       retData = 0;
     } else {
       throw EXCEPTION(
@@ -166,11 +166,10 @@ SymbolDefinition* Context::getReferencedSymbol(Reference const *ref)
 {
   TiObject *retVal = const_cast<Reference*>(ref);
   if (ref->isValueCacheEnabled() && ref->getCachedValue() != 0) {
-    auto symbolDef = ti_cast<SymbolDefinition>(ref->getCachedValue());
-    if (symbolDef == 0) {
+    if (!ref->getCachedValue()->isA<SymbolDefinition>()) {
       throw EXCEPTION(GenericException, S("Reference does not point to a symbol definition."));
     }
-    return symbolDef;
+    return static_cast<SymbolDefinition*>(ref->getCachedValue());
   }
   auto originalRef = ref;
   do {
@@ -183,8 +182,8 @@ SymbolDefinition* Context::getReferencedSymbol(Reference const *ref)
     if (retVal != 0 && retVal->isA<Module>()) {
       retVal = static_cast<Module*>(retVal)->getStartRef().get();
     }
-  } while (retVal != 0 && retVal->isDerivedFrom<Reference>());
-  if (retVal == 0 || !retVal->isDerivedFrom<SymbolDefinition>()) {
+  } while (retVal != 0 && retVal->isA<Reference>());
+  if (retVal == 0 || !retVal->isA<SymbolDefinition>()) {
     throw EXCEPTION(GenericException, S("Reference does not point to a symbol definition."));
   }
   if (originalRef->isValueCacheEnabled()) originalRef->setCachedValue(retVal);
@@ -281,11 +280,11 @@ Module* Context::getAssociatedLexerModule(Module *module)
 
   // Find the module itself.
   if (lmr == 0) return 0;
-  Module *lm = ti_cast<Module>(this->traceValue(lmr));
-  if (lm == 0) {
+  auto *lm = this->traceValue(lmr);
+  if (lm == 0 || !lm->isA<Module>()) {
     throw EXCEPTION(GenericException, S("The module has an invalid lexer module reference."));
   }
-  return lm;
+  return static_cast<Module*>(lm);
 }
 
 
@@ -302,11 +301,11 @@ List* Context::getAssociatedErrorSyncBlockPairs(Module *module)
 
   // Find the list itself.
   if (spr == 0) return 0;
-  List *sp = ti_cast<List>(this->traceValue(spr));
-  if (sp == 0) {
+  auto sp = this->traceValue(spr);
+  if (sp == 0 || !sp->isA<List>()) {
     throw EXCEPTION(GenericException, S("The module has an invalid error sync pairs reference."));
   }
-  return sp;
+  return static_cast<List*>(sp);
 }
 
 
@@ -317,21 +316,21 @@ void Context::setElement(Int index, TiObject *val)
 {
   switch(index) {
     case 0: {
-      if (val != 0 && !val->isDerivedFrom<Module>()) {
+      if (val != 0 && !val->isA<Module>()) {
         throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type Module."));
       }
       this->root = static_cast<Module*>(val);
       break;
     }
     case 1: {
-      if (val != 0 && !val->isDerivedFrom<Module>()) {
+      if (val != 0 && !val->isA<Module>()) {
         throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type Module."));
       }
       this->module = static_cast<Module*>(val);
       break;
     }
     case 2: {
-      if (val != 0 && !val->isDerivedFrom<VariableStack>()) {
+      if (val != 0 && !val->isA<VariableStack>()) {
         throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type VariableStack."));
       }
       this->stack = static_cast<VariableStack*>(val);
@@ -352,19 +351,19 @@ Int Context::setElement(Char const *key, TiObject *val)
 {
   auto name = SBSTR(key);
   if (name == S("root")) {
-    if (val != 0 && !val->isDerivedFrom<Module>()) {
+    if (val != 0 && !val->isA<Module>()) {
       throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type Module."));
     }
     this->root = static_cast<Module*>(val);
     return 0;
   } else if (name == S("module")) {
-    if (val != 0 && !val->isDerivedFrom<Module>()) {
+    if (val != 0 && !val->isA<Module>()) {
       throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type Module."));
     }
     this->module = static_cast<Module*>(val);
     return 1;
   } else if (name == S("stack")) {
-    if (val != 0 && !val->isDerivedFrom<VariableStack>()) {
+    if (val != 0 && !val->isA<VariableStack>()) {
       throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type VariableStack."));
     }
     this->stack = static_cast<VariableStack*>(val);

@@ -115,8 +115,7 @@ class ListTerm : public Term, public DataHaving, public MapContaining<TiObject>
    */
   public: Bool isDynamic() const
   {
-    if (this->terms != 0 && this->terms->isDerivedFrom<Term>()) return true;
-    else return false;
+    return !this->isStatic();
   }
 
   private: void setTerms(Node *t)
@@ -135,7 +134,7 @@ class ListTerm : public Term, public DataHaving, public MapContaining<TiObject>
   }
 
   /// Get a specific term from the list.
-  public: SharedPtr<Term> getTerm(Int index = 0) const;
+  public: Term* getTerm(Int index = 0) const;
 
   private: void setData(Node *d)
   {
