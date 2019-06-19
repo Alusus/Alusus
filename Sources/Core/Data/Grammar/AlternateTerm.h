@@ -38,6 +38,20 @@ class AlternateTerm : public ListTerm
 
 
   //============================================================================
+  // Types
+
+  public: typedef std::unordered_map<Str, Int, std::hash<std::string>> TextBasedDecisionCache;
+  public: typedef std::unordered_map<Word, Int> IdBasedDecisionCache;
+
+
+  //============================================================================
+  // Member Variables
+
+  private: TextBasedDecisionCache textBasedDecisionCache;
+  private: IdBasedDecisionCache idBasedDecisionCache;
+
+
+  //============================================================================
   // Constructors
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(AlternateTerm);
@@ -46,6 +60,31 @@ class AlternateTerm : public ListTerm
 
   public: virtual ~AlternateTerm()
   {
+  }
+
+
+  //============================================================================
+  // Member Functions
+
+  public: TextBasedDecisionCache* getInnerTextBasedDecisionCache()
+  {
+    return &this->textBasedDecisionCache;
+  }
+
+  public: IdBasedDecisionCache* getInnerIdBasedDecisionCache()
+  {
+    return &this->idBasedDecisionCache;
+  }
+
+
+  //============================================================================
+  // DataHaving Implementation
+
+  /// @sa DataHaving::unsetIndexes()
+  public: virtual void unsetIndexes(Int from, Int to)
+  {
+    this->textBasedDecisionCache.clear();
+    this->idBasedDecisionCache.clear();
   }
 
 }; // class

@@ -43,6 +43,7 @@ void StandardFactory::createGrammar(
     StringLiteralTokenizingHandler::OuterQuoteType::SINGLE
   );
   this->constTokenHandler = std::make_shared<ConstTokenizingHandler>(this->constTokenId);
+  this->identifierTokenHandler = std::make_shared<IdentifierTokenizingHandler>();
   this->parsingHandler = std::make_shared<GenericParsingHandler>();
   this->importHandler = std::make_shared<ImportParsingHandler>(root);
   this->dumpAstParsingHandler = std::make_shared<DumpAstParsingHandler>(root);
@@ -95,6 +96,16 @@ void StandardFactory::createGrammar(
 
   // Generate const token definitions from production definitions.
   this->generateConstTokenDefinitions();
+
+  // Add predefined command keywords to identifier token handler.
+  this->identifierTokenHandler->addKeywords({
+    S("do"),
+    S("import"), S("اشمل"),
+    S("def"), S("عرّف"), S("عرف"),
+    S("use"), S("استخدم"),
+    S("dump_ast"), S("أدرج_ش_ب_م"),
+    S("alias"), S("لقب")
+  });
 }
 
 
@@ -200,7 +211,8 @@ void StandardFactory::createTokenDefinitions()
             })}
          })
        })}
-    })}
+    })},
+    {S("handler"), this->identifierTokenHandler}
   }));
 
   // IntLiteral : trule as {
@@ -222,7 +234,7 @@ void StandardFactory::createTokenDefinitions()
         }),
         MultiplyTerm::create({
           {S("max"), std::make_shared<TiInt>(1)}
-          }, {
+        }, {
           {S("term"), AlternateTerm::create({}, {
             {S("terms"), List::create({}, {
               ConstTerm::create({{ S("matchString"), TiWStr(S("u")) }}),

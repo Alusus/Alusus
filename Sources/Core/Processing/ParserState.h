@@ -554,6 +554,11 @@ class ParserState
     return this->errorSyncBlockStack;
   }
 
+  public: Bool isInsideDynamicList() const
+  {
+    return this->topProdLevelCache->getTermStackDynamicListIndex() != -1;
+  }
+
   /// @}
 
   /// @name Branching Functions

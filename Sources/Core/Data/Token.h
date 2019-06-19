@@ -13,7 +13,7 @@
 #ifndef CORE_DATA_TOKEN_H
 #define CORE_DATA_TOKEN_H
 
-namespace Core { namespace Data
+namespace Core::Data
 {
 
 // TODO: Do we need to add new variables to the Token class to hold values needed by custom_literal and the likes?
@@ -53,6 +53,8 @@ class Token : public Node
 
   /// The location of the token in the source code.
   private: SourceLocationRecord sourceLocation;
+
+  private: Bool aKeyword = false;
 
 
   //============================================================================
@@ -156,8 +158,18 @@ class Token : public Node
     return this->sourceLocation;
   }
 
+  public: void setAsKeyword(Bool k)
+  {
+    this->aKeyword = k;
+  }
+
+  public: Bool isKeyword() const
+  {
+    return this->aKeyword;
+  }
+
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

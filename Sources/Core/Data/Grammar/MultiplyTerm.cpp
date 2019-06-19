@@ -76,6 +76,8 @@ void MultiplyTerm::unsetIndexes(Int from, Int to)
   if (this->min != 0) Data::unsetIndexes(this->min.get(), from, to);
   if (this->max != 0) Data::unsetIndexes(this->max.get(), from, to);
   if (this->priority != 0) Data::unsetIndexes(this->priority.get(), from, to);
+  this->innerTextBasedDecisionCache.clear();
+  this->innerIdBasedDecisionCache.clear();
 }
 
 } // namespace

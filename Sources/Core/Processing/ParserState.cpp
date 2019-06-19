@@ -246,8 +246,11 @@ void ParserState::pushTermLevel(Data::Grammar::Term *term)
     this->topTermLevelCache->setParam1(this->grammarContext.getTokenTermId(tokenTerm));
     this->topTermLevelCache->setParam2(this->grammarContext.getTokenTermText(tokenTerm));
   } else if (term->isDerivedFrom<Data::Grammar::ListTerm>()) {
-    Data::Grammar::ListTerm *list_term = static_cast<Data::Grammar::ListTerm*>(term);
-    this->topTermLevelCache->setParam1(this->grammarContext.getListTermData(list_term));
+    Data::Grammar::ListTerm *listTerm = static_cast<Data::Grammar::ListTerm*>(term);
+    this->topTermLevelCache->setParam1(this->grammarContext.getListTermData(listTerm));
+    if (listTerm->isDynamic() && this->topProdLevelCache->getTermStackDynamicListIndex() == -1) {
+      this->topProdLevelCache->setTermStackDynamicListIndex(this->getTermLevelCount() - 1);
+    }
   } else if (term->isA<Data::Grammar::MultiplyTerm>()) {
     Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(term);
     this->topTermLevelCache->setParam1(this->grammarContext.getMultiplyTermMax(multiplyTerm));
@@ -276,6 +279,15 @@ void ParserState::popTermLevel()
   }
   if (this->getTermLevelCount() > 0) this->topTermLevelCache = &this->refTermLevel(-1);
   else this->topTermLevelCache = 0;
+
+  if (this->topProdLevelCache != 0) {
+    if (
+      this->topProdLevelCache->getTermStackDynamicListIndex() != -1 &&
+      this->topProdLevelCache->getTermStackDynamicListIndex() >= this->getTermLevelCount()
+    ) {
+      this->topProdLevelCache->setTermStackDynamicListIndex(-1);
+    }
+  }
 }
 
 

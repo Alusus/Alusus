@@ -34,6 +34,7 @@ namespace Core::Processing::Handlers
 {
   class ConstTokenizingHandler;
   class StringLiteralTokenizingHandler;
+  class IdentifierTokenizingHandler;
   class GenericParsingHandler;
   class ImportParsingHandler;
   class DumpAstParsingHandler;

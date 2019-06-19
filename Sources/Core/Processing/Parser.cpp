@@ -1064,6 +1064,7 @@ void Parser::computePossibleMultiplyRoutes(Data::Token const *token, ParserState
   }
 
   if (testedRoute == 0) {
+    // Testing always go in the order of 1 then 0, so if we are at 0 already it means there is nothing left to test.
     return;
   } else if (priority != 0 && priority->get() == 0) {
     Bool success = false;
@@ -1071,14 +1072,14 @@ void Parser::computePossibleMultiplyRoutes(Data::Token const *token, ParserState
       success = this->computeOuterMultiplyRoute(token, state, multiplyTerm, priority);
     }
     if (success && oneRoute) return;
-    if (testedRoute == -1) {
+    if (testedRoute != 1) {
       if (maxOccurances == 0 || static_cast<Int>(state->refTopTermLevel().getPosId()) <  maxOccurances->get()) {
         this->computeInnerMultiplyRoute(token, state, multiplyTerm);
       }
     }
   } else {
     Bool success = false;
-    if (testedRoute == -1) {
+    if (testedRoute != 1) {
       if (maxOccurances == 0 || static_cast<Int>(state->refTopTermLevel().getPosId()) <  maxOccurances->get()) {
         success = this->computeInnerMultiplyRoute(token, state, multiplyTerm);
       }
@@ -1093,8 +1094,40 @@ void Parser::computePossibleMultiplyRoutes(Data::Token const *token, ParserState
 }
 
 
-Bool Parser::computeInnerMultiplyRoute(Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm)
-{
+Bool Parser::computeInnerMultiplyRoute(
+  Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm
+) {
+  // Check if we have previously cached the decision. We can only use the cache if we aren't inside a dynamic list
+  // since dynamic lists use a shared term.
+  if (!state->isInsideDynamicList()) {
+    if (token->isKeyword()) {
+      // For keywords we need to check against the text of the token rather than just the category to which the token
+      // beongs.
+      Int i = multiplyTerm->getInnerTextBasedDecisionCache()->findIndex(token->getText().c_str());
+      if (i != -1) {
+        PtrWord success = (PtrWord)multiplyTerm->getInnerTextBasedDecisionCache()->get(i);
+        if (success == 1) {
+          this->decisionNodes.addSiblingNode(state, 1);
+          return true;
+        } else {
+          return false;
+        }
+      }
+    } else {
+      // For non-keyword tokens we can just check against the category since the text doesn't influence the parsing
+      // decision.
+      auto i = multiplyTerm->getInnerIdBasedDecisionCache()->find(token->getId());
+      if (i != multiplyTerm->getInnerIdBasedDecisionCache()->end()) {
+        if (i->second) {
+          this->decisionNodes.addSiblingNode(state, 1);
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+  }
+
   // Initialize the temp state.
   this->tempState.reset();
   this->tempState.setBranchingInfo(state, -1);
@@ -1109,8 +1142,24 @@ Bool Parser::computeInnerMultiplyRoute(Data::Token const *token, ParserState *st
   // Store results.
   if (this->tempState.getProcessingStatus() == ParserProcessingStatus::COMPLETE) {
     this->decisionNodes.addSiblingNode(state, 1, decisionNodeIndex);
+    // Cache this decision if we are not in a dynamic list.
+    if (!state->isInsideDynamicList()) {
+      if (token->isKeyword()) {
+        multiplyTerm->getInnerTextBasedDecisionCache()->set(token->getText().c_str(), (TiObject*)1);
+      } else {
+        multiplyTerm->getInnerIdBasedDecisionCache()->operator[](token->getId()) = true;
+      }
+    }
     return true;
   } else {
+    // Cache this decision if we are not in a dynamic list.
+    if (!state->isInsideDynamicList()) {
+      if (token->isKeyword()) {
+        multiplyTerm->getInnerTextBasedDecisionCache()->set(token->getText().c_str(), (TiObject*)0);
+      } else {
+        multiplyTerm->getInnerIdBasedDecisionCache()->operator[](token->getId()) = false;
+      }
+    }
     return false;
   }
 }
@@ -1165,9 +1214,32 @@ Bool Parser::computeOuterMultiplyRoute(
 void Parser::computePossibleAlternativeRoutes(Data::Token const *token, ParserState *state)
 {
   ASSERT(state->refTopTermLevel().getTerm()->isA<Data::Grammar::AlternateTerm>());
+  auto alternateTerm = static_cast<Data::Grammar::AlternateTerm*>(state->refTopTermLevel().getTerm());
 
   TiInt *flags = state->getTermFlags();
   Bool oneTerm = ((flags == 0 ? 0 : flags->get()) & Data::Grammar::TermFlags::ONE_ROUTE_TERM);
+
+  // Check if we have previously cached the decision. We can only use the cache if we aren't inside a dynamic list
+  // since dynamic lists use a shared term.
+  if (!state->isInsideDynamicList()) {
+    if (token->isKeyword()) {
+      // For keywords we need to check against the text of the token rather than just the category to which the token
+      // beongs.
+      auto i = alternateTerm->getInnerTextBasedDecisionCache()->find(token->getText());
+      if (i != alternateTerm->getInnerTextBasedDecisionCache()->end()) {
+        if (state->getDecisionNodeIndex() == -1 && i->second != -1) this->decisionNodes.addSiblingNode(state, i->second);
+        return;
+      }
+    } else {
+      // For non-keyword tokens we can just check against the category since the text doesn't influence the parsing
+      // decision.
+      auto i = alternateTerm->getInnerIdBasedDecisionCache()->find(token->getId());
+      if (i != alternateTerm->getInnerIdBasedDecisionCache()->end()) {
+        if (state->getDecisionNodeIndex() == -1 && i->second != -1) this->decisionNodes.addSiblingNode(state, i->second);
+        return;
+      }
+    }
+  }
 
   Int testedRoute = 0;
   Int decisionIndex = state->getDecisionNodeIndex();
@@ -1178,35 +1250,53 @@ void Parser::computePossibleAlternativeRoutes(Data::Token const *token, ParserSt
     testedRoute = this->decisionNodes.getPosId(decisionIndex);
   }
 
-  if (testedRoute != 0 && oneTerm) return;
-
-  Word termCount = state->getListTermChildCount();
-  if (termCount == 1) {
-    // We only have one route, so we don't need any testing.
-    if (testedRoute == 0) {
-      this->decisionNodes.addSiblingNode(state, 1);
+  // We need to test for routes if we don't already have a tested route, or if we are allowing branching which means
+  // we need to test all possible branches.
+  if (testedRoute == 0 || !oneTerm) {
+    Word termCount = state->getListTermChildCount();
+    if (termCount == 1) {
+      // We only have one route, so we don't need any testing.
+      if (testedRoute == 0) {
+        this->decisionNodes.addSiblingNode(state, 1);
+      }
+    } else {
+      // Loop on all terms in the list of alternative terms.
+      for (Int i = testedRoute; static_cast<Word>(i) < termCount; i++) {
+        // Initialize the temp state branching from the current one.
+        this->tempState.reset();
+        this->tempState.setBranchingInfo(state, -1);
+        this->tempState.setParsingDimensionInfo(
+          state->getParsingDimensionIndex(),
+          state->getParsingDimensionStartProdIndex()
+        );
+        // Own the top level so we don't modify the trunk state's level.
+        this->tempState.ownTopLevel();
+        this->tempState.setTopTermPosId((i+1)|THIS_PROCESSING_PASS);
+        // Create the deeper level.
+        this->tempState.pushTermLevel(state->useListTermChild(i));
+        // Test the temp state.
+        Int decisionNodeIndex = this->testState(token, &this->tempState);
+        // Store results.
+        if (this->tempState.getProcessingStatus()==ParserProcessingStatus::COMPLETE) {
+          this->decisionNodes.addSiblingNode(state, i+1, decisionNodeIndex);
+          if (oneTerm) break;
+        }
+      }
     }
-  } else {
-    // Loop on all terms in the list of alternative terms.
-    for (Int i = testedRoute; static_cast<Word>(i) < termCount; i++) {
-      // Initialize the temp state branching from the current one.
-      this->tempState.reset();
-      this->tempState.setBranchingInfo(state, -1);
-      this->tempState.setParsingDimensionInfo(
-        state->getParsingDimensionIndex(),
-        state->getParsingDimensionStartProdIndex()
-      );
-      // Own the top level so we don't modify the trunk state's level.
-      this->tempState.ownTopLevel();
-      this->tempState.setTopTermPosId((i+1)|THIS_PROCESSING_PASS);
-      // Create the deeper level.
-      this->tempState.pushTermLevel(state->useListTermChild(i));
-      // Test the temp state.
-      Int decisionNodeIndex = this->testState(token, &this->tempState);
-      // Store results.
-      if (this->tempState.getProcessingStatus()==ParserProcessingStatus::COMPLETE) {
-        this->decisionNodes.addSiblingNode(state, i+1, decisionNodeIndex);
-        if (oneTerm) break;
+  }
+
+  // Cache the determined decisions if we aren't inside a dynamic list.
+  if (!state->isInsideDynamicList()) {
+    decisionIndex = state->getDecisionNodeIndex();
+    // We'll only cache if we found no route, or only one route. We'll skip caching if we found multiple routes since
+    // that ideally shouldn't happen and our cache has space for only one route.
+    if (decisionIndex == -1 || this->decisionNodes.getSiblingIndex(decisionIndex) == -1) {
+      Int posId = -1;
+      if (decisionIndex != -1) posId = this->decisionNodes.getPosId(decisionIndex);
+      if (token->isKeyword()) {
+        alternateTerm->getInnerTextBasedDecisionCache()->operator[](token->getText()) = posId;
+      } else {
+        alternateTerm->getInnerIdBasedDecisionCache()->operator[](token->getId()) = posId;
       }
     }
   }
@@ -1416,6 +1506,58 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
       state->popLevel();
       LOG(LogLevel::PARSER_MINOR, S("Testing State: Skipping disabled inner multiply route (max == 0)."));
     } else {
+      // If we aren't inside a dynamic list then look to see if a decision has already been cached. If so, we'll skip
+      // the rest of testing.
+      if (!state->isInsideDynamicList()) {
+        // Check the cache.
+        if (token->isKeyword()) {
+          Int i = multiplyTerm->getInnerTextBasedDecisionCache()->findIndex(token->getText().c_str());
+          if (i != -1) {
+            auto success = (PtrWord)multiplyTerm->getInnerTextBasedDecisionCache()->get(i);
+            if (success == 1) {
+              // A successful cache was found, so we'll end testing here with a success.
+              state->setProcessingStatus(ParserProcessingStatus::COMPLETE);
+            } else {
+              // The cache was a failure, so we'll see if we can try the outer route.
+              if (minOccurances == 0 || minOccurances->get() == 0) {
+                // We can ignore the failing iteration since we have already
+                // finished the minimum required.
+                state->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
+                this->decisionNodes.addNode(state, 0);
+                state->popLevel();
+              } else {
+                // We haven't finished the minimum required iterations, so
+                // we'll fail this state.
+                state->setProcessingStatus(ParserProcessingStatus::ERROR);
+              }
+            }
+            return;
+          }
+        } else {
+          auto i = multiplyTerm->getInnerIdBasedDecisionCache()->find(token->getId());
+          if (i != multiplyTerm->getInnerIdBasedDecisionCache()->end()) {
+            if (i->second) {
+              // A successful cache was found, so we'll end testing here with a success.
+              state->setProcessingStatus(ParserProcessingStatus::COMPLETE);
+            } else {
+              // The cache was a failure, so we'll see if we can try the outer route.
+              if (minOccurances == 0 || minOccurances->get() == 0) {
+                // We can ignore the failing iteration since we have already
+                // finished the minimum required.
+                state->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
+                this->decisionNodes.addNode(state, 0);
+                state->popLevel();
+              } else {
+                // We haven't finished the minimum required iterations, so
+                // we'll fail this state.
+                state->setProcessingStatus(ParserProcessingStatus::ERROR);
+              }
+            }
+            return;
+          }
+        }
+      }
+      // No cache is available to use, so we'll try the inner route.
       Data::Grammar::Term *childTerm = multiplyTerm->getTerm().get();
       ASSERT(childTerm != 0);
       state->ownTopLevel();
@@ -1474,8 +1616,60 @@ void Parser::testMultiplyTerm(Data::Token const *token, ParserState *state)
       LOG(LogLevel::PARSER_MINOR, S("Testing State: Max iterations reached for multiply term (") <<
           count << S(" iterations)."));
     } else {
-      // We will need to own the top level so we don't modify the trunk state's level.
       Int posId = state->refTopTermLevel().getPosId();
+      // We'll look for inner route cache if we aren't inside a dynamic list.
+      if (!state->isInsideDynamicList()) {
+        if (token->isKeyword()) {
+          Int i = multiplyTerm->getInnerTextBasedDecisionCache()->findIndex(token->getText().c_str());
+          if (i != -1) {
+            auto success = (PtrWord)multiplyTerm->getInnerTextBasedDecisionCache()->get(i);
+            if (success == 1) {
+              state->setProcessingStatus(ParserProcessingStatus::COMPLETE);
+              return;
+            } else {
+              // TODO: Fail this route.
+              if (minOccurances == 0 || posId >= minOccurances->get()) {
+                // We can ignore the failing iteration since we have already
+                // finished the minimum required.
+                state->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
+                this->decisionNodes.addNode(state, 0);
+                state->popLevel();
+                return;
+              } else {
+                // We haven't finished the minimum required iterations, so
+                // we'll fail this state.
+                state->setProcessingStatus(ParserProcessingStatus::ERROR);
+                return;
+              }
+            }
+          }
+        } else {
+          auto i = multiplyTerm->getInnerIdBasedDecisionCache()->find(token->getId());
+          if (i != multiplyTerm->getInnerIdBasedDecisionCache()->end()) {
+            if (i->second) {
+              state->setProcessingStatus(ParserProcessingStatus::COMPLETE);
+              return;
+            } else {
+              // TODO: Fail this route.
+              if (minOccurances == 0 || posId >= minOccurances->get()) {
+                // We can ignore the failing iteration since we have already
+                // finished the minimum required.
+                state->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
+                this->decisionNodes.addNode(state, 0);
+                state->popLevel();
+                return;
+              } else {
+                // We haven't finished the minimum required iterations, so
+                // we'll fail this state.
+                state->setProcessingStatus(ParserProcessingStatus::ERROR);
+                return;
+              }
+            }
+          }
+        }
+      }
+      // No cache was found, so we'll try the inner route again.
+      // We will need to own the top level so we don't modify the trunk state's level.
       state->ownTopLevel();
       state->setTopTermPosId((posId+1)|THIS_TESTING_PASS);
       // Now create the deeper level.
@@ -1517,6 +1711,36 @@ void Parser::testAlternateTerm(Data::Token const *token, ParserState *state)
       state->setProcessingStatus(ParserProcessingStatus::ERROR);
       LOG(LogLevel::PARSER_MINOR, S("Testing State: Failing an empty alternate term."));
     } else {
+      // If we aren't inside a dynamic list, then try to look for a decision cache.
+      if (!state->isInsideDynamicList()) {
+        auto alternateTerm = static_cast<Data::Grammar::AlternateTerm*>(state->refTopTermLevel().getTerm());
+        if (token->isKeyword()) {
+          auto i = alternateTerm->getInnerTextBasedDecisionCache()->find(token->getText());
+          if (i != alternateTerm->getInnerTextBasedDecisionCache()->end()) {
+            if (i->second >= 0) {
+              // A successful route is found, so we'll skip testing and treat it as success.
+              state->setProcessingStatus(ParserProcessingStatus::COMPLETE);
+            } else {
+              // A failure cache is found, so we'll fail this state level.
+              state->setProcessingStatus(ParserProcessingStatus::ERROR);
+            }
+            return;
+          }
+        } else {
+          auto i = alternateTerm->getInnerIdBasedDecisionCache()->find(token->getId());
+          if (i != alternateTerm->getInnerIdBasedDecisionCache()->end()) {
+            if (i->second >= 0) {
+              // A successful route is found, so we'll skip testing and treat it as success.
+              state->setProcessingStatus(ParserProcessingStatus::COMPLETE);
+            } else {
+              // A failure cache is found, so we'll fail this state level.
+              state->setProcessingStatus(ParserProcessingStatus::ERROR);
+            }
+            return;
+          }
+        }
+      }
+      // We don't have a decision cache, so we'll try to test the routes.
       // We are entering this term for the first time, so try the
       // first route.
       state->ownTopLevel();

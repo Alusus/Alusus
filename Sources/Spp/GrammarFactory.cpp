@@ -30,6 +30,29 @@ void GrammarFactory::createGrammar(
 ) {
   this->setRootScope(rootScope);
 
+  Core::Data::clearCaches(rootScope);
+
+  // Add additional keywords.
+  this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
+    S("root.LexerDefs.Identifier.handler")
+  )->addKeywords({
+    S("if"), S("إذا"),
+    S("while"), S("بينما"),
+    S("for"), S("لكل"),
+    S("continue"), S("أكمل"),
+    S("break"), S("اقطع"),
+    S("return"), S("أرجع"), S("ارجع"),
+    S("module"), S("وحدة"),
+    S("type"), S("صنف"),
+    S("func"), S("function"), S("دالّة"), S("دالة"),
+    S("macro"), S("ماكرو"),
+    S("ptr"), S("مؤشر"),
+    S("cnt"), S("محتوى"),
+    S("cast"), S("مثّل"), S("مثل"),
+    S("size"), S("حجم"),
+    S("ast"), S("شبم")
+  });
+
   // Create leading commands.
 
   auto leadingCmdList = this->getLeadingCommandsList();
@@ -586,6 +609,29 @@ void GrammarFactory::createGrammar(
 void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
 {
   this->setRootScope(rootScope);
+
+  Core::Data::clearCaches(rootScope);
+
+  // Add additional keywords.
+  this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
+    S("root.LexerDefs.Identifier.handler")
+  )->removeKeywords({
+    S("if"), S("إذا"),
+    S("while"), S("بينما"),
+    S("for"), S("لكل"),
+    S("continue"), S("أكمل"),
+    S("break"), S("اقطع"),
+    S("return"), S("أرجع"), S("ارجع"),
+    S("module"), S("وحدة"),
+    S("type"), S("صنف"),
+    S("func"), S("function"), S("دالّة"), S("دالة"),
+    S("macro"), S("ماكرو"),
+    S("ptr"), S("مؤشر"),
+    S("cnt"), S("محتوى"),
+    S("cast"), S("مثّل"), S("مثل"),
+    S("size"), S("حجم"),
+    S("ast"), S("شبم")
+  });
 
   auto leadingCmdList = this->getLeadingCommandsList();
   auto innerCmdList = this->getInnerCommandsList();

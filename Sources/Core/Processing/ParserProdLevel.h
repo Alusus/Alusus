@@ -37,18 +37,21 @@ class ParserProdLevel
 
   private: Int termStackIndex;
 
+  private: Int termStackDynamicListIndex;
+
 
   //============================================================================
   // Constructors / Destructor
 
-  public: ParserProdLevel() : module(0), prod(0), flags(0), termStackIndex(-1)
+  public: ParserProdLevel() : module(0), prod(0), flags(0), termStackIndex(-1), termStackDynamicListIndex(-1)
   {
   }
 
   public: ParserProdLevel(const ParserProdLevel &level) : module(level.module),
     prod(level.prod),
     flags(level.flags),
-    termStackIndex(level.termStackIndex)
+    termStackIndex(level.termStackIndex),
+    termStackDynamicListIndex(-1)
   {
   }
 
@@ -88,6 +91,16 @@ class ParserProdLevel
   public: Int getTermStackIndex() const
   {
     return this->termStackIndex;
+  }
+
+  protected: void setTermStackDynamicListIndex(Int i)
+  {
+    this->termStackDynamicListIndex = i;
+  }
+
+  public: Int getTermStackDynamicListIndex() const
+  {
+    return this->termStackDynamicListIndex;
   }
 
   protected: void setFlags(TiInt *f)

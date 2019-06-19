@@ -30,6 +30,24 @@ void unsetIndexes(TiObject *obj, Int from, Int to)
 }
 
 
+void clearCaches(TiObject *obj)
+{
+  if (obj == 0) return;
+  auto dh = ti_cast<DataHaving>(obj);
+  if (dh != 0) dh->unsetIndexes(0, 1000);
+
+  auto binding = ti_cast<Binding>(obj);
+  if (binding != 0) {
+    for (Int i = 0; i < binding->getMemberCount(); ++i) clearCaches(binding->getMember(i));
+  }
+
+  auto containing = ti_cast<Containing<TiObject>>(obj);
+  if (containing != 0) {
+    for (Int i = 0; i < containing->getElementCount(); ++i) clearCaches(containing->getElement(i));
+  }
+}
+
+
 Node* findOwner(Node *obj, TypeInfo *typeInfo)
 {
   while (obj != 0) {

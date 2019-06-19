@@ -56,6 +56,12 @@ namespace Core::Data
 void unsetIndexes(TiObject *obj, Int from, Int to);
 
 /**
+ * Clear all the caches in the given objects and child objects.
+ * @ingroup core_data
+ */
+void clearCaches(TiObject *obj);
+
+/**
  * @brief Find an object in the chain of owners with the given type.
  * @ingroup core_data
  * If the given object is of the given type, it will be returned.

@@ -45,17 +45,29 @@ class Factory
 
   protected: void setRootScope(DynamicContaining<TiObject> *rootScope);
 
-  protected: void set(Char const* qualifier, TiObject *val);
-  protected: void set(Char const* qualifier, TioSharedPtr const &val)
+  protected: void set(Char const *qualifier, TiObject *val);
+  protected: void set(Char const *qualifier, TioSharedPtr const &val)
   {
     this->set(qualifier, val.get());
   }
 
-  protected: void remove(Char const* qualifier);
-  protected: Bool tryRemove(Char const* qualifier);
+  protected: void remove(Char const *qualifier);
+  protected: Bool tryRemove(Char const *qualifier);
 
-  protected: TiObject* get(Char const* qualifier);
-  protected: Bool tryGet(Char const* qualifier, TiObject *&result);
+  protected: TiObject* get(Char const *qualifier);
+  protected: Bool tryGet(Char const *qualifier, TiObject *&result);
+
+  protected: template<class T> T* get(Char const *qualifier)
+  {
+    auto obj = ti_cast<T>(this->get(qualifier));
+    if (obj == 0) {
+      throw EXCEPTION(
+        InvalidArgumentException, S("qualifier"), S("No object of the given type is found for this qualifier."),
+        qualifier
+      );
+    }
+    return obj;
+  }
 
   protected: void initializeObject(TiObject *obj);
 

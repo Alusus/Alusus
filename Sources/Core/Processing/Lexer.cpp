@@ -273,6 +273,7 @@ Int Lexer::process()
           this->lastToken.setId(def->getId());
           this->lastToken.setText(this->inputBuffer.getChars(), this->states[i]->getTokenLength());
           this->lastToken.setSourceLocation(this->inputBuffer.getSourceLocation());
+          this->lastToken.setAsKeyword(false);
         } else {
           handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getChars(),
                                 this->states[i]->getTokenLength(), this->inputBuffer.getSourceLocation());
