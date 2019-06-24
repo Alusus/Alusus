@@ -14,28 +14,33 @@ ERROR CP1005 @ (28,5): Unexpected modifier encountered.
 Scope [Main.Statements.StmtList]
  GenericCommand do [Main.Do]
   args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: leading [Main.Subject.Literal]
   modifiers: List
    Identifier: test [Modifier.Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: trailing [Main.Subject.Literal]
   modifiers: List
    Identifier: test [Modifier.Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: leading 2 [Main.Subject.Literal]
   modifiers: List
    Identifier: test1 [Modifier.Subject.Identifier]
    Identifier: test2 [Modifier.Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: trailing 2 [Main.Subject.Literal]
   modifiers: List
    Identifier: test1 [Modifier.Subject.Identifier]
    Identifier: test2 [Modifier.Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: leading parens [Main.Subject.Literal]
   modifiers: List
    ParamPass () [Modifier.Expression.ParamPassExp]
@@ -43,6 +48,7 @@ Scope [Main.Statements.StmtList]
     param: IntegerLiteral: 1 [Main.Subject.Literal]
  GenericCommand do [Main.Do]
   args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: trailing parens [Main.Subject.Literal]
   modifiers: List
    ParamPass () [Modifier.Expression.ParamPassExp]
@@ -50,6 +56,7 @@ Scope [Main.Statements.StmtList]
     param: IntegerLiteral: 1 [Main.Subject.Literal]
  GenericCommand do [Main.Do]
   args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: leading square brackets 2 [Main.Subject.Literal]
   modifiers: List
    ParamPass [] [Modifier.Expression.ParamPassExp]
@@ -60,6 +67,7 @@ Scope [Main.Statements.StmtList]
     param: IntegerLiteral: 2 [Main.Subject.Literal]
  GenericCommand do [Main.Do]
   args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: trailing square brackets 2 [Main.Subject.Literal]
   modifiers: List
    ParamPass [] [Modifier.Expression.ParamPassExp]
@@ -90,14 +98,17 @@ Scope [Main.Statements.StmtList]
    second: IntegerLiteral: 2 [Main.Subject.Literal]
  GenericCommand do [Main.Do]
   args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: middle leading [Main.Subject.Literal]
   modifiers: NULL
  GenericCommand do [Main.Do]
   args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: middle trailing [Main.Subject.Literal]
   modifiers: NULL
  GenericCommand do [Main.Do]
   args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: start trailing [Main.Subject.Literal]
   modifiers: NULL
  Definition [Main.Def] p

@@ -76,9 +76,6 @@ class StandardFactory : public Factory
   /// Create statement template production definitions.
   private: void createStatementsProductionModule();
 
-  /// Create command template production definitions.
-  private: void createCommandTemplateProductionDefinitions();
-
   /// Create Expression production module.
   private: void createExpressionProductionModule();
 
