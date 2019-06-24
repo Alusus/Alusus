@@ -669,11 +669,12 @@ void Parser::processTokenTerm(const Data::Token * token, StateIterator si)
       // Processing of this state has errored out.
       (*si)->setProcessingStatus(ParserProcessingStatus::ERROR);
       #ifdef USE_LOGS
-        TiStr *matchStr = ti_cast<TiStr>(matchText);
+        auto matchStr = ti_cast<TiStr>(matchText);
+        auto matchMap = ti_cast<Core::Data::Grammar::Map>(matchText);
       #endif
       LOG(LogLevel::PARSER_MID, S("Process State: Token failed (") <<
           ID_GENERATOR->getDesc(matchId) << S(":") <<
-          (matchStr==0?"":matchStr->get()) << S(") -- Received (") <<
+          (matchStr==0?(matchMap==0?"":matchMap->getKey(0).c_str()):matchStr->get()) << S(") -- Received (") <<
           ID_GENERATOR->getDesc(token->getId()) << S(":") <<
           token->getText() << S(")"));
     }
@@ -1227,7 +1228,10 @@ void Parser::computePossibleAlternativeRoutes(Data::Token const *token, ParserSt
       // beongs.
       auto i = alternateTerm->getInnerTextBasedDecisionCache()->find(token->getText());
       if (i != alternateTerm->getInnerTextBasedDecisionCache()->end()) {
-        if (state->getDecisionNodeIndex() == -1 && i->second != -1) this->decisionNodes.addSiblingNode(state, i->second);
+        if (state->getDecisionNodeIndex() == -1 && i->second != -1) {
+          LOG(LogLevel::PARSER_MID, S("Process State: Taking text cached alternate route (") << i->second << S(")."));
+          this->decisionNodes.addSiblingNode(state, i->second);
+        }
         return;
       }
     } else {
@@ -1235,7 +1239,10 @@ void Parser::computePossibleAlternativeRoutes(Data::Token const *token, ParserSt
       // decision.
       auto i = alternateTerm->getInnerIdBasedDecisionCache()->find(token->getId());
       if (i != alternateTerm->getInnerIdBasedDecisionCache()->end()) {
-        if (state->getDecisionNodeIndex() == -1 && i->second != -1) this->decisionNodes.addSiblingNode(state, i->second);
+        if (state->getDecisionNodeIndex() == -1 && i->second != -1) {
+          LOG(LogLevel::PARSER_MID, S("Process State: Taking id cached alternate route (") << i->second << S(")."));
+          this->decisionNodes.addSiblingNode(state, i->second);
+        }
         return;
       }
     }
@@ -1455,11 +1462,12 @@ void Parser::testTokenTerm(Data::Token const *token, ParserState *state)
       // Processing of this state has errored out.
       state->setProcessingStatus(ParserProcessingStatus::ERROR);
       #ifdef USE_LOGS
-        TiStr *matchStr = ti_cast<TiStr>(matchText);
+        auto matchStr = ti_cast<TiStr>(matchText);
+        auto matchMap = ti_cast<Core::Data::Grammar::Map>(matchText);
       #endif
       LOG(LogLevel::PARSER_MINOR, S("Testing State: Failed for token (") <<
           ID_GENERATOR->getDesc(matchId) << S(":") <<
-          (matchStr==0?"":matchStr->get()) << S(") -- Received (") <<
+          (matchStr==0?(matchMap==0?"":matchMap->getKey(0).c_str()):matchStr->get()) << S(") -- Received (") <<
           ID_GENERATOR->getDesc(token->getId()) << S(":") <<
           token->getText() << S(")"));
     }

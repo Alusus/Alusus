@@ -37,7 +37,7 @@ class IdentifierTokenizingHandler : public TokenizingHandler
   //============================================================================
   // Types
 
-  public: typedef std::unordered_map<WStr, Word, std::hash<std::wstring>> Keywords;
+  public: typedef std::unordered_map<Str, Word, std::hash<std::string>> Keywords;
 
 
   //============================================================================
@@ -57,21 +57,10 @@ class IdentifierTokenizingHandler : public TokenizingHandler
   //============================================================================
   // Member Functions
 
-  public: void addKeyword(WChar const *keyword)
+  public: void addKeyword(Char const *keyword)
   {
     if (this->keywords.count(keyword) == 0) this->keywords[keyword] = 1;
     else ++this->keywords[keyword];
-  }
-
-  public: void addKeyword(Char const *keyword)
-  {
-    WStr wKeyword(keyword);
-    this->addKeyword(wKeyword.c_str());
-  }
-
-  public: void addKeywords(const std::initializer_list<WChar const*> &keywords)
-  {
-    for (auto keyword : keywords) this->addKeyword(keyword);
   }
 
   public: void addKeywords(const std::initializer_list<Char const*> &keywords)
@@ -79,22 +68,11 @@ class IdentifierTokenizingHandler : public TokenizingHandler
     for (auto keyword : keywords) this->addKeyword(keyword);
   }
 
-  public: void removeKeyword(WChar const *keyword)
+  public: void removeKeyword(Char const *keyword)
   {
     if (this->keywords.count(keyword) == 0) return;
     --this->keywords[keyword];
     if (this->keywords[keyword] == 0) this->keywords.erase(keyword);
-  }
-
-  public: void removeKeyword(Char const *keyword)
-  {
-    WStr wKeyword(keyword);
-    this->removeKeyword(wKeyword.c_str());
-  }
-
-  public: void removeKeywords(const std::initializer_list<WChar const*> &keywords)
-  {
-    for (auto keyword : keywords) this->removeKeyword(keyword);
   }
 
   public: void removeKeywords(const std::initializer_list<Char const*> &keywords)
@@ -102,14 +80,10 @@ class IdentifierTokenizingHandler : public TokenizingHandler
     for (auto keyword : keywords) this->removeKeyword(keyword);
   }
 
-  public: virtual void prepareToken(Data::Token *token, Word id, WChar const *tokenText, Word tokenTextLength,
-                                    Data::SourceLocationRecord const &sourceLocation)
-  {
-    token->setText(tokenText, tokenTextLength);
-    token->setId(id);
-    token->setSourceLocation(sourceLocation);
-    if (this->keywords.count(tokenText) == 1) token->setAsKeyword(true);
-  }
+  public: virtual void prepareToken(
+    Data::Token *token, Word id, WChar const *tokenText, Word tokenTextLength,
+    Data::SourceLocationRecord const &sourceLocation
+  );
 
 }; // class
 
