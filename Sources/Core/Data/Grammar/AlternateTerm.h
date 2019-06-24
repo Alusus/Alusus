@@ -56,7 +56,7 @@ class AlternateTerm : public ListTerm
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(AlternateTerm);
 
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(AlternateTerm, this->validate());
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(AlternateTerm);
 
   public: virtual ~AlternateTerm()
   {

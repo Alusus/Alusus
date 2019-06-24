@@ -54,7 +54,7 @@ class ConcatTerm : public ListTerm
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(ConcatTerm);
 
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(ConcatTerm, this->validate());
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(ConcatTerm);
 
   public: virtual ~ConcatTerm()
   {

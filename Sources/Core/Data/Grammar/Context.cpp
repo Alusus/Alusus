@@ -39,95 +39,45 @@ TiObject* Context::traceValue(TiObject *val)
 //==============================================================================
 // Term Helper Functions
 
-TiObject* Context::getListTermData(ListTerm *term)
+TiObject* Context::getListTermFilter(ListTerm *term)
 {
-  auto retVal = this->traceValue(term->getData().get());
+  auto retVal = this->traceValue(term->getFilter().get());
   if (retVal != 0 && !retVal->isA<List>() && !retVal->isA<TiInt>()) {
-    throw EXCEPTION(GenericException, S("Type of list term data is invalid"));
+    throw EXCEPTION(GenericException, S("Type of list term filter is invalid"));
   }
   return retVal;
 }
 
 
-Word Context::getListTermChildCount(ListTerm *term, TiObject *listData) const
+Word Context::getListTermChildCount(ListTerm *term, TiObject *listFilter) const
 {
-  if (term->isStatic()) {
-    if (listData == 0) return static_cast<List*>(term->getTerms().get())->getCount();
-    else if (listData->isA<TiInt>()) return 1;
-    else if (listData->isA<List>()) return static_cast<List*>(listData)->getCount();
-    else {
-      throw EXCEPTION(InvalidArgumentException, S("listData"), S("Must be TiInt or List for static list terms."));
-    }
-  } else {
-    if (listData == 0) {
-      throw EXCEPTION(InvalidArgumentException, S("listData"), S("Must not be null for dynamic list terms."));
-    } else if (!listData->isA<List>()) {
-      throw EXCEPTION(InvalidArgumentException, S("listData"), S("Must be of type List for dynamic list terms."));
-    } else {
-      return static_cast<List*>(listData)->getCount();
-    }
+  if (listFilter == 0) return static_cast<List*>(term->getTerms().get())->getCount();
+  else if (listFilter->isA<TiInt>()) return 1;
+  else if (listFilter->isA<List>()) return static_cast<List*>(listFilter)->getCount();
+  else {
+    throw EXCEPTION(InvalidArgumentException, S("listFilter"), S("Must be TiInt or List for static list terms."));
   }
 }
 
 
-void Context::getListTermChild(
-  ListTerm *term, Int index, TiObject *listData, Term *&retTerm, TiObject *&retData
-) const
+Term* Context::getListTermChild(ListTerm *term, Int index, TiObject *listFilter) const
 {
-  if (term->isStatic()) {
-    if (listData == 0) {
-      retTerm = term->getTerm(index);
-      retData = 0;
-    } else if (listData->isA<TiInt>()) {
-      retTerm = term->getTerm(static_cast<TiInt*>(listData)->get());
-      retData = 0;
-    } else if (listData->isA<List>()) {
-      auto index2 = static_cast<List*>(listData)->getElement(index);
-      if (index2 == 0 || !index2->isA<TiInt>()) {
-        throw EXCEPTION(
-          InvalidArgumentException, S("listData"), S("List must contain Integers for static list terms.")
-        );
-      }
-      retTerm = term->getTerm(static_cast<TiInt*>(index2)->get());
-      retData = 0;
-    } else {
+  if (listFilter == 0) {
+    return term->getTerm(index);
+  } else if (listFilter->isA<TiInt>()) {
+    return term->getTerm(static_cast<TiInt*>(listFilter)->get());
+  } else if (listFilter->isA<List>()) {
+    auto index2 = static_cast<List*>(listFilter)->getElement(index);
+    if (index2 == 0 || !index2->isA<TiInt>()) {
       throw EXCEPTION(
-        InvalidArgumentException, S("listData"), S("Must be TiInt or List for static list terms.")
+        InvalidArgumentException, S("listFilter"), S("List must contain Integers for static list terms.")
       );
     }
+    return term->getTerm(static_cast<TiInt*>(index2)->get());
   } else {
-    if (listData == 0) {
-      throw EXCEPTION(
-        InvalidArgumentException, S("listData"), S("Must not be null for dynamic list terms.")
-      );
-    } else if (!listData->isA<List>()) {
-      throw EXCEPTION(
-        InvalidArgumentException, S("listData"), S("Must be of type List for dynamic list terms.")
-      );
-    } else {
-      if (term->getTargetRef() == 0) {
-        throw EXCEPTION(GenericException, S("Dynamic term doesn't have a target ref."));
-      }
-      ASSERT(term->getTerms()->isDerivedFrom<Term>());
-      retTerm = static_cast<Term*>(term->getTerms().get());
-      retData = static_cast<List*>(listData)->getElement(index);
-    }
-  }
-}
-
-
-void Context::useListTermChild(
-  ListTerm *term, Int index, TiObject *listData, Term *&retTerm, TiObject *&retData
-) {
-  if (retData == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("retData"), S("Must not be null."));
-  }
-  this->getListTermChild(term, index, listData, retTerm, retData);
-
-  if (term->getTargetRef() != 0) {
-    if (!term->getTargetRef()->setValue(this, retData)) {
-      throw EXCEPTION(GenericException, S("Reference pointing to a missing element/tree."));
-    }
+    throw EXCEPTION(
+      InvalidArgumentException, S("listFilter"), S("Must be TiInt or List for static list terms.")
+    );
   }
 }
 

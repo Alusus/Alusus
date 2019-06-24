@@ -749,13 +749,6 @@ Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar
     auto currentTerm = state->refLevel(currentLevel).term;
     ASSERT(currentTerm->isA<Data::Grammar::AlternateTerm>());
     Data::Grammar::AlternateTerm *alternateTerm = static_cast<Data::Grammar::AlternateTerm*>(currentTerm);
-    if (alternateTerm->isDynamic()) {
-      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-      );
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
     auto alternateList = alternateTerm->getTerms().s_cast_get<Data::Grammar::List>();
     if (alternateList->getCount() < 2) {
       Str excMsg = S("Alternative term doesn't have enough branches yet (less than two). Token def: ");
@@ -818,13 +811,6 @@ Lexer::NextAction Lexer::processConcatTerm(LexerState *state, WChar inputChar, I
   auto currentTerm = state->refLevel(currentLevel).term;
   ASSERT(currentTerm->isA<Data::Grammar::ConcatTerm>());
   Data::Grammar::ConcatTerm *concatTerm = static_cast<Data::Grammar::ConcatTerm*>(currentTerm);
-  if (concatTerm->isDynamic()) {
-    Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
-    excMsg += ID_GENERATOR->getDesc(
-      this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-    );
-    throw EXCEPTION(GenericException, excMsg.c_str());
-  }
   auto concatList = concatTerm->getTerms().s_cast_get<Data::Grammar::List>();
   if (concatList->getCount() == 0) {
     Str excMsg = S("Concat term's child terms aren't set yet. Token def: ");

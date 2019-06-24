@@ -247,10 +247,7 @@ void ParserState::pushTermLevel(Data::Grammar::Term *term)
     this->topTermLevelCache->setParam2(this->grammarContext.getTokenTermText(tokenTerm));
   } else if (term->isDerivedFrom<Data::Grammar::ListTerm>()) {
     Data::Grammar::ListTerm *listTerm = static_cast<Data::Grammar::ListTerm*>(term);
-    this->topTermLevelCache->setParam1(this->grammarContext.getListTermData(listTerm));
-    if (listTerm->isDynamic() && this->topProdLevelCache->getTermStackDynamicListIndex() == -1) {
-      this->topProdLevelCache->setTermStackDynamicListIndex(this->getTermLevelCount() - 1);
-    }
+    this->topTermLevelCache->setParam1(this->grammarContext.getListTermFilter(listTerm));
   } else if (term->isA<Data::Grammar::MultiplyTerm>()) {
     Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(term);
     this->topTermLevelCache->setParam1(this->grammarContext.getMultiplyTermMax(multiplyTerm));
@@ -279,15 +276,6 @@ void ParserState::popTermLevel()
   }
   if (this->getTermLevelCount() > 0) this->topTermLevelCache = &this->refTermLevel(-1);
   else this->topTermLevelCache = 0;
-
-  if (this->topProdLevelCache != 0) {
-    if (
-      this->topProdLevelCache->getTermStackDynamicListIndex() != -1 &&
-      this->topProdLevelCache->getTermStackDynamicListIndex() >= this->getTermLevelCount()
-    ) {
-      this->topProdLevelCache->setTermStackDynamicListIndex(-1);
-    }
-  }
 }
 
 
@@ -435,19 +423,16 @@ Word ParserState::getListTermChildCount(Int levelOffset) const
 }
 
 
-Data::Grammar::Term* ParserState::useListTermChild(Int index, Int levelOffset)
+Data::Grammar::Term* ParserState::getListTermChild(Int index, Int levelOffset)
 {
   ParserTermLevel *level;
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isDerivedFrom<Data::Grammar::ListTerm>());
   Data::Grammar::Term *term;
-  TiObject *data;
-  this->grammarContext.useListTermChild(
-    static_cast<Data::Grammar::ListTerm*>(level->getTerm()), index, level->getParam1(), term, data
+  return this->grammarContext.getListTermChild(
+    static_cast<Data::Grammar::ListTerm*>(level->getTerm()), index, level->getParam1()
   );
-  level->setParam2(data);
-  return term;
 }
 
 

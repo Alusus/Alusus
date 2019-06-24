@@ -46,25 +46,18 @@ class ListTerm : public Term, public MapContaining<TiObject>
   // Member Variables
 
   /// @sa getTerms()
-  protected: SharedPtr<Node> terms;
+  protected: SharedPtr<List> terms;
 
   /// @sa getData()
-  protected: SharedPtr<Node> data;
-
-  /// @sa set_target_var()
-  protected: SharedPtr<Reference> targetRef;
+  protected: SharedPtr<Node> filter;
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Term,
-    (targetRef, Reference, SHARED_REF, setTargetRef(value), targetRef.get())
-  );
-
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (terms, Node, SHARED_REF, setTerms(value), terms.get()),
-    (data, Node, SHARED_REF, setData(value), data.get())
+    (terms, List, SHARED_REF, setTerms(value), terms.get()),
+    (filter, Node, SHARED_REF, setFilter(value), filter.get())
   );
 
 
@@ -73,54 +66,31 @@ class ListTerm : public Term, public MapContaining<TiObject>
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(ListTerm);
 
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(ListTerm, this->validate());
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(ListTerm);
 
   public: virtual ~ListTerm()
   {
     RESET_OWNED_SHAREDPTR(this->terms);
-    RESET_OWNED_SHAREDPTR(this->data);
-    RESET_OWNED_SHAREDPTR(this->targetRef);
+    RESET_OWNED_SHAREDPTR(this->filter);
   }
 
 
   //============================================================================
   // Member Functions
 
-  protected: void validate() const;
-
-  /// Set a static list for this list term.
-  public: void setStatic(SharedPtr<List> const &terms,
-                         SharedPtr<Node> const &filter=SharedPtr<Node>());
-
-  /// Set a dynamic list for this list term.
-  public: void setDynamic(const SharedPtr<Term> &term, SharedPtr<Node> const &data,
-                          const SharedPtr<Reference> &ref);
-
-  /// Unset the list.
-  public: void reset();
-
-  /**
-   * @brief Get whether a static list is currently set.
-   * If the object is not initialized, the function returns false.
-   */
-  public: Bool isStatic() const
+  public: void reset()
   {
-    if (this->terms != 0 && this->terms->isA<List>()) return true;
-    else return false;
+    RESET_OWNED_SHAREDPTR(this->terms);
+    RESET_OWNED_SHAREDPTR(this->filter);
   }
 
-  /**
-   * @brief Get whether a dynamic list is currently set.
-   * If the object is not initialized, the function returns false.
-   */
-  public: Bool isDynamic() const
+  public: void setTerms(const SharedPtr<List> &t)
   {
-    return !this->isStatic();
+    UPDATE_OWNED_SHAREDPTR(this->terms, t);
   }
-
-  private: void setTerms(Node *t)
+  private: void setTerms(List *t)
   {
-    UPDATE_OWNED_SHAREDPTR(this->terms, getSharedPtr(t));
+    this->setTerms(getSharedPtr(t));
   }
 
   /**
@@ -128,7 +98,7 @@ class ListTerm : public Term, public MapContaining<TiObject>
    * This can either be of type Term or List depending on whether the term is
    * dynamic or static.
    */
-  public: SharedPtr<Node> const& getTerms() const
+  public: SharedPtr<List> const& getTerms() const
   {
     return this->terms;
   }
@@ -136,35 +106,18 @@ class ListTerm : public Term, public MapContaining<TiObject>
   /// Get a specific term from the list.
   public: Term* getTerm(Int index = 0) const;
 
-  private: void setData(Node *d)
+  public: void setFilter(const SharedPtr<Node> &f)
   {
-    UPDATE_OWNED_SHAREDPTR(this->data, getSharedPtr(d));
+    UPDATE_OWNED_SHAREDPTR(this->filter, f);
+  }
+  private: void setFilter(Node *f)
+  {
+    this->setFilter(getSharedPtr(f));
   }
 
-  /**
-   * @brief Get the data object.
-   * This can either be the filter if the list is static or the data if the
-   * term is dynamic.
-   */
-  public: SharedPtr<Node> const& getData() const
+  public: SharedPtr<Node> const& getFilter() const
   {
-    return this->data;
-  }
-
-  /// Set the target ref used for the dynamic list (data driven list terms).
-  private: void setTargetRef(Reference *ref)
-  {
-    UPDATE_OWNED_SHAREDPTR(this->targetRef, getSharedPtr(ref));
-  }
-
-  /**
-   * @brief Get the reference to the target var used for the dynamic list.
-   * This is the reference to the stack variable used as a loop variable by
-   * data driven list terms.
-   */
-  public: const SharedPtr<Reference>& getTargetRef() const
-  {
-    return this->targetRef;
+    return this->filter;
   }
 
 }; // class

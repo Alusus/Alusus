@@ -109,15 +109,11 @@ class Context : public TiObject, public MapContaining<TiObject>
   /// @name Term Helper Functions
   /// @{
 
-  public: TiObject* getListTermData(ListTerm *term);
+  public: TiObject* getListTermFilter(ListTerm *term);
 
-  public: Word getListTermChildCount(ListTerm *term, TiObject *listData) const;
+  public: Word getListTermChildCount(ListTerm *term, TiObject *listFilter) const;
 
-  public: void getListTermChild(
-    ListTerm *term, Int index, TiObject *listData, Term *&retTerm, TiObject *&retData
-  ) const;
-
-  public: void useListTermChild(ListTerm *term, Int index, TiObject *listData, Term *&retTerm, TiObject *&retData);
+  public: Term* getListTermChild(ListTerm *term, Int index, TiObject *listFilter) const;
 
   public: TiInt* getTokenTermId(TokenTerm *term);
 
