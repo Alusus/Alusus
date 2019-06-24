@@ -673,20 +673,6 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
     }));
   }
 
-
-  // ProdGroup
-  this->set(S("root.ProdGroup"), SymbolDefinition::create({}, {
-    {S("term"), AlternateTerm::create({
-      {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM)},
-      {S("targetRef"), PARSE_REF(S("stack.prod"))}
-    }, {
-      {S("data"), PARSE_REF(S("args.prods"))},
-      {S("terms"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("stack.prod")) }})}
-    })},
-    {S("vars"), Map::create({}, {{ S("prods"), List::create() }} )},
-    {S("handler"), this->parsingHandler}
-  }));
-
   this->createTokenDataModule();
 
   this->createStatementsProductionModule();
@@ -866,44 +852,7 @@ void StandardFactory::createStatementsProductionModule()
   }));
 
   //// Statement : (Variation | Variation | ...).
-  // Statement : @limit[user.parent==self,child.terms=self] prule
-  //   prefix self.id, DefaultModifier
-  //   as (variations:list[prule[Variation]]=(ExpVariation, CmdVariation)=>{
-  //     alternate (variations:variation)->( variation )
-  //   };
-  this->set(S("root.Statements.Stmt"), SymbolDefinition::create({}, {
-    {S("term"), AlternateTerm::create({
-      {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM)},
-      {S("targetRef"), PARSE_REF(S("stack.variation"))}
-    }, {
-      {S("data"), PARSE_REF(S("module.variations"))},
-      {S("terms"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("stack.variation")) }})}
-    })},
-    {S("handler"), this->parsingHandler}
-  }));
-
-  //// Variation : { Subject }.
-  //  Variation : prule as (sections:list[map[prd:valid_subject, min:integer, max:integer, pty:integer]])=>{
-  //    concat (sections:s)->( @priority(s.pty,0) s.prd*(s.min,s.max) )
-  //  };
-  this->set(S("root.Statements.Variation"), SymbolDefinition::create({}, {
-    {S("term"), ConcatTerm::create({
-      {S("errorSyncPosId"), TiInt(1000)},
-      {S("targetRef"), PARSE_REF(S("stack.subject"))}
-    }, {
-      {S("data"), PARSE_REF(S("args.subjects"))},
-      {S("terms"), MultiplyTerm::create({
-        {S("priority"), PARSE_REF(S("stack.subject.pty"))},
-        {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-        {S("min"), PARSE_REF(S("stack.subject.min"))},
-        {S("max"), PARSE_REF(S("stack.subject.max"))}
-      }, {
-        {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("stack.subject.prd")) }})}
-      })}
-    })}
-  }));
-
-  this->set(S("root.Statements.variations"), TioSharedPtr::null);
+  this->createProdGroup(S("root.Statements.Stmt"), {});
 }
 
 
@@ -1472,33 +1421,11 @@ void StandardFactory::createExpressionProductionModule()
           {S("tokenText"), TiStr::create(S("("))}
         }),
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.openPostfixTildeExpr")) }}),
-        ConcatTerm::create({
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-          {S("targetRef"), PARSE_REF(S("stack.p"))}
-        }, {
-          {S("data"), PARSE_REF(S("args.prms"))},
-          {S("terms"), MultiplyTerm::create({
-            {S("priority"), PARSE_REF(S("stack.p.pty"))},
-            {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-            {S("min"), PARSE_REF(S("stack.p.min"))},
-            {S("max"), PARSE_REF(S("stack.p.max"))},
-          }, {
-            {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("stack.p.prd")) }})}
-          })}
-        }),
         TokenTerm::create({
           {S("tokenId"), TiInt::create(this->constTokenId)},
           {S("tokenText"), TiStr::create(S(")"))}
         })
       })}
-    })},
-    {S("vars"), Map::create({}, {
-      {S("prms"), List::create({}, {Map::create({}, {
-        {S("pty"), std::make_shared<TiInt>(1)},
-        {S("min"), 0},
-        {S("max"), 0},
-        {S("prd"), PARSE_REF(S("module.openPostfixTildeExpr"))}
-      })})}
     })},
     {S("handler"), std::make_shared<CustomParsingHandler>(
       [](Parser *parser, ParserState *state)
@@ -1809,47 +1736,24 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
   this->set(S("root.Main.Statements"), Module::create({
     {S("baseRef"), PARSE_REF(S("root.Statements"))}
   }, {
-    {S("variations"), List::create({}, {
-      PARSE_REF(S("module.CmdVariation")),
-      PARSE_REF(S("module.ExpVariation"))
-    })},
     {S("cmdGrp"), PARSE_REF(S("module.owner.LeadingCmdGrp"))},
     {S("expression"), PARSE_REF(S("module.owner.Expression"))}
   }));
 
-  // CmdVariation : prule ref Variation(sections=((prd=cmdGrp,min=1,max=1,pty=1)));
-  this->set(S("root.Main.Statements.CmdVariation"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("module.Variation"))}
-  }, {
-   {S("vars"), Map::create({}, {
-      {S("subjects"), List::create({}, {
-         Map::create({}, {
-           {S("prd"), PARSE_REF(S("module.cmdGrp"))},
-           {S("min"), std::make_shared<TiInt>(1)},
-           {S("max"), std::make_shared<TiInt>(1)},
-           {S("pty"), std::make_shared<TiInt>(1)}
-         })
-       })}
-    })},
-   {S("handler"), this->parsingHandler}
-  }));
+  // CmdVariation : prule as (cmdGrp * (1,1));
+  this->createStatementVariation(S("root.Main.Statements.CmdVariation"), {
+    { PARSE_REF(S("module.cmdGrp")), TiInt::create(1), TiInt::create(1) }
+  }, this->parsingHandler);
 
-  // ExpVariation : prule ref Variation(sections=((prd=module.expression,min=1,max=1,pty=1)));
-  this->set(S("root.Main.Statements.ExpVariation"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("module.Variation"))}
-  }, {
-   {S("vars"), Map::create({}, {
-      {S("subjects"), List::create({}, {
-         Map::create({}, {
-           {S("prd"), PARSE_REF(S("module.expression"))},
-           {S("min"), std::make_shared<TiInt>(1)},
-           {S("max"), std::make_shared<TiInt>(1)},
-           {S("pty"), std::make_shared<TiInt>(1)}
-         })
-       })}
-    })},
-   {S("handler"), this->parsingHandler}
-  }));
+  // ExpVariation : prule as (module.expression * (1,1));
+  this->createStatementVariation(S("root.Main.Statements.ExpVariation"), {
+    { PARSE_REF(S("module.expression")), TiInt::create(1), TiInt::create(1) }
+  }, this->parsingHandler);
+
+  this->addProdsToGroup(S("root.Main.Statements.Stmt"), {
+    PARSE_REF(S("module.CmdVariation")),
+    PARSE_REF(S("module.ExpVariation"))
+  });
 
   if (!exprOnly) {
     this->set(S("root.Main.RootStatements"), Module::create({

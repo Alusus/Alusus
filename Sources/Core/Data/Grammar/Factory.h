@@ -64,6 +64,18 @@ class Factory
     }
   };
 
+  public: struct StatementSegment
+  {
+    public: SharedPtr<Reference> prod;
+    public: SharedPtr<TiInt> min;
+    public: SharedPtr<TiInt> max;
+    public: StatementSegment(
+      SharedPtr<Reference> prod, SharedPtr<TiInt> min, SharedPtr<TiInt> max
+    ) : prod(prod), min(min), max(max)
+    {
+    }
+  };
+
 
   //============================================================================
   // Constructor & Destructor
@@ -150,6 +162,10 @@ class Factory
   );
 
   private: SharedPtr<Term> createCommandSection(CommandSection const *section);
+
+  protected: void createStatementVariation(
+    Char const *qualifier, std::initializer_list<StatementSegment> segments, SharedPtr<BuildHandler> parsingHandler
+  );
 
   protected: void createProdGroup(Char const *qualifier, std::initializer_list<SharedPtr<Reference>> prods);
 

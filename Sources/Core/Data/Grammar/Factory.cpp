@@ -291,6 +291,36 @@ SharedPtr<Term> Factory::createCommandSection(CommandSection const *section)
 }
 
 
+void Factory::createStatementVariation(
+  Char const *qualifier, std::initializer_list<StatementSegment> segments, SharedPtr<BuildHandler> parsingHandler
+) {
+  if (segments.size() == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("segments"), S("There should be at least one segment."));
+  }
+
+  auto segList = List::create();
+  for (auto segment: segments) {
+    segList->add(MultiplyTerm::create({
+      {S("priority"), TiInt::create(1)},
+      {S("flags"), TiInt::create(Processing::ParsingFlags::PASS_ITEMS_UP)},
+      {S("min"), segment.min},
+      {S("max"), segment.max}
+    }, {
+      {S("term"), ReferenceTerm::create({{ S("reference"), segment.prod }})}
+    }));
+  }
+
+  this->set(qualifier, SymbolDefinition::create({}, {
+    {S("term"), ConcatTerm::create({
+      {S("errorSyncPosId"), TiInt(1000)}
+    }, {
+      {S("terms"), segList}
+    })},
+    {S("handler"), parsingHandler}
+  }));
+}
+
+
 void Factory::createProdGroup(Char const *qualifier, std::initializer_list<SharedPtr<Reference>> prods)
 {
   auto prodTerms = List::create();
