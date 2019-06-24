@@ -117,15 +117,4 @@ Term* ListTerm::getTerm(Int index) const
   }
 }
 
-
-//==============================================================================
-// DataHaving Implementation
-
-void ListTerm::unsetIndexes(Int from, Int to)
-{
-  if (this->terms != 0) Data::unsetIndexes(this->terms.get(), from, to);
-  if (this->data != 0) Data::unsetIndexes(this->data.get(), from, to);
-  if (this->targetRef != 0) Data::unsetIndexes(this->targetRef.get(), from, to);
-}
-
 } // namespace

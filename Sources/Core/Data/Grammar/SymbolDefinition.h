@@ -20,13 +20,13 @@ namespace Core::Data::Grammar
 
 class SymbolDefinition : public Node,
                          public Binding, public MapContaining<TiObject>,
-                         public Inheriting, public IdHaving, public DataHaving
+                         public Inheriting, public IdHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SymbolDefinition, Node, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding, MapContaining<TiObject>, Inheriting, IdHaving, DataHaving)
+    INHERITANCE_INTERFACES(Binding, MapContaining<TiObject>, Inheriting, IdHaving)
   ));
   OBJECT_FACTORY(SymbolDefinition);
 
@@ -437,13 +437,6 @@ class SymbolDefinition : public Node,
   {
     return this->getBaseSymbolDefinition();
   }
-
-
-  //============================================================================
-  // DataHaving Implementation
-
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to);
 
 }; // class
 

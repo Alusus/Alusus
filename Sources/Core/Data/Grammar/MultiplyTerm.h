@@ -31,13 +31,13 @@ namespace Core::Data::Grammar
  * Priority can be specified manually, but by default it's for taking the
  * branch rather than quiting the branch.
  */
-class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObject>
+class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(MultiplyTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(DataHaving, MapContaining<TiObject>)
+    INHERITANCE_INTERFACES(CacheHaving, MapContaining<TiObject>)
   ));
   OBJECT_FACTORY(MultiplyTerm);
 
@@ -168,10 +168,10 @@ class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObje
 
 
   //============================================================================
-  // DataHaving Implementation
+  // CacheHaving Implementation
 
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to);
+  /// @sa CacheHaving::clearCache()
+  public: virtual void clearCache();
 
 }; // class
 

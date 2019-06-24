@@ -18,14 +18,12 @@ namespace Core::Data::Grammar
 
 // TODO: DOC
 
-class TokenTerm : public Term, public DataHaving
+class TokenTerm : public Term
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(TokenTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(DataHaving)
-  ));
+  TYPE_INFO(TokenTerm, Term, "Core.Data.Grammar", "Core", "alusus.org");
   OBJECT_FACTORY(TokenTerm);
 
 
@@ -97,17 +95,6 @@ class TokenTerm : public Term, public DataHaving
   public: SharedPtr<TiObject> const& getTokenText() const
   {
     return this->tokenText;
-  }
-
-
-  //============================================================================
-  // DataHaving Implementation
-
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to)
-  {
-    if (this->tokenId != 0) Data::unsetIndexes(this->tokenId.get(), from, to);
-    if (this->tokenText != 0) Data::unsetIndexes(this->tokenText.get(), from, to);
   }
 
 }; // class

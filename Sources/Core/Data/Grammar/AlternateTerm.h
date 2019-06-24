@@ -78,10 +78,10 @@ class AlternateTerm : public ListTerm
 
 
   //============================================================================
-  // DataHaving Implementation
+  // CacheHaving Implementation
 
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to)
+  /// @sa CacheHaving::clearCache()
+  public: virtual void clearCache()
   {
     this->textBasedDecisionCache.clear();
     this->idBasedDecisionCache.clear();

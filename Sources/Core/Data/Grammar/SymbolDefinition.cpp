@@ -157,30 +157,4 @@ SbStr const& SymbolDefinition::getTranslatedModifierKeyword(Char const *keyword)
   }
 }
 
-
-//==============================================================================
-// DataHaving Implementation
-
-void SymbolDefinition::unsetIndexes(Int from, Int to)
-{
-  if (this->baseRef != 0) {
-    Data::unsetIndexes(this->baseRef.get(), from, to);
-  }
-  if (this->term != 0 && (this->ownership & SymbolDefinition::Element::TERM) != 0) {
-    Data::unsetIndexes(this->term.get(), from, to);
-  }
-  if (this->varDefs != 0 && (this->ownership & SymbolDefinition::Element::VAR_DEFS) != 0) {
-    Data::unsetIndexes(this->varDefs.get(), from, to);
-  }
-  if (this->vars != 0 && (this->ownership & SymbolDefinition::Element::VARS) != 0) {
-    Data::unsetIndexes(this->vars.get(), from, to);
-  }
-  if (this->handler != 0 && (this->ownership & SymbolDefinition::Element::HANDLER) != 0) {
-    Data::unsetIndexes(this->handler.get(), from, to);
-  }
-  if (this->attributes != 0 && (this->ownership & SymbolDefinition::Element::ATTRIBUTES) != 0) {
-    Data::unsetIndexes(this->attributes.get(), from, to);
-  }
-}
-
 } // namespace

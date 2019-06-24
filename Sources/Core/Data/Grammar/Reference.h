@@ -16,13 +16,13 @@
 namespace Core::Data::Grammar
 {
 
-class Reference : public Node, public Binding, public DataHaving
+class Reference : public Node, public Binding, public CacheHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Reference, Node, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding, DataHaving)
+    INHERITANCE_INTERFACES(Binding, CacheHaving)
   ));
   OBJECT_FACTORY(Reference);
 
@@ -146,10 +146,10 @@ class Reference : public Node, public Binding, public DataHaving
 
   public: Bool isEqual(Reference *ref);
 
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to)
+  /// @sa CacheHaving::clearCache()
+  public: virtual void clearCache()
   {
-    if (this->cachedIndex >= from && this->cachedIndex <= to) this->cachedIndex = -1;
+    this->cachedIndex = -1;
     this->cachedValue = 0;
   }
 

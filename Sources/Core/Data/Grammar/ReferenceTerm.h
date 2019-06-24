@@ -18,14 +18,12 @@ namespace Core::Data::Grammar
 
 // TODO: DOC
 
-class ReferenceTerm : public Term, public DataHaving
+class ReferenceTerm : public Term
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ReferenceTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(DataHaving)
-  ));
+  TYPE_INFO(ReferenceTerm, Term, "Core.Data.Grammar", "Core", "alusus.org");
   OBJECT_FACTORY(ReferenceTerm);
 
 
@@ -72,16 +70,6 @@ class ReferenceTerm : public Term, public DataHaving
   public: SharedPtr<Reference> const& getReference() const
   {
     return this->reference;
-  }
-
-
-  //============================================================================
-  // DataHaving Implementation
-
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to)
-  {
-    if (this->reference != 0) Data::unsetIndexes(this->reference.get(), from, to);
   }
 
 }; // class

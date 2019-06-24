@@ -32,13 +32,13 @@ namespace Core::Data::Grammar
  * either be done through a list of boolean flags, a flag for each term, or
  * through a single index number that specifies the single enabled term.
  */
-class ListTerm : public Term, public DataHaving, public MapContaining<TiObject>
+class ListTerm : public Term, public MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ListTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(DataHaving, MapContaining<TiObject>)
+    INHERITANCE_INTERFACES(MapContaining<TiObject>)
   ));
 
 
@@ -166,13 +166,6 @@ class ListTerm : public Term, public DataHaving, public MapContaining<TiObject>
   {
     return this->targetRef;
   }
-
-
-  //============================================================================
-  // DataHaving Implementation
-
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to);
 
 }; // class
 

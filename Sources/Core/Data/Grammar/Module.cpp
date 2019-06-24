@@ -122,31 +122,4 @@ void Module::onBaseMetaChanged(Module *obj, Word element)
   }
 }
 
-
-//==============================================================================
-// DataHaving Implementation
-
-void Module::unsetIndexes(Int from, Int to)
-{
-  if (this->baseRef != 0) {
-    Data::unsetIndexes(this->baseRef.get(), from, to);
-  }
-  if (this->startRef != 0 && (this->ownership & Module::MetaElement::START_REF) != 0) {
-    Data::unsetIndexes(this->startRef.get(), from, to);
-  }
-  if (this->lexerModuleRef != 0 && (this->ownership & Module::MetaElement::LEXER_MODULE_REF) != 0) {
-    Data::unsetIndexes(this->lexerModuleRef.get(), from, to);
-  }
-  if (
-    this->errorSyncBlockPairsRef != 0 && (this->ownership & Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) != 0
-  ) {
-    Data::unsetIndexes(this->errorSyncBlockPairsRef.get(), from, to);
-  }
-
-  for (Word i = 0; i < this->getCount(); ++i) {
-    TiObject *obj = this->get(i).get();
-    if (obj != 0) Data::unsetIndexes(obj, from, to);
-  }
-}
-
 } // namespace

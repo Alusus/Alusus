@@ -16,15 +16,13 @@
 namespace Core::Data
 {
 
-class NbList : public SharedListBase<TiObject, Node>, public DataHaving
+class NbList : public SharedListBase<TiObject, Node>
 {
   //============================================================================
   // Type Info
 
   typedef SharedListBase<TiObject, Node> _MyBase;
-  TYPE_INFO(NbList, _MyBase, "Core.Data", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(DataHaving)
-  ));
+  TYPE_INFO(NbList, _MyBase, "Core.Data", "Core", "alusus.org");
 
 
   //============================================================================
@@ -96,20 +94,6 @@ class NbList : public SharedListBase<TiObject, Node>, public DataHaving
   public: NbList* getBase() const
   {
     return static_cast<NbList*>(this->base);
-  }
-
-  /// @}
-
-  /// @name DataHaving Implementation
-  /// @{
-
-  /// @sa DataHaving::unsetIndexes()void
-  public: virtual void unsetIndexes(Int from, Int to)
-  {
-    for (Word i = 0; i < this->getCount(); ++i) {
-      TiObject *obj = this->get(i).get();
-      if (obj != 0) Data::unsetIndexes(obj, from, to);
-    }
   }
 
   /// @}

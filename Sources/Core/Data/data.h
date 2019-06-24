@@ -48,14 +48,6 @@ namespace Core::Data
 {
 
 /**
- * Reset the indexes of all references in a specific range within a tree.
- * @ingroup core_data
- * Call the unsetIndexes method of DataHaving interface, if implemented by
- * the object.
- */
-void unsetIndexes(TiObject *obj, Int from, Int to);
-
-/**
  * Clear all the caches in the given objects and child objects.
  * @ingroup core_data
  */
@@ -194,7 +186,7 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
 #include "source_location.h"
 
 // Generic Data Interfaces
-#include "DataHaving.h"
+#include "CacheHaving.h"
 #include "IdHaving.h"
 #include "Printable.h"
 
