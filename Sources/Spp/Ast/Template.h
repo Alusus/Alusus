@@ -109,10 +109,15 @@ class Template : public Core::Data::Node,
   }
 
   public: virtual TioSharedPtr const& getDefaultInstance(Helper *helper);
-  public: virtual Bool matchInstance(TiObject *templateInput, Helper *helper, TioSharedPtr &result);
+  public: virtual Bool matchInstance(TiObject *templateInputs, Helper *helper, TioSharedPtr &result);
+
+  private: Bool prepareTemplateVars(
+    TiObject *templateInputs, Helper *helper, PlainList<TiObject> *vars, SharedPtr<Core::Notices::Notice> &notice
+  );
 
   private: Bool matchTemplateVars(
-    TiObject *templateInput, Core::Data::Ast::Scope *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
+    Containing<TiObject> *templateInputs, Core::Data::Ast::Scope *instance, Helper *helper,
+    SharedPtr<Core::Notices::Notice> &notice
   );
   private: Bool matchTemplateVar(
     TiObject *templateInput, Core::Data::Ast::Scope *instance, TemplateVarDef *varDef, Helper *helper,
@@ -120,7 +125,8 @@ class Template : public Core::Data::Node,
   );
 
   private: Bool assignTemplateVars(
-    TiObject *templateInput, Core::Data::Ast::Scope *instance, Helper *helper, SharedPtr<Core::Notices::Notice> &notice
+    Containing<TiObject> *templateInputs, Core::Data::Ast::Scope *instance, Helper *helper,
+    SharedPtr<Core::Notices::Notice> &notice
   );
 
   public: static TiObject* getTemplateVar(Core::Data::Ast::Scope const *instance, Char const *name);

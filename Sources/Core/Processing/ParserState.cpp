@@ -429,7 +429,6 @@ Data::Grammar::Term* ParserState::getListTermChild(Int index, Int levelOffset)
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isDerivedFrom<Data::Grammar::ListTerm>());
-  Data::Grammar::Term *term;
   return this->grammarContext.getListTermChild(
     static_cast<Data::Grammar::ListTerm*>(level->getTerm()), index, level->getParam1()
   );
