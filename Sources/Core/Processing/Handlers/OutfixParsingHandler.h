@@ -56,7 +56,6 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
         } else if (state->refTermLevel(levelIndex).getPosId() == 3) {
           // Attach postfix
           if (this->forward && currentData->isA<PREFIXTYPE>()) {
-            this->prepareToModifyData(state, levelIndex);
             auto prefix = state->getData(levelIndex).s_cast_get<PREFIXTYPE>();
             prefix->setOperand(this->createPostfixObj(prefix->getOperand(), data));
           } else {

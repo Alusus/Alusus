@@ -26,8 +26,6 @@ void GenericParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   Grammar::SymbolDefinition *prod = state->refTopProdLevel().getProd();
   if (item != 0 && item->getProdId() == UNKNOWN_ID) {
     // We need to set the production id now.
-    this->prepareToModifyData(state, -1);
-    item = state->getData().ti_cast_get<Ast::MetaHaving>();
     item->setProdId(prod->getId());
   } else if (this->isProdObjEnforced(state)) {
     // We need to create a container data object for this production root.
@@ -229,8 +227,6 @@ void GenericParsingHandler::addData(
     if (currentData == 0) {
       state->setData(data, levelIndex);
     } else if (container != 0 && container->getElement(0) == 0) {
-      this->prepareToModifyData(state, levelIndex);
-      container = state->getData(levelIndex).ti_cast_get<Containing<TiObject>>();
       container->setElement(0, data.get());
     } else {
       throw EXCEPTION(GenericException,
@@ -270,8 +266,6 @@ void GenericParsingHandler::addData(
       if (container != 0 && (metadata == 0 || metadata->getProdId() == UNKNOWN_ID)) {
         // This level already has a list that belongs to this production, so we can just add the new data
         // to this list.
-        this->prepareToModifyData(state, levelIndex);
-        auto container = state->getData(levelIndex).ti_cast_get<DynamicContaining<TiObject>>();
         container->addElement(data.get());
       } else {
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
@@ -405,16 +399,6 @@ Bool GenericParsingHandler::isListTerm(ParserState *state, Int levelIndex)
 {
   ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
   return termLevel.getTerm()->isA<Grammar::MultiplyTerm>() || termLevel.getTerm()->isA<Grammar::ConcatTerm>();
-}
-
-
-void GenericParsingHandler::prepareToModifyData(ParserState *state, Int levelIndex)
-{
-  if (state->isDataShared(levelIndex)) {
-    // Duplicate the data.
-    auto data = state->getData(levelIndex);
-    if (data != 0) state->setData(Core::Data::Ast::clone(data), levelIndex);
-  }
 }
 
 } // namespace

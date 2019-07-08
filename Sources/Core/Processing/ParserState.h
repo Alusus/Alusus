@@ -135,12 +135,12 @@ class ParserState
   //============================================================================
   // Constructors / Destructor
 
-  protected: ParserState();
+  public: ParserState();
 
-  protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                          Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::Module *rootModule);
 
-  protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                          Word reservedVarCount, Word reservedVarLevelCount, const Data::Grammar::Context *context);
 
   public: ~ParserState()
@@ -425,12 +425,6 @@ class ParserState
   public: SharedPtr<TiObject> const& getData(Int levelOffset = -1) const
   {
     return this->dataStack.get(levelOffset);
-  }
-
-  /// Checks whether another SharedPtr is sharing the data at a given level.
-  public: Bool isDataShared(Int levelOffset = -1) const
-  {
-    return this->dataStack.isShared(levelOffset);
   }
 
   /// @}
