@@ -127,8 +127,6 @@ class ParserState
    */
   private: Int tokensToLive;
 
-  private: Int decisionNodeIndex;
-
   private: Data::Grammar::List *errorSyncBlockPairs;
 
   private: std::vector<Int> errorSyncBlockStack;
@@ -217,16 +215,6 @@ class ParserState
   public: ParserProcessingStatus getPrevProcessingStatus() const
   {
     return this->prevProcessingStatus;
-  }
-
-  protected: void setDecisionNodeIndex(Int i)
-  {
-    this->decisionNodeIndex = i;
-  }
-
-  protected: Int getDecisionNodeIndex() const
-  {
-    return this->decisionNodeIndex;
   }
 
   /// @}

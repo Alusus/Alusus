@@ -820,7 +820,7 @@ void StandardFactory::createStatementsProductionModule()
       {S("terms"), List::create({}, {
         MultiplyTerm::create({
           {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ERROR_SYNC_TERM)},
           {S("max"), std::make_shared<TiInt>(1)}
         }, {
           {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Stmt")) }})}

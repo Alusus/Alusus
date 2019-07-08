@@ -53,4 +53,6 @@ Module [Main.ModuleStatements.StmtList]
    argTypes: NULL
    retType: Identifier: Void [Main.FuncSigSubject.Identifier]
   body: Scope [Main.BlockStatements.StmtList]
+   ReturnStatement [Main.Return]
+    operand: Identifier: a [Main.Subject.Identifier]
 ------------------------------------------------------

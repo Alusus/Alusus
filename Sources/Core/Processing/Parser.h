@@ -76,8 +76,6 @@ class Parser : public TiObject
    */
   private: ParserState tempState;
 
-  private: DecisionNodePool decisionNodes;
-
   /**
    * @brief Specifies whether an UnexpectedTokenNotice has already been raised.
    *
@@ -207,22 +205,15 @@ class Parser : public TiObject
   /// @{
 
   /// Compute the list of possible routes to take at a duplicate term.
-  private: void computePossibleMultiplyRoutes(Data::Token const *token, ParserState *state);
-  private: Bool computeInnerMultiplyRoute(
-    Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm
-  );
-  private: Bool computeOuterMultiplyRoute(
-    Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm, TiInt *priority
-  );
-
+  private: Int computePossibleMultiplyRoutes(Data::Token const *token, ParserState *state);
 
   /// Compute the list of possible routes to take at an alternative term.
-  private: void computePossibleAlternativeRoutes(Data::Token const *token, ParserState *state);
+  private: Int computePossibleAlternativeRoutes(Data::Token const *token, ParserState *state);
 
   private: Int matchParsingDimensionEntry(Data::Token const *token);
 
   /// Test the route taken by the given state.
-  private: Int testState(Data::Token const *token, ParserState *state);
+  private: void testState(Data::Token const *token, ParserState *state);
 
   /// Test the given token against a single level within the test state.
   private: void testStateLevel(Data::Token const *token, ParserState *state);

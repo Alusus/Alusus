@@ -264,7 +264,6 @@ s_enum(ParsingFlags,
 #include "ParserModifierLevel.h"
 #include "ParserState.h"
 #include "ParsingHandler.h"
-#include "DecisionNodePool.h"
 #include "Parser.h"
 
 // Streams

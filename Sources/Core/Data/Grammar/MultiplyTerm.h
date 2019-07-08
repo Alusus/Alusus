@@ -45,7 +45,8 @@ class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObj
   //============================================================================
   // Types
 
-  public: typedef std::unordered_map<Word, Bool> IdBasedDecisionCache;
+  public: typedef std::unordered_map<Str, Int, std::hash<std::string>> TextBasedDecisionCache;
+  public: typedef std::unordered_map<Word, Int> IdBasedDecisionCache;
 
 
   //============================================================================
@@ -59,7 +60,7 @@ class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObj
 
   private: TioSharedPtr priority;
 
-  private: PlainMap<TiObject> innerTextBasedDecisionCache = { true };
+  private: TextBasedDecisionCache innerTextBasedDecisionCache;
 
   private: IdBasedDecisionCache innerIdBasedDecisionCache;
 
@@ -156,7 +157,7 @@ class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObj
     return this->priority;
   }
 
-  public: PlainMap<TiObject>* getInnerTextBasedDecisionCache()
+  public: TextBasedDecisionCache* getInnerTextBasedDecisionCache()
   {
     return &this->innerTextBasedDecisionCache;
   }

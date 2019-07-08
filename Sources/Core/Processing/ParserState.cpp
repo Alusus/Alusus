@@ -29,8 +29,7 @@ ParserState::ParserState() :
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1),
-  errorSyncBlockPairs(0),
-  decisionNodeIndex(-1)
+  errorSyncBlockPairs(0)
 {
   this->grammarContext.setRoot(0);
   this->grammarContext.setModule(0);
@@ -53,8 +52,7 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1),
-  errorSyncBlockPairs(0),
-  decisionNodeIndex(-1)
+  errorSyncBlockPairs(0)
 {
   this->termStack.resize(0);
   this->prodStack.resize(0);
@@ -79,8 +77,7 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1),
-  errorSyncBlockPairs(0),
-  decisionNodeIndex(-1)
+  errorSyncBlockPairs(0)
 {
   this->termStack.resize(0);
   this->prodStack.resize(0);
