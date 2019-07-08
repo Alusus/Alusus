@@ -14,7 +14,7 @@
 #ifndef CORE_PROCESSING_PROCESSING_H
 #define CORE_PROCESSING_PROCESSING_H
 
-namespace Core { namespace Processing
+namespace Core::Processing
 {
 
 /**
@@ -91,7 +91,13 @@ namespace Core { namespace Processing
  * @brief The maximum number of entries in the states array.
  * @ingroup core_processing
  */
-#define LEXER_STATES_ARRAY_MAX_SIZE	128
+#define LEXER_STATES_ARRAY_MAX_SIZE	64
+
+/**
+ * @brief The maximum size of the lexer state levels stack.
+ * @ingroup core_processing
+ */
+#define LEXER_STATE_LEVEL_MAX_COUNT 64
 
 /**
  * @brief The maximum number of characters in the error buffer.
@@ -240,7 +246,7 @@ s_enum(ParsingFlags,
   PASS_ITEMS_UP = 64
 );
 
-} } // namespace
+} // namespace
 
 
 //==============================================================================

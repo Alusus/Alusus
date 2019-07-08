@@ -19,15 +19,16 @@ namespace Core::Data::Grammar
 // TODO: DOC
 
 class Module : public SharedMapBase<TiObject, Node>,
-               public DataHaving, public Binding, public Inheriting, public IdHaving
+               public Binding, public Inheriting, public IdHaving
 {
   //============================================================================
   // Type Info
 
   typedef SharedMapBase<TiObject, Node> _MyBase;
   TYPE_INFO(Module, _MyBase, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(DataHaving, Binding, Inheriting, IdHaving)
+    INHERITANCE_INTERFACES(Binding, Inheriting, IdHaving)
   ));
+  OBJECT_FACTORY(Module);
 
 
   //============================================================================
@@ -272,14 +273,6 @@ class Module : public SharedMapBase<TiObject, Node>,
   {
     return this->getBaseModule();
   }
-
-  /// @}
-
-  /// @name DataHaving Implementation
-  /// @{
-
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to);
 
   /// @}
 

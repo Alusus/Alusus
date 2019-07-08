@@ -31,7 +31,6 @@ class Context : public TiObject, public MapContaining<TiObject>
 
   private: Module *root = 0;
   private: Module *module = 0;
-  private: Module *bmodule = 0;
   private: VariableStack *stack = 0;
   private: TiObject *args = 0;
 
@@ -54,7 +53,6 @@ class Context : public TiObject, public MapContaining<TiObject>
   {
     this->root = context->getRoot();
     this->module = context->getModule();
-    this->bmodule = context->getBmodule();
     this->stack = context->getStack();
     this->args = context->getArgs();
   }
@@ -72,18 +70,11 @@ class Context : public TiObject, public MapContaining<TiObject>
   public: void setModule(Module *m)
   {
     this->module = m;
-    if (this->module != 0) this->bmodule = m->getBaseModule();
-    else this->bmodule = 0;
   }
 
   public: Module* getModule() const
   {
     return this->module;
-  }
-
-  public: Module* getBmodule() const
-  {
-    return this->bmodule;
   }
 
   public: void setStack(VariableStack *s)
@@ -111,73 +102,45 @@ class Context : public TiObject, public MapContaining<TiObject>
   /// @name Misc Functions
   /// @{
 
-  public: TiObject* traceValue(TiObject *val)
-  {
-    TiObject *retVal;
-    Module *retModule;
-    this->traceValue(val, retVal, retModule);
-    return retVal;
-  }
-
-  public: void traceValue(TiObject *val, TiObject *&retVal, Module *&retModule)
-  {
-    this->traceValue(val, 0, retVal, retModule);
-  }
-
-  public: TiObject* traceValue(TiObject *val, Module *module)
-  {
-    TiObject *retVal;
-    Module *retModule;
-    this->traceValue(val, module, retVal, retModule);
-    return retVal;
-  }
-
-  public: void traceValue(TiObject *val, Module *module, TiObject *&retVal, Module *&retModule);
+  public: TiObject* traceValue(TiObject *val);
 
   /// @}
 
   /// @name Term Helper Functions
   /// @{
 
-  public: void getListTermData(ListTerm *term, PlainPairedPtr &retVal, Module *module=0);
+  public: TiObject* getListTermFilter(ListTerm *term);
 
-  public: Word getListTermChildCount(ListTerm *term, PlainPairedPtr const &listData) const;
+  public: Word getListTermChildCount(ListTerm *term, TiObject *listFilter) const;
 
-  public: void getListTermChild(ListTerm *term, Int index, PlainPairedPtr &listData,
-                                Term *&retTerm, PlainPairedPtr &retData) const;
+  public: Term* getListTermChild(ListTerm *term, Int index, TiObject *listFilter) const;
 
-  public: void useListTermChild(ListTerm *term, Int index, PlainPairedPtr &listData,
-                                Term *&retTerm, PlainPairedPtr *retData);
+  public: TiInt* getTokenTermId(TokenTerm *term);
 
-  public: TiInt* getTokenTermId(TokenTerm *term, Module *module=0);
+  public: TiObject* getTokenTermText(TokenTerm *term);
 
-  public: TiObject* getTokenTermText(TokenTerm *term, Module *module=0);
+  public: CharGroupDefinition* getReferencedCharGroup(Reference const *ref);
 
-  public: void getReferencedCharGroup(Reference const *ref, CharGroupDefinition *&charGroupDef, Module *module=0);
+  public: SymbolDefinition* getReferencedSymbol(Reference const *ref);
 
-  public: void getReferencedSymbol(Reference const *ref, Module *&retModule, SymbolDefinition *&retDef,
-                                   Module *module=0);
+  public: TiInt* getMultiplyTermMax(MultiplyTerm *term);
 
-  public: TiInt* getMultiplyTermMax(MultiplyTerm *term, Module *module=0);
+  public: TiInt* getMultiplyTermMin(MultiplyTerm *term);
 
-  public: TiInt* getMultiplyTermMin(MultiplyTerm *term, Module *module=0);
+  public: TiInt* getMultiplyTermPriority(MultiplyTerm *term);
 
-  public: TiInt* getMultiplyTermPriority(MultiplyTerm *term, Module *module=0);
-
-  public: TiInt* getTermFlags(Term *term, Module *module=0);
+  public: TiInt* getTermFlags(Term *term);
 
   /// @}
 
   /// @name Symbol Definition Helper Functions
   /// @{
 
-  public: Term* getSymbolTerm(SymbolDefinition const *definition, Module *module=0);
+  public: Map* getSymbolVars(SymbolDefinition const *definition);
 
-  public: Map* getSymbolVars(SymbolDefinition const *definition, Module *module=0);
+  public: TiInt* getSymbolPriority(SymbolDefinition const *definition);
 
-  public: TiInt* getSymbolPriority(SymbolDefinition const *definition, Module *module=0);
-
-  public: TiInt* getSymbolFlags(SymbolDefinition const *definition, Module *module=0);
+  public: TiInt* getSymbolFlags(SymbolDefinition const *definition);
 
   /// @}
 
@@ -198,7 +161,7 @@ class Context : public TiObject, public MapContaining<TiObject>
 
   public: virtual Word getElementCount() const
   {
-    return 5;
+    return 4;
   }
 
   public: virtual TiObject* getElement(Int index) const;

@@ -26,6 +26,7 @@ class OutfixOperator : public Node,
 
   TYPE_INFO(OutfixOperator, Node, "Core.Data.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving);
+  OBJECT_FACTORY(OutfixOperator);
 
 
   //============================================================================
@@ -104,25 +105,15 @@ class OutfixOperator : public Node,
 // Macros
 
 #define DEFINE_AST_OUTFIX_OPERATOR(X) \
-  class X : public OutfixOperator, public Clonable, public Printable \
+  class X : public OutfixOperator, public Printable \
   { \
     TYPE_INFO(X, OutfixOperator, "Core.Data.Ast", "Core", "alusus.org"); \
-    IMPLEMENT_INTERFACES_2(OutfixOperator, Clonable, Printable); \
+    IMPLEMENT_INTERFACES(OutfixOperator, Printable); \
+    OBJECT_FACTORY(X); \
     IMPLEMENT_AST_MAP_PRINTABLE(X, << this->type.get()); \
     IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_MAP_CONSTRUCTOR(X); \
-    public: virtual SharedPtr<TiObject> clone() const \
-    { \
-      SharedPtr<X> newObject = std::make_shared<X>(); \
-      newObject->setProdId(this->getProdId()); \
-      for (Word i = 0; i < this->getElementCount(); ++i) { \
-        newObject->setElement(i, this->getElement(i)); \
-      } \
-      newObject->setType(this->type); \
-      newObject->setSourceLocation(this->getSourceLocation()); \
-      return newObject; \
-    } \
   }
 
 } // namespace

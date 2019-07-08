@@ -321,7 +321,7 @@ Bool FunctionParsingHandler::processExpnameModifier(
   } else {
     // We need to clone the function before making changes to it.
     if (definition != 0) {
-      auto clonedFunction = function->clone();
+      auto clonedFunction = Core::Data::Ast::clone(getSharedPtr(function));
       definition->setTarget(clonedFunction);
       function = clonedFunction.s_cast_get<Spp::Ast::Function>();
     } else {

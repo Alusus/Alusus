@@ -30,251 +30,212 @@ void GrammarFactory::createGrammar(
 ) {
   this->setRootScope(rootScope);
 
-  // Create leading commands.
+  Core::Data::clearCaches(rootScope);
 
-  auto leadingCmdList = this->getLeadingCommandsList();
-  auto innerCmdList = this->getInnerCommandsList();
-  auto tildeCmdList = this->getTildeCommandsList();
+  // Add additional keywords.
+  this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
+    S("root.LexerDefs.Identifier.handler")
+  )->addKeywords({
+    S("if"), S("إذا"),
+    S("while"), S("بينما"),
+    S("for"), S("لكل"),
+    S("continue"), S("أكمل"),
+    S("break"), S("اقطع"),
+    S("return"), S("أرجع"), S("ارجع"),
+    S("module"), S("وحدة"),
+    S("type"), S("صنف"),
+    S("func"), S("function"), S("دالّة"), S("دالة"),
+    S("macro"), S("ماكرو"),
+    S("ptr"), S("مؤشر"),
+    S("cnt"), S("محتوى"),
+    S("cast"), S("مثّل"), S("مثل"),
+    S("size"), S("حجم"),
+    S("ast"), S("شبم")
+  });
 
   // Add translation for shared modifier.
   this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("shared")));
 
+  // Create leading commands.
+
   //// if = "if" + Expression + Statement + ("else" + Statement)*(0, 1)
-  this->set(S("root.Main.If"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.MultiCmd"))},
-    {S("vars"), Map::create({}, {
-      {S("sections"), List::create({}, {
-        Map::create({}, {
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-          {S("kwd"), Map::create({}, { { S("if"), 0 }, { S("إذا"), 0 } })},
-          {S("args"), List::create({}, {
-            Map::create({}, {
-              {S("min"), std::make_shared<TiInt>(1)},
-              {S("max"), std::make_shared<TiInt>(1)},
-              {S("pty"), std::make_shared<TiInt>(1)},
-              {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-              {S("prd"), PARSE_REF(S("module.Expression"))}
-            }),
-            Map::create({}, {
-              {S("min"), std::make_shared<TiInt>(1)},
-              {S("max"), std::make_shared<TiInt>(1)},
-              {S("pty"), std::make_shared<TiInt>(1)},
-              {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-              {S("prd"), PARSE_REF(S("module.BlockStatements.Stmt"))}
-            })
-          })}
-        }),
-        Map::create({}, {
-          {S("min"), std::make_shared<TiInt>(0)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
-          {S("kwd"), Map::create({}, { { S("else"), 0 }, { S("وإلا"), 0 } })},
-          {S("args"), List::create({}, {
-            Map::create({}, {
-              {S("min"), std::make_shared<TiInt>(1)},
-              {S("max"), std::make_shared<TiInt>(1)},
-              {S("pty"), std::make_shared<TiInt>(1)},
-              {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-              {S("prd"), PARSE_REF(S("module.BlockStatements.Stmt"))}
-            })
-          })}
-        })
-      })}
-    })},
-    {S("handler"), std::make_shared<Handlers::IfParsingHandler>()}
-  }).get());
-  leadingCmdList->add(PARSE_REF(S("module.If")));
+  this->createCommand(S("root.Main.If"), {
+    {
+      Map::create({}, { { S("if"), 0 }, { S("إذا"), 0 } }),
+      {
+        {
+          PARSE_REF(S("module.Expression")),
+          TiInt::create(1),
+          TiInt::create(1),
+          TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+        },
+        {
+          PARSE_REF(S("module.BlockStatements.Stmt")),
+          TiInt::create(1),
+          TiInt::create(1),
+          TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+        }
+      },
+      TiInt::create(1),
+      TiInt::create(1),
+      TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+    }, {
+      Map::create({}, { { S("else"), 0 }, { S("وإلا"), 0 } }),
+      {
+        {
+          PARSE_REF(S("module.BlockStatements.Stmt")),
+          TiInt::create(1),
+          TiInt::create(1),
+          TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+        }
+      },
+      TiInt::create(0),
+      TiInt::create(1),
+      TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)
+    }
+  }, std::make_shared<Handlers::IfParsingHandler>());
 
   //// while = "while" + Expression + Statement
-  this->set(S("root.Main.While"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("while"), 0 }, { S("بينما"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Expression"))},
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        }),
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.BlockStatements.Stmt"))},
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("handler"), std::make_shared<Handlers::WhileParsingHandler>()}
-  }).get());
-  leadingCmdList->add(PARSE_REF(S("module.While")));
+  this->createCommand(S("root.Main.While"), {{
+    Map::create({}, { { S("while"), 0 }, { S("بينما"), 0 } }),
+    {
+      {
+        PARSE_REF(S("module.Expression")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      },
+      {
+        PARSE_REF(S("module.BlockStatements.Stmt")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, std::make_shared<Handlers::WhileParsingHandler>());
 
   //// for = "for" + Exp + Statement
-  this->set(S("root.Main.For"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("for"), 0 }, { S("لكل"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Expression"))},
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        }),
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.BlockStatements.Stmt"))},
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("handler"), std::make_shared<Handlers::ForParsingHandler>()}
-  }).get());
-  leadingCmdList->add(PARSE_REF(S("module.For")));
+  this->createCommand(S("root.Main.For"), {{
+    Map::create({}, { { S("for"), 0 }, { S("لكل"), 0 } }),
+    {
+      {
+        PARSE_REF(S("module.Expression")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      },
+      {
+        PARSE_REF(S("module.BlockStatements.Stmt")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, std::make_shared<Handlers::ForParsingHandler>());
 
   //// continue = "continue" + Subject.Literal
-  this->set(S("root.Main.Continue"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("continue"), 0 }, { S("أكمل"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Subject.Parameter"))},
-          {S("min"), std::make_shared<TiInt>(0)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
-      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
-      auto continueStatement = Ast::ContinueStatement::create({
-        { S("prodId"), metadata->getProdId() },
-        { S("sourceLocation"), metadata->findSourceLocation() }
-      });
-      if (currentList != 0) {
-        auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->getElement(1));
-        if (currentList->getElement(1) != 0 && intLiteral == 0) {
-          state->addNotice(
-            std::make_shared<Spp::Notices::InvalidContinueStatementNotice>(metadata->findSourceLocation())
-          );
-          state->setData(SharedPtr<TiObject>(0));
-          return;
-        }
-        continueStatement->setSteps(getSharedPtr(intLiteral));
+  this->createCommand(S("root.Main.Continue"), {{
+    Map::create({}, { { S("continue"), 0 }, { S("أكمل"), 0 } }),
+    {{
+      PARSE_REF(S("module.Subject.Parameter")),
+      TiInt::create(0),
+      TiInt::create(1),
+      TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+    }}
+  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
+    auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+    auto continueStatement = Ast::ContinueStatement::create({
+      { S("prodId"), metadata->getProdId() },
+      { S("sourceLocation"), metadata->findSourceLocation() }
+    });
+    if (currentList != 0) {
+      auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->getElement(1));
+      if (currentList->getElement(1) != 0 && intLiteral == 0) {
+        state->addNotice(
+          std::make_shared<Spp::Notices::InvalidContinueStatementNotice>(metadata->findSourceLocation())
+        );
+        state->setData(SharedPtr<TiObject>(0));
+        return;
       }
-      state->setData(continueStatement);
-    })}
-  }).get());
-  leadingCmdList->add(PARSE_REF(S("module.Continue")));
+      continueStatement->setSteps(getSharedPtr(intLiteral));
+    }
+    state->setData(continueStatement);
+  }));
 
   //// break = "break" + Subject.Literal
-  this->set(S("root.Main.Break"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("break"), 0 }, { S("اقطع"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Subject.Parameter"))},
-          {S("min"), std::make_shared<TiInt>(0)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
-      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
-      auto breakStatement = Ast::BreakStatement::create({
-        { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->findSourceLocation() }
-      });
-      if (currentList != 0) {
-        auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->getElement(1));
-        if (currentList->getElement(1) != 0 && intLiteral == 0) {
-          state->addNotice(std::make_shared<Spp::Notices::InvalidBreakStatementNotice>(metadata->findSourceLocation()));
-          state->setData(SharedPtr<TiObject>(0));
-          return;
-        }
-        breakStatement->setSteps(getSharedPtr(intLiteral));
+  this->createCommand(S("root.Main.Break"), {{
+    Map::create({}, { { S("break"), 0 }, { S("اقطع"), 0 } }),
+    {{
+      PARSE_REF(S("module.Subject.Parameter")),
+      TiInt::create(0),
+      TiInt::create(1),
+      TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+    }}
+  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
+    auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+    auto breakStatement = Ast::BreakStatement::create({
+      { "prodId", metadata->getProdId() },
+      { "sourceLocation", metadata->findSourceLocation() }
+    });
+    if (currentList != 0) {
+      auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->getElement(1));
+      if (currentList->getElement(1) != 0 && intLiteral == 0) {
+        state->addNotice(std::make_shared<Spp::Notices::InvalidBreakStatementNotice>(metadata->findSourceLocation()));
+        state->setData(SharedPtr<TiObject>(0));
+        return;
       }
-      state->setData(breakStatement);
-    })}
-  }).get());
-  leadingCmdList->add(PARSE_REF(S("module.Break")));
+      breakStatement->setSteps(getSharedPtr(intLiteral));
+    }
+    state->setData(breakStatement);
+  }));
 
   //// return = "return" + Expression
-  this->set(S("root.Main.Return"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("return"), 0 }, { S("أرجع"), 0 }, { S("ارجع"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Expression"))},
-          {S("min"), std::make_shared<TiInt>(0)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
-      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
-      auto returnStatement = Ast::ReturnStatement::create({
-        { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->findSourceLocation() }
-      });
-      if (currentList != 0) {
-        returnStatement->setOperand(getSharedPtr(currentList->getElement(1)));
-      }
-      state->setData(returnStatement);
-    })}
-  }).get());
-  leadingCmdList->add(PARSE_REF(S("module.Return")));
+  this->createCommand(S("root.Main.Return"), {{
+    Map::create({}, { { S("return"), 0 }, { S("أرجع"), 0 }, { S("ارجع"), 0 } }),
+    {{
+      PARSE_REF(S("module.Expression")),
+      TiInt::create(0),
+      TiInt::create(1),
+      TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+    }}
+  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
+    auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+    auto returnStatement = Ast::ReturnStatement::create({
+      { "prodId", metadata->getProdId() },
+      { "sourceLocation", metadata->findSourceLocation() }
+    });
+    if (currentList != 0) {
+      returnStatement->setOperand(getSharedPtr(currentList->getElement(1)));
+    }
+    state->setData(returnStatement);
+  }));
 
   // Create inner commands.
 
   //// module = "module" + Set
-  this->set(S("root.Main.Module"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("module"), 0 }, { S("وحدة"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
-          {S("min"), std::make_shared<TiInt>(0)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
-        }),
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.ModuleBody"))},
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("modifierTranslations"), Map::create({}, {
-      {S("دمج"), TiStr::create(S("merge"))}
-    })},
-    {S("handler"), std::make_shared<Handlers::ModuleParsingHandler>() }
-  }).get());
-  innerCmdList->add(PARSE_REF(S("module.Module")));
+  this->createCommand(S("root.Main.Module"), {{
+    Map::create({}, { { S("module"), 0 }, { S("وحدة"), 0 } }),
+    {
+      {
+        PARSE_REF(S("module.Subject.Identifier")),
+        TiInt::create(0),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+      },
+      {
+        PARSE_REF(S("module.ModuleBody")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, std::make_shared<Handlers::ModuleParsingHandler>());
+  this->set(S("root.Main.Module.modifierTranslations"), Map::create({}, {
+    {S("دمج"), TiStr::create(S("merge"))}
+  }));
   this->set(S("root.Main.ModuleBody"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("root.Set"))},
   }, {
@@ -283,114 +244,99 @@ void GrammarFactory::createGrammar(
     })}
   }).get());
   this->set(S("root.Main.ModuleStatements"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Statements"))}
+    {S("baseRef"), PARSE_REF(S("module.owner.Statements"))}
   }));
   this->set(S("root.Main.ModuleStatements.StmtList"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.StmtList"))},
+    {S("baseRef"), PARSE_REF(S("module.base.StmtList"))},
   }, {
     {S("handler"), ScopeParsingHandler<Spp::Ast::Module>::create()}
   }).get());
 
   //// type = "type" + Set
-  this->set(S("root.Main.Type"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("type"), 0 }, { S("صنف"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
-          {S("min"), std::make_shared<TiInt>(0)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
-        }),
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.BlockSet"))},
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("modifierTranslations"), Map::create({}, {
-      {S("دمج"), TiStr::create(S("merge"))}
-    })},
-    {S("handler"), std::make_shared<Handlers::TypeParsingHandler>() }
-  }).get());
-  innerCmdList->add(PARSE_REF(S("module.Type")));
+  this->createCommand(S("root.Main.Type"), {{
+    Map::create({}, { { S("type"), 0 }, { S("صنف"), 0 } }),
+    {
+      {
+        PARSE_REF(S("module.Subject.Identifier")),
+        TiInt::create(0),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+      },
+      {
+        PARSE_REF(S("module.BlockSet")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, std::make_shared<Handlers::TypeParsingHandler>());
+  this->set(S("root.Main.Type.modifierTranslations"), Map::create({}, {
+    {S("دمج"), TiStr::create(S("merge"))}
+  }));
 
   // Function
-  this->set(S("root.Main.Function"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("func"), 0 }, { S("function"), 0 }, { S("دالّة"), 0 }, { S("دالة"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
-          {S("min"), std::make_shared<TiInt>(0)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
-        }),
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.FuncSigExpression"))},
-          {S("min"), std::make_shared<TiInt>(0)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
-        }),
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.BlockSet"))},
-          {S("min"), std::make_shared<TiInt>(0)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("modifierTranslations"), Map::create({}, {
-      {S("تصدير"), TiStr::create(S("expname"))},
-      {S("مشترك"), TiStr::create(S("shared"))}
-    })},
-    {S("handler"), std::make_shared<Handlers::FunctionParsingHandler>() }
-  }).get());
-  innerCmdList->add(PARSE_REF(S("module.Function")));
+  this->createCommand(S("root.Main.Function"), {{
+    Map::create({}, { { S("func"), 0 }, { S("function"), 0 }, { S("دالّة"), 0 }, { S("دالة"), 0 } }),
+    {
+      {
+        PARSE_REF(S("module.Subject.Identifier")),
+        TiInt::create(0),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+      },
+      {
+        PARSE_REF(S("module.FuncSigExpression")),
+        TiInt::create(0),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+      },
+      {
+        PARSE_REF(S("module.BlockSet")),
+        TiInt::create(0),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, std::make_shared<Handlers::FunctionParsingHandler>());
+  this->set(S("root.Main.Function.modifierTranslations"), Map::create({}, {
+    {S("تصدير"), TiStr::create(S("expname"))},
+    {S("مشترك"), TiStr::create(S("shared"))}
+  }));
 
   // FuncSigExpression
   this->set(S("root.Main.FuncSigExpression"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Expression")) },
+    {S("baseRef"), PARSE_REF(S("module.owner.Expression")) },
     {S("startRef"), PARSE_REF(S("module.LowerLinkExp"))}
   }, {
     {S("subject"), PARSE_REF(S("module.owner.FuncSigSubject"))}
   }).get());
   this->set(S("root.Main.FuncSigExpression.LowerLinkExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.LowerLinkExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.LowerLinkExp"))},
   }, {
     {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(1)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.LowLinkExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.LowLinkExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.LowLinkExp"))},
   }, {
     {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(1)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.AddExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.AddExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.AddExp"))},
   }, {
     {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.MulExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.MulExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.MulExp"))},
   }, {
     {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.BitwiseExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.BitwiseExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.BitwiseExp"))},
   }, {
     {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.UnaryExp"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.UnaryExp"))},
+    {S("baseRef"), PARSE_REF(S("module.base.UnaryExp"))},
   }, {
     {S("vars"), Map::create({}, {
       {S("enable1"), std::make_shared<TiInt>(0)},
@@ -399,10 +345,10 @@ void GrammarFactory::createGrammar(
   }).get());
 
   this->set(S("root.Main.FuncSigSubject"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Subject")) }
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
   }).get());
   this->set(S("root.Main.FuncSigSubject.Sbj"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
+    {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
   }, {
     {S("vars"), Map::create({}, {
       {S("sbj1"), PARSE_REF(S("module.Parameter"))},
@@ -415,43 +361,35 @@ void GrammarFactory::createGrammar(
   }).get());
 
   // Macro
-  this->set(S("root.Main.Macro"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("macro"), 0 }, { S("ماكرو"), 0 } })},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Subject.Identifier"))},
-          {S("min"), std::make_shared<TiInt>(0)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
-        }),
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.MacroSignature"))},
-          {S("min"), std::make_shared<TiInt>(0)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)}
-        }),
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.Expression"))},
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("handler"), std::make_shared<Handlers::MacroParsingHandler>() }
-  }).get());
-  innerCmdList->add(PARSE_REF(S("module.Macro")));
+  this->createCommand(S("root.Main.Macro"), {{
+    Map::create({}, { { S("macro"), 0 }, { S("ماكرو"), 0 } }),
+    {
+      {
+        PARSE_REF(S("module.Subject.Identifier")),
+        TiInt::create(0),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+      },
+      {
+        PARSE_REF(S("module.MacroSignature")),
+        TiInt::create(0),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+      },
+      {
+        PARSE_REF(S("module.Expression")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, std::make_shared<Handlers::MacroParsingHandler>());
   // Macro Signature
   this->set(S("root.Main.MacroSignature"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Subject")) }
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
   }).get());
   this->set(S("root.Main.MacroSignature.Sbj"), SymbolDefinition::create({
-   {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
+   {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
   }, {
     {S("vars"), Map::create({}, {
       {S("sbj1"), PARSE_REF(S("module.expression"))},
@@ -473,19 +411,19 @@ void GrammarFactory::createGrammar(
   }).get());
   // BlockStatements
   this->set(S("root.Main.BlockStatements"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Statements"))}
+    {S("baseRef"), PARSE_REF(S("module.owner.Statements"))}
   }, {
     {S("expression"), PARSE_REF(S("module.owner.BlockExpression"))}
   }));
   // BlockSubject
   this->set(S("root.Main.BlockSubject"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Subject")) }
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
   }, {
     {S("set"), PARSE_REF(S("module.owner.BlockSet"))}
   }).get());
   // BlockExpression
   this->set(S("root.Main.BlockExpression"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Expression")) }
+    {S("baseRef"), PARSE_REF(S("module.owner.Expression")) }
   }, {
     {S("subject"), PARSE_REF(S("module.owner.BlockSubject"))}
   }).get());
@@ -493,48 +431,34 @@ void GrammarFactory::createGrammar(
   // Create tilde commands.
 
   // ~ptr
-  this->set(S("root.Main.PointerTilde"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("ptr"), 0 }, { S("مؤشر"), 0 } })},
-      {S("prms"), List::create() }
-    })},
-    {S("handler"), Spp::Handlers::TildeOpParsingHandler<Spp::Ast::PointerOp>::create() }
-  }).get());
-  tildeCmdList->add(PARSE_REF(S("module.PointerTilde")));
+  this->createCommand(S("root.Main.PointerTilde"), {{
+    Map::create({}, { { S("ptr"), 0 }, { S("مؤشر"), 0 } }),
+    {
+    }
+  }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::PointerOp>::create());
   // ~cnt
-  this->set(S("root.Main.ContentTilde"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("cnt"), 0 }, { S("محتوى"), 0 } })},
-      {S("prms"), List::create() }
-    })},
-    {S("handler"), Spp::Handlers::TildeOpParsingHandler<Spp::Ast::ContentOp>::create() }
-  }).get());
-  tildeCmdList->add(PARSE_REF(S("module.ContentTilde")));
+  this->createCommand(S("root.Main.ContentTilde"), {{
+    Map::create({}, { { S("cnt"), 0 }, { S("محتوى"), 0 } }),
+    {
+    }
+  }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::ContentOp>::create());
   // ~cast
-  this->set(S("root.Main.CastTilde"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, {{S("cast"), 0}, {S("مثّل"), 0}, {S("مثل"), 0}})},
-      {S("prms"), List::create({}, {
-        Map::create({}, {
-          {S("prd"), PARSE_REF(S("module.CastSubject"))},
-          {S("min"), std::make_shared<TiInt>(1)},
-          {S("max"), std::make_shared<TiInt>(1)},
-          {S("pty"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)}
-        })
-      })}
-    })},
-    {S("handler"), Spp::Handlers::TildeOpParsingHandler<Spp::Ast::CastOp>::create() }
-  }).get());
-  tildeCmdList->add(PARSE_REF(S("module.CastTilde")));
+  this->createCommand(S("root.Main.CastTilde"), {{
+    Map::create({}, {{S("cast"), 0}, {S("مثّل"), 0}, {S("مثل"), 0}}),
+    {
+      {
+        PARSE_REF(S("module.CastSubject")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::CastOp>::create());
   this->set(S("root.Main.CastSubject"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.Subject")) }
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
   }).get());
   this->set(S("root.Main.CastSubject.Sbj"), SymbolDefinition::create({
-   {S("baseRef"), PARSE_REF(S("bmodule.Sbj"))},
+   {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
   }, {
     {S("vars"), Map::create({}, {
       {S("sbj1"), PARSE_REF(S("module.expression"))},
@@ -546,25 +470,43 @@ void GrammarFactory::createGrammar(
     })}
   }).get());
   // ~size
-  this->set(S("root.Main.SizeTilde"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("size"), 0 }, { S("حجم"), 0 } })},
-      {S("prms"), List::create() }
-    })},
-    {S("handler"), Spp::Handlers::TildeOpParsingHandler<Spp::Ast::SizeOp>::create() }
-  }).get());
-  tildeCmdList->add(PARSE_REF(S("module.SizeTilde")));
-  // ~ptr
-  this->set(S("root.Main.AstRefTilde"), SymbolDefinition::create({}, {
-    {S("term"), PARSE_REF(S("root.Cmd"))},
-    {S("vars"), Map::create({}, {
-      {S("kwd"), Map::create({}, { { S("ast"), 0 }, { S("شبم"), 0 } })},
-      {S("prms"), List::create()}
-    })},
-    {S("handler"), Spp::Handlers::TildeOpParsingHandler<Spp::Ast::AstRefOp>::create() }
-  }).get());
-  tildeCmdList->add(PARSE_REF(S("module.AstRefTilde")));
+  this->createCommand(S("root.Main.SizeTilde"), {{
+    Map::create({}, { { S("size"), 0 }, { S("حجم"), 0 } }),
+    {
+    }
+  }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::SizeOp>::create());
+  // ~ast
+  this->createCommand(S("root.Main.AstRefTilde"), {{
+    Map::create({}, { { S("ast"), 0 }, { S("شبم"), 0 } }),
+    {
+    }
+  }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::AstRefOp>::create());
+
+  // Add command references.
+
+  this->addProdsToGroup(S("root.Main.LeadingCmdGrp"), {
+    PARSE_REF(S("module.If")),
+    PARSE_REF(S("module.While")),
+    PARSE_REF(S("module.For")),
+    PARSE_REF(S("module.Continue")),
+    PARSE_REF(S("module.Break")),
+    PARSE_REF(S("module.Return"))
+  });
+
+  this->addProdsToGroup(S("root.Main.PostfixTildeCmdGrp"), {
+    PARSE_REF(S("module.AstRefTilde")),
+    PARSE_REF(S("module.SizeTilde")),
+    PARSE_REF(S("module.CastTilde")),
+    PARSE_REF(S("module.ContentTilde")),
+    PARSE_REF(S("module.PointerTilde"))
+  });
+
+  this->addProdsToGroup(S("root.Main.SubjectCmdGrp"), {
+    PARSE_REF(S("module.Module")),
+    PARSE_REF(S("module.Type")),
+    PARSE_REF(S("module.Function")),
+    PARSE_REF(S("module.Macro"))
+  });
 }
 
 
@@ -572,33 +514,58 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
 {
   this->setRootScope(rootScope);
 
-  auto leadingCmdList = this->getLeadingCommandsList();
-  auto innerCmdList = this->getInnerCommandsList();
-  auto tildeCmdList = this->getTildeCommandsList();
+  Core::Data::clearCaches(rootScope);
+
+  // Add additional keywords.
+  this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
+    S("root.LexerDefs.Identifier.handler")
+  )->removeKeywords({
+    S("if"), S("إذا"),
+    S("while"), S("بينما"),
+    S("for"), S("لكل"),
+    S("continue"), S("أكمل"),
+    S("break"), S("اقطع"),
+    S("return"), S("أرجع"), S("ارجع"),
+    S("module"), S("وحدة"),
+    S("type"), S("صنف"),
+    S("func"), S("function"), S("دالّة"), S("دالة"),
+    S("macro"), S("ماكرو"),
+    S("ptr"), S("مؤشر"),
+    S("cnt"), S("محتوى"),
+    S("cast"), S("مثّل"), S("مثل"),
+    S("size"), S("حجم"),
+    S("ast"), S("شبم")
+  });
 
   // Add translation for static modifier.
   this->remove(S("root.Main.Def.modifierTranslations.مشترك"));
 
   // Remove commands from tilde commands list.
-  this->removeReferenceFromCommandList(tildeCmdList, S("module.AstRefTilde"));
-  this->removeReferenceFromCommandList(tildeCmdList, S("module.SizeTilde"));
-  this->removeReferenceFromCommandList(tildeCmdList, S("module.CastTilde"));
-  this->removeReferenceFromCommandList(tildeCmdList, S("module.ContentTilde"));
-  this->removeReferenceFromCommandList(tildeCmdList, S("module.PointerTilde"));
+  this->removeProdsFromGroup(S("root.Main.PostfixTildeCmdGrp"), {
+    S("module.AstRefTilde"),
+    S("module.SizeTilde"),
+    S("module.CastTilde"),
+    S("module.ContentTilde"),
+    S("module.PointerTilde")
+  });
 
   // Remove commands from leading commands list.
-  this->removeReferenceFromCommandList(leadingCmdList, S("module.If"));
-  this->removeReferenceFromCommandList(leadingCmdList, S("module.While"));
-  this->removeReferenceFromCommandList(leadingCmdList, S("module.For"));
-  this->removeReferenceFromCommandList(leadingCmdList, S("module.Continue"));
-  this->removeReferenceFromCommandList(leadingCmdList, S("module.Break"));
-  this->removeReferenceFromCommandList(leadingCmdList, S("module.Return"));
+  this->removeProdsFromGroup(S("root.Main.LeadingCmdGrp"), {
+    S("module.If"),
+    S("module.While"),
+    S("module.For"),
+    S("module.Continue"),
+    S("module.Break"),
+    S("module.Return")
+  });
 
   // Remove command from inner commands list.
-  this->removeReferenceFromCommandList(innerCmdList, S("module.Module"));
-  this->removeReferenceFromCommandList(innerCmdList, S("module.Type"));
-  this->removeReferenceFromCommandList(innerCmdList, S("module.Function"));
-  this->removeReferenceFromCommandList(innerCmdList, S("module.Macro"));
+  this->removeProdsFromGroup(S("root.Main.SubjectCmdGrp"), {
+    S("module.Module"),
+    S("module.Type"),
+    S("module.Function"),
+    S("module.Macro")
+  });
 
   // Delete tilde command definitions.
   this->tryRemove(S("root.Main.PointerTilde"));
@@ -632,85 +599,6 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.BlockStatements"));
   this->tryRemove(S("root.Main.BlockSubject"));
   this->tryRemove(S("root.Main.BlockExpression"));
-}
-
-
-List* GrammarFactory::getLeadingCommandsList()
-{
-  TiObject *obj;
-  Core::Data::Grammar::Module *module;
-  if (!this->tryGet(S("root.Main.LeadingCmdGrp"), obj, &module)) {
-    throw EXCEPTION(GenericException, S("Could not find leading command group."));
-  }
-  SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);
-  if (def == 0) {
-    throw EXCEPTION(GenericException, S("Could not find leading command group."));
-  }
-
-  Map *vars = this->context.getSymbolVars(def, module);
-  List *cmd_list = ti_cast<List>(vars->getElement(S("prods")));
-  if (cmd_list == 0) {
-    throw EXCEPTION(GenericException, S("Could not find leading command group's command list."));
-  }
-
-  return cmd_list;
-}
-
-
-List* GrammarFactory::getInnerCommandsList()
-{
-  TiObject *obj;
-  Core::Data::Grammar::Module *module;
-  if (!this->tryGet(S("root.Main.SubjectCmdGrp"), obj, &module)) {
-    throw EXCEPTION(GenericException, S("Could not find inner command group."));
-  }
-  SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);
-  if (def == 0) {
-    throw EXCEPTION(GenericException, S("Could not find inner command group."));
-  }
-
-  Map *vars = this->context.getSymbolVars(def, module);
-  List *cmd_list = ti_cast<List>(vars->getElement(S("prods")));
-  if (cmd_list == 0) {
-    throw EXCEPTION(GenericException, S("Could not find inner command group's command list."));
-  }
-
-  return cmd_list;
-}
-
-
-List* GrammarFactory::getTildeCommandsList()
-{
-  TiObject *obj;
-  Core::Data::Grammar::Module *module;
-  if (!this->tryGet(S("root.Main.PostfixTildeCmdGrp"), obj, &module)) {
-    throw EXCEPTION(GenericException, S("Could not find tilde command group."));
-  }
-  SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);
-  if (def == 0) {
-    throw EXCEPTION(GenericException, S("Could not find tilde command group."));
-  }
-
-  Map *vars = this->context.getSymbolVars(def, module);
-  List *cmd_list = ti_cast<List>(vars->getElement(S("prods")));
-  if (cmd_list == 0) {
-    throw EXCEPTION(GenericException, S("Could not find inner command group's command list."));
-  }
-
-  return cmd_list;
-}
-
-
-void GrammarFactory::removeReferenceFromCommandList(List *cmdList, Char const *qualifier)
-{
-  auto ref = Core::Data::Grammar::createReference(qualifier, &this->referenceCache);
-  for (Int i = 0; i < cmdList->getCount(); ++i) {
-    auto reference = ti_cast<Core::Data::Grammar::Reference>(cmdList->getElement(i));
-    if (ref->isEqual(reference)) {
-      cmdList->remove(i);
-      return;
-    }
-  }
 }
 
 } // namespace

@@ -48,12 +48,10 @@ namespace Core::Data
 {
 
 /**
- * Reset the indexes of all references in a specific range within a tree.
+ * Clear all the caches in the given objects and child objects.
  * @ingroup core_data
- * Call the unsetIndexes method of DataHaving interface, if implemented by
- * the object.
  */
-void unsetIndexes(TiObject *obj, Int from, Int to);
+void clearCaches(TiObject *obj);
 
 /**
  * @brief Find an object in the chain of owners with the given type.
@@ -93,10 +91,8 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
  */
 #define OWN_SHAREDPTR(ptr) \
   { \
-    auto __ptr = (ptr).ti_cast_get<Node>(); \
-    if (__ptr != 0 && __ptr->isDerivedFrom<Node>()) { \
-        __ptr->setOwner(this); \
-    } \
+    auto __ptr = (ptr).ti_cast_get<Core::Data::Node>(); \
+    if (__ptr != 0) { __ptr->setOwner(this); } \
   }
 
 /**
@@ -106,10 +102,8 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
  */
 #define OWN_PLAINPTR(ptr) \
   { \
-    auto __ptr = ptr; \
-    if (__ptr != 0 && __ptr->isDerivedFrom<Node>()) { \
-        ti_cast<Node>(__ptr)->setOwner(this); \
-    } \
+    auto __ptr = (ptr).ti_cast_get<Core::Data::Node>(); \
+    if (__ptr != 0) { __ptr->setOwner(this); } \
   }
 
 /**
@@ -118,10 +112,8 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
  */
 #define DISOWN_SHAREDPTR(ptr) \
   { \
-    auto __ptr = (ptr).ti_cast_get<Node>(); \
-    if (__ptr != 0 && __ptr->isDerivedFrom<Node>() && __ptr->getOwner() == this) { \
-        __ptr->setOwner(0); \
-    } \
+    auto __ptr = (ptr).ti_cast_get<Core::Data::Node>(); \
+    if (__ptr != 0 && __ptr->getOwner() == this) { __ptr->setOwner(0); } \
   }
 
 /**
@@ -131,10 +123,8 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
  */
 #define DISOWN_PLAINPTR(ptr) \
   { \
-    auto __ptr = ti_cast<Node>(ptr); \
-    if (__ptr != 0 && __ptr->isDerivedFrom<Node>() && __ptr->getOwner() == this) { \
-        __ptr->setOwner(0); \
-    } \
+    auto __ptr = ti_cast<Core::Data::Node>(ptr); \
+    if (__ptr != 0 && __ptr->getOwner() == this) { __ptr->setOwner(0); } \
   }
 
 /**
@@ -192,14 +182,12 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
 #include "Node.h"
 
 // Helpers
-#include "paired_pointers.h"
 #include "IdGenerator.h"
 #include "source_location.h"
 
 // Generic Data Interfaces
-#include "DataHaving.h"
+#include "CacheHaving.h"
 #include "IdHaving.h"
-#include "Clonable.h"
 #include "Printable.h"
 
 // Containers

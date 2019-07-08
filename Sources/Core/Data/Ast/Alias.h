@@ -13,18 +13,18 @@
 #ifndef CORE_DATA_AST_ALIAS_H
 #define CORE_DATA_AST_ALIAS_H
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
 class Alias : public Node,
-              public Binding, public MapContaining<TiObject>, public MetaHaving,
-              public Clonable, public Printable
+              public Binding, public MapContaining<TiObject>, public MetaHaving, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Alias, Node, "Core.Data.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Printable);
+  OBJECT_FACTORY(Alias);
 
 
   //============================================================================
@@ -46,8 +46,6 @@ class Alias : public Node,
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (reference, TiObject, SHARED_REF, setReference(value), reference.get())
   );
-
-  IMPLEMENT_AST_LIST_CLONABLE(Scope);
 
 
   //============================================================================
@@ -99,6 +97,6 @@ class Alias : public Node,
 
 }; // class
 
-} } } // namespace
+} // namespace
 
 #endif

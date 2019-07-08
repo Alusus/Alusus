@@ -13,20 +13,20 @@
 #ifndef CORE_DATA_AST_DEFINITION_H
 #define CORE_DATA_AST_DEFINITION_H
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
 // TODO: DOC
 
 class Definition : public Node,
-                   public Binding, public MapContaining<TiObject>, public MetaHaving,
-                   public Clonable, public Printable
+                   public Binding, public MapContaining<TiObject>, public MetaHaving, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Definition, Node, "Core.Data.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Printable);
+  OBJECT_FACTORY(Definition);
 
 
   //============================================================================
@@ -141,18 +141,12 @@ class Definition : public Node,
 
 
   //============================================================================
-  // Clonable Implementation
-
-  public: virtual SharedPtr<TiObject> clone() const;
-
-
-  //============================================================================
   // Printable Implementation
 
   public: virtual void print(OutStream &stream, Int indents=0) const;
 
 }; // class
 
-} } } // namespace
+} // namespace
 
 #endif

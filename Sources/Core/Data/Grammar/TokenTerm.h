@@ -18,14 +18,13 @@ namespace Core::Data::Grammar
 
 // TODO: DOC
 
-class TokenTerm : public Term, public DataHaving
+class TokenTerm : public Term
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(TokenTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(DataHaving)
-  ));
+  TYPE_INFO(TokenTerm, Term, "Core.Data.Grammar", "Core", "alusus.org");
+  OBJECT_FACTORY(TokenTerm);
 
 
   //============================================================================
@@ -54,6 +53,8 @@ class TokenTerm : public Term, public DataHaving
 
   public: virtual ~TokenTerm()
   {
+    RESET_OWNED_SHAREDPTR(this->tokenId);
+    RESET_OWNED_SHAREDPTR(this->tokenText);
   }
 
 
@@ -65,7 +66,7 @@ class TokenTerm : public Term, public DataHaving
     if (id != 0 && !id->isA<TiInt>() && !id->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, S("s"), S("Must be of type TiInt or Reference."));
     }
-    this->tokenId = id;
+    UPDATE_OWNED_SHAREDPTR(this->tokenId, id);
   }
 
   private: void setTokenId(TiObject *id)
@@ -83,7 +84,7 @@ class TokenTerm : public Term, public DataHaving
     if (text != 0 && !text->isA<TiStr>() && !text->isA<Map>() && !text->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, S("text"), S("Must be of type TiStr or Reference."));
     }
-    this->tokenText = text;
+    UPDATE_OWNED_SHAREDPTR(this->tokenText, text);
   }
 
   private: void setTokenText(TiObject *text)
@@ -94,17 +95,6 @@ class TokenTerm : public Term, public DataHaving
   public: SharedPtr<TiObject> const& getTokenText() const
   {
     return this->tokenText;
-  }
-
-
-  //============================================================================
-  // DataHaving Implementation
-
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to)
-  {
-    if (this->tokenId != 0) Data::unsetIndexes(this->tokenId.get(), from, to);
-    if (this->tokenText != 0) Data::unsetIndexes(this->tokenText.get(), from, to);
   }
 
 }; // class

@@ -16,71 +16,71 @@ ERROR CD1003 @ (21,1): Invalid 'def' command.
 Macro [Main.Macro]
  argTypes: Map
   x: NULL
- body: Identifier: x [Subject.Identifier]
+ body: Identifier: x [Main.Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Subject.Identifier]
- body: Identifier: x [Subject.Identifier]
+  x: Identifier: Identifier [Main.Subject.Identifier]
+ body: Identifier: x [Main.Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Subject.Identifier]
- body: Scope [Statements.StmtList]
-  Identifier: x [Subject.Identifier]
+  x: Identifier: Identifier [Main.Subject.Identifier]
+ body: Scope [Main.Statements.StmtList]
+  Identifier: x [Main.Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
   x: NULL
   y: NULL
- body: List [Expression.ListExp]
-  Identifier: x [Subject.Identifier]
-  Identifier: y [Subject.Identifier]
+ body: List [Main.Expression.ListExp]
+  Identifier: x [Main.Subject.Identifier]
+  Identifier: y [Main.Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Subject.Identifier]
-  y: Identifier: String [Subject.Identifier]
- body: List [Expression.ListExp]
-  Identifier: x [Subject.Identifier]
-  Identifier: y [Subject.Identifier]
+  x: Identifier: Identifier [Main.Subject.Identifier]
+  y: Identifier: String [Main.Subject.Identifier]
+ body: List [Main.Expression.ListExp]
+  Identifier: x [Main.Subject.Identifier]
+  Identifier: y [Main.Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Subject.Identifier]
-  y: Identifier: String [Subject.Identifier]
- body: Scope [Statements.StmtList]
-  List [Expression.ListExp]
-   Identifier: x [Subject.Identifier]
-   Identifier: y [Subject.Identifier]
+  x: Identifier: Identifier [Main.Subject.Identifier]
+  y: Identifier: String [Main.Subject.Identifier]
+ body: Scope [Main.Statements.StmtList]
+  List [Main.Expression.ListExp]
+   Identifier: x [Main.Subject.Identifier]
+   Identifier: y [Main.Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Subject.Identifier]
+  x: Identifier: Identifier [Main.Subject.Identifier]
   y: NULL
- body: Scope [Statements.StmtList]
-  List [Expression.ListExp]
-   Identifier: x [Subject.Identifier]
-   Identifier: y [Subject.Identifier]
+ body: Scope [Main.Statements.StmtList]
+  List [Main.Expression.ListExp]
+   Identifier: x [Main.Subject.Identifier]
+   Identifier: y [Main.Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
   x: NULL
-  y: Identifier: String [Subject.Identifier]
- body: Scope [Statements.StmtList]
-  List [Expression.ListExp]
-   Identifier: x [Subject.Identifier]
-   Identifier: y [Subject.Identifier]
+  y: Identifier: String [Main.Subject.Identifier]
+ body: Scope [Main.Statements.StmtList]
+  List [Main.Expression.ListExp]
+   Identifier: x [Main.Subject.Identifier]
+   Identifier: y [Main.Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
- body: StringLiteral: hello [Subject.Literal]
+ body: StringLiteral: hello [Main.Subject.Literal]
 ------------------------------------------------------

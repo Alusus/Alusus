@@ -124,50 +124,60 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   // Int
   auto defaultIntBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ S("bitCount"), Ast::Template::VarType::INTEGER, defaultIntBitCount }});
-  tmplt->setTemplateBody(Ast::IntegerType::create({ { S("withSign"), TiBool(true) } }));
+  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+    std::make_shared<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultIntBitCount)
+  }));
+  tmplt->setBody(Ast::IntegerType::create({ { S("withSign"), TiBool(true) } }));
   identifier.setValue(S("Int"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // Word
   auto defaultWordBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ S("bitCount"), Ast::Template::VarType::INTEGER, defaultWordBitCount }});
-  tmplt->setTemplateBody(Ast::IntegerType::create({ { S("withSign"), TiBool(false) } }));
+  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+    std::make_shared<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultWordBitCount)
+  }));
+  tmplt->setBody(Ast::IntegerType::create({ { S("withSign"), TiBool(false) } }));
   identifier.setValue(S("Word"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // Float
   auto defaultFloatBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ S("bitCount"), Ast::Template::VarType::INTEGER, defaultFloatBitCount }});
-  tmplt->setTemplateBody(Ast::FloatType::create());
+  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+    std::make_shared<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultFloatBitCount)
+  }));
+  tmplt->setBody(Ast::FloatType::create());
   identifier.setValue(S("Float"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // ptr
   tmplt = Ast::Template::create();
   auto defaultPtrType = Core::Data::Ast::Identifier::create({{ S("value"), TiStr(S("Void")) }});
-  tmplt->setVarDefs({{ S("type"), Ast::Template::VarType::TYPE, defaultPtrType }});
-  tmplt->setTemplateBody(Ast::PointerType::create());
+  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+    std::make_shared<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE, defaultPtrType)
+  }));
+  tmplt->setBody(Ast::PointerType::create());
   identifier.setValue(S("ptr"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // ref
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({{ S("type"), Ast::Template::VarType::TYPE }});
-  tmplt->setTemplateBody(Ast::ReferenceType::create());
+  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+    std::make_shared<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
+  }));
+  tmplt->setBody(Ast::ReferenceType::create());
   identifier.setValue(S("ref"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // array
   auto defaultArraySize = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs({
-    { S("type"), Ast::Template::VarType::TYPE },
-    { S("size"), Ast::Template::VarType::INTEGER, defaultArraySize }
-  });
-  tmplt->setTemplateBody(Ast::ArrayType::create());
+  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+    std::make_shared<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE),
+    std::make_shared<Ast::TemplateVarDef>(S("size"), Ast::TemplateVarType::INTEGER, defaultArraySize)
+  }));
+  tmplt->setBody(Ast::ArrayType::create());
   identifier.setValue(S("array"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 }

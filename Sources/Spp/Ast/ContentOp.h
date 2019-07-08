@@ -18,15 +18,17 @@ namespace Spp::Ast
 
 class ContentOp : public Core::Data::Node,
                   public Binding, public MapContaining<TiObject>,
-                  public Core::Data::Ast::MetaHaving, public Core::Data::Clonable,
-                  public Core::Data::Printable
+                  public Core::Data::Ast::MetaHaving, public Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ContentOp, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, MapContaining<TiObject>,
-                                         Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable);
+  IMPLEMENT_INTERFACES(
+    Core::Data::Node, Binding, MapContaining<TiObject>,
+    Core::Data::Ast::MetaHaving, Core::Data::Printable
+  );
+  OBJECT_FACTORY(ContentOp);
 
 
   //============================================================================
@@ -48,8 +50,6 @@ class ContentOp : public Core::Data::Node,
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (operand, TiObject, SHARED_REF, setOperand(value), operand.get())
   );
-
-  IMPLEMENT_AST_CLONABLE(ContentOp);
 
   IMPLEMENT_AST_MAP_PRINTABLE(ContentOp);
 

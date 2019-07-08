@@ -62,6 +62,7 @@ class Term : public Node, public Binding
 
   public: virtual ~Term()
   {
+    RESET_OWNED_SHAREDPTR(this->flags);
   }
 
 
@@ -73,7 +74,7 @@ class Term : public Node, public Binding
     if (f != 0 && !f->isA<TiInt>() && !f->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, S("f"), S("Must be of type TiInt or Reference."));
     }
-    this->flags = f;
+    UPDATE_OWNED_SHAREDPTR(this->flags, f);
   }
 
   private: void setFlags(TiObject *f)

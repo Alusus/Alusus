@@ -20,13 +20,21 @@ namespace Core { namespace Data
 //============================================================================
 // Global Functions
 
-void unsetIndexes(TiObject *obj, Int from, Int to)
+void clearCaches(TiObject *obj)
 {
-  if (obj == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("obj"), S("Obj is null."));
+  if (obj == 0) return;
+  auto dh = ti_cast<CacheHaving>(obj);
+  if (dh != 0) dh->clearCache();
+
+  auto binding = ti_cast<Binding>(obj);
+  if (binding != 0) {
+    for (Int i = 0; i < binding->getMemberCount(); ++i) clearCaches(binding->getMember(i));
   }
-  DataHaving *mt = obj->getInterface<DataHaving>();
-  if (mt != 0) mt->unsetIndexes(from, to);
+
+  auto containing = ti_cast<Containing<TiObject>>(obj);
+  if (containing != 0) {
+    for (Int i = 0; i < containing->getElementCount(); ++i) clearCaches(containing->getElement(i));
+  }
 }
 
 

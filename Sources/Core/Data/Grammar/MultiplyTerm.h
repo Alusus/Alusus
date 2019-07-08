@@ -31,14 +31,21 @@ namespace Core::Data::Grammar
  * Priority can be specified manually, but by default it's for taking the
  * branch rather than quiting the branch.
  */
-class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObject>
+class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(MultiplyTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(DataHaving, MapContaining<TiObject>)
+    INHERITANCE_INTERFACES(CacheHaving, MapContaining<TiObject>)
   ));
+  OBJECT_FACTORY(MultiplyTerm);
+
+
+  //============================================================================
+  // Types
+
+  public: typedef std::unordered_map<Word, Bool> IdBasedDecisionCache;
 
 
   //============================================================================
@@ -51,6 +58,10 @@ class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObje
   private: TioSharedPtr max;
 
   private: TioSharedPtr priority;
+
+  private: PlainMap<TiObject> innerTextBasedDecisionCache = { true };
+
+  private: IdBasedDecisionCache innerIdBasedDecisionCache;
 
 
   //============================================================================
@@ -77,6 +88,9 @@ class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObje
   public: virtual ~MultiplyTerm()
   {
     RESET_OWNED_SHAREDPTR(this->term);
+    RESET_OWNED_SHAREDPTR(this->min);
+    RESET_OWNED_SHAREDPTR(this->max);
+    RESET_OWNED_SHAREDPTR(this->priority);
   }
 
 
@@ -142,12 +156,22 @@ class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObje
     return this->priority;
   }
 
+  public: PlainMap<TiObject>* getInnerTextBasedDecisionCache()
+  {
+    return &this->innerTextBasedDecisionCache;
+  }
+
+  public: IdBasedDecisionCache* getInnerIdBasedDecisionCache()
+  {
+    return &this->innerIdBasedDecisionCache;
+  }
+
 
   //============================================================================
-  // DataHaving Implementation
+  // CacheHaving Implementation
 
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to);
+  /// @sa CacheHaving::clearCache()
+  public: virtual void clearCache();
 
 }; // class
 

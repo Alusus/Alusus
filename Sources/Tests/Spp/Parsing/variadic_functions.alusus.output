@@ -8,59 +8,59 @@ ERROR SPPH1007 @ (47,39): Invalid function arg type.
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Subject.Identifier]
+   x: Identifier: Int [Main.Subject.Identifier]
    args: ArgPack 0 0
-    argType: Identifier: Int [Subject.Identifier]
-  retType: Identifier: void [Subject.Identifier]
- body: Scope [Statements.StmtList]
+    argType: Identifier: Int [Main.Subject.Identifier]
+  retType: Identifier: void [Main.FuncSigSubject.Identifier]
+ body: Scope [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Subject.Identifier]
-   args: ArgPack 0 0
-    argType: NULL
-  retType: Identifier: void [Subject.Identifier]
- body: Scope [Statements.StmtList]
-------------------------------------------------------
------------------- Parsed Data Dump ------------------
-Function  [Main.Function]
- type: FunctionType [Main.Function]
-  argTypes: Map
-   x: Identifier: Int [Subject.Identifier]
-   args: ArgPack 0 0
-    argType: Identifier: Int [Subject.Identifier]
-  retType: Identifier: void [Subject.Identifier]
- body: Scope [Statements.StmtList]
-------------------------------------------------------
------------------- Parsed Data Dump ------------------
-Function  [Main.Function]
- type: FunctionType [Main.Function]
-  argTypes: Map
-   x: Identifier: Int [Subject.Identifier]
+   x: Identifier: Int [Main.Subject.Identifier]
    args: ArgPack 0 0
     argType: NULL
-  retType: Identifier: void [Subject.Identifier]
- body: Scope [Statements.StmtList]
+  retType: Identifier: void [Main.FuncSigSubject.Identifier]
+ body: Scope [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Subject.Identifier]
+   x: Identifier: Int [Main.Subject.Identifier]
+   args: ArgPack 0 0
+    argType: Identifier: Int [Main.Subject.Identifier]
+  retType: Identifier: void [Main.FuncSigSubject.Identifier]
+ body: Scope [Main.BlockStatements.StmtList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
+  argTypes: Map
+   x: Identifier: Int [Main.Subject.Identifier]
+   args: ArgPack 0 0
+    argType: NULL
+  retType: Identifier: void [Main.FuncSigSubject.Identifier]
+ body: Scope [Main.BlockStatements.StmtList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
+  argTypes: Map
+   x: Identifier: Int [Main.Subject.Identifier]
    args: ArgPack 1 5
-    argType: Identifier: Int [Subject.Identifier]
-  retType: Identifier: void [Subject.Identifier]
- body: Scope [Statements.StmtList]
+    argType: Identifier: Int [Main.Subject.Identifier]
+  retType: Identifier: void [Main.FuncSigSubject.Identifier]
+ body: Scope [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Subject.Identifier]
+   x: Identifier: Int [Main.Subject.Identifier]
    args: ArgPack 1 5
     argType: NULL
-  retType: Identifier: void [Subject.Identifier]
- body: Scope [Statements.StmtList]
+  retType: Identifier: void [Main.FuncSigSubject.Identifier]
+ body: Scope [Main.BlockStatements.StmtList]
 ------------------------------------------------------

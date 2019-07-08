@@ -30,7 +30,7 @@ void MultiplyTerm::setMin(SharedPtr<TiObject> const &m)
                     S("Must be of type TiInt or Reference."),
                     min->getMyTypeInfo()->getUniqueName());
   }
-  this->min = m;
+  UPDATE_OWNED_SHAREDPTR(this->min, m);
 }
 
 
@@ -46,7 +46,7 @@ void MultiplyTerm::setMax(SharedPtr<TiObject> const &m)
                     S("Must be of type TiInt or Reference."),
                     max->getMyTypeInfo()->getUniqueName());
   }
-  this->max = m;
+  UPDATE_OWNED_SHAREDPTR(this->max, m);
 }
 
 
@@ -63,19 +63,17 @@ void MultiplyTerm::setPriority(SharedPtr<TiObject> const &p)
                     S("Must be of type TiInt or Reference."),
                     p->getMyTypeInfo()->getUniqueName());
   }
-  this->priority = p;
+  UPDATE_OWNED_SHAREDPTR(this->priority, p);
 }
 
 
 //==============================================================================
-// DataHaving Implementation
+// CacheHaving Implementation
 
-void MultiplyTerm::unsetIndexes(Int from, Int to)
+void MultiplyTerm::clearCache()
 {
-  if (this->term != 0) Data::unsetIndexes(this->term.get(), from, to);
-  if (this->min != 0) Data::unsetIndexes(this->min.get(), from, to);
-  if (this->max != 0) Data::unsetIndexes(this->max.get(), from, to);
-  if (this->priority != 0) Data::unsetIndexes(this->priority.get(), from, to);
+  this->innerTextBasedDecisionCache.clear();
+  this->innerIdBasedDecisionCache.clear();
 }
 
 } // namespace

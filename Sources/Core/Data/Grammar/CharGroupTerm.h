@@ -24,14 +24,13 @@ namespace Core::Data::Grammar
  *
  * This class handles instances of character groups in grammar formulas.
  */
-class CharGroupTerm : public Term, public DataHaving
+class CharGroupTerm : public Term
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(CharGroupTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(DataHaving)
-  ));
+  TYPE_INFO(CharGroupTerm, Term, "Core.Data.Grammar", "Core", "alusus.org");
+  OBJECT_FACTORY(CharGroupTerm);
 
 
   //============================================================================
@@ -57,6 +56,7 @@ class CharGroupTerm : public Term, public DataHaving
 
   public: virtual ~CharGroupTerm()
   {
+    RESET_OWNED_SHAREDPTR(this->charGroupReference);
   }
 
 
@@ -65,7 +65,7 @@ class CharGroupTerm : public Term, public DataHaving
 
   public: void setCharGroupReference(SharedPtr<Reference> const &ref)
   {
-    this->charGroupReference = ref;
+    UPDATE_OWNED_SHAREDPTR(this->charGroupReference, ref);
   }
 
   private: void setCharGroupReference(Reference *ref)
@@ -76,16 +76,6 @@ class CharGroupTerm : public Term, public DataHaving
   public: SharedPtr<Reference> const& getCharGroupReference() const
   {
     return this->charGroupReference;
-  }
-
-
-  //============================================================================
-  // DataHaving Implementation
-
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to)
-  {
-    if (this->charGroupReference != 0) Data::unsetIndexes(this->charGroupReference.get(), from, to);
   }
 
 }; // class

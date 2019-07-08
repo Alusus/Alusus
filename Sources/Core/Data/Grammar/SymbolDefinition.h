@@ -20,14 +20,15 @@ namespace Core::Data::Grammar
 
 class SymbolDefinition : public Node,
                          public Binding, public MapContaining<TiObject>,
-                         public Inheriting, public IdHaving, public DataHaving
+                         public Inheriting, public IdHaving
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(SymbolDefinition, Node, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding, MapContaining<TiObject>, Inheriting, IdHaving, DataHaving)
+    INHERITANCE_INTERFACES(Binding, MapContaining<TiObject>, Inheriting, IdHaving)
   ));
+  OBJECT_FACTORY(SymbolDefinition);
 
 
   //============================================================================
@@ -76,7 +77,7 @@ class SymbolDefinition : public Node,
      */
   private: TioSharedPtr flags;
 
-  private: SharedPtr<Node> term;
+  private: SharedPtr<Term> term;
 
   private: SharedPtr<Node> varDefs;
 
@@ -106,7 +107,7 @@ class SymbolDefinition : public Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (term, Node, SHARED_REF, setTerm(value), term.get()),
+    (term, Term, SHARED_REF, setTerm(value), term.get()),
     (varDefs, Node, SHARED_REF, setVarDefs(value), varDefs.get()),
     (vars, Node, SHARED_REF, setVars(value), vars.get()),
     (attributes, Node, SHARED_REF, setAttributes(value), attributes.get()),
@@ -140,7 +141,7 @@ class SymbolDefinition : public Node,
 
   public: void setBaseRef(SharedPtr<Reference> const &p)
   {
-    this->baseRef = p;
+    UPDATE_OWNED_SHAREDPTR(this->baseRef, p);
   }
   private: void setBaseRef(Reference *p)
   {
@@ -178,7 +179,7 @@ class SymbolDefinition : public Node,
     if (p != 0 && !p->isA<TiInt>() && !p->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, S("p"), S("Must be of type TiInt or Reference."));
     }
-    this->priority = p;
+    UPDATE_OWNED_SHAREDPTR(this->priority, p);
     this->ownership |= SymbolDefinition::Element::PRIORITY;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::PRIORITY);
   }
@@ -190,7 +191,7 @@ class SymbolDefinition : public Node,
 
   public: void resetPriority()
   {
-    this->priority.reset();
+    RESET_OWNED_SHAREDPTR(this->priority);
     if (this->base != 0) this->priority = this->base->getPriority();
     this->ownership &= ~SymbolDefinition::Element::PRIORITY;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::PRIORITY);
@@ -212,7 +213,7 @@ class SymbolDefinition : public Node,
     if (f != 0 && !f->isA<TiInt>() && !f->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, S("f"), S("Must be of type TiInt or Reference."));
     }
-    this->flags = f;
+    UPDATE_OWNED_SHAREDPTR(this->flags, f);
     this->ownership |= SymbolDefinition::Element::FLAGS;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::FLAGS);
   }
@@ -224,7 +225,7 @@ class SymbolDefinition : public Node,
 
   public: void resetFlags()
   {
-    this->flags.reset();
+    RESET_OWNED_SHAREDPTR(this->flags);
     if (this->base != 0) this->flags = this->base->getFlags();
     this->ownership &= ~SymbolDefinition::Element::FLAGS;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::FLAGS);
@@ -239,7 +240,7 @@ class SymbolDefinition : public Node,
     return this->flags;
   }
 
-  public: void setTerm(SharedPtr<Node> const &t)
+  public: void setTerm(SharedPtr<Term> const &t)
   {
     if (!t->isDerivedFrom<Term>() && !t->isDerivedFrom<Reference>()) {
       throw EXCEPTION(InvalidArgumentException, S("t"), S("Must be of type Term or Reference."));
@@ -249,7 +250,7 @@ class SymbolDefinition : public Node,
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::TERM);
   }
 
-  private: void setTerm(Node *t)
+  private: void setTerm(Term *t)
   {
     this->setTerm(getSharedPtr(t));
   }
@@ -262,7 +263,7 @@ class SymbolDefinition : public Node,
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::TERM);
   }
 
-  public: SharedPtr<Node> const& getTerm() const
+  public: SharedPtr<Term> const& getTerm() const
   {
     return this->term;
   }
@@ -385,7 +386,7 @@ class SymbolDefinition : public Node,
      */
   public: void setBuildHandler(SharedPtr<BuildHandler> const &h)
   {
-    UPDATE_OWNED_SHAREDPTR(this->handler, h);
+    this->handler = h;
     this->ownership |= SymbolDefinition::Element::HANDLER;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::HANDLER);
   }
@@ -397,7 +398,7 @@ class SymbolDefinition : public Node,
 
   public: void resetBuildHandler()
   {
-    RESET_OWNED_SHAREDPTR(this->handler);
+    this->handler.reset();
     if (this->base != 0) this->handler = this->base->getBuildHandler();
     this->ownership &= ~SymbolDefinition::Element::HANDLER;
     this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::HANDLER);
@@ -436,13 +437,6 @@ class SymbolDefinition : public Node,
   {
     return this->getBaseSymbolDefinition();
   }
-
-
-  //============================================================================
-  // DataHaving Implementation
-
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to);
 
 }; // class
 

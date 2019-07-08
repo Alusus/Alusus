@@ -55,6 +55,7 @@ class ParsingDimension : public Node, public Binding
 
   public: virtual ~ParsingDimension()
   {
+    RESET_OWNED_SHAREDPTR(this->startRef);
   }
 
 
@@ -93,7 +94,7 @@ class ParsingDimension : public Node, public Binding
 
   public: void setStartRef(SharedPtr<Reference> const &sr)
   {
-    this->startRef = sr;
+    UPDATE_OWNED_SHAREDPTR(this->startRef, sr);
   }
 
   private: void setStartRef(Reference *sr)

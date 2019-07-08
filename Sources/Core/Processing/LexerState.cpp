@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Processing
+namespace Core::Processing
 {
 
 //==============================================================================
@@ -32,10 +32,9 @@ void LexerState::copyFrom(const LexerState *src)
   }
   // Copy from the given state.
   this->tokenLength = src->getTokenLength();
-  this->indexStack.resize(src->getIndexStackSize());
-  for (Word i = 0; i < this->indexStack.size(); i++) {
-    this->indexStack[i] = src->getIndexStackEntry(i);
-  }
+  this->tokenDefIndex = src->getTokenDefIndex();
+  this->levelCount = src->getLevelCount();
+  memcpy(this->levels, src->levels, this->levelCount * sizeof(LexerState::Level));
 }
 
-} } // namespace
+} // namespace

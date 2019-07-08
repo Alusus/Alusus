@@ -26,6 +26,7 @@ class FunctionType : public Type, public MapContaining<TiObject>
       MapContaining<TiObject>
     )
   ));
+  OBJECT_FACTORY(FunctionType);
 
 
   //============================================================================
@@ -56,8 +57,6 @@ class FunctionType : public Type, public MapContaining<TiObject>
   );
 
   IMPLEMENT_AST_MAP_PRINTABLE(FunctionType);
-
-  IMPLEMENT_AST_MAP_CLONABLE(FunctionType);
 
 
   //============================================================================

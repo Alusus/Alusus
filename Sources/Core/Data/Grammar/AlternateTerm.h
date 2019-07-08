@@ -34,6 +34,21 @@ class AlternateTerm : public ListTerm
   // Type Info
 
   TYPE_INFO(AlternateTerm, ListTerm, "Core.Data.Grammar", "Core", "alusus.org");
+  OBJECT_FACTORY(AlternateTerm);
+
+
+  //============================================================================
+  // Types
+
+  public: typedef std::unordered_map<Str, Int, std::hash<std::string>> TextBasedDecisionCache;
+  public: typedef std::unordered_map<Word, Int> IdBasedDecisionCache;
+
+
+  //============================================================================
+  // Member Variables
+
+  private: TextBasedDecisionCache textBasedDecisionCache;
+  private: IdBasedDecisionCache idBasedDecisionCache;
 
 
   //============================================================================
@@ -41,10 +56,35 @@ class AlternateTerm : public ListTerm
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(AlternateTerm);
 
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(AlternateTerm, this->validate());
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(AlternateTerm);
 
   public: virtual ~AlternateTerm()
   {
+  }
+
+
+  //============================================================================
+  // Member Functions
+
+  public: TextBasedDecisionCache* getInnerTextBasedDecisionCache()
+  {
+    return &this->textBasedDecisionCache;
+  }
+
+  public: IdBasedDecisionCache* getInnerIdBasedDecisionCache()
+  {
+    return &this->idBasedDecisionCache;
+  }
+
+
+  //============================================================================
+  // CacheHaving Implementation
+
+  /// @sa CacheHaving::clearCache()
+  public: virtual void clearCache()
+  {
+    this->textBasedDecisionCache.clear();
+    this->idBasedDecisionCache.clear();
   }
 
 }; // class

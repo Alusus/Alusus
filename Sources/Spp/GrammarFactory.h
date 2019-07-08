@@ -42,14 +42,6 @@ class GrammarFactory : public Core::Data::Grammar::Factory
 
   public: void cleanGrammar(Core::Data::Ast::Scope *rootScope);
 
-  private: Core::Data::Grammar::List* getLeadingCommandsList();
-
-  private: Core::Data::Grammar::List* getInnerCommandsList();
-
-  private: Core::Data::Grammar::List* getTildeCommandsList();
-
-  private: void removeReferenceFromCommandList(Core::Data::Grammar::List *cmdList, Char const *qualifier);
-
 }; // class
 
 } // namespace

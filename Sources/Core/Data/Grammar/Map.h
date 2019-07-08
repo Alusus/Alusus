@@ -24,6 +24,7 @@ class Map : public NbMap, public Binding, public Inheriting
   TYPE_INFO(Map, NbMap, "Core.Data.Grammar", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(Binding, Inheriting)
   ));
+  OBJECT_FACTORY(Map);
 
 
   //============================================================================
@@ -49,6 +50,11 @@ class Map : public NbMap, public Binding, public Inheriting
 
   IMPLEMENT_ATTR_MAP_CONSTRUCTOR(Map);
 
+  public: virtual ~Map()
+  {
+    RESET_OWNED_SHAREDPTR(this->baseRef);
+  }
+
   public: Map(
     std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements, Bool useIndex
   ) : NbMap(useIndex)
@@ -67,12 +73,27 @@ class Map : public NbMap, public Binding, public Inheriting
   //============================================================================
   // Member Functions
 
+  /// @name Abstract Function Implementations
+  /// @{
+
+  protected: virtual SharedPtr<TiObject> prepareForSet(
+    Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
+  ) {
+    if (inherited) {
+      return cloneInherited(obj);
+    } else {
+      return obj;
+    }
+  }
+
+  /// @}
+
   /// @name Property Accessors
   /// @{
 
   public: void setBaseRef(SharedPtr<Reference> const &p)
   {
-    this->baseRef = p;
+    UPDATE_OWNED_SHAREDPTR(this->baseRef, p);
   }
   private: void setBaseRef(Reference *ref)
   {

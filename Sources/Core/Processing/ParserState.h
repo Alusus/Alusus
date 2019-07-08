@@ -505,7 +505,7 @@ class ParserState
 
     public: Word getListTermChildCount(Int levelOffset = -1) const;
 
-  protected: Data::Grammar::Term* useListTermChild(Int index, Int levelOffset = -1);
+  protected: Data::Grammar::Term* getListTermChild(Int index, Int levelOffset = -1);
 
   public: TiInt* getTokenTermId(Int levelOffset = -1) const;
 

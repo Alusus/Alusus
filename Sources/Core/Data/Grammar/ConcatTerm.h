@@ -31,6 +31,7 @@ class ConcatTerm : public ListTerm
   // Type Info
 
   TYPE_INFO(ConcatTerm, ListTerm, "Core.Data.Grammar", "Core", "alusus.org");
+  OBJECT_FACTORY(ConcatTerm);
 
 
   //============================================================================
@@ -53,7 +54,7 @@ class ConcatTerm : public ListTerm
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(ConcatTerm);
 
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(ConcatTerm, this->validate());
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(ConcatTerm);
 
   public: virtual ~ConcatTerm()
   {

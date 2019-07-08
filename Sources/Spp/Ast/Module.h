@@ -26,8 +26,7 @@ class Module : public Core::Data::Ast::Scope, public Core::Data::Ast::Mergeable
   TYPE_INFO(Module, Core::Data::Ast::Scope, "Spp.Ast", "Spp", "alusus.org", (
     INHERITANCE_INTERFACES(Core::Data::Ast::Mergeable)
   ));
-
-  IMPLEMENT_AST_LIST_CLONABLE(Module);
+  OBJECT_FACTORY(Module);
 
   IMPLEMENT_AST_LIST_PRINTABLE(Module);
 
