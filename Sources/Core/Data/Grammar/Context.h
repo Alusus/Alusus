@@ -127,8 +127,6 @@ class Context : public TiObject, public MapContaining<TiObject>
 
   public: TiInt* getMultiplyTermMin(MultiplyTerm *term);
 
-  public: TiInt* getMultiplyTermPriority(MultiplyTerm *term);
-
   public: TiInt* getTermFlags(Term *term);
 
   /// @}
@@ -137,8 +135,6 @@ class Context : public TiObject, public MapContaining<TiObject>
   /// @{
 
   public: Map* getSymbolVars(SymbolDefinition const *definition);
-
-  public: TiInt* getSymbolPriority(SymbolDefinition const *definition);
 
   public: TiInt* getSymbolFlags(SymbolDefinition const *definition);
 

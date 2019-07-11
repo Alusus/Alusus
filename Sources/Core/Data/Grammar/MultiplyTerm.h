@@ -58,8 +58,6 @@ class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObj
 
   private: TioSharedPtr max;
 
-  private: TioSharedPtr priority;
-
   private: TextBasedDecisionCache innerTextBasedDecisionCache;
 
   private: IdBasedDecisionCache innerIdBasedDecisionCache;
@@ -70,8 +68,7 @@ class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObj
 
   IMPLEMENT_BINDING(Term,
     (min, TiObject, SHARED_REF, setMin(value), min.get()),
-    (max, TiObject, SHARED_REF, setMax(value), max.get()),
-    (priority, TiObject, SHARED_REF, setPriority(value), priority.get())
+    (max, TiObject, SHARED_REF, setMax(value), max.get())
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
@@ -91,7 +88,6 @@ class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObj
     RESET_OWNED_SHAREDPTR(this->term);
     RESET_OWNED_SHAREDPTR(this->min);
     RESET_OWNED_SHAREDPTR(this->max);
-    RESET_OWNED_SHAREDPTR(this->priority);
   }
 
 
@@ -141,20 +137,6 @@ class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObj
   public: SharedPtr<TiObject> const& getMax() const
   {
     return this->max;
-  }
-
-  /// Set the priority of the child branches.
-  public: void setPriority(SharedPtr<TiObject> const &p);
-
-  private: void setPriority(TiObject *p)
-  {
-    this->setPriority(getSharedPtr(p));
-  }
-
-  /// @sa setPriority()
-  public: SharedPtr<TiObject> const& getPriority() const
-  {
-    return this->priority;
   }
 
   public: TextBasedDecisionCache* getInnerTextBasedDecisionCache()

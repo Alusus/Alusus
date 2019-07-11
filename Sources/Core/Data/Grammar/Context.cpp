@@ -161,16 +161,6 @@ TiInt* Context::getMultiplyTermMin(MultiplyTerm *term)
 }
 
 
-TiInt* Context::getMultiplyTermPriority(MultiplyTerm *term)
-{
-  TiObject *priority = this->traceValue(term->getPriority().get());
-  if (priority != 0 && !priority->isA<TiInt>()) {
-    throw EXCEPTION(GenericException, S("Multiply term's priority is of invalid type."));
-  }
-  return static_cast<TiInt*>(priority);
-}
-
-
 TiInt* Context::getTermFlags(Term *term)
 {
   TiObject *flags = this->traceValue(term->getFlags().get());
@@ -191,16 +181,6 @@ Map* Context::getSymbolVars(const SymbolDefinition *definition)
     throw EXCEPTION(GenericException, S("Symbol's vars is of invalid type."));
   }
   return static_cast<Map*>(vars);
-}
-
-
-TiInt* Context::getSymbolPriority(SymbolDefinition const *definition)
-{
-  TiObject *priority = this->traceValue(definition->getPriority().get());
-  if (priority != 0 && !priority->isA<TiInt>()) {
-    throw EXCEPTION(GenericException, S("Symbol's priority is of invalid type."));
-  }
-  return static_cast<TiInt*>(priority);
 }
 
 

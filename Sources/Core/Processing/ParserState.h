@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_PARSERSTATE_H
 #define CORE_PROCESSING_PARSERSTATE_H
 
-namespace Core { namespace Processing
+namespace Core::Processing
 {
 
 // TODO: DOC
@@ -501,8 +501,6 @@ class ParserState
 
   public: TiInt* getMultiplyTermMin(Int levelOffset = -1) const;
 
-  public: TiInt* getMultiplyTermPriority(Int levelOffset = -1) const;
-
   public: TiInt* getTermFlags(Int levelOffset = -1) const;
 
   /// @}
@@ -636,6 +634,6 @@ class ParserState
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

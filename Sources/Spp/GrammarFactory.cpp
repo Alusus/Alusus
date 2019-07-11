@@ -91,7 +91,7 @@ void GrammarFactory::createGrammar(
       },
       TiInt::create(0),
       TiInt::create(1),
-      TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)
+      TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }
   }, std::make_shared<Handlers::IfParsingHandler>());
 
@@ -223,7 +223,7 @@ void GrammarFactory::createGrammar(
         PARSE_REF(S("module.Subject.Identifier")),
         TiInt::create(0),
         TiInt::create(1),
-        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
         PARSE_REF(S("module.ModuleBody")),
@@ -260,7 +260,7 @@ void GrammarFactory::createGrammar(
         PARSE_REF(S("module.Subject.Identifier")),
         TiInt::create(0),
         TiInt::create(1),
-        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
         PARSE_REF(S("module.BlockSet")),
@@ -282,13 +282,13 @@ void GrammarFactory::createGrammar(
         PARSE_REF(S("module.Subject.Identifier")),
         TiInt::create(0),
         TiInt::create(1),
-        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
         PARSE_REF(S("module.FuncSigExpression")),
         TiInt::create(0),
         TiInt::create(1),
-        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
         PARSE_REF(S("module.BlockSet")),
@@ -368,13 +368,13 @@ void GrammarFactory::createGrammar(
         PARSE_REF(S("module.Subject.Identifier")),
         TiInt::create(0),
         TiInt::create(1),
-        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
         PARSE_REF(S("module.MacroSignature")),
         TiInt::create(0),
         TiInt::create(1),
-        TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ONE_ROUTE_TERM)
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
         PARSE_REF(S("module.Expression")),

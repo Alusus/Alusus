@@ -557,7 +557,7 @@ void Parser::processTokenTerm(const Data::Token * token, ParserState *state)
  * Apply the received token on a duplicate term within the given state.<br>
  * <br>
  * HOW IT WORKS:<br>
- * Call the computePossibleMultiplyRoutes to determine the possible routes
+ * Call the determineMultiplyRoute to determine the possible routes
  * to take. If no route was found to match the given token, the processing
  * status will be set to error. If one is found, the route will be followed
  * immediately. If two routes are found, the state will be duplicated with each
@@ -578,7 +578,7 @@ void Parser::processMultiplyTerm(const Data::Token * token, ParserState *state)
     throw EXCEPTION(GenericException, S("Multiply term's child term isn't set yet."));
   }
 
-  Int successRoute = this->computePossibleMultiplyRoutes(token, state);
+  Int successRoute = this->determineMultiplyRoute(token, state);
   this->getTopParsingHandler(state)->onMultiplyRouteDecision(this, state, successRoute, token);
   // Take the selected route.
   if (successRoute == 1) {
@@ -604,7 +604,7 @@ void Parser::processMultiplyTerm(const Data::Token * token, ParserState *state)
  * <br>
  * HOW IT WORKS:<br>
  * When parsing reaches the alternative term for the first time, the
- * computePossibleAlternativeRoutes function will be called to determine the
+ * determineAlternateRoute function will be called to determine the
  * possible routes to take. If no route was found to match the given token, the
  * processing status will be set to error. If one is found, the route will be
  * followed immediately. If more than one route is found, the state will be
@@ -625,7 +625,7 @@ void Parser::processAlternateTerm(Data::Token const *token, ParserState *state)
   }
   if (state->refTopTermLevel().getPosId() == 0) {
     // We are entering the term for the first time.
-    Int successRoute = this->computePossibleAlternativeRoutes(token, state);
+    Int successRoute = this->determineAlternateRoute(token, state);
 
     if (successRoute == -1) {
       // Processing of this state has errored out.
@@ -783,7 +783,7 @@ void Parser::clear()
  * @param state A pointer to the state object from which to start testing the
  *              routes.
  */
-Int Parser::computePossibleMultiplyRoutes(Data::Token const *token, ParserState *state)
+Int Parser::determineMultiplyRoute(Data::Token const *token, ParserState *state)
 {
   Data::Grammar::MultiplyTerm *multiplyTerm =
     static_cast<Data::Grammar::MultiplyTerm*>(state->refTopTermLevel().getTerm());
@@ -896,7 +896,7 @@ Int Parser::computePossibleMultiplyRoutes(Data::Token const *token, ParserState 
  * @param state A pointer to the state object from which to start testing the
  *              routes.
  */
-Int Parser::computePossibleAlternativeRoutes(Data::Token const *token, ParserState *state)
+Int Parser::determineAlternateRoute(Data::Token const *token, ParserState *state)
 {
   ASSERT(state->refTopTermLevel().getTerm()->isA<Data::Grammar::AlternateTerm>());
   auto alternateTerm = static_cast<Data::Grammar::AlternateTerm*>(state->refTopTermLevel().getTerm());

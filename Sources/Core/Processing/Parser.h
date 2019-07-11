@@ -192,10 +192,10 @@ class Parser : public TiObject
   /// @{
 
   /// Compute the list of possible routes to take at a duplicate term.
-  private: Int computePossibleMultiplyRoutes(Data::Token const *token, ParserState *state);
+  private: Int determineMultiplyRoute(Data::Token const *token, ParserState *state);
 
   /// Compute the list of possible routes to take at an alternative term.
-  private: Int computePossibleAlternativeRoutes(Data::Token const *token, ParserState *state);
+  private: Int determineAlternateRoute(Data::Token const *token, ParserState *state);
 
   private: Int matchParsingDimensionEntry(Data::Token const *token);
 

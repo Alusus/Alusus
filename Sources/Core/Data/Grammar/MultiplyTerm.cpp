@@ -50,23 +50,6 @@ void MultiplyTerm::setMax(SharedPtr<TiObject> const &m)
 }
 
 
-/**
- * Set the priority of the inner branch. This can either be the TiInt priority
- * value, or a Reference to it. The value can either be 1, which means priority
- * is for taking (or staying) in the branch, or 0 which means priority is to
- * leave the branch. If null is specified the default value of 1 is considered.
- */
-void MultiplyTerm::setPriority(SharedPtr<TiObject> const &p)
-{
-  if (p != 0 && !p->isA<TiInt>() && !p->isDerivedFrom<Reference>()) {
-    throw EXCEPTION(InvalidArgumentException, S("p"),
-                    S("Must be of type TiInt or Reference."),
-                    p->getMyTypeInfo()->getUniqueName());
-  }
-  UPDATE_OWNED_SHAREDPTR(this->priority, p);
-}
-
-
 //==============================================================================
 // CacheHaving Implementation
 
