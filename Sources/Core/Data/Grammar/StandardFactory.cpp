@@ -53,7 +53,7 @@ void StandardFactory::createGrammar(
   this->rootScopeParsingHandler = std::make_shared<RootScopeParsingHandler>(root->getRootScopeHandler());
 
   // Create lexer definitions.
-  this->set(S("root.LexerDefs"), Module::create({}));
+  this->set(S("root.LexerDefs"), LexerModule::create({}));
   this->createCharGroupDefinitions();
   this->createTokenDefinitions();
 

@@ -175,6 +175,7 @@ template <class T> SharedPtr<T> cloneInherited(SharedPtr<T> const &obj)
 #include "List.h"
 #include "Map.h"
 #include "Module.h"
+#include "LexerModule.h"
 
 // Character Groups
 #include "CharGroupUnit.h"

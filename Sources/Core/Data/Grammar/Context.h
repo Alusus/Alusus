@@ -143,7 +143,7 @@ class Context : public TiObject, public MapContaining<TiObject>
   /// @name Other Helper Functions
   /// @{
 
-  public: Module* getAssociatedLexerModule(Module *module=0);
+  public: LexerModule* getAssociatedLexerModule(Module *module=0);
 
   public: List* getAssociatedErrorSyncBlockPairs(Module *module=0);
 

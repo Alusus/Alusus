@@ -197,7 +197,7 @@ TiInt* Context::getSymbolFlags(SymbolDefinition const *definition)
 //==============================================================================
 // Other Helper Functions
 
-Module* Context::getAssociatedLexerModule(Module *module)
+LexerModule* Context::getAssociatedLexerModule(Module *module)
 {
   Reference *lmr = 0;
 
@@ -211,10 +211,10 @@ Module* Context::getAssociatedLexerModule(Module *module)
   // Find the module itself.
   if (lmr == 0) return 0;
   auto *lm = this->traceValue(lmr);
-  if (lm == 0 || !lm->isA<Module>()) {
+  if (lm == 0 || !lm->isA<LexerModule>()) {
     throw EXCEPTION(GenericException, S("The module has an invalid lexer module reference."));
   }
-  return static_cast<Module*>(lm);
+  return static_cast<LexerModule*>(lm);
 }
 
 

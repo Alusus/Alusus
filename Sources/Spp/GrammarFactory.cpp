@@ -30,7 +30,7 @@ void GrammarFactory::createGrammar(
 ) {
   this->setRootScope(rootScope);
 
-  Core::Data::clearCaches(rootScope);
+  Core::Data::clearCaches(this->context.getRoot());
 
   // Add additional keywords.
   this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
