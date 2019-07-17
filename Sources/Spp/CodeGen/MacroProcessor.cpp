@@ -71,17 +71,7 @@ Bool MacroProcessor::_runMacroPass(TiObject *self, Core::Data::Ast::Scope *root)
   PREPARE_SELF(macroProcessor, MacroProcessor);
   VALIDATE_NOT_NULL(root);
 
-  Bool result = true;
-  for (Int i = 0; i < root->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(root->getElement(i));
-    if (def != 0) {
-      auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
-      if (module != 0) {
-        if (!macroProcessor->processMacros(module)) result = false;
-      }
-    }
-  }
-  return result;
+  return macroProcessor->processMacros(root);
 }
 
 
@@ -89,6 +79,8 @@ Bool MacroProcessor::_processMacros(TiObject *self, TiObject *owner)
 {
   PREPARE_SELF(macroProcessor, MacroProcessor);
   VALIDATE_NOT_NULL(owner);
+
+  if (owner == 0 || owner->isDerivedFrom<Core::Data::Grammar::Module>()) return true;
 
   auto container = ti_cast<Containing<TiObject>>(owner);
   if (container == 0) return true;
