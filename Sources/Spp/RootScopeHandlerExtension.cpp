@@ -50,11 +50,25 @@ void RootScopeHandlerExtension::_addNewElement(
   Core::Processing::Parser *parser, Core::Processing::ParserState *state
 ) {
   PREPARE_SELF(rootScopeHandler, Core::Main::RootScopeHandler);
+  auto root = rootScopeHandler->getRootScope().get();
+
+  auto start = root->getCount();
   rootScopeHandler->addNewElement.useCallee(base)(data, parser, state);
-  if (data != 0 && !data->isDerivedFrom<Core::Data::Ast::Definition>()) {
+  auto end = root->getCount() - 1;
+
+  Bool execute = false;
+  for (Int i = start; i <= end; ++i) {
+    if (root->get(i) != 0 && !root->get(i)->isDerivedFrom<Core::Data::Ast::Definition>()) execute = true;
+  }
+
+  if (execute) {
     PREPARE_SELF(extension, RootScopeHandlerExtension);
     auto rootManager = extension->rootManagerBox->get();
     auto rootManagerExt = ti_cast<RootManagerExtension>(rootManager);
+
+    // Process macros.
+    rootManagerExt->macroProcessor->preparePass(state->getNoticeStore());
+    if (!rootManagerExt->macroProcessor->runMacroPass(root)) return;
 
     // Set global noticeStore var.
     auto globalNoticeStoreIndex = rootManagerExt->generator->getGlobalItemRepo()->findItem(S("Core.noticeStore"));
@@ -71,16 +85,11 @@ void RootScopeHandlerExtension::_addNewElement(
     auto globalParser = rootManagerExt->generator->getGlobalItemRepo()->getItemPtr(globalParserIndex);
     *((Core::Processing::Parser**)globalParser) = parser;
 
-    if (data->isDerivedFrom<Core::Data::Ast::MergeList>()) {
-      auto mergeList = data.s_cast_get<Core::Data::Ast::MergeList>();
-      for (Int i = 0; i < mergeList->getCount(); ++i) {
-        auto childData = mergeList->get(i);
-        if (!childData->isDerivedFrom<Core::Data::Ast::Definition>()) {
-          rootManagerExt->executeRootElement(childData, state->getNoticeStore());
-        }
+    for (Int i = start; i <= end; ++i) {
+      auto childData = root->get(i);
+      if (!childData->isDerivedFrom<Core::Data::Ast::Definition>()) {
+        rootManagerExt->executeRootElement(childData, state->getNoticeStore());
       }
-    } else {
-      rootManagerExt->executeRootElement(data, state->getNoticeStore());
     }
   }
 }
