@@ -161,16 +161,6 @@ TiInt* Context::getMultiplyTermMin(MultiplyTerm *term)
 }
 
 
-TiInt* Context::getMultiplyTermPriority(MultiplyTerm *term)
-{
-  TiObject *priority = this->traceValue(term->getPriority().get());
-  if (priority != 0 && !priority->isA<TiInt>()) {
-    throw EXCEPTION(GenericException, S("Multiply term's priority is of invalid type."));
-  }
-  return static_cast<TiInt*>(priority);
-}
-
-
 TiInt* Context::getTermFlags(Term *term)
 {
   TiObject *flags = this->traceValue(term->getFlags().get());
@@ -194,16 +184,6 @@ Map* Context::getSymbolVars(const SymbolDefinition *definition)
 }
 
 
-TiInt* Context::getSymbolPriority(SymbolDefinition const *definition)
-{
-  TiObject *priority = this->traceValue(definition->getPriority().get());
-  if (priority != 0 && !priority->isA<TiInt>()) {
-    throw EXCEPTION(GenericException, S("Symbol's priority is of invalid type."));
-  }
-  return static_cast<TiInt*>(priority);
-}
-
-
 TiInt* Context::getSymbolFlags(SymbolDefinition const *definition)
 {
   TiObject *flags = this->traceValue(definition->getFlags().get());
@@ -217,7 +197,7 @@ TiInt* Context::getSymbolFlags(SymbolDefinition const *definition)
 //==============================================================================
 // Other Helper Functions
 
-Module* Context::getAssociatedLexerModule(Module *module)
+LexerModule* Context::getAssociatedLexerModule(Module *module)
 {
   Reference *lmr = 0;
 
@@ -231,10 +211,10 @@ Module* Context::getAssociatedLexerModule(Module *module)
   // Find the module itself.
   if (lmr == 0) return 0;
   auto *lm = this->traceValue(lmr);
-  if (lm == 0 || !lm->isA<Module>()) {
+  if (lm == 0 || !lm->isA<LexerModule>()) {
     throw EXCEPTION(GenericException, S("The module has an invalid lexer module reference."));
   }
-  return static_cast<Module*>(lm);
+  return static_cast<LexerModule*>(lm);
 }
 
 

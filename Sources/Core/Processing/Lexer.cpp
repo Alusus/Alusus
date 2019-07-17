@@ -39,7 +39,7 @@ void Lexer::initialize(SharedPtr<Data::Ast::Scope> rootScope)
 
   // Prepare the context.
   this->grammarContext.setRoot(this->grammarRoot.get());
-  Data::Grammar::Module *lexerModule = this->grammarContext.getAssociatedLexerModule();
+  Data::Grammar::LexerModule *lexerModule = this->grammarContext.getAssociatedLexerModule();
   if (lexerModule == 0) {
     throw EXCEPTION(GenericException, S("Couldn't find a lexer module in the given grammar repository."));
   }
@@ -436,43 +436,82 @@ void Lexer::processStartChar(WChar inputChar)
 
   LOG(LogLevel::LEXER_MID, S("Starting a new token. New char: '") << inputChar << S("'"));
 
-  for (Word i = 0; i < this->grammarContext.getModule()->getCount(); i++) {
-    // Skip non tokens and non-root tokens.
-    TiObject *obj = this->grammarContext.getModule()->getElement(i);
-    if (obj == 0 || !obj->isA<Data::Grammar::SymbolDefinition>()) continue;
-    Data::Grammar::SymbolDefinition *def = static_cast<Data::Grammar::SymbolDefinition*>(obj);
-    TiInt *flags = this->grammarContext.getSymbolFlags(def);
-    if (!((flags == 0 ? 0 : flags->get()) & Data::Grammar::SymbolFlags::ROOT_TOKEN)) continue;
-    // Validation.
-    if (def->getTerm() == 0) {
-      Str excMsg = S("Invalid token definition (");
-      excMsg += ID_GENERATOR->getDesc(def->getId());
-      excMsg += S("). The definition formula is not set yet.");
-      throw EXCEPTION(GenericException, excMsg.c_str());
+  auto lexerModule = static_cast<Core::Data::Grammar::LexerModule*>(this->grammarContext.getModule());
+  auto cache = lexerModule->getCharBasedDecisionCache();
+
+  auto iter = cache->find(inputChar);
+  if (iter == cache->end()) {
+    for (Word i = 0; i < lexerModule->getCount(); i++) {
+      // Skip non tokens and non-root tokens.
+      TiObject *obj = lexerModule->getElement(i);
+      if (obj == 0 || !obj->isA<Data::Grammar::SymbolDefinition>()) continue;
+      Data::Grammar::SymbolDefinition *def = static_cast<Data::Grammar::SymbolDefinition*>(obj);
+      TiInt *flags = this->grammarContext.getSymbolFlags(def);
+      if (!((flags == 0 ? 0 : flags->get()) & Data::Grammar::SymbolFlags::ROOT_TOKEN)) continue;
+      // Validation.
+      if (def->getTerm() == 0) {
+        Str excMsg = S("Invalid token definition (");
+        excMsg += ID_GENERATOR->getDesc(def->getId());
+        excMsg += S("). The definition formula is not set yet.");
+        throw EXCEPTION(GenericException, excMsg.c_str());
+      }
+      // Set the first entry in the state index stack to the token definition index.
+      auto state = this->createState();
+      state->setTokenDefIndex(i);
+      state->pushTermLevel(0, def->getTerm().get());
+      state->setTokenLength(0);
+      // Process the token.
+      switch (this->processState(state, inputChar, -1)) {
+        case CONTINUE_NEW_CHAR:
+          if (state->getLevelCount() == 0) {
+            // The character was accepted and a full token is formed.
+            state->setTokenLength(1);
+          }
+          this->nextStates[this->nextStateCount++] = state;
+          cache->operator[](inputChar).push_back(i);
+          break;
+        case CONTINUE_SAME_CHAR:
+          // This should never be reached.
+          ASSERT(false);
+          break;
+        case STOP:
+          this->recycledStates[this->recycledStateCount++] = state;
+          break;
+        default:
+          ASSERT(false);
+      }
     }
-    // Set the first entry in the state index stack to the token definition index.
-    auto state = this->createState();
-    state->setTokenDefIndex(i);
-    state->pushTermLevel(0, def->getTerm().get());
-    state->setTokenLength(0);
-    // Process the token.
-    switch (this->processState(state, inputChar, -1)) {
-      case CONTINUE_NEW_CHAR:
-        if (state->getLevelCount() == 0) {
-          // The character was accepted and a full token is formed.
-          state->setTokenLength(1);
-        }
-        this->nextStates[this->nextStateCount++] = state;
-        break;
-      case CONTINUE_SAME_CHAR:
-        // This should never be reached.
-        ASSERT(false);
-        break;
-      case STOP:
-        this->recycledStates[this->recycledStateCount++] = state;
-        break;
-      default:
-        ASSERT(false);
+  } else {
+    for (Int j = 0; j < iter->second.size(); j++) {
+      auto i = iter->second[j];
+      // Skip non tokens and non-root tokens.
+      TiObject *obj = lexerModule->getElement(i);
+      ASSERT(obj != 0 && obj->isA<Data::Grammar::SymbolDefinition>());
+      Data::Grammar::SymbolDefinition *def = static_cast<Data::Grammar::SymbolDefinition*>(obj);
+      // Set the first entry in the state index stack to the token definition index.
+      auto state = this->createState();
+      state->setTokenDefIndex(i);
+      state->pushTermLevel(0, def->getTerm().get());
+      state->setTokenLength(0);
+      // Process the token.
+      switch (this->processState(state, inputChar, -1)) {
+        case CONTINUE_NEW_CHAR:
+          if (state->getLevelCount() == 0) {
+            // The character was accepted and a full token is formed.
+            state->setTokenLength(1);
+          }
+          this->nextStates[this->nextStateCount++] = state;
+          break;
+        case CONTINUE_SAME_CHAR:
+          // This should never be reached.
+          ASSERT(false);
+          break;
+        case STOP:
+          this->recycledStates[this->recycledStateCount++] = state;
+          break;
+        default:
+          ASSERT(false);
+      }
     }
   }
 

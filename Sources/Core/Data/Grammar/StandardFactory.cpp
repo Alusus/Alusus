@@ -53,7 +53,7 @@ void StandardFactory::createGrammar(
   this->rootScopeParsingHandler = std::make_shared<RootScopeParsingHandler>(root->getRootScopeHandler());
 
   // Create lexer definitions.
-  this->set(S("root.LexerDefs"), Module::create({}));
+  this->set(S("root.LexerDefs"), LexerModule::create({}));
   this->createCharGroupDefinitions();
   this->createTokenDefinitions();
 
@@ -819,14 +819,12 @@ void StandardFactory::createStatementsProductionModule()
     }, {
       {S("terms"), List::create({}, {
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ERROR_SYNC_TERM)},
           {S("max"), std::make_shared<TiInt>(1)}
         }, {
           {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Stmt")) }})}
         }),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
           {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ERROR_SYNC_TERM)}
         }, {
           {S("term"), ConcatTerm::create({}, {
@@ -837,7 +835,6 @@ void StandardFactory::createStatementsProductionModule()
                 {S("tokenText"), Map::create({}, {{S(";"),0},{S("؛"),0}})}
               }),
               MultiplyTerm::create({
-                {S("priority"), std::make_shared<TiInt>(1)},
                 {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
                 {S("max"), std::make_shared<TiInt>(1)}
               }, {
@@ -868,13 +865,12 @@ void StandardFactory::createExpressionProductionModule()
     Module::create({{S("startRef"), PARSE_REF(S("module.Exp"))}}).get()
   );
 
-  // Exp : @single prod as LowestLinkExp + (@priority(in,0) lexer.Constant("\\")*(0,1));
+  // Exp : @single prod as LowestLinkExp + lexer.Constant("\\")*(0,1);
   this->set(S("root.Expression.Exp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LowestLinkExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
           {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), std::make_shared<TiInt>(1)},
         }, {
@@ -890,14 +886,13 @@ void StandardFactory::createExpressionProductionModule()
 
   // LowestLinkExp : @single @prefix(heap.Modifiers.LowestLinkModifierCmd)
   //     prod (enable:integer=endless) as
-  //     ConditionalExp + (@priority(in,0) (LowestLinkOp + ConditionalExp)*(0,enable));
+  //     ConditionalExp + (LowestLinkOp + ConditionalExp)*(0,enable);
   this->set(S("root.Expression.LowestLinkExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.ConditionalExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable"))},
         }, {
           {S("term"), ConcatTerm::create({}, {
@@ -918,14 +913,13 @@ void StandardFactory::createExpressionProductionModule()
 
   // ConditionalExp : @single @prefix(heap.Modifiers.ConditionalModifierCmd)
   //     prod (enable:integer[0<=n<=1]=1) as
-  //     ListExp + (@priority(in,0) (lexer.Constant("?") + ListExp)*(0,enable));
+  //     ListExp + (lexer.Constant("?") + ListExp)*(0,enable);
   this->set(S("root.Expression.ConditionalExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.ListExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable"))}
         }, {
           {S("term"), ConcatTerm::create({}, {
@@ -948,7 +942,7 @@ void StandardFactory::createExpressionProductionModule()
   //   prod (enable:integer=1) as
   //     @filter(enable) LowerLinkExp ||
   //                     (LowerLinkExp || lexer.Constant(",") + LowerLinkExp*(0,1)) +
-  //                       (@priority(in,0) (lexer.Constant(",") + LowerLinkExp*(0,1))*(0,endless));
+  //                       (lexer.Constant(",") + LowerLinkExp*(0,1))*(0,endless);
   this->set(S("root.Expression.ListExp"), SymbolDefinition::create({}, {
     {S("term"), AlternateTerm::create({}, {
       {S("filter"), PARSE_REF(S("args.enable"))},
@@ -969,8 +963,7 @@ void StandardFactory::createExpressionProductionModule()
                       {S("tokenText"), Map::create({}, {{S(","), 0}, {S("،"), 0}})}
                     }),
                     MultiplyTerm::create({
-                      {S("priority"), std::make_shared<TiInt>(1)},
-                      {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+                      {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
                       {S("max"), std::make_shared<TiInt>(1)},
                     }, {
                       {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LowerLinkExp")) }})}
@@ -980,9 +973,8 @@ void StandardFactory::createExpressionProductionModule()
               })}
             }),
             MultiplyTerm::create({
-              {S("priority"), std::make_shared<TiInt>(1)},
               {S("flags"), TiInt::create(
-                TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP|ParsingFlags::ENFORCE_LIST_ITEM
+                ParsingFlags::PASS_ITEMS_UP|ParsingFlags::ENFORCE_LIST_ITEM
               )}
             }, {
               {S("term"), ConcatTerm::create({}, {
@@ -993,8 +985,7 @@ void StandardFactory::createExpressionProductionModule()
                     {S("tokenText"), Map::create({}, {{S(","), 0}, {S("،"), 0}})}
                   }),
                   MultiplyTerm::create({
-                    {S("priority"), std::make_shared<TiInt>(1)},
-                    {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+                    {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
                     {S("max"), std::make_shared<TiInt>(1)}
                   }, {
                     {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LowerLinkExp")) }})}
@@ -1012,14 +1003,13 @@ void StandardFactory::createExpressionProductionModule()
 
   // LowerLinkExp : @single @prefix(heap.Modifiers.LowerLinkModifierCmd)
   //     prod (enable:integer=endless) as
-  //     AssignmentExp + (@priority(in,0) (LowerLinkOp + AssignmentExp)*(0,enable));
+  //     AssignmentExp + (LowerLinkOp + AssignmentExp)*(0,enable);
   this->set(S("root.Expression.LowerLinkExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.AssignmentExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable"))}
         }, {
           {S("term"), ConcatTerm::create({}, {
@@ -1040,14 +1030,13 @@ void StandardFactory::createExpressionProductionModule()
 
   // AssignmentExp : @single @prefix(heap.Modifiers.AssignmentModifierCmd)
   //     prod (enable:integer=endless) as
-  //     LogExp + (@priority(in,0) (AssignmentOp + LogExp)*(0,enable));
+  //     LogExp + (AssignmentOp + LogExp)*(0,enable);
   this->set(S("root.Expression.AssignmentExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LogExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable"))}
         }, {
           {S("term"), ConcatTerm::create({}, {
@@ -1068,14 +1057,13 @@ void StandardFactory::createExpressionProductionModule()
 
   // LogExp : @single @prefix(heap.Modifiers.LogModifierCmd)
   //     prod (enable:integer=endless) as
-  //     ComparisonExp + (@priority(in,0) (LogOp + ComparisonExp)*(0,enable));
+  //     ComparisonExp + (LogOp + ComparisonExp)*(0,enable);
   this->set(S("root.Expression.LogExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.ComparisonExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable"))}
         }, {
           {S("term"), ConcatTerm::create({}, {
@@ -1096,14 +1084,13 @@ void StandardFactory::createExpressionProductionModule()
 
   // ComparisonExp : @single @prefix(heap.Modifiers.ComparisonModifierCmd)
   //     prod (enable:integer=endless) as
-  //     LowLinkExp + (@priority(in,0) (ComparisonOp + LowLinkExp)*(0,enable));
+  //     LowLinkExp + (ComparisonOp + LowLinkExp)*(0,enable);
   this->set(S("root.Expression.ComparisonExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LowLinkExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable"))}
         }, {
           {S("term"), ConcatTerm::create({}, {
@@ -1124,14 +1111,13 @@ void StandardFactory::createExpressionProductionModule()
 
   // LowLinkExp : @single @prefix(heap.Modifiers.LowLinkModifierCmd)
   //     prod (enable:integer=endless) as
-  //     AddExp + (@priority(in,0) (LowLinkOp + AddExp)*(0,enable));
+  //     AddExp + (LowLinkOp + AddExp)*(0,enable);
   this->set(S("root.Expression.LowLinkExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.AddExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable"))}
         }, {
           {S("term"), ConcatTerm::create({}, {
@@ -1152,14 +1138,13 @@ void StandardFactory::createExpressionProductionModule()
 
   // AddExp : @single @prefix(heap.Modifiers.AddModifierCmd)
   //     prod (enable:integer=endless) as
-  //     MulExp + (@priority(in,0) (AddOp + MulExp)*(0,enable));
+  //     MulExp + (AddOp + MulExp)*(0,enable);
   this->set(S("root.Expression.AddExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.MulExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable"))}
         }, {
           {S("term"), ConcatTerm::create({}, {
@@ -1180,14 +1165,13 @@ void StandardFactory::createExpressionProductionModule()
 
   // MulExp : @single @prefix(heap.Modifiers.MulModifierCmd)
   //     prod (enable:integer=endless) as
-  //     BitwiseExp + (@priority(in,0) (MulOp + BitwiseExp)*(0,enable));
+  //     BitwiseExp + (MulOp + BitwiseExp)*(0,enable);
   this->set(S("root.Expression.MulExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.BitwiseExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable"))}
         }, {
           {S("term"), ConcatTerm::create({}, {
@@ -1208,14 +1192,13 @@ void StandardFactory::createExpressionProductionModule()
 
   // BitwiseExp : @single @prefix(heap.Modifiers.BitwiseModifierCmd)
   //     prod (enable:integer=endless) as
-  //     UnaryExp + (@priority(in,0) (BitwiseOp + UnaryExp)*(0,enable));
+  //     UnaryExp + (BitwiseOp + UnaryExp)*(0,enable);
   this->set(S("root.Expression.BitwiseExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.UnaryExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable"))},
         }, {
           {S("term"), ConcatTerm::create({}, {
@@ -1236,21 +1219,19 @@ void StandardFactory::createExpressionProductionModule()
 
   // UnaryExp : @single @prefix(heap.Modifiers.UnaryModifierCmd)
   //     prod (enable1:integer[0<=n<=1]=1, enable2:integer[0<=n<=1]=1) as
-  //     (@priority(in,0) PrefixOp*(0,enable1)) + FunctionalExp + (@priority(in,0) PostfixOp*(0,enable2));
+  //     PrefixOp*(0,enable1) + FunctionalExp + PostfixOp*(0,enable2);
   this->set(S("root.Expression.UnaryExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable1"))}
         }, {
           {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.PrefixOp")) }})}
         }),
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.FunctionalExp")) }}),
         MultiplyTerm::create({
-          {S("priority"), std::make_shared<TiInt>(1)},
-          {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
           {S("max"), PARSE_REF(S("args.enable2"))}
         }, {
           {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.PostfixOp")) }})}
@@ -1266,18 +1247,15 @@ void StandardFactory::createExpressionProductionModule()
 
   // FunctionalExp : @single @prefix(heap.Modifiers.FunctionalModifierCmd)
   //     prod (operand:production[heap.Subject]=heap.Subject, fltr1:filter=null,
-  //           fltr2:filter=null, dup:integer=endless, pty1:integer=1, pty2:integer=in) as
-  //     @filter(fltr1) @priority(pty1,0)
-  //         (operand + (@priority(pty2,0) (@filter(fltr2) ParamPassExp ||
-  //                                                       PostfixTildeExp ||
-  //                                                       LinkExp(operand))*(0,dup))) ||
+  //           fltr2:filter=null, dup:integer=endless) as
+  //     @filter(fltr1)
+  //         (operand + (@filter(fltr2) ParamPassExp || PostfixTildeExp || LinkExp(operand))*(0,dup)) ||
   //         PrefixTildeExp + operand;
   this->set(S("root.Expression.FunctionalExp"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.subject")) }}),
         MultiplyTerm::create({
-          {S("priority"), PARSE_REF(S("args.pty2"))},
           {S("flags"), PARSE_REF(S("args.flags"))},
           {S("max"), PARSE_REF(S("args.dup"))}
         }, {
@@ -1293,8 +1271,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {
-      {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM|ParsingFlags::PASS_ITEMS_UP)},
-      {S("pty2"), std::make_shared<TiInt>(1)},
+      {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
       {S("dup"), 0},
       {S("fltr2"), 0}
     })},
@@ -1332,7 +1309,7 @@ void StandardFactory::createExpressionProductionModule()
   //                   lexer.Constant("[") + expr*(0,1) + lexer.Constant("]");
   this->set(S("root.Expression.ParamPassExp"), SymbolDefinition::create({}, {
     {S("term"), AlternateTerm::create({
-      {S("flags"), TiInt::create(ParsingFlags::ENFORCE_ROUTE_OBJ|TermFlags::ONE_ROUTE_TERM)},
+      {S("flags"), TiInt::create(ParsingFlags::ENFORCE_ROUTE_OBJ)},
     }, {
       {S("filter"), PARSE_REF(S("args.fltr"))},
       {S("terms"), List::create({}, {
@@ -1409,9 +1386,8 @@ void StandardFactory::createExpressionProductionModule()
     {S("handler"), this->parsingHandler}
   }));
   //OpenPostfixTildeCmd : @limit[user.parent==PostfixTildeCmd]
-  //    prod (expr:production[Expression], args:list[hash[sbj:valid_subject, min:integer,
-  //                                                      max:integer, pty:integer]]) as
-  //    lexer.Constant("(") + expr + concat (args:a)->( @priority(pty,0) a.sbj*(a.min,a.max) ) +
+  //    prod (expr:production[Expression], args:list[hash[sbj:valid_subject, min:integer, max:integer]]) as
+  //    lexer.Constant("(") + expr + concat (args:a)->( a.sbj*(a.min,a.max) ) +
   //    lexer.Constant(")");
   this->set(S("root.Expression.OpenPostfixTildeCmd"), SymbolDefinition::create({}, {
     {S("term"), ConcatTerm::create({}, {
@@ -1487,9 +1463,7 @@ void StandardFactory::createSubjectProductionModule()
   //                    lexer.Constant("(") + sbj2*(frc2,1) + lexer.Constant(")") ||
   //                    lexer.Constant("[") + sbj3*(frc3,1) + lexer.Constant("]");
   this->set(S("root.Subject.Sbj"), SymbolDefinition::create({}, {
-    {S("term"), AlternateTerm::create({
-      {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM)}
-    }, {
+    {S("term"), AlternateTerm::create({}, {
       {S("filter"), PARSE_REF(S("args.fltr"))},
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("args.sbj1")) }}),
@@ -1558,9 +1532,7 @@ void StandardFactory::createSubjectProductionModule()
   //     prod (fltr:filter=null, cnsts:keywords=null) as
   //     @filter(fltr) lexer.Identifier || Literal || heap.ConstantKeywordGroup(cnsts);
   this->set(S("root.Subject.Parameter"), SymbolDefinition::create({}, {
-    {S("term"), AlternateTerm::create({
-      {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM)}
-    }, {
+    {S("term"), AlternateTerm::create({}, {
       {S("filter"), PARSE_REF(S("args.fltr"))},
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Identifier")) }}),
@@ -1591,9 +1563,7 @@ void StandardFactory::createSubjectProductionModule()
   //     @filter(fltr) lexer.IntLiteral || lexer.FloatLiteral || lexer.CharLiteral || lexer.StringLiteral ||
   //                   lexer.CustomLiteral;
   this->set(S("root.Subject.Literal"), SymbolDefinition::create({}, {
-    {S("term"), AlternateTerm::create({
-      {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM)}
-    }, {
+    {S("term"), AlternateTerm::create({}, {
       {S("filter"), PARSE_REF(S("args.fltr"))},
       {S("terms"), List::create({}, {
         TokenTerm::create({{ S("tokenId"), TiInt::create(ID_GENERATOR->getId(S("LexerDefs.IntLiteral"))) }}),
@@ -1672,8 +1642,7 @@ void StandardFactory::createModifierProductionDefinitions()
     {S("baseRef"), PARSE_REF(S("module.base.FunctionalExp")) }
   }, {
     {S("vars"), Map::create({}, {
-      {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP | TermFlags::ONE_ROUTE_TERM)},
-      {S("pty2"), std::make_shared<TiInt>(1)},
+      {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
       {S("dup"), TiInt::create(1)},
       {S("fltr2"), TiInt::create(2)}
      })}
@@ -1692,9 +1661,7 @@ void StandardFactory::createModifierProductionDefinitions()
   this->createProdGroup(S("root.Modifier.SubjectCmdGrp"), {});
   // Modifier.Phrase
   this->set(S("root.Modifier.Phrase"), SymbolDefinition::create({}, {
-    {S("term"), AlternateTerm::create({
-      {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM)}
-    }, {
+    {S("term"), AlternateTerm::create({}, {
       {S("terms"), List::create({}, {
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.CmdGroup")) }}),
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Expression")) }})

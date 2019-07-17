@@ -62,12 +62,8 @@ namespace Core::Data::Grammar
  * ERROR_SYNC_TERM: Specifies that the given term is an error sync term, which
  *                  means that in the case of syntax errors the parser should
  *                  wait at that term for a sync token.
- * ONE_ROUTE_TERM: Specifies that the given multi-route term (alternate or
- *                 multiply terms) only allows one route to be accepted. If a
- *                 route is found the state machine will not try to test the
- *                 lower priority routes.
  */
-s_enum(TermFlags, ERROR_SYNC_TERM=(1<<16), ONE_ROUTE_TERM=(1<<17));
+s_enum(TermFlags, ERROR_SYNC_TERM=(1<<16));
 
 /**
  * @brief An enumeration used to define symbol flags.
@@ -179,6 +175,7 @@ template <class T> SharedPtr<T> cloneInherited(SharedPtr<T> const &obj)
 #include "List.h"
 #include "Map.h"
 #include "Module.h"
+#include "LexerModule.h"
 
 // Character Groups
 #include "CharGroupUnit.h"

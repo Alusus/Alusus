@@ -236,7 +236,6 @@ void Factory::createCommand(
       auto sectionTerm = this->createCommandSection(&section);
       sectionTerm->setFlags(TiInt::create(Processing::ParsingFlags::PASS_ITEMS_UP));
       sectionTerms->add(MultiplyTerm::create({
-        {S("priority"), TiInt::create(1)},
         {S("flags"), section.flags},
         {S("min"), section.min},
         {S("max"), section.max}
@@ -265,7 +264,6 @@ SharedPtr<Term> Factory::createCommandSection(CommandSection const *section)
     auto args = List::create();
     for (auto arg: section->args) {
       args->add(MultiplyTerm::create({
-        {S("priority"), TiInt::create(1)},
         {S("flags"), arg.flags},
         {S("min"), arg.min},
         {S("max"), arg.max}
@@ -301,7 +299,6 @@ void Factory::createStatementVariation(
   auto segList = List::create();
   for (auto segment: segments) {
     segList->add(MultiplyTerm::create({
-      {S("priority"), TiInt::create(1)},
       {S("flags"), TiInt::create(Processing::ParsingFlags::PASS_ITEMS_UP)},
       {S("min"), segment.min},
       {S("max"), segment.max}
@@ -327,9 +324,7 @@ void Factory::createProdGroup(Char const *qualifier, std::initializer_list<Share
   for (auto prod: prods) prodTerms->add(ReferenceTerm::create({{ S("reference"), prod }}));
 
   this->set(qualifier, SymbolDefinition::create({}, {
-    {S("term"), AlternateTerm::create({
-      {S("flags"), TiInt::create(TermFlags::ONE_ROUTE_TERM)}
-    }, {
+    {S("term"), AlternateTerm::create({}, {
       {S("terms"), prodTerms}
     })},
     {S("handler"), Processing::Handlers::GenericParsingHandler::create()}

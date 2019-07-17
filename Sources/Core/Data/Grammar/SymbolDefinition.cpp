@@ -23,7 +23,6 @@ SymbolDefinition::~SymbolDefinition()
   if (this->base != 0) this->detachFromBase();
   this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::DESTROY, 0);
   RESET_OWNED_SHAREDPTR(this->baseRef);
-  RESET_OWNED_SHAREDPTR(this->priority);
   RESET_OWNED_SHAREDPTR(this->flags);
   RESET_OWNED_SHAREDPTR(this->term);
   RESET_OWNED_SHAREDPTR(this->varDefs);
@@ -73,10 +72,6 @@ void SymbolDefinition::inheritFromParent()
   if ((this->ownership & SymbolDefinition::Element::HANDLER) == 0) {
     this->handler = this->base->getBuildHandler();
   }
-  if ((this->ownership & SymbolDefinition::Element::PRIORITY) == 0) {
-    this->priority = cloneInherited(this->base->getPriority());
-    OWN_SHAREDPTR(this->priority);
-  }
   if ((this->ownership & SymbolDefinition::Element::FLAGS) == 0) {
     this->flags = cloneInherited(this->base->getFlags());
     OWN_SHAREDPTR(this->flags);
@@ -98,7 +93,6 @@ void SymbolDefinition::removeInheritted()
   if ((this->ownership & SymbolDefinition::Element::VAR_DEFS) == 0) this->varDefs.reset();
   if ((this->ownership & SymbolDefinition::Element::VARS) == 0) this->vars.reset();
   if ((this->ownership & SymbolDefinition::Element::HANDLER) == 0) this->handler.reset();
-  if ((this->ownership & SymbolDefinition::Element::PRIORITY) == 0) this->priority.reset();
   if ((this->ownership & SymbolDefinition::Element::FLAGS) == 0) this->flags.reset();
   if ((this->ownership & SymbolDefinition::Element::ATTRIBUTES) == 0) this->attributes.reset();
   if ((this->ownership & SymbolDefinition::Element::MODIFIER_TRANS) == 0) this->modifierTranslations.reset();
@@ -124,10 +118,6 @@ void SymbolDefinition::onParentElementChanged(SymbolDefinition *obj, SymbolDefin
     }
     if ((elmt & SymbolDefinition::Element::HANDLER) == 0) {
       this->handler = this->base->getBuildHandler();
-    }
-    if ((elmt & SymbolDefinition::Element::PRIORITY) == 0) {
-      this->priority = cloneInherited(this->base->getPriority());
-      OWN_SHAREDPTR(this->priority);
     }
     if ((elmt & SymbolDefinition::Element::FLAGS) == 0) {
       this->flags = cloneInherited(this->base->getFlags());

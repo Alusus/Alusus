@@ -57,8 +57,6 @@ class Module : public SharedMapBase<TiObject, Node>,
 
   private: Word ownership = 0;
 
-  // TODO: Add the other dimensions.
-
 
   //============================================================================
   // Signals & Slots

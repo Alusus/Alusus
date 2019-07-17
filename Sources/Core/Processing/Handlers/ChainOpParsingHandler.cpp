@@ -22,8 +22,7 @@ void ChainOpParsingHandler::addData(SharedPtr<TiObject> const &data, Parser *par
 {
   if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
     if (state->refTermLevel(levelIndex).getPosId() > 1) {
-      auto myData = this->prepareToModifyData(data, state, levelIndex);
-      auto container = myData.ti_cast_get<Containing<TiObject>>();
+      auto container = data.ti_cast_get<Containing<TiObject>>();
       if (container == 0) {
         throw EXCEPTION(InvalidArgumentException, S("data"),
                         S("Invalid object type received from chain op production"),
@@ -35,31 +34,17 @@ void ChainOpParsingHandler::addData(SharedPtr<TiObject> const &data, Parser *par
       }
       container->setElement(0, state->getData(levelIndex).get());
 
-      auto myMetadata = myData.ti_cast_get<Data::Ast::MetaHaving>();
+      auto myMetadata = data.ti_cast_get<Data::Ast::MetaHaving>();
       auto srcMetadata = ti_cast<Data::Ast::MetaHaving>(container->getElement(0));
       if (myMetadata != 0 && srcMetadata != 0) {
         myMetadata->setSourceLocation(srcMetadata->findSourceLocation());
       }
 
-      state->setData(myData, levelIndex);
+      state->setData(data, levelIndex);
       return;
     }
   }
   GenericParsingHandler::addData(data, parser, state, levelIndex);
-}
-
-
-TioSharedPtr ChainOpParsingHandler::prepareToModifyData(
-  TioSharedPtr const &data, ParserState *state, Int levelIndex
-) {
-  // There is an edge case in which this is not accurate. If the state is shared at this level
-  // but not at the level where data is originated then we'll be unnecessarily cloning data.
-  // This is ok since it's an edge case and will only result in performance hit; the data will
-  // still be valid.
-  if (state->isDataShared(levelIndex)) {
-    return Core::Data::Ast::clone(data);
-  }
-  return data;
 }
 
 } } } // namespace

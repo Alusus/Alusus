@@ -49,8 +49,6 @@ class ParserTermLevel
 
   private: TiObject *param2;
 
-  private: TiObject *param3;
-
   private: TiObject *flags;
 
 
@@ -67,7 +65,6 @@ class ParserTermLevel
     term(level.getTerm()),
     param1(level.getParam1()),
     param2(level.getParam2()),
-    param3(level.getParam3()),
     flags(level.getFlags())
   {
   }
@@ -142,21 +139,6 @@ class ParserTermLevel
     return this->param2;
   }
 
-  /**
-   * @brief Set a third parameter for the level's term.
-   * This is used for optimization purposes, to avoid tracing the term's
-   * parameters everytime the level is revisited. This is needed mainly for
-   * concat terms, alternate terms, as well as multiply terms.
-   */
-  protected: void setParam3(TiObject *p)
-  {
-    this->param3 = p;
-  }
-  public: TiObject* getParam3() const
-  {
-    return this->param3;
-  }
-
   protected: void setFlags(TiObject *f)
   {
     this->flags = f;
@@ -172,7 +154,6 @@ class ParserTermLevel
     this->setPosId(src->getPosId());
     this->param1 = src->getParam1();
     this->param2 = src->getParam2();
-    this->param3 = src->getParam3();
     this->flags = src->getFlags();
   }
 

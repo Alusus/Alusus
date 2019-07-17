@@ -70,6 +70,11 @@ Scope [Main.Statements.StmtList]
  GenericCommand do [Main.Do]
   args: List
    Token: LexerDefs.Identifier ("do")
+   Identifier: s [Main.Subject.Identifier]
+  modifiers: NULL
+ GenericCommand do [Main.Do]
+  args: List
+   Token: LexerDefs.Identifier ("do")
    Bracket () [Main.Subject.Sbj]
     operand: LinkOperator : [Main.Expression.LowerLinkExp]
      first: Identifier: s [Main.Subject.Identifier]
@@ -133,6 +138,11 @@ Scope [Main.Statements.StmtList]
        operand: AdditionOperator + [Main.Expression.AddExp]
         first: Identifier: b [Main.Subject.Identifier]
         second: Identifier: c [Main.Subject.Identifier]
+    GenericCommand do [Main.Do]
+     args: List
+      Token: LexerDefs.Identifier ("do")
+      Identifier: s [Main.Subject.Identifier]
+     modifiers: NULL
   modifiers: NULL
  AssignmentOperator = [Main.Expression.AssignmentExp]
   first: Identifier: a [Main.Subject.Identifier]

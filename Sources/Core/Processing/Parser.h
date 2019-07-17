@@ -60,23 +60,8 @@ class Parser : public TiObject
 
   private: std::vector<Data::Grammar::ParsingDimension*> parsingDimensions;
 
-  /**
-   * @brief The array of current states.
-   *
-   * This vector contains the array of the states that are currently active
-   * in the system.
-   */
-  private: std::list<ParserState*> states;
-
-  /**
-   * @brief A temp state to use for route computation.
-   *
-   * This is defined for performance improving purposes to avoid creating a
-   * new state every time a route computation is to be done.
-   */
+  private: SharedPtr<ParserState> state;
   private: ParserState tempState;
-
-  private: DecisionNodePool decisionNodes;
 
   /**
    * @brief Specifies whether an UnexpectedTokenNotice has already been raised.
@@ -170,7 +155,7 @@ class Parser : public TiObject
   public: SharedPtr<TiObject> endParsing(Data::SourceLocationRecord &endSourceLocation);
 
   /// Try to fold out of the grammar tree.
-  public: void tryCompleteFoldout(StateIterator si);
+  public: void tryCompleteFoldout(ParserState *state);
 
   /// Process the given token by updating the states.
   public: void handleNewToken(Data::Token const *token);
@@ -179,24 +164,24 @@ class Parser : public TiObject
   public: void flushApprovedNotices();
 
   /// Apply the received token on a specific state.
-  private: void processState(Data::Token const *token, StateIterator si);
+  private: void processState(Data::Token const *token, ParserState *state);
 
   /// Apply the received token on a token term.
-  private: void processTokenTerm(Data::Token const *token, StateIterator si);
+  private: void processTokenTerm(Data::Token const *token, ParserState *state);
 
   /// Apply the received token on a duplicate term.
-  private: void processMultiplyTerm(Data::Token const *token, StateIterator si);
+  private: void processMultiplyTerm(Data::Token const *token, ParserState *state);
 
   /// Apply the received token on an alternative term.
-  private: void processAlternateTerm(Data::Token const *token, StateIterator si);
+  private: void processAlternateTerm(Data::Token const *token, ParserState *state);
 
   /// Apply the received token on a concat term.
-  private: void processConcatTerm(Data::Token const *token, StateIterator si);
+  private: void processConcatTerm(Data::Token const *token, ParserState *state);
 
   /// Apply the received token on a reference term.
-  private: void processReferenceTerm(Data::Token const *token, StateIterator si);
+  private: void processReferenceTerm(Data::Token const *token, ParserState *state);
 
-  private: void enterParsingDimension(Data::Token const *token, Int parseDimIndex, StateIterator si);
+  private: void enterParsingDimension(Data::Token const *token, Int parseDimIndex, ParserState *state);
 
   /// Release all states and their data, but not the definitions.
   public: void clear();
@@ -207,22 +192,15 @@ class Parser : public TiObject
   /// @{
 
   /// Compute the list of possible routes to take at a duplicate term.
-  private: void computePossibleMultiplyRoutes(Data::Token const *token, ParserState *state);
-  private: Bool computeInnerMultiplyRoute(
-    Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm
-  );
-  private: Bool computeOuterMultiplyRoute(
-    Data::Token const *token, ParserState *state, Data::Grammar::MultiplyTerm *multiplyTerm, TiInt *priority
-  );
-
+  private: Int determineMultiplyRoute(Data::Token const *token, ParserState *state);
 
   /// Compute the list of possible routes to take at an alternative term.
-  private: void computePossibleAlternativeRoutes(Data::Token const *token, ParserState *state);
+  private: Int determineAlternateRoute(Data::Token const *token, ParserState *state);
 
   private: Int matchParsingDimensionEntry(Data::Token const *token);
 
   /// Test the route taken by the given state.
-  private: Int testState(Data::Token const *token, ParserState *state);
+  private: void testState(Data::Token const *token, ParserState *state);
 
   /// Test the given token against a single level within the test state.
   private: void testStateLevel(Data::Token const *token, ParserState *state);
@@ -248,17 +226,6 @@ class Parser : public TiObject
 
   /// @name Utility Functions
   /// @{
-
-  /// Create a new state object.
-  private: StateIterator createState();
-
-  /// Duplicate the given state.
-  private: StateIterator duplicateState(
-    StateIterator si, Data::Token const *token, Int tokensToLive, Int levelCount=-1
-  );
-
-  /// Delete a state from the states stack.
-  private: void deleteState(StateIterator si, ParserStateTerminationCause stc);
 
   private: void pushStateTermLevel(ParserState *state, Data::Grammar::Term *term, Word posId, Data::Token const *token);
 
@@ -305,54 +272,6 @@ class Parser : public TiObject
   private: void processTrailingModifiers(ParserState *state);
 
   private: void cancelTrailingModifiers(ParserState *state);
-
-  /// @}
-
-  /// @name Branch Management Functions
-  /// @{
-
-  public: Int getStateCount() const
-  {
-    return this->states.size();
-  }
-
-  /// Check whether there is only one state.
-  public: Bool hasSoloState() const
-  {
-    return !this->states.empty() && (this->states.front() == this->states.back());
-  }
-
-  /**
-   * @brief Check whether a given state is in a position to dominate all states.
-   * When a state dominates, it forces other states to be dropped. For a state
-   * to dominate it needs to be a successful state and it should be the highest
-   * priority among successful states.
-   */
-  public: Bool canStateDominate(ParserState *state) const;
-
-  /**
-   * @brief Check whether the given state can be abandoned.
-   * A state can be abandoned if there is a higher priority state that is
-   * successful.
-   */
-  public: Bool canAbandonState(ParserState *state) const;
-
-  /**
-   * @brief If possible, drop all states except the given one.
-   * @return true if the operation is successful, false if the state is not
-   *         qualified to dominate.
-   * @sa canStateDominate()
-   */
-  public: Bool dominateState(ParserState *state);
-
-  /**
-   * @brief Abandon the given state if possible.
-   * A state can be abandoned if there is a higher priority state that is
-   * successful.
-   * @return true if successful, false if there is no successful higher
-   *         priority state.
-   */
-  public: Bool abandonState(ParserState *state);
 
   /// @}
 

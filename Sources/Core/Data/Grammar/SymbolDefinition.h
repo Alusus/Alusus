@@ -43,7 +43,7 @@ class SymbolDefinition : public Node,
    * constructors.
    */
   public: s_enum(Element,
-    PARENT_REF=1, TERM=2, VAR_DEFS=4, VARS=8, HANDLER=16, PRIORITY=32, FLAGS=64, ATTRIBUTES=128, MODIFIER_TRANS=256,
+    PARENT_REF=1, TERM=2, VAR_DEFS=4, VARS=8, HANDLER=16, FLAGS=32, ATTRIBUTES=64, MODIFIER_TRANS=128,
     ALL=static_cast<Word>(-1)
   );
 
@@ -66,8 +66,6 @@ class SymbolDefinition : public Node,
   private: SharedPtr<Reference> baseRef;
 
   private: SymbolDefinition *base = 0;
-
-  private: TioSharedPtr priority;
 
   /**
      * @brief Flags for parsing and code generation features.
@@ -102,7 +100,6 @@ class SymbolDefinition : public Node,
   IMPLEMENT_BINDING(Binding,
     (id, TiWord, VALUE, setId(value), &id),
     (baseRef, Reference, SHARED_REF, setBaseRef(value), baseRef.get()),
-    (priority, TiObject, SHARED_REF, setPriority(value), priority.get()),
     (flags, TiObject, SHARED_REF, setFlags(value), flags.get())
   );
 
@@ -173,34 +170,6 @@ class SymbolDefinition : public Node,
   private: void removeInheritted();
 
   private: void onParentElementChanged(SymbolDefinition *obj, SymbolDefinition::ChangeOp op, Word elmt);
-
-  public: void setPriority(TioSharedPtr const &p)
-  {
-    if (p != 0 && !p->isA<TiInt>() && !p->isDerivedFrom<Reference>()) {
-      throw EXCEPTION(InvalidArgumentException, S("p"), S("Must be of type TiInt or Reference."));
-    }
-    UPDATE_OWNED_SHAREDPTR(this->priority, p);
-    this->ownership |= SymbolDefinition::Element::PRIORITY;
-    this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::PRIORITY);
-  }
-
-  private: void setPriority(TiObject *p)
-  {
-    this->setPriority(getSharedPtr(p));
-  }
-
-  public: void resetPriority()
-  {
-    RESET_OWNED_SHAREDPTR(this->priority);
-    if (this->base != 0) this->priority = this->base->getPriority();
-    this->ownership &= ~SymbolDefinition::Element::PRIORITY;
-    this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::PRIORITY);
-  }
-
-  public: TioSharedPtr const& getPriority() const
-  {
-    return this->priority;
-  }
 
   /**
      * @brief Set the flags for parsing and code generation features.

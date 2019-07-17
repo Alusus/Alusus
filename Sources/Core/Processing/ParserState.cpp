@@ -29,8 +29,7 @@ ParserState::ParserState() :
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1),
-  errorSyncBlockPairs(0),
-  decisionNodeIndex(-1)
+  errorSyncBlockPairs(0)
 {
   this->grammarContext.setRoot(0);
   this->grammarContext.setModule(0);
@@ -53,8 +52,7 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1),
-  errorSyncBlockPairs(0),
-  decisionNodeIndex(-1)
+  errorSyncBlockPairs(0)
 {
   this->termStack.resize(0);
   this->prodStack.resize(0);
@@ -79,8 +77,7 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1),
-  errorSyncBlockPairs(0),
-  decisionNodeIndex(-1)
+  errorSyncBlockPairs(0)
 {
   this->termStack.resize(0);
   this->prodStack.resize(0);
@@ -252,7 +249,6 @@ void ParserState::pushTermLevel(Data::Grammar::Term *term)
     Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(term);
     this->topTermLevelCache->setParam1(this->grammarContext.getMultiplyTermMax(multiplyTerm));
     this->topTermLevelCache->setParam2(this->grammarContext.getMultiplyTermMin(multiplyTerm));
-    this->topTermLevelCache->setParam3(this->grammarContext.getMultiplyTermPriority(multiplyTerm));
   }
 }
 
@@ -488,16 +484,6 @@ TiInt* ParserState::getMultiplyTermMin(Int levelOffset) const
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isA<Data::Grammar::MultiplyTerm>());
   return static_cast<TiInt*>(level->getParam2());
-}
-
-
-TiInt* ParserState::getMultiplyTermPriority(Int levelOffset) const
-{
-  const ParserTermLevel *level;
-  if (levelOffset == -1) level = &this->refTopTermLevel();
-  else level = &this->refTermLevel(levelOffset);
-  ASSERT(level->getTerm()->isA<Data::Grammar::MultiplyTerm>());
-  return static_cast<TiInt*>(level->getParam3());
 }
 
 

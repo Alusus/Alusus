@@ -288,7 +288,6 @@ Bool FunctionParsingHandler::processExpnameModifier(
   Int levelOffset = -state->getTopProdTermLevelCount();
   Core::Data::Ast::Definition *definition = 0;
   if (state->getData(levelOffset)->isDerivedFrom<Core::Data::Ast::Definition>()) {
-    this->prepareToModifyData(state, levelOffset);
     definition = state->getData(levelOffset).s_cast_get<Core::Data::Ast::Definition>();
   }
 
@@ -319,15 +318,6 @@ Bool FunctionParsingHandler::processExpnameModifier(
       state->setData(newFunction, levelOffset);
     }
   } else {
-    // We need to clone the function before making changes to it.
-    if (definition != 0) {
-      auto clonedFunction = Core::Data::Ast::clone(getSharedPtr(function));
-      definition->setTarget(clonedFunction);
-      function = clonedFunction.s_cast_get<Spp::Ast::Function>();
-    } else {
-      this->prepareToModifyData(state, levelOffset);
-      function = state->getData(levelOffset).ti_cast_get<Spp::Ast::Function>();
-    }
     function->setName(param->getValue());
   }
 
@@ -341,7 +331,6 @@ Bool FunctionParsingHandler::processUnknownModifier(
   // Add an unknown modifier to the definition.
   auto symbolDef = state->refTopProdLevel().getProd();
   Int levelOffset = -state->getTopProdTermLevelCount();
-  this->prepareToModifyData(state, levelOffset);
   auto definition = state->getData(levelOffset).ti_cast_get<Core::Data::Ast::Definition>();
   if (definition != 0) {
     Core::Data::Ast::translateModifier(symbolDef, modifierData.get());

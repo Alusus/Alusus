@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Processing { namespace Handlers
+namespace Core::Processing::Handlers
 {
 
 void GenericCommandParsingHandler::onProdStart(Parser *parser, ParserState *state, Data::Token const *token)
@@ -29,9 +29,6 @@ Bool GenericCommandParsingHandler::onIncomingModifier(
   Int levelOffset = -state->getTopProdTermLevelCount();
   auto command = state->getData(levelOffset).ti_cast_get<Data::Ast::GenericCommand>();
   ASSERT(command != 0);
-  this->prepareToModifyData(state, levelOffset);
-  command = state->getData(levelOffset).ti_cast_get<Data::Ast::GenericCommand>();
-  ASSERT(command != 0);
   command->addModifier(modifierData);
   return true;
 }
@@ -44,30 +41,10 @@ void GenericCommandParsingHandler::addData(
     auto command = state->getData(levelIndex).ti_cast_get<Data::Ast::GenericCommand>();
     ASSERT(command != 0);
     ASSERT(command->getProdId() == UNKNOWN_ID);
-    this->prepareToModifyData(state, levelIndex);
-    command = state->getData(levelIndex).ti_cast_get<Data::Ast::GenericCommand>();
-    ASSERT(command != 0);
     command->addArg(data);
   } else {
     GenericParsingHandler::addData(data, parser, state, levelIndex);
   }
 }
 
-
-void GenericCommandParsingHandler::prepareToModifyData(ParserState *state, Int levelIndex)
-{
-  if (state->isAProdRoot(levelIndex)) {
-    if (state->isDataShared(levelIndex)) {
-      // Duplicate the data.
-      auto command = state->getData(levelIndex).ti_cast<Data::Ast::GenericCommand>();
-      if (command != 0) {
-        auto newCommand = Core::Data::Ast::clone(command);
-        state->setData(newCommand, levelIndex);
-      }
-    }
-  } else {
-    GenericParsingHandler::prepareToModifyData(state, levelIndex);
-  }
-}
-
-} } } // namespace
+} // namespace

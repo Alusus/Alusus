@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_PARSERSTATE_H
 #define CORE_PROCESSING_PARSERSTATE_H
 
-namespace Core { namespace Processing
+namespace Core::Processing
 {
 
 // TODO: DOC
@@ -127,8 +127,6 @@ class ParserState
    */
   private: Int tokensToLive;
 
-  private: Int decisionNodeIndex;
-
   private: Data::Grammar::List *errorSyncBlockPairs;
 
   private: std::vector<Int> errorSyncBlockStack;
@@ -137,12 +135,12 @@ class ParserState
   //============================================================================
   // Constructors / Destructor
 
-  protected: ParserState();
+  public: ParserState();
 
-  protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                          Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::Module *rootModule);
 
-  protected: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
+  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
                          Word reservedVarCount, Word reservedVarLevelCount, const Data::Grammar::Context *context);
 
   public: ~ParserState()
@@ -217,16 +215,6 @@ class ParserState
   public: ParserProcessingStatus getPrevProcessingStatus() const
   {
     return this->prevProcessingStatus;
-  }
-
-  protected: void setDecisionNodeIndex(Int i)
-  {
-    this->decisionNodeIndex = i;
-  }
-
-  protected: Int getDecisionNodeIndex() const
-  {
-    return this->decisionNodeIndex;
   }
 
   /// @}
@@ -439,12 +427,6 @@ class ParserState
     return this->dataStack.get(levelOffset);
   }
 
-  /// Checks whether another SharedPtr is sharing the data at a given level.
-  public: Bool isDataShared(Int levelOffset = -1) const
-  {
-    return this->dataStack.isShared(levelOffset);
-  }
-
   /// @}
 
   /// @name Modifier Stack Functions
@@ -518,8 +500,6 @@ class ParserState
   public: TiInt* getMultiplyTermMax(Int levelOffset = -1) const;
 
   public: TiInt* getMultiplyTermMin(Int levelOffset = -1) const;
-
-  public: TiInt* getMultiplyTermPriority(Int levelOffset = -1) const;
 
   public: TiInt* getTermFlags(Int levelOffset = -1) const;
 
@@ -654,6 +634,6 @@ class ParserState
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif
