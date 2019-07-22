@@ -1,47 +1,48 @@
 import "globals.alusus";
 import "Srl/String.alusus";
 
-@merge def Srl : module
+@merge module Srl
 {
-  def Console: module
+  module Console
   {
-    def getChar: @expname[getchar] function () => Int[32];
-    def putChar: @expname[putchar] function (character: Int[32]) => Int[32];
+    @expname[getchar]
+    func getChar(): Int[32];
+    
+    @expname[putchar]
+    func putChar(character: Int[32]): Int[32];
 
-    def print: @expname[printf] function (format: ptr[Word[8]], args: ...any) => Int[32];
+    @expname[printf] func print(format: ptr[Word[8]], args: ...any): Int[32];
 
-    def print: function (i: Int[64])  => Int[32]
-    {
+    func print(i: Int[64]): Int[32] {
       return print("%lld", i);
     };
 
-    def print: function (f: Float[64])  => Int[32]
-    {
+    func print(f: Float[64]): Int[32] {
       return print("%f", f);
     };
 
-    def print: function (f: Float[64], d: Int)  => Int[32]
-    {
+    func print(f: Float[64], d: Int): Int[32] {
       return print("%.*f", d, f);
     };
 
-    def scan: @expname[scanf] function (format: ptr[Word[8]], args: ...any) => Int[32];
-    def getInt: function () => Int
-    {
+    @expname[scanf]
+    func scan(format: ptr[Word[8]], args: ...any): Int[32];
+
+    func getInt(): Int {
       def i: Int;
       i = 0;
       scan("%d", i~ptr);
       return i;
     };
-    def getFloat: function () => Float
-    {
+
+    func getFloat(): Float {
       def i: Float;
       i = 0;
       scan("%f", i~ptr);
       return i;
     };
-    def getString: function (str: ptr[array[Char]], count: Word) => Void
-    {
+
+    func getString(str: ptr[array[Char]], count: Word): Void {
       def i: Word;
       def c: Char;
       i = 0;
@@ -56,107 +57,104 @@ import "Srl/String.alusus";
       str~cnt(i) = 0;
     };
 
-    def Style: module {
-      use Srl;
-
-      def styleStr: array[char, 100];
-      def reset: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[0m", 0h1b);
-          return styleStr~ptr;
+    module Style {
+      use Srl;      
+      func reset(): ptr[Char] {
+          return "\x1b[0m";
       };
-      def bright: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[1m", 0h1b);
-          return styleStr~ptr;
+      
+      func bright(): ptr[Char] {
+          return "\x1b[1m";
       };
-      def dim: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[2m", 0h1b);
-          return styleStr~ptr;
+      
+      func dim(): ptr[Char] {
+          return "\x1b[2m";
       };
-      def italic: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[3m", 0h1b);
-          return styleStr~ptr;
+      
+      func italic(): ptr[Char] {
+          return "\x1b[3m";
       };
-      def underscore: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[4m", 0h1b);
-          return styleStr~ptr;
+      
+      func underscore(): ptr[Char] {
+          return "\x1b[4m";
       };
-      def blink: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[5m", 0h1b);
-          return styleStr~ptr;
+      
+      func blink(): ptr[Char] {
+          return "\x1b[5m";
       };
-      def reverse: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[7m", 0h1b);
-          return styleStr~ptr;
+      
+      func reverse(): ptr[Char] {
+          return "\x1b[7m";
       };
-      def hidden: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[8m", 0h1b);
-          return styleStr~ptr;
+      
+      func hidden(): ptr[Char] {
+          return "\x1b[8m";
       };
 
-      def fgBlack: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[30m", 0h1b);
-          return styleStr~ptr;
+      
+      func fgBlack(): ptr[Char] {
+          return "\x1b[30m";
       };
-      def fgRed: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[31m", 0h1b);
-          return styleStr~ptr;
+      
+      func fgRed(): ptr[Char] {
+          return "\x1b[31m";
       };
-      def fgGreen: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[32m", 0h1b);
-          return styleStr~ptr;
+      
+      func fgGreen(): ptr[Char] {
+          return "\x1b[32m";
       };
-      def fgYellow: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[33m", 0h1b);
-          return styleStr~ptr;
+      
+      func fgYellow(): ptr[Char] {
+          return "\x1b[33m";
       };
-      def fgBlue: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[34m", 0h1b);
-          return styleStr~ptr;
+      
+      func fgBlue(): ptr[Char] {
+          return "\x1b[34m";
       };
-      def fgMagenta: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[35m", 0h1b);
-          return styleStr~ptr;
+      
+      func fgMagenta(): ptr[Char] {
+          return "\x1b[35m";
       };
-      def fgCyan: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[36m", 0h1b);
-          return styleStr~ptr;
+      
+      func fgCyan(): ptr[Char] {
+          return "\x1b[36m";
       };
-      def fgWhite: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[37m", 0h1b);
-          return styleStr~ptr;
+      
+      func fgWhite(): ptr[Char] {
+          return "\x1b[37m";
       };
 
-      def bgBlack: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[40m", 0h1b);
-          return styleStr~ptr;
+      
+      func bgBlack(): ptr[Char] {
+          return "\x1b[40m";
       };
-      def bgRed: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[41m", 0h1b);
-          return styleStr~ptr;
+      
+      func bgRed(): ptr[Char] {
+          return "\x1b[41m";
       };
-      def bgGreen: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[42m", 0h1b);
-          return styleStr~ptr;
+      
+      func bgGreen(): ptr[Char] {
+          return "\x1b[42m";
       };
-      def bgYellow: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[43m", 0h1b);
-          return styleStr~ptr;
+      
+      func bgYellow(): ptr[Char] {
+          return "\x1b[43m";
       };
-      def bgBlue: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[44m", 0h1b);
-          return styleStr~ptr;
+      
+      func bgBlue(): ptr[Char] {
+          return "\x1b[44m";
       };
-      def bgMagenta: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[45m", 0h1b);
-          return styleStr~ptr;
+      
+      func bgMagenta(): ptr[Char] {
+          return "\x1b[45m";
       };
-      def bgCyan: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[46m", 0h1b);
-          return styleStr~ptr;
+      
+      func bgCyan(): ptr[Char] {
+          return "\x1b[46m";
       };
-      def bgWhite: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[47m", 0h1b);
-          return styleStr~ptr;
+      
+      func bgWhite(): ptr[Char] {
+          return "\x1b[47m";
       };
     };
   };
